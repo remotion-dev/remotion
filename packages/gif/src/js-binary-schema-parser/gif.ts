@@ -1,4 +1,5 @@
-import {conditional} from './parser';
+import type {Application, Frame, ParsedGif} from '../gifuct/types';
+import {conditional, loop} from './parser';
 import type {Stream} from './uint8-parser';
 import {
 	peekByte,
@@ -68,7 +69,7 @@ const gceSchema = conditional(
 			{terminator: readByte()},
 		],
 	},
-	(stream) => {
+	(stream: Stream) => {
 		const codes = peekBytes(2)(stream);
 		return codes[0] === 0x21 && codes[1] === 0xf9;
 	}
@@ -98,18 +99,21 @@ const imageSchema = conditional(
 			},
 			conditional(
 				{
-					lct: readArray(3, (stream, result, parent) => {
-						return 2 ** (parent.descriptor.lct.size + 1);
-					}),
+					lct: readArray(
+						3,
+						(_stream: Stream, _result: unknown, parent: Frame['image']) => {
+							return 2 ** (parent.descriptor.lct.size + 1);
+						}
+					),
 				},
-				(stream, result, parent) => {
+				(_stream: Stream, _result: unknown, parent: Frame['image']) => {
 					return parent.descriptor.lct.exists;
 				}
 			),
 			{data: [{minCodeSize: readByte()}, subBlocksSchema]},
 		],
 	},
-	(stream) => {
+	(stream: Stream) => {
 		return peekByte()(stream) === 0x2c;
 	}
 );
@@ -121,13 +125,13 @@ const textSchema = conditional(
 			{codes: readBytes(2)},
 			{blockSize: readByte()},
 			{
-				preData: (stream, result, parent) =>
+				preData: (stream: Stream, _result: unknown, parent: Frame['image']) =>
 					readBytes(parent.text.blockSize)(stream),
 			},
 			subBlocksSchema,
 		],
 	},
-	(stream) => {
+	(stream: Stream) => {
 		const codes = peekBytes(2)(stream);
 		return codes[0] === 0x21 && codes[1] === 0x01;
 	}
@@ -139,11 +143,17 @@ const applicationSchema = conditional(
 		application: [
 			{codes: readBytes(2)},
 			{blockSize: readByte()},
-			{id: (stream, result, parent) => readString(parent.blockSize)(stream)},
+			{
+				id: (
+					stream: Stream,
+					_result: unknown,
+					parent: Application['application']
+				) => readString(parent.blockSize)(stream),
+			},
 			subBlocksSchema,
 		],
 	},
-	(stream) => {
+	(stream: Stream) => {
 		const codes = peekBytes(2)(stream);
 		return codes[0] === 0x21 && codes[1] === 0xff;
 	}
@@ -154,7 +164,7 @@ const commentSchema = conditional(
 	{
 		comment: [{codes: readBytes(2)}, subBlocksSchema],
 	},
-	(stream) => {
+	(stream: Stream) => {
 		const codes = peekBytes(2)(stream);
 		return codes[0] === 0x21 && codes[1] === 0xfe;
 	}
@@ -180,15 +190,18 @@ export const GIF = [
 	},
 	conditional(
 		{
-			gct: readArray(3, (stream, result) => 2 ** (result.lsd.gct.size + 1)),
+			gct: readArray(
+				3,
+				(_stream, result: ParsedGif) => 2 ** (result.lsd.gct.size + 1)
+			),
 		},
-		(stream, result) => result.lsd.gct.exists
+		(_stream: Stream, result: ParsedGif) => result.lsd.gct.exists
 	),
 	// content frames
 	{
 		frames: loop(
 			[gceSchema, applicationSchema, commentSchema, imageSchema, textSchema],
-			(stream) => {
+			(stream: Stream) => {
 				const nextCode = peekByte()(stream);
 				// rather than check for a terminator, we should check for the existence
 				// of an ext or image block to avoid infinite loops
