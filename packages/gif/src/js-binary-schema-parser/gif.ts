@@ -1,4 +1,5 @@
 import {conditional} from './parser';
+import type {Stream} from './uint8-parser';
 import {
 	peekByte,
 	peekBytes,
@@ -12,7 +13,7 @@ import {
 
 // a set of 0x00 terminated subblocks
 const subBlocksSchema = {
-	blocks: (stream) => {
+	blocks: (stream: Stream) => {
 		const terminator = 0x00;
 		const chunks = [];
 		const streamSize = stream.data.length;

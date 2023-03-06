@@ -1,103 +1,94 @@
+/* eslint-disable no-bitwise */
 // Default stream and parsers for Uint8TypedArray data type
-export const buildStream = (uint8Data: Uint8Array) => {
-	return {
-		data: uint8Data,
-		pos: 0,
-	};
+
+import type {GIF} from './gif';
+
+export type Stream = {
+	data: Uint8Array;
+	pos: number;
 };
 
-export const readByte = () => {
-	return function (stream) {
-		return stream.data[stream.pos++];
-	};
+export const buildStream = (uint8Data: Uint8Array) => ({
+	data: uint8Data,
+	pos: 0,
+});
+
+export const readByte = () => (stream: Stream) => {
+	return stream.data[stream.pos++];
 };
 
-export const peekByte = (...arguments) => {
-	const offset =
-		arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-	return function (stream) {
+export const peekByte =
+	(offset = 0) =>
+	(stream: Stream) => {
 		return stream.data[stream.pos + offset];
 	};
+
+export const readBytes = (length: number) => (stream: Stream) => {
+	// eslint-disable-next-line no-return-assign
+	return stream.data.subarray(stream.pos, (stream.pos += length));
 };
 
-export const readBytes = (length) => {
-	return function (stream) {
-		return stream.data.subarray(stream.pos, (stream.pos += length));
-	};
+export const peekBytes = (length: number) => (stream: Stream) => {
+	return stream.data.subarray(stream.pos, stream.pos + length);
 };
 
-export const peekBytes = (length) => {
-	return function (stream) {
-		return stream.data.subarray(stream.pos, stream.pos + length);
-	};
+export const readString = (length: number) => (stream: Stream) => {
+	return Array.from(readBytes(length)(stream))
+		.map((value) => String.fromCharCode(value))
+		.join('');
 };
 
-export const readString = (length) => {
-	return function (stream) {
-		return Array.from(readBytes(length)(stream))
-			.map((value) => {
-				return String.fromCharCode(value);
-			})
-			.join('');
-	};
+export const readUnsigned = (littleEndian: boolean) => (stream: Stream) => {
+	const bytes = readBytes(2)(stream);
+	return littleEndian ? (bytes[1] << 8) + bytes[0] : (bytes[0] << 8) + bytes[1];
 };
 
-export const readUnsigned = (littleEndian) => {
-	return function (stream) {
-		const bytes = readBytes(2)(stream);
-		return littleEndian
-			? (bytes[1] << 8) + bytes[0]
-			: (bytes[0] << 8) + bytes[1];
-	};
-};
-
-export const readArray = (byteSize, totalOrFunc) => {
-	return function (stream, result, parent) {
+export const readArray =
+	(byteSize: number, totalOrFunc) => (stream: Stream, result, parent) => {
 		const total =
 			typeof totalOrFunc === 'function'
 				? totalOrFunc(stream, result, parent)
 				: totalOrFunc;
+
 		const parser = readBytes(byteSize);
 		const arr = new Array(total);
-
 		for (let i = 0; i < total; i++) {
 			arr[i] = parser(stream);
 		}
 
 		return arr;
 	};
-};
 
-const subBitsTotal = function subBitsTotal(bits, startIndex, length) {
+const subBitsTotal = (
+	bits: boolean[],
+	startIndex: number,
+	length: number
+): number => {
 	let result = 0;
-
 	for (let i = 0; i < length; i++) {
-		result += bits[startIndex + i] && 2 ** (length - i - 1);
+		result += Number(bits[startIndex + i] && 2 ** (length - i - 1));
 	}
 
 	return result;
 };
 
-export const readBits = (schema) => {
-	return function (stream) {
-		const _byte = readByte()(stream); // convert the byte to bit array
+export const readBits = (schema: typeof GIF) => (stream: Stream) => {
+	const byte = readByte()(stream);
+	// convert the byte to bit array
+	const bits = new Array<boolean>(8);
+	for (let i = 0; i < 8; i++) {
+		bits[7 - i] = Boolean(byte & (1 << i));
+	}
 
-		const bits = new Array(8);
+	// convert the bit array to values based on the schema
+	return Object.keys(schema).reduce((res, key) => {
+		const def = schema[key];
+		if (def.length) {
+			res[key] = subBitsTotal(bits, def.index, def.length);
+		} else {
+			res[key] = bits[def.index];
+		}
 
-		for (let i = 0; i < 8; i++) {
-			bits[7 - i] = Boolean(_byte & (1 << i));
-		} // convert the bit array to values based on the schema
-
-		return Object.keys(schema).reduce((res, key) => {
-			const def = schema[key];
-
-			if (def.length) {
-				res[key] = subBitsTotal(bits, def.index, def.length);
-			} else {
-				res[key] = bits[def.index];
-			}
-
-			return res;
-		}, {});
-	};
+		return res;
+	}, {} as Record<string, number>);
 };
