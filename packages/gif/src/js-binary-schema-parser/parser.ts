@@ -11,6 +11,8 @@ export const parse = <T extends Record<string, T>>(
 		schema.forEach((partSchema) => {
 			return parse(stream, partSchema, result, parent);
 		});
+	} else if (typeof schema === 'function') {
+		schema(stream, result, parent, parse);
 	} else {
 		// @ts-expect-error
 		const key = Object.keys(schema)[0];
