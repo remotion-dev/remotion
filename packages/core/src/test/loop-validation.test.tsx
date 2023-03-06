@@ -4,12 +4,14 @@
 import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {useContext} from 'react';
+import {renderToString} from 'react-dom/server';
 import {describe, expect, test} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {CompositionManager} from '../CompositionManager.js';
 import {Loop} from '../loop/index.js';
 import {RemotionRoot} from '../RemotionRoot.js';
 import {expectToThrow} from './expect-to-throw.js';
+import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 const Wrapper: React.FC<{
 	children: React.ReactNode;
@@ -65,14 +67,16 @@ describe('Loop-validation render should throw with invalid props', () => {
 			);
 		});
 		test('It should throw if Loop has non-integer durationInFrames', () => {
-			expectToThrow(
-				() =>
-					render(
+			expect(
+				renderToString(
+					<WrapSequenceContext>
 						<Wrapper>
 							<Loop durationInFrames={1.1}>hi</Loop>
 						</Wrapper>
-					),
-				/The "durationInFrames" prop of the <Loop \/> component must be an integer, but got 1.1./
+					</WrapSequenceContext>
+				)
+			).toBe(
+				'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex">hi</div>'
 			);
 		});
 		test('It should throw if Loop has a negative duration', () => {

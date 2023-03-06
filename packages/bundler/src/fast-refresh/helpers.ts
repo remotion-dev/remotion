@@ -159,11 +159,11 @@ function scheduleUpdate() {
 	};
 
 	// Only trigger refresh if the webpack HMR state is idle
-	if (module.hot?.status() === 'idle') {
+	if (__webpack_module__.hot?.status() === 'idle') {
 		return;
 	}
 
-	module.hot?.addStatusHandler((status) => {
+	__webpack_module__.hot?.addStatusHandler((status) => {
 		if (status === 'idle') {
 			execute();
 		}

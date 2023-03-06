@@ -100,10 +100,11 @@ const innerRenderStill = async ({
 		'in the `config` object of `renderStill()`',
 		false
 	);
-	Internals.validateDurationInFrames(
-		composition.durationInFrames,
-		'in the `config` object passed to `renderStill()`'
-	);
+	Internals.validateDurationInFrames({
+		durationInFrames: composition.durationInFrames,
+		component: 'in the `config` object passed to `renderStill()`',
+		allowFloats: false,
+	});
 	validateNonNullImageFormat(imageFormat);
 	Internals.validateFrame(frame, composition.durationInFrames);
 	const stillFrame = convertToPositiveFrameIndex({
