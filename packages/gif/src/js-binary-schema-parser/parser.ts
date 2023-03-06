@@ -1,4 +1,7 @@
-export const parse = function parse(stream, schema) {
+import type {GIF} from './gif';
+import type {Stream} from './uint8-parser';
+
+export const parse = function parse(stream: Stream, schema: typeof GIF) {
 	const result =
 		arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 	const parent =
@@ -24,16 +27,16 @@ export const parse = function parse(stream, schema) {
 	return result;
 };
 
-export const conditional = (schema, conditionFunc) => {
-	return function (stream, result, parent, parse) {
+export const conditional = (schema: typeof GIF, conditionFunc) => {
+	return function (stream: Stream, result, parent, parse) {
 		if (conditionFunc(stream, result, parent)) {
 			parse(stream, schema, result, parent);
 		}
 	};
 };
 
-export const loop = (schema, continueFunc) => {
-	return function (stream, result, parent, parse) {
+export const loop = (schema: typeof GIF, continueFunc) => {
+	return function (stream: Stream, result, parent, parse) {
 		const arr = [];
 		let lastStreamPos = stream.pos;
 

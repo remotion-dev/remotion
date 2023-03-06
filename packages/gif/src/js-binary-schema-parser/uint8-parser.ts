@@ -1,6 +1,7 @@
 /* eslint-disable no-bitwise */
 // Default stream and parsers for Uint8TypedArray data type
 
+import type {Frame} from '../gifuct/types';
 import type {GIF} from './gif';
 
 export type Stream = {
@@ -44,7 +45,11 @@ export const readUnsigned = (littleEndian: boolean) => (stream: Stream) => {
 };
 
 export const readArray =
-	(byteSize: number, totalOrFunc) => (stream: Stream, result, parent) => {
+	<T>(
+		byteSize: number,
+		totalOrFunc: number | ((st: Stream, r: T, p: unknown) => number)
+	) =>
+	(stream: Stream, result: T, parent: Frame['image']) => {
 		const total =
 			typeof totalOrFunc === 'function'
 				? totalOrFunc(stream, result, parent)
@@ -72,23 +77,28 @@ const subBitsTotal = (
 	return result;
 };
 
-export const readBits = (schema: typeof GIF) => (stream: Stream) => {
-	const byte = readByte()(stream);
-	// convert the byte to bit array
-	const bits = new Array<boolean>(8);
-	for (let i = 0; i < 8; i++) {
-		bits[7 - i] = Boolean(byte & (1 << i));
-	}
-
-	// convert the bit array to values based on the schema
-	return Object.keys(schema).reduce((res, key) => {
-		const def = schema[key];
-		if (def.length) {
-			res[key] = subBitsTotal(bits, def.index, def.length);
-		} else {
-			res[key] = bits[def.index];
+export const readBits =
+	(schema: typeof GIF) =>
+	(stream: Stream): Record<string, number | boolean> => {
+		const byte = readByte()(stream);
+		// convert the byte to bit array
+		const bits = new Array<boolean>(8);
+		for (let i = 0; i < 8; i++) {
+			bits[7 - i] = Boolean(byte & (1 << i));
 		}
 
-		return res;
-	}, {} as Record<string, number>);
-};
+		// convert the bit array to values based on the schema
+		return Object.keys(schema).reduce((res, key) => {
+			const def = schema[key];
+			if (def.length) {
+				res[key] = subBitsTotal(bits, def.index, def.length);
+			} else {
+				res[key] = bits[def.index];
+			}
+
+			return res;
+		}, {} as Record<string, number | boolean>) as Record<
+			string,
+			number | boolean
+		>;
+	};
