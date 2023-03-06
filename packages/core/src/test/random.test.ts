@@ -1,5 +1,5 @@
 import {describe, expect, test} from 'vitest';
-import {random} from '../random';
+import {random} from '../random.js';
 
 describe('Should support negative random numbers', () => {
 	test('test with -1', () => expect(random(-1)).toBe(random(-1)));

@@ -1,21 +1,21 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
-import {getAbsoluteSrc} from '../absolute-src';
+import {getAbsoluteSrc} from '../absolute-src.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
-} from '../audio/use-audio-frame';
-import {CompositionManager} from '../CompositionManager';
-import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css';
-import {Img} from '../Img';
-import {Internals} from '../internals';
-import {random} from '../random';
-import {SequenceContext} from '../Sequence';
-import {useTimelinePosition} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-current-frame';
-import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
-import {evaluateVolume} from '../volume-prop';
-import {getExpectedMediaFrameUncorrected} from './get-current-time';
-import type {OffthreadVideoImageFormat, OffthreadVideoProps} from './props';
+} from '../audio/use-audio-frame.js';
+import {CompositionManager} from '../CompositionManager.js';
+import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
+import {Img} from '../Img.js';
+import {Internals} from '../internals.js';
+import {random} from '../random.js';
+import {SequenceContext} from '../SequenceContext.js';
+import {useTimelinePosition} from '../timeline-position-state.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
+import {evaluateVolume} from '../volume-prop.js';
+import {getExpectedMediaFrameUncorrected} from './get-current-time.js';
+import type {OffthreadVideoImageFormat, OffthreadVideoProps} from './props.js';
 
 const DEFAULT_IMAGE_FORMAT: OffthreadVideoImageFormat = 'jpeg';
 

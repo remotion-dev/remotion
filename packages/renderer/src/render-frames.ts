@@ -6,7 +6,7 @@ import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
-import {makeDownloadMap} from './assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -494,6 +494,10 @@ const innerRenderFrames = ({
 
 type CleanupFn = () => void;
 
+/**
+ * @description Renders a series of images using Puppeteer and computes information for mixing audio.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/render-frames)
+ */
 export const renderFrames = (
 	options: RenderFramesOptions
 ): Promise<RenderFramesOutput> => {
@@ -556,6 +560,10 @@ export const renderFrames = (
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
 		const cleanup: CleanupFn[] = [];
+		if (!options.downloadMap) {
+			cleanup.push(() => cleanDownloadMap(downloadMap));
+		}
+
 		const onError = (err: Error) => {
 			reject(err);
 		};

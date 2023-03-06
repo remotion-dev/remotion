@@ -1,14 +1,14 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
-import {useRemotionEnvironment} from '../get-environment';
-import {Loop} from '../loop';
-import {Sequence} from '../Sequence';
-import {useVideoConfig} from '../use-video-config';
-import {validateMediaProps} from '../validate-media-props';
-import {validateStartFromProps} from '../validate-start-from-props';
-import {DurationsContext} from './duration-state';
-import type {RemotionMainVideoProps, RemotionVideoProps} from './props';
-import {VideoForDevelopment} from './VideoForDevelopment';
-import {VideoForRendering} from './VideoForRendering';
+import {useRemotionEnvironment} from '../get-environment.js';
+import {Loop} from '../loop/index.js';
+import {Sequence} from '../Sequence.js';
+import {useVideoConfig} from '../use-video-config.js';
+import {validateMediaProps} from '../validate-media-props.js';
+import {validateStartFromProps} from '../validate-start-from-props.js';
+import {DurationsContext} from './duration-state.js';
+import type {RemotionMainVideoProps, RemotionVideoProps} from './props.js';
+import {VideoForDevelopment} from './VideoForDevelopment.js';
+import {VideoForRendering} from './VideoForRendering.js';
 
 const VideoForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLVideoElement,
@@ -94,4 +94,8 @@ const forward = forwardRef as <T, P = {}>(
 	) => React.ReactElement | null
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
+/**
+ * @description allows you to include a video file in your Remotion project. It wraps the native HTMLVideoElement.
+ * @see [Documentation](https://www.remotion.dev/docs/video)
+ */
 export const Video = forward(VideoForwardingFunction);

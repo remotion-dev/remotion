@@ -1,11 +1,11 @@
-import './asset-types';
-import {Clipper} from './Clipper';
-import type {TAsset, TCompMetadata} from './CompositionManager';
-import type {StaticFile} from './get-static-files';
-import {useIsPlayer} from './is-player';
-import {checkMultipleRemotionVersions} from './multiple-versions-warning';
-import type {ClipRegion} from './NativeLayers';
-import {Null} from './Null';
+import './asset-types.js';
+import {Clipper} from './Clipper.js';
+import type {TAsset, TCompMetadata} from './CompositionManager.js';
+import type {StaticFile} from './get-static-files.js';
+import {useIsPlayer} from './is-player.js';
+import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
+import type {ClipRegion} from './NativeLayers.js';
+import {Null} from './Null.js';
 
 declare global {
 	interface Window {
@@ -58,42 +58,54 @@ export type BundleState =
 
 checkMultipleRemotionVersions();
 
-export * from './AbsoluteFill';
-export * from './audio';
-export {cancelRender} from './cancel-render';
-export * from './Composition';
-export {SmallTCompMetadata, TAsset, TCompMetadata} from './CompositionManager';
-export {Config, ConfigType} from './config';
-export {getInputProps} from './config/input-props';
-export {continueRender, delayRender} from './delay-render';
-export * from './easing';
-export * from './Folder';
-export * from './freeze';
-export {getStaticFiles, StaticFile} from './get-static-files';
-export * from './IFrame';
-export * from './Img';
-export * from './internals';
-export * from './interpolate';
-export {interpolateColors} from './interpolate-colors';
-export {Loop} from './loop';
-export {ClipRegion} from './NativeLayers';
-export {prefetch} from './prefetch';
-export {random, RandomSeed} from './random';
-export {registerRoot} from './register-root';
-export {Sequence} from './Sequence';
-export {Series} from './series';
-export * from './spring';
-export {staticFile} from './static-file';
-export * from './Still';
-export type {PlayableMediaTag} from './timeline-position-state';
-export {useCurrentFrame} from './use-current-frame';
-export * from './use-video-config';
-export * from './version';
-export * from './video';
-export * from './video-config';
+export * from './AbsoluteFill.js';
+export * from './audio/index.js';
+export {cancelRender} from './cancel-render.js';
+export * from './Composition.js';
+export {
+	SmallTCompMetadata,
+	TAsset,
+	TCompMetadata,
+} from './CompositionManager.js';
+export {Config, ConfigType} from './config.js';
+export {getInputProps} from './config/input-props.js';
+export {continueRender, delayRender} from './delay-render.js';
+export * from './easing.js';
+export * from './Folder.js';
+export * from './freeze.js';
+export {getStaticFiles, StaticFile} from './get-static-files.js';
+export * from './IFrame.js';
+export * from './Img.js';
+export * from './internals.js';
+export {interpolateColors} from './interpolate-colors.js';
+export * from './interpolate.js';
+export {Loop} from './loop/index.js';
+export {ClipRegion} from './NativeLayers.js';
+export {prefetch} from './prefetch.js';
+export {random, RandomSeed} from './random.js';
+export {registerRoot} from './register-root.js';
+export {Sequence} from './Sequence.js';
+export {Series} from './series/index.js';
+export * from './spring/index.js';
+export {staticFile} from './static-file.js';
+export * from './Still.js';
+export type {PlayableMediaTag} from './timeline-position-state.js';
+export {useCurrentFrame} from './use-current-frame.js';
+export * from './use-video-config.js';
+export * from './version.js';
+export * from './video-config.js';
+export * from './video/index.js';
 
 export const Experimental = {
+	/**
+	 * @description This is a special component that will cause Remotion to only partially capture the frame of the video.
+	 * @see [Documentation](https://www.remotion.dev/docs/clipper)
+	 */
 	Clipper,
+	/**
+	 * @description This is a special component, that, when rendered, will skip rendering the frame altogether.
+	 * @see [Documentation](https://www.remotion.dev/docs/null)
+	 */
 	Null,
 	useIsPlayer,
 };

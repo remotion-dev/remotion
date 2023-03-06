@@ -1,13 +1,17 @@
 import React, {useCallback} from 'react';
-import {useRemotionEnvironment} from '../get-environment';
-import {Sequence} from '../Sequence';
-import {validateMediaProps} from '../validate-media-props';
-import {validateStartFromProps} from '../validate-start-from-props';
-import {validateOffthreadVideoImageFormat} from '../validation/validate-offthreadvideo-image-format';
-import {OffthreadVideoForRendering} from './OffthreadVideoForRendering';
-import type {OffthreadVideoProps, RemotionMainVideoProps} from './props';
-import {VideoForDevelopment} from './VideoForDevelopment';
+import {useRemotionEnvironment} from '../get-environment.js';
+import {Sequence} from '../Sequence.js';
+import {validateMediaProps} from '../validate-media-props.js';
+import {validateStartFromProps} from '../validate-start-from-props.js';
+import {validateOffthreadVideoImageFormat} from '../validation/validate-offthreadvideo-image-format.js';
+import {OffthreadVideoForRendering} from './OffthreadVideoForRendering.js';
+import type {OffthreadVideoProps, RemotionMainVideoProps} from './props.js';
+import {VideoForDevelopment} from './VideoForDevelopment.js';
 
+/**
+ * @description This method imports and displays a video, similar to <Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
+ * @see [Documentation](https://www.remotion.dev/docs/offthreadvideo)
+ */
 export const OffthreadVideo: React.FC<
 	Omit<OffthreadVideoProps & RemotionMainVideoProps, 'loop'>
 > = (props) => {

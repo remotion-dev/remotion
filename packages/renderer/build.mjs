@@ -1,7 +1,16 @@
 import {execSync} from 'child_process';
-import {copyFileSync, existsSync} from 'fs';
+import {
+	copyFileSync,
+	existsSync,
+	lstatSync,
+	mkdirSync,
+	readdirSync,
+	rmSync,
+	unlinkSync,
+} from 'fs';
 import os from 'os';
 import path from 'path';
+import {VERSION} from 'remotion';
 
 const isWin = os.platform() === 'win32';
 const where = isWin ? 'where' : 'which';
@@ -16,9 +25,9 @@ const targets = [
 	'x86_64-unknown-linux-musl',
 	'aarch64-unknown-linux-gnu',
 	'x86_64-unknown-linux-gnu',
-	'aarch64-unknown-linux-musl',
 	'aarch64-apple-darwin',
 	'x86_64-apple-darwin',
+	'aarch64-unknown-linux-musl',
 ];
 
 export const getTarget = () => {
@@ -196,5 +205,75 @@ for (const arch of archs) {
 		},
 	});
 	const copyInstructions = copyDestinations[arch];
+
+	const libDir = path.join(
+		copyDestinations[arch].dir,
+		'ffmpeg',
+		'remotion',
+		'lib'
+	);
+	const binDir = path.join(
+		copyDestinations[arch].dir,
+		'ffmpeg',
+		'remotion',
+		'bin'
+	);
+	const files = readdirSync(libDir);
+	for (const file of files) {
+		if (file.endsWith('.a')) {
+			unlinkSync(path.join(libDir, file));
+		} else if (file.endsWith('.dylib') && file.split('.').length !== 3) {
+			unlinkSync(path.join(libDir, file));
+		} else if (file.endsWith('.so') && file.split('.').length !== 3) {
+			unlinkSync(path.join(libDir, file));
+		} else if (file.endsWith('.la')) {
+			unlinkSync(path.join(libDir, file));
+		} else if (file.endsWith('.def')) {
+			unlinkSync(path.join(libDir, file));
+		} else if (file.includes('libvpx')) {
+			unlinkSync(path.join(libDir, file));
+		} else if (file.endsWith('.lib')) {
+			unlinkSync(path.join(libDir, file));
+		}
+	}
+
+	const binFiles = readdirSync(binDir);
+	for (const file of binFiles) {
+		if (!file.includes('ffmpeg') && !file.includes('ffprobe')) {
+			unlinkSync(path.join(binDir, file));
+		}
+	}
+
+	rmSync(path.join(libDir, 'pkgconfig'), {recursive: true});
+	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'share'), {
+		recursive: true,
+	});
+	rmSync(
+		path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'include'),
+		{
+			recursive: true,
+		}
+	);
+	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'bindings.rs'), {
+		recursive: true,
+	});
 	copyFileSync(copyInstructions.from, copyInstructions.to);
+
+	execSync('npm pack', {
+		cwd: copyDestinations[arch].dir,
+		stdio: 'ignore',
+	});
+
+	const filename = `remotion-${path.basename(
+		copyDestinations[arch].dir
+	)}-${VERSION}.tgz`;
+	const tgzPath = path.join(
+		process.cwd(),
+		copyDestinations[arch].dir,
+		filename
+	);
+
+	const filesize = lstatSync(tgzPath).size;
+	console.log('Zipped size:', (filesize / 1000000).toFixed(2) + 'MB');
+	unlinkSync(tgzPath);
 }

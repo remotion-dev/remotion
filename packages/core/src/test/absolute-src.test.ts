@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import {describe, expect, test} from 'vitest';
-import {getAbsoluteSrc} from '../absolute-src';
+import {getAbsoluteSrc} from '../absolute-src.js';
 
 describe('Absolute src should behave as expected', () => {
 	test('Get localhost:8080', () => {

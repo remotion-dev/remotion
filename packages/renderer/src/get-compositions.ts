@@ -85,6 +85,10 @@ const innerGetCompositions = async (
 	return result as TCompMetadata[];
 };
 
+/**
+ * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
+ */
 export const getCompositions = async (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsConfig

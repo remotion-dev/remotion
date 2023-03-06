@@ -4,6 +4,7 @@ import {
 	RenderInternals,
 	renderStill,
 } from '@remotion/renderer';
+import {cleanDownloadMap} from '@remotion/renderer/dist/assets/download-map';
 import {existsSync, unlinkSync} from 'fs';
 import {tmpdir} from 'os';
 import path from 'path';
@@ -25,22 +26,24 @@ test(
 			(c) => c.id === 'react-svg'
 		) as TCompMetadata;
 
-		const testOut = path.join(tmpdir(), 'path/to/still.png');
+		const folder = path.join(tmpdir(), 'path', 'to');
+		const testOut = path.join(folder, 'still.png');
 
+		const downloadMap = RenderInternals.makeDownloadMap();
 		const {port, close} = await RenderInternals.serveStatic(bundled, {
 			onDownload: () => undefined,
 			port: null,
 			onError: (err) => {
 				throw err;
 			},
-			downloadMap: RenderInternals.makeDownloadMap(),
+			downloadMap,
 			remotionRoot: process.cwd(),
 		});
 
 		const serveUrl = `http://localhost:${port}`;
 		const fileOSRoot = path.parse(__dirname).root;
 
-		expect(() =>
+		await expect(() =>
 			renderStill({
 				composition,
 				output: testOut,
@@ -51,7 +54,7 @@ test(
 			/Cannot use frame 500: Duration of composition is 300, therefore the highest frame that can be rendered is 299/
 		);
 
-		expect(() =>
+		await expect(() =>
 			renderStill({
 				composition,
 				output: process.platform === 'win32' ? fileOSRoot : '/var',
@@ -59,7 +62,7 @@ test(
 			})
 		).rejects.toThrow(/already exists, but is not a file/);
 
-		expect(() =>
+		await expect(() =>
 			renderStill({
 				composition,
 				output: 'src/index.ts',
@@ -79,6 +82,9 @@ test(
 
 		expect(existsSync(testOut)).toBe(true);
 		unlinkSync(testOut);
+		RenderInternals.deleteDirectory(bundled);
+		RenderInternals.deleteDirectory(folder);
+		cleanDownloadMap(downloadMap);
 
 		await close();
 	},

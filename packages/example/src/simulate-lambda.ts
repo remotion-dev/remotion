@@ -49,6 +49,8 @@ const start = async () => {
 		numberOfGifLoops: null,
 		audioCodec: 'aac',
 	});
+
+	RenderInternals.deleteDirectory(bundled);
 };
 
 start();

@@ -1,4 +1,5 @@
 import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {registerCleanupJob} from './cleanup-before-quit';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
@@ -26,6 +27,7 @@ export const listCompositionsCommand = async (
 	Log.verbose('Entry point:', file, 'reason:', reason);
 
 	const downloadMap = RenderInternals.makeDownloadMap();
+	registerCleanupJob(() => RenderInternals.cleanDownloadMap(downloadMap));
 
 	await loadConfig(remotionRoot);
 
@@ -51,6 +53,8 @@ export const listCompositionsCommand = async (
 			publicDir,
 		});
 
+	registerCleanupJob(() => cleanupBundle());
+
 	const compositions = await getCompositions(bundled, {
 		browserExecutable,
 		chromiumOptions,
@@ -63,7 +67,5 @@ export const listCompositionsCommand = async (
 
 	printCompositions(compositions);
 
-	await RenderInternals.cleanDownloadMap(downloadMap);
-	await cleanupBundle();
 	Log.verbose('Cleaned up', downloadMap.assetDir);
 };

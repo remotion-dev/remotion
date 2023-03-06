@@ -411,6 +411,7 @@ module.exports = {
         "lambda/custom-destination",
         "lambda/checklist",
         "lambda/webhooks",
+        "lambda/feb-2023-incident",
         {
           type: "category",
           label: "Troubleshooting",
@@ -465,6 +466,7 @@ module.exports = {
         "troubleshooting/rosetta",
         "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",
+        "troubleshooting/could-not-be-parsed-as-a-value-list",
       ],
     },
     {
@@ -500,7 +502,7 @@ module.exports = {
     {
       type: "category",
       label: "Migration guides",
-      items: ["3-0-migration", "2-0-migration"],
+      items: ["4-0-migration", "3-0-migration", "2-0-migration"],
     },
     {
       type: "category",
@@ -517,6 +519,8 @@ module.exports = {
         "miscellaneous/typescript-aliases",
         "miscellaneous/render-in-browser",
         "miscellaneous/changing-temp-dir",
+        "miscellaneous/automatic-duration",
+        "miscellaneous/video-formats",
       ],
     },
     {

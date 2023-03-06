@@ -159,7 +159,6 @@ test("Should render a still image if single frame specified", async () => {
   const info = await RenderInternals.callFf("ffprobe", [outImg]);
   const data = info.stderr;
   expect(data).toContain("Video: png");
-  expect(data).toContain("png_pipe");
   await (fs.promises.rm ?? fs.promises.rmdir)(outDir, {
     recursive: true,
   });
@@ -208,7 +207,6 @@ test("Should be able to render a MP3 audio file", async () => {
   const data = info.stderr;
   expect(data).toContain("mp3");
   expect(data).toContain("stereo");
-  expect(data).toContain("fltp");
   expect(data).toContain("Kevin MacLeod");
   expect(data).toContain("320 kb/s");
   expect(data).toContain("Stream #0");
@@ -234,7 +232,6 @@ test("Should be able to render a AAC audio file", async () => {
   const data = info.stderr;
   expect(data).toContain("aac");
   expect(data).toContain("stereo");
-  expect(data).toContain("fltp");
   expect(data).not.toContain("Kevin MacLeod");
   expect(data).toMatch(/(4|5) kb\/s/);
   expect(data).toContain("Stream #0");

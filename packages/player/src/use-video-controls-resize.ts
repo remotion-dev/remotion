@@ -1,12 +1,14 @@
 import {useMemo} from 'react';
-import {fullscreenIconSize, ICON_SIZE} from './icons';
-import {VOLUME_SLIDER_WIDTH} from './MediaVolumeSlider';
-import {X_PADDING, X_SPACER} from './PlayerControls';
+import {fullscreenIconSize, ICON_SIZE} from './icons.js';
+import {VOLUME_SLIDER_WIDTH} from './MediaVolumeSlider.js';
 
 type Info = {
 	maxTimeLabelWidth: number | null;
 	displayVerticalVolumeSlider: boolean;
 };
+
+export const X_SPACER = 10;
+export const X_PADDING = 12;
 
 export const useVideoControlsResize = ({
 	allowFullscreen: allowFullScreen,
