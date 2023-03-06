@@ -32,6 +32,7 @@
 		}
 	},
 	"dependencies": {
+		"lru_map": "0.4.1",
 		"remotion": "3.3.62"
 	},
 	"devDependencies": {

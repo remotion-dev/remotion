@@ -569,6 +569,7 @@ importers:
       '@types/react-dom': 18.0.10
       esbuild: 0.16.12
       eslint: 8.25.0
+      lru_map: 0.4.1
       prettier: 2.6.2
       prettier-plugin-organize-imports: ^2.3.4
       react: 18.0.0
@@ -578,6 +579,7 @@ importers:
       typescript: ^4.7.0
       webpack: 5.74.0
     dependencies:
+      lru_map: 0.4.1
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
@@ -17253,6 +17255,10 @@ packages:
     dependencies:
       yallist: 4.0.0
 
+  /lru_map/0.4.1:
+    resolution: {integrity: sha512-I+lBvqMMFfqaV8CJCISjI3wbjmwVu/VyOoU7+qtu9d7ioW5klMgsTTiUOUp+DJvfTTzKXoPbyC6YfgkNcyPSOg==}
+    dev: false
+
   /lz-string/1.4.4:
     resolution: {integrity: sha512-0ckx7ZHRPqb0oUm8zNr+90mtf9DQB60H1wMCjBtfi62Kl3a7JbHob6gA2bC+xRvZoOL+1hzUK8jeuEIQE8svEQ==}
     hasBin: true
@@ -24836,8 +24842,8 @@ packages:
       '@webassemblyjs/ast': 1.11.1
       '@webassemblyjs/wasm-edit': 1.11.1
       '@webassemblyjs/wasm-parser': 1.11.1
-      acorn: 8.8.1
-      acorn-import-assertions: 1.8.0_acorn@8.8.1
+      acorn: 8.8.0
+      acorn-import-assertions: 1.8.0_acorn@8.8.0
       browserslist: 4.21.4
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.10.0
