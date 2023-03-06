@@ -41,10 +41,11 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Noise](/docs/noise)
 - [Path animations](/docs/paths)
 
-## Animation Libraries
+## Animation helpers
 
 - [Remotion Animated](https://www.remotion-animated.dev/)
 - [remotion-transition-series](https://github.com/marcusstenbeck/remotion-transition-series)
+- [remotion-time](https://github.com/fwextensions/remotion-time) - use seconds instead of frame
 
 ## Full projects
 
@@ -78,6 +79,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Conference talk in React](https://github.com/pomber/record-talk-with-remotion)
 - [Conference talk in React #2](https://github.com/JonnyBurger/react-summit-talk)
 - [Twitch stinger example](https://github.com/JonnyBurger/ledevevent-stinger)
+- [DevContainer Template](https://github.com/openscript/remotion-devcontainer-template)
 
 ## Videos
 

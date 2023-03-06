@@ -6,6 +6,7 @@ import {
 	renderMedia,
 } from '@remotion/renderer';
 import {chalk} from './chalk';
+import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
@@ -185,6 +186,8 @@ export const benchmarkCommand = async (
 			steps: ['bundling'],
 		});
 
+	registerCleanupJob(() => cleanupBundle());
+
 	const puppeteerInstance = await browserInstance;
 
 	const comps = await getCompositions(bundleLocation, {
@@ -279,6 +282,4 @@ export const benchmarkCommand = async (
 	}
 
 	Log.info();
-
-	await cleanupBundle();
 };

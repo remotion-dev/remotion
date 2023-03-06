@@ -14,6 +14,13 @@ export const articles = [
     crumb: "Version Upgrade",
   },
   {
+    id: "4-0-migration",
+    title: "v4.0 Migration",
+    relativePath: "docs/4-0-migration.md",
+    compId: "articles-docs-4-0-migration",
+    crumb: "Version Upgrade",
+  },
+  {
     id: "absolute-fill",
     title: "<AbsoluteFill>",
     relativePath: "docs/absolute-fill.md",
@@ -693,6 +700,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "lambda/feb-2023-incident",
+    title: "Upgrade your Lambda functions to prevent breakage",
+    relativePath: "docs/lambda/feb-2023-incident.md",
+    compId: "articles-docs-lambda-feb-2023-incident",
+    crumb: "DevOps advisory",
+  },
+  {
     id: "getawsclient",
     title: "getAwsClient()",
     relativePath: "docs/lambda/getawsclient.md",
@@ -1043,6 +1057,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "miscellaneous/automatic-duration",
+    title: "Calculating the duration of a composition automatically",
+    relativePath: "docs/miscellaneous/automatic-duration.md",
+    compId: "articles-docs-miscellaneous-automatic-duration",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/changing-temp-dir",
     title: "Changing the temporary directory",
     relativePath: "docs/miscellaneous/changing-temp-dir.md",
@@ -1099,6 +1120,13 @@ export const articles = [
     relativePath: "docs/miscellaneous/ts-aliases.md",
     compId: "articles-docs-miscellaneous-ts-aliases",
     crumb: "How to",
+  },
+  {
+    id: "miscellaneous/video-formats",
+    title: "Which video formats does Remotion support?",
+    relativePath: "docs/miscellaneous/video-formats.md",
+    compId: "articles-docs-miscellaneous-video-formats",
+    crumb: "FAQ",
   },
   {
     id: "motion-blur/camera-motion-blur",
@@ -1918,6 +1946,13 @@ export const articles = [
     relativePath: "docs/troubleshooting/background-image.md",
     compId: "articles-docs-troubleshooting-background-image",
     crumb: "Common mistakes",
+  },
+  {
+    id: "troubleshooting/could-not-be-parsed-as-a-value-list",
+    title: "The source provided could not be parsed as a value list",
+    relativePath: "docs/troubleshooting/could-not-be-parsed-as-a-value-list.md",
+    compId: "articles-docs-troubleshooting-could-not-be-parsed-as-a-value-list",
+    crumb: "Browser quirks",
   },
   {
     id: "defaultprops-too-big",

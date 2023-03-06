@@ -1,11 +1,13 @@
-import {validateSpringDuration} from '../validation/validation-spring-duration';
-import {measureSpring} from './measure-spring';
-import type {SpringConfig} from './spring-utils';
-import {springCalculation} from './spring-utils';
+import {validateFrame} from '../validate-frame.js';
+import {validateFps} from '../validation/validate-fps.js';
+import {validateSpringDuration} from '../validation/validation-spring-duration.js';
+import {measureSpring} from './measure-spring.js';
+import type {SpringConfig} from './spring-utils.js';
+import {springCalculation} from './spring-utils.js';
 
 /**
- * Calculates a position based on physical parameters, start and end value, and time.
- * @link https://www.remotion.dev/docs/spring
+ * @description Calculates a position based on physical parameters, start and end value, and time.
+ * @see [Documentation](https://www.remotion.dev/docs/spring)
  * @param {number} frame The current time value. Most of the time you want to pass in the return value of useCurrentFrame.
  * @param {number} fps The framerate at which the animation runs. Pass in the value obtained by `useVideoConfig()`.
  * @param {?Object} config optional object that allows you to customize the physical properties of the animation.
@@ -36,6 +38,8 @@ export function spring({
 	durationRestThreshold?: number;
 }): number {
 	validateSpringDuration(durationInFrames);
+	validateFrame(frame, Infinity);
+	validateFps(fps, 'to spring()', false);
 
 	const durationRatio =
 		durationInFrames === undefined
@@ -68,5 +72,5 @@ export function spring({
 	return Math.max(spr.current, to);
 }
 
-export {measureSpring} from './measure-spring';
-export {SpringConfig} from './spring-utils';
+export {measureSpring} from './measure-spring.js';
+export {SpringConfig} from './spring-utils.js';

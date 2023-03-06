@@ -1,5 +1,12 @@
 import type {PreviewSize} from '@remotion/player';
-import React, {createContext, useCallback, useMemo, useState} from 'react';
+import React, {
+	createContext,
+	useCallback,
+	useContext,
+	useMemo,
+	useState,
+} from 'react';
+import {EditorZoomGesturesContext} from './editor-zoom-gestures';
 
 type PreviewSizeCtx = {
 	size: PreviewSize;
@@ -43,6 +50,8 @@ export const PreviewSizeProvider: React.FC<{
 		};
 	});
 
+	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
+
 	const setSize = useCallback(
 		(newValue: (prevState: PreviewSize) => PreviewSize) => {
 			setSizeState((prevState) => {
@@ -56,12 +65,20 @@ export const PreviewSizeProvider: React.FC<{
 
 	const previewSizeCtx: PreviewSizeCtx = useMemo(() => {
 		return {
-			size,
+			size: editorZoomGestures
+				? size
+				: {
+						size: size.size,
+						translation: {
+							x: 0,
+							y: 0,
+						},
+				  },
 			setSize,
 			translation,
 			setTranslation,
 		};
-	}, [setSize, size, translation, setTranslation]);
+	}, [editorZoomGestures, size, setSize, translation]);
 
 	return (
 		<PreviewSizeContext.Provider value={previewSizeCtx}>

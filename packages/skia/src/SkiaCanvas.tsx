@@ -10,6 +10,10 @@ type RemotionCanvasProps = CanvasProps & {
 	height: number;
 };
 
+/**
+ * @description A React Native Skia <Canvas /> component that wraps Remotion contexts.
+ * @see [Documentation](https://www.remotion.dev/docs/skia/skia-canvas)
+ */
 export const SkiaCanvas = ({
 	children,
 	height,

@@ -49,3 +49,19 @@ test('Guess extension for media - WAV', async () => {
 
 	expect(extension).toBe('wav');
 });
+
+test('Guess extension for media - MP3', async () => {
+	const extension = await guessExtensionForVideo({
+		src: path.join(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'example',
+			'public',
+			'music.mp3'
+		),
+	});
+
+	expect(extension).toBe('mp3');
+});

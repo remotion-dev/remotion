@@ -1,5 +1,5 @@
-import {truthy} from './truthy';
-import {VERSION} from './version';
+import {truthy} from './truthy.js';
+import {VERSION} from './version.js';
 
 export const checkMultipleRemotionVersions = () => {
 	if (typeof globalThis === 'undefined') {
@@ -11,7 +11,7 @@ export const checkMultipleRemotionVersions = () => {
 		(typeof window !== 'undefined' && window.remotion_imported);
 
 	if (alreadyImported) {
-		if (typeof window === 'undefined' && alreadyImported === VERSION) {
+		if (alreadyImported === VERSION) {
 			// Next.JS will reload the package and cause a server-side warning.
 			// It's okay if this happens during SSR in developement
 			return;

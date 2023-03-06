@@ -67,8 +67,8 @@ export const defaultFileExtensionMap: {
 	h264: {
 		default: 'mp4',
 		forAudioCodec: {
-			'pcm-16': {possible: ['mkv'], default: 'mkv'},
-			aac: {possible: ['mp4', 'mkv'], default: 'mp4'},
+			'pcm-16': {possible: ['mkv', 'mov'], default: 'mkv'},
+			aac: {possible: ['mp4', 'mkv', 'mov'], default: 'mp4'},
 		},
 	},
 	h265: {

@@ -9,9 +9,9 @@ import {
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-// eslint-disable-next-line no-restricted-imports
 import {Internals} from 'remotion';
 import {chalk} from './chalk';
+import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
 import {getResolvedAudioCodec} from './get-audio-codec';
@@ -53,6 +53,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	}
 
 	const downloadMap = RenderInternals.makeDownloadMap();
+	registerCleanupJob(() => RenderInternals.cleanDownloadMap(downloadMap));
 
 	if (parsedCli.frame) {
 		Log.error(
@@ -113,6 +114,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			publicDir,
 		}
 	);
+
+	registerCleanupJob(() => cleanupBundle());
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
@@ -193,8 +196,17 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	);
 
 	const outputDir = shouldOutputImageSequence
-		? absoluteOutputFile
-		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
+		? {dir: absoluteOutputFile, cleanup: false}
+		: {
+				dir: await fs.promises.mkdtemp(
+					path.join(os.tmpdir(), 'react-motion-render')
+				),
+				cleanup: true,
+		  };
+
+	if (outputDir.cleanup) {
+		registerCleanupJob(() => RenderInternals.deleteDirectory(outputDir.dir));
+	}
 
 	Log.verbose('Output dir', outputDir);
 
@@ -278,7 +290,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 					Log.info('\nDownloading asset... ', src);
 				}
 			},
-			outputDir,
+			outputDir: outputDir.dir,
 			serveUrl: urlOrBundle,
 			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 				ConfigInternals.Logging.getLogLevel(),
@@ -328,7 +340,10 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		},
 		puppeteerInstance,
 		onDownload,
-		downloadMap,
+		internal: {
+			downloadMap,
+			onCtrlCExit: registerCleanupJob,
+		},
 		onSlowestFrames: (slowestFrames) => {
 			Log.verbose();
 			Log.verbose(`Slowest frames:`);
@@ -351,17 +366,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	);
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
-
-	try {
-		await cleanupBundle();
-		await RenderInternals.cleanDownloadMap(downloadMap);
-
-		Log.verbose('Cleaned up', downloadMap.assetDir);
-	} catch (err) {
-		Log.warn('Could not clean up directory.');
-		Log.warn(err);
-		Log.warn('Do you have minimum required Node.js version?');
-	}
 
 	Log.info(
 		chalk.green(`\nYour ${codec === 'gif' ? 'GIF' : 'video'} is ready!`)

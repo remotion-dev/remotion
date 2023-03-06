@@ -77,6 +77,8 @@ const getMissedFramesforCodec = async () => {
       missedFrames++;
     }
   }
+  RenderInternals.deleteDirectory(outputDir);
+
   return missedFrames;
 };
 
