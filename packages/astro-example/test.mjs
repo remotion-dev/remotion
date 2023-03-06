@@ -5,6 +5,7 @@ import { VERSION } from "remotion/version";
 import { enableSkia } from "@remotion/skia/enable";
 import { Lottie } from "@remotion/lottie";
 import { MotionBlur } from "@remotion/motion-blur";
+import { ThreeCanvas } from "@remotion/three";
 import { Gif } from "@remotion/gif";
 
 const val = interpolate(1, [0, 1], [0, 100]);
@@ -15,5 +16,6 @@ assert(typeof VERSION === "string");
 assert(Boolean(enableSkia));
 assert(Boolean(Lottie));
 assert(Boolean(Gif));
+assert(Boolean(ThreeCanvas));
 
 console.log("ESM works!");

@@ -6,6 +6,7 @@ const { enableSkia } = require("@remotion/skia/enable");
 const { Lottie } = require("@remotion/lottie");
 const { Gif } = require("@remotion/gif");
 const { CameraMotionBlur } = require("@remotion/motion-blur");
+const { ThreeCanvas } = require("@remotion/three");
 
 const val = interpolate(1, [0, 1], [0, 100]);
 
@@ -16,5 +17,6 @@ assert(Boolean(enableSkia));
 assert(Boolean(Lottie));
 assert(Boolean(Gif));
 assert(Boolean(CameraMotionBlur));
+assert(Boolean(ThreeCanvas));
 
 console.log("ESM Wallaby works!");
