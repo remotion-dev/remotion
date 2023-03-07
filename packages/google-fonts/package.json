@@ -1,6 +1,6 @@
 {
   "name": "@remotion/google-fonts",
-  "version": "3.3.61",
+  "version": "3.3.63",
   "description": "Load Google Fonts in Remotion",
   "scripts": {
     "build": "pnpm run generate && rollup --config rollup.config.js",
@@ -10,7 +10,7 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "remotion": "3.3.61"
+    "remotion": "3.3.63"
   },
   "devDependencies": {
     "@types/css-font-loading-module": "^0.0.7",

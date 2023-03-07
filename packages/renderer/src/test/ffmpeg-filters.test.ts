@@ -29,9 +29,12 @@ test('Should create a basic filter correctly', () => {
 			channels: 1,
 			assetDuration: 10,
 		})
-	).toBe(
-		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:6.666667[a0]'
-	);
+	).toEqual({
+		filter:
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:6.666667[a0]',
+		pad_end: null,
+		pad_start: null,
+	});
 });
 test('Trim the end', () => {
 	expect(
@@ -42,9 +45,12 @@ test('Trim the end', () => {
 			channels: 1,
 			assetDuration: 10,
 		})
-	).toBe(
-		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:0.666667,apad=pad_len=128000[a0]'
-	);
+	).toEqual({
+		filter:
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:0.666667[a0]',
+		pad_end: 'apad=pad_len=128000',
+		pad_start: null,
+	});
 });
 
 test('Should handle trim correctly', () => {
@@ -59,9 +65,12 @@ test('Should handle trim correctly', () => {
 			channels: 1,
 			assetDuration: 10,
 		})
-	).toBe(
-		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000,apad=pad_len=128000[a0]'
-	);
+	).toEqual({
+		filter:
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000[a0]',
+		pad_end: 'apad=pad_len=128000',
+		pad_start: null,
+	});
 });
 
 test('Should add padding if audio is too short', () => {
@@ -76,9 +85,12 @@ test('Should add padding if audio is too short', () => {
 			channels: 1,
 			assetDuration: 1,
 		})
-	).toBe(
-		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000,apad=pad_len=128000[a0]'
-	);
+	).toEqual({
+		filter:
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000[a0]',
+		pad_end: 'apad=pad_len=128000',
+		pad_start: null,
+	});
 });
 
 test('Should handle delay correctly', () => {
@@ -95,9 +107,12 @@ test('Should handle delay correctly', () => {
 			channels: 1,
 			assetDuration: 1,
 		})
-	).toBe(
-		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000,adelay=2667|2667[a0]'
-	);
+	).toEqual({
+		filter:
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000[a0]',
+		pad_end: null,
+		pad_start: 'adelay=2667|2667',
+	});
 });
 
 test('Should offset multiple channels', () => {
@@ -113,16 +128,18 @@ test('Should offset multiple channels', () => {
 			channels: 3,
 			assetDuration: 1,
 		})
-	).toBe(
-		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000,adelay=2667|2667|2667|2667[a0]'
-	);
+	).toEqual({
+		filter:
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.333333:1.000000[a0]',
+		pad_end: null,
+		pad_start: 'adelay=2667|2667|2667|2667',
+	});
 });
 
 test('Should calculate pad correctly with a lot of playbackRate', () => {
 	const naturalDurationInSeconds = 1000 / 30 / 16;
 	const expectedPadLength =
 		(2000 / 30) * 48000 - naturalDurationInSeconds * 48000;
-
 	expect(
 		calculateFfmpegFilter({
 			fps: 30,
@@ -141,9 +158,10 @@ test('Should calculate pad correctly with a lot of playbackRate', () => {
 			channels: 1,
 			assetDuration: 33.333333,
 		})
-	).toBe(
-		'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:33.333333,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000,apad=pad_len=' +
-			expectedPadLength +
-			'[a0]'
-	);
+	).toEqual({
+		filter:
+			'[0:a]aformat=sample_fmts=s32:sample_rates=48000,atrim=0.000000:33.333333,atempo=2.00000,atempo=2.00000,atempo=2.00000,atempo=2.00000[a0]',
+		pad_end: `apad=pad_len=${expectedPadLength}`,
+		pad_start: null,
+	});
 });
