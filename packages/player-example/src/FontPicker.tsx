@@ -13,7 +13,17 @@ export const FontPicker: React.FC = () => {
 
 					loaded.then((l) => {
 						const info = l.getInfo();
-						console.log(info);
+						const styles = Object.keys(info.fonts);
+						console.log('Font', info.fontFamily, ' Styles', styles);
+						for (const style of styles) {
+							const weightObject = info.fonts[style as keyof typeof info.fonts];
+							const weights = Object.keys(weightObject);
+							console.log('- Style', style, 'supports weights', weights);
+							for (const weight of weights) {
+								const scripts = Object.keys(weightObject[weight]);
+								console.log('-- Weight', weight, 'supports scripts', scripts);
+							}
+						}
 					});
 				}}
 			>
