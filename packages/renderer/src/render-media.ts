@@ -76,7 +76,7 @@ export type RenderMediaOptions = {
 	composition: SmallTCompMetadata;
 	inputProps?: unknown;
 	crf?: number | null;
-	imageFormat?: 'png' | 'jpeg' | 'none';
+	imageFormat?: ImageFormat;
 	ffmpegExecutable?: FfmpegExecutable;
 	ffprobeExecutable?: FfmpegExecutable;
 	pixelFormat?: PixelFormat;
