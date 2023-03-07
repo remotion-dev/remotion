@@ -10,6 +10,7 @@ export default [
         format: "es",
         sourcemap: false,
         chunkFileNames: `[name].mjs`,
+        entryFileNames: `[name].mjs`,
       },
     ],
     external: ["remotion"],
