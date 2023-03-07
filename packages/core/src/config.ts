@@ -192,7 +192,9 @@ declare global {
 			/** Decide in which image format to render. Can be either 'jpeg' or 'png'.
 			 * PNG is slower, but supports transparency.
 			 */
-			readonly setImageFormat: (format: 'png' | 'jpeg' | 'none') => void;
+			readonly setImageFormat: (
+				format: 'png' | 'jpeg' | 'pdf' | 'none'
+			) => void;
 			/**
 			 * Render only a subset of a video.
 			 * Pass in a tuple [20, 30] to only render frames 20-30 into a video.
