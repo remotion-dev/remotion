@@ -50,14 +50,14 @@ const generate = async () => {
       require: `./dist/cjs/${removeWhitespace(unquote(font.family))}.cjs`,
       module: `./dist/esm/${removeWhitespace(unquote(font.family))}.mjs`,
       import: `./dist/esm/${removeWhitespace(unquote(font.family))}.mjs`,
-      types: `./dist/esm/${removeWhitespace(unquote(font.family))}.d.ts`,
+      types: `./dist/cjs/${removeWhitespace(unquote(font.family))}.d.ts`,
     };
   }
   read.exports["."] = {
     require: `./dist/cjs/index.js`,
     module: `./dist/esm/index.mjs`,
     import: `./dist/esm/index.mjs`,
-    types: `./dist/esm/index.d.ts`,
+    types: `./dist/cjs/index.d.ts`,
   };
 
   await fs.promises.writeFile(
