@@ -24,7 +24,7 @@ import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
-import type {ImageFormat} from './image-format';
+import type {VideoImageFormat} from './image-format';
 import {validateSelectedPixelFormatAndImageFormatCombination} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
@@ -256,7 +256,7 @@ export const renderMedia = ({
 		}
 	}
 
-	const imageFormat: ImageFormat = isAudioCodec(codec)
+	const imageFormat: VideoImageFormat = isAudioCodec(codec)
 		? 'none'
 		: options.imageFormat ?? 'jpeg';
 	const quality = imageFormat === 'jpeg' ? options.quality : undefined;

@@ -3,7 +3,7 @@
 // - If `--every-nth-frame` is passed, only frames 0, 2, 4 are rendered
 // - If an image sequence is created, the filenames should correspond to the frame numbers: element-099.jpg, element-100.jpg
 
-import type {ImageFormat} from './image-format';
+import type {VideoImageFormat} from './image-format';
 
 export type CountType = 'from-zero' | 'actual-frames';
 
@@ -27,7 +27,7 @@ export const getFrameOutputFileName = ({
 }: {
 	index: number;
 	frame: number;
-	imageFormat: ImageFormat;
+	imageFormat: VideoImageFormat;
 	countType: CountType;
 	lastFrame: number;
 	totalFrames: number;
