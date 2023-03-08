@@ -25,9 +25,13 @@ const warnAboutRequestVideoFrameCallback = () => {
 export const useVideoTexture = (
 	videoRef: React.RefObject<HTMLVideoElement>
 ): VideoTexture | null => {
-	const [loaded] = useState(() =>
-		delayRender(`Waiting for texture in useVideoTexture() to be loaded`)
-	);
+	const [loaded] = useState(() => {
+		if (typeof document === 'undefined') {
+			return 0;
+		}
+
+		return delayRender(`Waiting for texture in useVideoTexture() to be loaded`);
+	});
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
 	const [vidText] = useState(
 		() => import('three/src/textures/VideoTexture.js')
@@ -58,12 +62,6 @@ export const useVideoTexture = (
 	}, [loaded, vidText, videoRef]);
 
 	React.useEffect(() => {
-		if (typeof document === 'undefined') {
-			// Do not trigger onReady in SSR
-			continueRender(loaded);
-			return;
-		}
-
 		if (!videoRef.current) {
 			return;
 		}
