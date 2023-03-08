@@ -192,7 +192,7 @@ Accepted values:
 
 _removed in v4.0_
 
-Set a custom `ffmpeg` executable. If not defined, a `ffmpeg` executable will be searched in `PATH`.
+[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
 
 ### ~~`--ffprobe-executable`~~ <AvailableFrom v="3.0.17" />
 

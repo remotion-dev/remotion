@@ -199,13 +199,13 @@ Returns a promise that resolves to an array of available compositions. Example v
 
 The `defaultProps` only get returned since v2.5.7.
 
-#### ~~`ffmpegExecutable`~~
+### ~~`ffmpegExecutable`~~
 
 _removed in v4.0, optional_
 
 An absolute path overriding the `ffmpeg` executable to use.
 
-#### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
+### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
 
 _removed in v4.0_
 
