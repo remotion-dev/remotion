@@ -1,0 +1,47 @@
+{
+  "name": "@remotion/rive",
+  "version": "1.0.0",
+  "description": "Remotion Rive",
+  "main": "dist/cjs/index.js",
+  "types": "dist/cjs/index.d.ts",
+  "module": "dist/esm/index.mjs",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "rollup --config rollup.config.js && tsc -d"
+  },
+  "repository": {
+    "url": "https://github.com/remotion-dev/remotion"
+  },
+  "bugs": {
+    "url": "https://github.com/remotion-dev/remotion/issues"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "dependencies": {
+    "remotion": "^3.3.62",
+    "rive-js": "^0.7.33"
+  },
+  "peerDependencies": {
+    "@rive-app/react-canvas": "^3.0.38",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@jonny/eslint-config": "^3.0.273",
+    "@rollup/plugin-typescript": "^8.2.0",
+    "@types/node": "^18.14.6",
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "eslint": "^8.35.0",
+    "prettier": "^2.8.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rollup": "^2.70.1",
+    "typescript": "^4.9.5"
+  }
+}
