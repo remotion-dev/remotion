@@ -86,7 +86,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		remotionRoot,
 	});
 
-	const imageFormat = CliInternals.getImageFormat(codec);
+	const imageFormat = CliInternals.getVideoImageFormat(codec);
 
 	const functionName = await findFunctionName();
 

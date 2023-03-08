@@ -7,7 +7,7 @@ import {validateQualitySettings} from './crf';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
-import type {ImageFormat} from './image-format';
+import type {VideoImageFormat} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
@@ -18,7 +18,7 @@ import {
 import type {ProResProfile} from './prores-profile';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 
-type PreSticherOptions = {
+type PreStitcherOptions = {
 	fps: number;
 	width: number;
 	height: number;
@@ -29,13 +29,13 @@ type PreSticherOptions = {
 	onProgress: (progress: number) => void;
 	proResProfile: ProResProfile | undefined;
 	verbose: boolean;
-	imageFormat: ImageFormat;
+	imageFormat: VideoImageFormat;
 	ffmpegOverride: FfmpegOverrideFn;
 	signal: CancelSignal;
 	videoBitrate: string | null;
 };
 
-export const prespawnFfmpeg = (options: PreSticherOptions) => {
+export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 	Internals.validateDimension(
 		options.height,
 		'height',

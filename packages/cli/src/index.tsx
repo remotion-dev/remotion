@@ -4,7 +4,7 @@ import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
 import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
 import {listCompositionsCommand} from './compositions';
-import {determineFinalImageFormat} from './determine-image-format';
+import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
 import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
@@ -12,7 +12,7 @@ import {formatBytes} from './format-bytes';
 import {getCliOptions, getFinalCodec} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
 import {handleCommonError} from './handle-common-errors';
-import {getImageFormat} from './image-formats';
+import {getVideoImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
@@ -113,11 +113,11 @@ export const CliInternals = {
 	formatBytes,
 	getFileSizeDownloadBar,
 	getFinalCodec,
-	determineFinalImageFormat,
+	determineFinalStillImageFormat,
 	minimist,
 	selectComposition,
 	findEntryPoint,
-	getImageFormat,
+	getVideoImageFormat,
 	printCompositions,
 	listOfRemotionPackages,
 };
