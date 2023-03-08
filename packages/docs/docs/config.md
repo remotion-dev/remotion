@@ -279,7 +279,40 @@ The [command line flag](/docs/cli/render#--concurrency) `--concurrency` will tak
 Try to set your concurrency to `os.cpus().length` to all the threads available on your CPU for faster rendering. The drawback is that other parts of your system might slow down.
 :::
 
-## setImageFormat() <AvailableFrom v="1.4.0" />
+## setVideoImageFormat() <AvailableFrom v="4.0.0" />
+
+Determines which in which image format to render the frames. Either:
+
+- `jpeg` - the fastest option (default)
+- `png` - slower, but supports transparency
+- `none` - don't render images, just calculate audio information
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setVideoImageFormat("png");
+```
+
+## setStillImageFormat() <AvailableFrom v="4.0.0" />
+
+Determines which in which image format to render the frames. Either:
+
+- `png` (default)
+- `jpeg`
+- `pdf`
+- `webp`
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setStillImageFormat("pdf");
+```
+
+## ~~setImageFormat()~~ <AvailableFrom v="1.4.0" />
+
+_Removed in v4.0_
+
+Replaced in v4.0 with `setVideoImageFormat()` and `setStillImageFormat()`
 
 Determines which in which image format to render the frames. Either:
 
@@ -287,7 +320,7 @@ Determines which in which image format to render the frames. Either:
 - `png` - slower, but supports transparency
 - `none` - don't render images, just calculate audio information (available from v2.0)
 
-```ts twoslash title="remotion.config.ts"
+```ts title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.setImageFormat("png");

@@ -10,7 +10,12 @@ import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
 import {getDotEnvLocation} from './env-file';
 import {getRange, setFrameRangeFromCli} from './frame-range';
-import {getUserPreferredImageFormat} from './image-format';
+import {
+	getUserPreferredStillImageFormat,
+	getUserPreferredVideoImageFormat,
+	setStillImageFormat,
+	setVideoImageFormat,
+} from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
 import * as Logging from './log';
 import {getMaxTimelineTracks} from './max-timeline-tracks';
@@ -35,6 +40,8 @@ import type {
 	CodecOrUndefined,
 	Crf,
 	FrameRange,
+	StillImageFormat,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
 import {
@@ -67,7 +74,6 @@ import {
 } from './ffmpeg-override';
 import {setFrameRange} from './frame-range';
 import {getHeight, overrideHeight} from './height';
-import {setImageFormat} from './image-format';
 import {setImageSequence} from './image-sequence';
 import {
 	getKeyboardShortcutsEnabled,
@@ -226,10 +232,13 @@ declare global {
 		 * Default: 80
 		 */
 		readonly setQuality: (q: number | undefined) => void;
+		/** Decide the image format for still renders.
+		 */
+		readonly setStillImageFormat: (format: StillImageFormat) => void;
 		/** Decide in which image format to render. Can be either 'jpeg' or 'png'.
 		 * PNG is slower, but supports transparency.
 		 */
-		readonly setImageFormat: (format: 'png' | 'jpeg' | 'none') => void;
+		readonly setVideoImageFormat: (format: VideoImageFormat) => void;
 		/**
 		 * Render only a subset of a video.
 		 * Pass in a tuple [20, 30] to only render frames 20-30 into a video.
@@ -383,7 +392,8 @@ export const Config: FlatConfig = {
 	setDotEnvLocation,
 	setConcurrency,
 	setQuality,
-	setImageFormat,
+	setStillImageFormat,
+	setVideoImageFormat,
 	setFrameRange,
 	setScale,
 	setEveryNthFrame,
@@ -430,7 +440,8 @@ export const ConfigInternals = {
 	getStillFrame,
 	getShouldOutputImageSequence,
 	getDotEnvLocation,
-	getUserPreferredImageFormat,
+	getUserPreferredStillImageFormat,
+	getUserPreferredVideoImageFormat,
 	getWebpackOverrideFn,
 	getWebpackCaching,
 	getOutputLocation,

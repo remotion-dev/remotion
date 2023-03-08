@@ -65,6 +65,7 @@ test('For stills', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		type: 'still',
+		imageFormat: 'png',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
 		customCredentials: null,
@@ -77,6 +78,7 @@ test('Just a custom name', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		type: 'still',
+		imageFormat: 'jpeg',
 		codec: null,
 		outName: 'justaname.jpeg',
 	};
@@ -91,6 +93,7 @@ test('Should throw on invalid names', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		type: 'still',
+		imageFormat: 'png',
 		codec: null,
 		outName: '👺.jpeg',
 	};
@@ -105,6 +108,7 @@ test('Should allow outName an outname with a slash', () => {
 		codec: null,
 		audioCodec: null,
 		type: 'still',
+		imageFormat: 'jpeg',
 		outName: 'justa/name.jpeg',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({

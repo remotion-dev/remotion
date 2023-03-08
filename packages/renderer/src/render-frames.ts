@@ -26,7 +26,7 @@ import {
 	getFrameOutputFileName,
 } from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
-import type {ImageFormat} from './image-format';
+import type {VideoImageFormat} from './image-format';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
@@ -58,7 +58,7 @@ type RenderFramesOptions = {
 	outputDir: string | null;
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
-	imageFormat: ImageFormat;
+	imageFormat: VideoImageFormat;
 	quality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;

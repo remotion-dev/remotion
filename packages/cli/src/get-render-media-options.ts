@@ -3,7 +3,7 @@ import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
 import {getResolvedAudioCodec} from './get-audio-codec';
 import {getCliOptions} from './get-cli-options';
-import {getImageFormat} from './image-formats';
+import {getVideoImageFormat} from './image-formats';
 
 export const getRenderMediaOptions = async ({
 	outputLocation,
@@ -47,7 +47,7 @@ export const getRenderMediaOptions = async ({
 		remotionRoot,
 	});
 
-	const imageFormat = getImageFormat(codec);
+	const imageFormat = getVideoImageFormat(codec);
 	const audioCodec = getResolvedAudioCodec();
 
 	return {

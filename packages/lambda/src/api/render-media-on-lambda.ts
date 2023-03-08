@@ -2,10 +2,10 @@ import type {
 	AudioCodec,
 	ChromiumOptions,
 	FrameRange,
-	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -28,7 +28,7 @@ export type RenderMediaOnLambdaInput = {
 	composition: string;
 	inputProps?: unknown;
 	codec: LambdaCodec;
-	imageFormat?: ImageFormat;
+	imageFormat?: VideoImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;

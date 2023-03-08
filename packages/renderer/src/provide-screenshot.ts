@@ -1,6 +1,6 @@
 import type {ClipRegion} from 'remotion';
 import type {Page} from './browser/BrowserPage';
-import type {ImageFormat} from './image-format';
+import type {StillImageFormat} from './image-format';
 import {screenshotDOMElement} from './screenshot-dom-element';
 
 export const provideScreenshot = ({
@@ -13,7 +13,7 @@ export const provideScreenshot = ({
 	clipRegion,
 }: {
 	page: Page;
-	imageFormat: ImageFormat;
+	imageFormat: StillImageFormat;
 	quality: number | undefined;
 	options: {
 		frame: number;
