@@ -606,6 +606,34 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
 
+## ~~setFfmpegExecutable()~~
+
+_removed in v4.0_
+
+Allows you to use a custom FFMPEG binary. Must be an absolute path. By default, this is null and the FFMPEG in `PATH` will be used.
+
+```ts title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setFfmpegExecutable("/path/to/custom/ffmpeg");
+```
+
+The [command line flag](/docs/cli/render#--ffmpeg-executable) `--ffmpeg-executable` will take precedence over this option.
+
+## ~~setFfprobeExecutable()~~
+
+_removed in v4.0_
+
+Allows you to use a custom `ffprobe` binary. Must be an absolute path. By default, this is null and the `ffprobe` in `PATH` will be used.
+
+```ts title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setFfprobeExecutable("/path/to/custom/ffprobe");
+```
+
+The [command line flag](/docs/cli/render#--ffprobe-executable) `--ffprobe-executable` will take precedence over this option.
+
 ## See also
 
 - [Encoding guide](/docs/encoding)
