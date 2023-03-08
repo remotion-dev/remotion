@@ -30,7 +30,7 @@ Inline JSON string isn't supported on Windows because it removes the `"` charact
 
 ### `--image-format`
 
-`jpeg`, `png` or `pdf`. The default is `png`.
+`jpeg`, `png`, `webp` or `pdf`. The default is `png`.
 
 ### `--config`
 

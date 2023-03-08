@@ -103,6 +103,12 @@ export const takeFrameAndCompose = async ({
 			);
 		}
 
+		if (imageFormat === 'webp') {
+			throw new Error(
+				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'webp'."
+			);
+		}
+
 		await compose({
 			height: height * scale,
 			width: width * scale,

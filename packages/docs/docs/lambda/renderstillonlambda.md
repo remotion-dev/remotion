@@ -83,7 +83,7 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 _optional - default `"png"`_
 
-The image format that you want - either `"png"`, `"jpeg"` or `"pdf"`.
+The image format that you want - either `"png"`, `"jpeg"`, `"webp"` or `"pdf"`.
 
 ### `quality?`
 

@@ -25,7 +25,11 @@ export const screenshotDOMElement = async ({
 }): Promise<Buffer> => {
 	const {path} = opts;
 
-	if (imageFormat === 'png' || imageFormat === 'pdf') {
+	if (
+		imageFormat === 'png' ||
+		imageFormat === 'pdf' ||
+		imageFormat === 'webp'
+	) {
 		await puppeteerEvaluateWithCatch({
 			pageFunction: () => {
 				document.body.style.background = 'transparent';
