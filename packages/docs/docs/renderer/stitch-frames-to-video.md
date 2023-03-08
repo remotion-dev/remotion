@@ -195,7 +195,7 @@ _removed in v4.0, optional_
 
 A custom FFMPEG executable to be used. By default, a binary called `ffmpeg` will be searched in your `PATH`.
 
-#### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
+### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
 
 _removed in v4.0, optional_
 
