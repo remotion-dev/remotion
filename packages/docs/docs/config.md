@@ -543,7 +543,7 @@ _Deprecated_. Use `setCodec()` and `setImageSequence()` instead.
 
 Either `'mp4'` or `'png-sequence'`.
 
-```ts twoslash title="remotion.config.ts"
+```ts title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.setOutputFormat("mp4");
