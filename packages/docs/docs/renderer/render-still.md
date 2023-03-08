@@ -87,7 +87,7 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 _optional - default: "png"_
 
-Which output format the image should have, either `png` or `jpeg`.
+Which output format the image should have, either `png`, `jpeg` or `pdf`.
 
 ### `scale?`
 

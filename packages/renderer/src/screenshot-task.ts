@@ -51,7 +51,7 @@ export const screenshotTask = async ({
 				marginLeft: 0,
 				marginRight: 0,
 				scale: 1,
-				printBackground: true,
+				printBackground: !omitBackground,
 			});
 		} else {
 			result = await client.send('Page.captureScreenshot', {
