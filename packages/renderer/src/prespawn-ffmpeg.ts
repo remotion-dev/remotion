@@ -18,7 +18,7 @@ import {
 import type {ProResProfile} from './prores-profile';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 
-type PreSticherOptions = {
+type PreStitcherOptions = {
 	fps: number;
 	width: number;
 	height: number;
@@ -35,7 +35,7 @@ type PreSticherOptions = {
 	videoBitrate: string | null;
 };
 
-export const prespawnFfmpeg = (options: PreSticherOptions) => {
+export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 	Internals.validateDimension(
 		options.height,
 		'height',
