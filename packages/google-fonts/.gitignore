@@ -6,3 +6,4 @@
 src
 !src/index.ts
 !src/base.ts
+!rollup.config.js

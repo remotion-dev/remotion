@@ -11,6 +11,7 @@
 		"@remotion/bundler": "3.3.63",
 		"@remotion/eslint-config": "3.3.63",
 		"@remotion/gif": "3.3.63",
+		"@remotion/google-fonts": "3.3.63",
 		"@remotion/player": "3.3.63",
 		"@remotion/preload": "3.3.63",
 		"@types/react": "18.0.26",
