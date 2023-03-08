@@ -272,7 +272,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		}
 
 		await renderFrames({
-			config,
+			composition: config,
 			imageFormat,
 			inputProps,
 			onFrameUpdate: (rendered) => {
