@@ -28,7 +28,7 @@ export const printHelp = () => {
 	printFlags([
 		['--props', 'Pass input props as filename or as JSON'],
 		['--concurrency', 'How many frames to render in parallel'],
-		['--image-format', 'Format to render the frames in, "jpeg" or "png"'],
+		['--image-format', 'Format to render the video/still in'],
 		['--pixel-format', 'Custom pixel format, see docs for available values'],
 		['--config', 'Custom location for a Remotion config file'],
 		['--quality', 'Quality for rendered frames, JPEG only, 0-100'],
@@ -50,7 +50,7 @@ export const printHelp = () => {
 	Log.info(chalk.gray('Render a still frame and save it as an image.'));
 	printFlags([
 		['--frame', 'Which frame to render (default 0)'],
-		['--image-format', 'Format to render the frames in, "jpeg" or "png"'],
+		['--image-format', 'Format to render the video/still in'],
 		['--props', 'Pass input props as filename or as JSON'],
 		['--config', 'Custom location for a Remotion config file'],
 		['--quality', 'Quality for rendered frames, JPEG only, 0-100'],

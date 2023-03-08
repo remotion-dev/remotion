@@ -15,6 +15,10 @@ const deriveExtensionFromFilename = (
 		return 'jpeg';
 	}
 
+	if (filename?.endsWith('.pdf')) {
+		return 'pdf';
+	}
+
 	return null;
 };
 

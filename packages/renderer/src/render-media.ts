@@ -73,7 +73,7 @@ export type RenderMediaOptions = {
 	composition: SmallTCompMetadata;
 	inputProps?: unknown;
 	crf?: number | null;
-	imageFormat?: 'png' | 'jpeg' | 'none';
+	imageFormat?: VideoImageFormat;
 	pixelFormat?: PixelFormat;
 	envVariables?: Record<string, string>;
 	quality?: number;

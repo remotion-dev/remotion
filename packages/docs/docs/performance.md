@@ -29,7 +29,7 @@ Generally, lower resolution frames result in faster renders. You can make the di
 
 ## Choose the right image format and codec
 
-[JPEG rendering is faster](/docs/config#setimageformat) than PNG rendering. [H264 is the fastest way](/docs/encoding) to encode frames into a video. If you have deviated from the defaults, consider them again if you see slow rendering.
+[JPEG rendering is faster](/docs/config#setvideoimageformat) than PNG rendering. [H264 is the fastest way](/docs/encoding) to encode frames into a video. If you have deviated from the defaults, consider them again if you see slow rendering.
 
 ## Enable GPU acceleration
 

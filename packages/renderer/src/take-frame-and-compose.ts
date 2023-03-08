@@ -59,10 +59,6 @@ export const takeFrameAndCompose = async ({
 		return {buffer: null, collectedAssets};
 	}
 
-	if (imageFormat === 'pdf' && clipRegion !== null) {
-		throw new Error("You cannot use `<Clipper>` if `imageFormat` is 'pdf'.");
-	}
-
 	const needsComposing =
 		clipRegion === null
 			? null
@@ -101,6 +97,12 @@ export const takeFrameAndCompose = async ({
 	}
 
 	if (needsComposing) {
+		if (imageFormat === 'pdf') {
+			throw new Error(
+				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'pdf'."
+			);
+		}
+
 		await compose({
 			height: height * scale,
 			width: width * scale,

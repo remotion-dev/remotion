@@ -52,7 +52,7 @@ Inline JSON string isn't supported on Windows because it removes the `"` charact
 
 ### `--image-format` <AvailableFrom v="1.4.0" />
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setimageformat) The default image format is `jpeg` since v1.1.
+[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setvideoimageformat) The default image format is `jpeg` since v1.1.
 
 ### `--config` <AvailableFrom v="1.2.0" />
 
