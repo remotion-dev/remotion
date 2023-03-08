@@ -22,6 +22,7 @@ for (const packageManager of packageManagers) {
 			},
 			devDependencies: {
 				'@types/react': '^18.0.6',
+				'@remotion/eslint-config': '^2.0.0',
 			},
 		};
 		let newPackageJson: typeof packageJson | null = null;
@@ -46,7 +47,11 @@ for (const packageManager of packageManagers) {
 				'@remotion/cli': latestRemotionVersion,
 				remotion: latestRemotionVersion,
 			},
-			packageManager: `${packageManager}@${packageManagerVersion}`
+			devDependencies: {
+				...packageJson.devDependencies,
+				'@remotion/eslint-config': latestRemotionVersion,
+			},
+			packageManager: `${packageManager}@${packageManagerVersion}`,
 		});
 	});
 }

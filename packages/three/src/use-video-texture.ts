@@ -25,27 +25,40 @@ const warnAboutRequestVideoFrameCallback = () => {
 export const useVideoTexture = (
 	videoRef: React.RefObject<HTMLVideoElement>
 ): VideoTexture | null => {
-	const [loaded] = useState(() =>
-		delayRender(`Waiting for texture in useVideoTexture() to be loaded`)
-	);
+	const [loaded] = useState(() => {
+		if (typeof document === 'undefined') {
+			return 0;
+		}
+
+		return delayRender(`Waiting for texture in useVideoTexture() to be loaded`);
+	});
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
 	const [vidText] = useState(
 		() => import('three/src/textures/VideoTexture.js')
 	);
+	const [error, setError] = useState<Error | null>(null);
 	const frame = useCurrentFrame();
 
-	const onReady = useCallback(() => {
-		vidText.then(({VideoTexture}) => {
-			if (!videoRef.current) {
-				throw new Error('Video not ready');
-			}
+	if (error) {
+		throw error;
+	}
 
-			const vt = new VideoTexture(videoRef.current);
-			videoRef.current.width = videoRef.current.videoWidth;
-			videoRef.current.height = videoRef.current.videoHeight;
-			setVideoTexture(vt);
-			continueRender(loaded);
-		});
+	const onReady = useCallback(() => {
+		vidText
+			.then(({VideoTexture}) => {
+				if (!videoRef.current) {
+					throw new Error('Video not ready');
+				}
+
+				const vt = new VideoTexture(videoRef.current);
+				videoRef.current.width = videoRef.current.videoWidth;
+				videoRef.current.height = videoRef.current.videoHeight;
+				setVideoTexture(vt);
+				continueRender(loaded);
+			})
+			.catch((err) => {
+				setError(err);
+			});
 	}, [loaded, vidText, videoRef]);
 
 	React.useEffect(() => {
