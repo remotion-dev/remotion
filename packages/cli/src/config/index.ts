@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import {getBrowser} from './browser';
 import {getBrowserExecutable} from './browser-executable';
 import {
@@ -10,10 +9,6 @@ import {
 import {getOutputCodecOrUndefined} from './codec';
 import {getConcurrency} from './concurrency';
 import {getDotEnvLocation} from './env-file';
-import {
-	getCustomFfmpegExecutable,
-	getCustomFfprobeExecutable,
-} from './ffmpeg-executable';
 import {getRange, setFrameRangeFromCli} from './frame-range';
 import {getUserPreferredImageFormat} from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
@@ -35,12 +30,10 @@ import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
 
 import type {WebpackConfiguration} from '@remotion/bundler';
-// eslint-disable-next-line no-restricted-imports
 import type {
 	BrowserExecutable,
 	CodecOrUndefined,
 	Crf,
-	FfmpegExecutable,
 	FrameRange,
 } from '@remotion/renderer';
 import {getAudioCodec, setAudioCodec} from './audio-codec';
@@ -68,7 +61,6 @@ import {
 import {getEntryPoint, setEntryPoint} from './entry-point';
 import {setDotEnvLocation} from './env-file';
 import {getEveryNthFrame, setEveryNthFrame} from './every-nth-frame';
-import {setFfmpegExecutable, setFfprobeExecutable} from './ffmpeg-executable';
 import {
 	getFfmpegOverrideFunction,
 	setFfmpegOverrideFunction,
@@ -246,16 +238,6 @@ declare global {
 		 */
 		readonly setFrameRange: (newFrameRange: FrameRange | null) => void;
 		/**
-		 * Specify local ffmpeg executable.
-		 * Default: null, which will use ffmpeg available in PATH.
-		 */
-		readonly setFfmpegExecutable: (ffmpegPath: FfmpegExecutable) => void;
-		/**
-		 * Specify local ffprobe executable.
-		 * Default: null, which will use ffprobe available in PATH.
-		 */
-		readonly setFfprobeExecutable: (ffprobePath: FfmpegExecutable) => void;
-		/**
 		 * Scales the output dimensions by a factor.
 		 * Default: 1.
 		 */
@@ -408,8 +390,6 @@ export const Config: FlatConfig = {
 	setQuality,
 	setImageFormat,
 	setFrameRange,
-	setFfmpegExecutable,
-	setFfprobeExecutable,
 	setScale,
 	setEveryNthFrame,
 	setNumberOfGifLoops,
@@ -437,13 +417,11 @@ export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};
 export const ConfigInternals = {
 	getRange,
 	getOutputCodecOrUndefined,
-	getCustomFfmpegExecutable,
 	getBrowser,
 	getPixelFormat,
 	getProResProfile,
 	getShouldOverwrite,
 	getBrowserExecutable,
-	getCustomFfprobeExecutable,
 	getScale,
 	getServerPort,
 	getChromiumDisableWebSecurity,

@@ -1,5 +1,5 @@
 import React, {forwardRef, useCallback, useState} from 'react';
-import {continueRender, delayRender} from './delay-render';
+import {continueRender, delayRender} from './delay-render.js';
 
 const IFrameRefForwarding: React.ForwardRefRenderFunction<
 	HTMLIFrameElement,
@@ -39,4 +39,8 @@ const IFrameRefForwarding: React.ForwardRefRenderFunction<
 	return <iframe {...props} ref={ref} onError={didGetError} onLoad={didLoad} />;
 };
 
+/**
+ * @description The <IFrame /> can be used like a regular <iframe> HTML tag.
+ * @see [Documentation](https://www.remotion.dev/docs/iframe)
+ */
 export const IFrame = forwardRef(IFrameRefForwarding);

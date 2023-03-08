@@ -1,13 +1,17 @@
 import React, {useContext, useMemo} from 'react';
-import {SequenceContext} from './Sequence';
-import type {TimelineContextValue} from './timeline-position-state';
-import {TimelineContext} from './timeline-position-state';
+import {SequenceContext} from './SequenceContext.js';
+import type {TimelineContextValue} from './timeline-position-state.js';
+import {TimelineContext} from './timeline-position-state.js';
 
 type FreezeProps = {
 	frame: number;
 	children: React.ReactNode;
 };
 
+/**
+ * @description This method freezes all of its children to the frame that you specify as a prop
+ * @see [Documentation](https://www.remotion.dev/docs/freeze)
+ */
 export const Freeze: React.FC<FreezeProps> = ({frame, children}) => {
 	if (typeof frame === 'undefined') {
 		throw new Error(

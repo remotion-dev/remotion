@@ -5,9 +5,9 @@ import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {useContext} from 'react';
 import {describe, expect, test} from 'vitest';
-import {Audio} from '../audio';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import {Internals} from '../internals';
+import {Audio} from '../audio/index.js';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {Internals} from '../internals.js';
 
 const Wrapper: React.FC<{
 	children: React.ReactNode;

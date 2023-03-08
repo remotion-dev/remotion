@@ -2,7 +2,6 @@ import type {
 	AudioCodec,
 	BrowserExecutable,
 	Codec,
-	FfmpegExecutable,
 	ImageFormat,
 	LogLevel,
 	OpenGlRenderer,
@@ -11,14 +10,11 @@ import type {
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import minimist from 'minimist';
-import {resolve} from 'path';
 import {Config, ConfigInternals} from './config';
 import {Log} from './log';
 
 export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
-	['ffmpeg-executable']: FfmpegExecutable;
-	['ffprobe-executable']: FfmpegExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: ImageFormat;
 	['prores-profile']: ProResProfile;
@@ -109,16 +105,8 @@ export const parseCommandLine = () => {
 		Config.setBrowserExecutable(parsedCli['browser-executable']);
 	}
 
-	if (parsedCli['ffmpeg-executable']) {
-		Config.setFfmpegExecutable(resolve(parsedCli['ffmpeg-executable']));
-	}
-
 	if (parsedCli['number-of-gif-loops']) {
 		Config.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
-	}
-
-	if (parsedCli['ffprobe-executable']) {
-		Config.setFfprobeExecutable(resolve(parsedCli['ffprobe-executable']));
 	}
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {

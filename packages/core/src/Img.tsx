@@ -5,9 +5,9 @@ import React, {
 	useLayoutEffect,
 	useRef,
 } from 'react';
-import {continueRender, delayRender} from './delay-render';
-import {useRemotionEnvironment} from './get-environment';
-import {usePreload} from './prefetch';
+import {continueRender, delayRender} from './delay-render.js';
+import {useRemotionEnvironment} from './get-environment.js';
+import {usePreload} from './prefetch.js';
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
@@ -80,4 +80,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * @description Works just like a regular HTML img tag. When you use the <Img> tag, Remotion will ensure that the image is loaded before rendering the frame.
+ * @see [Documentation](https://www.remotion.dev/docs/img)
+ */
 export const Img = forwardRef(ImgRefForwarding);

@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import type {TCompMetadata} from 'remotion';
 import {getCompositionId} from './get-composition-id';
 

@@ -1,7 +1,9 @@
+import type {SetStateAction} from 'react';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {MenuDivider} from '../Menu/MenuDivider';
+import type {MenuId} from '../Menu/MenuItem';
 import type {SubMenuActivated} from '../Menu/MenuSubItem';
 import {MenuSubItem} from '../Menu/MenuSubItem';
 import {MENU_VERTICAL_PADDING} from '../Menu/styles';
@@ -43,14 +45,16 @@ export const MenuContent: React.FC<{
 	}
 
 	const [selectedItem, setSelectedItem] = useState<string | null>(
-		typeof preselectIndex === 'number' ? values[preselectIndex].id : null
+		typeof preselectIndex === 'number'
+			? (values[preselectIndex].id as string)
+			: null
 	);
 
 	const onEscape = useCallback(() => {
 		onHide();
 	}, [onHide]);
 
-	const onItemSelected = useCallback((id: string) => {
+	const onItemSelected = useCallback((id: SetStateAction<string | null>) => {
 		setSelectedItem(id);
 	}, []);
 
@@ -69,12 +73,12 @@ export const MenuContent: React.FC<{
 				(v, i) => i < index && v.type !== 'divider'
 			);
 			if (previousItems.length > 0) {
-				return previousItems[previousItems.length - 1].id;
+				return previousItems[previousItems.length - 1].id as MenuId;
 			}
 
 			const firstNonDivider = values.find((v) => v.type !== 'divider');
 			if (firstNonDivider) {
-				return firstNonDivider.id;
+				return firstNonDivider.id as MenuId;
 			}
 
 			throw new Error('could not find previous item');
@@ -120,6 +124,7 @@ export const MenuContent: React.FC<{
 			return setSubMenuActivated('without-mouse');
 		}
 
+		onHide();
 		item.onClick(item.id);
 	}, [onHide, selectedItem, values]);
 

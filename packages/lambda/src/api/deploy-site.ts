@@ -1,4 +1,5 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
+import {rmdirSync} from 'fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
@@ -23,6 +24,7 @@ export type DeploySiteInput = {
 		onBundleProgress?: (progress: number) => void;
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 		webpackOverride?: WebpackOverrideFn;
+		ignoreRegisterRootWarning?: boolean;
 		enableCaching?: boolean;
 		publicDir?: string | null;
 		rootDir?: string;
@@ -42,7 +44,7 @@ export type DeploySiteOutput = Promise<{
 
 /**
  * @description Deploys a Remotion project to an S3 bucket to prepare it for rendering on AWS Lambda.
- * @link https://remotion.dev/docs/lambda/deploysite
+ * @see [Documentation](https://remotion.dev/docs/lambda/deploysite)
  * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
  * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
  * @param {string} params.bucketName The name of the bucket to deploy your project into.
@@ -84,12 +86,15 @@ export const deploySite = async ({
 			region,
 			prefix: subFolder,
 		}),
-		bundleSite(entryPoint, options?.onBundleProgress ?? (() => undefined), {
+		bundleSite({
 			publicPath: `/${subFolder}/`,
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
 			publicDir: options?.publicDir,
 			rootDir: options?.rootDir,
+			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning,
+			onProgress: options?.onBundleProgress ?? (() => undefined),
+			entryPoint,
 		}),
 	]);
 
@@ -120,6 +125,10 @@ export const deploySite = async ({
 			})
 		),
 	]);
+
+	if (!process.env.VITEST) {
+		rmdirSync(bundled, {recursive: true});
+	}
 
 	return {
 		serveUrl: makeS3ServeUrl({bucketName, subFolder, region}),

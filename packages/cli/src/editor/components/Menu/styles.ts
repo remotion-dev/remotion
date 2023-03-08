@@ -24,6 +24,4 @@ export const menuContainerTowardsTop: React.CSSProperties = {
 
 export const outerPortal: React.CSSProperties = {
 	position: 'fixed',
-	height: '100%',
-	width: '100%',
 };

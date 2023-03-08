@@ -60,7 +60,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
+npm i -D postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
 ```
 
   </TabItem>
@@ -68,14 +68,14 @@ npm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
   <TabItem value="yarn">
 
 ```bash
-yarn add postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
+yarn add -D postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
+pnpm i -D postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
 ```
 
   </TabItem>
@@ -84,7 +84,7 @@ pnpm i postcss-loader postcss postcss-preset-env tailwindcss autoprefixer
 2. Create a function for overriding the webpack config
 
 ```ts twoslash title="src/enable-tailwind.ts"
-import { WebpackOverrideFn } from "remotion";
+import { WebpackOverrideFn } from "@remotion/bundler";
 
 export const enableTailwind: WebpackOverrideFn = (currentConfiguration) => {
   return {
@@ -133,7 +133,7 @@ export const enableTailwind: WebpackOverrideFn = (currentConfiguration) => {
 
 ```ts twoslash title="remotion.config.ts"
 // @filename: ./src/enable-tailwind.ts
-import { WebpackOverrideFn } from "remotion";
+import { WebpackOverrideFn } from "@remotion/bundler";
 export const enableTailwind: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---

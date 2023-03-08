@@ -1,0 +1,24 @@
+{
+  "name": "@remotion/astro-example",
+  "private": true,
+  "type": "module",
+  "version": "3.3.62",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "node test.mjs && node test.cjs && node -r esm-wallaby test.js && node build.mjs",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/react": "^2.0.2",
+    "@remotion/player": "3.3.62",
+    "@types/react": "^18.0.10",
+    "@types/react-dom": "^18.0.5",
+    "astro": "^2.0.14",
+    "esm-wallaby": "^3.2.26",
+    "react": "^18.1.0",
+    "react-dom": "^18.1.0",
+    "remotion": "3.3.62"
+  }
+}
