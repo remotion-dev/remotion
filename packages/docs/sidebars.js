@@ -491,6 +491,7 @@ module.exports = {
         "after-effects",
         "video-uploads",
         "presigned-urls",
+        "font-picker",
       ],
     },
     {
