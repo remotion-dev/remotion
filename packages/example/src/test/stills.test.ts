@@ -1,9 +1,9 @@
 import {bundle} from '@remotion/bundler';
 import {
 	getCompositions,
-	ImageFormat,
 	RenderInternals,
 	renderStill,
+	StillImageFormat,
 } from '@remotion/renderer';
 import {cleanDownloadMap} from '@remotion/renderer/dist/assets/download-map';
 import {existsSync, unlinkSync} from 'fs';
@@ -95,11 +95,10 @@ test(
 	}
 );
 
-// TODO REMOVE - Just for testing
 test(
 	'Can render a still pdf using Node.JS APIs',
 	async () => {
-		const imageFormat: ImageFormat = 'pdf';
+		const imageFormat: StillImageFormat = 'pdf';
 		const bundled = await bundle({
 			entryPoint: path.join(process.cwd(), 'src/index.ts'),
 			webpackOverride,
@@ -115,8 +114,6 @@ test(
 			onError: (err) => {
 				throw err;
 			},
-			ffmpegExecutable: null,
-			ffprobeExecutable: null,
 			downloadMap,
 			remotionRoot: process.cwd(),
 		});
@@ -150,11 +147,11 @@ test(
 			});
 
 			expect(existsSync(testOut)).toBe(true);
-			// TODO unlinkSync(testOut);
+			unlinkSync(testOut);
 		}
 
 		RenderInternals.deleteDirectory(bundled);
-		// TODO RenderInternals.deleteDirectory(folder);
+		RenderInternals.deleteDirectory(folder);
 		cleanDownloadMap(downloadMap);
 
 		await close();

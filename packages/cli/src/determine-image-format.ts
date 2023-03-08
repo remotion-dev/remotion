@@ -1,4 +1,4 @@
-import type {ImageFormat, StillImageFormat} from '@remotion/renderer';
+import type {StillImageFormat, VideoImageFormat} from '@remotion/renderer';
 
 const deriveExtensionFromFilename = (
 	filename: string | null
@@ -18,7 +18,7 @@ const deriveExtensionFromFilename = (
 	return null;
 };
 
-export const determineFinalImageFormat = ({
+export const determineFinalStillImageFormat = ({
 	downloadName,
 	outName,
 	configImageFormat,
@@ -27,8 +27,8 @@ export const determineFinalImageFormat = ({
 }: {
 	downloadName: string | null;
 	outName: string | null;
-	configImageFormat: ImageFormat | null;
-	cliFlag: ImageFormat | null;
+	configImageFormat: StillImageFormat | null;
+	cliFlag: StillImageFormat | VideoImageFormat | null;
 	isLambda: boolean;
 }): {format: StillImageFormat; source: string} => {
 	const outNameExtension = deriveExtensionFromFilename(outName);
@@ -76,7 +76,14 @@ export const determineFinalImageFormat = ({
 		return {format: cliFlag, source: '--image-format flag'};
 	}
 
-	if (configImageFormat !== null && configImageFormat !== 'none') {
+	if (configImageFormat !== null) {
+		// @ts-expect-error
+		if (configImageFormat === 'none') {
+			throw new Error(
+				'The still simage format in the config file must not be "none"'
+			);
+		}
+
 		return {format: configImageFormat, source: 'Config file'};
 	}
 

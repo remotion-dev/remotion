@@ -1,11 +1,11 @@
-import type {ImageFormat} from '@remotion/renderer';
+import type {VideoImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
 
-export const getImageFormat = (
+export const getVideoImageFormat = (
 	codec: ReturnType<typeof ConfigInternals.getOutputCodecOrUndefined>
-): ImageFormat => {
-	const userPreferred = ConfigInternals.getUserPreferredImageFormat();
+): VideoImageFormat => {
+	const userPreferred = ConfigInternals.getUserPreferredVideoImageFormat();
 
 	if (typeof userPreferred !== 'undefined') {
 		return userPreferred;
