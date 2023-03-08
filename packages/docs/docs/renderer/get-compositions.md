@@ -20,8 +20,6 @@ const getCompositions: (
     puppeteerInstance?: PuppeteerBrowser;
     onBrowserLog?: (log: BrowserLog) => void;
     browserExecutable?: BrowserExecutable;
-    ffmpegExecutable?: FfmpegExecutable;
-    ffprobeExecutable?: FfmpegExecutable;
   }
 ) => Promise<TComposition[]>;
 ```
@@ -53,18 +51,6 @@ An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&versi
 #### `browserExecutable?` <AvailableFrom v="2.3.1" />
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
-
-#### `ffmpegExecutable?` <AvailableFrom v="3.0.11" />
-
-_optional_
-
-An absolute path overriding the `ffmpeg` executable to use.
-
-#### `ffprobeExecutable?` <AvailableFrom v="3.0.17" />
-
-_optional_
-
-An absolute path overriding the `ffprobe` executable to use.
 
 #### `onBrowserLog?` <AvailableFrom v="3.0.0" />
 
@@ -212,6 +198,18 @@ Returns a promise that resolves to an array of available compositions. Example v
 ```
 
 The `defaultProps` only get returned since v2.5.7.
+
+#### ~~`ffmpegExecutable`~~
+
+_removed in v4.0, optional_
+
+An absolute path overriding the `ffmpeg` executable to use.
+
+#### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
+
+_removed in v4.0_
+
+An absolute path overriding the `ffprobe` executable to use.
 
 ## See also
 
