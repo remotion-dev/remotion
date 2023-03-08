@@ -1,6 +1,6 @@
 {
   "name": "@remotion/google-fonts",
-  "version": "3.3.63",
+  "version": "3.3.64",
   "description": "Load Google Fonts in Remotion",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.mjs",
@@ -12,9 +12,10 @@
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "remotion": "3.3.63"
+    "remotion": "3.3.64"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^8.2.0",
     "@types/css-font-loading-module": "^0.0.7",
     "@types/node": "^18.0.3",
     "@types/prettier": "^2.7.1",
@@ -23,8 +24,7 @@
     "prettier": "^2.7.1",
     "rollup": "^2.70.1",
     "ts-node": "^10.8.0",
-    "typescript": "^4.7.0",
-    "@rollup/plugin-typescript": "^8.2.0"
+    "typescript": "^4.7.0"
   },
   "files": [
     "dist"
