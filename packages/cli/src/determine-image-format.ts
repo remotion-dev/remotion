@@ -19,6 +19,10 @@ const deriveExtensionFromFilename = (
 		return 'pdf';
 	}
 
+	if (filename?.endsWith('.webp')) {
+		return 'webp';
+	}
+
 	return null;
 };
 

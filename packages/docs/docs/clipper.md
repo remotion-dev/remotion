@@ -13,7 +13,7 @@ The API may change in any version. Monitor this documentation page to see breaki
 
 This is a special component that will cause Remotion to only partially capture the frame of the video. The remaining area will stay black (if the render image format is `jpeg`) or transparent (if the render image format is `png`).
 
-This component cannot be used if you use [`renderStill()`](/docs/renderer/render-still) to render a PDF.
+This component cannot be used if you use [`renderStill()`](/docs/renderer/render-still) to render a PDF or WebP.
 
 ## Example
 

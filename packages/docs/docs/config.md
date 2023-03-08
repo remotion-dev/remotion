@@ -300,6 +300,7 @@ Determines which in which image format to render the frames. Either:
 - `png` (default)
 - `jpeg`
 - `pdf`
+- `webp`
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";

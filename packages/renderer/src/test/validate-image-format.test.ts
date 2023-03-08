@@ -7,6 +7,6 @@ test('"none" is not a valid image format', () => {
 	expect(() => validateStillImageFormat('pdf')).not.toThrow();
 	// @ts-expect-error
 	expect(() => validateStillImageFormat('none')).toThrow(
-		/Image format should be one of: "png", "jpeg", "pdf"/
+		/Image format should be one of: "png", "jpeg", "pdf", "webp"/
 	);
 });

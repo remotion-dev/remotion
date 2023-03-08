@@ -23,7 +23,7 @@ You can use the [`npx remotion still`](/docs/cli/#npx-remotion-still) command to
 npx remotion still --props='{"custom": "data"}' my-comp out.png
 ```
 
-You can use the `--image-format` flag to determine the output format. The default format is `png`, with `jpeg` and `pdf` being the other options.
+You can use the `--image-format` flag to determine the output format. The default format is `png`, with `jpeg`, `webp` and `pdf` being the other options.
 
 By default the frame with number of a composition is being rendered, you can control it using the `--frame` flag.
 
