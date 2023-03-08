@@ -1,4 +1,8 @@
-import type {PixelFormat, StillImageFormat} from '@remotion/renderer';
+import type {
+	PixelFormat,
+	StillImageFormat,
+	VideoImageFormat,
+} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {useCallback, useMemo} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
@@ -26,7 +30,7 @@ export const RenderModalPicture: React.FC<{
 	imageFormatOptions: SegmentedControlItem[];
 	setQualityControl: React.Dispatch<React.SetStateAction<QualityControl>>;
 	qualityControlType: QualityControl;
-	videoImageFormat: StillImageFormat;
+	videoImageFormat: VideoImageFormat;
 	stillImageFormat: StillImageFormat;
 	setQuality: React.Dispatch<React.SetStateAction<number>>;
 	quality: number;

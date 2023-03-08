@@ -57,7 +57,6 @@ export const processVideoJob = async ({
 		scale: job.scale,
 		width: null,
 		compositionIdFromUi: job.compositionId,
-		configFileImageFormat: undefined,
 		logLevel: job.verbose ? 'verbose' : 'info',
 		onProgress,
 		indent: true,

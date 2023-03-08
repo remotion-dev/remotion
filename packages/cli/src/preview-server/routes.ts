@@ -71,7 +71,8 @@ const handleFallback = async ({
 	const concurrency = RenderInternals.getActualConcurrency(
 		ConfigInternals.getConcurrency()
 	);
-	const imageFormat = ConfigInternals.getUserPreferredImageFormat();
+	const imageFormat = ConfigInternals.getUserPreferredStillImageFormat();
+	// TODO: ADD videoImageFormat = getUserPreferredVideoImageFormat()
 	const muted = ConfigInternals.getMuted();
 	const enforceAudioTrack = ConfigInternals.getEnforceAudioTrack();
 	const pixelFormat = ConfigInternals.getPixelFormat();

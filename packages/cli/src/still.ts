@@ -45,7 +45,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		scale,
 		stillFrame,
 		width,
-		configFileImageFormat,
 		logLevel,
 	} = await getCliOptions({
 		isLambda: false,
@@ -77,7 +76,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 			width,
 			compositionIdFromUi: null,
 			imageFormatFromUi: null,
-			configFileImageFormat,
 			logLevel,
 			onProgress: () => undefined,
 			indentOutput: false,

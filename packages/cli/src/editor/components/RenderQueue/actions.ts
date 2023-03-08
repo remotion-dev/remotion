@@ -3,6 +3,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import type {ApiRoutes} from '../../../preview-server/api-types';
 import type {
@@ -95,7 +96,7 @@ export const addVideoRenderJob = ({
 }: {
 	compositionId: string;
 	outName: string;
-	imageFormat: StillImageFormat;
+	imageFormat: VideoImageFormat;
 	quality: number | null;
 	scale: number;
 	verbose: boolean;

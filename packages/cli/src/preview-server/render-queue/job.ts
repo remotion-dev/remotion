@@ -4,6 +4,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
+	VideoImageFormat,
 } from '@remotion/renderer';
 
 type RenderJobDynamicStatus =
@@ -41,7 +42,7 @@ type RenderJobDynamicFields =
 	  }
 	| {
 			type: 'video';
-			imageFormat: StillImageFormat;
+			imageFormat: VideoImageFormat;
 			quality: number | null;
 			scale: number;
 			codec: Codec;
@@ -87,7 +88,7 @@ type AddRenderRequestDynamicFields =
 	| {
 			type: 'video';
 			codec: Codec;
-			imageFormat: StillImageFormat;
+			imageFormat: VideoImageFormat;
 			quality: number | null;
 			scale: number;
 			verbose: boolean;

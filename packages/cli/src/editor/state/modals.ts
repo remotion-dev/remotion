@@ -3,6 +3,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import type React from 'react';
 import {createContext} from 'react';
@@ -18,7 +19,7 @@ export type RenderModalState = {
 	compositionId: string;
 	initialFrame: number;
 	initialStillImageFormat: StillImageFormat;
-	initialVideoImageFormat: StillImageFormat;
+	initialVideoImageFormat: VideoImageFormat;
 	initialQuality: number;
 	initialOutName: string;
 	initialScale: number;

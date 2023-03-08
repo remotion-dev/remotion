@@ -8,12 +8,12 @@ import type {
 	Crf,
 	FfmpegOverrideFn,
 	FrameRange,
-	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
 	RenderMediaOnDownload,
 	StitchingState,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import {
 	getCompositions,
@@ -33,7 +33,7 @@ import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
 import {getFinalOutputCodec} from '../get-final-output-codec';
-import {getImageFormat} from '../image-formats';
+import {getVideoImageFormat} from '../image-formats';
 import {INDENT_TOKEN, Log} from '../log';
 import {parsedCli} from '../parse-command-line';
 import type {JobProgressCallback} from '../preview-server/render-queue/job';
@@ -47,6 +47,7 @@ import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
 
+// TODO: rename to renderVideoFlow
 export const renderCompFlow = async ({
 	remotionRoot,
 	fullEntryPoint,
@@ -72,7 +73,6 @@ export const renderCompFlow = async ({
 	concurrency,
 	frameRange,
 	everyNthFrame,
-	configFileImageFormat,
 	outputLocationFromUI,
 	quality,
 	onProgress,
@@ -116,14 +116,13 @@ export const renderCompFlow = async ({
 	concurrency: number | string | null;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
-	configFileImageFormat: ImageFormat | undefined;
 	quality: number | undefined;
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (cb: () => void) => void;
 	crf: Crf | null;
 	cancelSignal: CancelSignal | null;
 	uiCodec: Codec | null;
-	uiImageFormat: 'png' | 'jpeg' | 'none' | null;
+	uiImageFormat: VideoImageFormat;
 	ffmpegOverride: FfmpegOverrideFn;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
@@ -325,9 +324,8 @@ export const renderCompFlow = async ({
 		return renderProgress.update(output);
 	};
 
-	const imageFormat = getImageFormat({
+	const imageFormat = getVideoImageFormat({
 		codec: shouldOutputImageSequence ? undefined : codec,
-		configFileImageFormat,
 		uiImageFormat,
 	});
 
@@ -388,7 +386,7 @@ export const renderCompFlow = async ({
 		Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
 	}
 
-	await renderMedia({
+	const {slowestFrames} = await renderMedia({
 		outputLocation: absoluteOutputFile,
 		composition: {
 			...config,
@@ -438,17 +436,16 @@ export const renderCompFlow = async ({
 			downloadMap,
 		},
 		cancelSignal: cancelSignal ?? undefined,
-		onSlowestFrames: (slowestFrames) => {
-			Log.verboseAdvanced({indent, logLevel});
-			Log.verboseAdvanced({indent, logLevel}, `Slowest frames:`);
-			slowestFrames.forEach(({frame, time}) => {
-				Log.verboseAdvanced(
-					{indent, logLevel},
-					`Frame ${frame} (${time.toFixed(3)}ms)`
-				);
-			});
-		},
 		printLog: (...str) => Log.verboseAdvanced({indent, logLevel}, ...str),
+	});
+
+	Log.verboseAdvanced({indent, logLevel});
+	Log.verboseAdvanced({indent, logLevel}, `Slowest frames:`);
+	slowestFrames.forEach(({frame, time}) => {
+		Log.verboseAdvanced(
+			{indent, logLevel},
+			`Frame ${frame} (${time.toFixed(3)}ms)`
+		);
 	});
 
 	updateRenderProgress();
