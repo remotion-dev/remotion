@@ -29,7 +29,7 @@ In v3.3.39, a new config file format was introduced which flattens the options s
 
 Previously, each config option was two levels deep:
 
-```ts twoslash title="remotion.config.ts"
+```ts title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.Bundling.setCachingEnabled(false);
