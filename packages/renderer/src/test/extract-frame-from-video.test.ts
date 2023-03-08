@@ -1,6 +1,6 @@
 import path from 'path';
 import {expect, test} from 'vitest';
-import {makeDownloadMap} from '../assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {extractFrameFromVideo} from '../extract-frame-from-video';
 
 const src = path.join(
@@ -14,43 +14,47 @@ const src = path.join(
 );
 
 test('Should be able to extract a frame from a video', async () => {
+	const downloadMap = makeDownloadMap();
 	const str = await extractFrameFromVideo({
-		ffmpegExecutable: null,
-		ffprobeExecutable: null,
 		src,
 		time: 1,
 		imageFormat: 'jpeg',
-		downloadMap: makeDownloadMap(),
+		downloadMap,
 		remotionRoot: process.cwd(),
 	});
+
+	cleanDownloadMap(downloadMap);
 
 	expect(str.length).toBeGreaterThan(10000);
 });
 
 test('Should be able to extract a frame from a video as PNG', async () => {
+	const downloadMap = makeDownloadMap();
+
 	const str = await extractFrameFromVideo({
-		ffmpegExecutable: null,
-		ffprobeExecutable: null,
 		src,
 		time: 1,
 		imageFormat: 'png',
-		downloadMap: makeDownloadMap(),
+		downloadMap,
 		remotionRoot: process.cwd(),
 	});
+	cleanDownloadMap(downloadMap);
 
 	expect(str.length).toBeGreaterThan(10000);
 });
 
 test('Should get the last frame if out of range', async () => {
+	const downloadMap = makeDownloadMap();
+
 	const str = await extractFrameFromVideo({
-		ffmpegExecutable: null,
-		ffprobeExecutable: null,
 		src,
 		time: 100,
 		imageFormat: 'jpeg',
-		downloadMap: makeDownloadMap(),
+		downloadMap,
 		remotionRoot: process.cwd(),
 	});
+
+	cleanDownloadMap(downloadMap);
 
 	expect(str.length).toBeGreaterThan(10000);
 });

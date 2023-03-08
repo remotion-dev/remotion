@@ -10,3 +10,15 @@ coverage
 ensure-correct-version.js
 vitest.config.ts
 .turbo
+rollup-version.config.js
+rollup.config.js
+tsconfig-cjs.json
+tsconfig.json
+dist/tsconfig-cjs.tsbuildinfo
+.rollup.cache
+.prettierrc.js
+dist/esm/**.d.ts
+dist/esm/**/**.d.ts
+dist/cjs/test
+dist/tsconfig-esm.tsbuildinfo
+tsconfig-esm.json

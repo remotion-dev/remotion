@@ -1,4 +1,4 @@
-import type {AudioCodec, FfmpegExecutable} from '@remotion/renderer';
+import type {AudioCodec} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs, {createWriteStream, promises} from 'fs';
 import path, {join} from 'path';
@@ -177,8 +177,6 @@ export const concatVideosS3 = async ({
 	codec,
 	fps,
 	numberOfGifLoops,
-	ffmpegExecutable,
-	remotionRoot,
 	files,
 	outdir,
 	audioCodec,
@@ -188,8 +186,6 @@ export const concatVideosS3 = async ({
 	codec: LambdaCodec;
 	fps: number;
 	numberOfGifLoops: number | null;
-	ffmpegExecutable: FfmpegExecutable;
-	remotionRoot: string;
 	files: string[];
 	outdir: string;
 	audioCodec: AudioCodec | null;
@@ -210,8 +206,6 @@ export const concatVideosS3 = async ({
 		codec,
 		fps,
 		numberOfGifLoops,
-		ffmpegExecutable,
-		remotionRoot,
 		audioCodec,
 	});
 	combine.end();

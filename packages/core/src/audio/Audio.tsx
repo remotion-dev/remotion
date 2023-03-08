@@ -1,15 +1,15 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
-import {useRemotionEnvironment} from '../get-environment';
-import {Loop} from '../loop';
-import {Sequence} from '../Sequence';
-import {useVideoConfig} from '../use-video-config';
-import {validateMediaProps} from '../validate-media-props';
-import {validateStartFromProps} from '../validate-start-from-props';
-import {DurationsContext} from '../video/duration-state';
-import {AudioForDevelopment} from './AudioForDevelopment';
-import {AudioForRendering} from './AudioForRendering';
-import type {RemotionAudioProps, RemotionMainAudioProps} from './props';
-import {SharedAudioContext} from './shared-audio-tags';
+import {useRemotionEnvironment} from '../get-environment.js';
+import {Loop} from '../loop/index.js';
+import {Sequence} from '../Sequence.js';
+import {useVideoConfig} from '../use-video-config.js';
+import {validateMediaProps} from '../validate-media-props.js';
+import {validateStartFromProps} from '../validate-start-from-props.js';
+import {DurationsContext} from '../video/duration-state.js';
+import {AudioForDevelopment} from './AudioForDevelopment.js';
+import {AudioForRendering} from './AudioForRendering.js';
+import type {RemotionAudioProps, RemotionMainAudioProps} from './props.js';
+import {SharedAudioContext} from './shared-audio-tags.js';
 
 const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	HTMLAudioElement,
@@ -103,4 +103,8 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	);
 };
 
+/**
+ * @description With this component, you can add audio to your video. All audio formats which are supported by Chromium are supported by the component.
+ * @see [Documentation](https://www.remotion.dev/docs/audio)
+ */
 export const Audio = forwardRef(AudioRefForwardingFunction);

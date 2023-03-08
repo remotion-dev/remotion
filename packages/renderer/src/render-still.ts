@@ -11,7 +11,6 @@ import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {StillImageFormat} from './image-format';
 import {validateNonNullImageFormat} from './image-format';
@@ -25,7 +24,6 @@ import {validateQuality} from './quality';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {takeFrameAndCompose} from './take-frame-and-compose';
-import {validateFrame} from './validate-frame';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 
@@ -46,8 +44,6 @@ type InnerStillOptions = {
 	scale?: number;
 	onDownload?: RenderMediaOnDownload;
 	cancelSignal?: CancelSignal;
-	ffmpegExecutable?: FfmpegExecutable;
-	ffprobeExecutable?: FfmpegExecutable;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
@@ -102,12 +98,13 @@ const innerRenderStill = async ({
 		'in the `config` object of `renderStill()`',
 		false
 	);
-	Internals.validateDurationInFrames(
-		composition.durationInFrames,
-		'in the `config` object passed to `renderStill()`'
-	);
+	Internals.validateDurationInFrames({
+		durationInFrames: composition.durationInFrames,
+		component: 'in the `config` object passed to `renderStill()`',
+		allowFloats: false,
+	});
 	validateNonNullImageFormat(imageFormat);
-	validateFrame(frame, composition.durationInFrames);
+	Internals.validateFrame(frame, composition.durationInFrames);
 	const stillFrame = convertToPositiveFrameIndex({
 		durationInFrames: composition.durationInFrames,
 		frame,
@@ -255,7 +252,7 @@ const innerRenderStill = async ({
 /**
  *
  * @description Render a still frame from a composition
- * @link https://www.remotion.dev/docs/renderer/render-still
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/render-still)
  */
 export const renderStill = (
 	options: RenderStillOptions
@@ -273,8 +270,6 @@ export const renderStill = (
 			webpackConfigOrServeUrl: options.serveUrl,
 			onDownload,
 			onError,
-			ffmpegExecutable: options.ffmpegExecutable ?? null,
-			ffprobeExecutable: options.ffprobeExecutable ?? null,
 			port: options.port ?? null,
 			downloadMap,
 			remotionRoot: findRemotionRoot(),

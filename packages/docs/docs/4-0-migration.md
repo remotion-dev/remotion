@@ -29,15 +29,46 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 
 Run `npm i `, `yarn` or `pnpm i` respectively afterwards.
 
+## Config file changes
+
+```diff
+- import {Config} from 'remotion';
++ import {Config} from '@remotion/cli/config';
+```
+
+## Dropped support for Lambda `architecture`
+
+When deploying a Lambda, you were previously able to choose between the `arm64` and `x86_64` architecture.  
+From v4.0 on, only `arm64` is supported. It should be faster, cheaper and not have any different behavior than `x86_64`.
+
+**How to upgrade**: Remove the `architecture` option from `estimatePrice()` and `deployFunction()`.
+
+## Rich timeline removed
+
+The option to use the "Rich timeline" has been removed due to performance problems.  
+The timeline is now always in simple mode, but supports more timeline layers at once.
+
+## ProRes videos now export uncompressed audio by default
+
+Previously, the `aac` audio codec was the default for ProRes exports. The default is now `pcm_s16le` which stands for uncompressed 16-bit low-endian PCM audio.  
+This change was made since users export ProRes mainly for getting high-quality footage to be further used in video editing programs.
+
+## No more FFmpeg install, `ffmpegExecutable` option removed
+
+## Moved `onSlowestFrames` API
+
+In V3, `onSlowestFrames` has been a callback function that you could pass to `renderMedia()`.  
+In V4, this API has been moved to the [return type](/docs/renderer/render-media#return-value).
+
 ## Removal of deprecated APIs
 
-- `Config.setOutputFormat()` was deprecated in v1.4 and has now been removed. Use `setImageSequence()` and `setImageFormat()` and `setCodec()` instead.
+- `Config.setOutputFormat()` was deprecated in v1.4 and has now been removed. Use `setImageSequence()`, `setVideoImageFormat()` and `setCodec()` in combination instead.
 
-- `downloadVideo()` does not work anymore, use `downloadMedia()` with the same API instead.
+- `downloadVideo()` alias has been removed, use [`downloadMedia()`](/docs/lambda/downloadmedia) with the same API instead.
 
-- `<MotionBlur>` has been removed. Use `<Trail>` instead.
+- `<MotionBlur>` has been removed. Use [`<Trail>`](/docs/motion-blur/trail) instead.
 
-- `getParts()` has been removed. Use `getSubpaths()` instead:
+- `getParts()` has been removed. Use [`getSubpaths()`](/docs/paths/get-subpaths) instead:
 
 ```tsx twoslash title="paths.ts"
 import {

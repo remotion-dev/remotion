@@ -1,6 +1,6 @@
 import {describe, expect, test} from 'vitest';
-import {validateMediaProps} from '../validate-media-props';
-import {expectToThrow} from './expect-to-throw';
+import {validateMediaProps} from '../validate-media-props.js';
+import {expectToThrow} from './expect-to-throw.js';
 
 describe('ValidateMediaProps should throw with invalid volume inputs', () => {
 	const testComponents: string[] = ['Audio', 'Video'];
