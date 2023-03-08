@@ -78,6 +78,63 @@ const AvailableCompositions: React.FC = () => {
 	);
 };
 
+const TestCORS: React.FC = () => {
+	const [serveUrl, setServeUrl] = useState('');
+	const [result, setResult] = useState('');
+
+	const handleServeUrl = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			setServeUrl(e.target.value);
+		},
+		[]
+	);
+
+	const isCORSWorking: React.FormEventHandler<HTMLFormElement> = useCallback(
+		async (e) => {
+			e.preventDefault();
+			try {
+				const response = await fetch(serveUrl, {mode: 'cors'});
+
+				if (response.ok) {
+					setResult(`CORS is enabled on this URL: ${serveUrl}`);
+				} else {
+					setResult(
+						'URL does not support CORS - See DevTools console for more details'
+					);
+				}
+			} catch (error) {
+				setResult(
+					'URL does not support CORS - See DevTools console for more details'
+				);
+			}
+		},
+		[serveUrl]
+	);
+
+	return (
+		<div>
+			<p>
+				Quickly test if a URL is supported being loaded on origin{' '}
+				<code>{window.location.origin}</code>. Enter the URL of an asset below.
+			</p>
+			{result ? <p className="result">{result}</p> : null}
+			<form onSubmit={isCORSWorking}>
+				<label htmlFor="serveurl">
+					<input
+						placeholder="Enter URL"
+						type="text"
+						name="serveurl"
+						value={serveUrl}
+						onChange={handleServeUrl}
+					/>
+				</label>
+				<br />
+				<button type="submit">Test CORS</button>
+			</form>
+		</div>
+	);
+};
+
 export const Homepage: React.FC = () => {
 	const url = window.location.origin + window.location.pathname;
 	return (
@@ -114,6 +171,11 @@ export const Homepage: React.FC = () => {
 				</a>{' '}
 				to read the documentation.
 			</p>
+			<h2>CORS testing tool</h2>
+			<TestCORS />
+			<br />
+			<br />
+			<br />
 		</div>
 	);
 };

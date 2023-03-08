@@ -2,23 +2,28 @@
  * @vitest-environment jsdom
  */
 import {render} from '@testing-library/react';
+import {renderToString} from 'react-dom/server';
 import {describe, expect, test} from 'vitest';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import {Sequence} from '../Sequence';
-import {expectToThrow} from './expect-to-throw';
-import {WrapSequenceContext} from './wrap-sequence-context';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {Sequence} from '../Sequence.js';
+import {expectToThrow} from './expect-to-throw.js';
+import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 describe('Composition-validation render should throw with invalid props', () => {
 	describe('Throw with invalid duration props', () => {
 		test('It should throw if Sequence has non-integer durationInFrames', () => {
-			expectToThrow(
-				() =>
-					render(
-						<Sequence from={0} durationInFrames={1.1}>
-							hi
-						</Sequence>
-					),
-				/The "durationInFrames" of a sequence must be an integer, but got 1.1./
+			expect(
+				renderToString(
+					<CanUseRemotionHooksProvider>
+						<WrapSequenceContext>
+							<Sequence from={0} durationInFrames={1.1}>
+								hi
+							</Sequence>
+						</WrapSequenceContext>
+					</CanUseRemotionHooksProvider>
+				)
+			).toBe(
+				'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex">hi</div>'
 			);
 		});
 		test('It should throw if Sequence has negative duration', () => {
@@ -36,17 +41,6 @@ describe('Composition-validation render should throw with invalid props', () => 
 				// @ts-expect-error
 				() => render(<Sequence from={'0'} durationInFrames={30} />),
 				/You passed to the "from" props of your <Sequence> an argument of type string, but it must be a number./
-			);
-		});
-		test('It should throw if Sequence has non-integer from', () => {
-			expectToThrow(
-				() =>
-					render(
-						<Sequence from={0.1} durationInFrames={1}>
-							hi
-						</Sequence>
-					),
-				/The "from" prop of a sequence must be an integer, but got 0.1./
 			);
 		});
 	});

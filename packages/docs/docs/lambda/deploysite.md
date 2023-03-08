@@ -105,7 +105,7 @@ Whether webpack caching should be enabled. See [`bundle()` -> enableCaching](/do
 
 _optional, available from v3.2.17_
 
-Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the Remotion root folder.
+Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology#remotion-root) folder. If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology#remotion-root).
 
 #### `rootDir?`
 
@@ -116,6 +116,10 @@ The directory in which the Remotion project is rooted in. This should be set to 
 :::note
 The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
 :::
+
+#### `ignoreRegisterRootWarning?` <AvailableFrom v="3.3.55" />
+
+Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
 
 ## Return value
 

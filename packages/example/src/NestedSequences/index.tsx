@@ -11,7 +11,7 @@ const NestedSequences: React.FC = () => {
 
 const NestedTwo = () => {
 	return (
-		<Sequence from={20} durationInFrames={60}>
+		<Sequence from={20.5} durationInFrames={60}>
 			<Child />
 		</Sequence>
 	);

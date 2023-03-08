@@ -1,4 +1,4 @@
-import { DEFAULT_TIMEOUT } from "@remotion/lambda/dist/defaults";
+import { DEFAULT_TIMEOUT } from "@remotion/lambda/defaults";
 import React from "react";
 
 export const DefaultTimeout: React.FC = () => {

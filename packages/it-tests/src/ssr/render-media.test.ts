@@ -104,7 +104,7 @@ test("Render video to a buffer", async () => {
     throw new Error("not found");
   }
 
-  const buffer = await renderMedia({
+  const { buffer } = await renderMedia({
     codec: "h264",
     serveUrl: "https://gleaming-wisp-de5d2a.netlify.app/",
     composition: reactSvg,

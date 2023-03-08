@@ -18,9 +18,6 @@ vi.mock('../functions/helpers/print-cloudwatch-helper', () =>
 vi.mock('../functions/helpers/get-current-region', () =>
 	vi.importActual('../functions/helpers/__mocks__/get-current-region')
 );
-vi.mock('../functions/helpers/get-current-architecture', () =>
-	vi.importActual('../functions/helpers/__mocks__/get-current-architecture')
-);
 vi.mock('../functions/helpers/get-browser-instance', () =>
 	vi.importActual('../functions/helpers/__mocks__/get-browser-instance')
 );

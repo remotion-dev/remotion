@@ -14,9 +14,9 @@ This list tries to compile all templates, libraries, building blocks and example
 - [React Three Fiber](https://github.com/remotion-dev/template-three)
 - [Stills](https://github.com/remotion-dev/template-still)
 - [TTS template](https://github.com/FelippeChemello/Remotion-TTS-Example)
-- [Audiogram](https://github.com/marcusstenbeck/template-audiogram)
-- [Skia](https://github.com/marcusstenbeck/template-skia)
-- [Tailwind](https://github.com/marcusstenbeck/template-tailwind)
+- [Audiogram](https://github.com/marcusstenbeck/remotion-template-audiogram)
+- [Skia](https://github.com/remotion-dev/template-skia)
+- [Tailwind](https://github.com/remotion-dev/template-tailwind)
 - [Hello World Template with pull request video previews](https://github.com/stoat-dev/example-remotion)
 
 ## SaaS starter Kits
@@ -41,10 +41,11 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Noise](/docs/noise)
 - [Path animations](/docs/paths)
 
-## Animation Libraries
+## Animation helpers
 
 - [Remotion Animated](https://www.remotion-animated.dev/)
 - [remotion-transition-series](https://github.com/marcusstenbeck/remotion-transition-series)
+- [remotion-time](https://github.com/fwextensions/remotion-time) - use seconds instead of frame
 
 ## Full projects
 
@@ -57,7 +58,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Product Hunt Today](https://github.com/Kamigami55/product-hunt-today)
 - [Remotion Weather](https://github.com/florentpergoud/remotion-weather)
 - [Rewind Table](https://github.com/gregonarash/rewind-table) _(Airtable templates for Remotion)_
-
+- [Conference Speaker Announcement Cards](https://github.com/lyonjs/social-video-generator)
 ## Examples
 
 - [Music with Tone.JS](https://github.com/remotion-dev/tone-js-example)
@@ -78,6 +79,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Conference talk in React](https://github.com/pomber/record-talk-with-remotion)
 - [Conference talk in React #2](https://github.com/JonnyBurger/react-summit-talk)
 - [Twitch stinger example](https://github.com/JonnyBurger/ledevevent-stinger)
+- [DevContainer Template](https://github.com/openscript/remotion-devcontainer-template)
 
 ## Videos
 

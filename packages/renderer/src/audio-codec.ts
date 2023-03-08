@@ -87,8 +87,7 @@ export const defaultAudioCodecs: {
 	},
 	prores: {
 		lossless: 'pcm-16',
-		// V4.0: Make pcm the default
-		compressed: 'aac',
+		compressed: 'pcm-16',
 	},
 	vp8: {
 		lossless: 'pcm-16',

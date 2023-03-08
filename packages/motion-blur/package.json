@@ -1,14 +1,15 @@
 {
 	"name": "@remotion/motion-blur",
-	"version": "3.3.44",
+	"version": "3.3.63",
 	"description": "Motion blur effect for Remotion",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
-		"build": "tsc -d"
+		"build": "rollup --config rollup.config.js && tsc -d"
 	},
 	"author": "Matt McGillivray, Ilija Boshkov <ilija@codechem.com>, Jonny Burger <jonny@remotion.dev>",
 	"contributors": [],
@@ -20,21 +21,32 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "3.3.44"
+		"remotion": "3.3.63"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
 	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/cjs/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/cjs/index.js"
+		}
+	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
+		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/react": "18.0.26",
 		"eslint": "8.25.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
-		"remotion": "3.2.39",
+		"remotion": "3.3.58",
+		"rollup": "^2.70.1",
 		"typescript": "^4.7.0"
 	},
 	"keywords": [
