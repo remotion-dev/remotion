@@ -33,7 +33,7 @@ export const screenshotTask = async ({
 	});
 	stopPerfMeasure(perfTarget);
 
-	const shouldSetDefaultBackground = omitBackground && format === 'png';
+	const shouldSetDefaultBackground = omitBackground;
 	if (shouldSetDefaultBackground)
 		await client.send('Emulation.setDefaultBackgroundColorOverride', {
 			color: {r: 0, g: 0, b: 0, a: 0},
@@ -51,7 +51,7 @@ export const screenshotTask = async ({
 				marginLeft: 0,
 				marginRight: 0,
 				scale: 1,
-				printBackground: !omitBackground,
+				printBackground: true,
 			});
 		} else {
 			result = await client.send('Page.captureScreenshot', {
