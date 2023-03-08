@@ -4,7 +4,7 @@ import type {ClipRegion, TAsset} from 'remotion';
 import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
 import {compose} from './compositor/compose';
-import type {ImageFormat} from './image-format';
+import type {StillImageFormat, VideoImageFormat} from './image-format';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {truthy} from './truthy';
@@ -22,7 +22,7 @@ export const takeFrameAndCompose = async ({
 	wantsBuffer,
 }: {
 	freePage: Page;
-	imageFormat: ImageFormat;
+	imageFormat: VideoImageFormat | StillImageFormat;
 	quality: number | undefined;
 	frame: number;
 	height: number;
@@ -60,9 +60,7 @@ export const takeFrameAndCompose = async ({
 	}
 
 	if (imageFormat === 'pdf' && clipRegion !== null) {
-		throw new Error(
-			"You can only pass a `clip region` if `imageFormat` is 'jpeg' or 'png'."
-		);
+		throw new Error("You cannot use `<Clipper>` if `imageFormat` is 'pdf'.");
 	}
 
 	const needsComposing =

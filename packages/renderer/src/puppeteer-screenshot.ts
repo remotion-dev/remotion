@@ -1,12 +1,12 @@
 import * as assert from 'assert';
 import type {ClipRegion} from 'remotion';
 import type {Page} from './browser/BrowserPage';
-import type {ImageFormatWithoutNone, StillImageFormat} from './image-format';
+import type {StillImageFormat} from './image-format';
 import {screenshotTask} from './screenshot-task';
 
 export const screenshot = (options: {
 	page: Page;
-	type: ImageFormatWithoutNone;
+	type: StillImageFormat;
 	path?: string;
 	quality?: number;
 	omitBackground: boolean;
@@ -14,39 +14,10 @@ export const screenshot = (options: {
 	height: number;
 	clipRegion: ClipRegion | null;
 }): Promise<Buffer | string> => {
-	let screenshotType: ImageFormatWithoutNone | null = null;
-	// options.type takes precedence over inferring the type from options.path
-	// because it may be a 0-length file with no extension created beforehand
-	// (i.e. as a temp file).
-	if (options.type) {
-		assert.ok(
-			['png', 'jpeg', 'pdf'].includes(options.type),
-			'Unknown options.type value: ' + options.type
-		);
-		screenshotType = options.type;
-	} else if (options.path) {
-		const filePath = options.path;
-		const extension = filePath
-			.slice(filePath.lastIndexOf('.') + 1)
-			.toLowerCase();
-		if (extension === 'png') screenshotType = 'png';
-		else if (extension === 'jpg' || extension === 'jpeg')
-			screenshotType = 'jpeg';
-		else if (extension === 'pdf') screenshotType = 'pdf';
-		assert.ok(
-			screenshotType,
-			`Unsupported screenshot type for extension \`.${extension}\``
-		);
-	}
-
-	if (!screenshotType) screenshotType = 'png';
-
 	if (options.quality) {
 		assert.ok(
-			screenshotType === 'jpeg',
-			'options.quality is unsupported for the ' +
-				screenshotType +
-				' screenshots'
+			options.type === 'jpeg',
+			`options.quality is unsupported for the ${options.type} screenshots`
 		);
 		assert.ok(
 			typeof options.quality === 'number',
@@ -67,7 +38,7 @@ export const screenshot = (options: {
 	return options.page.screenshotTaskQueue.postTask(() =>
 		screenshotTask({
 			page: options.page,
-			format: screenshotType as StillImageFormat,
+			format: options.type,
 			height: options.height,
 			width: options.width,
 			omitBackground: options.omitBackground,
