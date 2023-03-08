@@ -1,13 +1,14 @@
 {
   "name": "@remotion/rive",
-  "version": "1.0.0",
+  "version": "3.3.64",
   "description": "Remotion Rive",
   "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.ts",
   "module": "dist/esm/index.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "rollup --config rollup.config.js && tsc -d"
+    "build": "rollup --config rollup.config.js && tsc -d",
+    "watch": "tsc -w"
   },
   "repository": {
     "url": "https://github.com/remotion-dev/remotion"
@@ -24,10 +25,10 @@
   ],
   "dependencies": {
     "remotion": "^3.3.62",
-    "rive-js": "^0.7.33"
+    "rive-js": "^0.7.33",
+    "@rive-app/canvas-advanced": "^1.0.98"
   },
   "peerDependencies": {
-    "@rive-app/react-canvas": "^3.0.38",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
