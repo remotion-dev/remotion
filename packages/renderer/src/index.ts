@@ -82,7 +82,6 @@ export {PixelFormat} from './pixel-format';
 export {ProResProfile} from './prores-profile';
 export {renderFrames} from './render-frames';
 export {
-	OnSlowestFrames,
 	renderMedia,
 	RenderMediaOnProgress,
 	RenderMediaOptions,
