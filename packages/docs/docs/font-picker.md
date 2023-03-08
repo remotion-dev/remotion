@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-font-picker.png
 id: font-picker
 title: Build a Google Font picker
 crumb: "Building video apps"
