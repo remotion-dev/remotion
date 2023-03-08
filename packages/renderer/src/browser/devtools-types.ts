@@ -625,6 +625,86 @@ export interface CaptureScreenshotResponse {
 	data: string;
 }
 
+export interface PrintPDFRequest {
+	/**
+	 * Paper orientation. Defaults to false.
+	 */
+	landscape?: boolean;
+	/**
+	 * Display header and footer. Defaults to false.
+	 */
+	displayHeaderFooter?: boolean;
+	/**
+	 * Print background graphics. Defaults to false.
+	 */
+	printBackground?: boolean;
+	/**
+	 * Scale of the webpage rendering. Defaults to 1.
+	 */
+	scale?: number;
+	/**
+	 * Paper width in inches. Defaults to 8.5 inches.
+	 */
+	paperWidth?: number;
+	/**
+	 * Paper height in inches. Defaults to 11 inches.
+	 */
+	paperHeight?: number;
+	/**
+	 * Top margin in inches. Defaults to 1cm (~0.4 inches).
+	 */
+	marginTop?: number;
+	/**
+	 * Bottom margin in inches. Defaults to 1cm (~0.4 inches).
+	 */
+	marginBottom?: number;
+	/**
+	 * Left margin in inches. Defaults to 1cm (~0.4 inches).
+	 */
+	marginLeft?: number;
+	/**
+	 * Right margin in inches. Defaults to 1cm (~0.4 inches).
+	 */
+	marginRight?: number;
+	/**
+	 * Paper ranges to print, one based, e.g., '1-5, 8, 11-13'.
+	 * Pages are printed in the document order, not in the order specified,
+	 * and no more than once. Defaults to empty string,
+	 * which implies the entire document is printed.
+	 * The page numbers are quietly capped to actual page count of the document,
+	 * and ranges beyond the end of the document are ignored.
+	 * If this results in no pages to print, an error is reported.
+	 * It is an error to specify a range with start greater than end.
+	 */
+	pageRanges?: string;
+	/**
+	 * HTML template for the print header.
+	 * Should be valid HTML markup with following classes used to inject printing values into them:
+	 * date: formatted print date
+	 * title: document title
+	 * url: document location
+	 * pageNumber: current page number
+	 * totalPages: total pages in the document
+	 * For example, <span class=title></span> would generate span containing the title.
+	 */
+	headerTemplate?: string;
+	/**
+	 * HTML template for the print footer. Should use the same format as the headerTemplate.
+	 */
+	footerTemplate?: string;
+	/**
+	 * Whether or not to prefer page size as defined by css. Defaults to false, in which case the content will be scaled to fit the paper size.
+	 */
+	preferCSSPageSize?: boolean;
+}
+
+export interface PrintPDFResponse {
+	/**
+	 * Base64-encoded pdf data. Empty if |returnAsStream| is specified. (Encoded as a base64 string when passed over JSON)
+	 */
+	data: string;
+}
+
 export interface RequestWillBeSentEvent {
 	/**
 	 * Request identifier.

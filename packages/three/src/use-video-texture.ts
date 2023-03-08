@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from 'react';
 import type {Video} from 'remotion';
 import {continueRender, delayRender, useCurrentFrame} from 'remotion';
-import {VideoTexture} from 'three/src/textures/VideoTexture';
+import type {VideoTexture} from 'three/src/textures/VideoTexture';
 
 export type UseVideoTextureOptions = React.ComponentProps<typeof Video>;
 
@@ -25,23 +25,41 @@ const warnAboutRequestVideoFrameCallback = () => {
 export const useVideoTexture = (
 	videoRef: React.RefObject<HTMLVideoElement>
 ): VideoTexture | null => {
-	const [loaded] = useState(() =>
-		delayRender(`Waiting for texture in useVideoTexture() to be loaded`)
-	);
-	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
-	const frame = useCurrentFrame();
-
-	const onReady = useCallback(() => {
-		if (!videoRef.current) {
-			throw new Error('Video not ready');
+	const [loaded] = useState(() => {
+		if (typeof document === 'undefined') {
+			return 0;
 		}
 
-		const vt = new VideoTexture(videoRef.current);
-		videoRef.current.width = videoRef.current.videoWidth;
-		videoRef.current.height = videoRef.current.videoHeight;
-		setVideoTexture(vt);
-		continueRender(loaded);
-	}, [loaded, videoRef]);
+		return delayRender(`Waiting for texture in useVideoTexture() to be loaded`);
+	});
+	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
+	const [vidText] = useState(
+		() => import('three/src/textures/VideoTexture.js')
+	);
+	const [error, setError] = useState<Error | null>(null);
+	const frame = useCurrentFrame();
+
+	if (error) {
+		throw error;
+	}
+
+	const onReady = useCallback(() => {
+		vidText
+			.then(({VideoTexture}) => {
+				if (!videoRef.current) {
+					throw new Error('Video not ready');
+				}
+
+				const vt = new VideoTexture(videoRef.current);
+				videoRef.current.width = videoRef.current.videoWidth;
+				videoRef.current.height = videoRef.current.videoHeight;
+				setVideoTexture(vt);
+				continueRender(loaded);
+			})
+			.catch((err) => {
+				setError(err);
+			});
+	}, [loaded, vidText, videoRef]);
 
 	React.useEffect(() => {
 		if (!videoRef.current) {

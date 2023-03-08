@@ -4,7 +4,7 @@ import type {ClipRegion, TAsset} from 'remotion';
 import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
 import {compose} from './compositor/compose';
-import type {ImageFormat} from './image-format';
+import type {StillImageFormat, VideoImageFormat} from './image-format';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {truthy} from './truthy';
@@ -22,7 +22,7 @@ export const takeFrameAndCompose = async ({
 	wantsBuffer,
 }: {
 	freePage: Page;
-	imageFormat: ImageFormat;
+	imageFormat: VideoImageFormat | StillImageFormat;
 	quality: number | undefined;
 	frame: number;
 	height: number;
@@ -67,7 +67,7 @@ export const takeFrameAndCompose = async ({
 						downloadMap.compositingDir,
 						`${frame}.${imageFormat}`
 					),
-					finalOutfie:
+					finalOutFile:
 						output ??
 						path.join(
 							downloadMap.compositingDir,
@@ -97,6 +97,18 @@ export const takeFrameAndCompose = async ({
 	}
 
 	if (needsComposing) {
+		if (imageFormat === 'pdf') {
+			throw new Error(
+				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'pdf'."
+			);
+		}
+
+		if (imageFormat === 'webp') {
+			throw new Error(
+				"You cannot use compositor APIs (like <Clipper>) if `imageFormat` is 'webp'."
+			);
+		}
+
 		await compose({
 			height: height * scale,
 			width: width * scale,
@@ -117,13 +129,13 @@ export const takeFrameAndCompose = async ({
 							},
 					  },
 			].filter(truthy),
-			output: needsComposing.finalOutfie,
+			output: needsComposing.finalOutFile,
 			downloadMap,
 			imageFormat: imageFormat === 'jpeg' ? 'Jpeg' : 'Png',
 		});
 		if (wantsBuffer) {
-			const buffer = await fs.promises.readFile(needsComposing.finalOutfie);
-			await fs.promises.unlink(needsComposing.finalOutfie);
+			const buffer = await fs.promises.readFile(needsComposing.finalOutFile);
+			await fs.promises.unlink(needsComposing.finalOutFile);
 			return {buffer, collectedAssets};
 		}
 	}

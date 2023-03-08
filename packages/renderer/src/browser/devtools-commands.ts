@@ -17,6 +17,8 @@ import type {
 	GetFrameTreeResponse,
 	NavigateRequest,
 	NavigateResponse,
+	PrintPDFRequest,
+	PrintPDFResponse,
 	ReleaseObjectRequest,
 	SetAutoAttachRequest,
 	SetDefaultBackgroundColorOverrideRequest,
@@ -240,6 +242,10 @@ export interface Commands {
 	'Page.captureScreenshot': {
 		paramsType: [CaptureScreenshotRequest?];
 		returnType: CaptureScreenshotResponse;
+	};
+	'Page.printToPDF': {
+		paramsType: [PrintPDFRequest];
+		returnType: PrintPDFResponse;
 	};
 	'Target.activateTarget': {
 		paramsType: [ActivateTargetRequest];

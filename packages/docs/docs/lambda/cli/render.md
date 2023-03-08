@@ -152,7 +152,7 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `--image-format`
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setimageformat) The default image format is `jpeg`.
+[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setvideoimageformat) The default image format is `jpeg`.
 
 ### `--scale`
 

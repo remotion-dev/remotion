@@ -24,7 +24,7 @@ import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
-import type {ImageFormat} from './image-format';
+import type {VideoImageFormat} from './image-format';
 import {validateSelectedPixelFormatAndImageFormatCombination} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
@@ -56,7 +56,6 @@ export type StitchingState = 'encoding' | 'muxing';
 const SLOWEST_FRAME_COUNT = 10;
 
 export type SlowFrame = {frame: number; time: number};
-export type OnSlowestFrames = (frames: SlowFrame[]) => void;
 
 export type RenderMediaOnProgress = (progress: {
 	renderedFrames: number;
@@ -73,7 +72,7 @@ export type RenderMediaOptions = {
 	composition: SmallTCompMetadata;
 	inputProps?: unknown;
 	crf?: number | null;
-	imageFormat?: 'png' | 'jpeg' | 'none';
+	imageFormat?: VideoImageFormat;
 	pixelFormat?: PixelFormat;
 	envVariables?: Record<string, string>;
 	quality?: number;
@@ -111,7 +110,6 @@ export type RenderMediaOptions = {
 	ffmpegOverride?: FfmpegOverrideFn;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	onSlowestFrames?: OnSlowestFrames;
 	disallowParallelEncoding?: boolean;
 	printLog?: (...data: unknown[]) => void;
 	audioCodec?: AudioCodec | null;
@@ -141,6 +139,11 @@ const getConcurrency = (others: ConcurrencyOrParallelism) => {
 	}
 
 	return null;
+};
+
+type RenderMediaResult = {
+	buffer: Buffer | null;
+	slowestFrames: SlowFrame[];
 };
 
 /**
@@ -176,10 +179,9 @@ export const renderMedia = ({
 	ffmpegOverride,
 	audioBitrate,
 	videoBitrate,
-	onSlowestFrames,
 	audioCodec,
 	...options
-}: RenderMediaOptions): Promise<Buffer | null> => {
+}: RenderMediaOptions): Promise<RenderMediaResult> => {
 	validateQuality(options.quality);
 	validateQualitySettings({crf, codec, videoBitrate});
 	validateBitrate(audioBitrate, 'audioBitrate');
@@ -258,7 +260,7 @@ export const renderMedia = ({
 		}
 	}
 
-	const imageFormat: ImageFormat = isAudioCodec(codec)
+	const imageFormat: VideoImageFormat = isAudioCodec(codec)
 		? 'none'
 		: options.imageFormat ?? 'jpeg';
 	const quality = imageFormat === 'jpeg' ? options.quality : undefined;
@@ -508,8 +510,11 @@ export const renderMedia = ({
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
 			slowestFrames.sort((a, b) => b.time - a.time);
-			onSlowestFrames?.(slowestFrames);
-			return buffer;
+			const result: RenderMediaResult = {
+				buffer,
+				slowestFrames,
+			};
+			return result;
 		})
 		.catch((err) => {
 			/**
@@ -556,7 +561,7 @@ export const renderMedia = ({
 
 	return Promise.race([
 		happyPath,
-		new Promise<Buffer | null>((_resolve, reject) => {
+		new Promise<RenderMediaResult>((_resolve, reject) => {
 			cancelSignal?.(() => {
 				reject(new Error(cancelErrorMessages.renderMedia));
 			});

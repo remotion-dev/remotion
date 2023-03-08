@@ -2,11 +2,12 @@ import type {
 	AudioCodec,
 	BrowserExecutable,
 	Codec,
-	ImageFormat,
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
+	StillImageFormat,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import minimist from 'minimist';
@@ -16,7 +17,7 @@ import {Log} from './log';
 export type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
-	['image-format']: ImageFormat;
+	['image-format']: VideoImageFormat | StillImageFormat;
 	['prores-profile']: ProResProfile;
 	['bundle-cache']: string;
 	['env-file']: string;
@@ -97,10 +98,6 @@ export const parseCommandLine = () => {
 		Config.setPixelFormat(parsedCli['pixel-format']);
 	}
 
-	if (parsedCli['image-format']) {
-		Config.setImageFormat(parsedCli['image-format']);
-	}
-
 	if (parsedCli['browser-executable']) {
 		Config.setBrowserExecutable(parsedCli['browser-executable']);
 	}
@@ -164,11 +161,9 @@ export const parseCommandLine = () => {
 	}
 
 	if (parsedCli.png) {
-		Log.warn(
+		throw new Error(
 			'The --png flag has been deprecrated. Use --sequence --image-format=png from now on.'
 		);
-		Config.setImageSequence(true);
-		Config.setImageFormat('png');
 	}
 
 	if (parsedCli.sequence) {
