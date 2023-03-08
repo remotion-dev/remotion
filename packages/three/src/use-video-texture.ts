@@ -25,46 +25,30 @@ const warnAboutRequestVideoFrameCallback = () => {
 export const useVideoTexture = (
 	videoRef: React.RefObject<HTMLVideoElement>
 ): VideoTexture | null => {
-	const [handle] = useState(() =>
+	const [loaded] = useState(() =>
 		delayRender(`Waiting for texture in useVideoTexture() to be loaded`)
 	);
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
 	const [vidText] = useState(
 		() => import('three/src/textures/VideoTexture.js')
 	);
-	const [error, setErr] = useState<null | Error>(null);
 	const frame = useCurrentFrame();
 
-	if (error) {
-		throw error;
-	}
-
 	const onReady = useCallback(() => {
-		vidText
-			.then(({VideoTexture}) => {
-				if (!videoRef.current) {
-					throw new Error('Video not ready');
-				}
+		vidText.then(({VideoTexture}) => {
+			if (!videoRef.current) {
+				throw new Error('Video not ready');
+			}
 
-				const vt = new VideoTexture(videoRef.current);
-				videoRef.current.width = videoRef.current.videoWidth;
-				videoRef.current.height = videoRef.current.videoHeight;
-				setVideoTexture(vt);
-				continueRender(handle);
-			})
-			.catch((err) => {
-				setErr(err);
-				console.error(err);
-			});
-	}, [handle, vidText, videoRef]);
+			const vt = new VideoTexture(videoRef.current);
+			videoRef.current.width = videoRef.current.videoWidth;
+			videoRef.current.height = videoRef.current.videoHeight;
+			setVideoTexture(vt);
+			continueRender(loaded);
+		});
+	}, [loaded, vidText, videoRef]);
 
 	React.useEffect(() => {
-		if (typeof document === 'undefined') {
-			// Do not trigger onReady in SSR
-			continueRender(handle);
-			return;
-		}
-
 		if (!videoRef.current) {
 			return;
 		}
@@ -81,7 +65,7 @@ export const useVideoTexture = (
 			},
 			{once: true}
 		);
-	}, [handle, onReady, videoRef]);
+	}, [loaded, onReady, videoRef]);
 
 	React.useEffect(() => {
 		const {current} = videoRef;
@@ -100,13 +84,13 @@ export const useVideoTexture = (
 		};
 
 		current.requestVideoFrameCallback(ready);
-	}, [frame, handle, videoRef]);
+	}, [frame, loaded, videoRef]);
 
 	if (
 		typeof HTMLVideoElement === 'undefined' ||
 		!HTMLVideoElement.prototype.requestVideoFrameCallback
 	) {
-		continueRender(handle);
+		continueRender(loaded);
 		return null;
 	}
 
