@@ -11,7 +11,13 @@ export default [
 				sourcemap: false,
 			},
 		],
-		external: ['react', 'remotion', 'react/jsx-runtime'],
+		external: [
+			'react',
+			'remotion',
+			'react/jsx-runtime',
+			'@react-three/fiber',
+			'three/src/textures/VideoTexture.js',
+		],
 		plugins: [
 			typescript({
 				tsconfig: 'tsconfig-esm.json',

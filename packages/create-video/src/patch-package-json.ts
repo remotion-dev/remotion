@@ -26,25 +26,31 @@ export const patchPackageJson = (
 	const contents = getPackageJson(fileName);
 	const packageJson = JSON.parse(contents);
 
-	const {name, dependencies, ...others} = packageJson;
+	const {name, dependencies, devDependencies, ...others} = packageJson;
 
-	const newDependencies = Object.keys(dependencies)
-		.map((d) => {
-			if (listOfRemotionPackages.includes(d)) {
-				return [d, latestRemotionVersion];
-			}
+	const [newDependencies, newDevDependencies] = [
+		dependencies,
+		devDependencies ?? {},
+	].map((depsField) => {
+		return Object.keys(depsField)
+			.map((d) => {
+				if (listOfRemotionPackages.includes(d)) {
+					return [d, latestRemotionVersion];
+				}
 
-			return [d, dependencies[d]];
-		})
-		.reduce((a, b) => {
-			return {...a, [b[0]]: b[1]};
-		}, {});
+				return [d, depsField[d]];
+			})
+			.reduce((a, b) => {
+				return {...a, [b[0]]: b[1]};
+			}, {});
+	});
 
 	const newPackageJson = JSON.stringify(
 		{
 			name: projectName,
 			...others,
 			dependencies: newDependencies,
+			devDependencies: newDevDependencies,
 			...(packageManager ? {packageManager} : {}),
 		},
 		undefined,
