@@ -73,7 +73,7 @@ export const getConfig = ({
 		webpackOverride: options?.webpackOverride ?? ((f) => f),
 		onProgress,
 		enableCaching: options?.enableCaching ?? true,
-		maxTimelineTracks: 15,
+		maxTimelineTracks: 90,
 		// For production, the variables are set dynamically
 		envVariables: {},
 		entryPoints: [],
