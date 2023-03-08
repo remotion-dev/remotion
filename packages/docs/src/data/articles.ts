@@ -329,6 +329,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "font-picker",
+    title: "Build a Google Font picker",
+    relativePath: "docs/font-picker.md",
+    compId: "articles-docs-font-picker",
+    crumb: "Building video apps",
+  },
+  {
     id: "freeze",
     title: "<Freeze>",
     relativePath: "docs/freeze.md",
