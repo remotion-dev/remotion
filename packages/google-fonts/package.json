@@ -1,4505 +1,4524 @@
 {
   "name": "@remotion/google-fonts",
-  "version": "3.3.63",
+  "version": "3.3.64",
   "description": "Load Google Fonts in Remotion",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.mjs",
   "scripts": {
-    "build": "pnpm run generate && tsc -d",
+    "build": "pnpm run generate && rollup --config rollup.config.js",
     "watch": "tsc -w",
     "generate": "ts-node scripts/generate.ts && ts-node scripts/generate-index.ts",
     "prepublishOnly": "node ensure-generation.js"
   },
   "license": "SEE LICENSE IN LICENSE.md",
   "dependencies": {
-    "remotion": "3.3.63"
+    "remotion": "3.3.64"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^8.2.0",
     "@types/css-font-loading-module": "^0.0.7",
     "@types/node": "^18.0.3",
     "@types/prettier": "^2.7.1",
     "got": "^11",
     "postcss": "^8.4.18",
     "prettier": "^2.7.1",
+    "rollup": "^2.70.1",
     "ts-node": "^10.8.0",
     "typescript": "^4.7.0"
   },
   "files": [
     "dist"
   ],
-  "types": "dist/index.d.ts",
+  "types": "dist/cjs/index.d.ts",
   "typesVersions": {
     ">=1.0": {
       "ABeeZee": [
-        "dist/ABeeZee.d.ts"
+        "dist/esm/ABeeZee.d.ts"
       ],
       "Abel": [
-        "dist/Abel.d.ts"
+        "dist/esm/Abel.d.ts"
       ],
       "AbhayaLibre": [
-        "dist/AbhayaLibre.d.ts"
+        "dist/esm/AbhayaLibre.d.ts"
       ],
       "Aboreto": [
-        "dist/Aboreto.d.ts"
+        "dist/esm/Aboreto.d.ts"
       ],
       "AbrilFatface": [
-        "dist/AbrilFatface.d.ts"
+        "dist/esm/AbrilFatface.d.ts"
       ],
       "AbyssinicaSIL": [
-        "dist/AbyssinicaSIL.d.ts"
+        "dist/esm/AbyssinicaSIL.d.ts"
       ],
       "Aclonica": [
-        "dist/Aclonica.d.ts"
+        "dist/esm/Aclonica.d.ts"
       ],
       "Acme": [
-        "dist/Acme.d.ts"
+        "dist/esm/Acme.d.ts"
       ],
       "Actor": [
-        "dist/Actor.d.ts"
+        "dist/esm/Actor.d.ts"
       ],
       "Adamina": [
-        "dist/Adamina.d.ts"
+        "dist/esm/Adamina.d.ts"
       ],
       "AdventPro": [
-        "dist/AdventPro.d.ts"
+        "dist/esm/AdventPro.d.ts"
       ],
       "AguafinaScript": [
-        "dist/AguafinaScript.d.ts"
+        "dist/esm/AguafinaScript.d.ts"
       ],
       "AkayaKanadaka": [
-        "dist/AkayaKanadaka.d.ts"
+        "dist/esm/AkayaKanadaka.d.ts"
       ],
       "AkayaTelivigala": [
-        "dist/AkayaTelivigala.d.ts"
+        "dist/esm/AkayaTelivigala.d.ts"
       ],
       "Akronim": [
-        "dist/Akronim.d.ts"
+        "dist/esm/Akronim.d.ts"
       ],
       "Akshar": [
-        "dist/Akshar.d.ts"
+        "dist/esm/Akshar.d.ts"
       ],
       "Aladin": [
-        "dist/Aladin.d.ts"
+        "dist/esm/Aladin.d.ts"
       ],
       "Alata": [
-        "dist/Alata.d.ts"
+        "dist/esm/Alata.d.ts"
       ],
       "Alatsi": [
-        "dist/Alatsi.d.ts"
+        "dist/esm/Alatsi.d.ts"
       ],
       "AlbertSans": [
-        "dist/AlbertSans.d.ts"
+        "dist/esm/AlbertSans.d.ts"
       ],
       "Aldrich": [
-        "dist/Aldrich.d.ts"
+        "dist/esm/Aldrich.d.ts"
       ],
       "Alef": [
-        "dist/Alef.d.ts"
+        "dist/esm/Alef.d.ts"
       ],
       "Alegreya": [
-        "dist/Alegreya.d.ts"
+        "dist/esm/Alegreya.d.ts"
       ],
       "AlegreyaSC": [
-        "dist/AlegreyaSC.d.ts"
+        "dist/esm/AlegreyaSC.d.ts"
       ],
       "AlegreyaSans": [
-        "dist/AlegreyaSans.d.ts"
+        "dist/esm/AlegreyaSans.d.ts"
       ],
       "AlegreyaSansSC": [
-        "dist/AlegreyaSansSC.d.ts"
+        "dist/esm/AlegreyaSansSC.d.ts"
       ],
       "Aleo": [
-        "dist/Aleo.d.ts"
+        "dist/esm/Aleo.d.ts"
       ],
       "AlexBrush": [
-        "dist/AlexBrush.d.ts"
+        "dist/esm/AlexBrush.d.ts"
       ],
       "AlfaSlabOne": [
-        "dist/AlfaSlabOne.d.ts"
+        "dist/esm/AlfaSlabOne.d.ts"
       ],
       "Alice": [
-        "dist/Alice.d.ts"
+        "dist/esm/Alice.d.ts"
       ],
       "Alike": [
-        "dist/Alike.d.ts"
+        "dist/esm/Alike.d.ts"
       ],
       "AlikeAngular": [
-        "dist/AlikeAngular.d.ts"
+        "dist/esm/AlikeAngular.d.ts"
       ],
       "Alkalami": [
-        "dist/Alkalami.d.ts"
+        "dist/esm/Alkalami.d.ts"
       ],
       "Allan": [
-        "dist/Allan.d.ts"
+        "dist/esm/Allan.d.ts"
       ],
       "Allerta": [
-        "dist/Allerta.d.ts"
+        "dist/esm/Allerta.d.ts"
       ],
       "AllertaStencil": [
-        "dist/AllertaStencil.d.ts"
+        "dist/esm/AllertaStencil.d.ts"
       ],
       "Allison": [
-        "dist/Allison.d.ts"
+        "dist/esm/Allison.d.ts"
       ],
       "Allura": [
-        "dist/Allura.d.ts"
+        "dist/esm/Allura.d.ts"
       ],
       "Almarai": [
-        "dist/Almarai.d.ts"
+        "dist/esm/Almarai.d.ts"
       ],
       "Almendra": [
-        "dist/Almendra.d.ts"
+        "dist/esm/Almendra.d.ts"
       ],
       "AlmendraDisplay": [
-        "dist/AlmendraDisplay.d.ts"
+        "dist/esm/AlmendraDisplay.d.ts"
       ],
       "AlmendraSC": [
-        "dist/AlmendraSC.d.ts"
+        "dist/esm/AlmendraSC.d.ts"
       ],
       "AlumniSans": [
-        "dist/AlumniSans.d.ts"
+        "dist/esm/AlumniSans.d.ts"
       ],
       "AlumniSansCollegiateOne": [
-        "dist/AlumniSansCollegiateOne.d.ts"
+        "dist/esm/AlumniSansCollegiateOne.d.ts"
       ],
       "AlumniSansInlineOne": [
-        "dist/AlumniSansInlineOne.d.ts"
+        "dist/esm/AlumniSansInlineOne.d.ts"
       ],
       "AlumniSansPinstripe": [
-        "dist/AlumniSansPinstripe.d.ts"
+        "dist/esm/AlumniSansPinstripe.d.ts"
       ],
       "Amarante": [
-        "dist/Amarante.d.ts"
+        "dist/esm/Amarante.d.ts"
       ],
       "Amaranth": [
-        "dist/Amaranth.d.ts"
+        "dist/esm/Amaranth.d.ts"
       ],
       "AmaticSC": [
-        "dist/AmaticSC.d.ts"
+        "dist/esm/AmaticSC.d.ts"
       ],
       "Amethysta": [
-        "dist/Amethysta.d.ts"
+        "dist/esm/Amethysta.d.ts"
       ],
       "Amiko": [
-        "dist/Amiko.d.ts"
+        "dist/esm/Amiko.d.ts"
       ],
       "Amiri": [
-        "dist/Amiri.d.ts"
+        "dist/esm/Amiri.d.ts"
       ],
       "AmiriQuran": [
-        "dist/AmiriQuran.d.ts"
+        "dist/esm/AmiriQuran.d.ts"
       ],
       "Amita": [
-        "dist/Amita.d.ts"
+        "dist/esm/Amita.d.ts"
       ],
       "Anaheim": [
-        "dist/Anaheim.d.ts"
+        "dist/esm/Anaheim.d.ts"
       ],
       "AndadaPro": [
-        "dist/AndadaPro.d.ts"
+        "dist/esm/AndadaPro.d.ts"
       ],
       "Andika": [
-        "dist/Andika.d.ts"
+        "dist/esm/Andika.d.ts"
       ],
       "AnekBangla": [
-        "dist/AnekBangla.d.ts"
+        "dist/esm/AnekBangla.d.ts"
       ],
       "AnekDevanagari": [
-        "dist/AnekDevanagari.d.ts"
+        "dist/esm/AnekDevanagari.d.ts"
       ],
       "AnekGujarati": [
-        "dist/AnekGujarati.d.ts"
+        "dist/esm/AnekGujarati.d.ts"
       ],
       "AnekGurmukhi": [
-        "dist/AnekGurmukhi.d.ts"
+        "dist/esm/AnekGurmukhi.d.ts"
       ],
       "AnekKannada": [
-        "dist/AnekKannada.d.ts"
+        "dist/esm/AnekKannada.d.ts"
       ],
       "AnekLatin": [
-        "dist/AnekLatin.d.ts"
+        "dist/esm/AnekLatin.d.ts"
       ],
       "AnekMalayalam": [
-        "dist/AnekMalayalam.d.ts"
+        "dist/esm/AnekMalayalam.d.ts"
       ],
       "AnekOdia": [
-        "dist/AnekOdia.d.ts"
+        "dist/esm/AnekOdia.d.ts"
       ],
       "AnekTamil": [
-        "dist/AnekTamil.d.ts"
+        "dist/esm/AnekTamil.d.ts"
       ],
       "AnekTelugu": [
-        "dist/AnekTelugu.d.ts"
+        "dist/esm/AnekTelugu.d.ts"
       ],
       "Angkor": [
-        "dist/Angkor.d.ts"
+        "dist/esm/Angkor.d.ts"
       ],
       "AnnieUseYourTelescope": [
-        "dist/AnnieUseYourTelescope.d.ts"
+        "dist/esm/AnnieUseYourTelescope.d.ts"
       ],
       "AnonymousPro": [
-        "dist/AnonymousPro.d.ts"
+        "dist/esm/AnonymousPro.d.ts"
       ],
       "Antic": [
-        "dist/Antic.d.ts"
+        "dist/esm/Antic.d.ts"
       ],
       "AnticDidone": [
-        "dist/AnticDidone.d.ts"
+        "dist/esm/AnticDidone.d.ts"
       ],
       "AnticSlab": [
-        "dist/AnticSlab.d.ts"
+        "dist/esm/AnticSlab.d.ts"
       ],
       "Anton": [
-        "dist/Anton.d.ts"
+        "dist/esm/Anton.d.ts"
       ],
       "Antonio": [
-        "dist/Antonio.d.ts"
+        "dist/esm/Antonio.d.ts"
       ],
       "Anybody": [
-        "dist/Anybody.d.ts"
+        "dist/esm/Anybody.d.ts"
       ],
       "Arapey": [
-        "dist/Arapey.d.ts"
+        "dist/esm/Arapey.d.ts"
       ],
       "Arbutus": [
-        "dist/Arbutus.d.ts"
+        "dist/esm/Arbutus.d.ts"
       ],
       "ArbutusSlab": [
-        "dist/ArbutusSlab.d.ts"
+        "dist/esm/ArbutusSlab.d.ts"
       ],
       "ArchitectsDaughter": [
-        "dist/ArchitectsDaughter.d.ts"
+        "dist/esm/ArchitectsDaughter.d.ts"
       ],
       "Archivo": [
-        "dist/Archivo.d.ts"
+        "dist/esm/Archivo.d.ts"
       ],
       "ArchivoBlack": [
-        "dist/ArchivoBlack.d.ts"
+        "dist/esm/ArchivoBlack.d.ts"
       ],
       "ArchivoNarrow": [
-        "dist/ArchivoNarrow.d.ts"
+        "dist/esm/ArchivoNarrow.d.ts"
       ],
       "AreYouSerious": [
-        "dist/AreYouSerious.d.ts"
+        "dist/esm/AreYouSerious.d.ts"
       ],
       "ArefRuqaa": [
-        "dist/ArefRuqaa.d.ts"
+        "dist/esm/ArefRuqaa.d.ts"
       ],
       "ArefRuqaaInk": [
-        "dist/ArefRuqaaInk.d.ts"
+        "dist/esm/ArefRuqaaInk.d.ts"
       ],
       "Arima": [
-        "dist/Arima.d.ts"
+        "dist/esm/Arima.d.ts"
       ],
       "ArimaMadurai": [
-        "dist/ArimaMadurai.d.ts"
+        "dist/esm/ArimaMadurai.d.ts"
       ],
       "Arimo": [
-        "dist/Arimo.d.ts"
+        "dist/esm/Arimo.d.ts"
       ],
       "Arizonia": [
-        "dist/Arizonia.d.ts"
+        "dist/esm/Arizonia.d.ts"
       ],
       "Armata": [
-        "dist/Armata.d.ts"
+        "dist/esm/Armata.d.ts"
       ],
       "Arsenal": [
-        "dist/Arsenal.d.ts"
+        "dist/esm/Arsenal.d.ts"
       ],
       "Artifika": [
-        "dist/Artifika.d.ts"
+        "dist/esm/Artifika.d.ts"
       ],
       "Arvo": [
-        "dist/Arvo.d.ts"
+        "dist/esm/Arvo.d.ts"
       ],
       "Arya": [
-        "dist/Arya.d.ts"
+        "dist/esm/Arya.d.ts"
       ],
       "Asap": [
-        "dist/Asap.d.ts"
+        "dist/esm/Asap.d.ts"
       ],
       "AsapCondensed": [
-        "dist/AsapCondensed.d.ts"
+        "dist/esm/AsapCondensed.d.ts"
       ],
       "Asar": [
-        "dist/Asar.d.ts"
+        "dist/esm/Asar.d.ts"
       ],
       "Asset": [
-        "dist/Asset.d.ts"
+        "dist/esm/Asset.d.ts"
       ],
       "Assistant": [
-        "dist/Assistant.d.ts"
+        "dist/esm/Assistant.d.ts"
       ],
       "Astloch": [
-        "dist/Astloch.d.ts"
+        "dist/esm/Astloch.d.ts"
       ],
       "Asul": [
-        "dist/Asul.d.ts"
+        "dist/esm/Asul.d.ts"
       ],
       "Athiti": [
-        "dist/Athiti.d.ts"
+        "dist/esm/Athiti.d.ts"
       ],
       "AtkinsonHyperlegible": [
-        "dist/AtkinsonHyperlegible.d.ts"
+        "dist/esm/AtkinsonHyperlegible.d.ts"
       ],
       "Atma": [
-        "dist/Atma.d.ts"
+        "dist/esm/Atma.d.ts"
       ],
       "AtomicAge": [
-        "dist/AtomicAge.d.ts"
+        "dist/esm/AtomicAge.d.ts"
       ],
       "Aubrey": [
-        "dist/Aubrey.d.ts"
+        "dist/esm/Aubrey.d.ts"
       ],
       "Audiowide": [
-        "dist/Audiowide.d.ts"
+        "dist/esm/Audiowide.d.ts"
       ],
       "AutourOne": [
-        "dist/AutourOne.d.ts"
+        "dist/esm/AutourOne.d.ts"
       ],
       "Average": [
-        "dist/Average.d.ts"
+        "dist/esm/Average.d.ts"
       ],
       "AverageSans": [
-        "dist/AverageSans.d.ts"
+        "dist/esm/AverageSans.d.ts"
       ],
       "AveriaGruesaLibre": [
-        "dist/AveriaGruesaLibre.d.ts"
+        "dist/esm/AveriaGruesaLibre.d.ts"
       ],
       "AveriaLibre": [
-        "dist/AveriaLibre.d.ts"
+        "dist/esm/AveriaLibre.d.ts"
       ],
       "AveriaSansLibre": [
-        "dist/AveriaSansLibre.d.ts"
+        "dist/esm/AveriaSansLibre.d.ts"
       ],
       "AveriaSerifLibre": [
-        "dist/AveriaSerifLibre.d.ts"
+        "dist/esm/AveriaSerifLibre.d.ts"
       ],
       "AzeretMono": [
-        "dist/AzeretMono.d.ts"
+        "dist/esm/AzeretMono.d.ts"
       ],
       "B612": [
-        "dist/B612.d.ts"
+        "dist/esm/B612.d.ts"
       ],
       "B612Mono": [
-        "dist/B612Mono.d.ts"
+        "dist/esm/B612Mono.d.ts"
       ],
       "BIZUDGothic": [
-        "dist/BIZUDGothic.d.ts"
+        "dist/esm/BIZUDGothic.d.ts"
       ],
       "BIZUDMincho": [
-        "dist/BIZUDMincho.d.ts"
+        "dist/esm/BIZUDMincho.d.ts"
       ],
       "BIZUDPGothic": [
-        "dist/BIZUDPGothic.d.ts"
+        "dist/esm/BIZUDPGothic.d.ts"
       ],
       "BIZUDPMincho": [
-        "dist/BIZUDPMincho.d.ts"
+        "dist/esm/BIZUDPMincho.d.ts"
       ],
       "Babylonica": [
-        "dist/Babylonica.d.ts"
+        "dist/esm/Babylonica.d.ts"
       ],
       "BadScript": [
-        "dist/BadScript.d.ts"
+        "dist/esm/BadScript.d.ts"
       ],
       "Bahiana": [
-        "dist/Bahiana.d.ts"
+        "dist/esm/Bahiana.d.ts"
       ],
       "Bahianita": [
-        "dist/Bahianita.d.ts"
+        "dist/esm/Bahianita.d.ts"
       ],
       "BaiJamjuree": [
-        "dist/BaiJamjuree.d.ts"
+        "dist/esm/BaiJamjuree.d.ts"
       ],
       "BakbakOne": [
-        "dist/BakbakOne.d.ts"
+        "dist/esm/BakbakOne.d.ts"
       ],
       "Ballet": [
-        "dist/Ballet.d.ts"
+        "dist/esm/Ballet.d.ts"
       ],
       "Baloo2": [
-        "dist/Baloo2.d.ts"
+        "dist/esm/Baloo2.d.ts"
       ],
       "BalooBhai2": [
-        "dist/BalooBhai2.d.ts"
+        "dist/esm/BalooBhai2.d.ts"
       ],
       "BalooBhaijaan2": [
-        "dist/BalooBhaijaan2.d.ts"
+        "dist/esm/BalooBhaijaan2.d.ts"
       ],
       "BalooBhaina2": [
-        "dist/BalooBhaina2.d.ts"
+        "dist/esm/BalooBhaina2.d.ts"
       ],
       "BalooChettan2": [
-        "dist/BalooChettan2.d.ts"
+        "dist/esm/BalooChettan2.d.ts"
       ],
       "BalooDa2": [
-        "dist/BalooDa2.d.ts"
+        "dist/esm/BalooDa2.d.ts"
       ],
       "BalooPaaji2": [
-        "dist/BalooPaaji2.d.ts"
+        "dist/esm/BalooPaaji2.d.ts"
       ],
       "BalooTamma2": [
-        "dist/BalooTamma2.d.ts"
+        "dist/esm/BalooTamma2.d.ts"
       ],
       "BalooTammudu2": [
-        "dist/BalooTammudu2.d.ts"
+        "dist/esm/BalooTammudu2.d.ts"
       ],
       "BalooThambi2": [
-        "dist/BalooThambi2.d.ts"
+        "dist/esm/BalooThambi2.d.ts"
       ],
       "BalsamiqSans": [
-        "dist/BalsamiqSans.d.ts"
+        "dist/esm/BalsamiqSans.d.ts"
       ],
       "Balthazar": [
-        "dist/Balthazar.d.ts"
+        "dist/esm/Balthazar.d.ts"
       ],
       "Bangers": [
-        "dist/Bangers.d.ts"
+        "dist/esm/Bangers.d.ts"
       ],
       "Barlow": [
-        "dist/Barlow.d.ts"
+        "dist/esm/Barlow.d.ts"
       ],
       "BarlowCondensed": [
-        "dist/BarlowCondensed.d.ts"
+        "dist/esm/BarlowCondensed.d.ts"
       ],
       "BarlowSemiCondensed": [
-        "dist/BarlowSemiCondensed.d.ts"
+        "dist/esm/BarlowSemiCondensed.d.ts"
       ],
       "Barriecito": [
-        "dist/Barriecito.d.ts"
+        "dist/esm/Barriecito.d.ts"
       ],
       "Barrio": [
-        "dist/Barrio.d.ts"
+        "dist/esm/Barrio.d.ts"
       ],
       "Basic": [
-        "dist/Basic.d.ts"
+        "dist/esm/Basic.d.ts"
       ],
       "Baskervville": [
-        "dist/Baskervville.d.ts"
+        "dist/esm/Baskervville.d.ts"
       ],
       "Battambang": [
-        "dist/Battambang.d.ts"
+        "dist/esm/Battambang.d.ts"
       ],
       "Baumans": [
-        "dist/Baumans.d.ts"
+        "dist/esm/Baumans.d.ts"
       ],
       "Bayon": [
-        "dist/Bayon.d.ts"
+        "dist/esm/Bayon.d.ts"
       ],
       "BeVietnamPro": [
-        "dist/BeVietnamPro.d.ts"
+        "dist/esm/BeVietnamPro.d.ts"
       ],
       "BeauRivage": [
-        "dist/BeauRivage.d.ts"
+        "dist/esm/BeauRivage.d.ts"
       ],
       "BebasNeue": [
-        "dist/BebasNeue.d.ts"
+        "dist/esm/BebasNeue.d.ts"
       ],
       "Belgrano": [
-        "dist/Belgrano.d.ts"
+        "dist/esm/Belgrano.d.ts"
       ],
       "Bellefair": [
-        "dist/Bellefair.d.ts"
+        "dist/esm/Bellefair.d.ts"
       ],
       "Belleza": [
-        "dist/Belleza.d.ts"
+        "dist/esm/Belleza.d.ts"
       ],
       "Bellota": [
-        "dist/Bellota.d.ts"
+        "dist/esm/Bellota.d.ts"
       ],
       "BellotaText": [
-        "dist/BellotaText.d.ts"
+        "dist/esm/BellotaText.d.ts"
       ],
       "BenchNine": [
-        "dist/BenchNine.d.ts"
+        "dist/esm/BenchNine.d.ts"
       ],
       "Benne": [
-        "dist/Benne.d.ts"
+        "dist/esm/Benne.d.ts"
       ],
       "Bentham": [
-        "dist/Bentham.d.ts"
+        "dist/esm/Bentham.d.ts"
       ],
       "BerkshireSwash": [
-        "dist/BerkshireSwash.d.ts"
+        "dist/esm/BerkshireSwash.d.ts"
       ],
       "Besley": [
-        "dist/Besley.d.ts"
+        "dist/esm/Besley.d.ts"
       ],
       "BethEllen": [
-        "dist/BethEllen.d.ts"
+        "dist/esm/BethEllen.d.ts"
       ],
       "Bevan": [
-        "dist/Bevan.d.ts"
+        "dist/esm/Bevan.d.ts"
       ],
       "BhuTukaExpandedOne": [
-        "dist/BhuTukaExpandedOne.d.ts"
+        "dist/esm/BhuTukaExpandedOne.d.ts"
       ],
       "BigShouldersDisplay": [
-        "dist/BigShouldersDisplay.d.ts"
+        "dist/esm/BigShouldersDisplay.d.ts"
       ],
       "BigShouldersInlineDisplay": [
-        "dist/BigShouldersInlineDisplay.d.ts"
+        "dist/esm/BigShouldersInlineDisplay.d.ts"
       ],
       "BigShouldersInlineText": [
-        "dist/BigShouldersInlineText.d.ts"
+        "dist/esm/BigShouldersInlineText.d.ts"
       ],
       "BigShouldersStencilDisplay": [
-        "dist/BigShouldersStencilDisplay.d.ts"
+        "dist/esm/BigShouldersStencilDisplay.d.ts"
       ],
       "BigShouldersStencilText": [
-        "dist/BigShouldersStencilText.d.ts"
+        "dist/esm/BigShouldersStencilText.d.ts"
       ],
       "BigShouldersText": [
-        "dist/BigShouldersText.d.ts"
+        "dist/esm/BigShouldersText.d.ts"
       ],
       "BigelowRules": [
-        "dist/BigelowRules.d.ts"
+        "dist/esm/BigelowRules.d.ts"
       ],
       "BigshotOne": [
-        "dist/BigshotOne.d.ts"
+        "dist/esm/BigshotOne.d.ts"
       ],
       "Bilbo": [
-        "dist/Bilbo.d.ts"
+        "dist/esm/Bilbo.d.ts"
       ],
       "BilboSwashCaps": [
-        "dist/BilboSwashCaps.d.ts"
+        "dist/esm/BilboSwashCaps.d.ts"
       ],
       "BioRhyme": [
-        "dist/BioRhyme.d.ts"
+        "dist/esm/BioRhyme.d.ts"
       ],
       "BioRhymeExpanded": [
-        "dist/BioRhymeExpanded.d.ts"
+        "dist/esm/BioRhymeExpanded.d.ts"
       ],
       "Birthstone": [
-        "dist/Birthstone.d.ts"
+        "dist/esm/Birthstone.d.ts"
       ],
       "BirthstoneBounce": [
-        "dist/BirthstoneBounce.d.ts"
+        "dist/esm/BirthstoneBounce.d.ts"
       ],
       "Biryani": [
-        "dist/Biryani.d.ts"
+        "dist/esm/Biryani.d.ts"
       ],
       "Bitter": [
-        "dist/Bitter.d.ts"
+        "dist/esm/Bitter.d.ts"
       ],
       "BlackAndWhitePicture": [
-        "dist/BlackAndWhitePicture.d.ts"
+        "dist/esm/BlackAndWhitePicture.d.ts"
       ],
       "BlackHanSans": [
-        "dist/BlackHanSans.d.ts"
+        "dist/esm/BlackHanSans.d.ts"
       ],
       "BlackOpsOne": [
-        "dist/BlackOpsOne.d.ts"
+        "dist/esm/BlackOpsOne.d.ts"
       ],
       "Blaka": [
-        "dist/Blaka.d.ts"
+        "dist/esm/Blaka.d.ts"
       ],
       "BlakaHollow": [
-        "dist/BlakaHollow.d.ts"
+        "dist/esm/BlakaHollow.d.ts"
       ],
       "BlakaInk": [
-        "dist/BlakaInk.d.ts"
+        "dist/esm/BlakaInk.d.ts"
       ],
       "Blinker": [
-        "dist/Blinker.d.ts"
+        "dist/esm/Blinker.d.ts"
       ],
       "BodoniModa": [
-        "dist/BodoniModa.d.ts"
+        "dist/esm/BodoniModa.d.ts"
       ],
       "Bokor": [
-        "dist/Bokor.d.ts"
+        "dist/esm/Bokor.d.ts"
       ],
       "BonaNova": [
-        "dist/BonaNova.d.ts"
+        "dist/esm/BonaNova.d.ts"
       ],
       "Bonbon": [
-        "dist/Bonbon.d.ts"
+        "dist/esm/Bonbon.d.ts"
       ],
       "BonheurRoyale": [
-        "dist/BonheurRoyale.d.ts"
+        "dist/esm/BonheurRoyale.d.ts"
       ],
       "Boogaloo": [
-        "dist/Boogaloo.d.ts"
+        "dist/esm/Boogaloo.d.ts"
       ],
       "BowlbyOne": [
-        "dist/BowlbyOne.d.ts"
+        "dist/esm/BowlbyOne.d.ts"
       ],
       "BowlbyOneSC": [
-        "dist/BowlbyOneSC.d.ts"
+        "dist/esm/BowlbyOneSC.d.ts"
       ],
       "Brawler": [
-        "dist/Brawler.d.ts"
+        "dist/esm/Brawler.d.ts"
       ],
       "BreeSerif": [
-        "dist/BreeSerif.d.ts"
+        "dist/esm/BreeSerif.d.ts"
       ],
       "Brygada1918": [
-        "dist/Brygada1918.d.ts"
+        "dist/esm/Brygada1918.d.ts"
       ],
       "BubblegumSans": [
-        "dist/BubblegumSans.d.ts"
+        "dist/esm/BubblegumSans.d.ts"
       ],
       "BubblerOne": [
-        "dist/BubblerOne.d.ts"
+        "dist/esm/BubblerOne.d.ts"
       ],
       "Buda": [
-        "dist/Buda.d.ts"
+        "dist/esm/Buda.d.ts"
       ],
       "Buenard": [
-        "dist/Buenard.d.ts"
+        "dist/esm/Buenard.d.ts"
       ],
       "Bungee": [
-        "dist/Bungee.d.ts"
+        "dist/esm/Bungee.d.ts"
       ],
       "BungeeHairline": [
-        "dist/BungeeHairline.d.ts"
+        "dist/esm/BungeeHairline.d.ts"
       ],
       "BungeeInline": [
-        "dist/BungeeInline.d.ts"
+        "dist/esm/BungeeInline.d.ts"
       ],
       "BungeeOutline": [
-        "dist/BungeeOutline.d.ts"
+        "dist/esm/BungeeOutline.d.ts"
       ],
       "BungeeShade": [
-        "dist/BungeeShade.d.ts"
+        "dist/esm/BungeeShade.d.ts"
       ],
       "BungeeSpice": [
-        "dist/BungeeSpice.d.ts"
+        "dist/esm/BungeeSpice.d.ts"
       ],
       "Butcherman": [
-        "dist/Butcherman.d.ts"
+        "dist/esm/Butcherman.d.ts"
       ],
       "ButterflyKids": [
-        "dist/ButterflyKids.d.ts"
+        "dist/esm/ButterflyKids.d.ts"
       ],
       "Cabin": [
-        "dist/Cabin.d.ts"
+        "dist/esm/Cabin.d.ts"
       ],
       "CabinCondensed": [
-        "dist/CabinCondensed.d.ts"
+        "dist/esm/CabinCondensed.d.ts"
       ],
       "CabinSketch": [
-        "dist/CabinSketch.d.ts"
+        "dist/esm/CabinSketch.d.ts"
       ],
       "CaesarDressing": [
-        "dist/CaesarDressing.d.ts"
+        "dist/esm/CaesarDressing.d.ts"
       ],
       "Cagliostro": [
-        "dist/Cagliostro.d.ts"
+        "dist/esm/Cagliostro.d.ts"
       ],
       "Cairo": [
-        "dist/Cairo.d.ts"
+        "dist/esm/Cairo.d.ts"
       ],
       "CairoPlay": [
-        "dist/CairoPlay.d.ts"
+        "dist/esm/CairoPlay.d.ts"
       ],
       "Caladea": [
-        "dist/Caladea.d.ts"
+        "dist/esm/Caladea.d.ts"
       ],
       "Calistoga": [
-        "dist/Calistoga.d.ts"
+        "dist/esm/Calistoga.d.ts"
       ],
       "Calligraffitti": [
-        "dist/Calligraffitti.d.ts"
+        "dist/esm/Calligraffitti.d.ts"
       ],
       "Cambay": [
-        "dist/Cambay.d.ts"
+        "dist/esm/Cambay.d.ts"
       ],
       "Cambo": [
-        "dist/Cambo.d.ts"
+        "dist/esm/Cambo.d.ts"
       ],
       "Candal": [
-        "dist/Candal.d.ts"
+        "dist/esm/Candal.d.ts"
       ],
       "Cantarell": [
-        "dist/Cantarell.d.ts"
+        "dist/esm/Cantarell.d.ts"
       ],
       "CantataOne": [
-        "dist/CantataOne.d.ts"
+        "dist/esm/CantataOne.d.ts"
       ],
       "CantoraOne": [
-        "dist/CantoraOne.d.ts"
+        "dist/esm/CantoraOne.d.ts"
       ],
       "Capriola": [
-        "dist/Capriola.d.ts"
+        "dist/esm/Capriola.d.ts"
       ],
       "Caramel": [
-        "dist/Caramel.d.ts"
+        "dist/esm/Caramel.d.ts"
       ],
       "Carattere": [
-        "dist/Carattere.d.ts"
+        "dist/esm/Carattere.d.ts"
       ],
       "Cardo": [
-        "dist/Cardo.d.ts"
+        "dist/esm/Cardo.d.ts"
       ],
       "Carme": [
-        "dist/Carme.d.ts"
+        "dist/esm/Carme.d.ts"
       ],
       "CarroisGothic": [
-        "dist/CarroisGothic.d.ts"
+        "dist/esm/CarroisGothic.d.ts"
       ],
       "CarroisGothicSC": [
-        "dist/CarroisGothicSC.d.ts"
+        "dist/esm/CarroisGothicSC.d.ts"
       ],
       "CarterOne": [
-        "dist/CarterOne.d.ts"
+        "dist/esm/CarterOne.d.ts"
       ],
       "Castoro": [
-        "dist/Castoro.d.ts"
+        "dist/esm/Castoro.d.ts"
       ],
       "Catamaran": [
-        "dist/Catamaran.d.ts"
+        "dist/esm/Catamaran.d.ts"
       ],
       "Caudex": [
-        "dist/Caudex.d.ts"
+        "dist/esm/Caudex.d.ts"
       ],
       "Caveat": [
-        "dist/Caveat.d.ts"
+        "dist/esm/Caveat.d.ts"
       ],
       "CaveatBrush": [
-        "dist/CaveatBrush.d.ts"
+        "dist/esm/CaveatBrush.d.ts"
       ],
       "CedarvilleCursive": [
-        "dist/CedarvilleCursive.d.ts"
+        "dist/esm/CedarvilleCursive.d.ts"
       ],
       "CevicheOne": [
-        "dist/CevicheOne.d.ts"
+        "dist/esm/CevicheOne.d.ts"
       ],
       "ChakraPetch": [
-        "dist/ChakraPetch.d.ts"
+        "dist/esm/ChakraPetch.d.ts"
       ],
       "Changa": [
-        "dist/Changa.d.ts"
+        "dist/esm/Changa.d.ts"
       ],
       "ChangaOne": [
-        "dist/ChangaOne.d.ts"
+        "dist/esm/ChangaOne.d.ts"
       ],
       "Chango": [
-        "dist/Chango.d.ts"
+        "dist/esm/Chango.d.ts"
       ],
       "CharisSIL": [
-        "dist/CharisSIL.d.ts"
+        "dist/esm/CharisSIL.d.ts"
       ],
       "Charm": [
-        "dist/Charm.d.ts"
+        "dist/esm/Charm.d.ts"
       ],
       "Charmonman": [
-        "dist/Charmonman.d.ts"
+        "dist/esm/Charmonman.d.ts"
       ],
       "Chathura": [
-        "dist/Chathura.d.ts"
+        "dist/esm/Chathura.d.ts"
       ],
       "ChauPhilomeneOne": [
-        "dist/ChauPhilomeneOne.d.ts"
+        "dist/esm/ChauPhilomeneOne.d.ts"
       ],
       "ChelaOne": [
-        "dist/ChelaOne.d.ts"
+        "dist/esm/ChelaOne.d.ts"
       ],
       "ChelseaMarket": [
-        "dist/ChelseaMarket.d.ts"
+        "dist/esm/ChelseaMarket.d.ts"
       ],
       "Chenla": [
-        "dist/Chenla.d.ts"
+        "dist/esm/Chenla.d.ts"
       ],
       "Cherish": [
-        "dist/Cherish.d.ts"
+        "dist/esm/Cherish.d.ts"
       ],
       "CherryCreamSoda": [
-        "dist/CherryCreamSoda.d.ts"
+        "dist/esm/CherryCreamSoda.d.ts"
       ],
       "CherrySwash": [
-        "dist/CherrySwash.d.ts"
+        "dist/esm/CherrySwash.d.ts"
       ],
       "Chewy": [
-        "dist/Chewy.d.ts"
+        "dist/esm/Chewy.d.ts"
       ],
       "Chicle": [
-        "dist/Chicle.d.ts"
+        "dist/esm/Chicle.d.ts"
       ],
       "Chilanka": [
-        "dist/Chilanka.d.ts"
+        "dist/esm/Chilanka.d.ts"
       ],
       "Chivo": [
-        "dist/Chivo.d.ts"
+        "dist/esm/Chivo.d.ts"
       ],
       "Chonburi": [
-        "dist/Chonburi.d.ts"
+        "dist/esm/Chonburi.d.ts"
       ],
       "Cinzel": [
-        "dist/Cinzel.d.ts"
+        "dist/esm/Cinzel.d.ts"
       ],
       "CinzelDecorative": [
-        "dist/CinzelDecorative.d.ts"
+        "dist/esm/CinzelDecorative.d.ts"
       ],
       "ClickerScript": [
-        "dist/ClickerScript.d.ts"
+        "dist/esm/ClickerScript.d.ts"
       ],
       "Coda": [
-        "dist/Coda.d.ts"
+        "dist/esm/Coda.d.ts"
       ],
       "CodaCaption": [
-        "dist/CodaCaption.d.ts"
+        "dist/esm/CodaCaption.d.ts"
       ],
       "Codystar": [
-        "dist/Codystar.d.ts"
+        "dist/esm/Codystar.d.ts"
       ],
       "Coiny": [
-        "dist/Coiny.d.ts"
+        "dist/esm/Coiny.d.ts"
       ],
       "Combo": [
-        "dist/Combo.d.ts"
+        "dist/esm/Combo.d.ts"
       ],
       "Comfortaa": [
-        "dist/Comfortaa.d.ts"
+        "dist/esm/Comfortaa.d.ts"
       ],
       "Comforter": [
-        "dist/Comforter.d.ts"
+        "dist/esm/Comforter.d.ts"
       ],
       "ComforterBrush": [
-        "dist/ComforterBrush.d.ts"
+        "dist/esm/ComforterBrush.d.ts"
       ],
       "ComicNeue": [
-        "dist/ComicNeue.d.ts"
+        "dist/esm/ComicNeue.d.ts"
       ],
       "ComingSoon": [
-        "dist/ComingSoon.d.ts"
+        "dist/esm/ComingSoon.d.ts"
       ],
       "Commissioner": [
-        "dist/Commissioner.d.ts"
+        "dist/esm/Commissioner.d.ts"
       ],
       "ConcertOne": [
-        "dist/ConcertOne.d.ts"
+        "dist/esm/ConcertOne.d.ts"
       ],
       "Condiment": [
-        "dist/Condiment.d.ts"
+        "dist/esm/Condiment.d.ts"
       ],
       "Content": [
-        "dist/Content.d.ts"
+        "dist/esm/Content.d.ts"
       ],
       "ContrailOne": [
-        "dist/ContrailOne.d.ts"
+        "dist/esm/ContrailOne.d.ts"
       ],
       "Convergence": [
-        "dist/Convergence.d.ts"
+        "dist/esm/Convergence.d.ts"
       ],
       "Cookie": [
-        "dist/Cookie.d.ts"
+        "dist/esm/Cookie.d.ts"
       ],
       "Copse": [
-        "dist/Copse.d.ts"
+        "dist/esm/Copse.d.ts"
       ],
       "Corben": [
-        "dist/Corben.d.ts"
+        "dist/esm/Corben.d.ts"
       ],
       "Corinthia": [
-        "dist/Corinthia.d.ts"
+        "dist/esm/Corinthia.d.ts"
       ],
       "Cormorant": [
-        "dist/Cormorant.d.ts"
+        "dist/esm/Cormorant.d.ts"
       ],
       "CormorantGaramond": [
-        "dist/CormorantGaramond.d.ts"
+        "dist/esm/CormorantGaramond.d.ts"
       ],
       "CormorantInfant": [
-        "dist/CormorantInfant.d.ts"
+        "dist/esm/CormorantInfant.d.ts"
       ],
       "CormorantSC": [
-        "dist/CormorantSC.d.ts"
+        "dist/esm/CormorantSC.d.ts"
       ],
       "CormorantUnicase": [
-        "dist/CormorantUnicase.d.ts"
+        "dist/esm/CormorantUnicase.d.ts"
       ],
       "CormorantUpright": [
-        "dist/CormorantUpright.d.ts"
+        "dist/esm/CormorantUpright.d.ts"
       ],
       "Courgette": [
-        "dist/Courgette.d.ts"
+        "dist/esm/Courgette.d.ts"
       ],
       "CourierPrime": [
-        "dist/CourierPrime.d.ts"
+        "dist/esm/CourierPrime.d.ts"
       ],
       "Cousine": [
-        "dist/Cousine.d.ts"
+        "dist/esm/Cousine.d.ts"
       ],
       "Coustard": [
-        "dist/Coustard.d.ts"
+        "dist/esm/Coustard.d.ts"
       ],
       "CoveredByYourGrace": [
-        "dist/CoveredByYourGrace.d.ts"
+        "dist/esm/CoveredByYourGrace.d.ts"
       ],
       "CraftyGirls": [
-        "dist/CraftyGirls.d.ts"
+        "dist/esm/CraftyGirls.d.ts"
       ],
       "Creepster": [
-        "dist/Creepster.d.ts"
+        "dist/esm/Creepster.d.ts"
       ],
       "CreteRound": [
-        "dist/CreteRound.d.ts"
+        "dist/esm/CreteRound.d.ts"
       ],
       "CrimsonPro": [
-        "dist/CrimsonPro.d.ts"
+        "dist/esm/CrimsonPro.d.ts"
       ],
       "CrimsonText": [
-        "dist/CrimsonText.d.ts"
+        "dist/esm/CrimsonText.d.ts"
       ],
       "CroissantOne": [
-        "dist/CroissantOne.d.ts"
+        "dist/esm/CroissantOne.d.ts"
       ],
       "Crushed": [
-        "dist/Crushed.d.ts"
+        "dist/esm/Crushed.d.ts"
       ],
       "Cuprum": [
-        "dist/Cuprum.d.ts"
+        "dist/esm/Cuprum.d.ts"
       ],
       "CuteFont": [
-        "dist/CuteFont.d.ts"
+        "dist/esm/CuteFont.d.ts"
       ],
       "Cutive": [
-        "dist/Cutive.d.ts"
+        "dist/esm/Cutive.d.ts"
       ],
       "CutiveMono": [
-        "dist/CutiveMono.d.ts"
+        "dist/esm/CutiveMono.d.ts"
       ],
       "DMMono": [
-        "dist/DMMono.d.ts"
+        "dist/esm/DMMono.d.ts"
       ],
       "DMSans": [
-        "dist/DMSans.d.ts"
+        "dist/esm/DMSans.d.ts"
       ],
       "DMSerifDisplay": [
-        "dist/DMSerifDisplay.d.ts"
+        "dist/esm/DMSerifDisplay.d.ts"
       ],
       "DMSerifText": [
-        "dist/DMSerifText.d.ts"
+        "dist/esm/DMSerifText.d.ts"
       ],
       "Damion": [
-        "dist/Damion.d.ts"
+        "dist/esm/Damion.d.ts"
       ],
       "DancingScript": [
-        "dist/DancingScript.d.ts"
+        "dist/esm/DancingScript.d.ts"
       ],
       "Dangrek": [
-        "dist/Dangrek.d.ts"
+        "dist/esm/Dangrek.d.ts"
       ],
       "DarkerGrotesque": [
-        "dist/DarkerGrotesque.d.ts"
+        "dist/esm/DarkerGrotesque.d.ts"
       ],
       "DavidLibre": [
-        "dist/DavidLibre.d.ts"
+        "dist/esm/DavidLibre.d.ts"
       ],
       "DawningofaNewDay": [
-        "dist/DawningofaNewDay.d.ts"
+        "dist/esm/DawningofaNewDay.d.ts"
       ],
       "DaysOne": [
-        "dist/DaysOne.d.ts"
+        "dist/esm/DaysOne.d.ts"
       ],
       "Dekko": [
-        "dist/Dekko.d.ts"
+        "dist/esm/Dekko.d.ts"
       ],
       "DelaGothicOne": [
-        "dist/DelaGothicOne.d.ts"
+        "dist/esm/DelaGothicOne.d.ts"
       ],
       "Delius": [
-        "dist/Delius.d.ts"
+        "dist/esm/Delius.d.ts"
       ],
       "DeliusSwashCaps": [
-        "dist/DeliusSwashCaps.d.ts"
+        "dist/esm/DeliusSwashCaps.d.ts"
       ],
       "DeliusUnicase": [
-        "dist/DeliusUnicase.d.ts"
+        "dist/esm/DeliusUnicase.d.ts"
       ],
       "DellaRespira": [
-        "dist/DellaRespira.d.ts"
+        "dist/esm/DellaRespira.d.ts"
       ],
       "DenkOne": [
-        "dist/DenkOne.d.ts"
+        "dist/esm/DenkOne.d.ts"
       ],
       "Devonshire": [
-        "dist/Devonshire.d.ts"
+        "dist/esm/Devonshire.d.ts"
       ],
       "Dhurjati": [
-        "dist/Dhurjati.d.ts"
+        "dist/esm/Dhurjati.d.ts"
       ],
       "DidactGothic": [
-        "dist/DidactGothic.d.ts"
+        "dist/esm/DidactGothic.d.ts"
       ],
       "Diplomata": [
-        "dist/Diplomata.d.ts"
+        "dist/esm/Diplomata.d.ts"
       ],
       "DiplomataSC": [
-        "dist/DiplomataSC.d.ts"
+        "dist/esm/DiplomataSC.d.ts"
       ],
       "DoHyeon": [
-        "dist/DoHyeon.d.ts"
+        "dist/esm/DoHyeon.d.ts"
       ],
       "Dokdo": [
-        "dist/Dokdo.d.ts"
+        "dist/esm/Dokdo.d.ts"
       ],
       "Domine": [
-        "dist/Domine.d.ts"
+        "dist/esm/Domine.d.ts"
       ],
       "DonegalOne": [
-        "dist/DonegalOne.d.ts"
+        "dist/esm/DonegalOne.d.ts"
       ],
       "Dongle": [
-        "dist/Dongle.d.ts"
+        "dist/esm/Dongle.d.ts"
       ],
       "DoppioOne": [
-        "dist/DoppioOne.d.ts"
+        "dist/esm/DoppioOne.d.ts"
       ],
       "Dorsa": [
-        "dist/Dorsa.d.ts"
+        "dist/esm/Dorsa.d.ts"
       ],
       "Dosis": [
-        "dist/Dosis.d.ts"
+        "dist/esm/Dosis.d.ts"
       ],
       "DotGothic16": [
-        "dist/DotGothic16.d.ts"
+        "dist/esm/DotGothic16.d.ts"
       ],
       "DrSugiyama": [
-        "dist/DrSugiyama.d.ts"
+        "dist/esm/DrSugiyama.d.ts"
       ],
       "DuruSans": [
-        "dist/DuruSans.d.ts"
+        "dist/esm/DuruSans.d.ts"
       ],
       "DynaPuff": [
-        "dist/DynaPuff.d.ts"
+        "dist/esm/DynaPuff.d.ts"
       ],
       "Dynalight": [
-        "dist/Dynalight.d.ts"
+        "dist/esm/Dynalight.d.ts"
       ],
       "EBGaramond": [
-        "dist/EBGaramond.d.ts"
+        "dist/esm/EBGaramond.d.ts"
       ],
       "EagleLake": [
-        "dist/EagleLake.d.ts"
+        "dist/esm/EagleLake.d.ts"
       ],
       "EastSeaDokdo": [
-        "dist/EastSeaDokdo.d.ts"
+        "dist/esm/EastSeaDokdo.d.ts"
       ],
       "Eater": [
-        "dist/Eater.d.ts"
+        "dist/esm/Eater.d.ts"
       ],
       "Economica": [
-        "dist/Economica.d.ts"
+        "dist/esm/Economica.d.ts"
       ],
       "Eczar": [
-        "dist/Eczar.d.ts"
+        "dist/esm/Eczar.d.ts"
       ],
       "EduNSWACTFoundation": [
-        "dist/EduNSWACTFoundation.d.ts"
+        "dist/esm/EduNSWACTFoundation.d.ts"
       ],
       "EduQLDBeginner": [
-        "dist/EduQLDBeginner.d.ts"
+        "dist/esm/EduQLDBeginner.d.ts"
       ],
       "EduSABeginner": [
-        "dist/EduSABeginner.d.ts"
+        "dist/esm/EduSABeginner.d.ts"
       ],
       "EduTASBeginner": [
-        "dist/EduTASBeginner.d.ts"
+        "dist/esm/EduTASBeginner.d.ts"
       ],
       "EduVICWANTBeginner": [
-        "dist/EduVICWANTBeginner.d.ts"
+        "dist/esm/EduVICWANTBeginner.d.ts"
       ],
       "ElMessiri": [
-        "dist/ElMessiri.d.ts"
+        "dist/esm/ElMessiri.d.ts"
       ],
       "Electrolize": [
-        "dist/Electrolize.d.ts"
+        "dist/esm/Electrolize.d.ts"
       ],
       "Elsie": [
-        "dist/Elsie.d.ts"
+        "dist/esm/Elsie.d.ts"
       ],
       "ElsieSwashCaps": [
-        "dist/ElsieSwashCaps.d.ts"
+        "dist/esm/ElsieSwashCaps.d.ts"
       ],
       "EmblemaOne": [
-        "dist/EmblemaOne.d.ts"
+        "dist/esm/EmblemaOne.d.ts"
       ],
       "EmilysCandy": [
-        "dist/EmilysCandy.d.ts"
+        "dist/esm/EmilysCandy.d.ts"
       ],
       "EncodeSans": [
-        "dist/EncodeSans.d.ts"
+        "dist/esm/EncodeSans.d.ts"
       ],
       "EncodeSansCondensed": [
-        "dist/EncodeSansCondensed.d.ts"
+        "dist/esm/EncodeSansCondensed.d.ts"
       ],
       "EncodeSansExpanded": [
-        "dist/EncodeSansExpanded.d.ts"
+        "dist/esm/EncodeSansExpanded.d.ts"
       ],
       "EncodeSansSC": [
-        "dist/EncodeSansSC.d.ts"
+        "dist/esm/EncodeSansSC.d.ts"
       ],
       "EncodeSansSemiCondensed": [
-        "dist/EncodeSansSemiCondensed.d.ts"
+        "dist/esm/EncodeSansSemiCondensed.d.ts"
       ],
       "EncodeSansSemiExpanded": [
-        "dist/EncodeSansSemiExpanded.d.ts"
+        "dist/esm/EncodeSansSemiExpanded.d.ts"
       ],
       "Engagement": [
-        "dist/Engagement.d.ts"
+        "dist/esm/Engagement.d.ts"
       ],
       "Englebert": [
-        "dist/Englebert.d.ts"
+        "dist/esm/Englebert.d.ts"
       ],
       "Enriqueta": [
-        "dist/Enriqueta.d.ts"
+        "dist/esm/Enriqueta.d.ts"
       ],
       "Ephesis": [
-        "dist/Ephesis.d.ts"
+        "dist/esm/Ephesis.d.ts"
       ],
       "Epilogue": [
-        "dist/Epilogue.d.ts"
+        "dist/esm/Epilogue.d.ts"
       ],
       "EricaOne": [
-        "dist/EricaOne.d.ts"
+        "dist/esm/EricaOne.d.ts"
       ],
       "Esteban": [
-        "dist/Esteban.d.ts"
+        "dist/esm/Esteban.d.ts"
       ],
       "Estonia": [
-        "dist/Estonia.d.ts"
+        "dist/esm/Estonia.d.ts"
       ],
       "EuphoriaScript": [
-        "dist/EuphoriaScript.d.ts"
+        "dist/esm/EuphoriaScript.d.ts"
       ],
       "Ewert": [
-        "dist/Ewert.d.ts"
+        "dist/esm/Ewert.d.ts"
       ],
       "Exo": [
-        "dist/Exo.d.ts"
+        "dist/esm/Exo.d.ts"
       ],
       "Exo2": [
-        "dist/Exo2.d.ts"
+        "dist/esm/Exo2.d.ts"
       ],
       "ExpletusSans": [
-        "dist/ExpletusSans.d.ts"
+        "dist/esm/ExpletusSans.d.ts"
       ],
       "Explora": [
-        "dist/Explora.d.ts"
+        "dist/esm/Explora.d.ts"
       ],
       "Fahkwang": [
-        "dist/Fahkwang.d.ts"
+        "dist/esm/Fahkwang.d.ts"
       ],
       "FamiljenGrotesk": [
-        "dist/FamiljenGrotesk.d.ts"
+        "dist/esm/FamiljenGrotesk.d.ts"
       ],
       "FanwoodText": [
-        "dist/FanwoodText.d.ts"
+        "dist/esm/FanwoodText.d.ts"
       ],
       "Farro": [
-        "dist/Farro.d.ts"
+        "dist/esm/Farro.d.ts"
       ],
       "Farsan": [
-        "dist/Farsan.d.ts"
+        "dist/esm/Farsan.d.ts"
       ],
       "Fascinate": [
-        "dist/Fascinate.d.ts"
+        "dist/esm/Fascinate.d.ts"
       ],
       "FascinateInline": [
-        "dist/FascinateInline.d.ts"
+        "dist/esm/FascinateInline.d.ts"
       ],
       "FasterOne": [
-        "dist/FasterOne.d.ts"
+        "dist/esm/FasterOne.d.ts"
       ],
       "Fasthand": [
-        "dist/Fasthand.d.ts"
+        "dist/esm/Fasthand.d.ts"
       ],
       "FaunaOne": [
-        "dist/FaunaOne.d.ts"
+        "dist/esm/FaunaOne.d.ts"
       ],
       "Faustina": [
-        "dist/Faustina.d.ts"
+        "dist/esm/Faustina.d.ts"
       ],
       "Federant": [
-        "dist/Federant.d.ts"
+        "dist/esm/Federant.d.ts"
       ],
       "Federo": [
-        "dist/Federo.d.ts"
+        "dist/esm/Federo.d.ts"
       ],
       "Felipa": [
-        "dist/Felipa.d.ts"
+        "dist/esm/Felipa.d.ts"
       ],
       "Fenix": [
-        "dist/Fenix.d.ts"
+        "dist/esm/Fenix.d.ts"
       ],
       "Festive": [
-        "dist/Festive.d.ts"
+        "dist/esm/Festive.d.ts"
       ],
       "Figtree": [
-        "dist/Figtree.d.ts"
+        "dist/esm/Figtree.d.ts"
       ],
       "FingerPaint": [
-        "dist/FingerPaint.d.ts"
+        "dist/esm/FingerPaint.d.ts"
       ],
       "Finlandica": [
-        "dist/Finlandica.d.ts"
+        "dist/esm/Finlandica.d.ts"
       ],
       "FiraCode": [
-        "dist/FiraCode.d.ts"
+        "dist/esm/FiraCode.d.ts"
       ],
       "FiraMono": [
-        "dist/FiraMono.d.ts"
+        "dist/esm/FiraMono.d.ts"
       ],
       "FiraSans": [
-        "dist/FiraSans.d.ts"
+        "dist/esm/FiraSans.d.ts"
       ],
       "FiraSansCondensed": [
-        "dist/FiraSansCondensed.d.ts"
+        "dist/esm/FiraSansCondensed.d.ts"
       ],
       "FiraSansExtraCondensed": [
-        "dist/FiraSansExtraCondensed.d.ts"
+        "dist/esm/FiraSansExtraCondensed.d.ts"
       ],
       "FjallaOne": [
-        "dist/FjallaOne.d.ts"
+        "dist/esm/FjallaOne.d.ts"
       ],
       "FjordOne": [
-        "dist/FjordOne.d.ts"
+        "dist/esm/FjordOne.d.ts"
       ],
       "Flamenco": [
-        "dist/Flamenco.d.ts"
+        "dist/esm/Flamenco.d.ts"
       ],
       "Flavors": [
-        "dist/Flavors.d.ts"
+        "dist/esm/Flavors.d.ts"
       ],
       "FleurDeLeah": [
-        "dist/FleurDeLeah.d.ts"
+        "dist/esm/FleurDeLeah.d.ts"
       ],
       "FlowBlock": [
-        "dist/FlowBlock.d.ts"
+        "dist/esm/FlowBlock.d.ts"
       ],
       "FlowCircular": [
-        "dist/FlowCircular.d.ts"
+        "dist/esm/FlowCircular.d.ts"
       ],
       "FlowRounded": [
-        "dist/FlowRounded.d.ts"
+        "dist/esm/FlowRounded.d.ts"
       ],
       "Fondamento": [
-        "dist/Fondamento.d.ts"
+        "dist/esm/Fondamento.d.ts"
       ],
       "FontdinerSwanky": [
-        "dist/FontdinerSwanky.d.ts"
+        "dist/esm/FontdinerSwanky.d.ts"
       ],
       "Forum": [
-        "dist/Forum.d.ts"
+        "dist/esm/Forum.d.ts"
       ],
       "FrancoisOne": [
-        "dist/FrancoisOne.d.ts"
+        "dist/esm/FrancoisOne.d.ts"
       ],
       "FrankRuhlLibre": [
-        "dist/FrankRuhlLibre.d.ts"
+        "dist/esm/FrankRuhlLibre.d.ts"
       ],
       "Fraunces": [
-        "dist/Fraunces.d.ts"
+        "dist/esm/Fraunces.d.ts"
       ],
       "FreckleFace": [
-        "dist/FreckleFace.d.ts"
+        "dist/esm/FreckleFace.d.ts"
       ],
       "FrederickatheGreat": [
-        "dist/FrederickatheGreat.d.ts"
+        "dist/esm/FrederickatheGreat.d.ts"
       ],
       "Fredoka": [
-        "dist/Fredoka.d.ts"
+        "dist/esm/Fredoka.d.ts"
       ],
       "FredokaOne": [
-        "dist/FredokaOne.d.ts"
+        "dist/esm/FredokaOne.d.ts"
       ],
       "Freehand": [
-        "dist/Freehand.d.ts"
+        "dist/esm/Freehand.d.ts"
       ],
       "Fresca": [
-        "dist/Fresca.d.ts"
+        "dist/esm/Fresca.d.ts"
       ],
       "Frijole": [
-        "dist/Frijole.d.ts"
+        "dist/esm/Frijole.d.ts"
       ],
       "Fruktur": [
-        "dist/Fruktur.d.ts"
+        "dist/esm/Fruktur.d.ts"
       ],
       "FugazOne": [
-        "dist/FugazOne.d.ts"
+        "dist/esm/FugazOne.d.ts"
       ],
       "Fuggles": [
-        "dist/Fuggles.d.ts"
+        "dist/esm/Fuggles.d.ts"
       ],
       "FuzzyBubbles": [
-        "dist/FuzzyBubbles.d.ts"
+        "dist/esm/FuzzyBubbles.d.ts"
       ],
       "GFSDidot": [
-        "dist/GFSDidot.d.ts"
+        "dist/esm/GFSDidot.d.ts"
       ],
       "GFSNeohellenic": [
-        "dist/GFSNeohellenic.d.ts"
+        "dist/esm/GFSNeohellenic.d.ts"
       ],
       "Gabriela": [
-        "dist/Gabriela.d.ts"
+        "dist/esm/Gabriela.d.ts"
       ],
       "Gaegu": [
-        "dist/Gaegu.d.ts"
+        "dist/esm/Gaegu.d.ts"
       ],
       "Gafata": [
-        "dist/Gafata.d.ts"
+        "dist/esm/Gafata.d.ts"
       ],
       "Galada": [
-        "dist/Galada.d.ts"
+        "dist/esm/Galada.d.ts"
       ],
       "Galdeano": [
-        "dist/Galdeano.d.ts"
+        "dist/esm/Galdeano.d.ts"
       ],
       "Galindo": [
-        "dist/Galindo.d.ts"
+        "dist/esm/Galindo.d.ts"
       ],
       "GamjaFlower": [
-        "dist/GamjaFlower.d.ts"
+        "dist/esm/GamjaFlower.d.ts"
       ],
       "Gantari": [
-        "dist/Gantari.d.ts"
+        "dist/esm/Gantari.d.ts"
       ],
       "Gayathri": [
-        "dist/Gayathri.d.ts"
+        "dist/esm/Gayathri.d.ts"
       ],
       "Gelasio": [
-        "dist/Gelasio.d.ts"
+        "dist/esm/Gelasio.d.ts"
       ],
       "GemunuLibre": [
-        "dist/GemunuLibre.d.ts"
+        "dist/esm/GemunuLibre.d.ts"
       ],
       "Genos": [
-        "dist/Genos.d.ts"
+        "dist/esm/Genos.d.ts"
       ],
       "GentiumBookBasic": [
-        "dist/GentiumBookBasic.d.ts"
+        "dist/esm/GentiumBookBasic.d.ts"
       ],
       "GentiumBookPlus": [
-        "dist/GentiumBookPlus.d.ts"
+        "dist/esm/GentiumBookPlus.d.ts"
       ],
       "GentiumPlus": [
-        "dist/GentiumPlus.d.ts"
+        "dist/esm/GentiumPlus.d.ts"
       ],
       "Geo": [
-        "dist/Geo.d.ts"
+        "dist/esm/Geo.d.ts"
       ],
       "Georama": [
-        "dist/Georama.d.ts"
+        "dist/esm/Georama.d.ts"
       ],
       "Geostar": [
-        "dist/Geostar.d.ts"
+        "dist/esm/Geostar.d.ts"
       ],
       "GeostarFill": [
-        "dist/GeostarFill.d.ts"
+        "dist/esm/GeostarFill.d.ts"
       ],
       "GermaniaOne": [
-        "dist/GermaniaOne.d.ts"
+        "dist/esm/GermaniaOne.d.ts"
       ],
       "GideonRoman": [
-        "dist/GideonRoman.d.ts"
+        "dist/esm/GideonRoman.d.ts"
       ],
       "Gidugu": [
-        "dist/Gidugu.d.ts"
+        "dist/esm/Gidugu.d.ts"
       ],
       "GildaDisplay": [
-        "dist/GildaDisplay.d.ts"
+        "dist/esm/GildaDisplay.d.ts"
       ],
       "Girassol": [
-        "dist/Girassol.d.ts"
+        "dist/esm/Girassol.d.ts"
       ],
       "GiveYouGlory": [
-        "dist/GiveYouGlory.d.ts"
+        "dist/esm/GiveYouGlory.d.ts"
       ],
       "GlassAntiqua": [
-        "dist/GlassAntiqua.d.ts"
+        "dist/esm/GlassAntiqua.d.ts"
       ],
       "Glegoo": [
-        "dist/Glegoo.d.ts"
+        "dist/esm/Glegoo.d.ts"
       ],
       "GloriaHallelujah": [
-        "dist/GloriaHallelujah.d.ts"
+        "dist/esm/GloriaHallelujah.d.ts"
       ],
       "Glory": [
-        "dist/Glory.d.ts"
+        "dist/esm/Glory.d.ts"
       ],
       "Gluten": [
-        "dist/Gluten.d.ts"
+        "dist/esm/Gluten.d.ts"
       ],
       "GoblinOne": [
-        "dist/GoblinOne.d.ts"
+        "dist/esm/GoblinOne.d.ts"
       ],
       "GochiHand": [
-        "dist/GochiHand.d.ts"
+        "dist/esm/GochiHand.d.ts"
       ],
       "Goldman": [
-        "dist/Goldman.d.ts"
+        "dist/esm/Goldman.d.ts"
       ],
       "Gorditas": [
-        "dist/Gorditas.d.ts"
+        "dist/esm/Gorditas.d.ts"
       ],
       "GothicA1": [
-        "dist/GothicA1.d.ts"
+        "dist/esm/GothicA1.d.ts"
       ],
       "Gotu": [
-        "dist/Gotu.d.ts"
+        "dist/esm/Gotu.d.ts"
       ],
       "GoudyBookletter1911": [
-        "dist/GoudyBookletter1911.d.ts"
+        "dist/esm/GoudyBookletter1911.d.ts"
       ],
       "GowunBatang": [
-        "dist/GowunBatang.d.ts"
+        "dist/esm/GowunBatang.d.ts"
       ],
       "GowunDodum": [
-        "dist/GowunDodum.d.ts"
+        "dist/esm/GowunDodum.d.ts"
       ],
       "Graduate": [
-        "dist/Graduate.d.ts"
+        "dist/esm/Graduate.d.ts"
       ],
       "GrandHotel": [
-        "dist/GrandHotel.d.ts"
+        "dist/esm/GrandHotel.d.ts"
       ],
       "Grandstander": [
-        "dist/Grandstander.d.ts"
+        "dist/esm/Grandstander.d.ts"
       ],
       "GrapeNuts": [
-        "dist/GrapeNuts.d.ts"
+        "dist/esm/GrapeNuts.d.ts"
       ],
       "GravitasOne": [
-        "dist/GravitasOne.d.ts"
+        "dist/esm/GravitasOne.d.ts"
       ],
       "GreatVibes": [
-        "dist/GreatVibes.d.ts"
+        "dist/esm/GreatVibes.d.ts"
       ],
       "GrechenFuemen": [
-        "dist/GrechenFuemen.d.ts"
+        "dist/esm/GrechenFuemen.d.ts"
       ],
       "Grenze": [
-        "dist/Grenze.d.ts"
+        "dist/esm/Grenze.d.ts"
       ],
       "GrenzeGotisch": [
-        "dist/GrenzeGotisch.d.ts"
+        "dist/esm/GrenzeGotisch.d.ts"
       ],
       "GreyQo": [
-        "dist/GreyQo.d.ts"
+        "dist/esm/GreyQo.d.ts"
       ],
       "Griffy": [
-        "dist/Griffy.d.ts"
+        "dist/esm/Griffy.d.ts"
       ],
       "Gruppo": [
-        "dist/Gruppo.d.ts"
+        "dist/esm/Gruppo.d.ts"
       ],
       "Gudea": [
-        "dist/Gudea.d.ts"
+        "dist/esm/Gudea.d.ts"
       ],
       "Gugi": [
-        "dist/Gugi.d.ts"
+        "dist/esm/Gugi.d.ts"
       ],
       "Gulzar": [
-        "dist/Gulzar.d.ts"
+        "dist/esm/Gulzar.d.ts"
       ],
       "Gupter": [
-        "dist/Gupter.d.ts"
+        "dist/esm/Gupter.d.ts"
       ],
       "Gurajada": [
-        "dist/Gurajada.d.ts"
+        "dist/esm/Gurajada.d.ts"
       ],
       "Gwendolyn": [
-        "dist/Gwendolyn.d.ts"
+        "dist/esm/Gwendolyn.d.ts"
       ],
       "Habibi": [
-        "dist/Habibi.d.ts"
+        "dist/esm/Habibi.d.ts"
       ],
       "HachiMaruPop": [
-        "dist/HachiMaruPop.d.ts"
+        "dist/esm/HachiMaruPop.d.ts"
       ],
       "Hahmlet": [
-        "dist/Hahmlet.d.ts"
+        "dist/esm/Hahmlet.d.ts"
       ],
       "Halant": [
-        "dist/Halant.d.ts"
+        "dist/esm/Halant.d.ts"
       ],
       "HammersmithOne": [
-        "dist/HammersmithOne.d.ts"
+        "dist/esm/HammersmithOne.d.ts"
       ],
       "Hanalei": [
-        "dist/Hanalei.d.ts"
+        "dist/esm/Hanalei.d.ts"
       ],
       "HanaleiFill": [
-        "dist/HanaleiFill.d.ts"
+        "dist/esm/HanaleiFill.d.ts"
       ],
       "Handlee": [
-        "dist/Handlee.d.ts"
+        "dist/esm/Handlee.d.ts"
       ],
       "Hanuman": [
-        "dist/Hanuman.d.ts"
+        "dist/esm/Hanuman.d.ts"
       ],
       "HappyMonkey": [
-        "dist/HappyMonkey.d.ts"
+        "dist/esm/HappyMonkey.d.ts"
       ],
       "Harmattan": [
-        "dist/Harmattan.d.ts"
+        "dist/esm/Harmattan.d.ts"
       ],
       "HeadlandOne": [
-        "dist/HeadlandOne.d.ts"
+        "dist/esm/HeadlandOne.d.ts"
       ],
       "Heebo": [
-        "dist/Heebo.d.ts"
+        "dist/esm/Heebo.d.ts"
       ],
       "HennyPenny": [
-        "dist/HennyPenny.d.ts"
+        "dist/esm/HennyPenny.d.ts"
       ],
       "HeptaSlab": [
-        "dist/HeptaSlab.d.ts"
+        "dist/esm/HeptaSlab.d.ts"
       ],
       "HerrVonMuellerhoff": [
-        "dist/HerrVonMuellerhoff.d.ts"
+        "dist/esm/HerrVonMuellerhoff.d.ts"
       ],
       "HiMelody": [
-        "dist/HiMelody.d.ts"
+        "dist/esm/HiMelody.d.ts"
       ],
       "HinaMincho": [
-        "dist/HinaMincho.d.ts"
+        "dist/esm/HinaMincho.d.ts"
       ],
       "Hind": [
-        "dist/Hind.d.ts"
+        "dist/esm/Hind.d.ts"
       ],
       "HindGuntur": [
-        "dist/HindGuntur.d.ts"
+        "dist/esm/HindGuntur.d.ts"
       ],
       "HindMadurai": [
-        "dist/HindMadurai.d.ts"
+        "dist/esm/HindMadurai.d.ts"
       ],
       "HindSiliguri": [
-        "dist/HindSiliguri.d.ts"
+        "dist/esm/HindSiliguri.d.ts"
       ],
       "HindVadodara": [
-        "dist/HindVadodara.d.ts"
+        "dist/esm/HindVadodara.d.ts"
       ],
       "HoltwoodOneSC": [
-        "dist/HoltwoodOneSC.d.ts"
+        "dist/esm/HoltwoodOneSC.d.ts"
       ],
       "HomemadeApple": [
-        "dist/HomemadeApple.d.ts"
+        "dist/esm/HomemadeApple.d.ts"
       ],
       "Homenaje": [
-        "dist/Homenaje.d.ts"
+        "dist/esm/Homenaje.d.ts"
       ],
       "Hubballi": [
-        "dist/Hubballi.d.ts"
+        "dist/esm/Hubballi.d.ts"
       ],
       "Hurricane": [
-        "dist/Hurricane.d.ts"
+        "dist/esm/Hurricane.d.ts"
       ],
       "IBMPlexMono": [
-        "dist/IBMPlexMono.d.ts"
+        "dist/esm/IBMPlexMono.d.ts"
       ],
       "IBMPlexSans": [
-        "dist/IBMPlexSans.d.ts"
+        "dist/esm/IBMPlexSans.d.ts"
       ],
       "IBMPlexSansArabic": [
-        "dist/IBMPlexSansArabic.d.ts"
+        "dist/esm/IBMPlexSansArabic.d.ts"
       ],
       "IBMPlexSansCondensed": [
-        "dist/IBMPlexSansCondensed.d.ts"
+        "dist/esm/IBMPlexSansCondensed.d.ts"
       ],
       "IBMPlexSansDevanagari": [
-        "dist/IBMPlexSansDevanagari.d.ts"
+        "dist/esm/IBMPlexSansDevanagari.d.ts"
       ],
       "IBMPlexSansHebrew": [
-        "dist/IBMPlexSansHebrew.d.ts"
+        "dist/esm/IBMPlexSansHebrew.d.ts"
       ],
       "IBMPlexSansKR": [
-        "dist/IBMPlexSansKR.d.ts"
+        "dist/esm/IBMPlexSansKR.d.ts"
       ],
       "IBMPlexSansThai": [
-        "dist/IBMPlexSansThai.d.ts"
+        "dist/esm/IBMPlexSansThai.d.ts"
       ],
       "IBMPlexSansThaiLooped": [
-        "dist/IBMPlexSansThaiLooped.d.ts"
+        "dist/esm/IBMPlexSansThaiLooped.d.ts"
       ],
       "IBMPlexSerif": [
-        "dist/IBMPlexSerif.d.ts"
+        "dist/esm/IBMPlexSerif.d.ts"
       ],
       "IMFellDWPica": [
-        "dist/IMFellDWPica.d.ts"
+        "dist/esm/IMFellDWPica.d.ts"
       ],
       "IMFellDWPicaSC": [
-        "dist/IMFellDWPicaSC.d.ts"
+        "dist/esm/IMFellDWPicaSC.d.ts"
       ],
       "IMFellDoublePica": [
-        "dist/IMFellDoublePica.d.ts"
+        "dist/esm/IMFellDoublePica.d.ts"
       ],
       "IMFellDoublePicaSC": [
-        "dist/IMFellDoublePicaSC.d.ts"
+        "dist/esm/IMFellDoublePicaSC.d.ts"
       ],
       "IMFellEnglish": [
-        "dist/IMFellEnglish.d.ts"
+        "dist/esm/IMFellEnglish.d.ts"
       ],
       "IMFellEnglishSC": [
-        "dist/IMFellEnglishSC.d.ts"
+        "dist/esm/IMFellEnglishSC.d.ts"
       ],
       "IMFellFrenchCanon": [
-        "dist/IMFellFrenchCanon.d.ts"
+        "dist/esm/IMFellFrenchCanon.d.ts"
       ],
       "IMFellFrenchCanonSC": [
-        "dist/IMFellFrenchCanonSC.d.ts"
+        "dist/esm/IMFellFrenchCanonSC.d.ts"
       ],
       "IMFellGreatPrimer": [
-        "dist/IMFellGreatPrimer.d.ts"
+        "dist/esm/IMFellGreatPrimer.d.ts"
       ],
       "IMFellGreatPrimerSC": [
-        "dist/IMFellGreatPrimerSC.d.ts"
+        "dist/esm/IMFellGreatPrimerSC.d.ts"
       ],
       "IbarraRealNova": [
-        "dist/IbarraRealNova.d.ts"
+        "dist/esm/IbarraRealNova.d.ts"
       ],
       "Iceberg": [
-        "dist/Iceberg.d.ts"
+        "dist/esm/Iceberg.d.ts"
       ],
       "Iceland": [
-        "dist/Iceland.d.ts"
+        "dist/esm/Iceland.d.ts"
       ],
       "Imbue": [
-        "dist/Imbue.d.ts"
+        "dist/esm/Imbue.d.ts"
       ],
       "ImperialScript": [
-        "dist/ImperialScript.d.ts"
+        "dist/esm/ImperialScript.d.ts"
       ],
       "Imprima": [
-        "dist/Imprima.d.ts"
+        "dist/esm/Imprima.d.ts"
       ],
       "Inconsolata": [
-        "dist/Inconsolata.d.ts"
+        "dist/esm/Inconsolata.d.ts"
       ],
       "Inder": [
-        "dist/Inder.d.ts"
+        "dist/esm/Inder.d.ts"
       ],
       "IndieFlower": [
-        "dist/IndieFlower.d.ts"
+        "dist/esm/IndieFlower.d.ts"
       ],
       "IngridDarling": [
-        "dist/IngridDarling.d.ts"
+        "dist/esm/IngridDarling.d.ts"
       ],
       "Inika": [
-        "dist/Inika.d.ts"
+        "dist/esm/Inika.d.ts"
       ],
       "InknutAntiqua": [
-        "dist/InknutAntiqua.d.ts"
+        "dist/esm/InknutAntiqua.d.ts"
       ],
       "InriaSans": [
-        "dist/InriaSans.d.ts"
+        "dist/esm/InriaSans.d.ts"
       ],
       "InriaSerif": [
-        "dist/InriaSerif.d.ts"
+        "dist/esm/InriaSerif.d.ts"
       ],
       "Inspiration": [
-        "dist/Inspiration.d.ts"
+        "dist/esm/Inspiration.d.ts"
       ],
       "Inter": [
-        "dist/Inter.d.ts"
+        "dist/esm/Inter.d.ts"
       ],
       "InterTight": [
-        "dist/InterTight.d.ts"
+        "dist/esm/InterTight.d.ts"
       ],
       "IrishGrover": [
-        "dist/IrishGrover.d.ts"
+        "dist/esm/IrishGrover.d.ts"
       ],
       "IslandMoments": [
-        "dist/IslandMoments.d.ts"
+        "dist/esm/IslandMoments.d.ts"
       ],
       "IstokWeb": [
-        "dist/IstokWeb.d.ts"
+        "dist/esm/IstokWeb.d.ts"
       ],
       "Italiana": [
-        "dist/Italiana.d.ts"
+        "dist/esm/Italiana.d.ts"
       ],
       "Italianno": [
-        "dist/Italianno.d.ts"
+        "dist/esm/Italianno.d.ts"
       ],
       "Itim": [
-        "dist/Itim.d.ts"
+        "dist/esm/Itim.d.ts"
       ],
       "JacquesFrancois": [
-        "dist/JacquesFrancois.d.ts"
+        "dist/esm/JacquesFrancois.d.ts"
       ],
       "JacquesFrancoisShadow": [
-        "dist/JacquesFrancoisShadow.d.ts"
+        "dist/esm/JacquesFrancoisShadow.d.ts"
       ],
       "Jaldi": [
-        "dist/Jaldi.d.ts"
+        "dist/esm/Jaldi.d.ts"
       ],
       "JetBrainsMono": [
-        "dist/JetBrainsMono.d.ts"
+        "dist/esm/JetBrainsMono.d.ts"
       ],
       "JimNightshade": [
-        "dist/JimNightshade.d.ts"
+        "dist/esm/JimNightshade.d.ts"
       ],
       "Joan": [
-        "dist/Joan.d.ts"
+        "dist/esm/Joan.d.ts"
       ],
       "JockeyOne": [
-        "dist/JockeyOne.d.ts"
+        "dist/esm/JockeyOne.d.ts"
       ],
       "JollyLodger": [
-        "dist/JollyLodger.d.ts"
+        "dist/esm/JollyLodger.d.ts"
       ],
       "Jomhuria": [
-        "dist/Jomhuria.d.ts"
+        "dist/esm/Jomhuria.d.ts"
       ],
       "Jomolhari": [
-        "dist/Jomolhari.d.ts"
+        "dist/esm/Jomolhari.d.ts"
       ],
       "JosefinSans": [
-        "dist/JosefinSans.d.ts"
+        "dist/esm/JosefinSans.d.ts"
       ],
       "JosefinSlab": [
-        "dist/JosefinSlab.d.ts"
+        "dist/esm/JosefinSlab.d.ts"
       ],
       "Jost": [
-        "dist/Jost.d.ts"
+        "dist/esm/Jost.d.ts"
       ],
       "JotiOne": [
-        "dist/JotiOne.d.ts"
+        "dist/esm/JotiOne.d.ts"
       ],
       "Jua": [
-        "dist/Jua.d.ts"
+        "dist/esm/Jua.d.ts"
       ],
       "Judson": [
-        "dist/Judson.d.ts"
+        "dist/esm/Judson.d.ts"
       ],
       "Julee": [
-        "dist/Julee.d.ts"
+        "dist/esm/Julee.d.ts"
       ],
       "JuliusSansOne": [
-        "dist/JuliusSansOne.d.ts"
+        "dist/esm/JuliusSansOne.d.ts"
       ],
       "Junge": [
-        "dist/Junge.d.ts"
+        "dist/esm/Junge.d.ts"
       ],
       "Jura": [
-        "dist/Jura.d.ts"
+        "dist/esm/Jura.d.ts"
       ],
       "JustAnotherHand": [
-        "dist/JustAnotherHand.d.ts"
+        "dist/esm/JustAnotherHand.d.ts"
       ],
       "JustMeAgainDownHere": [
-        "dist/JustMeAgainDownHere.d.ts"
+        "dist/esm/JustMeAgainDownHere.d.ts"
       ],
       "K2D": [
-        "dist/K2D.d.ts"
+        "dist/esm/K2D.d.ts"
       ],
       "Kadwa": [
-        "dist/Kadwa.d.ts"
+        "dist/esm/Kadwa.d.ts"
       ],
       "KaiseiDecol": [
-        "dist/KaiseiDecol.d.ts"
+        "dist/esm/KaiseiDecol.d.ts"
       ],
       "KaiseiHarunoUmi": [
-        "dist/KaiseiHarunoUmi.d.ts"
+        "dist/esm/KaiseiHarunoUmi.d.ts"
       ],
       "KaiseiOpti": [
-        "dist/KaiseiOpti.d.ts"
+        "dist/esm/KaiseiOpti.d.ts"
       ],
       "KaiseiTokumin": [
-        "dist/KaiseiTokumin.d.ts"
+        "dist/esm/KaiseiTokumin.d.ts"
       ],
       "Kalam": [
-        "dist/Kalam.d.ts"
+        "dist/esm/Kalam.d.ts"
       ],
       "Kameron": [
-        "dist/Kameron.d.ts"
+        "dist/esm/Kameron.d.ts"
       ],
       "Kanit": [
-        "dist/Kanit.d.ts"
+        "dist/esm/Kanit.d.ts"
       ],
       "Kantumruy": [
-        "dist/Kantumruy.d.ts"
+        "dist/esm/Kantumruy.d.ts"
       ],
       "KantumruyPro": [
-        "dist/KantumruyPro.d.ts"
+        "dist/esm/KantumruyPro.d.ts"
       ],
       "Karantina": [
-        "dist/Karantina.d.ts"
+        "dist/esm/Karantina.d.ts"
       ],
       "Karla": [
-        "dist/Karla.d.ts"
+        "dist/esm/Karla.d.ts"
       ],
       "Karma": [
-        "dist/Karma.d.ts"
+        "dist/esm/Karma.d.ts"
       ],
       "Katibeh": [
-        "dist/Katibeh.d.ts"
+        "dist/esm/Katibeh.d.ts"
       ],
       "KaushanScript": [
-        "dist/KaushanScript.d.ts"
+        "dist/esm/KaushanScript.d.ts"
       ],
       "Kavivanar": [
-        "dist/Kavivanar.d.ts"
+        "dist/esm/Kavivanar.d.ts"
       ],
       "Kavoon": [
-        "dist/Kavoon.d.ts"
+        "dist/esm/Kavoon.d.ts"
       ],
       "KdamThmorPro": [
-        "dist/KdamThmorPro.d.ts"
+        "dist/esm/KdamThmorPro.d.ts"
       ],
       "KeaniaOne": [
-        "dist/KeaniaOne.d.ts"
+        "dist/esm/KeaniaOne.d.ts"
       ],
       "KellySlab": [
-        "dist/KellySlab.d.ts"
+        "dist/esm/KellySlab.d.ts"
       ],
       "Kenia": [
-        "dist/Kenia.d.ts"
+        "dist/esm/Kenia.d.ts"
       ],
       "Khand": [
-        "dist/Khand.d.ts"
+        "dist/esm/Khand.d.ts"
       ],
       "Khmer": [
-        "dist/Khmer.d.ts"
+        "dist/esm/Khmer.d.ts"
       ],
       "Khula": [
-        "dist/Khula.d.ts"
+        "dist/esm/Khula.d.ts"
       ],
       "Kings": [
-        "dist/Kings.d.ts"
+        "dist/esm/Kings.d.ts"
       ],
       "KirangHaerang": [
-        "dist/KirangHaerang.d.ts"
+        "dist/esm/KirangHaerang.d.ts"
       ],
       "KiteOne": [
-        "dist/KiteOne.d.ts"
+        "dist/esm/KiteOne.d.ts"
       ],
       "KiwiMaru": [
-        "dist/KiwiMaru.d.ts"
+        "dist/esm/KiwiMaru.d.ts"
       ],
       "KleeOne": [
-        "dist/KleeOne.d.ts"
+        "dist/esm/KleeOne.d.ts"
       ],
       "Knewave": [
-        "dist/Knewave.d.ts"
+        "dist/esm/Knewave.d.ts"
       ],
       "KoHo": [
-        "dist/KoHo.d.ts"
+        "dist/esm/KoHo.d.ts"
       ],
       "Kodchasan": [
-        "dist/Kodchasan.d.ts"
+        "dist/esm/Kodchasan.d.ts"
       ],
       "KohSantepheap": [
-        "dist/KohSantepheap.d.ts"
+        "dist/esm/KohSantepheap.d.ts"
       ],
       "KolkerBrush": [
-        "dist/KolkerBrush.d.ts"
+        "dist/esm/KolkerBrush.d.ts"
       ],
       "Kosugi": [
-        "dist/Kosugi.d.ts"
+        "dist/esm/Kosugi.d.ts"
       ],
       "KosugiMaru": [
-        "dist/KosugiMaru.d.ts"
+        "dist/esm/KosugiMaru.d.ts"
       ],
       "KottaOne": [
-        "dist/KottaOne.d.ts"
+        "dist/esm/KottaOne.d.ts"
       ],
       "Koulen": [
-        "dist/Koulen.d.ts"
+        "dist/esm/Koulen.d.ts"
       ],
       "Kranky": [
-        "dist/Kranky.d.ts"
+        "dist/esm/Kranky.d.ts"
       ],
       "Kreon": [
-        "dist/Kreon.d.ts"
+        "dist/esm/Kreon.d.ts"
       ],
       "Kristi": [
-        "dist/Kristi.d.ts"
+        "dist/esm/Kristi.d.ts"
       ],
       "KronaOne": [
-        "dist/KronaOne.d.ts"
+        "dist/esm/KronaOne.d.ts"
       ],
       "Krub": [
-        "dist/Krub.d.ts"
+        "dist/esm/Krub.d.ts"
       ],
       "Kufam": [
-        "dist/Kufam.d.ts"
+        "dist/esm/Kufam.d.ts"
       ],
       "KulimPark": [
-        "dist/KulimPark.d.ts"
+        "dist/esm/KulimPark.d.ts"
       ],
       "KumarOne": [
-        "dist/KumarOne.d.ts"
+        "dist/esm/KumarOne.d.ts"
       ],
       "KumarOneOutline": [
-        "dist/KumarOneOutline.d.ts"
+        "dist/esm/KumarOneOutline.d.ts"
       ],
       "KumbhSans": [
-        "dist/KumbhSans.d.ts"
+        "dist/esm/KumbhSans.d.ts"
       ],
       "Kurale": [
-        "dist/Kurale.d.ts"
+        "dist/esm/Kurale.d.ts"
       ],
       "LaBelleAurore": [
-        "dist/LaBelleAurore.d.ts"
+        "dist/esm/LaBelleAurore.d.ts"
       ],
       "Lacquer": [
-        "dist/Lacquer.d.ts"
+        "dist/esm/Lacquer.d.ts"
       ],
       "Laila": [
-        "dist/Laila.d.ts"
+        "dist/esm/Laila.d.ts"
       ],
       "LakkiReddy": [
-        "dist/LakkiReddy.d.ts"
+        "dist/esm/LakkiReddy.d.ts"
       ],
       "Lalezar": [
-        "dist/Lalezar.d.ts"
+        "dist/esm/Lalezar.d.ts"
       ],
       "Lancelot": [
-        "dist/Lancelot.d.ts"
+        "dist/esm/Lancelot.d.ts"
       ],
       "Langar": [
-        "dist/Langar.d.ts"
+        "dist/esm/Langar.d.ts"
       ],
       "Lateef": [
-        "dist/Lateef.d.ts"
+        "dist/esm/Lateef.d.ts"
       ],
       "Lato": [
-        "dist/Lato.d.ts"
+        "dist/esm/Lato.d.ts"
       ],
       "LavishlyYours": [
-        "dist/LavishlyYours.d.ts"
+        "dist/esm/LavishlyYours.d.ts"
       ],
       "LeagueGothic": [
-        "dist/LeagueGothic.d.ts"
+        "dist/esm/LeagueGothic.d.ts"
       ],
       "LeagueScript": [
-        "dist/LeagueScript.d.ts"
+        "dist/esm/LeagueScript.d.ts"
       ],
       "LeagueSpartan": [
-        "dist/LeagueSpartan.d.ts"
+        "dist/esm/LeagueSpartan.d.ts"
       ],
       "LeckerliOne": [
-        "dist/LeckerliOne.d.ts"
+        "dist/esm/LeckerliOne.d.ts"
       ],
       "Ledger": [
-        "dist/Ledger.d.ts"
+        "dist/esm/Ledger.d.ts"
       ],
       "Lekton": [
-        "dist/Lekton.d.ts"
+        "dist/esm/Lekton.d.ts"
       ],
       "Lemon": [
-        "dist/Lemon.d.ts"
+        "dist/esm/Lemon.d.ts"
       ],
       "Lemonada": [
-        "dist/Lemonada.d.ts"
+        "dist/esm/Lemonada.d.ts"
       ],
       "Lexend": [
-        "dist/Lexend.d.ts"
+        "dist/esm/Lexend.d.ts"
       ],
       "LexendDeca": [
-        "dist/LexendDeca.d.ts"
+        "dist/esm/LexendDeca.d.ts"
       ],
       "LexendExa": [
-        "dist/LexendExa.d.ts"
+        "dist/esm/LexendExa.d.ts"
       ],
       "LexendGiga": [
-        "dist/LexendGiga.d.ts"
+        "dist/esm/LexendGiga.d.ts"
       ],
       "LexendMega": [
-        "dist/LexendMega.d.ts"
+        "dist/esm/LexendMega.d.ts"
       ],
       "LexendPeta": [
-        "dist/LexendPeta.d.ts"
+        "dist/esm/LexendPeta.d.ts"
       ],
       "LexendTera": [
-        "dist/LexendTera.d.ts"
+        "dist/esm/LexendTera.d.ts"
       ],
       "LexendZetta": [
-        "dist/LexendZetta.d.ts"
+        "dist/esm/LexendZetta.d.ts"
       ],
       "LibreBarcode128": [
-        "dist/LibreBarcode128.d.ts"
+        "dist/esm/LibreBarcode128.d.ts"
       ],
       "LibreBarcode128Text": [
-        "dist/LibreBarcode128Text.d.ts"
+        "dist/esm/LibreBarcode128Text.d.ts"
       ],
       "LibreBarcode39": [
-        "dist/LibreBarcode39.d.ts"
+        "dist/esm/LibreBarcode39.d.ts"
       ],
       "LibreBarcode39Extended": [
-        "dist/LibreBarcode39Extended.d.ts"
+        "dist/esm/LibreBarcode39Extended.d.ts"
       ],
       "LibreBarcode39ExtendedText": [
-        "dist/LibreBarcode39ExtendedText.d.ts"
+        "dist/esm/LibreBarcode39ExtendedText.d.ts"
       ],
       "LibreBarcode39Text": [
-        "dist/LibreBarcode39Text.d.ts"
+        "dist/esm/LibreBarcode39Text.d.ts"
       ],
       "LibreBarcodeEAN13Text": [
-        "dist/LibreBarcodeEAN13Text.d.ts"
+        "dist/esm/LibreBarcodeEAN13Text.d.ts"
       ],
       "LibreBaskerville": [
-        "dist/LibreBaskerville.d.ts"
+        "dist/esm/LibreBaskerville.d.ts"
       ],
       "LibreBodoni": [
-        "dist/LibreBodoni.d.ts"
+        "dist/esm/LibreBodoni.d.ts"
       ],
       "LibreCaslonDisplay": [
-        "dist/LibreCaslonDisplay.d.ts"
+        "dist/esm/LibreCaslonDisplay.d.ts"
       ],
       "LibreCaslonText": [
-        "dist/LibreCaslonText.d.ts"
+        "dist/esm/LibreCaslonText.d.ts"
       ],
       "LibreFranklin": [
-        "dist/LibreFranklin.d.ts"
+        "dist/esm/LibreFranklin.d.ts"
       ],
       "Licorice": [
-        "dist/Licorice.d.ts"
+        "dist/esm/Licorice.d.ts"
       ],
       "LifeSavers": [
-        "dist/LifeSavers.d.ts"
+        "dist/esm/LifeSavers.d.ts"
       ],
       "LilitaOne": [
-        "dist/LilitaOne.d.ts"
+        "dist/esm/LilitaOne.d.ts"
       ],
       "LilyScriptOne": [
-        "dist/LilyScriptOne.d.ts"
+        "dist/esm/LilyScriptOne.d.ts"
       ],
       "Limelight": [
-        "dist/Limelight.d.ts"
+        "dist/esm/Limelight.d.ts"
       ],
       "LindenHill": [
-        "dist/LindenHill.d.ts"
+        "dist/esm/LindenHill.d.ts"
       ],
       "Literata": [
-        "dist/Literata.d.ts"
+        "dist/esm/Literata.d.ts"
       ],
       "LiuJianMaoCao": [
-        "dist/LiuJianMaoCao.d.ts"
+        "dist/esm/LiuJianMaoCao.d.ts"
       ],
       "Livvic": [
-        "dist/Livvic.d.ts"
+        "dist/esm/Livvic.d.ts"
       ],
       "Lobster": [
-        "dist/Lobster.d.ts"
+        "dist/esm/Lobster.d.ts"
       ],
       "LobsterTwo": [
-        "dist/LobsterTwo.d.ts"
+        "dist/esm/LobsterTwo.d.ts"
       ],
       "LondrinaOutline": [
-        "dist/LondrinaOutline.d.ts"
+        "dist/esm/LondrinaOutline.d.ts"
       ],
       "LondrinaShadow": [
-        "dist/LondrinaShadow.d.ts"
+        "dist/esm/LondrinaShadow.d.ts"
       ],
       "LondrinaSketch": [
-        "dist/LondrinaSketch.d.ts"
+        "dist/esm/LondrinaSketch.d.ts"
       ],
       "LondrinaSolid": [
-        "dist/LondrinaSolid.d.ts"
+        "dist/esm/LondrinaSolid.d.ts"
       ],
       "LongCang": [
-        "dist/LongCang.d.ts"
+        "dist/esm/LongCang.d.ts"
       ],
       "Lora": [
-        "dist/Lora.d.ts"
+        "dist/esm/Lora.d.ts"
       ],
       "LoveLight": [
-        "dist/LoveLight.d.ts"
+        "dist/esm/LoveLight.d.ts"
       ],
       "LoveYaLikeASister": [
-        "dist/LoveYaLikeASister.d.ts"
+        "dist/esm/LoveYaLikeASister.d.ts"
       ],
       "LovedbytheKing": [
-        "dist/LovedbytheKing.d.ts"
+        "dist/esm/LovedbytheKing.d.ts"
       ],
       "LoversQuarrel": [
-        "dist/LoversQuarrel.d.ts"
+        "dist/esm/LoversQuarrel.d.ts"
       ],
       "LuckiestGuy": [
-        "dist/LuckiestGuy.d.ts"
+        "dist/esm/LuckiestGuy.d.ts"
       ],
       "Lusitana": [
-        "dist/Lusitana.d.ts"
+        "dist/esm/Lusitana.d.ts"
       ],
       "Lustria": [
-        "dist/Lustria.d.ts"
+        "dist/esm/Lustria.d.ts"
       ],
       "LuxuriousRoman": [
-        "dist/LuxuriousRoman.d.ts"
+        "dist/esm/LuxuriousRoman.d.ts"
       ],
       "LuxuriousScript": [
-        "dist/LuxuriousScript.d.ts"
+        "dist/esm/LuxuriousScript.d.ts"
       ],
       "MPLUS1": [
-        "dist/MPLUS1.d.ts"
+        "dist/esm/MPLUS1.d.ts"
       ],
       "MPLUS1Code": [
-        "dist/MPLUS1Code.d.ts"
+        "dist/esm/MPLUS1Code.d.ts"
       ],
       "MPLUS1p": [
-        "dist/MPLUS1p.d.ts"
+        "dist/esm/MPLUS1p.d.ts"
       ],
       "MPLUS2": [
-        "dist/MPLUS2.d.ts"
+        "dist/esm/MPLUS2.d.ts"
       ],
       "MPLUSCodeLatin": [
-        "dist/MPLUSCodeLatin.d.ts"
+        "dist/esm/MPLUSCodeLatin.d.ts"
       ],
       "MPLUSRounded1c": [
-        "dist/MPLUSRounded1c.d.ts"
+        "dist/esm/MPLUSRounded1c.d.ts"
       ],
       "MaShanZheng": [
-        "dist/MaShanZheng.d.ts"
+        "dist/esm/MaShanZheng.d.ts"
       ],
       "Macondo": [
-        "dist/Macondo.d.ts"
+        "dist/esm/Macondo.d.ts"
       ],
       "MacondoSwashCaps": [
-        "dist/MacondoSwashCaps.d.ts"
+        "dist/esm/MacondoSwashCaps.d.ts"
       ],
       "Mada": [
-        "dist/Mada.d.ts"
+        "dist/esm/Mada.d.ts"
       ],
       "Magra": [
-        "dist/Magra.d.ts"
+        "dist/esm/Magra.d.ts"
       ],
       "MaidenOrange": [
-        "dist/MaidenOrange.d.ts"
+        "dist/esm/MaidenOrange.d.ts"
       ],
       "Maitree": [
-        "dist/Maitree.d.ts"
+        "dist/esm/Maitree.d.ts"
       ],
       "MajorMonoDisplay": [
-        "dist/MajorMonoDisplay.d.ts"
+        "dist/esm/MajorMonoDisplay.d.ts"
       ],
       "Mako": [
-        "dist/Mako.d.ts"
+        "dist/esm/Mako.d.ts"
       ],
       "Mali": [
-        "dist/Mali.d.ts"
+        "dist/esm/Mali.d.ts"
       ],
       "Mallanna": [
-        "dist/Mallanna.d.ts"
+        "dist/esm/Mallanna.d.ts"
       ],
       "Mandali": [
-        "dist/Mandali.d.ts"
+        "dist/esm/Mandali.d.ts"
       ],
       "Manjari": [
-        "dist/Manjari.d.ts"
+        "dist/esm/Manjari.d.ts"
       ],
       "Manrope": [
-        "dist/Manrope.d.ts"
+        "dist/esm/Manrope.d.ts"
       ],
       "Mansalva": [
-        "dist/Mansalva.d.ts"
+        "dist/esm/Mansalva.d.ts"
       ],
       "Manuale": [
-        "dist/Manuale.d.ts"
+        "dist/esm/Manuale.d.ts"
       ],
       "Marcellus": [
-        "dist/Marcellus.d.ts"
+        "dist/esm/Marcellus.d.ts"
       ],
       "MarcellusSC": [
-        "dist/MarcellusSC.d.ts"
+        "dist/esm/MarcellusSC.d.ts"
       ],
       "MarckScript": [
-        "dist/MarckScript.d.ts"
+        "dist/esm/MarckScript.d.ts"
       ],
       "Margarine": [
-        "dist/Margarine.d.ts"
+        "dist/esm/Margarine.d.ts"
       ],
       "MarkaziText": [
-        "dist/MarkaziText.d.ts"
+        "dist/esm/MarkaziText.d.ts"
       ],
       "MarkoOne": [
-        "dist/MarkoOne.d.ts"
+        "dist/esm/MarkoOne.d.ts"
       ],
       "Marmelad": [
-        "dist/Marmelad.d.ts"
+        "dist/esm/Marmelad.d.ts"
       ],
       "Martel": [
-        "dist/Martel.d.ts"
+        "dist/esm/Martel.d.ts"
       ],
       "MartelSans": [
-        "dist/MartelSans.d.ts"
+        "dist/esm/MartelSans.d.ts"
       ],
       "Marvel": [
-        "dist/Marvel.d.ts"
+        "dist/esm/Marvel.d.ts"
       ],
       "Mate": [
-        "dist/Mate.d.ts"
+        "dist/esm/Mate.d.ts"
       ],
       "MateSC": [
-        "dist/MateSC.d.ts"
+        "dist/esm/MateSC.d.ts"
       ],
       "MavenPro": [
-        "dist/MavenPro.d.ts"
+        "dist/esm/MavenPro.d.ts"
       ],
       "McLaren": [
-        "dist/McLaren.d.ts"
+        "dist/esm/McLaren.d.ts"
       ],
       "MeaCulpa": [
-        "dist/MeaCulpa.d.ts"
+        "dist/esm/MeaCulpa.d.ts"
       ],
       "Meddon": [
-        "dist/Meddon.d.ts"
+        "dist/esm/Meddon.d.ts"
       ],
       "MedievalSharp": [
-        "dist/MedievalSharp.d.ts"
+        "dist/esm/MedievalSharp.d.ts"
       ],
       "MedulaOne": [
-        "dist/MedulaOne.d.ts"
+        "dist/esm/MedulaOne.d.ts"
       ],
       "MeeraInimai": [
-        "dist/MeeraInimai.d.ts"
+        "dist/esm/MeeraInimai.d.ts"
       ],
       "Megrim": [
-        "dist/Megrim.d.ts"
+        "dist/esm/Megrim.d.ts"
       ],
       "MeieScript": [
-        "dist/MeieScript.d.ts"
+        "dist/esm/MeieScript.d.ts"
       ],
       "MeowScript": [
-        "dist/MeowScript.d.ts"
+        "dist/esm/MeowScript.d.ts"
       ],
       "Merienda": [
-        "dist/Merienda.d.ts"
+        "dist/esm/Merienda.d.ts"
       ],
       "MeriendaOne": [
-        "dist/MeriendaOne.d.ts"
+        "dist/esm/MeriendaOne.d.ts"
       ],
       "Merriweather": [
-        "dist/Merriweather.d.ts"
+        "dist/esm/Merriweather.d.ts"
       ],
       "MerriweatherSans": [
-        "dist/MerriweatherSans.d.ts"
+        "dist/esm/MerriweatherSans.d.ts"
       ],
       "Metal": [
-        "dist/Metal.d.ts"
+        "dist/esm/Metal.d.ts"
       ],
       "MetalMania": [
-        "dist/MetalMania.d.ts"
+        "dist/esm/MetalMania.d.ts"
       ],
       "Metamorphous": [
-        "dist/Metamorphous.d.ts"
+        "dist/esm/Metamorphous.d.ts"
       ],
       "Metrophobic": [
-        "dist/Metrophobic.d.ts"
+        "dist/esm/Metrophobic.d.ts"
       ],
       "Michroma": [
-        "dist/Michroma.d.ts"
+        "dist/esm/Michroma.d.ts"
       ],
       "Milonga": [
-        "dist/Milonga.d.ts"
+        "dist/esm/Milonga.d.ts"
       ],
       "Miltonian": [
-        "dist/Miltonian.d.ts"
+        "dist/esm/Miltonian.d.ts"
       ],
       "MiltonianTattoo": [
-        "dist/MiltonianTattoo.d.ts"
+        "dist/esm/MiltonianTattoo.d.ts"
       ],
       "Mina": [
-        "dist/Mina.d.ts"
+        "dist/esm/Mina.d.ts"
       ],
       "Mingzat": [
-        "dist/Mingzat.d.ts"
+        "dist/esm/Mingzat.d.ts"
       ],
       "Miniver": [
-        "dist/Miniver.d.ts"
+        "dist/esm/Miniver.d.ts"
       ],
       "MiriamLibre": [
-        "dist/MiriamLibre.d.ts"
+        "dist/esm/MiriamLibre.d.ts"
       ],
       "Mirza": [
-        "dist/Mirza.d.ts"
+        "dist/esm/Mirza.d.ts"
       ],
       "MissFajardose": [
-        "dist/MissFajardose.d.ts"
+        "dist/esm/MissFajardose.d.ts"
       ],
       "Mitr": [
-        "dist/Mitr.d.ts"
+        "dist/esm/Mitr.d.ts"
       ],
       "MochiyPopOne": [
-        "dist/MochiyPopOne.d.ts"
+        "dist/esm/MochiyPopOne.d.ts"
       ],
       "MochiyPopPOne": [
-        "dist/MochiyPopPOne.d.ts"
+        "dist/esm/MochiyPopPOne.d.ts"
       ],
       "Modak": [
-        "dist/Modak.d.ts"
+        "dist/esm/Modak.d.ts"
       ],
       "ModernAntiqua": [
-        "dist/ModernAntiqua.d.ts"
+        "dist/esm/ModernAntiqua.d.ts"
       ],
       "Mogra": [
-        "dist/Mogra.d.ts"
+        "dist/esm/Mogra.d.ts"
       ],
       "Mohave": [
-        "dist/Mohave.d.ts"
+        "dist/esm/Mohave.d.ts"
       ],
       "Molengo": [
-        "dist/Molengo.d.ts"
+        "dist/esm/Molengo.d.ts"
       ],
       "Molle": [
-        "dist/Molle.d.ts"
+        "dist/esm/Molle.d.ts"
       ],
       "Monda": [
-        "dist/Monda.d.ts"
+        "dist/esm/Monda.d.ts"
       ],
       "Monofett": [
-        "dist/Monofett.d.ts"
+        "dist/esm/Monofett.d.ts"
       ],
       "Monoton": [
-        "dist/Monoton.d.ts"
+        "dist/esm/Monoton.d.ts"
       ],
       "MonsieurLaDoulaise": [
-        "dist/MonsieurLaDoulaise.d.ts"
+        "dist/esm/MonsieurLaDoulaise.d.ts"
       ],
       "Montaga": [
-        "dist/Montaga.d.ts"
+        "dist/esm/Montaga.d.ts"
       ],
       "MontaguSlab": [
-        "dist/MontaguSlab.d.ts"
+        "dist/esm/MontaguSlab.d.ts"
       ],
       "MonteCarlo": [
-        "dist/MonteCarlo.d.ts"
+        "dist/esm/MonteCarlo.d.ts"
       ],
       "Montez": [
-        "dist/Montez.d.ts"
+        "dist/esm/Montez.d.ts"
       ],
       "Montserrat": [
-        "dist/Montserrat.d.ts"
+        "dist/esm/Montserrat.d.ts"
       ],
       "MontserratAlternates": [
-        "dist/MontserratAlternates.d.ts"
+        "dist/esm/MontserratAlternates.d.ts"
       ],
       "MontserratSubrayada": [
-        "dist/MontserratSubrayada.d.ts"
+        "dist/esm/MontserratSubrayada.d.ts"
       ],
       "MooLahLah": [
-        "dist/MooLahLah.d.ts"
+        "dist/esm/MooLahLah.d.ts"
       ],
       "MoonDance": [
-        "dist/MoonDance.d.ts"
+        "dist/esm/MoonDance.d.ts"
       ],
       "Moul": [
-        "dist/Moul.d.ts"
+        "dist/esm/Moul.d.ts"
       ],
       "Moulpali": [
-        "dist/Moulpali.d.ts"
+        "dist/esm/Moulpali.d.ts"
       ],
       "MountainsofChristmas": [
-        "dist/MountainsofChristmas.d.ts"
+        "dist/esm/MountainsofChristmas.d.ts"
       ],
       "MouseMemoirs": [
-        "dist/MouseMemoirs.d.ts"
+        "dist/esm/MouseMemoirs.d.ts"
       ],
       "MrBedfort": [
-        "dist/MrBedfort.d.ts"
+        "dist/esm/MrBedfort.d.ts"
       ],
       "MrDafoe": [
-        "dist/MrDafoe.d.ts"
+        "dist/esm/MrDafoe.d.ts"
       ],
       "MrDeHaviland": [
-        "dist/MrDeHaviland.d.ts"
+        "dist/esm/MrDeHaviland.d.ts"
       ],
       "MrsSaintDelafield": [
-        "dist/MrsSaintDelafield.d.ts"
+        "dist/esm/MrsSaintDelafield.d.ts"
       ],
       "MrsSheppards": [
-        "dist/MrsSheppards.d.ts"
+        "dist/esm/MrsSheppards.d.ts"
       ],
       "MsMadi": [
-        "dist/MsMadi.d.ts"
+        "dist/esm/MsMadi.d.ts"
       ],
       "Mukta": [
-        "dist/Mukta.d.ts"
+        "dist/esm/Mukta.d.ts"
       ],
       "MuktaMahee": [
-        "dist/MuktaMahee.d.ts"
+        "dist/esm/MuktaMahee.d.ts"
       ],
       "MuktaMalar": [
-        "dist/MuktaMalar.d.ts"
+        "dist/esm/MuktaMalar.d.ts"
       ],
       "MuktaVaani": [
-        "dist/MuktaVaani.d.ts"
+        "dist/esm/MuktaVaani.d.ts"
       ],
       "Mulish": [
-        "dist/Mulish.d.ts"
+        "dist/esm/Mulish.d.ts"
       ],
       "Murecho": [
-        "dist/Murecho.d.ts"
+        "dist/esm/Murecho.d.ts"
       ],
       "MuseoModerno": [
-        "dist/MuseoModerno.d.ts"
+        "dist/esm/MuseoModerno.d.ts"
       ],
       "MySoul": [
-        "dist/MySoul.d.ts"
+        "dist/esm/MySoul.d.ts"
       ],
       "MysteryQuest": [
-        "dist/MysteryQuest.d.ts"
+        "dist/esm/MysteryQuest.d.ts"
       ],
       "NTR": [
-        "dist/NTR.d.ts"
+        "dist/esm/NTR.d.ts"
       ],
       "Nabla": [
-        "dist/Nabla.d.ts"
+        "dist/esm/Nabla.d.ts"
       ],
       "NanumBrushScript": [
-        "dist/NanumBrushScript.d.ts"
+        "dist/esm/NanumBrushScript.d.ts"
       ],
       "NanumGothic": [
-        "dist/NanumGothic.d.ts"
+        "dist/esm/NanumGothic.d.ts"
       ],
       "NanumGothicCoding": [
-        "dist/NanumGothicCoding.d.ts"
+        "dist/esm/NanumGothicCoding.d.ts"
       ],
       "NanumMyeongjo": [
-        "dist/NanumMyeongjo.d.ts"
+        "dist/esm/NanumMyeongjo.d.ts"
       ],
       "NanumPenScript": [
-        "dist/NanumPenScript.d.ts"
+        "dist/esm/NanumPenScript.d.ts"
       ],
       "Neonderthaw": [
-        "dist/Neonderthaw.d.ts"
+        "dist/esm/Neonderthaw.d.ts"
       ],
       "NerkoOne": [
-        "dist/NerkoOne.d.ts"
+        "dist/esm/NerkoOne.d.ts"
       ],
       "Neucha": [
-        "dist/Neucha.d.ts"
+        "dist/esm/Neucha.d.ts"
       ],
       "Neuton": [
-        "dist/Neuton.d.ts"
+        "dist/esm/Neuton.d.ts"
       ],
       "NewRocker": [
-        "dist/NewRocker.d.ts"
+        "dist/esm/NewRocker.d.ts"
       ],
       "NewTegomin": [
-        "dist/NewTegomin.d.ts"
+        "dist/esm/NewTegomin.d.ts"
       ],
       "NewsCycle": [
-        "dist/NewsCycle.d.ts"
+        "dist/esm/NewsCycle.d.ts"
       ],
       "Newsreader": [
-        "dist/Newsreader.d.ts"
+        "dist/esm/Newsreader.d.ts"
       ],
       "Niconne": [
-        "dist/Niconne.d.ts"
+        "dist/esm/Niconne.d.ts"
       ],
       "Niramit": [
-        "dist/Niramit.d.ts"
+        "dist/esm/Niramit.d.ts"
       ],
       "NixieOne": [
-        "dist/NixieOne.d.ts"
+        "dist/esm/NixieOne.d.ts"
       ],
       "Nobile": [
-        "dist/Nobile.d.ts"
+        "dist/esm/Nobile.d.ts"
       ],
       "Nokora": [
-        "dist/Nokora.d.ts"
+        "dist/esm/Nokora.d.ts"
       ],
       "Norican": [
-        "dist/Norican.d.ts"
+        "dist/esm/Norican.d.ts"
       ],
       "Nosifer": [
-        "dist/Nosifer.d.ts"
+        "dist/esm/Nosifer.d.ts"
       ],
       "Notable": [
-        "dist/Notable.d.ts"
+        "dist/esm/Notable.d.ts"
       ],
       "NothingYouCouldDo": [
-        "dist/NothingYouCouldDo.d.ts"
+        "dist/esm/NothingYouCouldDo.d.ts"
       ],
       "NoticiaText": [
-        "dist/NoticiaText.d.ts"
+        "dist/esm/NoticiaText.d.ts"
       ],
       "NotoColorEmoji": [
-        "dist/NotoColorEmoji.d.ts"
+        "dist/esm/NotoColorEmoji.d.ts"
       ],
       "NotoEmoji": [
-        "dist/NotoEmoji.d.ts"
+        "dist/esm/NotoEmoji.d.ts"
       ],
       "NotoKufiArabic": [
-        "dist/NotoKufiArabic.d.ts"
+        "dist/esm/NotoKufiArabic.d.ts"
       ],
       "NotoMusic": [
-        "dist/NotoMusic.d.ts"
+        "dist/esm/NotoMusic.d.ts"
       ],
       "NotoNaskhArabic": [
-        "dist/NotoNaskhArabic.d.ts"
+        "dist/esm/NotoNaskhArabic.d.ts"
       ],
       "NotoNastaliqUrdu": [
-        "dist/NotoNastaliqUrdu.d.ts"
+        "dist/esm/NotoNastaliqUrdu.d.ts"
       ],
       "NotoRashiHebrew": [
-        "dist/NotoRashiHebrew.d.ts"
+        "dist/esm/NotoRashiHebrew.d.ts"
       ],
       "NotoSans": [
-        "dist/NotoSans.d.ts"
+        "dist/esm/NotoSans.d.ts"
       ],
       "NotoSansAdlam": [
-        "dist/NotoSansAdlam.d.ts"
+        "dist/esm/NotoSansAdlam.d.ts"
       ],
       "NotoSansAdlamUnjoined": [
-        "dist/NotoSansAdlamUnjoined.d.ts"
+        "dist/esm/NotoSansAdlamUnjoined.d.ts"
       ],
       "NotoSansAnatolianHieroglyphs": [
-        "dist/NotoSansAnatolianHieroglyphs.d.ts"
+        "dist/esm/NotoSansAnatolianHieroglyphs.d.ts"
       ],
       "NotoSansArabic": [
-        "dist/NotoSansArabic.d.ts"
+        "dist/esm/NotoSansArabic.d.ts"
       ],
       "NotoSansArmenian": [
-        "dist/NotoSansArmenian.d.ts"
+        "dist/esm/NotoSansArmenian.d.ts"
       ],
       "NotoSansAvestan": [
-        "dist/NotoSansAvestan.d.ts"
+        "dist/esm/NotoSansAvestan.d.ts"
       ],
       "NotoSansBalinese": [
-        "dist/NotoSansBalinese.d.ts"
+        "dist/esm/NotoSansBalinese.d.ts"
       ],
       "NotoSansBamum": [
-        "dist/NotoSansBamum.d.ts"
+        "dist/esm/NotoSansBamum.d.ts"
       ],
       "NotoSansBassaVah": [
-        "dist/NotoSansBassaVah.d.ts"
+        "dist/esm/NotoSansBassaVah.d.ts"
       ],
       "NotoSansBatak": [
-        "dist/NotoSansBatak.d.ts"
+        "dist/esm/NotoSansBatak.d.ts"
       ],
       "NotoSansBengali": [
-        "dist/NotoSansBengali.d.ts"
+        "dist/esm/NotoSansBengali.d.ts"
       ],
       "NotoSansBhaiksuki": [
-        "dist/NotoSansBhaiksuki.d.ts"
+        "dist/esm/NotoSansBhaiksuki.d.ts"
       ],
       "NotoSansBrahmi": [
-        "dist/NotoSansBrahmi.d.ts"
+        "dist/esm/NotoSansBrahmi.d.ts"
       ],
       "NotoSansBuginese": [
-        "dist/NotoSansBuginese.d.ts"
+        "dist/esm/NotoSansBuginese.d.ts"
       ],
       "NotoSansBuhid": [
-        "dist/NotoSansBuhid.d.ts"
+        "dist/esm/NotoSansBuhid.d.ts"
       ],
       "NotoSansCanadianAboriginal": [
-        "dist/NotoSansCanadianAboriginal.d.ts"
+        "dist/esm/NotoSansCanadianAboriginal.d.ts"
       ],
       "NotoSansCarian": [
-        "dist/NotoSansCarian.d.ts"
+        "dist/esm/NotoSansCarian.d.ts"
       ],
       "NotoSansCaucasianAlbanian": [
-        "dist/NotoSansCaucasianAlbanian.d.ts"
+        "dist/esm/NotoSansCaucasianAlbanian.d.ts"
       ],
       "NotoSansChakma": [
-        "dist/NotoSansChakma.d.ts"
+        "dist/esm/NotoSansChakma.d.ts"
       ],
       "NotoSansCham": [
-        "dist/NotoSansCham.d.ts"
+        "dist/esm/NotoSansCham.d.ts"
       ],
       "NotoSansCherokee": [
-        "dist/NotoSansCherokee.d.ts"
+        "dist/esm/NotoSansCherokee.d.ts"
       ],
       "NotoSansCoptic": [
-        "dist/NotoSansCoptic.d.ts"
+        "dist/esm/NotoSansCoptic.d.ts"
       ],
       "NotoSansCuneiform": [
-        "dist/NotoSansCuneiform.d.ts"
+        "dist/esm/NotoSansCuneiform.d.ts"
       ],
       "NotoSansCypriot": [
-        "dist/NotoSansCypriot.d.ts"
+        "dist/esm/NotoSansCypriot.d.ts"
       ],
       "NotoSansDeseret": [
-        "dist/NotoSansDeseret.d.ts"
+        "dist/esm/NotoSansDeseret.d.ts"
       ],
       "NotoSansDevanagari": [
-        "dist/NotoSansDevanagari.d.ts"
+        "dist/esm/NotoSansDevanagari.d.ts"
       ],
       "NotoSansDisplay": [
-        "dist/NotoSansDisplay.d.ts"
+        "dist/esm/NotoSansDisplay.d.ts"
       ],
       "NotoSansDuployan": [
-        "dist/NotoSansDuployan.d.ts"
+        "dist/esm/NotoSansDuployan.d.ts"
       ],
       "NotoSansEgyptianHieroglyphs": [
-        "dist/NotoSansEgyptianHieroglyphs.d.ts"
+        "dist/esm/NotoSansEgyptianHieroglyphs.d.ts"
       ],
       "NotoSansElbasan": [
-        "dist/NotoSansElbasan.d.ts"
+        "dist/esm/NotoSansElbasan.d.ts"
       ],
       "NotoSansElymaic": [
-        "dist/NotoSansElymaic.d.ts"
+        "dist/esm/NotoSansElymaic.d.ts"
       ],
       "NotoSansEthiopic": [
-        "dist/NotoSansEthiopic.d.ts"
+        "dist/esm/NotoSansEthiopic.d.ts"
       ],
       "NotoSansGeorgian": [
-        "dist/NotoSansGeorgian.d.ts"
+        "dist/esm/NotoSansGeorgian.d.ts"
       ],
       "NotoSansGlagolitic": [
-        "dist/NotoSansGlagolitic.d.ts"
+        "dist/esm/NotoSansGlagolitic.d.ts"
       ],
       "NotoSansGothic": [
-        "dist/NotoSansGothic.d.ts"
+        "dist/esm/NotoSansGothic.d.ts"
       ],
       "NotoSansGrantha": [
-        "dist/NotoSansGrantha.d.ts"
+        "dist/esm/NotoSansGrantha.d.ts"
       ],
       "NotoSansGujarati": [
-        "dist/NotoSansGujarati.d.ts"
+        "dist/esm/NotoSansGujarati.d.ts"
       ],
       "NotoSansGunjalaGondi": [
-        "dist/NotoSansGunjalaGondi.d.ts"
+        "dist/esm/NotoSansGunjalaGondi.d.ts"
       ],
       "NotoSansGurmukhi": [
-        "dist/NotoSansGurmukhi.d.ts"
+        "dist/esm/NotoSansGurmukhi.d.ts"
       ],
       "NotoSansHK": [
-        "dist/NotoSansHK.d.ts"
+        "dist/esm/NotoSansHK.d.ts"
       ],
       "NotoSansHanifiRohingya": [
-        "dist/NotoSansHanifiRohingya.d.ts"
+        "dist/esm/NotoSansHanifiRohingya.d.ts"
       ],
       "NotoSansHanunoo": [
-        "dist/NotoSansHanunoo.d.ts"
+        "dist/esm/NotoSansHanunoo.d.ts"
       ],
       "NotoSansHatran": [
-        "dist/NotoSansHatran.d.ts"
+        "dist/esm/NotoSansHatran.d.ts"
       ],
       "NotoSansHebrew": [
-        "dist/NotoSansHebrew.d.ts"
+        "dist/esm/NotoSansHebrew.d.ts"
       ],
       "NotoSansImperialAramaic": [
-        "dist/NotoSansImperialAramaic.d.ts"
+        "dist/esm/NotoSansImperialAramaic.d.ts"
       ],
       "NotoSansIndicSiyaqNumbers": [
-        "dist/NotoSansIndicSiyaqNumbers.d.ts"
+        "dist/esm/NotoSansIndicSiyaqNumbers.d.ts"
       ],
       "NotoSansInscriptionalPahlavi": [
-        "dist/NotoSansInscriptionalPahlavi.d.ts"
+        "dist/esm/NotoSansInscriptionalPahlavi.d.ts"
       ],
       "NotoSansInscriptionalParthian": [
-        "dist/NotoSansInscriptionalParthian.d.ts"
+        "dist/esm/NotoSansInscriptionalParthian.d.ts"
       ],
       "NotoSansJP": [
-        "dist/NotoSansJP.d.ts"
+        "dist/esm/NotoSansJP.d.ts"
       ],
       "NotoSansJavanese": [
-        "dist/NotoSansJavanese.d.ts"
+        "dist/esm/NotoSansJavanese.d.ts"
       ],
       "NotoSansKR": [
-        "dist/NotoSansKR.d.ts"
+        "dist/esm/NotoSansKR.d.ts"
       ],
       "NotoSansKaithi": [
-        "dist/NotoSansKaithi.d.ts"
+        "dist/esm/NotoSansKaithi.d.ts"
       ],
       "NotoSansKannada": [
-        "dist/NotoSansKannada.d.ts"
+        "dist/esm/NotoSansKannada.d.ts"
       ],
       "NotoSansKayahLi": [
-        "dist/NotoSansKayahLi.d.ts"
+        "dist/esm/NotoSansKayahLi.d.ts"
       ],
       "NotoSansKharoshthi": [
-        "dist/NotoSansKharoshthi.d.ts"
+        "dist/esm/NotoSansKharoshthi.d.ts"
       ],
       "NotoSansKhmer": [
-        "dist/NotoSansKhmer.d.ts"
+        "dist/esm/NotoSansKhmer.d.ts"
       ],
       "NotoSansKhojki": [
-        "dist/NotoSansKhojki.d.ts"
+        "dist/esm/NotoSansKhojki.d.ts"
       ],
       "NotoSansKhudawadi": [
-        "dist/NotoSansKhudawadi.d.ts"
+        "dist/esm/NotoSansKhudawadi.d.ts"
       ],
       "NotoSansLao": [
-        "dist/NotoSansLao.d.ts"
+        "dist/esm/NotoSansLao.d.ts"
       ],
       "NotoSansLepcha": [
-        "dist/NotoSansLepcha.d.ts"
+        "dist/esm/NotoSansLepcha.d.ts"
       ],
       "NotoSansLimbu": [
-        "dist/NotoSansLimbu.d.ts"
+        "dist/esm/NotoSansLimbu.d.ts"
       ],
       "NotoSansLinearA": [
-        "dist/NotoSansLinearA.d.ts"
+        "dist/esm/NotoSansLinearA.d.ts"
       ],
       "NotoSansLinearB": [
-        "dist/NotoSansLinearB.d.ts"
+        "dist/esm/NotoSansLinearB.d.ts"
       ],
       "NotoSansLisu": [
-        "dist/NotoSansLisu.d.ts"
+        "dist/esm/NotoSansLisu.d.ts"
       ],
       "NotoSansLycian": [
-        "dist/NotoSansLycian.d.ts"
+        "dist/esm/NotoSansLycian.d.ts"
       ],
       "NotoSansLydian": [
-        "dist/NotoSansLydian.d.ts"
+        "dist/esm/NotoSansLydian.d.ts"
       ],
       "NotoSansMahajani": [
-        "dist/NotoSansMahajani.d.ts"
+        "dist/esm/NotoSansMahajani.d.ts"
       ],
       "NotoSansMalayalam": [
-        "dist/NotoSansMalayalam.d.ts"
+        "dist/esm/NotoSansMalayalam.d.ts"
       ],
       "NotoSansMandaic": [
-        "dist/NotoSansMandaic.d.ts"
+        "dist/esm/NotoSansMandaic.d.ts"
       ],
       "NotoSansManichaean": [
-        "dist/NotoSansManichaean.d.ts"
+        "dist/esm/NotoSansManichaean.d.ts"
       ],
       "NotoSansMarchen": [
-        "dist/NotoSansMarchen.d.ts"
+        "dist/esm/NotoSansMarchen.d.ts"
       ],
       "NotoSansMasaramGondi": [
-        "dist/NotoSansMasaramGondi.d.ts"
+        "dist/esm/NotoSansMasaramGondi.d.ts"
       ],
       "NotoSansMath": [
-        "dist/NotoSansMath.d.ts"
+        "dist/esm/NotoSansMath.d.ts"
       ],
       "NotoSansMayanNumerals": [
-        "dist/NotoSansMayanNumerals.d.ts"
+        "dist/esm/NotoSansMayanNumerals.d.ts"
       ],
       "NotoSansMedefaidrin": [
-        "dist/NotoSansMedefaidrin.d.ts"
+        "dist/esm/NotoSansMedefaidrin.d.ts"
       ],
       "NotoSansMeeteiMayek": [
-        "dist/NotoSansMeeteiMayek.d.ts"
+        "dist/esm/NotoSansMeeteiMayek.d.ts"
       ],
       "NotoSansMeroitic": [
-        "dist/NotoSansMeroitic.d.ts"
+        "dist/esm/NotoSansMeroitic.d.ts"
       ],
       "NotoSansMiao": [
-        "dist/NotoSansMiao.d.ts"
+        "dist/esm/NotoSansMiao.d.ts"
       ],
       "NotoSansModi": [
-        "dist/NotoSansModi.d.ts"
+        "dist/esm/NotoSansModi.d.ts"
       ],
       "NotoSansMongolian": [
-        "dist/NotoSansMongolian.d.ts"
+        "dist/esm/NotoSansMongolian.d.ts"
       ],
       "NotoSansMono": [
-        "dist/NotoSansMono.d.ts"
+        "dist/esm/NotoSansMono.d.ts"
       ],
       "NotoSansMro": [
-        "dist/NotoSansMro.d.ts"
+        "dist/esm/NotoSansMro.d.ts"
       ],
       "NotoSansMultani": [
-        "dist/NotoSansMultani.d.ts"
+        "dist/esm/NotoSansMultani.d.ts"
       ],
       "NotoSansMyanmar": [
-        "dist/NotoSansMyanmar.d.ts"
+        "dist/esm/NotoSansMyanmar.d.ts"
       ],
       "NotoSansNKo": [
-        "dist/NotoSansNKo.d.ts"
+        "dist/esm/NotoSansNKo.d.ts"
       ],
       "NotoSansNabataean": [
-        "dist/NotoSansNabataean.d.ts"
+        "dist/esm/NotoSansNabataean.d.ts"
       ],
       "NotoSansNewTaiLue": [
-        "dist/NotoSansNewTaiLue.d.ts"
+        "dist/esm/NotoSansNewTaiLue.d.ts"
       ],
       "NotoSansNewa": [
-        "dist/NotoSansNewa.d.ts"
+        "dist/esm/NotoSansNewa.d.ts"
       ],
       "NotoSansNushu": [
-        "dist/NotoSansNushu.d.ts"
+        "dist/esm/NotoSansNushu.d.ts"
       ],
       "NotoSansOgham": [
-        "dist/NotoSansOgham.d.ts"
+        "dist/esm/NotoSansOgham.d.ts"
       ],
       "NotoSansOlChiki": [
-        "dist/NotoSansOlChiki.d.ts"
+        "dist/esm/NotoSansOlChiki.d.ts"
       ],
       "NotoSansOldHungarian": [
-        "dist/NotoSansOldHungarian.d.ts"
+        "dist/esm/NotoSansOldHungarian.d.ts"
       ],
       "NotoSansOldItalic": [
-        "dist/NotoSansOldItalic.d.ts"
+        "dist/esm/NotoSansOldItalic.d.ts"
       ],
       "NotoSansOldNorthArabian": [
-        "dist/NotoSansOldNorthArabian.d.ts"
+        "dist/esm/NotoSansOldNorthArabian.d.ts"
       ],
       "NotoSansOldPermic": [
-        "dist/NotoSansOldPermic.d.ts"
+        "dist/esm/NotoSansOldPermic.d.ts"
       ],
       "NotoSansOldPersian": [
-        "dist/NotoSansOldPersian.d.ts"
+        "dist/esm/NotoSansOldPersian.d.ts"
       ],
       "NotoSansOldSogdian": [
-        "dist/NotoSansOldSogdian.d.ts"
+        "dist/esm/NotoSansOldSogdian.d.ts"
       ],
       "NotoSansOldSouthArabian": [
-        "dist/NotoSansOldSouthArabian.d.ts"
+        "dist/esm/NotoSansOldSouthArabian.d.ts"
       ],
       "NotoSansOldTurkic": [
-        "dist/NotoSansOldTurkic.d.ts"
+        "dist/esm/NotoSansOldTurkic.d.ts"
       ],
       "NotoSansOriya": [
-        "dist/NotoSansOriya.d.ts"
+        "dist/esm/NotoSansOriya.d.ts"
       ],
       "NotoSansOsage": [
-        "dist/NotoSansOsage.d.ts"
+        "dist/esm/NotoSansOsage.d.ts"
       ],
       "NotoSansOsmanya": [
-        "dist/NotoSansOsmanya.d.ts"
+        "dist/esm/NotoSansOsmanya.d.ts"
       ],
       "NotoSansPahawhHmong": [
-        "dist/NotoSansPahawhHmong.d.ts"
+        "dist/esm/NotoSansPahawhHmong.d.ts"
       ],
       "NotoSansPalmyrene": [
-        "dist/NotoSansPalmyrene.d.ts"
+        "dist/esm/NotoSansPalmyrene.d.ts"
       ],
       "NotoSansPauCinHau": [
-        "dist/NotoSansPauCinHau.d.ts"
+        "dist/esm/NotoSansPauCinHau.d.ts"
       ],
       "NotoSansPhagsPa": [
-        "dist/NotoSansPhagsPa.d.ts"
+        "dist/esm/NotoSansPhagsPa.d.ts"
       ],
       "NotoSansPhoenician": [
-        "dist/NotoSansPhoenician.d.ts"
+        "dist/esm/NotoSansPhoenician.d.ts"
       ],
       "NotoSansPsalterPahlavi": [
-        "dist/NotoSansPsalterPahlavi.d.ts"
+        "dist/esm/NotoSansPsalterPahlavi.d.ts"
       ],
       "NotoSansRejang": [
-        "dist/NotoSansRejang.d.ts"
+        "dist/esm/NotoSansRejang.d.ts"
       ],
       "NotoSansRunic": [
-        "dist/NotoSansRunic.d.ts"
+        "dist/esm/NotoSansRunic.d.ts"
       ],
       "NotoSansSC": [
-        "dist/NotoSansSC.d.ts"
+        "dist/esm/NotoSansSC.d.ts"
       ],
       "NotoSansSamaritan": [
-        "dist/NotoSansSamaritan.d.ts"
+        "dist/esm/NotoSansSamaritan.d.ts"
       ],
       "NotoSansSaurashtra": [
-        "dist/NotoSansSaurashtra.d.ts"
+        "dist/esm/NotoSansSaurashtra.d.ts"
       ],
       "NotoSansSharada": [
-        "dist/NotoSansSharada.d.ts"
+        "dist/esm/NotoSansSharada.d.ts"
       ],
       "NotoSansShavian": [
-        "dist/NotoSansShavian.d.ts"
+        "dist/esm/NotoSansShavian.d.ts"
       ],
       "NotoSansSiddham": [
-        "dist/NotoSansSiddham.d.ts"
+        "dist/esm/NotoSansSiddham.d.ts"
       ],
       "NotoSansSinhala": [
-        "dist/NotoSansSinhala.d.ts"
+        "dist/esm/NotoSansSinhala.d.ts"
       ],
       "NotoSansSogdian": [
-        "dist/NotoSansSogdian.d.ts"
+        "dist/esm/NotoSansSogdian.d.ts"
       ],
       "NotoSansSoraSompeng": [
-        "dist/NotoSansSoraSompeng.d.ts"
+        "dist/esm/NotoSansSoraSompeng.d.ts"
       ],
       "NotoSansSoyombo": [
-        "dist/NotoSansSoyombo.d.ts"
+        "dist/esm/NotoSansSoyombo.d.ts"
       ],
       "NotoSansSundanese": [
-        "dist/NotoSansSundanese.d.ts"
+        "dist/esm/NotoSansSundanese.d.ts"
       ],
       "NotoSansSylotiNagri": [
-        "dist/NotoSansSylotiNagri.d.ts"
+        "dist/esm/NotoSansSylotiNagri.d.ts"
       ],
       "NotoSansSymbols": [
-        "dist/NotoSansSymbols.d.ts"
+        "dist/esm/NotoSansSymbols.d.ts"
       ],
       "NotoSansSymbols2": [
-        "dist/NotoSansSymbols2.d.ts"
+        "dist/esm/NotoSansSymbols2.d.ts"
       ],
       "NotoSansSyriac": [
-        "dist/NotoSansSyriac.d.ts"
+        "dist/esm/NotoSansSyriac.d.ts"
       ],
       "NotoSansTC": [
-        "dist/NotoSansTC.d.ts"
+        "dist/esm/NotoSansTC.d.ts"
       ],
       "NotoSansTagalog": [
-        "dist/NotoSansTagalog.d.ts"
+        "dist/esm/NotoSansTagalog.d.ts"
       ],
       "NotoSansTagbanwa": [
-        "dist/NotoSansTagbanwa.d.ts"
+        "dist/esm/NotoSansTagbanwa.d.ts"
       ],
       "NotoSansTaiLe": [
-        "dist/NotoSansTaiLe.d.ts"
+        "dist/esm/NotoSansTaiLe.d.ts"
       ],
       "NotoSansTaiTham": [
-        "dist/NotoSansTaiTham.d.ts"
+        "dist/esm/NotoSansTaiTham.d.ts"
       ],
       "NotoSansTaiViet": [
-        "dist/NotoSansTaiViet.d.ts"
+        "dist/esm/NotoSansTaiViet.d.ts"
       ],
       "NotoSansTakri": [
-        "dist/NotoSansTakri.d.ts"
+        "dist/esm/NotoSansTakri.d.ts"
       ],
       "NotoSansTamil": [
-        "dist/NotoSansTamil.d.ts"
+        "dist/esm/NotoSansTamil.d.ts"
       ],
       "NotoSansTamilSupplement": [
-        "dist/NotoSansTamilSupplement.d.ts"
+        "dist/esm/NotoSansTamilSupplement.d.ts"
       ],
       "NotoSansTelugu": [
-        "dist/NotoSansTelugu.d.ts"
+        "dist/esm/NotoSansTelugu.d.ts"
       ],
       "NotoSansThaana": [
-        "dist/NotoSansThaana.d.ts"
+        "dist/esm/NotoSansThaana.d.ts"
       ],
       "NotoSansThai": [
-        "dist/NotoSansThai.d.ts"
+        "dist/esm/NotoSansThai.d.ts"
       ],
       "NotoSansThaiLooped": [
-        "dist/NotoSansThaiLooped.d.ts"
+        "dist/esm/NotoSansThaiLooped.d.ts"
       ],
       "NotoSansTifinagh": [
-        "dist/NotoSansTifinagh.d.ts"
+        "dist/esm/NotoSansTifinagh.d.ts"
       ],
       "NotoSansTirhuta": [
-        "dist/NotoSansTirhuta.d.ts"
+        "dist/esm/NotoSansTirhuta.d.ts"
       ],
       "NotoSansUgaritic": [
-        "dist/NotoSansUgaritic.d.ts"
+        "dist/esm/NotoSansUgaritic.d.ts"
       ],
       "NotoSansVai": [
-        "dist/NotoSansVai.d.ts"
+        "dist/esm/NotoSansVai.d.ts"
       ],
       "NotoSansWancho": [
-        "dist/NotoSansWancho.d.ts"
+        "dist/esm/NotoSansWancho.d.ts"
       ],
       "NotoSansWarangCiti": [
-        "dist/NotoSansWarangCiti.d.ts"
+        "dist/esm/NotoSansWarangCiti.d.ts"
       ],
       "NotoSansYi": [
-        "dist/NotoSansYi.d.ts"
+        "dist/esm/NotoSansYi.d.ts"
       ],
       "NotoSansZanabazarSquare": [
-        "dist/NotoSansZanabazarSquare.d.ts"
+        "dist/esm/NotoSansZanabazarSquare.d.ts"
       ],
       "NotoSerif": [
-        "dist/NotoSerif.d.ts"
+        "dist/esm/NotoSerif.d.ts"
       ],
       "NotoSerifAhom": [
-        "dist/NotoSerifAhom.d.ts"
+        "dist/esm/NotoSerifAhom.d.ts"
       ],
       "NotoSerifArmenian": [
-        "dist/NotoSerifArmenian.d.ts"
+        "dist/esm/NotoSerifArmenian.d.ts"
       ],
       "NotoSerifBalinese": [
-        "dist/NotoSerifBalinese.d.ts"
+        "dist/esm/NotoSerifBalinese.d.ts"
       ],
       "NotoSerifBengali": [
-        "dist/NotoSerifBengali.d.ts"
+        "dist/esm/NotoSerifBengali.d.ts"
       ],
       "NotoSerifDevanagari": [
-        "dist/NotoSerifDevanagari.d.ts"
+        "dist/esm/NotoSerifDevanagari.d.ts"
       ],
       "NotoSerifDisplay": [
-        "dist/NotoSerifDisplay.d.ts"
+        "dist/esm/NotoSerifDisplay.d.ts"
       ],
       "NotoSerifDogra": [
-        "dist/NotoSerifDogra.d.ts"
+        "dist/esm/NotoSerifDogra.d.ts"
       ],
       "NotoSerifEthiopic": [
-        "dist/NotoSerifEthiopic.d.ts"
+        "dist/esm/NotoSerifEthiopic.d.ts"
       ],
       "NotoSerifGeorgian": [
-        "dist/NotoSerifGeorgian.d.ts"
+        "dist/esm/NotoSerifGeorgian.d.ts"
       ],
       "NotoSerifGrantha": [
-        "dist/NotoSerifGrantha.d.ts"
+        "dist/esm/NotoSerifGrantha.d.ts"
       ],
       "NotoSerifGujarati": [
-        "dist/NotoSerifGujarati.d.ts"
+        "dist/esm/NotoSerifGujarati.d.ts"
       ],
       "NotoSerifGurmukhi": [
-        "dist/NotoSerifGurmukhi.d.ts"
+        "dist/esm/NotoSerifGurmukhi.d.ts"
       ],
       "NotoSerifHK": [
-        "dist/NotoSerifHK.d.ts"
+        "dist/esm/NotoSerifHK.d.ts"
       ],
       "NotoSerifHebrew": [
-        "dist/NotoSerifHebrew.d.ts"
+        "dist/esm/NotoSerifHebrew.d.ts"
       ],
       "NotoSerifJP": [
-        "dist/NotoSerifJP.d.ts"
+        "dist/esm/NotoSerifJP.d.ts"
       ],
       "NotoSerifKR": [
-        "dist/NotoSerifKR.d.ts"
+        "dist/esm/NotoSerifKR.d.ts"
       ],
       "NotoSerifKannada": [
-        "dist/NotoSerifKannada.d.ts"
+        "dist/esm/NotoSerifKannada.d.ts"
       ],
       "NotoSerifKhmer": [
-        "dist/NotoSerifKhmer.d.ts"
+        "dist/esm/NotoSerifKhmer.d.ts"
       ],
       "NotoSerifLao": [
-        "dist/NotoSerifLao.d.ts"
+        "dist/esm/NotoSerifLao.d.ts"
       ],
       "NotoSerifMalayalam": [
-        "dist/NotoSerifMalayalam.d.ts"
+        "dist/esm/NotoSerifMalayalam.d.ts"
       ],
       "NotoSerifMyanmar": [
-        "dist/NotoSerifMyanmar.d.ts"
+        "dist/esm/NotoSerifMyanmar.d.ts"
       ],
       "NotoSerifNyiakengPuachueHmong": [
         "dist/NotoSerifNyiakengPuachueHmong.d.ts"
       ],
       "NotoSerifSC": [
-        "dist/NotoSerifSC.d.ts"
+        "dist/esm/NotoSerifSC.d.ts"
       ],
       "NotoSerifSinhala": [
-        "dist/NotoSerifSinhala.d.ts"
+        "dist/esm/NotoSerifSinhala.d.ts"
       ],
       "NotoSerifTC": [
-        "dist/NotoSerifTC.d.ts"
+        "dist/esm/NotoSerifTC.d.ts"
       ],
       "NotoSerifTamil": [
-        "dist/NotoSerifTamil.d.ts"
+        "dist/esm/NotoSerifTamil.d.ts"
       ],
       "NotoSerifTangut": [
-        "dist/NotoSerifTangut.d.ts"
+        "dist/esm/NotoSerifTangut.d.ts"
       ],
       "NotoSerifTelugu": [
-        "dist/NotoSerifTelugu.d.ts"
+        "dist/esm/NotoSerifTelugu.d.ts"
       ],
       "NotoSerifThai": [
-        "dist/NotoSerifThai.d.ts"
+        "dist/esm/NotoSerifThai.d.ts"
       ],
       "NotoSerifTibetan": [
-        "dist/NotoSerifTibetan.d.ts"
+        "dist/esm/NotoSerifTibetan.d.ts"
       ],
       "NotoSerifYezidi": [
-        "dist/NotoSerifYezidi.d.ts"
+        "dist/esm/NotoSerifYezidi.d.ts"
       ],
       "NotoTraditionalNushu": [
-        "dist/NotoTraditionalNushu.d.ts"
+        "dist/esm/NotoTraditionalNushu.d.ts"
       ],
       "NovaCut": [
-        "dist/NovaCut.d.ts"
+        "dist/esm/NovaCut.d.ts"
       ],
       "NovaFlat": [
-        "dist/NovaFlat.d.ts"
+        "dist/esm/NovaFlat.d.ts"
       ],
       "NovaMono": [
-        "dist/NovaMono.d.ts"
+        "dist/esm/NovaMono.d.ts"
       ],
       "NovaOval": [
-        "dist/NovaOval.d.ts"
+        "dist/esm/NovaOval.d.ts"
       ],
       "NovaRound": [
-        "dist/NovaRound.d.ts"
+        "dist/esm/NovaRound.d.ts"
       ],
       "NovaScript": [
-        "dist/NovaScript.d.ts"
+        "dist/esm/NovaScript.d.ts"
       ],
       "NovaSlim": [
-        "dist/NovaSlim.d.ts"
+        "dist/esm/NovaSlim.d.ts"
       ],
       "NovaSquare": [
-        "dist/NovaSquare.d.ts"
+        "dist/esm/NovaSquare.d.ts"
       ],
       "Numans": [
-        "dist/Numans.d.ts"
+        "dist/esm/Numans.d.ts"
       ],
       "Nunito": [
-        "dist/Nunito.d.ts"
+        "dist/esm/Nunito.d.ts"
       ],
       "NunitoSans": [
-        "dist/NunitoSans.d.ts"
+        "dist/esm/NunitoSans.d.ts"
       ],
       "NuosuSIL": [
-        "dist/NuosuSIL.d.ts"
+        "dist/esm/NuosuSIL.d.ts"
       ],
       "OdibeeSans": [
-        "dist/OdibeeSans.d.ts"
+        "dist/esm/OdibeeSans.d.ts"
       ],
       "OdorMeanChey": [
-        "dist/OdorMeanChey.d.ts"
+        "dist/esm/OdorMeanChey.d.ts"
       ],
       "Offside": [
-        "dist/Offside.d.ts"
+        "dist/esm/Offside.d.ts"
       ],
       "Oi": [
-        "dist/Oi.d.ts"
+        "dist/esm/Oi.d.ts"
       ],
       "OldStandardTT": [
-        "dist/OldStandardTT.d.ts"
+        "dist/esm/OldStandardTT.d.ts"
       ],
       "Oldenburg": [
-        "dist/Oldenburg.d.ts"
+        "dist/esm/Oldenburg.d.ts"
       ],
       "Ole": [
-        "dist/Ole.d.ts"
+        "dist/esm/Ole.d.ts"
       ],
       "OleoScript": [
-        "dist/OleoScript.d.ts"
+        "dist/esm/OleoScript.d.ts"
       ],
       "OleoScriptSwashCaps": [
-        "dist/OleoScriptSwashCaps.d.ts"
+        "dist/esm/OleoScriptSwashCaps.d.ts"
       ],
       "OoohBaby": [
-        "dist/OoohBaby.d.ts"
+        "dist/esm/OoohBaby.d.ts"
       ],
       "OpenSans": [
-        "dist/OpenSans.d.ts"
+        "dist/esm/OpenSans.d.ts"
       ],
       "Oranienbaum": [
-        "dist/Oranienbaum.d.ts"
+        "dist/esm/Oranienbaum.d.ts"
       ],
       "Orbitron": [
-        "dist/Orbitron.d.ts"
+        "dist/esm/Orbitron.d.ts"
       ],
       "Oregano": [
-        "dist/Oregano.d.ts"
+        "dist/esm/Oregano.d.ts"
       ],
       "OrelegaOne": [
-        "dist/OrelegaOne.d.ts"
+        "dist/esm/OrelegaOne.d.ts"
       ],
       "Orienta": [
-        "dist/Orienta.d.ts"
+        "dist/esm/Orienta.d.ts"
       ],
       "OriginalSurfer": [
-        "dist/OriginalSurfer.d.ts"
+        "dist/esm/OriginalSurfer.d.ts"
       ],
       "Oswald": [
-        "dist/Oswald.d.ts"
+        "dist/esm/Oswald.d.ts"
       ],
       "Outfit": [
-        "dist/Outfit.d.ts"
+        "dist/esm/Outfit.d.ts"
       ],
       "OvertheRainbow": [
-        "dist/OvertheRainbow.d.ts"
+        "dist/esm/OvertheRainbow.d.ts"
       ],
       "Overlock": [
-        "dist/Overlock.d.ts"
+        "dist/esm/Overlock.d.ts"
       ],
       "OverlockSC": [
-        "dist/OverlockSC.d.ts"
+        "dist/esm/OverlockSC.d.ts"
       ],
       "Overpass": [
-        "dist/Overpass.d.ts"
+        "dist/esm/Overpass.d.ts"
       ],
       "OverpassMono": [
-        "dist/OverpassMono.d.ts"
+        "dist/esm/OverpassMono.d.ts"
       ],
       "Ovo": [
-        "dist/Ovo.d.ts"
+        "dist/esm/Ovo.d.ts"
       ],
       "Oxanium": [
-        "dist/Oxanium.d.ts"
+        "dist/esm/Oxanium.d.ts"
       ],
       "Oxygen": [
-        "dist/Oxygen.d.ts"
+        "dist/esm/Oxygen.d.ts"
       ],
       "OxygenMono": [
-        "dist/OxygenMono.d.ts"
+        "dist/esm/OxygenMono.d.ts"
       ],
       "PTMono": [
-        "dist/PTMono.d.ts"
+        "dist/esm/PTMono.d.ts"
       ],
       "PTSans": [
-        "dist/PTSans.d.ts"
+        "dist/esm/PTSans.d.ts"
       ],
       "PTSansCaption": [
-        "dist/PTSansCaption.d.ts"
+        "dist/esm/PTSansCaption.d.ts"
       ],
       "PTSansNarrow": [
-        "dist/PTSansNarrow.d.ts"
+        "dist/esm/PTSansNarrow.d.ts"
       ],
       "PTSerif": [
-        "dist/PTSerif.d.ts"
+        "dist/esm/PTSerif.d.ts"
       ],
       "PTSerifCaption": [
-        "dist/PTSerifCaption.d.ts"
+        "dist/esm/PTSerifCaption.d.ts"
       ],
       "Pacifico": [
-        "dist/Pacifico.d.ts"
+        "dist/esm/Pacifico.d.ts"
       ],
       "Padauk": [
-        "dist/Padauk.d.ts"
+        "dist/esm/Padauk.d.ts"
       ],
       "Palanquin": [
-        "dist/Palanquin.d.ts"
+        "dist/esm/Palanquin.d.ts"
       ],
       "PalanquinDark": [
-        "dist/PalanquinDark.d.ts"
+        "dist/esm/PalanquinDark.d.ts"
       ],
       "Pangolin": [
-        "dist/Pangolin.d.ts"
+        "dist/esm/Pangolin.d.ts"
       ],
       "Paprika": [
-        "dist/Paprika.d.ts"
+        "dist/esm/Paprika.d.ts"
       ],
       "Parisienne": [
-        "dist/Parisienne.d.ts"
+        "dist/esm/Parisienne.d.ts"
       ],
       "PasseroOne": [
-        "dist/PasseroOne.d.ts"
+        "dist/esm/PasseroOne.d.ts"
       ],
       "PassionOne": [
-        "dist/PassionOne.d.ts"
+        "dist/esm/PassionOne.d.ts"
       ],
       "PassionsConflict": [
-        "dist/PassionsConflict.d.ts"
+        "dist/esm/PassionsConflict.d.ts"
       ],
       "PathwayGothicOne": [
-        "dist/PathwayGothicOne.d.ts"
+        "dist/esm/PathwayGothicOne.d.ts"
       ],
       "PatrickHand": [
-        "dist/PatrickHand.d.ts"
+        "dist/esm/PatrickHand.d.ts"
       ],
       "PatrickHandSC": [
-        "dist/PatrickHandSC.d.ts"
+        "dist/esm/PatrickHandSC.d.ts"
       ],
       "Pattaya": [
-        "dist/Pattaya.d.ts"
+        "dist/esm/Pattaya.d.ts"
       ],
       "PatuaOne": [
-        "dist/PatuaOne.d.ts"
+        "dist/esm/PatuaOne.d.ts"
       ],
       "Pavanam": [
-        "dist/Pavanam.d.ts"
+        "dist/esm/Pavanam.d.ts"
       ],
       "PaytoneOne": [
-        "dist/PaytoneOne.d.ts"
+        "dist/esm/PaytoneOne.d.ts"
       ],
       "Peddana": [
-        "dist/Peddana.d.ts"
+        "dist/esm/Peddana.d.ts"
       ],
       "Peralta": [
-        "dist/Peralta.d.ts"
+        "dist/esm/Peralta.d.ts"
       ],
       "PermanentMarker": [
-        "dist/PermanentMarker.d.ts"
+        "dist/esm/PermanentMarker.d.ts"
       ],
       "Petemoss": [
-        "dist/Petemoss.d.ts"
+        "dist/esm/Petemoss.d.ts"
       ],
       "PetitFormalScript": [
-        "dist/PetitFormalScript.d.ts"
+        "dist/esm/PetitFormalScript.d.ts"
       ],
       "Petrona": [
-        "dist/Petrona.d.ts"
+        "dist/esm/Petrona.d.ts"
       ],
       "Philosopher": [
-        "dist/Philosopher.d.ts"
+        "dist/esm/Philosopher.d.ts"
       ],
       "Piazzolla": [
-        "dist/Piazzolla.d.ts"
+        "dist/esm/Piazzolla.d.ts"
       ],
       "Piedra": [
-        "dist/Piedra.d.ts"
+        "dist/esm/Piedra.d.ts"
       ],
       "PinyonScript": [
-        "dist/PinyonScript.d.ts"
+        "dist/esm/PinyonScript.d.ts"
       ],
       "PirataOne": [
-        "dist/PirataOne.d.ts"
+        "dist/esm/PirataOne.d.ts"
       ],
       "Plaster": [
-        "dist/Plaster.d.ts"
+        "dist/esm/Plaster.d.ts"
       ],
       "Play": [
-        "dist/Play.d.ts"
+        "dist/esm/Play.d.ts"
       ],
       "Playball": [
-        "dist/Playball.d.ts"
+        "dist/esm/Playball.d.ts"
       ],
       "PlayfairDisplay": [
-        "dist/PlayfairDisplay.d.ts"
+        "dist/esm/PlayfairDisplay.d.ts"
       ],
       "PlayfairDisplaySC": [
-        "dist/PlayfairDisplaySC.d.ts"
+        "dist/esm/PlayfairDisplaySC.d.ts"
       ],
       "PlusJakartaSans": [
-        "dist/PlusJakartaSans.d.ts"
+        "dist/esm/PlusJakartaSans.d.ts"
       ],
       "Podkova": [
-        "dist/Podkova.d.ts"
+        "dist/esm/Podkova.d.ts"
       ],
       "PoiretOne": [
-        "dist/PoiretOne.d.ts"
+        "dist/esm/PoiretOne.d.ts"
       ],
       "PollerOne": [
-        "dist/PollerOne.d.ts"
+        "dist/esm/PollerOne.d.ts"
       ],
       "Poly": [
-        "dist/Poly.d.ts"
+        "dist/esm/Poly.d.ts"
       ],
       "Pompiere": [
-        "dist/Pompiere.d.ts"
+        "dist/esm/Pompiere.d.ts"
       ],
       "PontanoSans": [
-        "dist/PontanoSans.d.ts"
+        "dist/esm/PontanoSans.d.ts"
       ],
       "PoorStory": [
-        "dist/PoorStory.d.ts"
+        "dist/esm/PoorStory.d.ts"
       ],
       "Poppins": [
-        "dist/Poppins.d.ts"
+        "dist/esm/Poppins.d.ts"
       ],
       "PortLligatSans": [
-        "dist/PortLligatSans.d.ts"
+        "dist/esm/PortLligatSans.d.ts"
       ],
       "PortLligatSlab": [
-        "dist/PortLligatSlab.d.ts"
+        "dist/esm/PortLligatSlab.d.ts"
       ],
       "PottaOne": [
-        "dist/PottaOne.d.ts"
+        "dist/esm/PottaOne.d.ts"
       ],
       "PragatiNarrow": [
-        "dist/PragatiNarrow.d.ts"
+        "dist/esm/PragatiNarrow.d.ts"
       ],
       "Praise": [
-        "dist/Praise.d.ts"
+        "dist/esm/Praise.d.ts"
       ],
       "Prata": [
-        "dist/Prata.d.ts"
+        "dist/esm/Prata.d.ts"
       ],
       "Preahvihear": [
-        "dist/Preahvihear.d.ts"
+        "dist/esm/Preahvihear.d.ts"
       ],
       "PressStart2P": [
-        "dist/PressStart2P.d.ts"
+        "dist/esm/PressStart2P.d.ts"
       ],
       "Pridi": [
-        "dist/Pridi.d.ts"
+        "dist/esm/Pridi.d.ts"
       ],
       "PrincessSofia": [
-        "dist/PrincessSofia.d.ts"
+        "dist/esm/PrincessSofia.d.ts"
       ],
       "Prociono": [
-        "dist/Prociono.d.ts"
+        "dist/esm/Prociono.d.ts"
       ],
       "Prompt": [
-        "dist/Prompt.d.ts"
+        "dist/esm/Prompt.d.ts"
       ],
       "ProstoOne": [
-        "dist/ProstoOne.d.ts"
+        "dist/esm/ProstoOne.d.ts"
       ],
       "ProzaLibre": [
-        "dist/ProzaLibre.d.ts"
+        "dist/esm/ProzaLibre.d.ts"
       ],
       "PublicSans": [
-        "dist/PublicSans.d.ts"
+        "dist/esm/PublicSans.d.ts"
       ],
       "PuppiesPlay": [
-        "dist/PuppiesPlay.d.ts"
+        "dist/esm/PuppiesPlay.d.ts"
       ],
       "Puritan": [
-        "dist/Puritan.d.ts"
+        "dist/esm/Puritan.d.ts"
       ],
       "PurplePurse": [
-        "dist/PurplePurse.d.ts"
+        "dist/esm/PurplePurse.d.ts"
       ],
       "Qahiri": [
-        "dist/Qahiri.d.ts"
+        "dist/esm/Qahiri.d.ts"
       ],
       "Quando": [
-        "dist/Quando.d.ts"
+        "dist/esm/Quando.d.ts"
       ],
       "Quantico": [
-        "dist/Quantico.d.ts"
+        "dist/esm/Quantico.d.ts"
       ],
       "Quattrocento": [
-        "dist/Quattrocento.d.ts"
+        "dist/esm/Quattrocento.d.ts"
       ],
       "QuattrocentoSans": [
-        "dist/QuattrocentoSans.d.ts"
+        "dist/esm/QuattrocentoSans.d.ts"
       ],
       "Questrial": [
-        "dist/Questrial.d.ts"
+        "dist/esm/Questrial.d.ts"
       ],
       "Quicksand": [
-        "dist/Quicksand.d.ts"
+        "dist/esm/Quicksand.d.ts"
       ],
       "Quintessential": [
-        "dist/Quintessential.d.ts"
+        "dist/esm/Quintessential.d.ts"
       ],
       "Qwigley": [
-        "dist/Qwigley.d.ts"
+        "dist/esm/Qwigley.d.ts"
       ],
       "QwitcherGrypen": [
-        "dist/QwitcherGrypen.d.ts"
+        "dist/esm/QwitcherGrypen.d.ts"
       ],
       "RacingSansOne": [
-        "dist/RacingSansOne.d.ts"
+        "dist/esm/RacingSansOne.d.ts"
       ],
       "RadioCanada": [
-        "dist/RadioCanada.d.ts"
+        "dist/esm/RadioCanada.d.ts"
       ],
       "Radley": [
-        "dist/Radley.d.ts"
+        "dist/esm/Radley.d.ts"
       ],
       "Rajdhani": [
-        "dist/Rajdhani.d.ts"
+        "dist/esm/Rajdhani.d.ts"
       ],
       "Rakkas": [
-        "dist/Rakkas.d.ts"
+        "dist/esm/Rakkas.d.ts"
       ],
       "Raleway": [
-        "dist/Raleway.d.ts"
+        "dist/esm/Raleway.d.ts"
       ],
       "RalewayDots": [
-        "dist/RalewayDots.d.ts"
+        "dist/esm/RalewayDots.d.ts"
       ],
       "Ramabhadra": [
-        "dist/Ramabhadra.d.ts"
+        "dist/esm/Ramabhadra.d.ts"
       ],
       "Ramaraja": [
-        "dist/Ramaraja.d.ts"
+        "dist/esm/Ramaraja.d.ts"
       ],
       "Rambla": [
-        "dist/Rambla.d.ts"
+        "dist/esm/Rambla.d.ts"
       ],
       "RammettoOne": [
-        "dist/RammettoOne.d.ts"
+        "dist/esm/RammettoOne.d.ts"
       ],
       "RampartOne": [
-        "dist/RampartOne.d.ts"
+        "dist/esm/RampartOne.d.ts"
       ],
       "Ranchers": [
-        "dist/Ranchers.d.ts"
+        "dist/esm/Ranchers.d.ts"
       ],
       "Rancho": [
-        "dist/Rancho.d.ts"
+        "dist/esm/Rancho.d.ts"
       ],
       "Ranga": [
-        "dist/Ranga.d.ts"
+        "dist/esm/Ranga.d.ts"
       ],
       "Rasa": [
-        "dist/Rasa.d.ts"
+        "dist/esm/Rasa.d.ts"
       ],
       "Rationale": [
-        "dist/Rationale.d.ts"
+        "dist/esm/Rationale.d.ts"
       ],
       "RaviPrakash": [
-        "dist/RaviPrakash.d.ts"
+        "dist/esm/RaviPrakash.d.ts"
       ],
       "ReadexPro": [
-        "dist/ReadexPro.d.ts"
+        "dist/esm/ReadexPro.d.ts"
       ],
       "Recursive": [
-        "dist/Recursive.d.ts"
+        "dist/esm/Recursive.d.ts"
       ],
       "RedHatDisplay": [
-        "dist/RedHatDisplay.d.ts"
+        "dist/esm/RedHatDisplay.d.ts"
       ],
       "RedHatMono": [
-        "dist/RedHatMono.d.ts"
+        "dist/esm/RedHatMono.d.ts"
       ],
       "RedHatText": [
-        "dist/RedHatText.d.ts"
+        "dist/esm/RedHatText.d.ts"
       ],
       "RedRose": [
-        "dist/RedRose.d.ts"
+        "dist/esm/RedRose.d.ts"
       ],
       "Redacted": [
-        "dist/Redacted.d.ts"
+        "dist/esm/Redacted.d.ts"
       ],
       "RedactedScript": [
-        "dist/RedactedScript.d.ts"
+        "dist/esm/RedactedScript.d.ts"
       ],
       "Redressed": [
-        "dist/Redressed.d.ts"
+        "dist/esm/Redressed.d.ts"
       ],
       "ReemKufi": [
-        "dist/ReemKufi.d.ts"
+        "dist/esm/ReemKufi.d.ts"
       ],
       "ReemKufiFun": [
-        "dist/ReemKufiFun.d.ts"
+        "dist/esm/ReemKufiFun.d.ts"
       ],
       "ReemKufiInk": [
-        "dist/ReemKufiInk.d.ts"
+        "dist/esm/ReemKufiInk.d.ts"
       ],
       "ReenieBeanie": [
-        "dist/ReenieBeanie.d.ts"
+        "dist/esm/ReenieBeanie.d.ts"
       ],
       "ReggaeOne": [
-        "dist/ReggaeOne.d.ts"
+        "dist/esm/ReggaeOne.d.ts"
       ],
       "Revalia": [
-        "dist/Revalia.d.ts"
+        "dist/esm/Revalia.d.ts"
       ],
       "RhodiumLibre": [
-        "dist/RhodiumLibre.d.ts"
+        "dist/esm/RhodiumLibre.d.ts"
       ],
       "Ribeye": [
-        "dist/Ribeye.d.ts"
+        "dist/esm/Ribeye.d.ts"
       ],
       "RibeyeMarrow": [
-        "dist/RibeyeMarrow.d.ts"
+        "dist/esm/RibeyeMarrow.d.ts"
       ],
       "Righteous": [
-        "dist/Righteous.d.ts"
+        "dist/esm/Righteous.d.ts"
       ],
       "Risque": [
-        "dist/Risque.d.ts"
+        "dist/esm/Risque.d.ts"
       ],
       "RoadRage": [
-        "dist/RoadRage.d.ts"
+        "dist/esm/RoadRage.d.ts"
       ],
       "Roboto": [
-        "dist/Roboto.d.ts"
+        "dist/esm/Roboto.d.ts"
       ],
       "RobotoCondensed": [
-        "dist/RobotoCondensed.d.ts"
+        "dist/esm/RobotoCondensed.d.ts"
       ],
       "RobotoFlex": [
-        "dist/RobotoFlex.d.ts"
+        "dist/esm/RobotoFlex.d.ts"
       ],
       "RobotoMono": [
-        "dist/RobotoMono.d.ts"
+        "dist/esm/RobotoMono.d.ts"
       ],
       "RobotoSerif": [
-        "dist/RobotoSerif.d.ts"
+        "dist/esm/RobotoSerif.d.ts"
       ],
       "RobotoSlab": [
-        "dist/RobotoSlab.d.ts"
+        "dist/esm/RobotoSlab.d.ts"
       ],
       "Rochester": [
-        "dist/Rochester.d.ts"
+        "dist/esm/Rochester.d.ts"
       ],
       "RockSalt": [
-        "dist/RockSalt.d.ts"
+        "dist/esm/RockSalt.d.ts"
       ],
       "RocknRollOne": [
-        "dist/RocknRollOne.d.ts"
+        "dist/esm/RocknRollOne.d.ts"
       ],
       "Rokkitt": [
-        "dist/Rokkitt.d.ts"
+        "dist/esm/Rokkitt.d.ts"
       ],
       "Romanesco": [
-        "dist/Romanesco.d.ts"
+        "dist/esm/Romanesco.d.ts"
       ],
       "RopaSans": [
-        "dist/RopaSans.d.ts"
+        "dist/esm/RopaSans.d.ts"
       ],
       "Rosario": [
-        "dist/Rosario.d.ts"
+        "dist/esm/Rosario.d.ts"
       ],
       "Rosarivo": [
-        "dist/Rosarivo.d.ts"
+        "dist/esm/Rosarivo.d.ts"
       ],
       "RougeScript": [
-        "dist/RougeScript.d.ts"
+        "dist/esm/RougeScript.d.ts"
       ],
       "Rowdies": [
-        "dist/Rowdies.d.ts"
+        "dist/esm/Rowdies.d.ts"
       ],
       "RozhaOne": [
-        "dist/RozhaOne.d.ts"
+        "dist/esm/RozhaOne.d.ts"
       ],
       "Rubik": [
-        "dist/Rubik.d.ts"
+        "dist/esm/Rubik.d.ts"
       ],
       "RubikBeastly": [
-        "dist/RubikBeastly.d.ts"
+        "dist/esm/RubikBeastly.d.ts"
       ],
       "RubikBubbles": [
-        "dist/RubikBubbles.d.ts"
+        "dist/esm/RubikBubbles.d.ts"
       ],
       "RubikBurned": [
-        "dist/RubikBurned.d.ts"
+        "dist/esm/RubikBurned.d.ts"
       ],
       "RubikDirt": [
-        "dist/RubikDirt.d.ts"
+        "dist/esm/RubikDirt.d.ts"
       ],
       "RubikDistressed": [
-        "dist/RubikDistressed.d.ts"
+        "dist/esm/RubikDistressed.d.ts"
       ],
       "RubikGlitch": [
-        "dist/RubikGlitch.d.ts"
+        "dist/esm/RubikGlitch.d.ts"
       ],
       "RubikIso": [
-        "dist/RubikIso.d.ts"
+        "dist/esm/RubikIso.d.ts"
       ],
       "RubikMarkerHatch": [
-        "dist/RubikMarkerHatch.d.ts"
+        "dist/esm/RubikMarkerHatch.d.ts"
       ],
       "RubikMaze": [
-        "dist/RubikMaze.d.ts"
+        "dist/esm/RubikMaze.d.ts"
       ],
       "RubikMicrobe": [
-        "dist/RubikMicrobe.d.ts"
+        "dist/esm/RubikMicrobe.d.ts"
       ],
       "RubikMonoOne": [
-        "dist/RubikMonoOne.d.ts"
+        "dist/esm/RubikMonoOne.d.ts"
       ],
       "RubikMoonrocks": [
-        "dist/RubikMoonrocks.d.ts"
+        "dist/esm/RubikMoonrocks.d.ts"
       ],
       "RubikPuddles": [
-        "dist/RubikPuddles.d.ts"
+        "dist/esm/RubikPuddles.d.ts"
       ],
       "RubikWetPaint": [
-        "dist/RubikWetPaint.d.ts"
+        "dist/esm/RubikWetPaint.d.ts"
       ],
       "Ruda": [
-        "dist/Ruda.d.ts"
+        "dist/esm/Ruda.d.ts"
       ],
       "Rufina": [
-        "dist/Rufina.d.ts"
+        "dist/esm/Rufina.d.ts"
       ],
       "RugeBoogie": [
-        "dist/RugeBoogie.d.ts"
+        "dist/esm/RugeBoogie.d.ts"
       ],
       "Ruluko": [
-        "dist/Ruluko.d.ts"
+        "dist/esm/Ruluko.d.ts"
       ],
       "RumRaisin": [
-        "dist/RumRaisin.d.ts"
+        "dist/esm/RumRaisin.d.ts"
       ],
       "RuslanDisplay": [
-        "dist/RuslanDisplay.d.ts"
+        "dist/esm/RuslanDisplay.d.ts"
       ],
       "RussoOne": [
-        "dist/RussoOne.d.ts"
+        "dist/esm/RussoOne.d.ts"
       ],
       "Ruthie": [
-        "dist/Ruthie.d.ts"
+        "dist/esm/Ruthie.d.ts"
       ],
       "Rye": [
-        "dist/Rye.d.ts"
+        "dist/esm/Rye.d.ts"
       ],
       "STIXTwoText": [
-        "dist/STIXTwoText.d.ts"
+        "dist/esm/STIXTwoText.d.ts"
       ],
       "Sacramento": [
-        "dist/Sacramento.d.ts"
+        "dist/esm/Sacramento.d.ts"
       ],
       "Sahitya": [
-        "dist/Sahitya.d.ts"
+        "dist/esm/Sahitya.d.ts"
       ],
       "Sail": [
-        "dist/Sail.d.ts"
+        "dist/esm/Sail.d.ts"
       ],
       "Saira": [
-        "dist/Saira.d.ts"
+        "dist/esm/Saira.d.ts"
       ],
       "SairaCondensed": [
-        "dist/SairaCondensed.d.ts"
+        "dist/esm/SairaCondensed.d.ts"
       ],
       "SairaExtraCondensed": [
-        "dist/SairaExtraCondensed.d.ts"
+        "dist/esm/SairaExtraCondensed.d.ts"
       ],
       "SairaSemiCondensed": [
-        "dist/SairaSemiCondensed.d.ts"
+        "dist/esm/SairaSemiCondensed.d.ts"
       ],
       "SairaStencilOne": [
-        "dist/SairaStencilOne.d.ts"
+        "dist/esm/SairaStencilOne.d.ts"
       ],
       "Salsa": [
-        "dist/Salsa.d.ts"
+        "dist/esm/Salsa.d.ts"
       ],
       "Sanchez": [
-        "dist/Sanchez.d.ts"
+        "dist/esm/Sanchez.d.ts"
       ],
       "Sancreek": [
-        "dist/Sancreek.d.ts"
+        "dist/esm/Sancreek.d.ts"
       ],
       "Sansita": [
-        "dist/Sansita.d.ts"
+        "dist/esm/Sansita.d.ts"
       ],
       "SansitaSwashed": [
-        "dist/SansitaSwashed.d.ts"
+        "dist/esm/SansitaSwashed.d.ts"
       ],
       "Sarabun": [
-        "dist/Sarabun.d.ts"
+        "dist/esm/Sarabun.d.ts"
       ],
       "Sarala": [
-        "dist/Sarala.d.ts"
+        "dist/esm/Sarala.d.ts"
       ],
       "Sarina": [
-        "dist/Sarina.d.ts"
+        "dist/esm/Sarina.d.ts"
       ],
       "Sarpanch": [
-        "dist/Sarpanch.d.ts"
+        "dist/esm/Sarpanch.d.ts"
       ],
       "SassyFrass": [
-        "dist/SassyFrass.d.ts"
+        "dist/esm/SassyFrass.d.ts"
       ],
       "Satisfy": [
-        "dist/Satisfy.d.ts"
+        "dist/esm/Satisfy.d.ts"
       ],
       "SawarabiGothic": [
-        "dist/SawarabiGothic.d.ts"
+        "dist/esm/SawarabiGothic.d.ts"
       ],
       "SawarabiMincho": [
-        "dist/SawarabiMincho.d.ts"
+        "dist/esm/SawarabiMincho.d.ts"
       ],
       "Scada": [
-        "dist/Scada.d.ts"
+        "dist/esm/Scada.d.ts"
       ],
       "ScheherazadeNew": [
-        "dist/ScheherazadeNew.d.ts"
+        "dist/esm/ScheherazadeNew.d.ts"
       ],
       "Schoolbell": [
-        "dist/Schoolbell.d.ts"
+        "dist/esm/Schoolbell.d.ts"
       ],
       "ScopeOne": [
-        "dist/ScopeOne.d.ts"
+        "dist/esm/ScopeOne.d.ts"
       ],
       "SeaweedScript": [
-        "dist/SeaweedScript.d.ts"
+        "dist/esm/SeaweedScript.d.ts"
       ],
       "SecularOne": [
-        "dist/SecularOne.d.ts"
+        "dist/esm/SecularOne.d.ts"
       ],
       "SedgwickAve": [
-        "dist/SedgwickAve.d.ts"
+        "dist/esm/SedgwickAve.d.ts"
       ],
       "SedgwickAveDisplay": [
-        "dist/SedgwickAveDisplay.d.ts"
+        "dist/esm/SedgwickAveDisplay.d.ts"
       ],
       "Sen": [
-        "dist/Sen.d.ts"
+        "dist/esm/Sen.d.ts"
       ],
       "SendFlowers": [
-        "dist/SendFlowers.d.ts"
+        "dist/esm/SendFlowers.d.ts"
       ],
       "Sevillana": [
-        "dist/Sevillana.d.ts"
+        "dist/esm/Sevillana.d.ts"
       ],
       "SeymourOne": [
-        "dist/SeymourOne.d.ts"
+        "dist/esm/SeymourOne.d.ts"
       ],
       "ShadowsIntoLight": [
-        "dist/ShadowsIntoLight.d.ts"
+        "dist/esm/ShadowsIntoLight.d.ts"
       ],
       "ShadowsIntoLightTwo": [
-        "dist/ShadowsIntoLightTwo.d.ts"
+        "dist/esm/ShadowsIntoLightTwo.d.ts"
       ],
       "Shalimar": [
-        "dist/Shalimar.d.ts"
+        "dist/esm/Shalimar.d.ts"
       ],
       "Shanti": [
-        "dist/Shanti.d.ts"
+        "dist/esm/Shanti.d.ts"
       ],
       "Share": [
-        "dist/Share.d.ts"
+        "dist/esm/Share.d.ts"
       ],
       "ShareTech": [
-        "dist/ShareTech.d.ts"
+        "dist/esm/ShareTech.d.ts"
       ],
       "ShareTechMono": [
-        "dist/ShareTechMono.d.ts"
+        "dist/esm/ShareTechMono.d.ts"
       ],
       "ShipporiAntique": [
-        "dist/ShipporiAntique.d.ts"
+        "dist/esm/ShipporiAntique.d.ts"
       ],
       "ShipporiAntiqueB1": [
-        "dist/ShipporiAntiqueB1.d.ts"
+        "dist/esm/ShipporiAntiqueB1.d.ts"
       ],
       "ShipporiMincho": [
-        "dist/ShipporiMincho.d.ts"
+        "dist/esm/ShipporiMincho.d.ts"
       ],
       "ShipporiMinchoB1": [
-        "dist/ShipporiMinchoB1.d.ts"
+        "dist/esm/ShipporiMinchoB1.d.ts"
       ],
       "Shojumaru": [
-        "dist/Shojumaru.d.ts"
+        "dist/esm/Shojumaru.d.ts"
       ],
       "ShortStack": [
-        "dist/ShortStack.d.ts"
+        "dist/esm/ShortStack.d.ts"
       ],
       "Shrikhand": [
-        "dist/Shrikhand.d.ts"
+        "dist/esm/Shrikhand.d.ts"
       ],
       "Siemreap": [
-        "dist/Siemreap.d.ts"
+        "dist/esm/Siemreap.d.ts"
       ],
       "SigmarOne": [
-        "dist/SigmarOne.d.ts"
+        "dist/esm/SigmarOne.d.ts"
       ],
       "Signika": [
-        "dist/Signika.d.ts"
+        "dist/esm/Signika.d.ts"
       ],
       "SignikaNegative": [
-        "dist/SignikaNegative.d.ts"
+        "dist/esm/SignikaNegative.d.ts"
       ],
       "Silkscreen": [
-        "dist/Silkscreen.d.ts"
+        "dist/esm/Silkscreen.d.ts"
       ],
       "Simonetta": [
-        "dist/Simonetta.d.ts"
+        "dist/esm/Simonetta.d.ts"
       ],
       "SingleDay": [
-        "dist/SingleDay.d.ts"
+        "dist/esm/SingleDay.d.ts"
       ],
       "Sintony": [
-        "dist/Sintony.d.ts"
+        "dist/esm/Sintony.d.ts"
       ],
       "SirinStencil": [
-        "dist/SirinStencil.d.ts"
+        "dist/esm/SirinStencil.d.ts"
       ],
       "SixCaps": [
-        "dist/SixCaps.d.ts"
+        "dist/esm/SixCaps.d.ts"
       ],
       "Skranji": [
-        "dist/Skranji.d.ts"
+        "dist/esm/Skranji.d.ts"
       ],
       "Slabo13px": [
-        "dist/Slabo13px.d.ts"
+        "dist/esm/Slabo13px.d.ts"
       ],
       "Slabo27px": [
-        "dist/Slabo27px.d.ts"
+        "dist/esm/Slabo27px.d.ts"
       ],
       "Slackey": [
-        "dist/Slackey.d.ts"
+        "dist/esm/Slackey.d.ts"
       ],
       "Smokum": [
-        "dist/Smokum.d.ts"
+        "dist/esm/Smokum.d.ts"
       ],
       "Smooch": [
-        "dist/Smooch.d.ts"
+        "dist/esm/Smooch.d.ts"
       ],
       "SmoochSans": [
-        "dist/SmoochSans.d.ts"
+        "dist/esm/SmoochSans.d.ts"
       ],
       "Smythe": [
-        "dist/Smythe.d.ts"
+        "dist/esm/Smythe.d.ts"
       ],
       "Sniglet": [
-        "dist/Sniglet.d.ts"
+        "dist/esm/Sniglet.d.ts"
       ],
       "Snippet": [
-        "dist/Snippet.d.ts"
+        "dist/esm/Snippet.d.ts"
       ],
       "SnowburstOne": [
-        "dist/SnowburstOne.d.ts"
+        "dist/esm/SnowburstOne.d.ts"
       ],
       "SofadiOne": [
-        "dist/SofadiOne.d.ts"
+        "dist/esm/SofadiOne.d.ts"
       ],
       "Sofia": [
-        "dist/Sofia.d.ts"
+        "dist/esm/Sofia.d.ts"
       ],
       "Solway": [
-        "dist/Solway.d.ts"
+        "dist/esm/Solway.d.ts"
       ],
       "SongMyung": [
-        "dist/SongMyung.d.ts"
+        "dist/esm/SongMyung.d.ts"
       ],
       "SonsieOne": [
-        "dist/SonsieOne.d.ts"
+        "dist/esm/SonsieOne.d.ts"
       ],
       "Sora": [
-        "dist/Sora.d.ts"
+        "dist/esm/Sora.d.ts"
       ],
       "SortsMillGoudy": [
-        "dist/SortsMillGoudy.d.ts"
+        "dist/esm/SortsMillGoudy.d.ts"
       ],
       "SourceCodePro": [
-        "dist/SourceCodePro.d.ts"
+        "dist/esm/SourceCodePro.d.ts"
       ],
       "SourceSans3": [
-        "dist/SourceSans3.d.ts"
+        "dist/esm/SourceSans3.d.ts"
       ],
       "SourceSansPro": [
-        "dist/SourceSansPro.d.ts"
+        "dist/esm/SourceSansPro.d.ts"
       ],
       "SourceSerif4": [
-        "dist/SourceSerif4.d.ts"
+        "dist/esm/SourceSerif4.d.ts"
       ],
       "SourceSerifPro": [
-        "dist/SourceSerifPro.d.ts"
+        "dist/esm/SourceSerifPro.d.ts"
       ],
       "SpaceGrotesk": [
-        "dist/SpaceGrotesk.d.ts"
+        "dist/esm/SpaceGrotesk.d.ts"
       ],
       "SpaceMono": [
-        "dist/SpaceMono.d.ts"
+        "dist/esm/SpaceMono.d.ts"
       ],
       "SpecialElite": [
-        "dist/SpecialElite.d.ts"
+        "dist/esm/SpecialElite.d.ts"
       ],
       "Spectral": [
-        "dist/Spectral.d.ts"
+        "dist/esm/Spectral.d.ts"
       ],
       "SpectralSC": [
-        "dist/SpectralSC.d.ts"
+        "dist/esm/SpectralSC.d.ts"
       ],
       "SpicyRice": [
-        "dist/SpicyRice.d.ts"
+        "dist/esm/SpicyRice.d.ts"
       ],
       "Spinnaker": [
-        "dist/Spinnaker.d.ts"
+        "dist/esm/Spinnaker.d.ts"
       ],
       "Spirax": [
-        "dist/Spirax.d.ts"
+        "dist/esm/Spirax.d.ts"
       ],
       "Splash": [
-        "dist/Splash.d.ts"
+        "dist/esm/Splash.d.ts"
       ],
       "SplineSans": [
-        "dist/SplineSans.d.ts"
+        "dist/esm/SplineSans.d.ts"
       ],
       "SplineSansMono": [
-        "dist/SplineSansMono.d.ts"
+        "dist/esm/SplineSansMono.d.ts"
       ],
       "SquadaOne": [
-        "dist/SquadaOne.d.ts"
+        "dist/esm/SquadaOne.d.ts"
       ],
       "SquarePeg": [
-        "dist/SquarePeg.d.ts"
+        "dist/esm/SquarePeg.d.ts"
       ],
       "SreeKrushnadevaraya": [
-        "dist/SreeKrushnadevaraya.d.ts"
+        "dist/esm/SreeKrushnadevaraya.d.ts"
       ],
       "Sriracha": [
-        "dist/Sriracha.d.ts"
+        "dist/esm/Sriracha.d.ts"
       ],
       "Srisakdi": [
-        "dist/Srisakdi.d.ts"
+        "dist/esm/Srisakdi.d.ts"
       ],
       "Staatliches": [
-        "dist/Staatliches.d.ts"
+        "dist/esm/Staatliches.d.ts"
       ],
       "Stalemate": [
-        "dist/Stalemate.d.ts"
+        "dist/esm/Stalemate.d.ts"
       ],
       "StalinistOne": [
-        "dist/StalinistOne.d.ts"
+        "dist/esm/StalinistOne.d.ts"
       ],
       "StardosStencil": [
-        "dist/StardosStencil.d.ts"
+        "dist/esm/StardosStencil.d.ts"
       ],
       "Stick": [
-        "dist/Stick.d.ts"
+        "dist/esm/Stick.d.ts"
       ],
       "StickNoBills": [
-        "dist/StickNoBills.d.ts"
+        "dist/esm/StickNoBills.d.ts"
       ],
       "StintUltraCondensed": [
-        "dist/StintUltraCondensed.d.ts"
+        "dist/esm/StintUltraCondensed.d.ts"
       ],
       "StintUltraExpanded": [
-        "dist/StintUltraExpanded.d.ts"
+        "dist/esm/StintUltraExpanded.d.ts"
       ],
       "Stoke": [
-        "dist/Stoke.d.ts"
+        "dist/esm/Stoke.d.ts"
       ],
       "Strait": [
-        "dist/Strait.d.ts"
+        "dist/esm/Strait.d.ts"
       ],
       "StyleScript": [
-        "dist/StyleScript.d.ts"
+        "dist/esm/StyleScript.d.ts"
       ],
       "Stylish": [
-        "dist/Stylish.d.ts"
+        "dist/esm/Stylish.d.ts"
       ],
       "SueEllenFrancisco": [
-        "dist/SueEllenFrancisco.d.ts"
+        "dist/esm/SueEllenFrancisco.d.ts"
       ],
       "SuezOne": [
-        "dist/SuezOne.d.ts"
+        "dist/esm/SuezOne.d.ts"
       ],
       "SulphurPoint": [
-        "dist/SulphurPoint.d.ts"
+        "dist/esm/SulphurPoint.d.ts"
       ],
       "Sumana": [
-        "dist/Sumana.d.ts"
+        "dist/esm/Sumana.d.ts"
       ],
       "Sunflower": [
-        "dist/Sunflower.d.ts"
+        "dist/esm/Sunflower.d.ts"
       ],
       "Sunshiney": [
-        "dist/Sunshiney.d.ts"
+        "dist/esm/Sunshiney.d.ts"
       ],
       "SupermercadoOne": [
-        "dist/SupermercadoOne.d.ts"
+        "dist/esm/SupermercadoOne.d.ts"
       ],
       "Sura": [
-        "dist/Sura.d.ts"
+        "dist/esm/Sura.d.ts"
       ],
       "Suranna": [
-        "dist/Suranna.d.ts"
+        "dist/esm/Suranna.d.ts"
       ],
       "Suravaram": [
-        "dist/Suravaram.d.ts"
+        "dist/esm/Suravaram.d.ts"
       ],
       "Suwannaphum": [
-        "dist/Suwannaphum.d.ts"
+        "dist/esm/Suwannaphum.d.ts"
       ],
       "SwankyandMooMoo": [
-        "dist/SwankyandMooMoo.d.ts"
+        "dist/esm/SwankyandMooMoo.d.ts"
       ],
       "Syncopate": [
-        "dist/Syncopate.d.ts"
+        "dist/esm/Syncopate.d.ts"
       ],
       "Syne": [
-        "dist/Syne.d.ts"
+        "dist/esm/Syne.d.ts"
       ],
       "SyneMono": [
-        "dist/SyneMono.d.ts"
+        "dist/esm/SyneMono.d.ts"
       ],
       "SyneTactile": [
-        "dist/SyneTactile.d.ts"
+        "dist/esm/SyneTactile.d.ts"
       ],
       "TaiHeritagePro": [
-        "dist/TaiHeritagePro.d.ts"
+        "dist/esm/TaiHeritagePro.d.ts"
       ],
       "Tajawal": [
-        "dist/Tajawal.d.ts"
+        "dist/esm/Tajawal.d.ts"
       ],
       "Tangerine": [
-        "dist/Tangerine.d.ts"
+        "dist/esm/Tangerine.d.ts"
       ],
       "Tapestry": [
-        "dist/Tapestry.d.ts"
+        "dist/esm/Tapestry.d.ts"
       ],
       "Taprom": [
-        "dist/Taprom.d.ts"
+        "dist/esm/Taprom.d.ts"
       ],
       "Tauri": [
-        "dist/Tauri.d.ts"
+        "dist/esm/Tauri.d.ts"
       ],
       "Taviraj": [
-        "dist/Taviraj.d.ts"
+        "dist/esm/Taviraj.d.ts"
       ],
       "Teko": [
-        "dist/Teko.d.ts"
+        "dist/esm/Teko.d.ts"
       ],
       "Telex": [
-        "dist/Telex.d.ts"
+        "dist/esm/Telex.d.ts"
       ],
       "TenaliRamakrishna": [
-        "dist/TenaliRamakrishna.d.ts"
+        "dist/esm/TenaliRamakrishna.d.ts"
       ],
       "TenorSans": [
-        "dist/TenorSans.d.ts"
+        "dist/esm/TenorSans.d.ts"
       ],
       "TextMeOne": [
-        "dist/TextMeOne.d.ts"
+        "dist/esm/TextMeOne.d.ts"
       ],
       "Texturina": [
-        "dist/Texturina.d.ts"
+        "dist/esm/Texturina.d.ts"
       ],
       "Thasadith": [
-        "dist/Thasadith.d.ts"
+        "dist/esm/Thasadith.d.ts"
       ],
       "TheGirlNextDoor": [
-        "dist/TheGirlNextDoor.d.ts"
+        "dist/esm/TheGirlNextDoor.d.ts"
       ],
       "TheNautigal": [
-        "dist/TheNautigal.d.ts"
+        "dist/esm/TheNautigal.d.ts"
       ],
       "Tienne": [
-        "dist/Tienne.d.ts"
+        "dist/esm/Tienne.d.ts"
       ],
       "Tillana": [
-        "dist/Tillana.d.ts"
+        "dist/esm/Tillana.d.ts"
       ],
       "Timmana": [
-        "dist/Timmana.d.ts"
+        "dist/esm/Timmana.d.ts"
       ],
       "Tinos": [
-        "dist/Tinos.d.ts"
+        "dist/esm/Tinos.d.ts"
       ],
       "TiroBangla": [
-        "dist/TiroBangla.d.ts"
+        "dist/esm/TiroBangla.d.ts"
       ],
       "TiroDevanagariHindi": [
-        "dist/TiroDevanagariHindi.d.ts"
+        "dist/esm/TiroDevanagariHindi.d.ts"
       ],
       "TiroDevanagariMarathi": [
-        "dist/TiroDevanagariMarathi.d.ts"
+        "dist/esm/TiroDevanagariMarathi.d.ts"
       ],
       "TiroDevanagariSanskrit": [
-        "dist/TiroDevanagariSanskrit.d.ts"
+        "dist/esm/TiroDevanagariSanskrit.d.ts"
       ],
       "TiroGurmukhi": [
-        "dist/TiroGurmukhi.d.ts"
+        "dist/esm/TiroGurmukhi.d.ts"
       ],
       "TiroKannada": [
-        "dist/TiroKannada.d.ts"
+        "dist/esm/TiroKannada.d.ts"
       ],
       "TiroTamil": [
-        "dist/TiroTamil.d.ts"
+        "dist/esm/TiroTamil.d.ts"
       ],
       "TiroTelugu": [
-        "dist/TiroTelugu.d.ts"
+        "dist/esm/TiroTelugu.d.ts"
       ],
       "TitanOne": [
-        "dist/TitanOne.d.ts"
+        "dist/esm/TitanOne.d.ts"
       ],
       "TitilliumWeb": [
-        "dist/TitilliumWeb.d.ts"
+        "dist/esm/TitilliumWeb.d.ts"
       ],
       "Tomorrow": [
-        "dist/Tomorrow.d.ts"
+        "dist/esm/Tomorrow.d.ts"
       ],
       "Tourney": [
-        "dist/Tourney.d.ts"
+        "dist/esm/Tourney.d.ts"
       ],
       "TradeWinds": [
-        "dist/TradeWinds.d.ts"
+        "dist/esm/TradeWinds.d.ts"
       ],
       "TrainOne": [
-        "dist/TrainOne.d.ts"
+        "dist/esm/TrainOne.d.ts"
       ],
       "Trirong": [
-        "dist/Trirong.d.ts"
+        "dist/esm/Trirong.d.ts"
       ],
       "Trispace": [
-        "dist/Trispace.d.ts"
+        "dist/esm/Trispace.d.ts"
       ],
       "Trocchi": [
-        "dist/Trocchi.d.ts"
+        "dist/esm/Trocchi.d.ts"
       ],
       "Trochut": [
-        "dist/Trochut.d.ts"
+        "dist/esm/Trochut.d.ts"
       ],
       "Truculenta": [
-        "dist/Truculenta.d.ts"
+        "dist/esm/Truculenta.d.ts"
       ],
       "Trykker": [
-        "dist/Trykker.d.ts"
+        "dist/esm/Trykker.d.ts"
       ],
       "TulpenOne": [
-        "dist/TulpenOne.d.ts"
+        "dist/esm/TulpenOne.d.ts"
       ],
       "TurretRoad": [
-        "dist/TurretRoad.d.ts"
+        "dist/esm/TurretRoad.d.ts"
       ],
       "TwinkleStar": [
-        "dist/TwinkleStar.d.ts"
+        "dist/esm/TwinkleStar.d.ts"
       ],
       "Ubuntu": [
-        "dist/Ubuntu.d.ts"
+        "dist/esm/Ubuntu.d.ts"
       ],
       "UbuntuCondensed": [
-        "dist/UbuntuCondensed.d.ts"
+        "dist/esm/UbuntuCondensed.d.ts"
       ],
       "UbuntuMono": [
-        "dist/UbuntuMono.d.ts"
+        "dist/esm/UbuntuMono.d.ts"
       ],
       "Uchen": [
-        "dist/Uchen.d.ts"
+        "dist/esm/Uchen.d.ts"
       ],
       "Ultra": [
-        "dist/Ultra.d.ts"
+        "dist/esm/Ultra.d.ts"
       ],
       "UncialAntiqua": [
-        "dist/UncialAntiqua.d.ts"
+        "dist/esm/UncialAntiqua.d.ts"
       ],
       "Underdog": [
-        "dist/Underdog.d.ts"
+        "dist/esm/Underdog.d.ts"
       ],
       "UnicaOne": [
-        "dist/UnicaOne.d.ts"
+        "dist/esm/UnicaOne.d.ts"
       ],
       "UnifrakturCook": [
-        "dist/UnifrakturCook.d.ts"
+        "dist/esm/UnifrakturCook.d.ts"
       ],
       "UnifrakturMaguntia": [
-        "dist/UnifrakturMaguntia.d.ts"
+        "dist/esm/UnifrakturMaguntia.d.ts"
       ],
       "Unkempt": [
-        "dist/Unkempt.d.ts"
+        "dist/esm/Unkempt.d.ts"
       ],
       "Unlock": [
-        "dist/Unlock.d.ts"
+        "dist/esm/Unlock.d.ts"
       ],
       "Unna": [
-        "dist/Unna.d.ts"
+        "dist/esm/Unna.d.ts"
       ],
       "Updock": [
-        "dist/Updock.d.ts"
+        "dist/esm/Updock.d.ts"
       ],
       "Urbanist": [
-        "dist/Urbanist.d.ts"
+        "dist/esm/Urbanist.d.ts"
       ],
       "VT323": [
-        "dist/VT323.d.ts"
+        "dist/esm/VT323.d.ts"
       ],
       "VampiroOne": [
-        "dist/VampiroOne.d.ts"
+        "dist/esm/VampiroOne.d.ts"
       ],
       "Varela": [
-        "dist/Varela.d.ts"
+        "dist/esm/Varela.d.ts"
       ],
       "VarelaRound": [
-        "dist/VarelaRound.d.ts"
+        "dist/esm/VarelaRound.d.ts"
       ],
       "Varta": [
-        "dist/Varta.d.ts"
+        "dist/esm/Varta.d.ts"
       ],
       "VastShadow": [
-        "dist/VastShadow.d.ts"
+        "dist/esm/VastShadow.d.ts"
       ],
       "Vazirmatn": [
-        "dist/Vazirmatn.d.ts"
+        "dist/esm/Vazirmatn.d.ts"
       ],
       "VesperLibre": [
-        "dist/VesperLibre.d.ts"
+        "dist/esm/VesperLibre.d.ts"
       ],
       "ViaodaLibre": [
-        "dist/ViaodaLibre.d.ts"
+        "dist/esm/ViaodaLibre.d.ts"
       ],
       "Vibes": [
-        "dist/Vibes.d.ts"
+        "dist/esm/Vibes.d.ts"
       ],
       "Vibur": [
-        "dist/Vibur.d.ts"
+        "dist/esm/Vibur.d.ts"
       ],
       "Vidaloka": [
-        "dist/Vidaloka.d.ts"
+        "dist/esm/Vidaloka.d.ts"
       ],
       "Viga": [
-        "dist/Viga.d.ts"
+        "dist/esm/Viga.d.ts"
       ],
       "Voces": [
-        "dist/Voces.d.ts"
+        "dist/esm/Voces.d.ts"
       ],
       "Volkhov": [
-        "dist/Volkhov.d.ts"
+        "dist/esm/Volkhov.d.ts"
       ],
       "Vollkorn": [
-        "dist/Vollkorn.d.ts"
+        "dist/esm/Vollkorn.d.ts"
       ],
       "VollkornSC": [
-        "dist/VollkornSC.d.ts"
+        "dist/esm/VollkornSC.d.ts"
       ],
       "Voltaire": [
-        "dist/Voltaire.d.ts"
+        "dist/esm/Voltaire.d.ts"
       ],
       "VujahdayScript": [
-        "dist/VujahdayScript.d.ts"
+        "dist/esm/VujahdayScript.d.ts"
       ],
       "WaitingfortheSunrise": [
-        "dist/WaitingfortheSunrise.d.ts"
+        "dist/esm/WaitingfortheSunrise.d.ts"
       ],
       "Wallpoet": [
-        "dist/Wallpoet.d.ts"
+        "dist/esm/Wallpoet.d.ts"
       ],
       "WalterTurncoat": [
-        "dist/WalterTurncoat.d.ts"
+        "dist/esm/WalterTurncoat.d.ts"
       ],
       "Warnes": [
-        "dist/Warnes.d.ts"
+        "dist/esm/Warnes.d.ts"
       ],
       "WaterBrush": [
-        "dist/WaterBrush.d.ts"
+        "dist/esm/WaterBrush.d.ts"
       ],
       "Waterfall": [
-        "dist/Waterfall.d.ts"
+        "dist/esm/Waterfall.d.ts"
       ],
       "Wellfleet": [
-        "dist/Wellfleet.d.ts"
+        "dist/esm/Wellfleet.d.ts"
       ],
       "WendyOne": [
-        "dist/WendyOne.d.ts"
+        "dist/esm/WendyOne.d.ts"
       ],
       "Whisper": [
-        "dist/Whisper.d.ts"
+        "dist/esm/Whisper.d.ts"
       ],
       "WindSong": [
-        "dist/WindSong.d.ts"
+        "dist/esm/WindSong.d.ts"
       ],
       "WireOne": [
-        "dist/WireOne.d.ts"
+        "dist/esm/WireOne.d.ts"
       ],
       "WorkSans": [
-        "dist/WorkSans.d.ts"
+        "dist/esm/WorkSans.d.ts"
       ],
       "XanhMono": [
-        "dist/XanhMono.d.ts"
+        "dist/esm/XanhMono.d.ts"
       ],
       "Yaldevi": [
-        "dist/Yaldevi.d.ts"
+        "dist/esm/Yaldevi.d.ts"
       ],
       "YanoneKaffeesatz": [
-        "dist/YanoneKaffeesatz.d.ts"
+        "dist/esm/YanoneKaffeesatz.d.ts"
       ],
       "Yantramanav": [
-        "dist/Yantramanav.d.ts"
+        "dist/esm/Yantramanav.d.ts"
       ],
       "YatraOne": [
-        "dist/YatraOne.d.ts"
+        "dist/esm/YatraOne.d.ts"
       ],
       "Yellowtail": [
-        "dist/Yellowtail.d.ts"
+        "dist/esm/Yellowtail.d.ts"
       ],
       "YeonSung": [
-        "dist/YeonSung.d.ts"
+        "dist/esm/YeonSung.d.ts"
       ],
       "YesevaOne": [
-        "dist/YesevaOne.d.ts"
+        "dist/esm/YesevaOne.d.ts"
       ],
       "Yesteryear": [
-        "dist/Yesteryear.d.ts"
+        "dist/esm/Yesteryear.d.ts"
       ],
       "Yomogi": [
-        "dist/Yomogi.d.ts"
+        "dist/esm/Yomogi.d.ts"
       ],
       "Yrsa": [
-        "dist/Yrsa.d.ts"
+        "dist/esm/Yrsa.d.ts"
       ],
       "YujiBoku": [
-        "dist/YujiBoku.d.ts"
+        "dist/esm/YujiBoku.d.ts"
       ],
       "YujiMai": [
-        "dist/YujiMai.d.ts"
+        "dist/esm/YujiMai.d.ts"
       ],
       "YujiSyuku": [
-        "dist/YujiSyuku.d.ts"
+        "dist/esm/YujiSyuku.d.ts"
       ],
       "YuseiMagic": [
-        "dist/YuseiMagic.d.ts"
+        "dist/esm/YuseiMagic.d.ts"
       ],
       "ZCOOLKuaiLe": [
-        "dist/ZCOOLKuaiLe.d.ts"
+        "dist/esm/ZCOOLKuaiLe.d.ts"
       ],
       "ZCOOLQingKeHuangYou": [
-        "dist/ZCOOLQingKeHuangYou.d.ts"
+        "dist/esm/ZCOOLQingKeHuangYou.d.ts"
       ],
       "ZCOOLXiaoWei": [
-        "dist/ZCOOLXiaoWei.d.ts"
+        "dist/esm/ZCOOLXiaoWei.d.ts"
       ],
       "ZenAntique": [
-        "dist/ZenAntique.d.ts"
+        "dist/esm/ZenAntique.d.ts"
       ],
       "ZenAntiqueSoft": [
-        "dist/ZenAntiqueSoft.d.ts"
+        "dist/esm/ZenAntiqueSoft.d.ts"
       ],
       "ZenDots": [
-        "dist/ZenDots.d.ts"
+        "dist/esm/ZenDots.d.ts"
       ],
       "ZenKakuGothicAntique": [
-        "dist/ZenKakuGothicAntique.d.ts"
+        "dist/esm/ZenKakuGothicAntique.d.ts"
       ],
       "ZenKakuGothicNew": [
-        "dist/ZenKakuGothicNew.d.ts"
+        "dist/esm/ZenKakuGothicNew.d.ts"
       ],
       "ZenKurenaido": [
-        "dist/ZenKurenaido.d.ts"
+        "dist/esm/ZenKurenaido.d.ts"
       ],
       "ZenLoop": [
-        "dist/ZenLoop.d.ts"
+        "dist/esm/ZenLoop.d.ts"
       ],
       "ZenMaruGothic": [
-        "dist/ZenMaruGothic.d.ts"
+        "dist/esm/ZenMaruGothic.d.ts"
       ],
       "ZenOldMincho": [
-        "dist/ZenOldMincho.d.ts"
+        "dist/esm/ZenOldMincho.d.ts"
       ],
       "ZenTokyoZoo": [
-        "dist/ZenTokyoZoo.d.ts"
+        "dist/esm/ZenTokyoZoo.d.ts"
       ],
       "Zeyada": [
-        "dist/Zeyada.d.ts"
+        "dist/esm/Zeyada.d.ts"
       ],
       "ZhiMangXing": [
-        "dist/ZhiMangXing.d.ts"
+        "dist/esm/ZhiMangXing.d.ts"
       ],
       "ZillaSlab": [
-        "dist/ZillaSlab.d.ts"
+        "dist/esm/ZillaSlab.d.ts"
       ],
       "ZillaSlabHighlight": [
-        "dist/ZillaSlabHighlight.d.ts"
+        "dist/esm/ZillaSlabHighlight.d.ts"
       ],
       "Alexandria": [
-        "dist/Alexandria.d.ts"
+        "dist/esm/Alexandria.d.ts"
       ],
       "ChivoMono": [
-        "dist/ChivoMono.d.ts"
+        "dist/esm/ChivoMono.d.ts"
       ],
       "FragmentMono": [
-        "dist/FragmentMono.d.ts"
+        "dist/esm/FragmentMono.d.ts"
       ],
       "GajrajOne": [
-        "dist/GajrajOne.d.ts"
+        "dist/esm/GajrajOne.d.ts"
       ],
       "Gloock": [
-        "dist/Gloock.d.ts"
+        "dist/esm/Gloock.d.ts"
       ],
       "HankenGrotesk": [
-        "dist/HankenGrotesk.d.ts"
+        "dist/esm/HankenGrotesk.d.ts"
       ],
       "IBMPlexSansJP": [
-        "dist/IBMPlexSansJP.d.ts"
+        "dist/esm/IBMPlexSansJP.d.ts"
       ],
       "Labrada": [
-        "dist/Labrada.d.ts"
+        "dist/esm/Labrada.d.ts"
       ],
       "Marhey": [
-        "dist/Marhey.d.ts"
+        "dist/esm/Marhey.d.ts"
       ],
       "MartianMono": [
-        "dist/MartianMono.d.ts"
+        "dist/esm/MartianMono.d.ts"
       ],
       "Mynerve": [
-        "dist/Mynerve.d.ts"
+        "dist/esm/Mynerve.d.ts"
       ],
       "NotoSansLaoLooped": [
-        "dist/NotoSansLaoLooped.d.ts"
+        "dist/esm/NotoSansLaoLooped.d.ts"
       ],
       "NotoSansMendeKikakui": [
-        "dist/NotoSansMendeKikakui.d.ts"
+        "dist/esm/NotoSansMendeKikakui.d.ts"
       ],
       "NotoSansSignWriting": [
-        "dist/NotoSansSignWriting.d.ts"
+        "dist/esm/NotoSansSignWriting.d.ts"
       ],
       "NotoSansTangsa": [
-        "dist/NotoSansTangsa.d.ts"
+        "dist/esm/NotoSansTangsa.d.ts"
       ],
       "NotoSerifKhojki": [
-        "dist/NotoSerifKhojki.d.ts"
+        "dist/esm/NotoSerifKhojki.d.ts"
       ],
       "NotoSerifNPHmong": [
-        "dist/NotoSerifNPHmong.d.ts"
+        "dist/esm/NotoSerifNPHmong.d.ts"
       ],
       "NotoSerifOriya": [
-        "dist/NotoSerifOriya.d.ts"
+        "dist/esm/NotoSerifOriya.d.ts"
       ],
       "NotoSerifToto": [
-        "dist/NotoSerifToto.d.ts"
+        "dist/esm/NotoSerifToto.d.ts"
       ],
       "PadyakkeExpandedOne": [
-        "dist/PadyakkeExpandedOne.d.ts"
+        "dist/esm/PadyakkeExpandedOne.d.ts"
       ],
       "Phudu": [
-        "dist/Phudu.d.ts"
+        "dist/esm/Phudu.d.ts"
       ],
       "Rubik80sFade": [
-        "dist/Rubik80sFade.d.ts"
+        "dist/esm/Rubik80sFade.d.ts"
       ],
       "RubikGemstones": [
-        "dist/RubikGemstones.d.ts"
+        "dist/esm/RubikGemstones.d.ts"
       ],
       "RubikSprayPaint": [
-        "dist/RubikSprayPaint.d.ts"
+        "dist/esm/RubikSprayPaint.d.ts"
       ],
       "RubikStorm": [
-        "dist/RubikStorm.d.ts"
+        "dist/esm/RubikStorm.d.ts"
       ],
       "RubikVinyl": [
-        "dist/RubikVinyl.d.ts"
+        "dist/esm/RubikVinyl.d.ts"
       ],
       "ShantellSans": [
-        "dist/ShantellSans.d.ts"
+        "dist/esm/ShantellSans.d.ts"
       ],
       "SofiaSans": [
-        "dist/SofiaSans.d.ts"
+        "dist/esm/SofiaSans.d.ts"
       ],
       "SofiaSansCondensed": [
-        "dist/SofiaSansCondensed.d.ts"
+        "dist/esm/SofiaSansCondensed.d.ts"
       ],
       "SofiaSansExtraCondensed": [
-        "dist/SofiaSansExtraCondensed.d.ts"
+        "dist/esm/SofiaSansExtraCondensed.d.ts"
       ],
       "SofiaSansSemiCondensed": [
-        "dist/SofiaSansSemiCondensed.d.ts"
+        "dist/esm/SofiaSansSemiCondensed.d.ts"
       ],
       "Solitreo": [
-        "dist/Solitreo.d.ts"
+        "dist/esm/Solitreo.d.ts"
       ],
       "Sono": [
-        "dist/Sono.d.ts"
+        "dist/esm/Sono.d.ts"
       ],
       "Unbounded": [
-        "dist/Unbounded.d.ts"
+        "dist/esm/Unbounded.d.ts"
       ]
     }
   },
   "exports": {
-    "./*": "./dist/*.js",
-    "./index": "./dist/index.js",
-    ".": "./dist/index.js"
+    "./*": {
+      "module": "./dist/esm/*.js",
+      "import": "./dist/esm/*.js",
+      "require": "./dist/cjs/*.cjs",
+      "types": "./dist/cjs/*.d.ts"
+    },
+    "./index": {
+      "module": "./dist/esm/index.js",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.cjs",
+      "types": "./dist/cjs/index.d.ts"
+    },
+    ".": {
+      "module": "./dist/esm/index.js",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.cjs",
+      "types": "./dist/cjs/index.d.ts"
+    }
   }
 }
