@@ -67,7 +67,6 @@ export {
 	TAsset,
 	TCompMetadata,
 } from './CompositionManager.js';
-export {Config, ConfigType} from './config.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
 export * from './easing.js';
