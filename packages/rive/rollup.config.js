@@ -10,7 +10,12 @@ export default [
         sourcemap: false,
       },
     ],
-    external: ["react", "remotion", "react/jsx-runtime", "lottie-web"],
+    external: [
+      "react",
+      "remotion",
+      "react/jsx-runtime",
+      "@rive-app/canvas-advanced",
+    ],
     plugins: [
       typescript({
         tsconfig: "tsconfig-esm.json",

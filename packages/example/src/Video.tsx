@@ -19,7 +19,7 @@ import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo'
 import {OrbScene} from './Orb';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
-import {RiveVehicle} from './Rive';
+import RiveVehicle from './Rive/vehicle';
 import {ScalePath} from './ScalePath';
 import {Scripts} from './Scripts';
 import CircleTest from './Shapes/CircleTest';

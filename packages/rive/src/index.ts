@@ -1,1 +1,1 @@
-export {Rive} from "./Rive"
+export { Rive } from "./Rive.js";
