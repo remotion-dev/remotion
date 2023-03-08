@@ -2,18 +2,17 @@ import React from 'react';
 import {Player} from '@remotion/player';
 import {Audio, prefetch, staticFile} from 'remotion';
 import {useState} from 'react';
-import {preloadAudio} from '@remotion/preload';
 
 const Comp1: React.FC<{
 	audioSrc: string;
 }> = ({audioSrc}) => {
-	return <Audio src={audioSrc}></Audio>;
+	return <Audio src={audioSrc} />;
 };
 
 const Comp2: React.FC<{
 	audioSrc: string;
 }> = ({audioSrc}) => {
-	return <Audio src={audioSrc}></Audio>;
+	return <Audio src={audioSrc} />;
 };
 
 const templateCompositions = {
@@ -70,6 +69,7 @@ export default function ErrorRemake() {
 
 			<div>
 				<Player
+					controls
 					component={templateCompositions[activeCompositionId]}
 					inputProps={{
 						audioSrc: audioUrl,
@@ -78,7 +78,6 @@ export default function ErrorRemake() {
 					compositionWidth={1920}
 					compositionHeight={1080}
 					fps={30}
-					controls
 					allowFullscreen={false}
 				/>
 			</div>

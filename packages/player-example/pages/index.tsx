@@ -2,6 +2,7 @@ import {Thumbnail} from '@remotion/player';
 import React, {ComponentType} from 'react';
 import App from '../src/App';
 import CarSlideshow from '../src/CarSlideshow';
+import {FontPicker} from '../src/FontPicker';
 import {ThumbnailDemo} from '../src/ThumbnailDemo';
 import {VideoautoplayDemo} from '../src/VideoAutoplay';
 
@@ -19,6 +20,7 @@ const Car = () =>
 export default function () {
 	return (
 		<React.StrictMode>
+			<FontPicker />
 			<h2>Player</h2>
 			<div
 				style={{

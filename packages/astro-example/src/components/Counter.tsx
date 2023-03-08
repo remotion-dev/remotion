@@ -23,8 +23,8 @@ export default function Counter() {
       <Player
         component={Comp}
         durationInFrames={100}
-        compositionWidth={1000}
-        compositionHeight={1000}
+        compositionWidth={400}
+        compositionHeight={400}
         fps={30}
         controls
       ></Player>

@@ -14,8 +14,6 @@ import {handleJavascriptException} from './error-handling/handle-javascript-exce
 import {findRemotionRoot} from './find-closest-package-json';
 import type {StillImageFormat} from './image-format';
 import {validateStillImageFormat} from './image-format';
-import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
-import {getServeUrlWithFallback} from './legacy-webpack-config';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -54,10 +52,10 @@ type InnerStillOptions = {
 
 type RenderStillReturnValue = {buffer: Buffer | null};
 
-export type RenderStillOptions = InnerStillOptions &
-	ServeUrlOrWebpackBundle & {
-		port?: number | null;
-	};
+export type RenderStillOptions = InnerStillOptions & {
+	serveUrl: string;
+	port?: number | null;
+};
 
 const innerRenderStill = async ({
 	composition,
@@ -259,8 +257,6 @@ const innerRenderStill = async ({
 export const renderStill = (
 	options: RenderStillOptions
 ): Promise<RenderStillReturnValue> => {
-	const selectedServeUrl = getServeUrlWithFallback(options);
-
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
@@ -271,7 +267,7 @@ export const renderStill = (
 		let close: ((force: boolean) => Promise<unknown>) | null = null;
 
 		prepareServer({
-			webpackConfigOrServeUrl: selectedServeUrl,
+			webpackConfigOrServeUrl: options.serveUrl,
 			onDownload,
 			onError,
 			port: options.port ?? null,
