@@ -664,7 +664,6 @@ importers:
       '@remotion/bundler': 3.3.62
       '@remotion/cli': 3.3.62
       '@remotion/compositor-linux-arm64-musl': 3.3.62
-      '@remotion/compositor-linux-x64-musl': 3.3.62
       '@remotion/renderer': 3.3.62
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
@@ -700,7 +699,6 @@ importers:
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@remotion/compositor-linux-arm64-musl': link:../compositor-linux-arm64-musl
-      '@remotion/compositor-linux-x64-musl': link:../compositor-linux-x64-musl
       '@types/mime-types': 2.1.1
       '@types/minimist': 1.2.2
       '@types/node': 14.17.20
@@ -24842,8 +24840,8 @@ packages:
       '@webassemblyjs/ast': 1.11.1
       '@webassemblyjs/wasm-edit': 1.11.1
       '@webassemblyjs/wasm-parser': 1.11.1
-      acorn: 8.8.0
-      acorn-import-assertions: 1.8.0_acorn@8.8.0
+      acorn: 8.8.1
+      acorn-import-assertions: 1.8.0_acorn@8.8.1
       browserslist: 4.21.4
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.10.0

@@ -15,7 +15,6 @@ import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
 import {PreviewSizeContext} from '../state/preview-size';
-import {RichTimelineContext} from '../state/rich-timeline';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {timelineRef} from '../state/timeline-ref';
@@ -40,7 +39,6 @@ export const useMenuStructure = (closeMenu: () => void) => {
 	const {editorZoomGestures, setEditorZoomGestures} = useContext(
 		EditorZoomGesturesContext
 	);
-	const {richTimeline, setRichTimeline} = useContext(RichTimelineContext);
 	const {size, setSize} = useContext(PreviewSizeContext);
 	const {setSidebarCollapsedState, sidebarCollapsedState} =
 		useContext(SidebarContext);
@@ -350,22 +348,6 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						type: 'divider' as const,
 					},
 					{
-						id: 'rich-timeline',
-						keyHint: null,
-						label: 'Rich timeline',
-						onClick: () => {
-							closeMenu();
-							setRichTimeline((r) => !r);
-						},
-						type: 'item' as const,
-						value: 'rich-timeline',
-						leftItem: richTimeline ? <Checkmark /> : null,
-						subMenu: null,
-						quickSwitcherLabel: richTimeline
-							? 'Timeline: Disable Rich Timeline'
-							: 'Timeline: Enable Rich Timeline',
-					},
-					{
 						id: 'expand-all',
 						keyHint: null,
 						label: 'Expand all',
@@ -627,11 +609,9 @@ export const useMenuStructure = (closeMenu: () => void) => {
 	}, [
 		checkerboard,
 		closeMenu,
-		editorZoomGestures,
-		richTimeline,
 		setCheckerboard,
+		editorZoomGestures,
 		setEditorZoomGestures,
-		setRichTimeline,
 		setSelectedModal,
 		setSidebarCollapsedState,
 		setSize,
