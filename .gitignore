@@ -14,5 +14,3 @@ packages/example/out
 .vercel
 packages/renderer/target
 packages/example/sa-key.json
-packages/example/public/pts-framermp4withoutfileextension.mp4
-packages/it-tests/packages/example/out/element-2.png

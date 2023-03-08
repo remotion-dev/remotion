@@ -18,7 +18,9 @@ import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
 import {ensureFramesInOrder} from './ensure-frames-in-order';
 import {ensureOutputDirectory} from './ensure-output-directory';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
+import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
@@ -46,6 +48,7 @@ import {stitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateEveryNthFrame} from './validate-every-nth-frame';
+import {validateFfmpeg} from './validate-ffmpeg';
 import {validateFfmpegOverride} from './validate-ffmpeg-override';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
@@ -74,6 +77,8 @@ export type RenderMediaOptions = {
 	inputProps?: unknown;
 	crf?: number | null;
 	imageFormat?: 'png' | 'jpeg' | 'none';
+	ffmpegExecutable?: FfmpegExecutable;
+	ffprobeExecutable?: FfmpegExecutable;
 	pixelFormat?: PixelFormat;
 	envVariables?: Record<string, string>;
 	quality?: number;
@@ -151,6 +156,8 @@ export const renderMedia = ({
 	proResProfile,
 	crf,
 	composition,
+	ffmpegExecutable,
+	ffprobeExecutable,
 	inputProps,
 	pixelFormat,
 	codec,
@@ -179,6 +186,8 @@ export const renderMedia = ({
 	audioCodec,
 	...options
 }: RenderMediaOptions): Promise<Buffer | null> => {
+	const remotionRoot = findRemotionRoot();
+	validateFfmpeg(ffmpegExecutable ?? null, remotionRoot, 'ffmpeg');
 	validateQuality(options.quality);
 	validateQualitySettings({crf, codec, videoBitrate});
 	validateBitrate(audioBitrate, 'audioBitrate');
@@ -323,27 +332,31 @@ export const renderMedia = ({
 	const fps = composition.fps / (everyNthFrame ?? 1);
 	Internals.validateFps(fps, 'in "renderMedia()"', codec === 'gif');
 
-	const createPrestitcherIfNecessary = () => {
+	const createPrestitcherIfNecessary = async () => {
 		if (preEncodedFileLocation) {
-			preStitcher = prespawnFfmpeg({
-				width: composition.width * (scale ?? 1),
-				height: composition.height * (scale ?? 1),
-				fps,
-				outputLocation: preEncodedFileLocation,
-				pixelFormat,
-				codec,
-				proResProfile,
-				crf,
-				onProgress: (frame: number) => {
-					encodedFrames = frame;
-					callUpdate();
+			preStitcher = await prespawnFfmpeg(
+				{
+					width: composition.width * (scale ?? 1),
+					height: composition.height * (scale ?? 1),
+					fps,
+					outputLocation: preEncodedFileLocation,
+					pixelFormat,
+					codec,
+					proResProfile,
+					crf,
+					onProgress: (frame: number) => {
+						encodedFrames = frame;
+						callUpdate();
+					},
+					verbose: options.verbose ?? false,
+					ffmpegExecutable,
+					imageFormat,
+					signal: cancelPrestitcher.cancelSignal,
+					ffmpegOverride: ffmpegOverride ?? (({args}) => args),
+					videoBitrate: videoBitrate ?? null,
 				},
-				verbose: options.verbose ?? false,
-				imageFormat,
-				signal: cancelPrestitcher.cancelSignal,
-				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
-				videoBitrate: videoBitrate ?? null,
-			});
+				remotionRoot
+			);
 			stitcherFfmpeg = preStitcher.task;
 		}
 	};
@@ -393,7 +406,7 @@ export const renderMedia = ({
 		minTime = slowestFrames[slowestFrames.length - 1]?.time ?? minTime;
 	};
 
-	const happyPath = Promise.resolve(createPrestitcherIfNecessary())
+	const happyPath = createPrestitcherIfNecessary()
 		.then(() => {
 			const renderFramesProc = renderFrames({
 				config: composition,
@@ -443,6 +456,8 @@ export const renderMedia = ({
 				timeoutInMilliseconds,
 				chromiumOptions,
 				scale,
+				ffmpegExecutable,
+				ffprobeExecutable,
 				browserExecutable,
 				port,
 				cancelSignal: cancelRenderFrames.cancelSignal,
@@ -481,6 +496,8 @@ export const renderMedia = ({
 					proResProfile,
 					crf,
 					assetsInfo,
+					ffmpegExecutable,
+					ffprobeExecutable,
 					onProgress: (frame: number) => {
 						stitchStage = 'muxing';
 						encodedFrames = frame;

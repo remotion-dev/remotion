@@ -2,6 +2,7 @@ import http from 'http';
 import type {Socket} from 'net';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 import {getDesiredPort} from './get-port';
 import {startOffthreadVideoServer} from './offthread-video-server';
 import {serveHandler} from './serve-handler';
@@ -10,6 +11,8 @@ export const serveStatic = async (
 	path: string | null,
 	options: {
 		port: number | null;
+		ffmpegExecutable: FfmpegExecutable;
+		ffprobeExecutable: FfmpegExecutable;
 		onDownload: RenderMediaOnDownload;
 		onError: (err: Error) => void;
 		downloadMap: DownloadMap;
@@ -20,6 +23,8 @@ export const serveStatic = async (
 	close: () => Promise<void>;
 }> => {
 	const offthreadRequest = startOffthreadVideoServer({
+		ffmpegExecutable: options.ffmpegExecutable,
+		ffprobeExecutable: options.ffprobeExecutable,
 		onDownload: options.onDownload,
 		onError: options.onError,
 		downloadMap: options.downloadMap,

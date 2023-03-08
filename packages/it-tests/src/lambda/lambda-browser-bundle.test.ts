@@ -8,7 +8,7 @@ test("Should not be able to bundle @remotion/lambda directly", async () => {
   expect(() =>
     BundlerInternals.esbuild.build({
       platform: "node",
-      target: "node16",
+      target: "node14",
       bundle: true,
       entryPoints: [require.resolve("@remotion/lambda")],
       logLevel: "silent",
@@ -22,7 +22,7 @@ describe("Should be able to bundle @remotion/lambda/client with ESBuild", () => 
   test("Should build without errors", async () => {
     const { errors, warnings } = await BundlerInternals.esbuild.build({
       platform: "node",
-      target: "node16",
+      target: "node14",
       bundle: true,
       outfile,
       entryPoints: [require.resolve("@remotion/lambda/client")],

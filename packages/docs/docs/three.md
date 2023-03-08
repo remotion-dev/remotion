@@ -72,7 +72,7 @@ A [`<Sequence>`](/docs/sequence) by default will return a `<div>` component, whi
 Three.JS does not render with the default OpenGL renderer - we recommend to set it to `angle`. The config file of new projects includes by default:
 
 ```ts twoslash
-import { Config } from "@remotion/cli/config";
+import { Config } from "remotion";
 
 Config.setChromiumOpenGlRenderer("angle");
 ```

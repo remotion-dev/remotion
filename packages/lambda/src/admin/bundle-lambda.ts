@@ -1,12 +1,17 @@
 import {BundlerInternals} from '@remotion/bundler';
 import {binaryPath as armBinaryPath} from '@remotion/compositor-linux-arm64-musl';
+import {binaryPath as x64BinaryPath} from '@remotion/compositor-linux-x64-musl';
 import fs from 'fs';
 import path from 'path';
 import {quit} from '../cli/helpers/quit';
-import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
+import {
+	FUNCTION_ZIP_ARM64,
+	FUNCTION_ZIP_X86_64,
+} from '../shared/function-zip-path';
+import type {LambdaArchitecture} from '../shared/validate-architecture';
 import zl = require('zip-lib');
 
-const bundleLambda = async () => {
+const bundleLambda = async (arch: LambdaArchitecture) => {
 	const outdir = path.join(__dirname, '..', `build-render`);
 	fs.mkdirSync(outdir, {
 		recursive: true,
@@ -21,32 +26,34 @@ const bundleLambda = async () => {
 
 	await BundlerInternals.esbuild.build({
 		platform: 'node',
-		target: 'node16',
+		target: 'node14',
 		bundle: true,
 		outfile,
 		entryPoints: [template],
 		treeShaking: true,
-		external: [
-			'./compositor',
-			'./compositor.exe',
-			'./ffmpeg/remotion/bin/ffprobe',
-			'./ffmpeg/remotion/bin/ffprobe.exe',
-			'./ffmpeg/remotion/bin/ffmpeg',
-			'./ffmpeg/remotion/bin/ffmpeg.exe',
-		],
+		external: ['./compositor', './compositor.exe'],
 	});
 
 	const compositorFile = `${outdir}/compositor`;
-	fs.copyFileSync(armBinaryPath, compositorFile);
-	await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
+	if (arch === 'arm64') {
+		fs.copyFileSync(armBinaryPath, compositorFile);
+		await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
+	} else {
+		fs.copyFileSync(x64BinaryPath, compositorFile);
+		await zl.archiveFolder(outdir, FUNCTION_ZIP_X86_64);
+	}
 
 	fs.unlinkSync(compositorFile);
 	fs.unlinkSync(outfile);
 };
 
-bundleLambda()
+bundleLambda('arm64')
 	.then(() => {
-		console.log('Bundled Lambda');
+		console.log('Lambda bundled for arm64');
+		return bundleLambda('x86_64');
+	})
+	.then(() => {
+		console.log('Lambda bundled for x86_64');
 	})
 	.catch((err) => {
 		console.log(err);

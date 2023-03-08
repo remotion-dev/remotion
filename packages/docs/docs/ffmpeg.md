@@ -5,23 +5,17 @@ sidebar_label: Installing FFmpeg
 crumb: "(you don't have to)"
 ---
 
-Since Remotion v4.0, Remotion comes bundled with a lightweight version of FFmpeg.
-
-## FFmpeg in V3 of Remotion
-
-**The following documentation is an archival for how FFmpeg worked in v3.0.**
-
 Remotion requires FFmpeg to encode videos. Since v3.3, you do not need to install FFmpeg manually. This page documents the behavior of Remotion for developers needing advanced control.
 
-### `ffmpeg` and `ffprobe`
+## `ffmpeg` and `ffprobe`
 
 Two binaries are required for Remotion: `ffmpeg` and `ffprobe`. When talking about FFmpeg in the documentation, it may also refer to FFprobe.
 
-### Auto-install
+## Auto-install
 
 When rendering a video and binaries are not found, Remotion will download them from the internet and put it inside your `node_modules` folder. The binary will not get added to your `PATH`, so if you type in `ffmpeg` into your Terminal, it may not be found. However, Remotion will be able to use it
 
-#### Supported architectures
+### Supported architectures
 
 Auto-install is supported on the following platforms:
 
@@ -32,7 +26,7 @@ Auto-install is supported on the following platforms:
 
 For other platforms, you need to supply your own binaries.
 
-#### Triggering auto-install
+### Triggering auto-install
 
 By rendering a video, the download of FFmpeg will be triggered automatically.
 
@@ -41,7 +35,7 @@ On servers, it might be of use to install the binaries before the first render, 
 - Using the CLI, you can run [`npx remotion install ffmpeg`](/docs/cli/install) and `npx remotion install ffprobe` to trigger auto-install of binaries. If the binaries exist, the command will do nothing. This requires `@remotion/cli` to be installed.
 - The [`@remotion/renderer`](/docs/renderer) package exposes [`ensureFfmpeg()`](/docs/renderer/ensure-ffmpeg) and [`ensureFfprobe()`](/docs/renderer/ensure-ffprobe) functions
 
-### Order of priority
+## Order of priority
 
 In case of multiple binaries being supplied, they priority order is the following:
 

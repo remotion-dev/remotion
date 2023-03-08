@@ -51,7 +51,7 @@ yarn add mdx-loader babel-loader @babel/preset-env @babel/preset-react
 </Tabs>
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import { Config } from "remotion";
 // ---cut---
 import { replaceLoadersWithBabel } from "@remotion/babel-loader";
 

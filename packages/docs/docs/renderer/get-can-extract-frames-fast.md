@@ -50,17 +50,15 @@ An object containing one or more of the following options:
 
 Pointing to a video file. Must be an absolute file path.
 
-### ~~`ffmpegExecutable?`~~
-
-_removed in v4.0_
+### `ffmpegExecutable?`
 
 _string - optional_
 
 An absolute path overriding the `ffmpeg` executable to use.
 
-### ~~`ffprobeExecutable?`~~
+### `ffprobeExecutable?`
 
-_removed in v4.0, \_string, optional_
+_string, options_
 
 An absolute path overriding the `ffprobe` executable to use.
 

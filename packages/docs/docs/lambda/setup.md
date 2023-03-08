@@ -156,6 +156,7 @@ const { functionName } = await deployFunction({
   timeoutInSeconds: 120,
   memorySizeInMb: 2048,
   createCloudWatchLogGroup: true,
+  architecture: "arm64",
 });
 ```
 

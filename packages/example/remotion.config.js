@@ -1,4 +1,4 @@
-import {Config} from '@remotion/cli/config';
+import {Config} from 'remotion';
 
 Config.setConcurrency(require('os').cpus().length);
 Config.Output.setOverwriteOutput(true);

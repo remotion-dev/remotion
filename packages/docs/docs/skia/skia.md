@@ -63,7 +63,7 @@ Make sure no package version number has a `^` character in front of it as it can
 [Override the Webpack config](/docs/webpack) by using [`enableSkia()`](/docs/skia/enable-skia).
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
+import { Config } from "remotion";
 import { enableSkia } from "@remotion/skia/enable";
 
 Config.overrideWebpackConfig((currentConfiguration) => {

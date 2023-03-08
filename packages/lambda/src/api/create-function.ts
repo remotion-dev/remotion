@@ -12,7 +12,8 @@ import {readFileSync} from 'fs';
 import {LOG_GROUP_PREFIX} from '../defaults';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
-import {hostedLayers} from '../shared/hosted-layers';
+import {__internal_doNotUsehostedLayers} from '../shared/hosted-layers';
+import type {LambdaArchitecture} from '../shared/validate-architecture';
 import {ROLE_NAME} from './iam-validation/suggested-policy';
 
 export const createFunction = async ({
@@ -25,6 +26,7 @@ export const createFunction = async ({
 	timeoutInSeconds,
 	alreadyCreated,
 	retentionInDays,
+	architecture,
 	ephemerealStorageInMb,
 	customRoleArn,
 }: {
@@ -38,6 +40,7 @@ export const createFunction = async ({
 	alreadyCreated: boolean;
 	retentionInDays: number;
 	ephemerealStorageInMb: number;
+	architecture: LambdaArchitecture;
 	customRoleArn: string;
 }): Promise<{FunctionName: string}> => {
 	if (createCloudWatchLogGroup) {
@@ -76,17 +79,17 @@ export const createFunction = async ({
 			FunctionName: functionName,
 			Handler: 'index.handler',
 			Role: customRoleArn ?? defaultRoleName,
-			Runtime: 'nodejs18.x',
 			Description: 'Renders a Remotion video.',
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
-			Layers: hostedLayers[region].map(
+			Layers: __internal_doNotUsehostedLayers[architecture][region].map(
 				({layerArn, version}) => `${layerArn}:${version}`
 			),
-			Architectures: ['arm64'],
+			Architectures: [architecture],
 			EphemeralStorage: {
 				Size: ephemerealStorageInMb,
 			},
+			Runtime: 'nodejs14.x',
 		})
 	);
 	await getLambdaClient(region).send(

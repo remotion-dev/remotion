@@ -4,6 +4,6 @@ export const getPublicDir = () => {
 	return publicDir;
 };
 
-export const setPublicDir = (dir: string | null) => {
+export const setPublicDir = (dir: string) => {
 	publicDir = dir;
 };

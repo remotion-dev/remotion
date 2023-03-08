@@ -30,7 +30,7 @@ Pass [`--disable-web-security`](/docs/cli/render#--disable-web-security) in one 
 Use [setChromiumDisableWebSecurity()](/docs/config#setchromiumdisablewebsecurity).
 
 ```tsx twoslash
-import { Config } from "@remotion/cli/config";
+import { Config } from "remotion";
 
 // ---cut---
 
@@ -58,7 +58,7 @@ Pass [`--ignore-certificate-errors`](/docs/cli/render#--ignore-certificate-error
 Use [setChromiumIgnoreCertificateErrors()](/docs/config#setchromiumignorecertificateerrors).
 
 ```tsx twoslash
-import { Config } from "@remotion/cli/config";
+import { Config } from "remotion";
 
 // ---cut---
 
@@ -86,7 +86,7 @@ Pass [`--disable-headless`](/docs/cli/render#--disable-headless) in one of the f
 Use [setChromiumHeadlessMode()](/docs/config#setchromiumheadlessmode).
 
 ```tsx twoslash
-import { Config } from "@remotion/cli/config";
+import { Config } from "remotion";
 
 // ---cut---
 
@@ -124,7 +124,7 @@ Pass [`--gl=swiftshader`](/docs/cli#gl) in one of the following commands: `remot
 ### Via config file
 
 ```tsx twoslash
-import { Config } from "@remotion/cli/config";
+import { Config } from "remotion";
 
 // ---cut---
 

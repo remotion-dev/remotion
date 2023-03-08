@@ -1,6 +1,8 @@
 import {MIN_EPHEMERAL_STORAGE_IN_MB} from '../defaults';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {pricing} from '../pricing/price-per-1-s';
+import type {LambdaArchitecture} from '../shared/validate-architecture';
+import {validateArchitecture} from '../shared/validate-architecture';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateDiskSizeInMb} from '../shared/validate-disk-size-in-mb';
 import {validateMemorySize} from '../shared/validate-memory-size';
@@ -10,6 +12,7 @@ export type EstimatePriceInput = {
 	durationInMiliseconds: number;
 	memorySizeInMb: number;
 	diskSizeInMb: number;
+	architecture: LambdaArchitecture;
 	lambdasInvoked: number;
 };
 /**
@@ -23,10 +26,12 @@ export const estimatePrice = ({
 	durationInMiliseconds,
 	memorySizeInMb,
 	diskSizeInMb,
+	architecture,
 	lambdasInvoked,
 }: EstimatePriceInput): number => {
 	validateMemorySize(memorySizeInMb);
 	validateAwsRegion(region);
+	validateArchitecture(architecture);
 	validateDiskSizeInMb(diskSizeInMb);
 	if (typeof durationInMiliseconds !== 'number') {
 		throw new TypeError(
@@ -52,14 +57,20 @@ export const estimatePrice = ({
 		);
 	}
 
-	const durationPrice = pricing[region]['Lambda Duration-ARM'].price;
+	const durationPrice =
+		architecture === 'x86_64'
+			? pricing[region]['Lambda Duration'].price
+			: pricing[region]['Lambda Duration-ARM'].price;
 
 	// In GB-second
 	const timeCostDollars =
 		Number(durationPrice) *
 		((memorySizeInMb * durationInMiliseconds) / 1000 / 1024);
 
-	const diskSizePrice = pricing[region]['Lambda Storage-Duration-ARM'].price;
+	const diskSizePrice =
+		architecture === 'x86_64'
+			? pricing[region]['Lambda Storage-Duration'].price
+			: pricing[region]['Lambda Storage-Duration-ARM'].price;
 
 	const chargedDiskSize = Math.max(
 		0,

@@ -13,7 +13,6 @@ serde = {version =  "1.0.151", features = ["derive"]}
 serde_json = "1.0.89"
 jpeg-decoder = "0.3"
 jpeg-encoder = "0.5.1"
-ffmpeg-next = {git = "https://github.com/JonnyBurger/rust-ffmpeg", rev ="1809209407dc3a515e9ec2b5864ad0e0b3998cd0"}
 
 [[bin]]
 name = "compositor"

@@ -13,6 +13,7 @@ import {
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
+import {getCurrentArchitecture} from './get-current-architecture';
 import {getFilesToDelete} from './get-files-to-delete';
 import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
@@ -56,6 +57,7 @@ export const createPostRenderData = ({
 		durationInMiliseconds: times,
 		memorySizeInMb,
 		region,
+		architecture: getCurrentArchitecture(),
 		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
 		// We cannot determine the ephemeral storage size, so we
 		// overestimate the price, but will only have a miniscule effect (~0.2%)

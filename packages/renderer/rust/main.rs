@@ -3,7 +3,6 @@ mod errors;
 mod payloads;
 use compositor::draw_layer;
 use jpeg_encoder::{ColorType, Encoder};
-extern crate ffmpeg_next as ffmpeg;
 
 use payloads::payloads::{parse_cli, CliInput};
 use std::{
@@ -21,8 +20,6 @@ fn read_stdin_to_string() -> Result<String, std::io::Error> {
 }
 
 fn main() -> Result<(), std::io::Error> {
-    ffmpeg::init().unwrap();
-
     let input = match read_stdin_to_string() {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),

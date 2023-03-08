@@ -1,6 +1,7 @@
 import type {
 	ChromiumOptions,
 	DownloadMap,
+	FfmpegExecutable,
 	openBrowser,
 } from '@remotion/renderer';
 import {getCompositions} from '@remotion/renderer';
@@ -14,6 +15,8 @@ type ValidateCompositionOptions = {
 	browserInstance: Await<ReturnType<typeof openBrowser>>;
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
+	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
@@ -29,6 +32,8 @@ export const validateComposition = async ({
 	inputProps,
 	envVariables,
 	timeoutInMilliseconds,
+	ffmpegExecutable,
+	ffprobeExecutable,
 	chromiumOptions,
 	port,
 	downloadMap,
@@ -39,6 +44,8 @@ export const validateComposition = async ({
 		puppeteerInstance: browserInstance,
 		inputProps: inputProps as object,
 		envVariables,
+		ffmpegExecutable,
+		ffprobeExecutable,
 		timeoutInMilliseconds,
 		chromiumOptions,
 		port,

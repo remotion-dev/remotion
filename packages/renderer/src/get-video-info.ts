@@ -1,16 +1,25 @@
+import execa from 'execa';
 import type {DownloadMap, Vp9Result} from './assets/download-map';
 import {calculateDisplayVideoSize} from './calculate-sar-dar-pixels';
-import {callFf} from './call-ffmpeg';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import {getExecutableBinary} from './ffmpeg-flags';
 import {pLimit} from './p-limit';
 
 const limit = pLimit(1);
 
 export async function getVideoInfoUncached({
 	src,
+	ffprobeExecutable,
+	remotionRoot,
 }: {
 	src: string;
+	ffprobeExecutable: FfmpegExecutable;
+	remotionRoot: string;
 }): Promise<Vp9Result> {
-	const task = await callFf('ffprobe', [src]);
+	const task = await execa(
+		await getExecutableBinary(ffprobeExecutable, remotionRoot, 'ffprobe'),
+		[src]
+	);
 
 	const isVp9 = task.stderr.includes('Video: vp9');
 	const isVp8 = task.stderr.includes('Video: vp8');
@@ -52,13 +61,17 @@ export async function getVideoInfoUncached({
 
 async function getVideoInfoUnlimited(
 	downloadMap: DownloadMap,
-	src: string
+	src: string,
+	ffprobeExecutable: FfmpegExecutable,
+	remotionRoot: string
 ): Promise<Vp9Result> {
 	if (typeof downloadMap.isVp9VideoCache[src] !== 'undefined') {
 		return downloadMap.isVp9VideoCache[src];
 	}
 
 	const result = await getVideoInfoUncached({
+		ffprobeExecutable,
+		remotionRoot,
 		src,
 	});
 
@@ -69,7 +82,11 @@ async function getVideoInfoUnlimited(
 
 export const getVideoInfo = (
 	downloadMap: DownloadMap,
-	src: string
+	src: string,
+	ffprobeExecutable: FfmpegExecutable,
+	remotionRoot: string
 ): Promise<Vp9Result> => {
-	return limit(() => getVideoInfoUnlimited(downloadMap, src));
+	return limit(() =>
+		getVideoInfoUnlimited(downloadMap, src, ffprobeExecutable, remotionRoot)
+	);
 };

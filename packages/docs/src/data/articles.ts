@@ -14,13 +14,6 @@ export const articles = [
     crumb: "Version Upgrade",
   },
   {
-    id: "4-0-migration",
-    title: "v4.0 Migration",
-    relativePath: "docs/4-0-migration.md",
-    compId: "articles-docs-4-0-migration",
-    crumb: "Version Upgrade",
-  },
-  {
     id: "absolute-fill",
     title: "<AbsoluteFill>",
     relativePath: "docs/absolute-fill.md",

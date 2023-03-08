@@ -27,7 +27,11 @@ import type {ModalContextType, ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
 import {loadMuteOption} from '../state/mute';
 import {PreviewSizeProvider} from '../state/preview-size';
-
+import {
+	loadRichTimelineOption,
+	persistRichTimelineOption,
+	RichTimelineContext,
+} from '../state/rich-timeline';
 import {SidebarContextProvider} from '../state/sidebar';
 
 export const EditorContexts: React.FC<{
@@ -77,7 +81,19 @@ export const EditorContexts: React.FC<{
 		},
 		[]
 	);
-
+	const [richTimeline, setRichTimelineState] = useState(() =>
+		loadRichTimelineOption()
+	);
+	const setRichTimeline = useCallback(
+		(newValue: (prevState: boolean) => boolean) => {
+			setRichTimelineState((prevState) => {
+				const newVal = newValue(prevState);
+				persistRichTimelineOption(newVal);
+				return newVal;
+			});
+		},
+		[]
+	);
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => loadMuteOption());
 	const [mediaVolume, setMediaVolume] = useState<number>(1);
 	const [modalContextType, setModalContextType] = useState<ModalState | null>(
@@ -96,6 +112,12 @@ export const EditorContexts: React.FC<{
 			setEditorZoomGestures,
 		};
 	}, [editorZoomGestures, setEditorZoomGestures]);
+	const richTimelineCtx = useMemo(() => {
+		return {
+			richTimeline,
+			setRichTimeline,
+		};
+	}, [richTimeline, setRichTimeline]);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
 		return {
@@ -120,41 +142,43 @@ export const EditorContexts: React.FC<{
 
 	return (
 		<KeybindingContextProvider>
-			<CheckerboardContext.Provider value={checkerboardCtx}>
-				<EditorZoomGesturesContext.Provider value={editorZoomGesturesCtx}>
-					<PreviewSizeProvider>
-						<ModalsContext.Provider value={modalsContext}>
-							<Internals.MediaVolumeContext.Provider
-								value={mediaVolumeContextValue}
-							>
-								<Internals.SetMediaVolumeContext.Provider
-									value={setMediaVolumeContextValue}
+			<RichTimelineContext.Provider value={richTimelineCtx}>
+				<CheckerboardContext.Provider value={checkerboardCtx}>
+					<EditorZoomGesturesContext.Provider value={editorZoomGesturesCtx}>
+						<PreviewSizeProvider>
+							<ModalsContext.Provider value={modalsContext}>
+								<Internals.MediaVolumeContext.Provider
+									value={mediaVolumeContextValue}
 								>
-									<PlayerInternals.PlayerEventEmitterContext.Provider
-										value={emitter}
+									<Internals.SetMediaVolumeContext.Provider
+										value={setMediaVolumeContextValue}
 									>
-										<SidebarContextProvider>
-											<FolderContextProvider>
-												<HighestZIndexProvider>
-													<TimelineInOutContext.Provider
-														value={timelineInOutContextValue}
-													>
-														<SetTimelineInOutContext.Provider
-															value={setTimelineInOutContextValue}
+										<PlayerInternals.PlayerEventEmitterContext.Provider
+											value={emitter}
+										>
+											<SidebarContextProvider>
+												<FolderContextProvider>
+													<HighestZIndexProvider>
+														<TimelineInOutContext.Provider
+															value={timelineInOutContextValue}
 														>
-															{children}
-														</SetTimelineInOutContext.Provider>
-													</TimelineInOutContext.Provider>
-												</HighestZIndexProvider>
-											</FolderContextProvider>
-										</SidebarContextProvider>
-									</PlayerInternals.PlayerEventEmitterContext.Provider>
-								</Internals.SetMediaVolumeContext.Provider>
-							</Internals.MediaVolumeContext.Provider>
-						</ModalsContext.Provider>
-					</PreviewSizeProvider>
-				</EditorZoomGesturesContext.Provider>
-			</CheckerboardContext.Provider>
+															<SetTimelineInOutContext.Provider
+																value={setTimelineInOutContextValue}
+															>
+																{children}
+															</SetTimelineInOutContext.Provider>
+														</TimelineInOutContext.Provider>
+													</HighestZIndexProvider>
+												</FolderContextProvider>
+											</SidebarContextProvider>
+										</PlayerInternals.PlayerEventEmitterContext.Provider>
+									</Internals.SetMediaVolumeContext.Provider>
+								</Internals.MediaVolumeContext.Provider>
+							</ModalsContext.Provider>
+						</PreviewSizeProvider>
+					</EditorZoomGesturesContext.Provider>
+				</CheckerboardContext.Provider>
+			</RichTimelineContext.Provider>
 		</KeybindingContextProvider>
 	);
 };

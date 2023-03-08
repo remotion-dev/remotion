@@ -6,23 +6,12 @@ function isMusl() {
 	return !glibcVersionRuntime;
 }
 
-export const getExecutablePath = (
-	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'ffmpeg-cwd'
-): string => {
-	const key =
-		type === 'compositor'
-			? 'binaryPath'
-			: type === 'ffmpeg'
-			? 'ffmpegPath'
-			: type === 'ffprobe'
-			? 'ffprobePath'
-			: 'ffmpegCwd';
-
+export const getExecutablePath = () => {
 	switch (process.platform) {
 		case 'win32':
 			switch (process.arch) {
 				case 'x64':
-					return require('@remotion/compositor-win32-x64-msvc')[key];
+					return require('@remotion/compositor-win32-x64-msvc').binaryPath;
 				default:
 					throw new Error(
 						`Unsupported architecture on Windows: ${process.arch}`
@@ -32,9 +21,9 @@ export const getExecutablePath = (
 		case 'darwin':
 			switch (process.arch) {
 				case 'x64':
-					return require('@remotion/compositor-darwin-x64')[key];
+					return require('@remotion/compositor-darwin-x64').binaryPath;
 				case 'arm64':
-					return require('@remotion/compositor-darwin-arm64')[key];
+					return require('@remotion/compositor-darwin-arm64').binaryPath;
 				default:
 					throw new Error(`Unsupported architecture on macOS: ${process.arch}`);
 			}
@@ -43,16 +32,16 @@ export const getExecutablePath = (
 			switch (process.arch) {
 				case 'x64':
 					if (isMusl()) {
-						return require('@remotion/compositor-linux-x64-musl')[key];
+						return require('@remotion/compositor-linux-x64-musl').binaryPath;
 					}
 
-					return require('@remotion/compositor-linux-x64-gnu')[key];
+					return require('@remotion/compositor-linux-x64-gnu').binaryPath;
 				case 'arm64':
 					if (isMusl()) {
-						return require('@remotion/compositor-linux-arm64-musl')[key];
+						return require('@remotion/compositor-linux-arm64-musl').binaryPath;
 					}
 
-					return require('@remotion/compositor-linux-arm64-gnu')[key];
+					return require('@remotion/compositor-linux-arm64-gnu').binaryPath;
 
 				default:
 					throw new Error(`Unsupported architecture on Linux: ${process.arch}`);

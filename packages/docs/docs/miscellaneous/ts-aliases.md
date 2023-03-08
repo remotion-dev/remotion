@@ -36,7 +36,7 @@ you can add the aliases to Webpack, however you need to add each of them manuall
 
 ```ts twoslash
 import path from "path";
-import { Config } from "@remotion/cli/config";
+import { Config } from "remotion";
 
 Config.overrideWebpackConfig((config) => {
   return {

@@ -32,9 +32,8 @@ export const SupportedAudioCodecTable = () => {
                     <td>
                       {BrowserSafeApis.defaultAudioCodecs[api].compressed ===
                       audioCodec ? (
-                        <span>✅</span>
+                        <div>✅</div>
                       ) : null}
-                      {api === "prores" && i === 0 ? <span> *</span> : null}
                     </td>
                     <td>
                       <code>{audioCodec}</code>

@@ -25,14 +25,14 @@ const warnAboutRequestVideoFrameCallback = () => {
 export const useVideoTexture = (
 	videoRef: React.RefObject<HTMLVideoElement>
 ): VideoTexture | null => {
-	const [loaded] = useState(() =>
+	const [handle] = useState(() =>
 		delayRender(`Waiting for texture in useVideoTexture() to be loaded`)
 	);
 	const [videoTexture, setVideoTexture] = useState<VideoTexture | null>(null);
 	const [vidText] = useState(
 		() => import('three/src/textures/VideoTexture.js')
 	);
-	const [error, setError] = useState<Error | null>(null);
+	const [error, setErr] = useState<null | Error>(null);
 	const frame = useCurrentFrame();
 
 	if (error) {
@@ -50,14 +50,21 @@ export const useVideoTexture = (
 				videoRef.current.width = videoRef.current.videoWidth;
 				videoRef.current.height = videoRef.current.videoHeight;
 				setVideoTexture(vt);
-				continueRender(loaded);
+				continueRender(handle);
 			})
 			.catch((err) => {
-				setError(err);
+				setErr(err);
+				console.error(err);
 			});
-	}, [loaded, vidText, videoRef]);
+	}, [handle, vidText, videoRef]);
 
 	React.useEffect(() => {
+		if (typeof document === 'undefined') {
+			// Do not trigger onReady in SSR
+			continueRender(handle);
+			return;
+		}
+
 		if (!videoRef.current) {
 			return;
 		}
@@ -74,7 +81,7 @@ export const useVideoTexture = (
 			},
 			{once: true}
 		);
-	}, [onReady, videoRef]);
+	}, [handle, onReady, videoRef]);
 
 	React.useEffect(() => {
 		const {current} = videoRef;
@@ -93,14 +100,13 @@ export const useVideoTexture = (
 		};
 
 		current.requestVideoFrameCallback(ready);
-	}, [frame, videoRef]);
+	}, [frame, handle, videoRef]);
 
 	if (
 		typeof HTMLVideoElement === 'undefined' ||
-		!HTMLVideoElement.prototype.requestVideoFrameCallback ||
-		typeof document === 'undefined'
+		!HTMLVideoElement.prototype.requestVideoFrameCallback
 	) {
-		continueRender(loaded);
+		continueRender(handle);
 		return null;
 	}
 

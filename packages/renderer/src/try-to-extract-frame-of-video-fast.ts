@@ -1,28 +1,33 @@
+import execa from 'execa';
 import type {OffthreadVideoImageFormat} from 'remotion';
 import type {
 	NeedsResize,
 	SpecialVCodecForTransparency,
 } from './assets/download-map';
-import {callFf} from './call-ffmpeg';
 import {determineResizeParams} from './determine-resize-params';
 import {determineVcodecFfmpegFlags} from './determine-vcodec-ffmpeg-flags';
+import type {FfmpegExecutable} from './ffmpeg-executable';
+import {getExecutableBinary} from './ffmpeg-flags';
 import {truthy} from './truthy';
-
 export const tryToExtractFrameOfVideoFast = async ({
+	ffmpegExecutable,
+	remotionRoot,
 	specialVCodecForTransparency,
 	imageFormat,
 	needsResize,
 	src,
 	actualOffset,
 }: {
+	ffmpegExecutable: FfmpegExecutable;
+	remotionRoot: string;
 	imageFormat: OffthreadVideoImageFormat;
 	needsResize: NeedsResize;
 	src: string;
 	specialVCodecForTransparency: SpecialVCodecForTransparency;
 	actualOffset: string;
 }) => {
-	const {stdout, stderr} = callFf(
-		'ffmpeg',
+	const {stdout, stderr} = execa(
+		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
 		[
 			'-ss',
 			actualOffset,

@@ -247,8 +247,6 @@ import {SupportedAudioCodecTable, FileExtensionTable} from '../components/Suppor
 
 GIFs don't support audio.
 
-\* Note: In versions before `v4.0.0` the default audio codec for `ProRes` was `aac`. Now it's `pcm-16`.
-
 ## File extensions
 
 Specifying a file extension when rendering media will determine the default codec. You may override the codec using `--codec` as long as the combination is supported in the table above.

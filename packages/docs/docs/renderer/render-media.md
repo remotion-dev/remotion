@@ -109,6 +109,18 @@ In which image format the frames should be rendered.
 - `png` if you want to [render transparent videos](/docs/transparent-videos/)
 - `none` if you are rendering audio
 
+### `ffmpegExecutable?`
+
+_string - optional_
+
+An absolute path overriding the `ffmpeg` executable to use.
+
+### `ffprobeExecutable?` <AvailableFrom v="3.0.17" />
+
+_optional_
+
+An absolute path overriding the `ffprobe` executable to use.
+
 ### `browserExecutable?` <AvailableFrom v="3.0.11" />
 
 _optional_
@@ -414,18 +426,6 @@ const onSlowestFrames: OnSlowestFrames = (slowestFrames) => {
   }
 };
 ```
-
-### ~~`ffmpegExecutable`~~
-
-_removed in v4.0, string, optional_
-
-An absolute path overriding the `ffmpeg` executable to use.
-
-### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
-
-_removed in v4.0, optional_
-
-An absolute path overriding the `ffprobe` executable to use.
 
 ## Return Value
 

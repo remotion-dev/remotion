@@ -47,6 +47,8 @@ const start = async () => {
 		onProgress: () => console.log('progress'),
 		output: 'out/combined.mp4',
 		numberOfGifLoops: null,
+		ffmpegExecutable: null,
+		remotionRoot: process.cwd(),
 		audioCodec: 'aac',
 	});
 

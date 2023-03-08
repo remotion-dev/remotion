@@ -1,6 +1,4 @@
-import {CliInternals} from '@remotion/cli';
-import {ConfigInternals} from '@remotion/cli/config';
-
+import {CliInternals, ConfigInternals} from '@remotion/cli';
 import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';

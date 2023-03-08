@@ -5,14 +5,18 @@ import type {
 	DownloadMap,
 	SpecialVCodecForTransparency,
 } from './assets/download-map';
+import type {FfmpegExecutable} from './ffmpeg-executable';
 
 export type LastFrameOptions = {
+	ffmpegExecutable: FfmpegExecutable;
+	ffprobeExecutable: FfmpegExecutable;
 	offset: number;
 	src: string;
 	specialVCodecForTransparency: SpecialVCodecForTransparency;
 	imageFormat: OffthreadVideoImageFormat;
 	needsResize: [number, number] | null;
 	downloadMap: DownloadMap;
+	remotionRoot: string;
 };
 
 const MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
@@ -21,6 +25,7 @@ let bufferSize = 0;
 
 const makeLastFrameCacheKey = (options: LastFrameOptions) => {
 	return [
+		options.ffmpegExecutable,
 		options.offset,
 		options.src,
 		options.imageFormat,

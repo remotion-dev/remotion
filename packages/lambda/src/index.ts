@@ -73,6 +73,7 @@ import type {AwsRegion} from './pricing/aws-regions';
 import type {CustomCredentials} from './shared/aws-clients';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
+import type {LambdaArchitecture} from './shared/validate-architecture';
 
 /**
  * @deprecated Import this from `@remotion/lambda/client` instead
@@ -152,6 +153,7 @@ export type {
 	SimulatePermissionsOutput,
 	GetAwsClientInput,
 	GetAwsClientOutput,
+	LambdaArchitecture,
 	CustomCredentials,
 	WebhookPayload,
 	LambdaErrorInfo,

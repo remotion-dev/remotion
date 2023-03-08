@@ -13,6 +13,8 @@ test('Guess extension for media - H264', async () => {
 			'public',
 			'framermp4withoutfileextension'
 		),
+		remotionRoot: process.cwd(),
+		ffprobeBinary: null,
 	});
 
 	expect(extension).toBe('mp4');
@@ -29,6 +31,8 @@ test('Guess extension for media - WebM', async () => {
 			'public',
 			'framer.webm'
 		),
+		remotionRoot: process.cwd(),
+		ffprobeBinary: null,
 	});
 
 	expect(extension).toBe('webm');
@@ -45,23 +49,9 @@ test('Guess extension for media - WAV', async () => {
 			'public',
 			'22khz.wav'
 		),
+		remotionRoot: process.cwd(),
+		ffprobeBinary: null,
 	});
 
 	expect(extension).toBe('wav');
-});
-
-test('Guess extension for media - MP3', async () => {
-	const extension = await guessExtensionForVideo({
-		src: path.join(
-			__dirname,
-			'..',
-			'..',
-			'..',
-			'example',
-			'public',
-			'music.mp3'
-		),
-	});
-
-	expect(extension).toBe('mp3');
 });

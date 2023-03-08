@@ -503,7 +503,7 @@ module.exports = {
     {
       type: "category",
       label: "Migration guides",
-      items: ["4-0-migration", "3-0-migration", "2-0-migration"],
+      items: ["3-0-migration", "2-0-migration"],
     },
     {
       type: "category",

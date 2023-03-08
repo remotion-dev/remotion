@@ -12,6 +12,22 @@ First, install Cargo, if you don't have it, or upgrade to a version that support
 curl https://sh.rustup.rs -sSf | sh
 ```
 
+Second, install components that allow for cross-compilation:
+
+```sh
+sh install_platforms.sh
+```
+
+Third, install linkers for cross compilation:
+
+```sh
+brew install MaterializeInc/crosstools/x86_64-unknown-linux-gnu
+brew install MaterializeInc/crosstools/aarch64-unknown-linux-gnu
+brew install messense/macos-cross-toolchains/x86_64-unknown-linux-musl
+brew install messense/macos-cross-toolchains/aarch64-unknown-linux-musl
+brew install mingw-w64
+```
+
 > This will take a few minutes.
 
 ## Building
@@ -22,20 +38,10 @@ To build the Rust parts for your operating system, run:
 node build.mjs
 ```
 
-## Building for all platforms
-
-These instructions currently are for macOS. Contributions for other platforms are appreciated.
-
-To build the Rust binaries for all supported platforms, you need to install some dependencies:
-
-```sh
-node install-toolchains.mjs
-```
-
-You can then build all binaries with:
+To build the Rust binaries for all supported platforms, run:
 
 ```
-pnpm build-all
+node build.mjs --all
 ```
 
 The resulting artifacts should be checked into Git.
