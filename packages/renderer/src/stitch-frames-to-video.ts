@@ -26,7 +26,7 @@ import {findRemotionRoot} from './find-closest-package-json';
 import {getCodecName} from './get-codec-name';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
-import type {ImageFormat} from './image-format';
+import type {VideoImageFormat} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
@@ -71,7 +71,7 @@ export type StitcherOptions = {
 	cancelSignal?: CancelSignal;
 	internalOptions?: {
 		preEncodedFileLocation: string | null;
-		imageFormat: ImageFormat;
+		imageFormat: VideoImageFormat;
 		preferLossless: boolean;
 	};
 	muted?: boolean;

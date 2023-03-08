@@ -3,21 +3,20 @@
 
 import type {PixelFormat} from './pixel-format';
 
-export const validImageFormats = ['png', 'jpeg', 'none'] as const;
+export const validVideoImageFormats = ['png', 'jpeg', 'none'] as const;
+export const validStillImageFormats = ['png', 'jpeg', 'pdf', 'webp'] as const;
 
-export type ImageFormat = typeof validImageFormats[number];
+export type VideoImageFormat = typeof validVideoImageFormats[number];
+export type StillImageFormat = typeof validStillImageFormats[number];
 
-export type StillImageFormat = 'png' | 'jpeg';
-
-// However, the CLI will override it and use JPEG if suitable.
-export const DEFAULT_IMAGE_FORMAT: ImageFormat = 'png';
+export const DEFAULT_IMAGE_FORMAT: VideoImageFormat = 'jpeg';
 
 // By returning a value, we improve testability as we can specifically test certain branches
 export const validateSelectedPixelFormatAndImageFormatCombination = (
 	pixelFormat: PixelFormat | undefined,
-	imageFormat: ImageFormat
+	videoImageFormat: VideoImageFormat
 ): 'none' | 'valid' => {
-	if (imageFormat === 'none') {
+	if (videoImageFormat === 'none') {
 		return 'none';
 	}
 
@@ -25,9 +24,9 @@ export const validateSelectedPixelFormatAndImageFormatCombination = (
 		return 'valid';
 	}
 
-	if (!validImageFormats.includes(imageFormat)) {
+	if (!validVideoImageFormats.includes(videoImageFormat)) {
 		throw new TypeError(
-			`Value ${imageFormat} is not valid as an image format.`
+			`Value ${videoImageFormat} is not valid as an image format.`
 		);
 	}
 
@@ -35,7 +34,7 @@ export const validateSelectedPixelFormatAndImageFormatCombination = (
 		return 'valid';
 	}
 
-	if (imageFormat !== 'png') {
+	if (videoImageFormat !== 'png') {
 		throw new TypeError(
 			`Pixel format was set to '${pixelFormat}' but the image format is not PNG. To render transparent videos, you need to set PNG as the image format.`
 		);
@@ -44,8 +43,14 @@ export const validateSelectedPixelFormatAndImageFormatCombination = (
 	return 'valid';
 };
 
-export const validateNonNullImageFormat = (imageFormat: ImageFormat) => {
-	if (imageFormat !== 'jpeg' && imageFormat !== 'png') {
-		throw new TypeError('Image format should be either "png" or "jpeg"');
+export const validateStillImageFormat = (imageFormat: StillImageFormat) => {
+	if (!validStillImageFormats.includes(imageFormat)) {
+		throw new TypeError(
+			String(
+				`Image format should be one of: ${validStillImageFormats
+					.map((v) => `"${v}"`)
+					.join(', ')}`
+			)
+		);
 	}
 };
