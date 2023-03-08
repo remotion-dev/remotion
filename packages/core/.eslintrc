@@ -1,6 +1,3 @@
 {
-	"extends": "@jonny",
-	"rules": {
-		"no-bitwise": "off"
-	}
+	"extends": ["@jonny"]
 }

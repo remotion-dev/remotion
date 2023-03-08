@@ -1,9 +1,9 @@
 import type {FC, PropsWithChildren} from 'react';
 import {Children, forwardRef, useMemo} from 'react';
-import type {LayoutAndStyle, SequenceProps} from '../Sequence';
-import {Sequence} from '../Sequence';
-import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
-import {flattenChildren} from './flatten-children';
+import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
+import {Sequence} from '../Sequence.js';
+import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
+import {flattenChildren} from './flatten-children.js';
 
 type SeriesSequenceProps = PropsWithChildren<
 	{
@@ -25,6 +25,10 @@ const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
 
+/**
+ * @description with this component, you can easily stitch together scenes that should play sequentially after another.
+ * @see [Documentation](https://www.remotion.dev/docs/series)
+ */
 const Series: FC<{
 	children: React.ReactNode;
 }> & {
@@ -32,7 +36,8 @@ const Series: FC<{
 } = ({children}) => {
 	const childrenValue = useMemo(() => {
 		let startFrame = 0;
-		return Children.map(flattenChildren(children), (child, i) => {
+		const flattenedChildren = flattenChildren(children);
+		return Children.map(flattenedChildren, (child, i) => {
 			const castedChild = child as unknown as
 				| {
 						props: SeriesSequenceProps;
@@ -59,7 +64,7 @@ const Series: FC<{
 
 			const debugInfo = `index = ${i}, duration = ${castedChild.props.durationInFrames}`;
 
-			if (!castedChild || !castedChild.props.children) {
+			if (!castedChild?.props.children) {
 				throw new TypeError(
 					`A <Series.Sequence /> component (${debugInfo}) was detected to not have any children. Delete it to fix this error.`
 				);
@@ -71,10 +76,18 @@ const Series: FC<{
 				children: _children,
 				...passedProps
 			} = castedChild.props;
-			validateDurationInFrames(
-				durationInFramesProp,
-				`of a <Series.Sequence /> component`
-			);
+
+			if (
+				i !== flattenedChildren.length - 1 ||
+				durationInFramesProp !== Infinity
+			) {
+				validateDurationInFrames({
+					durationInFrames: durationInFramesProp,
+					component: `of a <Series.Sequence /> component`,
+					allowFloats: true,
+				});
+			}
+
 			const offset = castedChild.props.offset ?? 0;
 			if (Number.isNaN(offset)) {
 				throw new TypeError(

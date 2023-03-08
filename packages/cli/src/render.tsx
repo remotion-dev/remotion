@@ -9,9 +9,9 @@ import {
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-// eslint-disable-next-line no-restricted-imports
 import {Internals} from 'remotion';
 import {chalk} from './chalk';
+import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
 import {getResolvedAudioCodec} from './get-audio-codec';
@@ -19,7 +19,6 @@ import {
 	getAndValidateAbsoluteOutputFile,
 	getCliOptions,
 	getFinalCodec,
-	validateFfmpegCanUseCodec,
 } from './get-cli-options';
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {getOutputFilename} from './get-filename';
@@ -54,6 +53,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	}
 
 	const downloadMap = RenderInternals.makeDownloadMap();
+	registerCleanupJob(() => RenderInternals.cleanDownloadMap(downloadMap));
 
 	if (parsedCli.frame) {
 		Log.error(
@@ -74,8 +74,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		quality,
 		browser,
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		scale,
 		chromiumOptions,
 		port,
@@ -90,14 +88,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 	});
 
-	const ffmpegVersion = await RenderInternals.getFfmpegVersion({
-		ffmpegExecutable,
-		remotionRoot,
-	});
-	Log.verbose(
-		'FFMPEG Version:',
-		ffmpegVersion ? ffmpegVersion.join('.') : 'Built from source'
-	);
 	Log.verbose('Browser executable: ', browserExecutable);
 
 	const browserInstance = openBrowser(browser, {
@@ -124,6 +114,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			publicDir,
 		}
 	);
+
+	registerCleanupJob(() => cleanupBundle());
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
@@ -169,7 +161,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		downloadName: null,
 		outName: getUserPassedOutputLocation(argsAfterComposition),
 	});
-	await validateFfmpegCanUseCodec(codec, remotionRoot);
 
 	RenderInternals.validateEvenDimensionsWithCodec({
 		width: config.width,
@@ -205,10 +196,19 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	);
 
 	const outputDir = shouldOutputImageSequence
-		? absoluteOutputFile
-		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
+		? {dir: absoluteOutputFile, cleanup: false}
+		: {
+				dir: await fs.promises.mkdtemp(
+					path.join(os.tmpdir(), 'react-motion-render')
+				),
+				cleanup: true,
+		  };
 
-	Log.verbose('Output dir', outputDir);
+	if (outputDir.cleanup) {
+		registerCleanupJob(() => RenderInternals.deleteDirectory(outputDir.dir));
+	}
+
+	Log.verbose('Output dir', outputDir.dir);
 
 	const renderProgress = createOverwriteableCliOutput(quietFlagProvided());
 	const realFrameRange = RenderInternals.getRealFrameRange(
@@ -290,7 +290,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 					Log.info('\nDownloading asset... ', src);
 				}
 			},
-			outputDir,
+			outputDir: outputDir.dir,
 			serveUrl: urlOrBundle,
 			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 				ConfigInternals.Logging.getLogLevel(),
@@ -305,8 +305,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			timeoutInMilliseconds: puppeteerTimeout,
 			chromiumOptions,
 			scale,
-			ffmpegExecutable,
-			ffprobeExecutable,
 			browserExecutable,
 			port,
 			downloadMap,
@@ -342,7 +340,10 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		},
 		puppeteerInstance,
 		onDownload,
-		downloadMap,
+		internal: {
+			downloadMap,
+			onCtrlCExit: registerCleanupJob,
+		},
 		onSlowestFrames: (slowestFrames) => {
 			Log.verbose();
 			Log.verbose(`Slowest frames:`);
@@ -365,17 +366,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 	);
 	Log.info('-', 'Output can be found at:');
 	Log.info(chalk.cyan(`▶ ${absoluteOutputFile}`));
-
-	try {
-		await cleanupBundle();
-		await RenderInternals.cleanDownloadMap(downloadMap);
-
-		Log.verbose('Cleaned up', downloadMap.assetDir);
-	} catch (err) {
-		Log.warn('Could not clean up directory.');
-		Log.warn(err);
-		Log.warn('Do you have minimum required Node.js version?');
-	}
 
 	Log.info(
 		chalk.green(`\nYour ${codec === 'gif' ? 'GIF' : 'video'} is ready!`)

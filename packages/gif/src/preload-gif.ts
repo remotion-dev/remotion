@@ -2,6 +2,10 @@ import {manuallyManagedGifCache, volatileGifCache} from './gif-cache';
 import {parseWithWorker} from './react-tools';
 import {resolveGifSource} from './resolve-gif-source';
 
+/**
+ * @description Returns an object with two entries: waitUntilDone() that returns a Promise which can be awaited and free() which will cancel preloading or free up the memory if the GIF is not being used anymore.
+ * @see [Documentation](https://www.remotion.dev/docs/gif/preload-gif)
+ */
 export const preloadGif = (
 	src: string
 ): {

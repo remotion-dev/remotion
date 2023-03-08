@@ -5,21 +5,30 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {SharedAudioContextProvider} from './audio/shared-audio-tags';
-import {CompositionManagerProvider} from './CompositionManager';
-import {continueRender, delayRender} from './delay-render';
-import {NativeLayersProvider} from './NativeLayers';
-import type {TNonceContext} from './nonce';
-import {NonceContext} from './nonce';
-import {PrefetchProvider} from './prefetch-state';
-import {random} from './random';
+import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
+import {CompositionManagerProvider} from './CompositionManager.js';
+import {continueRender, delayRender} from './delay-render.js';
+import {NativeLayersProvider} from './NativeLayers.js';
+import type {TNonceContext} from './nonce.js';
+import {NonceContext} from './nonce.js';
+import {PrefetchProvider} from './prefetch-state.js';
+import {random} from './random.js';
 import type {
 	PlayableMediaTag,
 	SetTimelineContextValue,
 	TimelineContextValue,
-} from './timeline-position-state';
-import {SetTimelineContext, TimelineContext} from './timeline-position-state';
-import {DurationsContextProvider} from './video/duration-state';
+} from './timeline-position-state.js';
+import {
+	SetTimelineContext,
+	TimelineContext,
+} from './timeline-position-state.js';
+import {DurationsContextProvider} from './video/duration-state.js';
+
+declare const __webpack_module__: {
+	hot: {
+		addStatusHandler(callback: (status: string) => void): void;
+	};
+};
 
 export const RemotionRoot: React.FC<{
 	children: React.ReactNode;
@@ -73,12 +82,15 @@ export const RemotionRoot: React.FC<{
 	}, [fastRefreshes]);
 
 	useEffect(() => {
-		if (module.hot) {
-			module.hot.addStatusHandler((status) => {
-				if (status === 'idle') {
-					setFastRefreshes((i) => i + 1);
-				}
-			});
+		// TODO: This can be moved to renderer?
+		if (typeof __webpack_module__ !== 'undefined') {
+			if (__webpack_module__.hot) {
+				__webpack_module__.hot.addStatusHandler((status) => {
+					if (status === 'idle') {
+						setFastRefreshes((i) => i + 1);
+					}
+				});
+			}
 		}
 	}, []);
 

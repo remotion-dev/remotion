@@ -9,7 +9,7 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Internals} from 'remotion';
-import {getPreferredVolume, persistVolume} from './volume-persistance';
+import {getPreferredVolume, persistVolume} from './volume-persistance.js';
 
 export const SharedPlayerContexts: React.FC<{
 	children: React.ReactNode;

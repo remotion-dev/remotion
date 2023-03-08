@@ -10,6 +10,11 @@ import {
 	loadCheckerboardOption,
 	persistCheckerboardOption,
 } from '../state/checkerboard';
+import {
+	EditorZoomGesturesContext,
+	loadEditorZoomGesturesOption,
+	persistEditorZoomGesturesOption,
+} from '../state/editor-zoom-gestures';
 import {FolderContextProvider} from '../state/folders';
 import {HighestZIndexProvider} from '../state/highest-z-index';
 import type {
@@ -22,11 +27,7 @@ import type {ModalContextType, ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
 import {loadMuteOption} from '../state/mute';
 import {PreviewSizeProvider} from '../state/preview-size';
-import {
-	loadRichTimelineOption,
-	persistRichTimelineOption,
-	RichTimelineContext,
-} from '../state/rich-timeline';
+
 import {SidebarContextProvider} from '../state/sidebar';
 
 export const EditorContexts: React.FC<{
@@ -63,19 +64,20 @@ export const EditorContexts: React.FC<{
 		},
 		[]
 	);
-	const [richTimeline, setRichTimelineState] = useState(() =>
-		loadRichTimelineOption()
+	const [editorZoomGestures, setEditorZoomGesturesState] = useState(() =>
+		loadEditorZoomGesturesOption()
 	);
-	const setRichTimeline = useCallback(
+	const setEditorZoomGestures = useCallback(
 		(newValue: (prevState: boolean) => boolean) => {
-			setRichTimelineState((prevState) => {
+			setEditorZoomGesturesState((prevState) => {
 				const newVal = newValue(prevState);
-				persistRichTimelineOption(newVal);
+				persistEditorZoomGesturesOption(newVal);
 				return newVal;
 			});
 		},
 		[]
 	);
+
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => loadMuteOption());
 	const [mediaVolume, setMediaVolume] = useState<number>(1);
 	const [modalContextType, setModalContextType] = useState<ModalState | null>(
@@ -88,12 +90,12 @@ export const EditorContexts: React.FC<{
 			setCheckerboard,
 		};
 	}, [checkerboard, setCheckerboard]);
-	const richTimelineCtx = useMemo(() => {
+	const editorZoomGesturesCtx = useMemo(() => {
 		return {
-			richTimeline,
-			setRichTimeline,
+			editorZoomGestures,
+			setEditorZoomGestures,
 		};
-	}, [richTimeline, setRichTimeline]);
+	}, [editorZoomGestures, setEditorZoomGestures]);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
 		return {
@@ -118,8 +120,8 @@ export const EditorContexts: React.FC<{
 
 	return (
 		<KeybindingContextProvider>
-			<RichTimelineContext.Provider value={richTimelineCtx}>
-				<CheckerboardContext.Provider value={checkerboardCtx}>
+			<CheckerboardContext.Provider value={checkerboardCtx}>
+				<EditorZoomGesturesContext.Provider value={editorZoomGesturesCtx}>
 					<PreviewSizeProvider>
 						<ModalsContext.Provider value={modalsContext}>
 							<Internals.MediaVolumeContext.Provider
@@ -151,8 +153,8 @@ export const EditorContexts: React.FC<{
 							</Internals.MediaVolumeContext.Provider>
 						</ModalsContext.Provider>
 					</PreviewSizeProvider>
-				</CheckerboardContext.Provider>
-			</RichTimelineContext.Provider>
+				</EditorZoomGesturesContext.Provider>
+			</CheckerboardContext.Provider>
 		</KeybindingContextProvider>
 	);
 };

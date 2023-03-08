@@ -1,13 +1,14 @@
 import {useContext} from 'react';
-import {CanUseRemotionHooks} from './CanUseRemotionHooks';
-import {useIsPlayer} from './is-player';
-import {useUnsafeVideoConfig} from './use-unsafe-video-config';
-import type {VideoConfig} from './video-config';
+import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
+import {useIsPlayer} from './is-player.js';
+import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
+import type {VideoConfig} from './video-config.js';
 
 /**
- * Get some info about the context of the video that you are making.
- * Returns an object containing `fps`, `width`, `height` and `durationInFrames`, all of type `number`.
- * @link https://www.remotion.dev/docs/use-video-config
+ * /**
+ * @description Get some info about the context of the video that you are making.
+ * @see [Documentation](https://www.remotion.dev/docs/use-video-config)
+ * @returns Returns an object containing `fps`, `width`, `height` and `durationInFrames`, all of type `number`.
  */
 export const useVideoConfig = (): VideoConfig => {
 	const videoConfig = useUnsafeVideoConfig();

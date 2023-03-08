@@ -1,8 +1,8 @@
 import type {StandardLonghandProperties} from 'csstype';
 import type {VideoConfig} from 'remotion';
-import {calculatePlayerSize} from './utils/calculate-player-size';
-import type {PreviewSize} from './utils/preview-size';
-import type {Size} from './utils/use-element-size';
+import {calculatePlayerSize} from './utils/calculate-player-size.js';
+import type {PreviewSize} from './utils/preview-size.js';
+import type {Size} from './utils/use-element-size.js';
 
 export const calculateScale = ({
 	canvasSize,

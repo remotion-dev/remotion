@@ -32,8 +32,9 @@ export const SupportedAudioCodecTable = () => {
                     <td>
                       {BrowserSafeApis.defaultAudioCodecs[api].compressed ===
                       audioCodec ? (
-                        <div>✅</div>
+                        <span>✅</span>
                       ) : null}
+                      {api === "prores" && i === 0 ? <span> *</span> : null}
                     </td>
                     <td>
                       <code>{audioCodec}</code>
@@ -59,6 +60,29 @@ export const SupportedAudioCodecTable = () => {
               }
             )}
           </React.Fragment>
+        );
+      })}
+    </table>
+  );
+};
+
+export const FileExtensionTable: React.FC = () => {
+  const extensions = Object.keys(BrowserSafeApis.defaultCodecsForFileExtension);
+
+  return (
+    <table>
+      <tr>
+        <th>File extension</th>
+        <th>Default codec</th>
+      </tr>
+      {extensions.map((e) => {
+        return (
+          <tr key={e}>
+            <td>.{e}</td>
+            <td>
+              <code>{BrowserSafeApis.defaultCodecsForFileExtension[e]}</code>
+            </td>
+          </tr>
         );
       })}
     </table>

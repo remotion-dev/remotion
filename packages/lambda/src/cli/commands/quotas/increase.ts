@@ -4,7 +4,7 @@ import {
 	ListRequestedServiceQuotaChangeHistoryByQuotaCommand,
 	RequestServiceQuotaIncreaseCommand,
 } from '@aws-sdk/client-service-quotas';
-import {Log} from '@remotion/cli/dist/log';
+import {CliInternals} from '@remotion/cli';
 import {exit} from 'process';
 import {QUOTAS_COMMAND} from '.';
 import {BINARY_NAME, LAMBDA_CONCURRENCY_LIMIT_QUOTA} from '../../../defaults';
@@ -44,10 +44,10 @@ export const quotasIncreaseCommand = async () => {
 		(r) => r.Status === 'CASE_OPENED'
 	);
 	if (openCase) {
-		Log.warn(
+		CliInternals.Log.warn(
 			`A request to increase it to ${openCase.DesiredValue} is already pending:`
 		);
-		Log.warn(
+		CliInternals.Log.warn(
 			`https://${region}.console.aws.amazon.com/support/home#/case/?displayId=${openCase.CaseId}`
 		);
 		exit(1);
@@ -57,14 +57,14 @@ export const quotasIncreaseCommand = async () => {
 	const defaultConcurrency = defaultConcurrencyLimit.Quota?.Value as number;
 	const increaseRecommended = concurrencyCurrent <= defaultConcurrency;
 	if (!increaseRecommended) {
-		Log.info(
+		CliInternals.Log.info(
 			`Current limit of ${concurrencyCurrent} is already increased over the default (${defaultConcurrency}). Increase it further via the AWS console.`
 		);
 		quit(1);
 	}
 
 	const newLimit = Math.floor(concurrencyCurrent / 5000) * 5000 + 5000;
-	Log.info(
+	CliInternals.Log.info(
 		`Sending request to AWS to increase concurrency limit from ${concurrencyCurrent} to ${newLimit}.`
 	);
 	await confirmCli({
@@ -78,7 +78,7 @@ export const quotasIncreaseCommand = async () => {
 			ServiceCode: 'lambda',
 		})
 	);
-	Log.info(
+	CliInternals.Log.info(
 		`Requested increase successfully. Run "${BINARY_NAME} ${QUOTAS_COMMAND}" to check whether your request was approved.`
 	);
 };

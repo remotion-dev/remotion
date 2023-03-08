@@ -18,14 +18,11 @@ import type {
 } from './aws-clients';
 import type {DownloadBehavior} from './content-disposition-header';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
-import type {LambdaArchitecture} from './validate-architecture';
 import type {LambdaCodec} from './validate-lambda-codec';
 
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
 export const DEFAULT_MEMORY_SIZE = 2048;
-
-export const DEFAULT_ARCHITECTURE: LambdaArchitecture = 'arm64';
 
 export const DEFAULT_TIMEOUT = 120;
 export const MIN_TIMEOUT = 15;
@@ -48,6 +45,8 @@ export const MAX_EPHEMERAL_STORAGE_IN_MB = 10240;
 export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
 
 export const DEFAULT_CLOUDWATCH_RETENTION_PERIOD = 14;
+
+export const ENCODING_PROGRESS_STEP_SIZE = 100;
 
 export const REMOTION_BUCKET_PREFIX = 'remotionlambda-';
 export const RENDER_FN_PREFIX = 'remotion-render-';

@@ -3,4 +3,3 @@ import {webpackOverride} from './src/webpack-override';
 
 Config.setOverwriteOutput(true);
 Config.overrideWebpackConfig(webpackOverride);
-Config.setPort(8080);
