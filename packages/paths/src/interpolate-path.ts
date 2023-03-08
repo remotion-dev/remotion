@@ -418,11 +418,11 @@ function interpolatePathCommands(
 }
 
 /**
- * Interpolates between two SVG paths.
+ * @description Interpolates between two SVG paths.
  * @param {number} value A number - 0 means first path, 1 means second path, any other values will be interpolated
  * @param {string} firstPath The first valid SVG path
  * @param {string} secondPath The second valid SVG path
- * @link https://remotion.dev/docs/paths/interpolate-path
+ * @see [Documentation](https://remotion.dev/docs/paths/interpolate-path) 
  */
 export const interpolatePath = (
 	value: number,

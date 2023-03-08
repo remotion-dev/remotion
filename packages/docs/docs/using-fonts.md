@@ -55,7 +55,7 @@ import { continueRender, delayRender, staticFile } from "remotion";
 const waitForFont = delayRender();
 const font = new FontFace(
   `Bangers`,
-  `url(${staticFile("bangers.woff2")}) format('woff2')`
+  `url('${staticFile("bangers.woff2")}') format('woff2')`
 );
 
 font
@@ -66,6 +66,11 @@ font
   })
   .catch((err) => console.log("Error loading font", err));
 ```
+
+:::note
+Make sure to include quotes [around the URL](/docs/troubleshooting/could-not-be-parsed-as-a-value-list).  
+The `format` should be one of `woff2` for WOFF2 files, `woff` for WOFF, `opentype` for OTF, `truetype` for TTF.
+:::
 
 The font is now available for use:
 

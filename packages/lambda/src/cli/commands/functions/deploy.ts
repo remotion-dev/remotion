@@ -1,5 +1,4 @@
 import {CliInternals} from '@remotion/cli';
-import {Log} from '@remotion/cli/dist/log';
 import {VERSION} from 'remotion/version';
 import {deployFunction} from '../../../api/deploy-function';
 import {
@@ -32,7 +31,7 @@ export const functionsDeploySubcommand = async () => {
 	validateDiskSizeInMb(diskSizeInMb);
 	validateCustomRoleArn(customRoleArn);
 	if (!CliInternals.quietFlagProvided()) {
-		Log.info(
+		CliInternals.Log.info(
 			CliInternals.chalk.gray(
 				`
 Region = ${region}
@@ -61,7 +60,7 @@ CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 		customRoleArn,
 	});
 	if (CliInternals.quietFlagProvided()) {
-		Log.info(functionName);
+		CliInternals.Log.info(functionName);
 	}
 
 	if (alreadyExisted) {

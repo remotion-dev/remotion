@@ -1,5 +1,5 @@
 import {describe, expect, test} from 'vitest';
-import {getAssetDisplayName} from '../get-asset-file-name';
+import {getAssetDisplayName} from '../get-asset-file-name.js';
 
 describe('get asset file name test', () => {
 	const testStrings: [string, string][] = [

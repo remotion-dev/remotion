@@ -6,7 +6,6 @@ import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import type {ChromiumOptions} from './open-browser';
@@ -14,7 +13,6 @@ import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import {validateFfmpeg} from './validate-ffmpeg';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type GetCompositionsConfig = {
@@ -25,8 +23,6 @@ type GetCompositionsConfig = {
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
-	ffmpegExecutable?: FfmpegExecutable;
-	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	/**
 	 * @deprecated Only for Remotion internal usage
@@ -89,21 +85,14 @@ const innerGetCompositions = async (
 	return result as TCompMetadata[];
 };
 
+/**
+ * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
+ */
 export const getCompositions = async (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsConfig
 ) => {
-	await validateFfmpeg(
-		config?.ffmpegExecutable ?? null,
-		findRemotionRoot(),
-		'ffmpeg'
-	);
-	await validateFfmpeg(
-		config?.ffprobeExecutable ?? null,
-		findRemotionRoot(),
-		'ffprobe'
-	);
-
 	const downloadMap = config?.downloadMap ?? makeDownloadMap();
 
 	const {page, cleanup} = await getPageAndCleanupFn({
@@ -126,8 +115,6 @@ export const getCompositions = async (
 			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 			onDownload: () => undefined,
 			onError,
-			ffmpegExecutable: config?.ffmpegExecutable ?? null,
-			ffprobeExecutable: config?.ffprobeExecutable ?? null,
 			port: config?.port ?? null,
 			downloadMap,
 			remotionRoot: findRemotionRoot(),

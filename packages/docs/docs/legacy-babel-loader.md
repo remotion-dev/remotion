@@ -51,7 +51,7 @@ yarn add mdx-loader babel-loader @babel/preset-env @babel/preset-react
 </Tabs>
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 // ---cut---
 import { replaceLoadersWithBabel } from "@remotion/babel-loader";
 
@@ -66,7 +66,7 @@ When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite
 
 ```ts twoslash title="my-script.js"
 // @filename: ./src/webpack-override.ts
-import { WebpackOverrideFn } from "remotion";
+import { WebpackOverrideFn } from "@remotion/bundler";
 export const webpackOverride: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // @target: esnext

@@ -9,7 +9,7 @@ import {quit} from '../cli/helpers/quit';
 import {getLambdaClient} from '../shared/aws-clients';
 import type {HostedLayers} from '../shared/hosted-layers';
 
-const runtimes: string[] = ['nodejs14.x'];
+const runtimes: string[] = ['nodejs18.x'];
 
 const layerInfo: HostedLayers = {
 	'ap-northeast-1': [],

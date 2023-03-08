@@ -21,12 +21,19 @@ const bundleLambda = async () => {
 
 	await BundlerInternals.esbuild.build({
 		platform: 'node',
-		target: 'node14',
+		target: 'node16',
 		bundle: true,
 		outfile,
 		entryPoints: [template],
 		treeShaking: true,
-		external: ['./compositor', './compositor.exe'],
+		external: [
+			'./compositor',
+			'./compositor.exe',
+			'./ffmpeg/remotion/bin/ffprobe',
+			'./ffmpeg/remotion/bin/ffprobe.exe',
+			'./ffmpeg/remotion/bin/ffmpeg',
+			'./ffmpeg/remotion/bin/ffmpeg.exe',
+		],
 	});
 
 	const compositorFile = `${outdir}/compositor`;

@@ -2,6 +2,11 @@
 
 type ExtrapolateType = 'extend' | 'identity' | 'clamp';
 
+/**
+ * @description This function allows you to map a range of values to another with a conside syntax
+ * @see [Documentation](https://www.remotion.dev/docs/interpolate)
+ */
+
 function interpolateFunction(
 	input: number,
 	inputRange: [number, number],
