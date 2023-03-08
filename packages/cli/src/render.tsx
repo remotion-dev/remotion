@@ -50,7 +50,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		publicDir,
 		height,
 		width,
-		configFileImageFormat,
 		crf,
 		ffmpegOverride,
 		audioBitrate,
@@ -93,7 +92,6 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			concurrency,
 			everyNthFrame,
 			frameRange,
-			configFileImageFormat,
 			quality,
 			onProgress: () => undefined,
 			addCleanupCallback: (c) => {
@@ -101,7 +99,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			},
 			outputLocationFromUI: null,
 			uiCodec: null,
-			uiImageFormat: null,
+			// TODO: Check if none makes sense here
+			uiImageFormat: 'none',
 			cancelSignal: null,
 			crf,
 			ffmpegOverride,

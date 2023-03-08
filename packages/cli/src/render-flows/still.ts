@@ -5,7 +5,6 @@ import type {
 	BrowserExecutable,
 	CancelSignal,
 	ChromiumOptions,
-	ImageFormat,
 	LogLevel,
 	RenderMediaOnDownload,
 	StillImageFormat,
@@ -20,7 +19,8 @@ import {mkdirSync} from 'fs';
 import path from 'path';
 import {chalk} from '../chalk';
 import {registerCleanupJob} from '../cleanup-before-quit';
-import {determineFinalImageFormat} from '../determine-image-format';
+import {ConfigInternals} from '../config';
+import {determineFinalStillImageFormat} from '../determine-image-format';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {INDENT_TOKEN, Log} from '../log';
@@ -65,7 +65,6 @@ export const renderStillFlow = async ({
 	compositionIdFromUi,
 	imageFormatFromUi,
 	logLevel,
-	configFileImageFormat,
 	onProgress,
 	indentOutput,
 	addCleanupCallback,
@@ -92,7 +91,6 @@ export const renderStillFlow = async ({
 	compositionIdFromUi: string | null;
 	imageFormatFromUi: StillImageFormat | null;
 	logLevel: LogLevel;
-	configFileImageFormat: ImageFormat | undefined;
 	onProgress: JobProgressCallback;
 	indentOutput: boolean;
 	addCleanupCallback: (cb: () => void) => void;
@@ -192,9 +190,10 @@ export const renderStillFlow = async ({
 			compositionIdFromUi,
 		});
 
-	const {format: imageFormat, source} = determineFinalImageFormat({
+	const {format: imageFormat, source} = determineFinalStillImageFormat({
 		cliFlag: parsedCli['image-format'] ?? null,
-		configImageFormat: configFileImageFormat ?? null,
+		configImageFormat:
+			ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		downloadName: null,
 		outName: getUserPassedOutputLocation(argsAfterComposition),
 		isLambda: false,

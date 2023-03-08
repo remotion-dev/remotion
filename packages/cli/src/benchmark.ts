@@ -12,7 +12,7 @@ import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {getFinalOutputCodec} from './get-final-output-codec';
-import {getImageFormat} from './image-formats';
+import {getVideoImageFormat} from './image-formats';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
@@ -256,7 +256,6 @@ export const benchmarkCommand = async (
 			videoBitrate,
 			height,
 			width,
-			configFileImageFormat,
 			concurrency: unparsedConcurrency,
 		} = await getCliOptions({
 			isLambda: false,
@@ -291,9 +290,8 @@ export const benchmarkCommand = async (
 					crf: configFileCrf,
 					envVariables,
 					frameRange: defaultFrameRange,
-					imageFormat: getImageFormat({
+					imageFormat: getVideoImageFormat({
 						codec,
-						configFileImageFormat,
 						uiImageFormat: null,
 					}),
 					inputProps,

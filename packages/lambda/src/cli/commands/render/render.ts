@@ -83,7 +83,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		videoBitrate,
 		height,
 		width,
-		configFileImageFormat,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -92,7 +91,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const imageFormat = CliInternals.getVideoImageFormat({
 		codec,
-		configFileImageFormat,
 		uiImageFormat: null,
 	});
 

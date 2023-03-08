@@ -4,6 +4,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {
@@ -155,7 +156,7 @@ const flexer: React.CSSProperties = {
 export const RenderModal: React.FC<{
 	compositionId: string;
 	initialFrame: number;
-	initialVideoImageFormat: StillImageFormat;
+	initialVideoImageFormat: VideoImageFormat;
 	initialStillImageFormat: StillImageFormat;
 	initialQuality: number;
 	initialScale: number;
@@ -215,7 +216,7 @@ export const RenderModal: React.FC<{
 	const [stillImageFormat, setStillImageFormat] = useState<StillImageFormat>(
 		() => initialStillImageFormat
 	);
-	const [videoImageFormat, setVideoImageFormat] = useState<StillImageFormat>(
+	const [videoImageFormat, setVideoImageFormat] = useState<VideoImageFormat>(
 		() => initialVideoImageFormat
 	);
 	const [concurrency, setConcurrency] = useState(() => initialConcurrency);
