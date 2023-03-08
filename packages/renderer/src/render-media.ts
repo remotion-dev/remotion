@@ -56,7 +56,6 @@ export type StitchingState = 'encoding' | 'muxing';
 const SLOWEST_FRAME_COUNT = 10;
 
 export type SlowFrame = {frame: number; time: number};
-export type OnSlowestFrames = (frames: SlowFrame[]) => void;
 
 export type RenderMediaOnProgress = (progress: {
 	renderedFrames: number;
@@ -111,7 +110,6 @@ export type RenderMediaOptions = {
 	ffmpegOverride?: FfmpegOverrideFn;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	onSlowestFrames?: OnSlowestFrames;
 	disallowParallelEncoding?: boolean;
 	audioCodec?: AudioCodec | null;
 } & ServeUrlOrWebpackBundle &
@@ -140,6 +138,11 @@ const getConcurrency = (others: ConcurrencyOrParallelism) => {
 	}
 
 	return null;
+};
+
+type RenderMediaResult = {
+	buffer: Buffer | null;
+	slowestFrames: SlowFrame[];
 };
 
 /**
@@ -175,10 +178,9 @@ export const renderMedia = ({
 	ffmpegOverride,
 	audioBitrate,
 	videoBitrate,
-	onSlowestFrames,
 	audioCodec,
 	...options
-}: RenderMediaOptions): Promise<Buffer | null> => {
+}: RenderMediaOptions): Promise<RenderMediaResult> => {
 	validateQuality(options.quality);
 	validateQualitySettings({crf, codec, videoBitrate});
 	validateBitrate(audioBitrate, 'audioBitrate');
@@ -506,8 +508,11 @@ export const renderMedia = ({
 			encodedDoneIn = Date.now() - stitchStart;
 			callUpdate();
 			slowestFrames.sort((a, b) => b.time - a.time);
-			onSlowestFrames?.(slowestFrames);
-			return buffer;
+			const result: RenderMediaResult = {
+				buffer,
+				slowestFrames,
+			};
+			return result;
 		})
 		.catch((err) => {
 			/**
@@ -554,7 +559,7 @@ export const renderMedia = ({
 
 	return Promise.race([
 		happyPath,
-		new Promise<Buffer | null>((_resolve, reject) => {
+		new Promise<RenderMediaResult>((_resolve, reject) => {
 			cancelSignal?.(() => {
 				reject(new Error(cancelErrorMessages.renderMedia));
 			});

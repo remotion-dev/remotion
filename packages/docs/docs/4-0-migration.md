@@ -54,3 +54,8 @@ Previously, the `aac` audio codec was the default for ProRes exports. The defaul
 This change was made since users export ProRes mainly for getting high-quality footage to be further used in video editing programs.
 
 ## No more FFmpeg install, `ffmpegExecutable` option removed
+
+## Moved `onSlowestFrames` API
+
+In V3, `onSlowestFrames` has been a callback function that you could pass to `renderMedia()`.  
+In V4, this API has been moved to the [return type](/docs/renderer/render-media#return-value).
