@@ -32,29 +32,20 @@ export const useVideoTexture = (
 	const [vidText] = useState(
 		() => import('three/src/textures/VideoTexture.js')
 	);
-	const [error, setError] = useState<Error | null>(null);
 	const frame = useCurrentFrame();
 
-	if (error) {
-		throw error;
-	}
-
 	const onReady = useCallback(() => {
-		vidText
-			.then(({VideoTexture}) => {
-				if (!videoRef.current) {
-					throw new Error('Video not ready');
-				}
+		vidText.then(({VideoTexture}) => {
+			if (!videoRef.current) {
+				throw new Error('Video not ready');
+			}
 
-				const vt = new VideoTexture(videoRef.current);
-				videoRef.current.width = videoRef.current.videoWidth;
-				videoRef.current.height = videoRef.current.videoHeight;
-				setVideoTexture(vt);
-				continueRender(loaded);
-			})
-			.catch((err) => {
-				setError(err);
-			});
+			const vt = new VideoTexture(videoRef.current);
+			videoRef.current.width = videoRef.current.videoWidth;
+			videoRef.current.height = videoRef.current.videoHeight;
+			setVideoTexture(vt);
+			continueRender(loaded);
+		});
 	}, [loaded, vidText, videoRef]);
 
 	React.useEffect(() => {
@@ -74,7 +65,7 @@ export const useVideoTexture = (
 			},
 			{once: true}
 		);
-	}, [onReady, videoRef]);
+	}, [loaded, onReady, videoRef]);
 
 	React.useEffect(() => {
 		const {current} = videoRef;
@@ -93,12 +84,11 @@ export const useVideoTexture = (
 		};
 
 		current.requestVideoFrameCallback(ready);
-	}, [frame, videoRef]);
+	}, [frame, loaded, videoRef]);
 
 	if (
 		typeof HTMLVideoElement === 'undefined' ||
-		!HTMLVideoElement.prototype.requestVideoFrameCallback ||
-		typeof document === 'undefined'
+		!HTMLVideoElement.prototype.requestVideoFrameCallback
 	) {
 		continueRender(loaded);
 		return null;
