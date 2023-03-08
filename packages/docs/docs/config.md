@@ -375,30 +375,6 @@ Config.setDotEnvLocation(".my-env");
 
 The [command line flag](/docs/cli/render#--env-file) `--env-file` will take precedence over this option.
 
-## setFfmpegExecutable()
-
-Allows you to use a custom FFMPEG binary. Must be an absolute path. By default, this is null and the FFMPEG in `PATH` will be used.
-
-```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
-// ---cut---
-Config.setFfmpegExecutable("/path/to/custom/ffmpeg");
-```
-
-The [command line flag](/docs/cli/render#--ffmpeg-executable) `--ffmpeg-executable` will take precedence over this option.
-
-## setFfprobeExecutable()
-
-Allows you to use a custom `ffprobe` binary. Must be an absolute path. By default, this is null and the `ffprobe` in `PATH` will be used.
-
-```ts twoslash title="remotion.config.ts"
-import { Config } from "@remotion/cli/config";
-// ---cut---
-Config.setFfprobeExecutable("/path/to/custom/ffprobe");
-```
-
-The [command line flag](/docs/cli/render#--ffprobe-executable) `--ffprobe-executable` will take precedence over this option.
-
 ## setEveryNthFrame()
 
 This option may only be set when rendering GIFs. [It determines how many frames are rendered, while the other ones gets skipped in order to lower the FPS of the GIF.](/docs/render-as-gif)
