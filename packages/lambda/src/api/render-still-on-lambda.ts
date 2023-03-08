@@ -18,7 +18,7 @@ export type RenderStillOnLambdaInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps: unknown;
-	imageFormat: Exclude<StillImageFormat, 'pdf'>; // TODO figure out how lambda works
+	imageFormat: StillImageFormat;
 	privacy: Privacy;
 	maxRetries?: number;
 	envVariables?: Record<string, string>;
