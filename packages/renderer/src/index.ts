@@ -29,7 +29,7 @@ import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
-import {validImageFormats} from './image-format';
+import {validStillImageFormats, validVideoImageFormats} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
@@ -74,10 +74,9 @@ export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
 export {getActualConcurrency} from './get-concurrency';
 export {
-	ImageFormat,
 	StillImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
-	validImageFormats,
+	VideoImageFormat,
 } from './image-format';
 export type {LogLevel} from './log-level';
 export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
@@ -87,7 +86,6 @@ export {PixelFormat} from './pixel-format';
 export {ProResProfile} from './prores-profile';
 export {renderFrames} from './render-frames';
 export {
-	OnSlowestFrames,
 	renderMedia,
 	RenderMediaOnProgress,
 	RenderMediaOptions,
@@ -134,7 +132,6 @@ export const RenderInternals = {
 	validateFrameRange,
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
-	validImageFormats,
 	validCodecs,
 	DEFAULT_PIXEL_FORMAT,
 	validateQuality,
@@ -162,6 +159,8 @@ export const RenderInternals = {
 	getExecutablePath,
 	callFf,
 	callFfExtraOptions,
+	validStillImageFormats,
+	validVideoImageFormats,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

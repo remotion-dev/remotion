@@ -1,24 +1,27 @@
-import type {ImageFormat} from '@remotion/renderer';
+import type {VideoImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {ConfigInternals} from './config';
+import {ConfigInternals} from './config';
+import {parsedCli} from './parse-command-line';
 
-export const getImageFormat = ({
-	codec,
-	configFileImageFormat,
-	uiImageFormat,
-}: {
-	codec: ReturnType<typeof ConfigInternals.getOutputCodecOrUndefined>;
-	configFileImageFormat: ReturnType<
-		typeof ConfigInternals.getUserPreferredImageFormat
-	>;
-	uiImageFormat: ImageFormat | null;
-}): ImageFormat => {
-	if (uiImageFormat !== null) {
-		return uiImageFormat;
+export const getVideoImageFormat = (
+	codec: ReturnType<typeof ConfigInternals.getOutputCodecOrUndefined>
+): VideoImageFormat => {
+	const configFileOption = ConfigInternals.getUserPreferredVideoImageFormat();
+
+	if (typeof configFileOption !== 'undefined') {
+		return configFileOption;
 	}
 
-	if (typeof configFileImageFormat !== 'undefined') {
-		return configFileImageFormat;
+	if (typeof parsedCli['image-format'] !== 'undefined') {
+		if (
+			!(RenderInternals.validVideoImageFormats as readonly string[]).includes(
+				parsedCli['image-format'] as string
+			)
+		) {
+			throw new Error(`Invalid image format: ${parsedCli['image-format']}`);
+		}
+
+		return parsedCli['image-format'] as VideoImageFormat;
 	}
 
 	if (RenderInternals.isAudioCodec(codec)) {

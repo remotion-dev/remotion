@@ -219,13 +219,6 @@ const renderHandler = async (
 			enforceAudioTrack: true,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
-			onSlowestFrames: (slowestFrames) => {
-				console.log();
-				console.log(`Slowest frames:`);
-				slowestFrames.forEach(({frame, time}) => {
-					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
-				});
-			},
 			// Lossless flag takes priority over audio codec
 			// https://github.com/remotion-dev/remotion/issues/1647
 			// Special flag only in Lambda renderer which improves the audio quality
@@ -233,7 +226,14 @@ const renderHandler = async (
 			preferLossless: true,
 			browserExecutable: executablePath(),
 		})
-			.then(() => resolve())
+			.then(({slowestFrames}) => {
+				console.log();
+				console.log(`Slowest frames:`);
+				slowestFrames.forEach(({frame, time}) => {
+					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
+				});
+				resolve();
+			})
 			.catch((err) => reject(err));
 	});
 

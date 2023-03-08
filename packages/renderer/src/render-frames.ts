@@ -27,7 +27,7 @@ import {
 	getFrameOutputFileName,
 } from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
-import type {ImageFormat} from './image-format';
+import type {VideoImageFormat} from './image-format';
 import {DEFAULT_IMAGE_FORMAT} from './image-format';
 import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
 import {getServeUrlWithFallback} from './legacy-webpack-config';
@@ -83,7 +83,7 @@ type RenderFramesOptions = {
 	outputDir: string | null;
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
-	imageFormat: ImageFormat;
+	imageFormat: VideoImageFormat;
 	quality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
