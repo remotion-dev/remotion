@@ -37,8 +37,6 @@ test(
 			onError: (err) => {
 				throw err;
 			},
-			ffmpegExecutable: null,
-			ffprobeExecutable: null,
 			downloadMap,
 			remotionRoot: process.cwd(),
 		});

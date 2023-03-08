@@ -6,7 +6,6 @@
 type Concurrency = number | null;
 type BrowserExecutable = string | null;
 type FrameRange = number | [number, number];
-type FfmpegExecutable = string | null;
 type Loop = number | null;
 type CodecOrUndefined =
 	| 'h264'
@@ -202,16 +201,6 @@ declare global {
 			 * The frame count starts at 0.
 			 */
 			readonly setFrameRange: (newFrameRange: FrameRange | null) => void;
-			/**
-			 * Specify local ffmpeg executable.
-			 * Default: null, which will use ffmpeg available in PATH.
-			 */
-			readonly setFfmpegExecutable: (ffmpegPath: FfmpegExecutable) => void;
-			/**
-			 * Specify local ffprobe executable.
-			 * Default: null, which will use ffprobe available in PATH.
-			 */
-			readonly setFfprobeExecutable: (ffprobePath: FfmpegExecutable) => void;
 			/**
 			 * Scales the output dimensions by a factor.
 			 * Default: 1.
