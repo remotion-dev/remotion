@@ -57,7 +57,7 @@ import {
 	setChromiumIgnoreCertificateErrors,
 	setChromiumOpenGlRenderer,
 } from './chromium-flags';
-import {setCodec, setOutputFormat} from './codec';
+import {setCodec} from './codec';
 import type {Concurrency} from './concurrency';
 import {setConcurrency} from './concurrency';
 import {getCrfOrUndefined, setCrf} from './crf';
@@ -299,11 +299,6 @@ declare global {
 				| 'yuva444p10le'
 		) => void;
 		/**
-		 * @deprecated Use setCodec() and setImageSequence() instead.
-		 * Specify what kind of output you, either `mp4` or `png-sequence`.
-		 */
-		readonly setOutputFormat: (newLegacyFormat: 'mp4' | 'png-sequence') => void;
-		/**
 		 * Specify the codec for stitching the frames into a video.
 		 * Can be `h264` (default), `h265`, `vp8` or `vp9`
 		 */
@@ -408,7 +403,6 @@ export const Config: FlatConfig = {
 	setOutputLocation,
 	setOverwriteOutput,
 	setPixelFormat,
-	setOutputFormat,
 	setCodec,
 	setCrf,
 	setImageSequence,

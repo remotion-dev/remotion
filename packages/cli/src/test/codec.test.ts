@@ -5,7 +5,7 @@ import {expectToThrow} from './expect-to-throw';
 
 // setCodec
 
-describe('Codec tests setOutputFormat', () => {
+describe('Codec tests setCodec', () => {
 	const validCodecInputs: CodecOrUndefined[] = [
 		'h264',
 		'h265',

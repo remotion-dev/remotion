@@ -59,3 +59,33 @@ This change was made since users export ProRes mainly for getting high-quality f
 
 In V3, `onSlowestFrames` has been a callback function that you could pass to `renderMedia()`.  
 In V4, this API has been moved to the [return type](/docs/renderer/render-media#return-value).
+
+## Removal of deprecated APIs
+
+- `Config.setOutputFormat()` was deprecated in v1.4 and has now been removed. Use `setImageSequence()`, `setVideoImageFormat()` and `setCodec()` in combination instead.
+
+- `downloadVideo()` alias has been removed, use [`downloadMedia()`](/docs/lambda/downloadmedia) with the same API instead.
+
+- `<MotionBlur>` has been removed. Use [`<Trail>`](/docs/motion-blur/trail) instead.
+
+- `getParts()` has been removed. Use [`getSubpaths()`](/docs/paths/get-subpaths) instead:
+
+```tsx twoslash title="paths.ts"
+import {
+  getLength,
+  getPointAtLength,
+  getSubpaths,
+  getTangentAtLength,
+} from "@remotion/paths";
+
+const path = "M 0 0 L 100 100";
+const parts = getSubpaths(path[0]);
+const length = getLength(parts[0]);
+const start = getPointAtLength(parts[0], 0);
+const end = getPointAtLength(parts[0], length);
+const tangent = getTangentAtLength(parts[0], length / 2);
+```
+
+- `webpackBundle` has been removed from `renderFrames()` and `renderMedia()` - rename it to `serveUrl` instead
+- `parallelism` has been removed from `renderFrames()` and `renderMedia()` - rename it to `concurrency` instead.
+- `config` has been removed from `renderFrames()` - rename it to `composition` instead.

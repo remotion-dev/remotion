@@ -4,7 +4,7 @@ import { Player } from "@remotion/player";
 import { VERSION } from "remotion/version";
 import { enableSkia } from "@remotion/skia/enable";
 import { Lottie } from "@remotion/lottie";
-import { MotionBlur } from "@remotion/motion-blur";
+import { Trail } from "@remotion/motion-blur";
 import { ThreeCanvas } from "@remotion/three";
 import { Gif } from "@remotion/gif";
 
@@ -17,5 +17,6 @@ assert(Boolean(enableSkia));
 assert(Boolean(Lottie));
 assert(Boolean(Gif));
 assert(Boolean(ThreeCanvas));
+assert(Boolean(Trail));
 
 console.log("ESM works!");
