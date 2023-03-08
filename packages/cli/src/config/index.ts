@@ -290,11 +290,6 @@ declare global {
 				| 'yuva444p10le'
 		) => void;
 		/**
-		 * @deprecated Use setCodec() and setImageSequence() instead.
-		 * Specify what kind of output you, either `mp4` or `png-sequence`.
-		 */
-		readonly setOutputFormat: (newLegacyFormat: 'mp4' | 'png-sequence') => void;
-		/**
 		 * Specify the codec for stitching the frames into a video.
 		 * Can be `h264` (default), `h265`, `vp8` or `vp9`
 		 */
