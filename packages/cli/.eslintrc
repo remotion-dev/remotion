@@ -5,7 +5,7 @@
 		"no-restricted-imports": [
 			"error",
 			{
-				"patterns": ["@remotion/*/src/*", "remotion"]
+				"patterns": ["@remotion/*/src/*"]
 			}
 		]
 	},

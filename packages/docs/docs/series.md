@@ -56,6 +56,8 @@ This component is a high order component, and accepts, besides it's children, th
 
 For how many frames the sequence should be displayed. Children are unmounted if they are not within the time range of display.
 
+Only the last `<Series.Sequence />` instance is allowed to have `Infinity` as a duration, all previous one must have a positive integer.
+
 ### `offset`
 
 _optional_
@@ -73,11 +75,17 @@ _optional_
 
 Either `"absolute-fill"` _(default)_ or `"none"` By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`.
 
-### `style`
+### `style` <AvailableFrom v="3.3.4"/>
 
-_optional, available from v3.3.4_
+_optional_
 
 CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+
+### `className` <AvailableFrom v="3.3.45"/>
+
+_optional_
+
+A class name to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
 ### `ref` <AvailableFrom v="3.3.4" />
 

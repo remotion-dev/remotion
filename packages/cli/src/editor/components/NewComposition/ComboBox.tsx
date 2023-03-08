@@ -11,6 +11,7 @@ import {noop} from '../../helpers/noop';
 import {CaretDown} from '../../icons/caret';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {Flex, Spacing} from '../layout';
+import {isMenuItem, MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
 import {getPortal} from '../Menu/portals';
 import {
 	menuContainerTowardsBottom,
@@ -82,11 +83,51 @@ export const Combobox: React.FC<{
 
 		const onMouseEnter = () => setIsHovered(true);
 		const onMouseLeave = () => setIsHovered(false);
-		const onClick = (e: MouseEvent) => {
+		const onPointerDown = (e: MouseEvent) => {
 			e.stopPropagation();
 			return setOpened((o) => {
 				if (!o) {
 					refresh?.();
+
+					window.addEventListener(
+						'pointerup',
+						(evt) => {
+							if (!isMenuItem(evt.target as HTMLElement)) {
+								setOpened(false);
+							}
+						},
+						{
+							once: true,
+						}
+					);
+				}
+
+				return !o;
+			});
+		};
+
+		const onClick = (e: MouseEvent | PointerEvent) => {
+			e.stopPropagation();
+			const isKeyboardInitiated = e.detail === 0;
+			if (!isKeyboardInitiated) {
+				return;
+			}
+
+			return setOpened((o) => {
+				if (!o) {
+					refresh?.();
+
+					window.addEventListener(
+						'pointerup',
+						(evt) => {
+							if (!isMenuItem(evt.target as HTMLElement)) {
+								setOpened(false);
+							}
+						},
+						{
+							once: true,
+						}
+					);
 				}
 
 				return !o;
@@ -95,11 +136,13 @@ export const Combobox: React.FC<{
 
 		current.addEventListener('mouseenter', onMouseEnter);
 		current.addEventListener('mouseleave', onMouseLeave);
+		current.addEventListener('pointerdown', onPointerDown);
 		current.addEventListener('click', onClick);
 
 		return () => {
 			current.removeEventListener('mouseenter', onMouseEnter);
 			current.removeEventListener('mouseleave', onMouseLeave);
+			current.removeEventListener('pointerdown', onPointerDown);
 			current.removeEventListener('click', onClick);
 		};
 	}, [refresh]);
@@ -155,6 +198,7 @@ export const Combobox: React.FC<{
 				tabIndex={tabIndex}
 				type="button"
 				style={style}
+				className={MENU_INITIATOR_CLASSNAME}
 			>
 				{selected.label} <Flex /> <Spacing x={1} /> <CaretDown />
 			</button>

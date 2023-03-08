@@ -1,24 +1,24 @@
 import type {ComponentType, PropsWithChildren} from 'react';
 import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
-import {AbsoluteFill} from './AbsoluteFill';
-import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks';
-import {CompositionManager} from './CompositionManager';
-import {getInputProps} from './config/input-props';
-import {continueRender, delayRender} from './delay-render';
-import {FolderContext} from './Folder';
-import {useRemotionEnvironment} from './get-environment';
-import {Internals} from './internals';
-import {Loading} from './loading-indicator';
-import {NativeLayersContext} from './NativeLayers';
-import {useNonce} from './nonce';
-import {portalNode} from './portal-node';
-import {useLazyComponent} from './use-lazy-component';
-import {useVideo} from './use-video';
-import {validateCompositionId} from './validation/validate-composition-id';
-import {validateDimension} from './validation/validate-dimensions';
-import {validateDurationInFrames} from './validation/validate-duration-in-frames';
-import {validateFps} from './validation/validate-fps';
+import {AbsoluteFill} from './AbsoluteFill.js';
+import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks.js';
+import {CompositionManager} from './CompositionManager.js';
+import {getInputProps} from './config/input-props.js';
+import {continueRender, delayRender} from './delay-render.js';
+import {FolderContext} from './Folder.js';
+import {useRemotionEnvironment} from './get-environment.js';
+import {Internals} from './internals.js';
+import {Loading} from './loading-indicator.js';
+import {NativeLayersContext} from './NativeLayers.js';
+import {useNonce} from './nonce.js';
+import {portalNode} from './portal-node.js';
+import {useLazyComponent} from './use-lazy-component.js';
+import {useVideo} from './use-video.js';
+import {validateCompositionId} from './validation/validate-composition-id.js';
+import {validateDimension} from './validation/validate-dimensions.js';
+import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
+import {validateFps} from './validation/validate-fps.js';
 
 type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
 
@@ -49,6 +49,11 @@ const Fallback: React.FC = () => {
 	}, []);
 	return null;
 };
+
+/**
+ * @description This component is used to register a video to make it renderable and make it show in the sidebar, in dev mode.
+ * @see [Documentation](https://www.remotion.dev/docs/composition)
+ */
 
 export const Composition = <T,>({
 	width,
@@ -94,10 +99,11 @@ export const Composition = <T,>({
 		validateCompositionId(id);
 		validateDimension(width, 'width', 'of the <Composition/> component');
 		validateDimension(height, 'height', 'of the <Composition/> component');
-		validateDurationInFrames(
+		validateDurationInFrames({
 			durationInFrames,
-			'of the <Composition/> component'
-		);
+			component: 'of the <Composition/> component',
+			allowFloats: false,
+		});
 
 		validateFps(fps, 'as a prop of the <Composition/> component', false);
 		registerComposition<T>({

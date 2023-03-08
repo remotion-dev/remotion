@@ -1,10 +1,7 @@
-import type { WebpackOverrideFn} from '@remotion/bundler';
+import type {WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
-import fs from 'fs';
 import http from 'http';
-import os from 'os';
-import path from 'path';
 import {ConfigInternals} from '../config';
 import {Log} from '../log';
 import {wdm} from './dev-middleware';
@@ -32,14 +29,10 @@ export const startServer = async (options: {
 	port: number;
 	liveEventsServer: LiveEventsServer;
 }> => {
-	const tmpDir = await fs.promises.mkdtemp(
-		path.join(os.tmpdir(), 'react-motion-graphics')
-	);
-
 	const [, config] = BundlerInternals.webpackConfig({
 		entry: options.entry,
 		userDefinedComponent: options.userDefinedComponent,
-		outDir: tmpDir,
+		outDir: null,
 		environment: 'development',
 		webpackOverride:
 			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
@@ -106,14 +99,40 @@ export const startServer = async (options: {
 
 	const desiredPort = options?.port ?? undefined;
 
-	const {port, didUsePort} = await RenderInternals.getDesiredPort(
-		desiredPort,
-		3000,
-		3100
-	);
+	const maxTries = 5;
+	for (let i = 0; i < maxTries; i++) {
+		try {
+			const selectedPort = await new Promise<number>((resolve, reject) => {
+				RenderInternals.getDesiredPort(desiredPort, 3000, 3100)
+					.then(({port, didUsePort}) => {
+						server.listen(port);
+						server.on('listening', () => {
+							resolve(port);
+							return didUsePort();
+						});
+						server.on('error', (err) => {
+							reject(err);
+						});
+					})
+					.catch((err) => reject(err));
+			});
+			return {port: selectedPort as number, liveEventsServer};
+		} catch (err) {
+			if (!(err instanceof Error)) {
+				throw err;
+			}
 
-	server.listen(port);
-	server.on('listening', () => didUsePort());
+			const codedError = err as Error & {code: string; port: number};
 
-	return {port, liveEventsServer};
+			if (codedError.code === 'EADDRINUSE') {
+				Log.error(
+					`Port ${codedError.port} is already in use. Trying another port...`
+				);
+			} else {
+				throw err;
+			}
+		}
+	}
+
+	throw new Error(`Tried ${maxTries} times to find a free port. Giving up.`);
 };

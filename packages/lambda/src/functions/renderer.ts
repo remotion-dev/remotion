@@ -212,7 +212,9 @@ const renderHandler = async (
 			port: null,
 			everyNthFrame: params.everyNthFrame,
 			numberOfGifLoops: null,
-			downloadMap,
+			internal: {
+				downloadMap,
+			},
 			muted: params.muted,
 			enforceAudioTrack: true,
 			audioBitrate: params.audioBitrate,
@@ -273,6 +275,7 @@ const renderHandler = async (
 			downloadBehavior: null,
 			customCredentials: null,
 		}),
+		RenderInternals.cleanDownloadMap(downloadMap),
 	]);
 };
 

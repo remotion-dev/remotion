@@ -78,12 +78,18 @@ const compositions = await getCompositions(serveUrl);
 for (const composition of compositions.filter(
   (c) => c.id.startsWith("expert") || c.id.startsWith("template")
 )) {
-  await renderStill({
-    composition,
-    output: `static/generated/${composition.id}.png`,
-    serveUrl,
-  });
-  console.log("Rendered", composition.id);
+  const output = `static/generated/${composition.id}.png`;
+  if (fs.existsSync(output)) {
+    console.log("Existed", composition.id);
+    continue;
+  } else {
+    await renderStill({
+      composition,
+      output,
+      serveUrl,
+    });
+    console.log("Rendered", composition.id);
+  }
 }
 
 for (const entry of data) {

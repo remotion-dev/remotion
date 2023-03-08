@@ -5,6 +5,7 @@ import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
 import {CancelRender} from './CancelRender';
 import {ColorInterpolation} from './ColorInterpolation';
+import {ComplexSounds} from './ComplexSounds';
 import {MyCtx, WrappedInContext} from './Context';
 import CorruptVideo from './CorruptVideo';
 import {ErrorOnFrame10} from './ErrorOnFrame10';
@@ -392,6 +393,14 @@ export const Index: React.FC = () => {
 				/>
 			</Folder>
 			<Folder name="audio-tests">
+				<Composition
+					id="complex-sounds"
+					component={ComplexSounds}
+					width={1920}
+					height={1080}
+					fps={30}
+					durationInFrames={720}
+				/>
 				<Composition
 					id="22khz"
 					component={TwentyTwoKHzAudio}

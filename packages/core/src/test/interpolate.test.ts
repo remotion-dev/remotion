@@ -1,7 +1,7 @@
 import {describe, expect, test} from 'vitest';
-import {Easing} from '../easing';
-import {interpolate} from '../interpolate';
-import {expectToThrow} from './expect-to-throw';
+import {Easing} from '../easing.js';
+import {interpolate} from '../interpolate.js';
+import {expectToThrow} from './expect-to-throw.js';
 
 describe('Basic interpolations', () => {
 	test('Input and output range strictly monotonically increasing', () => {

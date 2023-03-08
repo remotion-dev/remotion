@@ -64,13 +64,13 @@ export const compositionsHandler = async (
 		puppeteerInstance: browserInstance,
 		inputProps,
 		envVariables: lambdaParams.envVariables,
-		ffmpegExecutable: null,
-		ffprobeExecutable: null,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		port: null,
 		downloadMap,
 	});
+
+	RenderInternals.cleanDownloadMap(downloadMap);
 
 	return Promise.resolve({
 		compositions,

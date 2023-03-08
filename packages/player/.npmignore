@@ -6,3 +6,5 @@ tsconfig.tsbuildinfo
 vitest.config.ts
 *.tgz
 .turbo
+dist/tsconfig-cjs.tsbuildinfo
+dist/tsconfig.tsbuildinfo

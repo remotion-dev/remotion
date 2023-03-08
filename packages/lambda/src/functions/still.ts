@@ -109,8 +109,6 @@ const innerStillHandler = async (
 		composition: lambdaParams.composition,
 		inputProps,
 		envVariables: lambdaParams.envVariables,
-		ffmpegExecutable: null,
-		ffprobeExecutable: null,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		port: null,
@@ -213,6 +211,8 @@ const innerStillHandler = async (
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
+
+	RenderInternals.cleanDownloadMap(downloadMap);
 
 	return {
 		output: getOutputUrlFromMetadata(
