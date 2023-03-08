@@ -27,7 +27,7 @@ export const autoImports = {
   Freeze: "import {Freeze} from 'remotion'",
   Loop: "import {Loop} from 'remotion'",
   staticFile: "import {staticFile} from 'remotion'",
-  Config: "import {Config} from 'remotion'",
+  Config: "import {Config} from '@remotion/cli/config'",
   Img: "import {Img} from 'remotion'",
   IFrame: "import {IFrame} from 'remotion'",
   Folder: "import {Folder} from 'remotion'",

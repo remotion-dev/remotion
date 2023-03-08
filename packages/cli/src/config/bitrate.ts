@@ -1,6 +1,6 @@
 let audioBitrate: string | null;
 
-export const setAudioBitrate = (bitrate: string) => {
+export const setAudioBitrate = (bitrate: string | null) => {
 	audioBitrate = bitrate;
 };
 
@@ -10,7 +10,7 @@ export const getAudioBitrate = () => {
 
 let videoBitrate: string | null;
 
-export const setVideoBitrate = (bitrate: string) => {
+export const setVideoBitrate = (bitrate: string | null) => {
 	videoBitrate = bitrate;
 };
 
