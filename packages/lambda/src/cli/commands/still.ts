@@ -75,10 +75,11 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 	validatePrivacy(privacy);
 
 	const {format: imageFormat, source: imageFormatReason} =
-		CliInternals.determineFinalImageFormat({
+		CliInternals.determineFinalStillImageFormat({
 			downloadName,
 			outName: outName ?? null,
-			configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
+			configImageFormat:
+				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 			cliFlag: CliInternals.parsedCli['image-format'] ?? null,
 			isLambda: true,
 		});

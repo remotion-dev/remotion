@@ -3,6 +3,7 @@ import {
 	getCompositions,
 	RenderInternals,
 	renderStill,
+	StillImageFormat,
 } from '@remotion/renderer';
 import {cleanDownloadMap} from '@remotion/renderer/dist/assets/download-map';
 import {existsSync, unlinkSync} from 'fs';
@@ -13,7 +14,7 @@ import {expect, test} from 'vitest';
 import {webpackOverride} from '../webpack-override';
 
 test(
-	'Can render a still using Node.JS APIs',
+	'Can render a still png using Node.JS APIs',
 	async () => {
 		const bundled = await bundle({
 			entryPoint: path.join(process.cwd(), 'src/index.ts'),
@@ -26,7 +27,7 @@ test(
 			(c) => c.id === 'react-svg'
 		) as TCompMetadata;
 
-		const folder = path.join(tmpdir(), 'path', 'to');
+		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
 		const testOut = path.join(folder, 'still.png');
 
 		const downloadMap = RenderInternals.makeDownloadMap();
@@ -82,6 +83,73 @@ test(
 
 		expect(existsSync(testOut)).toBe(true);
 		unlinkSync(testOut);
+		RenderInternals.deleteDirectory(bundled);
+		RenderInternals.deleteDirectory(folder);
+		cleanDownloadMap(downloadMap);
+
+		await close();
+	},
+	{
+		retry: 3,
+		timeout: 90000,
+	}
+);
+
+test(
+	'Can render a still pdf using Node.JS APIs',
+	async () => {
+		const imageFormat: StillImageFormat = 'pdf';
+		const bundled = await bundle({
+			entryPoint: path.join(process.cwd(), 'src/index.ts'),
+			webpackOverride,
+		});
+		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
+
+		const compositions = await getCompositions(bundled);
+
+		const downloadMap = RenderInternals.makeDownloadMap();
+		const {port, close} = await RenderInternals.serveStatic(bundled, {
+			onDownload: () => undefined,
+			port: null,
+			onError: (err) => {
+				throw err;
+			},
+			downloadMap,
+			remotionRoot: process.cwd(),
+		});
+
+		const serveUrl = `http://localhost:${port}`;
+
+		const toRenderCompositions: [string, number][] = [
+			['tiles', 15],
+			['mdx-test', 0],
+			['three-basic', 15],
+			['halloween-pumpkin', 45],
+			['rect-test', 20],
+		];
+
+		for (const toRenderComposition of toRenderCompositions) {
+			const composition = compositions.find(
+				(c) => c.id === toRenderComposition[0]
+			) as TCompMetadata;
+
+			const testOut = path.join(
+				folder,
+				`${toRenderComposition[0]}-${toRenderComposition[1]}.${imageFormat}`
+			);
+
+			await renderStill({
+				composition,
+				output: testOut,
+				serveUrl,
+				frame: toRenderComposition[1],
+				imageFormat,
+			});
+
+			expect(existsSync(testOut)).toBe(true);
+			unlinkSync(testOut);
+		}
+
 		RenderInternals.deleteDirectory(bundled);
 		RenderInternals.deleteDirectory(folder);
 		cleanDownloadMap(downloadMap);

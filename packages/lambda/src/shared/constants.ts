@@ -3,10 +3,11 @@ import type {
 	ChromiumOptions,
 	Codec,
 	FrameRange,
-	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
+	StillImageFormat,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
@@ -152,7 +153,7 @@ export type OutNameOutput = {
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export const outName = (renderId: string, extension: string) =>
 	`${rendersPrefix(renderId)}/out.${extension}`;
-export const outStillName = (renderId: string, imageFormat: ImageFormat) =>
+export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
 export const customOutName = (
 	renderId: string,
@@ -225,7 +226,7 @@ export type LambdaPayloads = {
 		inputProps: SerializedInputProps;
 		codec: LambdaCodec;
 		audioCodec: AudioCodec | null;
-		imageFormat: ImageFormat;
+		imageFormat: VideoImageFormat;
 		crf: number | undefined;
 		envVariables: Record<string, string> | undefined;
 		pixelFormat: PixelFormat | undefined;
@@ -262,7 +263,7 @@ export type LambdaPayloads = {
 		bucketName: string;
 		inputProps: SerializedInputProps;
 		renderId: string;
-		imageFormat: ImageFormat;
+		imageFormat: VideoImageFormat;
 		codec: LambdaCodec;
 		audioCodec: AudioCodec | null;
 		crf: number | undefined;
@@ -312,7 +313,7 @@ export type LambdaPayloads = {
 		retriesLeft: number;
 		inputProps: SerializedInputProps;
 		renderId: string;
-		imageFormat: ImageFormat;
+		imageFormat: VideoImageFormat;
 		codec: LambdaCodec;
 		crf: number | undefined;
 		proResProfile: ProResProfile | undefined;
@@ -338,7 +339,7 @@ export type LambdaPayloads = {
 		serveUrl: string;
 		composition: string;
 		inputProps: SerializedInputProps;
-		imageFormat: ImageFormat;
+		imageFormat: StillImageFormat;
 		envVariables: Record<string, string> | undefined;
 		attempt: number;
 		quality: number | undefined;
@@ -375,7 +376,17 @@ export type EncodingProgress = {
 	framesEncoded: number;
 };
 
-export type RenderMetadata = {
+type Discriminated =
+	| {
+			type: 'still';
+			imageFormat: StillImageFormat;
+	  }
+	| {
+			type: 'video';
+			imageFormat: VideoImageFormat;
+	  };
+
+export type RenderMetadata = Discriminated & {
 	siteId: string;
 	videoConfig: VideoConfig;
 	startedDate: number;
@@ -385,8 +396,6 @@ export type RenderMetadata = {
 	compositionId: string;
 	codec: Codec | null;
 	audioCodec: AudioCodec | null;
-	type: 'still' | 'video';
-	imageFormat: ImageFormat;
 	inputProps: SerializedInputProps;
 	framesPerLambda: number;
 	memorySizeInMb: number;

@@ -23,7 +23,7 @@ import {
 import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {getOutputFilename} from './get-filename';
 import {getRenderMediaOptions} from './get-render-media-options';
-import {getImageFormat} from './image-formats';
+import {getVideoImageFormat} from './image-formats';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import type {DownloadProgress} from './progress-bar';
@@ -255,7 +255,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		);
 	};
 
-	const imageFormat = getImageFormat(
+	const imageFormat = getVideoImageFormat(
 		shouldOutputImageSequence ? undefined : codec
 	);
 

@@ -39,7 +39,7 @@ If you want to set these options and persist them, add this to your `remotion.co
 ```tsx twoslash
 import { Config } from "@remotion/cli/config";
 
-Config.setImageFormat("png");
+Config.setVideoImageFormat("png");
 Config.setPixelFormat("yuva420p");
 Config.setCodec("vp8");
 ```
@@ -60,7 +60,7 @@ Supported since v2.1.7, you can set the codec to `prores` and choose a ProRes pr
 ```tsx twoslash
 import { Config } from "@remotion/cli/config";
 
-Config.setImageFormat("png");
+Config.setVideoImageFormat("png");
 Config.setPixelFormat("yuva444p10le");
 Config.setCodec("prores");
 Config.setProResProfile("4444");
