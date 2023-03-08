@@ -10,7 +10,7 @@ import path from 'path';
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
-import {determineFinalImageFormat} from './determine-image-format';
+import {determineFinalStillImageFormat} from './determine-image-format';
 import {findEntryPoint} from './entry-point';
 import {
 	getAndValidateAbsoluteOutputFile,
@@ -123,9 +123,10 @@ export const still = async (remotionRoot: string, args: string[]) => {
 			width,
 			args: remainingArgs,
 		});
-	const {format: imageFormat, source} = determineFinalImageFormat({
+	const {format: imageFormat, source} = determineFinalStillImageFormat({
 		cliFlag: parsedCli['image-format'] ?? null,
-		configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
+		configImageFormat:
+			ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		downloadName: null,
 		outName: getUserPassedOutputLocation(argsAfterComposition),
 		isLambda: false,
