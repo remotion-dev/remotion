@@ -571,11 +571,12 @@ The [command line flag](/docs/cli/render#--width) `--width` will take precedence
 
 ## ~~setOutputFormat()~~
 
+_Removed in v4.0.0_
 _Deprecated_. Use `setCodec()` and `setImageSequence()` instead.
 
 Either `'mp4'` or `'png-sequence'`.
 
-```ts twoslash title="remotion.config.ts"
+```ts title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.setOutputFormat("mp4");
