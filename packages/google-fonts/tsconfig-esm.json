@@ -6,7 +6,7 @@
     "rootDir": "./src",
     "skipLibCheck": true,
     "noUnusedLocals": true,
-    "outDir": "./dist/cjs"
+    "outDir": "./dist/esm"
   },
   "include": ["./src"]
 }
