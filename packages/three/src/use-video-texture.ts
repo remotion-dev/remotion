@@ -32,23 +32,38 @@ export const useVideoTexture = (
 	const [vidText] = useState(
 		() => import('three/src/textures/VideoTexture.js')
 	);
+	const [error, setError] = useState<Error | null>(null);
 	const frame = useCurrentFrame();
 
-	const onReady = useCallback(() => {
-		vidText.then(({VideoTexture}) => {
-			if (!videoRef.current) {
-				throw new Error('Video not ready');
-			}
+	if (error) {
+		throw error;
+	}
 
-			const vt = new VideoTexture(videoRef.current);
-			videoRef.current.width = videoRef.current.videoWidth;
-			videoRef.current.height = videoRef.current.videoHeight;
-			setVideoTexture(vt);
-			continueRender(loaded);
-		});
+	const onReady = useCallback(() => {
+		vidText
+			.then(({VideoTexture}) => {
+				if (!videoRef.current) {
+					throw new Error('Video not ready');
+				}
+
+				const vt = new VideoTexture(videoRef.current);
+				videoRef.current.width = videoRef.current.videoWidth;
+				videoRef.current.height = videoRef.current.videoHeight;
+				setVideoTexture(vt);
+				continueRender(loaded);
+			})
+			.catch((err) => {
+				setError(err);
+			});
 	}, [loaded, vidText, videoRef]);
 
 	React.useEffect(() => {
+		if (typeof document === 'undefined') {
+			// Do not trigger onReady in SSR
+			continueRender(loaded);
+			return;
+		}
+
 		if (!videoRef.current) {
 			return;
 		}
