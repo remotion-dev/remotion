@@ -86,5 +86,6 @@ const end = getPointAtLength(parts[0], length);
 const tangent = getTangentAtLength(parts[0], length / 2);
 ```
 
-- `webpackBundle` has been removed - rename it to `serveUrl` instead
-- `parallelism` has been removed - rename it to `concurrency` instead
+- `webpackBundle` has been removed from `renderFrames()` and `renderMedia()` - rename it to `serveUrl` instead
+- `parallelism` has been removed from `renderFrames()` and `renderMedia()` - rename it to `concurrency` instead.
+- `config` has been removed from `renderFrames()` - rename it to `composition` instead.
