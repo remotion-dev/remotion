@@ -16,14 +16,14 @@
     "url": "https://github.com/remotion-dev/remotion/issues"
   },
   "keywords": [],
-  "author": "",
-  "license": "",
+  "author": "Caleb Ojo, Jonny Burger",
+  "license": "See LICENSE.md",
   "files": [
     "dist",
     "README.md"
   ],
   "dependencies": {
-    "remotion": "^3.3.62",
+    "remotion": "3.3.65",
     "rive-js": "^0.7.33",
     "@rive-app/canvas-advanced": "^1.0.98"
   },
