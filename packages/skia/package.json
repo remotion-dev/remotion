@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/skia",
-	"version": "3.3.64",
+	"version": "3.3.65",
 	"description": "Utilities for using react-native-skia in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -22,7 +22,7 @@
 	},
 	"dependencies": {
 		"copy-webpack-plugin": "11",
-		"remotion": "3.3.64"
+		"remotion": "3.3.65"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "3.3.58",
@@ -32,7 +32,7 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
-		"@remotion/bundler": "3.3.64",
+		"@remotion/bundler": "3.3.65",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@shopify/react-native-skia": "^0.1.139",
 		"@types/react": "18.0.26",

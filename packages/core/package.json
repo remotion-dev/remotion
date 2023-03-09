@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "3.3.64",
+	"version": "3.3.65",
 	"description": "Render videos in React",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -42,7 +42,8 @@
 		"rimraf": "^3.0.2",
 		"rollup": "^2.70.1",
 		"typescript": "^4.7.0",
-		"vitest": "0.24.3"
+		"vitest": "0.24.3",
+		"webpack": "5.74.0"
 	},
 	"keywords": [
 		"remotion",
