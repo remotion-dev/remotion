@@ -1,9 +1,11 @@
 ---
+image: /generated/articles-docs-rive-remotionrivecanvas.png
 crumb: "@remotion/rive"
 sidebar_label: "<RemotionRiveCanvas>"
+title: "<RemotionRiveCanvas>"
 ---
 
-# &lt;RemotionRiveCanvas&gt; <AvailableFrom v="3.3.66"/>
+<AvailableFrom v="3.3.66"/>
 
 This component can render a [Rive](https://rive.app/) animation so it synchronizes with Remotion's time.
 

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-rive-index.png
 sidebar_label: Overview
 title: "@remotion/rive"
 crumb: Integrations
