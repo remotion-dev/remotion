@@ -1,6 +1,6 @@
 import type { AlignmentFactory } from "@rive-app/canvas-advanced";
 import type { Alignment } from "@rive-app/canvas-advanced";
-import { Fit } from "@rive-app/canvas-advanced";
+import type { RiveCanvas } from "@rive-app/canvas-advanced";
 
 export type RemotionRiveCanvasFit =
   | "contain"
@@ -11,33 +11,33 @@ export type RemotionRiveCanvasFit =
   | "scale-down"
   | "fit-width";
 
-export const mapToFit = (fit: RemotionRiveCanvasFit): Fit => {
+export const mapToFit = (fit: RemotionRiveCanvasFit, canvas: RiveCanvas) => {
   if (fit === "contain") {
-    return Fit.contain;
+    return canvas.Fit.contain;
   }
 
   if (fit === "cover") {
-    return Fit.cover;
+    return canvas.Fit.cover;
   }
 
   if (fit === "fill") {
-    return Fit.fill;
+    return canvas.Fit.fill;
   }
 
   if (fit === "fit-height") {
-    return Fit.fitHeight;
+    return canvas.Fit.fitHeight;
   }
 
   if (fit === "fit-width") {
-    return Fit.fitWidth;
+    return canvas.Fit.fitWidth;
   }
 
   if (fit === "none") {
-    return Fit.none;
+    return canvas.Fit.none;
   }
 
   if (fit === "scale-down") {
-    return Fit.scaleDown;
+    return canvas.Fit.scaleDown;
   }
 
   throw new Error("Invalid fit: " + fit);
