@@ -120,7 +120,7 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
 
       rive.renderer.save();
       rive.renderer.align(
-        mapToFit(fit),
+        mapToFit(fit, riveCanvasInstance),
         mapToAlignment(alignment, riveCanvasInstance.Alignment),
         {
           minX: 0,
