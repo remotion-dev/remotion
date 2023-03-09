@@ -24,7 +24,7 @@ export const MaxTimelineTracksReached: React.FC = () => {
 		<div style={container}>
 			Limited display to {MAX_TIMELINE_TRACKS} tracks to sustain performance.
 			{''}
-			You can change this by setting Config.Preview.setMaxTimelineTracks() in
+			You can change this by setting Config.setMaxTimelineTracks() in
 			your remotion.config.ts file.
 		</div>
 	);

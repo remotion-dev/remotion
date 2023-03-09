@@ -1,37 +1,33 @@
-import React, { useState } from "react";
 import "./Counter.css";
 import { Player } from "@remotion/player";
+import { Gif } from "@remotion/gif";
+import { Pumpkin } from "./LottieExample";
 
 const Comp: React.FC = () => {
-  return <div>Hello World</div>;
+  return (
+    <div>
+      <Gif
+        src="https://media.giphy.com/media/xT0GqH01ZyKwd3aT3G/giphy.gif"
+        fit="cover"
+        height={200}
+        width={200}
+      />
+      <Pumpkin></Pumpkin>
+    </div>
+  );
 };
 
-export default function Counter({
-  children,
-  count: initialCount,
-}: {
-  children: JSX.Element;
-  count: number;
-}) {
-  const [count, setCount] = useState(initialCount);
-  const add = () => setCount((i) => i + 1);
-  const subtract = () => setCount((i) => i - 1);
-
+export default function Counter() {
   return (
     <>
       <Player
         component={Comp}
         durationInFrames={100}
-        compositionWidth={100}
-        compositionHeight={100}
+        compositionWidth={400}
+        compositionHeight={400}
         fps={30}
+        controls
       ></Player>
-      <div className="counter">
-        <button onClick={subtract}>-</button>
-        <pre>{count}</pre>
-        <button onClick={add}>+</button>
-      </div>
-      <div className="counter-message">{children}</div>
     </>
   );
 }

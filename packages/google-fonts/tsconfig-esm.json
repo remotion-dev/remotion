@@ -1,0 +1,12 @@
+{
+  "extends": "../tsconfig.settings.json",
+  "compilerOptions": {
+    "composite": false,
+    "noEmit": true,
+    "rootDir": "./src",
+    "skipLibCheck": true,
+    "noUnusedLocals": true,
+    "outDir": "./dist/esm"
+  },
+  "include": ["./src"]
+}
