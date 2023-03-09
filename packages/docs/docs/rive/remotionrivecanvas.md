@@ -1,6 +1,6 @@
 ---
 sidebar_label: Overview
-title: "<RiveCanvas>"
+title: "<RemotionRiveCanvas>"
 ---
 
 This component can render a [Rive](https://rive.app/) animation so it synchronizes with Remotion's time.

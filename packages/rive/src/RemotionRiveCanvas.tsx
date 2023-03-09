@@ -7,16 +7,30 @@ import type {
 } from "@rive-app/canvas-advanced";
 import riveCanvas from "@rive-app/canvas-advanced";
 import { useVideoConfig, useCurrentFrame } from "remotion";
+import type {
+  RemotionRiveCanvasAlignment,
+  RemotionRiveCanvasFit,
+} from "./map-enums.js";
+import { mapToAlignment } from "./map-enums.js";
+import { mapToFit } from "./map-enums.js";
 
 interface RiveProps {
   src: string;
+  fit?: RemotionRiveCanvasFit;
+  alignment?: RemotionRiveCanvasAlignment;
 }
-export const RemotionRiveCanvas: React.FC<RiveProps> = ({ src }) => {
+
+export const RemotionRiveCanvas: React.FC<RiveProps> = ({
+  src,
+  fit = "contain",
+  alignment = "center",
+}) => {
   const { width, fps, height } = useVideoConfig();
   const frame = useCurrentFrame();
   const canvas = useRef<HTMLCanvasElement>(null);
   const [riveCanvasInstance, setRiveCanvas] = useState<RiveCanvas | null>(null);
   const [err, setError] = useState<Error | null>(null);
+  const lastFrame = useRef<number>(0);
 
   if (err) {
     throw err;
@@ -71,39 +85,46 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({ src }) => {
   }, [riveCanvasInstance, src]);
 
   React.useEffect(() => {
-    if (!rive || !canvas.current || !riveCanvasInstance) {
+    if (!riveCanvasInstance) {
       return;
     }
 
+    console.log("hi");
     riveCanvasInstance.requestAnimationFrame(() => {
-      if (rive && canvas.current) {
-        rive.renderer.clear();
-
-        if (rive.animation) {
-          rive.animation.advance(1 / fps);
-          rive.animation.apply(1);
-        }
-
-        rive.artboard.advance(1 / fps);
-
-        rive.renderer.save();
-        rive.renderer.align(
-          riveCanvasInstance.Fit.contain,
-          riveCanvasInstance.Alignment.center,
-          {
-            minX: 0,
-            minY: 0,
-            maxX: canvas.current.width,
-            maxY: canvas.current.height,
-          },
-          rive.artboard.bounds
-        );
-
-        rive.artboard.draw(rive.renderer);
-        rive.renderer.restore();
+      if (!rive || !canvas.current) {
+        return;
       }
+
+      const diff = frame - lastFrame.current;
+
+      rive.renderer.clear();
+
+      if (rive.animation) {
+        rive.animation.advance(diff / fps);
+        rive.animation.apply(1);
+      }
+
+      rive.artboard.advance(diff / fps);
+
+      rive.renderer.save();
+      rive.renderer.align(
+        mapToFit(fit),
+        mapToAlignment(alignment, riveCanvasInstance.Alignment),
+        {
+          minX: 0,
+          minY: 0,
+          maxX: canvas.current.width,
+          maxY: canvas.current.height,
+        },
+        rive.artboard.bounds
+      );
+
+      rive.artboard.draw(rive.renderer);
+      rive.renderer.restore();
+
+      lastFrame.current = frame;
     });
-  }, [frame, fps, rive, riveCanvasInstance]);
+  }, [frame, fps, rive, riveCanvasInstance, fit, alignment]);
 
   const style: React.CSSProperties = useMemo(
     () => ({
