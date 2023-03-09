@@ -4,6 +4,7 @@ import {
 	compositionsCommand,
 	COMPOSITIONS_COMMAND,
 } from './commands/compositions';
+import {renderCommand, RENDER_COMMAND} from './commands/render/render';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {printHelp} from './help';
 import {quit} from './helpers/quit';
@@ -13,6 +14,10 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 	if (parsedGcpCli.help || args.length === 0 || args[0] === 'help') {
 		printHelp();
 		quit(0);
+	}
+
+	if (args[0] === RENDER_COMMAND) {
+		return renderCommand(args.slice(1), remotionRoot);
 	}
 
 	if (args[0] === CLOUD_RUN_COMMAND) {
