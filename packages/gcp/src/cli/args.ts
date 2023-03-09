@@ -13,6 +13,11 @@ type GCPCommandLineOptions = {
 	yes: boolean;
 	force: boolean;
 	f: boolean;
+
+	['max-retries']: number;
+	['out-name']: string | undefined;
+	['output-bucket']: string;
+	['output-folder-path']: string;
 };
 
 export const parsedGcpCli = CliInternals.minimist<GCPCommandLineOptions>(
