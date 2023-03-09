@@ -2,7 +2,7 @@
   "name": "@remotion/astro-example",
   "private": true,
   "type": "module",
-  "version": "3.3.64",
+  "version": "3.3.65",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -12,18 +12,18 @@
   },
   "dependencies": {
     "@astrojs/react": "^2.0.2",
-    "@remotion/gif": "3.3.64",
-    "@remotion/lottie": "3.3.64",
-    "@remotion/motion-blur": "3.3.64",
-    "@remotion/player": "3.3.64",
-    "@remotion/skia": "3.3.64",
-    "@remotion/three": "3.3.64",
+    "@remotion/gif": "3.3.65",
+    "@remotion/lottie": "3.3.65",
+    "@remotion/motion-blur": "3.3.65",
+    "@remotion/player": "3.3.65",
+    "@remotion/skia": "3.3.65",
+    "@remotion/three": "3.3.65",
     "@types/react": "^18.0.10",
     "@types/react-dom": "^18.0.5",
     "astro": "^2.0.14",
     "esm-wallaby": "^3.2.26",
     "react": "^18.1.0",
     "react-dom": "^18.1.0",
-    "remotion": "3.3.64"
+    "remotion": "3.3.65"
   }
 }
