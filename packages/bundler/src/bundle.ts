@@ -1,13 +1,13 @@
 import fs, {promises} from 'fs';
 import os from 'os';
 import path from 'path';
+import type {WebpackOverrideFn} from 'remotion';
 import {promisify} from 'util';
 import webpack from 'webpack';
 import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';
-import type {WebpackOverrideFn} from './types';
 import {webpackConfig} from './webpack-config';
 
 const promisified = promisify(webpack);

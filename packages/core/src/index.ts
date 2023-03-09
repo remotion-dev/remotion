@@ -67,7 +67,12 @@ export {
 	TAsset,
 	TCompMetadata,
 } from './CompositionManager.js';
-export {Config, ConfigType} from './config.js';
+export {
+	Config,
+	ConfigType,
+	WebpackConfiguration,
+	WebpackOverrideFn,
+} from './config.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
 export * from './easing.js';
@@ -109,6 +114,3 @@ export const Experimental = {
 	Null,
 	useIsPlayer,
 };
-
-export type WebpackOverrideFn =
-	"The 'WebpackOverrideFn' has been moved to '@remotion/bundler'. Update your imports and install '@remotion/bundler' if necessary.";
