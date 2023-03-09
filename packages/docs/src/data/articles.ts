@@ -1640,6 +1640,20 @@ export const articles = [
     crumb: "Ecosystem",
   },
   {
+    id: "rive/index",
+    title: "@remotion/rive",
+    relativePath: "docs/rive/index.md",
+    compId: "articles-docs-rive-index",
+    crumb: "Integrations",
+  },
+  {
+    id: "rive/remotionrivecanvas",
+    title: "<RemotionRiveCanvas>",
+    relativePath: "docs/rive/remotionrivecanvas.md",
+    compId: "articles-docs-rive-remotionrivecanvas",
+    crumb: "@remotion/rive",
+  },
+  {
     id: "scaling",
     title: "Output scaling",
     relativePath: "docs/scaling.md",

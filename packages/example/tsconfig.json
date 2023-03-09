@@ -15,6 +15,7 @@
 		{"path": "../core"},
 		{"path": "../media-utils"},
 		{"path": "../babel-loader"},
-		{"path": "../three"}
+		{"path": "../three"},
+		{"path": "../rive"}
 	]
 }

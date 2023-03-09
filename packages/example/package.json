@@ -39,6 +39,7 @@
 		"@remotion/media-utils": "3.3.65",
 		"@remotion/paths": "3.3.65",
 		"@remotion/renderer": "3.3.65",
+		"@remotion/rive": "3.3.65",
 		"@remotion/shapes": "3.3.65",
 		"@remotion/skia": "3.3.65",
 		"@remotion/three": "3.3.65",
