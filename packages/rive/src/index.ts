@@ -1,1 +1,1 @@
-export { Rive } from "./Rive.js";
+export { RemotionRiveCanvas } from "./RemotionRiveCanvas.js";

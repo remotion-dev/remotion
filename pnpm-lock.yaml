@@ -337,6 +337,7 @@ importers:
       '@remotion/player': 3.3.65
       '@remotion/preload': 3.3.65
       '@remotion/renderer': 3.3.65
+      '@remotion/rive': 3.3.65
       '@remotion/shapes': 3.3.65
       '@remotion/skia': 3.3.65
       '@remotion/three': 3.3.65
@@ -399,6 +400,7 @@ importers:
       '@remotion/player': link:../player
       '@remotion/preload': link:../preload
       '@remotion/renderer': link:../renderer
+      '@remotion/rive': link:../rive
       '@remotion/shapes': link:../shapes
       '@remotion/skia': link:../skia
       '@remotion/three': link:../three
@@ -7468,7 +7470,7 @@ packages:
     dependencies:
       '@types/istanbul-lib-coverage': 2.0.3
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 18.11.2
+      '@types/node': 18.14.6
       '@types/yargs': 16.0.4
       chalk: 4.1.2
 

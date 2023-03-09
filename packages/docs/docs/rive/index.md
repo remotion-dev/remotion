@@ -1,5 +1,4 @@
 ---
-id: rive
 sidebar_label: Overview
 title: "@remotion/rive"
 ---
@@ -37,21 +36,3 @@ pnpm i @remotion/rive
 ```
 </TabItem>
 </Tabs>
-
-## Props
-
-- `src`: a valid URL of the rive file to load. When it is left empty, the default animation is rendered.
-
-## Usage
-
-```jsx
-import { Rive } from "@remotion/rive";
-
-function App() {
-  return (
-    <div>
-      <Rive src="https://example.com/myAnimation.riv" />
-    </div>
-  );
-}
-```

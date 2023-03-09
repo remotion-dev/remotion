@@ -1,4 +1,4 @@
-import {Rive} from '@remotion/rive';
+import {RemotionRiveCanvas} from '@remotion/rive';
 import {AbsoluteFill, useVideoConfig} from 'remotion';
 
 const RiveVehicle = () => {
@@ -6,7 +6,7 @@ const RiveVehicle = () => {
 
 	return (
 		<AbsoluteFill style={{height, width}}>
-			<Rive src="https://cdn.rive.app/animations/vehicles.riv" />
+			<RemotionRiveCanvas src="https://cdn.rive.app/animations/vehicles.riv" />
 		</AbsoluteFill>
 	);
 };
