@@ -1028,7 +1028,7 @@ importers:
       prettier: ^2.8.4
       react: ^18.2.0
       react-dom: ^18.2.0
-      remotion: ^3.3.62
+      remotion: 3.3.65
       rive-js: ^0.7.33
       rollup: ^2.70.1
       typescript: ^4.9.5
