@@ -89,7 +89,6 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
       return;
     }
 
-    console.log("hi");
     riveCanvasInstance.requestAnimationFrame(() => {
       if (!rive || !canvas.current) {
         return;

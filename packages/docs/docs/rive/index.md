@@ -1,10 +1,12 @@
 ---
 sidebar_label: Overview
 title: "@remotion/rive"
+crumb: Integrations
 ---
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
+import {TableOfContents} from '../../components/TableOfContents/rive';
 
 This package provides a component for rendering [Rive](https://rive.app) animations in Remotion
 
@@ -36,3 +38,11 @@ pnpm i @remotion/rive
 ```
 </TabItem>
 </Tabs>
+
+## API
+
+<TableOfContents />
+
+## License
+
+[Remotion License](https://remotion.dev/license)
