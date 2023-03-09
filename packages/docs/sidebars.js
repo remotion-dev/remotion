@@ -318,6 +318,15 @@ module.exports = {
         "shapes/make-pie",
       ],
     },
+    {
+      type: "category",
+      label: "@remotion/rive",
+      link: {
+        type: "doc",
+        id: "rive/index",
+      },
+      items: ["rive/index", "rive/remotionrivecanvas"],
+    },
   ],
   mainSidebar: [
     {

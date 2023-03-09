@@ -1,9 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import type { RiveCanvas } from "@rive-app/canvas-advanced";
 import type {
   Artboard,
   CanvasRenderer,
   LinearAnimationInstance,
-  RiveCanvas,
 } from "@rive-app/canvas-advanced";
 import riveCanvas from "@rive-app/canvas-advanced";
 import { useVideoConfig, useCurrentFrame } from "remotion";
@@ -11,48 +11,71 @@ import { useVideoConfig, useCurrentFrame } from "remotion";
 interface RiveProps {
   src: string;
 }
-export const Rive: React.FC<RiveProps> = ({ src }) => {
+export const RemotionRiveCanvas: React.FC<RiveProps> = ({ src }) => {
   const { width, fps, height } = useVideoConfig();
   const frame = useCurrentFrame();
   const canvas = useRef<HTMLCanvasElement>(null);
+  const [riveCanvasInstance, setRiveCanvas] = useState<RiveCanvas | null>(null);
+  const [err, setError] = useState<Error | null>(null);
+
+  if (err) {
+    throw err;
+  }
 
   const [rive, setRive] = useState<{
     animation: LinearAnimationInstance;
     renderer: CanvasRenderer;
     artboard: Artboard;
-    riveInstance: RiveCanvas;
   } | null>(null);
 
   useEffect(() => {
     riveCanvas({
       locateFile: () =>
         "https://unpkg.com/@rive-app/canvas-advanced@1.0.98/rive.wasm",
-    }).then((riveInstance) => {
-      const renderer = riveInstance.makeRenderer(
-        canvas.current as HTMLCanvasElement
-      );
-      fetch(new Request(src))
-        .then((f) => f.arrayBuffer())
-        .then((b) => {
-          riveInstance.load(new Uint8Array(b)).then((file) => {
-            const artboard = file.defaultArtboard();
-            const animation = new riveInstance.LinearAnimationInstance(
-              artboard.animationByIndex(0),
-              artboard
-            );
-            setRive({
-              animation,
-              artboard,
-              renderer,
-              riveInstance,
-            });
+    })
+      .then((riveInstance) => {
+        setRiveCanvas(riveInstance);
+      })
+      .catch((newErr) => {
+        setError(newErr);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!riveCanvasInstance) {
+      return;
+    }
+
+    const renderer = riveCanvasInstance.makeRenderer(
+      canvas.current as HTMLCanvasElement
+    );
+    fetch(new Request(src))
+      .then((f) => f.arrayBuffer())
+      .then((b) => {
+        riveCanvasInstance.load(new Uint8Array(b)).then((file) => {
+          const artboard = file.defaultArtboard();
+          const animation = new riveCanvasInstance.LinearAnimationInstance(
+            artboard.animationByIndex(0),
+            artboard
+          );
+          setRive({
+            animation,
+            artboard,
+            renderer,
           });
         });
-    });
-  }, [src]);
+      })
+      .catch((newErr) => {
+        setError(newErr);
+      });
+  }, [riveCanvasInstance, src]);
 
   React.useEffect(() => {
-    rive?.riveInstance.requestAnimationFrame(() => {
+    if (!rive || !canvas.current || !riveCanvasInstance) {
+      return;
+    }
+
+    riveCanvasInstance.requestAnimationFrame(() => {
       if (rive && canvas.current) {
         rive.renderer.clear();
 
@@ -65,8 +88,8 @@ export const Rive: React.FC<RiveProps> = ({ src }) => {
 
         rive.renderer.save();
         rive.renderer.align(
-          rive.riveInstance.Fit.contain,
-          rive.riveInstance.Alignment.center,
+          riveCanvasInstance.Fit.contain,
+          riveCanvasInstance.Alignment.center,
           {
             minX: 0,
             minY: 0,
@@ -80,7 +103,7 @@ export const Rive: React.FC<RiveProps> = ({ src }) => {
         rive.renderer.restore();
       }
     });
-  }, [frame, fps, rive]);
+  }, [frame, fps, rive, riveCanvasInstance]);
 
   const style: React.CSSProperties = useMemo(
     () => ({
