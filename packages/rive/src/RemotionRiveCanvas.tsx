@@ -18,12 +18,16 @@ interface RiveProps {
   src: string;
   fit?: RemotionRiveCanvasFit;
   alignment?: RemotionRiveCanvasAlignment;
+  artboard?: string | number;
+  animation?: string | number;
 }
 
 export const RemotionRiveCanvas: React.FC<RiveProps> = ({
   src,
   fit = "contain",
   alignment = "center",
+  artboard: artboardName,
+  animation: animationIndex,
 }) => {
   const { width, fps, height } = useVideoConfig();
   const frame = useCurrentFrame();
@@ -67,9 +71,18 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
       .then((f) => f.arrayBuffer())
       .then((b) => {
         riveCanvasInstance.load(new Uint8Array(b)).then((file) => {
-          const artboard = file.defaultArtboard();
+          const artboard =
+            typeof artboardName === "string"
+              ? file.artboardByName(artboardName)
+              : typeof artboardName === "number"
+              ? file.artboardByIndex(artboardName)
+              : file.defaultArtboard();
           const animation = new riveCanvasInstance.LinearAnimationInstance(
-            artboard.animationByIndex(0),
+            typeof animationIndex === "number"
+              ? artboard.animationByIndex(animationIndex)
+              : typeof animationIndex === "string"
+              ? artboard.animationByName(animationIndex)
+              : artboard.animationByIndex(0),
             artboard
           );
           setRive({
@@ -82,7 +95,7 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
       .catch((newErr) => {
         setError(newErr);
       });
-  }, [riveCanvasInstance, src]);
+  }, [animationIndex, artboardName, riveCanvasInstance, src]);
 
   React.useEffect(() => {
     if (!riveCanvasInstance) {

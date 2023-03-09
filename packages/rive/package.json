@@ -6,7 +6,6 @@
   "types": "dist/cjs/index.d.ts",
   "module": "dist/esm/index.mjs",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "build": "rollup --config rollup.config.js && tsc -d",
     "watch": "tsc -w"
   },

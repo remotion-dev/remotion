@@ -17,9 +17,17 @@ a valid URL of the rive file to load. Can be a local file loaded using [`staticF
 
 One of: `"contain" | "cover" | "fill" | "fit-height" | "none" | "scale-down" | "fit-width"`. Default is `"contain"`.
 
-### `alignment`
+### `alignment?`
 
 One of: `"center" | "bottom-center" | "bottom-left" | "bottom-right" | "center-left" | "center-right" | "top-center" | "top-left" | "top-right"`. Default is `"center"`.
+
+### `artboard?`
+
+Either a `string` specifying the artboard name, a `number` specifying the artboard index, otherwise the default artboard is being used.
+
+### `animation?`
+
+Either a `string` specifying the animation name, a `number` specifying the animation index, otherwise the default animation is being used.
 
 ## Example
 
@@ -27,11 +35,7 @@ One of: `"center" | "bottom-center" | "bottom-left" | "bottom-right" | "center-l
 import { RemotionRiveCanvas } from "@remotion/rive";
 
 function App() {
-  return (
-    <div>
-      <RemotionRiveCanvas src="https://example.com/myAnimation.riv" />
-    </div>
-  );
+  return <RemotionRiveCanvas src="https://example.com/myAnimation.riv" />;
 }
 ```
 
