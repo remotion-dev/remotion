@@ -241,6 +241,7 @@ importers:
       rollup: ^2.70.1
       typescript: ^4.7.0
       vitest: 0.24.3
+      webpack: 5.74.0
     devDependencies:
       '@jonny/eslint-config': 3.0.273_t54va6jeo5lf3vtqih5uiyrm5e
       '@rollup/plugin-typescript': 8.5.0_2s5nfqwcf62746iqzotp3mpuy4
@@ -260,6 +261,7 @@ importers:
       rollup: 2.76.0
       typescript: 4.7.2
       vitest: 0.24.3_jsdom@21.1.0
+      webpack: 5.74.0
 
   packages/create-video:
     specifiers:
@@ -9480,12 +9482,12 @@ packages:
     resolution: {integrity: sha512-PB3ldyrcnAicT35TWPs5IcwKD8S333HMaa2VVv4+wdvebJkjWuW/xESoB8IwRcog8HYVYamb1g/R31Qv5Bx03g==}
     dependencies:
       '@types/eslint': 7.28.0
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
 
   /@types/eslint/7.28.0:
     resolution: {integrity: sha512-07XlgzX0YJUn4iG1ocY4IX9DzKSmMGUs6ESKlxWhZRaa0fatIWaHWUVapcuGa8r5HFnTqzj+4OCjd5f7EZ/i/A==}
     dependencies:
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
       '@types/json-schema': 7.0.9
 
   /@types/estree/0.0.39:
@@ -9497,7 +9499,6 @@ packages:
 
   /@types/estree/1.0.0:
     resolution: {integrity: sha512-WulqXMDUTYAXCjZnk6JtIHPigp55cVtDgDrO2gHRwhyJto21+1zbVCtOYB2L1F9w4qCQ0rOGWBnBe0FNTiEJIQ==}
-    dev: false
 
   /@types/express-serve-static-core/4.17.24:
     resolution: {integrity: sha512-3UJuW+Qxhzwjq3xhwXm2onQcFHn76frIYVbTu+kn24LFxI+dEhdfISDFovPB8VpEgW8oQCTpRuCe+0zJxB7NEA==}
@@ -10650,13 +10651,6 @@ packages:
       acorn: 8.8.1
       acorn-walk: 8.2.0
     dev: true
-
-  /acorn-import-assertions/1.8.0_acorn@8.8.0:
-    resolution: {integrity: sha512-m7VZ3jwz4eK6A4Vtt8Ew1/mNbP24u0FhdyfA7fSvnJR6LMdfOYnmuIrrJAgrYfYJ10F/otaHTtrtrtmHdMNzEw==}
-    peerDependencies:
-      acorn: ^8
-    dependencies:
-      acorn: 8.8.0
 
   /acorn-import-assertions/1.8.0_acorn@8.8.1:
     resolution: {integrity: sha512-m7VZ3jwz4eK6A4Vtt8Ew1/mNbP24u0FhdyfA7fSvnJR6LMdfOYnmuIrrJAgrYfYJ10F/otaHTtrtrtmHdMNzEw==}
@@ -24914,8 +24908,8 @@ packages:
       '@webassemblyjs/ast': 1.11.1
       '@webassemblyjs/wasm-edit': 1.11.1
       '@webassemblyjs/wasm-parser': 1.11.1
-      acorn: 8.8.0
-      acorn-import-assertions: 1.8.0_acorn@8.8.0
+      acorn: 8.8.1
+      acorn-import-assertions: 1.8.0_acorn@8.8.1
       browserslist: 4.21.4
       chrome-trace-event: 1.0.3
       enhanced-resolve: 5.10.0
