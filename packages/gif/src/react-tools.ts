@@ -27,22 +27,20 @@ export const parseWithWorker = (src: string) => {
 				} else {
 					const data = message.error ? message : generate(message);
 					resolve(data);
+					worker.terminate();
 				}
 			}
 		};
 
-		(worker as Worker).addEventListener(
-			'message',
-			handler as (e: MessageEvent) => void
-		);
-		(worker as Worker).postMessage({src, type: 'parse'});
+		worker.addEventListener('message', handler as (e: MessageEvent) => void);
+		worker.postMessage({src, type: 'parse'});
 	});
 
 	return {
 		prom,
 		cancel: () => {
-			(worker as Worker).postMessage({src, type: 'cancel'});
-			(worker as Worker).removeEventListener(
+			worker.postMessage({src, type: 'cancel'});
+			worker.removeEventListener(
 				'message',
 				handler as (e: MessageEvent) => void
 			);

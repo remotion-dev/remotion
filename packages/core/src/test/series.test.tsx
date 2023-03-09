@@ -159,7 +159,7 @@ test('Should throw if invalid or no duration provided', () => {
 			</Series>
 		);
 	}).toThrow(
-		/The "durationInFrames" prop of a <Series.Sequence \/> component must be an integer, but got NaN./
+		/The "durationInFrames" prop of a <Series.Sequence \/> component must be finite, but got NaN./
 	);
 	expect(() => {
 		renderForFrame(
@@ -371,6 +371,6 @@ test('Disallow durationInFrames as Infinity for first n-1 Series.Sequence', () =
 			</WrapSequenceContext>
 		);
 	}).toThrow(
-		/The "durationInFrames" prop of a <Series.Sequence \/> component must be an integer, but got Infinity\./
+		/The "durationInFrames" prop of a <Series.Sequence \/> component must be finite, but got Infinity\./
 	);
 });

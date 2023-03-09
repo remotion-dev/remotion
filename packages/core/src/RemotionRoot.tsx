@@ -18,8 +18,17 @@ import type {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from './timeline-position-state.js';
-import {SetTimelineContext, TimelineContext} from './timeline-position-state.js';
+import {
+	SetTimelineContext,
+	TimelineContext,
+} from './timeline-position-state.js';
 import {DurationsContextProvider} from './video/duration-state.js';
+
+declare const __webpack_module__: {
+	hot: {
+		addStatusHandler(callback: (status: string) => void): void;
+	};
+};
 
 export const RemotionRoot: React.FC<{
 	children: React.ReactNode;
@@ -73,12 +82,15 @@ export const RemotionRoot: React.FC<{
 	}, [fastRefreshes]);
 
 	useEffect(() => {
-		if (module.hot) {
-			module.hot.addStatusHandler((status) => {
-				if (status === 'idle') {
-					setFastRefreshes((i) => i + 1);
-				}
-			});
+		// TODO: This can be moved to renderer?
+		if (typeof __webpack_module__ !== 'undefined') {
+			if (__webpack_module__.hot) {
+				__webpack_module__.hot.addStatusHandler((status) => {
+					if (status === 'idle') {
+						setFastRefreshes((i) => i + 1);
+					}
+				});
+			}
 		}
 	}, []);
 

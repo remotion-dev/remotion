@@ -13,7 +13,7 @@ export default [
 		],
 		plugins: [
 			typescript({
-				tsconfig: 'tsconfig.json',
+				tsconfig: 'tsconfig-esm.json',
 				sourceMap: false,
 				outputToFilesystem: true,
 			}),
