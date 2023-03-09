@@ -1029,13 +1029,11 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       remotion: 3.3.65
-      rive-js: ^0.7.33
       rollup: ^2.70.1
       typescript: ^4.9.5
     dependencies:
       '@rive-app/canvas-advanced': 1.0.98
       remotion: link:../core
-      rive-js: 0.7.33
     devDependencies:
       '@jonny/eslint-config': 3.0.273_ycpbpc6yetojsgtrx3mwntkhsu
       '@rollup/plugin-typescript': 8.5.0_fwpt2ygywzxjmp7kqug2rtl7qq
@@ -22047,10 +22045,6 @@ packages:
     hasBin: true
     dependencies:
       glob: 7.2.0
-
-  /rive-js/0.7.33:
-    resolution: {integrity: sha512-u/dqr4XYx1TOo5xtSCN+6YvUKYU88ii6xWP82Xz15O4OqF3GM1Pa4WXx4dEOa6QG6IqbM0JcfsAhae7TjVZf6Q==}
-    dev: false
 
   /rollup/2.76.0:
     resolution: {integrity: sha512-9jwRIEY1jOzKLj3nsY/yot41r19ITdQrhs+q3ggNWhr9TQgduHqANvPpS32RNpzGklJu3G1AJfvlZLi/6wFgWA==}
