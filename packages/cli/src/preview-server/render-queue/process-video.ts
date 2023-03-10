@@ -37,7 +37,6 @@ export const processVideoJob = async ({
 	});
 
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
-
 	await renderCompFlow({
 		remotionRoot,
 		browser,
@@ -79,8 +78,7 @@ export const processVideoJob = async ({
 		pixelFormat: job.pixelFormat,
 		videoBitrate: job.videoBitrate,
 		numberOfGifLoops: job.numberOfGifLoops,
-		// TODO
-		audioCodec: null,
+		audioCodec: job.audioCodec,
 	});
 	// TODO: Accept CLI options
 };

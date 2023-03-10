@@ -55,7 +55,6 @@ export const RenderModalBasic: React.FC<{
 	startFrame,
 }) => {
 	const existence = useFileExistence(outName);
-
 	const videoCodecOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.validCodecs
 			.filter((c) => {
@@ -77,22 +76,27 @@ export const RenderModalBasic: React.FC<{
 			});
 	}, [renderMode, setCodec, codec]);
 
-	const audioCodecOptions = useMemo((): ComboboxValue[] => {
-		return BrowserSafeApis.validAudioCodecs.map((audioCodecOption) => {
-			return {
-				label: humanReadableAudioCodec(audioCodecOption),
-				onClick: () => setAudioCodec(audioCodecOption),
-				key: audioCodecOption,
-				leftItem: codec === audioCodecOption ? <Checkmark /> : null,
-				id: audioCodecOption,
-				keyHint: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				type: 'item',
-				value: audioCodecOption,
-			};
-		});
-	}, [codec, setAudioCodec]);
+	const audioCodecOptions = useCallback(
+		(currentCodec: Codec): ComboboxValue[] => {
+			return BrowserSafeApis.supportedAudioCodecs[currentCodec].map(
+				(audioCodecOption) => {
+					return {
+						label: humanReadableAudioCodec(audioCodecOption),
+						onClick: () => setAudioCodec(audioCodecOption),
+						key: audioCodecOption,
+						leftItem: codec === audioCodecOption ? <Checkmark /> : null,
+						id: audioCodecOption,
+						keyHint: null,
+						quickSwitcherLabel: null,
+						subMenu: null,
+						type: 'item',
+						value: audioCodecOption,
+					};
+				}
+			);
+		},
+		[codec, setAudioCodec]
+	);
 
 	const proResProfileOptions = useMemo((): SegmentedControlItem[] => {
 		return BrowserSafeApis.proResProfileOptions.map((option) => {
@@ -158,7 +162,7 @@ export const RenderModalBasic: React.FC<{
 						<div style={label}>Audio Codec</div>
 						<div style={rightRow}>
 							<Combobox
-								values={audioCodecOptions}
+								values={audioCodecOptions(codec)}
 								selectedId={customAudioCodec}
 								title="AudioCodec"
 							/>

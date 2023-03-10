@@ -131,7 +131,6 @@ export const renderCompFlow = async ({
 	proResProfile: ProResProfile | undefined;
 	pixelFormat: PixelFormat;
 	numberOfGifLoops: Loop;
-	// TODO: No UI option for it
 	audioCodec: AudioCodec | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
@@ -437,6 +436,8 @@ export const renderCompFlow = async ({
 		},
 		cancelSignal: cancelSignal ?? undefined,
 		printLog: (...str) => Log.verboseAdvanced({indent, logLevel}, ...str),
+		audioCodec,
+		// TODO: Add missing elements
 	});
 
 	Log.verboseAdvanced({indent, logLevel});
