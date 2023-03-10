@@ -224,7 +224,10 @@ export const RenderModal: React.FC<{
 		() => initialVideoCodec
 	);
 	// TODO replace hardcoded initial codec with derived one
-	const [customAudioCodec, setCustomAudioCodec] = useState<AudioCodec>('mp3');
+	const [customAudioCodec, setCustomAudioCodec] = useState<AudioCodec | null>(
+		null
+	);
+
 	const [audioCodec, setAudioSpecificalCodec] = useState<Codec>(
 		() => initialAudioCodec
 	);
@@ -392,8 +395,9 @@ export const RenderModal: React.FC<{
 	}, []);
 
 	const deriveFinalAudioCodec = useCallback(
-		(passedVideoCodec: Codec, passedAudioCodec: AudioCodec) => {
+		(passedVideoCodec: Codec, passedAudioCodec: AudioCodec | null) => {
 			if (
+				passedAudioCodec !== null &&
 				(
 					BrowserSafeApis.supportedAudioCodecs[passedVideoCodec] as AudioCodec[]
 				).includes(passedAudioCodec)
@@ -424,14 +428,12 @@ export const RenderModal: React.FC<{
 				});
 			} else {
 				setOutName((prev) => {
-					const derivedAudioCodec = deriveFinalAudioCodec(
-						options.codec,
-						options.audioCodec
-					);
-
 					const codecSuffix = BrowserSafeApis.getFileExtensionFromCodec(
 						options.codec,
-						derivedAudioCodec
+						deriveFinalAudioCodec(
+							options.codec,
+							options.audioCodec as AudioCodec
+						) // What happens for null?
 					);
 
 					const newFileName = getStringBeforeSuffix(prev) + '.' + codecSuffix;
@@ -440,6 +442,18 @@ export const RenderModal: React.FC<{
 			}
 		},
 		[deriveFinalAudioCodec, getStringBeforeSuffix]
+	);
+
+	const setAudioCodec = useCallback(
+		(newAudioCodec: AudioCodec) => {
+			setCustomAudioCodec(newAudioCodec);
+			setDefaultOutName({
+				type: 'render',
+				codec: videoCodec,
+				audioCodec: newAudioCodec,
+			});
+		},
+		[setDefaultOutName, videoCodec]
 	);
 
 	const setCodec = useCallback(
@@ -454,10 +468,10 @@ export const RenderModal: React.FC<{
 			setDefaultOutName({
 				type: 'render',
 				codec: newCodec,
-				audioCodec: customAudioCodec,
+				audioCodec: deriveFinalAudioCodec(newCodec, customAudioCodec),
 			});
 		},
-		[customAudioCodec, renderMode, setDefaultOutName]
+		[customAudioCodec, deriveFinalAudioCodec, renderMode, setDefaultOutName]
 	);
 
 	const setStillFormat = useCallback(
@@ -535,6 +549,7 @@ export const RenderModal: React.FC<{
 			everyNthFrame,
 			numberOfGifLoops,
 			delayRenderTimeout,
+			audioCodec: deriveFinalAudioCodec(codec, customAudioCodec),
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -567,6 +582,8 @@ export const RenderModal: React.FC<{
 		everyNthFrame,
 		numberOfGifLoops,
 		delayRenderTimeout,
+		deriveFinalAudioCodec,
+		customAudioCodec,
 		setSelectedModal,
 	]);
 
@@ -639,7 +656,7 @@ export const RenderModal: React.FC<{
 				setDefaultOutName({
 					type: 'render',
 					codec: videoCodec,
-					audioCodec: customAudioCodec,
+					audioCodec: deriveFinalAudioCodec(videoCodec, customAudioCodec),
 				});
 			}
 
@@ -650,6 +667,7 @@ export const RenderModal: React.FC<{
 		[
 			audioCodec,
 			customAudioCodec,
+			deriveFinalAudioCodec,
 			setDefaultOutName,
 			stillImageFormat,
 			videoCodec,
@@ -779,7 +797,7 @@ export const RenderModal: React.FC<{
 					{tab === 'general' ? (
 						<RenderModalBasic
 							codec={codec}
-							customAudioCodec={customAudioCodec}
+							customAudioCodec={deriveFinalAudioCodec(codec, customAudioCodec)}
 							currentComposition={currentComposition}
 							frame={frame}
 							imageFormatOptions={imageFormatOptions}
@@ -787,7 +805,7 @@ export const RenderModal: React.FC<{
 							proResProfile={proResProfile}
 							renderMode={renderMode}
 							setCodec={setCodec}
-							setAudioCodec={setCustomAudioCodec}
+							setAudioCodec={setAudioCodec}
 							setFrame={setFrame}
 							setOutName={setOutName}
 							setProResProfile={setProResProfile}

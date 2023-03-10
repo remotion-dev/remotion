@@ -1,4 +1,5 @@
 import type {
+	AudioCodec,
 	Codec,
 	PixelFormat,
 	ProResProfile,
@@ -93,6 +94,7 @@ export const addVideoRenderJob = ({
 	everyNthFrame,
 	numberOfGifLoops,
 	delayRenderTimeout,
+	audioCodec,
 }: {
 	compositionId: string;
 	outName: string;
@@ -114,6 +116,7 @@ export const addVideoRenderJob = ({
 	everyNthFrame: number;
 	numberOfGifLoops: number | null;
 	delayRenderTimeout: number;
+	audioCodec: AudioCodec;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -137,6 +140,7 @@ export const addVideoRenderJob = ({
 		everyNthFrame,
 		numberOfGifLoops,
 		delayRenderTimeout,
+		audioCodec,
 	});
 };
 

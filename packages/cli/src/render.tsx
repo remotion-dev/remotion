@@ -2,6 +2,7 @@
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
+import {getResolvedAudioCodec} from './get-audio-codec';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
@@ -65,6 +66,8 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 	});
 
+	const audioCodec = getResolvedAudioCodec();
+
 	const jobCleanups: (() => void)[] = [];
 	try {
 		await renderCompFlow({
@@ -111,8 +114,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			pixelFormat,
 			videoBitrate,
 			numberOfGifLoops,
-			// TODO
-			audioCodec: null,
+			audioCodec,
 		});
 	} finally {
 		await Promise.all(jobCleanups.map((c) => c()));

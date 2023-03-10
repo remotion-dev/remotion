@@ -17,6 +17,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 			job: {
 				cleanup: [],
 				codec: input.codec,
+				audioCodec: input.audioCodec,
 				compositionId: input.compositionId,
 				deletedOutputLocation: false,
 				type: 'video',

@@ -1,4 +1,5 @@
 import type {
+	AudioCodec,
 	Codec,
 	makeCancelSignal,
 	PixelFormat,
@@ -46,6 +47,7 @@ type RenderJobDynamicFields =
 			quality: number | null;
 			scale: number;
 			codec: Codec;
+			audioCodec: AudioCodec;
 			concurrency: number;
 			crf: number | null;
 			startFrame: number;
@@ -88,6 +90,7 @@ type AddRenderRequestDynamicFields =
 	| {
 			type: 'video';
 			codec: Codec;
+			audioCodec: AudioCodec;
 			imageFormat: VideoImageFormat;
 			quality: number | null;
 			scale: number;
