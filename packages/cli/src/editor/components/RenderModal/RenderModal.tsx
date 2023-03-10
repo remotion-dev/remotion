@@ -223,6 +223,8 @@ export const RenderModal: React.FC<{
 	const [videoCodec, setVideoSpecificalCodec] = useState<Codec>(
 		() => initialVideoCodec
 	);
+	// TODO replace hardcoded initial codec with derived one
+	const [customAudioCodec, setCustomAudioCodec] = useState<AudioCodec>('mp3');
 	const [audioCodec, setAudioSpecificalCodec] = useState<Codec>(
 		() => initialAudioCodec
 	);
@@ -431,10 +433,10 @@ export const RenderModal: React.FC<{
 			setDefaultOutName({
 				type: 'render',
 				codec: newCodec,
-				audioCodec: 'pcm-16',
+				audioCodec: customAudioCodec,
 			});
 		},
-		[renderMode, setDefaultOutName]
+		[customAudioCodec, renderMode, setDefaultOutName]
 	);
 
 	const setStillFormat = useCallback(
@@ -750,6 +752,7 @@ export const RenderModal: React.FC<{
 					{tab === 'general' ? (
 						<RenderModalBasic
 							codec={codec}
+							customAudioCodec={customAudioCodec}
 							currentComposition={currentComposition}
 							frame={frame}
 							imageFormatOptions={imageFormatOptions}
@@ -757,6 +760,7 @@ export const RenderModal: React.FC<{
 							proResProfile={proResProfile}
 							renderMode={renderMode}
 							setCodec={setCodec}
+							setAudioCodec={setCustomAudioCodec}
 							setFrame={setFrame}
 							setOutName={setOutName}
 							setProResProfile={setProResProfile}

@@ -1,4 +1,4 @@
-import type {Codec, ProResProfile} from '@remotion/renderer';
+import type {AudioCodec, Codec, ProResProfile} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
 import type {TComposition} from 'remotion';
@@ -12,6 +12,7 @@ import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {FrameRangeSetting} from './FrameRangeSetting';
+import {humanReadableAudioCodec} from './human-readable-audio-codecs';
 import {humanReadableCodec} from './human-readable-codec';
 import {input, label, optionRow, rightRow} from './layout';
 import type {RenderType} from './RenderModalAdvanced';
@@ -20,7 +21,9 @@ export const RenderModalBasic: React.FC<{
 	renderMode: RenderType;
 	imageFormatOptions: SegmentedControlItem[];
 	codec: Codec;
+	customAudioCodec: AudioCodec;
 	setCodec: (newCodec: Codec) => void;
+	setAudioCodec: (newAudioCodec: AudioCodec) => void;
 	outName: string;
 	proResProfile: ProResProfile | null;
 	setProResProfile: React.Dispatch<React.SetStateAction<ProResProfile>>;
@@ -37,7 +40,9 @@ export const RenderModalBasic: React.FC<{
 	imageFormatOptions,
 	outName,
 	codec,
+	customAudioCodec,
 	setCodec,
+	setAudioCodec,
 	proResProfile,
 	setProResProfile,
 	frame,
@@ -71,6 +76,23 @@ export const RenderModalBasic: React.FC<{
 				};
 			});
 	}, [renderMode, setCodec, codec]);
+
+	const audioCodecOptions = useMemo((): ComboboxValue[] => {
+		return BrowserSafeApis.validAudioCodecs.map((audioCodecOption) => {
+			return {
+				label: humanReadableAudioCodec(audioCodecOption),
+				onClick: () => setAudioCodec(audioCodecOption),
+				key: audioCodecOption,
+				leftItem: codec === audioCodecOption ? <Checkmark /> : null,
+				id: audioCodecOption,
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: audioCodecOption,
+			};
+		});
+	}, [codec, setAudioCodec]);
 
 	const proResProfileOptions = useMemo((): SegmentedControlItem[] => {
 		return BrowserSafeApis.proResProfileOptions.map((option) => {
@@ -121,16 +143,28 @@ export const RenderModalBasic: React.FC<{
 					</div>
 				</div>
 			) : (
-				<div style={optionRow}>
-					<div style={label}>Codec</div>
-					<div style={rightRow}>
-						<Combobox
-							values={videoCodecOptions}
-							selectedId={codec}
-							title="Codec"
-						/>
+				<>
+					<div style={optionRow}>
+						<div style={label}>Codec</div>
+						<div style={rightRow}>
+							<Combobox
+								values={videoCodecOptions}
+								selectedId={codec}
+								title="Codec"
+							/>
+						</div>
 					</div>
-				</div>
+					<div style={optionRow}>
+						<div style={label}>Audio Codec</div>
+						<div style={rightRow}>
+							<Combobox
+								values={audioCodecOptions}
+								selectedId={customAudioCodec}
+								title="AudioCodec"
+							/>
+						</div>
+					</div>
+				</>
 			)}
 			{renderMode === 'still' && currentComposition.durationInFrames > 1 ? (
 				<div style={optionRow}>
@@ -151,7 +185,6 @@ export const RenderModalBasic: React.FC<{
 					</div>
 				</div>
 			) : null}
-
 			{renderMode === 'video' && codec === 'prores' ? (
 				<div style={optionRow}>
 					<div style={label}>ProRes profile</div>

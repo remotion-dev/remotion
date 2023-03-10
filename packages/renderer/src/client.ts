@@ -1,4 +1,4 @@
-import {defaultAudioCodecs} from './audio-codec';
+import {defaultAudioCodecs, validAudioCodecs} from './audio-codec';
 import {validCodecs} from './codec';
 import {getDefaultCrfForCodec, getValidCrfRanges} from './crf';
 import {defaultFileExtensionMap, supportedAudioCodecs} from './file-extensions';
@@ -13,6 +13,7 @@ import {proResProfileOptions} from './prores-profile';
 export const BrowserSafeApis = {
 	getFileExtensionFromCodec,
 	validCodecs,
+	validAudioCodecs,
 	getDefaultCrfForCodec,
 	getValidCrfRanges,
 	isAudioCodec,
