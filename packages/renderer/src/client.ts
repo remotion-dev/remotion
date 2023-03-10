@@ -1,7 +1,11 @@
-import {defaultAudioCodecs, validAudioCodecs} from './audio-codec';
+import {
+	defaultAudioCodecs,
+	supportedAudioCodecs,
+	validAudioCodecs,
+} from './audio-codec';
 import {validCodecs} from './codec';
 import {getDefaultCrfForCodec, getValidCrfRanges} from './crf';
-import {defaultFileExtensionMap, supportedAudioCodecs} from './file-extensions';
+import {defaultFileExtensionMap} from './file-extensions';
 import {
 	defaultCodecsForFileExtension,
 	getFileExtensionFromCodec,

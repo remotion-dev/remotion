@@ -1,7 +1,7 @@
-import type {AudioCodec} from './audio-codec';
+import type {AudioCodec, supportedAudioCodecs} from './audio-codec';
 import {getDefaultAudioCodec} from './audio-codec';
 import type {Codec} from './codec';
-import type {FileExtension, supportedAudioCodecs} from './file-extensions';
+import type {FileExtension} from './file-extensions';
 import {defaultFileExtensionMap} from './file-extensions';
 
 export const validateOutputFilename = <T extends Codec>({

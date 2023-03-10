@@ -1,7 +1,11 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
-import {getDefaultAudioCodec, validAudioCodecs} from './audio-codec';
+import {
+	getDefaultAudioCodec,
+	supportedAudioCodecs,
+	validAudioCodecs,
+} from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {callFf, callFfExtraOptions} from './call-ffmpeg';
@@ -15,7 +19,7 @@ import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
-import {defaultFileExtensionMap, supportedAudioCodecs} from './file-extensions';
+import {defaultFileExtensionMap} from './file-extensions';
 import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';

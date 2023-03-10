@@ -391,6 +391,21 @@ export const RenderModal: React.FC<{
 		return bitBeforeDot;
 	}, []);
 
+	const deriveFinalAudioCodec = useCallback(
+		(passedVideoCodec: Codec, passedAudioCodec: AudioCodec) => {
+			if (
+				(
+					BrowserSafeApis.supportedAudioCodecs[passedVideoCodec] as AudioCodec[]
+				).includes(passedAudioCodec)
+			) {
+				return passedAudioCodec;
+			}
+
+			return BrowserSafeApis.defaultAudioCodecs[passedVideoCodec].compressed;
+		},
+		[]
+	);
+
 	const setDefaultOutName = useCallback(
 		(
 			options:
@@ -409,16 +424,22 @@ export const RenderModal: React.FC<{
 				});
 			} else {
 				setOutName((prev) => {
-					const codecSuffix = BrowserSafeApis.getFileExtensionFromCodec(
+					const derivedAudioCodec = deriveFinalAudioCodec(
 						options.codec,
 						options.audioCodec
 					);
+
+					const codecSuffix = BrowserSafeApis.getFileExtensionFromCodec(
+						options.codec,
+						derivedAudioCodec
+					);
+
 					const newFileName = getStringBeforeSuffix(prev) + '.' + codecSuffix;
 					return newFileName;
 				});
 			}
 		},
-		[getStringBeforeSuffix]
+		[deriveFinalAudioCodec, getStringBeforeSuffix]
 	);
 
 	const setCodec = useCallback(
@@ -618,7 +639,7 @@ export const RenderModal: React.FC<{
 				setDefaultOutName({
 					type: 'render',
 					codec: videoCodec,
-					audioCodec: 'pcm-16',
+					audioCodec: customAudioCodec,
 				});
 			}
 
@@ -626,7 +647,13 @@ export const RenderModal: React.FC<{
 				setDefaultOutName({type: 'still', imageFormat: stillImageFormat});
 			}
 		},
-		[audioCodec, setDefaultOutName, stillImageFormat, videoCodec]
+		[
+			audioCodec,
+			customAudioCodec,
+			setDefaultOutName,
+			stillImageFormat,
+			videoCodec,
+		]
 	);
 
 	const renderTabOptions = useMemo((): SegmentedControlItem[] => {
