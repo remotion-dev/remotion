@@ -158,16 +158,18 @@ export const RenderModalBasic: React.FC<{
 							/>
 						</div>
 					</div>
-					<div style={optionRow}>
-						<div style={label}>Audio Codec</div>
-						<div style={rightRow}>
-							<Combobox
-								values={audioCodecOptions(codec)}
-								selectedId={customAudioCodec}
-								title="AudioCodec"
-							/>
+					{audioCodecOptions(codec).length >= 2 ? (
+						<div style={optionRow}>
+							<div style={label}>Audio Codec</div>
+							<div style={rightRow}>
+								<Combobox
+									values={audioCodecOptions(codec)}
+									selectedId={customAudioCodec}
+									title="AudioCodec"
+								/>
+							</div>
 						</div>
-					</div>
+					) : null}
 				</>
 			)}
 			{renderMode === 'still' && currentComposition.durationInFrames > 1 ? (
