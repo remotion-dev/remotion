@@ -20,7 +20,8 @@
 		"@remotion/bundler": "3.3.64",
 		"@remotion/cli": "3.3.64",
 		"@remotion/renderer": "3.3.64",
-		"remotion": "3.3.64"
+		"remotion": "3.3.64",
+		"got": "11.8.2"
 	},
 	"devDependencies": {
 		"prettier-plugin-organize-imports": "^3.2.2",

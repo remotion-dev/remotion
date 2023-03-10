@@ -1,6 +1,7 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
 import {renderStill} from '@remotion/renderer';
+import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 
 /*
@@ -11,7 +12,7 @@ import {getCompositionFromBody} from './helpers/get-composition-from-body';
       "text": "Created on Cloud Run™️"
     },
     "outputBucket": "remotionlambda-test",
-    "outputFile": "outFolder/stillOutput.png"
+    "outputFile": "stillOutput.png"
   }
 */
 
@@ -25,6 +26,7 @@ export const renderStillSingleThread = async (
 	);
 
 	const tempFilePath = '/tmp/still.png';
+	const renderId = randomHash({randomInTests: true});
 
 	await renderStill({
 		composition,
@@ -35,11 +37,25 @@ export const renderStillSingleThread = async (
 
 	const storage = new Storage();
 
-	await storage
+	const uploadedResponse = await storage
 		.bucket(req.body.outputBucket)
-		.upload(tempFilePath, {destination: req.body.outputFile});
+		.upload(tempFilePath, {
+			destination: `renders/${renderId}/${req.body.outputFile}`,
+		});
 
-	console.log('output uploaded to ', req.body.outputBucket);
+	const uploadedFile = uploadedResponse[0];
+	const renderMetadata = await uploadedFile.getMetadata();
+	const responseData = {
+		publicUrl: uploadedFile.publicUrl(),
+		cloudStorageUri: uploadedFile.cloudStorageURI.href,
+		size: renderMetadata[0].size,
+		bucketName: req.body.outputBucket,
+		renderId,
+	};
 
-	res.send('OK');
+	console.log('Render Completed:', responseData);
+
+	const jsonContent = JSON.stringify(responseData);
+
+	res.end(jsonContent);
 };

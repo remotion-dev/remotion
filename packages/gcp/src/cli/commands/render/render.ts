@@ -13,6 +13,7 @@ import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedGcpCli} from '../../args';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
+
 // import {makeMultiProgressFromStatus, makeProgressString} from './progress';
 
 export const RENDER_COMMAND = 'render';
@@ -60,20 +61,47 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	// const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	// validatePrivacy(privacy);
 
-	const outputBucket = parsedGcpCli['output-bucket']; // Todo: I think this should be optional with a fallback
-	const outputFolderPath = parsedGcpCli['output-folder-path']; // Todo: I think this should be optional with a fallback
+	const outputBucket =
+		parsedGcpCli['output-bucket'] || 'remotioncloudrun-n8x4pc7dz3'; // Todo: I think this should be optional with a fallback
 
+	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
+	CliInternals.Log.info(
+		CliInternals.chalk.gray(
+			`
+Sending request to Cloud Run:
+
+    type = media
+    composition = ${composition}
+    codec = ${codec}
+    outputBucket = ${outputBucket}
+    outputFile = ${outName}
+			`.trim()
+		)
+	);
+	Log.info();
 	const res = await renderMediaOnGcp({
-		cloudRunUrl: 'https://new-two-tv4h6muxbq-ts.a.run.app',
+		cloudRunUrl: 'https://cloud-run-render-2gu7pevugq-ue.a.run.app',
 		// serviceName,
 		serveUrl,
 		composition,
 		inputProps,
 		codec: codec as GcpCodec,
 		outputBucket,
-		outputFolderPath,
-		outName,
+		outputFile: outName,
 	});
+	Log.info(
+		CliInternals.chalk.blueBright(
+			`
+🤘 Rendered on Cloud Run! 🤘
+
+    Public URL = ${res.publicUrl}
+    Cloud Storage Uri = ${res.cloudStorageUri}
+    Size (KB) = ${Math.round(Number(res.size) / 1000)}
+    Bucket Name = ${res.bucketName}
+    Render ID = ${res.renderId}
+		`.trim()
+		)
+	);
 
 	// const totalSteps = downloadName ? 6 : 5;
 
@@ -81,23 +109,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	// 	CliInternals.quietFlagProvided()
 	// );
 
-	Log.info(
-		CliInternals.chalk.gray(
-			`bucket = ${res.bucketName}, serveUrl = ${serveUrl}` // ToDo: use serviceName if available
-		)
-	);
-	Log.info(
-		CliInternals.chalk.gray(
-			`renderId = ${res.renderId}, codec = ${codec} (${reason})`
-		)
-	);
-	// const verbose = RenderInternals.isEqualOrBelowLogLevel(
-	// 	ConfigInternals.Logging.getLogLevel(),
-	// 	'verbose'
-	// );
-
 	// Log.verbose(`CloudWatch logs (if enabled): ${res.cloudWatchLogs}`);
-	Log.verbose(`Render folder: ${res.folderInGcpConsole}`);
 	// const status = await getRenderProgress({
 	// 	functionName,
 	// 	bucketName: res.bucketName,

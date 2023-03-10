@@ -1,6 +1,7 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
 import {renderMedia} from '@remotion/renderer';
+import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 
 /*
@@ -13,7 +14,7 @@ import {getCompositionFromBody} from './helpers/get-composition-from-body';
       "titleColor": "black"
     },
     "outputBucket": "remotionlambda-test",
-    "outputFile": "outFolder/mediaOutput.mp4"
+    "outputFile": "mediaOutput.mp4"
   }
 */
 
@@ -27,6 +28,7 @@ export const renderMediaSingleThread = async (
 	);
 
 	const tempFilePath = '/tmp/output.mp4';
+	const renderId = randomHash({randomInTests: true});
 
 	await renderMedia({
 		composition,
@@ -38,10 +40,25 @@ export const renderMediaSingleThread = async (
 
 	const storage = new Storage();
 
-	await storage
+	const uploadedResponse = await storage
 		.bucket(req.body.outputBucket)
-		.upload(tempFilePath, {destination: req.body.outputFile});
+		.upload(tempFilePath, {
+			destination: `renders/${renderId}/${req.body.outputFile}`,
+		});
 
-	console.log('output uploaded to ', req.body.outputBucket);
-	res.send('OK');
+	const uploadedFile = uploadedResponse[0];
+	const renderMetadata = await uploadedFile.getMetadata();
+	const responseData = {
+		publicUrl: uploadedFile.publicUrl(),
+		cloudStorageUri: uploadedFile.cloudStorageURI.href,
+		size: renderMetadata[0].size,
+		bucketName: req.body.outputBucket,
+		renderId,
+	};
+
+	console.log('Render Completed:', responseData);
+
+	const jsonContent = JSON.stringify(responseData);
+
+	res.end(jsonContent);
 };

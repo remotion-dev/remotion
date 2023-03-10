@@ -1,4 +1,4 @@
-import {Log} from '../cli/log';
+import got from 'got';
 import type {GcpCodec} from '../shared/validate-gcp-codec';
 import {validateGcpCodec} from '../shared/validate-gcp-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
@@ -11,15 +11,15 @@ export type RenderMediaOnGcpInput = {
 	inputProps?: unknown;
 	codec: GcpCodec;
 	outputBucket: string;
-	outputFolderPath: string;
-	outName: string;
+	outputFile: string;
 };
 
 export type RenderMediaOnGcpOutput = {
-	renderId: string;
+	publicUrl: string;
+	cloudStorageUri: string;
+	size: string;
 	bucketName: string;
-	// cloudWatchLogs: string;
-	folderInGcpConsole: string;
+	renderId: string;
 };
 
 /**
@@ -45,52 +45,26 @@ export const renderMediaOnGcp = async ({
 	inputProps,
 	codec,
 	outputBucket,
-	outputFolderPath,
-	outName,
+	outputFile,
 }: RenderMediaOnGcpInput): Promise<RenderMediaOnGcpOutput> => {
 	const actualCodec = validateGcpCodec(codec);
 	validateServeUrl(serveUrl);
 
 	// todo: allow serviceName to be passed in, and fetch the cloud run URL based on the name
 
-	try {
-		const postData = JSON.stringify({
-			type: 'media',
-			composition,
-			serveUrl,
-			codec: actualCodec,
-			inputProps,
-			outputBucket,
-			outputFile: `${outputFolderPath}${outName}`,
-		});
-		// Log.info(`Posting11: ${postData} to ${cloudRunUrl}`);
+	const postData = {
+		type: 'media',
+		composition,
+		serveUrl,
+		codec: actualCodec,
+		inputProps,
+		outputBucket,
+		outputFile,
+	};
 
-		const response = await fetch(cloudRunUrl, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(postData),
-		});
+	const response: RenderMediaOnGcpOutput = await got
+		.post(cloudRunUrl, {json: postData})
+		.json();
 
-		Log.info('response from Cloud Run 👇');
-		Log.info(JSON.stringify(response.json()));
-
-		return {
-			renderId: 'res.renderId',
-			bucketName: 'res.bucketName',
-			// cloudWatchLogs: getCloudwatchStreamUrl({
-			// 	functionName,
-			// 	method: LambdaRoutines.renderer,
-			// 	region,
-			// 	renderId: res.renderId,
-			// 	rendererFunctionName: rendererFunctionName ?? null,
-			// }),
-			folderInGcpConsole: 'folderInGcpConsole',
-		};
-	} catch (e: any) {
-		// eslint-disable-next-line no-console
-		console.error('Error rendering media on GCP');
-		throw e;
-	}
+	return response;
 };

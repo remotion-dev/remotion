@@ -485,6 +485,7 @@ importers:
       '@remotion/cli': 3.3.64
       '@remotion/eslint-config': 3.3.64
       '@remotion/eslint-plugin': 3.3.64
+      '@remotion/gcp': 0.0.1
       '@remotion/gif': 3.3.64
       '@remotion/google-fonts': 3.3.64
       '@remotion/lambda': 3.3.64
@@ -534,6 +535,7 @@ importers:
       '@remotion/cli': link:../cli
       '@remotion/eslint-config': link:../eslint-config
       '@remotion/eslint-plugin': link:../eslint-plugin
+      '@remotion/gcp': link:../gcp
       '@remotion/gif': link:../gif
       '@remotion/google-fonts': link:../google-fonts
       '@remotion/lambda': link:../lambda
@@ -586,6 +588,7 @@ importers:
       '@remotion/renderer': 3.3.64
       '@types/minimist': 1.2.2
       eslint: 8.25.0
+      got: 11.8.2
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^3.2.2
       remotion: 3.3.64
@@ -598,6 +601,7 @@ importers:
       '@remotion/bundler': link:../bundler
       '@remotion/cli': link:../cli
       '@remotion/renderer': link:../renderer
+      got: 11.8.2
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
@@ -13182,8 +13186,8 @@ packages:
     dependencies:
       clone-response: 1.0.2
       get-stream: 5.2.0
-      http-cache-semantics: 4.1.0
-      keyv: 4.5.0
+      http-cache-semantics: 4.1.1
+      keyv: 4.5.2
       lowercase-keys: 2.0.0
       normalize-url: 6.1.0
       responselike: 2.0.1
@@ -16917,6 +16921,23 @@ packages:
     dependencies:
       get-intrinsic: 1.2.0
 
+  /got/11.8.2:
+    resolution: {integrity: sha512-D0QywKgIe30ODs+fm8wMZiAcZjypcCodPNuMz5H9Mny7RJ+IjJ10BdmGW7OM7fHXP+O7r6ZwapQ/YQmMSvB0UQ==}
+    engines: {node: '>=10.19.0'}
+    dependencies:
+      '@sindresorhus/is': 4.6.0
+      '@szmarczak/http-timer': 4.0.6
+      '@types/cacheable-request': 6.0.2
+      '@types/responselike': 1.0.0
+      cacheable-lookup: 5.0.4
+      cacheable-request: 7.0.2
+      decompress-response: 6.0.0
+      http2-wrapper: 1.0.3
+      lowercase-keys: 2.0.0
+      p-cancelable: 2.1.1
+      responselike: 2.0.1
+    dev: false
+
   /got/11.8.5:
     resolution: {integrity: sha512-o0Je4NvQObAuZPHLFoRSkdG2lTgtcynqymzg2Vupdx6PorhaT5MCbIyXG6d4D94kk8ZG57QeosgdiqfJWhEhlQ==}
     engines: {node: '>=10.19.0'}
@@ -17406,6 +17427,10 @@ packages:
 
   /http-cache-semantics/4.1.0:
     resolution: {integrity: sha512-carPklcUh7ROWRK7Cv27RPtdhYhUsela/ue5/jKzjegVvXDqM2ILE9Q2BGn9JZJh1g87cp56su/FgQSzcWS8cQ==}
+    dev: false
+
+  /http-cache-semantics/4.1.1:
+    resolution: {integrity: sha512-er295DKPVsV82j5kw1Gjt+ADA/XYHsajl82cGNQG2eyoPkvgUhX+nDIyelzhIWbbsXP39EHcI6l5tYs2FYqYXQ==}
 
   /http-deceiver/1.2.7:
     resolution: {integrity: sha1-+nFolEq5pRnTN8sL7HKE3D5yPYc=}
@@ -18640,8 +18665,8 @@ packages:
       json-buffer: 3.0.0
     dev: false
 
-  /keyv/4.5.0:
-    resolution: {integrity: sha512-2YvuMsA+jnFGtBareKqgANOEKe1mk3HKiXu2fRmAfyxG0MJAywNhi5ttWA3PMjl4NmpyjZNbFifR2vNjW1znfA==}
+  /keyv/4.5.2:
+    resolution: {integrity: sha512-5MHbFaKn8cNSmVW7BYnijeAVlE4cYA/SVkifVgrh7yotnfhKmjuXpDKjrABLnT0SfHWV21P8ow07OGfRrNDg8g==}
     dependencies:
       json-buffer: 3.0.1
 
