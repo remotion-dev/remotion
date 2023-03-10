@@ -18,3 +18,16 @@ test('Should be able to make a rect path', () => {
 		],
 	});
 });
+
+
+test('Should handle rectangle path with radius', () => {
+	const rect = makeRect({width: 100, height: 100, cornerRadius: 20})
+
+	expect(rect).toEqual({
+		height: 100,
+		width: 100,
+		path: 'M 20 0 L 80 0 a 20 20 0 0 1 20 20 L 100 80 a 20 20 0 0 1 -20 20 L 20 100 a 20 20 0 0 1 -20 -20 L 0 20 a 20 20 0 0 1 20 -20 Z',
+		transformOrigin: '50 50',
+		instructions: expect.any(Array),
+	});
+});

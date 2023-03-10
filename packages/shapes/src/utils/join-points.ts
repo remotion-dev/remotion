@@ -52,11 +52,12 @@ export const joinPoints = (
 					];
 				}
 
+				const shorten = shortenVector(nextPoint, cornerRadius)
 				return [
 					{
 						type: 'M',
-						x,
-						y,
+						x: shorten[0],
+						y: shorten[1],
 					},
 				];
 			}
@@ -82,7 +83,7 @@ export const joinPoints = (
 				}
 
 				const prevVectorMinusRadius = shortenVector(prevVector, cornerRadius);
-				const prevVectorLenght = scaleVectorToLength(prevVector, cornerRadius);
+				const prevVectorLength = scaleVectorToLength(prevVector, cornerRadius);
 				const nextVectorMinusRadius = scaleVectorToLength(
 					nextVector,
 					cornerRadius
@@ -105,17 +106,17 @@ export const joinPoints = (
 								rx: cornerRadius,
 								ry: cornerRadius,
 								xAxisRotation: 0,
-								dx: prevVectorLenght[0] + nextVectorMinusRadius[0],
-								dy: prevVectorLenght[1] + nextVectorMinusRadius[1],
+								dx: prevVectorLength[0] + nextVectorMinusRadius[0],
+								dy: prevVectorLength[1] + nextVectorMinusRadius[1],
 								largeArcFlag: false,
 								sweepFlag: true,
 						  }
 						: {
 								type: 'C',
 								x:
-									firstDraw[0] + prevVectorLenght[0] + nextVectorMinusRadius[0],
+									firstDraw[0] + prevVectorLength[0] + nextVectorMinusRadius[0],
 								y:
-									firstDraw[1] + prevVectorLenght[1] + nextVectorMinusRadius[1],
+									firstDraw[1] + prevVectorLength[1] + nextVectorMinusRadius[1],
 								cp1x: x,
 								cp1y: y,
 								cp2x: x,
