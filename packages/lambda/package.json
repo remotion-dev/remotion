@@ -64,6 +64,7 @@
 		"access": "public"
 	},
 	"exports": {
+		"./package.json": "./package.json",
 		".": "./dist/index.js",
 		"./defaults": "./dist/defaults.js",
 		"./regions": "./dist/regions.js",
