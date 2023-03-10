@@ -554,30 +554,47 @@ export const RenderModal: React.FC<{
 	}, []);
 
 	const imageFormatOptions = useMemo((): SegmentedControlItem[] => {
+		if (renderMode === 'still') {
+			return [
+				{
+					label: 'PNG',
+					onClick: () => setStillFormat('png'),
+					key: 'png',
+					selected: stillImageFormat === 'png',
+				},
+				{
+					label: 'JPEG',
+					onClick: () => setStillFormat('jpeg'),
+					key: 'jpeg',
+					selected: stillImageFormat === 'jpeg',
+				},
+				{
+					label: 'PDF',
+					onClick: () => setStillFormat('pdf'),
+					key: 'pdf',
+					selected: stillImageFormat === 'pdf',
+				},
+				{
+					label: 'WebP',
+					onClick: () => setStillFormat('webp'),
+					key: 'webp',
+					selected: stillImageFormat === 'webp',
+				},
+			];
+		}
+
 		return [
 			{
 				label: 'PNG',
-				onClick:
-					renderMode === 'still'
-						? () => setStillFormat('png')
-						: () => setVideoImageFormat('png'),
+				onClick: () => setVideoImageFormat('png'),
 				key: 'png',
-				selected:
-					renderMode === 'still'
-						? stillImageFormat === 'png'
-						: videoImageFormat === 'png',
+				selected: videoImageFormat === 'png',
 			},
 			{
 				label: 'JPEG',
-				onClick:
-					renderMode === 'still'
-						? () => setStillFormat('jpeg')
-						: () => setVideoImageFormat('jpeg'),
+				onClick: () => setVideoImageFormat('jpeg'),
 				key: 'jpeg',
-				selected:
-					renderMode === 'still'
-						? stillImageFormat === 'jpeg'
-						: videoImageFormat === 'jpeg',
+				selected: videoImageFormat === 'jpeg',
 			},
 		];
 	}, [stillImageFormat, renderMode, setStillFormat, videoImageFormat]);
