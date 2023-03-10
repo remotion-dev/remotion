@@ -200,7 +200,7 @@ export const Combobox: React.FC<{
 				style={style}
 				className={MENU_INITIATOR_CLASSNAME}
 			>
-				{selected.label} <Flex /> <Spacing x={1} /> <CaretDown />
+				{selected?.label} <Flex /> <Spacing x={1} /> <CaretDown />
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
