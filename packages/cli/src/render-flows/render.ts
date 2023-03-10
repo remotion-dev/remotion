@@ -340,7 +340,6 @@ export const renderCompFlow = async ({
 		}
 
 		await renderFrames({
-			config,
 			imageFormat,
 			inputProps,
 			onFrameUpdate: (rendered) => {
@@ -379,6 +378,7 @@ export const renderCompFlow = async ({
 			browserExecutable,
 			port,
 			downloadMap,
+			composition: config,
 		});
 
 		updateRenderProgress();
