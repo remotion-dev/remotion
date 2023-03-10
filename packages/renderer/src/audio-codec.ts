@@ -8,7 +8,7 @@ export const supportedAudioCodecs = {
 	h264: ['aac', 'pcm-16'] as const,
 	'h264-mkv': ['pcm-16'] as const,
 	aac: ['aac', 'pcm-16'] as const,
-	gif: [] as const,
+	gif: [] as const[],
 	h265: ['aac', 'pcm-16'] as const,
 	mp3: ['mp3', 'pcm-16'] as const,
 	prores: ['aac', 'pcm-16'] as const,
