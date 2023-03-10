@@ -50,7 +50,7 @@ Navigate to the [Service Accounts](https://console.cloud.google.com/projectselec
 
 ### 3. Enable required APIs in the project
 
-- Enable the Cloud Run API. Navigate to the [Cloud Run API](https://console.cloud.google.com/apis/library/run.googleapis.com) screen in Google Cloud Console, and click ENABLE. Make sure the correct project is selected in the dropdown in the top left.
+- Enable the Cloud Run API. Navigate to the [Cloud Run API](https://console.cloud.google.com/apis/library/run.googleapis.com) screen in Google Cloud Console, and click ENABLE. Make sure the correct project is selected in the dropdown in the top left. This is required in order to use Cloud Run.
 
 # Available commands from the CLI:
 
@@ -95,6 +95,8 @@ Options:
 This command will bundle the site and upload it to a GCP bucket. To view storage buckets in your project, navigate to the [Storage](https://console.cloud.google.com/storage/browser) screen in Google Cloud Console, and select the project from the drop-down menu in the top left corner.
 
 # Render media on GCP
+
+## Manually, making a post request
 
 Within the Cloud Run service, you can see the URL of the service. Distributed rendering is not yet supported, but rendering a still or media in a single-threaded instance is available.
 
@@ -144,7 +146,18 @@ To render media, send a POST request to the URL with the following body:
 }
 ```
 
-<br><br><br><br>
+## Using the CLI command, WIP
+
+`pnpm exec remotion gcp render https://storage.googleapis.com/remotioncloudrun-n8x4pc7dz3/sites/axp52acnh2/index.html expert`
+
+- ✅ above render command worked, with meaningful output in the CLI.
+  - 🟩 Cloud Run url is currently hardcoded, pass that in as a param
+- 🟩 Error when rendering color-interpolation composition, checking cloud run logs, it has run out of memory
+  - 🟩 Surface the cloud run logs back to CLI
+  - 🟩 Update Cloud Run Deploy command to accept memory + CPU parameters
+  - 🟩 Deploy new Cloud Run Service with larger limit, test it works
+- 🟩 Work out progress bar for CLI
+  <br><br><br><br>
 
 # To Do
 
