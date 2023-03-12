@@ -169,15 +169,17 @@ export const MyComposition: React.FC<Props> = ({ name, repo, logo }) => {
 ## Writing the script
 
 In order to render our videos, we'll first need to bundle our project using Webpack and prepare it for rendering.
-This can be done by using the [`bundle()`](/docs/bundle) function from the [`@remotion/bundler`](/docs/bundler) package.
+This can be done by using the [`bundle()`](/docs/bundle) function from the [`@remotion/bundler`](/docs/bundler) package. Please make sure to include the webpack-override in the bundle, as otherwise the video output is blank.
 
 ```ts twoslash
 // @module: esnext
 // @target: es2022
 import { bundle } from "@remotion/bundler";
+import {webpackOverride} from './webpack-override';
 
 const bundleLocation = await bundle({
   entryPoint: "./src/index.ts",
+  webpackOverride: webpackOverride
 });
 ```
 
@@ -279,6 +281,7 @@ export const data = [
 // @filename: render.ts
 // ---cut---
 import { getCompositions, renderMedia } from "@remotion/renderer";
+import {webpackOverride} from './webpack-override';
 import { bundle } from "@remotion/bundler";
 import { data } from "./dataset";
 
@@ -287,6 +290,7 @@ const compositionId = "MyComp";
 const start = async () => {
   const bundleLocation = await bundle({
     entryPoint: "./src/index.ts",
+    webpackOverride: webpackOverride
   });
 
   const allCompositions = await getCompositions(bundleLocation);
