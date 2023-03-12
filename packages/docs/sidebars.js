@@ -194,6 +194,7 @@ module.exports = {
         "lambda/rendermediaonlambda",
         "lambda/renderstillonlambda",
         "lambda/simulatepermissions",
+        "lambda/speculatefunctionname",
         "lambda/validatewebhooksignature",
       ],
     },
