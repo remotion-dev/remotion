@@ -868,6 +868,13 @@ export const articles = [
     crumb: "Lambda API",
   },
   {
+    id: "speculatefunctionname",
+    title: "speculateFunctionName()",
+    relativePath: "docs/lambda/speculateFunctionName.md",
+    compId: "articles-docs-lambda-speculateFunctionName",
+    crumb: "Lambda API",
+  },
+  {
     id: "optimizing-speed",
     title: "Optimizing for speed",
     relativePath: "docs/lambda/speed.md",
