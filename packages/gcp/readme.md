@@ -150,10 +150,8 @@ To render media, send a POST request to the URL with the following body:
 
 `pnpm exec remotion gcp render https://storage.googleapis.com/remotioncloudrun-n8x4pc7dz3/sites/axp52acnh2/index.html expert`
 
-- ✅ above render command worked, with meaningful output in the CLI.
-  - 🟩 Cloud Run url is currently hardcoded, pass that in as a param
 - 🟩 Error when rendering color-interpolation composition, checking cloud run logs, it has run out of memory
-  - 🟩 Surface the cloud run logs back to CLI
+  - ✅ Surface the cloud run logs back to CLI
   - 🟩 Update Cloud Run Deploy command to accept memory + CPU parameters
   - 🟩 Deploy new Cloud Run Service with larger limit, test it works
 - 🟩 Work out progress bar for CLI

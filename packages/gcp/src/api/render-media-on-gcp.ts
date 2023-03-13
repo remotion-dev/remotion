@@ -21,6 +21,15 @@ export type RenderMediaOnGcpOutput = {
 	size: string;
 	bucketName: string;
 	renderId: string;
+	status: string;
+	errMessage: string;
+	error: any;
+};
+
+export type RenderMediaOnGcpErrOutput = {
+	message: string;
+	error: any;
+	status: string;
 };
 
 /**
@@ -47,7 +56,9 @@ export const renderMediaOnGcp = async ({
 	codec,
 	outputBucket,
 	outputFile,
-}: RenderMediaOnGcpInput): Promise<RenderMediaOnGcpOutput> => {
+}: RenderMediaOnGcpInput): Promise<
+	RenderMediaOnGcpOutput | RenderMediaOnGcpErrOutput
+> => {
 	const actualCodec = validateGcpCodec(codec);
 	validateServeUrl(serveUrl);
 	validateCloudRunUrl(cloudRunUrl);
@@ -64,9 +75,17 @@ export const renderMediaOnGcp = async ({
 		outputFile,
 	};
 
-	const response: RenderMediaOnGcpOutput = await got
-		.post(cloudRunUrl, {json: postData})
-		.json();
-
-	return response;
+	try {
+		const response: RenderMediaOnGcpOutput = await got
+			.post(cloudRunUrl, {json: postData})
+			.json();
+		return response;
+	} catch (e) {
+		return {
+			message:
+				'Cloud Run Service failed. View logs at https://console.cloud.google.com/run/detail/{REGION}/{SERVICE_NAME}/logs?project={PROJECT_ID}',
+			error: e,
+			status: 'error',
+		};
+	}
 };
