@@ -1,0 +1,12 @@
+{
+  "packages": [
+    "packages/*"
+  ],
+  "version": "3.3.73",
+  "command": {
+    "publish": {
+      "exact": true
+    }
+  },
+  "useWorkspaces": true
+}
