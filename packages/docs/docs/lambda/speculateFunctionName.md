@@ -6,7 +6,7 @@ slug: /lambda/speculatefunctionname
 crumb: "Lambda API"
 ---
 
-_available from v3.3.72_
+_available from v3.3.75_
 
 Speculate the name of the Lambda function that will be created by [deployFunction()](/docs/lambda/deployfunction) or its CLI equivalent, [`npx remotion lambda functions deploy`](/docs/lambda/cli/functions). This could be useful in cases when the configuration of the Lambda function is known in advance, and the name of the function is needed.
 
