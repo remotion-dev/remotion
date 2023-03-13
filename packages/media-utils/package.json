@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/media-utils",
-	"version": "3.3.74",
+	"version": "3.3.75",
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"sideEffects": false,
