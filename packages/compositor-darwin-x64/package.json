@@ -1,5 +1,5 @@
 {
-  "version": "3.3.64",
+  "version": "3.3.75",
   "name": "@remotion/compositor-darwin-x64",
   "os": [
     "darwin"
@@ -7,6 +7,14 @@
   "cpu": [
     "x64"
   ],
+  "exports": {
+    ".": {
+      "require": "./index.js",
+      "import": "./index.mjs",
+      "types": "./index.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
   "publishConfig": {
     "access": "public"
   }

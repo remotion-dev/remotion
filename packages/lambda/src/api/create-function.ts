@@ -119,7 +119,6 @@ export const createFunction = async ({
 			})
 		);
 	} catch (err) {
-		console.log(err);
 		console.warn(
 			'⚠️ Could not lock the runtime version. We recommend to update your policies to prevent your functions from breaking soon: https://remotion.dev/docs/lambda/feb-2023-incident'
 		);
