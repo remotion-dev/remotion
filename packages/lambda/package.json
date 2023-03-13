@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda",
-	"version": "3.3.71",
+	"version": "3.3.72",
 	"description": "Distributed renderer for Remotion based on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -33,12 +33,12 @@
 		"@aws-sdk/credential-providers": "3.272.0",
 		"@aws-sdk/lib-storage": "3.272.0",
 		"@aws-sdk/s3-request-presigner": "3.272.0",
-		"@remotion/bundler": "3.3.71",
-		"@remotion/cli": "3.3.71",
-		"@remotion/renderer": "3.3.71",
+		"@remotion/bundler": "3.3.72",
+		"@remotion/cli": "3.3.72",
+		"@remotion/renderer": "3.3.72",
 		"aws-policies": "^1.0.1",
 		"mime-types": "2.1.34",
-		"remotion": "3.3.71"
+		"remotion": "3.3.72"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
