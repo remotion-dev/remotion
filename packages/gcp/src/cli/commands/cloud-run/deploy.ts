@@ -27,27 +27,32 @@ export const cloudRunDeploySubcommand = async () => {
 	const memory = parsedGcpCli.memory ?? '512Mi';
 	const cpu = parsedGcpCli.cpu ?? '1.0';
 
+	if (!CliInternals.quietFlagProvided()) {
+		Log.info(
+			CliInternals.chalk.gray(
+				`
+Validating Deployment of Cloud Run Service:
+
+    Remotion Version = ${remotionVersion}
+    Service Name = ${serviceName}
+    Service Memory Limit = ${memory}
+    Service CPU Limit = ${cpu}
+    Project Name = ${projectID}
+    Region = ${region}
+    Allow Unauthenticated Access = ${allowUnauthenticated}
+    Overwrite existing service = ${overwriteService}
+    `.trim()
+			)
+		);
+	}
+
+	Log.info();
+
 	validateGcpRegion(region);
 	validateServiceName(serviceName);
 	validateProjectID(projectID);
 	validateRemotionVersion(remotionVersion);
 	validateOverwrite(overwriteService);
-	if (!CliInternals.quietFlagProvided()) {
-		Log.info(
-			CliInternals.chalk.gray(
-				`
-Remotion Version = ${remotionVersion}
-Service Name = ${serviceName}
-Service Memory Limit = ${memory}
-Service CPU Limit = ${cpu}
-Project Name = ${projectID}
-Region = ${region}
-Allow Unauthenticated Access = ${allowUnauthenticated}
-Overwrite existing service = ${overwriteService}
-				`.trim()
-			)
-		);
-	}
 
 	const existingService = await checkIfServiceExists({
 		serviceNameToCheck: serviceName,
@@ -81,15 +86,18 @@ Overwrite existing service = ${overwriteService}
 				);
 			}
 
+			Log.info();
+
 			Log.info(
 				CliInternals.chalk.blueBright(
 					`
-Cloud Run Revision Deployed! 🎉
-Service Name = ${deployRevisionResult.name}
-Cloud Run URL = ${deployRevisionResult.uri}
-Project = ${projectID}
-GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${serviceName}/revisions
-				`.trim()
+🎉 Cloud Run Revision Deployed! 🎉
+
+    Service Name = ${deployRevisionResult.name}
+    Cloud Run URL = ${deployRevisionResult.uri}
+    Project = ${projectID}
+    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${serviceName}/revisions
+		`.trim()
 				)
 			);
 
@@ -165,15 +173,18 @@ async function allowUnauthenticatedAccessToService(serviceName: string) {
 			)
 		);
 		await allowUnauthenticatedAccess(serviceName);
+
+		Log.info();
+
 		Log.info(
 			CliInternals.chalk.blueBright(
-				`Unauthenticated access granted on ${serviceName}`
+				`    ✅ Unauthenticated access granted on ${serviceName}`
 			)
 		);
 	} catch (e) {
 		Log.error(
 			CliInternals.chalk.red(
-				`Failed to allow unauthenticated access to the Cloud Run service.`
+				`    Failed to allow unauthenticated access to the Cloud Run service.`
 			)
 		);
 		throw e;
