@@ -25,7 +25,7 @@
 		"remotion": "3.3.70"
 	},
 	"peerDependencies": {
-		"@remotion/bundler": "3.3.69",
+		"@remotion/bundler": "3.3.70",
 		"@shopify/react-native-skia": "^0.1.139",
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"
@@ -42,7 +42,7 @@
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
-		"remotion": "3.3.69",
+		"remotion": "3.3.70",
 		"rollup": "^2.70.1",
 		"typescript": "^4.7.0"
 	},
