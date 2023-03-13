@@ -2,6 +2,7 @@
  * The configuration has moved to @remotion/cli.
  * For the moment the type definitions are going to stay here
  */
+import type {Configuration} from 'webpack';
 
 type Concurrency = number | null;
 type BrowserExecutable = string | null;
@@ -21,6 +22,12 @@ type CodecOrUndefined =
 	| 'gif'
 	| undefined;
 type Crf = number | undefined;
+
+export type WebpackConfiguration = Configuration;
+
+export type WebpackOverrideFn = (
+	currentConfiguration: WebpackConfiguration
+) => WebpackConfiguration;
 
 // New config format: Add new options only here.
 type FlatConfig = RemotionConfigObject['Bundling'] &
@@ -61,6 +68,8 @@ declare global {
 		 * You can set an absolute path or a relative path that will be resolved from the closest package.json location.
 		 */
 		readonly setPublicDir: (publicDir: string | null) => void;
+
+		readonly overrideWebpackConfig: (f: WebpackOverrideFn) => void;
 	}
 	// Legacy config format: New options to not need to be added here.
 	interface RemotionConfigObject {

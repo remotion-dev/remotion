@@ -1,5 +1,5 @@
 {
-  "version": "3.3.64",
+  "version": "3.3.75",
   "name": "@remotion/compositor-darwin-arm64",
   "os": [
     "darwin"
@@ -12,7 +12,8 @@
       "require": "./index.js",
       "import": "./index.mjs",
       "types": "./index.d.ts"
-    }
+    },
+    "./package.json": "./package.json"
   },
   "publishConfig": {
     "access": "public"

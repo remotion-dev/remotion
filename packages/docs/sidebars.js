@@ -194,6 +194,7 @@ module.exports = {
         "lambda/rendermediaonlambda",
         "lambda/renderstillonlambda",
         "lambda/simulatepermissions",
+        "lambda/speculatefunctionname",
         "lambda/validatewebhooksignature",
       ],
     },
@@ -317,6 +318,15 @@ module.exports = {
         "shapes/make-star",
         "shapes/make-pie",
       ],
+    },
+    {
+      type: "category",
+      label: "@remotion/rive",
+      link: {
+        type: "doc",
+        id: "rive/index",
+      },
+      items: ["rive/index", "rive/remotionrivecanvas"],
     },
   ],
   mainSidebar: [

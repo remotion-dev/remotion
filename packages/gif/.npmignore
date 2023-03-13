@@ -1,1 +1,3 @@
 build.mjs
+dist/tsconfig-esm.tsbuildinfo
+dist/tsconfig.tsbuildinfo

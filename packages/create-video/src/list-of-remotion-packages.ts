@@ -1,3 +1,4 @@
+// Keep in sync with cli
 export const listOfRemotionPackages = [
 	'@remotion/bundler',
 	'@remotion/cli',
@@ -16,6 +17,7 @@ export const listOfRemotionPackages = [
 	'@remotion/player',
 	'@remotion/preload',
 	'@remotion/three',
+	'@remotion/rive',
 	'@remotion/gif',
 	'@remotion/shapes',
 	'remotion',

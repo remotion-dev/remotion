@@ -26,6 +26,10 @@ At the moment, we don't have a Framer Motion integration, but are discussing the
 
 Use the [`@remotion/lottie`](/docs/lottie) package.
 
+## Rive
+
+Use the [`@remotion/rive`](/docs/rive) package.
+
 ## After Effects
 
 See: [Lottie - Import from After Effects](/docs/after-effects)
