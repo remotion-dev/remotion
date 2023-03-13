@@ -42,5 +42,8 @@
     "react-dom": "^18.2.0",
     "rollup": "^2.70.1",
     "typescript": "^4.9.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
