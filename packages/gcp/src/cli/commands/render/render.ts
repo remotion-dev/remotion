@@ -7,6 +7,10 @@ import {renderMediaOnGcp} from '../../../api/render-media-on-gcp';
 // import type {RenderProgress} from '../../../shared/constants';
 import {BINARY_NAME, DEFAULT_MAX_RETRIES} from '../../../shared/constants';
 // import {sleep} from '../../../shared/sleep';
+import type {
+	RenderMediaOnGcpErrOutput,
+	RenderMediaOnGcpOutput,
+} from '../../../api/render-media-on-gcp';
 import type {GcpCodec} from '../../../shared/validate-gcp-codec';
 import {validateMaxRetries} from '../../../shared/validate-retries';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
@@ -91,8 +95,8 @@ Sending request to Cloud Run:
     Type = media
     Composition = ${composition}
     Codec = ${codec}
-    OutputBucket = ${outputBucket}
-    OutputFile = ${outName}
+    Output Bucket = ${outputBucket}
+    Output File = ${outName}
 			`.trim()
 		)
 	);
@@ -107,19 +111,27 @@ Sending request to Cloud Run:
 		outputBucket,
 		outputFile: outName,
 	});
-	Log.info(
-		CliInternals.chalk.blueBright(
-			`
-🤘 Rendered on Cloud Run! 🤘
 
-    Public URL = ${res.publicUrl}
-    Cloud Storage Uri = ${res.cloudStorageUri}
-    Size (KB) = ${Math.round(Number(res.size) / 1000)}
-    Bucket Name = ${res.bucketName}
-    Render ID = ${res.renderId}
-		`.trim()
-		)
-	);
+	if (res.status === 'error') {
+		const err = res as RenderMediaOnGcpErrOutput;
+		Log.error(CliInternals.chalk.red(err.message));
+		throw err.error;
+	} else {
+		const success = res as RenderMediaOnGcpOutput;
+		Log.info(
+			CliInternals.chalk.blueBright(
+				`
+	🤘 Rendered on Cloud Run! 🤘
+	
+      Public URL = ${success.publicUrl}
+      Cloud Storage Uri = ${success.cloudStorageUri}
+      Size (KB) = ${Math.round(Number(success.size) / 1000)}
+      Bucket Name = ${success.bucketName}
+      Render ID = ${success.renderId}
+      `.trim()
+			)
+		);
+	}
 
 	// const totalSteps = downloadName ? 6 : 5;
 

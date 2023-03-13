@@ -54,6 +54,7 @@ export const renderMediaSingleThread = async (
 		size: renderMetadata[0].size,
 		bucketName: req.body.outputBucket,
 		renderId,
+		status: 'success',
 	};
 
 	console.log('Render Completed:', responseData);
