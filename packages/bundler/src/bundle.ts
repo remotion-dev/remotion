@@ -7,7 +7,7 @@ import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';
-import type {WebpackOverrideFn} from './types';
+import type {WebpackOverrideFn} from './webpack-config';
 import {webpackConfig} from './webpack-config';
 
 const promisified = promisify(webpack);

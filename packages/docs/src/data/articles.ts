@@ -875,6 +875,13 @@ export const articles = [
     crumb: "Lambda API",
   },
   {
+    id: "speculatefunctionname",
+    title: "speculateFunctionName()",
+    relativePath: "docs/lambda/speculateFunctionName.md",
+    compId: "articles-docs-lambda-speculateFunctionName",
+    crumb: "Lambda API",
+  },
+  {
     id: "optimizing-speed",
     title: "Optimizing for speed",
     relativePath: "docs/lambda/speed.md",
@@ -1645,6 +1652,20 @@ export const articles = [
     relativePath: "docs/resources.md",
     compId: "articles-docs-resources",
     crumb: "Ecosystem",
+  },
+  {
+    id: "rive/index",
+    title: "@remotion/rive",
+    relativePath: "docs/rive/index.md",
+    compId: "articles-docs-rive-index",
+    crumb: "Integrations",
+  },
+  {
+    id: "rive/remotionrivecanvas",
+    title: "<RemotionRiveCanvas>",
+    relativePath: "docs/rive/remotionrivecanvas.md",
+    compId: "articles-docs-rive-remotionrivecanvas",
+    crumb: "@remotion/rive",
   },
   {
     id: "scaling",

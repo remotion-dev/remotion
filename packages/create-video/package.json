@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "3.3.64",
+	"version": "3.3.75",
 	"description": "",
 	"main": "dist/index.js",
 	"bin": {
@@ -15,7 +15,7 @@
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run"
 	},
-	"author": "",
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"chalk": "4.1.2",

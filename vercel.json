@@ -159,6 +159,11 @@
       "source": "/resources",
       "destination": "https://www.remotion.dev/docs/resources",
       "permanent": false
+    },
+    {
+      "source": "/rive",
+      "destination": "https://www.remotion.dev/docs/rive",
+      "permanent": false
     }
   ]
 }

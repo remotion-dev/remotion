@@ -98,3 +98,7 @@ const Comp: React.FC = () => {
   );
 };
 ```
+
+## See also
+
+- [`@remotion/rive`](/docs/rive)

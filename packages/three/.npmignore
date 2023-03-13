@@ -7,3 +7,6 @@ vitest.config.ts
 .turbo
 tsconfig.json
 .prettierrc.js
+dist/tsconfig-esm.tsbuildinfo
+.rollup.cache
+tsconfig-esm.json
