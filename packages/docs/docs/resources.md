@@ -33,6 +33,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Lottie](/docs/lottie)
 - [spline.design](/docs/spline)
 - [After Effects](/docs/after-effects)
+- [Rive](/docs/rive)
 - [GIFs](/docs/gif)
 
 ## Effects
