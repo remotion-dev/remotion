@@ -20,7 +20,7 @@
 		"dist",
 		"react-shim.js"
 	],
-	"author": "",
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"css-loader": "5.2.7",

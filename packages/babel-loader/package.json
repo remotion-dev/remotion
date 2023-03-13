@@ -11,7 +11,7 @@
 	"files": [
 		"dist"
 	],
-	"author": "",
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"repository": {
 		"url": "https://github.com/remotion-dev/remotion"
