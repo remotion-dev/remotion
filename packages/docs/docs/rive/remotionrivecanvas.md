@@ -5,7 +5,7 @@ sidebar_label: "<RemotionRiveCanvas>"
 title: "<RemotionRiveCanvas>"
 ---
 
-<AvailableFrom v="3.3.70"/>
+<AvailableFrom v="3.3.75"/>
 
 This component can render a [Rive](https://rive.app/) animation so it synchronizes with Remotion's time.
 
