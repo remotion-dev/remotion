@@ -27,13 +27,30 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		);
 		Log.info();
 		Log.info(
-			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <composition-id> [output-location]`
+			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <cloud-run-url> <composition-id> [output-location]`
 		);
 		quit(1);
 	}
 
-	let composition: string = args[1];
+	const cloudRunUrl = args[1];
+	if (!cloudRunUrl) {
+		Log.error('No Cloud Run Service URL passed.');
+		Log.info(
+			'Pass an additional argument specifying a the endpoint of your Cloud Run Service.'
+		);
+		Log.info();
+		Log.info(
+			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <cloud-run-url> <composition-id> [output-location]`
+		);
+		quit(1);
+	}
+
+	let composition: string = args[2];
 	if (!composition) {
+		Log.info(
+			`<serve-url> passed: ${serveUrl} 
+<cloud-run-url> passed: ${cloudRunUrl}`
+		);
 		Log.info('No compositions passed. Fetching compositions...');
 
 		validateServeUrl(serveUrl);
@@ -70,17 +87,18 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			`
 Sending request to Cloud Run:
 
-    type = media
-    composition = ${composition}
-    codec = ${codec}
-    outputBucket = ${outputBucket}
-    outputFile = ${outName}
+    Cloud Run Service URL = ${cloudRunUrl}
+    Type = media
+    Composition = ${composition}
+    Codec = ${codec}
+    OutputBucket = ${outputBucket}
+    OutputFile = ${outName}
 			`.trim()
 		)
 	);
 	Log.info();
 	const res = await renderMediaOnGcp({
-		cloudRunUrl: 'https://cloud-run-render-2gu7pevugq-ue.a.run.app',
+		cloudRunUrl,
 		// serviceName,
 		serveUrl,
 		composition,

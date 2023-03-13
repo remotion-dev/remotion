@@ -1,4 +1,5 @@
 import got from 'got';
+import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
 import type {GcpCodec} from '../shared/validate-gcp-codec';
 import {validateGcpCodec} from '../shared/validate-gcp-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
@@ -49,6 +50,7 @@ export const renderMediaOnGcp = async ({
 }: RenderMediaOnGcpInput): Promise<RenderMediaOnGcpOutput> => {
 	const actualCodec = validateGcpCodec(codec);
 	validateServeUrl(serveUrl);
+	validateCloudRunUrl(cloudRunUrl);
 
 	// todo: allow serviceName to be passed in, and fetch the cloud run URL based on the name
 
