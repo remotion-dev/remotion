@@ -38,7 +38,7 @@
 	],
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
-		"remotion": "3.3.72"
+		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

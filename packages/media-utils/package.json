@@ -18,7 +18,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "3.3.72"
+		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
