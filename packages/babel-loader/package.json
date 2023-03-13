@@ -32,16 +32,16 @@
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
-		"@remotion/bundler": "3.3.72",
+		"@remotion/bundler": "workspace:*",
 		"@types/node": "^16.7.5",
 		"eslint": "8.25.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
-		"remotion": "3.3.72",
+		"remotion": "workspace:*",
 		"typescript": "^4.7.0"
 	},
 	"peerDependencies": {
-		"@remotion/bundler": "3.3.71"
+		"@remotion/bundler": "workspace:*"
 	},
 	"keywords": [
 		"remotion",

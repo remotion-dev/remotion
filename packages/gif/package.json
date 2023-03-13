@@ -32,7 +32,7 @@
 		}
 	},
 	"dependencies": {
-		"remotion": "3.3.72"
+		"remotion": "workspace:*"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",

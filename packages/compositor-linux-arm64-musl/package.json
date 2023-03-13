@@ -1,5 +1,5 @@
 {
-  "version": "3.3.71",
+  "version": "3.3.72",
   "name": "@remotion/compositor-linux-arm64-musl",
   "os": [
     "linux"
