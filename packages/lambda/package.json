@@ -17,7 +17,7 @@
 		"start": "ts-node src/run.ts",
 		"prepublishOnly": "ts-node src/admin/bundle-lambda.ts && node ensure-version-match.js"
 	},
-	"author": "",
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "MIT",
 	"repository": {
 		"url": "https://github.com/JonnyBurger/remotion"
