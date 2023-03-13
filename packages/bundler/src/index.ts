@@ -16,6 +16,6 @@ export const BundlerInternals = {
 	readRecursively,
 };
 
-export {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 export {bundle, BundleOptions, LegacyBundleOptions} from './bundle';
+export {WebpackConfiguration, WebpackOverrideFn} from './webpack-config';
 export {webpack};
