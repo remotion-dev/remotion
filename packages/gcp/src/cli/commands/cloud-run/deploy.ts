@@ -9,6 +9,7 @@ import {validateGcpRegion} from '../../../shared/validate-gcp-region';
 import {validateOverwrite} from '../../../shared/validate-overwrite';
 import {validateProjectID} from '../../../shared/validate-project-id';
 import {validateRemotionVersion} from '../../../shared/validate-remotion-version';
+import {validateServiceMemory} from '../../../shared/validate-service-memory';
 import {validateServiceName} from '../../../shared/validate-service-name';
 import {parsedGcpCli} from '../../args';
 import {getGcpRegion} from '../../get-gcp-region';
@@ -24,9 +25,11 @@ export const cloudRunDeploySubcommand = async () => {
 	const remotionVersion = parsedGcpCli['remotion-version'] ?? VERSION;
 	const allowUnauthenticated = parsedGcpCli['allow-unauthenticated'] ?? false;
 	const overwriteService = parsedGcpCli['overwrite-service'] ?? false;
+	const memory = parsedGcpCli.memory ?? '512Mi';
 
 	validateGcpRegion(region);
 	validateServiceName(serviceName);
+	validateServiceMemory(memory);
 	validateProjectID(projectID);
 	validateRemotionVersion(remotionVersion);
 	validateOverwrite(overwriteService);
@@ -92,7 +95,7 @@ GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${servic
 			}
 		} else {
 			Log.info(CliInternals.chalk.gray('deploy cancelled'));
-			quit(1); // TODO: Check with Jonny what to pass to quit
+			quit(1); // TODO: Check with Jonny what to pass to quit - 0 or 1?
 		}
 	} else {
 		// if no existing service, deploy new service
@@ -101,6 +104,7 @@ GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${servic
 			const deployResult = await deployNewCloudRun({
 				remotionVersion,
 				serviceName,
+				memory,
 				projectID,
 				region,
 				overwriteService,

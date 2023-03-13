@@ -1,6 +1,7 @@
 import {validateGcpRegion} from '../shared/validate-gcp-region';
 import {validateProjectID} from '../shared/validate-project-id';
 import {validateRemotionVersion} from '../shared/validate-remotion-version';
+import {validateServiceMemory} from '../shared/validate-service-memory';
 import {validateServiceName} from '../shared/validate-service-name';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 import type {IService} from './helpers/IService';
@@ -8,6 +9,7 @@ import type {IService} from './helpers/IService';
 export type DeployCloudRunInput = {
 	remotionVersion: string;
 	serviceName: string;
+	memory: string;
 	projectID: string;
 	region: string;
 	overwriteService: boolean;
@@ -27,6 +29,7 @@ export const deployNewCloudRun = async (
 ): Promise<IService> => {
 	validateGcpRegion(options.region);
 	validateServiceName(options.serviceName);
+	validateServiceMemory(options.memory);
 	validateProjectID(options.projectID);
 	validateRemotionVersion(options.remotionVersion);
 
@@ -43,6 +46,11 @@ export const deployNewCloudRun = async (
 				containers: [
 					{
 						image: `us-docker.pkg.dev/remotion-dev/cloud-run/render:${options.remotionVersion}`,
+						resources: {
+							limits: {
+								memory: options.memory,
+							},
+						},
 					},
 				],
 			},
