@@ -20,7 +20,7 @@
     "@types/node": "^18.11.2"
   },
   "dependencies": {
-    "lerna": "^4.0.0",
+    "lerna": "^6.5.1",
     "turbo": "1.6.3"
   },
   "workspaces": [
