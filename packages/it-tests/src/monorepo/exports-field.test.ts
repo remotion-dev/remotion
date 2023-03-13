@@ -8,11 +8,6 @@ test("All packages require the same remotion version", () => {
     lstatSync(path.join(process.cwd(), "..", p)).isDirectory()
   );
 
-  const lernaVersion = JSON.parse(
-    readFileSync(path.join(process.cwd(), "..", "..", "lerna.json"), "utf-8")
-  ).version;
-
-  let deps = 0;
   for (const folder of folders) {
     const packageJsonPath = path.join(
       process.cwd(),
@@ -23,32 +18,14 @@ test("All packages require the same remotion version", () => {
     if (!existsSync(packageJsonPath)) {
       continue;
     }
-
     const json = readFileSync(packageJsonPath, "utf-8");
-
     const packageJson = JSON.parse(json);
-    const {
-      dependencies,
-      devDependencies,
-      peerDependencies,
-      optionalDependencies,
-    } = packageJson;
-
-    const allDeps = {
-      ...dependencies,
-      ...devDependencies,
-      ...peerDependencies,
-      ...optionalDependencies,
-    };
-
-    const onlyRemotionDeps = Object.keys(allDeps).filter(
-      (dep) => dep.startsWith("@remotion") || dep === "remotion"
-    );
-
-    for (const dep of onlyRemotionDeps) {
-      expect(allDeps[dep]).toBe(lernaVersion);
-      deps++;
+    const { exports } = packageJson;
+    if (exports === undefined) {
+      continue;
+    }
+    if (!exports["./package.json"]) {
+      throw new Error("No package.json export in " + folder);
     }
   }
-  expect(deps).toBeGreaterThan(75);
 });
