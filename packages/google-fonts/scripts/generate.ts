@@ -180,4 +180,7 @@ const run = async () => {
   console.log("- Generated fonts in " + (Date.now() - date) + "ms");
 };
 
-run();
+run().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
