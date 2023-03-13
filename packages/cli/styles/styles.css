@@ -5,6 +5,8 @@ html {
 body {
 	overscroll-behavior-y: none;
 	overscroll-behavior-x: none;
+	/* Override Chakra UI position: relative on body */
+	position: static !important;
 }
 
 .remotion-splitter {
