@@ -1,12 +1,15 @@
 import {validateGcpRegion} from '../shared/validate-gcp-region';
 import {validateProjectID} from '../shared/validate-project-id';
 import {validateRemotionVersion} from '../shared/validate-remotion-version';
+import {constructServiceTemplate} from './helpers/construct-service-deploy-request';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 import type {IService} from './helpers/IService';
 
 export type DeployCloudRunRevisionInput = {
 	remotionVersion: string;
 	existingService: IService;
+	memory: string;
+	cpu: string;
 	projectID: string;
 	region: string;
 };
@@ -27,27 +30,17 @@ export const deployCloudRunRevision = async (
 	validateProjectID(options.projectID);
 	validateRemotionVersion(options.remotionVersion);
 
-	// TODO: Add option for CPU and memory limits, and validate
-
 	const cloudRunClient = getCloudRunClient();
 
 	// Construct request
 	const request = {
 		service: {
 			name: options.existingService.name,
-			template: {
-				containers: [
-					{
-						image: `us-docker.pkg.dev/remotion-dev/cloud-run/render:${options.remotionVersion}`,
-						resources: {
-							limits: {
-								cpu: '1',
-								memory: '4Gi',
-							},
-						},
-					},
-				],
-			},
+			template: constructServiceTemplate({
+				remotionVersion: options.remotionVersion,
+				memory: options.memory,
+				cpu: options.cpu,
+			}),
 		},
 	};
 	// Run request

@@ -1,8 +1,8 @@
 import {validateGcpRegion} from '../shared/validate-gcp-region';
 import {validateProjectID} from '../shared/validate-project-id';
 import {validateRemotionVersion} from '../shared/validate-remotion-version';
-import {validateServiceMemory} from '../shared/validate-service-memory';
 import {validateServiceName} from '../shared/validate-service-name';
+import {constructServiceTemplate} from './helpers/construct-service-deploy-request';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 import type {IService} from './helpers/IService';
 
@@ -10,6 +10,7 @@ export type DeployCloudRunInput = {
 	remotionVersion: string;
 	serviceName: string;
 	memory: string;
+	cpu: string;
 	projectID: string;
 	region: string;
 	overwriteService: boolean;
@@ -27,9 +28,9 @@ export type DeployCloudRunInput = {
 export const deployNewCloudRun = async (
 	options: DeployCloudRunInput
 ): Promise<IService> => {
+	// ToDo: This needs to allow for defaults for use of the node API without CLI
 	validateGcpRegion(options.region);
 	validateServiceName(options.serviceName);
-	validateServiceMemory(options.memory);
 	validateProjectID(options.projectID);
 	validateRemotionVersion(options.remotionVersion);
 
@@ -37,23 +38,15 @@ export const deployNewCloudRun = async (
 
 	const cloudRunClient = getCloudRunClient();
 
-	// Construct request
 	const request = {
 		parent,
 		service: {
 			// service structure: https://googleapis.dev/nodejs/run/latest/google.cloud.run.v2.IService.html
-			template: {
-				containers: [
-					{
-						image: `us-docker.pkg.dev/remotion-dev/cloud-run/render:${options.remotionVersion}`,
-						resources: {
-							limits: {
-								memory: options.memory,
-							},
-						},
-					},
-				],
-			},
+			template: constructServiceTemplate({
+				remotionVersion: options.remotionVersion,
+				memory: options.memory,
+				cpu: options.cpu,
+			}),
 		},
 		serviceId: options.serviceName,
 	};

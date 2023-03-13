@@ -9,7 +9,6 @@ import {validateGcpRegion} from '../../../shared/validate-gcp-region';
 import {validateOverwrite} from '../../../shared/validate-overwrite';
 import {validateProjectID} from '../../../shared/validate-project-id';
 import {validateRemotionVersion} from '../../../shared/validate-remotion-version';
-import {validateServiceMemory} from '../../../shared/validate-service-memory';
 import {validateServiceName} from '../../../shared/validate-service-name';
 import {parsedGcpCli} from '../../args';
 import {getGcpRegion} from '../../get-gcp-region';
@@ -26,10 +25,10 @@ export const cloudRunDeploySubcommand = async () => {
 	const allowUnauthenticated = parsedGcpCli['allow-unauthenticated'] ?? false;
 	const overwriteService = parsedGcpCli['overwrite-service'] ?? false;
 	const memory = parsedGcpCli.memory ?? '512Mi';
+	const cpu = parsedGcpCli.cpu ?? '1.0';
 
 	validateGcpRegion(region);
 	validateServiceName(serviceName);
-	validateServiceMemory(memory);
 	validateProjectID(projectID);
 	validateRemotionVersion(remotionVersion);
 	validateOverwrite(overwriteService);
@@ -39,6 +38,8 @@ export const cloudRunDeploySubcommand = async () => {
 				`
 Remotion Version = ${remotionVersion}
 Service Name = ${serviceName}
+Service Memory Limit = ${memory}
+Service CPU Limit = ${cpu}
 Project Name = ${projectID}
 Region = ${region}
 Allow Unauthenticated Access = ${allowUnauthenticated}
@@ -67,6 +68,8 @@ Overwrite existing service = ${overwriteService}
 			const deployRevisionResult = await deployCloudRunRevision({
 				remotionVersion,
 				existingService,
+				memory,
+				cpu,
 				projectID,
 				region,
 			});
@@ -105,6 +108,7 @@ GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${servic
 				remotionVersion,
 				serviceName,
 				memory,
+				cpu,
 				projectID,
 				region,
 				overwriteService,
