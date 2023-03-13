@@ -9,7 +9,7 @@
     "build": "turbo run build",
     "ci": "turbo run build lint test --concurrency=50%",
     "watch": "pnpm run --recursive --stream --parallel watch",
-    "release": "cd packages/it-tests && pnpm exec vitest src/monorepo --run && cd .. && lerna publish --force-publish",
+    "release": "cd packages/it-tests && pnpm exec vitest src/monorepo --run && cd .. && lerna version --force-publish && pnpm recursive publish",
     "clean": "rm -rf packages/**/dist && lerna clean --yes && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo  && rm -rf packages/**/.turbo"
   },
   "engines": {
