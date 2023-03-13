@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/gcp",
-	"version": "0.0.1",
+	"version": "3.3.75",
 	"description": "GCP alternative to lambda rendering",
 	"main": "dist/index.js",
 	"scripts": {
@@ -17,17 +17,17 @@
 		"@google-cloud/functions-framework": "^3.1.3",
 		"@google-cloud/storage": "^6.9.1",
 		"@google-cloud/run": "^0.4.0",
-		"@remotion/bundler": "3.3.64",
-		"@remotion/cli": "3.3.64",
-		"@remotion/renderer": "3.3.64",
-		"remotion": "3.3.64",
+		"@remotion/bundler": "workspace:*",
+		"@remotion/cli": "workspace:*",
+		"@remotion/renderer": "workspace:*",
+		"remotion": "workspace:*",
 		"got": "11.8.2"
 	},
 	"devDependencies": {
 		"prettier-plugin-organize-imports": "^3.2.2",
 		"typescript": "^4.7.0",
 		"prettier": "^2.7.1",
-		"@remotion/compositor-linux-x64-musl": "3.3.64",
+		"@remotion/compositor-linux-x64-musl": "workspace:*",
 		"ts-node": "^10.8.0",
 		"@types/minimist": "1.2.2",
 		"eslint": "8.25.0",
