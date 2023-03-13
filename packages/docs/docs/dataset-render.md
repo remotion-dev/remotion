@@ -172,15 +172,20 @@ In order to render our videos, we'll first need to bundle our project using Webp
 This can be done by using the [`bundle()`](/docs/bundle) function from the [`@remotion/bundler`](/docs/bundler) package. Make sure to include the webpack override in the bundle if you have one.
 
 ```ts twoslash
+// @filename: webpack-override.ts
+import type { WebpackOverrideFn } from "@remotion/bundler";
+export const webpackOverride: WebpackOverrideFn = (f) => f;
+// @filename: script.ts
 // @module: esnext
 // @target: es2022
+// ---cut---
 import { bundle } from "@remotion/bundler";
-import {webpackOverride} from './webpack-override';
+import { webpackOverride } from "./webpack-override";
 
 const bundleLocation = await bundle({
   entryPoint: "./src/index.ts",
   // If you have a webpack override, don't forget to add it
-  webpackOverride: webpackOverride
+  webpackOverride: webpackOverride,
 });
 ```
 
@@ -279,10 +284,14 @@ export const data = [
   },
 ];
 
+// @filename: webpack-override.ts
+import type { WebpackOverrideFn } from "@remotion/bundler";
+export const webpackOverride: WebpackOverrideFn = (f) => f;
+
 // @filename: render.ts
 // ---cut---
 import { getCompositions, renderMedia } from "@remotion/renderer";
-import {webpackOverride} from './webpack-override';
+import { webpackOverride } from "./webpack-override";
 import { bundle } from "@remotion/bundler";
 import { data } from "./dataset";
 
@@ -291,8 +300,8 @@ const compositionId = "MyComp";
 const start = async () => {
   const bundleLocation = await bundle({
     entryPoint: "./src/index.ts",
-     // If you have a webpack override, don't forget to add it
-    webpackOverride: webpackOverride
+    // If you have a webpack override, don't forget to add it
+    webpackOverride: webpackOverride,
   });
 
   const allCompositions = await getCompositions(bundleLocation);
