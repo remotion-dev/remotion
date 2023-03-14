@@ -20,12 +20,13 @@ export const processVideoJob = async ({
 		throw new Error('Expected video job');
 	}
 
-	// TODO: Change until none can be derived from UI
 	const {
 		publicDir,
 		browserExecutable,
 		chromiumOptions,
+		// TODO: Accept env variables from UI
 		envVariables,
+		// TODO: Accept input props from UI
 		inputProps,
 		port,
 		browser,
@@ -81,5 +82,4 @@ export const processVideoJob = async ({
 		audioCodec: job.audioCodec,
 		disallowParallelEncoding: job.disallowParallelEncoding,
 	});
-	// TODO: Accept CLI options
 };
