@@ -6,7 +6,6 @@ type GCPCommandLineOptions = {
 	help: boolean;
 	region: GcpRegion;
 	['project-id']: string;
-	['remotion-version']: string | undefined;
 	['service-name']: string;
 	['allow-unauthenticated']: boolean | undefined;
 	y: boolean;

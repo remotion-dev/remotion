@@ -66,16 +66,13 @@ Options:
 - --service-name (required):
   - the name of the Cloud Run service to deploy or update. Service names must be 49 characters or less and must be unique per region and project. A service name cannot be changed later and is publicly visible. The service does not need to exist yet. If it does exist, a new revision will be deployed.
 - --region: the region of the service
-- --remotion-version (required for now): the version of the remotion package to use
-  - the version of Remotion to deploy on the service. Behind the scenes, this is selecting the container image from a publicly readable repository `us-docker.pkg.dev/remotion-dev/cloud-run/render`. Part of the build step for the monorepo will be to deploy a new container image to this repository, with the remotion version as a tag.
-  - for now, the remotion version must be set to `3.3.36-alpha`
 - --allow-unauthenticated (optional, default to false):
   - whether to allow unauthenticated requests to the service. For now, I would suggest setting this to true, to avoid having to create a service account and grant it access to the service. In the future, it would be recommended to not set this tru.
 - --overwrite-service (optional, default to false):
   - if an existing service is found with the same name, a prompt will come up asking if a new revision should be deployed. If this flag is set to true, the prompt will be skipped and a new revision will be deployed automatically.
 
 Taking the above into account, a valid command would be:  
-`npx remotion gcp cloud-run deploy --service-name=cloud-run-render --project-id=new-remotion-project --remotion-version=3.3.36-alpha --allow-unauthenticated`
+`npx remotion gcp cloud-run deploy --service-name=cloud-run-render --project-id=new-remotion-project --allow-unauthenticated`
 
 To view the deployed service, navigate to the [Cloud Run](https://console.cloud.google.com/run) screen in Google Cloud Console, and selecting the project from the drop-down menu in the top left corner.
 

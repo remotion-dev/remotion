@@ -1,13 +1,12 @@
 #!/usr/bin/env node
-import { v2 } from "@google-cloud/run";
-import fs from "fs";
-import { Storage, TransferManager } from "@google-cloud/storage";
+import {Storage} from '@google-cloud/storage';
+import fs from 'fs';
 
-// 	npx remotion-gcp --remotion-version=3.3.51-alpha --project=remotion-lambda --service-name=hello --region=australia-southeast1
+// 	npx remotion-gcp --project=remotion-lambda --service-name=hello --region=australia-southeast1
 
 // const { ServicesClient } = v2;
 
-const sa_data = fs.readFileSync("./sa-key.json", "utf8");
+const sa_data = fs.readFileSync('./sa-key.json', 'utf8');
 const sa_json = JSON.parse(sa_data);
 
 // const runClient = new ServicesClient({
@@ -63,14 +62,14 @@ const sa_json = JSON.parse(sa_data);
 // }
 
 const cloudStorageClient = new Storage({
-  credentials: sa_json,
+	credentials: sa_json,
 });
 
 // cloudStorageClient.bucket('remotionlambda-testy').get()
 
 // const result = await cloudStorageClient.bucket('remotionlambda-testc').get();
-const bucketName = "remotionlambda-test";
-const prefix = "sites/xmycbufjs3/";
+const bucketName = 'remotionlambda-test';
+const prefix = 'sites/xmycbufjs3/';
 // const [files] = await cloudStorageClient.bucket(bucketName).getFiles({ prefix });
 // // const [files, nextContinuationToken] = await cloudStorageClient.bucket('gcp-public-data-landsat').getFiles({ prefix: 'LC08/01/001' });
 
@@ -89,8 +88,8 @@ const prefix = "sites/xmycbufjs3/";
 // const key = 'sites/xmycbufjs3/LibraryMock.png'
 // await cloudStorageClient.bucket(bucketName).file(key).delete();
 // https://storage.googleapis.com/remotionlambda-test/sites/xmycbufjs3/LibraryMock.png
-const firstFilePath = "haloInf.mp4";
-const secondFilePath = "zoomJump.mp4";
+const firstFilePath = 'haloInf.mp4';
+const secondFilePath = 'zoomJump.mp4';
 
 // const transferManager = new TransferManager(cloudStorageClient.bucket(bucketName));
 // await transferManager.uploadManyFiles([firstFilePath, secondFilePath], { prefix });
@@ -100,33 +99,33 @@ const secondFilePath = "zoomJump.mp4";
 // }
 
 const bucket = cloudStorageClient.bucket(bucketName);
-const remote_file = bucket.file("new/haloInf.mp4");
+const remote_file = bucket.file('new/haloInf.mp4');
 
-console.log("test message");
+console.log('test message');
 
 const uploadPromises = [];
 const paths = [firstFilePath, secondFilePath];
 
 async function uploadInParallel() {
-  for (const index in paths) {
-    const path = paths[index];
-    const fileSizeInBytes = fs.statSync(path).size;
-    uploadPromises.push(
-      fs
-        .createReadStream(path)
-        .pipe(bucket.file(`new/${path}`).createWriteStream())
-        .on("error", function (err) {})
-        .on("progress", function (p) {
-          console.log(
-            path,
-            `${Math.floor((p.bytesWritten / fileSizeInBytes) * 100)}%`
-          );
-        })
-        .on("finish", function () {
-          console.log(path, " completed");
-        })
-    );
-  }
+	for (const index in paths) {
+		const path = paths[index];
+		const fileSizeInBytes = fs.statSync(path).size;
+		uploadPromises.push(
+			fs
+				.createReadStream(path)
+				.pipe(bucket.file(`new/${path}`).createWriteStream())
+				.on('error', (err) => {})
+				.on('progress', (p) => {
+					console.log(
+						path,
+						`${Math.floor((p.bytesWritten / fileSizeInBytes) * 100)}%`
+					);
+				})
+				.on('finish', () => {
+					console.log(path, ' completed');
+				})
+		);
+	}
 }
 // const promise = Promise.all(uploadPromises).catch(console.error);
 
@@ -136,21 +135,21 @@ async function uploadInParallel() {
 // console.log('after')
 
 const uploads = paths.map(async (path) => {
-  const fileSizeInBytes = fs.statSync(path).size;
-  return new Promise((resolve, reject) => {
-    fs.createReadStream(path)
-      .pipe(bucket.file(`new/${path}`).createWriteStream())
-      .on("error", (error) => reject(error))
-      .on("progress", function (p) {
-        console.log(
-          path,
-          `${Math.floor((p.bytesWritten / fileSizeInBytes) * 100)}%`
-        );
-      })
-      .on("finish", () => resolve("done"));
-  });
+	const fileSizeInBytes = fs.statSync(path).size;
+	return new Promise((resolve, reject) => {
+		fs.createReadStream(path)
+			.pipe(bucket.file(`new/${path}`).createWriteStream())
+			.on('error', (error) => reject(error))
+			.on('progress', (p) => {
+				console.log(
+					path,
+					`${Math.floor((p.bytesWritten / fileSizeInBytes) * 100)}%`
+				);
+			})
+			.on('finish', () => resolve('done'));
+	});
 });
-console.log("before");
+console.log('before');
 const promise = Promise.all(uploads);
 await promise;
-console.log("after");
+console.log('after');
