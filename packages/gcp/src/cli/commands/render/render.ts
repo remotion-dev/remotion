@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {getCompositions} from '@remotion/renderer';
+import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import type {
 	RenderMediaOnGcpErrOutput,
 	RenderMediaOnGcpOutput,
@@ -10,6 +11,7 @@ import type {GcpCodec} from '../../../shared/validate-gcp-codec';
 // import {validateMaxRetries} from '../../../shared/validate-retries';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedGcpCli} from '../../args';
+import {getGcpRegion} from '../../get-gcp-region';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 
@@ -75,17 +77,12 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	// const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	// validatePrivacy(privacy);
 
-	const outputBucket = parsedGcpCli['output-bucket']; // Todo: I think this should be optional with a fallback
+	let outputBucket = parsedGcpCli['output-bucket'];
 	if (!outputBucket) {
-		Log.error('No Output Bucket passed.');
-		Log.info(
-			'Pass an additional argument specifying the name of your GCS bucket.'
-		);
-		Log.info();
-		Log.info(
-			`${BINARY_NAME} ${RENDER_COMMAND} <serve-url> <cloud-run-url> <composition-id> [output-bucket]`
-		);
-		quit(1);
+		const {bucketName} = await getOrCreateBucket({
+			region: getGcpRegion(),
+		});
+		outputBucket = bucketName;
 	}
 
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
