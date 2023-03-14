@@ -6,7 +6,8 @@ import {label, optionRow, rightRow} from './layout';
 export const EnforceAudioTrackSetting: React.FC<{
 	enforceAudioTrack: boolean;
 	setEnforceAudioTrack: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({enforceAudioTrack, setEnforceAudioTrack}) => {
+	muted: boolean;
+}> = ({enforceAudioTrack, muted, setEnforceAudioTrack}) => {
 	const onEnforceAudioTrackChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setEnforceAudioTrack(e.target.checked);
@@ -19,6 +20,7 @@ export const EnforceAudioTrackSetting: React.FC<{
 			<div style={label}>Enforce Audio Track</div>
 			<div style={rightRow}>
 				<Checkbox
+					disabled={muted && !enforceAudioTrack}
 					checked={enforceAudioTrack}
 					onChange={onEnforceAudioTrackChanged}
 				/>

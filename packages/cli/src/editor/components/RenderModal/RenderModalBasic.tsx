@@ -166,7 +166,7 @@ export const RenderModalBasic: React.FC<{
 							/>
 						</div>
 					</div>
-					{audioCodecOptions(codec).length >= 2 ? (
+					{renderMode === 'video' && audioCodecOptions(codec).length >= 2 ? (
 						<div style={optionRow}>
 							<div style={label}>Audio Codec</div>
 							<div style={rightRow}>

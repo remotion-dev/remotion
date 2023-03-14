@@ -51,16 +51,21 @@ export const RenderModalAudio: React.FC<{
 	return (
 		<div>
 			{renderMode === 'video' && (
-				<MutedSetting muted={muted} setMuted={setMuted} />
-			)}
-			{renderMode === 'video' && (
-				<EnforceAudioTrackSetting
-					enforceAudioTrack={enforceAudioTrack}
-					setEnforceAudioTrack={setEnforceAudioTrackState}
-				/>
+				<>
+					<MutedSetting
+						enforceAudioTrack={enforceAudioTrack}
+						muted={muted}
+						setMuted={setMuted}
+					/>
+					<EnforceAudioTrackSetting
+						muted={muted}
+						enforceAudioTrack={enforceAudioTrack}
+						setEnforceAudioTrack={setEnforceAudioTrackState}
+					/>
+					<RenderModalHr />
+				</>
 			)}
 
-			<RenderModalHr />
 			{renderMode === 'still' ? null : (
 				<div style={optionRow}>
 					<div style={label}>Custom audio bitrate</div>
