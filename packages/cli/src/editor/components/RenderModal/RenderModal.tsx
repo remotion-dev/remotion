@@ -814,7 +814,6 @@ export const RenderModal: React.FC<{
 					{tab === 'general' ? (
 						<RenderModalBasic
 							codec={codec}
-							audioCodec={audioCodec}
 							currentComposition={currentComposition}
 							frame={frame}
 							imageFormatOptions={imageFormatOptions}
@@ -822,7 +821,6 @@ export const RenderModal: React.FC<{
 							proResProfile={proResProfile}
 							renderMode={renderMode}
 							setVideoCodec={setCodec}
-							setAudioCodec={setAudioCodec}
 							setFrame={setFrame}
 							setOutName={setOutName}
 							setProResProfile={setProResProfile}
@@ -860,6 +858,9 @@ export const RenderModal: React.FC<{
 							muted={muted}
 							renderMode={renderMode}
 							setMuted={setMuted}
+							codec={codec}
+							audioCodec={audioCodec}
+							setAudioCodec={setAudioCodec}
 							enforceAudioTrack={enforceAudioTrack}
 							setEnforceAudioTrackState={setEnforceAudioTrackState}
 							customTargetAudioBitrate={customTargetAudioBitrate}

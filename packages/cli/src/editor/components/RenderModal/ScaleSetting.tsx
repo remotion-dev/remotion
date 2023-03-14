@@ -8,6 +8,7 @@ export const ScaleSetting: React.FC<{
 	setScale: (value: React.SetStateAction<number>) => void;
 }> = ({scale, setScale}) => {
 	return (
+		// TODO: Always show 1 decimal
 		<NumberSetting
 			min={MIN_SCALE}
 			max={MAX_SCALE}
