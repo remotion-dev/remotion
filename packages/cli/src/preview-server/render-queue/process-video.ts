@@ -1,6 +1,6 @@
 import {convertEntryPointToServeUrl} from '../../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../../get-cli-options';
-import {renderCompFlow} from '../../render-flows/render';
+import {renderVideoFlow} from '../../render-flows/render';
 import type {JobProgressCallback, RenderJob} from './job';
 
 export const processVideoJob = async ({
@@ -37,7 +37,7 @@ export const processVideoJob = async ({
 	});
 
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
-	await renderCompFlow({
+	await renderVideoFlow({
 		remotionRoot,
 		browser,
 		browserExecutable,

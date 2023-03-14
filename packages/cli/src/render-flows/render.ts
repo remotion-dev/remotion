@@ -47,8 +47,7 @@ import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
 
-// TODO: rename to renderVideoFlow
-export const renderCompFlow = async ({
+export const renderVideoFlow = async ({
 	remotionRoot,
 	fullEntryPoint,
 	indent,
