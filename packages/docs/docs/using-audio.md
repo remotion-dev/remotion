@@ -25,9 +25,7 @@ export const MyComposition = () => {
 };
 ```
 
-The audio will play from the start, at full volume and full length, unless the composition is shorter.
-
-You can also import remote audio by passing a URL: (`src="https://example.com/audio.mp3"`).
+You can also add remote audio by passing a URL:
 
 ```tsx twoslash
 import { AbsoluteFill, Audio } from "remotion";
@@ -41,18 +39,12 @@ export const MyComposition = () => {
 };
 ```
 
+By default, the audio will play from the start, at full volume and full length.
 You can mix multiple tracks together by adding more audio tags.
 
 ## Cutting or trimming the audio
 
-You can use [`<Sequence />`](/docs/sequence) to cut and trim audio.
-
-As a convenience, the `<Audio />` tag supports the `startFrom` and `endAt` props. In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
-
-By passing `startFrom={60}`, the playback starts immediately, but with the first 2 seconds of the audio trimmed away.  
-By passing `endAt={120}`, any audio after the 4 second mark in the file will be trimmed away.
-
-The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
+The `<Audio />` tag supports the `startFrom` and `endAt` props. In the following example, we assume that the [`fps`](/docs/composition#fps) of the composition is `30`.
 
 ```tsx twoslash {6}
 import { AbsoluteFill, Audio, staticFile } from "remotion";
@@ -66,9 +58,14 @@ export const MyComposition = () => {
 };
 ```
 
+By passing `startFrom={60}`, the playback starts immediately, but with the first 2 seconds of the audio trimmed away.  
+By passing `endAt={120}`, any audio after the 4 second mark in the file will be trimmed away.
+
+The audio will play the range from `00:02:00` to `00:04:00`, meaning the audio will play for 2 seconds.
+
 ## Delaying audio
 
-Use a `<Sequence>` with a positive `from` attribute to delay the audio from playing.
+Use a `<Sequence>` with a positive `from` value to delay the audio from playing.
 In the following example, the audio will start playing (from the beginning) after 100 frames.
 
 ```tsx twoslash {6-8}
@@ -107,10 +104,6 @@ export const MyComposition = () => {
 
 You can also change volume over time by passing in a function that takes a frame number and returns the volume.
 
-In this example we are using the [interpolate()](/docs/interpolate) function to fade the audio in over 30 frames. Note that because values below 0 are not allowed, we need to set the `extrapolateLeft: 'clamp'` option to ensure no negative values.
-
-Inside the callback function, the first frame on which audio is being played is frame `0`, regardless of the value of `useCurrentFrame()`.
-
 ```tsx twoslash {8-10}
 import { AbsoluteFill, Audio, interpolate, staticFile } from "remotion";
 
@@ -127,6 +120,12 @@ export const MyComposition = () => {
   );
 };
 ```
+
+In this example we are using the [interpolate()](/docs/interpolate) function to fade the audio in over 30 frames. Note that because values below 0 are not allowed, we need to set the `extrapolateLeft: 'clamp'` option to ensure no negative values.
+
+Inside the callback function, the first frame at which audio is being played is numbered `0`, regardless of the value of `useCurrentFrame()`.
+
+Prefer using a callback function if the volume is changing. This will enable Remotion to draw a volume curve in the timeline and is more performant.
 
 :::note
 When using the [`<Player>`](/docs/player), note that Mobile Safari [does not support the `volume` property](https://developer.apple.com/library/archive/documentation/AudioVideo/Conceptual/Using_HTML5_Audio_Video/Device-SpecificConsiderations/Device-SpecificConsiderations.html#//apple_ref/doc/uid/TP40009523-CH5-SW11). The audio mix may not play as intended.
@@ -152,11 +151,11 @@ export const MyComposition = () => {
 
 ## Use audio from `<Video />` tags
 
-Audio from [`<Video />`](/docs/video) tags are also included in the output. You may also use the `volume` and `muted` props in the same way.
+Audio from [`<Video />`](/docs/video) and [`<OffthreadVideo />`](/docs/offthreadvideo) tags are also included in the output. You may use the [`startFrom`, `endAt`](/docs/video/#startfrom--endat), [`volume`](/docs/video/#volume) and [`muted`](/docs/video/#muted) props in the same way.
 
 ## Controlling playback speed
 
-_Available from v2.2_
+<AvailableFrom v="2.2">
 
 You can use the `playbackRate` prop to control the speed of the audio. `1` is the default and means regular speed, `0.5` slows down the audio so it's twice as long and `2` speeds up the audio so it's twice as fast.
 
