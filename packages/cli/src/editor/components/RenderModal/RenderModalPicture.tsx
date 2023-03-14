@@ -119,7 +119,7 @@ export const RenderModalPicture: React.FC<{
 			{renderMode === 'still' && stillImageFormat === 'jpeg' && (
 				<QualitySetting setQuality={setQuality} quality={quality} />
 			)}
-			<RenderModalHr />
+			{renderMode === 'video' ? <RenderModalHr /> : null}
 			{renderMode === 'video' ? (
 				<div style={optionRow}>
 					<div style={label}>Quality control</div>
@@ -154,9 +154,9 @@ export const RenderModalPicture: React.FC<{
 					</div>
 				</div>
 			) : null}
-			<RenderModalHr />
+			{renderMode === 'video' ? <RenderModalHr /> : null}
 			<ScaleSetting scale={scale} setScale={setScale} />
-			<RenderModalHr />
+			{renderMode === 'video' ? <RenderModalHr /> : null}
 			{renderMode === 'video' ? (
 				<div style={optionRow}>
 					<div style={label}>Pixel format</div>
