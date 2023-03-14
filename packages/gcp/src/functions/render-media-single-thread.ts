@@ -1,22 +1,9 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
+import type {RenderMediaOnProgress} from '@remotion/renderer';
 import {renderMedia} from '@remotion/renderer';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
-
-/*
-	example JSON body: {
-    "composition": "HelloWorld",
-    "serveUrl": "https://remotionlambda-11kow3vq6f.s3.us-east-1.amazonaws.com/sites/xmycbufjs3/index.html",
-    "codec": "h264",
-    "inputProps": {
-      "titleText": "Welcome to Remotion",
-      "titleColor": "black"
-    },
-    "outputBucket": "remotionlambda-test",
-    "outputFile": "mediaOutput.mp4"
-  }
-*/
 
 export const renderMediaSingleThread = async (
 	req: ff.Request,
@@ -29,6 +16,15 @@ export const renderMediaSingleThread = async (
 
 	const tempFilePath = '/tmp/output.mp4';
 	const renderId = randomHash({randomInTests: true});
+	let previousProgress = 2;
+	const onProgress: RenderMediaOnProgress = ({progress}) => {
+		if (previousProgress !== progress) {
+			res.write(JSON.stringify({onProgress: progress}));
+			previousProgress = progress;
+		}
+	};
+
+	res.writeHead(200, {'Content-Type': 'text/html'});
 
 	await renderMedia({
 		composition,
@@ -36,6 +32,7 @@ export const renderMediaSingleThread = async (
 		codec: req.body.codec,
 		outputLocation: tempFilePath,
 		inputProps: req.body.inputProps,
+		onProgress,
 	});
 
 	const storage = new Storage();
@@ -58,8 +55,5 @@ export const renderMediaSingleThread = async (
 	};
 
 	console.log('Render Completed:', responseData);
-
-	const jsonContent = JSON.stringify(responseData);
-
-	res.end(jsonContent);
+	res.end(JSON.stringify({response: responseData}));
 };
