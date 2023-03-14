@@ -10,10 +10,6 @@ export const useRenderModalSections = (
 ) => {
 	const [selectedTab, setTab] = useState<Section>('general');
 
-	const tab = useMemo(() => {
-		return selectedTab;
-	}, [selectedTab]);
-
 	const shownTabs = useMemo((): Section[] => {
 		if (renderMode === 'audio') {
 			return ['general', 'audio', 'advanced'];
@@ -33,6 +29,14 @@ export const useRenderModalSections = (
 
 		throw new TypeError('Unknown render mode');
 	}, [codec, renderMode]);
+
+	const tab = useMemo(() => {
+		if (!shownTabs.includes(selectedTab)) {
+			return shownTabs[0];
+		}
+
+		return selectedTab;
+	}, [selectedTab, shownTabs]);
 
 	return useMemo(() => {
 		return {tab, setTab, shownTabs};
