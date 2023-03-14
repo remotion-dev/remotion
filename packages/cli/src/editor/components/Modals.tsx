@@ -27,8 +27,12 @@ export const Modals: React.FC = () => {
 					initialScale={modalContextType.initialScale}
 					initialVerbose={modalContextType.initialVerbose}
 					initialRenderType={modalContextType.initialRenderType}
-					initialAudioCodec={modalContextType.initialAudioCodec}
-					initialVideoCodec={modalContextType.initialVideoCodec}
+					initialVideoCodecForAudioTab={
+						modalContextType.initialVideoCodecForAudioTab
+					}
+					initialVideoCodecForVideoTab={
+						modalContextType.initialVideoCodecForVideoTab
+					}
 					initialConcurrency={modalContextType.initialConcurrency}
 					maxConcurrency={modalContextType.maxConcurrency}
 					minConcurrency={modalContextType.minConcurrency}
@@ -42,6 +46,7 @@ export const Modals: React.FC = () => {
 					initialEveryNthFrame={modalContextType.initialEveryNthFrame}
 					initialNumberOfGifLoops={modalContextType.initialNumberOfGifLoops}
 					initialDelayRenderTimeout={modalContextType.initialDelayRenderTimeout}
+					initialAudioCodec={modalContextType.initialAudioCodec}
 				/>
 			)}
 

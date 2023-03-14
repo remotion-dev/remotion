@@ -1,4 +1,5 @@
 import type {
+	AudioCodec,
 	Codec,
 	PixelFormat,
 	ProResProfile,
@@ -25,8 +26,9 @@ export type RenderModalState = {
 	initialScale: number;
 	initialVerbose: boolean;
 	initialRenderType: RenderType;
-	initialAudioCodec: Codec;
-	initialVideoCodec: Codec;
+	initialVideoCodecForAudioTab: Codec;
+	initialVideoCodecForVideoTab: Codec;
+	initialAudioCodec: AudioCodec | null;
 	initialConcurrency: number;
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
