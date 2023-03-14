@@ -17,6 +17,8 @@ export const RenderModalAdvanced: React.FC<{
 	verbose: boolean;
 	delayRenderTimeout: number;
 	setDelayRenderTimeout: React.Dispatch<React.SetStateAction<number>>;
+	disallowParallelEncoding: boolean;
+	setDisallowParallelEncoding: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	renderMode,
 	maxConcurrency,
@@ -27,12 +29,21 @@ export const RenderModalAdvanced: React.FC<{
 	verbose,
 	delayRenderTimeout,
 	setDelayRenderTimeout,
+	disallowParallelEncoding,
+	setDisallowParallelEncoding,
 }) => {
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setVerboseLogging(e.target.checked);
 		},
 		[setVerboseLogging]
+	);
+
+	const onDisallowParallelEncodingChanged = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			setDisallowParallelEncoding(e.target.checked);
+		},
+		[setDisallowParallelEncoding]
 	);
 
 	return (
@@ -56,6 +67,15 @@ export const RenderModalAdvanced: React.FC<{
 				step={1000}
 				value={delayRenderTimeout}
 			/>
+			<div style={optionRow}>
+				<div style={label}>No parallel encoding</div>
+				<div style={rightRow}>
+					<Checkbox
+						checked={disallowParallelEncoding}
+						onChange={onDisallowParallelEncodingChanged}
+					/>
+				</div>
+			</div>
 			<div style={optionRow}>
 				<div style={label}>Verbose logging</div>
 				<div style={rightRow}>

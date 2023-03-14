@@ -243,6 +243,8 @@ export const RenderModal: React.FC<{
 	const [quality, setQuality] = useState<number>(() => initialQuality);
 	const [scale, setScale] = useState(() => initialScale);
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
+	const [disallowParallelEncoding, setDisallowParallelEncoding] =
+		useState(false);
 	const [outName, setOutName] = useState(() => initialOutName);
 	const [endFrameOrNull, setEndFrame] = useState<number | null>(() => null);
 	const [startFrameOrNull, setStartFrame] = useState<number | null>(() => null);
@@ -552,6 +554,7 @@ export const RenderModal: React.FC<{
 			numberOfGifLoops,
 			delayRenderTimeout,
 			audioCodec: deriveFinalAudioCodec(codec, customAudioCodec),
+			disallowParallelEncoding,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -882,6 +885,8 @@ export const RenderModal: React.FC<{
 							verbose={verbose}
 							delayRenderTimeout={delayRenderTimeout}
 							setDelayRenderTimeout={setDelayRenderTimeout}
+							disallowParallelEncoding={disallowParallelEncoding}
+							setDisallowParallelEncoding={setDisallowParallelEncoding}
 						/>
 					)}
 

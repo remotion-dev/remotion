@@ -61,6 +61,7 @@ type RenderJobDynamicFields =
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
 			delayRenderTimeout: number;
+			disallowParallelEncoding: boolean;
 	  };
 
 export type RenderJob = {
@@ -108,6 +109,7 @@ type AddRenderRequestDynamicFields =
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
 			delayRenderTimeout: number;
+			disallowParallelEncoding: boolean;
 	  };
 
 export type CancelRenderRequest = {

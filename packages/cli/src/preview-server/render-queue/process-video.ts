@@ -79,6 +79,7 @@ export const processVideoJob = async ({
 		videoBitrate: job.videoBitrate,
 		numberOfGifLoops: job.numberOfGifLoops,
 		audioCodec: job.audioCodec,
+		disallowParallelEncoding: job.disallowParallelEncoding,
 	});
 	// TODO: Accept CLI options
 };

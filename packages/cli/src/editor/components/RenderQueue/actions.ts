@@ -95,6 +95,7 @@ export const addVideoRenderJob = ({
 	numberOfGifLoops,
 	delayRenderTimeout,
 	audioCodec,
+	disallowParallelEncoding,
 }: {
 	compositionId: string;
 	outName: string;
@@ -117,6 +118,7 @@ export const addVideoRenderJob = ({
 	numberOfGifLoops: number | null;
 	delayRenderTimeout: number;
 	audioCodec: AudioCodec;
+	disallowParallelEncoding: boolean;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -141,6 +143,7 @@ export const addVideoRenderJob = ({
 		numberOfGifLoops,
 		delayRenderTimeout,
 		audioCodec,
+		disallowParallelEncoding,
 	});
 };
 
