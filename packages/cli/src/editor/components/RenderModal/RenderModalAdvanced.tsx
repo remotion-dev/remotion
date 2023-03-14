@@ -48,7 +48,8 @@ export const RenderModalAdvanced: React.FC<{
 				/>
 			)}
 			<NumberSetting
-				min={5_000}
+				// Also appears in packages/renderer/src/validate-puppeteer-timeout.ts
+				min={7_000}
 				max={900_000}
 				name="delayRender() timeout"
 				onValueChanged={setDelayRenderTimeout}
