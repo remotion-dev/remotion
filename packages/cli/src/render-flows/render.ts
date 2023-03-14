@@ -122,7 +122,7 @@ export const renderVideoFlow = async ({
 	crf: Crf | null;
 	cancelSignal: CancelSignal | null;
 	uiCodec: Codec | null;
-	uiImageFormat: VideoImageFormat;
+	uiImageFormat: VideoImageFormat | null;
 	ffmpegOverride: FfmpegOverrideFn;
 	audioBitrate: string | null;
 	videoBitrate: string | null;

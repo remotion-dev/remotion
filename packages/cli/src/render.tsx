@@ -102,8 +102,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			},
 			outputLocationFromUI: null,
 			uiCodec: null,
-			// TODO: Check if none makes sense here
-			uiImageFormat: 'none',
+			uiImageFormat: null,
 			cancelSignal: null,
 			crf,
 			ffmpegOverride,
