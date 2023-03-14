@@ -23,8 +23,11 @@ export const processStill = async ({
 	const {
 		publicDir,
 		browserExecutable,
+		// TODO: Accept chromium options from UI
 		chromiumOptions,
+		// TODO: Accept env variables from UI
 		envVariables,
+		// TODO: Accept input props from UI
 		inputProps,
 		port,
 		browser,
@@ -64,5 +67,4 @@ export const processStill = async ({
 		addCleanupCallback,
 		cancelSignal: job.cancelToken.cancelSignal,
 	});
-	// TODO: Accept CLI options
 };

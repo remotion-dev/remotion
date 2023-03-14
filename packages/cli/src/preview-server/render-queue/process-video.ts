@@ -23,6 +23,7 @@ export const processVideoJob = async ({
 	const {
 		publicDir,
 		browserExecutable,
+		// TODO: Accept chromium options from UI
 		chromiumOptions,
 		// TODO: Accept env variables from UI
 		envVariables,
