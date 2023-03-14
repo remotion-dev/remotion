@@ -6,7 +6,8 @@ import {label, optionRow, rightRow} from './layout';
 export const MutedSetting: React.FC<{
 	muted: boolean;
 	setMuted: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({muted, setMuted}) => {
+	enforceAudioTrack: boolean;
+}> = ({muted, setMuted, enforceAudioTrack}) => {
 	const onMutedChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setMuted(e.target.checked);
@@ -18,7 +19,11 @@ export const MutedSetting: React.FC<{
 		<div style={optionRow}>
 			<div style={label}>Muted</div>
 			<div style={rightRow}>
-				<Checkbox checked={muted} onChange={onMutedChanged} />
+				<Checkbox
+					checked={muted}
+					disabled={enforceAudioTrack && !muted}
+					onChange={onMutedChanged}
+				/>
 			</div>
 		</div>
 	);

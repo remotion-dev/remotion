@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
@@ -11,18 +11,6 @@ const background: React.CSSProperties = {
 	height: size,
 	width: size,
 	position: 'relative',
-};
-
-const input: React.CSSProperties = {
-	appearance: 'none',
-	background: INPUT_BACKGROUND,
-	border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
-	height: size,
-	width: size,
-	top: 0,
-	left: 0,
-	position: 'absolute',
-	margin: 0,
 };
 
 const box: React.CSSProperties = {
@@ -40,7 +28,22 @@ const box: React.CSSProperties = {
 export const Checkbox: React.FC<{
 	checked: boolean;
 	onChange: React.ChangeEventHandler<HTMLInputElement>;
-}> = ({checked, onChange}) => {
+	disabled?: boolean;
+}> = ({checked, onChange, disabled}) => {
+	const input: React.CSSProperties = useMemo(() => {
+		return {
+			appearance: 'none',
+			background: disabled ? 'transparent' : INPUT_BACKGROUND,
+			border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
+			height: size,
+			width: size,
+			top: 0,
+			left: 0,
+			position: 'absolute',
+			margin: 0,
+		};
+	}, [disabled]);
+
 	return (
 		<div style={background}>
 			<input
@@ -48,6 +51,7 @@ export const Checkbox: React.FC<{
 				type={'checkbox'}
 				checked={checked}
 				onChange={onChange}
+				disabled={disabled}
 			/>
 			<div style={box}>{checked ? <Checkmark /> : null}</div>
 		</div>
