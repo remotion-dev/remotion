@@ -13,6 +13,7 @@ export type RenderMediaOnGcpInput = {
 	codec: GcpCodec;
 	outputBucket: string;
 	outputFile: string;
+	updateRenderProgress?: (progress: number) => void;
 };
 
 export type RenderMediaOnGcpOutput = {
@@ -56,9 +57,8 @@ export const renderMediaOnGcp = async ({
 	codec,
 	outputBucket,
 	outputFile,
-}: RenderMediaOnGcpInput): Promise<
-	RenderMediaOnGcpOutput | RenderMediaOnGcpErrOutput
-> => {
+	updateRenderProgress,
+}: RenderMediaOnGcpInput): Promise<any> => {
 	const actualCodec = validateGcpCodec(codec);
 	validateServeUrl(serveUrl);
 	validateCloudRunUrl(cloudRunUrl);
@@ -75,10 +75,28 @@ export const renderMediaOnGcp = async ({
 		outputFile,
 	};
 
-	try {
-		const response: RenderMediaOnGcpOutput = await got
+	const dataPromise = new Promise((resolve, reject) => {
+		let response = {};
+		got.stream
 			.post(cloudRunUrl, {json: postData})
-			.json();
+			.on('data', (chunk) => {
+				const chunkResponse = JSON.parse(chunk.toString());
+				if (chunkResponse.response) {
+					response = chunkResponse.response;
+				} else if (chunkResponse.onProgress) {
+					updateRenderProgress?.(chunkResponse.onProgress);
+				}
+			})
+			.on('end', () => {
+				resolve(response);
+			})
+			.on('error', (error) => {
+				reject(error);
+			});
+	});
+
+	try {
+		const response = await dataPromise;
 		return response;
 	} catch (e) {
 		return {

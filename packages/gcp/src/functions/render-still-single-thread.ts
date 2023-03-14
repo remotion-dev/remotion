@@ -4,18 +4,6 @@ import {renderStill} from '@remotion/renderer';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 
-/*
-	example JSON body: {
-    "composition": "StillRender",
-    "serveUrl": "https://remotionlambda-11kow3vq6f.s3.us-east-1.amazonaws.com/sites/xmycbufjs3/index.html",
-    "inputProps": {
-      "text": "Created on Cloud Run™️"
-    },
-    "outputBucket": "remotionlambda-test",
-    "outputFile": "stillOutput.png"
-  }
-*/
-
 export const renderStillSingleThread = async (
 	req: ff.Request,
 	res: ff.Response

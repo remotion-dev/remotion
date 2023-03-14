@@ -57,7 +57,7 @@ Navigate to the [Service Accounts](https://console.cloud.google.com/projectselec
 This command will deploy a cloud-run service, and return the URL of the service. This cloud run service is what will be invoked to render media.  
 <br><br>
 
-## Command: `npx remotion gcp cloud-run deploy`
+### Command: `npx remotion gcp cloud-run deploy`
 
 Options:
 
@@ -86,7 +86,7 @@ To view the deployed service, navigate to the [Cloud Run](https://console.cloud.
 
 <br><br>
 
-## Command: `npx remotion gcp sites create`
+### Command: `npx remotion gcp sites create`
 
 Options:
 
@@ -95,6 +95,10 @@ Options:
 This command will bundle the site and upload it to a GCP bucket. To view storage buckets in your project, navigate to the [Storage](https://console.cloud.google.com/storage/browser) screen in Google Cloud Console, and select the project from the drop-down menu in the top left corner.
 
 # Render media on GCP
+
+This command will render media on the deployed cloud-run service, and return metadata of the rendered file.
+
+### Command: `pnpm exec remotion gcp render <serve-url> <cloud-run-url> <composition-name> --output-bucket=<GCS-bucket-name>`
 
 ## Manually, making a post request
 
@@ -148,7 +152,10 @@ To render media, send a POST request to the URL with the following body:
 
 ## Using the CLI command, WIP
 
-- 🟩 Work out progress bar for CLI
+- 🟩 Render Media is largely finished
+  - 🟩 Address comments within
+- 🟩 Render Still command yet to be written
+- 🟩 Cloud Run render only ever puts the output in a bucket, not available for download.
   <br><br><br><br>
 
 # To Do
