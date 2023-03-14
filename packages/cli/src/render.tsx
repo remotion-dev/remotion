@@ -6,7 +6,7 @@ import {getResolvedAudioCodec} from './get-audio-codec';
 import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
-import {renderCompFlow} from './render-flows/render';
+import {renderVideoFlow} from './render-flows/render';
 
 export const render = async (remotionRoot: string, args: string[]) => {
 	const {
@@ -70,7 +70,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 
 	const jobCleanups: (() => void)[] = [];
 	try {
-		await renderCompFlow({
+		await renderVideoFlow({
 			fullEntryPoint,
 			remotionRoot,
 			browserExecutable,
