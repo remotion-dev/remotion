@@ -1,21 +1,23 @@
 // Taken from https://github.com/facebook/react-native/blob/0b9ea60b4fee8cacc36e7160e31b91fc114dbc0d/Libraries/Animated/src/nodes/AnimatedInterpolation.js
 
-type ExtrapolateType = 'extend' | 'identity' | 'clamp';
+export type ExtrapolateType = 'extend' | 'identity' | 'clamp';
 
 /**
  * @description This function allows you to map a range of values to another with a conside syntax
  * @see [Documentation](https://www.remotion.dev/docs/interpolate)
  */
 
+export type InterpolateOptions = Partial<{
+	easing: (input: number) => number;
+	extrapolateLeft: ExtrapolateType;
+	extrapolateRight: ExtrapolateType;
+}>;
+
 function interpolateFunction(
 	input: number,
 	inputRange: [number, number],
 	outputRange: [number, number],
-	options: {
-		easing: (input: number) => number;
-		extrapolateLeft: ExtrapolateType;
-		extrapolateRight: ExtrapolateType;
-	}
+	options: Required<InterpolateOptions>
 ): number {
 	const {extrapolateLeft, extrapolateRight, easing} = options;
 
@@ -119,11 +121,7 @@ export function interpolate(
 	input: number,
 	inputRange: readonly number[],
 	outputRange: readonly number[],
-	options?: {
-		easing?: (input: number) => number;
-		extrapolateLeft?: ExtrapolateType;
-		extrapolateRight?: ExtrapolateType;
-	}
+	options?: InterpolateOptions
 ): number {
 	if (typeof input === 'undefined') {
 		throw new Error('input can not be undefined');
