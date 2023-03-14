@@ -272,8 +272,9 @@ export const RenderModal: React.FC<{
 	const [numberOfGifLoopsSetting, setNumberOfGifLoopsSetting] = useState(
 		() => initialNumberOfGifLoops ?? 1
 	);
-	// TODO: Allow to modify
-	const [delayRenderTimeout] = useState(() => initialDelayRenderTimeout);
+	const [delayRenderTimeout, setDelayRenderTimeout] = useState(
+		() => initialDelayRenderTimeout
+	);
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
@@ -874,6 +875,8 @@ export const RenderModal: React.FC<{
 							setConcurrency={setConcurrency}
 							setVerboseLogging={setVerboseLogging}
 							verbose={verbose}
+							delayRenderTimeout={delayRenderTimeout}
+							setDelayRenderTimeout={setDelayRenderTimeout}
 						/>
 					)}
 

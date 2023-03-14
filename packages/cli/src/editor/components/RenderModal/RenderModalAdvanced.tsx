@@ -15,6 +15,8 @@ export const RenderModalAdvanced: React.FC<{
 	concurrency: number;
 	setVerboseLogging: React.Dispatch<React.SetStateAction<boolean>>;
 	verbose: boolean;
+	delayRenderTimeout: number;
+	setDelayRenderTimeout: React.Dispatch<React.SetStateAction<number>>;
 }> = ({
 	renderMode,
 	maxConcurrency,
@@ -23,6 +25,8 @@ export const RenderModalAdvanced: React.FC<{
 	concurrency,
 	setVerboseLogging,
 	verbose,
+	delayRenderTimeout,
+	setDelayRenderTimeout,
 }) => {
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -43,6 +47,14 @@ export const RenderModalAdvanced: React.FC<{
 					value={concurrency}
 				/>
 			)}
+			<NumberSetting
+				min={5_000}
+				max={900_000}
+				name="delayRender() timeout"
+				onValueChanged={setDelayRenderTimeout}
+				step={1000}
+				value={delayRenderTimeout}
+			/>
 			<div style={optionRow}>
 				<div style={label}>Verbose logging</div>
 				<div style={rightRow}>
