@@ -21,7 +21,7 @@ export const useRenderModalSections = (
 
 		if (renderMode === 'video') {
 			if (codec === 'gif') {
-				return ['general', 'picture', 'audio', 'gif', 'advanced'];
+				return ['general', 'picture', 'gif', 'advanced'];
 			}
 
 			return ['general', 'picture', 'audio', 'advanced'];
