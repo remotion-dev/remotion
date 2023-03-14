@@ -2,6 +2,7 @@ import type {AudioCodec, Codec, ProResProfile} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
 import type {TComposition} from 'remotion';
+import {labelProResProfile} from '../../helpers/prores-labels';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkmark} from '../../icons/Checkmark';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
@@ -98,13 +99,20 @@ export const RenderModalBasic: React.FC<{
 		[codec, setAudioCodec]
 	);
 
-	const proResProfileOptions = useMemo((): SegmentedControlItem[] => {
+	const proResProfileOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.proResProfileOptions.map((option) => {
 			return {
-				label: option,
+				label: labelProResProfile(option),
 				onClick: () => setProResProfile(option),
 				key: option,
 				selected: proResProfile === option,
+				type: 'item',
+				id: option,
+				keyHint: null,
+				leftItem: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: option,
 			};
 		});
 	}, [proResProfile, setProResProfile]);
@@ -195,7 +203,11 @@ export const RenderModalBasic: React.FC<{
 				<div style={optionRow}>
 					<div style={label}>ProRes profile</div>
 					<div style={rightRow}>
-						<SegmentedControl items={proResProfileOptions} needsWrapping />
+						<Combobox
+							title={proResProfile as string}
+							selectedId={proResProfile as string}
+							values={proResProfileOptions}
+						/>
 					</div>
 				</div>
 			) : null}
