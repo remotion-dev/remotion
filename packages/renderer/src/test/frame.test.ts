@@ -5,7 +5,7 @@ test('Validate frame', () => {
 	expect(() =>
 		Internals.validateFrame({
 			durationInFrames: Infinity,
-			frame: 100,
+			frame: Infinity,
 			allowFloats: false,
 		})
 	).toThrow(/Frame Infinity is not finite/);
