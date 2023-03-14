@@ -54,6 +54,7 @@ export const RenderModalAdvanced: React.FC<{
 					max={maxConcurrency}
 					step={1}
 					name="Concurrency"
+					formatter={(w) => `${w}x`}
 					onValueChanged={setConcurrency}
 					value={concurrency}
 				/>
@@ -64,6 +65,7 @@ export const RenderModalAdvanced: React.FC<{
 				max={900_000}
 				name="delayRender() timeout"
 				onValueChanged={setDelayRenderTimeout}
+				formatter={(w) => `${w}ms`}
 				step={1000}
 				value={delayRenderTimeout}
 			/>

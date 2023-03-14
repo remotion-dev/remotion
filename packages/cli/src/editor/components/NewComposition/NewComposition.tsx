@@ -290,12 +290,13 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 												<InputDragger
 													type="number"
 													value={size.width}
-													placeholder="Width (px)"
+													placeholder="Width"
 													onTextChange={onWidthChanged}
 													name="width"
 													step={2}
 													min={2}
 													required
+													formatter={(w) => `${w}px`}
 													max={100000000}
 													onValueChange={onWidthDirectlyChanged}
 												/>
@@ -320,10 +321,11 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 												type="number"
 												value={size.height}
 												onTextChange={onHeightChanged}
-												placeholder="Height (px)"
+												placeholder="Height"
 												name="height"
 												step={2}
 												required
+												formatter={(h) => `${h}px`}
 												min={2}
 												max={100000000}
 												onValueChange={onHeightDirectlyChanged}
