@@ -1,4 +1,4 @@
-import {BrowserSafeApis} from '@remotion/renderer/client';
+import type {RemotionOption} from '@remotion/renderer';
 import React, {useCallback} from 'react';
 import {Spacing} from '../layout';
 import {InputDragger} from '../NewComposition/InputDragger';
@@ -15,7 +15,8 @@ export const NumberSetting: React.FC<{
 	min: number;
 	step: number;
 	formatter?: (value: string | number) => string;
-}> = ({name, value, step, onValueChanged, max, min, formatter}) => {
+	hint?: RemotionOption;
+}> = ({name, value, step, hint, onValueChanged, max, min, formatter}) => {
 	const onTextChanged = useCallback(
 		(e: string) => {
 			onValueChanged((q) => {
@@ -37,14 +38,18 @@ export const NumberSetting: React.FC<{
 		[onValueChanged]
 	);
 
-	// TODO: Scale option hardcoded, should be passed in
 	return (
 		<div style={optionRow}>
 			<div style={label}>
-				{name} <Spacing x={0.25} />{' '}
-				<InfoBubble title="Learn more about this option">
-					<OptionExplainer option={BrowserSafeApis.options.scaleOption} />
-				</InfoBubble>
+				{name}
+				{hint ? (
+					<>
+						<Spacing x={0.25} />{' '}
+						<InfoBubble title="Learn more about this option">
+							<OptionExplainer option={hint} />
+						</InfoBubble>
+					</>
+				) : null}
 			</div>
 			<div style={rightRow}>
 				<RightAlignInput>
