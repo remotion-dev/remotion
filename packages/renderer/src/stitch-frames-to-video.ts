@@ -21,6 +21,7 @@ import {getExecutablePath} from './compositor/get-executable-path';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
+import {warnAboutM2Bug} from './does-have-m2-bug';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getCodecName} from './get-codec-name';
@@ -459,6 +460,8 @@ export const stitchFramesToVideo = async (
 	const happyPath = task.catch(() => {
 		throw new Error(getLogs());
 	});
+
+	warnAboutM2Bug(options.codec ?? null, options.pixelFormat ?? null);
 
 	return Promise.race([
 		happyPath,

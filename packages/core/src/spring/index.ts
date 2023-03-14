@@ -38,7 +38,7 @@ export function spring({
 	durationRestThreshold?: number;
 }): number {
 	validateSpringDuration(durationInFrames);
-	validateFrame(frame, Infinity);
+	validateFrame({frame, durationInFrames: Infinity, allowFloats: true});
 	validateFps(fps, 'to spring()', false);
 
 	const durationRatio =
