@@ -1,4 +1,5 @@
 import type {
+	AudioCodec,
 	Codec,
 	LogLevel,
 	PixelFormat,
@@ -65,9 +66,9 @@ export const RenderStillButton: React.FC = () => {
 			initialQuality: defaults.quality,
 			initialScale: window.remotion_renderDefaults?.scale ?? 1,
 			initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
-			initialAudioCodec,
+			initialVideoCodecForAudioTab: initialAudioCodec,
 			initialRenderType,
-			initialVideoCodec,
+			initialVideoCodecForVideoTab: initialVideoCodec,
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
@@ -80,6 +81,7 @@ export const RenderStillButton: React.FC = () => {
 			initialEveryNthFrame: defaults.everyNthFrame,
 			initialNumberOfGifLoops: defaults.numberOfGifLoops,
 			initialDelayRenderTimeout: defaults.delayRenderTimeout,
+			initialAudioCodec: defaults.audioCodec as AudioCodec | null,
 		});
 	}, [video, frame, setSelectedModal]);
 

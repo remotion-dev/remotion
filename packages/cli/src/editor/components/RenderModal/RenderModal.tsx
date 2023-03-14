@@ -164,8 +164,9 @@ export const RenderModal: React.FC<{
 	initialVerbose: boolean;
 	initialOutName: string;
 	initialRenderType: RenderType;
-	initialAudioCodec: Codec;
-	initialVideoCodec: Codec;
+	initialVideoCodecForAudioTab: Codec;
+	initialVideoCodecForVideoTab: Codec;
+	initialAudioCodec: AudioCodec | null;
 	initialConcurrency: number;
 	minConcurrency: number;
 	maxConcurrency: number;
@@ -188,8 +189,8 @@ export const RenderModal: React.FC<{
 	initialVerbose,
 	initialOutName,
 	initialRenderType,
-	initialAudioCodec,
-	initialVideoCodec,
+	initialVideoCodecForAudioTab,
+	initialVideoCodecForVideoTab,
 	initialConcurrency,
 	maxConcurrency,
 	minConcurrency,
@@ -202,6 +203,7 @@ export const RenderModal: React.FC<{
 	initialEveryNthFrame,
 	initialNumberOfGifLoops,
 	initialDelayRenderTimeout,
+	initialAudioCodec,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -221,16 +223,14 @@ export const RenderModal: React.FC<{
 		() => initialVideoImageFormat
 	);
 	const [concurrency, setConcurrency] = useState(() => initialConcurrency);
-	const [videoCodec, setVideoSpecificalCodec] = useState<Codec>(
-		() => initialVideoCodec
+	const [videoCodecForVideoTab, setVideoCodecForVideoTab] = useState<Codec>(
+		() => initialVideoCodecForVideoTab
 	);
-	// TODO replace hardcoded initial codec with derived one
-	const [customAudioCodec, setCustomAudioCodec] = useState<AudioCodec | null>(
-		null
-	);
+	const [userSelectedAudioCodec, setUserSelectedAudioCodec] =
+		useState<AudioCodec | null>(() => initialAudioCodec);
 
-	const [audioCodec, setAudioSpecificalCodec] = useState<Codec>(
-		() => initialAudioCodec
+	const [videoCodecForAudioTab, setVideoCodecForAudioTab] = useState<Codec>(
+		() => initialVideoCodecForAudioTab
 	);
 
 	const [mutedState, setMuted] = useState(() => initialMuted);
@@ -281,11 +281,11 @@ export const RenderModal: React.FC<{
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
-			return audioCodec;
+			return videoCodecForAudioTab;
 		}
 
-		return videoCodec;
-	}, [audioCodec, renderMode, videoCodec]);
+		return videoCodecForVideoTab;
+	}, [videoCodecForAudioTab, renderMode, videoCodecForVideoTab]);
 
 	const numberOfGifLoops = useMemo(() => {
 		if (codec === 'gif' && limitNumberOfGifLoops) {
@@ -409,7 +409,8 @@ export const RenderModal: React.FC<{
 				return passedAudioCodec;
 			}
 
-			return BrowserSafeApis.defaultAudioCodecs[passedVideoCodec].compressed;
+			return BrowserSafeApis.defaultAudioCodecs[passedVideoCodec]
+				.compressed as AudioCodec;
 		},
 		[]
 	);
@@ -434,10 +435,7 @@ export const RenderModal: React.FC<{
 				setOutName((prev) => {
 					const codecSuffix = BrowserSafeApis.getFileExtensionFromCodec(
 						options.codec,
-						deriveFinalAudioCodec(
-							options.codec,
-							options.audioCodec as AudioCodec
-						) // What happens for null?
+						deriveFinalAudioCodec(options.codec, options.audioCodec)
 					);
 
 					const newFileName = getStringBeforeSuffix(prev) + '.' + codecSuffix;
@@ -450,32 +448,36 @@ export const RenderModal: React.FC<{
 
 	const setAudioCodec = useCallback(
 		(newAudioCodec: AudioCodec) => {
-			setCustomAudioCodec(newAudioCodec);
+			setUserSelectedAudioCodec(newAudioCodec);
 			setDefaultOutName({
 				type: 'render',
-				codec: videoCodec,
+				codec: videoCodecForVideoTab,
 				audioCodec: newAudioCodec,
 			});
 		},
-		[setDefaultOutName, videoCodec]
+		[setDefaultOutName, videoCodecForVideoTab]
 	);
 
 	const setCodec = useCallback(
 		(newCodec: Codec) => {
 			if (renderMode === 'audio') {
-				setAudioSpecificalCodec(newCodec);
+				setVideoCodecForAudioTab(newCodec);
 			} else {
-				setVideoSpecificalCodec(newCodec);
+				setVideoCodecForVideoTab(newCodec);
 			}
 
-			// TODO: Audio codec is not implemented and hardcoded
 			setDefaultOutName({
 				type: 'render',
 				codec: newCodec,
-				audioCodec: deriveFinalAudioCodec(newCodec, customAudioCodec),
+				audioCodec: deriveFinalAudioCodec(newCodec, userSelectedAudioCodec),
 			});
 		},
-		[customAudioCodec, deriveFinalAudioCodec, renderMode, setDefaultOutName]
+		[
+			userSelectedAudioCodec,
+			deriveFinalAudioCodec,
+			renderMode,
+			setDefaultOutName,
+		]
 	);
 
 	const setStillFormat = useCallback(
@@ -529,6 +531,8 @@ export const RenderModal: React.FC<{
 		return 1;
 	}, [codec, everyNthFrameSetting]);
 
+	const audioCodec = deriveFinalAudioCodec(codec, userSelectedAudioCodec);
+
 	const onClickVideo = useCallback(() => {
 		leftSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
@@ -553,7 +557,7 @@ export const RenderModal: React.FC<{
 			everyNthFrame,
 			numberOfGifLoops,
 			delayRenderTimeout,
-			audioCodec: deriveFinalAudioCodec(codec, customAudioCodec),
+			audioCodec,
 			disallowParallelEncoding,
 		})
 			.then(() => {
@@ -587,8 +591,8 @@ export const RenderModal: React.FC<{
 		everyNthFrame,
 		numberOfGifLoops,
 		delayRenderTimeout,
-		deriveFinalAudioCodec,
-		customAudioCodec,
+		audioCodec,
+		disallowParallelEncoding,
 		setSelectedModal,
 	]);
 
@@ -648,20 +652,24 @@ export const RenderModal: React.FC<{
 		(newRenderMode: RenderType) => {
 			setRenderModeState(newRenderMode);
 			if (newRenderMode === 'audio') {
-				// TODO: Audio codec is not implemented but hardcoded
 				setDefaultOutName({
 					type: 'render',
-					codec: audioCodec,
-					audioCodec: 'pcm-16',
+					codec: videoCodecForAudioTab,
+					audioCodec: deriveFinalAudioCodec(
+						videoCodecForAudioTab,
+						userSelectedAudioCodec
+					),
 				});
 			}
 
 			if (newRenderMode === 'video') {
-				// TODO: Audio codec is not implemented but hardcoded
 				setDefaultOutName({
 					type: 'render',
-					codec: videoCodec,
-					audioCodec: deriveFinalAudioCodec(videoCodec, customAudioCodec),
+					codec: videoCodecForVideoTab,
+					audioCodec: deriveFinalAudioCodec(
+						videoCodecForVideoTab,
+						userSelectedAudioCodec
+					),
 				});
 			}
 
@@ -670,12 +678,12 @@ export const RenderModal: React.FC<{
 			}
 		},
 		[
-			audioCodec,
-			customAudioCodec,
+			videoCodecForAudioTab,
+			userSelectedAudioCodec,
 			deriveFinalAudioCodec,
 			setDefaultOutName,
 			stillImageFormat,
-			videoCodec,
+			videoCodecForVideoTab,
 		]
 	);
 
@@ -806,14 +814,14 @@ export const RenderModal: React.FC<{
 					{tab === 'general' ? (
 						<RenderModalBasic
 							codec={codec}
-							customAudioCodec={deriveFinalAudioCodec(codec, customAudioCodec)}
+							audioCodec={audioCodec}
 							currentComposition={currentComposition}
 							frame={frame}
 							imageFormatOptions={imageFormatOptions}
 							outName={outName}
 							proResProfile={proResProfile}
 							renderMode={renderMode}
-							setCodec={setCodec}
+							setVideoCodec={setCodec}
 							setAudioCodec={setAudioCodec}
 							setFrame={setFrame}
 							setOutName={setOutName}

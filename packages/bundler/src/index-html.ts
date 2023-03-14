@@ -12,6 +12,7 @@ export type RenderDefaults = {
 	maxConcurrency: number;
 	stillImageFormat: 'png' | 'jpeg' | 'webp' | 'pdf';
 	videoImageFormat: 'png' | 'jpeg';
+	audioCodec: string | null;
 	enforceAudioTrack: boolean;
 	proResProfile: string;
 	pixelFormat: string;

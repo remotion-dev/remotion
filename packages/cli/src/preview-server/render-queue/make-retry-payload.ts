@@ -1,4 +1,9 @@
-import type {Codec, PixelFormat, ProResProfile} from '@remotion/renderer';
+import type {
+	AudioCodec,
+	Codec,
+	PixelFormat,
+	ProResProfile,
+} from '@remotion/renderer';
 import type {RenderModalState} from '../../editor/state/modals';
 import {getDefaultCodecs} from './get-default-video-contexts';
 import type {RenderJob} from './job';
@@ -25,9 +30,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialOutName: job.outName,
 			initialScale: job.scale,
 			initialVerbose: job.verbose,
-			initialAudioCodec,
+			initialVideoCodecForAudioTab: initialAudioCodec,
 			initialRenderType,
-			initialVideoCodec,
+			initialVideoCodecForVideoTab: initialVideoCodec,
 			initialConcurrency: defaults.concurrency,
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
@@ -40,6 +45,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEveryNthFrame: defaults.everyNthFrame,
 			initialNumberOfGifLoops: defaults.numberOfGifLoops,
 			initialDelayRenderTimeout: defaults.delayRenderTimeout,
+			initialAudioCodec: defaults.audioCodec as AudioCodec | null,
 		};
 	}
 
@@ -63,10 +69,10 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			maxConcurrency: defaults.maxConcurrency,
 			minConcurrency: defaults.minConcurrency,
 			initialMuted: job.muted,
-			initialAudioCodec,
+			initialVideoCodecForAudioTab: initialAudioCodec,
 			initialEnforceAudioTrack: job.enforceAudioTrack,
 			initialRenderType,
-			initialVideoCodec,
+			initialVideoCodecForVideoTab: initialVideoCodec,
 			initialProResProfile:
 				job.proResProfile ?? (defaults.proResProfile as ProResProfile),
 			initialPixelFormat: job.pixelFormat,
@@ -75,6 +81,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialEveryNthFrame: job.everyNthFrame,
 			initialNumberOfGifLoops: job.numberOfGifLoops,
 			initialDelayRenderTimeout: job.delayRenderTimeout,
+			initialAudioCodec: job.audioCodec,
 		};
 	}
 

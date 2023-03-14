@@ -1,4 +1,5 @@
 import type {
+	AudioCodec,
 	Codec,
 	LogLevel,
 	PixelFormat,
@@ -55,9 +56,9 @@ export const RenderButton: React.FC<{
 					defaultExtension: isVideo ? 'mp4' : 'png',
 					type: 'asset',
 				}),
-				initialAudioCodec,
+				initialVideoCodecForAudioTab: initialAudioCodec,
 				initialRenderType,
-				initialVideoCodec,
+				initialVideoCodecForVideoTab: initialVideoCodec,
 				initialConcurrency: defaults.concurrency,
 				maxConcurrency: defaults.maxConcurrency,
 				minConcurrency: defaults.minConcurrency,
@@ -70,6 +71,7 @@ export const RenderButton: React.FC<{
 				initialEveryNthFrame: defaults.everyNthFrame,
 				initialNumberOfGifLoops: defaults.numberOfGifLoops,
 				initialDelayRenderTimeout: defaults.delayRenderTimeout,
+				initialAudioCodec: defaults.audioCodec as AudioCodec,
 			});
 		},
 		[composition.id, isVideo, setSelectedModal]

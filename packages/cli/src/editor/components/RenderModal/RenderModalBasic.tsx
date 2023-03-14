@@ -22,8 +22,8 @@ export const RenderModalBasic: React.FC<{
 	renderMode: RenderType;
 	imageFormatOptions: SegmentedControlItem[];
 	codec: Codec;
-	customAudioCodec: AudioCodec;
-	setCodec: (newCodec: Codec) => void;
+	audioCodec: AudioCodec;
+	setVideoCodec: (newCodec: Codec) => void;
 	setAudioCodec: (newAudioCodec: AudioCodec) => void;
 	outName: string;
 	proResProfile: ProResProfile | null;
@@ -41,8 +41,8 @@ export const RenderModalBasic: React.FC<{
 	imageFormatOptions,
 	outName,
 	codec,
-	customAudioCodec,
-	setCodec,
+	audioCodec: customAudioCodec,
+	setVideoCodec: setCodec,
 	setAudioCodec,
 	proResProfile,
 	setProResProfile,
