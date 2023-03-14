@@ -62,8 +62,8 @@ const numberRegExp = /-?[0-9]*\.?[0-9]+(?:e[-+]?\d+)?/gi;
 
 /**
  * @description Parses an SVG string path into an array of Instruction's.
- * @param {string} path 
- * @returns an array of objects containing the Instructions 
+ * @param {string} path
+ * @returns an array of objects containing the Instructions
  * @see [Documentation](https://www.remotion.dev/docs/paths/parse-path)
  */
 export const parsePath = (path: string): Instruction[] => {
@@ -118,7 +118,7 @@ export const parsePath = (path: string): Instruction[] => {
 				return segmentsArray;
 			}
 
-			if (command === 'Z') {
+			if (command === 'Z' || command === 'z') {
 				return [
 					{
 						type: 'Z',
