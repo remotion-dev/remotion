@@ -185,9 +185,9 @@ interpolate(frame, [0, 10, 40, 100], [0, 0.2, 0.6, 1], {
 Since `v3.3.77`, types for the options are exported from Remotion.
 
 ```tsx twoslash
-import { InterpolateOptions, ExtrapolateType } from "remotion";
+import { ExtrapolateType, InterpolateOptions } from "remotion";
 
-const extrapolate: ExtrapolateType: 'clamp'
+const extrapolate: ExtrapolateType = "clamp";
 const option: InterpolateOptions = { extrapolateLeft: extrapolate };
 ```
 
