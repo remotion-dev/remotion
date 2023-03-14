@@ -6,7 +6,12 @@ import type {
   LinearAnimationInstance,
 } from "@rive-app/canvas-advanced";
 import riveCanvas from "@rive-app/canvas-advanced";
-import { useVideoConfig, useCurrentFrame } from "remotion";
+import {
+  useVideoConfig,
+  useCurrentFrame,
+  delayRender,
+  continueRender,
+} from "remotion";
 import type {
   RemotionRiveCanvasAlignment,
   RemotionRiveCanvasFit,
@@ -34,6 +39,7 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
   const canvas = useRef<HTMLCanvasElement>(null);
   const [riveCanvasInstance, setRiveCanvas] = useState<RiveCanvas | null>(null);
   const [err, setError] = useState<Error | null>(null);
+  const [handle] = useState(() => delayRender());
   const lastFrame = useRef<number>(0);
 
   if (err) {
@@ -53,11 +59,12 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
     })
       .then((riveInstance) => {
         setRiveCanvas(riveInstance);
+        continueRender(handle);
       })
       .catch((newErr) => {
         setError(newErr);
       });
-  }, []);
+  }, [handle]);
 
   useEffect(() => {
     if (!riveCanvasInstance) {
