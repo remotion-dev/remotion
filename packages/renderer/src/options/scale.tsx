@@ -1,7 +1,7 @@
 import type {RemotionOption} from './option';
 
 export const scaleOption: RemotionOption = {
-	name: 'scale',
+	name: 'Scale',
 	cliFlag: '--scale',
 	description: (
 		<>

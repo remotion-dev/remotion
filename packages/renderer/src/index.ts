@@ -91,6 +91,7 @@ export type {LogLevel} from './log-level';
 export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
+export {RemotionOption} from './options/option';
 export {PixelFormat} from './pixel-format';
 export {ProResProfile} from './prores-profile';
 export {renderFrames} from './render-frames';
@@ -107,7 +108,6 @@ export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
-
 export const RenderInternals = {
 	ensureLocalBrowser,
 	getActualConcurrency,
