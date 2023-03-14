@@ -31,6 +31,7 @@
 		"ts-node": "^10.8.0",
 		"@types/minimist": "1.2.2",
 		"eslint": "8.25.0",
-		"@jonny/eslint-config": "3.0.266"
+		"@jonny/eslint-config": "3.0.266",
+		"vitest": "0.24.3"
 	}
 }

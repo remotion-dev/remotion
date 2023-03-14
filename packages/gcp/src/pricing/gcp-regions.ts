@@ -36,4 +36,42 @@ export const GCP_REGIONS = [
 	'us-west4',
 ] as const;
 
-export type GcpRegion = (typeof GCP_REGIONS)[number];
+export const GCP_REGION_SHORTHAND: {[key in GcpRegion]: string} = {
+	'us-east5': 'ul.a',
+	'asia-east1': 'de.a',
+	'asia-east2': 'df.a',
+	'asia-northeast1': 'an.a',
+	'asia-northeast2': 'dt.a',
+	'asia-northeast3': 'du.a',
+	'asia-south1': 'el.a',
+	'asia-south2': 'em.a',
+	'asia-southeast1': 'as.a',
+	'asia-southeast2': 'et.a',
+	'australia-southeast1': 'ts.a',
+	'australia-southeast2': 'km.a',
+	'europe-central2': 'lm.a',
+	'europe-north1': 'lz.a',
+	'europe-southwest1': 'no.a',
+	'europe-west1': 'ew.a',
+	'europe-west2': 'nw.a',
+	'europe-west3': 'ey.a',
+	'europe-west4': 'ez.a',
+	'europe-west6': 'oa.a',
+	'europe-west8': 'oc.a',
+	'europe-west9': 'od.a',
+	'me-west1': 'zf.a',
+	'northamerica-northeast1': 'nn.a',
+	'northamerica-northeast2': 'pd.a',
+	'southamerica-east1': 'rj.a',
+	'southamerica-west1': 'tl.a',
+	'us-central1': 'uc.a',
+	'us-east1': 'ue.a',
+	'us-east4': 'uk.a',
+	'us-west1': 'uw.a',
+	'us-south1': 'vp.a',
+	'us-west2': 'wl.a',
+	'us-west4': 'wn.a',
+	'us-west3': 'wm.a',
+};
+
+export type GcpRegion = typeof GCP_REGIONS[number];
