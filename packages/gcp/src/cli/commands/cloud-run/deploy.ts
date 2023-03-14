@@ -93,7 +93,7 @@ Validating Deployment of Cloud Run Service:
 					`
 🎉 Cloud Run Revision Deployed! 🎉
 
-    Service Name = ${deployRevisionResult.name}
+    Full Service Name = ${deployRevisionResult.name}
     Cloud Run URL = ${deployRevisionResult.uri}
     Project = ${projectID}
     GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${serviceName}/revisions
@@ -132,14 +132,17 @@ Validating Deployment of Cloud Run Service:
 				throw new Error(JSON.stringify(deployResult));
 			}
 
+			Log.info();
+
 			Log.info(
 				CliInternals.chalk.blueBright(
 					`
-Cloud Run Deployed! 🎉
-Full Service Name = ${deployResult.name}
-Cloud Run URL = ${deployResult.uri}
-Project = ${projectID}
-GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${serviceName}/revisions
+🎉 Cloud Run Deployed! 🎉
+
+    Full Service Name = ${deployResult.name}
+    Cloud Run URL = ${deployResult.uri}
+    Project = ${projectID}
+    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${serviceName}/revisions
 				`.trim()
 				)
 			);
