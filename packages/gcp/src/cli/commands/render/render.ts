@@ -162,13 +162,13 @@ Sending request to Cloud Run:
 		Log.info(
 			CliInternals.chalk.blueBright(
 				`
-	🤘 Rendered on Cloud Run! 🤘
-	
-      Public URL = ${success.publicUrl}
-      Cloud Storage Uri = ${success.cloudStorageUri}
-      Size (KB) = ${Math.round(Number(success.size) / 1000)}
-      Bucket Name = ${success.bucketName}
-      Render ID = ${success.renderId}
+🤘 Rendered on Cloud Run! 🤘
+
+    Public URL = ${success.publicUrl}
+    Cloud Storage Uri = ${success.cloudStorageUri}
+    Size (KB) = ${Math.round(Number(success.size) / 1000)}
+    Bucket Name = ${success.bucketName}
+    Render ID = ${success.renderId}
       `.trim()
 			)
 		);
