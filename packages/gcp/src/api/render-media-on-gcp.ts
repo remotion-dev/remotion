@@ -3,6 +3,7 @@ import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
 import type {GcpCodec} from '../shared/validate-gcp-codec';
 import {validateGcpCodec} from '../shared/validate-gcp-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
+import {parseCloudRunUrl} from './helpers/parse-cloud-run-url';
 
 export type RenderMediaOnGcpInput = {
 	cloudRunUrl: string;
@@ -63,6 +64,8 @@ export const renderMediaOnGcp = async ({
 	validateServeUrl(serveUrl);
 	validateCloudRunUrl(cloudRunUrl);
 
+	const cloudRunInfo = parseCloudRunUrl(cloudRunUrl);
+
 	// todo: allow serviceName to be passed in, and fetch the cloud run URL based on the name
 
 	const postData = {
@@ -100,8 +103,8 @@ export const renderMediaOnGcp = async ({
 		return response;
 	} catch (e) {
 		return {
-			message:
-				'Cloud Run Service failed. View logs at https://console.cloud.google.com/run/detail/{REGION}/{SERVICE_NAME}/logs?project={PROJECT_ID}',
+			// TODO: How do we get the project ID?
+			message: `Cloud Run Service failed. View logs at https://console.cloud.google.com/run/detail/${cloudRunInfo.region}/${cloudRunInfo.serviceName}/logs?project={PROJECT_ID}`,
 			error: e,
 			status: 'error',
 		};
