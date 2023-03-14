@@ -9,7 +9,8 @@ export const validStillImageFormats = ['png', 'jpeg', 'pdf', 'webp'] as const;
 export type VideoImageFormat = typeof validVideoImageFormats[number];
 export type StillImageFormat = typeof validStillImageFormats[number];
 
-export const DEFAULT_IMAGE_FORMAT: VideoImageFormat = 'jpeg';
+export const DEFAULT_VIDEO_IMAGE_FORMAT: VideoImageFormat = 'jpeg';
+export const DEFAULT_STILL_IMAGE_FORMAT: StillImageFormat = 'png';
 
 // By returning a value, we improve testability as we can specifically test certain branches
 export const validateSelectedPixelFormatAndImageFormatCombination = (

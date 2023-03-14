@@ -18,7 +18,7 @@ export const humanReadableCodec = (codec: Codec) => {
 	}
 
 	if (codec === 'h264-mkv') {
-		return 'H.264 MKV';
+		return 'H.264 Matroska';
 	}
 
 	if (codec === 'h265') {
