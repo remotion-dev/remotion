@@ -83,7 +83,11 @@ export * from './IFrame.js';
 export * from './Img.js';
 export * from './internals.js';
 export {interpolateColors} from './interpolate-colors.js';
-export * from './interpolate.js';
+export {
+	ExtrapolateType,
+	interpolate,
+	InterpolateOptions,
+} from './interpolate.js';
 export {Loop} from './loop/index.js';
 export {ClipRegion} from './NativeLayers.js';
 export {prefetch} from './prefetch.js';
