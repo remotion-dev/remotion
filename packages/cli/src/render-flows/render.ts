@@ -89,6 +89,7 @@ export const renderVideoFlow = async ({
 	videoBitrate,
 	numberOfGifLoops,
 	audioCodec,
+	disallowParallelEncoding,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -131,6 +132,7 @@ export const renderVideoFlow = async ({
 	pixelFormat: PixelFormat;
 	numberOfGifLoops: Loop;
 	audioCodec: AudioCodec | null;
+	disallowParallelEncoding: boolean;
 }) => {
 	const downloads: DownloadProgress[] = [];
 	const downloadMap = RenderInternals.makeDownloadMap();
@@ -436,7 +438,9 @@ export const renderVideoFlow = async ({
 		cancelSignal: cancelSignal ?? undefined,
 		printLog: (...str) => Log.verboseAdvanced({indent, logLevel}, ...str),
 		audioCodec,
-		// TODO: Add missing elements
+		preferLossless: false,
+		imageFormat,
+		disallowParallelEncoding,
 	});
 
 	Log.verboseAdvanced({indent, logLevel});

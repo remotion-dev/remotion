@@ -43,6 +43,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				everyNthFrame: input.everyNthFrame,
 				numberOfGifLoops: input.numberOfGifLoops,
 				delayRenderTimeout: input.delayRenderTimeout,
+				disallowParallelEncoding: input.disallowParallelEncoding,
 			},
 		});
 	}

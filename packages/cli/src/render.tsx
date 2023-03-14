@@ -115,6 +115,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 			videoBitrate,
 			numberOfGifLoops,
 			audioCodec,
+			disallowParallelEncoding: false,
 		});
 	} finally {
 		await Promise.all(jobCleanups.map((c) => c()));
