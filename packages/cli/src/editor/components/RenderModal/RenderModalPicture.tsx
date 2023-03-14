@@ -155,9 +155,7 @@ export const RenderModalPicture: React.FC<{
 				</div>
 			) : null}
 			<RenderModalHr />
-			{renderMode === 'video' ? (
-				<ScaleSetting scale={scale} setScale={setScale} />
-			) : null}
+			<ScaleSetting scale={scale} setScale={setScale} />
 			<RenderModalHr />
 			{renderMode === 'video' ? (
 				<div style={optionRow}>
