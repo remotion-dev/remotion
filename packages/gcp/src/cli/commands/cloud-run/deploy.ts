@@ -21,7 +21,7 @@ export const cloudRunDeploySubcommand = async () => {
 	const region = getGcpRegion();
 	const serviceName = parsedGcpCli['service-name'];
 	const projectID = parsedGcpCli['project-id'];
-	const remotionVersion = parsedGcpCli['remotion-version'] ?? VERSION;
+	const remotionVersion = VERSION;
 	const allowUnauthenticated = parsedGcpCli['allow-unauthenticated'] ?? false;
 	const overwriteService = parsedGcpCli['overwrite-service'] ?? false;
 	const memory = parsedGcpCli.memory ?? '512Mi';
