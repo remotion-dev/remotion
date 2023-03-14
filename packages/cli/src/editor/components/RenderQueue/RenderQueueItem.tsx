@@ -4,6 +4,7 @@ import {Row, Spacing} from '../layout';
 import {RenderQueueError} from './RenderQueueError';
 import {RenderQueueCancelButton} from './RenderQueueItemCancelButton';
 import {RenderQueueItemStatus} from './RenderQueueItemStatus';
+import {RenderQueueOpenInFinderItem} from './RenderQueueOpenInFolder';
 import {RenderQueueOutputName} from './RenderQueueOutputName';
 import {RenderQueueProgressMessage} from './RenderQueueProgressMessage';
 import {RenderQueueRemoveItem} from './RenderQueueRemoveItem';
@@ -64,6 +65,7 @@ export const RenderQueueItem: React.FC<{
 			) : (
 				<RenderQueueRemoveItem job={job} />
 			)}
+			{job.status === 'done' ? <RenderQueueOpenInFinderItem job={job} /> : null}
 		</Row>
 	);
 };
