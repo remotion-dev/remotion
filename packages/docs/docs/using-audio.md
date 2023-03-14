@@ -155,7 +155,7 @@ Audio from [`<Video />`](/docs/video) and [`<OffthreadVideo />`](/docs/offthread
 
 ## Controlling playback speed
 
-<AvailableFrom v="2.2">
+<AvailableFrom v="2.2" />
 
 You can use the `playbackRate` prop to control the speed of the audio. `1` is the default and means regular speed, `0.5` slows down the audio so it's twice as long and `2` speeds up the audio so it's twice as fast.
 
