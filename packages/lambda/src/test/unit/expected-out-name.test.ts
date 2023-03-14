@@ -117,3 +117,18 @@ test('Should allow outName an outname with a slash', () => {
 		renderBucketName: 'remotionlambda-98fsduf',
 	});
 });
+
+test('Should allow outName an outname with colon', () => {
+	const newRenderMetadata: RenderMetadata = {
+		...testRenderMetadata,
+		codec: null,
+		audioCodec: null,
+		type: 'still',
+		outName: 'ap-east-1:xxxxxx/video/XXXXX-0b9ba84XXXX.mp4',
+	};
+	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
+		customCredentials: null,
+		key: 'renders/9n8dsfafs/ap-east-1:xxxxxx/video/XXXXX-0b9ba84XXXX.mp4',
+		renderBucketName: 'remotionlambda-98fsduf',
+	});
+});

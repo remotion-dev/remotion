@@ -248,4 +248,31 @@ export const experts: Expert[] = [
       </div>
     ),
   },
+  {
+    slug: "lorenzo-bertolini",
+    name: "Lorenzo Bertolini",
+    image: "/img/freelancers/lorenzo.jpeg",
+    website: "https://www.lorenzobertolini.com/",
+    twitter: "MagoDiSegrate",
+    github: "encho",
+    linkedin: "in/lorenzobertolini/",
+    email: "ciao@lorenzobertolini.com",
+    since: new Date("2023-03-14").getTime(),
+    description: (
+      <div>
+        I made:{" "}
+        <a target={"_blank"} href="https://www.dataflics.com/">
+          DataFlics
+        </a> and{" "}
+        <a target={"_blank"} href="https://nerdy.finance/">
+          Nerdy Finance
+        </a>
+        ! This is my personal website: <a target={"_blank"} href="https://www.lorenzobertolini.com/">
+          Lorenzo Bertolini
+        </a>
+        <br />
+        Reach out to me for data-driven video generation, data visualization, and web app prototyping with React.js and d3.js.
+      </div>
+    ),
+  },
 ];
