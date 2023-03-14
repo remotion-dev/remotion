@@ -11,6 +11,7 @@ import {
 	getFileExtensionFromCodec,
 } from './get-extension-from-codec';
 import {isAudioCodec} from './is-audio-codec';
+import {scaleOption} from './options/scale';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
 
@@ -28,4 +29,7 @@ export const BrowserSafeApis = {
 	defaultFileExtensionMap,
 	defaultAudioCodecs,
 	defaultCodecsForFileExtension,
+	options: {
+		scaleOption,
+	},
 };
