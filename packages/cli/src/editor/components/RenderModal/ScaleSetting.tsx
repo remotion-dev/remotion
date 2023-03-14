@@ -13,6 +13,7 @@ export const ScaleSetting: React.FC<{
 			max={MAX_SCALE}
 			step={0.1}
 			name="Scale"
+			formatter={(w) => `${w}x`}
 			onValueChanged={setScale}
 			value={scale}
 		/>

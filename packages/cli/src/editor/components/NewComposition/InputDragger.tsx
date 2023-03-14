@@ -13,6 +13,7 @@ import {inputBaseStyle, RemotionInput} from './RemInput';
 type Props = InputHTMLAttributes<HTMLInputElement> & {
 	onValueChange: (newVal: number) => void;
 	onTextChange: (newVal: string) => void;
+	formatter?: (str: number | string) => string;
 };
 
 export const InputDragger: React.FC<Props> = ({
@@ -22,6 +23,7 @@ export const InputDragger: React.FC<Props> = ({
 	step: _step,
 	value,
 	onTextChange,
+	formatter = (q) => String(q),
 	...props
 }) => {
 	const [inputFallback, setInputFallback] = useState(false);
@@ -169,7 +171,7 @@ export const InputDragger: React.FC<Props> = ({
 			onClick={onClick}
 			onPointerDown={onPointerDown}
 		>
-			<span style={span}>{value}</span>
+			<span style={span}>{formatter(value as string | number)}</span>
 		</button>
 	);
 };

@@ -10,7 +10,8 @@ export const NumberSetting: React.FC<{
 	max?: number;
 	min: number;
 	step: number;
-}> = ({name, value, step, onValueChanged, max, min}) => {
+	formatter?: (value: string | number) => string;
+}> = ({name, value, step, onValueChanged, max, min, formatter}) => {
 	const onTextChanged = useCallback(
 		(e: string) => {
 			onValueChanged((q) => {
@@ -48,6 +49,7 @@ export const NumberSetting: React.FC<{
 							.join('-')}
 						min={min}
 						max={max}
+						formatter={formatter}
 					/>
 				</RightAlignInput>
 			</div>
