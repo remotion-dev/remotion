@@ -123,7 +123,8 @@ test('Should allow outName an outname with colon', () => {
 		...testRenderMetadata,
 		codec: null,
 		audioCodec: null,
-		type: 'still',
+		type: 'still' as const,
+		imageFormat: 'jpeg',
 		outName: 'ap-east-1:xxxxxx/video/XXXXX-0b9ba84XXXX.mp4',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
