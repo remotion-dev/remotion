@@ -33,7 +33,12 @@ import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
-import {validStillImageFormats, validVideoImageFormats} from './image-format';
+import {
+	DEFAULT_STILL_IMAGE_FORMAT,
+	DEFAULT_VIDEO_IMAGE_FORMAT,
+	validStillImageFormats,
+	validVideoImageFormats,
+} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
@@ -165,6 +170,8 @@ export const RenderInternals = {
 	callFfExtraOptions,
 	validStillImageFormats,
 	validVideoImageFormats,
+	DEFAULT_STILL_IMAGE_FORMAT,
+	DEFAULT_VIDEO_IMAGE_FORMAT,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

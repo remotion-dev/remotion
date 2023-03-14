@@ -28,7 +28,7 @@ import {
 } from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
-import {DEFAULT_IMAGE_FORMAT} from './image-format';
+import {DEFAULT_VIDEO_IMAGE_FORMAT} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -90,7 +90,7 @@ const innerRenderFrames = ({
 	onStart,
 	inputProps,
 	quality,
-	imageFormat = DEFAULT_IMAGE_FORMAT,
+	imageFormat = DEFAULT_VIDEO_IMAGE_FORMAT,
 	frameRange,
 	onError,
 	envVariables,

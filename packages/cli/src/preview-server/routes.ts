@@ -71,8 +71,6 @@ const handleFallback = async ({
 	const concurrency = RenderInternals.getActualConcurrency(
 		ConfigInternals.getConcurrency()
 	);
-	const imageFormat = ConfigInternals.getUserPreferredStillImageFormat();
-	// TODO: ADD videoImageFormat = getUserPreferredVideoImageFormat()
 	const muted = ConfigInternals.getMuted();
 	const enforceAudioTrack = ConfigInternals.getEnforceAudioTrack();
 	const pixelFormat = ConfigInternals.getPixelFormat();
@@ -83,12 +81,8 @@ const handleFallback = async ({
 	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
 	const delayRenderTimeout = ConfigInternals.getCurrentPuppeteerTimeout();
 	const audioCodec = ConfigInternals.getAudioCodec();
-
-	// TODO: Separate image and video formats in the future. Default should be PNG for images and JPEG for videos.
-	const stillImageFormat: 'png' | 'jpeg' =
-		imageFormat === 'jpeg' || imageFormat === 'png' ? imageFormat : 'png';
-	const videoImageFormat =
-		imageFormat === 'jpeg' || imageFormat === 'png' ? imageFormat : 'jpeg';
+	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
+	const videoImageFormat = ConfigInternals.getUserPreferredVideoImageFormat();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
@@ -123,8 +117,10 @@ const handleFallback = async ({
 				concurrency,
 				maxConcurrency,
 				minConcurrency,
-				stillImageFormat,
-				videoImageFormat,
+				stillImageFormat:
+					stillImageFormat ?? RenderInternals.DEFAULT_STILL_IMAGE_FORMAT,
+				videoImageFormat:
+					videoImageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
 				muted,
 				enforceAudioTrack,
 				proResProfile,
