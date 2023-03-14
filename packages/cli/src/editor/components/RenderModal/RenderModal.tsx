@@ -19,6 +19,7 @@ import React, {
 import {Internals} from 'remotion';
 import type {TComposition} from 'remotion/src/internals';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
+import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {AudioIcon} from '../../icons/audio';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
@@ -717,9 +718,7 @@ export const RenderModal: React.FC<{
 		];
 	}, [currentComposition?.durationInFrames, renderMode, setRenderMode]);
 
-	const [tab, setTab] = useState<
-		'general' | 'picture' | 'advanced' | 'gif' | 'audio'
-	>('general');
+	const {tab, setTab, shownTabs} = useRenderModalSections(renderMode, codec);
 
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
@@ -738,27 +737,31 @@ export const RenderModal: React.FC<{
 			</div>
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
-					<Tab
-						style={horizontalTab}
-						selected={tab === 'general'}
-						onClick={() => setTab('general')}
-					>
-						<div style={iconContainer}>
-							<FileIcon style={icon} />
-						</div>
-						General
-					</Tab>
-					<Tab
-						style={horizontalTab}
-						selected={tab === 'picture'}
-						onClick={() => setTab('picture')}
-					>
-						<div style={iconContainer}>
-							<PicIcon style={icon} />
-						</div>
-						Picture
-					</Tab>
-					{renderMode === 'still' ? null : (
+					{shownTabs.includes('general') ? (
+						<Tab
+							style={horizontalTab}
+							selected={tab === 'general'}
+							onClick={() => setTab('general')}
+						>
+							<div style={iconContainer}>
+								<FileIcon style={icon} />
+							</div>
+							General
+						</Tab>
+					) : null}
+					{shownTabs.includes('picture') ? (
+						<Tab
+							style={horizontalTab}
+							selected={tab === 'picture'}
+							onClick={() => setTab('picture')}
+						>
+							<div style={iconContainer}>
+								<PicIcon style={icon} />
+							</div>
+							Picture
+						</Tab>
+					) : null}
+					{shownTabs.includes('audio') ? (
 						<Tab
 							style={horizontalTab}
 							selected={tab === 'audio'}
@@ -769,8 +772,8 @@ export const RenderModal: React.FC<{
 							</div>
 							Audio
 						</Tab>
-					)}
-					{codec === 'gif' ? (
+					) : null}
+					{shownTabs.includes('gif') ? (
 						<Tab
 							style={horizontalTab}
 							selected={tab === 'gif'}
@@ -782,16 +785,18 @@ export const RenderModal: React.FC<{
 							GIF
 						</Tab>
 					) : null}
-					<Tab
-						style={horizontalTab}
-						selected={tab === 'advanced'}
-						onClick={() => setTab('advanced')}
-					>
-						<div style={iconContainer}>
-							<GearIcon style={icon} />
-						</div>
-						Other
-					</Tab>
+					{shownTabs.includes('advanced') ? (
+						<Tab
+							style={horizontalTab}
+							selected={tab === 'advanced'}
+							onClick={() => setTab('advanced')}
+						>
+							<div style={iconContainer}>
+								<GearIcon style={icon} />
+							</div>
+							Other
+						</Tab>
+					) : null}
 				</div>
 				<div style={scrollPanel}>
 					<Spacing block y={0.5} />
