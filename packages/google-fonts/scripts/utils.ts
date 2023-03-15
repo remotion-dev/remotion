@@ -12,10 +12,9 @@ export const getCssLink = (font: Font) => {
   url += font.family.replace(/ /g, "+");
   url += ":ital,wght@";
 
-  let weight,
-    tupleList = [];
+  let tupleList: string[] = [];
   for (const variant of font.variants) {
-    weight = variant.match(/^(regular|italic)$/)
+    const weight = variant.match(/^(regular|italic)$/)
       ? "400"
       : variant.replace(/italic/g, "");
     tupleList.push(`${Number(variant.endsWith("italic"))},${weight}`);

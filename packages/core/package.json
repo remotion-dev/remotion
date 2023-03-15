@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "3.3.65",
+	"version": "3.3.77",
 	"description": "Render videos in React",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -18,7 +18,7 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
-	"author": "",
+	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -43,7 +43,7 @@
 		"rollup": "^2.70.1",
 		"typescript": "^4.7.0",
 		"vitest": "0.24.3",
-		"webpack": "5.74.0"
+		"webpack": "5.76.1"
 	},
 	"keywords": [
 		"remotion",
@@ -73,7 +73,7 @@
 	"typesVersions": {
 		">=1.0": {
 			"version": [
-				"dist/esm/version.d.ts"
+				"dist/cjs/version.d.ts"
 			]
 		}
 	}
