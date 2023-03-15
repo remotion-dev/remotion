@@ -1,6 +1,6 @@
 {
   "name": "@remotion/rive",
-  "version": "3.3.65",
+  "version": "3.3.77",
   "description": "Remotion Rive",
   "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.ts",
@@ -23,8 +23,8 @@
     "README.md"
   ],
   "dependencies": {
-    "remotion": "3.3.65",
-    "@rive-app/canvas-advanced": "^1.0.98"
+    "@rive-app/canvas-advanced": "^1.0.98",
+    "remotion": "workspace:*"
   },
   "peerDependencies": {
     "react": "^18.2.0",
@@ -42,5 +42,8 @@
     "react-dom": "^18.2.0",
     "rollup": "^2.70.1",
     "typescript": "^4.9.5"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

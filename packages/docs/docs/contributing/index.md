@@ -102,6 +102,16 @@ cd packages/docs
 pnpm start
 ```
 
+## Troubleshooting
+
+If your `pnpm build` throws errors, oftentimes it is because of caching issues. You can resolve many of these errors by running
+
+```ts
+pnpm run clean
+```
+
+in the root directory.
+
 ## Developing Rust parts
 
 To develop the Rust parts of Remotion, see the README in [packages/renderer/README.md](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/README.md)
