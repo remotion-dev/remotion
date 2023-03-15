@@ -43,7 +43,7 @@
 		"rollup": "^2.70.1",
 		"typescript": "^4.7.0",
 		"vitest": "0.24.3",
-		"webpack": "5.74.0"
+		"webpack": "5.76.1"
 	},
 	"keywords": [
 		"remotion",
