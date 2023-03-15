@@ -15,6 +15,13 @@ const description: React.CSSProperties = {
 	maxWidth: 200,
 };
 
+const link: React.CSSProperties = {
+	fontSize: 14,
+	maxWidth: 200,
+	color: '#0b84f3',
+	wordWrap: 'break-word',
+};
+
 // TODO: No style of <code>
 export const OptionExplainer: React.FC<{
 	option: RemotionOption;
@@ -29,6 +36,12 @@ export const OptionExplainer: React.FC<{
 			<MenuDivider />
 			<div style={description}>CLI flag: {option.cliFlag}</div>
 			<div style={description}>Node.JS option: {option.ssrName}</div>
+			<div style={description}>
+				Docs:{' '}
+				<a style={link} href={option.docLink} target="_blank">
+					{option.docLink}
+				</a>
+			</div>
 		</div>
 	);
 };
