@@ -9,7 +9,7 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import {TableOfContents} from '../../components/TableOfContents/rive';
 
-This package provides a component for rendering [Rive](https://rive.app) animations in Remotion
+This package provides a component for rendering [Rive](https://rive.app) animations in Remotion.
 
 ## Installation
 
