@@ -11,9 +11,10 @@ import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
+import {CrfSetting} from './CrfSetting';
 import {InfoBubble} from './InfoBubble';
+import {JpegQualitySetting} from './JpegQualitySetting';
 import {input, label, optionRow, rightRow} from './layout';
-import {NumberSetting} from './NumberSetting';
 import {OptionExplainer} from './OptionExplainer';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
@@ -115,26 +116,10 @@ export const RenderModalPicture: React.FC<{
 				</div>
 			) : null}
 			{renderMode === 'video' && videoImageFormat === 'jpeg' && (
-				<NumberSetting
-					min={1}
-					max={100}
-					name="JPEG Quality"
-					onValueChanged={setQuality}
-					value={quality}
-					step={1}
-					hint={BrowserSafeApis.options.jpegQualityOption}
-				/>
+				<JpegQualitySetting quality={quality} setQuality={setQuality} />
 			)}
 			{renderMode === 'still' && stillImageFormat === 'jpeg' && (
-				<NumberSetting
-					min={1}
-					max={100}
-					name="JPEG Quality"
-					onValueChanged={setQuality}
-					value={quality}
-					step={1}
-					hint={BrowserSafeApis.options.jpegQualityOption}
-				/>
+				<JpegQualitySetting quality={quality} setQuality={setQuality} />
 			)}
 			{renderMode === 'video' ? <RenderModalHr /> : null}
 			{renderMode === 'video' ? (
@@ -149,15 +134,7 @@ export const RenderModalPicture: React.FC<{
 			{shouldDisplayCrfOption &&
 			qualityControlType === 'crf' &&
 			renderMode !== 'still' ? (
-				<NumberSetting
-					min={minCrf}
-					max={maxCrf}
-					name="CRF"
-					onValueChanged={setCrf}
-					value={crf}
-					step={1}
-					hint={BrowserSafeApis.options.crfOption}
-				/>
+				<CrfSetting crf={crf} min={minCrf} max={maxCrf} setCrf={setCrf} />
 			) : null}
 			{qualityControlType === 'bitrate' && renderMode !== 'still' ? (
 				<div style={optionRow}>
