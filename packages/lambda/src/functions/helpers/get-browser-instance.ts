@@ -30,7 +30,9 @@ export const getBrowserInstance = async (
 	if (launching) {
 		await waitForLaunched();
 		if (!_browserInstance) {
-			throw new Error('expected to launch');
+			throw new Error(
+				'Chrome failed to launch: You are affected by a bad AWS Lambda runtime upgrade. Please see https://www.remotion.dev/docs/lambda/feb-2023-incident on how to resolve the issue.'
+			);
 		}
 
 		return _browserInstance;
