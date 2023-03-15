@@ -10,6 +10,14 @@ We are happy to accept contributions to the Remotion project that implement new 
 
 See the [CONTRIBUTING.md](https://github.com/remotion-dev/remotion/blob/main/CONTRIBUTING.md) file for instructions on how to set up the project.
 
+## Third party services Remotion uses
+
+Remotion uses third services for various things, such as icons.
+
+- [Font Awesome](https://fontawesome.com/) v(?@JonnyBurger) - We use font awesome for icons in the remotion previewer UI.
+
+If you are implementing a feature that uses one of these services, try accessing the service yourself or reach out if you need help with access.
+
 ## What's important to us
 
 - **Planning**: Signal beforehand that you would like to propose the feature by opening an issue and mentioning that you would like to work on it.  
