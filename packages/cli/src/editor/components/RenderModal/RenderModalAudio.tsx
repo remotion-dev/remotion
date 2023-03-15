@@ -128,7 +128,7 @@ export const RenderModalAudio: React.FC<{
 			)}
 
 			{shouldHaveCustomTargetAudioBitrate && renderMode !== 'still' ? (
-				<div style={optionRow}>
+				<div style={{...optionRow, alignItems: 'center'}}>
 					<div style={label}>Target audio bitrate</div>
 					<InfoBubble title="Learn more about this option">
 						<OptionExplainer option={BrowserSafeApis.options.audioBitrate} />
