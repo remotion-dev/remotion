@@ -42,6 +42,11 @@ A promise resolving to an object with the following property:
 
 The name of your bucket that was found or created.
 
+### `alreadyExisted`
+
+<AvailableFrom v="v3.3.78" />
+A boolean indicating whether the bucket already existed or was newly created.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-or-create-bucket.ts)
