@@ -13,7 +13,6 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {input, label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
-import {QualitySetting} from './QualitySetting';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
 import {ScaleSetting} from './ScaleSetting';
@@ -114,10 +113,26 @@ export const RenderModalPicture: React.FC<{
 				</div>
 			) : null}
 			{renderMode === 'video' && videoImageFormat === 'jpeg' && (
-				<QualitySetting setQuality={setQuality} quality={quality} />
+				<NumberSetting
+					min={1}
+					max={100}
+					name="JPEG Quality"
+					onValueChanged={setQuality}
+					value={quality}
+					step={1}
+					hint={BrowserSafeApis.options.jpegQualityOption}
+				/>
 			)}
 			{renderMode === 'still' && stillImageFormat === 'jpeg' && (
-				<QualitySetting setQuality={setQuality} quality={quality} />
+				<NumberSetting
+					min={1}
+					max={100}
+					name="JPEG Quality"
+					onValueChanged={setQuality}
+					value={quality}
+					step={1}
+					hint={BrowserSafeApis.options.jpegQualityOption}
+				/>
 			)}
 			{renderMode === 'video' ? <RenderModalHr /> : null}
 			{renderMode === 'video' ? (
