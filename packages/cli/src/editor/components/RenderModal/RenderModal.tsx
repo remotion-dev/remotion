@@ -263,7 +263,7 @@ export const RenderModal: React.FC<{
 	] = useState(() => initialAudioBitrate !== null);
 
 	const [customTargetAudioBitrate, setCustomTargetAudioBitrateValue] = useState(
-		() => initialAudioBitrate ?? '256K'
+		() => initialAudioBitrate ?? '320K'
 	);
 	const [customTargetVideoBitrate, setCustomTargetVideoBitrateValue] = useState(
 		() => initialVideoBitrate ?? '1M'
