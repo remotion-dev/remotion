@@ -12,6 +12,7 @@ import {
 } from './get-extension-from-codec';
 import {isAudioCodec} from './is-audio-codec';
 import {crfOption} from './options/crf';
+import {jpegQualityOption} from './options/jpeg-quality';
 import {scaleOption} from './options/scale';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
@@ -33,5 +34,6 @@ export const BrowserSafeApis = {
 	options: {
 		scaleOption,
 		crfOption,
+		jpegQualityOption,
 	},
 };
