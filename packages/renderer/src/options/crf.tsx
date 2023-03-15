@@ -13,4 +13,6 @@ export const crfOption: RemotionOption = {
 		</>
 	),
 	ssrName: 'crf',
+	docLink:
+		'https://www.remotion.dev/docs/encoding/#controlling-quality-using-the-crf-setting',
 };

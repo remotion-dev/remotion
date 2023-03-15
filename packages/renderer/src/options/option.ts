@@ -5,4 +5,5 @@ export type RemotionOption = {
 	cliFlag: string;
 	ssrName: string;
 	description: React.ReactNode;
+	docLink: string;
 };

@@ -11,4 +11,5 @@ export const scaleOption: RemotionOption = {
 		</>
 	),
 	ssrName: 'scale',
+	docLink: 'https://www.remotion.dev/docs/scaling',
 };
