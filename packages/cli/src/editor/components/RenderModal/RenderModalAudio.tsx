@@ -9,8 +9,10 @@ import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {EnforceAudioTrackSetting} from './EnforceAudioTrackSetting';
 import {humanReadableAudioCodec} from './human-readable-audio-codecs';
+import {InfoBubble} from './InfoBubble';
 import {input, label, optionRow, rightRow} from './layout';
 import {MutedSetting} from './MutedSetting';
+import {OptionExplainer} from './OptionExplainer';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
 
@@ -128,6 +130,9 @@ export const RenderModalAudio: React.FC<{
 			{shouldHaveCustomTargetAudioBitrate && renderMode !== 'still' ? (
 				<div style={optionRow}>
 					<div style={label}>Target audio bitrate</div>
+					<InfoBubble title="Learn more about this option">
+						<OptionExplainer option={BrowserSafeApis.options.audioBitrate} />
+					</InfoBubble>
 					<div style={rightRow}>
 						<div>
 							<RemotionInput
