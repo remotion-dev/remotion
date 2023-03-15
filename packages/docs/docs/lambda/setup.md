@@ -66,7 +66,7 @@ If any of the above is missing, add them to the `package.json` file and then run
 - Go to [AWS account IAM Policies section](https://console.aws.amazon.com/iamv2/home?#/policies)
 - Click on "Create policy"
 - Click on JSON
-- In your project, type `remotion lambda policies role` in the command line and copy it into the "JSON" field on AWS.
+- In your project, type `npx remotion lambda policies role` in the command line and copy it into the "JSON" field on AWS.
 - Click next. On the tags page, you don't need to fill in anything. Click next again.
 - Give the policy **exactly** the name `remotion-lambda-policy`. The other fields can be left as they are.
 
@@ -112,14 +112,14 @@ REMOTION_AWS_SECRET_ACCESS_KEY=<Secret access key>
 - Select the user you just created.
 - Click "Add inline policy" under the "Add Permissions" dropdown in the "Permissions policies" panel.
 - Click the tab "JSON".
-- Enter in your terminal: `remotion lambda policies user` and copy into the AWS text field what gets printed.
+- Enter in your terminal: `npx remotion lambda policies user` and copy into the AWS text field what gets printed.
 - Click "Review policy".
 - Give the policy a name. For example `remotion-user-policy`, but it can be anything.
 - Click "Create policy" to confirm.
 
 ## 7. Optional: Validate the permission setup
 
-- Run `remotion lambda policies validate`
+- Run `npx remotion lambda policies validate`
 
 <hr/>
 
@@ -139,7 +139,7 @@ values={[
 Deploy a function that can render videos into your AWS account by executing the following command:
 
 ```bash
-remotion lambda functions deploy
+npx remotion lambda functions deploy
 ```
 
 </TabItem>
@@ -182,7 +182,7 @@ values={[
 Run the following command to deploy your Remotion project to an S3 bucket. Pass as the last argument the [entry point](/docs/terminology#entry-point) of the project.
 
 ```bash
-remotion lambda sites create src/index.ts --site-name=my-video
+npx remotion lambda sites create src/index.ts --site-name=my-video
 ```
 
 A [`serveUrl`](/docs/terminology#serve-url) will be printed pointing to the deployed project.
@@ -235,7 +235,7 @@ When you update your Remotion video in the future, redeploy your site. Pass the 
 Check the concurrency limit that AWS has given to your account:
 
 ```
-remotion lambda quotas
+npx remotion lambda quotas
 ```
 
 By default, it is `1000` concurrent invocations per region. However, new accounts might have a limit [as low as `10`](/docs/lambda/troubleshooting/rate-limit). Each Remotion render may use as much as 200 functions per render concurrently, so if your assigned limit is very low, [you might want to request an increase right away](/docs/lambda/troubleshooting/rate-limit).
@@ -254,7 +254,7 @@ values={[
 Take the URL you received from the step 8 - your "serve URL" - and run the following command. Also pass in the [ID of the composition](/docs/composition) you'd like to render.
 
 ```bash
-remotion lambda render <serve-url> <composition-id>
+npx remotion lambda render <serve-url> <composition-id>
 ```
 
 Progress will be printed until the video finished rendering. Congrats! You rendered your first video using Remotion Lambda 🚀
