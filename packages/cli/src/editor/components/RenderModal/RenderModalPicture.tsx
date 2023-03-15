@@ -11,8 +11,10 @@ import {Combobox} from '../NewComposition/ComboBox';
 import {RemotionInput} from '../NewComposition/RemInput';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
+import {InfoBubble} from './InfoBubble';
 import {input, label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
+import {OptionExplainer} from './OptionExplainer';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
 import {ScaleSetting} from './ScaleSetting';
@@ -138,6 +140,7 @@ export const RenderModalPicture: React.FC<{
 			{renderMode === 'video' ? (
 				<div style={optionRow}>
 					<div style={label}>Quality control</div>
+
 					<div style={rightRow}>
 						<SegmentedControl items={qualityControlOptions} needsWrapping />
 					</div>
@@ -159,6 +162,9 @@ export const RenderModalPicture: React.FC<{
 			{qualityControlType === 'bitrate' && renderMode !== 'still' ? (
 				<div style={optionRow}>
 					<div style={label}>Target video bitrate</div>
+					<InfoBubble title="Learn more about this option">
+						<OptionExplainer option={BrowserSafeApis.options.videoBitrate} />
+					</InfoBubble>
 					<div style={rightRow}>
 						<div>
 							<RemotionInput
