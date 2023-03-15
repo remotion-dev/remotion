@@ -138,6 +138,7 @@ export const RenderModalPicture: React.FC<{
 					onValueChanged={setCrf}
 					value={crf}
 					step={1}
+					hint={BrowserSafeApis.options.crfOption}
 				/>
 			) : null}
 			{qualityControlType === 'bitrate' && renderMode !== 'still' ? (
