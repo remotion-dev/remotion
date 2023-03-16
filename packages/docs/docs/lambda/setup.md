@@ -53,11 +53,13 @@ Make sure no package version number has a `^` character in front of it as it can
 Your package.json should look like the following:
 
 ```json
-  "@remotion/cli": "3.0.0", // Replace 3.0.0 with the current version
+  "@remotion/cli": "3.0.0", // Replace 3.0.0 with the current version; install as a dev dependency
   "@remotion/lambda": "3.0.0", // Remove any `^` character
   // ...
   "remotion": "3.0.0",
 ```
+
+If any of the above is missing, add them to the `package.json` file and then run `npm install`, `yarn install` or `pnpm install`.
 
 ## 2. Create role policy
 
@@ -235,7 +237,7 @@ Check the concurrency limit that AWS has given to your account:
 npx remotion lambda quotas
 ```
 
-By default, it is `1000` concurrent invocations per region. However, new accounts might have a limit [as low as `10`](/docs/lambda/troubleshooting/rate-limit). Each Remotion render may use as much as 200 functions per render concurrently, so if your assigned limit is very low, [you might want to request an increase right away](/docs/lambda/troubleshooting/rate-limit).
+By default, it is `1000` concurrent invocations per region. However, new accounts might have a limit [as low as `10`](/docs/lambda/troubleshooting/rate-limit#exception-new-accounts-using-aws-lambda). Each Remotion render may use as much as 200 functions per render concurrently, so if your assigned limit is very low, [you might want to request an increase right away](/docs/lambda/troubleshooting/rate-limit#request-an-increase).
 
 ## 11. Render a video
 
