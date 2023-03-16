@@ -61,8 +61,8 @@ Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and s
 _string - optional_
 
 Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+The syntax for FFMPEGs `-b:a` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.  
 This option cannot be set if `--crf` is set.
 Example values: `512K` for 512 kbps, `1M` for 1 Mbps.  
 Default: `320k`
