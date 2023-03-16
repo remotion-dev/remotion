@@ -32,6 +32,8 @@ export const TimelineTracks: React.FC<{
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
 			height: TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2,
+			position: 'relative',
+			overflow: 'hidden',
 		};
 	}, []);
 
