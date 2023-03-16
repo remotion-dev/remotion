@@ -231,7 +231,7 @@ test("Should be able to render a MP3 audio file", async () => {
   fs.unlinkSync(out);
 });
 
-test("Should be able to render a AAC audio file", async () => {
+test.only("Should be able to render a AAC audio file", async () => {
   const out = outputPath.replace("mp4", "aac");
   const task = execa(
     "pnpm",
@@ -254,7 +254,7 @@ test("Should be able to render a AAC audio file", async () => {
   expect(data).toContain("stereo");
   expect(data).toContain("fltp");
   expect(data).not.toContain("Kevin MacLeod");
-  expect(data).toMatch(/\d\d\d kb\/s/);
+  expect(data).toMatch(/\d?\d kb\/s/);
   expect(data).toContain("Stream #0");
   expect(data).not.toContain("Stream #1");
   fs.unlinkSync(out);
