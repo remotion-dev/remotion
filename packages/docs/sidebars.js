@@ -532,6 +532,7 @@ module.exports = {
         "miscellaneous/changing-temp-dir",
         "miscellaneous/automatic-duration",
         "miscellaneous/video-formats",
+        "compare/motion-canvas",
       ],
     },
     {
