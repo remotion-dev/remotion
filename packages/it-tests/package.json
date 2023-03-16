@@ -1,6 +1,6 @@
 {
   "name": "@remotion/it-tests",
-  "version": "3.3.77",
+  "version": "3.3.78",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "vitest src/monorepo --run && vitest src/rendering --run",
