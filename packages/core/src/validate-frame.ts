@@ -1,4 +1,12 @@
-export const validateFrame = (frame: number, durationInFrames: number) => {
+export const validateFrame = ({
+	allowFloats,
+	durationInFrames,
+	frame,
+}: {
+	frame: number;
+	durationInFrames: number;
+	allowFloats: boolean;
+}) => {
 	if (typeof frame === 'undefined') {
 		throw new TypeError(`Argument missing for parameter "frame"`);
 	}
@@ -13,7 +21,7 @@ export const validateFrame = (frame: number, durationInFrames: number) => {
 		throw new RangeError(`Frame ${frame} is not finite`);
 	}
 
-	if (frame % 1 !== 0) {
+	if (frame % 1 !== 0 && !allowFloats) {
 		throw new RangeError(
 			`Argument for frame must be an integer, but got ${frame}`
 		);

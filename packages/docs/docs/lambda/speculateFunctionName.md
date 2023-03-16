@@ -42,7 +42,7 @@ remotion-render-3-3-63-mem2048mb-disk2048mb-240sec
 
 import { speculateFunctionName } from "@remotion/lambda/client";
 
-const speculatedFunctionName = await speculateFunctionName({
+const speculatedFunctionName = speculateFunctionName({
   memorySizeInMb: 2048,
   diskSizeInMb: 2048,
   timeoutInSeconds: 120,

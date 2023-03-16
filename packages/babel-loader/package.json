@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/babel-loader",
-	"version": "3.3.76",
+	"version": "3.3.77",
 	"description": "babel-loader polyfill for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
@@ -28,7 +28,7 @@
 		"@webhotelier/webpack-fast-refresh": "5.1.0",
 		"babel-loader": "8.2.2",
 		"react-refresh": "0.9.0",
-		"webpack": "5.74.0"
+		"webpack": "5.76.1"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
