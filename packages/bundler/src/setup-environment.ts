@@ -16,4 +16,9 @@ Internals.CSSUtils.injectCSS(`
     font-size: 15px;
     line-height: 1.25;
   }
+
+  .__remotion-info-button-container code {
+    font-family: monospace;
+    font-size: 14px;
+  }
 `);
