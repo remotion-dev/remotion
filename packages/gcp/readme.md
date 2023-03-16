@@ -95,33 +95,11 @@ This command will bundle the site and upload it to a GCP bucket. To view storage
 
 This command will render media on the deployed cloud-run service, and return metadata of the rendered file.
 
-### Command: `pnpm exec remotion gcp render <serve-url> <cloud-run-url> <composition-name> --output-bucket=<GCS-bucket-name>`
+### Command: `pnpm exec remotion gcp render media <serve-url> <cloud-run-url> <composition-name> --output-bucket=<GCS-bucket-name>`
 
 ## Manually, making a post request
 
 Within the Cloud Run service, you can see the URL of the service. Distributed rendering is not yet supported, but rendering a still or media in a single-threaded instance is available.
-
-To render a still, send a POST request to the URL with the following body:
-
-- type: the type of render. For a still, this should be set to `still`.
-- composition: the name of the composition to render. This must be available in the bundle that has been deployed to GCP.
-- serveUrl: the URL of the site that has been deployed to GCP.
-- inputProps: the props to pass to the composition.
-- outputBucket: bucket for the output to be uploaded to. The bucket must exist, and the service account running the service must have access to the bucket.
-- outputFile: The path and filename to upload the output to.
-
-```
-{
-    "type": "still",
-    "composition": "StillRender",
-    "serveUrl": "https://storage.googleapis.com/remotioncloudrun-n8x4pc7dz3/sites/e97ngid3n3/index.html",
-    "inputProps": {
-      "text": "Created on Cloud Run™️"
-    },
-    "outputBucket": "remotionlambda-test",
-    "outputFile": "outFolder/stillOutput.png"
-}
-```
 
 To render media, send a POST request to the URL with the following body:
 
@@ -147,11 +125,42 @@ To render media, send a POST request to the URL with the following body:
 }
 ```
 
+# Render still on GCP
+
+This command will render media on the deployed cloud-run service, and return metadata of the rendered file.
+
+### Command: `pnpm exec remotion gcp render still <serve-url> <cloud-run-url> <composition-name> --output-bucket=<GCS-bucket-name>`
+
+## Manually, making a post request
+
+To render a still, send a POST request to the URL with the following body:
+
+- type: the type of render. For a still, this should be set to `still`.
+- composition: the name of the composition to render. This must be available in the bundle that has been deployed to GCP.
+- serveUrl: the URL of the site that has been deployed to GCP.
+- inputProps: the props to pass to the composition.
+- outputBucket: bucket for the output to be uploaded to. The bucket must exist, and the service account running the service must have access to the bucket.
+- outputFile: The path and filename to upload the output to.
+
+```
+{
+    "type": "still",
+    "composition": "StillRender",
+    "serveUrl": "https://storage.googleapis.com/remotioncloudrun-n8x4pc7dz3/sites/e97ngid3n3/index.html",
+    "inputProps": {
+      "text": "Created on Cloud Run™️"
+    },
+    "outputBucket": "remotionlambda-test",
+    "outputFile": "outFolder/stillOutput.png"
+}
+```
+
 ## Using the CLI command, WIP
 
 - 🟩 Render Media is largely finished
   - 🟩 Address comments within
-- 🟩 Render Still command yet to be written
+- 🟩 Render Still command written
+  - 🟩 Address comments within
 - 🟩 Cloud Run render only ever puts the output in a bucket, not available for download.
   <br><br><br><br>
 
