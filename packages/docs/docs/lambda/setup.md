@@ -53,11 +53,13 @@ Make sure no package version number has a `^` character in front of it as it can
 Your package.json should look like the following:
 
 ```json
-  "@remotion/cli": "3.0.0", // Replace 3.0.0 with the current version
+  "@remotion/cli": "3.0.0", // Replace 3.0.0 with the current version; install as a dev dependency
   "@remotion/lambda": "3.0.0", // Remove any `^` character
   // ...
   "remotion": "3.0.0",
 ```
+
+If any of the above is missing, add them to the `package.json` file and then run `npm install`, `yarn install` or `pnpm install`.
 
 ## 2. Create role policy
 
