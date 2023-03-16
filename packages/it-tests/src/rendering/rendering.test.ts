@@ -231,7 +231,7 @@ test("Should be able to render a MP3 audio file", async () => {
   fs.unlinkSync(out);
 });
 
-test.only("Should be able to render a AAC audio file", async () => {
+test("Should be able to render a AAC audio file", async () => {
   const out = outputPath.replace("mp4", "aac");
   const task = execa(
     "pnpm",
