@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/gif",
-	"version": "3.3.76",
+	"version": "3.3.77",
 	"description": "Gif component for remotion",
 	"sideEffects": false,
 	"repository": {
@@ -48,7 +48,7 @@
 		"react-dom": "18.0.0",
 		"rollup": "^2.70.1",
 		"typescript": "^4.7.0",
-		"webpack": "5.74.0"
+		"webpack": "5.76.1"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
