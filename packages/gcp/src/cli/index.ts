@@ -4,7 +4,7 @@ import {
 	compositionsCommand,
 	COMPOSITIONS_COMMAND,
 } from './commands/compositions';
-import {renderCommand, RENDER_COMMAND} from './commands/render/render';
+import {renderCommand, RENDER_COMMAND} from './commands/render';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {printHelp} from './help';
 import {quit} from './helpers/quit';
