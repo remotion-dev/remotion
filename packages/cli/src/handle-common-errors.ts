@@ -49,4 +49,13 @@ export const handleCommonError = async (err: Error) => {
 			)
 		);
 	}
+
+	if (err.message.includes("Minified React error #306")) {
+		const componentName = err.message.match(/<\w+>/)?.[0] || ""
+		const errorMsg = `Error: Failed to render ${componentName}. Please check that it is imported correctly.`
+		Log.error(errorMsg)
+		Log.info(
+			'💡 You can try taking a look at the path of the component that you are referencing. It could be the cause of this error.'
+		)
+	}
 };
