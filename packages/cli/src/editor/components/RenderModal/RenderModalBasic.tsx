@@ -207,6 +207,7 @@ export const RenderModalBasic: React.FC<{
 				setRenderDisabled={setRenderDisabled}
 				renderDisabled={renderDisabled}
 				preferLossless={preferLossless}
+				renderMode={renderMode}
 			/>
 		</div>
 	);
