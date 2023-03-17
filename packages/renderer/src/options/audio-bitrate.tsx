@@ -1,6 +1,6 @@
 import type {RemotionOption} from './option';
 
-export const audioBitrate: RemotionOption = {
+export const audioBitrateOption: RemotionOption = {
 	name: 'Audio Bitrate',
 	cliFlag: '--audio-bitrate',
 	description: (

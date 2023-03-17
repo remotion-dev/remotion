@@ -20,11 +20,14 @@ export const EnforceAudioTrackSetting: React.FC<{
 	);
 
 	return (
-		<div style={{...optionRow, display: 'flex', alignItems: 'center'}}>
-			<div style={label}>Enforce Audio Track</div>
-			<InfoBubble title="Learn more about this option">
-				<OptionExplainer option={option} />
-			</InfoBubble>
+		<div style={optionRow}>
+			<div style={label}>
+				Enforce Audio Track
+				<InfoBubble title="Learn more about this option">
+					<OptionExplainer option={option} />
+				</InfoBubble>
+			</div>
+
 			<div style={rightRow}>
 				<Checkbox
 					disabled={muted && !enforceAudioTrack}
