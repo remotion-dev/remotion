@@ -839,6 +839,7 @@ export const RenderModal: React.FC<{
 							audioCodec={audioCodec}
 							setRenderDisabled={setRenderDisabled}
 							renderDisabled={renderDisabled}
+							preferLossless={false}
 						/>
 					) : tab === 'picture' ? (
 						<RenderModalPicture

@@ -38,6 +38,7 @@ export const RenderModalBasic: React.FC<{
 	setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	renderDisabled: boolean;
 	setRenderDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+	preferLossless: boolean;
 }> = ({
 	renderMode,
 	imageFormatOptions,
@@ -57,6 +58,7 @@ export const RenderModalBasic: React.FC<{
 	startFrame,
 	setRenderDisabled,
 	renderDisabled,
+	preferLossless,
 }) => {
 	const existence = useFileExistence(outName);
 	const videoCodecOptions = useMemo((): ComboboxValue[] => {
@@ -204,6 +206,7 @@ export const RenderModalBasic: React.FC<{
 				audioCodec={audioCodec}
 				setRenderDisabled={setRenderDisabled}
 				renderDisabled={renderDisabled}
+				preferLossless={preferLossless}
 			/>
 		</div>
 	);

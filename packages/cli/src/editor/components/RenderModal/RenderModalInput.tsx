@@ -5,16 +5,20 @@ import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {label, optionRow, rightRow} from './layout';
 
-export const RenderModalInput: React.FC<{
+type Props<T extends Codec> = {
 	existence: boolean;
 	inputStyle: React.CSSProperties;
 	outName: string;
-	codec: Codec;
+	codec: T;
 	audioCodec: AudioCodec;
 	onValueChange: React.ChangeEventHandler<HTMLInputElement>;
 	renderDisabled: boolean;
 	setRenderDisabled: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({
+	preferLossless: boolean;
+};
+
+// eslint-disable-next-line react/function-component-definition
+export function RenderModalInput<T extends Codec>({
 	existence,
 	inputStyle,
 	outName,
@@ -23,29 +27,41 @@ export const RenderModalInput: React.FC<{
 	audioCodec,
 	setRenderDisabled,
 	renderDisabled,
-}) => {
-	const checkInpuName = useMemo(() => {
+	preferLossless,
+}: Props<T>) {
+	const checkInputName = useMemo(() => {
 		setRenderDisabled(false);
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
 		const prefix = outName.substring(0, outName.lastIndexOf('.'));
 		const invalidChars = ['?', '*', '+', '%'];
 
+		const map = BrowserSafeApis.defaultFileExtensionMap[codec];
+
+		if (!(audioCodec in map.forAudioCodec)) {
+			throw new Error(
+				`Audio codec ${audioCodec} is not supported for codec ${codec}`
+			);
+		}
+
+		const acceptableExtensions =
+			map.forAudioCodec[audioCodec as keyof typeof map.forAudioCodec].possible;
+
 		const hasInvalidChar = () => {
 			return prefix.split('').some((char) => invalidChars.includes(char));
 		};
 
-		console.log('extension: ' + extension);
 		try {
 			BrowserSafeApis.validateOutputFilename({
 				codec,
 				audioCodec: audioCodec ?? null,
 				extension,
-				preferLossless: false,
+				preferLossless,
 			});
 		} catch (e) {
 			setRenderDisabled(true);
 			console.log(e);
-			const errorMessage = 'Invalid file extension';
+			const errorMessage =
+				'Invalid file extension. Valid extensions are: ' + acceptableExtensions;
 			return (
 				<ValidationMessage
 					align="flex-end"
@@ -70,7 +86,7 @@ export const RenderModalInput: React.FC<{
 			return (
 				<ValidationMessage
 					align="flex-end"
-					message="Empty file name"
+					message="Filename can't be empty"
 					type={'error'}
 				/>
 			);
@@ -81,7 +97,7 @@ export const RenderModalInput: React.FC<{
 			return (
 				<ValidationMessage
 					align="flex-end"
-					message="Filename starts with '.'"
+					message="Filename can't start with '.'"
 					type={'error'}
 				/>
 			);
@@ -113,9 +129,9 @@ export const RenderModalInput: React.FC<{
 						value={outName}
 						onChange={onValueChange}
 					/>
-					{checkInpuName}
+					{checkInputName}
 				</div>
 			</div>
 		</div>
 	);
-};
+}
