@@ -1,6 +1,7 @@
 import got from 'got';
 import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
 import {validateServeUrl} from '../shared/validate-serveurl';
+import { parseCloudRunUrl } from './helpers/parse-cloud-run-url';
 
 export type RenderStillOnGcpInput = {
 	cloudRunUrl: string;
@@ -57,6 +58,8 @@ export const renderStillOnGcp = async ({
 	validateServeUrl(serveUrl);
 	validateCloudRunUrl(cloudRunUrl);
 
+	const cloudRunInfo = parseCloudRunUrl(cloudRunUrl);
+	
 	// todo: allow serviceName to be passed in, and fetch the cloud run URL based on the name
 
 	const postData = {
