@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-miscellaneous-render-on-edge.png
 sidebar_label: Rendering on the edge
 title: Can I render videos on the edge?
 crumb: "FAQ"
