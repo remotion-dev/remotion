@@ -15,6 +15,7 @@ export const RenderModalInput: React.FC<{
 }> = ({existence, inputStyle, outName, onValueChange, codec, audioCodec}) => {
 	const checkInpuName = useMemo(() => {
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
+		const prefix = outName.substring(0, outName.lastIndexOf('.'));
 		console.log('extension: ' + extension);
 		try {
 			BrowserSafeApis.validateOutputFilename({
@@ -25,14 +26,26 @@ export const RenderModalInput: React.FC<{
 			});
 		} catch (e) {
 			console.log(e);
-			return (
-				<ValidationMessage align="flex-end" message="Invalid file extension" />
-			);
+			const errorMessage = 'Invalid file extension';
+			return <ValidationMessage align="flex-end" message={errorMessage} />;
 		}
 
 		if (existence) {
 			return (
 				<ValidationMessage align="flex-end" message="Will be overwritten" />
+			);
+		}
+
+		if (prefix.length < 1) {
+			return <ValidationMessage align="flex-end" message="Empty file name" />;
+		}
+
+		if (prefix[0] === '.') {
+			return (
+				<ValidationMessage
+					align="flex-end"
+					message="Filename starts with '.'"
+				/>
 			);
 		}
 	}, [audioCodec, codec, existence, outName]);
