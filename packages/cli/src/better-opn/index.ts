@@ -3,41 +3,6 @@
 import {exec} from 'child_process';
 import type {Writable} from 'stream';
 import open = require('open');
-const OSX_CHROME = 'google chrome';
-
-const Actions = Object.freeze({
-	NONE: 0,
-	BROWSER: 1,
-});
-
-type Options = {
-	wait: boolean;
-	app: {
-		name: string;
-		arguments: string[];
-	};
-};
-
-const getBrowserEnv = () => {
-	// Attempt to honor this environment variable.
-	// It is specific to the operating system.
-	// See https://github.com/sindresorhus/open#app for documentation.
-	const browser = process.env.BROWSER;
-	const args: string[] = process.env.BROWSER_ARGS
-		? process.env.BROWSER_ARGS.split(' ')
-		: [];
-	let action;
-	if (!browser) {
-		// Default.
-		action = Actions.BROWSER;
-	} else if (browser.toLowerCase() === 'none') {
-		action = Actions.NONE;
-	} else {
-		action = Actions.BROWSER;
-	}
-
-	return {action, browser, args};
-};
 
 const normalizeURLToMatch = (target: string) => {
 	// We may encounter URL parse error but want to fallback to default behavior
@@ -54,18 +19,23 @@ const normalizeURLToMatch = (target: string) => {
 
 // Copy from
 // https://github.com/facebook/create-react-app/blob/master/packages/react-dev-utils/openBrowser.js#L64
-const startBrowserProcess = async (
-	browser: string | undefined,
-	url: string,
-	args: string[]
-) => {
-	// If we're on OS X, the user hasn't specifically
-	// requested a different browser, we can try opening
-	// Chrome with AppleScript. This lets us reuse an
-	// existing tab when possible instead of creating a new one.
+const startBrowserProcess = async ({
+	browser,
+	url,
+	args,
+}: {
+	browser: string | undefined;
+	url: string;
+	args: string[];
+}) => {
+	const tryNewInstance = args.length > 0;
+
 	const shouldTryOpenChromiumWithAppleScript =
 		process.platform === 'darwin' &&
-		(typeof browser !== 'string' || browser === OSX_CHROME);
+		!tryNewInstance &&
+		(typeof browser !== 'string' ||
+			browser === 'google chrome' ||
+			browser === 'chrome');
 
 	if (shouldTryOpenChromiumWithAppleScript) {
 		let appleScriptDenied = false;
@@ -229,22 +199,37 @@ const startBrowserProcess = async (
 
 	// Fallback to opn
 	// (It will always open new tab)
-	const options: Options = {
-		app: {name: browser as string, arguments: args},
+	return open(url, {
+		...(browser ? {app: {name: browser, arguments: args}} : {}),
+		newInstance: tryNewInstance,
 		wait: false,
-	};
-	return open(url, options);
+	});
 };
 
-export const betterOpn = (url: string) => {
-	const {action, browser, args} = getBrowserEnv();
-	switch (action) {
-		case Actions.NONE:
-			// Special case: BROWSER="none" will prevent opening completely.
-			return false;
-		case Actions.BROWSER:
-			return startBrowserProcess(browser, url, args);
-		default:
-			throw new Error('Not implemented.');
+const getBrowserArgs = (browserArgs: string | undefined) => {
+	if (browserArgs) {
+		return browserArgs.split(' ');
 	}
+
+	if (process.env.BROWSER_ARGS) {
+		return process.env.BROWSER_ARGS.split(' ');
+	}
+
+	return [];
+};
+
+export const openBrowser = ({
+	url,
+	browserFlag,
+	browserArgs,
+}: {
+	url: string;
+	browserFlag: string | undefined;
+	browserArgs: string | undefined;
+}) => {
+	return startBrowserProcess({
+		browser: browserFlag ?? process.env.BROWSER,
+		url,
+		args: getBrowserArgs(browserArgs),
+	});
 };
