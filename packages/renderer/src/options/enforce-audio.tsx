@@ -1,6 +1,5 @@
 import type {RemotionOption} from './option';
 
-// TODO: add ssrName
 export const enforceAudioOption: RemotionOption = {
 	name: 'Enforce Audio Track',
 	cliFlag: '--enforce-audio-track',
