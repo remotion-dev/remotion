@@ -9,13 +9,18 @@ export const ScaleSetting: React.FC<{
 	setScale: (value: React.SetStateAction<number>) => void;
 }> = ({scale, setScale}) => {
 	return (
-		// TODO: Always show 1 decimal
 		<NumberSetting
 			min={MIN_SCALE}
 			max={MAX_SCALE}
 			step={0.1}
 			name="Scale"
-			formatter={(w) => `${w}x`}
+			formatter={(w) => {
+				if (typeof w === 'number') {
+					return `${w.toFixed(1)}x`;
+				}
+
+				return `${w}x`;
+			}}
 			onValueChanged={setScale}
 			value={scale}
 			hint={BrowserSafeApis.options.scaleOption}
