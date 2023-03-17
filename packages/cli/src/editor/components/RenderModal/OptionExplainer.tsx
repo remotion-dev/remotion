@@ -28,7 +28,7 @@ export const OptionExplainer: React.FC<{
 	option: RemotionOption;
 }> = ({option}) => {
 	return (
-		<div style={container}>
+		<div style={container} className="__remotion-info-button-container">
 			<div>
 				<strong style={title}>{option.name}</strong>
 			</div>
@@ -36,16 +36,17 @@ export const OptionExplainer: React.FC<{
 			<Spacing block y={0.5} />
 			<MenuDivider />
 			<div style={{...description, display: 'flex', alignItems: 'center'}}>
-				CLI flag: {option.cliFlag}
+				CLI flag: <code>{option.cliFlag}</code>
 				<div style={{display: 'flex', justifyContent: 'flex-end', flex: 1}}>
 					<CliCopyButton valueToCopy={option.cliFlag} />
 				</div>
 			</div>
-			<div style={description}>Node.JS option: {option.ssrName}</div>
 			<div style={description}>
-				Docs:{' '}
+				Node.JS option: <code>{option.ssrName}</code>
+			</div>
+			<div style={description}>
 				<a style={link} href={option.docLink} target="_blank">
-					{option.docLink}
+					Docs
 				</a>
 			</div>
 		</div>
