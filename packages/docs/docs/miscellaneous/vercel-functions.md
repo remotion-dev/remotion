@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-miscellaneous-vercel-functions.png
 sidebar_label: Vercel Functions
 title: Can I render videos using Vercel Serverless functions?
 crumb: "FAQ"
