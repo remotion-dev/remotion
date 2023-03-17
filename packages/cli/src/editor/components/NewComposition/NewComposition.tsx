@@ -274,6 +274,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 										<ValidationMessage
 											align="flex-start"
 											message={compNameErrMessage}
+											type="error"
 										/>
 									) : null}
 								</div>
@@ -304,6 +305,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 													<ValidationMessage
 														align="flex-start"
 														message={compWidthErrMessage}
+														type="error"
 													/>
 												) : null}
 											</div>
@@ -334,6 +336,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 												<ValidationMessage
 													align="flex-start"
 													message={compHeightErrMessage}
+													type="error"
 												/>
 											) : null}
 										</div>

@@ -12,8 +12,20 @@ export const RenderModalInput: React.FC<{
 	codec: Codec;
 	audioCodec: AudioCodec;
 	onValueChange: React.ChangeEventHandler<HTMLInputElement>;
-}> = ({existence, inputStyle, outName, onValueChange, codec, audioCodec}) => {
+	renderDisabled: boolean;
+	setRenderDisabled: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({
+	existence,
+	inputStyle,
+	outName,
+	onValueChange,
+	codec,
+	audioCodec,
+	setRenderDisabled,
+	renderDisabled,
+}) => {
 	const checkInpuName = useMemo(() => {
+		setRenderDisabled(false);
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
 		const prefix = outName.substring(0, outName.lastIndexOf('.'));
 		const invalidChars = ['?', '*', '+', '%'];
@@ -31,39 +43,61 @@ export const RenderModalInput: React.FC<{
 				preferLossless: false,
 			});
 		} catch (e) {
+			setRenderDisabled(true);
 			console.log(e);
 			const errorMessage = 'Invalid file extension';
-			return <ValidationMessage align="flex-end" message={errorMessage} />;
+			return (
+				<ValidationMessage
+					align="flex-end"
+					message={errorMessage}
+					type={'error'}
+				/>
+			);
 		}
 
 		if (existence) {
 			return (
-				<ValidationMessage align="flex-end" message="Will be overwritten" />
+				<ValidationMessage
+					align="flex-end"
+					message="Will be overwritten"
+					type={'warning'}
+				/>
 			);
 		}
 
 		if (prefix.length < 1) {
-			return <ValidationMessage align="flex-end" message="Empty file name" />;
+			setRenderDisabled(true);
+			return (
+				<ValidationMessage
+					align="flex-end"
+					message="Empty file name"
+					type={'error'}
+				/>
+			);
 		}
 
 		if (prefix[0] === '.') {
+			setRenderDisabled(true);
 			return (
 				<ValidationMessage
 					align="flex-end"
 					message="Filename starts with '.'"
+					type={'error'}
 				/>
 			);
 		}
 
 		if (hasInvalidChar()) {
+			setRenderDisabled(true);
 			return (
 				<ValidationMessage
 					align="flex-end"
 					message="Filename can't contain the following characters:  ?, *, +, %"
+					type={'error'}
 				/>
 			);
 		}
-	}, [audioCodec, codec, existence, outName]);
+	}, [audioCodec, codec, existence, outName, setRenderDisabled]);
 
 	return (
 		<div style={optionRow}>
@@ -73,6 +107,7 @@ export const RenderModalInput: React.FC<{
 					<RemotionInput
 						// TODO: Validate and reject folders or weird file names
 						warning={existence}
+						disabled={renderDisabled}
 						style={inputStyle}
 						type="text"
 						value={outName}
