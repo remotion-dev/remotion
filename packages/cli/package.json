@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "3.3.77",
+	"version": "3.3.78",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -37,7 +37,7 @@
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",
-		"better-opn": "2.1.1",
+		"open": "^8.4.2",
 		"dotenv": "9.0.2",
 		"memfs": "3.4.3",
 		"minimist": "1.2.6",

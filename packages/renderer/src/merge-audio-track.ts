@@ -1,4 +1,5 @@
 import {copyFileSync} from 'fs';
+import execa from 'execa';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
 import {callFf} from './call-ffmpeg';
@@ -35,10 +36,7 @@ const mergeAudioTrackUnlimited = async ({
 		return;
 	}
 
-	if (files.length === 1) {
-		copyFileSync(files[0].outName, outName);
-		return;
-	}
+	// Previously a bug: We cannot optimize for files.length === 1 because we need to pad the audio
 
 	// In FFMPEG, the total number of left and right tracks that can be merged at one time is limited to 64
 	if (files.length >= 32) {
