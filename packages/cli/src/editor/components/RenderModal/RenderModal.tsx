@@ -238,6 +238,8 @@ export const RenderModal: React.FC<{
 		() => initialEnforceAudioTrack
 	);
 
+	const [renderDisabled, setRenderDisabled] = useState<boolean>(false);
+
 	const [renderMode, setRenderModeState] =
 		useState<RenderType>(initialRenderType);
 	const [quality, setQuality] = useState<number>(() => initialQuality);
@@ -740,8 +742,14 @@ export const RenderModal: React.FC<{
 				<Button
 					autoFocus
 					onClick={renderMode === 'still' ? onClickStill : onClickVideo}
-					disabled={state.type === 'load'}
-					style={buttonStyle}
+					disabled={state.type === 'load' || renderDisabled}
+					style={{
+						...buttonStyle,
+						backgroundColor: renderDisabled
+							? 'var(--blue-disabled)'
+							: 'var(--blue)',
+						opacity: renderDisabled ? 0.7 : 1,
+					}}
 				>
 					{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
 				</Button>
@@ -829,6 +837,8 @@ export const RenderModal: React.FC<{
 							setStartFrame={setStartFrame}
 							startFrame={startFrame}
 							audioCodec={audioCodec}
+							setRenderDisabled={setRenderDisabled}
+							renderDisabled={renderDisabled}
 						/>
 					) : tab === 'picture' ? (
 						<RenderModalPicture

@@ -49,6 +49,7 @@ export const NewCompDuration: React.FC<{
 							<ValidationMessage
 								align="flex-start"
 								message={compDurationErrMessage}
+								type="error"
 							/>
 						) : null}
 					</div>

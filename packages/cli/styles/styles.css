@@ -1,5 +1,6 @@
 html {
 	--blue: #0b84f3;
+	--blue-disabled: #284f73;
 }
 
 body {
@@ -30,7 +31,8 @@ input:focus,
 button:focus,
 a:focus {
 	outline: none;
-	box-shadow: inset 1px 1px #555, inset -1px -1px #555, inset 1px -1px #555, inset -1px 1px #555;
+	box-shadow: inset 1px 1px #555, inset -1px -1px #555, inset 1px -1px #555,
+		inset -1px 1px #555;
 	border-radius: 0 !important;
 }
 
@@ -38,5 +40,5 @@ input.no-focus-ring:focus,
 button.no-focus-ring:focus,
 a.no-focus-ring:focus {
 	box-shadow: none;
-	border-radius: 0
+	border-radius: 0;
 }

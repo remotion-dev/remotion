@@ -8,6 +8,7 @@ import React, {
 	useState,
 } from 'react';
 import {
+	FAIL_COLOR,
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_HOVERED,
 	INPUT_BORDER_COLOR_UNHOVERED,
@@ -21,6 +22,7 @@ type Props = React.DetailedHTMLProps<
 	HTMLInputElement
 > & {
 	warning?: boolean;
+	disabled?: boolean;
 };
 
 export const INPUT_HORIZONTAL_PADDING = 8;
@@ -44,7 +46,7 @@ export const inputBaseStyle: React.CSSProperties = {
 const RemInputForwardRef: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	Props
-> = ({warning, ...props}, ref) => {
+> = ({warning, disabled, ...props}, ref) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -57,6 +59,8 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 			width: '100%',
 			borderColor: warning
 				? WARNING_COLOR
+				: disabled
+				? FAIL_COLOR
 				: isFocused
 				? SELECTED_BACKGROUND
 				: isHovered
@@ -64,7 +68,7 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 				: INPUT_BORDER_COLOR_UNHOVERED,
 			...(props.style ?? {}),
 		};
-	}, [isFocused, isHovered, props.style, warning]);
+	}, [disabled, isFocused, isHovered, props.style, warning]);
 
 	useImperativeHandle(
 		ref,
