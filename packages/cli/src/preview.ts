@@ -166,7 +166,7 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser();
 
 	if (shouldOpenBrowser) {
-		openBrowser({
+		await openBrowser({
 			url: `http://localhost:${port}`,
 			browserArgs: parsedCli['browser-args'],
 			browserFlag: parsedCli.browser,
