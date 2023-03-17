@@ -1,8 +1,6 @@
 export const CliCopyButton: React.FC<{valueToCopy: string}> = ({
 	valueToCopy,
 }) => {
-	// TODO: improve button style & make border go away after click
-
 	const iconStyle: React.CSSProperties = {
 		width: 16,
 		height: 16,

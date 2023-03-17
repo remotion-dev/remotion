@@ -20,5 +20,6 @@ Internals.CSSUtils.injectCSS(`
   .__remotion-info-button-container code {
     font-family: monospace;
     font-size: 14px;
+    color: #0584f2
   }
 `);

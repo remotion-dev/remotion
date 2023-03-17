@@ -23,7 +23,6 @@ const link: React.CSSProperties = {
 	wordWrap: 'break-word',
 };
 
-// TODO: No style of <code>
 export const OptionExplainer: React.FC<{
 	option: RemotionOption;
 }> = ({option}) => {
@@ -36,7 +35,7 @@ export const OptionExplainer: React.FC<{
 			<Spacing block y={0.5} />
 			<MenuDivider />
 			<div style={{...description, display: 'flex', alignItems: 'center'}}>
-				CLI flag: <code>{option.cliFlag}</code>
+				CLI flag:<code> {option.cliFlag}</code>
 				<div style={{display: 'flex', justifyContent: 'flex-end', flex: 1}}>
 					<CliCopyButton valueToCopy={option.cliFlag} />
 				</div>
