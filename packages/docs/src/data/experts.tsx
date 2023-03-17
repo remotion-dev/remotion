@@ -313,7 +313,7 @@ export const experts: Expert[] = [
             <p>
                 I made:{" "}
             <a target={"_blank"} href="https://social-video-generator.vercel.app/">
-                Social Video Generator !
+                Social Video Generator
             </a>
             , with Antoine Caron
             </p>
