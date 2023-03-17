@@ -32,6 +32,7 @@ export const IconForTemplate: React.FC<{
       <Blank
         style={{
           height: scale * 36,
+          overflow: "visible",
         }}
       />
     );
