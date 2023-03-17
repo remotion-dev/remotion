@@ -828,6 +828,7 @@ export const RenderModal: React.FC<{
 							setEndFrame={setEndFrame}
 							setStartFrame={setStartFrame}
 							startFrame={startFrame}
+							audioCodec={audioCodec}
 						/>
 					) : tab === 'picture' ? (
 						<RenderModalPicture

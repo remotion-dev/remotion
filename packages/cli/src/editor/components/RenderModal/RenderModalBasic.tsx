@@ -1,4 +1,4 @@
-import type {Codec, ProResProfile} from '@remotion/renderer';
+import type {AudioCodec, Codec, ProResProfile} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
 import type {TComposition} from 'remotion';
@@ -8,8 +8,7 @@ import {Checkmark} from '../../icons/Checkmark';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {InputDragger} from '../NewComposition/InputDragger';
-import {RemotionInput, RightAlignInput} from '../NewComposition/RemInput';
-import {ValidationMessage} from '../NewComposition/ValidationMessage';
+import {RightAlignInput} from '../NewComposition/RemInput';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {FrameRangeSetting} from './FrameRangeSetting';
@@ -18,11 +17,13 @@ import {InfoBubble} from './InfoBubble';
 import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainer} from './OptionExplainer';
 import type {RenderType} from './RenderModalAdvanced';
+import {RenderModalInput} from './RenderModalInput';
 
 export const RenderModalBasic: React.FC<{
 	renderMode: RenderType;
 	imageFormatOptions: SegmentedControlItem[];
 	codec: Codec;
+	audioCodec: AudioCodec;
 	setVideoCodec: (newCodec: Codec) => void;
 	outName: string;
 	proResProfile: ProResProfile | null;
@@ -40,6 +41,7 @@ export const RenderModalBasic: React.FC<{
 	imageFormatOptions,
 	outName,
 	codec,
+	audioCodec,
 	setVideoCodec: setCodec,
 	proResProfile,
 	setProResProfile,
@@ -189,27 +191,14 @@ export const RenderModalBasic: React.FC<{
 					startFrame={startFrame}
 				/>
 			)}
-			<div style={optionRow}>
-				<div style={label}>Output name</div>
-				<div style={rightRow}>
-					<div>
-						<RemotionInput
-							// TODO: Validate and reject folders or weird file names
-							warning={existence}
-							style={input}
-							type="text"
-							value={outName}
-							onChange={onValueChange}
-						/>
-						{existence ? (
-							<ValidationMessage
-								align="flex-end"
-								message="Will be overwritten"
-							/>
-						) : null}
-					</div>
-				</div>
-			</div>
+			<RenderModalInput
+				existence={existence}
+				inputStyle={input}
+				outName={outName}
+				onValueChange={onValueChange}
+				codec={codec}
+				audioCodec={audioCodec}
+			/>
 		</div>
 	);
 };
