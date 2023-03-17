@@ -4,6 +4,7 @@ import React, {useMemo} from 'react';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {label, optionRow, rightRow} from './layout';
+import type {RenderType} from './RenderModalAdvanced';
 
 type Props<T extends Codec> = {
 	existence: boolean;
@@ -15,6 +16,7 @@ type Props<T extends Codec> = {
 	renderDisabled: boolean;
 	setRenderDisabled: React.Dispatch<React.SetStateAction<boolean>>;
 	preferLossless: boolean;
+	renderMode: RenderType;
 };
 
 // eslint-disable-next-line react/function-component-definition
@@ -28,14 +30,19 @@ export function RenderModalInput<T extends Codec>({
 	setRenderDisabled,
 	renderDisabled,
 	preferLossless,
+	renderMode,
 }: Props<T>) {
-	const checkInputName = useMemo(() => {
+	const checkOutputName = useMemo(() => {
 		setRenderDisabled(false);
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
 		const prefix = outName.substring(0, outName.lastIndexOf('.'));
 		const invalidChars = ['?', '*', '+', '%'];
 
 		const map = BrowserSafeApis.defaultFileExtensionMap[codec];
+
+		if (renderMode !== 'video') {
+			return;
+		}
 
 		if (!(audioCodec in map.forAudioCodec)) {
 			throw new Error(
@@ -59,7 +66,6 @@ export function RenderModalInput<T extends Codec>({
 			});
 		} catch (e) {
 			setRenderDisabled(true);
-			console.log(e);
 			const errorMessage =
 				'Invalid file extension. Valid extensions are: ' + acceptableExtensions;
 			return (
@@ -113,7 +119,15 @@ export function RenderModalInput<T extends Codec>({
 				/>
 			);
 		}
-	}, [audioCodec, codec, existence, outName, setRenderDisabled]);
+	}, [
+		audioCodec,
+		codec,
+		existence,
+		outName,
+		preferLossless,
+		renderMode,
+		setRenderDisabled,
+	]);
 
 	return (
 		<div style={optionRow}>
@@ -129,7 +143,7 @@ export function RenderModalInput<T extends Codec>({
 						value={outName}
 						onChange={onValueChange}
 					/>
-					{checkInputName}
+					{checkOutputName}
 				</div>
 			</div>
 		</div>
