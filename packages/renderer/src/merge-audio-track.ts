@@ -1,5 +1,3 @@
-import {copyFileSync} from 'fs';
-import execa from 'execa';
 import path from 'path';
 import type {DownloadMap} from './assets/download-map';
 import {callFf} from './call-ffmpeg';
