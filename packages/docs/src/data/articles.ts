@@ -1092,6 +1092,13 @@ export const articles = [
     crumb: "FAQ",
   },
   {
+    id: "miscellaneous/render-on-edge",
+    title: "Can I render videos on the edge?",
+    relativePath: "docs/miscellaneous/render-on-edge.md",
+    compId: "articles-docs-miscellaneous-render-on-edge",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/snippets/accelerated-video",
     title: "Change the speed of a video over time",
     relativePath: "docs/miscellaneous/snippets/accelerated-video.md",
@@ -1134,6 +1141,13 @@ export const articles = [
     relativePath: "docs/miscellaneous/ts-aliases.md",
     compId: "articles-docs-miscellaneous-ts-aliases",
     crumb: "How to",
+  },
+  {
+    id: "miscellaneous/vercel-functions",
+    title: "Can I render videos using Vercel Serverless functions?",
+    relativePath: "docs/miscellaneous/vercel-functions.md",
+    compId: "articles-docs-miscellaneous-vercel-functions",
+    crumb: "FAQ",
   },
   {
     id: "miscellaneous/video-formats",
