@@ -1,6 +1,7 @@
 // Copied from https://github.com/michaellzc/better-opn#readme
 
-import {execSync} from 'child_process';
+import {exec} from 'child_process';
+import type {Writable} from 'stream';
 import open = require('open');
 const OSX_CHROME = 'google chrome';
 
@@ -53,7 +54,7 @@ const normalizeURLToMatch = (target: string) => {
 
 // Copy from
 // https://github.com/facebook/create-react-app/blob/master/packages/react-dev-utils/openBrowser.js#L64
-const startBrowserProcess = (
+const startBrowserProcess = async (
 	browser: string | undefined,
 	url: string,
 	args: string[]
@@ -78,8 +79,22 @@ const startBrowserProcess = (
 			'Vivaldi',
 			'Chromium',
 			'Arc',
-		];
-		for (const chromiumBrowser of supportedChromiumBrowsers) {
+		] as const;
+		const processes = await new Promise<string>((resolve, reject) => {
+			exec('ps cax', (err, stdout) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(stdout);
+				}
+			});
+		});
+
+		const browsersToTry = supportedChromiumBrowsers.filter((b) =>
+			processes.includes(b)
+		);
+
+		for (const chromiumBrowser of browsersToTry) {
 			if (appleScriptDenied) {
 				continue;
 			}
@@ -181,17 +196,23 @@ const startBrowserProcess = (
     return found
   end lookupTabWithUrl
 `.trim();
-				execSync(`ps cax | grep "${chromiumBrowser}"`);
-				execSync(`osascript -`, {
-					stdio: ['pipe', 'ignore', 'pipe'],
-					input: appleScript,
+				await new Promise<void>((resolve, reject) => {
+					const proc = exec(`osascript -`, (error) => {
+						if (error) {
+							reject(error);
+						} else {
+							// Ignore errors.
+							// It it breaks, it will fallback to `opn` anyway
+							resolve();
+						}
+					});
+					(proc.stdin as Writable).write(appleScript);
+					(proc.stdin as Writable).end();
 				});
 
 				return Promise.resolve(true);
 			} catch (error) {
-				const appleScriptError =
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					((error as any)?.output?.[1]?.toString() as string) ?? '';
+				const appleScriptError = (error as Error).message;
 				if (
 					appleScriptError
 						.toLowerCase()
