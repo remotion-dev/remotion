@@ -3,7 +3,7 @@ import {LIGHT_TEXT} from '../../helpers/colors';
 export const optionRow: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
-	alignItems: 'flex-start',
+	alignItems: 'center',
 	minHeight: 40,
 	paddingLeft: 16,
 	paddingRight: 16,
@@ -12,7 +12,7 @@ export const optionRow: React.CSSProperties = {
 };
 
 export const label: React.CSSProperties = {
-	width: 150,
+	width: 170,
 	fontSize: 15,
 	lineHeight: '40px',
 	color: LIGHT_TEXT,

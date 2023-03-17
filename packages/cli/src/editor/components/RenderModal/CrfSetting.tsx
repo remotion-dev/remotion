@@ -1,4 +1,4 @@
-import type {Codec} from '@remotion/renderer';
+import type {Codec, RemotionOption} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {useState} from 'react';
 import {NumberSetting} from './NumberSetting';
@@ -45,7 +45,8 @@ export const CrfSetting: React.FC<{
 	setCrf: React.Dispatch<React.SetStateAction<number>>;
 	min: number;
 	max: number;
-}> = ({crf, setCrf, min, max}) => {
+	option: RemotionOption;
+}> = ({crf, setCrf, min, max, option}) => {
 	return (
 		<NumberSetting
 			min={min}
@@ -54,6 +55,7 @@ export const CrfSetting: React.FC<{
 			onValueChanged={setCrf}
 			value={crf}
 			step={1}
+			hint={option}
 		/>
 	);
 };

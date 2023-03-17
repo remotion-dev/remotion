@@ -14,7 +14,9 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {FrameRangeSetting} from './FrameRangeSetting';
 import {humanReadableCodec} from './human-readable-codec';
+import {InfoBubble} from './InfoBubble';
 import {input, label, optionRow, rightRow} from './layout';
+import {OptionExplainer} from './OptionExplainer';
 import type {RenderType} from './RenderModalAdvanced';
 
 export const RenderModalBasic: React.FC<{
@@ -129,7 +131,15 @@ export const RenderModalBasic: React.FC<{
 				</div>
 			) : (
 				<div style={optionRow}>
-					<div style={label}>Codec</div>
+					<div style={label}>
+						Codec
+						<InfoBubble title="Learn more about this option">
+							<OptionExplainer
+								option={BrowserSafeApis.options.videoCodecOption}
+							/>
+						</InfoBubble>
+					</div>
+
 					<div style={rightRow}>
 						<Combobox
 							values={videoCodecOptions}

@@ -105,11 +105,13 @@ export const RenderModalAudio: React.FC<{
 						enforceAudioTrack={enforceAudioTrack}
 						muted={muted}
 						setMuted={setMuted}
+						hint={BrowserSafeApis.options.muteOption}
 					/>
 					<EnforceAudioTrackSetting
 						muted={muted}
 						enforceAudioTrack={enforceAudioTrack}
 						setEnforceAudioTrack={setEnforceAudioTrackState}
+						option={BrowserSafeApis.options.enforceAudioOption}
 					/>
 					<RenderModalHr />
 				</>
@@ -128,10 +130,12 @@ export const RenderModalAudio: React.FC<{
 			)}
 
 			{shouldHaveCustomTargetAudioBitrate && renderMode !== 'still' ? (
-				<div style={{...optionRow, alignItems: 'center'}}>
+				<div style={optionRow}>
 					<div style={label}>Target audio bitrate</div>
 					<InfoBubble title="Learn more about this option">
-						<OptionExplainer option={BrowserSafeApis.options.audioBitrate} />
+						<OptionExplainer
+							option={BrowserSafeApis.options.audioBitrateOption}
+						/>
 					</InfoBubble>
 					<div style={rightRow}>
 						<div>

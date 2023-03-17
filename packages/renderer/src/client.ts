@@ -11,11 +11,14 @@ import {
 	getFileExtensionFromCodec,
 } from './get-extension-from-codec';
 import {isAudioCodec} from './is-audio-codec';
-import {audioBitrate} from './options/audio-bitrate';
+import {audioBitrateOption} from './options/audio-bitrate';
 import {crfOption} from './options/crf';
+import {enforceAudioOption} from './options/enforce-audio';
 import {jpegQualityOption} from './options/jpeg-quality';
+import {muteOption} from './options/mute';
 import {scaleOption} from './options/scale';
 import {videoBitrate} from './options/video-bitrate';
+import {videoCodecOption} from './options/video-codec';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
 
@@ -38,6 +41,9 @@ export const BrowserSafeApis = {
 		crfOption,
 		jpegQualityOption,
 		videoBitrate,
-		audioBitrate,
+		audioBitrateOption,
+		enforceAudioOption,
+		muteOption,
+		videoCodecOption,
 	},
 };
