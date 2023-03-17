@@ -12,6 +12,12 @@ const LottieLoader = () => {
 	const frame = useCurrentFrame();
 	const [handle] = useState(() => delayRender('Loading Lottie animation'));
 
+	const [error, setError] = useState<Error | null>(null);
+
+	if (error) {
+		throw error;
+	}
+
 	const [animationData, setAnimationData] =
 		useState<LottieAnimationData | null>(null);
 
@@ -24,6 +30,7 @@ const LottieLoader = () => {
 				continueRender(handle);
 			})
 			.catch((err) => {
+				setError(err);
 				console.log('Animation failed to load', err);
 			});
 	}, [handle]);
