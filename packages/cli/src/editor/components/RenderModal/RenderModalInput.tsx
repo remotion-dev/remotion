@@ -16,6 +16,12 @@ export const RenderModalInput: React.FC<{
 	const checkInpuName = useMemo(() => {
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
 		const prefix = outName.substring(0, outName.lastIndexOf('.'));
+		const invalidChars = ['?', '*', '+', '%'];
+
+		const hasInvalidChar = () => {
+			return prefix.split('').some((char) => invalidChars.includes(char));
+		};
+
 		console.log('extension: ' + extension);
 		try {
 			BrowserSafeApis.validateOutputFilename({
@@ -45,6 +51,15 @@ export const RenderModalInput: React.FC<{
 				<ValidationMessage
 					align="flex-end"
 					message="Filename starts with '.'"
+				/>
+			);
+		}
+
+		if (hasInvalidChar()) {
+			return (
+				<ValidationMessage
+					align="flex-end"
+					message="Filename can't contain the following characters:  ?, *, +, %"
 				/>
 			);
 		}
