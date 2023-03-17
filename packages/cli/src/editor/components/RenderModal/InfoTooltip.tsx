@@ -26,7 +26,6 @@ export const InfoTooltip: React.FC<{
 	const container: React.CSSProperties = useMemo(() => {
 		return {
 			padding: '10px 12px',
-			// TODO: Depending on direction
 			boxShadow:
 				arrowDirection === 'down' ? SHADOW_TOWARDS_TOP : SHADOW_TOWARDS_BOTTOM,
 			background: BACKGROUND,
