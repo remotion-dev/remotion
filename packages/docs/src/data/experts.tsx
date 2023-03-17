@@ -275,4 +275,50 @@ export const experts: Expert[] = [
       </div>
     ),
   },
+  {
+    slug: "antoine-caron",
+    name: "Antoine Caron",
+    image: "/img/freelancers/antoine.jpeg",
+    website: "https://blog.slashgear.dev/",
+    twitter: "Slashgear_",
+    github: "Slashgear",
+    linkedin: "in/antoine-caron-slash/",
+    email: "antoine395.caron+remotion@gmail.com",
+    since: new Date("2023-03-17").getTime(),
+    description: (
+        <div>
+            <p>
+                I made:{" "}
+                <a target={"_blank"} href="https://social-video-generator.vercel.app/">
+                    Social Video Generator
+                </a>
+                , with Mickaël Alves
+            </p>
+            <p><a href="https://blog.slashgear.dev/" target={"_blank"}>Personal website</a></p>
+        </div>
+    ),
+  },
+  {
+    slug: "mickael-alves",
+    name: "Mickaël Alves",
+    image: "/img/freelancers/mickael.jpeg",
+    website: "https://cruuzazul.dev/",
+    twitter: "CruuzAzul",
+    github: "CruuzAzul",
+    linkedin: "in/mickaelalves/",
+    email: "alves.mckl@gmail.com",
+    since: new Date("2023-03-17").getTime(),
+    description: (
+        <div>
+            <p>
+                I made:{" "}
+            <a target={"_blank"} href="https://social-video-generator.vercel.app/">
+                Social Video Generator !
+            </a>
+            , with Antoine Caron
+            </p>
+            <p><a href="https://cruuzazul.dev/" target={"_blank"}>Personal website</a></p>
+        </div>
+    ),
+  },
 ];
