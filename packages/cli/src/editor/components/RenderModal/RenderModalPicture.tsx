@@ -134,7 +134,13 @@ export const RenderModalPicture: React.FC<{
 			{shouldDisplayCrfOption &&
 			qualityControlType === 'crf' &&
 			renderMode !== 'still' ? (
-				<CrfSetting crf={crf} min={minCrf} max={maxCrf} setCrf={setCrf} />
+				<CrfSetting
+					crf={crf}
+					min={minCrf}
+					max={maxCrf}
+					setCrf={setCrf}
+					option={BrowserSafeApis.options.crfOption}
+				/>
 			) : null}
 			{qualityControlType === 'bitrate' && renderMode !== 'still' ? (
 				<div style={optionRow}>
