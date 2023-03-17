@@ -59,3 +59,21 @@ Pass a value in milliseconds, for example `--webpack-poll=1000`.
 ### `--no-open` <AvailableFrom v="3.3.19" />
 
 [Prevents Remotion from trying to open a browser](/docs/config#setshouldopenbrowser). This is useful if you use a different browser for Remotion than the operating system default.
+
+### `--browser` <AvailableFrom v="3.3.79">
+
+Specify the browser which should be used for opening tab - using the default browser by default.  
+Pass an absolute string or `"chrome"` to use Chrome.
+If Chrome is selected as the browser and you are on macOS, Remotion will try to reuse an existing tab
+
+For backwards compatibility, the `BROWSER` environment variable is also supported.
+
+### `--browser-args` <AvailableFrom v="3.3.79">
+
+A set of command line flags that should be passed to the browser. Pass them like this:
+
+```console
+remotion preview --browser-args="--disable-web-security"
+```
+
+Notice that Chrome will try to reuse the process, so you want to quit it first before you start it with the flags.
