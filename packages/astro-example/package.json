@@ -2,7 +2,7 @@
   "name": "@remotion/astro-example",
   "private": true,
   "type": "module",
-  "version": "3.3.77",
+  "version": "3.3.78",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",

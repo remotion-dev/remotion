@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "3.3.77",
+	"version": "3.3.78",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
