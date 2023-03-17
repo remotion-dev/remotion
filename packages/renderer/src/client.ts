@@ -13,6 +13,7 @@ import {
 import {isAudioCodec} from './is-audio-codec';
 import {audioBitrate} from './options/audio-bitrate';
 import {crfOption} from './options/crf';
+import {enforceAudio} from './options/enforce-audio';
 import {jpegQualityOption} from './options/jpeg-quality';
 import {scaleOption} from './options/scale';
 import {videoBitrate} from './options/video-bitrate';
@@ -39,5 +40,6 @@ export const BrowserSafeApis = {
 		jpegQualityOption,
 		videoBitrate,
 		audioBitrate,
+		enforceAudio,
 	},
 };

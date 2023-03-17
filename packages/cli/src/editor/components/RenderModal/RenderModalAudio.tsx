@@ -110,6 +110,7 @@ export const RenderModalAudio: React.FC<{
 						muted={muted}
 						enforceAudioTrack={enforceAudioTrack}
 						setEnforceAudioTrack={setEnforceAudioTrackState}
+						option={BrowserSafeApis.options.enforceAudio}
 					/>
 					<RenderModalHr />
 				</>
