@@ -1,6 +1,6 @@
-import betterOpn from 'better-opn';
 import crypto from 'crypto';
 import path from 'path';
+import {betterOpn} from './better-opn';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
