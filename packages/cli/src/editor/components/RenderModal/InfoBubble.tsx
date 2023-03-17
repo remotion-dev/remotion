@@ -82,18 +82,25 @@ export const InfoBubble: React.FC<{
 		};
 	}, [refresh]);
 
-	const portalStyle = useMemo((): React.CSSProperties | null => {
-		if (!opened || !size) {
-			return null;
+	const layout = useMemo(() => {
+		if (!size) {
+			return 'down';
 		}
 
 		const spaceToBottom = size.windowSize.height - (size.top + size.height);
 		const spaceToTop = size.top;
 
-		const layout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
+		const l = spaceToTop > spaceToBottom ? 'down' : 'up';
+		return l;
+	}, [size]);
+
+	const portalStyle = useMemo((): React.CSSProperties | null => {
+		if (!size || !opened) {
+			return null;
+		}
 
 		return {
-			...(layout === 'top'
+			...(layout === 'up'
 				? {
 						position: 'fixed',
 						top: size.top + size.height,
@@ -104,7 +111,7 @@ export const InfoBubble: React.FC<{
 				  }),
 			left: size.left,
 		};
-	}, [opened, size]);
+	}, [layout, opened, size]);
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
@@ -140,7 +147,7 @@ export const InfoBubble: React.FC<{
 						<div style={outerPortal} className="css-reset">
 							<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
 								<div style={portalStyle}>
-									<InfoTooltip>{children}</InfoTooltip>
+									<InfoTooltip arrowDirection={layout}>{children}</InfoTooltip>
 								</div>
 							</HigherZIndex>
 						</div>,
