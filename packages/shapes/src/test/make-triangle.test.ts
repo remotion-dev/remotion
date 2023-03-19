@@ -23,7 +23,7 @@ test('Should be able to make a triangle path', () => {
 });
 
 describe('with radius', () => {
-	test.only('should handle direction right', () => {
+	test('should handle direction right', () => {
 		const triangle = makeTriangle({
 			length: 100,
 			direction: 'right',
@@ -50,7 +50,7 @@ describe('with radius', () => {
 			height: 86.60254037844386,
 			instructions: expect.any(Array),
 			path: 'M 30 34.64101615137755 L 30 34.64101615137755 C 0 86.60254037844386 0 86.60254037844386 60 86.60254037844386 L 40 86.60254037844386 C 100 86.60254037844386 100 86.60254037844386 70 34.64101615137755 L 80 51.96152422706631 C 50 0 50 0 20 51.96152422706631 Z',
-			transformOrigin: '50 28.867513459481287',
+			transformOrigin: '50 57.735026918962575',
 			width: 100,
 		});
 	});
@@ -66,7 +66,7 @@ describe('with radius', () => {
 			height: 86.60254037844386,
 			instructions: expect.any(Array),
 			path: 'M 40 0 L 40 0 C 100 0 100 0 70 51.96152422706631 L 80 34.64101615137755 C 50 86.60254037844386 50 86.60254037844386 20 34.64101615137755 L 30 51.96152422706631 C 0 0 0 0 60 0 Z',
-			transformOrigin: '50 57.735026918962575',
+			transformOrigin: '50 28.867513459481287',
 			width: 100,
 		});
 	});
