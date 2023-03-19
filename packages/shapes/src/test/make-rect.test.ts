@@ -26,7 +26,7 @@ test('Should handle rectangle path with radius', () => {
 	expect(rect).toEqual({
 		height: 100,
 		width: 100,
-		path: 'M 60 0 L 80 0 a 20 20 0 0 1 20 20 L 100 80 a 20 20 0 0 1 -20 20 L 20 100 a 20 20 0 0 1 -20 -20 L 0 20 a 20 20 0 0 1 20 -20 Z',
+		path: 'M 80 0 L 80 0 a 20 20 0 0 1 20 20 L 100 80 a 20 20 0 0 1 -20 20 L 20 100 a 20 20 0 0 1 -20 -20 L 0 20 a 20 20 0 0 1 20 -20 Z',
 		transformOrigin: '50 50',
 		instructions: expect.any(Array),
 	});

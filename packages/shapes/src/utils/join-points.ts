@@ -60,8 +60,8 @@ export const joinPoints = (
 					return [
 						{
 							type: 'M',
-							x: computeRadius[0],
-							y: computeRadius[1],
+							x: computeRadius[0] + x,
+							y: computeRadius[1] + y,
 						}
 					]
 
