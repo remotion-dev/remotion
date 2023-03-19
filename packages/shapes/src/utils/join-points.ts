@@ -40,6 +40,8 @@ export const joinPoints = (
 				(x + prevPoint[0]) / 2,
 				(y + prevPoint[1]) / 2,
 			];
+			const prevVector = [x - prevPoint[0], y - prevPoint[1]] as const;
+			const nextVector = [nextPoint[0] - x, nextPoint[1] - y] as const;
 
 			if (i === 0) {
 				if (edgeRoundness !== null) {
@@ -52,18 +54,28 @@ export const joinPoints = (
 					];
 				}
 
-				const shorten = shortenVector(nextPoint, cornerRadius)
+				if (cornerRadius !== 0) {
+					const computeRadius = shortenVector(nextVector, cornerRadius);
+
+					return [
+						{
+							type: 'M',
+							x: computeRadius[0],
+							y: computeRadius[1],
+						}
+					]
+
+				}
+
 				return [
 					{
 						type: 'M',
-						x: shorten[0],
-						y: shorten[1],
+						x,
+						y,
 					},
 				];
 			}
 
-			const prevVector = [x - prevPoint[0], y - prevPoint[1]] as const;
-			const nextVector = [nextPoint[0] - x, nextPoint[1] - y] as const;
 
 			if (cornerRadius && edgeRoundness !== null) {
 				throw new Error(
