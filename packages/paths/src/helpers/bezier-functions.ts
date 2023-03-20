@@ -136,7 +136,9 @@ export const t2length = (
 	totalLength: number,
 	func: (t: number) => number
 ): number => {
-	let error = 1;
+	// originally 1, but it would get stuck in an infinite loop
+	// had to increase
+	let error = 3;
 	let t = length / totalLength;
 	let step = (length - func(t)) / totalLength;
 
@@ -150,6 +152,7 @@ export const t2length = (
 		} else {
 			const decreasedTLength = func(t - step);
 			const decreasedTError = Math.abs(length - decreasedTLength) / totalLength;
+
 			if (decreasedTError < error) {
 				error = decreasedTError;
 				t -= step;
@@ -160,7 +163,7 @@ export const t2length = (
 
 		numIterations++;
 		if (numIterations > 500) {
-			break;
+			throw new Error('Unable to get t2length');
 		}
 	}
 
