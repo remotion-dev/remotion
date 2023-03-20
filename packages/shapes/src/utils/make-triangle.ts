@@ -28,6 +28,12 @@ export const makeTriangle = ({
 	edgeRoundness = null,
 	cornerRadius = 0,
 }: MakeTriangleProps): ShapeInfo => {
+	if (typeof length !== 'number') {
+		throw new Error(
+			`"length" of a triangle must be a number, got ${JSON.stringify(length)}`
+		);
+	}
+
 	const longerDimension = length;
 	const shorterSize = Math.sqrt(length ** 2 * 0.75); // Calculated on paper;
 
