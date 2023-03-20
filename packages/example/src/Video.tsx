@@ -28,6 +28,7 @@ import RectTest from './Shapes/RectTest';
 import StarTest from './Shapes/StarTest';
 import TriangleTest from './Shapes/TriangleTest';
 import {SkipZeroFrame} from './SkipZeroFrame';
+import {SlicePathDemo} from './SlicePath';
 import {BaseSpring, SpringWithDuration} from './Spring/base-spring';
 import {SeriesTesting} from './StaggerTesting';
 import {StaticDemo} from './StaticServer';
@@ -564,6 +565,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="path-warp-2"
 					component={WarpDemo2}
+					durationInFrames={500}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+				<Composition
+					id="slice-path"
+					component={SlicePathDemo}
 					durationInFrames={500}
 					fps={30}
 					height={1080}
