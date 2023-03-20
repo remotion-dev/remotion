@@ -109,7 +109,11 @@ const innerRenderStill = async ({
 		allowFloats: false,
 	});
 	validateNonNullImageFormat(imageFormat);
-	Internals.validateFrame(frame, composition.durationInFrames);
+	Internals.validateFrame({
+		frame,
+		durationInFrames: composition.durationInFrames,
+		allowFloats: false,
+	});
 	const stillFrame = convertToPositiveFrameIndex({
 		durationInFrames: composition.durationInFrames,
 		frame,

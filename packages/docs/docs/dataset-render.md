@@ -169,15 +169,23 @@ export const MyComposition: React.FC<Props> = ({ name, repo, logo }) => {
 ## Writing the script
 
 In order to render our videos, we'll first need to bundle our project using Webpack and prepare it for rendering.
-This can be done by using the [`bundle()`](/docs/bundle) function from the [`@remotion/bundler`](/docs/bundler) package.
+This can be done by using the [`bundle()`](/docs/bundle) function from the [`@remotion/bundler`](/docs/bundler) package. Make sure to include the webpack override in the bundle if you have one.
 
 ```ts twoslash
+// @filename: webpack-override.ts
+import type { WebpackOverrideFn } from "@remotion/bundler";
+export const webpackOverride: WebpackOverrideFn = (f) => f;
+// @filename: script.ts
 // @module: esnext
 // @target: es2022
+// ---cut---
 import { bundle } from "@remotion/bundler";
+import { webpackOverride } from "./webpack-override";
 
 const bundleLocation = await bundle({
   entryPoint: "./src/index.ts",
+  // If you have a webpack override, don't forget to add it
+  webpackOverride: webpackOverride,
 });
 ```
 
@@ -259,7 +267,7 @@ It is not recommended to render more than one video at once.
 
 ## Full script
 
-Currently, top level `await` is not well supported, so all asynchronous functions were wrapped in an async function and which is immediately called.
+Currently, top level `await` is not enable by default in Node, so all asynchronous functions were wrapped in an async function and which is immediately called.
 
 ```ts twoslash title="render.ts"
 // @filename: dataset.ts
@@ -276,9 +284,14 @@ export const data = [
   },
 ];
 
+// @filename: webpack-override.ts
+import type { WebpackOverrideFn } from "@remotion/bundler";
+export const webpackOverride: WebpackOverrideFn = (f) => f;
+
 // @filename: render.ts
 // ---cut---
 import { getCompositions, renderMedia } from "@remotion/renderer";
+import { webpackOverride } from "./webpack-override";
 import { bundle } from "@remotion/bundler";
 import { data } from "./dataset";
 
@@ -287,6 +300,8 @@ const compositionId = "MyComp";
 const start = async () => {
   const bundleLocation = await bundle({
     entryPoint: "./src/index.ts",
+    // If you have a webpack override, don't forget to add it
+    webpackOverride: webpackOverride,
   });
 
   const allCompositions = await getCompositions(bundleLocation);

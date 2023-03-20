@@ -33,6 +33,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Lottie](/docs/lottie)
 - [spline.design](/docs/spline)
 - [After Effects](/docs/after-effects)
+- [Rive](/docs/rive)
 - [GIFs](/docs/gif)
 
 ## Effects
@@ -59,6 +60,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Remotion Weather](https://github.com/florentpergoud/remotion-weather)
 - [Rewind Table](https://github.com/gregonarash/rewind-table) _(Airtable templates for Remotion)_
 - [Conference Speaker Announcement Cards](https://github.com/lyonjs/social-video-generator)
+
 ## Examples
 
 - [Music with Tone.JS](https://github.com/remotion-dev/tone-js-example)
@@ -80,6 +82,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Conference talk in React #2](https://github.com/JonnyBurger/react-summit-talk)
 - [Twitch stinger example](https://github.com/JonnyBurger/ledevevent-stinger)
 - [DevContainer Template](https://github.com/openscript/remotion-devcontainer-template)
+- [Usage with Anime.JS](https://github.com/remotion-dev/anime-example)
 
 ## Videos
 

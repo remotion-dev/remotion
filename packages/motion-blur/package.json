@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/motion-blur",
-	"version": "3.3.66",
+	"version": "3.3.78",
 	"description": "Motion blur effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -21,7 +21,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "3.3.66"
+		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -45,7 +45,7 @@
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
-		"remotion": "3.3.66",
+		"remotion": "workspace:*",
 		"rollup": "^2.70.1",
 		"typescript": "^4.7.0"
 	},

@@ -14,7 +14,9 @@ The parameter `compatibleOnly` determines whether only functions that are compat
 The Lambda function is versioned and the version of the function must match the version of the `@remotion/lambda` package. So if you upgrade Remotion, you should deploy a new function or otherwise you might get an empty array from this function.
 :::
 
-To get information about only a single function, use [`getFunctionInfo()`](/docs/lambda/getfunctioninfo)
+To get information about only a single function, use [`getFunctionInfo()`](/docs/lambda/getfunctioninfo).
+
+If you are sure that a function exists, you can also guess the name of it using [`speculateFunctionName()`](/docs/lambda/speculatefunctionname) and save an API call to Lambda.
 
 ## Example
 

@@ -194,6 +194,7 @@ module.exports = {
         "lambda/rendermediaonlambda",
         "lambda/renderstillonlambda",
         "lambda/simulatepermissions",
+        "lambda/speculatefunctionname",
         "lambda/validatewebhooksignature",
       ],
     },
@@ -531,6 +532,8 @@ module.exports = {
         "miscellaneous/changing-temp-dir",
         "miscellaneous/automatic-duration",
         "miscellaneous/video-formats",
+        "miscellaneous/vercel-functions",
+        "miscellaneous/render-on-edge",
       ],
     },
     {

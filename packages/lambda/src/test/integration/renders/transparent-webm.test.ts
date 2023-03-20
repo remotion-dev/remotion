@@ -74,6 +74,7 @@ test('Should make a transparent video', async () => {
 		},
 		extraContext
 	);
+	console.log('invoked!');
 	const startRes = res as Await<LambdaReturnValues[LambdaRoutines.start]>;
 
 	const progress = (await handler(
@@ -85,6 +86,7 @@ test('Should make a transparent video', async () => {
 		},
 		extraContext
 	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
+	console.log('got progress', progress);
 
 	const file = await lambdaReadFile({
 		bucketName: startRes.bucketName,
@@ -92,6 +94,7 @@ test('Should make a transparent video', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
+	console.log('got file', file);
 
 	// We create a temporary directory for storing the frames
 	const tmpdir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-'));

@@ -7,3 +7,8 @@ tsconfig.tsbuildinfo
 vitest.config.ts
 tsconfig.json
 .prettierrc.js
+.rollup
+.rollup.cache
+rollup.config.js
+tsconfig-esm.json
+dist/tsconfig-esm.tsbuildinfo

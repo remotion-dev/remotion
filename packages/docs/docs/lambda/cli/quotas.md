@@ -62,6 +62,10 @@ For which region the quotas should be increased.
 
 Skips asking for confirmation.
 
+### `--force`
+
+Asks for an increase even if it is the second one. Without a message you specify, it is more unlikely you will get approved, prefer using console for further increases.
+
 ## See also
 
 - [Setup guide](/docs/lambda/setup)
