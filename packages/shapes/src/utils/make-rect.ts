@@ -48,5 +48,6 @@ export const makeRect = ({
 		instructions,
 		path,
 		transformOrigin: transformOrigin.join(' '),
+		viewBox: `0 0 ${width} ${height}`,
 	};
 };

@@ -92,5 +92,6 @@ export const makeStar = ({
 		height,
 		transformOrigin: `${centerX} ${centerY}`,
 		instructions: starPathInstructions,
+		viewBox: `0 0 ${width} ${height}`,
 	};
 };

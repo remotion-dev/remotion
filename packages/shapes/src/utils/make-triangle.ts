@@ -90,11 +90,17 @@ export const makeTriangle = ({
 	];
 	const path = serializeInstructions(instructions);
 
+	const width =
+		direction === 'up' || direction === 'down' ? length : shorterSize;
+	const height =
+		direction === 'up' || direction === 'down' ? shorterSize : length;
+
 	return {
 		path,
 		instructions,
-		width: direction === 'up' || direction === 'down' ? length : shorterSize,
-		height: direction === 'up' || direction === 'down' ? shorterSize : length,
+		width,
+		height,
 		transformOrigin: `${transformOriginX} ${transformOriginY}`,
+		viewBox: `0 0 ${width} ${height}`,
 	};
 };

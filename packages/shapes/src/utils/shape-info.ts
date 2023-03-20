@@ -6,4 +6,5 @@ export type ShapeInfo = {
 	height: number;
 	transformOrigin: string;
 	instructions: Instruction[];
+	viewBox: string;
 };

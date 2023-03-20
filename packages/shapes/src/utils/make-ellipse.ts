@@ -44,5 +44,6 @@ export const makeEllipse = ({rx, ry}: MakeEllipseOptions): ShapeInfo => {
 		path,
 		instructions,
 		transformOrigin: `${rx} ${ry}`,
+		viewBox: `0 0 ${rx * 2} ${ry * 2}`,
 	};
 };

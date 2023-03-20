@@ -51,5 +51,6 @@ export const makeCircle = ({radius}: MakeCircleProps): ShapeInfo => {
 		path,
 		instructions,
 		transformOrigin: `${radius} ${radius}`,
+		viewBox: `0 0 ${radius * 2} ${radius * 2}`,
 	};
 };
