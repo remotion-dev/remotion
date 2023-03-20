@@ -11,6 +11,7 @@ export type GetOrCreateBucketInput = {
 
 export type GetOrCreateBucketOutput = {
 	bucketName: string;
+	alreadyExisted: boolean;
 };
 /**
  * @description Creates a bucket for Remotion Lambda in your S3 account. If one already exists, it will get returned instead.
@@ -34,7 +35,7 @@ export const getOrCreateBucket = async (
 
 	if (remotionBuckets.length === 1) {
 		options.onBucketEnsured?.();
-		return {bucketName: remotionBuckets[0].name};
+		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
 	}
 
 	const bucketName = makeBucketName(options.region);
@@ -45,5 +46,5 @@ export const getOrCreateBucket = async (
 	});
 	options.onBucketEnsured?.();
 
-	return {bucketName};
+	return {bucketName, alreadyExisted: false};
 };

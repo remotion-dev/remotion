@@ -30,9 +30,7 @@ export const ChooseTemplate: React.FC = () => {
             boxShadow: "0 0 4px 0px var(--ifm-color-emphasis-200)",
             borderRadius: 50,
             alignItems: "center",
-            padding: 12,
-            paddingLeft: 24,
-            paddingRight: 24,
+            padding: 8,
           }}
         >
           {CreateVideoInternals.FEATURED_TEMPLATES.slice(0, 4).map(

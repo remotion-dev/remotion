@@ -21,7 +21,12 @@ const Balloons = () => {
 		[0, 1, 1, 0]
 	);
 
+	const [error, setError] = useState<Error | null>(null);
 	const [handle] = useState(() => delayRender('Loading Lottie animation'));
+
+	if (error) {
+		throw error;
+	}
 
 	const [animationData, setAnimationData] =
 		useState<LottieAnimationData | null>(null);
@@ -35,6 +40,7 @@ const Balloons = () => {
 				continueRender(handle);
 			})
 			.catch((err) => {
+				setError(err);
 				console.log('Animation failed to load', err);
 			});
 	}, [handle]);

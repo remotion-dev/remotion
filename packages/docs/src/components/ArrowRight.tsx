@@ -33,7 +33,7 @@ export const MoreTemplatesButton: React.FC = () => {
 
   return (
     <Link to={"/templates"} style={rightStyle}>
-      {mobileLayout ? "Find a template" : "More templates"}
+      {mobileLayout ? "Templates" : "Find a template"}
       <svg
         style={icon}
         xmlns="http://www.w3.org/2000/svg"
