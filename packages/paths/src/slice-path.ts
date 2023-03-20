@@ -2,6 +2,7 @@ import {getBoundingBox} from './get-bounding-box';
 import {getLength} from './get-length';
 import {getPointAtLength} from './get-point-at-length';
 import {getTangentAtLength} from './get-tangent-at-length';
+import {cubicBezierLine} from './helpers/bezier-functions';
 import type {Instruction} from './helpers/types';
 import {parsePath} from './parse-path';
 import {reduceInstructions} from './reduce-instructions';
@@ -36,15 +37,100 @@ function calculateIntersection(p1: P, p2: P, p3: P, p4: P) {
 	return p;
 }
 
+const getProgressAtThatPoint = (
+	instruction: Instruction,
+	startX: number,
+	startY: number,
+	x: number,
+	y: number
+) => {
+	let position = 0.5;
+	// TODO: Doesn't work with steo = 0.5!
+	let step = 0.3;
+	const fakePath = serializeInstructions([
+		{
+			type: 'M',
+			x: startX,
+			y: startY,
+		},
+		instruction,
+	]);
+	for (let i = 0; i < 100; i++) {
+		const length = getLength(fakePath);
+		const {x: x2, y: y2} = getPointAtLength(
+			fakePath,
+			length * (position + step)
+		);
+		const {x: x3, y: y3} = getPointAtLength(
+			fakePath,
+			length * (position - step)
+		);
+		const distance1 = Math.sqrt((x2 - x) ** 2 + (y2 - y) ** 2);
+		const distance2 = Math.sqrt((x3 - x) ** 2 + (y3 - y) ** 2);
+
+		if (distance1 < distance2) {
+			position += step;
+		} else {
+			position -= step;
+		}
+
+		if (distance1 < 0.0001 || distance2 < 0.0001) {
+			break;
+		}
+
+		step /= 2;
+	}
+
+	return position;
+};
+
 const interpolateC = (
 	instruction: Instruction,
 	startX: number,
 	startY: number,
-	progress: number
+	yHeight: number
 ): Instruction => {
 	if (instruction.type !== 'C') {
 		throw new Error('expected C');
 	}
+
+	const fakePath = serializeInstructions([
+		{
+			type: 'M',
+			x: startX,
+			y: startY,
+		},
+		instruction,
+	]);
+
+	const intersectionCode = cubicBezierLine({
+		p1x: startX,
+		p1y: startY,
+		p2x: instruction.cp1x,
+		p2y: instruction.cp1y,
+		p3x: instruction.cp2x,
+		p3y: instruction.cp2y,
+		p4x: instruction.x,
+		p4y: instruction.y,
+		a1x: -10000000,
+		a1y: yHeight,
+		a2x: 10000000,
+		a2y: yHeight,
+	});
+
+	if (intersectionCode.length === 0) {
+		// TODO: determine if fully outside or inside
+		return instruction;
+	}
+
+	const progress = getProgressAtThatPoint(
+		instruction,
+		startX,
+		startY,
+		intersectionCode[0][0],
+		intersectionCode[0][1]
+	);
+	console.log({progress});
 
 	// https://en.wikipedia.org/wiki/B%C3%A9zier_curve#/media/File:B%C3%A9zier_3_big.gif
 
@@ -56,20 +142,11 @@ const interpolateC = (
 		x: (instruction.cp2x - instruction.cp1x) * progress + instruction.cp1x,
 		y: (instruction.cp2y - instruction.cp1y) * progress + instruction.cp1y,
 	};
+	// TODO: Use if below line
 	const green4 = {
 		x: (instruction.x - instruction.cp2x) * progress + instruction.cp2x,
 		y: (instruction.y - instruction.cp2y) * progress + instruction.cp2y,
 	};
-
-	const fakePath = serializeInstructions([
-		{
-			type: 'M',
-			x: startX,
-			y: startY,
-		},
-		instruction,
-	]);
-
 	const length = getLength(fakePath);
 	const bluePoint = getPointAtLength(fakePath, progress * length);
 	const {x: x2, y: y2} = getTangentAtLength(fakePath, progress * length);
@@ -81,6 +158,7 @@ const interpolateC = (
 		bluePoint,
 		bluePoint2
 	);
+	console.log(intersectionCode);
 
 	return {
 		type: 'C',
@@ -133,7 +211,9 @@ export const slicePath = (d: string, from: number, to: number): string => {
 			currentPosition.y = instruction.y;
 
 			if (instruction.type === 'C') {
-				toReturn.push(interpolateC(instruction, start.x, start.y, from));
+				toReturn.push(
+					interpolateC(instruction, start.x, start.y, fromAbsolute)
+				);
 			} else {
 				toReturn.push(instruction);
 			}
