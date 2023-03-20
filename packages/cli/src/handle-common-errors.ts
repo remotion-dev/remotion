@@ -1,6 +1,7 @@
 import {chalk} from './chalk';
 import {Log} from './log';
 import {printError} from './print-error';
+import {truthy} from './truthy';
 
 export const handleCommonError = async (err: Error) => {
 	await printError(err);
@@ -50,12 +51,27 @@ export const handleCommonError = async (err: Error) => {
 		);
 	}
 
-	if (err.message.includes("Minified React error #306")) {
-		const componentName = err.message.match(/<\w+>/)?.[0] || ""
-		const errorMsg = `Error: Failed to render ${componentName}. Please check that it is imported correctly.`
-		Log.error(errorMsg)
+	if (err.message.includes('Minified React error #306')) {
+		const componentName = err.message.match(/<\w+>/)?.[0];
 		Log.info(
-			'💡 You can try taking a look at the path of the component that you are referencing. It could be the cause of this error.'
-		)
+			[
+				'💡 This error indicates that the component',
+				componentName ? `(${componentName})` : null,
+				'you are trying to render is not imported correctly.',
+			]
+				.filter(truthy)
+				.join(' ')
+		);
+
+		Log.info();
+		Log.info(
+			'   Check the root file and ensure that the component is not undefined.'
+		);
+		Log.info(
+			'   Oftentimes, this happens if the component is missing the `export` keyword'
+		);
+		Log.info(
+			'   or if the component was renamed and the import statement not properly adjusted.'
+		);
 	}
 };
