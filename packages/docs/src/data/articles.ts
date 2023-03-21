@@ -175,6 +175,13 @@ export const articles = [
     crumb: "Experimental API",
   },
   {
+    id: "compare/motion-canvas",
+    title: "How does Remotion compare to Motion Canvas?",
+    relativePath: "docs/compare/motion-canvas.md",
+    compId: "articles-docs-compare-motion-canvas",
+    crumb: "FAQ",
+  },
+  {
     id: "composition",
     title: "<Composition>",
     relativePath: "docs/composition.md",
