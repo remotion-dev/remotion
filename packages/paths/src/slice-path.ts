@@ -130,7 +130,6 @@ const interpolateC = (
 		intersectionCode[0][0],
 		intersectionCode[0][1]
 	);
-	console.log({progress});
 
 	// https://en.wikipedia.org/wiki/B%C3%A9zier_curve#/media/File:B%C3%A9zier_3_big.gif
 
@@ -158,7 +157,6 @@ const interpolateC = (
 		bluePoint,
 		bluePoint2
 	);
-	console.log(intersectionCode);
 
 	return {
 		type: 'C',

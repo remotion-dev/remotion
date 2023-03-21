@@ -10,7 +10,6 @@ export const SlicePathDemo: React.FC = () => {
 	const sliceLine = interpolate(frame, [0, 100], [0.1, 0.75]);
 
 	const sliced = slicePath(path, sliceLine, 0.75);
-
 	return (
 		<AbsoluteFill>
 			<svg viewBox={`0 0 ${width} ${height}`}>
