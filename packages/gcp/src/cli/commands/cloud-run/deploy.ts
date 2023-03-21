@@ -101,9 +101,10 @@ Validating Deployment of Cloud Run Service:
 				)
 			);
 
-			if (allowUnauthenticated) {
-				await allowUnauthenticatedAccessToService(deployRevisionResult.name);
-			}
+			await allowUnauthenticatedAccessToService(
+				deployRevisionResult.name,
+				allowUnauthenticated
+			);
 		} else {
 			Log.info(CliInternals.chalk.gray('deploy cancelled'));
 			quit(1); // TODO: Check with Jonny what to pass to quit - 0 or 1?
@@ -147,9 +148,10 @@ Validating Deployment of Cloud Run Service:
 				)
 			);
 
-			if (allowUnauthenticated) {
-				await allowUnauthenticatedAccessToService(deployResult.name);
-			}
+			await allowUnauthenticatedAccessToService(
+				deployResult.name,
+				allowUnauthenticated
+			);
 		} catch (e: any) {
 			if (e.code === 6) {
 				Log.error(
@@ -168,28 +170,59 @@ Validating Deployment of Cloud Run Service:
 	}
 };
 
-async function allowUnauthenticatedAccessToService(serviceName: string) {
-	try {
-		Log.info(
-			CliInternals.chalk.white(
-				'\nAllowing unauthenticated access to the Cloud Run service...'
-			)
-		);
-		await allowUnauthenticatedAccess(serviceName);
+async function allowUnauthenticatedAccessToService(
+	serviceName: string,
+	allowUnauthenticated: boolean
+) {
+	if (allowUnauthenticated) {
+		try {
+			Log.info(
+				CliInternals.chalk.white(
+					'\nAllowing unauthenticated access to the Cloud Run service...'
+				)
+			);
+			await allowUnauthenticatedAccess(serviceName, allowUnauthenticated);
 
-		Log.info();
+			Log.info();
 
-		Log.info(
-			CliInternals.chalk.blueBright(
-				`    ✅ Unauthenticated access granted on ${serviceName}`
-			)
-		);
-	} catch (e) {
-		Log.error(
-			CliInternals.chalk.red(
-				`    Failed to allow unauthenticated access to the Cloud Run service.`
-			)
-		);
-		throw e;
+			Log.info(
+				CliInternals.chalk.blueBright(
+					`    ✅ Unauthenticated access granted on ${serviceName}`
+				)
+			);
+		} catch (e) {
+			Log.error(
+				CliInternals.chalk.red(
+					`    Failed to allow unauthenticated access to the Cloud Run service.`
+				)
+			);
+			throw e;
+		}
+	} else {
+		try {
+			Log.info();
+
+			Log.info(
+				CliInternals.chalk.white(
+					'Ensuring only authenticated access to the Cloud Run service...'
+				)
+			);
+			await allowUnauthenticatedAccess(serviceName, allowUnauthenticated);
+
+			Log.info();
+
+			Log.info(
+				CliInternals.chalk.blueBright(
+					`    🔒 Only authenticated access granted on ${serviceName}`
+				)
+			);
+		} catch (e) {
+			Log.error(
+				CliInternals.chalk.red(
+					`    Failed to allow unauthenticated access to the Cloud Run service.`
+				)
+			);
+			throw e;
+		}
 	}
 }

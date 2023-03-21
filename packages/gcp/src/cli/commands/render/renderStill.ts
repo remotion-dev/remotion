@@ -19,9 +19,9 @@ export const renderStillSubcommand = async (
 		cloudRunUrl,
 		composition,
 		outName,
-		codec,
 		inputProps,
 		outputBucket,
+		authenticatedRequest,
 	} = await renderArgsCheck(RENDER_STILL_SUBCOMMAND, args, remotionRoot);
 
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
@@ -31,6 +31,7 @@ export const renderStillSubcommand = async (
 Sending request to Cloud Run:
 
     Cloud Run Service URL = ${cloudRunUrl}
+    Authenticated Request = ${authenticatedRequest}
     Type = still
     Composition = ${composition}
     Output Bucket = ${outputBucket}
@@ -59,6 +60,7 @@ Sending request to Cloud Run:
 	};
 
 	const res = await renderStillOnGcp({
+		authenticatedRequest,
 		cloudRunUrl,
 		// serviceName,
 		serveUrl,
@@ -68,14 +70,14 @@ Sending request to Cloud Run:
 		outputFile: outName,
 	});
 
-	doneIn = Date.now() - renderStart;
-	updateProgress();
-
 	if (res.status === 'error') {
 		const err = res as RenderStillOnGcpErrOutput;
 		Log.error(CliInternals.chalk.red(err.message));
 		throw err.error;
 	} else {
+		doneIn = Date.now() - renderStart;
+		updateProgress();
+
 		const success = res as RenderStillOnGcpOutput;
 		Log.info(`
 		

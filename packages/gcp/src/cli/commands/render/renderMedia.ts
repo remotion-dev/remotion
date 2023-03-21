@@ -23,6 +23,7 @@ export const renderMediaSubcommand = async (
 		codec,
 		inputProps,
 		outputBucket,
+		authenticatedRequest,
 	} = await renderArgsCheck(RENDER_MEDIA_SUBCOMMAND, args, remotionRoot);
 
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
@@ -32,6 +33,7 @@ export const renderMediaSubcommand = async (
 Sending request to Cloud Run:
 
     Cloud Run Service URL = ${cloudRunUrl}
+    Authenticated Request = ${authenticatedRequest}
     Type = media
     Composition = ${composition}
     Codec = ${codec}
@@ -73,6 +75,7 @@ Sending request to Cloud Run:
 	};
 
 	const res = await renderMediaOnGcp({
+		authenticatedRequest,
 		cloudRunUrl,
 		// serviceName,
 		serveUrl,
@@ -84,14 +87,14 @@ Sending request to Cloud Run:
 		updateRenderProgress,
 	});
 
-	renderProgress.doneIn = Date.now() - renderStart;
-	updateProgress();
-
 	if (res.status === 'error') {
 		const err = res as RenderMediaOnGcpErrOutput;
 		Log.error(CliInternals.chalk.red(err.message));
 		throw err.error;
 	} else {
+		renderProgress.doneIn = Date.now() - renderStart;
+		updateProgress();
+
 		const success = res as RenderMediaOnGcpOutput;
 		Log.info(`
 		

@@ -594,6 +594,7 @@ importers:
       '@remotion/renderer': workspace:*
       '@types/minimist': 1.2.2
       eslint: 8.25.0
+      google-auth-library: ^8.7.0
       got: 11.8.2
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^3.2.2
@@ -608,6 +609,7 @@ importers:
       '@remotion/bundler': link:../bundler
       '@remotion/cli': link:../cli
       '@remotion/renderer': link:../renderer
+      google-auth-library: 8.7.0
       got: 11.8.2
       remotion: link:../core
     devDependencies:
