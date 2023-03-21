@@ -81,6 +81,8 @@ export const renderArgsCheck = async (
 		outputBucket = bucketName;
 	}
 
+	const authenticatedRequest = !parsedGcpCli['unauthenticated-request'];
+
 	return {
 		serveUrl,
 		cloudRunUrl,
@@ -89,5 +91,6 @@ export const renderArgsCheck = async (
 		codec,
 		inputProps,
 		outputBucket,
+		authenticatedRequest,
 	};
 };
