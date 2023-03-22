@@ -21,6 +21,7 @@ export type GuiStillProgress = BaseRenderProgress & AggregateRenderProgress;
 type RenderJobDynamicStatus<ProgressType extends BaseRenderProgress> =
 	| {
 			status: 'done';
+			progress: ProgressType;
 	  }
 	| {
 			status: 'running';

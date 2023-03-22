@@ -20,8 +20,8 @@ export const RenderProgressModal: React.FC<{jobId: string}> = ({jobId}) => {
 
 	const job = jobs.find((j) => j.id === jobId);
 
-	console.log({jobs});
-	if (!job || job.status === 'idle') {
+	// TODO: What if the job fails while the modal is open? Merge together?
+	if (!job || job.status === 'idle' || job.status === 'failed') {
 		throw new Error('should not have rendered this modal');
 	}
 
@@ -30,7 +30,7 @@ export const RenderProgressModal: React.FC<{jobId: string}> = ({jobId}) => {
 			<NewCompHeader title={`Render ${job.compositionId}`} />
 			<div style={container}>
 				<Spacing />
-				{JSON.stringify(job, null, 2)}
+				{JSON.stringify(job.progress, null, 2)}
 			</div>
 		</ModalContainer>
 	);

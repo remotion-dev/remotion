@@ -2,6 +2,7 @@ import path from 'path';
 import {chalk} from '../../chalk';
 import {installFileWatcher} from '../../file-watcher';
 import {Log} from '../../log';
+import type {AggregateRenderProgress} from '../../progress-types';
 import {initialAggregateRenderProgress} from '../../progress-types';
 import {waitForLiveEventsListener} from '../live-events';
 import type {
@@ -157,12 +158,14 @@ export const processJobIfPossible = async ({
 		});
 		const startTime = Date.now();
 		Log.info(chalk.gray('╭─ Starting render '));
+		let lastProgress: AggregateRenderProgress | null = null;
 		await processJob({
 			job: nextJob,
 			entryPoint,
 			remotionRoot,
 			onProgress: (progress) => {
 				updateJob(nextJob.id, (job) => {
+					lastProgress = progress;
 					// Ignore late callbacks of progress updates after cancelling
 					if (job.status === 'failed' || job.status === 'done') {
 						return job;
@@ -211,11 +214,18 @@ export const processJobIfPossible = async ({
 				}
 			},
 		});
-		updateJob(nextJob.id, (job) => ({
-			...job,
-			status: 'done',
-			cleanup: [...job.cleanup, unwatch],
-		}));
+		updateJob(nextJob.id, (job) => {
+			if (!lastProgress) {
+				throw new Error('expected progress');
+			}
+
+			return {
+				...job,
+				status: 'done',
+				cleanup: [...job.cleanup, unwatch],
+				progress: {message: 'Done', value: 1, ...lastProgress},
+			};
+		});
 	} catch (err) {
 		// TODO: Tell to look in preview to find the error
 		Log.error(chalk.gray('╰─ Render failed:'), err);
