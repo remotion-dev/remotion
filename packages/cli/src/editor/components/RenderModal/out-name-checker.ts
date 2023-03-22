@@ -38,6 +38,7 @@ export const validateOutnameGui = ({
 		});
 		return {valid: true};
 	} catch (err) {
+		console.log({valid: false, error: err as Error});
 		return {valid: false, error: err as Error};
 	}
 };
@@ -66,6 +67,17 @@ const isValidOutName = ({
 		);
 	}
 
+	const hasDotAfterSlash = () => {
+		const substrings = prefix.split('/');
+		for (const str of substrings) {
+			if (str[0] === '.') {
+				return true;
+			}
+		}
+
+		return false;
+	};
+
 	const hasInvalidChar = () => {
 		return prefix.split('').some((char) => invalidCharacters.includes(char));
 	};
@@ -83,7 +95,7 @@ const isValidOutName = ({
 		throw new Error('The prefix must be at least 1 character long');
 	}
 
-	if (prefix[0] === '.') {
+	if (prefix[0] === '.' || hasDotAfterSlash()) {
 		throw new Error('The output name must not start with a dot');
 	}
 
