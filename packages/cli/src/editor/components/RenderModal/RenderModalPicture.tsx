@@ -154,6 +154,7 @@ export const RenderModalPicture: React.FC<{
 								style={input}
 								value={customTargetVideoBitrate}
 								onChange={onTargetVideoBitrateChanged}
+								status="ok"
 							/>
 						</div>
 					</div>
