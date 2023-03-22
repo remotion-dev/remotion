@@ -896,6 +896,13 @@ export const articles = [
     crumb: "@remotion/lambda",
   },
   {
+    id: "lambda/ec2",
+    title: "Using Lambda with EC2",
+    relativePath: "docs/lambda/ec2.md",
+    compId: "articles-docs-lambda-ec2",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "bucket-disallows-acl",
     title: "The bucket does not allow ACLs",
     relativePath: "docs/lambda/troubleshooting/bucket-disallows-acl.md",

@@ -445,6 +445,7 @@ module.exports = {
         },
         "lambda/serverless-framework-integration",
         "lambda/sqs",
+        "lambda/ec2",
         "lambda/multiple-buckets",
         "lambda/bucket-naming",
         "lambda/optimizing-cost",
