@@ -13,7 +13,7 @@ const title: React.CSSProperties = {
 
 const description: React.CSSProperties = {
 	fontSize: 14,
-	maxWidth: 200,
+	maxWidth: 400,
 };
 
 const link: React.CSSProperties = {
