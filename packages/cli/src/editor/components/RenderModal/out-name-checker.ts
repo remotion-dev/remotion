@@ -2,6 +2,8 @@ import type {AudioCodec, Codec, StillImageFormat} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {RenderType} from './RenderModalAdvanced';
 
+export const invalidCharacters = ['?', '*', '+', '%', ':'];
+
 const isValidStillExtension = (
 	extension: string,
 	stillImageFormat: StillImageFormat
@@ -24,7 +26,6 @@ export const isValidOutName = (
 ): boolean => {
 	const extension = outName.substring(outName.lastIndexOf('.') + 1);
 	const prefix = outName.substring(0, outName.lastIndexOf('.'));
-	const invalidChars = ['?', '*', '+', '%'];
 
 	const map = BrowserSafeApis.defaultFileExtensionMap[codec];
 
@@ -35,7 +36,7 @@ export const isValidOutName = (
 	}
 
 	const hasInvalidChar = () => {
-		return prefix.split('').some((char) => invalidChars.includes(char));
+		return prefix.split('').some((char) => invalidCharacters.includes(char));
 	};
 
 	if (renderMode === 'video') {
