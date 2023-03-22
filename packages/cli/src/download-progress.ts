@@ -1,7 +1,7 @@
 import {formatBytes} from './format-bytes';
 import {INDENT_TOKEN} from './log';
 import {makeProgressBar} from './make-progress-bar';
-import type {DownloadProgress} from './progress-bar';
+import type {DownloadProgress} from './progress-types';
 
 export const getFileSizeDownloadBar = (downloaded: number) => {
 	const desiredLength = makeProgressBar(0).length;

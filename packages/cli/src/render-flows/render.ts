@@ -36,12 +36,18 @@ import {getFinalOutputCodec} from '../get-final-output-codec';
 import {getVideoImageFormat} from '../image-formats';
 import {INDENT_TOKEN, Log} from '../log';
 import {parsedCli} from '../parse-command-line';
-import type {JobProgressCallback} from '../preview-server/render-queue/job';
-import type {DownloadProgress} from '../progress-bar';
+import type {
+	GuiRenderProgress,
+	JobProgressCallback,
+} from '../preview-server/render-queue/job';
 import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 } from '../progress-bar';
+import type {
+	AggregateRenderProgress,
+	DownloadProgress,
+} from '../progress-types';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
@@ -117,7 +123,7 @@ export const renderVideoFlow = async ({
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
 	quality: number | undefined;
-	onProgress: JobProgressCallback;
+	onProgress: JobProgressCallback<GuiRenderProgress>;
 	addCleanupCallback: (cb: () => void) => void;
 	crf: Crf | null;
 	cancelSignal: CancelSignal | null;
@@ -292,34 +298,36 @@ export const renderVideoFlow = async ({
 			throw new Error('totalFrames should not be 0');
 		}
 
-		const {output, message, progress} = makeRenderingAndStitchingProgress(
-			{
-				rendering: {
-					frames: renderedFrames,
-					totalFrames: totalFrames.length,
-					concurrency: actualConcurrency,
-					doneIn: renderedDoneIn,
-					steps,
-				},
-				stitching: shouldOutputImageSequence
-					? null
-					: {
-							doneIn: encodedDoneIn,
-							frames: encodedFrames,
-							stage: stitchStage,
-							steps,
-							totalFrames: totalFrames.length,
-							codec,
-					  },
-				downloads,
-				bundling: {
-					message: 'Bundled',
-					progress: 1,
-				},
+		const aggregateRenderProgress: AggregateRenderProgress = {
+			rendering: {
+				frames: renderedFrames,
+				totalFrames: totalFrames.length,
+				concurrency: actualConcurrency,
+				doneIn: renderedDoneIn,
+				steps,
 			},
+			stitching: shouldOutputImageSequence
+				? null
+				: {
+						doneIn: encodedDoneIn,
+						frames: encodedFrames,
+						stage: stitchStage,
+						steps,
+						totalFrames: totalFrames.length,
+						codec,
+				  },
+			downloads,
+			bundling: {
+				message: 'Bundled',
+				progress: 1,
+			},
+		};
+
+		const {output, message, progress} = makeRenderingAndStitchingProgress(
+			aggregateRenderProgress,
 			indent
 		);
-		onProgress({progress, message});
+		onProgress({message, value: progress, ...aggregateRenderProgress});
 
 		return renderProgress.update(output);
 	};

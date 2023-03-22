@@ -1,4 +1,4 @@
-import type {CancelSignal, Codec, StitchingState} from '@remotion/renderer';
+import type {CancelSignal} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {AnsiDiff} from './ansi/ansi-diff';
 import {chalk} from './chalk';
@@ -9,6 +9,11 @@ import {
 } from './download-progress';
 import {INDENT_TOKEN} from './log';
 import {makeProgressBar} from './make-progress-bar';
+import type {
+	AggregateRenderProgress,
+	RenderingProgressInput,
+	StitchingProgressInput,
+} from './progress-types';
 import type {RenderStep} from './step';
 import {truthy} from './truthy';
 
@@ -159,14 +164,6 @@ export const makeBundlingAndCopyProgress = (
 		.join('\n');
 };
 
-type RenderingProgressInput = {
-	frames: number;
-	totalFrames: number;
-	steps: RenderStep[];
-	concurrency: number;
-	doneIn: number | null;
-};
-
 export const makeRenderingProgress = (
 	{frames, totalFrames, steps, concurrency, doneIn}: RenderingProgressInput,
 	indent: boolean
@@ -183,15 +180,6 @@ export const makeRenderingProgress = (
 	]
 		.filter(truthy)
 		.join(' ');
-};
-
-type StitchingProgressInput = {
-	frames: number;
-	totalFrames: number;
-	steps: RenderStep[];
-	doneIn: number | null;
-	stage: StitchingState;
-	codec: Codec;
 };
 
 export const makeStitchingProgress = (
@@ -217,21 +205,6 @@ export const makeStitchingProgress = (
 	]
 		.filter(truthy)
 		.join(' ');
-};
-
-export type DownloadProgress = {
-	name: string;
-	id: number;
-	progress: number | null;
-	totalBytes: number | null;
-	downloaded: number;
-};
-
-export type AggregateRenderProgress = {
-	rendering: RenderingProgressInput | null;
-	stitching: StitchingProgressInput | null;
-	downloads: DownloadProgress[];
-	bundling: {progress: number; message: string | null};
 };
 
 export const makeRenderingAndStitchingProgress = (

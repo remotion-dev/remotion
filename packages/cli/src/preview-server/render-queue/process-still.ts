@@ -1,7 +1,7 @@
 import {convertEntryPointToServeUrl} from '../../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../../get-cli-options';
 import {renderStillFlow} from '../../render-flows/still';
-import type {JobProgressCallback, RenderJob} from './job';
+import type {GuiStillProgress, JobProgressCallback, RenderJob} from './job';
 
 export const processStill = async ({
 	job,
@@ -13,7 +13,7 @@ export const processStill = async ({
 	job: RenderJob;
 	remotionRoot: string;
 	entryPoint: string;
-	onProgress: JobProgressCallback;
+	onProgress: JobProgressCallback<GuiStillProgress>;
 	addCleanupCallback: (cb: () => void) => void;
 }) => {
 	if (job.type !== 'still') {

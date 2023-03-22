@@ -7,15 +7,24 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import type {AggregateRenderProgress} from '../../progress-types';
 
-type RenderJobDynamicStatus =
+export type BaseRenderProgress = {
+	message: string;
+	value: number;
+};
+
+export type GuiRenderProgress = BaseRenderProgress & AggregateRenderProgress;
+
+export type GuiStillProgress = BaseRenderProgress & AggregateRenderProgress;
+
+type RenderJobDynamicStatus<ProgressType extends BaseRenderProgress> =
 	| {
 			status: 'done';
 	  }
 	| {
 			status: 'running';
-			progress: number;
-			message: string;
+			progress: ProgressType;
 	  }
 	| {
 			status: 'idle';
@@ -28,20 +37,19 @@ type RenderJobDynamicStatus =
 			};
 	  };
 
-export type JobProgressCallback = (options: {
-	progress: number;
-	message: string;
-}) => void;
+export type JobProgressCallback<ProgressType extends BaseRenderProgress> = (
+	options: ProgressType
+) => void;
 
 type RenderJobDynamicFields =
-	| {
+	| ({
 			type: 'still';
 			imageFormat: StillImageFormat;
 			quality: number | null;
 			frame: number;
 			scale: number;
-	  }
-	| {
+	  } & RenderJobDynamicStatus<GuiStillProgress>)
+	| ({
 			type: 'video';
 			imageFormat: VideoImageFormat;
 			quality: number | null;
@@ -62,7 +70,7 @@ type RenderJobDynamicFields =
 			numberOfGifLoops: number | null;
 			delayRenderTimeout: number;
 			disallowParallelEncoding: boolean;
-	  };
+	  } & RenderJobDynamicStatus<GuiRenderProgress>);
 
 export type RenderJob = {
 	startedAt: number;
@@ -72,8 +80,7 @@ export type RenderJob = {
 	deletedOutputLocation: boolean;
 	verbose: boolean;
 	cancelToken: ReturnType<typeof makeCancelSignal>;
-} & RenderJobDynamicStatus &
-	RenderJobDynamicFields;
+} & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {
 	cleanup: (() => void)[];
