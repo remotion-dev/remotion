@@ -26,11 +26,16 @@ export type StitchingProgressInput = {
 	codec: Codec;
 };
 
+export type BundlingProgress = {
+	progress: number;
+	message: string | null;
+};
+
 export type AggregateRenderProgress = {
 	rendering: RenderingProgressInput | null;
 	stitching: StitchingProgressInput | null;
 	downloads: DownloadProgress[];
-	bundling: {progress: number; message: string | null};
+	bundling: BundlingProgress;
 };
 
 export const initialAggregateRenderProgress = (): AggregateRenderProgress => ({

@@ -12,7 +12,6 @@ import type {
 	PixelFormat,
 	ProResProfile,
 	RenderMediaOnDownload,
-	StitchingState,
 	VideoImageFormat,
 } from '@remotion/renderer';
 import {
@@ -46,7 +45,10 @@ import {
 } from '../progress-bar';
 import type {
 	AggregateRenderProgress,
+	BundlingProgress,
 	DownloadProgress,
+	RenderingProgressInput,
+	StitchingProgressInput,
 } from '../progress-types';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import type {RenderStep} from '../step';
@@ -161,11 +163,41 @@ export const renderVideoFlow = async ({
 		indentationString: indent ? INDENT_TOKEN + ' ' : '',
 	});
 
+	const renderProgress = createOverwriteableCliOutput({
+		quiet,
+		cancelSignal,
+	});
+
 	const steps: RenderStep[] = [
 		RenderInternals.isServeUrl(fullEntryPoint) ? null : ('bundling' as const),
 		'rendering' as const,
 		shouldOutputImageSequence ? null : ('stitching' as const),
 	].filter(truthy);
+
+	const bundlingProgress: BundlingProgress = {
+		message: null,
+		progress: 0,
+	};
+
+	let renderingProgress: RenderingProgressInput | null = null;
+	let stitchingProgress: StitchingProgressInput | null = null;
+
+	const updateRenderProgress = () => {
+		const aggregateRenderProgress: AggregateRenderProgress = {
+			rendering: renderingProgress,
+			stitching: shouldOutputImageSequence ? null : stitchingProgress,
+			downloads,
+			bundling: bundlingProgress,
+		};
+
+		const {output, message, progress} = makeRenderingAndStitchingProgress(
+			aggregateRenderProgress,
+			indent
+		);
+		onProgress({message, value: progress, ...aggregateRenderProgress});
+
+		return renderProgress.update(output);
+	};
 
 	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
 		{
@@ -173,8 +205,11 @@ export const renderVideoFlow = async ({
 			remotionRoot,
 			steps,
 			publicDir,
-			// TODO: Implement onProgress
-			onProgress: () => undefined,
+			onProgress: ({message, progress}) => {
+				bundlingProgress.message = message;
+				bundlingProgress.progress = progress;
+				updateRenderProgress();
+			},
 			indentOutput: indent,
 			logLevel,
 		}
@@ -272,11 +307,6 @@ export const renderVideoFlow = async ({
 
 	Log.verboseAdvanced({indent, logLevel}, 'Output dir', outputDir);
 
-	const renderProgress = createOverwriteableCliOutput({
-		quiet,
-		cancelSignal,
-	});
-
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		config.durationInFrames,
 		frameRange
@@ -285,51 +315,14 @@ export const renderVideoFlow = async ({
 		realFrameRange,
 		everyNthFrame
 	);
-	let encodedFrames = 0;
-	let renderedFrames = 0;
-	let encodedDoneIn: number | null = null;
-	let renderedDoneIn: number | null = null;
-	let stitchStage: StitchingState = 'encoding';
-
 	const actualConcurrency = RenderInternals.getActualConcurrency(concurrency);
 
-	const updateRenderProgress = () => {
-		if (totalFrames.length === 0) {
-			throw new Error('totalFrames should not be 0');
-		}
-
-		const aggregateRenderProgress: AggregateRenderProgress = {
-			rendering: {
-				frames: renderedFrames,
-				totalFrames: totalFrames.length,
-				concurrency: actualConcurrency,
-				doneIn: renderedDoneIn,
-				steps,
-			},
-			stitching: shouldOutputImageSequence
-				? null
-				: {
-						doneIn: encodedDoneIn,
-						frames: encodedFrames,
-						stage: stitchStage,
-						steps,
-						totalFrames: totalFrames.length,
-						codec,
-				  },
-			downloads,
-			bundling: {
-				message: 'Bundled',
-				progress: 1,
-			},
-		};
-
-		const {output, message, progress} = makeRenderingAndStitchingProgress(
-			aggregateRenderProgress,
-			indent
-		);
-		onProgress({message, value: progress, ...aggregateRenderProgress});
-
-		return renderProgress.update(output);
+	renderingProgress = {
+		frames: 0,
+		totalFrames: totalFrames.length,
+		concurrency: actualConcurrency,
+		doneIn: null,
+		steps,
 	};
 
 	const imageFormat = getVideoImageFormat({
@@ -351,7 +344,7 @@ export const renderVideoFlow = async ({
 			imageFormat,
 			inputProps,
 			onFrameUpdate: (rendered) => {
-				renderedFrames = rendered;
+				(renderingProgress as RenderingProgressInput).frames = rendered;
 				updateRenderProgress();
 			},
 			onStart: () => undefined,
@@ -392,7 +385,17 @@ export const renderVideoFlow = async ({
 		updateRenderProgress();
 		process.stdout.write('\n');
 		Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
+		return;
 	}
+
+	stitchingProgress = {
+		doneIn: null,
+		frames: 0,
+		stage: 'encoding',
+		steps,
+		totalFrames: totalFrames.length,
+		codec,
+	};
 
 	const {slowestFrames} = await renderMedia({
 		outputLocation: absoluteOutputFile,
@@ -430,11 +433,15 @@ export const renderVideoFlow = async ({
 		audioBitrate,
 		videoBitrate,
 		onProgress: (update) => {
-			encodedDoneIn = update.encodedDoneIn;
-			encodedFrames = update.encodedFrames;
-			renderedDoneIn = update.renderedDoneIn;
-			stitchStage = update.stitchStage;
-			renderedFrames = update.renderedFrames;
+			(stitchingProgress as StitchingProgressInput).doneIn =
+				update.encodedDoneIn;
+			(stitchingProgress as StitchingProgressInput).frames =
+				update.encodedFrames;
+			(stitchingProgress as StitchingProgressInput).stage = update.stitchStage;
+			(renderingProgress as RenderingProgressInput).doneIn =
+				update.renderedDoneIn;
+			(renderingProgress as RenderingProgressInput).frames =
+				update.renderedFrames;
 			updateRenderProgress();
 		},
 		puppeteerInstance,

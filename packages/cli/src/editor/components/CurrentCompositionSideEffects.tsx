@@ -1,7 +1,9 @@
 import type React from 'react';
-import {useCallback, useEffect} from 'react';
+import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
+import {PreviewServerConnectionCtx} from '../helpers/client-id';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {sendErrorNotification} from './Notifications/NotificationCenter';
 
 export const TitleUpdater: React.FC = () => {
 	const video = Internals.useVideo();
@@ -21,10 +23,16 @@ export const TitleUpdater: React.FC = () => {
 export const CurrentCompositionKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const video = Internals.useVideo();
+	const {type} = useContext(PreviewServerConnectionCtx);
 
 	const openRenderModal = useCallback(() => {
 		if (!video) {
-			return null;
+			return;
+		}
+
+		if (type !== 'connected') {
+			sendErrorNotification('Preview server is offline');
+			return;
 		}
 
 		const renderButton = document.getElementById(
@@ -32,7 +40,7 @@ export const CurrentCompositionKeybindings: React.FC = () => {
 		) as HTMLDivElement;
 
 		renderButton.click();
-	}, [video]);
+	}, [type, video]);
 
 	useEffect(() => {
 		const binding = keybindings.registerKeybinding({
