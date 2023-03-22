@@ -1,15 +1,27 @@
 import React, {useCallback, useMemo} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {InlineAction} from '../InlineAction';
-import {sendErrorNotification} from '../Notifications/NotificationCenter';
+import {
+	notificationCenter,
+	sendErrorNotification,
+} from '../Notifications/NotificationCenter';
 import {removeRenderJob} from './actions';
 
 export const RenderQueueRemoveItem: React.FC<{job: RenderJob}> = ({job}) => {
 	const onClick = useCallback(() => {
-		removeRenderJob(job).catch((err) => {
-			sendErrorNotification(`Could not remove item: ${err.message}`);
-			console.log(err);
-		});
+		removeRenderJob(job)
+			.then(() => {
+				notificationCenter.current?.addNotification({
+					content: 'Removed job',
+					duration: 2000,
+					created: Date.now(),
+					id: String(Math.random()).replace('0.', ''),
+				});
+			})
+			.catch((err) => {
+				sendErrorNotification(`Could not remove item: ${err.message}`);
+				console.log(err);
+			});
 	}, [job]);
 
 	const icon: React.CSSProperties = useMemo(() => {

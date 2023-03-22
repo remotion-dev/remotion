@@ -19,10 +19,9 @@ export const RenderQueueProgressMessage: React.FC<{
 	const {tabIndex} = useZIndex();
 
 	const onClick = useCallback(() => {
-		// TODO: Show progress instead
 		setSelectedModal({
-			type: 'render-error',
-			job,
+			type: 'render-progress',
+			jobId: job.id,
 		});
 	}, [job, setSelectedModal]);
 
