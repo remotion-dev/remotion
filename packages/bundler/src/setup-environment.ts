@@ -26,7 +26,6 @@ Internals.CSSUtils.injectCSS(`
   .__remotion-vertical-scrollbar::-webkit-scrollbar {
       width: 6px;
   }
-  
   .__remotion-vertical-scrollbar::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.0);
   }
