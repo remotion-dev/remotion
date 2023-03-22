@@ -36,7 +36,6 @@ export const InfoTooltip: React.FC<{
 		};
 	}, [arrowDirection]);
 	return (
-		// TODO: not scrolling with portal
 		<div
 			style={{
 				display: 'flex',
@@ -44,7 +43,9 @@ export const InfoTooltip: React.FC<{
 				alignItems: 'flex-start',
 			}}
 		>
-			<div style={container}>{children}</div>
+			<div style={container} className="__remotion-vertical-scrollbar">
+				{children}
+			</div>
 			{arrowDirection === 'down' ? (
 				<svg viewBox="0 0 14 7" style={arrowDown}>
 					<path

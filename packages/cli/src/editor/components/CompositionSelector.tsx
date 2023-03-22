@@ -77,7 +77,7 @@ export const CompositionSelector: React.FC = () => {
 	return (
 		<div style={container}>
 			<CurrentComposition />
-			<div style={list}>
+			<div className="__remotion-vertical-scrollbar" style={list}>
 				{items.map((c) => {
 					return (
 						<CompositionSelectorItem
