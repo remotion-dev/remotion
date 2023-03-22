@@ -26,7 +26,7 @@ export const validateOutnameGui = ({
 	codec: Codec;
 	audioCodec: AudioCodec;
 	renderMode: RenderType;
-	stillImageFormat?: StillImageFormat;
+	stillImageFormat: StillImageFormat | null;
 }): {valid: true} | {valid: false; error: Error} => {
 	try {
 		isValidOutName({
@@ -53,7 +53,7 @@ const isValidOutName = ({
 	codec: Codec;
 	audioCodec: AudioCodec;
 	renderMode: RenderType;
-	stillImageFormat?: StillImageFormat;
+	stillImageFormat: StillImageFormat | null;
 }): void => {
 	const extension = outName.substring(outName.lastIndexOf('.') + 1);
 	const prefix = outName.substring(0, outName.lastIndexOf('.'));
