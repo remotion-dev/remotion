@@ -161,6 +161,10 @@ export function RenderModalInput<T extends Codec>({
 		<div style={optionRow}>
 			<div style={{flexDirection: 'column'}}>
 				<div style={label}>Output name</div>
+				{/**
+				 *
+				// TODO improve this
+				*/}
 				{renderDisabled || existence ? <div style={{height: '25px'}} /> : null}
 			</div>
 

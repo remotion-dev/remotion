@@ -17,13 +17,19 @@ const isValidStillExtension = (
 	return extension === stillImageFormat;
 };
 
-export const isValidOutName = (
-	outName: string,
-	codec: Codec,
-	audioCodec: AudioCodec,
-	renderMode: RenderType,
-	stillImageFormat?: StillImageFormat
-): boolean => {
+export const isValidOutName = ({
+	outName,
+	codec,
+	audioCodec,
+	renderMode,
+	stillImageFormat,
+}: {
+	outName: string;
+	codec: Codec;
+	audioCodec: AudioCodec;
+	renderMode: RenderType;
+	stillImageFormat?: StillImageFormat;
+}): boolean => {
 	const extension = outName.substring(outName.lastIndexOf('.') + 1);
 	const prefix = outName.substring(0, outName.lastIndexOf('.'));
 

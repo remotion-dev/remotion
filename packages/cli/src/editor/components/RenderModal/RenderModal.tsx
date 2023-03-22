@@ -730,13 +730,13 @@ export const RenderModal: React.FC<{
 		];
 	}, [currentComposition?.durationInFrames, renderMode, setRenderMode]);
 
-	const renderDisabled = !isValidOutName(
+	const renderDisabled = !isValidOutName({
 		outName,
 		codec,
 		audioCodec,
 		renderMode,
-		stillImageFormat
-	);
+		stillImageFormat,
+	});
 
 	const {tab, setTab, shownTabs} = useRenderModalSections(renderMode, codec);
 
