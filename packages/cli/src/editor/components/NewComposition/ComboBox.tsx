@@ -83,8 +83,7 @@ export const Combobox: React.FC<{
 
 		const onMouseEnter = () => setIsHovered(true);
 		const onMouseLeave = () => setIsHovered(false);
-		const onPointerDown = (e: MouseEvent) => {
-			e.stopPropagation();
+		const onPointerDown = () => {
 			return setOpened((o) => {
 				if (!o) {
 					refresh?.();
