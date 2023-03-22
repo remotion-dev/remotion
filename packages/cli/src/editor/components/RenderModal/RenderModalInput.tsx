@@ -30,7 +30,7 @@ export function RenderModalInput<T extends Codec>({
 	renderMode,
 	stillImageFormat,
 }: Props<T>) {
-	const checkOutputName = useMemo(() => {
+	const generateWarnings = useMemo(() => {
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
 		const prefix = outName.substring(0, outName.lastIndexOf('.'));
 		const invalidChars = ['?', '*', '+', '%'];
@@ -159,7 +159,11 @@ export function RenderModalInput<T extends Codec>({
 
 	return (
 		<div style={optionRow}>
-			<div style={label}>Output name</div>
+			<div style={{flexDirection: 'column'}}>
+				<div style={label}>Output name</div>
+				{renderDisabled || existence ? <div style={{height: '25px'}} /> : null}
+			</div>
+
 			<div style={rightRow}>
 				<div>
 					<RemotionInput
@@ -171,7 +175,7 @@ export function RenderModalInput<T extends Codec>({
 						value={outName}
 						onChange={onValueChange}
 					/>
-					{checkOutputName}
+					{generateWarnings}
 				</div>
 			</div>
 		</div>
