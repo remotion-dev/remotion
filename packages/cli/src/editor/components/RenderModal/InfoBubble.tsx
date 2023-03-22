@@ -123,8 +123,6 @@ export const InfoBubble: React.FC<{
 		};
 	}, []);
 
-	// TODO: Can click two info bubbles at the same time
-
 	return (
 		<>
 			<button
