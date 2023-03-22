@@ -4,6 +4,7 @@ import React, {useMemo} from 'react';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {label, optionRow, rightRow} from './layout';
+import {invalidCharacters} from './out-name-checker';
 import type {RenderType} from './RenderModalAdvanced';
 
 type Props<T extends Codec> = {
@@ -33,12 +34,11 @@ export function RenderModalInput<T extends Codec>({
 	const generateWarnings = useMemo(() => {
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
 		const prefix = outName.substring(0, outName.lastIndexOf('.'));
-		const invalidChars = ['?', '*', '+', '%'];
 
 		const map = BrowserSafeApis.defaultFileExtensionMap[codec];
 
 		const hasInvalidChar = () => {
-			return prefix.split('').some((char) => invalidChars.includes(char));
+			return prefix.split('').some((char) => invalidCharacters.includes(char));
 		};
 
 		if (renderMode === 'video') {
@@ -150,7 +150,7 @@ export function RenderModalInput<T extends Codec>({
 			return (
 				<ValidationMessage
 					align="flex-end"
-					message="Filename can't contain the following characters:  ?, *, +, %"
+					message="Filename can't contain the following characters:  ?, *, +, %, :"
 					type={'error'}
 				/>
 			);
