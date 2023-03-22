@@ -2,7 +2,7 @@ import type {AudioCodec, Codec, StillImageFormat} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {RenderType} from './RenderModalAdvanced';
 
-export const invalidCharacters = ['?', '*', '+', '%', ':'];
+export const invalidCharacters = ['?', '*', '+', ':', '%'];
 
 const isValidStillExtension = (
 	extension: string,
