@@ -2,8 +2,15 @@ import path from 'path';
 import {chalk} from '../../chalk';
 import {installFileWatcher} from '../../file-watcher';
 import {Log} from '../../log';
+import {initialAggregateRenderProgress} from '../../progress-types';
 import {waitForLiveEventsListener} from '../live-events';
-import type {JobProgressCallback, RenderJob, RenderJobWithCleanup} from './job';
+import type {
+	GuiRenderProgress,
+	GuiStillProgress,
+	JobProgressCallback,
+	RenderJob,
+	RenderJobWithCleanup,
+} from './job';
 import {processStill} from './process-still';
 import {processVideoJob} from './process-video';
 
@@ -49,7 +56,7 @@ export const processJob = async ({
 	job: RenderJob;
 	remotionRoot: string;
 	entryPoint: string;
-	onProgress: JobProgressCallback;
+	onProgress: JobProgressCallback<GuiRenderProgress | GuiStillProgress>;
 	addCleanupCallback: (cb: () => void) => void;
 }) => {
 	if (job.type === 'still') {
@@ -141,8 +148,11 @@ export const processJobIfPossible = async ({
 			return {
 				...job,
 				status: 'running',
-				progress: 0,
-				message: 'Starting job...',
+				progress: {
+					value: 0,
+					message: 'Starting job...',
+					...initialAggregateRenderProgress(),
+				},
 			};
 		});
 		const startTime = Date.now();
@@ -151,19 +161,30 @@ export const processJobIfPossible = async ({
 			job: nextJob,
 			entryPoint,
 			remotionRoot,
-			onProgress: ({message, progress}) => {
+			onProgress: (progress) => {
 				updateJob(nextJob.id, (job) => {
 					// Ignore late callbacks of progress updates after cancelling
 					if (job.status === 'failed' || job.status === 'done') {
 						return job;
 					}
 
-					return {
-						...job,
-						status: 'running',
-						progress,
-						message,
-					};
+					if (job.type === 'still') {
+						return {
+							...job,
+							status: 'running',
+							progress: progress as GuiStillProgress,
+						};
+					}
+
+					if (job.type === 'video') {
+						return {
+							...job,
+							status: 'running',
+							progress: progress as GuiRenderProgress,
+						};
+					}
+
+					throw new Error('Unknown job type');
 				});
 			},
 			addCleanupCallback: (cleanup) => {

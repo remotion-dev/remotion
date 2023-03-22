@@ -25,16 +25,20 @@ import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {INDENT_TOKEN, Log} from '../log';
 import {parsedCli, quietFlagProvided} from '../parse-command-line';
-import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {
-	AggregateRenderProgress,
-	DownloadProgress,
-	OverwriteableCliOutput,
-} from '../progress-bar';
+	GuiStillProgress,
+	JobProgressCallback,
+} from '../preview-server/render-queue/job';
+import type {OverwriteableCliOutput} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 } from '../progress-bar';
+import type {
+	AggregateRenderProgress,
+	DownloadProgress,
+} from '../progress-types';
+import {initialAggregateRenderProgress} from '../progress-types';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
 import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
@@ -91,22 +95,14 @@ export const renderStillFlow = async ({
 	compositionIdFromUi: string | null;
 	imageFormatFromUi: StillImageFormat | null;
 	logLevel: LogLevel;
-	onProgress: JobProgressCallback;
+	onProgress: JobProgressCallback<GuiStillProgress>;
 	indentOutput: boolean;
 	addCleanupCallback: (cb: () => void) => void;
 	cancelSignal: CancelSignal | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
-	const aggregate: AggregateRenderProgress = {
-		rendering: null,
-		downloads,
-		stitching: null,
-		bundling: {
-			message: null,
-			progress: 0,
-		},
-	};
+	const aggregate: AggregateRenderProgress = initialAggregateRenderProgress();
 	let renderProgress: OverwriteableCliOutput | null = null;
 
 	const updateProgress = () => {
@@ -118,7 +114,7 @@ export const renderStillFlow = async ({
 			renderProgress.update(output);
 		}
 
-		onProgress({progress, message});
+		onProgress({message, value: progress, ...aggregate});
 	};
 
 	Log.verboseAdvanced(

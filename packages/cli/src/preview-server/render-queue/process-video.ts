@@ -1,7 +1,7 @@
 import {convertEntryPointToServeUrl} from '../../convert-entry-point-to-serve-url';
 import {getCliOptions} from '../../get-cli-options';
 import {renderVideoFlow} from '../../render-flows/render';
-import type {JobProgressCallback, RenderJob} from './job';
+import type {GuiRenderProgress, JobProgressCallback, RenderJob} from './job';
 
 export const processVideoJob = async ({
 	job,
@@ -13,7 +13,7 @@ export const processVideoJob = async ({
 	job: RenderJob;
 	remotionRoot: string;
 	entryPoint: string;
-	onProgress: JobProgressCallback;
+	onProgress: JobProgressCallback<GuiRenderProgress>;
 	addCleanupCallback: (cb: () => void) => void;
 }) => {
 	if (job.type !== 'video') {

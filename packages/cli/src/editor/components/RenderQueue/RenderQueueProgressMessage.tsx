@@ -31,9 +31,9 @@ export const RenderQueueProgressMessage: React.FC<{
 			type="button"
 			style={outputLocation}
 			tabIndex={tabIndex}
-			title={job.message}
+			title={job.progress.message}
 		>
-			{job.message}
+			{job.progress.message}
 		</button>
 	);
 };

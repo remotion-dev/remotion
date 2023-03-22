@@ -8,7 +8,6 @@ import {RenderQueueContext} from '../RenderQueue/context';
 const container: React.CSSProperties = {
 	padding: 20,
 	maxWidth: 1200,
-	paddingTop: 0,
 };
 
 export const RenderProgressModal: React.FC<{jobId: string}> = ({jobId}) => {
@@ -30,7 +29,6 @@ export const RenderProgressModal: React.FC<{jobId: string}> = ({jobId}) => {
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${job.compositionId}`} />
 			<div style={container}>
-				<p>The render failed because of the following error:</p>
 				<Spacing />
 				{JSON.stringify(job, null, 2)}
 			</div>
