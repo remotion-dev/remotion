@@ -1,17 +1,19 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
-import {sendErrorNotification} from '../Notifications/NotificationCenter';
-import {openInFileExplorer} from './actions';
+import {ModalsContext} from '../../state/modals';
 import {renderQueueItemSubtitleStyle} from './item-style';
 
 export const RenderQueueOutputName: React.FC<{
 	job: RenderJob;
 }> = ({job}) => {
+	const {setSelectedModal} = useContext(ModalsContext);
+
 	const onClick = useCallback(() => {
-		openInFileExplorer({directory: job.outName}).catch((err) => {
-			sendErrorNotification(`Could not open file: ${err.message}`);
+		setSelectedModal({
+			type: 'render-progress',
+			jobId: job.id,
 		});
-	}, [job.outName]);
+	}, [job, setSelectedModal]);
 
 	const style = useMemo((): React.CSSProperties => {
 		return {

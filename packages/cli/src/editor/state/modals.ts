@@ -54,6 +54,10 @@ export type ModalState =
 			job: RenderJob;
 	  }
 	| {
+			type: 'render-progress';
+			jobId: string;
+	  }
+	| {
 			type: 'update';
 			info: UpdateInfo;
 	  }
