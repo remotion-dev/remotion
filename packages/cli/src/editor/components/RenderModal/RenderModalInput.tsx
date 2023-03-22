@@ -1,4 +1,4 @@
-import type {AudioCodec, Codec} from '@remotion/renderer';
+import type {AudioCodec, Codec, StillImageFormat} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useMemo} from 'react';
 import {RemotionInput} from '../NewComposition/RemInput';
@@ -14,8 +14,8 @@ type Props<T extends Codec> = {
 	audioCodec: AudioCodec;
 	onValueChange: React.ChangeEventHandler<HTMLInputElement>;
 	renderDisabled: boolean;
-	preferLossless: boolean;
 	renderMode: RenderType;
+	stillImageFormat: StillImageFormat;
 };
 
 // eslint-disable-next-line react/function-component-definition
@@ -27,8 +27,8 @@ export function RenderModalInput<T extends Codec>({
 	codec,
 	audioCodec,
 	renderDisabled,
-	preferLossless,
 	renderMode,
+	stillImageFormat,
 }: Props<T>) {
 	const checkOutputName = useMemo(() => {
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
@@ -37,40 +37,83 @@ export function RenderModalInput<T extends Codec>({
 
 		const map = BrowserSafeApis.defaultFileExtensionMap[codec];
 
-		if (renderMode !== 'video') {
-			return;
-		}
-
-		if (!(audioCodec in map.forAudioCodec)) {
-			throw new Error(
-				`Audio codec ${audioCodec} is not supported for codec ${codec}`
-			);
-		}
-
-		const acceptableExtensions =
-			map.forAudioCodec[audioCodec as keyof typeof map.forAudioCodec].possible;
-
 		const hasInvalidChar = () => {
 			return prefix.split('').some((char) => invalidChars.includes(char));
 		};
 
-		try {
-			BrowserSafeApis.validateOutputFilename({
-				codec,
-				audioCodec: audioCodec ?? null,
-				extension,
-				preferLossless,
-			});
-		} catch (e) {
-			const errorMessage =
-				'Invalid file extension. Valid extensions are: ' + acceptableExtensions;
-			return (
-				<ValidationMessage
-					align="flex-end"
-					message={errorMessage}
-					type={'error'}
-				/>
-			);
+		if (renderMode === 'video') {
+			if (!(audioCodec in map.forAudioCodec)) {
+				throw new Error(
+					`Audio codec ${audioCodec} is not supported for codec ${codec}`
+				);
+			}
+
+			const acceptableExtensions =
+				map.forAudioCodec[audioCodec as keyof typeof map.forAudioCodec]
+					.possible;
+
+			try {
+				BrowserSafeApis.validateOutputFilename({
+					codec,
+					audioCodec: audioCodec ?? null,
+					extension,
+					preferLossless: false,
+				});
+			} catch (e) {
+				const errorMessage =
+					'Invalid file extension. Valid extensions are: ' +
+					acceptableExtensions;
+				return (
+					<ValidationMessage
+						align="flex-end"
+						message={errorMessage}
+						type={'error'}
+					/>
+				);
+			}
+		}
+
+		if (renderMode === 'audio') {
+			if (audioCodec === 'pcm-16') {
+				if (extension !== 'wav' && extension !== 'wave')
+					return (
+						<ValidationMessage
+							align="flex-end"
+							message={'Extension has to be .wav or .wave'}
+							type={'error'}
+						/>
+					);
+			} else if (extension !== audioCodec) {
+				return (
+					<ValidationMessage
+						align="flex-end"
+						message={'Extension has to be .' + audioCodec}
+						type={'error'}
+					/>
+				);
+			}
+		}
+
+		if (renderMode === 'still') {
+			if (stillImageFormat === 'jpeg') {
+				if (extension !== 'jpeg' && extension !== 'jpg') {
+					return (
+						<ValidationMessage
+							align="flex-end"
+							message={'Extension has to be .jpeg or .jpg'}
+							type={'error'}
+						/>
+					);
+				}
+			} else if (extension !== stillImageFormat) {
+				return (
+					<ValidationMessage
+						align="flex-end"
+						message={'Extension has to be .' + stillImageFormat}
+						type={'error'}
+					/>
+				);
+			}
 		}
 
 		if (existence) {
@@ -112,7 +155,7 @@ export function RenderModalInput<T extends Codec>({
 				/>
 			);
 		}
-	}, [audioCodec, codec, existence, outName, preferLossless, renderMode]);
+	}, [audioCodec, codec, existence, outName, renderMode, stillImageFormat]);
 
 	return (
 		<div style={optionRow}>

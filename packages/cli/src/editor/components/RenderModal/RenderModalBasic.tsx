@@ -1,4 +1,9 @@
-import type {AudioCodec, Codec, ProResProfile} from '@remotion/renderer';
+import type {
+	AudioCodec,
+	Codec,
+	ProResProfile,
+	StillImageFormat,
+} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
 import type {TComposition} from 'remotion';
@@ -37,7 +42,7 @@ export const RenderModalBasic: React.FC<{
 	endFrame: number;
 	setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	renderDisabled: boolean;
-	preferLossless: boolean;
+	stillImageFormat: StillImageFormat;
 }> = ({
 	renderMode,
 	imageFormatOptions,
@@ -56,7 +61,7 @@ export const RenderModalBasic: React.FC<{
 	setStartFrame,
 	startFrame,
 	renderDisabled,
-	preferLossless,
+	stillImageFormat,
 }) => {
 	const existence = useFileExistence(outName);
 	const videoCodecOptions = useMemo((): ComboboxValue[] => {
@@ -203,8 +208,8 @@ export const RenderModalBasic: React.FC<{
 				codec={codec}
 				audioCodec={audioCodec}
 				renderDisabled={renderDisabled}
-				preferLossless={preferLossless}
 				renderMode={renderMode}
+				stillImageFormat={stillImageFormat}
 			/>
 		</div>
 	);
