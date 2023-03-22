@@ -104,8 +104,7 @@ const container: React.CSSProperties = {
 };
 
 const scrollPanel: React.CSSProperties = {
-	minHeight: '35vh',
-	maxHeight: '50vh',
+	height: 600,
 	overflow: 'auto',
 	minWidth: 650,
 };
