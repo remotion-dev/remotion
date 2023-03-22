@@ -1,9 +1,4 @@
-import type {
-	AudioCodec,
-	Codec,
-	ProResProfile,
-	StillImageFormat,
-} from '@remotion/renderer';
+import type {Codec, ProResProfile} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
 import type {TComposition} from 'remotion';
@@ -28,7 +23,6 @@ export const RenderModalBasic: React.FC<{
 	renderMode: RenderType;
 	imageFormatOptions: SegmentedControlItem[];
 	codec: Codec;
-	audioCodec: AudioCodec;
 	setVideoCodec: (newCodec: Codec) => void;
 	outName: string;
 	proResProfile: ProResProfile | null;
@@ -41,14 +35,12 @@ export const RenderModalBasic: React.FC<{
 	startFrame: number;
 	endFrame: number;
 	setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
-	renderDisabled: boolean;
-	stillImageFormat: StillImageFormat;
+	validationMessage: string | null;
 }> = ({
 	renderMode,
 	imageFormatOptions,
 	outName,
 	codec,
-	audioCodec,
 	setVideoCodec: setCodec,
 	proResProfile,
 	setProResProfile,
@@ -60,8 +52,7 @@ export const RenderModalBasic: React.FC<{
 	endFrame,
 	setStartFrame,
 	startFrame,
-	renderDisabled,
-	stillImageFormat,
+	validationMessage,
 }) => {
 	const existence = useFileExistence(outName);
 	const videoCodecOptions = useMemo((): ComboboxValue[] => {
@@ -205,11 +196,7 @@ export const RenderModalBasic: React.FC<{
 				inputStyle={input}
 				outName={outName}
 				onValueChange={onValueChange}
-				codec={codec}
-				audioCodec={audioCodec}
-				renderDisabled={renderDisabled}
-				renderMode={renderMode}
-				stillImageFormat={stillImageFormat}
+				validationMessage={validationMessage}
 			/>
 		</div>
 	);

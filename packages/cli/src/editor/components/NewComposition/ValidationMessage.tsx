@@ -18,6 +18,7 @@ const style: React.CSSProperties = {
 
 const container: React.CSSProperties = {
 	marginTop: 5,
+	maxWidth: 500,
 };
 
 const label: React.CSSProperties = {
@@ -35,6 +36,7 @@ export const ValidationMessage: React.FC<{
 				<WarningTriangle
 					style={{
 						...style,
+						flexShrink: 0,
 						fill: type === 'warning' ? WARNING_COLOR : FAIL_COLOR,
 					}}
 				/>

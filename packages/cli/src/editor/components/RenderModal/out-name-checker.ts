@@ -8,16 +8,14 @@ const isValidStillExtension = (
 	extension: string,
 	stillImageFormat: StillImageFormat
 ): boolean => {
-	if (stillImageFormat === 'jpeg') {
-		if (extension === 'jpg') {
-			return true;
-		}
+	if (stillImageFormat === 'jpeg' && extension === 'jpg') {
+		return true;
 	}
 
 	return extension === stillImageFormat;
 };
 
-export const isValidOutName = ({
+export const validateOutnameGui = ({
 	outName,
 	codec,
 	audioCodec,
@@ -29,7 +27,34 @@ export const isValidOutName = ({
 	audioCodec: AudioCodec;
 	renderMode: RenderType;
 	stillImageFormat?: StillImageFormat;
-}): boolean => {
+}): {valid: true} | {valid: false; error: Error} => {
+	try {
+		isValidOutName({
+			audioCodec,
+			codec,
+			outName,
+			renderMode,
+			stillImageFormat,
+		});
+		return {valid: true};
+	} catch (err) {
+		return {valid: false, error: err as Error};
+	}
+};
+
+const isValidOutName = ({
+	outName,
+	codec,
+	audioCodec,
+	renderMode,
+	stillImageFormat,
+}: {
+	outName: string;
+	codec: Codec;
+	audioCodec: AudioCodec;
+	renderMode: RenderType;
+	stillImageFormat?: StillImageFormat;
+}): void => {
 	const extension = outName.substring(outName.lastIndexOf('.') + 1);
 	const prefix = outName.substring(0, outName.lastIndexOf('.'));
 
@@ -46,41 +71,51 @@ export const isValidOutName = ({
 	};
 
 	if (renderMode === 'video') {
-		try {
-			BrowserSafeApis.validateOutputFilename({
-				codec,
-				audioCodec: audioCodec ?? null,
-				extension,
-				preferLossless: false,
-			});
-		} catch (e) {
-			return false;
-		}
+		BrowserSafeApis.validateOutputFilename({
+			codec,
+			audioCodec: audioCodec ?? null,
+			extension,
+			preferLossless: false,
+		});
 	}
 
 	if (prefix.length < 1) {
-		return false;
+		throw new Error('The prefix must be at least 1 character long');
 	}
 
 	if (prefix[0] === '.') {
-		return false;
+		throw new Error('The output name must not start with a dot');
 	}
 
 	if (hasInvalidChar()) {
-		return false;
+		throw new Error(
+			"Filename can't contain the following characters:  ?, *, +, %, :"
+		);
 	}
 
-	if (renderMode === 'still' && stillImageFormat) {
-		return isValidStillExtension(extension, stillImageFormat);
+	if (
+		renderMode === 'still' &&
+		stillImageFormat &&
+		!isValidStillExtension(extension, stillImageFormat)
+	) {
+		throw new Error(
+			`The extension ${extension} is not supported for still image format ${stillImageFormat}`
+		);
 	}
 
 	if (renderMode === 'audio') {
 		if (audioCodec === 'pcm-16') {
-			return extension === 'wav' || extension === 'wave';
+			if (extension !== 'wav' && extension !== 'wave') {
+				throw new Error(
+					`The extension ${extension} is not supported for audio codec ${audioCodec}`
+				);
+			}
 		}
 
-		return audioCodec === extension;
+		if (audioCodec !== extension) {
+			throw new Error(
+				`The extension ${extension} is not supported for audio codec ${audioCodec}`
+			);
+		}
 	}
-
-	return true;
 };

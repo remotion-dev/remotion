@@ -158,6 +158,7 @@ export const InputDragger: React.FC<Props> = ({
 					min={_min}
 					step={_step}
 					defaultValue={value}
+					status="ok"
 					{...props}
 				/>
 			</HigherZIndex>

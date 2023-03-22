@@ -269,6 +269,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 										onChange={onNameChange}
 										type="text"
 										placeholder="Composition name"
+										status="ok"
 									/>
 									{compNameErrMessage ? (
 										<ValidationMessage

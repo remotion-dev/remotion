@@ -143,6 +143,7 @@ export const RenderModalAudio: React.FC<{
 								style={input}
 								value={customTargetAudioBitrate}
 								onChange={onTargetAudioBitrateChanged}
+								status="ok"
 							/>
 						</div>
 					</div>

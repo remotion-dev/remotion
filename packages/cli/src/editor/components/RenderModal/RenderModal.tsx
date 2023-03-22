@@ -36,7 +36,7 @@ import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
 import {Tab} from '../Tabs';
 import {useCrfState} from './CrfSetting';
-import {isValidOutName} from './out-name-checker';
+import {validateOutnameGui} from './out-name-checker';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
 import {RenderModalAudio} from './RenderModalAudio';
@@ -730,7 +730,7 @@ export const RenderModal: React.FC<{
 		];
 	}, [currentComposition?.durationInFrames, renderMode, setRenderMode]);
 
-	const renderDisabled = !isValidOutName({
+	const outnameValidation = validateOutnameGui({
 		outName,
 		codec,
 		audioCodec,
@@ -749,13 +749,13 @@ export const RenderModal: React.FC<{
 				<Button
 					autoFocus
 					onClick={renderMode === 'still' ? onClickStill : onClickVideo}
-					disabled={state.type === 'load' || renderDisabled}
+					disabled={state.type === 'load' || !outnameValidation.valid}
 					style={{
 						...buttonStyle,
-						backgroundColor: renderDisabled
-							? 'var(--blue-disabled)'
-							: 'var(--blue)',
-						opacity: renderDisabled ? 0.7 : 1,
+						backgroundColor: outnameValidation.valid
+							? 'var(--blue)'
+							: 'var(--blue-disabled)',
+						opacity: outnameValidation.valid ? 1 : 0.7,
 					}}
 				>
 					{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
@@ -843,9 +843,9 @@ export const RenderModal: React.FC<{
 							setEndFrame={setEndFrame}
 							setStartFrame={setStartFrame}
 							startFrame={startFrame}
-							audioCodec={audioCodec}
-							renderDisabled={renderDisabled}
-							stillImageFormat={stillImageFormat}
+							validationMessage={
+								outnameValidation.valid ? null : outnameValidation.error.message
+							}
 						/>
 					) : tab === 'picture' ? (
 						<RenderModalPicture
