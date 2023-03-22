@@ -46,8 +46,7 @@ export const InfoBubble: React.FC<{
 
 		const onMouseEnter = () => setIsHovered(true);
 		const onMouseLeave = () => setIsHovered(false);
-		const onPointerDown = (e: MouseEvent) => {
-			e.stopPropagation();
+		const onPointerUp = () => {
 			return setOpened((o) => {
 				if (!o) {
 					refresh?.();
@@ -71,13 +70,13 @@ export const InfoBubble: React.FC<{
 
 		current.addEventListener('mouseenter', onMouseEnter);
 		current.addEventListener('mouseleave', onMouseLeave);
-		current.addEventListener('pointerdown', onPointerDown);
+		current.addEventListener('pointerup', onPointerUp);
 		current.addEventListener('click', onClick);
 
 		return () => {
 			current.removeEventListener('mouseenter', onMouseEnter);
 			current.removeEventListener('mouseleave', onMouseLeave);
-			current.removeEventListener('pointerdown', onPointerDown);
+			current.removeEventListener('pointerup', onPointerUp);
 			current.removeEventListener('click', onClick);
 		};
 	}, [refresh]);
