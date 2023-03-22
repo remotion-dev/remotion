@@ -82,8 +82,13 @@ export const HigherZIndex: React.FC<{
 			window.addEventListener('pointerup', onUp, {once: true});
 		};
 
-		window.addEventListener('pointerdown', listener);
+		// If a menu is opened, then this component will also still receive the pointerdown event.
+		// However we may not interpret it as a outside click, so we need to wait for the next tick
+		requestAnimationFrame(() => {
+			window.addEventListener('pointerdown', listener);
+		});
 		return () => {
+			onUp = null;
 			if (onUp) {
 				// @ts-expect-error
 				window.removeEventListener('pointerup', onUp, {once: true});

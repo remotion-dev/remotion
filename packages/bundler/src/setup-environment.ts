@@ -22,4 +22,18 @@ Internals.CSSUtils.injectCSS(`
     font-size: 14px;
     color: #0584f2
   }
+
+  .__remotion-vertical-scrollbar::-webkit-scrollbar {
+      width: 6px;
+  }
+  
+  .__remotion-vertical-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.0);
+  }
+  .__remotion-vertical-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  .__remotion-vertical-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
 `);
