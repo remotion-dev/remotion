@@ -14,7 +14,6 @@ type Props<T extends Codec> = {
 	audioCodec: AudioCodec;
 	onValueChange: React.ChangeEventHandler<HTMLInputElement>;
 	renderDisabled: boolean;
-	setRenderDisabled: React.Dispatch<React.SetStateAction<boolean>>;
 	preferLossless: boolean;
 	renderMode: RenderType;
 };
@@ -27,13 +26,11 @@ export function RenderModalInput<T extends Codec>({
 	onValueChange,
 	codec,
 	audioCodec,
-	setRenderDisabled,
 	renderDisabled,
 	preferLossless,
 	renderMode,
 }: Props<T>) {
 	const checkOutputName = useMemo(() => {
-		setRenderDisabled(false);
 		const extension = outName.substring(outName.lastIndexOf('.') + 1);
 		const prefix = outName.substring(0, outName.lastIndexOf('.'));
 		const invalidChars = ['?', '*', '+', '%'];
@@ -65,7 +62,6 @@ export function RenderModalInput<T extends Codec>({
 				preferLossless,
 			});
 		} catch (e) {
-			setRenderDisabled(true);
 			const errorMessage =
 				'Invalid file extension. Valid extensions are: ' + acceptableExtensions;
 			return (
@@ -88,7 +84,6 @@ export function RenderModalInput<T extends Codec>({
 		}
 
 		if (prefix.length < 1) {
-			setRenderDisabled(true);
 			return (
 				<ValidationMessage
 					align="flex-end"
@@ -99,7 +94,6 @@ export function RenderModalInput<T extends Codec>({
 		}
 
 		if (prefix[0] === '.') {
-			setRenderDisabled(true);
 			return (
 				<ValidationMessage
 					align="flex-end"
@@ -110,7 +104,6 @@ export function RenderModalInput<T extends Codec>({
 		}
 
 		if (hasInvalidChar()) {
-			setRenderDisabled(true);
 			return (
 				<ValidationMessage
 					align="flex-end"
@@ -119,15 +112,7 @@ export function RenderModalInput<T extends Codec>({
 				/>
 			);
 		}
-	}, [
-		audioCodec,
-		codec,
-		existence,
-		outName,
-		preferLossless,
-		renderMode,
-		setRenderDisabled,
-	]);
+	}, [audioCodec, codec, existence, outName, preferLossless, renderMode]);
 
 	return (
 		<div style={optionRow}>

@@ -37,7 +37,6 @@ export const RenderModalBasic: React.FC<{
 	endFrame: number;
 	setStartFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	renderDisabled: boolean;
-	setRenderDisabled: React.Dispatch<React.SetStateAction<boolean>>;
 	preferLossless: boolean;
 }> = ({
 	renderMode,
@@ -56,7 +55,6 @@ export const RenderModalBasic: React.FC<{
 	endFrame,
 	setStartFrame,
 	startFrame,
-	setRenderDisabled,
 	renderDisabled,
 	preferLossless,
 }) => {
@@ -204,7 +202,6 @@ export const RenderModalBasic: React.FC<{
 				onValueChange={onValueChange}
 				codec={codec}
 				audioCodec={audioCodec}
-				setRenderDisabled={setRenderDisabled}
 				renderDisabled={renderDisabled}
 				preferLossless={preferLossless}
 				renderMode={renderMode}

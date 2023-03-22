@@ -36,6 +36,7 @@ import {SegmentedControl} from '../SegmentedControl';
 import {leftSidebarTabs} from '../SidebarContent';
 import {Tab} from '../Tabs';
 import {useCrfState} from './CrfSetting';
+import {isValidOutName} from './out-name-checker';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
 import {RenderModalAudio} from './RenderModalAudio';
@@ -238,8 +239,6 @@ export const RenderModal: React.FC<{
 		() => initialEnforceAudioTrack
 	);
 
-	const [renderDisabled, setRenderDisabled] = useState<boolean>(false);
-
 	const [renderMode, setRenderModeState] =
 		useState<RenderType>(initialRenderType);
 	const [quality, setQuality] = useState<number>(() => initialQuality);
@@ -253,6 +252,7 @@ export const RenderModal: React.FC<{
 	const [proResProfileSetting, setProResProfile] = useState<ProResProfile>(
 		() => initialProResProfile
 	);
+
 	const [pixelFormat, setPixelFormat] = useState<PixelFormat>(
 		() => initialPixelFormat
 	);
@@ -731,6 +731,14 @@ export const RenderModal: React.FC<{
 		];
 	}, [currentComposition?.durationInFrames, renderMode, setRenderMode]);
 
+	const renderDisabled = !isValidOutName(
+		outName,
+		codec,
+		audioCodec,
+		renderMode,
+		stillImageFormat
+	);
+
 	const {tab, setTab, shownTabs} = useRenderModalSections(renderMode, codec);
 
 	return (
@@ -837,7 +845,6 @@ export const RenderModal: React.FC<{
 							setStartFrame={setStartFrame}
 							startFrame={startFrame}
 							audioCodec={audioCodec}
-							setRenderDisabled={setRenderDisabled}
 							renderDisabled={renderDisabled}
 							preferLossless={false}
 						/>
