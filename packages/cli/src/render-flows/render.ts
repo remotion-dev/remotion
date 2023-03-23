@@ -309,12 +309,6 @@ export const renderVideoFlow = async ({
 		overwrite
 	);
 
-	const outputDir = shouldOutputImageSequence
-		? absoluteOutputFile
-		: await fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-render'));
-
-	Log.verboseAdvanced({indent, logLevel}, 'Output dir', outputDir);
-
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		config.durationInFrames,
 		frameRange
@@ -347,6 +341,14 @@ export const renderVideoFlow = async ({
 				`Cannot render an image sequence with a codec that renders no images. codec = ${codec}, imageFormat = ${imageFormat}`
 			);
 		}
+
+		const outputDir = shouldOutputImageSequence
+			? absoluteOutputFile
+			: await fs.promises.mkdtemp(
+					path.join(os.tmpdir(), 'react-motion-render')
+			  );
+
+		Log.verboseAdvanced({indent, logLevel}, 'Output dir', outputDir);
 
 		await renderFrames({
 			imageFormat,
