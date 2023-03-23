@@ -228,7 +228,6 @@ export const processJobIfPossible = async ({
 			};
 		});
 	} catch (err) {
-		// TODO: Tell to look in preview to find the error
 		Log.error(chalk.gray('╰─ '), chalk.red('Failed to render'));
 
 		updateJob(nextJob.id, (job) => {
