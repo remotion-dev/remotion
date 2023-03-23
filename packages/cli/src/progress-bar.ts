@@ -255,9 +255,12 @@ export const makeRenderingAndStitchingProgress = ({
 	const renderProgress = rendering
 		? rendering.frames / rendering.totalFrames
 		: 0;
+	const stitchingProgress = stitching
+		? stitching.frames / stitching.totalFrames
+		: 0;
 
-	// TODO: Factor in stitching progress
-	const progress = bundling.progress * 0.3 + renderProgress * 0.7;
+	const progress =
+		bundling.progress * 0.3 + renderProgress * 0.6 + stitchingProgress * 0.1;
 
 	return {output, progress, message: getGuiProgressSubtitle(prog)};
 };
