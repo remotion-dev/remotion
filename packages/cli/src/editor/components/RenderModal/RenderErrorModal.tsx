@@ -11,12 +11,12 @@ import {RenderQueueContext} from '../RenderQueue/context';
 
 const container: React.CSSProperties = {
 	padding: 20,
-	maxWidth: 1200,
+	maxWidth: 900,
 	paddingTop: 0,
 };
 
 const codeBlock: React.CSSProperties = {
-	backgroundColor: 'black',
+	backgroundColor: '#222',
 	whiteSpace: 'pre',
 	padding: 12,
 	borderRadius: 4,
@@ -79,7 +79,9 @@ export const RenderErrorModal: React.FC<{jobId: string}> = ({jobId}) => {
 				{job.status === 'failed' ? (
 					<>
 						<p>The render failed because of the following error:</p>
-						<div style={codeBlock}>{job.error.stack}</div>
+						<div className="__remotion-horizontal-scrollbar" style={codeBlock}>
+							{job.error.stack}
+						</div>
 					</>
 				) : null}
 				{job.status === 'done' || job.status === 'running' ? (
@@ -88,7 +90,7 @@ export const RenderErrorModal: React.FC<{jobId: string}> = ({jobId}) => {
 				<div style={spacer} />
 				<div style={buttonRow}>
 					{job.status === 'running' ? (
-						<Button onClick={onClickOnCancel}>Cancel</Button>
+						<Button onClick={onClickOnCancel}>Cancel render</Button>
 					) : (
 						<Button onClick={onClickOnRemove}>Remove render</Button>
 					)}
