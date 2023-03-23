@@ -28,7 +28,10 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	fullPath: string;
 	remotionRoot: string;
 	publicDir: string | null;
-	onProgress: (params: {progress: number; copying: CopyingState}) => void;
+	onProgress: (params: {
+		bundling: BundlingState;
+		copying: CopyingState;
+	}) => void;
 	indentOutput: boolean;
 	logLevel: LogLevel;
 	bundlingStep: number;
@@ -75,7 +78,7 @@ export const bundleOnCli = async ({
 	remotionRoot: string;
 	publicDir: string | null;
 	onProgressCallback: (params: {
-		progress: number;
+		bundling: BundlingState;
 		copying: CopyingState;
 	}) => void;
 	indent: boolean;
@@ -118,7 +121,7 @@ export const bundleOnCli = async ({
 			) + (newline ? '\n' : '')
 		);
 		onProgressCallback({
-			progress: bundlingState.progress,
+			bundling: bundlingState,
 			copying: copyingState,
 		});
 	};

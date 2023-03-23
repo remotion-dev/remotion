@@ -91,7 +91,6 @@ const handleFallback = async ({
 	response.writeHead(200);
 	const packageManager = getPackageManager(remotionRoot, undefined);
 	fetchFolder({publicDir, staticHash: hash});
-
 	response.end(
 		BundlerInternals.indexHtml({
 			staticHash: hash,
