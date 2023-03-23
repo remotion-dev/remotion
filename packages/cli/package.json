@@ -21,7 +21,8 @@
 	},
 	"exports": {
 		".": "./dist/index.js",
-		"./config": "./dist/config/index.js"
+		"./config": "./dist/config/index.js",
+		"./package.json": "./package.json"
 	},
 	"typesVersions": {
 		">=1.0": {
