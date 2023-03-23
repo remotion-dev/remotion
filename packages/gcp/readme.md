@@ -27,30 +27,33 @@ Navigate to the [Manage Resources](https://console.cloud.google.com/cloud-resour
 
 ### 2. Create a service account in the Google Cloud Console
 
-Navigate to the [Service Accounts](https://console.cloud.google.com/projectselector2/iam-admin/serviceaccounts/create) screen in Google Cloud Console, within IAM.
+Navigate to the [Service Accounts](https://console.cloud.google.com/projectselector2/iam-admin/serviceaccounts/create) screen in Google Cloud Console, within IAM & Admin.
 
 - Select the Cloud project created in the previous step.
 - Enter a service account name to display in the Google Cloud console.
 - The Google Cloud console generates a service account ID based on this name. Edit the ID if necessary. You cannot change the ID later.
 - Optional: Enter a description of the service account.
 - Click 'Create and continue' and continue to the next step.
-- Give the Service Account the Owner role. Note - this grants full admin rights and should be refined before the GCP option is live.  
-  ![Grant editor role to service account](readmeImages/createSA.png 'Grant editor role to service account')
+- Give the Service Account the Cloud Run Developer role.  
+  <img src="readmeImages/saCloudRunDeveloper.png" width="450" />
+- Give the Service Account the Cloud Storage - Storage Object Admin role.  
+  <img src="readmeImages/saStorageAdmin.png" width="450" />
 - Click Done to finish creating the service account.
 
 ### 3. Save Service Account credentials
 
-- Navigate to the [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) screen in Google Cloud Console, within IAM.
+Navigate to the [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) screen in Google Cloud Console, within IAM & Admin.
+
 - Select the Cloud project created in the previous step.
 - Click on the ellipsis under 'Actions', in the final column, and click 'Manage keys'.
 - On the next screen, click ADD KEY, and then Create new key.
 - select JSON, and click Create.
 - Save the JSON file to your computer, and open it.
 - Create/edit a .env file in the root of your Remotion project.
-  - Create a REMOTION_GCP_CLIENT_EMAIL key, and copy over the client_email value, _including the quotation marks_.
-  - Create a REMOTION_GCP_PRIVATE_KEY key, and copy over the private_key value, _including the quotation marks_.
+  - Create a REMOTION*GCP_CLIENT_EMAIL key, and copy over the client_email value, \_including the quotation marks*.
+  - Create a REMOTION*GCP_PRIVATE_KEY key, and copy over the private_key value, \_including the quotation marks*.
 
-### 3. Enable required APIs in the project
+### 4. Enable required APIs in the project
 
 - Enable the Cloud Run API. Navigate to the [Cloud Run API](https://console.cloud.google.com/apis/library/run.googleapis.com) screen in Google Cloud Console, and click ENABLE. Make sure the correct project is selected in the dropdown in the top left. This is required in order to use Cloud Run.
 
