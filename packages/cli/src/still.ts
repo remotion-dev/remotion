@@ -85,8 +85,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 			cancelSignal: null,
 		});
 	} finally {
-		// TODO: Check whether all temp files are cleaned up
-		// after this change
 		await Promise.all(jobCleanups.map((c) => c()));
 	}
 };
