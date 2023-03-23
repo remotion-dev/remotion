@@ -1,6 +1,7 @@
 import path from 'path';
 import {chalk} from '../../chalk';
 import {installFileWatcher} from '../../file-watcher';
+import {handleCommonError} from '../../handle-common-errors';
 import {Log} from '../../log';
 import type {AggregateRenderProgress} from '../../progress-types';
 import {initialAggregateRenderProgress} from '../../progress-types';
@@ -228,7 +229,7 @@ export const processJobIfPossible = async ({
 		});
 	} catch (err) {
 		// TODO: Tell to look in preview to find the error
-		Log.error(chalk.gray('╰─ Render failed:'), err);
+		Log.error(chalk.gray('╰─ '), chalk.red('Failed to render'));
 
 		updateJob(nextJob.id, (job) => {
 			return {
@@ -240,6 +241,8 @@ export const processJobIfPossible = async ({
 				},
 			};
 		});
+
+		await handleCommonError(err as Error);
 
 		waitForLiveEventsListener().then((listener) => {
 			listener.sendEventToClient({
