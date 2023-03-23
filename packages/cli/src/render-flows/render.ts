@@ -171,7 +171,7 @@ export const renderVideoFlow = async ({
 		shouldOutputImageSequence ? null : ('stitching' as const),
 	].filter(truthy);
 
-	const bundlingProgress: BundlingState = {
+	let bundlingProgress: BundlingState = {
 		doneIn: null,
 		progress: 0,
 	};
@@ -208,8 +208,8 @@ export const renderVideoFlow = async ({
 			fullPath: fullEntryPoint,
 			remotionRoot,
 			publicDir,
-			onProgress: ({progress, copying}) => {
-				bundlingProgress.progress = progress;
+			onProgress: ({bundling, copying}) => {
+				bundlingProgress = bundling;
 				copyingState = copying;
 				updateRenderProgress();
 			},

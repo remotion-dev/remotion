@@ -8,6 +8,7 @@ import {NewCompHeader} from '../ModalHeader';
 import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {cancelRenderJob, removeRenderJob} from '../RenderQueue/actions';
 import {RenderQueueContext} from '../RenderQueue/context';
+import {GuiRenderStatus} from './GuiRenderStatus';
 
 const container: React.CSSProperties = {
 	padding: 20,
@@ -85,7 +86,7 @@ export const RenderStatusModal: React.FC<{jobId: string}> = ({jobId}) => {
 					</>
 				) : null}
 				{job.status === 'done' || job.status === 'running' ? (
-					<>{JSON.stringify(job.progress, null, 2)}</>
+					<GuiRenderStatus progress={job.progress} />
 				) : null}
 				<div style={spacer} />
 				<div style={buttonRow}>

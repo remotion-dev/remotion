@@ -145,8 +145,8 @@ export const renderStillFlow = async ({
 			remotionRoot,
 			steps: steps.length,
 			publicDir,
-			onProgress: ({copying, progress}) => {
-				aggregate.bundling.progress = progress;
+			onProgress: ({copying, bundling}) => {
+				aggregate.bundling = bundling;
 				aggregate.copyingState = copying;
 				updateProgress();
 			},
