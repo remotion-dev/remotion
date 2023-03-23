@@ -1,4 +1,5 @@
 import type {Codec, StitchingState} from '@remotion/renderer';
+import type {BundlingState, CopyingState} from './progress-bar';
 import type {RenderStep} from './step';
 
 export type DownloadProgress = {
@@ -20,22 +21,17 @@ export type RenderingProgressInput = {
 export type StitchingProgressInput = {
 	frames: number;
 	totalFrames: number;
-	steps: RenderStep[];
 	doneIn: number | null;
 	stage: StitchingState;
 	codec: Codec;
-};
-
-export type BundlingProgress = {
-	progress: number;
-	message: string | null;
 };
 
 export type AggregateRenderProgress = {
 	rendering: RenderingProgressInput | null;
 	stitching: StitchingProgressInput | null;
 	downloads: DownloadProgress[];
-	bundling: BundlingProgress;
+	bundling: BundlingState;
+	copyingState: CopyingState;
 };
 
 export const initialAggregateRenderProgress = (): AggregateRenderProgress => ({
@@ -43,7 +39,11 @@ export const initialAggregateRenderProgress = (): AggregateRenderProgress => ({
 	downloads: [],
 	stitching: null,
 	bundling: {
-		message: null,
 		progress: 0,
+		doneIn: null,
+	},
+	copyingState: {
+		bytes: 0,
+		doneIn: null,
 	},
 });
