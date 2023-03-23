@@ -36,7 +36,7 @@ const buttonRow: React.CSSProperties = {
 	justifyContent: 'flex-end',
 };
 
-export const RenderErrorModal: React.FC<{jobId: string}> = ({jobId}) => {
+export const RenderStatusModal: React.FC<{jobId: string}> = ({jobId}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {jobs} = useContext(RenderQueueContext);
 	const job = jobs.find((j) => j.id === jobId);

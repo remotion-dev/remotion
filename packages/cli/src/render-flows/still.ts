@@ -25,10 +25,7 @@ import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {INDENT_TOKEN, Log} from '../log';
 import {parsedCli, quietFlagProvided} from '../parse-command-line';
-import type {
-	GuiStillProgress,
-	JobProgressCallback,
-} from '../preview-server/render-queue/job';
+import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {OverwriteableCliOutput} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,
@@ -95,7 +92,7 @@ export const renderStillFlow = async ({
 	compositionIdFromUi: string | null;
 	imageFormatFromUi: StillImageFormat | null;
 	logLevel: LogLevel;
-	onProgress: JobProgressCallback<GuiStillProgress>;
+	onProgress: JobProgressCallback;
 	indentOutput: boolean;
 	addCleanupCallback: (cb: () => void) => void;
 	cancelSignal: CancelSignal | null;

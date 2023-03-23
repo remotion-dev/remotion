@@ -3,8 +3,8 @@ import {PreviewServerConnectionCtx} from '../helpers/client-id';
 import {ModalsContext} from '../state/modals';
 import NewComposition from './NewComposition/NewComposition';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
-import {RenderErrorModal} from './RenderModal/RenderErrorModal';
 import {RenderModal} from './RenderModal/RenderModal';
+import {RenderStatusModal} from './RenderModal/RenderStatusModal';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
 export const Modals: React.FC = () => {
@@ -53,7 +53,7 @@ export const Modals: React.FC = () => {
 			{modalContextType &&
 				canRender &&
 				modalContextType.type === 'render-progress' && (
-					<RenderErrorModal jobId={modalContextType.jobId} />
+					<RenderStatusModal jobId={modalContextType.jobId} />
 				)}
 
 			{modalContextType && modalContextType.type === 'update' && (
