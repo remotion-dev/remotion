@@ -38,15 +38,17 @@ Navigate to the [Service Accounts](https://console.cloud.google.com/projectselec
   ![Grant editor role to service account](readmeImages/createSA.png 'Grant editor role to service account')
 - Click Done to finish creating the service account.
 
-### 3. Save a key for the Service Account
+### 3. Save Service Account credentials
 
 - Navigate to the [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) screen in Google Cloud Console, within IAM.
 - Select the Cloud project created in the previous step.
 - Click on the ellipsis under 'Actions', in the final column, and click 'Manage keys'.
 - On the next screen, click ADD KEY, and then Create new key.
 - select JSON, and click Create.
-- Save the JSON file to your computer, with the filename `sa-key.json`.
-- Place the key in the root of the Remotion project you wish to deploy to GCP. For now, this will have to be somewhere that `npx remotion gcp ...` is able to run, as this package is not deploy to npm yet.
+- Save the JSON file to your computer, and open it.
+- Create/edit a .env file in the root of your Remotion project.
+  - Create a REMOTION_GCP_CLIENT_EMAIL key, and copy over the client_email value, _including the quotation marks_.
+  - Create a REMOTION_GCP_PRIVATE_KEY key, and copy over the private_key value, _including the quotation marks_.
 
 ### 3. Enable required APIs in the project
 
