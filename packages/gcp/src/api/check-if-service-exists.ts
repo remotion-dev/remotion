@@ -1,11 +1,10 @@
 import type {protos} from '@google-cloud/run';
-import {v2} from '@google-cloud/run';
 import {CliInternals} from '@remotion/cli';
-import fs from 'fs';
 import {Log} from '../cli/log';
 import {validateGcpRegion} from '../shared/validate-gcp-region';
 import {validateProjectID} from '../shared/validate-project-id';
 import {validateServiceName} from '../shared/validate-service-name';
+import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
 export type CheckIfServiceExistsInput = {
 	serviceNameToCheck: string;
@@ -30,14 +29,8 @@ export const checkIfServiceExists = async (
 
 	const parent = `projects/${options.projectID}/locations/${options.region}`;
 
-	const {ServicesClient} = v2;
+	const cloudRunClient = getCloudRunClient();
 
-	const sa_data = fs.readFileSync('./sa-key.json', 'utf8');
-	const sa_json = JSON.parse(sa_data);
-
-	const runClient = new ServicesClient({
-		credentials: sa_json,
-	});
 	// Construct request
 	const request = {
 		parent,
@@ -45,7 +38,7 @@ export const checkIfServiceExists = async (
 
 	// Run request
 	try {
-		const iterable = runClient.listServicesAsync(request);
+		const iterable = cloudRunClient.listServicesAsync(request);
 		for await (const response of iterable) {
 			if (
 				response.name === `${parent}/services/${options.serviceNameToCheck}`
