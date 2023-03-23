@@ -1,13 +1,15 @@
-import React from 'react';
-import type {BaseRenderProgress} from '../../../preview-server/render-queue/job';
+import React, {useCallback, useMemo} from 'react';
+import type {RenderJob} from '../../../preview-server/render-queue/job';
 import type {
-	AggregateRenderProgress,
+	DownloadProgress,
 	RenderingProgressInput,
 	StitchingProgressInput,
 } from '../../../progress-types';
 import {LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';
+import {openInFileExplorer} from '../RenderQueue/actions';
 import {CircularProgress} from '../RenderQueue/CircularProgress';
+import {RenderQueueOpenInFinderItem} from '../RenderQueue/RenderQueueOpenInFolder';
 import {SuccessIcon} from '../RenderQueue/SuccessIcon';
 
 const progressItem: React.CSSProperties = {
@@ -26,8 +28,8 @@ const label: React.CSSProperties = {
 const right: React.CSSProperties = {
 	fontSize: 14,
 	color: LIGHT_TEXT,
-	width: 100,
 	textAlign: 'right',
+	flex: 1,
 };
 
 const BundlingProgress: React.FC<{
@@ -92,23 +94,96 @@ const StitchingProgress: React.FC<{
 	);
 };
 
+const DownloadsProgress: React.FC<{
+	downloads: DownloadProgress[];
+}> = ({downloads}) => {
+	const allHaveProgress = downloads.every((a) => a.totalBytes);
+	const totalBytes = allHaveProgress
+		? downloads.reduce((a, b) => a + (b.totalBytes as number), 0)
+		: null;
+	const downloaded = allHaveProgress
+		? downloads.reduce((a, b) => a + (b.downloaded as number), 0)
+		: null;
+
+	const progress = allHaveProgress
+		? (downloaded as number) / (totalBytes as number)
+		: 0.1;
+
+	return (
+		<div style={progressItem}>
+			{progress === 1 ? (
+				<SuccessIcon />
+			) : (
+				<CircularProgress progress={progress} />
+			)}
+			<Spacing x={1} />
+			<div style={label}>
+				Downloading {downloads.length} file{downloads.length === 1 ? '' : 's'}
+			</div>
+		</div>
+	);
+};
+
+const OpenFile: React.FC<{
+	job: RenderJob;
+}> = ({job}) => {
+	const labelStyle = useMemo(() => {
+		return {
+			...label,
+			textAlign: 'left' as const,
+			appearance: 'none' as const,
+			border: 0,
+			paddingLeft: 0,
+			cursor: job.deletedOutputLocation ? 'inherit' : 'pointer',
+			textDecoration: job.deletedOutputLocation ? 'line-through' : 'none',
+		};
+	}, [job.deletedOutputLocation]);
+
+	const onClick = useCallback(() => {
+		openInFileExplorer({directory: job.outName});
+	}, [job.outName]);
+
+	return (
+		<div style={progressItem}>
+			<SuccessIcon />
+			<Spacing x={1} />
+			<button style={labelStyle} type="button" onClick={onClick}>
+				{job.outName}
+			</button>
+			<div style={right}>
+				<RenderQueueOpenInFinderItem job={job} />
+			</div>
+		</div>
+	);
+};
+
 export const GuiRenderStatus: React.FC<{
-	progress: BaseRenderProgress & AggregateRenderProgress;
-}> = ({progress}) => {
+	job: RenderJob;
+}> = ({job}) => {
+	if (job.status === 'idle' || job.status === 'failed') {
+		throw new Error(
+			'This component should not be rendered when the job is idle'
+		);
+	}
+
 	return (
 		<div>
 			<Spacing y={0.5} />
 			<BundlingProgress
-				progress={progress.bundling.progress}
-				doneIn={progress.bundling.doneIn}
+				progress={job.progress.bundling.progress}
+				doneIn={job.progress.bundling.doneIn}
 			/>
-			{progress.rendering ? (
-				<RenderingProgress progress={progress.rendering} />
+			{job.progress.rendering ? (
+				<RenderingProgress progress={job.progress.rendering} />
 			) : null}
-			{progress.stitching ? (
-				<StitchingProgress progress={progress.stitching} />
+			{job.progress.stitching ? (
+				<StitchingProgress progress={job.progress.stitching} />
 			) : null}
-			<Spacing y={2} />
+			{job.progress.downloads.length > 0 ? (
+				<DownloadsProgress downloads={job.progress.downloads} />
+			) : null}
+			{job.status === 'done' ? <OpenFile job={job} /> : null}
+			<Spacing y={1} />
 		</div>
 	);
 };

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, {useCallback, useContext} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {FAIL_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {ModalsContext} from '../../state/modals';
 import {
 	CircularProgress,
 	RENDER_STATUS_INDICATOR_SIZE,
@@ -11,9 +12,26 @@ const iconStyle: React.CSSProperties = {
 	width: RENDER_STATUS_INDICATOR_SIZE,
 };
 
+const invisibleStyle: React.CSSProperties = {
+	appearance: 'none',
+	border: 'none',
+	padding: 0,
+	cursor: 'pointer',
+	display: 'flex',
+};
+
 export const RenderQueueItemStatus: React.FC<{
 	job: RenderJob;
 }> = ({job}) => {
+	const {setSelectedModal} = useContext(ModalsContext);
+
+	const openProgress = useCallback(() => {
+		setSelectedModal({
+			type: 'render-progress',
+			jobId: job.id,
+		});
+	}, [job.id, setSelectedModal]);
+
 	if (job.status === 'failed') {
 		return (
 			<div>
@@ -40,18 +58,24 @@ export const RenderQueueItemStatus: React.FC<{
 
 	if (job.status === 'done') {
 		return (
-			<svg style={iconStyle} viewBox="0 0 512 512">
-				<path
-					fill={LIGHT_TEXT}
-					d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512zM369 209L241 337l-17 17-17-17-64-64-17-17L160 222.1l17 17 47 47L335 175l17-17L385.9 192l-17 17z"
-				/>
-			</svg>
+			<button type="button" style={invisibleStyle} onClick={openProgress}>
+				<svg style={iconStyle} viewBox="0 0 512 512">
+					<path
+						fill={LIGHT_TEXT}
+						d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512zM369 209L241 337l-17 17-17-17-64-64-17-17L160 222.1l17 17 47 47L335 175l17-17L385.9 192l-17 17z"
+					/>
+				</svg>
+			</button>
 		);
 	}
 
 	if (job.status === 'running') {
 		// Add a minimum progress to avoid the progress bar from disappearing
-		return <CircularProgress progress={Math.max(0.07, job.progress.value)} />;
+		return (
+			<button type="button" style={invisibleStyle} onClick={openProgress}>
+				<CircularProgress progress={Math.max(0.07, job.progress.value)} />
+			</button>
+		);
 	}
 
 	throw new Error('Unknown job status');

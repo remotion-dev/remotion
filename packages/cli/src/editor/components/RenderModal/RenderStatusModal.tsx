@@ -86,7 +86,7 @@ export const RenderStatusModal: React.FC<{jobId: string}> = ({jobId}) => {
 					</>
 				) : null}
 				{job.status === 'done' || job.status === 'running' ? (
-					<GuiRenderStatus progress={job.progress} />
+					<GuiRenderStatus job={job} />
 				) : null}
 				<div style={spacer} />
 				<div style={buttonRow}>

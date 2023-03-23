@@ -1,19 +1,19 @@
-import React, {useCallback, useContext, useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
-import {ModalsContext} from '../../state/modals';
+import {sendErrorNotification} from '../Notifications/NotificationCenter';
+import {openInFileExplorer} from './actions';
 import {renderQueueItemSubtitleStyle} from './item-style';
 
 export const RenderQueueOutputName: React.FC<{
 	job: RenderJob;
 }> = ({job}) => {
-	const {setSelectedModal} = useContext(ModalsContext);
-
 	const onClick = useCallback(() => {
-		setSelectedModal({
-			type: 'render-progress',
-			jobId: job.id,
+		if (job.deletedOutputLocation) return;
+
+		openInFileExplorer({directory: job.outName}).catch((err) => {
+			sendErrorNotification(err.message);
 		});
-	}, [job, setSelectedModal]);
+	}, [job]);
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
