@@ -37,6 +37,5 @@ export const printError = async (err: Error) => {
 		return;
 	}
 
-	Log.error('An error occurred:');
 	Log.error(err.stack || err);
 };
