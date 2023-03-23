@@ -148,7 +148,6 @@ importers:
       '@types/semver': ^7.3.4
       '@typescript-eslint/eslint-plugin': 5.18.0
       '@typescript-eslint/parser': 5.18.0
-      better-opn: 2.1.1
       dotenv: 9.0.2
       eslint: 8.25.0
       eslint-plugin-10x: 1.5.2
@@ -156,6 +155,7 @@ importers:
       eslint-plugin-react-hooks: 4.4.0
       memfs: 3.4.3
       minimist: 1.2.6
+      open: ^8.4.2
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
       prompts: 2.4.1
@@ -171,10 +171,10 @@ importers:
       '@remotion/media-utils': link:../media-utils
       '@remotion/player': link:../player
       '@remotion/renderer': link:../renderer
-      better-opn: 2.1.1
       dotenv: 9.0.2
       memfs: 3.4.3
       minimist: 1.2.6
+      open: 8.4.2
       prompts: 2.4.1
       remotion: link:../core
       semver: 7.3.5
@@ -11276,13 +11276,6 @@ packages:
     resolution: {integrity: sha512-3pZEU3NT5BFUo/AD5ERPWOgQOCZITni6iavr5AUw5AUwQjMlI0kzu5btnyD39AF0gUEsDPwJT+oY1ORBJijPjQ==}
     dev: false
 
-  /better-opn/2.1.1:
-    resolution: {integrity: sha512-kIPXZS5qwyKiX/HcRvDYfmBQUa8XP17I0mYZZ0y4UhpYOSvtsLHDYqmomS+Mj20aDvD3knEiQ0ecQy2nhio3yA==}
-    engines: {node: '>8.0.0'}
-    dependencies:
-      open: 7.4.2
-    dev: false
-
   /bidi-js/1.0.2:
     resolution: {integrity: sha512-rzSy/k7WdX5zOyeHHCOixGXbCHkyogkxPKL2r8QtzHmVQDiWCXUWa18bLdMWT9CYMLOYTjWpTHawuev2ouYJVw==}
     dependencies:
@@ -19321,6 +19314,15 @@ packages:
 
   /open/8.4.0:
     resolution: {integrity: sha512-XgFPPM+B28FtCCgSb9I+s9szOC1vZRSwgWsRUA5ylIxRTgKozqjOCrVOqGsYABPYK5qnfqClxZTFBa8PKt2v6Q==}
+    engines: {node: '>=12'}
+    dependencies:
+      define-lazy-prop: 2.0.0
+      is-docker: 2.2.1
+      is-wsl: 2.2.0
+    dev: false
+
+  /open/8.4.2:
+    resolution: {integrity: sha512-7x81NCL719oNbsq/3mh+hVrAWmFuEYUqrq/Iw3kUzH8ReypT9QQ0BLoJS7/G9k6N81XjW4qHWtjWwe/9eLy1EQ==}
     engines: {node: '>=12'}
     dependencies:
       define-lazy-prop: 2.0.0

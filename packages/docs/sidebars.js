@@ -532,6 +532,9 @@ module.exports = {
         "miscellaneous/changing-temp-dir",
         "miscellaneous/automatic-duration",
         "miscellaneous/video-formats",
+        "miscellaneous/vercel-functions",
+        "miscellaneous/render-on-edge",
+        "compare/motion-canvas",
       ],
     },
     {
