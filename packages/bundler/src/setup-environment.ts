@@ -35,4 +35,17 @@ Internals.CSSUtils.injectCSS(`
   .__remotion-vertical-scrollbar:hover::-webkit-scrollbar-thumb:hover {
     background-color: rgba(0, 0, 0, 0.8);
   }
+
+  .__remotion-horizontal-scrollbar::-webkit-scrollbar {
+    height: 6px;
+  }
+  .__remotion-horizontal-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.0);
+  }
+  .__remotion-horizontal-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  .__remotion-horizontal-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
 `);
