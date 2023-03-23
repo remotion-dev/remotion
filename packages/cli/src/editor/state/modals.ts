@@ -8,7 +8,6 @@ import type {
 } from '@remotion/renderer';
 import type React from 'react';
 import {createContext} from 'react';
-import type {RenderJob} from '../../preview-server/render-queue/job';
 import type {QuickSwitcherMode} from '../components/QuickSwitcher/NoResults';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
 import type {UpdateInfo} from '../components/UpdateCheck';
@@ -49,10 +48,6 @@ export type ModalState =
 			compType: CompType;
 	  }
 	| RenderModalState
-	| {
-			type: 'render-error';
-			job: RenderJob;
-	  }
 	| {
 			type: 'render-progress';
 			jobId: string;
