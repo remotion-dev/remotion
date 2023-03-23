@@ -61,6 +61,8 @@ export type CommandLineOptions = {
 	['package-manager']: string;
 	['webpack-poll']: number;
 	['no-open']: boolean;
+	['browser']: string;
+	['browser-args']: string;
 };
 
 export const BooleanFlags = [

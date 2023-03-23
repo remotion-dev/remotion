@@ -1,6 +1,6 @@
-import betterOpn from 'better-opn';
 import crypto from 'crypto';
 import path from 'path';
+import {openBrowser} from './better-opn';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
@@ -31,7 +31,7 @@ const getShouldOpenBrowser = (): {
 		};
 	}
 
-	if (process.env.BROWSER === 'none') {
+	if ((process.env.BROWSER ?? '').toLowerCase() === 'none') {
 		return {
 			shouldOpenBrowser: false,
 			reasonForBrowserDecision: 'env BROWSER=none was set',
@@ -151,7 +151,11 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser();
 
 	if (shouldOpenBrowser) {
-		betterOpn(`http://localhost:${port}`);
+		await openBrowser({
+			url: `http://localhost:${port}`,
+			browserArgs: parsedCli['browser-args'],
+			browserFlag: parsedCli.browser,
+		});
 	} else {
 		Log.verbose(`Not opening browser, reason: ${reasonForBrowserDecision}`);
 	}
