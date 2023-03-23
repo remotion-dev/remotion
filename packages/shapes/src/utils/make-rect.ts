@@ -28,7 +28,7 @@ export const makeRect = ({
 	const instructions: Instruction[] = [
 		...joinPoints(
 			[
-				[0, 0],
+				[cornerRadius, 0],
 				[width, 0],
 				[width, height],
 				[0, height],
