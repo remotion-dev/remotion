@@ -1,13 +1,13 @@
 import React, {useCallback, useContext} from 'react';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
-import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {makeRetryPayload} from '../../../preview-server/render-queue/make-retry-payload';
 import {ModalsContext} from '../../state/modals';
 import {Flex, SPACING_UNIT} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import {notificationCenter} from '../Notifications/NotificationCenter';
-import {removeRenderJob} from '../RenderQueue/actions';
+import {sendErrorNotification} from '../Notifications/NotificationCenter';
+import {cancelRenderJob, removeRenderJob} from '../RenderQueue/actions';
+import {RenderQueueContext} from '../RenderQueue/context';
 
 const container: React.CSSProperties = {
 	padding: 20,
@@ -36,8 +36,13 @@ const buttonRow: React.CSSProperties = {
 	justifyContent: 'flex-end',
 };
 
-export const RenderErrorModal: React.FC<{job: RenderJob}> = ({job}) => {
+export const RenderErrorModal: React.FC<{jobId: string}> = ({jobId}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
+	const {jobs} = useContext(RenderQueueContext);
+	const job = jobs.find((j) => j.id === jobId);
+	if (!job) {
+		throw new Error('job not found');
+	}
 
 	const onQuit = useCallback(() => {
 		setSelectedModal(null);
@@ -51,17 +56,19 @@ export const RenderErrorModal: React.FC<{job: RenderJob}> = ({job}) => {
 	const onClickOnRemove = useCallback(() => {
 		setSelectedModal(null);
 		removeRenderJob(job).catch((err) => {
-			notificationCenter.current?.addNotification({
-				content: 'Failed to remove render job: ' + err.message,
-				created: Date.now(),
-				duration: 2000,
-				id: String(Math.random()),
-			});
+			sendErrorNotification(`Could not remove job: ${err.message}`);
 			console.log(err);
 		});
 	}, [job, setSelectedModal]);
 
-	if (job.status !== 'failed') {
+	const onClickOnCancel = useCallback(() => {
+		cancelRenderJob(job).catch((err) => {
+			sendErrorNotification(`Could not cancel job: ${err.message}`);
+			console.log(err);
+		});
+	}, [job]);
+
+	if (!job || job.status === 'idle') {
 		throw new Error('should not have rendered this modal');
 	}
 
@@ -69,13 +76,26 @@ export const RenderErrorModal: React.FC<{job: RenderJob}> = ({job}) => {
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${job.compositionId}`} />
 			<div style={container}>
-				<p>The render failed because of the following error:</p>
-				<div style={codeBlock}>{job.error.stack}</div>
+				{job.status === 'failed' ? (
+					<>
+						<p>The render failed because of the following error:</p>
+						<div style={codeBlock}>{job.error.stack}</div>
+					</>
+				) : null}
+				{job.status === 'done' || job.status === 'running' ? (
+					<>{JSON.stringify(job.progress, null, 2)}</>
+				) : null}
 				<div style={spacer} />
 				<div style={buttonRow}>
-					<Button onClick={onClickOnRemove}>Remove render</Button>
+					{job.status === 'running' ? (
+						<Button onClick={onClickOnCancel}>Cancel</Button>
+					) : (
+						<Button onClick={onClickOnRemove}>Remove render</Button>
+					)}
 					<Flex />
-					<Button onClick={onRetry}>Retry</Button>
+					{job.status === 'failed' ? (
+						<Button onClick={onRetry}>Retry</Button>
+					) : null}
 					<div style={spacer} />
 					<Button onClick={onQuit}>Close</Button>
 				</div>

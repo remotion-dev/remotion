@@ -5,7 +5,6 @@ import NewComposition from './NewComposition/NewComposition';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
 import {RenderErrorModal} from './RenderModal/RenderErrorModal';
 import {RenderModal} from './RenderModal/RenderModal';
-import {RenderProgressModal} from './RenderModal/RenderProgressModal';
 import {UpdateModal} from './UpdateModal/UpdateModal';
 
 export const Modals: React.FC = () => {
@@ -53,13 +52,8 @@ export const Modals: React.FC = () => {
 
 			{modalContextType &&
 				canRender &&
-				modalContextType.type === 'render-error' && (
-					<RenderErrorModal job={modalContextType.job} />
-				)}
-			{modalContextType &&
-				canRender &&
 				modalContextType.type === 'render-progress' && (
-					<RenderProgressModal jobId={modalContextType.jobId} />
+					<RenderErrorModal jobId={modalContextType.jobId} />
 				)}
 
 			{modalContextType && modalContextType.type === 'update' && (

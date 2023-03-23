@@ -16,10 +16,10 @@ export const RenderQueueError: React.FC<{
 
 	const onClick = useCallback(() => {
 		setSelectedModal({
-			type: 'render-error',
-			job,
+			type: 'render-progress',
+			jobId: job.id,
 		});
-	}, [job, setSelectedModal]);
+	}, [job.id, setSelectedModal]);
 
 	if (job.status !== 'failed') {
 		throw new Error('should not have rendered this component');
