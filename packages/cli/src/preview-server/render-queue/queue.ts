@@ -6,13 +6,7 @@ import {Log} from '../../log';
 import type {AggregateRenderProgress} from '../../progress-types';
 import {initialAggregateRenderProgress} from '../../progress-types';
 import {waitForLiveEventsListener} from '../live-events';
-import type {
-	GuiRenderProgress,
-	GuiStillProgress,
-	JobProgressCallback,
-	RenderJob,
-	RenderJobWithCleanup,
-} from './job';
+import type {JobProgressCallback, RenderJob, RenderJobWithCleanup} from './job';
 import {processStill} from './process-still';
 import {processVideoJob} from './process-video';
 
@@ -58,7 +52,7 @@ export const processJob = async ({
 	job: RenderJob;
 	remotionRoot: string;
 	entryPoint: string;
-	onProgress: JobProgressCallback<GuiRenderProgress | GuiStillProgress>;
+	onProgress: JobProgressCallback;
 	addCleanupCallback: (cb: () => void) => void;
 }) => {
 	if (job.type === 'still') {
@@ -176,7 +170,7 @@ export const processJobIfPossible = async ({
 						return {
 							...job,
 							status: 'running',
-							progress: progress as GuiStillProgress,
+							progress,
 						};
 					}
 
@@ -184,7 +178,7 @@ export const processJobIfPossible = async ({
 						return {
 							...job,
 							status: 'running',
-							progress: progress as GuiRenderProgress,
+							progress,
 						};
 					}
 

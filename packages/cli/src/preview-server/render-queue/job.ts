@@ -14,18 +14,14 @@ export type BaseRenderProgress = {
 	value: number;
 };
 
-export type GuiRenderProgress = BaseRenderProgress & AggregateRenderProgress;
-
-export type GuiStillProgress = BaseRenderProgress & AggregateRenderProgress;
-
-type RenderJobDynamicStatus<ProgressType extends BaseRenderProgress> =
+type RenderJobDynamicStatus =
 	| {
 			status: 'done';
-			progress: ProgressType;
+			progress: BaseRenderProgress & AggregateRenderProgress;
 	  }
 	| {
 			status: 'running';
-			progress: ProgressType;
+			progress: BaseRenderProgress & AggregateRenderProgress;
 	  }
 	| {
 			status: 'idle';
@@ -38,8 +34,8 @@ type RenderJobDynamicStatus<ProgressType extends BaseRenderProgress> =
 			};
 	  };
 
-export type JobProgressCallback<ProgressType extends BaseRenderProgress> = (
-	options: ProgressType
+export type JobProgressCallback = (
+	options: BaseRenderProgress & AggregateRenderProgress
 ) => void;
 
 type RenderJobDynamicFields =
@@ -49,7 +45,7 @@ type RenderJobDynamicFields =
 			quality: number | null;
 			frame: number;
 			scale: number;
-	  } & RenderJobDynamicStatus<GuiStillProgress>)
+	  } & RenderJobDynamicStatus)
 	| ({
 			type: 'video';
 			imageFormat: VideoImageFormat;
@@ -71,7 +67,7 @@ type RenderJobDynamicFields =
 			numberOfGifLoops: number | null;
 			delayRenderTimeout: number;
 			disallowParallelEncoding: boolean;
-	  } & RenderJobDynamicStatus<GuiRenderProgress>);
+	  } & RenderJobDynamicStatus);
 
 export type RenderJob = {
 	startedAt: number;

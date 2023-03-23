@@ -35,10 +35,7 @@ import {getFinalOutputCodec} from '../get-final-output-codec';
 import {getVideoImageFormat} from '../image-formats';
 import {INDENT_TOKEN, Log} from '../log';
 import {parsedCli} from '../parse-command-line';
-import type {
-	GuiRenderProgress,
-	JobProgressCallback,
-} from '../preview-server/render-queue/job';
+import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {BundlingState, CopyingState} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,
@@ -125,7 +122,7 @@ export const renderVideoFlow = async ({
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
 	quality: number | undefined;
-	onProgress: JobProgressCallback<GuiRenderProgress>;
+	onProgress: JobProgressCallback;
 	addCleanupCallback: (cb: () => void) => void;
 	crf: Crf | null;
 	cancelSignal: CancelSignal | null;
