@@ -105,11 +105,18 @@ export const renderStillFlow = async ({
 	const aggregate: AggregateRenderProgress = initialAggregateRenderProgress();
 	let renderProgress: OverwriteableCliOutput | null = null;
 
+	const steps: RenderStep[] = [
+		RenderInternals.isServeUrl(fullEntryPoint) ? null : ('bundling' as const),
+		'rendering' as const,
+	].filter(truthy);
+
 	const updateProgress = () => {
-		const {output, progress, message} = makeRenderingAndStitchingProgress(
-			aggregate,
-			indentOutput
-		);
+		const {output, progress, message} = makeRenderingAndStitchingProgress({
+			prog: aggregate,
+			indent: indentOutput,
+			steps: steps.length,
+			stitchingStep: steps.indexOf('stitching'),
+		});
 		if (renderProgress) {
 			renderProgress.update(output);
 		}
@@ -135,23 +142,20 @@ export const renderStillFlow = async ({
 		indentationString: indentOutput ? INDENT_TOKEN + ' ' : '',
 	});
 
-	const steps: RenderStep[] = [
-		RenderInternals.isServeUrl(fullEntryPoint) ? null : ('bundling' as const),
-		'rendering' as const,
-	].filter(truthy);
-
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
 		{
 			fullPath: fullEntryPoint,
 			remotionRoot,
-			steps,
+			steps: steps.length,
 			publicDir,
-			onProgress: (progress) => {
-				aggregate.bundling = progress;
+			onProgress: ({copying, progress}) => {
+				aggregate.bundling.progress = progress;
+				aggregate.copyingState = copying;
 				updateProgress();
 			},
 			indentOutput,
 			logLevel,
+			bundlingStep: steps.indexOf('bundling'),
 		}
 	);
 

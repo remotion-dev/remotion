@@ -182,10 +182,11 @@ export const benchmarkCommand = async (
 			fullPath: fullEntryPoint,
 			publicDir,
 			remotionRoot,
-			steps: ['bundling'],
 			onProgress: () => undefined,
 			indentOutput: false,
 			logLevel: ConfigInternals.Logging.getLogLevel(),
+			bundlingStep: 0,
+			steps: 1,
 		});
 
 	registerCleanupJob(() => cleanupBundle());

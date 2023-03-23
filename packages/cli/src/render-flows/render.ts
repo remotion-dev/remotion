@@ -39,13 +39,13 @@ import type {
 	GuiRenderProgress,
 	JobProgressCallback,
 } from '../preview-server/render-queue/job';
+import type {BundlingState, CopyingState} from '../progress-bar';
 import {
 	createOverwriteableCliOutput,
 	makeRenderingAndStitchingProgress,
 } from '../progress-bar';
 import type {
 	AggregateRenderProgress,
-	BundlingProgress,
 	DownloadProgress,
 	RenderingProgressInput,
 	StitchingProgressInput,
@@ -174,13 +174,17 @@ export const renderVideoFlow = async ({
 		shouldOutputImageSequence ? null : ('stitching' as const),
 	].filter(truthy);
 
-	const bundlingProgress: BundlingProgress = {
-		message: null,
+	const bundlingProgress: BundlingState = {
+		doneIn: null,
 		progress: 0,
 	};
 
 	let renderingProgress: RenderingProgressInput | null = null;
 	let stitchingProgress: StitchingProgressInput | null = null;
+	let copyingState: CopyingState = {
+		bytes: 0,
+		doneIn: null,
+	};
 
 	const updateRenderProgress = () => {
 		const aggregateRenderProgress: AggregateRenderProgress = {
@@ -188,12 +192,15 @@ export const renderVideoFlow = async ({
 			stitching: shouldOutputImageSequence ? null : stitchingProgress,
 			downloads,
 			bundling: bundlingProgress,
+			copyingState,
 		};
 
-		const {output, message, progress} = makeRenderingAndStitchingProgress(
-			aggregateRenderProgress,
-			indent
-		);
+		const {output, message, progress} = makeRenderingAndStitchingProgress({
+			prog: aggregateRenderProgress,
+			indent,
+			steps: steps.length,
+			stitchingStep: steps.indexOf('bundling'),
+		});
 		onProgress({message, value: progress, ...aggregateRenderProgress});
 
 		return renderProgress.update(output);
@@ -203,15 +210,16 @@ export const renderVideoFlow = async ({
 		{
 			fullPath: fullEntryPoint,
 			remotionRoot,
-			steps,
 			publicDir,
-			onProgress: ({message, progress}) => {
-				bundlingProgress.message = message;
+			onProgress: ({progress, copying}) => {
 				bundlingProgress.progress = progress;
+				copyingState = copying;
 				updateRenderProgress();
 			},
 			indentOutput: indent,
 			logLevel,
+			bundlingStep: steps.indexOf('bundling'),
+			steps: steps.length,
 		}
 	);
 
@@ -392,7 +400,6 @@ export const renderVideoFlow = async ({
 		doneIn: null,
 		frames: 0,
 		stage: 'encoding',
-		steps,
 		totalFrames: totalFrames.length,
 		codec,
 	};

@@ -50,11 +50,12 @@ export const listCompositionsCommand = async (
 		await bundleOnCliOrTakeServeUrl({
 			remotionRoot,
 			fullPath: file,
-			steps: ['bundling'],
 			publicDir,
 			onProgress: () => undefined,
 			indentOutput: false,
 			logLevel: ConfigInternals.Logging.getLogLevel(),
+			bundlingStep: 0,
+			steps: 1,
 		});
 
 	registerCleanupJob(() => cleanupBundle());

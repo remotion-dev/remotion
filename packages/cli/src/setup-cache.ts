@@ -14,24 +14,25 @@ import {
 	createOverwriteableCliOutput,
 	makeBundlingAndCopyProgress,
 } from './progress-bar';
-import type {RenderStep} from './step';
 
 export const bundleOnCliOrTakeServeUrl = async ({
 	fullPath,
 	remotionRoot,
-	steps,
 	publicDir,
 	onProgress,
 	indentOutput,
 	logLevel,
+	bundlingStep,
+	steps,
 }: {
 	fullPath: string;
 	remotionRoot: string;
-	steps: RenderStep[];
 	publicDir: string | null;
-	onProgress: (params: {progress: number; message: string}) => void;
+	onProgress: (params: {progress: number; copying: CopyingState}) => void;
 	indentOutput: boolean;
 	logLevel: LogLevel;
+	bundlingStep: number;
+	steps: number;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -46,11 +47,12 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	const bundled = await bundleOnCli({
 		fullPath,
 		remotionRoot,
-		steps,
 		publicDir,
 		onProgressCallback: onProgress,
 		indent: indentOutput,
 		logLevel,
+		bundlingStep,
+		steps,
 	});
 
 	return {
@@ -61,20 +63,25 @@ export const bundleOnCliOrTakeServeUrl = async ({
 
 export const bundleOnCli = async ({
 	fullPath,
-	steps,
 	remotionRoot,
 	publicDir,
 	onProgressCallback,
 	indent,
 	logLevel,
+	bundlingStep,
+	steps,
 }: {
 	fullPath: string;
-	steps: RenderStep[];
 	remotionRoot: string;
 	publicDir: string | null;
-	onProgressCallback: (params: {progress: number; message: string}) => void;
+	onProgressCallback: (params: {
+		progress: number;
+		copying: CopyingState;
+	}) => void;
 	indent: boolean;
 	logLevel: LogLevel;
+	bundlingStep: number;
+	steps: number;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -85,7 +92,6 @@ export const bundleOnCli = async ({
 	const onProgress = (progress: number) => {
 		bundlingState = {
 			progress: progress / 100,
-			steps,
 			doneIn: null,
 		};
 		updateProgress(false);
@@ -106,13 +112,14 @@ export const bundleOnCli = async ({
 					copying: copyingState,
 					symLinks: symlinkState,
 				},
-				indent
+				indent,
+				bundlingStep,
+				steps
 			) + (newline ? '\n' : '')
 		);
-		// TODO: Take copying into account
 		onProgressCallback({
 			progress: bundlingState.progress,
-			message: `Bundling (${Math.round(bundlingState.progress * 100)}%)`,
+			copying: copyingState,
 		});
 	};
 
@@ -179,7 +186,6 @@ export const bundleOnCli = async ({
 
 	let bundlingState: BundlingState = {
 		progress: 0,
-		steps,
 		doneIn: null,
 	};
 
@@ -188,7 +194,6 @@ export const bundleOnCli = async ({
 		onProgress: (progress) => {
 			bundlingState = {
 				progress: progress / 100,
-				steps,
 				doneIn: null,
 			};
 			updateProgress(false);
@@ -198,7 +203,6 @@ export const bundleOnCli = async ({
 
 	bundlingState = {
 		progress: 1,
-		steps,
 		doneIn: Date.now() - bundleStartTime,
 	};
 	copyingState = {
