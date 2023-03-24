@@ -1,6 +1,6 @@
 import {alias} from 'lib/alias';
 import React from 'react';
-import {Composition, Folder, getInputProps, Still} from 'remotion';
+import {Composition, Folder, getInputProps, Still, z} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
 import {CancelRender} from './CancelRender';
@@ -664,6 +664,21 @@ export const Index: React.FC = () => {
 					width={1200}
 					height={630}
 					fps={30}
+					schema={z.object({
+						vehicle: z.string(),
+						other: z.string(),
+						abc: z.object({
+							xyz: z.string(),
+							jkl: z.string(),
+							def: z.object({
+								xyz: z.string(),
+							}),
+						}),
+					})}
+					defaultProps={{
+						vehicle: 'caa',
+						other: 'hi',
+					}}
 					durationInFrames={150}
 				/>
 			</Folder>
