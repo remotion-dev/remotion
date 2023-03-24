@@ -16,7 +16,9 @@ const codeSnippet: React.CSSProperties = {
 
 export const SchemaEditor: React.FC<{
 	schema: z.ZodTypeAny;
-}> = ({schema}) => {
+	value: unknown;
+	setValue: (value: unknown) => void;
+}> = ({schema, value, setValue}) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
@@ -33,7 +35,14 @@ export const SchemaEditor: React.FC<{
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodObject) {
-		return <ZodObjectEditor jsonPath={[]} schema={schema} />;
+		return (
+			<ZodObjectEditor
+				value={value}
+				setValue={setValue}
+				jsonPath={[]}
+				schema={schema}
+			/>
+		);
 	}
 
 	return null;
