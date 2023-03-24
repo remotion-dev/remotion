@@ -16,9 +16,8 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {z} from 'remotion';
+import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
-import type {TComposition} from 'remotion/src/internals';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {AudioIcon} from '../../icons/audio';
@@ -352,7 +351,7 @@ export const RenderModal: React.FC<{
 
 	const {compositions} = useContext(Internals.CompositionManager);
 
-	const currentComposition = useMemo((): TComposition<z.ZodTypeAny> | null => {
+	const currentComposition = useMemo((): AnyComposition | null => {
 		for (const composition of compositions) {
 			if (composition.id === compositionId) {
 				return composition;

@@ -24,16 +24,22 @@ export type TComposition<T extends z.ZodTypeAny> = {
 	nonce: number;
 };
 
+export type AnyComposition = TComposition<z.ZodTypeAny>;
+
 export type TCompMetadata<T extends z.ZodTypeAny> = Pick<
 	TComposition<T>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
 >;
+
+export type AnyCompMetadata = TCompMetadata<z.ZodTypeAny>;
 
 export type SmallTCompMetadata<T extends z.ZodTypeAny> = Pick<
 	TComposition<T>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
 > &
 	Partial<Pick<TComposition<T>, 'defaultProps'>>;
+
+export type AnySmallCompMetadata = SmallTCompMetadata<z.ZodTypeAny>;
 
 type EnhancedTSequenceData =
 	| {
@@ -84,12 +90,12 @@ export type TAsset = {
 };
 
 type BaseMetadata = Pick<
-	TCompMetadata<z.ZodTypeAny>,
+	AnyCompMetadata,
 	'durationInFrames' | 'fps' | 'defaultProps' | 'height' | 'width'
 >;
 
 export type CompositionManagerContext = {
-	compositions: TComposition<z.ZodTypeAny>[];
+	compositions: AnyComposition[];
 	registerComposition: <T extends z.ZodTypeAny>(comp: TComposition<T>) => void;
 	unregisterComposition: (name: string) => void;
 	registerFolder: (name: string, parent: string | null) => void;
@@ -136,8 +142,7 @@ export const CompositionManagerProvider: React.FC<{
 	// Wontfix, expected to have
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<TComposition<any>[]>([]);
-	const currentcompositionsRef =
-		useRef<TComposition<z.ZodTypeAny>[]>(compositions);
+	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
 		null
 	);

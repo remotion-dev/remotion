@@ -1,9 +1,9 @@
-import type {TComposition, z} from 'remotion';
+import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 
 export const validateCompositionName = (
 	compName: string,
-	compositions: TComposition<z.ZodTypeAny>[]
+	compositions: AnyComposition[]
 ): string | null => {
 	if (!Internals.isCompositionIdValid(compName)) {
 		return Internals.invalidCompositionErrorMessage;

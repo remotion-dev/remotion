@@ -2,7 +2,7 @@ import type {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import type {SmallTCompMetadata, z} from 'remotion';
+import type {AnySmallCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -67,7 +67,7 @@ export type RenderMediaOnProgress = (progress: {
 export type RenderMediaOptions = {
 	outputLocation?: string | null;
 	codec: Codec;
-	composition: SmallTCompMetadata<z.ZodTypeAny>;
+	composition: AnySmallCompMetadata;
 	inputProps?: unknown;
 	crf?: number | null;
 	imageFormat?: VideoImageFormat;

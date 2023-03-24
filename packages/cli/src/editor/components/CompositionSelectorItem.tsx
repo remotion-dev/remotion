@@ -1,6 +1,6 @@
 import type {MouseEventHandler} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
-import type {TComposition, z} from 'remotion';
+import type {AnyComposition} from 'remotion';
 import {
 	BACKGROUND,
 	CLEAR_HOVER,
@@ -54,7 +54,7 @@ export type CompositionSelectorItemType =
 	| {
 			key: string;
 			type: 'composition';
-			composition: TComposition<z.ZodTypeAny>;
+			composition: AnyComposition;
 	  }
 	| {
 			key: string;
@@ -69,7 +69,7 @@ export const CompositionSelectorItem: React.FC<{
 	item: CompositionSelectorItemType;
 	currentComposition: string | null;
 	tabIndex: number;
-	selectComposition: (c: TComposition<z.ZodTypeAny>, push: boolean) => void;
+	selectComposition: (c: AnyComposition, push: boolean) => void;
 	toggleFolder: (folderName: string, parentName: string | null) => void;
 	level: number;
 }> = ({

@@ -1,4 +1,4 @@
-import type {TCompMetadata, z} from 'remotion';
+import type {AnyCompMetadata} from 'remotion';
 import type {DownloadMap} from './assets/download-map';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
@@ -35,7 +35,7 @@ const innerGetCompositions = async (
 	page: Page,
 	config: GetCompositionsConfig,
 	proxyPort: number
-): Promise<TCompMetadata<z.ZodTypeAny>[]> => {
+): Promise<AnyCompMetadata[]> => {
 	if (config?.onBrowserLog) {
 		page.on('console', (log) => {
 			config.onBrowserLog?.({
@@ -82,7 +82,7 @@ const innerGetCompositions = async (
 		args: [],
 	});
 
-	return result as TCompMetadata<z.ZodTypeAny>[];
+	return result as AnyCompMetadata[];
 };
 
 /**
@@ -101,7 +101,7 @@ export const getCompositions = async (
 		chromiumOptions: config?.chromiumOptions ?? {},
 	});
 
-	return new Promise<TCompMetadata<z.ZodTypeAny>[]>((resolve, reject) => {
+	return new Promise<AnyCompMetadata[]>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 		const cleanupPageError = handleJavascriptException({
 			page,
@@ -129,7 +129,7 @@ export const getCompositions = async (
 				);
 			})
 
-			.then((comp): Promise<[TCompMetadata<z.ZodTypeAny>[], unknown]> => {
+			.then((comp): Promise<[AnyCompMetadata[], unknown]> => {
 				if (close) {
 					return Promise.all([comp, close(true)]);
 				}
