@@ -11,6 +11,7 @@ import type {
 	OpenInFileExplorerRequest,
 	RenderJob,
 } from '../../../preview-server/render-queue/job';
+import type {RequiredChromiumOptions} from '../../../required-chromium-options';
 
 export const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
@@ -52,6 +53,7 @@ export const addStillRenderJob = ({
 	frame,
 	scale,
 	verbose,
+	chromiumOptions,
 }: {
 	compositionId: string;
 	outName: string;
@@ -60,6 +62,7 @@ export const addStillRenderJob = ({
 	frame: number;
 	scale: number;
 	verbose: boolean;
+	chromiumOptions: RequiredChromiumOptions;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -70,6 +73,7 @@ export const addStillRenderJob = ({
 		frame,
 		scale,
 		verbose,
+		chromiumOptions,
 	});
 };
 
@@ -96,6 +100,7 @@ export const addVideoRenderJob = ({
 	delayRenderTimeout,
 	audioCodec,
 	disallowParallelEncoding,
+	chromiumOptions,
 }: {
 	compositionId: string;
 	outName: string;
@@ -119,6 +124,7 @@ export const addVideoRenderJob = ({
 	delayRenderTimeout: number;
 	audioCodec: AudioCodec;
 	disallowParallelEncoding: boolean;
+	chromiumOptions: RequiredChromiumOptions;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -144,6 +150,7 @@ export const addVideoRenderJob = ({
 		delayRenderTimeout,
 		audioCodec,
 		disallowParallelEncoding,
+		chromiumOptions,
 	});
 };
 

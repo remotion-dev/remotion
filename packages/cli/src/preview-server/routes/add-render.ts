@@ -44,6 +44,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				numberOfGifLoops: input.numberOfGifLoops,
 				delayRenderTimeout: input.delayRenderTimeout,
 				disallowParallelEncoding: input.disallowParallelEncoding,
+				chromiumOptions: input.chromiumOptions,
 			},
 		});
 	}
@@ -65,6 +66,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				deletedOutputLocation: false,
 				verbose: input.verbose,
 				cancelToken: makeCancelSignal(),
+				chromiumOptions: input.chromiumOptions,
 			},
 			entryPoint,
 			remotionRoot,
