@@ -47,7 +47,7 @@ export const ZodNumberEditor: React.FC<{
 			<div style={fullWidth}>
 				<RemotionInput
 					value={localValue.value}
-					status="ok"
+					status={localValue.zodValidation.success ? 'ok' : 'error'}
 					type={'number'}
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
