@@ -1,7 +1,6 @@
-import type {z} from 'zod';
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
-import type {TAsset, TCompMetadata} from './CompositionManager.js';
+import type {AnyCompMetadata, TAsset} from './CompositionManager.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
@@ -12,7 +11,7 @@ declare global {
 	interface Window {
 		ready: boolean;
 		remotion_cancelledError: string | undefined;
-		getStaticCompositions: () => TCompMetadata<z.ZodTypeAny>[];
+		getStaticCompositions: () => AnyCompMetadata[];
 		setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
@@ -65,6 +64,9 @@ export * from './audio/index.js';
 export {cancelRender} from './cancel-render.js';
 export * from './Composition.js';
 export {
+	AnyCompMetadata,
+	AnyComposition,
+	AnySmallCompMetadata,
 	SmallTCompMetadata,
 	TAsset,
 	TCompMetadata,

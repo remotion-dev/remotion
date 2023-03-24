@@ -1,6 +1,6 @@
-import type {TComposition, z} from 'remotion';
+import type {AnyComposition} from 'remotion';
 
-export const isCompositionStill = (comp: TComposition<z.ZodTypeAny> | null) => {
+export const isCompositionStill = (comp: AnyComposition | null) => {
 	if (!comp) {
 		return false;
 	}

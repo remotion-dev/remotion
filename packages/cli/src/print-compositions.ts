@@ -1,4 +1,4 @@
-import type {TCompMetadata, z} from 'remotion';
+import type {AnyCompMetadata} from 'remotion';
 import {Log} from './log';
 import {quietFlagProvided} from './parse-command-line';
 
@@ -18,9 +18,7 @@ const max = (arr: number[]) => {
 	return biggest;
 };
 
-export const printCompositions = (
-	compositions: TCompMetadata<z.ZodTypeAny>[]
-) => {
+export const printCompositions = (compositions: AnyCompMetadata[]) => {
 	if (!quietFlagProvided()) {
 		Log.info();
 		Log.info('The following compositions are available:');

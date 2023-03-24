@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import type {TCompMetadata, z} from 'remotion';
+import type {AnyCompMetadata} from 'remotion';
 import {getBundleMode} from '../bundle-mode';
 import {setBundleModeAndUpdate} from '../renderEntry';
 
@@ -24,9 +24,7 @@ const pre: React.CSSProperties = {
 };
 
 const AvailableCompositions: React.FC = () => {
-	const [comps, setComps] = useState<TCompMetadata<z.ZodTypeAny>[] | null>(
-		null
-	);
+	const [comps, setComps] = useState<AnyCompMetadata[] | null>(null);
 
 	useEffect(() => {
 		if (getBundleMode().type !== 'evaluation') {

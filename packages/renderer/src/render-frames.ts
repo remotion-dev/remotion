@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {performance} from 'perf_hooks';
-import type {SmallTCompMetadata, TAsset, z} from 'remotion';
+import type {AnySmallCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -74,7 +74,7 @@ type RenderFramesOptions = {
 	scale?: number;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
-	composition: SmallTCompMetadata<z.ZodTypeAny>;
+	composition: AnySmallCompMetadata;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
@@ -114,7 +114,7 @@ const innerRenderFrames = ({
 	onError: (err: Error) => void;
 	pagesArray: Page[];
 	serveUrl: string;
-	composition: SmallTCompMetadata<z.ZodTypeAny>;
+	composition: AnySmallCompMetadata;
 	actualConcurrency: number;
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;

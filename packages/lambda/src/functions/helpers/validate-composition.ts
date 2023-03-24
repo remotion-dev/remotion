@@ -4,7 +4,7 @@ import type {
 	openBrowser,
 } from '@remotion/renderer';
 import {getCompositions} from '@remotion/renderer';
-import type {TCompMetadata} from 'remotion';
+import type {AnyCompMetadata} from 'remotion';
 import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
@@ -34,7 +34,7 @@ export const validateComposition = async ({
 	downloadMap,
 	forceHeight,
 	forceWidth,
-}: ValidateCompositionOptions): Promise<TCompMetadata> => {
+}: ValidateCompositionOptions): Promise<AnyCompMetadata> => {
 	const compositions = await getCompositions(serveUrl, {
 		puppeteerInstance: browserInstance,
 		inputProps: inputProps as object,

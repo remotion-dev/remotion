@@ -1,6 +1,6 @@
 import fs, {statSync} from 'fs';
 import path from 'path';
-import type {SmallTCompMetadata, z} from 'remotion';
+import type {AnySmallCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -31,7 +31,7 @@ import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 
 type InnerStillOptions = {
-	composition: SmallTCompMetadata<z.ZodTypeAny>;
+	composition: AnySmallCompMetadata;
 	output?: string | null;
 	frame?: number;
 	inputProps?: unknown;
