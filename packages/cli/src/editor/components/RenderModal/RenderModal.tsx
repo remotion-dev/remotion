@@ -784,7 +784,6 @@ export const RenderModal: React.FC<{
 						backgroundColor: outnameValidation.valid
 							? 'var(--blue)'
 							: 'var(--blue-disabled)',
-						opacity: outnameValidation.valid ? 1 : 0.7,
 					}}
 				>
 					{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
@@ -813,7 +812,7 @@ export const RenderModal: React.FC<{
 							<div style={iconContainer}>
 								<DataIcon style={icon} />
 							</div>
-							Data
+							Input Props
 						</Tab>
 					) : null}
 					{shownTabs.includes('picture') ? (

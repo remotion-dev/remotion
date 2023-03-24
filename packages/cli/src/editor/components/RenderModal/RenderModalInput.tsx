@@ -1,4 +1,5 @@
 import React from 'react';
+import {Spacing} from '../layout';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {label, optionRow, rightRow} from './layout';
@@ -42,17 +43,23 @@ export function RenderModalInput({
 						onChange={onValueChange}
 					/>
 					{validationMessage ? (
-						<ValidationMessage
-							align="flex-end"
-							message={validationMessage}
-							type={'error'}
-						/>
+						<>
+							<Spacing y={1} block />
+							<ValidationMessage
+								align="flex-end"
+								message={validationMessage}
+								type={'error'}
+							/>
+						</>
 					) : existence ? (
-						<ValidationMessage
-							align="flex-end"
-							message="Will be overwritten"
-							type={'warning'}
-						/>
+						<>
+							<Spacing y={1} block />
+							<ValidationMessage
+								align="flex-end"
+								message="Will be overwritten"
+								type={'warning'}
+							/>
+						</>
 					) : null}
 				</div>
 			</div>
