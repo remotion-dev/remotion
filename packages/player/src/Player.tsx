@@ -66,8 +66,8 @@ export type PlayerProps<Schema extends z.ZodTypeAny, Props> = {
 	renderFullscreenButton?: RenderFullscreenButton;
 	alwaysShowControls?: boolean;
 	schema?: Schema;
-} & PropsIfHasProps<Schema, Props> &
-	CompProps<Props>;
+} & CompProps<Props> &
+	PropsIfHasProps<Schema, Props>;
 
 export const componentOrNullIfLazy = <Props,>(
 	props: CompProps<Props>

@@ -40,7 +40,7 @@ export type StillProps<Schema extends z.ZodTypeAny, Props> = {
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
-type CompositionProps<Schema extends z.ZodTypeAny, Props> = StillProps<
+export type CompositionProps<Schema extends z.ZodTypeAny, Props> = StillProps<
 	Schema,
 	Props
 > & {
@@ -75,7 +75,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 		useContext(CompositionManager);
 	const video = useVideo();
 
-	const lazy = useLazyComponent(compProps);
+	const lazy = useLazyComponent<Props>(compProps as CompProps<Props>);
 	const nonce = useNonce();
 	const environment = useRemotionEnvironment();
 
@@ -121,7 +121,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 			id,
 			folderName,
 			component: lazy,
-			defaultProps,
+			defaultProps: defaultProps as z.infer<Schema> & Props,
 			nonce,
 			parentFolderName: parentName,
 		});
