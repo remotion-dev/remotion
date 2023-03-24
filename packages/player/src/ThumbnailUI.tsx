@@ -6,6 +6,7 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
+import type {z} from 'remotion';
 import {Internals} from 'remotion';
 import {
 	calculateCanvasTransformation,
@@ -125,8 +126,9 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 				{VideoComponent ? (
 					<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 						<VideoComponent
-							{...((video?.defaultProps as unknown as {}) ?? {})}
-							{...((inputProps as unknown as {}) ?? {})}
+							{...((video?.defaultProps as unknown as z.infer<z.ZodTypeAny>) ??
+								{})}
+							{...((inputProps as unknown as z.infer<z.ZodTypeAny>) ?? {})}
 						/>
 					</ErrorBoundary>
 				) : null}

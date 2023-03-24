@@ -11,7 +11,7 @@ import {
 	useRef,
 	useState,
 } from 'react';
-import type {CompProps, TimelineContextValue} from 'remotion';
+import type {CompProps, TimelineContextValue, z} from 'remotion';
 import {Internals, random} from 'remotion';
 import {ThumbnailEmitterContext} from './emitter-context.js';
 import {ThumbnailEmitter} from './event-emitter.js';
@@ -21,21 +21,20 @@ import {SharedPlayerContexts} from './SharedPlayerContext.js';
 import ThumbnailUI from './ThumbnailUI.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
-type ThumbnailProps<T> = PropsIfHasProps<T> &
+type ThumbnailProps<T extends z.ZodTypeAny> = PropsIfHasProps<T> &
 	CompProps<T> & {
 		frameToDisplay: number;
 		style?: CSSProperties;
 		durationInFrames: number;
 		compositionWidth: number;
 		compositionHeight: number;
-		inputProps?: unknown;
 		fps: number;
 		errorFallback?: ErrorFallback;
 		renderLoading?: RenderLoading;
 		className?: string;
 	};
 
-export const ThumbnailFn = <T,>(
+export const ThumbnailFn = <T extends z.ZodTypeAny>(
 	{
 		frameToDisplay,
 		style,
@@ -74,7 +73,7 @@ export const ThumbnailFn = <T,>(
 
 	const Component = Internals.useLazyComponent(
 		componentProps
-	) as LazyExoticComponent<ComponentType<T>>;
+	) as LazyExoticComponent<ComponentType<unknown>>;
 
 	const [emitter] = useState(() => new ThumbnailEmitter());
 
