@@ -5,7 +5,7 @@ import type {render, unmountComponentAtNode} from 'react-dom';
 // We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
-import type {BundleState, TCompMetadata, TComposition} from 'remotion';
+import type {BundleState, TCompMetadata, TComposition, z} from 'remotion';
 import {continueRender, delayRender, Internals, VERSION} from 'remotion';
 import {getBundleMode, setBundleMode} from './bundle-mode';
 import {Homepage} from './homepage/homepage';
@@ -47,7 +47,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		if (!video && compositions.compositions.length > 0) {
 			const foundComposition = compositions.compositions.find(
 				(c) => c.id === state.compositionName
-			) as TComposition;
+			) as TComposition<z.ZodTypeAny>;
 			if (!foundComposition) {
 				throw new Error(
 					'Found no composition with the name ' + state.compositionName
@@ -220,7 +220,7 @@ export const setBundleModeAndUpdate = (state: BundleState) => {
 };
 
 if (typeof window !== 'undefined') {
-	window.getStaticCompositions = (): TCompMetadata[] => {
+	window.getStaticCompositions = (): TCompMetadata<z.ZodTypeAny>[] => {
 		if (!Internals.getRoot()) {
 			throw new Error(
 				'registerRoot() was never called. 1. Make sure you specified the correct entrypoint for your bundle. 2. If your registerRoot() call is deferred, use the delayRender/continueRender pattern to tell Remotion to wait.'
@@ -255,7 +255,7 @@ if (typeof window !== 'undefined') {
 			);
 		}
 
-		return compositions.map((c): TCompMetadata => {
+		return compositions.map((c): TCompMetadata<z.ZodTypeAny> => {
 			return {
 				defaultProps: c.defaultProps,
 				durationInFrames: c.durationInFrames,

@@ -1,3 +1,4 @@
+import type {z} from 'zod';
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
 import type {TAsset, TCompMetadata} from './CompositionManager.js';
@@ -11,7 +12,7 @@ declare global {
 	interface Window {
 		ready: boolean;
 		remotion_cancelledError: string | undefined;
-		getStaticCompositions: () => TCompMetadata[];
+		getStaticCompositions: () => TCompMetadata<z.ZodTypeAny>[];
 		setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];

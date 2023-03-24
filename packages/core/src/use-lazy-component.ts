@@ -4,6 +4,7 @@ import type {
 	ExoticComponent,
 } from 'react';
 import React, {useMemo} from 'react';
+import type {z} from 'zod';
 import type {CompProps} from './internals.js';
 
 type LazyExoticComponent<T extends ComponentType<any>> = ExoticComponent<
@@ -13,7 +14,7 @@ type LazyExoticComponent<T extends ComponentType<any>> = ExoticComponent<
 };
 
 // Expected, it can be any component props
-export const useLazyComponent = <T>(
+export const useLazyComponent = <T extends z.ZodTypeAny>(
 	compProps: CompProps<T>
 ): LazyExoticComponent<ComponentType<T>> => {
 	const lazy = useMemo(() => {

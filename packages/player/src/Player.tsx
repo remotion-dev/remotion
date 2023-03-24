@@ -13,6 +13,7 @@ import type {
 	PlayableMediaTag,
 	SetTimelineContextValue,
 	TimelineContextValue,
+	z,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
@@ -33,7 +34,7 @@ import {validatePlaybackRate} from './utils/validate-playbackrate.js';
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
-export type PlayerProps<T> = {
+export type PlayerProps<T extends z.ZodTypeAny> = {
 	durationInFrames: number;
 	compositionWidth: number;
 	compositionHeight: number;
@@ -64,10 +65,11 @@ export type PlayerProps<T> = {
 	renderPlayPauseButton?: RenderPlayPauseButton;
 	renderFullscreenButton?: RenderFullscreenButton;
 	alwaysShowControls?: boolean;
+	schema?: T;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
-export const componentOrNullIfLazy = <T,>(
+export const componentOrNullIfLazy = <T extends z.ZodTypeAny>(
 	props: CompProps<T>
 ): ComponentType<T> | null => {
 	if ('component' in props) {
@@ -77,7 +79,7 @@ export const componentOrNullIfLazy = <T,>(
 	return null;
 };
 
-const PlayerFn = <T,>(
+const PlayerFn = <T extends z.ZodTypeAny>(
 	{
 		durationInFrames,
 		compositionHeight,

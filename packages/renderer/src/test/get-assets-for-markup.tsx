@@ -11,7 +11,7 @@ import React, {
 	useState,
 } from 'react';
 import {act} from 'react-dom/test-utils';
-import type {CompositionManagerContext, TAsset} from 'remotion';
+import type {CompositionManagerContext, TAsset, z} from 'remotion';
 import {Internals} from 'remotion';
 
 // @ts-expect-error
@@ -82,7 +82,7 @@ export const getAssetsForMarkup = async (
 						id: 'markup',
 						component: React.lazy(() =>
 							Promise.resolve({
-								default: Markup as ComponentType<unknown>,
+								default: Markup as ComponentType<z.ZodTypeAny>,
 							})
 						),
 						nonce: 0,

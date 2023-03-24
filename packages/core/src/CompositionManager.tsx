@@ -8,9 +8,10 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {z} from 'zod';
 import type {TFolder} from './Folder.js';
 
-export type TComposition<T = unknown> = {
+export type TComposition<T extends z.ZodTypeAny> = {
 	width: number;
 	height: number;
 	fps: number;
@@ -19,20 +20,20 @@ export type TComposition<T = unknown> = {
 	folderName: string | null;
 	parentFolderName: string | null;
 	component: LazyExoticComponent<ComponentType<T>>;
-	defaultProps: T | undefined;
+	defaultProps: z.infer<T> | undefined;
 	nonce: number;
 };
 
-export type TCompMetadata = Pick<
-	TComposition,
+export type TCompMetadata<T extends z.ZodTypeAny> = Pick<
+	TComposition<T>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
 >;
 
-export type SmallTCompMetadata = Pick<
-	TComposition,
+export type SmallTCompMetadata<T extends z.ZodTypeAny> = Pick<
+	TComposition<T>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
 > &
-	Partial<Pick<TComposition, 'defaultProps'>>;
+	Partial<Pick<TComposition<T>, 'defaultProps'>>;
 
 type EnhancedTSequenceData =
 	| {
@@ -83,13 +84,13 @@ export type TAsset = {
 };
 
 type BaseMetadata = Pick<
-	TCompMetadata,
+	TCompMetadata<z.ZodTypeAny>,
 	'durationInFrames' | 'fps' | 'defaultProps' | 'height' | 'width'
 >;
 
 export type CompositionManagerContext = {
-	compositions: TComposition[];
-	registerComposition: <T>(comp: TComposition<T>) => void;
+	compositions: TComposition<z.ZodTypeAny>[];
+	registerComposition: <T extends z.ZodTypeAny>(comp: TComposition<T>) => void;
 	unregisterComposition: (name: string) => void;
 	registerFolder: (name: string, parent: string | null) => void;
 	unregisterFolder: (name: string, parent: string | null) => void;
@@ -126,7 +127,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 });
 
 export const compositionsRef = React.createRef<{
-	getCompositions: () => TCompMetadata[];
+	getCompositions: () => TCompMetadata<z.ZodTypeAny>[];
 }>();
 
 export const CompositionManagerProvider: React.FC<{
@@ -135,7 +136,8 @@ export const CompositionManagerProvider: React.FC<{
 	// Wontfix, expected to have
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<TComposition<any>[]>([]);
-	const currentcompositionsRef = useRef<TComposition<unknown>[]>(compositions);
+	const currentcompositionsRef =
+		useRef<TComposition<z.ZodTypeAny>[]>(compositions);
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
 		null
 	);
@@ -160,7 +162,7 @@ export const CompositionManagerProvider: React.FC<{
 	);
 
 	const registerComposition = useCallback(
-		<T,>(comp: TComposition<T>) => {
+		<T extends z.ZodTypeAny>(comp: TComposition<T>) => {
 			updateCompositions((comps) => {
 				if (comps.find((c) => c.id === comp.id)) {
 					throw new Error(
