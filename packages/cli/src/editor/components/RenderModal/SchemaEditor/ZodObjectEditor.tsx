@@ -31,7 +31,9 @@ const fieldsetLabel: React.CSSProperties = {
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
-}> = ({schema, jsonPath}) => {
+	value: unknown;
+	setValue: (value: unknown) => void;
+}> = ({schema, jsonPath, setValue, value}) => {
 	const def = schema._def;
 
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
@@ -63,6 +65,13 @@ export const ZodObjectEditor: React.FC<{
 									key={key}
 									jsonPath={[...jsonPath, key]}
 									schema={shape[key]}
+									value={(value as Record<string, string>)[key]}
+									setValue={(val) => {
+										setValue({
+											...(value as Record<string, string>),
+											[key]: val,
+										});
+									}}
 								/>
 							);
 						})}

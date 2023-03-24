@@ -191,6 +191,10 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={180 * 30}
+					defaultProps={{
+						opacity: 1,
+						volume: 0.4,
+					}}
 				/>
 				<Composition
 					id="tiles"
@@ -383,6 +387,10 @@ export const Index: React.FC = () => {
 					// Change the duration of the video dynamically by passing
 					// `--props='{"duration": 100}'`
 					durationInFrames={inputProps?.duration ?? 20}
+					defaultProps={{
+						codec: 'mp4' as const,
+						offthread: false,
+					}}
 				/>
 				<Composition
 					id="nested"
@@ -678,6 +686,13 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						vehicle: 'caa',
 						other: 'hi',
+						abc: {
+							def: {
+								xyz: 'hu',
+							},
+							jkl: 'sting',
+							xyz: 'hi',
+						},
 					}}
 					durationInFrames={150}
 				/>

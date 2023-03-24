@@ -51,7 +51,11 @@ export const RenderModalData: React.FC<{
 			</div>
 			<Spacing y={2} block />
 			{mode === 'schema' ? (
-				<SchemaEditor schema={composition.schema} />
+				<SchemaEditor
+					value={inputProps}
+					setValue={setInputProps}
+					schema={composition.schema}
+				/>
 			) : (
 				<RenderModalJSONInputPropsEditor
 					value={inputProps ?? {}}
