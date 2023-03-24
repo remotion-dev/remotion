@@ -7,12 +7,18 @@ export type PropsIfHasProps<
 	? {} extends Props
 		? {
 				// Neither props nor schema specified
-				defaultProps?: z.infer<Schema> & Props;
+				defaultProps?: Props;
 		  }
 		: {
 				// Only props specified
 				defaultProps: Props;
 		  }
+	: {} extends Props
+	? {
+			// Only schema specified
+			defaultProps: z.infer<Schema>;
+	  }
 	: {
+			// Props and schema specified
 			defaultProps: z.infer<Schema> & Props;
 	  };
