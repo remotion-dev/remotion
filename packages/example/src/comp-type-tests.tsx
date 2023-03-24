@@ -73,3 +73,14 @@ const CompWithNoProps: React.FC = () => {
 };
 
 <Still component={CompWithNoProps} height={1080} width={1080} id="no-props" />;
+
+// @ts-expect-error Should be a type error since we leave out the defaultProps
+<Still
+	component={CompWithNoProps}
+	height={1080}
+	width={1080}
+	id="no-props-but-schema"
+	schema={z.object({
+		a: z.string(),
+	})}
+/>;
