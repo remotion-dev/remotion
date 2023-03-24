@@ -9,5 +9,6 @@
     "jsx": "react",
     "target": "ES2019",
     "moduleResolution": "node"
-  }
+  },
+  "references": [{ "path": "../player" }]
 }
