@@ -1,5 +1,6 @@
 import type {ComponentType} from 'react';
 import React from 'react';
+import {z} from 'remotion';
 import {expect, test} from 'vitest';
 import {createFolderTree} from '../editor/helpers/create-folder-tree';
 
@@ -22,6 +23,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 				nonce: 0,
 				width: 1080,
 				parentFolderName: null,
+				schema: z.any(),
 			},
 			{
 				component,
@@ -34,6 +36,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 				nonce: 0,
 				width: 1080,
 				parentFolderName: null,
+				schema: z.any(),
 			},
 		],
 		[
@@ -104,6 +107,7 @@ test('Should handle nested folders well', () => {
 				nonce: 0,
 				width: 1080,
 				parentFolderName: 'my-third-folder/my-second-folder',
+				schema: z.any(),
 			},
 		],
 		[

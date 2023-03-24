@@ -1,7 +1,7 @@
 import type {ComponentType, PropsWithChildren} from 'react';
 import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
-import type {z} from 'zod';
+import {z} from 'zod';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks.js';
 import {CompositionManager} from './CompositionManager.js';
@@ -124,6 +124,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 			defaultProps: defaultProps as z.infer<Schema> & Props,
 			nonce,
 			parentFolderName: parentName,
+			schema: schema ?? (z.any() as unknown as Schema),
 		});
 
 		return () => {
@@ -142,6 +143,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 		width,
 		nonce,
 		parentName,
+		schema,
 	]);
 
 	if (environment === 'preview' && video && video.component === lazy) {
