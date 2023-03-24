@@ -1,4 +1,4 @@
-import type {TCompMetadata} from 'remotion';
+import type {TCompMetadata, z} from 'remotion';
 import {getCompositionId} from './get-composition-id';
 
 export const getCompositionWithDimensionOverride = async ({
@@ -8,7 +8,7 @@ export const getCompositionWithDimensionOverride = async ({
 	args,
 	compositionIdFromUi,
 }: {
-	validCompositions: TCompMetadata[];
+	validCompositions: TCompMetadata<z.ZodTypeAny>[];
 	height: number | null;
 	width: number | null;
 	args: string[];
@@ -16,7 +16,7 @@ export const getCompositionWithDimensionOverride = async ({
 }): Promise<{
 	compositionId: string;
 	reason: string;
-	config: TCompMetadata;
+	config: TCompMetadata<z.ZodTypeAny>;
 	argsAfterComposition: string[];
 }> => {
 	const returnValue = await getCompositionId({

@@ -1,11 +1,12 @@
 import type {ComponentType} from 'react';
 import React from 'react';
+import type {z} from 'remotion';
 import {expect, test} from 'vitest';
 import {createFolderTree} from '../editor/helpers/create-folder-tree';
 
 const SampleComp: React.FC<{}> = () => null;
 const component = React.lazy(() =>
-	Promise.resolve({default: SampleComp as ComponentType<unknown>})
+	Promise.resolve({default: SampleComp as ComponentType<z.ZodTypeAny>})
 );
 
 test('Should create a good folder tree with 1 item inside and 1 item outside', () => {

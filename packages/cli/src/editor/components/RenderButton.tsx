@@ -7,7 +7,7 @@ import type {
 } from '@remotion/renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
-import type {TCompMetadata} from 'remotion';
+import type {TCompMetadata, z} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
 import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-video-contexts';
 import {RenderIcon} from '../icons/render';
@@ -15,7 +15,7 @@ import {ModalsContext} from '../state/modals';
 import {InlineAction} from './InlineAction';
 
 export const RenderButton: React.FC<{
-	composition: TCompMetadata;
+	composition: TCompMetadata<z.ZodTypeAny>;
 	visible: boolean;
 }> = ({composition, visible}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
