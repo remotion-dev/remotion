@@ -203,6 +203,7 @@ test('passing in <Composition /> instance should not be possible', () => {
 				compositionHeight={400}
 				fps={30}
 				durationInFrames={500}
+				// @ts-expect-error
 				component={Composition}
 				controls
 				schema={z.object({
