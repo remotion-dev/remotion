@@ -20,9 +20,10 @@ const controlContainer: React.CSSProperties = {
 
 export const RenderModalData: React.FC<{
 	composition: AnyComposition;
-}> = ({composition}) => {
+	inputProps: unknown;
+	setInputProps: React.Dispatch<unknown>;
+}> = ({composition, inputProps, setInputProps}) => {
 	const [mode, setMode] = useState<Mode>('json');
-	const [inputProps, setInputProps] = useState(() => composition.defaultProps);
 
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [

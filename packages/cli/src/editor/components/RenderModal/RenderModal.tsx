@@ -386,6 +386,10 @@ export const RenderModal: React.FC<{
 		throw new Error('This composition does not exist');
 	}
 
+	const [inputProps, setInputProps] = useState(
+		() => currentComposition.defaultProps
+	);
+
 	const endFrame = useMemo((): number => {
 		if (endFrameOrNull === null) {
 			return currentComposition.durationInFrames - 1;
@@ -939,7 +943,11 @@ export const RenderModal: React.FC<{
 							setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
 						/>
 					) : tab === 'data' ? (
-						<RenderModalData composition={currentComposition} />
+						<RenderModalData
+							inputProps={inputProps}
+							setInputProps={setInputProps}
+							composition={currentComposition}
+						/>
 					) : (
 						<RenderModalAdvanced
 							concurrency={concurrency}
