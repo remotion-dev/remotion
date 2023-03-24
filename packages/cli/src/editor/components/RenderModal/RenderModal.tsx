@@ -864,7 +864,7 @@ export const RenderModal: React.FC<{
 						</Tab>
 					) : null}
 				</div>
-				<div style={scrollPanel}>
+				<div style={scrollPanel} className="__remotion-vertical-scrollbar">
 					<Spacing block y={0.5} />
 					{tab === 'general' ? (
 						<RenderModalBasic

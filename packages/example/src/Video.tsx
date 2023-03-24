@@ -673,7 +673,9 @@ export const Index: React.FC = () => {
 					height={630}
 					fps={30}
 					schema={z.object({
-						vehicle: z.string(),
+						vehicle: z
+							.string()
+							.refine((v) => ['caa', 'bus', 'truck'].includes(v)),
 						other: z.string(),
 						abc: z.object({
 							xyz: z.string(),
@@ -683,7 +685,7 @@ export const Index: React.FC = () => {
 								pef: z.string(),
 							}),
 						}),
-						array: z.array(z.string()),
+						array: z.array(z.number()),
 					})}
 					defaultProps={{
 						vehicle: 'caa',
@@ -696,7 +698,7 @@ export const Index: React.FC = () => {
 							jkl: 'sting',
 							xyz: 'hi',
 						},
-						array: ['hi', 'hi', 'hi'],
+						array: [3, 3, 3],
 					}}
 					durationInFrames={150}
 				/>
