@@ -233,6 +233,10 @@ export const RenderModal: React.FC<{
 	const [userSelectedAudioCodec, setUserSelectedAudioCodec] =
 		useState<AudioCodec | null>(() => initialAudioCodec);
 
+	// TODO: Use set instead of array
+	const [envVariables, setEnvVariables] = useState<[[string, string]] | null>(
+		null
+	);
 	const [videoCodecForAudioTab, setVideoCodecForAudioTab] = useState<Codec>(
 		() => initialVideoCodecForAudioTab
 	);
@@ -945,6 +949,8 @@ export const RenderModal: React.FC<{
 							disableWebSecurity={disableWebSecurity}
 							openGlOption={openGlOption}
 							setOpenGlOption={setOpenGlOption}
+							setEnvVariables={setEnvVariables}
+							envVariables={envVariables}
 						/>
 					)}
 
