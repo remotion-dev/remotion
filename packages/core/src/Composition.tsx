@@ -14,6 +14,7 @@ import {Loading} from './loading-indicator.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
+import type {PropsIfHasProps} from './props-if-has-props.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
@@ -35,8 +36,9 @@ export type StillProps<Schema extends z.ZodTypeAny, Props> = {
 	width: number;
 	height: number;
 	id: string;
-	defaultProps?: z.infer<Schema> & Props;
-} & CompProps<Props>;
+	schema?: Schema;
+} & CompProps<Props> &
+	PropsIfHasProps<Schema, Props>;
 
 type CompositionProps<Schema extends z.ZodTypeAny, Props> = StillProps<
 	Schema,
@@ -44,7 +46,6 @@ type CompositionProps<Schema extends z.ZodTypeAny, Props> = StillProps<
 > & {
 	fps: number;
 	durationInFrames: number;
-	schema?: Schema;
 };
 
 const Fallback: React.FC = () => {
@@ -60,7 +61,7 @@ const Fallback: React.FC = () => {
  * @see [Documentation](https://www.remotion.dev/docs/composition)
  */
 
-export const Composition = <Schema extends z.ZodType, Props>({
+export const Composition = <Schema extends z.ZodTypeAny, Props>({
 	width,
 	height,
 	fps,

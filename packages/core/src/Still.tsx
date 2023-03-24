@@ -7,7 +7,7 @@ import {Composition} from './Composition.js';
  * @see [Documentation](https://www.remotion.dev/docs/still)
  */
 
-export const Still = <T extends z.ZodType, Props>(
+export const Still = <T extends z.ZodTypeAny, Props>(
 	props: StillProps<T, Props>
 ) => {
 	return <Composition fps={1} durationInFrames={1} {...props} />;

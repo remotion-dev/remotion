@@ -10,8 +10,9 @@ import React, {
 } from 'react';
 import type {z} from 'zod';
 import type {TFolder} from './Folder.js';
+import type {PropsIfHasProps} from './props-if-has-props.js';
 
-export type TComposition<T extends z.ZodTypeAny, Props> = {
+export type TComposition<Schema extends z.ZodTypeAny, Props> = {
 	width: number;
 	height: number;
 	fps: number;
@@ -20,9 +21,8 @@ export type TComposition<T extends z.ZodTypeAny, Props> = {
 	folderName: string | null;
 	parentFolderName: string | null;
 	component: LazyExoticComponent<ComponentType<Props>>;
-	defaultProps: (z.infer<T> & Props) | undefined;
 	nonce: number;
-};
+} & PropsIfHasProps<Schema, Props>;
 
 export type AnyComposition = TComposition<z.ZodTypeAny, unknown>;
 
@@ -96,8 +96,8 @@ type BaseMetadata = Pick<
 
 export type CompositionManagerContext = {
 	compositions: AnyComposition[];
-	registerComposition: <T extends z.ZodTypeAny, Props>(
-		comp: TComposition<T, Props>
+	registerComposition: <Schema extends z.ZodTypeAny, Props>(
+		comp: TComposition<Schema, Props>
 	) => void;
 	unregisterComposition: (name: string) => void;
 	registerFolder: (name: string, parent: string | null) => void;
