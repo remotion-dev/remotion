@@ -1,6 +1,7 @@
 import React from 'react';
 import {z} from 'remotion';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT} from '../../../helpers/colors';
+import {ZodObjectEditor} from './ZodObjectEditor';
 
 const errorExplanation: React.CSSProperties = {
 	fontSize: 14,
@@ -29,6 +30,10 @@ export const SchemaEditor: React.FC<{
 				<code style={codeSnippet}>{'<Composition>'}</code> component.
 			</div>
 		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodObject) {
+		return <ZodObjectEditor jsonPath={[]} schema={schema} />;
 	}
 
 	return null;

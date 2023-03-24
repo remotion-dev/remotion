@@ -5,7 +5,7 @@ import {Spacing} from '../layout';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor';
-import {SchemaEditor} from './SchemaEditor';
+import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 
 type Mode = 'json' | 'schema';
 
