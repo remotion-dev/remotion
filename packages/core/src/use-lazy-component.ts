@@ -4,7 +4,6 @@ import type {
 	ExoticComponent,
 } from 'react';
 import React, {useMemo} from 'react';
-import type {z} from 'zod';
 import type {CompProps} from './internals.js';
 
 type LazyExoticComponent<T extends ComponentType<any>> = ExoticComponent<
@@ -14,14 +13,14 @@ type LazyExoticComponent<T extends ComponentType<any>> = ExoticComponent<
 };
 
 // Expected, it can be any component props
-export const useLazyComponent = <T extends z.ZodTypeAny>(
-	compProps: CompProps<T>
-): LazyExoticComponent<ComponentType<T>> => {
+export const useLazyComponent = <Props>(
+	compProps: CompProps<Props>
+): LazyExoticComponent<ComponentType<Props>> => {
 	const lazy = useMemo(() => {
 		if ('lazyComponent' in compProps) {
 			return React.lazy(
 				compProps.lazyComponent as () => Promise<{
-					default: ComponentType<T>;
+					default: ComponentType<Props>;
 				}>
 			);
 		}
@@ -30,12 +29,12 @@ export const useLazyComponent = <T extends z.ZodTypeAny>(
 			// In SSR, suspense is not yet supported, we cannot use React.lazy
 			if (typeof document === 'undefined') {
 				return compProps.component as unknown as React.LazyExoticComponent<
-					ComponentType<T>
+					ComponentType<Props>
 				>;
 			}
 
 			return React.lazy(() =>
-				Promise.resolve({default: compProps.component as ComponentType<T>})
+				Promise.resolve({default: compProps.component as ComponentType<Props>})
 			);
 		}
 

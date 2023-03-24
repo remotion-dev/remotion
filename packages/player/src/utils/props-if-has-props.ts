@@ -1,10 +1,12 @@
 import type {z} from 'remotion';
 
-export type PropsIfHasProps<Props extends z.ZodTypeAny> =
-	z.ZodTypeAny extends Props
-		? {
-				inputProps?: z.infer<Props>;
-		  }
-		: {
-				inputProps: z.infer<Props>;
-		  };
+export type PropsIfHasProps<
+	Schema extends z.ZodTypeAny,
+	Props
+> = z.ZodTypeAny extends Schema
+	? {
+			inputProps?: z.infer<Schema> & Props;
+	  }
+	: {
+			inputProps: z.infer<Schema> & Props;
+	  };

@@ -34,7 +34,7 @@ import {validatePlaybackRate} from './utils/validate-playbackrate.js';
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
-export type PlayerProps<T extends z.ZodTypeAny> = {
+export type PlayerProps<Schema extends z.ZodTypeAny, Props> = {
 	durationInFrames: number;
 	compositionWidth: number;
 	compositionHeight: number;
@@ -65,21 +65,21 @@ export type PlayerProps<T extends z.ZodTypeAny> = {
 	renderPlayPauseButton?: RenderPlayPauseButton;
 	renderFullscreenButton?: RenderFullscreenButton;
 	alwaysShowControls?: boolean;
-	schema?: T;
-} & PropsIfHasProps<T> &
-	CompProps<T>;
+	schema?: Schema;
+} & PropsIfHasProps<Schema, Props> &
+	CompProps<Props>;
 
-export const componentOrNullIfLazy = <T extends z.ZodTypeAny>(
-	props: CompProps<T>
-): ComponentType<T> | null => {
+export const componentOrNullIfLazy = <Props,>(
+	props: CompProps<Props>
+): ComponentType<Props> | null => {
 	if ('component' in props) {
-		return props.component as ComponentType<T>;
+		return props.component as ComponentType<Props>;
 	}
 
 	return null;
 };
 
-const PlayerFn = <T extends z.ZodTypeAny>(
+const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 	{
 		durationInFrames,
 		compositionHeight,
@@ -113,7 +113,7 @@ const PlayerFn = <T extends z.ZodTypeAny>(
 		renderPlayPauseButton,
 		alwaysShowControls = false,
 		...componentProps
-	}: PlayerProps<T>,
+	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>
 ) => {
 	if (typeof window !== 'undefined') {

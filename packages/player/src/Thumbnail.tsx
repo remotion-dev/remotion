@@ -21,8 +21,11 @@ import {SharedPlayerContexts} from './SharedPlayerContext.js';
 import ThumbnailUI from './ThumbnailUI.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
-type ThumbnailProps<T extends z.ZodTypeAny> = PropsIfHasProps<T> &
-	CompProps<T> & {
+type ThumbnailProps<Schema extends z.ZodTypeAny, Props> = PropsIfHasProps<
+	Schema,
+	Props
+> &
+	CompProps<Schema> & {
 		frameToDisplay: number;
 		style?: CSSProperties;
 		durationInFrames: number;
@@ -34,7 +37,7 @@ type ThumbnailProps<T extends z.ZodTypeAny> = PropsIfHasProps<T> &
 		className?: string;
 	};
 
-export const ThumbnailFn = <T extends z.ZodTypeAny>(
+export const ThumbnailFn = <Schema extends z.ZodTypeAny, Props>(
 	{
 		frameToDisplay,
 		style,
@@ -47,7 +50,7 @@ export const ThumbnailFn = <T extends z.ZodTypeAny>(
 		errorFallback = () => '⚠️',
 		renderLoading,
 		...componentProps
-	}: ThumbnailProps<T>,
+	}: ThumbnailProps<Schema, Props>,
 	ref: MutableRefObject<ThumbnailMethods>
 ) => {
 	const [thumbnailId] = useState(() => String(random(null)));

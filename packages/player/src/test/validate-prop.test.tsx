@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import type {ComponentType} from 'react';
-import {Composition, z} from 'remotion';
+import {Composition} from 'remotion';
 import {expect, test} from 'vitest';
 import {Player} from '../index.js';
 import {HelloWorld, render} from './test-utils.js';
@@ -203,12 +203,8 @@ test('passing in <Composition /> instance should not be possible', () => {
 				compositionHeight={400}
 				fps={30}
 				durationInFrames={500}
-				// @ts-expect-error
 				component={Composition}
 				controls
-				schema={z.object({
-					id: z.string(),
-				})}
 				showVolumeControls
 				inputProps={{
 					id: 'HelloWorld',

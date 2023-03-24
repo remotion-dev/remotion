@@ -7,7 +7,6 @@ import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	TimelineContextValue,
-	z,
 } from 'remotion';
 import {Internals} from 'remotion';
 import {getPreferredVolume, persistVolume} from './volume-persistance.js';
@@ -38,7 +37,7 @@ export const SharedPlayerContexts: React.FC<{
 			compositions: [
 				{
 					component: component as React.LazyExoticComponent<
-						ComponentType<z.ZodTypeAny>
+						ComponentType<unknown>
 					>,
 					durationInFrames,
 					height: compositionHeight,
