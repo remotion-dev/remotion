@@ -686,7 +686,7 @@ export const Index: React.FC = () => {
 								pef: z.string(),
 							}),
 						}),
-						array: z.array(z.number()),
+						array: z.array(z.number()).min(2),
 					})}
 					defaultProps={{
 						vehicle: 'caa',
