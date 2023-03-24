@@ -19,6 +19,10 @@ import React, {
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
+import type {
+	RequiredChromiumOptions,
+	UiOpenGlOptions,
+} from '../../../required-chromium-options';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {AudioIcon} from '../../icons/audio';
 import {FileIcon} from '../../icons/file';
@@ -245,6 +249,21 @@ export const RenderModal: React.FC<{
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
 	const [disallowParallelEncoding, setDisallowParallelEncoding] =
 		useState(false);
+	const [disableWebSecurity, setDisableWebSecurity] = useState<boolean>(false);
+	const [headless, setHeadless] = useState<boolean>(true);
+	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
+		useState<boolean>(false);
+	const [openGlOption, setOpenGlOption] = useState<UiOpenGlOptions>('default');
+
+	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
+		return {
+			headless,
+			disableWebSecurity,
+			ignoreCertificateErrors,
+			gl: openGlOption === 'default' ? null : openGlOption,
+		};
+	}, [headless, disableWebSecurity, ignoreCertificateErrors, openGlOption]);
+
 	const [outName, setOutName] = useState(() => initialOutName);
 	const [endFrameOrNull, setEndFrame] = useState<number | null>(() => null);
 	const [startFrameOrNull, setStartFrame] = useState<number | null>(() => null);
@@ -500,6 +519,7 @@ export const RenderModal: React.FC<{
 			frame,
 			scale,
 			verbose,
+			chromiumOptions,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -509,15 +529,16 @@ export const RenderModal: React.FC<{
 				dispatchIfMounted({type: 'fail'});
 			});
 	}, [
-		compositionId,
 		dispatchIfMounted,
-		frame,
-		stillImageFormat,
+		compositionId,
 		outName,
+		stillImageFormat,
 		quality,
+		frame,
 		scale,
-		setSelectedModal,
 		verbose,
+		chromiumOptions,
+		setSelectedModal,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
@@ -560,6 +581,7 @@ export const RenderModal: React.FC<{
 			delayRenderTimeout,
 			audioCodec,
 			disallowParallelEncoding,
+			chromiumOptions,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -594,6 +616,7 @@ export const RenderModal: React.FC<{
 		delayRenderTimeout,
 		audioCodec,
 		disallowParallelEncoding,
+		chromiumOptions,
 		setSelectedModal,
 	]);
 
@@ -914,6 +937,14 @@ export const RenderModal: React.FC<{
 							setDelayRenderTimeout={setDelayRenderTimeout}
 							disallowParallelEncoding={disallowParallelEncoding}
 							setDisallowParallelEncoding={setDisallowParallelEncoding}
+							setDisableWebSecurity={setDisableWebSecurity}
+							setIgnoreCertificateErrors={setIgnoreCertificateErrors}
+							setHeadless={setHeadless}
+							headless={headless}
+							ignoreCertificateErrors={ignoreCertificateErrors}
+							disableWebSecurity={disableWebSecurity}
+							openGlOption={openGlOption}
+							setOpenGlOption={setOpenGlOption}
 						/>
 					)}
 
