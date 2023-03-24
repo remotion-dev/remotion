@@ -8,6 +8,7 @@ import type {
 	VideoImageFormat,
 } from '@remotion/renderer';
 import type {AggregateRenderProgress} from '../../progress-types';
+import type {RequiredChromiumOptions} from '../../required-chromium-options';
 
 export type BaseRenderProgress = {
 	message: string;
@@ -77,6 +78,7 @@ export type RenderJob = {
 	deletedOutputLocation: boolean;
 	verbose: boolean;
 	cancelToken: ReturnType<typeof makeCancelSignal>;
+	chromiumOptions: RequiredChromiumOptions;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {
@@ -124,6 +126,7 @@ export type CancelRenderResponse = {};
 export type AddRenderRequest = {
 	compositionId: string;
 	outName: string;
+	chromiumOptions: RequiredChromiumOptions;
 } & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {

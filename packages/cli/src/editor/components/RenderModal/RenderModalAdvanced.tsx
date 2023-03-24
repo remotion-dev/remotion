@@ -4,6 +4,7 @@ import React, {useCallback} from 'react';
 import {Checkbox} from '../Checkbox';
 import {label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
+import {RenderModalHr} from './RenderModalHr';
 
 export type RenderType = 'still' | 'video' | 'audio';
 
@@ -19,6 +20,9 @@ export const RenderModalAdvanced: React.FC<{
 	setDelayRenderTimeout: React.Dispatch<React.SetStateAction<number>>;
 	disallowParallelEncoding: boolean;
 	setDisallowParallelEncoding: React.Dispatch<React.SetStateAction<boolean>>;
+	setDisableWebSecurity: React.Dispatch<React.SetStateAction<boolean>>;
+	setIgnoreCertificateErrors: React.Dispatch<React.SetStateAction<boolean>>;
+	setDisableHeadless: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	renderMode,
 	maxConcurrency,
@@ -31,6 +35,9 @@ export const RenderModalAdvanced: React.FC<{
 	setDelayRenderTimeout,
 	disallowParallelEncoding,
 	setDisallowParallelEncoding,
+	setDisableWebSecurity,
+	setIgnoreCertificateErrors,
+	setDisableHeadless,
 }) => {
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
@@ -46,6 +53,26 @@ export const RenderModalAdvanced: React.FC<{
 		[setDisallowParallelEncoding]
 	);
 
+	const onDisableWebSecurityChanged = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			setDisableWebSecurity(e.target.checked);
+		},
+		[setDisableWebSecurity]
+	);
+
+	const onIgnoreCertificatErrors = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			setIgnoreCertificateErrors(e.target.checked);
+		},
+		[setIgnoreCertificateErrors]
+	);
+
+	const onDisableHeadless = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) => {
+			setDisableHeadless(e.target.checked);
+		},
+		[setDisableHeadless]
+	);
 	return (
 		<div>
 			{renderMode === 'still' ? null : (
@@ -82,6 +109,25 @@ export const RenderModalAdvanced: React.FC<{
 				<div style={label}>Verbose logging</div>
 				<div style={rightRow}>
 					<Checkbox checked={verbose} onChange={onVerboseLoggingChanged} />
+				</div>
+			</div>
+			<RenderModalHr />
+			<div style={optionRow}>
+				<div style={label}>Disable web security</div>
+				<div style={rightRow}>
+					<Checkbox checked={verbose} onChange={onDisableWebSecurityChanged} />
+				</div>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>Ignore certificat errors </div>
+				<div style={rightRow}>
+					<Checkbox checked={verbose} onChange={onIgnoreCertificatErrors} />
+				</div>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>Disable headless</div>
+				<div style={rightRow}>
+					<Checkbox checked={verbose} onChange={onDisableHeadless} />
 				</div>
 			</div>
 		</div>
