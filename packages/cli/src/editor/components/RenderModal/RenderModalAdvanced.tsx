@@ -94,7 +94,7 @@ export const RenderModalAdvanced: React.FC<{
 	const openGlOptions = useMemo((): ComboboxValue[] => {
 		return extendedOpenGlOptions.map((option) => {
 			return {
-				label: option ?? 'default',
+				label: option === 'default' ? 'Default' : option,
 				onClick: () => setOpenGlOption(option),
 				key: option,
 				leftItem: openGlOption === option ? <Checkmark /> : null,
@@ -172,7 +172,7 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 			</div>
 			<div style={optionRow}>
-				<div style={label}>Open GL render backend</div>
+				<div style={label}>OpenGL render backend</div>
 
 				<div style={rightRow}>
 					<Combobox
