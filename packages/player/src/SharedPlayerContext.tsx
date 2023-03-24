@@ -8,7 +8,7 @@ import type {
 	SetMediaVolumeContextValue,
 	TimelineContextValue,
 } from 'remotion';
-import {Internals} from 'remotion';
+import {Internals, z} from 'remotion';
 import {getPreferredVolume, persistVolume} from './volume-persistance.js';
 
 export const SharedPlayerContexts: React.FC<{
@@ -50,6 +50,7 @@ export const SharedPlayerContexts: React.FC<{
 					folderName: null,
 					defaultProps: undefined,
 					parentFolderName: null,
+					schema: z.any(),
 				},
 			],
 			folders: [],
