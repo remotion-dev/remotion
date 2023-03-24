@@ -13,4 +13,4 @@ packages/example/out
 .turbo
 .vercel
 packages/renderer/target
-packages/gcp/src/remotion-lambda-gcp.code-workspace
+packages/gcp/remotion-lambda-gcp.code-workspace
