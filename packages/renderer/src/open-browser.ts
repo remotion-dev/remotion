@@ -68,6 +68,9 @@ export const openBrowser = async (
 		);
 	}
 
+	console.log('Chromium options: ');
+	console.log(options?.chromiumOptions);
+
 	await ensureLocalBrowser(browser, options?.browserExecutable ?? null);
 
 	const executablePath = getLocalBrowserExecutable(

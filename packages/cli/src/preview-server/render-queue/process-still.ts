@@ -23,8 +23,6 @@ export const processStill = async ({
 	const {
 		publicDir,
 		browserExecutable,
-		// TODO: Accept chromium options from UI
-		chromiumOptions,
 		// TODO: Accept env variables from UI
 		envVariables,
 		// TODO: Accept input props from UI
@@ -38,13 +36,15 @@ export const processStill = async ({
 		remotionRoot,
 	});
 
+	// TODO: Consider Chromium options from Config & cli and rank their priorities
+
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 
 	await renderStillFlow({
 		remotionRoot,
 		browser,
 		browserExecutable,
-		chromiumOptions,
+		chromiumOptions: job.chromiumOptions,
 		entryPointReason: 'same as preview',
 		envVariables,
 		height: null,
