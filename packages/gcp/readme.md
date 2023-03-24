@@ -25,7 +25,52 @@ Navigate to the [Manage Resources](https://console.cloud.google.com/cloud-resour
 - Enter the parent organization or folder resource in the Location box. That resource will be the hierarchical parent of the new project. If No organization is an option, you can select it to create your new project as the top level of its own resource hierarchy.
 - When you're finished entering new project details, click Create.
 
-### 2. Create a service account in the Google Cloud Console
+### 2. Create a new role with permissions required by the service account
+
+Navigate to the [Role](https://console.cloud.google.com/iam-admin/roles) screen in Google Cloud Console, within IAM & Admin.
+
+- Select the Cloud project created in the previous step.
+- Click + CREATE ROLE in the top menu.
+- Under Title, type: `Remotion API Service Account`
+- Under Description, type: `Allow the service account to manage necessary resources for Remotion Cloud Run rendering.`
+- Under ID, type: `RemotionSA`
+- For Role launch stage, select `General Availability`
+- Click + Add Permissions, and add the following;
+  - run.routes.invoke
+  - run.services.create
+  - run.services.list
+  - run.services.update
+  - storage.buckets.get
+  - storage.buckets.list
+  - storage.objects.create
+  - storage.objects.delete
+  - storage.objects.list
+- Click the CREATE button
+
+#### 2a. Permission reasons
+
+For information only, here are the reasons for the above permissions
+
+- run.routes.invoke
+  - Call the deployed Cloud Run services, in order to perform a render
+- run.services.create
+  - Deploy new, and edit existing, Cloud Run services
+- run.services.list
+  - Get a list of existing Cloud Run services, to ensure no unintended overwriting
+- run.services.update
+  - Update a Cloud Run service, for instance providing it with more Memory or CPU.
+- storage.buckets.get
+  - ToDo...
+- storage.buckets.list
+  - Get a list of existing Cloud Storage resources, to ensure no unintended overwriting of storage buckets
+- storage.objects.create
+  - Create new objects in storage. This could be bundled sites, or renders, or logs.
+- storage.objects.delete
+  - ToDo...
+- storage.objects.list
+  - ToDo...
+
+### 3. Create a service account in the Google Cloud Console
 
 Navigate to the [Service Accounts](https://console.cloud.google.com/projectselector2/iam-admin/serviceaccounts/create) screen in Google Cloud Console, within IAM & Admin.
 
@@ -34,13 +79,11 @@ Navigate to the [Service Accounts](https://console.cloud.google.com/projectselec
 - The Google Cloud console generates a service account ID based on this name. Edit the ID if necessary. You cannot change the ID later.
 - Optional: Enter a description of the service account.
 - Click 'Create and continue' and continue to the next step.
-- Give the Service Account the Cloud Run Developer role.  
-  <img src="readmeImages/saCloudRunDeveloper.png" width="450" />
-- Give the Service Account the Cloud Storage - Storage Object Admin role.  
-  <img src="readmeImages/saStorageAdmin.png" width="450" />
+- Give the Service Account the role created in the previous step, Remotion API Service Account.  
+  <img src="readmeImages/saRole.png" width="450" />
 - Click Done to finish creating the service account.
 
-### 3. Save Service Account credentials
+### 4. Save Service Account credentials
 
 Navigate to the [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) screen in Google Cloud Console, within IAM & Admin.
 
@@ -53,7 +96,11 @@ Navigate to the [Service Accounts](https://console.cloud.google.com/iam-admin/se
   - Create a REMOTION*GCP_CLIENT_EMAIL key, and copy over the client_email value, \_including the quotation marks*.
   - Create a REMOTION*GCP_PRIVATE_KEY key, and copy over the private_key value, \_including the quotation marks*.
 
-### 4. Enable required APIs in the project
+### 5. Set Remotion Project ID in .env
+
+- Within the previously edited .env file in the root of your Remotion project, create a REMOTION_GCP_PROJECT_ID key, and set the key as the ID from the [Dashboard](https://console.cloud.google.com/home/dashboard), under the Project Info card.
+
+### 5. Enable required APIs in the project
 
 - Enable the Cloud Run API. Navigate to the [Cloud Run API](https://console.cloud.google.com/apis/library/run.googleapis.com) screen in Google Cloud Console, and click ENABLE. Make sure the correct project is selected in the dropdown in the top left. This is required in order to use Cloud Run.
 
