@@ -683,6 +683,7 @@ export const Index: React.FC = () => {
 								pef: z.string(),
 							}),
 						}),
+						array: z.array(z.string()),
 					})}
 					defaultProps={{
 						vehicle: 'caa',
@@ -695,6 +696,7 @@ export const Index: React.FC = () => {
 							jkl: 'sting',
 							xyz: 'hi',
 						},
+						array: ['hi', 'hi', 'hi'],
 					}}
 					durationInFrames={150}
 				/>

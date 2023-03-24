@@ -1,5 +1,6 @@
 import {z} from 'remotion';
 import type {JSONPath} from './zod-types';
+import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodEffectEditor} from './ZodEffectEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
 import {ZodStringEditor} from './ZodStringEditor';
@@ -33,6 +34,17 @@ export const ZodSwitch: React.FC<{
 			<ZodStringEditor
 				value={value as string}
 				setValue={setValue as (val: string) => void}
+				jsonPath={jsonPath}
+				schema={schema}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodArray) {
+		return (
+			<ZodArrayEditor
+				setValue={setValue}
+				value={value as unknown[]}
 				jsonPath={jsonPath}
 				schema={schema}
 			/>
