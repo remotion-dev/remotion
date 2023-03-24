@@ -17,7 +17,6 @@ const style: React.CSSProperties = {
 };
 
 const container: React.CSSProperties = {
-	marginTop: 5,
 	maxWidth: 500,
 };
 

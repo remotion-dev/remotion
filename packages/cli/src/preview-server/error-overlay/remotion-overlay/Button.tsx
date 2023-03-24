@@ -15,12 +15,6 @@ const button: React.CSSProperties = {
 	flexDirection: 'row',
 };
 
-const buttonContainer: React.CSSProperties = {
-	padding: 10,
-	cursor: 'pointer',
-	fontSize: 14,
-};
-
 export const Button: React.FC<{
 	onClick: () => void;
 	disabled?: boolean;
@@ -34,6 +28,16 @@ export const Button: React.FC<{
 			...(style ?? {}),
 		};
 	}, [style]);
+
+	const buttonContainer: React.CSSProperties = useMemo(() => {
+		return {
+			padding: 10,
+			cursor: disabled ? 'inherit' : 'pointer',
+			fontSize: 14,
+			opacity: disabled ? 0.7 : 1,
+		};
+	}, [disabled]);
+
 	return (
 		<button
 			style={combined}

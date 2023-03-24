@@ -1,4 +1,4 @@
-import React, {useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import type {AnyComposition} from 'remotion';
 
 import {Spacing} from '../layout';
@@ -25,6 +25,10 @@ export const RenderModalData: React.FC<{
 }> = ({composition, inputProps, setInputProps}) => {
 	const [mode, setMode] = useState<Mode>('json');
 
+	const zodValidationResult = useMemo(() => {
+		return composition.schema.safeParse(inputProps);
+	}, [composition.schema, inputProps]);
+
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
 			{
@@ -45,6 +49,11 @@ export const RenderModalData: React.FC<{
 			},
 		];
 	}, [mode]);
+
+	const switchToSchema = useCallback(() => {
+		setMode('schema');
+	}, []);
+
 	return (
 		<div style={outer}>
 			<div style={controlContainer}>
@@ -56,11 +65,14 @@ export const RenderModalData: React.FC<{
 					value={inputProps}
 					setValue={setInputProps}
 					schema={composition.schema}
+					zodValidationResult={zodValidationResult}
 				/>
 			) : (
 				<RenderModalJSONInputPropsEditor
 					value={inputProps ?? {}}
 					setValue={setInputProps}
+					zodValidationResult={zodValidationResult}
+					switchToSchema={switchToSchema}
 				/>
 			)}
 		</div>

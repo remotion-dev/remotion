@@ -1,4 +1,5 @@
 import React, {useCallback} from 'react';
+import type {z} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {Flex} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
@@ -35,10 +36,19 @@ const bottomRow: React.CSSProperties = {
 	flexDirection: 'row',
 };
 
+const schemaButton: React.CSSProperties = {
+	border: 'none',
+	padding: 0,
+	display: 'inline-block',
+	cursor: 'pointer',
+};
+
 export const RenderModalJSONInputPropsEditor: React.FC<{
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
-}> = ({setValue, value}) => {
+	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
+	switchToSchema: () => void;
+}> = ({setValue, value, zodValidationResult, switchToSchema}) => {
 	const [localValue, setLocalValue] = React.useState<State>({
 		validJSON: true,
 		value: JSON.stringify(value, null, 2),
@@ -69,16 +79,24 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 				style={style}
 			/>
 			<div style={bottomRow}>
-				{!localValue.validJSON && (
+				{localValue.validJSON === false ? (
 					<ValidationMessage
 						align="flex-start"
 						message="JSON is invalid"
 						type="error"
 					/>
-				)}
+				) : zodValidationResult.success === false ? (
+					<button type="button" style={schemaButton} onClick={switchToSchema}>
+						<ValidationMessage
+							align="flex-start"
+							message="Does not match schema"
+							type="warning"
+						/>
+					</button>
+				) : null}
 				<Flex />
 				<Button disabled={!localValue.validJSON} onClick={onPretty}>
-					Pretty
+					Format JSON
 				</Button>
 			</div>
 		</div>
