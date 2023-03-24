@@ -1,6 +1,6 @@
 import type React from 'react';
 import {useContext, useEffect} from 'react';
-import type {TComposition} from 'remotion';
+import type {TComposition, z} from 'remotion';
 import {Internals} from 'remotion';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
@@ -20,7 +20,7 @@ export const useSelectComposition = () => {
 	const {setCurrentComposition} = useContext(Internals.CompositionManager);
 	const {setFoldersExpanded} = useContext(FolderContext);
 	const {setZoom} = useContext(TimelineZoomCtx);
-	return (c: TComposition, push: boolean) => {
+	return (c: TComposition<z.ZodTypeAny>, push: boolean) => {
 		inOutHandles.current?.setMarks(loadMarks(c.id, c.durationInFrames));
 		if (push) {
 			window.history.pushState({}, 'Preview', `/${c.id}`);

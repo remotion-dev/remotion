@@ -1,4 +1,4 @@
-import type {TComposition, TFolder} from 'remotion';
+import type {TComposition, TFolder, z} from 'remotion';
 import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
 
@@ -108,7 +108,7 @@ const createFolderIfDoesNotExist = (
 };
 
 export const createFolderTree = (
-	comps: TComposition<unknown>[],
+	comps: TComposition<z.ZodTypeAny>[],
 	folders: TFolder[],
 	foldersExpanded: Record<string, boolean>
 ): CompositionSelectorItemType[] => {
