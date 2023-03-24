@@ -675,6 +675,7 @@ export const Index: React.FC = () => {
 					schema={z.object({
 						vehicle: z
 							.string()
+							.max(3, 'Too long')
 							.refine((v) => ['caa', 'bus', 'truck'].includes(v)),
 						other: z.string(),
 						abc: z.object({
