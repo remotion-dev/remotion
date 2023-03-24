@@ -6,7 +6,6 @@ import type {ComponentType} from 'react';
 import React, {useContext} from 'react';
 import {renderToString} from 'react-dom/server';
 import {describe, expect, test} from 'vitest';
-import type {z} from 'zod';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {CompositionManager} from '../CompositionManager.js';
 import {Loop} from '../loop/index.js';
@@ -35,7 +34,7 @@ const Wrapper: React.FC<{
 								nonce: 0,
 								component: React.lazy(() =>
 									Promise.resolve({
-										default: (() => null) as ComponentType<z.ZodTypeAny>,
+										default: (() => null) as ComponentType<unknown>,
 									})
 								),
 								defaultProps: undefined,

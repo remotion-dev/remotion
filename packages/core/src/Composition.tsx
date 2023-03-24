@@ -23,25 +23,28 @@ import {validateFps} from './validation/validate-fps.js';
 
 type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
 
-export type CompProps<T extends z.ZodTypeAny> =
+export type CompProps<Props> =
 	| {
-			lazyComponent: () => Promise<{default: LooseComponentType<T>}>;
+			lazyComponent: () => Promise<{default: LooseComponentType<Props>}>;
 	  }
 	| {
-			component: LooseComponentType<T>;
+			component: LooseComponentType<Props>;
 	  };
 
-export type StillProps<T extends z.ZodTypeAny> = {
+export type StillProps<Schema extends z.ZodTypeAny, Props> = {
 	width: number;
 	height: number;
 	id: string;
-	defaultProps?: z.infer<T>;
-} & CompProps<T>;
+	defaultProps?: z.infer<Schema> & Props;
+} & CompProps<Props>;
 
-type CompositionProps<T extends z.ZodTypeAny> = StillProps<T> & {
+type CompositionProps<Schema extends z.ZodTypeAny, Props> = StillProps<
+	Schema,
+	Props
+> & {
 	fps: number;
 	durationInFrames: number;
-	schema?: T;
+	schema?: Schema;
 };
 
 const Fallback: React.FC = () => {
@@ -57,7 +60,7 @@ const Fallback: React.FC = () => {
  * @see [Documentation](https://www.remotion.dev/docs/composition)
  */
 
-export const Composition = <T extends z.ZodType>({
+export const Composition = <Schema extends z.ZodType, Props>({
 	width,
 	height,
 	fps,
@@ -66,7 +69,7 @@ export const Composition = <T extends z.ZodType>({
 	defaultProps,
 	schema,
 	...compProps
-}: CompositionProps<T>) => {
+}: CompositionProps<Schema, Props>) => {
 	const {registerComposition, unregisterComposition} =
 		useContext(CompositionManager);
 	const video = useVideo();
@@ -109,7 +112,7 @@ export const Composition = <T extends z.ZodType>({
 		});
 
 		validateFps(fps, 'as a prop of the <Composition/> component', false);
-		registerComposition<T>({
+		registerComposition<Schema, Props>({
 			durationInFrames,
 			fps,
 			height,
