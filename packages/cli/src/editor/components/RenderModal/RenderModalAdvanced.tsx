@@ -157,7 +157,7 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 			</div>
 			<div style={optionRow}>
-				<div style={label}>Ignore certificat errors </div>
+				<div style={label}>Ignore certificate errors </div>
 				<div style={rightRow}>
 					<Checkbox
 						checked={ignoreCertificateErrors}
@@ -178,10 +178,11 @@ export const RenderModalAdvanced: React.FC<{
 					<Combobox
 						values={openGlOptions}
 						selectedId={openGlOption}
-						title="Codec"
+						title="OpenGl option"
 					/>
 				</div>
 			</div>
+			<RenderModalHr />
 		</div>
 	);
 };
