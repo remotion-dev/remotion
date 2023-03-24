@@ -1,4 +1,3 @@
-import type {PropsWithChildren} from 'react';
 import React, {
 	forwardRef,
 	useEffect,
@@ -7,31 +6,18 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {
-	FAIL_COLOR,
-	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_HOVERED,
-	INPUT_BORDER_COLOR_UNHOVERED,
-	SELECTED_BACKGROUND,
-	WARNING_COLOR,
-} from '../../helpers/colors';
+import {INPUT_BACKGROUND} from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
+import {
+	getInputBorderColor,
+	INPUT_HORIZONTAL_PADDING,
+} from '../NewComposition/RemInput';
 
 type Props = React.DetailedHTMLProps<
-	React.InputHTMLAttributes<HTMLInputElement>,
-	HTMLInputElement
+	React.InputHTMLAttributes<HTMLTextAreaElement>,
+	HTMLTextAreaElement
 > & {
 	status: 'error' | 'warning' | 'ok';
-};
-
-export const INPUT_HORIZONTAL_PADDING = 8;
-
-const aligner: React.CSSProperties = {
-	marginRight: -INPUT_HORIZONTAL_PADDING,
-};
-
-export const RightAlignInput: React.FC<PropsWithChildren> = ({children}) => {
-	return <div style={aligner}>{children}</div>;
 };
 
 export const inputBaseStyle: React.CSSProperties = {
@@ -40,35 +26,26 @@ export const inputBaseStyle: React.CSSProperties = {
 	borderStyle: 'solid',
 	borderWidth: 1,
 	fontSize: 14,
+	resize: 'vertical',
 };
 
-export const getInputBorderColor = ({
-	status,
-	isFocused,
-	isHovered,
-}: {
-	status: 'error' | 'warning' | 'ok';
-	isFocused: boolean;
-	isHovered: boolean;
-}) =>
-	status === 'warning'
-		? WARNING_COLOR
-		: status === 'error'
-		? FAIL_COLOR
-		: isFocused
-		? SELECTED_BACKGROUND
-		: isHovered
-		? INPUT_BORDER_COLOR_HOVERED
-		: INPUT_BORDER_COLOR_UNHOVERED;
-
-const RemInputForwardRef: React.ForwardRefRenderFunction<
-	HTMLInputElement,
+// TODO: Should be able to hit "Tab"
+const RemTextareaFRFunction: React.ForwardRefRenderFunction<
+	HTMLTextAreaElement,
 	Props
 > = ({status, ...props}, ref) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
-	const inputRef = useRef<HTMLInputElement>(null);
+	const inputRef = useRef<HTMLTextAreaElement>(null);
 	const {tabIndex} = useZIndex();
+
+	useImperativeHandle(
+		ref,
+		() => {
+			return inputRef.current as HTMLTextAreaElement;
+		},
+		[]
+	);
 
 	const style = useMemo(() => {
 		return {
@@ -79,14 +56,6 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 			...(props.style ?? {}),
 		};
 	}, [isFocused, isHovered, props.style, status]);
-
-	useImperativeHandle(
-		ref,
-		() => {
-			return inputRef.current as HTMLInputElement;
-		},
-		[]
-	);
 
 	useEffect(() => {
 		if (!inputRef.current) {
@@ -113,7 +82,9 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 		};
 	}, [inputRef]);
 
-	return <input ref={inputRef} tabIndex={tabIndex} {...props} style={style} />;
+	return (
+		<textarea ref={inputRef} tabIndex={tabIndex} {...props} style={style} />
+	);
 };
 
-export const RemotionInput = forwardRef(RemInputForwardRef);
+export const RemTextarea = forwardRef(RemTextareaFRFunction);

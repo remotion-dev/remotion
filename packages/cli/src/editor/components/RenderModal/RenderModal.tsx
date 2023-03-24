@@ -25,6 +25,7 @@ import type {
 } from '../../../required-chromium-options';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {AudioIcon} from '../../icons/audio';
+import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
@@ -45,6 +46,7 @@ import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
 import {RenderModalAudio} from './RenderModalAudio';
 import {RenderModalBasic} from './RenderModalBasic';
+import {RenderModalData} from './RenderModalData';
 import {RenderModalGif} from './RenderModalGif';
 import type {QualityControl} from './RenderModalPicture';
 import {RenderModalPicture} from './RenderModalPicture';
@@ -798,6 +800,18 @@ export const RenderModal: React.FC<{
 							General
 						</Tab>
 					) : null}
+					{shownTabs.includes('data') ? (
+						<Tab
+							style={horizontalTab}
+							selected={tab === 'data'}
+							onClick={() => setTab('data')}
+						>
+							<div style={iconContainer}>
+								<DataIcon style={icon} />
+							</div>
+							Data
+						</Tab>
+					) : null}
 					{shownTabs.includes('picture') ? (
 						<Tab
 							style={horizontalTab}
@@ -924,6 +938,8 @@ export const RenderModal: React.FC<{
 							setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
 							setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
 						/>
+					) : tab === 'data' ? (
+						<RenderModalData composition={currentComposition} />
 					) : (
 						<RenderModalAdvanced
 							concurrency={concurrency}
