@@ -74,7 +74,7 @@ export const ThumbnailFn = <T,>(
 
 	const Component = Internals.useLazyComponent(
 		componentProps
-	) as LazyExoticComponent<ComponentType<unknown>>;
+	) as LazyExoticComponent<ComponentType<T>>;
 
 	const [emitter] = useState(() => new ThumbnailEmitter());
 

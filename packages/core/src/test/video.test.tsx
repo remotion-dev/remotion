@@ -5,6 +5,7 @@ import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {useContext} from 'react';
 import {describe, expect, test} from 'vitest';
+import type {z} from 'zod';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Internals} from '../internals.js';
 import {Video} from '../video/index.js';
@@ -31,7 +32,7 @@ const Wrapper: React.FC<{
 								nonce: 0,
 								component: React.lazy(() =>
 									Promise.resolve({
-										default: (() => null) as ComponentType<unknown>,
+										default: (() => null) as ComponentType<z.ZodTypeAny>,
 									})
 								),
 								defaultProps: undefined,

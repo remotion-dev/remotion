@@ -70,7 +70,6 @@ export const Composition = <T extends z.ZodType>({
 	const {registerComposition, unregisterComposition} =
 		useContext(CompositionManager);
 	const video = useVideo();
-	console.log(schema?._def.shape());
 
 	const lazy = useLazyComponent(compProps);
 	const nonce = useNonce();

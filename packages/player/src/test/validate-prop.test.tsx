@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import type {ComponentType} from 'react';
-import {Composition} from 'remotion';
+import {Composition, z} from 'remotion';
 import {expect, test} from 'vitest';
 import {Player} from '../index.js';
 import {HelloWorld, render} from './test-utils.js';
@@ -127,6 +127,7 @@ test('Invalid playbackRate should give error', () => {
 				controls
 				showVolumeControls
 				playbackRate={-5}
+				inputProps={{}}
 			/>
 		);
 	} catch (e) {
@@ -204,6 +205,9 @@ test('passing in <Composition /> instance should not be possible', () => {
 				durationInFrames={500}
 				component={Composition}
 				controls
+				schema={z.object({
+					id: z.string(),
+				})}
 				showVolumeControls
 				inputProps={{
 					id: 'HelloWorld',
