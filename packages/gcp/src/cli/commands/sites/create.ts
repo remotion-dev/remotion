@@ -73,8 +73,8 @@ export const sitesCreateSubcommand = async (
 			progress: 0,
 		},
 		bucketProgress: {
-			bucketCreated: false,
 			doneIn: null,
+			creationState: 'Checking for existing bucket',
 		},
 		deployProgress: {
 			doneIn: null,
@@ -98,8 +98,8 @@ export const sitesCreateSubcommand = async (
 
 	const {bucketName} = await getOrCreateBucket({
 		region: getGcpRegion(),
-		onBucketEnsured: () => {
-			multiProgress.bucketProgress.bucketCreated = true;
+		updateBucketState: (state) => {
+			multiProgress.bucketProgress.creationState = state;
 			updateProgress();
 		},
 	});

@@ -6,7 +6,13 @@ import {getRemotionStorageBuckets} from './get-buckets';
 
 export type GetOrCreateBucketInput = {
 	region: GcpRegion;
-	onBucketEnsured?: () => void;
+	updateBucketState?: (
+		state:
+			| 'Checking for existing bucket'
+			| 'Creating new bucket'
+			| 'Created bucket'
+			| 'Using existing bucket'
+	) => void;
 };
 
 export type GetOrCreateBucketOutput = {
@@ -21,6 +27,7 @@ export type GetOrCreateBucketOutput = {
 export const getOrCreateBucket = async (
 	options: GetOrCreateBucketInput
 ): Promise<GetOrCreateBucketOutput> => {
+	// checking for existing bucket
 	const {remotionBuckets} = await getRemotionStorageBuckets();
 	if (remotionBuckets.length > 1) {
 		throw new Error(
@@ -31,9 +38,13 @@ export const getOrCreateBucket = async (
 	}
 
 	if (remotionBuckets.length === 1) {
-		options.onBucketEnsured?.();
-		return {bucketName: remotionBuckets[0].name};
+		options.updateBucketState?.('Using existing bucket');
+		return {
+			bucketName: remotionBuckets[0].name,
+		};
 	}
+
+	options.updateBucketState?.('Creating new bucket');
 
 	const bucketName = makeBucketName();
 
@@ -41,7 +52,7 @@ export const getOrCreateBucket = async (
 		bucketName,
 		region: options.region,
 	});
-	options.onBucketEnsured?.();
+	options.updateBucketState?.('Created bucket');
 
 	return {bucketName};
 };
