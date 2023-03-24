@@ -36,7 +36,7 @@ export const processVideoJob = async ({
 		remotionRoot,
 	});
 
-	// TODO: Consider Chromium options from Config & cli as and rank their priorities
+	// TODO: Consider Chromium options from Config & cli and rank their priorities
 
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 	await renderVideoFlow({
