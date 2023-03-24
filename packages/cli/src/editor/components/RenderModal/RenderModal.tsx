@@ -16,10 +16,13 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import type {TComposition} from 'remotion';
 import {Internals} from 'remotion';
-import type {TComposition} from 'remotion/src/internals';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
-import type {RequiredChromiumOptions} from '../../../required-chromium-options';
+import type {
+	RequiredChromiumOptions,
+	UiOpenGlOptions,
+} from '../../../required-chromium-options';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {AudioIcon} from '../../icons/audio';
 import {FileIcon} from '../../icons/file';
@@ -247,18 +250,19 @@ export const RenderModal: React.FC<{
 	const [disallowParallelEncoding, setDisallowParallelEncoding] =
 		useState(false);
 	const [disableWebSecurity, setDisableWebSecurity] = useState<boolean>(false);
-	const [disableHeadless, setDisableHeadless] = useState<boolean>(false);
+	const [headless, setHeadless] = useState<boolean>(true);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
 		useState<boolean>(false);
+	const [openGlOption, setOpenGlOption] = useState<UiOpenGlOptions>('default');
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
 		return {
-			headless: disableHeadless,
+			headless,
 			disableWebSecurity,
 			ignoreCertificateErrors,
-			gl: null,
+			gl: openGlOption === 'default' ? null : openGlOption,
 		};
-	}, [disableHeadless, disableWebSecurity, ignoreCertificateErrors]);
+	}, [headless, disableWebSecurity, ignoreCertificateErrors, openGlOption]);
 
 	const [outName, setOutName] = useState(() => initialOutName);
 	const [endFrameOrNull, setEndFrame] = useState<number | null>(() => null);
@@ -935,7 +939,12 @@ export const RenderModal: React.FC<{
 							setDisallowParallelEncoding={setDisallowParallelEncoding}
 							setDisableWebSecurity={setDisableWebSecurity}
 							setIgnoreCertificateErrors={setIgnoreCertificateErrors}
-							setDisableHeadless={setDisableHeadless}
+							setHeadless={setHeadless}
+							headless={headless}
+							ignoreCertificateErrors={ignoreCertificateErrors}
+							disableWebSecurity={disableWebSecurity}
+							openGlOption={openGlOption}
+							setOpenGlOption={setOpenGlOption}
 						/>
 					)}
 

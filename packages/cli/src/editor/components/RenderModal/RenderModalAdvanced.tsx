@@ -1,7 +1,11 @@
 import type {ChangeEvent} from 'react';
-import React, {useCallback} from 'react';
+import React, {useCallback, useMemo} from 'react';
 
+import type {UiOpenGlOptions} from '../../../required-chromium-options';
+import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
+import type {ComboboxValue} from '../NewComposition/ComboBox';
+import {Combobox} from '../NewComposition/ComboBox';
 import {label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
 import {RenderModalHr} from './RenderModalHr';
@@ -22,7 +26,12 @@ export const RenderModalAdvanced: React.FC<{
 	setDisallowParallelEncoding: React.Dispatch<React.SetStateAction<boolean>>;
 	setDisableWebSecurity: React.Dispatch<React.SetStateAction<boolean>>;
 	setIgnoreCertificateErrors: React.Dispatch<React.SetStateAction<boolean>>;
-	setDisableHeadless: React.Dispatch<React.SetStateAction<boolean>>;
+	setHeadless: React.Dispatch<React.SetStateAction<boolean>>;
+	headless: boolean;
+	ignoreCertificateErrors: boolean;
+	disableWebSecurity: boolean;
+	openGlOption: UiOpenGlOptions;
+	setOpenGlOption: React.Dispatch<React.SetStateAction<UiOpenGlOptions>>;
 }> = ({
 	renderMode,
 	maxConcurrency,
@@ -37,8 +46,16 @@ export const RenderModalAdvanced: React.FC<{
 	setDisallowParallelEncoding,
 	setDisableWebSecurity,
 	setIgnoreCertificateErrors,
-	setDisableHeadless,
+	setHeadless,
+	headless,
+	ignoreCertificateErrors,
+	disableWebSecurity,
+	openGlOption,
+	setOpenGlOption,
 }) => {
+	const extendedOpenGlOptions: UiOpenGlOptions[] = useMemo(() => {
+		return ['angle', 'egl', 'swangle', 'swiftshader', 'default'];
+	}, []);
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setVerboseLogging(e.target.checked);
@@ -67,12 +84,30 @@ export const RenderModalAdvanced: React.FC<{
 		[setIgnoreCertificateErrors]
 	);
 
-	const onDisableHeadless = useCallback(
+	const onHeadless = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
-			setDisableHeadless(e.target.checked);
+			setHeadless(e.target.checked);
 		},
-		[setDisableHeadless]
+		[setHeadless]
 	);
+
+	const openGlOptions = useMemo((): ComboboxValue[] => {
+		return extendedOpenGlOptions.map((option) => {
+			return {
+				label: option ?? 'default',
+				onClick: () => setOpenGlOption(option),
+				key: option,
+				leftItem: openGlOption === option ? <Checkmark /> : null,
+				id: option,
+				keyHint: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				type: 'item',
+				value: option,
+			};
+		});
+	}, [extendedOpenGlOptions, openGlOption, setOpenGlOption]);
+
 	return (
 		<div>
 			{renderMode === 'still' ? null : (
@@ -115,19 +150,36 @@ export const RenderModalAdvanced: React.FC<{
 			<div style={optionRow}>
 				<div style={label}>Disable web security</div>
 				<div style={rightRow}>
-					<Checkbox checked={verbose} onChange={onDisableWebSecurityChanged} />
+					<Checkbox
+						checked={disableWebSecurity}
+						onChange={onDisableWebSecurityChanged}
+					/>
 				</div>
 			</div>
 			<div style={optionRow}>
 				<div style={label}>Ignore certificat errors </div>
 				<div style={rightRow}>
-					<Checkbox checked={verbose} onChange={onIgnoreCertificatErrors} />
+					<Checkbox
+						checked={ignoreCertificateErrors}
+						onChange={onIgnoreCertificatErrors}
+					/>
 				</div>
 			</div>
 			<div style={optionRow}>
-				<div style={label}>Disable headless</div>
+				<div style={label}>Headless mode</div>
 				<div style={rightRow}>
-					<Checkbox checked={verbose} onChange={onDisableHeadless} />
+					<Checkbox checked={headless} onChange={onHeadless} />
+				</div>
+			</div>
+			<div style={optionRow}>
+				<div style={label}>Open GL render backend</div>
+
+				<div style={rightRow}>
+					<Combobox
+						values={openGlOptions}
+						selectedId={openGlOption}
+						title="Codec"
+					/>
 				</div>
 			</div>
 		</div>
