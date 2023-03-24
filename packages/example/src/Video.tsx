@@ -680,6 +680,7 @@ export const Index: React.FC = () => {
 							jkl: z.string(),
 							def: z.object({
 								xyz: z.string(),
+								pef: z.string(),
 							}),
 						}),
 					})}
@@ -689,6 +690,7 @@ export const Index: React.FC = () => {
 						abc: {
 							def: {
 								xyz: 'hu',
+								pef: 'hu',
 							},
 							jkl: 'sting',
 							xyz: 'hi',
