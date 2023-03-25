@@ -48,4 +48,22 @@ Internals.CSSUtils.injectCSS(`
   .__remotion-horizontal-scrollbar:hover::-webkit-scrollbar-thumb:hover {
     background-color: rgba(0, 0, 0, 0.8);
   }
+
+  .__remotion-timeline-slider {
+    appearance: none;
+    width: 100px;
+    border-radius: 3px;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    accent-color: #ffffff;
+  }
+  
+  .__remotion-timeline-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    appearance: none;
+  }
+
 `);
