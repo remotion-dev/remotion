@@ -35,16 +35,17 @@ export const ZodEffectEditor: React.FC<{
 
 	const onChange = useCallback(
 		(newValue: unknown) => {
-			const safeParse = schema.safeParse(newValue);
-			const newLocalState: LocalState = {
-				value: newValue,
-				zodValidation: safeParse,
-			};
-			setLocalValue(newLocalState);
+			setLocalValue(() => {
+				const safeParse = schema.safeParse(newValue);
+				if (safeParse.success) {
+					updateValue(() => newValue);
+				}
 
-			if (safeParse.success) {
-				updateValue(newValue);
-			}
+				return {
+					value: newValue,
+					zodValidation: safeParse,
+				};
+			});
 		},
 		[schema, updateValue]
 	);

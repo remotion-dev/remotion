@@ -7,6 +7,7 @@ import {EnvInput} from './EnvInput';
 // TODO: Should warn if trying to set NODE_ENV
 // TODO: Add a title
 // TODO: Hide env variables by default
+// TODO: Fix key={} bug
 export const RenderModalEnvironmentVariables: React.FC<{
 	envVariables: [string, string][];
 	setEnvVariables: React.Dispatch<React.SetStateAction<[string, string][]>>;

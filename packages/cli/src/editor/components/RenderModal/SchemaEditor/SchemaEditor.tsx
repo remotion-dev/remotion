@@ -19,7 +19,7 @@ const codeSnippet: React.CSSProperties = {
 export const SchemaEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	value: unknown;
-	setValue: (value: unknown) => void;
+	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
 }> = ({schema, value, setValue, zodValidationResult}) => {
 	const def: z.ZodTypeDef = schema._def;

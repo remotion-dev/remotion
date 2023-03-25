@@ -33,7 +33,7 @@ export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: unknown;
-	setValue: (value: unknown) => void;
+	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 }> = ({schema, jsonPath, setValue, value}) => {
 	const def = schema._def;
 
@@ -68,10 +68,10 @@ export const ZodObjectEditor: React.FC<{
 									schema={shape[key]}
 									value={(value as Record<string, string>)[key]}
 									setValue={(val) => {
-										setValue({
-											...(value as Record<string, string>),
-											[key]: val,
-										});
+										setValue((oldVal: Record<string, string>) => ({
+											...oldVal,
+											[key]: typeof val === 'function' ? val(oldVal[key]) : val,
+										}));
 									}}
 								/>
 							);

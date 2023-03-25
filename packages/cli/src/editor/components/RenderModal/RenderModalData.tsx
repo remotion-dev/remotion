@@ -21,7 +21,7 @@ const controlContainer: React.CSSProperties = {
 export const RenderModalData: React.FC<{
 	composition: AnyComposition;
 	inputProps: unknown;
-	setInputProps: React.Dispatch<unknown>;
+	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
 }> = ({composition, inputProps, setInputProps}) => {
 	const [mode, setMode] = useState<Mode>('json');
 

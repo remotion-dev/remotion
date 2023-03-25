@@ -1,4 +1,4 @@
-import {useCallback, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import type {z} from 'remotion';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
@@ -19,7 +19,7 @@ export const ZodStringEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: string;
-	setValue: (value: string) => void;
+	setValue: React.Dispatch<React.SetStateAction<string>>;
 }> = ({jsonPath, value, setValue, schema}) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
