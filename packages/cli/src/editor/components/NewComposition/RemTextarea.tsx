@@ -29,7 +29,6 @@ export const inputBaseStyle: React.CSSProperties = {
 	resize: 'vertical',
 };
 
-// TODO: Should be able to hit "Tab"
 const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 	HTMLTextAreaElement,
 	Props
@@ -68,17 +67,60 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 		const onBlur = () => setIsFocused(false);
 		const onMouseEnter = () => setIsHovered(true);
 		const onMouseLeave = () => setIsHovered(false);
+		const onKeyDown = (e: KeyboardEvent) => {
+			if (!inputRef.current) {
+				return;
+			}
+
+			if (inputRef.current !== document.activeElement) {
+				return;
+			}
+
+			if (e.code === 'Tab') {
+				e.preventDefault();
+				// Always match up with value in JSON.stringify(content, null, 2)
+				document.execCommand('insertText', false, ' '.repeat(2));
+			}
+
+			if (e.code === 'Enter') {
+				e.preventDefault();
+				const {selectionStart, selectionEnd, value} = inputRef.current;
+				if (selectionStart !== selectionEnd) {
+					return;
+				}
+
+				let prevNewline = selectionStart;
+				for (let i = selectionStart - 1; i >= 0; i--) {
+					if (value[i] === '\n') {
+						break;
+					}
+
+					prevNewline = i;
+				}
+
+				const currentLine = value.substring(prevNewline, selectionStart);
+				const trimmed = currentLine.trim();
+				const difference = currentLine.length - trimmed.length;
+				document.execCommand(
+					'insertText',
+					false,
+					'\n' + ' '.repeat(difference)
+				);
+			}
+		};
 
 		current.addEventListener('focus', onFocus);
 		current.addEventListener('blur', onBlur);
 		current.addEventListener('mouseenter', onMouseEnter);
 		current.addEventListener('mouseleave', onMouseLeave);
+		current.addEventListener('keydown', onKeyDown);
 
 		return () => {
 			current.removeEventListener('focus', onFocus);
 			current.removeEventListener('blur', onBlur);
 			current.removeEventListener('mouseenter', onMouseEnter);
 			current.removeEventListener('mouseleave', onMouseLeave);
+			current.removeEventListener('keydown', onKeyDown);
 		};
 	}, [inputRef]);
 
