@@ -552,6 +552,7 @@ export const RenderModal: React.FC<{
 			chromiumOptions,
 			delayRenderTimeout,
 			envVariables: envVariablesArrayToObject(envVariables),
+			inputProps,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -572,6 +573,7 @@ export const RenderModal: React.FC<{
 		chromiumOptions,
 		delayRenderTimeout,
 		envVariables,
+		inputProps,
 		setSelectedModal,
 	]);
 
@@ -617,6 +619,7 @@ export const RenderModal: React.FC<{
 			disallowParallelEncoding,
 			chromiumOptions,
 			envVariables: envVariablesArrayToObject(envVariables),
+			inputProps,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -653,6 +656,7 @@ export const RenderModal: React.FC<{
 		disallowParallelEncoding,
 		chromiumOptions,
 		envVariables,
+		inputProps,
 		setSelectedModal,
 	]);
 

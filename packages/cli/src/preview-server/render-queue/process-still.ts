@@ -20,21 +20,12 @@ export const processStill = async ({
 		throw new Error('Expected still job');
 	}
 
-	const {
-		publicDir,
-		browserExecutable,
-		// TODO: Accept input props from UI
-		inputProps,
-		port,
-		browser,
-		puppeteerTimeout,
-	} = await getCliOptions({
-		isLambda: false,
-		type: 'still',
-		remotionRoot,
-	});
-
-	// TODO: Consider Chromium options from Config & cli and rank their priorities
+	const {publicDir, browserExecutable, port, browser, puppeteerTimeout} =
+		await getCliOptions({
+			isLambda: false,
+			type: 'still',
+			remotionRoot,
+		});
 
 	const fullEntryPoint = convertEntryPointToServeUrl(entryPoint);
 
@@ -47,7 +38,7 @@ export const processStill = async ({
 		envVariables: job.envVariables,
 		height: null,
 		fullEntryPoint,
-		inputProps,
+		inputProps: job.inputProps as object,
 		overwrite: true,
 		port,
 		publicDir,
