@@ -10,8 +10,11 @@ export const envVariablesObjectToArray = (
 export const envVariablesArrayToObject = (
 	envVariables: [string, string][]
 ): Record<string, string> => {
-	return envVariables.reduce((acc, [key, value]) => {
-		acc[key] = value;
-		return acc;
-	}, {} as Record<string, string>);
+	return envVariables
+		.map(([key, val]) => [key.trim(), val.trim()])
+		.filter(([key, val]) => key && val)
+		.reduce((acc, [key, value]) => {
+			acc[key] = value;
+			return acc;
+		}, {} as Record<string, string>);
 };

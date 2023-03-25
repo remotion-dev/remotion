@@ -23,8 +23,6 @@ export const processVideoJob = async ({
 	const {
 		publicDir,
 		browserExecutable,
-		// TODO: Accept env variables from UI
-		envVariables,
 		// TODO: Accept input props from UI
 		inputProps,
 		port,
@@ -45,7 +43,7 @@ export const processVideoJob = async ({
 		browserExecutable,
 		chromiumOptions: job.chromiumOptions,
 		entryPointReason: 'same as preview',
-		envVariables,
+		envVariables: job.envVariables,
 		height: null,
 		fullEntryPoint,
 		inputProps,
