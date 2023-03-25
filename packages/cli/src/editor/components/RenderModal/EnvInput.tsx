@@ -1,6 +1,7 @@
 import React, {useCallback} from 'react';
 import {Spacing} from '../layout';
 import {RemotionInput} from '../NewComposition/RemInput';
+import {InlineEyeButton} from './InlineEyeIcon';
 import {InlineRemoveButton} from './InlineRemoveButton';
 import {optionRow} from './layout';
 
@@ -16,10 +17,25 @@ export const EnvInput: React.FC<{
 	envVal: string;
 	onDelete: (index: number) => void;
 	index: number;
-}> = ({onEnvKeyChange, onEnvValChange, envKey, envVal, onDelete, index}) => {
+	autoFocus: boolean;
+}> = ({
+	onEnvKeyChange,
+	onEnvValChange,
+	envKey,
+	envVal,
+	onDelete,
+	index,
+	autoFocus,
+}) => {
+	const [showInPlainText, setShowInPlainText] = React.useState(false);
+
 	const handleDelete = useCallback(() => {
 		onDelete(index);
 	}, [index, onDelete]);
+
+	const togglePlainText = useCallback(() => {
+		setShowInPlainText((prev) => !prev);
+	}, []);
 
 	const handleKeyChange: React.ChangeEventHandler = useCallback(
 		(e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,21 +54,26 @@ export const EnvInput: React.FC<{
 	return (
 		<div style={optionRow}>
 			<RemotionInput
-				status={'ok'}
+				status="ok"
 				type="text"
+				placeholder="Key"
 				style={input}
 				value={envKey}
+				autoFocus={autoFocus}
 				onChange={handleKeyChange}
 			/>
 			<Spacing x={1} />
 			<RemotionInput
-				status={'ok'}
-				type="text"
+				status="ok"
+				placeholder="Value"
+				type={showInPlainText ? 'text' : 'password'}
 				style={input}
 				value={envVal}
 				onChange={handleValueChange}
 			/>
-			<Spacing x={2} />
+			<Spacing x={1.5} />
+			<InlineEyeButton enabled={!showInPlainText} onClick={togglePlainText} />
+			<Spacing x={1.5} />
 			<InlineRemoveButton onClick={handleDelete} />
 		</div>
 	);
