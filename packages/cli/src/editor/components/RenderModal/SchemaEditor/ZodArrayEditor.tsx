@@ -52,10 +52,12 @@ export const ZodArrayEditor: React.FC<{
 	value: unknown[];
 	setValue: (value: unknown[]) => void;
 }> = ({schema, jsonPath, setValue: updateValue, value}) => {
-	const [localValue, setLocalValue] = useState<LocalState>({
-		value,
-		zodValidation: schema.safeParse(value),
-		revision: 0,
+	const [localValue, setLocalValue] = useState<LocalState>(() => {
+		return {
+			value,
+			zodValidation: schema.safeParse(value),
+			revision: 0,
+		};
 	});
 
 	const def = schema._def;
@@ -82,19 +84,17 @@ export const ZodArrayEditor: React.FC<{
 	const onChange = useCallback(
 		(newValue: unknown[], incrementRevision: boolean) => {
 			const safeParse = schema.safeParse(newValue);
-			const newLocalState: LocalState = {
+			setLocalValue((oldLocalState) => ({
+				revision: oldLocalState.revision + (incrementRevision ? 1 : 0),
 				value: newValue,
 				zodValidation: safeParse,
-				// TODO: Use callback function to increment
-				revision: localValue.revision + (incrementRevision ? 1 : 0),
-			};
-			setLocalValue(newLocalState);
+			}));
 
 			if (safeParse.success) {
 				updateValue(newValue);
 			}
 		},
-		[localValue.revision, schema, updateValue]
+		[schema, updateValue]
 	);
 
 	return (

@@ -20,9 +20,11 @@ export const ZodEffectEditor: React.FC<{
 	value: unknown;
 	setValue: (value: unknown) => void;
 }> = ({schema, jsonPath, value, setValue: updateValue}) => {
-	const [localValue, setLocalValue] = useState<LocalState>({
-		value,
-		zodValidation: schema.safeParse(value),
+	const [localValue, setLocalValue] = useState<LocalState>(() => {
+		return {
+			value,
+			zodValidation: schema.safeParse(value),
+		};
 	});
 
 	const def = schema._def;
