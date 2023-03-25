@@ -13,6 +13,12 @@ export type PropsIfHasProps<
 				// Only props specified
 				inputProps: Props;
 		  }
+	: {} extends Props
+	? {
+			// Only schema specified
+			inputProps: z.infer<Schema>;
+	  }
 	: {
+			// Props and schema specified
 			inputProps: z.infer<Schema> & Props;
 	  };
