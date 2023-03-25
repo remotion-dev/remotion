@@ -7,6 +7,7 @@ import {
 } from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
+import {InlineRemoveButton} from '../InlineRemoveButton';
 import {optionRow} from '../layout';
 import type {JSONPath} from './zod-types';
 import {ZodSwitch} from './ZodSwitch';
@@ -37,24 +38,6 @@ const row: React.CSSProperties = {
 
 const flex: React.CSSProperties = {
 	flex: 1,
-};
-
-// TODO: Hover effect would be nice
-const clearButton: React.CSSProperties = {
-	border: '1px solid ' + LIGHT_TEXT,
-	display: 'inline-flex',
-	justifyContent: 'center',
-	alignItems: 'center',
-	appearance: 'none',
-	width: 20,
-	height: 20,
-	borderRadius: 14,
-	cursor: 'pointer',
-};
-
-const clearIcon: React.CSSProperties = {
-	height: 12,
-	color: LIGHT_TEXT,
 };
 
 type LocalState = {
@@ -138,28 +121,14 @@ export const ZodArrayEditor: React.FC<{
 									key={`${i}${localValue.revision}`}
 									style={row}
 								>
-									<button
-										style={clearButton}
-										onClick={(e) => {
-											e.preventDefault();
+									<InlineRemoveButton
+										onClick={() => {
 											onChange(
 												[...value.slice(0, i), ...value.slice(i + 1)],
 												true
 											);
 										}}
-										type="button"
-									>
-										<svg
-											xmlns="http://www.w3.org/2000/svg"
-											viewBox="0 0 320 512"
-											style={clearIcon}
-										>
-											<path
-												d="M310.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L160 210.7 54.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L114.7 256 9.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L160 301.3 265.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L205.3 256 310.6 150.6z"
-												fill={LIGHT_TEXT}
-											/>
-										</svg>
-									</button>
+									/>
 									<div style={flex}>
 										<ZodSwitch
 											jsonPath={[...jsonPath, i]}

@@ -47,6 +47,7 @@ export const Modals: React.FC = () => {
 					initialNumberOfGifLoops={modalContextType.initialNumberOfGifLoops}
 					initialDelayRenderTimeout={modalContextType.initialDelayRenderTimeout}
 					initialAudioCodec={modalContextType.initialAudioCodec}
+					initialEnvVariables={modalContextType.initialEnvVariables}
 				/>
 			)}
 

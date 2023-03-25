@@ -44,8 +44,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialVideoBitrate: defaults.videoBitrate,
 			initialEveryNthFrame: defaults.everyNthFrame,
 			initialNumberOfGifLoops: defaults.numberOfGifLoops,
-			initialDelayRenderTimeout: defaults.delayRenderTimeout,
+			initialDelayRenderTimeout: job.delayRenderTimeout,
 			initialAudioCodec: defaults.audioCodec as AudioCodec | null,
+			initialEnvVariables: job.envVariables,
 		};
 	}
 
@@ -82,6 +83,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialNumberOfGifLoops: job.numberOfGifLoops,
 			initialDelayRenderTimeout: job.delayRenderTimeout,
 			initialAudioCodec: job.audioCodec,
+			initialEnvVariables: job.envVariables,
 		};
 	}
 

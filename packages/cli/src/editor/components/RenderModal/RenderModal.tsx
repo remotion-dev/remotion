@@ -23,6 +23,10 @@ import type {
 	RequiredChromiumOptions,
 	UiOpenGlOptions,
 } from '../../../required-chromium-options';
+import {
+	envVariablesArrayToObject,
+	envVariablesObjectToArray,
+} from '../../helpers/convert-env-variables';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {AudioIcon} from '../../icons/audio';
 import {DataIcon} from '../../icons/data';
@@ -185,6 +189,7 @@ export const RenderModal: React.FC<{
 	initialEveryNthFrame: number;
 	initialNumberOfGifLoops: number | null;
 	initialDelayRenderTimeout: number;
+	initialEnvVariables: Record<string, string>;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -210,6 +215,7 @@ export const RenderModal: React.FC<{
 	initialNumberOfGifLoops,
 	initialDelayRenderTimeout,
 	initialAudioCodec,
+	initialEnvVariables,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -235,9 +241,8 @@ export const RenderModal: React.FC<{
 	const [userSelectedAudioCodec, setUserSelectedAudioCodec] =
 		useState<AudioCodec | null>(() => initialAudioCodec);
 
-	// TODO: Use set instead of array
-	const [envVariables, setEnvVariables] = useState<[[string, string]] | null>(
-		null
+	const [envVariables, setEnvVariables] = useState<[string, string][]>(() =>
+		envVariablesObjectToArray(initialEnvVariables)
 	);
 	const [videoCodecForAudioTab, setVideoCodecForAudioTab] = useState<Codec>(
 		() => initialVideoCodecForAudioTab
@@ -530,6 +535,8 @@ export const RenderModal: React.FC<{
 			scale,
 			verbose,
 			chromiumOptions,
+			delayRenderTimeout,
+			envVariables: envVariablesArrayToObject(envVariables),
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -548,6 +555,8 @@ export const RenderModal: React.FC<{
 		scale,
 		verbose,
 		chromiumOptions,
+		delayRenderTimeout,
+		envVariables,
 		setSelectedModal,
 	]);
 
@@ -592,6 +601,7 @@ export const RenderModal: React.FC<{
 			audioCodec,
 			disallowParallelEncoding,
 			chromiumOptions,
+			envVariables: envVariablesArrayToObject(envVariables),
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -627,6 +637,7 @@ export const RenderModal: React.FC<{
 		audioCodec,
 		disallowParallelEncoding,
 		chromiumOptions,
+		envVariables,
 		setSelectedModal,
 	]);
 
