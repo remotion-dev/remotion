@@ -1,13 +1,27 @@
-import {useCallback} from 'react';
+import React, {useCallback} from 'react';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
+import {LIGHT_TEXT} from '../../helpers/colors';
+import {Spacing} from '../layout';
 import {EnvInput} from './EnvInput';
+
+const title: React.CSSProperties = {
+	fontSize: 14,
+	fontWeight: 'bold',
+	color: LIGHT_TEXT,
+	marginLeft: 16,
+};
+
+const container: React.CSSProperties = {
+	marginTop: 20,
+};
+
+const button: React.CSSProperties = {
+	marginLeft: 16,
+};
 
 // TODO: should warn if XOR key XOR value is empty
 // TODO: Should warn if trying to set the same key twice
 // TODO: Should warn if trying to set NODE_ENV
-// TODO: Add a title
-// TODO: Hide env variables by default
-// TODO: Fix key={} bug
 export const RenderModalEnvironmentVariables: React.FC<{
 	envVariables: [string, string][];
 	setEnvVariables: React.Dispatch<React.SetStateAction<[string, string][]>>;
@@ -46,21 +60,27 @@ export const RenderModalEnvironmentVariables: React.FC<{
 	}, [setEnvVariables]);
 
 	return (
-		<div>
+		<div style={container}>
+			<strong style={title}>Environment variables</strong>
 			{envVariables.map((env, i) => {
 				return (
 					<EnvInput
-						key={env[0]}
+						// eslint-disable-next-line react/no-array-index-key
+						key={i}
 						onEnvKeyChange={onEnvKeyChange}
 						onEnvValChange={onEnvValChange}
 						envKey={env[0]}
 						envVal={env[1]}
 						onDelete={onDelete}
 						index={i}
+						autoFocus={i === envVariables.length - 1 && env[0] === ''}
 					/>
 				);
 			})}
-			<Button onClick={addField}>+ Add</Button>
+			<Spacing y={1} block />
+			<Button style={button} onClick={addField}>
+				+ Add env variable
+			</Button>
 		</div>
 	);
 };
