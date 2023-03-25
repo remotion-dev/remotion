@@ -83,6 +83,10 @@ const handleFallback = async ({
 	const audioCodec = ConfigInternals.getAudioCodec();
 	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
 	const videoImageFormat = ConfigInternals.getUserPreferredVideoImageFormat();
+	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
+	const headless = ConfigInternals.getChromiumHeadlessMode();
+	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
+	const openGlRenderer = ConfigInternals.getChromiumOpenGlRenderer();
 
 	const maxConcurrency = RenderInternals.getMaxConcurrency();
 	const minConcurrency = RenderInternals.getMinConcurrency();
@@ -130,6 +134,10 @@ const handleFallback = async ({
 				numberOfGifLoops,
 				delayRenderTimeout,
 				audioCodec,
+				disableWebSecurity,
+				headless,
+				ignoreCertificateErrors,
+				openGlRenderer,
 			},
 		})
 	);

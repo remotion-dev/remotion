@@ -2,6 +2,7 @@ import type {
 	AudioCodec,
 	Codec,
 	LogLevel,
+	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
@@ -73,6 +74,10 @@ export const RenderButton: React.FC<{
 				initialDelayRenderTimeout: defaults.delayRenderTimeout,
 				initialAudioCodec: defaults.audioCodec as AudioCodec,
 				initialEnvVariables: window.process.env as Record<string, string>,
+				initialDisableWebSecurity: defaults.disableWebSecurity,
+				initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
+				initialHeadless: defaults.headless,
+				initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
 			});
 		},
 		[composition.id, isVideo, setSelectedModal]

@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
@@ -39,6 +40,10 @@ export type RenderModalState = {
 	initialNumberOfGifLoops: number | null;
 	initialDelayRenderTimeout: number;
 	initialEnvVariables: Record<string, string>;
+	initialDisableWebSecurity: boolean;
+	initialOpenGlRenderer: OpenGlRenderer | null;
+	initialIgnoreCertificateErrors: boolean;
+	initialHeadless: boolean;
 	minConcurrency: number;
 	maxConcurrency: number;
 };

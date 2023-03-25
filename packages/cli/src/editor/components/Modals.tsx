@@ -48,6 +48,12 @@ export const Modals: React.FC = () => {
 					initialDelayRenderTimeout={modalContextType.initialDelayRenderTimeout}
 					initialAudioCodec={modalContextType.initialAudioCodec}
 					initialEnvVariables={modalContextType.initialEnvVariables}
+					initialDisableWebSecurity={modalContextType.initialDisableWebSecurity}
+					initialGl={modalContextType.initialOpenGlRenderer}
+					initialHeadless={modalContextType.initialHeadless}
+					initialIgnoreCertificateErrors={
+						modalContextType.initialIgnoreCertificateErrors
+					}
 				/>
 			)}
 
