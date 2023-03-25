@@ -16,6 +16,7 @@ export const MediaVolumeSlider: React.FC<{
 	const parentDivRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const hover = useHoverState(parentDivRef);
+	// Need to import it from React to fix React 17 ESM support.
 	const randomId =
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		typeof React.useId === 'undefined' ? 'volume-slider' : React.useId();

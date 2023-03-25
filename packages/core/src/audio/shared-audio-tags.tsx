@@ -3,8 +3,6 @@ import React, {
 	createRef,
 	useCallback,
 	useContext,
-	useInsertionEffect,
-	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -288,8 +286,10 @@ export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.
 	 * - useInsertionEffect only fires once. If it's available we are in React 18.
 	 * - useLayoutEffect only fires once in React 17.
+	 *
+	 * Need to import it from React to fix React 17 ESM support.
 	 */
-	const effectToUse = useInsertionEffect ?? useLayoutEffect;
+	const effectToUse = React.useInsertionEffect ?? React.useLayoutEffect;
 
 	if (typeof document !== 'undefined') {
 		effectToUse(() => {
