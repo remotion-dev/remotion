@@ -1,6 +1,6 @@
 ---
 title: Using Lambda with EC2
-slug: /lambda/sqs
+slug: /lambda/ec2
 sidebar_label: Lambda rendering from ec2
 crumb: "@remotion/lambda"
 ---
@@ -23,15 +23,15 @@ To supplement this guide, two projects have been created:
 
 ## ec2-remotion-lambda
 
-In the following step, the Lambda functions [`enqueue-function`](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/enqueue-function/index.ts) and [`render-lambda-function`](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/src/render-lambda-function/index.ts) will be deployed to your AWS account. This guide is designed to be executed on your local machine.
-
-The project will create all the resources defined by the CDK stack, including setting up [Cognito](https://github.com/alexfernandez803/remotion-serverless/blob/main/apigw-sqs-app/lib/remotion-cdk-starter-stack.ts#L19) for the project's authentication and authorization system, uploading Lambda code, generating and associating IAM roles to your AWS account.
+- This is an standalone nodejs application that renders video via REST API. An API operation has been implemented to trigger a render [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) processes. 
 
 ### Prerequisites
 
 - AWS deployment profile on your local machine, to configure an AWS deployment profile on your local machine.
 - A AWS policy created named `remotion-executionrole-policy` which is created from this [guide](/docs/lambda/without-iam/#1-create-role-policy).
-- The AWS CDK should be installed globally on your local machine. If not yet done, follow the instructions in the "Install the AWS CDK" section [here](https://docs.aws.amazon.com/cdk/v2/guide/getting_started.html).
+- An understanding how [IAM](https://docs.aws.amazon.com/iam/index.html) and [assume role](https://docs.aws.amazon.com/IAM/latest/UserGuide/example_sts_AssumeRole_section.html) works in AWS.
+- A knowledge of creating and provisioning EC2 instances and installing packages in [Ubuntu distro](https://ubuntu.com/). These includes [Git](https://git-scm.com/), [NodeJs](https://nodejs.org/en), as well as running the nodejs application.
+
 
 ### Setup
 
@@ -39,44 +39,66 @@ The project will create all the resources defined by the CDK stack, including se
 
 - The `remotion-executionrole-policy` should have been created, if not, follow this [guide](/docs/lambda/without-iam/#1-create-role-policy) in setting this up.
 
-#### 2. Create a role for the ec2 instance
+####  2. Create role for remotion render execution 
+##### Steps
+  - Go to AWS account IAM Roles section
+    - Click "Create role".
+    - Under "Use cases", select "Lambda". Click next.
+    - Under "Permissions policies", filter for `remotion-executionrole-policy` and click the checkbox to assign this policy. This `policy` should have been created, if not, refer to step 1.
+    - Additionally, still in "Permission policies" clear the filter and filter again for `AWSLambdaBasicExecutionRole`. Click the checkbox and click next.
+    - In the final step, name the role `remotion-lambda-role` exactly. You can leave the other fields as is.
+    - Click "Create role" to confirm.
+   
 
-#### Steps
-- Again we assign the policy to the Lambda execution role. Go to the [AWS Management Console](https://console.aws.amazon.com/console/home) and:
-  - Navigate to [Lambda (change to your function region)](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/discover)
-  - [Functions](https://us-east-1.console.aws.amazon.com/lambda/home?region=us-east-1#/functions)
-  - Select your Lambda function
-  - Configuration tab
-  - Permissions tab
-  - Click the role under `Execution role`
-  - When redirected, click Permissions tab
-  - Click on `Add permissions`
-  - Click "Create inline policy"
-  - Click the "JSON" tab
+#### 3. Create a role for the EC2 instance
+##### Steps
+    - Go to AWS account IAM Roles section
+    - Click "Create role".
+    - Under "Use cases", select "EC2". Click next.
+    - Under "Permissions policies", leave it empty for now.
+    - In the final step, name the role `ec2-remotion-role` exactly. You can leave the other fields as is.
+    - Click "Create role" to confirm.
+    - Make note of the ARN for the role.
 
-Add a policy statement similar to the one below, which is defining the bucket Lambda needs to transfer the rendered video to.
+#### 4. Trust the ec2 role from remotion role
+  - From IAM roles section again
+  - Find the role from step 2, or filter roles by name using `remotion-lambda-role`. Keep the `ARN` of the role from step 3 handy.
+  - From the trust relationship tab, click the "Edit trust policy" button.
+  - Edit the policy statement and add the `ARN` of EC2 role(`ec2-remotion-role`) from step 3. It should added as one of the principal, as an `AWS` principal since it is a role.
+
+ #### Example
+  ```json
+    {
+   "Version":"2012-10-17",
+   "Statement":[
+      {
+         "Effect":"Allow",
+         "Principal":{
+            "Service":"ec2.amazonaws.com",
+            "AWS":"arn:aws:iam::XXXXXXXX:role/ec2-remotion-role"
+         },
+         "Action":"sts:AssumeRole"
+      }
+   ]
+}
+  ```
+  :::note
+    This instructs `remotion-lambda-role` to allow `ec2-remotion-role` to assume its role with associated permission to access AWS services/resources that `remotion` needs to render videos.
+  :::
 
 
-#### 3. Trust the ec2 role from remotion role
+#### 4. Create the ec2 instance
+#### 5. Assign the ec2 role from ec2
+#### 5. Install the dependencies
 
-#### 4. Deploy the applicatiion to the ec2
+The following packages are required by the application, these processes are skipped.
 
-#### 4. Assign the ec2 role from ec2
+#### 6. Deploy the application to the ec2
 
-#### 6. Deploy the apigw-sqs-app project
 
-#### 8. Remove the apigw-sqs-app from your AWS account, if not needed anymore
+#### 8. Destroy the ec2 instance from your AWS account, if not needed anymore
 
 ### Interacting with the API
-
-The API requires an authorization token to interact with it. To obtain the token:
-
-- After successful deployment you will be given out outputs such as `apigw-sqs-app-stack.region`, `apigw-sqs-app-stack.userPoolClientId`, and `apigw-sqs-app-stack.userPoolId`, which are used to authenticate with Cognito.
-- If you don't have a frontend which user needs to login, you can create a user and an authentication token manually for the API by following this [guide](docs/lambda/without-iam/example#test-your-endpoint).
-
-From the guide, `YOUR_USER_POOL_CLIENT_ID` is `apigw-sqs-app-stack.userPoolClientId` and `YOUR_USER_POOL_ID` is the `apigw-sqs-app-stack.userPoolId`, the steps should be followed up to retrieving the `IdToken`.
-
-The base API URL has the format of `https://25w651t09g.execute-api.ap-southeast-2.amazonaws.com/dev/enqueue` from the output `apigw-sqs-app-stack.apiUrl`.
 
 ## Notes
 
