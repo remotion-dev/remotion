@@ -21,9 +21,11 @@ export const ZodStringEditor: React.FC<{
 	value: string;
 	setValue: (value: string) => void;
 }> = ({jsonPath, value, setValue, schema}) => {
-	const [localValue, setLocalValue] = useState<LocalState>({
-		value,
-		zodValidation: schema.safeParse(value),
+	const [localValue, setLocalValue] = useState<LocalState>(() => {
+		return {
+			value,
+			zodValidation: schema.safeParse(value),
+		};
 	});
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(

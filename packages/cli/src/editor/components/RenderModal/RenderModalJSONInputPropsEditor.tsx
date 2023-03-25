@@ -49,9 +49,11 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
 	switchToSchema: () => void;
 }> = ({setValue, value, zodValidationResult, switchToSchema}) => {
-	const [localValue, setLocalValue] = React.useState<State>({
-		validJSON: true,
-		value: JSON.stringify(value, null, 2),
+	const [localValue, setLocalValue] = React.useState<State>(() => {
+		return {
+			validJSON: true,
+			value: JSON.stringify(value, null, 2),
+		};
 	});
 
 	const onPretty = useCallback(() => {

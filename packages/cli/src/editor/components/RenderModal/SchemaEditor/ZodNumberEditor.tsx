@@ -21,9 +21,11 @@ export const ZodNumberEditor: React.FC<{
 	value: number;
 	setValue: (value: number) => void;
 }> = ({jsonPath, value, schema, setValue}) => {
-	const [localValue, setLocalValue] = useState<LocalState>({
-		value: String(value),
-		zodValidation: schema.safeParse(value),
+	const [localValue, setLocalValue] = useState<LocalState>(() => {
+		return {
+			value: String(value),
+			zodValidation: schema.safeParse(value),
+		};
 	});
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
