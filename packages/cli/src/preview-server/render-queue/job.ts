@@ -138,7 +138,6 @@ export type RemoveRenderRequest = {
 };
 
 export type OpenInFileExplorerRequest = {
-	// TODO: Don't allow paths outside Remotion directory
 	directory: string;
 };
 
