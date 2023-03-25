@@ -16,6 +16,7 @@ export const ZodSwitch: React.FC<{
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
 	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
+		// TODO: Better UI for this
 		return <div>any</div>;
 	}
 
