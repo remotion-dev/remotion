@@ -47,6 +47,11 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialDelayRenderTimeout: job.delayRenderTimeout,
 			initialAudioCodec: defaults.audioCodec as AudioCodec | null,
 			initialEnvVariables: job.envVariables,
+			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
+			initialOpenGlRenderer: job.chromiumOptions.gl,
+			initialHeadless: job.chromiumOptions.headless,
+			initialIgnoreCertificateErrors:
+				job.chromiumOptions.ignoreCertificateErrors,
 		};
 	}
 
@@ -84,6 +89,11 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialDelayRenderTimeout: job.delayRenderTimeout,
 			initialAudioCodec: job.audioCodec,
 			initialEnvVariables: job.envVariables,
+			initialDisableWebSecurity: job.chromiumOptions.disableWebSecurity,
+			initialOpenGlRenderer: job.chromiumOptions.gl,
+			initialHeadless: job.chromiumOptions.headless,
+			initialIgnoreCertificateErrors:
+				job.chromiumOptions.ignoreCertificateErrors,
 		};
 	}
 

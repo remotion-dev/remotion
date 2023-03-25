@@ -1,6 +1,7 @@
 import type {
 	AudioCodec,
 	Codec,
+	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
 	StillImageFormat,
@@ -190,6 +191,10 @@ export const RenderModal: React.FC<{
 	initialNumberOfGifLoops: number | null;
 	initialDelayRenderTimeout: number;
 	initialEnvVariables: Record<string, string>;
+	initialDisableWebSecurity: boolean;
+	initialGl: OpenGlRenderer | null;
+	initialIgnoreCertificateErrors: boolean;
+	initialHeadless: boolean;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -216,6 +221,10 @@ export const RenderModal: React.FC<{
 	initialDelayRenderTimeout,
 	initialAudioCodec,
 	initialEnvVariables,
+	initialDisableWebSecurity,
+	initialGl,
+	initialHeadless,
+	initialIgnoreCertificateErrors,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -262,11 +271,15 @@ export const RenderModal: React.FC<{
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
 	const [disallowParallelEncoding, setDisallowParallelEncoding] =
 		useState(false);
-	const [disableWebSecurity, setDisableWebSecurity] = useState<boolean>(false);
-	const [headless, setHeadless] = useState<boolean>(true);
+	const [disableWebSecurity, setDisableWebSecurity] = useState<boolean>(
+		() => initialDisableWebSecurity
+	);
+	const [headless, setHeadless] = useState<boolean>(() => initialHeadless);
 	const [ignoreCertificateErrors, setIgnoreCertificateErrors] =
-		useState<boolean>(false);
-	const [openGlOption, setOpenGlOption] = useState<UiOpenGlOptions>('default');
+		useState<boolean>(() => initialIgnoreCertificateErrors);
+	const [openGlOption, setOpenGlOption] = useState<UiOpenGlOptions>(
+		() => initialGl ?? 'default'
+	);
 
 	const chromiumOptions: RequiredChromiumOptions = useMemo(() => {
 		return {

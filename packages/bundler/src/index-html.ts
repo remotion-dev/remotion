@@ -21,6 +21,10 @@ export type RenderDefaults = {
 	everyNthFrame: number;
 	numberOfGifLoops: number | null;
 	delayRenderTimeout: number;
+	disableWebSecurity: boolean;
+	openGlRenderer: string | null;
+	ignoreCertificateErrors: boolean;
+	headless: boolean;
 };
 
 declare global {
