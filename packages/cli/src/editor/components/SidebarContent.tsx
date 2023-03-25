@@ -74,6 +74,7 @@ export const SidebarContent: React.FC = () => {
 		[]
 	);
 
+	// TODO: It is not perfectly aligned in example
 	return (
 		<div style={container}>
 			{shouldRender ? (

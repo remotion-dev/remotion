@@ -40,8 +40,10 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		EditorZoomGesturesContext
 	);
 	const {size, setSize} = useContext(PreviewSizeContext);
-	const {setSidebarCollapsedState, sidebarCollapsedState} =
-		useContext(SidebarContext);
+	const {
+		setSidebarCollapsedStateLeft: setSidebarCollapsedState,
+		sidebarCollapsedStateLeft: sidebarCollapsedState,
+	} = useContext(SidebarContext);
 
 	const sizes = getUniqueSizes(size);
 

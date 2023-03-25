@@ -3,14 +3,26 @@ import React, {createContext, useMemo, useState} from 'react';
 export type SidebarCollapsedState = 'collapsed' | 'expanded' | 'responsive';
 
 type Context = {
-	sidebarCollapsedState: SidebarCollapsedState;
-	setSidebarCollapsedState: (newState: SidebarCollapsedState) => void;
+	sidebarCollapsedStateLeft: SidebarCollapsedState;
+	setSidebarCollapsedStateLeft: (newState: SidebarCollapsedState) => void;
+	sidebarCollapsedStateRight: SidebarCollapsedState;
+	setSidebarCollapsedStateRight: (newState: SidebarCollapsedState) => void;
 };
 
-const storageKey = 'remotion.sidebarCollapsing';
+type Sidebars = 'left' | 'right';
 
-export const getSavedCollapsedState = (): SidebarCollapsedState => {
-	const state = window.localStorage.getItem(storageKey);
+const storageKey = (sidebar: Sidebars) => {
+	if (sidebar === 'right') {
+		return 'remotion.sidebarRightCollapsing';
+	}
+
+	return 'remotion.sidebarCollapsing';
+};
+
+export const getSavedCollapsedState = (
+	sidebar: Sidebars
+): SidebarCollapsedState => {
+	const state = window.localStorage.getItem(storageKey(sidebar));
 	if (state === 'collapsed') {
 		return 'collapsed';
 	}
@@ -22,13 +34,20 @@ export const getSavedCollapsedState = (): SidebarCollapsedState => {
 	return 'responsive';
 };
 
-const setSavedCollapsedState = (type: SidebarCollapsedState) => {
-	window.localStorage.setItem(storageKey, type);
+const setSavedCollapsedState = (
+	type: SidebarCollapsedState,
+	sidebar: Sidebars
+) => {
+	window.localStorage.setItem(storageKey(sidebar), type);
 };
 
 export const SidebarContext = createContext<Context>({
-	sidebarCollapsedState: 'collapsed',
-	setSidebarCollapsedState: () => {
+	sidebarCollapsedStateLeft: 'collapsed',
+	setSidebarCollapsedStateLeft: () => {
+		throw new Error('sidebar collapsed state');
+	},
+	sidebarCollapsedStateRight: 'collapsed',
+	setSidebarCollapsedStateRight: () => {
 		throw new Error('sidebar collapsed state');
 	},
 });
@@ -36,19 +55,27 @@ export const SidebarContext = createContext<Context>({
 export const SidebarContextProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const [sidebarCollapsedState, setSidebarCollapsedState] = useState(() =>
-		getSavedCollapsedState()
+	const [sidebarCollapsedStateLeft, setSidebarCollapsedStateLeft] = useState(
+		() => getSavedCollapsedState('left')
+	);
+	const [sidebarCollapsedStateRight, setSidebarCollapsedStateRight] = useState(
+		() => getSavedCollapsedState('right')
 	);
 
 	const value: Context = useMemo(() => {
 		return {
-			setSidebarCollapsedState: (state: SidebarCollapsedState) => {
-				setSidebarCollapsedState(state);
-				setSavedCollapsedState(state);
+			sidebarCollapsedStateLeft,
+			sidebarCollapsedStateRight,
+			setSidebarCollapsedStateLeft: (state: SidebarCollapsedState) => {
+				setSidebarCollapsedStateLeft(state);
+				setSavedCollapsedState(state, 'left');
 			},
-			sidebarCollapsedState,
+			setSidebarCollapsedStateRight: (state: SidebarCollapsedState) => {
+				setSidebarCollapsedStateRight(state);
+				setSavedCollapsedState(state, 'right');
+			},
 		};
-	}, [sidebarCollapsedState]);
+	}, [sidebarCollapsedStateLeft, sidebarCollapsedStateRight]);
 
 	return (
 		<SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
