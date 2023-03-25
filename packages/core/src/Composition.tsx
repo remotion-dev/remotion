@@ -1,6 +1,7 @@
 import type {ComponentType, PropsWithChildren} from 'react';
 import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
+import {z} from 'zod';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks.js';
 import {CompositionManager} from './CompositionManager.js';
@@ -13,6 +14,7 @@ import {Loading} from './loading-indicator.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
+import type {PropsIfHasProps} from './props-if-has-props.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
@@ -22,22 +24,26 @@ import {validateFps} from './validation/validate-fps.js';
 
 type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
 
-export type CompProps<T> =
+export type CompProps<Props> =
 	| {
-			lazyComponent: () => Promise<{default: LooseComponentType<T>}>;
+			lazyComponent: () => Promise<{default: LooseComponentType<Props>}>;
 	  }
 	| {
-			component: LooseComponentType<T>;
+			component: LooseComponentType<Props>;
 	  };
 
-export type StillProps<T> = {
+export type StillProps<Schema extends z.ZodTypeAny, Props> = {
 	width: number;
 	height: number;
 	id: string;
-	defaultProps?: T;
-} & CompProps<T>;
+	schema?: Schema;
+} & CompProps<Props> &
+	PropsIfHasProps<Schema, Props>;
 
-type CompositionProps<T> = StillProps<T> & {
+export type CompositionProps<Schema extends z.ZodTypeAny, Props> = StillProps<
+	Schema,
+	Props
+> & {
 	fps: number;
 	durationInFrames: number;
 };
@@ -55,20 +61,21 @@ const Fallback: React.FC = () => {
  * @see [Documentation](https://www.remotion.dev/docs/composition)
  */
 
-export const Composition = <T,>({
+export const Composition = <Schema extends z.ZodTypeAny, Props>({
 	width,
 	height,
 	fps,
 	durationInFrames,
 	id,
 	defaultProps,
+	schema,
 	...compProps
-}: CompositionProps<T>) => {
+}: CompositionProps<Schema, Props>) => {
 	const {registerComposition, unregisterComposition} =
 		useContext(CompositionManager);
 	const video = useVideo();
 
-	const lazy = useLazyComponent(compProps);
+	const lazy = useLazyComponent<Props>(compProps as CompProps<Props>);
 	const nonce = useNonce();
 	const environment = useRemotionEnvironment();
 
@@ -106,7 +113,7 @@ export const Composition = <T,>({
 		});
 
 		validateFps(fps, 'as a prop of the <Composition/> component', false);
-		registerComposition<T>({
+		registerComposition<Schema, Props>({
 			durationInFrames,
 			fps,
 			height,
@@ -114,9 +121,10 @@ export const Composition = <T,>({
 			id,
 			folderName,
 			component: lazy,
-			defaultProps,
+			defaultProps: defaultProps as z.infer<Schema> & Props,
 			nonce,
 			parentFolderName: parentName,
+			schema: schema ?? (z.any() as unknown as Schema),
 		});
 
 		return () => {
@@ -135,6 +143,7 @@ export const Composition = <T,>({
 		width,
 		nonce,
 		parentName,
+		schema,
 	]);
 
 	if (environment === 'preview' && video && video.component === lazy) {

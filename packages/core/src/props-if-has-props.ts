@@ -1,4 +1,4 @@
-import type {z} from 'remotion';
+import type {z} from 'zod';
 
 export type PropsIfHasProps<
 	Schema extends z.ZodTypeAny,
@@ -7,18 +7,18 @@ export type PropsIfHasProps<
 	? {} extends Props
 		? {
 				// Neither props nor schema specified
-				inputProps?: z.infer<Schema> & Props;
+				defaultProps?: Props;
 		  }
 		: {
 				// Only props specified
-				inputProps: Props;
+				defaultProps: Props;
 		  }
 	: {} extends Props
 	? {
 			// Only schema specified
-			inputProps: z.infer<Schema>;
+			defaultProps: z.infer<Schema>;
 	  }
 	: {
 			// Props and schema specified
-			inputProps: z.infer<Schema> & Props;
+			defaultProps: z.infer<Schema> & Props;
 	  };

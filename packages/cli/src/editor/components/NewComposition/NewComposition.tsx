@@ -272,11 +272,14 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 										status="ok"
 									/>
 									{compNameErrMessage ? (
-										<ValidationMessage
-											align="flex-start"
-											message={compNameErrMessage}
-											type="error"
-										/>
+										<>
+											<Spacing y={1} block />
+											<ValidationMessage
+												align="flex-start"
+												message={compNameErrMessage}
+												type="error"
+											/>
+										</>
 									) : null}
 								</div>
 							</Row>
@@ -303,11 +306,14 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 													onValueChange={onWidthDirectlyChanged}
 												/>
 												{compWidthErrMessage ? (
-													<ValidationMessage
-														align="flex-start"
-														message={compWidthErrMessage}
-														type="error"
-													/>
+													<>
+														<Spacing y={1} block />
+														<ValidationMessage
+															align="flex-start"
+															message={compWidthErrMessage}
+															type="error"
+														/>
+													</>
 												) : null}
 											</div>
 										</Row>
@@ -334,11 +340,14 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 												onValueChange={onHeightDirectlyChanged}
 											/>
 											{compHeightErrMessage ? (
-												<ValidationMessage
-													align="flex-start"
-													message={compHeightErrMessage}
-													type="error"
-												/>
+												<>
+													<Spacing y={1} block />
+													<ValidationMessage
+														align="flex-start"
+														message={compHeightErrMessage}
+														type="error"
+													/>
+												</>
 											) : null}
 										</div>
 									</Row>

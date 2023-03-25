@@ -76,5 +76,8 @@
 				"dist/cjs/version.d.ts"
 			]
 		}
+	},
+	"dependencies": {
+		"zod": "^3.21.4"
 	}
 }

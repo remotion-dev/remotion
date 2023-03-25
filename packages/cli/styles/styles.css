@@ -28,6 +28,7 @@ input::-webkit-inner-spin-button {
 }
 
 input:focus,
+textarea:focus,
 button:focus,
 a:focus {
 	outline: none;
@@ -36,9 +37,3 @@ a:focus {
 	border-radius: 0 !important;
 }
 
-input.no-focus-ring:focus,
-button.no-focus-ring:focus,
-a.no-focus-ring:focus {
-	box-shadow: none;
-	border-radius: 0;
-}

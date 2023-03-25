@@ -1,4 +1,6 @@
-import type {StillProps} from './Composition.js';
+import React from 'react';
+import type {z} from 'zod';
+import type {CompositionProps, StillProps} from './Composition.js';
 import {Composition} from './Composition.js';
 
 /**
@@ -6,6 +8,14 @@ import {Composition} from './Composition.js';
  * @see [Documentation](https://www.remotion.dev/docs/still)
  */
 
-export const Still = <T,>(props: StillProps<T>) => {
-	return <Composition fps={1} durationInFrames={1} {...props} />;
+export const Still = <Schema extends z.ZodTypeAny, Props>(
+	props: StillProps<Schema, Props>
+) => {
+	const newProps: CompositionProps<Schema, Props> = {
+		...props,
+		durationInFrames: 1,
+		fps: 1,
+	};
+	// @ts-expect-error TypeScript does not understand it, but should still fail on type mismatch
+	return React.createElement(Composition<Schema, Props>, newProps);
 };
