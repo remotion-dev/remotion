@@ -72,6 +72,7 @@ export const RenderButton: React.FC<{
 				initialNumberOfGifLoops: defaults.numberOfGifLoops,
 				initialDelayRenderTimeout: defaults.delayRenderTimeout,
 				initialAudioCodec: defaults.audioCodec as AudioCodec,
+				initialEnvVariables: window.process.env as Record<string, string>,
 			});
 		},
 		[composition.id, isVideo, setSelectedModal]

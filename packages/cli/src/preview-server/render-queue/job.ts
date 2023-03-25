@@ -66,7 +66,6 @@ type RenderJobDynamicFields =
 			videoBitrate: string | null;
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
-			delayRenderTimeout: number;
 			disallowParallelEncoding: boolean;
 	  } & RenderJobDynamicStatus);
 
@@ -77,8 +76,10 @@ export type RenderJob = {
 	outName: string;
 	deletedOutputLocation: boolean;
 	verbose: boolean;
+	delayRenderTimeout: number;
 	cancelToken: ReturnType<typeof makeCancelSignal>;
 	chromiumOptions: RequiredChromiumOptions;
+	envVariables: Record<string, string>;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {
@@ -114,7 +115,6 @@ type AddRenderRequestDynamicFields =
 			videoBitrate: string | null;
 			everyNthFrame: number;
 			numberOfGifLoops: number | null;
-			delayRenderTimeout: number;
 			disallowParallelEncoding: boolean;
 	  };
 
@@ -127,6 +127,8 @@ export type AddRenderRequest = {
 	compositionId: string;
 	outName: string;
 	chromiumOptions: RequiredChromiumOptions;
+	delayRenderTimeout: number;
+	envVariables: Record<string, string>;
 } & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {

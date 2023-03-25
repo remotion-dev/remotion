@@ -1,15 +1,14 @@
 import type {ChangeEvent} from 'react';
-import React, {useCallback, useMemo, useState} from 'react';
-import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
+import React, {useCallback, useMemo} from 'react';
 
 import type {UiOpenGlOptions} from '../../../required-chromium-options';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
-import {EnvInput} from './EnvInput';
 import {label, optionRow, rightRow} from './layout';
 import {NumberSetting} from './NumberSetting';
+import {RenderModalEnvironmentVariables} from './RenderModalEnvironmentVariables';
 import {RenderModalHr} from './RenderModalHr';
 
 export type RenderType = 'still' | 'video' | 'audio';
@@ -34,10 +33,8 @@ export const RenderModalAdvanced: React.FC<{
 	disableWebSecurity: boolean;
 	openGlOption: UiOpenGlOptions;
 	setOpenGlOption: React.Dispatch<React.SetStateAction<UiOpenGlOptions>>;
-	envVariables: [[string, string]] | null;
-	setEnvVariables: React.Dispatch<
-		React.SetStateAction<[[string, string]] | null>
-	>;
+	envVariables: [string, string][];
+	setEnvVariables: React.Dispatch<React.SetStateAction<[string, string][]>>;
 }> = ({
 	renderMode,
 	maxConcurrency,
@@ -64,8 +61,6 @@ export const RenderModalAdvanced: React.FC<{
 	const extendedOpenGlOptions: UiOpenGlOptions[] = useMemo(() => {
 		return ['angle', 'egl', 'swangle', 'swiftshader', 'default'];
 	}, []);
-	const testEnvs = Object.entries(window.process.env);
-	console.log(testEnvs);
 	const onVerboseLoggingChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setVerboseLogging(e.target.checked);
@@ -101,54 +96,6 @@ export const RenderModalAdvanced: React.FC<{
 		[setHeadless]
 	);
 
-	const [envVal, setEnvVal] = useState<string | null>(null);
-	const [envKey, setEnvKey] = useState<string | null>(null);
-
-	const submitEnvVariables = () => {
-		if (envKey === null || envVal === null) {
-			throw Error('Key and value have to be both provided');
-		}
-
-		if (envVariables) {
-			const currEnvVars = envVariables;
-			currEnvVars?.push([envVal, envKey]);
-			setEnvVariables(currEnvVars);
-		} else {
-			setEnvVariables([[envVal, envKey]]);
-		}
-	};
-
-	const onEnvValChange: React.ChangeEventHandler<HTMLInputElement> =
-		useCallback(
-			(e) => {
-				setEnvVal(e.target.value);
-			},
-			[setEnvVal]
-		);
-	const onEnvKeyChange: React.ChangeEventHandler<HTMLInputElement> =
-		useCallback(
-			(e) => {
-				setEnvKey(e.target.value);
-			},
-			[setEnvKey]
-		);
-
-	const generateEnvFields = () => {
-		if (testEnvs !== undefined) {
-			return testEnvs.map((env) => {
-				return (
-					<EnvInput
-						key={env[0]}
-						onEnvKeyChange={onEnvKeyChange}
-						onEnvValChange={onEnvValChange}
-						envKey={env[0]}
-						envVal={env[1]}
-					/>
-				);
-			});
-		}
-	};
-
 	const openGlOptions = useMemo((): ComboboxValue[] => {
 		return extendedOpenGlOptions.map((option) => {
 			return {
@@ -166,13 +113,6 @@ export const RenderModalAdvanced: React.FC<{
 		});
 	}, [extendedOpenGlOptions, openGlOption, setOpenGlOption]);
 
-	const generateEmptyForm = () => {
-		testEnvs.push([null, null]);
-		generateEnvFields();
-		console.log(testEnvs);
-	};
-
-	console.log(testEnvs);
 	return (
 		<div>
 			{renderMode === 'still' ? null : (
@@ -248,14 +188,10 @@ export const RenderModalAdvanced: React.FC<{
 				</div>
 			</div>
 			<RenderModalHr />
-			{generateEnvFields()}
-			<EnvInput
-				onEnvKeyChange={onEnvKeyChange}
-				onEnvValChange={onEnvValChange}
-				envKey={envKey}
-				envVal={envVal}
+			<RenderModalEnvironmentVariables
+				envVariables={envVariables}
+				setEnvVariables={setEnvVariables}
 			/>
-			<Button onClick={generateEmptyForm}> + </Button>
 		</div>
 	);
 };

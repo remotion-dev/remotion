@@ -45,6 +45,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				delayRenderTimeout: input.delayRenderTimeout,
 				disallowParallelEncoding: input.disallowParallelEncoding,
 				chromiumOptions: input.chromiumOptions,
+				envVariables: input.envVariables,
 			},
 		});
 	}
@@ -67,6 +68,8 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				verbose: input.verbose,
 				cancelToken: makeCancelSignal(),
 				chromiumOptions: input.chromiumOptions,
+				delayRenderTimeout: input.delayRenderTimeout,
+				envVariables: input.envVariables,
 			},
 			entryPoint,
 			remotionRoot,

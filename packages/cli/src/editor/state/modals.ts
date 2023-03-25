@@ -38,6 +38,7 @@ export type RenderModalState = {
 	initialEveryNthFrame: number;
 	initialNumberOfGifLoops: number | null;
 	initialDelayRenderTimeout: number;
+	initialEnvVariables: Record<string, string>;
 	minConcurrency: number;
 	maxConcurrency: number;
 };

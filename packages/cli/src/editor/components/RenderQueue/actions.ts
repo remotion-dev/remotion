@@ -54,6 +54,8 @@ export const addStillRenderJob = ({
 	scale,
 	verbose,
 	chromiumOptions,
+	delayRenderTimeout,
+	envVariables,
 }: {
 	compositionId: string;
 	outName: string;
@@ -63,6 +65,8 @@ export const addStillRenderJob = ({
 	scale: number;
 	verbose: boolean;
 	chromiumOptions: RequiredChromiumOptions;
+	delayRenderTimeout: number;
+	envVariables: Record<string, string>;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -74,6 +78,8 @@ export const addStillRenderJob = ({
 		scale,
 		verbose,
 		chromiumOptions,
+		delayRenderTimeout,
+		envVariables,
 	});
 };
 
@@ -101,6 +107,7 @@ export const addVideoRenderJob = ({
 	audioCodec,
 	disallowParallelEncoding,
 	chromiumOptions,
+	envVariables,
 }: {
 	compositionId: string;
 	outName: string;
@@ -125,6 +132,7 @@ export const addVideoRenderJob = ({
 	audioCodec: AudioCodec;
 	disallowParallelEncoding: boolean;
 	chromiumOptions: RequiredChromiumOptions;
+	envVariables: Record<string, string>;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -151,6 +159,7 @@ export const addVideoRenderJob = ({
 		audioCodec,
 		disallowParallelEncoding,
 		chromiumOptions,
+		envVariables,
 	});
 };
 

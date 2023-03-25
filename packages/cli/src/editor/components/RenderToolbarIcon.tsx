@@ -82,6 +82,7 @@ export const RenderStillButton: React.FC = () => {
 			initialNumberOfGifLoops: defaults.numberOfGifLoops,
 			initialDelayRenderTimeout: defaults.delayRenderTimeout,
 			initialAudioCodec: defaults.audioCodec as AudioCodec | null,
+			initialEnvVariables: window.process.env as Record<string, string>,
 		});
 	}, [video, frame, setSelectedModal]);
 
