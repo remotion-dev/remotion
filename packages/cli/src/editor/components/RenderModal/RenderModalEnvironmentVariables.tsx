@@ -2,6 +2,9 @@ import {useCallback} from 'react';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {EnvInput} from './EnvInput';
 
+// TODO: should warn if XOR key XOR value is empty
+// TODO: Should warn if trying to set the same key twice
+// TODO: Should warn if trying to set NODE_ENV
 export const RenderModalEnvironmentVariables: React.FC<{
 	envVariables: [string, string][];
 	setEnvVariables: React.Dispatch<React.SetStateAction<[string, string][]>>;
