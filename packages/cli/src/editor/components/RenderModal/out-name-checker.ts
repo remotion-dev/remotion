@@ -38,7 +38,6 @@ export const validateOutnameGui = ({
 		});
 		return {valid: true};
 	} catch (err) {
-		console.log({valid: false, error: err as Error});
 		return {valid: false, error: err as Error};
 	}
 };
