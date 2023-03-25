@@ -28,6 +28,7 @@ const fieldsetLabel: React.CSSProperties = {
 	paddingRight: 10,
 };
 
+// TODO: First validate locally
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
