@@ -242,7 +242,9 @@ export const RenderModal: React.FC<{
 		useState<AudioCodec | null>(() => initialAudioCodec);
 
 	const [envVariables, setEnvVariables] = useState<[string, string][]>(() =>
-		envVariablesObjectToArray(initialEnvVariables)
+		envVariablesObjectToArray(initialEnvVariables).filter(
+			([key]) => key !== 'NODE_ENV'
+		)
 	);
 	const [videoCodecForAudioTab, setVideoCodecForAudioTab] = useState<Codec>(
 		() => initialVideoCodecForAudioTab
