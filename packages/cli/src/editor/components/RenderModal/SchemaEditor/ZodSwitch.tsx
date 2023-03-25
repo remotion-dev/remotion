@@ -1,3 +1,4 @@
+import React from 'react';
 import {z} from 'remotion';
 import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
@@ -10,7 +11,7 @@ export const ZodSwitch: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: unknown;
-	setValue: (value: unknown) => void;
+	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 }> = ({schema, jsonPath, value, setValue}) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,7 +36,7 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodStringEditor
 				value={value as string}
-				setValue={setValue as (val: string) => void}
+				setValue={setValue as React.Dispatch<React.SetStateAction<string>>}
 				jsonPath={jsonPath}
 				schema={schema}
 			/>
@@ -46,7 +47,7 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodNumberEditor
 				value={value as number}
-				setValue={setValue as (val: number) => void}
+				setValue={setValue as React.Dispatch<React.SetStateAction<unknown>>}
 				jsonPath={jsonPath}
 				schema={schema}
 			/>
@@ -56,7 +57,7 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodArray) {
 		return (
 			<ZodArrayEditor
-				setValue={setValue}
+				setValue={setValue as React.Dispatch<React.SetStateAction<unknown[]>>}
 				value={value as unknown[]}
 				jsonPath={jsonPath}
 				schema={schema}

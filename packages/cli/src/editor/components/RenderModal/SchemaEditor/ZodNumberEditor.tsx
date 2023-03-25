@@ -19,7 +19,7 @@ export const ZodNumberEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: number;
-	setValue: (value: number) => void;
+	setValue: React.Dispatch<React.SetStateAction<number>>;
 }> = ({jsonPath, value, schema, setValue}) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {

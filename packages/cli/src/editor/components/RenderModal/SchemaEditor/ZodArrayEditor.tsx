@@ -7,10 +7,9 @@ import {
 } from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {InlineRemoveButton} from '../InlineRemoveButton';
 import {optionRow} from '../layout';
 import type {JSONPath} from './zod-types';
-import {ZodSwitch} from './ZodSwitch';
+import {ZodArrayItemEditor} from './ZodArrayItemEditor';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -29,28 +28,18 @@ const fieldsetLabel: React.CSSProperties = {
 	flexDirection: 'row',
 };
 
-const row: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	width: '100%',
-	alignItems: 'center',
-};
-
-const flex: React.CSSProperties = {
-	flex: 1,
-};
-
 type LocalState = {
 	value: unknown[];
 	zodValidation: z.SafeParseReturnType<unknown, unknown>;
 	revision: number;
 };
 
+// TODO: Ability to add another item
 export const ZodArrayEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: unknown[];
-	setValue: (value: unknown[]) => void;
+	setValue: React.Dispatch<React.SetStateAction<unknown[]>>;
 }> = ({schema, jsonPath, setValue: updateValue, value}) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -82,17 +71,20 @@ export const ZodArrayEditor: React.FC<{
 	}, [localValue.zodValidation.success]);
 
 	const onChange = useCallback(
-		(newValue: unknown[], incrementRevision: boolean) => {
-			const safeParse = schema.safeParse(newValue);
-			setLocalValue((oldLocalState) => ({
-				revision: oldLocalState.revision + (incrementRevision ? 1 : 0),
-				value: newValue,
-				zodValidation: safeParse,
-			}));
+		(updater: (oldV: unknown[]) => unknown[], incrementRevision: boolean) => {
+			setLocalValue((oldLocalState) => {
+				const newValue = updater(oldLocalState.value);
+				const safeParse = schema.safeParse(newValue);
+				if (safeParse.success) {
+					updateValue(updater);
+				}
 
-			if (safeParse.success) {
-				updateValue(newValue);
-			}
+				return {
+					revision: oldLocalState.revision + (incrementRevision ? 1 : 0),
+					value: newValue,
+					zodValidation: safeParse,
+				};
+			});
 		},
 		[schema, updateValue]
 	);
@@ -117,32 +109,15 @@ export const ZodArrayEditor: React.FC<{
 					<div style={isRoot ? undefined : container}>
 						{localValue.value.map((child, i) => {
 							return (
-								<div // eslint-disable-next-line react/no-array-index-key
+								<ZodArrayItemEditor
+									// eslint-disable-next-line react/no-array-index-key
 									key={`${i}${localValue.revision}`}
-									style={row}
-								>
-									<InlineRemoveButton
-										onClick={() => {
-											onChange(
-												[...value.slice(0, i), ...value.slice(i + 1)],
-												true
-											);
-										}}
-									/>
-									<div style={flex}>
-										<ZodSwitch
-											jsonPath={[...jsonPath, i]}
-											schema={def.type}
-											value={child}
-											setValue={(val) => {
-												onChange(
-													[...value.slice(0, i), val, ...value.slice(i + 1)],
-													false
-												);
-											}}
-										/>
-									</div>
-								</div>
+									onChange={onChange}
+									child={child}
+									def={def}
+									index={i}
+									jsonPath={jsonPath}
+								/>
 							);
 						})}
 					</div>
