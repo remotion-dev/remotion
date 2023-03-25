@@ -29,7 +29,7 @@ export const SchemaEditor: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
 		return (
 			<div style={errorExplanation}>
-				The schema an <code style={codeSnippet}>any</code> type.
+				The schema has an <code style={codeSnippet}>any</code> type.
 				<br /> Tweak the schema by adding a{' '}
 				<code style={codeSnippet}>schema</code> prop to the{' '}
 				<code style={codeSnippet}>{'<Composition>'}</code> component.
