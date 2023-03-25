@@ -9,7 +9,7 @@ import {cleanDownloadMap} from '@remotion/renderer/dist/assets/download-map';
 import {existsSync, unlinkSync} from 'fs';
 import {tmpdir} from 'os';
 import path from 'path';
-import {TCompMetadata} from 'remotion';
+import {AnyCompMetadata} from 'remotion';
 import {expect, test} from 'vitest';
 import {webpackOverride} from '../webpack-override';
 
@@ -25,7 +25,7 @@ test(
 
 		const composition = compositions.find(
 			(c) => c.id === 'react-svg'
-		) as TCompMetadata;
+		) as AnyCompMetadata;
 
 		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
 		const testOut = path.join(folder, 'still.png');
@@ -131,7 +131,7 @@ test(
 		for (const toRenderComposition of toRenderCompositions) {
 			const composition = compositions.find(
 				(c) => c.id === toRenderComposition[0]
-			) as TCompMetadata;
+			) as AnyCompMetadata;
 
 			const testOut = path.join(
 				folder,

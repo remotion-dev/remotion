@@ -1,4 +1,4 @@
-import type {TCompMetadata} from 'remotion';
+import type {AnyCompMetadata} from 'remotion';
 import {Log} from './log';
 import {selectComposition} from './select-composition';
 
@@ -31,13 +31,13 @@ export const getCompositionId = async ({
 	args,
 	compositionIdFromUi,
 }: {
-	validCompositions: TCompMetadata[];
+	validCompositions: AnyCompMetadata[];
 	args: string[];
 	compositionIdFromUi: string | null;
 }): Promise<{
 	compositionId: string;
 	reason: string;
-	config: TCompMetadata;
+	config: AnyCompMetadata;
 	argsAfterComposition: string[];
 }> => {
 	const {
@@ -75,7 +75,7 @@ export const getCompositionId = async ({
 				reason,
 				config: validCompositions.find(
 					(c) => c.id === compositionId
-				) as TCompMetadata,
+				) as AnyCompMetadata,
 				argsAfterComposition: args,
 			};
 		}

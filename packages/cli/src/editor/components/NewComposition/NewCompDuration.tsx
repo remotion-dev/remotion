@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
 import {validateCompositionDuration} from '../../helpers/validate-new-comp-data';
-import {Row} from '../layout';
+import {Row, Spacing} from '../layout';
 import {InputDragger} from './InputDragger';
 import {inputArea, leftLabel, rightLabel} from './new-comp-layout';
 import {ValidationMessage} from './ValidationMessage';
@@ -46,11 +46,14 @@ export const NewCompDuration: React.FC<{
 							onValueChange={onDurationChangedDirectly}
 						/>
 						{compDurationErrMessage ? (
-							<ValidationMessage
-								align="flex-start"
-								message={compDurationErrMessage}
-								type="error"
-							/>
+							<>
+								<Spacing y={1} block />
+								<ValidationMessage
+									align="flex-start"
+									message={compDurationErrMessage}
+									type="error"
+								/>
+							</>
 						) : null}
 					</div>
 					<span style={rightLabel}>

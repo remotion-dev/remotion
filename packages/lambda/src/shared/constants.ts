@@ -9,7 +9,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import type {VideoConfig} from 'remotion';
+import type {AnyCompMetadata} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -388,7 +388,7 @@ type Discriminated =
 
 export type RenderMetadata = Discriminated & {
 	siteId: string;
-	videoConfig: VideoConfig;
+	videoConfig: AnyCompMetadata;
 	startedDate: number;
 	totalChunks: number;
 	estimatedTotalLambdaInvokations: number;

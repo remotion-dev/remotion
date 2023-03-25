@@ -16,7 +16,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {TComposition} from 'remotion';
+import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import type {
@@ -25,6 +25,7 @@ import type {
 } from '../../../required-chromium-options';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
 import {AudioIcon} from '../../icons/audio';
+import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
@@ -45,6 +46,7 @@ import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
 import {RenderModalAudio} from './RenderModalAudio';
 import {RenderModalBasic} from './RenderModalBasic';
+import {RenderModalData} from './RenderModalData';
 import {RenderModalGif} from './RenderModalGif';
 import type {QualityControl} from './RenderModalPicture';
 import {RenderModalPicture} from './RenderModalPicture';
@@ -374,7 +376,7 @@ export const RenderModal: React.FC<{
 
 	const {compositions} = useContext(Internals.CompositionManager);
 
-	const currentComposition = useMemo((): TComposition | null => {
+	const currentComposition = useMemo((): AnyComposition | null => {
 		for (const composition of compositions) {
 			if (composition.id === compositionId) {
 				return composition;
@@ -387,6 +389,10 @@ export const RenderModal: React.FC<{
 	if (currentComposition === null) {
 		throw new Error('This composition does not exist');
 	}
+
+	const [inputProps, setInputProps] = useState(
+		() => currentComposition.defaultProps
+	);
 
 	const endFrame = useMemo((): number => {
 		if (endFrameOrNull === null) {
@@ -782,7 +788,6 @@ export const RenderModal: React.FC<{
 						backgroundColor: outnameValidation.valid
 							? 'var(--blue)'
 							: 'var(--blue-disabled)',
-						opacity: outnameValidation.valid ? 1 : 0.7,
 					}}
 				>
 					{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
@@ -800,6 +805,18 @@ export const RenderModal: React.FC<{
 								<FileIcon style={icon} />
 							</div>
 							General
+						</Tab>
+					) : null}
+					{shownTabs.includes('data') ? (
+						<Tab
+							style={horizontalTab}
+							selected={tab === 'data'}
+							onClick={() => setTab('data')}
+						>
+							<div style={iconContainer}>
+								<DataIcon style={icon} />
+							</div>
+							Input Props
 						</Tab>
 					) : null}
 					{shownTabs.includes('picture') ? (
@@ -851,7 +868,7 @@ export const RenderModal: React.FC<{
 						</Tab>
 					) : null}
 				</div>
-				<div style={scrollPanel}>
+				<div style={scrollPanel} className="__remotion-vertical-scrollbar">
 					<Spacing block y={0.5} />
 					{tab === 'general' ? (
 						<RenderModalBasic
@@ -927,6 +944,12 @@ export const RenderModal: React.FC<{
 							setEveryNthFrameSetting={setEveryNthFrameSetting}
 							setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
 							setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
+						/>
+					) : tab === 'data' ? (
+						<RenderModalData
+							inputProps={inputProps}
+							setInputProps={setInputProps}
+							composition={currentComposition}
 						/>
 					) : (
 						<RenderModalAdvanced

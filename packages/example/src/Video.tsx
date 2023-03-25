@@ -1,6 +1,6 @@
 import {alias} from 'lib/alias';
 import React from 'react';
-import {Composition, Folder, getInputProps, Still} from 'remotion';
+import {Composition, Folder, getInputProps, Still, z} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText from './BetaText';
 import {CancelRender} from './CancelRender';
@@ -191,6 +191,10 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={180 * 30}
+					defaultProps={{
+						opacity: 1,
+						volume: 0.4,
+					}}
 				/>
 				<Composition
 					id="tiles"
@@ -383,6 +387,10 @@ export const Index: React.FC = () => {
 					// Change the duration of the video dynamically by passing
 					// `--props='{"duration": 100}'`
 					durationInFrames={inputProps?.duration ?? 20}
+					defaultProps={{
+						codec: 'mp4' as const,
+						offthread: false,
+					}}
 				/>
 				<Composition
 					id="nested"
@@ -664,6 +672,35 @@ export const Index: React.FC = () => {
 					width={1200}
 					height={630}
 					fps={30}
+					schema={z.object({
+						vehicle: z
+							.string()
+							.max(3, 'Too long')
+							.refine((v) => ['caa', 'bus', 'truck'].includes(v)),
+						other: z.string(),
+						abc: z.object({
+							xyz: z.string(),
+							jkl: z.string(),
+							def: z.object({
+								xyz: z.string(),
+								pef: z.string(),
+							}),
+						}),
+						array: z.array(z.number()).min(2),
+					})}
+					defaultProps={{
+						vehicle: 'caa',
+						other: 'hi',
+						abc: {
+							def: {
+								xyz: 'hu',
+								pef: 'hu',
+							},
+							jkl: 'sting',
+							xyz: 'hi',
+						},
+						array: [3, 3, 3],
+					}}
 					durationInFrames={150}
 				/>
 			</Folder>

@@ -2,7 +2,7 @@ import type {Codec} from '@remotion/renderer';
 import {useMemo, useState} from 'react';
 import type {RenderType} from '../components/RenderModal/RenderModalAdvanced';
 
-type Section = 'general' | 'picture' | 'advanced' | 'gif' | 'audio';
+type Section = 'general' | 'picture' | 'advanced' | 'data' | 'gif' | 'audio';
 
 export const useRenderModalSections = (
 	renderMode: RenderType,
@@ -12,19 +12,19 @@ export const useRenderModalSections = (
 
 	const shownTabs = useMemo((): Section[] => {
 		if (renderMode === 'audio') {
-			return ['general', 'audio', 'advanced'];
+			return ['general', 'data', 'audio', 'advanced'];
 		}
 
 		if (renderMode === 'still') {
-			return ['general', 'picture', 'advanced'];
+			return ['general', 'data', 'picture', 'advanced'];
 		}
 
 		if (renderMode === 'video') {
 			if (codec === 'gif') {
-				return ['general', 'picture', 'gif', 'advanced'];
+				return ['general', 'data', 'picture', 'gif', 'advanced'];
 			}
 
-			return ['general', 'picture', 'audio', 'advanced'];
+			return ['general', 'data', 'picture', 'audio', 'advanced'];
 		}
 
 		throw new TypeError('Unknown render mode');
