@@ -5,25 +5,13 @@ sidebar_label: Lambda rendering from ec2
 crumb: "@remotion/lambda"
 ---
 
-import Tabs from '@theme/Tabs';
-import TabItem from '@theme/TabItem';
-
-This guide will show you how to securely interact with Remotion's [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) operations from AWS ec2 instance using NodeJS and Typescript. 
-
+This guide will demonstrate how to securely interact with Remotion's [renderMediaOnLambda()](/docs/lambda/rendermediaonlambda) operations from an AWS EC2 instance using Node.js and TypeScript.
 
 To supplement this guide, two projects have been created:
 
-- The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) contains a Remotion composition and utility scripts for deploying and deleting Remotion Lambda infrastructure in AWS. Note that this is the same application as from the [Serverless Framework guide](/docs/lambda/serverless-framework-integration).
-- The [ec2-remotion-lambda](https://github.com/alexfernandez803/remotion-serverless/tree/main/ec2-remotion-lambda). 
+- The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) includes a Remotion composition and utility scripts for deploying and deleting Remotion Lambda infrastructure in AWS. It should be noted that this is the same application as the one featured in the [Serverless Framework guide](/docs/lambda/serverless-framework-integration).
 
-
-## remotion-app
-
-- Follow the same setup instruction from [remotion-app guide](/docs/lambda/serverless-framework-integration#remotion-app) as we will just re-use the application.
-
-## ec2-remotion-lambda
-
-- This is an standalone nodejs application that renders video via REST API. An API operation has been implemented to trigger a render [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) processes. 
+- The [ec2-remotion-lambda](https://github.com/alexfernandez803/remotion-serverless/tree/main/ec2-remotion-lambda) is a TypeScript Node.js application that initiates a video rendering process via a REST endpoint.
 
 ### Prerequisites
 
@@ -41,24 +29,25 @@ To supplement this guide, two projects have been created:
 
 ####  2. Create role for remotion render execution 
 ##### Steps
-  - Go to AWS account IAM Roles section
-    - Click "Create role".
-    - Under "Use cases", select "Lambda". Click next.
-    - Under "Permissions policies", filter for `remotion-executionrole-policy` and click the checkbox to assign this policy. This `policy` should have been created, if not, refer to step 1.
-    - Additionally, still in "Permission policies" clear the filter and filter again for `AWSLambdaBasicExecutionRole`. Click the checkbox and click next.
-    - In the final step, name the role `remotion-lambda-role` exactly. You can leave the other fields as is.
-    - Click "Create role" to confirm.
-   
+ - Go to the IAM Roles section of your AWS account.
+   - Click "Create role".
+   - Under "Select type of trusted entity", select "AWS service", and under "Choose the service that will use this role", select "Lambda". Click "Next: Permissions".
+   - Under "Attach permissions policies", search for remotion-executionrole-policy and click the checkbox to assign this policy. If the policy has not been created, refer to step 1.
+   - Additionally, still in "Attach permissions policies", clear the filter and search for AWSLambdaBasicExecutionRole. Click the checkbox and click "Next: Tags".
+   - On the "Add tags" page, you can optionally add tags to the role. Click "Next: Review".
+   - On the "Review" page, name the role remotion-lambda-role exactly. Leave the other fields as they are.
+   - Click "Create role" to confirm.
 
 #### 3. Create a role for the EC2 instance
 ##### Steps
-- Go to AWS account IAM Roles section
-    - Click "Create role".
-    - Under "Use cases", select "EC2". Click next.
-    - Under "Permissions policies", leave it empty for now.
-    - In the final step, name the role `ec2-remotion-role` exactly. You can leave the other fields as is.
-    - Click "Create role" to confirm.
-    - Make note of the ARN for the role.
+ - Go to the IAM Roles section of your AWS account.
+   - Click "Create role".
+   - Under "Select type of trusted entity", select "AWS service", and under "Choose the service that will use this role", select "EC2". Click "Next: Permissions".
+   - Under "Attach permissions policies", leave it empty for now. Click "Next: Tags".
+   - On the "Add tags" page, you can optionally add tags to the role. Click "Next: Review".
+   - On the "Review" page, name the role ec2-remotion-role exactly. Leave the other fields as they are.
+   - Click "Create role" to confirm.
+   - Make a note of the ARN for the role.
 
 #### 4. Trust the ec2 role from remotion role
 ##### Steps
@@ -110,39 +99,10 @@ Upload the application [code](https://github.com/alexfernandez803/remotion-serve
 
 - Go to the application directory
 - Execute the following command to install application dependency
-  
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
+ 
 ```bash
 npm i
 ```
-
-  </TabItem>
-
-  <TabItem value="pnpm">
-
-```bash
-pnpm i
-```
-
-  </TabItem>
-  <TabItem value="yarn">
-
-```bash
-yarn install
-```
-
-  </TabItem>
-
-</Tabs>
 
 #### 6. Configure the application environment variables
 
@@ -165,46 +125,41 @@ yarn install
     - `API_USERNAME` represents the username to use when interacting with the API.
     - `API_PASSWORD` represent the password to use when interacting with the API.
 
-#### 6. Run the application
+#### 6. Run the application from the application directory
 
-<Tabs
-defaultValue="npm"
-values={[
-{ label: 'npm', value: 'npm', },
-{ label: 'yarn', value: 'yarn', },
-{ label: 'pnpm', value: 'pnpm', },
-]
-}>
-<TabItem value="npm">
-
-```bash
-npm run start
-```
-
-  </TabItem>
-
-  <TabItem value="pnpm">
-
-```bash
-pnpm start
-```
-
-  </TabItem>
-  <TabItem value="yarn">
-
-```bash
-yarn start
-```
-
-  </TabItem>
-
-</Tabs>
-
-
+    ```bash
+    npm run start
+    ```
 
 #### 8. Destroy the ec2 instance from your AWS account, if not needed anymore
 
 ### Interacting with the application
+The application can be interacted using CURL or Postman, to interact with the API follow the steps below.
+
+- Since the application is still not a daemon process, we need to launch another shell session connecting to the server.
+    ```bash
+        ssh blablah 
+    ```
+- Execute the CURL command
+  
+
+  ```bash title=Request
+curl --location --request POST 'http://localhost:8080/render' \
+--header 'Authorization: Basic YWRtaW46cGFzc3dvcmQ='
+  ```
+
+  The `Authorization` header is a combination of word `Basic` and a space, then the `base64` encoded username and password joined together by colon, `username:password`.
+
+  From the `/render` API resource, the application will execute this piece of [code](https://github.com/alexfernandez803/remotion-serverless/blob/main/ec2-remotion-lambda/src/services/render-services.ts#L11) This codes assume the role of `ec2-remotion-role`, then provided with temporary access tokens ie `AccessKeyId`, `SecretAccessKey` and `SessionToken`. These credentials will then need to be set as environment variables on the server so that in can be used by the [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) process. Setting the environment parameters route the render process in this (code)[https://github.com/alexfernandez803/remotion-serverless/blob/main/ec2-app/render_handler.ts#L14].
+
+  ```bash title=application logs
+
+  ```
+  For testing, logs marker are added for identifying issues.
+
+  ```bash title=API Response
+
+  ```
 
 ## See also
 
