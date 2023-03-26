@@ -52,7 +52,7 @@ To supplement this guide, two projects have been created:
 
 #### 3. Create a role for the EC2 instance
 ##### Steps
-    - Go to AWS account IAM Roles section
+- Go to AWS account IAM Roles section
     - Click "Create role".
     - Under "Use cases", select "EC2". Click next.
     - Under "Permissions policies", leave it empty for now.
@@ -61,7 +61,8 @@ To supplement this guide, two projects have been created:
     - Make note of the ARN for the role.
 
 #### 4. Trust the ec2 role from remotion role
-  - From IAM roles section again
+##### Steps
+- From IAM roles section again
   - Find the role from step 2, or filter roles by name using `remotion-lambda-role`. Keep the `ARN` of the role from step 3 handy.
   - From the trust relationship tab, click the "Edit trust policy" button.
   - Edit the policy statement and add the `ARN` of EC2 role(`ec2-remotion-role`) from step 3. It should added as one of the principal, as an `AWS` principal since it is a role.
@@ -82,30 +83,89 @@ To supplement this guide, two projects have been created:
    ]
 }
   ```
-  :::note
-    This instructs `remotion-lambda-role` to allow `ec2-remotion-role` to assume its role with associated permission to access AWS services/resources that `remotion` needs to render videos.
-  :::
+:::info 
+This instructs `remotion-lambda-role` to allow `ec2-remotion-role` to assume its role with associated permission to access AWS services/resources that `remotion` needs to render videos.
+:::
 
 
 #### 4. Create the ec2 instance
-- From AWS Management console.
-- Go to the EC2 dashboard by selecting EC2 from the list of services.
-- Click on the "Launch Instance" button.
-- Choose an Amazon Machine Image (AMI) that you want to use for your instance. You can select from a variety of pre-configured AMIs, or you can create your own. For this instance chose Ubuntu AMI.
-- Select an instance type that you want to use for your instance. The instance type determines the amount of CPU, memory, storage, and networking capacity that your instance will have.
-- Configure your instance details, such as the number of instances you want to launch, the VPC and subnet you want to use, and any advanced settings you want to enable.
-- From "Network setting" tick the "Allow SSH traffic from", and from selection of allowing access select "My IP address". This will allow you to connect to the server instance via SSH and SFTP to upload the dependencies.
-- From "Network setting" also, click "Allow HTTP traffic from the internet", this will allow the application to be trigger for REST API operation.
-- Add storage to your instance by selecting the storage type and size you want to use.
-- From "Advance details", on "IAM instance profile" find the role we specifically created for EC2 named "ec2-remotion-role". This gives access to the EC2 instance to assume the role for remotion. 
-- Review your instance launch details and click the "Launch" button.
-- Choose an existing key pair or create a new key pair to securely connect to your instance. This key pair is necessary to access your instance via SSH.
-- Launch your instance by clicking the "Launch Instances" button.
-- Wait for your instance to launch. Once it's ready, you can connect to it using SSH, RDP, or other remote access methods.
+  - From AWS Management console.
+  - Go to the EC2 dashboard by selecting EC2 from the list of services.
+  - Click on the "Launch Instance" button.
+  - Choose an Amazon Machine Image (AMI) that you want to use for your instance. You can select from a variety of pre-configured AMIs, or you can create your own. For this instance chose Ubuntu AMI.
+  - Select an instance type that you want to use for your instance. The instance type determines the amount of CPU, memory, storage, and networking capacity that your instance will have.
+  - Configure your instance details, such as the number of instances you want to launch, the VPC and subnet you want to use, and any advanced settings you want to enable.
+  - From "Network setting" tick the "Allow SSH traffic from", and from selection of allowing access select "My IP address". This will allow you to connect to the server instance via SSH and SFTP to upload the dependencies.
+  - From "Network setting" also, click "Allow HTTP traffic from the internet", this will allow the application to be trigger for REST API operation.
+  - Add storage to your instance by selecting the storage type and size you want to use.
+  - From "Advance details", on "IAM instance profile" find the role we specifically created for EC2 named "ec2-remotion-role". This gives access to the EC2 instance to assume the role for remotion. 
+  - Review your instance launch details and click the "Launch" button.
+  - Choose an existing key pair or create a new key pair to securely connect to your instance. This key pair is necessary to access your instance via SSH.
+  - Launch your instance by clicking the "Launch Instances" button.
+  - Wait for your instance to launch. Once it's ready, you can connect to it using SSH, RDP, or other remote access methods.
 
 #### 5. Upload the code to the server and install dependencies
 
-The following packages are required by the application, these processes are skipped.
+Upload the application [code](https://github.com/alexfernandez803/remotion-serverless/tree/main/ec2-remotion-lambda) into the EC2 instance by any means that you are comfortable, for this instance we are uploading a SFTP client named [cyberduck(https://cyberduck.io/).
+
+- Go to the application directory
+- Execute the following command to install application dependency
+  
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm i
+```
+
+  </TabItem>
+  <TabItem value="yarn">
+
+```bash
+yarn install
+```
+
+  </TabItem>
+
+</Tabs>
+
+#### 6. Configure the application environment variables
+
+- From the application directory, create a file named `.env`
+- Assign values for the environment keys such as `PORT`, `REMOTION_ROLE_ARN`, `REMOTION_ROLE_SESSION_NAME`, `API_USERNAME`, `API_PASSWORD`
+
+    ```bash title=".env"
+    PORT=8080
+    REMOTION_ROLE_ARN=arn:aws:iam::XXXXXXXXXX:role/remotion-ec2-executionrole
+    REMOTION_ROLE_SESSION_NAME=render-sessions
+    API_USERNAME=admin
+    API_PASSWORD=password
+    ```
+
+    - `PORT` represents the which port should the application can run from.
+    - `REMOTION_ROLE_ARN` represents the `ARN` of the role which the application `assume` to render the video, for this instance it is `remotion-ec2-executionrole` ARN from `step 2`.
+    - `REMOTION_ROLE_SESSION_NAME` a name to uniquely identify the role session when the same role is assumed by different principals.
+    
+    The application is secured using `basic authentication` or username and password, in production setting this needs to be updated to a more robust security mechanism.
+    - `API_USERNAME` represents the username to use when interacting with the API.
+    - `API_PASSWORD` represent the password to use when interacting with the API.
+
+#### 6. Run the application
 
 <Tabs
 defaultValue="npm"
@@ -118,7 +178,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i @remotion/lambda
+npm run start
 ```
 
   </TabItem>
@@ -126,30 +186,25 @@ npm i @remotion/lambda
   <TabItem value="pnpm">
 
 ```bash
-pnpm i @remotion/lambda
+pnpm start
 ```
 
   </TabItem>
   <TabItem value="yarn">
 
 ```bash
-yarn add @remotion/lambda
+yarn start
 ```
 
   </TabItem>
 
 </Tabs>
 
-#### 6. Run the application
 
 
 #### 8. Destroy the ec2 instance from your AWS account, if not needed anymore
 
-### Interacting with the API
-
-## Notes
-
-- 
+### Interacting with the application
 
 ## See also
 
