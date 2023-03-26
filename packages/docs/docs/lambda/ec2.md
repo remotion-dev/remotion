@@ -8,7 +8,7 @@ crumb: "@remotion/lambda"
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-This guide will show you how to trigger Remotion's [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) API from AWS ec2 instance from NodeJS and Typescript. 
+This guide will show you how to securely interact with Remotion's [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) operations from AWS ec2 instance using NodeJS and Typescript. 
 
 
 To supplement this guide, two projects have been created:
@@ -88,12 +88,59 @@ To supplement this guide, two projects have been created:
 
 
 #### 4. Create the ec2 instance
-#### 5. Assign the ec2 role from ec2
-#### 5. Install the dependencies
+- From AWS Management console.
+- Go to the EC2 dashboard by selecting EC2 from the list of services.
+- Click on the "Launch Instance" button.
+- Choose an Amazon Machine Image (AMI) that you want to use for your instance. You can select from a variety of pre-configured AMIs, or you can create your own. For this instance chose Ubuntu AMI.
+- Select an instance type that you want to use for your instance. The instance type determines the amount of CPU, memory, storage, and networking capacity that your instance will have.
+- Configure your instance details, such as the number of instances you want to launch, the VPC and subnet you want to use, and any advanced settings you want to enable.
+- From "Network setting" tick the "Allow SSH traffic from", and from selection of allowing access select "My IP address". This will allow you to connect to the server instance via SSH and SFTP to upload the dependencies.
+- From "Network setting" also, click "Allow HTTP traffic from the internet", this will allow the application to be trigger for REST API operation.
+- Add storage to your instance by selecting the storage type and size you want to use.
+- From "Advance details", on "IAM instance profile" find the role we specifically created for EC2 named "ec2-remotion-role". This gives access to the EC2 instance to assume the role for remotion. 
+- Review your instance launch details and click the "Launch" button.
+- Choose an existing key pair or create a new key pair to securely connect to your instance. This key pair is necessary to access your instance via SSH.
+- Launch your instance by clicking the "Launch Instances" button.
+- Wait for your instance to launch. Once it's ready, you can connect to it using SSH, RDP, or other remote access methods.
+
+#### 5. Upload the code to the server and install dependencies
 
 The following packages are required by the application, these processes are skipped.
 
-#### 6. Deploy the application to the ec2
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i @remotion/lambda
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm i @remotion/lambda
+```
+
+  </TabItem>
+  <TabItem value="yarn">
+
+```bash
+yarn add @remotion/lambda
+```
+
+  </TabItem>
+
+</Tabs>
+
+#### 6. Run the application
 
 
 #### 8. Destroy the ec2 instance from your AWS account, if not needed anymore
