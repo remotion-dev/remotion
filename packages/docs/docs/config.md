@@ -601,6 +601,38 @@ Config.setCrf(16);
 
 The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence over this option.
 
+### `setVideoBitrate()` <AvailableFrom v="3.2.32" />
+
+Specify the target bitrate for the generated video.  
+The syntax for FFMPEGs `-b:v` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+This option cannot be set if `--crf` is set.
+Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "remotion";
+// ---cut---
+Config.setVideoBitrate("1M");
+```
+
+The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will take precedence over this option.
+
+### `setAudioBitrate` <AvailableFrom v="3.2.32" />
+
+Specify the target bitrate for the generated audio.  
+The syntax for FFMPEGs `-b:a` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.
+Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
+Default: `320k`
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "remotion";
+// ---cut---
+Config.setAudioBitrate("128K");
+```
+
+The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will take precedence over this option.
+
 ## overrideFfmpegCommand <AvailableFrom v="3.2.22" />
 
 Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
