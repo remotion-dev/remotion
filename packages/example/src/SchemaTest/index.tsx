@@ -3,7 +3,7 @@ import {AbsoluteFill, Sequence, z} from 'remotion';
 
 export const schemaTestSchema = z.object({
 	title: z.string(),
-	delay: z.number().min(0).max(1000).step(1),
+	delay: z.number().min(0).max(1000).step(0.1),
 });
 
 export const SchemaTest: React.FC<z.infer<typeof schemaTestSchema>> = ({
