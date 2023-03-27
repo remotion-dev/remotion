@@ -8,6 +8,7 @@ import {ZodObjectEditor} from './ZodObjectEditor';
 const errorExplanation: React.CSSProperties = {
 	fontSize: 14,
 	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
 };
 
 const codeSnippet: React.CSSProperties = {
@@ -21,7 +22,8 @@ export const SchemaEditor: React.FC<{
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
-}> = ({schema, value, setValue, zodValidationResult}) => {
+	compact: boolean;
+}> = ({schema, value, setValue, zodValidationResult, compact}) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
@@ -61,6 +63,7 @@ export const SchemaEditor: React.FC<{
 				setValue={setValue}
 				jsonPath={[]}
 				schema={schema}
+				compact={compact}
 			/>
 		);
 	}

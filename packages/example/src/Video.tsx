@@ -687,6 +687,7 @@ export const Index: React.FC = () => {
 							}),
 						}),
 						array: z.array(z.number()).min(2),
+						mynum: z.number(),
 					})}
 					defaultProps={{
 						vehicle: 'caa',
@@ -700,6 +701,7 @@ export const Index: React.FC = () => {
 							xyz: 'hi',
 						},
 						array: [3, 3, 3],
+						mynum: 3,
 					}}
 					durationInFrames={150}
 				/>

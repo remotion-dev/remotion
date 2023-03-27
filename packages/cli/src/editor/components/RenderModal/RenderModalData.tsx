@@ -22,7 +22,8 @@ export const RenderModalData: React.FC<{
 	composition: AnyComposition;
 	inputProps: unknown;
 	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
-}> = ({composition, inputProps, setInputProps}) => {
+	compact: boolean;
+}> = ({composition, inputProps, setInputProps, compact}) => {
 	const [mode, setMode] = useState<Mode>('json');
 
 	const zodValidationResult = useMemo(() => {
@@ -66,6 +67,7 @@ export const RenderModalData: React.FC<{
 					setValue={setInputProps}
 					schema={composition.schema}
 					zodValidationResult={zodValidationResult}
+					compact={compact}
 				/>
 			) : (
 				<RenderModalJSONInputPropsEditor

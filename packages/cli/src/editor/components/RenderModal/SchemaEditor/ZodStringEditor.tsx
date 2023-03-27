@@ -3,7 +3,7 @@ import type {z} from 'remotion';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {label, optionRow} from '../layout';
+import {label, narrowOption, optionRow} from '../layout';
 import type {JSONPath} from './zod-types';
 
 type LocalState = {
@@ -20,7 +20,8 @@ export const ZodStringEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: string;
 	setValue: React.Dispatch<React.SetStateAction<string>>;
-}> = ({jsonPath, value, setValue, schema}) => {
+	compact: boolean;
+}> = ({jsonPath, value, setValue, schema, compact}) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,
@@ -44,7 +45,7 @@ export const ZodStringEditor: React.FC<{
 	);
 
 	return (
-		<div style={optionRow}>
+		<div style={compact ? narrowOption : optionRow}>
 			<div style={label}>{jsonPath[jsonPath.length - 1]}</div>
 			<div style={fullWidth}>
 				<RemotionInput
