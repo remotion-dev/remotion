@@ -154,3 +154,8 @@ export type UnsubscribeFromFileExistenceRequest = {
 	file: string;
 	clientId: string;
 };
+
+export type UpdateDefaultPropsRequest = {
+	compositionId: string;
+	defaultProps: unknown;
+};

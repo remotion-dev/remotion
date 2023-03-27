@@ -1,7 +1,9 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {AnyComposition} from 'remotion';
+import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 
 import {Spacing} from '../layout';
+import {updateDefaultProps} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor';
@@ -23,7 +25,8 @@ export const RenderModalData: React.FC<{
 	inputProps: unknown;
 	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
 	compact: boolean;
-}> = ({composition, inputProps, setInputProps, compact}) => {
+	updateButton: boolean;
+}> = ({composition, inputProps, setInputProps, compact, updateButton}) => {
 	const [mode, setMode] = useState<Mode>('schema');
 
 	const zodValidationResult = useMemo(() => {
@@ -55,6 +58,10 @@ export const RenderModalData: React.FC<{
 		setMode('schema');
 	}, []);
 
+	const onUpdate = useCallback(() => {
+		updateDefaultProps(composition.id, inputProps);
+	}, [composition.id, inputProps]);
+
 	return (
 		<div style={outer}>
 			<div style={controlContainer}>
@@ -77,6 +84,11 @@ export const RenderModalData: React.FC<{
 					switchToSchema={switchToSchema}
 				/>
 			)}
+			{updateButton ? (
+				<Button onClick={onUpdate} disabled={!zodValidationResult.success}>
+					Save
+				</Button>
+			) : null}
 		</div>
 	);
 };
