@@ -22,6 +22,8 @@ const container: React.CSSProperties = {
 
 const label: React.CSSProperties = {
 	fontSize: 13,
+	color: 'white',
+	fontFamily: 'sans-serif',
 };
 
 export const ValidationMessage: React.FC<{

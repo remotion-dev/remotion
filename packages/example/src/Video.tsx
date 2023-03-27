@@ -21,6 +21,7 @@ import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
+import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {Scripts} from './Scripts';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
@@ -704,6 +705,21 @@ export const Index: React.FC = () => {
 						mynum: 3,
 					}}
 					durationInFrames={150}
+				/>
+			</Folder>
+			<Folder name="Schema">
+				<Composition
+					id="schema-test"
+					component={SchemaTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+					schema={schemaTestSchema}
+					defaultProps={{
+						title: 'Hello World!',
+						delay: 50,
+					}}
 				/>
 			</Folder>
 		</>

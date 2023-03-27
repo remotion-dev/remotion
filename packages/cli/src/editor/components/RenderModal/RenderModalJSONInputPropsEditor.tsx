@@ -65,17 +65,22 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 		setLocalValue({...localValue, value: JSON.stringify(parsed, null, 2)});
 	}, [localValue]);
 
+	const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
+		(e) => {
+			const parsed = parseJSON(e.target.value);
+			setLocalValue({value: e.target.value, validJSON: parsed.validJSON});
+
+			if (parsed.validJSON) {
+				setValue(parsed.value);
+			}
+		},
+		[setValue]
+	);
+
 	return (
 		<div>
 			<RemTextarea
-				onChange={(e) => {
-					const parsed = parseJSON(e.target.value);
-					setLocalValue({value: e.target.value, validJSON: parsed.validJSON});
-
-					if (parsed.validJSON) {
-						setValue(parsed.value);
-					}
-				}}
+				onChange={onChange}
 				value={localValue.value}
 				status={localValue.validJSON ? 'ok' : 'error'}
 				style={style}
