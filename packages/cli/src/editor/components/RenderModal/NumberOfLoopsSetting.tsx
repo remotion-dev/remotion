@@ -44,6 +44,7 @@ export const NumberOfLoopsSetting: React.FC<{
 						name="number-of-gif-loops"
 						step={1}
 						min={min}
+						status="ok"
 					/>
 				</RightAlignInput>
 			</div>
