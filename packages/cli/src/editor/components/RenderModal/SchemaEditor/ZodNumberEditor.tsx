@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import type {z} from 'remotion';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
@@ -20,7 +20,8 @@ export const ZodNumberEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: number;
 	setValue: React.Dispatch<React.SetStateAction<number>>;
-}> = ({jsonPath, value, schema, setValue}) => {
+	compact: boolean;
+}> = ({jsonPath, value, schema, setValue, compact}) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value: String(value),
@@ -43,8 +44,16 @@ export const ZodNumberEditor: React.FC<{
 		[schema, setValue]
 	);
 
+	const style = useMemo(() => {
+		if (compact) {
+			return {...optionRow, paddingLeft: 0, paddingRight: 0};
+		}
+
+		return optionRow;
+	}, [compact]);
+
 	return (
-		<div style={optionRow}>
+		<div style={style}>
 			<div style={label}>{jsonPath[jsonPath.length - 1]}</div>
 			<div style={fullWidth}>
 				<RemotionInput
