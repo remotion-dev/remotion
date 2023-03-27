@@ -142,6 +142,7 @@ importers:
       '@remotion/renderer': workspace:*
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
+      '@types/prettier': ^2.7.2
       '@types/prompts': ^2.4.1
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
@@ -183,6 +184,7 @@ importers:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
       '@types/minimist': 1.2.2
       '@types/node': 16.10.2
+      '@types/prettier': 2.7.2
       '@types/prompts': 2.4.1
       '@types/react': 18.0.26
       '@types/react-dom': 18.0.10
@@ -9363,6 +9365,10 @@ packages:
 
   /@types/prettier/2.7.1:
     resolution: {integrity: sha512-ri0UmynRRvZiiUJdiz38MmIblKK+oH30MztdBVR95dv/Ubw6neWSb8u1XpRb72L4qsZOhz+L+z9JD40SJmfWow==}
+    dev: true
+
+  /@types/prettier/2.7.2:
+    resolution: {integrity: sha512-KufADq8uQqo1pYKVIYzfKbJfBAc0sOeXqGbFaSpv8MRmC/zXgowNZmFcbngndGk922QDmOASEXUZCaY48gs4cg==}
     dev: true
 
   /@types/progress/2.0.5:

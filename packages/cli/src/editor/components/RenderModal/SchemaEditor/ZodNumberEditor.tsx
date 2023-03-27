@@ -50,13 +50,13 @@ const getMaxValue = (schema: z.ZodTypeAny) => {
 	return maxCheck.value;
 };
 
-const getStep = (schema: z.ZodTypeAny) => {
+const getStep = (schema: z.ZodTypeAny): number | undefined => {
 	const multipleStep = (schema as z.ZodNumber)._def.checks.find(
 		(c) => c.kind === 'multipleOf'
 	);
 
 	if (!multipleStep) {
-		return 1;
+		return undefined;
 	}
 
 	if (multipleStep.kind !== 'multipleOf') {
