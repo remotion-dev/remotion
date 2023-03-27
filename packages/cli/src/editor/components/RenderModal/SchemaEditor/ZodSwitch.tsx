@@ -53,6 +53,7 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue as React.Dispatch<React.SetStateAction<unknown>>}
 				jsonPath={jsonPath}
 				schema={schema}
+				compact={compact}
 			/>
 		);
 	}
