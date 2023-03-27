@@ -15,7 +15,7 @@ Part of the CI/CD pipeline should be to push a new container image to the artifa
 
 # How to use the GCP CLI commands
 
-### 1. Create a project in the Google Cloud Console
+## 1. Create a project in the Google Cloud Console
 
 Navigate to the [Manage Resources](https://console.cloud.google.com/cloud-resource-manager?walkthrough_id=resource-manager--create-project&start_index=1#step_index=1) screen in Google Cloud Console.
 
@@ -25,7 +25,57 @@ Navigate to the [Manage Resources](https://console.cloud.google.com/cloud-resour
 - Enter the parent organization or folder resource in the Location box. That resource will be the hierarchical parent of the new project. If No organization is an option, you can select it to create your new project as the top level of its own resource hierarchy.
 - When you're finished entering new project details, click Create.
 
-### 2. Create a new role with permissions required by the service account
+## 2. Enable billing in the GCP Project
+
+In order to enable the Cloud Run API, billing must be enabled in this project. Navigate to the [Billing](https://console.cloud.google.com/billing) screen in Google Cloud Console. Follow the on-screen prompts to create a billing account, and then link the new project to this billing account.
+
+## 3. Setup Permissions / APIs / Service Account in GCP
+
+This can be achieved by either following the instructions for using Terraform within GCP Cloud Shell (recommended) or following the instructions for clicking through the GCP Console. The former is the preferred method as it minimises the risk of missing an instruction.
+
+### Using Terraform within GCP Cloud Shell:
+
+_Note, this process does not require an understanding of Terraform._
+
+**What is Google Cloud Shell?**  
+Google Cloud Shell is a browser-based command-line interface (CLI) for managing resources and applications hosted on Google Cloud Platform (GCP). It provides a virtual machine with pre-installed command-line tools and utilities, including the Google Cloud SDK and Terraform.
+
+Google Cloud Shell is fully integrated with GCP, which means that you can access your projects, resources, and services directly from the command line without having to switch between multiple interfaces. Additionally, Cloud Shell offers a persistent disk for storing your data and files, as well as a web-based code editor for editing files and running scripts.
+
+This means that you can clone a github repo, run a couple of Terraform commands, and have a Remotion ready GCP project in minutes 🚀.
+
+1. In the top right hand corner of the screen, click the Activate Cloud Shell icon  
+   <img src="readmeImages/selectCloudShell.jpg" width="200" />
+2. Within the Cloud Shell, type  
+`git clone https://github.com/UmungoBungo/remotion-gcp-terraform.git remotion-gcp-terraform/`
+<!-- ToDo - host this in the official Remotion repo -->
+3. Change directory into the new folder  
+   `cd remotion-gcp-terraform/`
+4. Within the terraform file, there is a variable named project_id. This needs to be set to your newly created Remotion project. Because we are already authenticated with GCP when using the Cloud Shell, we can set this variable using the following command:
+   `export TF_VAR_project_id=$(gcloud config get-value project)`
+5. As terraform is natively available in Cloud Shell, we can begin using terraform commands without further installation. Run the following command;  
+    `terraform init`  
+   _Explanation: When you run `terraform init`, Terraform will download any required provider plugins and modules and create a .terraform directory in your working directory._
+6. Run the following command;  
+    `terraform plan`  
+   _Explanation: When you run `terraform plan`, Terraform checks your code to see what resources you're trying to create, update or delete, and then shows you what it will do without actually making any changes._
+7. Check the output from the above to ensure you are happy with the changes about to be made to your project. If so, run the following command;  
+    `terraform apply`  
+   _Explanation: When you run `terraform apply`, Terraform deploys the resources as defined in the .tf files._
+8. Now that the resources have been deployed, we need to get some credentials for the service account, so that we can run Remotion commands remotely. **Note that these keys need to remain secret.** Run the following command;  
+   `gcloud iam service-accounts keys create key.json --iam-account=remotion-sa@remotion-tf.iam.gserviceaccount.com`
+9. The key file has been generated on the virtual machine. Access the client_email using this command;
+   `jq '.client_email' key.json`  
+   and copy that value into your local .env file at the root of your Remotion project, with the key `REMOTION_GCP_CLIENT_EMAIL`. Be sure to also copy over the quotation marks.
+10. Access the .private_key using this command;
+    `jq '.private_key' key.json`  
+    and copy that value into your local .env file at the root of your Remotion project, with the key `REMOTION_GCP_PRIVATE_KEY`
+11. To be on the safe side, delete the key.json file from the virtual machine;
+    `rm key.json`
+
+### Clicking through the console:
+
+### 1. Create a new role with permissions required by the service account
 
 Navigate to the [Role](https://console.cloud.google.com/iam-admin/roles) screen in Google Cloud Console, within IAM & Admin.
 
@@ -37,6 +87,7 @@ Navigate to the [Role](https://console.cloud.google.com/iam-admin/roles) screen 
 - For Role launch stage, select `General Availability`
 - Click + Add Permissions, and add the following;
   - iam.serviceAccounts.actAs
+  - run.operations.get
   - run.routes.invoke
   - run.services.create
   - run.services.list
@@ -50,7 +101,7 @@ Navigate to the [Role](https://console.cloud.google.com/iam-admin/roles) screen 
   - run.services.setIamPolicy
 - Click the CREATE button
 
-#### 2a. Permission reasons
+#### 1a. Permission reasons
 
 For information only, here are the reasons for the above permissions
 
@@ -81,7 +132,7 @@ For information only, here are the reasons for the above permissions
 - run.services.setIamPolicy
   - used to set the IAM policy on a service, to allow unauthenticated invoking, or remove unauthenticated invoking.
 
-### 3. Create a service account in the Google Cloud Console
+### 2. Create a service account in the Google Cloud Console
 
 Navigate to the [Service Accounts](https://console.cloud.google.com/projectselector2/iam-admin/serviceaccounts/create) screen in Google Cloud Console, within IAM & Admin.
 
@@ -94,7 +145,7 @@ Navigate to the [Service Accounts](https://console.cloud.google.com/projectselec
   <img src="readmeImages/saRole.png" width="450" />
 - Click Done to finish creating the service account.
 
-### 4. Save Service Account credentials
+### 3. Save Service Account credentials
 
 Navigate to the [Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) screen in Google Cloud Console, within IAM & Admin.
 
@@ -111,7 +162,7 @@ Navigate to the [Service Accounts](https://console.cloud.google.com/iam-admin/se
 
 - Within the previously edited .env file in the root of your Remotion project, create a REMOTION_GCP_PROJECT_ID key, and set the key as the ID from the [Dashboard](https://console.cloud.google.com/home/dashboard), under the Project Info card.
 
-### 5. Enable required APIs in the project
+### 4. Enable required APIs in the project
 
 - Enable the Cloud Run API. Navigate to the [Cloud Run API](https://console.cloud.google.com/apis/library/run.googleapis.com) screen in Google Cloud Console, and click ENABLE. Make sure the correct project is selected in the dropdown in the top left. This is required in order to use Cloud Run.
 
