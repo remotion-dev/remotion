@@ -1,15 +1,18 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import type {z} from 'remotion';
 import {Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
-import {RightAlignInput} from '../../NewComposition/RemInput';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {label, optionRow, rightRow} from '../layout';
+import {label, narrowOption, optionRow} from '../layout';
 import type {JSONPath} from './zod-types';
 
 type LocalState = {
 	value: string;
 	zodValidation: z.SafeParseReturnType<unknown, unknown>;
+};
+
+const fullWidth: React.CSSProperties = {
+	width: '100%',
 };
 
 const getMinValue = (schema: z.ZodTypeAny) => {
@@ -110,33 +113,24 @@ export const ZodNumberEditor: React.FC<{
 		[schema, setValue]
 	);
 
-	const style = useMemo(() => {
-		if (compact) {
-			return {...optionRow, paddingLeft: 0, paddingRight: 0};
-		}
-
-		return optionRow;
-	}, [compact]);
-
 	// TODO: Error message does not align well
 
 	return (
-		<div style={style}>
+		<div style={compact ? narrowOption : optionRow}>
 			<div style={label}>{jsonPath[jsonPath.length - 1]}</div>
-			<div style={rightRow}>
-				<RightAlignInput>
-					<InputDragger
-						type={'number'}
-						value={localValue.value}
-						status={localValue.zodValidation.success ? 'ok' : 'error'}
-						placeholder={jsonPath.join('.')}
-						onTextChange={onChange}
-						onValueChange={onValueChange}
-						min={getMinValue(schema)}
-						max={getMaxValue(schema)}
-						step={getStep(schema)}
-					/>
-				</RightAlignInput>
+			<div style={fullWidth}>
+				<InputDragger
+					type={'number'}
+					value={localValue.value}
+					style={fullWidth}
+					status={localValue.zodValidation.success ? 'ok' : 'error'}
+					placeholder={jsonPath.join('.')}
+					onTextChange={onChange}
+					onValueChange={onValueChange}
+					min={getMinValue(schema)}
+					max={getMaxValue(schema)}
+					step={getStep(schema)}
+				/>
 				{!localValue.zodValidation.success && (
 					<>
 						<Spacing y={1} block />

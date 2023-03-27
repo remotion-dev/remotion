@@ -716,10 +716,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 					schema={schemaTestSchema}
-					defaultProps={{
-						title: 'Hello World!',
-						delay: 50,
-					}}
+					defaultProps={{title: 'Hello World!', delay: 55.4}}
 				/>
 			</Folder>
 		</>
