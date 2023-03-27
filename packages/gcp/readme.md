@@ -62,16 +62,23 @@ This means that you can clone a github repo, run a couple of Terraform commands,
 7. Check the output from the above to ensure you are happy with the changes about to be made to your project. If so, run the following command;  
     `terraform apply`  
    _Explanation: When you run `terraform apply`, Terraform deploys the resources as defined in the .tf files._
-8. Now that the resources have been deployed, we need to get some credentials for the service account, so that we can run Remotion commands remotely. **Note that these keys need to remain secret.** Run the following command;  
-   `gcloud iam service-accounts keys create key.json --iam-account=remotion-sa@remotion-tf.iam.gserviceaccount.com`
-9. The key file has been generated on the virtual machine. Access the client_email using this command;
-   `jq '.client_email' key.json`  
-   and copy that value into your local .env file at the root of your Remotion project, with the key `REMOTION_GCP_CLIENT_EMAIL`. Be sure to also copy over the quotation marks.
-10. Access the .private_key using this command;
-    `jq '.private_key' key.json`  
-    and copy that value into your local .env file at the root of your Remotion project, with the key `REMOTION_GCP_PRIVATE_KEY`
-11. To be on the safe side, delete the key.json file from the virtual machine;
-    `rm key.json`
+8. When the apply is complete, it will output a script to run in the command line. Running this will create a key for the service account and store it on the virtual machine. **Note that these keys need to remain secret.** The command should look similar to the following;  
+   `gcloud iam service-accounts keys create key.json --iam-account=remotion-sa@<project_name>.iam.gserviceaccount.com`
+9. The key file has been generated on the virtual machine. You can now build the .env file that is needed at the root of your Remotion project in order to interact with GCP. Run the following command;
+   ```
+   echo "REMOTION_GCP_PRIVATE_KEY=$(jq '.private_key' key.json)" >> .env && \
+   echo "REMOTION_GCP_CLIENT_EMAIL=$(jq '.client_email' key.json)" >> .env && \
+   echo "REMOTION_GCP_PROJECT_ID=$(gcloud config get-value project)" >> .env
+   ```
+10. Download the .env file by clicking the vertical ellipsis, in the top right of the cloud shell window, and selecting Download. Then type .env at the end of the prefilled path, and click DOWNLOAD;  
+    <img src="readmeImages/downloadEnv.jpg" width="350" />
+
+    <img src="readmeImages/downloadEnvFolder.png" width="300" />
+
+11. Remove the .env file and key.json from the virtual machine, using this command;  
+    `rm key.json .env`
+
+12. Place the .env file you've downloaded into the root of your Remotion project. You may need to rename it from `env.txt`, to `.env`.
 
 ### Clicking through the console:
 
