@@ -7,7 +7,6 @@ import {deployCloudRunRevision} from '../../../api/deploy-cloud-run-revision';
 import {deployNewCloudRun} from '../../../api/deploy-new-cloud-run';
 import {validateGcpRegion} from '../../../shared/validate-gcp-region';
 import {validateOverwrite} from '../../../shared/validate-overwrite';
-import {validateProjectID} from '../../../shared/validate-project-id';
 import {validateRemotionVersion} from '../../../shared/validate-remotion-version';
 import {validateServiceName} from '../../../shared/validate-service-name';
 import {parsedGcpCli} from '../../args';
@@ -20,7 +19,7 @@ export const CLOUD_RUN_DEPLOY_SUBCOMMAND = 'deploy';
 export const cloudRunDeploySubcommand = async () => {
 	const region = getGcpRegion();
 	const serviceName = parsedGcpCli['service-name'];
-	const projectID = parsedGcpCli['project-id'];
+	const projectID = process.env.REMOTION_GCP_PROJECT_ID as string;
 	const remotionVersion = VERSION;
 	const allowUnauthenticated = parsedGcpCli['allow-unauthenticated'] ?? false;
 	const overwriteService = parsedGcpCli['overwrite-service'] ?? false;
@@ -50,9 +49,13 @@ Validating Deployment of Cloud Run Service:
 
 	validateGcpRegion(region);
 	validateServiceName(serviceName);
-	validateProjectID(projectID);
 	validateRemotionVersion(remotionVersion);
 	validateOverwrite(overwriteService);
+
+	if (projectID === undefined) {
+		Log.error(`REMOTION_GCP_PROJECT_ID not found in the .env file.`);
+		quit(0);
+	}
 
 	const existingService = await checkIfServiceExists({
 		serviceNameToCheck: serviceName,
