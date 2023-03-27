@@ -1,4 +1,5 @@
 import {useCallback, useMemo} from 'react';
+import {Spacing} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
 import type {JSONPath} from './zod-types';
 import {ZodSwitch} from './ZodSwitch';
@@ -52,6 +53,7 @@ export const ZodArrayItemEditor: React.FC<{
 	return (
 		<div style={row}>
 			<InlineRemoveButton onClick={onRemove} />
+			<Spacing x={1} />
 			<div style={flex}>
 				<ZodSwitch
 					jsonPath={newJsonPath}
