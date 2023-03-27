@@ -22,7 +22,7 @@ export const label: React.CSSProperties = {
 	fontSize: 15,
 	lineHeight: '40px',
 	color: LIGHT_TEXT,
-	fontFamily: 'monospace',
+	fontFamily: 'sans-serif',
 };
 
 export const rightRow: React.CSSProperties = {

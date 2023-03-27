@@ -94,6 +94,8 @@ export const QuickSwitcherResult: React.FC<{
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
+			// Input will be focused while sleection
+			triggerIfInputFieldFocused: true,
 		});
 
 		return () => {
