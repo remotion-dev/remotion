@@ -8,6 +8,7 @@ import type {
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
 	UnsubscribeFromFileExistenceRequest,
+	UpdateDefaultPropsRequest,
 } from './render-queue/job';
 
 export type ApiHandler<ReqData, ResData> = (params: {
@@ -41,4 +42,5 @@ export type ApiRoutes = {
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
+	'/api/update-default-props': ReqAndRes<UpdateDefaultPropsRequest, void>;
 };

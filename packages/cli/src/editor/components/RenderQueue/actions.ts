@@ -211,3 +211,13 @@ export const cancelRenderJob = (job: RenderJob) => {
 		jobId: job.id,
 	});
 };
+
+export const updateDefaultProps = (
+	compositionId: string,
+	defaultProps: unknown
+) => {
+	return callApi('/api/update-default-props', {
+		compositionId,
+		defaultProps,
+	});
+};
