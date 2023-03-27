@@ -5,7 +5,7 @@ import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
 
 const container: React.CSSProperties = {
-	minHeight: 70,
+	height: 80,
 	display: 'block',
 	borderBottom: `1px solid ${BORDER_COLOR}`,
 	padding: 12,
