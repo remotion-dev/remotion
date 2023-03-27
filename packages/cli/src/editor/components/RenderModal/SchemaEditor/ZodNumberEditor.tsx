@@ -12,6 +12,60 @@ type LocalState = {
 	zodValidation: z.SafeParseReturnType<unknown, unknown>;
 };
 
+const getMinValue = (schema: z.ZodTypeAny) => {
+	const minCheck = (schema as z.ZodNumber)._def.checks.find(
+		(c) => c.kind === 'min'
+	);
+	if (!minCheck) {
+		return -Infinity;
+	}
+
+	if (minCheck.kind !== 'min') {
+		throw new Error('Expected min check');
+	}
+
+	if (!minCheck.inclusive) {
+		return -Infinity;
+	}
+
+	return minCheck.value;
+};
+
+const getMaxValue = (schema: z.ZodTypeAny) => {
+	const maxCheck = (schema as z.ZodNumber)._def.checks.find(
+		(c) => c.kind === 'max'
+	);
+	if (!maxCheck) {
+		return Infinity;
+	}
+
+	if (maxCheck.kind !== 'max') {
+		throw new Error('Expected max check');
+	}
+
+	if (!maxCheck.inclusive) {
+		return Infinity;
+	}
+
+	return maxCheck.value;
+};
+
+const getStep = (schema: z.ZodTypeAny) => {
+	const multipleStep = (schema as z.ZodNumber)._def.checks.find(
+		(c) => c.kind === 'multipleOf'
+	);
+
+	if (!multipleStep) {
+		return 1;
+	}
+
+	if (multipleStep.kind !== 'multipleOf') {
+		throw new Error('Expected multipleOf check');
+	}
+
+	return multipleStep.value;
+};
+
 export const ZodNumberEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
@@ -78,9 +132,9 @@ export const ZodNumberEditor: React.FC<{
 						placeholder={jsonPath.join('.')}
 						onTextChange={onChange}
 						onValueChange={onValueChange}
-						// TODO: Allow min / max / step with zod
-						min={-Infinity}
-						max={Infinity}
+						min={getMinValue(schema)}
+						max={getMaxValue(schema)}
+						step={getStep(schema)}
 					/>
 				</RightAlignInput>
 				{!localValue.zodValidation.success && (
