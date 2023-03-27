@@ -17,11 +17,13 @@ import {
 } from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 
+export type RemInputStatus = 'error' | 'warning' | 'ok';
+
 type Props = React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLInputElement>,
 	HTMLInputElement
 > & {
-	status: 'error' | 'warning' | 'ok';
+	status: RemInputStatus;
 };
 
 export const INPUT_HORIZONTAL_PADDING = 8;

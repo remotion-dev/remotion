@@ -164,6 +164,7 @@ export const RenderModalBasic: React.FC<{
 								name="frame"
 								step={1}
 								min={0}
+								status="ok"
 								max={currentComposition.durationInFrames - 1}
 							/>
 						</RightAlignInput>

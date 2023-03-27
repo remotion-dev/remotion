@@ -301,6 +301,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 													step={2}
 													min={2}
 													required
+													status="ok"
 													formatter={(w) => `${w}px`}
 													max={100000000}
 													onValueChange={onWidthDirectlyChanged}
@@ -336,6 +337,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 												required
 												formatter={(h) => `${h}px`}
 												min={2}
+												status="ok"
 												max={100000000}
 												onValueChange={onHeightDirectlyChanged}
 											/>

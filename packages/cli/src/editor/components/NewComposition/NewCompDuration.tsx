@@ -41,6 +41,7 @@ export const NewCompDuration: React.FC<{
 							min={1}
 							step={1}
 							required
+							status="ok"
 							// Hitting Promise.all() limit in Chrome
 							max={300_000}
 							onValueChange={onDurationChangedDirectly}

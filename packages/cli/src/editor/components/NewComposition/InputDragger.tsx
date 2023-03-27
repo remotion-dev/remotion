@@ -8,11 +8,13 @@ import {interpolate} from 'remotion';
 import {noop} from '../../helpers/noop';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
+import type {RemInputStatus} from './RemInput';
 import {inputBaseStyle, RemotionInput} from './RemInput';
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
 	onValueChange: (newVal: number) => void;
 	onTextChange: (newVal: string) => void;
+	status: RemInputStatus;
 	formatter?: (str: number | string) => string;
 };
 
@@ -24,6 +26,7 @@ export const InputDragger: React.FC<Props> = ({
 	value,
 	onTextChange,
 	formatter = (q) => String(q),
+	status,
 	...props
 }) => {
 	const [inputFallback, setInputFallback] = useState(false);
@@ -158,7 +161,7 @@ export const InputDragger: React.FC<Props> = ({
 					min={_min}
 					step={_step}
 					defaultValue={value}
-					status="ok"
+					status={status}
 					{...props}
 				/>
 			</HigherZIndex>

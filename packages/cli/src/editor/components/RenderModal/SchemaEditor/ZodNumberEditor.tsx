@@ -1,18 +1,15 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {z} from 'remotion';
 import {Spacing} from '../../layout';
-import {RemotionInput} from '../../NewComposition/RemInput';
+import {InputDragger} from '../../NewComposition/InputDragger';
+import {RightAlignInput} from '../../NewComposition/RemInput';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {label, optionRow} from '../layout';
+import {label, optionRow, rightRow} from '../layout';
 import type {JSONPath} from './zod-types';
 
 type LocalState = {
 	value: string;
 	zodValidation: z.SafeParseReturnType<unknown, unknown>;
-};
-
-const fullWidth: React.CSSProperties = {
-	width: '100%',
 };
 
 export const ZodNumberEditor: React.FC<{
@@ -29,16 +26,31 @@ export const ZodNumberEditor: React.FC<{
 		};
 	});
 
-	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			const safeParse = schema.safeParse(e.target.valueAsNumber);
+	const onChange = useCallback(
+		(newValue: string) => {
+			const safeParse = schema.safeParse(Number(newValue));
 			const newLocalState: LocalState = {
-				value: e.target.value,
+				value: newValue,
 				zodValidation: safeParse,
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(e.target.valueAsNumber);
+				setValue(Number(newValue));
+			}
+		},
+		[schema, setValue]
+	);
+
+	const onValueChange = useCallback(
+		(newValue: number) => {
+			const safeParse = schema.safeParse(newValue);
+			const newLocalState: LocalState = {
+				value: String(newValue),
+				zodValidation: safeParse,
+			};
+			setLocalValue(newLocalState);
+			if (safeParse.success) {
+				setValue(newValue);
 			}
 		},
 		[schema, setValue]
@@ -55,14 +67,20 @@ export const ZodNumberEditor: React.FC<{
 	return (
 		<div style={style}>
 			<div style={label}>{jsonPath[jsonPath.length - 1]}</div>
-			<div style={fullWidth}>
-				<RemotionInput
-					value={localValue.value}
-					status={localValue.zodValidation.success ? 'ok' : 'error'}
-					type={'number'}
-					placeholder={jsonPath.join('.')}
-					onChange={onChange}
-				/>
+			<div style={rightRow}>
+				<RightAlignInput>
+					<InputDragger
+						type={'number'}
+						value={localValue.value}
+						status={localValue.zodValidation.success ? 'ok' : 'error'}
+						placeholder={jsonPath.join('.')}
+						onTextChange={onChange}
+						onValueChange={onValueChange}
+						// TODO: Allow min / max / step with zod
+						min={-Infinity}
+						max={Infinity}
+					/>
+				</RightAlignInput>
 				{!localValue.zodValidation.success && (
 					<>
 						<Spacing y={1} block />

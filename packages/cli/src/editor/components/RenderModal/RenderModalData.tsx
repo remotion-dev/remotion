@@ -24,7 +24,7 @@ export const RenderModalData: React.FC<{
 	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
 	compact: boolean;
 }> = ({composition, inputProps, setInputProps, compact}) => {
-	const [mode, setMode] = useState<Mode>('json');
+	const [mode, setMode] = useState<Mode>('schema');
 
 	const zodValidationResult = useMemo(() => {
 		return composition.schema.safeParse(inputProps);
@@ -33,20 +33,20 @@ export const RenderModalData: React.FC<{
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
 			{
-				key: 'json',
-				label: 'JSON',
-				onClick: () => {
-					setMode('json');
-				},
-				selected: mode === 'json',
-			},
-			{
 				key: 'schema',
 				label: 'Schema',
 				onClick: () => {
 					setMode('schema');
 				},
 				selected: mode === 'schema',
+			},
+			{
+				key: 'json',
+				label: 'JSON',
+				onClick: () => {
+					setMode('json');
+				},
+				selected: mode === 'json',
 			},
 		];
 	}, [mode]);
