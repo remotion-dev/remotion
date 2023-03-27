@@ -26,6 +26,7 @@ const fieldsetLabel: React.CSSProperties = {
 	paddingRight: 10,
 	display: 'flex',
 	flexDirection: 'row',
+	fontFamily: 'monospace',
 };
 
 type LocalState = {
@@ -40,7 +41,8 @@ export const ZodArrayEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: unknown[];
 	setValue: React.Dispatch<React.SetStateAction<unknown[]>>;
-}> = ({schema, jsonPath, setValue: updateValue, value}) => {
+	compact: boolean;
+}> = ({schema, jsonPath, compact, setValue: updateValue, value}) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,
@@ -59,7 +61,7 @@ export const ZodArrayEditor: React.FC<{
 	const isRoot = jsonPath.length === 0;
 	const Element = isRoot ? 'div' : 'fieldset';
 
-	const {paddingLeft, paddingTop} = optionRow;
+	const {paddingTop} = optionRow;
 
 	const fieldset: React.CSSProperties = useMemo(() => {
 		return {
@@ -89,8 +91,16 @@ export const ZodArrayEditor: React.FC<{
 		[schema, updateValue]
 	);
 
+	const style = useMemo((): React.CSSProperties | undefined => {
+		if (isRoot) {
+			return undefined;
+		}
+
+		return {paddingTop};
+	}, [isRoot, paddingTop]);
+
 	return (
-		<div style={isRoot ? undefined : {paddingLeft, paddingTop}}>
+		<div style={style}>
 			<div style={fullWidth}>
 				<Element style={fieldset}>
 					{isRoot ? null : (
@@ -117,6 +127,7 @@ export const ZodArrayEditor: React.FC<{
 									def={def}
 									index={i}
 									jsonPath={jsonPath}
+									compact={compact}
 								/>
 							);
 						})}

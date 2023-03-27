@@ -24,7 +24,8 @@ export const ZodArrayItemEditor: React.FC<{
 	def: any;
 	index: number;
 	child: unknown;
-}> = ({def, onChange, jsonPath, index, child}) => {
+	compact: boolean;
+}> = ({def, onChange, jsonPath, index, child, compact}) => {
 	const onRemove = useCallback(() => {
 		onChange(
 			(oldV) => [...oldV.slice(0, index), ...oldV.slice(index + 1)],
@@ -57,6 +58,7 @@ export const ZodArrayItemEditor: React.FC<{
 					schema={def.type}
 					value={child}
 					setValue={setValue}
+					compact={compact}
 				/>
 			</div>
 		</div>

@@ -38,6 +38,7 @@ export const InlineRemoveButton: React.FC<{
 			appearance: 'none',
 			width: 16,
 			height: 16,
+			background: 'none',
 			borderRadius: 9,
 			padding: 0,
 			cursor: 'pointer',

@@ -26,7 +26,6 @@ const row: React.CSSProperties = {
 	flex: 1,
 };
 
-// TODO: Does the canvas align correctly with right sidebar?
 const canvasContainer: React.CSSProperties = {
 	flex: 1,
 	display: 'flex',
@@ -118,9 +117,9 @@ export const TopPanel: React.FC = () => {
 					) : null}
 					<SplitterElement type="anti-flexer">
 						<SplitterContainer
-							minFlex={0.7}
-							maxFlex={0.85}
-							defaultFlex={0.8}
+							minFlex={0.5}
+							maxFlex={0.75}
+							defaultFlex={0.7}
 							id="canvas-to-right-sidebar"
 							orientation="vertical"
 						>

@@ -5,6 +5,7 @@ import {LIGHT_TEXT} from '../../../helpers/colors';
 const label: React.CSSProperties = {
 	fontSize: 14,
 	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
 };
 
 const code: React.CSSProperties = {

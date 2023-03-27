@@ -980,6 +980,7 @@ export const RenderModal: React.FC<{
 							inputProps={inputProps}
 							setInputProps={setInputProps}
 							composition={currentComposition}
+							compact={false}
 						/>
 					) : (
 						<RenderModalAdvanced

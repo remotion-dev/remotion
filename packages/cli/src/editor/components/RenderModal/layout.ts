@@ -1,3 +1,4 @@
+import type React from 'react';
 import {LIGHT_TEXT} from '../../helpers/colors';
 
 export const optionRow: React.CSSProperties = {
@@ -11,11 +12,17 @@ export const optionRow: React.CSSProperties = {
 	paddingBottom: 8,
 };
 
+export const narrowOption: React.CSSProperties = {
+	display: 'flex',
+	flexDirection: 'column',
+};
+
 export const label: React.CSSProperties = {
 	width: 170,
 	fontSize: 15,
 	lineHeight: '40px',
 	color: LIGHT_TEXT,
+	fontFamily: 'monospace',
 };
 
 export const rightRow: React.CSSProperties = {

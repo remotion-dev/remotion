@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {z} from 'remotion';
 import {
 	INPUT_BORDER_COLOR_UNHOVERED,
@@ -26,6 +26,7 @@ const fieldsetLabel: React.CSSProperties = {
 	fontSize: 14,
 	paddingLeft: 10,
 	paddingRight: 10,
+	fontFamily: 'monospace',
 };
 
 // TODO: First validate locally
@@ -34,7 +35,8 @@ export const ZodObjectEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
-}> = ({schema, jsonPath, setValue, value}) => {
+	compact: boolean;
+}> = ({schema, jsonPath, setValue, value, compact}) => {
 	const def = schema._def;
 
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
@@ -48,10 +50,18 @@ export const ZodObjectEditor: React.FC<{
 	const isRoot = jsonPath.length === 0;
 	const Element = isRoot ? 'div' : 'fieldset';
 
-	const {paddingLeft, paddingTop} = optionRow;
+	const {paddingTop} = optionRow;
+
+	const style = useMemo((): React.CSSProperties => {
+		if (isRoot) {
+			return {};
+		}
+
+		return {paddingTop};
+	}, [isRoot, paddingTop]);
 
 	return (
-		<div style={isRoot ? undefined : {paddingLeft, paddingTop}}>
+		<div style={style}>
 			<div style={fullWidth}>
 				<Element style={fieldset}>
 					{isRoot ? null : (
@@ -73,6 +83,7 @@ export const ZodObjectEditor: React.FC<{
 											[key]: typeof val === 'function' ? val(oldVal[key]) : val,
 										}));
 									}}
+									compact={compact}
 								/>
 							);
 						})}

@@ -12,7 +12,8 @@ export const ZodSwitch: React.FC<{
 	jsonPath: JSONPath;
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
-}> = ({schema, jsonPath, value, setValue}) => {
+	compact: boolean;
+}> = ({schema, jsonPath, compact, value, setValue}) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
@@ -28,6 +29,7 @@ export const ZodSwitch: React.FC<{
 				value={value}
 				jsonPath={jsonPath}
 				schema={schema}
+				compact={compact}
 			/>
 		);
 	}
@@ -39,6 +41,7 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue as React.Dispatch<React.SetStateAction<string>>}
 				jsonPath={jsonPath}
 				schema={schema}
+				compact={compact}
 			/>
 		);
 	}
@@ -61,6 +64,7 @@ export const ZodSwitch: React.FC<{
 				value={value as unknown[]}
 				jsonPath={jsonPath}
 				schema={schema}
+				compact={compact}
 			/>
 		);
 	}
@@ -72,6 +76,7 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue}
 				jsonPath={jsonPath}
 				schema={schema}
+				compact={compact}
 			/>
 		);
 	}
