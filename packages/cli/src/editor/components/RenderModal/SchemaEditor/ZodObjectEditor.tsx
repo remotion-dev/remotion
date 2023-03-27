@@ -78,10 +78,13 @@ export const ZodObjectEditor: React.FC<{
 									schema={shape[key]}
 									value={(value as Record<string, string>)[key]}
 									setValue={(val) => {
-										setValue((oldVal: Record<string, string>) => ({
-											...oldVal,
-											[key]: typeof val === 'function' ? val(oldVal[key]) : val,
-										}));
+										setValue((oldVal: Record<string, string>) => {
+											return {
+												...oldVal,
+												[key]:
+													typeof val === 'function' ? val(oldVal[key]) : val,
+											};
+										});
 									}}
 									compact={compact}
 								/>

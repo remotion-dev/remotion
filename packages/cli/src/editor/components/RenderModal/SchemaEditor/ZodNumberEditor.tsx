@@ -64,6 +64,8 @@ export const ZodNumberEditor: React.FC<{
 		return optionRow;
 	}, [compact]);
 
+	// TODO: Error message does not align well
+
 	return (
 		<div style={style}>
 			<div style={label}>{jsonPath[jsonPath.length - 1]}</div>

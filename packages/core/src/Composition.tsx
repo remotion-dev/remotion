@@ -7,6 +7,7 @@ import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks.js';
 import {CompositionManager} from './CompositionManager.js';
 import {getInputProps} from './config/input-props.js';
 import {continueRender, delayRender} from './delay-render.js';
+import {EditorPropsContext} from './EditorProps.js';
 import {FolderContext} from './Folder.js';
 import {useRemotionEnvironment} from './get-environment.js';
 import {Internals} from './internals.js';
@@ -76,6 +77,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 	const video = useVideo();
 
 	const lazy = useLazyComponent<Props>(compProps as CompProps<Props>);
+	const {props: allEditorProps} = useContext(EditorPropsContext);
 	const nonce = useNonce();
 	const environment = useRemotionEnvironment();
 
@@ -146,6 +148,8 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 		schema,
 	]);
 
+	const editorPropsOrUndefined = allEditorProps[id] ?? {};
+
 	if (environment === 'preview' && video && video.component === lazy) {
 		const Comp = lazy;
 		const inputProps = getInputProps();
@@ -154,7 +158,11 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 			<ClipComposition>
 				<CanUseRemotionHooksProvider>
 					<Suspense fallback={<Loading />}>
-						<Comp {...defaultProps} {...inputProps} />
+						<Comp
+							{...defaultProps}
+							{...editorPropsOrUndefined}
+							{...inputProps}
+						/>
 					</Suspense>
 				</CanUseRemotionHooksProvider>
 			</ClipComposition>,
@@ -170,7 +178,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 		return createPortal(
 			<CanUseRemotionHooksProvider>
 				<Suspense fallback={<Fallback />}>
-					<Comp {...defaultProps} {...inputProps} />
+					<Comp {...defaultProps} {...editorPropsOrUndefined} {...inputProps} />
 				</Suspense>
 			</CanUseRemotionHooksProvider>,
 			portalNode()

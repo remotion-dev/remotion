@@ -1,4 +1,4 @@
-import React, {useContext, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useMemo} from 'react';
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import {RenderModalData} from './RenderModal/RenderModalData';
@@ -13,13 +13,27 @@ const container: React.CSSProperties = {
 const PropsEditor: React.FC<{
 	composition: AnyComposition;
 }> = ({composition}) => {
-	const [inputProps, setInputProps] = useState(() => composition.defaultProps);
+	const {props, updateProps} = useContext(Internals.EditorPropsContext);
+
+	// TODO: Warn if inputProps were specified to the CLI, then
+	// they take priority over defaultProps
+
+	const setInputProps = useCallback(
+		(newProps: unknown | ((oldProps: unknown) => unknown)) => {
+			updateProps({
+				id: composition.id,
+				defaultProps: composition.defaultProps,
+				newProps,
+			});
+		},
+		[composition.defaultProps, composition.id, updateProps]
+	);
 
 	return (
 		<div>
 			<RenderModalData
 				composition={composition}
-				inputProps={inputProps}
+				inputProps={props[composition.id] ?? composition.defaultProps}
 				setInputProps={setInputProps}
 				compact
 			/>
