@@ -1,5 +1,5 @@
 import type {SVGProps} from 'react';
-import React from 'react';
+import React, {useMemo} from 'react';
 import {FAIL_COLOR, WARNING_COLOR} from '../../helpers/colors';
 import {Row, Spacing} from '../layout';
 
@@ -14,6 +14,7 @@ const WarningTriangle: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 const style: React.CSSProperties = {
 	width: 11,
 	height: 11,
+	flexShrink: 0,
 };
 
 const container: React.CSSProperties = {
@@ -31,16 +32,17 @@ export const ValidationMessage: React.FC<{
 	align: 'flex-start' | 'flex-end';
 	type: 'warning' | 'error';
 }> = ({message, align, type}) => {
+	const finalStyle = useMemo(() => {
+		return {
+			...style,
+			fill: type === 'warning' ? WARNING_COLOR : FAIL_COLOR,
+		};
+	}, [type]);
+
 	return (
 		<div style={container}>
 			<Row align="center" justify={align}>
-				<WarningTriangle
-					style={{
-						...style,
-						flexShrink: 0,
-						fill: type === 'warning' ? WARNING_COLOR : FAIL_COLOR,
-					}}
-				/>
+				<WarningTriangle style={finalStyle} />
 				<Spacing x={1} />
 				<div style={label}>{message}</div>
 			</Row>

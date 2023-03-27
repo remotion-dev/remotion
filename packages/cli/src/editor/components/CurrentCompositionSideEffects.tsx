@@ -49,6 +49,7 @@ export const CurrentCompositionKeybindings: React.FC = () => {
 			commandCtrlKey: false,
 			callback: openRenderModal,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 
 		return () => {

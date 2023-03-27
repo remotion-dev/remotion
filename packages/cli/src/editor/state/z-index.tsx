@@ -29,6 +29,8 @@ const EscapeHook: React.FC<{
 			callback: onEscape,
 			commandCtrlKey: false,
 			preventDefault: true,
+			// To dismiss the Quick Switcher menu if input is focused
+			triggerIfInputFieldFocused: true,
 		});
 
 		return () => {
