@@ -6,6 +6,7 @@ import {CollapsedSidebarExpander} from './CollapsedSidebarExpander';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
 import {PreviewToolbar} from './PreviewToolbar';
+import {RightPanel} from './RightPanel';
 import {SidebarContent} from './SidebarContent';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
@@ -25,6 +26,7 @@ const row: React.CSSProperties = {
 	flex: 1,
 };
 
+// TODO: Does the canvas align correctly with right sidebar?
 const canvasContainer: React.CSSProperties = {
 	flex: 1,
 	display: 'flex',
@@ -135,7 +137,7 @@ export const TopPanel: React.FC = () => {
 							) : null}
 							{actualStateRight === 'expanded' ? (
 								<SplitterElement type="anti-flexer">
-									<div>right</div>
+									<RightPanel />
 								</SplitterElement>
 							) : null}
 						</SplitterContainer>
