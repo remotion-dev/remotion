@@ -42,6 +42,7 @@ const schemaButton: React.CSSProperties = {
 	backgroundColor: 'transparent',
 };
 
+// TODO: Note if custom 'remotion-date:' pattern has been used
 export const RenderModalJSONInputPropsEditor: React.FC<{
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
