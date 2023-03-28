@@ -1,5 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import type {z} from 'remotion';
+import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
@@ -14,6 +15,12 @@ type LocalState = {
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
+};
+
+const explainer: React.CSSProperties = {
+	fontFamily: 'sans-serif',
+	fontSize: 12,
+	color: LIGHT_TEXT,
 };
 
 // This will do 2 things:
@@ -124,6 +131,8 @@ export const ZodDateEditor: React.FC<{
 					onChange={onChange}
 					style={inputStyle}
 				/>
+				<Spacing y={1} block />
+				<div style={explainer}>Date is in local format</div>
 				{!localValue.zodValidation.success && (
 					<>
 						<Spacing y={1} block />
