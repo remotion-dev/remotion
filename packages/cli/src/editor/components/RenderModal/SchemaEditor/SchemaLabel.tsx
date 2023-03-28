@@ -73,6 +73,7 @@ export const SchemaFieldsetLabel: React.FC<{
 	return (
 		<legend style={fieldsetLabel}>
 			{getSchemaLabel(jsonPath)}
+			<Flex />
 			{onRemove ? (
 				<>
 					<Spacing x={1} /> <InlineRemoveButton onClick={onRemove} />

@@ -47,4 +47,5 @@ export const fieldsetLabel: React.CSSProperties = {
 	flexDirection: 'row',
 	fontFamily: 'monospace',
 	alignItems: 'center',
+	width: '100%',
 };
