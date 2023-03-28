@@ -1,19 +1,6 @@
 import {useCallback, useMemo} from 'react';
-import {Spacing} from '../../layout';
-import {InlineRemoveButton} from '../InlineRemoveButton';
 import type {JSONPath} from './zod-types';
 import {ZodSwitch} from './ZodSwitch';
-
-const row: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	width: '100%',
-	alignItems: 'center',
-};
-
-const flex: React.CSSProperties = {
-	flex: 1,
-};
 
 export const ZodArrayItemEditor: React.FC<{
 	jsonPath: JSONPath;
@@ -37,7 +24,7 @@ export const ZodArrayItemEditor: React.FC<{
 	value,
 	compact,
 	defaultValue,
-	onSave,
+	onSave: onSaveObject,
 	showSaveButton,
 }) => {
 	const onRemove = useCallback(() => {
@@ -63,22 +50,28 @@ export const ZodArrayItemEditor: React.FC<{
 
 	const newJsonPath = useMemo(() => [...jsonPath, index], [index, jsonPath]);
 
+	const onSave = useCallback(
+		(updater: (oldState: unknown) => unknown) => {
+			onSaveObject((oldV) => [
+				...oldV.slice(0, index),
+				updater(oldV[index]),
+				...oldV.slice(index + 1),
+			]);
+		},
+		[index, onSaveObject]
+	);
+
 	return (
-		<div style={row}>
-			<InlineRemoveButton onClick={onRemove} />
-			<Spacing x={1} />
-			<div style={flex}>
-				<ZodSwitch
-					jsonPath={newJsonPath}
-					schema={def.type}
-					value={value}
-					setValue={setValue}
-					compact={compact}
-					defaultValue={defaultValue}
-					onSave={onSave as (oldState: unknown) => unknown}
-					showSaveButton={showSaveButton}
-				/>
-			</div>
-		</div>
+		<ZodSwitch
+			jsonPath={newJsonPath}
+			schema={def.type}
+			value={value}
+			setValue={setValue}
+			compact={compact}
+			defaultValue={defaultValue}
+			onSave={onSave}
+			showSaveButton={showSaveButton}
+			onRemove={onRemove}
+		/>
 	);
 };

@@ -37,3 +37,14 @@ export const input: React.CSSProperties = {
 	minWidth: 250,
 	textAlign: 'right',
 };
+
+export const fieldsetLabel: React.CSSProperties = {
+	color: LIGHT_TEXT,
+	fontSize: 14,
+	paddingLeft: 5,
+	paddingRight: 5,
+	display: 'flex',
+	flexDirection: 'row',
+	fontFamily: 'monospace',
+	alignItems: 'center',
+};

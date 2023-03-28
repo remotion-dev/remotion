@@ -85,6 +85,7 @@ export const SchemaEditor: React.FC<{
 					) => void
 				}
 				showSaveButton={showSaveButton}
+				onRemove={null}
 			/>
 		);
 	}

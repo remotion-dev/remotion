@@ -1,6 +1,7 @@
 import React from 'react';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Flex, Spacing} from '../../layout';
+import {InlineRemoveButton} from '../InlineRemoveButton';
 import {label} from '../layout';
 import {SchemaResetButton} from './SchemaResetButton';
 import {SchemaSaveButton} from './SchemaSaveButton';
@@ -33,9 +34,18 @@ export const SchemaLabel: React.FC<{
 	isDefaultValue: boolean;
 	onReset: () => void;
 	onSave: () => void;
+	onRemove: null | (() => void);
 	showSaveButton: boolean;
 	compact: boolean;
-}> = ({jsonPath, isDefaultValue, onReset, onSave, showSaveButton, compact}) => {
+}> = ({
+	jsonPath,
+	isDefaultValue,
+	onReset,
+	onSave,
+	showSaveButton,
+	compact,
+	onRemove,
+}) => {
 	return (
 		<div style={compact ? compactStyles : wideStyles}>
 			{jsonPath[jsonPath.length - 1]} {compact ? <Flex /> : <Spacing x={1} />}
@@ -43,6 +53,7 @@ export const SchemaLabel: React.FC<{
 			{isDefaultValue ? null : showSaveButton ? (
 				<SchemaSaveButton onClick={onSave} />
 			) : null}
+			{onRemove ? <InlineRemoveButton onClick={onRemove} /> : null}
 		</div>
 	);
 };

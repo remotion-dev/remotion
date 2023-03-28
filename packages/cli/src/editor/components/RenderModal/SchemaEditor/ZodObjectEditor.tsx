@@ -1,10 +1,9 @@
 import React, {useMemo} from 'react';
 import {z} from 'remotion';
-import {
-	INPUT_BORDER_COLOR_UNHOVERED,
-	LIGHT_TEXT,
-} from '../../../helpers/colors';
-import {optionRow} from '../layout';
+import {INPUT_BORDER_COLOR_UNHOVERED} from '../../../helpers/colors';
+import {Spacing} from '../../layout';
+import {InlineRemoveButton} from '../InlineRemoveButton';
+import {fieldsetLabel, optionRow} from '../layout';
 import type {JSONPath} from './zod-types';
 import {ZodSwitch} from './ZodSwitch';
 
@@ -21,14 +20,6 @@ const fieldset: React.CSSProperties = {
 	borderColor: INPUT_BORDER_COLOR_UNHOVERED,
 };
 
-const fieldsetLabel: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontSize: 14,
-	paddingLeft: 10,
-	paddingRight: 10,
-	fontFamily: 'monospace',
-};
-
 // TODO: First validate locally
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
@@ -41,6 +32,7 @@ export const ZodObjectEditor: React.FC<{
 		updater: (oldVal: Record<string, unknown>) => Record<string, unknown>
 	) => void;
 	showSaveButton: boolean;
+	onRemove: null | (() => void);
 }> = ({
 	schema,
 	jsonPath,
@@ -50,6 +42,7 @@ export const ZodObjectEditor: React.FC<{
 	defaultValue,
 	onSave,
 	showSaveButton,
+	onRemove,
 }) => {
 	const def = schema._def;
 
@@ -81,6 +74,11 @@ export const ZodObjectEditor: React.FC<{
 					{isRoot ? null : (
 						<legend style={fieldsetLabel}>
 							{jsonPath[jsonPath.length - 1]}
+							{onRemove ? (
+								<>
+									<Spacing x={1} /> <InlineRemoveButton onClick={onRemove} />
+								</>
+							) : null}
 						</legend>
 					)}
 					<div style={isRoot ? undefined : container}>
@@ -110,6 +108,7 @@ export const ZodObjectEditor: React.FC<{
 											};
 										});
 									}}
+									onRemove={null}
 									compact={compact}
 									showSaveButton={showSaveButton}
 								/>

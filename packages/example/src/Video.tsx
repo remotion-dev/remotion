@@ -687,14 +687,26 @@ export const Index: React.FC = () => {
 								pef: z.string(),
 							}),
 						}),
-						array: z.array(z.number()).min(2),
+						array: z
+							.array(
+								z.object({
+									a: z.string(),
+									b: z.string(),
+								})
+							)
+							.min(2),
+						array2: z.array(z.string()),
 						mynum: z.number(),
 					})}
 					defaultProps={{
 						vehicle: 'caa',
 						other: 'hi',
 						abc: {def: {xyz: 'hu', pef: 'hu'}, jkl: 'sting', xyz: 'hi'},
-						array: [-108, -134, 89],
+						array: [
+							{a: 'a', b: 'bbbbb'},
+							{a: 'a', b: 'b'},
+						],
+						array2: ['bbbbbb', 'bbbbbb'],
 						mynum: 179,
 					}}
 					durationInFrames={150}

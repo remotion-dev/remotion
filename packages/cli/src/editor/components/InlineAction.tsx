@@ -1,6 +1,6 @@
 import type {PropsWithChildren} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
-import {CLEAR_HOVER} from '../helpers/colors';
+import {CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
 
 export const InlineAction: React.FC<
@@ -30,7 +30,7 @@ export const InlineAction: React.FC<
 			justifyContent: 'center',
 			alignItems: 'center',
 			borderRadius: 3,
-			opacity: hovered ? 1 : 0.6,
+			color: hovered ? 'white' : LIGHT_TEXT,
 		};
 	}, [hovered]);
 
