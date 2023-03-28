@@ -697,9 +697,10 @@ export const Index: React.FC = () => {
 							.min(2),
 						array2: z.array(z.array(z.string())),
 						mynum: z.number(),
+						value: z.boolean().refine((v) => v === false || v === true),
 					})}
 					defaultProps={{
-						vehicle: 'caa',
+						vehicle: 'bus',
 						other: 'hi',
 						abc: {def: {xyz: 'hu', pef: 'hu'}, jkl: 'sting', xyz: 'hi'},
 						array: [
@@ -708,6 +709,7 @@ export const Index: React.FC = () => {
 						],
 						array2: [['bbbbbb'], ['bbbbbb']],
 						mynum: 179,
+						value: false,
 					}}
 					durationInFrames={150}
 				/>

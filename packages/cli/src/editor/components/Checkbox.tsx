@@ -23,6 +23,7 @@ const box: React.CSSProperties = {
 	top: 0,
 	left: 0,
 	pointerEvents: 'none',
+	color: 'white',
 };
 
 export const Checkbox: React.FC<{

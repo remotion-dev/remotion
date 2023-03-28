@@ -2,6 +2,7 @@ import React from 'react';
 import {z} from 'remotion';
 import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
+import {ZodBooleanEditor} from './ZodBooleanEditor';
 import {ZodEffectEditor} from './ZodEffectEditor';
 import {ZodNumberEditor} from './ZodNumberEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
@@ -83,6 +84,21 @@ export const ZodSwitch: React.FC<{
 				schema={schema}
 				compact={compact}
 				defaultValue={defaultValue as number}
+				onSave={onSave}
+				showSaveButton={showSaveButton}
+				onRemove={onRemove}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodBoolean) {
+		return (
+			<ZodBooleanEditor
+				value={value as boolean}
+				setValue={setValue as React.Dispatch<React.SetStateAction<unknown>>}
+				jsonPath={jsonPath}
+				compact={compact}
+				defaultValue={defaultValue as boolean}
 				onSave={onSave}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
