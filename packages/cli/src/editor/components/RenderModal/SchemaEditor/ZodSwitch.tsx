@@ -33,10 +33,6 @@ export const ZodSwitch: React.FC<{
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
-	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
-		// TODO: Better UI for this
-		return <div>any</div>;
-	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodObject) {
 		return (
@@ -107,16 +103,46 @@ export const ZodSwitch: React.FC<{
 		);
 	}
 
-	if (
-		typeName === z.ZodFirstPartyTypeKind.ZodUndefined ||
-		typeName === z.ZodFirstPartyTypeKind.ZodNull
-	) {
+	if (typeName === z.ZodFirstPartyTypeKind.ZodUndefined) {
 		return (
 			<ZonNonEditableValue
 				compact={compact}
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
-				value={value}
+				label={'undefined'}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodNull) {
+		return (
+			<ZonNonEditableValue
+				compact={compact}
+				jsonPath={jsonPath}
+				showSaveButton={showSaveButton}
+				label={'null'}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
+		return (
+			<ZonNonEditableValue
+				compact={compact}
+				jsonPath={jsonPath}
+				showSaveButton={showSaveButton}
+				label={'any (not editable)'}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodUnknown) {
+		return (
+			<ZonNonEditableValue
+				compact={compact}
+				jsonPath={jsonPath}
+				showSaveButton={showSaveButton}
+				label={'unknown (not editable)'}
 			/>
 		);
 	}
