@@ -62,6 +62,13 @@ export const RenderModalData: React.FC<{
 		updateDefaultProps(composition.id, inputProps);
 	}, [composition.id, inputProps]);
 
+	const onSave = useCallback(
+		(updater: (oldState: unknown) => unknown) => {
+			updateDefaultProps(composition.id, updater(composition.defaultProps));
+		},
+		[composition.defaultProps, composition.id]
+	);
+
 	return (
 		<div style={outer}>
 			<div style={controlContainer}>
@@ -75,6 +82,8 @@ export const RenderModalData: React.FC<{
 					schema={composition.schema}
 					zodValidationResult={zodValidationResult}
 					compact={compact}
+					defaultProps={composition.defaultProps}
+					onSave={onSave}
 				/>
 			) : (
 				<RenderModalJSONInputPropsEditor

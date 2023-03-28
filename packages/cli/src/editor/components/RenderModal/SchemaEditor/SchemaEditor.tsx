@@ -23,7 +23,17 @@ export const SchemaEditor: React.FC<{
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
 	compact: boolean;
-}> = ({schema, value, setValue, zodValidationResult, compact}) => {
+	defaultProps: unknown;
+	onSave: (updater: (oldState: unknown) => unknown) => void;
+}> = ({
+	schema,
+	value,
+	setValue,
+	zodValidationResult,
+	compact,
+	defaultProps,
+	onSave,
+}) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
@@ -64,6 +74,14 @@ export const SchemaEditor: React.FC<{
 				jsonPath={[]}
 				schema={schema}
 				compact={compact}
+				defaultValue={defaultProps}
+				onSave={
+					onSave as (
+						newValue: (
+							oldVal: Record<string, unknown>
+						) => Record<string, unknown>
+					) => void
+				}
 			/>
 		);
 	}

@@ -34,9 +34,13 @@ export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: unknown;
+	defaultValue: unknown;
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 	compact: boolean;
-}> = ({schema, jsonPath, setValue, value, compact}) => {
+	onSave: (
+		updater: (oldVal: Record<string, unknown>) => Record<string, unknown>
+	) => void;
+}> = ({schema, jsonPath, setValue, value, compact, defaultValue, onSave}) => {
 	const def = schema._def;
 
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
@@ -77,8 +81,18 @@ export const ZodObjectEditor: React.FC<{
 									jsonPath={[...jsonPath, key]}
 									schema={shape[key]}
 									value={(value as Record<string, string>)[key]}
+									defaultValue={(defaultValue as Record<string, string>)[key]}
 									setValue={(val) => {
 										setValue((oldVal: Record<string, string>) => {
+											return {
+												...oldVal,
+												[key]:
+													typeof val === 'function' ? val(oldVal[key]) : val,
+											};
+										});
+									}}
+									onSave={(val) => {
+										onSave((oldVal: Record<string, unknown>) => {
 											return {
 												...oldVal,
 												[key]:
