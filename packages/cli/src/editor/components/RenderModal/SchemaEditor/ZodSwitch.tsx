@@ -101,6 +101,7 @@ export const ZodSwitch: React.FC<{
 				defaultValue={defaultValue as unknown[]}
 				onSave={onSave as (newValue: (oldVal: unknown[]) => unknown[]) => void}
 				showSaveButton={showSaveButton}
+				onRemove={onRemove}
 			/>
 		);
 	}

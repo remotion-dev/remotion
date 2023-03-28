@@ -4,6 +4,7 @@ import {INPUT_BORDER_COLOR_UNHOVERED} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
 import {fieldsetLabel, optionRow} from '../layout';
+import {getSchemaLabel} from './get-schema-label';
 import type {JSONPath} from './zod-types';
 import {ZodSwitch} from './ZodSwitch';
 
@@ -73,7 +74,7 @@ export const ZodObjectEditor: React.FC<{
 				<Element style={fieldset}>
 					{isRoot ? null : (
 						<legend style={fieldsetLabel}>
-							{jsonPath[jsonPath.length - 1]}
+							{getSchemaLabel(jsonPath)}
 							{onRemove ? (
 								<>
 									<Spacing x={1} /> <InlineRemoveButton onClick={onRemove} />

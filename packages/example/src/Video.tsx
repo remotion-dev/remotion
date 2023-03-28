@@ -695,7 +695,7 @@ export const Index: React.FC = () => {
 								})
 							)
 							.min(2),
-						array2: z.array(z.string()),
+						array2: z.array(z.array(z.string())),
 						mynum: z.number(),
 					})}
 					defaultProps={{
@@ -706,7 +706,7 @@ export const Index: React.FC = () => {
 							{a: 'a', b: 'bbbbb'},
 							{a: 'a', b: 'b'},
 						],
-						array2: ['bbbbbb', 'bbbbbb'],
+						array2: [['bbbbbb'], ['bbbbbb']],
 						mynum: 179,
 					}}
 					durationInFrames={150}
