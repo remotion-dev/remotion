@@ -44,6 +44,7 @@ export const ZodArrayEditor: React.FC<{
 	setValue: React.Dispatch<React.SetStateAction<unknown[]>>;
 	onSave: (updater: (oldState: unknown[]) => unknown[]) => void;
 	compact: boolean;
+	showSaveButton: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -52,6 +53,7 @@ export const ZodArrayEditor: React.FC<{
 	defaultValue,
 	value,
 	onSave,
+	showSaveButton,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -140,6 +142,7 @@ export const ZodArrayEditor: React.FC<{
 									compact={compact}
 									defaultValue={defaultValue[i]}
 									onSave={onSave}
+									showSaveButton={showSaveButton}
 								/>
 							);
 						})}

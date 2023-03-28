@@ -25,6 +25,7 @@ export const SchemaEditor: React.FC<{
 	compact: boolean;
 	defaultProps: unknown;
 	onSave: (updater: (oldState: unknown) => unknown) => void;
+	showSaveButton: boolean;
 }> = ({
 	schema,
 	value,
@@ -33,6 +34,7 @@ export const SchemaEditor: React.FC<{
 	compact,
 	defaultProps,
 	onSave,
+	showSaveButton,
 }) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -82,6 +84,7 @@ export const SchemaEditor: React.FC<{
 						) => Record<string, unknown>
 					) => void
 				}
+				showSaveButton={showSaveButton}
 			/>
 		);
 	}

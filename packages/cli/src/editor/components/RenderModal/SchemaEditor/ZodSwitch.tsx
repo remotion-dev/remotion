@@ -15,7 +15,17 @@ export const ZodSwitch: React.FC<{
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 	onSave: (newValue: (oldVal: unknown) => unknown) => void;
 	compact: boolean;
-}> = ({schema, jsonPath, compact, value, setValue, defaultValue, onSave}) => {
+	showSaveButton: boolean;
+}> = ({
+	schema,
+	jsonPath,
+	compact,
+	value,
+	setValue,
+	defaultValue,
+	onSave,
+	showSaveButton,
+}) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
@@ -40,6 +50,7 @@ export const ZodSwitch: React.FC<{
 						) => Record<string, unknown>
 					) => void
 				}
+				showSaveButton={showSaveButton}
 			/>
 		);
 	}
@@ -52,6 +63,9 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
+				onSave={onSave}
+				defaultValue={defaultValue as string}
+				showSaveButton={showSaveButton}
 			/>
 		);
 	}
@@ -66,6 +80,7 @@ export const ZodSwitch: React.FC<{
 				compact={compact}
 				defaultValue={defaultValue as number}
 				onSave={onSave}
+				showSaveButton={showSaveButton}
 			/>
 		);
 	}
@@ -80,6 +95,7 @@ export const ZodSwitch: React.FC<{
 				compact={compact}
 				defaultValue={defaultValue as unknown[]}
 				onSave={onSave as (newValue: (oldVal: unknown[]) => unknown[]) => void}
+				showSaveButton={showSaveButton}
 			/>
 		);
 	}
@@ -94,6 +110,7 @@ export const ZodSwitch: React.FC<{
 				compact={compact}
 				defaultValue={defaultValue}
 				onSave={onSave}
+				showSaveButton={showSaveButton}
 			/>
 		);
 	}

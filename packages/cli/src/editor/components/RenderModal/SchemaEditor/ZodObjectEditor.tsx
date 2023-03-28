@@ -40,7 +40,17 @@ export const ZodObjectEditor: React.FC<{
 	onSave: (
 		updater: (oldVal: Record<string, unknown>) => Record<string, unknown>
 	) => void;
-}> = ({schema, jsonPath, setValue, value, compact, defaultValue, onSave}) => {
+	showSaveButton: boolean;
+}> = ({
+	schema,
+	jsonPath,
+	setValue,
+	value,
+	compact,
+	defaultValue,
+	onSave,
+	showSaveButton,
+}) => {
 	const def = schema._def;
 
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
@@ -101,6 +111,7 @@ export const ZodObjectEditor: React.FC<{
 										});
 									}}
 									compact={compact}
+									showSaveButton={showSaveButton}
 								/>
 							);
 						})}

@@ -26,7 +26,15 @@ export const RenderModalData: React.FC<{
 	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
 	compact: boolean;
 	updateButton: boolean;
-}> = ({composition, inputProps, setInputProps, compact, updateButton}) => {
+	showSaveButton: boolean;
+}> = ({
+	composition,
+	inputProps,
+	setInputProps,
+	compact,
+	updateButton,
+	showSaveButton,
+}) => {
 	const [mode, setMode] = useState<Mode>('schema');
 
 	const zodValidationResult = useMemo(() => {
@@ -84,6 +92,7 @@ export const RenderModalData: React.FC<{
 					compact={compact}
 					defaultProps={composition.defaultProps}
 					onSave={onSave}
+					showSaveButton={showSaveButton}
 				/>
 			) : (
 				<RenderModalJSONInputPropsEditor

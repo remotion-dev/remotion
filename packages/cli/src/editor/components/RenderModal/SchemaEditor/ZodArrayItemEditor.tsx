@@ -28,6 +28,7 @@ export const ZodArrayItemEditor: React.FC<{
 	compact: boolean;
 	defaultValue: unknown;
 	onSave: (updater: (oldState: unknown[]) => unknown[]) => void;
+	showSaveButton: boolean;
 }> = ({
 	def,
 	onChange,
@@ -37,6 +38,7 @@ export const ZodArrayItemEditor: React.FC<{
 	compact,
 	defaultValue,
 	onSave,
+	showSaveButton,
 }) => {
 	const onRemove = useCallback(() => {
 		onChange(
@@ -74,6 +76,7 @@ export const ZodArrayItemEditor: React.FC<{
 					compact={compact}
 					defaultValue={defaultValue}
 					onSave={onSave as (oldState: unknown) => unknown}
+					showSaveButton={showSaveButton}
 				/>
 			</div>
 		</div>
