@@ -720,7 +720,7 @@ export const Index: React.FC = () => {
 						yo: {hi: ' there'},
 						un: 'hi',
 						num: '179',
-						date: new Date('2022-01-01'),
+						date: new Date('2022-01-08T03:10:00.000Z'),
 					}}
 					durationInFrames={150}
 				/>

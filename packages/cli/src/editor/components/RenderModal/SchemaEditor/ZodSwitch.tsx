@@ -3,6 +3,7 @@ import {z} from 'remotion';
 import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodBooleanEditor} from './ZodBooleanEditor';
+import {ZodDateEditor} from './ZodDateEditor';
 import {ZodEffectEditor} from './ZodEffectEditor';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
 import {ZodNumberEditor} from './ZodNumberEditor';
@@ -66,6 +67,22 @@ export const ZodSwitch: React.FC<{
 				compact={compact}
 				onSave={onSave}
 				defaultValue={defaultValue as string}
+				showSaveButton={showSaveButton}
+				onRemove={onRemove}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodDate) {
+		return (
+			<ZodDateEditor
+				value={value as Date}
+				setValue={setValue as React.Dispatch<React.SetStateAction<Date>>}
+				jsonPath={jsonPath}
+				schema={schema}
+				compact={compact}
+				onSave={onSave}
+				defaultValue={defaultValue as Date}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 			/>

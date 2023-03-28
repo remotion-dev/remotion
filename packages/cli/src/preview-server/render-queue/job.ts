@@ -157,5 +157,5 @@ export type UnsubscribeFromFileExistenceRequest = {
 
 export type UpdateDefaultPropsRequest = {
 	compositionId: string;
-	defaultProps: unknown;
+	defaultProps: string;
 };
