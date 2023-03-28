@@ -16,6 +16,7 @@ export const ZodSwitch: React.FC<{
 	onSave: (newValue: (oldVal: unknown) => unknown) => void;
 	compact: boolean;
 	showSaveButton: boolean;
+	onRemove: null | (() => void);
 }> = ({
 	schema,
 	jsonPath,
@@ -25,6 +26,7 @@ export const ZodSwitch: React.FC<{
 	defaultValue,
 	onSave,
 	showSaveButton,
+	onRemove,
 }) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -51,6 +53,7 @@ export const ZodSwitch: React.FC<{
 					) => void
 				}
 				showSaveButton={showSaveButton}
+				onRemove={onRemove}
 			/>
 		);
 	}
@@ -66,6 +69,7 @@ export const ZodSwitch: React.FC<{
 				onSave={onSave}
 				defaultValue={defaultValue as string}
 				showSaveButton={showSaveButton}
+				onRemove={onRemove}
 			/>
 		);
 	}
@@ -81,6 +85,7 @@ export const ZodSwitch: React.FC<{
 				defaultValue={defaultValue as number}
 				onSave={onSave}
 				showSaveButton={showSaveButton}
+				onRemove={onRemove}
 			/>
 		);
 	}
@@ -111,6 +116,7 @@ export const ZodSwitch: React.FC<{
 				defaultValue={defaultValue}
 				onSave={onSave}
 				showSaveButton={showSaveButton}
+				onRemove={onRemove}
 			/>
 		);
 	}

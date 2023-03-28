@@ -23,6 +23,7 @@ export const ZodEffectEditor: React.FC<{
 	defaultValue: unknown;
 	onSave: (updater: (oldState: unknown) => unknown) => void;
 	showSaveButton: boolean;
+	onRemove: null | (() => void);
 }> = ({
 	schema,
 	jsonPath,
@@ -31,6 +32,7 @@ export const ZodEffectEditor: React.FC<{
 	compact,
 	defaultValue,
 	onSave,
+	onRemove,
 	showSaveButton,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
@@ -89,6 +91,7 @@ export const ZodEffectEditor: React.FC<{
 					defaultValue={defaultValue}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
+					onRemove={onRemove}
 				/>
 			</div>
 			{!localValue.zodValidation.success && (

@@ -3,11 +3,10 @@ import {z} from 'remotion';
 import {
 	FAIL_COLOR,
 	INPUT_BORDER_COLOR_UNHOVERED,
-	LIGHT_TEXT,
 } from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {optionRow} from '../layout';
+import {fieldsetLabel, optionRow} from '../layout';
 import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
 
@@ -17,16 +16,6 @@ const container: React.CSSProperties = {
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
-};
-
-const fieldsetLabel: React.CSSProperties = {
-	color: LIGHT_TEXT,
-	fontSize: 14,
-	paddingLeft: 10,
-	paddingRight: 10,
-	display: 'flex',
-	flexDirection: 'row',
-	fontFamily: 'monospace',
 };
 
 type LocalState = {

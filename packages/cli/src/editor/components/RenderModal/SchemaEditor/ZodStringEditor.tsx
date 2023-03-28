@@ -23,6 +23,7 @@ export const ZodStringEditor: React.FC<{
 	defaultValue: string;
 	setValue: React.Dispatch<React.SetStateAction<string>>;
 	onSave: (updater: (oldNum: unknown) => string) => void;
+	onRemove: null | (() => void);
 	compact: boolean;
 	showSaveButton: boolean;
 }> = ({
@@ -34,6 +35,7 @@ export const ZodStringEditor: React.FC<{
 	schema,
 	compact,
 	onSave,
+	onRemove,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -81,6 +83,7 @@ export const ZodStringEditor: React.FC<{
 				onReset={reset}
 				onSave={save}
 				showSaveButton={showSaveButton}
+				onRemove={onRemove}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput
