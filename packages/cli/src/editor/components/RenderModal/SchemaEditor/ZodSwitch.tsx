@@ -4,6 +4,7 @@ import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodBooleanEditor} from './ZodBooleanEditor';
 import {ZodEffectEditor} from './ZodEffectEditor';
+import {ZonNonEditableValue} from './ZodNonEditableValue';
 import {ZodNumberEditor} from './ZodNumberEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
 import {ZodStringEditor} from './ZodStringEditor';
@@ -102,6 +103,17 @@ export const ZodSwitch: React.FC<{
 				onSave={onSave}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodUndefined) {
+		return (
+			<ZonNonEditableValue
+				compact={compact}
+				jsonPath={jsonPath}
+				showSaveButton={showSaveButton}
+				value={value}
 			/>
 		);
 	}
