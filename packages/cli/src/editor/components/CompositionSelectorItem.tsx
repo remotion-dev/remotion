@@ -1,6 +1,6 @@
 import type {MouseEventHandler} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
-import type {TComposition} from 'remotion';
+import type {AnyComposition} from 'remotion';
 import {
 	BACKGROUND,
 	CLEAR_HOVER,
@@ -8,13 +8,16 @@ import {
 	SELECTED_BACKGROUND,
 } from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
-import {FilmIcon} from '../icons/film';
 import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
-import {Spacing} from './layout';
+import {FilmIcon} from '../icons/video';
+import {Row, Spacing} from './layout';
+import {RenderButton} from './RenderButton';
+
+const COMPOSITION_ITEM_HEIGHT = 32;
 
 const itemStyle: React.CSSProperties = {
-	paddingRight: 8,
+	paddingRight: 10,
 	paddingTop: 6,
 	paddingBottom: 6,
 	fontSize: 13,
@@ -28,18 +31,30 @@ const itemStyle: React.CSSProperties = {
 	width: '100%',
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
+	height: COMPOSITION_ITEM_HEIGHT,
+};
+
+const labelStyle: React.CSSProperties = {
+	textAlign: 'left',
+	textDecoration: 'none',
+	fontSize: 13,
+	flex: 1,
+	whiteSpace: 'nowrap',
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
 };
 
 const iconStyle: React.CSSProperties = {
 	width: 18,
 	height: 18,
+	flexShrink: 0,
 };
 
 export type CompositionSelectorItemType =
 	| {
 			key: string;
 			type: 'composition';
-			composition: TComposition<unknown>;
+			composition: AnyComposition;
 	  }
 	| {
 			key: string;
@@ -54,7 +69,7 @@ export const CompositionSelectorItem: React.FC<{
 	item: CompositionSelectorItemType;
 	currentComposition: string | null;
 	tabIndex: number;
-	selectComposition: (c: TComposition, push: boolean) => void;
+	selectComposition: (c: AnyComposition, push: boolean) => void;
 	toggleFolder: (folderName: string, parentName: string | null) => void;
 	level: number;
 }> = ({
@@ -91,10 +106,16 @@ export const CompositionSelectorItem: React.FC<{
 				: selected
 				? SELECTED_BACKGROUND
 				: 'transparent',
-			color: selected || hovered ? 'white' : LIGHT_TEXT,
-			paddingLeft: 8 + level * 8,
+			paddingLeft: 12 + level * 8,
 		};
 	}, [hovered, level, selected]);
+
+	const label = useMemo(() => {
+		return {
+			...labelStyle,
+			color: selected || hovered ? 'white' : LIGHT_TEXT,
+		};
+	}, [hovered, selected]);
 
 	const onClick: MouseEventHandler = useCallback(
 		(evt) => {
@@ -118,14 +139,21 @@ export const CompositionSelectorItem: React.FC<{
 					tabIndex={tabIndex}
 					onClick={onClick}
 					type="button"
+					title={item.folderName}
 				>
 					{item.expanded ? (
-						<ExpandedFolderIcon style={iconStyle} />
+						<ExpandedFolderIcon
+							style={iconStyle}
+							color={hovered || selected ? 'white' : LIGHT_TEXT}
+						/>
 					) : (
-						<CollapsedFolderIcon style={iconStyle} />
+						<CollapsedFolderIcon
+							color={hovered || selected ? 'white' : LIGHT_TEXT}
+							style={iconStyle}
+						/>
 					)}
 					<Spacing x={1} />
-					{item.folderName}
+					<div style={label}>{item.folderName}</div>
 				</button>
 				{item.expanded
 					? item.items.map((childItem) => {
@@ -147,21 +175,34 @@ export const CompositionSelectorItem: React.FC<{
 	}
 
 	return (
-		<button
-			style={style}
-			onPointerEnter={onPointerEnter}
-			onPointerLeave={onPointerLeave}
-			tabIndex={tabIndex}
-			onClick={onClick}
-			type="button"
-		>
-			{isCompositionStill(item.composition) ? (
-				<StillIcon style={iconStyle} />
-			) : (
-				<FilmIcon style={iconStyle} />
-			)}
-			<Spacing x={1} />
-			{item.composition.id}
-		</button>
+		<Row align="center">
+			<button
+				style={style}
+				onPointerEnter={onPointerEnter}
+				onPointerLeave={onPointerLeave}
+				tabIndex={tabIndex}
+				onClick={onClick}
+				type="button"
+				title={item.composition.id}
+			>
+				{isCompositionStill(item.composition) ? (
+					<StillIcon
+						color={hovered || selected ? 'white' : LIGHT_TEXT}
+						style={iconStyle}
+					/>
+				) : (
+					<FilmIcon
+						color={hovered || selected ? 'white' : LIGHT_TEXT}
+						style={iconStyle}
+					/>
+				)}
+				<Spacing x={1} />
+				<div style={label}>{item.composition.id}</div>
+				<Spacing x={0.5} />
+				<div>
+					<RenderButton visible={hovered} composition={item.composition} />
+				</div>
+			</button>
+		</Row>
 	);
 };

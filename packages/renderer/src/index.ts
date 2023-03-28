@@ -1,7 +1,11 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
-import {getDefaultAudioCodec, validAudioCodecs} from './audio-codec';
+import {
+	getDefaultAudioCodec,
+	supportedAudioCodecs,
+	validAudioCodecs,
+} from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {callFf, callFfExtraOptions} from './call-ffmpeg';
@@ -15,7 +19,7 @@ import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
-import {defaultFileExtensionMap, supportedAudioCodecs} from './file-extensions';
+import {defaultFileExtensionMap} from './file-extensions';
 import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
@@ -29,7 +33,12 @@ import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
-import {validStillImageFormats, validVideoImageFormats} from './image-format';
+import {
+	DEFAULT_STILL_IMAGE_FORMAT,
+	DEFAULT_VIDEO_IMAGE_FORMAT,
+	validStillImageFormats,
+	validVideoImageFormats,
+} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
@@ -42,7 +51,11 @@ import {validateQuality} from './quality';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {tmpDir} from './tmp-dir';
-import {validateConcurrency} from './validate-concurrency';
+import {
+	getMaxConcurrency,
+	getMinConcurrency,
+	validateConcurrency,
+} from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {
 	DEFAULT_OPENGL_RENDERER,
@@ -68,6 +81,7 @@ export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
 export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
+export {getActualConcurrency} from './get-concurrency';
 export {
 	StillImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
@@ -77,6 +91,7 @@ export type {LogLevel} from './log-level';
 export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
+export {RemotionOption} from './options/option';
 export {PixelFormat} from './pixel-format';
 export {ProResProfile} from './prores-profile';
 export {renderFrames} from './render-frames';
@@ -93,7 +108,6 @@ export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
-
 export const RenderInternals = {
 	ensureLocalBrowser,
 	getActualConcurrency,
@@ -143,6 +157,8 @@ export const RenderInternals = {
 	findRemotionRoot,
 	validateBitrate,
 	combineVideos,
+	getMinConcurrency,
+	getMaxConcurrency,
 	getDefaultAudioCodec,
 	validAudioCodecs,
 	defaultFileExtensionMap,
@@ -154,6 +170,8 @@ export const RenderInternals = {
 	callFfExtraOptions,
 	validStillImageFormats,
 	validVideoImageFormats,
+	DEFAULT_STILL_IMAGE_FORMAT,
+	DEFAULT_VIDEO_IMAGE_FORMAT,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

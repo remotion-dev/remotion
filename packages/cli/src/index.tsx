@@ -9,8 +9,9 @@ import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
 import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {formatBytes} from './format-bytes';
-import {getCliOptions, getFinalCodec} from './get-cli-options';
+import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
+import {getFinalOutputCodec} from './get-final-output-codec';
 import {handleCommonError} from './handle-common-errors';
 import {getVideoImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
@@ -112,12 +113,12 @@ export const CliInternals = {
 	handleCommonError,
 	formatBytes,
 	getFileSizeDownloadBar,
-	getFinalCodec,
 	determineFinalStillImageFormat,
 	minimist,
 	selectComposition,
 	findEntryPoint,
 	getVideoImageFormat,
 	printCompositions,
+	getFinalOutputCodec,
 	listOfRemotionPackages,
 };

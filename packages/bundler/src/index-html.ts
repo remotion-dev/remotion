@@ -1,6 +1,38 @@
 import path from 'path';
 import type {StaticFile} from 'remotion';
 
+export type RenderDefaults = {
+	quality: number;
+	scale: number;
+	logLevel: string;
+	codec: string;
+	concurrency: number;
+	minConcurrency: number;
+	muted: boolean;
+	maxConcurrency: number;
+	stillImageFormat: 'png' | 'jpeg' | 'webp' | 'pdf';
+	videoImageFormat: 'png' | 'jpeg' | 'none';
+	audioCodec: string | null;
+	enforceAudioTrack: boolean;
+	proResProfile: string;
+	pixelFormat: string;
+	audioBitrate: string | null;
+	videoBitrate: string | null;
+	everyNthFrame: number;
+	numberOfGifLoops: number | null;
+	delayRenderTimeout: number;
+	disableWebSecurity: boolean;
+	openGlRenderer: string | null;
+	ignoreCertificateErrors: boolean;
+	headless: boolean;
+};
+
+declare global {
+	interface Window {
+		remotion_renderDefaults: RenderDefaults | undefined;
+	}
+}
+
 export const indexHtml = ({
 	baseDir,
 	editorName,
@@ -9,10 +41,12 @@ export const indexHtml = ({
 	staticHash,
 	remotionRoot,
 	previewServerCommand,
+	renderQueue,
 	numberOfAudioTags,
 	publicFiles,
 	includeFavicon,
 	title,
+	renderDefaults,
 }: {
 	staticHash: string;
 	baseDir: string;
@@ -21,10 +55,12 @@ export const indexHtml = ({
 	envVariables?: Record<string, string>;
 	remotionRoot: string;
 	previewServerCommand: string | null;
+	renderQueue: unknown | null;
 	numberOfAudioTags: number;
 	publicFiles: StaticFile[];
 	includeFavicon: boolean;
 	title: string;
+	renderDefaults: RenderDefaults | undefined;
 }) =>
 	`
 <!DOCTYPE html>
@@ -53,6 +89,9 @@ ${
 		<script>window.remotion_projectName = ${JSON.stringify(
 			path.basename(remotionRoot)
 		)};</script>
+		<script>window.remotion_renderDefaults = ${JSON.stringify(
+			renderDefaults
+		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
 		<script>window.remotion_previewServerCommand = ${
 			previewServerCommand ? JSON.stringify(previewServerCommand) : 'null'
@@ -61,6 +100,14 @@ ${
 			inputProps
 				? `<script>window.remotion_inputProps = ${JSON.stringify(
 						JSON.stringify(inputProps)
+				  )};</script>
+			`
+				: ''
+		}
+		${
+			renderQueue
+				? `<script>window.remotion_initialRenderQueue = ${JSON.stringify(
+						renderQueue
 				  )};</script>
 			`
 				: ''

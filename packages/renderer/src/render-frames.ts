@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {performance} from 'perf_hooks';
-import type {SmallTCompMetadata, TAsset} from 'remotion';
+import type {AnySmallCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -13,6 +13,7 @@ import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
+import {isTargetClosedErr} from './browser/is-target-closed-err';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -27,7 +28,7 @@ import {
 } from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
-import {DEFAULT_IMAGE_FORMAT} from './image-format';
+import {DEFAULT_VIDEO_IMAGE_FORMAT} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -73,7 +74,7 @@ type RenderFramesOptions = {
 	scale?: number;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
-	composition: SmallTCompMetadata;
+	composition: AnySmallCompMetadata;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
@@ -89,7 +90,7 @@ const innerRenderFrames = ({
 	onStart,
 	inputProps,
 	quality,
-	imageFormat = DEFAULT_IMAGE_FORMAT,
+	imageFormat = DEFAULT_VIDEO_IMAGE_FORMAT,
 	frameRange,
 	onError,
 	envVariables,
@@ -113,7 +114,7 @@ const innerRenderFrames = ({
 	onError: (err: Error) => void;
 	pagesArray: Page[];
 	serveUrl: string;
-	composition: SmallTCompMetadata;
+	composition: AnySmallCompMetadata;
 	actualConcurrency: number;
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
@@ -372,16 +373,20 @@ const innerRenderFrames = ({
 		attempt: number
 	) => {
 		try {
-			await renderFrame(frame, index);
+			await Promise.race([
+				renderFrame(frame, index),
+				new Promise((_, reject) => {
+					cancelSignal?.(() => {
+						reject(new Error(cancelErrorMessages.renderFrames));
+					});
+				}),
+			]);
 		} catch (err) {
-			if (
-				!(err as Error)?.message?.includes('Target closed') &&
-				!(err as Error)?.message?.includes('Session closed')
-			) {
+			if (isUserCancelledRender(err)) {
 				throw err;
 			}
 
-			if (isUserCancelledRender(err)) {
+			if (!isTargetClosedErr(err as Error)) {
 				throw err;
 			}
 
@@ -573,11 +578,11 @@ export const renderFrames = (
 
 				if (options.puppeteerInstance) {
 					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
-						if (
-							!(err as Error | undefined)?.message.includes('Target closed')
-						) {
-							console.log('Unable to close browser tab', err);
+						if (isTargetClosedErr(err)) {
+							return;
 						}
+
+						console.log('Unable to close browser tab', err);
 					});
 				} else {
 					Promise.resolve(browserInstance)

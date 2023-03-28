@@ -1,6 +1,6 @@
 import fs, {statSync} from 'fs';
 import path from 'path';
-import type {SmallTCompMetadata} from 'remotion';
+import type {AnySmallCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -13,7 +13,10 @@ import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {StillImageFormat} from './image-format';
-import {validateStillImageFormat} from './image-format';
+import {
+	DEFAULT_STILL_IMAGE_FORMAT,
+	validateStillImageFormat,
+} from './image-format';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -28,7 +31,7 @@ import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 
 type InnerStillOptions = {
-	composition: SmallTCompMetadata;
+	composition: AnySmallCompMetadata;
 	output?: string | null;
 	frame?: number;
 	inputProps?: unknown;
@@ -60,7 +63,7 @@ export type RenderStillOptions = InnerStillOptions & {
 const innerRenderStill = async ({
 	composition,
 	quality,
-	imageFormat = 'png',
+	imageFormat = DEFAULT_STILL_IMAGE_FORMAT,
 	serveUrl,
 	puppeteerInstance,
 	dumpBrowserLogs = false,

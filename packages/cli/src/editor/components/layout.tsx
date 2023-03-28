@@ -5,14 +5,16 @@ export const SPACING_UNIT = 8;
 export const Spacing: React.FC<{
 	x?: number;
 	y?: number;
-}> = ({x = 0, y = 0}) => {
+	block?: boolean;
+}> = ({x = 0, y = 0, block = false}) => {
 	const style = useMemo((): React.CSSProperties => {
 		return {
-			display: 'inline-block',
+			display: block ? 'block' : 'inline-block',
 			width: x * SPACING_UNIT,
 			height: y * SPACING_UNIT,
+			flexShrink: 0,
 		};
-	}, [x, y]);
+	}, [block, x, y]);
 
 	return <div style={style} />;
 };
@@ -24,7 +26,7 @@ export const Flex: React.FC<{
 }> = ({children}) => <div style={flex}>{children}</div>;
 
 export const Row: React.FC<{
-	justify?: 'center';
+	justify?: 'center' | 'flex-start' | 'flex-end';
 	align?: 'center';
 	style?: React.CSSProperties;
 	className?: string;

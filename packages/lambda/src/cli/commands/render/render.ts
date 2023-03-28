@@ -55,9 +55,12 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	const outName = parsedLambdaCli['out-name'];
 	const downloadName = args[2] ?? null;
 
-	const {codec, reason} = CliInternals.getFinalCodec({
+	const {codec, reason} = CliInternals.getFinalOutputCodec({
+		cliFlag: CliInternals.parsedCli.codec,
 		downloadName,
 		outName: outName ?? null,
+		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+		uiCodec: null,
 	});
 
 	const {
@@ -86,7 +89,10 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		remotionRoot,
 	});
 
-	const imageFormat = CliInternals.getVideoImageFormat(codec);
+	const imageFormat = CliInternals.getVideoImageFormat({
+		codec,
+		uiImageFormat: null,
+	});
 
 	const functionName = await findFunctionName();
 
@@ -142,9 +148,10 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const totalSteps = downloadName ? 6 : 5;
 
-	const progressBar = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
+	const progressBar = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+	});
 
 	Log.info(
 		CliInternals.chalk.gray(

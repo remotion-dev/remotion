@@ -26,7 +26,7 @@ export const EditorContent: React.FC = () => {
 			<SplitterElement type="flexer">
 				<TopPanel />
 			</SplitterElement>
-			<SplitterHandle allowToCollapse={false} onCollapse={noop} />
+			<SplitterHandle allowToCollapse="none" onCollapse={noop} />
 			<SplitterElement type="anti-flexer">
 				<Timeline />
 			</SplitterElement>

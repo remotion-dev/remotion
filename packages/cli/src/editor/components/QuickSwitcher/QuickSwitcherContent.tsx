@@ -231,6 +231,8 @@ export const QuickSwitcherContent: React.FC<{
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
+			// Will be using the input field while selecting
+			triggerIfInputFieldFocused: true,
 		});
 
 		return () => {
@@ -279,6 +281,8 @@ export const QuickSwitcherContent: React.FC<{
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
+			// Will be using the input field while selecting
+			triggerIfInputFieldFocused: true,
 		});
 
 		return () => {

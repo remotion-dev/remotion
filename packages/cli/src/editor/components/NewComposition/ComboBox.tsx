@@ -83,8 +83,7 @@ export const Combobox: React.FC<{
 
 		const onMouseEnter = () => setIsHovered(true);
 		const onMouseLeave = () => setIsHovered(false);
-		const onPointerDown = (e: MouseEvent) => {
-			e.stopPropagation();
+		const onPointerDown = () => {
 			return setOpened((o) => {
 				if (!o) {
 					refresh?.();
@@ -200,7 +199,7 @@ export const Combobox: React.FC<{
 				style={style}
 				className={MENU_INITIATOR_CLASSNAME}
 			>
-				{selected.label} <Flex /> <Spacing x={1} /> <CaretDown />
+				{selected?.label} <Flex /> <Spacing x={1} /> <CaretDown />
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(

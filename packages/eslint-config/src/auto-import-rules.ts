@@ -31,5 +31,6 @@ export const autoImports = {
   Img: "import {Img} from 'remotion'",
   IFrame: "import {IFrame} from 'remotion'",
   Folder: "import {Folder} from 'remotion'",
+  z: "import {z} from 'remotion'",
   styled: "import styled from 'styled-components'",
 };

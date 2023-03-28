@@ -16,4 +16,54 @@ Internals.CSSUtils.injectCSS(`
     font-size: 15px;
     line-height: 1.25;
   }
+
+  .__remotion-info-button-container code {
+    font-family: monospace;
+    font-size: 14px;
+    color: #0584f2
+  }
+
+  .__remotion-vertical-scrollbar::-webkit-scrollbar {
+      width: 6px;
+  }
+  .__remotion-vertical-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.0);
+  }
+  .__remotion-vertical-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  .__remotion-vertical-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .__remotion-horizontal-scrollbar::-webkit-scrollbar {
+    height: 6px;
+  }
+  .__remotion-horizontal-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.0);
+  }
+  .__remotion-horizontal-scrollbar:hover::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.4);
+  }
+  .__remotion-horizontal-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .__remotion-timeline-slider {
+    appearance: none;
+    width: 100px;
+    border-radius: 3px;
+    height: 6px;
+    background-color: rgba(255, 255, 255, 0.1);
+    accent-color: #ffffff;
+  }
+  
+  .__remotion-timeline-slider::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    appearance: none;
+  }
+
 `);

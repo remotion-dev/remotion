@@ -13,6 +13,7 @@ import type {
 	PlayableMediaTag,
 	SetTimelineContextValue,
 	TimelineContextValue,
+	z,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
 import {PlayerEventEmitterContext} from './emitter-context.js';
@@ -33,7 +34,7 @@ import {validatePlaybackRate} from './utils/validate-playbackrate.js';
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
-export type PlayerProps<T> = {
+export type PlayerProps<Schema extends z.ZodTypeAny, Props> = {
 	durationInFrames: number;
 	compositionWidth: number;
 	compositionHeight: number;
@@ -64,20 +65,21 @@ export type PlayerProps<T> = {
 	renderPlayPauseButton?: RenderPlayPauseButton;
 	renderFullscreenButton?: RenderFullscreenButton;
 	alwaysShowControls?: boolean;
-} & PropsIfHasProps<T> &
-	CompProps<T>;
+	schema?: Schema;
+} & CompProps<Props> &
+	PropsIfHasProps<Schema, Props>;
 
-export const componentOrNullIfLazy = <T,>(
-	props: CompProps<T>
-): ComponentType<T> | null => {
+export const componentOrNullIfLazy = <Props,>(
+	props: CompProps<Props>
+): ComponentType<Props> | null => {
 	if ('component' in props) {
-		return props.component as ComponentType<T>;
+		return props.component as ComponentType<Props>;
 	}
 
 	return null;
 };
 
-const PlayerFn = <T,>(
+const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 	{
 		durationInFrames,
 		compositionHeight,
@@ -111,7 +113,7 @@ const PlayerFn = <T,>(
 		renderPlayPauseButton,
 		alwaysShowControls = false,
 		...componentProps
-	}: PlayerProps<T>,
+	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>
 ) => {
 	if (typeof window !== 'undefined') {

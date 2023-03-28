@@ -3,13 +3,15 @@ import {RenderInternals} from '@remotion/renderer';
 import {ConfigInternals} from './config';
 import {parsedCli} from './parse-command-line';
 
-export const getVideoImageFormat = (
-	codec: ReturnType<typeof ConfigInternals.getOutputCodecOrUndefined>
-): VideoImageFormat => {
-	const configFileOption = ConfigInternals.getUserPreferredVideoImageFormat();
-
-	if (typeof configFileOption !== 'undefined') {
-		return configFileOption;
+export const getVideoImageFormat = ({
+	codec,
+	uiImageFormat,
+}: {
+	codec: ReturnType<typeof ConfigInternals.getOutputCodecOrUndefined>;
+	uiImageFormat: VideoImageFormat | null;
+}): VideoImageFormat => {
+	if (uiImageFormat !== null) {
+		return uiImageFormat;
 	}
 
 	if (typeof parsedCli['image-format'] !== 'undefined') {
@@ -22,6 +24,12 @@ export const getVideoImageFormat = (
 		}
 
 		return parsedCli['image-format'] as VideoImageFormat;
+	}
+
+	const configFileOption = ConfigInternals.getUserPreferredVideoImageFormat();
+
+	if (typeof configFileOption !== 'undefined') {
+		return configFileOption;
 	}
 
 	if (RenderInternals.isAudioCodec(codec)) {

@@ -6,16 +6,16 @@ export async function copyDir({
 	dest,
 	onSymlinkDetected,
 	onProgress,
+	copied = 0,
 }: {
 	src: string;
 	dest: string;
 	onSymlinkDetected: (entry: fs.Dirent, dir: string) => void;
 	onProgress: (bytes: number) => void;
+	copied: number;
 }) {
 	await fs.promises.mkdir(dest, {recursive: true});
 	const entries = await fs.promises.readdir(src, {withFileTypes: true});
-
-	let copied = 0;
 
 	for (const entry of entries) {
 		const srcPath = path.join(src, entry.name);
@@ -27,6 +27,7 @@ export async function copyDir({
 				dest: destPath,
 				onSymlinkDetected,
 				onProgress,
+				copied,
 			});
 		} else if (entry.isSymbolicLink()) {
 			const realpath = await fs.promises.realpath(srcPath);
