@@ -37,6 +37,7 @@ const PropsEditor: React.FC<{
 				setInputProps={setInputProps}
 				compact
 				updateButton
+				showSaveButton
 			/>
 		</div>
 	);

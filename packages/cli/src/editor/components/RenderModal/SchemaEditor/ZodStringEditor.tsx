@@ -3,7 +3,8 @@ import type {z} from 'remotion';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {label, narrowOption, optionRow} from '../layout';
+import {narrowOption, optionRow} from '../layout';
+import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 
 type LocalState = {
@@ -19,9 +20,21 @@ export const ZodStringEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: string;
+	defaultValue: string;
 	setValue: React.Dispatch<React.SetStateAction<string>>;
+	onSave: (updater: (oldNum: unknown) => string) => void;
 	compact: boolean;
-}> = ({jsonPath, value, setValue, schema, compact}) => {
+	showSaveButton: boolean;
+}> = ({
+	jsonPath,
+	value,
+	setValue,
+	showSaveButton,
+	defaultValue,
+	schema,
+	compact,
+	onSave,
+}) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,
@@ -29,24 +42,46 @@ export const ZodStringEditor: React.FC<{
 		};
 	});
 
-	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
-		(e) => {
-			const safeParse = schema.safeParse(e.target.value);
+	const onValueChange = useCallback(
+		(newValue: string) => {
+			const safeParse = schema.safeParse(newValue);
 			const newLocalState: LocalState = {
-				value: e.target.value,
+				value: newValue,
 				zodValidation: safeParse,
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(e.target.value);
+				setValue(newValue);
 			}
 		},
 		[schema, setValue]
 	);
 
+	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
+		(e) => {
+			onValueChange(e.target.value);
+		},
+		[onValueChange]
+	);
+
+	const reset = useCallback(() => {
+		onValueChange(defaultValue);
+	}, [defaultValue, onValueChange]);
+
+	const save = useCallback(() => {
+		onSave(() => value);
+	}, [onSave, value]);
+
 	return (
 		<div style={compact ? narrowOption : optionRow}>
-			<div style={label}>{jsonPath[jsonPath.length - 1]}</div>
+			<SchemaLabel
+				compact={compact}
+				isDefaultValue={value === defaultValue}
+				jsonPath={jsonPath}
+				onReset={reset}
+				onSave={save}
+				showSaveButton={showSaveButton}
+			/>
 			<div style={fullWidth}>
 				<RemotionInput
 					value={localValue.value}

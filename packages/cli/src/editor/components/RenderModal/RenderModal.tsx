@@ -982,6 +982,7 @@ export const RenderModal: React.FC<{
 							composition={currentComposition}
 							compact={false}
 							updateButton={false}
+							showSaveButton={false}
 						/>
 					) : (
 						<RenderModalAdvanced

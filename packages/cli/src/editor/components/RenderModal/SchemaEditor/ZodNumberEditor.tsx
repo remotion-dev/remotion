@@ -3,9 +3,8 @@ import type {z} from 'remotion';
 import {Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {label, narrowOption, optionRow} from '../layout';
-import {SchemaResetButton} from './SchemaResetButton';
-import {SchemaSaveButton} from './SchemaSaveButton';
+import {narrowOption, optionRow} from '../layout';
+import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 
 type LocalState = {
@@ -79,7 +78,17 @@ export const ZodNumberEditor: React.FC<{
 	compact: boolean;
 	defaultValue: number;
 	onSave: (updater: (oldNum: unknown) => number) => void;
-}> = ({jsonPath, value, schema, setValue, onSave, compact, defaultValue}) => {
+	showSaveButton: boolean;
+}> = ({
+	jsonPath,
+	value,
+	schema,
+	setValue,
+	onSave,
+	compact,
+	defaultValue,
+	showSaveButton,
+}) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value: String(value),
@@ -131,11 +140,14 @@ export const ZodNumberEditor: React.FC<{
 
 	return (
 		<div style={compact ? narrowOption : optionRow}>
-			<div style={label}>
-				{jsonPath[jsonPath.length - 1]}{' '}
-				{isDefault ? null : <SchemaResetButton onClick={reset} />}
-				{isDefault ? null : <SchemaSaveButton onClick={save} />}
-			</div>
+			<SchemaLabel
+				isDefaultValue={isDefault}
+				jsonPath={jsonPath}
+				onReset={reset}
+				onSave={save}
+				showSaveButton={showSaveButton}
+				compact={compact}
+			/>
 			<div style={fullWidth}>
 				<InputDragger
 					type={'number'}
