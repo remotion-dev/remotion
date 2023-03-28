@@ -70,6 +70,21 @@ const findTerminators = (input: string, position: number) => {
 	return Infinity;
 };
 
+const stringifyDefaultProps = (props: unknown) => {
+	// Don't replace with arrow function
+	return JSON.stringify(props, function (key, value) {
+		if (this[key] instanceof Date) {
+			return `__REMOVEQUOTE__new Date('${new Date(
+				this[key]
+			).toISOString()}')__REMOVEQUOTE__`;
+		}
+
+		return value;
+	})
+		.replace('"__REMOVEQUOTE__', '')
+		.replace('__REMOVEQUOTE__"', '');
+};
+
 // TODO: Add more sanity checks
 // TODO: better error messages
 // TODO: throw if prettier was not found
@@ -100,7 +115,7 @@ export const updateDefaultProps = async ({
 
 	const newFile =
 		input.substring(0, startPos) +
-		JSON.stringify(newDefaultProps) +
+		stringifyDefaultProps(newDefaultProps) +
 		input.substring(endPos);
 
 	const configFilePath = await resolveConfigFile();

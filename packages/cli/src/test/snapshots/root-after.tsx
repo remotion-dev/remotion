@@ -31,7 +31,10 @@ export const Root: React.FC = () => {
 				height={1080}
 				width={1080}
 				id="Comp3"
-				defaultProps={{abc: 'def'}}
+				defaultProps={{
+					abc: 'def',
+					newDate: new Date('2022-01-02T00:00:00.000Z'),
+				}}
 			/>
 		</>
 	);
