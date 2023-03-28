@@ -283,6 +283,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		return payload;
 	});
 
+	console.log(
+		'Render plan: ',
+		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0] - c[1]})`).join(', ')
+	);
+
 	const renderMetadata: RenderMetadata = {
 		startedDate,
 		videoConfig: comp,
@@ -360,11 +365,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	});
 
 	await Promise.all(
-		lambdaPayloads.map(async (payload, index) => {
-			const callingLambdaTimer = timer('Calling chunk ' + index);
-
+		lambdaPayloads.map(async (payload) => {
 			await callFunctionWithRetry({payload, retries: 0, functionName});
-			callingLambdaTimer.end();
 		})
 	);
 
