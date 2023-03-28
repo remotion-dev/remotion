@@ -33,6 +33,7 @@ export const Root: React.FC = () => {
 				id="Comp3"
 				defaultProps={{
 					foo: 'bar',
+					date: new Date('2022-01-01'),
 				}}
 			/>
 		</>
