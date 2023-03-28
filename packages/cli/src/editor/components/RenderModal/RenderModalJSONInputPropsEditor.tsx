@@ -1,26 +1,31 @@
 import React, {useCallback} from 'react';
 import type {z} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
-import {Flex} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
+import {
+	deserializeJSONWithDate,
+	serializeJSONWithDate,
+} from './SchemaEditor/date-serialization';
 
-type State = {
-	value: string;
-	validJSON: boolean;
-};
+type State =
+	| {
+			str: string;
+			value: unknown;
+			validJSON: true;
+	  }
+	| {
+			str: string;
+			validJSON: false;
+			error: string;
+	  };
 
-const parseJSON = (
-	str: string
-): {
-	value: unknown;
-	validJSON: boolean;
-} => {
+const parseJSON = (str: string): State => {
 	try {
-		const parsed = JSON.parse(str);
-		return {value: parsed, validJSON: true};
+		const value = deserializeJSONWithDate(str);
+		return {str, value, validJSON: true};
 	} catch (e) {
-		return {value: null, validJSON: false};
+		return {str, validJSON: false, error: (e as Error).message};
 	}
 };
 
@@ -29,18 +34,12 @@ const style: React.CSSProperties = {
 	height: 400,
 };
 
-const bottomRow: React.CSSProperties = {
-	display: 'flex',
-	justifyContent: 'space-between',
-	alignItems: 'center',
-	flexDirection: 'row',
-};
-
 const schemaButton: React.CSSProperties = {
 	border: 'none',
 	padding: 0,
 	display: 'inline-block',
 	cursor: 'pointer',
+	backgroundColor: 'transparent',
 };
 
 export const RenderModalJSONInputPropsEditor: React.FC<{
@@ -50,10 +49,7 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	switchToSchema: () => void;
 }> = ({setValue, value, zodValidationResult, switchToSchema}) => {
 	const [localValue, setLocalValue] = React.useState<State>(() => {
-		return {
-			validJSON: true,
-			value: JSON.stringify(value, null, 2),
-		};
+		return parseJSON(serializeJSONWithDate(value, 2));
 	});
 
 	const onPretty = useCallback(() => {
@@ -61,14 +57,26 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 			return;
 		}
 
-		const parsed = JSON.parse(localValue.value);
-		setLocalValue({...localValue, value: JSON.stringify(parsed, null, 2)});
+		const parsed = JSON.parse(localValue.str);
+		setLocalValue({...localValue, str: JSON.stringify(parsed, null, 2)});
 	}, [localValue]);
 
 	const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
 		(e) => {
 			const parsed = parseJSON(e.target.value);
-			setLocalValue({value: e.target.value, validJSON: parsed.validJSON});
+			if (parsed.validJSON) {
+				setLocalValue({
+					str: e.target.value,
+					value: parsed.value,
+					validJSON: parsed.validJSON,
+				});
+			} else {
+				setLocalValue({
+					str: e.target.value,
+					validJSON: parsed.validJSON,
+					error: parsed.error,
+				});
+			}
 
 			if (parsed.validJSON) {
 				setValue(parsed.value);
@@ -81,31 +89,29 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 		<div>
 			<RemTextarea
 				onChange={onChange}
-				value={localValue.value}
+				value={localValue.str}
 				status={localValue.validJSON ? 'ok' : 'error'}
 				style={style}
 			/>
-			<div style={bottomRow}>
-				{localValue.validJSON === false ? (
+			{localValue.validJSON === false ? (
+				<ValidationMessage
+					align="flex-start"
+					message={localValue.error}
+					type="error"
+				/>
+			) : zodValidationResult.success === false ? (
+				<button type="button" style={schemaButton} onClick={switchToSchema}>
 					<ValidationMessage
 						align="flex-start"
-						message="JSON is invalid"
-						type="error"
+						message="Does not match schema"
+						type="warning"
 					/>
-				) : zodValidationResult.success === false ? (
-					<button type="button" style={schemaButton} onClick={switchToSchema}>
-						<ValidationMessage
-							align="flex-start"
-							message="Does not match schema"
-							type="warning"
-						/>
-					</button>
-				) : null}
-				<Flex />
-				<Button disabled={!localValue.validJSON} onClick={onPretty}>
-					Format JSON
-				</Button>
-			</div>
+				</button>
+			) : null}
+			<br />
+			<Button disabled={!localValue.validJSON} onClick={onPretty}>
+				Format JSON
+			</Button>
 		</div>
 	);
 };
