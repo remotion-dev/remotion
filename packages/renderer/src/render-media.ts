@@ -2,7 +2,7 @@ import type {ExecaChildProcess} from 'execa';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import type {SmallTCompMetadata} from 'remotion';
+import type {AnySmallCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -67,7 +67,7 @@ export type RenderMediaOnProgress = (progress: {
 export type RenderMediaOptions = {
 	outputLocation?: string | null;
 	codec: Codec;
-	composition: SmallTCompMetadata;
+	composition: AnySmallCompMetadata;
 	inputProps?: unknown;
 	crf?: number | null;
 	imageFormat?: VideoImageFormat;
@@ -109,6 +109,7 @@ export type RenderMediaOptions = {
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
 	disallowParallelEncoding?: boolean;
+	printLog?: (...data: unknown[]) => void;
 	audioCodec?: AudioCodec | null;
 	serveUrl: string;
 	concurrency?: number | string | null;
@@ -211,24 +212,25 @@ export const renderMedia = ({
 		canUseParallelEncoding(codec);
 
 	if (options.verbose) {
-		console.log(
+		const log = options.printLog ?? console.log;
+		log(
 			'[PRESTITCHER] Free memory:',
 			freeMemory,
 			'Estimated usage parallel encoding',
 			estimatedUsage
 		);
-		console.log(
+		log(
 			'[PRESTITCHER]: Codec supports parallel rendering:',
 			canUseParallelEncoding(codec)
 		);
-		console.log(
+		log(
 			'[PRESTITCHER]: User disallowed parallel encoding:',
 			Boolean(options.disallowParallelEncoding)
 		);
 		if (parallelEncoding) {
-			console.log('[PRESTITCHER] Parallel encoding is enabled.');
+			log('[PRESTITCHER] Parallel encoding is enabled.');
 		} else {
-			console.log('[PRESTITCHER] Parallel encoding is disabled.');
+			log('[PRESTITCHER] Parallel encoding is disabled.');
 		}
 	}
 

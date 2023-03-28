@@ -5,6 +5,7 @@ import type {
 	SetMediaVolumeContextValue,
 } from 'remotion';
 import {Internals} from 'remotion';
+import {PreviewServerConnection} from '../helpers/client-id';
 import {
 	CheckerboardContext,
 	loadCheckerboardOption,
@@ -29,6 +30,7 @@ import {loadMuteOption} from '../state/mute';
 import {PreviewSizeProvider} from '../state/preview-size';
 
 import {SidebarContextProvider} from '../state/sidebar';
+import {RenderQueueContextProvider} from './RenderQueue/context';
 
 export const EditorContexts: React.FC<{
 	children: React.ReactNode;
@@ -119,42 +121,46 @@ export const EditorContexts: React.FC<{
 	}, [modalContextType]);
 
 	return (
-		<KeybindingContextProvider>
-			<CheckerboardContext.Provider value={checkerboardCtx}>
-				<EditorZoomGesturesContext.Provider value={editorZoomGesturesCtx}>
-					<PreviewSizeProvider>
-						<ModalsContext.Provider value={modalsContext}>
-							<Internals.MediaVolumeContext.Provider
-								value={mediaVolumeContextValue}
-							>
-								<Internals.SetMediaVolumeContext.Provider
-									value={setMediaVolumeContextValue}
-								>
-									<PlayerInternals.PlayerEventEmitterContext.Provider
-										value={emitter}
+		<PreviewServerConnection>
+			<RenderQueueContextProvider>
+				<KeybindingContextProvider>
+					<CheckerboardContext.Provider value={checkerboardCtx}>
+						<EditorZoomGesturesContext.Provider value={editorZoomGesturesCtx}>
+							<PreviewSizeProvider>
+								<ModalsContext.Provider value={modalsContext}>
+									<Internals.MediaVolumeContext.Provider
+										value={mediaVolumeContextValue}
 									>
-										<SidebarContextProvider>
-											<FolderContextProvider>
-												<HighestZIndexProvider>
-													<TimelineInOutContext.Provider
-														value={timelineInOutContextValue}
-													>
-														<SetTimelineInOutContext.Provider
-															value={setTimelineInOutContextValue}
-														>
-															{children}
-														</SetTimelineInOutContext.Provider>
-													</TimelineInOutContext.Provider>
-												</HighestZIndexProvider>
-											</FolderContextProvider>
-										</SidebarContextProvider>
-									</PlayerInternals.PlayerEventEmitterContext.Provider>
-								</Internals.SetMediaVolumeContext.Provider>
-							</Internals.MediaVolumeContext.Provider>
-						</ModalsContext.Provider>
-					</PreviewSizeProvider>
-				</EditorZoomGesturesContext.Provider>
-			</CheckerboardContext.Provider>
-		</KeybindingContextProvider>
+										<Internals.SetMediaVolumeContext.Provider
+											value={setMediaVolumeContextValue}
+										>
+											<PlayerInternals.PlayerEventEmitterContext.Provider
+												value={emitter}
+											>
+												<SidebarContextProvider>
+													<FolderContextProvider>
+														<HighestZIndexProvider>
+															<TimelineInOutContext.Provider
+																value={timelineInOutContextValue}
+															>
+																<SetTimelineInOutContext.Provider
+																	value={setTimelineInOutContextValue}
+																>
+																	{children}
+																</SetTimelineInOutContext.Provider>
+															</TimelineInOutContext.Provider>
+														</HighestZIndexProvider>
+													</FolderContextProvider>
+												</SidebarContextProvider>
+											</PlayerInternals.PlayerEventEmitterContext.Provider>
+										</Internals.SetMediaVolumeContext.Provider>
+									</Internals.MediaVolumeContext.Provider>
+								</ModalsContext.Provider>
+							</PreviewSizeProvider>
+						</EditorZoomGesturesContext.Provider>
+					</CheckerboardContext.Provider>
+				</KeybindingContextProvider>
+			</RenderQueueContextProvider>
+		</PreviewServerConnection>
 	);
 };

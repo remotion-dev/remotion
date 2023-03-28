@@ -15,30 +15,36 @@ const button: React.CSSProperties = {
 	flexDirection: 'row',
 };
 
-const buttonContainer: React.CSSProperties = {
-	padding: 10,
-	cursor: 'pointer',
-	fontSize: 14,
-};
-
 export const Button: React.FC<{
 	onClick: () => void;
 	disabled?: boolean;
 	children: React.ReactNode;
 	style?: React.CSSProperties;
-}> = ({children, onClick, disabled, style}) => {
+	autoFocus?: boolean;
+}> = ({children, onClick, disabled, style, autoFocus}) => {
 	const combined = useMemo(() => {
 		return {
 			...button,
 			...(style ?? {}),
 		};
 	}, [style]);
+
+	const buttonContainer: React.CSSProperties = useMemo(() => {
+		return {
+			padding: 10,
+			cursor: disabled ? 'inherit' : 'pointer',
+			fontSize: 14,
+			opacity: disabled ? 0.7 : 1,
+		};
+	}, [disabled]);
+
 	return (
 		<button
 			style={combined}
 			type="button"
 			disabled={disabled}
 			onClick={onClick}
+			autoFocus={autoFocus}
 		>
 			<div className="css-reset" style={buttonContainer}>
 				{children}

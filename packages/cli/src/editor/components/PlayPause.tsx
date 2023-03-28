@@ -167,6 +167,7 @@ export const PlayPause: React.FC<{
 			callback: onArrowLeft,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const arrowRight = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -174,6 +175,7 @@ export const PlayPause: React.FC<{
 			callback: onArrowRight,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const space = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -181,6 +183,7 @@ export const PlayPause: React.FC<{
 			callback: onSpace,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const enter = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -188,6 +191,7 @@ export const PlayPause: React.FC<{
 			callback: onEnter,
 			commandCtrlKey: false,
 			preventDefault: false,
+			triggerIfInputFieldFocused: false,
 		});
 		const a = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -195,6 +199,7 @@ export const PlayPause: React.FC<{
 			callback: jumpToStart,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const e = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -202,6 +207,7 @@ export const PlayPause: React.FC<{
 			callback: jumpToEnd,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 
 		return () => {

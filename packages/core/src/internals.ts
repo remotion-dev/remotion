@@ -17,6 +17,7 @@ import type {
 import {CompositionManager, compositionsRef} from './CompositionManager.js';
 import * as CSSUtils from './default-css.js';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render.js';
+import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
 import type {RemotionEnvironment} from './get-environment.js';
 import {
 	getRemotionEnvironment,
@@ -111,6 +112,8 @@ export const Internals = {
 	useIsPlayer,
 	useRemotionEnvironment,
 	validateFrame,
+	EditorPropsProvider,
+	EditorPropsContext,
 };
 
 export type {

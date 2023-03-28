@@ -156,6 +156,7 @@ export const MenuContent: React.FC<{
 			callback: onEscape,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const rightBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -163,6 +164,7 @@ export const MenuContent: React.FC<{
 			commandCtrlKey: false,
 			callback: onArrowRight,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const leftBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -170,13 +172,16 @@ export const MenuContent: React.FC<{
 			key: 'ArrowLeft',
 			callback: onPreviousMenu,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
+
 		const downBinding = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'ArrowDown',
 			commandCtrlKey: false,
 			callback: onArrowDown,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const upBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -184,6 +189,7 @@ export const MenuContent: React.FC<{
 			callback: onArrowUp,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const enterBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -191,6 +197,7 @@ export const MenuContent: React.FC<{
 			callback: onEnter,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const spaceBinding = keybindings.registerKeybinding({
 			event: 'keyup',
@@ -198,6 +205,7 @@ export const MenuContent: React.FC<{
 			callback: onEnter,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		return () => {
 			escapeBinding.unregister();

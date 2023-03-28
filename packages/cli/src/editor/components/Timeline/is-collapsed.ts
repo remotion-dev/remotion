@@ -17,6 +17,10 @@ export const isTrackHidden = (
 		return false;
 	}
 
+	if (!track.canCollapse) {
+		return false;
+	}
+
 	const parent = allTracks.find(
 		(t) => t.sequence.id === track.sequence.parent
 	) as TrackWithHash;

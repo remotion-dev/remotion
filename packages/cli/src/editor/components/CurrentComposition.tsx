@@ -1,14 +1,14 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {Internals} from 'remotion';
-import {BACKGROUND} from '../helpers/colors';
+import {BACKGROUND, BORDER_COLOR} from '../helpers/colors';
 import {isCompositionStill} from '../helpers/is-composition-still';
 import {renderFrame} from '../state/render-frame';
 
 const container: React.CSSProperties = {
-	minHeight: 100,
+	height: 80,
 	display: 'block',
-	borderBottom: '1px solid black',
-	padding: 16,
+	borderBottom: `1px solid ${BORDER_COLOR}`,
+	padding: 12,
 	color: 'white',
 	backgroundColor: BACKGROUND,
 };
@@ -38,15 +38,6 @@ const row: React.CSSProperties = {
 
 export const CurrentComposition = () => {
 	const video = Internals.useVideo();
-
-	useEffect(() => {
-		if (!video) {
-			document.title = 'Remotion Preview';
-			return;
-		}
-
-		document.title = `${video.id} / ${window.remotion_projectName} - Remotion Preview`;
-	}, [video]);
 
 	if (!video) {
 		return <div style={container} />;

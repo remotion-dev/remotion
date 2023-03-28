@@ -1,3 +1,4 @@
+import type {PropsWithChildren} from 'react';
 import React, {
 	forwardRef,
 	useEffect,
@@ -7,30 +8,65 @@ import React, {
 	useState,
 } from 'react';
 import {
+	FAIL_COLOR,
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_HOVERED,
 	INPUT_BORDER_COLOR_UNHOVERED,
 	SELECTED_BACKGROUND,
+	WARNING_COLOR,
 } from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
+
+export type RemInputStatus = 'error' | 'warning' | 'ok';
 
 type Props = React.DetailedHTMLProps<
 	React.InputHTMLAttributes<HTMLInputElement>,
 	HTMLInputElement
->;
+> & {
+	status: RemInputStatus;
+};
+
+export const INPUT_HORIZONTAL_PADDING = 8;
+
+const aligner: React.CSSProperties = {
+	marginRight: -INPUT_HORIZONTAL_PADDING,
+};
+
+export const RightAlignInput: React.FC<PropsWithChildren> = ({children}) => {
+	return <div style={aligner}>{children}</div>;
+};
 
 export const inputBaseStyle: React.CSSProperties = {
-	padding: '8px 10px',
+	padding: `${INPUT_HORIZONTAL_PADDING}px 10px`,
 	color: 'white',
 	borderStyle: 'solid',
 	borderWidth: 1,
 	fontSize: 14,
 };
 
+export const getInputBorderColor = ({
+	status,
+	isFocused,
+	isHovered,
+}: {
+	status: 'error' | 'warning' | 'ok';
+	isFocused: boolean;
+	isHovered: boolean;
+}) =>
+	status === 'warning'
+		? WARNING_COLOR
+		: status === 'error'
+		? FAIL_COLOR
+		: isFocused
+		? SELECTED_BACKGROUND
+		: isHovered
+		? INPUT_BORDER_COLOR_HOVERED
+		: INPUT_BORDER_COLOR_UNHOVERED;
+
 const RemInputForwardRef: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	Props
-> = (props, ref) => {
+> = ({status, ...props}, ref) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -41,14 +77,10 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 			backgroundColor: INPUT_BACKGROUND,
 			...inputBaseStyle,
 			width: '100%',
-			borderColor: isFocused
-				? SELECTED_BACKGROUND
-				: isHovered
-				? INPUT_BORDER_COLOR_HOVERED
-				: INPUT_BORDER_COLOR_UNHOVERED,
+			borderColor: getInputBorderColor({isFocused, isHovered, status}),
 			...(props.style ?? {}),
 		};
-	}, [isFocused, isHovered, props.style]);
+	}, [isFocused, isHovered, props.style, status]);
 
 	useImperativeHandle(
 		ref,

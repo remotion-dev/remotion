@@ -1,7 +1,6 @@
 import type {
 	BrowserExecutable,
 	ChromiumOptions,
-	Codec,
 	FrameRange,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -9,10 +8,8 @@ import fs from 'fs';
 import path from 'path';
 import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
-import {getFinalOutputCodec} from './get-final-output-codec';
 import {getInputProps} from './get-input-props';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
 
 const getAndValidateFrameRange = () => {
 	const frameRange = ConfigInternals.getRange();
@@ -25,20 +22,6 @@ const getAndValidateFrameRange = () => {
 	}
 
 	return frameRange;
-};
-
-export const getFinalCodec = (options: {
-	downloadName: string | null;
-	outName: string | null;
-}): {codec: Codec; reason: string} => {
-	const {codec, reason} = getFinalOutputCodec({
-		cliFlag: parsedCli.codec,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		downloadName: options.downloadName,
-		outName: options.outName,
-	});
-
-	return {codec, reason};
 };
 
 const getBrowser = () =>
@@ -149,8 +132,8 @@ export const getCliOptions = async (options: {
 		concurrency,
 		frameRange,
 		shouldOutputImageSequence,
-		inputProps: getInputProps(() => undefined),
-		envVariables: await getEnvironmentVariables(() => undefined),
+		inputProps: getInputProps(null),
+		envVariables: await getEnvironmentVariables(null),
 		quality: ConfigInternals.getQuality(),
 		browser: await getAndValidateBrowser(browserExecutable),
 		crf,
@@ -173,5 +156,6 @@ export const getCliOptions = async (options: {
 		videoBitrate,
 		height,
 		width,
+		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
 	};
 };

@@ -1,5 +1,6 @@
 import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {registerCleanupJob} from './cleanup-before-quit';
+import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
 import {loadConfig} from './get-config-file-name';
@@ -49,8 +50,12 @@ export const listCompositionsCommand = async (
 		await bundleOnCliOrTakeServeUrl({
 			remotionRoot,
 			fullPath: file,
-			steps: ['bundling'],
 			publicDir,
+			onProgress: () => undefined,
+			indentOutput: false,
+			logLevel: ConfigInternals.Logging.getLogLevel(),
+			bundlingStep: 0,
+			steps: 1,
 		});
 
 	registerCleanupJob(() => cleanupBundle());

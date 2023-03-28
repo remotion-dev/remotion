@@ -234,6 +234,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 			dest: to,
 			onSymlinkDetected: showSymlinkWarning,
 			onProgress: (prog) => options.onPublicDirCopyProgress?.(prog),
+			copied: 0,
 		});
 	}
 
@@ -244,6 +245,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		inputProps: null,
 		remotionRoot: resolvedRemotionRoot,
 		previewServerCommand: null,
+		renderQueue: null,
 		numberOfAudioTags: 0,
 		publicFiles: readRecursively({
 			folder: '.',
@@ -253,7 +255,9 @@ export async function bundle(...args: Arguments): Promise<string> {
 		}),
 		includeFavicon: false,
 		title: 'Remotion Bundle',
+		renderDefaults: undefined,
 	});
+
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
 	return outDir;

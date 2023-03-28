@@ -5,6 +5,7 @@ import {render} from '@testing-library/react';
 import type {ComponentType} from 'react';
 import React, {useContext} from 'react';
 import {describe, expect, test} from 'vitest';
+import {z} from 'zod';
 import {Audio} from '../audio/index.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Internals} from '../internals.js';
@@ -36,6 +37,7 @@ const Wrapper: React.FC<{
 								defaultProps: undefined,
 								folderName: null,
 								parentFolderName: null,
+								schema: z.any(),
 							},
 						],
 						currentComposition: 'markup',

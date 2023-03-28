@@ -1,11 +1,12 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {getBackgroundFromHoverState} from '../helpers/colors';
-import {CaretRight} from '../icons/caret';
+import {CaretLeft, CaretRight} from '../icons/caret';
 import {useZIndex} from '../state/z-index';
 
-export const CollapsedCompositionSelector: React.FC<{
+export const CollapsedSidebarExpander: React.FC<{
 	onExpand: () => void;
-}> = ({onExpand}) => {
+	direction: 'left' | 'right';
+}> = ({onExpand, direction}) => {
 	const [hovered, setHovered] = useState(false);
 
 	const {tabIndex} = useZIndex();
@@ -21,14 +22,15 @@ export const CollapsedCompositionSelector: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			border: 'none',
-			borderRight: '2px solid black',
+			borderRight: `${direction === 'right' ? 1 : 0}px solid black`,
+			borderLeft: `${direction === 'left' ? 1 : 0}px solid black`,
 			cursor: 'pointer',
 			color: 'white',
 			display: 'flex',
 			justifyContent: 'center',
 			alignItems: 'center',
-			paddingLeft: 7,
-			paddingRight: 4,
+			paddingLeft: direction === 'right' ? 7 : 5,
+			paddingRight: direction === 'right' ? 4 : 5,
 			backgroundColor: getBackgroundFromHoverState({
 				hovered,
 				selected: false,
@@ -36,7 +38,7 @@ export const CollapsedCompositionSelector: React.FC<{
 			appearance: 'none',
 			WebkitAppearance: 'none',
 		};
-	}, [hovered]);
+	}, [direction, hovered]);
 
 	return (
 		<button
@@ -48,7 +50,7 @@ export const CollapsedCompositionSelector: React.FC<{
 			tabIndex={tabIndex}
 			onClick={onExpand}
 		>
-			<CaretRight />
+			{direction === 'right' ? <CaretRight /> : <CaretLeft />}
 		</button>
 	);
 };

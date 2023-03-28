@@ -32,13 +32,19 @@ export const determineFinalStillImageFormat = ({
 	configImageFormat,
 	cliFlag,
 	isLambda,
+	fromUi,
 }: {
 	downloadName: string | null;
 	outName: string | null;
 	configImageFormat: StillImageFormat | null;
 	cliFlag: StillImageFormat | VideoImageFormat | null;
 	isLambda: boolean;
+	fromUi: StillImageFormat | null;
 }): {format: StillImageFormat; source: string} => {
+	if (fromUi) {
+		return {format: fromUi, source: 'via UI'};
+	}
+
 	const outNameExtension = deriveExtensionFromFilename(outName);
 	const downloadNameExtension = deriveExtensionFromFilename(downloadName);
 

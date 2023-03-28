@@ -1,5 +1,5 @@
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
-import type {TCompMetadata} from 'remotion';
+import type {AnyCompMetadata} from 'remotion';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
 import {LambdaRoutines} from '../defaults';
@@ -18,7 +18,7 @@ export type GetCompositionsOnLambdaInput = {
 	forceBucketName?: string;
 };
 
-export type GetCompositionsOnLambdaOutput = TCompMetadata[];
+export type GetCompositionsOnLambdaOutput = AnyCompMetadata[];
 
 /**
  * @description Returns the compositions from a serveUrl
