@@ -17,10 +17,10 @@ const emptyLabel: React.CSSProperties = {
 
 export const ZonNonEditableValue: React.FC<{
 	jsonPath: JSONPath;
-	value: unknown;
+	label: string;
 	compact: boolean;
 	showSaveButton: boolean;
-}> = ({jsonPath, value, compact, showSaveButton}) => {
+}> = ({jsonPath, label, compact, showSaveButton}) => {
 	const save = useCallback(() => undefined, []);
 	const reset = useCallback(() => undefined, []);
 	return (
@@ -35,9 +35,7 @@ export const ZonNonEditableValue: React.FC<{
 				onRemove={null}
 			/>
 			<div style={fullWidth}>
-				<em style={emptyLabel}>
-					{value === undefined ? 'undefined' : JSON.stringify(value)}
-				</em>
+				<em style={emptyLabel}>{label}</em>
 			</div>
 		</div>
 	);
