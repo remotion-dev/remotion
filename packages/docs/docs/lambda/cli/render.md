@@ -130,7 +130,7 @@ FFMPEG may encode the video in a way that will not result in the exact audio bit
 Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
 Default: `320k`
 
-### `--video-bitrate`
+### `--video-bitrate` <AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated video.  
 The syntax for FFMPEGs `-b:v` parameter should be used.  
