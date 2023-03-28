@@ -12,6 +12,7 @@ import type {
 	RenderJob,
 } from '../../../preview-server/render-queue/job';
 import type {RequiredChromiumOptions} from '../../../required-chromium-options';
+import {serializeJSONWithDate} from '../RenderModal/SchemaEditor/date-serialization';
 
 export const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
@@ -218,6 +219,6 @@ export const updateDefaultProps = (
 ) => {
 	return callApi('/api/update-default-props', {
 		compositionId,
-		defaultProps,
+		defaultProps: serializeJSONWithDate(defaultProps),
 	});
 };
