@@ -6,7 +6,9 @@ import {
 } from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
+import {InlineRemoveButton} from '../InlineRemoveButton';
 import {fieldsetLabel, optionRow} from '../layout';
+import {getSchemaLabel} from './get-schema-label';
 import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
 
@@ -34,6 +36,7 @@ export const ZodArrayEditor: React.FC<{
 	onSave: (updater: (oldState: unknown[]) => unknown[]) => void;
 	compact: boolean;
 	showSaveButton: boolean;
+	onRemove: null | (() => void);
 }> = ({
 	schema,
 	jsonPath,
@@ -43,6 +46,7 @@ export const ZodArrayEditor: React.FC<{
 	value,
 	onSave,
 	showSaveButton,
+	onRemove,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -106,14 +110,22 @@ export const ZodArrayEditor: React.FC<{
 				<Element style={fieldset}>
 					{isRoot ? null : (
 						<legend style={fieldsetLabel}>
-							{jsonPath[jsonPath.length - 1]}
-							<Spacing x={1} />
+							{getSchemaLabel(jsonPath)}
+							{onRemove ? (
+								<>
+									<Spacing x={1} /> <InlineRemoveButton onClick={onRemove} />
+								</>
+							) : null}
+
 							{!localValue.zodValidation.success && (
-								<ValidationMessage
-									align="flex-end"
-									message={localValue.zodValidation.error.format()._errors[0]}
-									type="error"
-								/>
+								<>
+									<Spacing x={1} />
+									<ValidationMessage
+										align="flex-end"
+										message={localValue.zodValidation.error.format()._errors[0]}
+										type="error"
+									/>
+								</>
 							)}
 						</legend>
 					)}

@@ -3,6 +3,7 @@ import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Flex, Spacing} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
 import {label} from '../layout';
+import {getSchemaLabel} from './get-schema-label';
 import {SchemaResetButton} from './SchemaResetButton';
 import {SchemaSaveButton} from './SchemaSaveButton';
 import type {JSONPath} from './zod-types';
@@ -29,6 +30,12 @@ const wideStyles: React.CSSProperties = {
 	alignItems: 'center',
 };
 
+const labelStyle: React.CSSProperties = {
+	fontFamily: 'monospace',
+	fontSize: 14,
+	color: LIGHT_TEXT,
+};
+
 export const SchemaLabel: React.FC<{
 	jsonPath: JSONPath;
 	isDefaultValue: boolean;
@@ -48,7 +55,8 @@ export const SchemaLabel: React.FC<{
 }) => {
 	return (
 		<div style={compact ? compactStyles : wideStyles}>
-			{jsonPath[jsonPath.length - 1]} {compact ? <Flex /> : <Spacing x={1} />}
+			<span style={labelStyle}>{getSchemaLabel(jsonPath)}</span>
+			{compact ? <Flex /> : <Spacing x={1} />}
 			{isDefaultValue ? null : <SchemaResetButton onClick={onReset} />}
 			{isDefaultValue ? null : showSaveButton ? (
 				<SchemaSaveButton onClick={onSave} />
