@@ -1,10 +1,8 @@
 import React, {useMemo} from 'react';
 import {z} from 'remotion';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../../helpers/colors';
-import {Spacing} from '../../layout';
-import {InlineRemoveButton} from '../InlineRemoveButton';
-import {fieldsetLabel, optionRow} from '../layout';
-import {getSchemaLabel} from './get-schema-label';
+import {optionRow} from '../layout';
+import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import {ZodSwitch} from './ZodSwitch';
 
@@ -73,14 +71,7 @@ export const ZodObjectEditor: React.FC<{
 			<div style={fullWidth}>
 				<Element style={fieldset}>
 					{isRoot ? null : (
-						<legend style={fieldsetLabel}>
-							{getSchemaLabel(jsonPath)}
-							{onRemove ? (
-								<>
-									<Spacing x={1} /> <InlineRemoveButton onClick={onRemove} />
-								</>
-							) : null}
-						</legend>
+						<SchemaFieldsetLabel jsonPath={jsonPath} onRemove={onRemove} />
 					)}
 					<div style={isRoot ? undefined : container}>
 						{keys.map((key) => {
