@@ -11,9 +11,11 @@ export const ZodSwitch: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: unknown;
+	defaultValue: unknown;
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
+	onSave: (newValue: (oldVal: unknown) => unknown) => void;
 	compact: boolean;
-}> = ({schema, jsonPath, compact, value, setValue}) => {
+}> = ({schema, jsonPath, compact, value, setValue, defaultValue, onSave}) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
@@ -27,9 +29,17 @@ export const ZodSwitch: React.FC<{
 			<ZodObjectEditor
 				setValue={setValue}
 				value={value}
+				defaultValue={defaultValue}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
+				onSave={
+					onSave as (
+						newValue: (
+							oldVal: Record<string, unknown>
+						) => Record<string, unknown>
+					) => void
+				}
 			/>
 		);
 	}
@@ -54,6 +64,8 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
+				defaultValue={defaultValue as number}
+				onSave={onSave}
 			/>
 		);
 	}
@@ -66,6 +78,8 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
+				defaultValue={defaultValue as unknown[]}
+				onSave={onSave as (newValue: (oldVal: unknown[]) => unknown[]) => void}
 			/>
 		);
 	}
@@ -78,6 +92,8 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
+				defaultValue={defaultValue}
+				onSave={onSave}
 			/>
 		);
 	}

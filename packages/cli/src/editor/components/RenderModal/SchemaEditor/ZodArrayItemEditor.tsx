@@ -24,9 +24,20 @@ export const ZodArrayItemEditor: React.FC<{
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	def: any;
 	index: number;
-	child: unknown;
+	value: unknown;
 	compact: boolean;
-}> = ({def, onChange, jsonPath, index, child, compact}) => {
+	defaultValue: unknown;
+	onSave: (updater: (oldState: unknown[]) => unknown[]) => void;
+}> = ({
+	def,
+	onChange,
+	jsonPath,
+	index,
+	value,
+	compact,
+	defaultValue,
+	onSave,
+}) => {
 	const onRemove = useCallback(() => {
 		onChange(
 			(oldV) => [...oldV.slice(0, index), ...oldV.slice(index + 1)],
@@ -35,11 +46,11 @@ export const ZodArrayItemEditor: React.FC<{
 	}, [index, onChange]);
 
 	const setValue = useCallback(
-		(value: ((newV: unknown) => unknown) | unknown) => {
+		(val: ((newV: unknown) => unknown) | unknown) => {
 			onChange(
 				(oldV) => [
 					...oldV.slice(0, index),
-					typeof value === 'function' ? value(oldV[index]) : value,
+					typeof val === 'function' ? val(oldV[index]) : val,
 					...oldV.slice(index + 1),
 				],
 				false
@@ -58,9 +69,11 @@ export const ZodArrayItemEditor: React.FC<{
 				<ZodSwitch
 					jsonPath={newJsonPath}
 					schema={def.type}
-					value={child}
+					value={value}
 					setValue={setValue}
 					compact={compact}
+					defaultValue={defaultValue}
+					onSave={onSave as (oldState: unknown) => unknown}
 				/>
 			</div>
 		</div>

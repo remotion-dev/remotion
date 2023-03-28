@@ -75,7 +75,9 @@ export const ZodNumberEditor: React.FC<{
 	value: number;
 	setValue: React.Dispatch<React.SetStateAction<number>>;
 	compact: boolean;
-}> = ({jsonPath, value, schema, setValue, compact}) => {
+	defaultValue: number;
+	onSave: (updater: (oldNum: unknown) => number) => void;
+}> = ({jsonPath, value, schema, setValue, onSave, compact, defaultValue}) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value: String(value),
@@ -115,9 +117,31 @@ export const ZodNumberEditor: React.FC<{
 
 	// TODO: Error message does not align well
 
+	const isDefault = value === defaultValue;
+
+	const reset = useCallback(() => {
+		onValueChange(defaultValue);
+	}, [defaultValue, onValueChange]);
+
+	const save = useCallback(() => {
+		onSave(() => value);
+	}, [onSave, value]);
+
 	return (
 		<div style={compact ? narrowOption : optionRow}>
-			<div style={label}>{jsonPath[jsonPath.length - 1]}</div>
+			<div style={label}>
+				{jsonPath[jsonPath.length - 1]}{' '}
+				{isDefault ? null : (
+					<button type="button" onClick={reset}>
+						Reset
+					</button>
+				)}
+				{isDefault ? null : (
+					<button type="button" onClick={save}>
+						Save
+					</button>
+				)}
+			</div>
 			<div style={fullWidth}>
 				<InputDragger
 					type={'number'}

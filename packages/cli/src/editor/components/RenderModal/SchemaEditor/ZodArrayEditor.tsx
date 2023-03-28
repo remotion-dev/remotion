@@ -40,9 +40,19 @@ export const ZodArrayEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: unknown[];
+	defaultValue: unknown[];
 	setValue: React.Dispatch<React.SetStateAction<unknown[]>>;
+	onSave: (updater: (oldState: unknown[]) => unknown[]) => void;
 	compact: boolean;
-}> = ({schema, jsonPath, compact, setValue: updateValue, value}) => {
+}> = ({
+	schema,
+	jsonPath,
+	compact,
+	setValue: updateValue,
+	defaultValue,
+	value,
+	onSave,
+}) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,
@@ -123,11 +133,13 @@ export const ZodArrayEditor: React.FC<{
 									// eslint-disable-next-line react/no-array-index-key
 									key={`${i}${localValue.revision}`}
 									onChange={onChange}
-									child={child}
+									value={child}
 									def={def}
 									index={i}
 									jsonPath={jsonPath}
 									compact={compact}
+									defaultValue={defaultValue[i]}
+									onSave={onSave}
 								/>
 							);
 						})}

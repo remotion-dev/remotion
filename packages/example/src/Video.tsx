@@ -693,16 +693,9 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						vehicle: 'caa',
 						other: 'hi',
-						abc: {
-							def: {
-								xyz: 'hu',
-								pef: 'hu',
-							},
-							jkl: 'sting',
-							xyz: 'hi',
-						},
-						array: [3, 3, 3],
-						mynum: 3,
+						abc: {def: {xyz: 'hu', pef: 'hu'}, jkl: 'sting', xyz: 'hi'},
+						array: [-108, -134, 89],
+						mynum: 179,
 					}}
 					durationInFrames={150}
 				/>
@@ -716,7 +709,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 					schema={schemaTestSchema}
-					defaultProps={{title: 'Hello World!', delay: 55.4}}
+					defaultProps={{title: 'Hello', delay: 44.9}}
 				/>
 			</Folder>
 		</>
