@@ -102,7 +102,7 @@ export const RenderModalData: React.FC<{
 					switchToSchema={switchToSchema}
 				/>
 			)}
-			{updateButton ? (
+			{updateButton && mode === 'json' ? (
 				<Button onClick={onUpdate} disabled={!zodValidationResult.success}>
 					Save
 				</Button>
