@@ -153,6 +153,17 @@ export const ZodSwitch: React.FC<{
 		);
 	}
 
+	if (typeName === z.ZodFirstPartyTypeKind.ZodBigInt) {
+		return (
+			<ZonNonEditableValue
+				compact={compact}
+				jsonPath={jsonPath}
+				showSaveButton={showSaveButton}
+				label={'BigInt (not editable)'}
+			/>
+		);
+	}
+
 	if (typeName === z.ZodFirstPartyTypeKind.ZodUnknown) {
 		return (
 			<ZonNonEditableValue

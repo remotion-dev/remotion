@@ -219,6 +219,6 @@ export const updateDefaultProps = (
 ) => {
 	return callApi('/api/update-default-props', {
 		compositionId,
-		defaultProps: serializeJSONWithDate(defaultProps),
+		defaultProps: serializeJSONWithDate(defaultProps, undefined),
 	});
 };
