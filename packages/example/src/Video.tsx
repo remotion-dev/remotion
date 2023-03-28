@@ -699,6 +699,7 @@ export const Index: React.FC = () => {
 						mynum: z.number(),
 						value: z.boolean().refine((v) => v === false || v === true),
 						lol: z.undefined(),
+						haha: z.null(),
 					})}
 					defaultProps={{
 						vehicle: 'bus',
@@ -711,6 +712,8 @@ export const Index: React.FC = () => {
 						array2: [['bbbbbb'], ['bbbbbb']],
 						mynum: 179,
 						value: false,
+						lol: undefined,
+						haha: null,
 					}}
 					durationInFrames={150}
 				/>

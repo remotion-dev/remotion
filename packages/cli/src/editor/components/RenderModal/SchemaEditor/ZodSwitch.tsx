@@ -107,7 +107,10 @@ export const ZodSwitch: React.FC<{
 		);
 	}
 
-	if (typeName === z.ZodFirstPartyTypeKind.ZodUndefined) {
+	if (
+		typeName === z.ZodFirstPartyTypeKind.ZodUndefined ||
+		typeName === z.ZodFirstPartyTypeKind.ZodNull
+	) {
 		return (
 			<ZonNonEditableValue
 				compact={compact}
