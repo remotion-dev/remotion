@@ -22,8 +22,8 @@ const PropsEditor: React.FC<{
 		(newProps: unknown | ((oldProps: unknown) => unknown)) => {
 			updateProps({
 				id: composition.id,
-				defaultProps: composition.defaultProps,
-				newProps,
+				defaultProps: composition.defaultProps as object,
+				newProps: newProps as object,
 			});
 		},
 		[composition.defaultProps, composition.id, updateProps]

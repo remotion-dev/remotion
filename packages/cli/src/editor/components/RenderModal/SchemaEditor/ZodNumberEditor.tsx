@@ -4,6 +4,8 @@ import {Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {label, narrowOption, optionRow} from '../layout';
+import {SchemaResetButton} from './SchemaResetButton';
+import {SchemaSaveButton} from './SchemaSaveButton';
 import type {JSONPath} from './zod-types';
 
 type LocalState = {
@@ -131,16 +133,8 @@ export const ZodNumberEditor: React.FC<{
 		<div style={compact ? narrowOption : optionRow}>
 			<div style={label}>
 				{jsonPath[jsonPath.length - 1]}{' '}
-				{isDefault ? null : (
-					<button type="button" onClick={reset}>
-						Reset
-					</button>
-				)}
-				{isDefault ? null : (
-					<button type="button" onClick={save}>
-						Save
-					</button>
-				)}
+				{isDefault ? null : <SchemaResetButton onClick={reset} />}
+				{isDefault ? null : <SchemaSaveButton onClick={save} />}
 			</div>
 			<div style={fullWidth}>
 				<InputDragger
