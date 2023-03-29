@@ -5,6 +5,7 @@ import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodBooleanEditor} from './ZodBooleanEditor';
 import {ZodDateEditor} from './ZodDateEditor';
 import {ZodEffectEditor} from './ZodEffectEditor';
+import {ZodEnumEditor} from './ZodEnumEditor';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
 import {ZodNumberEditor} from './ZodNumberEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
@@ -191,6 +192,22 @@ export const ZodSwitch: React.FC<{
 		);
 	}
 
+	if (typeName === z.ZodFirstPartyTypeKind.ZodEnum) {
+		return (
+			<ZodEnumEditor
+				setValue={setValue as React.Dispatch<React.SetStateAction<string>>}
+				value={value as string}
+				jsonPath={jsonPath}
+				schema={schema}
+				compact={compact}
+				defaultValue={defaultValue as string}
+				onSave={onSave as (newValue: (oldVal: string) => string) => void}
+				showSaveButton={showSaveButton}
+				onRemove={onRemove}
+			/>
+		);
+	}
+
 	if (typeName === z.ZodFirstPartyTypeKind.ZodEffects) {
 		return (
 			<ZodEffectEditor
@@ -207,5 +224,12 @@ export const ZodSwitch: React.FC<{
 		);
 	}
 
-	return <div>unknown</div>;
+	return (
+		<ZonNonEditableValue
+			compact={compact}
+			jsonPath={jsonPath}
+			showSaveButton={showSaveButton}
+			label={`${typeName} (not editable)`}
+		/>
+	);
 };

@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {LIGHT_TEXT} from '../../../helpers/colors';
+import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
@@ -10,7 +10,7 @@ const fullWidth: React.CSSProperties = {
 
 const emptyLabel: React.CSSProperties = {
 	width: '100%',
-	color: LIGHT_TEXT,
+	color: VERY_LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	fontSize: 14,
 };

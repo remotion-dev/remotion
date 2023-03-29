@@ -47,6 +47,7 @@ export type SelectionItem = {
 	value: string | number;
 	onClick: (id: string) => void;
 	keyHint: string | null;
+	// TODO: Checkmark doesn't align well
 	leftItem: React.ReactNode;
 	subMenu: SubMenu | null;
 	quickSwitcherLabel: string | null;
