@@ -13,10 +13,10 @@ import {rendererHandler} from './renderer';
 import {startHandler} from './start';
 import {stillHandler} from './still';
 
-export const handler = <T extends LambdaRoutines>(
+export const handler = (
 	params: LambdaPayload,
 	context: {invokedFunctionArn: string; getRemainingTimeInMillis: () => number}
-): Promise<LambdaReturnValues[T]> => {
+) => {
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
 	const timeoutInMilliseconds = context.getRemainingTimeInMillis();
 
@@ -38,7 +38,7 @@ export const handler = <T extends LambdaRoutines>(
 		});
 		return stillHandler(params, {
 			expectedBucketOwner: currentUserId,
-		});
+		}) as LambdaReturnValues[LambdaRoutines.still];
 	}
 
 	if (params.type === LambdaRoutines.start) {
