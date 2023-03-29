@@ -110,7 +110,8 @@ If your `pnpm build` throws errors, oftentimes it is because of caching issues. 
 pnpm run clean
 ```
 
-in the root directory.
+in the root directory. Make sure to beforehand kill any `pnpm watch` commands, as those might regenerate files as you clean them!
+
 
 ## Developing Rust parts
 
