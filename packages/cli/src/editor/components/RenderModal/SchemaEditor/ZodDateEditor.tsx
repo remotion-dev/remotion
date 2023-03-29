@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from 'react';
 import type {z} from 'remotion';
-import {LIGHT_TEXT} from '../../../helpers/colors';
-import {Spacing} from '../../layout';
+import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
+import {Spacing, SPACING_UNIT} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
@@ -20,7 +20,8 @@ const fullWidth: React.CSSProperties = {
 const explainer: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	fontSize: 12,
-	color: LIGHT_TEXT,
+	color: VERY_LIGHT_TEXT,
+	marginBottom: SPACING_UNIT,
 };
 
 // This will do 2 things:
