@@ -81,7 +81,7 @@ export const ErrorDisplay: React.FC<{
 			/>
 			<div style={spacer} />
 			<AskOnDiscord canHaveKeyboardShortcuts={keyboardShortcuts} />
-			<div style={stack}>
+			<div style={stack} className="__remotion-horizontal-scrollbar">
 				{display.stackFrames.map((s, i) => {
 					return (
 						<StackElement
