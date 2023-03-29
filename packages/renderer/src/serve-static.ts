@@ -41,7 +41,7 @@ export const serveStatic = async (
 
 		serveHandler(request, response, {
 			public: path,
-		}).catch((e) => {
+		}).catch(() => {
 			if (!response.headersSent) {
 				response.writeHead(500);
 			}
