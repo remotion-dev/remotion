@@ -3,6 +3,10 @@ import {useBreakpoint} from '../helpers/use-breakpoint';
 import {SidebarContext} from '../state/sidebar';
 import {Canvas} from './Canvas';
 import {CollapsedSidebarExpander} from './CollapsedSidebarExpander';
+import {
+	CurrentCompositionKeybindings,
+	TitleUpdater,
+} from './CurrentCompositionSideEffects';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
 import {PreviewToolbar} from './PreviewToolbar';
@@ -150,6 +154,8 @@ export const TopPanel: React.FC = () => {
 				</SplitterContainer>
 			</div>
 			<PreviewToolbar />
+			<CurrentCompositionKeybindings />
+			<TitleUpdater />
 		</div>
 	);
 };
