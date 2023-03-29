@@ -122,7 +122,7 @@ export const TopPanel: React.FC = () => {
 					<SplitterElement type="anti-flexer">
 						<SplitterContainer
 							minFlex={0.5}
-							maxFlex={0.75}
+							maxFlex={0.8}
 							defaultFlex={0.7}
 							id="canvas-to-right-sidebar"
 							orientation="vertical"

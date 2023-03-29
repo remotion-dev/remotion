@@ -121,7 +121,7 @@ export const RightPanel: React.FC<{}> = () => {
 	}
 
 	// TODO: It is not perfectly aligned in example
-
+	// TODO: DEfault and renders has different font soue
 	return (
 		<div style={container} className="css-reset">
 			<div style={tabsContainer}>
