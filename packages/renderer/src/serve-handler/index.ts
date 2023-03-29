@@ -82,12 +82,12 @@ const sendError = (
 ) => {
 	const {message, statusCode} = spec;
 
-	response.statusCode = statusCode;
-
 	const headers = getHeaders(absolutePath, null);
 
-	response.writeHead(statusCode, headers);
-	response.setHeader('content-type', 'application/json');
+	response.writeHead(statusCode, {
+		...headers,
+		'Content-Type': 'application/json',
+	});
 	response.end(JSON.stringify({statusCode, message}));
 };
 
@@ -167,7 +167,8 @@ export const serveHandler = async (
 			const related = await findRelated(current, relativePath);
 
 			if (related) {
-				({stats, absolutePath} = related);
+				stats = related.stats;
+				absolutePath = related.absolutePath;
 			}
 		} catch (err) {
 			if (
