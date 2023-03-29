@@ -1,5 +1,5 @@
 import React, {useCallback, useContext, useMemo} from 'react';
-import {useCompactUI} from '../helpers/use-compact-ui';
+import {useBreakpoint} from '../helpers/use-breakpoint';
 import {SidebarContext} from '../state/sidebar';
 import {Canvas} from './Canvas';
 import {CollapsedSidebarExpander} from './CollapsedSidebarExpander';
@@ -38,7 +38,8 @@ const leftContainer: React.CSSProperties = {
 };
 
 export const TopPanel: React.FC = () => {
-	const compactUi = useCompactUI();
+	const leftSidebarBreakpoint = useBreakpoint(1200);
+	const rightSidebarBreakpoint = useBreakpoint(1600);
 	const {
 		setSidebarCollapsedStateLeft,
 		sidebarCollapsedStateLeft,
@@ -55,8 +56,8 @@ export const TopPanel: React.FC = () => {
 			return 'expanded';
 		}
 
-		return compactUi ? 'collapsed' : 'expanded';
-	}, [compactUi, sidebarCollapsedStateLeft]);
+		return leftSidebarBreakpoint ? 'collapsed' : 'expanded';
+	}, [leftSidebarBreakpoint, sidebarCollapsedStateLeft]);
 
 	const actualStateRight = useMemo((): 'expanded' | 'collapsed' => {
 		if (sidebarCollapsedStateRight === 'collapsed') {
@@ -67,9 +68,8 @@ export const TopPanel: React.FC = () => {
 			return 'expanded';
 		}
 
-		// TODO: Add a setting for it
-		return 'collapsed';
-	}, [sidebarCollapsedStateRight]);
+		return rightSidebarBreakpoint ? 'collapsed' : 'expanded';
+	}, [rightSidebarBreakpoint, sidebarCollapsedStateRight]);
 
 	const onCollapseLeft = useCallback(() => {
 		setSidebarCollapsedStateLeft('collapsed');

@@ -41,8 +41,10 @@ export const useMenuStructure = (closeMenu: () => void) => {
 	);
 	const {size, setSize} = useContext(PreviewSizeContext);
 	const {
-		setSidebarCollapsedStateLeft: setSidebarCollapsedState,
-		sidebarCollapsedStateLeft: sidebarCollapsedState,
+		setSidebarCollapsedStateLeft,
+		sidebarCollapsedStateLeft,
+		setSidebarCollapsedStateRight,
+		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
 
 	const sizes = getUniqueSizes(size);
@@ -256,7 +258,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 					},
 					{
 						id: 'left-sidebar',
-						label: 'Sidebar',
+						label: 'Left Sidebar',
 						keyHint: null,
 						type: 'item' as const,
 						value: 'preview-size',
@@ -267,16 +269,83 @@ export const useMenuStructure = (closeMenu: () => void) => {
 							preselectIndex: 0,
 							items: [
 								{
-									id: 'sidebar-responsive',
+									id: 'left-sidebar-responsive',
 									keyHint: null,
 									label: 'Responsive',
 									leftItem:
-										sidebarCollapsedState === 'responsive' ? (
+										sidebarCollapsedStateLeft === 'responsive' ? (
 											<Checkmark />
 										) : null,
 									onClick: () => {
 										closeMenu();
-										setSidebarCollapsedState('responsive');
+										setSidebarCollapsedStateLeft('responsive');
+									},
+									subMenu: null,
+									type: 'item' as const,
+									value: 'responsive' as SidebarCollapsedState,
+									quickSwitcherLabel: null,
+								},
+								{
+									id: 'left-sidebar-expanded',
+									keyHint: null,
+									label: 'Expanded',
+									leftItem:
+										sidebarCollapsedStateLeft === 'expanded' ? (
+											<Checkmark />
+										) : null,
+									onClick: () => {
+										closeMenu();
+										setSidebarCollapsedStateLeft('expanded');
+									},
+									subMenu: null,
+									type: 'item' as const,
+									value: 'expanded' as SidebarCollapsedState,
+									quickSwitcherLabel: 'Expand',
+								},
+								{
+									id: 'left-sidebar-collapsed',
+									keyHint: null,
+									label: 'Collapsed',
+									leftItem:
+										sidebarCollapsedStateLeft === 'collapsed' ? (
+											<Checkmark />
+										) : null,
+									onClick: () => {
+										closeMenu();
+										setSidebarCollapsedStateLeft('collapsed');
+									},
+									subMenu: null,
+									type: 'item' as const,
+									value: 'collapsed' as SidebarCollapsedState,
+									quickSwitcherLabel: 'Collapse',
+								},
+							],
+						},
+						onClick: () => undefined,
+					},
+					{
+						id: 'right-sidebar',
+						label: 'Right Sidebar',
+						keyHint: null,
+						type: 'item' as const,
+						value: 'preview-size',
+						leftItem: null,
+						quickSwitcherLabel: null,
+						subMenu: {
+							leaveLeftSpace: true,
+							preselectIndex: 0,
+							items: [
+								{
+									id: 'right-sidebar-responsive',
+									keyHint: null,
+									label: 'Responsive',
+									leftItem:
+										sidebarCollapsedStateRight === 'responsive' ? (
+											<Checkmark />
+										) : null,
+									onClick: () => {
+										closeMenu();
+										setSidebarCollapsedStateRight('responsive');
 									},
 									subMenu: null,
 									type: 'item' as const,
@@ -288,10 +357,12 @@ export const useMenuStructure = (closeMenu: () => void) => {
 									keyHint: null,
 									label: 'Expanded',
 									leftItem:
-										sidebarCollapsedState === 'expanded' ? <Checkmark /> : null,
+										sidebarCollapsedStateRight === 'expanded' ? (
+											<Checkmark />
+										) : null,
 									onClick: () => {
 										closeMenu();
-										setSidebarCollapsedState('expanded');
+										setSidebarCollapsedStateRight('expanded');
 									},
 									subMenu: null,
 									type: 'item' as const,
@@ -299,16 +370,16 @@ export const useMenuStructure = (closeMenu: () => void) => {
 									quickSwitcherLabel: 'Expand',
 								},
 								{
-									id: 'sidebar-collapsed',
+									id: 'right-sidebar-collapsed',
 									keyHint: null,
 									label: 'Collapsed',
 									leftItem:
-										sidebarCollapsedState === 'collapsed' ? (
+										sidebarCollapsedStateRight === 'collapsed' ? (
 											<Checkmark />
 										) : null,
 									onClick: () => {
 										closeMenu();
-										setSidebarCollapsedState('collapsed');
+										setSidebarCollapsedStateRight('collapsed');
 									},
 									subMenu: null,
 									type: 'item' as const,
@@ -603,17 +674,19 @@ export const useMenuStructure = (closeMenu: () => void) => {
 
 		return struct;
 	}, [
+		sizes,
+		editorZoomGestures,
+		sidebarCollapsedStateLeft,
+		sidebarCollapsedStateRight,
 		checkerboard,
 		closeMenu,
-		setCheckerboard,
-		editorZoomGestures,
-		setEditorZoomGestures,
 		setSelectedModal,
-		setSidebarCollapsedState,
-		setSize,
-		sidebarCollapsedState,
 		size.size,
-		sizes,
+		setSize,
+		setEditorZoomGestures,
+		setSidebarCollapsedStateLeft,
+		setSidebarCollapsedStateRight,
+		setCheckerboard,
 	]);
 
 	return structure;
