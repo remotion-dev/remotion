@@ -5,6 +5,10 @@ import {label, optionRow, rightRow} from './layout';
 import {NumberOfLoopsSetting} from './NumberOfLoopsSetting';
 import {NumberSetting} from './NumberSetting';
 
+const container: React.CSSProperties = {
+	flex: 1,
+};
+
 export const RenderModalGif: React.FC<{
 	limitNumberOfGifLoops: boolean;
 	setLimitNumberOfGifLoops: (value: React.SetStateAction<boolean>) => void;
@@ -28,7 +32,7 @@ export const RenderModalGif: React.FC<{
 	);
 
 	return (
-		<div>
+		<div style={container}>
 			<NumberSetting
 				name="Every nth frame"
 				min={1}

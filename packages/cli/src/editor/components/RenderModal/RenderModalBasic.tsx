@@ -19,6 +19,10 @@ import {OptionExplainer} from './OptionExplainer';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalInput} from './RenderModalInput';
 
+const container: React.CSSPropertiess = {
+	flex: 1,
+};
+
 export const RenderModalBasic: React.FC<{
 	renderMode: RenderType;
 	imageFormatOptions: SegmentedControlItem[];
@@ -123,7 +127,7 @@ export const RenderModalBasic: React.FC<{
 	);
 
 	return (
-		<div>
+		<div style={container}>
 			{renderMode === 'still' ? (
 				<div style={optionRow}>
 					<div style={label}>Format</div>

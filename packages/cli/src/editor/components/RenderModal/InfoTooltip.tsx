@@ -1,5 +1,6 @@
 import React, {useMemo} from 'react';
 import {BACKGROUND, BORDER_COLOR} from '../../helpers/colors';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {SHADOW_TOWARDS_BOTTOM, SHADOW_TOWARDS_TOP} from '../Menu/styles';
 
 const arrow: React.CSSProperties = {
@@ -42,7 +43,7 @@ export const InfoTooltip: React.FC<{
 				alignItems: 'flex-start',
 			}}
 		>
-			<div style={container} className="__remotion-vertical-scrollbar">
+			<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 				{children}
 			</div>
 			{arrowDirection === 'down' ? (

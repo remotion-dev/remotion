@@ -4,6 +4,7 @@ import React, {useCallback, useMemo} from 'react';
 import type {UiOpenGlOptions} from '../../../required-chromium-options';
 import {Checkmark} from '../../icons/Checkmark';
 import {Checkbox} from '../Checkbox';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {label, optionRow, rightRow} from './layout';
@@ -12,6 +13,11 @@ import {RenderModalEnvironmentVariables} from './RenderModalEnvironmentVariables
 import {RenderModalHr} from './RenderModalHr';
 
 export type RenderType = 'still' | 'video' | 'audio';
+
+const container: React.CSSProperties = {
+	flex: 1,
+	overflowY: 'auto',
+};
 
 export const RenderModalAdvanced: React.FC<{
 	renderMode: RenderType;
@@ -114,7 +120,7 @@ export const RenderModalAdvanced: React.FC<{
 	}, [extendedOpenGlOptions, openGlOption, setOpenGlOption]);
 
 	return (
-		<div>
+		<div style={container} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			{renderMode === 'still' ? null : (
 				<NumberSetting
 					min={minConcurrency}

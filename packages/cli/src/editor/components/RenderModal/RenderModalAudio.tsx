@@ -16,6 +16,10 @@ import {OptionExplainer} from './OptionExplainer';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
 
+const container: React.CSSProperties = {
+	flex: 1,
+};
+
 export const RenderModalAudio: React.FC<{
 	muted: boolean;
 	setMuted: React.Dispatch<React.SetStateAction<boolean>>;
@@ -84,8 +88,11 @@ export const RenderModalAudio: React.FC<{
 		[codec, setAudioCodec]
 	);
 
+	// TODO: Bug - select rive-vehicle to render, then select GIF codec
+	// Error: Audio codec null is not supported for codec gif
+
 	return (
-		<div>
+		<div style={container}>
 			{renderMode === 'video' && audioCodecOptions(codec).length >= 2 ? (
 				<div style={optionRow}>
 					<div style={label}>Audio Codec</div>

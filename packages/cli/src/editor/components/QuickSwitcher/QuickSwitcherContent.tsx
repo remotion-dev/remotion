@@ -18,6 +18,7 @@ import {ModalsContext} from '../../state/modals';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {KeyboardShortcutsExplainer} from '../KeyboardShortcutsExplainer';
 import {Spacing} from '../layout';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {algoliaSearch} from './algolia-search';
 import {AlgoliaCredit} from './AlgoliaCredit';
@@ -393,7 +394,7 @@ export const QuickSwitcherContent: React.FC<{
 					</>
 				) : null}
 			</div>
-			<div style={results} className="__remotion-vertical-scrollbar">
+			<div style={results} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 				{showKeyboardShortcuts ? (
 					<KeyboardShortcutsExplainer />
 				) : showSearchLoadingState ? null : resultsArray.length === 0 ? (
