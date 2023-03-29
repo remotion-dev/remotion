@@ -39,37 +39,21 @@ export const FadeIn = () => {
 
 ## Using the interpolate helper function
 
-Using the [`interpolate()`](/docs/interpolate) function can make animations more readable.
-The function takes 4 arguments:
+Using the [`interpolate()`](/docs/interpolate) function can make animations more readable. The above animation can also be written as:
 
-1. The input value
-2. The range values which the input can assume
-3. The range of values that you want to map the input to
-4. Optional settings
+```tsx twoslash
+import { useCurrentFrame } from "remotion";
+const frame = useCurrentFrame();
+// ---cut---
+import { interpolate } from "remotion";
 
-```tsx twoslash {6-8, 16}
-import { interpolate, useCurrentFrame } from "remotion";
-
-export const MyVideo = () => {
-  const frame = useCurrentFrame();
-
-  const opacity = interpolate(frame, [0, 60], [0, 1], {
-    extrapolateRight: "clamp",
-  });
-
-  return (
-    <div
-      style={{
-        flex: 1,
-        textAlign: "center",
-        fontSize: "7em",
-        opacity: opacity,
-      }}
-    >
-      Hello World!
-    </div>
-  );
-};
+const opacity = interpolate(frame, [0, 60], [0, 1], {
+  /*                        ^^^^^   ^^^^^    ^^^^
+  Variable to interpolate ----|       |       |
+  Input range ------------------------|       |
+  Output range -------------------------------|  */
+  extrapolateRight: "clamp",
+});
 ```
 
 In this example, we map the frames 0 to 60 to their opacity values `(0, 0.0166, 0.033, 0.05 ...`) and use the [`extrapolateRight`](/docs/interpolate#extrapolateright) setting to clamp the output so that it never becomes bigger than 1.
@@ -113,6 +97,6 @@ The default spring configuration leads to a little bit of overshoot, meaning the
 
 ## Always animate using `useCurrentFrame()`
 
-Watch out for flickering issues during rendering that arise if you write animations that are not driven by [`useCurrentFrame()`](/docs/use-current-frame) - for example CSS transitions.
+Watch out for flickering issues during rendering that arise if you write animations that are not driven by [`useCurrentFrame()`](/docs/use-current-frame) – for example CSS transitions.
 
 [Read more about how Remotion's rendering works](/docs/flickering) - understanding it will help you avoid issues down the road.

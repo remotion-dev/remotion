@@ -83,6 +83,7 @@ module.exports = {
         "series",
         "folder",
         "easing",
+        "z",
         "null",
         "clipper",
       ],
@@ -336,7 +337,6 @@ module.exports = {
       items: [
         "getting-started",
         "the-fundamentals",
-        "transforms",
         "animating-properties",
         "reusability",
         "timeline",
@@ -347,6 +347,7 @@ module.exports = {
       type: "category",
       label: "Techniques",
       items: [
+        "transforms",
         "assets",
         "using-audio",
         "fonts",
