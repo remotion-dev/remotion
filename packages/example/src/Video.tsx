@@ -695,8 +695,8 @@ export const Index: React.FC = () => {
 								})
 							)
 							.min(2),
-						array2: z.array(z.array(z.string())),
-						mynum: z.number().negative(),
+						array2: z.array(z.array(z.number())),
+						mynum: z.number().lt(10000000),
 						value: z.boolean().refine((v) => v === false || v === true),
 						lol: z.undefined(),
 						haha: z.null(),
@@ -715,14 +715,14 @@ export const Index: React.FC = () => {
 							{a: 'a', b: 'bbbbb'},
 							{a: 'a', b: 'b'},
 						],
-						array2: [['bbbbbb'], ['bbbbbbgggg']],
-						mynum: -62,
+						array2: [[12], [12]],
+						mynum: 4,
 						value: true,
 						haha: null,
 						yo: {hi: ' there'},
 						un: 'hi',
 						num: '179',
-						date: new Date('2022-01-08T22:10:00.000Z'),
+						date: new Date('1999-02-12T20:20:00.000Z'),
 						values: 'a',
 						supersuperlongvalueabcdefghji: 'hi',
 					}}
