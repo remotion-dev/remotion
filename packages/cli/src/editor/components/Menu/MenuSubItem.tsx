@@ -138,7 +138,7 @@ export const MenuSubItem: React.FC<{
 			role="button"
 			className={MENU_ITEM_CLASSNAME}
 		>
-			<Row>
+			<Row align="center">
 				{leaveLeftSpace ? (
 					<>
 						<div style={leftSpace}>{leftItem}</div>
