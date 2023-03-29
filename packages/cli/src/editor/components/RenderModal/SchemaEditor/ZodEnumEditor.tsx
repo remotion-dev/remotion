@@ -1,9 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {z} from 'remotion';
-import {
-	FAIL_COLOR,
-	INPUT_BORDER_COLOR_UNHOVERED,
-} from '../../../helpers/colors';
 import {Checkmark} from '../../../icons/Checkmark';
 import {Spacing} from '../../layout';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
@@ -14,10 +10,6 @@ import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 
 const container: React.CSSProperties = {
-	width: '100%',
-};
-
-const fullWidth: React.CSSProperties = {
 	width: '100%',
 };
 
@@ -63,18 +55,6 @@ export const ZodEnumEditor: React.FC<{
 	}
 
 	const isRoot = jsonPath.length === 0;
-	const Element = isRoot ? 'div' : 'fieldset';
-
-	const {paddingTop} = optionRow;
-
-	const fieldset: React.CSSProperties = useMemo(() => {
-		return {
-			borderRadius: 4,
-			borderColor: localValue.zodValidation.success
-				? INPUT_BORDER_COLOR_UNHOVERED
-				: FAIL_COLOR,
-		};
-	}, [localValue.zodValidation.success]);
 
 	const onChange = useCallback(
 		(updater: (oldV: string) => string) => {
