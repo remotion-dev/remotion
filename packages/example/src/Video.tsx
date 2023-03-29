@@ -704,6 +704,7 @@ export const Index: React.FC = () => {
 						un: z.unknown(),
 						num: z.coerce.string(),
 						date: z.date(),
+						values: z.enum(['a', 'b', 'c']),
 					})}
 					defaultProps={{
 						vehicle: 'bus',
@@ -721,6 +722,7 @@ export const Index: React.FC = () => {
 						un: 'hi',
 						num: '179',
 						date: new Date('2022-01-08T21:10:00.000Z'),
+						values: 'a',
 					}}
 					durationInFrames={150}
 				/>
