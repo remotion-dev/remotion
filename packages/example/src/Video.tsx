@@ -714,14 +714,14 @@ export const Index: React.FC = () => {
 							{a: 'a', b: 'bbbbb'},
 							{a: 'a', b: 'b'},
 						],
-						array2: [['bbbbbb'], ['bbbbbb']],
+						array2: [['bbbbbb'], ['bbbbbbgggg']],
 						mynum: 179,
 						value: true,
 						haha: null,
 						yo: {hi: ' there'},
 						un: 'hi',
 						num: '179',
-						date: new Date('2022-01-08T21:10:00.000Z'),
+						date: new Date('2022-01-08T22:10:00.000Z'),
 						values: 'a',
 					}}
 					durationInFrames={150}
