@@ -30,10 +30,10 @@ Internals.CSSUtils.injectCSS(`
     background-color: rgba(0, 0, 0, 0.0);
   }
   .__remotion-vertical-scrollbar:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.6);
   }
   .__remotion-vertical-scrollbar:hover::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 1);
   }
 
   .__remotion-horizontal-scrollbar::-webkit-scrollbar {
@@ -43,10 +43,10 @@ Internals.CSSUtils.injectCSS(`
     background-color: rgba(0, 0, 0, 0.0);
   }
   .__remotion-horizontal-scrollbar:hover::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.6);
   }
   .__remotion-horizontal-scrollbar:hover::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: rgba(0, 0, 0, 1);
   }
 
   .__remotion-timeline-slider {

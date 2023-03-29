@@ -63,7 +63,7 @@ export const RightPanel: React.FC<{}> = () => {
 	}
 
 	return (
-		<div style={container}>
+		<div style={container} className="__remotion-vertical-scrollbar">
 			<PropsEditor composition={composition} />
 		</div>
 	);

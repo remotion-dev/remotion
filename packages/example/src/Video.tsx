@@ -708,7 +708,7 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						vehicle: 'bus',
 						other: 'hi',
-						abc: {def: {xyz: 'hu', pef: 'hu'}, jkl: 'sting', xyz: 'hi'},
+						abc: {def: {xyz: 'huthere', pef: 'hu'}, jkl: 'sting', xyz: 'hi'},
 						array: [
 							{a: 'a', b: 'bbbbb'},
 							{a: 'a', b: 'b'},
