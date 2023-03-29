@@ -1,6 +1,7 @@
 import React, {useCallback} from 'react';
 import type {z} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
+import {Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {
@@ -31,7 +32,7 @@ const parseJSON = (str: string): State => {
 
 const style: React.CSSProperties = {
 	fontFamily: 'monospace',
-	height: 400,
+	flex: 1,
 };
 
 const schemaButton: React.CSSProperties = {
@@ -48,7 +49,8 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
 	switchToSchema: () => void;
-}> = ({setValue, value, zodValidationResult, switchToSchema}) => {
+	onSave: () => void;
+}> = ({setValue, value, zodValidationResult, switchToSchema, onSave}) => {
 	const [localValue, setLocalValue] = React.useState<State>(() => {
 		return parseJSON(serializeJSONWithDate(value, 2));
 	});
@@ -87,13 +89,14 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	);
 
 	return (
-		<div>
+		<>
 			<RemTextarea
 				onChange={onChange}
 				value={localValue.str}
 				status={localValue.validJSON ? 'ok' : 'error'}
 				style={style}
 			/>
+			<Spacing y={1} />
 			{localValue.validJSON === false ? (
 				<ValidationMessage
 					align="flex-start"
@@ -109,10 +112,16 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 					/>
 				</button>
 			) : null}
-			<br />
-			<Button disabled={!localValue.validJSON} onClick={onPretty}>
-				Format JSON
-			</Button>
-		</div>
+			<Spacing y={1} />
+			<Row>
+				<Button disabled={!localValue.validJSON} onClick={onPretty}>
+					Format JSON
+				</Button>
+				<Spacing x={1} />
+				<Button onClick={onSave} disabled={!zodValidationResult.success}>
+					Save
+				</Button>
+			</Row>
+		</>
 	);
 };

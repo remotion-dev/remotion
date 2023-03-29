@@ -8,6 +8,7 @@ const container: React.CSSProperties = {
 	width: '100%',
 	position: 'absolute',
 	overflow: 'auto',
+	display: 'flex',
 };
 
 const PropsEditor: React.FC<{
@@ -30,16 +31,14 @@ const PropsEditor: React.FC<{
 	);
 
 	return (
-		<div>
-			<RenderModalData
-				composition={composition}
-				inputProps={props[composition.id] ?? composition.defaultProps}
-				setInputProps={setInputProps}
-				compact
-				updateButton
-				showSaveButton
-			/>
-		</div>
+		<RenderModalData
+			composition={composition}
+			inputProps={props[composition.id] ?? composition.defaultProps}
+			setInputProps={setInputProps}
+			compact
+			updateButton
+			showSaveButton
+		/>
 	);
 };
 

@@ -4,7 +4,6 @@ import {LIGHT_TEXT} from '../../helpers/colors';
 export const optionRow: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
-	alignItems: 'center',
 	minHeight: 40,
 	paddingLeft: 16,
 	paddingRight: 16,
