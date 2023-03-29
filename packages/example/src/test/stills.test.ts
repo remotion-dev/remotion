@@ -144,6 +144,9 @@ test(
 				serveUrl,
 				frame: toRenderComposition[1],
 				imageFormat,
+				chromiumOptions: {
+					gl: process.platform === 'darwin' ? 'angle' : null,
+				},
 			});
 
 			expect(existsSync(testOut)).toBe(true);
