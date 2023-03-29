@@ -81,6 +81,7 @@ export const RenderModalEnvironmentVariables: React.FC<{
 			<Button style={button} onClick={addField}>
 				+ Add env variable
 			</Button>
+			<Spacing y={1} block />
 		</div>
 	);
 };
