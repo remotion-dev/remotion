@@ -22,7 +22,11 @@ export const TimelineScrollable: React.FC<{
 	}, []);
 
 	return (
-		<div ref={scrollableRef} style={outer}>
+		<div
+			ref={scrollableRef}
+			style={outer}
+			className="__remotion-horizontal-scrollbar"
+		>
 			<div style={containerStyle}>{children}</div>
 		</div>
 	);
