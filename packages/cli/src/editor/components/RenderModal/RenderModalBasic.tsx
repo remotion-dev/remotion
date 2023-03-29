@@ -19,7 +19,7 @@ import {OptionExplainer} from './OptionExplainer';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalInput} from './RenderModalInput';
 
-const container: React.CSSPropertiess = {
+const container: React.CSSProperties = {
 	flex: 1,
 };
 
