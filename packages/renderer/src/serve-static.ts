@@ -41,8 +41,11 @@ export const serveStatic = async (
 
 		serveHandler(request, response, {
 			public: path,
-		}).catch(() => {
-			response.statusCode = 500;
+		}).catch((e) => {
+			if (!response.headersSent) {
+				response.writeHead(500);
+			}
+
 			response.end('Error serving file');
 		});
 	});
