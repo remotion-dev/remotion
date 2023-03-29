@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {z} from 'remotion';
+import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {ZodErrorMessages} from './ZodErrorMessages';
@@ -9,11 +10,12 @@ const errorExplanation: React.CSSProperties = {
 	fontSize: 14,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
+	lineHeight: 1.5,
 };
 
 const codeSnippet: React.CSSProperties = {
 	fontSize: 14,
-	color: LIGHT_TEXT,
+	color: 'var(--blue)',
 	fontFamily: 'monospace',
 };
 
@@ -40,6 +42,10 @@ export const SchemaEditor: React.FC<{
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
 
+	const reset = useCallback(() => {
+		setValue(defaultProps);
+	}, [defaultProps, setValue]);
+
 	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
 		return (
 			<div style={errorExplanation}>
@@ -52,7 +58,46 @@ export const SchemaEditor: React.FC<{
 	}
 
 	if (!zodValidationResult.success) {
-		// TODO: Distinguish between default props not valid and JSON input not valid
+		if (defaultProps === undefined) {
+			return (
+				<div>
+					<div style={errorExplanation}>
+						The schema can not be edited because the{' '}
+						<code style={codeSnippet}>defaultProps</code> prop in the{' '}
+						<code style={codeSnippet}>{'<Composition>'}</code> does not exist.
+					</div>
+					<Spacing y={1} />
+					<div style={errorExplanation}>
+						Fix the schema by adding a{' '}
+						<code style={codeSnippet}>defaultProps</code> prop to your
+						composition.
+					</div>
+				</div>
+			);
+		}
+
+		const defaultPropsValid = schema.safeParse(defaultProps);
+
+		if (!defaultPropsValid.success) {
+			return (
+				<div>
+					<div style={errorExplanation}>
+						The schema can not be edited because the{' '}
+						<code style={codeSnippet}>defaultProps</code> prop in the{' '}
+						<code style={codeSnippet}>{'<Composition>'}</code> is not valid:
+					</div>
+					<Spacing y={1} block />
+					<ZodErrorMessages zodValidationResult={zodValidationResult} />
+					<Spacing y={1} block />
+					<div style={errorExplanation}>
+						Fix the schema by changing the{' '}
+						<code style={codeSnippet}>defaultProps</code> prop in your
+						composition so it does not give a type error.
+					</div>
+				</div>
+			);
+		}
+
 		return (
 			<div>
 				<div style={errorExplanation}>
@@ -64,6 +109,13 @@ export const SchemaEditor: React.FC<{
 				<div style={errorExplanation}>
 					Fix the schema using the JSON editor.
 				</div>
+				<Spacing y={1} block />
+				<div style={errorExplanation}>
+					Alternatively, reset the data to the <code>defaultProps</code> that
+					you have defined.
+				</div>
+				<Spacing y={1} block />
+				<Button onClick={reset}>Reset props</Button>
 			</div>
 		);
 	}
