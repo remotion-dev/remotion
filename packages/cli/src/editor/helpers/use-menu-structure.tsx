@@ -18,6 +18,7 @@ import {PreviewSizeContext} from '../state/preview-size';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {timelineRef} from '../state/timeline-ref';
+import {PreviewServerConnectionCtx} from './client-id';
 import {openInEditor} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
@@ -40,6 +41,8 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		EditorZoomGesturesContext
 	);
 	const {size, setSize} = useContext(PreviewSizeContext);
+	const {type} = useContext(PreviewServerConnectionCtx);
+
 	const {
 		setSidebarCollapsedStateLeft,
 		sidebarCollapsedStateLeft,
@@ -159,6 +162,39 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						subMenu: null,
 						quickSwitcherLabel: 'New still...',
 					},
+					{
+						type: 'divider' as const,
+						id: 'new-divider',
+					},
+					{
+						id: 'render',
+						value: 'render',
+						label: 'Render...',
+						onClick: () => {
+							closeMenu();
+							if (type !== 'connected') {
+								sendErrorNotification('Preview server is offline');
+								return;
+							}
+
+							const renderButton = document.getElementById(
+								'render-modal-button'
+							) as HTMLDivElement;
+
+							renderButton.click();
+						},
+						type: 'item' as const,
+						keyHint: 'R',
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'New still...',
+					},
+					window.remotion_editorName
+						? {
+								type: 'divider' as const,
+								id: 'open-in-editor-divider',
+						  }
+						: null,
 					window.remotion_editorName
 						? {
 								id: 'open-in-editor',
