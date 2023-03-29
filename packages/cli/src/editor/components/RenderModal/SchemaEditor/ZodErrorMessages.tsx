@@ -25,7 +25,11 @@ export const ZodErrorMessages: React.FC<{
 			{zodValidationResult.error.errors.map((error) => {
 				return (
 					<div key={error.path.join('.')} style={label}>
-						- <code style={code}>{error.path.join('.')}</code>: {error.message}
+						-{' '}
+						<code style={code}>
+							{error.path.length === 0 ? 'Root' : error.path.join('.')}
+						</code>
+						: {error.message}
 					</div>
 				);
 			})}
