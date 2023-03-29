@@ -393,7 +393,7 @@ export const QuickSwitcherContent: React.FC<{
 					</>
 				) : null}
 			</div>
-			<div style={results}>
+			<div style={results} className="__remotion-vertical-scrollbar">
 				{showKeyboardShortcuts ? (
 					<KeyboardShortcutsExplainer />
 				) : showSearchLoadingState ? null : resultsArray.length === 0 ? (
