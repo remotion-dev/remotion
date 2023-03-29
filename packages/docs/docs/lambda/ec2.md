@@ -35,7 +35,7 @@ To supplement this guide, two projects have been created:
    - <Step>4</Step>Under "Attach permissions policies", search for "remotion-executionrole-policy" and click the checkbox to assign this policy. If the policy has not been created, refer to step 1.
    - <Step>5</Step>Additionally, still in "Attach permissions policies", clear the filter and search for AWSLambdaBasicExecutionRole. Click the checkbox and click "Next: Tags".
    - <Step>6</Step>On the "Add tags" page, you can optionally add tags to the role. Click "Next: Review".
-   - <Step>7</Step>On the "Review" page, name the role "remotion-lambda-role" exactly. Leave the other fields as they are.
+   - <Step>7</Step>On the "Review" page, name the role "remotion-ec2-executionrole" exactly. Leave the other fields as they are.
    - <Step>8</Step>Click "Create role" to confirm.
 
 #### 3. Create a role for the EC2 instance
@@ -49,9 +49,9 @@ To supplement this guide, two projects have been created:
    - <Step>7</Step>Click "Create role" to confirm.
    - <Step>8</Step>Make a note of the ARN for the role.
 
-#### 4. Trust the ec2 role from remotion role
+#### 4. Trust the ec2 role from the same role
 ##### Steps
-  - <Step>1</Step>From the IAM Roles section, find the role created in step 2, or filter roles by name using "remotion-lambda-role". Keep the "ARN" of this role handy.
+  - <Step>1</Step>From the IAM Roles section, find the role created in step 2, or filter roles by name using "remotion-ec2-executionrole". Keep the "ARN" of this role handy.
   - <Step>2</Step>Click on the role to open its details page.
   - <Step>3</Step>From the "Trust relationships" tab, click the "Edit trust relationship" button.
   - <Step>4</Step>Edit the policy statement to add the ARN of the EC2 role (ec2-remotion-role) created in step 3. Add it as one of the principals, as an AWS principal since it is a role.
@@ -63,9 +63,55 @@ To supplement this guide, two projects have been created:
    "Version":"2012-10-17",
    "Statement":[
       {
+        "Sid": "",
          "Effect":"Allow",
          "Principal":{
             "Service":"ec2.amazonaws.com",
+         },
+         "Action":"sts:AssumeRole"
+      },
+       {
+        "Sid": "",
+         "Effect":"Allow",s
+         "Principal":{
+            "AWS":"arn:aws:iam::XXXXXX:role/ec2-remotion-role"
+         },
+         "Action":"sts:AssumeRole"
+      }
+   ]
+}
+  ```
+:::info 
+intstance profile
+This configuration allows `ec2-remotion-role` to assume the role of `remotion-ec2-executionrole` with the associated permissions to access AWS services and resources needed by Remotion to render videos.
+:::
+
+
+#### 5. Trust the ec2 role from remotion role
+##### Steps
+  - <Step>1</Step>From the IAM Roles section, find the role created in step 2, or filter roles by name using "remotion-ec2-executionrole". Keep the "ARN" of this role handy.
+  - <Step>2</Step>Click on the role to open its details page.
+  - <Step>3</Step>From the "Trust relationships" tab, click the "Edit trust relationship" button.
+  - <Step>4</Step>Edit the policy statement to add the ARN of the EC2 role (ec2-remotion-role) created in step 3. Add it as one of the principals, as an AWS principal since it is a role.
+  - <Step>5</Step>Save the changes to the trust policy.
+
+ #### Example
+  ```json
+    {
+   "Version":"2012-10-17",
+   "Statement":[
+      {
+        "Sid": "",
+         "Effect":"Allow",
+         "Principal":{
+            "Service":"lambda.amazonaws.com",
+         },
+         "Action":"sts:AssumeRole"
+      },
+       {
+        "Sid": "",
+         "Effect":"Allow",
+         "Principal":{
             "AWS":"arn:aws:iam::XXXXXXXX:role/ec2-remotion-role"
          },
          "Action":"sts:AssumeRole"
@@ -74,11 +120,11 @@ To supplement this guide, two projects have been created:
 }
   ```
 :::info 
-This configuration allows `ec2-remotion-role` to assume the role of `remotion-lambda-role` with the associated permissions to access AWS services and resources needed by Remotion to render videos.
+This configuration allows `ec2-remotion-role` to assume the role of `remotion-ec2-executionrole` with the associated permissions to access AWS services and resources needed by Remotion to render videos.
 :::
 
 
-#### 4. Create the ec2 instance
+#### 6. Create the ec2 instance
   - From AWS Management console.
     - <Step>1</Step>Go to the EC2 dashboard by selecting EC2 from the list of services.
     - <Step>2</Step>Click on the "Launch Instance" button.
@@ -94,7 +140,7 @@ This configuration allows `ec2-remotion-role` to assume the role of `remotion-la
     - <Step>12</Step>Launch your instance by clicking the "Launch Instances" button.
     - <Step>13</Step>Wait for your instance to launch. Once it's ready, you can connect to it using SSH, RDP, or other remote access methods.
 
-#### 5. Upload the code to the server and install dependencies
+#### 7. Upload the code to the server and install dependencies
         
   - The application requires Node.js , to install Node.js and NPM on the server, you can follow this [guide](https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-20-04). Make sure the version of node is `v18.15.0`, you can use [NVM](https://github.com/nvm-sh/nvm) to easily switch Node.js version. You can install this by following this [guide](https://blog.logrocket.com/how-switch-node-js-versions-nvm/).
 
@@ -112,7 +158,7 @@ This configuration allows `ec2-remotion-role` to assume the role of `remotion-la
     npm i
     ```
 
-#### 6. Configure the application environment variables
+#### 8. Configure the application environment variables
 
 - From the application directory, create a file named `.env`
 - Assign values for the environment keys such as `PORT`, `REMOTION_ROLE_ARN`, `REMOTION_ROLE_SESSION_NAME`, `API_USERNAME`, `API_PASSWORD`
@@ -133,13 +179,13 @@ This configuration allows `ec2-remotion-role` to assume the role of `remotion-la
     - `API_USERNAME` represents the username to use when interacting with the API.
     - `API_PASSWORD` represent the password to use when interacting with the API.
 
-#### 6. Run the application from the application directory
+#### 9. Run the application from the application directory
 
     ```
     npm run start
     ```
 
-#### 8. Destroy the ec2 instance from your AWS account, if not needed anymore
+#### 10. Destroy the ec2 instance from your AWS account, if not needed anymore
 
 ### Interacting with the application
 The application can be interacted using CURL or Postman, to interact with the API follow the steps below.
@@ -158,13 +204,9 @@ The application can be interacted using CURL or Postman, to interact with the AP
 
   From the `/render` API resource, the application will execute this piece of [code](https://github.com/alexfernandez803/remotion-serverless/blob/main/ec2-remotion-lambda/src/services/render-services.ts#L11) This codes assume the role of `ec2-remotion-role`, then provided with temporary access tokens ie `AccessKeyId`, `SecretAccessKey` and `SessionToken`. These credentials will then need to be set as environment variables on the server so that in can be used by the [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) process. Setting the environment parameters route the render process in this (code)[https://github.com/alexfernandez803/remotion-serverless/blob/main/ec2-app/render_handler.ts#L14].
 
-  ```title=application logs
-
-  ```
-  For testing, logs marker are added for identifying issues.
 
   ```title=API Response
-
+    {"message":"Video rendered.","renderId":"px60ct13fy","bucketName":"remotionlambda-apsoutheast2-qv16gcf02l"}
   ```
 
 ## See also
