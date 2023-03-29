@@ -134,6 +134,7 @@ export const updateDefaultProps = async ({
 		rangeEnd: endPos,
 		filepath: 'test.tsx',
 		plugins: [],
+		endOfLine: 'auto',
 	});
 	return prettified;
 };
