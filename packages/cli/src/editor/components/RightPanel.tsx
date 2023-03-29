@@ -7,7 +7,6 @@ const container: React.CSSProperties = {
 	height: '100%',
 	width: '100%',
 	position: 'absolute',
-	overflow: 'auto',
 	display: 'flex',
 };
 
@@ -36,7 +35,6 @@ const PropsEditor: React.FC<{
 			inputProps={props[composition.id] ?? composition.defaultProps}
 			setInputProps={setInputProps}
 			compact
-			updateButton
 			showSaveButton
 		/>
 	);
@@ -62,7 +60,7 @@ export const RightPanel: React.FC<{}> = () => {
 	}
 
 	return (
-		<div style={container} className="__remotion-vertical-scrollbar">
+		<div style={container}>
 			<PropsEditor composition={composition} />
 		</div>
 	);
