@@ -620,7 +620,7 @@ This option cannot be set if `--crf` is set.
 Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.setVideoBitrate("1M");
 ```
@@ -636,7 +636,7 @@ Example values: `128K` for 128 kbps, `1M` for 1 Mbps.
 Default: `320k`
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.setAudioBitrate("128K");
 ```
