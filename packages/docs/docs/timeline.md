@@ -5,20 +5,21 @@ id: timeline
 crumb: "Timeline basics"
 ---
 
-You can start the preview server of Remotion using
+You can start the preview server of Remotion using:
 
-```sh
+```bash
 npm start
 ```
 
-This is a shorthand for
+This is a shorthand for the `preview` command of the [Remotion CLI](/docs/cli):
 
 ```bash
 npx remotion preview
 ```
 
-A server will be started on port 3000 (or 3001 if it's not available, and so on) and the preview should open in the browser.
+A server will be started on port `3000` (or a higher port if it's not available) and the preview should open in the browser.
 
+// TODO: Update the screenshot
 <img src="/img/timeline.png"></img>
 
 ## Preview controls
@@ -45,15 +46,25 @@ By default, the background of your video is a checkerboard pattern signifying th
 
 ## In / Out Markers
 
-Use the <svg viewBox="0 0 256 256" fill="none" style={{width: 16, height: 16}}><path d="M158 25H99V230.5H158" stroke="currentcolor" strokeWidth="42" strokeLinecap="round" strokeLinejoin="round"/></svg> and <svg viewBox="0 0 256 256" fill="none" style={{width: 16, height: 16}}><path d="M98 25H157V230.5H98" stroke="currentcolor" strokeWidth="42" strokeLinecap="round" strokeLinejoin="round"/></svg> buttons to set an In or Out marker. When you play the video again, only the range within the markers will play.
+Use the <svg viewBox="0 0 256 256" fill="none" style={{width: 16, height: 16}}><path d="M158 25H99V230.5H158" stroke="currentcolor" strokeWidth="42" strokeLinecap="round" strokeLinejoin="round"/></svg> and <svg viewBox="0 0 256 256" fill="none" style={{width: 16, height: 16}}><path d="M98 25H157V230.5H98" stroke="currentcolor" strokeWidth="42" strokeLinecap="round" strokeLinejoin="round"/></svg> buttons to set an In or Out marker. When you play the video again, only the range within the markers will play.  
+To clear a marker, make sure your playback head is at the point of a marker and press the button you pressed to activate it again.
 
-You may also set markers using the <kbd>I</kbd> and <kbd>O</kbd> keys.
+You may also use the keyboard shortcuts:
 
-To clear a marker, make sure your playback head is at the point of a marker and press the button you pressed to activate it again. Or use the <kbd>X</kbd> key to clear both markers.
+- <kbd>I</kbd>: Set an in marker
+- <kbd>O</kbd> (the letter "O"): Set an out marker
+- <kbd>X</kbd>: Clear both markers.
 
 ## Change the canvas size
 
-The default scaling mode is "Fit", which will scale the video so it fits in the preview window. Use the left dropdown to choose a different scale.
+By default the video scales to fit in the preview window.  
+You can pinch:
+
+- pinch to zoom
+- hold <kbd>Shift</kbd> and use the scrollwheel or
+- use the dropdown that says `Fit`
+
+to change the size of the canvas.
 
 ## Change the playback speed
 

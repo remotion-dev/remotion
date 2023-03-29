@@ -10,7 +10,7 @@ import {AngleChangelog} from '../../components/AngleChangelog';
 Render a video or audio based on the entry point, the composition ID and save it to the output location.
 
 ```bash
-npx remotion render <entry-file> [<composition-id>] [<output-location>]
+npx remotion render <entry-file?> [<composition-id>] [<output-location>]
 ```
 
 If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
