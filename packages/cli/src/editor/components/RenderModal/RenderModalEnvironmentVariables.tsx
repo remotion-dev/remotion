@@ -19,7 +19,6 @@ const button: React.CSSProperties = {
 	marginLeft: 16,
 };
 
-// TODO: should warn if XOR key XOR value is empty
 export const RenderModalEnvironmentVariables: React.FC<{
 	envVariables: [string, string][];
 	setEnvVariables: React.Dispatch<React.SetStateAction<[string, string][]>>;
@@ -58,6 +57,7 @@ export const RenderModalEnvironmentVariables: React.FC<{
 	}, [setEnvVariables]);
 
 	const usedKeys: string[] = [];
+
 	return (
 		<div style={container}>
 			<strong style={title}>Environment variables</strong>
