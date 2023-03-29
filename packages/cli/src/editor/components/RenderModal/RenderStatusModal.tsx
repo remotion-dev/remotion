@@ -3,6 +3,7 @@ import {Button} from '../../../preview-server/error-overlay/remotion-overlay/But
 import {makeRetryPayload} from '../../../preview-server/render-queue/make-retry-payload';
 import {ModalsContext} from '../../state/modals';
 import {Flex, SPACING_UNIT} from '../layout';
+import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {sendErrorNotification} from '../Notifications/NotificationCenter';
@@ -80,7 +81,7 @@ export const RenderStatusModal: React.FC<{jobId: string}> = ({jobId}) => {
 				{job.status === 'failed' ? (
 					<>
 						<p>The render failed because of the following error:</p>
-						<div className="__remotion-horizontal-scrollbar" style={codeBlock}>
+						<div className={HORIZONTAL_SCROLLBAR_CLASSNAME} style={codeBlock}>
 							{job.error.stack}
 						</div>
 					</>

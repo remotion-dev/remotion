@@ -4,7 +4,7 @@ import type {
 	VideoImageFormat,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {useCallback, useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
@@ -22,6 +22,10 @@ import {ScaleSetting} from './ScaleSetting';
 
 const qualityControlModes = ['crf', 'bitrate'] as const;
 export type QualityControl = typeof qualityControlModes[number];
+
+const container: React.CSSProperties = {
+	flex: 1,
+};
 
 export const RenderModalPicture: React.FC<{
 	renderMode: RenderType;
@@ -103,7 +107,7 @@ export const RenderModalPicture: React.FC<{
 		);
 
 	return (
-		<div>
+		<div style={container}>
 			{renderMode === 'video' ? (
 				<div style={optionRow}>
 					<div style={label}>Image Format</div>

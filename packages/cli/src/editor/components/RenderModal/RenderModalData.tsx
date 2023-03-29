@@ -2,6 +2,7 @@ import React, {useCallback, useMemo, useState} from 'react';
 import type {AnyComposition} from 'remotion';
 
 import {Spacing} from '../layout';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {updateDefaultProps} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
@@ -75,7 +76,7 @@ export const RenderModalData: React.FC<{
 	);
 
 	return (
-		<div style={outer} className="__remotion-vertical-scrollbar">
+		<div style={outer} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<div style={controlContainer}>
 				<SegmentedControl items={modeItems} needsWrapping={false} />
 			</div>

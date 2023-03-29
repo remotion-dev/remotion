@@ -37,7 +37,7 @@ import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 
 import {ModalsContext} from '../../state/modals';
-import {Spacing} from '../layout';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
@@ -114,10 +114,9 @@ const container: React.CSSProperties = {
 	borderBottom: '1px solid black',
 };
 
-const scrollPanel: React.CSSProperties = {
+const rightPanel: React.CSSProperties = {
 	height: 600,
-	overflow: 'auto',
-	minWidth: 650,
+	width: 650,
 	display: 'flex',
 };
 
@@ -899,8 +898,7 @@ export const RenderModal: React.FC<{
 						</Tab>
 					) : null}
 				</div>
-				<div style={scrollPanel} className="__remotion-vertical-scrollbar">
-					<Spacing block y={0.5} />
+				<div style={rightPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					{tab === 'general' ? (
 						<RenderModalBasic
 							codec={codec}
@@ -1009,8 +1007,6 @@ export const RenderModal: React.FC<{
 							envVariables={envVariables}
 						/>
 					)}
-
-					<Spacing block y={0.5} />
 				</div>
 			</div>
 		</ModalContainer>
