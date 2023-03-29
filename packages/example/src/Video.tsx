@@ -696,7 +696,7 @@ export const Index: React.FC = () => {
 							)
 							.min(2),
 						array2: z.array(z.array(z.string())),
-						mynum: z.number(),
+						mynum: z.number().negative(),
 						value: z.boolean().refine((v) => v === false || v === true),
 						lol: z.undefined(),
 						haha: z.null(),
@@ -716,7 +716,7 @@ export const Index: React.FC = () => {
 							{a: 'a', b: 'b'},
 						],
 						array2: [['bbbbbb'], ['bbbbbbgggg']],
-						mynum: 179,
+						mynum: -62,
 						value: true,
 						haha: null,
 						yo: {hi: ' there'},
@@ -738,7 +738,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 					schema={schemaTestSchema}
-					defaultProps={{title: 'Hello World', delay: 75.8}}
+					defaultProps={{title: 'fsdfsdfsdfsdf', delay: 5.2}}
 				/>
 			</Folder>
 		</>
