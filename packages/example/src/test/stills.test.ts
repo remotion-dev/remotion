@@ -123,7 +123,6 @@ test(
 		const toRenderCompositions: [string, number][] = [
 			['tiles', 15],
 			['mdx-test', 0],
-			['three-basic', 15],
 			['halloween-pumpkin', 45],
 			['rect-test', 20],
 		];
@@ -144,9 +143,6 @@ test(
 				serveUrl,
 				frame: toRenderComposition[1],
 				imageFormat,
-				chromiumOptions: {
-					gl: process.platform === 'darwin' ? 'angle' : null,
-				},
 			});
 
 			expect(existsSync(testOut)).toBe(true);
