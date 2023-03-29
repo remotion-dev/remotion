@@ -118,6 +118,7 @@ const scrollPanel: React.CSSProperties = {
 	height: 600,
 	overflow: 'auto',
 	minWidth: 650,
+	display: 'flex',
 };
 
 const horizontalLayout: React.CSSProperties = {
