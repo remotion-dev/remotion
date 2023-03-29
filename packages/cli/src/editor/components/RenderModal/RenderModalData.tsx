@@ -15,6 +15,7 @@ const outer: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	flex: 1,
+	overflow: 'auto',
 };
 
 const controlContainer: React.CSSProperties = {
@@ -27,16 +28,8 @@ export const RenderModalData: React.FC<{
 	inputProps: unknown;
 	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
 	compact: boolean;
-	updateButton: boolean;
 	showSaveButton: boolean;
-}> = ({
-	composition,
-	inputProps,
-	setInputProps,
-	compact,
-	updateButton,
-	showSaveButton,
-}) => {
+}> = ({composition, inputProps, setInputProps, compact, showSaveButton}) => {
 	const [mode, setMode] = useState<Mode>('schema');
 
 	const zodValidationResult = useMemo(() => {
@@ -80,7 +73,7 @@ export const RenderModalData: React.FC<{
 	);
 
 	return (
-		<div style={outer}>
+		<div style={outer} className="__remotion-vertical-scrollbar">
 			<div style={controlContainer}>
 				<SegmentedControl items={modeItems} needsWrapping={false} />
 			</div>
