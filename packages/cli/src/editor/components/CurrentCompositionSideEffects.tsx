@@ -42,7 +42,6 @@ export const CurrentCompositionKeybindings: React.FC = () => {
 		renderButton.click();
 	}, [type, video]);
 
-	// TODO: Does not work if the left sidebar is collapsed
 	useEffect(() => {
 		const binding = keybindings.registerKeybinding({
 			event: 'keydown',
