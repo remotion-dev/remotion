@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+type PrettierType = typeof import('prettier');
+
 const findStarter = ({
 	input,
 	compositionId,
@@ -110,7 +113,18 @@ export const updateDefaultProps = async ({
 		maxEnd
 	);
 
-	const {format, resolveConfig, resolveConfigFile} = await import('prettier');
+	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+	let prettier: PrettierType | null = null;
+
+	try {
+		prettier = await import('prettier');
+	} catch (err) {
+		throw new Error(
+			'Cannot save default props because Prettier cannot be found in the current project.'
+		);
+	}
+
+	const {format, resolveConfig, resolveConfigFile} = prettier as PrettierType;
 
 	const newFile =
 		input.substring(0, startPos) +
