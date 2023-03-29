@@ -36,6 +36,21 @@ export const EnvInput: React.FC<{
 	isDuplicate,
 }) => {
 	const [showInPlainText, setShowInPlainText] = React.useState(false);
+	const [initialWarningKeyMissing, setKeyWarningEligible] = React.useState(
+		() => {
+			return envKey.trim() === '' && envVal.trim() !== '';
+		}
+	);
+	const [initialWarningValMissing, setValueWarningEligible] = React.useState(
+		() => {
+			return envKey.trim() !== '' && envVal.trim() === '';
+		}
+	);
+
+	const isKeyMissing =
+		envKey.trim() === '' && initialWarningKeyMissing && envVal.trim() !== '';
+	const isValMissing =
+		envVal.trim() === '' && initialWarningValMissing && envKey.trim() !== '';
 
 	const handleDelete = useCallback(() => {
 		onDelete(index);
@@ -59,27 +74,39 @@ export const EnvInput: React.FC<{
 		[index, onEnvValChange]
 	);
 
+	const makeKeyWarningEligible = useCallback(() => {
+		setKeyWarningEligible(true);
+	}, []);
+
+	const makeValueWarningEligible = useCallback(() => {
+		setValueWarningEligible(true);
+	}, []);
+
 	const isNodeEnvKey = envKey.trim() === 'NODE_ENV';
 
 	return (
 		<>
 			<Row align="center" style={optionRow}>
 				<RemotionInput
-					status={isNodeEnvKey || isDuplicate ? 'warning' : 'ok'}
+					status={
+						isNodeEnvKey || isDuplicate || isKeyMissing ? 'warning' : 'ok'
+					}
 					type="text"
 					placeholder="Key"
 					style={input}
 					value={envKey}
+					onBlur={makeKeyWarningEligible}
 					autoFocus={autoFocus}
 					onChange={handleKeyChange}
 				/>
 				<Spacing x={1} />
 				<RemotionInput
-					status="ok"
+					status={isValMissing ? 'warning' : 'ok'}
 					placeholder="Value"
 					type={showInPlainText ? 'text' : 'password'}
 					style={input}
 					value={envVal}
+					onBlur={makeValueWarningEligible}
 					onChange={handleValueChange}
 				/>
 				<Spacing x={1.5} />
@@ -101,6 +128,24 @@ export const EnvInput: React.FC<{
 						align="flex-start"
 						type="warning"
 						message={`${envKey.toUpperCase()} is already defined.`}
+					/>
+				</div>
+			) : null}
+			{isKeyMissing ? (
+				<div style={validationStyle}>
+					<ValidationMessage
+						align="flex-start"
+						type="warning"
+						message="Key is missing."
+					/>
+				</div>
+			) : null}
+			{isValMissing ? (
+				<div style={validationStyle}>
+					<ValidationMessage
+						align="flex-start"
+						type="warning"
+						message="Value is missing."
 					/>
 				</div>
 			) : null}
