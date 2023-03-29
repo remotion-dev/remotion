@@ -187,7 +187,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						keyHint: 'R',
 						leftItem: null,
 						subMenu: null,
-						quickSwitcherLabel: 'New still...',
+						quickSwitcherLabel: 'Render...',
 					},
 					window.remotion_editorName
 						? {
@@ -717,6 +717,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		checkerboard,
 		closeMenu,
 		setSelectedModal,
+		type,
 		size.size,
 		setSize,
 		setEditorZoomGestures,
