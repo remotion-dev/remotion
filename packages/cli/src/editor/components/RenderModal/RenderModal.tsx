@@ -39,6 +39,7 @@ import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 
 import {ModalsContext} from '../../state/modals';
+import {SidebarContext} from '../../state/sidebar';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
@@ -540,7 +541,10 @@ export const RenderModal: React.FC<{
 		[setDefaultOutName]
 	);
 
+	const {setSidebarCollapsedStateRight} = useContext(SidebarContext);
+
 	const onClickStill = useCallback(() => {
+		setSidebarCollapsedStateRight('expanded');
 		rightSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addStillRenderJob({
@@ -564,6 +568,7 @@ export const RenderModal: React.FC<{
 				dispatchIfMounted({type: 'fail'});
 			});
 	}, [
+		setSidebarCollapsedStateRight,
 		dispatchIfMounted,
 		compositionId,
 		outName,
@@ -594,6 +599,8 @@ export const RenderModal: React.FC<{
 	const audioCodec = deriveFinalAudioCodec(codec, userSelectedAudioCodec);
 
 	const onClickVideo = useCallback(() => {
+		setSidebarCollapsedStateRight('expanded');
+		// TODO: Doesn't open render queue because async
 		rightSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addVideoRenderJob({
@@ -631,6 +638,7 @@ export const RenderModal: React.FC<{
 				dispatchIfMounted({type: 'fail'});
 			});
 	}, [
+		setSidebarCollapsedStateRight,
 		dispatchIfMounted,
 		compositionId,
 		outName,
