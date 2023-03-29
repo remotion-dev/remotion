@@ -1,3 +1,4 @@
+import {registerCleanupJob} from './cleanup-before-quit';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
@@ -52,39 +53,33 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		remotionRoot,
 	});
 
-	const jobCleanups: (() => void)[] = [];
-
-	try {
-		await renderStillFlow({
-			remotionRoot,
-			entryPointReason,
-			fullEntryPoint,
-			remainingArgs,
-			browser,
-			browserExecutable,
-			chromiumOptions,
-			envVariables,
-			height,
-			inputProps,
-			overwrite,
-			port,
-			publicDir,
-			puppeteerTimeout,
-			quality,
-			scale,
-			stillFrame,
-			width,
-			compositionIdFromUi: null,
-			imageFormatFromUi: null,
-			logLevel,
-			onProgress: () => undefined,
-			indentOutput: false,
-			addCleanupCallback: (c) => {
-				jobCleanups.push(c);
-			},
-			cancelSignal: null,
-		});
-	} finally {
-		await Promise.all(jobCleanups.map((c) => c()));
-	}
+	await renderStillFlow({
+		remotionRoot,
+		entryPointReason,
+		fullEntryPoint,
+		remainingArgs,
+		browser,
+		browserExecutable,
+		chromiumOptions,
+		envVariables,
+		height,
+		inputProps,
+		overwrite,
+		port,
+		publicDir,
+		puppeteerTimeout,
+		quality,
+		scale,
+		stillFrame,
+		width,
+		compositionIdFromUi: null,
+		imageFormatFromUi: null,
+		logLevel,
+		onProgress: () => undefined,
+		indentOutput: false,
+		addCleanupCallback: (c) => {
+			registerCleanupJob(c);
+		},
+		cancelSignal: null,
+	});
 };

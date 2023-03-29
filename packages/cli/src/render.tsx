@@ -1,4 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
+import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
@@ -68,55 +69,50 @@ export const render = async (remotionRoot: string, args: string[]) => {
 
 	const audioCodec = getResolvedAudioCodec();
 
-	const jobCleanups: (() => void)[] = [];
-	try {
-		await renderVideoFlow({
-			fullEntryPoint,
-			remotionRoot,
-			browserExecutable,
-			indent: false,
-			logLevel: ConfigInternals.Logging.getLogLevel(),
-			browser,
-			chromiumOptions,
-			scale,
-			shouldOutputImageSequence,
-			publicDir,
-			envVariables,
-			inputProps,
-			puppeteerTimeout,
-			port,
-			height,
-			width,
-			remainingArgs,
-			compositionIdFromUi: null,
-			entryPointReason,
-			overwrite,
-			quiet: quietFlagProvided(),
-			concurrency,
-			everyNthFrame,
-			frameRange,
-			quality,
-			onProgress: () => undefined,
-			addCleanupCallback: (c) => {
-				jobCleanups.push(c);
-			},
-			outputLocationFromUI: null,
-			uiCodec: null,
-			uiImageFormat: null,
-			cancelSignal: null,
-			crf,
-			ffmpegOverride,
-			audioBitrate,
-			muted,
-			enforceAudioTrack,
-			proResProfile,
-			pixelFormat,
-			videoBitrate,
-			numberOfGifLoops,
-			audioCodec,
-			disallowParallelEncoding: false,
-		});
-	} finally {
-		await Promise.all(jobCleanups.map((c) => c()));
-	}
+	await renderVideoFlow({
+		fullEntryPoint,
+		remotionRoot,
+		browserExecutable,
+		indent: false,
+		logLevel: ConfigInternals.Logging.getLogLevel(),
+		browser,
+		chromiumOptions,
+		scale,
+		shouldOutputImageSequence,
+		publicDir,
+		envVariables,
+		inputProps,
+		puppeteerTimeout,
+		port,
+		height,
+		width,
+		remainingArgs,
+		compositionIdFromUi: null,
+		entryPointReason,
+		overwrite,
+		quiet: quietFlagProvided(),
+		concurrency,
+		everyNthFrame,
+		frameRange,
+		quality,
+		onProgress: () => undefined,
+		addCleanupCallback: (c) => {
+			registerCleanupJob(c);
+		},
+		outputLocationFromUI: null,
+		uiCodec: null,
+		uiImageFormat: null,
+		cancelSignal: null,
+		crf,
+		ffmpegOverride,
+		audioBitrate,
+		muted,
+		enforceAudioTrack,
+		proResProfile,
+		pixelFormat,
+		videoBitrate,
+		numberOfGifLoops,
+		audioCodec,
+		disallowParallelEncoding: false,
+	});
 };

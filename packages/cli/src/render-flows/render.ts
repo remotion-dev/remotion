@@ -25,7 +25,6 @@ import fs from 'fs';
 import os from 'os';
 import path from 'path';
 import {chalk} from '../chalk';
-import {registerCleanupJob} from '../cleanup-before-quit';
 import {ConfigInternals} from '../config';
 import type {Loop} from '../config/number-of-gif-loops';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
@@ -142,7 +141,6 @@ export const renderVideoFlow = async ({
 	const downloads: DownloadProgress[] = [];
 	const downloadMap = RenderInternals.makeDownloadMap();
 	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
-	registerCleanupJob(() => RenderInternals.cleanDownloadMap(downloadMap));
 
 	Log.verboseAdvanced(
 		{indent, logLevel},
@@ -220,7 +218,6 @@ export const renderVideoFlow = async ({
 		}
 	);
 
-	registerCleanupJob(() => cleanupBundle());
 	addCleanupCallback(() => cleanupBundle());
 
 	const onDownload: RenderMediaOnDownload = (src) => {
@@ -243,7 +240,6 @@ export const renderVideoFlow = async ({
 	};
 
 	const puppeteerInstance = await browserInstance;
-	registerCleanupJob(() => puppeteerInstance.close(false));
 	addCleanupCallback(() => puppeteerInstance.close(false));
 
 	const comps = await getCompositions(urlOrBundle, {
@@ -453,7 +449,7 @@ export const renderVideoFlow = async ({
 		puppeteerInstance,
 		onDownload,
 		internal: {
-			onCtrlCExit: registerCleanupJob,
+			onCtrlCExit: addCleanupCallback,
 			downloadMap,
 		},
 		cancelSignal: cancelSignal ?? undefined,
