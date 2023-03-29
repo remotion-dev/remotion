@@ -87,6 +87,7 @@ export const RenderButton: React.FC<{
 		return null;
 	}
 
+	// TODO: Here in the sidebar the thin rocket icon looked better
 	return (
 		<InlineAction onClick={onClick}>
 			<RenderIcon svgProps={iconStyle} />

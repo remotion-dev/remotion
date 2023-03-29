@@ -30,6 +30,7 @@ export const InlineAction: React.FC<
 			justifyContent: 'center',
 			alignItems: 'center',
 			borderRadius: 3,
+			// TODO: Color does not get propagated to the children
 			color: hovered ? 'white' : LIGHT_TEXT,
 		};
 	}, [hovered]);
