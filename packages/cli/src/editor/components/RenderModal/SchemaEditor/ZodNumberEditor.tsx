@@ -152,6 +152,7 @@ export const ZodNumberEditor: React.FC<{
 				onRemove={onRemove}
 			/>
 			<div style={fullWidth}>
+				{/* TODO: E and e should not be valid numbers */}
 				<InputDragger
 					type={'number'}
 					value={localValue.value}
