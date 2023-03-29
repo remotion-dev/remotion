@@ -1,8 +1,6 @@
 import {useEffect, useState} from 'react';
 
-const breakpoint = 1200;
-
-export function useCompactUI(): boolean {
+export function useBreakpoint(breakpoint: number): boolean {
 	const [compactUI, setCompactUI] = useState<boolean>(
 		window.innerWidth < breakpoint
 	);
@@ -16,7 +14,7 @@ export function useCompactUI(): boolean {
 		handleResize();
 
 		return () => window.removeEventListener('resize', handleResize);
-	}, []);
+	}, [breakpoint]);
 
 	return compactUI;
 }
