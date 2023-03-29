@@ -1,5 +1,5 @@
 import React from 'react';
-import {Spacing} from '../layout';
+import {Column, Spacing} from '../layout';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {label, optionRow, rightRow} from './layout';
@@ -22,16 +22,9 @@ export function RenderModalInput({
 }: Props) {
 	return (
 		<div style={optionRow}>
-			<div style={{flexDirection: 'column'}}>
+			<Column>
 				<div style={label}>Output name</div>
-				{/**
-				 *
-				// TODO improve this
-				*/}
-				{validationMessage || existence ? (
-					<div style={{height: '25px'}} />
-				) : null}
-			</div>
+			</Column>
 
 			<div style={rightRow}>
 				<div>

@@ -1,6 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {AnyComposition} from 'remotion';
-import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 
 import {Spacing} from '../layout';
 import {updateDefaultProps} from '../RenderQueue/actions';
@@ -13,6 +12,9 @@ type Mode = 'json' | 'schema';
 
 const outer: React.CSSProperties = {
 	padding: '8px 16px',
+	display: 'flex',
+	flexDirection: 'column',
+	flex: 1,
 };
 
 const controlContainer: React.CSSProperties = {
@@ -100,13 +102,9 @@ export const RenderModalData: React.FC<{
 					setValue={setInputProps}
 					zodValidationResult={zodValidationResult}
 					switchToSchema={switchToSchema}
+					onSave={onUpdate}
 				/>
 			)}
-			{updateButton && mode === 'json' ? (
-				<Button onClick={onUpdate} disabled={!zodValidationResult.success}>
-					Save
-				</Button>
-			) : null}
 		</div>
 	);
 };

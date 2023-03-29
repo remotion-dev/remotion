@@ -26,7 +26,8 @@ export const inputBaseStyle: React.CSSProperties = {
 	borderStyle: 'solid',
 	borderWidth: 1,
 	fontSize: 14,
-	resize: 'vertical',
+	resize: 'none',
+	overflowX: 'hidden',
 };
 
 const RemTextareaFRFunction: React.ForwardRefRenderFunction<
@@ -125,7 +126,13 @@ const RemTextareaFRFunction: React.ForwardRefRenderFunction<
 	}, [inputRef]);
 
 	return (
-		<textarea ref={inputRef} tabIndex={tabIndex} {...props} style={style} />
+		<textarea
+			ref={inputRef}
+			tabIndex={tabIndex}
+			{...props}
+			className={'__remotion-vertical-scrollbar'}
+			style={style}
+		/>
 	);
 };
 
