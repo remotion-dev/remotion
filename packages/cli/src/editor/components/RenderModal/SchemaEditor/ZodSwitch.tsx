@@ -36,6 +36,8 @@ export const ZodSwitch: React.FC<{
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
 
+	// TODO: (Maybe?) enable saving of inserted input props by cmd+s /ctrl + s (also for JSON view)
+
 	if (typeName === z.ZodFirstPartyTypeKind.ZodObject) {
 		return (
 			<ZodObjectEditor
