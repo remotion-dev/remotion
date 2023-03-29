@@ -20,6 +20,7 @@ import React, {
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
+import {ShortcutHint} from '../../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
 import type {
 	RequiredChromiumOptions,
 	UiOpenGlOptions,
@@ -29,6 +30,7 @@ import {
 	envVariablesObjectToArray,
 } from '../../helpers/convert-env-variables';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import {AudioIcon} from '../../icons/audio';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
@@ -803,6 +805,35 @@ export const RenderModal: React.FC<{
 
 	const {tab, setTab, shownTabs} = useRenderModalSections(renderMode, codec);
 
+	const {registerKeybinding} = useKeybinding();
+
+	const renderDisabled = state.type === 'load' || !outnameValidation.valid;
+
+	const trigger = useCallback(() => {
+		if (renderDisabled) {
+			return;
+		}
+
+		if (renderMode === 'still') {
+			onClickStill();
+		} else {
+			onClickVideo();
+		}
+	}, [onClickStill, onClickVideo, renderDisabled, renderMode]);
+
+	useEffect(() => {
+		registerKeybinding({
+			callback() {
+				trigger();
+			},
+			commandCtrlKey: true,
+			key: 'Enter',
+			event: 'keydown',
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+		});
+	}, [registerKeybinding, trigger]);
+
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${compositionId}`} />
@@ -811,8 +842,8 @@ export const RenderModal: React.FC<{
 				<div style={flexer} />
 				<Button
 					autoFocus
-					onClick={renderMode === 'still' ? onClickStill : onClickVideo}
-					disabled={state.type === 'load' || !outnameValidation.valid}
+					onClick={trigger}
+					disabled={renderDisabled}
 					style={{
 						...buttonStyle,
 						backgroundColor: outnameValidation.valid
@@ -821,6 +852,7 @@ export const RenderModal: React.FC<{
 					}}
 				>
 					{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
+					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
 			</div>
 			<div style={horizontalLayout}>
