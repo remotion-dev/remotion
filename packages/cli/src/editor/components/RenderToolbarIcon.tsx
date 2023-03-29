@@ -16,20 +16,20 @@ import {RenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
 import {ControlButton} from './ControlButton';
 
-export const RenderStillButton: React.FC = () => {
+export const RenderButton: React.FC = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {type} = useContext(PreviewServerConnectionCtx);
 
 	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {
 			style: {
-				height: 15,
+				height: 18,
 			},
 		};
 	}, []);
 	const tooltip =
 		type === 'connected'
-			? 'Export the current frame as a still image'
+			? 'Export the current composition'
 			: 'Connect to the preview server to render';
 
 	const video = Internals.useVideo();
