@@ -1,5 +1,3 @@
-import {format, resolveConfig, resolveConfigFile} from 'prettier';
-
 const findStarter = ({
 	input,
 	compositionId,
@@ -87,7 +85,6 @@ const stringifyDefaultProps = (props: unknown) => {
 
 // TODO: Add more sanity checks
 // TODO: better error messages
-// TODO: throw if prettier was not found
 export const updateDefaultProps = async ({
 	input,
 	compositionId,
@@ -112,6 +109,8 @@ export const updateDefaultProps = async ({
 		start + START_TOKEN.length,
 		maxEnd
 	);
+
+	const {format, resolveConfig, resolveConfigFile} = await import('prettier');
 
 	const newFile =
 		input.substring(0, startPos) +
