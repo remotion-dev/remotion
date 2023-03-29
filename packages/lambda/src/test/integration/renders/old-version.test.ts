@@ -20,7 +20,7 @@ afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
 });
 
-test('Should fail when using an incompatible version', async () => {
+test('Should fail when using an incompatible version', () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
 	expect(() =>
