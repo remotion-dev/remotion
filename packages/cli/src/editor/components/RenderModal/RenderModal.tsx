@@ -43,9 +43,9 @@ import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
+import {rightSidebarTabs} from '../RightPanel';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
-import {leftSidebarTabs} from '../SidebarContent';
 import {Tab} from '../Tabs';
 import {useCrfState} from './CrfSetting';
 import {validateOutnameGui} from './out-name-checker';
@@ -541,7 +541,7 @@ export const RenderModal: React.FC<{
 	);
 
 	const onClickStill = useCallback(() => {
-		leftSidebarTabs.current?.selectRendersPanel();
+		rightSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addStillRenderJob({
 			compositionId,
@@ -594,7 +594,7 @@ export const RenderModal: React.FC<{
 	const audioCodec = deriveFinalAudioCodec(codec, userSelectedAudioCodec);
 
 	const onClickVideo = useCallback(() => {
-		leftSidebarTabs.current?.selectRendersPanel();
+		rightSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addVideoRenderJob({
 			compositionId,

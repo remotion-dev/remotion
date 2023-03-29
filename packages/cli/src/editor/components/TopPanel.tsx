@@ -3,6 +3,7 @@ import {useBreakpoint} from '../helpers/use-breakpoint';
 import {SidebarContext} from '../state/sidebar';
 import {Canvas} from './Canvas';
 import {CollapsedSidebarExpander} from './CollapsedSidebarExpander';
+import {CompositionSelector} from './CompositionSelector';
 import {
 	CurrentCompositionKeybindings,
 	TitleUpdater,
@@ -11,7 +12,6 @@ import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
 import {PreviewToolbar} from './PreviewToolbar';
 import {RightPanel} from './RightPanel';
-import {SidebarContent} from './SidebarContent';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
@@ -109,7 +109,7 @@ export const TopPanel: React.FC = () => {
 					{actualStateLeft === 'expanded' ? (
 						<SplitterElement type="flexer">
 							<div style={leftContainer} className="css-reset">
-								<SidebarContent />
+								<CompositionSelector />
 							</div>
 						</SplitterElement>
 					) : null}

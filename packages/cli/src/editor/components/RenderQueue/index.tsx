@@ -7,6 +7,7 @@ const separatorStyle: React.CSSProperties = {
 	borderBottom: `1px solid ${BORDER_COLOR}`,
 };
 
+// TODO: Handle state where preview server is disconnected
 export const RenderQueue: React.FC = () => {
 	const {jobs} = useContext(RenderQueueContext);
 
