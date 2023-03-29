@@ -740,6 +740,17 @@ export const Index: React.FC = () => {
 					schema={schemaTestSchema}
 					defaultProps={{title: 'fsdfsdfsdfsdf', delay: 5.2}}
 				/>
+				{/**
+				 // @ts-expect-error */}
+				<Composition
+					id="impossible-to-save"
+					component={SchemaTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+					schema={schemaTestSchema}
+				/>
 			</Folder>
 		</>
 	);

@@ -1,9 +1,7 @@
-import {LIGHT_TEXT} from '../../helpers/colors';
 import {InlineAction} from '../InlineAction';
 
 const clearIcon: React.CSSProperties = {
 	height: 14,
-	color: LIGHT_TEXT,
 };
 
 export const InlineRemoveButton: React.FC<{

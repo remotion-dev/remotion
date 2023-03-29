@@ -88,6 +88,8 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 		[setValue]
 	);
 
+	// TODO: Don't show save button if no changes have been made
+	// TODO: Indicate saving progress
 	return (
 		<>
 			<RemTextarea
