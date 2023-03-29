@@ -13,7 +13,7 @@ import {rendererHandler} from './renderer';
 import {startHandler} from './start';
 import {stillHandler} from './still';
 
-export const handler = async <T extends LambdaRoutines>(
+export const handler = <T extends LambdaRoutines>(
 	params: LambdaPayload,
 	context: {invokedFunctionArn: string; getRemainingTimeInMillis: () => number}
 ): Promise<LambdaReturnValues[T]> => {
