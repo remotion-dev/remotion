@@ -36,6 +36,8 @@ export const RenderModalData: React.FC<{
 		return composition.schema.safeParse(inputProps);
 	}, [composition.schema, inputProps]);
 
+	// TODO: Put Schema/JSON tab one component above, so no scrolling to reach them is needed
+
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
 			{
