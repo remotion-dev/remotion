@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {Spacing} from '../layout';
+import {Row, Spacing} from '../layout';
 import {RemotionInput} from '../NewComposition/RemInput';
 import {InlineEyeButton} from './InlineEyeIcon';
 import {InlineRemoveButton} from './InlineRemoveButton';
@@ -51,9 +51,8 @@ export const EnvInput: React.FC<{
 		[index, onEnvValChange]
 	);
 
-	// TODO: Does align well
 	return (
-		<div style={optionRow}>
+		<Row align="center" style={optionRow}>
 			<RemotionInput
 				status="ok"
 				type="text"
@@ -74,8 +73,7 @@ export const EnvInput: React.FC<{
 			/>
 			<Spacing x={1.5} />
 			<InlineEyeButton enabled={!showInPlainText} onClick={togglePlainText} />
-			<Spacing x={1.5} />
 			<InlineRemoveButton onClick={handleDelete} />
-		</div>
+		</Row>
 	);
 };
