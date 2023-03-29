@@ -1,12 +1,5 @@
-import React, {
-	createRef,
-	useContext,
-	useImperativeHandle,
-	useMemo,
-	useState,
-} from 'react';
+import React, {createRef, useImperativeHandle, useMemo, useState} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
-import {PreviewServerConnectionCtx} from '../../helpers/client-id';
 
 declare global {
 	interface Window {
@@ -21,13 +14,6 @@ type RenderQueueContextType = {
 export const RenderQueueContext = React.createContext<RenderQueueContextType>({
 	jobs: [],
 });
-
-export const useShouldRenderLeftSidebarTabs = () => {
-	const context = useContext(RenderQueueContext);
-	const previewServer = useContext(PreviewServerConnectionCtx);
-
-	return context.jobs.length > 0 && previewServer.type === 'connected';
-};
 
 export const renderJobsRef = createRef<{
 	updateRenderJobs: (jobs: RenderJob[]) => void;
