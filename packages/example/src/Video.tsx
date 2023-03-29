@@ -680,10 +680,10 @@ export const Index: React.FC = () => {
 							.refine((v) => ['caa', 'bus', 'truck'].includes(v)),
 						other: z.string(),
 						abc: z.object({
-							xyz: z.string(),
+							union: z.null().or(z.string()),
 							jkl: z.string(),
 							def: z.object({
-								xyz: z.string(),
+								xyz: z.null().or(z.string()),
 								pef: z.string(),
 							}),
 						}),
@@ -710,7 +710,7 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						vehicle: 'bus',
 						other: 'hi',
-						abc: {def: {xyz: 'huthere', pef: 'hu'}, jkl: 'sting', xyz: 'hi'},
+						abc: {def: {xyz: 'hell', pef: 'hu'}, jkl: 'sting', union: 'hello'},
 						array: [
 							{a: 'a', b: 'bbbbb'},
 							{a: 'a', b: 'b'},
@@ -724,7 +724,7 @@ export const Index: React.FC = () => {
 						num: '179',
 						date: new Date('1999-02-12T20:20:00.000Z'),
 						values: 'a',
-						supersuperlongvalueabcdefghji: 'hi',
+						supersuperlongvalueabcdefghji: 'hia',
 					}}
 					durationInFrames={150}
 				/>
