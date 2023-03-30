@@ -264,7 +264,7 @@ for (const arch of archs) {
 	});
 
 	const {files: filesArray} = JSON.parse(output.toString('utf-8'))[0];
-	const filename = filesArray[filesArray.length - 1].path;
+	const filename = filesArray.find((f) => f.endsWith('.tgz'));
 	const tgzPath = path.join(
 		process.cwd(),
 		copyDestinations[arch].dir,
