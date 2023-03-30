@@ -31,6 +31,8 @@ Run `npm i `, `yarn` or `pnpm i` respectively afterwards.
 
 ## Config file changes
 
+The CLI configuration file has been moved out from the core Remotion package to `@remotion/cli/config`. Update your imports like this:
+
 ```diff
 - import {Config} from 'remotion';
 + import {Config} from '@remotion/cli/config';
