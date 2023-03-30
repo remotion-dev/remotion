@@ -263,8 +263,11 @@ for (const arch of archs) {
 		stdio: 'pipe',
 	});
 
-	const {files: filesArray} = JSON.parse(output.toString('utf-8'))[0];
-	const filename = filesArray.find((f) => f.path.endsWith('.tgz')).path;
+	const filename = JSON.parse(output.toString('utf-8'))[0].filename.replace(
+		/^@remotion\//,
+		'remotion-'
+	);
+	console.log(filename);
 	const tgzPath = path.join(
 		process.cwd(),
 		copyDestinations[arch].dir,
