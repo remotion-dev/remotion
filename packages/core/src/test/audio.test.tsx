@@ -8,16 +8,17 @@ import {describe, expect, test} from 'vitest';
 import {z} from 'zod';
 import {Audio} from '../audio/index.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
-import {Internals} from '../internals.js';
+import {CompositionManager} from '../CompositionManager.js';
+import {RemotionRoot} from '../RemotionRoot.js';
 
 const Wrapper: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const compositions = useContext(Internals.CompositionManager);
+	const compositions = useContext(CompositionManager);
 	return (
 		<CanUseRemotionHooksProvider>
-			<Internals.RemotionRoot numberOfAudioTags={0}>
-				<Internals.CompositionManager.Provider
+			<RemotionRoot numberOfAudioTags={0}>
+				<CompositionManager.Provider
 					// eslint-disable-next-line react/jsx-no-constructed-context-values
 					value={{
 						...compositions,
@@ -44,8 +45,8 @@ const Wrapper: React.FC<{
 					}}
 				>
 					{children}
-				</Internals.CompositionManager.Provider>
-			</Internals.RemotionRoot>
+				</CompositionManager.Provider>
+			</RemotionRoot>
 		</CanUseRemotionHooksProvider>
 	);
 };
