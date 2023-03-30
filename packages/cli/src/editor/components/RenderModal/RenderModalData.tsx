@@ -2,8 +2,6 @@ import React, {useCallback, useMemo, useState} from 'react';
 import type {AnyComposition} from 'remotion';
 import {BORDER_COLOR} from '../../helpers/colors';
 
-import {Spacing} from '../layout';
-import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {updateDefaultProps} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
@@ -17,13 +15,6 @@ const outer: React.CSSProperties = {
 	flexDirection: 'column',
 	flex: 1,
 	overflow: 'hidden',
-};
-
-const scrollable: React.CSSProperties = {
-	padding: '8px 12px',
-	display: 'flex',
-	flexDirection: 'column',
-	overflowY: 'auto',
 };
 
 const controlContainer: React.CSSProperties = {
@@ -47,8 +38,6 @@ export const RenderModalData: React.FC<{
 	const zodValidationResult = useMemo(() => {
 		return composition.schema.safeParse(inputProps);
 	}, [composition.schema, inputProps]);
-
-	// TODO: Put Schema/JSON tab one component above, so no scrolling to reach them is needed
 
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
@@ -91,29 +80,26 @@ export const RenderModalData: React.FC<{
 			<div style={controlContainer}>
 				<SegmentedControl items={modeItems} needsWrapping={false} />
 			</div>
-			<div style={scrollable} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-				<Spacing y={2} block />
-				{mode === 'schema' ? (
-					<SchemaEditor
-						value={inputProps}
-						setValue={setInputProps}
-						schema={composition.schema}
-						zodValidationResult={zodValidationResult}
-						compact={compact}
-						defaultProps={composition.defaultProps}
-						onSave={onSave}
-						showSaveButton={showSaveButton}
-					/>
-				) : (
-					<RenderModalJSONInputPropsEditor
-						value={inputProps ?? {}}
-						setValue={setInputProps}
-						zodValidationResult={zodValidationResult}
-						switchToSchema={switchToSchema}
-						onSave={onUpdate}
-					/>
-				)}
-			</div>{' '}
+			{mode === 'schema' ? (
+				<SchemaEditor
+					value={inputProps}
+					setValue={setInputProps}
+					schema={composition.schema}
+					zodValidationResult={zodValidationResult}
+					compact={compact}
+					defaultProps={composition.defaultProps}
+					onSave={onSave}
+					showSaveButton={showSaveButton}
+				/>
+			) : (
+				<RenderModalJSONInputPropsEditor
+					value={inputProps ?? {}}
+					setValue={setInputProps}
+					zodValidationResult={zodValidationResult}
+					switchToSchema={switchToSchema}
+					onSave={onUpdate}
+				/>
+			)}
 		</div>
 	);
 };

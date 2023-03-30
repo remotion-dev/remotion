@@ -43,6 +43,13 @@ const schemaButton: React.CSSProperties = {
 	backgroundColor: 'transparent',
 };
 
+const scrollable: React.CSSProperties = {
+	padding: '8px 12px',
+	display: 'flex',
+	flexDirection: 'column',
+	flex: 1,
+};
+
 // TODO: Note if custom 'remotion-date:' pattern has been used
 export const RenderModalJSONInputPropsEditor: React.FC<{
 	value: unknown;
@@ -91,7 +98,7 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	// TODO: Don't show save button if no changes have been made
 	// TODO: Indicate saving progress
 	return (
-		<>
+		<div style={scrollable}>
 			<RemTextarea
 				onChange={onChange}
 				value={localValue.str}
@@ -124,6 +131,6 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 					Save
 				</Button>
 			</Row>
-		</>
+		</div>
 	);
 };
