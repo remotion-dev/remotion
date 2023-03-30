@@ -69,7 +69,7 @@ const tabsContainer: React.CSSProperties = {
 	borderBottom: `1px solid ${BORDER_COLOR}`,
 };
 
-const persistSelectedPanel = (panel: SidebarPanel) => {
+export const persistSelectedPanel = (panel: SidebarPanel) => {
 	localStorage.setItem(localStorageKey, panel);
 };
 
