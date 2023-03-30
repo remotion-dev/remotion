@@ -4,6 +4,7 @@ import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
+import {SchemaEmptyStateGraphic} from './SchemaEmptyStateGraphic';
 import {ZodErrorMessages} from './ZodErrorMessages';
 import {ZodObjectEditor} from './ZodObjectEditor';
 
@@ -74,6 +75,8 @@ export const SchemaEditor: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
 		return (
 			<div style={explainer}>
+				<SchemaEmptyStateGraphic />
+				<Spacing y={5} />
 				<div style={errorExplanation}>
 					Make the props of this composition interactively editable by adding a{' '}
 					<code style={codeSnippet}>schema</code> prop to the{' '}
