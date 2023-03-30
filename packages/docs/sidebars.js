@@ -331,6 +331,7 @@ module.exports = {
     },
   ],
   mainSidebar: [
+    "4-0-alpha",
     {
       type: "category",
       label: "Getting started",
