@@ -27,6 +27,16 @@ const scrollable: React.CSSProperties = {
 	overflowY: 'auto',
 };
 
+const explainer: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	padding: '0 12px',
+	justifyContent: 'center',
+	alignItems: 'center',
+	textAlign: 'center',
+};
+
 export const SchemaEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	value: unknown;
@@ -56,20 +66,14 @@ export const SchemaEditor: React.FC<{
 
 	const openDocs = useCallback(() => {
 		window.open(
+			// TODO: Make sure to update this link when we release v4
 			'https://v4.remotion.dev/docs/parametrized-rendering#define-a-schema-'
 		);
 	}, []);
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
 		return (
-			<div
-				style={{
-					backgroundColor: 'red',
-					display: 'flex',
-					flex: 1,
-					flexDirection: 'column',
-				}}
-			>
+			<div style={explainer}>
 				<div style={errorExplanation}>
 					Make the props of this composition interactively editable by adding a{' '}
 					<code style={codeSnippet}>schema</code> prop to the{' '}
@@ -84,7 +88,7 @@ export const SchemaEditor: React.FC<{
 	if (!zodValidationResult.success) {
 		if (defaultProps === undefined) {
 			return (
-				<div>
+				<div style={explainer}>
 					<div style={errorExplanation}>
 						The schema can not be edited because the{' '}
 						<code style={codeSnippet}>defaultProps</code> prop in the{' '}
@@ -96,6 +100,8 @@ export const SchemaEditor: React.FC<{
 						<code style={codeSnippet}>defaultProps</code> prop to your
 						composition.
 					</div>
+					<Spacing y={2} block />
+					<Button onClick={openDocs}>Learn more</Button>
 				</div>
 			);
 		}
