@@ -129,6 +129,7 @@ export const updateDefaultProps = async ({
 	const newFile =
 		input.substring(0, startPos) +
 		stringifyDefaultProps(newDefaultProps) +
+		' as const' +
 		input.substring(endPos);
 
 	const configFilePath = await resolveConfigFile();
@@ -148,6 +149,7 @@ export const updateDefaultProps = async ({
 		filepath: 'test.tsx',
 		plugins: [],
 		endOfLine: 'auto',
+		printWidth: 70,
 	});
 	return prettified;
 };
