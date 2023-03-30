@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-ec2.png
 title: Lambda render from EC2
 slug: /lambda/ec2
 sidebar_label: Lambda render from EC2

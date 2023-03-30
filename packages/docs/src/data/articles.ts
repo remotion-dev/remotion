@@ -686,6 +686,13 @@ export const articles = [
     crumb: "Lambda API",
   },
   {
+    id: "lambda/ec2",
+    title: "Lambda render from EC2",
+    relativePath: "docs/lambda/ec2.md",
+    compId: "articles-docs-lambda-ec2",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "estimateprice",
     title: "estimatePrice()",
     relativePath: "docs/lambda/estimateprice.md",
@@ -893,13 +900,6 @@ export const articles = [
     title: "Using Lambda with SQS",
     relativePath: "docs/lambda/sqs.md",
     compId: "articles-docs-lambda-sqs",
-    crumb: "@remotion/lambda",
-  },
-  {
-    id: "lambda/ec2",
-    title: "Using Lambda with EC2",
-    relativePath: "docs/lambda/ec2.md",
-    compId: "articles-docs-lambda-ec2",
     crumb: "@remotion/lambda",
   },
   {
