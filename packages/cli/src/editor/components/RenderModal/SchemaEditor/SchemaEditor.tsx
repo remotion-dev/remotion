@@ -3,6 +3,7 @@ import {z} from 'remotion';
 import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
 import {ZodErrorMessages} from './ZodErrorMessages';
 import {ZodObjectEditor} from './ZodObjectEditor';
 
@@ -17,6 +18,13 @@ const codeSnippet: React.CSSProperties = {
 	fontSize: 14,
 	color: 'var(--blue)',
 	fontFamily: 'monospace',
+};
+
+const scrollable: React.CSSProperties = {
+	padding: '8px 12px',
+	display: 'flex',
+	flexDirection: 'column',
+	overflowY: 'auto',
 };
 
 export const SchemaEditor: React.FC<{
@@ -46,13 +54,29 @@ export const SchemaEditor: React.FC<{
 		setValue(defaultProps);
 	}, [defaultProps, setValue]);
 
+	const openDocs = useCallback(() => {
+		window.open(
+			'https://v4.remotion.dev/docs/parametrized-rendering#define-a-schema-'
+		);
+	}, []);
+
 	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
 		return (
-			<div style={errorExplanation}>
-				The schema has an <code style={codeSnippet}>any</code> type.
-				<br /> Tweak the schema by adding a{' '}
-				<code style={codeSnippet}>schema</code> prop to the{' '}
-				<code style={codeSnippet}>{'<Composition>'}</code> component.
+			<div
+				style={{
+					backgroundColor: 'red',
+					display: 'flex',
+					flex: 1,
+					flexDirection: 'column',
+				}}
+			>
+				<div style={errorExplanation}>
+					Make the props of this composition interactively editable by adding a{' '}
+					<code style={codeSnippet}>schema</code> prop to the{' '}
+					<code style={codeSnippet}>{'<Composition>'}</code> component.
+				</div>
+				<Spacing y={2} block />
+				<Button onClick={openDocs}>Learn how</Button>
 			</div>
 		);
 	}
@@ -122,23 +146,25 @@ export const SchemaEditor: React.FC<{
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodObject) {
 		return (
-			<ZodObjectEditor
-				value={value}
-				setValue={setValue}
-				jsonPath={[]}
-				schema={schema}
-				compact={compact}
-				defaultValue={defaultProps}
-				onSave={
-					onSave as (
-						newValue: (
-							oldVal: Record<string, unknown>
-						) => Record<string, unknown>
-					) => void
-				}
-				showSaveButton={showSaveButton}
-				onRemove={null}
-			/>
+			<div style={scrollable} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+				<ZodObjectEditor
+					value={value}
+					setValue={setValue}
+					jsonPath={[]}
+					schema={schema}
+					compact={compact}
+					defaultValue={defaultProps}
+					onSave={
+						onSave as (
+							newValue: (
+								oldVal: Record<string, unknown>
+							) => Record<string, unknown>
+						) => void
+					}
+					showSaveButton={showSaveButton}
+					onRemove={null}
+				/>
+			</div>
 		);
 	}
 
