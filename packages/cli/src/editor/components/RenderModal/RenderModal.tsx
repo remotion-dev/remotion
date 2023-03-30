@@ -44,7 +44,7 @@ import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
-import {rightSidebarTabs} from '../RightPanel';
+import {persistSelectedPanel, rightSidebarTabs} from '../RightPanel';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {Tab} from '../Tabs';
@@ -545,6 +545,7 @@ export const RenderModal: React.FC<{
 
 	const onClickStill = useCallback(() => {
 		setSidebarCollapsedStateRight('expanded');
+		persistSelectedPanel('renders');
 		rightSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addStillRenderJob({
@@ -600,7 +601,7 @@ export const RenderModal: React.FC<{
 
 	const onClickVideo = useCallback(() => {
 		setSidebarCollapsedStateRight('expanded');
-		// TODO: Doesn't open render queue because async
+		persistSelectedPanel('renders');
 		rightSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addVideoRenderJob({
