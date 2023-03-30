@@ -37,6 +37,7 @@
 		"@remotion/lambda": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
+		"@remotion/motion-blur": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/rive": "workspace:*",
