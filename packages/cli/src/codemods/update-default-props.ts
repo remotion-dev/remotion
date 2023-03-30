@@ -36,13 +36,27 @@ const findStarter = ({
 	throw new Error(`Could not find composition ID ${compositionId} in file`);
 };
 
+const findEndPosition = (input: string, currentPosition: number) => {
+	const next = input.indexOf('}}', currentPosition + 1);
+	if (next !== -1) {
+		return next;
+	}
+
+	const asConstVersion = input
+		.slice(currentPosition + 1)
+		.search(/as\sconst[ \t\n\r]+\}/);
+	if (asConstVersion !== -1) {
+		const nextEnd = input.indexOf('}', asConstVersion + currentPosition + 1);
+		return nextEnd - 1;
+	}
+
+	throw new Error('Could not find end of defaultProps');
+};
+
 const findEnder = (input: string, position: number, maxPosition: number) => {
 	let currentPosition = position;
 	while (currentPosition < maxPosition) {
-		const next = input.indexOf('}}', currentPosition + 1);
-		if (next === -1) {
-			throw new Error('Could not find end of defaultProps');
-		}
+		const next = findEndPosition(input, currentPosition);
 
 		currentPosition = next;
 

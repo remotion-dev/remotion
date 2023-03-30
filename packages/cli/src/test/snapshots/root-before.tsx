@@ -31,10 +31,12 @@ export const Root: React.FC = () => {
 				height={1080}
 				width={1080}
 				id="Comp3"
-				defaultProps={{
-					foo: 'bar',
-					date: new Date('2022-01-01'),
-				}}
+				defaultProps={
+					{
+						foo: 'bar',
+						date: new Date('2022-01-01'),
+					} as const
+				}
 			/>
 		</>
 	);
