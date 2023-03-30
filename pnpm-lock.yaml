@@ -326,6 +326,7 @@ importers:
       '@remotion/babel-loader': workspace:*
       '@remotion/bundler': workspace:*
       '@remotion/cli': workspace:*
+      '@remotion/gcp': workspace:*
       '@remotion/gif': workspace:*
       '@remotion/google-fonts': workspace:*
       '@remotion/lambda': workspace:*
@@ -389,6 +390,7 @@ importers:
       '@remotion/babel-loader': link:../babel-loader
       '@remotion/bundler': link:../bundler
       '@remotion/cli': link:../cli
+      '@remotion/gcp': link:../gcp
       '@remotion/gif': link:../gif
       '@remotion/google-fonts': link:../google-fonts
       '@remotion/lambda': link:../lambda

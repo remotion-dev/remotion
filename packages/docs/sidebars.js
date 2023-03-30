@@ -454,6 +454,17 @@ module.exports = {
         "lambda/upgrading",
         "lambda/uninstall",
       ],
+    },{
+      type: "category",
+      label: "GCP",
+      link: {
+        type: "doc",
+        id: "gcp",
+      },
+      items: [
+        "lambda/setup",
+        "gcp/region-selection"
+      ],
     },
     {
       type: "category",
