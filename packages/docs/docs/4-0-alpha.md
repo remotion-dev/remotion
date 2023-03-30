@@ -35,6 +35,26 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 + "@remotion/renderer": "4.0.0-alpha.115+764023ad5"
 ```
 
+Most important breaking changes:
+
+<InlineStep>1</InlineStep> The config file must now import the config like the following:
+
+```ts
+import { Config } from "@remotion/cli/config";
+```
+
+<InlineStep>2</InlineStep> Also in the config file:
+
+```ts
+Config.setImageFormat("jpeg");
+```
+
+has been replaced with
+
+```ts
+Config.setVideoImageFormat("jpeg");
+```
+
 See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Known issues
