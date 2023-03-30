@@ -4,6 +4,7 @@ import {
 	compositionsCommand,
 	COMPOSITIONS_COMMAND,
 } from './commands/compositions';
+import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
 import {renderCommand, RENDER_COMMAND} from './commands/render';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {printHelp} from './help';
@@ -30,6 +31,10 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 
 	if (args[0] === COMPOSITIONS_COMMAND) {
 		return compositionsCommand(args.slice(1));
+	}
+
+	if (args[0] === REGIONS_COMMAND) {
+		return regionsCommand();
 	}
 
 	if (args[0] === 'deploy') {
