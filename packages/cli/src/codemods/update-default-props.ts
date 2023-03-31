@@ -163,7 +163,6 @@ export const updateDefaultProps = async ({
 		filepath: 'test.tsx',
 		plugins: [],
 		endOfLine: 'auto',
-		printWidth: 70,
 	});
 	return prettified;
 };
