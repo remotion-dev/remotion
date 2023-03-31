@@ -22,7 +22,7 @@ provider "google" {
 }
 
 locals {
-  permissions = jsondecode(file("${path.module}/../shared/permissions.json"))
+  permissions = jsondecode(file("${path.module}/../src/shared/sa-permissions.json"))
 }
 
 # Create an IAM role
