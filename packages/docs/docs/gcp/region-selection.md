@@ -1,12 +1,12 @@
 ---
-image: /generated/articles-docs-gcp-region-selection.png
+image: /generated/articles-docs-cloudrun-region-selection.png
 id: region-selection
 title: Region selection
-slug: /gcp/region-selection
-crumb: "GCP"
+slug: /cloudrun/region-selection
+crumb: "Cloudrun"
 ---
 
-import {GcpRegionList} from '../../components/gcp/regions.tsx';
+import {GcpRegionList} from '../../components/cloudrun/regions.tsx';
 
 Before going live with Remotion Cloud Run, you need to think about into which GCP region you are deploying your service and bucket.
 
@@ -18,7 +18,7 @@ The following GCP regions are available:
 
 <GcpRegionList />
 
-You can call [`getRegions()`](/docs/gcp/getregions) or type [`npx remotion gcp regions`](/docs/gcp/cli/regions) to get this list programmatically.
+You can call [`getRegions()`](/docs/cloudrun/getregions) or type [`npx remotion cloudrun regions`](/docs/cloudrun/cli/regions) to get this list programmatically.
 
 ## Default region
 

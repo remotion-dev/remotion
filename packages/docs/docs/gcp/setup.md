@@ -1,15 +1,15 @@
 ---
-image: /generated/articles-docs-gcp-setup.png
+image: /generated/articles-docs-cloudrun-setup.png
 id: setup
 title: Setup
-slug: /gcp/setup
-crumb: "Gcp"
+slug: /cloudrun/setup
+crumb: "Cloudrun"
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-## 1. Install `@remotion/gcp`
+## 1. Install `@remotion/cloudrun`
 
 <Tabs
 defaultValue="npm"
@@ -22,7 +22,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i @remotion/gcp
+npm i @remotion/cloudrun
 ```
 
   </TabItem>
@@ -30,14 +30,14 @@ npm i @remotion/gcp
   <TabItem value="pnpm">
 
 ```bash
-pnpm i @remotion/gcp
+pnpm i @remotion/cloudrun
 ```
 
   </TabItem>
   <TabItem value="yarn">
 
 ```bash
-yarn add @remotion/gcp
+yarn add @remotion/cloudrun
 ```
 
   </TabItem>
@@ -54,7 +54,7 @@ Your package.json should look like the following:
 
 ```json
   "@remotion/cli": "3.0.0", // Replace 3.0.0 with the current version
-  "@remotion/gcp": "3.0.0", // Remove any `^` character
+  "@remotion/cloudrun": "3.0.0", // Remove any `^` character
   // ...
   "remotion": "3.0.0",
 ```
@@ -84,18 +84,18 @@ This means that you can clone a github repo, run a couple of Terraform commands,
 
 1. In the top right hand corner of the screen, click the Activate Cloud Shell icon
 
-   <img src="/img/gcp/selectCloudShell.jpg" width="200" />
+   <img src="/img/cloudrun/selectCloudShell.jpg" width="200" />
 
 2. Within the Cloud Shell, type
    ```bash
-   git clone https://github.com/UmungoBungo/remotion-gcp-terraform.git remotion-gcp-terraform/
+   git clone https://github.com/UmungoBungo/remotion-gcp-terraform.git remotion-cloudrun-terraform/
    ```
 
 <!-- ToDo - host this in the official Remotion repo -->
 
 3. Change directory into the new folder
    ```bash
-   cd remotion-gcp-terraform/
+   cd remotion-cloudrun-terraform/
    ```
 4. Within the terraform file, there is a variable named project_id. This needs to be set to your newly created Remotion project. Because Cloud Shell is already authenticated with GCP, the variable can be set using the following command:
    ```bash
@@ -136,10 +136,10 @@ This means that you can clone a github repo, run a couple of Terraform commands,
    echo "REMOTION_GCP_PROJECT_ID=$(gcloud config get-value project)" >> .env
    ```
 8. Download the .env file by clicking the vertical ellipsis, in the top right of the cloud shell window, and selecting Download. Then type .env at the end of the prefilled path, and click DOWNLOAD;  
-    <img src="/img/gcp/downloadEnv.jpg" width="350" />  
+    <img src="/img/cloudrun/downloadEnv.jpg" width="350" />  
    <br />
    <br />
-   <img src="/img/gcp/downloadEnvFolder.png" width="300" />
+   <img src="/img/cloudrun/downloadEnvFolder.png" width="300" />
 
 9. Remove the .env file and key.json from the virtual machine, using this command;
 
@@ -157,7 +157,7 @@ This means that you can clone a github repo, run a couple of Terraform commands,
 
 ## 5. Optional: Validate the permission setup
 
-- Run `npx remotion gcp policies validate`
+- Run `npx remotion cloudrun policies validate`
 
 <hr/>
 

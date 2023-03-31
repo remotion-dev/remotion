@@ -32,7 +32,7 @@
 		"@remotion/cli": "workspace:*",
 		"@remotion/eslint-config": "workspace:*",
 		"@remotion/eslint-plugin": "workspace:*",
-		"@remotion/gcp": "workspace:*",
+		"@remotion/cloudrun": "workspace:*",
 		"@remotion/gif": "workspace:*",
 		"@remotion/google-fonts": "workspace:*",
 		"@remotion/lambda": "workspace:*",

@@ -34,10 +34,10 @@ module.exports = {
         },
         {
           type: "category",
-          label: "gcp",
+          label: "cloudrun",
           link: {
             type: "doc",
-            id: "gcp/cli",
+            id: "cloudrun/cli",
           },
           items: [
             "lambda/cli/sites",
@@ -474,14 +474,14 @@ module.exports = {
       ],
     },{
       type: "category",
-      label: "GCP",
+      label: "Cloudrun",
       link: {
         type: "doc",
-        id: "gcp",
+        id: "cloudrun",
       },
       items: [
-        "gcp/setup",
-        "gcp/region-selection"
+        "cloudrun/setup",
+        "cloudrun/region-selection"
       ],
     },
     {
