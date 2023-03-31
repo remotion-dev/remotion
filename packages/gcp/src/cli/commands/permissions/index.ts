@@ -6,7 +6,7 @@ import {Log} from '../../log';
 // import {userSubcommand, USER_SUBCOMMAND} from './user';
 import {validateSubcommand, VALIDATE_SUBCOMMAND} from './validate';
 
-export const POLICIES_COMMAND = 'policies';
+export const POLICIES_COMMAND = 'permissions';
 
 const printPoliciesHelp = () => {
 	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND} <subcommand>`);
@@ -30,7 +30,7 @@ const printPoliciesHelp = () => {
 	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND} ${VALIDATE_SUBCOMMAND}`);
 	Log.info(
 		CliInternals.chalk.gray(
-			'Validate the current policies setup is correct by running tests using the AWS policy simulator.'
+			'Validate the current permissions on the service account are correct in GCP.'
 		)
 	);
 };

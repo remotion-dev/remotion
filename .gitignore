@@ -14,3 +14,4 @@ packages/example/out
 .vercel
 packages/renderer/target
 packages/gcp/remotion-lambda-gcp.code-workspace
+.terraform*
