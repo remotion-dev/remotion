@@ -50,7 +50,6 @@ export const CollapsedSidebarExpander: React.FC<{
 			tabIndex={tabIndex}
 			onClick={onExpand}
 		>
-			{/* TODO: Fix right caret not displayed when sidebar expanded */}
 			{direction === 'right' ? <CaretRight /> : <CaretLeft />}
 		</button>
 	);
