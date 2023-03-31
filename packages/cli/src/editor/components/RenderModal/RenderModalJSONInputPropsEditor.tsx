@@ -62,15 +62,6 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 		return parseJSON(serializeJSONWithDate(value, 2));
 	});
 
-	// TODO: Debug save shortcut
-	document.addEventListener('keydown', (e) => {
-		if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-			e.preventDefault();
-			onSave();
-			console.log('CMD + S');
-		}
-	});
-
 	const onPretty = useCallback(() => {
 		if (!localValue.validJSON) {
 			return;
