@@ -46,12 +46,13 @@ export const useElementSize = (
 			// The clientRect returns the size with `scale()` being applied.
 			const newSize = entries[0].target.getClientRects();
 
-			if (!newSize || !newSize[0]) {
+			if (!newSize?.[0]) {
 				setSize(null);
 				return;
 			}
 
-			const probableCssParentScale = newSize[0].width / contentRect.width;
+			const probableCssParentScale =
+				contentRect.width === 0 ? 1 : newSize[0].width / contentRect.width;
 
 			const width = options.shouldApplyCssTransforms
 				? newSize[0].width
