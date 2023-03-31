@@ -69,7 +69,7 @@ export const RenderModalAudio: React.FC<{
 	const audioCodecOptions = useCallback(
 		(currentCodec: Codec): ComboboxValue[] => {
 			return BrowserSafeApis.supportedAudioCodecs[currentCodec].map(
-				(audioCodecOption) => {
+				(audioCodecOption: AudioCodec) => {
 					return {
 						label: humanReadableAudioCodec(audioCodecOption),
 						onClick: () => setAudioCodec(audioCodecOption),
@@ -87,9 +87,6 @@ export const RenderModalAudio: React.FC<{
 		},
 		[codec, setAudioCodec]
 	);
-
-	// TODO: Bug - select rive-vehicle to render, then select GIF codec
-	// Error: Audio codec null is not supported for codec gif
 
 	return (
 		<div style={container}>

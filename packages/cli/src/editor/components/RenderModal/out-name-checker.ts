@@ -60,7 +60,7 @@ const isValidOutName = ({
 
 	const map = BrowserSafeApis.defaultFileExtensionMap[codec];
 
-	if (!(audioCodec in map.forAudioCodec)) {
+	if (codec !== 'gif' && !(audioCodec in map.forAudioCodec)) {
 		throw new Error(
 			`Audio codec ${audioCodec} is not supported for codec ${codec}`
 		);
