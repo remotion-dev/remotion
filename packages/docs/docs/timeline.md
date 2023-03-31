@@ -19,7 +19,6 @@ npx remotion preview
 
 A server will be started on port `3000` (or a higher port if it's not available) and the preview should open in the browser.
 
-// TODO: Update the screenshot
 <img src="/img/timeline.png"></img>
 
 ## Preview controls
