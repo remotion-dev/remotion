@@ -107,11 +107,18 @@ export const TopPanel: React.FC = () => {
 					orientation="vertical"
 				>
 					{actualStateLeft === 'expanded' ? (
-						<SplitterElement type="flexer">
-							<div style={leftContainer} className="css-reset">
-								<CompositionSelector />
-							</div>
-						</SplitterElement>
+						<>
+							<SplitterElement type="flexer">
+								<div style={leftContainer} className="css-reset">
+									<CompositionSelector />
+								</div>
+							</SplitterElement>
+
+							<CollapsedSidebarExpander
+								direction="left"
+								onExpand={onCollapseLeft}
+							/>
+						</>
 					) : null}
 					{actualStateLeft === 'expanded' ? (
 						<SplitterHandle
@@ -139,9 +146,15 @@ export const TopPanel: React.FC = () => {
 								/>
 							) : null}
 							{actualStateRight === 'expanded' ? (
-								<SplitterElement type="anti-flexer">
-									<RightPanel />
-								</SplitterElement>
+								<>
+									<CollapsedSidebarExpander
+										direction="right"
+										onExpand={onCollapseRight}
+									/>
+									<SplitterElement type="anti-flexer">
+										<RightPanel />
+									</SplitterElement>
+								</>
 							) : null}
 						</SplitterContainer>
 						{actualStateRight === 'collapsed' ? (
