@@ -708,23 +708,27 @@ export const Index: React.FC = () => {
 						supersuperlongvalueabcdefghji: z.string(),
 					})}
 					defaultProps={{
-						vehicle: 'bus',
-						other: 'hi',
-						abc: {def: {xyz: 'huthere', pef: 'hu'}, jkl: 'sting', xyz: 'hi'},
+						vehicle: 'caa' as const,
+						other: 'hi' as const,
+						abc: {
+							def: {xyz: 'huthere' as const, pef: 'hu' as const},
+							jkl: 'sting' as const,
+							xyz: 'hi' as const,
+						},
 						array: [
-							{a: 'a', b: 'bbbbb'},
-							{a: 'a', b: 'b'},
+							{a: 'a' as const, b: 'bbbbb' as const},
+							{a: 'a' as const, b: 'b' as const},
 						],
 						array2: [[12], [12]],
 						mynum: 4,
 						value: true,
 						haha: null,
-						yo: {hi: ' there'},
-						un: 'hi',
-						num: '179',
+						yo: {hi: ' there' as const},
+						un: 'hi' as const,
+						num: '179' as const,
 						date: new Date('1999-02-12T20:20:00.000Z'),
-						values: 'a',
-						supersuperlongvalueabcdefghji: 'hi',
+						values: 'a' as const,
+						supersuperlongvalueabcdefghji: 'hi' as const,
 					}}
 					durationInFrames={150}
 				/>

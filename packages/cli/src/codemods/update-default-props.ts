@@ -94,10 +94,15 @@ const stringifyDefaultProps = (props: unknown) => {
 			).toISOString()}')__REMOVEQUOTE__`;
 		}
 
+		if (typeof this[key] === 'string') {
+			return `${this[key]}__ADD_AS_CONST__`;
+		}
+
 		return value;
 	})
-		.replace('"__REMOVEQUOTE__', '')
-		.replace('__REMOVEQUOTE__"', '');
+		.replace(/"__REMOVEQUOTE__/g, '')
+		.replace(/__REMOVEQUOTE__"/g, '')
+		.replace(/__ADD_AS_CONST__"/g, '" as const');
 };
 
 // TODO: Add more sanity checks
