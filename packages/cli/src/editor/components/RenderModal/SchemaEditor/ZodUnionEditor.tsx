@@ -1,10 +1,11 @@
-import {useCallback, useState} from 'react';
+import {useCallback, useEffect, useState} from 'react';
 import {z} from 'remotion';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Checkbox} from '../../Checkbox';
 import {Spacing} from '../../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import {ZonNonEditableValue} from './ZodNonEditableValue';
 import {ZodSwitch} from './ZodSwitch';
 
 const fullWidth: React.CSSProperties = {
@@ -31,7 +32,7 @@ export const ZodUnionEditor: React.FC<{
 	value: unknown;
 	defaultValue: unknown;
 	schema: z.ZodTypeAny;
-	setValue: React.Dispatch<React.SetStateAction<any>>;
+	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 	onSave: (updater: (oldNum: unknown) => unknown) => void;
 	onRemove: null | (() => void);
 }> = ({
@@ -46,7 +47,6 @@ export const ZodUnionEditor: React.FC<{
 	onRemove,
 }) => {
 	const {options} = schema._def;
-	console.log({value});
 
 	const [isChecked, setIsChecked] = useState<boolean>(false);
 	const onValueChange = useCallback(
@@ -55,12 +55,17 @@ export const ZodUnionEditor: React.FC<{
 		},
 		[setValue]
 	);
+	useEffect(() => {
+		if (value === null) {
+			setIsChecked(true);
+		}
+	}, [value]);
 
 	const onCheckBoxChange: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
 				setIsChecked(!isChecked);
-				console.log(e.target.checked);
+				// TODO: Don't assume string
 				const val = e.target.checked ? null : '';
 				onValueChange(val);
 			},
@@ -81,8 +86,6 @@ export const ZodUnionEditor: React.FC<{
 	const save = useCallback(() => {
 		onSave(() => value);
 	}, [onSave, value]);
-
-	console.log(value);
 
 	if (
 		options[0]._def.typeName === z.ZodFirstPartyTypeKind.ZodNull ||
@@ -131,4 +134,13 @@ export const ZodUnionEditor: React.FC<{
 			</>
 		);
 	}
+
+	return (
+		<ZonNonEditableValue
+			jsonPath={jsonPath}
+			label={'Union only supported with null'}
+			compact={compact}
+			showSaveButton={showSaveButton}
+		/>
+	);
 };

@@ -683,7 +683,7 @@ export const Index: React.FC = () => {
 							union: z.null().or(z.string()),
 							jkl: z.string(),
 							def: z.object({
-								xyz: z.null().or(z.string()),
+								unionArray: z.array(z.null().or(z.string())),
 								pef: z.string(),
 							}),
 						}),
@@ -710,7 +710,11 @@ export const Index: React.FC = () => {
 					defaultProps={{
 						vehicle: 'bus',
 						other: 'hi',
-						abc: {def: {xyz: 'hell', pef: 'hu'}, jkl: 'sting', union: 'hello'},
+						abc: {
+							def: {unionArray: ['someString', null], pef: 'hu'},
+							jkl: 'sting',
+							union: 'hello',
+						},
 						array: [
 							{a: 'a', b: 'bbbbb'},
 							{a: 'a', b: 'b'},
