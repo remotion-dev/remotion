@@ -3,6 +3,7 @@ import {getBackgroundFromHoverState} from '../helpers/colors';
 import {CaretLeft, CaretRight} from '../icons/caret';
 import {useZIndex} from '../state/z-index';
 
+// TODO: Add shortcut to toggle both sidebars (similar to zen mode in vs code)
 export const CollapsedSidebarExpander: React.FC<{
 	onExpand: () => void;
 	direction: 'left' | 'right';
