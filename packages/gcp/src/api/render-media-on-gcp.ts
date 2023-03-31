@@ -1,9 +1,9 @@
-import {GoogleAuth} from 'google-auth-library';
 import got from 'got/dist/source';
 import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
 import type {GcpCodec} from '../shared/validate-gcp-codec';
 import {validateGcpCodec} from '../shared/validate-gcp-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
+import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
 import {parseCloudRunUrl} from './helpers/parse-cloud-run-url';
 
 export type RenderMediaOnGcpInput = {
@@ -84,14 +84,7 @@ export const renderMediaOnGcp = async ({
 	};
 
 	if (authenticatedRequest) {
-		console.log('authenticated request');
-		const auth = new GoogleAuth({
-			credentials: {
-				client_email: process.env.REMOTION_GCP_CLIENT_EMAIL,
-				private_key: process.env.REMOTION_GCP_PRIVATE_KEY,
-			},
-		});
-		const client = await auth.getIdTokenClient(cloudRunUrl);
+		const client = await getAuthClientForUrl(cloudRunUrl);
 
 		const dataPromise = new Promise((resolve, reject) => {
 			let response = {};

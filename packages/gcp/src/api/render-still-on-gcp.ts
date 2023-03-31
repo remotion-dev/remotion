@@ -1,7 +1,7 @@
-import {GoogleAuth} from 'google-auth-library';
 import got from 'got';
 import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
 import {validateServeUrl} from '../shared/validate-serveurl';
+import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
 import {parseCloudRunUrl} from './helpers/parse-cloud-run-url';
 
 export type RenderStillOnGcpInput = {
@@ -76,13 +76,7 @@ export const renderStillOnGcp = async ({
 	};
 
 	if (authenticatedRequest) {
-		const auth = new GoogleAuth({
-			credentials: {
-				client_email: process.env.REMOTION_GCP_CLIENT_EMAIL,
-				private_key: process.env.REMOTION_GCP_PRIVATE_KEY,
-			},
-		});
-		const client = await auth.getIdTokenClient(cloudRunUrl);
+		const client = await getAuthClientForUrl(cloudRunUrl);
 
 		try {
 			const response = await client.request({
