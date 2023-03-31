@@ -40,8 +40,8 @@ export const TableOfContents: React.FC = () => {
           <strong>@remotion/lambda</strong>
           <div>Render videos and stills on AWS Lambda</div>
         </TOCItem>
-        <TOCItem link="/docs/gcp">
-          <strong>@remotion/gcp</strong>
+        <TOCItem link="/docs/cloudrun">
+          <strong>@remotion/cloudrun</strong>
           <div>Render videos and stills on GCP Cloud Run</div>
         </TOCItem>
         <TOCItem link="/docs/gif">

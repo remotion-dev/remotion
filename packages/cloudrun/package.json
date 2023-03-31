@@ -1,0 +1,50 @@
+{
+	"name": "@remotion/cloudrun",
+	"version": "3.3.75",
+	"description": "GCP Cloud Run alternative to lambda rendering",
+	"main": "dist/index.js",
+	"scripts": {
+		"build": "tsc -d && pnpm run buildContainer",
+		"buildContainer": "ts-node src/admin/bundle-renderLogic.ts",
+		"start": "functions-framework --target=TypescriptFunction",
+		"watch": "tsc -w",
+		"lint": "eslint src --ext ts,tsx"
+	},
+	"dependencies": {
+		"@google-cloud/functions-framework": "^3.1.3",
+		"@google-cloud/storage": "^6.9.1",
+		"@google-cloud/run": "^0.4.0",
+		"google-auth-library": "^8.7.0",
+		"@remotion/bundler": "workspace:*",
+		"@remotion/cli": "workspace:*",
+		"@remotion/renderer": "workspace:*",
+		"remotion": "workspace:*",
+		"got": "11.8.2"
+	},
+	"devDependencies": {
+		"prettier-plugin-organize-imports": "^3.2.2",
+		"typescript": "^4.7.0",
+		"prettier": "^2.7.1",
+		"@remotion/compositor-linux-x64-musl": "workspace:*",
+		"ts-node": "^10.8.0",
+		"@types/minimist": "1.2.2",
+		"eslint": "8.25.0",
+		"@jonny/eslint-config": "3.0.266",
+		"vitest": "0.24.3"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": "./dist/index.js",
+		"./regions": "./dist/regions.js"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"defaults": [
+				"dist/defaults.d.ts"
+			],
+			"regions": [
+				"dist/regions.d.ts"
+			]
+		}
+	}
+}

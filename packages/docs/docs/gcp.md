@@ -1,17 +1,17 @@
 ---
 image: /generated/articles-docs-lambda.png
-id: gcp
+id: cloudrun
 sidebar_label: Overview
-title: "@remotion/gcp"
+title: "@remotion/cloudrun"
 ---
 
 Render Remotion videos on [GCP Cloud Run](https://cloud.google.com/run).
 
-import {GcpRegionList} from '../components/gcp/regions.tsx';
+import {GcpRegionList} from '../components/cloudrun/regions.tsx';
 
 ## When should I use it?
 
-- You are fine with using Google Cloud Platform in one of the [supported regions](/docs/gcp/region-selection).
+- You are fine with using Google Cloud Platform in one of the [supported regions](/docs/cloudrun/region-selection).
 
 If one of those constraints is a dealbreaker for you, resort to normal [server-side rendering](/docs/ssr).
 
@@ -33,12 +33,12 @@ If one of those constraints is a dealbreaker for you, resort to normal [server-s
 
 - **Cloud Run service**: Contains the required libraries and binaries for rendering Remotion projects, and is available for invoking behind a URL.
 - **Cloud Storage bucket**: Stores the projects, the renders, and render metadata.
-- **CLI**: Allows control of the overall architecture from the command line. Is installed by adding `@remotion/gcp` to a project.
+- **CLI**: Allows control of the overall architecture from the command line. Is installed by adding `@remotion/cloudrun` to a project.
 - **Node.JS API**: Has the same features as the CLI but is easier to use programmatically.
 
 ## Setup / Installation
 
-[**See here**](/docs/gcp/setup)
+[**See here**](/docs/cloudrun/setup)
 
 ## Region selection
 
@@ -46,7 +46,7 @@ The following regions are available for Remotion Cloud Run:
 
 <GcpRegionList />
 
-[**See here for configurations and considerations.**](/docs/gcp/region-selection)
+[**See here for configurations and considerations.**](/docs/cloudrun/region-selection)
 
 ## Limitations
 
@@ -62,17 +62,17 @@ Most of our users render multiple minutes of video for just a few pennies. The e
 
 Remotion Cloud Run requires you to create a GCP project and create a Service Account with some permissions attached to it. We require only the minimal amount of permissions required for operating Remotion Cloud Run.
 
-[**Read more about permissions**](/docs/gcp/permissions)
+[**Read more about permissions**](/docs/cloudrun/permissions)
 
 ## CLI
 
-You can control Remotion Cloud Run using the `npx remotion gcp` command.
+You can control Remotion Cloud Run using the `npx remotion cloudrun` command.
 
-[**Read more about the CLI**](/docs/gcp/cli)
+[**Read more about the CLI**](/docs/cloudrun/cli)
 
 ## Node.JS API
 
-Everything you can do using the CLI, you can also control using Node.JS APIs. See the reference [here](/docs/gcp/api).
+Everything you can do using the CLI, you can also control using Node.JS APIs. See the reference [here](/docs/cloudrun/api).
 
 ## License
 
@@ -84,4 +84,4 @@ Companies need to buy 1 cloud rendering seat per 2000 renders per month - see ht
 
 We make it easy to remove all Remotion resources from your GCP account without leaving any traces or causing further costs.
 
-[**How to uninstall Remotion Lambda**](/docs/gcp/uninstall)
+[**How to uninstall Remotion Lambda**](/docs/cloudrun/uninstall)

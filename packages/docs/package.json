@@ -29,7 +29,7 @@
     "@remotion/babel-loader": "workspace:*",
     "@remotion/bundler": "workspace:*",
     "@remotion/cli": "workspace:*",
-    "@remotion/gcp": "workspace:*",
+    "@remotion/cloudrun": "workspace:*",
     "@remotion/gif": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/lambda": "workspace:*",

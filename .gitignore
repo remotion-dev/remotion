@@ -13,5 +13,5 @@ packages/example/out
 .turbo
 .vercel
 packages/renderer/target
-packages/gcp/remotion-lambda-gcp.code-workspace
+packages/cloudrun/remotion-lambda-gcp.code-workspace
 .terraform*

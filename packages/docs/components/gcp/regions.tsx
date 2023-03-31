@@ -1,4 +1,4 @@
-import { GCP_REGIONS } from "@remotion/gcp/regions";
+import { GCP_REGIONS } from "@remotion/cloudrun/regions";
 import React from "react";
 
 export const GcpRegionList: React.FC = () => {

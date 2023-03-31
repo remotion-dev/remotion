@@ -1,22 +1,22 @@
 ---
-image: /generated/articles-docs-gcp-cli.png
+image: /generated/articles-docs-cloudrun-cli.png
 id: cli
 sidebar_label: Overview
-title: "@remotion/gcp - CLI"
-slug: /gcp/cli
+title: "@remotion/cloudrun - CLI"
+slug: /cloudrun/cli
 ---
 
-To use the Remotion GCP CLI, you first need to [install it](/docs/gcp/setup).
+To use the Remotion Cloudrun CLI, you first need to [install it](/docs/cloudrun/setup).
 
 ## Commands
 
-- [sites](/docs/gcp/cli/sites)
-- [functions](/docs/gcp/cli/functions)
-- [render](/docs/gcp/cli/render)
-- [still](/docs/gcp/cli/still)
-- [compositions](/docs/gcp/cli/compositions)
-- [policies](/docs/gcp/cli/policies)
-- [quotas](/docs/gcp/cli/quotas)
+- [sites](/docs/cloudrun/cli/sites)
+- [functions](/docs/cloudrun/cli/functions)
+- [render](/docs/cloudrun/cli/render)
+- [still](/docs/cloudrun/cli/still)
+- [compositions](/docs/cloudrun/cli/compositions)
+- [policies](/docs/cloudrun/cli/policies)
+- [quotas](/docs/cloudrun/cli/quotas)
 
 ## Global options
 

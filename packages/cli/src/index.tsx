@@ -1,34 +1,34 @@
-import {RenderInternals} from '@remotion/renderer';
+import { RenderInternals } from '@remotion/renderer';
 import minimist from 'minimist';
-import {benchmarkCommand} from './benchmark';
-import {chalk} from './chalk';
-import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
-import {listCompositionsCommand} from './compositions';
-import {overrideRemotion} from './config/index';
-import {determineFinalImageFormat} from './determine-image-format';
-import {getFileSizeDownloadBar} from './download-progress';
-import {findEntryPoint} from './entry-point';
-import {formatBytes} from './format-bytes';
-import {gcpCommand} from './gcp-command';
-import {getCliOptions, getFinalCodec} from './get-cli-options';
-import {loadConfig} from './get-config-file-name';
-import {handleCommonError} from './handle-common-errors';
-import {getImageFormat} from './image-formats';
-import {initializeCli} from './initialize-cli';
-import {installCommand, INSTALL_COMMAND} from './install';
-import {lambdaCommand} from './lambda-command';
-import {listOfRemotionPackages} from './list-of-remotion-packages';
-import {Log} from './log';
-import {makeProgressBar} from './make-progress-bar';
-import {BooleanFlags, parsedCli, quietFlagProvided} from './parse-command-line';
-import {previewCommand} from './preview';
-import {printCompositions} from './print-compositions';
-import {printHelp} from './print-help';
-import {createOverwriteableCliOutput} from './progress-bar';
-import {render} from './render';
-import {selectComposition} from './select-composition';
-import {still} from './still';
-import {upgrade} from './upgrade';
+import { benchmarkCommand } from './benchmark';
+import { chalk } from './chalk';
+import { cleanupBeforeQuit, handleCtrlC } from './cleanup-before-quit';
+import { listCompositionsCommand } from './compositions';
+import { overrideRemotion } from './config/index';
+import { determineFinalImageFormat } from './determine-image-format';
+import { getFileSizeDownloadBar } from './download-progress';
+import { findEntryPoint } from './entry-point';
+import { formatBytes } from './format-bytes';
+import { cloudrunCommand } from './cloudrun-command';
+import { getCliOptions, getFinalCodec } from './get-cli-options';
+import { loadConfig } from './get-config-file-name';
+import { handleCommonError } from './handle-common-errors';
+import { getImageFormat } from './image-formats';
+import { initializeCli } from './initialize-cli';
+import { installCommand, INSTALL_COMMAND } from './install';
+import { lambdaCommand } from './lambda-command';
+import { listOfRemotionPackages } from './list-of-remotion-packages';
+import { Log } from './log';
+import { makeProgressBar } from './make-progress-bar';
+import { BooleanFlags, parsedCli, quietFlagProvided } from './parse-command-line';
+import { previewCommand } from './preview';
+import { printCompositions } from './print-compositions';
+import { printHelp } from './print-help';
+import { createOverwriteableCliOutput } from './progress-bar';
+import { render } from './render';
+import { selectComposition } from './select-composition';
+import { still } from './still';
+import { upgrade } from './upgrade';
 import {
 	validateVersionsBeforeCommand,
 	versionsCommand,
@@ -63,8 +63,8 @@ export const cli = async () => {
 			await previewCommand(remotionRoot, args);
 		} else if (command === 'lambda') {
 			await lambdaCommand(remotionRoot, args);
-		} else if (command === 'gcp') {
-			await gcpCommand(remotionRoot, args);
+		} else if (command === 'cloudrun') {
+			await cloudrunCommand(remotionRoot, args);
 		} else if (command === 'render') {
 			await render(remotionRoot, args);
 		} else if (command === 'still') {
@@ -99,7 +99,7 @@ export const cli = async () => {
 	}
 };
 
-export {ConfigInternals, overrideRemotion} from './config/index';
+export { ConfigInternals, overrideRemotion } from './config/index';
 export * from './render';
 
 export const CliInternals = {
