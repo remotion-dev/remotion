@@ -67,6 +67,10 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
+### `4.0.0-alpha.127+bcc7f944b`
+
+Improve the saving back to code feature if you are using `as const`.
+
 ### `4.0.0-alpha.115+764023ad5`
 
 Initial v4 alpha release
