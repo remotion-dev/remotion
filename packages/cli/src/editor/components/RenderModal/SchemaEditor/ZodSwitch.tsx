@@ -62,7 +62,6 @@ export const ZodSwitch: React.FC<{
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodString) {
-		console.log(typeName, value);
 		return (
 			<ZodStringEditor
 				value={value as string}
@@ -229,7 +228,6 @@ export const ZodSwitch: React.FC<{
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodUnion) {
-		console.log(typeName, value);
 		return (
 			<ZodUnionEditor
 				schema={schema}
