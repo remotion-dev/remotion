@@ -1,7 +1,8 @@
 import {useCallback, useState} from 'react';
 import {z} from 'remotion';
+import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Checkbox} from '../../Checkbox';
-import {narrowOption, optionRow} from '../layout';
+import {Spacing} from '../../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import {ZodSwitch} from './ZodSwitch';
@@ -10,6 +11,19 @@ const fullWidth: React.CSSProperties = {
 	width: '100%',
 };
 
+const labelStyle: React.CSSProperties = {
+	fontFamily: 'sans-serif',
+	fontSize: 14,
+	color: LIGHT_TEXT,
+};
+
+const checkBoxWrapper: React.CSSProperties = {
+	margin: '2px',
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
+	marginTop: '5px',
+};
 export const ZodUnionEditor: React.FC<{
 	showSaveButton: boolean;
 	jsonPath: JSONPath;
@@ -76,7 +90,7 @@ export const ZodUnionEditor: React.FC<{
 	) {
 		return (
 			<>
-				<div style={compact ? narrowOption : optionRow}>
+				{value === null ? (
 					<SchemaLabel
 						isDefaultValue={value === defaultValue}
 						jsonPath={jsonPath}
@@ -86,34 +100,35 @@ export const ZodUnionEditor: React.FC<{
 						compact={compact}
 						onRemove={onRemove}
 					/>
+				) : (
 					<div style={fullWidth}>
-						<Checkbox
-							checked={isChecked}
-							onChange={onCheckBoxChange}
-							disabled={false}
+						<ZodSwitch
+							value={value}
+							setValue={onChange}
+							jsonPath={jsonPath}
+							schema={
+								options[0]._def.typeName === z.ZodFirstPartyTypeKind.ZodNull
+									? options[1]
+									: options[0]
+							}
+							compact={compact}
+							defaultValue={defaultValue}
+							onSave={onSave}
+							showSaveButton={showSaveButton}
+							onRemove={onRemove}
 						/>
 					</div>
-				</div>
-				<div style={fullWidth}>
-					<ZodSwitch
-						value={value}
-						setValue={onChange}
-						jsonPath={jsonPath}
-						schema={
-							options[0]._def.typeName === z.ZodFirstPartyTypeKind.ZodNull
-								? options[1]
-								: options[0]
-						}
-						compact={compact}
-						defaultValue={defaultValue}
-						onSave={onSave}
-						showSaveButton={showSaveButton}
-						onRemove={onRemove}
+				)}
+				<div style={checkBoxWrapper}>
+					<Checkbox
+						checked={isChecked}
+						onChange={onCheckBoxChange}
+						disabled={false}
 					/>
+					<Spacing x={1} />
+					<div style={labelStyle}>null</div>
 				</div>
 			</>
 		);
 	}
 };
-
-// console.log(schema._def.options);
