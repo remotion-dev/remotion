@@ -18,7 +18,7 @@ The following GCP regions are available:
 
 <GcpRegionList />
 
-You can call [`getRegions()`](/docs/gcp/getregions) or type [`npx remotion gcp regions`](/docs/lamgcpda/cli/regions) to get this list programmatically.
+You can call [`getRegions()`](/docs/gcp/getregions) or type [`npx remotion gcp regions`](/docs/gcp/cli/regions) to get this list programmatically.
 
 ## Default region
 

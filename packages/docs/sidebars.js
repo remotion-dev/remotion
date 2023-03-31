@@ -32,6 +32,24 @@ module.exports = {
             "lambda/cli/quotas",
           ],
         },
+        {
+          type: "category",
+          label: "gcp",
+          link: {
+            type: "doc",
+            id: "gcp/cli",
+          },
+          items: [
+            "lambda/cli/sites",
+            "lambda/cli/functions",
+            "lambda/cli/render",
+            "lambda/cli/still",
+            "lambda/cli/policies",
+            "lambda/cli/compositions",
+            "lambda/cli/regions",
+            "lambda/cli/quotas",
+          ],
+        },
         "cli/benchmark",
         "cli/install",
         "cli/versions",
@@ -462,7 +480,7 @@ module.exports = {
         id: "gcp",
       },
       items: [
-        "lambda/setup",
+        "gcp/setup",
         "gcp/region-selection"
       ],
     },
