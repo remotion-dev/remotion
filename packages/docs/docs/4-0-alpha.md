@@ -64,8 +64,13 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 - Saving input props has no progress indication
 - Button for saving input props shows up even if saving is not possible
 - Unserializable values in `defaultProps` make the JSON editor act up.
+- All strings are `as const` when saving back to the root file.
 
 ## Changelog
+
+### Unreleased
+
+- Make all strings `as const` when saving back to the root file to ensure type safety.
 
 ### `4.0.0-alpha.127+bcc7f944b`
 
