@@ -4,24 +4,22 @@ id: docker
 title: Dockerizing a Remotion app
 crumb: "Building video apps"
 ---
-
-:::warn
-This Dockerfile does currently not work since Alpine Linux has removed the working packages from their registry. We are looking to provide a working Dockerfile again very soon. [GitHub issue](https://github.com/remotion-dev/remotion/issues/1970)
-:::
-
 We recommend the following structure for your Dockerfile. Read below about the individual steps and whether you need to adjust them.
 
 ```docker title="Dockerfile"
-FROM alpine:3.17
+FROM debian:bookworm
 
 # Install necessary packages
-RUN apk update
-RUN apk add --no-cache chromium-swiftshader="109.0.5414.74-r0" ffmpeg="5.1.2-r1" nodejs-current="19.3.0-r0"
+RUN echo "deb http://deb.debian.org/debian bookworm main contrib non-free" > /etc/apt/sources.list
 
-# Add a user so Chrome can use the sandbox.
-RUN addgroup -S remotion && adduser -S -g remotion remotion
-RUN mkdir -p /out /node_modules
-RUN chown -R remotion:remotion /node_modules /out
+RUN apt-get update
+RUN apt-get install -y wget
+RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN apt-get install -y ./google-chrome-stable_current_amd64.deb
+RUN apt-get install -y nodejs npm ffmpeg
+
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV CHROME_EXECUTABLE_PATH="/usr/bin/google-chrome-stable"
 
 # Copy everything from your project to the docker image. Adjust if needed.
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* tsconfig.json* remotion.config.* ./
@@ -31,9 +29,6 @@ COPY public ./public
 # Install the right package manager and dependencies - see below for Yarn/PNPM
 RUN npm i
 
-# Run everything after as non-privileged user.
-USER remotion
-
 # Run your application
 COPY render.mjs render.mjs
 CMD ["node", "render.mjs"]
@@ -42,47 +37,67 @@ CMD ["node", "render.mjs"]
 ## Line-by-line
 
 <p>
-<Step>1</Step> The Alpine image is used because it is very slim by default.
+<Step>1</Step> Specify the base image for the Dockerfile. In this case, it is using the latest version of Debian called 'bookworm'.
 </p>
 
 ```docker
-FROM alpine:3.17
-RUN apk update
+FROM debian:bookworm
 ```
 
 <p>
-<Step>2</Step> The package index is updated to ensure all the libraries needed are available. Afterwards, the following packages are installed:
-</p>
-
-- `chromium-swiftshader`: The headless version of Chrome. `swiftshader` is required for WebGL, if you don't require it, you can replace `chromium-switftshader` with `chromium`.
-- `ffmpeg`: Required for video encoding.
-- `nodejs-current`: Node.js to run Remotion.
-- `npm`: The package manager. If you intend to use `yarn` or `pnpm`, you can remove this line.
-
-```docker
-RUN apk update
-RUN apk add --no-cache \
-  chromium-swiftshader="109.0.5414.74-r0" \
-  ffmpeg="5.1.2-r1" \
-  nodejs-current="19.3.0-r0" \
-  npm="9.1.2-r0"
-```
-
-<p>
-<Step>3</Step> Chrome will not allow to run as root, so we create a user and group called <code>remotion</code>.
+<Step>2</Step> Add a new repository to the sources.list file, which is required to install Google Chrome.
 </p>
 
 ```docker
-RUN addgroup -S remotion && adduser -S -g remotion remotion
-RUN mkdir -p /out /node_modules
-RUN chown -R remotion:remotion /node_modules /out
+RUN echo "deb http://deb.debian.org/debian bookworm main contrib non-free" > /etc/apt/sources.list
 ```
 
 <p>
-<Step>4</Step> Copy the files from your project. If you have additional source files, add them here. If some files do not exist, remove them.
+<Step>3</Step> Update the package lists on the Debian system.
 </p>
 
-The <code>COPY</code> syntax allows multiple files, but at least one file must exist. It is assumed <code>package.json</code>, <code>src</code> and <code>public</code> exist in your project, but you can adjust this to your needs.
+```docker
+RUN apt-get update
+```
+
+<p>
+<Step>4</Step> Install the wget package which is used to download files from the internet.
+</p>
+
+```docker
+RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+```
+
+<p>
+<Step>5</Step> Download and install the Google Chrome stable release package.
+</p>
+
+```docker
+RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN apt-get install -y ./google-chrome-stable_current_amd64.deb
+```
+
+<p>
+<Step>6</Step> Installs Node.js, npm (Node package manager), and FFmpeg.
+</p>
+
+```docker
+RUN apt-get install -y nodejs npm ffmpeg
+```
+
+<p>
+<Step>7</Step> An environment variable named PUPPETEER_SKIP_CHROMIUM_DOWNLOAD is established with a value of true, which stops Puppeteer from downloading a separate instance of Chromium. Additionally, an environment variable named CHROME_EXECUTABLE_PATH is defined with the path of the installed Google Chrome in the Docker container.
+</p>
+
+```docker
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV CHROME_EXECUTABLE_PATH="/usr/bin/google-chrome-stable"
+```
+
+<p>
+<Step>8</Step> Copy the files from your project. If you have additional source files, add them here. If some files do not exist, remove them.
+The COPY syntax allows multiple files, but at least one file must exist. It is assumed package.json, src and public exist in your project, but you can adjust this to your needs.
+</p>
 
 ```docker
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* tsconfig.json* remotion.config.* ./
@@ -91,8 +106,7 @@ COPY public ./public
 ```
 
 <p>
-<Step>5</Step>
-Install the right package manager and dependencies. 
+<Step>9</Step> Install the right package manager and dependencies. 
 </p>
 
 - If you use NPM, put the following in your Dockerfile:
@@ -112,19 +126,14 @@ Install the right package manager and dependencies.
   RUN corepack enable
   RUN yarn
   ```
-
-<p>
-<Step>6</Step>
-Run all subsequent commands as the non-privileged <code>remotion</code> user.
 </p>
 
 ```docker
-USER remotion
+RUN npm i
 ```
 
 <p>
-<Step>7</Step>
-Run your code. It can be a CLI command or a Node.JS app.
+<Step>10</Step> Run your code. It can be a CLI command or a Node.JS app.
 </p>
 
 ```docker
