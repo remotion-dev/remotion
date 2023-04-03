@@ -72,7 +72,9 @@ const getGitStatus = async (root: string): Promise<void> => {
 };
 
 export const init = async () => {
-	const result = await checkGitAvailability(process.cwd(), '--version');
+	const result = await checkGitAvailability(process.cwd(), 'git', [
+		'--version',
+	]);
 	if (result.type === 'git-not-installed') {
 		Log.error(
 			'Git is not installed or not in the path. Install Git to continue.'
