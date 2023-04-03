@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-lambda-without-iam-index.png
-title: Using Lambda without an IAM user
-sidebar_label: "Overview"
+title: Using Lambda with IAM roles
+sidebar_label: "With IAM Roles"
 crumb: "Lambda without IAM"
 ---
 
@@ -134,3 +134,4 @@ The Lambda function can now move the rendered video to the other bucket when the
 ## See also
 
 - [Example setup without IAM user](/docs/lambda/without-iam/example)
+- [Authenticating with EC2](/docs/lambda/ec2)
