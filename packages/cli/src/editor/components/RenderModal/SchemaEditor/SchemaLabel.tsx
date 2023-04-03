@@ -25,9 +25,7 @@ const compactStyles: React.CSSProperties = {
 const wideStyles: React.CSSProperties = {
 	...commonStyles,
 	width: label.width,
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
+	lineHeight: '36px',
 };
 
 const labelStyle: React.CSSProperties = {

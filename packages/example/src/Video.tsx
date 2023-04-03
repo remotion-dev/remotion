@@ -677,7 +677,7 @@ export const Index: React.FC = () => {
 						vehicle: z
 							.string()
 							.max(3, 'Too long')
-							.refine((v) => ['caa', 'bus', 'truck'].includes(v)),
+							.refine((v) => ['car', 'bus', 'truck'].includes(v)),
 						other: z.string(),
 						abc: z.object({
 							xyz: z.string(),
@@ -708,7 +708,7 @@ export const Index: React.FC = () => {
 						supersuperlongvalueabcdefghji: z.string(),
 					})}
 					defaultProps={{
-						vehicle: 'caa' as const,
+						vehicle: 'car' as const,
 						other: 'hi' as const,
 						abc: {
 							def: {xyz: 'huthere' as const, pef: 'hu' as const},
