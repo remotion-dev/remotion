@@ -11,47 +11,17 @@ import {normalizeInstructions} from './normalize-path';
 import {parsePath} from './parse-path';
 import {reduceInstructions} from './reduce-instructions';
 
-/**
- * Normalise an SVG path to absolute coordinates
- * and full commands, rather than relative coordinates
- * and/or shortcut commands.
- */
-
-/**
- * Reverse an SVG path.
- * As long as the input path is normalised, this is actually really
- * simple to do. As all pathing commands are symmetrical, meaning
- * that they render the same when you reverse the coordinate order,
- * the grand trick here is to reverse the path (making sure to keep
- * coordinates ordered pairwise) and shift the operators left by
- * one or two coordinate pairs depending on the operator:
- *
- *   - Z is removed (after noting it existed),
- *   - L moves to 2 spots earlier (skipping one coordinate),
- *   - Q moves to 2 spots earlier (skipping one coordinate),
- *   - C moves to 4 spots earlier (skipping two coordinates)
- *       and its arguments get reversed,
- *   - the path start becomes M.
- *   - the path end becomes Z iff it was there to begin with.
- */
 function reverseNormalizedPath(instructions: Instruction[]) {
 	const reversed: unknown[] = [];
 
-	for (let t = 0; t < instructions.length; t++) {
-		const term = instructions[t];
-
+	for (const term of instructions) {
 		if (term.type === 'A') {
-			reversed.push(term.sweepFlag ? '0' : '1');
-			reversed.push(term.largeArcFlag ? '1' : '0');
-			reversed.push(term.xAxisRotation);
-			reversed.push(term.ry);
-			reversed.push(term.rx);
-		}
-
-		// how many coordinate pairs do we need to read,
-		// and by how many pairs should this operator be
-		// shifted left?
-		else if (term.type === 'C') {
+			reversed.unshift(term.sweepFlag ? '0' : '1');
+			reversed.unshift(term.largeArcFlag ? '1' : '0');
+			reversed.unshift(term.xAxisRotation);
+			reversed.unshift(term.ry);
+			reversed.unshift(term.rx);
+		} else if (term.type === 'C') {
 			reversed.unshift(term.cp1y);
 			reversed.unshift(term.cp1x);
 			reversed.unshift(term.cp2y);
