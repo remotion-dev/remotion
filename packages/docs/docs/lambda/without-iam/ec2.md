@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-lambda-ec2.png
+image: /generated/articles-docs-lambda-without-iam-ec2.png
 title: Authenticating Lambda with EC2
 slug: /lambda/ec2
 sidebar_label: With EC2 + STS
