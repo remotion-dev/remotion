@@ -5,11 +5,11 @@
  * not recognise the public domain, where this code is MIT licensed.
  */
 
-import {getSubpaths} from './get-subpaths';
+import {constructFromInstructions} from './helpers/construct';
+import type {Instruction} from './helpers/types';
 import {normalizeInstructions} from './normalize-path';
 import {parsePath} from './parse-path';
 import {reduceInstructions} from './reduce-instructions';
-import {serializeInstructions} from './serialize-instructions';
 
 /**
  * Normalise an SVG path to absolute coordinates
@@ -34,92 +34,56 @@ import {serializeInstructions} from './serialize-instructions';
  *   - the path start becomes M.
  *   - the path end becomes Z iff it was there to begin with.
  */
-function reverseNormalizedPath(normalized: string) {
-	const terms = normalized.trim().split(' ');
+function reverseNormalizedPath(instructions: Instruction[]) {
 	let term;
-	const tlen = terms.length;
-	const tlen1 = tlen - 1;
+	const tlen = instructions.length;
 	let t;
-	const reversed = [];
-	let x;
-	let y;
-	let pair;
-	let pairs;
-	let shift;
-	const matcher = /[QAZLCM]/;
-	const closed = terms.slice(-1)[0].toUpperCase() === 'Z';
+	const reversed: unknown[] = [];
+	const closed = instructions[instructions.length - 1].type === 'Z';
 
 	for (t = 0; t < tlen; t++) {
-		term = terms[t];
+		term = instructions[t];
 
-		// Is this an operator? If it is, run through its
-		// argument list, which we know is fixed length.
-		if (matcher.test(term)) {
-			// Arc processing relies on not-just-coordinates
-			if (term === 'A') {
-				reversed.push(terms[t + 5] === '0' ? '1' : '0');
-				reversed.push(terms[t + 4]);
-				reversed.push(terms[t + 3]);
-				reversed.push(terms[t + 2]);
-				reversed.push(terms[t + 1]);
-				reversed.push(term);
-				reversed.push(terms[t + 7]);
-				reversed.push(terms[t + 6]);
-				t += 7;
-				continue;
-			}
-
-			// how many coordinate pairs do we need to read,
-			// and by how many pairs should this operator be
-			// shifted left?
-			else if (term === 'C') {
-				pairs = 3;
-				shift = 2;
-			} else if (term === 'Q') {
-				pairs = 2;
-				shift = 1;
-			} else if (term === 'L') {
-				pairs = 1;
-				shift = 1;
-			} else if (term === 'M') {
-				pairs = 1;
-				shift = 0;
-			} else {
-				continue;
-			}
-
-			// do the argument reading and operator shifting
-			if (pairs === shift) {
-				reversed.push(term);
-			}
-
-			for (pair = 0; pair < pairs; pair++) {
-				if (pair === shift) {
-					reversed.push(term);
-				}
-
-				x = terms[++t];
-				y = terms[++t];
-				reversed.push(y);
-				reversed.push(x);
-			}
+		if (term.type === 'A') {
+			reversed.push(term.sweepFlag ? '0' : '1');
+			reversed.push(term.largeArcFlag ? '1' : '0');
+			reversed.push(term.xAxisRotation);
+			reversed.push(term.ry);
+			reversed.push(term.rx);
+			reversed.push('A');
+			reversed.push(term.y);
+			reversed.push(term.x);
+			t += 7;
+			continue;
 		}
-		// the code has been set up so that every time we
-		// iterate because of the for() operation, the term
-		// we see is a pathing operator, not a number. As
-		// such, if we get to this "else" the path is malformed.
-		else {
-			const pre = terms.slice(Math.max(t - 3, 0), 3).join(' ');
-			const post = terms.slice(t + 1, Math.min(t + 4, tlen1)).join(' ');
-			const range = pre + ' [' + term + '] ' + post;
-			throw new Error(
-				'Error while trying to reverse normalized SVG path, at position ' +
-					t +
-					' (' +
-					range +
-					').\n' +
-					"Either the path is not normalised, or it's malformed."
-			);
+
+		// how many coordinate pairs do we need to read,
+		// and by how many pairs should this operator be
+		// shifted left?
+		else if (term.type === 'C') {
+			reversed.push(term.cp1y);
+			reversed.push(term.cp1x);
+			reversed.push(term.cp2y);
+			reversed.push(term.cp2x);
+			reversed.push('C');
+			reversed.push(term.y);
+			reversed.push(term.x);
+		} else if (term.type === 'Q') {
+			reversed.push(term.cpy);
+			reversed.push(term.cpx);
+			reversed.push('Q');
+			reversed.push(term.y);
+			reversed.push(term.x);
+		} else if (term.type === 'L') {
+			reversed.push('L');
+			reversed.push(term.y);
+			reversed.push(term.x);
+		} else if (term.type === 'M') {
+			reversed.push('M');
+			reversed.push(term.y);
+			reversed.push(term.x);
+		} else {
+			continue;
 		}
 	}
 
@@ -149,13 +113,12 @@ export const reversePath = (path: string) => {
 	const parsed = parsePath(path);
 	const normalized = normalizeInstructions(parsed);
 	const reduced = reduceInstructions(normalized);
-	const serialized = serializeInstructions(reduced);
 
-	const subPaths = getSubpaths(serialized);
+	const {segments} = constructFromInstructions(reduced);
 
-	return subPaths
+	return segments
 		.map((spath) => {
-			return reverseNormalizedPath(spath.trim());
+			return reverseNormalizedPath(spath);
 		})
 		.join(' ')
 		.replace(/ +/g, ' ')
