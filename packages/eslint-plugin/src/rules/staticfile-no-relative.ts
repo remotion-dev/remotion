@@ -6,7 +6,10 @@ const createRule = ESLintUtils.RuleCreator(() => {
 
 type Options = [];
 
-type MessageIds = "RelativePathStaticFile" | "AbsoluteStaticFile" | "PublicStaticFile";
+type MessageIds =
+  | "RelativePathStaticFile"
+  | "AbsoluteStaticFile"
+  | "PublicStaticFile";
 
 const RelativePathStaticFile = [
   "Don't pass a relative path to staticFile().",
@@ -16,12 +19,12 @@ const RelativePathStaticFile = [
 const AbsoluteStaticFile = [
   "Do not pass an absolute path to staticFile().",
   "See: https://remotion.dev/docs/upcoming-docs-for-absolute-paths",
-].join("")
+].join("");
 
 const PublicStaticFile = [
   "Do not pass a public/ path to staticFile().",
   "See: https://remotion.dev/docs/upcoming-docs-for-public-paths",
-].join("")
+].join("");
 
 export default createRule<Options, MessageIds>({
   name: "staticfile-no-relative",
@@ -36,7 +39,7 @@ export default createRule<Options, MessageIds>({
     messages: {
       RelativePathStaticFile: RelativePathStaticFile,
       PublicStaticFile: PublicStaticFile,
-      AbsoluteStaticFile: AbsoluteStaticFile
+      AbsoluteStaticFile: AbsoluteStaticFile,
     },
   },
 
@@ -79,17 +82,29 @@ export default createRule<Options, MessageIds>({
                 node,
               });
             }
-            if(value.startsWith("public/")) {
+
+            if (value.startsWith("public/")) {
               context.report({
                 messageId: "PublicStaticFile",
                 node,
-              })
+              });
             }
-            if(value.startsWith("/")) {
+
+            if (
+              value.startsWith("/Users") ||
+              value.startsWith("/home") ||
+              value.startsWith("/tmp") ||
+              value.startsWith("/etc") ||
+              value.startsWith("/opt") ||
+              value.startsWith("/var") ||
+              value.startsWith("C:") ||
+              value.startsWith("D:") ||
+              value.startsWith("E:")
+            ) {
               context.report({
                 messageId: "AbsoluteStaticFile",
                 node,
-              })
+              });
             }
           }
         }
