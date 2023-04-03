@@ -17,3 +17,12 @@ test('Should not crash out', () => {
 		'M 1047.91 508 L 1047.91 406.455 C 1047.91 379.142 1025.77 357 998.455 357 L 998.455 357 C 971.142 357 949 379.142 949 406.455 L 949 508'
 	);
 });
+
+test('Should be able to reverse a path with 2 M statements', () => {
+	const reversedPath = reversePath(`
+  M 0 0 L 100 0
+  M 0 0 L 200 100
+
+	`);
+	expect(reversedPath).toEqual('M 100 0 L 0 0 M 200 100 L 0 0');
+});
