@@ -10,26 +10,50 @@ import type {Instruction} from './helpers/types';
 import {normalizeInstructions} from './normalize-path';
 import {parsePath} from './parse-path';
 import {reduceInstructions} from './reduce-instructions';
+import {serializeInstructions} from './serialize-instructions';
 
 function reverseNormalizedPath(instructions: Instruction[]) {
-	const reversed: unknown[] = [];
+	const reversed: Instruction[] = [];
+
+	let nextX = 0;
+	let nextY = 0;
 
 	for (const term of instructions) {
 		if (term.type === 'A') {
-			reversed.unshift(term.sweepFlag ? '0' : '1');
-			reversed.unshift(term.largeArcFlag ? '1' : '0');
-			reversed.unshift(term.xAxisRotation);
-			reversed.unshift(term.ry);
-			reversed.unshift(term.rx);
+			reversed.unshift({
+				type: 'A',
+				largeArcFlag: term.largeArcFlag,
+				rx: term.rx,
+				ry: term.ry,
+				xAxisRotation: term.xAxisRotation,
+				sweepFlag: !term.sweepFlag,
+				x: nextX,
+				y: nextY,
+			});
 		} else if (term.type === 'C') {
-			reversed.unshift(term.cp1y);
-			reversed.unshift(term.cp1x);
-			reversed.unshift(term.cp2y);
-			reversed.unshift(term.cp2x);
+			reversed.unshift({
+				type: 'C',
+				cp1x: term.cp2x,
+				cp1y: term.cp2y,
+				cp2x: term.cp1x,
+				cp2y: term.cp1y,
+				x: nextX,
+				y: nextY,
+			});
 		} else if (term.type === 'Q') {
-			reversed.unshift(term.cpy);
-			reversed.unshift(term.cpx);
+			reversed.unshift({
+				type: 'Q',
+				cpx: term.cpx,
+				cpy: term.cpy,
+				x: nextX,
+				y: nextY,
+			});
 		} else if (term.type === 'L') {
+			reversed.unshift({
+				type: 'L',
+				x: nextX,
+				y: nextY,
+			});
 			// Do nothing
 		} else if (term.type === 'M') {
 			// Do nothing
@@ -37,19 +61,17 @@ function reverseNormalizedPath(instructions: Instruction[]) {
 			throw new Error('unnormalized instruction ' + term.type);
 		}
 
-		reversed.unshift(term.type);
-		reversed.unshift(term.y);
-		reversed.unshift(term.x);
+		nextX = term.x;
+		nextY = term.y;
 	}
 
-	reversed.unshift('M');
+	reversed.unshift({
+		type: 'M',
+		x: nextX,
+		y: nextY,
+	});
 
-	// generating the reversed path string involves
-	// running through our transformed terms in reverse.
-	let revstring = '';
-	for (let r = 0; r < reversed.length - 1; r++) {
-		revstring += reversed[r] + ' ';
-	}
+	let revstring = serializeInstructions(reversed);
 
 	if (instructions[instructions.length - 1].type === 'Z') revstring += 'Z';
 	revstring = revstring.replace(/M M/g, 'Z M');
