@@ -11,20 +11,18 @@ We recommend the following structure for your Dockerfile. Read below about the i
 FROM debian:bookworm
 
 # Install necessary packages
-RUN echo "deb http://deb.debian.org/debian bookworm main contrib non-free" > /etc/apt/sources.list
+# RUN echo "deb http://deb.debian.org/debian bookworm main contrib non-free" > /etc/apt/sources.list
 
 RUN apt-get update
-RUN apt-get install -y wget
-RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN apt-get install -y ./google-chrome-stable_current_amd64.deb
-RUN apt-get install -y nodejs npm ffmpeg
-
-ENV CHROME_EXECUTABLE_PATH="/usr/bin/google-chrome-stable"
+RUN apt-get install -y nodejs npm ffmpeg chromium
 
 # Copy everything from your project to the Docker image. Adjust if needed.
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* tsconfig.json* remotion.config.* ./
 COPY src ./src
-COPY public* ./
+COPY public ./public
+
+# Specify the location of the Chromium browser
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Install the right package manager and dependencies - see below for Yarn/PNPM
 RUN npm i
@@ -49,15 +47,7 @@ FROM debian:bookworm
 ```
 
 <p>
-<Step>2</Step> Add a new repository to the sources.list file, which is required to install Google Chrome.
-</p>
-
-```docker
-RUN echo "deb http://deb.debian.org/debian bookworm main contrib non-free" > /etc/apt/sources.list
-```
-
-<p>
-<Step>3</Step> Update the package lists on the Debian system.
+<Step>2</Step> Update the package lists on the Debian system.
 </p>
 
 ```docker
@@ -65,33 +55,16 @@ RUN apt-get update
 ```
 
 <p>
-<Step>4</Step> Install the wget package which is used to download files from the internet.
+<Step>3</Step> Download Remotion's dependencies: Node.JS, NPM, FFmpeg, Chromium
 </p>
 
 ```docker
-RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+RUN apt-get install -y nodejs npm ffmpeg chromium
 ```
 
 <p>
-<Step>5</Step> Download and install the Google Chrome stable release package.
-</p>
-
-```docker
-RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-RUN apt-get install -y ./google-chrome-stable_current_amd64.deb
-```
-
-<p>
-<Step>6</Step> Installs Node.js, npm (Node package manager), and FFmpeg.
-</p>
-
-```docker
-RUN apt-get install -y nodejs npm ffmpeg
-```
-
-<p>
-<Step>7</Step> Copy the files from your project. If you have additional source files, add them here. If some files do not exist, remove them.
-The COPY syntax allows multiple files, but at least one file must exist. It is assumed package.json, src and public exist in your project, but you can adjust this to your needs.
+<Step>4</Step> Copy the files from your project. If you have additional source files, add them here. If some files do not exist, remove them.
+The <code>COPY</code> syntax allows multiple files, but at least one file must exist. It is assumed <code>package.json</code>, <code>src</code> and <code>public</code> exist in your project, but you can adjust this to your needs.
 </p>
 
 ```docker
@@ -101,7 +74,19 @@ COPY public ./public
 ```
 
 <p>
-<Step>8</Step> Install the right package manager and dependencies. 
+<Step>5</Step> Tell Remotion where the Chromium executable is located.
+</p>
+
+```docker
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+```
+
+:::note
+If you are on Remotion `v3.3.81` or higher, you don't need this line.
+:::
+
+<p>
+<Step>6</Step> Install the right package manager and dependencies. 
 </p>
 
 - If you use NPM, put the following in your Dockerfile:
@@ -110,7 +95,7 @@ COPY public ./public
   RUN npm i
   ```
 
-- If you use Yarn or PNPM, add the `packageManager` field to your `package.json` (example: `"packageManager": "pnpm@7.7.1"`) and remove the `npm` line from step 2. Then put following in your Dockerfile:
+- If you use Yarn or PNPM, add the `packageManager` field to your `package.json` (example: `"packageManager": "pnpm@7.7.1"`) and remove the `npm` line from step 3. Then put following in your Dockerfile:
 
   ```docker title="If you use PNPM"
   RUN corepack enable
@@ -122,12 +107,8 @@ COPY public ./public
   RUN yarn
   ```
 
-```docker
-RUN npm i
-```
-
 <p>
-<Step>9</Step> Run your code. It can be a CLI command or a Node.JS app.
+<Step>7</Step> Run your code. It can be a CLI command or a Node.JS app.
 </p>
 
 ```docker
@@ -164,7 +145,7 @@ await renderMedia({
 console.log(`Rendered composition ${composition.id}.`);
 ```
 
-## Building a docker image
+## Building the Docker image
 
 Run
 
@@ -172,7 +153,8 @@ Run
 docker build -t remotion-app .
 ```
 
-to build a docker image called `remotion-app`. Use the following command to run the image:
+to build a Docker image called `remotion-app`.  
+Use the following command to run the image:
 
 ```sh
 docker run remotion-app
