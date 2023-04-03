@@ -120,7 +120,6 @@ export const RightPanel: React.FC<{}> = () => {
 		return null;
 	}
 
-	// TODO: It is not perfectly aligned in example
 	return (
 		<div style={container} className="css-reset">
 			<div style={tabsContainer}>
