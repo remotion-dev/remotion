@@ -140,10 +140,7 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 				</Button>
 				<Spacing x={1} />
 				<Button
-					onClick={() => {
-						onSave();
-						setHasChanged(false);
-					}}
+					onClick={onSave}
 					disabled={!zodValidationResult.success || !hasChanged}
 				>
 					Save
