@@ -5,84 +5,68 @@ title: Dockerizing a Remotion app
 crumb: "Building video apps"
 ---
 
-:::warn
-This Dockerfile does currently not work since Alpine Linux has removed the working packages from their registry. We are looking to provide a working Dockerfile again very soon. [GitHub issue](https://github.com/remotion-dev/remotion/issues/1970)
-:::
-
 We recommend the following structure for your Dockerfile. Read below about the individual steps and whether you need to adjust them.
 
 ```docker title="Dockerfile"
-FROM alpine:3.17
+FROM debian:bookworm
 
-# Install necessary packages
-RUN apk update
-RUN apk add --no-cache chromium-swiftshader="109.0.5414.74-r0" ffmpeg="5.1.2-r1" nodejs-current="19.3.0-r0"
+RUN apt-get update
+RUN apt-get install -y nodejs="18.13.0+dfsg1-1" npm="9.2.0~ds1-1" ffmpeg="7:5.1.2-3" chromium="111.0.5563.110-1"
 
-# Add a user so Chrome can use the sandbox.
-RUN addgroup -S remotion && adduser -S -g remotion remotion
-RUN mkdir -p /out /node_modules
-RUN chown -R remotion:remotion /node_modules /out
-
-# Copy everything from your project to the docker image. Adjust if needed.
+# Copy everything from your project to the Docker image. Adjust if needed.
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* tsconfig.json* remotion.config.* ./
 COPY src ./src
 COPY public ./public
 
+# Specify the location of the Chromium browser
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
 # Install the right package manager and dependencies - see below for Yarn/PNPM
 RUN npm i
-
-# Run everything after as non-privileged user.
-USER remotion
 
 # Run your application
 COPY render.mjs render.mjs
 CMD ["node", "render.mjs"]
 ```
 
+:::note
+[Click here](#example-render-script) to see an example for a `render.mjs` script you can use.
+:::
+
+:::note
+This Dockerfile is unable to render WebGL content. Suggestions on how to improve the Dockerfile to support it are welcomed.
+:::
+
 ## Line-by-line
 
 <p>
-<Step>1</Step> The Alpine image is used because it is very slim by default.
+<Step>1</Step> Specify the base image for the Dockerfile. In this case, we use Debian. It is recommended to pin the version to prevent unexpected changes in the future,
 </p>
 
 ```docker
-FROM alpine:3.17
-RUN apk update
+FROM debian:bookworm-20230320-slim
 ```
 
 <p>
-<Step>2</Step> The package index is updated to ensure all the libraries needed are available. Afterwards, the following packages are installed:
+<Step>2</Step> Update the package lists on the Debian system.
 </p>
 
-- `chromium-swiftshader`: The headless version of Chrome. `swiftshader` is required for WebGL, if you don't require it, you can replace `chromium-switftshader` with `chromium`.
-- `ffmpeg`: Required for video encoding.
-- `nodejs-current`: Node.js to run Remotion.
-- `npm`: The package manager. If you intend to use `yarn` or `pnpm`, you can remove this line.
-
 ```docker
-RUN apk update
-RUN apk add --no-cache \
-  chromium-swiftshader="109.0.5414.74-r0" \
-  ffmpeg="5.1.2-r1" \
-  nodejs-current="19.3.0-r0" \
-  npm="9.1.2-r0"
+RUN apt-get update
 ```
 
 <p>
-<Step>3</Step> Chrome will not allow to run as root, so we create a user and group called <code>remotion</code>.
+<Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM), FFmpeg and Chromium. We pin the versions to minimize chance of future breakage.
 </p>
 
 ```docker
-RUN addgroup -S remotion && adduser -S -g remotion remotion
-RUN mkdir -p /out /node_modules
-RUN chown -R remotion:remotion /node_modules /out
+RUN apt-get install -y nodejs="18.13.0+dfsg1-1" npm="9.2.0~ds1-1" ffmpeg="7:5.1.2-3" chromium="111.0.5563.110-1"
 ```
 
 <p>
 <Step>4</Step> Copy the files from your project. If you have additional source files, add them here. If some files do not exist, remove them.
-</p>
-
 The <code>COPY</code> syntax allows multiple files, but at least one file must exist. It is assumed <code>package.json</code>, <code>src</code> and <code>public</code> exist in your project, but you can adjust this to your needs.
+</p>
 
 ```docker
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* tsconfig.json* remotion.config.* ./
@@ -91,8 +75,19 @@ COPY public ./public
 ```
 
 <p>
-<Step>5</Step>
-Install the right package manager and dependencies. 
+<Step>5</Step> Tell Remotion where the Chromium executable is located.
+</p>
+
+```docker
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+```
+
+:::note
+If you are on Remotion `v3.3.81` or higher, you don't need this line.
+:::
+
+<p>
+<Step>6</Step> Install the right package manager and dependencies. 
 </p>
 
 - If you use NPM, put the following in your Dockerfile:
@@ -101,7 +96,7 @@ Install the right package manager and dependencies.
   RUN npm i
   ```
 
-- If you use Yarn or PNPM, add the `packageManager` field to your `package.json` (example: `"packageManager": "pnpm@7.7.1"`) and remove the `npm` line from step 2. Then put following in your Dockerfile:
+- If you use Yarn or PNPM, add the `packageManager` field to your `package.json` (example: `"packageManager": "pnpm@7.7.1"`) and remove the `npm` line from step 3. Then put following in your Dockerfile:
 
   ```docker title="If you use PNPM"
   RUN corepack enable
@@ -114,17 +109,7 @@ Install the right package manager and dependencies.
   ```
 
 <p>
-<Step>6</Step>
-Run all subsequent commands as the non-privileged <code>remotion</code> user.
-</p>
-
-```docker
-USER remotion
-```
-
-<p>
-<Step>7</Step>
-Run your code. It can be a CLI command or a Node.JS app.
+<Step>7</Step> Run your code. It can be a CLI command or a Node.JS app.
 </p>
 
 ```docker
@@ -132,7 +117,7 @@ COPY render.mjs render.mjs
 CMD ["node", "render.mjs"]
 ```
 
-Example script:
+## Example render script
 
 ```js title="render.mjs"
 import { bundle } from "@remotion/bundler";
@@ -158,10 +143,10 @@ await renderMedia({
   serveUrl: bundled,
   outputLocation: `out/${composition.id}.mp4`,
 });
-console.log(`Rendering composition ${composition.id}...`);
+console.log(`Rendered composition ${composition.id}.`);
 ```
 
-## Building a docker image
+## Building the Docker image
 
 Run
 
@@ -169,8 +154,13 @@ Run
 docker build -t remotion-app .
 ```
 
-to build a docker image called `remotion-app`. Use the following command to run the image:
+to build a Docker image called `remotion-app`.  
+Use the following command to run the image:
 
 ```sh
 docker run remotion-app
 ```
+
+## Changelog
+
+**April 3rd, 2023**: Changed the Alpine Docker image to a Debian one, since the versions of Alpine packages cannot be pinned. This makes the Debian one less likely to break.
