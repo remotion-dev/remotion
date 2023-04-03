@@ -1,5 +1,6 @@
+import fs from 'fs';
 import {GoogleAuth} from 'google-auth-library';
-import saPermissions from '../../shared/sa-permissions.json';
+import path from 'path';
 
 export const logPermissionOutput = (output: SimulationResult) => {
 	return [output.decision ? '✅' : '❌', output.permissionName].join(' ');
@@ -37,6 +38,13 @@ export const simulatePermissions = async (
 	});
 	const client = await auth.getClient();
 
+	const saPermissions = JSON.parse(
+		fs.readFileSync(
+			path.join(__dirname, '../../../', 'sa-permissions.json'),
+			'utf-8'
+		)
+	);
+
 	const data = {
 		permissions: saPermissions.list,
 	};
@@ -53,7 +61,7 @@ export const simulatePermissions = async (
 		data,
 	});
 
-	saPermissions.list.forEach((permission) => {
+	saPermissions.list.forEach((permission: string) => {
 		if (response?.data?.permissions.includes(permission)) {
 			const thisResult = {decision: true, permissionName: permission};
 			results.push(thisResult);
