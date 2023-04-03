@@ -696,7 +696,7 @@ export const Index: React.FC = () => {
 							)
 							.min(2),
 						array2: z.array(z.array(z.number())),
-						mynum: z.number().lt(10000000),
+						mynum: z.number().lt(10),
 						value: z.boolean().refine((v) => v === false || v === true),
 						lol: z.undefined(),
 						haha: z.null(),
