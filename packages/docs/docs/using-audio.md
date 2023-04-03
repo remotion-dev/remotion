@@ -266,7 +266,7 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   serveUrl:
     "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
   inputProps: {},
-  codec: "h264",
+  codec: "mp3",
   imageFormat: "none",
   maxRetries: 1,
   privacy: "public",

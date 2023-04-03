@@ -16,7 +16,15 @@ Remotion and your React app use a different Webpack config. Therefore, if you wa
 
 ## Setup
 
-Set up a React project with your preferred setup, such as [Create React App](https://reactjs.org/docs/create-a-new-react-app.html) or [Next.JS](https://nextjs.org/learn/basics/create-nextjs-app/setup).
+Set up a React project with your preferred setup from the [Official React docs](https://react.dev/learn/start-a-new-react-project). Popular choices are:
+
+- [Next.js](https://nextjs.org/learn/basics/create-nextjs-app/setup)
+- [Remix](https://remix.run/docs/en/main/tutorials/blog)
+- [Vite](https://vitejs.dev/guide/)
+
+:::note
+While you can still use [Create React App](https://create-react-app.dev), it is not being actively recommended by the React team anymore.
+:::
 
 When your project is setup, add the necessary Remotion dependencies:
 

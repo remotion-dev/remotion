@@ -5,6 +5,10 @@ title: Dockerizing a Remotion app
 crumb: "Building video apps"
 ---
 
+:::warn
+This Dockerfile does currently not work since Alpine Linux has removed the working packages from their registry. We are looking to provide a working Dockerfile again very soon. [GitHub issue](https://github.com/remotion-dev/remotion/issues/1970)
+:::
+
 We recommend the following structure for your Dockerfile. Read below about the individual steps and whether you need to adjust them.
 
 ```docker title="Dockerfile"

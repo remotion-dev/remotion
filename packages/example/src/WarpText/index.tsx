@@ -1,5 +1,7 @@
+import {CameraMotionBlur} from '@remotion/motion-blur';
+import {getBoundingBox, resetPath, warpPath, WarpPathFn} from '@remotion/paths';
 import opentype from 'opentype.js';
-import {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
 	AbsoluteFill,
 	spring,
@@ -7,8 +9,6 @@ import {
 	useCurrentFrame,
 	useVideoConfig,
 } from 'remotion';
-
-import {getBoundingBox, resetPath, warpPath, WarpPathFn} from '@remotion/paths';
 
 type FontInfo = {
 	path: string;
@@ -84,7 +84,6 @@ export const WarpDemo = () => {
 	return (
 		<AbsoluteFill
 			style={{
-				backgroundColor: 'white',
 				justifyContent: 'center',
 				alignItems: 'center',
 			}}
@@ -102,5 +101,24 @@ export const WarpDemo = () => {
 				</svg>
 			) : null}
 		</AbsoluteFill>
+	);
+};
+
+export const WarpDemoOuter: React.FC = () => {
+	return (
+		<div
+			style={{
+				width: '100%',
+				height: '100%',
+				background: 'white',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+			}}
+		>
+			<CameraMotionBlur samples={5} shutterAngle={180}>
+				<WarpDemo />
+			</CameraMotionBlur>
+		</div>
 	);
 };
