@@ -6,12 +6,22 @@ const createRule = ESLintUtils.RuleCreator(() => {
 
 type Options = [];
 
-type MessageIds = "RelativePathStaticFile";
+type MessageIds = "RelativePathStaticFile" | "AbsoluteStaticFile" | "PublicStaticFile";
 
 const RelativePathStaticFile = [
   "Don't pass a relative path to staticFile().",
   "See: https://remotion.dev/docs/staticfile-relative-paths",
 ].join("\n");
+
+const AbsoluteStaticFile = [
+  "Do not pass an absolute path to staticFile().",
+  "See: https://remotion.dev/docs/upcoming-docs-for-absolute-paths",
+].join("")
+
+const PublicStaticFile = [
+  "Do not pass a public/ path to staticFile().",
+  "See: https://remotion.dev/docs/upcoming-docs-for-public-paths",
+].join("")
 
 export default createRule<Options, MessageIds>({
   name: "staticfile-no-relative",
@@ -25,8 +35,11 @@ export default createRule<Options, MessageIds>({
     schema: [],
     messages: {
       RelativePathStaticFile: RelativePathStaticFile,
+      PublicStaticFile: PublicStaticFile,
+      AbsoluteStaticFile: AbsoluteStaticFile
     },
   },
+
   defaultOptions: [],
   create: (context) => {
     return {
@@ -65,6 +78,18 @@ export default createRule<Options, MessageIds>({
                 messageId: "RelativePathStaticFile",
                 node,
               });
+            }
+            if(value.startsWith("public/")) {
+              context.report({
+                messageId: "PublicStaticFile",
+                node,
+              })
+            }
+            if(value.startsWith("/")) {
+              context.report({
+                messageId: "AbsoluteStaticFile",
+                node,
+              })
             }
           }
         }
