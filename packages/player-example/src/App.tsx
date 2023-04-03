@@ -63,6 +63,8 @@ const ControlsOnly: React.FC<{
 	setOutFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	alwaysShowControls: boolean;
 	setAlwaysShowControls: React.Dispatch<React.SetStateAction<boolean>>;
+	showVolumeControls: boolean;
+	setShowVolumeControls: React.Dispatch<React.SetStateAction<boolean>>;
 	durationInFrames: number;
 }> = ({
 	playerRef: ref,
@@ -96,6 +98,8 @@ const ControlsOnly: React.FC<{
 	alwaysShowControls,
 	setAlwaysShowControls,
 	durationInFrames,
+	setShowVolumeControls,
+	showVolumeControls,
 }) => {
 	const [logs, setLogs] = useState<string[]>(() => []);
 
@@ -345,6 +349,9 @@ const ControlsOnly: React.FC<{
 			>
 				moveToBeginningWhenEnded = {String(moveToBeginningWhenEnded)}
 			</button>
+			<button type="button" onClick={() => setShowVolumeControls((l) => !l)}>
+				showVolumeControls = {String(showVolumeControls)}
+			</button>
 			<button type="button" onClick={() => setAlwaysShowControls((l) => !l)}>
 				alwaysShowControls = {String(alwaysShowControls)}
 			</button>
@@ -457,6 +464,7 @@ const PlayerOnly: React.FC<
 		inFrame: number | null;
 		outFrame: number | null;
 		alwaysShowControls: boolean;
+		showVolumeControls: boolean;
 	} & CompProps<any>
 > = ({
 	playerRef,
@@ -474,6 +482,7 @@ const PlayerOnly: React.FC<
 	inFrame,
 	outFrame,
 	alwaysShowControls,
+	showVolumeControls,
 	...props
 }) => {
 	const renderLoading: RenderLoading = useCallback(() => {
@@ -510,7 +519,7 @@ const PlayerOnly: React.FC<
 		<Player
 			ref={playerRef}
 			controls
-			showVolumeControls
+			showVolumeControls={showVolumeControls}
 			compositionWidth={500}
 			compositionHeight={432}
 			fps={fps}
@@ -559,6 +568,7 @@ export default ({
 	const [inFrame, setInFrame] = useState<number | null>(null);
 	const [outFrame, setOutFrame] = useState<number | null>(null);
 	const [alwaysShowControls, setAlwaysShowControls] = useState(false);
+	const [showVolumeControls, setShowVolumeControls] = useState(true);
 
 	const ref = useRef<PlayerRef>(null);
 
@@ -587,6 +597,7 @@ export default ({
 				showPosterWhenEnded={showPosterWhenEnded}
 				showPosterWhenPaused={showPosterWhenPaused}
 				showPosterWhenUnplayed={showPosterWhenUnplayed}
+				showVolumeControls={showVolumeControls}
 				inFrame={inFrame}
 				outFrame={outFrame}
 			/>
@@ -617,6 +628,8 @@ export default ({
 				showPosterWhenEnded={showPosterWhenEnded}
 				showPosterWhenPaused={showPosterWhenPaused}
 				alwaysShowControls={alwaysShowControls}
+				setShowVolumeControls={setShowVolumeControls}
+				showVolumeControls={showVolumeControls}
 				setInFrame={setInFrame}
 				setOutFrame={setOutFrame}
 				inFrame={inFrame}

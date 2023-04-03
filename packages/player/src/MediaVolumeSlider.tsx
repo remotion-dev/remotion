@@ -54,7 +54,7 @@ export const MediaVolumeSlider: React.FC<{
 			display: 'inline-flex',
 			background: 'none',
 			border: 'none',
-			padding: '6px',
+			padding: 6,
 			justifyContent: 'center',
 			alignItems: 'center',
 			touchAction: 'none',
