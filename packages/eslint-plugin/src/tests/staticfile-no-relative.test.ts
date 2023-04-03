@@ -21,6 +21,15 @@ export const Re = () => {
   );
 }
           `,
+    `
+import {Img, staticFile} from 'remotion';
+
+export const LeadingSlash = () => {
+  return (
+    <Img src={staticFile("/image.png")} />
+  );
+}
+          `,
   ],
   invalid: [
     {
@@ -32,6 +41,42 @@ staticFile("./relative.png")
       errors: [
         {
           messageId: "RelativePathStaticFile",
+        },
+      ],
+    },
+    {
+      code: `
+import {staticFile} from 'remotion';
+
+staticFile("./public/relative.png")
+      `,
+      errors: [
+        {
+          messageId: "RelativePathStaticFile",
+        },
+      ],
+    },
+    {
+      code: `
+import {staticFile} from 'remotion';
+
+staticFile("public/relative.png")
+      `,
+      errors: [
+        {
+          messageId: "PublicStaticFile",
+        },
+      ],
+    },
+    {
+      code: `
+import {staticFile} from 'remotion';
+
+staticFile("/Users/jonathanburger/remotion/packages/eslint-plugin")
+      `,
+      errors: [
+        {
+          messageId: "AbsoluteStaticFile",
         },
       ],
     },

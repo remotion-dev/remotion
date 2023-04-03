@@ -24,6 +24,20 @@ import { staticFile } from "remotion";
 staticFile("./image.png");
 ```
 
+Or you tried to pass an absolute path:
+
+```tsx twoslash title="❌ File should not use absolute paths"
+import { staticFile } from "remotion";
+staticFile("/Users/bob/remotion-project/public/image.png");
+```
+
+Or you tried to add a public/ fix which is unnecessary:
+
+```tsx twoslash title="❌ File should not include the public/ prefix"
+import { staticFile } from "remotion";
+staticFile("public/image.png");
+```
+
 Instead, pass the name of the file that is inside the public folder directly:
 
 ```tsx twoslash title="✅ Filename"
