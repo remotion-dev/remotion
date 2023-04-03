@@ -35,14 +35,10 @@ import {reduceInstructions} from './reduce-instructions';
  *   - the path end becomes Z iff it was there to begin with.
  */
 function reverseNormalizedPath(instructions: Instruction[]) {
-	let term;
-	const tlen = instructions.length;
-	let t;
 	const reversed: unknown[] = [];
-	const closed = instructions[instructions.length - 1].type === 'Z';
 
-	for (t = 0; t < tlen; t++) {
-		term = instructions[t];
+	for (let t = 0; t < instructions.length; t++) {
+		const term = instructions[t];
 
 		if (term.type === 'A') {
 			reversed.push(term.sweepFlag ? '0' : '1');
@@ -50,55 +46,42 @@ function reverseNormalizedPath(instructions: Instruction[]) {
 			reversed.push(term.xAxisRotation);
 			reversed.push(term.ry);
 			reversed.push(term.rx);
-			reversed.push('A');
-			reversed.push(term.y);
-			reversed.push(term.x);
-			t += 7;
-			continue;
 		}
 
 		// how many coordinate pairs do we need to read,
 		// and by how many pairs should this operator be
 		// shifted left?
 		else if (term.type === 'C') {
-			reversed.push(term.cp1y);
-			reversed.push(term.cp1x);
-			reversed.push(term.cp2y);
-			reversed.push(term.cp2x);
-			reversed.push('C');
-			reversed.push(term.y);
-			reversed.push(term.x);
+			reversed.unshift(term.cp1y);
+			reversed.unshift(term.cp1x);
+			reversed.unshift(term.cp2y);
+			reversed.unshift(term.cp2x);
 		} else if (term.type === 'Q') {
-			reversed.push(term.cpy);
-			reversed.push(term.cpx);
-			reversed.push('Q');
-			reversed.push(term.y);
-			reversed.push(term.x);
+			reversed.unshift(term.cpy);
+			reversed.unshift(term.cpx);
 		} else if (term.type === 'L') {
-			reversed.push('L');
-			reversed.push(term.y);
-			reversed.push(term.x);
+			// Do nothing
 		} else if (term.type === 'M') {
-			reversed.push('M');
-			reversed.push(term.y);
-			reversed.push(term.x);
+			// Do nothing
 		} else {
-			continue;
+			throw new Error('unnormalized instruction ' + term.type);
 		}
+
+		reversed.unshift(term.type);
+		reversed.unshift(term.y);
+		reversed.unshift(term.x);
 	}
 
-	reversed.push('M');
+	reversed.unshift('M');
 
 	// generating the reversed path string involves
 	// running through our transformed terms in reverse.
 	let revstring = '';
-	const rlen1 = reversed.length - 1;
-	let r;
-	for (r = rlen1; r > 0; r--) {
+	for (let r = 0; r < reversed.length - 1; r++) {
 		revstring += reversed[r] + ' ';
 	}
 
-	if (closed) revstring += 'Z';
+	if (instructions[instructions.length - 1].type === 'Z') revstring += 'Z';
 	revstring = revstring.replace(/M M/g, 'Z M');
 
 	return revstring;
