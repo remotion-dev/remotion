@@ -17,9 +17,9 @@ import {resolveProjectRoot} from './resolve-project-root';
 import {selectTemplate} from './select-template';
 import {yesOrNo} from './yesno';
 
-const gitExists = (commandToCheck: string) => {
+const gitExists = (commandToCheck: string, argsToCheck: string[]) => {
 	try {
-		execa.sync(commandToCheck);
+		execa.sync(commandToCheck, argsToCheck);
 		return true;
 	} catch (err) {
 		return false;
@@ -28,13 +28,14 @@ const gitExists = (commandToCheck: string) => {
 
 export const checkGitAvailability = async (
 	cwd: string,
-	commandToCheck: string
+	commandToCheck: string,
+	argsToCheck: string[]
 ): Promise<
 	| {type: 'no-git-repo'}
 	| {type: 'is-git-repo'; location: string}
 	| {type: 'git-not-installed'}
 > => {
-	if (!gitExists(commandToCheck)) {
+	if (!gitExists(commandToCheck, argsToCheck)) {
 		return {type: 'git-not-installed'};
 	}
 
