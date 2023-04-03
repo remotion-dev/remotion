@@ -64,6 +64,7 @@ export type PlayerProps<T> = {
 	renderPlayPauseButton?: RenderPlayPauseButton;
 	renderFullscreenButton?: RenderFullscreenButton;
 	alwaysShowControls?: boolean;
+	initiallyMuted?: boolean;
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -110,6 +111,7 @@ const PlayerFn = <T,>(
 		renderFullscreenButton,
 		renderPlayPauseButton,
 		alwaysShowControls = false,
+		initiallyMuted = false,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -323,6 +325,7 @@ const PlayerFn = <T,>(
 				fps={fps}
 				inputProps={inputProps}
 				numberOfSharedAudioTags={numberOfSharedAudioTags}
+				initiallyMuted={initiallyMuted}
 			>
 				<Internals.Timeline.SetTimelineContext.Provider
 					value={setTimelineContextValue}
