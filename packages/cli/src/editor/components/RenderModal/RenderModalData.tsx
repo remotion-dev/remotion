@@ -34,7 +34,7 @@ export const RenderModalData: React.FC<{
 	showSaveButton: boolean;
 }> = ({composition, inputProps, setInputProps, compact, showSaveButton}) => {
 	const [mode, setMode] = useState<Mode>('schema');
-
+	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
 	const zodValidationResult = useMemo(() => {
 		return composition.schema.safeParse(inputProps);
 	}, [composition.schema, inputProps]);
@@ -65,6 +65,7 @@ export const RenderModalData: React.FC<{
 	}, []);
 
 	const onUpdate = useCallback(() => {
+		setValBeforeSafe(inputProps);
 		updateDefaultProps(composition.id, inputProps);
 	}, [composition.id, inputProps]);
 
@@ -98,6 +99,7 @@ export const RenderModalData: React.FC<{
 					zodValidationResult={zodValidationResult}
 					switchToSchema={switchToSchema}
 					onSave={onUpdate}
+					valBeforeSafe={valBeforeSafe}
 				/>
 			)}
 		</div>
