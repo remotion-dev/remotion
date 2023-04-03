@@ -10,11 +10,8 @@ We recommend the following structure for your Dockerfile. Read below about the i
 ```docker title="Dockerfile"
 FROM debian:bookworm
 
-# Install necessary packages
-# RUN echo "deb http://deb.debian.org/debian bookworm main contrib non-free" > /etc/apt/sources.list
-
 RUN apt-get update
-RUN apt-get install -y nodejs npm ffmpeg chromium
+RUN apt-get install -y nodejs="18.13.0+dfsg1-1" npm="9.2.0~ds1-1" ffmpeg="7:5.1.2-3" chromium="111.0.5563.110-1"
 
 # Copy everything from your project to the Docker image. Adjust if needed.
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* tsconfig.json* remotion.config.* ./
@@ -36,14 +33,18 @@ CMD ["node", "render.mjs"]
 [Click here](#example-render-script) to see an example for a `render.mjs` script you can use.
 :::
 
+:::note
+This Dockerfile is unable to render WebGL content. Suggestions on how to improve the Dockerfile to support it are welcomed.
+:::
+
 ## Line-by-line
 
 <p>
-<Step>1</Step> Specify the base image for the Dockerfile. In this case, it is using the latest version of Debian called 'bookworm'.
+<Step>1</Step> Specify the base image for the Dockerfile. In this case, we use Debian. It is recommended to pin the version to prevent unexpected changes in the future,
 </p>
 
 ```docker
-FROM debian:bookworm
+FROM debian:bookworm-20230320-slim
 ```
 
 <p>
@@ -55,11 +56,11 @@ RUN apt-get update
 ```
 
 <p>
-<Step>3</Step> Download Remotion's dependencies: Node.JS, NPM, FFmpeg, Chromium
+<Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM), FFmpeg and Chromium. We pin the versions to minimize chance of future breakage.
 </p>
 
 ```docker
-RUN apt-get install -y nodejs npm ffmpeg chromium
+RUN apt-get install -y nodejs="18.13.0+dfsg1-1" npm="9.2.0~ds1-1" ffmpeg="7:5.1.2-3" chromium="111.0.5563.110-1"
 ```
 
 <p>
@@ -159,3 +160,7 @@ Use the following command to run the image:
 ```sh
 docker run remotion-app
 ```
+
+## Changelog
+
+**April 3rd, 2023**: Changed the Alpine Docker image to a Debian one, since the versions of Alpine packages cannot be pinned. This makes the Debian one less likely to break.
