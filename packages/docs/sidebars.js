@@ -444,7 +444,7 @@ module.exports = {
           items: [
             "lambda/without-iam/index",
             "lambda/without-iam/example",
-            "lambda/without-iam/sts",
+            "lambda/without-iam/ec2",
           ],
         },
         "lambda/serverless-framework-integration",
