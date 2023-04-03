@@ -4,6 +4,7 @@ id: docker
 title: Dockerizing a Remotion app
 crumb: "Building video apps"
 ---
+
 We recommend the following structure for your Dockerfile. Read below about the individual steps and whether you need to adjust them.
 
 ```docker title="Dockerfile"
@@ -18,13 +19,12 @@ RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd6
 RUN apt-get install -y ./google-chrome-stable_current_amd64.deb
 RUN apt-get install -y nodejs npm ffmpeg
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV CHROME_EXECUTABLE_PATH="/usr/bin/google-chrome-stable"
 
-# Copy everything from your project to the docker image. Adjust if needed.
+# Copy everything from your project to the Docker image. Adjust if needed.
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* tsconfig.json* remotion.config.* ./
 COPY src ./src
-COPY public ./public
+COPY public* ./
 
 # Install the right package manager and dependencies - see below for Yarn/PNPM
 RUN npm i
@@ -33,6 +33,10 @@ RUN npm i
 COPY render.mjs render.mjs
 CMD ["node", "render.mjs"]
 ```
+
+:::note
+[Click here](#example-render-script) to see an example for a `render.mjs` script you can use.
+:::
 
 ## Line-by-line
 
@@ -86,16 +90,7 @@ RUN apt-get install -y nodejs npm ffmpeg
 ```
 
 <p>
-<Step>7</Step> An environment variable named PUPPETEER_SKIP_CHROMIUM_DOWNLOAD is established with a value of true, which stops Puppeteer from downloading a separate instance of Chromium. Additionally, an environment variable named CHROME_EXECUTABLE_PATH is defined with the path of the installed Google Chrome in the Docker container.
-</p>
-
-```docker
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV CHROME_EXECUTABLE_PATH="/usr/bin/google-chrome-stable"
-```
-
-<p>
-<Step>8</Step> Copy the files from your project. If you have additional source files, add them here. If some files do not exist, remove them.
+<Step>7</Step> Copy the files from your project. If you have additional source files, add them here. If some files do not exist, remove them.
 The COPY syntax allows multiple files, but at least one file must exist. It is assumed package.json, src and public exist in your project, but you can adjust this to your needs.
 </p>
 
@@ -106,7 +101,7 @@ COPY public ./public
 ```
 
 <p>
-<Step>9</Step> Install the right package manager and dependencies. 
+<Step>8</Step> Install the right package manager and dependencies. 
 </p>
 
 - If you use NPM, put the following in your Dockerfile:
@@ -126,14 +121,13 @@ COPY public ./public
   RUN corepack enable
   RUN yarn
   ```
-</p>
 
 ```docker
 RUN npm i
 ```
 
 <p>
-<Step>10</Step> Run your code. It can be a CLI command or a Node.JS app.
+<Step>9</Step> Run your code. It can be a CLI command or a Node.JS app.
 </p>
 
 ```docker
@@ -141,7 +135,7 @@ COPY render.mjs render.mjs
 CMD ["node", "render.mjs"]
 ```
 
-Example script:
+## Example render script
 
 ```js title="render.mjs"
 import { bundle } from "@remotion/bundler";
