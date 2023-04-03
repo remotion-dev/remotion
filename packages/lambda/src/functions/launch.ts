@@ -285,7 +285,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	console.log(
 		'Render plan: ',
-		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0] - c[1]})`).join(', ')
+		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', ')
 	);
 
 	const renderMetadata: RenderMetadata = {
