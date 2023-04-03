@@ -18,12 +18,12 @@ const RelativePathStaticFile = [
 
 const AbsoluteStaticFile = [
   "Do not pass an absolute path to staticFile().",
-  "See: https://remotion.dev/docs/upcoming-docs-for-absolute-paths",
+  "See: https://remotion.dev/docs/staticfile-relative-paths",
 ].join("");
 
 const PublicStaticFile = [
   "Do not pass a public/ path to staticFile().",
-  "See: https://remotion.dev/docs/upcoming-docs-for-public-paths",
+  "See: https://remotion.dev/docs/staticfile-relative-paths",
 ].join("");
 
 export default createRule<Options, MessageIds>({
