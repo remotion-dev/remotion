@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-lambda-ec2.png
 title: Authenticating Lambda with EC2
-slug: /lambda/sts
+slug: /lambda/ec2
 sidebar_label: With EC2 + STS
 crumb: "@remotion/lambda"
 ---
