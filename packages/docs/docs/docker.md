@@ -161,7 +161,7 @@ await renderMedia({
   serveUrl: bundled,
   outputLocation: `out/${composition.id}.mp4`,
 });
-console.log(`Rendering composition ${composition.id}...`);
+console.log(`Rendered composition ${composition.id}.`);
 ```
 
 ## Building a docker image
