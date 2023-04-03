@@ -22,7 +22,7 @@ const AbsoluteStaticFile = [
 ].join("");
 
 const PublicStaticFile = [
-  "Do not pass a public/ path to staticFile().",
+  "Do not prefix your assets with public/.",
   "See: https://remotion.dev/docs/staticfile-relative-paths",
 ].join("");
 
