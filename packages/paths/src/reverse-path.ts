@@ -5,7 +5,11 @@
  * not recognise the public domain, where this code is MIT licensed.
  */
 
-import {normalizePath} from './normalize-path';
+import {getSubpaths} from './get-subpaths';
+import {normalizeInstructions} from './normalize-path';
+import {parsePath} from './parse-path';
+import {reduceInstructions} from './reduce-instructions';
+import {serializeInstructions} from './serialize-instructions';
 
 /**
  * Normalise an SVG path to absolute coordinates
@@ -142,11 +146,14 @@ function reverseNormalizedPath(normalized: string) {
  * @see [Documentation](https://remotion.dev/docs/paths/reverse-path)
  */
 export const reversePath = (path: string) => {
-	const normalizedPath = normalizePath(path);
-	const paths = normalizedPath.replace(/M/g, '|M').split('|');
-	paths.splice(0, 1);
+	const parsed = parsePath(path);
+	const normalized = normalizeInstructions(parsed);
+	const reduced = reduceInstructions(normalized);
+	const serialized = serializeInstructions(reduced);
 
-	return paths
+	const subPaths = getSubpaths(serialized);
+
+	return subPaths
 		.map((spath) => {
 			return reverseNormalizedPath(spath.trim());
 		})
