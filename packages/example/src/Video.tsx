@@ -39,7 +39,7 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
-import {WarpDemo} from './WarpText';
+import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 
 if (alias !== 'alias') {
@@ -564,7 +564,7 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="path-warp"
-					component={WarpDemo}
+					component={WarpDemoOuter}
 					durationInFrames={500}
 					fps={30}
 					height={1080}

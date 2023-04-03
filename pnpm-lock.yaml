@@ -499,6 +499,7 @@ importers:
       '@remotion/lambda': workspace:*
       '@remotion/lottie': workspace:*
       '@remotion/media-utils': workspace:*
+      '@remotion/motion-blur': workspace:*
       '@remotion/paths': workspace:*
       '@remotion/renderer': workspace:*
       '@remotion/rive': workspace:*
@@ -549,6 +550,7 @@ importers:
       '@remotion/lambda': link:../lambda
       '@remotion/lottie': link:../lottie
       '@remotion/media-utils': link:../media-utils
+      '@remotion/motion-blur': link:../motion-blur
       '@remotion/paths': link:../paths
       '@remotion/renderer': link:../renderer
       '@remotion/rive': link:../rive
