@@ -69,7 +69,6 @@ export const InputDragger: React.FC<Props> = ({
 	}, []);
 
 	const onBlur = useCallback(() => {
-		console.log(fallbackRef.current);
 		if (!fallbackRef.current) {
 			return;
 		}
@@ -80,7 +79,6 @@ export const InputDragger: React.FC<Props> = ({
 			return;
 		}
 
-		console.log(fallbackRef.current.checkValidity());
 		if (fallbackRef.current.checkValidity()) {
 			onTextChange?.(newValue);
 			setInputFallback(false);
