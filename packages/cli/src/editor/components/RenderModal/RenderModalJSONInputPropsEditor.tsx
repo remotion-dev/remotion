@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import type {z} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {Row, Spacing} from '../layout';
@@ -57,7 +57,15 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
 	switchToSchema: () => void;
 	onSave: () => void;
-}> = ({setValue, value, zodValidationResult, switchToSchema, onSave}) => {
+	valBeforeSafe: unknown;
+}> = ({
+	setValue,
+	value,
+	zodValidationResult,
+	switchToSchema,
+	onSave,
+	valBeforeSafe,
+}) => {
 	const [localValue, setLocalValue] = React.useState<State>(() => {
 		return parseJSON(serializeJSONWithDate(value, 2));
 	});
@@ -74,6 +82,7 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
 		(e) => {
 			const parsed = parseJSON(e.target.value);
+
 			if (parsed.validJSON) {
 				setLocalValue({
 					str: e.target.value,
@@ -95,7 +104,10 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 		[setValue]
 	);
 
-	// TODO: Don't show save button if no changes have been made
+	const hasChanged = useMemo(() => {
+		return value && JSON.stringify(value) !== JSON.stringify(valBeforeSafe);
+	}, [valBeforeSafe, value]);
+
 	// TODO: Indicate saving progress
 	return (
 		<div style={scrollable}>
@@ -127,7 +139,13 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 					Format JSON
 				</Button>
 				<Spacing x={1} />
-				<Button onClick={onSave} disabled={!zodValidationResult.success}>
+				<Button
+					onClick={() => {
+						onSave();
+						setHasChanged(false);
+					}}
+					disabled={!zodValidationResult.success || !hasChanged}
+				>
 					Save
 				</Button>
 			</Row>
