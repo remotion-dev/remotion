@@ -18,11 +18,6 @@ import {
 } from '../state/editor-zoom-gestures';
 import {FolderContextProvider} from '../state/folders';
 import {HighestZIndexProvider} from '../state/highest-z-index';
-import type {
-	SetTimelineInOutContextValue,
-	TimelineInOutContextValue,
-} from '../state/in-out';
-import {SetTimelineInOutContext, TimelineInOutContext} from '../state/in-out';
 import {KeybindingContextProvider} from '../state/keybindings';
 import type {ModalContextType, ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
@@ -31,28 +26,13 @@ import {PreviewSizeProvider} from '../state/preview-size';
 
 import {SidebarContextProvider} from '../state/sidebar';
 import {RenderQueueContextProvider} from './RenderQueue/context';
+import {SetTimelineInOutProvider} from './SetTimelineInOutProvider';
 
 export const EditorContexts: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const [inAndOutFrames, setInAndOutFrames] =
-		useState<TimelineInOutContextValue>({
-			inFrame: null,
-			outFrame: null,
-		});
-
-	const timelineInOutContextValue = useMemo((): TimelineInOutContextValue => {
-		return inAndOutFrames;
-	}, [inAndOutFrames]);
-
 	const [emitter] = useState(() => new PlayerInternals.PlayerEmitter());
 
-	const setTimelineInOutContextValue =
-		useMemo((): SetTimelineInOutContextValue => {
-			return {
-				setInAndOutFrames,
-			};
-		}, []);
 	const [checkerboard, setCheckerboardState] = useState(() =>
 		loadCheckerboardOption()
 	);
@@ -140,15 +120,9 @@ export const EditorContexts: React.FC<{
 												<SidebarContextProvider>
 													<FolderContextProvider>
 														<HighestZIndexProvider>
-															<TimelineInOutContext.Provider
-																value={timelineInOutContextValue}
-															>
-																<SetTimelineInOutContext.Provider
-																	value={setTimelineInOutContextValue}
-																>
-																	{children}
-																</SetTimelineInOutContext.Provider>
-															</TimelineInOutContext.Provider>
+															<SetTimelineInOutProvider>
+																{children}
+															</SetTimelineInOutProvider>
 														</HighestZIndexProvider>
 													</FolderContextProvider>
 												</SidebarContextProvider>
