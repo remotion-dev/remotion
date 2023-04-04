@@ -210,7 +210,7 @@ export const concatVideosS3 = async ({
 	});
 	combine.end();
 
-	const cleanupChunksProm = (fs.promises.rm ?? fs.promises.rmdir)(outdir, {
+	const cleanupChunksProm = fs.promises.rm(outdir, {
 		recursive: true,
 	});
 	return {outfile, cleanupChunksProm};

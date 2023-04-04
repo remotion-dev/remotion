@@ -159,7 +159,7 @@ test("Should render a still image if single frame specified", async () => {
   const info = await RenderInternals.callFf("ffprobe", [outImg]);
   const data = info.stderr;
   expect(data).toContain("Video: png");
-  await (fs.promises.rm ?? fs.promises.rmdir)(outDir, {
+  await fs.promises.rm(outDir, {
     recursive: true,
   });
 });
