@@ -48,6 +48,7 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 		);
 	}, [setSidebarCollapsedStateLeft]);
 
+	// TODO: Don't have "responsive state for right sidebar"
 	const toggleRight = useCallback(() => {
 		setSidebarCollapsedStateRight((s) =>
 			s === 'collapsed' ? 'expanded' : 'collapsed'
