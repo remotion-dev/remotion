@@ -1,14 +1,14 @@
 ---
 image: /generated/articles-docs-lambda-without-iam-example.png
 title: Example setup without IAM user
-sidebar_label: Example
-crumb: "Lambda without IAM"
+sidebar_label: IAM roles example
+crumb: "IAM Roles Example"
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-This is a write up of how to use the [example](https://github.com/alexfernandez803/example-lambda) for the technique described under ["Using Lambda without an IAM user"](/docs/lambda/without-iam).
+This is a write up of how to use the [example](https://github.com/alexfernandez803/example-lambda) for the technique described under ["Using Lambda without IAM roles"](/docs/lambda/without-iam).
 
 ## Prequisites
 

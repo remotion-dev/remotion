@@ -443,7 +443,11 @@ module.exports = {
             type: "doc",
             id: "lambda/without-iam/index",
           },
-          items: ["lambda/without-iam/index", "lambda/without-iam/example"],
+          items: [
+            "lambda/without-iam/index",
+            "lambda/without-iam/example",
+            "lambda/without-iam/ec2",
+          ],
         },
         "lambda/serverless-framework-integration",
         "lambda/sqs",

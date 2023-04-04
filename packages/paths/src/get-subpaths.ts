@@ -1,4 +1,5 @@
-import {construct} from './helpers/construct';
+import {constructFromInstructions} from './helpers/construct';
+import {parsePath} from './parse-path';
 import {serializeInstructions} from './serialize-instructions';
 
 /**
@@ -7,7 +8,8 @@ import {serializeInstructions} from './serialize-instructions';
  * @see [Documentation](https://remotion.dev/docs/paths/get-subpaths)
  */
 export const getSubpaths = (path: string): string[] => {
-	const {segments} = construct(path);
+	const parsed = parsePath(path);
+	const {segments} = constructFromInstructions(parsed);
 
 	return segments.map((seg) => {
 		return serializeInstructions(seg);
