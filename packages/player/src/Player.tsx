@@ -66,6 +66,7 @@ export type PlayerProps<Schema extends z.ZodTypeAny, Props> = {
 	renderFullscreenButton?: RenderFullscreenButton;
 	alwaysShowControls?: boolean;
 	schema?: Schema;
+	initiallyMuted?: boolean;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -112,6 +113,7 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 		renderFullscreenButton,
 		renderPlayPauseButton,
 		alwaysShowControls = false,
+		initiallyMuted = false,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>
@@ -325,6 +327,7 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 				fps={fps}
 				inputProps={inputProps}
 				numberOfSharedAudioTags={numberOfSharedAudioTags}
+				initiallyMuted={initiallyMuted}
 			>
 				<Internals.Timeline.SetTimelineContext.Provider
 					value={setTimelineContextValue}

@@ -6,12 +6,25 @@ const createRule = ESLintUtils.RuleCreator(() => {
 
 type Options = [];
 
-type MessageIds = "RelativePathStaticFile";
+type MessageIds =
+  | "RelativePathStaticFile"
+  | "AbsoluteStaticFile"
+  | "PublicStaticFile";
 
 const RelativePathStaticFile = [
   "Don't pass a relative path to staticFile().",
   "See: https://remotion.dev/docs/staticfile-relative-paths",
 ].join("\n");
+
+const AbsoluteStaticFile = [
+  "Do not pass an absolute path to staticFile().",
+  "See: https://remotion.dev/docs/staticfile-relative-paths",
+].join("");
+
+const PublicStaticFile = [
+  "Do not prefix your assets with public/.",
+  "See: https://remotion.dev/docs/staticfile-relative-paths",
+].join("");
 
 export default createRule<Options, MessageIds>({
   name: "staticfile-no-relative",
@@ -25,8 +38,11 @@ export default createRule<Options, MessageIds>({
     schema: [],
     messages: {
       RelativePathStaticFile: RelativePathStaticFile,
+      PublicStaticFile: PublicStaticFile,
+      AbsoluteStaticFile: AbsoluteStaticFile,
     },
   },
+
   defaultOptions: [],
   create: (context) => {
     return {
@@ -63,6 +79,30 @@ export default createRule<Options, MessageIds>({
             if (value.startsWith("../")) {
               context.report({
                 messageId: "RelativePathStaticFile",
+                node,
+              });
+            }
+
+            if (value.startsWith("public/")) {
+              context.report({
+                messageId: "PublicStaticFile",
+                node,
+              });
+            }
+
+            if (
+              value.startsWith("/Users") ||
+              value.startsWith("/home") ||
+              value.startsWith("/tmp") ||
+              value.startsWith("/etc") ||
+              value.startsWith("/opt") ||
+              value.startsWith("/var") ||
+              value.startsWith("C:") ||
+              value.startsWith("D:") ||
+              value.startsWith("E:")
+            ) {
+              context.report({
+                messageId: "AbsoluteStaticFile",
                 node,
               });
             }

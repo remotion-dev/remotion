@@ -15,6 +15,7 @@ const getSearchPathsForProduct = (product: Product) => {
 				: null,
 			process.platform === 'linux' ? '/usr/bin/google-chrome' : null,
 			process.platform === 'linux' ? '/usr/bin/chromium-browser' : null,
+			process.platform === 'linux' ? '/usr/bin/chromium' : null, // Debian
 			process.platform === 'linux'
 				? '/app/.apt/usr/bin/google-chrome-stable'
 				: null,

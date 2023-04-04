@@ -1,6 +1,5 @@
 import chalk from 'chalk';
 import execa from 'execa';
-import os from 'os';
 import {createYarnYmlFile} from './add-yarn2-support';
 import {degit} from './degit';
 import {getLatestRemotionVersion} from './latest-remotion-version';
@@ -18,11 +17,9 @@ import {resolveProjectRoot} from './resolve-project-root';
 import {selectTemplate} from './select-template';
 import {yesOrNo} from './yesno';
 
-const binaryExists = (name: string) => {
-	const isWin = os.platform() === 'win32';
-	const where = isWin ? 'where' : 'which';
+const gitExists = (commandToCheck: string, argsToCheck: string[]) => {
 	try {
-		execa.sync(where, [name]);
+		execa.sync(commandToCheck, argsToCheck);
 		return true;
 	} catch (err) {
 		return false;
@@ -31,18 +28,19 @@ const binaryExists = (name: string) => {
 
 export const checkGitAvailability = async (
 	cwd: string,
-	command: string
+	commandToCheck: string,
+	argsToCheck: string[]
 ): Promise<
 	| {type: 'no-git-repo'}
 	| {type: 'is-git-repo'; location: string}
 	| {type: 'git-not-installed'}
 > => {
-	if (!binaryExists(command)) {
+	if (!gitExists(commandToCheck, argsToCheck)) {
 		return {type: 'git-not-installed'};
 	}
 
 	try {
-		const result = await execa(command, ['rev-parse', '--show-toplevel'], {
+		const result = await execa('git', ['rev-parse', '--show-toplevel'], {
 			cwd,
 		});
 		return {type: 'is-git-repo', location: result.stdout};
@@ -74,7 +72,9 @@ const getGitStatus = async (root: string): Promise<void> => {
 };
 
 export const init = async () => {
-	const result = await checkGitAvailability(process.cwd(), 'git');
+	const result = await checkGitAvailability(process.cwd(), 'git', [
+		'--version',
+	]);
 	if (result.type === 'git-not-installed') {
 		Log.error(
 			'Git is not installed or not in the path. Install Git to continue.'
