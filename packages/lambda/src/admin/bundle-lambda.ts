@@ -13,7 +13,7 @@ const bundleLambda = async () => {
 	});
 	const outfile = path.join(outdir, 'index.js');
 
-	(fs.rmSync ?? fs.rmdirSync)(outdir, {recursive: true});
+	fs.rmSync(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
 	const template = require.resolve(
 		path.join(__dirname, '..', 'functions', 'index')
