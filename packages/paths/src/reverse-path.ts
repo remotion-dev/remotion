@@ -57,12 +57,16 @@ function reverseNormalizedPath(instructions: Instruction[]) {
 			// Do nothing
 		} else if (term.type === 'M') {
 			// Do nothing
+		} else if (term.type === 'Z') {
+			// Do nothing
 		} else {
 			throw new Error('unnormalized instruction ' + term.type);
 		}
 
-		nextX = term.x;
-		nextY = term.y;
+		if (term.type !== 'Z') {
+			nextX = term.x;
+			nextY = term.y;
+		}
 	}
 
 	reversed.unshift({
