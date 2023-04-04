@@ -6,11 +6,10 @@ import React, {
 	useRef,
 } from 'react';
 import {continueRender, delayRender} from './delay-render.js';
-import {useRemotionEnvironment} from './get-environment.js';
 import {usePreload} from './prefetch.js';
 
 function exponentialBackoff(errorCount: number): number {
-	return 1000 * 2 ** errorCount;
+	return 1000 * 2 ** (errorCount - 1);
 }
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
@@ -24,8 +23,6 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 > = ({onError, maxRetries = 2, src, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
-
-	const environment = useRemotionEnvironment();
 
 	useImperativeHandle(
 		ref,
@@ -66,14 +63,22 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			errors.current[actualSrc] = (errors.current[actualSrc] ?? 0) + 1;
-			if (onError && (errors.current[actualSrc] ?? 0) > maxRetries) {
+			errors.current[imageRef.current?.src as string] =
+				(errors.current[imageRef.current?.src as string] ?? 0) + 1;
+			if (
+				onError &&
+				(errors.current[imageRef.current?.src as string] ?? 0) > maxRetries
+			) {
 				onError(e);
 				return;
 			}
 
-			if ((errors.current[actualSrc] ?? 0) <= maxRetries) {
-				const backoff = exponentialBackoff(errors.current[actualSrc] ?? 0);
+			if (
+				(errors.current[imageRef.current?.src as string] ?? 0) <= maxRetries
+			) {
+				const backoff = exponentialBackoff(
+					errors.current[imageRef.current?.src as string] ?? 0
+				);
 				console.warn(
 					`Could not load image with source ${
 						imageRef.current?.src as string
@@ -91,42 +96,44 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				'Handle the event using the onError() prop to make this message disappear.'
 			);
 		},
-		[actualSrc, maxRetries, onError, retryIn]
+		[maxRetries, onError, retryIn]
 	);
 
-	// If image source switches, make new handle
-	if (environment === 'rendering') {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		useLayoutEffect(() => {
-			if (process.env.NODE_ENV === 'test') {
-				return;
+	useLayoutEffect(() => {
+		if (process.env.NODE_ENV === 'test') {
+			return;
+		}
+
+		const newHandle = delayRender('Loading <Img> with src=' + src);
+		const {current} = imageRef;
+
+		const onComplete = () => {
+			if ((errors.current[imageRef.current?.src as string] ?? 0) > 0) {
+				delete errors.current[imageRef.current?.src as string];
+				console.info(
+					`Retry successful - ${imageRef.current?.src as string} is now loaded`
+				);
 			}
 
-			const newHandle = delayRender('Loading <Img> with src=' + src);
-			const {current} = imageRef;
+			continueRender(newHandle);
+		};
 
-			const didLoad = () => {
-				if ((errors.current[actualSrc] ?? 0) > 0) {
-					delete errors.current[actualSrc];
-					console.info(`Retry successful - ${actualSrc} was loaded`);
-				}
+		const didLoad = () => {
+			onComplete();
+		};
 
-				continueRender(newHandle);
-			};
+		if (current?.complete) {
+			onComplete();
+		} else {
+			current?.addEventListener('load', didLoad, {once: true});
+		}
 
-			if (current?.complete) {
-				continueRender(newHandle);
-			} else {
-				current?.addEventListener('load', didLoad, {once: true});
-			}
-
-			// If tag gets unmounted, clear pending handles because image is not going to load
-			return () => {
-				current?.removeEventListener('load', didLoad);
-				continueRender(newHandle);
-			};
-		}, [src]);
-	}
+		// If tag gets unmounted, clear pending handles because image is not going to load
+		return () => {
+			current?.removeEventListener('load', didLoad);
+			continueRender(newHandle);
+		};
+	}, [src]);
 
 	return (
 		<img {...props} ref={imageRef} src={actualSrc} onError={didGetError} />
