@@ -85,15 +85,29 @@ export const useElementSize = (
 			return;
 		}
 
-		setSize({
-			width: rect[0].width as number,
-			height: rect[0].height as number,
-			left: rect[0].x as number,
-			top: rect[0].y as number,
-			windowSize: {
-				height: window.innerHeight,
-				width: window.innerWidth,
-			},
+		setSize((prevState) => {
+			const isSame =
+				prevState &&
+				prevState.width === rect[0].width &&
+				prevState.height === rect[0].height &&
+				prevState.left === rect[0].x &&
+				prevState.top === rect[0].y &&
+				prevState.windowSize.height === window.innerHeight &&
+				prevState.windowSize.width === window.innerWidth;
+			if (isSame) {
+				return prevState;
+			}
+
+			return {
+				width: rect[0].width as number,
+				height: rect[0].height as number,
+				left: rect[0].x as number,
+				top: rect[0].y as number,
+				windowSize: {
+					height: window.innerHeight,
+					width: window.innerWidth,
+				},
+			};
 		});
 	}, [ref]);
 
