@@ -22,7 +22,14 @@ test('Should be able to reverse a path with 2 M statements', () => {
 	const reversedPath = reversePath(`
   M 0 0 L 100 0
   M 0 0 L 200 100
-
 	`);
 	expect(reversedPath).toEqual('M 100 0 L 0 0 M 200 100 L 0 0');
+});
+
+test('Should be able to reverse a path with Z', () => {
+	const reversedPath = reversePath(`
+  M 0 0 L 100 0
+  M 0 0 L 200 100 Z
+	`);
+	expect(reversedPath).toEqual('M 100 0 L 0 0 M 200 100 L 0 0Z');
 });
