@@ -1,6 +1,6 @@
 // Combine multiple video chunks, useful for decentralized rendering
 
-import {rmdirSync, rmSync, writeFileSync} from 'fs';
+import {rmSync, writeFileSync} from 'fs';
 import {join} from 'path';
 import type {AudioCodec} from './audio-codec';
 import {
@@ -89,9 +89,9 @@ export const combineVideos = async (options: Options) => {
 
 		await task;
 		onProgress(numberOfFrames);
-		(rmSync ?? rmdirSync)(filelistDir, {recursive: true});
+		rmSync(filelistDir, {recursive: true});
 	} catch (err) {
-		(rmSync ?? rmdirSync)(filelistDir, {recursive: true});
+		rmSync(filelistDir, {recursive: true});
 		throw err;
 	}
 };

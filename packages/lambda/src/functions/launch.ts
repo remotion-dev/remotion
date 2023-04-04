@@ -1,6 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
-import fs, {existsSync, mkdirSync, rmdirSync, rmSync} from 'fs';
+import fs, {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
@@ -449,7 +449,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 	if (existsSync(outdir)) {
-		(rmSync ?? rmdirSync)(outdir, {
+		rmSync(outdir, {
 			recursive: true,
 		});
 	}
