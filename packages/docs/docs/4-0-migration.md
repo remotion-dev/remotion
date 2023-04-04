@@ -91,3 +91,7 @@ const tangent = getTangentAtLength(parts[0], length / 2);
 - `webpackBundle` has been removed from `renderFrames()` and `renderMedia()` - rename it to `serveUrl` instead
 - `parallelism` has been removed from `renderFrames()` and `renderMedia()` - rename it to `concurrency` instead.
 - `config` has been removed from `renderFrames()` - rename it to `composition` instead.
+
+## `onBucketEnsured` option has been removed
+
+The `onBucketEnsured()` option of [`getOrCreateBucket`](/docs/lambda/getorcreatebucket) has been removed because creating the bucket is the only operation of `getOrCreateBucket()`. Therefore, you can just await the function itself.
