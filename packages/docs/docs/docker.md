@@ -11,7 +11,7 @@ We recommend the following structure for your Dockerfile. Read below about the i
 FROM debian:bookworm
 
 RUN apt-get update
-RUN apt-get install -y nodejs="18.13.0+dfsg1-1" npm="9.2.0~ds1-1" ffmpeg="7:5.1.2-3" chromium="111.0.5563.110-1"
+RUN apt-get install -y nodejs="18.13.0+dfsg1-1" npm="9.2.0~ds1-1" chromium="111.0.5563.110-1"
 
 # Copy everything from your project to the Docker image. Adjust if needed.
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* tsconfig.json* remotion.config.* ./
