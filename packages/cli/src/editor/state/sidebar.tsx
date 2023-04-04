@@ -4,9 +4,13 @@ export type SidebarCollapsedState = 'collapsed' | 'expanded' | 'responsive';
 
 type Context = {
 	sidebarCollapsedStateLeft: SidebarCollapsedState;
-	setSidebarCollapsedStateLeft: (newState: SidebarCollapsedState) => void;
+	setSidebarCollapsedStateLeft: React.Dispatch<
+		React.SetStateAction<SidebarCollapsedState>
+	>;
 	sidebarCollapsedStateRight: SidebarCollapsedState;
-	setSidebarCollapsedStateRight: (newState: SidebarCollapsedState) => void;
+	setSidebarCollapsedStateRight: React.Dispatch<
+		React.SetStateAction<SidebarCollapsedState>
+	>;
 };
 
 type Sidebars = 'left' | 'right';
@@ -34,10 +38,7 @@ export const getSavedCollapsedState = (
 	return 'responsive';
 };
 
-const setSavedCollapsedState = (
-	type: SidebarCollapsedState,
-	sidebar: Sidebars
-) => {
+const saveCollapsedState = (type: SidebarCollapsedState, sidebar: Sidebars) => {
 	window.localStorage.setItem(storageKey(sidebar), type);
 };
 
@@ -66,13 +67,23 @@ export const SidebarContextProvider: React.FC<{
 		return {
 			sidebarCollapsedStateLeft,
 			sidebarCollapsedStateRight,
-			setSidebarCollapsedStateLeft: (state: SidebarCollapsedState) => {
-				setSidebarCollapsedStateLeft(state);
-				setSavedCollapsedState(state, 'left');
+			setSidebarCollapsedStateLeft: (
+				state: React.SetStateAction<SidebarCollapsedState>
+			) => {
+				setSidebarCollapsedStateLeft((f) => {
+					const updated = typeof state === 'function' ? state(f) : state;
+					saveCollapsedState(updated, 'left');
+					return updated;
+				});
 			},
-			setSidebarCollapsedStateRight: (state: SidebarCollapsedState) => {
-				setSidebarCollapsedStateRight(state);
-				setSavedCollapsedState(state, 'right');
+			setSidebarCollapsedStateRight: (
+				state: React.SetStateAction<SidebarCollapsedState>
+			) => {
+				setSidebarCollapsedStateRight((f) => {
+					const updated = typeof state === 'function' ? state(f) : state;
+					saveCollapsedState(updated, 'right');
+					return updated;
+				});
 			},
 		};
 	}, [sidebarCollapsedStateLeft, sidebarCollapsedStateRight]);

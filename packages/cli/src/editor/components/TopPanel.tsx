@@ -2,7 +2,6 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {SidebarContext} from '../state/sidebar';
 import {Canvas} from './Canvas';
-import {CollapsedSidebarExpander} from './CollapsedSidebarExpander';
 import {CompositionSelector} from './CompositionSelector';
 import {
 	CurrentCompositionKeybindings,
@@ -79,16 +78,8 @@ export const TopPanel: React.FC = () => {
 		setSidebarCollapsedStateLeft('collapsed');
 	}, [setSidebarCollapsedStateLeft]);
 
-	const onExpandLeft = useCallback(() => {
-		setSidebarCollapsedStateLeft('expanded');
-	}, [setSidebarCollapsedStateLeft]);
-
 	const onCollapseRight = useCallback(() => {
 		setSidebarCollapsedStateRight('collapsed');
-	}, [setSidebarCollapsedStateRight]);
-
-	const onExpandRight = useCallback(() => {
-		setSidebarCollapsedStateRight('expanded');
 	}, [setSidebarCollapsedStateRight]);
 
 	return (
@@ -96,9 +87,6 @@ export const TopPanel: React.FC = () => {
 			<InitialCompositionLoader />
 			<MenuToolbar />
 			<div style={row}>
-				{actualStateLeft === 'collapsed' ? (
-					<CollapsedSidebarExpander direction="right" onExpand={onExpandLeft} />
-				) : null}
 				<SplitterContainer
 					minFlex={0.15}
 					maxFlex={0.4}
@@ -107,18 +95,11 @@ export const TopPanel: React.FC = () => {
 					orientation="vertical"
 				>
 					{actualStateLeft === 'expanded' ? (
-						<>
-							<SplitterElement type="flexer">
-								<div style={leftContainer} className="css-reset">
-									<CompositionSelector />
-								</div>
-							</SplitterElement>
-
-							<CollapsedSidebarExpander
-								direction="left"
-								onExpand={onCollapseLeft}
-							/>
-						</>
+						<SplitterElement type="flexer">
+							<div style={leftContainer} className="css-reset">
+								<CompositionSelector />
+							</div>
+						</SplitterElement>
 					) : null}
 					{actualStateLeft === 'expanded' ? (
 						<SplitterHandle
@@ -146,23 +127,11 @@ export const TopPanel: React.FC = () => {
 								/>
 							) : null}
 							{actualStateRight === 'expanded' ? (
-								<>
-									<CollapsedSidebarExpander
-										direction="right"
-										onExpand={onCollapseRight}
-									/>
-									<SplitterElement type="anti-flexer">
-										<RightPanel />
-									</SplitterElement>
-								</>
+								<SplitterElement type="anti-flexer">
+									<RightPanel />
+								</SplitterElement>
 							) : null}
 						</SplitterContainer>
-						{actualStateRight === 'collapsed' ? (
-							<CollapsedSidebarExpander
-								direction="left"
-								onExpand={onExpandRight}
-							/>
-						) : null}
 					</SplitterElement>
 				</SplitterContainer>
 			</div>
