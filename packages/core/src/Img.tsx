@@ -9,14 +9,21 @@ import {continueRender, delayRender} from './delay-render.js';
 import {useRemotionEnvironment} from './get-environment.js';
 import {usePreload} from './prefetch.js';
 
+function exponentialBackoff(errorCount: number): number {
+	return 1000 * 2 ** errorCount;
+}
+
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
 	React.DetailedHTMLProps<
 		React.ImgHTMLAttributes<HTMLImageElement>,
 		HTMLImageElement
-	>
-> = ({onError, src, ...props}, ref) => {
+	> & {
+		maxRetries?: number;
+	}
+> = ({onError, maxRetries = 2, src, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
+	const errors = useRef<Record<string, number>>({});
 
 	const environment = useRemotionEnvironment();
 
@@ -30,20 +37,61 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 
 	const actualSrc = usePreload(src as string);
 
+	const retryIn = useCallback((timeout: number) => {
+		if (!imageRef.current) {
+			return;
+		}
+
+		const currentSrc = imageRef.current.src;
+		setTimeout(() => {
+			if (!imageRef.current) {
+				// Component has been unmounted, do not retry
+				return;
+			}
+
+			const newSrc = imageRef.current?.src;
+			if (newSrc !== currentSrc) {
+				// src has changed, do not retry
+				return;
+			}
+
+			imageRef.current.removeAttribute('src');
+			imageRef.current.setAttribute('src', newSrc);
+		}, timeout);
+	}, []);
+
 	const didGetError = useCallback(
 		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-			if (onError) {
-				onError(e);
-			} else {
-				console.error(
-					'Error loading image with src:',
-					imageRef.current?.src,
-					e,
-					'Handle the event using the onError() prop to make this message disappear.'
-				);
+			if (!errors.current) {
+				return;
 			}
+
+			errors.current[actualSrc] = (errors.current[actualSrc] ?? 0) + 1;
+			if (onError && (errors.current[actualSrc] ?? 0) > maxRetries) {
+				onError(e);
+				return;
+			}
+
+			if ((errors.current[actualSrc] ?? 0) <= maxRetries) {
+				const backoff = exponentialBackoff(errors.current[actualSrc] ?? 0);
+				console.warn(
+					`Could not load image with source ${
+						imageRef.current?.src as string
+					}, retrying again in ${backoff}ms`
+				);
+
+				retryIn(backoff);
+				return;
+			}
+
+			console.error(
+				'Error loading image with src:',
+				imageRef.current?.src,
+				e,
+				'Handle the event using the onError() prop to make this message disappear.'
+			);
 		},
-		[onError]
+		[actualSrc, maxRetries, onError, retryIn]
 	);
 
 	// If image source switches, make new handle
@@ -58,6 +106,11 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 			const {current} = imageRef;
 
 			const didLoad = () => {
+				if ((errors.current[actualSrc] ?? 0) > 0) {
+					delete errors.current[actualSrc];
+					console.info(`Retry successful - ${actualSrc} was loaded`);
+				}
+
 				continueRender(newHandle);
 			};
 
