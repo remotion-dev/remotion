@@ -7,16 +7,28 @@ import type {
 	CanUpdateDefaultPropsResponse,
 } from '../render-queue/job';
 
+export const checkIfTypeScriptFile = (file: string) => {
+	if (
+		!file.endsWith('.tsx') &&
+		!file.endsWith('.ts') &&
+		!file.endsWith('.mtsx') &&
+		!file.endsWith('.mts')
+	) {
+		throw new Error('Cannot update default props for non-TypeScript files');
+	}
+};
+
 export const canUpdateDefaultPropsHandler: ApiHandler<
 	CanUpdateDefaultPropsRequest,
 	CanUpdateDefaultPropsResponse
 > = async ({input: {compositionId}, remotionRoot}) => {
 	try {
 		const projectInfo = await getProjectInfo(remotionRoot);
-		// TODO: If root file is not TypeScript, you cannot save it back
 		if (!projectInfo.videoFile) {
 			throw new Error('Cannot find root file in project');
 		}
+
+		checkIfTypeScriptFile(projectInfo.videoFile);
 
 		await updateDefaultProps({
 			compositionId,

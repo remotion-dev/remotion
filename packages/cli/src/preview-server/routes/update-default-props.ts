@@ -4,6 +4,7 @@ import {deserializeJSONWithDate} from '../../editor/components/RenderModal/Schem
 import type {ApiHandler} from '../api-types';
 import {getProjectInfo} from '../project-info';
 import type {UpdateDefaultPropsRequest} from '../render-queue/job';
+import {checkIfTypeScriptFile} from './can-update-default-props';
 
 export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,
@@ -14,6 +15,8 @@ export const updateDefaultPropsHandler: ApiHandler<
 	if (!projectInfo.videoFile) {
 		throw new Error('Cannot find root file in project');
 	}
+
+	checkIfTypeScriptFile(projectInfo.videoFile);
 
 	// TODO: Pass error to frontend
 	const updated = await updateDefaultProps({
