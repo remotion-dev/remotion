@@ -186,3 +186,14 @@ test('Zod lazy', () => {
 	const datelikeToDate = datelike.pipe(z.coerce.date());
 	expect(createZodValues(datelikeToDate)).toBeInstanceOf(Date);
 });
+
+test('Zod coerce', () => {
+	const datelike = z.union([z.number(), z.string(), z.date()]);
+	const datelikeToDate = datelike.pipe(z.coerce.date());
+	expect(createZodValues(datelikeToDate)).toBeInstanceOf(Date);
+});
+
+test('Zod strict', () => {
+	const strict = z.strictObject({a: z.string()}).strict();
+	expect(createZodValues(strict)).toEqual({a: ''});
+});
