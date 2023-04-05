@@ -61,7 +61,6 @@ export const sitesCreateSubcommand = async (
 			progress: 0,
 		},
 		bucketProgress: {
-			bucketCreated: false,
 			doneIn: null,
 		},
 		deployProgress: {
@@ -91,10 +90,6 @@ export const sitesCreateSubcommand = async (
 		(
 			await getOrCreateBucket({
 				region: getAwsRegion(),
-				onBucketEnsured: () => {
-					multiProgress.bucketProgress.bucketCreated = true;
-					updateProgress();
-				},
 			})
 		).bucketName;
 

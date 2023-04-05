@@ -29,7 +29,7 @@ const selectorButton: React.CSSProperties = {
 	border: 'none',
 	flex: 1,
 	padding: 8,
-	fontSize: 13,
+	fontSize: 14,
 };
 
 export const Tab: React.FC<{

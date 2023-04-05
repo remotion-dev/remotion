@@ -16,6 +16,7 @@
 		{"path": "../media-utils"},
 		{"path": "../babel-loader"},
 		{"path": "../three"},
-		{"path": "../rive"}
+		{"path": "../rive"},
+		{"path": "../motion-blur"}
 	]
 }

@@ -15,6 +15,11 @@ const emptyLabel: React.CSSProperties = {
 	fontSize: 14,
 };
 
+const wideEmptyLabel: React.CSSProperties = {
+	...emptyLabel,
+	lineHeight: '37px',
+};
+
 export const ZonNonEditableValue: React.FC<{
 	jsonPath: JSONPath;
 	label: string;
@@ -35,7 +40,7 @@ export const ZonNonEditableValue: React.FC<{
 				onRemove={null}
 			/>
 			<div style={fullWidth}>
-				<em style={emptyLabel}>{label}</em>
+				<em style={compact ? emptyLabel : wideEmptyLabel}>{label}</em>
 			</div>
 		</div>
 	);

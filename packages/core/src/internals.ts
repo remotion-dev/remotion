@@ -27,6 +27,7 @@ import {getPreviewDomElement} from './get-preview-dom-element.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
+import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
 import {SequenceContext} from './SequenceContext.js';
@@ -114,6 +115,7 @@ export const Internals = {
 	validateFrame,
 	EditorPropsProvider,
 	EditorPropsContext,
+	usePreload,
 };
 
 export type {

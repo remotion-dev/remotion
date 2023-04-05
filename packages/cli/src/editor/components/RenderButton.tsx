@@ -11,7 +11,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import type {AnyCompMetadata} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
 import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-video-contexts';
-import {RenderIcon} from '../icons/render';
+import {ThinRenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
 import {InlineAction} from './InlineAction';
 
@@ -49,7 +49,7 @@ export const RenderButton: React.FC<{
 				initialFrame: 0,
 				initialVideoImageFormat: defaults.videoImageFormat,
 				initialStillImageFormat: defaults.stillImageFormat,
-				initialQuality: defaults.quality,
+				initialJpegQuality: defaults.jpegQuality,
 				initialScale: defaults.scale,
 				initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
 				initialOutName: getDefaultOutLocation({
@@ -87,10 +87,9 @@ export const RenderButton: React.FC<{
 		return null;
 	}
 
-	// TODO: Here in the sidebar the thin rocket icon looked better
 	return (
 		<InlineAction onClick={onClick}>
-			<RenderIcon svgProps={iconStyle} />
+			<ThinRenderIcon svgProps={iconStyle} />
 		</InlineAction>
 	);
 };

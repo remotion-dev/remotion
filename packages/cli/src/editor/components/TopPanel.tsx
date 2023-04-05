@@ -2,12 +2,15 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {SidebarContext} from '../state/sidebar';
 import {Canvas} from './Canvas';
-import {CollapsedSidebarExpander} from './CollapsedSidebarExpander';
+import {CompositionSelector} from './CompositionSelector';
+import {
+	CurrentCompositionKeybindings,
+	TitleUpdater,
+} from './CurrentCompositionSideEffects';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
 import {PreviewToolbar} from './PreviewToolbar';
 import {RightPanel} from './RightPanel';
-import {SidebarContent} from './SidebarContent';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
@@ -37,15 +40,9 @@ const leftContainer: React.CSSProperties = {
 	maxWidth: '100%',
 };
 
-export const TopPanel: React.FC = () => {
-	const leftSidebarBreakpoint = useBreakpoint(1200);
-	const rightSidebarBreakpoint = useBreakpoint(1600);
-	const {
-		setSidebarCollapsedStateLeft,
-		sidebarCollapsedStateLeft,
-		setSidebarCollapsedStateRight,
-		sidebarCollapsedStateRight,
-	} = useContext(SidebarContext);
+export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
+	const {sidebarCollapsedStateLeft} = useContext(SidebarContext);
+	const responsiveLeftStatus = useBreakpoint(1200) ? 'collapsed' : 'expanded';
 
 	const actualStateLeft = useMemo((): 'expanded' | 'collapsed' => {
 		if (sidebarCollapsedStateLeft === 'collapsed') {
@@ -56,35 +53,35 @@ export const TopPanel: React.FC = () => {
 			return 'expanded';
 		}
 
-		return leftSidebarBreakpoint ? 'collapsed' : 'expanded';
-	}, [leftSidebarBreakpoint, sidebarCollapsedStateLeft]);
+		return responsiveLeftStatus;
+	}, [sidebarCollapsedStateLeft, responsiveLeftStatus]);
+
+	return actualStateLeft;
+};
+
+export const TopPanel: React.FC = () => {
+	const {
+		setSidebarCollapsedStateLeft,
+		setSidebarCollapsedStateRight,
+		sidebarCollapsedStateRight,
+	} = useContext(SidebarContext);
+
+	const actualStateLeft = useResponsiveSidebarStatus();
 
 	const actualStateRight = useMemo((): 'expanded' | 'collapsed' => {
 		if (sidebarCollapsedStateRight === 'collapsed') {
 			return 'collapsed';
 		}
 
-		if (sidebarCollapsedStateRight === 'expanded') {
-			return 'expanded';
-		}
-
-		return rightSidebarBreakpoint ? 'collapsed' : 'expanded';
-	}, [rightSidebarBreakpoint, sidebarCollapsedStateRight]);
+		return 'expanded';
+	}, [sidebarCollapsedStateRight]);
 
 	const onCollapseLeft = useCallback(() => {
 		setSidebarCollapsedStateLeft('collapsed');
 	}, [setSidebarCollapsedStateLeft]);
 
-	const onExpandLeft = useCallback(() => {
-		setSidebarCollapsedStateLeft('expanded');
-	}, [setSidebarCollapsedStateLeft]);
-
 	const onCollapseRight = useCallback(() => {
 		setSidebarCollapsedStateRight('collapsed');
-	}, [setSidebarCollapsedStateRight]);
-
-	const onExpandRight = useCallback(() => {
-		setSidebarCollapsedStateRight('expanded');
 	}, [setSidebarCollapsedStateRight]);
 
 	return (
@@ -92,9 +89,6 @@ export const TopPanel: React.FC = () => {
 			<InitialCompositionLoader />
 			<MenuToolbar />
 			<div style={row}>
-				{actualStateLeft === 'collapsed' ? (
-					<CollapsedSidebarExpander direction="right" onExpand={onExpandLeft} />
-				) : null}
 				<SplitterContainer
 					minFlex={0.15}
 					maxFlex={0.4}
@@ -105,7 +99,7 @@ export const TopPanel: React.FC = () => {
 					{actualStateLeft === 'expanded' ? (
 						<SplitterElement type="flexer">
 							<div style={leftContainer} className="css-reset">
-								<SidebarContent />
+								<CompositionSelector />
 							</div>
 						</SplitterElement>
 					) : null}
@@ -118,7 +112,7 @@ export const TopPanel: React.FC = () => {
 					<SplitterElement type="anti-flexer">
 						<SplitterContainer
 							minFlex={0.5}
-							maxFlex={0.75}
+							maxFlex={0.8}
 							defaultFlex={0.7}
 							id="canvas-to-right-sidebar"
 							orientation="vertical"
@@ -140,16 +134,12 @@ export const TopPanel: React.FC = () => {
 								</SplitterElement>
 							) : null}
 						</SplitterContainer>
-						{actualStateRight === 'collapsed' ? (
-							<CollapsedSidebarExpander
-								direction="left"
-								onExpand={onExpandRight}
-							/>
-						) : null}
 					</SplitterElement>
 				</SplitterContainer>
 			</div>
 			<PreviewToolbar />
+			<CurrentCompositionKeybindings />
+			<TitleUpdater />
 		</div>
 	);
 };

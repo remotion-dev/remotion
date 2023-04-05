@@ -3,14 +3,16 @@ import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
 import {z} from 'zod';
 import {AbsoluteFill} from './AbsoluteFill.js';
-import {CanUseRemotionHooksProvider} from './CanUseRemotionHooks.js';
+import {
+	CanUseRemotionHooks,
+	CanUseRemotionHooksProvider,
+} from './CanUseRemotionHooks.js';
 import {CompositionManager} from './CompositionManager.js';
 import {getInputProps} from './config/input-props.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {EditorPropsContext} from './EditorProps.js';
 import {FolderContext} from './Folder.js';
 import {useRemotionEnvironment} from './get-environment.js';
-import {Internals} from './internals.js';
 import {Loading} from './loading-indicator.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {useNonce} from './nonce.js';
@@ -81,7 +83,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 	const nonce = useNonce();
 	const environment = useRemotionEnvironment();
 
-	const canUseComposition = useContext(Internals.CanUseRemotionHooks);
+	const canUseComposition = useContext(CanUseRemotionHooks);
 	if (canUseComposition) {
 		if (
 			environment === 'player-development' ||

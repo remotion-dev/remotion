@@ -17,13 +17,13 @@ import {
 	DEFAULT_STILL_IMAGE_FORMAT,
 	validateStillImageFormat,
 } from './image-format';
+import {validateJpegQuality} from './jpeg-quality';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
-import {validateQuality} from './quality';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {takeFrameAndCompose} from './take-frame-and-compose';
@@ -36,7 +36,11 @@ type InnerStillOptions = {
 	frame?: number;
 	inputProps?: unknown;
 	imageFormat?: StillImageFormat;
-	quality?: number;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	puppeteerInstance?: PuppeteerBrowser;
 	dumpBrowserLogs?: boolean;
 	envVariables?: Record<string, string>;
@@ -80,12 +84,19 @@ const innerRenderStill = async ({
 	proxyPort,
 	cancelSignal,
 	downloadMap,
+	jpegQuality,
 }: InnerStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
 }): Promise<RenderStillReturnValue> => {
+	if (quality) {
+		throw new Error(
+			'quality has been renamed to jpegQuality. Please rename the option.'
+		);
+	}
+
 	Internals.validateDimension(
 		composition.height,
 		'height',
@@ -122,13 +133,13 @@ const innerRenderStill = async ({
 	output =
 		typeof output === 'string' ? path.resolve(process.cwd(), output) : null;
 
-	if (quality !== undefined && imageFormat !== 'jpeg') {
+	if (jpegQuality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
 		);
 	}
 
-	validateQuality(quality);
+	validateJpegQuality(jpegQuality);
 
 	if (output) {
 		if (fs.existsSync(output)) {
@@ -247,7 +258,7 @@ const innerRenderStill = async ({
 		imageFormat,
 		scale,
 		output,
-		quality,
+		jpegQuality,
 		wantsBuffer: !output,
 	});
 

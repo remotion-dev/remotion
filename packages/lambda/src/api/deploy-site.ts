@@ -127,13 +127,9 @@ export const deploySite = async ({
 	]);
 
 	if (!process.env.VITEST) {
-		if (fs.rmSync) {
-			fs.rmSync(bundled, {
-				recursive: true,
-			});
-		} else {
-			fs.rmdirSync(bundled, {recursive: true});
-		}
+		fs.rmSync(bundled, {
+			recursive: true,
+		});
 	}
 
 	return {

@@ -4,7 +4,7 @@ import type {
 	VideoImageFormat,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
-import {useCallback, useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {Checkmark} from '../../icons/Checkmark';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
@@ -23,6 +23,10 @@ import {ScaleSetting} from './ScaleSetting';
 const qualityControlModes = ['crf', 'bitrate'] as const;
 export type QualityControl = typeof qualityControlModes[number];
 
+const container: React.CSSProperties = {
+	flex: 1,
+};
+
 export const RenderModalPicture: React.FC<{
 	renderMode: RenderType;
 	scale: number;
@@ -34,8 +38,8 @@ export const RenderModalPicture: React.FC<{
 	qualityControlType: QualityControl;
 	videoImageFormat: VideoImageFormat;
 	stillImageFormat: StillImageFormat;
-	setQuality: React.Dispatch<React.SetStateAction<number>>;
-	quality: number;
+	setJpegQuality: React.Dispatch<React.SetStateAction<number>>;
+	jpegQuality: number;
 	maxCrf: number;
 	minCrf: number;
 	setCrf: React.Dispatch<React.SetStateAction<number>>;
@@ -55,8 +59,8 @@ export const RenderModalPicture: React.FC<{
 	setQualityControl,
 	qualityControlType,
 	videoImageFormat,
-	setQuality,
-	quality,
+	setJpegQuality,
+	jpegQuality,
 	maxCrf,
 	minCrf,
 	setCrf,
@@ -103,7 +107,7 @@ export const RenderModalPicture: React.FC<{
 		);
 
 	return (
-		<div>
+		<div style={container}>
 			{renderMode === 'video' ? (
 				<div style={optionRow}>
 					<div style={label}>Image Format</div>
@@ -116,10 +120,16 @@ export const RenderModalPicture: React.FC<{
 				</div>
 			) : null}
 			{renderMode === 'video' && videoImageFormat === 'jpeg' && (
-				<JpegQualitySetting quality={quality} setQuality={setQuality} />
+				<JpegQualitySetting
+					jpegQuality={jpegQuality}
+					setJpegQuality={setJpegQuality}
+				/>
 			)}
 			{renderMode === 'still' && stillImageFormat === 'jpeg' && (
-				<JpegQualitySetting quality={quality} setQuality={setQuality} />
+				<JpegQualitySetting
+					jpegQuality={jpegQuality}
+					setJpegQuality={setJpegQuality}
+				/>
 			)}
 			{renderMode === 'video' ? <RenderModalHr /> : null}
 			{renderMode === 'video' ? (

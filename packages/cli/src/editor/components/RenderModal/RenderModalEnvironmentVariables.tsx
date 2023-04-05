@@ -19,9 +19,6 @@ const button: React.CSSProperties = {
 	marginLeft: 16,
 };
 
-// TODO: should warn if XOR key XOR value is empty
-// TODO: Should warn if trying to set the same key twice
-// TODO: Should warn if trying to set NODE_ENV
 export const RenderModalEnvironmentVariables: React.FC<{
 	envVariables: [string, string][];
 	setEnvVariables: React.Dispatch<React.SetStateAction<[string, string][]>>;
@@ -59,10 +56,20 @@ export const RenderModalEnvironmentVariables: React.FC<{
 		setEnvVariables((oldEnv) => [...oldEnv, ['', '']]);
 	}, [setEnvVariables]);
 
+	const usedKeys: string[] = [];
+
 	return (
 		<div style={container}>
 			<strong style={title}>Environment variables</strong>
 			{envVariables.map((env, i) => {
+				let isDuplicate = false;
+
+				if (usedKeys.includes(env[0].toUpperCase())) {
+					isDuplicate = true;
+				}
+
+				usedKeys.push(env[0].toUpperCase());
+
 				return (
 					<EnvInput
 						// eslint-disable-next-line react/no-array-index-key
@@ -73,6 +80,7 @@ export const RenderModalEnvironmentVariables: React.FC<{
 						envVal={env[1]}
 						onDelete={onDelete}
 						index={i}
+						isDuplicate={isDuplicate}
 						autoFocus={i === envVariables.length - 1 && env[0] === ''}
 					/>
 				);

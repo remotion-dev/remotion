@@ -10,7 +10,7 @@ import {AngleChangelog} from '../../components/AngleChangelog';
 Render a video or audio based on the entry point, the composition ID and save it to the output location.
 
 ```bash
-npx remotion render <entry-file> [<composition-id>] [<output-location>]
+npx remotion render <entry-file?> [<composition-id>] [<output-location>]
 ```
 
 If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
@@ -62,9 +62,13 @@ Specify a location for the Remotion config file.
 
 Specify a location for a dotenv file. Default `.env`.
 
-### `--quality` <AvailableFrom v="1.4.0" />
+### `--jpeg-quality` <AvailableFrom v="4.0.0" />
 
-[Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
+
+### ~~`--quality`~~ <AvailableFrom v="1.4.0" />
+
+Renamed to `--jpeg-quality` in v4.0.0
 
 ### `--overwrite`
 

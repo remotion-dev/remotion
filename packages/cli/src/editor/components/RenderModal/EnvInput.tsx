@@ -1,6 +1,7 @@
 import React, {useCallback} from 'react';
-import {Spacing} from '../layout';
+import {Row, Spacing} from '../layout';
 import {RemotionInput} from '../NewComposition/RemInput';
+import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {InlineEyeButton} from './InlineEyeIcon';
 import {InlineRemoveButton} from './InlineRemoveButton';
 import {optionRow} from './layout';
@@ -8,6 +9,11 @@ import {optionRow} from './layout';
 const input: React.CSSProperties = {
 	flex: 1,
 	width: '100%',
+};
+
+const validationStyle = {
+	paddingLeft: optionRow.paddingLeft,
+	paddingRight: optionRow.paddingRight,
 };
 
 export const EnvInput: React.FC<{
@@ -18,6 +24,7 @@ export const EnvInput: React.FC<{
 	onDelete: (index: number) => void;
 	index: number;
 	autoFocus: boolean;
+	isDuplicate: boolean;
 }> = ({
 	onEnvKeyChange,
 	onEnvValChange,
@@ -26,8 +33,24 @@ export const EnvInput: React.FC<{
 	onDelete,
 	index,
 	autoFocus,
+	isDuplicate,
 }) => {
 	const [showInPlainText, setShowInPlainText] = React.useState(false);
+	const [initialWarningKeyMissing, setKeyWarningEligible] = React.useState(
+		() => {
+			return envKey.trim() === '' && envVal.trim() !== '';
+		}
+	);
+	const [initialWarningValMissing, setValueWarningEligible] = React.useState(
+		() => {
+			return envKey.trim() !== '' && envVal.trim() === '';
+		}
+	);
+
+	const isKeyMissing =
+		envKey.trim() === '' && initialWarningKeyMissing && envVal.trim() !== '';
+	const isValMissing =
+		envVal.trim() === '' && initialWarningValMissing && envKey.trim() !== '';
 
 	const handleDelete = useCallback(() => {
 		onDelete(index);
@@ -51,31 +74,81 @@ export const EnvInput: React.FC<{
 		[index, onEnvValChange]
 	);
 
-	// TODO: Does align well
+	const makeKeyWarningEligible = useCallback(() => {
+		setKeyWarningEligible(true);
+	}, []);
+
+	const makeValueWarningEligible = useCallback(() => {
+		setValueWarningEligible(true);
+	}, []);
+
+	const isNodeEnvKey = envKey.trim() === 'NODE_ENV';
+
 	return (
-		<div style={optionRow}>
-			<RemotionInput
-				status="ok"
-				type="text"
-				placeholder="Key"
-				style={input}
-				value={envKey}
-				autoFocus={autoFocus}
-				onChange={handleKeyChange}
-			/>
-			<Spacing x={1} />
-			<RemotionInput
-				status="ok"
-				placeholder="Value"
-				type={showInPlainText ? 'text' : 'password'}
-				style={input}
-				value={envVal}
-				onChange={handleValueChange}
-			/>
-			<Spacing x={1.5} />
-			<InlineEyeButton enabled={!showInPlainText} onClick={togglePlainText} />
-			<Spacing x={1.5} />
-			<InlineRemoveButton onClick={handleDelete} />
-		</div>
+		<>
+			<Row align="center" style={optionRow}>
+				<RemotionInput
+					status={
+						isNodeEnvKey || isDuplicate || isKeyMissing ? 'warning' : 'ok'
+					}
+					type="text"
+					placeholder="Key"
+					style={input}
+					value={envKey}
+					onBlur={makeKeyWarningEligible}
+					autoFocus={autoFocus}
+					onChange={handleKeyChange}
+				/>
+				<Spacing x={1} />
+				<RemotionInput
+					status={isValMissing ? 'warning' : 'ok'}
+					placeholder="Value"
+					type={showInPlainText ? 'text' : 'password'}
+					style={input}
+					value={envVal}
+					onBlur={makeValueWarningEligible}
+					onChange={handleValueChange}
+				/>
+				<Spacing x={1.5} />
+				<InlineEyeButton enabled={!showInPlainText} onClick={togglePlainText} />
+				<InlineRemoveButton onClick={handleDelete} />
+			</Row>
+			{isNodeEnvKey ? (
+				<div style={validationStyle}>
+					<ValidationMessage
+						align="flex-start"
+						type="warning"
+						message="NODE_ENV will be overwritten by Remotion during the render process."
+					/>
+				</div>
+			) : null}
+			{isDuplicate ? (
+				<div style={validationStyle}>
+					<ValidationMessage
+						align="flex-start"
+						type="warning"
+						message={`${envKey.toUpperCase()} is already defined.`}
+					/>
+				</div>
+			) : null}
+			{isKeyMissing ? (
+				<div style={validationStyle}>
+					<ValidationMessage
+						align="flex-start"
+						type="warning"
+						message="Key is missing."
+					/>
+				</div>
+			) : null}
+			{isValMissing ? (
+				<div style={validationStyle}>
+					<ValidationMessage
+						align="flex-start"
+						type="warning"
+						message="Value is missing."
+					/>
+				</div>
+			) : null}
+		</>
 	);
 };

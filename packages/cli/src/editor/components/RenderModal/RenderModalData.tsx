@@ -1,8 +1,11 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {AnyComposition} from 'remotion';
+import {BORDER_COLOR} from '../../helpers/colors';
 
-import {Spacing} from '../layout';
-import {updateDefaultProps} from '../RenderQueue/actions';
+import {
+	canUpdateDefaultProps,
+	updateDefaultProps,
+} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor';
@@ -11,16 +14,19 @@ import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 type Mode = 'json' | 'schema';
 
 const outer: React.CSSProperties = {
-	padding: '8px 16px',
 	display: 'flex',
 	flexDirection: 'column',
 	flex: 1,
-	overflow: 'auto',
+	overflow: 'hidden',
 };
 
 const controlContainer: React.CSSProperties = {
-	display: 'flex',
 	flexDirection: 'row',
+	display: 'flex',
+	paddingLeft: 12,
+	paddingTop: 12,
+	paddingBottom: 12,
+	borderBottom: `1px solid ${BORDER_COLOR}`,
 };
 
 export const RenderModalData: React.FC<{
@@ -28,13 +34,30 @@ export const RenderModalData: React.FC<{
 	inputProps: unknown;
 	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
 	compact: boolean;
-	showSaveButton: boolean;
-}> = ({composition, inputProps, setInputProps, compact, showSaveButton}) => {
+	mayShowSaveButton: boolean;
+}> = ({composition, inputProps, setInputProps, compact, mayShowSaveButton}) => {
 	const [mode, setMode] = useState<Mode>('schema');
-
+	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
 	const zodValidationResult = useMemo(() => {
 		return composition.schema.safeParse(inputProps);
 	}, [composition.schema, inputProps]);
+
+	const [canSaveDefaultProps, setCanSaveDefaultProps] = useState(false);
+
+	const showSaveButton = mayShowSaveButton && canSaveDefaultProps;
+
+	// TODO: Show reason
+	// TODO: Update if root file is updated
+	useEffect(() => {
+		canUpdateDefaultProps(composition.id)
+			.then((can) => {
+				setCanSaveDefaultProps(can.canUpdate);
+			})
+			.catch(() => {
+				// TODO: Use error as reason
+				setCanSaveDefaultProps(false);
+			});
+	}, [composition.id]);
 
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
@@ -62,6 +85,7 @@ export const RenderModalData: React.FC<{
 	}, []);
 
 	const onUpdate = useCallback(() => {
+		setValBeforeSafe(inputProps);
 		updateDefaultProps(composition.id, inputProps);
 	}, [composition.id, inputProps]);
 
@@ -73,11 +97,10 @@ export const RenderModalData: React.FC<{
 	);
 
 	return (
-		<div style={outer} className="__remotion-vertical-scrollbar">
+		<div style={outer}>
 			<div style={controlContainer}>
 				<SegmentedControl items={modeItems} needsWrapping={false} />
 			</div>
-			<Spacing y={2} block />
 			{mode === 'schema' ? (
 				<SchemaEditor
 					value={inputProps}
@@ -96,6 +119,7 @@ export const RenderModalData: React.FC<{
 					zodValidationResult={zodValidationResult}
 					switchToSchema={switchToSchema}
 					onSave={onUpdate}
+					valBeforeSafe={valBeforeSafe}
 				/>
 			)}
 		</div>

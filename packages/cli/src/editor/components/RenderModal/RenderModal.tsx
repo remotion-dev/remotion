@@ -20,6 +20,7 @@ import React, {
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
+import {ShortcutHint} from '../../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
 import type {
 	RequiredChromiumOptions,
 	UiOpenGlOptions,
@@ -29,6 +30,7 @@ import {
 	envVariablesObjectToArray,
 } from '../../helpers/convert-env-variables';
 import {useRenderModalSections} from '../../helpers/render-modal-sections';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import {AudioIcon} from '../../icons/audio';
 import {DataIcon} from '../../icons/data';
 import {FileIcon} from '../../icons/file';
@@ -37,13 +39,14 @@ import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 
 import {ModalsContext} from '../../state/modals';
-import {Spacing} from '../layout';
+import {SidebarContext} from '../../state/sidebar';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
+import {persistSelectedPanel, rightSidebarTabs} from '../RightPanel';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
-import {leftSidebarTabs} from '../SidebarContent';
 import {Tab} from '../Tabs';
 import {useCrfState} from './CrfSetting';
 import {validateOutnameGui} from './out-name-checker';
@@ -114,10 +117,10 @@ const container: React.CSSProperties = {
 	borderBottom: '1px solid black',
 };
 
-const scrollPanel: React.CSSProperties = {
+const rightPanel: React.CSSProperties = {
 	height: 600,
-	overflow: 'auto',
-	minWidth: 650,
+	width: 650,
+	display: 'flex',
 };
 
 const horizontalLayout: React.CSSProperties = {
@@ -170,7 +173,7 @@ export const RenderModal: React.FC<{
 	initialFrame: number;
 	initialVideoImageFormat: VideoImageFormat;
 	initialStillImageFormat: StillImageFormat;
-	initialQuality: number;
+	initialJpegQuality: number;
 	initialScale: number;
 	initialVerbose: boolean;
 	initialOutName: string;
@@ -200,7 +203,7 @@ export const RenderModal: React.FC<{
 	initialFrame,
 	initialVideoImageFormat,
 	initialStillImageFormat,
-	initialQuality,
+	initialJpegQuality,
 	initialScale,
 	initialVerbose,
 	initialOutName,
@@ -266,7 +269,9 @@ export const RenderModal: React.FC<{
 
 	const [renderMode, setRenderModeState] =
 		useState<RenderType>(initialRenderType);
-	const [quality, setQuality] = useState<number>(() => initialQuality);
+	const [jpegQuality, setJpegQuality] = useState<number>(
+		() => initialJpegQuality
+	);
 	const [scale, setScale] = useState(() => initialScale);
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
 	const [disallowParallelEncoding, setDisallowParallelEncoding] =
@@ -538,14 +543,18 @@ export const RenderModal: React.FC<{
 		[setDefaultOutName]
 	);
 
+	const {setSidebarCollapsedStateRight} = useContext(SidebarContext);
+
 	const onClickStill = useCallback(() => {
-		leftSidebarTabs.current?.selectRendersPanel();
+		setSidebarCollapsedStateRight('expanded');
+		persistSelectedPanel('renders');
+		rightSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addStillRenderJob({
 			compositionId,
 			outName,
 			imageFormat: stillImageFormat,
-			quality: stillImageFormat === 'jpeg' ? quality : null,
+			jpegQuality: stillImageFormat === 'jpeg' ? jpegQuality : null,
 			frame,
 			scale,
 			verbose,
@@ -562,11 +571,12 @@ export const RenderModal: React.FC<{
 				dispatchIfMounted({type: 'fail'});
 			});
 	}, [
+		setSidebarCollapsedStateRight,
 		dispatchIfMounted,
 		compositionId,
 		outName,
 		stillImageFormat,
-		quality,
+		jpegQuality,
 		frame,
 		scale,
 		verbose,
@@ -592,13 +602,15 @@ export const RenderModal: React.FC<{
 	const audioCodec = deriveFinalAudioCodec(codec, userSelectedAudioCodec);
 
 	const onClickVideo = useCallback(() => {
-		leftSidebarTabs.current?.selectRendersPanel();
+		setSidebarCollapsedStateRight('expanded');
+		persistSelectedPanel('renders');
+		rightSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addVideoRenderJob({
 			compositionId,
 			outName,
 			imageFormat: videoImageFormat,
-			quality: stillImageFormat === 'jpeg' ? quality : null,
+			jpegQuality: stillImageFormat === 'jpeg' ? jpegQuality : null,
 			scale,
 			verbose,
 			codec,
@@ -629,12 +641,13 @@ export const RenderModal: React.FC<{
 				dispatchIfMounted({type: 'fail'});
 			});
 	}, [
+		setSidebarCollapsedStateRight,
 		dispatchIfMounted,
 		compositionId,
 		outName,
 		videoImageFormat,
 		stillImageFormat,
-		quality,
+		jpegQuality,
 		scale,
 		verbose,
 		codec,
@@ -803,6 +816,35 @@ export const RenderModal: React.FC<{
 
 	const {tab, setTab, shownTabs} = useRenderModalSections(renderMode, codec);
 
+	const {registerKeybinding} = useKeybinding();
+
+	const renderDisabled = state.type === 'load' || !outnameValidation.valid;
+
+	const trigger = useCallback(() => {
+		if (renderDisabled) {
+			return;
+		}
+
+		if (renderMode === 'still') {
+			onClickStill();
+		} else {
+			onClickVideo();
+		}
+	}, [onClickStill, onClickVideo, renderDisabled, renderMode]);
+
+	useEffect(() => {
+		registerKeybinding({
+			callback() {
+				trigger();
+			},
+			commandCtrlKey: true,
+			key: 'Enter',
+			event: 'keydown',
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+		});
+	}, [registerKeybinding, trigger]);
+
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<NewCompHeader title={`Render ${compositionId}`} />
@@ -811,8 +853,8 @@ export const RenderModal: React.FC<{
 				<div style={flexer} />
 				<Button
 					autoFocus
-					onClick={renderMode === 'still' ? onClickStill : onClickVideo}
-					disabled={state.type === 'load' || !outnameValidation.valid}
+					onClick={trigger}
+					disabled={renderDisabled}
 					style={{
 						...buttonStyle,
 						backgroundColor: outnameValidation.valid
@@ -821,6 +863,7 @@ export const RenderModal: React.FC<{
 					}}
 				>
 					{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
+					<ShortcutHint keyToPress="↵" cmdOrCtrl />
 				</Button>
 			</div>
 			<div style={horizontalLayout}>
@@ -898,8 +941,7 @@ export const RenderModal: React.FC<{
 						</Tab>
 					) : null}
 				</div>
-				<div style={scrollPanel} className="__remotion-vertical-scrollbar">
-					<Spacing block y={0.5} />
+				<div style={rightPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					{tab === 'general' ? (
 						<RenderModalBasic
 							codec={codec}
@@ -934,9 +976,9 @@ export const RenderModal: React.FC<{
 							customTargetVideoBitrate={customTargetVideoBitrate}
 							maxCrf={maxCrf}
 							minCrf={minCrf}
-							quality={quality}
+							jpegQuality={jpegQuality}
 							qualityControlType={qualityControlType}
-							setQuality={setQuality}
+							setJpegQuality={setJpegQuality}
 							setCustomTargetVideoBitrateValue={
 								setCustomTargetVideoBitrateValue
 							}
@@ -981,7 +1023,7 @@ export const RenderModal: React.FC<{
 							setInputProps={setInputProps}
 							composition={currentComposition}
 							compact={false}
-							showSaveButton={false}
+							mayShowSaveButton={false}
 						/>
 					) : (
 						<RenderModalAdvanced
@@ -1008,8 +1050,6 @@ export const RenderModal: React.FC<{
 							envVariables={envVariables}
 						/>
 					)}
-
-					<Spacing block y={0.5} />
 				</div>
 			</div>
 		</ModalContainer>

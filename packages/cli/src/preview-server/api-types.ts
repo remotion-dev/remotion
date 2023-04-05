@@ -3,6 +3,8 @@ import type {
 	AddRenderRequest,
 	CancelRenderRequest,
 	CancelRenderResponse,
+	CanUpdateDefaultPropsRequest,
+	CanUpdateDefaultPropsResponse,
 	OpenInFileExplorerRequest,
 	RemoveRenderRequest,
 	SubscribeToFileExistenceRequest,
@@ -43,4 +45,8 @@ export type ApiRoutes = {
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
 	'/api/update-default-props': ReqAndRes<UpdateDefaultPropsRequest, void>;
+	'/api/can-update-default-props': ReqAndRes<
+		CanUpdateDefaultPropsRequest,
+		CanUpdateDefaultPropsResponse
+	>;
 };

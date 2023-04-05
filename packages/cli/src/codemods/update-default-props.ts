@@ -1,4 +1,5 @@
-import {format, resolveConfig, resolveConfigFile} from 'prettier';
+// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+type PrettierType = typeof import('prettier');
 
 const findStarter = ({
 	input,
@@ -35,13 +36,27 @@ const findStarter = ({
 	throw new Error(`Could not find composition ID ${compositionId} in file`);
 };
 
+const findEndPosition = (input: string, currentPosition: number) => {
+	const asConstVersion = input
+		.slice(currentPosition + 1)
+		.search(/as\sconst[ \t\n\r]+\}/);
+	if (asConstVersion !== -1) {
+		const nextEnd = input.indexOf('}', asConstVersion + currentPosition + 1);
+		return nextEnd - 1;
+	}
+
+	const next = input.indexOf('}}', currentPosition + 1);
+	if (next !== -1) {
+		return next;
+	}
+
+	throw new Error('Could not find end of defaultProps');
+};
+
 const findEnder = (input: string, position: number, maxPosition: number) => {
 	let currentPosition = position;
 	while (currentPosition < maxPosition) {
-		const next = input.indexOf('}}', currentPosition + 1);
-		if (next === -1) {
-			throw new Error('Could not find end of defaultProps');
-		}
+		const next = findEndPosition(input, currentPosition);
 
 		currentPosition = next;
 
@@ -79,15 +94,19 @@ const stringifyDefaultProps = (props: unknown) => {
 			).toISOString()}')__REMOVEQUOTE__`;
 		}
 
+		if (typeof this[key] === 'string') {
+			return `${this[key]}__ADD_AS_CONST__`;
+		}
+
 		return value;
 	})
-		.replace('"__REMOVEQUOTE__', '')
-		.replace('__REMOVEQUOTE__"', '');
+		.replace(/"__REMOVEQUOTE__/g, '')
+		.replace(/__REMOVEQUOTE__"/g, '')
+		.replace(/__ADD_AS_CONST__"/g, '" as const');
 };
 
 // TODO: Add more sanity checks
 // TODO: better error messages
-// TODO: throw if prettier was not found
 export const updateDefaultProps = async ({
 	input,
 	compositionId,
@@ -112,6 +131,19 @@ export const updateDefaultProps = async ({
 		start + START_TOKEN.length,
 		maxEnd
 	);
+
+	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+	let prettier: PrettierType | null = null;
+
+	try {
+		prettier = await import('prettier');
+	} catch (err) {
+		throw new Error(
+			'Cannot save default props because Prettier cannot be found in the current project.'
+		);
+	}
+
+	const {format, resolveConfig, resolveConfigFile} = prettier as PrettierType;
 
 	const newFile =
 		input.substring(0, startPos) +

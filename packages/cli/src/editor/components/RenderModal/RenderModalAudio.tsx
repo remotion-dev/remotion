@@ -16,6 +16,10 @@ import {OptionExplainer} from './OptionExplainer';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalHr} from './RenderModalHr';
 
+const container: React.CSSProperties = {
+	flex: 1,
+};
+
 export const RenderModalAudio: React.FC<{
 	muted: boolean;
 	setMuted: React.Dispatch<React.SetStateAction<boolean>>;
@@ -65,7 +69,7 @@ export const RenderModalAudio: React.FC<{
 	const audioCodecOptions = useCallback(
 		(currentCodec: Codec): ComboboxValue[] => {
 			return BrowserSafeApis.supportedAudioCodecs[currentCodec].map(
-				(audioCodecOption) => {
+				(audioCodecOption: AudioCodec) => {
 					return {
 						label: humanReadableAudioCodec(audioCodecOption),
 						onClick: () => setAudioCodec(audioCodecOption),
@@ -85,7 +89,7 @@ export const RenderModalAudio: React.FC<{
 	);
 
 	return (
-		<div>
+		<div style={container}>
 			{renderMode === 'video' && audioCodecOptions(codec).length >= 2 ? (
 				<div style={optionRow}>
 					<div style={label}>Audio Codec</div>

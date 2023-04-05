@@ -42,7 +42,7 @@ export const processVideoJob = async ({
 		port,
 		publicDir,
 		puppeteerTimeout: job.delayRenderTimeout,
-		quality: job.quality ?? undefined,
+		jpegQuality: job.jpegQuality ?? undefined,
 		remainingArgs: [],
 		scale: job.scale,
 		width: null,

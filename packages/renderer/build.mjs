@@ -10,7 +10,6 @@ import {
 } from 'fs';
 import os from 'os';
 import path from 'path';
-import {VERSION} from 'remotion';
 
 const isWin = os.platform() === 'win32';
 const where = isWin ? 'where' : 'which';
@@ -259,14 +258,16 @@ for (const arch of archs) {
 	});
 	copyFileSync(copyInstructions.from, copyInstructions.to);
 
-	execSync('npm pack', {
+	const output = execSync('npm pack --json', {
 		cwd: copyDestinations[arch].dir,
-		stdio: 'ignore',
+		stdio: 'pipe',
 	});
 
-	const filename = `remotion-${path.basename(
-		copyDestinations[arch].dir
-	)}-${VERSION}.tgz`;
+	const filename = JSON.parse(output.toString('utf-8'))[0].filename.replace(
+		/^@remotion\//,
+		'remotion-'
+	);
+	console.log(filename);
 	const tgzPath = path.join(
 		process.cwd(),
 		copyDestinations[arch].dir,

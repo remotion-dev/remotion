@@ -18,6 +18,7 @@ import {PreviewSizeContext} from '../state/preview-size';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {timelineRef} from '../state/timeline-ref';
+import {PreviewServerConnectionCtx} from './client-id';
 import {openInEditor} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
@@ -40,6 +41,8 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		EditorZoomGesturesContext
 	);
 	const {size, setSize} = useContext(PreviewSizeContext);
+	const {type} = useContext(PreviewServerConnectionCtx);
+
 	const {
 		setSidebarCollapsedStateLeft,
 		sidebarCollapsedStateLeft,
@@ -159,6 +162,39 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						subMenu: null,
 						quickSwitcherLabel: 'New still...',
 					},
+					{
+						type: 'divider' as const,
+						id: 'new-divider',
+					},
+					{
+						id: 'render',
+						value: 'render',
+						label: 'Render...',
+						onClick: () => {
+							closeMenu();
+							if (type !== 'connected') {
+								sendErrorNotification('Preview server is offline');
+								return;
+							}
+
+							const renderButton = document.getElementById(
+								'render-modal-button'
+							) as HTMLDivElement;
+
+							renderButton.click();
+						},
+						type: 'item' as const,
+						keyHint: 'R',
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Render...',
+					},
+					window.remotion_editorName
+						? {
+								type: 'divider' as const,
+								id: 'open-in-editor-divider',
+						  }
+						: null,
 					window.remotion_editorName
 						? {
 								id: 'open-in-editor',
@@ -335,23 +371,6 @@ export const useMenuStructure = (closeMenu: () => void) => {
 							leaveLeftSpace: true,
 							preselectIndex: 0,
 							items: [
-								{
-									id: 'right-sidebar-responsive',
-									keyHint: null,
-									label: 'Responsive',
-									leftItem:
-										sidebarCollapsedStateRight === 'responsive' ? (
-											<Checkmark />
-										) : null,
-									onClick: () => {
-										closeMenu();
-										setSidebarCollapsedStateRight('responsive');
-									},
-									subMenu: null,
-									type: 'item' as const,
-									value: 'responsive' as SidebarCollapsedState,
-									quickSwitcherLabel: null,
-								},
 								{
 									id: 'sidebar-expanded',
 									keyHint: null,
@@ -681,6 +700,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		checkerboard,
 		closeMenu,
 		setSelectedModal,
+		type,
 		size.size,
 		setSize,
 		setEditorZoomGestures,
