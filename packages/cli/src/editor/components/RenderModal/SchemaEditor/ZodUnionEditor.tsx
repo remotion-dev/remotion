@@ -24,7 +24,6 @@ export const ZodUnionEditor: React.FC<{
 	showSaveButton,
 	onRemove,
 }) => {
-	console.log({schema, value});
 	const {options} = schema._def as z.ZodUnionDef;
 
 	if (options[0]._def.typeName === z.ZodFirstPartyTypeKind.ZodNull) {
