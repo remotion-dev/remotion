@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyComposition} from 'remotion';
-import {getInputProps, Internals} from 'remotion';
+import {Internals} from 'remotion';
 import {BORDER_COLOR} from '../helpers/colors';
 import {RenderModalData} from './RenderModal/RenderModalData';
 import {RenderQueue} from './RenderQueue';
@@ -29,8 +29,6 @@ const PropsEditor: React.FC<{
 
 	// TODO: Warn if inputProps were specified to the CLI, then
 	// they take priority over defaultProps
-	const inputProps = getInputProps();
-	console.log(inputProps);
 
 	const setInputProps = useCallback(
 		(newProps: unknown | ((oldProps: unknown) => unknown)) => {
