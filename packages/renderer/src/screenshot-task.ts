@@ -11,13 +11,13 @@ export const screenshotTask = async ({
 	page,
 	width,
 	path,
-	quality,
+	jpegQuality,
 	clipRegion,
 }: {
 	page: Page;
 	format: StillImageFormat;
 	path?: string;
-	quality?: number;
+	jpegQuality?: number;
 	omitBackground: boolean;
 	width: number;
 	height: number;
@@ -56,7 +56,7 @@ export const screenshotTask = async ({
 		} else {
 			result = await client.send('Page.captureScreenshot', {
 				format,
-				quality,
+				quality: jpegQuality,
 				clip:
 					clipRegion !== null && clipRegion !== 'hide'
 						? {

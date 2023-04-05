@@ -27,6 +27,7 @@ import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {validateSelectedPixelFormatAndImageFormatCombination} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
+import {validateJpegQuality} from './jpeg-quality';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -38,7 +39,6 @@ import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
-import {validateQuality} from './quality';
 import {renderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
@@ -73,7 +73,11 @@ export type RenderMediaOptions = {
 	imageFormat?: VideoImageFormat;
 	pixelFormat?: PixelFormat;
 	envVariables?: Record<string, string>;
-	quality?: number;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
 	numberOfGifLoops?: number | null;
@@ -158,7 +162,13 @@ export const renderMedia = ({
 	audioCodec,
 	...options
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
-	validateQuality(options.quality);
+	if (options.quality) {
+		throw new Error(
+			`The "quality" option has been renamed. Please use "jpegQuality" instead.`
+		);
+	}
+
+	validateJpegQuality(options.jpegQuality);
 	validateQualitySettings({crf, codec, videoBitrate});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
@@ -237,7 +247,7 @@ export const renderMedia = ({
 	const imageFormat: VideoImageFormat = isAudioCodec(codec)
 		? 'none'
 		: options.imageFormat ?? 'jpeg';
-	const quality = imageFormat === 'jpeg' ? options.quality : undefined;
+	const jpegQuality = imageFormat === 'jpeg' ? options.jpegQuality : undefined;
 
 	validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
@@ -394,7 +404,7 @@ export const renderMedia = ({
 				inputProps,
 				envVariables,
 				imageFormat,
-				quality,
+				jpegQuality,
 				frameRange: frameRange ?? null,
 				puppeteerInstance,
 				everyNthFrame,

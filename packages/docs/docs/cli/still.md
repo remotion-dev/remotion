@@ -40,9 +40,13 @@ Specify a location for the Remotion config file.
 
 Specify a location for a dotenv file. Default `.env`.
 
-### `--quality`
+### `--jpeg-quality` <AvailableFrom v="4.0.0" />
 
-[Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when image format is `png`.
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
+
+### ~~`--quality`~~ <AvailableFrom v="1.4.0" />
+
+Renamed to `--jpeg-quality` in v4.0.0
 
 ### `--overwrite`
 

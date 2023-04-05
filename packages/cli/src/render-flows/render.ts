@@ -77,7 +77,7 @@ export const renderVideoFlow = async ({
 	frameRange,
 	everyNthFrame,
 	outputLocationFromUI,
-	quality,
+	jpegQuality,
 	onProgress,
 	addCleanupCallback,
 	cancelSignal,
@@ -120,7 +120,7 @@ export const renderVideoFlow = async ({
 	concurrency: number | string | null;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
-	quality: number | undefined;
+	jpegQuality: number | undefined;
 	onProgress: JobProgressCallback;
 	addCleanupCallback: (cb: () => void) => void;
 	crf: Crf | null;
@@ -375,7 +375,7 @@ export const renderVideoFlow = async ({
 			frameRange,
 			concurrency: actualConcurrency,
 			puppeteerInstance,
-			quality,
+			jpegQuality,
 			timeoutInMilliseconds: puppeteerTimeout,
 			chromiumOptions,
 			scale,
@@ -413,7 +413,7 @@ export const renderVideoFlow = async ({
 		overwrite,
 		pixelFormat,
 		proResProfile,
-		quality,
+		jpegQuality,
 		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 			logLevel,
 			'verbose'

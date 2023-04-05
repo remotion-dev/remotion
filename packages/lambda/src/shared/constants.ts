@@ -231,7 +231,7 @@ export type LambdaPayloads = {
 		envVariables: Record<string, string> | undefined;
 		pixelFormat: PixelFormat | undefined;
 		proResProfile: ProResProfile | undefined;
-		quality: number | undefined;
+		jpegQuality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
@@ -270,7 +270,7 @@ export type LambdaPayloads = {
 		envVariables: Record<string, string> | undefined;
 		pixelFormat: PixelFormat | undefined;
 		proResProfile: ProResProfile | undefined;
-		quality: number | undefined;
+		jpegQuality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
@@ -318,7 +318,7 @@ export type LambdaPayloads = {
 		crf: number | undefined;
 		proResProfile: ProResProfile | undefined;
 		pixelFormat: PixelFormat | undefined;
-		quality: number | undefined;
+		jpegQuality: number | undefined;
 		envVariables: Record<string, string> | undefined;
 		privacy: Privacy;
 		attempt: number;
@@ -342,7 +342,7 @@ export type LambdaPayloads = {
 		imageFormat: StillImageFormat;
 		envVariables: Record<string, string> | undefined;
 		attempt: number;
-		quality: number | undefined;
+		jpegQuality: number | undefined;
 		maxRetries: number;
 		frame: number;
 		privacy: Privacy;

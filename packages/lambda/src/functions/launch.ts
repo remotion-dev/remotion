@@ -262,7 +262,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			envVariables: params.envVariables,
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
-			quality: params.quality,
+			jpegQuality: params.jpegQuality,
 			privacy: params.privacy,
 			logLevel: params.logLevel ?? 'info',
 			attempt: 1,
