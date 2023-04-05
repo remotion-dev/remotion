@@ -12,7 +12,6 @@ const commonStyles: React.CSSProperties = {
 	fontSize: 15,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
-	lineHeight: '40px',
 };
 
 const compactStyles: React.CSSProperties = {
@@ -25,13 +24,13 @@ const compactStyles: React.CSSProperties = {
 const wideStyles: React.CSSProperties = {
 	...commonStyles,
 	width: label.width,
-	lineHeight: '36px',
 };
 
 const labelStyle: React.CSSProperties = {
 	fontFamily: 'monospace',
 	fontSize: 14,
 	color: LIGHT_TEXT,
+	lineHeight: '40px',
 };
 
 export const SchemaLabel: React.FC<{
