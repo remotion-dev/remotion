@@ -116,3 +116,37 @@ export const Experimental = {
 	Null,
 	useIsPlayer,
 };
+
+const proxyObj = {};
+
+export const Config = new Proxy(proxyObj, {
+	get(_, prop): unknown {
+		if (
+			prop === 'Bundling' ||
+			prop === 'Rendering' ||
+			prop === 'Log' ||
+			prop === 'Puppeteer' ||
+			prop === 'Output'
+		) {
+			return Config;
+		}
+
+		return () => {
+			console.warn(
+				'⚠️  The CLI configuration has been extracted from Remotion Core.'
+			);
+			console.warn('Update the import from the config file:');
+			console.warn();
+			console.warn('- Delete:');
+			console.warn('import {Config} from "remotion";');
+			console.warn('+ Replace:');
+			console.warn('import {Config} from "@remotion/cli/config";');
+			console.warn();
+			console.warn(
+				'For more information, see https://v4.remotion.dev/docs/4-0-migration.'
+			);
+
+			process.exit(1);
+		};
+	},
+});

@@ -5,7 +5,11 @@ title: ensureFfprobe()
 crumb: "@remotion/renderer"
 ---
 
-_Available from v3.3_
+_Available from v3.3, removed from v4.0_
+
+:::warning
+This API has been removed in v4.0 and is not necessary to call anymore. This page remains for archival purposes.
+:::
 
 Checks if the `ffprobe` binary is installed and if it is not, [downloads it and puts it into your `node_modules` folder](/docs/ffmpeg).
 
