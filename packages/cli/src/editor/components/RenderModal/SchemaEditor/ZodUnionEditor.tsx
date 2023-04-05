@@ -1,7 +1,38 @@
 import {z} from 'remotion';
 import type {JSONPath} from './zod-types';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
-import {ZodOrNullEditor} from './ZodOrNullEditor';
+import {ZodOrNullishEditor} from './ZodOrNullishEditor';
+
+const findNull = (
+	value: readonly [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]]
+) => {
+	const nullIndex = value.findIndex(
+		(v) =>
+			v._def.typeName === z.ZodFirstPartyTypeKind.ZodNull ||
+			v._def.typeName === z.ZodFirstPartyTypeKind.ZodUndefined
+	);
+	if (nullIndex === -1) {
+		return null;
+	}
+
+	const nullishValue =
+		value[nullIndex]._def.typeName === z.ZodFirstPartyTypeKind.ZodNull
+			? null
+			: undefined;
+
+	const otherSchema = value[nullIndex === 0 ? 1 : 0];
+
+	const otherSchemaIsAlsoNullish =
+		otherSchema._def.typeName === z.ZodFirstPartyTypeKind.ZodNull ||
+		otherSchema._def.typeName === z.ZodFirstPartyTypeKind.ZodUndefined;
+
+	return {
+		nullIndex,
+		nullishValue,
+		otherSchema,
+		otherSchemaIsAlsoNullish,
+	};
+};
 
 export const ZodUnionEditor: React.FC<{
 	showSaveButton: boolean;
@@ -26,44 +57,66 @@ export const ZodUnionEditor: React.FC<{
 }) => {
 	const {options} = schema._def as z.ZodUnionDef;
 
-	if (options[0]._def.typeName === z.ZodFirstPartyTypeKind.ZodNull) {
+	if (options.length > 2) {
 		return (
-			<ZodOrNullEditor
-				compact={compact}
-				defaultValue={defaultValue}
+			<ZonNonEditableValue
 				jsonPath={jsonPath}
-				onRemove={onRemove}
-				onSave={onSave}
-				schema={options[1]}
-				setValue={setValue}
+				label={'Union with more than 2 options not editable'}
+				compact={compact}
 				showSaveButton={showSaveButton}
-				value={value}
 			/>
 		);
 	}
 
-	if (options[1]._def.typeName === z.ZodFirstPartyTypeKind.ZodNull) {
+	if (options.length < 2) {
 		return (
-			<ZodOrNullEditor
-				compact={compact}
-				defaultValue={defaultValue}
+			<ZonNonEditableValue
 				jsonPath={jsonPath}
-				onRemove={onRemove}
-				onSave={onSave}
-				schema={options[0]}
-				setValue={setValue}
+				label={'Union with less than 2 options not editable'}
+				compact={compact}
 				showSaveButton={showSaveButton}
-				value={value}
+			/>
+		);
+	}
+
+	const nullResult = findNull(options);
+
+	if (!nullResult) {
+		return (
+			<ZonNonEditableValue
+				jsonPath={jsonPath}
+				label={'Union only editable with 1 value being null'}
+				compact={compact}
+				showSaveButton={showSaveButton}
+			/>
+		);
+	}
+
+	const {otherSchema, nullishValue, otherSchemaIsAlsoNullish} = nullResult;
+
+	if (otherSchemaIsAlsoNullish) {
+		return (
+			<ZonNonEditableValue
+				jsonPath={jsonPath}
+				label={'Not editable - both union values are nullish'}
+				compact={compact}
+				showSaveButton={showSaveButton}
 			/>
 		);
 	}
 
 	return (
-		<ZonNonEditableValue
-			jsonPath={jsonPath}
-			label={'Union only supported with null'}
+		<ZodOrNullishEditor
 			compact={compact}
+			defaultValue={defaultValue}
+			jsonPath={jsonPath}
+			onRemove={onRemove}
+			onSave={onSave}
+			schema={otherSchema}
+			setValue={setValue}
 			showSaveButton={showSaveButton}
+			value={value}
+			nullishValue={nullishValue}
 		/>
 	);
 };
