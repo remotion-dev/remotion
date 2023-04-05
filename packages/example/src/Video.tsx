@@ -711,6 +711,34 @@ export const Index: React.FC = () => {
 						values: z.enum(['a', 'b', 'c']),
 						supersuperlongvalueabcdefghji: z.string(),
 						incompatible: z.null().or(z.undefined()),
+						longEnum: z.enum([
+							'a',
+							'b',
+							'c',
+							'd',
+							'e',
+							'f',
+							'gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+							'h',
+							'i',
+							'j',
+							'k',
+							'l',
+							'm',
+							'n',
+							'o',
+							'p',
+							'q',
+							'r',
+							's',
+							't',
+							'u',
+							'v',
+							'w',
+							'x',
+							'y',
+							'z',
+						]),
 					})}
 					defaultProps={{
 						vehicle: 'car' as const,
@@ -736,6 +764,7 @@ export const Index: React.FC = () => {
 						values: 'a' as const,
 						supersuperlongvalueabcdefghji: 'hi' as const,
 						incompatible: null,
+						longEnum: 'a' as const,
 					}}
 					durationInFrames={150}
 				/>
