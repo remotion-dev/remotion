@@ -147,8 +147,8 @@ export const Combobox: React.FC<{
 		};
 	}, [refresh]);
 
-	// TODO: Scroll to current value if there are a lot of values
 	// TODO: If long value is selected, layout breaks
+	// TODO: If combobox is inside a scrollable container, it doesn't scroll with it
 
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!opened || !size) {
