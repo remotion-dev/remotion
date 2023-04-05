@@ -52,7 +52,6 @@ export const RenderModalData: React.FC<{
 	}, [composition.schema, inputProps]);
 
 	const cliProps = getInputProps();
-	console.log(Object.keys(cliProps).length);
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
 			{
