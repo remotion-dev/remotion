@@ -2,6 +2,7 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {SidebarContext} from '../state/sidebar';
 import {InlineAction} from './InlineAction';
 import {Row} from './layout';
+import {useResponsiveSidebarStatus} from './TopPanel';
 
 const style: React.CSSProperties = {
 	width: 16,
@@ -15,20 +16,22 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 	const {
 		setSidebarCollapsedStateLeft,
 		setSidebarCollapsedStateRight,
-		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
 
+	const leftSidebarStatus = useResponsiveSidebarStatus();
 	const leftIcon: React.CSSProperties = useMemo(() => {
-		return {
+		const icon = {
 			width: '35%',
 			height: '100%',
 			borderRight: '1px solid white',
-			background:
-				sidebarCollapsedStateLeft === 'expanded' ? 'white' : 'transparent',
 		};
-	}, [sidebarCollapsedStateLeft]);
 
+		return {
+			...icon,
+			background: leftSidebarStatus === 'expanded' ? 'white' : 'transparent',
+		};
+	}, [leftSidebarStatus]);
 	const rightIcon: React.CSSProperties = useMemo(() => {
 		return {
 			width: '35%',
@@ -41,14 +44,16 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 		};
 	}, [sidebarCollapsedStateRight]);
 
-	// TODO: What if left sidebar is in "responsive" mode?
 	const toggleLeft = useCallback(() => {
-		setSidebarCollapsedStateLeft((s) =>
-			s === 'collapsed' ? 'expanded' : 'collapsed'
-		);
-	}, [setSidebarCollapsedStateLeft]);
+		setSidebarCollapsedStateLeft((s) => {
+			if (s === 'responsive') {
+				return leftSidebarStatus === 'collapsed' ? 'expanded' : 'collapsed';
+			}
 
-	// TODO: Don't have "responsive state for right sidebar"
+			return s === 'collapsed' ? 'expanded' : 'collapsed';
+		});
+	}, [leftSidebarStatus, setSidebarCollapsedStateLeft]);
+
 	const toggleRight = useCallback(() => {
 		setSidebarCollapsedStateRight((s) =>
 			s === 'collapsed' ? 'expanded' : 'collapsed'

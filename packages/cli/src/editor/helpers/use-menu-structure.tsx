@@ -372,23 +372,6 @@ export const useMenuStructure = (closeMenu: () => void) => {
 							preselectIndex: 0,
 							items: [
 								{
-									id: 'right-sidebar-responsive',
-									keyHint: null,
-									label: 'Responsive',
-									leftItem:
-										sidebarCollapsedStateRight === 'responsive' ? (
-											<Checkmark />
-										) : null,
-									onClick: () => {
-										closeMenu();
-										setSidebarCollapsedStateRight('responsive');
-									},
-									subMenu: null,
-									type: 'item' as const,
-									value: 'responsive' as SidebarCollapsedState,
-									quickSwitcherLabel: null,
-								},
-								{
 									id: 'sidebar-expanded',
 									keyHint: null,
 									label: 'Expanded',
