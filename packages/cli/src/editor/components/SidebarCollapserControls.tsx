@@ -45,27 +45,16 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 	}, [responsiveSidebarStatus, sidebarCollapsedStateLeft]);
 
 	const rightIcon: React.CSSProperties = useMemo(() => {
-		const icon: React.CSSProperties = {
+		return {
 			width: '35%',
 			height: '100%',
 			right: 0,
 			position: 'absolute',
 			borderLeft: '1px solid white',
-		};
-		if (sidebarCollapsedStateRight === 'responsive') {
-			return {
-				...icon,
-				background:
-					responsiveSidebarStatus[1] === 'expanded' ? 'white' : 'transparent',
-			};
-		}
-
-		return {
-			...icon,
 			background:
 				sidebarCollapsedStateRight === 'expanded' ? 'white' : 'transparent',
 		};
-	}, [responsiveSidebarStatus, sidebarCollapsedStateRight]);
+	}, [sidebarCollapsedStateRight]);
 
 	// TODO: What if left sidebar is in "responsive" mode?
 	const toggleLeft = useCallback(() => {
