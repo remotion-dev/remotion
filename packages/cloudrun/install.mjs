@@ -25,10 +25,20 @@ execSync(
   {stdio: 'inherit'}
 );
 
+execSync(
+  'echo project_id set to export $TF_VAR_project_id',
+  {stdio: 'inherit'}
+);
+
 console.log('Initialising Terraform.')
 
 execSync(
   'terraform init',
+  {stdio: 'inherit'}
+);
+
+execSync(
+  'terraform apply',
   {stdio: 'inherit'}
 );
 
