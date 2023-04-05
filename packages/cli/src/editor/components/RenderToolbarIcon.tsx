@@ -12,6 +12,7 @@ import {Internals, useCurrentFrame} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
 import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-video-contexts';
 import {PreviewServerConnectionCtx} from '../helpers/client-id';
+import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {RenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
 import {ControlButton} from './ControlButton';
@@ -27,9 +28,10 @@ export const RenderButton: React.FC = () => {
 			},
 		};
 	}, []);
+	const shortcut = areKeyboardShortcutsDisabled() ? '' : '(R)';
 	const tooltip =
 		type === 'connected'
-			? 'Export the current composition R'
+			? 'Export the current composition ' + shortcut
 			: 'Connect to the preview server to render';
 
 	const video = Internals.useVideo();
