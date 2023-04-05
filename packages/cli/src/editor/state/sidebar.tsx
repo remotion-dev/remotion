@@ -27,10 +27,8 @@ const storageKey = (sidebar: Sidebars) => {
 	return 'remotion.sidebarCollapsing';
 };
 
-export const getSavedCollapsedState = (
-	sidebar: Sidebars
-): SidebarCollapsedState => {
-	const state = window.localStorage.getItem(storageKey(sidebar));
+const getSavedCollapsedStateLeft = (): SidebarCollapsedState => {
+	const state = window.localStorage.getItem(storageKey('left'));
 	if (state === 'collapsed') {
 		return 'collapsed';
 	}
@@ -40,6 +38,15 @@ export const getSavedCollapsedState = (
 	}
 
 	return 'responsive';
+};
+
+const getSavedCollapsedStateRight = (): RightSidebarCollapsedState => {
+	const state = window.localStorage.getItem(storageKey('right'));
+	if (state === 'expanded') {
+		return 'expanded';
+	}
+
+	return 'collapsed';
 };
 
 const saveCollapsedState = (type: SidebarCollapsedState, sidebar: Sidebars) => {
@@ -61,10 +68,10 @@ export const SidebarContextProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [sidebarCollapsedStateLeft, setSidebarCollapsedStateLeft] = useState(
-		() => getSavedCollapsedState('left')
+		() => getSavedCollapsedStateLeft()
 	);
 	const [sidebarCollapsedStateRight, setSidebarCollapsedStateRight] = useState(
-		() => getSavedCollapsedState('right') as RightSidebarCollapsedState
+		() => getSavedCollapsedStateRight()
 	);
 
 	const value: Context = useMemo(() => {

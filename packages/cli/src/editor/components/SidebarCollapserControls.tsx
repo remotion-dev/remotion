@@ -16,11 +16,10 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 	const {
 		setSidebarCollapsedStateLeft,
 		setSidebarCollapsedStateRight,
-		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
 
-	const responsiveSidebarStatus = useResponsiveSidebarStatus();
+	const leftSidebarStatus = useResponsiveSidebarStatus();
 	const leftIcon: React.CSSProperties = useMemo(() => {
 		const icon = {
 			width: '35%',
@@ -28,20 +27,11 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 			borderRight: '1px solid white',
 		};
 
-		if (sidebarCollapsedStateLeft === 'responsive') {
-			return {
-				...icon,
-				background:
-					responsiveSidebarStatus === 'expanded' ? 'white' : 'transparent',
-			};
-		}
-
 		return {
 			...icon,
-			background:
-				sidebarCollapsedStateLeft === 'expanded' ? 'white' : 'transparent',
+			background: leftSidebarStatus === 'expanded' ? 'white' : 'transparent',
 		};
-	}, [responsiveSidebarStatus, sidebarCollapsedStateLeft]);
+	}, [leftSidebarStatus]);
 	const rightIcon: React.CSSProperties = useMemo(() => {
 		return {
 			width: '35%',
@@ -55,20 +45,14 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 	}, [sidebarCollapsedStateRight]);
 
 	const toggleLeft = useCallback(() => {
-		if (sidebarCollapsedStateLeft === 'responsive') {
-			setSidebarCollapsedStateLeft(() =>
-				responsiveSidebarStatus === 'collapsed' ? 'expanded' : 'collapsed'
-			);
-		} else {
-			setSidebarCollapsedStateLeft((s) =>
-				s === 'collapsed' ? 'expanded' : 'collapsed'
-			);
-		}
-	}, [
-		responsiveSidebarStatus,
-		setSidebarCollapsedStateLeft,
-		sidebarCollapsedStateLeft,
-	]);
+		setSidebarCollapsedStateLeft((s) => {
+			if (s === 'responsive') {
+				return leftSidebarStatus === 'collapsed' ? 'expanded' : 'collapsed';
+			}
+
+			return s === 'collapsed' ? 'expanded' : 'collapsed';
+		});
+	}, [leftSidebarStatus, setSidebarCollapsedStateLeft]);
 
 	const toggleRight = useCallback(() => {
 		setSidebarCollapsedStateRight((s) =>
