@@ -391,7 +391,7 @@ The JPEG quality of each frame. Must be a number between 0 and 100. Will not wor
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 // ---cut---
-Config.setQuality(90);
+Config.setJpegQuality(90);
 ```
 
 The [command line flag](/docs/cli/render#--jpeg-quality) `--jpeg-quality` will take precedence over this option.
