@@ -21,7 +21,6 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 	} = useContext(SidebarContext);
 
 	const responsiveSidebarStatus = useResponsiveSidebarStatus();
-	console.log({responsiveSidebarStatus});
 	const leftIcon: React.CSSProperties = useMemo(() => {
 		const icon = {
 			width: '35%',
@@ -43,7 +42,6 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 				sidebarCollapsedStateLeft === 'expanded' ? 'white' : 'transparent',
 		};
 	}, [responsiveSidebarStatus, sidebarCollapsedStateLeft]);
-	console.log(sidebarCollapsedStateLeft);
 	const rightIcon: React.CSSProperties = useMemo(() => {
 		return {
 			width: '35%',
