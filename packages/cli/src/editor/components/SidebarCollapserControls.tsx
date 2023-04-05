@@ -32,7 +32,7 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 			return {
 				...icon,
 				background:
-					responsiveSidebarStatus[0] === 'expanded' ? 'white' : 'transparent',
+					responsiveSidebarStatus === 'expanded' ? 'white' : 'transparent',
 			};
 		}
 
