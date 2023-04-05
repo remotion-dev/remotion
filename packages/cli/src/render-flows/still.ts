@@ -76,10 +76,6 @@ export const renderStillFlow = async ({
 	remainingArgs: string[];
 	inputProps: object;
 	envVariables: Record<string, string>;
-	/**
-	 * @deprecated Renamed to `jpegQuality`
-	 */
-	quality?: never;
 	jpegQuality: number | undefined;
 	browser: Browser;
 	stillFrame: number;

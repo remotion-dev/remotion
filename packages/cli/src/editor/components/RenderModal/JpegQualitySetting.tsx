@@ -5,17 +5,17 @@ const MIN_JPEG_QUALITY = 1;
 const MAX_JPEG_QUALITY = 100;
 
 export const JpegQualitySetting: React.FC<{
-	quality: number;
-	setQuality: (value: React.SetStateAction<number>) => void;
-}> = ({quality: scale, setQuality: setScale}) => {
+	jpegQuality: number;
+	setJpegQuality: (value: React.SetStateAction<number>) => void;
+}> = ({jpegQuality, setJpegQuality}) => {
 	return (
 		<NumberSetting
 			min={MIN_JPEG_QUALITY}
 			max={MAX_JPEG_QUALITY}
 			step={1}
 			name="JPEG Quality"
-			onValueChanged={setScale}
-			value={scale}
+			onValueChanged={setJpegQuality}
+			value={jpegQuality}
 			hint={BrowserSafeApis.options.jpegQualityOption}
 		/>
 	);

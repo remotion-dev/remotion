@@ -43,7 +43,7 @@ export const processStill = async ({
 		port,
 		publicDir,
 		puppeteerTimeout,
-		quality: job.jpegQuality ?? undefined,
+		jpegQuality: job.jpegQuality ?? undefined,
 		remainingArgs: [],
 		scale: job.scale,
 		stillFrame: job.frame,

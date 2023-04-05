@@ -398,7 +398,7 @@ export const Config: FlatConfig = {
 	setConcurrency,
 	setQuality: () => {
 		throw new Error(
-			'setQuality has been renamed - use setJpegQuality() instead.'
+			'setQuality() has been renamed - use setJpegQuality() instead.'
 		);
 	},
 	setJpegQuality,

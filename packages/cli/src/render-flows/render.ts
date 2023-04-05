@@ -375,7 +375,7 @@ export const renderVideoFlow = async ({
 			frameRange,
 			concurrency: actualConcurrency,
 			puppeteerInstance,
-			jpegQuality: jpegQuality,
+			jpegQuality,
 			timeoutInMilliseconds: puppeteerTimeout,
 			chromiumOptions,
 			scale,

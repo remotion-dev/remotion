@@ -38,7 +38,7 @@ export type RenderMediaOnLambdaInput = {
 	 * @deprecated Renamed to `jpegQuality`
 	 */
 	quality?: never;
-	jpegQuality?: never;
+	jpegQuality?: number;
 	maxRetries?: number;
 	framesPerLambda?: number;
 	logLevel?: LogLevel;
