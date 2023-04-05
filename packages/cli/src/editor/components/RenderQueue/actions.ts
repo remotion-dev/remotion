@@ -222,3 +222,9 @@ export const updateDefaultProps = (
 		defaultProps: serializeJSONWithDate(defaultProps, undefined),
 	});
 };
+
+export const canUpdateDefaultProps = (compositionId: string) => {
+	return callApi('/api/can-update-default-props', {
+		compositionId,
+	});
+};

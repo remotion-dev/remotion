@@ -47,7 +47,7 @@ const PropsEditor: React.FC<{
 			inputProps={props[composition.id] ?? composition.defaultProps}
 			setInputProps={setInputProps}
 			compact
-			showSaveButton
+			mayShowSaveButton
 		/>
 	);
 };

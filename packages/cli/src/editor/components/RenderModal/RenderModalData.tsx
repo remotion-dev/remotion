@@ -1,8 +1,11 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {AnyComposition} from 'remotion';
 import {BORDER_COLOR} from '../../helpers/colors';
 
-import {updateDefaultProps} from '../RenderQueue/actions';
+import {
+	canUpdateDefaultProps,
+	updateDefaultProps,
+} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor';
@@ -31,13 +34,30 @@ export const RenderModalData: React.FC<{
 	inputProps: unknown;
 	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
 	compact: boolean;
-	showSaveButton: boolean;
-}> = ({composition, inputProps, setInputProps, compact, showSaveButton}) => {
+	mayShowSaveButton: boolean;
+}> = ({composition, inputProps, setInputProps, compact, mayShowSaveButton}) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
 	const zodValidationResult = useMemo(() => {
 		return composition.schema.safeParse(inputProps);
 	}, [composition.schema, inputProps]);
+
+	const [canSaveDefaultProps, setCanSaveDefaultProps] = useState(false);
+
+	const showSaveButton = mayShowSaveButton && canSaveDefaultProps;
+
+	// TODO: Show reason
+	// TODO: Update if root file is updated
+	useEffect(() => {
+		canUpdateDefaultProps(composition.id)
+			.then((can) => {
+				setCanSaveDefaultProps(can.canUpdate);
+			})
+			.catch(() => {
+				// TODO: Use error as reason
+				setCanSaveDefaultProps(false);
+			});
+	}, [composition.id]);
 
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [

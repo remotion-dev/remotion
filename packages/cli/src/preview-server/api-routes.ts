@@ -1,5 +1,6 @@
 import type {ApiHandler, ApiRoutes} from './api-types';
 import {handleAddRender} from './routes/add-render';
+import {canUpdateDefaultPropsHandler} from './routes/can-update-default-props';
 import {handleCancelRender} from './routes/cancel-render';
 import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {handleRemoveRender} from './routes/remove-render';
@@ -20,4 +21,5 @@ export const allApiRoutes: {
 	'/api/remove-render': handleRemoveRender,
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
 	'/api/update-default-props': updateDefaultPropsHandler,
+	'/api/can-update-default-props': canUpdateDefaultPropsHandler,
 };

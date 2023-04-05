@@ -83,6 +83,7 @@ export const ZodArrayEditor: React.FC<{
 			setLocalValue((oldLocalState) => {
 				const newValue = updater(oldLocalState.value);
 				const safeParse = schema.safeParse(newValue);
+				// TODO: This logs an error to the console
 				if (safeParse.success) {
 					updateValue(updater);
 				}
