@@ -764,7 +764,7 @@ export const Index: React.FC = () => {
 						values: 'a' as const,
 						supersuperlongvalueabcdefghji: 'hi' as const,
 						incompatible: null,
-						longEnum: 'a' as const,
+						longEnum: 'k' as const,
 					}}
 					durationInFrames={150}
 				/>

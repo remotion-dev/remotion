@@ -14,6 +14,7 @@ import {Flex, Spacing} from '../layout';
 import {isMenuItem, MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
 import {getPortal} from '../Menu/portals';
 import {
+	MAX_MENU_WIDTH,
 	menuContainerTowardsBottom,
 	menuContainerTowardsTop,
 	outerPortal,
@@ -146,9 +147,8 @@ export const Combobox: React.FC<{
 		};
 	}, [refresh]);
 
-	// TODO: Limit width
-	// TODO: Align to left if more space on the right
 	// TODO: Scroll to current value if there are a lot of values
+	// TODO: If long value is selected, layout breaks
 
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!opened || !size) {
@@ -158,10 +158,16 @@ export const Combobox: React.FC<{
 		const spaceToBottom = size.windowSize.height - (size.top + size.height);
 		const spaceToTop = size.top;
 
-		const layout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
+		const spaceToRight = size.windowSize.width - (size.left + size.width);
+
+		const minSpaceToRightRequired = MAX_MENU_WIDTH;
+
+		const verticalLayout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
+		const horizontalLayout =
+			spaceToRight >= minSpaceToRightRequired ? 'left' : 'right';
 
 		return {
-			...(layout === 'top'
+			...(verticalLayout === 'top'
 				? {
 						...menuContainerTowardsBottom,
 						top: size.top + size.height,
@@ -170,7 +176,13 @@ export const Combobox: React.FC<{
 						...menuContainerTowardsTop,
 						bottom: size.windowSize.height - size.top,
 				  }),
-			left: size.left,
+			...(horizontalLayout === 'left'
+				? {
+						left: size.left,
+				  }
+				: {
+						right: size.windowSize.width - size.left - size.width,
+				  }),
 		};
 	}, [opened, size]);
 

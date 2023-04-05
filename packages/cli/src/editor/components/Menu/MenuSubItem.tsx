@@ -5,7 +5,7 @@ import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
-import {Flex, Row, Spacing} from '../layout';
+import {Row, Spacing} from '../layout';
 import type {SubMenu} from '../NewComposition/ComboBox';
 import {MENU_ITEM_CLASSNAME} from './is-menu-item';
 import {getPortal} from './portals';
@@ -27,6 +27,10 @@ export const MENU_SUBMENU_BUTTON_CLASS_NAME = 'remotion-submenu-button';
 
 const labelStyle: React.CSSProperties = {
 	fontSize: 13,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+	flex: 1,
 };
 
 const keyHintCss: React.CSSProperties = {
@@ -145,7 +149,12 @@ export const MenuSubItem: React.FC<{
 						<Spacing x={1} />
 					</>
 				) : null}
-				<div style={labelStyle}>{label}</div> <Flex />
+				<div
+					style={labelStyle}
+					{...{title: typeof label === 'string' ? label : undefined}}
+				>
+					{label}
+				</div>{' '}
 				<Spacing x={2} />
 				{subMenu ? <CaretRight /> : null}
 				{keyHint && !areKeyboardShortcutsDisabled() ? (
