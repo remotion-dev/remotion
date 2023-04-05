@@ -132,6 +132,15 @@ export const MenuSubItem: React.FC<{
 		return () => clearTimeout(hi);
 	}, [hovered, selected, setSubMenuActivated, subMenu]);
 
+	useEffect(() => {
+		if (selected) {
+			ref.current?.scrollIntoView({
+				// block is vertical alignment, inline is horizontal alignment. So we use "block"
+				block: 'nearest',
+			});
+		}
+	}, [selected]);
+
 	return (
 		<div
 			ref={ref}
