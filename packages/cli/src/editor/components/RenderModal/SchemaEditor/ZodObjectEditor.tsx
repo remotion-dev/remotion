@@ -81,7 +81,10 @@ export const ZodObjectEditor: React.FC<{
 									jsonPath={[...jsonPath, key]}
 									schema={shape[key]}
 									value={(value as Record<string, string>)[key]}
-									defaultValue={(defaultValue as Record<string, string>)[key]}
+									// In case of null | {a: string, b: string} type, we need to fallback to the default value
+									defaultValue={
+										((defaultValue as Record<string, string>) ?? value)[key]
+									}
 									setValue={(val) => {
 										setValue((oldVal: Record<string, string>) => {
 											return {

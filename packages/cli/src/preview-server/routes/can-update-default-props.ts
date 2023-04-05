@@ -13,6 +13,7 @@ export const canUpdateDefaultPropsHandler: ApiHandler<
 > = async ({input: {compositionId}, remotionRoot}) => {
 	try {
 		const projectInfo = await getProjectInfo(remotionRoot);
+		// TODO: If root file is not TypeScript, you cannot save it back
 		if (!projectInfo.videoFile) {
 			throw new Error('Cannot find root file in project');
 		}
