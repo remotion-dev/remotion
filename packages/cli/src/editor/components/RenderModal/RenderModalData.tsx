@@ -1,6 +1,8 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {AnyComposition} from 'remotion';
+import {getInputProps} from 'remotion';
 import {BORDER_COLOR} from '../../helpers/colors';
+import {ValidationMessage} from '../NewComposition/ValidationMessage';
 
 import {updateDefaultProps} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
@@ -18,12 +20,22 @@ const outer: React.CSSProperties = {
 };
 
 const controlContainer: React.CSSProperties = {
-	flexDirection: 'row',
+	flexDirection: 'column',
 	display: 'flex',
 	paddingLeft: 12,
 	paddingTop: 12,
 	paddingBottom: 12,
 	borderBottom: `1px solid ${BORDER_COLOR}`,
+};
+
+const tabWrapper: React.CSSProperties = {
+	display: 'flex',
+	marginBottom: '4px',
+	flexDirection: 'row',
+};
+
+const spacer: React.CSSProperties = {
+	flex: 1,
 };
 
 export const RenderModalData: React.FC<{
@@ -39,6 +51,8 @@ export const RenderModalData: React.FC<{
 		return composition.schema.safeParse(inputProps);
 	}, [composition.schema, inputProps]);
 
+	const cliProps = getInputProps();
+	console.log(Object.keys(cliProps).length);
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
 			{
@@ -79,8 +93,19 @@ export const RenderModalData: React.FC<{
 	return (
 		<div style={outer}>
 			<div style={controlContainer}>
-				<SegmentedControl items={modeItems} needsWrapping={false} />
+				<div style={tabWrapper}>
+					<SegmentedControl items={modeItems} needsWrapping={false} />
+					<div style={spacer} />
+				</div>
+				{Object.keys(cliProps).length > 0 ? (
+					<ValidationMessage
+						message="Sompe props might get overwritten, since CLI props were provided"
+						align="flex-start"
+						type="warning"
+					/>
+				) : null}
 			</div>
+
 			{mode === 'schema' ? (
 				<SchemaEditor
 					value={inputProps}
