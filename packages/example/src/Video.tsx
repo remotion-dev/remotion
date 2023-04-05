@@ -680,7 +680,11 @@ export const Index: React.FC = () => {
 							.refine((v) => ['car', 'bus', 'truck'].includes(v)),
 						other: z.string(),
 						abc: z.object({
-							union: z.null().or(z.string()),
+							union: z.null().or(
+								z.object({
+									abc: z.string(),
+								})
+							),
 							jkl: z.string(),
 							def: z.object({
 								unionArray: z.array(z.null().or(z.string())),
