@@ -1,6 +1,7 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 import type {z} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
+import {useKeybinding} from '../../helpers/use-keybinding';
 import {Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -66,6 +67,8 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	onSave,
 	valBeforeSafe,
 }) => {
+	const keybindings = useKeybinding();
+
 	const [localValue, setLocalValue] = React.useState<State>(() => {
 		return parseJSON(serializeJSONWithDate(value, 2));
 	});
@@ -107,6 +110,27 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	const hasChanged = useMemo(() => {
 		return value && JSON.stringify(value) !== JSON.stringify(valBeforeSafe);
 	}, [valBeforeSafe, value]);
+
+	const onQuickSave = useCallback(() => {
+		if (hasChanged) {
+			onSave();
+		}
+	}, [hasChanged, onSave]);
+
+	useEffect(() => {
+		const save = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 's',
+			commandCtrlKey: true,
+			callback: onQuickSave,
+			preventDefault: true,
+			triggerIfInputFieldFocused: true,
+		});
+
+		return () => {
+			save.unregister();
+		};
+	}, [keybindings, onQuickSave, onSave]);
 
 	// TODO: Indicate saving progress
 	return (
