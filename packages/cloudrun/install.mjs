@@ -26,7 +26,7 @@ execSync(
 );
 
 execSync(
-  'echo project_id set to export $TF_VAR_project_id',
+  'echo project_id set to $TF_VAR_project_id',
   {stdio: 'inherit'}
 );
 
