@@ -91,8 +91,8 @@ Note that we only added a minimal example. For production, you should consider a
 
 ## Render using GitHub Actions
 
-The template includes a GitHub Actions workflow file
-under `.github/workflows/render-video.yml`. All you have to do is to adjust the props that your root component accepts in the workflow file and you can render a video right on GitHub.
+The Hello World template includes a GitHub Actions workflow file
+under [`.github/workflows/render-video.yml`](https://github.com/remotion-dev/template-helloworld/blob/main/.github/workflows/render-video.yml). All you have to do is to adjust the props that your root component accepts in the workflow file and you can render a video right on GitHub.
 
 1. Commit the template to a GitHub repository
 2. On GitHub, click the 'Actions' tab.

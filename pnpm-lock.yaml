@@ -244,7 +244,7 @@ importers:
       typescript: ^4.7.0
       vitest: 0.24.3
       webpack: 5.76.1
-      zod: ^3.21.4
+      zod: 3.21.4
     dependencies:
       zod: 3.21.4
     devDependencies:
@@ -499,6 +499,7 @@ importers:
       '@remotion/lambda': workspace:*
       '@remotion/lottie': workspace:*
       '@remotion/media-utils': workspace:*
+      '@remotion/motion-blur': workspace:*
       '@remotion/paths': workspace:*
       '@remotion/renderer': workspace:*
       '@remotion/rive': workspace:*
@@ -549,6 +550,7 @@ importers:
       '@remotion/lambda': link:../lambda
       '@remotion/lottie': link:../lottie
       '@remotion/media-utils': link:../media-utils
+      '@remotion/motion-blur': link:../motion-blur
       '@remotion/paths': link:../paths
       '@remotion/renderer': link:../renderer
       '@remotion/rive': link:../rive
@@ -12306,8 +12308,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
-      is-text-path: 1.0.1
       JSONStream: 1.3.5
+      is-text-path: 1.0.1
       lodash: 4.17.21
       meow: 8.1.2
       split2: 3.2.2

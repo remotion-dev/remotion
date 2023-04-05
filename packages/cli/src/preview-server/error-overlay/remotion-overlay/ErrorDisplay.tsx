@@ -1,4 +1,5 @@
 import React, {useMemo} from 'react';
+import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../../editor/components/Menu/is-menu-item';
 import {getLocationFromBuildError} from '../react-overlay/effects/map-error-to-react-stack';
 import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
 import {AskOnDiscord} from './AskOnDiscord';
@@ -81,7 +82,7 @@ export const ErrorDisplay: React.FC<{
 			/>
 			<div style={spacer} />
 			<AskOnDiscord canHaveKeyboardShortcuts={keyboardShortcuts} />
-			<div style={stack} className="__remotion-horizontal-scrollbar">
+			<div style={stack} className={HORIZONTAL_SCROLLBAR_CLASSNAME}>
 				{display.stackFrames.map((s, i) => {
 					return (
 						<StackElement

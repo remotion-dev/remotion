@@ -1,6 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
-import fs, {existsSync, mkdirSync, rmdirSync, rmSync} from 'fs';
+import fs, {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
@@ -262,7 +262,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			envVariables: params.envVariables,
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
-			quality: params.quality,
+			jpegQuality: params.jpegQuality,
 			privacy: params.privacy,
 			logLevel: params.logLevel ?? 'info',
 			attempt: 1,
@@ -283,7 +283,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	console.log(
 		'Render plan: ',
-		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0] - c[1]})`).join(', ')
+		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', ')
 	);
 
 	const renderMetadata: RenderMetadata = {
@@ -449,7 +449,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 	if (existsSync(outdir)) {
-		(rmSync ?? rmdirSync)(outdir, {
+		rmSync(outdir, {
 			recursive: true,
 		});
 	}

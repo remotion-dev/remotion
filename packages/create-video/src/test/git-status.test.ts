@@ -3,7 +3,9 @@ import {expect, test} from 'vitest';
 import {checkGitAvailability} from '../init';
 
 test('Get git status', async () => {
-	const status = await checkGitAvailability(process.cwd(), 'git');
+	const status = await checkGitAvailability(process.cwd(), 'git', [
+		'--version',
+	]);
 	expect(status).toEqual({
 		type: 'is-git-repo',
 		location: path.posix
@@ -17,13 +19,15 @@ test('Get git status', async () => {
 
 	const status2 = await checkGitAvailability(
 		path.dirname(status.location),
-		'git'
+		'git',
+		['--version']
 	);
 	expect(status2).toEqual({type: 'no-git-repo'});
 
 	const status3 = await checkGitAvailability(
 		path.dirname(status.location),
-		'wronggitbinary'
+		'wronggitbinary',
+		['--version']
 	);
 	expect(status3).toEqual({type: 'git-not-installed'});
 });

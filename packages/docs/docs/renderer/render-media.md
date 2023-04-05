@@ -141,13 +141,17 @@ An object containing environment variables to be injected in your project.
 
 See: [Environment variables](/docs/env-variables/)
 
-### `quality?`
+### `jpegQuality?`
 
 _number - optional_
 
 Sets the quality of the generated JPEG images. Must be an integer between 0 and 100. Default is to leave it up to the browser, [current default is 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `frameRange?`
 

@@ -155,6 +155,21 @@ describe('Templates should be valid', () => {
 			},
 			12000
 		);
+		it(
+			template.shortName + ' should use noUnusedLocals',
+			async () => {
+				if (template.shortName.includes('JavaScript')) {
+					return;
+				}
+
+				const {contents} = await findFile([
+					getFileForTemplate(template, 'tsconfig.json'),
+				]);
+				const json = JSON.parse(contents as string);
+				expect(json.compilerOptions.noUnusedLocals).toBe(true);
+			},
+			12000
+		);
 	}
 });
 

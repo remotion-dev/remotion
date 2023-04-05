@@ -59,7 +59,6 @@ const nextTemplate: Template = {
 	promoBanner: {
 		width: 1280,
 		height: 720,
-		// TODO: Update this image
 		src: '/img/remix-template.png',
 	},
 	cliId: 'next',

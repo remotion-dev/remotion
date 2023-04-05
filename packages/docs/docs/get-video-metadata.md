@@ -30,12 +30,11 @@ A string pointing to an asset.
 ```tsx twoslash
 // @module: ESNext
 // @target: ESNext
-import { Audio } from "remotion";
+import { staticFile } from "remotion";
 // ---cut---
 import { getVideoMetadata } from "@remotion/media-utils";
-import video from "../video.mp4";
 
-await getVideoMetadata(video); /* {
+await getVideoMetadata(staticFile("video.mp4")); /* {
   durationInSeconds: 100.00,
   width: 1280,
   height: 720,

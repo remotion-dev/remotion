@@ -95,6 +95,7 @@ export const ThumbnailFn = <Schema extends z.ZodTypeAny, Props>(
 				fps={fps}
 				inputProps={inputProps}
 				numberOfSharedAudioTags={0}
+				initiallyMuted
 			>
 				<ThumbnailEmitterContext.Provider value={emitter}>
 					<ThumbnailUI

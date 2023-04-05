@@ -1,5 +1,9 @@
 import React from 'react';
 import {cmdOrCtrlCharacter} from '../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
+import {
+	INPUT_BACKGROUND,
+	INPUT_BORDER_COLOR_UNHOVERED,
+} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {ArrowLeft, ArrowRight, ShiftIcon} from '../icons/keys';
 import {Column, Row, Spacing} from './layout';
@@ -11,13 +15,13 @@ const left: React.CSSProperties = {
 };
 
 const key: React.CSSProperties = {
-	background: '#333',
+	background: INPUT_BACKGROUND,
 	padding: '3px 6px',
 	color: 'white',
 	borderRadius: 3,
-	border: '1px solid black',
+	border: '1px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
 	borderBottomWidth: 3,
-	fontSize: 13,
+	fontSize: 14,
 	fontFamily: 'monospace',
 };
 
@@ -166,6 +170,12 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 							<kbd style={key}>N</kbd>
 						</div>
 						<div style={right}>New composition</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>R</kbd>
+						</div>
+						<div style={right}>Render composition</div>
 					</Row>
 					<Row align="center">
 						<div style={left}>

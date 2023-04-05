@@ -39,7 +39,7 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
-import {WarpDemo} from './WarpText';
+import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 
 if (alias !== 'alias') {
@@ -564,7 +564,7 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="path-warp"
-					component={WarpDemo}
+					component={WarpDemoOuter}
 					durationInFrames={500}
 					fps={30}
 					height={1080}
@@ -677,7 +677,7 @@ export const Index: React.FC = () => {
 						vehicle: z
 							.string()
 							.max(3, 'Too long')
-							.refine((v) => ['caa', 'bus', 'truck'].includes(v)),
+							.refine((v) => ['car', 'bus', 'truck'].includes(v)),
 						other: z.string(),
 						abc: z.object({
 							union: z.null().or(z.string()),
@@ -696,7 +696,7 @@ export const Index: React.FC = () => {
 							)
 							.min(2),
 						array2: z.array(z.array(z.number())),
-						mynum: z.number().lt(10000000),
+						mynum: z.number().lt(10),
 						value: z.boolean().refine((v) => v === false || v === true),
 						lol: z.undefined(),
 						haha: z.null(),
@@ -708,27 +708,28 @@ export const Index: React.FC = () => {
 						supersuperlongvalueabcdefghji: z.string(),
 					})}
 					defaultProps={{
-						vehicle: 'bus',
-						other: 'hi',
+						vehicle: 'car' as const,
+						other: 'hi' as const,
 						abc: {
-							def: {unionArray: ['someString', null], pef: 'hu'},
-							jkl: 'sting',
-							union: 'hello',
+							union: null,
+							def: {unionArray: ['huthere' as const], pef: 'hu' as const},
+							jkl: 'sting' as const,
+							xyz: 'hi' as const,
 						},
 						array: [
-							{a: 'a', b: 'bbbbb'},
-							{a: 'a', b: 'b'},
+							{a: 'a' as const, b: 'bbbbb' as const},
+							{a: 'a' as const, b: 'b' as const},
 						],
 						array2: [[12], [12]],
 						mynum: 4,
 						value: true,
 						haha: null,
-						yo: {hi: ' there'},
-						un: 'hi',
-						num: '179',
+						yo: {hi: ' there' as const},
+						un: 'hi' as const,
+						num: '179' as const,
 						date: new Date('1999-02-12T20:20:00.000Z'),
-						values: 'a',
-						supersuperlongvalueabcdefghji: 'hia',
+						values: 'a' as const,
+						supersuperlongvalueabcdefghji: 'hi' as const,
 					}}
 					durationInFrames={150}
 				/>

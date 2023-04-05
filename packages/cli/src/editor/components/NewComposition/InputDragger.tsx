@@ -149,7 +149,6 @@ export const InputDragger: React.FC<Props> = ({
 			fallbackRef.current?.select();
 		}
 	}, [inputFallback]);
-
 	if (inputFallback) {
 		return (
 			<HigherZIndex onEscape={onEscape} onOutsideClick={noop}>
@@ -162,6 +161,7 @@ export const InputDragger: React.FC<Props> = ({
 					step={_step}
 					defaultValue={value}
 					status={status}
+					pattern={'[0-9]*[.]?[0-9]*'}
 					{...props}
 				/>
 			</HigherZIndex>

@@ -12,7 +12,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 	const projectInfo = await getProjectInfo(remotionRoot);
 	// TODO: What happens if this error is thrown? Handle in frontend
 	if (!projectInfo.videoFile) {
-		throw new Error('Cannot find Roo.tsx file in project');
+		throw new Error('Cannot find root file in project');
 	}
 
 	// TODO: Pass error to frontend
