@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {z} from 'remotion';
+import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
 import {
 	FAIL_COLOR,
 	INPUT_BORDER_COLOR_UNHOVERED,
@@ -7,6 +8,7 @@ import {
 import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {optionRow} from '../layout';
+import {createZodValues} from './create-zod-values';
 import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
@@ -25,7 +27,6 @@ type LocalState = {
 	revision: number;
 };
 
-// TODO: Ability to add another item
 // TODO: Ability to revert a change (e.g entry deletion )
 export const ZodArrayEditor: React.FC<{
 	schema: z.ZodTypeAny;
@@ -56,7 +57,7 @@ export const ZodArrayEditor: React.FC<{
 		};
 	});
 
-	const def = schema._def;
+	const def = schema._def as z.ZodArrayDef;
 
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
 	if (typeName !== z.ZodFirstPartyTypeKind.ZodArray) {
@@ -104,6 +105,12 @@ export const ZodArrayEditor: React.FC<{
 		return {paddingTop};
 	}, [isRoot, paddingTop]);
 
+	const onAdd = useCallback(() => {
+		onChange((oldV) => {
+			return [...oldV, createZodValues(def.type)];
+		}, true);
+	}, [def.type, onChange]);
+
 	return (
 		<div style={style}>
 			<div style={fullWidth}>
@@ -123,7 +130,7 @@ export const ZodArrayEditor: React.FC<{
 									index={i}
 									jsonPath={jsonPath}
 									compact={compact}
-									defaultValue={defaultValue[i]}
+									defaultValue={defaultValue[i] ?? child}
 									onSave={onSave}
 									showSaveButton={showSaveButton}
 								/>
@@ -140,6 +147,8 @@ export const ZodArrayEditor: React.FC<{
 							/>
 						</>
 					)}
+					<Spacing y={1} block />
+					<Button onClick={onAdd}>+ Add item</Button>
 				</Element>
 			</div>
 		</div>
