@@ -56,7 +56,6 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 		};
 	}, [sidebarCollapsedStateRight]);
 
-	// TODO: What if left sidebar is in "responsive" mode?
 	const toggleLeft = useCallback(() => {
 		if (sidebarCollapsedStateLeft === 'responsive') {
 			setSidebarCollapsedStateLeft(() =>
