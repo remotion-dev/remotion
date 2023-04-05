@@ -55,6 +55,21 @@ The timeline is now always in simple mode, but supports more timeline layers at 
 Previously, the `aac` audio codec was the default for ProRes exports. The default is now `pcm_s16le` which stands for uncompressed 16-bit low-endian PCM audio.  
 This change was made since users export ProRes mainly for getting high-quality footage to be further used in video editing programs.
 
+## Renamed `quality` option to `jpegQuality`
+
+To clarify the meaning of this option, it is now universally called "JPEG Quality". Adjust the following options:
+
+- [`npx remotion render`](/docs/cli/render): Use `--jpeg-quality` insted of `--quality`
+- [`npx remotion still`](/docs/cli/still): Use `--jpeg-quality` insted of `--quality`
+- [`npx remotion benchmark`](/docs/cli/benchmark): Use `--jpeg-quality` insted of `--quality`
+- [`npx remotion lambda render`](/docs/lambda/cli/render): Use `--jpeg-quality` insted of `--quality`
+- [`npx remotion lambda still`](/docs/lambda/cli/still): Use `--jpeg-quality` insted of `--quality`
+- [`renderFrames()`](/docs/renderer/render-frames): Use `jpegQuality` instead of `quality`
+- [`renderMedia()`](/docs/renderer/render-media): Use `jpegQuality` instead of `quality`
+- [`renderStill()`](/docs/renderer/render-still): Use `jpegQuality` instead of `quality`
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda): Use `jpegQuality` instead of `quality`
+- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda): Use `jpegQuality` instead of `quality`
+
 ## No more FFmpeg install, `ffmpegExecutable` option removed
 
 ## Moved `onSlowestFrames` API
