@@ -159,3 +159,16 @@ export type UpdateDefaultPropsRequest = {
 	compositionId: string;
 	defaultProps: string;
 };
+
+export type CanUpdateDefaultPropsRequest = {
+	compositionId: string;
+};
+
+export type CanUpdateDefaultPropsResponse =
+	| {
+			canUpdate: true;
+	  }
+	| {
+			canUpdate: false;
+			reason: string;
+	  };
