@@ -17,8 +17,10 @@ import { execSync } from "child_process";
 //   console.log('stdout');
 // })
 
-
-console.log('setting project_id in Terraform, based on current project.')
+execSync(
+  'echo "\u001bsetting project_id in Terraform, based on current project."',
+  {stdio: 'inherit'}
+);
 
 execSync(
   'export TF_VAR_project_id=$(gcloud config get-value project)',
@@ -26,11 +28,11 @@ execSync(
 );
 
 execSync(
-  'echo project_id set to $TF_VAR_project_id',
+  'echo "\u001b[32;1mproject_id set to $TF_VAR_project_id"',
   {stdio: 'inherit'}
 );
 
-console.log('Initialising Terraform.')
+console.log('Running Terraform.')
 
 execSync(
   'terraform init',
@@ -38,7 +40,7 @@ execSync(
 );
 
 execSync(
-  'terraform apply',
+  'terraform plan',
   {stdio: 'inherit'}
 );
 
