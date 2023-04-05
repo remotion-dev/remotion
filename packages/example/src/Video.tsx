@@ -710,13 +710,14 @@ export const Index: React.FC = () => {
 						date: z.date(),
 						values: z.enum(['a', 'b', 'c']),
 						supersuperlongvalueabcdefghji: z.string(),
+						incompatible: z.null().or(z.undefined()),
 					})}
 					defaultProps={{
 						vehicle: 'car' as const,
 						other: 'hi' as const,
 						abc: {
 							union: null,
-							def: {unionArray: ['huthere' as const], pef: 'hu' as const},
+							def: {unionArray: [null], pef: 'hu' as const},
 							jkl: 'sting' as const,
 							xyz: 'hi' as const,
 						},
@@ -734,6 +735,7 @@ export const Index: React.FC = () => {
 						date: new Date('1999-02-12T20:20:00.000Z'),
 						values: 'a' as const,
 						supersuperlongvalueabcdefghji: 'hi' as const,
+						incompatible: null,
 					}}
 					durationInFrames={150}
 				/>

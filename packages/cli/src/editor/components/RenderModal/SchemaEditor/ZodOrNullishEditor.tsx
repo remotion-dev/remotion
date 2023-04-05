@@ -26,7 +26,7 @@ const checkBoxWrapper: React.CSSProperties = {
 	marginTop: '5px',
 };
 
-export const ZodOrNullEditor: React.FC<{
+export const ZodOrNullishEditor: React.FC<{
 	showSaveButton: boolean;
 	jsonPath: JSONPath;
 	compact: boolean;
@@ -36,6 +36,7 @@ export const ZodOrNullEditor: React.FC<{
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 	onSave: (updater: (oldNum: unknown) => unknown) => void;
 	onRemove: null | (() => void);
+	nullishValue: null | undefined;
 }> = ({
 	jsonPath,
 	compact,
@@ -46,8 +47,9 @@ export const ZodOrNullEditor: React.FC<{
 	value,
 	showSaveButton,
 	onRemove,
+	nullishValue,
 }) => {
-	const isChecked = value === null;
+	const isChecked = value === nullishValue;
 
 	const onValueChange = useCallback(
 		(newValue: unknown) => {
@@ -60,10 +62,10 @@ export const ZodOrNullEditor: React.FC<{
 		useCallback(
 			(e) => {
 				console.log({schema, newVal: createZodValues(schema)});
-				const val = e.target.checked ? null : createZodValues(schema);
+				const val = e.target.checked ? nullishValue : createZodValues(schema);
 				onValueChange(val);
 			},
-			[onValueChange, schema]
+			[nullishValue, onValueChange, schema]
 		);
 
 	const reset = useCallback(() => {
@@ -108,7 +110,7 @@ export const ZodOrNullEditor: React.FC<{
 					disabled={false}
 				/>
 				<Spacing x={1} />
-				<div style={labelStyle}>null</div>
+				<div style={labelStyle}>{String(nullishValue)}</div>
 			</div>
 		</>
 	);
