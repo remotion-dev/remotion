@@ -29,7 +29,7 @@ export const RenderButton: React.FC = () => {
 	}, []);
 	const tooltip =
 		type === 'connected'
-			? 'Export the current composition'
+			? 'Export the current composition (R)'
 			: 'Connect to the preview server to render';
 
 	const video = Internals.useVideo();

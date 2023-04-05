@@ -27,9 +27,6 @@ const PropsEditor: React.FC<{
 }> = ({composition}) => {
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
 
-	// TODO: Warn if inputProps were specified to the CLI, then
-	// they take priority over defaultProps
-
 	const setInputProps = useCallback(
 		(newProps: unknown | ((oldProps: unknown) => unknown)) => {
 			updateProps({
