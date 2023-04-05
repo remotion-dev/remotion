@@ -22,7 +22,7 @@ export const Modals: React.FC = () => {
 					initialFrame={modalContextType.initialFrame}
 					compositionId={modalContextType.compositionId}
 					initialVideoImageFormat={modalContextType.initialVideoImageFormat}
-					initialQuality={modalContextType.initialQuality}
+					initialJpegQuality={modalContextType.initialJpegQuality}
 					initialOutName={modalContextType.initialOutName}
 					initialScale={modalContextType.initialScale}
 					initialVerbose={modalContextType.initialVerbose}

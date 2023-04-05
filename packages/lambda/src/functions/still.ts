@@ -166,7 +166,7 @@ const innerStillHandler = async (
 		inputProps,
 		overwrite: false,
 		puppeteerInstance: browserInstance,
-		quality: lambdaParams.quality,
+		jpegQuality: lambdaParams.jpegQuality,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		scale: lambdaParams.scale,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,

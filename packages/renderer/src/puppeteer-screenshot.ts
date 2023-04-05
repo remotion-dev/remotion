@@ -8,30 +8,30 @@ export const screenshot = (options: {
 	page: Page;
 	type: StillImageFormat;
 	path?: string;
-	quality?: number;
+	jpegQuality?: number;
 	omitBackground: boolean;
 	width: number;
 	height: number;
 	clipRegion: ClipRegion | null;
 }): Promise<Buffer | string> => {
-	if (options.quality) {
+	if (options.jpegQuality) {
 		assert.ok(
 			options.type === 'jpeg',
 			`options.quality is unsupported for the ${options.type} screenshots`
 		);
 		assert.ok(
-			typeof options.quality === 'number',
+			typeof options.jpegQuality === 'number',
 			'Expected options.quality to be a number but found ' +
-				typeof options.quality
+				typeof options.jpegQuality
 		);
 		assert.ok(
-			Number.isInteger(options.quality),
+			Number.isInteger(options.jpegQuality),
 			'Expected options.quality to be an integer'
 		);
 		assert.ok(
-			options.quality >= 0 && options.quality <= 100,
+			options.jpegQuality >= 0 && options.jpegQuality <= 100,
 			'Expected options.quality to be between 0 and 100 (inclusive), got ' +
-				options.quality
+				options.jpegQuality
 		);
 	}
 
@@ -43,7 +43,7 @@ export const screenshot = (options: {
 			width: options.width,
 			omitBackground: options.omitBackground,
 			path: options.path,
-			quality: options.quality,
+			jpegQuality: options.jpegQuality,
 			clipRegion: options.clipRegion,
 		})
 	);

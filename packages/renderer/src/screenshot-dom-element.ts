@@ -7,7 +7,7 @@ import {screenshot} from './puppeteer-screenshot';
 export const screenshotDOMElement = async ({
 	page,
 	imageFormat,
-	quality,
+	jpegQuality,
 	opts,
 	height,
 	width,
@@ -15,7 +15,7 @@ export const screenshotDOMElement = async ({
 }: {
 	page: Page;
 	imageFormat: StillImageFormat;
-	quality: number | undefined;
+	jpegQuality: number | undefined;
 	opts: {
 		path: string | null;
 	};
@@ -59,7 +59,7 @@ export const screenshotDOMElement = async ({
 		omitBackground: imageFormat === 'png',
 		path: path ?? undefined,
 		type: imageFormat,
-		quality,
+		jpegQuality,
 		width,
 		height,
 		clipRegion,

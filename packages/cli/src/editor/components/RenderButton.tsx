@@ -49,7 +49,7 @@ export const RenderButton: React.FC<{
 				initialFrame: 0,
 				initialVideoImageFormat: defaults.videoImageFormat,
 				initialStillImageFormat: defaults.stillImageFormat,
-				initialQuality: defaults.quality,
+				initialJpegQuality: defaults.jpegQuality,
 				initialScale: defaults.scale,
 				initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
 				initialOutName: getDefaultOutLocation({

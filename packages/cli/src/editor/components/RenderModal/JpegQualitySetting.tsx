@@ -1,8 +1,8 @@
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import {NumberSetting} from './NumberSetting';
 
-const MIN_QUALITY = 1;
-const MAX_QUALITY = 100;
+const MIN_JPEG_QUALITY = 1;
+const MAX_JPEG_QUALITY = 100;
 
 export const JpegQualitySetting: React.FC<{
 	quality: number;
@@ -10,8 +10,8 @@ export const JpegQualitySetting: React.FC<{
 }> = ({quality: scale, setQuality: setScale}) => {
 	return (
 		<NumberSetting
-			min={MIN_QUALITY}
-			max={MAX_QUALITY}
+			min={MIN_JPEG_QUALITY}
+			max={MAX_JPEG_QUALITY}
 			step={1}
 			name="JPEG Quality"
 			onValueChanged={setScale}

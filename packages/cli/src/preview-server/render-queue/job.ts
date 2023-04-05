@@ -43,14 +43,14 @@ type RenderJobDynamicFields =
 	| ({
 			type: 'still';
 			imageFormat: StillImageFormat;
-			quality: number | null;
+			jpegQuality: number | null;
 			frame: number;
 			scale: number;
 	  } & RenderJobDynamicStatus)
 	| ({
 			type: 'video';
 			imageFormat: VideoImageFormat;
-			quality: number | null;
+			jpegQuality: number | null;
 			scale: number;
 			codec: Codec;
 			audioCodec: AudioCodec;
@@ -91,7 +91,7 @@ type AddRenderRequestDynamicFields =
 	| {
 			type: 'still';
 			imageFormat: StillImageFormat;
-			quality: number | null;
+			jpegQuality: number | null;
 			frame: number;
 			scale: number;
 			verbose: boolean;
@@ -101,7 +101,7 @@ type AddRenderRequestDynamicFields =
 			codec: Codec;
 			audioCodec: AudioCodec;
 			imageFormat: VideoImageFormat;
-			quality: number | null;
+			jpegQuality: number | null;
 			scale: number;
 			verbose: boolean;
 			concurrency: number;
