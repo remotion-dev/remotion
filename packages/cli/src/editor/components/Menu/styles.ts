@@ -10,6 +10,8 @@ const menuContainer: React.CSSProperties = {
 	color: 'white',
 	userSelect: 'none',
 	minWidth: 200,
+	maxHeight: 400,
+	overflow: 'auto',
 };
 
 export const SHADOW_TOWARDS_BOTTOM = '0 2px 8px rgba(0, 0, 0, 0.5)';

@@ -112,6 +112,8 @@ export const SchemaEditor: React.FC<{
 		const defaultPropsValid = schema.safeParse(defaultProps);
 
 		if (!defaultPropsValid.success) {
+			// TODO: Layout is not nice
+			// TODO: Does not react to when schema is updated
 			return (
 				<div>
 					<div style={errorExplanation}>

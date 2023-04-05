@@ -146,6 +146,10 @@ export const Combobox: React.FC<{
 		};
 	}, [refresh]);
 
+	// TODO: Limit width
+	// TODO: Align to left if more space on the right
+	// TODO: Scroll to current value if there are a lot of values
+
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!opened || !size) {
 			return null;
