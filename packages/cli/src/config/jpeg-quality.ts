@@ -4,7 +4,7 @@ const defaultValue = undefined;
 let quality: number | undefined = defaultValue;
 
 export const setJpegQuality = (q: number | undefined) => {
-	RenderInternals.validateQuality(q);
+	RenderInternals.validateJpegQuality(q);
 
 	if (q === 0 || q === undefined) {
 		quality = defaultValue;
