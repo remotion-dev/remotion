@@ -47,7 +47,6 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 		};
 	}, [sidebarCollapsedStateRight]);
 
-	// TODO: Make KeyboardShortcutExplainer scrollable
 	const toggleLeft = useCallback(() => {
 		setSidebarCollapsedStateLeft((s) => {
 			if (s === 'responsive') {
