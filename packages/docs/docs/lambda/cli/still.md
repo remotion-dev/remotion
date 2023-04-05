@@ -81,7 +81,7 @@ The file name of the media output as stored in the S3 bucket. By default, it is 
 
 ### `--jpeg-quality`
 
-[Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when rendering an image format other than JPEG.
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when rendering an image format other than JPEG.
 
 ### ~~`--quality`~~
 

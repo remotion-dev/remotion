@@ -108,7 +108,7 @@ By default, each Lambda function renders with concurrency 1 (one open browser ta
 
 ### `--jpeg-quality`
 
-[Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
 
 ### ~~`--quality`~~
 

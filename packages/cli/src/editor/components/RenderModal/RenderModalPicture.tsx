@@ -120,10 +120,16 @@ export const RenderModalPicture: React.FC<{
 				</div>
 			) : null}
 			{renderMode === 'video' && videoImageFormat === 'jpeg' && (
-				<JpegQualitySetting quality={jpegQuality} setQuality={setJpegQuality} />
+				<JpegQualitySetting
+					jpegQuality={jpegQuality}
+					setJpegQuality={setJpegQuality}
+				/>
 			)}
 			{renderMode === 'still' && stillImageFormat === 'jpeg' && (
-				<JpegQualitySetting quality={jpegQuality} setQuality={setJpegQuality} />
+				<JpegQualitySetting
+					jpegQuality={jpegQuality}
+					setJpegQuality={setJpegQuality}
+				/>
 			)}
 			{renderMode === 'video' ? <RenderModalHr /> : null}
 			{renderMode === 'video' ? (
