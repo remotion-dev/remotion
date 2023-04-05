@@ -19,19 +19,20 @@ export const Spacing: React.FC<{
 	return <div style={style} />;
 };
 
-const flex: React.CSSProperties = {flex: 1};
+const flexCss: React.CSSProperties = {flex: 1};
 
 export const Flex: React.FC<{
 	children?: React.ReactNode;
-}> = ({children}) => <div style={flex}>{children}</div>;
+}> = ({children}) => <div style={flexCss}>{children}</div>;
 
 export const Row: React.FC<{
 	justify?: 'center' | 'flex-start' | 'flex-end';
 	align?: 'center';
 	style?: React.CSSProperties;
+	flex?: number;
 	className?: string;
 	children: React.ReactNode;
-}> = ({children, justify, className, align, style = {}}) => {
+}> = ({children, justify, className, align, flex, style = {}}) => {
 	const finalStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...style,
@@ -39,8 +40,9 @@ export const Row: React.FC<{
 			flexDirection: 'row',
 			justifyContent: justify ?? 'flex-start',
 			alignItems: align ?? 'flex-start',
+			flex: flex ?? undefined,
 		};
-	}, [align, justify, style]);
+	}, [align, flex, justify, style]);
 	return (
 		<div className={className} style={finalStyle}>
 			{children}
