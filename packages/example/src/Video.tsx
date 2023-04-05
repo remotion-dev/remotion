@@ -680,10 +680,14 @@ export const Index: React.FC = () => {
 							.refine((v) => ['car', 'bus', 'truck'].includes(v)),
 						other: z.string(),
 						abc: z.object({
-							xyz: z.string(),
+							union: z.null().or(
+								z.object({
+									abc: z.string(),
+								})
+							),
 							jkl: z.string(),
 							def: z.object({
-								xyz: z.string(),
+								unionArray: z.array(z.null().or(z.string())),
 								pef: z.string(),
 							}),
 						}),
@@ -706,12 +710,14 @@ export const Index: React.FC = () => {
 						date: z.date(),
 						values: z.enum(['a', 'b', 'c']),
 						supersuperlongvalueabcdefghji: z.string(),
+						incompatible: z.null().or(z.undefined()),
 					})}
 					defaultProps={{
 						vehicle: 'car' as const,
 						other: 'hi' as const,
 						abc: {
-							def: {xyz: 'huthere' as const, pef: 'hu' as const},
+							union: null,
+							def: {unionArray: [null], pef: 'hu' as const},
 							jkl: 'sting' as const,
 							xyz: 'hi' as const,
 						},
@@ -729,6 +735,7 @@ export const Index: React.FC = () => {
 						date: new Date('1999-02-12T20:20:00.000Z'),
 						values: 'a' as const,
 						supersuperlongvalueabcdefghji: 'hi' as const,
+						incompatible: null,
 					}}
 					durationInFrames={150}
 				/>

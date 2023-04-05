@@ -10,6 +10,7 @@ import {ZonNonEditableValue} from './ZodNonEditableValue';
 import {ZodNumberEditor} from './ZodNumberEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
 import {ZodStringEditor} from './ZodStringEditor';
+import {ZodUnionEditor} from './ZodUnionEditor';
 
 export const ZodSwitch: React.FC<{
 	schema: z.ZodTypeAny;
@@ -221,6 +222,22 @@ export const ZodSwitch: React.FC<{
 				defaultValue={defaultValue}
 				onSave={onSave}
 				showSaveButton={showSaveButton}
+				onRemove={onRemove}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodUnion) {
+		return (
+			<ZodUnionEditor
+				schema={schema}
+				showSaveButton={showSaveButton}
+				jsonPath={jsonPath}
+				compact={compact}
+				value={value}
+				defaultValue={defaultValue}
+				setValue={setValue}
+				onSave={onSave}
 				onRemove={onRemove}
 			/>
 		);
