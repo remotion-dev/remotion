@@ -38,12 +38,16 @@ The CLI configuration file has been moved out from the core Remotion package to 
 + import {Config} from '@remotion/cli/config';
 ```
 
+TODO: Old config syntax has been removed
+
 ## Dropped support for Lambda `architecture`
 
 When deploying a Lambda, you were previously able to choose between the `arm64` and `x86_64` architecture.  
 From v4.0 on, only `arm64` is supported. It should be faster, cheaper and not have any different behavior than `x86_64`.
 
-**How to upgrade**: Remove the `architecture` option from `estimatePrice()` and `deployFunction()`.
+**How to upgrade**:
+
+- Remove the `architecture` option from `estimatePrice()` and `deployFunction()`.
 
 ## Rich timeline removed
 
@@ -57,10 +61,21 @@ This change was made since users export ProRes mainly for getting high-quality f
 
 ## No more FFmpeg install, `ffmpegExecutable` option removed
 
+FFmpeg is now baked into the `@remotion/renderer` package. Therefore, the `ffmpegExecutable` and `ffprobeExecutable` options have been removed.
+
+**How to upgrade:**
+
+- Remove the `ffmpegExecutable` option from [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`getCompositions()`](/docs/renderer/get-compositions), [`renderFrames()`](/docs/renderer/render-frames) and [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) calls.
+- Remove the `ffprobeExecutable` option from [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`getCompositions()`](/docs/renderer/get-compositions), [`renderFrames()`](/docs/renderer/render-frames) and [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) calls.
+- Remove all calls to [`ensureFfmpeg()`](/docs/renderer/ensure-ffmpeg).
+- Remove all calls to [`ensureFfprobe()`](/docs/renderer/ensure-ffprobe).
+- Remove the `--ffmpeg-executable` flag from [`npx remotion render`](/docs/cli/render), [`npx remotion still`](/docs/cli/still) and [`npx remotion benchmark`](/docs/cli/benchmark)
+- Remove the `--ffprobe-executable` flag from [`npx remotion render`](/docs/cli/render), [`npx remotion still`](/docs/cli/still) and [`npx remotion benchmark`](/docs/cli/benchmark)
+
 ## Moved `onSlowestFrames` API
 
 In V3, `onSlowestFrames` has been a callback function that you could pass to `renderMedia()`.  
-In V4, this API has been moved to the [return type](/docs/renderer/render-media#return-value).
+In V4, this data has been moved to the [return value](/docs/renderer/render-media#return-value).
 
 ## Removal of deprecated APIs
 
