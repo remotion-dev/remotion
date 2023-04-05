@@ -38,8 +38,8 @@ export const RenderModalPicture: React.FC<{
 	qualityControlType: QualityControl;
 	videoImageFormat: VideoImageFormat;
 	stillImageFormat: StillImageFormat;
-	setQuality: React.Dispatch<React.SetStateAction<number>>;
-	quality: number;
+	setJpegQuality: React.Dispatch<React.SetStateAction<number>>;
+	jpegQuality: number;
 	maxCrf: number;
 	minCrf: number;
 	setCrf: React.Dispatch<React.SetStateAction<number>>;
@@ -59,8 +59,8 @@ export const RenderModalPicture: React.FC<{
 	setQualityControl,
 	qualityControlType,
 	videoImageFormat,
-	setQuality,
-	quality,
+	setJpegQuality,
+	jpegQuality,
 	maxCrf,
 	minCrf,
 	setCrf,
@@ -120,10 +120,16 @@ export const RenderModalPicture: React.FC<{
 				</div>
 			) : null}
 			{renderMode === 'video' && videoImageFormat === 'jpeg' && (
-				<JpegQualitySetting quality={quality} setQuality={setQuality} />
+				<JpegQualitySetting
+					jpegQuality={jpegQuality}
+					setJpegQuality={setJpegQuality}
+				/>
 			)}
 			{renderMode === 'still' && stillImageFormat === 'jpeg' && (
-				<JpegQualitySetting quality={quality} setQuality={setQuality} />
+				<JpegQualitySetting
+					jpegQuality={jpegQuality}
+					setJpegQuality={setJpegQuality}
+				/>
 			)}
 			{renderMode === 'video' ? <RenderModalHr /> : null}
 			{renderMode === 'video' ? (

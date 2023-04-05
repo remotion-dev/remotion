@@ -41,7 +41,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		overwrite,
 		inputProps,
 		envVariables,
-		quality,
+		jpegQuality,
 		browser,
 		browserExecutable,
 		scale,
@@ -94,7 +94,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		concurrency,
 		everyNthFrame,
 		frameRange,
-		quality,
+		jpegQuality,
 		onProgress: () => undefined,
 		addCleanupCallback: (c) => {
 			registerCleanupJob(c);

@@ -46,7 +46,7 @@ test('Should fail when using an incompatible version', () => {
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
 				proResProfile: undefined,
-				quality: undefined,
+				jpegQuality: undefined,
 				scale: 1,
 				timeoutInMilliseconds: 12000,
 				numberOfGifLoops: null,

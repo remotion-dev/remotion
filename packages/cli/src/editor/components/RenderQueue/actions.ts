@@ -50,7 +50,7 @@ export const addStillRenderJob = ({
 	compositionId,
 	outName,
 	imageFormat,
-	quality,
+	jpegQuality,
 	frame,
 	scale,
 	verbose,
@@ -62,7 +62,7 @@ export const addStillRenderJob = ({
 	compositionId: string;
 	outName: string;
 	imageFormat: StillImageFormat;
-	quality: number | null;
+	jpegQuality: number | null;
 	frame: number;
 	scale: number;
 	verbose: boolean;
@@ -76,7 +76,7 @@ export const addStillRenderJob = ({
 		type: 'still',
 		outName,
 		imageFormat,
-		quality,
+		jpegQuality,
 		frame,
 		scale,
 		verbose,
@@ -91,7 +91,7 @@ export const addVideoRenderJob = ({
 	compositionId,
 	outName,
 	imageFormat,
-	quality,
+	jpegQuality,
 	scale,
 	verbose,
 	codec,
@@ -117,7 +117,7 @@ export const addVideoRenderJob = ({
 	compositionId: string;
 	outName: string;
 	imageFormat: VideoImageFormat;
-	quality: number | null;
+	jpegQuality: number | null;
 	scale: number;
 	verbose: boolean;
 	codec: Codec;
@@ -145,7 +145,7 @@ export const addVideoRenderJob = ({
 		type: 'video',
 		outName,
 		imageFormat,
-		quality,
+		jpegQuality,
 		scale,
 		verbose,
 		codec,

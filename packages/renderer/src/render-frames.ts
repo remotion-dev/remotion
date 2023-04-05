@@ -29,6 +29,7 @@ import {
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {DEFAULT_VIDEO_IMAGE_FORMAT} from './image-format';
+import {validateJpegQuality} from './jpeg-quality';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -37,7 +38,6 @@ import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
-import {validateQuality} from './quality';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
@@ -60,7 +60,11 @@ type RenderFramesOptions = {
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
 	imageFormat: VideoImageFormat;
-	quality?: number;
+	/**
+	 * @deprecated Renamed to "jpegQuality"
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
 	dumpBrowserLogs?: boolean;
@@ -89,6 +93,7 @@ const innerRenderFrames = ({
 	outputDir,
 	onStart,
 	inputProps,
+	jpegQuality,
 	quality,
 	imageFormat = DEFAULT_VIDEO_IMAGE_FORMAT,
 	frameRange,
@@ -128,6 +133,12 @@ const innerRenderFrames = ({
 				recursive: true,
 			});
 		}
+	}
+
+	if (quality) {
+		throw new Error(
+			`The "quality" option has been renamed. Use "jpegQuality" instead.`
+		);
 	}
 
 	const downloadPromises: Promise<unknown>[] = [];
@@ -310,7 +321,7 @@ const innerRenderFrames = ({
 					totalFrames: framesToRender.length,
 				})
 			),
-			quality,
+			jpegQuality,
 			width,
 			scale,
 			downloadMap,
@@ -487,13 +498,13 @@ export const renderFrames = (
 		component: 'in the `config` object passed to `renderFrames()`',
 		allowFloats: false,
 	});
-	if (options.quality !== undefined && options.imageFormat !== 'jpeg') {
+	if (options.jpegQuality !== undefined && options.imageFormat !== 'jpeg') {
 		throw new Error(
-			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
+			"You can only pass the `jpegQuality` option if `imageFormat` is 'jpeg'."
 		);
 	}
 
-	validateQuality(options.quality);
+	validateJpegQuality(options.jpegQuality);
 	validateScale(options.scale);
 
 	const makeBrowser = () =>

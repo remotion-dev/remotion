@@ -12,7 +12,7 @@ import {truthy} from './truthy';
 export const takeFrameAndCompose = async ({
 	freePage,
 	imageFormat,
-	quality,
+	jpegQuality,
 	frame,
 	width,
 	height,
@@ -23,7 +23,7 @@ export const takeFrameAndCompose = async ({
 }: {
 	freePage: Page;
 	imageFormat: VideoImageFormat | StillImageFormat;
-	quality: number | undefined;
+	jpegQuality: number | undefined;
 	frame: number;
 	height: number;
 	width: number;
@@ -81,7 +81,7 @@ export const takeFrameAndCompose = async ({
 		const buf = await provideScreenshot({
 			page: freePage,
 			imageFormat,
-			quality,
+			jpegQuality,
 			options: {
 				frame,
 				output: shouldMakeBuffer ? null : needsComposing?.tmpFile ?? output,

@@ -64,7 +64,7 @@ const handleFallback = async ({
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
 
-	const defaultQuality = ConfigInternals.getQuality();
+	const defaultJpegQuality = ConfigInternals.getJpegQuality();
 	const defaultScale = ConfigInternals.getScale();
 	const logLevel = ConfigInternals.Logging.getLogLevel();
 	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
@@ -113,7 +113,7 @@ const handleFallback = async ({
 			includeFavicon: true,
 			title: 'Remotion Preview',
 			renderDefaults: {
-				quality: defaultQuality ?? 80,
+				jpegQuality: defaultJpegQuality ?? 80,
 				scale: defaultScale ?? 1,
 				logLevel,
 				codec: defaultCodec ?? 'h264',
