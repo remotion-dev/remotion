@@ -1,6 +1,6 @@
 import {z} from 'remotion';
 
-export const createZodValues = (schema: z.ZodTypeAny) => {
+export const createZodValues = (schema: z.ZodTypeAny): unknown => {
 	const def = schema._def;
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
 
@@ -45,7 +45,11 @@ export const createZodValues = (schema: z.ZodTypeAny) => {
 			return [createZodValues(def.type)];
 		}
 
-		case z.ZodFirstPartyTypeKind.ZodUnion:
+		case z.ZodFirstPartyTypeKind.ZodUnion: {
+			const firstOptions = def.options[0];
+			return firstOptions ? createZodValues(firstOptions) : undefined;
+		}
+
 		case z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
 		case z.ZodFirstPartyTypeKind.ZodIntersection:
 		case z.ZodFirstPartyTypeKind.ZodTuple:
