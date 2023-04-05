@@ -173,7 +173,7 @@ export const RenderModal: React.FC<{
 	initialFrame: number;
 	initialVideoImageFormat: VideoImageFormat;
 	initialStillImageFormat: StillImageFormat;
-	initialQuality: number;
+	initialJpegQuality: number;
 	initialScale: number;
 	initialVerbose: boolean;
 	initialOutName: string;
@@ -203,7 +203,7 @@ export const RenderModal: React.FC<{
 	initialFrame,
 	initialVideoImageFormat,
 	initialStillImageFormat,
-	initialQuality,
+	initialJpegQuality,
 	initialScale,
 	initialVerbose,
 	initialOutName,
@@ -269,7 +269,9 @@ export const RenderModal: React.FC<{
 
 	const [renderMode, setRenderModeState] =
 		useState<RenderType>(initialRenderType);
-	const [quality, setQuality] = useState<number>(() => initialQuality);
+	const [jpegQuality, setJpegQuality] = useState<number>(
+		() => initialJpegQuality
+	);
 	const [scale, setScale] = useState(() => initialScale);
 	const [verbose, setVerboseLogging] = useState(() => initialVerbose);
 	const [disallowParallelEncoding, setDisallowParallelEncoding] =
@@ -552,7 +554,7 @@ export const RenderModal: React.FC<{
 			compositionId,
 			outName,
 			imageFormat: stillImageFormat,
-			quality: stillImageFormat === 'jpeg' ? quality : null,
+			jpegQuality: stillImageFormat === 'jpeg' ? jpegQuality : null,
 			frame,
 			scale,
 			verbose,
@@ -574,7 +576,7 @@ export const RenderModal: React.FC<{
 		compositionId,
 		outName,
 		stillImageFormat,
-		quality,
+		jpegQuality,
 		frame,
 		scale,
 		verbose,
@@ -608,7 +610,7 @@ export const RenderModal: React.FC<{
 			compositionId,
 			outName,
 			imageFormat: videoImageFormat,
-			quality: stillImageFormat === 'jpeg' ? quality : null,
+			jpegQuality: stillImageFormat === 'jpeg' ? jpegQuality : null,
 			scale,
 			verbose,
 			codec,
@@ -645,7 +647,7 @@ export const RenderModal: React.FC<{
 		outName,
 		videoImageFormat,
 		stillImageFormat,
-		quality,
+		jpegQuality,
 		scale,
 		verbose,
 		codec,
@@ -974,9 +976,9 @@ export const RenderModal: React.FC<{
 							customTargetVideoBitrate={customTargetVideoBitrate}
 							maxCrf={maxCrf}
 							minCrf={minCrf}
-							quality={quality}
+							jpegQuality={jpegQuality}
 							qualityControlType={qualityControlType}
-							setQuality={setQuality}
+							setJpegQuality={setJpegQuality}
 							setCustomTargetVideoBitrateValue={
 								setCustomTargetVideoBitrateValue
 							}

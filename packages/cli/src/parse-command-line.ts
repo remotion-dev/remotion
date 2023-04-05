@@ -40,6 +40,7 @@ export type CommandLineOptions = {
 	png: boolean;
 	props: string;
 	quality: number;
+	['jpeg-quality']: number;
 	frames: string | number;
 	scale: number;
 	sequence: boolean;
@@ -195,7 +196,12 @@ export const parseCommandLine = () => {
 	}
 
 	if (typeof parsedCli.quality !== 'undefined') {
-		Config.setQuality(parsedCli.quality);
+		Log.warn('The --quality flag has been renamed to --jpeg-quality instead.');
+		Config.setJpegQuality(parsedCli.quality);
+	}
+
+	if (typeof parsedCli['jpeg-quality'] !== 'undefined') {
+		Config.setJpegQuality(parsedCli['jpeg-quality']);
 	}
 
 	if (typeof parsedCli.scale !== 'undefined') {

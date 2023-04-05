@@ -58,7 +58,7 @@ export const renderStillFlow = async ({
 	port,
 	publicDir,
 	puppeteerTimeout,
-	quality,
+	jpegQuality,
 	scale,
 	stillFrame,
 	width,
@@ -76,7 +76,11 @@ export const renderStillFlow = async ({
 	remainingArgs: string[];
 	inputProps: object;
 	envVariables: Record<string, string>;
-	quality: number | undefined;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
+	jpegQuality: number | undefined;
 	browser: Browser;
 	stillFrame: number;
 	browserExecutable: BrowserExecutable;
@@ -256,7 +260,7 @@ export const renderStillFlow = async ({
 		frame: stillFrame,
 		output: absoluteOutputLocation,
 		serveUrl: urlOrBundle,
-		quality,
+		jpegQuality,
 		dumpBrowserLogs: shouldDumpIo,
 		envVariables,
 		imageFormat,

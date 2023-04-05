@@ -47,7 +47,6 @@ import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
-import {validateQuality} from './quality';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {tmpDir} from './tmp-dir';
@@ -143,7 +142,7 @@ export const RenderInternals = {
 	validateOpenGlRenderer,
 	validCodecs,
 	DEFAULT_PIXEL_FORMAT,
-	validateQuality,
+	validateJpegQuality,
 	DEFAULT_TIMEOUT,
 	DEFAULT_CODEC,
 	isAudioCodec,

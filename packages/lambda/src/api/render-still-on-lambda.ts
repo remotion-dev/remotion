@@ -22,7 +22,11 @@ export type RenderStillOnLambdaInput = {
 	privacy: Privacy;
 	maxRetries?: number;
 	envVariables?: Record<string, string>;
-	quality?: number;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	frame?: number;
 	logLevel?: LogLevel;
 	outName?: OutNameInput;
@@ -53,7 +57,7 @@ export type RenderStillOnLambdaOutput = {
  * @param params.inputProps The input props that should be passed to the composition.
  * @param params.imageFormat In which image format the frames should be rendered.
  * @param params.envVariables Object containing environment variables to be inserted into the video environment
- * @param params.quality JPEG quality if JPEG was selected as the image format.
+ * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
  * @param params.region The AWS region in which the video should be rendered.
  * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
  * @param params.frame Which frame should be used for the still image. Default 0.
@@ -68,6 +72,7 @@ export const renderStillOnLambda = async ({
 	imageFormat,
 	envVariables,
 	quality,
+	jpegQuality,
 	region,
 	maxRetries,
 	composition,
@@ -83,6 +88,12 @@ export const renderStillOnLambda = async ({
 	forceWidth,
 	forceBucketName,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
+	if (quality) {
+		throw new Error(
+			'The `quality` option is deprecated. Use `jpegQuality` instead.'
+		);
+	}
+
 	const serializedInputProps = await serializeInputProps({
 		inputProps,
 		region,
@@ -100,7 +111,7 @@ export const renderStillOnLambda = async ({
 				inputProps: serializedInputProps,
 				imageFormat,
 				envVariables,
-				quality,
+				jpegQuality,
 				maxRetries: maxRetries ?? DEFAULT_MAX_RETRIES,
 				frame: frame ?? 0,
 				privacy,

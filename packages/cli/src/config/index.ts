@@ -17,6 +17,7 @@ import {
 	setVideoImageFormat,
 } from './image-format';
 import {getShouldOutputImageSequence} from './image-sequence';
+import {getJpegQuality} from './jpeg-quality';
 import * as Logging from './log';
 import {getMaxTimelineTracks} from './max-timeline-tracks';
 import {getOutputLocation} from './output-location';
@@ -28,7 +29,6 @@ import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
 import {getServerPort} from './preview-server';
 import {getProResProfile} from './prores-profile';
-import {getQuality} from './quality';
 import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
@@ -75,6 +75,7 @@ import {
 import {setFrameRange} from './frame-range';
 import {getHeight, overrideHeight} from './height';
 import {setImageSequence} from './image-sequence';
+import {setJpegQuality} from './jpeg-quality';
 import {
 	getKeyboardShortcutsEnabled,
 	setKeyboardShortcutsEnabled,
@@ -94,7 +95,6 @@ import {setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
-import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
 import {setWebpackCaching} from './webpack-caching';
@@ -227,12 +227,16 @@ declare global {
 		 */
 		readonly setConcurrency: (newConcurrency: Concurrency) => void;
 		/**
+		 * @deprecated Renamed to `setJpegQuality`.
+		 */
+		readonly setQuality: (q: never) => void;
+		/**
 		 * Set the JPEG quality for the frames.
 		 * Must be between 0 and 100.
 		 * Must be between 0 and 100.
 		 * Default: 80
 		 */
-		readonly setQuality: (q: number | undefined) => void;
+		readonly setJpegQuality: (q: number | undefined) => void;
 		/** Decide the image format for still renders.
 		 */
 		readonly setStillImageFormat: (format: StillImageFormat) => void;
@@ -392,7 +396,12 @@ export const Config: FlatConfig = {
 	setChromiumOpenGlRenderer,
 	setDotEnvLocation,
 	setConcurrency,
-	setQuality,
+	setQuality: () => {
+		throw new Error(
+			'setQuality has been renamed - use setJpegQuality() instead.'
+		);
+	},
+	setJpegQuality,
 	setStillImageFormat,
 	setVideoImageFormat,
 	setFrameRange,
@@ -436,7 +445,7 @@ export const ConfigInternals = {
 	getEveryNthFrame,
 	getConcurrency,
 	getCurrentPuppeteerTimeout,
-	getQuality,
+	getJpegQuality,
 	getAudioCodec,
 	getStillFrame,
 	getShouldOutputImageSequence,
