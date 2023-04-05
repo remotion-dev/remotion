@@ -98,7 +98,7 @@ export const RenderModalData: React.FC<{
 				</div>
 				{Object.keys(cliProps).length > 0 ? (
 					<ValidationMessage
-						message="Sompe props might get overwritten, since CLI props were provided"
+						message="Some props might get overwritten, since CLI props were provided"
 						align="flex-start"
 						type="warning"
 					/>

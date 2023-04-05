@@ -1,5 +1,9 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
-import {useKeybinding} from '../helpers/use-keybinding';
+import {cmdOrCtrlCharacter} from '../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
+import {
+	areKeyboardShortcutsDisabled,
+	useKeybinding,
+} from '../helpers/use-keybinding';
 import {SidebarContext} from '../state/sidebar';
 import {InlineAction} from './InlineAction';
 import {Row} from './layout';
@@ -106,15 +110,23 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 		};
 	}, [keybindings, toggleBoth, toggleLeft, toggleRight]);
 
+	const toggleLeftTooltip = areKeyboardShortcutsDisabled()
+		? undefined
+		: 'Toggle Left Sidebar ' + cmdOrCtrlCharacter + ' + B';
+
+	const toggleRightTooltip = areKeyboardShortcutsDisabled()
+		? undefined
+		: 'Toggle Right Sidebar ' + cmdOrCtrlCharacter + ' + J';
+
 	return (
 		<Row>
 			<InlineAction onClick={toggleLeft}>
-				<div style={style} title="toggle left (cmd/ctrl + b)">
+				<div style={style} title={toggleLeftTooltip}>
 					<div style={leftIcon} />
 				</div>
 			</InlineAction>
 			<InlineAction onClick={toggleRight}>
-				<div style={style} title="toggle right (cmd/ctrl + j)">
+				<div style={style} title={toggleRightTooltip}>
 					<div style={rightIcon} />
 				</div>
 			</InlineAction>
