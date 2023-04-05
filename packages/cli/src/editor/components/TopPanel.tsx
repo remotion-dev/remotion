@@ -40,15 +40,9 @@ const leftContainer: React.CSSProperties = {
 	maxWidth: '100%',
 };
 
-export const TopPanel: React.FC = () => {
-	const leftSidebarBreakpoint = useBreakpoint(1200);
-	const rightSidebarBreakpoint = useBreakpoint(1600);
-	const {
-		setSidebarCollapsedStateLeft,
-		sidebarCollapsedStateLeft,
-		setSidebarCollapsedStateRight,
-		sidebarCollapsedStateRight,
-	} = useContext(SidebarContext);
+export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
+	const {sidebarCollapsedStateLeft} = useContext(SidebarContext);
+	const responsiveLeftStatus = useBreakpoint(1200) ? 'collapsed' : 'expanded';
 
 	const actualStateLeft = useMemo((): 'expanded' | 'collapsed' => {
 		if (sidebarCollapsedStateLeft === 'collapsed') {
@@ -59,20 +53,28 @@ export const TopPanel: React.FC = () => {
 			return 'expanded';
 		}
 
-		return leftSidebarBreakpoint ? 'collapsed' : 'expanded';
-	}, [leftSidebarBreakpoint, sidebarCollapsedStateLeft]);
+		return responsiveLeftStatus;
+	}, [sidebarCollapsedStateLeft, responsiveLeftStatus]);
+
+	return actualStateLeft;
+};
+
+export const TopPanel: React.FC = () => {
+	const {
+		setSidebarCollapsedStateLeft,
+		setSidebarCollapsedStateRight,
+		sidebarCollapsedStateRight,
+	} = useContext(SidebarContext);
+
+	const actualStateLeft = useResponsiveSidebarStatus();
 
 	const actualStateRight = useMemo((): 'expanded' | 'collapsed' => {
 		if (sidebarCollapsedStateRight === 'collapsed') {
 			return 'collapsed';
 		}
 
-		if (sidebarCollapsedStateRight === 'expanded') {
-			return 'expanded';
-		}
-
-		return rightSidebarBreakpoint ? 'collapsed' : 'expanded';
-	}, [rightSidebarBreakpoint, sidebarCollapsedStateRight]);
+		return 'expanded';
+	}, [sidebarCollapsedStateRight]);
 
 	const onCollapseLeft = useCallback(() => {
 		setSidebarCollapsedStateLeft('collapsed');

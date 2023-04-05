@@ -26,7 +26,7 @@ type LocalState = {
 };
 
 // TODO: Ability to add another item
-// TODO: Ability to revert a chagne (e.g entry deletion )
+// TODO: Ability to revert a change (e.g entry deletion )
 export const ZodArrayEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;

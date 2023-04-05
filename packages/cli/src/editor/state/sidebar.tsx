@@ -1,15 +1,19 @@
 import React, {createContext, useMemo, useState} from 'react';
 
 export type SidebarCollapsedState = 'collapsed' | 'expanded' | 'responsive';
+export type RightSidebarCollapsedState = Exclude<
+	SidebarCollapsedState,
+	'responsive'
+>;
 
 type Context = {
 	sidebarCollapsedStateLeft: SidebarCollapsedState;
 	setSidebarCollapsedStateLeft: React.Dispatch<
 		React.SetStateAction<SidebarCollapsedState>
 	>;
-	sidebarCollapsedStateRight: SidebarCollapsedState;
+	sidebarCollapsedStateRight: RightSidebarCollapsedState;
 	setSidebarCollapsedStateRight: React.Dispatch<
-		React.SetStateAction<SidebarCollapsedState>
+		React.SetStateAction<RightSidebarCollapsedState>
 	>;
 };
 
@@ -23,10 +27,8 @@ const storageKey = (sidebar: Sidebars) => {
 	return 'remotion.sidebarCollapsing';
 };
 
-export const getSavedCollapsedState = (
-	sidebar: Sidebars
-): SidebarCollapsedState => {
-	const state = window.localStorage.getItem(storageKey(sidebar));
+const getSavedCollapsedStateLeft = (): SidebarCollapsedState => {
+	const state = window.localStorage.getItem(storageKey('left'));
 	if (state === 'collapsed') {
 		return 'collapsed';
 	}
@@ -36,6 +38,15 @@ export const getSavedCollapsedState = (
 	}
 
 	return 'responsive';
+};
+
+const getSavedCollapsedStateRight = (): RightSidebarCollapsedState => {
+	const state = window.localStorage.getItem(storageKey('right'));
+	if (state === 'expanded') {
+		return 'expanded';
+	}
+
+	return 'collapsed';
 };
 
 const saveCollapsedState = (type: SidebarCollapsedState, sidebar: Sidebars) => {
@@ -57,10 +68,10 @@ export const SidebarContextProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [sidebarCollapsedStateLeft, setSidebarCollapsedStateLeft] = useState(
-		() => getSavedCollapsedState('left')
+		() => getSavedCollapsedStateLeft()
 	);
 	const [sidebarCollapsedStateRight, setSidebarCollapsedStateRight] = useState(
-		() => getSavedCollapsedState('right')
+		() => getSavedCollapsedStateRight()
 	);
 
 	const value: Context = useMemo(() => {
@@ -77,10 +88,13 @@ export const SidebarContextProvider: React.FC<{
 				});
 			},
 			setSidebarCollapsedStateRight: (
-				state: React.SetStateAction<SidebarCollapsedState>
+				state: React.SetStateAction<RightSidebarCollapsedState>
 			) => {
 				setSidebarCollapsedStateRight((f) => {
-					const updated = typeof state === 'function' ? state(f) : state;
+					const updated =
+						typeof state === 'function'
+							? state(f as RightSidebarCollapsedState)
+							: state;
 					saveCollapsedState(updated, 'right');
 					return updated;
 				});
