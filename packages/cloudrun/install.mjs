@@ -1,5 +1,5 @@
 // this will be executed with node
-import { execSync } from "child_process";
+import { execSync, stdin } from "child_process";
 
 // execSync("gcloud config get-value project", (error, stdout, stderr, {stdio: 'inherit'}) => {
 //   if (error) {
@@ -18,14 +18,14 @@ import { execSync } from "child_process";
 // })
 
 execSync(
-  'echo "\u001b[32;1mThis will setup the GCP project for Remotion Cloud Run.\n\u001b[0m"',
+  'echo "\n\n\n\u001b[32;1m🎉 This will setup th current GCP project for Remotion Cloud Run.\n\u001b[0m"',
   {stdio: 'inherit'}
 );
 
 // Read input from the user
-process.stdin.setEncoding('utf8');
+stdin.setEncoding('utf8');
 console.log('What version of Remotion do you want to use? (format: 1.0.0)');
-process.stdin.on('data', (input) => {
+stdin.on('data', (input) => {
   // Remove newlines and carriage returns from the input
   input = input.trim();
 
