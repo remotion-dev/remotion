@@ -125,7 +125,7 @@ export const RightPanel: React.FC<{}> = () => {
 						selected={panel === 'input-props'}
 						onClick={onCompositionsSelected}
 					>
-						Default Props
+						Props
 					</Tab>
 					<RendersTab
 						onClick={onRendersSelected}
