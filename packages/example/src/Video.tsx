@@ -1,8 +1,8 @@
 import {alias} from 'lib/alias';
 import React from 'react';
-import {Composition, Folder, getInputProps, Still, z} from 'remotion';
+import {Composition, Folder, getInputProps, Still, z, zColor} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
-import BetaText from './BetaText';
+import BetaText, {betaTextSchema} from './BetaText';
 import {CancelRender} from './CancelRender';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
@@ -224,9 +224,8 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={3 * 30}
-					defaultProps={{
-						word1: getInputProps().word1,
-					}}
+					defaultProps={{word1: 'hithere' as const, color: ['#137c2d']}}
+					schema={betaTextSchema}
 				/>
 				<Composition
 					id="react-svg"
@@ -711,6 +710,7 @@ export const Index: React.FC = () => {
 						values: z.enum(['a', 'b', 'c']),
 						supersuperlongvalueabcdefghji: z.string(),
 						incompatible: z.null().or(z.undefined()),
+						color: zColor(),
 						longEnum: z.enum([
 							'a',
 							'b',
@@ -765,6 +765,7 @@ export const Index: React.FC = () => {
 						supersuperlongvalueabcdefghji: 'hi' as const,
 						incompatible: null,
 						longEnum: 'k' as const,
+						color: '#eb3a60' as const,
 					}}
 					durationInFrames={150}
 				/>

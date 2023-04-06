@@ -68,6 +68,7 @@ import {
 	RemotionContextProvider,
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
+import {REMOTION_COLOR_BRAND} from './z-color.js';
 const Timeline = TimelinePosition;
 
 // Mark them as Internals so use don't assume this is public
@@ -116,6 +117,7 @@ export const Internals = {
 	EditorPropsProvider,
 	EditorPropsContext,
 	usePreload,
+	REMOTION_COLOR_BRAND,
 };
 
 export type {
