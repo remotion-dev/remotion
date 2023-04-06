@@ -18,7 +18,6 @@ type LocalState = {
 	zodValidation: z.SafeParseReturnType<unknown, unknown>;
 };
 
-// TODO: Long values break the layout
 export const ZodEnumEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;

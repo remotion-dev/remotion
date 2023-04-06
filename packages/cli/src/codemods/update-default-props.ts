@@ -106,7 +106,6 @@ const stringifyDefaultProps = (props: unknown) => {
 };
 
 // TODO: Add more sanity checks
-// TODO: better error messages
 export const updateDefaultProps = async ({
 	input,
 	compositionId,
@@ -122,7 +121,9 @@ export const updateDefaultProps = async ({
 
 	const start = input.indexOf(START_TOKEN, starter);
 	if (start === -1) {
-		throw new Error('Could not find defaultProps in <Composition> tag');
+		throw new Error(
+			`No \`defaultProps\` prop found in the <Composition/> tag with the ID "${compositionId}".`
+		);
 	}
 
 	const maxEnd = findTerminators(input, starter);
@@ -138,9 +139,7 @@ export const updateDefaultProps = async ({
 	try {
 		prettier = await import('prettier');
 	} catch (err) {
-		throw new Error(
-			'Cannot save default props because Prettier cannot be found in the current project.'
-		);
+		throw new Error('Prettier cannot be found in the current project.');
 	}
 
 	const {format, resolveConfig, resolveConfigFile} = prettier as PrettierType;
@@ -152,12 +151,14 @@ export const updateDefaultProps = async ({
 
 	const configFilePath = await resolveConfigFile();
 	if (!configFilePath) {
-		throw new Error('prettier config file not found');
+		throw new Error('The Prettier config file was not found');
 	}
 
 	const prettierConfig = await resolveConfig(configFilePath);
 	if (!prettierConfig) {
-		throw new Error('Prettier config not found');
+		throw new Error(
+			`The Prettier config at ${configFilePath} could not be read`
+		);
 	}
 
 	const prettified = format(newFile, {

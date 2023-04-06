@@ -157,7 +157,7 @@ const renderHandler = async (
 			},
 			puppeteerInstance: browserInstance,
 			serveUrl: params.serveUrl,
-			quality: params.quality,
+			jpegQuality: params.jpegQuality,
 			envVariables: params.envVariables,
 			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 				params.logLevel,

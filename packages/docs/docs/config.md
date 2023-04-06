@@ -384,17 +384,21 @@ Config.setFrameRange([0, 20]); // Render a video only containing the first 21 fr
 
 The [command line flag](/docs/cli/render#--frames) `--frames` will take precedence over this option.
 
-## setQuality()
+## setJpegQuality()
 
 The JPEG quality of each frame. Must be a number between 0 and 100. Will not work if you render PNG frames. [Default: 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
 // ---cut---
-Config.setQuality(90);
+Config.setJpegQuality(90);
 ```
 
-The [command line flag](/docs/cli/render#--quality) `--quality` will take precedence over this option.
+The [command line flag](/docs/cli/render#--jpeg-quality) `--jpeg-quality` will take precedence over this option.
+
+## ~~setQuality()~~
+
+Renamed to `setJpegQuality` in `v4.0.0`.
 
 ## setDotEnvLocation()
 
