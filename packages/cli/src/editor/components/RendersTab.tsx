@@ -1,7 +1,7 @@
 import type {MouseEventHandler} from 'react';
 import React, {useContext, useMemo} from 'react';
 import {FAIL_COLOR, LIGHT_TEXT} from '../helpers/colors';
-import {Spacing} from './layout';
+import {Flex} from './layout';
 import {RenderQueueContext} from './RenderQueue/context';
 import {Tab} from './Tabs';
 
@@ -9,15 +9,15 @@ const row: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	fontSize: 14,
-	justifyContent: 'center',
 	color: 'inherit',
 	alignItems: 'center',
+	flex: 1,
 };
 
 const badge: React.CSSProperties = {
 	height: 16,
 	width: 16,
-	borderRadius: 8,
+	borderRadius: 3,
 	fontSize: 10,
 	display: 'inline-flex',
 	justifyContent: 'center',
@@ -49,7 +49,7 @@ export const RendersTab: React.FC<{
 				Renders
 				{jobCount > 0 ? (
 					<>
-						<Spacing x={0.5} />
+						<Flex />
 						<div style={badgeStyle}>{jobCount}</div>
 					</>
 				) : null}

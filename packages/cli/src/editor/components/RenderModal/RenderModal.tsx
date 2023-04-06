@@ -47,7 +47,7 @@ import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
 import {persistSelectedPanel, rightSidebarTabs} from '../RightPanel';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
-import {Tab} from '../Tabs';
+import {VerticalTab} from '../Tabs/vertical';
 import {useCrfState} from './CrfSetting';
 import {validateOutnameGui} from './out-name-checker';
 import type {RenderType} from './RenderModalAdvanced';
@@ -869,7 +869,7 @@ export const RenderModal: React.FC<{
 			<div style={horizontalLayout}>
 				<div style={leftSidebar}>
 					{shownTabs.includes('general') ? (
-						<Tab
+						<VerticalTab
 							style={horizontalTab}
 							selected={tab === 'general'}
 							onClick={() => setTab('general')}
@@ -878,10 +878,10 @@ export const RenderModal: React.FC<{
 								<FileIcon style={icon} />
 							</div>
 							General
-						</Tab>
+						</VerticalTab>
 					) : null}
 					{shownTabs.includes('data') ? (
-						<Tab
+						<VerticalTab
 							style={horizontalTab}
 							selected={tab === 'data'}
 							onClick={() => setTab('data')}
@@ -890,10 +890,10 @@ export const RenderModal: React.FC<{
 								<DataIcon style={icon} />
 							</div>
 							Input Props
-						</Tab>
+						</VerticalTab>
 					) : null}
 					{shownTabs.includes('picture') ? (
-						<Tab
+						<VerticalTab
 							style={horizontalTab}
 							selected={tab === 'picture'}
 							onClick={() => setTab('picture')}
@@ -902,10 +902,10 @@ export const RenderModal: React.FC<{
 								<PicIcon style={icon} />
 							</div>
 							Picture
-						</Tab>
+						</VerticalTab>
 					) : null}
 					{shownTabs.includes('audio') ? (
-						<Tab
+						<VerticalTab
 							style={horizontalTab}
 							selected={tab === 'audio'}
 							onClick={() => setTab('audio')}
@@ -914,10 +914,10 @@ export const RenderModal: React.FC<{
 								<AudioIcon style={icon} />
 							</div>
 							Audio
-						</Tab>
+						</VerticalTab>
 					) : null}
 					{shownTabs.includes('gif') ? (
-						<Tab
+						<VerticalTab
 							style={horizontalTab}
 							selected={tab === 'gif'}
 							onClick={() => setTab('gif')}
@@ -926,10 +926,10 @@ export const RenderModal: React.FC<{
 								<GifIcon style={icon} />
 							</div>
 							GIF
-						</Tab>
+						</VerticalTab>
 					) : null}
 					{shownTabs.includes('advanced') ? (
-						<Tab
+						<VerticalTab
 							style={horizontalTab}
 							selected={tab === 'advanced'}
 							onClick={() => setTab('advanced')}
@@ -938,7 +938,7 @@ export const RenderModal: React.FC<{
 								<GearIcon style={icon} />
 							</div>
 							Other
-						</Tab>
+						</VerticalTab>
 					) : null}
 				</div>
 				<div style={rightPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
