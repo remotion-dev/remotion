@@ -1,7 +1,10 @@
 import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {AnyComposition} from 'remotion';
+import {getInputProps} from 'remotion';
 import {BORDER_COLOR} from '../../helpers/colors';
+import {ValidationMessage} from '../NewComposition/ValidationMessage';
 
+import {Spacing} from '../layout';
 import {
 	canUpdateDefaultProps,
 	updateDefaultProps,
@@ -21,12 +24,20 @@ const outer: React.CSSProperties = {
 };
 
 const controlContainer: React.CSSProperties = {
-	flexDirection: 'row',
+	flexDirection: 'column',
 	display: 'flex',
-	paddingLeft: 12,
-	paddingTop: 12,
-	paddingBottom: 12,
+	padding: 12,
 	borderBottom: `1px solid ${BORDER_COLOR}`,
+};
+
+const tabWrapper: React.CSSProperties = {
+	display: 'flex',
+	marginBottom: '4px',
+	flexDirection: 'row',
+};
+
+const spacer: React.CSSProperties = {
+	flex: 1,
 };
 
 export const RenderModalData: React.FC<{
@@ -42,6 +53,7 @@ export const RenderModalData: React.FC<{
 		return composition.schema.safeParse(inputProps);
 	}, [composition.schema, inputProps]);
 
+	const cliProps = getInputProps();
 	const [canSaveDefaultProps, setCanSaveDefaultProps] = useState(false);
 
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps;
@@ -99,8 +111,22 @@ export const RenderModalData: React.FC<{
 	return (
 		<div style={outer}>
 			<div style={controlContainer}>
-				<SegmentedControl items={modeItems} needsWrapping={false} />
+				<div style={tabWrapper}>
+					<SegmentedControl items={modeItems} needsWrapping={false} />
+					<div style={spacer} />
+				</div>
+				{Object.keys(cliProps).length > 0 ? (
+					<>
+						<Spacing y={1} />
+						<ValidationMessage
+							message="The data that was passed using --props takes priority over the data you enter here."
+							align="flex-start"
+							type="warning"
+						/>
+					</>
+				) : null}
 			</div>
+
 			{mode === 'schema' ? (
 				<SchemaEditor
 					value={inputProps}

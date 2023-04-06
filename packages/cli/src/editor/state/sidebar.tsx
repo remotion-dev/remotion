@@ -8,13 +8,11 @@ export type RightSidebarCollapsedState = Exclude<
 
 type Context = {
 	sidebarCollapsedStateLeft: SidebarCollapsedState;
-	setSidebarCollapsedStateLeft: React.Dispatch<
-		React.SetStateAction<SidebarCollapsedState>
-	>;
+	setSidebarCollapsedState: (options: {
+		left: null | React.SetStateAction<SidebarCollapsedState>;
+		right: null | React.SetStateAction<RightSidebarCollapsedState>;
+	}) => void;
 	sidebarCollapsedStateRight: RightSidebarCollapsedState;
-	setSidebarCollapsedStateRight: React.Dispatch<
-		React.SetStateAction<RightSidebarCollapsedState>
-	>;
 };
 
 type Sidebars = 'left' | 'right';
@@ -55,52 +53,56 @@ const saveCollapsedState = (type: SidebarCollapsedState, sidebar: Sidebars) => {
 
 export const SidebarContext = createContext<Context>({
 	sidebarCollapsedStateLeft: 'collapsed',
-	setSidebarCollapsedStateLeft: () => {
+	setSidebarCollapsedState: () => {
 		throw new Error('sidebar collapsed state');
 	},
 	sidebarCollapsedStateRight: 'collapsed',
-	setSidebarCollapsedStateRight: () => {
-		throw new Error('sidebar collapsed state');
-	},
 });
+
+type SidebarState = {
+	left: SidebarCollapsedState;
+	right: RightSidebarCollapsedState;
+};
 
 export const SidebarContextProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const [sidebarCollapsedStateLeft, setSidebarCollapsedStateLeft] = useState(
-		() => getSavedCollapsedStateLeft()
-	);
-	const [sidebarCollapsedStateRight, setSidebarCollapsedStateRight] = useState(
-		() => getSavedCollapsedStateRight()
-	);
+	const [sidebarCollapsedState, setSidebarCollapsedState] =
+		useState<SidebarState>(() => ({
+			left: getSavedCollapsedStateLeft(),
+			right: getSavedCollapsedStateRight(),
+		}));
 
 	const value: Context = useMemo(() => {
 		return {
-			sidebarCollapsedStateLeft,
-			sidebarCollapsedStateRight,
-			setSidebarCollapsedStateLeft: (
-				state: React.SetStateAction<SidebarCollapsedState>
-			) => {
-				setSidebarCollapsedStateLeft((f) => {
-					const updated = typeof state === 'function' ? state(f) : state;
-					saveCollapsedState(updated, 'left');
-					return updated;
-				});
-			},
-			setSidebarCollapsedStateRight: (
-				state: React.SetStateAction<RightSidebarCollapsedState>
-			) => {
-				setSidebarCollapsedStateRight((f) => {
-					const updated =
-						typeof state === 'function'
-							? state(f as RightSidebarCollapsedState)
-							: state;
-					saveCollapsedState(updated, 'right');
-					return updated;
+			sidebarCollapsedStateLeft: sidebarCollapsedState.left,
+			sidebarCollapsedStateRight: sidebarCollapsedState.right,
+			setSidebarCollapsedState: (options: {
+				left: null | React.SetStateAction<SidebarCollapsedState>;
+				right: null | React.SetStateAction<RightSidebarCollapsedState>;
+			}) => {
+				const {left, right} = options;
+				setSidebarCollapsedState((f) => {
+					const copied = {...f};
+					if (left) {
+						const updatedLeft =
+							typeof left === 'function' ? left(f.left) : left;
+						saveCollapsedState(updatedLeft, 'left');
+						copied.left = updatedLeft;
+					}
+
+					if (right) {
+						const updatedRight =
+							typeof right === 'function' ? right(f.right) : right;
+						saveCollapsedState(updatedRight, 'right');
+						copied.right = updatedRight;
+					}
+
+					return copied;
 				});
 			},
 		};
-	}, [sidebarCollapsedStateLeft, sidebarCollapsedStateRight]);
+	}, [sidebarCollapsedState]);
 
 	return (
 		<SidebarContext.Provider value={value}>{children}</SidebarContext.Provider>
