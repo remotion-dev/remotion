@@ -40,6 +40,16 @@ const spacer: React.CSSProperties = {
 	flex: 1,
 };
 
+type TypeCanSaveState =
+	| {
+			canUpdate: true;
+	  }
+	| {
+			canUpdate: false;
+			reason: string;
+			determined: boolean;
+	  };
+
 export const RenderModalData: React.FC<{
 	composition: AnyComposition;
 	inputProps: unknown;
@@ -54,20 +64,40 @@ export const RenderModalData: React.FC<{
 	}, [composition.schema, inputProps]);
 
 	const cliProps = getInputProps();
-	const [canSaveDefaultProps, setCanSaveDefaultProps] = useState(false);
+	const [canSaveDefaultProps, setCanSaveDefaultProps] =
+		useState<TypeCanSaveState>({
+			canUpdate: false,
+			reason: 'Loading...',
+			determined: false,
+		});
 
-	const showSaveButton = mayShowSaveButton && canSaveDefaultProps;
+	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
-	// TODO: Show reason
+	// TODO: Disable if Preview Server is disconnected
 	// TODO: Update if root file is updated
+	// TODO: Segment the state for different compositions
+
 	useEffect(() => {
 		canUpdateDefaultProps(composition.id)
 			.then((can) => {
-				setCanSaveDefaultProps(can.canUpdate);
+				if (can.canUpdate) {
+					setCanSaveDefaultProps({
+						canUpdate: true,
+					});
+				} else {
+					setCanSaveDefaultProps({
+						canUpdate: false,
+						reason: can.reason,
+						determined: true,
+					});
+				}
 			})
-			.catch(() => {
-				// TODO: Use error as reason
-				setCanSaveDefaultProps(false);
+			.catch((err) => {
+				setCanSaveDefaultProps({
+					canUpdate: false,
+					reason: (err as Error).message,
+					determined: true,
+				});
 			});
 	}, [composition.id]);
 
@@ -120,6 +150,17 @@ export const RenderModalData: React.FC<{
 						<Spacing y={1} />
 						<ValidationMessage
 							message="The data that was passed using --props takes priority over the data you enter here."
+							align="flex-start"
+							type="warning"
+						/>
+					</>
+				) : null}
+				{canSaveDefaultProps.canUpdate === false &&
+				canSaveDefaultProps.determined ? (
+					<>
+						<Spacing y={1} />
+						<ValidationMessage
+							message={`Can't save default props: ${canSaveDefaultProps.reason}`}
 							align="flex-start"
 							type="warning"
 						/>
