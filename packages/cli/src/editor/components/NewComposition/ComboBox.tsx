@@ -14,6 +14,7 @@ import {Spacing} from '../layout';
 import {isMenuItem, MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
 import {getPortal} from '../Menu/portals';
 import {
+	fullScreenOverlay,
 	MAX_MENU_WIDTH,
 	menuContainerTowardsBottom,
 	menuContainerTowardsTop,
@@ -96,18 +97,6 @@ export const Combobox: React.FC<{
 			return setOpened((o) => {
 				if (!o) {
 					refresh?.();
-
-					window.addEventListener(
-						'pointerup',
-						(evt) => {
-							if (!isMenuItem(evt.target as HTMLElement)) {
-								setOpened(false);
-							}
-						},
-						{
-							once: true,
-						}
-					);
 				}
 
 				return !o;
@@ -154,8 +143,6 @@ export const Combobox: React.FC<{
 			current.removeEventListener('click', onClick);
 		};
 	}, [refresh]);
-
-	// TODO: If combobox is inside a scrollable container, it doesn't scroll with it
 
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!opened || !size) {
@@ -234,22 +221,24 @@ export const Combobox: React.FC<{
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<div style={outerPortal} className="css-reset">
-							<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
-								<div style={portalStyle}>
-									<MenuContent
-										onNextMenu={noop}
-										onPreviousMenu={noop}
-										values={values}
-										onHide={onHide}
-										leaveLeftSpace
-										preselectIndex={values.findIndex(
-											(v) => v.id === selected.id
-										)}
-										topItemCanBeUnselected={false}
-									/>
-								</div>
-							</HigherZIndex>
+						<div style={fullScreenOverlay}>
+							<div style={outerPortal} className="css-reset">
+								<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
+									<div style={portalStyle}>
+										<MenuContent
+											onNextMenu={noop}
+											onPreviousMenu={noop}
+											values={values}
+											onHide={onHide}
+											leaveLeftSpace
+											preselectIndex={values.findIndex(
+												(v) => v.id === selected.id
+											)}
+											topItemCanBeUnselected={false}
+										/>
+									</div>
+								</HigherZIndex>
+							</div>
 						</div>,
 						getPortal(currentZIndex)
 				  )
