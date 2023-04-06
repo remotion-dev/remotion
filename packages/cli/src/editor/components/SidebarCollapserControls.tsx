@@ -110,12 +110,12 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 	}, [keybindings, toggleBoth, toggleLeft, toggleRight]);
 
 	const toggleLeftTooltip = areKeyboardShortcutsDisabled()
-		? undefined
-		: 'Toggle Left Sidebar ' + cmdOrCtrlCharacter + ' + B';
+		? 'Toggle Left Sidebar'
+		: `Toggle Left Sidebar (${cmdOrCtrlCharacter}+B)`;
 
 	const toggleRightTooltip = areKeyboardShortcutsDisabled()
-		? undefined
-		: 'Toggle Right Sidebar ' + cmdOrCtrlCharacter + ' + J';
+		? 'Toggle Right Sidebar'
+		: `Toggle Right Sidebar (${cmdOrCtrlCharacter}+J)`;
 
 	return (
 		<Row>
