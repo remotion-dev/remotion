@@ -24,7 +24,6 @@ import {
 	useRemotionEnvironment,
 } from './get-environment.js';
 import {getPreviewDomElement} from './get-preview-dom-element.js';
-import {processColor} from './interpolate-colors.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -69,7 +68,7 @@ import {
 	RemotionContextProvider,
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
-import {REMOTION_COLOR_BRAND} from './z-color.js';
+import {parseColor, REMOTION_COLOR_BRAND} from './z-color.js';
 const Timeline = TimelinePosition;
 
 // Mark them as Internals so use don't assume this is public
@@ -119,7 +118,7 @@ export const Internals = {
 	EditorPropsContext,
 	usePreload,
 	REMOTION_COLOR_BRAND,
-	processColor,
+	parseColor,
 };
 
 export type {
