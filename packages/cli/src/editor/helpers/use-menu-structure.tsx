@@ -44,9 +44,8 @@ export const useMenuStructure = (closeMenu: () => void) => {
 	const {type} = useContext(PreviewServerConnectionCtx);
 
 	const {
-		setSidebarCollapsedStateLeft,
+		setSidebarCollapsedState,
 		sidebarCollapsedStateLeft,
-		setSidebarCollapsedStateRight,
 		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
 
@@ -314,7 +313,10 @@ export const useMenuStructure = (closeMenu: () => void) => {
 										) : null,
 									onClick: () => {
 										closeMenu();
-										setSidebarCollapsedStateLeft('responsive');
+										setSidebarCollapsedState({
+											left: 'responsive',
+											right: null,
+										});
 									},
 									subMenu: null,
 									type: 'item' as const,
@@ -331,7 +333,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 										) : null,
 									onClick: () => {
 										closeMenu();
-										setSidebarCollapsedStateLeft('expanded');
+										setSidebarCollapsedState({left: 'expanded', right: null});
 									},
 									subMenu: null,
 									type: 'item' as const,
@@ -348,7 +350,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 										) : null,
 									onClick: () => {
 										closeMenu();
-										setSidebarCollapsedStateLeft('collapsed');
+										setSidebarCollapsedState({left: 'collapsed', right: null});
 									},
 									subMenu: null,
 									type: 'item' as const,
@@ -381,7 +383,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 										) : null,
 									onClick: () => {
 										closeMenu();
-										setSidebarCollapsedStateRight('expanded');
+										setSidebarCollapsedState({left: null, right: 'expanded'});
 									},
 									subMenu: null,
 									type: 'item' as const,
@@ -398,7 +400,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 										) : null,
 									onClick: () => {
 										closeMenu();
-										setSidebarCollapsedStateRight('collapsed');
+										setSidebarCollapsedState({left: null, right: 'collapsed'});
 									},
 									subMenu: null,
 									type: 'item' as const,
@@ -704,8 +706,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		size.size,
 		setSize,
 		setEditorZoomGestures,
-		setSidebarCollapsedStateLeft,
-		setSidebarCollapsedStateRight,
+		setSidebarCollapsedState,
 		setCheckerboard,
 	]);
 

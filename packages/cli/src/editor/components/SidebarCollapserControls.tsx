@@ -17,13 +17,9 @@ const style: React.CSSProperties = {
 	position: 'relative',
 };
 
-// TODO: Handle flickering when bars get toggled
 export const SidebarCollapserControls: React.FC<{}> = () => {
-	const {
-		setSidebarCollapsedStateLeft,
-		setSidebarCollapsedStateRight,
-		sidebarCollapsedStateRight,
-	} = useContext(SidebarContext);
+	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
+		useContext(SidebarContext);
 	const keybindings = useKeybinding();
 	const leftSidebarStatus = useResponsiveSidebarStatus();
 	const leftIcon: React.CSSProperties = useMemo(() => {
@@ -48,20 +44,24 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 	}, [sidebarCollapsedStateRight]);
 
 	const toggleLeft = useCallback(() => {
-		setSidebarCollapsedStateLeft((s) => {
-			if (s === 'responsive') {
-				return leftSidebarStatus === 'collapsed' ? 'expanded' : 'collapsed';
-			}
+		setSidebarCollapsedState({
+			left: (s) => {
+				if (s === 'responsive') {
+					return leftSidebarStatus === 'collapsed' ? 'expanded' : 'collapsed';
+				}
 
-			return s === 'collapsed' ? 'expanded' : 'collapsed';
+				return s === 'collapsed' ? 'expanded' : 'collapsed';
+			},
+			right: null,
 		});
-	}, [leftSidebarStatus, setSidebarCollapsedStateLeft]);
+	}, [leftSidebarStatus, setSidebarCollapsedState]);
 
 	const toggleRight = useCallback(() => {
-		setSidebarCollapsedStateRight((s) =>
-			s === 'collapsed' ? 'expanded' : 'collapsed'
-		);
-	}, [setSidebarCollapsedStateRight]);
+		setSidebarCollapsedState({
+			right: (s) => (s === 'collapsed' ? 'expanded' : 'collapsed'),
+			left: null,
+		});
+	}, [setSidebarCollapsedState]);
 
 	const toggleBoth = useCallback(() => {
 		if (sidebarCollapsedStateRight === leftSidebarStatus) {
