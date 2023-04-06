@@ -224,7 +224,10 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={3 * 30}
-					defaultProps={{word1: 'hithere' as const, color: ['#137c2d']}}
+					defaultProps={{
+						word1: 'hithere' as const,
+						color: ['rgba(19, 124, 45, 0.059)' as const],
+					}}
 					schema={betaTextSchema}
 				/>
 				<Composition
