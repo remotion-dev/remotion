@@ -146,6 +146,7 @@ export const RenderModalData: React.FC<{
 					switchToSchema={switchToSchema}
 					onSave={onUpdate}
 					valBeforeSafe={valBeforeSafe}
+					showSaveButton={showSaveButton}
 				/>
 			)}
 		</div>

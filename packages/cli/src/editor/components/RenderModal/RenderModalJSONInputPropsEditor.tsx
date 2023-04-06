@@ -59,6 +59,7 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	switchToSchema: () => void;
 	onSave: () => void;
 	valBeforeSafe: unknown;
+	showSaveButton: boolean;
 }> = ({
 	setValue,
 	value,
@@ -66,6 +67,7 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	switchToSchema,
 	onSave,
 	valBeforeSafe,
+	showSaveButton,
 }) => {
 	const keybindings = useKeybinding();
 
@@ -165,7 +167,9 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 				<Spacing x={1} />
 				<Button
 					onClick={onSave}
-					disabled={!zodValidationResult.success || !hasChanged}
+					disabled={
+						!zodValidationResult.success || !hasChanged || !showSaveButton
+					}
 				>
 					Save
 				</Button>
