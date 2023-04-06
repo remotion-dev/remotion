@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {z} from 'remotion';
-import {colorWithNewOpacity, parseColor} from '../../../../color-math';
+import {Internals} from 'remotion';
+import {colorWithNewOpacity} from '../../../../color-math';
 import {Row, Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {RemotionInput} from '../../NewComposition/RemInput';
@@ -62,7 +63,9 @@ export const ZodColorEditor: React.FC<{
 		[schema, setValue]
 	);
 
-	const {a, b, g, r} = parseColor(localValue.value);
+	const {a, b, g, r} = localValue.zodValidation.success
+		? Internals.parseColor(localValue.value)
+		: {a: 0, b: 0, g: 0, r: 0};
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -79,6 +82,23 @@ export const ZodColorEditor: React.FC<{
 		},
 		[a, schema, setValue]
 	);
+
+	const onTextChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
+		(e) => {
+			const newValue = e.target.value;
+			const safeParse = schema.safeParse(newValue);
+			const newLocalState: LocalState = {
+				value: newValue,
+				zodValidation: safeParse,
+			};
+			setLocalValue(newLocalState);
+			if (safeParse.success) {
+				setValue(newValue);
+			}
+		},
+		[schema, setValue]
+	);
+
 	const reset = useCallback(() => {
 		onValueChange(defaultValue);
 	}, [defaultValue, onValueChange]);
@@ -162,7 +182,7 @@ export const ZodColorEditor: React.FC<{
 						value={localValue.value}
 						status={status}
 						placeholder={jsonPath.join('.')}
-						onChange={onChange}
+						onChange={onTextChange}
 					/>
 					<Spacing x={1} />
 					<InputDragger
