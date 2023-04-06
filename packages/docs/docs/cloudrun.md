@@ -62,7 +62,7 @@ Most of our users render multiple minutes of video for just a few pennies. The e
 
 Remotion Cloud Run requires you to create a GCP project and create a Service Account with some permissions attached to it. We require only the minimal amount of permissions required for operating Remotion Cloud Run.
 
-[**Read more about permissions**](/docs/cloudrun/permissions)
+// TODO: Create doc link to permissions
 
 ## CLI
 
@@ -72,7 +72,8 @@ You can control Remotion Cloud Run using the `npx remotion cloudrun` command.
 
 ## Node.JS API
 
-Everything you can do using the CLI, you can also control using Node.JS APIs. See the reference [here](/docs/cloudrun/api).
+// TODO: Link to API reference
+Everything you can do using the CLI, you can also control using Node.JS APIs. See the reference [here](#).
 
 ## License
 
@@ -84,4 +85,4 @@ Companies need to buy 1 cloud rendering seat per 2000 renders per month - see ht
 
 We make it easy to remove all Remotion resources from your GCP account without leaving any traces or causing further costs.
 
-[**How to uninstall Remotion Lambda**](/docs/cloudrun/uninstall)
+// TODO: Link to uninstall page
