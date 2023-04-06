@@ -341,7 +341,7 @@ export const QuickSwitcherContent: React.FC<{
 		if (showKeyboardShortcuts) {
 			return {
 				maxHeight: 600,
-				overflowY: 'scroll',
+				overflowY: 'auto',
 			};
 		}
 
