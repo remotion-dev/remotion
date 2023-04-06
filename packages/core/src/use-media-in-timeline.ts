@@ -65,7 +65,7 @@ export const useMediaInTimeline = ({
 			return volume;
 		}
 
-		return new Array(Math.max(0, duration + startsAt))
+		return new Array(Math.floor(Math.max(0, duration + startsAt)))
 			.fill(true)
 			.map((_, i) => {
 				return evaluateVolume({
