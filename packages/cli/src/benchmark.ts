@@ -244,7 +244,7 @@ export const benchmarkCommand = async (
 			proResProfile,
 			frameRange: defaultFrameRange,
 			overwrite,
-			quality,
+			jpegQuality,
 			crf: configFileCrf,
 			pixelFormat,
 			scale: configFileScale,
@@ -299,7 +299,7 @@ export const benchmarkCommand = async (
 					overwrite,
 					pixelFormat,
 					proResProfile,
-					quality,
+					jpegQuality,
 					dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 						ConfigInternals.Logging.getLogLevel(),
 						'verbose'

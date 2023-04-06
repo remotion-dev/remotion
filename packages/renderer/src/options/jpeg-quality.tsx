@@ -2,7 +2,7 @@ import type {RemotionOption} from './option';
 
 export const jpegQualityOption: RemotionOption = {
 	name: 'JPEG Quality',
-	cliFlag: '--quality',
+	cliFlag: '--jpeg-quality',
 	description: (
 		<>
 			Sets the quality of the generated JPEG images. Must be an integer between
@@ -10,6 +10,6 @@ export const jpegQualityOption: RemotionOption = {
 			80.
 		</>
 	),
-	ssrName: 'quality',
-	docLink: 'https://www.remotion.dev/docs/renderer/render-media#quality',
+	ssrName: 'jpegQuality',
+	docLink: 'https://www.remotion.dev/docs/renderer/render-media#jpeg-quality',
 };

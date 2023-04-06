@@ -2,7 +2,7 @@ import path from 'path';
 import type {StaticFile} from 'remotion';
 
 export type RenderDefaults = {
-	quality: number;
+	jpegQuality: number;
 	scale: number;
 	logLevel: string;
 	codec: string;

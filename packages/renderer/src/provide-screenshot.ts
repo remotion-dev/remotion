@@ -7,14 +7,14 @@ export const provideScreenshot = ({
 	page,
 	imageFormat,
 	options,
-	quality,
+	jpegQuality,
 	height,
 	width,
 	clipRegion,
 }: {
 	page: Page;
 	imageFormat: StillImageFormat;
-	quality: number | undefined;
+	jpegQuality: number | undefined;
 	options: {
 		frame: number;
 		output: string | null;
@@ -29,7 +29,7 @@ export const provideScreenshot = ({
 			path: options.output,
 		},
 		imageFormat,
-		quality,
+		jpegQuality,
 		height,
 		width,
 		clipRegion,

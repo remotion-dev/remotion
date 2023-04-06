@@ -41,13 +41,13 @@ import {
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
+import {validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
-import {validateQuality} from './quality';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {tmpDir} from './tmp-dir';
@@ -143,7 +143,7 @@ export const RenderInternals = {
 	validateOpenGlRenderer,
 	validCodecs,
 	DEFAULT_PIXEL_FORMAT,
-	validateQuality,
+	validateJpegQuality,
 	DEFAULT_TIMEOUT,
 	DEFAULT_CODEC,
 	isAudioCodec,

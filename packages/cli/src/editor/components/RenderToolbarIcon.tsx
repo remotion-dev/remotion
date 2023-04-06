@@ -66,7 +66,7 @@ export const RenderButton: React.FC = () => {
 				defaultExtension: isVideo ? 'mp4' : 'png',
 				type: 'asset',
 			}),
-			initialQuality: defaults.quality,
+			initialJpegQuality: defaults.jpegQuality,
 			initialScale: window.remotion_renderDefaults?.scale ?? 1,
 			initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
 			initialVideoCodecForAudioTab: initialAudioCodec,

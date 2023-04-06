@@ -2,11 +2,12 @@ import type {SetStateAction} from 'react';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {MenuDivider} from '../Menu/MenuDivider';
 import type {MenuId} from '../Menu/MenuItem';
 import type {SubMenuActivated} from '../Menu/MenuSubItem';
 import {MenuSubItem} from '../Menu/MenuSubItem';
-import {MENU_VERTICAL_PADDING} from '../Menu/styles';
+import {MAX_MENU_WIDTH, MENU_VERTICAL_PADDING} from '../Menu/styles';
 import type {ComboboxValue} from './ComboBox';
 
 const BORDER_SIZE = 1;
@@ -15,6 +16,11 @@ const container: React.CSSProperties = {
 	paddingBottom: MENU_VERTICAL_PADDING,
 	border: `${BORDER_SIZE}px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
 	marginLeft: 0 - BORDER_SIZE,
+	overflowY: 'auto',
+	overflowX: 'hidden',
+	minWidth: 200,
+	maxWidth: MAX_MENU_WIDTH,
+	maxHeight: 600,
 };
 
 export const MenuContent: React.FC<{
@@ -270,7 +276,11 @@ export const MenuContent: React.FC<{
 	}, [onHide, subMenuActivated]);
 
 	return (
-		<div ref={containerRef} style={container}>
+		<div
+			ref={containerRef}
+			style={container}
+			className={VERTICAL_SCROLLBAR_CLASSNAME}
+		>
 			{values.map((item) => {
 				if (item.type === 'divider') {
 					return <MenuDivider key={item.id} />;
