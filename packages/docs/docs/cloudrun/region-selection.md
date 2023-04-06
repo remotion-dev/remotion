@@ -18,7 +18,8 @@ The following GCP regions are available:
 
 <GcpRegionList />
 
-You can call [`getRegions()`](/docs/cloudrun/getregions) or type [`npx remotion cloudrun regions`](/docs/cloudrun/cli/regions) to get this list programmatically.
+// TODO: Link
+You can call `getRegions()` or type `npx remotion cloudrun regions` to get this list programmatically.
 
 ## Default region
 
