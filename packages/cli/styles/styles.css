@@ -37,3 +37,9 @@ a:focus {
 	border-radius: 0 !important;
 }
 
+input[type="color"].__remotion_color_picker::-webkit-color-swatch-wrapper {
+	padding: 0;
+}
+input[type="color"].__remotion_color_picker::-webkit-color-swatch {
+	border: none;
+}

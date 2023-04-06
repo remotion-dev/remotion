@@ -1,4 +1,4 @@
-import {z} from 'remotion';
+import {Internals, z} from 'remotion';
 
 export const createZodValues = (schema: z.ZodTypeAny): unknown => {
 	if (!schema) {
@@ -10,6 +10,10 @@ export const createZodValues = (schema: z.ZodTypeAny): unknown => {
 
 	switch (typeName) {
 		case z.ZodFirstPartyTypeKind.ZodString:
+			if (schema._def.description === Internals.REMOTION_COLOR_BRAND) {
+				return '#ffffff';
+			}
+
 			return '';
 		case z.ZodFirstPartyTypeKind.ZodNumber:
 			return 0;
