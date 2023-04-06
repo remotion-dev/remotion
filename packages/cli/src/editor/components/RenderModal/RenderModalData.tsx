@@ -4,6 +4,7 @@ import {getInputProps} from 'remotion';
 import {BORDER_COLOR} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 
+import {Spacing} from '../layout';
 import {
 	canUpdateDefaultProps,
 	updateDefaultProps,
@@ -25,9 +26,7 @@ const outer: React.CSSProperties = {
 const controlContainer: React.CSSProperties = {
 	flexDirection: 'column',
 	display: 'flex',
-	paddingLeft: 12,
-	paddingTop: 12,
-	paddingBottom: 12,
+	padding: 12,
 	borderBottom: `1px solid ${BORDER_COLOR}`,
 };
 
@@ -117,11 +116,14 @@ export const RenderModalData: React.FC<{
 					<div style={spacer} />
 				</div>
 				{Object.keys(cliProps).length > 0 ? (
-					<ValidationMessage
-						message="Some props might get overwritten, since CLI props were provided"
-						align="flex-start"
-						type="warning"
-					/>
+					<>
+						<Spacing y={1} />
+						<ValidationMessage
+							message="The data that was passed using --props takes priority over the data you enter here."
+							align="flex-start"
+							type="warning"
+						/>
+					</>
 				) : null}
 			</div>
 
