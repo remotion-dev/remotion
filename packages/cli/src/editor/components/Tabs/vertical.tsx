@@ -1,5 +1,9 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {CLEAR_HOVER, INPUT_BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
+import {
+	CLEAR_HOVER,
+	LIGHT_TEXT,
+	SELECTED_BACKGROUND,
+} from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 
 const tabsContainer: React.CSSProperties = {
@@ -7,7 +11,7 @@ const tabsContainer: React.CSSProperties = {
 	flexDirection: 'row',
 };
 
-export const Tabs: React.FC<{
+export const VerticalTabs: React.FC<{
 	children: React.ReactNode;
 	style?: React.CSSProperties;
 }> = ({children, style}) => {
@@ -33,7 +37,7 @@ export const selectorButton: React.CSSProperties = {
 	alignItems: 'center',
 };
 
-export const Tab: React.FC<{
+export const VerticalTab: React.FC<{
 	children: React.ReactNode;
 	onClick: React.MouseEventHandler<HTMLButtonElement>;
 	style?: React.CSSProperties;
@@ -54,12 +58,11 @@ export const Tab: React.FC<{
 		return {
 			...selectorButton,
 			backgroundColor: selected
-				? 'transparent'
+				? SELECTED_BACKGROUND
 				: hovered
 				? CLEAR_HOVER
-				: INPUT_BACKGROUND,
+				: 'transparent',
 			color: selected ? 'white' : LIGHT_TEXT,
-			borderTop: selected ? '2px solid var(--blue)' : '2px solid transparent',
 			boxShadow: selected ? 'none' : undefined,
 			...style,
 		};
