@@ -180,6 +180,7 @@ This snippet will enable the recommended rules only for the Remotion files:
 
 ```json title=".eslintrc"
 {
+  "plugins": ["@remotion"],
   "overrides": [
     {
       "files": ["remotion/*.{ts,tsx}"],
