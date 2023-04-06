@@ -19,6 +19,11 @@ variable "remotion_version" {
   description = "The version of Remotion being deployed."
 }
 
+variable "service_account_exists" {
+  type        = bool
+  description = "If the service account already exists, no need to re-create."
+}
+
 
 provider "google" {
   project = var.project_id
@@ -32,7 +37,8 @@ data "http" "permissions" {
 
 locals {
   # permissions = jsondecode(file("${path.module}/../src/shared/sa-permissions.json"))
-  cloudrun-permissions = jsondecode(data.http.permissions.body)
+  cloudrun-permissions  = jsondecode(data.http.permissions.response_body)
+  service-account-email = "remotion-sa@${var.project_id}.iam.gserviceaccount.com"
 }
 
 # Create an IAM role
@@ -45,15 +51,17 @@ resource "google_project_iam_custom_role" "remotion_sa" {
 
 # Create a service account
 resource "google_service_account" "remotion_sa" {
+  count        = var.service_account_exists ? 0 : 1 //  if the service account already exists, don't create it
   account_id   = "remotion-sa"
   display_name = "Remotion Service Account"
+  description  = var.remotion_version
 }
 
 # Bind the IAM role to the service account
 resource "google_project_iam_member" "remotion_sa" {
   project = var.project_id
   role    = google_project_iam_custom_role.remotion_sa.id
-  member  = "serviceAccount:${google_service_account.remotion_sa.email}"
+  member  = "serviceAccount:${local.service-account-email}"
 }
 
 # Enable Cloud Run API
@@ -70,5 +78,5 @@ resource "google_project_service" "cloud_resource_manager" {
 
 # Output the command to generate service account keys
 output "service_account_key_generation_command" {
-  value = "gcloud iam service-accounts keys create key.json --iam-account=${google_service_account.remotion_sa.email}"
+  value = "gcloud iam service-accounts keys create key.json --iam-account=${local.service-account-email}"
 }
