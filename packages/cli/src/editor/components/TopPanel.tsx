@@ -60,11 +60,8 @@ export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
 };
 
 export const TopPanel: React.FC = () => {
-	const {
-		setSidebarCollapsedStateLeft,
-		setSidebarCollapsedStateRight,
-		sidebarCollapsedStateRight,
-	} = useContext(SidebarContext);
+	const {setSidebarCollapsedState, sidebarCollapsedStateRight} =
+		useContext(SidebarContext);
 
 	const actualStateLeft = useResponsiveSidebarStatus();
 
@@ -77,12 +74,12 @@ export const TopPanel: React.FC = () => {
 	}, [sidebarCollapsedStateRight]);
 
 	const onCollapseLeft = useCallback(() => {
-		setSidebarCollapsedStateLeft('collapsed');
-	}, [setSidebarCollapsedStateLeft]);
+		setSidebarCollapsedState({left: 'collapsed', right: null});
+	}, [setSidebarCollapsedState]);
 
 	const onCollapseRight = useCallback(() => {
-		setSidebarCollapsedStateRight('collapsed');
-	}, [setSidebarCollapsedStateRight]);
+		setSidebarCollapsedState({left: null, right: 'collapsed'});
+	}, [setSidebarCollapsedState]);
 
 	return (
 		<div style={container}>

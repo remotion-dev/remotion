@@ -543,10 +543,10 @@ export const RenderModal: React.FC<{
 		[setDefaultOutName]
 	);
 
-	const {setSidebarCollapsedStateRight} = useContext(SidebarContext);
+	const {setSidebarCollapsedState} = useContext(SidebarContext);
 
 	const onClickStill = useCallback(() => {
-		setSidebarCollapsedStateRight('expanded');
+		setSidebarCollapsedState({left: null, right: 'expanded'});
 		persistSelectedPanel('renders');
 		rightSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
@@ -571,7 +571,7 @@ export const RenderModal: React.FC<{
 				dispatchIfMounted({type: 'fail'});
 			});
 	}, [
-		setSidebarCollapsedStateRight,
+		setSidebarCollapsedState,
 		dispatchIfMounted,
 		compositionId,
 		outName,
@@ -602,7 +602,7 @@ export const RenderModal: React.FC<{
 	const audioCodec = deriveFinalAudioCodec(codec, userSelectedAudioCodec);
 
 	const onClickVideo = useCallback(() => {
-		setSidebarCollapsedStateRight('expanded');
+		setSidebarCollapsedState({left: null, right: 'expanded'});
 		persistSelectedPanel('renders');
 		rightSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
@@ -641,7 +641,7 @@ export const RenderModal: React.FC<{
 				dispatchIfMounted({type: 'fail'});
 			});
 	}, [
-		setSidebarCollapsedStateRight,
+		setSidebarCollapsedState,
 		dispatchIfMounted,
 		compositionId,
 		outName,

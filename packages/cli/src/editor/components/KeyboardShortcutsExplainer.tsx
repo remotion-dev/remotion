@@ -161,6 +161,32 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						<div style={right}>Pause & return to playback start</div>
 					</Row>
 					<br />
+					<div style={title}>Sidebar</div>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>B</kbd>
+						</div>
+						<div style={right}>Toggle left sidebar</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>J</kbd>
+						</div>
+						<div style={right}>Toggle right sidebar</div>
+					</Row>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>G</kbd>
+						</div>
+						<div style={right}>Toggle both sidebars</div>
+					</Row>
+					<br />
 				</Column>
 				<Spacing x={8} />
 				<Column>
