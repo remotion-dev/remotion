@@ -24,6 +24,7 @@ import {
 	useRemotionEnvironment,
 } from './get-environment.js';
 import {getPreviewDomElement} from './get-preview-dom-element.js';
+import {processColor} from './interpolate-colors.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -118,6 +119,7 @@ export const Internals = {
 	EditorPropsContext,
 	usePreload,
 	REMOTION_COLOR_BRAND,
+	processColor,
 };
 
 export type {
