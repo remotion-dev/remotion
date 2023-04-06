@@ -65,14 +65,28 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 
 	const toggleBoth = useCallback(() => {
 		if (sidebarCollapsedStateRight === leftSidebarStatus) {
-			toggleLeft();
-			toggleRight();
+			setSidebarCollapsedState({
+				left: (s) => {
+					if (s === 'responsive') {
+						return leftSidebarStatus === 'collapsed' ? 'expanded' : 'collapsed';
+					}
+
+					return s === 'collapsed' ? 'expanded' : 'collapsed';
+				},
+				right: (s) => (s === 'collapsed' ? 'expanded' : 'collapsed'),
+			});
 		} else if (sidebarCollapsedStateRight === 'expanded') {
 			toggleRight();
 		} else if (leftSidebarStatus === 'expanded') {
 			toggleLeft();
 		}
-	}, [leftSidebarStatus, sidebarCollapsedStateRight, toggleLeft, toggleRight]);
+	}, [
+		leftSidebarStatus,
+		setSidebarCollapsedState,
+		sidebarCollapsedStateRight,
+		toggleLeft,
+		toggleRight,
+	]);
 
 	useEffect(() => {
 		const left = keybindings.registerKeybinding({
