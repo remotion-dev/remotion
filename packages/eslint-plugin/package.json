@@ -16,6 +16,13 @@
   "dependencies": {
     "@typescript-eslint/utils": "5.19.0"
   },
+  "keywords": [
+    "eslint",
+    "eslintplugin"
+  ],
+  "peerDependencies": {
+    "eslint": ">=7.0.0"
+  },
   "devDependencies": {
     "eslint": "8.25.0",
     "typescript": "^4.7.0",
