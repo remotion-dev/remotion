@@ -71,6 +71,11 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 ### Unreleased
 
 - Make all strings `as const` when saving back to the root file to ensure type safety.
+- New [`zColor()`](/docs/z-color) API
+- New sidebar design and new mechanism for toggling sidebars
+- Create new array items
+- Zod union type support
+- Overall polish!
 
 ### `4.0.0-alpha.127+bcc7f944b`
 
