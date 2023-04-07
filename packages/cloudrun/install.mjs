@@ -7,6 +7,71 @@ execSync(
 	{stdio: 'inherit'}
 );
 
+let projectID = '';
+function setProjectID() {
+	execSync('echo "\u001b[0m\nRetrieving current Project ID..."', {
+		stdio: 'inherit',
+	});
+
+	projectID = execSync('gcloud config get-value project', {
+		stdio: ['inherit', 'pipe', 'pipe'],
+	})
+		.toString()
+		.trim();
+
+	execSync(`echo "Project set to \u001b[34;1m${projectID}\u001b[0m\n"`, {
+		stdio: 'inherit',
+	});
+}
+
+/****************************************
+ * Check for existing Terraform State
+ ****************************************/
+
+const dirFiles = execSync('ls -a', {
+	stdio: ['inherit', 'pipe', 'pipe'],
+})
+	.toString()
+	.trim();
+
+if (dirFiles.includes('.tfstate')) {
+	execSync(
+		'echo "Terraform State file exists. Checking it is for the current Remotion project..."',
+		{stdio: 'inherit'}
+	);
+
+	const tfstate = JSON.parse(
+		execSync('cat terraform.tfstate', {
+			stdio: ['inherit', 'pipe', 'pipe'],
+		}).toString()
+	);
+
+	const tfstateProject = tfstate.outputs?.remotion_project_id.value;
+
+	if (tfstateProject === undefined) {
+		execSync(
+			'echo "\u001b[31;1m\nTerraform state file is not from a Remotion project.\nChange directory, or delete all existing terraform files within the current directory, before trying again.\u001b[0m"',
+			{stdio: 'inherit'}
+		);
+		process.exit(1);
+	}
+
+	setProjectID();
+
+	if (tfstateProject === projectID) {
+		execSync(
+			`echo "\u001b[32;1mTerraform state file is for the current Remotion project - ${projectID}. Continuing...\u001b[0m\n"`,
+			{stdio: 'inherit'}
+		);
+	} else {
+		execSync(
+			`echo "\u001b[31;1mTerraform state file is for project ${tfstateProject}.\nThe current project is ${projectID}.\nChange directory, or delete all existing terraform files within the current directory, before trying again.\u001b[0m"`,
+			{stdio: 'inherit'}
+		);
+		process.exit(1);
+	}
+}
+
 /****************************************
  * Prompt user for Remotion version
  ****************************************/
@@ -25,7 +90,7 @@ function versionPrompt() {
 		});
 
 		rl.question(
-			'What version of Remotion do you want to use (format: 1.0.0)? \u001b[34;1m',
+			'\u001b[0mWhat version of Remotion do you want to use (format: 1.0.0)? \u001b[34;1m',
 			async (answer) => {
 				rl.close();
 
@@ -48,21 +113,7 @@ const remotionVersion = await versionPrompt();
  * Retrieve and set current project ID
  ****************************************/
 
-let projectID = '';
-
-execSync('echo "\u001b[0m\nRetrieving current Project ID..."', {
-	stdio: 'inherit',
-});
-
-projectID = execSync('gcloud config get-value project', {
-	stdio: ['inherit', 'pipe', 'pipe'],
-})
-	.toString()
-	.trim();
-
-execSync(`echo "Project set to \u001b[34;1m${projectID}\u001b[0m\n"`, {
-	stdio: 'inherit',
-});
+if (projectID === '') setProjectID();
 
 /****************************************
  * Check if Remotion Service Account already exists
@@ -156,13 +207,11 @@ if (iamRoleExists) {
 	);
 }
 
-execSync(
-	`terraform plan ${terraformVariables} -out=remotion.tfplan -compact-warnings`,
-	{stdio: 'inherit'}
-);
+execSync(`terraform plan ${terraformVariables} -out=remotion.tfplan`, {
+	stdio: 'inherit',
+});
 
 // After the plan is complete, prompt the user to apply the plan or not
-
 function applyPrompt() {
 	return new Promise((resolve) => {
 		const rl = readline.createInterface({
