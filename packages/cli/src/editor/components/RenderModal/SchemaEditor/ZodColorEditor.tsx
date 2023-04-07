@@ -107,7 +107,9 @@ export const ZodColorEditor: React.FC<{
 		onSave(() => value);
 	}, [onSave, value]);
 
-	const rgb = `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
+	const rgb = `#${r.toString(16).padStart(2, '0')}${g
+		.toString(16)
+		.padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
 
 	const status = localValue.zodValidation.success ? 'ok' : 'error';
 
