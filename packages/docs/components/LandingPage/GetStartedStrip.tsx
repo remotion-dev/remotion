@@ -42,6 +42,7 @@ export const GetStarted: React.FC = () => {
         </div>
       </div>
       <div style={{ width: 10, height: 10 }} />
+      <div style={{ position: "relative" }}>
       <div className={styles.partialrow}>
         <a
           className={styles.a}
@@ -63,6 +64,7 @@ export const GetStarted: React.FC = () => {
             <GithubButton />
           </BlueButton>
         </a>
+      </div>
       </div>
     </div>
   );
