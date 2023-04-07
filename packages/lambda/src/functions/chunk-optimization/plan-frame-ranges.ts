@@ -19,11 +19,10 @@ export const planFrameRanges = ({
 	return {
 		chunks: new Array(chunkCount).fill(1).map((_, i) => {
 			const start = i * framesPerLambda * everyNthFrame + firstFrame;
-			const end =
-				Math.min(
-					framesToRender[framesToRender.length - 1],
-					(i + 1) * framesPerLambda * everyNthFrame - 1
-				) + firstFrame;
+			const end = Math.min(
+				framesToRender[framesToRender.length - 1],
+				(i + 1) * framesPerLambda * everyNthFrame - 1 + firstFrame
+			);
 
 			return [start, end];
 		}),

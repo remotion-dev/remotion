@@ -53,7 +53,12 @@ const findEndPosition = (input: string, currentPosition: number) => {
 	throw new Error('Could not find end of defaultProps');
 };
 
-const findEnder = (input: string, position: number, maxPosition: number) => {
+const findEnder = (
+	input: string,
+	position: number,
+	maxPosition: number,
+	compositionId: string
+) => {
 	let currentPosition = position;
 	while (currentPosition < maxPosition) {
 		const next = findEndPosition(input, currentPosition);
@@ -68,7 +73,9 @@ const findEnder = (input: string, position: number, maxPosition: number) => {
 		return [position, currentPosition + 1];
 	}
 
-	throw new Error('did not find string');
+	throw new Error(
+		`No \`defaultProps\` prop found in the <Composition/> tag with the ID "${compositionId}".`
+	);
 };
 
 const findTerminators = (input: string, position: number) => {
@@ -130,7 +137,8 @@ export const updateDefaultProps = async ({
 	const [startPos, endPos] = findEnder(
 		input,
 		start + START_TOKEN.length,
-		maxEnd
+		maxEnd,
+		compositionId
 	);
 
 	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
