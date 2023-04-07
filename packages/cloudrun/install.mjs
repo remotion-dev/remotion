@@ -50,7 +50,7 @@ if (dirFiles.includes('.tfstate')) {
 
 	if (tfstateProject === undefined) {
 		execSync(
-			'echo "\u001b[31;1m\nTerraform state file is not from a Remotion project.\nChange directory, or delete all existing terraform files within the current directory, before trying again.\u001b[0m"',
+			'echo "\u001b[31;1m\nTerraform state file is not from a Remotion project.\nChange directory, or delete all existing terraform files within the current directory, before trying again.\nTo delete all terraform files, run: rm -rf .terraform terraform.tfstate terraform.tfstate.backup .terraform.lock.hcl\u001b[0m"',
 			{stdio: 'inherit'}
 		);
 		process.exit(1);
