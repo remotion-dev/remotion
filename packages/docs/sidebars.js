@@ -84,6 +84,7 @@ module.exports = {
         "folder",
         "easing",
         "z",
+        "z-color",
         "null",
         "clipper",
       ],
