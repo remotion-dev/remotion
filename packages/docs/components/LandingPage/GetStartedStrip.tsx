@@ -46,20 +46,20 @@ export const GetStarted: React.FC = () => {
       <div className={styles.partialrow}>
         <a
           className={styles.a}
-          href="https://www.youtube.com/watch?v=deg8bOoziaE"
+          href="https://www.youtube.com/watch?v=deg8bOoziaE" target="_blank"
         >
           <BlueButton size="sm" loading={false} fullWidth={false}>
             Watch demo
           </BlueButton>
         </a>
         <div style={{ width: 10 }} />
-        <a className={styles.a} href="/discord">
+        <a className={styles.a} href="https://remotion.dev/discord" target="_blank">
           <BlueButton size="sm" loading={false} fullWidth={false}>
             Discord
           </BlueButton>
         </a>
         <div style={{ width: 10 }} />
-        <a className={styles.a} href="https://github.com/remotion-dev/remotion">
+        <a className={styles.a} href="https://github.com/remotion-dev/remotion" target="_blank">
           <BlueButton size="sm" loading={false} fullWidth={false}>
             <GithubButton />
           </BlueButton>
