@@ -46,7 +46,7 @@ if (dirFiles.includes('.tfstate')) {
 		}).toString()
 	);
 
-	const tfstateProject = tfstate.outputs?.remotion_project_id.value;
+	const tfstateProject = tfstate.outputs?.remotion_project_id?.value;
 
 	if (tfstateProject === undefined) {
 		execSync(
