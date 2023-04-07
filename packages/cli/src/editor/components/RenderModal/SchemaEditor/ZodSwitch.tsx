@@ -63,22 +63,6 @@ export const ZodSwitch: React.FC<{
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodString) {
-		if (schema._def.description === Internals.REMOTION_COLOR_BRAND) {
-			return (
-				<ZodColorEditor
-					value={value as string}
-					setValue={setValue as React.Dispatch<React.SetStateAction<string>>}
-					jsonPath={jsonPath}
-					schema={schema}
-					compact={compact}
-					onSave={onSave}
-					defaultValue={defaultValue as string}
-					showSaveButton={showSaveButton}
-					onRemove={onRemove}
-				/>
-			);
-		}
-
 		return (
 			<ZodStringEditor
 				value={value as string}
@@ -229,6 +213,22 @@ export const ZodSwitch: React.FC<{
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodEffects) {
+		if (schema._def.description === Internals.REMOTION_COLOR_BRAND) {
+			return (
+				<ZodColorEditor
+					value={value as string}
+					setValue={setValue as React.Dispatch<React.SetStateAction<string>>}
+					jsonPath={jsonPath}
+					schema={schema}
+					compact={compact}
+					onSave={onSave}
+					defaultValue={defaultValue as string}
+					showSaveButton={showSaveButton}
+					onRemove={onRemove}
+				/>
+			);
+		}
+
 		return (
 			<ZodEffectEditor
 				value={value}

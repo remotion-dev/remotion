@@ -6,5 +6,5 @@ export const colorWithNewOpacity = (color: string, opacity: number) => {
 		return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
 	}
 
-	return `rgba(${r}, ${g}, ${b}, ${(opacity / 255).toFixed(3)})`;
+	return `rgba(${r}, ${g}, ${b}, ${(opacity / 255).toFixed(2)})`;
 };

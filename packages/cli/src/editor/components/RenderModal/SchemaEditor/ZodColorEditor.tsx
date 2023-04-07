@@ -65,7 +65,7 @@ export const ZodColorEditor: React.FC<{
 
 	const {a, b, g, r} = localValue.zodValidation.success
 		? Internals.parseColor(localValue.value)
-		: {a: 0, b: 0, g: 0, r: 0};
+		: {a: 1, b: 0, g: 0, r: 0};
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
@@ -113,7 +113,9 @@ export const ZodColorEditor: React.FC<{
 
 	const colorPicker: React.CSSProperties = useMemo(() => {
 		return {
-			height: 37,
+			height: 39,
+			width: 45,
+			display: 'inline-block',
 		};
 	}, []);
 
@@ -169,15 +171,19 @@ export const ZodColorEditor: React.FC<{
 			/>
 			<div style={fullWidth}>
 				<Row align="center">
-					<RemInputTypeColor
-						style={colorPicker}
-						type="color"
-						value={rgb}
-						onChange={onChange}
-						className="__remotion_color_picker"
-						status={status}
-					/>
-					<Spacing x={1} />
+					<div style={colorPicker}>
+						<RemInputTypeColor
+							type="color"
+							style={{
+								height: 39,
+							}}
+							value={rgb}
+							onChange={onChange}
+							className="__remotion_color_picker"
+							status={status}
+						/>
+					</div>
+					<Spacing x={1} block />
 					<RemotionInput
 						value={localValue.value}
 						status={status}
@@ -193,7 +199,7 @@ export const ZodColorEditor: React.FC<{
 						min={0}
 						max={100}
 						step={1}
-						formatter={(v) => `${Number(v).toFixed(1)}%`}
+						formatter={(v) => `${Math.round(Number(v))}%`}
 					/>
 				</Row>
 				{!localValue.zodValidation.success && (

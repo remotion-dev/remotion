@@ -18,7 +18,6 @@ export const parseColor = (value: string) => {
 export const zColor = () =>
 	z
 		.string()
-		.describe(REMOTION_COLOR_BRAND)
 		.refine(
 			(value) => {
 				try {
@@ -29,4 +28,5 @@ export const zColor = () =>
 				}
 			},
 			{message: 'Invalid color'}
-		);
+		)
+		.describe(REMOTION_COLOR_BRAND);
