@@ -20,7 +20,19 @@ This method is not available when inside a Remotion Player. Instead, get the pro
 Pass in a [parseable](/docs/cli) JSON representation using the `--props` flag to either `remotion preview` or `remotion render`:
 
 ```bash
-npx remotion render --props='{"hello": "world"}' my-composition out/video.mp4
+npx remotion render --props='{"hello": "world"}'
+```
+
+To simulate how it behaves, you can also pass props when previewing:
+
+```bash
+npx remotion preview --props='{"hello": "world"}'
+```
+
+You may also specify a file containing JSON and Remotion will parse the file for you:
+
+```bash
+npx remotion render --props=./path/to/props.json
 ```
 
 You can then access the props in JavaScript:
