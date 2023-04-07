@@ -6,7 +6,7 @@ const AudioTesting: React.FC = () => {
 
 	return (
 		<div>
-			<Sequence from={100} durationInFrames={100}>
+			<Sequence from={100} durationInFrames={55.995}>
 				<Audio
 					loop
 					startFrom={100}
