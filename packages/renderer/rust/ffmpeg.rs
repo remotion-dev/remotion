@@ -16,7 +16,7 @@ pub fn extract_frame(src: String) -> Result<Vec<u8>, std::io::Error> {
     let mut stream_input = remotionffmepg::format::input(&src)?;
 
     // TODO: Hardcoded
-    let time: f64 = 5.0;
+    let time: f64 = 1.0;
 
     let stream = match stream_input
         .streams_mut()
@@ -61,6 +61,8 @@ pub fn extract_frame(src: String) -> Result<Vec<u8>, std::io::Error> {
             Ok(new_data)
         };
 
+    let mut frame = Vec::new();
+
     for (stream, packet) in input.packets() {
         if stream.index() == stream_index {
             // -1 because uf 67 and we want to process 66.66 -> rounding error
@@ -75,21 +77,21 @@ pub fn extract_frame(src: String) -> Result<Vec<u8>, std::io::Error> {
                     let err = rgb_frame.err().unwrap();
                     if err.to_string().contains("Resource temporarily unavailable") {
                         // Need to send another packet
-                        println!("Resource temporarily unavailable");
                     } else {
                         errors::handle_error(&err);
                     }
                 } else {
-                    return Ok(create_bmp_image(
-                        rgb_frame.unwrap(),
-                        decoder.width(),
-                        decoder.height(),
-                    ));
+                    frame = rgb_frame.unwrap();
+                    break;
                 }
             }
         }
     }
-    Err(Error::new(ErrorKind::Other, "No frame found"))?
+    if frame.len() > 0 {
+        return Ok(create_bmp_image(frame, decoder.width(), decoder.height()));
+    } else {
+        Err(Error::new(ErrorKind::Other, "No frame found"))?
+    }
 }
 
 fn turn_frame_into_bitmap(rgb_frame: Video) -> Result<Vec<u8>, remotionffmepg::Error> {

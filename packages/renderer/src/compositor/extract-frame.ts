@@ -8,7 +8,8 @@ export const extractFrameFromVideoCompositor = () => {
 		const payload: CliInputCommand = {
 			type: 'ExtractFrame',
 			params: {
-				input: '/Users/jonathanburger/Downloads/2013.mp4',
+				input:
+					'/Users/jonathanburger/remotion/packages/example/public/framer.webm',
 				output:
 					'/Users/jonathanburger/remotion/packages/renderer/src/compositor/out.bmp',
 				time: 2.5,
