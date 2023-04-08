@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-z.png
 id: z
 title: z
 crumb: "API"
