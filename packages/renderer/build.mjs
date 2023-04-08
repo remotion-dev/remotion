@@ -139,6 +139,7 @@ if (!hasCargo()) {
 const nativeArch = getTarget();
 
 const all = process.argv.includes('--all');
+const debug = process.argv.includes('--debug');
 if (!existsSync('toolchains') && all) {
 	throw new Error(
 		'Run "node install-toolchain.mjs" if you want to build all platforms'
@@ -157,7 +158,7 @@ for (const arch of archs) {
 		`tar xf ffmpeg/${copyDestinations[arch].ffmpeg_bin} -C ${ffmpegFolder}`
 	);
 	const link = path.join(process.cwd(), ffmpegFolder, 'remotion', 'include');
-	const command = `cargo build --release --target=${arch}`;
+	const command = `cargo build ${debug ? '' : '--release'} --target=${arch}`;
 	console.log(command);
 	execSync(command, {
 		stdio: 'inherit',
