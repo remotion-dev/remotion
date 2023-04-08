@@ -1,4 +1,4 @@
-import {z} from 'remotion';
+import {z, zColor} from 'remotion';
 import {expect, test} from 'vitest';
 import {createZodValues} from '../editor/components/RenderModal/SchemaEditor/create-zod-values';
 
@@ -196,4 +196,8 @@ test('Zod coerce', () => {
 test('Zod strict', () => {
 	const strict = z.strictObject({a: z.string()}).strict();
 	expect(createZodValues(strict)).toEqual({a: ''});
+});
+
+test('Should create a color', () => {
+	expect(createZodValues(zColor())).toBe('#ffffff');
 });

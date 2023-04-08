@@ -10,10 +10,6 @@ export const createZodValues = (schema: z.ZodTypeAny): unknown => {
 
 	switch (typeName) {
 		case z.ZodFirstPartyTypeKind.ZodString:
-			if (schema._def.description === Internals.REMOTION_COLOR_BRAND) {
-				return '#ffffff';
-			}
-
 			return '';
 		case z.ZodFirstPartyTypeKind.ZodNumber:
 			return 0;
@@ -68,6 +64,10 @@ export const createZodValues = (schema: z.ZodTypeAny): unknown => {
 		}
 
 		case z.ZodFirstPartyTypeKind.ZodEffects: {
+			if (schema._def.description === Internals.REMOTION_COLOR_BRAND) {
+				return '#ffffff';
+			}
+
 			return createZodValues((def as z.ZodEffectsDef).schema);
 		}
 
