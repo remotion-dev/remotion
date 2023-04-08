@@ -46,17 +46,29 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
-    pub struct CliInput {
-        v: u8,
-        pub output: String,
+    pub struct CliGenerateImageCommand {
         pub width: u32,
         pub height: u32,
         pub layers: Vec<Layer>,
         pub output_format: ImageFormat,
     }
 
-    pub fn parse_cli(json: &str) -> CliInput {
-        let cli_input: CliInput = match serde_json::from_str(json) {
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct ExtractFrameCommand {
+        pub input: String,
+        pub output: String,
+        pub time: f64,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
+    #[serde(tag = "type", content = "params")]
+    pub enum CliInputCommand {
+        ExtractFrame(ExtractFrameCommand),
+        Compose(CliGenerateImageCommand),
+    }
+
+    pub fn parse_cli(json: &str) -> CliInputCommand {
+        let cli_input: CliInputCommand = match serde_json::from_str(json) {
             Ok(content) => content,
             Err(err) => errors::handle_error(&err),
         };
