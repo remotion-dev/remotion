@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-4-0-alpha.png
 id: 4-0-alpha
 title: v4.0 Alpha
 crumb: "Version Upgrade"

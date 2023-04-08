@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-z-color.png
 id: z-color
 title: zColor()
 ---
