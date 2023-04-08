@@ -86,45 +86,48 @@ const hasCargo = () => {
 	}
 };
 
+const debug = process.argv.includes('--debug');
+const mode = debug ? 'debug' : 'release';
+
 const copyDestinations = {
 	'aarch64-unknown-linux-gnu': {
-		from: 'target/aarch64-unknown-linux-gnu/release/compositor',
+		from: `target/aarch64-unknown-linux-gnu/${mode}/compositor`,
 		to: '../compositor-linux-arm64-gnu/compositor',
 		dir: '../compositor-linux-arm64-gnu',
 		ffmpeg_bin: 'linux-arm.gz',
 	},
 	'aarch64-unknown-linux-musl': {
-		from: 'target/aarch64-unknown-linux-musl/release/compositor',
+		from: 'target/aarch64-unknown-linux-musl/' + mode + '/compositor',
 		to: '../compositor-linux-arm64-musl/compositor',
 		dir: '../compositor-linux-arm64-musl',
 		ffmpeg_bin: 'linux-arm-musl.gz',
 	},
 	'x86_64-unknown-linux-gnu': {
-		from: 'target/x86_64-unknown-linux-gnu/release/compositor',
+		from: 'target/x86_64-unknown-linux-gnu/' + mode + '/compositor',
 		to: '../compositor-linux-x64-gnu/compositor',
 		dir: '../compositor-linux-x64-gnu',
 		ffmpeg_bin: 'linux-x64.gz',
 	},
 	'x86_64-unknown-linux-musl': {
-		from: 'target/x86_64-unknown-linux-musl/release/compositor',
+		from: 'target/x86_64-unknown-linux-musl/' + mode + '/compositor',
 		to: '../compositor-linux-x64-musl/compositor',
 		dir: '../compositor-linux-x64-musl',
 		ffmpeg_bin: 'linux-x64-musl.gz',
 	},
 	'x86_64-apple-darwin': {
-		from: 'target/x86_64-apple-darwin/release/compositor',
+		from: 'target/x86_64-apple-darwin/' + mode + '/compositor',
 		to: '../compositor-darwin-x64/compositor',
 		dir: '../compositor-darwin-x64',
 		ffmpeg_bin: 'macos-x64.gz',
 	},
 	'aarch64-apple-darwin': {
-		from: 'target/aarch64-apple-darwin/release/compositor',
+		from: 'target/aarch64-apple-darwin/' + mode + '/compositor',
 		to: '../compositor-darwin-arm64/compositor',
 		dir: '../compositor-darwin-arm64',
 		ffmpeg_bin: 'macos-arm.gz',
 	},
 	'x86_64-pc-windows-gnu': {
-		from: 'target/x86_64-pc-windows-gnu/release/compositor.exe',
+		from: 'target/x86_64-pc-windows-gnu/' + mode + '/compositor.exe',
 		to: '../compositor-win32-x64-msvc/compositor.exe',
 		dir: '../compositor-win32-x64-msvc',
 		ffmpeg_bin: 'windows.gz',
@@ -139,7 +142,6 @@ if (!hasCargo()) {
 const nativeArch = getTarget();
 
 const all = process.argv.includes('--all');
-const debug = process.argv.includes('--debug');
 if (!existsSync('toolchains') && all) {
 	throw new Error(
 		'Run "node install-toolchain.mjs" if you want to build all platforms'

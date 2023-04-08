@@ -51,12 +51,20 @@ export type CompositorCommand =
 				output: string;
 				time: number;
 			};
+	  }
+	| {
+			type: 'Echo';
+			params: {
+				message: string;
+			};
 	  };
 
-export type CliInputCommand = CompositorCommand & {
-	type: 'StartLongRunningProcess';
-	params: {};
-};
+export type CliInputCommand =
+	| CompositorCommand
+	| {
+			type: 'StartLongRunningProcess';
+			params: {};
+	  };
 
 export type ErrorPayload = {
 	error: string;

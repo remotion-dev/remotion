@@ -21,6 +21,9 @@ pub fn execute_command(opts: CliInputCommand) -> Result<(), PossibleErrors> {
                 "Cannot start long running process as command",
             ))?;
         }
+        CliInputCommand::Echo(_command) => {
+            println!("Echo: {}", _command.message);
+        }
         CliInputCommand::Compose(compose_command) => {
             let len: usize = (compose_command.width * compose_command.height).try_into()?;
             let mut data: Vec<u8> = vec![0; len * 4];
