@@ -33,7 +33,7 @@ export type Layer =
 
 export type CompositorImageFormat = 'Png' | 'Jpeg';
 
-export type CliInputCommand =
+export type CompositorCommand =
 	| {
 			type: 'Compose';
 			params: {
@@ -52,6 +52,11 @@ export type CliInputCommand =
 				time: number;
 			};
 	  };
+
+export type CliInputCommand = CompositorCommand & {
+	type: 'StartLongRunningProcess';
+	params: {};
+};
 
 export type ErrorPayload = {
 	error: string;

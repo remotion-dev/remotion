@@ -62,10 +62,14 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
+    pub struct StartPayLoad {}
+
+    #[derive(Serialize, Deserialize, Debug)]
     #[serde(tag = "type", content = "params")]
     pub enum CliInputCommand {
         ExtractFrame(ExtractFrameCommand),
         Compose(CliGenerateImageCommand),
+        StartLongRunningProcess(StartPayLoad),
     }
 
     pub fn parse_cli(json: &str) -> Result<CliInputCommand, PossibleErrors> {
