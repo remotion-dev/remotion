@@ -5,7 +5,7 @@ use compositor::draw_layer;
 use jpeg_encoder::{ColorType, Encoder};
 extern crate ffmpeg_next as ffmpeg;
 
-use payloads::payloads::{parse_cli, CliInput};
+use payloads::payloads::{parse_cli, CliInputCommand};
 use std::{
     fs::File,
     io::{BufWriter, Read},
@@ -28,27 +28,48 @@ fn main() -> Result<(), std::io::Error> {
         Err(err) => errors::handle_error(&err),
     };
 
-    let opts: CliInput = parse_cli(&input);
-    let len: usize = match (opts.width * opts.height).try_into() {
-        Ok(content) => content,
-        Err(err) => errors::handle_error(&err),
-    };
-    let mut data: Vec<u8> = vec![0; len * 4];
+    let opts: CliInputCommand = parse_cli(&input);
 
-    for layer in opts.layers {
-        draw_layer(&mut data, opts.width, layer)
-    }
-
-    if matches!(opts.output_format, payloads::payloads::ImageFormat::Jpeg) {
-        match save_as_jpeg(opts.width, opts.height, data, opts.output) {
-            Ok(_) => (),
-            Err(err) => errors::handle_error(&err),
+    match opts {
+        CliInputCommand::ExtractFrame(_) => {
+            println!("extract frame");
         }
-    } else {
-        match save_as_png(opts.width, opts.height, data, opts.output) {
-            Ok(_) => (),
-            Err(err) => errors::handle_error(&err),
-        };
+        CliInputCommand::Compose(compose_command) => {
+            let len: usize = match (compose_command.width * compose_command.height).try_into() {
+                Ok(content) => content,
+                Err(err) => errors::handle_error(&err),
+            };
+            let mut data: Vec<u8> = vec![0; len * 4];
+
+            for layer in compose_command.layers {
+                draw_layer(&mut data, compose_command.width, layer)
+            }
+
+            if matches!(
+                compose_command.output_format,
+                payloads::payloads::ImageFormat::Jpeg
+            ) {
+                match save_as_jpeg(
+                    compose_command.width,
+                    compose_command.height,
+                    data,
+                    compose_command.output,
+                ) {
+                    Ok(_) => (),
+                    Err(err) => errors::handle_error(&err),
+                }
+            } else {
+                match save_as_png(
+                    compose_command.width,
+                    compose_command.height,
+                    data,
+                    compose_command.output,
+                ) {
+                    Ok(_) => (),
+                    Err(err) => errors::handle_error(&err),
+                };
+            }
+        }
     }
 
     Ok(())
