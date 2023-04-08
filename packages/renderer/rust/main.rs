@@ -31,7 +31,7 @@ fn main() -> Result<(), std::io::Error> {
 
     match opts {
         CliInputCommand::ExtractFrame(command) => {
-            let _result = match ffmpeg::extract_frame(command.input) {
+            let _result = match ffmpeg::extract_frame(command.input, command.time) {
                 Ok(content) => content,
                 Err(err) => errors::handle_error(&err),
             };
