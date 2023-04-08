@@ -24,7 +24,6 @@ test('Should handle the overlay', async () => {
 
 		throw new Error('should not reach here');
 	} catch (err) {
-		console.log(err);
 		expect(err).toMatch(/missing field/);
 	}
 });
