@@ -3,6 +3,7 @@ mod errors;
 mod ffmpeg;
 mod payloads;
 use compositor::draw_layer;
+use errors::PossibleErrors;
 use jpeg_encoder::{ColorType, Encoder};
 use std::fs::write;
 
@@ -21,67 +22,56 @@ fn read_stdin_to_string() -> Result<String, std::io::Error> {
     Ok(input)
 }
 
-fn main() -> Result<(), std::io::Error> {
-    let input = match read_stdin_to_string() {
-        Ok(content) => content,
-        Err(err) => errors::handle_error(&err),
-    };
+fn mainfn() -> Result<(), PossibleErrors> {
+    let input = read_stdin_to_string()?;
 
-    let opts: CliInputCommand = parse_cli(&input);
+    let opts: CliInputCommand = parse_cli(&input)?;
 
     match opts {
         CliInputCommand::ExtractFrame(command) => {
-            let _result = match ffmpeg::extract_frame(command.input, command.time) {
-                Ok(content) => content,
-                Err(err) => errors::handle_error(&err),
-            };
+            let _result = ffmpeg::extract_frame(command.input, command.time)?;
 
-            match write(command.output, &_result) {
-                Ok(_) => (),
-                Err(err) => errors::handle_error(&err),
-            };
+            write(command.output, &_result)?;
 
             // Write to a file
         }
         CliInputCommand::Compose(compose_command) => {
-            let len: usize = match (compose_command.width * compose_command.height).try_into() {
-                Ok(content) => content,
-                Err(err) => errors::handle_error(&err),
-            };
+            let len: usize = (compose_command.width * compose_command.height).try_into()?;
             let mut data: Vec<u8> = vec![0; len * 4];
 
             for layer in compose_command.layers {
-                draw_layer(&mut data, compose_command.width, layer)
+                draw_layer(&mut data, compose_command.width, layer)?;
             }
 
             if matches!(
                 compose_command.output_format,
                 payloads::payloads::ImageFormat::Jpeg
             ) {
-                match save_as_jpeg(
+                save_as_jpeg(
                     compose_command.width,
                     compose_command.height,
                     data,
                     compose_command.output,
-                ) {
-                    Ok(_) => (),
-                    Err(err) => errors::handle_error(&err),
-                }
+                )?;
             } else {
-                match save_as_png(
+                save_as_png(
                     compose_command.width,
                     compose_command.height,
                     data,
                     compose_command.output,
-                ) {
-                    Ok(_) => (),
-                    Err(err) => errors::handle_error(&err),
-                };
+                )?;
             }
         }
     }
 
     Ok(())
+}
+
+fn main() {
+    match mainfn() {
+        Ok(_) => (),
+        Err(err) => errors::handle_error(err),
+    }
 }
 
 fn save_as_jpeg(
