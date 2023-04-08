@@ -51,6 +51,7 @@ pub mod payloads {
         pub height: u32,
         pub layers: Vec<Layer>,
         pub output_format: ImageFormat,
+        pub output: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
