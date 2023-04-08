@@ -1,5 +1,6 @@
 use crate::payloads::payloads::ErrorPayload;
 use ffmpeg_next as remotionffmepg;
+use std::any::Any;
 use std::backtrace::Backtrace;
 
 fn error_to_string(err: PossibleErrors) -> String {
@@ -10,6 +11,7 @@ fn error_to_string(err: PossibleErrors) -> String {
         PossibleErrors::DecodingError(err) => err.to_string(),
         PossibleErrors::JpegDecoderError(err) => err.to_string(),
         PossibleErrors::SerdeError(err) => err.to_string(),
+        PossibleErrors::WorkerError(err) => format!("{:?}", err),
     }
 }
 
@@ -31,6 +33,13 @@ pub enum PossibleErrors {
     DecodingError(png::DecodingError),
     JpegDecoderError(jpeg_decoder::Error),
     SerdeError(serde_json::Error),
+    WorkerError(Box<dyn Any + Send>),
+}
+
+impl From<Box<dyn Any + Send>> for PossibleErrors {
+    fn from(err: Box<dyn Any + Send>) -> PossibleErrors {
+        PossibleErrors::WorkerError(err)
+    }
 }
 
 impl From<remotionffmepg::Error> for PossibleErrors {
@@ -66,5 +75,19 @@ impl From<png::DecodingError> for PossibleErrors {
 impl From<jpeg_decoder::Error> for PossibleErrors {
     fn from(err: jpeg_decoder::Error) -> PossibleErrors {
         PossibleErrors::JpegDecoderError(err)
+    }
+}
+
+impl std::fmt::Debug for PossibleErrors {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            PossibleErrors::IoError(err) => write!(f, "IoError: {:?}", err),
+            PossibleErrors::FfmpegError(err) => write!(f, "FfmpegError: {:?}", err),
+            PossibleErrors::TryFromIntError(err) => write!(f, "TryFromIntError: {:?}", err),
+            PossibleErrors::DecodingError(err) => write!(f, "DecodingError: {:?}", err),
+            PossibleErrors::JpegDecoderError(err) => write!(f, "JpegDecoderError: {:?}", err),
+            PossibleErrors::SerdeError(err) => write!(f, "SerdeError: {:?}", err),
+            PossibleErrors::WorkerError(err) => write!(f, "WorkerError: {:?}", err),
+        }
     }
 }
