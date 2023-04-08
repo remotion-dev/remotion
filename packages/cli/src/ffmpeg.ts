@@ -3,7 +3,7 @@ import {spawnSync} from 'child_process';
 
 export const ffmpegCommand = (_root: string, args: string[]) => {
 	const done = spawnSync(RenderInternals.getExecutablePath('ffmpeg'), args, {
-		...RenderInternals.callFfExtraOptions(),
+		...RenderInternals.dynamicLibraryPathOptions(),
 		stdio: 'inherit',
 	});
 	process.exit(done.status as number);
@@ -11,7 +11,7 @@ export const ffmpegCommand = (_root: string, args: string[]) => {
 
 export const ffprobeCommand = (_root: string, args: string[]) => {
 	const done = spawnSync(RenderInternals.getExecutablePath('ffprobe'), args, {
-		...RenderInternals.callFfExtraOptions(),
+		...RenderInternals.dynamicLibraryPathOptions(),
 		stdio: 'inherit',
 	});
 	process.exit(done.status as number);

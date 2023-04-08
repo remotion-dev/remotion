@@ -33,16 +33,25 @@ export type Layer =
 
 export type CompositorImageFormat = 'Png' | 'Jpeg';
 
-export type CliInputCommand = {
-	type: 'Compose';
-	params: {
-		output: string;
-		width: number;
-		height: number;
-		layers: Layer[];
-		output_format: CompositorImageFormat;
-	};
-};
+export type CliInputCommand =
+	| {
+			type: 'Compose';
+			params: {
+				output: string;
+				width: number;
+				height: number;
+				layers: Layer[];
+				output_format: CompositorImageFormat;
+			};
+	  }
+	| {
+			type: 'ExtractFrame';
+			params: {
+				input: string;
+				output: string;
+				time: number;
+			};
+	  };
 
 export type ErrorPayload = {
 	error: string;

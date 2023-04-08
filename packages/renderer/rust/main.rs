@@ -1,9 +1,10 @@
 mod compositor;
 mod errors;
+mod ffmpeg;
 mod payloads;
 use compositor::draw_layer;
 use jpeg_encoder::{ColorType, Encoder};
-extern crate ffmpeg_next as ffmpeg;
+use std::fs::write;
 
 use payloads::payloads::{parse_cli, CliInputCommand};
 use std::{
@@ -21,8 +22,6 @@ fn read_stdin_to_string() -> Result<String, std::io::Error> {
 }
 
 fn main() -> Result<(), std::io::Error> {
-    ffmpeg::init().unwrap();
-
     let input = match read_stdin_to_string() {
         Ok(content) => content,
         Err(err) => errors::handle_error(&err),
@@ -31,8 +30,18 @@ fn main() -> Result<(), std::io::Error> {
     let opts: CliInputCommand = parse_cli(&input);
 
     match opts {
-        CliInputCommand::ExtractFrame(_) => {
-            println!("extract frame");
+        CliInputCommand::ExtractFrame(command) => {
+            let _result = match ffmpeg::extract_frame(command.input) {
+                Ok(content) => content,
+                Err(err) => errors::handle_error(&err),
+            };
+
+            match write(command.output, _result) {
+                Ok(_) => (),
+                Err(err) => errors::handle_error(&err),
+            };
+
+            // Write to a file
         }
         CliInputCommand::Compose(compose_command) => {
             let len: usize = match (compose_command.width * compose_command.height).try_into() {

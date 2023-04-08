@@ -3,7 +3,7 @@ import path from 'path';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {truthy} from './truthy';
 
-export const callFfExtraOptions = () => {
+export const dynamicLibraryPathOptions = () => {
 	const lib = path.join(getExecutablePath('ffmpeg-cwd'), 'remotion', 'lib');
 
 	return {
@@ -28,7 +28,7 @@ export const callFf = (
 	options?: execa.Options<string>
 ) => {
 	return execa(getExecutablePath(bin), args.filter(truthy), {
-		...callFfExtraOptions(),
+		...dynamicLibraryPathOptions(),
 		...options,
 	});
 };
