@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-z.png
 id: z
 title: z
 crumb: "API"
@@ -82,3 +83,8 @@ export const RemotionRoot: React.FC = () => {
   );
 };
 ```
+
+## See also
+
+- [Parametrized rendereding](/docs/parametrized-rendering)
+- [`zColor()`](/docs/z-color)

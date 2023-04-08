@@ -57,7 +57,6 @@ export type BundleState =
 	  };
 
 checkMultipleRemotionVersions();
-
 export {z} from 'zod';
 export * from './AbsoluteFill.js';
 export * from './audio/index.js';
@@ -102,6 +101,7 @@ export * from './use-video-config.js';
 export * from './version.js';
 export * from './video-config.js';
 export * from './video/index.js';
+export {zColor} from './z-color.js';
 
 export const Experimental = {
 	/**
