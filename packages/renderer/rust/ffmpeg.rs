@@ -8,15 +8,12 @@ use remotionffmepg::software::scaling::Flags;
 use std::io::{Error, ErrorKind};
 extern crate ffmpeg_next as remotionffmepg;
 
-pub fn extract_frame(src: String) -> Result<Vec<u8>, std::io::Error> {
+pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, std::io::Error> {
     remotionffmepg::init()?;
 
     // Don't read twice
     let mut input = remotionffmepg::format::input(&src)?;
     let mut stream_input = remotionffmepg::format::input(&src)?;
-
-    // TODO: Hardcoded
-    let time: f64 = 1.0;
 
     let stream = match stream_input
         .streams_mut()
