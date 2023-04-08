@@ -221,6 +221,8 @@ for (const arch of archs) {
 	for (const file of files) {
 		if (file.endsWith('.a')) {
 			unlinkSync(path.join(libDir, file));
+		} else if (file.endsWith('.dylib') && file.split('.').length === 3) {
+			unlinkSync(path.join(libDir, file));
 		} else if (file.endsWith('.la')) {
 			unlinkSync(path.join(libDir, file));
 		} else if (file.endsWith('.def')) {
