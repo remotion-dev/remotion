@@ -86,5 +86,5 @@ export const RemotionRoot: React.FC = () => {
 
 ## See also
 
-- [Parametrized rendereding](/docs/parametrized-rendered)
+- [Parametrized rendereding](/docs/parametrized-rendering)
 - [`zColor()`](/docs/z-color)
