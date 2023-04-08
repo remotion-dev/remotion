@@ -1,6 +1,6 @@
 use remotionffmepg::media::Type;
 
-use crate::errors;
+use crate::errors::PossibleErrors;
 use remotionffmepg::format::Pixel;
 use remotionffmepg::frame::Video;
 use remotionffmepg::software::scaling::Context;
@@ -8,7 +8,7 @@ use remotionffmepg::software::scaling::Flags;
 use std::io::{Error, ErrorKind};
 extern crate ffmpeg_next as remotionffmepg;
 
-pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, std::io::Error> {
+pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> {
     remotionffmepg::init()?;
 
     // Don't read twice
@@ -53,7 +53,7 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, std::io::Error> 
             let mut rgb_frame = Video::empty();
             scaler.run(&input, &mut rgb_frame)?;
 
-            let new_data = turn_frame_into_bitmap(rgb_frame)?;
+            let new_data = turn_frame_into_bitmap(rgb_frame);
 
             Ok(new_data)
         };
@@ -75,7 +75,7 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, std::io::Error> 
                     if err.to_string().contains("Resource temporarily unavailable") {
                         // Need to send another packet
                     } else {
-                        errors::handle_error(&err);
+                        Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?
                     }
                 } else {
                     frame = rgb_frame.unwrap();
@@ -87,11 +87,11 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, std::io::Error> 
     if frame.len() > 0 {
         return Ok(create_bmp_image(frame, decoder.width(), decoder.height()));
     } else {
-        Err(Error::new(ErrorKind::Other, "No frame found"))?
+        Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?
     }
 }
 
-fn turn_frame_into_bitmap(rgb_frame: Video) -> Result<Vec<u8>, remotionffmepg::Error> {
+fn turn_frame_into_bitmap(rgb_frame: Video) -> Vec<u8> {
     // https://github.com/zmwangx/rust-ffmpeg/issues/64
     let stride = rgb_frame.stride(0);
     let byte_width: usize = 3 * rgb_frame.width() as usize;
@@ -103,7 +103,7 @@ fn turn_frame_into_bitmap(rgb_frame: Video) -> Result<Vec<u8>, remotionffmepg::E
         new_data.extend_from_slice(&rgb_frame.data(0)[begin..end]);
     }
 
-    Ok(new_data)
+    return new_data;
 }
 
 fn create_bmp_image(rgb_data: Vec<u8>, width: u32, height: u32) -> Vec<u8> {

@@ -1,7 +1,7 @@
 use std::{error::Error, fmt, fs::File};
 
 use crate::{
-    errors,
+    errors::PossibleErrors,
     payloads::payloads::{ImageLayer, Layer, SolidLayer},
 };
 
@@ -76,26 +76,19 @@ fn alpha_compositing(
     return (r, g, b, a);
 }
 
-fn draw_png_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer) {
-    let file = match File::open(layer.src) {
-        Ok(content) => content,
-        Err(err) => {
-            errors::handle_error(&err);
-        }
-    };
+fn draw_png_image_layer(
+    img: &mut Vec<u8>,
+    canvas_width: u32,
+    layer: ImageLayer,
+) -> Result<(), PossibleErrors> {
+    let file = File::open(layer.src)?;
 
     let decoder = png::Decoder::new(file);
-    let mut reader = match decoder.read_info() {
-        Ok(content) => content,
-        Err(err) => errors::handle_error(&err),
-    };
+    let mut reader = decoder.read_info()?;
 
     let size = reader.output_buffer_size();
     let mut buf = vec![0; size];
-    let info = match reader.next_frame(&mut buf) {
-        Ok(content) => content,
-        Err(err) => errors::handle_error(&err),
-    };
+    let info = reader.next_frame(&mut buf)?;
 
     let bytes = &buf[..info.buffer_size()];
     for y in 0..(layer.height) {
@@ -127,22 +120,19 @@ fn draw_png_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer)
             img[a_index] = new_pixel.3;
         }
     }
+    Ok(())
 }
 
-fn draw_jpg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer) {
-    let file = match File::open(layer.src) {
-        Ok(content) => content,
-        Err(err) => {
-            errors::handle_error(&err);
-        }
-    };
+fn draw_jpg_image_layer(
+    img: &mut Vec<u8>,
+    canvas_width: u32,
+    layer: ImageLayer,
+) -> Result<(), PossibleErrors> {
+    let file = File::open(layer.src)?;
 
     let mut decoder = jpeg_decoder::Decoder::new(file);
 
-    let pixels = match decoder.decode() {
-        Ok(content) => content,
-        Err(err) => errors::handle_error(&err),
-    };
+    let pixels = decoder.decode()?;
 
     for y in 0..(layer.height) {
         for x in 0..(layer.width) {
@@ -172,18 +162,17 @@ fn draw_jpg_image_layer(img: &mut Vec<u8>, canvas_width: u32, layer: ImageLayer)
             img[a_index] = new_pixel.3;
         }
     }
+    Ok(())
 }
 
-pub fn draw_layer(img: &mut Vec<u8>, canvas_width: u32, layer: Layer) {
+pub fn draw_layer(
+    img: &mut Vec<u8>,
+    canvas_width: u32,
+    layer: Layer,
+) -> Result<(), PossibleErrors> {
     match layer {
-        Layer::PngImage(layer) => {
-            draw_png_image_layer(img, canvas_width, layer);
-        }
-        Layer::JpgImage(layer) => {
-            draw_jpg_image_layer(img, canvas_width, layer);
-        }
-        Layer::Solid(layer) => {
-            draw_solid_layer(img, canvas_width, layer);
-        }
+        Layer::PngImage(layer) => draw_png_image_layer(img, canvas_width, layer),
+        Layer::JpgImage(layer) => draw_jpg_image_layer(img, canvas_width, layer),
+        Layer::Solid(layer) => Ok(draw_solid_layer(img, canvas_width, layer)),
     }
 }

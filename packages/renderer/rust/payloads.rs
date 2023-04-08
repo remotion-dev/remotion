@@ -4,7 +4,7 @@ extern crate serde;
 extern crate serde_json;
 
 pub mod payloads {
-    use crate::errors;
+    use crate::errors::PossibleErrors;
     use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize, Debug)]
@@ -68,12 +68,9 @@ pub mod payloads {
         Compose(CliGenerateImageCommand),
     }
 
-    pub fn parse_cli(json: &str) -> CliInputCommand {
-        let cli_input: CliInputCommand = match serde_json::from_str(json) {
-            Ok(content) => content,
-            Err(err) => errors::handle_error(&err),
-        };
+    pub fn parse_cli(json: &str) -> Result<CliInputCommand, PossibleErrors> {
+        let cli_input: CliInputCommand = serde_json::from_str(json)?;
 
-        return cli_input;
+        return Ok(cli_input);
     }
 }
