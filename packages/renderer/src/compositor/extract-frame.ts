@@ -8,10 +8,9 @@ export const extractFrameFromVideoCompositor = () => {
 		const payload: CliInputCommand = {
 			type: 'ExtractFrame',
 			params: {
-				input:
-					'/Users/jonathanburger/remotion/packages/example/public/framer.webm',
+				input: '/Users/jonathanburger/Downloads/2013.mp4',
 				output:
-					'/Users/jonathanburger/remotion/packages/renderer/src/compositor/out.png',
+					'/Users/jonathanburger/remotion/packages/renderer/src/compositor/out.bmp',
 				time: 2.5,
 			},
 		};
@@ -19,6 +18,7 @@ export const extractFrameFromVideoCompositor = () => {
 		child.stdin.write(JSON.stringify(payload));
 		child.stdin.end();
 		const stderrChunks: Buffer[] = [];
+		child.stdout.on('data', (d) => console.log(d.toString()));
 		child.stderr.on('data', (d) => stderrChunks.push(d));
 		child.on('close', (code) => {
 			if (code === 0) {

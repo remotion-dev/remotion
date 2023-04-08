@@ -36,7 +36,7 @@ fn main() -> Result<(), std::io::Error> {
                 Err(err) => errors::handle_error(&err),
             };
 
-            match write(command.output, _result) {
+            match write(command.output, &_result) {
                 Ok(_) => (),
                 Err(err) => errors::handle_error(&err),
             };
