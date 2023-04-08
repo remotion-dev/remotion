@@ -39,7 +39,7 @@ export const waitForCompositorWithIdToQuit = (renderId: string) => {
 	return compositorMap[renderId].waitForDone();
 };
 
-export const startCompositor = (payload: CliInputCommand) => {
+export const startCompositor = (payload: CliInputCommand): Compositor => {
 	const bin = getExecutablePath('compositor');
 	const child = spawn(bin, dynamicLibraryPathOptions());
 	const stderrChunks: Buffer[] = [];
@@ -57,6 +57,14 @@ export const startCompositor = (payload: CliInputCommand) => {
 					}
 				});
 			});
+		},
+		finishCommands: () => {
+			child.stdin.write('EOF\n');
+		},
+
+		executeCommand: (command: CompositorCommand) => {
+			child.stdin.write(JSON.stringify(command) + '\n');
+			return Promise.resolve();
 		},
 	};
 };
