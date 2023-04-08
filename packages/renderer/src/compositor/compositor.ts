@@ -41,15 +41,25 @@ export const waitForCompositorWithIdToQuit = (renderId: string) => {
 
 export const startCompositor = (payload: CliInputCommand): Compositor => {
 	const bin = getExecutablePath('compositor');
-	const child = spawn(bin, dynamicLibraryPathOptions());
+	const child = spawn(
+		bin,
+		[JSON.stringify(payload)],
+		dynamicLibraryPathOptions()
+	);
 	const stderrChunks: Buffer[] = [];
 
-	child.stdin.write(JSON.stringify(payload));
+	child.stdout.on('data', (data) => {
+		console.log(data.toString('utf-8'));
+	});
+	child.stderr.on('data', (data) => {
+		console.log(data.toString('utf-8'));
+	});
 
 	return {
 		waitForDone: () => {
 			return new Promise<void>((resolve, reject) => {
-				child.on('close', (code) => {
+				child.on('close', (code, s) => {
+					console.log({code, s});
 					if (code === 0) {
 						resolve();
 					} else {

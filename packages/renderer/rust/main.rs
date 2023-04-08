@@ -7,23 +7,29 @@ mod payloads;
 use commands::execute_command;
 use errors::PossibleErrors;
 use std::sync::mpsc;
-use std::thread;
+use std::{env, thread};
 use threadpool::ThreadPool;
 
 use payloads::payloads::{parse_cli, CliInputCommand};
-use std::io::Read;
 
 extern crate png;
 
-fn read_stdin_to_string() -> Result<String, std::io::Error> {
-    let mut input = String::new();
-    std::io::stdin().read_to_string(&mut input)?;
-    Ok(input)
-}
-
 fn mainfn() -> Result<(), PossibleErrors> {
-    let input = read_stdin_to_string()?;
-    let opts: CliInputCommand = parse_cli(&input)?;
+    println!("Starting renderer");
+    let args = env::args();
+
+    let first_arg =
+        args.skip(1)
+            .next()
+            .ok_or(errors::PossibleErrors::IoError(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "No input",
+            )))?;
+
+    println!("First arg: {}", first_arg);
+
+    let opts: CliInputCommand = parse_init_command(&first_arg)?;
+
     match opts {
         CliInputCommand::StartLongRunningProcess(_) => {
             start_long_running_process()?;
@@ -36,16 +42,24 @@ fn mainfn() -> Result<(), PossibleErrors> {
     Ok(())
 }
 
+pub fn parse_init_command(json: &str) -> Result<CliInputCommand, PossibleErrors> {
+    let cli_input: CliInputCommand = serde_json::from_str(json)?;
+
+    Ok(cli_input)
+}
+
 fn start_long_running_process() -> Result<(), PossibleErrors> {
     let (command_tx, command_rx) = mpsc::channel::<String>();
 
     let pool = ThreadPool::new(4); // Create a thread pool with 4 threads
 
+    println!("Starting long running process");
     // Read messages from stdin in a separate thread
 
     let thread_handle = thread::spawn(move || loop {
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).unwrap();
+        println!("Received: {}", input);
         input = input.trim().to_string();
         if input == "EOF" {
             break;
