@@ -223,8 +223,6 @@ for (const arch of archs) {
 			unlinkSync(path.join(libDir, file));
 		} else if (file.endsWith('.dylib') && file.split('.').length !== 3) {
 			unlinkSync(path.join(libDir, file));
-		} else if (file.endsWith('.so') && file.split('.').length !== 3) {
-			unlinkSync(path.join(libDir, file));
 		} else if (file.endsWith('.la')) {
 			unlinkSync(path.join(libDir, file));
 		} else if (file.endsWith('.def')) {
