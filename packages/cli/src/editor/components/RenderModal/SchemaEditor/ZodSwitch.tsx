@@ -1,8 +1,9 @@
 import React from 'react';
-import {z} from 'remotion';
+import {Internals, z} from 'remotion';
 import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodBooleanEditor} from './ZodBooleanEditor';
+import {ZodColorEditor} from './ZodColorEditor';
 import {ZodDateEditor} from './ZodDateEditor';
 import {ZodEffectEditor} from './ZodEffectEditor';
 import {ZodEnumEditor} from './ZodEnumEditor';
@@ -212,6 +213,22 @@ export const ZodSwitch: React.FC<{
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodEffects) {
+		if (schema._def.description === Internals.REMOTION_COLOR_BRAND) {
+			return (
+				<ZodColorEditor
+					value={value as string}
+					setValue={setValue as React.Dispatch<React.SetStateAction<string>>}
+					jsonPath={jsonPath}
+					schema={schema}
+					compact={compact}
+					onSave={onSave}
+					defaultValue={defaultValue as string}
+					showSaveButton={showSaveButton}
+					onRemove={onRemove}
+				/>
+			);
+		}
+
 		return (
 			<ZodEffectEditor
 				value={value}
