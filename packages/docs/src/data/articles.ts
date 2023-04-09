@@ -2004,6 +2004,13 @@ export const articles = [
     crumb: "Browser quirks",
   },
   {
+    id: "troubleshooting/debug-failed-render",
+    title: "How to debug failed renders ?",
+    relativePath: "docs/troubleshooting/debug-failed-render.md",
+    compId: "articles-docs-troubleshooting-debug-failed-render",
+    crumb: "Troubleshooting",
+  },
+  {
     id: "defaultprops-too-big",
     title: "defaultProps too big - could not serialize",
     relativePath: "docs/troubleshooting/defaultprops-too-big.md",
