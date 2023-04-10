@@ -966,6 +966,20 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/with-php/index",
+    title: "Using Remotion on standalone PHP application",
+    relativePath: "docs/lambda/with-php/index.md",
+    compId: "articles-docs-lambda-with-php-index",
+    crumb: "@remotion/lambda",
+  },
+  {
+    id: "lambda/with-php/laravel",
+    title: "Using Remotion on Laravel PHP Framework",
+    relativePath: "docs/lambda/with-php/laravel.md",
+    compId: "articles-docs-lambda-with-php-laravel",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "lambda/without-iam/ec2",
     title: "Authenticating Lambda with EC2",
     relativePath: "docs/lambda/without-iam/ec2.md",

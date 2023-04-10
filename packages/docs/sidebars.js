@@ -447,6 +447,18 @@ module.exports = {
             "lambda/without-iam/ec2",
           ],
         },
+        {
+          type: "category",
+          label: "Remotion with PHP",
+          link: {
+            type: "doc",
+            id: "lambda/with-php/index",
+          },
+          items: [
+            "lambda/with-php/index",
+            "lambda/with-php/laravel",
+          ],
+        },
         "lambda/serverless-framework-integration",
         "lambda/sqs",
         "lambda/multiple-buckets",
