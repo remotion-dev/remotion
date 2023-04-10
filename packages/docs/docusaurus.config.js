@@ -236,9 +236,7 @@ const config = (mode) => ({
         docs: {
           path: mode === "complete" ? "docs" : "new-docs",
           sidebarPath:
-            mode === "complete"
-              ? require.resolve("./sidebars.js")
-              : require.resolve("./fast-sidebars.js"),
+            mode === "complete" ? require.resolve("./sidebars.js") : undefined,
           editUrl:
             "https://github.com/remotion-dev/remotion/edit/main/packages/docs/",
         },
