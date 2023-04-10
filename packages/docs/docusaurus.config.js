@@ -243,7 +243,7 @@ const config = (mode) => ({
         },
         blog: {
           path:
-            mode === "complete" ? "intentionally-not-existing-path" : undefined,
+            mode === "complete" ? undefined : "intentionally-not-existing-path",
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
