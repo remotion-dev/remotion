@@ -47,11 +47,7 @@ export const Canvas: React.FC = () => {
 		shouldApplyCssTransforms: true,
 	});
 
-	const isFit =
-		previewSize.size === 'auto' ||
-		(previewSize.size === 1 &&
-			previewSize.translation.x === 0 &&
-			previewSize.translation.y === 0);
+	const isFit = previewSize.size === 'auto';
 
 	const onWheel = useCallback(
 		(e: WheelEvent) => {

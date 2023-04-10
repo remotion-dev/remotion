@@ -56,6 +56,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "get-help",
+    title: "Get help",
+    relativePath: "docs/ask-for-help.md",
+    compId: "articles-docs-ask-for-help",
+    crumb: null,
+  },
+  {
     id: "audio-visualization",
     title: "Audio visualization",
     relativePath: "docs/audio-visualization.md",
@@ -2016,6 +2023,13 @@ export const articles = [
     relativePath: "docs/troubleshooting/could-not-be-parsed-as-a-value-list.md",
     compId: "articles-docs-troubleshooting-could-not-be-parsed-as-a-value-list",
     crumb: "Browser quirks",
+  },
+  {
+    id: "troubleshooting/debug-failed-render",
+    title: "Debugging render failures",
+    relativePath: "docs/troubleshooting/debug-failed-render.md",
+    compId: "articles-docs-troubleshooting-debug-failed-render",
+    crumb: "Troubleshooting",
   },
   {
     id: "defaultprops-too-big",

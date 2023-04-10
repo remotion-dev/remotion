@@ -157,8 +157,8 @@ As an alternative way to import files, Remotion allows you to `import` or `requi
 
 - Images (`.png`, `.svg`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.bmp`)
 - Videos (`.webm`, `.mov`, `.mp4`)
-- Audio (`.mp3`, `.wav`, `.aac`, `m4a`)
-- Fonts (`.woff`, `.woff2`, `otf`, `ttf`, `eot`)
+- Audio (`.mp3`, `.wav`, `.aac`, `.m4a`)
+- Fonts (`.woff`, `.woff2`, `.otf`, `.ttf`, `.eot`)
 
 For example:
 
