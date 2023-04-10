@@ -2012,7 +2012,7 @@ export const articles = [
   },
   {
     id: "troubleshooting/debug-failed-render",
-    title: "How to debug failed renders ?",
+    title: "Debugging render failures",
     relativePath: "docs/troubleshooting/debug-failed-render.md",
     compId: "articles-docs-troubleshooting-debug-failed-render",
     crumb: "Troubleshooting",
