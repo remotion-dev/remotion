@@ -69,7 +69,7 @@ REMOTION_APP_ROLE_SESSION_NAME="remotion_session_name"
 ```
 
 - `REMOTION_APP_REGION` this is where the Remotion Lambda function AWS region resides.
-- `REMOTION_APP_IS_ASSUME_ROLE` accepts either `true` or `false`. This serves as a toggle to use AWS STS or use your AWS local credentials. When set to `true` the application the application calls the AWS STS [Assume Role](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html) command, retrieve the  `key`, `secret` and `token` and pass those credentials in `LambdaClient::factory`. Ensure that `REMOTION_APP_ROLE_ARN` and `REMOTION_APP_ROLE_SESSION_NAME` are provided when using the `assume role` functionality. This approach is appropriate if you want to deploy this application in AWS [EC2](https://aws.amazon.com/ec2/). 
+- `REMOTION_APP_IS_ASSUME_ROLE` accepts either `true` or `false`. This serves as a toggle to use AWS STS or use your AWS local credentials. When set to `true` the application the application calls the AWS STS [Assume Role](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html) command, retrieve the  `key`, `secret` and `token` and pass those credentials in `LambdaClient::factory`. Ensure that `REMOTION_APP_ROLE_ARN` and `REMOTION_APP_ROLE_SESSION_NAME` are provided when using the `assume role` functionality. This approach is appropriate if you want to deploy this application in AWS [EC2](https://aws.amazon.com/ec2/). Roles are required to be set up for the application. Please refer to the [Authenticating Lambda with EC2](/docs/lambda/ec2) guide and follow steps 1 to 4.
   
   ```bash title="assume role"
 
@@ -100,7 +100,7 @@ REMOTION_APP_ROLE_SESSION_NAME="remotion_session_name"
 - `REMOTION_APP_FUNCTION_NAME` is the Remotion function name deployed in AWS, from the deployment logs it will be `remotion-render-3-3-78-mem2048mb-disk2048mb-240sec`.
 - `REMOTION_APP_SERVER_URL` is where the remotion host all the compositions, from the deployment logs it will be `https://remotionlambda-apsoutheast2-xxxxx.s3.ap-southeast-2.amazonaws.com/sites/remotion-render-app-3.3.78/index.html`
 
- If you plan on using this application in an AWS EC2 instance, make sure to fill up the following env variables. To set up the required roles, please refer to the [Authenticating Lambda with EC2](/docs/lambda/ec2) guide and follow steps 1 to 4.
+ If you plan on using this application in an AWS EC2 instance, make sure to fill up the following env variables. To set up the required roles, please refer to the [Authenticating Lambda with EC2](/docs/lambda/ec2) guide and follow steps `1` to `4`.
 
 - `REMOTION_APP_ROLE_ARN` represents the ARN of the role which the application assume to render the video, for this instance it is `remotion-ec2-executionrole` ARN from `step 2` on this [guide](docs/lambda/ec2).
 - `REMOTION_APP_ROLE_SESSION_NAME` a name to uniquely identify the role session when the same role is assumed by different principals.
@@ -116,6 +116,9 @@ php lambda-remotion-render.php
 ```bash title="application response"
 {"bucketName":"remotionlambda-apsoutheast2-xxxx","renderId":"b2xhi715yn"}
 ```
+
+Once the execution is successful, the API will responsd with the `bucketName` and `renderId`. These are metadata required to get the status the video render or retrieving video.
+
 ## See also
 
 - [Using Lambda without IAM user](/docs/lambda/without-iam)

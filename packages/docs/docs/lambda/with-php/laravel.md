@@ -12,15 +12,15 @@ To supplement this guide, two projects have been created.
 
 - The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) includes a Remotion composition and utility scripts for deploying and deleting Remotion Lambda infrastructure in AWS. It should be noted that this is the same application featured in the [Serverless Framework guide](/docs/lambda/serverless-framework-integration). If the Remotion Lambda has not yet been deployed to your AWS account, follow the setup [guide](/docs/lambda/serverless-framework-integration#remotion-app).
 
-- The [remotion-laravel](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-laravel) is an application that serves a REST endpoint. This endpoint invokes the Remotion lambda function with the necessary parameters to render a video. The Remotion lambda function is deployed from the application.
+- The [remotion-laravel](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-laravel) is an application that serves a REST endpoint using [Laravel](https://laravel.com/) PHP framework. This endpoint invokes the Remotion lambda function with the necessary parameters to render a video. 
 
 ### Prequisites
 
 - Make sure that your local AWS profile is able to deploy to AWS, or follow this [guide](/docs/lambda/setup) to set up a user for your local machine.
 - Ensure that [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) is already deployed on your AWS Account.
+- An understanding the use of [composer](https://gettcomposer.org/doc/01-basic-usage.md) in [PHP](https://www.php.net/). And this needs to be installed on your local machine.
 - An understanding of [PHP](https://www.php.net/) language.
 - Knowledge of how to use the [AWS PHP SDK](https://aws.amazon.com/sdk-for-php/) client is required.
-- An understanding the use of [composer](https://gettcomposer.org/doc/01-basic-usage.md) in [PHP](https://www.php.net/). And this needs to be installed on your local machine.
 - Knowledge of development with [Laravel](https://laravel.com/) PHP framework
 
 ## remotion-laravel
@@ -70,7 +70,7 @@ The application has a `.env` file that needs to be populated for the video rende
   ```
 
 - `REMOTION_APP_REGION` this is where the Remotion Lambda function AWS region resides.
-- `REMOTION_APP_IS_ASSUME_ROLE` accepts either `true` or `false`. This serves as a toggle to use AWS STS or use your AWS local credentials. When set to `true` the application the application calls the AWS STS [Assume Role](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html) command, retrieve the  `key`, `secret` and `token` and pass those credentials in `LambdaClient::factory`. Ensure that `REMOTION_APP_ROLE_ARN` and `REMOTION_APP_ROLE_SESSION_NAME` are provided when using the `assume role` functionality. This approach is appropriate if you want to deploy this application in AWS [EC2](https://aws.amazon.com/ec2/). 
+- `REMOTION_APP_IS_ASSUME_ROLE` environment variable can accept either `true` or `false`. This serves as a toggle to use either AWS STS or your local AWS credentials. When set to `true`, the application calls the AWS STS [Assume Role](https://docs.aws.amazon.com/STS/latest/APIReference/API_AssumeRole.html) command, retrieves the `key`, `secret`, and `token`, and passes those credentials in `LambdaClient::factory`. Make sure that `REMOTION_APP_ROLE_ARN` and `REMOTION_APP_ROLE_SESSION_NAME` are provided when using the assume role functionality. This approach is appropriate if you want to deploy this application in AWS [EC2](https://aws.amazon.com/ec2/). Roles are required to be set up for the application. Please refer to the [Authenticating Lambda with EC2](/docs/lambda/ec2) guide and follow steps `1` to `4`.
   
   ```bash title="assume role"
 
@@ -89,7 +89,7 @@ The application has a `.env` file that needs to be populated for the video rende
 
   This code is extracted from [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Services/RemotionService.php#L24).
 
-  The values for the `env` variables below can be found during the execution of the deployment of the [remotion-app](/docs/lambda/serverless-framework-integration#remotion-app). Please refer to the [Deploy the Lambda function section](/docs/lambda/serverless-framework-integration#5-deploy-the-lambda-function) for more information. Below is an example of the deployment logs:
+  The values for the `env` variables below can be found during the execution of the deployment of the [remotion-app](/docs/lambda/serverless-framework-integration#remotion-app). Please refer to the [Deploy the Lambda function section](/docs/lambda/serverless-framework-integration#5-deploy-the-lambda-function) for more information. Below is an example output of the deployment logs:
 
   ```bash title="Deployment logs"
 
@@ -103,7 +103,7 @@ The application has a `.env` file that needs to be populated for the video rende
 - `REMOTION_APP_FUNCTION_NAME` is the Remotion function name deployed in AWS, from the deployment logs it will be `remotion-render-3-3-78-mem2048mb-disk2048mb-240sec`.
 - `REMOTION_APP_SERVER_URL` is where the remotion host all the compositions, from the deployment logs it will be `https://remotionlambda-apsoutheast2-xxxxx.s3.ap-southeast-2.amazonaws.com/sites/remotion-render-app-3.3.78/index.html`
 
- If you plan on using this application in an AWS EC2 instance, make sure to fill up the following env variables. To set up the required roles, please refer to the [Authenticating Lambda with EC2](/docs/lambda/ec2) guide and follow steps 1 to 4.
+ If you plan on using this application in an AWS EC2 instance, make sure to fill up the following `env` variables `REMOTION_APP_ROLE_ARN` and `REMOTION_APP_ROLE_SESSION_NAME`. To setup the required roles and retrieve the value for `REMOTION_APP_ROLE_ARN`, please refer to the [Authenticating Lambda with EC2](/docs/lambda/ec2) guide and follow steps `1` to `4`.
 
 - `REMOTION_APP_ROLE_ARN` represents the ARN of the role which the application assume to render the video, for this instance it is `remotion-ec2-executionrole` ARN from `step 2` on this [guide](docs/lambda/ec2).
 - `REMOTION_APP_ROLE_SESSION_NAME` a name to uniquely identify the role session when the same role is assumed by different principals.
@@ -122,7 +122,7 @@ The application has a `.env` file that needs to be populated for the video rende
 
 The application requires database tables so that users can register and generate authentication token, this is backed by [SQLLite](https://sqlite.org/index.html).
 
-Create the database and table in SQL Lite defined in `DB_DATABASE`.
+Create the database and table in SQLLite defined in `DB_DATABASE` by executing the command below:
 
 ```bash title="create db and table"
    php artisan vendor:publish --tag=sanctum-migrations
@@ -142,7 +142,7 @@ php artisan serve
 
   Press Ctrl+C to stop the server
 ```
-This application will set up a web server that serves a PHP REST endpoint accessible on port `8000`. It can be interacted with using an API client such as [curl](https://curl.se/) or [Postman](https://www.postman.com/).
+This application will setup a web server that serves a PHP REST endpoint accessible on port `8000`. It can be interacted with using an API client such as [curl](https://curl.se/) or [Postman](https://www.postman.com/).
 
 
 ### Interacting with the application
@@ -216,6 +216,7 @@ The application has an authentication and authorization mechanism in place, back
 
     This API operation starts with the Laravel [controller](https://laravel.com/docs/10.x/controllers) called [RenderController.php](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Http/Controllers/RenderController.php) located in the application's directory. The [render](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Http/Controllers/RenderController.php#L24) function within the RenderController.php is executed. From there, the RemotionService [render](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Services/RemotionService.php#L10) function is executed, followed by the [renderOps](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Services/RemotionService.php#L16) function. The renderOps function constructs the arguments required by Remotion's lambda.
 
+    Once the execution is successful, the API will responsd with the `bucketName` and `renderId`. These are metadata required to get the status the video render or retrieving video.
 
 ## See also
 - [Using Remotion on standalone application](/docs/lambda/with-php/index)
