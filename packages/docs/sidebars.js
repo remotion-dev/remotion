@@ -463,6 +463,7 @@ module.exports = {
       type: "category",
       label: "Troubleshooting",
       items: [
+        "troubleshooting/debug-failed-render",
         "timeout",
         "target-closed",
         "media-playback-error",
