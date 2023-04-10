@@ -8,9 +8,9 @@ crumb: "Need for Speed"
 
 Some types of content in Remotion can benefit from a GPU being available on the machine that is used for rendering. That is:
 
-- WebGL content (Three.JS, P5.js, Mapbox etc.)
+- WebGL content (Three.JS, Skia, P5.js, Mapbox etc.)
 - 2D Canvas graphics
-- GPU-accelerated CSS properties such as `filter: blur()`
+- GPU-accelerated CSS properties such as `box-shadow`, `filter: blur()` and `filter: drop-shadow`
 
 If a GPU is available, it should be enabled by default while rendering the preview. However, in headless mode, Chromium disables the GPU, leading to a significant
 slowdown in rendering time.
