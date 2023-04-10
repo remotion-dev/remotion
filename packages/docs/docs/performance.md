@@ -1,36 +1,72 @@
 ---
 image: /generated/articles-docs-performance.png
 id: performance
+sidebar_label: Render speed
 title: Performance Tips
 crumb: "Need for Speed"
 ---
 
-Video rendering is one of the most heavy workloads a computer can take on. Remotion aims to at least perform similarly than traditional video editing programs. This section describes several aspects that influence render speed that you can influence.
+Video rendering is one of the most heavy workloads a computer can take on. Remotion aims to at least perform similarly than traditional video editing programs.
 
-## Increase concurrency
+Your experience is also dependent on your code and the hardware you run it on. Review the following performance insights to find opportunities for speeding up your render.
 
-By default, Remotion will use half of the threads available on the system to perform rendering. [You can increase the default concurrency to use up to all of your threads](https://www.remotion.dev/docs/cli). This will most likely increase render speed but might slow down other operations on your computer.
+## Concurrency
 
-:::info
-Most Intel and AMD CPUs have hyperthreading, which means that per CPU core you get 2 threads. So for example, if you have an 8-core CPU, you have 16 threads, which means that the maximum concurrency that Remotion supports is 16.
-:::
+The `--concurrency` flag you set can influence the rendering speed both positively and negatively. A concurrency too high and a concurrency too low can both be coutnerproductive. Use the [`npx remotion benchmark`](/docs/cli/benchmark) command to find the optimal concurrency.
 
-## Decrease concurrency
+## GPU effects
 
-Too much concurrency can also lead to the render being overloaded and causing Chrome to throttle the render. The art is to find the value for concurrency that works best for you, for example using the [`npx remotion benchmark`](/docs/cli/benchmark) command.
+The following elements use the GPU:
 
-## Decrease remote load
+- WebGL content (Three.JS, Skia, P5.js, Mapbox etc.)
+- 2D Canvas graphics
+- GPU-accelerated CSS properties such as `box-shadow`, `filter: blur()` and `filter: drop-shadow`
 
-Loading data from remote sources, such as making an API call, loading an image, video, or audio file from a remote location will increase the render time because Remotion has to wait until the data is fetched. Try to move assets to your local machine or cache API requests (for example in `localStorage`) to speed up Remotion rendering.
+If your content is part of that, read the [considerations about using the GPU](/docs/gpu).
 
-## Decrease image resolution
+## Videos
 
-Generally, lower resolution frames result in faster renders. You can make the dimensions smaller while in development and rendering test files, and apply a `scale` transformation to the composition to move faster initially, and then render at full resolution later.
+For embedding videos, there is an alternative component [`<OffthreadVideo>`](/docs/offthreadvideo) that can speed up rendering. See [`<Video>` vs. `<OffthreadVideo>`](/docs/video-vs-offthreadvideo)
 
-## Choose the right image format and codec
+Embedded videos can be a significant bottleneck in Remotion at the moment regardless of which component is being used. We are aware of this constraint and are encouraging users to combine Remotion with other tools such as FFmpeg to build efficient pipelines.
 
-[JPEG rendering is faster](/docs/config#setimageformat) than PNG rendering. [H264 is the fastest way](/docs/encoding) to encode frames into a video. If you have deviated from the defaults, consider them again if you see slow rendering.
+We are also working on alleviating this problem by making the `<OffthreadVideo>` component more efficent in a future update.
 
-## Enable GPU acceleration
+## Slow JavaScript code
 
-For Three.JS content and other content that benefits from GPU acceleration, you should enable the [`--gl=angle`](/docs/chromium-flags#--gl) flag. See: [Using the GPU](/docs/gpu)
+Remotion can also suffer from JavaScript bottlenecks that are introduced in your code. [Debug your render and log timing information](/docs/troubleshooting/debug-failed-render) to find slow parts of your code.
+
+Use memoization using [`useMemo()`](https://react.dev/reference/react/useMemo) and [`useCallback()`](https://react.dev/reference/react/useCallback) where appropriate to cache expensive computation.
+
+## Data fetching
+
+[Measure](/docs/troubleshooting/debug-failed-render) the impact of fetching external resources, probe for overfetching and attempt to minimize the fetching of external data.
+
+Use caching in Local storage if possible to reduce time spent on networking.
+
+## Codec settings
+
+- If you set the image format `png`, it is slower than `jpeg`. However it is required if you are rendering a transparent video.
+- The WebM codecs `vp8` and `vp9` are very slow at encoding due, this is due to stronger compression.
+
+See also the [Encoding guide](/docs/encoding) to see all tradeoffs when it comes to encoding speed.
+
+## Resolution
+
+Higher resolution will make the render slower. If you can live with lower resolution, scale down the picture using [`--scale`](/docs/cli/render#--scale)
+
+## Considerations for Lambda
+
+See [this article](/docs/lambda/optimizing-speed) for tips specifically for Lambda.
+
+## Measuring render speed
+
+- Render using [`--log=verbose`](/docs/troubleshooting/debug-failed-render) to list the slowest frames of a Remotion render. Consider that the first frames rendered in a thread might be slow due to initalization.
+
+- Use `console.time` to measure how long an operation takes in your code in order to find the slow parts of your render.
+
+- Use [`npx remotion benchmark`](/docs/cli/benchmark) to try out different values for `--concurrency` to find the optimal value.
+
+## See also
+
+- [Lambda: Optimizing for speed](/docs/lambda/optimizing-speed)
