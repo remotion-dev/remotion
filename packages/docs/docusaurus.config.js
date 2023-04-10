@@ -312,4 +312,4 @@ const config = (mode) => ({
 });
 
 module.exports = config("complete");
-module.exports.config = config;
+module.exports.customFields = { config };
