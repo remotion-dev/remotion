@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-troubleshooting-video-flicker.png
 id: player-flicker
 title: "Avoiding flickering in <Player>"
 crumb: "Frame-perfection"
