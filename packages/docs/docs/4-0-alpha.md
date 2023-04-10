@@ -69,8 +69,9 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
-### Unreleased
+### `4.0.0-alpha.185+1b8f0e746`
 
+- Fix rendering with FFmpeg on Linux
 - Make all strings `as const` when saving back to the root file to ensure type safety.
 - New [`zColor()`](/docs/z-color) API
 - New sidebar design and new mechanism for toggling sidebars
