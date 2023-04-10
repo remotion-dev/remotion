@@ -164,6 +164,11 @@
       "source": "/rive",
       "destination": "https://www.remotion.dev/docs/rive",
       "permanent": false
+    },
+    {
+      "source": "/get-help",
+      "destination": "https://www.remotion.dev/docs/get-help",
+      "permanent": false
     }
   ]
 }
