@@ -1,4 +1,9 @@
-module.exports = {
+/**
+ *
+ * @param {"complete" | "new-doc"} mode
+ * @returns
+ */
+const config = (mode) => ({
   title: "Remotion | Make videos programmatically in React",
   tagline: "Make videos programmatically",
   url:
@@ -47,16 +52,19 @@ module.exports = {
           to: "/docs",
           label: "Docs",
           position: "left",
-          type: "docSidebar",
-          sidebarId: "mainSidebar",
+          type: mode === "complete" ? "docSidebar" : "doc",
+          docId: mode === "complete" ? undefined : "new-doc",
+          sidebarId: mode === "complete" ? "mainSidebar" : undefined,
         },
-        {
-          to: "/docs/api",
-          label: "API",
-          position: "left",
-          type: "docSidebar",
-          sidebarId: "apiSidebar",
-        },
+        mode === "complete"
+          ? {
+              to: "/docs/api",
+              label: "API",
+              position: "left",
+              type: "docSidebar",
+              sidebarId: "apiSidebar",
+            }
+          : null,
         { to: "/docs/license", label: "Pricing", position: "left" },
         {
           type: "dropdown",
@@ -97,7 +105,7 @@ module.exports = {
           "data-splitbee-event": "External Link",
           "data-splitbee-event-target": "GitHub",
         },
-      ],
+      ].filter(Boolean),
     },
     footer: {
       style: "light",
@@ -188,10 +196,12 @@ module.exports = {
               label: "About us",
               to: "about",
             },
-            {
-              label: "Blog",
-              to: "blog",
-            },
+            mode === "complete"
+              ? {
+                  label: "Blog",
+                  to: "blog",
+                }
+              : null,
             {
               label: "Success Stories",
               to: "success-stories",
@@ -212,7 +222,7 @@ module.exports = {
               label: "Brand",
               href: "https://remotion.dev/brand",
             },
-          ],
+          ].filter(Boolean),
         },
       ],
     },
@@ -225,11 +235,15 @@ module.exports = {
       "@docusaurus/preset-classic",
       {
         docs: {
-          sidebarPath: require.resolve("./sidebars.js"),
+          path: mode === "complete" ? "docs" : "new-docs",
+          sidebarPath:
+            mode === "complete" ? require.resolve("./sidebars.js") : undefined,
           editUrl:
             "https://github.com/remotion-dev/remotion/edit/main/packages/docs/",
         },
         blog: {
+          path:
+            mode === "complete" ? undefined : "intentionally-not-existing-path",
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
@@ -251,45 +265,51 @@ module.exports = {
       },
     ],
   ],
-  plugins: [
-    [
-      "@docusaurus/plugin-content-blog",
-      {
-        /**
-         * Required for any multi-instance plugin
-         */
-        id: "success-stories",
-        /**
-         * URL route for the blog section of your site.
-         * *DO NOT* include a trailing slash.
-         */
-        routeBasePath: "success-stories",
-        /**
-         * Path to data on filesystem relative to site dir.
-         */
-        path: "./success-stories",
-        blogSidebarTitle: "Success stories",
-      },
-    ],
-    [
-      "@docusaurus/plugin-content-blog",
-      {
-        /**
-         * Required for any multi-instance plugin
-         */
-        id: "learn",
-        /**
-         * URL route for the blog section of your site.
-         * *DO NOT* include a trailing slash.
-         */
-        routeBasePath: "learn",
-        /**
-         * Path to data on filesystem relative to site dir.
-         */
-        path: "./learn",
-        blogSidebarTitle: "Learn",
-      },
-    ],
-    "./route-plugin",
-  ],
-};
+  plugins:
+    mode === "complete"
+      ? [
+          [
+            "@docusaurus/plugin-content-blog",
+            {
+              /**
+               * Required for any multi-instance plugin
+               */
+              id: "success-stories",
+              /**
+               * URL route for the blog section of your site.
+               * *DO NOT* include a trailing slash.
+               */
+              routeBasePath: "success-stories",
+              /**
+               * Path to data on filesystem relative to site dir.
+               */
+              path: "./success-stories",
+              blogSidebarTitle: "Success stories",
+            },
+          ],
+          [
+            "@docusaurus/plugin-content-blog",
+            {
+              /**
+               * Required for any multi-instance plugin
+               */
+              id: "learn",
+              /**
+               * URL route for the blog section of your site.
+               * *DO NOT* include a trailing slash.
+               */
+              routeBasePath: "learn",
+              /**
+               * Path to data on filesystem relative to site dir.
+               */
+              path: "./learn",
+              blogSidebarTitle: "Learn",
+            },
+          ],
+          "./route-plugin",
+        ]
+      : [],
+});
+
+module.exports = config("complete");
+module.exports.customFields = { config };
