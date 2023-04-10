@@ -195,10 +195,12 @@ const config = (mode) => ({
               label: "About us",
               to: "about",
             },
-            {
-              label: "Blog",
-              to: "blog",
-            },
+            mode === "complete"
+              ? {
+                  label: "Blog",
+                  to: "blog",
+                }
+              : null,
             {
               label: "Success Stories",
               to: "success-stories",
@@ -219,7 +221,7 @@ const config = (mode) => ({
               label: "Brand",
               href: "https://remotion.dev/brand",
             },
-          ],
+          ].filter(Boolean),
         },
       ],
     },
@@ -241,6 +243,8 @@ const config = (mode) => ({
             "https://github.com/remotion-dev/remotion/edit/main/packages/docs/",
         },
         blog: {
+          path:
+            mode === "complete" ? "intentionally-not-existing-path" : undefined,
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
@@ -262,47 +266,50 @@ const config = (mode) => ({
       },
     ],
   ],
-  plugins: [
-    [
-      "@docusaurus/plugin-content-blog",
-      {
-        /**
-         * Required for any multi-instance plugin
-         */
-        id: "success-stories",
-        /**
-         * URL route for the blog section of your site.
-         * *DO NOT* include a trailing slash.
-         */
-        routeBasePath: "success-stories",
-        /**
-         * Path to data on filesystem relative to site dir.
-         */
-        path: "./success-stories",
-        blogSidebarTitle: "Success stories",
-      },
-    ],
-    [
-      "@docusaurus/plugin-content-blog",
-      {
-        /**
-         * Required for any multi-instance plugin
-         */
-        id: "learn",
-        /**
-         * URL route for the blog section of your site.
-         * *DO NOT* include a trailing slash.
-         */
-        routeBasePath: "learn",
-        /**
-         * Path to data on filesystem relative to site dir.
-         */
-        path: "./learn",
-        blogSidebarTitle: "Learn",
-      },
-    ],
-    "./route-plugin",
-  ],
+  plugins:
+    mode === "complete"
+      ? []
+      : [
+          [
+            "@docusaurus/plugin-content-blog",
+            {
+              /**
+               * Required for any multi-instance plugin
+               */
+              id: "success-stories",
+              /**
+               * URL route for the blog section of your site.
+               * *DO NOT* include a trailing slash.
+               */
+              routeBasePath: "success-stories",
+              /**
+               * Path to data on filesystem relative to site dir.
+               */
+              path: "./success-stories",
+              blogSidebarTitle: "Success stories",
+            },
+          ],
+          [
+            "@docusaurus/plugin-content-blog",
+            {
+              /**
+               * Required for any multi-instance plugin
+               */
+              id: "learn",
+              /**
+               * URL route for the blog section of your site.
+               * *DO NOT* include a trailing slash.
+               */
+              routeBasePath: "learn",
+              /**
+               * Path to data on filesystem relative to site dir.
+               */
+              path: "./learn",
+              blogSidebarTitle: "Learn",
+            },
+          ],
+          "./route-plugin",
+        ],
 });
 
 module.exports = config("complete");
