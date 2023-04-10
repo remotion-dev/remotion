@@ -1,4 +1,9 @@
-module.exports = {
+/**
+ *
+ * @param {"complete" | "new-doc"} mode
+ * @returns
+ */
+const config = (mode) => ({
   title: "Remotion | Make videos programmatically in React",
   tagline: "Make videos programmatically",
   url:
@@ -50,13 +55,15 @@ module.exports = {
           type: "docSidebar",
           sidebarId: "mainSidebar",
         },
-        {
-          to: "/docs/api",
-          label: "API",
-          position: "left",
-          type: "docSidebar",
-          sidebarId: "apiSidebar",
-        },
+        mode === "complete"
+          ? {
+              to: "/docs/api",
+              label: "API",
+              position: "left",
+              type: "docSidebar",
+              sidebarId: "apiSidebar",
+            }
+          : null,
         { to: "/docs/license", label: "Pricing", position: "left" },
         {
           type: "dropdown",
@@ -97,7 +104,7 @@ module.exports = {
           "data-splitbee-event": "External Link",
           "data-splitbee-event-target": "GitHub",
         },
-      ],
+      ].filter(Boolean),
     },
     footer: {
       style: "light",
@@ -225,7 +232,11 @@ module.exports = {
       "@docusaurus/preset-classic",
       {
         docs: {
-          sidebarPath: require.resolve("./sidebars.js"),
+          path: mode === "complete" ? "docs" : "new-docs",
+          sidebarPath:
+            mode === "complete"
+              ? require.resolve("./sidebars.js")
+              : require.resolve("./fast-sidebars.js"),
           editUrl:
             "https://github.com/remotion-dev/remotion/edit/main/packages/docs/",
         },
@@ -292,4 +303,7 @@ module.exports = {
     ],
     "./route-plugin",
   ],
-};
+});
+
+module.exports = config("complete");
+module.exports.config = config;
