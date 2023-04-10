@@ -523,6 +523,7 @@ module.exports = {
       type: "category",
       label: "Miscellaneous",
       items: [
+        "get-help",
         "brownfield",
         "ffmpeg",
         "chromium-flags",
