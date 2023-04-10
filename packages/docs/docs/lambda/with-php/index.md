@@ -2,7 +2,7 @@
 image: /generated/articles-docs-lambda-with-php-index.png
 title: Using Remotion on standalone PHP application
 slug: /lambda/remotion-standalone-php
-sidebar_label: Onstandalone PHP application
+sidebar_label: On standalone PHP application
 crumb: "@remotion/lambda"
 ---
 
@@ -24,7 +24,7 @@ To supplement this guide, two projects have been created.
 
 ## php-remotion
 
-This is an application that can be executed on a local machine or computing instance like [AWS EC2](https://aws.amazon.com/ec2/). It will call Remotion Lambda to render a video and contains the bare minimum parameters for Remotion's lambda [arguments](https://www.remotion.dev/docs/lambda/rendermediaonlambda#arguments). Once the parameters are constructed, they will be passed on to the AWS Lambda Client using the [AWS PHP SDK](https://aws.amazon.com/sdk-for-php/). 
+This is an application that can be executed on a local machine or computing instance like [AWS EC2](https://aws.amazon.com/ec2/). It will call Remotion Lambda to render a video and contains the bare minimum parameters for Remotion's lambda [arguments](https://www.remotion.dev/docs/lambda/rendermediaonlambda#arguments). Once the parameters are constructed, they will be passed on to the AWS Lambda Client using the [AWS PHP SDK](https://aws.amazon.com/sdk-for-php/). This project imitates the operation of [rendermediaonlambda](https://www.remotion.dev/docs/lambda/rendermediaonlambda) and uses [composer](https://gettcomposer.org/doc/01-basic-usage.md).
 
 
 ### Setup

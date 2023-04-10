@@ -6,13 +6,13 @@ sidebar_label: On Laravel PHP Framework
 crumb: "@remotion/lambda"
 ---
 
-This guide will show you how to use Remotion with Laravel PHP application, note that this setup is similar from [Using Remotion in PHP](/docs/lambda/with-php/index);
+This guide will show you how to use Remotion with a Laravel PHP application. Note that this setup is similar to [Using Remotion in PHP](/docs/lambda/with-php/index).
 
 To supplement this guide, two projects have been created. 
 
-- The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) includes a Remotion composition and utility scripts for deploying and deleting Remotion Lambda infrastructure in AWS. It should be noted that this is the same application as the one featured in the [Serverless Framework guide](/docs/lambda/serverless-framework-integration). Follow the setup [guide](/docs/lambda/serverless-framework-integration#remotion-app), if the Remotion lambda is not yet deployed to your AWS account.
+- The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) includes a Remotion composition and utility scripts for deploying and deleting Remotion Lambda infrastructure in AWS. It should be noted that this is the same application featured in the [Serverless Framework guide](/docs/lambda/serverless-framework-integration). If the Remotion Lambda has not yet been deployed to your AWS account, follow the setup [guide](/docs/lambda/serverless-framework-integration#remotion-app).
 
-- The [remotion-laravel](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-laravel). This is an application that serves a REST Enpoint that invokes the Remotion lambda function containing the bare minimum parameters to render a video from Remotion lambda deployed from the application. 
+- The [remotion-laravel](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-laravel) is an application that serves a REST endpoint. This endpoint invokes the Remotion lambda function with the necessary parameters to render a video. The Remotion lambda function is deployed from the application.
 
 ### Prequisites
 
@@ -25,7 +25,7 @@ To supplement this guide, two projects have been created.
 
 ## remotion-laravel
 
-This application can be executed on a local machine or computing instance, such as AWS EC2, to call Remotion Lambda and render a video. It includes the minimum parameters required for Remotion's lambda [arguments](https://www.remotion.dev/docs/lambda/rendermediaonlambda#arguments) from a REST endpoint. After constructing the parameters, they will be passed on to the AWS Lambda Client using the [AWS PHP SDK](https://aws.amazon.com/sdk-for-php/). It also contains Laravel boilerplate code for setting up a REST endpoint that calls the Remotion Lambda. This project uses [composer](https://gettcomposer.org/doc/01-basic-usage.md).
+This application can be executed on a local machine or computing instance, such as AWS EC2, to call Remotion Lambda and render a video. It includes the minimum parameters required for Remotion's lambda [arguments](https://www.remotion.dev/docs/lambda/rendermediaonlambda#arguments) from a REST endpoint. After constructing the parameters, they will be passed on to the AWS Lambda Client using the [AWS PHP SDK](https://aws.amazon.com/sdk-for-php/). It also contains Laravel boilerplate code for setting up a REST endpoint that calls the Remotion Lambda. This project imitates the operation of [rendermediaonlambda](https://www.remotion.dev/docs/lambda/rendermediaonlambda) and uses [composer](https://gettcomposer.org/doc/01-basic-usage.md).
 
 
 ### Setup
@@ -87,6 +87,8 @@ The application has a `.env` file that needs to be populated for the video rende
   ]);
   ```
 
+  This code is extracted from [here](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Services/RemotionService.php#L24).
+
   The values for the `env` variables below can be found during the execution of the deployment of the [remotion-app](/docs/lambda/serverless-framework-integration#remotion-app). Please refer to the [Deploy the Lambda function section](/docs/lambda/serverless-framework-integration#5-deploy-the-lambda-function) for more information. Below is an example of the deployment logs:
 
   ```bash title="Deployment logs"
@@ -132,7 +134,7 @@ Create the database and table in SQL Lite defined in `DB_DATABASE`.
 Run the application by executing the command below:
 
 ```bash title="Run application"
- php artisan serve  
+php artisan serve  
 ```
 
 ```bash title="application logs"
@@ -211,6 +213,8 @@ The application has an authentication and authorization mechanism in place, back
         "message": "Render Successful."
     }
     ```
+
+    This API operation starts with the Laravel [controller](https://laravel.com/docs/10.x/controllers) called [RenderController.php](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Http/Controllers/RenderController.php) located in the application's directory. The [render](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Http/Controllers/RenderController.php#L24) function within the RenderController.php is executed. From there, the RemotionService [render](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Services/RemotionService.php#L10) function is executed, followed by the [renderOps](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Services/RemotionService.php#L16) function. The renderOps function constructs the arguments required by Remotion's lambda.
 
 
 ## See also
