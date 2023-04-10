@@ -42,6 +42,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "get-help",
+    title: "Get help",
+    relativePath: "docs/ask-for-help.md",
+    compId: "articles-docs-ask-for-help",
+    crumb: null,
+  },
+  {
     id: "audio-visualization",
     title: "Audio visualization",
     relativePath: "docs/audio-visualization.md",
