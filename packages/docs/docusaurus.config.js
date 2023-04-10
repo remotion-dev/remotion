@@ -52,8 +52,9 @@ const config = (mode) => ({
           to: "/docs",
           label: "Docs",
           position: "left",
-          type: "docSidebar",
-          sidebarId: "mainSidebar",
+          type: mode === "complete" ? "docSidebar" : "doc",
+          docId: mode === "complete" ? undefined : "new-doc",
+          sidebarId: mode === "complete" ? "mainSidebar" : undefined,
         },
         mode === "complete"
           ? {
@@ -266,8 +267,7 @@ const config = (mode) => ({
   ],
   plugins:
     mode === "complete"
-      ? []
-      : [
+      ? [
           [
             "@docusaurus/plugin-content-blog",
             {
@@ -307,7 +307,8 @@ const config = (mode) => ({
             },
           ],
           "./route-plugin",
-        ],
+        ]
+      : [],
 });
 
 module.exports = config("complete");
