@@ -57,7 +57,7 @@ If you don't have [composer](https://getcomposer.org/) installed, follow this [g
 
 #### 4. Configuring environment variables
 
-The application has a `.env` file that needs to be populated for the video render to work properly. 
+The application has a `.env` file that needs to be populated for the video render to work properly. An `.env.example` has been included in the project containing example values.
 
   ```bash title=".env"
   REMOTION_APP_IS_ASSUME_ROLE="false"
