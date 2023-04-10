@@ -51,3 +51,7 @@ The following might also be useful information to us:
 
 <Step error>1</Step> Ask for support using email or direct messages. <br/>
 <Step error>2</Step> Ask without <a href="/search">searching</a> the docs first. <br/>
+
+## See also
+
+- [Debugging render failures](/docs/troubleshooting/debug-failed-render)

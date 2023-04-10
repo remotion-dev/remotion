@@ -463,6 +463,7 @@ module.exports = {
       type: "category",
       label: "Troubleshooting",
       items: [
+        "troubleshooting/debug-failed-render",
         "timeout",
         "target-closed",
         "media-playback-error",
@@ -481,7 +482,6 @@ module.exports = {
         "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",
         "troubleshooting/could-not-be-parsed-as-a-value-list",
-        "troubleshooting/debug-failed-render.md",
       ],
     },
     {
