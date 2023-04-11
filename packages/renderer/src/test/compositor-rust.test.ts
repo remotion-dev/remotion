@@ -1,4 +1,4 @@
-import {test} from 'vitest';
+import {expect, test} from 'vitest';
 import {startCompositor} from '../compositor/compositor';
 import {makeNonce} from '../compositor/make-nonce';
 
@@ -12,19 +12,25 @@ test(
 			},
 		});
 
-		for (let i = 0; i < 10; i++) {
-			const nonce = makeNonce();
-			compositor.executeCommand({
-				type: 'Echo',
-				params: {message: 'mystring-abc-' + String(i), nonce},
-			});
-			await new Promise<void>((resolve) => {
-				setTimeout(() => resolve(), 10);
-			});
-		}
+		const matching = await Promise.all(
+			new Array(100).fill(true).map(async (_, i) => {
+				await new Promise<void>((resolve) => {
+					setTimeout(() => resolve(), Math.random() * 100);
+				});
+				const nonce = makeNonce();
+				const expectedString = 'mystring-abc-' + String(i);
+				const output = await compositor.executeCommand({
+					type: 'Echo',
+					params: {message: expectedString, nonce},
+				});
+				const isSame = output.toString('utf8') === 'Echo ' + expectedString;
+				return isSame;
+			})
+		);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
+		expect(matching.every((m) => m)).toBe(true);
 	},
 	{timeout: 5000}
 );
