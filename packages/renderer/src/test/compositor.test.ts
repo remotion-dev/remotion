@@ -1,3 +1,4 @@
+import {unlinkSync} from 'fs';
 import {expect, test} from 'vitest';
 import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {compose} from '../compositor/compose';
@@ -26,4 +27,31 @@ test('Should handle the overlay', async () => {
 	} catch (err) {
 		expect(err).toMatch(/missing field/);
 	}
+});
+
+test('Should handle valid', async () => {
+	const layers: Layer[] = [
+		{
+			type: 'Solid',
+			params: {
+				fill: [255, 0, 0, 255],
+				height: 1080,
+				width: 1080,
+				x: 0,
+				y: 0,
+			},
+		},
+	];
+	const map = makeDownloadMap();
+	await compose({
+		height: 1080,
+		width: 1080,
+		layers,
+		output: 'test.png',
+		downloadMap: map,
+		imageFormat: 'Png',
+	});
+
+	unlinkSync('test.png');
+	cleanDownloadMap(map);
 });

@@ -55,7 +55,11 @@ export const compose = async ({
 	};
 
 	await new Promise<void>((resolve, reject) => {
-		const child = spawn(bin, {...dynamicLibraryPathOptions()});
+		const child = spawn(
+			bin,
+			[JSON.stringify(payload)],
+			dynamicLibraryPathOptions()
+		);
 		child.stdin.write(JSON.stringify(payload));
 		child.stdin.end();
 
