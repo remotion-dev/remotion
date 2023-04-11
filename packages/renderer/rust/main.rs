@@ -7,7 +7,6 @@ mod image;
 mod payloads;
 use commands::execute_command;
 use errors::PossibleErrors;
-use global_printer::_print_debug;
 use std::{env, thread};
 use threadpool::ThreadPool;
 

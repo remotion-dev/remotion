@@ -10,30 +10,34 @@ use std::io::ErrorKind;
 use std::time::Instant;
 extern crate ffmpeg_next as remotionffmepg;
 
-pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> {
+pub struct OpenedVideo {
+    pub input: remotionffmepg::format::context::Input,
+    pub stream_index: usize,
+}
+
+pub fn open_video(src: String) -> Result<OpenedVideo, PossibleErrors> {
     remotionffmepg::init()?;
 
-    // Don't read twice
-    let start = Instant::now();
-
     let mut input = remotionffmepg::format::input(&src)?;
-
-    let elapsed = start.elapsed();
-    _print_debug(&format!("Opening file: {:?}", elapsed))?;
-
-    let seek_start = Instant::now();
-
-    let seek_end = seek_start.elapsed();
-    _print_debug(&format!("Seeking: {:?}", seek_end))?;
-
-    let mut frame = Video::empty();
-
     let stream_index = input
         .streams_mut()
         .find(|s| s.parameters().medium() == Type::Video)
         .unwrap()
         .index();
-    let mut_stream = input.stream_mut(stream_index).unwrap();
+
+    let opened_video = OpenedVideo {
+        input,
+        stream_index,
+    };
+
+    Ok(opened_video)
+}
+
+pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> {
+    let mut vid = open_video(src)?;
+
+    let mut_stream = vid.input.stream_mut(vid.stream_index).unwrap();
+
     let parameters = mut_stream.parameters();
 
     let context_decoder = remotionffmepg::codec::context::Context::from_parameters(parameters)?;
@@ -57,11 +61,19 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
     let time_base = mut_stream.time_base();
     let position = (time as f64 * time_base.1 as f64 / time_base.0 as f64) as i64;
 
-    input.seek(stream_index as i32, position - 1000, position, position, 0)?;
+    vid.input.seek(
+        vid.stream_index as i32,
+        position - 1000,
+        position,
+        position,
+        0,
+    )?;
 
-    _print_debug(&format!("position {}", position));
+    _print_debug(&format!("position {}", position))?;
 
-    for (stream, packet) in input.packets() {
+    let mut frame = Video::empty();
+
+    for (stream, packet) in vid.input.packets() {
         if stream.parameters().medium() != Type::Video {
             continue;
         }
