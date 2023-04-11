@@ -33,10 +33,7 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
     let time_base = stream.time_base();
     let position = (time as f64 * time_base.1 as f64 / time_base.0 as f64) as i64;
 
-    let seek_start = Instant::now();
     input.seek(position, ..position)?;
-    let elapsed = seek_start.elapsed();
-    _print_debug(&format!("Seeking: {:?}", elapsed))?;
 
     let stream_index = stream.index();
     let context_decoder =
@@ -55,13 +52,13 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
         Flags::BILINEAR,
     )?;
 
-    let  process_frame = |decoder: &mut remotionffmepg::decoder::Video| -> Result<
+    let  process_frame = |frame_decoder: &mut remotionffmepg::decoder::Video| -> Result<
         remotionffmepg::util::frame::Video,
         remotionffmepg::Error,
     > {
         let mut input = Video::empty();
         // This function will throw "Resource temporarily unavailable" if 1 packet is not enough
-        decoder.receive_frame(&mut input)?;
+        frame_decoder.receive_frame(&mut input)?;
 
         Ok(input)
     };
@@ -76,7 +73,6 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
             }
             loop {
                 decoder.send_packet(&packet).unwrap();
-                _print_debug(format!("Packet: {:?}", packet.dts()).as_str())?;
                 let rgb_frame = process_frame(&mut decoder);
 
                 if rgb_frame.is_err() {
