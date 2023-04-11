@@ -33,43 +33,31 @@ export type Layer =
 
 export type CompositorImageFormat = 'Png' | 'Jpeg';
 
-export type CompositorCommand =
-	| {
-			type: 'Compose';
-			params: {
-				output: string;
-				width: number;
-				height: number;
-				layers: Layer[];
-				output_format: CompositorImageFormat;
-				nonce: string;
-			};
-	  }
-	| {
-			type: 'ExtractFrame';
-			params: {
-				input: string;
-				output: string;
-				time: number;
-				nonce: string;
-			};
-	  }
-	| {
-			type: 'Echo';
-			params: {
-				message: string;
-				nonce: string;
-			};
-	  };
+export type CompositorCommand = {
+	Compose: {
+		output: string;
+		width: number;
+		height: number;
+		layers: Layer[];
+		output_format: CompositorImageFormat;
+	};
+	ExtractFrame: {
+		input: string;
+		output: string;
+		time: number;
+	};
+	Echo: {
+		message: string;
+	};
+	StartLongRunningProcess: {};
+};
 
-export type CliInputCommand =
-	| CompositorCommand
-	| {
-			type: 'StartLongRunningProcess';
-			params: {
-				nonce: string;
-			};
-	  };
+export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {
+	type: T;
+	params: CompositorCommand[T] & {
+		nonce: string;
+	};
+};
 
 export type ErrorPayload = {
 	error: string;

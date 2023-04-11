@@ -1,21 +1,25 @@
 import {spawn} from 'child_process';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getExecutablePath} from './get-executable-path';
-import type {CliInputCommand, CompositorCommand} from './payloads';
+import {makeNonce} from './make-nonce';
+import type {CompositorCommand, CompositorCommandSerialized} from './payloads';
 
 export type Compositor = {
 	finishCommands: () => void;
-	executeCommand: (payload: CompositorCommand) => Promise<Buffer>;
+	executeCommand: <T extends keyof CompositorCommand>(
+		type: T,
+		payload: CompositorCommand[T]
+	) => Promise<Buffer>;
 	waitForDone: () => Promise<void>;
 };
 
 const compositorMap: Record<string, Compositor> = {};
 
-export const spawnCompositorOrReuse = ({
+export const spawnCompositorOrReuse = <T extends keyof CompositorCommand>({
 	initiatePayload,
 	renderId,
 }: {
-	initiatePayload: CliInputCommand;
+	initiatePayload: CompositorCommand[T];
 	renderId: string;
 }) => {
 	if (!compositorMap[renderId]) {
@@ -43,7 +47,9 @@ type Waiter = {
 	resolve: (data: Buffer) => void;
 };
 
-export const startCompositor = (payload: CliInputCommand): Compositor => {
+export const startCompositor = <T extends keyof CompositorCommand>(
+	payload: CompositorCommand[T]
+): Compositor => {
 	const bin = getExecutablePath('compositor');
 	const child = spawn(
 		bin,
@@ -147,11 +153,22 @@ export const startCompositor = (payload: CliInputCommand): Compositor => {
 			child.stdin.write('EOF\n');
 		},
 
-		executeCommand: (command: CompositorCommand) => {
+		executeCommand: <Type extends keyof CompositorCommand>(
+			command: Type,
+			params: CompositorCommand[Type]
+		) => {
 			return new Promise<Buffer>((resolve) => {
+				const nonce = makeNonce();
+				const composed: CompositorCommandSerialized<Type> = {
+					type: command,
+					params: {
+						...params,
+						nonce,
+					},
+				};
 				// TODO: Should have a way to error out a single task
-				child.stdin.write(JSON.stringify(command) + '\n');
-				waiters.set(command.params.nonce, {
+				child.stdin.write(JSON.stringify({command: composed}) + '\n');
+				waiters.set(nonce, {
 					resolve: (data: Buffer) => {
 						resolve(data);
 					},

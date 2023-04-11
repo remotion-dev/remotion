@@ -6,7 +6,7 @@ import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
 import type {
-	CliInputCommand,
+	CompositorCommandSerialized,
 	CompositorImageFormat,
 	ErrorPayload,
 	Layer,
@@ -42,7 +42,7 @@ export const compose = async ({
 		return;
 	}
 
-	const payload: CliInputCommand = {
+	const payload: CompositorCommandSerialized<'Compose'> = {
 		type: 'Compose',
 		params: {
 			height,
