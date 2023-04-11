@@ -118,13 +118,13 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			return;
 		}
 
-		const data = outputBuffer.slice(
+		const data = outputBuffer.subarray(
 			separatorIndex + 1,
 			separatorIndex + 1 + Number(lengthString)
 		);
 		onMessage(nonceString, data);
 
-		outputBuffer = outputBuffer.slice(separatorIndex + separator.length);
+		outputBuffer = outputBuffer.subarray(separatorIndex + separator.length);
 		processInput();
 	};
 
@@ -167,7 +167,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 					},
 				};
 				// TODO: Should have a way to error out a single task
-				child.stdin.write(JSON.stringify({command: composed}) + '\n');
+				child.stdin.write(JSON.stringify(composed) + '\n');
 				waiters.set(nonce, {
 					resolve: (data: Buffer) => {
 						resolve(data);
