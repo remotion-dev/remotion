@@ -485,6 +485,7 @@ module.exports = {
         "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",
         "troubleshooting/could-not-be-parsed-as-a-value-list",
+        "troubleshooting/player-flicker",
       ],
     },
     {
