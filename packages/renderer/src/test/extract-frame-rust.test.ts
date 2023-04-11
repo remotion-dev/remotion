@@ -1,3 +1,4 @@
+import fs from 'fs';
 import {expect, test} from 'vitest';
 import {startCompositor} from '../compositor/compositor';
 import {makeNonce} from '../compositor/make-nonce';
@@ -13,14 +14,14 @@ test(
 		});
 
 		const data = compositor.executeCommand('ExtractFrame', {
-			input:
-				'/Users/jonathanburger/remotion/packages/example/public/framer.webm',
-			time: 2.5,
+			input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
+			time: 40,
 		});
 		// TODO: When not calling finishCommands, the compositor hangs with 400%
 		compositor.finishCommands();
 		await compositor.waitForDone();
-		expect((await data).length).toBe(3499254);
+		expect((await data).length).toBe(2764854);
+		fs.writeFileSync('test.png', await data);
 	},
 	{timeout: 10000}
 );

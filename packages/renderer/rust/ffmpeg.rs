@@ -28,7 +28,13 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
 
     let mut frame = Video::empty();
 
-    let parameters = input.stream_mut(0).unwrap().parameters();
+    let stream_index = input
+        .streams_mut()
+        .find(|s| s.parameters().medium() == Type::Video)
+        .unwrap()
+        .index();
+    let mut_stream = input.stream_mut(stream_index).unwrap();
+    let parameters = mut_stream.parameters();
 
     let context_decoder = remotionffmepg::codec::context::Context::from_parameters(parameters)?;
 
@@ -48,12 +54,19 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
         Flags::BILINEAR,
     )?;
 
+    let time_base = mut_stream.time_base();
+    let position = (time as f64 * time_base.1 as f64 / time_base.0 as f64) as i64;
+
+    input.seek(stream_index as i32, position - 1000, position, position, 0)?;
+
+    _print_debug(&format!("position {}", position));
+
     for (stream, packet) in input.packets() {
         if stream.parameters().medium() != Type::Video {
             continue;
         }
-        let time_base = stream.time_base();
-        let position = (time as f64 * time_base.1 as f64 / time_base.0 as f64) as i64;
+
+        _print_debug(&format!("dts {}", packet.dts().unwrap()));
 
         // -1 because uf 67 and we want to process 66.66 -> rounding error
         if (packet.dts().unwrap() - 1) > position {
