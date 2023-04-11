@@ -1,19 +1,26 @@
 use remotionffmepg::media::Type;
 
 use crate::errors::PossibleErrors;
+use crate::global_printer::_print_debug;
 use remotionffmepg::format::Pixel;
 use remotionffmepg::frame::Video;
 use remotionffmepg::software::scaling::Context;
 use remotionffmepg::software::scaling::Flags;
 use std::io::{Error, ErrorKind};
+use std::time::Instant;
 extern crate ffmpeg_next as remotionffmepg;
 
 pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> {
     remotionffmepg::init()?;
 
     // Don't read twice
+    let start = Instant::now();
+
     let mut input = remotionffmepg::format::input(&src)?;
     let mut stream_input = remotionffmepg::format::input(&src)?;
+
+    let elapsed = start.elapsed();
+    _print_debug(&format!("Opening file: {:?}", elapsed))?;
 
     let stream = match stream_input
         .streams_mut()
@@ -26,7 +33,10 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
     let time_base = stream.time_base();
     let position = (time as f64 * time_base.1 as f64 / time_base.0 as f64) as i64;
 
+    let seek_start = Instant::now();
     input.seek(position, ..position)?;
+    let elapsed = seek_start.elapsed();
+    _print_debug(&format!("Seeking: {:?}", elapsed))?;
 
     let stream_index = stream.index();
     let context_decoder =
@@ -51,7 +61,10 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
             decoder.receive_frame(&mut input)?;
             input.data(0);
             let mut rgb_frame = Video::empty();
+            let scale_start = Instant::now();
             scaler.run(&input, &mut rgb_frame)?;
+            let elapsed = scale_start.elapsed();
+            _print_debug(&format!("Scaling: {:?}", elapsed)).unwrap();
 
             let new_data = turn_frame_into_bitmap(rgb_frame);
 
@@ -68,6 +81,7 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
             }
             loop {
                 decoder.send_packet(&packet).unwrap();
+                _print_debug(format!("Packet: {:?}", packet.dts()).as_str())?;
                 let rgb_frame = process_frame(&mut decoder);
 
                 if rgb_frame.is_err() {
