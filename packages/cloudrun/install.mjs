@@ -3,7 +3,16 @@ import {execSync} from 'child_process';
 import readline from 'readline';
 
 execSync(
-	'echo "\n\n\u001b[32;1m◀️◀️◀️ GCP project setup for Remotion Cloud Run ▶️▶️▶️\n\n\u001b[0m"',
+	'echo "\n\n\u001b[42;1m                                                "',
+	{
+		stdio: 'inherit',
+	}
+);
+execSync('echo "    GCP project setup for Remotion Cloud Run    "', {
+	stdio: 'inherit',
+});
+execSync(
+	'echo "                                                \n\n\u001b[0m"',
 	{stdio: 'inherit'}
 );
 
@@ -185,7 +194,7 @@ try {
  * Terraform commands
  ****************************************/
 
-console.log('◀️ Running Terraform ▶️');
+console.log('-*-*- Running Terraform -*-*-');
 const terraformVariables = `-var="remotion_version=${remotionVersion}" -var="project_id=${projectID}" -var="service_account_exists=${serviceAccountExists}"`;
 
 execSync('terraform init', {stdio: 'inherit'});
