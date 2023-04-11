@@ -25,7 +25,7 @@ pub fn execute_command(opts: CliInputCommand) -> Result<(), PossibleErrors> {
             global_printer::synchronized_println(
                 &_command.nonce,
                 &format!("Echo {}", _command.message),
-            );
+            )?;
         }
         CliInputCommand::Compose(compose_command) => {
             let len: usize = (compose_command.width * compose_command.height).try_into()?;
