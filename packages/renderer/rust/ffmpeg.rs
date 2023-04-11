@@ -1,4 +1,5 @@
 use remotionffmepg::media::Type;
+use remotionffmepg::Rational;
 
 use crate::errors::PossibleErrors;
 use crate::global_printer::_print_debug;
@@ -13,6 +14,8 @@ extern crate ffmpeg_next as remotionffmepg;
 pub struct OpenedVideo {
     pub input: remotionffmepg::format::context::Input,
     pub stream_index: usize,
+    pub parameters: remotionffmepg::codec::parameters::Parameters,
+    pub time_base: Rational,
 }
 
 pub fn open_video(src: String) -> Result<OpenedVideo, PossibleErrors> {
@@ -25,9 +28,15 @@ pub fn open_video(src: String) -> Result<OpenedVideo, PossibleErrors> {
         .unwrap()
         .index();
 
+    let mut_stream = input.stream_mut(stream_index).unwrap();
+    let time_base = mut_stream.time_base();
+    let parameters = mut_stream.parameters();
+
     let opened_video = OpenedVideo {
         input,
         stream_index,
+        parameters,
+        time_base,
     };
 
     Ok(opened_video)
@@ -36,11 +45,7 @@ pub fn open_video(src: String) -> Result<OpenedVideo, PossibleErrors> {
 pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> {
     let mut vid = open_video(src)?;
 
-    let mut_stream = vid.input.stream_mut(vid.stream_index).unwrap();
-
-    let parameters = mut_stream.parameters();
-
-    let context_decoder = remotionffmepg::codec::context::Context::from_parameters(parameters)?;
+    let context_decoder = remotionffmepg::codec::context::Context::from_parameters(vid.parameters)?;
 
     let mut video_decoders = context_decoder.decoder().video()?;
     let format = video_decoders.format();
@@ -58,8 +63,7 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
         Flags::BILINEAR,
     )?;
 
-    let time_base = mut_stream.time_base();
-    let position = (time as f64 * time_base.1 as f64 / time_base.0 as f64) as i64;
+    let position = (time as f64 * vid.time_base.1 as f64 / vid.time_base.0 as f64) as i64;
 
     vid.input.seek(
         vid.stream_index as i32,
