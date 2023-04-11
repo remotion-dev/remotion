@@ -43,7 +43,6 @@ export type CompositorCommand = {
 	};
 	ExtractFrame: {
 		input: string;
-		output: string;
 		time: number;
 	};
 	Echo: {

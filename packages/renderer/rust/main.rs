@@ -7,7 +7,6 @@ mod image;
 mod payloads;
 use commands::execute_command;
 use errors::PossibleErrors;
-use std::sync::mpsc;
 use std::{env, thread};
 use threadpool::ThreadPool;
 
@@ -47,8 +46,6 @@ pub fn parse_init_command(json: &str) -> Result<CliInputCommand, PossibleErrors>
 }
 
 fn start_long_running_process() -> Result<(), PossibleErrors> {
-    let (command_tx, command_rx) = mpsc::channel::<String>();
-
     let pool = ThreadPool::new(4); // Create a thread pool with 4 threads
 
     // Read messages from stdin in a separate thread
@@ -58,29 +55,16 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
         std::io::stdin().read_line(&mut input).unwrap();
         input = input.trim().to_string();
         if input == "EOF" {
+            pool.join();
+
             break;
         }
-        command_tx.send(input).unwrap();
-    });
-
-    let worker_queue = thread::spawn(move || loop {
-        let message = match command_rx.recv() {
-            Ok(message) => message,
-            Err(_) => {
-                break;
-            }
-        };
-        if message == "EOF" {
-            break;
-        }
-
         pool.execute(move || {
-            let opts: CliInputCommand = parse_cli(&message).unwrap();
+            let opts: CliInputCommand = parse_cli(&input).unwrap();
             execute_command(opts).unwrap();
         });
     });
 
-    worker_queue.join()?;
     thread_handle.join()?;
 
     Ok(())
