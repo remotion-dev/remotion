@@ -168,6 +168,7 @@ const flexer: React.CSSProperties = {
 	flex: 1,
 };
 
+// TODO: Copy edited props from Props editor to Render modal
 export const RenderModal: React.FC<{
 	compositionId: string;
 	initialFrame: number;
