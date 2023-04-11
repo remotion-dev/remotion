@@ -14,8 +14,11 @@ extern crate ffmpeg_next as remotionffmepg;
 pub struct OpenedVideo {
     pub input: remotionffmepg::format::context::Input,
     pub stream_index: usize,
-    pub parameters: remotionffmepg::codec::parameters::Parameters,
     pub time_base: Rational,
+    pub width: u32,
+    pub height: u32,
+    pub format: Pixel,
+    pub video: remotionffmepg::codec::decoder::Video,
 }
 
 pub fn open_video(src: String) -> Result<OpenedVideo, PossibleErrors> {
@@ -32,11 +35,21 @@ pub fn open_video(src: String) -> Result<OpenedVideo, PossibleErrors> {
     let time_base = mut_stream.time_base();
     let parameters = mut_stream.parameters();
 
+    let context_decoder = remotionffmepg::codec::context::Context::from_parameters(parameters)?;
+    let video = context_decoder.decoder().video()?;
+
+    let format = video.format();
+    let width = video.width();
+    let height = video.height();
+
     let opened_video = OpenedVideo {
         input,
         stream_index,
-        parameters,
         time_base,
+        width,
+        height,
+        format,
+        video,
     };
 
     Ok(opened_video)
@@ -45,21 +58,13 @@ pub fn open_video(src: String) -> Result<OpenedVideo, PossibleErrors> {
 pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> {
     let mut vid = open_video(src)?;
 
-    let context_decoder = remotionffmepg::codec::context::Context::from_parameters(vid.parameters)?;
-
-    let mut video_decoders = context_decoder.decoder().video()?;
-    let format = video_decoders.format();
-    let width = video_decoders.width();
-    let height = video_decoders.height();
-
     let mut scaler = Context::get(
-        format,
-        width,
-        height,
+        vid.format,
+        vid.width,
+        vid.height,
         Pixel::RGB24,
-        // TODO: Hardcoded from decoder.unwrap()
-        width,
-        height,
+        vid.width,
+        vid.height,
         Flags::BILINEAR,
     )?;
 
@@ -87,18 +92,20 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
             break;
         }
         loop {
-            video_decoders.send_packet(&packet)?;
-            let res = video_decoders.receive_frame(&mut frame);
+            vid.video.send_packet(&packet)?;
+            let res = vid.video.receive_frame(&mut frame);
 
-            if res.is_err() {
-                let err = res.err().unwrap();
-                if err.to_string().contains("Resource temporarily unavailable") {
-                    // Need to send another packet
-                } else {
-                    Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?
+            match res {
+                Err(err) => {
+                    if err.to_string().contains("Resource temporarily unavailable") {
+                        // Need to send another packet
+                    } else {
+                        Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?
+                    }
                 }
-            } else {
-                break;
+                Ok(_) => {
+                    break;
+                }
             }
         }
     }
@@ -113,11 +120,7 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
 
         let bitmap = turn_frame_into_bitmap(scaled);
 
-        return Ok(create_bmp_image(
-            bitmap,
-            video_decoders.width(),
-            video_decoders.height(),
-        ));
+        return Ok(create_bmp_image(bitmap, vid.width, vid.height));
     }
 }
 
