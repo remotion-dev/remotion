@@ -25,7 +25,7 @@ To supplement this guide, two projects have been created.
 
 ## remotion-laravel
 
-This application can be executed on a local machine or computing instance, such as AWS EC2, to call Remotion Lambda and render a video. It includes the minimum parameters required for Remotion's lambda [arguments](https://www.remotion.dev/docs/lambda/rendermediaonlambda#arguments) from a REST endpoint. After constructing the parameters, they will be passed on to the AWS Lambda Client using the [AWS PHP SDK](https://aws.amazon.com/sdk-for-php/). It also contains Laravel boilerplate code for setting up a REST endpoint that calls the Remotion Lambda. This project imitates the operation of [rendermediaonlambda](https://www.remotion.dev/docs/lambda/rendermediaonlambda) and uses [composer](https://gettcomposer.org/doc/01-basic-usage.md).
+This application can be executed on a local machine or computing instance, such as AWS EC2, to call Remotion Lambda and render a video. It includes the minimum parameters required for Remotion's lambda [arguments](https://www.remotion.dev/docs/lambda/rendermediaonlambda#arguments) from a REST endpoint. After [constructing](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Services/RemotionService.php#L42) the parameters, they will be passed on to the AWS Lambda Client using the [AWS PHP SDK](https://aws.amazon.com/sdk-for-php/). It also contains Laravel boilerplate code for setting up a REST endpoint that calls the Remotion Lambda. This project imitates the operation of [rendermediaonlambda](https://www.remotion.dev/docs/lambda/rendermediaonlambda) and uses [composer](https://gettcomposer.org/doc/01-basic-usage.md).
 
 
 ### Setup
@@ -33,7 +33,7 @@ This application can be executed on a local machine or computing instance, such 
 #### 1. Clone or download the project
 
 The project can be found at [`remotion-laravel`](https://github.com/alexfernandez803/remotion-laravel).  
-If not done in the previous step, clone the project using:
+Clone the project using:
 
 ```bash
 git clone https://github.com/alexfernandez803/remotion-laravel
@@ -108,24 +108,22 @@ The application has a `.env` file that needs to be populated for the video rende
 - `REMOTION_APP_ROLE_ARN` represents the ARN of the role which the application assume to render the video, for this instance it is `remotion-ec2-executionrole` ARN from `step 2` on this [guide](docs/lambda/ec2).
 - `REMOTION_APP_ROLE_SESSION_NAME` a name to uniquely identify the role session when the same role is assumed by different principals.
 
-  The application requires a database, for this application SQLLite is used. So these configuration from `.env` need to be provided.
+#### 5. Seed the database
+
+The application requires a database, and for this application, [SQLite]([SQLLite](https://sqlite.org/index.html)) is used. Therefore, the configuration details from the `.env` file need to be provided. 
 
   ```bash title=".env continued"
   DB_CONNECTION=sqlite
   DB_DATABASE=database.sqlite
   ```
-
   - `DB_CONNECTION` is the connection type that represents which database to use ie, `MYSQL`
   - `DB_DATABASE` is the database name, for this instance this represents the absolute url path of the sqllte database.
 
-#### 5. Seed the database
-
-The application requires database tables so that users can register and generate authentication token, this is backed by [SQLLite](https://sqlite.org/index.html).
 
 Create the database and table in SQLLite defined in `DB_DATABASE` by executing the command below:
 
 ```bash title="create db and table"
-   php artisan vendor:publish --tag=sanctum-migrations
+php artisan vendor:publish --tag=sanctum-migrations
 ```
 
 
@@ -138,9 +136,9 @@ php artisan serve
 ```
 
 ```bash title="application logs"
- INFO  Server running on [http://127.0.0.1:8000].  
+INFO  Server running on [http://127.0.0.1:8000].  
 
-  Press Ctrl+C to stop the server
+Press Ctrl+C to stop the server
 ```
 This application will setup a web server that serves a PHP REST endpoint accessible on port `8000`. It can be interacted with using an API client such as [curl](https://curl.se/) or [Postman](https://www.postman.com/).
 
@@ -170,7 +168,7 @@ The application has an authentication and authorization mechanism in place, back
       "token": "1|fcIPBALS7sXXXXyJhS3d59qcNEjpaICuqf1J",
       "name": "John Doe"
   },
-  "message": "User register successfully."
+  "message": "User registered successfully."
 }
   ```
 
@@ -214,11 +212,17 @@ The application has an authentication and authorization mechanism in place, back
     }
     ```
 
-    This API operation starts with the Laravel [controller](https://laravel.com/docs/10.x/controllers) called [RenderController.php](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Http/Controllers/RenderController.php) located in the application's directory. The [render](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Http/Controllers/RenderController.php#L24) function within the RenderController.php is executed. From there, the RemotionService [render](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Services/RemotionService.php#L10) function is executed, followed by the [renderOps](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Services/RemotionService.php#L16) function. The renderOps function constructs the arguments required by Remotion's lambda.
+    This API operation starts with the Laravel [controller](https://laravel.com/docs/10.x/controllers) called [RenderController.php](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Http/Controllers/RenderController.php) located in the application's directory. The [render](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Http/Controllers/RenderController.php#L24) function within the RenderController.php is executed. From there, the RemotionService [render](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Services/RemotionService.php#L10) function is executed, followed by the [renderOps](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Services/RemotionService.php#L16) function. The `renderOps` function constructs the arguments required by Remotion's lambda.
 
-    Once the execution is successful, the API will responsd with the `bucketName` and `renderId`. These are metadata required to get the status the video render or retrieving video.
+
+    Once the execution is successful, the API will respond with the `bucketName` and `renderId`. These are metadata required to get the status of the video render or retrieve the video.
+
+### Resources
+- [Implementing authentication on Laravel using sanctum](https://linuxhint.com/rest-api-authentication-laravel-sanctum/)
+- [AWS PHP SDK](https://docs.aws.amazon.com/aws-sdk-php/v2/guide/service-lambda.html#factory-method)
 
 ## See also
+
 - [Using Remotion on standalone application](/docs/lambda/with-php/index)
 - [Using Lambda without IAM user](/docs/lambda/without-iam)
 - [Using Lambda with SQS](/docs/lambda/sqs)

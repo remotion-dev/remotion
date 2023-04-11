@@ -6,13 +6,13 @@ sidebar_label: On standalone PHP application
 crumb: "@remotion/lambda"
 ---
 
-This guide will show you how to use Remotion with PHP in a standalone application.
+This guide demonstrate how to use Remotion with PHP in a standalone application.
 
 To supplement this guide, two projects have been created. 
 
 - The [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) includes a Remotion composition and utility scripts for deploying and deleting Remotion Lambda infrastructure in AWS. It should be noted that this is the same application as the one featured in the [Serverless Framework guide](/docs/lambda/serverless-framework-integration). Follow the setup [guide](/docs/lambda/serverless-framework-integration#remotion-app), if the Remotion lambda is not yet deployed to your AWS account.
 
-- The [php-remotion](https://github.com/alexfernandez803/remotion-serverless/tree/main/php-remotion). This is an application that invokes the Remotion lambda function containing the bare minimum parameters to render a video. 
+- The [php-remotion](https://github.com/alexfernandez803/remotion-serverless/tree/main/php-remotion). This is an application that invokes the Remotion lambda function containing the minimum parameters to render a video. 
 
 ### Prequisites
 
@@ -24,7 +24,7 @@ To supplement this guide, two projects have been created.
 
 ## php-remotion
 
-This is an application that can be executed on a local machine or computing instance like [AWS EC2](https://aws.amazon.com/ec2/). It will call Remotion Lambda to render a video and contains the bare minimum parameters for Remotion's lambda [arguments](https://www.remotion.dev/docs/lambda/rendermediaonlambda#arguments). Once the parameters are constructed, they will be passed on to the AWS Lambda Client using the [AWS PHP SDK](https://aws.amazon.com/sdk-for-php/). This project imitates the operation of [rendermediaonlambda](https://www.remotion.dev/docs/lambda/rendermediaonlambda) and uses [composer](https://gettcomposer.org/doc/01-basic-usage.md).
+This is an application that can be executed on a local machine or computing instance like [AWS EC2](https://aws.amazon.com/ec2/). It will call Remotion Lambda to render a video and contains the bare minimum parameters for Remotion's lambda [arguments](https://www.remotion.dev/docs/lambda/rendermediaonlambda#arguments). Once the parameters are [constructed](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-laravel/app/Services/RemotionService.php#L42), they will be passed on to the AWS Lambda Client using the [AWS PHP SDK](https://aws.amazon.com/sdk-for-php/). This project imitates the operation of [rendermediaonlambda](https://www.remotion.dev/docs/lambda/rendermediaonlambda) and uses [composer](https://gettcomposer.org/doc/01-basic-usage.md).
 
 
 ### Setup
@@ -32,7 +32,7 @@ This is an application that can be executed on a local machine or computing inst
 #### 1. Clone or download the project
 
 The project can be found at [`php-remotion`](https://github.com/alexfernandez803/php-remotion).  
-If not done in the previous step, clone the project using:
+Clone the project using:
 
 ```bash
 git clone https://github.com/alexfernandez803/php-remotion
