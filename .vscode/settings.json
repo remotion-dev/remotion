@@ -3,5 +3,11 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": false,
     "source.fixAll": true
+  },
+  "rust-analyzer.cargo.extraEnv": {
+    "REMOTION_FFMPEG_RUST_BINDINGS_OUT_DIR": "/Users/jonathanburger/remotion/packages/compositor-darwin-arm64/ffmpeg",
+    "RUSTFLAGS": "-L /Users/jonathanburger/remotion/packages/compositor-darwin-arm64/ffmpeg/remotion/include",
+    "CPATH": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include",
+    "FFMPEG_DIR": "/Users/jonathanburger/remotion/packages/compositor-darwin-arm64/ffmpeg/remotion"
   }
 }
