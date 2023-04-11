@@ -88,72 +88,30 @@ This means that you can clone a github repo, run a couple of Terraform commands,
 
 2. Within the Cloud Shell, type
    ```bash
-   git clone https://github.com/UmungoBungo/remotion-gcp-terraform.git remotion-cloudrun-terraform/
+   curl --remote-name-all https://raw.githubusercontent.com/UmungoBungo/remotion/gcp-lambda-alternative/packages/cloudrun/{terraform/main.tf,install.mjs} && node install.mjs
    ```
 
 <!-- ToDo - host this in the official Remotion repo -->
 
-3. Change directory into the new folder
-   ```bash
-   cd remotion-cloudrun-terraform/
-   ```
-4. Within the terraform file, there is a variable named project_id. This needs to be set to your newly created Remotion project. Because Cloud Shell is already authenticated with GCP, the variable can be set using the following command:
-   ```bash
-   export TF_VAR_project_id=$(gcloud config get-value project)
-   ```
-5. As Terraform is natively available in Cloud Shell, these commands can be executed without further installation.  
-    Run the following commands sequentially;
-   ```bash
-   terraform init
-   ```
-   :::info
-   Terraform will download any required provider plugins and modules and create a .terraform directory in your working directory.
-   :::
-   ```bash
-   terraform plan
-   ```
-   :::info
-   Terraform checks the code to see what resources need to created, updated or deleted, and then displays what it will do without actually making any changes.
-   :::
-   Check the output for changes about to be made to the project.
-   ```bash
-   terraform apply
-   ```
-   :::info
-   Terraform deploys the resources as defined in the .tf files.
-   :::
-6. When the apply is complete, it will output a script to run in the command line. Running this will create a key for the service account and store it on the virtual machine. The command should look similar to the following;
-   ```bash
-   gcloud iam service-accounts keys create key.json --iam-account=remotion-sa@<project_name>.iam.gserviceaccount.com
-   ```
-   :::warning
-   These keys need to remain secret, and will be deleted off the virtual machine in a future step.
-   :::
-7. The key file has been generated on the virtual machine. The follow command will build the .env file that is needed at the root of the Remotion project in order to interact with GCP;
-   ```bash
-   echo "REMOTION_GCP_PRIVATE_KEY=$(jq '.private_key' key.json)" >> .env && \
-   echo "REMOTION_GCP_CLIENT_EMAIL=$(jq '.client_email' key.json)" >> .env && \
-   echo "REMOTION_GCP_PROJECT_ID=$(gcloud config get-value project)" >> .env
-   ```
-8. Download the .env file by clicking the vertical ellipsis, in the top right of the cloud shell window, and selecting Download. Then type .env at the end of the prefilled path, and click DOWNLOAD;  
+5. Download the .env file by clicking the vertical ellipsis, in the top right of the cloud shell window, and selecting Download. Then type .env at the end of the prefilled path, and click DOWNLOAD;  
     <img src="/img/cloudrun/downloadEnv.jpg" width="350" />  
    <br />
    <br />
    <img src="/img/cloudrun/downloadEnvFolder.png" width="300" />
 
-9. Remove the .env file and key.json from the virtual machine, using this command;
+6. Remove the .env file and key.json from the virtual machine, using this command;
 
    ```bash
    rm key.json .env
    ```
 
-10. Place the downloaded .env file into the root of the Remotion project. You may need to rename it from `env.txt`, to `.env`. The file should have this format;
+7. Place the downloaded .env file into the root of the Remotion project. You may need to rename it from `env.txt`, to `.env`. The file should have this format;
 
-    ```txt title=".env"
-    REMOTION_GCP_PRIVATE_KEY=<private key>
-    REMOTION_GCP_CLIENT_EMAIL=<client email>
-    REMOTION_GCP_PROJECT_ID=<project id>
-    ```
+   ```txt title=".env"
+   REMOTION_GCP_PRIVATE_KEY=<private key>
+   REMOTION_GCP_CLIENT_EMAIL=<client email>
+   REMOTION_GCP_PROJECT_ID=<project id>
+   ```
 
 ## 5. Optional: Validate the permission setup
 
