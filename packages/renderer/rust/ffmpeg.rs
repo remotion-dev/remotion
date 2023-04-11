@@ -55,23 +55,18 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
         Flags::BILINEAR,
     )?;
 
-    let mut process_frame =
-        |decoder: &mut remotionffmepg::decoder::Video| -> Result<Vec<u8>, remotionffmepg::Error> {
-            let mut input = Video::empty();
-            decoder.receive_frame(&mut input)?;
-            input.data(0);
-            let mut rgb_frame = Video::empty();
-            let scale_start = Instant::now();
-            scaler.run(&input, &mut rgb_frame)?;
-            let elapsed = scale_start.elapsed();
-            _print_debug(&format!("Scaling: {:?}", elapsed)).unwrap();
+    let  process_frame = |decoder: &mut remotionffmepg::decoder::Video| -> Result<
+        remotionffmepg::util::frame::Video,
+        remotionffmepg::Error,
+    > {
+        let mut input = Video::empty();
+        // This function will throw "Resource temporarily unavailable" if 1 packet is not enough
+        decoder.receive_frame(&mut input)?;
 
-            let new_data = turn_frame_into_bitmap(rgb_frame);
+        Ok(input)
+    };
 
-            Ok(new_data)
-        };
-
-    let mut frame = Vec::new();
+    let mut frame = Video::empty();
 
     for (stream, packet) in input.packets() {
         if stream.index() == stream_index {
@@ -98,10 +93,20 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
             }
         }
     }
-    if frame.len() > 0 {
-        return Ok(create_bmp_image(frame, decoder.width(), decoder.height()));
-    } else {
+    let mut is_empty = false;
+    unsafe { is_empty = frame.is_empty() }
+    if is_empty {
         Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?
+    } else {
+        let mut scaled = Video::empty();
+        let scale_start = Instant::now();
+        scaler.run(&frame, &mut scaled)?;
+        let elapsed = scale_start.elapsed();
+        _print_debug(&format!("Scaling: {:?}", elapsed)).unwrap();
+
+        let bitmap = turn_frame_into_bitmap(scaled);
+
+        return Ok(create_bmp_image(bitmap, decoder.width(), decoder.height()));
     }
 }
 
