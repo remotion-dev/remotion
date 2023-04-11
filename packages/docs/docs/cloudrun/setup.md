@@ -99,10 +99,10 @@ This means that you can clone a github repo, run a couple of Terraform commands,
    <br />
    <img src="/img/cloudrun/downloadEnvFolder.png" width="300" />
 
-6. Remove the .env file and key.json from the virtual machine, using this command;
+6. Remove the .env file from the virtual machine, using this command;
 
    ```bash
-   rm key.json .env
+   rm .env
    ```
 
 7. Place the downloaded .env file into the root of the Remotion project. You may need to rename it from `env.txt`, to `.env`. The file should have this format;
