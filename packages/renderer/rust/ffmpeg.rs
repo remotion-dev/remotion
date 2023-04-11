@@ -66,8 +66,6 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
             continue;
         }
 
-        _print_debug(&format!("dts {}", packet.dts().unwrap()));
-
         // -1 because uf 67 and we want to process 66.66 -> rounding error
         if (packet.dts().unwrap() - 1) > position {
             break;
