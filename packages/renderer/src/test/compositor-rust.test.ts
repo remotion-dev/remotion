@@ -17,11 +17,9 @@ test(
 				await new Promise<void>((resolve) => {
 					setTimeout(() => resolve(), Math.random() * 100);
 				});
-				const nonce = makeNonce();
 				const expectedString = 'mystring-abc-' + String(i);
-				const output = await compositor.executeCommand({
-					type: 'Echo',
-					params: {message: expectedString, nonce},
+				const output = await compositor.executeCommand('Echo', {
+					message: expectedString,
 				});
 				const isSame = output.toString('utf8') === 'Echo ' + expectedString;
 				return isSame;

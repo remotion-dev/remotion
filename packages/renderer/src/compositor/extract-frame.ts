@@ -2,7 +2,7 @@ import {spawn} from 'child_process';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
-import type {CliInputCommand} from './payloads';
+import type {CompositorCommandSerialized} from './payloads';
 
 export const extractFrameFromVideoCompositor = ({
 	input,
@@ -15,7 +15,7 @@ export const extractFrameFromVideoCompositor = ({
 }) => {
 	return new Promise<void>((resolve, reject) => {
 		const bin = getExecutablePath('compositor');
-		const payload: CliInputCommand = {
+		const payload: CompositorCommandSerialized<'ExtractFrame'> = {
 			type: 'ExtractFrame',
 			params: {
 				input,
