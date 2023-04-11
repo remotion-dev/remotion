@@ -2053,6 +2053,13 @@ export const articles = [
     crumb: "Troubleshooting",
   },
   {
+    id: "player-flicker",
+    title: "Avoiding flickering in <Player>",
+    relativePath: "docs/troubleshooting/video-flicker.md",
+    compId: "articles-docs-troubleshooting-video-flicker",
+    crumb: "Frame-perfection",
+  },
+  {
     id: "use-audio-data",
     title: "useAudioData()",
     relativePath: "docs/use-audio-data.md",
