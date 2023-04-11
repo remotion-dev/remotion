@@ -74,7 +74,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		}
 	};
 
-	const quit = false;
+	let quit = false;
 
 	const processInput = () => {
 		let separatorIndex = outputBuffer.indexOf(separator);
@@ -131,7 +131,9 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		);
 		onMessage(nonceString, data);
 
-		outputBuffer = outputBuffer.subarray(separatorIndex + separator.length);
+		outputBuffer = outputBuffer.subarray(
+			separatorIndex + Number(lengthString) + 1
+		);
 		processInput();
 	};
 
@@ -148,6 +150,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		waitForDone: () => {
 			return new Promise<void>((resolve, reject) => {
 				child.on('close', (code) => {
+					quit = true;
 					const waitersToKill = Array.from(waiters.values());
 					for (const waiter of waitersToKill) {
 						waiter.reject(new Error(`Compositor quit with code ${code}`));
