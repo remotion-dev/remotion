@@ -22,6 +22,7 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
     let elapsed = start.elapsed();
     _print_debug(&format!("Opening file: {:?}", elapsed))?;
 
+    let seek_start = Instant::now();
     let stream = match stream_input
         .streams_mut()
         .find(|s| s.parameters().medium() == Type::Video)
@@ -34,6 +35,10 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
     let position = (time as f64 * time_base.1 as f64 / time_base.0 as f64) as i64;
 
     input.seek(position, ..position)?;
+    let seek_end = seek_start.elapsed();
+    _print_debug(&format!("Seeking: {:?}", seek_end))?;
+
+    let decoder_start = Instant::now();
 
     let stream_index = stream.index();
     let context_decoder =
@@ -52,18 +57,10 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
         Flags::BILINEAR,
     )?;
 
-    let  process_frame = |frame_decoder: &mut remotionffmepg::decoder::Video| -> Result<
-        remotionffmepg::util::frame::Video,
-        remotionffmepg::Error,
-    > {
-        let mut input = Video::empty();
-        // This function will throw "Resource temporarily unavailable" if 1 packet is not enough
-        frame_decoder.receive_frame(&mut input)?;
-
-        Ok(input)
-    };
-
     let mut frame = Video::empty();
+
+    let decoder_end = decoder_start.elapsed();
+    _print_debug(&format!("Decoder setup: {:?}", decoder_end))?;
 
     for (stream, packet) in input.packets() {
         if stream.index() == stream_index {
@@ -72,26 +69,23 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
                 break;
             }
             loop {
-                decoder.send_packet(&packet).unwrap();
-                let rgb_frame = process_frame(&mut decoder);
+                decoder.send_packet(&packet)?;
+                let res = decoder.receive_frame(&mut frame);
 
-                if rgb_frame.is_err() {
-                    let err = rgb_frame.err().unwrap();
+                if res.is_err() {
+                    let err = res.err().unwrap();
                     if err.to_string().contains("Resource temporarily unavailable") {
                         // Need to send another packet
                     } else {
                         Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?
                     }
                 } else {
-                    frame = rgb_frame.unwrap();
                     break;
                 }
             }
         }
     }
-    let mut is_empty = false;
-    unsafe { is_empty = frame.is_empty() }
-    if is_empty {
+    if is_frame_empty(&frame) {
         Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?
     } else {
         let mut scaled = Video::empty();
@@ -104,6 +98,15 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
 
         return Ok(create_bmp_image(bitmap, decoder.width(), decoder.height()));
     }
+}
+
+fn is_frame_empty(frame: &Video) -> bool {
+    unsafe {
+        if frame.is_empty() {
+            return true;
+        }
+    }
+    return false;
 }
 
 fn turn_frame_into_bitmap(rgb_frame: Video) -> Vec<u8> {
