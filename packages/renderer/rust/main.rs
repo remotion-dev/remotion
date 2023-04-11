@@ -2,6 +2,7 @@ mod commands;
 mod compositor;
 mod errors;
 mod ffmpeg;
+mod global_printer;
 mod image;
 mod payloads;
 use commands::execute_command;
@@ -15,7 +16,6 @@ use payloads::payloads::{parse_cli, CliInputCommand};
 extern crate png;
 
 fn mainfn() -> Result<(), PossibleErrors> {
-    println!("Starting renderer");
     let args = env::args();
 
     let first_arg =
@@ -25,8 +25,6 @@ fn mainfn() -> Result<(), PossibleErrors> {
                 std::io::ErrorKind::Other,
                 "No input",
             )))?;
-
-    println!("First arg: {}", first_arg);
 
     let opts: CliInputCommand = parse_init_command(&first_arg)?;
 
@@ -53,13 +51,11 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
 
     let pool = ThreadPool::new(4); // Create a thread pool with 4 threads
 
-    println!("Starting long running process");
     // Read messages from stdin in a separate thread
 
     let thread_handle = thread::spawn(move || loop {
         let mut input = String::new();
         std::io::stdin().read_line(&mut input).unwrap();
-        println!("Received: {}", input);
         input = input.trim().to_string();
         if input == "EOF" {
             break;

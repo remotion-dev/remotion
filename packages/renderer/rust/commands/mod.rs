@@ -1,8 +1,8 @@
 use crate::compositor::draw_layer;
 use crate::errors::PossibleErrors;
-use crate::ffmpeg;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::payloads::payloads::CliInputCommand;
+use crate::{ffmpeg, global_printer};
 use std::fs::write;
 use std::io::ErrorKind;
 
@@ -22,7 +22,10 @@ pub fn execute_command(opts: CliInputCommand) -> Result<(), PossibleErrors> {
             ))?;
         }
         CliInputCommand::Echo(_command) => {
-            println!("Echo: {}", _command.message);
+            global_printer::synchronized_println(
+                &_command.nonce,
+                &format!("Echo {}", _command.message),
+            );
         }
         CliInputCommand::Compose(compose_command) => {
             let len: usize = (compose_command.width * compose_command.height).try_into()?;

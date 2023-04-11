@@ -1,6 +1,7 @@
 import {spawn} from 'child_process';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getExecutablePath} from './get-executable-path';
+import {makeNonce} from './make-nonce';
 import type {CliInputCommand} from './payloads';
 
 export const extractFrameFromVideoCompositor = ({
@@ -20,6 +21,7 @@ export const extractFrameFromVideoCompositor = ({
 				input,
 				output,
 				time: timeInSeconds,
+				nonce: makeNonce(),
 			},
 		};
 		const child = spawn(bin, {...dynamicLibraryPathOptions()});

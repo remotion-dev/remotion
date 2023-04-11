@@ -52,6 +52,7 @@ pub mod payloads {
         pub layers: Vec<Layer>,
         pub output_format: ImageFormat,
         pub output: String,
+        pub nonce: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
@@ -59,14 +60,18 @@ pub mod payloads {
         pub input: String,
         pub output: String,
         pub time: f64,
+        pub nonce: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
-    pub struct StartPayLoad {}
+    pub struct StartPayLoad {
+        pub nonce: String,
+    }
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct EchoPayload {
         pub message: String,
+        pub nonce: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

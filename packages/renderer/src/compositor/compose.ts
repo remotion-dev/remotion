@@ -4,6 +4,7 @@ import {copyFile} from 'fs/promises';
 import type {DownloadMap} from '../assets/download-map';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getExecutablePath} from './get-executable-path';
+import {makeNonce} from './make-nonce';
 import type {
 	CliInputCommand,
 	CompositorImageFormat,
@@ -49,6 +50,7 @@ export const compose = async ({
 			layers,
 			output,
 			output_format: imageFormat,
+			nonce: makeNonce(),
 		},
 	};
 
