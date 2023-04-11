@@ -6,5 +6,5 @@ labels: ""
 assignees: ""
 ---
 
-<!--- You may also open a discussion: https://github.com/remotion-dev/remotion/discussions -->
-<!--- Or chat with us: https://remotion.dev/discord -->
+<!-- Chat with us: https://remotion.dev/discord -->
+<!-- Provide relevant information: https://remotion.dev/get-help -->

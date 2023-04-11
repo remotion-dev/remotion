@@ -1,12 +1,14 @@
 import React from "react";
+import { RED } from "./layout/colors";
 
 export const InlineStep: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => {
+  error?: boolean;
+}> = ({ children, error }) => {
   return (
     <div
       style={{
-        backgroundColor: "var(--ifm-color-primary)",
+        backgroundColor: error ? RED : "var(--ifm-color-primary)",
         height: 24,
         width: 24,
         display: "inline-flex",
@@ -26,7 +28,8 @@ export const InlineStep: React.FC<{
 
 export const Step: React.FC<{
   children: React.ReactNode;
-}> = ({ children }) => {
+  error?: boolean;
+}> = ({ children, error }) => {
   return (
     <span
       style={{
@@ -37,7 +40,7 @@ export const Step: React.FC<{
         marginBottom: 4,
       }}
     >
-      <InlineStep>{children}</InlineStep>{" "}
+      <InlineStep error={error}>{children}</InlineStep>{" "}
     </span>
   );
 };

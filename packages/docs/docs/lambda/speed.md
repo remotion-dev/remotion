@@ -21,7 +21,17 @@ Adding more memory on Lambda will also scale up the CPU power on Lambda proporti
 
 The [`concurrencyPerLambda`](/docs/lambda/rendermediaonlambda#concurrencyperlambda) property in [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) allows you to open multiple browser tabs in a single Lambda function, therefore opening an opportunity to do more work at once. If the Lambda function is too busy, increasing the concurrency might also be counterproductive.
 
-## Make the render more performant
+## Use `speculateFunctionName()`
+
+Instead of calling [`getFunctions()`](/docs/lambda/getfunctions), you can call [`speculateFunctionName()`](/docs/lambda/speculatefunctionname) to calculate the name of the function you are about to call to save an API call and save up to 1 second.
+
+## Bucket naming
+
+If you have a Remotion version before December 2022, then your bucket name might not include the region name in its name. This will result in Remotion having to list all bucket names and query their region before kicking off the render.
+
+[See this article for more information](/docs/lambda/bucket-naming#aws-region-in-the-name). Consider renaming your bucket or re-setting up Remotion Lambda to gain speed. This especially applies if you are having many Remotion buckets across regions.
+
+## Optimizing render performance
 
 See the [general performance tips](/docs/performance) which also apply to Lambda.
 
