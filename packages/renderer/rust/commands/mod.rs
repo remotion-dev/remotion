@@ -3,17 +3,13 @@ use crate::errors::PossibleErrors;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::payloads::payloads::CliInputCommand;
 use crate::{ffmpeg, global_printer};
-use std::fs::write;
 use std::io::ErrorKind;
 
 pub fn execute_command(opts: CliInputCommand) -> Result<(), PossibleErrors> {
     match opts {
         CliInputCommand::ExtractFrame(command) => {
             let _result = ffmpeg::extract_frame(command.input, command.time)?;
-
-            write(command.output, &_result)?;
-
-            // Write to a file
+            global_printer::synchronized_write_buf(&command.nonce, &_result)?;
         }
         CliInputCommand::StartLongRunningProcess(_command) => {
             Err(std::io::Error::new(

@@ -45,6 +45,7 @@ export const waitForCompositorWithIdToQuit = (renderId: string) => {
 
 type Waiter = {
 	resolve: (data: Buffer) => void;
+	reject: (err: Error) => void;
 };
 
 export const startCompositor = <T extends keyof CompositorCommand>(
@@ -63,11 +64,17 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	const waiters = new Map<string, Waiter>();
 
 	const onMessage = (nonce: string, data: Buffer) => {
+		if (nonce === '0') {
+			console.log(data.toString('utf8'));
+		}
+
 		if (waiters.has(nonce)) {
 			(waiters.get(nonce) as Waiter).resolve(data);
 			waiters.delete(nonce);
 		}
 	};
+
+	const quit = false;
 
 	const processInput = () => {
 		let separatorIndex = outputBuffer.indexOf(separator);
@@ -141,6 +148,12 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		waitForDone: () => {
 			return new Promise<void>((resolve, reject) => {
 				child.on('close', (code) => {
+					const waitersToKill = Array.from(waiters.values());
+					for (const waiter of waitersToKill) {
+						waiter.reject(new Error(`Compositor quit with code ${code}`));
+					}
+
+					waiters.clear();
 					if (code === 0) {
 						resolve();
 					} else {
@@ -150,6 +163,10 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			});
 		},
 		finishCommands: () => {
+			if (quit) {
+				throw new Error('Compositor already quit');
+			}
+
 			child.stdin.write('EOF\n');
 		},
 
@@ -157,7 +174,11 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			command: Type,
 			params: CompositorCommand[Type]
 		) => {
-			return new Promise<Buffer>((resolve) => {
+			if (quit) {
+				throw new Error('Compositor already quit');
+			}
+
+			return new Promise<Buffer>((resolve, reject) => {
 				const nonce = makeNonce();
 				const composed: CompositorCommandSerialized<Type> = {
 					type: command,
@@ -171,6 +192,9 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				waiters.set(nonce, {
 					resolve: (data: Buffer) => {
 						resolve(data);
+					},
+					reject: (err) => {
+						reject(err);
 					},
 				});
 			});
