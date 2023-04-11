@@ -10,8 +10,7 @@ pub fn execute_command(opts: CliInputCommand) -> Result<(), PossibleErrors> {
     match opts {
         CliInputCommand::ExtractFrame(command) => {
             let start = std::time::Instant::now();
-            let _result = ffmpeg::extract_frame(command.input, command.time)?;
-            global_printer::synchronized_write_buf(&command.nonce, &_result)?;
+            _print_debug("msg");
             _print_debug(&format!("Extracted frame in {:?}", start.elapsed()))?;
         }
         CliInputCommand::StartLongRunningProcess(_command) => {
