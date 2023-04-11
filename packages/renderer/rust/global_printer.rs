@@ -9,9 +9,13 @@ lazy_static! {
 }
 
 pub fn synchronized_println(nonce: &str, msg: &str) -> Result<(), PossibleErrors> {
+    let str = format!("remotion_buffer:{};{}:{}", nonce, msg.len(), msg);
+    synchronized_write_buf(str.as_bytes().to_vec())
+}
+
+pub fn synchronized_write_buf(data: Vec<u8>) -> Result<(), PossibleErrors> {
     let mut stdout_guard = STDOUT_MUTEX.lock().unwrap();
-    write!(stdout_guard, "remotion_buffer:{};{}:", nonce, msg.len())?;
-    write!(stdout_guard, "{}", msg)?;
+    stdout_guard.write_all(&data)?;
     stdout_guard.flush()?;
     Ok(())
 }
