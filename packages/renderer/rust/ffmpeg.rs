@@ -40,7 +40,6 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
 
     let decoder_start = Instant::now();
 
-    let stream_index = stream.index();
     let context_decoder =
         remotionffmepg::codec::context::Context::from_parameters(stream.parameters())?;
 
@@ -63,25 +62,26 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
     _print_debug(&format!("Decoder setup: {:?}", decoder_end))?;
 
     for (stream, packet) in input.packets() {
-        if stream.index() == stream_index {
-            // -1 because uf 67 and we want to process 66.66 -> rounding error
-            if (packet.dts().unwrap() - 1) > position {
-                break;
-            }
-            loop {
-                decoder.send_packet(&packet)?;
-                let res = decoder.receive_frame(&mut frame);
+        if stream.parameters().medium() != Type::Video {
+            continue;
+        }
+        // -1 because uf 67 and we want to process 66.66 -> rounding error
+        if (packet.dts().unwrap() - 1) > position {
+            break;
+        }
+        loop {
+            decoder.send_packet(&packet)?;
+            let res = decoder.receive_frame(&mut frame);
 
-                if res.is_err() {
-                    let err = res.err().unwrap();
-                    if err.to_string().contains("Resource temporarily unavailable") {
-                        // Need to send another packet
-                    } else {
-                        Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?
-                    }
+            if res.is_err() {
+                let err = res.err().unwrap();
+                if err.to_string().contains("Resource temporarily unavailable") {
+                    // Need to send another packet
                 } else {
-                    break;
+                    Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?
                 }
+            } else {
+                break;
             }
         }
     }
