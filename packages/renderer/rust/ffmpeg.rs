@@ -6,7 +6,7 @@ use remotionffmepg::format::Pixel;
 use remotionffmepg::frame::Video;
 use remotionffmepg::software::scaling::Context;
 use remotionffmepg::software::scaling::Flags;
-use std::io::{Error, ErrorKind};
+use std::io::ErrorKind;
 use std::time::Instant;
 extern crate ffmpeg_next as remotionffmepg;
 
@@ -17,61 +17,51 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
     let start = Instant::now();
 
     let mut input = remotionffmepg::format::input(&src)?;
-    let mut stream_input = remotionffmepg::format::input(&src)?;
 
     let elapsed = start.elapsed();
     _print_debug(&format!("Opening file: {:?}", elapsed))?;
 
     let seek_start = Instant::now();
-    let stream = match stream_input
-        .streams_mut()
-        .find(|s| s.parameters().medium() == Type::Video)
-    {
-        Some(content) => content,
-        None => Err(Error::new(ErrorKind::Other, "No video stream found"))?,
-    };
 
-    let time_base = stream.time_base();
-    let position = (time as f64 * time_base.1 as f64 / time_base.0 as f64) as i64;
-
-    input.seek(position, ..position)?;
     let seek_end = seek_start.elapsed();
     _print_debug(&format!("Seeking: {:?}", seek_end))?;
 
-    let decoder_start = Instant::now();
-
-    let context_decoder =
-        remotionffmepg::codec::context::Context::from_parameters(stream.parameters())?;
-
-    let mut decoder = context_decoder.decoder().video()?;
-
-    let mut scaler = Context::get(
-        decoder.format(),
-        decoder.width(),
-        decoder.height(),
-        Pixel::RGB24,
-        // TODO: Hardcoded from decoder
-        decoder.width(),
-        decoder.height(),
-        Flags::BILINEAR,
-    )?;
-
     let mut frame = Video::empty();
 
-    let decoder_end = decoder_start.elapsed();
-    _print_debug(&format!("Decoder setup: {:?}", decoder_end))?;
+    let parameters = input.stream_mut(0).unwrap().parameters();
+
+    let context_decoder = remotionffmepg::codec::context::Context::from_parameters(parameters)?;
+
+    let mut video_decoders = context_decoder.decoder().video()?;
+    let format = video_decoders.format();
+    let width = video_decoders.width();
+    let height = video_decoders.height();
+
+    let mut scaler = Context::get(
+        format,
+        width,
+        height,
+        Pixel::RGB24,
+        // TODO: Hardcoded from decoder.unwrap()
+        width,
+        height,
+        Flags::BILINEAR,
+    )?;
 
     for (stream, packet) in input.packets() {
         if stream.parameters().medium() != Type::Video {
             continue;
         }
+        let time_base = stream.time_base();
+        let position = (time as f64 * time_base.1 as f64 / time_base.0 as f64) as i64;
+
         // -1 because uf 67 and we want to process 66.66 -> rounding error
         if (packet.dts().unwrap() - 1) > position {
             break;
         }
         loop {
-            decoder.send_packet(&packet)?;
-            let res = decoder.receive_frame(&mut frame);
+            video_decoders.send_packet(&packet)?;
+            let res = video_decoders.receive_frame(&mut frame);
 
             if res.is_err() {
                 let err = res.err().unwrap();
@@ -96,7 +86,11 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
 
         let bitmap = turn_frame_into_bitmap(scaled);
 
-        return Ok(create_bmp_image(bitmap, decoder.width(), decoder.height()));
+        return Ok(create_bmp_image(
+            bitmap,
+            video_decoders.width(),
+            video_decoders.height(),
+        ));
     }
 }
 
