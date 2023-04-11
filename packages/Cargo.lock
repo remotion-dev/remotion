@@ -363,6 +363,7 @@ dependencies = [
  "ffmpeg-next",
  "jpeg-decoder",
  "jpeg-encoder",
+ "lazy_static",
  "png",
  "serde",
  "serde_json",

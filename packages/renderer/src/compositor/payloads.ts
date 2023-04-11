@@ -42,6 +42,7 @@ export type CompositorCommand =
 				height: number;
 				layers: Layer[];
 				output_format: CompositorImageFormat;
+				nonce: string;
 			};
 	  }
 	| {
@@ -50,12 +51,14 @@ export type CompositorCommand =
 				input: string;
 				output: string;
 				time: number;
+				nonce: string;
 			};
 	  }
 	| {
 			type: 'Echo';
 			params: {
 				message: string;
+				nonce: string;
 			};
 	  };
 
@@ -63,7 +66,9 @@ export type CliInputCommand =
 	| CompositorCommand
 	| {
 			type: 'StartLongRunningProcess';
-			params: {};
+			params: {
+				nonce: string;
+			};
 	  };
 
 export type ErrorPayload = {
