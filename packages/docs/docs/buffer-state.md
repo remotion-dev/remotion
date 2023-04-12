@@ -1,6 +1,7 @@
 ---
 image: /generated/articles-docs-buffer-state.png
 title: Display a buffer state
+crumb: Building video apps
 ---
 
 In your [`<Player>`](/docs/player), you might have videos and other assets that might take some time to load after they enter the scene.

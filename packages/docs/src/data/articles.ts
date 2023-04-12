@@ -81,7 +81,7 @@ export const articles = [
     title: "Display a buffer state",
     relativePath: "docs/buffer-state.md",
     compId: "articles-docs-buffer-state",
-    crumb: null,
+    crumb: "Building video apps",
   },
   {
     id: "bundle",
