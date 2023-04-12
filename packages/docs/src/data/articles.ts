@@ -819,6 +819,13 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/php",
+    title: "Triggering renders from PHP",
+    relativePath: "docs/lambda/php.md",
+    compId: "articles-docs-lambda-php",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "presignurl",
     title: "presignUrl()",
     relativePath: "docs/lambda/presignurl.md",
@@ -971,20 +978,6 @@ export const articles = [
     relativePath: "docs/lambda/webhooks.md",
     compId: "articles-docs-lambda-webhooks",
     crumb: "Lambda",
-  },
-  {
-    id: "lambda/with-php/index",
-    title: "Using Remotion on standalone PHP application",
-    relativePath: "docs/lambda/with-php/index.md",
-    compId: "articles-docs-lambda-with-php-index",
-    crumb: "@remotion/lambda",
-  },
-  {
-    id: "lambda/with-php/laravel",
-    title: "Using Remotion on Laravel PHP Framework",
-    relativePath: "docs/lambda/with-php/laravel.md",
-    compId: "articles-docs-lambda-with-php-laravel",
-    crumb: "@remotion/lambda",
   },
   {
     id: "lambda/without-iam/ec2",

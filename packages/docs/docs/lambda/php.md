@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-php.png
 title: Triggering renders from PHP
 slug: /lambda/php
 sidebar_label: Rendering from PHP
