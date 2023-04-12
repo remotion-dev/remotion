@@ -320,7 +320,7 @@ Refer to the bare PHP example for setting up the environment variables.
 <Step>5</Step> <strong>Seed the database</strong>
 </p>
 
-The application requires a database, and for this application, [SQLite](<[SQLLite](https://sqlite.org/index.html)>) is used. Therefore, the configuration details from the `.env` file need to be provided.
+The application requires a database, and for this application, [SQLLite](https://sqlite.org/index.html) is used. Therefore, the configuration details from the `.env` file need to be provided.
 
 ```bash title=".env (continued)"
 DB_CONNECTION=sqlite
