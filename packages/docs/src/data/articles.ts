@@ -42,6 +42,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "get-help",
+    title: "Get help",
+    relativePath: "docs/ask-for-help.md",
+    compId: "articles-docs-ask-for-help",
+    crumb: null,
+  },
+  {
     id: "audio-visualization",
     title: "Audio visualization",
     relativePath: "docs/audio-visualization.md",
@@ -2018,6 +2025,13 @@ export const articles = [
     crumb: "Browser quirks",
   },
   {
+    id: "troubleshooting/debug-failed-render",
+    title: "Debugging render failures",
+    relativePath: "docs/troubleshooting/debug-failed-render.md",
+    compId: "articles-docs-troubleshooting-debug-failed-render",
+    crumb: "Troubleshooting",
+  },
+  {
     id: "defaultprops-too-big",
     title: "defaultProps too big - could not serialize",
     relativePath: "docs/troubleshooting/defaultprops-too-big.md",
@@ -2037,6 +2051,13 @@ export const articles = [
     relativePath: "docs/troubleshooting/rosetta.md",
     compId: "articles-docs-troubleshooting-rosetta",
     crumb: "Troubleshooting",
+  },
+  {
+    id: "player-flicker",
+    title: "Avoiding flickering in <Player>",
+    relativePath: "docs/troubleshooting/video-flicker.md",
+    compId: "articles-docs-troubleshooting-video-flicker",
+    crumb: "Frame-perfection",
   },
   {
     id: "use-audio-data",
