@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-buffer-state.png
 title: Display a buffer state
 ---
 
@@ -408,3 +409,8 @@ function App() {
   );
 }
 ```
+
+## See also
+
+- [Preloading assets](/docs/player/preloading)
+- [Avoiding flickering in the `<Player>`](/docs/troubleshooting/player-flicker)
