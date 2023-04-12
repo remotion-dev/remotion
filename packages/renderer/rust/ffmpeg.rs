@@ -53,8 +53,6 @@ impl OpenedVideo {
         self.input
             .seek(stream_index as i32, position - 1000, position, position, 0)?;
 
-        _print_debug(&format!("position {}", position))?;
-
         let mut frame = Video::empty();
 
         let packets = self.input.packets();
@@ -93,7 +91,6 @@ impl OpenedVideo {
             let scale_start = Instant::now();
             scaler.run(&frame, &mut scaled)?;
             let elapsed = scale_start.elapsed();
-            _print_debug(&format!("Scaling: {:?}", elapsed)).unwrap();
 
             let bitmap = turn_frame_into_bitmap(scaled);
 
