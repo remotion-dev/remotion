@@ -507,6 +507,7 @@ module.exports = {
         "spline",
         "after-effects",
         "video-uploads",
+        "buffer-state",
         "presigned-urls",
         "font-picker",
       ],
