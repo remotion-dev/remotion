@@ -5,7 +5,7 @@ crumb: Building video apps
 ---
 
 In your [`<Player>`](/docs/player), you might have videos and other assets that might take some time to load after they enter the scene.
-You can [preload those assets](/docs/player/preload), but sometimes browser policies prevent preloading and [a brief flash is possible](/docs/troubleshooting/player-flicker) while the browser needs to decode the video before playing.
+You can [preload those assets](/docs/player/preloading), but sometimes browser policies prevent preloading and [a brief flash is possible](/docs/troubleshooting/player-flicker) while the browser needs to decode the video before playing.
 
 In this case, you might want to pause the Player if media is loading and show a spinner, and unpause the video once the media is ready to play. This can be implemented using regular Web APIs and React primitives.
 
