@@ -24,14 +24,89 @@ pub struct OpenedVideo {
     pub format: Pixel,
     pub video: remotionffmepg::codec::decoder::Video,
     pub src: String,
-}
-pub struct OpenedInput {
     pub input: remotionffmepg::format::context::Input,
+}
+
+pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> {
+    let manager = OpenedVideoManager::get_instance();
+    let video_locked = manager.get_video(&src)?;
+    let mut vid = video_locked.lock().unwrap();
+    vid.get_frame(time)
+}
+
+impl OpenedVideo {
+    pub fn get_frame(&mut self, time: f64) -> Result<Vec<u8>, PossibleErrors> {
+        _print_debug("msg1");
+        _print_debug("extractmanager");
+
+        let mut scaler = Context::get(
+            self.format,
+            self.width,
+            self.height,
+            Pixel::RGB24,
+            self.width,
+            self.height,
+            Flags::BILINEAR,
+        )?;
+
+        let position = (time as f64 * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
+
+        let stream_index = self.stream_index.clone();
+
+        self.input
+            .seek(stream_index as i32, position - 1000, position, position, 0)?;
+
+        _print_debug(&format!("position {}", position))?;
+
+        let mut frame = Video::empty();
+
+        let packets = self.input.packets();
+
+        for (stream, packet) in packets {
+            if stream.parameters().medium() != Type::Video {
+                continue;
+            }
+
+            // -1 because uf 67 and we want to process 66.66 -> rounding error
+            if (packet.dts().unwrap() - 1) > position {
+                break;
+            }
+            loop {
+                self.video.send_packet(&packet)?;
+                let res = self.video.receive_frame(&mut frame);
+
+                match res {
+                    Err(err) => {
+                        if err.to_string().contains("Resource temporarily unavailable") {
+                            // Need to send another packet
+                        } else {
+                            Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?
+                        }
+                    }
+                    Ok(_) => {
+                        break;
+                    }
+                }
+            }
+        }
+        if is_frame_empty(&frame) {
+            Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?
+        } else {
+            let mut scaled = Video::empty();
+            let scale_start = Instant::now();
+            scaler.run(&frame, &mut scaled)?;
+            let elapsed = scale_start.elapsed();
+            _print_debug(&format!("Scaling: {:?}", elapsed)).unwrap();
+
+            let bitmap = turn_frame_into_bitmap(scaled);
+
+            return Ok(create_bmp_image(bitmap, self.width, self.height));
+        }
+    }
 }
 
 pub struct OpenedVideoManager {
     videos: RwLock<HashMap<String, Arc<Mutex<OpenedVideo>>>>,
-    inputs: RwLock<HashMap<String, Arc<Mutex<OpenedInput>>>>,
 }
 
 impl OpenedVideoManager {
@@ -39,47 +114,40 @@ impl OpenedVideoManager {
         lazy_static! {
             static ref INSTANCE: OpenedVideoManager = OpenedVideoManager {
                 videos: RwLock::new(HashMap::new()),
-                inputs: RwLock::new(HashMap::new())
             };
         }
         &INSTANCE
     }
 
-    pub fn get_video(
-        &self,
-        src: &str,
-    ) -> Result<(Arc<Mutex<OpenedVideo>>, Arc<Mutex<OpenedInput>>), PossibleErrors> {
-        let videos_read = self.videos.read().unwrap();
-        let mut videos_write = self.videos.write().unwrap();
+    pub fn get_video(&self, src: &str) -> Result<Arc<Mutex<OpenedVideo>>, PossibleErrors> {
+        // Adding a block scope because of the RwLock,
+        // preventing a deadlock
 
-        let inputs_read = self.inputs.read().unwrap();
-        let mut inputs_write = self.inputs.write().unwrap();
+        {
+            let video = open_video(src)?;
+            _print_debug("video opened");
+            _print_debug("written");
+            let videos_write = self.videos.write();
+            _print_debug("lock acquired");
 
-        if videos_read.contains_key(src) {
-            return Ok((
-                videos_read.get(src).unwrap().clone(),
-                inputs_read.get(src).unwrap().clone(),
-            ));
-        } else {
-            let (video, input) = open_video(src)?;
-            inputs_write.insert(src.to_string(), Arc::new(Mutex::new(input)));
-            videos_write.insert(src.to_string(), Arc::new(Mutex::new(video)));
-            return Ok((
-                videos_read.get(src).unwrap().clone(),
-                inputs_read.get(src).unwrap().clone(),
-            ));
+            videos_write
+                .unwrap()
+                .insert(src.to_string(), Arc::new(Mutex::new(video)));
+
+            _print_debug("3");
+
+            _print_debug("4");
+            return Ok(self.videos.read().unwrap().get(src).unwrap().clone());
         }
     }
 
     pub fn remove_video(&self, src: String) {
-        let mut videos = self.videos.write().unwrap();
-        videos.remove(&src);
-        let mut inputs = self.inputs.write().unwrap();
-        inputs.remove(&src);
+        let videos = self.videos.write();
+        videos.unwrap().remove(&src);
     }
 }
 
-pub fn open_video(src: &str) -> Result<(OpenedVideo, OpenedInput), PossibleErrors> {
+pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
     remotionffmepg::init()?;
 
     let mut input = remotionffmepg::format::input(&src)?;
@@ -88,8 +156,6 @@ pub fn open_video(src: &str) -> Result<(OpenedVideo, OpenedInput), PossibleError
         .find(|s| s.parameters().medium() == Type::Video)
         .unwrap()
         .index();
-
-    _print_debug("msg: \"Opening video\"")?;
 
     let mut_stream = input.stream_mut(stream_index).unwrap();
     let time_base = mut_stream.time_base();
@@ -110,85 +176,10 @@ pub fn open_video(src: &str) -> Result<(OpenedVideo, OpenedInput), PossibleError
         format,
         video,
         src: src.to_string(),
+        input,
     };
 
-    let opened_input = OpenedInput { input };
-
-    Ok((opened_video, opened_input))
-}
-
-pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> {
-    _print_debug("extract");
-    let manager = OpenedVideoManager::get_instance();
-
-    let video_locked = manager.get_video(&src)?;
-    let mut vid = video_locked.0.lock().unwrap();
-    let mut input = video_locked.1.lock().unwrap();
-
-    let mut scaler = Context::get(
-        vid.format,
-        vid.width,
-        vid.height,
-        Pixel::RGB24,
-        vid.width,
-        vid.height,
-        Flags::BILINEAR,
-    )?;
-
-    let position = (time as f64 * vid.time_base.1 as f64 / vid.time_base.0 as f64) as i64;
-
-    let stream_index = vid.stream_index.clone();
-
-    input
-        .input
-        .seek(stream_index as i32, position - 1000, position, position, 0)?;
-
-    _print_debug(&format!("position {}", position))?;
-
-    let mut frame = Video::empty();
-
-    let packets = input.input.packets();
-
-    for (stream, packet) in packets {
-        if stream.parameters().medium() != Type::Video {
-            continue;
-        }
-
-        // -1 because uf 67 and we want to process 66.66 -> rounding error
-        if (packet.dts().unwrap() - 1) > position {
-            break;
-        }
-        loop {
-            vid.video.send_packet(&packet)?;
-            let res = vid.video.receive_frame(&mut frame);
-
-            match res {
-                Err(err) => {
-                    if err.to_string().contains("Resource temporarily unavailable") {
-                        // Need to send another packet
-                    } else {
-                        Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?
-                    }
-                }
-                Ok(_) => {
-                    break;
-                }
-            }
-        }
-    }
-    if is_frame_empty(&frame) {
-        Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?
-    } else {
-        let mut scaled = Video::empty();
-        let scale_start = Instant::now();
-        scaler.run(&frame, &mut scaled)?;
-        let elapsed = scale_start.elapsed();
-        _print_debug(&format!("Scaling: {:?}", elapsed)).unwrap();
-
-        let bitmap = turn_frame_into_bitmap(scaled);
-
-        return Ok(create_bmp_image(bitmap, vid.width, vid.height));
-    }
+    Ok(opened_video)
 }
 
 fn is_frame_empty(frame: &Video) -> bool {
