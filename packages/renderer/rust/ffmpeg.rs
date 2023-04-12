@@ -31,7 +31,11 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
     let manager = OpenedVideoManager::get_instance();
     let video_locked = manager.get_video(&src)?;
     let mut vid = video_locked.lock().unwrap();
-    vid.get_frame(time)
+
+    let t = Instant::now();
+    let frame = vid.get_frame(time);
+    _print_debug(&format!("Time to get frame: {:?}", t.elapsed()));
+    frame
 }
 
 impl OpenedVideo {
@@ -67,6 +71,7 @@ impl OpenedVideo {
                 break;
             }
             loop {
+                _print_debug(&format!("Sending packet {}", packet.dts().unwrap()));
                 self.video.send_packet(&packet)?;
                 let res = self.video.receive_frame(&mut frame);
 
@@ -88,9 +93,7 @@ impl OpenedVideo {
             Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?
         } else {
             let mut scaled = Video::empty();
-            let scale_start = Instant::now();
             scaler.run(&frame, &mut scaled)?;
-            let elapsed = scale_start.elapsed();
 
             let bitmap = turn_frame_into_bitmap(scaled);
 
@@ -118,7 +121,7 @@ impl OpenedVideoManager {
         // preventing a deadlock
         {
             let videos_read = self.videos.try_read();
-            if (videos_read.is_err()) {
+            if videos_read.is_err() {
                 return Err(std::io::Error::new(ErrorKind::Other, "Deadlock").into());
             }
             let videos = videos_read.unwrap();
