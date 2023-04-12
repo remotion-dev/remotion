@@ -77,6 +77,13 @@ export const articles = [
     crumb: "Brownfield integration",
   },
   {
+    id: "buffer-state",
+    title: "Display a buffer state",
+    relativePath: "docs/buffer-state.md",
+    compId: "articles-docs-buffer-state",
+    crumb: null,
+  },
+  {
     id: "bundle",
     title: "bundle()",
     relativePath: "docs/bundle.md",
