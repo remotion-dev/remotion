@@ -46,7 +46,6 @@ export const replaceLoadersWithBabel = (
 										[
 											require.resolve('@babel/preset-typescript'),
 											{
-												runtime: 'automatic',
 												isTSX: true,
 												allExtensions: true,
 											},
