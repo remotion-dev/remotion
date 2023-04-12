@@ -819,6 +819,13 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/php",
+    title: "Triggering renders from PHP",
+    relativePath: "docs/lambda/php.md",
+    compId: "articles-docs-lambda-php",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "presignurl",
     title: "presignUrl()",
     relativePath: "docs/lambda/presignurl.md",
