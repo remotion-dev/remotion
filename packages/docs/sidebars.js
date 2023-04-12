@@ -475,6 +475,7 @@ module.exports = {
       type: "category",
       label: "Troubleshooting",
       items: [
+        "troubleshooting/debug-failed-render",
         "timeout",
         "target-closed",
         "media-playback-error",
@@ -493,6 +494,7 @@ module.exports = {
         "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",
         "troubleshooting/could-not-be-parsed-as-a-value-list",
+        "troubleshooting/player-flicker",
       ],
     },
     {
@@ -535,6 +537,7 @@ module.exports = {
       type: "category",
       label: "Miscellaneous",
       items: [
+        "get-help",
         "brownfield",
         "ffmpeg",
         "chromium-flags",
