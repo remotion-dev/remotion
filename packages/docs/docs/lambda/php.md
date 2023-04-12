@@ -406,6 +406,10 @@ curl --location --request POST 'http://127.0.0.1:8000/api/renders' \
 }
 ```
 
+## Checking progress
+
+For retrieving the progress of a Lambda render, you need to send another request to the Lambda function. Currently we do not have instructions for it, as a reference you may see [here](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-render-progress.ts) for the payload that is being sent by the TypeScript SDK.
+
 ## See also
 
 - [Using Lambda without IAM user](/docs/lambda/without-iam)
