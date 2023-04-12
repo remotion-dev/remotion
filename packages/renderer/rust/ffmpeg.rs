@@ -36,9 +36,6 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
 
 impl OpenedVideo {
     pub fn get_frame(&mut self, time: f64) -> Result<Vec<u8>, PossibleErrors> {
-        _print_debug("msg1");
-        _print_debug("extractmanager");
-
         let mut scaler = Context::get(
             self.format,
             self.width,
@@ -122,23 +119,25 @@ impl OpenedVideoManager {
     pub fn get_video(&self, src: &str) -> Result<Arc<Mutex<OpenedVideo>>, PossibleErrors> {
         // Adding a block scope because of the RwLock,
         // preventing a deadlock
-
         {
-            let video = open_video(src)?;
-            _print_debug("video opened");
-            _print_debug("written");
-            let videos_write = self.videos.write();
-            _print_debug("lock acquired");
-
-            videos_write
-                .unwrap()
-                .insert(src.to_string(), Arc::new(Mutex::new(video)));
-
-            _print_debug("3");
-
-            _print_debug("4");
-            return Ok(self.videos.read().unwrap().get(src).unwrap().clone());
+            let videos_read = self.videos.try_read();
+            if (videos_read.is_err()) {
+                return Err(std::io::Error::new(ErrorKind::Other, "Deadlock").into());
+            }
+            let videos = videos_read.unwrap();
+            if videos.contains_key(src) {
+                return Ok(videos.get(src).unwrap().clone());
+            }
         }
+
+        let video = open_video(src)?;
+        let videos_write = self.videos.write();
+
+        videos_write
+            .unwrap()
+            .insert(src.to_string(), Arc::new(Mutex::new(video)));
+
+        return Ok(self.videos.read().unwrap().get(src).unwrap().clone());
     }
 
     pub fn remove_video(&self, src: String) {
