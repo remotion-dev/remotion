@@ -1,5 +1,5 @@
 use crate::payloads::payloads::ErrorPayload;
-use ffmpeg_next as remotionffmepg;
+use ffmpeg_next as remotionffmpeg;
 use std::any::Any;
 use std::backtrace::Backtrace;
 
@@ -28,7 +28,7 @@ pub fn handle_error(err: PossibleErrors) -> ! {
 
 pub enum PossibleErrors {
     IoError(std::io::Error),
-    FfmpegError(remotionffmepg::Error),
+    FfmpegError(remotionffmpeg::Error),
     TryFromIntError(std::num::TryFromIntError),
     DecodingError(png::DecodingError),
     JpegDecoderError(jpeg_decoder::Error),
@@ -42,8 +42,8 @@ impl From<Box<dyn Any + Send>> for PossibleErrors {
     }
 }
 
-impl From<remotionffmepg::Error> for PossibleErrors {
-    fn from(err: remotionffmepg::Error) -> PossibleErrors {
+impl From<remotionffmpeg::Error> for PossibleErrors {
+    fn from(err: remotionffmpeg::Error) -> PossibleErrors {
         PossibleErrors::FfmpegError(err)
     }
 }
