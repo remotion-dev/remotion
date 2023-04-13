@@ -10,7 +10,7 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use std::sync::RwLock;
 use std::time::Instant;
-extern crate ffmpeg_next as remotionffmepg;
+extern crate ffmpeg_next as remotionffmpeg;
 
 pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> {
     let manager = OpenedVideoManager::get_instance();

@@ -1,13 +1,13 @@
 use std::io::ErrorKind;
 
 use ffmpeg_next::Rational;
-use remotionffmepg::{
+use remotionffmpeg::{
     format::Pixel,
     frame::Video,
     media::Type,
     software::scaling::{Context, Flags},
 };
-extern crate ffmpeg_next as remotionffmepg;
+extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{errors::PossibleErrors, global_printer::_print_debug};
 
@@ -17,9 +17,9 @@ pub struct OpenedVideo {
     pub width: u32,
     pub height: u32,
     pub format: Pixel,
-    pub video: remotionffmepg::codec::decoder::Video,
+    pub video: remotionffmpeg::codec::decoder::Video,
     pub src: String,
-    pub input: remotionffmepg::format::context::Input,
+    pub input: remotionffmpeg::format::context::Input,
 }
 
 impl OpenedVideo {
@@ -87,9 +87,9 @@ impl OpenedVideo {
 }
 
 pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
-    remotionffmepg::init()?;
+    remotionffmpeg::init()?;
 
-    let mut input = remotionffmepg::format::input(&src)?;
+    let mut input = remotionffmpeg::format::input(&src)?;
     let stream_index = input
         .streams_mut()
         .find(|s| s.parameters().medium() == Type::Video)
@@ -100,7 +100,7 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
     let time_base = mut_stream.time_base();
     let parameters = mut_stream.parameters();
 
-    let context_decoder = remotionffmepg::codec::context::Context::from_parameters(parameters)?;
+    let context_decoder = remotionffmpeg::codec::context::Context::from_parameters(parameters)?;
     let video = context_decoder.decoder().video()?;
 
     let format = video.format();
