@@ -6,19 +6,23 @@ import React, {
 	useRef,
 } from 'react';
 import {continueRender, delayRender} from './delay-render.js';
-import {useRemotionEnvironment} from './get-environment.js';
 import {usePreload} from './prefetch.js';
+
+function exponentialBackoff(errorCount: number): number {
+	return 1000 * 2 ** (errorCount - 1);
+}
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
 	React.DetailedHTMLProps<
 		React.ImgHTMLAttributes<HTMLImageElement>,
 		HTMLImageElement
-	>
-> = ({onError, src, ...props}, ref) => {
+	> & {
+		maxRetries?: number;
+	}
+> = ({onError, maxRetries = 2, src, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
-
-	const environment = useRemotionEnvironment();
+	const errors = useRef<Record<string, number>>({});
 
 	useImperativeHandle(
 		ref,
@@ -30,50 +34,106 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 
 	const actualSrc = usePreload(src as string);
 
-	const didGetError = useCallback(
-		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-			if (onError) {
-				onError(e);
-			} else {
-				console.error(
-					'Error loading image with src:',
-					imageRef.current?.src,
-					e,
-					'Handle the event using the onError() prop to make this message disappear.'
-				);
-			}
-		},
-		[onError]
-	);
+	const retryIn = useCallback((timeout: number) => {
+		if (!imageRef.current) {
+			return;
+		}
 
-	// If image source switches, make new handle
-	if (environment === 'rendering') {
-		// eslint-disable-next-line react-hooks/rules-of-hooks
-		useLayoutEffect(() => {
-			if (process.env.NODE_ENV === 'test') {
+		const currentSrc = imageRef.current.src;
+		setTimeout(() => {
+			if (!imageRef.current) {
+				// Component has been unmounted, do not retry
 				return;
 			}
 
-			const newHandle = delayRender('Loading <Img> with src=' + src);
-			const {current} = imageRef;
-
-			const didLoad = () => {
-				continueRender(newHandle);
-			};
-
-			if (current?.complete) {
-				continueRender(newHandle);
-			} else {
-				current?.addEventListener('load', didLoad, {once: true});
+			const newSrc = imageRef.current?.src;
+			if (newSrc !== currentSrc) {
+				// src has changed, do not retry
+				return;
 			}
 
-			// If tag gets unmounted, clear pending handles because image is not going to load
-			return () => {
-				current?.removeEventListener('load', didLoad);
-				continueRender(newHandle);
-			};
-		}, [src]);
-	}
+			imageRef.current.removeAttribute('src');
+			imageRef.current.setAttribute('src', newSrc);
+		}, timeout);
+	}, []);
+
+	const didGetError = useCallback(
+		(e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+			if (!errors.current) {
+				return;
+			}
+
+			errors.current[imageRef.current?.src as string] =
+				(errors.current[imageRef.current?.src as string] ?? 0) + 1;
+			if (
+				onError &&
+				(errors.current[imageRef.current?.src as string] ?? 0) > maxRetries
+			) {
+				onError(e);
+				return;
+			}
+
+			if (
+				(errors.current[imageRef.current?.src as string] ?? 0) <= maxRetries
+			) {
+				const backoff = exponentialBackoff(
+					errors.current[imageRef.current?.src as string] ?? 0
+				);
+				console.warn(
+					`Could not load image with source ${
+						imageRef.current?.src as string
+					}, retrying again in ${backoff}ms`
+				);
+
+				retryIn(backoff);
+				return;
+			}
+
+			console.error(
+				'Error loading image with src:',
+				imageRef.current?.src,
+				e,
+				'Handle the event using the onError() prop to make this message disappear.'
+			);
+		},
+		[maxRetries, onError, retryIn]
+	);
+
+	useLayoutEffect(() => {
+		if (process.env.NODE_ENV === 'test') {
+			return;
+		}
+
+		const newHandle = delayRender('Loading <Img> with src=' + src);
+		const {current} = imageRef;
+
+		const onComplete = () => {
+			if ((errors.current[imageRef.current?.src as string] ?? 0) > 0) {
+				delete errors.current[imageRef.current?.src as string];
+				console.info(
+					`Retry successful - ${imageRef.current?.src as string} is now loaded`
+				);
+			}
+
+			continueRender(newHandle);
+		};
+
+		const didLoad = () => {
+			onComplete();
+		};
+
+		if (current?.complete) {
+			onComplete();
+		} else {
+			current?.addEventListener('load', didLoad, {once: true});
+		}
+
+		// If tag gets unmounted, clear pending handles because image is not going to load
+		return () => {
+			current?.removeEventListener('load', didLoad);
+			continueRender(newHandle);
+		};
+	}, [src]);
 
 	return (
 		<img {...props} ref={imageRef} src={actualSrc} onError={didGetError} />

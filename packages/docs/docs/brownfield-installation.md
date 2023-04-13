@@ -9,7 +9,7 @@ crumb: "Brownfield integration"
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Remotion can be installed into any Node.JS based project, such as Create React App, Next.JS apps as well as server-only projects such as an Express API. Get started by adding the following packages:
+Remotion can be installed into existing projects, such as [Next.JS](https://nextjs.org/), [Remix](https://remix.run/), [Vite](https://vitejs.dev/guide/) or [Create React App](https://create-react-app.dev/), as well as server-only projects that run on Node.JS. Get started by adding the following packages:
 
 <Tabs
 defaultValue="npm"
@@ -180,6 +180,7 @@ This snippet will enable the recommended rules only for the Remotion files:
 
 ```json title=".eslintrc"
 {
+  "plugins": ["@remotion"],
   "overrides": [
     {
       "files": ["remotion/*.{ts,tsx}"],

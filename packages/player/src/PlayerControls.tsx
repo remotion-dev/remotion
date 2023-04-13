@@ -6,14 +6,15 @@ import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import type {usePlayer} from './use-player.js';
-import {useVideoControlsResize, X_PADDING} from './use-video-controls-resize.js';
+import {
+	useVideoControlsResize,
+	X_PADDING,
+} from './use-video-controls-resize.js';
 
 export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
 export type RenderFullscreenButton = (props: {
 	isFullscreen: boolean;
 }) => ReactNode;
-
-
 
 const gradientSteps = [
 	0, 0.013, 0.049, 0.104, 0.175, 0.259, 0.352, 0.45, 0.55, 0.648, 0.741, 0.825,
@@ -54,11 +55,14 @@ const buttonStyle: React.CSSProperties = {
 	backgroundColor: 'transparent',
 	border: 'none',
 	cursor: 'pointer',
-	padding: 0,
+	paddingLeft: 0,
+	paddingRight: 0,
+	paddingTop: 6,
+	paddingBottom: 6,
+	height: 37,
 	display: 'inline',
 	marginBottom: 0,
 	marginTop: 0,
-	height: 25,
 };
 
 const controlsRow: React.CSSProperties = {

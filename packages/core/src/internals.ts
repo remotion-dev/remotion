@@ -1,5 +1,3 @@
-import {enableLegacyRemotionConfig} from './config.js';
-
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -19,6 +17,7 @@ import type {
 import {CompositionManager, compositionsRef} from './CompositionManager.js';
 import * as CSSUtils from './default-css.js';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render.js';
+import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
 import type {RemotionEnvironment} from './get-environment.js';
 import {
 	getRemotionEnvironment,
@@ -28,6 +27,7 @@ import {getPreviewDomElement} from './get-preview-dom-element.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
+import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
 import {SequenceContext} from './SequenceContext.js';
@@ -68,6 +68,7 @@ import {
 	RemotionContextProvider,
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
+import {parseColor, REMOTION_COLOR_BRAND} from './z-color.js';
 const Timeline = TimelinePosition;
 
 // Mark them as Internals so use don't assume this is public
@@ -107,13 +108,17 @@ export const Internals = {
 	validateOffthreadVideoImageFormat,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
-	enableLegacyRemotionConfig,
 	PrefetchProvider,
 	DurationsContextProvider,
 	IsPlayerContextProvider,
 	useIsPlayer,
 	useRemotionEnvironment,
 	validateFrame,
+	EditorPropsProvider,
+	EditorPropsContext,
+	usePreload,
+	REMOTION_COLOR_BRAND,
+	parseColor,
 };
 
 export type {

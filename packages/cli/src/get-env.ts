@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import {installFileWatcher} from './file-watcher';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
@@ -25,65 +26,53 @@ const watchEnvFile = ({
 	processEnv,
 	envFile,
 	onUpdate,
-	existedBefore,
 }: {
 	processEnv: ReturnType<typeof getProcessEnv>;
 	envFile: string;
 	onUpdate: (newProps: Record<string, string>) => void;
-	existedBefore: boolean;
-}) => {
-	const listener = async () => {
-		try {
-			const file = await fs.promises.readFile(envFile, 'utf-8');
-			onUpdate({
-				...processEnv,
-				...dotenv.parse(file),
-			});
-			if (existedBefore) {
-				Log.info(chalk.blueBright(`Updated env file ${envFile}`));
-			} else {
-				Log.info(chalk.blueBright(`Added env file ${envFile}`));
-			}
-
-			fs.unwatchFile(envFile, listener);
-			watchEnvFile({
-				envFile,
-				existedBefore: true,
-				onUpdate,
-				processEnv,
-			});
-		} catch (err) {
-			// No error message if user did not have a .env file from the beginning
-			if (!existedBefore && !fs.existsSync(envFile)) {
-				return;
-			}
-
-			if (fs.existsSync(envFile) && existedBefore) {
-				Log.error(`${envFile} update failed with error ${err}`);
-			} else {
-				Log.warn(`${envFile} was deleted.`);
-				fs.unwatchFile(envFile, listener);
-				watchEnvFile({
-					envFile,
-					existedBefore: false,
-					onUpdate,
-					processEnv,
-				});
-			}
-		}
+}): (() => void) => {
+	const updateFile = async () => {
+		const file = await fs.promises.readFile(envFile, 'utf-8');
+		onUpdate({
+			...processEnv,
+			...dotenv.parse(file),
+		});
 	};
 
-	fs.watchFile(envFile, {interval: 100}, listener);
+	const {unwatch} = installFileWatcher({
+		file: envFile,
+		onChange: async (type) => {
+			try {
+				if (type === 'deleted') {
+					Log.warn(`${envFile} was deleted.`);
+				} else if (type === 'changed') {
+					await updateFile();
+					Log.info(chalk.blueBright(`Updated env file ${envFile}`));
+				} else if (type === 'created') {
+					await updateFile();
+					Log.info(chalk.blueBright(`Created env file ${envFile}`));
+				}
+			} catch (err) {
+				Log.error(
+					`${envFile} update failed with error ${(err as Error).stack}`
+				);
+			}
+		},
+	});
+	return unwatch;
 };
 
 const getEnvForEnvFile = async (
 	processEnv: ReturnType<typeof getProcessEnv>,
 	envFile: string,
-	onUpdate: (newProps: Record<string, string>) => void
+	onUpdate: null | ((newProps: Record<string, string>) => void)
 ) => {
 	try {
 		const envFileData = await fs.promises.readFile(envFile);
-		watchEnvFile({processEnv, envFile, onUpdate, existedBefore: true});
+		if (onUpdate) {
+			watchEnvFile({processEnv, envFile, onUpdate});
+		}
+
 		return {
 			...processEnv,
 			...dotenv.parse(envFileData),
@@ -96,7 +85,7 @@ const getEnvForEnvFile = async (
 };
 
 export const getEnvironmentVariables = (
-	onUpdate: (newProps: Record<string, string>) => void
+	onUpdate: null | ((newProps: Record<string, string>) => void)
 ): Promise<Record<string, string>> => {
 	const processEnv = getProcessEnv();
 
@@ -131,12 +120,14 @@ export const getEnvironmentVariables = (
 
 	const defaultEnvFile = path.resolve(remotionRoot, '.env');
 	if (!fs.existsSync(defaultEnvFile)) {
-		watchEnvFile({
-			processEnv,
-			envFile: defaultEnvFile,
-			onUpdate,
-			existedBefore: false,
-		});
+		if (onUpdate) {
+			watchEnvFile({
+				processEnv,
+				envFile: defaultEnvFile,
+				onUpdate,
+			});
+		}
+
 		return Promise.resolve(processEnv);
 	}
 

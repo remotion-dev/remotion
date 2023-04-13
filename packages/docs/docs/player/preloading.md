@@ -165,3 +165,4 @@ You can preload and preparse GIFs using [`preloadGif()`](/docs/gif/preload-gif)
 
 - [`@remotion/preload`](/docs/preload)
 - [`prefetch()`](/docs/prefetch)
+- [Avoiding flickering in `<Player>`](/docs/troubleshooting/player-flicker)

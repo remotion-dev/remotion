@@ -83,15 +83,19 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 _optional - default `"png"`_
 
-The image format that you want - either `"png"` or `"jpeg"`.
+The image format that you want - either `"png"`, `"jpeg"`, `"webp"` or `"pdf"`.
 
-### `quality?`
+### `jpegQuality?`
 
 _optional_
 
-Sets the quality of the generate JPEG images. Must be an integer between 0 and 100. Default is to leave it up to the browser, [current default is 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
+Sets the quality of the generated JPEG images. Must be an integer between 0 and 100. Default is to leave it up to the browser, [current default is 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 Only applies if `imageFormat` is `"jpeg"`, otherwise this option is invalid.
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `maxRetries?`
 

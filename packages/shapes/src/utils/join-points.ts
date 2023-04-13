@@ -40,6 +40,8 @@ export const joinPoints = (
 				(x + prevPoint[0]) / 2,
 				(y + prevPoint[1]) / 2,
 			];
+			const prevVector = [x - prevPoint[0], y - prevPoint[1]] as const;
+			const nextVector = [nextPoint[0] - x, nextPoint[1] - y] as const;
 
 			if (i === 0) {
 				if (edgeRoundness !== null) {
@@ -52,6 +54,19 @@ export const joinPoints = (
 					];
 				}
 
+				if (cornerRadius !== 0) {
+					const computeRadius = shortenVector(nextVector, cornerRadius);
+
+					return [
+						{
+							type: 'M',
+							x: computeRadius[0] + x,
+							y: computeRadius[1] + y,
+						}
+					]
+
+				}
+
 				return [
 					{
 						type: 'M',
@@ -61,8 +76,6 @@ export const joinPoints = (
 				];
 			}
 
-			const prevVector = [x - prevPoint[0], y - prevPoint[1]] as const;
-			const nextVector = [nextPoint[0] - x, nextPoint[1] - y] as const;
 
 			if (cornerRadius && edgeRoundness !== null) {
 				throw new Error(
@@ -82,7 +95,7 @@ export const joinPoints = (
 				}
 
 				const prevVectorMinusRadius = shortenVector(prevVector, cornerRadius);
-				const prevVectorLenght = scaleVectorToLength(prevVector, cornerRadius);
+				const prevVectorLength = scaleVectorToLength(prevVector, cornerRadius);
 				const nextVectorMinusRadius = scaleVectorToLength(
 					nextVector,
 					cornerRadius
@@ -105,17 +118,17 @@ export const joinPoints = (
 								rx: cornerRadius,
 								ry: cornerRadius,
 								xAxisRotation: 0,
-								dx: prevVectorLenght[0] + nextVectorMinusRadius[0],
-								dy: prevVectorLenght[1] + nextVectorMinusRadius[1],
+								dx: prevVectorLength[0] + nextVectorMinusRadius[0],
+								dy: prevVectorLength[1] + nextVectorMinusRadius[1],
 								largeArcFlag: false,
 								sweepFlag: true,
 						  }
 						: {
 								type: 'C',
 								x:
-									firstDraw[0] + prevVectorLenght[0] + nextVectorMinusRadius[0],
+									firstDraw[0] + prevVectorLength[0] + nextVectorMinusRadius[0],
 								y:
-									firstDraw[1] + prevVectorLenght[1] + nextVectorMinusRadius[1],
+									firstDraw[1] + prevVectorLength[1] + nextVectorMinusRadius[1],
 								cp1x: x,
 								cp1y: y,
 								cp2x: x,

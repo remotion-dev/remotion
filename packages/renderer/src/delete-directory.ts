@@ -21,7 +21,7 @@ export const deleteDirectory = (directory: string): void => {
 			// Is not a directory
 		}
 	} else {
-		(fs.rmSync ?? fs.rmdirSync)(directory, {
+		fs.rmSync(directory, {
 			recursive: true,
 		});
 	}

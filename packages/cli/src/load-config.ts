@@ -23,7 +23,7 @@ export const loadConfigFile = async (
 	const virtualOutfile = 'bundle.js';
 	const result = await BundlerInternals.esbuild.build({
 		platform: 'node',
-		target: 'node14',
+		target: 'node16',
 		bundle: true,
 		entryPoints: [resolved],
 		tsconfig: isJavascript ? undefined : tsconfigJson,

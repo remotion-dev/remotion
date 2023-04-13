@@ -36,6 +36,8 @@ const PROCESS_ERROR_EXPLANATION = `Puppeteer was unable to kill the process whic
  Please check your open processes and ensure that the browser processes that Puppeteer launched have been killed.
  If you think this is a bug, please report it on the Puppeteer issue tracker.`;
 
+export const INDENT_TOKEN = '│';
+
 export class BrowserRunner {
 	#executablePath: string;
 	#processArguments: string[];
@@ -91,8 +93,14 @@ export class BrowserRunner {
 			}
 		);
 		if (dumpio) {
-			this.proc.stderr?.pipe(process.stderr);
-			this.proc.stdout?.pipe(process.stdout);
+			this.proc.stdout?.on('data', (d) => {
+				process.stdout.write(options.indentationString);
+				process.stdout.write(d.toString().trimStart());
+			});
+			this.proc.stderr?.on('data', (d) => {
+				process.stderr.write(options.indentationString);
+				process.stderr.write(d.toString().trimStart());
+			});
 		}
 
 		this.#closed = false;

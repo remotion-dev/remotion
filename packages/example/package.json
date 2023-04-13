@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/example",
 	"private": true,
-	"version": "3.3.77",
+	"version": "3.3.82",
 	"description": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
@@ -38,6 +38,7 @@
 		"@remotion/lambda": "workspace:*",
 		"@remotion/lottie": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
+		"@remotion/motion-blur": "workspace:*",
 		"@remotion/paths": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"@remotion/rive": "workspace:*",

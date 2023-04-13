@@ -1,8 +1,6 @@
 import fs from 'fs';
 import {getVideoStreamDurationwithoutCache} from './assets/get-video-stream-duration';
 import {ensurePresentationTimestampWithoutCache} from './ensure-presentation-timestamp';
-import type {FfmpegExecutable} from './ffmpeg-executable';
-import {findRemotionRoot} from './find-closest-package-json';
 import {getVideoInfoUncached} from './get-video-info';
 import {tryToExtractFrameOfVideoFast} from './try-to-extract-frame-of-video-fast';
 
@@ -14,28 +12,18 @@ export const ACCEPTABLE_OFFSET_THRESHOLD = 50;
  */
 export const getCanExtractFramesFast = async ({
 	src,
-	ffmpegExecutable,
-	ffprobeExecutable,
 }: {
 	src: string;
-	ffmpegExecutable?: FfmpegExecutable;
-	ffprobeExecutable?: FfmpegExecutable;
 }): Promise<{
 	canExtractFramesFast: boolean;
 	shouldReencode: boolean;
 }> => {
-	const remotionRoot = findRemotionRoot();
 	const out = await ensurePresentationTimestampWithoutCache({
-		ffmpegExecutable: ffmpegExecutable ?? null,
-		ffprobeExecutable: ffprobeExecutable ?? null,
-		remotionRoot,
 		src,
 	});
 	const {specialVcodecForTransparency: specialVcodec} =
 		await getVideoInfoUncached({
 			src: out,
-			ffprobeExecutable: ffprobeExecutable ?? null,
-			remotionRoot,
 		});
 
 	if (specialVcodec === 'vp8') {
@@ -47,8 +35,6 @@ export const getCanExtractFramesFast = async ({
 	}
 
 	const {duration} = await getVideoStreamDurationwithoutCache({
-		ffprobeExecutable: ffprobeExecutable ?? null,
-		remotionRoot,
 		src: out,
 	});
 
@@ -63,11 +49,9 @@ export const getCanExtractFramesFast = async ({
 
 	const [stdErr] = await tryToExtractFrameOfVideoFast({
 		actualOffset,
-		ffmpegExecutable: ffmpegExecutable ?? null,
 		imageFormat: 'jpeg',
 		// Intentionally leaving needsResize as null, because we don't need to resize
 		needsResize: null,
-		remotionRoot,
 		specialVCodecForTransparency: specialVcodec,
 		src: out,
 	});

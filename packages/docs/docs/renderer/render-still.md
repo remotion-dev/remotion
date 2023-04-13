@@ -87,7 +87,7 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 _optional - default: "png"_
 
-Which output format the image should have, either `png` or `jpeg`.
+Which output format the image should have, either `png`, `jpeg`, `webp` or `pdf`.
 
 ### `scale?`
 
@@ -95,11 +95,15 @@ _optional_
 
 Scales the output dimensions by a factor. See [Scaling](/docs/scaling) to learn more about this feature.
 
-### `quality?`
+### `jpegQuality?`
 
 _optional - default: `undefined`_
 
 Sets the JPEG quality - must be an integer between 0 and 100 and can only be passed if `imageFormat` is set to `jpeg`.
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `puppeteerInstance?`
 

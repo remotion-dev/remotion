@@ -10,10 +10,12 @@ import {
 import {noop} from '../../helpers/noop';
 import {CaretDown} from '../../icons/caret';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
-import {Flex, Spacing} from '../layout';
+import {Spacing} from '../layout';
 import {isMenuItem, MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
 import {getPortal} from '../Menu/portals';
 import {
+	fullScreenOverlay,
+	MAX_MENU_WIDTH,
 	menuContainerTowardsBottom,
 	menuContainerTowardsTop,
 	outerPortal,
@@ -24,9 +26,17 @@ const container: React.CSSProperties = {
 	padding: '8px 10px',
 	display: 'inline-block',
 	backgroundColor: INPUT_BACKGROUND,
-	fontSize: 14,
 	borderWidth: 1,
 	borderStyle: 'solid',
+	maxWidth: '100%',
+};
+
+const label: React.CSSProperties = {
+	flex: 1,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	fontSize: 14,
+	textAlign: 'left',
 };
 
 type DividerItem = {
@@ -83,23 +93,10 @@ export const Combobox: React.FC<{
 
 		const onMouseEnter = () => setIsHovered(true);
 		const onMouseLeave = () => setIsHovered(false);
-		const onPointerDown = (e: MouseEvent) => {
-			e.stopPropagation();
+		const onPointerDown = () => {
 			return setOpened((o) => {
 				if (!o) {
 					refresh?.();
-
-					window.addEventListener(
-						'pointerup',
-						(evt) => {
-							if (!isMenuItem(evt.target as HTMLElement)) {
-								setOpened(false);
-							}
-						},
-						{
-							once: true,
-						}
-					);
 				}
 
 				return !o;
@@ -155,10 +152,16 @@ export const Combobox: React.FC<{
 		const spaceToBottom = size.windowSize.height - (size.top + size.height);
 		const spaceToTop = size.top;
 
-		const layout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
+		const spaceToRight = size.windowSize.width - (size.left + size.width);
+
+		const minSpaceToRightRequired = MAX_MENU_WIDTH;
+
+		const verticalLayout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
+		const horizontalLayout =
+			spaceToRight >= minSpaceToRightRequired ? 'left' : 'right';
 
 		return {
-			...(layout === 'top'
+			...(verticalLayout === 'top'
 				? {
 						...menuContainerTowardsBottom,
 						top: size.top + size.height,
@@ -167,7 +170,13 @@ export const Combobox: React.FC<{
 						...menuContainerTowardsTop,
 						bottom: size.windowSize.height - size.top,
 				  }),
-			left: size.left,
+			...(horizontalLayout === 'left'
+				? {
+						left: size.left,
+				  }
+				: {
+						right: size.windowSize.width - size.left - size.width,
+				  }),
 		};
 	}, [opened, size]);
 
@@ -200,26 +209,36 @@ export const Combobox: React.FC<{
 				style={style}
 				className={MENU_INITIATOR_CLASSNAME}
 			>
-				{selected.label} <Flex /> <Spacing x={1} /> <CaretDown />
+				<div
+					title={
+						typeof selected.label === 'string' ? selected.label : undefined
+					}
+					style={label}
+				>
+					{selected?.label}
+				</div>
+				<Spacing x={1} /> <CaretDown />
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<div style={outerPortal} className="css-reset">
-							<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
-								<div style={portalStyle}>
-									<MenuContent
-										onNextMenu={noop}
-										onPreviousMenu={noop}
-										values={values}
-										onHide={onHide}
-										leaveLeftSpace
-										preselectIndex={values.findIndex(
-											(v) => v.id === selected.id
-										)}
-										topItemCanBeUnselected={false}
-									/>
-								</div>
-							</HigherZIndex>
+						<div style={fullScreenOverlay}>
+							<div style={outerPortal} className="css-reset">
+								<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
+									<div style={portalStyle}>
+										<MenuContent
+											onNextMenu={noop}
+											onPreviousMenu={noop}
+											values={values}
+											onHide={onHide}
+											leaveLeftSpace
+											preselectIndex={values.findIndex(
+												(v) => v.id === selected.id
+											)}
+											topItemCanBeUnselected={false}
+										/>
+									</div>
+								</HigherZIndex>
+							</div>
 						</div>,
 						getPortal(currentZIndex)
 				  )

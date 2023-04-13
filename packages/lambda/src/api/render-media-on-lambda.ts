@@ -2,10 +2,10 @@ import type {
 	AudioCodec,
 	ChromiumOptions,
 	FrameRange,
-	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -28,13 +28,17 @@ export type RenderMediaOnLambdaInput = {
 	composition: string;
 	inputProps?: unknown;
 	codec: LambdaCodec;
-	imageFormat?: ImageFormat;
+	imageFormat?: VideoImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
 	privacy?: Privacy;
-	quality?: number;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	maxRetries?: number;
 	framesPerLambda?: number;
 	logLevel?: LogLevel;
@@ -81,7 +85,7 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.crf The constant rate factor to be used during encoding.
  * @param params.envVariables Object containing environment variables to be inserted into the video environment
  * @param params.proResProfile The ProRes profile if rendering a ProRes video
- * @param params.quality JPEG quality if JPEG was selected as the image format.
+ * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
  * @param params.region The AWS region in which the media should be rendered.
  * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
@@ -100,6 +104,7 @@ export const renderMediaOnLambda = async ({
 	pixelFormat,
 	proResProfile,
 	quality,
+	jpegQuality,
 	region,
 	maxRetries,
 	composition,
@@ -126,6 +131,10 @@ export const renderMediaOnLambda = async ({
 	forceBucketName: bucketName,
 	audioCodec,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
+	if (quality) {
+		throw new Error(`"quality" has been renamed. Use "jpegQuality" instead.`);
+	}
+
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda({
@@ -156,7 +165,7 @@ export const renderMediaOnLambda = async ({
 				envVariables,
 				pixelFormat,
 				proResProfile,
-				quality,
+				jpegQuality,
 				maxRetries: maxRetries ?? 1,
 				privacy: privacy ?? 'public',
 				logLevel: logLevel ?? 'info',

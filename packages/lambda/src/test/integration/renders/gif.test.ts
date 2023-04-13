@@ -51,7 +51,7 @@ test('Should make a distributed GIF', async () => {
 			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,
-			quality: undefined,
+			jpegQuality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
 			numberOfGifLoops: null,
@@ -93,9 +93,6 @@ test('Should make a distributed GIF', async () => {
 	await new Promise<void>((resolve) => {
 		file.pipe(createWriteStream('gif.gif')).on('close', () => resolve());
 	});
-	const probe = await RenderInternals.execa(
-		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
-		['gif.gif']
-	);
+	const probe = await RenderInternals.callFf('ffprobe', ['gif.gif']);
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);
 }, 90000);

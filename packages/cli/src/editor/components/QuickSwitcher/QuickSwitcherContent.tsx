@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {INPUT_BORDER_COLOR_UNHOVERED, LIGHT_TEXT} from '../../helpers/colors';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {isCompositionStill} from '../../helpers/is-composition-still';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {
@@ -18,6 +18,8 @@ import {ModalsContext} from '../../state/modals';
 import {useSelectComposition} from '../InitialCompositionLoader';
 import {KeyboardShortcutsExplainer} from '../KeyboardShortcutsExplainer';
 import {Spacing} from '../layout';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {RemotionInput} from '../NewComposition/RemInput';
 import {algoliaSearch} from './algolia-search';
 import {AlgoliaCredit} from './AlgoliaCredit';
 import {fuzzySearch} from './fuzzy-search';
@@ -27,8 +29,6 @@ import type {TQuickSwitcherResult} from './QuickSwitcherResult';
 import {QuickSwitcherResult} from './QuickSwitcherResult';
 
 const input: React.CSSProperties = {
-	padding: 4,
-	border: '2px solid ' + INPUT_BORDER_COLOR_UNHOVERED,
 	width: '100%',
 };
 
@@ -231,6 +231,8 @@ export const QuickSwitcherContent: React.FC<{
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
+			// Will be using the input field while selecting
+			triggerIfInputFieldFocused: true,
 		});
 
 		return () => {
@@ -279,6 +281,8 @@ export const QuickSwitcherContent: React.FC<{
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
+			// Will be using the input field while selecting
+			triggerIfInputFieldFocused: true,
 		});
 
 		return () => {
@@ -337,6 +341,7 @@ export const QuickSwitcherContent: React.FC<{
 		if (showKeyboardShortcuts) {
 			return {
 				maxHeight: 600,
+				overflowY: 'auto',
 			};
 		}
 
@@ -374,11 +379,12 @@ export const QuickSwitcherContent: React.FC<{
 				</button>
 			</div>
 			<div style={content}>
-				<input
+				<RemotionInput
 					ref={inputRef}
 					type="text"
 					style={input}
 					autoFocus
+					status="ok"
 					value={state.query}
 					onChange={onTextChange}
 					placeholder="Search compositions..."
@@ -389,7 +395,7 @@ export const QuickSwitcherContent: React.FC<{
 					</>
 				) : null}
 			</div>
-			<div style={results}>
+			<div style={results} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 				{showKeyboardShortcuts ? (
 					<KeyboardShortcutsExplainer />
 				) : showSearchLoadingState ? null : resultsArray.length === 0 ? (

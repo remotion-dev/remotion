@@ -3,7 +3,6 @@ import {estimatePrice} from '../../api/estimate-price';
 import type {RenderMetadata} from '../../shared/constants';
 import {lambdaTimingsPrefix} from '../../shared/constants';
 import {parseLambdaTimingsKey} from '../../shared/parse-lambda-timings-key';
-import type {LambdaArchitecture} from '../../shared/validate-architecture';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import type {OutputFileMetadata} from './find-output-file-in-bucket';
 import {getCurrentRegionInFunction} from './get-current-region';
@@ -14,7 +13,6 @@ export const estimatePriceFromBucket = ({
 	renderMetadata,
 	memorySizeInMb,
 	outputFileMetadata,
-	architecture,
 	diskSizeInMb,
 	lambdasInvoked,
 }: {
@@ -22,7 +20,6 @@ export const estimatePriceFromBucket = ({
 	renderMetadata: RenderMetadata | null;
 	memorySizeInMb: number;
 	outputFileMetadata: OutputFileMetadata | null;
-	architecture: LambdaArchitecture;
 	diskSizeInMb: number;
 	lambdasInvoked: number;
 }) => {
@@ -65,7 +62,6 @@ export const estimatePriceFromBucket = ({
 					type: 'combined-time-for-cost-calculation',
 				}) + timeElapsedOfUnfinished,
 			memorySizeInMb,
-			architecture,
 			diskSizeInMb,
 			lambdasInvoked,
 		}).toPrecision(5)

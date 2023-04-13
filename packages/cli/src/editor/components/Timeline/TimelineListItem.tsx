@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo} from 'react';
 import type {TSequence} from 'remotion';
+import {LIGHT_COLOR} from '../../helpers/colors';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
@@ -135,7 +136,7 @@ export const TimelineListItem: React.FC<{
 					style={collapserButton}
 					onClick={toggleCollapse}
 				>
-					<TimelineCollapseToggle collapsed={collapsed} />
+					<TimelineCollapseToggle color={LIGHT_COLOR} collapsed={collapsed} />
 				</button>
 			) : (
 				<div style={collapser} />

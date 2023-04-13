@@ -2,10 +2,11 @@ import type {SetStateAction} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {useMenuStructure} from '../helpers/use-menu-structure';
-import {Row} from './layout';
+import {Row, Spacing} from './layout';
 import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
+import {SidebarCollapserControls} from './SidebarCollapserControls';
 import {UpdateCheck} from './UpdateCheck';
 
 const row: React.CSSProperties = {
@@ -103,6 +104,8 @@ export const MenuToolbar: React.FC = () => {
 			<UpdateCheck />
 			<div style={flex} />
 			<MenuBuildIndicator />
+			<Spacing x={1} />
+			<SidebarCollapserControls />
 		</Row>
 	);
 };

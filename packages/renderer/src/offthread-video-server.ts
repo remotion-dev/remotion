@@ -6,7 +6,6 @@ import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {extractFrameFromVideo} from './extract-frame-from-video';
-import type {FfmpegExecutable} from './ffmpeg-executable';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
 	const parsed = new URL(url, 'http://localhost');
@@ -44,15 +43,11 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 };
 
 export const startOffthreadVideoServer = ({
-	ffmpegExecutable,
-	ffprobeExecutable,
 	onDownload,
 	onError,
 	downloadMap,
 	remotionRoot,
 }: {
-	ffmpegExecutable: FfmpegExecutable;
-	ffprobeExecutable: FfmpegExecutable;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 	downloadMap: DownloadMap;
@@ -94,8 +89,6 @@ export const startOffthreadVideoServer = ({
 				return extractFrameFromVideo({
 					time,
 					src: to,
-					ffmpegExecutable,
-					ffprobeExecutable,
 					imageFormat,
 					downloadMap,
 					remotionRoot,

@@ -47,11 +47,7 @@ export const Canvas: React.FC = () => {
 		shouldApplyCssTransforms: true,
 	});
 
-	const isFit =
-		previewSize.size === 'auto' ||
-		(previewSize.size === 1 &&
-			previewSize.translation.x === 0 &&
-			previewSize.translation.y === 0);
+	const isFit = previewSize.size === 'auto';
 
 	const onWheel = useCallback(
 		(e: WheelEvent) => {
@@ -240,6 +236,7 @@ export const Canvas: React.FC = () => {
 			commandCtrlKey: false,
 			callback: onReset,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 
 		const zoomIn = keybindings.registerKeybinding({
@@ -248,6 +245,7 @@ export const Canvas: React.FC = () => {
 			commandCtrlKey: false,
 			callback: onZoomIn,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 
 		const zoomOut = keybindings.registerKeybinding({
@@ -256,6 +254,7 @@ export const Canvas: React.FC = () => {
 			commandCtrlKey: false,
 			callback: onZoomOut,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 
 		return () => {
