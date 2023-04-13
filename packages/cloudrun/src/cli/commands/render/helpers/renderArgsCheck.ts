@@ -1,4 +1,6 @@
 import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
+
 import {getCompositions} from '@remotion/renderer';
 import {getOrCreateBucket} from '../../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../../shared/constants';
@@ -59,9 +61,12 @@ export const renderArgsCheck = async (
 			: 'out.mp4'; // Todo, workout file extension instead of assuming mp4
 	const downloadName = args[2] ?? null;
 
-	const {codec} = CliInternals.getFinalCodec({
+	const {codec} = CliInternals.getFinalOutputCodec({
 		downloadName,
 		outName: outName ?? null,
+		cliFlag: CliInternals.parsedCli.codec,
+		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+		uiCodec: null,
 	});
 
 	const {inputProps} = await CliInternals.getCliOptions({

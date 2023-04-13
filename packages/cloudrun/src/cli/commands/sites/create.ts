@@ -1,4 +1,5 @@
-import {CliInternals, ConfigInternals} from '@remotion/cli';
+import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
 import {existsSync, lstatSync} from 'fs';
 import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
@@ -59,9 +60,10 @@ export const sitesCreateSubcommand = async (
 		validateSiteName(desiredSiteName);
 	}
 
-	const progressBar = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
+	const progressBar = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+	});
 
 	const multiProgress: {
 		bundleProgress: BundleProgress;

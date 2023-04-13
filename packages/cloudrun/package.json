@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cloudrun",
-	"version": "3.3.75",
+	"version": "3.3.82",
 	"description": "GCP Cloud Run alternative to lambda rendering",
 	"main": "dist/index.js",
 	"scripts": {
@@ -23,7 +23,7 @@
 	},
 	"devDependencies": {
 		"prettier-plugin-organize-imports": "^3.2.2",
-		"typescript": "^4.7.0",
+		"typescript": "4.7.2",
 		"prettier": "^2.7.1",
 		"@remotion/compositor-linux-x64-musl": "workspace:*",
 		"ts-node": "^10.8.0",
