@@ -80,32 +80,36 @@ _Note, this process does not require an understanding of Terraform._
 
 Google Cloud Shell is fully integrated with GCP, which means that you can access your projects, resources, and services directly from the command line without having to switch between multiple interfaces. Additionally, Cloud Shell offers a persistent disk for storing your data and files, as well as a web-based code editor for editing files and running scripts.
 
-This means that you can clone a github repo, run a couple of Terraform commands, and have a Remotion-ready GCP project in minutes 🚀.
+This means that you can pull in a script that runs a couple of gcloud and Terraform commands, and have a Remotion-ready GCP project in minutes 🚀.
 
 1. In the top right hand corner of the screen, click the Activate Cloud Shell icon
 
    <img src="/img/cloudrun/selectCloudShell.jpg" width="200" />
 
-2. Within the Cloud Shell, type
+2. Within the Cloud Shell, type the following command and follow the prompts.
+
    ```bash
    curl --remote-name-all https://raw.githubusercontent.com/UmungoBungo/remotion/gcp-lambda-alternative/packages/cloudrun/{terraform/main.tf,install.mjs} && node install.mjs
    ```
 
-<!-- ToDo - host this in the official Remotion repo -->
+   If this is the first time initialising Remotion in the GCP project, you will want to select option 1.  
+   If you are updating the version of Remotion for this GCP project, you will want to select option 2.  
+   If you want to generate a new .env file, or manage keys already created, you will want to select option 3.
+   <!-- ToDo - host this in the official Remotion repo -->
 
-5. Download the .env file by clicking the vertical ellipsis, in the top right of the cloud shell window, and selecting Download. Then type .env at the end of the prefilled path, and click DOWNLOAD;  
+3. Download the .env file by clicking the vertical ellipsis, in the top right of the cloud shell window, and selecting Download. Then type .env at the end of the prefilled path, and click DOWNLOAD;  
     <img src="/img/cloudrun/downloadEnv.jpg" width="350" />  
    <br />
    <br />
    <img src="/img/cloudrun/downloadEnvFolder.png" width="300" />
 
-6. Remove the .env file from the virtual machine, using this command;
+4. Remove the .env file from the virtual machine, using this command;
 
    ```bash
    rm .env
    ```
 
-7. Place the downloaded .env file into the root of the Remotion project. You may need to rename it from `env.txt`, to `.env`. The file should have this format;
+5. Place the downloaded .env file into the root of the Remotion project. You may need to rename it from `env.txt`, to `.env`. The file should have this format;
 
    ```txt title=".env"
    REMOTION_GCP_PRIVATE_KEY=<private key>
@@ -115,7 +119,7 @@ This means that you can clone a github repo, run a couple of Terraform commands,
 
 ## 5. Optional: Validate the permission setup
 
-From within your code base, run the following command to validate the permissions are setup correctly in GCP.
+From within your code base, run the following command to validate the permissions are setup correctly in GCP. As long as your GCP project was setup with a matching Remotion version, this should pass.
 
 ```
 npx remotion cloudrun policies validate

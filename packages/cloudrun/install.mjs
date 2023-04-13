@@ -60,7 +60,7 @@ function taskPrompt() {
 		});
 
 		rl.question(
-			`What would you like to do?\n[1] Setup the GCP project ${projectID} as a Remotion Cloud Run environment.\n[2] ${projectID} is already set up for Remotion, update to a newer Remotion version.\n[3] ${projectID} is already set up for Remotion, generate a new .env file for the Remotion Service Account.\n${blueTextColor}`,
+			`What would you like to do?\n[1] Setup the GCP project ${projectID} as a Remotion Cloud Run environment.\n[2] ${projectID} is already set up for Remotion, update to a newer Remotion version.\n[3] ${projectID} is already set up for Remotion, generate a new .env file or manage keys for the Remotion Service Account.\n${blueTextColor}`,
 			async (answer) => {
 				// reset terminal color
 				rl.output.write(`\n${resetTextColor}`);
