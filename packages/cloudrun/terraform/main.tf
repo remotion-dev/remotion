@@ -76,11 +76,6 @@ resource "google_project_service" "cloud_resource_manager" {
   service = "cloudresourcemanager.googleapis.com"
 }
 
-# Output the command to generate service account keys
-output "service_account_key_generation_command" {
-  value = "gcloud iam service-accounts keys create key.json --iam-account=${local.service-account-email}"
-}
-
 # For tf state diagnosis, output the project ID
 output "remotion_project_id" {
   value = var.project_id

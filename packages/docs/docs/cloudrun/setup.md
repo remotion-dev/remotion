@@ -115,7 +115,11 @@ This means that you can clone a github repo, run a couple of Terraform commands,
 
 ## 5. Optional: Validate the permission setup
 
-- Run `npx remotion cloudrun policies validate`
+From within your code base, run the following command to validate the permissions are setup correctly in GCP.
+
+```
+npx remotion cloudrun policies validate
+```
 
 <hr/>
 
