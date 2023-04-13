@@ -164,7 +164,7 @@ function checkTerraformStateFile() {
 		.toString()
 		.trim();
 
-	if (dirFiles.includes('.tfstate')) {
+	if (dirFiles.includes('.tfstate') && !dirFiles.includes('.tfstate.backup')) {
 		execSync(
 			'echo "Terraform State file exists. Checking it is for the current Remotion project...\n"',
 			{stdio: 'inherit'}
