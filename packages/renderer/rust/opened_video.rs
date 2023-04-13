@@ -25,16 +25,6 @@ pub struct OpenedVideo {
 
 impl OpenedVideo {
     pub fn get_frame(&mut self, time: f64) -> Result<Vec<u8>, PossibleErrors> {
-        let mut scaler = Context::get(
-            self.format,
-            self.width,
-            self.height,
-            Pixel::RGB24,
-            self.width,
-            self.height,
-            Flags::BILINEAR,
-        )?;
-
         let position = (time as f64 * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
         let min_position =
             ((time as f64 - 1.0) * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
@@ -42,9 +32,11 @@ impl OpenedVideo {
         let stream_index = self.stream_index.clone();
 
         if position < self.last_seek || self.last_seek < min_position {
+            if (self.last_seek - position) > 0 {
+                _print_debug(&format!("Seeking from {} to {}", self.last_seek, position))?;
+            }
             self.input
                 .seek(stream_index as i32, min_position, position, position, 0)?;
-        } else {
         }
 
         let mut frame = Video::empty();
@@ -84,16 +76,34 @@ impl OpenedVideo {
             }
         }
         if is_frame_empty(&frame) {
-            Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?
-        } else {
-            let mut scaled = Video::empty();
-            scaler.run(&frame, &mut scaled)?;
-
-            let bitmap = turn_frame_into_bitmap(scaled);
-
-            return Ok(create_bmp_image(bitmap, self.width, self.height));
+            return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;
         }
+        scale_and_make_bitmap(frame, self.format, self.width, self.height)
     }
+}
+
+pub fn scale_and_make_bitmap(
+    frame: Video,
+    format: Pixel,
+    width: u32,
+    height: u32,
+) -> Result<Vec<u8>, PossibleErrors> {
+    let mut scaler = Context::get(
+        format,
+        width,
+        height,
+        Pixel::RGB24,
+        width,
+        height,
+        Flags::BILINEAR,
+    )?;
+
+    let mut scaled = Video::empty();
+    scaler.run(&frame, &mut scaled)?;
+
+    let bitmap = turn_frame_into_bitmap(scaled);
+
+    return Ok(create_bmp_image(bitmap, width, height));
 }
 
 pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
