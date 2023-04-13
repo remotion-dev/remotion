@@ -385,10 +385,21 @@ async function runTerraform() {
 
 	if (applyPlan) {
 		execSync('terraform apply remotion.tfplan', {stdio: 'inherit'});
+		// After the resources are created, prompt the user to generate the .env file or not
+		const generateEnvPrompt = await envPrompt();
+		if (generateEnvPrompt) {
+			await generateEnv();
+		} else {
+			console.log('No .env file generated.');
+		}
 	} else {
-		console.log(
-			'Plan not applied, deployed Remotion version remains unchanged.'
-		);
+		console.log('Plan not applied, no changes made.');
+		const generateEnvPrompt = await envPrompt();
+		if (generateEnvPrompt) {
+			await generateEnv();
+		} else {
+			console.log('No .env file generated.');
+		}
 	}
 }
 
@@ -479,21 +490,10 @@ async function updateRemotion() {
 
 	if (applyPlan) {
 		execSync('terraform apply remotion.tfplan', {stdio: 'inherit'});
-		// After the resources are created, prompt the user to generate the .env file or not
-		const generateEnvPrompt = await envPrompt();
-		if (generateEnvPrompt) {
-			await generateEnv();
-		} else {
-			console.log('No .env file generated.');
-		}
 	} else {
-		console.log('Plan not applied, no changes made.');
-		const generateEnvPrompt = await envPrompt();
-		if (generateEnvPrompt) {
-			await generateEnv();
-		} else {
-			console.log('No .env file generated.');
-		}
+		console.log(
+			'Plan not applied, deployed Remotion version remains unchanged.'
+		);
 	}
 }
 
