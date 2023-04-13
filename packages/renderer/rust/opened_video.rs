@@ -35,17 +35,24 @@ impl OpenedVideo {
         )?;
 
         let position = (time as f64 * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
+        let min_position =
+            ((time as f64 - 1.0) * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
 
         let stream_index = self.stream_index.clone();
 
-        self.input
-            .seek(stream_index as i32, position - 1000, position, position, 0)?;
+        let seek_video =
+            self.input
+                .seek(stream_index as i32, min_position, position, position, 0)?;
 
         let mut frame = Video::empty();
 
-        let packets = self.input.packets();
-
-        for (stream, packet) in packets {
+        loop {
+            let (stream, packet) = match self.input.get_next_packet() {
+                None => {
+                    break;
+                }
+                Some(packet) => packet,
+            };
             if stream.parameters().medium() != Type::Video {
                 continue;
             }
