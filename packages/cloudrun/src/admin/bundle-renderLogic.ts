@@ -21,7 +21,12 @@ const bundleRenderLogic = async () => {
 		outfile,
 		entryPoints: [template],
 		treeShaking: true,
-		external: ['./compositor', './compositor.exe'],
+		external: [
+			'./compositor',
+			'./compositor.exe',
+			'./ffmpeg/remotion/bin/ffmpeg',
+			'./ffmpeg/remotion/bin/ffprobe',
+		],
 	});
 
 	const compositorFile = `${outdir}/compositor`;

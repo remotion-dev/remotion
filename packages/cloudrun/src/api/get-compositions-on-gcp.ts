@@ -1,9 +1,9 @@
 import {getCompositions} from '@remotion/renderer';
-import type {TCompMetadata} from 'remotion';
+import type {TCompMetadata, z} from 'remotion';
 
 export type GetCompositionsOnGcpInput = {serveUrl: string};
 
-export type GetCompositionsOnGcpOutput = TCompMetadata[];
+export type GetCompositionsOnGcpOutput = TCompMetadata<z.ZodTypeAny, unknown>[];
 
 /**
  * @description Returns the compositions from a serveUrl

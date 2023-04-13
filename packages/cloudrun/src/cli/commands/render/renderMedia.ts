@@ -45,9 +45,10 @@ Sending request to Cloud Run:
 	Log.info();
 
 	const renderStart = Date.now();
-	const progressBar = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
+	const progressBar = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+	});
 
 	const renderProgress: {
 		progress: number;
