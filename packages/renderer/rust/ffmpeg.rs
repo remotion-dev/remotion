@@ -27,12 +27,17 @@ pub struct OpenedVideoManager {
     videos: RwLock<HashMap<String, Arc<Mutex<OpenedVideo>>>>,
 }
 
+pub fn make_opened_video_manager() -> OpenedVideoManager {
+    remotionffmpeg::init().unwrap();
+    OpenedVideoManager {
+        videos: RwLock::new(HashMap::new()),
+    }
+}
+
 impl OpenedVideoManager {
     pub fn get_instance() -> &'static OpenedVideoManager {
         lazy_static! {
-            static ref INSTANCE: OpenedVideoManager = OpenedVideoManager {
-                videos: RwLock::new(HashMap::new()),
-            };
+            static ref INSTANCE: OpenedVideoManager = make_opened_video_manager();
         }
         &INSTANCE
     }

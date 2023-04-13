@@ -87,8 +87,6 @@ impl OpenedVideo {
 }
 
 pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
-    remotionffmpeg::init()?;
-
     let mut input = remotionffmpeg::format::input(&src)?;
     let stream_index = input
         .streams_mut()
