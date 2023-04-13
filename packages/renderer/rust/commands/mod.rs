@@ -1,6 +1,5 @@
 use crate::compositor::draw_layer;
 use crate::errors::PossibleErrors;
-use crate::global_printer::_print_debug;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::payloads::payloads::CliInputCommand;
 use crate::{ffmpeg, global_printer};
