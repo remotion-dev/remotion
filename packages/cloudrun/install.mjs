@@ -113,6 +113,7 @@ switch (selection) {
 		break;
 
 	case 'updateRemotion':
+		await updateRemotion();
 		break;
 
 	case 'generateEnv':
@@ -152,7 +153,7 @@ function envPrompt() {
 	});
 }
 
-async function runTerraform() {
+function checkTerraformStateFile() {
 	/****************************************
 	 * Check for existing Terraform State
 	 ****************************************/
@@ -198,40 +199,63 @@ async function runTerraform() {
 			process.exit(1);
 		}
 	}
+}
 
+function versionPrompt() {
+	return new Promise((resolve) => {
+		// regex to ensure remotionVersion is in semver format
+		const semverRegex = new RegExp(
+			/^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/,
+			'i'
+		);
+
+		const rl = readline.createInterface({
+			input: process.stdin,
+			output: process.stdout,
+		});
+
+		rl.question(
+			`What version of Remotion do you want to use (format: 1.0.0)? ${blueTextColor}`,
+			async (answer) => {
+				rl.write(`\n${resetTextColor}`);
+				rl.close();
+
+				let fileError = false;
+				if (semverRegex.test(answer.trim())) {
+					try {
+						execSync(
+							`gcloud storage ls gs://remotion-sa/${answer.trim()}/sa-permissions.json`,
+							{stdio: 'inherit'}
+						);
+						return resolve(answer.trim());
+					} catch {
+						fileError = true;
+					}
+				}
+
+				if (fileError) {
+					console.log(
+						`${redTextColor}Cannot find permissions file that matches version ${answer.trim()}.\n${resetTextColor}`
+					);
+				} else {
+					console.log(
+						`${redTextColor}${answer.trim()} is not a valid semver version number.\n${resetTextColor}`
+					);
+				}
+
+				const result = await versionPrompt();
+
+				resolve(result);
+			}
+		);
+	});
+}
+
+async function runTerraform() {
+	await checkTerraformStateFile();
 	/****************************************
 	 * Prompt user for Remotion version
 	 ****************************************/
-
-	function versionPrompt() {
-		return new Promise((resolve) => {
-			// regex to ensure remotionVersion is in semver format
-			const semverRegex = new RegExp(
-				/^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/,
-				'i'
-			);
-
-			const rl = readline.createInterface({
-				input: process.stdin,
-				output: process.stdout,
-			});
-
-			rl.question(
-				`What version of Remotion do you want to use (format: 1.0.0)? ${blueTextColor}`,
-				async (answer) => {
-					rl.write(`\n${resetTextColor}`);
-					rl.close();
-
-					if (semverRegex.test(answer.trim())) return resolve(answer.trim());
-
-					console.log(`${answer.trim()} is not a valid version number.\n`);
-					const result = await versionPrompt();
-
-					resolve(result);
-				}
-			);
-		});
-	}
 
 	const remotionVersion = await versionPrompt();
 
@@ -331,6 +355,100 @@ async function runTerraform() {
 			{stdio: 'inherit'}
 		);
 	}
+
+	execSync(`terraform plan ${terraformVariables} -out=remotion.tfplan`, {
+		stdio: 'inherit',
+	});
+
+	// After the plan is complete, prompt the user to apply the plan or not
+	function applyPrompt() {
+		return new Promise((resolve) => {
+			const rl = readline.createInterface({
+				input: process.stdin,
+				output: process.stdout,
+			});
+
+			rl.question(
+				`\n${greenTextColor}Do you want to apply the above plan? ${blueTextColor}`,
+				async (answer) => {
+					// reset terminal color
+					rl.output.write(resetTextColor);
+					rl.close();
+
+					if (['yes', 'y'].indexOf(answer.trim().toLowerCase()) >= 0)
+						return resolve(true);
+
+					if (['no', 'n'].indexOf(answer.trim().toLowerCase()) >= 0)
+						return resolve(false);
+
+					console.log('Invalid response.');
+					const result = await applyPrompt();
+
+					resolve(result);
+				}
+			);
+		});
+	}
+
+	const applyPlan = await applyPrompt();
+
+	if (applyPlan) {
+		execSync('terraform apply remotion.tfplan', {stdio: 'inherit'});
+	} else {
+		console.log(
+			'Plan not applied, deployed Remotion version remains unchanged.'
+		);
+	}
+}
+
+async function updateRemotion() {
+	await checkTerraformStateFile();
+
+	/****************************************
+	 * Check the existing remotion version
+	 ****************************************/
+
+	const deployedVersion = execSync(
+		`gcloud iam service-accounts describe remotion-sa@${projectID}.iam.gserviceaccount.com | grep "description:" | awk '{print $2}'`,
+		{
+			stdio: ['inherit', 'pipe', 'pipe'],
+		}
+	)
+		.toString()
+		.trim();
+
+	execSync(
+		`echo "For project ${blueTextColor}${projectID}${resetTextColor}, Remotion version ${blueTextColor}${deployedVersion}${resetTextColor} is deployed.\n"`,
+		{
+			stdio: 'inherit',
+		}
+	);
+
+	const remotionVersion = await versionPrompt();
+
+	/****************************************
+	 * Terraform init, plan and apply. Will prompt user for confirmation before applying.
+	 ****************************************/
+
+	console.log(
+		`\n\n${greenBackground}                Running Terraform               ${resetTextColor}`
+	);
+	const terraformVariables = `-var="remotion_version=${remotionVersion}" -var="project_id=${projectID}" -var="service_account_exists=${true}"`;
+
+	execSync('terraform init', {stdio: 'inherit'});
+
+	// If tfstate file exists, remove the role resource from state so that it can be imported fresh
+	try {
+		execSync('terraform state list', {stdio: 'pipe'});
+		execSync(`terraform state rm google_project_iam_custom_role.remotion_sa`, {
+			stdio: 'inherit',
+		});
+	} catch {}
+
+	execSync(
+		`terraform import ${terraformVariables} google_project_iam_custom_role.remotion_sa projects/${projectID}/roles/RemotionSA`,
+		{stdio: 'inherit'}
+	);
 
 	execSync(`terraform plan ${terraformVariables} -out=remotion.tfplan`, {
 		stdio: 'inherit',
