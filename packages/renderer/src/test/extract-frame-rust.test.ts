@@ -58,3 +58,28 @@ test('Should be able to start two compositors', async () => {
 		time: 40,
 	});
 });
+
+test('Should be able to start two compositors', async () => {
+	const compositor = startCompositor({
+		type: 'StartLongRunningProcess',
+		params: {
+			nonce: makeNonce(),
+		},
+	});
+
+	const compositor2 = startCompositor({
+		type: 'StartLongRunningProcess',
+		params: {
+			nonce: makeNonce(),
+		},
+	});
+
+	await compositor.executeCommand('ExtractFrame', {
+		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
+		time: 40,
+	});
+	await compositor2.executeCommand('ExtractFrame', {
+		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
+		time: 40,
+	});
+});
