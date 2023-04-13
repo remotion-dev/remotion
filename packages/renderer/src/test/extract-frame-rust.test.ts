@@ -59,7 +59,7 @@ test('Should be able to start two compositors', async () => {
 	});
 });
 
-test('Should be able to start two compositors', async () => {
+test('Should be able to seek backwards', async () => {
 	const compositor = startCompositor({
 		type: 'StartLongRunningProcess',
 		params: {
@@ -67,19 +67,25 @@ test('Should be able to start two compositors', async () => {
 		},
 	});
 
-	const compositor2 = startCompositor({
-		type: 'StartLongRunningProcess',
-		params: {
-			nonce: makeNonce(),
-		},
+	console.time('first');
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
+		time: 40,
 	});
+	expect(data.length).toBe(2764854);
+	fs.writeFileSync('test.png', data);
+	console.timeEnd('first');
 
-	await compositor.executeCommand('ExtractFrame', {
+	console.time('second');
+	const data2 = await compositor.executeCommand('ExtractFrame', {
 		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
-		time: 40,
+		time: 35,
 	});
-	await compositor2.executeCommand('ExtractFrame', {
-		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
-		time: 40,
-	});
+	expect(data2.length).toBe(2764854);
+	console.timeEnd('second');
+
+	fs.writeFileSync('test2.png', data2);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
 });
