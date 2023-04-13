@@ -50,7 +50,13 @@ export const defaultFileExtensionMap: {
 	},
 	gif: {
 		default: 'gif',
-		forAudioCodec: {},
+		forAudioCodec: {
+			// This is just to make the types happy, GIF does not support any audio
+			'pcm-16': {possible: [], default: 'wav'},
+			aac: {possible: [], default: 'wav'},
+			mp3: {possible: [], default: 'wav'},
+			opus: {possible: [], default: 'wav'},
+		},
 	},
 	h264: {
 		default: 'mp4',
