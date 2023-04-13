@@ -472,7 +472,8 @@ module.exports = {
         "lambda/upgrading",
         "lambda/uninstall",
       ],
-    },{
+    },
+    {
       type: "category",
       label: "Cloudrun",
       link: {
@@ -481,7 +482,9 @@ module.exports = {
       },
       items: [
         "cloudrun/setup",
-        "cloudrun/region-selection"
+        "cloudrun/updateGcpProject",
+        "cloudrun/generateEnvFile",
+        "cloudrun/region-selection",
       ],
     },
     {
