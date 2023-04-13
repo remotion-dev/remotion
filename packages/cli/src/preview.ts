@@ -1,8 +1,9 @@
-import betterOpn from 'better-opn';
 import crypto from 'crypto';
 import path from 'path';
+import {openBrowser} from './better-opn';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';
+import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
@@ -10,32 +11,14 @@ import {getNetworkAddress} from './get-network-address';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 import {getAbsolutePublicDir} from './preview-server/get-absolute-public-dir';
-import type {LiveEventsServer} from './preview-server/live-events';
+import {
+	setLiveEventsListener,
+	waitForLiveEventsListener,
+} from './preview-server/live-events';
 import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
 import {startServer} from './preview-server/start-server';
 
 const noop = () => undefined;
-type Waiter = (list: LiveEventsServer) => void;
-
-let liveEventsListener: LiveEventsServer | null = null;
-const waiters: Waiter[] = [];
-
-const setLiveEventsListener = (listener: LiveEventsServer) => {
-	liveEventsListener = listener;
-	waiters.forEach((w) => w(listener));
-};
-
-const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
-	if (liveEventsListener) {
-		return Promise.resolve(liveEventsListener);
-	}
-
-	return new Promise<LiveEventsServer>((resolve) => {
-		waiters.push((list: LiveEventsServer) => {
-			resolve(list);
-		});
-	});
-};
 
 const getShouldOpenBrowser = (): {
 	shouldOpenBrowser: boolean;
@@ -48,7 +31,7 @@ const getShouldOpenBrowser = (): {
 		};
 	}
 
-	if (process.env.BROWSER === 'none') {
+	if ((process.env.BROWSER ?? '').toLowerCase() === 'none') {
 		return {
 			shouldOpenBrowser: false,
 			reasonForBrowserDecision: 'env BROWSER=none was set',
@@ -93,6 +76,8 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 
 	const desiredPort = getPort();
 
+	const fullEntryPath = convertEntryPointToServeUrl(file);
+
 	let inputProps = getInputProps((newProps) => {
 		waitForLiveEventsListener().then((listener) => {
 			inputProps = newProps;
@@ -136,7 +121,7 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 
 	const {port, liveEventsServer} = await startServer({
 		entry: path.resolve(__dirname, 'previewEntry.js'),
-		userDefinedComponent: file,
+		userDefinedComponent: fullEntryPath,
 		getCurrentInputProps: () => inputProps,
 		getEnvVariables: () => envVariables,
 		port: desiredPort,
@@ -166,7 +151,11 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser();
 
 	if (shouldOpenBrowser) {
-		betterOpn(`http://localhost:${port}`);
+		await openBrowser({
+			url: `http://localhost:${port}`,
+			browserArgs: parsedCli['browser-args'],
+			browserFlag: parsedCli.browser,
+		});
 	} else {
 		Log.verbose(`Not opening browser, reason: ${reasonForBrowserDecision}`);
 	}

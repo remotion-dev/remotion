@@ -71,8 +71,3 @@ export const downloadMedia = async (
 		sizeInBytes,
 	};
 };
-
-/**
- * @deprecated Renamed to downloadMedia()
- */
-export const downloadVideo = downloadMedia;

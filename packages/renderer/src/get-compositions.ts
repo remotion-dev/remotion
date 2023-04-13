@@ -1,4 +1,4 @@
-import type {TCompMetadata} from 'remotion';
+import type {AnyCompMetadata} from 'remotion';
 import type {DownloadMap} from './assets/download-map';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
@@ -6,7 +6,6 @@ import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import type {ChromiumOptions} from './open-browser';
@@ -14,7 +13,6 @@ import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import {validateFfmpeg} from './validate-ffmpeg';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type GetCompositionsConfig = {
@@ -25,8 +23,6 @@ type GetCompositionsConfig = {
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
-	ffmpegExecutable?: FfmpegExecutable;
-	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	/**
 	 * @deprecated Only for Remotion internal usage
@@ -39,7 +35,7 @@ const innerGetCompositions = async (
 	page: Page,
 	config: GetCompositionsConfig,
 	proxyPort: number
-): Promise<TCompMetadata[]> => {
+): Promise<AnyCompMetadata[]> => {
 	if (config?.onBrowserLog) {
 		page.on('console', (log) => {
 			config.onBrowserLog?.({
@@ -86,7 +82,7 @@ const innerGetCompositions = async (
 		args: [],
 	});
 
-	return result as TCompMetadata[];
+	return result as AnyCompMetadata[];
 };
 
 /**
@@ -97,17 +93,6 @@ export const getCompositions = async (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsConfig
 ) => {
-	await validateFfmpeg(
-		config?.ffmpegExecutable ?? null,
-		findRemotionRoot(),
-		'ffmpeg'
-	);
-	await validateFfmpeg(
-		config?.ffprobeExecutable ?? null,
-		findRemotionRoot(),
-		'ffprobe'
-	);
-
 	const downloadMap = config?.downloadMap ?? makeDownloadMap();
 
 	const {page, cleanup} = await getPageAndCleanupFn({
@@ -116,7 +101,7 @@ export const getCompositions = async (
 		chromiumOptions: config?.chromiumOptions ?? {},
 	});
 
-	return new Promise<TCompMetadata[]>((resolve, reject) => {
+	return new Promise<AnyCompMetadata[]>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 		const cleanupPageError = handleJavascriptException({
 			page,
@@ -130,8 +115,6 @@ export const getCompositions = async (
 			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 			onDownload: () => undefined,
 			onError,
-			ffmpegExecutable: config?.ffmpegExecutable ?? null,
-			ffprobeExecutable: config?.ffprobeExecutable ?? null,
 			port: config?.port ?? null,
 			downloadMap,
 			remotionRoot: findRemotionRoot(),
@@ -146,7 +129,7 @@ export const getCompositions = async (
 				);
 			})
 
-			.then((comp): Promise<[TCompMetadata[], unknown]> => {
+			.then((comp): Promise<[AnyCompMetadata[], unknown]> => {
 				if (close) {
 					return Promise.all([comp, close(true)]);
 				}

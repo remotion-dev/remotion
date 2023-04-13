@@ -137,7 +137,7 @@ import { WebpackOverrideFn } from "@remotion/bundler";
 export const enableTailwind: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 import { enableTailwind } from "./src/enable-tailwind";
 
 Config.overrideWebpackConfig(enableTailwind);

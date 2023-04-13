@@ -8,7 +8,7 @@ import type {
 	SetMediaVolumeContextValue,
 	TimelineContextValue,
 } from 'remotion';
-import {Internals} from 'remotion';
+import {Internals, z} from 'remotion';
 import {getPreferredVolume, persistVolume} from './volume-persistance.js';
 
 export const SharedPlayerContexts: React.FC<{
@@ -21,6 +21,7 @@ export const SharedPlayerContexts: React.FC<{
 	durationInFrames: number;
 	component: LazyExoticComponent<ComponentType<unknown>>;
 	numberOfSharedAudioTags: number;
+	initiallyMuted: boolean;
 }> = ({
 	children,
 	timelineContext,
@@ -31,6 +32,7 @@ export const SharedPlayerContexts: React.FC<{
 	durationInFrames,
 	component,
 	numberOfSharedAudioTags,
+	initiallyMuted,
 }) => {
 	const compositionManagerContext: CompositionManagerContext = useMemo(() => {
 		return {
@@ -50,6 +52,7 @@ export const SharedPlayerContexts: React.FC<{
 					folderName: null,
 					defaultProps: undefined,
 					parentFolderName: null,
+					schema: z.any(),
 				},
 			],
 			folders: [],
@@ -78,8 +81,10 @@ export const SharedPlayerContexts: React.FC<{
 		inputProps,
 	]);
 
-	const [mediaMuted, setMediaMuted] = useState<boolean>(false);
-	const [mediaVolume, setMediaVolume] = useState<number>(getPreferredVolume());
+	const [mediaMuted, setMediaMuted] = useState<boolean>(() => initiallyMuted);
+	const [mediaVolume, setMediaVolume] = useState<number>(() =>
+		getPreferredVolume()
+	);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {
 		return {

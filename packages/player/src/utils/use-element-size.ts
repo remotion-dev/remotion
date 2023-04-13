@@ -46,12 +46,13 @@ export const useElementSize = (
 			// The clientRect returns the size with `scale()` being applied.
 			const newSize = entries[0].target.getClientRects();
 
-			if (!newSize || !newSize[0]) {
+			if (!newSize?.[0]) {
 				setSize(null);
 				return;
 			}
 
-			const probableCssParentScale = newSize[0].width / contentRect.width;
+			const probableCssParentScale =
+				contentRect.width === 0 ? 1 : newSize[0].width / contentRect.width;
 
 			const width = options.shouldApplyCssTransforms
 				? newSize[0].width
@@ -84,15 +85,29 @@ export const useElementSize = (
 			return;
 		}
 
-		setSize({
-			width: rect[0].width as number,
-			height: rect[0].height as number,
-			left: rect[0].x as number,
-			top: rect[0].y as number,
-			windowSize: {
-				height: window.innerHeight,
-				width: window.innerWidth,
-			},
+		setSize((prevState) => {
+			const isSame =
+				prevState &&
+				prevState.width === rect[0].width &&
+				prevState.height === rect[0].height &&
+				prevState.left === rect[0].x &&
+				prevState.top === rect[0].y &&
+				prevState.windowSize.height === window.innerHeight &&
+				prevState.windowSize.width === window.innerWidth;
+			if (isSame) {
+				return prevState;
+			}
+
+			return {
+				width: rect[0].width as number,
+				height: rect[0].height as number,
+				left: rect[0].x as number,
+				top: rect[0].y as number,
+				windowSize: {
+					height: window.innerHeight,
+					width: window.innerWidth,
+				},
+			};
 		});
 	}, [ref]);
 

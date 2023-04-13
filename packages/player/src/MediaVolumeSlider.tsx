@@ -1,4 +1,4 @@
-import React, {useCallback, useId, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Internals, random} from 'remotion';
 import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons.js';
 import {useHoverState} from './use-hover-state.js';
@@ -16,8 +16,10 @@ export const MediaVolumeSlider: React.FC<{
 	const parentDivRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const hover = useHoverState(parentDivRef);
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	const randomId = typeof useId === 'undefined' ? 'volume-slider' : useId();
+	// Need to import it from React to fix React 17 ESM support.
+	const randomId =
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		typeof React.useId === 'undefined' ? 'volume-slider' : React.useId();
 	const [randomClass] = useState(() =>
 		`__remotion-volume-slider-${random(randomId)}`.replace('.', '')
 	);
@@ -52,7 +54,7 @@ export const MediaVolumeSlider: React.FC<{
 			display: 'inline-flex',
 			background: 'none',
 			border: 'none',
-			padding: '6px',
+			padding: 6,
 			justifyContent: 'center',
 			alignItems: 'center',
 			touchAction: 'none',

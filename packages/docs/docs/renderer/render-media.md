@@ -109,18 +109,6 @@ In which image format the frames should be rendered.
 - `png` if you want to [render transparent videos](/docs/transparent-videos/)
 - `none` if you are rendering audio
 
-### `ffmpegExecutable?`
-
-_string - optional_
-
-An absolute path overriding the `ffmpeg` executable to use.
-
-### `ffprobeExecutable?` <AvailableFrom v="3.0.17" />
-
-_optional_
-
-An absolute path overriding the `ffprobe` executable to use.
-
 ### `browserExecutable?` <AvailableFrom v="3.0.11" />
 
 _optional_
@@ -153,13 +141,17 @@ An object containing environment variables to be injected in your project.
 
 See: [Environment variables](/docs/env-variables/)
 
-### `quality?`
+### `jpegQuality?`
 
 _number - optional_
 
 Sets the quality of the generated JPEG images. Must be an integer between 0 and 100. Default is to leave it up to the browser, [current default is 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `frameRange?`
 
@@ -411,7 +403,9 @@ Before you use this hack, reach out to the Remotion team on [Discord](https://re
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
 
-### `onSlowestFrames?` <AvailableFrom v="3.2.29" />
+### ~~`onSlowestFrames?`~~
+
+Introduced in v3.2.29, removed from v4.0. `slowestFrames` has been moved to the return type.
 
 Callback function that gets called right before `renderMedia()` resolves.  
 The only argument `slowestFrames` is an array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
@@ -427,9 +421,38 @@ const onSlowestFrames: OnSlowestFrames = (slowestFrames) => {
 };
 ```
 
+### ~~`ffmpegExecutable`~~
+
+_removed in v4.0, string, optional_
+
+An absolute path overriding the `ffmpeg` executable to use.
+
+### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
+
+_removed in v4.0, optional_
+
+An absolute path overriding the `ffprobe` executable to use.
+
 ## Return Value
 
-_since v3.0.26_
+_**from v4.0.0:**_
+
+The return value is an object with the following properties:
+
+- `buffer`: If `outputLocation` is not specified or `null`, contains a buffer, otherwise `null`.
+- `slowestFrames`: An array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
+
+```ts twoslash
+import type { SlowFrame } from "@remotion/renderer";
+const slowestFrames: SlowFrame[] = [];
+// ---cut---
+console.log("The slowest 10 frames are:");
+for (const slowFrame of slowestFrames) {
+  console.log(`Frame ${slowFrame.frame} (${slowFrame.time}ms)`);
+}
+```
+
+_**from v3.0.26**:_
 
 If `outputLocation` is not specified or `null`, the return value is a Promise that resolves a `Buffer`. If an output location is specified, the return value is a Promise that resolves no value.
 

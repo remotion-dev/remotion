@@ -1,6 +1,6 @@
 import fs, {statSync} from 'fs';
 import path from 'path';
-import type {SmallTCompMetadata} from 'remotion';
+import type {AnySmallCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -11,19 +11,19 @@ import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {StillImageFormat} from './image-format';
-import {validateNonNullImageFormat} from './image-format';
-import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
-import {getServeUrlWithFallback} from './legacy-webpack-config';
+import {
+	DEFAULT_STILL_IMAGE_FORMAT,
+	validateStillImageFormat,
+} from './image-format';
+import {validateJpegQuality} from './jpeg-quality';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
-import {validateQuality} from './quality';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {takeFrameAndCompose} from './take-frame-and-compose';
@@ -31,12 +31,16 @@ import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 
 type InnerStillOptions = {
-	composition: SmallTCompMetadata;
+	composition: AnySmallCompMetadata;
 	output?: string | null;
 	frame?: number;
 	inputProps?: unknown;
 	imageFormat?: StillImageFormat;
-	quality?: number;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	puppeteerInstance?: PuppeteerBrowser;
 	dumpBrowserLogs?: boolean;
 	envVariables?: Record<string, string>;
@@ -47,8 +51,6 @@ type InnerStillOptions = {
 	scale?: number;
 	onDownload?: RenderMediaOnDownload;
 	cancelSignal?: CancelSignal;
-	ffmpegExecutable?: FfmpegExecutable;
-	ffprobeExecutable?: FfmpegExecutable;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
@@ -57,15 +59,15 @@ type InnerStillOptions = {
 
 type RenderStillReturnValue = {buffer: Buffer | null};
 
-export type RenderStillOptions = InnerStillOptions &
-	ServeUrlOrWebpackBundle & {
-		port?: number | null;
-	};
+export type RenderStillOptions = InnerStillOptions & {
+	serveUrl: string;
+	port?: number | null;
+};
 
 const innerRenderStill = async ({
 	composition,
 	quality,
-	imageFormat = 'png',
+	imageFormat = DEFAULT_STILL_IMAGE_FORMAT,
 	serveUrl,
 	puppeteerInstance,
 	dumpBrowserLogs = false,
@@ -82,12 +84,19 @@ const innerRenderStill = async ({
 	proxyPort,
 	cancelSignal,
 	downloadMap,
+	jpegQuality,
 }: InnerStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
 }): Promise<RenderStillReturnValue> => {
+	if (quality) {
+		throw new Error(
+			'quality has been renamed to jpegQuality. Please rename the option.'
+		);
+	}
+
 	Internals.validateDimension(
 		composition.height,
 		'height',
@@ -108,7 +117,7 @@ const innerRenderStill = async ({
 		component: 'in the `config` object passed to `renderStill()`',
 		allowFloats: false,
 	});
-	validateNonNullImageFormat(imageFormat);
+	validateStillImageFormat(imageFormat);
 	Internals.validateFrame({
 		frame,
 		durationInFrames: composition.durationInFrames,
@@ -124,13 +133,13 @@ const innerRenderStill = async ({
 	output =
 		typeof output === 'string' ? path.resolve(process.cwd(), output) : null;
 
-	if (quality !== undefined && imageFormat !== 'jpeg') {
+	if (jpegQuality !== undefined && imageFormat !== 'jpeg') {
 		throw new Error(
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
 		);
 	}
 
-	validateQuality(quality);
+	validateJpegQuality(jpegQuality);
 
 	if (output) {
 		if (fs.existsSync(output)) {
@@ -249,7 +258,7 @@ const innerRenderStill = async ({
 		imageFormat,
 		scale,
 		output,
-		quality,
+		jpegQuality,
 		wantsBuffer: !output,
 	});
 
@@ -266,8 +275,6 @@ const innerRenderStill = async ({
 export const renderStill = (
 	options: RenderStillOptions
 ): Promise<RenderStillReturnValue> => {
-	const selectedServeUrl = getServeUrlWithFallback(options);
-
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
@@ -278,11 +285,9 @@ export const renderStill = (
 		let close: ((force: boolean) => Promise<unknown>) | null = null;
 
 		prepareServer({
-			webpackConfigOrServeUrl: selectedServeUrl,
+			webpackConfigOrServeUrl: options.serveUrl,
 			onDownload,
 			onError,
-			ffmpegExecutable: options.ffmpegExecutable ?? null,
-			ffprobeExecutable: options.ffprobeExecutable ?? null,
 			port: options.port ?? null,
 			downloadMap,
 			remotionRoot: findRemotionRoot(),

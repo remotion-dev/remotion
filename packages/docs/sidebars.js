@@ -101,6 +101,8 @@ module.exports = {
         "series",
         "folder",
         "easing",
+        "z",
+        "z-color",
         "null",
         "clipper",
       ],
@@ -348,13 +350,13 @@ module.exports = {
     },
   ],
   mainSidebar: [
+    "4-0-alpha",
     {
       type: "category",
       label: "Getting started",
       items: [
         "getting-started",
         "the-fundamentals",
-        "transforms",
         "animating-properties",
         "reusability",
         "timeline",
@@ -365,18 +367,18 @@ module.exports = {
       type: "category",
       label: "Techniques",
       items: [
+        "transforms",
         "assets",
+        "data-fetching",
+        "parametrized-rendering",
+        "use-img-and-iframe",
         "using-audio",
         "fonts",
         "using-randomness",
         "audio-visualization",
         "noise-visualization",
-        "use-img-and-iframe",
-        "javascript",
-        "data-fetching",
         "encoding",
         "transparent-videos",
-        "parametrized-rendering",
         "dynamic-metadata",
         "ssr",
         "webpack",
@@ -389,6 +391,7 @@ module.exports = {
         "render-as-gif",
         "overlay",
         "docker",
+        "javascript",
       ],
     },
     {
@@ -459,7 +462,11 @@ module.exports = {
             type: "doc",
             id: "lambda/without-iam/index",
           },
-          items: ["lambda/without-iam/index", "lambda/without-iam/example"],
+          items: [
+            "lambda/without-iam/index",
+            "lambda/without-iam/example",
+            "lambda/without-iam/ec2",
+          ],
         },
         "lambda/serverless-framework-integration",
         "lambda/sqs",
@@ -491,6 +498,7 @@ module.exports = {
       type: "category",
       label: "Troubleshooting",
       items: [
+        "troubleshooting/debug-failed-render",
         "timeout",
         "target-closed",
         "media-playback-error",
@@ -509,6 +517,7 @@ module.exports = {
         "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",
         "troubleshooting/could-not-be-parsed-as-a-value-list",
+        "troubleshooting/player-flicker",
       ],
     },
     {
@@ -545,12 +554,13 @@ module.exports = {
     {
       type: "category",
       label: "Migration guides",
-      items: ["3-0-migration", "2-0-migration"],
+      items: ["4-0-migration", "3-0-migration", "2-0-migration"],
     },
     {
       type: "category",
       label: "Miscellaneous",
       items: [
+        "get-help",
         "brownfield",
         "ffmpeg",
         "chromium-flags",
@@ -564,6 +574,9 @@ module.exports = {
         "miscellaneous/changing-temp-dir",
         "miscellaneous/automatic-duration",
         "miscellaneous/video-formats",
+        "miscellaneous/vercel-functions",
+        "miscellaneous/render-on-edge",
+        "compare/motion-canvas",
       ],
     },
     {

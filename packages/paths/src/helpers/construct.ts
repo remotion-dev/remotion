@@ -6,12 +6,12 @@ import {makeBezier} from './bezier';
 import {makeLinearPosition} from './linear';
 import type {Instruction, Point, PointArray, Properties} from './types';
 
-export const construct = (string: string) => {
+export const constructFromInstructions = (instructions: Instruction[]) => {
 	let length = 0;
 	const partial_lengths: number[] = [];
 	const functions: (null | Properties)[] = [];
 	let initial_point: null | Point = null;
-	const parsed = parsePath(string);
+
 	let cur: PointArray = [0, 0];
 	let prev_point: PointArray = [0, 0];
 	let curve: ReturnType<typeof makeBezier> | undefined;
@@ -19,8 +19,8 @@ export const construct = (string: string) => {
 
 	const segments: Instruction[][] = [];
 
-	for (let i = 0; i < parsed.length; i++) {
-		const instruction = parsed[i];
+	for (let i = 0; i < instructions.length; i++) {
+		const instruction = instructions[i];
 
 		if (
 			instruction.type !== 'm' &&
@@ -163,7 +163,7 @@ export const construct = (string: string) => {
 				);
 			}
 		} else if (instruction.type === 'S') {
-			const prev = parsed[i - 1];
+			const prev = instructions[i - 1];
 			const prevWasCurve =
 				prev.type === 'C' ||
 				prev.type === 'c' ||
@@ -202,7 +202,7 @@ export const construct = (string: string) => {
 				functions.push(curve);
 			}
 		} else if (instruction.type === 's') {
-			const prev = parsed[i - 1];
+			const prev = instructions[i - 1];
 			const prevWasCurve =
 				prev.type === 'C' ||
 				prev.type === 'c' ||
@@ -299,7 +299,7 @@ export const construct = (string: string) => {
 			prev_point = [cur[0] + instruction.cpdx, cur[1] + instruction.cpdy];
 			cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
 		} else if (instruction.type === 'T') {
-			const prev = parsed[i - 1];
+			const prev = instructions[i - 1];
 			const prevWasQ =
 				prev.type === 'Q' ||
 				prev.type === 'q' ||
@@ -332,7 +332,7 @@ export const construct = (string: string) => {
 			prev_point = [2 * cur[0] - prev_point[0], 2 * cur[1] - prev_point[1]];
 			cur = [instruction.x, instruction.y];
 		} else if (instruction.type === 't') {
-			const prev = parsed[i - 1];
+			const prev = instructions[i - 1];
 			const prevWasQ =
 				prev.type === 'Q' ||
 				prev.type === 'q' ||
@@ -408,4 +408,9 @@ export const construct = (string: string) => {
 		partial_lengths,
 		functions,
 	};
+};
+
+export const construct = (string: string) => {
+	const parsed = parsePath(string);
+	return constructFromInstructions(parsed);
 };

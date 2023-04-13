@@ -17,7 +17,7 @@ export const tmpDir = (str: string) => {
 	const newDir = path.join(os.tmpdir(), str + randomHash());
 
 	if (fs.existsSync(newDir)) {
-		(fs.rmSync ?? fs.rmdirSync)(newDir, {
+		fs.rmSync(newDir, {
 			recursive: true,
 			force: true,
 		});

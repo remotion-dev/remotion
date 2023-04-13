@@ -1,6 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
-import fs, {existsSync, mkdirSync, rmdirSync, rmSync} from 'fs';
+import fs, {existsSync, mkdirSync, rmSync} from 'fs';
 import {join} from 'path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
@@ -173,8 +173,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		browserInstance,
 		inputProps: await inputPropsPromise,
 		envVariables: params.envVariables,
-		ffmpegExecutable: null,
-		ffprobeExecutable: null,
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		port: null,
@@ -264,7 +262,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			envVariables: params.envVariables,
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
-			quality: params.quality,
+			jpegQuality: params.jpegQuality,
 			privacy: params.privacy,
 			logLevel: params.logLevel ?? 'info',
 			attempt: 1,
@@ -282,6 +280,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		};
 		return payload;
 	});
+
+	console.log(
+		'Render plan: ',
+		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', ')
+	);
 
 	const renderMetadata: RenderMetadata = {
 		startedDate,
@@ -360,11 +363,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	});
 
 	await Promise.all(
-		lambdaPayloads.map(async (payload, index) => {
-			const callingLambdaTimer = timer('Calling chunk ' + index);
-
+		lambdaPayloads.map(async (payload) => {
 			await callFunctionWithRetry({payload, retries: 0, functionName});
-			callingLambdaTimer.end();
 		})
 	);
 
@@ -449,7 +449,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 	if (existsSync(outdir)) {
-		(rmSync ?? rmdirSync)(outdir, {
+		rmSync(outdir, {
 			recursive: true,
 		});
 	}
@@ -471,8 +471,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		codec: params.codec,
 		fps,
 		numberOfGifLoops: params.numberOfGifLoops,
-		ffmpegExecutable: null,
-		remotionRoot: process.cwd(),
 		files,
 		outdir,
 		audioCodec: params.audioCodec,

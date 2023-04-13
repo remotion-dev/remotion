@@ -1,10 +1,10 @@
 {
   "name": "@remotion/it-tests",
-  "version": "3.3.77",
+  "version": "3.3.82",
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "vitest src/monorepo --run && vitest src/rendering --run",
-    "testssr": "node --max_old_space_size=4096 node_modules/vitest/vitest.mjs src/ssr --run",
+    "testssr": "node --max_old_space_size=8192 node_modules/vitest/vitest.mjs src/ssr --run",
     "testlambda": "vitest src/lambda --run"
   },
   "private": true,

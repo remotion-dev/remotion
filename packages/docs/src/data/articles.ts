@@ -14,6 +14,20 @@ export const articles = [
     crumb: "Version Upgrade",
   },
   {
+    id: "4-0-alpha",
+    title: "v4.0 Alpha",
+    relativePath: "docs/4-0-alpha.md",
+    compId: "articles-docs-4-0-alpha",
+    crumb: "Version Upgrade",
+  },
+  {
+    id: "4-0-migration",
+    title: "v4.0 Migration",
+    relativePath: "docs/4-0-migration.md",
+    compId: "articles-docs-4-0-migration",
+    crumb: "Version Upgrade",
+  },
+  {
     id: "absolute-fill",
     title: "<AbsoluteFill>",
     relativePath: "docs/absolute-fill.md",
@@ -39,6 +53,13 @@ export const articles = [
     title: "API overview",
     relativePath: "docs/api.md",
     compId: "articles-docs-api",
+    crumb: null,
+  },
+  {
+    id: "get-help",
+    title: "Get help",
+    relativePath: "docs/ask-for-help.md",
+    compId: "articles-docs-ask-for-help",
     crumb: null,
   },
   {
@@ -173,6 +194,13 @@ export const articles = [
     relativePath: "docs/clipper.md",
     compId: "articles-docs-clipper",
     crumb: "Experimental API",
+  },
+  {
+    id: "compare/motion-canvas",
+    title: "How does Remotion compare to Motion Canvas?",
+    relativePath: "docs/compare/motion-canvas.md",
+    compId: "articles-docs-compare-motion-canvas",
+    crumb: "FAQ",
   },
   {
     id: "composition",
@@ -386,7 +414,7 @@ export const articles = [
   },
   {
     id: "getting-started",
-    title: "Setup and Installation",
+    title: "Creating a new project",
     relativePath: "docs/getting-started.md",
     compId: "articles-docs-getting-started",
     crumb: "Let's begin!",
@@ -959,15 +987,22 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/without-iam/ec2",
+    title: "Authenticating Lambda with EC2",
+    relativePath: "docs/lambda/without-iam/ec2.md",
+    compId: "articles-docs-lambda-without-iam-ec2",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "lambda/without-iam/example",
     title: "Example setup without IAM user",
     relativePath: "docs/lambda/without-iam/example.md",
     compId: "articles-docs-lambda-without-iam-example",
-    crumb: "Lambda without IAM",
+    crumb: "IAM Roles Example",
   },
   {
     id: "lambda/without-iam/index",
-    title: "Using Lambda without an IAM user",
+    title: "Using Lambda with IAM roles",
     relativePath: "docs/lambda/without-iam/index.md",
     compId: "articles-docs-lambda-without-iam-index",
     crumb: "Lambda without IAM",
@@ -1085,6 +1120,13 @@ export const articles = [
     crumb: "FAQ",
   },
   {
+    id: "miscellaneous/render-on-edge",
+    title: "Can I render videos on the edge?",
+    relativePath: "docs/miscellaneous/render-on-edge.md",
+    compId: "articles-docs-miscellaneous-render-on-edge",
+    crumb: "FAQ",
+  },
+  {
     id: "miscellaneous/snippets/accelerated-video",
     title: "Change the speed of a video over time",
     relativePath: "docs/miscellaneous/snippets/accelerated-video.md",
@@ -1127,6 +1169,13 @@ export const articles = [
     relativePath: "docs/miscellaneous/ts-aliases.md",
     compId: "articles-docs-miscellaneous-ts-aliases",
     crumb: "How to",
+  },
+  {
+    id: "miscellaneous/vercel-functions",
+    title: "Can I render videos using Vercel Serverless functions?",
+    relativePath: "docs/miscellaneous/vercel-functions.md",
+    compId: "articles-docs-miscellaneous-vercel-functions",
+    crumb: "FAQ",
   },
   {
     id: "miscellaneous/video-formats",
@@ -1235,7 +1284,7 @@ export const articles = [
   },
   {
     id: "parametrized-rendering",
-    title: "Parametrized rendering",
+    title: "Parametrized videos",
     relativePath: "docs/parametrized-rendering.md",
     compId: "articles-docs-parametrized-rendering",
     crumb: "How To",
@@ -1676,7 +1725,7 @@ export const articles = [
   },
   {
     id: "reusability",
-    title: "Reuse components using Sequences",
+    title: "Making components reusable",
     relativePath: "docs/sequences.md",
     compId: "articles-docs-sequences",
     crumb: "The power of React",
@@ -1976,6 +2025,13 @@ export const articles = [
     crumb: "Browser quirks",
   },
   {
+    id: "troubleshooting/debug-failed-render",
+    title: "Debugging render failures",
+    relativePath: "docs/troubleshooting/debug-failed-render.md",
+    compId: "articles-docs-troubleshooting-debug-failed-render",
+    crumb: "Troubleshooting",
+  },
+  {
     id: "defaultprops-too-big",
     title: "defaultProps too big - could not serialize",
     relativePath: "docs/troubleshooting/defaultprops-too-big.md",
@@ -1995,6 +2051,13 @@ export const articles = [
     relativePath: "docs/troubleshooting/rosetta.md",
     compId: "articles-docs-troubleshooting-rosetta",
     crumb: "Troubleshooting",
+  },
+  {
+    id: "player-flicker",
+    title: "Avoiding flickering in <Player>",
+    relativePath: "docs/troubleshooting/video-flicker.md",
+    compId: "articles-docs-troubleshooting-video-flicker",
+    crumb: "Frame-perfection",
   },
   {
     id: "use-audio-data",
@@ -2100,5 +2163,19 @@ export const articles = [
     relativePath: "docs/wrong-composition-mount.md",
     compId: "articles-docs-wrong-composition-mount",
     crumb: "Troubleshooting",
+  },
+  {
+    id: "z-color",
+    title: "zColor()",
+    relativePath: "docs/z-color.md",
+    compId: "articles-docs-z-color",
+    crumb: null,
+  },
+  {
+    id: "z",
+    title: "z",
+    relativePath: "docs/z.md",
+    compId: "articles-docs-z",
+    crumb: "API",
   },
 ];

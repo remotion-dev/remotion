@@ -261,7 +261,6 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 								</div>
 							</Row>
 							<Spacing y={1} />
-
 							<Row align="center">
 								<div style={leftLabel}>Name</div>
 								<div style={inputArea}>
@@ -270,9 +269,17 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 										onChange={onNameChange}
 										type="text"
 										placeholder="Composition name"
+										status="ok"
 									/>
 									{compNameErrMessage ? (
-										<ValidationMessage message={compNameErrMessage} />
+										<>
+											<Spacing y={1} block />
+											<ValidationMessage
+												align="flex-start"
+												message={compNameErrMessage}
+												type="error"
+											/>
+										</>
 									) : null}
 								</div>
 							</Row>
@@ -288,17 +295,26 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 												<InputDragger
 													type="number"
 													value={size.width}
-													placeholder="Width (px)"
+													placeholder="Width"
 													onTextChange={onWidthChanged}
 													name="width"
 													step={2}
 													min={2}
 													required
+													status="ok"
+													formatter={(w) => `${w}px`}
 													max={100000000}
 													onValueChange={onWidthDirectlyChanged}
 												/>
 												{compWidthErrMessage ? (
-													<ValidationMessage message={compWidthErrMessage} />
+													<>
+														<Spacing y={1} block />
+														<ValidationMessage
+															align="flex-start"
+															message={compWidthErrMessage}
+															type="error"
+														/>
+													</>
 												) : null}
 											</div>
 										</Row>
@@ -315,16 +331,25 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 												type="number"
 												value={size.height}
 												onTextChange={onHeightChanged}
-												placeholder="Height (px)"
+												placeholder="Height"
 												name="height"
 												step={2}
 												required
+												formatter={(h) => `${h}px`}
 												min={2}
+												status="ok"
 												max={100000000}
 												onValueChange={onHeightDirectlyChanged}
 											/>
 											{compHeightErrMessage ? (
-												<ValidationMessage message={compHeightErrMessage} />
+												<>
+													<Spacing y={1} block />
+													<ValidationMessage
+														align="flex-start"
+														message={compHeightErrMessage}
+														type="error"
+													/>
+												</>
 											) : null}
 										</div>
 									</Row>

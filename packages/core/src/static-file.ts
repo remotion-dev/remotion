@@ -31,6 +31,28 @@ export const staticFile = (path: string) => {
 		);
 	}
 
+	if (
+		path.startsWith('/Users') ||
+		path.startsWith('/home') ||
+		path.startsWith('/tmp') ||
+		path.startsWith('/etc') ||
+		path.startsWith('/opt') ||
+		path.startsWith('/var') ||
+		path.startsWith('C:') ||
+		path.startsWith('D:') ||
+		path.startsWith('E:')
+	) {
+		throw new TypeError(
+			`staticFile() does not support absolute paths - got "${path}". Instead, pass the name of a file that is inside the public/ folder. See: https://remotion.dev/docs/staticfile-relative-paths`
+		);
+	}
+
+	if (path.startsWith('public/')) {
+		throw new TypeError(
+			`Do not include the public/ prefix when using staticFile() - got "${path}". See: https://remotion.dev/docs/staticfile-relative-paths`
+		);
+	}
+
 	const preparsed = inner(path);
 	if (!preparsed.startsWith('/')) {
 		return `/${preparsed}`;

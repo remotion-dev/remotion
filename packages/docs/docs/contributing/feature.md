@@ -26,6 +26,12 @@ See the [CONTRIBUTING.md](https://github.com/remotion-dev/remotion/blob/main/CON
 - **Backwards-compatibility**: Your feature cannot break existing code if Remotion is upgraded, unless the feature lands in a major version.
 - **Naming conventions**: Use `camelCase` for variables. If the API interfaces with numeric values, the unit should be included. For example `durationInFrames` instead of `duration` or `timeoutInMilliseconds` instead of `timeout`.
 
+## Icons
+
+Remotion uses [Font Awesome](https://fontawesome.com/) v5.15.4 for the icons in the Remotion Preview.
+
+We have a license and can grant access to Pro icons if needed.
+
 ## Communicate with us
 
 Use the `#development` channel on [Discord](https://remotion.dev/discord) to quickly ask questions and get feedback.

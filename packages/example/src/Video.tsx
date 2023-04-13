@@ -1,8 +1,8 @@
 import {alias} from 'lib/alias';
 import React from 'react';
-import {Composition, Folder, getInputProps, Still} from 'remotion';
+import {Composition, Folder, getInputProps, Still, z, zColor} from 'remotion';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
-import BetaText from './BetaText';
+import BetaText, {betaTextSchema} from './BetaText';
 import {CancelRender} from './CancelRender';
 import {ColorInterpolation} from './ColorInterpolation';
 import {ComplexSounds} from './ComplexSounds';
@@ -21,6 +21,7 @@ import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
+import {SchemaTest, schemaTestSchema} from './SchemaTest';
 import {Scripts} from './Scripts';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
@@ -38,7 +39,7 @@ import {VideoOnCanvas} from './VideoOnCanvas';
 import {Greenscreen} from './VideoOnCanvas/greenscreen';
 import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
-import {WarpDemo} from './WarpText';
+import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 
 if (alias !== 'alias') {
@@ -191,6 +192,10 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={180 * 30}
+					defaultProps={{
+						opacity: 1,
+						volume: 0.4,
+					}}
 				/>
 				<Composition
 					id="tiles"
@@ -220,8 +225,10 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={3 * 30}
 					defaultProps={{
-						word1: getInputProps().word1,
+						word1: 'hithere' as const,
+						color: ['rgba(19, 124, 45, 0.059)' as const],
 					}}
+					schema={betaTextSchema}
 				/>
 				<Composition
 					id="react-svg"
@@ -383,6 +390,10 @@ export const Index: React.FC = () => {
 					// Change the duration of the video dynamically by passing
 					// `--props='{"duration": 100}'`
 					durationInFrames={inputProps?.duration ?? 20}
+					defaultProps={{
+						codec: 'mp4' as const,
+						offthread: false,
+					}}
 				/>
 				<Composition
 					id="nested"
@@ -555,7 +566,7 @@ export const Index: React.FC = () => {
 				/>
 				<Composition
 					id="path-warp"
-					component={WarpDemo}
+					component={WarpDemoOuter}
 					durationInFrames={500}
 					fps={30}
 					height={1080}
@@ -664,7 +675,125 @@ export const Index: React.FC = () => {
 					width={1200}
 					height={630}
 					fps={30}
+					schema={z.object({
+						vehicle: z
+							.string()
+							.max(3, 'Too long')
+							.refine((v) => ['car', 'bus', 'truck'].includes(v)),
+						other: z.string(),
+						abc: z.object({
+							union: z.null().or(
+								z.object({
+									abc: z.string(),
+								})
+							),
+							jkl: z.string(),
+							def: z.object({
+								unionArray: z.array(z.null().or(z.string())),
+								pef: z.string(),
+							}),
+						}),
+						array: z
+							.array(
+								z.object({
+									a: z.string(),
+									b: z.string(),
+								})
+							)
+							.min(2),
+						array2: z.array(z.array(z.number())),
+						mynum: z.number().lt(10),
+						value: z.boolean().refine((v) => v === false || v === true),
+						lol: z.undefined(),
+						haha: z.null(),
+						yo: z.any(),
+						un: z.unknown(),
+						num: z.coerce.string(),
+						date: z.date(),
+						values: z.enum(['a', 'b', 'c']),
+						supersuperlongvalueabcdefghji: z.string(),
+						incompatible: z.null().or(z.undefined()),
+						color: zColor(),
+						longEnum: z.enum([
+							'a',
+							'b',
+							'c',
+							'd',
+							'e',
+							'f',
+							'gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg',
+							'h',
+							'i',
+							'j',
+							'k',
+							'l',
+							'm',
+							'n',
+							'o',
+							'p',
+							'q',
+							'r',
+							's',
+							't',
+							'u',
+							'v',
+							'w',
+							'x',
+							'y',
+							'z',
+						]),
+					})}
+					defaultProps={{
+						vehicle: 'car' as const,
+						other: 'hi' as const,
+						abc: {
+							union: null,
+							def: {unionArray: [null], pef: 'hu' as const},
+							jkl: 'sting' as const,
+							xyz: 'hi' as const,
+						},
+						array: [
+							{a: 'a' as const, b: 'bbbbb' as const},
+							{a: 'a' as const, b: 'b' as const},
+						],
+						array2: [[12], [12]],
+						mynum: 4,
+						value: true,
+						haha: null,
+						yo: {hi: ' there' as const},
+						un: 'hi' as const,
+						num: '179' as const,
+						date: new Date('1999-02-12T20:20:00.000Z'),
+						values: 'a' as const,
+						supersuperlongvalueabcdefghji: 'hi' as const,
+						incompatible: null,
+						longEnum: 'k' as const,
+						color: '#eb3a60' as const,
+					}}
 					durationInFrames={150}
+				/>
+			</Folder>
+			<Folder name="Schema">
+				<Composition
+					id="schema-test"
+					component={SchemaTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+					schema={schemaTestSchema}
+					defaultProps={{title: 'fsdfsdfsdfsdf', delay: 5.2}}
+				/>
+				{/**
+				 // @ts-expect-error */}
+				<Composition
+					id="impossible-to-save"
+					component={SchemaTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+					schema={schemaTestSchema}
 				/>
 			</Folder>
 		</>

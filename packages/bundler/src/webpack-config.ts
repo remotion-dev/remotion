@@ -1,6 +1,5 @@
 import {createHash} from 'crypto';
 import ReactDOM from 'react-dom';
-import type {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import {Internals} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
 import type {LoaderOptions} from './esbuild-loader/interfaces';
@@ -8,6 +7,13 @@ import {ReactFreshWebpackPlugin} from './fast-refresh';
 import {jsonStringifyWithCircularReferences} from './stringify-with-circular-references';
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
+
+import type {Configuration} from 'webpack';
+export type WebpackConfiguration = Configuration;
+
+export type WebpackOverrideFn = (
+	currentConfiguration: WebpackConfiguration
+) => WebpackConfiguration;
 
 if (!ReactDOM || !ReactDOM.version) {
 	throw new Error('Could not find "react-dom" package. Did you install it?');

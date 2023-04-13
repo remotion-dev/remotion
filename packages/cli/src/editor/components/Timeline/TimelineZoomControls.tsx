@@ -15,6 +15,7 @@ const container: React.CSSProperties = {
 	color: 'black',
 	flexDirection: 'row',
 	display: 'flex',
+	alignItems: 'center',
 };
 
 const buttonStyle: React.CSSProperties = {
@@ -24,11 +25,6 @@ const buttonStyle: React.CSSProperties = {
 const iconStyle: React.CSSProperties = {
 	color: 'white',
 	width: 14,
-};
-
-const slider: React.CSSProperties = {
-	width: 60,
-	accentColor: 'var(--blue)',
 };
 
 export const TimelineZoomControls: React.FC = () => {
@@ -78,7 +74,7 @@ export const TimelineZoomControls: React.FC = () => {
 				value={zoom}
 				max={TIMELINE_MAX_ZOOM}
 				onChange={onChange}
-				style={slider}
+				className="__remotion-timeline-slider"
 				tabIndex={tabIndex}
 			/>
 			<Spacing x={0.5} />

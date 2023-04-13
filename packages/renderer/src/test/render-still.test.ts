@@ -82,5 +82,7 @@ test('Catches invalid image format', () => {
 			output: '/file/output.png',
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 		})
-	).rejects.toThrow(/Image format should be either "png" or "jpeg"/);
+	).rejects.toThrow(
+		/Image format should be one of: "png", "jpeg", "pdf", "webp"/
+	);
 });

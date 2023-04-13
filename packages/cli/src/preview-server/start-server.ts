@@ -77,6 +77,7 @@ export const startServer = async (options: {
 					getCurrentInputProps: options.getCurrentInputProps,
 					getEnvVariables: options.getEnvVariables,
 					remotionRoot: options.remotionRoot,
+					entryPoint: options.userDefinedComponent,
 					publicDir: options.publicDir,
 				});
 			})

@@ -99,13 +99,17 @@ _number - default: 1_
 
 [Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
 
-### `quality?`
+### `jpegQuality?`
 
 _optional_
 
 Sets the quality of the generated JPEG images. Must be an integer between 0 and 100. Default is to leave it up to the browser, [current default is 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `frameRange?`
 
@@ -209,18 +213,6 @@ renderFrames({
 });
 ```
 
-### `ffmpegExecutable?` <AvailableFrom v="3.0.11" />
-
-_optional_
-
-An absolute path overriding the `ffmpeg` executable to use.
-
-### `ffprobeExecutable?` <AvailableFrom v="3.0.17" />
-
-_optional_
-
-An absolute path overriding the `ffprobe` executable to use.
-
 ### `browserExecutable?` <AvailableFrom v="3.0.11" />
 
 _optional_
@@ -296,6 +288,18 @@ Accepted values:
 
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
+
+### ~~`ffmpegExecutable`~~
+
+_removed in v4.0, optional_
+
+An absolute path overriding the `ffmpeg` executable to use.
+
+### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
+
+_removed in v4.0, optional_
+
+An absolute path overriding the `ffprobe` executable to use.
 
 ## Return value
 

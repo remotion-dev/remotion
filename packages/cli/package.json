@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "3.3.77",
+	"version": "3.3.82",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -19,6 +19,18 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
+	"exports": {
+		".": "./dist/index.js",
+		"./config": "./dist/config/index.js",
+		"./package.json": "./package.json"
+	},
+	"typesVersions": {
+		">=1.0": {
+			"config": [
+				"dist/config/index.d.ts"
+			]
+		}
+	},
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
@@ -26,10 +38,10 @@
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",
-		"better-opn": "2.1.1",
 		"dotenv": "9.0.2",
 		"memfs": "3.4.3",
 		"minimist": "1.2.6",
+		"open": "^8.4.2",
 		"prompts": "2.4.1",
 		"remotion": "workspace:*",
 		"semver": "7.3.5",
@@ -45,6 +57,7 @@
 		"@types/node": "^16.7.5",
 		"@types/prompts": "^2.4.1",
 		"@types/react": "18.0.26",
+		"@types/prettier": "^2.7.2",
 		"@types/react-dom": "18.0.10",
 		"@types/semver": "^7.3.4",
 		"@typescript-eslint/eslint-plugin": "5.18.0",

@@ -1,0 +1,127 @@
+---
+image: /generated/articles-docs-4-0-migration.png
+id: 4-0-migration
+title: v4.0 Migration
+crumb: "Version Upgrade"
+---
+
+When upgrading from Remotion 3 to Remotion 4, note the following changes and apply them to your project.
+
+## How to upgrade
+
+See the [changelog](https://remotion.dev/docs/changelog) to find the latest version.
+Upgrade `remotion` and all packages starting with `@remotion` to the latest version, e.g. `4.0.0`:
+
+```diff
+- "remotion": "^3.3.43"
+- "@remotion/bundler": "^3.3.43"
+- "@remotion/eslint-config": "^3.3.43"
+- "@remotion/eslint-plugin": "^3.3.43"
+- "@remotion/cli": "^3.3.43"
+- "@remotion/renderer": "^3.3.43"
++ "remotion": "4.0.0"
++ "@remotion/bundler": "4.0.0"
++ "@remotion/eslint-config": "4.0.0"
++ "@remotion/eslint-plugin": "4.0.0"
++ "@remotion/cli": "4.0.0"
++ "@remotion/renderer": "4.0.0"
+```
+
+Run `npm i `, `yarn` or `pnpm i` respectively afterwards.
+
+## Config file changes
+
+The CLI configuration file has been moved out from the core Remotion package to `@remotion/cli/config`. Update your imports like this:
+
+```diff
+- import {Config} from 'remotion';
++ import {Config} from '@remotion/cli/config';
+```
+
+TODO: Old config syntax has been removed
+
+## Dropped support for Lambda `architecture`
+
+When deploying a Lambda, you were previously able to choose between the `arm64` and `x86_64` architecture.  
+From v4.0 on, only `arm64` is supported. It should be faster, cheaper and not have any different behavior than `x86_64`.
+
+**How to upgrade**:
+
+- Remove the `architecture` option from `estimatePrice()` and `deployFunction()`.
+
+## Rich timeline removed
+
+The option to use the "Rich timeline" has been removed due to performance problems.  
+The timeline is now always in simple mode, but supports more timeline layers at once.
+
+## ProRes videos now export uncompressed audio by default
+
+Previously, the `aac` audio codec was the default for ProRes exports. The default is now `pcm_s16le` which stands for uncompressed 16-bit low-endian PCM audio.  
+This change was made since users export ProRes mainly for getting high-quality footage to be further used in video editing programs.
+
+## Renamed `quality` option to `jpegQuality`
+
+To clarify the meaning of this option, it is now universally called "JPEG Quality". Adjust the following options:
+
+- [`npx remotion render`](/docs/cli/render): Use `--jpeg-quality` insted of `--quality`
+- [`npx remotion still`](/docs/cli/still): Use `--jpeg-quality` insted of `--quality`
+- [`npx remotion benchmark`](/docs/cli/benchmark): Use `--jpeg-quality` insted of `--quality`
+- [`npx remotion lambda render`](/docs/lambda/cli/render): Use `--jpeg-quality` insted of `--quality`
+- [`npx remotion lambda still`](/docs/lambda/cli/still): Use `--jpeg-quality` insted of `--quality`
+- [`renderFrames()`](/docs/renderer/render-frames): Use `jpegQuality` instead of `quality`
+- [`renderMedia()`](/docs/renderer/render-media): Use `jpegQuality` instead of `quality`
+- [`renderStill()`](/docs/renderer/render-still): Use `jpegQuality` instead of `quality`
+- [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda): Use `jpegQuality` instead of `quality`
+- [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda): Use `jpegQuality` instead of `quality`
+
+## No more FFmpeg install, `ffmpegExecutable` option removed
+
+FFmpeg is now baked into the `@remotion/renderer` package. Therefore, the `ffmpegExecutable` and `ffprobeExecutable` options have been removed.
+
+**How to upgrade:**
+
+- Remove the `ffmpegExecutable` option from [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`getCompositions()`](/docs/renderer/get-compositions), [`renderFrames()`](/docs/renderer/render-frames) and [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) calls.
+- Remove the `ffprobeExecutable` option from [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`getCompositions()`](/docs/renderer/get-compositions), [`renderFrames()`](/docs/renderer/render-frames) and [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) calls.
+- Remove all calls to [`ensureFfmpeg()`](/docs/renderer/ensure-ffmpeg).
+- Remove all calls to [`ensureFfprobe()`](/docs/renderer/ensure-ffprobe).
+- Remove the `--ffmpeg-executable` flag from [`npx remotion render`](/docs/cli/render), [`npx remotion still`](/docs/cli/still) and [`npx remotion benchmark`](/docs/cli/benchmark)
+- Remove the `--ffprobe-executable` flag from [`npx remotion render`](/docs/cli/render), [`npx remotion still`](/docs/cli/still) and [`npx remotion benchmark`](/docs/cli/benchmark)
+
+## Moved `onSlowestFrames` API
+
+In V3, `onSlowestFrames` has been a callback function that you could pass to `renderMedia()`.  
+In V4, this data has been moved to the [return value](/docs/renderer/render-media#return-value).
+
+## Removal of deprecated APIs
+
+- `Config.setOutputFormat()` was deprecated in v1.4 and has now been removed. Use `setImageSequence()`, `setVideoImageFormat()` and `setCodec()` in combination instead.
+
+- `downloadVideo()` alias has been removed, use [`downloadMedia()`](/docs/lambda/downloadmedia) with the same API instead.
+
+- `<MotionBlur>` has been removed. Use [`<Trail>`](/docs/motion-blur/trail) instead.
+
+- `getParts()` has been removed. Use [`getSubpaths()`](/docs/paths/get-subpaths) instead:
+
+```tsx twoslash title="paths.ts"
+import {
+  getLength,
+  getPointAtLength,
+  getSubpaths,
+  getTangentAtLength,
+} from "@remotion/paths";
+
+const path = "M 0 0 L 100 100";
+const parts = getSubpaths(path[0]);
+const length = getLength(parts[0]);
+const start = getPointAtLength(parts[0], 0);
+const end = getPointAtLength(parts[0], length);
+const tangent = getTangentAtLength(parts[0], length / 2);
+```
+
+- `webpackBundle` has been removed from `renderFrames()` and `renderMedia()` - rename it to `serveUrl` instead
+- `parallelism` has been removed from `renderFrames()` and `renderMedia()` - rename it to `concurrency` instead.
+- `config` has been removed from `renderFrames()` - rename it to `composition` instead.
+
+## `onBucketEnsured` option has been removed
+
+The `onBucketEnsured()` option of [`getOrCreateBucket`](/docs/lambda/getorcreatebucket) has been removed because creating the bucket is the only operation of `getOrCreateBucket()`. Therefore, you can just await the function itself.

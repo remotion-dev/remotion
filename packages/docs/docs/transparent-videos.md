@@ -37,9 +37,9 @@ In order to create a transparent video, you need at least version 1.4 of Remotio
 If you want to set these options and persist them, add this to your `remotion.config.ts` file (create it if you don't yet have one);
 
 ```tsx twoslash
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
-Config.setImageFormat("png");
+Config.setVideoImageFormat("png");
 Config.setPixelFormat("yuva420p");
 Config.setCodec("vp8");
 ```
@@ -55,12 +55,12 @@ You can also set the settings on the command line:
 If you want to export a transparent video for use in another video editing program, Apple ProRes is a more suitable option.
 ProRes is supported by Final Cut Pro, Adobe Premiere and Davinci Resolve.
 
-Supported since v2.1.7, you can set the codec to `prores` and choose a ProRes profile with alpha support: Either: `4444` or `4444-hq`. The pixel format must be `yuva444p10le`.
+Supported since v2.1.7, you can set the codec to `prores` and choose a ProRes profile with alpha support: Either: `4444` or `hq`. The pixel format must be `yuva444p10le`.
 
 ```tsx twoslash
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
-Config.setImageFormat("png");
+Config.setVideoImageFormat("png");
 Config.setPixelFormat("yuva444p10le");
 Config.setCodec("prores");
 Config.setProResProfile("4444");

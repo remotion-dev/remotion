@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
 import {validateCompositionDuration} from '../../helpers/validate-new-comp-data';
-import {Row} from '../layout';
+import {Row, Spacing} from '../layout';
 import {InputDragger} from './InputDragger';
 import {inputArea, leftLabel, rightLabel} from './new-comp-layout';
 import {ValidationMessage} from './ValidationMessage';
@@ -41,12 +41,20 @@ export const NewCompDuration: React.FC<{
 							min={1}
 							step={1}
 							required
+							status="ok"
 							// Hitting Promise.all() limit in Chrome
 							max={300_000}
 							onValueChange={onDurationChangedDirectly}
 						/>
 						{compDurationErrMessage ? (
-							<ValidationMessage message={compDurationErrMessage} />
+							<>
+								<Spacing y={1} block />
+								<ValidationMessage
+									align="flex-start"
+									message={compDurationErrMessage}
+									type="error"
+								/>
+							</>
 						) : null}
 					</div>
 					<span style={rightLabel}>
