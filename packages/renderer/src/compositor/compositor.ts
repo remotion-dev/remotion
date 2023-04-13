@@ -76,6 +76,9 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	};
 
 	let quit = false;
+	let missingData: null | {
+		dataMissing: number;
+	} = null;
 
 	const processInput = () => {
 		let separatorIndex = outputBuffer.indexOf(separator);
@@ -123,6 +126,9 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 
 		const dataLength = outputBuffer.length - separatorIndex - 1;
 		if (dataLength < length) {
+			missingData = {
+				dataMissing: length - dataLength,
+			};
 			return;
 		}
 
@@ -131,6 +137,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			separatorIndex + 1 + Number(lengthString)
 		);
 		onMessage(nonceString, data);
+		missingData = null;
 
 		outputBuffer = outputBuffer.subarray(
 			separatorIndex + Number(lengthString) + 1
@@ -144,7 +151,13 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		unprocessedBuffers.push(data);
 		const separatorIndex = data.indexOf(separator);
 		if (separatorIndex === -1) {
-			return;
+			if (missingData) {
+				missingData.dataMissing -= data.length;
+			}
+
+			if (!missingData || missingData.dataMissing > 0) {
+				return;
+			}
 		}
 
 		unprocessedBuffers.unshift(outputBuffer);
@@ -155,6 +168,12 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	});
 
 	child.stderr.on('data', (data) => {
+		if (
+			data.toString('utf-8').includes('No accelerated colorspace conversion')
+		) {
+			return;
+		}
+
 		console.log(data.toString('utf-8'));
 	});
 

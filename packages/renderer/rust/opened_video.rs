@@ -44,15 +44,7 @@ impl OpenedVideo {
         if position < self.last_seek || self.last_seek < min_position {
             self.input
                 .seek(stream_index as i32, min_position, position, position, 0)?;
-            _print_debug(&format!(
-                "SEEKING, latest seek is {} position {}",
-                self.last_seek, position
-            ))?;
         } else {
-            _print_debug(&format!(
-                "NOT SEEKING, latest seek is {} position {}",
-                self.last_seek, position
-            ))?;
         }
 
         let mut frame = Video::empty();
