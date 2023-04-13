@@ -8,8 +8,7 @@ mod opened_video;
 mod payloads;
 use commands::execute_command;
 use errors::PossibleErrors;
-use global_printer::_print_debug;
-use std::{env, thread};
+use std::env;
 use threadpool::ThreadPool;
 
 use payloads::payloads::{parse_cli, CliInputCommand};

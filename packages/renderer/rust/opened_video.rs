@@ -88,6 +88,7 @@ pub fn scale_and_make_bitmap(
     width: u32,
     height: u32,
 ) -> Result<Vec<u8>, PossibleErrors> {
+    let start_time = std::time::Instant::now();
     let mut scaler = Context::get(
         format,
         width,
@@ -103,7 +104,13 @@ pub fn scale_and_make_bitmap(
 
     let bitmap = turn_frame_into_bitmap(scaled);
 
-    return Ok(create_bmp_image(bitmap, width, height));
+    let bmp = create_bmp_image(bitmap, width, height);
+    _print_debug(&format!(
+        "Scaling and making bitmap took {}ms",
+        start_time.elapsed().as_millis()
+    ))?;
+
+    return Ok(bmp);
 }
 
 pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
