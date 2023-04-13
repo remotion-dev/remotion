@@ -34,7 +34,7 @@ pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> 
 
     let t = Instant::now();
     let frame = vid.get_frame(time);
-    _print_debug(&format!("Time to get frame: {:?}", t.elapsed()));
+    _print_debug(&format!("Time to get frame: {:?}", t.elapsed()))?;
     frame
 }
 
@@ -71,7 +71,7 @@ impl OpenedVideo {
                 break;
             }
             loop {
-                _print_debug(&format!("Sending packet {}", packet.dts().unwrap()));
+                _print_debug(&format!("Sending packet {}", packet.dts().unwrap()))?;
                 self.video.send_packet(&packet)?;
                 let res = self.video.receive_frame(&mut frame);
 
