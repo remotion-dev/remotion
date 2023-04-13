@@ -8,6 +8,7 @@ mod opened_video;
 mod payloads;
 use commands::execute_command;
 use errors::PossibleErrors;
+use global_printer::_print_debug;
 use std::{env, thread};
 use threadpool::ThreadPool;
 
@@ -47,26 +48,22 @@ pub fn parse_init_command(json: &str) -> Result<CliInputCommand, PossibleErrors>
 }
 
 fn start_long_running_process() -> Result<(), PossibleErrors> {
-    let pool = ThreadPool::new(4); // Create a thread pool with 4 threads
-
-    // Read messages from stdin in a separate thread
-
-    let thread_handle = thread::spawn(move || loop {
+    loop {
         let mut input = String::new();
-        std::io::stdin().read_line(&mut input).unwrap();
-        input = input.trim().to_string();
-        if input == "EOF" {
-            pool.join();
+        let matched = match std::io::stdin().read_line(&mut input) {
+            Ok(_) => input,
+            Err(_) => {
+                break;
+            }
+        };
 
+        input = matched.trim().to_string();
+        if input == "EOF" {
             break;
         }
-        pool.execute(move || {
-            let opts: CliInputCommand = parse_cli(&input).unwrap();
-            execute_command(opts).unwrap();
-        });
-    });
-
-    thread_handle.join()?;
+        let opts: CliInputCommand = parse_cli(&input).unwrap();
+        execute_command(opts).unwrap();
+    }
 
     Ok(())
 }
