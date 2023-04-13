@@ -171,7 +171,7 @@ function checkTerraformStateFile() {
 
 		if (tfstateProject === undefined) {
 			execSync(
-				`echo "${redTextColor}Terraform state file is not from a Remotion project.\nChange directory, or delete all existing terraform files within the current directory, before trying again.\nTo delete all terraform files, run: ${resetTextColor}rm -rf .terraform terraform.tfstate terraform.tfstate.backup .terraform.lock.hcl"`,
+				`echo "${redTextColor}Terraform state file is not from a Remotion project.\nChange directory, or delete all existing terraform files within the current directory, before trying again.\nTo delete all terraform files, run: ${resetTextColor}rm -rf .terraform terraform.tfstate terraform.tfstate.backup .terraform.lock.hcl terraform.tfstate.*.backup"`,
 				{stdio: 'inherit'}
 			);
 			process.exit(1);
