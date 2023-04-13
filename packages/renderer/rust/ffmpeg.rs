@@ -1,7 +1,6 @@
 use lazy_static::lazy_static;
 
 use crate::errors::PossibleErrors;
-use crate::global_printer::_print_debug;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
 use std::collections::HashMap;
@@ -9,18 +8,13 @@ use std::io::ErrorKind;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::sync::RwLock;
-use std::time::Instant;
 extern crate ffmpeg_next as remotionffmpeg;
 
 pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> {
     let manager = OpenedVideoManager::get_instance();
     let video_locked = manager.get_video(&src)?;
     let mut vid = video_locked.lock().unwrap();
-
-    let t = Instant::now();
-    let frame = vid.get_frame(time);
-    _print_debug(&format!("Time to get frame: {:?}", t.elapsed()))?;
-    frame
+    vid.get_frame(time)
 }
 
 pub struct OpenedVideoManager {

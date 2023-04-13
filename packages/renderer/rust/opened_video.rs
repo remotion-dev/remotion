@@ -20,6 +20,7 @@ pub struct OpenedVideo {
     pub video: remotionffmpeg::codec::decoder::Video,
     pub src: String,
     pub input: remotionffmpeg::format::context::Input,
+    pub last_seek: i64,
 }
 
 impl OpenedVideo {
@@ -40,9 +41,19 @@ impl OpenedVideo {
 
         let stream_index = self.stream_index.clone();
 
-        let seek_video =
+        if position < self.last_seek || self.last_seek < min_position {
             self.input
                 .seek(stream_index as i32, min_position, position, position, 0)?;
+            _print_debug(&format!(
+                "SEEKING, latest seek is {} position {}",
+                self.last_seek, position
+            ))?;
+        } else {
+            _print_debug(&format!(
+                "NOT SEEKING, latest seek is {} position {}",
+                self.last_seek, position
+            ))?;
+        }
 
         let mut frame = Video::empty();
 
@@ -62,7 +73,6 @@ impl OpenedVideo {
                 break;
             }
             loop {
-                _print_debug(&format!("Sending packet {}", packet.dts().unwrap()))?;
                 self.video.send_packet(&packet)?;
                 let res = self.video.receive_frame(&mut frame);
 
@@ -75,6 +85,7 @@ impl OpenedVideo {
                         }
                     }
                     Ok(_) => {
+                        self.last_seek = packet.dts().unwrap();
                         break;
                     }
                 }
@@ -121,6 +132,7 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
         video,
         src: src.to_string(),
         input,
+        last_seek: 0,
     };
 
     Ok(opened_video)

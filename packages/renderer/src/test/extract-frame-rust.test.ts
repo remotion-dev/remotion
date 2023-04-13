@@ -25,7 +25,7 @@ test(
 		console.time('second frame');
 		const data2 = await compositor.executeCommand('ExtractFrame', {
 			input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
-			time: 40.1,
+			time: 40.4,
 		});
 		expect(data2.length).toBe(2764854);
 		console.timeEnd('second frame');

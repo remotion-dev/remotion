@@ -57,6 +57,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		[JSON.stringify(payload)],
 		dynamicLibraryPathOptions()
 	);
+
 	const stderrChunks: Buffer[] = [];
 	let outputBuffer = Buffer.from('');
 
@@ -137,8 +138,19 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		processInput();
 	};
 
+	let unprocessedBuffers: Buffer[] = [];
+
 	child.stdout.on('data', (data) => {
-		outputBuffer = Buffer.concat([outputBuffer, data]);
+		unprocessedBuffers.push(data);
+		const separatorIndex = data.indexOf(separator);
+		if (separatorIndex === -1) {
+			return;
+		}
+
+		unprocessedBuffers.unshift(outputBuffer);
+
+		outputBuffer = Buffer.concat(unprocessedBuffers);
+		unprocessedBuffers = [];
 		processInput();
 	});
 

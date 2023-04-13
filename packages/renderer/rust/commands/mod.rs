@@ -1,15 +1,23 @@
 use crate::compositor::draw_layer;
 use crate::errors::PossibleErrors;
+use crate::global_printer::_print_debug;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::payloads::payloads::CliInputCommand;
 use crate::{ffmpeg, global_printer};
 use std::io::ErrorKind;
+use std::time::Instant;
 
 pub fn execute_command(opts: CliInputCommand) -> Result<(), PossibleErrors> {
     match opts {
         CliInputCommand::ExtractFrame(command) => {
+            let t = Instant::now();
             let _result = ffmpeg::extract_frame(command.input, command.time)?;
             global_printer::synchronized_write_buf(&command.nonce, &_result)?;
+            _print_debug(&format!(
+                "Time to get frame: {:?} {}",
+                t.elapsed(),
+                _result.len()
+            ))?;
         }
         CliInputCommand::StartLongRunningProcess(_command) => {
             Err(std::io::Error::new(
