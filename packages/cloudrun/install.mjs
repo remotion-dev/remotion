@@ -1,5 +1,6 @@
 // this will be executed with node
 import {execSync} from 'child_process';
+import {existsSync, readFileSync} from 'fs';
 import readline from 'readline';
 
 /****************************************
@@ -158,23 +159,13 @@ function checkTerraformStateFile() {
 	 * Check for existing Terraform State
 	 ****************************************/
 
-	const dirFiles = execSync('ls -a', {
-		stdio: ['inherit', 'pipe', 'pipe'],
-	})
-		.toString()
-		.trim();
-
-	if (dirFiles.includes('.tfstate') && !dirFiles.includes('.tfstate.backup')) {
+	if (existsSync('terraform.tfstate')) {
 		execSync(
 			'echo "Terraform State file exists. Checking it is for the current Remotion project...\n"',
 			{stdio: 'inherit'}
 		);
 
-		const tfstate = JSON.parse(
-			execSync('cat terraform.tfstate', {
-				stdio: ['inherit', 'pipe', 'pipe'],
-			}).toString()
-		);
+		const tfstate = JSON.parse(readFileSync('terraform.tfstate', 'utf-8'));
 
 		const tfstateProject = tfstate.outputs?.remotion_project_id?.value;
 
