@@ -48,6 +48,8 @@ pub fn parse_init_command(json: &str) -> Result<CliInputCommand, PossibleErrors>
 }
 
 fn start_long_running_process() -> Result<(), PossibleErrors> {
+    let pool = ThreadPool::new(4);
+
     loop {
         let mut input = String::new();
         let matched = match std::io::stdin().read_line(&mut input) {
@@ -62,8 +64,12 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
             break;
         }
         let opts: CliInputCommand = parse_cli(&input).unwrap();
-        execute_command(opts).unwrap();
+        pool.execute(move || {
+            execute_command(opts).unwrap();
+        });
     }
+
+    pool.join();
 
     Ok(())
 }
