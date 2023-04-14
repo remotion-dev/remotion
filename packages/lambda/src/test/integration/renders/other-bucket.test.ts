@@ -31,7 +31,7 @@ test('Should be able to render to another bucket', async () => {
 		{
 			type: LambdaRoutines.start,
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-			chromiumOptions: {userAgent: null},
+			chromiumOptions: {},
 			codec: 'h264',
 			composition: 'react-svg',
 			crf: 9,

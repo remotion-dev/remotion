@@ -28,7 +28,7 @@ test('Should fail when using an incompatible version', async () => {
 			{
 				type: LambdaRoutines.start,
 				serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
-				chromiumOptions: {userAgent: null},
+				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
 				crf: 9,

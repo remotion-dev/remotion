@@ -163,7 +163,7 @@ export const renderMediaOnLambda = async ({
 				frameRange: frameRange ?? null,
 				outName: outName ?? null,
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-				chromiumOptions: chromiumOptions ?? {userAgent: null},
+				chromiumOptions: chromiumOptions ?? {},
 				scale: scale ?? 1,
 				everyNthFrame: everyNthFrame ?? 1,
 				numberOfGifLoops: numberOfGifLoops ?? 0,
