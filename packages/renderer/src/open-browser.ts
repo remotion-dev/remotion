@@ -21,8 +21,7 @@ export type ChromiumOptions = {
 	disableWebSecurity?: boolean;
 	gl?: OpenGlRenderer | null;
 	headless?: boolean;
-	// TODO: Make it optional
-	userAgent: string | null;
+	userAgent?: string | null;
 };
 
 const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {

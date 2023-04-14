@@ -33,7 +33,7 @@ test('Should make a transparent video', async () => {
 		{
 			type: LambdaRoutines.start,
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-			chromiumOptions: {userAgent: null},
+			chromiumOptions: {},
 			codec: 'vp8',
 			composition: 'ten-frame-tester',
 			crf: 9,
