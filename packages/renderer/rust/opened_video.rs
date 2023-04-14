@@ -9,7 +9,11 @@ use remotionffmpeg::{
 };
 extern crate ffmpeg_next as remotionffmpeg;
 
-use crate::{errors::PossibleErrors, global_printer::_print_debug};
+use crate::{
+    errors::PossibleErrors,
+    frame_cache::{FrameCache, FrameCacheItem},
+    global_printer::_print_debug,
+};
 
 pub struct OpenedVideo {
     pub stream_index: usize,
@@ -21,6 +25,7 @@ pub struct OpenedVideo {
     pub src: String,
     pub input: remotionffmpeg::format::context::Input,
     pub last_seek: i64,
+    pub frame_cache: FrameCache,
 }
 
 impl OpenedVideo {
@@ -72,6 +77,11 @@ impl OpenedVideo {
                         }
                     }
                     Ok(_) => {
+                        self.frame_cache.add_item(FrameCacheItem {
+                            time: packet.dts().unwrap(),
+                            frame: frame.clone(),
+                        });
+                        _print_debug(&format!("Got frame {}", packet.dts().unwrap(),))?;
                         self.last_seek = packet.dts().unwrap();
                         break;
                     }
@@ -91,7 +101,6 @@ pub fn scale_and_make_bitmap(
     width: u32,
     height: u32,
 ) -> Result<Vec<u8>, PossibleErrors> {
-    let start_time = std::time::Instant::now();
     let mut scaler = Context::get(
         format,
         width,
@@ -106,7 +115,6 @@ pub fn scale_and_make_bitmap(
     scaler.run(&frame, &mut scaled)?;
 
     let bmp = create_bmp_image_from_frame(&mut scaled);
-
 
     return Ok(bmp);
 }
@@ -140,6 +148,7 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
         src: src.to_string(),
         input,
         last_seek: 0,
+        frame_cache: FrameCache::new(),
     };
 
     Ok(opened_video)
