@@ -60,6 +60,7 @@ export type RenderMediaOnLambdaInput = {
 	rendererFunctionName?: string | null;
 	forceBucketName?: string;
 	audioCodec?: AudioCodec | null;
+	dumpBrowserLogs?: boolean;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -125,6 +126,7 @@ export const renderMediaOnLambda = async ({
 	rendererFunctionName,
 	forceBucketName: bucketName,
 	audioCodec,
+	dumpBrowserLogs,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
@@ -179,6 +181,7 @@ export const renderMediaOnLambda = async ({
 				forceWidth: forceWidth ?? null,
 				bucketName: bucketName ?? null,
 				audioCodec: audioCodec ?? null,
+				dumpBrowserLogs: dumpBrowserLogs ?? false,
 			},
 			region,
 		});

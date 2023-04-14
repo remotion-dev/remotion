@@ -98,6 +98,7 @@ $params = array(
     "bucketName" => null,
     "audioCodec" => null,
     "forceBucketName" => $bucketName,
+    "dumpBrowserLogs" => false,
 );
 
 try {

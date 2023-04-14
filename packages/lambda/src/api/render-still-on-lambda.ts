@@ -33,6 +33,7 @@ export type RenderStillOnLambdaInput = {
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	forceBucketName?: string;
+	dumpBrowserLogs?: boolean;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -82,6 +83,7 @@ export const renderStillOnLambda = async ({
 	forceHeight,
 	forceWidth,
 	forceBucketName,
+	dumpBrowserLogs,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const serializedInputProps = await serializeInputProps({
 		inputProps,
@@ -115,6 +117,7 @@ export const renderStillOnLambda = async ({
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
 				bucketName: forceBucketName ?? null,
+				dumpBrowserLogs: dumpBrowserLogs ?? false,
 			},
 			region,
 		});

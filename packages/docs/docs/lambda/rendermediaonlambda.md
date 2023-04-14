@@ -304,6 +304,18 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 [See here for detailed instructions on how to set up your webhook](/docs/lambda/webhooks).
 
+### `logLevel?`
+
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
+
+If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
+
+If the `logLevel` is set to `verbose`, the `dumpBrowserLogs` flag will also be enabled.
+
+### `dumpBrowserLogs?` <AvailableFrom v="3.3.83" />
+
+If set to true, all `console` statements from the headless browser will be forwarded to the CloudWatch logs.
+
 ## Return value
 
 Returns a promise resolving to an object containing two properties: `renderId`, `bucketName`, `cloudWatchLogs`. Those are useful for passing to `getRenderProgress()`
