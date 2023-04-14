@@ -31,7 +31,7 @@ test('Should add silent audio if there is no audio', async () => {
 		{
 			type: LambdaRoutines.start,
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-			chromiumOptions: {},
+			chromiumOptions: {userAgent: null},
 			codec: 'h264',
 			composition: 'react-svg',
 			crf: 9,

@@ -91,6 +91,7 @@ import {getPublicDir, setPublicDir} from './public-dir';
 import {setQuality} from './quality';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
+import {getChromiumUserAgent, setChromiumUserAgent} from './user-agent';
 import {setWebpackCaching} from './webpack-caching';
 import {
 	getWebpackPolling,
@@ -126,6 +127,7 @@ const Puppeteer = {
 	setChromiumIgnoreCertificateErrors,
 	setChromiumHeadlessMode,
 	setChromiumOpenGlRenderer,
+	setChromiumUserAgent,
 };
 
 const Rendering = {
@@ -229,6 +231,7 @@ export const ConfigInternals = {
 	getNumberOfGifLoops,
 	getWebpackPolling,
 	getShouldOpenBrowser,
+	getChromiumUserAgent,
 };
 
 export const overrideRemotion = () => {

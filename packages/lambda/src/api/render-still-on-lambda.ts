@@ -108,7 +108,7 @@ export const renderStillOnLambda = async ({
 				logLevel: logLevel ?? 'info',
 				outName: outName ?? null,
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-				chromiumOptions: chromiumOptions ?? {},
+				chromiumOptions: chromiumOptions ?? {userAgent: null},
 				scale: scale ?? 1,
 				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
 				version: VERSION,

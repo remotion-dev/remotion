@@ -21,6 +21,8 @@ export type ChromiumOptions = {
 	disableWebSecurity?: boolean;
 	gl?: OpenGlRenderer | null;
 	headless?: boolean;
+	// TODO: Make it optional
+	userAgent: string | null;
 };
 
 const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
@@ -141,6 +143,9 @@ export const openBrowser = async (
 			...(options?.chromiumOptions?.disableWebSecurity
 				? ['--disable-web-security']
 				: []),
+			options?.chromiumOptions?.userAgent
+				? `--user-agent="${options.chromiumOptions.userAgent}"`
+				: null,
 		].filter(Boolean) as string[],
 		defaultViewport: options?.viewport ?? {
 			height: 720,
