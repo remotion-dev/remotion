@@ -176,6 +176,11 @@ declare global {
 			readonly setChromiumOpenGlRenderer: (
 				renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader'
 			) => void;
+			/**
+			 * Set the user agent for Chrome. Only works during rendering.
+			 * Default:
+			 */
+			readonly setChromiumUserAgent: (userAgent: string | null) => void;
 		};
 		/**
 		 * @deprecated New flat config format: You can now replace `Config.Rendering.` with `Config.`
