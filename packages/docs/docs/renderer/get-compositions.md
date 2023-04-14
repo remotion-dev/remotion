@@ -184,6 +184,10 @@ Accepted values:
 
 Default: `null`.
 
+#### `userAgent` <AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
 ## Return value
 
 Returns a promise that resolves to an array of available compositions. Example value:

@@ -87,6 +87,10 @@ This will most notably disable CORS in Chrome among other security features.
 
 Opens an actual browser to observe the composition fetching.
 
+### `--user-agent` <AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
 ### `--quiet`, `--q`
 
 Only prints the composition IDs, separated by a space.
