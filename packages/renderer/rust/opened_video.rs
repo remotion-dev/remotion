@@ -104,10 +104,6 @@ pub fn scale_and_make_bitmap(
 
     let bmp = create_bmp_image_from_frame(&mut scaled);
 
-    _print_debug(&format!(
-        "Scaling and making bitmap took {}ms",
-        start_time.elapsed().as_millis()
-    ))?;
 
     return Ok(bmp);
 }

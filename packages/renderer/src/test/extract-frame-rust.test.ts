@@ -67,22 +67,17 @@ test('Should be able to seek backwards', async () => {
 		},
 	});
 
-	console.time('first');
 	const data = await compositor.executeCommand('ExtractFrame', {
 		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
 		time: 40,
 	});
 	expect(data.length).toBe(2764854);
 	fs.writeFileSync('test.png', data);
-	console.timeEnd('first');
-
-	console.time('second');
 	const data2 = await compositor.executeCommand('ExtractFrame', {
 		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
 		time: 35,
 	});
 	expect(data2.length).toBe(2764854);
-	console.timeEnd('second');
 
 	fs.writeFileSync('test2.png', data2);
 
