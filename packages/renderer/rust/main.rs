@@ -6,6 +6,7 @@ mod global_printer;
 mod image;
 mod opened_video;
 mod payloads;
+mod frame_cache;
 use commands::execute_command;
 use errors::PossibleErrors;
 use std::env;
