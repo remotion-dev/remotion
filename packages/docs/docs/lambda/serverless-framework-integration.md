@@ -148,6 +148,15 @@ yarn deploy-fn
 
 This will execute the [deploy function](https://github.com/alexfernandez803/remotion-serverless/blob/main/remotion-app/src/infra/deploy-lambda-fn.ts) that will deploy the Remotion Lambda to your AWS account.
 
+```bash title="deployment logs"
+
+Found 1 accounts. Deploying...
+Ensured function="remotion-render-3-3-78-mem2048mb-disk2048mb-240sec" to region="ap-southeast-2" in account 1
+entryPoint /xxxx/code/remotion-serverless/remotion-app/src/index.tsx
+Deployed site to region="ap-southeast-2" in account 1 with bucket="remotionlambda-apsoutheast2-xxxxx" under serveUrl="https://remotionlambda-apsoutheast2-xxxxx.s3.ap-southeast-2.amazonaws.com/sites/remotion-render-app-3.3.78/index.html"
+
+```
+
 #### 6. (Optional) Delete the lambda function if not needed.
 
 <Tabs

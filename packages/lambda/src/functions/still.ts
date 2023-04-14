@@ -156,7 +156,9 @@ const innerStillHandler = async (
 		composition,
 		output: outputPath,
 		serveUrl,
-		dumpBrowserLogs: false,
+		dumpBrowserLogs:
+			lambdaParams.dumpBrowserLogs ??
+			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
 		envVariables: lambdaParams.envVariables,
 		frame: RenderInternals.convertToPositiveFrameIndex({
 			frame: lambdaParams.frame,

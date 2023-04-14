@@ -253,6 +253,7 @@ export type LambdaPayloads = {
 		forceHeight: number | null;
 		forceWidth: number | null;
 		bucketName: string | null;
+		dumpBrowserLogs: boolean;
 	};
 	launch: {
 		rendererFunctionName: string | null;
@@ -290,6 +291,7 @@ export type LambdaPayloads = {
 		webhook: WebhookOption;
 		forceHeight: number | null;
 		forceWidth: number | null;
+		dumpBrowserLogs: boolean;
 	};
 	status: {
 		type: LambdaRoutines.status;
@@ -333,6 +335,7 @@ export type LambdaPayloads = {
 		launchFunctionConfig: {
 			version: string;
 		};
+		dumpBrowserLogs: boolean;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -356,6 +359,7 @@ export type LambdaPayloads = {
 		forceHeight: number | null;
 		forceWidth: number | null;
 		bucketName: string | null;
+		dumpBrowserLogs: boolean;
 	};
 	compositions: {
 		type: LambdaRoutines.compositions;
@@ -367,6 +371,7 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		serveUrl: string;
 		bucketName: string | null;
+		dumpBrowserLogs: boolean;
 	};
 };
 
