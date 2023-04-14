@@ -33,6 +33,7 @@ export type RenderStillOnLambdaInput = {
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	forceBucketName?: string;
+	dumpBrowserLogs?: boolean;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -58,6 +59,7 @@ export type RenderStillOnLambdaOutput = {
  * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
  * @param params.frame Which frame should be used for the still image. Default 0.
  * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
+ * @param params.dumpBrowserLogs Whether to print browser logs to CloudWatch.
  * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
  */
 
@@ -82,6 +84,7 @@ export const renderStillOnLambda = async ({
 	forceHeight,
 	forceWidth,
 	forceBucketName,
+	dumpBrowserLogs,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	const serializedInputProps = await serializeInputProps({
 		inputProps,
@@ -115,6 +118,7 @@ export const renderStillOnLambda = async ({
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
 				bucketName: forceBucketName ?? null,
+				dumpBrowserLogs: dumpBrowserLogs ?? false,
 			},
 			region,
 		});
