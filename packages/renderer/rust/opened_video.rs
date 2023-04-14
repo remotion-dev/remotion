@@ -101,11 +101,12 @@ pub fn scale_and_make_bitmap(
     width: u32,
     height: u32,
 ) -> Result<Vec<u8>, PossibleErrors> {
+    let start_time = std::time::Instant::now();
     let mut scaler = Context::get(
         format,
         width,
         height,
-        Pixel::RGB24,
+        Pixel::BGR24,
         width,
         height,
         Flags::BILINEAR,
@@ -115,7 +116,10 @@ pub fn scale_and_make_bitmap(
     scaler.run(&frame, &mut scaled)?;
 
     let bmp = create_bmp_image_from_frame(&mut scaled);
-
+    _print_debug(&format!(
+        "Scaling and making bitmap took {}microsseconds",
+        start_time.elapsed().as_micros()
+    ))?;
     return Ok(bmp);
 }
 
@@ -193,20 +197,7 @@ fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
     bmp_data.extend(&0u32.to_le_bytes());
 
     for y in (0..height).rev() {
-        let y_usize = y as usize;
-        for x in 0..width {
-            let x_usize = x as usize;
-            let pixel_offset = y_usize * stride + 3 * x_usize;
-            let pixel_data = &mut rgb_frame.data_mut(0)[pixel_offset..pixel_offset + 3];
-
-            // Swap the R and B values
-            unsafe {
-                let temp = *pixel_data.get_unchecked(0);
-                *pixel_data.get_unchecked_mut(0) = *pixel_data.get_unchecked(2);
-                *pixel_data.get_unchecked_mut(2) = temp;
-            }
-        }
-        let row_start = y_usize * stride;
+        let row_start = (y as usize) * stride;
         let row_end = row_start + (width * 3) as usize;
         bmp_data.extend_from_slice(&rgb_frame.data(0)[row_start..row_end]);
         for _ in 0..row_padding {
