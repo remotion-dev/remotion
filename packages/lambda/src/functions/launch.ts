@@ -277,6 +277,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			launchFunctionConfig: {
 				version: VERSION,
 			},
+			dumpBrowserLogs: params.dumpBrowserLogs,
 		};
 		return payload;
 	});

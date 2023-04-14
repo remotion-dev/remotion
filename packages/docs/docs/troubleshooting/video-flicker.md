@@ -34,7 +34,11 @@ This is a design tradeoff of Remotion, but can be fought with different levels o
 
 It should be mentioned that this effect is only happening in the Remotion Preview and the Remotion Player, and will not appear in the rendered video. If you are only looking for a frame-perfect rendered video, you do not need to take additional steps.
 
-<strong><Step>2</Step>Option 2: Preloading to avoid network request</strong><br/>
+<strong><Step>2</Step>Option 2: Pause the <code>{"<Player/>"}</code> when media is buffering</strong><br/>
+
+You may want to pause the `<Player>` temporarily to allow loading of the assets and resume once the assets are ready for playback. [See here](/docs/buffer-state) for how to implement this.
+
+<strong><Step>3</Step>Option 3: Preloading to avoid network request</strong><br/>
 
 You may signal to the browser to preload videos and other assets, so that when the embedded element appears in the video, it can save the network request.
 
@@ -42,17 +46,17 @@ See [Preloading](/docs/player/preloading) for instructions on how to achieve thi
 
 The signal that you give to the browser may be ignored, for example if the device has data saver or battery saver mode enabled. This is specifically a concern for mobile devices.
 
-<strong><Step>3</Step>Option 3: Prefetching as blob URL to more aggressively avoid network request</strong><br/>
+<strong><Step>4</Step>Option 4: Prefetching as blob URL to more aggressively avoid network request</strong><br/>
 
 By [prefetching](/docs/prefetch) an asset, it will be downloaded and cached into memory. Unlike preloading, you force the browser to download the asset, however, you can only use the loaded asset once it has fully downloaded.
 
-<strong><Step>4</Step>Option 4: Prefetching as Base64 to avoid network request and local HTTP server</strong><br/>
+<strong><Step>5</Step>Option 5: Prefetching as Base64 to avoid network request and local HTTP server</strong><br/>
 
-In Safari prefetching as described in <InlineStep>3</InlineStep> is not enough, since the Blob URL will be saved to disk and a slight delay may still occur even if the asset is pre-saved.
+In Safari prefetching as described in <InlineStep>4</InlineStep> is not enough, since the Blob URL will be saved to disk and a slight delay may still occur even if the asset is pre-saved.
 
 Alternatively, the [`prefetch()`](/docs/prefetch) function allows to fetch an asset and save it in memory as Base64, which does not require the blob URL to be loaded from disk through HTTP.
 
-<strong><Step>5</Step>Option 5: Premounting the video</strong><br/>
+<strong><Step>6</Step>Option 6: Premounting the video</strong><br/>
 
 As the most aggressive strategy, you can pre-mount a video to already trigger decoding of the video. Use the following component to pre-mount a video:
 
@@ -212,6 +216,7 @@ You are responsible yourself for making the video invisible while it is being pr
 ## See also
 
 - [Preloading assets](/docs/player/preloading)
+- [Displaying a buffer state](/docs/buffer-state)
 - [`prefetch()`](/docs/prefetch)
 - [`@remotion/preload` vs `prefetch()`](/docs/player/preloading#remotionpreload-vs-prefetch)
 - [`preloadVideo()`](/docs/preload/preload-video)

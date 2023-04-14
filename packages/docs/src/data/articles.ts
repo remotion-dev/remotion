@@ -91,6 +91,13 @@ export const articles = [
     crumb: "Brownfield integration",
   },
   {
+    id: "buffer-state",
+    title: "Display a buffer state",
+    relativePath: "docs/buffer-state.md",
+    compId: "articles-docs-buffer-state",
+    crumb: "Building video apps",
+  },
+  {
     id: "bundle",
     title: "bundle()",
     relativePath: "docs/bundle.md",
@@ -831,6 +838,13 @@ export const articles = [
     relativePath: "docs/lambda/permissions.md",
     compId: "articles-docs-lambda-permissions",
     crumb: "Lambda",
+  },
+  {
+    id: "lambda/php",
+    title: "Triggering renders from PHP",
+    relativePath: "docs/lambda/php.md",
+    compId: "articles-docs-lambda-php",
+    crumb: "@remotion/lambda",
   },
   {
     id: "presignurl",
