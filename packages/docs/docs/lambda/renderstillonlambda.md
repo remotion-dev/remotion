@@ -180,7 +180,7 @@ Accepted values:
 The default for Lambda is `"swangle"`, but `null` elsewhere.
 :::
 
-#### `userAgent` <AvailableFrom v="3.3.78"/>
+#### `userAgent` <AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 

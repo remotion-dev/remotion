@@ -81,6 +81,10 @@ Only prints the composition IDs, separated by a space.
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
+### `--user-agent` <AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
 ## See also
 
 - [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)

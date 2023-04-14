@@ -23,7 +23,7 @@ In [`getCompositions()`](/docs/renderer/get-compositions#disablewebsecurity), [`
 
 ### Via CLI flag
 
-Pass [`--disable-web-security`](/docs/cli/render#--disable-web-security) in one of the following commands: `remotion render`, `remotion still`, `remotion lambda render`, `remotion lambda still`.
+Pass [`--disable-web-security`](/docs/cli/render#--disable-web-security) in one of the following commands: [`remotion render`](/docs/cli/render), [`remotion compositions`](/docs/cli/compositions), [`remotion still`](/docs/cli/still), [`remotion lambda render`](/docs/lambda/cli/render), [`remotion lambda still`](/docs/lambda/cli/still), [`remotion lambda compositions`](/docs/lambda/compositions).
 
 ### Via config file
 
@@ -51,7 +51,7 @@ In [`getCompositions()`](/docs/renderer/get-compositions#ignorecertificateerrors
 
 ### Via CLI flag
 
-Pass [`--ignore-certificate-errors`](/docs/cli/render#--ignore-certificate-errors) in one of the following commands: `remotion render`, `remotion still`, `remotion lambda render`, `remotion lambda still`.
+Pass [`--ignore-certificate-errors`](/docs/cli/render#--ignore-certificate-errors) in one of the following commands: [`remotion render`](/docs/cli/render), [`remotion compositions`](/docs/cli/compositions), [`remotion still`](/docs/cli/still), [`remotion lambda render`](/docs/lambda/cli/render), [`remotion lambda still`](/docs/lambda/cli/still), [`remotion lambda compositions`](/docs/lambda/compositions).
 
 ### Via config file
 
@@ -79,7 +79,7 @@ In [`getCompositions()`](/docs/renderer/get-compositions#headless), [`renderStil
 
 ### Via CLI flag
 
-Pass [`--disable-headless`](/docs/cli/render#--disable-headless) in one of the following commands: `remotion render`, `remotion still`.
+Pass [`--disable-headless`](/docs/cli/render#--disable-headless) in one of the following commands: [`remotion compositions`](/docs/cli/compositions), [`remotion render`](/docs/cli/render), [`remotion still`](/docs/cli/still).
 
 ### Via config file
 
@@ -119,7 +119,7 @@ In [`getCompositions()`](/docs/renderer/get-compositions#gl), [`renderStill()`](
 
 ### Via CLI flag
 
-Pass [`--gl=swiftshader`](/docs/cli#gl) in one of the following commands: `remotion render`, `remotion still`, `remotion lambda render`, `remotion lambda still`.
+Pass [`--gl=swiftshader`](/docs/cli) in one of the following commands: [`remotion render`](/docs/cli/render), [`remotion compositions`](/docs/cli/compositions), [`remotion still`](/docs/cli/still), [`remotion lambda render`](/docs/lambda/cli/render), [`remotion lambda still`](/docs/lambda/cli/still), [`remotion lambda compositions`](/docs/lambda/compositions).
 
 ### Via config file
 
@@ -140,6 +140,10 @@ Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumOpenGlRen
 ### Via Node.JS APIs
 
 In [`getCompositions()`](/docs/renderer/get-compositions#useragent-), [`renderStill()`](/docs/renderer/render-still#useragent-), [`renderMedia()`](/docs/renderer/render-media#useragent-), [`renderFrames()`](/docs/renderer/render-frames#useragent-), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#useragent-), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#useragent-) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#useragent-), you can pass [`chromiumOptions.userAgent`](/docs/renderer/render-still#useragent-).
+
+### Via CLI flag
+
+Pass [`--user-agent`](/docs/cli) in one of the following commands: [`remotion render`](/docs/cli/render), [`remotion compositions`](/docs/cli/compositions), [`remotion still`](/docs/cli/still), [`remotion lambda render`](/docs/lambda/cli/render), [`remotion lambda still`](/docs/lambda/cli/still), [`remotion lambda compositions`](/docs/lambda/compositions).
 
 ## Need more flags?
 
