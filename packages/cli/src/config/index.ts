@@ -218,6 +218,11 @@ declare global {
 			renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader'
 		) => void;
 		/**
+		 * Set the user agent for Chrome. Only works during rendering.
+		 * Default:
+		 */
+		readonly setChromiumUserAgent: (userAgent: string | null) => void;
+		/**
 		 * Set a custom location for a .env file.
 		 * Default: `.env`
 		 */

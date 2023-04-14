@@ -293,6 +293,7 @@ export const RenderModal: React.FC<{
 			disableWebSecurity,
 			ignoreCertificateErrors,
 			gl: openGlOption === 'default' ? null : openGlOption,
+			userAgent: null,
 		};
 	}, [headless, disableWebSecurity, ignoreCertificateErrors, openGlOption]);
 
