@@ -67,7 +67,7 @@ describe('Webhooks', () => {
 			{
 				type: LambdaRoutines.start,
 				serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-				chromiumOptions: {},
+				chromiumOptions: {userAgent: null},
 				codec: 'h264',
 				composition: 'react-svg',
 				crf: 9,
@@ -148,7 +148,9 @@ describe('Webhooks', () => {
 			{
 				type: LambdaRoutines.launch,
 				serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
-				chromiumOptions: {},
+				chromiumOptions: {
+					userAgent: null,
+				},
 				codec: 'h264',
 				composition: 'react-svg',
 				crf: 9,

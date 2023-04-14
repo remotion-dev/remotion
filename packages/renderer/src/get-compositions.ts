@@ -113,7 +113,7 @@ export const getCompositions = async (
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: config?.puppeteerInstance,
 		browserExecutable: config?.browserExecutable ?? null,
-		chromiumOptions: config?.chromiumOptions ?? {},
+		chromiumOptions: config?.chromiumOptions ?? {userAgent: null},
 	});
 
 	return new Promise<TCompMetadata[]>((resolve, reject) => {
