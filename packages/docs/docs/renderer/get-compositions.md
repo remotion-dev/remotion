@@ -182,6 +182,8 @@ Accepted values:
 - `"swangle"`
 - `null` - Chromium's default
 
+Default: `null`.
+
 #### `userAgent` <AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
