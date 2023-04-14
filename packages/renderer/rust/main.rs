@@ -2,11 +2,11 @@ mod commands;
 mod compositor;
 mod errors;
 mod ffmpeg;
+mod frame_cache;
 mod global_printer;
 mod image;
 mod opened_video;
 mod payloads;
-mod frame_cache;
 use commands::execute_command;
 use errors::PossibleErrors;
 use std::env;
@@ -64,8 +64,9 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
             break;
         }
         let opts: CliInputCommand = parse_cli(&input).unwrap();
-        pool.execute(move || {
-            execute_command(opts).unwrap();
+        pool.execute(move || match execute_command(opts) {
+            Ok(_) => (),
+            Err(err) => errors::handle_error(err),
         });
     }
 

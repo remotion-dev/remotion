@@ -15,14 +15,14 @@ jpeg-decoder = "0.3"
 jpeg-encoder = "0.5.1"
 threadpool = "1.8.1"
 lazy_static = "1.4"
-ffmpeg-next = {git = "https://github.com/JonnyBurger/rust-ffmpeg", rev ="5d19c655fc249e1672b3b13567f828cd97b01add"}
+ffmpeg-next = {git = "https://github.com/JonnyBurger/rust-ffmpeg", rev ="1abdfaa56129b3fb5f358c9b53888a99ed9dd357"}
 
 [[bin]]
 name = "compositor"
 path = "renderer/rust/main.rs"
 
 [profile.release]
-strip="debuginfo"
-lto = "fat"
-opt-level = 'z'
+# strip="debuginfo"
+# lto = "fat"
+# opt-level = 'z'
 

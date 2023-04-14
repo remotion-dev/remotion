@@ -20,6 +20,7 @@ pub fn handle_error(err: PossibleErrors) -> ! {
         error: error_to_string(err),
         backtrace: Backtrace::force_capture().to_string(),
     };
+    // TODO: Handling this error with the other print is better
     let j = serde_json::to_string(&err).unwrap();
 
     eprint!("{}", j);

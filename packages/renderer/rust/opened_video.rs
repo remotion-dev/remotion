@@ -30,6 +30,17 @@ pub struct OpenedVideo {
 
 impl OpenedVideo {
     pub fn get_frame(&mut self, time: f64) -> Result<Vec<u8>, PossibleErrors> {
+        let frame_cache_item = self.frame_cache.get_item(time as i64);
+        if frame_cache_item.is_some() {
+            return scale_and_make_bitmap(
+                // TODO: Clone is avoidable
+                frame_cache_item.unwrap().frame.clone(),
+                self.format,
+                self.width,
+                self.height,
+            );
+        }
+
         let position = (time as f64 * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
         let min_position =
             ((time as f64 - 1.0) * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
@@ -52,6 +63,15 @@ impl OpenedVideo {
         loop {
             let (stream, packet) = match self.input.get_next_packet() {
                 None => {
+                    if !is_frame_empty(&mut frame) {
+                        self.frame_cache.add_item(FrameCacheItem {
+                            time: self.last_seek,
+                            frame: frame.clone(),
+                            has_next: false,
+                            next_time: 0,
+                        });
+                    }
+
                     break;
                 }
                 Some(packet) => packet,
@@ -60,8 +80,17 @@ impl OpenedVideo {
                 continue;
             }
 
+            let timestamp = packet.dts().unwrap();
+
+            self.frame_cache.add_item(FrameCacheItem {
+                time: self.last_seek,
+                frame: frame.clone(),
+                has_next: true,
+                next_time: timestamp,
+            });
+
             // -1 because uf 67 and we want to process 66.66 -> rounding error
-            if (packet.dts().unwrap() - 1) > position {
+            if (timestamp - 1) > position {
                 break;
             }
             loop {
@@ -77,20 +106,16 @@ impl OpenedVideo {
                         }
                     }
                     Ok(_) => {
-                        self.frame_cache.add_item(FrameCacheItem {
-                            time: packet.dts().unwrap(),
-                            frame: frame.clone(),
-                        });
-                        _print_debug(&format!("Got frame {}", packet.dts().unwrap(),))?;
-                        self.last_seek = packet.dts().unwrap();
+                        self.last_seek = timestamp;
                         break;
                     }
                 }
             }
         }
         if is_frame_empty(&mut frame) {
-            return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;
+            return Err(std::io::Error::new(ErrorKind::Other, "No frame was found"))?;
         }
+
         scale_and_make_bitmap(frame, self.format, self.width, self.height)
     }
 }
@@ -112,12 +137,33 @@ pub fn scale_and_make_bitmap(
         Flags::BILINEAR,
     )?;
 
-    let mut scaled = Video::empty();
-    scaler.run(&frame, &mut scaled)?;
+    let planes = frame.planes();
+    let output_planes = Vec::new();
+    for i in 0..planes {
+        let mut buffer = vec![0_u8; (frame.width() * frame.height() * 3).try_into()?];
+        output_planes.push(buffer.as_mut_ptr());
+    }
 
-    let bmp = create_bmp_image_from_frame(&mut scaled);
+    let output_stride = width * 3;
+
+    unsafe {
+        scaler.run(
+            (*frame.as_ptr()).data.as_ptr(),
+            (*frame.as_ptr()).linesize.as_ptr(),
+            output_planes.as_ptr(),
+            (width * 3).try_into().unwrap(),
+            (height).try_into().unwrap(),
+        )?;
+    }
+
+    let bmp = create_bmp_image_from_frame(
+        width,
+        height,
+        (output_stride).try_into().unwrap(),
+        &output_planes,
+    );
     _print_debug(&format!(
-        "Scaling and making bitmap took {}microsseconds",
+        "Scaling and making bitmap took {} microsseconds",
         start_time.elapsed().as_micros()
     ))?;
     return Ok(bmp);
@@ -167,14 +213,11 @@ fn is_frame_empty(frame: &mut Video) -> bool {
     return false;
 }
 
-fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
-    let width = rgb_frame.width() as u32;
-    let height = rgb_frame.height() as u32;
+fn create_bmp_image_from_frame(width: u32, height: u32, stride: usize, data: &[u8]) -> Vec<u8> {
     let row_size = (width * 3 + 3) & !3;
     let row_padding = row_size - width * 3;
     let image_size = row_size * height;
     let header_size = 54;
-    let stride = rgb_frame.stride(0);
 
     let mut bmp_data = Vec::with_capacity(header_size as usize + image_size as usize);
 
@@ -199,7 +242,7 @@ fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
     for y in (0..height).rev() {
         let row_start = (y as usize) * stride;
         let row_end = row_start + (width * 3) as usize;
-        bmp_data.extend_from_slice(&rgb_frame.data(0)[row_start..row_end]);
+        bmp_data.extend_from_slice(&data[row_start..row_end]);
         for _ in 0..row_padding {
             bmp_data.push(0);
         }
