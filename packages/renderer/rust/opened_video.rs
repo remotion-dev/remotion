@@ -29,14 +29,17 @@ impl OpenedVideo {
         let min_position =
             ((time as f64 - 1.0) * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
 
-        let stream_index = self.stream_index.clone();
-
         if position < self.last_seek || self.last_seek < min_position {
             if (self.last_seek - position) > 0 {
                 _print_debug(&format!("Seeking from {} to {}", self.last_seek, position))?;
             }
-            self.input
-                .seek(stream_index as i32, min_position, position, position, 0)?;
+            self.input.seek(
+                self.stream_index as i32,
+                min_position,
+                position,
+                position,
+                0,
+            )?;
         }
 
         let mut frame = Video::empty();
