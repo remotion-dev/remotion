@@ -95,6 +95,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		audioCodec: params.audioCodec,
 		dumpBrowserLogs: params.dumpBrowserLogs,
 	};
+	console.log('invoking lambda', payload);
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
