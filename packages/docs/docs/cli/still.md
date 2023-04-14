@@ -120,3 +120,7 @@ Accepted values:
 
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
+
+### `--user-agent` <AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
