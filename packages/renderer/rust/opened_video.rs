@@ -75,7 +75,7 @@ impl OpenedVideo {
                 }
             }
         }
-        if is_frame_empty(&frame) {
+        if is_frame_empty(&mut frame) {
             return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;
         }
         scale_and_make_bitmap(frame, self.format, self.width, self.height)
@@ -102,9 +102,8 @@ pub fn scale_and_make_bitmap(
     let mut scaled = Video::empty();
     scaler.run(&frame, &mut scaled)?;
 
-    let bitmap = turn_frame_into_bitmap(scaled);
+    let bmp = create_bmp_image_from_frame(&mut scaled);
 
-    let bmp = create_bmp_image(bitmap, width, height);
     _print_debug(&format!(
         "Scaling and making bitmap took {}ms",
         start_time.elapsed().as_millis()
@@ -147,7 +146,7 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
     Ok(opened_video)
 }
 
-fn is_frame_empty(frame: &Video) -> bool {
+fn is_frame_empty(frame: &mut Video) -> bool {
     unsafe {
         if frame.is_empty() {
             return true;
@@ -156,63 +155,52 @@ fn is_frame_empty(frame: &Video) -> bool {
     return false;
 }
 
-fn turn_frame_into_bitmap(rgb_frame: Video) -> Vec<u8> {
-    // https://github.com/zmwangx/rust-ffmpeg/issues/64
-    let stride = rgb_frame.stride(0);
-    let byte_width: usize = 3 * rgb_frame.width() as usize;
-    let height: usize = rgb_frame.height() as usize;
-    let mut new_data: Vec<u8> = Vec::with_capacity(byte_width * height);
-    for line in 0..height {
-        let begin = line * stride;
-        let end = begin + byte_width;
-        new_data.extend_from_slice(&rgb_frame.data(0)[begin..end]);
-    }
-
-    return new_data;
-}
-
-fn create_bmp_image(rgb_data: Vec<u8>, width: u32, height: u32) -> Vec<u8> {
-    let row_size = (width * 3 + 3) & !3; // Each row is 4-byte aligned
+fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
+    let width = rgb_frame.width() as u32;
+    let height = rgb_frame.height() as u32;
+    let row_size = (width * 3 + 3) & !3;
     let row_padding = row_size - width * 3;
     let image_size = row_size * height;
     let header_size = 54;
+    let stride = rgb_frame.stride(0);
 
-    let mut bmp_data: Vec<u8> = Vec::new();
+    let mut bmp_data = Vec::with_capacity(header_size as usize + image_size as usize);
 
-    // BMP file header
-    bmp_data.extend_from_slice(b"BM"); // Magic identifier (2 bytes)
-    bmp_data.extend(&((header_size + image_size) as u32).to_le_bytes()); // File size (4 bytes)
-    bmp_data.extend(&0u16.to_le_bytes()); // Reserved (2 bytes)
-    bmp_data.extend(&0u16.to_le_bytes()); // Reserved (2 bytes)
-    bmp_data.extend(&(header_size as u32).to_le_bytes()); // Offset to pixel array (4 bytes)
+    bmp_data.extend_from_slice(b"BM");
+    bmp_data.extend(&(header_size + image_size).to_le_bytes());
+    bmp_data.extend(&0u16.to_le_bytes());
+    bmp_data.extend(&0u16.to_le_bytes());
+    bmp_data.extend(&header_size.to_le_bytes());
 
-    // DIB header
-    bmp_data.extend(&(40u32.to_le_bytes())); // Header size (4 bytes)
-    bmp_data.extend(&width.to_le_bytes()); // Image width (4 bytes)
-    bmp_data.extend(&height.to_le_bytes()); // Image height (4 bytes)
-    bmp_data.extend(&1u16.to_le_bytes()); // Color planes (2 bytes)
-    bmp_data.extend(&24u16.to_le_bytes()); // Bits per pixel (2 bytes)
-    bmp_data.extend(&0u32.to_le_bytes()); // Compression method (4 bytes)
-    bmp_data.extend(&image_size.to_le_bytes()); // Image data size (4 bytes)
-    bmp_data.extend(&2835u32.to_le_bytes()); // Horizontal resolution (4 bytes, 72 DPI * 39.3701)
-    bmp_data.extend(&2835u32.to_le_bytes()); // Vertical resolution (4 bytes, 72 DPI * 39.3701)
-    bmp_data.extend(&0u32.to_le_bytes()); // Number of colors (4 bytes)
-    bmp_data.extend(&0u32.to_le_bytes()); // Number of important colors (4 bytes)
+    bmp_data.extend(&40u32.to_le_bytes());
+    bmp_data.extend(&width.to_le_bytes());
+    bmp_data.extend(&height.to_le_bytes());
+    bmp_data.extend(&1u16.to_le_bytes());
+    bmp_data.extend(&24u16.to_le_bytes());
+    bmp_data.extend(&0u32.to_le_bytes());
+    bmp_data.extend(&image_size.to_le_bytes());
+    bmp_data.extend(&2835u32.to_le_bytes());
+    bmp_data.extend(&2835u32.to_le_bytes());
+    bmp_data.extend(&0u32.to_le_bytes());
+    bmp_data.extend(&0u32.to_le_bytes());
 
-    // Image data
     for y in (0..height).rev() {
-        let row_start = y * width * 3;
-        let row_end = row_start + width * 3;
-        let row = &rgb_data[row_start as usize..row_end as usize];
+        let y_usize = y as usize;
+        for x in 0..width {
+            let x_usize = x as usize;
+            let pixel_offset = y_usize * stride + 3 * x_usize;
+            let pixel_data = &mut rgb_frame.data_mut(0)[pixel_offset..pixel_offset + 3];
 
-        // Reverse the order of RGB values to BGR
-        for i in (0..row.len()).step_by(3) {
-            bmp_data.push(row[i + 2]);
-            bmp_data.push(row[i + 1]);
-            bmp_data.push(row[i]);
+            // Swap the R and B values
+            unsafe {
+                let temp = *pixel_data.get_unchecked(0);
+                *pixel_data.get_unchecked_mut(0) = *pixel_data.get_unchecked(2);
+                *pixel_data.get_unchecked_mut(2) = temp;
+            }
         }
-
-        // Add padding to the row if necessary
+        let row_start = y_usize * stride;
+        let row_end = row_start + (width * 3) as usize;
+        bmp_data.extend_from_slice(&rgb_frame.data(0)[row_start..row_end]);
         for _ in 0..row_padding {
             bmp_data.push(0);
         }
