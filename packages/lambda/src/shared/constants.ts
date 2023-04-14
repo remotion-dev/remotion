@@ -373,6 +373,7 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		serveUrl: string;
 		bucketName: string | null;
+		dumpBrowserLogs: boolean;
 	};
 };
 
