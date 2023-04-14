@@ -40,7 +40,11 @@ export const compositionsHandler = async (
 				region,
 			}).then((b) => b.bucketName),
 		getBrowserInstance(
-			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
+			lambdaParams.dumpBrowserLogs ??
+				RenderInternals.isEqualOrBelowLogLevel(
+					lambdaParams.logLevel,
+					'verbose'
+				),
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);

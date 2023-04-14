@@ -97,6 +97,7 @@ import {setProResProfile} from './prores-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
+import {getChromiumUserAgent, setChromiumUserAgent} from './user-agent';
 import {setWebpackCaching} from './webpack-caching';
 import {
 	getWebpackPolling,
@@ -394,6 +395,7 @@ export const Config: FlatConfig = {
 	setChromiumIgnoreCertificateErrors,
 	setChromiumHeadlessMode,
 	setChromiumOpenGlRenderer,
+	setChromiumUserAgent,
 	setDotEnvLocation,
 	setConcurrency,
 	setQuality: () => {
@@ -476,4 +478,5 @@ export const ConfigInternals = {
 	getNumberOfGifLoops,
 	getWebpackPolling,
 	getShouldOpenBrowser,
+	getChromiumUserAgent,
 };

@@ -64,6 +64,7 @@ export type RenderMediaOnLambdaInput = {
 	rendererFunctionName?: string | null;
 	forceBucketName?: string;
 	audioCodec?: AudioCodec | null;
+	dumpBrowserLogs?: boolean;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -90,6 +91,7 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
  * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
+ * @param params.dumpBrowserLogs Whether to print browser logs to CloudWatch
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 
@@ -130,6 +132,7 @@ export const renderMediaOnLambda = async ({
 	rendererFunctionName,
 	forceBucketName: bucketName,
 	audioCodec,
+	dumpBrowserLogs,
 }: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
 	if (quality) {
 		throw new Error(`"quality" has been renamed. Use "jpegQuality" instead.`);
@@ -188,6 +191,7 @@ export const renderMediaOnLambda = async ({
 				forceWidth: forceWidth ?? null,
 				bucketName: bucketName ?? null,
 				audioCodec: audioCodec ?? null,
+				dumpBrowserLogs: dumpBrowserLogs ?? false,
 			},
 			region,
 		});

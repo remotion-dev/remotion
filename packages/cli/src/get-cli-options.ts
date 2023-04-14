@@ -116,6 +116,7 @@ export const getCliOptions = async (options: {
 		gl:
 			ConfigInternals.getChromiumOpenGlRenderer() ??
 			RenderInternals.DEFAULT_OPENGL_RENDERER,
+		userAgent: ConfigInternals.getChromiumUserAgent(),
 	};
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
