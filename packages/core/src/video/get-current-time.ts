@@ -39,7 +39,9 @@ export const getMediaTime = ({
 		startFrom,
 	});
 
-	const isChrome = window.navigator.userAgent.match(/Chrome\/([0-9]+)/);
+	const isChrome =
+		typeof window !== 'undefined' &&
+		window.navigator.userAgent.match(/Chrome\/([0-9]+)/);
 	if (
 		isChrome &&
 		Number(isChrome[1]) < 112 &&
