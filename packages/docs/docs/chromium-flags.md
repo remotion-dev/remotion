@@ -19,7 +19,7 @@ Remotion will automatically append the `--user-data-dir` flag.
 
 ### Via Node.JS APIs
 
-In [`getCompositions()`](/docs/renderer/get-compositions#disablewebsecurity), [`renderStill()`](/docs/renderer/render-still#disablewebsecurity), [`renderMedia()`](/docs/renderer/render-media#disablewebsecurity), [`renderFrames()`](/docs/renderer/render-frames#disablewebsecurity), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#disablewebsecurity) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#disablewebsecurity), you can pass [`chromiumOptions.disableWebSecurity`](/docs/renderer/render-still#disablewebsecurity).
+In [`getCompositions()`](/docs/renderer/get-compositions#disablewebsecurity), [`renderStill()`](/docs/renderer/render-still#disablewebsecurity), [`renderMedia()`](/docs/renderer/render-media#disablewebsecurity), [`renderFrames()`](/docs/renderer/render-frames#disablewebsecurity), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#disablewebsecurity), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#disablewebsecurity) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#disablewebsecurity), you can pass [`chromiumOptions.disableWebSecurity`](/docs/renderer/render-still#disablewebsecurity).
 
 ### Via CLI flag
 
@@ -47,7 +47,7 @@ Results in invalid SSL certificates, such as self-signed ones, being ignored.
 
 ### Via Node.JS APIs
 
-In [`getCompositions()`](/docs/renderer/get-compositions#ignorecertificateerrors), [`renderStill()`](/docs/renderer/render-still#ignorecertificateerrors), [`renderMedia()`](/docs/renderer/render-media#ignorecertificateerrors), [`renderFrames()`](/docs/renderer/render-frames#ignorecertificateerrors), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#ignorecertificateerrors) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#ignorecertificateerrors), you can pass [`chromiumOptions.ignoreCertificateErrors`](/docs/renderer/render-still#ignorecertificateerrors).
+In [`getCompositions()`](/docs/renderer/get-compositions#ignorecertificateerrors), [`renderStill()`](/docs/renderer/render-still#ignorecertificateerrors), [`renderMedia()`](/docs/renderer/render-media#ignorecertificateerrors), [`renderFrames()`](/docs/renderer/render-frames#ignorecertificateerrors), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#disablewebsecurity), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#ignorecertificateerrors) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#ignorecertificateerrors), you can pass [`chromiumOptions.ignoreCertificateErrors`](/docs/renderer/render-still#ignorecertificateerrors).
 
 ### Via CLI flag
 
@@ -115,7 +115,7 @@ Accepted values:
 
 ### Via Node.JS APIs
 
-In [`getCompositions()`](/docs/renderer/get-compositions#gl), [`renderStill()`](/docs/renderer/render-still#gl), [`renderMedia()`](/docs/renderer/render-media#gl), [`renderFrames()`](/docs/renderer/render-frames#gl), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#gl) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#gl), you can pass [`chromiumOptions.gl`](/docs/renderer/render-still#gl).
+In [`getCompositions()`](/docs/renderer/get-compositions#gl), [`renderStill()`](/docs/renderer/render-still#gl), [`renderMedia()`](/docs/renderer/render-media#gl), [`renderFrames()`](/docs/renderer/render-frames#gl), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#gl), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#gl) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#gl), you can pass [`chromiumOptions.gl`](/docs/renderer/render-still#gl).
 
 ### Via CLI flag
 
@@ -134,6 +134,12 @@ Config.setChromiumOpenGlRenderer("swiftshader");
 :::note
 Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumOpenGlRenderer()`.
 :::
+
+## `--user-agent` <AvailableFrom v="3.3.83"/>
+
+### Via Node.JS APIs
+
+In [`getCompositions()`](/docs/renderer/get-compositions#useragent-), [`renderStill()`](/docs/renderer/render-still#useragent-), [`renderMedia()`](/docs/renderer/render-media#useragent-), [`renderFrames()`](/docs/renderer/render-frames#useragent-), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#useragent-), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#useragent-) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#useragent-), you can pass [`chromiumOptions.userAgent`](/docs/renderer/render-still#useragent-).
 
 ## Need more flags?
 
