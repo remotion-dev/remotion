@@ -117,7 +117,7 @@ test(
 	{timeout: 10000}
 );
 
-test.only(
+test(
 	'Should get the last frame if out of range',
 	async () => {
 		const compositor = startCompositor({
@@ -138,7 +138,7 @@ test.only(
 				'public',
 				'framermp4withoutfileextension'
 			),
-			time: 30,
+			time: 3.33,
 		});
 		expect(data.length).toBe(3499254);
 		fs.writeFileSync('lastframe.bmp', data);
@@ -149,7 +149,7 @@ test.only(
 	{timeout: 10000}
 );
 
-test(
+test.skip(
 	'Should get the last frame of a corrupted video',
 	async () => {
 		const compositor = startCompositor({

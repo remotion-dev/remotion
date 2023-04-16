@@ -1,5 +1,6 @@
 use std::io::ErrorKind;
 
+use ffmpeg_next::Dictionary;
 use ffmpeg_next::Rational;
 use remotionffmpeg::{
     format::Pixel,
@@ -12,7 +13,6 @@ extern crate ffmpeg_next as remotionffmpeg;
 use crate::{
     errors::PossibleErrors,
     frame_cache::{FrameCache, FrameCacheItem},
-    global_printer::_print_debug,
 };
 
 pub struct OpenedVideo {
@@ -25,19 +25,47 @@ pub struct OpenedVideo {
     pub src: String,
     pub input: remotionffmpeg::format::context::Input,
     pub last_seek: i64,
+    pub packets_opened: u8,
     pub frame_cache: FrameCache,
 }
 
 impl OpenedVideo {
+    pub fn receive_frame(&mut self, timestamp: i64) -> Result<Option<Vec<u8>>, PossibleErrors> {
+        let mut frame = Video::empty();
+
+        let res = self.video.receive_frame(&mut frame);
+
+        match res {
+            Err(err) => {
+                if err.to_string().contains("Resource temporarily unavailable") {
+                    Ok(None)
+                } else if err.to_string().contains("End of file") {
+                    Ok(None)
+                } else {
+                    Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?
+                }
+            }
+            Ok(_) => {
+                let new_bitmap =
+                    scale_and_make_bitmap(frame, self.format, self.width, self.height)?;
+
+                self.frame_cache.add_item(FrameCacheItem {
+                    time: timestamp,
+                    bitmap: new_bitmap.clone(),
+                });
+                self.last_seek = timestamp;
+                self.packets_opened += 1;
+                Ok(Some(new_bitmap))
+            }
+        }
+    }
+
     pub fn get_frame(&mut self, time: f64) -> Result<Vec<u8>, PossibleErrors> {
         let position = (time as f64 * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
         let min_position =
             ((time as f64 - 1.0) * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
 
         if position < self.last_seek || self.last_seek < min_position {
-            if (self.last_seek - position) > 0 {
-                _print_debug(&format!("Seeking from {} to {}", self.last_seek, position))?;
-            }
             self.input.seek(
                 self.stream_index as i32,
                 min_position,
@@ -51,43 +79,50 @@ impl OpenedVideo {
 
         loop {
             let (stream, packet) = match self.input.get_next_packet() {
-                None => {
+                Err(remotionffmpeg::Error::Eof) => {
+                    self.video.send_eof()?;
+
+                    loop {
+                        let result = self.receive_frame(self.last_seek);
+                        match result {
+                            Ok(Some(data)) => {
+                                bitmap = data;
+                            }
+                            Ok(None) => {
+                                break;
+                            }
+                            Err(err) => {
+                                return Err(err);
+                            }
+                        }
+                    }
                     break;
                 }
-                Some(packet) => packet,
+                Ok(packet) => packet,
+                Err(err) => Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?,
             };
             if stream.parameters().medium() != Type::Video {
                 continue;
             }
 
             // -1 because uf 67 and we want to process 66.66 -> rounding error
-            if (packet.dts().unwrap() - 1) > position {
+            if (packet.pts().unwrap() - 1) > position {
                 break;
             }
 
             loop {
-                let mut frame = Video::empty();
-
                 self.video.send_packet(&packet)?;
-                let res = self.video.receive_frame(&mut frame);
-
-                match res {
-                    Err(err) => {
-                        if err.to_string().contains("Resource temporarily unavailable") {
-                            // Need to send another packet
-                        } else {
-                            Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?
-                        }
-                    }
-                    Ok(_) => {
-                        bitmap =
-                            scale_and_make_bitmap(frame, self.format, self.width, self.height)?;
-                        self.frame_cache.add_item(FrameCacheItem {
-                            time: packet.dts().unwrap(),
-                            bitmap: bitmap.clone(),
-                        });
-                        self.last_seek = packet.dts().unwrap();
+                let result = self.receive_frame(packet.dts().unwrap());
+                match result {
+                    Ok(Some(data)) => {
+                        bitmap = data;
                         break;
+                    }
+                    Ok(None) => {
+                        break;
+                    }
+                    Err(err) => {
+                        return Err(err);
                     }
                 }
             }
@@ -152,6 +187,7 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
         input,
         last_seek: 0,
         frame_cache: FrameCache::new(),
+        packets_opened: 0,
     };
 
     Ok(opened_video)
