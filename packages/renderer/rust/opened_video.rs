@@ -87,14 +87,11 @@ impl OpenedVideo {
                         let result = self.receive_frame(self.last_seek);
                         match result {
                             Ok(Some(data)) => {
+                                bitmap = data;
                                 self.frame_cache.add_item(FrameCacheItem {
                                     time: self.last_seek,
                                     bitmap: bitmap.clone(),
-                                    next_time: 0,
-                                    has_next_time: false,
                                 });
-
-                                bitmap = data;
                             }
                             Ok(None) => {
                                 break;
@@ -131,13 +128,11 @@ impl OpenedVideo {
                 let result = self.receive_frame(packet.dts().unwrap());
                 match result {
                     Ok(Some(data)) => {
+                        bitmap = data;
                         self.frame_cache.add_item(FrameCacheItem {
                             time: self.last_seek,
                             bitmap: bitmap.clone(),
-                            next_time: packet.dts().unwrap(),
-                            has_next_time: true,
                         });
-                        bitmap = data;
 
                         break;
                     }
