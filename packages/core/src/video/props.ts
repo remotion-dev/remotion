@@ -19,8 +19,6 @@ export type RemotionVideoProps = Omit<
 	allowAmplificationDuringRender?: boolean;
 };
 
-export type OffthreadVideoImageFormat = 'png' | 'jpeg';
-
 export type OffthreadVideoProps = {
 	src: string;
 	className?: string;
@@ -29,7 +27,6 @@ export type OffthreadVideoProps = {
 	playbackRate?: number;
 	muted?: boolean;
 	onError?: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement>;
-	imageFormat?: OffthreadVideoImageFormat;
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
 };
