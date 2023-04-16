@@ -11,6 +11,7 @@ export const dynamicLibraryPathOptions = () => {
 			process.platform === 'darwin'
 				? {
 						DYLD_LIBRARY_PATH: lib,
+						RUST_BACKTRACE: '1',
 				  }
 				: process.platform === 'win32'
 				? {
