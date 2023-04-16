@@ -1,7 +1,6 @@
 import path from 'path';
 import {expect, test} from 'vitest';
 import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
-import {extractFrameFromVideo} from '../extract-frame-from-video';
 
 const src = path.join(
 	__dirname,

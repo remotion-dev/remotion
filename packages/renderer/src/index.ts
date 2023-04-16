@@ -79,7 +79,6 @@ export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception'
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
-export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
 export {getActualConcurrency} from './get-concurrency';
 export {
