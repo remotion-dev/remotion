@@ -111,7 +111,7 @@ impl OpenedVideo {
             }
 
             // -1 because uf 67 and we want to process 66.66 -> rounding error
-            if (packet.pts().unwrap() - 1) > position {
+            if (packet.pts().unwrap() - 1) > position && bitmap.len() > 0 {
                 break;
             }
 

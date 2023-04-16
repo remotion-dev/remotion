@@ -26,7 +26,7 @@ impl FrameCache {
     pub fn get_item(&self, time: i64) -> Option<Vec<u8>> {
         for i in 0..self.items.len() {
             let item = &self.items[i];
-            if item.time <= time {
+            if item.time == time {
                 return Some(item.bitmap.clone());
             }
         }
