@@ -59,26 +59,26 @@ impl OpenedVideo {
     pub fn get_frame(&mut self, time: f64) -> Result<Vec<u8>, PossibleErrors> {
         let position = (time as f64 * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
         let min_position =
-            ((time as f64 - 1.0) * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
+            ((time as f64 - 5.0) * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
 
         let cache_item = self.frame_cache.get_item(position);
         if cache_item.is_some() {
             return Ok(cache_item.unwrap());
         }
 
-        if position < self.last_seek || self.last_seek < min_position {
-            self.input.seek(
-                self.stream_index as i32,
-                min_position,
-                position,
-                position,
-                0,
-            )?;
-        }
-
         let mut bitmap: Vec<u8> = Vec::new();
 
         loop {
+            if (position - self.last_seek).abs() > (position - min_position).abs() {
+                _print_debug(&format!("Seeking to {} from {}", position, self.last_seek));
+                self.input.seek(
+                    self.stream_index as i32,
+                    min_position,
+                    position,
+                    position,
+                    0,
+                )?;
+            }
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
                     self.video.send_eof()?;
@@ -117,7 +117,7 @@ impl OpenedVideo {
 
             loop {
                 self.video.send_packet(&packet)?;
-                let result = self.receive_frame(packet.dts().unwrap());
+                let result = self.receive_frame(packet.pts().unwrap());
                 match result {
                     Ok(Some(data)) => {
                         bitmap = data;
@@ -157,7 +157,7 @@ pub fn scale_and_make_bitmap(
         Pixel::BGR24,
         width,
         height,
-        Flags::BILINEAR,
+        Flags::BICUBIC,
     )?;
 
     let mut scaled = Video::empty();
