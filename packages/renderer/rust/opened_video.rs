@@ -47,7 +47,7 @@ impl OpenedVideo {
             )?;
         }
 
-        let mut frame = Video::empty();
+        let mut bitmap: Vec<u8> = Vec::new();
 
         loop {
             let (stream, packet) = match self.input.get_next_packet() {
@@ -64,7 +64,10 @@ impl OpenedVideo {
             if (packet.dts().unwrap() - 1) > position {
                 break;
             }
+
             loop {
+                let mut frame = Video::empty();
+
                 self.video.send_packet(&packet)?;
                 let res = self.video.receive_frame(&mut frame);
 
@@ -77,21 +80,22 @@ impl OpenedVideo {
                         }
                     }
                     Ok(_) => {
+                        bitmap =
+                            scale_and_make_bitmap(frame, self.format, self.width, self.height)?;
                         self.frame_cache.add_item(FrameCacheItem {
                             time: packet.dts().unwrap(),
-                            frame: frame.clone(),
+                            bitmap: bitmap.clone(),
                         });
-                        _print_debug(&format!("Got frame {}", packet.dts().unwrap(),))?;
                         self.last_seek = packet.dts().unwrap();
                         break;
                     }
                 }
             }
         }
-        if is_frame_empty(&mut frame) {
+        if bitmap.len() == 0 {
             return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;
         }
-        scale_and_make_bitmap(frame, self.format, self.width, self.height)
+        Ok(bitmap)
     }
 }
 
@@ -101,7 +105,6 @@ pub fn scale_and_make_bitmap(
     width: u32,
     height: u32,
 ) -> Result<Vec<u8>, PossibleErrors> {
-    let start_time = std::time::Instant::now();
     let mut scaler = Context::get(
         format,
         width,
@@ -116,10 +119,6 @@ pub fn scale_and_make_bitmap(
     scaler.run(&frame, &mut scaled)?;
 
     let bmp = create_bmp_image_from_frame(&mut scaled);
-    _print_debug(&format!(
-        "Scaling and making bitmap took {}microsseconds",
-        start_time.elapsed().as_micros()
-    ))?;
     return Ok(bmp);
 }
 
@@ -156,15 +155,6 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
     };
 
     Ok(opened_video)
-}
-
-fn is_frame_empty(frame: &mut Video) -> bool {
-    unsafe {
-        if frame.is_empty() {
-            return true;
-        }
-    }
-    return false;
 }
 
 fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
