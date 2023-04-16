@@ -25,7 +25,6 @@ pub struct OpenedVideo {
     pub src: String,
     pub input: remotionffmpeg::format::context::Input,
     pub last_seek: i64,
-    pub packets_opened: u8,
     pub frame_cache: FrameCache,
 }
 
@@ -50,7 +49,6 @@ impl OpenedVideo {
                     scale_and_make_bitmap(frame, self.format, self.width, self.height)?;
 
                 self.last_seek = timestamp;
-                self.packets_opened += 1;
                 Ok(Some(new_bitmap))
             }
         }
@@ -197,7 +195,6 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
         input,
         last_seek: 0,
         frame_cache: FrameCache::new(),
-        packets_opened: 0,
     };
 
     Ok(opened_video)
