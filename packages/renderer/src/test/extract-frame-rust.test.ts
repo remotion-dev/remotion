@@ -149,7 +149,7 @@ test(
 	{timeout: 10000}
 );
 
-test.skip(
+test(
 	'Should get the last frame of a corrupted video',
 	async () => {
 		const compositor = startCompositor({
