@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import {expect, test} from 'vitest';
 import {startCompositor} from '../compositor/compositor';
 import {makeNonce} from '../compositor/make-nonce';
@@ -84,3 +85,97 @@ test('Should be able to seek backwards', async () => {
 	compositor.finishCommands();
 	await compositor.waitForDone();
 });
+
+test(
+	'Should be able to extract a frame that has no file extension',
+	async () => {
+		const compositor = startCompositor({
+			type: 'StartLongRunningProcess',
+			params: {
+				nonce: makeNonce(),
+			},
+		});
+
+		const data = await compositor.executeCommand('ExtractFrame', {
+			input: path.join(
+				__dirname,
+				'..',
+				'..',
+				'..',
+				'example',
+				'public',
+				'framermp4withoutfileextension'
+			),
+			time: 1,
+		});
+		expect(data.length).toBe(3499254);
+		fs.writeFileSync('nofileext.bmp', data);
+
+		compositor.finishCommands();
+		await compositor.waitForDone();
+	},
+	{timeout: 10000}
+);
+
+test.only(
+	'Should get the last frame if out of range',
+	async () => {
+		const compositor = startCompositor({
+			type: 'StartLongRunningProcess',
+			params: {
+				nonce: makeNonce(),
+			},
+		});
+
+		// TODO: Should not return 97
+		const data = await compositor.executeCommand('ExtractFrame', {
+			input: path.join(
+				__dirname,
+				'..',
+				'..',
+				'..',
+				'example',
+				'public',
+				'framermp4withoutfileextension'
+			),
+			time: 30,
+		});
+		expect(data.length).toBe(3499254);
+		fs.writeFileSync('lastframe.bmp', data);
+
+		compositor.finishCommands();
+		await compositor.waitForDone();
+	},
+	{timeout: 10000}
+);
+
+test(
+	'Should get the last frame of a corrupted video',
+	async () => {
+		const compositor = startCompositor({
+			type: 'StartLongRunningProcess',
+			params: {
+				nonce: makeNonce(),
+			},
+		});
+
+		const data = await compositor.executeCommand('ExtractFrame', {
+			input: path.join(
+				__dirname,
+				'..',
+				'..',
+				'..',
+				'example',
+				'public',
+				'corrupted.mp4'
+			),
+			time: 100,
+		});
+		expect(data.length).toBe(3499254);
+		fs.writeFileSync('corrupted.bmp', data);
+
+		compositor.finishCommands();
+		await compositor.waitForDone();
+	},
+	{timeout: 5000}
+);
