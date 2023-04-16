@@ -1,6 +1,5 @@
 use std::io::ErrorKind;
 
-use ffmpeg_next::Dictionary;
 use ffmpeg_next::Rational;
 use remotionffmpeg::{
     format::Pixel,
@@ -13,6 +12,7 @@ extern crate ffmpeg_next as remotionffmpeg;
 use crate::{
     errors::PossibleErrors,
     frame_cache::{FrameCache, FrameCacheItem},
+    global_printer::_print_debug,
 };
 
 pub struct OpenedVideo {
@@ -49,10 +49,6 @@ impl OpenedVideo {
                 let new_bitmap =
                     scale_and_make_bitmap(frame, self.format, self.width, self.height)?;
 
-                self.frame_cache.add_item(FrameCacheItem {
-                    time: timestamp,
-                    bitmap: new_bitmap.clone(),
-                });
                 self.last_seek = timestamp;
                 self.packets_opened += 1;
                 Ok(Some(new_bitmap))
@@ -64,6 +60,11 @@ impl OpenedVideo {
         let position = (time as f64 * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
         let min_position =
             ((time as f64 - 1.0) * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
+
+        let cache_item = self.frame_cache.get_item(position);
+        if cache_item.is_some() {
+            return Ok(cache_item.unwrap());
+        }
 
         if position < self.last_seek || self.last_seek < min_position {
             self.input.seek(
@@ -86,6 +87,13 @@ impl OpenedVideo {
                         let result = self.receive_frame(self.last_seek);
                         match result {
                             Ok(Some(data)) => {
+                                self.frame_cache.add_item(FrameCacheItem {
+                                    time: self.last_seek,
+                                    bitmap: bitmap.clone(),
+                                    next_time: 0,
+                                    has_next_time: false,
+                                });
+
                                 bitmap = data;
                             }
                             Ok(None) => {
@@ -105,6 +113,14 @@ impl OpenedVideo {
                 continue;
             }
 
+            _print_debug(&format!(
+                "packet.pts {} {} {} {}",
+                packet.pts().unwrap(),
+                position,
+                self.time_base.0,
+                self.time_base.1
+            ));
+
             // -1 because uf 67 and we want to process 66.66 -> rounding error
             if (packet.pts().unwrap() - 1) > position {
                 break;
@@ -115,7 +131,14 @@ impl OpenedVideo {
                 let result = self.receive_frame(packet.dts().unwrap());
                 match result {
                     Ok(Some(data)) => {
+                        self.frame_cache.add_item(FrameCacheItem {
+                            time: self.last_seek,
+                            bitmap: bitmap.clone(),
+                            next_time: packet.dts().unwrap(),
+                            has_next_time: true,
+                        });
                         bitmap = data;
+
                         break;
                     }
                     Ok(None) => {
