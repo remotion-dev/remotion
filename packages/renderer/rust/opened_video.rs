@@ -110,14 +110,6 @@ impl OpenedVideo {
                 continue;
             }
 
-            _print_debug(&format!(
-                "packet.pts {} {} {} {}",
-                packet.pts().unwrap(),
-                position,
-                self.time_base.0,
-                self.time_base.1
-            ));
-
             // -1 because uf 67 and we want to process 66.66 -> rounding error
             if (packet.pts().unwrap() - 1) > position {
                 break;
