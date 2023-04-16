@@ -1,8 +1,7 @@
-use remotionffmpeg::frame::Video;
 extern crate ffmpeg_next as remotionffmpeg;
 
 pub struct FrameCacheItem {
-    pub frame: Video,
+    pub bitmap: Vec<u8>,
     pub time: i64,
 }
 
