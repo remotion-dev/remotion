@@ -3,7 +3,6 @@ import {useRemotionEnvironment} from '../get-environment.js';
 import {Sequence} from '../Sequence.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
-import {validateOffthreadVideoImageFormat} from '../validation/validate-offthreadvideo-image-format.js';
 import {OffthreadVideoForRendering} from './OffthreadVideoForRendering.js';
 import type {OffthreadVideoProps, RemotionMainVideoProps} from './props.js';
 import {VideoForDevelopment} from './VideoForDevelopment.js';
@@ -46,7 +45,6 @@ export const OffthreadVideo: React.FC<
 	}
 
 	validateMediaProps(props, 'Video');
-	validateOffthreadVideoImageFormat(props.imageFormat);
 
 	if (environment === 'rendering') {
 		return <OffthreadVideoForRendering {...otherProps} />;
