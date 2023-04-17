@@ -68,6 +68,9 @@ impl FrameCache {
                 best_item = Some(item);
             }
         }
+        if best_item.is_none() {
+            return None;
+        }
         Some(best_item.unwrap().frame.get_data().unwrap())
     }
 }
