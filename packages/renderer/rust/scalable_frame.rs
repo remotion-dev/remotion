@@ -4,10 +4,7 @@ use ffmpeg_next::{
     software::scaling::{Context, Flags},
 };
 
-use crate::{
-    errors::{self, PossibleErrors},
-    global_printer::_print_debug,
-};
+use crate::errors::{self, PossibleErrors};
 
 pub struct NotRgbFrame {
     pub planes: Vec<Vec<u8>>,
@@ -120,18 +117,25 @@ pub fn scale_and_make_bitmap(native_frame: &NotRgbFrame) -> Result<Vec<u8>, Poss
 
     for inner in native_frame.planes.clone() {
         let ptr: *const u8 = inner.as_ptr();
+        std::mem::forget(inner);
         data.push(ptr);
     }
+
+    let ptr = data.as_ptr();
 
     let mut scaled = Video::empty();
     scaler.run(
         native_frame.format,
         native_frame.width,
         native_frame.height,
-        data.as_ptr(),
+        ptr,
         native_frame.linesizes.as_ptr(),
         &mut scaled,
     )?;
+
+    for inner in native_frame.planes.clone() {
+        std::mem::drop(inner);
+    }
 
     Ok(create_bmp_image_from_frame(&mut scaled))
 }

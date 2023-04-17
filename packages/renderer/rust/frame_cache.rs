@@ -55,7 +55,7 @@ impl FrameCache {
         let mut best_distance = std::i64::MAX;
 
         for i in 0..self.items.len() {
-            if self.items[i].asked_time < time as i64 {
+            if self.items[i].resolved_pts < time as i64 {
                 // Asked for frame beyond last frame
                 if self.last_frame.is_some() && self.last_frame.unwrap() == self.items[i].id {
                     self.items[i].frame.ensure_data()?;
@@ -65,7 +65,7 @@ impl FrameCache {
                 continue;
             }
 
-            let distance = (self.items[i].asked_time - time as i64).abs();
+            let distance = (self.items[i].resolved_pts - time as i64).abs();
             // LTE: IF multiple items have the same distance, we take the last one.
             // This is because the last frame is more likely to have been decoded
             if distance <= best_distance as i64 {
