@@ -4,7 +4,10 @@ use ffmpeg_next::{
     software::scaling::{Context, Flags},
 };
 
-use crate::errors::{self, PossibleErrors};
+use crate::{
+    errors::{self, PossibleErrors},
+    global_printer::_print_debug,
+};
 
 pub struct NotRgbFrame {
     pub planes: Vec<Vec<u8>>,
@@ -31,9 +34,9 @@ impl ScalableFrame {
         }
     }
 
-    pub fn get_data(&self) -> Result<Vec<u8>, PossibleErrors> {
+    pub fn ensure_data(&mut self) -> Result<(), PossibleErrors> {
         if self.rgb_frame.is_some() {
-            return Ok(self.rgb_frame.as_ref().unwrap().data.clone());
+            return Ok(());
         }
 
         if self.native_frame.is_none() {
@@ -43,9 +46,21 @@ impl ScalableFrame {
             )));
         }
 
-        // TODO: Should cache state
         let bitmap = scale_and_make_bitmap(&self.native_frame.as_ref().unwrap())?;
-        Ok(bitmap.clone())
+        self.rgb_frame = Some(RgbFrame { data: bitmap });
+        self.native_frame = None;
+        Ok(())
+    }
+
+    pub fn get_data(&self) -> Result<Vec<u8>, PossibleErrors> {
+        if self.rgb_frame.is_none() {
+            return Err(errors::PossibleErrors::IoError(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "has neither native nor rgb frame",
+            )));
+        }
+
+        return Ok(self.rgb_frame.as_ref().unwrap().data.clone());
     }
 }
 
