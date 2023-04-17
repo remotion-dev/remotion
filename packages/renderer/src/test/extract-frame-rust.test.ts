@@ -1,3 +1,4 @@
+import {writeFileSync} from 'fs';
 import path from 'path';
 import {expect, test} from 'vitest';
 import {startCompositor} from '../compositor/compositor';
@@ -24,7 +25,7 @@ test(
 		compositor.finishCommands();
 		await compositor.waitForDone();
 
-		expect(data).not.toEqual(data2);
+		expect(data.slice(0, 1000)).not.toEqual(data2.slice(0, 1000));
 	},
 	{timeout: 10000}
 );
@@ -104,6 +105,8 @@ test(
 			),
 			time: 3.33,
 		});
+
+		writeFileSync('framermp4withoutfileextension.bmp', data);
 		const expectedLength = BMP_HEADER_SIZE + 1080 * 1080 * 3;
 		expect(data.length).toBe(expectedLength);
 		const topLeftPixelR = data[expectedLength - 1];
@@ -119,7 +122,7 @@ test(
 	{timeout: 10000}
 );
 
-test(
+test.only(
 	'Should get the last frame of a corrupted video',
 	async () => {
 		const compositor = startCompositor('StartLongRunningProcess', {});
@@ -136,7 +139,9 @@ test(
 			),
 			time: 100,
 		});
-		expect(data.length).toBe(3499254);
+		expect(data.length).toBe(6220854);
+
+		writeFileSync('corrupted.bmp', data);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();

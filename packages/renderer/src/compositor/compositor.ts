@@ -147,7 +147,6 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			const nextDigit = outputBuffer[separatorIndex];
-			// 0x3a is the character ":"
 			if (nextDigit === 0x3a) {
 				separatorIndex++;
 				break;
@@ -161,7 +160,6 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			const nextDigit = outputBuffer[separatorIndex];
-			// 0x3a is the character ":"
 			if (nextDigit === 0x3a) {
 				break;
 			}
@@ -179,6 +177,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			missingData = {
 				dataMissing: length - dataLength,
 			};
+
 			return;
 		}
 

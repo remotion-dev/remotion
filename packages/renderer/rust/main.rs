@@ -69,7 +69,7 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
             Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
             Err(err) => {
                 let err = ErrorPayload {
-                    error: error_to_string(err),
+                    error: error_to_string(&err),
                     backtrace: Backtrace::force_capture().to_string(),
                 };
 
