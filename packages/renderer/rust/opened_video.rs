@@ -11,7 +11,7 @@ use remotionffmpeg::{
 extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
-    errors::{self, PossibleErrors},
+    errors::PossibleErrors,
     frame_cache::{FrameCache, FrameCacheItem},
     global_printer::_print_debug,
 };
@@ -106,14 +106,13 @@ impl OpenedVideo {
         let mut freshly_seeked = false;
         let mut last_position = self.duration.min(position);
 
-        // TODO: should we use pts?
-        if position < self.last_position.asked_time
-            || self.last_position.asked_time < self.calc_position(time - 1.0)
+        if position < self.last_position.resolved_pts
+            || self.last_position.resolved_pts < self.calc_position(time - 1.0)
         {
             _print_debug(&format!(
-                "Seeking to {} from asked_time = {}, pts = {} and dts = {}, duration = {}",
+                "Seeking to {} from resolved_pts = {}, pts = {} and dts = {}, duration = {}",
                 position,
-                self.last_position.asked_time,
+                self.last_position.resolved_pts,
                 self.last_position.resolved_pts,
                 self.last_position.resolved_dts,
                 self.duration
