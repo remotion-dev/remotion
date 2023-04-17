@@ -6,12 +6,14 @@ use remotionffmpeg::{
     frame::Video,
     media::Type,
     software::scaling::{Context, Flags},
+    Dictionary,
 };
 extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
-    errors::PossibleErrors,
+    errors::{self, PossibleErrors},
     frame_cache::{FrameCache, FrameCacheItem},
+    global_printer::_print_debug,
 };
 
 pub struct LastSeek {
@@ -31,6 +33,7 @@ pub struct OpenedVideo {
     pub input: remotionffmpeg::format::context::Input,
     pub last_position: LastSeek,
     pub frame_cache: FrameCache,
+    pub duration: i64,
 }
 
 impl OpenedVideo {
@@ -58,8 +61,14 @@ impl OpenedVideo {
         }
     }
 
+    pub fn calc_position(&self, time: f64) -> i64 {
+        (time * self.time_base.1 as f64 / self.time_base.0 as f64) as i64
+    }
+
     pub fn handle_eof(&mut self, asked_time: i64) -> Result<Option<Vec<u8>>, PossibleErrors> {
         self.video.send_eof()?;
+
+        let mut latest_frame: Option<Vec<u8>> = None;
 
         loop {
             let result = self.receive_frame();
@@ -73,7 +82,7 @@ impl OpenedVideo {
                         bitmap: data.clone(),
                     });
 
-                    Ok::<std::option::Option<Vec<u8>>, PossibleErrors>(Some(data.clone()))?;
+                    latest_frame = Some(data.clone());
                 }
                 Ok(None) => {
                     break;
@@ -83,30 +92,35 @@ impl OpenedVideo {
                 }
             }
         }
-        Ok(None)
+        Ok(latest_frame)
     }
 
     pub fn get_frame(&mut self, time: f64) -> Result<Vec<u8>, PossibleErrors> {
-        let position = (time as f64 * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
-        let min_position =
-            ((time as f64 - 1.0) * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
+        let position = self.calc_position(time);
 
         let cache_item = self.frame_cache.get_item(position);
         if cache_item.is_some() {
             return Ok(cache_item.unwrap());
         }
 
-        if position < self.last_position.asked_time || self.last_position.asked_time < min_position
+        let mut freshly_seeked = false;
+        let mut last_position = self.duration.min(position);
+
+        // TODO: should we use pts?
+        if position < self.last_position.asked_time
+            || self.last_position.asked_time < self.calc_position(time - 1.0)
         {
-            /*_print_debug(&format!(
-                "Seeking to {} from asked_time = {}, pts = {} and dts = {}",
+            _print_debug(&format!(
+                "Seeking to {} from asked_time = {}, pts = {} and dts = {}, duration = {}",
                 position,
                 self.last_position.asked_time,
                 self.last_position.resolved_pts,
-                self.last_position.resolved_dts
-            ))?;*/
+                self.last_position.resolved_dts,
+                self.duration
+            ))?;
             self.input
-                .seek(self.stream_index as i32, 0, position, position, 0)?;
+                .seek(self.stream_index as i32, 0, position, last_position, 0)?;
+            freshly_seeked = true
         }
 
         let mut bitmap: Vec<u8> = Vec::new();
@@ -120,10 +134,12 @@ impl OpenedVideo {
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
                     let data = self.handle_eof(position)?;
+
                     match data {
                         Some(data) => {
                             bitmap = data;
                         }
+
                         None => {}
                     }
                     break;
@@ -131,8 +147,29 @@ impl OpenedVideo {
                 Ok(packet) => packet,
                 Err(err) => Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?,
             };
+
             if stream.parameters().medium() != Type::Video {
                 continue;
+            }
+            if freshly_seeked {
+                if packet.is_key() {
+                    freshly_seeked = false
+                } else {
+                    last_position = last_position + self.calc_position(-1.0);
+
+                    _print_debug(&format!(
+                        "Seeking to {} because we are not at a keyframe",
+                        last_position
+                    ))?;
+                    self.input.seek(
+                        self.stream_index as i32,
+                        0,
+                        last_position,
+                        last_position,
+                        0,
+                    )?;
+                    continue;
+                }
             }
 
             loop {
@@ -197,12 +234,16 @@ pub fn scale_and_make_bitmap(
 }
 
 pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
-    let mut input = remotionffmpeg::format::input(&src)?;
-    let stream_index = input
-        .streams_mut()
+    let mut dictionary = Dictionary::new();
+    dictionary.set("fflags", "+genpts");
+    let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
+    let stream = input
+        .streams()
         .find(|s| s.parameters().medium() == Type::Video)
-        .unwrap()
-        .index();
+        .unwrap();
+    let stream_index = stream.index();
+
+    let duration = stream.duration();
 
     let mut_stream = input.stream_mut(stream_index).unwrap();
     let time_base = mut_stream.time_base();
@@ -230,6 +271,7 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
             resolved_dts: 0,
         },
         frame_cache: FrameCache::new(),
+        duration,
     };
 
     Ok(opened_video)

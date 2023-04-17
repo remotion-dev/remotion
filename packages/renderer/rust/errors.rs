@@ -3,7 +3,7 @@ use ffmpeg_next as remotionffmpeg;
 use std::any::Any;
 use std::backtrace::Backtrace;
 
-pub fn error_to_string(err: PossibleErrors) -> String {
+pub fn error_to_string(err: &PossibleErrors) -> String {
     match err {
         PossibleErrors::IoError(err) => err.to_string(),
         PossibleErrors::FfmpegError(err) => err.to_string(),
@@ -17,7 +17,7 @@ pub fn error_to_string(err: PossibleErrors) -> String {
 
 pub fn handle_error(err: PossibleErrors) -> ! {
     let err = ErrorPayload {
-        error: error_to_string(err),
+        error: error_to_string(&err),
         backtrace: Backtrace::force_capture().to_string(),
     };
     // TODO: Handling this error with the other print is better
