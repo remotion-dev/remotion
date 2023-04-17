@@ -150,21 +150,23 @@ test(
 	{timeout: 5000}
 );
 
-test.only('Last frame should be fast', async () => {
+test('Last frame should be fast', async () => {
 	const compositor = startCompositor('StartLongRunningProcess', {});
 
 	const time = Date.now();
 
+	const input = path.join(
+		__dirname,
+		'..',
+		'..',
+		'..',
+		'example',
+		'public',
+		'framermp4withoutfileextension'
+	);
+
 	const data = await compositor.executeCommand('ExtractFrame', {
-		input: path.join(
-			__dirname,
-			'..',
-			'..',
-			'..',
-			'example',
-			'public',
-			'framermp4withoutfileextension'
-		),
+		input,
 		time: 3.33,
 	});
 
@@ -173,17 +175,11 @@ test.only('Last frame should be fast', async () => {
 
 	const time2 = Date.now();
 	const data2 = await compositor.executeCommand('ExtractFrame', {
-		input: path.join(
-			__dirname,
-			'..',
-			'..',
-			'..',
-			'example',
-			'public',
-			'framermp4withoutfileextension'
-		),
+		input,
 		time: 3.33,
 	});
+
+	// Time should be way less now
 	const time2_end = Date.now();
 	expect(time2_end - time2).toBeLessThan(time_end - time);
 	expect(data2.length).toBe(3499254);
