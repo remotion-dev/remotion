@@ -196,5 +196,5 @@ test('Last frame should be fast', async () => {
 	expect(data3.length).toBe(3499254);
 
 	compositor.finishCommands();
-	compositor.waitForDone();
+	await compositor.waitForDone();
 });

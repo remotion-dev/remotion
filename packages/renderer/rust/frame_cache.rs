@@ -2,7 +2,7 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::scalable_frame::ScalableFrame;
+use crate::{errors::PossibleErrors, scalable_frame::ScalableFrame};
 
 pub fn get_frame_cache_id() -> usize {
     static COUNTER: AtomicUsize = AtomicUsize::new(1);
@@ -38,39 +38,48 @@ impl FrameCache {
         self.last_frame = Some(id);
     }
 
-    pub fn get_item_from_id(&self, id: usize) -> Option<&FrameCacheItem> {
-        self.items.iter().find(|i| i.id == id)
+    pub fn get_item_from_id(&mut self, id: usize) -> Result<Option<Vec<u8>>, PossibleErrors> {
+        let mut data: Option<Vec<u8>> = None;
+        for i in 0..self.items.len() {
+            if self.items[i].id == id {
+                self.items[i].frame.ensure_data()?;
+                data = Some(self.items[i].frame.get_data().unwrap());
+                break;
+            }
+        }
+        Ok(data)
     }
 
-    pub fn get_item(&self, time: i64) -> Option<Vec<u8>> {
-        let mut best_item: Option<&FrameCacheItem> = None;
+    pub fn get_item(&mut self, time: i64) -> Result<Option<Vec<u8>>, PossibleErrors> {
+        let mut best_item: Option<usize> = None;
         let mut best_distance = std::i64::MAX;
 
         for i in 0..self.items.len() {
-            let item = &self.items[i];
-            let exact = item.asked_time == time as i64;
-
-            if item.asked_time < time as i64 {
+            if self.items[i].asked_time < time as i64 {
                 // Asked for frame beyond last frame
-                if self.last_frame.is_some() && self.last_frame.unwrap() == item.id {
-                    return Some(item.frame.get_data().unwrap());
+                if self.last_frame.is_some() && self.last_frame.unwrap() == self.items[i].id {
+                    self.items[i].frame.ensure_data()?;
+                    return Ok(Some(self.items[i].frame.get_data().unwrap()));
                 }
+
                 continue;
             }
 
-            if exact {
-                return Some(item.frame.get_data().unwrap());
-            }
-
-            let distance = (item.asked_time - time as i64).abs();
-            if distance < best_distance as i64 {
+            let distance = (self.items[i].asked_time - time as i64).abs();
+            // LTE: IF multiple items have the same distance, we take the last one.
+            // This is because the last frame is more likely to have been decoded
+            if distance <= best_distance as i64 {
                 best_distance = distance;
-                best_item = Some(item);
+                best_item = Some(i);
             }
         }
+
         if best_item.is_none() {
-            return None;
+            return Ok(None);
         }
-        Some(best_item.unwrap().frame.get_data().unwrap())
+        self.items[best_item.unwrap()].frame.ensure_data()?;
+        Ok(Some(
+            self.items[best_item.unwrap()].frame.get_data().unwrap(),
+        ))
     }
 }

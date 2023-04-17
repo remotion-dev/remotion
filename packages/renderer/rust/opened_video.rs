@@ -1,7 +1,7 @@
 use std::io::ErrorKind;
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{ format::Pixel, frame::Video, media::Type, Dictionary};
+use remotionffmpeg::{format::Pixel, frame::Video, media::Type, Dictionary};
 extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
@@ -108,8 +108,14 @@ impl OpenedVideo {
         let position = self.calc_position(time);
 
         let cache_item = self.frame_cache.get_item(position);
-        if cache_item.is_some() {
-            return Ok(cache_item.unwrap());
+        match cache_item {
+            Ok(Some(item)) => {
+                return Ok(item);
+            }
+            Ok(None) => {}
+            Err(err) => {
+                return Err(err);
+            }
         }
 
         let mut freshly_seeked = false;
@@ -232,15 +238,14 @@ impl OpenedVideo {
         }
 
         let from_cache = self.frame_cache.get_item_from_id(last_frame.unwrap());
-        if from_cache.is_none() {
-            return Err(std::io::Error::new(
+        match from_cache {
+            Ok(Some(data)) => Ok(data),
+            Ok(None) => Err(std::io::Error::new(
                 ErrorKind::Other,
                 "Frame evicted from cache",
-            ))?;
+            ))?,
+            Err(err) => Err(err),
         }
-
-        let data = from_cache.unwrap().frame.get_data()?;
-        Ok(data)
     }
 }
 
