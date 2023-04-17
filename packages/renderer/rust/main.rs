@@ -8,11 +8,12 @@ mod image;
 mod opened_video;
 mod payloads;
 use commands::execute_command;
-use errors::PossibleErrors;
-use std::env;
+use errors::{error_to_string, PossibleErrors};
+use global_printer::_print_debug;
+use std::{backtrace::Backtrace, env};
 use threadpool::ThreadPool;
 
-use payloads::payloads::{parse_cli, CliInputCommand};
+use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload, ErrorPayload};
 
 extern crate png;
 
@@ -29,12 +30,12 @@ fn mainfn() -> Result<(), PossibleErrors> {
 
     let opts: CliInputCommand = parse_init_command(&first_arg)?;
 
-    match opts {
-        CliInputCommand::StartLongRunningProcess(_) => {
+    match opts.payload {
+        CliInputCommandPayload::StartLongRunningProcess(_) => {
             start_long_running_process()?;
         }
         _ => {
-            execute_command(opts)?;
+            execute_command(&opts.nonce, opts.payload)?;
         }
     }
 
@@ -64,9 +65,18 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
             break;
         }
         let opts: CliInputCommand = parse_cli(&input).unwrap();
-        pool.execute(move || match execute_command(opts) {
+        pool.execute(move || match execute_command(&opts.nonce, opts.payload) {
             Ok(_) => (),
-            Err(err) => errors::handle_error(err),
+            Err(err) => {
+                let err = ErrorPayload {
+                    error: error_to_string(err),
+                    backtrace: Backtrace::force_capture().to_string(),
+                };
+
+                let j = serde_json::to_string(&err).unwrap();
+
+                global_printer::synchronized_println(&opts.nonce, &j).unwrap();
+            }
         });
     }
 

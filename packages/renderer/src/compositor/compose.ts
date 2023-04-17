@@ -43,14 +43,16 @@ export const compose = async ({
 	}
 
 	const payload: CompositorCommandSerialized<'Compose'> = {
-		type: 'Compose',
-		params: {
-			height,
-			width,
-			layers,
-			output,
-			output_format: imageFormat,
-			nonce: makeNonce(),
+		nonce: makeNonce(),
+		payload: {
+			type: 'Compose',
+			params: {
+				height,
+				width,
+				layers,
+				output,
+				output_format: imageFormat,
+			},
 		},
 	};
 

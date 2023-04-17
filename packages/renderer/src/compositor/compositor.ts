@@ -18,12 +18,14 @@ const compositorMap: Record<string, Compositor> = {};
 export const spawnCompositorOrReuse = <T extends keyof CompositorCommand>({
 	initiatePayload,
 	renderId,
+	type,
 }: {
+	type: T;
 	initiatePayload: CompositorCommand[T];
 	renderId: string;
 }) => {
 	if (!compositorMap[renderId]) {
-		compositorMap[renderId] = startCompositor(initiatePayload);
+		compositorMap[renderId] = startCompositor(type, initiatePayload);
 	}
 
 	return compositorMap[renderId];
@@ -49,12 +51,22 @@ type Waiter = {
 };
 
 export const startCompositor = <T extends keyof CompositorCommand>(
+	type: T,
 	payload: CompositorCommand[T]
 ): Compositor => {
 	const bin = getExecutablePath('compositor');
+
+	const fullCommand: CompositorCommandSerialized<T> = {
+		nonce: makeNonce(),
+		payload: {
+			type,
+			params: payload,
+		},
+	};
+
 	const child = spawn(
 		bin,
-		[JSON.stringify(payload)],
+		[JSON.stringify(fullCommand)],
 		dynamicLibraryPathOptions()
 	);
 
@@ -215,10 +227,10 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			return new Promise<Buffer>((resolve, reject) => {
 				const nonce = makeNonce();
 				const composed: CompositorCommandSerialized<Type> = {
-					type: command,
-					params: {
-						...params,
-						nonce,
+					nonce,
+					payload: {
+						type: command,
+						params,
 					},
 				};
 				// TODO: Should have a way to error out a single task

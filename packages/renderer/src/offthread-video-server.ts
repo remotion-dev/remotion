@@ -4,7 +4,6 @@ import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-fi
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {startCompositor} from './compositor/compositor';
-import {makeNonce} from './compositor/make-nonce';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
 	const parsed = new URL(url, 'http://localhost');
@@ -41,12 +40,7 @@ export const startOffthreadVideoServer = ({
 	onError: (err: Error) => void;
 	downloadMap: DownloadMap;
 }): {listener: RequestListener; close: () => Promise<void>} => {
-	const compositor = startCompositor({
-		type: 'StartLongRunningProcess',
-		params: {
-			nonce: makeNonce(),
-		},
-	});
+	const compositor = startCompositor('StartLongRunningProcess', {});
 
 	return {
 		close: () => {

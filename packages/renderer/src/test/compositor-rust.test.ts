@@ -1,16 +1,10 @@
 import {expect, test} from 'vitest';
 import {startCompositor} from '../compositor/compositor';
-import {makeNonce} from '../compositor/make-nonce';
 
 test(
 	'Compositor should process messages in the right order',
 	async () => {
-		const compositor = startCompositor({
-			type: 'StartLongRunningProcess',
-			params: {
-				nonce: makeNonce(),
-			},
-		});
+		const compositor = startCompositor('StartLongRunningProcess', {});
 
 		const matching = await Promise.all(
 			new Array(100).fill(true).map(async (_, i) => {

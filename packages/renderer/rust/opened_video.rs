@@ -71,13 +71,13 @@ impl OpenedVideo {
 
         if position < self.last_position.asked_time || self.last_position.asked_time < min_position
         {
-            _print_debug(&format!(
+            /*_print_debug(&format!(
                 "Seeking to {} from asked_time = {}, pts = {} and dts = {}",
                 position,
                 self.last_position.asked_time,
                 self.last_position.resolved_pts,
                 self.last_position.resolved_dts
-            ))?;
+            ))?;*/
             self.input
                 .seek(self.stream_index as i32, 0, position, position, 0)?;
         }
