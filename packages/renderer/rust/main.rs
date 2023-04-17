@@ -9,7 +9,6 @@ mod opened_video;
 mod payloads;
 use commands::execute_command;
 use errors::{error_to_string, PossibleErrors};
-use global_printer::_print_debug;
 use std::{backtrace::Backtrace, env};
 use threadpool::ThreadPool;
 
@@ -35,7 +34,8 @@ fn mainfn() -> Result<(), PossibleErrors> {
             start_long_running_process()?;
         }
         _ => {
-            execute_command(&opts.nonce, opts.payload)?;
+            let data = execute_command(opts.payload)?;
+            global_printer::synchronized_write_buf(&opts.nonce, &data)?;
         }
     }
 
@@ -65,17 +65,18 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
             break;
         }
         let opts: CliInputCommand = parse_cli(&input).unwrap();
-        pool.execute(move || match execute_command(&opts.nonce, opts.payload) {
-            Ok(_) => (),
+        pool.execute(move || match execute_command(opts.payload) {
+            Ok(res) => global_printer::synchronized_write_buf(&opts.nonce, &res).unwrap(),
             Err(err) => {
                 let err = ErrorPayload {
                     error: error_to_string(err),
                     backtrace: Backtrace::force_capture().to_string(),
                 };
 
-                let j = serde_json::to_string(&err).unwrap();
+                let err_payload = serde_json::to_string(&err).unwrap();
+                let j = err_payload.as_bytes();
 
-                global_printer::synchronized_println(&opts.nonce, &j).unwrap();
+                global_printer::synchronized_write_buf(&opts.nonce, &j).unwrap()
             }
         });
     }

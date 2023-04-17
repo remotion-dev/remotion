@@ -3,11 +3,7 @@ use std::io::{self, BufWriter, Write};
 use crate::errors::PossibleErrors;
 
 pub fn _print_debug(msg: &str) -> Result<(), PossibleErrors> {
-    synchronized_println("0", msg)
-}
-
-pub fn synchronized_println(nonce: &str, msg: &str) -> Result<(), PossibleErrors> {
-    synchronized_write_buf(nonce, msg.as_bytes())
+    synchronized_write_buf("0", &msg.as_bytes())
 }
 
 pub fn synchronized_write_buf(nonce: &str, data: &[u8]) -> Result<(), PossibleErrors> {

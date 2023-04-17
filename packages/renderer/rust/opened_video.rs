@@ -12,7 +12,6 @@ extern crate ffmpeg_next as remotionffmpeg;
 use crate::{
     errors::PossibleErrors,
     frame_cache::{FrameCache, FrameCacheItem},
-    global_printer::_print_debug,
 };
 
 pub struct LastSeek {
