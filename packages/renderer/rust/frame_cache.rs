@@ -22,15 +22,27 @@ pub struct FrameCacheItem {
 
 pub struct FrameCache {
     pub items: Vec<FrameCacheItem>,
+    pub last_frame: Option<usize>,
 }
 
 impl FrameCache {
     pub fn new() -> Self {
-        Self { items: Vec::new() }
+        Self {
+            items: Vec::new(),
+            last_frame: None,
+        }
     }
 
     pub fn add_item(&mut self, item: FrameCacheItem) {
         self.items.push(item);
+    }
+
+    pub fn get_last_frame(&self) -> Option<&FrameCacheItem> {
+        self.last_frame.and_then(|id| self.get_item_from_id(id))
+    }
+
+    pub fn set_last_frame(&mut self, id: usize) {
+        self.last_frame = Some(id);
     }
 
     pub fn get_item_from_id(&self, id: usize) -> Option<&FrameCacheItem> {
@@ -46,12 +58,15 @@ impl FrameCache {
             let exact = item.asked_time == time as i64;
 
             if item.asked_time < time as i64 {
+                // Asked for frame beyond last frame
+                if self.last_frame.is_some() && self.last_frame.unwrap() == item.id {
+                    return Some(item);
+                }
                 continue;
             }
 
             if exact {
-                best_item = Some(item);
-                break;
+                return Some(item);
             }
 
             let distance = (item.asked_time - time as i64).abs();
