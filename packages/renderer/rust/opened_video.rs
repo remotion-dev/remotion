@@ -69,18 +69,19 @@ impl OpenedVideo {
 
             match result {
                 Ok(Some(video)) => unsafe {
-                    let plane_size = video.planes();
                     let linesize = (*video.as_ptr()).linesize;
 
                     let frame_cache_id = get_frame_cache_id();
 
+                    let amount_of_planes = video.planes();
+                    let mut planes = Vec::with_capacity(amount_of_planes);
+                    for i in 0..amount_of_planes {
+                        planes.push(video.data(i).to_vec());
+                    }
+
                     let frame = NotRgbFrame {
                         linesizes: linesize,
-                        planes: Vec::from([
-                            video.data(0).to_vec(),
-                            video.data(1).to_vec(),
-                            video.data(2).to_vec(),
-                        ]),
+                        planes,
                     };
 
                     let item = FrameCacheItem {
@@ -196,13 +197,16 @@ impl OpenedVideo {
                     Ok(Some(video)) => unsafe {
                         let linesize = (*video.as_ptr()).linesize;
                         let frame_cache_id = get_frame_cache_id();
+
+                        let amount_of_planes = video.planes();
+                        let mut planes = Vec::with_capacity(amount_of_planes);
+                        for i in 0..amount_of_planes {
+                            planes.push(video.data(i).to_vec());
+                        }
+
                         let frame = NotRgbFrame {
                             linesizes: linesize,
-                            planes: Vec::from([
-                                video.data(0).to_vec(),
-                                video.data(1).to_vec(),
-                                video.data(2).to_vec(),
-                            ]),
+                            planes,
                         };
 
                         let item = FrameCacheItem {
