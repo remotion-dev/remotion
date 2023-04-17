@@ -12,7 +12,7 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
     errors::PossibleErrors,
-    frame_cache::{FrameCache, FrameCacheItem},
+    frame_cache::{FrameCache, FrameCacheItem, NotRgbFrame},
     global_printer::_print_debug,
 };
 
@@ -37,7 +37,7 @@ pub struct OpenedVideo {
 }
 
 impl OpenedVideo {
-    pub fn receive_frame(&mut self) -> Result<Option<Vec<u8>>, PossibleErrors> {
+    pub fn receive_frame(&mut self) -> Result<Option<Video>, PossibleErrors> {
         let mut frame = Video::empty();
 
         let res = self.video.receive_frame(&mut frame);
@@ -52,12 +52,7 @@ impl OpenedVideo {
                     Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?
                 }
             }
-            Ok(_) => {
-                let new_bitmap =
-                    scale_and_make_bitmap(frame, self.format, self.width, self.height)?;
-
-                Ok(Some(new_bitmap))
-            }
+            Ok(_) => Ok(Some(frame)),
         }
     }
 
@@ -65,25 +60,56 @@ impl OpenedVideo {
         (time * self.time_base.1 as f64 / self.time_base.0 as f64) as i64
     }
 
-    pub fn handle_eof(&mut self, asked_time: i64) -> Result<Option<Vec<u8>>, PossibleErrors> {
+    pub fn handle_eof(&mut self, asked_time: i64) -> Result<Option<NotRgbFrame>, PossibleErrors> {
         self.video.send_eof()?;
 
-        let mut latest_frame: Option<Vec<u8>> = None;
+        let mut latest_frame: Option<NotRgbFrame> = None;
 
         loop {
             let result = self.receive_frame();
 
             match result {
-                Ok(Some(data)) => {
-                    self.frame_cache.add_item(FrameCacheItem {
+                Ok(Some(video)) => unsafe {
+                    let linesize = (*video.as_ptr()).linesize;
+                    let frame = NotRgbFrame {
+                        linesizes: linesize,
+                        planes: Vec::from([
+                            video.data(0).to_vec(),
+                            video.data(1).to_vec(),
+                            video.data(2).to_vec(),
+                            video.data(3).to_vec(),
+                            video.data(4).to_vec(),
+                            video.data(5).to_vec(),
+                            video.data(6).to_vec(),
+                            video.data(7).to_vec(),
+                        ]),
+                    };
+
+                    let frame2 = NotRgbFrame {
+                        linesizes: linesize,
+                        planes: Vec::from([
+                            video.data(0).to_vec(),
+                            video.data(1).to_vec(),
+                            video.data(2).to_vec(),
+                            video.data(3).to_vec(),
+                            video.data(4).to_vec(),
+                            video.data(5).to_vec(),
+                            video.data(6).to_vec(),
+                            video.data(7).to_vec(),
+                        ]),
+                    };
+
+                    let item = FrameCacheItem {
                         asked_time,
                         resolved_pts: self.last_position.resolved_pts,
                         resolved_dts: self.last_position.resolved_dts,
-                        bitmap: data.clone(),
-                    });
+                        frame,
+                    };
 
-                    latest_frame = Some(data.clone());
-                }
+                    self.frame_cache.add_item(item);
+                    _print_debug("additem");
+                    latest_frame = Some(frame2);
+                },
                 Ok(None) => {
                     break;
                 }
@@ -100,7 +126,12 @@ impl OpenedVideo {
 
         let cache_item = self.frame_cache.get_item(position);
         if cache_item.is_some() {
-            return Ok(cache_item.unwrap());
+            return scale_and_make_bitmap(
+                &cache_item.unwrap().frame,
+                self.format,
+                self.width,
+                self.height,
+            );
         }
 
         let mut freshly_seeked = false;
@@ -136,7 +167,8 @@ impl OpenedVideo {
 
                     match data {
                         Some(data) => {
-                            bitmap = data;
+                            bitmap =
+                                scale_and_make_bitmap(&data, self.format, self.width, self.height)?;
                         }
 
                         None => {}
@@ -182,17 +214,51 @@ impl OpenedVideo {
                 };
 
                 match result {
-                    Ok(Some(data)) => {
-                        bitmap = data;
-                        self.frame_cache.add_item(FrameCacheItem {
+                    Ok(Some(video)) => unsafe {
+                        let linesize = (*video.as_ptr()).linesize;
+                        let frame = NotRgbFrame {
+                            linesizes: linesize,
+                            planes: Vec::from([
+                                video.data(0).to_vec(),
+                                video.data(1).to_vec(),
+                                video.data(2).to_vec(),
+                                video.data(0).to_vec(),
+                                video.data(0).to_vec(),
+                                video.data(0).to_vec(),
+                                video.data(0).to_vec(),
+                                video.data(0).to_vec(),
+                            ]),
+                        };
+                        let frame2 = NotRgbFrame {
+                            linesizes: linesize,
+                            planes: Vec::from([
+                                video.data(0).to_vec(),
+                                video.data(1).to_vec(),
+                                video.data(2).to_vec(),
+                                video.data(0).to_vec(),
+                                video.data(0).to_vec(),
+                                video.data(0).to_vec(),
+                                video.data(0).to_vec(),
+                                video.data(0).to_vec(),
+                            ]),
+                        };
+
+                        let item = FrameCacheItem {
                             asked_time: position,
-                            resolved_pts: packet.pts().unwrap(),
-                            resolved_dts: packet.dts().unwrap(),
-                            bitmap: bitmap.clone(),
-                        });
+                            resolved_pts: self.last_position.resolved_pts,
+                            resolved_dts: self.last_position.resolved_dts,
+                            frame,
+                        };
+
+                        bitmap =
+                            scale_and_make_bitmap(&frame2, self.format, self.width, self.height)?;
+
+                        _print_debug("add item ");
+
+                        self.frame_cache.add_item(item);
 
                         break;
-                    }
+                    },
                     Ok(None) => {
                         break;
                     }
@@ -210,7 +276,7 @@ impl OpenedVideo {
 }
 
 pub fn scale_and_make_bitmap(
-    frame: Video,
+    video: &NotRgbFrame,
     format: Pixel,
     width: u32,
     height: u32,
@@ -224,11 +290,17 @@ pub fn scale_and_make_bitmap(
         height,
         Flags::BILINEAR,
     )?;
+    _print_debug("scaling");
+
+    let data = convert_to_ptr(video.planes.clone());
+    let linesize = video.linesizes.as_ptr();
 
     let mut scaled = Video::empty();
-    scaler.run(&frame, &mut scaled)?;
+    scaler.run(format, width, height, data, linesize, &mut scaled)?;
 
     let bmp = create_bmp_image_from_frame(&mut scaled);
+    _print_debug("scaling success");
+
     return Ok(bmp);
 }
 
@@ -315,4 +387,19 @@ fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
     }
 
     bmp_data
+}
+
+pub fn convert_to_ptr(data: Vec<Vec<u8>>) -> *const *const u8 {
+    let mut outer: Vec<*const u8> = Vec::with_capacity(data.len());
+
+    for inner in data {
+        let ptr: *const u8 = inner.as_ptr();
+        std::mem::forget(inner); // Prevent inner vector from being dropped
+        outer.push(ptr);
+    }
+
+    let ptr = outer.as_ptr();
+    std::mem::forget(outer); // Prevent outer vector from being dropped
+
+    ptr
 }
