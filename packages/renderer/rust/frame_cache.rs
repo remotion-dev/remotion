@@ -15,6 +15,7 @@ pub struct NotRgbFrame {
 pub struct FrameCacheItem {
     pub resolved_pts: i64,
     pub resolved_dts: i64,
+    pub asked_time: i64,
     pub frame: NotRgbFrame,
     pub id: usize,
 }
@@ -42,9 +43,9 @@ impl FrameCache {
 
         for i in 0..self.items.len() {
             let item = &self.items[i];
-            let exact = item.resolved_pts == time;
+            let exact = item.asked_time == time as i64;
 
-            if item.resolved_pts < time {
+            if item.asked_time < time as i64 {
                 continue;
             }
 
@@ -53,8 +54,8 @@ impl FrameCache {
                 break;
             }
 
-            let distance = (item.resolved_pts - time).abs();
-            if distance < best_distance {
+            let distance = (item.asked_time - time as i64).abs();
+            if distance < best_distance as i64 {
                 best_distance = distance;
                 best_item = Some(item);
             }

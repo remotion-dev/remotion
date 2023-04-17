@@ -59,7 +59,7 @@ impl OpenedVideo {
         (time * self.time_base.1 as f64 / self.time_base.0 as f64) as i64
     }
 
-    pub fn handle_eof(&mut self) -> Result<Option<usize>, PossibleErrors> {
+    pub fn handle_eof(&mut self, position: i64) -> Result<Option<usize>, PossibleErrors> {
         self.video.send_eof()?;
 
         let mut latest_frame: Option<usize> = None;
@@ -89,6 +89,7 @@ impl OpenedVideo {
                         resolved_dts: self.last_position.resolved_dts,
                         frame,
                         id: frame_cache_id,
+                        asked_time: position,
                     };
 
                     self.frame_cache.add_item(item);
@@ -147,7 +148,7 @@ impl OpenedVideo {
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
-                    let data = self.handle_eof()?;
+                    let data = self.handle_eof(position)?;
 
                     match data {
                         Some(data) => last_frame = Some(data),
@@ -214,6 +215,7 @@ impl OpenedVideo {
                             resolved_dts: self.last_position.resolved_dts,
                             frame,
                             id: frame_cache_id,
+                            asked_time: position,
                         };
 
                         self.frame_cache.add_item(item);
