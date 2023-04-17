@@ -7,6 +7,7 @@ mod global_printer;
 mod image;
 mod opened_video;
 mod payloads;
+mod scalable_frame;
 use commands::execute_command;
 use errors::{error_to_string, PossibleErrors};
 use std::{backtrace::Backtrace, env};
