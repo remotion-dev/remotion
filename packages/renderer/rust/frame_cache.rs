@@ -1,5 +1,3 @@
-use crate::global_printer::_print_debug;
-
 extern crate ffmpeg_next as remotionffmpeg;
 
 pub struct NotRgbFrame {
@@ -10,7 +8,6 @@ pub struct NotRgbFrame {
 pub struct FrameCacheItem {
     pub resolved_pts: i64,
     pub resolved_dts: i64,
-    pub asked_time: i64,
     pub frame: NotRgbFrame,
 }
 

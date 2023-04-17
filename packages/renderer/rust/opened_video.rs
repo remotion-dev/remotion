@@ -17,7 +17,6 @@ use crate::{
 };
 
 pub struct LastSeek {
-    asked_time: i64,
     resolved_pts: i64,
     resolved_dts: i64,
 }
@@ -60,7 +59,7 @@ impl OpenedVideo {
         (time * self.time_base.1 as f64 / self.time_base.0 as f64) as i64
     }
 
-    pub fn handle_eof(&mut self, asked_time: i64) -> Result<Option<NotRgbFrame>, PossibleErrors> {
+    pub fn handle_eof(&mut self) -> Result<Option<NotRgbFrame>, PossibleErrors> {
         self.video.send_eof()?;
 
         let mut latest_frame: Option<NotRgbFrame> = None;
@@ -92,7 +91,6 @@ impl OpenedVideo {
                     };
 
                     let item = FrameCacheItem {
-                        asked_time,
                         resolved_pts: self.last_position.resolved_pts,
                         resolved_dts: self.last_position.resolved_dts,
                         frame,
@@ -154,7 +152,7 @@ impl OpenedVideo {
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
-                    let data = self.handle_eof(position)?;
+                    let data = self.handle_eof()?;
 
                     match data {
                         Some(data) => last_frame = Some(data),
@@ -196,7 +194,6 @@ impl OpenedVideo {
                 let result = self.receive_frame();
 
                 self.last_position = LastSeek {
-                    asked_time: position,
                     resolved_pts: packet.pts().unwrap(),
                     resolved_dts: packet.dts().unwrap(),
                 };
@@ -222,7 +219,6 @@ impl OpenedVideo {
                         };
 
                         let item = FrameCacheItem {
-                            asked_time: position,
                             resolved_pts: self.last_position.resolved_pts,
                             resolved_dts: self.last_position.resolved_dts,
                             frame,
@@ -271,8 +267,6 @@ pub fn scale_and_make_bitmap(
         Flags::BILINEAR,
     )?;
 
-    let linesize = video.linesizes.as_ptr();
-
     let mut data: Vec<*const u8> = Vec::with_capacity(video.planes.len());
 
     for inner in video.planes.clone() {
@@ -280,14 +274,17 @@ pub fn scale_and_make_bitmap(
         data.push(ptr);
     }
 
-    let ptr = data.as_ptr();
-
     let mut scaled = Video::empty();
-    scaler.run(format, width, height, ptr, linesize, &mut scaled)?;
+    scaler.run(
+        format,
+        width,
+        height,
+        data.as_ptr(),
+        video.linesizes.as_ptr(),
+        &mut scaled,
+    )?;
 
-    let bmp = create_bmp_image_from_frame(&mut scaled);
-
-    return Ok(bmp);
+    Ok(create_bmp_image_from_frame(&mut scaled))
 }
 
 pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
@@ -323,7 +320,6 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
         src: src.to_string(),
         input,
         last_position: LastSeek {
-            asked_time: 0,
             resolved_pts: 0,
             resolved_dts: 0,
         },
