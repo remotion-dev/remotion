@@ -223,7 +223,7 @@ pub fn scale_and_make_bitmap(
         Pixel::BGR24,
         width,
         height,
-        Flags::BICUBIC,
+        Flags::BILINEAR,
     )?;
 
     let mut scaled = Video::empty();
