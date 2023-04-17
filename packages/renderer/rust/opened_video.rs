@@ -12,7 +12,7 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
     errors::PossibleErrors,
-    frame_cache::{FrameCache, FrameCacheItem, NotRgbFrame},
+    frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem, NotRgbFrame},
     global_printer::_print_debug,
 };
 
@@ -94,6 +94,7 @@ impl OpenedVideo {
                         resolved_pts: self.last_position.resolved_pts,
                         resolved_dts: self.last_position.resolved_dts,
                         frame,
+                        id: get_frame_cache_id(),
                     };
 
                     self.frame_cache.add_item(item);
@@ -222,6 +223,7 @@ impl OpenedVideo {
                             resolved_pts: self.last_position.resolved_pts,
                             resolved_dts: self.last_position.resolved_dts,
                             frame,
+                            id: get_frame_cache_id(),
                         };
 
                         last_frame = Some(frame2);
