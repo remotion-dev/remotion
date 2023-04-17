@@ -7,6 +7,10 @@ slug: /player/autoplay
 crumb: "@remotion/player"
 ---
 
+:::info
+When starting the `<Player />` with autoplay. You should listen for the `onClickCapture` event instead of the `onClick` event.
+:::
+
 Browsers place restrictions on websites that play audio without user interaction. Read on how to properly use the Remotion Player so you don't run into a browser policy.
 
 ## Trigger the play from a user event
