@@ -70,18 +70,15 @@ impl OpenedVideo {
 
             match result {
                 Ok(Some(video)) => unsafe {
+                    let plane_size = video.planes();
                     let linesize = (*video.as_ptr()).linesize;
+
                     let frame = NotRgbFrame {
                         linesizes: linesize,
                         planes: Vec::from([
                             video.data(0).to_vec(),
                             video.data(1).to_vec(),
                             video.data(2).to_vec(),
-                            video.data(0).to_vec(),
-                            video.data(0).to_vec(),
-                            video.data(0).to_vec(),
-                            video.data(0).to_vec(),
-                            video.data(0).to_vec(),
                         ]),
                     };
 
@@ -91,11 +88,6 @@ impl OpenedVideo {
                             video.data(0).to_vec(),
                             video.data(1).to_vec(),
                             video.data(2).to_vec(),
-                            video.data(0).to_vec(),
-                            video.data(0).to_vec(),
-                            video.data(0).to_vec(),
-                            video.data(0).to_vec(),
-                            video.data(0).to_vec(),
                         ]),
                     };
 
@@ -218,11 +210,6 @@ impl OpenedVideo {
                                 video.data(0).to_vec(),
                                 video.data(1).to_vec(),
                                 video.data(2).to_vec(),
-                                video.data(0).to_vec(),
-                                video.data(0).to_vec(),
-                                video.data(0).to_vec(),
-                                video.data(0).to_vec(),
-                                video.data(0).to_vec(),
                             ]),
                         };
                         let frame2 = NotRgbFrame {
@@ -231,11 +218,6 @@ impl OpenedVideo {
                                 video.data(0).to_vec(),
                                 video.data(1).to_vec(),
                                 video.data(2).to_vec(),
-                                video.data(0).to_vec(),
-                                video.data(0).to_vec(),
-                                video.data(0).to_vec(),
-                                video.data(0).to_vec(),
-                                video.data(0).to_vec(),
                             ]),
                         };
 
