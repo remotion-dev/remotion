@@ -29,14 +29,6 @@ impl FrameCache {
     }
 
     pub fn add_item(&mut self, item: FrameCacheItem) {
-        let exists = self
-            .items
-            .iter()
-            .any(|i| i.resolved_pts == item.resolved_pts);
-        if exists {
-            return;
-        }
-
         self.items.push(item);
     }
 
