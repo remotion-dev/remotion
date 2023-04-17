@@ -1,19 +1,14 @@
 use std::io::ErrorKind;
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{
-    format::Pixel,
-    frame::Video,
-    media::Type,
-    software::scaling::{Context, Flags},
-    Dictionary,
-};
+use remotionffmpeg::{ format::Pixel, frame::Video, media::Type, Dictionary};
 extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
     errors::PossibleErrors,
-    frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem, NotRgbFrame},
+    frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
     global_printer::_print_debug,
+    scalable_frame::{NotRgbFrame, ScalableFrame},
 };
 
 pub struct LastSeek {
@@ -82,12 +77,15 @@ impl OpenedVideo {
                     let frame = NotRgbFrame {
                         linesizes: linesize,
                         planes,
+                        format: self.format,
+                        width: self.width,
+                        height: self.height,
                     };
 
                     let item = FrameCacheItem {
                         resolved_pts: self.last_position.resolved_pts,
                         resolved_dts: self.last_position.resolved_dts,
-                        frame,
+                        frame: ScalableFrame::new(frame),
                         id: frame_cache_id,
                         asked_time: position,
                     };
@@ -111,12 +109,7 @@ impl OpenedVideo {
 
         let cache_item = self.frame_cache.get_item(position);
         if cache_item.is_some() {
-            return scale_and_make_bitmap(
-                &cache_item.unwrap().frame,
-                self.format,
-                self.width,
-                self.height,
-            );
+            return Ok(cache_item.unwrap());
         }
 
         let mut freshly_seeked = false;
@@ -206,12 +199,15 @@ impl OpenedVideo {
                         let frame = NotRgbFrame {
                             linesizes: linesize,
                             planes,
+                            format: self.format,
+                            width: self.width,
+                            height: self.height,
                         };
 
                         let item = FrameCacheItem {
                             resolved_pts: self.last_position.resolved_pts,
                             resolved_dts: self.last_position.resolved_dts,
-                            frame,
+                            frame: ScalableFrame::new(frame),
                             id: frame_cache_id,
                             asked_time: position,
                         };
@@ -243,49 +239,9 @@ impl OpenedVideo {
             ))?;
         }
 
-        Ok(scale_and_make_bitmap(
-            &from_cache.unwrap().frame,
-            self.format,
-            self.width,
-            self.height,
-        )?)
+        let data = from_cache.unwrap().frame.get_data()?;
+        Ok(data)
     }
-}
-
-pub fn scale_and_make_bitmap(
-    video: &NotRgbFrame,
-    format: Pixel,
-    width: u32,
-    height: u32,
-) -> Result<Vec<u8>, PossibleErrors> {
-    let mut scaler = Context::get(
-        format,
-        width,
-        height,
-        Pixel::BGR24,
-        width,
-        height,
-        Flags::BILINEAR,
-    )?;
-
-    let mut data: Vec<*const u8> = Vec::with_capacity(video.planes.len());
-
-    for inner in video.planes.clone() {
-        let ptr: *const u8 = inner.as_ptr();
-        data.push(ptr);
-    }
-
-    let mut scaled = Video::empty();
-    scaler.run(
-        format,
-        width,
-        height,
-        data.as_ptr(),
-        video.linesizes.as_ptr(),
-        &mut scaled,
-    )?;
-
-    Ok(create_bmp_image_from_frame(&mut scaled))
 }
 
 pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
@@ -329,45 +285,4 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
     };
 
     Ok(opened_video)
-}
-
-fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
-    let width = rgb_frame.width() as u32;
-    let height = rgb_frame.height() as u32;
-    let row_size = (width * 3 + 3) & !3;
-    let row_padding = row_size - width * 3;
-    let image_size = row_size * height;
-    let header_size = 54;
-    let stride = rgb_frame.stride(0);
-
-    let mut bmp_data = Vec::with_capacity(header_size as usize + image_size as usize);
-
-    bmp_data.extend_from_slice(b"BM");
-    bmp_data.extend(&(header_size + image_size).to_le_bytes());
-    bmp_data.extend(&0u16.to_le_bytes());
-    bmp_data.extend(&0u16.to_le_bytes());
-    bmp_data.extend(&header_size.to_le_bytes());
-
-    bmp_data.extend(&40u32.to_le_bytes());
-    bmp_data.extend(&width.to_le_bytes());
-    bmp_data.extend(&height.to_le_bytes());
-    bmp_data.extend(&1u16.to_le_bytes());
-    bmp_data.extend(&24u16.to_le_bytes());
-    bmp_data.extend(&0u32.to_le_bytes());
-    bmp_data.extend(&image_size.to_le_bytes());
-    bmp_data.extend(&2835u32.to_le_bytes());
-    bmp_data.extend(&2835u32.to_le_bytes());
-    bmp_data.extend(&0u32.to_le_bytes());
-    bmp_data.extend(&0u32.to_le_bytes());
-
-    for y in (0..height).rev() {
-        let row_start = (y as usize) * stride;
-        let row_end = row_start + (width * 3) as usize;
-        bmp_data.extend_from_slice(&rgb_frame.data(0)[row_start..row_end]);
-        for _ in 0..row_padding {
-            bmp_data.push(0);
-        }
-    }
-
-    bmp_data
 }

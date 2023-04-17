@@ -2,21 +2,18 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
+use crate::scalable_frame::ScalableFrame;
+
 pub fn get_frame_cache_id() -> usize {
     static COUNTER: AtomicUsize = AtomicUsize::new(1);
     COUNTER.fetch_add(1, Ordering::Relaxed)
-}
-
-pub struct NotRgbFrame {
-    pub planes: Vec<Vec<u8>>,
-    pub linesizes: [i32; 8],
 }
 
 pub struct FrameCacheItem {
     pub resolved_pts: i64,
     pub resolved_dts: i64,
     pub asked_time: i64,
-    pub frame: NotRgbFrame,
+    pub frame: ScalableFrame,
     pub id: usize,
 }
 
@@ -37,10 +34,6 @@ impl FrameCache {
         self.items.push(item);
     }
 
-    pub fn get_last_frame(&self) -> Option<&FrameCacheItem> {
-        self.last_frame.and_then(|id| self.get_item_from_id(id))
-    }
-
     pub fn set_last_frame(&mut self, id: usize) {
         self.last_frame = Some(id);
     }
@@ -49,7 +42,7 @@ impl FrameCache {
         self.items.iter().find(|i| i.id == id)
     }
 
-    pub fn get_item(&self, time: i64) -> Option<&FrameCacheItem> {
+    pub fn get_item(&self, time: i64) -> Option<Vec<u8>> {
         let mut best_item: Option<&FrameCacheItem> = None;
         let mut best_distance = std::i64::MAX;
 
@@ -60,13 +53,13 @@ impl FrameCache {
             if item.asked_time < time as i64 {
                 // Asked for frame beyond last frame
                 if self.last_frame.is_some() && self.last_frame.unwrap() == item.id {
-                    return Some(item);
+                    return Some(item.frame.get_data().unwrap());
                 }
                 continue;
             }
 
             if exact {
-                return Some(item);
+                return Some(item.frame.get_data().unwrap());
             }
 
             let distance = (item.asked_time - time as i64).abs();
@@ -75,6 +68,6 @@ impl FrameCache {
                 best_item = Some(item);
             }
         }
-        best_item
+        Some(best_item.unwrap().frame.get_data().unwrap())
     }
 }

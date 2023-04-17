@@ -1,0 +1,122 @@
+use ffmpeg_next::{
+    format::Pixel,
+    frame::Video,
+    software::scaling::{Context, Flags},
+};
+
+use crate::errors::{self, PossibleErrors};
+
+pub struct NotRgbFrame {
+    pub planes: Vec<Vec<u8>>,
+    pub linesizes: [i32; 8],
+    pub format: Pixel,
+    pub width: u32,
+    pub height: u32,
+}
+
+pub struct RgbFrame {
+    pub data: Vec<u8>,
+}
+
+pub struct ScalableFrame {
+    pub native_frame: Option<NotRgbFrame>,
+    pub rgb_frame: Option<RgbFrame>,
+}
+
+impl ScalableFrame {
+    pub fn new(native_frame: NotRgbFrame) -> Self {
+        Self {
+            native_frame: Some(native_frame),
+            rgb_frame: None,
+        }
+    }
+
+    pub fn get_data(&self) -> Result<Vec<u8>, PossibleErrors> {
+        if self.rgb_frame.is_some() {
+            return Ok(self.rgb_frame.as_ref().unwrap().data.clone());
+        }
+
+        if self.native_frame.is_none() {
+            return Err(errors::PossibleErrors::IoError(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                "has neither native nor rgb frame",
+            )));
+        }
+
+        // TODO: Should cache state
+        let bitmap = scale_and_make_bitmap(&self.native_frame.as_ref().unwrap())?;
+        Ok(bitmap.clone())
+    }
+}
+
+fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
+    let width = rgb_frame.width() as u32;
+    let height = rgb_frame.height() as u32;
+    let row_size = (width * 3 + 3) & !3;
+    let row_padding = row_size - width * 3;
+    let image_size = row_size * height;
+    let header_size = 54;
+    let stride = rgb_frame.stride(0);
+
+    let mut bmp_data = Vec::with_capacity(header_size as usize + image_size as usize);
+
+    bmp_data.extend_from_slice(b"BM");
+    bmp_data.extend(&(header_size + image_size).to_le_bytes());
+    bmp_data.extend(&0u16.to_le_bytes());
+    bmp_data.extend(&0u16.to_le_bytes());
+    bmp_data.extend(&header_size.to_le_bytes());
+
+    bmp_data.extend(&40u32.to_le_bytes());
+    bmp_data.extend(&width.to_le_bytes());
+    bmp_data.extend(&height.to_le_bytes());
+    bmp_data.extend(&1u16.to_le_bytes());
+    bmp_data.extend(&24u16.to_le_bytes());
+    bmp_data.extend(&0u32.to_le_bytes());
+    bmp_data.extend(&image_size.to_le_bytes());
+    bmp_data.extend(&2835u32.to_le_bytes());
+    bmp_data.extend(&2835u32.to_le_bytes());
+    bmp_data.extend(&0u32.to_le_bytes());
+    bmp_data.extend(&0u32.to_le_bytes());
+
+    for y in (0..height).rev() {
+        let row_start = (y as usize) * stride;
+        let row_end = row_start + (width * 3) as usize;
+        bmp_data.extend_from_slice(&rgb_frame.data(0)[row_start..row_end]);
+        for _ in 0..row_padding {
+            bmp_data.push(0);
+        }
+    }
+
+    bmp_data
+}
+
+pub fn scale_and_make_bitmap(native_frame: &NotRgbFrame) -> Result<Vec<u8>, PossibleErrors> {
+    let mut scaler = Context::get(
+        native_frame.format,
+        native_frame.width,
+        native_frame.height,
+        Pixel::BGR24,
+        native_frame.width,
+        native_frame.height,
+        Flags::BILINEAR,
+    )?;
+
+    let mut data: Vec<*const u8> = Vec::with_capacity(native_frame.planes.len());
+
+    for inner in native_frame.planes.clone() {
+        let ptr: *const u8 = inner.as_ptr();
+        data.push(ptr);
+    }
+
+    let mut scaled = Video::empty();
+    scaler.run(
+        native_frame.format,
+        native_frame.width,
+        native_frame.height,
+        data.as_ptr(),
+        native_frame.linesizes.as_ptr(),
+        &mut scaled,
+    )?;
+
+    Ok(create_bmp_image_from_frame(&mut scaled))
+}
