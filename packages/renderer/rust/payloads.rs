@@ -4,7 +4,7 @@ extern crate serde;
 extern crate serde_json;
 
 pub mod payloads {
-    use crate::{errors::PossibleErrors, global_printer::_print_debug};
+    use crate::errors::PossibleErrors;
     use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize, Debug)]

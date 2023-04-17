@@ -1,24 +1,22 @@
 use crate::compositor::draw_layer;
 use crate::errors::PossibleErrors;
+use crate::ffmpeg;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::payloads::payloads::CliInputCommandPayload;
-use crate::{ffmpeg, global_printer};
 use std::io::ErrorKind;
 
-pub fn execute_command(nonce: &str, opts: CliInputCommandPayload) -> Result<(), PossibleErrors> {
+pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, PossibleErrors> {
     match opts {
         CliInputCommandPayload::ExtractFrame(command) => {
-            let _result = ffmpeg::extract_frame(command.input, command.time)?;
-            global_printer::synchronized_write_buf(&nonce, &_result)?;
+            let res = ffmpeg::extract_frame(command.input, command.time)?;
+            Ok(res)
         }
-        CliInputCommandPayload::StartLongRunningProcess(_command) => {
-            Err(std::io::Error::new(
-                ErrorKind::Other,
-                "Cannot start long running process as command",
-            ))?;
-        }
+        CliInputCommandPayload::StartLongRunningProcess(_command) => Err(std::io::Error::new(
+            ErrorKind::Other,
+            "Cannot start long running process as command",
+        ))?,
         CliInputCommandPayload::Echo(_command) => {
-            global_printer::synchronized_println(&nonce, &format!("Echo {}", _command.message))?;
+            Ok(format!("Echo {}", _command.message).as_bytes().to_vec())
         }
         CliInputCommandPayload::Compose(compose_command) => {
             let len: usize = (compose_command.width * compose_command.height).try_into()?;
@@ -46,7 +44,8 @@ pub fn execute_command(nonce: &str, opts: CliInputCommandPayload) -> Result<(), 
                     compose_command.output,
                 )?;
             }
+
+            Ok("".as_bytes().to_vec())
         }
     }
-    Ok(())
 }
