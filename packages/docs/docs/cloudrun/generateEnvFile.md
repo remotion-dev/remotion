@@ -18,11 +18,17 @@ GCP allows a maximum of 10 keys per service account. If you have already created
 
    <img src="/img/cloudrun/selectCloudShell.jpg" width="200" />
 
-3. Within the Cloud Shell, type the following command, and select option 3. Follow the remaining prompts.
+3. Within the Cloud Shell, type the following command and follow the prompts.
 
    ```bash
-   curl --remote-name-all https://raw.githubusercontent.com/UmungoBungo/remotion/gcp-lambda-alternative/packages/cloudrun/installer.zip && node install.mjs
+   curl -L https://raw.githubusercontent.com/UmungoBungo/remotion/gcp-lambda-alternative/packages/cloudrun/gcpInstaller/gcpInstaller.tar | tar -x --strip-components=1 -C . && node install.mjs
    ```
+
+   _The first command downloads a tar file from the Remotion repo, and extracts it to the current directory. The second command runs the installer script._
+   If you want to generate a new .env file, or manage keys already created, you will want to select option 3.
+
+   If this is the first time [initialising Remotion in the GCP project](./setup.md), you will want to select option 1.  
+   If you are [updating the version of Remotion for this GCP project](./updateGcpProject.md), you will want to select option 2.
 
    <!-- ToDo - host this in the official Remotion repo -->
 
