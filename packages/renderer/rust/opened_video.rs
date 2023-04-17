@@ -85,6 +85,10 @@ impl OpenedVideo {
         let mut bitmap: Vec<u8> = Vec::new();
 
         loop {
+            // -1 because uf 67 and we want to process 66.66 -> rounding error
+            if (self.last_position.resolved_pts - 1) > position && bitmap.len() > 0 {
+                break;
+            }
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
                     self.video.send_eof()?;
@@ -117,11 +121,6 @@ impl OpenedVideo {
             };
             if stream.parameters().medium() != Type::Video {
                 continue;
-            }
-
-            // -1 because uf 67 and we want to process 66.66 -> rounding error
-            if (packet.pts().unwrap() - 1) > position && bitmap.len() > 0 {
-                break;
             }
 
             loop {
