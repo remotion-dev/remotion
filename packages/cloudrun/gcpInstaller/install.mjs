@@ -1,12 +1,12 @@
-import { execSync } from "child_process";
+import {execSync} from 'child_process';
 // Components
-import { colorCode } from "./components/colorCodes.mjs";
-import { cloudRunSplashScreen } from "./components/splashScreen.mjs";
-import { taskPrompt } from "./components/taskPrompt.mjs";
+import {colorCode} from './components/colorCodes.mjs';
+import {cloudRunSplashScreen} from './components/splashScreen.mjs';
+import {taskPrompt} from './components/taskPrompt.mjs';
 // Tasks
-import { generateEnv } from "./tasks/generateEnv.mjs";
-import { updateRemotion } from "./tasks/updateRemotion.mjs";
-import { setupGcpProject } from "./tasks/setupGcpProject.mjs";
+import {generateEnv} from './tasks/generateEnv.mjs';
+import {setupGcpProject} from './tasks/setupGcpProject.mjs';
+import {updateRemotion} from './tasks/updateRemotion.mjs';
 
 /****************************************
  * Splash screen for Remotion Cloud Run
@@ -17,20 +17,20 @@ cloudRunSplashScreen();
  * Set project ID for Terraform and gcloud commands
  ****************************************/
 execSync(`echo "Retrieving current Project ID..."`, {
-  stdio: "inherit",
+	stdio: 'inherit',
 });
 
-const projectID = execSync("gcloud config get-value project", {
-  stdio: ["inherit", "pipe", "pipe"],
+const projectID = execSync('gcloud config get-value project', {
+	stdio: ['inherit', 'pipe', 'pipe'],
 })
-  .toString()
-  .trim();
+	.toString()
+	.trim();
 
 execSync(
-  `echo "Project set to ${colorCode.blueText}${projectID}${colorCode.resetText}\n"`,
-  {
-    stdio: "inherit",
-  }
+	`echo "Project set to ${colorCode.blueText}${projectID}${colorCode.resetText}\n"`,
+	{
+		stdio: 'inherit',
+	}
 );
 
 /****************************************
@@ -39,18 +39,18 @@ execSync(
 const selection = await taskPrompt(projectID);
 
 switch (selection) {
-  case "runTerraform":
-    await setupGcpProject(projectID);
-    break;
+	case 'runTerraform':
+		await setupGcpProject(projectID);
+		break;
 
-  case "updateRemotion":
-    await updateRemotion(projectID);
-    break;
+	case 'updateRemotion':
+		await updateRemotion(projectID);
+		break;
 
-  case "generateEnv":
-    await generateEnv(projectID);
-    break;
+	case 'generateEnv':
+		await generateEnv(projectID);
+		break;
 
-  default:
-    break;
+	default:
+		break;
 }

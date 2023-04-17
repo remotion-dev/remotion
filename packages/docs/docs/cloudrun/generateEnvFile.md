@@ -21,7 +21,7 @@ GCP allows a maximum of 10 keys per service account. If you have already created
 3. Within the Cloud Shell, type the following command, and select option 3. Follow the remaining prompts.
 
    ```bash
-   curl --remote-name-all https://raw.githubusercontent.com/UmungoBungo/remotion/gcp-lambda-alternative/packages/cloudrun/{terraform/main.tf,install.mjs} && node install.mjs
+   curl --remote-name-all https://raw.githubusercontent.com/UmungoBungo/remotion/gcp-lambda-alternative/packages/cloudrun/installer.zip && node install.mjs
    ```
 
    <!-- ToDo - host this in the official Remotion repo -->
