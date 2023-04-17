@@ -57,7 +57,6 @@ impl FrameCache {
                 best_item = Some(item);
             }
         }
-        _print_debug("send cache");
         best_item
     }
 }
