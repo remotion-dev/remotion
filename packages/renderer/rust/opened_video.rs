@@ -15,6 +15,12 @@ use crate::{
     global_printer::_print_debug,
 };
 
+pub struct LastSeek {
+    asked_time: i64,
+    resolved_pts: i64,
+    resolved_dts: i64,
+}
+
 pub struct OpenedVideo {
     pub stream_index: usize,
     pub time_base: Rational,
@@ -24,12 +30,12 @@ pub struct OpenedVideo {
     pub video: remotionffmpeg::codec::decoder::Video,
     pub src: String,
     pub input: remotionffmpeg::format::context::Input,
-    pub last_seek: i64,
+    pub last_position: LastSeek,
     pub frame_cache: FrameCache,
 }
 
 impl OpenedVideo {
-    pub fn receive_frame(&mut self, timestamp: i64) -> Result<Option<Vec<u8>>, PossibleErrors> {
+    pub fn receive_frame(&mut self) -> Result<Option<Vec<u8>>, PossibleErrors> {
         let mut frame = Video::empty();
 
         let res = self.video.receive_frame(&mut frame);
@@ -48,7 +54,6 @@ impl OpenedVideo {
                 let new_bitmap =
                     scale_and_make_bitmap(frame, self.format, self.width, self.height)?;
 
-                self.last_seek = timestamp;
                 Ok(Some(new_bitmap))
             }
         }
@@ -64,15 +69,17 @@ impl OpenedVideo {
             return Ok(cache_item.unwrap());
         }
 
-        if position < self.last_seek || self.last_seek < min_position {
-            _print_debug(&format!("Seeking to {} from {}", position, self.last_seek));
-            self.input.seek(
-                self.stream_index as i32,
-                min_position,
+        if position < self.last_position.asked_time || self.last_position.asked_time < min_position
+        {
+            _print_debug(&format!(
+                "Seeking to {} from asked_time = {}, pts = {} and dts = {}",
                 position,
-                position,
-                0,
-            )?;
+                self.last_position.asked_time,
+                self.last_position.resolved_pts,
+                self.last_position.resolved_dts
+            ));
+            self.input
+                .seek(self.stream_index as i32, 0, position, position, 0)?;
         }
 
         let mut bitmap: Vec<u8> = Vec::new();
@@ -83,12 +90,15 @@ impl OpenedVideo {
                     self.video.send_eof()?;
 
                     loop {
-                        let result = self.receive_frame(self.last_seek);
+                        let result = self.receive_frame();
+
                         match result {
                             Ok(Some(data)) => {
                                 bitmap = data;
                                 self.frame_cache.add_item(FrameCacheItem {
-                                    time: self.last_seek,
+                                    asked_time: position,
+                                    resolved_pts: self.last_position.resolved_pts,
+                                    resolved_dts: self.last_position.resolved_dts,
                                     bitmap: bitmap.clone(),
                                 });
                             }
@@ -116,12 +126,21 @@ impl OpenedVideo {
 
             loop {
                 self.video.send_packet(&packet)?;
-                let result = self.receive_frame(packet.pts().unwrap());
+                let result = self.receive_frame();
+
+                self.last_position = LastSeek {
+                    asked_time: position,
+                    resolved_pts: packet.pts().unwrap(),
+                    resolved_dts: packet.dts().unwrap(),
+                };
+
                 match result {
                     Ok(Some(data)) => {
                         bitmap = data;
                         self.frame_cache.add_item(FrameCacheItem {
-                            time: self.last_seek,
+                            asked_time: position,
+                            resolved_pts: packet.pts().unwrap(),
+                            resolved_dts: packet.dts().unwrap(),
                             bitmap: bitmap.clone(),
                         });
 
@@ -194,7 +213,11 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
         video,
         src: src.to_string(),
         input,
-        last_seek: 0,
+        last_position: LastSeek {
+            asked_time: 0,
+            resolved_pts: 0,
+            resolved_dts: 0,
+        },
         frame_cache: FrameCache::new(),
     };
 
