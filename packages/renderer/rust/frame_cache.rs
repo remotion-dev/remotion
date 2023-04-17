@@ -28,17 +28,34 @@ impl FrameCache {
     }
 
     pub fn get_item(&self, time: i64) -> Option<Vec<u8>> {
+        let mut best_item: Option<&FrameCacheItem> = None;
+        let mut best_distance = std::i64::MAX;
+
         for i in 0..self.items.len() {
             let item = &self.items[i];
-            if item.resolved_pts >= time
-                && self
-                    .items
-                    .iter()
-                    .any(|j| j.resolved_pts > item.resolved_pts)
-            {
-                return Some(item.bitmap.clone());
+            let exact = item.resolved_pts == time;
+
+            if item.resolved_pts < time {
+                continue;
+            }
+
+            if exact {
+                best_item = Some(item);
+                break;
+            }
+
+            let distance = (item.resolved_pts - time).abs();
+            if distance < best_distance {
+                best_distance = distance;
+                best_item = Some(item);
             }
         }
-        return None;
+
+        if best_item.is_none() {
+            return None;
+        }
+
+        let best_item = best_item.unwrap();
+        Some(best_item.bitmap.clone())
     }
 }
