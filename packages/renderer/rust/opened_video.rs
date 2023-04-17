@@ -271,11 +271,19 @@ pub fn scale_and_make_bitmap(
         Flags::BILINEAR,
     )?;
 
-    let data = convert_to_ptr(video.planes.clone());
     let linesize = video.linesizes.as_ptr();
 
+    let mut data: Vec<*const u8> = Vec::with_capacity(video.planes.len());
+
+    for inner in video.planes.clone() {
+        let ptr: *const u8 = inner.as_ptr();
+        data.push(ptr);
+    }
+
+    let ptr = data.as_ptr();
+
     let mut scaled = Video::empty();
-    scaler.run(format, width, height, data, linesize, &mut scaled)?;
+    scaler.run(format, width, height, ptr, linesize, &mut scaled)?;
 
     let bmp = create_bmp_image_from_frame(&mut scaled);
 
@@ -365,19 +373,4 @@ fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
     }
 
     bmp_data
-}
-
-pub fn convert_to_ptr(data: Vec<Vec<u8>>) -> *const *const u8 {
-    let mut outer: Vec<*const u8> = Vec::with_capacity(data.len());
-
-    for inner in data {
-        let ptr: *const u8 = inner.as_ptr();
-        std::mem::forget(inner); // Prevent inner vector from being dropped
-        outer.push(ptr);
-    }
-
-    let ptr = outer.as_ptr();
-    std::mem::forget(outer); // Prevent outer vector from being dropped
-
-    ptr
 }
