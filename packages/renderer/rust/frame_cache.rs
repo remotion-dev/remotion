@@ -16,8 +16,10 @@ impl FrameCache {
         Self { items: Vec::new() }
     }
     pub fn add_item(&mut self, item: FrameCacheItem) {
-        // TODO: This is weird with shifted PTS
-        let exists = self.items.iter().any(|i| i.asked_time == item.asked_time);
+        let exists = self
+            .items
+            .iter()
+            .any(|i| i.resolved_pts == item.resolved_pts);
         if exists {
             return;
         }
@@ -28,7 +30,11 @@ impl FrameCache {
     pub fn get_item(&self, time: i64) -> Option<Vec<u8>> {
         for i in 0..self.items.len() {
             let item = &self.items[i];
-            if item.asked_time >= time && self.items.iter().any(|j| j.asked_time > item.asked_time)
+            if item.resolved_pts >= time
+                && self
+                    .items
+                    .iter()
+                    .any(|j| j.resolved_pts > item.resolved_pts)
             {
                 return Some(item.bitmap.clone());
             }
