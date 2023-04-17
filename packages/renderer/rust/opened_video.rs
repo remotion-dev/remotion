@@ -58,6 +58,34 @@ impl OpenedVideo {
         }
     }
 
+    pub fn handle_eof(&mut self, asked_time: i64) -> Result<Option<Vec<u8>>, PossibleErrors> {
+        self.video.send_eof()?;
+
+        loop {
+            let result = self.receive_frame();
+
+            match result {
+                Ok(Some(data)) => {
+                    self.frame_cache.add_item(FrameCacheItem {
+                        asked_time,
+                        resolved_pts: self.last_position.resolved_pts,
+                        resolved_dts: self.last_position.resolved_dts,
+                        bitmap: data.clone(),
+                    });
+
+                    Ok::<std::option::Option<Vec<u8>>, PossibleErrors>(Some(data.clone()))?;
+                }
+                Ok(None) => {
+                    break;
+                }
+                Err(err) => {
+                    return Err(err);
+                }
+            }
+        }
+        Ok(None)
+    }
+
     pub fn get_frame(&mut self, time: f64) -> Result<Vec<u8>, PossibleErrors> {
         let position = (time as f64 * self.time_base.1 as f64 / self.time_base.0 as f64) as i64;
         let min_position =
@@ -88,30 +116,15 @@ impl OpenedVideo {
             if (self.last_position.resolved_pts - 1) > position && bitmap.len() > 0 {
                 break;
             }
+
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
-                    self.video.send_eof()?;
-
-                    loop {
-                        let result = self.receive_frame();
-
-                        match result {
-                            Ok(Some(data)) => {
-                                bitmap = data;
-                                self.frame_cache.add_item(FrameCacheItem {
-                                    asked_time: position,
-                                    resolved_pts: self.last_position.resolved_pts,
-                                    resolved_dts: self.last_position.resolved_dts,
-                                    bitmap: bitmap.clone(),
-                                });
-                            }
-                            Ok(None) => {
-                                break;
-                            }
-                            Err(err) => {
-                                return Err(err);
-                            }
+                    let data = self.handle_eof(position)?;
+                    match data {
+                        Some(data) => {
+                            bitmap = data;
                         }
+                        None => {}
                     }
                     break;
                 }
