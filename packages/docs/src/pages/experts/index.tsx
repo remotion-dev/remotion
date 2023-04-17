@@ -78,13 +78,15 @@ const Experts: React.FC = () => {
           <br />
           {expertsInRandomOrder.map((e) => {
             return (
-              <Link key={e.name} style={link} href={`/experts/${e.slug}`}>
-                <div className={styles.card}>
+              <div key={e.name} className={styles.card}>
+                <Link style={link} href={`/experts/${e.slug}`}>
                   <img className={styles.profile} src={e.image} />
                   <div className={styles.spacer} />
                   <div className={styles.right}>
                     <div className={styles.title}>{e.name}</div>
                     <p>{e.description}</p>
+                  </div>
+                </Link>
                     <div
                       style={{
                         display: "flex",
@@ -166,9 +168,7 @@ const Experts: React.FC = () => {
                     </div>
 
                     <br />
-                  </div>
-                </div>
-              </Link>
+              </div>   
             );
           })}
         </div>
