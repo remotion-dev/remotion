@@ -149,11 +149,9 @@ impl OpenedVideo {
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
                     let data = self.handle_eof(position)?;
-
-                    match data {
-                        Some(data) => last_frame = Some(data),
-
-                        None => {}
+                    if data.is_some() {
+                        last_frame = data;
+                        self.frame_cache.set_last_frame(data.unwrap())
                     }
                     break;
                 }

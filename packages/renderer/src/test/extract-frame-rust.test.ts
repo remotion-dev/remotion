@@ -184,6 +184,17 @@ test('Last frame should be fast', async () => {
 	expect(time2_end - time2).toBeLessThan(time_end - time);
 	expect(data2.length).toBe(3499254);
 
+	const time3 = Date.now();
+	const data3 = await compositor.executeCommand('ExtractFrame', {
+		input,
+		time: 100,
+	});
+
+	// Time should be way less now
+	const time3_end = Date.now();
+	expect(time3_end - time3).toBeLessThan(time_end - time);
+	expect(data3.length).toBe(3499254);
+
 	compositor.finishCommands();
 	compositor.waitForDone();
 });
