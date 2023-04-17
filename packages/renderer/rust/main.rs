@@ -35,7 +35,7 @@ fn mainfn() -> Result<(), PossibleErrors> {
         }
         _ => {
             let data = execute_command(opts.payload)?;
-            global_printer::synchronized_write_buf(&opts.nonce, &data)?;
+            global_printer::synchronized_write_buf(0, &opts.nonce, &data)?;
         }
     }
 
@@ -66,7 +66,7 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
         }
         let opts: CliInputCommand = parse_cli(&input).unwrap();
         pool.execute(move || match execute_command(opts.payload) {
-            Ok(res) => global_printer::synchronized_write_buf(&opts.nonce, &res).unwrap(),
+            Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
             Err(err) => {
                 let err = ErrorPayload {
                     error: error_to_string(err),
@@ -76,7 +76,7 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
                 let err_payload = serde_json::to_string(&err).unwrap();
                 let j = err_payload.as_bytes();
 
-                global_printer::synchronized_write_buf(&opts.nonce, &j).unwrap()
+                global_printer::synchronized_write_buf(1, &opts.nonce, &j).unwrap()
             }
         });
     }

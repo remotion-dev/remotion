@@ -2,7 +2,11 @@ import {spawn} from 'child_process';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
-import type {CompositorCommand, CompositorCommandSerialized} from './payloads';
+import type {
+	CompositorCommand,
+	CompositorCommandSerialized,
+	ErrorPayload,
+} from './payloads';
 
 export type Compositor = {
 	finishCommands: () => void;
@@ -76,13 +80,31 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	const separator = Buffer.from('remotion_buffer:');
 	const waiters = new Map<string, Waiter>();
 
-	const onMessage = (nonce: string, data: Buffer) => {
+	const onMessage = (
+		statusType: 'success' | 'error',
+		nonce: string,
+		data: Buffer
+	) => {
 		if (nonce === '0') {
 			console.log(data.toString('utf8'));
 		}
 
 		if (waiters.has(nonce)) {
-			(waiters.get(nonce) as Waiter).resolve(data);
+			if (statusType === 'error') {
+				try {
+					const parsed = JSON.parse(data.toString('utf8')) as ErrorPayload;
+					(waiters.get(nonce) as Waiter).reject(
+						new Error(`Compositor error: ${parsed.error}`)
+					);
+				} catch (err) {
+					(waiters.get(nonce) as Waiter).reject(
+						new Error(data.toString('utf8'))
+					);
+				}
+			} else {
+				(waiters.get(nonce) as Waiter).resolve(data);
+			}
+
 			waiters.delete(nonce);
 		}
 	};
@@ -102,6 +124,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 
 		let nonceString = '';
 		let lengthString = '';
+		let statusString = '';
 
 		// Each message from Rust is prefixed with `remotion_buffer;{[nonce]}:{[length]}`
 		// Let's read the buffer to extract the nonce, and if the full length is available,
@@ -110,8 +133,8 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		// eslint-disable-next-line no-constant-condition
 		while (true) {
 			const nextDigit = outputBuffer[separatorIndex];
-			// 0x3b is the character ";"
-			if (nextDigit === 0x3b) {
+			// 0x3a is the character ":"
+			if (nextDigit === 0x3a) {
 				separatorIndex++;
 				break;
 			}
@@ -126,6 +149,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			const nextDigit = outputBuffer[separatorIndex];
 			// 0x3a is the character ":"
 			if (nextDigit === 0x3a) {
+				separatorIndex++;
 				break;
 			}
 
@@ -134,7 +158,21 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			lengthString += String.fromCharCode(nextDigit);
 		}
 
+		// eslint-disable-next-line no-constant-condition
+		while (true) {
+			const nextDigit = outputBuffer[separatorIndex];
+			// 0x3a is the character ":"
+			if (nextDigit === 0x3a) {
+				break;
+			}
+
+			separatorIndex++;
+
+			statusString += String.fromCharCode(nextDigit);
+		}
+
 		const length = Number(lengthString);
+		const status = Number(statusString);
 
 		const dataLength = outputBuffer.length - separatorIndex - 1;
 		if (dataLength < length) {
@@ -148,7 +186,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			separatorIndex + 1,
 			separatorIndex + 1 + Number(lengthString)
 		);
-		onMessage(nonceString, data);
+		onMessage(status === 1 ? 'error' : 'success', nonceString, data);
 		missingData = null;
 
 		outputBuffer = outputBuffer.subarray(
@@ -236,12 +274,8 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				// TODO: Should have a way to error out a single task
 				child.stdin.write(JSON.stringify(composed) + '\n');
 				waiters.set(nonce, {
-					resolve: (data: Buffer) => {
-						resolve(data);
-					},
-					reject: (err) => {
-						reject(err);
-					},
+					resolve,
+					reject,
 				});
 			});
 		},
