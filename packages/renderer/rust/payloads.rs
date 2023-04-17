@@ -4,7 +4,7 @@ extern crate serde;
 extern crate serde_json;
 
 pub mod payloads {
-    use crate::errors::PossibleErrors;
+    use crate::{errors::PossibleErrors, global_printer::_print_debug};
     use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize, Debug)]
@@ -52,34 +52,35 @@ pub mod payloads {
         pub layers: Vec<Layer>,
         pub output_format: ImageFormat,
         pub output: String,
-        pub nonce: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct ExtractFrameCommand {
         pub input: String,
         pub time: f64,
-        pub nonce: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
-    pub struct StartPayLoad {
-        pub nonce: String,
-    }
+    pub struct StartPayLoad {}
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct EchoPayload {
         pub message: String,
-        pub nonce: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
     #[serde(tag = "type", content = "params")]
-    pub enum CliInputCommand {
+    pub enum CliInputCommandPayload {
         ExtractFrame(ExtractFrameCommand),
         Compose(CliGenerateImageCommand),
         StartLongRunningProcess(StartPayLoad),
         Echo(EchoPayload),
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct CliInputCommand {
+        pub payload: CliInputCommandPayload,
+        pub nonce: String,
     }
 
     pub fn parse_cli(json: &str) -> Result<CliInputCommand, PossibleErrors> {

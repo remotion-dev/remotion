@@ -1,20 +1,13 @@
-import fs from 'fs';
 import path from 'path';
 import {expect, test} from 'vitest';
 import {startCompositor} from '../compositor/compositor';
-import {makeNonce} from '../compositor/make-nonce';
 
 const BMP_HEADER_SIZE = 54;
 
 test(
 	'Should be able to extract a frame using Rust',
 	async () => {
-		const compositor = startCompositor({
-			type: 'StartLongRunningProcess',
-			params: {
-				nonce: makeNonce(),
-			},
-		});
+		const compositor = startCompositor('StartLongRunningProcess', {});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
 			input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
@@ -37,19 +30,9 @@ test(
 );
 
 test('Should be able to start two compositors', async () => {
-	const compositor = startCompositor({
-		type: 'StartLongRunningProcess',
-		params: {
-			nonce: makeNonce(),
-		},
-	});
+	const compositor = startCompositor('StartLongRunningProcess', {});
 
-	const compositor2 = startCompositor({
-		type: 'StartLongRunningProcess',
-		params: {
-			nonce: makeNonce(),
-		},
-	});
+	const compositor2 = startCompositor('StartLongRunningProcess', {});
 
 	await compositor.executeCommand('ExtractFrame', {
 		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
@@ -62,26 +45,18 @@ test('Should be able to start two compositors', async () => {
 });
 
 test('Should be able to seek backwards', async () => {
-	const compositor = startCompositor({
-		type: 'StartLongRunningProcess',
-		params: {
-			nonce: makeNonce(),
-		},
-	});
+	const compositor = startCompositor('StartLongRunningProcess', {});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
 		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
 		time: 40,
 	});
 	expect(data.length).toBe(2764854);
-	fs.writeFileSync('test.png', data);
 	const data2 = await compositor.executeCommand('ExtractFrame', {
 		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
 		time: 35,
 	});
 	expect(data2.length).toBe(2764854);
-
-	fs.writeFileSync('test2.png', data2);
 
 	compositor.finishCommands();
 	await compositor.waitForDone();
@@ -90,12 +65,7 @@ test('Should be able to seek backwards', async () => {
 test(
 	'Should be able to extract a frame that has no file extension',
 	async () => {
-		const compositor = startCompositor({
-			type: 'StartLongRunningProcess',
-			params: {
-				nonce: makeNonce(),
-			},
-		});
+		const compositor = startCompositor('StartLongRunningProcess', {});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
 			input: path.join(
@@ -110,7 +80,6 @@ test(
 			time: 1,
 		});
 		expect(data.length).toBe(3499254);
-		fs.writeFileSync('nofileext.bmp', data);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
@@ -121,14 +90,8 @@ test(
 test(
 	'Should get the last frame if out of range',
 	async () => {
-		const compositor = startCompositor({
-			type: 'StartLongRunningProcess',
-			params: {
-				nonce: makeNonce(),
-			},
-		});
+		const compositor = startCompositor('StartLongRunningProcess', {});
 
-		// TODO: Should not return 97
 		const data = await compositor.executeCommand('ExtractFrame', {
 			input: path.join(
 				__dirname,
@@ -159,12 +122,7 @@ test(
 test(
 	'Should get the last frame of a corrupted video',
 	async () => {
-		const compositor = startCompositor({
-			type: 'StartLongRunningProcess',
-			params: {
-				nonce: makeNonce(),
-			},
-		});
+		const compositor = startCompositor('StartLongRunningProcess', {});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
 			input: path.join(

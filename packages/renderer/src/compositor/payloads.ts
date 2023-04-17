@@ -52,9 +52,10 @@ export type CompositorCommand = {
 };
 
 export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {
-	type: T;
-	params: CompositorCommand[T] & {
-		nonce: string;
+	nonce: string;
+	payload: {
+		type: T;
+		params: CompositorCommand[T];
 	};
 };
 
