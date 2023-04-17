@@ -77,11 +77,11 @@ impl OpenedVideo {
                             video.data(0).to_vec(),
                             video.data(1).to_vec(),
                             video.data(2).to_vec(),
-                            video.data(3).to_vec(),
-                            video.data(4).to_vec(),
-                            video.data(5).to_vec(),
-                            video.data(6).to_vec(),
-                            video.data(7).to_vec(),
+                            video.data(0).to_vec(),
+                            video.data(0).to_vec(),
+                            video.data(0).to_vec(),
+                            video.data(0).to_vec(),
+                            video.data(0).to_vec(),
                         ]),
                     };
 
@@ -91,11 +91,11 @@ impl OpenedVideo {
                             video.data(0).to_vec(),
                             video.data(1).to_vec(),
                             video.data(2).to_vec(),
-                            video.data(3).to_vec(),
-                            video.data(4).to_vec(),
-                            video.data(5).to_vec(),
-                            video.data(6).to_vec(),
-                            video.data(7).to_vec(),
+                            video.data(0).to_vec(),
+                            video.data(0).to_vec(),
+                            video.data(0).to_vec(),
+                            video.data(0).to_vec(),
+                            video.data(0).to_vec(),
                         ]),
                     };
 
@@ -107,7 +107,6 @@ impl OpenedVideo {
                     };
 
                     self.frame_cache.add_item(item);
-                    _print_debug("additem");
                     latest_frame = Some(frame2);
                 },
                 Ok(None) => {
@@ -153,11 +152,11 @@ impl OpenedVideo {
             freshly_seeked = true
         }
 
-        let mut bitmap: Vec<u8> = Vec::new();
+        let mut last_frame: Option<NotRgbFrame> = None;
 
         loop {
             // -1 because uf 67 and we want to process 66.66 -> rounding error
-            if (self.last_position.resolved_pts - 1) > position && bitmap.len() > 0 {
+            if (self.last_position.resolved_pts - 1) > position && last_frame.is_some() {
                 break;
             }
 
@@ -166,10 +165,7 @@ impl OpenedVideo {
                     let data = self.handle_eof(position)?;
 
                     match data {
-                        Some(data) => {
-                            bitmap =
-                                scale_and_make_bitmap(&data, self.format, self.width, self.height)?;
-                        }
+                        Some(data) => last_frame = Some(data),
 
                         None => {}
                     }
@@ -250,10 +246,7 @@ impl OpenedVideo {
                             frame,
                         };
 
-                        bitmap =
-                            scale_and_make_bitmap(&frame2, self.format, self.width, self.height)?;
-
-                        _print_debug("add item ");
+                        last_frame = Some(frame2);
 
                         self.frame_cache.add_item(item);
 
@@ -268,10 +261,15 @@ impl OpenedVideo {
                 }
             }
         }
-        if bitmap.len() == 0 {
+        if last_frame.is_none() {
             return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;
         }
-        Ok(bitmap)
+        Ok(scale_and_make_bitmap(
+            &last_frame.unwrap(),
+            self.format,
+            self.width,
+            self.height,
+        )?)
     }
 }
 
@@ -290,7 +288,6 @@ pub fn scale_and_make_bitmap(
         height,
         Flags::BILINEAR,
     )?;
-    _print_debug("scaling");
 
     let data = convert_to_ptr(video.planes.clone());
     let linesize = video.linesizes.as_ptr();
@@ -299,7 +296,6 @@ pub fn scale_and_make_bitmap(
     scaler.run(format, width, height, data, linesize, &mut scaled)?;
 
     let bmp = create_bmp_image_from_frame(&mut scaled);
-    _print_debug("scaling success");
 
     return Ok(bmp);
 }
