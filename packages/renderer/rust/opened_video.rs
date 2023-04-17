@@ -77,7 +77,7 @@ impl OpenedVideo {
                 self.last_position.asked_time,
                 self.last_position.resolved_pts,
                 self.last_position.resolved_dts
-            ));
+            ))?;
             self.input
                 .seek(self.stream_index as i32, 0, position, position, 0)?;
         }
