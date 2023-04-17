@@ -4,6 +4,8 @@ import {expect, test} from 'vitest';
 import {startCompositor} from '../compositor/compositor';
 import {makeNonce} from '../compositor/make-nonce';
 
+const BMP_HEADER_SIZE = 54;
+
 test(
 	'Should be able to extract a frame using Rust',
 	async () => {
@@ -18,19 +20,18 @@ test(
 			input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
 			time: 40,
 		});
-		expect(data.length).toBe(2764854);
-		fs.writeFileSync('test.png', data);
+		expect(data.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
 
 		const data2 = await compositor.executeCommand('ExtractFrame', {
 			input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
 			time: 40.4,
 		});
-		expect(data2.length).toBe(2764854);
-
-		fs.writeFileSync('test2.png', data2);
+		expect(data2.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
+
+		expect(data).not.toEqual(data2);
 	},
 	{timeout: 10000}
 );
@@ -140,8 +141,14 @@ test(
 			),
 			time: 3.33,
 		});
-		expect(data.length).toBe(3499254);
-		fs.writeFileSync('lastframe.bmp', data);
+		const expectedLength = BMP_HEADER_SIZE + 1080 * 1080 * 3;
+		expect(data.length).toBe(expectedLength);
+		const topLeftPixelR = data[expectedLength - 1];
+		const topLeftPixelG = data[expectedLength - 2];
+		const topLeftPixelB = data[expectedLength - 3];
+		expect(topLeftPixelR).toBe(48);
+		expect(topLeftPixelG).toBe(113);
+		expect(topLeftPixelB).toBe(196);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
@@ -172,7 +179,6 @@ test(
 			time: 100,
 		});
 		expect(data.length).toBe(3499254);
-		fs.writeFileSync('corrupted.bmp', data);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
