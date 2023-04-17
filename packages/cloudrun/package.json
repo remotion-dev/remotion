@@ -4,8 +4,9 @@
 	"description": "GCP Cloud Run alternative to lambda rendering",
 	"main": "dist/index.js",
 	"scripts": {
-		"build": "tsc -d && pnpm run buildContainer",
+		"build": "tsc -d && pnpm run buildContainer && pnpm run tarInstaller",
 		"buildContainer": "ts-node src/admin/bundle-renderLogic.ts",
+		"tarInstaller": "mkdir ./temp && tar -cf ./temp/gcpInstaller.tar -C . --exclude='gcpInstaller/gcpInstaller.tar' gcpInstaller && mv ./temp/gcpInstaller.tar ./gcpInstaller && rmdir ./temp",
 		"start": "functions-framework --target=TypescriptFunction",
 		"watch": "tsc -w",
 		"lint": "eslint src --ext ts,tsx"
