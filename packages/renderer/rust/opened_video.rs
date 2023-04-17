@@ -12,12 +12,11 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
     errors::PossibleErrors,
-    frame_cache::{FrameCache, FrameCacheItem},
+    frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem, NotRgbFrame},
     global_printer::_print_debug,
 };
 
 pub struct LastSeek {
-    asked_time: i64,
     resolved_pts: i64,
     resolved_dts: i64,
 }
@@ -37,7 +36,7 @@ pub struct OpenedVideo {
 }
 
 impl OpenedVideo {
-    pub fn receive_frame(&mut self) -> Result<Option<Vec<u8>>, PossibleErrors> {
+    pub fn receive_frame(&mut self) -> Result<Option<Video>, PossibleErrors> {
         let mut frame = Video::empty();
 
         let res = self.video.receive_frame(&mut frame);
@@ -52,12 +51,7 @@ impl OpenedVideo {
                     Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?
                 }
             }
-            Ok(_) => {
-                let new_bitmap =
-                    scale_and_make_bitmap(frame, self.format, self.width, self.height)?;
-
-                Ok(Some(new_bitmap))
-            }
+            Ok(_) => Ok(Some(frame)),
         }
     }
 
@@ -65,25 +59,41 @@ impl OpenedVideo {
         (time * self.time_base.1 as f64 / self.time_base.0 as f64) as i64
     }
 
-    pub fn handle_eof(&mut self, asked_time: i64) -> Result<Option<Vec<u8>>, PossibleErrors> {
+    pub fn handle_eof(&mut self) -> Result<Option<usize>, PossibleErrors> {
         self.video.send_eof()?;
 
-        let mut latest_frame: Option<Vec<u8>> = None;
+        let mut latest_frame: Option<usize> = None;
 
         loop {
             let result = self.receive_frame();
 
             match result {
-                Ok(Some(data)) => {
-                    self.frame_cache.add_item(FrameCacheItem {
-                        asked_time,
+                Ok(Some(video)) => unsafe {
+                    let linesize = (*video.as_ptr()).linesize;
+
+                    let frame_cache_id = get_frame_cache_id();
+
+                    let amount_of_planes = video.planes();
+                    let mut planes = Vec::with_capacity(amount_of_planes);
+                    for i in 0..amount_of_planes {
+                        planes.push(video.data(i).to_vec());
+                    }
+
+                    let frame = NotRgbFrame {
+                        linesizes: linesize,
+                        planes,
+                    };
+
+                    let item = FrameCacheItem {
                         resolved_pts: self.last_position.resolved_pts,
                         resolved_dts: self.last_position.resolved_dts,
-                        bitmap: data.clone(),
-                    });
+                        frame,
+                        id: frame_cache_id,
+                    };
 
-                    latest_frame = Some(data.clone());
-                }
+                    self.frame_cache.add_item(item);
+                    latest_frame = Some(frame_cache_id);
+                },
                 Ok(None) => {
                     break;
                 }
@@ -100,7 +110,12 @@ impl OpenedVideo {
 
         let cache_item = self.frame_cache.get_item(position);
         if cache_item.is_some() {
-            return Ok(cache_item.unwrap());
+            return scale_and_make_bitmap(
+                &cache_item.unwrap().frame,
+                self.format,
+                self.width,
+                self.height,
+            );
         }
 
         let mut freshly_seeked = false;
@@ -122,22 +137,20 @@ impl OpenedVideo {
             freshly_seeked = true
         }
 
-        let mut bitmap: Vec<u8> = Vec::new();
+        let mut last_frame: Option<usize> = None;
 
         loop {
             // -1 because uf 67 and we want to process 66.66 -> rounding error
-            if (self.last_position.resolved_pts - 1) > position && bitmap.len() > 0 {
+            if (self.last_position.resolved_pts - 1) > position && last_frame.is_some() {
                 break;
             }
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
-                    let data = self.handle_eof(position)?;
+                    let data = self.handle_eof()?;
 
                     match data {
-                        Some(data) => {
-                            bitmap = data;
-                        }
+                        Some(data) => last_frame = Some(data),
 
                         None => {}
                     }
@@ -176,23 +189,39 @@ impl OpenedVideo {
                 let result = self.receive_frame();
 
                 self.last_position = LastSeek {
-                    asked_time: position,
                     resolved_pts: packet.pts().unwrap(),
                     resolved_dts: packet.dts().unwrap(),
                 };
 
                 match result {
-                    Ok(Some(data)) => {
-                        bitmap = data;
-                        self.frame_cache.add_item(FrameCacheItem {
-                            asked_time: position,
-                            resolved_pts: packet.pts().unwrap(),
-                            resolved_dts: packet.dts().unwrap(),
-                            bitmap: bitmap.clone(),
-                        });
+                    Ok(Some(video)) => unsafe {
+                        let linesize = (*video.as_ptr()).linesize;
+                        let frame_cache_id = get_frame_cache_id();
+
+                        let amount_of_planes = video.planes();
+                        let mut planes = Vec::with_capacity(amount_of_planes);
+                        for i in 0..amount_of_planes {
+                            planes.push(video.data(i).to_vec());
+                        }
+
+                        let frame = NotRgbFrame {
+                            linesizes: linesize,
+                            planes,
+                        };
+
+                        let item = FrameCacheItem {
+                            resolved_pts: self.last_position.resolved_pts,
+                            resolved_dts: self.last_position.resolved_dts,
+                            frame,
+                            id: frame_cache_id,
+                        };
+
+                        self.frame_cache.add_item(item);
+
+                        last_frame = Some(frame_cache_id);
 
                         break;
-                    }
+                    },
                     Ok(None) => {
                         break;
                     }
@@ -202,15 +231,29 @@ impl OpenedVideo {
                 }
             }
         }
-        if bitmap.len() == 0 {
+        if last_frame.is_none() {
             return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;
         }
-        Ok(bitmap)
+
+        let from_cache = self.frame_cache.get_item_from_id(last_frame.unwrap());
+        if from_cache.is_none() {
+            return Err(std::io::Error::new(
+                ErrorKind::Other,
+                "Frame evicted from cache",
+            ))?;
+        }
+
+        Ok(scale_and_make_bitmap(
+            &from_cache.unwrap().frame,
+            self.format,
+            self.width,
+            self.height,
+        )?)
     }
 }
 
 pub fn scale_and_make_bitmap(
-    frame: Video,
+    video: &NotRgbFrame,
     format: Pixel,
     width: u32,
     height: u32,
@@ -225,11 +268,24 @@ pub fn scale_and_make_bitmap(
         Flags::BILINEAR,
     )?;
 
-    let mut scaled = Video::empty();
-    scaler.run(&frame, &mut scaled)?;
+    let mut data: Vec<*const u8> = Vec::with_capacity(video.planes.len());
 
-    let bmp = create_bmp_image_from_frame(&mut scaled);
-    return Ok(bmp);
+    for inner in video.planes.clone() {
+        let ptr: *const u8 = inner.as_ptr();
+        data.push(ptr);
+    }
+
+    let mut scaled = Video::empty();
+    scaler.run(
+        format,
+        width,
+        height,
+        data.as_ptr(),
+        video.linesizes.as_ptr(),
+        &mut scaled,
+    )?;
+
+    Ok(create_bmp_image_from_frame(&mut scaled))
 }
 
 pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
@@ -265,7 +321,6 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
         src: src.to_string(),
         input,
         last_position: LastSeek {
-            asked_time: 0,
             resolved_pts: 0,
             resolved_dts: 0,
         },
