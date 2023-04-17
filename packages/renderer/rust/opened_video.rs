@@ -59,10 +59,10 @@ impl OpenedVideo {
         (time * self.time_base.1 as f64 / self.time_base.0 as f64) as i64
     }
 
-    pub fn handle_eof(&mut self) -> Result<Option<NotRgbFrame>, PossibleErrors> {
+    pub fn handle_eof(&mut self) -> Result<Option<usize>, PossibleErrors> {
         self.video.send_eof()?;
 
-        let mut latest_frame: Option<NotRgbFrame> = None;
+        let mut latest_frame: Option<usize> = None;
 
         loop {
             let result = self.receive_frame();
@@ -72,16 +72,9 @@ impl OpenedVideo {
                     let plane_size = video.planes();
                     let linesize = (*video.as_ptr()).linesize;
 
-                    let frame = NotRgbFrame {
-                        linesizes: linesize,
-                        planes: Vec::from([
-                            video.data(0).to_vec(),
-                            video.data(1).to_vec(),
-                            video.data(2).to_vec(),
-                        ]),
-                    };
+                    let frame_cache_id = get_frame_cache_id();
 
-                    let frame2 = NotRgbFrame {
+                    let frame = NotRgbFrame {
                         linesizes: linesize,
                         planes: Vec::from([
                             video.data(0).to_vec(),
@@ -94,11 +87,11 @@ impl OpenedVideo {
                         resolved_pts: self.last_position.resolved_pts,
                         resolved_dts: self.last_position.resolved_dts,
                         frame,
-                        id: get_frame_cache_id(),
+                        id: frame_cache_id,
                     };
 
                     self.frame_cache.add_item(item);
-                    latest_frame = Some(frame2);
+                    latest_frame = Some(frame_cache_id);
                 },
                 Ok(None) => {
                     break;
@@ -143,7 +136,7 @@ impl OpenedVideo {
             freshly_seeked = true
         }
 
-        let mut last_frame: Option<NotRgbFrame> = None;
+        let mut last_frame: Option<usize> = None;
 
         loop {
             // -1 because uf 67 and we want to process 66.66 -> rounding error
@@ -202,15 +195,8 @@ impl OpenedVideo {
                 match result {
                     Ok(Some(video)) => unsafe {
                         let linesize = (*video.as_ptr()).linesize;
+                        let frame_cache_id = get_frame_cache_id();
                         let frame = NotRgbFrame {
-                            linesizes: linesize,
-                            planes: Vec::from([
-                                video.data(0).to_vec(),
-                                video.data(1).to_vec(),
-                                video.data(2).to_vec(),
-                            ]),
-                        };
-                        let frame2 = NotRgbFrame {
                             linesizes: linesize,
                             planes: Vec::from([
                                 video.data(0).to_vec(),
@@ -223,12 +209,12 @@ impl OpenedVideo {
                             resolved_pts: self.last_position.resolved_pts,
                             resolved_dts: self.last_position.resolved_dts,
                             frame,
-                            id: get_frame_cache_id(),
+                            id: frame_cache_id,
                         };
 
-                        last_frame = Some(frame2);
-
                         self.frame_cache.add_item(item);
+
+                        last_frame = Some(frame_cache_id);
 
                         break;
                     },
@@ -244,8 +230,17 @@ impl OpenedVideo {
         if last_frame.is_none() {
             return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;
         }
+
+        let from_cache = self.frame_cache.get_item_from_id(last_frame.unwrap());
+        if from_cache.is_none() {
+            return Err(std::io::Error::new(
+                ErrorKind::Other,
+                "Frame evicted from cache",
+            ))?;
+        }
+
         Ok(scale_and_make_bitmap(
-            &last_frame.unwrap(),
+            &from_cache.unwrap().frame,
             self.format,
             self.width,
             self.height,
