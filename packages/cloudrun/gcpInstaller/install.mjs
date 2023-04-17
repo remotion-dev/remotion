@@ -1,12 +1,12 @@
 import {execSync} from 'child_process';
 // Components
-import {colorCode} from './components/colorCodes.mjs';
-import {cloudRunSplashScreen} from './components/splashScreen.mjs';
-import {taskPrompt} from './components/taskPrompt.mjs';
+import {colorCode} from './installerScripts/components/colorCodes.mjs';
+import {cloudRunSplashScreen} from './installerScripts/components/splashScreen.mjs';
+import {taskPrompt} from './installerScripts/components/taskPrompt.mjs';
 // Tasks
-import {generateEnv} from './tasks/generateEnv.mjs';
-import {setupGcpProject} from './tasks/setupGcpProject.mjs';
-import {updateRemotion} from './tasks/updateRemotion.mjs';
+import {generateEnv} from './installerScripts/tasks/generateEnv.mjs';
+import {setupGcpProject} from './installerScripts/tasks/setupGcpProject.mjs';
+import {updateRemotion} from './installerScripts/tasks/updateRemotion.mjs';
 
 /****************************************
  * Splash screen for Remotion Cloud Run
