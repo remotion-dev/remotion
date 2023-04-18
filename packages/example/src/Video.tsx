@@ -46,6 +46,13 @@ if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
 }
 
+const getBetaTextDurationInFrames = (
+	_: typeof betaTextSchema['_type'],
+	fps: number
+) => {
+	return 3 * fps;
+};
+
 // Use it to test that UI does not regress on weird CSS
 // import './weird-css.css';
 
@@ -223,7 +230,7 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={3 * 30}
+					durationInFrames={getBetaTextDurationInFrames}
 					defaultProps={{
 						word1: 'hithere' as const,
 						color: ['rgba(19, 124, 45, 0.059)' as const],

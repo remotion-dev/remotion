@@ -48,7 +48,9 @@ export type CompositionProps<Schema extends z.ZodTypeAny, Props> = StillProps<
 	Props
 > & {
 	fps: number;
-	durationInFrames: number;
+	durationInFrames:
+		| number
+		| ((defaultProps: Schema['_type'], fps: number) => number);
 };
 
 const Fallback: React.FC = () => {
@@ -110,15 +112,27 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 		validateCompositionId(id);
 		validateDimension(width, 'width', 'of the <Composition/> component');
 		validateDimension(height, 'height', 'of the <Composition/> component');
+
+		let finalDurationInFrames = 0;
+
+		if (typeof durationInFrames === 'number') {
+			finalDurationInFrames = durationInFrames;
+		} else if (
+			typeof durationInFrames === 'function' &&
+			durationInFrames.length === 2
+		) {
+			finalDurationInFrames = durationInFrames(defaultProps, fps);
+		}
+
 		validateDurationInFrames({
-			durationInFrames,
+			durationInFrames: finalDurationInFrames,
 			component: 'of the <Composition/> component',
 			allowFloats: false,
 		});
 
 		validateFps(fps, 'as a prop of the <Composition/> component', false);
 		registerComposition<Schema, Props>({
-			durationInFrames,
+			durationInFrames: finalDurationInFrames,
 			fps,
 			height,
 			width,
