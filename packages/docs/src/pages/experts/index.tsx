@@ -32,6 +32,10 @@ const flex: React.CSSProperties = {
 const link: React.CSSProperties = {
   textDecoration: "none",
   color: "inherit",
+  width: "100%",
+  display: "flex",
+  flexDirection: "row",
+  paddingTop: 8,
 };
 
 const Experts: React.FC = () => {
@@ -87,88 +91,92 @@ const Experts: React.FC = () => {
                     <p>{e.description}</p>
                   </div>
                 </Link>
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                      }}
-                    >
-                      {e.twitter ? (
-                        <>
-                          <div style={flex}>
-                            <a
-                              style={docsButton}
-                              target={"_blank"}
-                              href={`https://twitter.com/${e.twitter}`}
-                            >
-                              <BlueButton loading={false} fullWidth size="sm">
-                                <TwitterLogo /> Twitter
-                              </BlueButton>
-                            </a>
-                          </div>
-                          <Spacer />
-                          <Spacer />
-                        </>
-                      ) : null}
+                <Spacer />
+                <Spacer />
+                <Spacer />
+                <Spacer />
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    width: "100%",
+                  }}
+                >
+                  {e.twitter ? (
+                    <>
+                      <div style={flex}>
+                        <a
+                          style={docsButton}
+                          target={"_blank"}
+                          href={`https://twitter.com/${e.twitter}`}
+                        >
+                          <BlueButton loading={false} fullWidth size="sm">
+                            <TwitterLogo /> Twitter
+                          </BlueButton>
+                        </a>
+                      </div>
+                      <Spacer />
+                      <Spacer />
+                    </>
+                  ) : null}
 
-                      {e.github ? (
-                        <div style={flex}>
-                          <a
-                            style={docsButton}
-                            target={"_blank"}
-                            href={`https://github.com/${e.github}`}
-                          >
-                            <BlueButton loading={false} fullWidth size="sm">
-                              <GitHubLogo /> GitHub
-                            </BlueButton>
-                          </a>
-                        </div>
-                      ) : null}
+                  {e.github ? (
+                    <div style={flex}>
+                      <a
+                        style={docsButton}
+                        target={"_blank"}
+                        href={`https://github.com/${e.github}`}
+                      >
+                        <BlueButton loading={false} fullWidth size="sm">
+                          <GitHubLogo /> GitHub
+                        </BlueButton>
+                      </a>
                     </div>
-                    <Spacer />
-                    <Spacer />
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "row",
-                      }}
-                    >
-                      {e.linkedin ? (
-                        <div style={flex}>
-                          <a
-                            style={docsButton}
-                            target={"_blank"}
-                            href={`https://www.linkedin.com/${e.linkedin}`}
-                          >
-                            <BlueButton loading={false} fullWidth size="sm">
-                              <LinkedInLogo /> LinkedIn
-                            </BlueButton>
-                          </a>
-                        </div>
-                      ) : null}
-                      {e.linkedin && e.email ? (
-                        <>
-                          <Spacer />
-                          <Spacer />
-                        </>
-                      ) : null}
-                      {e.email ? (
-                        <div style={flex}>
-                          <a
-                            style={docsButton}
-                            target={"_blank"}
-                            href={`mailto:${e.email}`}
-                          >
-                            <BlueButton loading={false} fullWidth size="sm">
-                              <EmailLogo /> Email
-                            </BlueButton>
-                          </a>
-                        </div>
-                      ) : null}
+                  ) : null}
+                </div>
+                <Spacer />
+                <Spacer />
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    width: "100%",
+                  }}
+                >
+                  {e.linkedin ? (
+                    <div style={flex}>
+                      <a
+                        style={docsButton}
+                        target={"_blank"}
+                        href={`https://www.linkedin.com/${e.linkedin}`}
+                      >
+                        <BlueButton loading={false} fullWidth size="sm">
+                          <LinkedInLogo /> LinkedIn
+                        </BlueButton>
+                      </a>
                     </div>
-
-                    <br />
-              </div>   
+                  ) : null}
+                  {e.linkedin && e.email ? (
+                    <>
+                      <Spacer />
+                      <Spacer />
+                    </>
+                  ) : null}
+                  {e.email ? (
+                    <div style={flex}>
+                      <a
+                        style={docsButton}
+                        target={"_blank"}
+                        href={`mailto:${e.email}`}
+                      >
+                        <BlueButton loading={false} fullWidth size="sm">
+                          <EmailLogo /> Email
+                        </BlueButton>
+                      </a>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
             );
           })}
         </div>
