@@ -89,7 +89,7 @@ This means that you can pull in a script that runs a couple of gcloud and Terraf
 2. Within the Cloud Shell, type the following command and follow the prompts.
 
    ```bash
-   curl -L https://raw.githubusercontent.com/UmungoBungo/remotion/gcp-lambda-alternative/packages/cloudrun/gcpInstaller/gcpInstaller.tar | tar -x --strip-components=1 -C . && node install.mjs
+   curl -L https://github.com/UmungoBungo/remotion/raw/gcp-lambda-alternative/packages/cloudrun/gcpInstaller/gcpInstaller.tar | tar -x --strip-components=1 -C . && node install.mjs
    ```
 
    _The first command downloads a tar file from the Remotion repo, and extracts it to the current directory. The second command runs the installer script._
