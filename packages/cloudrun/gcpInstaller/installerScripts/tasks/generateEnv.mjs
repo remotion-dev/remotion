@@ -9,6 +9,39 @@ export async function generateEnv(projectID) {
 	 ****************************************/
 	await checkEnvFile();
 
+	function listAndCountKeys() {
+		console.log('');
+
+		execSync(
+			`gcloud iam service-accounts keys list --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com`,
+			{stdio: 'inherit'}
+		);
+
+		const listOfKeys = execSync(
+			`gcloud iam service-accounts keys list --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com`,
+			{
+				stdio: ['inherit', 'pipe', 'pipe'],
+			}
+		)
+			.toString()
+			.trim()
+			.split('\n');
+
+		let keyCount = 0;
+		if (listOfKeys.length > 1) {
+			listOfKeys.forEach((key) => {
+				const keyId = key.split(' ')[0];
+				if (keyId === 'KEY_ID') return;
+				keyCount += 1;
+			});
+		}
+
+		// Minus 1 because the key managed by GCP is not counted
+		execSync(`echo "\nThere are ${keyCount - 1} keys currently."`, {
+			stdio: 'inherit',
+		});
+	}
+
 	function deleteKeyPrompt() {
 		return new Promise((resolve) => {
 			const rl = readline.createInterface({
@@ -36,6 +69,8 @@ export async function generateEnv(projectID) {
 						{stdio: 'inherit'}
 					);
 
+					listAndCountKeys();
+
 					const result = await deleteKeyPrompt();
 
 					resolve(result);
@@ -52,16 +87,13 @@ export async function generateEnv(projectID) {
 	);
 
 	execSync(
-		`echo "You should delete any of these keys that are no longer in use for ${colorCode.blueText}remotion-sa@${projectID}.iam.gserviceaccount.com${colorCode.resetText}:\n"`,
+		`echo "You should delete any of these keys that are no longer in use for ${colorCode.blueText}remotion-sa@${projectID}.iam.gserviceaccount.com${colorCode.resetText}:"`,
 		{
 			stdio: 'inherit',
 		}
 	);
 
-	execSync(
-		`gcloud iam service-accounts keys list --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com`,
-		{stdio: 'inherit'}
-	);
+	listAndCountKeys();
 
 	await deleteKeyPrompt();
 
