@@ -7,10 +7,6 @@ slug: /player/autoplay
 crumb: "@remotion/player"
 ---
 
-:::info
-When starting the `<Player />` with autoplay. You should listen for the `onClickCapture` event instead of the `onClick` event.
-:::
-
 Browsers place restrictions on websites that play audio without user interaction. Read on how to properly use the Remotion Player so you don't run into a browser policy.
 
 ## Trigger the play from a user event
@@ -19,7 +15,7 @@ Don't autoplay audio on site load, or else browsers will block the audio. Instea
 
 ## Pass the event to the `play()` or `toggle()` method
 
-The play must be initialized from a user gesture, for example a mouse click. You should get a Javascript event like a `MouseEvent` from it. Pass this event to the `play()` or `toggle()` function so audio may play automatically.
+The play must be initialized from a user gesture, for example a mouse click. You should get a Javascript event like a `MouseEvent` from it. Pass this event to the [`play()`](/docs/player/player#play) or [`toggle()`](/docs/player/player#toggle) function so audio may play automatically.
 
 ```tsx twoslash
 // @allowUmdGlobalAccess
@@ -33,21 +29,24 @@ import { useRef } from "react";
 
 export const App: React.FC = () => {
   const ref = useRef<PlayerRef>(null);
+
   return (
-    <div>
-      {/* Player implementation */}
-      <button
-        onClick={(e) => {
-          const { current } = ref;
-          current?.toggle(e);
-        }}
-      >
-        Play
-      </button>
-    </div>
+    <button
+      onClickCapture={(e) => {
+        const { current } = ref;
+        // Pass the event to .play(), .pause() or .toggle()
+        current?.play(e);
+      }}
+    >
+      Play
+    </button>
   );
 };
 ```
+
+:::info
+Prefer the `onClickCapture` event instead of the `onClick` event to make the event propagation work properly in Safari.
+:::
 
 ## Use the `numberOfSharedAudioTags` property
 
