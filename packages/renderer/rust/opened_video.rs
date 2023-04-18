@@ -1,7 +1,7 @@
 use std::io::ErrorKind;
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{format::Pixel, frame::Video, media::Type, Dictionary};
+use remotionffmpeg::{format::Pixel, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
@@ -256,12 +256,23 @@ impl OpenedVideo {
 }
 
 fn calculate_display_video_size(dar_x: i32, dar_y: i32, x: u32, y: u32) -> (u32, u32) {
+    if dar_x == 0 || dar_y == 0 {
+        return (x, y);
+    }
+
     let dimensions = (x * y) as f64;
     let new_width = (dimensions * (dar_x as f64 / dar_y as f64) as f64).sqrt();
     let new_height = dimensions / new_width;
     let height = new_height.round() as u32;
     let width = new_width.round() as u32;
     (width, height)
+}
+
+pub fn get_display_aspect_ratio(mut_stream: &StreamMut) -> Rational {
+    unsafe {
+        let asp = mut_stream.get_display_aspect_ratio();
+        return Rational::new(asp.numerator(), asp.denominator());
+    }
 }
 
 pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
@@ -288,11 +299,7 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
     let original_width = video.width();
     let original_height = video.height();
 
-    let mut aspect_ratio: Rational = Rational::new(1, 1);
-    unsafe {
-        let new = mut_stream.get_display_aspect_ratio();
-        aspect_ratio = Rational::new(new.0 .0, new.0 .1);
-    }
+    let aspect_ratio = get_display_aspect_ratio(&mut_stream);
 
     let (scaled_width, scaled_height) = calculate_display_video_size(
         aspect_ratio.0,
