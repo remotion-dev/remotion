@@ -39,7 +39,7 @@ export type StillProps<T> = {
 
 type CompositionProps<T> = StillProps<T> & {
 	fps: number;
-	durationInFrames: number | ((defaultProps?: T) => number);
+	durationInFrames: number | ((defaultProps?: T) => number);
 };
 
 const Fallback: React.FC = () => {
@@ -99,8 +99,16 @@ export const Composition = <T,>({
 		validateCompositionId(id);
 		validateDimension(width, 'width', 'of the <Composition/> component');
 		validateDimension(height, 'height', 'of the <Composition/> component');
-		
-		const finalDurationInFrames = typeof durationInFrames === "number" ? durationInFrames : durationInFrames(defaultProps);
+
+		let finalDurationInFrames = 0;
+		if (typeof durationInFrames === 'number') {
+			finalDurationInFrames = durationInFrames;
+		} else if (
+			typeof durationInFrames === 'function' &&
+			durationInFrames.length === 1
+		) {
+			finalDurationInFrames = durationInFrames(defaultProps);
+		}
 
 		validateDurationInFrames({
 			durationInFrames: finalDurationInFrames,
