@@ -25,9 +25,12 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 		throw new Error('Did not get `time` parameter');
 	}
 
+	const transparent = params.get('transparent');
+
 	return {
 		src,
 		time: parseFloat(time),
+		transparent: transparent === 'true',
 	};
 };
 
@@ -58,9 +61,13 @@ export const startOffthreadVideoServer = ({
 				return;
 			}
 
-			const {src, time} = extractUrlAndSourceFromUrl(req.url);
+			const {src, time, transparent} = extractUrlAndSourceFromUrl(req.url);
 			res.setHeader('access-control-allow-origin', '*');
-			res.setHeader('content-type', `image/bmp`);
+			if (transparent) {
+				res.setHeader('content-type', `image/png`);
+			} else {
+				res.setHeader('content-type', `image/bmp`);
+			}
 
 			// Handling this case on Lambda:
 			// https://support.google.com/chrome/a/answer/7679408?hl=en
@@ -80,6 +87,7 @@ export const startOffthreadVideoServer = ({
 					return compositor.executeCommand('ExtractFrame', {
 						input: to,
 						time,
+						transparent,
 					});
 				})
 				.then((readable) => {

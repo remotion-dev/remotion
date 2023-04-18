@@ -56,7 +56,11 @@ impl OpenedVideo {
         (time * self.time_base.1 as f64 / self.time_base.0 as f64) as i64
     }
 
-    pub fn handle_eof(&mut self, position: i64) -> Result<Option<usize>, PossibleErrors> {
+    pub fn handle_eof(
+        &mut self,
+        position: i64,
+        transparent: bool,
+    ) -> Result<Option<usize>, PossibleErrors> {
         self.video.send_eof()?;
 
         let mut latest_frame: Option<usize> = None;
@@ -89,7 +93,7 @@ impl OpenedVideo {
                     let item = FrameCacheItem {
                         resolved_pts: self.last_position.resolved_pts,
                         resolved_dts: self.last_position.resolved_dts,
-                        frame: ScalableFrame::new(frame),
+                        frame: ScalableFrame::new(frame, transparent),
                         id: frame_cache_id,
                         asked_time: position,
                     };
@@ -108,7 +112,7 @@ impl OpenedVideo {
         Ok(latest_frame)
     }
 
-    pub fn get_frame(&mut self, time: f64) -> Result<Vec<u8>, PossibleErrors> {
+    pub fn get_frame(&mut self, time: f64, transparent: bool) -> Result<Vec<u8>, PossibleErrors> {
         let position = self.calc_position(time);
 
         let cache_item = self.frame_cache.get_item(position);
@@ -151,7 +155,7 @@ impl OpenedVideo {
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
-                    let data = self.handle_eof(position)?;
+                    let data = self.handle_eof(position, transparent)?;
                     if data.is_some() {
                         last_frame = data;
                         self.frame_cache.set_last_frame(data.unwrap())
@@ -219,7 +223,7 @@ impl OpenedVideo {
                         let item = FrameCacheItem {
                             resolved_pts: self.last_position.resolved_pts,
                             resolved_dts: self.last_position.resolved_dts,
-                            frame: ScalableFrame::new(frame),
+                            frame: ScalableFrame::new(frame, transparent),
                             id: frame_cache_id,
                             asked_time: position,
                         };

@@ -24,6 +24,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	src,
 	muted,
 	allowAmplificationDuringRender,
+	transparent = false,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -123,8 +124,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			window.remotion_proxyPort
 		}/proxy?src=${encodeURIComponent(
 			getAbsoluteSrc(src)
-		)}&time=${encodeURIComponent(currentTime)}`;
-	}, [currentTime, src]);
+		)}&time=${encodeURIComponent(currentTime)}&transparent=${String(
+			transparent
+		)}`;
+	}, [currentTime, src, transparent]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
 		useCallback(

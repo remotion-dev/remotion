@@ -10,11 +10,11 @@ use std::sync::Mutex;
 use std::sync::RwLock;
 extern crate ffmpeg_next as remotionffmpeg;
 
-pub fn extract_frame(src: String, time: f64) -> Result<Vec<u8>, PossibleErrors> {
+pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8>, PossibleErrors> {
     let manager = OpenedVideoManager::get_instance();
     let video_locked = manager.get_video(&src)?;
     let mut vid = video_locked.lock().unwrap();
-    vid.get_frame(time)
+    vid.get_frame(time, transparent)
 }
 
 pub struct OpenedVideoManager {
