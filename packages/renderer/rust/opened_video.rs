@@ -165,7 +165,7 @@ impl OpenedVideo {
                 if packet.is_key() {
                     freshly_seeked = false
                 } else {
-                    last_position = last_position + self.calc_position(-1.0);
+                    last_position = packet.pts().unwrap() - 1;
 
                     _print_debug(&format!(
                         "Seeking to {} because we are not at a keyframe",
@@ -174,7 +174,7 @@ impl OpenedVideo {
                     self.input.seek(
                         self.stream_index as i32,
                         0,
-                        last_position,
+                        packet.pts().unwrap(),
                         last_position,
                         0,
                     )?;

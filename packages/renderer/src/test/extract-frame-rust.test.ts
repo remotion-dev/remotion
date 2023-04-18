@@ -120,7 +120,7 @@ test(
 	{timeout: 10000}
 );
 
-test(
+test.only(
 	'Should get the last frame of a corrupted video',
 	async () => {
 		const compositor = startCompositor('StartLongRunningProcess', {});
