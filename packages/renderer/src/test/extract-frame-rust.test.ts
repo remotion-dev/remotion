@@ -12,12 +12,14 @@ test(
 		const data = await compositor.executeCommand('ExtractFrame', {
 			input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
 			time: 40,
+			transparent: false,
 		});
 		expect(data.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
 
 		const data2 = await compositor.executeCommand('ExtractFrame', {
 			input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
 			time: 40.4,
+			transparent: false,
 		});
 		expect(data2.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
 
@@ -37,10 +39,12 @@ test('Should be able to start two compositors', async () => {
 	await compositor.executeCommand('ExtractFrame', {
 		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
 		time: 40,
+		transparent: false,
 	});
 	await compositor2.executeCommand('ExtractFrame', {
 		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
 		time: 40,
+		transparent: false,
 	});
 });
 
@@ -50,11 +54,13 @@ test('Should be able to seek backwards', async () => {
 	const data = await compositor.executeCommand('ExtractFrame', {
 		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
 		time: 40,
+		transparent: false,
 	});
 	expect(data.length).toBe(2764854);
 	const data2 = await compositor.executeCommand('ExtractFrame', {
 		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
 		time: 35,
+		transparent: false,
 	});
 	expect(data2.length).toBe(2764854);
 
@@ -78,6 +84,7 @@ test(
 				'framermp4withoutfileextension'
 			),
 			time: 1,
+			transparent: false,
 		});
 		expect(data.length).toBe(3499254);
 
@@ -103,6 +110,7 @@ test(
 				'framermp4withoutfileextension'
 			),
 			time: 3.33,
+			transparent: false,
 		});
 
 		const expectedLength = BMP_HEADER_SIZE + 1080 * 1080 * 3;
@@ -136,6 +144,7 @@ test(
 				'corrupted.mp4'
 			),
 			time: 100,
+			transparent: false,
 		});
 
 		// Pixel fixing
@@ -166,6 +175,7 @@ test.only('Should be able to extract a frame with abnormal DAR', async () => {
 	const data = await compositor.executeCommand('ExtractFrame', {
 		input,
 		time: 3.33,
+		transparent: false,
 	});
 
 	const header = data.slice(0, BMP_HEADER_SIZE);
@@ -198,6 +208,7 @@ test('Last frame should be fast', async () => {
 	const data = await compositor.executeCommand('ExtractFrame', {
 		input,
 		time: 3.33,
+		transparent: false,
 	});
 
 	const time_end = Date.now();
@@ -207,6 +218,7 @@ test('Last frame should be fast', async () => {
 	const data2 = await compositor.executeCommand('ExtractFrame', {
 		input,
 		time: 3.33,
+		transparent: false,
 	});
 
 	// Time should be way less now
@@ -218,6 +230,7 @@ test('Last frame should be fast', async () => {
 	const data3 = await compositor.executeCommand('ExtractFrame', {
 		input,
 		time: 100,
+		transparent: false,
 	});
 
 	// Time should be way less now
