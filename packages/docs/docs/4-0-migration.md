@@ -127,3 +127,5 @@ const tangent = getTangentAtLength(parts[0], length / 2);
 The `onBucketEnsured()` option of [`getOrCreateBucket`](/docs/lambda/getorcreatebucket) has been removed because creating the bucket is the only operation of `getOrCreateBucket()`. Therefore, you can just await the function itself.
 
 ## `imageFormat` removed from `<OffthreadVideo>`
+
+## `OffthreadVideoImageFormat` removed
