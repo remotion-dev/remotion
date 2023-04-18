@@ -1,6 +1,7 @@
 import {execSync} from 'child_process';
 // Components
 import {colorCode} from './installerScripts/components/colorCodes.mjs';
+import {projectIdPrompt} from './installerScripts/components/projectIdPrompt.mjs';
 import {cloudRunSplashScreen} from './installerScripts/components/splashScreen.mjs';
 import {taskPrompt} from './installerScripts/components/taskPrompt.mjs';
 // Tasks
@@ -20,11 +21,15 @@ execSync(`echo "Retrieving current Project ID..."`, {
 	stdio: 'inherit',
 });
 
-const projectID = execSync('gcloud config get-value project', {
+let projectID = execSync('gcloud config get-value project', {
 	stdio: ['inherit', 'pipe', 'pipe'],
 })
 	.toString()
 	.trim();
+
+if (!projectID) {
+	projectID = await projectIdPrompt();
+}
 
 execSync(
 	`echo "Project set to ${colorCode.blueText}${projectID}${colorCode.resetText}\n"`,
