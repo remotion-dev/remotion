@@ -489,7 +489,6 @@ module.exports = {
       },
       items: [
         "cloudrun/setup",
-        "cloudrun/updateGcpProject",
         "cloudrun/generateEnvFile",
         "cloudrun/region-selection",
       ],
