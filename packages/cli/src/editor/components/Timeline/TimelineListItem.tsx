@@ -25,6 +25,14 @@ const textStyle: React.CSSProperties = {
 	fontSize: 13,
 };
 
+const truncateText : React.CSSProperties = {
+	overflow: 'hidden',
+	fontSize: 13,
+	height: 20,
+	whiteSpace: 'nowrap',
+	textOverflow: 'ellipsis',
+};
+
 const outer: React.CSSProperties = {
 	height: TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2,
 	color: 'white',
@@ -150,7 +158,9 @@ export const TimelineListItem: React.FC<{
 				</>
 			) : null}
 			<div style={textStyle}>
-				{text || 'Untitled'}
+				<div style={truncateText}>
+					{text || 'Untitled'}
+				</div>
 				<TimelineSequenceFrame
 					duration={sequence.duration}
 					from={sequence.from}
