@@ -84,6 +84,13 @@ export async function setupGcpProject(projectID) {
 	 ****************************************/
 	let iamRoleAttached = false;
 	if (serviceAccountExists && iamRoleExists) {
+		execSync(
+			'echo "Checking if Remotion IAM Role is already attached to Remotion Service Account"',
+			{
+				stdio: 'inherit',
+			}
+		);
+
 		iamRoleAttached =
 			serviceAccountExists &&
 			Boolean(
@@ -100,6 +107,86 @@ export async function setupGcpProject(projectID) {
 						return role === `projects/${projectID}/roles/RemotionSA`;
 					})
 			);
+
+		if (iamRoleAttached) {
+			execSync(
+				`echo "${colorCode.blueText}RemotionSA${colorCode.resetText} role already attached to ${colorCode.blueText}remotion-sa@${projectID}.iam.gserviceaccount.com${colorCode.resetText} found, and does not need to be re-attached.\n"`,
+				{
+					stdio: 'inherit',
+				}
+			);
+		} else {
+			execSync(
+				`echo "${colorCode.blueText}RemotionSA${colorCode.resetText} role not attached to ${colorCode.blueText}remotion-sa@${projectID}.iam.gserviceaccount.com${colorCode.resetText}, and will be attached now.\n"`,
+				{
+					stdio: 'inherit',
+				}
+			);
+		}
+	}
+
+	/****************************************
+	 * Check if cloudresourcemanager API is enabled
+	 ****************************************/
+	execSync(
+		'echo "Checking if Cloud Resource Manager and Cloud Run APIs are enabled..."',
+		{
+			stdio: 'inherit',
+		}
+	);
+
+	const listOfServices = execSync(
+		`gcloud services list --project=${projectID}`,
+		{
+			stdio: ['inherit', 'pipe', 'pipe'],
+		}
+	)
+		.toString()
+		.trim()
+		.split('\n');
+
+	const resourceManagerEnabled = Boolean(
+		listOfServices.find((api) => {
+			return api.startsWith('cloudresourcemanager.googleapis.com');
+		})
+	);
+
+	if (resourceManagerEnabled) {
+		execSync(
+			`echo "${colorCode.blueText}cloudresourcemanager.googleapis.com${colorCode.resetText} API already enabled on project."`,
+			{
+				stdio: 'inherit',
+			}
+		);
+	} else {
+		execSync(
+			`echo "${colorCode.blueText}cloudresourcemanager.googleapis.com${colorCode.resetText} API not enabled on project, and will be enabled now."`,
+			{
+				stdio: 'inherit',
+			}
+		);
+	}
+
+	const cloudRunEnabled = Boolean(
+		listOfServices.find((api) => {
+			return api.startsWith('run.googleapis.com');
+		})
+	);
+
+	if (cloudRunEnabled) {
+		execSync(
+			`echo "${colorCode.blueText}run.googleapis.com${colorCode.resetText} API already enabled on project.\n"`,
+			{
+				stdio: 'inherit',
+			}
+		);
+	} else {
+		execSync(
+			`echo "${colorCode.blueText}run.googleapis.com${colorCode.resetText} API not enabled on project, and will be enabled now.\n"`,
+			{
+				stdio: 'inherit',
+			}
+		);
 	}
 
 	/****************************************
@@ -113,43 +200,103 @@ export async function setupGcpProject(projectID) {
 
 	execSync('terraform init', {stdio: 'inherit'});
 
-	/** ************************************** Import resources as required ****************************************/
+	// Import resources as required
+
 	if (iamRoleExists) {
 		// If the role already exists, import the resource so that the permissions can be updated in place
+		execSync(
+			`echo "Checking GCP for current state of ${colorCode.blueText}Remotion IAM role${colorCode.resetText}."`,
+			{
+				stdio: 'inherit',
+			}
+		);
 
-		// If tfstate file exists, remove the role resource from state so that it can be imported fresh
+		// If the IAM role is already in tfstate file, skip this step. Otherwise, import it to the state file
 		try {
-			execSync('terraform state list', {stdio: 'pipe'});
 			execSync(
-				`terraform state rm google_project_iam_custom_role.remotion_sa`,
+				'terraform state list google_project_iam_custom_role.remotion_sa',
 				{
-					stdio: 'inherit',
+					stdio: 'pipe',
 				}
 			);
-		} catch {}
-
-		execSync(
-			`terraform import ${terraformVariables} google_project_iam_custom_role.remotion_sa projects/${projectID}/roles/RemotionSA`,
-			{stdio: 'inherit'}
-		);
+		} catch {
+			execSync(
+				`terraform import ${terraformVariables} google_project_iam_custom_role.remotion_sa projects/${projectID}/roles/RemotionSA`,
+				{stdio: 'inherit'}
+			);
+		}
 	}
 
 	if (iamRoleAttached) {
 		// If the role is already attached, import the resource so that the permissions can be updated in place
-
-		// If tfstate file exists, remove the iam_member resource from state so that it can be imported fresh
-		try {
-			execSync('terraform state list', {stdio: 'pipe'});
-			execSync(`terraform state rm google_project_iam_member.remotion_sa`, {
-				stdio: 'inherit',
-			});
-		} catch {}
-
 		execSync(
-			`terraform import ${terraformVariables} google_project_iam_member.remotion_sa "${projectID} projects/${projectID}/roles/RemotionSA serviceAccount:remotion-sa@${projectID}.iam.gserviceaccount.com"`,
-			{stdio: 'inherit'}
+			`echo "Importing current state from GCP of ${colorCode.blueText}Remotion IAM role <-> Remotion Service Account${colorCode.resetText}."`,
+			{
+				stdio: 'inherit',
+			}
 		);
+
+		// If role binding is already in tfstate file, skip this step. Otherwise, import it to the state file
+		try {
+			execSync('terraform state list google_project_iam_member.remotion_sa', {
+				stdio: 'pipe',
+			});
+		} catch {
+			execSync(
+				`terraform import ${terraformVariables} google_project_iam_member.remotion_sa "${projectID} projects/${projectID}/roles/RemotionSA serviceAccount:remotion-sa@${projectID}.iam.gserviceaccount.com"`,
+				{stdio: 'inherit'}
+			);
+		}
 	}
+
+	if (resourceManagerEnabled) {
+		// If the Cloud Resource Manager API is already attached, import the resource so that the permissions can be updated in place
+		execSync(
+			`echo "Importing current state from GCP of ${colorCode.blueText}Cloud Resource Manager API${colorCode.resetText}."`,
+			{
+				stdio: 'inherit',
+			}
+		);
+
+		// If cloud resource manager service already in tfstate file, skip this step. Otherwise, import it to the state file
+		try {
+			execSync(
+				'terraform state list google_project_service.cloud_resource_manager',
+				{
+					stdio: 'pipe',
+				}
+			);
+		} catch {
+			execSync(
+				`terraform import ${terraformVariables} google_project_service.cloud_resource_manager ${projectID}/cloudresourcemanager.googleapis.com`,
+				{stdio: 'inherit'}
+			);
+		}
+	}
+
+	if (cloudRunEnabled) {
+		// If the Cloud Run API is already attached, import the resource so that the permissions can be updated in place
+		execSync(
+			`echo "Attempting to import current state from GCP of ${colorCode.blueText}Cloud Run API${colorCode.resetText}."`,
+			{
+				stdio: 'inherit',
+			}
+		);
+
+		// If cloud run service already in tfstate file, skip this step. Otherwise, import it to the state file
+		try {
+			execSync('terraform state list google_project_service.cloud_run', {
+				stdio: 'pipe',
+			});
+		} catch {
+			execSync(
+				`terraform import ${terraformVariables} google_project_service.cloud_run ${projectID}/run.googleapis.com`,
+				{stdio: 'inherit'}
+			);
+		}
+	}
+
+	// Perform Terraform Plan
 
 	execSync(`terraform plan ${terraformVariables} -out=remotion.tfplan`, {
 		stdio: 'inherit',
