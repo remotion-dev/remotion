@@ -46,14 +46,14 @@ Use caching in Local storage if possible to reduce time spent on networking.
 
 ## Codec settings
 
-- If you set the image format `png`, it is slower than `jpeg`. However it is required if you are rendering a transparent video.
-- The WebM codecs `vp8` and `vp9` are very slow at encoding due, this is due to stronger compression.
+- If you set the image format `png`, it is slower than `jpeg`. However `png` is required if you are rendering a transparent video.
+- The WebM codecs `vp8` and `vp9` are very slow at encoding due to stronger compression.
 
 See also the [Encoding guide](/docs/encoding) to see all tradeoffs when it comes to encoding speed.
 
 ## Resolution
 
-Higher resolution will make the render slower. If you can live with lower resolution, scale down the picture using [`--scale`](/docs/cli/render#--scale)
+Higher resolutions will make the render slower. If you can live with a lower resolution, scale down the picture using [`--scale`](/docs/cli/render#--scale)
 
 ## Considerations for Lambda
 
