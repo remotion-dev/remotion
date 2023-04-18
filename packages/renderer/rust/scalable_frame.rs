@@ -10,8 +10,10 @@ pub struct NotRgbFrame {
     pub planes: Vec<Vec<u8>>,
     pub linesizes: [i32; 8],
     pub format: Pixel,
-    pub width: u32,
-    pub height: u32,
+    pub original_width: u32,
+    pub original_height: u32,
+    pub scaled_width: u32,
+    pub scaled_height: u32,
 }
 
 pub struct RgbFrame {
@@ -105,11 +107,11 @@ fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
 pub fn scale_and_make_bitmap(native_frame: &NotRgbFrame) -> Result<Vec<u8>, PossibleErrors> {
     let mut scaler = Context::get(
         native_frame.format,
-        native_frame.width,
-        native_frame.height,
+        native_frame.original_width,
+        native_frame.original_height,
         Pixel::BGR24,
-        native_frame.width,
-        native_frame.height,
+        native_frame.scaled_width,
+        native_frame.scaled_height,
         Flags::BILINEAR,
     )?;
 
@@ -126,8 +128,8 @@ pub fn scale_and_make_bitmap(native_frame: &NotRgbFrame) -> Result<Vec<u8>, Poss
     let mut scaled = Video::empty();
     scaler.run(
         native_frame.format,
-        native_frame.width,
-        native_frame.height,
+        native_frame.original_width,
+        native_frame.original_height,
         ptr,
         native_frame.linesizes.as_ptr(),
         &mut scaled,

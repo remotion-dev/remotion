@@ -170,11 +170,11 @@ test.only('Should be able to extract a frame with abnormal DAR', async () => {
 
 	const header = data.slice(0, BMP_HEADER_SIZE);
 
-	const width = header.readInt32LE(18); // Read the width from position 18
-	const height = header.readInt32LE(22); // Read the height from position 22
+	const width = header.readInt32LE(18);
+	const height = header.readInt32LE(22);
 
-	expect(width).toBe(720);
 	expect(height).toBe(1280);
+	expect(width).toBe(720);
 
 	compositor.finishCommands();
 	await compositor.waitForDone();

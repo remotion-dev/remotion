@@ -19,8 +19,10 @@ pub struct LastSeek {
 pub struct OpenedVideo {
     pub stream_index: usize,
     pub time_base: Rational,
-    pub width: u32,
-    pub height: u32,
+    pub original_width: u32,
+    pub original_height: u32,
+    pub scaled_width: u32,
+    pub scaled_height: u32,
     pub format: Pixel,
     pub video: remotionffmpeg::codec::decoder::Video,
     pub src: String,
@@ -78,8 +80,10 @@ impl OpenedVideo {
                         linesizes: linesize,
                         planes,
                         format: self.format,
-                        width: self.width,
-                        height: self.height,
+                        original_width: self.original_width,
+                        original_height: self.original_height,
+                        scaled_height: self.scaled_height,
+                        scaled_width: self.scaled_width,
                     };
 
                     let item = FrameCacheItem {
@@ -206,8 +210,10 @@ impl OpenedVideo {
                             linesizes: linesize,
                             planes,
                             format: self.format,
-                            width: self.width,
-                            height: self.height,
+                            original_height: self.original_height,
+                            original_width: self.original_width,
+                            scaled_height: self.scaled_height,
+                            scaled_width: self.scaled_width,
                         };
 
                         let item = FrameCacheItem {
@@ -249,6 +255,15 @@ impl OpenedVideo {
     }
 }
 
+fn calculate_display_video_size(dar_x: i32, dar_y: i32, x: u32, y: u32) -> (u32, u32) {
+    let dimensions = (x * y) as f64;
+    let new_width = (dimensions * (dar_x as f64 / dar_y as f64) as f64).sqrt();
+    let new_height = dimensions / new_width;
+    let height = new_height.round() as u32;
+    let width = new_width.round() as u32;
+    (width, height)
+}
+
 pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
     let mut dictionary = Dictionary::new();
     dictionary.set("fflags", "+genpts");
@@ -269,14 +284,30 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
     let video = context_decoder.decoder().video()?;
 
     let format = video.format();
-    let width = video.width();
-    let height = video.height();
+
+    let original_width = video.width();
+    let original_height = video.height();
+
+    let mut aspect_ratio: Rational = Rational::new(1, 1);
+    unsafe {
+        let new = mut_stream.get_display_aspect_ratio();
+        aspect_ratio = Rational::new(new.0 .0, new.0 .1);
+    }
+
+    let (scaled_width, scaled_height) = calculate_display_video_size(
+        aspect_ratio.0,
+        aspect_ratio.1,
+        original_width,
+        original_height,
+    );
 
     let opened_video = OpenedVideo {
         stream_index,
         time_base,
-        width,
-        height,
+        original_height,
+        original_width,
+        scaled_height,
+        scaled_width,
         format,
         video,
         src: src.to_string(),
