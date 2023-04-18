@@ -196,16 +196,38 @@ export async function setupGcpProject(projectID) {
 	console.log(
 		`\n\n${colorCode.greenBackground}                Running Terraform               ${colorCode.resetText}`
 	);
-	const terraformVariables = `-var="remotion_version=${remotionVersion}" -var="project_id=${projectID}" -var="service_account_exists=${serviceAccountExists}"`;
+	const terraformVariables = `-var="remotion_version=${remotionVersion}" -var="project_id=${projectID}"`;
 
 	execSync('terraform init', {stdio: 'inherit'});
 
 	// Import resources as required
 
+	if (serviceAccountExists) {
+		// If the service account already exists, import the resource so that the permissions can be updated in place
+		execSync(
+			`echo "Attempting to import current state from GCP of ${colorCode.blueText}Remotion Service Account${colorCode.resetText}."`,
+			{
+				stdio: 'inherit',
+			}
+		);
+
+		// If the service account is already in tfstate file, skip this step. Otherwise, import it to the state file
+		try {
+			execSync('terraform state list google_service_account.remotion_sa', {
+				stdio: 'pipe',
+			});
+		} catch {
+			execSync(
+				`terraform import ${terraformVariables} google_service_account.remotion_sa projects/${projectID}/serviceAccounts/remotion-sa@${projectID}.iam.gserviceaccount.com`,
+				{stdio: 'inherit'}
+			);
+		}
+	}
+
 	if (iamRoleExists) {
 		// If the role already exists, import the resource so that the permissions can be updated in place
 		execSync(
-			`echo "Checking GCP for current state of ${colorCode.blueText}Remotion IAM role${colorCode.resetText}."`,
+			`echo "Attempting to import current state from GCP of ${colorCode.blueText}Remotion IAM role${colorCode.resetText}."`,
 			{
 				stdio: 'inherit',
 			}
@@ -230,7 +252,7 @@ export async function setupGcpProject(projectID) {
 	if (iamRoleAttached) {
 		// If the role is already attached, import the resource so that the permissions can be updated in place
 		execSync(
-			`echo "Importing current state from GCP of ${colorCode.blueText}Remotion IAM role <-> Remotion Service Account${colorCode.resetText}."`,
+			`echo "Attempting to import current state from GCP of ${colorCode.blueText}Remotion IAM role <-> Remotion Service Account${colorCode.resetText}."`,
 			{
 				stdio: 'inherit',
 			}
@@ -252,7 +274,7 @@ export async function setupGcpProject(projectID) {
 	if (resourceManagerEnabled) {
 		// If the Cloud Resource Manager API is already attached, import the resource so that the permissions can be updated in place
 		execSync(
-			`echo "Importing current state from GCP of ${colorCode.blueText}Cloud Resource Manager API${colorCode.resetText}."`,
+			`echo "Attempting to import current state from GCP of ${colorCode.blueText}Cloud Resource Manager API${colorCode.resetText}."`,
 			{
 				stdio: 'inherit',
 			}

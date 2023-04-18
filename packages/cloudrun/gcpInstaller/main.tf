@@ -19,11 +19,6 @@ variable "remotion_version" {
   description = "The version of Remotion being deployed."
 }
 
-variable "service_account_exists" {
-  type        = bool
-  description = "If the service account already exists, no need to re-create."
-}
-
 
 provider "google" {
   project = var.project_id
@@ -51,7 +46,6 @@ resource "google_project_iam_custom_role" "remotion_sa" {
 
 # Create a service account
 resource "google_service_account" "remotion_sa" {
-  count        = var.service_account_exists ? 0 : 1 //  if the service account already exists, don't create it
   account_id   = "remotion-sa"
   display_name = "Remotion Service Account"
   description  = var.remotion_version
