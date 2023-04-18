@@ -4,11 +4,6 @@ import type {TAsset} from 'remotion';
 import {deleteDirectory} from '../delete-directory';
 import {tmpDir} from '../tmp-dir';
 
-export type VideoDurationResult = {
-	duration: number | null;
-	fps: number | null;
-};
-
 export type AudioChannelsAndDurationResultCache = {
 	channels: number;
 	duration: number | null;
@@ -31,7 +26,6 @@ export type DownloadMap = {
 			| undefined;
 	};
 	listeners: {[key: string]: {[downloadDir: string]: (() => void)[]}};
-	videoDurationResultCache: Record<string, VideoDurationResult>;
 	durationOfAssetCache: Record<string, AudioChannelsAndDurationResultCache>;
 	downloadDir: string;
 	preEncode: string;
@@ -74,7 +68,6 @@ export const makeDownloadMap = (): DownloadMap => {
 		isDownloadingMap: {},
 		hasBeenDownloadedMap: {},
 		listeners: {},
-		videoDurationResultCache: {},
 		durationOfAssetCache: {},
 		id: String(Math.random()),
 		assetDir: dir,
