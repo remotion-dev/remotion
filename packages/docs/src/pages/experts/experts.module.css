@@ -25,16 +25,11 @@
   border-radius: 6px;
   margin-bottom: 16px;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   background-color: var(--ifm-navbar-background-color);
 }
 
-@media screen and (max-width: 900px) {
-  .card {
-    flex-direction: column;
-  }
-}
 
 .profile {
   height: 200px;
