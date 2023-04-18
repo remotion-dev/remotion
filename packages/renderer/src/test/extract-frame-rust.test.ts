@@ -120,7 +120,7 @@ test(
 	{timeout: 10000}
 );
 
-test.only(
+test(
 	'Should get the last frame of a corrupted video',
 	async () => {
 		const compositor = startCompositor('StartLongRunningProcess', {});
@@ -149,6 +149,36 @@ test.only(
 	},
 	{timeout: 5000}
 );
+
+test.only('Should be able to extract a frame with abnormal DAR', async () => {
+	const compositor = startCompositor('StartLongRunningProcess', {});
+
+	const input = path.join(
+		__dirname,
+		'..',
+		'..',
+		'..',
+		'example',
+		'public',
+		'custom-dar.mp4'
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input,
+		time: 3.33,
+	});
+
+	const header = data.slice(0, BMP_HEADER_SIZE);
+
+	const width = header.readInt32LE(18); // Read the width from position 18
+	const height = header.readInt32LE(22); // Read the height from position 22
+
+	expect(width).toBe(720);
+	expect(height).toBe(1280);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
 
 test('Last frame should be fast', async () => {
 	const compositor = startCompositor('StartLongRunningProcess', {});
