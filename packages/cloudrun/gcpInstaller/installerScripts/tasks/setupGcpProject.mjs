@@ -5,6 +5,7 @@ import {colorCode} from '../components/colorCodes.mjs';
 import {generateEnvPrompt} from '../components/generateEnvPrompt.mjs';
 import {remotionVersionPrompt} from '../components/remotionVersionPrompt.mjs';
 import {terraformApplyPrompt} from '../components/terraformApplyPrompt.mjs';
+import {tfSuccessScreen} from '../components/tfSuccessScreen.mjs';
 // Tasks
 import {generateEnv} from './generateEnv.mjs';
 
@@ -330,6 +331,7 @@ export async function setupGcpProject(projectID) {
 	if (applyPlan) {
 		execSync('terraform apply remotion.tfplan', {stdio: 'inherit'});
 		// After the resources are created, prompt the user to generate the .env file or not
+		tfSuccessScreen();
 		const generateEnvFile = await generateEnvPrompt();
 		if (generateEnvFile) {
 			await generateEnv(projectID);
@@ -337,12 +339,16 @@ export async function setupGcpProject(projectID) {
 			console.log('No .env file generated.');
 		}
 	} else {
-		console.log('Plan not applied, no changes made.');
+		console.log(
+			`\n${colorCode.blueBackground}       Plan not applied, no changes made.       ${colorCode.resetText}`
+		);
 		const generateEnvFile = await generateEnvPrompt();
 		if (generateEnvFile) {
 			await generateEnv(projectID);
 		} else {
-			console.log('No .env file generated.');
+			console.log(
+				`\n${colorCode.blueBackground}             No .env file generated             ${colorCode.resetText}`
+			);
 		}
 	}
 }
