@@ -7,7 +7,6 @@ import {taskPrompt} from './installerScripts/components/taskPrompt.mjs';
 // Tasks
 import {generateEnv} from './installerScripts/tasks/generateEnv.mjs';
 import {setupGcpProject} from './installerScripts/tasks/setupGcpProject.mjs';
-import {updateRemotion} from './installerScripts/tasks/updateRemotion.mjs';
 
 /****************************************
  * Splash screen for Remotion Cloud Run
@@ -46,10 +45,6 @@ const selection = await taskPrompt(projectID);
 switch (selection) {
 	case 'runTerraform':
 		await setupGcpProject(projectID);
-		break;
-
-	case 'updateRemotion':
-		await updateRemotion(projectID);
 		break;
 
 	case 'generateEnv':
