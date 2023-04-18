@@ -28,7 +28,7 @@ GCP allows a maximum of 10 keys per service account. If you have already created
    If you want to generate a new .env file, or manage keys already created, you will want to select option 3.
 
    If this is the first time [initialising Remotion in the GCP project](./setup.md), you will want to select option 1.  
-   If you are [updating the version of Remotion for this GCP project](./updateGcpProject.md), you will want to select option 2.
+   If you are [updating the version of Remotion for this GCP project](./setup.md), you will want to select option 1.
 
    <!-- ToDo - host this in the official Remotion repo -->
 

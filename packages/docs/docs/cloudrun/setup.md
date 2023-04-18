@@ -95,8 +95,8 @@ This means that you can pull in a script that runs a couple of gcloud and Terraf
    _The first command downloads a tar file from the Remotion repo, and extracts it to the current directory. The second command runs the installer script._
 
    If this is the first time initialising Remotion in the GCP project, you will want to select option 1.
-
-   If you are [updating the version of Remotion for this GCP project](./updateGcpProject.md), you will want to select option 2.  
+   If you are updating the version of Remotion for this GCP project, you will want to select option 1.  
+   
    If you want to [generate a new .env file](./generateEnvFile.md), or manage keys already created, you will want to select option 3.
    <!-- ToDo - host this in the official Remotion repo -->
 
