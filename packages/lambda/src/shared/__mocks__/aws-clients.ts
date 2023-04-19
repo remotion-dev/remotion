@@ -15,10 +15,13 @@ export const getLambdaClient: typeof original = () => {
 			InvocationType: 'Event';
 		}) => {
 			// @ts-expect-error
-			const payload = params.input.Payload;
+			const payload = JSON.parse(params.input.Payload);
+
+			console.log('invoking lambda', payload);
+
 			const {handler} = await import('../../functions/index');
 
-			return handler(JSON.parse(payload), {
+			return handler(payload, {
 				invokedFunctionArn: 'arn:fake',
 				getRemainingTimeInMillis: () => 120000,
 			});
