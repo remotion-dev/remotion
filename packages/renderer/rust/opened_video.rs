@@ -29,7 +29,7 @@ pub struct OpenedVideo {
     pub input: remotionffmpeg::format::context::Input,
     pub last_position: LastSeek,
     pub frame_cache: FrameCache,
-    pub duration: i64,
+    pub duration_or_zero: i64,
 }
 
 impl OpenedVideo {
@@ -127,7 +127,7 @@ impl OpenedVideo {
         }
 
         let mut freshly_seeked = false;
-        let mut last_position = self.duration.min(position);
+        let mut last_position = self.duration_or_zero.min(position);
 
         if position < self.last_position.resolved_pts
             || self.last_position.resolved_pts < self.calc_position(time - 1.0)
@@ -138,7 +138,7 @@ impl OpenedVideo {
                 self.last_position.resolved_pts,
                 self.last_position.resolved_pts,
                 self.last_position.resolved_dts,
-                self.duration
+                self.duration_or_zero
             ))?;
             self.input
                 .seek(self.stream_index as i32, 0, position, last_position, 0)?;
@@ -289,14 +289,23 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
         .unwrap();
     let stream_index = stream.index();
 
-    let duration = stream.duration();
+    let duration_or_zero = stream.duration().max(0);
 
     let mut_stream = input.stream_mut(stream_index).unwrap();
     let time_base = mut_stream.time_base();
     let parameters = mut_stream.parameters();
 
     let context_decoder = remotionffmpeg::codec::context::Context::from_parameters(parameters)?;
-    let video = context_decoder.decoder().video()?;
+
+    // TODO: Only if it is a WebM
+    let vpx = remotionffmpeg::codec::decoder::find_by_name("libvpx");
+
+    let video = context_decoder
+        .decoder()
+        .open_as(vpx)
+        .unwrap()
+        .video()
+        .unwrap();
 
     let format = video.format();
 
@@ -328,7 +337,7 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
             resolved_dts: 0,
         },
         frame_cache: FrameCache::new(),
-        duration,
+        duration_or_zero: duration_or_zero,
     };
 
     Ok(opened_video)

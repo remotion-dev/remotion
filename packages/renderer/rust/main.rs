@@ -66,7 +66,7 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
             break;
         }
         let opts: CliInputCommand = parse_cli(&input).unwrap();
-        pool.execute(move || match execute_command(opts.payload) {
+        match execute_command(opts.payload) {
             Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
             Err(err) => {
                 let err = ErrorPayload {
@@ -79,7 +79,7 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
 
                 global_printer::synchronized_write_buf(1, &opts.nonce, &j).unwrap()
             }
-        });
+        }
     }
 
     pool.join();
