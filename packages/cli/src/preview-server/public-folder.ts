@@ -40,7 +40,7 @@ export const fetchFolder = ({
 	});
 };
 
-export const watchPublicFolder = ({
+const watchPublicFolder = ({
 	publicDir,
 	onUpdate,
 	staticHash,

@@ -18,7 +18,7 @@ type Props = React.DetailedHTMLProps<
 	status: RemInputStatus;
 };
 
-export const inputBaseStyle: React.CSSProperties = {
+const inputBaseStyle: React.CSSProperties = {
 	padding: 0,
 	borderStyle: 'solid',
 	borderWidth: 1,

@@ -1,7 +1,7 @@
-export let currentFrame = 0;
-export let currentZoom = 1;
-export let currentDuration = 1;
-export let currentFps = 1;
+let currentFrame = 0;
+let currentZoom = 1;
+let currentDuration = 1;
+let currentFps = 1;
 
 export const getCurrentZoom = () => {
 	return currentZoom;
