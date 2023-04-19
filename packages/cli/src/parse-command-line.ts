@@ -14,7 +14,7 @@ import minimist from 'minimist';
 import {Config, ConfigInternals} from './config';
 import {Log} from './log';
 
-export type CommandLineOptions = {
+type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: VideoImageFormat | StillImageFormat;

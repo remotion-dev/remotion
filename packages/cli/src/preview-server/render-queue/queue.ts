@@ -33,7 +33,7 @@ export const getRenderQueue = (): RenderJob[] => {
 	});
 };
 
-export const notifyClientsOfJobUpdate = () => {
+const notifyClientsOfJobUpdate = () => {
 	waitForLiveEventsListener().then((listener) => {
 		listener.sendEventToClient({
 			type: 'render-queue-updated',
@@ -42,7 +42,7 @@ export const notifyClientsOfJobUpdate = () => {
 	});
 };
 
-export const processJob = async ({
+const processJob = async ({
 	job,
 	remotionRoot,
 	entryPoint,
@@ -123,7 +123,7 @@ export const cancelJob = (jobId: string) => {
 };
 
 // TODO: Currently, concurrency = 1 is not enforced
-export const processJobIfPossible = async ({
+const processJobIfPossible = async ({
 	remotionRoot,
 	entryPoint,
 }: {

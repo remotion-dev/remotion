@@ -45,7 +45,7 @@ const doesFolderExist = (
 	return false;
 };
 
-export const findItemListToPush = (
+const findItemListToPush = (
 	items: CompositionSelectorItemType[],
 	folderName: string | null,
 	parentName: string | null
