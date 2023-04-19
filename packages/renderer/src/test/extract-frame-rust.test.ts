@@ -1,3 +1,4 @@
+import {writeFileSync} from 'fs';
 import path from 'path';
 import {expect, test} from 'vitest';
 import {startCompositor} from '../compositor/compositor';
@@ -27,6 +28,27 @@ test(
 		await compositor.waitForDone();
 
 		expect(data.slice(0, 1000)).not.toEqual(data2.slice(0, 1000));
+	},
+	{timeout: 10000}
+);
+
+test.only(
+	'Should be able to get a PNG',
+	async () => {
+		const compositor = startCompositor('StartLongRunningProcess', {});
+
+		const data = await compositor.executeCommand('ExtractFrame', {
+			input:
+				'/Users/jonathanburger/remotion/packages/docs/static/img/transparent-video.webm',
+			time: 1,
+			transparent: true,
+		});
+		expect(data.length).toBe(181055);
+
+		writeFileSync('test.png', data);
+
+		compositor.finishCommands();
+		await compositor.waitForDone();
 	},
 	{timeout: 10000}
 );
@@ -159,7 +181,7 @@ test(
 	{timeout: 5000}
 );
 
-test.only('Should be able to extract a frame with abnormal DAR', async () => {
+test('Should be able to extract a frame with abnormal DAR', async () => {
 	const compositor = startCompositor('StartLongRunningProcess', {});
 
 	const input = path.join(

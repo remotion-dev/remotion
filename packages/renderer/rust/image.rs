@@ -50,11 +50,11 @@ pub fn save_as_jpeg(
     Ok(())
 }
 
-pub fn get_png_data(rgba_data: &[u8]) -> Vec<u8> {
+pub fn get_png_data(rgba_data: &[u8], width: u32, height: u32) -> Vec<u8> {
     let mut png_data = Vec::new();
 
     {
-        let mut encoder = png::Encoder::new(&mut png_data, 2, 1);
+        let mut encoder = png::Encoder::new(&mut png_data, width, height);
         encoder.set_color(png::ColorType::Rgba);
         encoder.set_depth(png::BitDepth::Eight);
         encoder.set_source_gamma(png::ScaledFloat::from_scaled(45455)); // 1.0 / 2.2, scaled by 100000
