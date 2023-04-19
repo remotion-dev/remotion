@@ -103,6 +103,7 @@ export const RemotionRoot: React.FC<{
 							<CompositionManagerProvider>
 								<DurationsContextProvider>
 									<SharedAudioContextProvider
+										component={EmptyComponent}
 										// In the preview, which is mostly played on Desktop, we opt out of the autoplay policy fix as described in https://github.com/remotion-dev/remotion/pull/554, as it mostly applies to mobile.
 										numberOfAudioTags={numberOfAudioTags}
 									>
@@ -117,3 +118,5 @@ export const RemotionRoot: React.FC<{
 		</NonceContext.Provider>
 	);
 };
+
+const EmptyComponent: React.FC = () => null;
