@@ -293,6 +293,8 @@ export const RenderModal: React.FC<{
 			disableWebSecurity,
 			ignoreCertificateErrors,
 			gl: openGlOption === 'default' ? null : openGlOption,
+			// TODO: Make this configurable at some point (not necessary for V4)
+			userAgent: null,
 		};
 	}, [headless, disableWebSecurity, ignoreCertificateErrors, openGlOption]);
 
