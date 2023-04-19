@@ -1,9 +1,16 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import type {AnyComposition} from 'remotion';
 import {getInputProps} from 'remotion';
-import {BORDER_COLOR} from '../../helpers/colors';
+import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 
+import {PreviewServerConnectionCtx} from '../../helpers/client-id';
 import {Spacing} from '../layout';
 import {
 	canUpdateDefaultProps,
@@ -15,6 +22,23 @@ import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 
 type Mode = 'json' | 'schema';
+
+const errorExplanation: React.CSSProperties = {
+	fontSize: 14,
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	lineHeight: 1.5,
+};
+
+const explainer: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	padding: '0 12px',
+	justifyContent: 'center',
+	alignItems: 'center',
+	textAlign: 'center',
+};
 
 const outer: React.CSSProperties = {
 	display: 'flex',
@@ -137,6 +161,20 @@ export const RenderModalData: React.FC<{
 		},
 		[composition.defaultProps, composition.id]
 	);
+
+	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
+
+	if (connectionStatus === 'disconnected') {
+		return (
+			<div style={explainer}>
+				<Spacing y={5} />
+				<div style={errorExplanation}>
+					The preview server has disconnected. Reconnect to edit the schema.
+				</div>
+				<Spacing y={2} block />
+			</div>
+		);
+	}
 
 	return (
 		<div style={outer}>
