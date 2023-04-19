@@ -36,8 +36,6 @@ const PROCESS_ERROR_EXPLANATION = `Puppeteer was unable to kill the process whic
  Please check your open processes and ensure that the browser processes that Puppeteer launched have been killed.
  If you think this is a bug, please report it on the Puppeteer issue tracker.`;
 
-export const INDENT_TOKEN = '│';
-
 export class BrowserRunner {
 	#executablePath: string;
 	#processArguments: string[];
