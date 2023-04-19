@@ -5,7 +5,6 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import {CompositionManagerProvider} from './CompositionManager.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {NativeLayersProvider} from './NativeLayers.js';
@@ -100,16 +99,8 @@ export const RemotionRoot: React.FC<{
 				<SetTimelineContext.Provider value={setTimelineContextValue}>
 					<PrefetchProvider>
 						<NativeLayersProvider>
-							<CompositionManagerProvider>
-								<DurationsContextProvider>
-									<SharedAudioContextProvider
-										component={EmptyComponent}
-										// In the preview, which is mostly played on Desktop, we opt out of the autoplay policy fix as described in https://github.com/remotion-dev/remotion/pull/554, as it mostly applies to mobile.
-										numberOfAudioTags={numberOfAudioTags}
-									>
-										{children}
-									</SharedAudioContextProvider>
-								</DurationsContextProvider>
+							<CompositionManagerProvider numberOfAudioTags={numberOfAudioTags}>
+								<DurationsContextProvider>{children}</DurationsContextProvider>
 							</CompositionManagerProvider>
 						</NativeLayersProvider>
 					</PrefetchProvider>
@@ -118,5 +109,3 @@ export const RemotionRoot: React.FC<{
 		</NonceContext.Provider>
 	);
 };
-
-const EmptyComponent = React.lazy(() => Promise.resolve({default: () => null}));
