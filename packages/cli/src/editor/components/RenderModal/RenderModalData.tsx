@@ -97,7 +97,6 @@ export const RenderModalData: React.FC<{
 
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
-	// TODO: Disable if Preview Server is disconnected
 	// TODO: Update if root file is updated
 	// TODO: Segment the state for different compositions
 
