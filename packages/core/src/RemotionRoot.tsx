@@ -119,4 +119,4 @@ export const RemotionRoot: React.FC<{
 	);
 };
 
-const EmptyComponent: React.FC = () => null;
+const EmptyComponent = React.lazy(() => Promise.resolve({default: () => null}));
