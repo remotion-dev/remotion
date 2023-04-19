@@ -12,10 +12,30 @@ import {Internals, useCurrentFrame} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
 import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-video-contexts';
 import {PreviewServerConnectionCtx} from '../helpers/client-id';
+import {
+	INPUT_BACKGROUND,
+	INPUT_BORDER_COLOR_UNHOVERED,
+} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {RenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
-import {ControlButton} from './ControlButton';
+import {Spacing} from './layout';
+
+const button: React.CSSProperties = {
+	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
+	borderRadius: 4,
+	backgroundColor: INPUT_BACKGROUND,
+	appearance: 'none',
+	fontFamily: 'inherit',
+	fontSize: 14,
+	color: 'white',
+	flexDirection: 'row',
+	height: '39px',
+	paddingLeft: '10px',
+	paddingRight: '10px',
+	display: 'flex',
+	alignItems: 'center',
+};
 
 export const RenderButton: React.FC = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
@@ -98,14 +118,10 @@ export const RenderButton: React.FC = () => {
 	}
 
 	return (
-		<ControlButton
-			id="render-modal-button"
-			disabled={type !== 'connected'}
-			title={tooltip}
-			aria-label={tooltip}
-			onClick={onClick}
-		>
+		<button type={'button'} title={tooltip} onClick={onClick} style={button}>
 			<RenderIcon svgProps={iconStyle} />
-		</ControlButton>
+			<Spacing x={2} />
+			Render
+		</button>
 	);
 };

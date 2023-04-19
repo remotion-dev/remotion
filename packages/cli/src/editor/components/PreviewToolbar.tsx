@@ -70,11 +70,12 @@ export const PreviewToolbar: React.FC = () => {
 			<TimelineInOutPointToggle />
 			<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
 			<Spacing x={2} />
-			<RenderButton />
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />
 				<FpsCounter playbackSpeed={playbackRate} />
+				<Spacing x={2} />
+				<RenderButton />
 				<div style={padding} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
