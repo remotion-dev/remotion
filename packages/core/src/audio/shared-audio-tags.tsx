@@ -1,8 +1,10 @@
+import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {
 	createContext,
 	createRef,
 	useCallback,
 	useContext,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
@@ -93,7 +95,8 @@ export const SharedAudioContext = createContext<SharedContext | null>(null);
 export const SharedAudioContextProvider: React.FC<{
 	numberOfAudioTags: number;
 	children: React.ReactNode;
-}> = ({children, numberOfAudioTags}) => {
+	component: LazyExoticComponent<ComponentType<unknown>>;
+}> = ({children, numberOfAudioTags, component}) => {
 	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
@@ -194,6 +197,12 @@ export const SharedAudioContextProvider: React.FC<{
 		[refs, rerenderAudios]
 	);
 
+	const resetAudio = useCallback(() => {
+		takenAudios.current = new Array(numberOfAudioTags).fill(false);
+		audios.current = [];
+		rerenderAudios();
+	}, [numberOfAudioTags, rerenderAudios]);
+
 	const updateAudio = useCallback(
 		({
 			aud,
@@ -252,6 +261,12 @@ export const SharedAudioContextProvider: React.FC<{
 		unregisterAudio,
 		updateAudio,
 	]);
+
+	useEffect(() => {
+		return () => {
+			resetAudio();
+		};
+	}, [component, resetAudio]);
 
 	return (
 		<SharedAudioContext.Provider value={value}>
