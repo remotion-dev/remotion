@@ -38,6 +38,11 @@ const explainer: React.CSSProperties = {
 	textAlign: 'center',
 };
 
+const errorContainer: React.CSSProperties = {
+	padding: '8px 12px',
+	overflowY: 'auto',
+};
+
 export const SchemaEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	value: unknown;
@@ -112,10 +117,9 @@ export const SchemaEditor: React.FC<{
 		const defaultPropsValid = schema.safeParse(defaultProps);
 
 		if (!defaultPropsValid.success) {
-			// TODO: Layout is not nice
 			// TODO: Does not react to when schema is updated
 			return (
-				<div>
+				<div style={errorContainer}>
 					<div style={errorExplanation}>
 						The schema can not be edited because the{' '}
 						<code style={codeSnippet}>defaultProps</code> prop in the{' '}
@@ -134,7 +138,7 @@ export const SchemaEditor: React.FC<{
 		}
 
 		return (
-			<div>
+			<div style={errorContainer}>
 				<div style={errorExplanation}>
 					The data does not satisfy the schema:
 				</div>
