@@ -197,12 +197,6 @@ export const SharedAudioContextProvider: React.FC<{
 		[refs, rerenderAudios]
 	);
 
-	const resetAudio = useCallback(() => {
-		takenAudios.current = new Array(numberOfAudioTags).fill(false);
-		audios.current = [];
-		rerenderAudios();
-	}, [numberOfAudioTags, rerenderAudios]);
-
 	const updateAudio = useCallback(
 		({
 			aud,
@@ -261,6 +255,20 @@ export const SharedAudioContextProvider: React.FC<{
 		unregisterAudio,
 		updateAudio,
 	]);
+
+	// Fixing a bug: In React, if a component is unmounted using useInsertionEffect, then
+	// the cleanup function does sometimes not work properly. That is why when we
+	// are changing the composition, we reset the audio state.
+
+	// TODO: Possibly this does not save the problem completely, since the
+	// if an audio tag that is inside a sequence will also not be removed
+	// from the shared audios.
+
+	const resetAudio = useCallback(() => {
+		takenAudios.current = new Array(numberOfAudioTags).fill(false);
+		audios.current = [];
+		rerenderAudios();
+	}, [numberOfAudioTags, rerenderAudios]);
 
 	useEffect(() => {
 		return () => {
