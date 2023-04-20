@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
-import {Log} from '@remotion/cli/dist/log';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
+import {Log} from '../../log';
 import {sitesCreateSubcommand, SITES_CREATE_SUBCOMMAND} from './create';
 
 export const SITES_COMMAND = 'sites';

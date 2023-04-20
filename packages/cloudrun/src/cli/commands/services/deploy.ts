@@ -1,5 +1,4 @@
 import {CliInternals} from '@remotion/cli';
-import {Log} from '@remotion/cli/dist/log';
 import {VERSION} from 'remotion/version';
 import {checkIfServiceExists} from '../../../api/check-if-service-exists';
 import {allowUnauthenticatedAccess} from '../../../api/cloud-run-allow-unauthenticated-access';
@@ -13,6 +12,7 @@ import {parsedCloudrunCli} from '../../args';
 import {getGcpRegion} from '../../get-gcp-region';
 import {confirmCli} from '../../helpers/confirm';
 import {quit} from '../../helpers/quit';
+import {Log} from '../../log';
 
 export const CLOUD_RUN_DEPLOY_SUBCOMMAND = 'deploy';
 
