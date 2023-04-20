@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useMemo} from 'react';
-import type {z} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {Row, Spacing} from '../layout';
@@ -55,7 +54,7 @@ const scrollable: React.CSSProperties = {
 export const RenderModalJSONInputPropsEditor: React.FC<{
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
-	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
+	zodValidationResult: Zod.SafeParseReturnType<unknown, unknown>;
 	switchToSchema: () => void;
 	onSave: () => void;
 	valBeforeSafe: unknown;

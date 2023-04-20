@@ -57,7 +57,6 @@ export type BundleState =
 	  };
 
 checkMultipleRemotionVersions();
-export {z} from 'zod';
 export * from './AbsoluteFill.js';
 export * from './audio/index.js';
 export {cancelRender} from './cancel-render.js';

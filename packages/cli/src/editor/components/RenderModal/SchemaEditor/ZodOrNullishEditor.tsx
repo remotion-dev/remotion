@@ -1,7 +1,8 @@
 import {useCallback} from 'react';
-import type {z} from 'remotion';
+import type {z} from 'zod';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Checkbox} from '../../Checkbox';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {createZodValues} from './create-zod-values';
 import {SchemaLabel} from './SchemaLabel';
@@ -49,6 +50,11 @@ export const ZodOrNullishEditor: React.FC<{
 	onRemove,
 	nullishValue,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
 	const isChecked = value === nullishValue;
 
 	const onValueChange = useCallback(
@@ -61,11 +67,12 @@ export const ZodOrNullishEditor: React.FC<{
 	const onCheckBoxChange: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
-				console.log({schema, newVal: createZodValues(schema)});
-				const val = e.target.checked ? nullishValue : createZodValues(schema);
+				const val = e.target.checked
+					? nullishValue
+					: createZodValues(schema, z);
 				onValueChange(val);
 			},
-			[nullishValue, onValueChange, schema]
+			[nullishValue, onValueChange, schema, z]
 		);
 
 	const reset = useCallback(() => {

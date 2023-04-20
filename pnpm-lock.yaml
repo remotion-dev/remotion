@@ -167,6 +167,7 @@ importers:
       source-map: 0.6.1
       typescript: ^4.7.0
       vitest: 0.24.3
+      zod: ^3.21.4
     dependencies:
       '@remotion/bundler': link:../bundler
       '@remotion/media-utils': link:../media-utils
@@ -201,6 +202,7 @@ importers:
       react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
       vitest: 0.24.3
+      zod: 3.21.4
 
   packages/compositor-darwin-arm64:
     specifiers: {}
@@ -245,8 +247,6 @@ importers:
       vitest: 0.24.3
       webpack: 5.76.1
       zod: 3.21.4
-    dependencies:
-      zod: 3.21.4
     devDependencies:
       '@jonny/eslint-config': 3.0.273_t54va6jeo5lf3vtqih5uiyrm5e
       '@rollup/plugin-typescript': 8.5.0_2s5nfqwcf62746iqzotp3mpuy4
@@ -267,6 +267,7 @@ importers:
       typescript: 4.7.2
       vitest: 0.24.3_jsdom@21.1.0
       webpack: 5.76.1
+      zod: 3.21.4
 
   packages/create-video:
     specifiers:
@@ -12308,8 +12309,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
-      JSONStream: 1.3.5
       is-text-path: 1.0.1
+      JSONStream: 1.3.5
       lodash: 4.17.21
       meow: 8.1.2
       split2: 3.2.2
@@ -25537,7 +25538,7 @@ packages:
 
   /zod/3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
-    dev: false
+    dev: true
 
   /zstddec/0.0.2:
     resolution: {integrity: sha512-DCo0oxvcvOTGP/f5FA6tz2Z6wF+FIcEApSTu0zV5sQgn9hoT5lZ9YRAKUraxt9oP7l4e8TnNdi8IZTCX6WCkwA==}

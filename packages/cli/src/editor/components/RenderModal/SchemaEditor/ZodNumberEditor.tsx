@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import type {z} from 'remotion';
+import type {z} from 'zod';
 import {Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';

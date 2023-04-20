@@ -1,5 +1,5 @@
 import React from 'react';
-import type {z} from 'remotion';
+import type {z} from 'zod';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 
 const label: React.CSSProperties = {

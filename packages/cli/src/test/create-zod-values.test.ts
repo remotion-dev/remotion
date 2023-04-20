@@ -1,14 +1,15 @@
-import {z, zColor} from 'remotion';
+import {zColor} from 'remotion';
 import {expect, test} from 'vitest';
+import {z} from 'zod';
 import {createZodValues} from '../editor/components/RenderModal/SchemaEditor/create-zod-values';
 
 test('Should be able to create a string', () => {
-	const hi = createZodValues(z.string());
+	const hi = createZodValues(z.string(), z);
 	expect(hi).toBe('');
 });
 
 test('Should be able to create a number', () => {
-	const hi = createZodValues(z.number());
+	const hi = createZodValues(z.number(), z);
 	expect(hi).toBe(0);
 });
 
@@ -17,25 +18,26 @@ test('Should be able to create an object', () => {
 		z.object({
 			a: z.string(),
 			b: z.number(),
-		})
+		}),
+		z
 	);
 	expect(hi).toEqual({a: '', b: 0});
 });
 
 test('Should be able to create an array', () => {
-	expect(createZodValues(z.array(z.string()))).toEqual(['']);
-	expect(createZodValues(z.array(z.number()))).toEqual([0]);
+	expect(createZodValues(z.array(z.string()), z)).toEqual(['']);
+	expect(createZodValues(z.array(z.number()), z)).toEqual([0]);
 });
 
 test('Should be able to create a union', () => {
-	expect(createZodValues(z.union([z.string(), z.number()]))).toBe('');
-	expect(createZodValues(z.union([z.number(), z.string()]))).toBe(0);
+	expect(createZodValues(z.union([z.string(), z.number()]), z)).toBe('');
+	expect(createZodValues(z.union([z.number(), z.string()]), z)).toBe(0);
 	// @ts-expect-error union
 	expect(createZodValues(z.union([]))).toBe(undefined);
 });
 
 test('Zod literal', () => {
-	expect(createZodValues(z.literal('hi'))).toBe('hi');
+	expect(createZodValues(z.literal('hi'), z)).toBe('hi');
 });
 
 test('Should be able to create a discriminated union', () => {
@@ -44,7 +46,8 @@ test('Should be able to create a discriminated union', () => {
 			z.discriminatedUnion('status', [
 				z.object({status: z.literal('success'), data: z.string()}),
 				z.object({status: z.literal('failed'), error: z.instanceof(Error)}),
-			])
+			]),
+			z
 		)
 	).toEqual({status: 'success', data: ''});
 
@@ -53,7 +56,8 @@ test('Should be able to create a discriminated union', () => {
 			z.discriminatedUnion('status', [
 				z.object({status: z.literal('failed'), error: z.number()}),
 				z.object({status: z.literal('success'), data: z.string()}),
-			])
+			]),
+			z
 		)
 	).toEqual({status: 'failed', error: 0});
 
@@ -64,7 +68,7 @@ test('Should be able to create a discriminated union', () => {
 });
 
 test('Zod instanceof', () => {
-	expect(() => createZodValues(z.instanceof(Error))).toThrow(
+	expect(() => createZodValues(z.instanceof(Error), z)).toThrow(
 		/Cannot create a value for type z.any()/
 	);
 });
@@ -79,7 +83,7 @@ test('Zod intersection', () => {
 	});
 
 	const EmployedPerson = z.intersection(Person, Employee);
-	expect(createZodValues(EmployedPerson)).toEqual({
+	expect(createZodValues(EmployedPerson, z)).toEqual({
 		name: '',
 		role: '',
 	});
@@ -87,51 +91,51 @@ test('Zod intersection', () => {
 
 test('Zod tuples', () => {
 	const Tuple = z.tuple([z.string(), z.number()]);
-	expect(createZodValues(Tuple)).toEqual(['', 0]);
+	expect(createZodValues(Tuple, z)).toEqual(['', 0]);
 });
 
 test('Zod record', () => {
 	const Record = z.record(z.string());
-	expect(createZodValues(Record)).toEqual({key: ''});
+	expect(createZodValues(Record, z)).toEqual({key: ''});
 });
 
 test('Zod map', () => {
 	const map = z.map(z.string(), z.number());
-	expect(createZodValues(map)).toEqual(new Map([['', 0]]));
+	expect(createZodValues(map, z)).toEqual(new Map([['', 0]]));
 });
 
 test('Zod lazy', () => {
 	const Lazy = z.lazy(() => z.string());
-	expect(createZodValues(Lazy)).toBe('');
+	expect(createZodValues(Lazy, z)).toBe('');
 });
 
 test('Zod set', () => {
 	const set = z.set(z.string());
-	expect(createZodValues(set)).toEqual(new Set(['']));
+	expect(createZodValues(set, z)).toEqual(new Set(['']));
 	const set2 = z.set(z.number());
-	expect(createZodValues(set2)).toEqual(new Set([0]));
+	expect(createZodValues(set2, z)).toEqual(new Set([0]));
 });
 
 test('Zod function', () => {
 	const fn = z.function();
-	expect(() => createZodValues(fn)).toThrow(
+	expect(() => createZodValues(fn, z)).toThrow(
 		/Cannot create a value for type function/
 	);
 });
 
 test('Zod undefined', () => {
 	const undef = z.void();
-	expect(createZodValues(undef)).toBe(undefined);
+	expect(createZodValues(undef, z)).toBe(undefined);
 });
 
 test('Zod null', () => {
 	const undef = z.null();
-	expect(createZodValues(undef)).toBe(null);
+	expect(createZodValues(undef, z)).toBe(null);
 });
 
 test('Zod enum', () => {
 	const Enum = z.enum(['a', 'b']);
-	expect(createZodValues(Enum)).toBe('a');
+	expect(createZodValues(Enum, z)).toBe('a');
 });
 
 test('Zod nativeEnum', () => {
@@ -140,32 +144,32 @@ test('Zod nativeEnum', () => {
 		Banana,
 	}
 	const Enum = z.nativeEnum(Fruits);
-	expect(createZodValues(Enum)).toBe(Fruits.Apple);
+	expect(createZodValues(Enum, z)).toBe(Fruits.Apple);
 });
 
 test('Zod optional', () => {
 	const Optional = z.string().optional();
-	expect(createZodValues(Optional)).toBe('');
+	expect(createZodValues(Optional, z)).toBe('');
 });
 
 test('Zod nullable', () => {
 	const Nullable = z.string().nullable();
-	expect(createZodValues(Nullable)).toBe('');
+	expect(createZodValues(Nullable, z)).toBe('');
 });
 
 test('Zod undefined', () => {
 	const undef = z.string().default('tuna');
-	expect(createZodValues(undef)).toBe('tuna');
+	expect(createZodValues(undef, z)).toBe('tuna');
 });
 
 test('Zod catch', () => {
 	const undef = z.string().catch('tuna');
-	expect(createZodValues(undef)).toBe('');
+	expect(createZodValues(undef, z)).toBe('');
 });
 
 test('Zod promise', () => {
 	const undef = z.string().promise();
-	(createZodValues(undef) as Promise<unknown>).then((v) => {
+	(createZodValues(undef, z) as Promise<unknown>).then((v) => {
 		expect(v).toBe('');
 	});
 });
@@ -173,31 +177,31 @@ test('Zod promise', () => {
 test('Zod transform', () => {
 	// Intentional: We don't parse the Zod values, so we should not transform them
 	const undef = z.literal('abc').transform((v) => v.toUpperCase());
-	expect(createZodValues(undef)).toBe('abc');
+	expect(createZodValues(undef, z)).toBe('abc');
 });
 
 test('Zod branded', () => {
 	const Cat = z.object({name: z.string()}).brand<'Cat'>();
-	expect(createZodValues(Cat)).toEqual({name: ''});
+	expect(createZodValues(Cat, z)).toEqual({name: ''});
 });
 
 test('Zod lazy', () => {
 	const datelike = z.union([z.number(), z.string(), z.date()]);
 	const datelikeToDate = datelike.pipe(z.coerce.date());
-	expect(createZodValues(datelikeToDate)).toBeInstanceOf(Date);
+	expect(createZodValues(datelikeToDate, z)).toBeInstanceOf(Date);
 });
 
 test('Zod coerce', () => {
 	const datelike = z.union([z.number(), z.string(), z.date()]);
 	const datelikeToDate = datelike.pipe(z.coerce.date());
-	expect(createZodValues(datelikeToDate)).toBeInstanceOf(Date);
+	expect(createZodValues(datelikeToDate, z)).toBeInstanceOf(Date);
 });
 
 test('Zod strict', () => {
 	const strict = z.strictObject({a: z.string()}).strict();
-	expect(createZodValues(strict)).toEqual({a: ''});
+	expect(createZodValues(strict, z)).toEqual({a: ''});
 });
 
 test('Should create a color', () => {
-	expect(createZodValues(zColor())).toBe('#ffffff');
+	expect(createZodValues(zColor(), z)).toBe('#ffffff');
 });
