@@ -388,6 +388,7 @@ export const QuickSwitcherContent: React.FC<{
 					value={state.query}
 					onChange={onTextChange}
 					placeholder="Search compositions..."
+					rightAlign={false}
 				/>
 				{showKeyboardShortcuts ? (
 					<>

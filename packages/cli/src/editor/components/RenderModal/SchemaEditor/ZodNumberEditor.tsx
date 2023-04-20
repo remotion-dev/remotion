@@ -163,6 +163,7 @@ export const ZodNumberEditor: React.FC<{
 					min={getMinValue(schema)}
 					max={getMaxValue(schema)}
 					step={getStep(schema)}
+					rightAlign={false}
 				/>
 				{!localValue.zodValidation.success && (
 					<>

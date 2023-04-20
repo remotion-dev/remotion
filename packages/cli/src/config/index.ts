@@ -219,7 +219,7 @@ declare global {
 		) => void;
 		/**
 		 * Set the user agent for Chrome. Only works during rendering.
-		 * Default:
+		 * Default is the default user agent for Chrome
 		 */
 		readonly setChromiumUserAgent: (userAgent: string | null) => void;
 		/**
@@ -238,7 +238,6 @@ declare global {
 		readonly setQuality: (q: never) => void;
 		/**
 		 * Set the JPEG quality for the frames.
-		 * Must be between 0 and 100.
 		 * Must be between 0 and 100.
 		 * Default: 80
 		 */

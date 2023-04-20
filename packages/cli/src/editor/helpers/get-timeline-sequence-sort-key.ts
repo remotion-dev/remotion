@@ -1,6 +1,6 @@
 import type {TSequence} from 'remotion';
 
-export type Track = {
+type Track = {
 	sequence: TSequence;
 	depth: number;
 };

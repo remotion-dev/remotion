@@ -21,11 +21,6 @@ export type ApiHandler<ReqData, ResData> = (params: {
 	response: ServerResponse;
 }) => Promise<ResData>;
 
-export type ApiRoute<ReqData, ResData> = {
-	handler: ApiHandler<ReqData, ResData>;
-	endpoint: string;
-};
-
 type ReqAndRes<A, B> = {
 	Request: A;
 	Response: B;

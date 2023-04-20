@@ -165,6 +165,7 @@ export const RenderModalPicture: React.FC<{
 								value={customTargetVideoBitrate}
 								onChange={onTargetVideoBitrateChanged}
 								status="ok"
+								rightAlign
 							/>
 						</div>
 					</div>

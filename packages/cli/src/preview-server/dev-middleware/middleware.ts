@@ -37,7 +37,7 @@ const mem = (fn: Function, {cache = new Map()} = {}) => {
 
 const memoizedParse = mem(parse);
 
-export function getFilenameFromUrl(
+function getFilenameFromUrl(
 	context: DevMiddlewareContext,
 	url: string | undefined
 ) {

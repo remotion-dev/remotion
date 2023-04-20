@@ -6,7 +6,7 @@ import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 
-export const commonPreviewSizes: PreviewSize[] = [
+const commonPreviewSizes: PreviewSize[] = [
 	{
 		size: 'auto',
 		translation: {

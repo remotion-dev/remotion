@@ -6,33 +6,47 @@ import type {
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
+import {Button} from '../../preview-server/error-overlay/remotion-overlay/Button';
 import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-video-contexts';
 import {PreviewServerConnectionCtx} from '../helpers/client-id';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {RenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
-import {ControlButton} from './ControlButton';
+import {Row, Spacing} from './layout';
+
+const button: React.CSSProperties = {
+	paddingLeft: 7,
+	paddingRight: 7,
+	paddingTop: 7,
+	paddingBottom: 7,
+};
+
+const label: React.CSSProperties = {
+	fontSize: 14,
+};
 
 export const RenderButton: React.FC = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {type} = useContext(PreviewServerConnectionCtx);
 
-	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
-		return {
-			style: {
-				height: 18,
-			},
-		};
-	}, []);
 	const shortcut = areKeyboardShortcutsDisabled() ? '' : '(R)';
 	const tooltip =
 		type === 'connected'
 			? 'Export the current composition ' + shortcut
 			: 'Connect to the preview server to render';
+
+	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
+		return {
+			style: {
+				height: 16,
+			},
+		};
+	}, []);
 
 	const video = Internals.useVideo();
 	const frame = useCurrentFrame();
@@ -63,7 +77,12 @@ export const RenderButton: React.FC = () => {
 			initialVideoImageFormat: defaults.videoImageFormat,
 			initialOutName: getDefaultOutLocation({
 				compositionName: video.id,
-				defaultExtension: isVideo ? 'mp4' : 'png',
+				defaultExtension: isVideo
+					? BrowserSafeApis.getFileExtensionFromCodec(
+							initialVideoCodec,
+							defaults.audioCodec as AudioCodec
+					  )
+					: defaults.stillImageFormat,
 				type: 'asset',
 			}),
 			initialJpegQuality: defaults.jpegQuality,
@@ -98,14 +117,17 @@ export const RenderButton: React.FC = () => {
 	}
 
 	return (
-		<ControlButton
+		<Button
 			id="render-modal-button"
-			disabled={type !== 'connected'}
 			title={tooltip}
-			aria-label={tooltip}
 			onClick={onClick}
+			buttonContainerStyle={button}
 		>
-			<RenderIcon svgProps={iconStyle} />
-		</ControlButton>
+			<Row align="center">
+				<RenderIcon svgProps={iconStyle} />
+				<Spacing x={1} />
+				<span style={label}>Render</span>
+			</Row>
+		</Button>
 	);
 };
