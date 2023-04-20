@@ -1,4 +1,4 @@
-import React, {createContext, useEffect, useState} from 'react';
+import React, {createContext, useContext, useEffect, useState} from 'react';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 export type ZodType = Awaited<typeof import('zod')>['z'];
@@ -13,13 +13,8 @@ export const getZodIfPossible = async (): Promise<ZodType | null> => {
 };
 
 export const useZodIfPossible = () => {
-	const [zod, setZod] = useState<ZodType | null>(null);
-
-	useEffect(() => {
-		getZodIfPossible().then((z) => setZod(z));
-	}, []);
-
-	return zod;
+	const context = useContext(ZodContext);
+	return context;
 };
 
 const ZodContext = createContext<ZodType | null>(null);
@@ -27,7 +22,11 @@ const ZodContext = createContext<ZodType | null>(null);
 export const ZodProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
-	const zod = useZodIfPossible();
+	const [zod, setZod] = useState<ZodType | null>(null);
+
+	useEffect(() => {
+		getZodIfPossible().then((z) => setZod(z));
+	}, []);
 
 	return <ZodContext.Provider value={zod}>{children}</ZodContext.Provider>;
 };
