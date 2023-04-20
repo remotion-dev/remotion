@@ -23,7 +23,6 @@ const container: React.CSSProperties = {
 	paddingRight: 8,
 	cursor: 'default',
 };
-export const MENU_SUBMENU_BUTTON_CLASS_NAME = 'remotion-submenu-button';
 
 const labelStyle: React.CSSProperties = {
 	fontSize: 13,

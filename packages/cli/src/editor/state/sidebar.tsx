@@ -1,10 +1,7 @@
 import React, {createContext, useMemo, useState} from 'react';
 
 export type SidebarCollapsedState = 'collapsed' | 'expanded' | 'responsive';
-export type RightSidebarCollapsedState = Exclude<
-	SidebarCollapsedState,
-	'responsive'
->;
+type RightSidebarCollapsedState = Exclude<SidebarCollapsedState, 'responsive'>;
 
 type Context = {
 	sidebarCollapsedStateLeft: SidebarCollapsedState;

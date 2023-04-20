@@ -66,7 +66,7 @@ export const SegmentedControl: React.FC<{
 	);
 };
 
-export const Item: React.FC<
+const Item: React.FC<
 	PropsWithChildren<{
 		selected: boolean;
 		onClick: () => void;
