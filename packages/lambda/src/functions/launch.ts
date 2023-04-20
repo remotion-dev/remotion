@@ -85,6 +85,8 @@ const callFunctionWithRetry = async ({
 				functionName,
 			});
 		}
+
+		throw err;
 	}
 };
 
