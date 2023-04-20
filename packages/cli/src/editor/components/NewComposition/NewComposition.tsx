@@ -270,6 +270,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 										type="text"
 										placeholder="Composition name"
 										status="ok"
+										rightAlign={false}
 									/>
 									{compNameErrMessage ? (
 										<>
@@ -305,6 +306,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 													formatter={(w) => `${w}px`}
 													max={100000000}
 													onValueChange={onWidthDirectlyChanged}
+													rightAlign={false}
 												/>
 												{compWidthErrMessage ? (
 													<>
@@ -340,6 +342,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 												status="ok"
 												max={100000000}
 												onValueChange={onHeightDirectlyChanged}
+												rightAlign={false}
 											/>
 											{compHeightErrMessage ? (
 												<>

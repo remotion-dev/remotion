@@ -91,6 +91,7 @@ export const ZodStringEditor: React.FC<{
 					status={localValue.zodValidation.success ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
+					rightAlign={false}
 				/>
 				{!localValue.zodValidation.success && (
 					<>

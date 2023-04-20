@@ -24,6 +24,7 @@ type Props = React.DetailedHTMLProps<
 	HTMLInputElement
 > & {
 	status: RemInputStatus;
+	rightAlign: boolean;
 };
 
 export const INPUT_HORIZONTAL_PADDING = 8;
@@ -72,15 +73,16 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 	const inputRef = useRef<HTMLInputElement>(null);
 	const {tabIndex} = useZIndex();
 
-	const style = useMemo(() => {
+	const style = useMemo((): React.CSSProperties => {
 		return {
 			backgroundColor: INPUT_BACKGROUND,
 			...inputBaseStyle,
 			width: '100%',
 			borderColor: getInputBorderColor({isFocused, isHovered, status}),
+			textAlign: props.rightAlign ? 'right' : 'left',
 			...(props.style ?? {}),
 		};
-	}, [isFocused, isHovered, props.style, status]);
+	}, [isFocused, isHovered, props.rightAlign, props.style, status]);
 
 	useImperativeHandle(
 		ref,
