@@ -34,6 +34,7 @@ export function RenderModalInput({
 						type="text"
 						value={outName}
 						onChange={onValueChange}
+						rightAlign
 					/>
 					{validationMessage ? (
 						<>

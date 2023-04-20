@@ -98,6 +98,7 @@ export const EnvInput: React.FC<{
 					onBlur={makeKeyWarningEligible}
 					autoFocus={autoFocus}
 					onChange={handleKeyChange}
+					rightAlign={false}
 				/>
 				<Spacing x={1} />
 				<RemotionInput
@@ -108,6 +109,7 @@ export const EnvInput: React.FC<{
 					value={envVal}
 					onBlur={makeValueWarningEligible}
 					onChange={handleValueChange}
+					rightAlign={false}
 				/>
 				<Spacing x={1.5} />
 				<InlineEyeButton enabled={!showInPlainText} onClick={togglePlainText} />
