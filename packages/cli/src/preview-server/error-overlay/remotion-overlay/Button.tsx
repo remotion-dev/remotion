@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {forwardRef, useMemo} from 'react';
 import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
@@ -15,23 +15,31 @@ const button: React.CSSProperties = {
 	flexDirection: 'row',
 };
 
-export const Button: React.FC<{
-	onClick: () => void;
-	disabled?: boolean;
-	children: React.ReactNode;
-	style?: React.CSSProperties;
-	buttonContainerStyle?: React.CSSProperties;
-	autoFocus?: boolean;
-	title?: string;
-}> = ({
-	children,
-	onClick,
-	title,
-	disabled,
-	style,
-	autoFocus,
-	buttonContainerStyle,
-}) => {
+const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
+	HTMLButtonElement,
+	{
+		onClick: () => void;
+		disabled?: boolean;
+		children: React.ReactNode;
+		style?: React.CSSProperties;
+		buttonContainerStyle?: React.CSSProperties;
+		autoFocus?: boolean;
+		title?: string;
+		id?: string;
+	}
+> = (
+	{
+		children,
+		onClick,
+		title,
+		disabled,
+		style,
+		id,
+		autoFocus,
+		buttonContainerStyle,
+	},
+	ref
+) => {
 	const combined = useMemo(() => {
 		return {
 			...button,
@@ -51,6 +59,8 @@ export const Button: React.FC<{
 
 	return (
 		<button
+			ref={ref}
+			id={id}
 			style={combined}
 			type="button"
 			disabled={disabled}
@@ -64,3 +74,5 @@ export const Button: React.FC<{
 		</button>
 	);
 };
+
+export const Button = forwardRef(ButtonRefForwardFunction);

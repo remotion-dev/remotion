@@ -117,7 +117,12 @@ export const RenderButton: React.FC = () => {
 	}
 
 	return (
-		<Button title={tooltip} onClick={onClick} buttonContainerStyle={button}>
+		<Button
+			id="render-modal-button"
+			title={tooltip}
+			onClick={onClick}
+			buttonContainerStyle={button}
+		>
 			<Row align="center">
 				<RenderIcon svgProps={iconStyle} />
 				<Spacing x={1} />
