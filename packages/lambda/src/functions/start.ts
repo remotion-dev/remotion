@@ -96,10 +96,6 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		dumpBrowserLogs: params.dumpBrowserLogs,
 	};
 
-	if (process.env.NODE_ENV === 'test') {
-		console.log('invoking lambda', payload);
-	}
-
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,

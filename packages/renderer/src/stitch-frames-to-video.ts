@@ -163,7 +163,7 @@ const getAssetsData = async ({
 	return outName;
 };
 
-export const spawnFfmpeg = async (
+const spawnFfmpeg = async (
 	options: StitcherOptions,
 	remotionRoot: string
 ): Promise<ReturnType> => {

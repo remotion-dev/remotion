@@ -191,6 +191,7 @@ export const ZodColorEditor: React.FC<{
 						status={status}
 						placeholder={jsonPath.join('.')}
 						onChange={onTextChange}
+						rightAlign={false}
 					/>
 					<Spacing x={1} />
 					<InputDragger
@@ -202,6 +203,7 @@ export const ZodColorEditor: React.FC<{
 						max={100}
 						step={1}
 						formatter={(v) => `${Math.round(Number(v))}%`}
+						rightAlign={false}
 					/>
 				</Row>
 				{!localValue.zodValidation.success && (

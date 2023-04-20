@@ -14,7 +14,11 @@ import type {CompType} from '../../state/modals';
 import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
 import {Flex, Row, Spacing} from '../layout';
-import {ModalContainer} from '../ModalContainer';
+import {
+	getMaxModalHeight,
+	getMaxModalWidth,
+	ModalContainer,
+} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import type {ComboboxValue} from './ComboBox';
 import {Combobox} from './ComboBox';
@@ -36,12 +40,12 @@ const left: React.CSSProperties = {
 };
 
 const panelRight: React.CSSProperties = {
-	width: 400,
 	backgroundColor: 'black',
 	display: 'flex',
 	justifyContent: 'center',
 	alignItems: 'center',
 	position: 'relative',
+	width: 400,
 };
 
 const pre: React.CSSProperties = {
@@ -83,8 +87,12 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 		return {
 			flexDirection: 'row',
 			display: 'flex',
-			width: 950,
-			height: type === 'composition' ? 450 : 300,
+			width: getMaxModalWidth(950),
+			height:
+				type === 'composition'
+					? getMaxModalHeight(490)
+					: getMaxModalHeight(340),
+			overflow: 'hidden',
 		};
 	}, [type]);
 
@@ -270,6 +278,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 										type="text"
 										placeholder="Composition name"
 										status="ok"
+										rightAlign={false}
 									/>
 									{compNameErrMessage ? (
 										<>
@@ -305,6 +314,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 													formatter={(w) => `${w}px`}
 													max={100000000}
 													onValueChange={onWidthDirectlyChanged}
+													rightAlign={false}
 												/>
 												{compWidthErrMessage ? (
 													<>
@@ -340,6 +350,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 												status="ok"
 												max={100000000}
 												onValueChange={onHeightDirectlyChanged}
+												rightAlign={false}
 											/>
 											{compHeightErrMessage ? (
 												<>
@@ -424,7 +435,7 @@ const NewComposition: React.FC<{initialCompType: CompType}> = (props) => {
 							}
 						/>
 					</Row>
-				</div>
+				</div>{' '}
 			</div>
 		</ModalContainer>
 	);

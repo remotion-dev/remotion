@@ -11,7 +11,7 @@ import {
 import {CheckerboardContext} from '../state/checkerboard';
 import {PreviewSizeContext} from '../state/preview-size';
 
-export const checkerboardSize = 49;
+const checkerboardSize = 49;
 
 const containerStyle = (options: {
 	scale: number;

@@ -1,4 +1,4 @@
-import React, {createRef, useContext} from 'react';
+import React, {useContext} from 'react';
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
 
 const container: React.CSSProperties = {
@@ -31,11 +31,6 @@ const inlineCode: React.CSSProperties = {
 	fontSize: 16,
 	fontFamily: 'monospace',
 };
-
-export const serverDisconnectedRef = createRef<{
-	setServerDisconnected: () => void;
-	setServerConnected: () => void;
-}>();
 
 let pageIsGoingToReload = false;
 window.addEventListener('beforeunload', () => {

@@ -16,6 +16,7 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	onTextChange: (newVal: string) => void;
 	status: RemInputStatus;
 	formatter?: (str: number | string) => string;
+	rightAlign: boolean;
 };
 
 export const InputDragger: React.FC<Props> = ({
@@ -27,6 +28,7 @@ export const InputDragger: React.FC<Props> = ({
 	onTextChange,
 	formatter = (q) => String(q),
 	status,
+	rightAlign,
 	...props
 }) => {
 	const [inputFallback, setInputFallback] = useState(false);
@@ -162,6 +164,7 @@ export const InputDragger: React.FC<Props> = ({
 					defaultValue={value}
 					status={status}
 					pattern={'[0-9]*[.]?[0-9]*'}
+					rightAlign={rightAlign}
 					{...props}
 				/>
 			</HigherZIndex>

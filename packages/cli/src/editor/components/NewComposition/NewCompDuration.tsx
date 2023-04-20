@@ -45,6 +45,7 @@ export const NewCompDuration: React.FC<{
 							// Hitting Promise.all() limit in Chrome
 							max={300_000}
 							onValueChange={onDurationChangedDirectly}
+							rightAlign={false}
 						/>
 						{compDurationErrMessage ? (
 							<>

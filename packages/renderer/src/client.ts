@@ -4,6 +4,7 @@ import {
 	validAudioCodecs,
 } from './audio-codec';
 import {validCodecs} from './codec';
+import {codecSupportsCrf} from './codec-supports-media';
 import {getDefaultCrfForCodec, getValidCrfRanges} from './crf';
 import {defaultFileExtensionMap} from './file-extensions';
 import {
@@ -48,4 +49,5 @@ export const BrowserSafeApis = {
 		muteOption,
 		videoCodecOption,
 	},
+	codecSupportsCrf,
 };

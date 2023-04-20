@@ -170,6 +170,7 @@ export const RenderModalBasic: React.FC<{
 								min={0}
 								status="ok"
 								max={currentComposition.durationInFrames - 1}
+								rightAlign
 							/>
 						</RightAlignInput>
 					</div>

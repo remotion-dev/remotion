@@ -61,7 +61,6 @@ export const ZodOrNullishEditor: React.FC<{
 	const onCheckBoxChange: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
-				console.log({schema, newVal: createZodValues(schema)});
 				const val = e.target.checked ? nullishValue : createZodValues(schema);
 				onValueChange(val);
 			},
@@ -78,7 +77,7 @@ export const ZodOrNullishEditor: React.FC<{
 
 	return (
 		<>
-			{value === null ? (
+			{value === nullishValue ? (
 				<SchemaLabel
 					isDefaultValue={value === defaultValue}
 					jsonPath={jsonPath}

@@ -64,7 +64,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	};
 };
 
-export const bundleOnCli = async ({
+const bundleOnCli = async ({
 	fullPath,
 	remotionRoot,
 	publicDir,
