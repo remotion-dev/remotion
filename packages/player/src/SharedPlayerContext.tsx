@@ -120,6 +120,7 @@ export const SharedPlayerContexts: React.FC<{
 								>
 									<Internals.SharedAudioContextProvider
 										numberOfAudioTags={numberOfSharedAudioTags}
+										component={component}
 									>
 										{children}
 									</Internals.SharedAudioContextProvider>
