@@ -2,6 +2,7 @@ import {formatBytes} from './format-bytes';
 import {INDENT_TOKEN} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import type {DownloadProgress} from './progress-types';
+import {truthy} from './truthy';
 
 export const getFileSizeDownloadBar = (downloaded: number) => {
 	const desiredLength = makeProgressBar(0).length;
@@ -30,7 +31,9 @@ export const makeMultiDownloadProgress = (
 				? makeProgressBar(progress.progress)
 				: getFileSizeDownloadBar(progress.downloaded),
 			`Downloading ${truncatedFileName}`,
-		].join(' ');
+		]
+			.filter(truthy)
+			.join(' ');
 	}
 
 	const everyFileHasContentLength = progresses.every(
@@ -49,5 +52,7 @@ export const makeMultiDownloadProgress = (
 					progresses.reduce((a, b) => a + b.downloaded, 0)
 			  ),
 		`Downloading ${progresses.length} files`,
-	].join(' ');
+	]
+		.filter(truthy)
+		.join(' ');
 };
