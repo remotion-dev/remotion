@@ -11,49 +11,42 @@ import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
+import {Button} from '../../preview-server/error-overlay/remotion-overlay/Button';
 import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-video-contexts';
 import {PreviewServerConnectionCtx} from '../helpers/client-id';
-import {
-	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
-} from '../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {RenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
-import {Spacing} from './layout';
+import {Row, Spacing} from './layout';
 
 const button: React.CSSProperties = {
-	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
-	borderRadius: 4,
-	backgroundColor: INPUT_BACKGROUND,
-	appearance: 'none',
-	fontFamily: 'inherit',
+	paddingLeft: 7,
+	paddingRight: 7,
+	paddingTop: 7,
+	paddingBottom: 7,
+};
+
+const label: React.CSSProperties = {
 	fontSize: 14,
-	color: 'white',
-	flexDirection: 'row',
-	height: '39px',
-	paddingLeft: '10px',
-	paddingRight: '10px',
-	display: 'flex',
-	alignItems: 'center',
 };
 
 export const RenderButton: React.FC = () => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {type} = useContext(PreviewServerConnectionCtx);
 
-	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
-		return {
-			style: {
-				height: 18,
-			},
-		};
-	}, []);
 	const shortcut = areKeyboardShortcutsDisabled() ? '' : '(R)';
 	const tooltip =
 		type === 'connected'
 			? 'Export the current composition ' + shortcut
 			: 'Connect to the preview server to render';
+
+	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
+		return {
+			style: {
+				height: 16,
+			},
+		};
+	}, []);
 
 	const video = Internals.useVideo();
 	const frame = useCurrentFrame();
@@ -85,11 +78,11 @@ export const RenderButton: React.FC = () => {
 			initialOutName: getDefaultOutLocation({
 				compositionName: video.id,
 				defaultExtension: isVideo
-					? defaults.stillImageFormat
-					: BrowserSafeApis.getFileExtensionFromCodec(
+					? BrowserSafeApis.getFileExtensionFromCodec(
 							initialVideoCodec,
 							defaults.audioCodec as AudioCodec
-					  ),
+					  )
+					: defaults.stillImageFormat,
 				type: 'asset',
 			}),
 			initialJpegQuality: defaults.jpegQuality,
@@ -124,10 +117,12 @@ export const RenderButton: React.FC = () => {
 	}
 
 	return (
-		<button type={'button'} title={tooltip} onClick={onClick} style={button}>
-			<RenderIcon svgProps={iconStyle} />
-			<Spacing x={2} />
-			Render
-		</button>
+		<Button title={tooltip} onClick={onClick} buttonContainerStyle={button}>
+			<Row align="center">
+				<RenderIcon svgProps={iconStyle} />
+				<Spacing x={1} />
+				<span style={label}>Render</span>
+			</Row>
+		</Button>
 	);
 };

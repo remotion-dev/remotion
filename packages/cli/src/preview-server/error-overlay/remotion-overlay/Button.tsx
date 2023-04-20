@@ -20,8 +20,18 @@ export const Button: React.FC<{
 	disabled?: boolean;
 	children: React.ReactNode;
 	style?: React.CSSProperties;
+	buttonContainerStyle?: React.CSSProperties;
 	autoFocus?: boolean;
-}> = ({children, onClick, disabled, style, autoFocus}) => {
+	title?: string;
+}> = ({
+	children,
+	onClick,
+	title,
+	disabled,
+	style,
+	autoFocus,
+	buttonContainerStyle,
+}) => {
 	const combined = useMemo(() => {
 		return {
 			...button,
@@ -35,8 +45,9 @@ export const Button: React.FC<{
 			cursor: disabled ? 'inherit' : 'pointer',
 			fontSize: 14,
 			opacity: disabled ? 0.7 : 1,
+			...(buttonContainerStyle ?? {}),
 		};
-	}, [disabled]);
+	}, [buttonContainerStyle, disabled]);
 
 	return (
 		<button
@@ -45,6 +56,7 @@ export const Button: React.FC<{
 			disabled={disabled}
 			onClick={onClick}
 			autoFocus={autoFocus}
+			title={title}
 		>
 			<div className="css-reset" style={buttonContainer}>
 				{children}

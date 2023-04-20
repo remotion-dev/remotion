@@ -76,7 +76,7 @@ export const PreviewToolbar: React.FC = () => {
 				<FpsCounter playbackSpeed={playbackRate} />
 				<Spacing x={2} />
 				<RenderButton />
-				<div style={padding} />
+				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
 			<PlaybackRatePersistor />
