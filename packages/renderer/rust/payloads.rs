@@ -58,6 +58,7 @@ pub mod payloads {
     pub struct ExtractFrameCommand {
         pub input: String,
         pub time: f64,
+        pub transparent: bool,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

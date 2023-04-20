@@ -44,6 +44,7 @@ export type CompositorCommand = {
 	ExtractFrame: {
 		input: string;
 		time: number;
+		transparent: boolean;
 	};
 	Echo: {
 		message: string;
