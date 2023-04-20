@@ -1,9 +1,16 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import type {AnyComposition} from 'remotion';
-import {getInputProps} from 'remotion';
-import {BORDER_COLOR} from '../../helpers/colors';
+import {getInputProps, z} from 'remotion';
+import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 
+import {PreviewServerConnectionCtx} from '../../helpers/client-id';
 import {Spacing} from '../layout';
 import {
 	canUpdateDefaultProps,
@@ -13,8 +20,29 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
+import {
+	NoDefaultProps,
+	NoSchemaDefined,
+} from './SchemaEditor/SchemaErrorMessages';
 
 type Mode = 'json' | 'schema';
+
+const errorExplanation: React.CSSProperties = {
+	fontSize: 14,
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	lineHeight: 1.5,
+};
+
+const explainer: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+	flexDirection: 'column',
+	padding: '0 12px',
+	justifyContent: 'center',
+	alignItems: 'center',
+	textAlign: 'center',
+};
 
 const outer: React.CSSProperties = {
 	display: 'flex',
@@ -73,7 +101,6 @@ export const RenderModalData: React.FC<{
 
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
-	// TODO: Disable if Preview Server is disconnected
 	// TODO: Update if root file is updated
 	// TODO: Segment the state for different compositions
 
@@ -137,6 +164,32 @@ export const RenderModalData: React.FC<{
 		},
 		[composition.defaultProps, composition.id]
 	);
+
+	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
+
+	if (connectionStatus === 'disconnected') {
+		return (
+			<div style={explainer}>
+				<Spacing y={5} />
+				<div style={errorExplanation}>
+					The preview server has disconnected. Reconnect to edit the schema.
+				</div>
+				<Spacing y={2} block />
+			</div>
+		);
+	}
+
+	const def: z.ZodTypeDef = composition.schema._def;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
+		return <NoSchemaDefined />;
+	}
+
+	if (composition.defaultProps) {
+		return <NoDefaultProps />;
+	}
 
 	return (
 		<div style={outer}>
