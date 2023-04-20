@@ -10,7 +10,7 @@ import type {
 import type {AggregateRenderProgress} from '../../progress-types';
 import type {RequiredChromiumOptions} from '../../required-chromium-options';
 
-export type BaseRenderProgress = {
+type BaseRenderProgress = {
 	message: string;
 	value: number;
 };

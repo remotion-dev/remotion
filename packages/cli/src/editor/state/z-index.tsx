@@ -13,7 +13,7 @@ type ZIndex = {
 	currentIndex: number;
 };
 
-export const ZIndexContext = createContext<ZIndex>({
+const ZIndexContext = createContext<ZIndex>({
 	currentIndex: 0,
 });
 

@@ -6,6 +6,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {AnyCompMetadata} from 'remotion';
@@ -54,7 +55,12 @@ export const RenderButton: React.FC<{
 				initialVerbose: (defaults.logLevel as LogLevel) === 'verbose',
 				initialOutName: getDefaultOutLocation({
 					compositionName: composition.id,
-					defaultExtension: isVideo ? 'mp4' : 'png',
+					defaultExtension: isVideo
+						? defaults.stillImageFormat
+						: RenderInternals.getFileExtensionFromCodec(
+								initialVideoCodec,
+								defaults.audioCodec as AudioCodec
+						  ),
 					type: 'asset',
 				}),
 				initialVideoCodecForAudioTab: initialAudioCodec,

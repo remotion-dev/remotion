@@ -6,6 +6,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
@@ -83,7 +84,12 @@ export const RenderButton: React.FC = () => {
 			initialVideoImageFormat: defaults.videoImageFormat,
 			initialOutName: getDefaultOutLocation({
 				compositionName: video.id,
-				defaultExtension: isVideo ? 'mp4' : 'png',
+				defaultExtension: isVideo
+					? defaults.stillImageFormat
+					: RenderInternals.getFileExtensionFromCodec(
+							initialVideoCodec,
+							defaults.audioCodec as AudioCodec
+					  ),
 				type: 'asset',
 			}),
 			initialJpegQuality: defaults.jpegQuality,

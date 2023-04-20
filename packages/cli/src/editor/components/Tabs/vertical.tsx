@@ -6,26 +6,7 @@ import {
 } from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 
-const tabsContainer: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-};
-
-export const VerticalTabs: React.FC<{
-	children: React.ReactNode;
-	style?: React.CSSProperties;
-}> = ({children, style}) => {
-	const definiteStyle: React.CSSProperties = useMemo(() => {
-		return {
-			...tabsContainer,
-			...style,
-		};
-	}, [style]);
-
-	return <div style={definiteStyle}>{children}</div>;
-};
-
-export const selectorButton: React.CSSProperties = {
+const selectorButton: React.CSSProperties = {
 	border: 'none',
 	flex: 1,
 	padding: 8,

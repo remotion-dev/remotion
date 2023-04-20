@@ -55,6 +55,6 @@ export const codecSupportsMedia = (codec: Codec): MediaSupport => {
 
 export const codecSupportsCrf = (codec: Codec) => {
 	const encoderName = getCodecName(codec);
-	const supportsCrf = encoderName && codec !== 'prores';
+	const supportsCrf = Boolean(encoderName) && codec !== 'prores';
 	return supportsCrf;
 };
