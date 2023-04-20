@@ -8,8 +8,10 @@ import {ZodDateEditor} from './ZodDateEditor';
 import {ZodEffectEditor} from './ZodEffectEditor';
 import {ZodEnumEditor} from './ZodEnumEditor';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
+import {ZodNullableEditor} from './ZodNullableEditor';
 import {ZodNumberEditor} from './ZodNumberEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
+import {ZodOptionalEditor} from './ZodOptionalEditor';
 import {ZodStringEditor} from './ZodStringEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
 
@@ -256,6 +258,38 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue}
 				onSave={onSave}
 				onRemove={onRemove}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodOptional) {
+		return (
+			<ZodOptionalEditor
+				compact={compact}
+				jsonPath={jsonPath}
+				showSaveButton={showSaveButton}
+				defaultValue={defaultValue}
+				value={value}
+				setValue={setValue}
+				onSave={onSave}
+				onRemove={onRemove}
+				schema={schema}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodNullable) {
+		return (
+			<ZodNullableEditor
+				compact={compact}
+				jsonPath={jsonPath}
+				showSaveButton={showSaveButton}
+				defaultValue={defaultValue}
+				value={value}
+				setValue={setValue}
+				onSave={onSave}
+				onRemove={onRemove}
+				schema={schema}
 			/>
 		);
 	}
