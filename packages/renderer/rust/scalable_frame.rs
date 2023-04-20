@@ -4,7 +4,10 @@ use ffmpeg_next::{
     software::scaling::{Context, Flags},
 };
 
-use crate::errors::{self, PossibleErrors};
+use crate::{
+    errors::{self, PossibleErrors},
+    image::get_png_data,
+};
 
 pub struct NotRgbFrame {
     pub planes: Vec<Vec<u8>>,
@@ -23,13 +26,15 @@ pub struct RgbFrame {
 pub struct ScalableFrame {
     pub native_frame: Option<NotRgbFrame>,
     pub rgb_frame: Option<RgbFrame>,
+    pub transparent: bool,
 }
 
 impl ScalableFrame {
-    pub fn new(native_frame: NotRgbFrame) -> Self {
+    pub fn new(native_frame: NotRgbFrame, transparent: bool) -> Self {
         Self {
             native_frame: Some(native_frame),
             rgb_frame: None,
+            transparent,
         }
     }
 
@@ -45,7 +50,7 @@ impl ScalableFrame {
             )));
         }
 
-        let bitmap = scale_and_make_bitmap(&self.native_frame.as_ref().unwrap())?;
+        let bitmap = scale_and_make_bitmap(&self.native_frame.as_ref().unwrap(), self.transparent)?;
         self.rgb_frame = Some(RgbFrame { data: bitmap });
         self.native_frame = None;
         Ok(())
@@ -104,12 +109,20 @@ fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
     bmp_data
 }
 
-pub fn scale_and_make_bitmap(native_frame: &NotRgbFrame) -> Result<Vec<u8>, PossibleErrors> {
+pub fn scale_and_make_bitmap(
+    native_frame: &NotRgbFrame,
+    transparent: bool,
+) -> Result<Vec<u8>, PossibleErrors> {
+    let format: Pixel = match transparent {
+        true => Pixel::RGBA,
+        false => Pixel::BGR24,
+    };
+
     let mut scaler = Context::get(
         native_frame.format,
         native_frame.original_width,
         native_frame.original_height,
-        Pixel::BGR24,
+        format,
         native_frame.scaled_width,
         native_frame.scaled_height,
         Flags::BILINEAR,
@@ -137,6 +150,14 @@ pub fn scale_and_make_bitmap(native_frame: &NotRgbFrame) -> Result<Vec<u8>, Poss
 
     for inner in native_frame.planes.clone() {
         std::mem::drop(inner);
+    }
+
+    if transparent {
+        return Ok(get_png_data(
+            scaled.data(0),
+            native_frame.scaled_width,
+            native_frame.scaled_height,
+        ));
     }
 
     Ok(create_bmp_image_from_frame(&mut scaled))

@@ -1,7 +1,7 @@
 use std::io::ErrorKind;
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{format::Pixel, frame::Video, media::Type, Dictionary, StreamMut};
+use remotionffmpeg::{codec::Id, format::Pixel, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
@@ -29,7 +29,7 @@ pub struct OpenedVideo {
     pub input: remotionffmpeg::format::context::Input,
     pub last_position: LastSeek,
     pub frame_cache: FrameCache,
-    pub duration: i64,
+    pub duration_or_zero: i64,
 }
 
 impl OpenedVideo {
@@ -56,7 +56,11 @@ impl OpenedVideo {
         (time * self.time_base.1 as f64 / self.time_base.0 as f64) as i64
     }
 
-    pub fn handle_eof(&mut self, position: i64) -> Result<Option<usize>, PossibleErrors> {
+    pub fn handle_eof(
+        &mut self,
+        position: i64,
+        transparent: bool,
+    ) -> Result<Option<usize>, PossibleErrors> {
         self.video.send_eof()?;
 
         let mut latest_frame: Option<usize> = None;
@@ -89,7 +93,7 @@ impl OpenedVideo {
                     let item = FrameCacheItem {
                         resolved_pts: self.last_position.resolved_pts,
                         resolved_dts: self.last_position.resolved_dts,
-                        frame: ScalableFrame::new(frame),
+                        frame: ScalableFrame::new(frame, transparent),
                         id: frame_cache_id,
                         asked_time: position,
                     };
@@ -108,7 +112,7 @@ impl OpenedVideo {
         Ok(latest_frame)
     }
 
-    pub fn get_frame(&mut self, time: f64) -> Result<Vec<u8>, PossibleErrors> {
+    pub fn get_frame(&mut self, time: f64, transparent: bool) -> Result<Vec<u8>, PossibleErrors> {
         let position = self.calc_position(time);
 
         let cache_item = self.frame_cache.get_item(position);
@@ -123,7 +127,7 @@ impl OpenedVideo {
         }
 
         let mut freshly_seeked = false;
-        let mut last_position = self.duration.min(position);
+        let mut last_position = self.duration_or_zero.min(position);
 
         if position < self.last_position.resolved_pts
             || self.last_position.resolved_pts < self.calc_position(time - 1.0)
@@ -134,7 +138,7 @@ impl OpenedVideo {
                 self.last_position.resolved_pts,
                 self.last_position.resolved_pts,
                 self.last_position.resolved_dts,
-                self.duration
+                self.duration_or_zero
             ))?;
             self.input
                 .seek(self.stream_index as i32, 0, position, last_position, 0)?;
@@ -151,7 +155,7 @@ impl OpenedVideo {
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
-                    let data = self.handle_eof(position)?;
+                    let data = self.handle_eof(position, transparent)?;
                     if data.is_some() {
                         last_frame = data;
                         self.frame_cache.set_last_frame(data.unwrap())
@@ -219,7 +223,7 @@ impl OpenedVideo {
                         let item = FrameCacheItem {
                             resolved_pts: self.last_position.resolved_pts,
                             resolved_dts: self.last_position.resolved_dts,
-                            frame: ScalableFrame::new(frame),
+                            frame: ScalableFrame::new(frame, transparent),
                             id: frame_cache_id,
                             asked_time: position,
                         };
@@ -275,29 +279,62 @@ pub fn get_display_aspect_ratio(mut_stream: &StreamMut) -> Rational {
     }
 }
 
-pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
+pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleErrors> {
     let mut dictionary = Dictionary::new();
     dictionary.set("fflags", "+genpts");
     let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
+
+    // TODO: Don't open stream and stream_mut, might need to adapt rust-ffmpeg for it
     let stream = input
         .streams()
         .find(|s| s.parameters().medium() == Type::Video)
         .unwrap();
     let stream_index = stream.index();
 
-    let duration = stream.duration();
+    drop(stream);
 
     let mut_stream = input.stream_mut(stream_index).unwrap();
+    let duration_or_zero = mut_stream.duration().max(0);
+
     let time_base = mut_stream.time_base();
     let parameters = mut_stream.parameters();
 
-    let context_decoder = remotionffmpeg::codec::context::Context::from_parameters(parameters)?;
-    let video = context_decoder.decoder().video()?;
+    let mut parameters_cloned = parameters.clone();
+    let is_vp8_or_vp9_and_transparent = match transparent {
+        true => unsafe {
+            let codec_id = (*(*(mut_stream).as_ptr()).codecpar).codec_id;
+            let is_vp8 = codec_id == remotionffmpeg::codec::id::get_av_codec_id(Id::VP8);
+            let is_vp9 = codec_id == remotionffmpeg::codec::id::get_av_codec_id(Id::VP9);
 
-    let format = video.format();
+            if is_vp8 || is_vp9 {
+                (*parameters_cloned.as_mut_ptr()).format =
+                    remotionffmpeg::util::format::pixel::to_av_pixel_format(Pixel::YUVA420P) as i32;
+            }
 
-    let original_width = video.width();
-    let original_height = video.height();
+            if is_vp8 {
+                Some("vp8")
+            } else if is_vp9 {
+                Some("vp9")
+            } else {
+                None
+            }
+        },
+        false => None,
+    };
+
+    let video = remotionffmpeg::codec::context::Context::from_parameters(parameters_cloned)?;
+
+    let decoder = match is_vp8_or_vp9_and_transparent {
+        Some("vp8") => video.decoder().video_with_codec("libvpx")?,
+        Some("vp9") => video.decoder().video_with_codec("libvpx-vp9")?,
+        Some(_) => unreachable!(),
+        None => video.decoder().video()?,
+    };
+
+    let format = decoder.format();
+
+    let original_width = decoder.width();
+    let original_height = decoder.height();
 
     let aspect_ratio = get_display_aspect_ratio(&mut_stream);
 
@@ -316,7 +353,7 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
         scaled_height,
         scaled_width,
         format,
-        video,
+        video: decoder,
         src: src.to_string(),
         input,
         last_position: LastSeek {
@@ -324,7 +361,7 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
             resolved_dts: 0,
         },
         frame_cache: FrameCache::new(),
-        duration,
+        duration_or_zero: duration_or_zero,
     };
 
     Ok(opened_video)

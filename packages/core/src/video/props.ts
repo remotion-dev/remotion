@@ -29,4 +29,5 @@ export type OffthreadVideoProps = {
 	onError?: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement>;
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
+	transparent?: boolean;
 };

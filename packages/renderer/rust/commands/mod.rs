@@ -8,7 +8,7 @@ use std::io::ErrorKind;
 pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, PossibleErrors> {
     match opts {
         CliInputCommandPayload::ExtractFrame(command) => {
-            let res = ffmpeg::extract_frame(command.input, command.time)?;
+            let res = ffmpeg::extract_frame(command.input, command.time, command.transparent)?;
             Ok(res)
         }
         CliInputCommandPayload::StartLongRunningProcess(_command) => Err(std::io::Error::new(
