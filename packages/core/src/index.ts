@@ -100,7 +100,6 @@ export * from './use-video-config.js';
 export * from './version.js';
 export * from './video-config.js';
 export * from './video/index.js';
-export {zColor} from './z-color.js';
 
 export const Experimental = {
 	/**

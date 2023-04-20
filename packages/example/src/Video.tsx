@@ -1,6 +1,7 @@
+import {zColor} from '@remotion/z-color';
 import {alias} from 'lib/alias';
 import React from 'react';
-import {Composition, Folder, getInputProps, Still, zColor} from 'remotion';
+import {Composition, Folder, getInputProps, Still} from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';

@@ -87,9 +87,6 @@ export const RenderModalData: React.FC<{
 }> = ({composition, inputProps, setInputProps, compact, mayShowSaveButton}) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
-	const zodValidationResult = useMemo(() => {
-		return composition.schema.safeParse(inputProps);
-	}, [composition.schema, inputProps]);
 
 	const cliProps = getInputProps();
 	const [canSaveDefaultProps, setCanSaveDefaultProps] =
@@ -100,6 +97,16 @@ export const RenderModalData: React.FC<{
 		});
 
 	const z = useZodIfPossible();
+
+	if (!z) {
+		throw Error('expected zod to be installed');
+	}
+
+	const schema = composition.schema ?? z.any();
+
+	const zodValidationResult = useMemo(() => {
+		return schema.safeParse(inputProps);
+	}, [inputProps, schema]);
 
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
@@ -181,11 +188,7 @@ export const RenderModalData: React.FC<{
 		);
 	}
 
-	if (!z) {
-		throw Error('expected zod to be installed');
-	}
-
-	const def: Zod.ZodTypeDef = composition.schema._def;
+	const def: Zod.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as Zod.ZodFirstPartyTypeKind;
 
@@ -236,7 +239,7 @@ export const RenderModalData: React.FC<{
 				<SchemaEditor
 					value={inputProps}
 					setValue={setInputProps}
-					schema={composition.schema}
+					schema={schema}
 					zodValidationResult={zodValidationResult}
 					compact={compact}
 					defaultProps={composition.defaultProps}

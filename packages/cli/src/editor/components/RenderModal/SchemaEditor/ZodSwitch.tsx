@@ -1,5 +1,5 @@
+import {ZColorInternals} from '@remotion/z-color';
 import React from 'react';
-import {Internals} from 'remotion';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import type {JSONPath} from './zod-types';
@@ -220,7 +220,7 @@ export const ZodSwitch: React.FC<{
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodEffects) {
-		if (schema._def.description === Internals.REMOTION_COLOR_BRAND) {
+		if (schema._def.description === ZColorInternals.REMOTION_COLOR_BRAND) {
 			return (
 				<ZodColorEditor
 					value={value as string}

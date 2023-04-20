@@ -1,4 +1,4 @@
-import {zColor} from 'remotion';
+import {zColor} from '@remotion/z-color';
 import {expect, test} from 'vitest';
 import {z} from 'zod';
 import {createZodValues} from '../editor/components/RenderModal/SchemaEditor/create-zod-values';
