@@ -12,7 +12,7 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8>, PossibleErrors> {
     let manager = OpenedVideoManager::get_instance();
-    let video_locked = manager.get_video(&src)?;
+    let video_locked = manager.get_video(&src, transparent)?;
     let mut vid = video_locked.lock().unwrap();
     vid.get_frame(time, transparent)
 }
@@ -36,7 +36,11 @@ impl OpenedVideoManager {
         &INSTANCE
     }
 
-    pub fn get_video(&self, src: &str) -> Result<Arc<Mutex<OpenedVideo>>, PossibleErrors> {
+    pub fn get_video(
+        &self,
+        src: &str,
+        transparent: bool,
+    ) -> Result<Arc<Mutex<OpenedVideo>>, PossibleErrors> {
         // Adding a block scope because of the RwLock,
         // preventing a deadlock
         {
@@ -50,7 +54,7 @@ impl OpenedVideoManager {
             }
         }
 
-        let video = open_video(src)?;
+        let video = open_video(src, transparent)?;
         let videos_write = self.videos.write();
 
         videos_write
