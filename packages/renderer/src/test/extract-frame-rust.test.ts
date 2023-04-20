@@ -1,4 +1,3 @@
-import {writeFileSync} from 'fs';
 import path from 'path';
 import {expect, test} from 'vitest';
 import {startCompositor} from '../compositor/compositor';
@@ -43,9 +42,12 @@ test.only(
 			time: 1,
 			transparent: true,
 		});
-		expect(data.length).toBe(181055);
 
-		writeFileSync('test.png', data);
+		expect(data[100000]).toBe(13);
+		expect(data[100001]).toBe(96);
+		expect(data[140001]).toBe(253);
+		expect(data[170001]).toBe(9);
+		expect(data.length).toBe(191304);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();

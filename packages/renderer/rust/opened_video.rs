@@ -1,7 +1,9 @@
 use std::io::ErrorKind;
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{format::Pixel, frame::Video, media::Type, Dictionary, StreamMut};
+use remotionffmpeg::{
+    codec::traits::Decoder, format::Pixel, frame::Video, media::Type, Dictionary, StreamMut,
+};
 extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
@@ -295,22 +297,22 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
     let time_base = mut_stream.time_base();
     let parameters = mut_stream.parameters();
 
-    let context_decoder = remotionffmpeg::codec::context::Context::from_parameters(parameters)?;
+    let mut parameters_cloned = parameters.clone();
 
+    unsafe {
+        (*parameters_cloned.as_mut_ptr()).format = 33;
+    }
+
+    let video = remotionffmpeg::codec::context::Context::from_parameters(parameters_cloned)?;
     // TODO: Only if it is a WebM
-    let vpx = remotionffmpeg::codec::decoder::find_by_name("libvpx");
+    let decoder = video.decoder().video_with_codec("libvpx")?;
 
-    let video = context_decoder
-        .decoder()
-        .open_as(vpx)
-        .unwrap()
-        .video()
-        .unwrap();
+    let format = decoder.format();
 
-    let format = video.format();
+    _print_debug(&format!("format {:?}", format));
 
-    let original_width = video.width();
-    let original_height = video.height();
+    let original_width = decoder.width();
+    let original_height = decoder.height();
 
     let aspect_ratio = get_display_aspect_ratio(&mut_stream);
 
@@ -329,7 +331,7 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
         scaled_height,
         scaled_width,
         format,
-        video,
+        video: decoder,
         src: src.to_string(),
         input,
         last_position: LastSeek {
