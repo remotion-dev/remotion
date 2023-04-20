@@ -535,6 +535,7 @@ importers:
       typescript: ^4.7.0
       use-asset: ^1.0.4
       vitest: 0.24.3
+      zod: ^3.21.4
     dependencies:
       '@babel/plugin-syntax-jsx': 7.12.13_@babel+core@7.18.6
       '@babel/preset-env': 7.12.13_@babel+core@7.18.6
@@ -577,6 +578,7 @@ importers:
       typescript: 4.7.2
       use-asset: 1.0.4_react@18.2.0
       vitest: 0.24.3
+      zod: 3.21.4
     devDependencies:
       '@types/babel__core': 7.1.16
       '@types/babel__template': 7.4.1
@@ -895,6 +897,7 @@ importers:
       typescript: ^4.7.0
       vitest: 0.24.3
       webpack: 5.76.1
+      zod: ^3.21.4
     dependencies:
       remotion: link:../core
     devDependencies:
@@ -917,6 +920,7 @@ importers:
       typescript: 4.7.2
       vitest: 0.24.3_jsdom@20.0.1
       webpack: 5.76.1
+      zod: 3.21.4
 
   packages/player-example:
     specifiers:
@@ -992,6 +996,7 @@ importers:
       typescript: ^4.7.0
       vitest: 0.24.3
       ws: 8.7.0
+      zod: ^3.21.4
     dependencies:
       execa: 5.1.1
       extract-zip: 2.0.1
@@ -1021,6 +1026,7 @@ importers:
       react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
       vitest: 0.24.3
+      zod: 3.21.4
 
   packages/rive:
     specifiers:
@@ -25538,7 +25544,6 @@ packages:
 
   /zod/3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
-    dev: true
 
   /zstddec/0.0.2:
     resolution: {integrity: sha512-DCo0oxvcvOTGP/f5FA6tz2Z6wF+FIcEApSTu0zV5sQgn9hoT5lZ9YRAKUraxt9oP7l4e8TnNdi8IZTCX6WCkwA==}

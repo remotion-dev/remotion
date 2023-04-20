@@ -8,7 +8,8 @@ import type {
 	SetMediaVolumeContextValue,
 	TimelineContextValue,
 } from 'remotion';
-import {Internals, z} from 'remotion';
+import {Internals} from 'remotion';
+import {z} from 'zod';
 import {getPreferredVolume, persistVolume} from './volume-persistance.js';
 
 export const SharedPlayerContexts: React.FC<{
