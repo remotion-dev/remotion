@@ -8,6 +8,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
+import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {TFolder} from './Folder.js';
 
 export type TComposition<T = unknown> = {
@@ -131,7 +132,8 @@ export const compositionsRef = React.createRef<{
 
 export const CompositionManagerProvider: React.FC<{
 	children: React.ReactNode;
-}> = ({children}) => {
+	numberOfAudioTags: number;
+}> = ({children, numberOfAudioTags}) => {
 	// Wontfix, expected to have
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<TComposition<any>[]>([]);
@@ -280,9 +282,18 @@ export const CompositionManagerProvider: React.FC<{
 		currentCompositionMetadata,
 	]);
 
+	const composition = compositions.find(
+		(c) => c.id === currentComposition
+	)?.component;
+
 	return (
 		<CompositionManager.Provider value={contextValue}>
-			{children}
+			<SharedAudioContextProvider
+				numberOfAudioTags={numberOfAudioTags}
+				component={composition ?? null}
+			>
+				{children}
+			</SharedAudioContextProvider>
 		</CompositionManager.Provider>
 	);
 };
