@@ -1,7 +1,7 @@
 import type {ComponentType} from 'react';
 import React from 'react';
-import {z} from 'remotion';
 import {expect, test} from 'vitest';
+import {z} from 'zod';
 import {createFolderTree} from '../editor/helpers/create-folder-tree';
 
 const SampleComp: React.FC<{}> = () => null;

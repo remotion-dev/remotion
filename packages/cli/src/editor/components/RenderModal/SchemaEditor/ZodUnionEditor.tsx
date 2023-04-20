@@ -1,30 +1,31 @@
-import {z} from 'remotion';
+import {z} from 'zod';
+import type {ZodType} from '../../get-zod-if-possible';
 import type {JSONPath} from './zod-types';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
 import {ZodOrNullishEditor} from './ZodOrNullishEditor';
-
 const findNull = (
-	value: readonly [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]]
+	value: readonly [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]],
+	zodType: ZodType
 ) => {
 	const nullIndex = value.findIndex(
 		(v) =>
-			v._def.typeName === z.ZodFirstPartyTypeKind.ZodNull ||
-			v._def.typeName === z.ZodFirstPartyTypeKind.ZodUndefined
+			v._def.typeName === zodType.ZodFirstPartyTypeKind.ZodNull ||
+			v._def.typeName === zodType.ZodFirstPartyTypeKind.ZodUndefined
 	);
 	if (nullIndex === -1) {
 		return null;
 	}
 
 	const nullishValue =
-		value[nullIndex]._def.typeName === z.ZodFirstPartyTypeKind.ZodNull
+		value[nullIndex]._def.typeName === zodType.ZodFirstPartyTypeKind.ZodNull
 			? null
 			: undefined;
 
 	const otherSchema = value[nullIndex === 0 ? 1 : 0];
 
 	const otherSchemaIsAlsoNullish =
-		otherSchema._def.typeName === z.ZodFirstPartyTypeKind.ZodNull ||
-		otherSchema._def.typeName === z.ZodFirstPartyTypeKind.ZodUndefined;
+		otherSchema._def.typeName === zodType.ZodFirstPartyTypeKind.ZodNull ||
+		otherSchema._def.typeName === zodType.ZodFirstPartyTypeKind.ZodUndefined;
 
 	return {
 		nullIndex,
@@ -79,7 +80,7 @@ export const ZodUnionEditor: React.FC<{
 		);
 	}
 
-	const nullResult = findNull(options);
+	const nullResult = findNull(options, z);
 
 	if (!nullResult) {
 		return (

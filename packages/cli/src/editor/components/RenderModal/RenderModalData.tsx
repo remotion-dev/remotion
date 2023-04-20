@@ -6,12 +6,12 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyComposition} from 'remotion';
-import {getInputProps, z} from 'remotion';
-import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
-import {ValidationMessage} from '../NewComposition/ValidationMessage';
-
+import {getInputProps} from 'remotion';
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
+import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {useZodIfPossible} from '../get-zod-if-possible';
 import {Spacing} from '../layout';
+import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {
 	canUpdateDefaultProps,
 	updateDefaultProps,
@@ -99,6 +99,8 @@ export const RenderModalData: React.FC<{
 			determined: false,
 		});
 
+	const z = useZodIfPossible();
+
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
 	// TODO: Update if root file is updated
@@ -179,9 +181,18 @@ export const RenderModalData: React.FC<{
 		);
 	}
 
-	const def: z.ZodTypeDef = composition.schema._def;
+	if (!z) {
+		throw Error('expected zod to be installed');
+	}
+
+	const def: Zod.ZodTypeDef = composition.schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
+	const typeName = (def as any).typeName as Zod.ZodFirstPartyTypeKind;
+
+	if (!z) {
+		// TODO: Make nicer modal for Zod
+		return <div>Install zod</div>;
+	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
 		return <NoSchemaDefined />;

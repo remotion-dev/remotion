@@ -1,5 +1,7 @@
 import React from 'react';
-import {Internals, z} from 'remotion';
+import {Internals} from 'remotion';
+import type {z} from 'zod';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodBooleanEditor} from './ZodBooleanEditor';
@@ -37,6 +39,11 @@ export const ZodSwitch: React.FC<{
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
+
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
 
 	// TODO: (Maybe?) enable saving of inserted input props by cmd+s /ctrl + s (also for JSON view)
 

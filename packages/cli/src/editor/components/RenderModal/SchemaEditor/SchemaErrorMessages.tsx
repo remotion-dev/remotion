@@ -1,4 +1,4 @@
-import type {z} from 'remotion';
+import type {z} from 'zod';
 import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';

@@ -1,7 +1,8 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import type {z} from 'remotion';
 import {Internals} from 'remotion';
+import type {z} from 'zod';
 import {colorWithNewOpacity} from '../../../../color-math';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Row, Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {RemotionInput} from '../../NewComposition/RemInput';
@@ -41,6 +42,11 @@ export const ZodColorEditor: React.FC<{
 	onSave,
 	onRemove,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,

@@ -1,6 +1,7 @@
 import React, {useMemo} from 'react';
-import {z} from 'remotion';
+import type {z} from 'zod';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../../helpers/colors';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {optionRow} from '../layout';
 import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
@@ -43,6 +44,11 @@ export const ZodObjectEditor: React.FC<{
 	showSaveButton,
 	onRemove,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
 	const def = schema._def;
 
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;

@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {z} from 'remotion';
+import type {z} from 'zod';
 import {Checkmark} from '../../../icons/Checkmark';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
@@ -39,6 +40,11 @@ export const ZodEnumEditor: React.FC<{
 	showSaveButton,
 	onRemove,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,
