@@ -1,7 +1,7 @@
 use std::io::ErrorKind;
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{format::Pixel, frame::Video, media::Type, Dictionary, StreamMut};
+use remotionffmpeg::{codec::Id, format::Pixel, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
@@ -296,26 +296,40 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleE
     let mut_stream = input.stream_mut(stream_index).unwrap();
     let duration_or_zero = mut_stream.duration().max(0);
 
-    unsafe {
-        _print_debug(&format!(
-            "codec {:?}",
-            (*(*(mut_stream).as_ptr()).codecpar).codec_id
-        ))?;
-    }
     let time_base = mut_stream.time_base();
     let parameters = mut_stream.parameters();
 
     let mut parameters_cloned = parameters.clone();
+    let is_vp8_or_vp9_and_transparent = match transparent {
+        true => unsafe {
+            let codec_id = (*(*(mut_stream).as_ptr()).codecpar).codec_id;
+            let is_vp8 = codec_id == remotionffmpeg::codec::id::get_av_codec_id(Id::VP8);
+            let is_vp9 = codec_id == remotionffmpeg::codec::id::get_av_codec_id(Id::VP9);
 
-    if transparent {
-        unsafe {
-            (*parameters_cloned.as_mut_ptr()).format = 33;
-        }
-    }
+            if is_vp8 || is_vp9 {
+                (*parameters_cloned.as_mut_ptr()).format =
+                    remotionffmpeg::util::format::pixel::to_av_pixel_format(Pixel::YUVA420P) as i32;
+            }
+
+            if is_vp8 {
+                Some("vp8")
+            } else if is_vp9 {
+                Some("vp9")
+            } else {
+                None
+            }
+        },
+        false => None,
+    };
+
     let video = remotionffmpeg::codec::context::Context::from_parameters(parameters_cloned)?;
 
-    // TODO: Only if it is a WebM
-    let decoder = video.decoder().video_with_codec("libvpx")?;
+    let decoder = match is_vp8_or_vp9_and_transparent {
+        Some("vp8") => video.decoder().video_with_codec("libvpx")?,
+        Some("vp9") => video.decoder().video_with_codec("libvpx-vp9")?,
+        Some(_) => unreachable!(),
+        None => video.decoder().video()?,
+    };
 
     let format = decoder.format();
 

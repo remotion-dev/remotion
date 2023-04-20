@@ -15,7 +15,7 @@ jpeg-decoder = "0.3"
 jpeg-encoder = "0.5.1"
 threadpool = "1.8.1"
 lazy_static = "1.4"
-ffmpeg-next = {git = "https://github.com/JonnyBurger/rust-ffmpeg", rev ="e82582e3ad54dd1b19c66a2d2b631a41d84b74a1"}
+ffmpeg-next = {git = "https://github.com/JonnyBurger/rust-ffmpeg", rev ="6a2ee0602090645a549e68c7e640434eb47b55ad"}
 
 [[bin]]
 name = "compositor"

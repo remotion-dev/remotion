@@ -31,7 +31,7 @@ test(
 	{timeout: 10000}
 );
 
-test.only(
+test(
 	'Should be able to get a PNG',
 	async () => {
 		const compositor = startCompositor('StartLongRunningProcess', {});
