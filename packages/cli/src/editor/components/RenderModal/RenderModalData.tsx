@@ -6,7 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyComposition} from 'remotion';
-import {getInputProps} from 'remotion';
+import {getInputProps, z} from 'remotion';
 import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 
@@ -20,6 +20,10 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
+import {
+	NoDefaultProps,
+	NoSchemaDefined,
+} from './SchemaEditor/SchemaErrorMessages';
 
 type Mode = 'json' | 'schema';
 
@@ -173,6 +177,18 @@ export const RenderModalData: React.FC<{
 				<Spacing y={2} block />
 			</div>
 		);
+	}
+
+	const def: z.ZodTypeDef = composition.schema._def;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
+		return <NoSchemaDefined />;
+	}
+
+	if (composition.defaultProps) {
+		return <NoDefaultProps />;
 	}
 
 	return (
