@@ -23,7 +23,7 @@ export type TComposition<Schema extends z.ZodTypeAny, Props> = {
 	parentFolderName: string | null;
 	component: LazyExoticComponent<ComponentType<Props>>;
 	nonce: number;
-	schema: Schema;
+	schema: Schema | null;
 } & PropsIfHasProps<Schema, Props>;
 
 export type AnyComposition = TComposition<z.ZodTypeAny, unknown>;

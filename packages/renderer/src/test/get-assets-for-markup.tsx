@@ -13,7 +13,6 @@ import React, {
 import {act} from 'react-dom/test-utils';
 import type {CompositionManagerContext, TAsset} from 'remotion';
 import {Internals} from 'remotion';
-import {z} from 'zod';
 
 // @ts-expect-error
 global.IS_REACT_ACT_ENVIRONMENT = true;
@@ -90,7 +89,7 @@ export const getAssetsForMarkup = async (
 						defaultProps: undefined,
 						folderName: null,
 						parentFolderName: null,
-						schema: z.any(),
+						schema: null,
 					},
 				],
 				currentComposition: 'markup',
