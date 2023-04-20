@@ -6,7 +6,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import {Internals, useCurrentFrame} from 'remotion';
@@ -86,7 +86,7 @@ export const RenderButton: React.FC = () => {
 				compositionName: video.id,
 				defaultExtension: isVideo
 					? defaults.stillImageFormat
-					: RenderInternals.getFileExtensionFromCodec(
+					: BrowserSafeApis.getFileExtensionFromCodec(
 							initialVideoCodec,
 							defaults.audioCodec as AudioCodec
 					  ),
