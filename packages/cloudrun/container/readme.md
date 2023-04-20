@@ -102,6 +102,7 @@ Complete a build for the GCP package, so that `gcp/container` contains an up-to-
    a. This will launch a browser for you to authenticate your shell with Google Cloud  
    b. Within the shell, you should see remotion-dev as a project to use. Select this  
    c. Typing `gcloud config list` should show that the correct account and project are active
+   d. if remotion-dev is not the current project, run `gcloud config set project remotion-dev`
 3. `cd` into the `packages/gcp/container` folder.
 4. Run `gcloud builds submit --tag us-docker.pkg.dev/remotion-dev/cloud-run/render:VERSION` replacing
    VERSION with the current Remotion version.
