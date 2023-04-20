@@ -239,7 +239,6 @@ declare global {
 		/**
 		 * Set the JPEG quality for the frames.
 		 * Must be between 0 and 100.
-		 * Must be between 0 and 100.
 		 * Default: 80
 		 */
 		readonly setJpegQuality: (q: number | undefined) => void;
