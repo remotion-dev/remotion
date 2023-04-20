@@ -35,9 +35,7 @@ export const RenderQueue: React.FC = () => {
 		return (
 			<div style={explainer}>
 				<Spacing y={5} />
-				<div style={errorExplanation}>
-					The preview server has disconnected. Renderqueue unavailable.
-				</div>
+				<div style={errorExplanation}>The preview server has disconnected.</div>
 				<Spacing y={2} block />
 			</div>
 		);
@@ -47,10 +45,7 @@ export const RenderQueue: React.FC = () => {
 		return (
 			<div style={explainer}>
 				<Spacing y={5} />
-				<div style={errorExplanation}>
-					No renders done yet. Click on the Rocket or press R to render this
-					composition
-				</div>
+				<div style={errorExplanation}>No renders in the queue.</div>
 				<Spacing y={2} block />
 			</div>
 		);
