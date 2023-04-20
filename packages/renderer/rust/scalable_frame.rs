@@ -119,8 +119,6 @@ pub fn scale_and_make_bitmap(
         false => Pixel::BGR24,
     };
 
-    _print_debug(&format!("Scaling frame to {:?}", native_frame.format));
-
     let mut scaler = Context::get(
         native_frame.format,
         native_frame.original_width,
@@ -156,13 +154,6 @@ pub fn scale_and_make_bitmap(
     }
 
     if transparent {
-        _print_debug(&format!(
-            "scaled data: {:?} {} {}",
-            scaled.data(0).len(),
-            native_frame.scaled_width,
-            native_frame.scaled_height
-        ));
-
         return Ok(get_png_data(
             scaled.data(0),
             native_frame.scaled_width,

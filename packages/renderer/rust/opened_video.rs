@@ -309,8 +309,6 @@ pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
 
     let format = decoder.format();
 
-    _print_debug(&format!("format {:?}", format));
-
     let original_width = decoder.width();
     let original_height = decoder.height();
 
