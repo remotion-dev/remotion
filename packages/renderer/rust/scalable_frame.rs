@@ -6,7 +6,6 @@ use ffmpeg_next::{
 
 use crate::{
     errors::{self, PossibleErrors},
-    global_printer::_print_debug,
     image::get_png_data,
 };
 

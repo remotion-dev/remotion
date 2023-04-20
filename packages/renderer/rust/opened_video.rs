@@ -1,9 +1,7 @@
 use std::io::ErrorKind;
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{
-    codec::traits::Decoder, format::Pixel, frame::Video, media::Type, Dictionary, StreamMut,
-};
+use remotionffmpeg::{format::Pixel, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
@@ -281,29 +279,41 @@ pub fn get_display_aspect_ratio(mut_stream: &StreamMut) -> Rational {
     }
 }
 
-pub fn open_video(src: &str) -> Result<OpenedVideo, PossibleErrors> {
+pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleErrors> {
     let mut dictionary = Dictionary::new();
     dictionary.set("fflags", "+genpts");
     let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
+
+    // TODO: Don't open stream and stream_mut, might need to adapt rust-ffmpeg for it
     let stream = input
         .streams()
         .find(|s| s.parameters().medium() == Type::Video)
         .unwrap();
     let stream_index = stream.index();
 
-    let duration_or_zero = stream.duration().max(0);
+    drop(stream);
 
     let mut_stream = input.stream_mut(stream_index).unwrap();
+    let duration_or_zero = mut_stream.duration().max(0);
+
+    unsafe {
+        _print_debug(&format!(
+            "codec {:?}",
+            (*(*(mut_stream).as_ptr()).codecpar).codec_id
+        ))?;
+    }
     let time_base = mut_stream.time_base();
     let parameters = mut_stream.parameters();
 
     let mut parameters_cloned = parameters.clone();
 
-    unsafe {
-        (*parameters_cloned.as_mut_ptr()).format = 33;
+    if transparent {
+        unsafe {
+            (*parameters_cloned.as_mut_ptr()).format = 33;
+        }
     }
-
     let video = remotionffmpeg::codec::context::Context::from_parameters(parameters_cloned)?;
+
     // TODO: Only if it is a WebM
     let decoder = video.decoder().video_with_codec("libvpx")?;
 
