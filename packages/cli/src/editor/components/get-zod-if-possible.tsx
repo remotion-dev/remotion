@@ -1,9 +1,19 @@
-import React, {createContext, useContext, useEffect, useState} from 'react';
+import React, {
+	createContext,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 export type ZodType = Awaited<typeof import('zod')>['z'];
+export type ZodColorType = Awaited<
+	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+	typeof import('@remotion/z-color')
+>['zColor'];
 
-export const getZodIfPossible = async (): Promise<ZodType | null> => {
+const getZodIfPossible = async (): Promise<ZodType | null> => {
 	try {
 		const {z} = await import('zod');
 		return z;
@@ -12,21 +22,54 @@ export const getZodIfPossible = async (): Promise<ZodType | null> => {
 	}
 };
 
-export const useZodIfPossible = () => {
-	const context = useContext(ZodContext);
-	return context;
+const getZColorIfPossible = async (): Promise<ZodColorType | null> => {
+	try {
+		const {zColor} = await import('@remotion/z-color');
+		return zColor;
+	} catch (err) {
+		return null;
+	}
 };
 
-const ZodContext = createContext<ZodType | null>(null);
+export const useZodIfPossible = () => {
+	const context = useContext(ZodContext);
+	return context?.zod ?? null;
+};
+
+export const useZodColorIfPossible = () => {
+	const context = useContext(ZodContext);
+	return context?.zodColor ?? null;
+};
+
+type ContextType = {
+	zod: ZodType | null;
+	zodColor: ZodColorType | null;
+};
+
+const ZodContext = createContext<ContextType | null>(null);
 
 export const ZodProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [zod, setZod] = useState<ZodType | null>(null);
+	const [zodColor, setZodColor] = useState<ZodColorType | null>(null);
 
 	useEffect(() => {
 		getZodIfPossible().then((z) => setZod(z));
 	}, []);
 
-	return <ZodContext.Provider value={zod}>{children}</ZodContext.Provider>;
+	useEffect(() => {
+		getZColorIfPossible().then((z) => setZodColor(z));
+	}, []);
+
+	const contextValue = useMemo(() => {
+		return {
+			zod,
+			zodColor,
+		};
+	}, [zod, zodColor]);
+
+	return (
+		<ZodContext.Provider value={contextValue}>{children}</ZodContext.Provider>
+	);
 };

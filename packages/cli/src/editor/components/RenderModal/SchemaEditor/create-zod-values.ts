@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {ZColorInternals} from '@remotion/z-color';
 import type {z} from 'zod';
 import type {ZodType} from '../../get-zod-if-possible';
 
@@ -71,7 +71,7 @@ export const createZodValues = (
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodEffects: {
-			if (schema._def.description === Internals.REMOTION_COLOR_BRAND) {
+			if (schema._def.description === ZColorInternals.REMOTION_COLOR_BRAND) {
 				return '#ffffff';
 			}
 

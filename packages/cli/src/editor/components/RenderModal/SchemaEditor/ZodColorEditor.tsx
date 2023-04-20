@@ -1,5 +1,5 @@
+import {ZColorInternals} from '@remotion/z-color';
 import React, {useCallback, useMemo, useState} from 'react';
-import {Internals} from 'remotion';
 import type {z} from 'zod';
 import {colorWithNewOpacity} from '../../../../color-math';
 import {useZodIfPossible} from '../../get-zod-if-possible';
@@ -70,7 +70,7 @@ export const ZodColorEditor: React.FC<{
 	);
 
 	const {a, b, g, r} = localValue.zodValidation.success
-		? Internals.parseColor(localValue.value)
+		? ZColorInternals.parseColor(localValue.value)
 		: {a: 1, b: 0, g: 0, r: 0};
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(

@@ -1,0 +1,56 @@
+{
+	"name": "@remotion/z-color",
+	"version": "3.3.83",
+	"description": "A color validator for Zod",
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"sideEffects": false,
+	"scripts": {
+		"lint": "eslint src --ext ts,tsx",
+		"watch": "tsc -w",
+		"build": "rollup --config rollup.config.js && tsc -d"
+	},
+	"author": "Jonny Burger",
+	"contributors": [],
+	"license": "MIT",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"remotion": "workspace:*"
+	},
+	"peerDependencies": {
+		"zod": "^3.0.0"
+	},
+	"devDependencies": {
+		"@jonny/eslint-config": "3.0.266",
+		"@rollup/plugin-typescript": "^8.2.0",
+		"eslint": "8.25.0",
+		"prettier": "^2.7.1",
+		"prettier-plugin-organize-imports": "^2.3.4",
+		"rollup": "^2.70.1",
+		"typescript": "^4.7.0",
+		"zod": "^3.0.0"
+	},
+	"keywords": [
+		"zod",
+		"color",
+		"remotion"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/cjs/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/cjs/index.js"
+		}
+	}
+}
