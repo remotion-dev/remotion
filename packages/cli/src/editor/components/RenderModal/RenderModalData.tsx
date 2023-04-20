@@ -187,7 +187,7 @@ export const RenderModalData: React.FC<{
 		return <NoSchemaDefined />;
 	}
 
-	if (composition.defaultProps) {
+	if (!composition.defaultProps) {
 		return <NoDefaultProps />;
 	}
 
