@@ -95,8 +95,8 @@ This means that you can pull in a script that runs a couple of gcloud and Terraf
    _The first command downloads a tar file from the Remotion repo, and extracts it to the current directory. The second command runs the installer script._
 
    If this is the first time initialising Remotion in the GCP project, you will want to select option 1.
-   If you are updating the version of Remotion for this GCP project, you will want to select option 1.  
-   
+   If you are updating the version of Remotion for this GCP project, you will want to select option 1.
+
    If you want to [generate a new .env file](./generateEnvFile.md), or manage keys already created, you will want to select option 3.
    <!-- ToDo - host this in the official Remotion repo -->
 
@@ -143,37 +143,38 @@ values={[
 }>
 <TabItem value="cli">
 
-Deploy a function that can render videos into your AWS account by executing the following command:
+Deploy a service that can render videos into your GCP project by executing the following command:
 
 ```bash
-npx remotion lambda functions deploy
+npx remotion cloudrun service deploy
 ```
 
 </TabItem>
 <TabItem value="node">
 
-You can deploy a function that can render videos into your AWS account using [`deployFunction()`](/docs/lambda/deployfunction).
+You can deploy a esrvice that can render videos into your GCP project using [`deployFunction()`](/docs/lambda/deployfunction).
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { deployFunction } from "@remotion/lambda";
+import { deployNewCloudRun } from "@remotion/cloudrun";
 
 // ---cut---
-const { functionName } = await deployFunction({
-  region: "us-east-1",
-  timeoutInSeconds: 120,
-  memorySizeInMb: 2048,
-  createCloudWatchLogGroup: true,
-  architecture: "arm64",
+const deployResult = await deployNewCloudRun({
+  remotionVersion: "3.3.75",
+  serviceName: "my-service",
+  memory: "512Mi",
+  cpu: "1.0",
+  region: "us-east1",
+  overwriteService: false,
 });
 ```
 
-The function name is returned which you'll need for rendering.
+The object that is returned contains a name field, which you'll need for rendering.
 </TabItem>
 </Tabs>
 
-The function consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology#serve-url) and make renders from it. A function is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new function](/docs/lambda/upgrading). A function does not include your Remotion code, it will be deployed in the next step instead.
+The service consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology#serve-url) and make renders from it. A service is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new service](/docs/cloudrun/upgrading). A service does not include your Remotion code, it will be deployed in the next step instead.
 
 ## 9. Deploy a site
 
@@ -186,10 +187,10 @@ values={[
 }>
 <TabItem value="cli">
 
-Run the following command to deploy your Remotion project to an S3 bucket. Pass as the last argument the [entry point](/docs/terminology#entry-point) of the project.
+Run the following command to deploy your Remotion project to an Cloud Storage bucket. Pass as the last argument the [entry point](/docs/terminology#entry-point) of the project.
 
 ```bash
-npx remotion lambda sites create src/index.ts --site-name=my-video
+npx remotion cloudrun sites create src/index.ts --site-name=my-video
 ```
 
 A [`serveUrl`](/docs/terminology#serve-url) will be printed pointing to the deployed project.
@@ -199,35 +200,34 @@ When you update your Remotion video in the future, redeploy your site. Pass the 
 </TabItem>
 <TabItem value="node">
 
-First, you need to create an S3 bucket in your preferred region. If one already exists, it will be used instead:
+First, you need to create a Cloud Storage bucket in your preferred region. If one already exists, it will be used instead:
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
 import path from "path";
-import { deploySite, getOrCreateBucket } from "@remotion/lambda";
+import { deploySite, getOrCreateBucket } from "@remotion/cloudrun";
 
 const { bucketName } = await getOrCreateBucket({
-  region: "us-east-1",
+  region: "us-east1",
 });
 ```
 
-Next, upload your Remotion project to an S3 bucket. Specify the entry point of your Remotion project, this is the file where [`registerRoot()`](/docs/register-root) is called.
+Next, upload your Remotion project to a Cloud Storage bucket. Specify the entry point of your Remotion project, this is the file where [`registerRoot()`](/docs/register-root) is called.
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
 import path from "path";
-import { deploySite, getOrCreateBucket } from "@remotion/lambda";
+import { deploySite, getOrCreateBucket } from "@remotion/cloudrun";
 
 const { bucketName } = await getOrCreateBucket({
-  region: "us-east-1",
+  region: "us-east1",
 });
 // ---cut---
 const { serveUrl } = await deploySite({
   bucketName,
   entryPoint: path.resolve(process.cwd(), "src/index.ts"),
-  region: "us-east-1",
   siteName: "my-video",
 });
 ```
@@ -237,17 +237,7 @@ When you update your Remotion video in the future, redeploy your site. Pass the 
 </TabItem>
 </Tabs>
 
-## 10. Check AWS concurrency limit
-
-Check the concurrency limit that AWS has given to your account:
-
-```
-npx remotion lambda quotas
-```
-
-By default, it is `1000` concurrent invocations per region. However, new accounts might have a limit [as low as `10`](/docs/lambda/troubleshooting/rate-limit). Each Remotion render may use as much as 200 functions per render concurrently, so if your assigned limit is very low, [you might want to request an increase right away](/docs/lambda/troubleshooting/rate-limit).
-
-## 11. Render a video
+## 10. Render a video
 
 <Tabs
 defaultValue="cli"
@@ -261,15 +251,15 @@ values={[
 Take the URL you received from the step 8 - your "serve URL" - and run the following command. Also pass in the [ID of the composition](/docs/composition) you'd like to render.
 
 ```bash
-npx remotion lambda render <serve-url> <composition-id>
+npx remotion cloudrun render <serve-url> <composition-id>
 ```
 
-Progress will be printed until the video finished rendering. Congrats! You rendered your first video using Remotion Lambda 🚀
+Progress will be printed until the video finished rendering. Congrats! You rendered your first video using Remotion Cloudrun 🚀
 
 </TabItem>
 <TabItem value="node">
 
-You already have the function name from a previous step. But since you only need to deploy a function once, it's useful to retrieve the name of your deployed function programmatically before rendering a video in case your Node.JS program restarts. We can call [`getFunctions()`](/docs/lambda/getfunctions) with the `compatibleOnly` flag to get only functions with a matching version.
+You already have the service name from a previous step. But since you only need to deploy a service once, it's useful to retrieve the name of your deployed function programmatically before rendering a video in case your Node.JS program restarts. We can call [`getFunctions()`](/docs/lambda/getfunctions) with the `compatibleOnly` flag to get only functions with a matching version.
 
 ```ts twoslash
 // @module: ESNext
