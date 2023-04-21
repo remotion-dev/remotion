@@ -92,9 +92,9 @@ FFmpeg is now baked into the `@remotion/renderer` package. Therefore, the `ffmpe
 In V3, `onSlowestFrames` has been a callback function that you could pass to `renderMedia()`.  
 In V4, this data has been moved to the [return value](/docs/renderer/render-media#return-value).
 
-## Config.setImageFormat() replaced
+## Config.setImageFormat() distinction
 
-`Config.setImageFormat` got replaced by `config.setVideoImageFormat`and `config.SetStillImageFormat`. This distinction is done since in most cases it makes sense to have the `VideoImageFormat` set to JPEG and the `StillImageFormat` to PNG.
+`Config.setImageFormat` got replaced by `config.setVideoImageFormat`and `config.setStillImageFormat`. This distinction is made since it often makes sense to have the `VideoImageFormat` set to JPEG and the `StillImageFormat` to PNG.
 
 ## ImageFormat removed
 
