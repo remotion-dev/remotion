@@ -16,11 +16,20 @@ export const deleteDirectory = (directory: string): void => {
 	// This is even with the fixWinEPERMSync function being called by Node.JS.
 
 	// This is a workaround for this issue.
+	let retries = 2;
+	while (retries >= 0) {
+		try {
+			fs.rmSync(directory, {
+				maxRetries: 2,
+				recursive: true,
+				force: true,
+				retryDelay: 100,
+			});
+		} catch (err) {
+			retries--;
+			continue;
+		}
 
-	fs.rmSync(directory, {
-		maxRetries: 2,
-		recursive: true,
-		force: true,
-		retryDelay: 100,
-	});
+		break;
+	}
 };
