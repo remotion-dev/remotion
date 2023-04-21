@@ -4,20 +4,35 @@ import {startCompositor} from '../compositor/compositor';
 
 const BMP_HEADER_SIZE = 54;
 
+const examplePackage = path.join(__dirname, '..', '..', '..', 'example');
+const docsPackage = path.join(__dirname, '..', '..', '..', 'docs');
+
+const exampleVideos = {
+	bigBuckBunny: path.join(examplePackage, 'public/bigbuckbunny.mp4'),
+	transparentWebm: path.join(docsPackage, '/static/img/transparent-video.webm'),
+	framerWithoutFileExtension: path.join(
+		examplePackage,
+		'public',
+		'framermp4withoutfileextension'
+	),
+	corrupted: path.join(examplePackage, 'public', 'corrupted.mp4'),
+	customDar: path.join(examplePackage, 'public', 'custom-dar.mp4'),
+};
+
 test(
 	'Should be able to extract a frame using Rust',
 	async () => {
 		const compositor = startCompositor('StartLongRunningProcess', {});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
+			input: exampleVideos.bigBuckBunny,
 			time: 40,
 			transparent: false,
 		});
 		expect(data.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
 
 		const data2 = await compositor.executeCommand('ExtractFrame', {
-			input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
+			input: exampleVideos.bigBuckBunny,
 			time: 40.4,
 			transparent: false,
 		});
@@ -26,7 +41,7 @@ test(
 		compositor.finishCommands();
 		await compositor.waitForDone();
 
-		expect(data.slice(0, 1000)).not.toEqual(data2.slice(0, 1000));
+		expect(data.subarray(0, 1000)).not.toEqual(data2.subarray(0, 1000));
 	},
 	{timeout: 10000}
 );
@@ -37,8 +52,7 @@ test(
 		const compositor = startCompositor('StartLongRunningProcess', {});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input:
-				'/Users/jonathanburger/remotion/packages/docs/static/img/transparent-video.webm',
+			input: exampleVideos.transparentWebm,
 			time: 1,
 			transparent: true,
 		});
@@ -61,12 +75,12 @@ test('Should be able to start two compositors', async () => {
 	const compositor2 = startCompositor('StartLongRunningProcess', {});
 
 	await compositor.executeCommand('ExtractFrame', {
-		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
+		input: exampleVideos.bigBuckBunny,
 		time: 40,
 		transparent: false,
 	});
 	await compositor2.executeCommand('ExtractFrame', {
-		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
+		input: exampleVideos.bigBuckBunny,
 		time: 40,
 		transparent: false,
 	});
@@ -76,13 +90,13 @@ test('Should be able to seek backwards', async () => {
 	const compositor = startCompositor('StartLongRunningProcess', {});
 
 	const data = await compositor.executeCommand('ExtractFrame', {
-		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
+		input: exampleVideos.bigBuckBunny,
 		time: 40,
 		transparent: false,
 	});
 	expect(data.length).toBe(2764854);
 	const data2 = await compositor.executeCommand('ExtractFrame', {
-		input: '/Users/jonathanburger/Downloads/fullmovie.mp4',
+		input: exampleVideos.bigBuckBunny,
 		time: 35,
 		transparent: false,
 	});
@@ -98,15 +112,7 @@ test(
 		const compositor = startCompositor('StartLongRunningProcess', {});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input: path.join(
-				__dirname,
-				'..',
-				'..',
-				'..',
-				'example',
-				'public',
-				'framermp4withoutfileextension'
-			),
+			input: exampleVideos.framerWithoutFileExtension,
 			time: 1,
 			transparent: false,
 		});
@@ -124,15 +130,7 @@ test(
 		const compositor = startCompositor('StartLongRunningProcess', {});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input: path.join(
-				__dirname,
-				'..',
-				'..',
-				'..',
-				'example',
-				'public',
-				'framermp4withoutfileextension'
-			),
+			input: exampleVideos.framerWithoutFileExtension,
 			time: 3.33,
 			transparent: false,
 		});
@@ -158,15 +156,7 @@ test(
 		const compositor = startCompositor('StartLongRunningProcess', {});
 
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input: path.join(
-				__dirname,
-				'..',
-				'..',
-				'..',
-				'example',
-				'public',
-				'corrupted.mp4'
-			),
+			input: exampleVideos.corrupted,
 			time: 100,
 			transparent: false,
 		});
@@ -186,18 +176,8 @@ test(
 test('Should be able to extract a frame with abnormal DAR', async () => {
 	const compositor = startCompositor('StartLongRunningProcess', {});
 
-	const input = path.join(
-		__dirname,
-		'..',
-		'..',
-		'..',
-		'example',
-		'public',
-		'custom-dar.mp4'
-	);
-
 	const data = await compositor.executeCommand('ExtractFrame', {
-		input,
+		input: exampleVideos.customDar,
 		time: 3.33,
 		transparent: false,
 	});
@@ -216,21 +196,12 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 
 test('Should be able to extract the frames in reverse order', async () => {
 	const compositor = startCompositor('StartLongRunningProcess', {});
-	const input = path.join(
-		__dirname,
-		'..',
-		'..',
-		'..',
-		'example',
-		'public',
-		'framermp4withoutfileextension'
-	);
 
 	let prevPixel = '';
 
 	for (let i = 3.33; i > 0; i -= 0.1) {
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input,
+			input: exampleVideos.framerWithoutFileExtension,
 			time: i,
 			transparent: false,
 		});
@@ -253,18 +224,8 @@ test('Last frame should be fast', async () => {
 
 	const time = Date.now();
 
-	const input = path.join(
-		__dirname,
-		'..',
-		'..',
-		'..',
-		'example',
-		'public',
-		'framermp4withoutfileextension'
-	);
-
 	const data = await compositor.executeCommand('ExtractFrame', {
-		input,
+		input: exampleVideos.framerWithoutFileExtension,
 		time: 3.33,
 		transparent: false,
 	});
@@ -274,7 +235,7 @@ test('Last frame should be fast', async () => {
 
 	const time2 = Date.now();
 	const data2 = await compositor.executeCommand('ExtractFrame', {
-		input,
+		input: exampleVideos.framerWithoutFileExtension,
 		time: 3.33,
 		transparent: false,
 	});
@@ -286,7 +247,7 @@ test('Last frame should be fast', async () => {
 
 	const time3 = Date.now();
 	const data3 = await compositor.executeCommand('ExtractFrame', {
-		input,
+		input: exampleVideos.framerWithoutFileExtension,
 		time: 100,
 		transparent: false,
 	});
