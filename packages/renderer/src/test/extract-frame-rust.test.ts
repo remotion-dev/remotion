@@ -202,7 +202,7 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 		transparent: false,
 	});
 
-	const header = data.slice(0, BMP_HEADER_SIZE);
+	const header = data.subarray(0, BMP_HEADER_SIZE);
 
 	const width = header.readInt32LE(18);
 	const height = header.readInt32LE(22);
@@ -212,6 +212,40 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 
 	compositor.finishCommands();
 	await compositor.waitForDone();
+});
+
+test('Should be able to extract the frames in reverse order', async () => {
+	const compositor = startCompositor('StartLongRunningProcess', {});
+	const input = path.join(
+		__dirname,
+		'..',
+		'..',
+		'..',
+		'example',
+		'public',
+		'framermp4withoutfileextension'
+	);
+
+	let prevPixel = '';
+
+	for (let i = 3.33; i > 0; i -= 0.1) {
+		const data = await compositor.executeCommand('ExtractFrame', {
+			input,
+			time: i,
+			transparent: false,
+		});
+
+		const expectedLength = BMP_HEADER_SIZE + 1080 * 1080 * 3;
+		expect(data.length).toBe(expectedLength);
+
+		const topLeftPixelR = data[expectedLength - 1];
+		const topLeftPixelG = data[expectedLength - 2];
+		const topLeftPixelB = data[expectedLength - 3];
+
+		const pixels = [topLeftPixelR, topLeftPixelG, topLeftPixelB].join('-');
+		expect(pixels).not.toBe(prevPixel);
+		prevPixel = pixels;
+	}
 });
 
 test('Last frame should be fast', async () => {
