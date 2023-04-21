@@ -208,6 +208,8 @@ export const RenderModalData: React.FC<{
 		return <NoDefaultProps />;
 	}
 
+	// TODO: Persist collapse state in localstorage
+	// TODO: Only show the warning icon if there is a warning
 	return (
 		<div style={outer}>
 			<div style={controlContainer}>
