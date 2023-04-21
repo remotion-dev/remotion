@@ -92,6 +92,10 @@ FFmpeg is now baked into the `@remotion/renderer` package. Therefore, the `ffmpe
 In V3, `onSlowestFrames` has been a callback function that you could pass to `renderMedia()`.  
 In V4, this data has been moved to the [return value](/docs/renderer/render-media#return-value).
 
+## ImageFormat removed
+
+`ImageFormat` got replaced by the more specific `VideoImageFormat` and `StillImageFormat`.
+
 ## Removal of deprecated APIs
 
 - `Config.setOutputFormat()` was deprecated in v1.4 and has now been removed. Use `setImageSequence()`, `setVideoImageFormat()` and `setCodec()` in combination instead.
