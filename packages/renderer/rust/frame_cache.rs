@@ -50,22 +50,31 @@ impl FrameCache {
         Ok(data)
     }
 
-    pub fn get_item(&mut self, time: i64) -> Result<Option<Vec<u8>>, PossibleErrors> {
+    pub fn get_item(
+        &mut self,
+        time: i64,
+        threshold: i64,
+    ) -> Result<Option<Vec<u8>>, PossibleErrors> {
         let mut best_item: Option<usize> = None;
         let mut best_distance = std::i64::MAX;
 
         for i in 0..self.items.len() {
-            if self.items[i].resolved_pts < time as i64 {
+            if self.last_frame.is_some() && self.items[i].resolved_pts < time as i64 {
                 // Asked for frame beyond last frame
-                if self.last_frame.is_some() && self.last_frame.unwrap() == self.items[i].id {
+                if self.last_frame.unwrap() == self.items[i].id {
                     self.items[i].frame.ensure_data()?;
+
                     return Ok(Some(self.items[i].frame.get_data().unwrap()));
                 }
 
                 continue;
             }
 
-            let distance = (self.items[i].resolved_pts - time as i64).abs();
+            if self.items[i].resolved_pts == time {
+                self.items[i].frame.ensure_data()?;
+                return Ok(Some(self.items[i].frame.get_data().unwrap()));
+            }
+            let distance = (self.items[i].asked_time - time as i64).abs();
             // LTE: IF multiple items have the same distance, we take the last one.
             // This is because the last frame is more likely to have been decoded
             if distance <= best_distance as i64 {
@@ -74,9 +83,10 @@ impl FrameCache {
             }
         }
 
-        if best_item.is_none() {
+        if best_distance > threshold {
             return Ok(None);
         }
+
         self.items[best_item.unwrap()].frame.ensure_data()?;
         Ok(Some(
             self.items[best_item.unwrap()].frame.get_data().unwrap(),
