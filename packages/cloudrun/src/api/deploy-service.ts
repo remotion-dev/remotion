@@ -2,9 +2,9 @@ import {generateServiceName} from '../shared/generate-service-name';
 import {validateGcpRegion} from '../shared/validate-gcp-region';
 import {validateProjectID} from '../shared/validate-project-id';
 import {validateRemotionVersion} from '../shared/validate-remotion-version';
+import {checkIfServiceExists} from './check-if-service-exists';
 import {constructServiceTemplate} from './helpers/construct-service-deploy-request';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
-import type {IService} from './helpers/IService';
 
 export type DeployServiceInput = {
 	remotionVersion: string;
@@ -12,6 +12,13 @@ export type DeployServiceInput = {
 	cpu: string;
 	projectID: string;
 	region: string;
+	redeploy: boolean;
+};
+
+export type DeployServiceOutput = {
+	name: string | null | undefined;
+	uri: string | null | undefined;
+	alreadyExists: boolean;
 };
 
 /**
@@ -24,7 +31,7 @@ export type DeployServiceInput = {
  */
 export const deployService = async (
 	options: DeployServiceInput
-): Promise<IService> => {
+): Promise<DeployServiceOutput> => {
 	// ToDo: This needs to allow for defaults for use of the node API without CLI
 	validateGcpRegion(options.region);
 	validateProjectID(options.projectID);
@@ -34,10 +41,25 @@ export const deployService = async (
 
 	const cloudRunClient = getCloudRunClient();
 
+	const existingService = await checkIfServiceExists({
+		memory: options.memory,
+		cpu: options.cpu,
+		projectID: options.projectID,
+		region: options.region,
+	});
+
 	const serviceName = generateServiceName({
 		memory: options.memory,
 		cpu: options.cpu,
 	});
+
+	if (existingService) {
+		return {
+			name: serviceName,
+			uri: null,
+			alreadyExists: true,
+		};
+	}
 
 	const request = {
 		parent,
@@ -56,5 +78,9 @@ export const deployService = async (
 	const [operation] = await cloudRunClient.createService(request);
 	const [response] = await operation.promise();
 
-	return response;
+	return {
+		name: response.name,
+		uri: response.uri,
+		alreadyExists: false,
+	};
 };

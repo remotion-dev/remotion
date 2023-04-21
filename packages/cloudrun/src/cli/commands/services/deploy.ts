@@ -1,6 +1,5 @@
 import {CliInternals} from '@remotion/cli';
 import {VERSION} from 'remotion/version';
-import {checkIfServiceExists} from '../../../api/check-if-service-exists';
 import {allowUnauthenticatedAccess} from '../../../api/cloud-run-allow-unauthenticated-access';
 import {deployService} from '../../../api/deploy-service';
 import {generateServiceName} from '../../../shared/generate-service-name';
@@ -8,7 +7,6 @@ import {validateGcpRegion} from '../../../shared/validate-gcp-region';
 import {validateRemotionVersion} from '../../../shared/validate-remotion-version';
 import {parsedCloudrunCli} from '../../args';
 import {getGcpRegion} from '../../get-gcp-region';
-import {confirmCli} from '../../helpers/confirm';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 
@@ -50,26 +48,6 @@ Validating Deployment of Cloud Run Service:
 		quit(0);
 	}
 
-	const existingService = await checkIfServiceExists({
-		memory,
-		cpu,
-		projectID,
-		region,
-	});
-
-	if (existingService) {
-		const answer = await confirmCli({
-			delMessage:
-				'A Cloud Run service with the same Remotion Version, Memory, and CPU already exists. Do you want to re-deploy? (Y/n)',
-			allowForceFlag: true,
-		});
-
-		if (answer === false) {
-			Log.info(CliInternals.chalk.white('\nService deployment cancelled.'));
-			quit(1);
-		}
-	}
-
 	// if no existing service, deploy new service
 	Log.info(CliInternals.chalk.white('\nDeploying Cloud Run Service...'));
 	try {
@@ -79,6 +57,7 @@ Validating Deployment of Cloud Run Service:
 			cpu,
 			projectID,
 			region,
+			redeploy: true,
 		});
 
 		if (!deployResult.name) {
@@ -86,25 +65,40 @@ Validating Deployment of Cloud Run Service:
 			throw new Error(JSON.stringify(deployResult));
 		}
 
-		if (!deployResult.uri) {
+		if (!deployResult.alreadyExists && !deployResult.uri) {
 			Log.error('service uri not returned from Cloud Run API.');
-			throw new Error(JSON.stringify(deployResult));
 		}
 
-		Log.info();
+		if (deployResult.alreadyExists) {
+			Log.info();
 
-		Log.info(
-			CliInternals.chalk.blueBright(
-				`
-🎉 Cloud Run Deployed! 🎉
+			Log.info(
+				CliInternals.chalk.blueBright(
+					`
+	Service Already Deployed! Check GCP Console for Cloud Run URL.
+	
+    Full Service Name = ${deployResult.name}
+    Project = ${projectID}
+    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.name}/revisions
+					`.trim()
+				)
+			);
+		} else {
+			Log.info();
 
+			Log.info(
+				CliInternals.chalk.blueBright(
+					`
+	🎉 Cloud Run Deployed! 🎉
+	
     Full Service Name = ${deployResult.name}
     Cloud Run URL = ${deployResult.uri}
     Project = ${projectID}
     GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.name}/revisions
-				`.trim()
-			)
-		);
+					`.trim()
+				)
+			);
+		}
 
 		await allowUnauthenticatedAccessToService(
 			deployResult.name,
