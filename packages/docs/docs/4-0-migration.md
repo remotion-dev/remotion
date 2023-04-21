@@ -94,7 +94,7 @@ In V4, this data has been moved to the [return value](/docs/renderer/render-medi
 
 ## ImageFormat removed
 
-`ImageFormat` got replaced by the more specific `VideoImageFormat` and `StillImageFormat`.
+The [@remotion/renderer](/docs/renderer) `ImageFormat` Type got replaced by the more specific Types `VideoImageFormat` and `StillImageFormat`.
 
 ## Removal of deprecated APIs
 
