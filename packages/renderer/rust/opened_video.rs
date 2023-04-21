@@ -30,6 +30,7 @@ pub struct OpenedVideo {
     pub last_position: LastSeek,
     pub frame_cache: FrameCache,
     pub duration_or_zero: i64,
+    pub fps: Rational,
 }
 
 impl OpenedVideo {
@@ -114,8 +115,11 @@ impl OpenedVideo {
 
     pub fn get_frame(&mut self, time: f64, transparent: bool) -> Result<Vec<u8>, PossibleErrors> {
         let position = self.calc_position(time);
-
-        let cache_item = self.frame_cache.get_item(position);
+        let one_frame_after = self.calc_position(
+            time + (1.0 / (self.fps.numerator() as f64 / self.fps.denominator() as f64)),
+        );
+        let threshold = one_frame_after - position;
+        let cache_item = self.frame_cache.get_item(position, threshold);
         match cache_item {
             Ok(Some(item)) => {
                 return Ok(item);
@@ -133,9 +137,8 @@ impl OpenedVideo {
             || self.last_position.resolved_pts < self.calc_position(time - 1.0)
         {
             _print_debug(&format!(
-                "Seeking to {} from resolved_pts = {}, pts = {} and dts = {}, duration = {}",
+                "Seeking to {} from resolved_pts = {}, and dts = {}, duration = {}",
                 position,
-                self.last_position.resolved_pts,
                 self.last_position.resolved_pts,
                 self.last_position.resolved_dts,
                 self.duration_or_zero
@@ -175,10 +178,6 @@ impl OpenedVideo {
                 } else {
                     last_position = packet.pts().unwrap() - 1;
 
-                    _print_debug(&format!(
-                        "Seeking to {} because we are not at a keyframe",
-                        last_position
-                    ))?;
                     self.input.seek(
                         self.stream_index as i32,
                         0,
@@ -335,6 +334,7 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleE
 
     let original_width = decoder.width();
     let original_height = decoder.height();
+    let fps = mut_stream.avg_frame_rate();
 
     let aspect_ratio = get_display_aspect_ratio(&mut_stream);
 
@@ -361,7 +361,8 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleE
             resolved_dts: 0,
         },
         frame_cache: FrameCache::new(),
-        duration_or_zero: duration_or_zero,
+        duration_or_zero,
+        fps,
     };
 
     Ok(opened_video)

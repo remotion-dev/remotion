@@ -199,21 +199,35 @@ test('Should be able to extract the frames in reverse order', async () => {
 
 	let prevPixel = '';
 
-	for (let i = 3.33; i > 0; i -= 0.1) {
+	for (let i = 30; i > 0; i -= 2) {
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input: exampleVideos.framerWithoutFileExtension,
+			input: exampleVideos.bigBuckBunny,
 			time: i,
 			transparent: false,
 		});
 
-		const expectedLength = BMP_HEADER_SIZE + 1080 * 1080 * 3;
+		const expectedLength = BMP_HEADER_SIZE + 1280 * 720 * 3;
 		expect(data.length).toBe(expectedLength);
 
 		const topLeftPixelR = data[expectedLength - 1];
 		const topLeftPixelG = data[expectedLength - 2];
 		const topLeftPixelB = data[expectedLength - 3];
 
-		const pixels = [topLeftPixelR, topLeftPixelG, topLeftPixelB].join('-');
+		const centerLeftPixelR =
+			data[Math.round(expectedLength - expectedLength / 2 - 1)];
+		const centerLeftPixelG =
+			data[Math.round(expectedLength - expectedLength / 2 - 2)];
+		const centerLeftPixelB =
+			data[Math.round(expectedLength - expectedLength / 2 - 3)];
+
+		const pixels = [
+			topLeftPixelR,
+			topLeftPixelG,
+			topLeftPixelB,
+			centerLeftPixelB,
+			centerLeftPixelR,
+			centerLeftPixelG,
+		].join('-');
 		expect(pixels).not.toBe(prevPixel);
 		prevPixel = pixels;
 	}
@@ -226,7 +240,7 @@ test('Last frame should be fast', async () => {
 
 	const data = await compositor.executeCommand('ExtractFrame', {
 		input: exampleVideos.framerWithoutFileExtension,
-		time: 3.33,
+		time: 3.333,
 		transparent: false,
 	});
 
@@ -236,7 +250,7 @@ test('Last frame should be fast', async () => {
 	const time2 = Date.now();
 	const data2 = await compositor.executeCommand('ExtractFrame', {
 		input: exampleVideos.framerWithoutFileExtension,
-		time: 3.33,
+		time: 3.333,
 		transparent: false,
 	});
 
