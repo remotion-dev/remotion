@@ -67,7 +67,7 @@ export const getInputBorderColor = ({
 const RemInputForwardRef: React.ForwardRefRenderFunction<
 	HTMLInputElement,
 	Props
-> = ({status, ...props}, ref) => {
+> = ({status, rightAlign, ...props}, ref) => {
 	const [isFocused, setIsFocused] = useState(false);
 	const [isHovered, setIsHovered] = useState(false);
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -79,10 +79,10 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 			...inputBaseStyle,
 			width: '100%',
 			borderColor: getInputBorderColor({isFocused, isHovered, status}),
-			textAlign: props.rightAlign ? 'right' : 'left',
+			textAlign: rightAlign ? 'right' : 'left',
 			...(props.style ?? {}),
 		};
-	}, [isFocused, isHovered, props.rightAlign, props.style, status]);
+	}, [isFocused, isHovered, rightAlign, props.style, status]);
 
 	useImperativeHandle(
 		ref,
