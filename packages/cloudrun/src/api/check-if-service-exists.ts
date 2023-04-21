@@ -1,13 +1,14 @@
 import type {protos} from '@google-cloud/run';
 import {CliInternals} from '@remotion/cli';
 import {Log} from '../cli/log';
+import {generateServiceName} from '../shared/generate-service-name';
 import {validateGcpRegion} from '../shared/validate-gcp-region';
 import {validateProjectID} from '../shared/validate-project-id';
-import {validateServiceName} from '../shared/validate-service-name';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
 export type CheckIfServiceExistsInput = {
-	serviceNameToCheck: string;
+	memory: string;
+	cpu: string;
 	projectID: string;
 	region: string;
 };
@@ -24,10 +25,14 @@ export const checkIfServiceExists = async (
 	options: CheckIfServiceExistsInput
 ): Promise<protos.google.cloud.run.v2.IService | undefined> => {
 	validateGcpRegion(options.region);
-	validateServiceName(options.serviceNameToCheck);
 	validateProjectID(options.projectID);
 
 	const parent = `projects/${options.projectID}/locations/${options.region}`;
+
+	const serviceName = generateServiceName({
+		memory: options.memory,
+		cpu: options.cpu,
+	});
 
 	const cloudRunClient = getCloudRunClient();
 
@@ -40,9 +45,7 @@ export const checkIfServiceExists = async (
 	try {
 		const iterable = cloudRunClient.listServicesAsync(request);
 		for await (const response of iterable) {
-			if (
-				response.name === `${parent}/services/${options.serviceNameToCheck}`
-			) {
+			if (response.name === `${parent}/services/${serviceName}`) {
 				return response;
 			}
 		}
