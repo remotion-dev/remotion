@@ -1,24 +1,31 @@
 import type {SVGProps} from 'react';
-import React from 'react';
-import {LIGHT_TEXT, WARNING_COLOR} from '../../helpers/colors';
+import React, {useMemo} from 'react';
+import {
+	INPUT_BACKGROUND,
+	INPUT_BORDER_COLOR_HOVERED,
+	INPUT_BORDER_COLOR_UNHOVERED,
+	LIGHT_TEXT,
+	WARNING_COLOR,
+} from '../../helpers/colors';
 import {Spacing} from '../layout';
 
-const buttonStyle: React.CSSProperties = {
+const style: React.CSSProperties = {
 	height: '20px',
 	width: '30px',
-	fontSize: 10,
+	fontSize: 12,
 	display: 'inline-flex',
 	justifyContent: 'center',
 	alignItems: 'center',
 	backgroundColor: 'transparent',
 	color: LIGHT_TEXT,
-	border: 'none',
+	borderStyle: 'solid',
+	borderWidth: 1,
 	cursor: 'pointer',
 };
 
 const triangleStyle: React.CSSProperties = {
-	width: 11,
-	height: 11,
+	width: 12,
+	height: 12,
 	flexShrink: 0,
 	fill: WARNING_COLOR,
 };
@@ -39,11 +46,22 @@ export const WarningIndicatorButton: React.FC<{
 		setShowWarning(!showWarning);
 	};
 
+	const buttonStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...style,
+			backgroundColor: showWarning ? INPUT_BACKGROUND : 'transparent',
+			borderColor: showWarning
+				? INPUT_BORDER_COLOR_HOVERED
+				: INPUT_BORDER_COLOR_UNHOVERED,
+			color: showWarning ? 'white' : LIGHT_TEXT,
+		};
+	}, [showWarning]);
+
 	return (
 		<button type={'button'} style={buttonStyle} onClick={onClick}>
-			{warningCount}
-			<Spacing x={0.5} />
 			<WarningTriangle style={triangleStyle} />
+			<Spacing x={0.5} />
+			{warningCount}
 		</button>
 	);
 };
