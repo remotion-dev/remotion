@@ -215,6 +215,9 @@ export const renderVideoFlow = async ({
 			logLevel,
 			bundlingStep: steps.indexOf('bundling'),
 			steps: steps.length,
+			onDirectoryCreated: (dir) => {
+				addCleanupCallback(() => RenderInternals.deleteDirectory(dir));
+			},
 		}
 	);
 
