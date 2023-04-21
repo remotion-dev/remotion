@@ -7,11 +7,10 @@ import {
 	LIGHT_TEXT,
 	WARNING_COLOR,
 } from '../../helpers/colors';
+import {AngleDown} from '../../icons/caret';
 import {Spacing} from '../layout';
 
 const style: React.CSSProperties = {
-	height: '20px',
-	width: '30px',
 	fontSize: 12,
 	display: 'inline-flex',
 	justifyContent: 'center',
@@ -21,6 +20,10 @@ const style: React.CSSProperties = {
 	borderStyle: 'solid',
 	borderWidth: 1,
 	cursor: 'pointer',
+	paddingLeft: 8,
+	paddingRight: 8,
+	paddingTop: 4,
+	paddingBottom: 4,
 };
 
 const triangleStyle: React.CSSProperties = {
@@ -58,10 +61,12 @@ export const WarningIndicatorButton: React.FC<{
 	}, [showWarning]);
 
 	return (
-		<button type={'button'} style={buttonStyle} onClick={onClick}>
+		<button type="button" style={buttonStyle} onClick={onClick}>
 			<WarningTriangle style={triangleStyle} />
 			<Spacing x={0.5} />
 			{warningCount}
+			<Spacing x={1} />
+			<AngleDown down={showWarning} />
 		</button>
 	);
 };
