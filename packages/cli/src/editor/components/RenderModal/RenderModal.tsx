@@ -178,7 +178,6 @@ const outer: React.CSSProperties = {
 	overflow: 'hidden',
 };
 
-// TODO: Copy edited props from Props editor to Render modal
 export const RenderModal: React.FC<{
 	compositionId: string;
 	initialFrame: number;
@@ -209,6 +208,7 @@ export const RenderModal: React.FC<{
 	initialGl: OpenGlRenderer | null;
 	initialIgnoreCertificateErrors: boolean;
 	initialHeadless: boolean;
+	defaultProps: unknown;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -239,6 +239,7 @@ export const RenderModal: React.FC<{
 	initialGl,
 	initialHeadless,
 	initialIgnoreCertificateErrors,
+	defaultProps,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -428,9 +429,7 @@ export const RenderModal: React.FC<{
 		throw new Error('This composition does not exist');
 	}
 
-	const [inputProps, setInputProps] = useState(
-		() => currentComposition.defaultProps
-	);
+	const [inputProps, setInputProps] = useState(() => defaultProps);
 
 	const endFrame = useMemo((): number => {
 		if (endFrameOrNull === null) {
