@@ -37,6 +37,7 @@ export const ZodOrNullishEditor: React.FC<{
 	onSave: (updater: (oldNum: unknown) => unknown) => void;
 	onRemove: null | (() => void);
 	nullishValue: null | undefined;
+	saving: boolean;
 }> = ({
 	jsonPath,
 	compact,
@@ -48,6 +49,7 @@ export const ZodOrNullishEditor: React.FC<{
 	showSaveButton,
 	onRemove,
 	nullishValue,
+	saving,
 }) => {
 	const isChecked = value === nullishValue;
 
@@ -86,6 +88,7 @@ export const ZodOrNullishEditor: React.FC<{
 					showSaveButton={showSaveButton}
 					compact={compact}
 					onRemove={onRemove}
+					saving={saving}
 				/>
 			) : (
 				<div style={fullWidth}>
@@ -99,6 +102,7 @@ export const ZodOrNullishEditor: React.FC<{
 						onSave={onSave}
 						showSaveButton={showSaveButton}
 						onRemove={onRemove}
+						saving={saving}
 					/>
 				</div>
 			)}

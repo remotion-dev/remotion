@@ -7,7 +7,12 @@ const icon: React.CSSProperties = {
 
 export const SchemaSaveButton: React.FC<{
 	onClick: () => void;
-}> = ({onClick}) => {
+	isSaving: boolean;
+}> = ({onClick, isSaving}) => {
+	if (isSaving) {
+		return <div>1</div>;
+	}
+
 	return (
 		<InlineAction onClick={onClick}>
 			<svg style={icon} viewBox="0 0 448 512">

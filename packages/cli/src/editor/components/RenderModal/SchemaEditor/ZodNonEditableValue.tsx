@@ -25,7 +25,8 @@ export const ZonNonEditableValue: React.FC<{
 	label: string;
 	compact: boolean;
 	showSaveButton: boolean;
-}> = ({jsonPath, label, compact, showSaveButton}) => {
+	saving: boolean;
+}> = ({jsonPath, label, compact, showSaveButton, saving}) => {
 	const save = useCallback(() => undefined, []);
 	const reset = useCallback(() => undefined, []);
 	return (
@@ -38,6 +39,7 @@ export const ZonNonEditableValue: React.FC<{
 				showSaveButton={showSaveButton}
 				compact={compact}
 				onRemove={null}
+				saving={saving}
 			/>
 			<div style={fullWidth}>
 				<em style={compact ? emptyLabel : wideEmptyLabel}>{label}</em>

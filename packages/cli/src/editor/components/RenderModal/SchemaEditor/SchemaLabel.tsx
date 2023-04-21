@@ -41,6 +41,7 @@ export const SchemaLabel: React.FC<{
 	onRemove: null | (() => void);
 	showSaveButton: boolean;
 	compact: boolean;
+	saving: boolean;
 }> = ({
 	jsonPath,
 	isDefaultValue,
@@ -49,6 +50,7 @@ export const SchemaLabel: React.FC<{
 	showSaveButton,
 	compact,
 	onRemove,
+	saving,
 }) => {
 	return (
 		<div style={compact ? compactStyles : wideStyles}>
@@ -56,7 +58,7 @@ export const SchemaLabel: React.FC<{
 			{compact ? <Flex /> : <Spacing x={1} />}
 			{isDefaultValue ? null : <SchemaResetButton onClick={onReset} />}
 			{isDefaultValue ? null : showSaveButton ? (
-				<SchemaSaveButton onClick={onSave} />
+				<SchemaSaveButton onClick={onSave} isSaving={saving} />
 			) : null}
 			{onRemove ? <InlineRemoveButton onClick={onRemove} /> : null}
 		</div>
