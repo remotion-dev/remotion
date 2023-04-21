@@ -24,6 +24,7 @@ import {
 	NoDefaultProps,
 	NoSchemaDefined,
 } from './SchemaEditor/SchemaErrorMessages';
+import {WarningIndicatorButton} from './WarningIndicatorButton';
 
 type Mode = 'json' | 'schema';
 
@@ -62,6 +63,7 @@ const tabWrapper: React.CSSProperties = {
 	display: 'flex',
 	marginBottom: '4px',
 	flexDirection: 'row',
+	alignItems: 'center',
 };
 
 const spacer: React.CSSProperties = {
@@ -90,7 +92,7 @@ export const RenderModalData: React.FC<{
 	const zodValidationResult = useMemo(() => {
 		return composition.schema.safeParse(inputProps);
 	}, [composition.schema, inputProps]);
-
+	const [showWarning, setShowWarning] = useState<boolean>(true);
 	const cliProps = getInputProps();
 	const [canSaveDefaultProps, setCanSaveDefaultProps] =
 		useState<TypeCanSaveState>({
@@ -167,6 +169,21 @@ export const RenderModalData: React.FC<{
 
 	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
 
+	const warningCount = useMemo(() => {
+		let count = 0;
+		if (Object.keys(cliProps).length > 0) {
+			count += 1;
+		}
+
+		if (
+			canSaveDefaultProps.canUpdate === false &&
+			canSaveDefaultProps.determined
+		) {
+			count += 1;
+		}
+
+		return count;
+	}, [canSaveDefaultProps, cliProps]);
 	if (connectionStatus === 'disconnected') {
 		return (
 			<div style={explainer}>
@@ -197,8 +214,13 @@ export const RenderModalData: React.FC<{
 				<div style={tabWrapper}>
 					<SegmentedControl items={modeItems} needsWrapping={false} />
 					<div style={spacer} />
+					<WarningIndicatorButton
+						setShowWarning={setShowWarning}
+						showWarning={showWarning}
+						warningCount={warningCount}
+					/>
 				</div>
-				{Object.keys(cliProps).length > 0 ? (
+				{Object.keys(cliProps).length > 0 && showWarning ? (
 					<>
 						<Spacing y={1} />
 						<ValidationMessage
@@ -208,7 +230,8 @@ export const RenderModalData: React.FC<{
 						/>
 					</>
 				) : null}
-				{canSaveDefaultProps.canUpdate === false &&
+				{showWarning &&
+				canSaveDefaultProps.canUpdate === false &&
 				canSaveDefaultProps.determined ? (
 					<>
 						<Spacing y={1} />
