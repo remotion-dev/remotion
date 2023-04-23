@@ -44,7 +44,7 @@ The name of your bucket that was found or created.
 
 ### `alreadyExisted`
 
-<AvailableFrom v="v3.3.78" />
+<AvailableFrom v="3.3.78" />
 A boolean indicating whether the bucket already existed or was newly created.
 
 ## See also
