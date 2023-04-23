@@ -71,6 +71,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				(errors.current[imageRef.current?.src as string] ?? 0) > maxRetries
 			) {
 				onError(e);
+				return;
 			}
 
 			if (
@@ -88,7 +89,10 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				retryIn(backoff);
 				return;
 			}
-			cancelRender('Error loading image with src: ' + imageRef.current?.src);
+
+			cancelRender(
+				'Error loading image with src: ' + (imageRef.current?.src as string)
+			);
 		},
 		[maxRetries, onError, retryIn]
 	);
