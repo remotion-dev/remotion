@@ -484,6 +484,7 @@ module.exports = {
         "troubleshooting/defaultprops-too-big",
         "troubleshooting/could-not-be-parsed-as-a-value-list",
         "troubleshooting/player-flicker",
+        "troubleshooting/broken-fast-refresh",
       ],
     },
     {

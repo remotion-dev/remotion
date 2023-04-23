@@ -2018,6 +2018,13 @@ export const articles = [
     crumb: "Common mistakes",
   },
   {
+    id: "broken-fast-refresh",
+    title: "Fast Refresh not working",
+    relativePath: "docs/troubleshooting/broken-fast-refresh.md",
+    compId: "articles-docs-troubleshooting-broken-fast-refresh",
+    crumb: "Troubleshooting",
+  },
+  {
     id: "troubleshooting/could-not-be-parsed-as-a-value-list",
     title: "The source provided could not be parsed as a value list",
     relativePath: "docs/troubleshooting/could-not-be-parsed-as-a-value-list.md",
