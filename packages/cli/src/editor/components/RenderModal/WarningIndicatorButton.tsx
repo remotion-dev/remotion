@@ -1,5 +1,5 @@
 import type {SVGProps} from 'react';
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_HOVERED,
@@ -45,9 +45,9 @@ export const WarningIndicatorButton: React.FC<{
 	showWarning: boolean;
 	warningCount: number;
 }> = ({setShowWarning, showWarning, warningCount}) => {
-	const onClick = () => {
-		setShowWarning(!showWarning);
-	};
+	const onClick = useCallback(() => {
+		setShowWarning((s) => !s);
+	}, [setShowWarning]);
 
 	const buttonStyle: React.CSSProperties = useMemo(() => {
 		return {
