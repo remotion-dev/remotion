@@ -96,7 +96,7 @@ In V4, this data has been moved to the [return value](/docs/renderer/render-medi
 
 Previously, the `imageFormat` option would be used for both stills and videos. While for stills, PNG is often preferrable, for videos it is overall faster to use JPEG as a default. In Remotion 4.0, the image formats are being separated so you can set defaults for videos and stills separately.
 
-- `Config.setImageFormat` got replaced by [`Config.setVideoImageFormat`]() and `Config.setStillImageFormat`.
+- `Config.setImageFormat` got replaced by [`Config.setVideoImageFormat()`](/docs/cli#setvideoimageformat) and [`Config.setStillImageFormat()`](/docs/cli#setstillimageformat).
 - The CLI option is still `--image-format` for all commands.
 - The Node.JS API name is still `imageFormat`.
 - The TypeScript type `ImageFormat` has been separated into `StillImageFormat` and `VideoImageFormat`.
