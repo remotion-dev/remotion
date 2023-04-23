@@ -125,3 +125,9 @@ const tangent = getTangentAtLength(parts[0], length / 2);
 ## `onBucketEnsured` option has been removed
 
 The `onBucketEnsured()` option of [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket) has been removed because creating the bucket is the only operation of `getOrCreateBucket()`. Therefore, you can just await the function itself.
+
+## `<Img>` will cancel the render if the image cannot be loaded
+
+Before, [`<Img>`](/docs/img) would only log to the console if an image cannot be loaded and inevitably lead to a timeout if the error is not handled.
+
+If this happens now and the error is not handled, the render will be aborted and the error reported.
