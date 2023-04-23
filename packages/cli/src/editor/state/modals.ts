@@ -46,6 +46,7 @@ export type RenderModalState = {
 	initialHeadless: boolean;
 	minConcurrency: number;
 	maxConcurrency: number;
+	defaultProps: unknown;
 };
 
 export type ModalState =
