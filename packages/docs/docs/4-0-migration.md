@@ -92,9 +92,15 @@ FFmpeg is now baked into the `@remotion/renderer` package. Therefore, the `ffmpe
 In V3, `onSlowestFrames` has been a callback function that you could pass to `renderMedia()`.  
 In V4, this data has been moved to the [return value](/docs/renderer/render-media#return-value).
 
-## Config.setImageFormat() distinction
+## Separating `ImageFormat`
 
-`Config.setImageFormat` got replaced by `config.setVideoImageFormat`and `config.setStillImageFormat`. This distinction is made since it often makes sense to have the `VideoImageFormat` set to JPEG and the `StillImageFormat` to PNG.
+Previously, the `imageFormat` option would be used for both stills and videos. While for stills, PNG is often preferrable, for videos it is overall faster to use JPEG as a default. In Remotion 4.0, the image formats are being separated so you can set defaults for videos and stills separately.
+
+- `Config.setImageFormat` got replaced by [`Config.setVideoImageFormat`]() and `Config.setStillImageFormat`.
+- The CLI option is still `--image-format` for all commands.
+- The Node.JS API name is still `imageFormat`.
+- The TypeScript type `ImageFormat` has been separated into `StillImageFormat` and `VideoImageFormat`.
+- `StillImageFormat` now also supports `webp` and `pdf`!
 
 ## ImageFormat removed
 
