@@ -237,6 +237,10 @@ declare global {
 		 */
 		readonly setQuality: (q: never) => void;
 		/**
+		 * @deprecated Separated into `setStillImageFormat()` and `setVideoImageFormat()`.
+		 */
+		readonly setImageFormat: (q: never) => void;
+		/**
 		 * Set the JPEG quality for the frames.
 		 * Must be between 0 and 100.
 		 * Default: 80
@@ -407,6 +411,11 @@ export const Config: FlatConfig = {
 			'setQuality() has been renamed - use setJpegQuality() instead.'
 		);
 	},
+	setImageFormat: () => {
+		throw new Error(
+			'setImageFormat() has been renamed - use setVideoImageFormat() or setStillImageFormat() instead.'
+		);
+	},
 	setJpegQuality,
 	setStillImageFormat,
 	setVideoImageFormat,
@@ -428,7 +437,6 @@ export const Config: FlatConfig = {
 	overrideHeight,
 	overrideWidth,
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
-	// Options added after migration
 	setAudioCodec,
 };
 

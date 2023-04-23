@@ -83,6 +83,7 @@ export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
 export {getActualConcurrency} from './get-concurrency';
 export {
+	ImageFormat,
 	StillImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
 	VideoImageFormat,
