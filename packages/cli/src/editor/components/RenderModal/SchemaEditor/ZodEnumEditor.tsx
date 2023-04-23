@@ -118,7 +118,7 @@ export const ZodEnumEditor: React.FC<{
 				<>
 					<Spacing x={1} />
 					<ValidationMessage
-						align="flex-end"
+						align="flex-start"
 						message={localValue.zodValidation.error.format()._errors[0]}
 						type="error"
 					/>
