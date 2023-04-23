@@ -66,7 +66,7 @@ If an error occurs, the component must be unmounted or the `src` must be replace
 
 From `v3.3.82`, the image load will first be retried before `onError` is thrown.
 
-## `maxRetries` <AvailableFrom v="v3.3.82"/>
+### `maxRetries` <AvailableFrom v="3.3.82"/>
 
 If an image fails to load, it will be retried from `v3.3.82`. The default value is `2`.  
 An exponential backoff is being used, with 1000ms delay between the first and second attempt, then 2000ms, then 4000ms and so on.
@@ -78,6 +78,14 @@ Remotion inherits the props of the regular `<img>` tag, like for example `style`
 ## GIFs
 
 Don't use the `<Img>` tag for GIFs, use [`@remotion/gif`](/docs/gif) instead.
+
+## Error behavior
+
+From v4.0.0: If the image fails to load and no retries are left, then [`cancelRender`](/docs/cancel-render) will be called to throw an error, unless you handle the error using `onError()`.
+
+From v3.3.82: If an image fails to load, it will be retried up to two times.
+
+In earlier versions, failing to load an image would lead to an error message in the console and an eventual timeout.
 
 ## Restrictions
 
