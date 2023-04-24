@@ -57,6 +57,7 @@ export const Lottie = ({
 		const onComplete = () => {
 			// Seek frame twice to avoid Lottie initialization bug:
 			// See LottieInitializationBugfix composition in the example project for a repro.
+			// We can work around it by seeking twice, initially.
 			if (currentFrameRef.current) {
 				animationRef.current?.goToAndStop(
 					Math.max(0, currentFrameRef.current - 1),
