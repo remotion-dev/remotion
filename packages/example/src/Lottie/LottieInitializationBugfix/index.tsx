@@ -1010,7 +1010,7 @@ const lottie = {
 	markers: [],
 };
 
-const ImageInLottie = () => {
+const LottieInitializationBugfix = () => {
 	const {height, width} = useVideoConfig();
 
 	return (
@@ -1025,4 +1025,4 @@ const ImageInLottie = () => {
 	);
 };
 
-export default ImageInLottie;
+export default LottieInitializationBugfix;
