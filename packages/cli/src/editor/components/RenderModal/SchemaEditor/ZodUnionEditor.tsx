@@ -1,5 +1,6 @@
-import {z} from 'zod';
+import type {z} from 'zod';
 import type {ZodType} from '../../get-zod-if-possible';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import type {JSONPath} from './zod-types';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
 import {ZodOrNullishEditor} from './ZodOrNullishEditor';
@@ -57,6 +58,11 @@ export const ZodUnionEditor: React.FC<{
 	onRemove,
 }) => {
 	const {options} = schema._def as z.ZodUnionDef;
+
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
 
 	if (options.length > 2) {
 		return (

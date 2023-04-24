@@ -9,7 +9,6 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Internals} from 'remotion';
-import {z} from 'zod';
 import {getPreferredVolume, persistVolume} from './volume-persistance.js';
 
 export const SharedPlayerContexts: React.FC<{
@@ -53,7 +52,7 @@ export const SharedPlayerContexts: React.FC<{
 					folderName: null,
 					defaultProps: undefined,
 					parentFolderName: null,
-					schema: z.any(),
+					schema: null,
 				},
 			],
 			folders: [],
