@@ -1,7 +1,7 @@
 import type {ComponentType} from 'react';
 import React from 'react';
 import {expect, test} from 'vitest';
-import {z} from 'zod';
+import {getZodIfPossible} from '../editor/components/get-zod-if-possible';
 import {createFolderTree} from '../editor/helpers/create-folder-tree';
 
 const SampleComp: React.FC<{}> = () => null;
@@ -9,9 +9,19 @@ const component = React.lazy(() =>
 	Promise.resolve({default: SampleComp as ComponentType<unknown>})
 );
 
-const any = z.any();
+const getZ = async () => {
+	const z = await getZodIfPossible();
+	if (!z) {
+		throw new Error('Zod not found');
+	}
 
-test('Should create a good folder tree with 1 item inside and 1 item outside', () => {
+	return z;
+};
+
+test('Should create a good folder tree with 1 item inside and 1 item outside', async () => {
+	const z = await getZ();
+
+	const any = z.any();
 	const tree = createFolderTree(
 		[
 			{
@@ -97,7 +107,10 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 	]);
 });
 
-test('Should handle nested folders well', () => {
+test('Should handle nested folders well', async () => {
+	const z = await getZ();
+	const any = z.any();
+
 	const tree = createFolderTree(
 		[
 			{

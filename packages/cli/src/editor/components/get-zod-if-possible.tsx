@@ -13,7 +13,7 @@ export type ZodColorType = Awaited<
 	typeof import('@remotion/z-color')
 >['zColor'];
 
-const getZodIfPossible = async (): Promise<ZodType | null> => {
+export const getZodIfPossible = async (): Promise<ZodType | null> => {
 	try {
 		const {z} = await import('zod');
 		return z;
