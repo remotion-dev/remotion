@@ -18,8 +18,11 @@ export const cloudRunDeploySubcommand = async () => {
 	const remotionVersion = VERSION;
 	const allowUnauthenticated =
 		parsedCloudrunCli['allow-unauthenticated'] ?? false;
-	const memory = parsedCloudrunCli.memory ?? '512Mi';
-	const cpu = parsedCloudrunCli.cpu ?? '1.0';
+	let memory = parsedCloudrunCli.memory ?? '512Mi';
+	let cpu = parsedCloudrunCli.cpu ?? '1.0';
+
+	memory = String(memory);
+	cpu = String(cpu);
 
 	if (!CliInternals.quietFlagProvided()) {
 		Log.info(
@@ -60,8 +63,13 @@ Validating Deployment of Cloud Run Service:
 			redeploy: true,
 		});
 
-		if (!deployResult.name) {
-			Log.error('service name not returned from Cloud Run API.');
+		if (!deployResult.fullName) {
+			Log.error('full service name not returned from Cloud Run API.');
+			throw new Error(JSON.stringify(deployResult));
+		}
+
+		if (!deployResult.shortName) {
+			Log.error('short service name not returned from Cloud Run API.');
 			throw new Error(JSON.stringify(deployResult));
 		}
 
@@ -77,9 +85,9 @@ Validating Deployment of Cloud Run Service:
 					`
 	Service Already Deployed! Check GCP Console for Cloud Run URL.
 	
-    Full Service Name = ${deployResult.name}
+    Full Service Name = ${deployResult.fullName}
     Project = ${projectID}
-    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.name}/revisions
+    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/revisions
 					`.trim()
 				)
 			);
@@ -91,17 +99,17 @@ Validating Deployment of Cloud Run Service:
 					`
 	🎉 Cloud Run Deployed! 🎉
 	
-    Full Service Name = ${deployResult.name}
+	Full Service Name = ${deployResult.fullName}
     Cloud Run URL = ${deployResult.uri}
     Project = ${projectID}
-    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.name}/revisions
+    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/revisions
 					`.trim()
 				)
 			);
 		}
 
 		await allowUnauthenticatedAccessToService(
-			deployResult.name,
+			deployResult.fullName,
 			allowUnauthenticated
 		);
 	} catch (e: any) {

@@ -16,7 +16,8 @@ export type DeployServiceInput = {
 };
 
 export type DeployServiceOutput = {
-	name: string | null | undefined;
+	fullName: string | null | undefined;
+	shortName: string | null | undefined;
 	uri: string | null | undefined;
 	alreadyExists: boolean;
 };
@@ -37,6 +38,14 @@ export const deployService = async (
 	validateProjectID(options.projectID);
 	validateRemotionVersion(options.remotionVersion);
 
+	if (!options.memory) {
+		options.memory = '512Mi';
+	}
+
+	if (!options.cpu) {
+		options.cpu = '1.0';
+	}
+
 	const parent = `projects/${options.projectID}/locations/${options.region}`;
 
 	const cloudRunClient = getCloudRunClient();
@@ -55,7 +64,8 @@ export const deployService = async (
 
 	if (existingService) {
 		return {
-			name: serviceName,
+			fullName: `projects/remotion-6/locations/${options.region}/services/${serviceName}`,
+			shortName: serviceName,
 			uri: null,
 			alreadyExists: true,
 		};
@@ -79,7 +89,8 @@ export const deployService = async (
 	const [response] = await operation.promise();
 
 	return {
-		name: response.name,
+		fullName: response.name,
+		shortName: serviceName,
 		uri: response.uri,
 		alreadyExists: false,
 	};
