@@ -1,3 +1,4 @@
+import {writeFileSync} from 'fs';
 import path from 'path';
 import {expect, test} from 'vitest';
 import {startCompositor} from '../compositor/compositor';
@@ -270,6 +271,24 @@ test('Last frame should be fast', async () => {
 	const time3_end = Date.now();
 	expect(time3_end - time3).toBeLessThan(time_end - time);
 	expect(data3.length).toBe(3499254);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
+test('Two different starting times should not result in big seeking', async () => {
+	const compositor = startCompositor('StartLongRunningProcess', {});
+
+	for (let i = 0; i < 10; i++) {
+		const time = i + (i % 2 === 0 ? 60 : 0);
+		console.log('time', time);
+		const data = await compositor.executeCommand('ExtractFrame', {
+			input: exampleVideos.bigBuckBunny,
+			time,
+			transparent: false,
+		});
+		writeFileSync(`./test${i}.bmp`, data);
+	}
 
 	compositor.finishCommands();
 	await compositor.waitForDone();
