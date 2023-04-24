@@ -716,6 +716,8 @@ export const Index: React.FC = () => {
 						supersuperlongvalueabcdefghji: z.string(),
 						incompatible: z.null().or(z.undefined()),
 						color: zColor(),
+						nullable: z.nullable(z.string()),
+						optional: z.string().optional(),
 						longEnum: z.enum([
 							'a',
 							'b',
@@ -771,6 +773,8 @@ export const Index: React.FC = () => {
 						incompatible: null,
 						longEnum: 'k' as const,
 						color: '#eb3a60' as const,
+						nullable: null,
+						optional: undefined,
 					}}
 					durationInFrames={150}
 				/>

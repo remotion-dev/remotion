@@ -81,6 +81,7 @@ export const FrameRangeSetting: React.FC<{
 						min={minStartFrame}
 						max={maxStartFrame}
 						status="ok"
+						rightAlign
 					/>
 				</RightAlignInput>
 				<RightAlignInput>
@@ -94,6 +95,7 @@ export const FrameRangeSetting: React.FC<{
 						min={minEndFrame}
 						max={maxEndFrame}
 						status="ok"
+						rightAlign
 					/>
 				</RightAlignInput>
 			</div>

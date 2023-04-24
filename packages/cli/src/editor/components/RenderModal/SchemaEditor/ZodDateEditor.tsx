@@ -131,6 +131,7 @@ export const ZodDateEditor: React.FC<{
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
 					style={inputStyle}
+					rightAlign={false}
 				/>
 				<Spacing y={1} block />
 				<div style={explainer}>Date is in local format</div>
@@ -138,7 +139,7 @@ export const ZodDateEditor: React.FC<{
 					<>
 						<Spacing y={1} block />
 						<ValidationMessage
-							align="flex-end"
+							align="flex-start"
 							message={localValue.zodValidation.error.format()._errors[0]}
 							type="error"
 						/>

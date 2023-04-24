@@ -85,7 +85,7 @@ export const ZodOrNullishEditor: React.FC<{
 
 	return (
 		<>
-			{value === null ? (
+			{value === nullishValue ? (
 				<SchemaLabel
 					isDefaultValue={value === defaultValue}
 					jsonPath={jsonPath}

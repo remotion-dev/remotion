@@ -92,6 +92,20 @@ FFmpeg is now baked into the `@remotion/renderer` package. Therefore, the `ffmpe
 In V3, `onSlowestFrames` has been a callback function that you could pass to `renderMedia()`.  
 In V4, this data has been moved to the [return value](/docs/renderer/render-media#return-value).
 
+## Separating `ImageFormat`
+
+Previously, the `imageFormat` option would be used for both stills and videos. While for stills, PNG is often preferrable, for videos it is overall faster to use JPEG as a default. In Remotion 4.0, the image formats are being separated so you can set defaults for videos and stills separately.
+
+- `Config.setImageFormat` got replaced by [`Config.setVideoImageFormat()`](/docs/cli#setvideoimageformat) and [`Config.setStillImageFormat()`](/docs/cli#setstillimageformat).
+- The CLI option is still `--image-format` for all commands.
+- The Node.JS API name is still `imageFormat`.
+- The TypeScript type `ImageFormat` has been separated into `StillImageFormat` and `VideoImageFormat`.
+- `StillImageFormat` now also supports `webp` and `pdf`!
+
+## ImageFormat removed
+
+The [@remotion/renderer](/docs/renderer) `ImageFormat` Type got replaced by the more specific Types `VideoImageFormat` and `StillImageFormat`.
+
 ## Removal of deprecated APIs
 
 - `Config.setOutputFormat()` was deprecated in v1.4 and has now been removed. Use `setImageSequence()`, `setVideoImageFormat()` and `setCodec()` in combination instead.
@@ -125,3 +139,9 @@ const tangent = getTangentAtLength(parts[0], length / 2);
 ## `onBucketEnsured` option has been removed
 
 The `onBucketEnsured()` option of [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket) has been removed because creating the bucket is the only operation of `getOrCreateBucket()`. Therefore, you can just await the function itself.
+
+## `<Img>` will cancel the render if the image cannot be loaded
+
+Before, [`<Img>`](/docs/img) would only log to the console if an image cannot be loaded and inevitably lead to a timeout if the error is not handled.
+
+If this happens now and the error is not handled, the render will be aborted and the error reported.

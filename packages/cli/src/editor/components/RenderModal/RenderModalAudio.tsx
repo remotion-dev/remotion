@@ -148,6 +148,7 @@ export const RenderModalAudio: React.FC<{
 								value={customTargetAudioBitrate}
 								onChange={onTargetAudioBitrateChanged}
 								status="ok"
+								rightAlign
 							/>
 						</div>
 					</div>
