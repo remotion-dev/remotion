@@ -10,6 +10,7 @@ import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {SVGProps} from 'react';
 import React, {useCallback, useContext, useMemo} from 'react';
 import type {AnyCompMetadata} from 'remotion';
+import {Internals} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
 import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-video-contexts';
 import {ThinRenderIcon} from '../icons/render';
@@ -29,6 +30,8 @@ export const RenderButton: React.FC<{
 			},
 		};
 	}, []);
+
+	const {props} = useContext(Internals.EditorPropsContext);
 
 	const isVideo = composition.durationInFrames > 1;
 	const onClick: React.MouseEventHandler<HTMLAnchorElement> = useCallback(
@@ -84,9 +87,10 @@ export const RenderButton: React.FC<{
 				initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
 				initialHeadless: defaults.headless,
 				initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
+				defaultProps: props[composition.id] ?? composition.defaultProps,
 			});
 		},
-		[composition.id, isVideo, setSelectedModal]
+		[composition.defaultProps, composition.id, isVideo, props, setSelectedModal]
 	);
 
 	if (!visible) {

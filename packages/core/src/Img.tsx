@@ -5,6 +5,7 @@ import React, {
 	useLayoutEffect,
 	useRef,
 } from 'react';
+import {cancelRender} from './cancel-render.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {usePreload} from './prefetch.js';
 
@@ -89,11 +90,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			console.error(
-				'Error loading image with src:',
-				imageRef.current?.src,
-				e,
-				'Handle the event using the onError() prop to make this message disappear.'
+			cancelRender(
+				'Error loading image with src: ' + (imageRef.current?.src as string)
 			);
 		},
 		[maxRetries, onError, retryIn]
