@@ -7,6 +7,18 @@
 			{
 				"patterns": ["@remotion/*/src/*"]
 			}
+		],
+		"@typescript-eslint/no-restricted-imports": [
+			"error",
+			{
+				"paths": [
+					{
+						"name": "zod",
+						"message": "Can only import zod as a type",
+						"allowTypeImports": true
+					}
+				]
+			}
 		]
 	},
 	"overrides": [
