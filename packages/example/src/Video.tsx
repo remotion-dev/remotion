@@ -520,8 +520,8 @@ export const Index: React.FC = () => {
 					width={850}
 				/>
 				<Composition
-					id="font-in-lottie"
-					lazyComponent={() => import('./Lottie/FontInLottie')}
+					id="LottieInitializationBugfix"
+					lazyComponent={() => import('./Lottie/LottieInitializationBugfix')}
 					durationInFrames={300}
 					fps={30}
 					height={850}

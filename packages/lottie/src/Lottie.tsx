@@ -30,7 +30,7 @@ export const Lottie = ({
 	validateLoop(loop);
 
 	const animationRef = useRef<AnimationItem>();
-	const lastFrameRef = useRef<number | null>(null);
+	const currentFrameRef = useRef<number | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	const onAnimationLoadedRef = useRef<LottieProps['onAnimationLoaded']>();
@@ -40,7 +40,7 @@ export const Lottie = ({
 		delayRender('Waiting for Lottie animation to load')
 	);
 	const frame = useCurrentFrame();
-	lastFrameRef.current = frame;
+	currentFrameRef.current = frame;
 
 	useEffect(() => {
 		if (!containerRef.current) {
@@ -55,12 +55,14 @@ export const Lottie = ({
 
 		const {current: animation} = animationRef;
 		const onComplete = () => {
-			if (lastFrameRef.current) {
+			// Seek frame twice to avoid Lottie initialization bug:
+			// See LottieInitializationBugfix composition in the example project for a repro.
+			if (currentFrameRef.current) {
 				animationRef.current?.goToAndStop(
-					Math.max(0, lastFrameRef.current - 1),
+					Math.max(0, currentFrameRef.current - 1),
 					true
 				);
-				animationRef.current?.goToAndStop(lastFrameRef.current, true);
+				animationRef.current?.goToAndStop(currentFrameRef.current, true);
 			}
 
 			continueRender(handle);
