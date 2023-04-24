@@ -40,6 +40,7 @@ export const Lottie = ({
 		delayRender('Waiting for Lottie animation to load')
 	);
 	const frame = useCurrentFrame();
+	lastFrameRef.current = frame;
 
 	useEffect(() => {
 		if (!containerRef.current) {
@@ -52,12 +53,16 @@ export const Lottie = ({
 			animationData,
 		});
 
-		if (lastFrameRef.current) {
-			animationRef.current.goToAndStop(lastFrameRef.current, true);
-		}
-
 		const {current: animation} = animationRef;
 		const onComplete = () => {
+			if (lastFrameRef.current) {
+				animationRef.current?.goToAndStop(
+					Math.max(0, lastFrameRef.current - 1),
+					true
+				);
+				animationRef.current?.goToAndStop(lastFrameRef.current, true);
+			}
+
 			continueRender(handle);
 		};
 
@@ -66,7 +71,6 @@ export const Lottie = ({
 		onAnimationLoadedRef.current?.(animation);
 
 		return () => {
-			lastFrameRef.current = animation.currentFrame;
 			animation.removeEventListener('DOMLoaded', onComplete);
 			animation.destroy();
 		};
