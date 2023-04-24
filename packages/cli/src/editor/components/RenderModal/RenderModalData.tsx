@@ -106,13 +106,29 @@ export const RenderModalData: React.FC<{
 
 	const z = useZodIfPossible();
 
-	if (!z) {
-		throw Error('expected zod to be installed');
-	}
+	const schema = useMemo(() => {
+		if (!z) {
+			return 'no-zod' as const;
+		}
 
-	const schema = composition.schema ?? z.any();
+		if (!composition.schema) {
+			return z.any();
+		}
+
+		if (!(typeof composition.schema.safeParse === 'function')) {
+			throw new Error(
+				'A value which is not a Zod schema was passed to `schema`'
+			);
+		}
+
+		return composition.schema;
+	}, [composition.schema, z]);
 
 	const zodValidationResult = useMemo(() => {
+		if (schema === 'no-zod') {
+			return 'no-zod' as const;
+		}
+
 		return schema.safeParse(inputProps);
 	}, [inputProps, schema]);
 
@@ -208,14 +224,22 @@ export const RenderModalData: React.FC<{
 		);
 	}
 
-	const def: Zod.ZodTypeDef = schema._def;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const typeName = (def as any).typeName as Zod.ZodFirstPartyTypeKind;
-
-	if (!z) {
+	if (schema === 'no-zod') {
 		// TODO: Make nicer modal for Zod
 		return <div>Install zod</div>;
 	}
+
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
+	if (zodValidationResult === 'no-zod') {
+		throw new Error('expected zod');
+	}
+
+	const def: Zod.ZodTypeDef = schema._def;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const typeName = (def as any).typeName as Zod.ZodFirstPartyTypeKind;
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
 		return <NoSchemaDefined />;
