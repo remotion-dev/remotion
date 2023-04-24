@@ -1,7 +1,7 @@
 use lazy_static::lazy_static;
 
 use crate::errors::PossibleErrors;
-use crate::opened_video::open_video;
+use crate::opened_stream::open_video;
 use crate::opened_video::OpenedVideo;
 use std::collections::HashMap;
 use std::io::ErrorKind;
@@ -13,15 +13,19 @@ extern crate ffmpeg_next as remotionffmpeg;
 pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8>, PossibleErrors> {
     let manager = OpenedVideoManager::get_instance();
     let video_locked = manager.get_video(&src, transparent)?;
-    let mut vid = video_locked.lock().unwrap();
-    vid.get_frame(time, transparent)
+    let vid = video_locked.lock().unwrap();
+
+    let mut first_opened_stram = vid.opened_streams.first().unwrap().lock().unwrap();
+
+    // TODO: Handle multiple streams
+    first_opened_stram.get_frame(time, transparent)
 }
 
 pub struct OpenedVideoManager {
     videos: RwLock<HashMap<String, Arc<Mutex<OpenedVideo>>>>,
 }
 
-pub fn make_opened_video_manager() -> OpenedVideoManager {
+pub fn make_opened_stream_manager() -> OpenedVideoManager {
     remotionffmpeg::init().unwrap();
     OpenedVideoManager {
         videos: RwLock::new(HashMap::new()),
@@ -31,7 +35,7 @@ pub fn make_opened_video_manager() -> OpenedVideoManager {
 impl OpenedVideoManager {
     pub fn get_instance() -> &'static OpenedVideoManager {
         lazy_static! {
-            static ref INSTANCE: OpenedVideoManager = make_opened_video_manager();
+            static ref INSTANCE: OpenedVideoManager = make_opened_stream_manager();
         }
         &INSTANCE
     }
