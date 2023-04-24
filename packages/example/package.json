@@ -51,7 +51,7 @@
 		"@types/styled-components": "^5.1.26",
 		"@types/web": "0.0.78",
 		"babel-loader": "^8.2.2",
-		"lottie-web": "^5.11.0",
+		"lottie-web": "^5.9.6",
 		"mdx-loader": "3.0.2",
 		"opentype.js": "^1.3.4",
 		"polished": "^4.0.5",
