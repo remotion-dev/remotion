@@ -45,6 +45,7 @@ import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateEveryNthFrame} from './validate-every-nth-frame';
 import {validateFfmpegOverride} from './validate-ffmpeg-override';
+import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
@@ -198,6 +199,7 @@ export const renderMedia = ({
 	const everyNthFrame = options.everyNthFrame ?? 1;
 	validateEveryNthFrame(everyNthFrame, codec);
 	const numberOfGifLoops = options.numberOfGifLoops ?? null;
+	validateNumberOfGifLoops(numberOfGifLoops, codec);
 
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;

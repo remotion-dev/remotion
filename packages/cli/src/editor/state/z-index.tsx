@@ -17,6 +17,10 @@ const ZIndexContext = createContext<ZIndex>({
 	currentIndex: 0,
 });
 
+const margin: React.CSSProperties = {
+	margin: 'auto',
+};
+
 const EscapeHook: React.FC<{
 	onEscape: () => void;
 }> = ({onEscape}) => {
@@ -109,7 +113,9 @@ export const HigherZIndex: React.FC<{
 	return (
 		<ZIndexContext.Provider value={value}>
 			<EscapeHook onEscape={onEscape} />
-			<div ref={containerRef}>{children}</div>
+			<div ref={containerRef} style={margin}>
+				{children}
+			</div>
 		</ZIndexContext.Provider>
 	);
 };

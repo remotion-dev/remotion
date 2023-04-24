@@ -3,7 +3,7 @@ import {AbsoluteFill, Sequence} from 'remotion';
 import {z} from 'zod';
 
 export const schemaTestSchema = z.object({
-	title: z.string(),
+	title: z.string().nullable(),
 	delay: z.number().min(0).max(1000).step(0.1),
 });
 

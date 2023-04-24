@@ -10,8 +10,26 @@ export const deleteDirectory = (directory: string): void => {
 		return;
 	}
 
-	// TODO: Test it on Windows to see if it deletes the bundle
-	fs.rmSync(directory, {
-		recursive: true,
-	});
+	// Working around a bug with NodeJS 16 on Windows:
+	// If a subdirectory is already deleted, it will fail with EPERM
+	// even with force: true and recursive and maxRetries set higher.
+	// This is even with the fixWinEPERMSync function being called by Node.JS.
+
+	// This is a workaround for this issue.
+	let retries = 2;
+	while (retries >= 0) {
+		try {
+			fs.rmSync(directory, {
+				maxRetries: 2,
+				recursive: true,
+				force: true,
+				retryDelay: 100,
+			});
+		} catch (err) {
+			retries--;
+			continue;
+		}
+
+		break;
+	}
 };

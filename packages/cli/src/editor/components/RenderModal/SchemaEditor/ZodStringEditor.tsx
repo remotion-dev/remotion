@@ -97,12 +97,13 @@ export const ZodStringEditor: React.FC<{
 					status={localValue.zodValidation.success ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
+					rightAlign={false}
 				/>
 				{!localValue.zodValidation.success && (
 					<>
 						<Spacing y={1} block />
 						<ValidationMessage
-							align="flex-end"
+							align="flex-start"
 							message={localValue.zodValidation.error.format()._errors[0]}
 							type="error"
 						/>

@@ -103,7 +103,7 @@ export const ZodEffectEditor: React.FC<{
 			{!localValue.zodValidation.success && (
 				<legend>
 					<ValidationMessage
-						align="flex-end"
+						align="flex-start"
 						message={localValue.zodValidation.error.format()._errors[0]}
 						type="error"
 					/>

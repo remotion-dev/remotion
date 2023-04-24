@@ -45,6 +45,7 @@ export const NumberOfLoopsSetting: React.FC<{
 						step={1}
 						min={min}
 						status="ok"
+						rightAlign
 					/>
 				</RightAlignInput>
 			</div>

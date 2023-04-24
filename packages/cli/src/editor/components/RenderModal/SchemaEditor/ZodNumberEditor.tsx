@@ -128,8 +128,6 @@ export const ZodNumberEditor: React.FC<{
 		[schema, setValue]
 	);
 
-	// TODO: Error message does not align well
-
 	const isDefault = value === defaultValue;
 
 	const reset = useCallback(() => {
@@ -163,12 +161,13 @@ export const ZodNumberEditor: React.FC<{
 					min={getMinValue(schema)}
 					max={getMaxValue(schema)}
 					step={getStep(schema)}
+					rightAlign={false}
 				/>
 				{!localValue.zodValidation.success && (
 					<>
 						<Spacing y={1} block />
 						<ValidationMessage
-							align="flex-end"
+							align="flex-start"
 							message={localValue.zodValidation.error.format()._errors[0]}
 							type="error"
 						/>

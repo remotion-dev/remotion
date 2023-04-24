@@ -87,6 +87,7 @@ export type BundleOptions = {
 	entryPoint: string;
 	onProgress?: (progress: number) => void;
 	ignoreRegisterRootWarning?: boolean;
+	onDirectoryCreated?: (dir: string) => void;
 } & LegacyBundleOptions;
 
 type Arguments =
@@ -166,6 +167,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 	}
 
 	const outDir = await prepareOutDir(actualArgs?.outDir ?? null);
+	actualArgs.onDirectoryCreated?.(outDir);
 
 	// The config might use an override which might use
 	// `process.cwd()`. The context should always be the Remotion root.
