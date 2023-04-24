@@ -53,3 +53,14 @@ func randomHash(options ...bool) string {
 
 	return string(hash)
 }
+
+func constructInternals(options *RemotionOptions) internalOptions {
+
+	internalParams := &internalOptions{
+		ServeUrl:    options.ServeUrl,
+		Region:      options.Region,
+		Composition: options.Composition,
+	}
+
+	return *internalParams
+}

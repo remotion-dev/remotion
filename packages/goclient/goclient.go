@@ -19,13 +19,20 @@ func invokeLambda(options *RemotionOptions) error {
 	svc := lambda.New(sess)
 
 	// Create input for Lambda function
-	payload, err := json.Marshal(options)
+	_, err := json.Marshal(options)
 	if err != nil {
 		return err
 	}
+
+	internalParams := constructInternals(options)
+	internalParamByte, err := json.Marshal(internalParams)
+	if err != nil {
+		return err
+	}
+
 	params := &lambda.InvokeInput{
 		FunctionName: aws.String(options.FunctionName),
-		Payload:      payload,
+		Payload:      internalParamByte,
 	}
 
 	// Invoke Lambda function
