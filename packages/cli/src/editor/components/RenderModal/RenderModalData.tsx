@@ -225,6 +225,8 @@ export const RenderModalData: React.FC<{
 		return <NoDefaultProps />;
 	}
 
+	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
+
 	return (
 		<div style={outer}>
 			<div style={controlContainer}>

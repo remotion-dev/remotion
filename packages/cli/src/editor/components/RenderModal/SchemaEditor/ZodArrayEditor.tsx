@@ -116,7 +116,7 @@ export const ZodArrayEditor: React.FC<{
 		onChange((oldV) => {
 			return [...oldV, createZodValues(def.type, z)];
 		}, true);
-	}, [def.type, onChange]);
+	}, [def.type, onChange, z]);
 
 	return (
 		<div style={style}>
