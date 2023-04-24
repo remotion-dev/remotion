@@ -594,6 +594,23 @@ importers:
       eslint-plugin-react-hooks: 4.4.0_eslint@8.25.0
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
 
+  packages/example-without-zod:
+    specifiers:
+      '@types/react': ^18.0.38
+      '@types/react-dom': ^18.0.11
+      react: ^18.2.0
+      react-dom: ^18.2.0
+      remotion: workspace:*
+      typescript: ^4.7.0
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      remotion: link:../core
+      typescript: 4.9.5
+    devDependencies:
+      '@types/react': 18.0.38
+      '@types/react-dom': 18.0.11
+
   packages/gif:
     specifiers:
       '@jonny/eslint-config': 3.0.266
@@ -6729,7 +6746,7 @@ packages:
     peerDependencies:
       react: '*'
     dependencies:
-      '@types/react': 18.0.28
+      '@types/react': 18.0.38
       prop-types: 15.8.1
       react: 18.0.0
     dev: false
@@ -9465,7 +9482,7 @@ packages:
   /@types/react-dom/18.0.11:
     resolution: {integrity: sha512-O38bPbI2CWtgw/OoQoY+BRelw7uysmXbWvw3nLWO21H1HSh+GOlqPuXshJfjmpNlKiiSDG9cc1JZAaMmVdcTlw==}
     dependencies:
-      '@types/react': 18.0.28
+      '@types/react': 18.0.38
     dev: true
 
   /@types/react-native/0.69.2:
@@ -9502,7 +9519,7 @@ packages:
     resolution: {integrity: sha512-UvyRy73318QI83haXlaMwmklHHzV9hjl3u71MmM6wYNu0hOVk9NLTa0vGukf8zXUqnwz4O06ig876YSPpeK28A==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.0.28
+      '@types/react': 18.0.38
       '@types/react-router': 5.1.17
     dev: false
 
@@ -9510,7 +9527,7 @@ packages:
     resolution: {integrity: sha512-RNSXOyb3VyRs/EOGmjBhhGKTbnN6fHWvy5FNLzWfOWOGjgVUKqJZXfpKzLmgoU8h6Hj8mpALj/mbXQASOb92wQ==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.0.28
+      '@types/react': 18.0.38
     dev: false
 
   /@types/react/18.0.26:
@@ -9522,6 +9539,14 @@ packages:
 
   /@types/react/18.0.28:
     resolution: {integrity: sha512-RD0ivG1kEztNBdoAK7lekI9M+azSnitIn85h4iOiaLjaTrMjzslhaqCGaI4IyCJ1RljWiLCEu4jyrLLgqxBTew==}
+    dependencies:
+      '@types/prop-types': 15.7.4
+      '@types/scheduler': 0.16.2
+      csstype: 3.1.1
+    dev: true
+
+  /@types/react/18.0.38:
+    resolution: {integrity: sha512-ExsidLLSzYj4cvaQjGnQCk4HFfVT9+EZ9XZsQ8Hsrcn8QNgXtpZ3m9vSIC2MWtx7jHictK6wYhQgGh6ic58oOw==}
     dependencies:
       '@types/prop-types': 15.7.4
       '@types/scheduler': 0.16.2
