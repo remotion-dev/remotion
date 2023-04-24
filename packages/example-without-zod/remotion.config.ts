@@ -7,8 +7,8 @@ Config.overrideWebpackConfig((config) => {
       ...config.resolve,
       alias: {
         ...config.resolve?.alias,
-        zod: "undefined.js",
-        "@remotion/z-color": "undefined.js",
+        zod: false,
+        "@remotion/z-color": false,
       },
     },
   };
