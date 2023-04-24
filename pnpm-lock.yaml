@@ -596,6 +596,7 @@ importers:
 
   packages/example-without-zod:
     specifiers:
+      '@remotion/cli': workspace:*
       '@types/react': ^18.0.38
       '@types/react-dom': ^18.0.11
       react: ^18.2.0
@@ -603,6 +604,7 @@ importers:
       remotion: workspace:*
       typescript: ^4.7.0
     dependencies:
+      '@remotion/cli': link:../cli
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       remotion: link:../core

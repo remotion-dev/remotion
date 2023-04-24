@@ -11,7 +11,7 @@ export type ZodType = Awaited<typeof import('zod')>['z'];
 export type ZodColorType = Awaited<
 	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
 	typeof import('@remotion/z-color')
->['zColor'];
+>;
 
 export const getZodIfPossible = async (): Promise<ZodType | null> => {
 	try {
@@ -22,10 +22,10 @@ export const getZodIfPossible = async (): Promise<ZodType | null> => {
 	}
 };
 
-const getZColorIfPossible = async (): Promise<ZodColorType | null> => {
+export const getZColorIfPossible = async (): Promise<ZodColorType | null> => {
 	try {
-		const {zColor} = await import('@remotion/z-color');
-		return zColor;
+		const mod = await import('@remotion/z-color');
+		return mod;
 	} catch (err) {
 		return null;
 	}
