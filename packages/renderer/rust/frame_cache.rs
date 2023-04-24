@@ -50,11 +50,11 @@ impl FrameCache {
         Ok(data)
     }
 
-    pub fn get_item(
+    pub fn get_item_id(
         &mut self,
         time: i64,
         threshold: i64,
-    ) -> Result<Option<Vec<u8>>, PossibleErrors> {
+    ) -> Result<Option<usize>, PossibleErrors> {
         let mut best_item: Option<usize> = None;
         let mut best_distance = std::i64::MAX;
 
@@ -64,7 +64,7 @@ impl FrameCache {
                 if self.last_frame.unwrap() == self.items[i].id {
                     self.items[i].frame.ensure_data()?;
 
-                    return Ok(Some(self.items[i].frame.get_data().unwrap()));
+                    return Ok(Some(self.items[i].id));
                 }
 
                 continue;
@@ -72,7 +72,7 @@ impl FrameCache {
 
             if self.items[i].resolved_pts == time {
                 self.items[i].frame.ensure_data()?;
-                return Ok(Some(self.items[i].frame.get_data().unwrap()));
+                return Ok(Some(self.items[i].id));
             }
             let distance = (self.items[i].asked_time - time as i64).abs();
             // LTE: IF multiple items have the same distance, we take the last one.
@@ -88,8 +88,6 @@ impl FrameCache {
         }
 
         self.items[best_item.unwrap()].frame.ensure_data()?;
-        Ok(Some(
-            self.items[best_item.unwrap()].frame.get_data().unwrap(),
-        ))
+        Ok(Some(self.items[best_item.unwrap()].id))
     }
 }

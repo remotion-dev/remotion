@@ -32,7 +32,6 @@ pub struct OpenedStream {
     pub src: String,
     pub input: remotionffmpeg::format::context::Input,
     pub last_position: LastSeek,
-    pub frame_cache: FrameCache,
     pub duration_or_zero: i64,
     pub fps: Rational,
     pub reached_eof: bool,
@@ -67,6 +66,7 @@ impl OpenedStream {
         &mut self,
         position: i64,
         transparent: bool,
+        frame_cache: &Arc<Mutex<FrameCache>>,
     ) -> Result<Option<usize>, PossibleErrors> {
         self.video.send_eof()?;
 
@@ -105,7 +105,7 @@ impl OpenedStream {
                         asked_time: position,
                     };
 
-                    self.frame_cache.add_item(item);
+                    frame_cache.lock().unwrap().add_item(item);
                     latest_frame = Some(frame_cache_id);
                 },
                 Ok(None) => {
@@ -119,13 +119,18 @@ impl OpenedStream {
         Ok(latest_frame)
     }
 
-    pub fn get_frame(&mut self, time: f64, transparent: bool) -> Result<Vec<u8>, PossibleErrors> {
+    pub fn get_frame(
+        &mut self,
+        time: f64,
+        transparent: bool,
+        frame_cache: &Arc<Mutex<FrameCache>>,
+    ) -> Result<usize, PossibleErrors> {
         let position = self.calc_position(time);
         let one_frame_after = self.calc_position(
             time + (1.0 / (self.fps.numerator() as f64 / self.fps.denominator() as f64)),
         );
         let threshold = one_frame_after - position;
-        let cache_item = self.frame_cache.get_item(position, threshold);
+        let cache_item = frame_cache.lock().unwrap().get_item_id(position, threshold);
         match cache_item {
             Ok(Some(item)) => {
                 return Ok(item);
@@ -164,16 +169,22 @@ impl OpenedStream {
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
-                    let data = self.handle_eof(position, transparent)?;
+                    let data = self.handle_eof(position, transparent, frame_cache)?;
                     if data.is_some() {
                         last_frame = data;
-                        self.frame_cache.set_last_frame(data.unwrap())
                     }
                     break;
                 }
                 Ok(packet) => packet,
                 Err(err) => Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?,
             };
+
+            if last_frame.is_some() {
+                frame_cache
+                    .lock()
+                    .unwrap()
+                    .set_last_frame(last_frame.unwrap());
+            }
 
             if stream.parameters().medium() != Type::Video {
                 continue;
@@ -197,7 +208,6 @@ impl OpenedStream {
             }
 
             loop {
-                _print_debug("asking for frame");
                 self.video.send_packet(&packet)?;
                 let result = self.receive_frame();
 
@@ -235,7 +245,7 @@ impl OpenedStream {
                             asked_time: position,
                         };
 
-                        self.frame_cache.add_item(item);
+                        frame_cache.lock().unwrap().add_item(item);
 
                         last_frame = Some(frame_cache_id);
 
@@ -254,15 +264,7 @@ impl OpenedStream {
             return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;
         }
 
-        let from_cache = self.frame_cache.get_item_from_id(last_frame.unwrap());
-        match from_cache {
-            Ok(Some(data)) => Ok(data),
-            Ok(None) => Err(std::io::Error::new(
-                ErrorKind::Other,
-                "Frame evicted from cache",
-            ))?,
-            Err(err) => Err(err),
-        }
+        Ok(last_frame.unwrap())
     }
 }
 
@@ -368,7 +370,6 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleE
             resolved_pts: 0,
             resolved_dts: 0,
         },
-        frame_cache: FrameCache::new(),
         duration_or_zero,
         fps,
         reached_eof: false,
@@ -376,6 +377,7 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleE
 
     let opened_video = OpenedVideo {
         opened_streams: vec![(Arc::new(Mutex::new(opened_stream)))],
+        frame_cache: Arc::new(Mutex::new(FrameCache::new())),
     };
 
     Ok(opened_video)
