@@ -18,7 +18,22 @@ pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8
     let mut first_opened_stram = vid.opened_streams.first().unwrap().lock().unwrap();
 
     // TODO: Handle multiple streams
-    first_opened_stram.get_frame(time, transparent)
+    let frame_id = first_opened_stram.get_frame(time, transparent, &vid.frame_cache);
+
+    let from_cache = vid
+        .frame_cache
+        .lock()
+        .unwrap()
+        .get_item_from_id(frame_id.unwrap());
+
+    match from_cache {
+        Ok(Some(data)) => Ok(data),
+        Ok(None) => Err(std::io::Error::new(
+            ErrorKind::Other,
+            "Frame evicted from cache",
+        ))?,
+        Err(err) => Err(err),
+    }
 }
 
 pub struct OpenedVideoManager {
