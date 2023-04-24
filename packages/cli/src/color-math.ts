@@ -1,7 +1,11 @@
-import {ZColorInternals} from '@remotion/z-color';
+import type {ZodColorType} from './editor/components/get-zod-if-possible';
 
-export const colorWithNewOpacity = (color: string, opacity: number) => {
-	const {r, g, b} = ZColorInternals.parseColor(color);
+export const colorWithNewOpacity = (
+	color: string,
+	opacity: number,
+	zColor: ZodColorType
+) => {
+	const {r, g, b} = zColor.ZColorInternals.parseColor(color);
 	if (opacity >= 255) {
 		return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
 	}

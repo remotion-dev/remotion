@@ -16,6 +16,11 @@
 						"name": "zod",
 						"message": "Can only import zod as a type",
 						"allowTypeImports": true
+					},
+					{
+						"name": "@remotion/z-color",
+						"message": "Can only import @remotion/z-color as a type",
+						"allowTypeImports": true
 					}
 				]
 			}

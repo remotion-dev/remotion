@@ -1,13 +1,14 @@
-import {ZColorInternals} from '@remotion/z-color';
 import React from 'react';
 import type {z} from 'zod';
-import {useZodIfPossible} from '../../get-zod-if-possible';
+import {
+	useZodColorIfPossible,
+	useZodIfPossible,
+} from '../../get-zod-if-possible';
 import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodBooleanEditor} from './ZodBooleanEditor';
 import {ZodColorEditor} from './ZodColorEditor';
 import {ZodDateEditor} from './ZodDateEditor';
-import {ZodEffectEditor} from './ZodEffectEditor';
 import {ZodEnumEditor} from './ZodEnumEditor';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
 import {ZodNullableEditor} from './ZodNullableEditor';
@@ -46,6 +47,8 @@ export const ZodSwitch: React.FC<{
 	if (!z) {
 		throw new Error('expected zod');
 	}
+
+	const zodColor = useZodColorIfPossible();
 
 	// TODO: (Maybe?) enable saving of inserted input props by cmd+s /ctrl + s (also for JSON view)
 
@@ -222,7 +225,10 @@ export const ZodSwitch: React.FC<{
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodEffects) {
-		if (schema._def.description === ZColorInternals.REMOTION_COLOR_BRAND) {
+		if (
+			zodColor &&
+			schema._def.description === zodColor.ZColorInternals.REMOTION_COLOR_BRAND
+		) {
 			return (
 				<ZodColorEditor
 					value={value as string}
@@ -237,20 +243,6 @@ export const ZodSwitch: React.FC<{
 				/>
 			);
 		}
-
-		return (
-			<ZodEffectEditor
-				value={value}
-				setValue={setValue}
-				jsonPath={jsonPath}
-				schema={schema}
-				compact={compact}
-				defaultValue={defaultValue}
-				onSave={onSave}
-				showSaveButton={showSaveButton}
-				onRemove={onRemove}
-			/>
-		);
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodUnion) {

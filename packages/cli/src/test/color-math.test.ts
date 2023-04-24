@@ -1,8 +1,18 @@
-import {ZColorInternals} from '@remotion/z-color';
 import {expect, test} from 'vitest';
+import {getZColorIfPossible} from '../editor/components/get-zod-if-possible';
 
-test('Color math', () => {
-	expect(ZColorInternals.parseColor('rgba(255, 255, 255, 0.5)')).toEqual({
+const getZColor = async () => {
+	const z = await getZColorIfPossible();
+	if (!z) {
+		throw new Error('z-color not found');
+	}
+
+	return z;
+};
+
+test('Color math', async () => {
+	const mod = await getZColor();
+	expect(mod.ZColorInternals.parseColor('rgba(255, 255, 255, 0.5)')).toEqual({
 		a: 128,
 		r: 255,
 		b: 255,
