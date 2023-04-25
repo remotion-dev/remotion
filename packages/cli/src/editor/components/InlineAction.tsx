@@ -1,6 +1,6 @@
 import type {PropsWithChildren} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
-import {CLEAR_HOVER, getBackgroundFromHoverState, LIGHT_TEXT} from '../helpers/colors';
+import { getBackgroundFromHoverState, LIGHT_TEXT} from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
 
 export const InlineAction: React.FC<
