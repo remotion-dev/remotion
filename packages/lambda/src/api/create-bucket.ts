@@ -1,4 +1,7 @@
-import {CreateBucketCommand} from '@aws-sdk/client-s3';
+import {
+	CreateBucketCommand,
+	DeletePublicAccessBlockCommand,
+} from '@aws-sdk/client-s3';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
 
@@ -13,6 +16,13 @@ export const createBucket = async ({
 		new CreateBucketCommand({
 			Bucket: bucketName,
 			ACL: 'public-read',
+			ObjectOwnership: 'ObjectWriter',
+		})
+	);
+
+	await getS3Client(region, null).send(
+		new DeletePublicAccessBlockCommand({
+			Bucket: bucketName,
 		})
 	);
 };
