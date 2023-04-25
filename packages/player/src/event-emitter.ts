@@ -18,6 +18,10 @@ type RateChangeEventPayload = {
 	playbackRate: number;
 };
 
+type ScaleChangeEventPayload = {
+	scale: number;
+};
+
 type FullscreenChangeEventPayload = {
 	isFullscreen: boolean;
 };
@@ -27,6 +31,7 @@ type PlayerStateEventMap = {
 	pause: undefined;
 	play: undefined;
 	ratechange: RateChangeEventPayload;
+	scalechange: ScaleChangeEventPayload;
 	ended: undefined;
 	error: ErrorPayload;
 	timeupdate: TimeUpdateEventPayload;
@@ -60,6 +65,7 @@ export class PlayerEmitter {
 		pause: [],
 		play: [],
 		ratechange: [],
+		scalechange: [],
 		seeked: [],
 		timeupdate: [],
 		frameupdate: [],
@@ -117,6 +123,12 @@ export class PlayerEmitter {
 		});
 	}
 
+	dispatchScalechange(scale: number) {
+		this.dispatchEvent('scalechange', {
+			scale,
+		});
+	}
+
 	dispatchError(error: Error) {
 		this.dispatchEvent('error', {
 			error,
@@ -131,7 +143,7 @@ export class PlayerEmitter {
 		this.dispatchEvent('frameupdate', event);
 	}
 
-	dispatchFullscreenChangeUpdate(event: FullscreenChangeEventPayload) {
+	dispatchFullscreenChange(event: FullscreenChangeEventPayload) {
 		this.dispatchEvent('fullscreenchange', event);
 	}
 }
