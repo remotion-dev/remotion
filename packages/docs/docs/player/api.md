@@ -607,20 +607,22 @@ useEffect(() => {
 
   return () => {
     // Make sure to clean up event listeners
-    playerRef.current.removeEventListener("play", onPlay);
-    playerRef.current.removeEventListener("ratechange", onRateChange);
-    playerRef.current.removeEventListener("volumechange", onVolumeChange);
-    playerRef.current.removeEventListener("pause", onPause);
-    playerRef.current.removeEventListener("ended", onEnded);
-    playerRef.current.removeEventListener("error", onError);
-    playerRef.current.removeEventListener(
-      "fullscreenchange",
-      onFullscreenChange
-    );
+    if (playerRef.current) {
+      playerRef.current.removeEventListener("play", onPlay);
+      playerRef.current.removeEventListener("ratechange", onRateChange);
+      playerRef.current.removeEventListener("volumechange", onVolumeChange);
+      playerRef.current.removeEventListener("pause", onPause);
+      playerRef.current.removeEventListener("ended", onEnded);
+      playerRef.current.removeEventListener("error", onError);
+      playerRef.current.removeEventListener(
+        "fullscreenchange",
+        onFullscreenChange
+      );
 
-    // See below for difference between `seeked` and `timeupdate`
-    playerRef.current.removeEventListener("seeked", onSeeked);
-    playerRef.current.removeEventListener("timeupdate", onTimeupdate);
+      // See below for difference between `seeked` and `timeupdate`
+      playerRef.current.removeEventListener("seeked", onSeeked);
+      playerRef.current.removeEventListener("timeupdate", onTimeupdate);
+    }
   };
 }, []);
 ```
