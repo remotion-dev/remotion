@@ -593,6 +593,10 @@ useEffect(() => {
     console.log("fullscreenchange", e.detail.isFullscreen);
   };
 
+  const onScaleChange: CallbackListener<"scalechange"> = (e) => {
+    console.log("scalechange", e.detail.scale);
+  };
+
   playerRef.current.addEventListener("play", onPlay);
   playerRef.current.addEventListener("ratechange", onRateChange);
   playerRef.current.addEventListener("volumechange", onVolumeChange);
@@ -600,6 +604,7 @@ useEffect(() => {
   playerRef.current.addEventListener("ended", onEnded);
   playerRef.current.addEventListener("error", onError);
   playerRef.current.addEventListener("fullscreenchange", onFullscreenChange);
+  playerRef.current.addEventListener("scalechange", onScaleChange);
 
   // See below for difference between `seeked` and `timeupdate`
   playerRef.current.addEventListener("seeked", onSeeked);
@@ -618,8 +623,7 @@ useEffect(() => {
         "fullscreenchange",
         onFullscreenChange
       );
-
-      // See below for difference between `seeked` and `timeupdate`
+      playerRef.current.removeEventListener("scalechange", onScaleChange);
       playerRef.current.removeEventListener("seeked", onSeeked);
       playerRef.current.removeEventListener("timeupdate", onTimeupdate);
     }
@@ -660,9 +664,13 @@ Fires when the video has started playing or has resumed from a pause.
 
 Fires when the [`playbackRate`](#playbackrate) has changed.
 
+### `scalechange` <AvailableFrom v="3.3.85" />
+
+Fires when the `scale` has changed. Also returned by [`getScale()`](#getscale).
+
 ### `volumechange` <AvailableFrom v="3.3.85" />
 
-Fires when the volume has changed.
+Fires when the volume has changed. Also returned by [`getVolume()`](#getvolume).
 
 ### `pause`
 

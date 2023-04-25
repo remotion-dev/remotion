@@ -18,6 +18,10 @@ type RateChangeEventPayload = {
 	playbackRate: number;
 };
 
+type ScaleChangeEventPayload = {
+	scale: number;
+};
+
 type VolumeChangeEventPayload = {
 	volume: number;
 };
@@ -31,6 +35,7 @@ type PlayerStateEventMap = {
 	pause: undefined;
 	play: undefined;
 	ratechange: RateChangeEventPayload;
+	scalechange: ScaleChangeEventPayload;
 	volumechange: VolumeChangeEventPayload;
 	ended: undefined;
 	error: ErrorPayload;
@@ -65,6 +70,7 @@ export class PlayerEmitter {
 		pause: [],
 		play: [],
 		ratechange: [],
+		scalechange: [],
 		seeked: [],
 		timeupdate: [],
 		frameupdate: [],
@@ -123,9 +129,15 @@ export class PlayerEmitter {
 		this.dispatchEvent('ended', undefined);
 	}
 
-	dispatchRatechange(playbackRate: number) {
+	dispatchRateChange(playbackRate: number) {
 		this.dispatchEvent('ratechange', {
 			playbackRate,
+		});
+	}
+
+	dispatchScaleChange(scale: number) {
+		this.dispatchEvent('scalechange', {
+			scale,
 		});
 	}
 
@@ -143,7 +155,7 @@ export class PlayerEmitter {
 		this.dispatchEvent('frameupdate', event);
 	}
 
-	dispatchFullscreenChangeUpdate(event: FullscreenChangeEventPayload) {
+	dispatchFullscreenChange(event: FullscreenChangeEventPayload) {
 		this.dispatchEvent('fullscreenchange', event);
 	}
 }
