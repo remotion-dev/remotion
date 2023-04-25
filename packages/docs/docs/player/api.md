@@ -666,11 +666,11 @@ Fires when the [`playbackRate`](#playbackrate) has changed.
 
 ### `scalechange` <AvailableFrom v="3.3.85" />
 
-Fires when the `scale` (also returned by [`getScale()`](#getscale)) has changed.
+Fires when the `scale` has changed. Also returned by [`getScale()`](#getscale).
 
 ### `volumechange` <AvailableFrom v="3.3.85" />
 
-Fires when the volume has changed.
+Fires when the volume has changed. Also returned by [`getVolume()`](#getvolume).
 
 ### `pause`
 
