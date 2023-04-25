@@ -247,10 +247,17 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			previewSize: 'auto',
 		});
 	}, [canvasSize, config]);
+
 	const scale = layout?.scale ?? 1;
+	const initialScaleIgnored = useRef(false);
 
 	useEffect(() => {
-		player.emitter.dispatchScalechange(scale);
+		if (!initialScaleIgnored.current) {
+			initialScaleIgnored.current = true;
+			return;
+		}
+
+		player.emitter.dispatchScaleChange(scale);
 	}, [player.emitter, scale]);
 
 	const {setMediaVolume, setMediaMuted} = useContext(
