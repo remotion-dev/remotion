@@ -41,8 +41,7 @@ const bundleLambda = async () => {
 	fs.cpSync(ffmpegCwd, `${outdir}/ffmpeg`, {recursive: true});
 	await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
 
-	fs.unlinkSync(compositorFile);
-	fs.unlinkSync(outfile);
+	fs.rmSync(outdir, {recursive: true});
 };
 
 bundleLambda()
