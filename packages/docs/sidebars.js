@@ -458,6 +458,7 @@ module.exports = {
         "lambda/upgrading",
         "lambda/uninstall",
         "lambda/feb-2023-incident",
+        "lambda/s3-public-access",
       ],
     },
     {
