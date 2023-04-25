@@ -562,33 +562,72 @@ useEffect(() => {
   const onPlay: CallbackListener<"play"> = () => {
     console.log("play");
   };
-  playerRef.current.addEventListener("play", onPlay);
-  playerRef.current.addEventListener("ratechange", () => {
-    console.log("ratechange");
-  });
-  playerRef.current.addEventListener("scalechange", () => {
-    console.log("scalechange");
-  });
-  playerRef.current.addEventListener("pause", () => {
+  const onRateChange: CallbackListener<"ratechange"> = (e) => {
+    console.log("ratechange", e.detail.playbackRate);
+  };
+  const onVolumeChange: CallbackListener<"volumechange"> = (e) => {
+    console.log("new volume", e.detail.volume);
+  };
+
+  const onPause: CallbackListener<"pause"> = () => {
     console.log("pausing");
-  });
+  };
+
+  const onSeeked: CallbackListener<"seeked"> = (e) => {
+    console.log("seeked to " + e.detail.frame);
+  };
+
+  const onTimeupdate: CallbackListener<"timeupdate"> = (e) => {
+    console.log("time has updated to " + e.detail.frame);
+  };
+
+  const onEnded: CallbackListener<"ended"> = () => {
+    console.log("ended");
+  };
+
+  const onError: CallbackListener<"error"> = (e) => {
+    console.log("error", e.detail.error);
+  };
+
+  const onFullscreenChange: CallbackListener<"fullscreenchange"> = (e) => {
+    console.log("fullscreenchange", e.detail.isFullscreen);
+  };
+
+  const onScaleChange: CallbackListener<"scalechange"> = (e) => {
+    console.log("scalechange", e.detail.scale);
+  };
+
+  playerRef.current.addEventListener("play", onPlay);
+  playerRef.current.addEventListener("ratechange", onRateChange);
+  playerRef.current.addEventListener("volumechange", onVolumeChange);
+  playerRef.current.addEventListener("pause", onPause);
+  playerRef.current.addEventListener("ended", onEnded);
+  playerRef.current.addEventListener("error", onError);
+  playerRef.current.addEventListener("fullscreenchange", onFullscreenChange);
+  playerRef.current.addEventListener("scalechange", onScaleChange);
 
   // See below for difference between `seeked` and `timeupdate`
-  playerRef.current.addEventListener("seeked", (e) => {
-    console.log("seeked to " + e.detail.frame);
-  });
-  playerRef.current.addEventListener("timeupdate", (e) => {
-    console.log("time has updated to " + e.detail.frame);
-  });
-  playerRef.current.addEventListener("ended", (e) => {
-    console.log("ended");
-  });
-  playerRef.current.addEventListener("error", (e) => {
-    console.log("error", e.detail.error);
-  });
-  playerRef.current.addEventListener("fullscreenchange", (e) => {
-    console.log("fullscreenchange", e.detail.isFullscreen);
-  });
+  playerRef.current.addEventListener("seeked", onSeeked);
+  playerRef.current.addEventListener("timeupdate", onTimeupdate);
+
+  return () => {
+    // Make sure to clean up event listeners
+    if (playerRef.current) {
+      playerRef.current.removeEventListener("play", onPlay);
+      playerRef.current.removeEventListener("ratechange", onRateChange);
+      playerRef.current.removeEventListener("volumechange", onVolumeChange);
+      playerRef.current.removeEventListener("pause", onPause);
+      playerRef.current.removeEventListener("ended", onEnded);
+      playerRef.current.removeEventListener("error", onError);
+      playerRef.current.removeEventListener(
+        "fullscreenchange",
+        onFullscreenChange
+      );
+      playerRef.current.removeEventListener("scalechange", onScaleChange);
+      playerRef.current.removeEventListener("seeked", onSeeked);
+      playerRef.current.removeEventListener("timeupdate", onTimeupdate);
+    }
+  };
 }, []);
 ```
 
@@ -625,9 +664,13 @@ Fires when the video has started playing or has resumed from a pause.
 
 Fires when the [`playbackRate`](#playbackrate) has changed.
 
-### `scalechange` <AvailableFrom v="3.3.84" />
+### `scalechange` <AvailableFrom v="3.3.85" />
 
 Fires when the `scale` (also returned by [`getScale()`](#getscale)) has changed.
+
+### `volumechange` <AvailableFrom v="3.3.85" />
+
+Fires when the volume has changed.
 
 ### `pause`
 
