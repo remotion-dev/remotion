@@ -313,6 +313,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					}
 
 					setMediaVolume(vol);
+					player.emitter.dispatchVolumeChange(vol);
 				},
 				isMuted: () => mediaMuted || mediaVolume === 0,
 				mute: () => {
