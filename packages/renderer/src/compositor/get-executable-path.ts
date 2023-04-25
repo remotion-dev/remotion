@@ -7,8 +7,24 @@ function isMusl() {
 }
 
 export const getExecutablePath = (
-	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'ffmpeg-cwd'
+	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'ffmpeg-cwd',
+	isLambda: boolean
 ): string => {
+	if (isLambda) {
+		if (type === 'ffmpeg') {
+			return '/opt/ffmpeg/remotion/bin/ffmpeg';
+		}
+
+		if (type === 'ffprobe') {
+			return '/opt/ffmpeg/remotion/bin/ffprobe';
+		}
+
+		if (type === 'ffmpeg-cwd') {
+			return '/opt/ffmpeg';
+		}
+		// Fallthrough for compositor
+	}
+
 	const key =
 		type === 'compositor'
 			? 'binaryPath'
