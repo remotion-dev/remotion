@@ -49,7 +49,9 @@ const makeLayerPublic = async () => {
 					LayerName: layerName,
 					LicenseInfo:
 						layer === 'chromium'
-							? 'Chromium 104, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
+							? 'Chromium 114, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
+							: layer === 'ffmpeg'
+							? 'FFmpeg 6.0, compiled from source. Read FFMPEG license: https://ffmpeg.org/legal.html'
 							: 'Contains Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
 					CompatibleRuntimes: runtimes,
 					Description: VERSION,
