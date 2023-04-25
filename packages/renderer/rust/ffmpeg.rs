@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 
 use crate::errors::PossibleErrors;
+use crate::opened_stream::calc_position;
 use crate::opened_stream::open_video;
 use crate::opened_video::OpenedVideo;
 use std::collections::HashMap;
@@ -15,10 +16,39 @@ pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8
     let video_locked = manager.get_video(&src, transparent)?;
     let vid = video_locked.lock().unwrap();
 
-    let mut first_opened_stram = vid.opened_streams.first().unwrap().lock().unwrap();
+    let position = calc_position(time, vid.time_base);
+    let one_frame_after = calc_position(
+        time + (1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64)),
+        vid.time_base,
+    );
+    let threshold = one_frame_after - position;
+    let cache_item = vid
+        .frame_cache
+        .lock()
+        .unwrap()
+        .get_item_id(position, threshold);
+
+    match cache_item {
+        Ok(Some(item)) => {
+            return Ok(vid
+                .frame_cache
+                .lock()
+                .unwrap()
+                .get_item_from_id(item)
+                .unwrap()
+                .unwrap());
+        }
+        Ok(None) => {}
+        Err(err) => {
+            return Err(err);
+        }
+    }
 
     // TODO: Handle multiple streams
-    let frame_id = first_opened_stram.get_frame(time, transparent, &vid.frame_cache);
+    let mut first_opened_stram = vid.opened_streams.first().unwrap().lock().unwrap();
+
+    let frame_id =
+        first_opened_stram.get_frame(time, transparent, &vid.frame_cache, position, vid.time_base);
 
     let from_cache = vid
         .frame_cache

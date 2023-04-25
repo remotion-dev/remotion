@@ -22,7 +22,6 @@ pub struct LastSeek {
 
 pub struct OpenedStream {
     pub stream_index: usize,
-    pub time_base: Rational,
     pub original_width: u32,
     pub original_height: u32,
     pub scaled_width: u32,
@@ -33,8 +32,11 @@ pub struct OpenedStream {
     pub input: remotionffmpeg::format::context::Input,
     pub last_position: LastSeek,
     pub duration_or_zero: i64,
-    pub fps: Rational,
     pub reached_eof: bool,
+}
+
+pub fn calc_position(time: f64, time_base: Rational) -> i64 {
+    (time * time_base.1 as f64 / time_base.0 as f64) as i64
 }
 
 impl OpenedStream {
@@ -56,10 +58,6 @@ impl OpenedStream {
             }
             Ok(_) => Ok(Some(frame)),
         }
-    }
-
-    pub fn calc_position(&self, time: f64) -> i64 {
-        (time * self.time_base.1 as f64 / self.time_base.0 as f64) as i64
     }
 
     pub fn handle_eof(
@@ -124,28 +122,14 @@ impl OpenedStream {
         time: f64,
         transparent: bool,
         frame_cache: &Arc<Mutex<FrameCache>>,
+        position: i64,
+        time_base: Rational,
     ) -> Result<usize, PossibleErrors> {
-        let position = self.calc_position(time);
-        let one_frame_after = self.calc_position(
-            time + (1.0 / (self.fps.numerator() as f64 / self.fps.denominator() as f64)),
-        );
-        let threshold = one_frame_after - position;
-        let cache_item = frame_cache.lock().unwrap().get_item_id(position, threshold);
-        match cache_item {
-            Ok(Some(item)) => {
-                return Ok(item);
-            }
-            Ok(None) => {}
-            Err(err) => {
-                return Err(err);
-            }
-        }
-
         let mut freshly_seeked = false;
         let mut last_position = self.duration_or_zero.min(position);
 
         if position < self.last_position.resolved_pts
-            || self.last_position.resolved_pts < self.calc_position(time - 1.0)
+            || self.last_position.resolved_pts < calc_position(time - 1.0, time_base)
         {
             _print_debug(&format!(
                 "Seeking to {} from resolved_pts = {}, and dts = {}, duration = {}",
@@ -195,7 +179,6 @@ impl OpenedStream {
                 } else {
                     last_position = packet.pts().unwrap() - 1;
 
-                    _print_debug("seeking again");
                     self.input.seek(
                         self.stream_index as i32,
                         0,
@@ -357,7 +340,6 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleE
 
     let opened_stream = OpenedStream {
         stream_index,
-        time_base,
         original_height,
         original_width,
         scaled_height,
@@ -371,13 +353,14 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleE
             resolved_dts: 0,
         },
         duration_or_zero,
-        fps,
         reached_eof: false,
     };
 
     let opened_video = OpenedVideo {
         opened_streams: vec![(Arc::new(Mutex::new(opened_stream)))],
         frame_cache: Arc::new(Mutex::new(FrameCache::new())),
+        fps,
+        time_base,
     };
 
     Ok(opened_video)
