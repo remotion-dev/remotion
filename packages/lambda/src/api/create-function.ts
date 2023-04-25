@@ -115,7 +115,8 @@ export const createFunction = async ({
 			new PutRuntimeManagementConfigCommand({
 				FunctionName,
 				UpdateRuntimeOn: 'Manual',
-				RuntimeVersionArn: `arn:aws:lambda:${region}::runtime:69000d3430a08938bcab71617dffcb8ea551a2cbc36c59f38c52a1ea087e461b`,
+				// TODO: soften the error message
+				RuntimeVersionArn: `arn:aws:lambda:${region}::runtime:b97ad873eb5228db2e7d5727cd116734cc24c92ff1381739c4400c095404a2d3`,
 			})
 		);
 	} catch (err) {

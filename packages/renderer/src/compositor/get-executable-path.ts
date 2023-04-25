@@ -22,7 +22,10 @@ export const getExecutablePath = (
 		if (type === 'ffmpeg-cwd') {
 			return '/opt/ffmpeg';
 		}
-		// Fallthrough for compositor
+
+		if (type === 'compositor') {
+			return './compositor';
+		}
 	}
 
 	const key =
