@@ -11,12 +11,12 @@ export const hostedLayers: HostedLayers = {
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-fonts-arm64',
-			version: 10,
+			version: 11,
 		},
 		{
 			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-chromium-arm64',
-			version: 13,
+			version: 14,
 		},
 	],
 };

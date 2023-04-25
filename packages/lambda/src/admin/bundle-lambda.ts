@@ -1,5 +1,5 @@
 import {BundlerInternals} from '@remotion/bundler';
-import {binaryPath as armBinaryPath} from '@remotion/compositor-linux-arm64-musl';
+import {binaryPath as armBinaryPath} from '@remotion/compositor-linux-arm64-gnu';
 import fs from 'fs';
 import path from 'path';
 import {quit} from '../cli/helpers/quit';
