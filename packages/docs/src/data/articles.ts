@@ -875,6 +875,13 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/s3-public-access",
+    title: "Cannot create a S3 bucket using Remotion",
+    relativePath: "docs/lambda/s3-public-access.md",
+    compId: "articles-docs-lambda-s3-public-access",
+    crumb: "DevOps advisory",
+  },
+  {
     id: "lambda/serverless-framework-integration",
     title: "Using the Serverless Framework with Remotion Lambda",
     relativePath: "docs/lambda/serverless-framework-integration.md",
