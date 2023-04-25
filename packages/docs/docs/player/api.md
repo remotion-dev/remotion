@@ -566,6 +566,9 @@ useEffect(() => {
   playerRef.current.addEventListener("ratechange", () => {
     console.log("ratechange");
   });
+  playerRef.current.addEventListener("scalechange", () => {
+    console.log("scalechange");
+  });
   playerRef.current.addEventListener("pause", () => {
     console.log("pausing");
   });
@@ -621,6 +624,10 @@ Fires when the video has started playing or has resumed from a pause.
 ### `ratechange`
 
 Fires when the [`playbackRate`](#playbackrate) has changed.
+
+### `scalechange` <AvailableFrom v="3.3.84" />
+
+Fires when the `scale` (also returned by [`getScale()`](#getscale)) has changed.
 
 ### `pause`
 
