@@ -36,7 +36,7 @@ const layerInfo: HostedLayers = {
 };
 
 const makeLayerPublic = async () => {
-	const layers = ['fonts', 'chromium'] as const;
+	const layers = ['fonts', 'ffmpeg', 'chromium'] as const;
 	for (const region of getRegions()) {
 		for (const layer of layers) {
 			const layerName = `remotion-binaries-${layer}-arm64`;
