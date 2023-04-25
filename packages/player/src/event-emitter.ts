@@ -18,6 +18,10 @@ type RateChangeEventPayload = {
 	playbackRate: number;
 };
 
+type VolumeChangeEventPayload = {
+	volume: number;
+};
+
 type FullscreenChangeEventPayload = {
 	isFullscreen: boolean;
 };
@@ -27,6 +31,7 @@ type PlayerStateEventMap = {
 	pause: undefined;
 	play: undefined;
 	ratechange: RateChangeEventPayload;
+	volumechange: VolumeChangeEventPayload;
 	ended: undefined;
 	error: ErrorPayload;
 	timeupdate: TimeUpdateEventPayload;
@@ -64,6 +69,7 @@ export class PlayerEmitter {
 		timeupdate: [],
 		frameupdate: [],
 		fullscreenchange: [],
+		volumechange: [],
 	};
 
 	addEventListener<Q extends PlayerEventTypes>(
@@ -96,6 +102,12 @@ export class PlayerEmitter {
 	dispatchSeek(frame: number) {
 		this.dispatchEvent('seeked', {
 			frame,
+		});
+	}
+
+	dispatchVolumeChange(volume: number) {
+		this.dispatchEvent('volumechange', {
+			volume,
 		});
 	}
 
