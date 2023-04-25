@@ -14,7 +14,6 @@ export const createBucket = async ({
 	region: AwsRegion;
 	bucketName: string;
 }) => {
-	console.log('creating', bucketName);
 	await getS3Client(region, null).send(
 		new CreateBucketCommand({
 			Bucket: bucketName,
