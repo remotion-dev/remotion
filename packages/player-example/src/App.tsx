@@ -139,6 +139,13 @@ const ControlsOnly: React.FC<{
 				'ratechange ' + e.detail.playbackRate + ' ' + Date.now(),
 			]);
 		};
+
+		const scalechangeCallbackListener: CallbackListener<'scalechange'> = (
+			e
+		) => {
+			setLogs((l) => [...l, 'scalechange ' + e.detail.scale]);
+		};
+
 		const fullscreenChangeCallbackListener: CallbackListener<
 			'fullscreenchange'
 		> = (e) => {
@@ -161,6 +168,7 @@ const ControlsOnly: React.FC<{
 		current.addEventListener('timeupdate', timeupdateCallbackListener);
 		current.addEventListener('frameupdate', frameupdateCallbackListener);
 		current.addEventListener('ratechange', ratechangeCallbackListener);
+		current.addEventListener('scalechange', scalechangeCallbackListener);
 		current.addEventListener(
 			'fullscreenchange',
 			fullscreenChangeCallbackListener
@@ -175,6 +183,7 @@ const ControlsOnly: React.FC<{
 			current.removeEventListener('timeupdate', timeupdateCallbackListener);
 			current.removeEventListener('frameupdate', frameupdateCallbackListener);
 			current.removeEventListener('ratechange', ratechangeCallbackListener);
+			current.removeEventListener('scalechange', scalechangeCallbackListener);
 			current.removeEventListener(
 				'fullscreenchange',
 				fullscreenChangeCallbackListener
@@ -288,6 +297,23 @@ const ControlsOnly: React.FC<{
 				}}
 			>
 				2x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setPlaybackRate(-1);
+				}}
+			>
+				-1x speed
+			</button>
+			<br />
+			<button
+				type="button"
+				onClick={() => {
+					ref.current?.setAttribute?.('width', 640);
+				}}
+			>
+				Width
 			</button>
 			<button
 				type="button"
@@ -440,8 +466,8 @@ const ControlsOnly: React.FC<{
 				.reverse()
 				.slice(0, 10)
 				.reverse()
-				.map((l) => {
-					return <div key={l}>{l}</div>;
+				.map((l, i) => {
+					return <div key={`${l}-${i}`}>{l}</div>;
 				})}
 		</div>
 	);
@@ -542,6 +568,16 @@ const PlayerOnly: React.FC<
 			inFrame={inFrame}
 			outFrame={outFrame}
 			alwaysShowControls={alwaysShowControls}
+			style={{
+				height: '100%',
+				width: '100%',
+				resize: 'both',
+				maxWidth: 550,
+				maxHeight: 550,
+				minWidth: 500,
+				minHeight: 500,
+				display: 'block',
+			}}
 		/>
 	);
 };
