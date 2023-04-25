@@ -29,7 +29,7 @@ export const createBucket = async ({
 	} catch (err) {
 		if ((err as Error).message.includes('Access Denied')) {
 			throw new Error(
-				'Since April 2023, more AWS permissions are required to create an S3 bucket. You need to update your user policy to continue.'
+				'Since April 2023, more AWS permissions are required to create an S3 bucket. You need to update your user policy to continue. See https://remotion.dev/docs/lambda/s3-public-access for instructions on how to resolve this issue.'
 			);
 		}
 
@@ -45,7 +45,7 @@ export const createBucket = async ({
 	} catch (err) {
 		if ((err as Error).message.includes('Access Denied')) {
 			throw new Error(
-				'PARTIAL SUCCESS: Since April 2023, more AWS permissions are required to create an S3 bucket. You need to update your user policy to continue.'
+				'PARTIAL SUCCESS: The s3:PutBucketOwnershipControls was found, but the s3:PutBucketPublicAccessBlock permission is not given. Since April 2023, more AWS permissions are required to create an S3 bucket. You need to update your user policy to continue. You need to update your user policy to continue. See https://remotion.dev/docs/lambda/s3-public-access for instructions on how to resolve this issue.'
 			);
 		}
 
