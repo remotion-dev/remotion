@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "3.3.86",
+  "version": "3.3.87",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
