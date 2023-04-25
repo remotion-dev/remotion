@@ -664,11 +664,11 @@ Fires when the video has started playing or has resumed from a pause.
 
 Fires when the [`playbackRate`](#playbackrate) has changed.
 
-### `scalechange` <AvailableFrom v="3.3.85" />
+### `scalechange` <AvailableFrom v="3.3.86" />
 
 Fires when the `scale` has changed. Also returned by [`getScale()`](#getscale).
 
-### `volumechange` <AvailableFrom v="3.3.85" />
+### `volumechange` <AvailableFrom v="3.3.86" />
 
 Fires when the volume has changed. Also returned by [`getVolume()`](#getvolume).
 
