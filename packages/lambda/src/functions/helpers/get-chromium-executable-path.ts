@@ -1,7 +1,6 @@
 if (
-	/^AWS_Lambda_nodejs(?:10|12|14|16|18)[.]x$/.test(
-		process.env.AWS_EXECUTION_ENV ?? ''
-	) === true
+	/^AWS_Lambda_nodejs(?:18)[.]x$/.test(process.env.AWS_EXECUTION_ENV ?? '') ===
+	true
 ) {
 	if (process.env.FONTCONFIG_PATH === undefined) {
 		process.env.FONTCONFIG_PATH = '/opt';
