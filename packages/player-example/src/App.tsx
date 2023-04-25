@@ -307,23 +307,6 @@ const ControlsOnly: React.FC<{
 				-1x speed
 			</button>
 			<br />
-			<button
-				type="button"
-				onClick={() => {
-					ref.current?.setAttribute?.('width', 640);
-				}}
-			>
-				Width
-			</button>
-			<button
-				type="button"
-				onClick={() => {
-					setPlaybackRate(-1);
-				}}
-			>
-				-1x speed
-			</button>
-			<br />
 			<button type="button" onClick={() => ref.current?.mute()}>
 				🔇 Mute
 			</button>
