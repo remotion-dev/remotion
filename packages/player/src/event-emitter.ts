@@ -129,13 +129,13 @@ export class PlayerEmitter {
 		this.dispatchEvent('ended', undefined);
 	}
 
-	dispatchRatechange(playbackRate: number) {
+	dispatchRateChange(playbackRate: number) {
 		this.dispatchEvent('ratechange', {
 			playbackRate,
 		});
 	}
 
-	dispatchScalechange(scale: number) {
+	dispatchScaleChange(scale: number) {
 		this.dispatchEvent('scalechange', {
 			scale,
 		});
