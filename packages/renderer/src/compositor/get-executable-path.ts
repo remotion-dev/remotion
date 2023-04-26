@@ -7,25 +7,22 @@ function isMusl() {
 }
 
 export const getExecutablePath = (
-	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'ffmpeg-cwd',
-	isLambda: boolean
+	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'ffmpeg-cwd'
 ): string => {
-	if (isLambda) {
-		if (type === 'ffmpeg') {
-			return '/opt/ffmpeg/remotion/bin/ffmpeg';
-		}
+	if (type === 'ffmpeg' && process.env.FFMPEG_BIN_PATH) {
+		return '/opt/ffmpeg/remotion/bin/ffmpeg';
+	}
 
-		if (type === 'ffprobe') {
-			return '/opt/ffmpeg/remotion/bin/ffprobe';
-		}
+	if (type === 'ffprobe' && process.env.FFPROBE_BIN_PATH) {
+		return '/opt/ffmpeg/remotion/bin/ffprobe';
+	}
 
-		if (type === 'ffmpeg-cwd') {
-			return '/opt/ffmpeg';
-		}
+	if (type === 'ffmpeg-cwd' && process.env.FFMPEG_CWD) {
+		return '/opt/ffmpeg';
+	}
 
-		if (type === 'compositor') {
-			return './compositor';
-		}
+	if (type === 'compositor' && process.env.COMPOSITOR_PATH) {
+		return './compositor';
 	}
 
 	const key =

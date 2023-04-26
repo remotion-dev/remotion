@@ -33,10 +33,7 @@ export const compose = async ({
 	downloadMap: DownloadMap;
 	output: string;
 }) => {
-	const isLambda = /^AWS_Lambda_nodejs(?:18)[.]x$/.test(
-		process.env.AWS_EXECUTION_ENV ?? ''
-	);
-	const bin = getExecutablePath('compositor', isLambda);
+	const bin = getExecutablePath('compositor');
 	const hash = getCompositorHash({height, width, layers, imageFormat});
 
 	if (downloadMap.compositorCache[hash]) {
