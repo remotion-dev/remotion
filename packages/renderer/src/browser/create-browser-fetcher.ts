@@ -40,64 +40,55 @@ function getRevision(product: Product): string {
 	throw new Error(`Unsupported product ${product}`);
 }
 
-export function downloadBrowser(product: Product): Promise<void> {
+export async function downloadBrowser(product: Product): Promise<void> {
 	const revision = getRevision(product);
-
 	const revisionInfo = getRevisionInfo(revision, product);
 
-	function onSuccess(_localRevisions: string[]): void {
+	try {
+		await download(
+			revisionInfo.revision,
+			(downloadedBytes, totalBytes) => {
+				console.log(
+					'Downloading',
+					supportedProducts[product],
+					toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytes)
+				);
+			},
+			product,
+			getPlatform(product),
+			getDownloadHost(product),
+			getDownloadsFolder(product)
+		);
+		const _localRevisions = await localRevisions(
+			getDownloadsFolder(product),
+			product,
+			getPlatform(product)
+		);
+
 		console.log(
 			`${supportedProducts[product]} (${revisionInfo.revision}) downloaded to ${revisionInfo.folderPath}`
 		);
-		_localRevisions = _localRevisions.filter((__revision) => {
-			return __revision !== revisionInfo.revision;
-		});
-		const cleanupOldVersions = _localRevisions.map((__revision) => {
-			return removeBrowser(
-				__revision,
-				getFolderPath(
-					revision,
-					getDownloadsFolder(product),
-					getPlatform(product)
-				)
-			);
-		});
-		Promise.all([...cleanupOldVersions]);
-	}
-
-	function onError(error: Error) {
-		console.error(
-			`ERROR: Failed to set up ${supportedProducts[product]} r${revision}! Set "PUPPETEER_SKIP_DOWNLOAD" env variable to skip download.`
+		await Promise.all(
+			_localRevisions
+				.filter((__revision) => {
+					return __revision !== revisionInfo.revision;
+				})
+				.map((__revision) => {
+					return removeBrowser(
+						__revision,
+						getFolderPath(
+							revision,
+							getDownloadsFolder(product),
+							getPlatform(product)
+						)
+					);
+				})
 		);
-		console.error(error);
-		process.exit(1);
-	}
-
-	function onProgress(downloadedBytes: number, totalBytes: number) {
-		console.log(
-			'Downloading',
-			supportedProducts[product],
-			toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytes)
+	} catch (err) {
+		throw new Error(
+			`Failed to set up ${supportedProducts[product]} r${revision}! Set "PUPPETEER_SKIP_DOWNLOAD" env variable to skip download.`
 		);
 	}
-
-	return download(
-		revisionInfo.revision,
-		onProgress,
-		product,
-		getPlatform(product),
-		getDownloadHost(product),
-		getDownloadsFolder(product)
-	)
-		.then(() => {
-			return localRevisions(
-				getDownloadsFolder(product),
-				product,
-				getPlatform(product)
-			);
-		})
-		.then(onSuccess)
-		.catch(onError);
 }
 
 function toMegabytes(bytes: number) {
