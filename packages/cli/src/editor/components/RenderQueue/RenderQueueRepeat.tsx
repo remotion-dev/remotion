@@ -15,6 +15,7 @@ export const RenderQueueRepeatItem: React.FC<{job: RenderJob}> = ({job}) => {
 	const icon: React.CSSProperties = useMemo(() => {
 		return {
 			height: 12,
+			color: 'currentColor',
 		};
 	}, []);
 

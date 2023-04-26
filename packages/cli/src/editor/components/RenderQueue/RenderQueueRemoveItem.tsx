@@ -27,6 +27,7 @@ export const RenderQueueRemoveItem: React.FC<{job: RenderJob}> = ({job}) => {
 	const icon: React.CSSProperties = useMemo(() => {
 		return {
 			height: 16,
+			color: 'currentColor',
 		};
 	}, []);
 

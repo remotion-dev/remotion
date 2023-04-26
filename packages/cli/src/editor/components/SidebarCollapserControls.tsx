@@ -12,8 +12,9 @@ import {useResponsiveSidebarStatus} from './TopPanel';
 const style: React.CSSProperties = {
 	width: 16,
 	height: 16,
-	border: '1px solid white',
+	border: '1px solid currentColor',
 	borderRadius: 3,
+	color: 'currentColor',
 	position: 'relative',
 };
 
@@ -26,8 +27,8 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 		return {
 			width: '35%',
 			height: '100%',
-			borderRight: '1px solid white',
-			background: leftSidebarStatus === 'expanded' ? 'white' : 'transparent',
+			borderRight: '1px solid currentColor',
+			background: leftSidebarStatus === 'expanded' ? 'currentColor' : 'transparent',
 		};
 	}, [leftSidebarStatus]);
 
@@ -37,9 +38,9 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 			height: '100%',
 			right: 0,
 			position: 'absolute',
-			borderLeft: '1px solid white',
+			borderLeft: '1px solid currentColor',
 			background:
-				sidebarCollapsedStateRight === 'expanded' ? 'white' : 'transparent',
+				sidebarCollapsedStateRight === 'expanded' ? 'currentColor' : 'transparent',
 		};
 	}, [sidebarCollapsedStateRight]);
 

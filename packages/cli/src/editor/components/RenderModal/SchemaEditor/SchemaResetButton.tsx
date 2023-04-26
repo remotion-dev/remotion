@@ -3,6 +3,7 @@ import {InlineAction} from '../../InlineAction';
 
 const icon: React.CSSProperties = {
 	height: 14,
+	color: 'currentColor',
 };
 
 export const SchemaResetButton: React.FC<{

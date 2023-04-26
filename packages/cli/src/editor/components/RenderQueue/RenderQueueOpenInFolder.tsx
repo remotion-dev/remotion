@@ -16,6 +16,7 @@ export const RenderQueueOpenInFinderItem: React.FC<{job: RenderJob}> = ({
 	const icon: React.CSSProperties = useMemo(() => {
 		return {
 			height: 12,
+			color: 'currentColor',
 		};
 	}, []);
 

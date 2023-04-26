@@ -2,6 +2,7 @@ import {InlineAction} from '../InlineAction';
 
 const clearIcon: React.CSSProperties = {
 	height: 14,
+	color: 'currentColor',
 };
 
 export const InlineRemoveButton: React.FC<{
