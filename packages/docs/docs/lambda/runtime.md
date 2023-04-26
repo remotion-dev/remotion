@@ -50,20 +50,26 @@ The browser was compiled including the proprietary codecs, so you can include MP
 
 | Remotion version | Chrome version |
 | ---------------- | -------------- |
+| From 4.0.0       | 114.0.5731.1   |
 | From 3.2.0       | 104.0.5112.64  |
 | From 3.0.8       | 101.0.4951.68  |
 | From 3.0.0       | 98.0.4758.139  |
 
 ## FFMPEG
 
-The function already includes an FFMPEG binary.
+Since Remotion 4.0, the function already includes an FFMPEG 6.0 binary that was compiled to support all [codecs](/docs/encoding) that Remotion supports.
 
-Version built from source: `N-104627-g40cf317d09` (corresponds to v4.4)  
+<details>
+<summary>
+Before v4.0.0
+</summary>
+Version built from source: <code>N-104627-g40cf317d09</code> (corresponds to v4.4)  
 Configuration:
 
-```
+<pre>
 --prefix=/home/ec2-user/ffmpeg_build --pkg-config-flags=--static --extra-cflags=-I/home/ec2-user/ffmpeg_build/include --extra-ldflags=-L/home/ec2-user/ffmpeg_build/lib --extra-libs=-lpthread --extra-libs=-lm --bindir=/home/ec2-user/bin --enable-gpl --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame --enable-libopus --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfree
-```
+</pre>
+</details>
 
 ## Fonts
 
