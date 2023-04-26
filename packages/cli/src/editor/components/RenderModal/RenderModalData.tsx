@@ -6,7 +6,7 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyComposition} from 'remotion';
-import {getInputProps, z} from 'remotion';
+import {getInputProps, Internals, z} from 'remotion';
 import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 
@@ -123,6 +123,8 @@ export const RenderModalData: React.FC<{
 
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
+	const {fastRefreshes} = useContext(Internals.NonceContext);
+
 	useEffect(() => {
 		canUpdateDefaultProps(composition.id)
 			.then((can) => {
@@ -177,16 +179,20 @@ export const RenderModalData: React.FC<{
 		updateDefaultProps(composition.id, inputProps);
 	}, [composition.id, inputProps]);
 
+	useEffect(() => {
+		setSaving(false);
+	}, [fastRefreshes]);
+
 	const onSave = useCallback(
 		(updater: (oldState: unknown) => unknown) => {
 			setSaving(true);
-			updateDefaultProps(composition.id, updater(composition.defaultProps))
-				.catch((err) => {
-					sendErrorNotification(`Cannot update default props: ${err.message}`);
-				})
-				.finally(() => {
-					setSaving(false);
-				});
+			updateDefaultProps(
+				composition.id,
+				updater(composition.defaultProps)
+			).catch((err) => {
+				sendErrorNotification(`Cannot update default props: ${err.message}`);
+				setSaving(false);
+			});
 		},
 		[composition.defaultProps, composition.id]
 	);
