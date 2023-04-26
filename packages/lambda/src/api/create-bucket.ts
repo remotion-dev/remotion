@@ -52,10 +52,20 @@ export const createBucket = async ({
 		throw err;
 	}
 
-	await getS3Client(region, null).send(
-		new PutBucketAclCommand({
-			Bucket: bucketName,
-			ACL: 'public-read',
-		})
-	);
+	try {
+		await getS3Client(region, null).send(
+			new PutBucketAclCommand({
+				Bucket: bucketName,
+				ACL: 'public-read',
+			})
+		);
+	} catch (err) {
+		if ((err as Error).message.includes('The bucket does not allow ACLs')) {
+			throw new Error(
+				`Could not add an ACL to the bucket. This might have happened because the bucket was already successfully created before but then failed to configure correctly. We recommend to delete the bucket (${bucketName}) if it is empty and start over to fix the problem.`
+			);
+		}
+
+		throw err;
+	}
 };
