@@ -746,19 +746,19 @@ export const Index: React.FC = () => {
 						]),
 					})}
 					defaultProps={{
-						vehicle: 'bus' as const,
-						other: 'hi.    ' as const,
+						vehicle: 'car' as const,
+						other: 'hi' as const,
 						abc: {
 							union: null,
 							def: {unionArray: [null], pef: 'hu' as const},
-							jkl: 'sting ' as const,
+							jkl: 'sting' as const,
 							xyz: 'hi' as const,
 						},
 						array: [
-							{a: 'a  ' as const, b: 'bbbbb' as const},
+							{a: 'a' as const, b: 'bbbbb' as const},
 							{a: 'a' as const, b: 'b' as const},
 						],
-						array2: [[12], [11]],
+						array2: [[12], [12]],
 						mynum: 4,
 						value: true,
 						haha: null,
@@ -772,6 +772,7 @@ export const Index: React.FC = () => {
 						longEnum: 'k' as const,
 						color: '#eb3a60' as const,
 						nullable: null,
+						optional: undefined,
 					}}
 					durationInFrames={150}
 				/>
