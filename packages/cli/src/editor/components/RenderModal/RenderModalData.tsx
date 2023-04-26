@@ -21,7 +21,7 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import type {TypeCanSaveState} from './get-render-modal-warnings';
 import {getRenderModalWarnings} from './get-render-modal-warnings';
-import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor';
+import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -30,6 +30,8 @@ import {
 import {WarningIndicatorButton} from './WarningIndicatorButton';
 
 type Mode = 'json' | 'schema';
+
+export type PropsEditType = 'input-props' | 'default-props';
 
 const errorExplanation: React.CSSProperties = {
 	fontSize: 14,
@@ -90,7 +92,15 @@ export const RenderModalData: React.FC<{
 	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
 	compact: boolean;
 	mayShowSaveButton: boolean;
-}> = ({composition, inputProps, setInputProps, compact, mayShowSaveButton}) => {
+	propsEditType: PropsEditType;
+}> = ({
+	composition,
+	inputProps,
+	setInputProps,
+	compact,
+	mayShowSaveButton,
+	propsEditType,
+}) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
 	const [saving, setSaving] = useState(false);
@@ -200,8 +210,12 @@ export const RenderModalData: React.FC<{
 	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
 
 	const warnings = useMemo(() => {
-		return getRenderModalWarnings({canSaveDefaultProps, cliProps});
-	}, [canSaveDefaultProps, cliProps]);
+		return getRenderModalWarnings({
+			canSaveDefaultProps,
+			cliProps,
+			propsEditType,
+		});
+	}, [canSaveDefaultProps, cliProps, propsEditType]);
 
 	if (connectionStatus === 'disconnected') {
 		return (
@@ -268,7 +282,7 @@ export const RenderModalData: React.FC<{
 					saving={saving}
 				/>
 			) : (
-				<RenderModalJSONInputPropsEditor
+				<RenderModalJSONPropsEditor
 					value={inputProps ?? {}}
 					setValue={setInputProps}
 					zodValidationResult={zodValidationResult}
