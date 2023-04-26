@@ -31,7 +31,7 @@ import {WarningIndicatorButton} from './WarningIndicatorButton';
 
 type Mode = 'json' | 'schema';
 
-export type PropsEditType = 'inputProps' | 'defaultProps';
+export type PropsEditType = 'input-props' | 'default-props';
 
 const errorExplanation: React.CSSProperties = {
 	fontSize: 14,
@@ -92,7 +92,15 @@ export const RenderModalData: React.FC<{
 	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
 	compact: boolean;
 	mayShowSaveButton: boolean;
-}> = ({composition, inputProps, setInputProps, compact, mayShowSaveButton}) => {
+	propsEditType: PropsEditType;
+}> = ({
+	composition,
+	inputProps,
+	setInputProps,
+	compact,
+	mayShowSaveButton,
+	propsEditType,
+}) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
 	const [saving, setSaving] = useState(false);
@@ -109,8 +117,6 @@ export const RenderModalData: React.FC<{
 			reason: 'Loading...',
 			determined: false,
 		});
-
-	const propsEditType: PropsEditType = compact ? 'defaultProps' : 'inputProps';
 
 	const setShowWarning: React.Dispatch<React.SetStateAction<boolean>> =
 		useCallback((val) => {
