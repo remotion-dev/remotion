@@ -84,7 +84,7 @@ const getBrowserStatus = (
 	}
 
 	const revision = getRevisionInfo(PUPPETEER_REVISIONS.chromium, product);
-	if (revision.local !== null && fs.existsSync(revision.executablePath)) {
+	if (revision.local && fs.existsSync(revision.executablePath)) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
 

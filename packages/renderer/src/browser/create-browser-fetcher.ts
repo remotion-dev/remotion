@@ -40,78 +40,67 @@ function getRevision(product: Product): string {
 	throw new Error(`Unsupported product ${product}`);
 }
 
-export async function downloadBrowser(product: Product): Promise<void> {
+export function downloadBrowser(product: Product): Promise<void> {
 	const revision = getRevision(product);
-	await fetchBinary(revision);
 
-	function fetchBinary(_revision: string) {
-		const revisionInfo = getRevisionInfo(_revision, product);
+	const revisionInfo = getRevisionInfo(revision, product);
 
-		// Do nothing if the revision is already downloaded.
-		if (revisionInfo.local) {
-			console.log(
-				`${supportedProducts[product]} is already in ${revisionInfo.folderPath}; skipping download.`
-			);
-			return;
-		}
-
-		function onSuccess(_localRevisions: string[]): void {
-			console.log(
-				`${supportedProducts[product]} (${revisionInfo.revision}) downloaded to ${revisionInfo.folderPath}`
-			);
-			_localRevisions = _localRevisions.filter((__revision) => {
-				return __revision !== revisionInfo.revision;
-			});
-			const cleanupOldVersions = _localRevisions.map((__revision) => {
-				return removeBrowser(
-					__revision,
-					getFolderPath(
-						_revision,
-						getDownloadsFolder(product),
-						getPlatform(product)
-					)
-				);
-			});
-			Promise.all([...cleanupOldVersions]);
-		}
-
-		function onError(error: Error) {
-			console.error(
-				`ERROR: Failed to set up ${supportedProducts[product]} r${_revision}! Set "PUPPETEER_SKIP_DOWNLOAD" env variable to skip download.`
-			);
-			console.error(error);
-			process.exit(1);
-		}
-
-		function onProgress(downloadedBytes: number, totalBytes: number) {
-			console.log(
-				'Downloading',
-				supportedProducts[product],
-				toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytes)
-			);
-		}
-
-		return download(
-			revisionInfo.revision,
-			onProgress,
-			product,
-			getPlatform(product),
-			getDownloadHost(product),
-			getDownloadsFolder(product)
-		)
-			.then(() => {
-				return localRevisions(
+	function onSuccess(_localRevisions: string[]): void {
+		console.log(
+			`${supportedProducts[product]} (${revisionInfo.revision}) downloaded to ${revisionInfo.folderPath}`
+		);
+		_localRevisions = _localRevisions.filter((__revision) => {
+			return __revision !== revisionInfo.revision;
+		});
+		const cleanupOldVersions = _localRevisions.map((__revision) => {
+			return removeBrowser(
+				__revision,
+				getFolderPath(
+					revision,
 					getDownloadsFolder(product),
-					product,
 					getPlatform(product)
-				);
-			})
-			.then(onSuccess)
-			.catch(onError);
+				)
+			);
+		});
+		Promise.all([...cleanupOldVersions]);
 	}
 
-	function toMegabytes(bytes: number) {
-		const mb = bytes / 1024 / 1024;
-		return `${Math.round(mb * 10) / 10} Mb`;
+	function onError(error: Error) {
+		console.error(
+			`ERROR: Failed to set up ${supportedProducts[product]} r${revision}! Set "PUPPETEER_SKIP_DOWNLOAD" env variable to skip download.`
+		);
+		console.error(error);
+		process.exit(1);
 	}
+
+	function onProgress(downloadedBytes: number, totalBytes: number) {
+		console.log(
+			'Downloading',
+			supportedProducts[product],
+			toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytes)
+		);
+	}
+
+	return download(
+		revisionInfo.revision,
+		onProgress,
+		product,
+		getPlatform(product),
+		getDownloadHost(product),
+		getDownloadsFolder(product)
+	)
+		.then(() => {
+			return localRevisions(
+				getDownloadsFolder(product),
+				product,
+				getPlatform(product)
+			);
+		})
+		.then(onSuccess)
+		.catch(onError);
+}
+
+function toMegabytes(bytes: number) {
+	const mb = bytes / 1024 / 1024;
+	return `${Math.round(mb * 10) / 10} Mb`;
 }
