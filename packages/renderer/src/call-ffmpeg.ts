@@ -17,7 +17,7 @@ export const callFfExtraOptions = () => {
 						PATH: `${process.env.PATH};${lib}`,
 				  }
 				: {
-						LD_LIBRARY_PATH: `${process.env.LD_LIBRARY_PATH};${lib}`,
+						LD_LIBRARY_PATH: lib,
 				  },
 	};
 };
