@@ -142,7 +142,7 @@ export const ZodDateEditor: React.FC<{
 					<>
 						<Spacing y={1} block />
 						<ValidationMessage
-							align="flex-end"
+							align="flex-start"
 							message={localValue.zodValidation.error.format()._errors[0]}
 							type="error"
 						/>
