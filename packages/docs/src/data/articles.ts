@@ -889,6 +889,13 @@ export const articles = [
     crumb: "Lambda",
   },
   {
+    id: "lambda/s3-public-access",
+    title: "Cannot create a S3 bucket using Remotion",
+    relativePath: "docs/lambda/s3-public-access.md",
+    compId: "articles-docs-lambda-s3-public-access",
+    crumb: "DevOps advisory",
+  },
+  {
     id: "lambda/serverless-framework-integration",
     title: "Using the Serverless Framework with Remotion Lambda",
     relativePath: "docs/lambda/serverless-framework-integration.md",
@@ -2030,6 +2037,13 @@ export const articles = [
     relativePath: "docs/troubleshooting/background-image.md",
     compId: "articles-docs-troubleshooting-background-image",
     crumb: "Common mistakes",
+  },
+  {
+    id: "broken-fast-refresh",
+    title: "Fast Refresh not working",
+    relativePath: "docs/troubleshooting/broken-fast-refresh.md",
+    compId: "articles-docs-troubleshooting-broken-fast-refresh",
+    crumb: "Troubleshooting",
   },
   {
     id: "troubleshooting/could-not-be-parsed-as-a-value-list",
