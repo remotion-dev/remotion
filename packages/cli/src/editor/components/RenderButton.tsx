@@ -59,11 +59,11 @@ export const RenderButton: React.FC<{
 				initialOutName: getDefaultOutLocation({
 					compositionName: composition.id,
 					defaultExtension: isVideo
-						? defaults.stillImageFormat
-						: BrowserSafeApis.getFileExtensionFromCodec(
+						? BrowserSafeApis.getFileExtensionFromCodec(
 								initialVideoCodec,
 								defaults.audioCodec as AudioCodec
-						  ),
+						  )
+						: defaults.stillImageFormat,
 					type: 'asset',
 				}),
 				initialVideoCodecForAudioTab: initialAudioCodec,
