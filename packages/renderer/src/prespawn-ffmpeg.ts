@@ -70,10 +70,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 	const supportsCrf = codec !== 'prores';
 
 	if (options.verbose) {
-		const isLambda = /^AWS_Lambda_nodejs(?:18)[.]x$/.test(
-			process.env.AWS_EXECUTION_ENV ?? ''
-		);
-		console.log('[verbose] ffmpeg', getExecutablePath('ffmpeg', isLambda));
+		console.log('[verbose] ffmpeg', getExecutablePath('ffmpeg'));
 		console.log('[verbose] encoder', encoderName);
 		console.log('[verbose] pixelFormat', pixelFormat);
 		if (supportsCrf) {
