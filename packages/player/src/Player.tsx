@@ -273,7 +273,7 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 	validatePlaybackRate(playbackRate);
 
 	useEffect(() => {
-		emitter.dispatchRatechange(playbackRate);
+		emitter.dispatchRateChange(playbackRate);
 	}, [emitter, playbackRate]);
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);

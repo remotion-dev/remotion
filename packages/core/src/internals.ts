@@ -25,6 +25,7 @@ import {
 } from './get-environment.js';
 import {getPreviewDomElement} from './get-preview-dom-element.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
+import {NonceContext} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
@@ -117,6 +118,7 @@ export const Internals = {
 	usePreload,
 	REMOTION_COLOR_BRAND,
 	parseColor,
+	NonceContext,
 };
 
 export type {
