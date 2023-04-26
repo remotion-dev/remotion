@@ -11,7 +11,7 @@ import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
-import {Spacing} from '../layout';
+import {Flex, Spacing} from '../layout';
 import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {
 	canUpdateDefaultProps,
@@ -19,12 +19,15 @@ import {
 } from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
+import type {TypeCanSaveState} from './get-render-modal-warnings';
+import {getRenderModalWarnings} from './get-render-modal-warnings';
 import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
 	NoSchemaDefined,
 } from './SchemaEditor/SchemaErrorMessages';
+import {WarningIndicatorButton} from './WarningIndicatorButton';
 
 type Mode = 'json' | 'schema';
 
@@ -63,21 +66,23 @@ const tabWrapper: React.CSSProperties = {
 	display: 'flex',
 	marginBottom: '4px',
 	flexDirection: 'row',
+	alignItems: 'center',
 };
 
-const spacer: React.CSSProperties = {
-	flex: 1,
+const persistanceKey = 'remotion.show-render-modalwarning';
+
+const getPersistedShowWarningState = () => {
+	const val = localStorage.getItem(persistanceKey);
+	if (!val) {
+		return true;
+	}
+
+	return val === 'true';
 };
 
-type TypeCanSaveState =
-	| {
-			canUpdate: true;
-	  }
-	| {
-			canUpdate: false;
-			reason: string;
-			determined: boolean;
-	  };
+const setPersistedShowWarningState = (val: boolean) => {
+	localStorage.setItem(persistanceKey, String(Boolean(val)));
+};
 
 export const RenderModalData: React.FC<{
 	composition: AnyComposition;
@@ -92,7 +97,9 @@ export const RenderModalData: React.FC<{
 	const zodValidationResult = useMemo(() => {
 		return composition.schema.safeParse(inputProps);
 	}, [composition.schema, inputProps]);
-
+	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
+		() => getPersistedShowWarningState()
+	);
 	const cliProps = getInputProps();
 	const [canSaveDefaultProps, setCanSaveDefaultProps] =
 		useState<TypeCanSaveState>({
@@ -101,10 +108,20 @@ export const RenderModalData: React.FC<{
 			determined: false,
 		});
 
-	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
+	const setShowWarning: React.Dispatch<React.SetStateAction<boolean>> =
+		useCallback((val) => {
+			setShowWarningWithoutPersistance((prevVal) => {
+				if (typeof val === 'boolean') {
+					setPersistedShowWarningState(val);
+					return val;
+				}
 
-	// TODO: Update if root file is updated
-	// TODO: Segment the state for different compositions
+				setPersistedShowWarningState(val(prevVal));
+				return val(prevVal);
+			});
+		}, []);
+
+	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
 	useEffect(() => {
 		canUpdateDefaultProps(composition.id)
@@ -176,6 +193,10 @@ export const RenderModalData: React.FC<{
 
 	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
 
+	const warnings = useMemo(() => {
+		return getRenderModalWarnings({canSaveDefaultProps, cliProps});
+	}, [canSaveDefaultProps, cliProps]);
+
 	if (connectionStatus === 'disconnected') {
 		return (
 			<div style={explainer}>
@@ -205,29 +226,27 @@ export const RenderModalData: React.FC<{
 			<div style={controlContainer}>
 				<div style={tabWrapper}>
 					<SegmentedControl items={modeItems} needsWrapping={false} />
-					<div style={spacer} />
+					<Flex />
+					{warnings.length > 0 ? (
+						<WarningIndicatorButton
+							setShowWarning={setShowWarning}
+							showWarning={showWarning}
+							warningCount={warnings.length}
+						/>
+					) : null}
 				</div>
-				{Object.keys(cliProps).length > 0 ? (
-					<>
-						<Spacing y={1} />
-						<ValidationMessage
-							message="The data that was passed using --props takes priority over the data you enter here."
-							align="flex-start"
-							type="warning"
-						/>
-					</>
-				) : null}
-				{canSaveDefaultProps.canUpdate === false &&
-				canSaveDefaultProps.determined ? (
-					<>
-						<Spacing y={1} />
-						<ValidationMessage
-							message={`Can't save default props: ${canSaveDefaultProps.reason}`}
-							align="flex-start"
-							type="warning"
-						/>
-					</>
-				) : null}
+				{showWarning && warnings.length > 0
+					? warnings.map((warning) => (
+							<React.Fragment key={warning}>
+								<Spacing y={1} />
+								<ValidationMessage
+									message={warning}
+									align="flex-start"
+									type="warning"
+								/>
+							</React.Fragment>
+					  ))
+					: null}
 			</div>
 
 			{mode === 'schema' ? (

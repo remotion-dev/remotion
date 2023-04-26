@@ -50,6 +50,9 @@ export const RenderButton: React.FC = () => {
 
 	const video = Internals.useVideo();
 	const frame = useCurrentFrame();
+
+	const {props} = useContext(Internals.EditorPropsContext);
+
 	const onClick = useCallback(() => {
 		if (!video) {
 			return null;
@@ -109,8 +112,9 @@ export const RenderButton: React.FC = () => {
 			initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
 			initialHeadless: defaults.headless,
 			initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
+			defaultProps: props[video.id] ?? video.defaultProps,
 		});
-	}, [video, frame, setSelectedModal]);
+	}, [video, setSelectedModal, frame, props]);
 
 	if (!video) {
 		return null;
