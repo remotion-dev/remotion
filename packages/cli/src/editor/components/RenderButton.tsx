@@ -45,6 +45,7 @@ export const RenderButton: React.FC = () => {
 		return {
 			style: {
 				height: 16,
+				color: 'currentColor',
 			},
 		};
 	}, []);

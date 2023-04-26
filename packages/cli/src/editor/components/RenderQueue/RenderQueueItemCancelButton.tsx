@@ -14,6 +14,7 @@ export const RenderQueueCancelButton: React.FC<{job: RenderJob}> = ({job}) => {
 	const icon: React.CSSProperties = useMemo(() => {
 		return {
 			height: 14,
+			color: 'currentColor',
 		};
 	}, []);
 
