@@ -5,6 +5,7 @@ import {useKeybinding} from '../../helpers/use-keybinding';
 import {Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
+import type {SerializedJSONWithDate} from './SchemaEditor/date-serialization';
 import {
 	deserializeJSONWithDate,
 	serializeJSONWithDate,
@@ -60,6 +61,9 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	onSave: () => void;
 	valBeforeSafe: unknown;
 	showSaveButton: boolean;
+	setIsCustomDateUsed: React.Dispatch<
+		React.SetStateAction<boolean | undefined>
+	>;
 }> = ({
 	setValue,
 	value,
@@ -68,11 +72,17 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	onSave,
 	valBeforeSafe,
 	showSaveButton,
+	setIsCustomDateUsed,
 }) => {
 	const keybindings = useKeybinding();
 
 	const [localValue, setLocalValue] = React.useState<State>(() => {
-		return parseJSON(serializeJSONWithDate(value, 2));
+		const serializedJSON: SerializedJSONWithDate = serializeJSONWithDate(
+			value,
+			2
+		);
+		setIsCustomDateUsed(serializedJSON.customDateUsed);
+		return parseJSON(serializedJSON.serializedString);
 	});
 
 	const onPretty = useCallback(() => {

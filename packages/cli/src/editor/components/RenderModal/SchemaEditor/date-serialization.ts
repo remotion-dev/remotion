@@ -1,11 +1,18 @@
+export type SerializedJSONWithDate = {
+	serializedString: string;
+	customDateUsed: boolean;
+};
+
 export const serializeJSONWithDate = (
 	data: unknown,
 	indent: number | undefined
-) => {
-	return JSON.stringify(
+): SerializedJSONWithDate => {
+	let customDateUsed = false;
+	const serializedString = JSON.stringify(
 		data,
 		function (key, value) {
 			if (this[key] instanceof Date) {
+				customDateUsed = true;
 				return `remotion-date:${this[key].toISOString()}`;
 			}
 
@@ -13,6 +20,7 @@ export const serializeJSONWithDate = (
 		},
 		indent
 	);
+	return {serializedString, customDateUsed};
 };
 
 export const deserializeJSONWithDate = (data: string) => {
