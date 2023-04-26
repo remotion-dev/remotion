@@ -32,7 +32,7 @@ const supportedProducts = {
 	firefox: 'Firefox Nightly',
 } as const;
 
-export function getRevision(product: Product): string {
+function getRevision(product: Product): string {
 	if (product === 'chrome') {
 		return PUPPETEER_REVISIONS.chromium;
 	}

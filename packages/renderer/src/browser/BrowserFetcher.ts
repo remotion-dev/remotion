@@ -144,11 +144,6 @@ function existsAsync(filePath: string): Promise<boolean> {
 	});
 }
 
-export interface BrowserFetcherOptions {
-	product: Product;
-	path: string | null;
-}
-
 interface BrowserFetcherRevisionInfo {
 	folderPath: string;
 	executablePath: string;
@@ -189,29 +184,6 @@ export const getDownloadsFolder = (product: Product) => {
 
 export const getDownloadHost = (product: Product) => {
 	return browserConfig[product].host;
-};
-
-export const canDownload = (
-	revision: string,
-	product: Product,
-	platform: Platform,
-	downloadHost: string
-): Promise<boolean> => {
-	const url = _downloadURL(product, platform, downloadHost, revision);
-	return new Promise((resolve) => {
-		const request = httpRequest(
-			url,
-			'HEAD',
-			(response) => {
-				resolve(response.statusCode === 200);
-			},
-			false
-		);
-		request.on('error', (error) => {
-			console.error(error);
-			resolve(false);
-		});
-	});
 };
 
 export const download = async (
