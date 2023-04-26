@@ -5,9 +5,10 @@ import {useZIndex} from '../state/z-index';
 
 export const InlineAction: React.FC<
 	PropsWithChildren<{
-		onClick: React.MouseEventHandler<HTMLAnchorElement> | undefined;
+		onClick: React.MouseEventHandler<HTMLButtonElement>;
+		disabled?: boolean;
 	}>
-> = ({children, onClick}) => {
+> = ({children, onClick, disabled}) => {
 	const {tabIndex} = useZIndex();
 
 	const [hovered, setHovered] = useState(false);
@@ -37,14 +38,16 @@ export const InlineAction: React.FC<
 
 	return (
 		// <div> because cannot use button inside a button
-		<a
+		<button
+			type="button"
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			onClick={onClick}
 			style={style}
 			tabIndex={tabIndex}
+			disabled={disabled}
 		>
 			{children}
-		</a>
+		</button>
 	);
 };
