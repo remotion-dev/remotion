@@ -20,7 +20,7 @@ const getInputPropsWarning = ({
 }) => {
 	if (
 		Object.keys(cliProps as object).length > 0 &&
-		propsEditType === 'defaultProps'
+		propsEditType === 'default-props'
 	) {
 		return 'The data that was passed using --props takes priority over the data you enter here.';
 	}

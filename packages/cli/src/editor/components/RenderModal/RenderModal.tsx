@@ -1039,6 +1039,7 @@ export const RenderModal: React.FC<{
 								composition={currentComposition}
 								compact={false}
 								mayShowSaveButton={false}
+								propsEditType="input-props"
 							/>
 						) : (
 							<RenderModalAdvanced
