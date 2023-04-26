@@ -319,9 +319,10 @@ export const RenderModal: React.FC<{
 	const [pixelFormat, setPixelFormat] = useState<PixelFormat>(
 		() => initialPixelFormat
 	);
-	const [qualityControlType, setQualityControl] = useState<QualityControl>(() =>
-		initialVideoBitrate === null ? 'crf' : 'bitrate'
-	);
+	const [preferredQualityControlType, setQualityControl] =
+		useState<QualityControl>(() =>
+			initialVideoBitrate === null ? 'crf' : 'bitrate'
+		);
 	const [
 		shouldHaveCustomTargetAudioBitrate,
 		setShouldHaveCustomTargetAudioBitrate,
@@ -367,6 +368,33 @@ export const RenderModal: React.FC<{
 
 		return null;
 	}, [customTargetAudioBitrate, shouldHaveCustomTargetAudioBitrate]);
+	const supportsCrf = BrowserSafeApis.codecSupportsCrf(codec);
+	const supportsVideoBitrate = BrowserSafeApis.codecSupportsVideoBitrate(codec);
+
+	const supportsBothQualityControls = useMemo(() => {
+		return supportsCrf && supportsVideoBitrate;
+	}, [supportsCrf, supportsVideoBitrate]);
+
+	const qualityControlType = useMemo(() => {
+		if (supportsBothQualityControls) {
+			return preferredQualityControlType;
+		}
+
+		if (supportsCrf) {
+			return 'crf';
+		}
+
+		if (supportsVideoBitrate) {
+			return 'bitrate';
+		}
+
+		return null;
+	}, [
+		preferredQualityControlType,
+		supportsBothQualityControls,
+		supportsCrf,
+		supportsVideoBitrate,
+	]);
 
 	const videoBitrate = useMemo(() => {
 		if (qualityControlType === 'bitrate') {
@@ -376,13 +404,7 @@ export const RenderModal: React.FC<{
 		return null;
 	}, [customTargetVideoBitrate, qualityControlType]);
 
-	const {
-		crf,
-		maxCrf,
-		minCrf,
-		setCrf,
-		shouldDisplayOption: shouldDisplayCrfOption,
-	} = useCrfState(codec);
+	const {crf, maxCrf, minCrf, setCrf} = useCrfState(codec);
 
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
@@ -998,9 +1020,9 @@ export const RenderModal: React.FC<{
 									setCustomTargetVideoBitrateValue
 								}
 								setQualityControl={setQualityControl}
-								shouldDisplayCrfOption={shouldDisplayCrfOption}
 								videoImageFormat={videoImageFormat}
 								stillImageFormat={stillImageFormat}
+								shouldDisplayQualityControlPicker={supportsBothQualityControls}
 							/>
 						) : tab === 'audio' ? (
 							<RenderModalAudio
