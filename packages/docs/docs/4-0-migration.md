@@ -145,3 +145,7 @@ The `onBucketEnsured()` option of [`getOrCreateBucket()`](/docs/lambda/getorcrea
 Before, [`<Img>`](/docs/img) would only log to the console if an image cannot be loaded and inevitably lead to a timeout if the error is not handled.
 
 If this happens now and the error is not handled, the render will be aborted and the error reported.
+
+## `crf` is not allowed for GIFs anymore
+
+Previously you were able to set a value for `crf` when rendering a GIF. This was a mistake and GIF does not support them.

@@ -35,7 +35,7 @@ export const RenderModalPicture: React.FC<{
 	setPixelFormat: React.Dispatch<React.SetStateAction<PixelFormat>>;
 	imageFormatOptions: SegmentedControlItem[];
 	setQualityControl: React.Dispatch<React.SetStateAction<QualityControl>>;
-	qualityControlType: QualityControl;
+	qualityControlType: QualityControl | null;
 	videoImageFormat: VideoImageFormat;
 	stillImageFormat: StillImageFormat;
 	setJpegQuality: React.Dispatch<React.SetStateAction<number>>;
@@ -43,12 +43,12 @@ export const RenderModalPicture: React.FC<{
 	maxCrf: number;
 	minCrf: number;
 	setCrf: React.Dispatch<React.SetStateAction<number>>;
-	shouldDisplayCrfOption: boolean;
 	setCustomTargetVideoBitrateValue: React.Dispatch<
 		React.SetStateAction<string>
 	>;
 	crf: number;
 	customTargetVideoBitrate: string;
+	shouldDisplayQualityControlPicker: boolean;
 }> = ({
 	renderMode,
 	scale,
@@ -64,7 +64,7 @@ export const RenderModalPicture: React.FC<{
 	maxCrf,
 	minCrf,
 	setCrf,
-	shouldDisplayCrfOption,
+	shouldDisplayQualityControlPicker,
 	setCustomTargetVideoBitrateValue,
 	crf,
 	customTargetVideoBitrate,
@@ -131,8 +131,10 @@ export const RenderModalPicture: React.FC<{
 					setJpegQuality={setJpegQuality}
 				/>
 			)}
-			{renderMode === 'video' ? <RenderModalHr /> : null}
-			{renderMode === 'video' ? (
+			{renderMode === 'video' && qualityControlType !== null ? (
+				<RenderModalHr />
+			) : null}
+			{shouldDisplayQualityControlPicker && renderMode === 'video' ? (
 				<div style={optionRow}>
 					<div style={label}>Quality control</div>
 
@@ -141,9 +143,7 @@ export const RenderModalPicture: React.FC<{
 					</div>
 				</div>
 			) : null}
-			{shouldDisplayCrfOption &&
-			qualityControlType === 'crf' &&
-			renderMode !== 'still' ? (
+			{qualityControlType === 'crf' && renderMode !== 'still' ? (
 				<CrfSetting
 					crf={crf}
 					min={minCrf}
