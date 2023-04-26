@@ -1,4 +1,5 @@
 import {truthy} from '../../../truthy';
+import type {PropsEditType} from './RenderModalData';
 
 export type TypeCanSaveState =
 	| {
@@ -10,8 +11,17 @@ export type TypeCanSaveState =
 			determined: boolean;
 	  };
 
-const getInputPropsWarning = ({cliProps}: {cliProps: unknown}) => {
-	if (Object.keys(cliProps as object).length > 0) {
+const getInputPropsWarning = ({
+	cliProps,
+	propsEditType,
+}: {
+	cliProps: unknown;
+	propsEditType: PropsEditType;
+}) => {
+	if (
+		Object.keys(cliProps as object).length > 0 &&
+		propsEditType === 'defaultProps'
+	) {
 		return 'The data that was passed using --props takes priority over the data you enter here.';
 	}
 
@@ -37,12 +47,14 @@ const getCannotSaveDefaultProps = ({
 export const getRenderModalWarnings = ({
 	cliProps,
 	canSaveDefaultProps,
+	propsEditType,
 }: {
 	cliProps: unknown;
 	canSaveDefaultProps: TypeCanSaveState;
+	propsEditType: PropsEditType;
 }) => {
 	return [
-		getInputPropsWarning({cliProps}),
+		getInputPropsWarning({cliProps, propsEditType}),
 		getCannotSaveDefaultProps({canSaveDefaultProps}),
 	].filter(truthy);
 };
