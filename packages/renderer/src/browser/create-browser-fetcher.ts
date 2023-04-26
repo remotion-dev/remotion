@@ -14,7 +14,16 @@
  * limitations under the License.
  */
 
-import {puppeteer} from './node';
+import {
+	download,
+	getDownloadHost,
+	getDownloadsFolder,
+	getFolderPath,
+	getPlatform,
+	getRevisionInfo,
+	localRevisions,
+	removeBrowser,
+} from './BrowserFetcher';
 import type {Product} from './Product';
 import {PUPPETEER_REVISIONS} from './revisions';
 
@@ -23,25 +32,29 @@ const supportedProducts = {
 	firefox: 'Firefox Nightly',
 } as const;
 
-export async function downloadBrowser(product: Product): Promise<void> {
-	const browserFetcher = puppeteer.createBrowserFetcher({
-		product,
-		path: null,
-		platform: null,
-	});
-	const revision = await getRevision();
-	await fetchBinary(revision);
-
-	function getRevision(): string {
-		if (product === 'chrome') {
-			return PUPPETEER_REVISIONS.chromium;
-		}
-
-		throw new Error(`Unsupported product ${product}`);
+export function getRevision(product: Product): string {
+	if (product === 'chrome') {
+		return PUPPETEER_REVISIONS.chromium;
 	}
 
+	throw new Error(`Unsupported product ${product}`);
+}
+
+export async function downloadBrowser(product: Product): Promise<void> {
+	const revision = getRevision(product);
+	await fetchBinary(revision);
+
 	function fetchBinary(_revision: string) {
-		const revisionInfo = browserFetcher.revisionInfo(_revision);
+		const revisionInfo = getRevisionInfo(
+			_revision,
+			product,
+			getFolderPath(
+				_revision,
+				getDownloadsFolder(product),
+				getPlatform(product)
+			),
+			getPlatform(product)
+		);
 
 		// Do nothing if the revision is already downloaded.
 		if (revisionInfo.local) {
@@ -59,7 +72,14 @@ export async function downloadBrowser(product: Product): Promise<void> {
 				return __revision !== revisionInfo.revision;
 			});
 			const cleanupOldVersions = localRevisions.map((__revision) => {
-				return browserFetcher.remove(__revision);
+				return removeBrowser(
+					__revision,
+					getFolderPath(
+						_revision,
+						getDownloadsFolder(product),
+						getPlatform(product)
+					)
+				);
 			});
 			Promise.all([...cleanupOldVersions]);
 		}
@@ -80,10 +100,20 @@ export async function downloadBrowser(product: Product): Promise<void> {
 			);
 		}
 
-		return browserFetcher
-			.download(revisionInfo.revision, onProgress)
+		return download(
+			revisionInfo.revision,
+			onProgress,
+			product,
+			getPlatform(product),
+			getDownloadHost(product),
+			getDownloadsFolder(product)
+		)
 			.then(() => {
-				return browserFetcher.localRevisions();
+				return localRevisions(
+					getDownloadsFolder(product),
+					product,
+					getPlatform(product)
+				);
 			})
 			.then(onSuccess)
 			.catch(onError);
