@@ -12,6 +12,7 @@ export const ZodOptionalEditor: React.FC<{
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 	onSave: (updater: (oldNum: unknown) => unknown) => void;
 	onRemove: null | (() => void);
+	saving: boolean;
 }> = ({
 	jsonPath,
 	compact,
@@ -22,6 +23,7 @@ export const ZodOptionalEditor: React.FC<{
 	value,
 	showSaveButton,
 	onRemove,
+	saving,
 }) => {
 	const {innerType} = schema._def as z.ZodOptionalDef;
 
@@ -37,6 +39,7 @@ export const ZodOptionalEditor: React.FC<{
 			showSaveButton={showSaveButton}
 			value={value}
 			nullishValue={undefined}
+			saving={saving}
 		/>
 	);
 };
