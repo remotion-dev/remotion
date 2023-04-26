@@ -17,6 +17,7 @@ export const ZodBooleanEditor: React.FC<{
 	onSave: (updater: (oldNum: unknown) => boolean) => void;
 	onRemove: null | (() => void);
 	showSaveButton: boolean;
+	saving: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -26,6 +27,7 @@ export const ZodBooleanEditor: React.FC<{
 	defaultValue,
 	onRemove,
 	showSaveButton,
+	saving,
 }) => {
 	const onValueChange = useCallback(
 		(newValue: boolean) => {
@@ -59,6 +61,7 @@ export const ZodBooleanEditor: React.FC<{
 				showSaveButton={showSaveButton}
 				compact={compact}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 			<div style={fullWidth}>
 				<Checkbox checked={value} onChange={onChange} disabled={false} />
