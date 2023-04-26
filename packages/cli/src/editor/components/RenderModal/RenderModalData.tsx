@@ -6,12 +6,13 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyComposition} from 'remotion';
-import {getInputProps, z} from 'remotion';
+import {getInputProps, Internals, z} from 'remotion';
 import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
 import {Flex, Spacing} from '../layout';
+import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {
 	canUpdateDefaultProps,
 	updateDefaultProps,
@@ -92,6 +93,7 @@ export const RenderModalData: React.FC<{
 }> = ({composition, inputProps, setInputProps, compact, mayShowSaveButton}) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
+	const [saving, setSaving] = useState(false);
 	const zodValidationResult = useMemo(() => {
 		return composition.schema.safeParse(inputProps);
 	}, [composition.schema, inputProps]);
@@ -120,6 +122,8 @@ export const RenderModalData: React.FC<{
 		}, []);
 
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
+
+	const {fastRefreshes} = useContext(Internals.NonceContext);
 
 	useEffect(() => {
 		canUpdateDefaultProps(composition.id)
@@ -175,9 +179,20 @@ export const RenderModalData: React.FC<{
 		updateDefaultProps(composition.id, inputProps);
 	}, [composition.id, inputProps]);
 
+	useEffect(() => {
+		setSaving(false);
+	}, [fastRefreshes]);
+
 	const onSave = useCallback(
 		(updater: (oldState: unknown) => unknown) => {
-			updateDefaultProps(composition.id, updater(composition.defaultProps));
+			setSaving(true);
+			updateDefaultProps(
+				composition.id,
+				updater(composition.defaultProps)
+			).catch((err) => {
+				sendErrorNotification(`Cannot update default props: ${err.message}`);
+				setSaving(false);
+			});
 		},
 		[composition.defaultProps, composition.id]
 	);
@@ -250,6 +265,7 @@ export const RenderModalData: React.FC<{
 					defaultProps={composition.defaultProps}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
+					saving={saving}
 				/>
 			) : (
 				<RenderModalJSONInputPropsEditor
