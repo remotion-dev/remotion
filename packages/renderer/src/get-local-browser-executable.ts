@@ -1,8 +1,13 @@
 import fs from 'fs';
 import type {Browser} from './browser';
 import type {BrowserExecutable} from './browser-executable';
+import {
+	getDownloadsFolder,
+	getFolderPath,
+	getPlatform,
+	getRevisionInfo,
+} from './browser/BrowserFetcher';
 import {downloadBrowser} from './browser/create-browser-fetcher';
-import {puppeteer} from './browser/node';
 import type {Product} from './browser/Product';
 import {PUPPETEER_REVISIONS} from './browser/revisions';
 
@@ -48,13 +53,17 @@ const getLocalBrowser = (product: Product) => {
 };
 
 const getBrowserRevision = (product: Product) => {
-	const browserFetcher = puppeteer.createBrowserFetcher({
+	const platform = getPlatform(product);
+
+	const revisionInfo = getRevisionInfo(
+		PUPPETEER_REVISIONS.chromium,
 		product,
-		path: null,
-		platform: null,
-	});
-	const revisionInfo = browserFetcher.revisionInfo(
-		PUPPETEER_REVISIONS.chromium
+		getFolderPath(
+			PUPPETEER_REVISIONS.chromium,
+			getDownloadsFolder(product),
+			platform
+		),
+		platform
 	);
 
 	return revisionInfo;
