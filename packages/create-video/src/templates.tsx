@@ -33,6 +33,7 @@ export type Template = {
 		| 'three'
 		| 'still'
 		| 'tts'
+		| 'gtts'
 		| 'audiogram'
 		| 'skia'
 		| 'tailwind'
@@ -172,8 +173,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 	},
 	{
-		homePageLabel: 'Text-To-Speech',
-		shortName: 'Text To Speech',
+		homePageLabel: 'Text-To-Speech (Azure)',
+		shortName: 'Text To Speech (Azure)',
 		org: 'FelippeChemello',
 		repoName: 'Remotion-TTS-Example',
 		description: 'Turns text into speech and makes a video',
@@ -185,6 +186,23 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 1080,
 		},
 		cliId: 'tts' as const,
+		type: 'video' as const,
+		defaultBranch: 'master',
+	},
+	{
+		homePageLabel: 'Text-To-Speech (Google)',
+		shortName: 'Text To Speech (Google)',
+		org: 'thecmdrunner',
+		repoName: 'remotion-gtts-template',
+		description: 'Turns text into speech and makes a video',
+		longerDescription:
+			'A template that turns text into a spoken video. Integrates with Firebase for Storage, and Google Cloud for Speech synthesis.',
+		promoVideo: {
+			muxId: '', // please add video: https://user-images.githubusercontent.com/38887390/232199560-d275def7-d147-4f29-acc6-5a81d267ba68.mp4
+			width: 1920,
+			height: 1080,
+		},
+		cliId: 'gtts' as const,
 		type: 'video' as const,
 		defaultBranch: 'master',
 	},
