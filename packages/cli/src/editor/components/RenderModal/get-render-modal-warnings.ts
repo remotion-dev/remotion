@@ -32,7 +32,7 @@ const getCannotSaveDefaultProps = (canSaveDefaultProps: TypeCanSaveState) => {
 
 const customDateUsed = (used: boolean | undefined, inJSONEditor: boolean) => {
 	if (used && inJSONEditor) {
-		return "There is a Date in the schema that can't be serialized into a JSON. It has been converted into a string.";
+		return "There is a Date in the schema which can't be serialized. It has been converted into a string.";
 	}
 
 	return null;
