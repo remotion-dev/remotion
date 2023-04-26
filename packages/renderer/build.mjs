@@ -182,7 +182,7 @@ for (const arch of archs) {
 			CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER:
 				nativeArch === 'aarch64-unknown-linux-gnu'
 					? undefined
-					: 'aarch64-unknown-linux-gnu-gcc',
+					: 'toolchains/aarch64_gnu_toolchain/bin/aarch64-unknown-linux-gnu-gcc',
 			CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER:
 				nativeArch === 'aarch64-unknown-linux-musl'
 					? undefined
