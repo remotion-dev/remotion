@@ -13,7 +13,22 @@ This page describes the environment that the Lambda function is running in.
 
 ## Node.JS Version
 
-The lambda function will use a NodeJS version from the `14.x` release line.
+The lambda function will use a NodeJS version from the `18.x` release line.  
+The Lambda runtime will get locked to
+
+```
+arn:aws:lambda:${region}::runtime:b97ad873eb5228db2e7d5727cd116734cc24c92ff1381739c4400c095404a2d3
+```
+
+if your user policy includes `lambda:PutRuntimeManagementConfig`, which is recommended.  
+Otherwise, future updates to the runtime by AWS have the potential to break the function. If you don't have this permission in your policy, a warning will be printed.
+
+<details>
+<summary>
+Changelog
+</summary>
+Before Remotion v4.0.0, the Node.JS version was <code>14.x</code>.
+</details>
 
 ## Memory size
 
