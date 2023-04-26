@@ -45,16 +45,7 @@ export async function downloadBrowser(product: Product): Promise<void> {
 	await fetchBinary(revision);
 
 	function fetchBinary(_revision: string) {
-		const revisionInfo = getRevisionInfo(
-			_revision,
-			product,
-			getFolderPath(
-				_revision,
-				getDownloadsFolder(product),
-				getPlatform(product)
-			),
-			getPlatform(product)
-		);
+		const revisionInfo = getRevisionInfo(_revision, product);
 
 		// Do nothing if the revision is already downloaded.
 		if (revisionInfo.local) {
@@ -64,14 +55,14 @@ export async function downloadBrowser(product: Product): Promise<void> {
 			return;
 		}
 
-		function onSuccess(localRevisions: string[]): void {
+		function onSuccess(_localRevisions: string[]): void {
 			console.log(
 				`${supportedProducts[product]} (${revisionInfo.revision}) downloaded to ${revisionInfo.folderPath}`
 			);
-			localRevisions = localRevisions.filter((__revision) => {
+			_localRevisions = _localRevisions.filter((__revision) => {
 				return __revision !== revisionInfo.revision;
 			});
-			const cleanupOldVersions = localRevisions.map((__revision) => {
+			const cleanupOldVersions = _localRevisions.map((__revision) => {
 				return removeBrowser(
 					__revision,
 					getFolderPath(

@@ -200,12 +200,7 @@ export const download = async (
 	const archivePath = path.join(downloadsFolder, fileName);
 	const outputPath = getFolderPath(revision, downloadsFolder, platform);
 	if (await existsAsync(outputPath)) {
-		return getRevisionInfo(
-			revision,
-			product,
-			getFolderPath(revision, downloadsFolder, platform),
-			platform
-		);
+		return getRevisionInfo(revision, product);
 	}
 
 	if (!(await existsAsync(downloadsFolder))) {
@@ -229,12 +224,7 @@ export const download = async (
 		}
 	}
 
-	const revisionInfo = getRevisionInfo(
-		revision,
-		product,
-		getFolderPath(revision, downloadsFolder, platform),
-		platform
-	);
+	const revisionInfo = getRevisionInfo(revision, product);
 	if (revisionInfo) {
 		await chmodAsync(revisionInfo.executablePath, 0o755);
 	}
@@ -289,11 +279,12 @@ export const getFolderPath = (
 
 export const getRevisionInfo = (
 	revision: string,
-	product: Product,
-	folderPath: string,
-	platform: Platform
+	product: Product
 ): BrowserFetcherRevisionInfo => {
 	let executablePath = '';
+	const downloadsFolder = getDownloadsFolder(product);
+	const platform = getPlatform(product);
+	const folderPath = getFolderPath(revision, downloadsFolder, platform);
 	if (product === 'chrome') {
 		if (platform === 'mac' || platform === 'mac_arm') {
 			executablePath = path.join(

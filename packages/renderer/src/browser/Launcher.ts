@@ -23,12 +23,7 @@ import {BrowserRunner} from './BrowserRunner';
 
 import type {PuppeteerNodeLaunchOptions} from './LaunchOptions';
 
-import {
-	getDownloadsFolder,
-	getFolderPath,
-	getPlatform,
-	getRevisionInfo,
-} from './BrowserFetcher';
+import {getRevisionInfo} from './BrowserFetcher';
 import type {Product} from './Product';
 
 const tmpDir = () => {
@@ -154,16 +149,7 @@ function resolveExecutablePath(launcher: ChromeLauncher): {
 } {
 	const {product, _preferredRevision} = launcher;
 
-	const revisionInfo = getRevisionInfo(
-		_preferredRevision,
-		'chrome',
-		getFolderPath(
-			_preferredRevision,
-			getDownloadsFolder(product),
-			getPlatform(product)
-		),
-		getPlatform(product)
-	);
+	const revisionInfo = getRevisionInfo(_preferredRevision, 'chrome');
 
 	const firefoxHelp = `Run \`PUPPETEER_PRODUCT=firefox npm install\` to download a supported Firefox browser binary.`;
 	const chromeHelp = `Run \`npm install\` to download the correct Chromium revision (${launcher._preferredRevision}).`;
