@@ -186,14 +186,21 @@ export const getDownloadHost = (product: Product) => {
 	return browserConfig[product].host;
 };
 
-export const download = async (
-	revision: string,
-	progressCallback: (x: number, y: number) => void,
-	product: Product,
-	platform: Platform,
-	downloadHost: string,
-	downloadsFolder: string
-): Promise<BrowserFetcherRevisionInfo | undefined> => {
+export const download = async ({
+	revision,
+	progressCallback,
+	product,
+	platform,
+	downloadHost,
+	downloadsFolder,
+}: {
+	revision: string;
+	progressCallback: (x: number, y: number) => void;
+	product: Product;
+	platform: Platform;
+	downloadHost: string;
+	downloadsFolder: string;
+}): Promise<BrowserFetcherRevisionInfo | undefined> => {
 	const url = _downloadURL(product, platform, downloadHost, revision);
 	const fileName = url.split('/').pop();
 	assert(fileName, `A malformed download URL was found: ${url}.`);
@@ -277,17 +284,14 @@ export const getFolderPath = (
 	return path.resolve(downloadsFolder, `${platform}-${revision}`);
 };
 
-export const getRevisionInfo = (
-	revision: string,
-	product: Product
-): BrowserFetcherRevisionInfo => {
-	let executablePath = '';
+const getExecutablePath = (product: Product, revision: string) => {
 	const downloadsFolder = getDownloadsFolder(product);
 	const platform = getPlatform(product);
 	const folderPath = getFolderPath(revision, downloadsFolder, platform);
+
 	if (product === 'chrome') {
 		if (platform === 'mac' || platform === 'mac_arm') {
-			executablePath = path.join(
+			return path.join(
 				folderPath,
 				archiveName(product, platform, revision),
 				'Chromium.app',
@@ -295,40 +299,60 @@ export const getRevisionInfo = (
 				'MacOS',
 				'Chromium'
 			);
-		} else if (platform === 'linux') {
-			executablePath = path.join(
+		}
+
+		if (platform === 'linux') {
+			return path.join(
 				folderPath,
 				archiveName(product, platform, revision),
 				'chrome'
 			);
-		} else if (platform === 'win32' || platform === 'win64') {
-			executablePath = path.join(
+		}
+
+		if (platform === 'win32' || platform === 'win64') {
+			return path.join(
 				folderPath,
 				archiveName(product, platform, revision),
 				'thorium.exe'
 			);
-		} else {
-			throw new Error('Unsupported platform: ' + platform);
 		}
-	} else if (product === 'firefox') {
+
+		throw new Error('Unsupported platform: ' + platform);
+	}
+
+	if (product === 'firefox') {
 		if (platform === 'mac' || platform === 'mac_arm') {
-			executablePath = path.join(
+			return path.join(
 				folderPath,
 				'Firefox Nightly.app',
 				'Contents',
 				'MacOS',
 				'firefox'
 			);
-		} else if (platform === 'linux') {
-			executablePath = path.join(folderPath, 'firefox', 'firefox');
-		} else if (platform === 'win32' || platform === 'win64') {
-			executablePath = path.join(folderPath, 'firefox', 'firefox.exe');
-		} else {
-			throw new Error('Unsupported platform: ' + platform);
 		}
-	} else {
-		throw new Error('Unsupported product: ' + product);
+
+		if (platform === 'linux') {
+			return path.join(folderPath, 'firefox', 'firefox');
+		}
+
+		if (platform === 'win32' || platform === 'win64') {
+			return path.join(folderPath, 'firefox', 'firefox.exe');
+		}
+
+		throw new Error('Unsupported platform: ' + platform);
 	}
+
+	throw new Error('Unsupported product: ' + product);
+};
+
+export const getRevisionInfo = (
+	revision: string,
+	product: Product
+): BrowserFetcherRevisionInfo => {
+	const executablePath = getExecutablePath(product, revision);
+	const downloadsFolder = getDownloadsFolder(product);
+	const platform = getPlatform(product);
+	const folderPath = getFolderPath(revision, downloadsFolder, platform);
 
 	const url = _downloadURL(
 		product,
