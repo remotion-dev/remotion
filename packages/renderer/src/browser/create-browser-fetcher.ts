@@ -45,9 +45,9 @@ export async function downloadBrowser(product: Product): Promise<void> {
 	const revisionInfo = getRevisionInfo(revision, product);
 
 	try {
-		await download(
-			revisionInfo.revision,
-			(downloadedBytes, totalBytes) => {
+		await download({
+			revision: revisionInfo.revision,
+			progressCallback: (downloadedBytes, totalBytes) => {
 				console.log(
 					'Downloading',
 					supportedProducts[product],
@@ -55,10 +55,10 @@ export async function downloadBrowser(product: Product): Promise<void> {
 				);
 			},
 			product,
-			getPlatform(product),
-			getDownloadHost(product),
-			getDownloadsFolder(product)
-		);
+			platform: getPlatform(product),
+			downloadHost: getDownloadHost(product),
+			downloadsFolder: getDownloadsFolder(product),
+		});
 		const _localRevisions = await localRevisions(
 			getDownloadsFolder(product),
 			product,
