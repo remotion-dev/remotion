@@ -92,6 +92,7 @@ export const RenderModalData: React.FC<{
 }> = ({composition, inputProps, setInputProps, compact, mayShowSaveButton}) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
+	const [isCustomDateUsed, setIsCustomDateUsed] = useState<boolean>();
 	const zodValidationResult = useMemo(() => {
 		return composition.schema.safeParse(inputProps);
 	}, [composition.schema, inputProps]);
@@ -185,8 +186,13 @@ export const RenderModalData: React.FC<{
 	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
 
 	const warnings = useMemo(() => {
-		return getRenderModalWarnings({canSaveDefaultProps, cliProps});
-	}, [canSaveDefaultProps, cliProps]);
+		return getRenderModalWarnings({
+			canSaveDefaultProps,
+			cliProps,
+			isCustomDateUsed,
+			inJSONEditor: mode === 'json',
+		});
+	}, [canSaveDefaultProps, cliProps, isCustomDateUsed, mode]);
 
 	if (connectionStatus === 'disconnected') {
 		return (
@@ -260,6 +266,7 @@ export const RenderModalData: React.FC<{
 					onSave={onUpdate}
 					valBeforeSafe={valBeforeSafe}
 					showSaveButton={showSaveButton}
+					setIsCustomDateUsed={setIsCustomDateUsed}
 				/>
 			)}
 		</div>
