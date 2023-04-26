@@ -13,7 +13,22 @@ This page describes the environment that the Lambda function is running in.
 
 ## Node.JS Version
 
-The lambda function will use a NodeJS version from the `14.x` release line.
+The lambda function will use a NodeJS version from the `18.x` release line.  
+The Lambda runtime will get locked to
+
+```
+arn:aws:lambda:${region}::runtime:b97ad873eb5228db2e7d5727cd116734cc24c92ff1381739c4400c095404a2d3
+```
+
+if your user policy includes `lambda:PutRuntimeManagementConfig`, which is recommended.  
+Otherwise, future updates to the runtime by AWS have the potential to break the function. If you don't have this permission in your policy, a warning will be printed.
+
+<details>
+<summary>
+Changelog
+</summary>
+Before Remotion v4.0.0, the Node.JS version was <code>14.x</code>.
+</details>
 
 ## Memory size
 
@@ -50,20 +65,26 @@ The browser was compiled including the proprietary codecs, so you can include MP
 
 | Remotion version | Chrome version |
 | ---------------- | -------------- |
+| From 4.0.0       | 114.0.5731.1   |
 | From 3.2.0       | 104.0.5112.64  |
 | From 3.0.8       | 101.0.4951.68  |
 | From 3.0.0       | 98.0.4758.139  |
 
 ## FFMPEG
 
-The function already includes an FFMPEG binary.
+Since Remotion 4.0, the function already includes an FFMPEG 6.0 binary that was compiled to support all [codecs](/docs/encoding) that Remotion supports.
 
-Version built from source: `N-104627-g40cf317d09` (corresponds to v4.4)  
+<details>
+<summary>
+Before v4.0.0
+</summary>
+Version built from source: <code>N-104627-g40cf317d09</code> (corresponds to v4.4)  
 Configuration:
 
-```
+<pre>
 --prefix=/home/ec2-user/ffmpeg_build --pkg-config-flags=--static --extra-cflags=-I/home/ec2-user/ffmpeg_build/include --extra-ldflags=-L/home/ec2-user/ffmpeg_build/lib --extra-libs=-lpthread --extra-libs=-lm --bindir=/home/ec2-user/bin --enable-gpl --enable-libfdk-aac --enable-libfreetype --enable-libmp3lame --enable-libopus --enable-libvpx --enable-libx264 --enable-libx265 --enable-nonfree
-```
+</pre>
+</details>
 
 ## Fonts
 
