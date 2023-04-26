@@ -28,6 +28,7 @@ export const ZodEnumEditor: React.FC<{
 	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
+	saving: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -38,6 +39,7 @@ export const ZodEnumEditor: React.FC<{
 	onSave,
 	showSaveButton,
 	onRemove,
+	saving,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -110,7 +112,9 @@ export const ZodEnumEditor: React.FC<{
 				onReset={reset}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
+				saving={saving}
 			/>
+
 			<div style={isRoot ? undefined : container}>
 				<Combobox values={comboBoxValues} selectedId={value} title={value} />
 			</div>

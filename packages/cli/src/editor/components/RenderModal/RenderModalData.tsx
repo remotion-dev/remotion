@@ -6,12 +6,13 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyComposition} from 'remotion';
-import {getInputProps, z} from 'remotion';
+import {getInputProps, Internals, z} from 'remotion';
 import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
 import {Flex, Spacing} from '../layout';
+import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {
 	canUpdateDefaultProps,
 	updateDefaultProps,
@@ -20,7 +21,7 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import type {TypeCanSaveState} from './get-render-modal-warnings';
 import {getRenderModalWarnings} from './get-render-modal-warnings';
-import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor';
+import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -29,6 +30,8 @@ import {
 import {WarningIndicatorButton} from './WarningIndicatorButton';
 
 type Mode = 'json' | 'schema';
+
+export type PropsEditType = 'input-props' | 'default-props';
 
 const errorExplanation: React.CSSProperties = {
 	fontSize: 14,
@@ -89,9 +92,18 @@ export const RenderModalData: React.FC<{
 	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
 	compact: boolean;
 	mayShowSaveButton: boolean;
-}> = ({composition, inputProps, setInputProps, compact, mayShowSaveButton}) => {
+	propsEditType: PropsEditType;
+}> = ({
+	composition,
+	inputProps,
+	setInputProps,
+	compact,
+	mayShowSaveButton,
+	propsEditType,
+}) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
+	const [saving, setSaving] = useState(false);
 	const zodValidationResult = useMemo(() => {
 		return composition.schema.safeParse(inputProps);
 	}, [composition.schema, inputProps]);
@@ -120,6 +132,8 @@ export const RenderModalData: React.FC<{
 		}, []);
 
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
+
+	const {fastRefreshes} = useContext(Internals.NonceContext);
 
 	useEffect(() => {
 		canUpdateDefaultProps(composition.id)
@@ -175,9 +189,20 @@ export const RenderModalData: React.FC<{
 		updateDefaultProps(composition.id, inputProps);
 	}, [composition.id, inputProps]);
 
+	useEffect(() => {
+		setSaving(false);
+	}, [fastRefreshes]);
+
 	const onSave = useCallback(
 		(updater: (oldState: unknown) => unknown) => {
-			updateDefaultProps(composition.id, updater(composition.defaultProps));
+			setSaving(true);
+			updateDefaultProps(
+				composition.id,
+				updater(composition.defaultProps)
+			).catch((err) => {
+				sendErrorNotification(`Cannot update default props: ${err.message}`);
+				setSaving(false);
+			});
 		},
 		[composition.defaultProps, composition.id]
 	);
@@ -185,8 +210,12 @@ export const RenderModalData: React.FC<{
 	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
 
 	const warnings = useMemo(() => {
-		return getRenderModalWarnings({canSaveDefaultProps, cliProps});
-	}, [canSaveDefaultProps, cliProps]);
+		return getRenderModalWarnings({
+			canSaveDefaultProps,
+			cliProps,
+			propsEditType,
+		});
+	}, [canSaveDefaultProps, cliProps, propsEditType]);
 
 	if (connectionStatus === 'disconnected') {
 		return (
@@ -250,9 +279,10 @@ export const RenderModalData: React.FC<{
 					defaultProps={composition.defaultProps}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
+					saving={saving}
 				/>
 			) : (
-				<RenderModalJSONInputPropsEditor
+				<RenderModalJSONPropsEditor
 					value={inputProps ?? {}}
 					setValue={setInputProps}
 					zodValidationResult={zodValidationResult}

@@ -26,6 +26,7 @@ export const ZodStringEditor: React.FC<{
 	onRemove: null | (() => void);
 	compact: boolean;
 	showSaveButton: boolean;
+	saving: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -36,6 +37,7 @@ export const ZodStringEditor: React.FC<{
 	compact,
 	onSave,
 	onRemove,
+	saving,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -84,6 +86,7 @@ export const ZodStringEditor: React.FC<{
 				onSave={save}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput

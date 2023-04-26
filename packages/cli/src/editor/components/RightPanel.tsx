@@ -44,6 +44,7 @@ const PropsEditor: React.FC<{
 			setInputProps={setInputProps}
 			compact
 			mayShowSaveButton
+			propsEditType="default-props"
 		/>
 	);
 };
