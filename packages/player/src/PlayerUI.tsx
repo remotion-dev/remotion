@@ -215,11 +215,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				document.webkitFullscreenElement ?? document.fullscreenElement;
 
 			if (element && element === container.current) {
-				player.emitter.dispatchFullscreenChangeUpdate({
+				player.emitter.dispatchFullscreenChange({
 					isFullscreen: true,
 				});
 			} else {
-				player.emitter.dispatchFullscreenChangeUpdate({
+				player.emitter.dispatchFullscreenChange({
 					isFullscreen: false,
 				});
 			}
@@ -248,7 +248,18 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			previewSize: 'auto',
 		});
 	}, [canvasSize, config]);
+
 	const scale = layout?.scale ?? 1;
+	const initialScaleIgnored = useRef(false);
+
+	useEffect(() => {
+		if (!initialScaleIgnored.current) {
+			initialScaleIgnored.current = true;
+			return;
+		}
+
+		player.emitter.dispatchScaleChange(scale);
+	}, [player.emitter, scale]);
 
 	const {setMediaVolume, setMediaMuted} = useContext(
 		Internals.SetMediaVolumeContext
@@ -310,6 +321,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					}
 
 					setMediaVolume(vol);
+					player.emitter.dispatchVolumeChange(vol);
 				},
 				isMuted: () => mediaMuted || mediaVolume === 0,
 				mute: () => {

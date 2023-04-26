@@ -21,7 +21,11 @@ export const useVideoConfig = (): VideoConfig => {
 			isPlayer
 		) {
 			throw new Error(
-				'No video config found. You are probably calling useVideoConfig() from outside the component passed to <Player />. See https://www.remotion.dev/docs/player/examples for how to set up the Player correctly.'
+				[
+					'No video config found. Likely reasons:',
+					'- You are probably calling useVideoConfig() from outside the component passed to <Player />. See https://www.remotion.dev/docs/player/examples for how to set up the Player correctly.',
+					'- You have multiple versions of Remotion installed which causes the React context to get lost.',
+				].join('-')
 			);
 		}
 
