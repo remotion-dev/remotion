@@ -1,5 +1,5 @@
 import {execSync} from 'child_process';
-import {cpSync, existsSync, mkdirSync, unlinkSync} from 'fs';
+import {existsSync, mkdirSync, unlinkSync} from 'fs';
 
 const toolchains = [
 	'x86_64_gnu_toolchain',
@@ -40,9 +40,3 @@ for (const toolchain of toolchains) {
 for (const target of unpatched) {
 	execSync(`rustup target add ${target}`);
 }
-
-// Aarch64 sysroot is missing libz.so.1
-cpSync(
-	'libz.so.1',
-	'/opt/homebrew/Cellar/aarch64-unknown-linux-gnu/0.1.0/aarch64-unknown-linux-gnu/sysroot/lib64/libz.so.1'
-);
