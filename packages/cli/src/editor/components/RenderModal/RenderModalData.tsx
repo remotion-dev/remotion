@@ -20,7 +20,7 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import type {TypeCanSaveState} from './get-render-modal-warnings';
 import {getRenderModalWarnings} from './get-render-modal-warnings';
-import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor';
+import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -29,6 +29,8 @@ import {
 import {WarningIndicatorButton} from './WarningIndicatorButton';
 
 type Mode = 'json' | 'schema';
+
+export type PropsEditType = 'inputProps' | 'defaultProps';
 
 const errorExplanation: React.CSSProperties = {
 	fontSize: 14,
@@ -105,6 +107,8 @@ export const RenderModalData: React.FC<{
 			reason: 'Loading...',
 			determined: false,
 		});
+
+	const propsEditType: PropsEditType = compact ? 'defaultProps' : 'inputProps';
 
 	const setShowWarning: React.Dispatch<React.SetStateAction<boolean>> =
 		useCallback((val) => {
@@ -185,8 +189,12 @@ export const RenderModalData: React.FC<{
 	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
 
 	const warnings = useMemo(() => {
-		return getRenderModalWarnings({canSaveDefaultProps, cliProps});
-	}, [canSaveDefaultProps, cliProps]);
+		return getRenderModalWarnings({
+			canSaveDefaultProps,
+			cliProps,
+			propsEditType,
+		});
+	}, [canSaveDefaultProps, cliProps, propsEditType]);
 
 	if (connectionStatus === 'disconnected') {
 		return (
@@ -252,7 +260,7 @@ export const RenderModalData: React.FC<{
 					showSaveButton={showSaveButton}
 				/>
 			) : (
-				<RenderModalJSONInputPropsEditor
+				<RenderModalJSONPropsEditor
 					value={inputProps ?? {}}
 					setValue={setInputProps}
 					zodValidationResult={zodValidationResult}
