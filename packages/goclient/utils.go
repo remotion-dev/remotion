@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"math/rand"
 	"time"
 )
 
-func serializeInputProps(inputProps interface{}, region string, inputType string, userSpecifiedBucketName *string) (map[string]interface{}, error) {
+func serializeInputProps(inputProps interface{}, region string, inputType string,
+	userSpecifiedBucketName string) (map[string]interface{}, error) {
 	payload, err := json.Marshal(inputProps)
 	if err != nil {
 		return nil, errors.New("error serializing inputProps. Check it has no circular references or reduce the size if the object is big.")
@@ -56,10 +58,17 @@ func randomHash(options ...bool) string {
 
 func constructInternals(options *RemotionOptions) internalOptions {
 
+	inputProps, err := serializeInputProps(options.InputProps, options.Region, options.Type, options.ForceBucketName)
+
+	if err != nil {
+		log.Fatal("Failed to open file:", err)
+	}
+
 	internalParams := &internalOptions{
 		ServeUrl:    options.ServeUrl,
 		Region:      options.Region,
 		Composition: options.Composition,
+		InputProps:  inputProps,
 	}
 
 	return *internalParams

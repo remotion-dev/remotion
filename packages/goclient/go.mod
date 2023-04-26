@@ -1,4 +1,4 @@
-module github.com/remotion-dev/remotion/packages/go-client
+module github.com/remotion-dev/remotion/packages/goclient
 
 go 1.19
 
