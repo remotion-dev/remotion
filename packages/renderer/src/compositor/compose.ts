@@ -51,7 +51,6 @@ export const compose = async ({
 	};
 
 	await new Promise<void>((resolve, reject) => {
-		console.log(bin, callFfExtraOptions());
 		const child = spawn(bin, {...callFfExtraOptions()});
 		child.stdin.write(JSON.stringify(payload));
 		child.stdin.end();
@@ -64,7 +63,7 @@ export const compose = async ({
 				resolve();
 			} else {
 				const message = Buffer.concat(stderrChunks).toString('utf-8');
-				console.log({message});
+
 				const parsed = JSON.parse(message) as ErrorPayload;
 
 				const err = new Error(parsed.error);
