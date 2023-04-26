@@ -1,17 +1,17 @@
 import {execSync} from 'child_process';
-import {existsSync, mkdirSync, unlinkSync} from 'fs';
+import {cpSync, existsSync, mkdirSync, unlinkSync} from 'fs';
 
 const toolchains = [
 	'x86_64_gnu_toolchain',
 	'x86_64_musl_toolchain',
-	'aarch64-musl-toolchain',
+	'aarch64_musl_toolchain',
+	'aarch64_gnu_toolchain',
 ];
 
 const unpatched = [
 	'x86_64-apple-darwin',
 	'aarch64-apple-darwin',
 	'x86_64-pc-windows-gnu',
-	'aarch64-unknown-linux-gnu',
 ];
 
 for (const toolchain of toolchains) {
