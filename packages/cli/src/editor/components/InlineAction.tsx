@@ -37,7 +37,6 @@ export const InlineAction: React.FC<
 	}, [hovered]);
 
 	return (
-		// <div> because cannot use button inside a button
 		<button
 			type="button"
 			onPointerEnter={onPointerEnter}
