@@ -59,7 +59,11 @@ fn open_stream(
 
     drop(stream);
 
-    let mut_stream = input.stream_mut(stream_index).unwrap();
+    let mut_stream = input
+        .stream_mut(stream_index)
+        .ok_or(ErrorWithBacktrace::from(
+            "No video stream found in input file",
+        ))?;
     let duration_or_zero = mut_stream.duration().max(0);
 
     let time_base = mut_stream.time_base();

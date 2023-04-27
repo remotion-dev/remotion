@@ -102,7 +102,7 @@ impl OpenedStream {
                         asked_time: position,
                     };
 
-                    frame_cache.lock().unwrap().add_item(item);
+                    frame_cache.lock()?.add_item(item);
                     latest_frame = Some(frame_cache_id);
                 },
                 Ok(None) => {
@@ -157,10 +157,12 @@ impl OpenedStream {
                     if data.is_some() {
                         last_frame_received = data;
                     }
-
-                    frame_cache
-                        .lock()?
-                        .set_last_frame(last_frame_received.unwrap());
+                    match last_frame_received {
+                        Some(received) => {
+                            frame_cache.lock()?.set_last_frame(received);
+                        }
+                        None => {}
+                    }
 
                     break;
                 }
@@ -193,8 +195,8 @@ impl OpenedStream {
                 let result = self.receive_frame();
 
                 self.last_position = LastSeek {
-                    resolved_pts: packet.pts().unwrap(),
-                    resolved_dts: packet.dts().unwrap(),
+                    resolved_pts: packet.pts().expect("expected pts"),
+                    resolved_dts: packet.dts().expect("expected dts"),
                 };
 
                 match result {

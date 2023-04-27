@@ -79,7 +79,15 @@ pub fn extract_frame(
         None => vid.open_new_stream(transparent),
     };
 
-    let mut first_opened_stream = vid.opened_streams.get(stream_index?).unwrap().lock()?;
+    let opened_stream = match vid.opened_streams.get(stream_index?) {
+        Some(stream) => stream,
+        None => Err(std::io::Error::new(
+            ErrorKind::Other,
+            "Stream index out of bounds",
+        ))?,
+    };
+
+    let mut first_opened_stream = opened_stream.lock()?;
 
     let frame_id = first_opened_stream.get_frame(
         time,
@@ -146,24 +154,23 @@ impl OpenedVideoManager {
             if videos_read.is_err() {
                 return Err(std::io::Error::new(ErrorKind::Other, "Deadlock").into());
             }
-            let videos = videos_read.unwrap();
+            let videos = videos_read?;
             if videos.contains_key(src) {
-                return Ok(videos.get(src).unwrap().clone());
+                return Ok(videos.get(src).expect("Video contains key").clone());
             }
         }
 
         let video = open_video(src, transparent)?;
         let videos_write = self.videos.write();
 
-        videos_write
-            .unwrap()
-            .insert(src.to_string(), Arc::new(Mutex::new(video)));
+        videos_write?.insert(src.to_string(), Arc::new(Mutex::new(video)));
 
-        return Ok(self.videos.read().unwrap().get(src).unwrap().clone());
+        Ok(self.videos.read()?.get(src).unwrap().clone())
     }
 
-    pub fn remove_video(&self, src: String) {
-        let videos = self.videos.write();
-        videos.unwrap().remove(&src);
+    pub fn remove_video(&self, src: String) -> Result<(), ErrorWithBacktrace> {
+        let mut vid = self.videos.write()?;
+        vid.remove(&src);
+        Ok(())
     }
 }
