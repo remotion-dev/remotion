@@ -9,11 +9,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/lambda"
 )
 
-func invokeLambda(options *RemotionOptions) error {
+func invokeLambda(options *RemotionOptions) (interface{}, error) {
 
-	println("invoking lambda")
 	// Create a new AWS session
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		Config:            aws.Config{Region: aws.String(options.Region)},
 		SharedConfigState: session.SharedConfigEnable,
 	}))
 
@@ -23,13 +23,15 @@ func invokeLambda(options *RemotionOptions) error {
 	// Create input for Lambda function
 	_, err := json.Marshal(options)
 	if err != nil {
-		return err
+
+		return nil, err
 	}
 
 	internalParams := constructInternals(options)
 	internalParamByte, err := json.Marshal(internalParams)
 	if err != nil {
-		return err
+
+		return nil, err
 	}
 
 	params := &lambda.InvokeInput{
@@ -38,24 +40,37 @@ func invokeLambda(options *RemotionOptions) error {
 	}
 
 	// Invoke Lambda function
-	resp, err := svc.Invoke(params)
+	result, err := svc.Invoke(params)
+
 	if err != nil {
-		return err
+		println("Result error " + err.Error())
+		return result, err
 	}
 
+	// Inspect the response
+	if result.FunctionError != nil {
+		println("Invoke Lambda FunctionError " + *result.FunctionError)
+	}
+
+	// Get the actual response payload
+	response := result.Payload
+
+	fmt.Println("responseXXX")
+	fmt.Println(response)
+
 	// Handle response from Lambda function
-	var output RemotionRenderResponse
-	err = json.Unmarshal(resp.Payload, &output)
+	var output interface{}
+	err = json.Unmarshal(response, &output)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// Do something with the output from Lambda function
 	fmt.Println(output)
 
-	return nil
+	return nil, err
 }
 
-func Render(input *RemotionOptions) error {
+func Render(input *RemotionOptions) (interface{}, error) {
 	return invokeLambda(input)
 }
