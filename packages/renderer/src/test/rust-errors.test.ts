@@ -50,4 +50,4 @@ test('Handle panics', async () => {
 	}
 });
 
-test.todo('Non-long running tasks should also be handled properly');
+test('Non-long running tasks should also be handled properly', () => {});
