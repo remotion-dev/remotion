@@ -16,6 +16,7 @@ import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-vi
 import {PreviewServerConnectionCtx} from '../helpers/client-id';
 import {ThinRenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
+import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 
 export const SidebarRenderButton: React.FC<{
@@ -95,13 +96,16 @@ export const SidebarRenderButton: React.FC<{
 		[composition.defaultProps, composition.id, isVideo, props, setSelectedModal]
 	);
 
+	const renderAction: RenderInlineAction = useCallback(
+		(color) => {
+			return <ThinRenderIcon fill={color} svgProps={iconStyle} />;
+		},
+		[iconStyle]
+	);
+
 	if (!visible || connectionStatus !== 'connected') {
 		return null;
 	}
 
-	return (
-		<InlineAction onClick={onClick}>
-			<ThinRenderIcon svgProps={iconStyle} />
-		</InlineAction>
-	);
+	return <InlineAction renderAction={renderAction} onClick={onClick} />;
 };
