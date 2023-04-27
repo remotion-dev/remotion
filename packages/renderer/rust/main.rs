@@ -5,6 +5,7 @@ mod ffmpeg;
 mod frame_cache;
 mod global_printer;
 mod image;
+mod opened_stream;
 mod opened_video;
 mod payloads;
 mod scalable_frame;

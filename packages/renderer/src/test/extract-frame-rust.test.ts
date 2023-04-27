@@ -140,6 +140,7 @@ test(
 		const topLeftPixelR = data[expectedLength - 1];
 		const topLeftPixelG = data[expectedLength - 2];
 		const topLeftPixelB = data[expectedLength - 3];
+
 		expect(topLeftPixelR).toBe(48);
 		expect(topLeftPixelG).toBe(113);
 		expect(topLeftPixelB).toBe(196);
@@ -271,6 +272,69 @@ test('Last frame should be fast', async () => {
 	expect(time3_end - time3).toBeLessThan(time_end - time);
 	expect(data3.length).toBe(3499254);
 
+	// Transparent frame should be different, so it should take a lot more time
+	const time4 = Date.now();
+	const data4 = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.framerWithoutFileExtension,
+		time: 100,
+		transparent: true,
+	});
+
+	const time4_end = Date.now();
+	expect(time4_end - time4).toBeGreaterThan((time3_end - time3) * 10);
+	expect(data4.length).not.toBe(3499254);
+
 	compositor.finishCommands();
 	await compositor.waitForDone();
 });
+
+test('Two different starting times should not result in big seeking', async () => {
+	const compositor = startCompositor('StartLongRunningProcess', {});
+
+	const expected = [];
+
+	for (let i = 0; i < 10; i++) {
+		const time = i + (i % 2 === 0 ? 60 : 0);
+		const data = await compositor.executeCommand('ExtractFrame', {
+			input: exampleVideos.bigBuckBunny,
+			time,
+			transparent: false,
+		});
+
+		const expectedLength = BMP_HEADER_SIZE + 1280 * 720 * 3;
+		const centerLeftPixelR =
+			data[Math.round(expectedLength - expectedLength / 2 - 1)];
+		const centerLeftPixelG =
+			data[Math.round(expectedLength - expectedLength / 2 - 2)];
+		const centerLeftPixelB =
+			data[Math.round(expectedLength - expectedLength / 2 - 3)];
+
+		expected.push(
+			[centerLeftPixelR, centerLeftPixelG, centerLeftPixelB].join('-')
+		);
+	}
+
+	expect(expected).toEqual([
+		'153-186-224',
+		'60-60-60',
+		'153-186-224',
+		'252-251-245',
+		'153-186-224',
+		'140-154-130',
+		'153-186-224',
+		'150-166-129',
+		'153-186-224',
+		'112-133-86',
+	]);
+
+	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
+	expect(JSON.parse(stats.toString('utf-8'))).toEqual({
+		open_streams: 2,
+		open_videos: 1,
+	});
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
+test.todo('transparent cache should be separate from non-transparent cache');
