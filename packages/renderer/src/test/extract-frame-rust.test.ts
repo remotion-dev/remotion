@@ -57,10 +57,10 @@ test(
 			transparent: true,
 		});
 
-		expect(data[100000]).toBe(13);
-		expect(data[100001]).toBe(96);
-		expect(data[140001]).toBe(253);
-		expect(data[170001]).toBe(9);
+		expect(data[100000]).toBeCloseTo(13, 1);
+		expect(data[100001]).toBeCloseTo(96, 1);
+		expect(data[140001]).toBeCloseTo(253, 1);
+		expect(data[170001]).toBeCloseTo(9, 1);
 		expect(data.length).toBe(191304);
 
 		compositor.finishCommands();
@@ -141,9 +141,9 @@ test(
 		const topLeftPixelG = data[expectedLength - 2];
 		const topLeftPixelB = data[expectedLength - 3];
 
-		expect(topLeftPixelR).toBe(48);
-		expect(topLeftPixelG).toBe(113);
-		expect(topLeftPixelB).toBe(196);
+		expect(topLeftPixelR).toBeCloseTo(48, 1);
+		expect(topLeftPixelG).toBeCloseTo(113, 1);
+		expect(topLeftPixelB).toBeCloseTo(196, 1);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
@@ -164,9 +164,9 @@ test(
 
 		// Pixel fixing
 		expect(data.length).toBe(6220854);
-		expect(data[1045650]).toBe(18);
-		expect(data[1645650]).toBe(41);
-		expect(data[2000000]).toBe(20);
+		expect(data[1045650]).toBeCloseTo(18, 1);
+		expect(data[1645650]).toBeCloseTo(41, 1);
+		expect(data[2000000]).toBeCloseTo(20, 1);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
