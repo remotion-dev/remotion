@@ -52,8 +52,10 @@ const scrollable: React.CSSProperties = {
 	flex: 1,
 };
 
+export type EditType = 'inputProps' | 'defaultProps';
+
 // TODO: Note if custom 'remotion-date:' pattern has been used
-export const RenderModalJSONInputPropsEditor: React.FC<{
+export const RenderModalJSONPropsEditor: React.FC<{
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
@@ -144,7 +146,6 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 		};
 	}, [keybindings, onQuickSave, onSave]);
 
-	// TODO: Indicate saving progress
 	return (
 		<div style={scrollable}>
 			<RemTextarea
