@@ -103,13 +103,13 @@ pub fn extract_frame(
         &vid.get_frame_cache(transparent),
         position,
         vid.time_base,
-    );
+    )?;
 
     let from_cache = vid
         .get_frame_cache(transparent)
         .lock()
         .unwrap()
-        .get_item_from_id(frame_id.unwrap());
+        .get_item_from_id(frame_id);
 
     match from_cache {
         Ok(Some(data)) => Ok(data),
@@ -125,17 +125,17 @@ pub struct OpenedVideoManager {
     videos: RwLock<HashMap<String, Arc<Mutex<OpenedVideo>>>>,
 }
 
-pub fn make_opened_stream_manager() -> OpenedVideoManager {
-    remotionffmpeg::init().unwrap();
-    OpenedVideoManager {
+pub fn make_opened_stream_manager() -> Result<OpenedVideoManager, ErrorWithBacktrace> {
+    remotionffmpeg::init()?;
+    Ok(OpenedVideoManager {
         videos: RwLock::new(HashMap::new()),
-    }
+    })
 }
 
 impl OpenedVideoManager {
     pub fn get_instance() -> &'static OpenedVideoManager {
         lazy_static! {
-            static ref INSTANCE: OpenedVideoManager = make_opened_stream_manager();
+            static ref INSTANCE: OpenedVideoManager = make_opened_stream_manager().unwrap();
         }
         &INSTANCE
     }

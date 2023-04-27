@@ -1,5 +1,6 @@
 use crate::payloads::payloads::ErrorPayload;
 use ffmpeg_next as remotionffmpeg;
+use png::EncodingError;
 use std::any::Any;
 use std::backtrace::Backtrace;
 
@@ -12,21 +13,22 @@ pub fn error_to_string(err: &ErrorWithBacktrace) -> String {
         PossibleErrors::JpegDecoderError(err) => err.to_string(),
         PossibleErrors::SerdeError(err) => err.to_string(),
         PossibleErrors::WorkerError(err) => format!("{:?}", err),
+        PossibleErrors::EncodingError(err) => err.to_string(),
+        PossibleErrors::ThreadPoolBuilderError(err) => err.to_string(),
     }
 }
 
-pub fn error_to_json(err: ErrorWithBacktrace) -> String {
+pub fn error_to_json(err: ErrorWithBacktrace) -> Result<String, ErrorWithBacktrace> {
     let json = ErrorPayload {
         error: error_to_string(&err),
         backtrace: err.backtrace,
     };
-    let j = serde_json::to_string(&json).unwrap();
-    return j;
+    Ok(serde_json::to_string(&json)?)
 }
 
 pub fn handle_global_error(err: ErrorWithBacktrace) -> ! {
     // Only log printing to stderr
-    eprint!("{}", error_to_json(err));
+    eprint!("{}", error_to_json(err).unwrap());
     std::process::exit(1);
 }
 
@@ -38,6 +40,8 @@ enum PossibleErrors {
     JpegDecoderError(jpeg_decoder::Error),
     SerdeError(serde_json::Error),
     WorkerError(Box<dyn Any + Send>),
+    EncodingError(EncodingError),
+    ThreadPoolBuilderError(rayon::ThreadPoolBuildError),
 }
 
 pub struct ErrorWithBacktrace {
@@ -108,6 +112,24 @@ impl From<jpeg_decoder::Error> for ErrorWithBacktrace {
     }
 }
 
+impl From<EncodingError> for ErrorWithBacktrace {
+    fn from(err: EncodingError) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::EncodingError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
+    }
+}
+
+impl From<rayon::ThreadPoolBuildError> for ErrorWithBacktrace {
+    fn from(err: rayon::ThreadPoolBuildError) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::ThreadPoolBuilderError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
+    }
+}
+
 impl std::fmt::Debug for ErrorWithBacktrace {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.error {
@@ -118,6 +140,10 @@ impl std::fmt::Debug for ErrorWithBacktrace {
             PossibleErrors::JpegDecoderError(err) => write!(f, "JpegDecoderError: {:?}", err),
             PossibleErrors::SerdeError(err) => write!(f, "SerdeError: {:?}", err),
             PossibleErrors::WorkerError(err) => write!(f, "WorkerError: {:?}", err),
+            PossibleErrors::EncodingError(err) => write!(f, "EncodingError: {:?}", err),
+            PossibleErrors::ThreadPoolBuilderError(err) => {
+                write!(f, "ThreadPoolBuilderError: {:?}", err)
+            }
         }
     }
 }
