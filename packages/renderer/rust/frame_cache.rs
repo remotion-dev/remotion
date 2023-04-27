@@ -1,9 +1,6 @@
 extern crate ffmpeg_next as remotionffmpeg;
 
-use std::{
-    any,
-    sync::atomic::{AtomicUsize, Ordering},
-};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use crate::{errors::PossibleErrors, scalable_frame::ScalableFrame};
 
