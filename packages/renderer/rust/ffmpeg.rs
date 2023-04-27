@@ -44,11 +44,26 @@ pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8
         }
     }
 
+    let open_stream_count = vid.opened_streams.len();
+    let mut suitable_open_stream: Option<usize> = None;
+    for i in 0..open_stream_count {
+        let stream = vid.opened_streams[i].lock().unwrap();
+        if stream.reached_eof {
+            continue;
+        }
+        suitable_open_stream = Some(i);
+    }
+
     // TODO: Handle multiple streams
-    let mut first_opened_stram = vid.opened_streams.first().unwrap().lock().unwrap();
+    let mut first_opened_stream = vid
+        .opened_streams
+        .get(suitable_open_stream.unwrap())
+        .unwrap()
+        .lock()
+        .unwrap();
 
     let frame_id =
-        first_opened_stram.get_frame(time, transparent, &vid.frame_cache, position, vid.time_base);
+        first_opened_stream.get_frame(time, transparent, &vid.frame_cache, position, vid.time_base);
 
     let from_cache = vid
         .frame_cache
