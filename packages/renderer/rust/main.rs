@@ -10,10 +10,10 @@ mod opened_video;
 mod payloads;
 mod scalable_frame;
 use commands::execute_command;
-use errors::{error_to_string, ErrorWithBacktrace};
+use errors::{error_to_json, ErrorWithBacktrace};
 use std::env;
 
-use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload, ErrorPayload};
+use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload};
 
 extern crate png;
 
@@ -71,17 +71,12 @@ fn start_long_running_process(threads: usize) -> Result<(), ErrorWithBacktrace> 
         let opts: CliInputCommand = parse_cli(&input)?;
         pool.install(move || match execute_command(opts.payload) {
             Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
-            Err(err) => {
-                let err = ErrorPayload {
-                    error: error_to_string(&err),
-                    backtrace: err.backtrace,
-                };
-
-                let err_payload = serde_json::to_string(&err).unwrap();
-                let j = err_payload.as_bytes();
-
-                global_printer::synchronized_write_buf(1, &opts.nonce, &j).unwrap()
-            }
+            Err(err) => global_printer::synchronized_write_buf(
+                1,
+                &opts.nonce,
+                &error_to_json(err).as_bytes(),
+            )
+            .unwrap(),
         });
     }
 
@@ -91,6 +86,6 @@ fn start_long_running_process(threads: usize) -> Result<(), ErrorWithBacktrace> 
 fn main() {
     match mainfn() {
         Ok(_) => (),
-        Err(err) => errors::handle_error(err),
+        Err(err) => errors::handle_global_error(err),
     }
 }
