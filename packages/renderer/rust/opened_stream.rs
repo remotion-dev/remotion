@@ -8,7 +8,7 @@ use remotionffmpeg::{format::Pixel, frame::Video, media::Type, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
-    errors::PossibleErrors,
+    errors::ErrorWithBacktrace,
     frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
     global_printer::_print_debug,
     scalable_frame::{NotRgbFrame, ScalableFrame},
@@ -40,7 +40,7 @@ pub fn calc_position(time: f64, time_base: Rational) -> i64 {
 }
 
 impl OpenedStream {
-    pub fn receive_frame(&mut self) -> anyhow::Result<Option<Video>, PossibleErrors> {
+    pub fn receive_frame(&mut self) -> Result<Option<Video>, ErrorWithBacktrace> {
         let mut frame = Video::empty();
 
         let res = self.video.receive_frame(&mut frame);
@@ -64,7 +64,7 @@ impl OpenedStream {
         &mut self,
         position: i64,
         frame_cache: &Arc<Mutex<FrameCache>>,
-    ) -> anyhow::Result<Option<usize>, PossibleErrors> {
+    ) -> Result<Option<usize>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
         let mut latest_frame: Option<usize> = None;
@@ -124,7 +124,7 @@ impl OpenedStream {
         frame_cache: &Arc<Mutex<FrameCache>>,
         position: i64,
         time_base: Rational,
-    ) -> anyhow::Result<usize, PossibleErrors> {
+    ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_position = self.duration_or_zero.min(position);
 

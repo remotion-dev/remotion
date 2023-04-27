@@ -1,11 +1,11 @@
 use crate::compositor::draw_layer;
-use crate::errors::PossibleErrors;
+use crate::errors::ErrorWithBacktrace;
 use crate::ffmpeg;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::payloads::payloads::CliInputCommandPayload;
 use std::io::ErrorKind;
 
-pub fn execute_command(opts: CliInputCommandPayload) -> anyhow::Result<Vec<u8>, PossibleErrors> {
+pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWithBacktrace> {
     match opts {
         CliInputCommandPayload::ExtractFrame(command) => {
             let res = ffmpeg::extract_frame(command.input, command.time, command.transparent)?;

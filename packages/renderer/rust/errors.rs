@@ -3,8 +3,8 @@ use ffmpeg_next as remotionffmpeg;
 use std::any::Any;
 use std::backtrace::Backtrace;
 
-pub fn error_to_string(err: &PossibleErrors) -> String {
-    match err {
+pub fn error_to_string(err: &ErrorWithBacktrace) -> String {
+    match &err.error {
         PossibleErrors::IoError(err) => err.to_string(),
         PossibleErrors::FfmpegError(err) => err.to_string(),
         PossibleErrors::TryFromIntError(err) => err.to_string(),
@@ -15,10 +15,10 @@ pub fn error_to_string(err: &PossibleErrors) -> String {
     }
 }
 
-pub fn handle_error(err: PossibleErrors) -> ! {
+pub fn handle_error(err: ErrorWithBacktrace) -> ! {
     let err = ErrorPayload {
         error: error_to_string(&err),
-        backtrace: Backtrace::force_capture().to_string(),
+        backtrace: err.backtrace,
     };
     // TODO: Handling this error with the other print is better
     let j = serde_json::to_string(&err).unwrap();
@@ -27,7 +27,7 @@ pub fn handle_error(err: PossibleErrors) -> ! {
     std::process::exit(1);
 }
 
-pub enum PossibleErrors {
+enum PossibleErrors {
     IoError(std::io::Error),
     FfmpegError(remotionffmpeg::Error),
     TryFromIntError(std::num::TryFromIntError),
@@ -37,51 +37,77 @@ pub enum PossibleErrors {
     WorkerError(Box<dyn Any + Send>),
 }
 
-impl From<Box<dyn Any + Send>> for PossibleErrors {
-    fn from(err: Box<dyn Any + Send>) -> PossibleErrors {
-        PossibleErrors::WorkerError(err)
+pub struct ErrorWithBacktrace {
+    error: PossibleErrors,
+    pub backtrace: String,
+}
+
+impl From<Box<dyn Any + Send>> for ErrorWithBacktrace {
+    fn from(err: Box<dyn Any + Send>) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::WorkerError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl From<remotionffmpeg::Error> for PossibleErrors {
-    fn from(err: remotionffmpeg::Error) -> PossibleErrors {
-        PossibleErrors::FfmpegError(err)
+impl From<remotionffmpeg::Error> for ErrorWithBacktrace {
+    fn from(err: remotionffmpeg::Error) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::FfmpegError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl From<std::io::Error> for PossibleErrors {
-    fn from(err: std::io::Error) -> PossibleErrors {
-        PossibleErrors::IoError(err)
+impl From<std::io::Error> for ErrorWithBacktrace {
+    fn from(err: std::io::Error) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::IoError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl From<std::num::TryFromIntError> for PossibleErrors {
-    fn from(err: std::num::TryFromIntError) -> PossibleErrors {
-        PossibleErrors::TryFromIntError(err)
+impl From<std::num::TryFromIntError> for ErrorWithBacktrace {
+    fn from(err: std::num::TryFromIntError) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::TryFromIntError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl From<serde_json::Error> for PossibleErrors {
-    fn from(err: serde_json::Error) -> PossibleErrors {
-        PossibleErrors::SerdeError(err)
+impl From<serde_json::Error> for ErrorWithBacktrace {
+    fn from(err: serde_json::Error) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::SerdeError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl From<png::DecodingError> for PossibleErrors {
-    fn from(err: png::DecodingError) -> PossibleErrors {
-        PossibleErrors::DecodingError(err)
+impl From<png::DecodingError> for ErrorWithBacktrace {
+    fn from(err: png::DecodingError) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::DecodingError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl From<jpeg_decoder::Error> for PossibleErrors {
-    fn from(err: jpeg_decoder::Error) -> PossibleErrors {
-        PossibleErrors::JpegDecoderError(err)
+impl From<jpeg_decoder::Error> for ErrorWithBacktrace {
+    fn from(err: jpeg_decoder::Error) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::JpegDecoderError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl std::fmt::Debug for PossibleErrors {
+impl std::fmt::Debug for ErrorWithBacktrace {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
+        match &self.error {
             PossibleErrors::IoError(err) => write!(f, "IoError: {:?}", err),
             PossibleErrors::FfmpegError(err) => write!(f, "FfmpegError: {:?}", err),
             PossibleErrors::TryFromIntError(err) => write!(f, "TryFromIntError: {:?}", err),

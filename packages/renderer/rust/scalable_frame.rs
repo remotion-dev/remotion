@@ -5,7 +5,7 @@ use ffmpeg_next::{
 };
 
 use crate::{
-    errors::{self, PossibleErrors},
+    errors::{self, ErrorWithBacktrace},
     image::get_png_data,
 };
 
@@ -38,16 +38,17 @@ impl ScalableFrame {
         }
     }
 
-    pub fn ensure_data(&mut self) -> anyhow::Result<(), PossibleErrors> {
+    pub fn ensure_data(&mut self) -> Result<(), ErrorWithBacktrace> {
         if self.rgb_frame.is_some() {
             return Ok(());
         }
 
         if self.native_frame.is_none() {
-            return Err(errors::PossibleErrors::IoError(std::io::Error::new(
+            let io_error = std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "has neither native nor rgb frame",
-            )));
+            );
+            return Err(errors::ErrorWithBacktrace::from(io_error));
         }
 
         let bitmap = scale_and_make_bitmap(&self.native_frame.as_ref().unwrap(), self.transparent)?;
@@ -56,12 +57,13 @@ impl ScalableFrame {
         Ok(())
     }
 
-    pub fn get_data(&self) -> Result<Vec<u8>, PossibleErrors> {
+    pub fn get_data(&self) -> Result<Vec<u8>, ErrorWithBacktrace> {
         if self.rgb_frame.is_none() {
-            return Err(errors::PossibleErrors::IoError(std::io::Error::new(
+            let io_error = std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "has neither native nor rgb frame",
-            )));
+            );
+            return Err(ErrorWithBacktrace::from(io_error));
         }
 
         return Ok(self.rgb_frame.as_ref().unwrap().data.clone());
@@ -112,7 +114,7 @@ fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
 pub fn scale_and_make_bitmap(
     native_frame: &NotRgbFrame,
     transparent: bool,
-) -> anyhow::Result<Vec<u8>, PossibleErrors> {
+) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let format: Pixel = match transparent {
         true => Pixel::RGBA,
         false => Pixel::BGR24,

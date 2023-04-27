@@ -2,7 +2,7 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::{errors::PossibleErrors, scalable_frame::ScalableFrame};
+use crate::{errors::ErrorWithBacktrace, scalable_frame::ScalableFrame};
 
 pub fn get_frame_cache_id() -> usize {
     static COUNTER: AtomicUsize = AtomicUsize::new(1);
@@ -38,10 +38,7 @@ impl FrameCache {
         self.last_frame = Some(id);
     }
 
-    pub fn get_item_from_id(
-        &mut self,
-        id: usize,
-    ) -> anyhow::Result<Option<Vec<u8>>, PossibleErrors> {
+    pub fn get_item_from_id(&mut self, id: usize) -> Result<Option<Vec<u8>>, ErrorWithBacktrace> {
         let mut data: Option<Vec<u8>> = None;
         for i in 0..self.items.len() {
             if self.items[i].id == id {
@@ -57,7 +54,7 @@ impl FrameCache {
         &mut self,
         time: i64,
         threshold: i64,
-    ) -> anyhow::Result<Option<usize>, PossibleErrors> {
+    ) -> Result<Option<usize>, ErrorWithBacktrace> {
         let mut best_item: Option<usize> = None;
         let mut best_distance = std::i64::MAX;
 
