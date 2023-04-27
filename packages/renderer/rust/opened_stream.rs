@@ -107,6 +107,12 @@ impl OpenedStream {
                     latest_frame = Some(frame_cache_id);
                 },
                 Ok(None) => {
+                    if self.reached_eof && latest_frame.is_some() {
+                        frame_cache
+                            .lock()
+                            .unwrap()
+                            .set_last_frame(latest_frame.unwrap());
+                    }
                     break;
                 }
                 Err(err) => {
@@ -142,11 +148,12 @@ impl OpenedStream {
             freshly_seeked = true
         }
 
-        let mut last_frame: Option<usize> = None;
+        let mut last_frame_of_video: Option<usize> = None;
+        let mut last_frame_received: Option<usize> = None;
 
         loop {
             // -1 because uf 67 and we want to process 66.66 -> rounding error
-            if (self.last_position.resolved_pts - 1) > position && last_frame.is_some() {
+            if (self.last_position.resolved_pts - 1) > position && last_frame_received.is_some() {
                 break;
             }
 
@@ -154,20 +161,22 @@ impl OpenedStream {
                 Err(remotionffmpeg::Error::Eof) => {
                     let data = self.handle_eof(position, self.transparent, frame_cache)?;
                     if data.is_some() {
-                        last_frame = data;
+                        last_frame_of_video = data;
+                    } else {
+                        last_frame_of_video = last_frame_received
                     }
+                    if last_frame_of_video.is_some() {
+                        frame_cache
+                            .lock()
+                            .unwrap()
+                            .set_last_frame(last_frame_of_video.unwrap());
+                    }
+
                     break;
                 }
                 Ok(packet) => packet,
                 Err(err) => Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?,
             };
-
-            if last_frame.is_some() {
-                frame_cache
-                    .lock()
-                    .unwrap()
-                    .set_last_frame(last_frame.unwrap());
-            }
 
             if stream.parameters().medium() != Type::Video {
                 continue;
@@ -229,11 +238,19 @@ impl OpenedStream {
 
                         frame_cache.lock().unwrap().add_item(item);
 
-                        last_frame = Some(frame_cache_id);
+                        last_frame_received = Some(frame_cache_id);
 
                         break;
                     },
                     Ok(None) => {
+                        if self.reached_eof {
+                            if last_frame_received.is_some() {
+                                frame_cache
+                                    .lock()
+                                    .unwrap()
+                                    .set_last_frame(last_frame_received.unwrap());
+                            }
+                        }
                         break;
                     }
                     Err(err) => {
@@ -242,11 +259,11 @@ impl OpenedStream {
                 }
             }
         }
-        if last_frame.is_none() {
+        if last_frame_received.is_none() {
             return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;
         }
 
-        Ok(last_frame.unwrap())
+        Ok(last_frame_received.unwrap())
     }
 }
 

@@ -1,4 +1,3 @@
-import {writeFileSync} from 'fs';
 import path from 'path';
 import {expect, test} from 'vitest';
 import {startCompositor} from '../compositor/compositor';
@@ -141,6 +140,7 @@ test(
 		const topLeftPixelR = data[expectedLength - 1];
 		const topLeftPixelG = data[expectedLength - 2];
 		const topLeftPixelB = data[expectedLength - 3];
+
 		expect(topLeftPixelR).toBe(48);
 		expect(topLeftPixelG).toBe(113);
 		expect(topLeftPixelB).toBe(196);
@@ -279,17 +279,44 @@ test('Last frame should be fast', async () => {
 test('Two different starting times should not result in big seeking', async () => {
 	const compositor = startCompositor('StartLongRunningProcess', {});
 
+	const expected = [];
+
 	for (let i = 0; i < 10; i++) {
 		const time = i + (i % 2 === 0 ? 60 : 0);
-		console.log('time', time);
 		const data = await compositor.executeCommand('ExtractFrame', {
 			input: exampleVideos.bigBuckBunny,
 			time,
 			transparent: false,
 		});
-		writeFileSync(`./test${i}.bmp`, data);
+
+		const expectedLength = BMP_HEADER_SIZE + 1280 * 720 * 3;
+		const centerLeftPixelR =
+			data[Math.round(expectedLength - expectedLength / 2 - 1)];
+		const centerLeftPixelG =
+			data[Math.round(expectedLength - expectedLength / 2 - 2)];
+		const centerLeftPixelB =
+			data[Math.round(expectedLength - expectedLength / 2 - 3)];
+
+		expected.push(
+			[centerLeftPixelR, centerLeftPixelG, centerLeftPixelB].join('-')
+		);
 	}
+
+	expect(expected).toEqual([
+		'153-186-224',
+		'60-60-60',
+		'153-186-224',
+		'252-251-245',
+		'153-186-224',
+		'140-154-130',
+		'153-186-224',
+		'150-166-129',
+		'153-186-224',
+		'112-133-86',
+	]);
 
 	compositor.finishCommands();
 	await compositor.waitForDone();
 });
+
+test.todo('transparent cache should be separate from non-transparent cache');

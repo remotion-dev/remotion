@@ -59,19 +59,19 @@ impl FrameCache {
         let mut best_distance = std::i64::MAX;
 
         for i in 0..self.items.len() {
-            if self.last_frame.is_some() && self.items[i].resolved_pts < time as i64 {
-                // Asked for frame beyond last frame
-                if self.last_frame.unwrap() == self.items[i].id {
-                    self.items[i].frame.ensure_data()?;
-
-                    return Ok(Some(self.items[i].id));
-                }
-
-                continue;
+            // Is last frame or beyond
+            if self.last_frame.is_some()
+                && self.items[i].id == self.last_frame.unwrap()
+                && self.items[i].resolved_pts < time as i64
+            {
+                self.items[i].frame.ensure_data()?;
+                return Ok(Some(self.items[i].id));
             }
 
+            // Exact same time as requested
             if self.items[i].resolved_pts == time {
                 self.items[i].frame.ensure_data()?;
+
                 return Ok(Some(self.items[i].id));
             }
             let distance = (self.items[i].asked_time - time as i64).abs();
@@ -86,7 +86,6 @@ impl FrameCache {
         if best_distance > threshold {
             return Ok(None);
         }
-
         self.items[best_item.unwrap()].frame.ensure_data()?;
         Ok(Some(self.items[best_item.unwrap()].id))
     }

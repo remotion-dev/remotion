@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 
 use crate::errors::PossibleErrors;
+use crate::global_printer::_print_debug;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
@@ -46,17 +47,26 @@ pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8
 
     let open_stream_count = vid.opened_streams.len();
     let mut suitable_open_stream: Option<usize> = None;
+
+    // Seeking too far back in a stream is not efficient, rather open a new stream
+    // 15 seconds was chosen arbitrarily
+    let max_stream_position = calc_position(time + 15.0, vid.time_base);
     for i in 0..open_stream_count {
         let stream = vid.opened_streams[i].lock().unwrap();
         if stream.reached_eof {
             continue;
         }
-        if transparent != !stream.transparent {
+        if transparent != stream.transparent {
             continue;
         }
+        if stream.last_position.resolved_pts > max_stream_position {
+            continue;
+        }
+
         suitable_open_stream = Some(i);
         break;
     }
+
     let stream_index = match suitable_open_stream {
         Some(index) => Ok(index),
         None => vid.open_new_stream(transparent),
