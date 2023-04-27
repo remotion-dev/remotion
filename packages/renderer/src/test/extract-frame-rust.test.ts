@@ -272,6 +272,18 @@ test('Last frame should be fast', async () => {
 	expect(time3_end - time3).toBeLessThan(time_end - time);
 	expect(data3.length).toBe(3499254);
 
+	// Transparent frame should be different, so it should take a lot more time
+	const time4 = Date.now();
+	const data4 = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.framerWithoutFileExtension,
+		time: 100,
+		transparent: true,
+	});
+
+	const time4_end = Date.now();
+	expect(time4_end - time4).toBeGreaterThan((time3_end - time3) * 10);
+	expect(data4.length).not.toBe(3499254);
+
 	compositor.finishCommands();
 	await compositor.waitForDone();
 });
