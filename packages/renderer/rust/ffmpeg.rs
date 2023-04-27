@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 
 use crate::errors::PossibleErrors;
 use crate::opened_stream::calc_position;
-use crate::opened_stream::open_video;
+use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
 use std::collections::HashMap;
 use std::io::ErrorKind;
@@ -52,6 +52,7 @@ pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8
             continue;
         }
         suitable_open_stream = Some(i);
+        break;
     }
 
     // TODO: Handle multiple streams
