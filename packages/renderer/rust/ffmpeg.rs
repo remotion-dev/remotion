@@ -14,8 +14,8 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
-    let open_videos = manager.get_open_videos();
-    let open_streams = manager.get_open_video_streams();
+    let open_videos = manager.get_open_videos()?;
+    let open_streams = manager.get_open_video_streams()?;
 
     Ok(OpenVideoStats {
         open_videos,
@@ -40,16 +40,14 @@ pub fn extract_frame(
     let threshold = one_frame_after - position;
     let cache_item = vid
         .get_frame_cache(transparent)
-        .lock()
-        .unwrap()
+        .lock()?
         .get_item_id(position, threshold);
 
     match cache_item {
         Ok(Some(item)) => {
             return Ok(vid
                 .get_frame_cache(transparent)
-                .lock()
-                .unwrap()
+                .lock()?
                 .get_item_from_id(item)
                 .unwrap()
                 .unwrap());
@@ -95,8 +93,7 @@ pub fn extract_frame(
         .opened_streams
         .get(stream_index.unwrap())
         .unwrap()
-        .lock()
-        .unwrap();
+        .lock()?;
 
     let frame_id = first_opened_stream.get_frame(
         time,
@@ -107,8 +104,7 @@ pub fn extract_frame(
 
     let from_cache = vid
         .get_frame_cache(transparent)
-        .lock()
-        .unwrap()
+        .lock()?
         .get_item_from_id(frame_id);
 
     match from_cache {
@@ -140,16 +136,16 @@ impl OpenedVideoManager {
         &INSTANCE
     }
 
-    pub fn get_open_videos(&self) -> usize {
-        return self.videos.read().unwrap().len();
+    pub fn get_open_videos(&self) -> Result<usize, ErrorWithBacktrace> {
+        return Ok(self.videos.read()?.len());
     }
 
-    pub fn get_open_video_streams(&self) -> usize {
+    pub fn get_open_video_streams(&self) -> Result<usize, ErrorWithBacktrace> {
         let mut count = 0;
-        for video in self.videos.read().unwrap().values() {
-            count += video.lock().unwrap().opened_streams.len();
+        for video in self.videos.read()?.values() {
+            count += video.lock()?.opened_streams.len();
         }
-        return count;
+        return Ok(count);
     }
 
     pub fn get_video(
