@@ -13,7 +13,7 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 	}
 
 	if (codec === 'h265') {
-		return 0; // FFMPEG default 28
+		return 23; // FFMPEG default 28
 	}
 
 	if (codec === 'vp8') {
