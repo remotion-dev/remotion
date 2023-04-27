@@ -14,7 +14,7 @@ extern crate ffmpeg_next as remotionffmpeg;
 pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8>, PossibleErrors> {
     let manager = OpenedVideoManager::get_instance();
     let video_locked = manager.get_video(&src, transparent)?;
-    let vid = video_locked.lock().unwrap();
+    let mut vid = video_locked.lock().unwrap();
 
     let position = calc_position(time, vid.time_base);
     let one_frame_after = calc_position(
@@ -51,20 +51,25 @@ pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8
         if stream.reached_eof {
             continue;
         }
+        if transparent != !stream.transparent {
+            continue;
+        }
         suitable_open_stream = Some(i);
         break;
     }
+    let stream_index = match suitable_open_stream {
+        Some(index) => Ok(index),
+        None => vid.open_new_stream(transparent),
+    };
 
-    // TODO: Handle multiple streams
     let mut first_opened_stream = vid
         .opened_streams
-        .get(suitable_open_stream.unwrap())
+        .get(stream_index.unwrap())
         .unwrap()
         .lock()
         .unwrap();
 
-    let frame_id =
-        first_opened_stream.get_frame(time, transparent, &vid.frame_cache, position, vid.time_base);
+    let frame_id = first_opened_stream.get_frame(time, &vid.frame_cache, position, vid.time_base);
 
     let from_cache = vid
         .frame_cache

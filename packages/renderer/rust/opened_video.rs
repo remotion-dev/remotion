@@ -15,9 +15,27 @@ pub struct OpenedVideo {
     pub frame_cache: Arc<Mutex<FrameCache>>,
     pub fps: Rational,
     pub time_base: Rational,
+    pub src: String,
 }
 
 pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleErrors> {
+    let (opened_stream, fps, time_base) = open_stream(src, transparent)?;
+
+    let opened_video = OpenedVideo {
+        opened_streams: vec![(Arc::new(Mutex::new(opened_stream)))],
+        frame_cache: Arc::new(Mutex::new(FrameCache::new())),
+        fps,
+        time_base,
+        src: src.to_string(),
+    };
+
+    Ok(opened_video)
+}
+
+fn open_stream(
+    src: &str,
+    transparent: bool,
+) -> Result<(OpenedStream, Rational, Rational), PossibleErrors> {
     let mut dictionary = Dictionary::new();
     dictionary.set("fflags", "+genpts");
     let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
@@ -100,14 +118,17 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleE
         },
         duration_or_zero,
         reached_eof: false,
+        transparent,
     };
 
-    let opened_video = OpenedVideo {
-        opened_streams: vec![(Arc::new(Mutex::new(opened_stream)))],
-        frame_cache: Arc::new(Mutex::new(FrameCache::new())),
-        fps,
-        time_base,
-    };
+    Ok((opened_stream, fps, time_base))
+}
 
-    Ok(opened_video)
+impl OpenedVideo {
+    pub fn open_new_stream(&mut self, transparent: bool) -> Result<usize, PossibleErrors> {
+        let (opened_stream, _, _) = open_stream(&self.src, transparent)?;
+        let arc_mutex = Arc::new(Mutex::new(opened_stream));
+        self.opened_streams.push(arc_mutex);
+        return Ok(self.opened_streams.len() - 1);
+    }
 }
