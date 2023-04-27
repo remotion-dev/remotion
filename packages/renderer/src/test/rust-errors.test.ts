@@ -30,6 +30,21 @@ test('Handle panics', async () => {
 
 	try {
 		await compositor.executeCommand('DeliberatePanic', {});
+		throw new Error('should not be reached');
+	} catch (err) {
+		expect((err as Error).message).toContain('Compositor already quit');
+	}
+
+	try {
+		compositor.finishCommands();
+		throw new Error('should not be reached');
+	} catch (err) {
+		expect((err as Error).message).toContain('Compositor already quit');
+	}
+
+	try {
+		await compositor.waitForDone();
+		throw new Error('should not be reached');
 	} catch (err) {
 		expect((err as Error).message).toContain('Compositor already quit');
 	}
