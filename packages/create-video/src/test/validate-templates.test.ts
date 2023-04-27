@@ -39,6 +39,7 @@ describe('Templates should be valid', () => {
 
 				expect(body.devDependencies.prettier).toMatch(/^\^?2.8.1/);
 				expect(body.devDependencies.eslint).toMatch(/^\^?8.30/);
+				// @ts-expect-error
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const eitherPluginOrConfig =
 					body.devDependencies['@remotion/eslint-config']?.match(/^\^?3/) ||
