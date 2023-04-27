@@ -18,38 +18,6 @@ export type Compositor = {
 	waitForDone: () => Promise<void>;
 };
 
-const compositorMap: Record<string, Compositor> = {};
-
-export const spawnCompositorOrReuse = <T extends keyof CompositorCommand>({
-	initiatePayload,
-	renderId,
-	type,
-}: {
-	type: T;
-	initiatePayload: CompositorCommand[T];
-	renderId: string;
-}) => {
-	if (!compositorMap[renderId]) {
-		compositorMap[renderId] = startCompositor(type, initiatePayload);
-	}
-
-	return compositorMap[renderId];
-};
-
-export const releaseCompositorWithId = (renderId: string) => {
-	if (compositorMap[renderId]) {
-		compositorMap[renderId].finishCommands();
-	}
-};
-
-export const waitForCompositorWithIdToQuit = (renderId: string) => {
-	if (!compositorMap[renderId]) {
-		throw new TypeError('No compositor with that id');
-	}
-
-	return compositorMap[renderId].waitForDone();
-};
-
 type Waiter = {
 	resolve: (data: Buffer) => void;
 	reject: (err: Error) => void;
