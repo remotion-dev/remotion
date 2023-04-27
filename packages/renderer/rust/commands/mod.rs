@@ -1,11 +1,11 @@
 use crate::compositor::draw_layer;
-use crate::errors::PossibleErrors;
+use crate::errors::ErrorWithBacktrace;
 use crate::ffmpeg;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::payloads::payloads::CliInputCommandPayload;
 use std::io::ErrorKind;
 
-pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, PossibleErrors> {
+pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWithBacktrace> {
     match opts {
         CliInputCommandPayload::ExtractFrame(command) => {
             let res = ffmpeg::extract_frame(command.input, command.time, command.transparent)?;
@@ -13,7 +13,14 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, Possible
         }
         CliInputCommandPayload::GetOpenVideoStats(_) => {
             let res = ffmpeg::get_open_video_stats()?;
-            Ok(serde_json::to_string(&res).unwrap().as_bytes().to_vec())
+            let str = serde_json::to_string(&res)?;
+            Ok(str.as_bytes().to_vec())
+        }
+        CliInputCommandPayload::DeliberatePanic(_) => {
+            // For testing purposes
+            let hi: Option<usize> = None;
+            hi.unwrap();
+            Ok(vec![])
         }
         CliInputCommandPayload::StartLongRunningProcess(_command) => Err(std::io::Error::new(
             ErrorKind::Other,

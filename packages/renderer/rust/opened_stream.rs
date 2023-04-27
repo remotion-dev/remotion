@@ -8,7 +8,7 @@ use remotionffmpeg::{format::Pixel, frame::Video, media::Type, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
-    errors::PossibleErrors,
+    errors::ErrorWithBacktrace,
     frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
     global_printer::_print_debug,
     scalable_frame::{NotRgbFrame, ScalableFrame},
@@ -40,7 +40,7 @@ pub fn calc_position(time: f64, time_base: Rational) -> i64 {
 }
 
 impl OpenedStream {
-    pub fn receive_frame(&mut self) -> Result<Option<Video>, PossibleErrors> {
+    pub fn receive_frame(&mut self) -> Result<Option<Video>, ErrorWithBacktrace> {
         let mut frame = Video::empty();
 
         let res = self.video.receive_frame(&mut frame);
@@ -64,7 +64,7 @@ impl OpenedStream {
         &mut self,
         position: i64,
         frame_cache: &Arc<Mutex<FrameCache>>,
-    ) -> Result<Option<usize>, PossibleErrors> {
+    ) -> Result<Option<usize>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
         let mut latest_frame: Option<usize> = None;
@@ -102,7 +102,7 @@ impl OpenedStream {
                         asked_time: position,
                     };
 
-                    frame_cache.lock().unwrap().add_item(item);
+                    frame_cache.lock()?.add_item(item);
                     latest_frame = Some(frame_cache_id);
                 },
                 Ok(None) => {
@@ -124,7 +124,7 @@ impl OpenedStream {
         frame_cache: &Arc<Mutex<FrameCache>>,
         position: i64,
         time_base: Rational,
-    ) -> Result<usize, PossibleErrors> {
+    ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_position = self.duration_or_zero.min(position);
 
@@ -157,11 +157,12 @@ impl OpenedStream {
                     if data.is_some() {
                         last_frame_received = data;
                     }
-
-                    frame_cache
-                        .lock()
-                        .unwrap()
-                        .set_last_frame(last_frame_received.unwrap());
+                    match last_frame_received {
+                        Some(received) => {
+                            frame_cache.lock()?.set_last_frame(received);
+                        }
+                        None => {}
+                    }
 
                     break;
                 }
@@ -176,15 +177,15 @@ impl OpenedStream {
                 if packet.is_key() {
                     freshly_seeked = false
                 } else {
-                    last_position = packet.pts().unwrap() - 1;
+                    match packet.pts() {
+                        Some(pts) => {
+                            last_position = pts - 1;
 
-                    self.input.seek(
-                        self.stream_index as i32,
-                        0,
-                        packet.pts().unwrap(),
-                        last_position,
-                        0,
-                    )?;
+                            self.input
+                                .seek(self.stream_index as i32, 0, pts, last_position, 0)?;
+                        }
+                        None => {}
+                    }
                     continue;
                 }
             }
@@ -194,8 +195,8 @@ impl OpenedStream {
                 let result = self.receive_frame();
 
                 self.last_position = LastSeek {
-                    resolved_pts: packet.pts().unwrap(),
-                    resolved_dts: packet.dts().unwrap(),
+                    resolved_pts: packet.pts().expect("expected pts"),
+                    resolved_dts: packet.dts().expect("expected dts"),
                 };
 
                 match result {

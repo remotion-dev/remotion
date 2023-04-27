@@ -6,6 +6,7 @@ import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
 import type {
+	CompositorCommand,
 	CompositorCommandSerialized,
 	CompositorImageFormat,
 	ErrorPayload,
@@ -23,6 +24,19 @@ const getCompositorHash = ({...input}: CompositorInput): string => {
 	return createHash('sha256').update(JSON.stringify(input)).digest('base64');
 };
 
+export const serializeCommand = <Type extends keyof CompositorCommand>(
+	command: Type,
+	params: CompositorCommand[Type]
+): CompositorCommandSerialized<Type> => {
+	return {
+		nonce: makeNonce(),
+		payload: {
+			type: command,
+			params,
+		},
+	};
+};
+
 export const compose = async ({
 	height,
 	width,
@@ -34,7 +48,6 @@ export const compose = async ({
 	downloadMap: DownloadMap;
 	output: string;
 }) => {
-	const bin = getExecutablePath('compositor');
 	const hash = getCompositorHash({height, width, layers, imageFormat});
 
 	if (downloadMap.compositorCache[hash]) {
@@ -42,27 +55,27 @@ export const compose = async ({
 		return;
 	}
 
-	const payload: CompositorCommandSerialized<'Compose'> = {
-		nonce: makeNonce(),
-		payload: {
-			type: 'Compose',
-			params: {
-				height,
-				width,
-				layers,
-				output,
-				output_format: imageFormat,
-			},
-		},
-	};
+	const payload = serializeCommand('Compose', {
+		height,
+		width,
+		layers,
+		output,
+		output_format: imageFormat,
+	});
 
-	await new Promise<void>((resolve, reject) => {
+	await callCompositor(JSON.stringify(payload));
+
+	downloadMap.compositorCache[hash] = output;
+};
+
+export const callCompositor = (payload: string) => {
+	return new Promise<void>((resolve, reject) => {
 		const child = spawn(
-			bin,
-			[JSON.stringify(payload)],
+			getExecutablePath('compositor'),
+			[payload],
 			dynamicLibraryPathOptions()
 		);
-		child.stdin.write(JSON.stringify(payload));
+		child.stdin.write(payload);
 		child.stdin.end();
 
 		const stderrChunks: Buffer[] = [];
@@ -74,15 +87,17 @@ export const compose = async ({
 			} else {
 				const message = Buffer.concat(stderrChunks).toString('utf-8');
 
-				const parsed = JSON.parse(message) as ErrorPayload;
+				try {
+					// Try to see if the error is a JSON
+					const parsed = JSON.parse(message) as ErrorPayload;
+					const msg = `Compositor error: ${parsed.error}`;
+					const err = new Error(`${msg}\n${parsed.backtrace}`);
 
-				const err = new Error(parsed.error);
-				err.stack = parsed.error + '\n' + parsed.backtrace;
-
-				reject(err);
+					reject(err);
+				} catch (err) {
+					reject(new Error(`Compositor panicked: ${message}`));
+				}
 			}
 		});
 	});
-
-	downloadMap.compositorCache[hash] = output;
 };

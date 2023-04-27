@@ -2,7 +2,7 @@ use remotionffmpeg::{codec::Id, format::Pixel, media::Type, Dictionary, Rational
 use std::sync::{Arc, Mutex};
 
 use crate::{
-    errors::PossibleErrors,
+    errors::ErrorWithBacktrace,
     frame_cache::FrameCache,
     opened_stream::{
         calculate_display_video_size, get_display_aspect_ratio, LastSeek, OpenedStream,
@@ -19,7 +19,7 @@ pub struct OpenedVideo {
     pub src: String,
 }
 
-pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleErrors> {
+pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, ErrorWithBacktrace> {
     let (opened_stream, fps, time_base) = open_stream(src, transparent)?;
 
     let opened_video = OpenedVideo {
@@ -37,21 +37,33 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleE
 fn open_stream(
     src: &str,
     transparent: bool,
-) -> Result<(OpenedStream, Rational, Rational), PossibleErrors> {
+) -> Result<(OpenedStream, Rational, Rational), ErrorWithBacktrace> {
     let mut dictionary = Dictionary::new();
     dictionary.set("fflags", "+genpts");
     let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
 
     // TODO: Don't open stream and stream_mut, might need to adapt rust-ffmpeg for it
-    let stream = input
+    let stream = match input
         .streams()
         .find(|s| s.parameters().medium() == Type::Video)
-        .unwrap();
+    {
+        Some(stream) => stream,
+        None => {
+            return Err(ErrorWithBacktrace::from(
+                "No video stream found in input file",
+            ));
+        }
+    };
+
     let stream_index = stream.index();
 
     drop(stream);
 
-    let mut_stream = input.stream_mut(stream_index).unwrap();
+    let mut_stream = input
+        .stream_mut(stream_index)
+        .ok_or(ErrorWithBacktrace::from(
+            "No video stream found in input file",
+        ))?;
     let duration_or_zero = mut_stream.duration().max(0);
 
     let time_base = mut_stream.time_base();
@@ -127,7 +139,7 @@ fn open_stream(
 }
 
 impl OpenedVideo {
-    pub fn open_new_stream(&mut self, transparent: bool) -> Result<usize, PossibleErrors> {
+    pub fn open_new_stream(&mut self, transparent: bool) -> Result<usize, ErrorWithBacktrace> {
         let (opened_stream, _, _) = open_stream(&self.src, transparent)?;
         let arc_mutex = Arc::new(Mutex::new(opened_stream));
         self.opened_streams.push(arc_mutex);
@@ -140,5 +152,32 @@ impl OpenedVideo {
         } else {
             self.opaque_frame_cache.clone()
         }
+    }
+
+    pub fn get_cache_item_from_id(
+        &self,
+        transparent: bool,
+        frame_id: usize,
+    ) -> Result<Vec<u8>, ErrorWithBacktrace> {
+        match self
+            .get_frame_cache(transparent)
+            .lock()?
+            .get_item_from_id(frame_id)?
+        {
+            Some(item) => Ok(item),
+            None => Err(ErrorWithBacktrace::from("No item found in cache")),
+        }
+    }
+
+    pub fn get_cache_item_id(
+        &self,
+        transparent: bool,
+        time: i64,
+        threshold: i64,
+    ) -> Result<Option<usize>, ErrorWithBacktrace> {
+        Ok(self
+            .get_frame_cache(transparent)
+            .lock()?
+            .get_item_id(time, threshold)?)
     }
 }

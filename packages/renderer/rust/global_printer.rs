@@ -1,12 +1,16 @@
 use std::io::{self, BufWriter, Write};
 
-use crate::errors::PossibleErrors;
+use crate::errors::ErrorWithBacktrace;
 
-pub fn _print_debug(msg: &str) -> Result<(), PossibleErrors> {
+pub fn _print_debug(msg: &str) -> Result<(), ErrorWithBacktrace> {
     synchronized_write_buf(0, "0", &msg.as_bytes())
 }
 
-pub fn synchronized_write_buf(status: i64, nonce: &str, data: &[u8]) -> Result<(), PossibleErrors> {
+pub fn synchronized_write_buf(
+    status: i64,
+    nonce: &str,
+    data: &[u8],
+) -> Result<(), ErrorWithBacktrace> {
     let str = format!("remotion_buffer:{}:{}:{}:", nonce, data.len(), status,);
     let handle = io::stdout().lock();
     let mut stdout_guard = BufWriter::with_capacity(32 * 1024, handle);
