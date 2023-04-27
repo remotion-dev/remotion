@@ -174,7 +174,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Azure)',
-		shortName: 'Text To Speech (Azure)',
+		shortName: 'TTS (Azure)',
 		org: 'FelippeChemello',
 		repoName: 'Remotion-TTS-Example',
 		description: 'Turns text into speech and makes a video',
@@ -191,14 +191,14 @@ export const FEATURED_TEMPLATES: Template[] = [
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Google)',
-		shortName: 'Text To Speech (Google)',
+		shortName: 'TTS (Google)',
 		org: 'thecmdrunner',
 		repoName: 'remotion-gtts-template',
 		description: 'Turns text into speech and makes a video',
 		longerDescription:
 			'A template that turns text into a spoken video. Integrates with Firebase for Storage, and Google Cloud for Speech synthesis.',
 		promoVideo: {
-			muxId: '', // please add video: https://user-images.githubusercontent.com/38887390/232199560-d275def7-d147-4f29-acc6-5a81d267ba68.mp4
+			muxId: '82dzhGhv3bl3p8LW009cFGd8oltqt6UvxTWdP27202BAY',
 			width: 1920,
 			height: 1080,
 		},
