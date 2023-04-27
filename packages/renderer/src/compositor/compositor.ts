@@ -1,6 +1,7 @@
 import {spawn} from 'child_process';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getActualConcurrency} from '../get-concurrency';
+import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
 import type {
@@ -16,38 +17,6 @@ export type Compositor = {
 		payload: CompositorCommand[T]
 	) => Promise<Buffer>;
 	waitForDone: () => Promise<void>;
-};
-
-const compositorMap: Record<string, Compositor> = {};
-
-export const spawnCompositorOrReuse = <T extends keyof CompositorCommand>({
-	initiatePayload,
-	renderId,
-	type,
-}: {
-	type: T;
-	initiatePayload: CompositorCommand[T];
-	renderId: string;
-}) => {
-	if (!compositorMap[renderId]) {
-		compositorMap[renderId] = startCompositor(type, initiatePayload);
-	}
-
-	return compositorMap[renderId];
-};
-
-export const releaseCompositorWithId = (renderId: string) => {
-	if (compositorMap[renderId]) {
-		compositorMap[renderId].finishCommands();
-	}
-};
-
-export const waitForCompositorWithIdToQuit = (renderId: string) => {
-	if (!compositorMap[renderId]) {
-		throw new TypeError('No compositor with that id');
-	}
-
-	return compositorMap[renderId].waitForDone();
 };
 
 type Waiter = {
@@ -67,13 +36,10 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 ): Compositor => {
 	const bin = getExecutablePath('compositor');
 
-	const fullCommand: CompositorCommandSerialized<T> = {
-		nonce: makeNonce(),
-		payload: {
-			type,
-			params: payload,
-		},
-	};
+	const fullCommand: CompositorCommandSerialized<T> = serializeCommand(
+		type,
+		payload
+	);
 
 	const child = spawn(
 		bin,
@@ -101,7 +67,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				try {
 					const parsed = JSON.parse(data.toString('utf8')) as ErrorPayload;
 					(waiters.get(nonce) as Waiter).reject(
-						new Error(`Compositor error: ${parsed.error}`)
+						new Error(`Compositor error: ${parsed.error}\n${parsed.backtrace}`)
 					);
 				} catch (err) {
 					(waiters.get(nonce) as Waiter).reject(
@@ -230,26 +196,46 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			return;
 		}
 
-		console.log(data.toString('utf-8'));
+		stderrChunks.push(data);
+	});
+
+	let resolve: ((value: void | PromiseLike<void>) => void) | null = null;
+	let reject: ((reason: Error) => void) | null = null;
+
+	child.on('close', (code) => {
+		quit = true;
+		const waitersToKill = Array.from(waiters.values());
+		if (code === 0) {
+			resolve?.();
+			for (const waiter of waitersToKill) {
+				waiter.reject(new Error(`Compositor already quit`));
+			}
+
+			waiters.clear();
+		} else {
+			const error = new Error(
+				`Compositor panicked: ${Buffer.concat(stderrChunks).toString('utf-8')}`
+			);
+			for (const waiter of waitersToKill) {
+				waiter.reject(error);
+			}
+
+			waiters.clear();
+
+			reject?.(error);
+		}
 	});
 
 	return {
 		waitForDone: () => {
-			return new Promise<void>((resolve, reject) => {
-				child.on('close', (code) => {
-					quit = true;
-					const waitersToKill = Array.from(waiters.values());
-					for (const waiter of waitersToKill) {
-						waiter.reject(new Error(`Compositor quit with code ${code}`));
-					}
+			return new Promise<void>((res, rej) => {
+				if (quit) {
+					rej(new Error('Compositor already quit'));
+					return;
+				}
 
-					waiters.clear();
-					if (code === 0) {
-						resolve();
-					} else {
-						reject(Buffer.concat(stderrChunks).toString('utf-8'));
-					}
-				});
+				resolve = res;
+				reject = rej;
 			});
 		},
 		finishCommands: () => {
@@ -268,7 +254,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				throw new Error('Compositor already quit');
 			}
 
-			return new Promise<Buffer>((resolve, reject) => {
+			return new Promise<Buffer>((_resolve, _reject) => {
 				const nonce = makeNonce();
 				const composed: CompositorCommandSerialized<Type> = {
 					nonce,
@@ -280,8 +266,8 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				// TODO: Should have a way to error out a single task
 				child.stdin.write(JSON.stringify(composed) + '\n');
 				waiters.set(nonce, {
-					resolve,
-					reject,
+					resolve: _resolve,
+					reject: _reject,
 				});
 			});
 		},

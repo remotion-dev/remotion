@@ -4,10 +4,7 @@ use ffmpeg_next::{
     software::scaling::{Context, Flags},
 };
 
-use crate::{
-    errors::{self, PossibleErrors},
-    image::get_png_data,
-};
+use crate::{errors::ErrorWithBacktrace, image::get_png_data};
 
 pub struct NotRgbFrame {
     pub planes: Vec<Vec<u8>>,
@@ -38,33 +35,33 @@ impl ScalableFrame {
         }
     }
 
-    pub fn ensure_data(&mut self) -> Result<(), PossibleErrors> {
+    pub fn ensure_data(&mut self) -> Result<(), ErrorWithBacktrace> {
         if self.rgb_frame.is_some() {
             return Ok(());
         }
 
-        if self.native_frame.is_none() {
-            return Err(errors::PossibleErrors::IoError(std::io::Error::new(
+        match &self.native_frame {
+            None => Err(ErrorWithBacktrace::from(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "has neither native nor rgb frame",
-            )));
+            ))),
+            Some(frame) => {
+                let bitmap = scale_and_make_bitmap(&frame, self.transparent)?;
+                self.rgb_frame = Some(RgbFrame { data: bitmap });
+                self.native_frame = None;
+                Ok(())
+            }
         }
-
-        let bitmap = scale_and_make_bitmap(&self.native_frame.as_ref().unwrap(), self.transparent)?;
-        self.rgb_frame = Some(RgbFrame { data: bitmap });
-        self.native_frame = None;
-        Ok(())
     }
 
-    pub fn get_data(&self) -> Result<Vec<u8>, PossibleErrors> {
-        if self.rgb_frame.is_none() {
-            return Err(errors::PossibleErrors::IoError(std::io::Error::new(
+    pub fn get_data(&self) -> Result<Vec<u8>, ErrorWithBacktrace> {
+        match self.rgb_frame {
+            None => Err(ErrorWithBacktrace::from(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "has neither native nor rgb frame",
-            )));
+            ))),
+            Some(ref frame) => Ok(frame.data.clone()),
         }
-
-        return Ok(self.rgb_frame.as_ref().unwrap().data.clone());
     }
 }
 
@@ -112,7 +109,7 @@ fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
 pub fn scale_and_make_bitmap(
     native_frame: &NotRgbFrame,
     transparent: bool,
-) -> Result<Vec<u8>, PossibleErrors> {
+) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let format: Pixel = match transparent {
         true => Pixel::RGBA,
         false => Pixel::BGR24,
@@ -153,11 +150,11 @@ pub fn scale_and_make_bitmap(
     }
 
     if transparent {
-        return Ok(get_png_data(
+        return get_png_data(
             scaled.data(0),
             native_frame.scaled_width,
             native_frame.scaled_height,
-        ));
+        );
     }
 
     Ok(create_bmp_image_from_frame(&mut scaled))

@@ -53,6 +53,7 @@ export type CompositorCommand = {
 		concurrency: number;
 	};
 	GetOpenVideoStats: {};
+	DeliberatePanic: {};
 };
 
 export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {
