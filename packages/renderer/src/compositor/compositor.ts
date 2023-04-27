@@ -1,6 +1,7 @@
 import {spawn} from 'child_process';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getActualConcurrency} from '../get-concurrency';
+import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
 import type {
@@ -35,13 +36,10 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 ): Compositor => {
 	const bin = getExecutablePath('compositor');
 
-	const fullCommand: CompositorCommandSerialized<T> = {
-		nonce: makeNonce(),
-		payload: {
-			type,
-			params: payload,
-		},
-	};
+	const fullCommand: CompositorCommandSerialized<T> = serializeCommand(
+		type,
+		payload
+	);
 
 	const child = spawn(
 		bin,
