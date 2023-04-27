@@ -21,6 +21,7 @@ func main() {
 	region := os.Getenv("REMOTION_APP_REGION")
 	bucketName := os.Getenv("REMOTION_APP_BUCKET")
 
+	println(serveUrl)
 	input := &goclient.RemotionOptions{
 		ServeUrl:              serveUrl,
 		FunctionName:          functionName,
@@ -45,17 +46,19 @@ func main() {
 		EveryNthFrame:         1,
 		NumberOfGifLoops:      0,
 		ConcurrencyPerLambda:  1,
-		DownloadBehavior:      map[string]interface{}{},
-		Muted:                 false,
-		Overwrite:             false,
-		AudioBitrate:          nil,
-		VideoBitrate:          nil,
-		Webhook:               nil,
-		ForceHeight:           nil,
-		ForceWidth:            nil,
-		BucketName:            nil,
-		AudioCodec:            nil,
-		ForceBucketName:       bucketName,
+		DownloadBehavior: map[string]interface{}{
+			"type": "play-in-browser",
+		},
+		Muted:           false,
+		Overwrite:       false,
+		AudioBitrate:    nil,
+		VideoBitrate:    nil,
+		Webhook:         nil,
+		ForceHeight:     nil,
+		ForceWidth:      nil,
+		BucketName:      nil,
+		AudioCodec:      nil,
+		ForceBucketName: bucketName,
 	}
 	_, error := goclient.Render(input)
 	if error != nil {

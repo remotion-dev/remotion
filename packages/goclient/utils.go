@@ -58,17 +58,46 @@ func randomHash(options ...bool) string {
 
 func constructInternals(options *RemotionOptions) internalOptions {
 
-	inputProps, err := serializeInputProps(options.InputProps, options.Region, options.Type, options.ForceBucketName)
+	inputProps, err := serializeInputProps(options.InputProps, options.Region, "video-or-audio", options.ForceBucketName)
 
 	if err != nil {
 		log.Fatal("Failed to open file:", err)
 	}
 
 	internalParams := &internalOptions{
-		ServeUrl:    options.ServeUrl,
-		Region:      options.Region,
-		Composition: options.Composition,
-		InputProps:  inputProps,
+		serveUrl:              options.ServeUrl,
+		inputProps:            inputProps,
+		composition:           options.Composition,
+		region:                options.Region,
+		Type:                  options.Type,
+		Codec:                 options.Codec,
+		Version:               options.Version,
+		ImageFormat:           options.ImageFormat,
+		Crf:                   options.Crf,
+		EnvVariables:          options.EnvVariables,
+		Quality:               options.Quality,
+		MaxRetries:            options.MaxRetries,
+		Privacy:               options.Privacy,
+		LogLevel:              options.LogLevel,
+		FrameRange:            options.FrameRange,
+		OutName:               options.OutName,
+		TimeoutInMilliseconds: options.TimeoutInMilliseconds,
+		ChromiumOptions:       options.ChromiumOptions,
+		Scale:                 options.Scale,
+		EveryNthFrame:         options.EveryNthFrame,
+		NumberOfGifLoops:      options.NumberOfGifLoops,
+		ConcurrencyPerLambda:  options.ConcurrencyPerLambda,
+		DownloadBehavior:      options.DownloadBehavior,
+		Muted:                 options.Muted,
+		Overwrite:             options.Overwrite,
+		AudioBitrate:          options.AudioBitrate,
+		VideoBitrate:          options.VideoBitrate,
+		Webhook:               options.Webhook,
+		ForceHeight:           options.ForceHeight,
+		ForceWidth:            options.ForceWidth,
+		BucketName:            options.BucketName,
+		AudioCodec:            options.AudioCodec,
+		ForceBucketName:       options.ForceBucketName,
 	}
 
 	return *internalParams
