@@ -12,7 +12,8 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 pub struct OpenedVideo {
     pub opened_streams: Vec<Arc<Mutex<OpenedStream>>>,
-    pub frame_cache: Arc<Mutex<FrameCache>>,
+    pub transparent_frame_cache: Arc<Mutex<FrameCache>>,
+    pub opaque_frame_cache: Arc<Mutex<FrameCache>>,
     pub fps: Rational,
     pub time_base: Rational,
     pub src: String,
@@ -23,7 +24,8 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleE
 
     let opened_video = OpenedVideo {
         opened_streams: vec![(Arc::new(Mutex::new(opened_stream)))],
-        frame_cache: Arc::new(Mutex::new(FrameCache::new())),
+        transparent_frame_cache: Arc::new(Mutex::new(FrameCache::new())),
+        opaque_frame_cache: Arc::new(Mutex::new(FrameCache::new())),
         fps,
         time_base,
         src: src.to_string(),
@@ -130,5 +132,13 @@ impl OpenedVideo {
         let arc_mutex = Arc::new(Mutex::new(opened_stream));
         self.opened_streams.push(arc_mutex);
         return Ok(self.opened_streams.len() - 1);
+    }
+
+    pub fn get_frame_cache(&self, transparent: bool) -> Arc<Mutex<FrameCache>> {
+        if transparent {
+            self.transparent_frame_cache.clone()
+        } else {
+            self.opaque_frame_cache.clone()
+        }
     }
 }

@@ -1,7 +1,6 @@
 use lazy_static::lazy_static;
 
 use crate::errors::PossibleErrors;
-use crate::global_printer::_print_debug;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
@@ -36,7 +35,7 @@ pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8
     );
     let threshold = one_frame_after - position;
     let cache_item = vid
-        .frame_cache
+        .get_frame_cache(transparent)
         .lock()
         .unwrap()
         .get_item_id(position, threshold);
@@ -44,7 +43,7 @@ pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8
     match cache_item {
         Ok(Some(item)) => {
             return Ok(vid
-                .frame_cache
+                .get_frame_cache(transparent)
                 .lock()
                 .unwrap()
                 .get_item_from_id(item)
@@ -95,10 +94,15 @@ pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8
         .lock()
         .unwrap();
 
-    let frame_id = first_opened_stream.get_frame(time, &vid.frame_cache, position, vid.time_base);
+    let frame_id = first_opened_stream.get_frame(
+        time,
+        &vid.get_frame_cache(transparent),
+        position,
+        vid.time_base,
+    );
 
     let from_cache = vid
-        .frame_cache
+        .get_frame_cache(transparent)
         .lock()
         .unwrap()
         .get_item_from_id(frame_id.unwrap());
