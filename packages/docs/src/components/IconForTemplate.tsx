@@ -88,6 +88,16 @@ export const IconForTemplate: React.FC<{
     );
   }
 
+  if (template.cliId === "gtts") {
+    return (
+      <TTSIcon
+        style={{
+          height: scale * 36,
+        }}
+      />
+    );
+  }
+
   if (template.cliId === "tailwind") {
     return (
       <Tailwind
