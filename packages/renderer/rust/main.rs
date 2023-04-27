@@ -10,21 +10,21 @@ mod opened_video;
 mod payloads;
 mod scalable_frame;
 use commands::execute_command;
-use errors::{error_to_string, PossibleErrors};
-use std::{backtrace::Backtrace, env};
+use errors::{error_to_string, ErrorWithBacktrace};
+use std::env;
 use threadpool::ThreadPool;
 
 use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload, ErrorPayload};
 
 extern crate png;
 
-fn mainfn() -> anyhow::Result<(), PossibleErrors> {
+fn mainfn() -> Result<(), ErrorWithBacktrace> {
     let args = env::args();
 
     let first_arg =
         args.skip(1)
             .next()
-            .ok_or(errors::PossibleErrors::IoError(std::io::Error::new(
+            .ok_or(errors::ErrorWithBacktrace::from(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "No input",
             )))?;
@@ -44,13 +44,13 @@ fn mainfn() -> anyhow::Result<(), PossibleErrors> {
     Ok(())
 }
 
-pub fn parse_init_command(json: &str) -> anyhow::Result<CliInputCommand, PossibleErrors> {
+pub fn parse_init_command(json: &str) -> Result<CliInputCommand, ErrorWithBacktrace> {
     let cli_input: CliInputCommand = serde_json::from_str(json)?;
 
     Ok(cli_input)
 }
 
-fn start_long_running_process(threads: usize) -> anyhow::Result<(), PossibleErrors> {
+fn start_long_running_process(threads: usize) -> Result<(), ErrorWithBacktrace> {
     let pool = ThreadPool::new(threads);
 
     loop {
@@ -66,13 +66,13 @@ fn start_long_running_process(threads: usize) -> anyhow::Result<(), PossibleErro
         if input == "EOF" {
             break;
         }
-        let opts: CliInputCommand = parse_cli(&input).unwrap();
+        let opts: CliInputCommand = parse_cli(&input)?;
         pool.execute(move || match execute_command(opts.payload) {
             Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
             Err(err) => {
                 let err = ErrorPayload {
                     error: error_to_string(&err),
-                    backtrace: Backtrace::force_capture().to_string(),
+                    backtrace: err.backtrace,
                 };
 
                 let err_payload = serde_json::to_string(&err).unwrap();

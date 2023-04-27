@@ -75,11 +75,13 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		},
 	};
 
-	const child = spawn(
-		bin,
-		[JSON.stringify(fullCommand)],
-		dynamicLibraryPathOptions()
-	);
+	const child = spawn(bin, [JSON.stringify(fullCommand)], {
+		...dynamicLibraryPathOptions(),
+		env: {
+			...dynamicLibraryPathOptions().env,
+			RUST_BACKTRACE: 'full',
+		},
+	});
 
 	const stderrChunks: Buffer[] = [];
 	let outputBuffer = Buffer.from('');
@@ -101,7 +103,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				try {
 					const parsed = JSON.parse(data.toString('utf8')) as ErrorPayload;
 					(waiters.get(nonce) as Waiter).reject(
-						new Error(`Compositor error: ${parsed.error}`)
+						new Error(`Compositor error: ${parsed.error}\n${parsed.backtrace}`)
 					);
 				} catch (err) {
 					(waiters.get(nonce) as Waiter).reject(
@@ -230,7 +232,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			return;
 		}
 
-		console.log(data.toString('utf-8'));
+		console.log('ERR', data.toString('utf-8'));
 	});
 
 	return {

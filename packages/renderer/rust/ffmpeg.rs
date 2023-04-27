@@ -1,6 +1,6 @@
 use lazy_static::lazy_static;
 
-use crate::errors::PossibleErrors;
+use crate::errors::ErrorWithBacktrace;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
@@ -12,7 +12,7 @@ use std::sync::Mutex;
 use std::sync::RwLock;
 extern crate ffmpeg_next as remotionffmpeg;
 
-pub fn get_open_video_stats() -> anyhow::Result<OpenVideoStats, PossibleErrors> {
+pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
     let open_videos = manager.get_open_videos();
     let open_streams = manager.get_open_video_streams();
@@ -27,7 +27,7 @@ pub fn extract_frame(
     src: String,
     time: f64,
     transparent: bool,
-) -> anyhow::Result<Vec<u8>, PossibleErrors> {
+) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
     let video_locked = manager.get_video(&src, transparent)?;
     let mut vid = video_locked.lock().unwrap();
@@ -156,7 +156,7 @@ impl OpenedVideoManager {
         &self,
         src: &str,
         transparent: bool,
-    ) -> anyhow::Result<Arc<Mutex<OpenedVideo>>, PossibleErrors> {
+    ) -> Result<Arc<Mutex<OpenedVideo>>, ErrorWithBacktrace> {
         // Adding a block scope because of the RwLock,
         // preventing a deadlock
         {

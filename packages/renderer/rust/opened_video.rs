@@ -2,7 +2,7 @@ use remotionffmpeg::{codec::Id, format::Pixel, media::Type, Dictionary, Rational
 use std::sync::{Arc, Mutex};
 
 use crate::{
-    errors::PossibleErrors,
+    errors::ErrorWithBacktrace,
     frame_cache::FrameCache,
     opened_stream::{
         calculate_display_video_size, get_display_aspect_ratio, LastSeek, OpenedStream,
@@ -19,7 +19,7 @@ pub struct OpenedVideo {
     pub src: String,
 }
 
-pub fn open_video(src: &str, transparent: bool) -> anyhow::Result<OpenedVideo, PossibleErrors> {
+pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, ErrorWithBacktrace> {
     let (opened_stream, fps, time_base) = open_stream(src, transparent)?;
 
     let opened_video = OpenedVideo {
@@ -37,7 +37,7 @@ pub fn open_video(src: &str, transparent: bool) -> anyhow::Result<OpenedVideo, P
 fn open_stream(
     src: &str,
     transparent: bool,
-) -> anyhow::Result<(OpenedStream, Rational, Rational), PossibleErrors> {
+) -> Result<(OpenedStream, Rational, Rational), ErrorWithBacktrace> {
     let mut dictionary = Dictionary::new();
     dictionary.set("fflags", "+genpts");
     let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
@@ -127,7 +127,7 @@ fn open_stream(
 }
 
 impl OpenedVideo {
-    pub fn open_new_stream(&mut self, transparent: bool) -> anyhow::Result<usize, PossibleErrors> {
+    pub fn open_new_stream(&mut self, transparent: bool) -> Result<usize, ErrorWithBacktrace> {
         let (opened_stream, _, _) = open_stream(&self.src, transparent)?;
         let arc_mutex = Arc::new(Mutex::new(opened_stream));
         self.opened_streams.push(arc_mutex);

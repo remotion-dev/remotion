@@ -4,7 +4,7 @@ extern crate serde;
 extern crate serde_json;
 
 pub mod payloads {
-    use crate::errors::PossibleErrors;
+    use crate::errors::ErrorWithBacktrace;
     use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize, Debug)]
@@ -96,7 +96,7 @@ pub mod payloads {
         pub nonce: String,
     }
 
-    pub fn parse_cli(json: &str) -> anyhow::Result<CliInputCommand, PossibleErrors> {
+    pub fn parse_cli(json: &str) -> Result<CliInputCommand, ErrorWithBacktrace> {
         let cli_input: CliInputCommand = serde_json::from_str(json)?;
 
         return Ok(cli_input);
