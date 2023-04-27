@@ -43,10 +43,18 @@ fn open_stream(
     let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
 
     // TODO: Don't open stream and stream_mut, might need to adapt rust-ffmpeg for it
-    let stream = input
+    let stream = match input
         .streams()
         .find(|s| s.parameters().medium() == Type::Video)
-        .unwrap();
+    {
+        Some(stream) => stream,
+        None => {
+            return Err(ErrorWithBacktrace::from(
+                "No video stream found in input file",
+            ));
+        }
+    };
+
     let stream_index = stream.index();
 
     drop(stream);
@@ -140,5 +148,32 @@ impl OpenedVideo {
         } else {
             self.opaque_frame_cache.clone()
         }
+    }
+
+    pub fn get_cache_item_from_id(
+        &self,
+        transparent: bool,
+        frame_id: usize,
+    ) -> Result<Vec<u8>, ErrorWithBacktrace> {
+        match self
+            .get_frame_cache(transparent)
+            .lock()?
+            .get_item_from_id(frame_id)?
+        {
+            Some(item) => Ok(item),
+            None => Err(ErrorWithBacktrace::from("No item found in cache")),
+        }
+    }
+
+    pub fn get_cache_item_id(
+        &self,
+        transparent: bool,
+        time: i64,
+        threshold: i64,
+    ) -> Result<Option<usize>, ErrorWithBacktrace> {
+        Ok(self
+            .get_frame_cache(transparent)
+            .lock()?
+            .get_item_id(time, threshold)?)
     }
 }

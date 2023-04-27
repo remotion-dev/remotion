@@ -159,8 +159,7 @@ impl OpenedStream {
                     }
 
                     frame_cache
-                        .lock()
-                        .unwrap()
+                        .lock()?
                         .set_last_frame(last_frame_received.unwrap());
 
                     break;
@@ -176,15 +175,15 @@ impl OpenedStream {
                 if packet.is_key() {
                     freshly_seeked = false
                 } else {
-                    last_position = packet.pts().unwrap() - 1;
+                    match packet.pts() {
+                        Some(pts) => {
+                            last_position = pts - 1;
 
-                    self.input.seek(
-                        self.stream_index as i32,
-                        0,
-                        packet.pts().unwrap(),
-                        last_position,
-                        0,
-                    )?;
+                            self.input
+                                .seek(self.stream_index as i32, 0, pts, last_position, 0)?;
+                        }
+                        None => {}
+                    }
                     continue;
                 }
             }
