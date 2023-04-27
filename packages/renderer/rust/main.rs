@@ -32,8 +32,8 @@ fn mainfn() -> Result<(), PossibleErrors> {
     let opts: CliInputCommand = parse_init_command(&first_arg)?;
 
     match opts.payload {
-        CliInputCommandPayload::StartLongRunningProcess(_) => {
-            start_long_running_process()?;
+        CliInputCommandPayload::StartLongRunningProcess(payload) => {
+            start_long_running_process(payload.concurrency)?;
         }
         _ => {
             let data = execute_command(opts.payload)?;
@@ -50,8 +50,8 @@ pub fn parse_init_command(json: &str) -> Result<CliInputCommand, PossibleErrors>
     Ok(cli_input)
 }
 
-fn start_long_running_process() -> Result<(), PossibleErrors> {
-    let pool = ThreadPool::new(4);
+fn start_long_running_process(threads: usize) -> Result<(), PossibleErrors> {
+    let pool = ThreadPool::new(threads);
 
     loop {
         let mut input = String::new();

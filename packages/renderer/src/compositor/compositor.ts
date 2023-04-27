@@ -1,5 +1,6 @@
 import {spawn} from 'child_process';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
+import {getActualConcurrency} from '../get-concurrency';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
 import type {
@@ -52,6 +53,12 @@ export const waitForCompositorWithIdToQuit = (renderId: string) => {
 type Waiter = {
 	resolve: (data: Buffer) => void;
 	reject: (err: Error) => void;
+};
+
+export const startLongRunningCompositor = () => {
+	return startCompositor('StartLongRunningProcess', {
+		concurrency: getActualConcurrency(null),
+	});
 };
 
 export const startCompositor = <T extends keyof CompositorCommand>(

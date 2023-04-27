@@ -14,6 +14,7 @@ export const serveStatic = async (
 		onError: (err: Error) => void;
 		downloadMap: DownloadMap;
 		remotionRoot: string;
+		concurrency: number;
 	}
 ): Promise<{
 	port: number;
@@ -24,6 +25,7 @@ export const serveStatic = async (
 			onDownload: options.onDownload,
 			onError: options.onError,
 			downloadMap: options.downloadMap,
+			concurrency: options.concurrency,
 		});
 
 	const connections: Record<string, Socket> = {};
