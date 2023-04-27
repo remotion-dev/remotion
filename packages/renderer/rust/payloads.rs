@@ -62,7 +62,9 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
-    pub struct StartPayLoad {}
+    pub struct StartPayLoad {
+        pub concurrency: usize,
+    }
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct GetOpenVideoStats {}
