@@ -32,6 +32,7 @@ pub struct OpenedStream {
     pub last_position: LastSeek,
     pub duration_or_zero: i64,
     pub reached_eof: bool,
+    pub transparent: bool,
 }
 
 pub fn calc_position(time: f64, time_base: Rational) -> i64 {
@@ -119,7 +120,6 @@ impl OpenedStream {
     pub fn get_frame(
         &mut self,
         time: f64,
-        transparent: bool,
         frame_cache: &Arc<Mutex<FrameCache>>,
         position: i64,
         time_base: Rational,
@@ -152,7 +152,7 @@ impl OpenedStream {
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
-                    let data = self.handle_eof(position, transparent, frame_cache)?;
+                    let data = self.handle_eof(position, self.transparent, frame_cache)?;
                     if data.is_some() {
                         last_frame = data;
                     }
@@ -222,7 +222,7 @@ impl OpenedStream {
                         let item = FrameCacheItem {
                             resolved_pts: self.last_position.resolved_pts,
                             resolved_dts: self.last_position.resolved_dts,
-                            frame: ScalableFrame::new(frame, transparent),
+                            frame: ScalableFrame::new(frame, self.transparent),
                             id: frame_cache_id,
                             asked_time: position,
                         };
