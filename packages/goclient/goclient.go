@@ -10,6 +10,8 @@ import (
 )
 
 func invokeLambda(options *RemotionOptions) error {
+
+	println("invoking lambda")
 	// Create a new AWS session
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
