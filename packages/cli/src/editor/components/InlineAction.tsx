@@ -31,7 +31,6 @@ export const InlineAction: React.FC<{
 			justifyContent: 'center',
 			alignItems: 'center',
 			borderRadius: 3,
-			color: hovered ? 'white' : LIGHT_TEXT,
 		};
 	}, [hovered]);
 
