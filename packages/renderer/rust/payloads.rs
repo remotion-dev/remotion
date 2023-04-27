@@ -65,6 +65,15 @@ pub mod payloads {
     pub struct StartPayLoad {}
 
     #[derive(Serialize, Deserialize, Debug)]
+    pub struct GetOpenVideoStats {}
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct OpenVideoStats {
+        pub open_videos: usize,
+        pub open_streams: usize,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct EchoPayload {
         pub message: String,
     }
@@ -75,6 +84,7 @@ pub mod payloads {
         ExtractFrame(ExtractFrameCommand),
         Compose(CliGenerateImageCommand),
         StartLongRunningProcess(StartPayLoad),
+        GetOpenVideoStats(GetOpenVideoStats),
         Echo(EchoPayload),
     }
 

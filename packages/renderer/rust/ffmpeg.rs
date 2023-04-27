@@ -5,12 +5,24 @@ use crate::global_printer::_print_debug;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
+use crate::payloads::payloads::OpenVideoStats;
 use std::collections::HashMap;
 use std::io::ErrorKind;
 use std::sync::Arc;
 use std::sync::Mutex;
 use std::sync::RwLock;
 extern crate ffmpeg_next as remotionffmpeg;
+
+pub fn get_open_video_stats() -> Result<OpenVideoStats, PossibleErrors> {
+    let manager = OpenedVideoManager::get_instance();
+    let open_videos = manager.get_open_videos();
+    let open_streams = manager.get_open_video_streams();
+
+    Ok(OpenVideoStats {
+        open_videos,
+        open_streams,
+    })
+}
 
 pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8>, PossibleErrors> {
     let manager = OpenedVideoManager::get_instance();
@@ -118,6 +130,18 @@ impl OpenedVideoManager {
             static ref INSTANCE: OpenedVideoManager = make_opened_stream_manager();
         }
         &INSTANCE
+    }
+
+    pub fn get_open_videos(&self) -> usize {
+        return self.videos.read().unwrap().len();
+    }
+
+    pub fn get_open_video_streams(&self) -> usize {
+        let mut count = 0;
+        for video in self.videos.read().unwrap().values() {
+            count += video.lock().unwrap().opened_streams.len();
+        }
+        return count;
     }
 
     pub fn get_video(

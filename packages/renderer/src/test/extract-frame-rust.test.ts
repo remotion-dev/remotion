@@ -315,6 +315,12 @@ test('Two different starting times should not result in big seeking', async () =
 		'112-133-86',
 	]);
 
+	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
+	expect(JSON.parse(stats.toString('utf-8'))).toEqual({
+		open_streams: 2,
+		open_videos: 1,
+	});
+
 	compositor.finishCommands();
 	await compositor.waitForDone();
 });
