@@ -51,6 +51,7 @@ pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8
     // Seeking too far back in a stream is not efficient, rather open a new stream
     // 15 seconds was chosen arbitrarily
     let max_stream_position = calc_position(time + 15.0, vid.time_base);
+    let min_stream_position = calc_position(time - 15.0, vid.time_base);
     for i in 0..open_stream_count {
         let stream = vid.opened_streams[i].lock().unwrap();
         if stream.reached_eof {
@@ -60,6 +61,9 @@ pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8
             continue;
         }
         if stream.last_position.resolved_pts > max_stream_position {
+            continue;
+        }
+        if stream.last_position.resolved_pts < min_stream_position {
             continue;
         }
 
