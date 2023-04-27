@@ -5,7 +5,6 @@ use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
 use crate::payloads::payloads::OpenVideoStats;
-use std::any;
 use std::collections::HashMap;
 use std::io::ErrorKind;
 use std::sync::Arc;

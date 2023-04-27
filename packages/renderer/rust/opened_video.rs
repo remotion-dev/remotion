@@ -1,8 +1,5 @@
 use remotionffmpeg::{codec::Id, format::Pixel, media::Type, Dictionary, Rational};
-use std::{
-    any,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
 use crate::{
     errors::PossibleErrors,
