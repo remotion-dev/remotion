@@ -5,6 +5,7 @@ use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
 use crate::payloads::payloads::OpenVideoStats;
+use std::any;
 use std::collections::HashMap;
 use std::io::ErrorKind;
 use std::sync::Arc;
@@ -12,7 +13,7 @@ use std::sync::Mutex;
 use std::sync::RwLock;
 extern crate ffmpeg_next as remotionffmpeg;
 
-pub fn get_open_video_stats() -> Result<OpenVideoStats, PossibleErrors> {
+pub fn get_open_video_stats() -> anyhow::Result<OpenVideoStats, PossibleErrors> {
     let manager = OpenedVideoManager::get_instance();
     let open_videos = manager.get_open_videos();
     let open_streams = manager.get_open_video_streams();
@@ -23,7 +24,11 @@ pub fn get_open_video_stats() -> Result<OpenVideoStats, PossibleErrors> {
     })
 }
 
-pub fn extract_frame(src: String, time: f64, transparent: bool) -> Result<Vec<u8>, PossibleErrors> {
+pub fn extract_frame(
+    src: String,
+    time: f64,
+    transparent: bool,
+) -> anyhow::Result<Vec<u8>, PossibleErrors> {
     let manager = OpenedVideoManager::get_instance();
     let video_locked = manager.get_video(&src, transparent)?;
     let mut vid = video_locked.lock().unwrap();
@@ -152,7 +157,7 @@ impl OpenedVideoManager {
         &self,
         src: &str,
         transparent: bool,
-    ) -> Result<Arc<Mutex<OpenedVideo>>, PossibleErrors> {
+    ) -> anyhow::Result<Arc<Mutex<OpenedVideo>>, PossibleErrors> {
         // Adding a block scope because of the RwLock,
         // preventing a deadlock
         {

@@ -96,7 +96,7 @@ pub mod payloads {
         pub nonce: String,
     }
 
-    pub fn parse_cli(json: &str) -> Result<CliInputCommand, PossibleErrors> {
+    pub fn parse_cli(json: &str) -> anyhow::Result<CliInputCommand, PossibleErrors> {
         let cli_input: CliInputCommand = serde_json::from_str(json)?;
 
         return Ok(cli_input);

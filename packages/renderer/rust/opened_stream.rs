@@ -40,7 +40,7 @@ pub fn calc_position(time: f64, time_base: Rational) -> i64 {
 }
 
 impl OpenedStream {
-    pub fn receive_frame(&mut self) -> Result<Option<Video>, PossibleErrors> {
+    pub fn receive_frame(&mut self) -> anyhow::Result<Option<Video>, PossibleErrors> {
         let mut frame = Video::empty();
 
         let res = self.video.receive_frame(&mut frame);
@@ -64,7 +64,7 @@ impl OpenedStream {
         &mut self,
         position: i64,
         frame_cache: &Arc<Mutex<FrameCache>>,
-    ) -> Result<Option<usize>, PossibleErrors> {
+    ) -> anyhow::Result<Option<usize>, PossibleErrors> {
         self.video.send_eof()?;
 
         let mut latest_frame: Option<usize> = None;
@@ -124,7 +124,7 @@ impl OpenedStream {
         frame_cache: &Arc<Mutex<FrameCache>>,
         position: i64,
         time_base: Rational,
-    ) -> Result<usize, PossibleErrors> {
+    ) -> anyhow::Result<usize, PossibleErrors> {
         let mut freshly_seeked = false;
         let mut last_position = self.duration_or_zero.min(position);
 

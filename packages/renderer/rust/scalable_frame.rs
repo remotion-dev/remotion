@@ -38,7 +38,7 @@ impl ScalableFrame {
         }
     }
 
-    pub fn ensure_data(&mut self) -> Result<(), PossibleErrors> {
+    pub fn ensure_data(&mut self) -> anyhow::Result<(), PossibleErrors> {
         if self.rgb_frame.is_some() {
             return Ok(());
         }
@@ -112,7 +112,7 @@ fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
 pub fn scale_and_make_bitmap(
     native_frame: &NotRgbFrame,
     transparent: bool,
-) -> Result<Vec<u8>, PossibleErrors> {
+) -> anyhow::Result<Vec<u8>, PossibleErrors> {
     let format: Pixel = match transparent {
         true => Pixel::RGBA,
         false => Pixel::BGR24,
