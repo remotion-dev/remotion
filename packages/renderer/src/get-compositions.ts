@@ -118,6 +118,7 @@ export const getCompositions = async (
 			port: config?.port ?? null,
 			downloadMap,
 			remotionRoot: findRemotionRoot(),
+			concurrency: 1,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;
