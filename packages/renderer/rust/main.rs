@@ -52,8 +52,7 @@ pub fn parse_init_command(json: &str) -> Result<CliInputCommand, ErrorWithBacktr
 fn start_long_running_process(threads: usize) -> Result<(), ErrorWithBacktrace> {
     let pool = rayon::ThreadPoolBuilder::new()
         .num_threads(threads)
-        .build()
-        .unwrap();
+        .build()?;
 
     loop {
         let mut input = String::new();
@@ -74,7 +73,7 @@ fn start_long_running_process(threads: usize) -> Result<(), ErrorWithBacktrace> 
             Err(err) => global_printer::synchronized_write_buf(
                 1,
                 &opts.nonce,
-                &error_to_json(err).as_bytes(),
+                &error_to_json(err).unwrap().as_bytes(),
             )
             .unwrap(),
         });

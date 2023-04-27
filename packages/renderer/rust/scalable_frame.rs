@@ -150,11 +150,11 @@ pub fn scale_and_make_bitmap(
     }
 
     if transparent {
-        return Ok(get_png_data(
+        return get_png_data(
             scaled.data(0),
             native_frame.scaled_width,
             native_frame.scaled_height,
-        ));
+        );
     }
 
     Ok(create_bmp_image_from_frame(&mut scaled))

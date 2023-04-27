@@ -43,7 +43,7 @@ impl FrameCache {
         for i in 0..self.items.len() {
             if self.items[i].id == id {
                 self.items[i].frame.ensure_data()?;
-                data = Some(self.items[i].frame.get_data().unwrap());
+                data = Some(self.items[i].frame.get_data()?);
                 break;
             }
         }
@@ -60,12 +60,14 @@ impl FrameCache {
 
         for i in 0..self.items.len() {
             // Is last frame or beyond
-            if self.last_frame.is_some()
-                && self.items[i].id == self.last_frame.unwrap()
-                && self.items[i].resolved_pts < time as i64
-            {
-                self.items[i].frame.ensure_data()?;
-                return Ok(Some(self.items[i].id));
+            match self.last_frame {
+                Some(last_frame_id) => {
+                    if self.items[i].id == last_frame_id && self.items[i].resolved_pts >= time {
+                        self.items[i].frame.ensure_data()?;
+                        return Ok(Some(self.items[i].id));
+                    }
+                }
+                None => {}
             }
 
             // Exact same time as requested
@@ -86,7 +88,12 @@ impl FrameCache {
         if best_distance > threshold {
             return Ok(None);
         }
-        self.items[best_item.unwrap()].frame.ensure_data()?;
-        Ok(Some(self.items[best_item.unwrap()].id))
+        match best_item {
+            Some(best_item) => {
+                self.items[best_item].frame.ensure_data()?;
+                Ok(Some(self.items[best_item].id))
+            }
+            None => Ok(None),
+        }
     }
 }
