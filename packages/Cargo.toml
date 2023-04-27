@@ -22,5 +22,8 @@ name = "compositor"
 path = "renderer/rust/main.rs"
 
 [profile.release]
+# debuginfo will keep symbols, which are used for backtrace.
+# symbols makes it a tiny bit smaller, but error messages will be hard to debug.
+strip="debuginfo"
 lto = "fat"
 opt-level = 'z'

@@ -201,7 +201,6 @@ for (const arch of archs) {
 				nativeArch === 'x86_64-unknown-linux-musl'
 					? undefined
 					: 'toolchains/x86_64_musl_toolchain/bin/x86_64-unknown-linux-musl-gcc',
-			RUST_BACKTRACE: '1',
 		},
 	});
 	const copyInstructions = copyDestinations[arch];
