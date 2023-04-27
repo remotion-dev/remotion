@@ -75,13 +75,11 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		},
 	};
 
-	const child = spawn(bin, [JSON.stringify(fullCommand)], {
-		...dynamicLibraryPathOptions(),
-		env: {
-			...dynamicLibraryPathOptions().env,
-			RUST_BACKTRACE: 'full',
-		},
-	});
+	const child = spawn(
+		bin,
+		[JSON.stringify(fullCommand)],
+		dynamicLibraryPathOptions()
+	);
 
 	const stderrChunks: Buffer[] = [];
 	let outputBuffer = Buffer.from('');
