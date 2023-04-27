@@ -13,7 +13,8 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
         }
         CliInputCommandPayload::GetOpenVideoStats(_) => {
             let res = ffmpeg::get_open_video_stats()?;
-            Ok(serde_json::to_string(&res).unwrap().as_bytes().to_vec())
+            let str = serde_json::to_string(&res)?;
+            Ok(str.as_bytes().to_vec())
         }
         CliInputCommandPayload::DeliberatePanic(_) => {
             // For testing purposes

@@ -58,15 +58,13 @@ impl ScalableFrame {
     }
 
     pub fn get_data(&self) -> Result<Vec<u8>, ErrorWithBacktrace> {
-        if self.rgb_frame.is_none() {
-            let io_error = std::io::Error::new(
+        match self.rgb_frame {
+            None => Err(ErrorWithBacktrace::from(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "has neither native nor rgb frame",
-            );
-            return Err(ErrorWithBacktrace::from(io_error));
+            ))),
+            Some(ref frame) => Ok(frame.data.clone()),
         }
-
-        return Ok(self.rgb_frame.as_ref().unwrap().data.clone());
     }
 }
 
