@@ -63,7 +63,6 @@ impl OpenedStream {
     pub fn handle_eof(
         &mut self,
         position: i64,
-        transparent: bool,
         frame_cache: &Arc<Mutex<FrameCache>>,
     ) -> Result<Option<usize>, PossibleErrors> {
         self.video.send_eof()?;
@@ -98,7 +97,7 @@ impl OpenedStream {
                     let item = FrameCacheItem {
                         resolved_pts: self.last_position.resolved_pts,
                         resolved_dts: self.last_position.resolved_dts,
-                        frame: ScalableFrame::new(frame, transparent),
+                        frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
                         asked_time: position,
                     };
@@ -144,7 +143,6 @@ impl OpenedStream {
             freshly_seeked = true
         }
 
-        let mut last_frame_of_video: Option<usize> = None;
         let mut last_frame_received: Option<usize> = None;
 
         loop {
@@ -155,16 +153,15 @@ impl OpenedStream {
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
-                    let data = self.handle_eof(position, self.transparent, frame_cache)?;
+                    let data = self.handle_eof(position, frame_cache)?;
                     if data.is_some() {
                         last_frame_received = data;
                     }
-                    last_frame_of_video = last_frame_received;
 
                     frame_cache
                         .lock()
                         .unwrap()
-                        .set_last_frame(last_frame_of_video.unwrap());
+                        .set_last_frame(last_frame_received.unwrap());
 
                     break;
                 }
