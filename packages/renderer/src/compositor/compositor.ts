@@ -264,7 +264,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		waitForDone: () => {
 			return new Promise<void>((res, rej) => {
 				if (quit) {
-					res();
+					rej(new Error('Compositor already quit'));
 					return;
 				}
 
