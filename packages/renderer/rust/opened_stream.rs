@@ -4,20 +4,19 @@ use std::{
 };
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{codec::Id, format::Pixel, frame::Video, media::Type, Dictionary, StreamMut};
+use remotionffmpeg::{format::Pixel, frame::Video, media::Type, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 
 use crate::{
     errors::PossibleErrors,
     frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
     global_printer::_print_debug,
-    opened_video::OpenedVideo,
     scalable_frame::{NotRgbFrame, ScalableFrame},
 };
 
 pub struct LastSeek {
-    resolved_pts: i64,
-    resolved_dts: i64,
+    pub resolved_pts: i64,
+    pub resolved_dts: i64,
 }
 
 pub struct OpenedStream {
@@ -251,7 +250,7 @@ impl OpenedStream {
     }
 }
 
-fn calculate_display_video_size(dar_x: i32, dar_y: i32, x: u32, y: u32) -> (u32, u32) {
+pub fn calculate_display_video_size(dar_x: i32, dar_y: i32, x: u32, y: u32) -> (u32, u32) {
     if dar_x == 0 || dar_y == 0 {
         return (x, y);
     }
@@ -269,99 +268,4 @@ pub fn get_display_aspect_ratio(mut_stream: &StreamMut) -> Rational {
         let asp = mut_stream.get_display_aspect_ratio();
         return Rational::new(asp.numerator(), asp.denominator());
     }
-}
-
-pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleErrors> {
-    let mut dictionary = Dictionary::new();
-    dictionary.set("fflags", "+genpts");
-    let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
-
-    // TODO: Don't open stream and stream_mut, might need to adapt rust-ffmpeg for it
-    let stream = input
-        .streams()
-        .find(|s| s.parameters().medium() == Type::Video)
-        .unwrap();
-    let stream_index = stream.index();
-
-    drop(stream);
-
-    let mut_stream = input.stream_mut(stream_index).unwrap();
-    let duration_or_zero = mut_stream.duration().max(0);
-
-    let time_base = mut_stream.time_base();
-    let parameters = mut_stream.parameters();
-
-    let mut parameters_cloned = parameters.clone();
-    let is_vp8_or_vp9_and_transparent = match transparent {
-        true => unsafe {
-            let codec_id = (*(*(mut_stream).as_ptr()).codecpar).codec_id;
-            let is_vp8 = codec_id == remotionffmpeg::codec::id::get_av_codec_id(Id::VP8);
-            let is_vp9 = codec_id == remotionffmpeg::codec::id::get_av_codec_id(Id::VP9);
-
-            if is_vp8 || is_vp9 {
-                (*parameters_cloned.as_mut_ptr()).format =
-                    remotionffmpeg::util::format::pixel::to_av_pixel_format(Pixel::YUVA420P) as i32;
-            }
-
-            if is_vp8 {
-                Some("vp8")
-            } else if is_vp9 {
-                Some("vp9")
-            } else {
-                None
-            }
-        },
-        false => None,
-    };
-
-    let video = remotionffmpeg::codec::context::Context::from_parameters(parameters_cloned)?;
-
-    let decoder = match is_vp8_or_vp9_and_transparent {
-        Some("vp8") => video.decoder().video_with_codec("libvpx")?,
-        Some("vp9") => video.decoder().video_with_codec("libvpx-vp9")?,
-        Some(_) => unreachable!(),
-        None => video.decoder().video()?,
-    };
-
-    let format = decoder.format();
-
-    let original_width = decoder.width();
-    let original_height = decoder.height();
-    let fps = mut_stream.avg_frame_rate();
-
-    let aspect_ratio = get_display_aspect_ratio(&mut_stream);
-
-    let (scaled_width, scaled_height) = calculate_display_video_size(
-        aspect_ratio.0,
-        aspect_ratio.1,
-        original_width,
-        original_height,
-    );
-
-    let opened_stream = OpenedStream {
-        stream_index,
-        original_height,
-        original_width,
-        scaled_height,
-        scaled_width,
-        format,
-        video: decoder,
-        src: src.to_string(),
-        input,
-        last_position: LastSeek {
-            resolved_pts: 0,
-            resolved_dts: 0,
-        },
-        duration_or_zero,
-        reached_eof: false,
-    };
-
-    let opened_video = OpenedVideo {
-        opened_streams: vec![(Arc::new(Mutex::new(opened_stream)))],
-        frame_cache: Arc::new(Mutex::new(FrameCache::new())),
-        fps,
-        time_base,
-    };
-
-    Ok(opened_video)
 }
