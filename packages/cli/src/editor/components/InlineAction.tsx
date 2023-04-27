@@ -1,14 +1,14 @@
-import type {PropsWithChildren} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
-import {CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
+import {getBackgroundFromHoverState, LIGHT_TEXT} from '../helpers/colors';
 import {useZIndex} from '../state/z-index';
 
-export const InlineAction: React.FC<
-	PropsWithChildren<{
-		onClick: React.MouseEventHandler<HTMLButtonElement>;
-		disabled?: boolean;
-	}>
-> = ({children, onClick, disabled}) => {
+export type RenderInlineAction = (color: string) => React.ReactNode;
+
+export const InlineAction: React.FC<{
+	onClick: React.MouseEventHandler<HTMLButtonElement>;
+	disabled?: boolean;
+	renderAction: RenderInlineAction;
+}> = ({renderAction, onClick, disabled}) => {
 	const {tabIndex} = useZIndex();
 
 	const [hovered, setHovered] = useState(false);
@@ -24,15 +24,13 @@ export const InlineAction: React.FC<
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			border: 'none',
-			background: hovered ? CLEAR_HOVER : 'transparent',
+			background: getBackgroundFromHoverState({hovered, selected: false}),
 			height: 24,
 			width: 24,
 			display: 'inline-flex',
 			justifyContent: 'center',
 			alignItems: 'center',
 			borderRadius: 3,
-			// TODO: Color does not get propagated to the children
-			color: hovered ? 'white' : LIGHT_TEXT,
 		};
 	}, [hovered]);
 
@@ -46,7 +44,7 @@ export const InlineAction: React.FC<
 			tabIndex={tabIndex}
 			disabled={disabled}
 		>
-			{children}
+			{renderAction(hovered ? 'white' : LIGHT_TEXT)}
 		</button>
 	);
 };
