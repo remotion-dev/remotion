@@ -49,7 +49,9 @@ export type CompositorCommand = {
 	Echo: {
 		message: string;
 	};
-	StartLongRunningProcess: {};
+	StartLongRunningProcess: {
+		concurrency: number;
+	};
 	GetOpenVideoStats: {};
 };
 

@@ -1,6 +1,6 @@
 import path from 'path';
 import {expect, test} from 'vitest';
-import {startCompositor} from '../compositor/compositor';
+import {startLongRunningCompositor} from '../compositor/compositor';
 
 const BMP_HEADER_SIZE = 54;
 
@@ -22,7 +22,7 @@ const exampleVideos = {
 test(
 	'Should be able to extract a frame using Rust',
 	async () => {
-		const compositor = startCompositor('StartLongRunningProcess', {});
+		const compositor = startLongRunningCompositor();
 
 		const data = await compositor.executeCommand('ExtractFrame', {
 			input: exampleVideos.bigBuckBunny,
@@ -49,7 +49,7 @@ test(
 test(
 	'Should be able to get a PNG',
 	async () => {
-		const compositor = startCompositor('StartLongRunningProcess', {});
+		const compositor = startLongRunningCompositor();
 
 		const data = await compositor.executeCommand('ExtractFrame', {
 			input: exampleVideos.transparentWebm,
@@ -70,9 +70,9 @@ test(
 );
 
 test('Should be able to start two compositors', async () => {
-	const compositor = startCompositor('StartLongRunningProcess', {});
+	const compositor = startLongRunningCompositor();
 
-	const compositor2 = startCompositor('StartLongRunningProcess', {});
+	const compositor2 = startLongRunningCompositor();
 
 	await compositor.executeCommand('ExtractFrame', {
 		input: exampleVideos.bigBuckBunny,
@@ -87,7 +87,7 @@ test('Should be able to start two compositors', async () => {
 });
 
 test('Should be able to seek backwards', async () => {
-	const compositor = startCompositor('StartLongRunningProcess', {});
+	const compositor = startLongRunningCompositor();
 
 	const data = await compositor.executeCommand('ExtractFrame', {
 		input: exampleVideos.bigBuckBunny,
@@ -109,7 +109,7 @@ test('Should be able to seek backwards', async () => {
 test(
 	'Should be able to extract a frame that has no file extension',
 	async () => {
-		const compositor = startCompositor('StartLongRunningProcess', {});
+		const compositor = startLongRunningCompositor();
 
 		const data = await compositor.executeCommand('ExtractFrame', {
 			input: exampleVideos.framerWithoutFileExtension,
@@ -127,7 +127,7 @@ test(
 test(
 	'Should get the last frame if out of range',
 	async () => {
-		const compositor = startCompositor('StartLongRunningProcess', {});
+		const compositor = startLongRunningCompositor();
 
 		const data = await compositor.executeCommand('ExtractFrame', {
 			input: exampleVideos.framerWithoutFileExtension,
@@ -154,7 +154,7 @@ test(
 test(
 	'Should get the last frame of a corrupted video',
 	async () => {
-		const compositor = startCompositor('StartLongRunningProcess', {});
+		const compositor = startLongRunningCompositor();
 
 		const data = await compositor.executeCommand('ExtractFrame', {
 			input: exampleVideos.corrupted,
@@ -175,7 +175,7 @@ test(
 );
 
 test('Should be able to extract a frame with abnormal DAR', async () => {
-	const compositor = startCompositor('StartLongRunningProcess', {});
+	const compositor = startLongRunningCompositor();
 
 	const data = await compositor.executeCommand('ExtractFrame', {
 		input: exampleVideos.customDar,
@@ -196,7 +196,7 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 });
 
 test('Should be able to extract the frames in reverse order', async () => {
-	const compositor = startCompositor('StartLongRunningProcess', {});
+	const compositor = startLongRunningCompositor();
 
 	let prevPixel = '';
 
@@ -235,7 +235,7 @@ test('Should be able to extract the frames in reverse order', async () => {
 });
 
 test('Last frame should be fast', async () => {
-	const compositor = startCompositor('StartLongRunningProcess', {});
+	const compositor = startLongRunningCompositor();
 
 	const time = Date.now();
 
@@ -289,7 +289,7 @@ test('Last frame should be fast', async () => {
 });
 
 test('Two different starting times should not result in big seeking', async () => {
-	const compositor = startCompositor('StartLongRunningProcess', {});
+	const compositor = startLongRunningCompositor();
 
 	const expected = [];
 
@@ -336,5 +336,3 @@ test('Two different starting times should not result in big seeking', async () =
 	compositor.finishCommands();
 	await compositor.waitForDone();
 });
-
-test.todo('transparent cache should be separate from non-transparent cache');

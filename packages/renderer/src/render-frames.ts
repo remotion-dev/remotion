@@ -549,6 +549,7 @@ export const renderFrames = (
 					port: options.port ?? null,
 					downloadMap,
 					remotionRoot: findRemotionRoot(),
+					concurrency: actualConcurrency,
 				}),
 				browserInstance,
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
