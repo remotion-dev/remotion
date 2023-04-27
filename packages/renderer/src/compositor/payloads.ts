@@ -50,6 +50,7 @@ export type CompositorCommand = {
 		message: string;
 	};
 	StartLongRunningProcess: {};
+	GetOpenVideoStats: {};
 };
 
 export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {
