@@ -62,7 +62,7 @@ impl FrameCache {
             // Is last frame or beyond
             match self.last_frame {
                 Some(last_frame_id) => {
-                    if self.items[i].id == last_frame_id && self.items[i].resolved_pts >= time {
+                    if self.items[i].id == last_frame_id && self.items[i].resolved_pts < time {
                         self.items[i].frame.ensure_data()?;
                         return Ok(Some(self.items[i].id));
                     }
