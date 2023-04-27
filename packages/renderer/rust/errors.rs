@@ -136,6 +136,18 @@ impl From<rayon::ThreadPoolBuildError> for ErrorWithBacktrace {
     }
 }
 
+impl From<&str> for ErrorWithBacktrace {
+    fn from(err: &str) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::IoError(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                err.to_string(),
+            )),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
+    }
+}
+
 fn create_error_with_backtrace<T>(err: PoisonError<MutexGuard<'_, T>>) -> ErrorWithBacktrace {
     ErrorWithBacktrace {
         error: PossibleErrors::IoError(std::io::Error::new(

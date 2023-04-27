@@ -30,7 +30,7 @@ pub fn extract_frame(
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
     let video_locked = manager.get_video(&src, transparent)?;
-    let mut vid = video_locked.lock().unwrap();
+    let mut vid = video_locked.lock()?;
 
     let position = calc_position(time, vid.time_base);
     let one_frame_after = calc_position(
@@ -38,20 +38,10 @@ pub fn extract_frame(
         vid.time_base,
     );
     let threshold = one_frame_after - position;
-    let cache_item = vid
-        .get_frame_cache(transparent)
-        .lock()?
-        .get_item_id(position, threshold);
+    let cache_item = vid.get_cache_item_id(transparent, position, threshold);
 
     match cache_item {
-        Ok(Some(item)) => {
-            return Ok(vid
-                .get_frame_cache(transparent)
-                .lock()?
-                .get_item_from_id(item)
-                .unwrap()
-                .unwrap());
-        }
+        Ok(Some(item)) => return Ok(vid.get_cache_item_from_id(transparent, item)?),
         Ok(None) => {}
         Err(err) => {
             return Err(err);
@@ -66,7 +56,7 @@ pub fn extract_frame(
     let max_stream_position = calc_position(time + 15.0, vid.time_base);
     let min_stream_position = calc_position(time - 15.0, vid.time_base);
     for i in 0..open_stream_count {
-        let stream = vid.opened_streams[i].lock().unwrap();
+        let stream = vid.opened_streams[i].lock()?;
         if stream.reached_eof {
             continue;
         }
@@ -89,11 +79,7 @@ pub fn extract_frame(
         None => vid.open_new_stream(transparent),
     };
 
-    let mut first_opened_stream = vid
-        .opened_streams
-        .get(stream_index.unwrap())
-        .unwrap()
-        .lock()?;
+    let mut first_opened_stream = vid.opened_streams.get(stream_index?).unwrap().lock()?;
 
     let frame_id = first_opened_stream.get_frame(
         time,
