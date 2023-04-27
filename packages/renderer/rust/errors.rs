@@ -15,15 +15,18 @@ pub fn error_to_string(err: &ErrorWithBacktrace) -> String {
     }
 }
 
-pub fn handle_error(err: ErrorWithBacktrace) -> ! {
-    let err = ErrorPayload {
+pub fn error_to_json(err: ErrorWithBacktrace) -> String {
+    let json = ErrorPayload {
         error: error_to_string(&err),
         backtrace: err.backtrace,
     };
-    // TODO: Handling this error with the other print is better
-    let j = serde_json::to_string(&err).unwrap();
+    let j = serde_json::to_string(&json).unwrap();
+    return j;
+}
 
-    eprint!("{}", j);
+pub fn handle_global_error(err: ErrorWithBacktrace) -> ! {
+    // Only log printing to stderr
+    eprint!("{}", error_to_json(err));
     std::process::exit(1);
 }
 
