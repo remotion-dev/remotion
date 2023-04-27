@@ -4,10 +4,7 @@ use ffmpeg_next::{
     software::scaling::{Context, Flags},
 };
 
-use crate::{
-    errors::{self, ErrorWithBacktrace},
-    image::get_png_data,
-};
+use crate::{errors::ErrorWithBacktrace, image::get_png_data};
 
 pub struct NotRgbFrame {
     pub planes: Vec<Vec<u8>>,
@@ -43,18 +40,18 @@ impl ScalableFrame {
             return Ok(());
         }
 
-        if self.native_frame.is_none() {
-            let io_error = std::io::Error::new(
+        match &self.native_frame {
+            None => Err(ErrorWithBacktrace::from(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "has neither native nor rgb frame",
-            );
-            return Err(errors::ErrorWithBacktrace::from(io_error));
+            ))),
+            Some(frame) => {
+                let bitmap = scale_and_make_bitmap(&frame, self.transparent)?;
+                self.rgb_frame = Some(RgbFrame { data: bitmap });
+                self.native_frame = None;
+                Ok(())
+            }
         }
-
-        let bitmap = scale_and_make_bitmap(&self.native_frame.as_ref().unwrap(), self.transparent)?;
-        self.rgb_frame = Some(RgbFrame { data: bitmap });
-        self.native_frame = None;
-        Ok(())
     }
 
     pub fn get_data(&self) -> Result<Vec<u8>, ErrorWithBacktrace> {
