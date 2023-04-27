@@ -230,26 +230,46 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			return;
 		}
 
-		console.log('ERR', data.toString('utf-8'));
+		stderrChunks.push(data);
+	});
+
+	let resolve: ((value: void | PromiseLike<void>) => void) | null = null;
+	let reject: ((reason: Error) => void) | null = null;
+
+	child.on('close', (code) => {
+		quit = true;
+		const waitersToKill = Array.from(waiters.values());
+		if (code === 0) {
+			resolve?.();
+			for (const waiter of waitersToKill) {
+				waiter.reject(new Error(`Compositor already quit`));
+			}
+
+			waiters.clear();
+		} else {
+			const error = new Error(
+				`Compositor panicked: ${Buffer.concat(stderrChunks).toString('utf-8')}`
+			);
+			for (const waiter of waitersToKill) {
+				waiter.reject(error);
+			}
+
+			waiters.clear();
+
+			reject?.(error);
+		}
 	});
 
 	return {
 		waitForDone: () => {
-			return new Promise<void>((resolve, reject) => {
-				child.on('close', (code) => {
-					quit = true;
-					const waitersToKill = Array.from(waiters.values());
-					for (const waiter of waitersToKill) {
-						waiter.reject(new Error(`Compositor quit with code ${code}`));
-					}
+			return new Promise<void>((res, rej) => {
+				if (quit) {
+					res();
+					return;
+				}
 
-					waiters.clear();
-					if (code === 0) {
-						resolve();
-					} else {
-						reject(Buffer.concat(stderrChunks).toString('utf-8'));
-					}
-				});
+				resolve = res;
+				reject = rej;
 			});
 		},
 		finishCommands: () => {
@@ -268,7 +288,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				throw new Error('Compositor already quit');
 			}
 
-			return new Promise<Buffer>((resolve, reject) => {
+			return new Promise<Buffer>((_resolve, _reject) => {
 				const nonce = makeNonce();
 				const composed: CompositorCommandSerialized<Type> = {
 					nonce,
@@ -280,8 +300,8 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				// TODO: Should have a way to error out a single task
 				child.stdin.write(JSON.stringify(composed) + '\n');
 				waiters.set(nonce, {
-					resolve,
-					reject,
+					resolve: _resolve,
+					reject: _reject,
 				});
 			});
 		},

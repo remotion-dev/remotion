@@ -12,7 +12,6 @@ mod scalable_frame;
 use commands::execute_command;
 use errors::{error_to_string, ErrorWithBacktrace};
 use std::env;
-use threadpool::ThreadPool;
 
 use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload, ErrorPayload};
 
@@ -51,7 +50,10 @@ pub fn parse_init_command(json: &str) -> Result<CliInputCommand, ErrorWithBacktr
 }
 
 fn start_long_running_process(threads: usize) -> Result<(), ErrorWithBacktrace> {
-    let pool = ThreadPool::new(threads);
+    let pool = rayon::ThreadPoolBuilder::new()
+        .num_threads(threads)
+        .build()
+        .unwrap();
 
     loop {
         let mut input = String::new();
@@ -67,7 +69,7 @@ fn start_long_running_process(threads: usize) -> Result<(), ErrorWithBacktrace> 
             break;
         }
         let opts: CliInputCommand = parse_cli(&input)?;
-        pool.execute(move || match execute_command(opts.payload) {
+        pool.install(move || match execute_command(opts.payload) {
             Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
             Err(err) => {
                 let err = ErrorPayload {
@@ -82,8 +84,6 @@ fn start_long_running_process(threads: usize) -> Result<(), ErrorWithBacktrace> 
             }
         });
     }
-
-    pool.join();
 
     Ok(())
 }

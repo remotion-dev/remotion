@@ -18,5 +18,21 @@ test('Should get Rust errors in a good way', async () => {
 	}
 });
 
+test('Handle panics', async () => {
+	const compositor = startLongRunningCompositor();
+
+	try {
+		await compositor.executeCommand('DeliberatePanic', {});
+	} catch (err) {
+		expect((err as Error).message).toContain('Compositor panicked');
+		expect((err as Error).message).toContain('/rust/commands/mod');
+	}
+
+	try {
+		await compositor.executeCommand('DeliberatePanic', {});
+	} catch (err) {
+		expect((err as Error).message).toContain('Compositor already quit');
+	}
+});
+
 test.todo('Non-long running tasks should also be handled properly');
-test.todo('Handle panics');
