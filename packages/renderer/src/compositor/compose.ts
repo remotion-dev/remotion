@@ -90,7 +90,6 @@ export const callCompositor = (payload: string) => {
 				try {
 					// Try to see if the error is a JSON
 					const parsed = JSON.parse(message) as ErrorPayload;
-					console.log({parsed});
 					const msg = `Compositor error: ${parsed.error}`;
 					const err = new Error(`${msg}\n${parsed.backtrace}`);
 
