@@ -38,18 +38,17 @@ type RemotionOptions struct {
 }
 
 type internalOptions struct {
-	ServeUrl              string
-	InputProps            interface{}            `json:"inputProps"`
-	Composition           string                 `json:"composition"`
-	FunctionName          string                 `json:"functionName"`
-	Region                string                 `json:"region"`
-	Type                  string                 `json:"type"`
-	Codec                 string                 `json:"codec"`
-	Version               string                 `json:"version"`
-	ImageFormat           string                 `json:"imageFormat"`
-	Crf                   int                    `json:"crf"`
-	EnvVariables          []interface{}          `json:"envVariables"`
-	Quality               int                    `json:"quality"`
+	serveUrl              string
+	inputProps            interface{}
+	composition           string
+	region                string
+	Type                  string
+	Codec                 string
+	Version               string
+	ImageFormat           string
+	Crf                   int
+	EnvVariables          []interface{}
+	Quality               int
 	MaxRetries            int                    `json:"maxRetries"`
 	Privacy               string                 `json:"privacy"`
 	LogLevel              string                 `json:"logLevel"`
