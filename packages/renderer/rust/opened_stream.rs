@@ -107,12 +107,6 @@ impl OpenedStream {
                     latest_frame = Some(frame_cache_id);
                 },
                 Ok(None) => {
-                    if self.reached_eof && latest_frame.is_some() {
-                        frame_cache
-                            .lock()
-                            .unwrap()
-                            .set_last_frame(latest_frame.unwrap());
-                    }
                     break;
                 }
                 Err(err) => {
@@ -165,12 +159,11 @@ impl OpenedStream {
                     } else {
                         last_frame_of_video = last_frame_received
                     }
-                    if last_frame_of_video.is_some() {
-                        frame_cache
-                            .lock()
-                            .unwrap()
-                            .set_last_frame(last_frame_of_video.unwrap());
-                    }
+
+                    frame_cache
+                        .lock()
+                        .unwrap()
+                        .set_last_frame(last_frame_of_video.unwrap());
 
                     break;
                 }
@@ -243,14 +236,6 @@ impl OpenedStream {
                         break;
                     },
                     Ok(None) => {
-                        if self.reached_eof {
-                            if last_frame_received.is_some() {
-                                frame_cache
-                                    .lock()
-                                    .unwrap()
-                                    .set_last_frame(last_frame_received.unwrap());
-                            }
-                        }
                         break;
                     }
                     Err(err) => {
