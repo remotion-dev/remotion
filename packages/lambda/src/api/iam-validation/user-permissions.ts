@@ -50,6 +50,8 @@ export const requiredPermissions: {
 			s3.GetBucketLocation,
 			s3.PutBucketAcl,
 			s3.DeleteBucket,
+			s3.PutBucketOwnershipControls,
+			s3.PutBucketPublicAccessBlock,
 		],
 		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],
 	},
