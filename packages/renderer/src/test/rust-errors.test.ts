@@ -19,3 +19,4 @@ test('Should get Rust errors in a good way', async () => {
 });
 
 test.todo('Non-long running tasks should also be handled properly');
+test.todo('Handle panics');
