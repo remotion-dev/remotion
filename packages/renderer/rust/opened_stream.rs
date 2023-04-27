@@ -107,7 +107,9 @@ impl OpenedStream {
                     latest_frame = Some(frame_cache_id);
                 },
                 Ok(None) => {
-                    break;
+                    if self.reached_eof {
+                        break;
+                    }
                 }
                 Err(err) => {
                     return Err(err);
@@ -155,10 +157,9 @@ impl OpenedStream {
                 Err(remotionffmpeg::Error::Eof) => {
                     let data = self.handle_eof(position, self.transparent, frame_cache)?;
                     if data.is_some() {
-                        last_frame_of_video = data;
-                    } else {
-                        last_frame_of_video = last_frame_received
+                        last_frame_received = data;
                     }
+                    last_frame_of_video = last_frame_received;
 
                     frame_cache
                         .lock()
