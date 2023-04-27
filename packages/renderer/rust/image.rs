@@ -7,7 +7,7 @@ pub fn save_as_jpeg(
     height: u32,
     data: Vec<u8>,
     output: String,
-) -> Result<(), std::io::Error> {
+) -> anyhow::Result<(), std::io::Error> {
     let encoder = match Encoder::new_file(output, 100) {
         Ok(content) => content,
         Err(_) => {
@@ -79,7 +79,7 @@ pub fn save_as_png(
     height: u32,
     data: Vec<u8>,
     output: String,
-) -> Result<(), std::io::Error> {
+) -> anyhow::Result<(), std::io::Error> {
     let path = Path::new(&output);
     let file = match File::create(path) {
         Ok(content) => content,

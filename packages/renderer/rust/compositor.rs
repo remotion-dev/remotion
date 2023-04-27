@@ -80,7 +80,7 @@ fn draw_png_image_layer(
     img: &mut Vec<u8>,
     canvas_width: u32,
     layer: ImageLayer,
-) -> Result<(), PossibleErrors> {
+) -> anyhow::Result<(), PossibleErrors> {
     let file = File::open(layer.src)?;
 
     let decoder = png::Decoder::new(file);
@@ -127,7 +127,7 @@ fn draw_jpg_image_layer(
     img: &mut Vec<u8>,
     canvas_width: u32,
     layer: ImageLayer,
-) -> Result<(), PossibleErrors> {
+) -> anyhow::Result<(), PossibleErrors> {
     let file = File::open(layer.src)?;
 
     let mut decoder = jpeg_decoder::Decoder::new(file);
@@ -169,7 +169,7 @@ pub fn draw_layer(
     img: &mut Vec<u8>,
     canvas_width: u32,
     layer: Layer,
-) -> Result<(), PossibleErrors> {
+) -> anyhow::Result<(), PossibleErrors> {
     match layer {
         Layer::PngImage(layer) => draw_png_image_layer(img, canvas_width, layer),
         Layer::JpgImage(layer) => draw_jpg_image_layer(img, canvas_width, layer),

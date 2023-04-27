@@ -1,5 +1,8 @@
 use remotionffmpeg::{codec::Id, format::Pixel, media::Type, Dictionary, Rational};
-use std::sync::{Arc, Mutex};
+use std::{
+    any,
+    sync::{Arc, Mutex},
+};
 
 use crate::{
     errors::PossibleErrors,
@@ -19,7 +22,7 @@ pub struct OpenedVideo {
     pub src: String,
 }
 
-pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleErrors> {
+pub fn open_video(src: &str, transparent: bool) -> anyhow::Result<OpenedVideo, PossibleErrors> {
     let (opened_stream, fps, time_base) = open_stream(src, transparent)?;
 
     let opened_video = OpenedVideo {
@@ -37,7 +40,7 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, PossibleE
 fn open_stream(
     src: &str,
     transparent: bool,
-) -> Result<(OpenedStream, Rational, Rational), PossibleErrors> {
+) -> anyhow::Result<(OpenedStream, Rational, Rational), PossibleErrors> {
     let mut dictionary = Dictionary::new();
     dictionary.set("fflags", "+genpts");
     let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
@@ -127,7 +130,7 @@ fn open_stream(
 }
 
 impl OpenedVideo {
-    pub fn open_new_stream(&mut self, transparent: bool) -> Result<usize, PossibleErrors> {
+    pub fn open_new_stream(&mut self, transparent: bool) -> anyhow::Result<usize, PossibleErrors> {
         let (opened_stream, _, _) = open_stream(&self.src, transparent)?;
         let arc_mutex = Arc::new(Mutex::new(opened_stream));
         self.opened_streams.push(arc_mutex);

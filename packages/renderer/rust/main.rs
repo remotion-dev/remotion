@@ -18,7 +18,7 @@ use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload, Err
 
 extern crate png;
 
-fn mainfn() -> Result<(), PossibleErrors> {
+fn mainfn() -> anyhow::Result<(), PossibleErrors> {
     let args = env::args();
 
     let first_arg =
@@ -44,13 +44,13 @@ fn mainfn() -> Result<(), PossibleErrors> {
     Ok(())
 }
 
-pub fn parse_init_command(json: &str) -> Result<CliInputCommand, PossibleErrors> {
+pub fn parse_init_command(json: &str) -> anyhow::Result<CliInputCommand, PossibleErrors> {
     let cli_input: CliInputCommand = serde_json::from_str(json)?;
 
     Ok(cli_input)
 }
 
-fn start_long_running_process(threads: usize) -> Result<(), PossibleErrors> {
+fn start_long_running_process(threads: usize) -> anyhow::Result<(), PossibleErrors> {
     let pool = ThreadPool::new(threads);
 
     loop {
