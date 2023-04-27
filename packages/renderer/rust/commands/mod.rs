@@ -11,6 +11,10 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, Possible
             let res = ffmpeg::extract_frame(command.input, command.time, command.transparent)?;
             Ok(res)
         }
+        CliInputCommandPayload::GetOpenVideoStats(_) => {
+            let res = ffmpeg::get_open_video_stats()?;
+            Ok(serde_json::to_string(&res).unwrap().as_bytes().to_vec())
+        }
         CliInputCommandPayload::StartLongRunningProcess(_command) => Err(std::io::Error::new(
             ErrorKind::Other,
             "Cannot start long running process as command",
