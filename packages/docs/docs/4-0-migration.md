@@ -142,6 +142,12 @@ The `onBucketEnsured()` option of [`getOrCreateBucket()`](/docs/lambda/getorcrea
 
 ## `imageFormat` removed from `<OffthreadVideo>`
 
+Until now, you could optionally pass the `imageFormat` prop into `<OffthreadVideo>`. This option was introduced in order to make transparent videos possible.
+
+Now, you can instead use the optional `transparent` prop.
+
+Due to this this change, the `OffthreadVideoImageFormat` type is no longer neccessary and has therefore been removed.
+
 ## `OffthreadVideoImageFormat` removed
 
 ## `<Img>` will cancel the render if the image cannot be loaded
