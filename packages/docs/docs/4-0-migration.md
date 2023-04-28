@@ -152,4 +152,4 @@ Previously you were able to set a value for `crf` when rendering a GIF. This was
 
 ## Default image format for `renderFrames()`
 
-When nothing is specified, `renderFrames()` now takes `jpeg` as default image format.
+When nothing gets specified, `renderFrames()` now takes `jpeg` as default image format.
