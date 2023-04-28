@@ -37,6 +37,8 @@ module.exports = {
         "cli/versions",
         "cli/upgrade",
         "cli/help",
+        "cli/ffmpeg",
+        "cli/ffprobe",
       ],
     },
     "config",
