@@ -137,15 +137,15 @@ export const RenderModalData: React.FC<{
 		() => getPersistedShowWarningState()
 	);
 
-	const serializedJSON: SerializedJSONWithDate = useMemo(() => {
+	const inJSONEditor = mode === 'json';
+	const serializedJSON: SerializedJSONWithDate | null = useMemo(() => {
+		if (!inJSONEditor) {
+			return null;
+		}
+
 		const value = inputProps ?? {};
 		return serializeJSONWithDate(value, 2);
-	}, [inputProps]);
-
-	const isCustomDateUsed = serializedJSON.customDateUsed;
-	const [localValue, setLocalValue] = React.useState<State>(() => {
-		return parseJSON(serializedJSON.serializedString);
-	});
+	}, [inJSONEditor, inputProps]);
 
 	const cliProps = getInputProps();
 	const [canSaveDefaultProps, setCanSaveDefaultProps] =
@@ -250,11 +250,17 @@ export const RenderModalData: React.FC<{
 		return getRenderModalWarnings({
 			canSaveDefaultProps,
 			cliProps,
-			isCustomDateUsed,
-			inJSONEditor: mode === 'json',
+			isCustomDateUsed: serializedJSON ? serializedJSON.customDateUsed : false,
+			inJSONEditor,
 			propsEditType,
 		});
-	}, [canSaveDefaultProps, cliProps, isCustomDateUsed, mode, propsEditType]);
+	}, [
+		canSaveDefaultProps,
+		cliProps,
+		inJSONEditor,
+		propsEditType,
+		serializedJSON,
+	]);
 
 	if (connectionStatus === 'disconnected') {
 		return (
@@ -329,8 +335,7 @@ export const RenderModalData: React.FC<{
 					onSave={onUpdate}
 					valBeforeSafe={valBeforeSafe}
 					showSaveButton={showSaveButton}
-					localValue={localValue}
-					setLocalValue={setLocalValue}
+					serializedJSON={serializedJSON}
 					parseJSON={parseJSON}
 				/>
 			)}
