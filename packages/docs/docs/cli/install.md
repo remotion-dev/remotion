@@ -5,6 +5,10 @@ sidebar_label: install
 crumb: CLI Reference
 ---
 
+_removed in v4.0.0_
+
+_See [no more FFmpeg install](../4-0-migration#no-more-ffmpeg-install-ffmpegexecutable-option-removed)._ Here for archive purpose.
+
 _available from v3.3_
 
 Ensures that `ffmpeg` or `ffprobe` are installed by downloading them from the internet if they cannot be found.
