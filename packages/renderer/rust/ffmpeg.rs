@@ -29,7 +29,6 @@ pub fn close_all_videos() -> Result<(), ErrorWithBacktrace> {
 
     let video_sources: Vec<String> = manager.videos.read()?.keys().cloned().collect();
     for video_source in video_sources {
-        _print_debug(format!("close {}", video_source).as_str());
         manager.remove_video(&video_source)?;
     }
     Ok(())
@@ -190,7 +189,6 @@ impl OpenedVideoManager {
                 .lock()
                 .unwrap()
                 .close()?;
-            _print_debug("video removed");
         }
 
         let mut vid = self.videos.write()?;
