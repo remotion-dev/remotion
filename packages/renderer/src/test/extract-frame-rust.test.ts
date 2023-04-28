@@ -337,7 +337,7 @@ test('Two different starting times should not result in big seeking', async () =
 	await compositor.waitForDone();
 });
 
-test('Memory usage should be determined ', async () => {
+test.only('Memory usage should be determined ', async () => {
 	const compositor = startLongRunningCompositor();
 
 	const memoryUsageBefore = await compositor.executeCommand('MemoryStats', {});
@@ -354,11 +354,21 @@ test('Memory usage should be determined ', async () => {
 	const parsed = JSON.parse(memoryUsageAfter.toString('utf-8'));
 	expect(parsed.physical_mem).toBeGreaterThan(100 * 1024 * 1024);
 
+	await new Promise((resolve) => {
+		setTimeout(() => resolve(), 10000);
+	});
+
+	await compositor.executeCommand('CloseAllVideos', {});
+
+	await new Promise((resolve) => {
+		setTimeout(() => resolve(), 10000);
+	});
+
 	const memoryUsageAfterClean = await compositor.executeCommand(
 		'MemoryStats',
 		{}
 	);
 
 	const afterClosed = JSON.parse(memoryUsageAfterClean.toString('utf-8'));
-	expect(afterClosed.physical_mem).toBeGreaterThan(100 * 1024 * 1024);
+	expect(afterClosed.physical_mem).toBeLessThan(50 * 1024 * 1024);
 });
