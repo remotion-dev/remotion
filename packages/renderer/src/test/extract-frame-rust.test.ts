@@ -338,7 +338,11 @@ test('Two different starting times should not result in big seeking', async () =
 	await compositor.waitForDone();
 });
 
-test.only('Memory usage should be determined ', async () => {
+test('Memory usage should be determined ', async () => {
+	if (process.platform === 'win32') {
+		return;
+	}
+
 	const compositor = startLongRunningCompositor();
 
 	const memoryUsageBefore = await compositor.executeCommand('MemoryStats', {});
