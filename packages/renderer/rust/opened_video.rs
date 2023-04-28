@@ -139,6 +139,11 @@ fn open_stream(
 }
 
 impl OpenedVideo {
+    pub fn close(&mut self) -> Result<(), ErrorWithBacktrace> {
+        self.opened_streams = vec![];
+
+        Ok(())
+    }
     pub fn open_new_stream(&mut self, transparent: bool) -> Result<usize, ErrorWithBacktrace> {
         let (opened_stream, _, _) = open_stream(&self.src, transparent)?;
         let arc_mutex = Arc::new(Mutex::new(opened_stream));
