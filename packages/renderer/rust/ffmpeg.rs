@@ -168,9 +168,9 @@ impl OpenedVideoManager {
         Ok(self.videos.read()?.get(src).unwrap().clone())
     }
 
-    pub fn remove_video(&self, src: String) -> Result<(), ErrorWithBacktrace> {
+    pub fn remove_video(&self, src: &str) -> Result<(), ErrorWithBacktrace> {
         let mut vid = self.videos.write()?;
-        vid.remove(&src);
+        vid.remove(src);
         Ok(())
     }
 }
