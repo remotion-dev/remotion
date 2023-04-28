@@ -172,3 +172,12 @@ export type CanUpdateDefaultPropsResponse =
 			canUpdate: false;
 			reason: string;
 	  };
+
+export type UpdateDefaultPropsResponse =
+	| {
+			status: 'success';
+	  }
+	| {
+			status: 'fail';
+			errorMessage: string;
+	  };

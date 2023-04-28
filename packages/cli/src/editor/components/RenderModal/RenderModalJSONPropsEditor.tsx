@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import type {z} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {useKeybinding} from '../../helpers/use-keybinding';
@@ -61,6 +61,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 		return parseJSON(serializedJSON.serializedString);
 	});
 
+	const [saveError, setSaveError] = useState<string | null>(null);
 	const onPretty = useCallback(() => {
 		if (!localValue.validJSON) {
 			return;
@@ -101,7 +102,13 @@ export const RenderModalJSONPropsEditor: React.FC<{
 
 	const onQuickSave = useCallback(() => {
 		if (hasChanged) {
-			onSave();
+			try {
+				onSave();
+			} catch (error: unknown) {
+				setSaveError(
+					typeof error === 'string' ? error : 'An unknown error has occured'
+				);
+			}
 		}
 	}, [hasChanged, onSave]);
 
@@ -158,6 +165,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 				>
 					Save
 				</Button>
+				{saveError}
 			</Row>
 		</div>
 	);

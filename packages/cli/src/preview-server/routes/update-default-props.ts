@@ -3,12 +3,15 @@ import {updateDefaultProps} from '../../codemods/update-default-props';
 import {deserializeJSONWithDate} from '../../editor/components/RenderModal/SchemaEditor/date-serialization';
 import type {ApiHandler} from '../api-types';
 import {getProjectInfo} from '../project-info';
-import type {UpdateDefaultPropsRequest} from '../render-queue/job';
+import type {
+	UpdateDefaultPropsRequest,
+	UpdateDefaultPropsResponse,
+} from '../render-queue/job';
 import {checkIfTypeScriptFile} from './can-update-default-props';
 
 export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,
-	void
+	UpdateDefaultPropsResponse
 > = async ({input: {compositionId, defaultProps}, remotionRoot}) => {
 	const projectInfo = await getProjectInfo(remotionRoot);
 	// TODO: What happens if this error is thrown? Handle in frontend
@@ -26,4 +29,6 @@ export const updateDefaultPropsHandler: ApiHandler<
 	});
 
 	writeFileSync(projectInfo.videoFile, updated);
+
+	return {status: 'success'};
 };

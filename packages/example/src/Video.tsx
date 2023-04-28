@@ -755,10 +755,10 @@ export const Index: React.FC = () => {
 					})}
 					defaultProps={{
 						vehicle: 'car' as const,
-						other: 'hi' as const,
+						other: 'hello' as const,
 						abc: {
 							union: null,
-							def: {unionArray: [null], pef: 'hu' as const},
+							def: {unionArray: [null], pef: 'test' as const},
 							jkl: 'sting' as const,
 							xyz: 'hi' as const,
 						},
@@ -780,7 +780,6 @@ export const Index: React.FC = () => {
 						longEnum: 'k' as const,
 						color: '#eb3a60' as const,
 						nullable: null,
-						optional: undefined,
 					}}
 					durationInFrames={150}
 				/>
