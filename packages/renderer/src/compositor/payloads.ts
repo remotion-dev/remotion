@@ -54,7 +54,6 @@ export type CompositorCommand = {
 	};
 	GetOpenVideoStats: {};
 	DeliberatePanic: {};
-	MemoryStats: {};
 	CloseAllVideos: {};
 };
 
