@@ -76,6 +76,9 @@ pub mod payloads {
     pub struct MemoryStats {}
 
     #[derive(Serialize, Deserialize, Debug)]
+    pub struct CloseAllVideos {}
+
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct MemoryStatsResponse {
         pub physical_mem: usize,
         pub virtual_mem: usize,
@@ -100,6 +103,7 @@ pub mod payloads {
         StartLongRunningProcess(StartPayLoad),
         DeliberatePanic(DeliberatePanic),
         MemoryStats(MemoryStats),
+        CloseAllVideos(CloseAllVideos),
         GetOpenVideoStats(GetOpenVideoStats),
         Echo(EchoPayload),
     }
