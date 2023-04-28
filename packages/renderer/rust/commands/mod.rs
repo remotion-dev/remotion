@@ -2,7 +2,8 @@ use crate::compositor::draw_layer;
 use crate::errors::ErrorWithBacktrace;
 use crate::ffmpeg;
 use crate::image::{save_as_jpeg, save_as_png};
-use crate::payloads::payloads::CliInputCommandPayload;
+use crate::payloads::payloads::{CliInputCommandPayload, MemoryStatsResponse};
+use memory_stats::memory_stats;
 use std::io::ErrorKind;
 
 pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWithBacktrace> {
@@ -21,6 +22,21 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             let hi: Option<usize> = None;
             hi.unwrap();
             Ok(vec![])
+        }
+        CliInputCommandPayload::MemoryStats(_) => {
+            if let Some(usage) = memory_stats() {
+                let stats = MemoryStatsResponse {
+                    physical_mem: usage.physical_mem,
+                    virtual_mem: usage.virtual_mem,
+                };
+
+                Ok(serde_json::to_vec(&stats)?)
+            } else {
+                Err(std::io::Error::new(
+                    ErrorKind::Other,
+                    "Could not get memory stats",
+                ))?
+            }
         }
         CliInputCommandPayload::StartLongRunningProcess(_command) => Err(std::io::Error::new(
             ErrorKind::Other,
