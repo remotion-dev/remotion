@@ -78,6 +78,8 @@ To clarify the meaning of this option, it is now universally called "JPEG Qualit
 
 FFmpeg is now baked into the `@remotion/renderer` package. Therefore, the `ffmpegExecutable` and `ffprobeExecutable` options have been removed.
 
+Therefore, the `npx remotion install ffmpeg` and `npx remotion install ffprope` commands have been removed.
+
 **How to upgrade:**
 
 - Remove the `ffmpegExecutable` option from [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`getCompositions()`](/docs/renderer/get-compositions), [`renderFrames()`](/docs/renderer/render-frames) and [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) calls.
