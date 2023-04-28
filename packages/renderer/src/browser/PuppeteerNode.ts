@@ -16,8 +16,6 @@
 
 import type {Browser} from './Browser';
 import type {BrowserConnectOptions} from './BrowserConnector';
-import type {BrowserFetcherOptions} from './BrowserFetcher';
-import {BrowserFetcher} from './BrowserFetcher';
 import type {ProductLauncher} from './Launcher';
 import {ChromeLauncher} from './Launcher';
 import type {
@@ -48,7 +46,6 @@ export class PuppeteerNode {
 
 		this.launch = this.launch.bind(this);
 		this.executablePath = this.executablePath.bind(this);
-		this.createBrowserFetcher = this.createBrowserFetcher.bind(this);
 	}
 
 	launch(options: PuppeteerLaunchOptions): Promise<Browser> {
@@ -82,9 +79,5 @@ export class PuppeteerNode {
 
 	get product(): string {
 		return this._launcher.product;
-	}
-
-	createBrowserFetcher(options: BrowserFetcherOptions): BrowserFetcher {
-		return new BrowserFetcher(options);
 	}
 }

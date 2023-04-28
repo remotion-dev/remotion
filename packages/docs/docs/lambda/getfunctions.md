@@ -72,10 +72,6 @@ The amount of memory allocated to the function.
 
 The amount of ephemereal disk storage allocated to the function.
 
-### `functionName`
-
-The name of the function.
-
 ### `version`
 
 The version of the function. Remotion is versioning the Lambda function and a render can only be triggered from a version of `@remotion/lambda` that is matching the one of the function.
