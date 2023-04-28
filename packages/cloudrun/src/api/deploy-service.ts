@@ -8,8 +8,8 @@ import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
 export type DeployServiceInput = {
 	remotionVersion: string;
-	memory: string;
-	cpu: string;
+	memory?: string;
+	cpu?: string;
 	projectID: string;
 	region: string;
 	redeploy: boolean;
@@ -33,7 +33,6 @@ export type DeployServiceOutput = {
 export const deployService = async (
 	options: DeployServiceInput
 ): Promise<DeployServiceOutput> => {
-	// ToDo: This needs to allow for defaults for use of the node API without CLI
 	validateGcpRegion(options.region);
 	validateProjectID(options.projectID);
 	validateRemotionVersion(options.remotionVersion);
