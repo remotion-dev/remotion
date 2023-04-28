@@ -1,3 +1,4 @@
+import {execSync} from 'child_process';
 import path from 'path';
 import {expect, test} from 'vitest';
 import {startLongRunningCompositor} from '../compositor/compositor';
@@ -350,25 +351,34 @@ test.only('Memory usage should be determined ', async () => {
 		transparent: false,
 	});
 
-	const memoryUsageAfter = await compositor.executeCommand('MemoryStats', {});
-	const parsed = JSON.parse(memoryUsageAfter.toString('utf-8'));
-	expect(parsed.physical_mem).toBeGreaterThan(100 * 1024 * 1024);
-
-	await new Promise((resolve) => {
-		setTimeout(() => resolve(), 10000);
-	});
+	expect(
+		getMemoryUsageByPid((compositor.pid as Number).toString())
+	).toBeGreaterThan(100 * 1024 * 1024);
 
 	await compositor.executeCommand('CloseAllVideos', {});
 
-	await new Promise((resolve) => {
-		setTimeout(() => resolve(), 10000);
-	});
-
-	const memoryUsageAfterClean = await compositor.executeCommand(
-		'MemoryStats',
-		{}
-	);
-
-	const afterClosed = JSON.parse(memoryUsageAfterClean.toString('utf-8'));
-	expect(afterClosed.physical_mem).toBeLessThan(50 * 1024 * 1024);
+	expect(
+		getMemoryUsageByPid((compositor.pid as Number).toString())
+	).toBeLessThan(10 * 1024 * 1024);
 });
+
+export function getMemoryUsageByPid(pid: string) {
+	const data = execSync(`top -l 1 -pid ${pid} -stats mem`);
+	const str = data.toString('utf-8');
+	const lines = str.split('\n');
+	const last = lines[lines.length - 2];
+
+	if (last.endsWith('G')) {
+		return parseFloat(last.replace('G', '').trim()) * 1024 * 1024 * 1024;
+	}
+
+	if (last.endsWith('M')) {
+		return parseInt(last.replace('M', '').trim(), 10) * 1024 * 1024;
+	}
+
+	if (last.endsWith('K')) {
+		return parseInt(last.replace('K', '').trim(), 10) * 1024;
+	}
+
+	throw new Error('cannot parse' + last);
+}
