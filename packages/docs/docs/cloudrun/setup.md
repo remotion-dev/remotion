@@ -97,7 +97,7 @@ This means that you can pull in a script that runs a couple of gcloud and Terraf
    If this is the first time initialising Remotion in the GCP project, you will want to select option 1.
    If you are updating the version of Remotion for this GCP project, you will want to select option 1.
 
-   If you want to [generate a new .env file](./generateEnvFile.md), or manage keys already created, you will want to select option 3.
+   If you want to [generate a new .env file](./generateEnvFile.md), or manage keys already created, you will want to select option 2. You will be presented with an opportunity to generate this file after completing option 1.
    <!-- ToDo - host this in the official Remotion repo -->
 
 3. Download the .env file by clicking the vertical ellipsis, in the top right of the cloud shell window, and selecting Download. Then type .env at the end of the prefilled path, and click DOWNLOAD;  
@@ -132,7 +132,7 @@ npx remotion cloudrun policies validate
 
 For the following steps, you may execute them on the CLI, or programmatically using the Node.JS APIs.
 
-## 6. Deploy a function
+## 6. Deploy a service
 
 <Tabs
 defaultValue="cli"
@@ -152,21 +152,19 @@ npx remotion cloudrun service deploy
 </TabItem>
 <TabItem value="node">
 
-You can deploy a esrvice that can render videos into your GCP project using [`deployFunction()`](/docs/lambda/deployfunction).
+You can deploy a service that can render videos into your GCP project using [`deployFunction()`](/docs/cloudrun/deployservice).
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { deployNewCloudRun } from "@remotion/cloudrun";
+import { deployService } from "@remotion/cloudrun";
 
 // ---cut---
-const deployResult = await deployNewCloudRun({
+const deployResult = await deployService({
   remotionVersion: "3.3.75",
-  serviceName: "my-service",
-  memory: "512Mi",
-  cpu: "1.0",
+  projectID: "my-remotion-project",
   region: "us-east1",
-  overwriteService: false,
+  redeploy: false,
 });
 ```
 
@@ -176,7 +174,9 @@ The object that is returned contains a name field, which you'll need for renderi
 
 The service consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology#serve-url) and make renders from it. A service is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new service](/docs/cloudrun/upgrading). A service does not include your Remotion code, it will be deployed in the next step instead.
 
-## 9. Deploy a site
+A [`cloudRunUrl`](/docs/terminology#cloud-run-url) will be printed, providing unique endpoint for accessing the deployed service and performing a render.
+
+## 7. Deploy a site
 
 <Tabs
 defaultValue="cli"
@@ -232,14 +232,15 @@ const { serveUrl } = await deploySite({
 });
 ```
 
-When you update your Remotion video in the future, redeploy your site. Pass the same [`siteName`](/docs/lambda/deploysite#sitename) to overwrite the previous deploy. If you don't pass [`siteName`](/docs/lambda/deploysite#sitename), a unique URL will be generated on every deploy.
+When you update your Remotion video in the future, redeploy your site. Pass the same [`siteName`](/docs/cloudrun/deploysite#sitename) to overwrite the previous deploy. If you don't pass [`siteName`](/docs/cloudrun/deploysite#sitename), a unique URL will be generated on every deploy.
 
 </TabItem>
 </Tabs>
 
-## 10. Render a video
+## 8. Render a video or still
 
 <Tabs
+groupId="access"
 defaultValue="cli"
 values={[
 { label: 'CLI', value: 'cli', },
@@ -248,10 +249,13 @@ values={[
 }>
 <TabItem value="cli">
 
-Take the URL you received from the step 8 - your "serve URL" - and run the following command. Also pass in the [ID of the composition](/docs/composition) you'd like to render.
+- `<media | still>` The deployed Cloud Run service is capable of rendering media and stills. Pass either `media` or `still` to render as needed.
+- `<serve-url>` The serve URL was returned during step 7, site deployment.
+- `<cloud-run-url>` The Cloud Run URL was returned during step 6, service deployment.
+- `<composition-id>` Pass in the [ID of the composition](/docs/composition) you'd like to render.
 
 ```bash
-npx remotion cloudrun render <serve-url> <composition-id>
+npx remotion cloudrun render <media | still> <serve-url> <cloud-run-url> <composition-id>
 ```
 
 Progress will be printed until the video finished rendering. Congrats! You rendered your first video using Remotion Cloudrun 🚀
@@ -259,111 +263,133 @@ Progress will be printed until the video finished rendering. Congrats! You rende
 </TabItem>
 <TabItem value="node">
 
-You already have the service name from a previous step. But since you only need to deploy a service once, it's useful to retrieve the name of your deployed function programmatically before rendering a video in case your Node.JS program restarts. We can call [`getFunctions()`](/docs/lambda/getfunctions) with the `compatibleOnly` flag to get only functions with a matching version.
+<Tabs
+groupId="renderType"
+defaultValue="media"
+values={[
+{ label: 'Render Media', value: 'media', },
+{ label: 'Render Still', value: 'still', },
+]
+}>
+<TabItem value="media">
+
+You already have the service name from a previous step. But since you only need to deploy a service once, it's useful to retrieve the name of your deployed service programmatically before rendering a video in case your Node.JS program restarts. We can call [`getServices()`](/docs/cloudrun/getservices) with the `compatibleOnly` flag to get only services with a matching version.
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
 import {
-  getFunctions,
-  renderMediaOnLambda,
-  getRenderProgress,
-} from "@remotion/lambda";
+  // getServices,
+  renderMediaOnCloudrun,
+} from "@remotion/cloudrun";
 
-const functions = await getFunctions({
-  region: "us-east-1",
-  compatibleOnly: true,
-});
+// const services = await getServices({
+//   region: "us-east1",
+//   compatibleOnly: true,
+// });
 
-const functionName = functions[0].functionName;
+// const serviceName = services[0].serviceName;
 ```
 
-We can now trigger a render using the [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) function.
+We can now trigger a render of a video using the [`renderMediaOnCloudrun()`](/docs/cloudrun/renderMediaOnCloudrun) function.
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
 import {
-  getFunctions,
-  renderMediaOnLambda,
-  getRenderProgress,
-} from "@remotion/lambda";
+  // getServices,
+  renderMediaOnCloudrun,
+} from "@remotion/cloudrun";
 
 const url = "string";
-const functions = await getFunctions({
-  region: "us-east-1",
-  compatibleOnly: true,
-});
+const cloudRunUrl = "string";
+const outputBucket = "string";
+const outputFile = "string";
+const updateRenderProgress = (progress: number) => {};
+// const services = await getServices({
+//   region: "us-east1",
+//   compatibleOnly: true,
+// });
 
-const functionName = functions[0].functionName;
+// const serviceName = services[0].serviceName;
 // ---cut---
 
-const { renderId, bucketName } = await renderMediaOnLambda({
-  region: "us-east-1",
-  functionName,
+const { renderId, bucketName } = await renderMediaOnCloudrun({
+  authenticatedRequest: false, // unauthenticated request - requires cloud run service to be public
+  cloudRunUrl,
   serveUrl: url,
   composition: "HelloWorld",
   inputProps: {},
   codec: "h264",
-  imageFormat: "jpeg",
-  maxRetries: 1,
-  framesPerLambda: 20,
-  privacy: "public",
+  outputBucket,
+  outputFile,
+  updateRenderProgress,
 });
 ```
 
-The render will now run and after a while the video will be available in your S3 bucket. You can at any time get the status of the video render by calling [`getRenderProgress()`](/docs/lambda/getrenderprogress).
+The render will now run and after a while the video will be available in your cloud storage bucket. You can keep track of the render progress by passing a function to the [updateRenderProgress](/docs/cloudrun/renderMediaOnCloudrun#updateRenderProgress) attribute, to receive progress as a number.
+
+Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/storage/browser) - you just rendered your first still using Remotion CloudRun 🚀
+</TabItem>
+<TabItem value="still">
+
+You already have the service name from a previous step. But since you only need to deploy a service once, it's useful to retrieve the name of your deployed service programmatically before rendering a video in case your Node.JS program restarts. We can call [`getServices()`](/docs/cloudrun/getservices) with the `compatibleOnly` flag to get only services with a matching version.
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
 import {
-  getFunctions,
-  renderMediaOnLambda,
-  getRenderProgress,
-} from "@remotion/lambda";
+  // getServices,
+  renderStillOnCloudrun,
+} from "@remotion/cloudrun";
+
+// const services = await getServices({
+//   region: "us-east1",
+//   compatibleOnly: true,
+// });
+
+// const serviceName = services[0].serviceName;
+```
+
+We can now trigger a render of a still using the [`renderStillOnCloudrun()`](/docs/cloudrun/renderStillOnCloudrun) function.
+
+```ts twoslash
+// @module: ESNext
+// @target: ESNext
+import {
+  // getFunctions,
+  renderStillOnCloudrun,
+} from "@remotion/cloudrun";
 
 const url = "string";
-const functions = await getFunctions({
-  region: "us-east-1",
-  compatibleOnly: true,
-});
+const cloudRunUrl = "string";
+const outputBucket = "string";
+const outputFile = "string";
+// const functions = await getFunctions({
+//   region: "us-east-1",
+//   compatibleOnly: true,
+// });
 
-const functionName = functions[0].functionName;
+// const functionName = functions[0].functionName;
+// ---cut---
 
-const { renderId, bucketName } = await renderMediaOnLambda({
-  region: "us-east-1",
-  functionName,
+const { renderId, bucketName } = await renderStillOnCloudrun({
+  authenticatedRequest: false, // unauthenticated request - requires cloud run service to be public
+  cloudRunUrl,
   serveUrl: url,
   composition: "HelloWorld",
   inputProps: {},
-  codec: "h264",
-  imageFormat: "jpeg",
-  maxRetries: 1,
-  framesPerLambda: 20,
-  privacy: "public",
+  outputBucket,
+  outputFile,
 });
-// ---cut---
-while (true) {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  const progress = await getRenderProgress({
-    renderId,
-    bucketName,
-    functionName,
-    region: "us-east-1",
-  });
-  if (progress.done) {
-    console.log("Render finished!", progress.outputFile);
-    process.exit(0);
-  }
-  if (progress.fatalErrorEncountered) {
-    console.error("Error enountered", progress.errors);
-    process.exit(1);
-  }
-}
 ```
 
-This code will poll every second to check the progress of the video and exit the script if the render is done. Congrats! [Check your S3 Bucket](https://s3.console.aws.amazon.com/s3/) - you just rendered your first video using Remotion Lambda 🚀
+The render will now run and after a while the image will be available in your cloud storage bucket.
+
+Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/storage/browser) - you just rendered your first still using Remotion CloudRun 🚀
+
+</TabItem>
+</Tabs>
 
 </TabItem>
 </Tabs>
