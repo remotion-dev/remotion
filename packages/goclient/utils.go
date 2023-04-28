@@ -10,7 +10,7 @@ import (
 )
 
 func serializeInputProps(inputProps interface{}, region string, inputType string,
-	userSpecifiedBucketName string) (map[string]interface{}, error) {
+	userSpecifiedBucketName *string) (map[string]interface{}, error) {
 	payload, err := json.Marshal(inputProps)
 	if err != nil {
 		return nil, errors.New("error serializing inputProps. Check it has no circular references or reduce the size if the object is big.")
@@ -61,14 +61,16 @@ func constructInternals(options *RemotionOptions) internalOptions {
 	inputProps, err := serializeInputProps(options.InputProps, options.Region, "video-or-audio", options.ForceBucketName)
 
 	if err != nil {
-		log.Fatal("Failed to open file:", err)
+		log.Fatal("Error in serializing input props", err)
 	}
 
+	// TODO validation errors
+
 	internalParams := &internalOptions{
-		serveUrl:              options.ServeUrl,
-		inputProps:            inputProps,
-		composition:           options.Composition,
-		region:                options.Region,
+		ServeUrl:              options.ServeUrl,
+		InputProps:            inputProps,
+		Composition:           options.Composition,
+		Region:                options.Region,
 		Type:                  options.Type,
 		Codec:                 options.Codec,
 		Version:               options.Version,
@@ -101,4 +103,10 @@ func constructInternals(options *RemotionOptions) internalOptions {
 	}
 
 	return *internalParams
+}
+
+func logInfo(message string) {
+	log.SetPrefix("INFO ")
+	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
+	log.Println(message)
 }

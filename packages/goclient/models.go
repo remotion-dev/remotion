@@ -34,18 +34,19 @@ type RemotionOptions struct {
 	ForceWidth            interface{}            `json:"forceWidth"`
 	BucketName            interface{}            `json:"bucketName"`
 	AudioCodec            interface{}            `json:"audioCodec"`
-	ForceBucketName       string                 `json:"forceBucketName"`
+	ForceBucketName       *string                `json:"forceBucketName"`
 }
 
 type internalOptions struct {
-	serveUrl              string
-	inputProps            interface{}
-	composition           string
-	region                string
-	Type                  string
-	Codec                 string
-	Version               string
-	ImageFormat           string
+	ServeUrl              string      `json:"serveUrl"`
+	FunctionName          string      `json:"functionName"`
+	Region                string      `json:"region"`
+	InputProps            interface{} `json:"inputProps"`
+	Composition           string      `json:"composition"`
+	Type                  string      `json:"type"`
+	Codec                 string      `json:"codec"`
+	Version               string      `json:"version"`
+	ImageFormat           string      `json:"imageFormat"`
 	Crf                   int
 	EnvVariables          []interface{}
 	Quality               int
@@ -70,7 +71,7 @@ type internalOptions struct {
 	ForceWidth            interface{}            `json:"forceWidth"`
 	BucketName            interface{}            `json:"bucketName"`
 	AudioCodec            interface{}            `json:"audioCodec"`
-	ForceBucketName       string                 `json:"forceBucketName"`
+	ForceBucketName       *string                `json:"forceBucketName"`
 }
 
 type RemotionRenderResponse struct {
