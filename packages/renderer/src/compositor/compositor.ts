@@ -17,7 +17,6 @@ export type Compositor = {
 		payload: CompositorCommand[T]
 	) => Promise<Buffer>;
 	waitForDone: () => Promise<void>;
-	pid: number | null;
 };
 
 type Waiter = {
@@ -272,6 +271,5 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 				});
 			});
 		},
-		pid: child.pid ?? null,
 	};
 };
