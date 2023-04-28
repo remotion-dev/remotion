@@ -10,6 +10,7 @@ import {
 } from 'fs';
 import os from 'os';
 import path from 'path';
+import {toolchains} from './toolchains.mjs';
 
 const isWin = os.platform() === 'win32';
 const where = isWin ? 'where' : 'which';
@@ -146,6 +147,14 @@ if (!existsSync('toolchains') && all) {
 	throw new Error(
 		'Run "node install-toolchain.mjs" if you want to build all platforms'
 	);
+}
+
+for (const toolchain of toolchains) {
+	if (!existsSync(path.join('toolchains', toolchain)) && all) {
+		throw new Error(
+			`Toolchain for ${toolchain} not found. Run "node install-toolchain.mjs" if you want to build all platforms`
+		);
+	}
 }
 
 const archs = all ? targets : [nativeArch];
