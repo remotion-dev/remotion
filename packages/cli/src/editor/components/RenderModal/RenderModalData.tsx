@@ -22,6 +22,11 @@ import {SegmentedControl} from '../SegmentedControl';
 import type {TypeCanSaveState} from './get-render-modal-warnings';
 import {getRenderModalWarnings} from './get-render-modal-warnings';
 import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
+import type {SerializedJSONWithDate} from './SchemaEditor/date-serialization';
+import {
+	deserializeJSONWithDate,
+	serializeJSONWithDate,
+} from './SchemaEditor/date-serialization';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -30,6 +35,18 @@ import {
 import {WarningIndicatorButton} from './WarningIndicatorButton';
 
 type Mode = 'json' | 'schema';
+
+export type State =
+	| {
+			str: string;
+			value: unknown;
+			validJSON: true;
+	  }
+	| {
+			str: string;
+			validJSON: false;
+			error: string;
+	  };
 
 export type PropsEditType = 'input-props' | 'default-props';
 
@@ -73,6 +90,15 @@ const tabWrapper: React.CSSProperties = {
 
 const persistanceKey = 'remotion.show-render-modalwarning';
 
+const parseJSON = (str: string): State => {
+	try {
+		const value = deserializeJSONWithDate(str);
+		return {str, value, validJSON: true};
+	} catch (e) {
+		return {str, validJSON: false, error: (e as Error).message};
+	}
+};
+
 const getPersistedShowWarningState = () => {
 	const val = localStorage.getItem(persistanceKey);
 	if (!val) {
@@ -110,6 +136,17 @@ export const RenderModalData: React.FC<{
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState()
 	);
+
+	const inJSONEditor = mode === 'json';
+	const serializedJSON: SerializedJSONWithDate | null = useMemo(() => {
+		if (!inJSONEditor) {
+			return null;
+		}
+
+		const value = inputProps ?? {};
+		return serializeJSONWithDate(value, 2);
+	}, [inJSONEditor, inputProps]);
+
 	const cliProps = getInputProps();
 	const [canSaveDefaultProps, setCanSaveDefaultProps] =
 		useState<TypeCanSaveState>({
@@ -213,9 +250,17 @@ export const RenderModalData: React.FC<{
 		return getRenderModalWarnings({
 			canSaveDefaultProps,
 			cliProps,
+			isCustomDateUsed: serializedJSON ? serializedJSON.customDateUsed : false,
+			inJSONEditor,
 			propsEditType,
 		});
-	}, [canSaveDefaultProps, cliProps, propsEditType]);
+	}, [
+		canSaveDefaultProps,
+		cliProps,
+		inJSONEditor,
+		propsEditType,
+		serializedJSON,
+	]);
 
 	if (connectionStatus === 'disconnected') {
 		return (
@@ -290,6 +335,8 @@ export const RenderModalData: React.FC<{
 					onSave={onUpdate}
 					valBeforeSafe={valBeforeSafe}
 					showSaveButton={showSaveButton}
+					serializedJSON={serializedJSON}
+					parseJSON={parseJSON}
 				/>
 			)}
 		</div>
