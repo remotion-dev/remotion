@@ -1,6 +1,9 @@
 extern crate ffmpeg_next as remotionffmpeg;
 
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::{
+    sync::atomic::{AtomicUsize, Ordering},
+    time::Instant,
+};
 
 use crate::{errors::ErrorWithBacktrace, scalable_frame::ScalableFrame};
 
@@ -15,11 +18,17 @@ pub struct FrameCacheItem {
     pub asked_time: i64,
     pub frame: ScalableFrame,
     pub id: usize,
+    pub created_at: Instant,
 }
 
 pub struct FrameCache {
     pub items: Vec<FrameCacheItem>,
     pub last_frame: Option<usize>,
+}
+
+pub struct FrameCacheReference {
+    pub id: usize,
+    pub created_at: i64,
 }
 
 impl FrameCache {
@@ -28,6 +37,19 @@ impl FrameCache {
             items: Vec::new(),
             last_frame: None,
         }
+    }
+
+    pub fn prune_oldest(&mut self, percentage: f64) -> Result<(), ErrorWithBacktrace> {
+        if self.items.len() == 0 {
+            return Ok(());
+        }
+
+        self.items.sort_by(|a, b| a.created_at.cmp(&b.created_at));
+        let items_to_remove = ((self.items.len() as f64 * percentage) as usize).max(1);
+        for i in 0..items_to_remove {
+            self.remove_item_by_id(self.items[i].id)?;
+        }
+        Ok(())
     }
 
     pub fn add_item(&mut self, item: FrameCacheItem) {
@@ -43,11 +65,22 @@ impl FrameCache {
         for i in 0..self.items.len() {
             if self.items[i].id == id {
                 self.items[i].frame.ensure_data()?;
+                self.items[i].asked_time = 0;
                 data = Some(self.items[i].frame.get_data()?);
                 break;
             }
         }
         Ok(data)
+    }
+
+    pub fn remove_item_by_id(&mut self, id: usize) -> Result<(), ErrorWithBacktrace> {
+        for i in 0..self.items.len() {
+            if self.items[i].id == id {
+                self.items.remove(i);
+                break;
+            }
+        }
+        Ok(())
     }
 
     pub fn get_item_id(

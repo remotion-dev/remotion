@@ -345,9 +345,9 @@ test('Memory usage should be determined ', async () => {
 
 	const compositor = startLongRunningCompositor();
 
-	const memoryUsageBefore = await compositor.executeCommand('MemoryStats', {});
-	const memoryBefore = JSON.parse(memoryUsageBefore.toString('utf-8'));
-	expect(memoryBefore.physical_mem).toBeLessThan(10 * 1024 * 1024);
+	expect(
+		getMemoryUsageByPid((compositor.pid as Number).toString())
+	).toBeLessThan(10 * 1024 * 1024);
 
 	await compositor.executeCommand('ExtractFrame', {
 		input: exampleVideos.bigBuckBunny,
