@@ -73,15 +73,6 @@ pub mod payloads {
     pub struct DeliberatePanic {}
 
     #[derive(Serialize, Deserialize, Debug)]
-    pub struct MemoryStats {}
-
-    #[derive(Serialize, Deserialize, Debug)]
-    pub struct MemoryStatsResponse {
-        pub physical_mem: usize,
-        pub virtual_mem: usize,
-    }
-
-    #[derive(Serialize, Deserialize, Debug)]
     pub struct OpenVideoStats {
         pub open_videos: usize,
         pub open_streams: usize,
@@ -99,7 +90,6 @@ pub mod payloads {
         Compose(CliGenerateImageCommand),
         StartLongRunningProcess(StartPayLoad),
         DeliberatePanic(DeliberatePanic),
-        MemoryStats(MemoryStats),
         GetOpenVideoStats(GetOpenVideoStats),
         Echo(EchoPayload),
     }

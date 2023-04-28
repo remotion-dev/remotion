@@ -54,7 +54,6 @@ export type CompositorCommand = {
 	};
 	GetOpenVideoStats: {};
 	DeliberatePanic: {};
-	MemoryStats: {};
 };
 
 export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {
