@@ -1,3 +1,4 @@
+import {RENDER_SERVICE_PREFIX} from './constants';
 import {SERVICE_VERSION_STRING} from './service-version-string';
 
 export const generateServiceName = ({
@@ -15,8 +16,8 @@ export const generateServiceName = ({
 		.toLowerCase();
 
 	return [
-		'remotion',
-		`${SERVICE_VERSION_STRING}`,
+		RENDER_SERVICE_PREFIX,
+		SERVICE_VERSION_STRING,
 		`mem${sanitisedMem}`,
 		`cpu${sanitisedCPU}`,
 	].join('--');

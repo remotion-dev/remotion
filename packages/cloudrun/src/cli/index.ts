@@ -6,7 +6,7 @@ import {
 import {policiesCommand, POLICIES_COMMAND} from './commands/permissions';
 import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
 import {renderCommand, RENDER_COMMAND} from './commands/render';
-import {cloudRunCommand, CLOUD_RUN_COMMAND} from './commands/services';
+import {servicesCommand, SERVICES_COMMAND} from './commands/services';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {printHelp} from './help';
 import {quit} from './helpers/quit';
@@ -22,8 +22,8 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 		return renderCommand(args.slice(1), remotionRoot);
 	}
 
-	if (args[0] === CLOUD_RUN_COMMAND) {
-		return cloudRunCommand(args.slice(1));
+	if (args[0] === SERVICES_COMMAND) {
+		return servicesCommand(args.slice(1));
 	}
 
 	if (args[0] === SITES_COMMAND) {
