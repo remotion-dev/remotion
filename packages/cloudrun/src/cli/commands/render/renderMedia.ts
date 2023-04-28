@@ -1,8 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import type {
-	RenderMediaOnCloudrunErrOutput,
-	RenderMediaOnCloudrunOutput,
-} from '../../../api/render-media-on-cloudrun';
+import type {RenderMediaOnCloudrunOutput} from '../../../api/render-media-on-cloudrun';
 import {renderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
 import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
 // import {validateMaxRetries} from '../../../shared/validate-retries';
@@ -87,22 +84,16 @@ Sending request to Cloud Run:
 		outputFile: outName,
 		updateRenderProgress,
 	});
+	renderProgress.doneIn = Date.now() - renderStart;
+	updateProgress();
 
-	if (res.status === 'error') {
-		const err = res as RenderMediaOnCloudrunErrOutput;
-		Log.error(CliInternals.chalk.red(err.message));
-		throw err.error;
-	} else {
-		renderProgress.doneIn = Date.now() - renderStart;
-		updateProgress();
-
-		const success = res as RenderMediaOnCloudrunOutput;
-		Log.info(`
+	const success = res as RenderMediaOnCloudrunOutput;
+	Log.info(`
 		
 		`);
-		Log.info(
-			CliInternals.chalk.blueBright(
-				`
+	Log.info(
+		CliInternals.chalk.blueBright(
+			`
 🤘 Rendered on Cloud Run! 🤘
 
     Public URL = ${success.publicUrl}
@@ -111,7 +102,6 @@ Sending request to Cloud Run:
     Bucket Name = ${success.bucketName}
     Render ID = ${success.renderId}
       `.trim()
-			)
-		);
-	}
+		)
+	);
 };

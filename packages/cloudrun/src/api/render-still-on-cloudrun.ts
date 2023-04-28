@@ -2,7 +2,6 @@ import got from 'got';
 import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
 import {validateServeUrl} from '../shared/validate-serveurl';
 import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
-import {parseCloudRunUrl} from './helpers/parse-cloud-run-url';
 
 export type RenderStillOnCloudrunInput = {
 	authenticatedRequest: boolean;
@@ -24,12 +23,6 @@ export type RenderStillOnCloudrunOutput = {
 	status: string;
 	errMessage: string;
 	error: any;
-};
-
-export type RenderStillOnCloudrunErrOutput = {
-	message: string;
-	error: any;
-	status: string;
 };
 
 /**
@@ -56,13 +49,9 @@ export const renderStillOnCloudrun = async ({
 	inputProps,
 	outputBucket,
 	outputFile,
-}: RenderStillOnCloudrunInput): Promise<
-	RenderStillOnCloudrunOutput | RenderStillOnCloudrunErrOutput
-> => {
+}: RenderStillOnCloudrunInput): Promise<RenderStillOnCloudrunOutput> => {
 	validateServeUrl(serveUrl);
 	validateCloudRunUrl(cloudRunUrl);
-
-	const cloudRunInfo = parseCloudRunUrl(cloudRunUrl);
 
 	// todo: allow serviceName to be passed in, and fetch the cloud run URL based on the name
 
@@ -78,34 +67,16 @@ export const renderStillOnCloudrun = async ({
 	if (authenticatedRequest) {
 		const client = await getAuthClientForUrl(cloudRunUrl);
 
-		try {
-			const response = await client.request({
-				url: cloudRunUrl,
-				method: 'POST',
-				data,
-			});
-			return response.data as RenderStillOnCloudrunOutput;
-		} catch (e) {
-			return {
-				// TODO: How do we get the project ID?
-				message: `Cloud Run Service failed. View logs at https://console.cloud.google.com/run/detail/${cloudRunInfo.region}/${cloudRunInfo.serviceName}/logs?project={PROJECT_ID}`,
-				error: e,
-				status: 'error',
-			};
-		}
-	} else {
-		try {
-			const response: RenderStillOnCloudrunOutput = await got
-				.post(cloudRunUrl, {json: data})
-				.json();
-			return response;
-		} catch (e) {
-			return {
-				// TODO: How do we get the project ID?
-				message: `Cloud Run Service failed. View logs at https://console.cloud.google.com/run/detail/${cloudRunInfo.region}/${cloudRunInfo.serviceName}/logs?project={PROJECT_ID}`,
-				error: e,
-				status: 'error',
-			};
-		}
+		const authenticatedResponse = await client.request({
+			url: cloudRunUrl,
+			method: 'POST',
+			data,
+		});
+		return authenticatedResponse.data as RenderStillOnCloudrunOutput;
 	}
+
+	const response: RenderStillOnCloudrunOutput = await got
+		.post(cloudRunUrl, {json: data})
+		.json();
+	return response;
 };

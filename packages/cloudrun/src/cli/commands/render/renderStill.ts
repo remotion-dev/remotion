@@ -1,10 +1,6 @@
 import {CliInternals} from '@remotion/cli';
-import type {
-	RenderStillOnCloudrunErrOutput,
-	RenderStillOnCloudrunOutput,
-} from '../../../api/render-still-on-cloudrun';
+import type {RenderStillOnCloudrunOutput} from '../../../api/render-still-on-cloudrun';
 import {renderStillOnCloudrun} from '../../../api/render-still-on-cloudrun';
-// import {validateMaxRetries} from '../../../shared/validate-retries';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
 
@@ -70,22 +66,16 @@ Sending request to Cloud Run:
 		outputBucket,
 		outputFile: outName,
 	});
+	doneIn = Date.now() - renderStart;
+	updateProgress();
 
-	if (res.status === 'error') {
-		const err = res as RenderStillOnCloudrunErrOutput;
-		Log.error(CliInternals.chalk.red(err.message));
-		throw err.error;
-	} else {
-		doneIn = Date.now() - renderStart;
-		updateProgress();
-
-		const success = res as RenderStillOnCloudrunOutput;
-		Log.info(`
+	const success = res as RenderStillOnCloudrunOutput;
+	Log.info(`
 		
 		`);
-		Log.info(
-			CliInternals.chalk.blueBright(
-				`
+	Log.info(
+		CliInternals.chalk.blueBright(
+			`
 🤘 Rendered on Cloud Run! 🤘
 
     Public URL = ${success.publicUrl}
@@ -94,7 +84,6 @@ Sending request to Cloud Run:
     Bucket Name = ${success.bucketName}
     Render ID = ${success.renderId}
       `.trim()
-			)
-		);
-	}
+		)
+	);
 };

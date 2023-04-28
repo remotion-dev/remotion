@@ -4,7 +4,6 @@ import type {CloudrunCodec} from '../shared/validate-gcp-codec';
 import {validateCloudrunCodec} from '../shared/validate-gcp-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
 import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
-import {parseCloudRunUrl} from './helpers/parse-cloud-run-url';
 
 export type RenderMediaOnCloudrunInput = {
 	authenticatedRequest: boolean;
@@ -29,12 +28,6 @@ export type RenderMediaOnCloudrunOutput = {
 	status: string;
 	errMessage: string;
 	error: any;
-};
-
-export type RenderMediaOnCloudrunErrOutput = {
-	message: string;
-	error: any;
-	status: string;
 };
 
 /**
@@ -64,12 +57,10 @@ export const renderMediaOnCloudrun = async ({
 	outputBucket,
 	outputFile,
 	updateRenderProgress,
-}: RenderMediaOnCloudrunInput): Promise<any> => {
+}: RenderMediaOnCloudrunInput): Promise<RenderMediaOnCloudrunOutput> => {
 	const actualCodec = validateCloudrunCodec(codec);
 	validateServeUrl(serveUrl);
 	validateCloudRunUrl(cloudRunUrl);
-
-	const cloudRunInfo = parseCloudRunUrl(cloudRunUrl);
 
 	// todo: allow serviceName to be passed in, and fetch the cloud run URL based on the name
 
@@ -86,8 +77,7 @@ export const renderMediaOnCloudrun = async ({
 	if (authenticatedRequest) {
 		const client = await getAuthClientForUrl(cloudRunUrl);
 
-		const dataPromise = new Promise((resolve, reject) => {
-			let response = {};
+		const authenticatedDataPromise = new Promise((resolve, reject) => {
 			client
 				.request({
 					url: cloudRunUrl,
@@ -101,7 +91,7 @@ export const renderMediaOnCloudrun = async ({
 					stream.on('data', (chunk: Buffer) => {
 						const chunkResponse = JSON.parse(chunk.toString());
 						if (chunkResponse.response) {
-							response = chunkResponse.response;
+							authenticatedResponse = chunkResponse.response;
 						} else if (chunkResponse.onProgress) {
 							updateRenderProgress?.(chunkResponse.onProgress);
 						}
@@ -117,48 +107,29 @@ export const renderMediaOnCloudrun = async ({
 				});
 		});
 
-		try {
-			const response = await dataPromise;
-			return response;
-		} catch (e) {
-			return {
-				// TODO: How do we get the project ID?
-				message: `Cloud Run Service failed. View logs at https://console.cloud.google.com/run/detail/${cloudRunInfo.region}/${cloudRunInfo.serviceName}/logs?project={PROJECT_ID}`,
-				error: e,
-				status: 'error',
-			};
-		}
-	} else {
-		const dataPromise = new Promise((resolve, reject) => {
-			let response = {};
-			got.stream
-				.post(cloudRunUrl, {json: data})
-				.on('data', (chunk) => {
-					const chunkResponse = JSON.parse(chunk.toString());
-					if (chunkResponse.response) {
-						response = chunkResponse.response;
-					} else if (chunkResponse.onProgress) {
-						updateRenderProgress?.(chunkResponse.onProgress);
-					}
-				})
-				.on('end', () => {
-					resolve(response);
-				})
-				.on('error', (error) => {
-					reject(error);
-				});
-		});
-
-		try {
-			const response = await dataPromise;
-			return response;
-		} catch (e) {
-			return {
-				// TODO: How do we get the project ID?
-				message: `Cloud Run Service failed. View logs at https://console.cloud.google.com/run/detail/${cloudRunInfo.region}/${cloudRunInfo.serviceName}/logs?project={PROJECT_ID}`,
-				error: e,
-				status: 'error',
-			};
-		}
+		let authenticatedResponse = await authenticatedDataPromise;
+		return authenticatedResponse as RenderMediaOnCloudrunOutput;
 	}
+
+	const dataPromise = new Promise((resolve, reject) => {
+		got.stream
+			.post(cloudRunUrl, {json: data})
+			.on('data', (chunk) => {
+				const chunkResponse = JSON.parse(chunk.toString());
+				if (chunkResponse.response) {
+					response = chunkResponse.response;
+				} else if (chunkResponse.onProgress) {
+					updateRenderProgress?.(chunkResponse.onProgress);
+				}
+			})
+			.on('end', () => {
+				resolve(response);
+			})
+			.on('error', (error) => {
+				reject(error);
+			});
+	});
+
+	let response = await dataPromise;
+	return response as RenderMediaOnCloudrunOutput;
 };
