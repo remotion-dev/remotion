@@ -29,7 +29,6 @@ const scrollable: React.CSSProperties = {
 
 export type EditType = 'inputProps' | 'defaultProps';
 
-// TODO: Note if custom 'remotion-date:' pattern has been used
 export const RenderModalJSONPropsEditor: React.FC<{
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
@@ -75,7 +74,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 					validJSON: parsed.validJSON,
 				});
 			} else {
-				console.log(parsed.error);
 				setLocalValue({
 					str: e.target.value,
 					validJSON: parsed.validJSON,
