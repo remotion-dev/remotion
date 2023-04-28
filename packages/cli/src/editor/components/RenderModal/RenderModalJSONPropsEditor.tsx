@@ -5,32 +5,7 @@ import {useKeybinding} from '../../helpers/use-keybinding';
 import {Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
-import type {SerializedJSONWithDate} from './SchemaEditor/date-serialization';
-import {
-	deserializeJSONWithDate,
-	serializeJSONWithDate,
-} from './SchemaEditor/date-serialization';
-
-type State =
-	| {
-			str: string;
-			value: unknown;
-			validJSON: true;
-	  }
-	| {
-			str: string;
-			validJSON: false;
-			error: string;
-	  };
-
-const parseJSON = (str: string): State => {
-	try {
-		const value = deserializeJSONWithDate(str);
-		return {str, value, validJSON: true};
-	} catch (e) {
-		return {str, validJSON: false, error: (e as Error).message};
-	}
-};
+import type {State} from './RenderModalData';
 
 const style: React.CSSProperties = {
 	fontFamily: 'monospace',
@@ -63,9 +38,9 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	onSave: () => void;
 	valBeforeSafe: unknown;
 	showSaveButton: boolean;
-	setIsCustomDateUsed: React.Dispatch<
-		React.SetStateAction<boolean | undefined>
-	>;
+	localValue: State;
+	setLocalValue: React.Dispatch<React.SetStateAction<State>>;
+	parseJSON: (str: string) => State;
 }> = ({
 	setValue,
 	value,
@@ -74,18 +49,11 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	onSave,
 	valBeforeSafe,
 	showSaveButton,
-	setIsCustomDateUsed,
+	localValue,
+	setLocalValue,
+	parseJSON,
 }) => {
 	const keybindings = useKeybinding();
-
-	const [localValue, setLocalValue] = React.useState<State>(() => {
-		const serializedJSON: SerializedJSONWithDate = serializeJSONWithDate(
-			value,
-			2
-		);
-		setIsCustomDateUsed(serializedJSON.customDateUsed);
-		return parseJSON(serializedJSON.serializedString);
-	});
 
 	const onPretty = useCallback(() => {
 		if (!localValue.validJSON) {
@@ -94,7 +62,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 
 		const parsed = JSON.parse(localValue.str);
 		setLocalValue({...localValue, str: JSON.stringify(parsed, null, 2)});
-	}, [localValue]);
+	}, [localValue, setLocalValue]);
 
 	const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
 		(e) => {
@@ -107,6 +75,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 					validJSON: parsed.validJSON,
 				});
 			} else {
+				console.log(parsed.error);
 				setLocalValue({
 					str: e.target.value,
 					validJSON: parsed.validJSON,
@@ -118,7 +87,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 				setValue(parsed.value);
 			}
 		},
-		[setValue]
+		[parseJSON, setLocalValue, setValue]
 	);
 
 	const hasChanged = useMemo(() => {
