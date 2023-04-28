@@ -9,7 +9,16 @@ import (
 	"github.com/aws/aws-sdk-go/service/lambda"
 )
 
-func invokeLambda(options *RemotionOptions) (interface{}, error) {
+func parseLambdaResponse(response []byte) (map[string]interface{}, error) {
+	var output map[string]interface{}
+	err := json.Unmarshal(response, &output)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse Lambda response: %s", err)
+	}
+	return output, nil
+}
+
+func invokeLambda(options *RemotionOptions) (map[string]interface{}, error) {
 
 	// Create a new AWS session
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
@@ -43,34 +52,19 @@ func invokeLambda(options *RemotionOptions) (interface{}, error) {
 	result, err := svc.Invoke(params)
 
 	if err != nil {
-		println("Result error " + err.Error())
-		return result, err
+		return nil, err
 	}
 
-	// Inspect the response
-	if result.FunctionError != nil {
-		println("Invoke Lambda FunctionError " + *result.FunctionError)
-	}
-
-	// Get the actual response payload
-	response := result.Payload
-
-	fmt.Println("responseXXX")
-	fmt.Println(response)
-
-	// Handle response from Lambda function
-	var output interface{}
-	err = json.Unmarshal(response, &output)
+	// Unmarshal response from Lambda function
+	var output map[string]interface{}
+	err = json.Unmarshal(result.Payload, &output)
 	if err != nil {
 		return nil, err
 	}
 
-	// Do something with the output from Lambda function
-	fmt.Println(output)
-
-	return nil, err
+	return output, nil
 }
 
-func Render(input *RemotionOptions) (interface{}, error) {
+func RenderMedia(input *RemotionOptions) (interface{}, error) {
 	return invokeLambda(input)
 }

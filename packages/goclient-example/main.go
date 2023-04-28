@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -19,14 +20,14 @@ func main() {
 	serveUrl := os.Getenv("REMOTION_APP_SERVER_URL")
 	functionName := os.Getenv("REMOTION_APP_FUNCTION_NAME")
 	region := os.Getenv("REMOTION_APP_REGION")
-	bucketName := os.Getenv("REMOTION_APP_BUCKET")
 
-	println(serveUrl)
 	input := &goclient.RemotionOptions{
-		ServeUrl:              serveUrl,
-		FunctionName:          functionName,
-		Region:                region,
-		InputProps:            nil,
+		ServeUrl:     serveUrl,
+		FunctionName: functionName,
+		Region:       region,
+		InputProps: map[string]interface{}{
+			"data": "Let's play",
+		},
 		Composition:           "main",
 		Type:                  "start",
 		Codec:                 "h264",
@@ -40,9 +41,9 @@ func main() {
 		LogLevel:              "info",
 		FrameRange:            nil,
 		OutName:               nil,
-		TimeoutInMilliseconds: 0,
+		TimeoutInMilliseconds: 30000,
 		ChromiumOptions:       []interface{}{},
-		Scale:                 0,
+		Scale:                 1,
 		EveryNthFrame:         1,
 		NumberOfGifLoops:      0,
 		ConcurrencyPerLambda:  1,
@@ -58,10 +59,33 @@ func main() {
 		ForceWidth:      nil,
 		BucketName:      nil,
 		AudioCodec:      nil,
-		ForceBucketName: bucketName,
+		ForceBucketName: nil,
 	}
-	_, error := goclient.Render(input)
+	response, error := goclient.RenderMedia(input)
+
 	if error != nil {
 		log.Fatal(err)
 	}
+
+	var bucketName string
+	var renderId string
+
+	output, ok := response.(map[string]interface{})
+	if !ok {
+
+		log.Fatal("%s %s", "invalid response format", err)
+	}
+
+	for key, value := range output {
+		switch key {
+		case "bucketName":
+			bucketName, _ = value.(string)
+		case "renderId":
+			renderId, _ = value.(string)
+
+		}
+	}
+
+	fmt.Printf("bucketName: %s\nRenderId: %s\n", bucketName, renderId)
+
 }
