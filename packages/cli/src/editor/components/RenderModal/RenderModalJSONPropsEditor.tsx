@@ -6,6 +6,7 @@ import {Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {State} from './RenderModalData';
+import type {SerializedJSONWithDate} from './SchemaEditor/date-serialization';
 
 const style: React.CSSProperties = {
 	fontFamily: 'monospace',
@@ -37,9 +38,8 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	onSave: () => void;
 	valBeforeSafe: unknown;
 	showSaveButton: boolean;
-	localValue: State;
-	setLocalValue: React.Dispatch<React.SetStateAction<State>>;
 	parseJSON: (str: string) => State;
+	serializedJSON: SerializedJSONWithDate | null;
 }> = ({
 	setValue,
 	value,
@@ -48,11 +48,18 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	onSave,
 	valBeforeSafe,
 	showSaveButton,
-	localValue,
-	setLocalValue,
 	parseJSON,
+	serializedJSON,
 }) => {
+	if (serializedJSON === null) {
+		throw new Error('expecting serializedJSON to be defined');
+	}
+
 	const keybindings = useKeybinding();
+
+	const [localValue, setLocalValue] = React.useState<State>(() => {
+		return parseJSON(serializedJSON.serializedString);
+	});
 
 	const onPretty = useCallback(() => {
 		if (!localValue.validJSON) {
