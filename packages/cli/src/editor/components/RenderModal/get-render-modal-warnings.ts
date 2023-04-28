@@ -28,11 +28,7 @@ const getInputPropsWarning = ({
 	return null;
 };
 
-const getCannotSaveDefaultProps = ({
-	canSaveDefaultProps,
-}: {
-	canSaveDefaultProps: TypeCanSaveState;
-}) => {
+const getCannotSaveDefaultProps = (canSaveDefaultProps: TypeCanSaveState) => {
 	if (canSaveDefaultProps.canUpdate) {
 		return null;
 	}
@@ -41,20 +37,33 @@ const getCannotSaveDefaultProps = ({
 		return null;
 	}
 
-	return `Can't save default props: ${canSaveDefaultProps.reason}`;
+	return `Can't save default props: ${canSaveDefaultProps.reason}.`;
+};
+
+const customDateUsed = (used: boolean | undefined, inJSONEditor: boolean) => {
+	if (used && inJSONEditor) {
+		return "There is a Date in the schema which can't be serialized. It has been converted into a string.";
+	}
+
+	return null;
 };
 
 export const getRenderModalWarnings = ({
 	cliProps,
 	canSaveDefaultProps,
+	isCustomDateUsed,
+	inJSONEditor,
 	propsEditType,
 }: {
 	cliProps: unknown;
 	canSaveDefaultProps: TypeCanSaveState;
+	isCustomDateUsed: boolean | undefined;
+	inJSONEditor: boolean;
 	propsEditType: PropsEditType;
 }) => {
 	return [
 		getInputPropsWarning({cliProps, propsEditType}),
-		getCannotSaveDefaultProps({canSaveDefaultProps}),
+		getCannotSaveDefaultProps(canSaveDefaultProps),
+		customDateUsed(isCustomDateUsed, inJSONEditor),
 	].filter(truthy);
 };
