@@ -336,3 +336,29 @@ test('Two different starting times should not result in big seeking', async () =
 	compositor.finishCommands();
 	await compositor.waitForDone();
 });
+
+test('Memory usage should be determined ', async () => {
+	const compositor = startLongRunningCompositor();
+
+	const memoryUsageBefore = await compositor.executeCommand('MemoryStats', {});
+	const memoryBefore = JSON.parse(memoryUsageBefore.toString('utf-8'));
+	expect(memoryBefore.physical_mem).toBeLessThan(10 * 1024 * 1024);
+
+	await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.bigBuckBunny,
+		time: 3.333,
+		transparent: false,
+	});
+
+	const memoryUsageAfter = await compositor.executeCommand('MemoryStats', {});
+	const parsed = JSON.parse(memoryUsageAfter.toString('utf-8'));
+	expect(parsed.physical_mem).toBeGreaterThan(100 * 1024 * 1024);
+
+	const memoryUsageAfterClean = await compositor.executeCommand(
+		'MemoryStats',
+		{}
+	);
+
+	const afterClosed = JSON.parse(memoryUsageAfterClean.toString('utf-8'));
+	expect(afterClosed.physical_mem).toBeGreaterThan(100 * 1024 * 1024);
+});
