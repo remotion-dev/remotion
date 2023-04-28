@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
+use crate::global_printer::_print_debug;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
@@ -30,12 +31,6 @@ pub fn close_all_videos() -> Result<(), ErrorWithBacktrace> {
     for video_source in video_sources {
         manager.remove_video(&video_source)?;
     }
-    Ok(())
-}
-
-pub fn free_up_memory() -> Result<(), ErrorWithBacktrace> {
-    let manager = OpenedVideoManager::get_instance();
-
     Ok(())
 }
 
