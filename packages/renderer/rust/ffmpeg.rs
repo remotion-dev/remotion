@@ -1,7 +1,6 @@
 use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
-use crate::global_printer::_print_debug;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
@@ -22,17 +21,6 @@ pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
         open_videos,
         open_streams,
     })
-}
-
-pub fn close_all_videos() -> Result<(), ErrorWithBacktrace> {
-    let manager = OpenedVideoManager::get_instance();
-
-    let video_sources: Vec<String> = manager.videos.read()?.keys().cloned().collect();
-    for video_source in video_sources {
-        _print_debug(format!("close {}", video_source).as_str());
-        manager.remove_video(&video_source)?;
-    }
-    Ok(())
 }
 
 pub fn extract_frame(
@@ -181,18 +169,6 @@ impl OpenedVideoManager {
     }
 
     pub fn remove_video(&self, src: &str) -> Result<(), ErrorWithBacktrace> {
-        {
-            self.videos
-                .read()?
-                .get(src)
-                .cloned()
-                .unwrap()
-                .lock()
-                .unwrap()
-                .close()?;
-            _print_debug("video removed");
-        }
-
         let mut vid = self.videos.write()?;
         vid.remove(src);
         Ok(())
