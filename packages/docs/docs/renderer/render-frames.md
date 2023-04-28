@@ -77,11 +77,11 @@ Either a Webpack bundle or a URL pointing to a bundled Remotion project. Call [`
 
 ### `imageFormat`
 
-A `string` which must be either `png`, `jpeg` or `none`.
+_optional_
 
-- Choose `jpeg` by default because it is the fastest.
-- Choose `png` if you want your image sequence to have an alpha channel (for transparency).
-- Choose `none` if you only want to render audio.
+Is `jpeg` per default, as its faster than `png`.
+
+Choose `png` if you want your image sequence to have an alpha channel (for transparency).
 
 ### `concurrency?`
 

@@ -149,3 +149,7 @@ If this happens now and the error is not handled, the render will be aborted and
 ## `crf` is not allowed for GIFs anymore
 
 Previously you were able to set a value for `crf` when rendering a GIF. This was a mistake and GIF does not support them.
+
+## Default image format for `renderFrames()`
+
+When nothing is specified, `renderFrames()` now takes `jpeg` as default image format.
