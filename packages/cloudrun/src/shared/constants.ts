@@ -4,6 +4,7 @@ export const DEFAULT_REGION: GcpRegion = 'us-east1';
 export const BINARY_NAME = 'remotion cloudrun';
 
 export const REMOTION_BUCKET_PREFIX = 'remotioncloudrun-';
+export const RENDER_SERVICE_PREFIX = 'remotion';
 
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 

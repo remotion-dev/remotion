@@ -220,6 +220,22 @@ module.exports = {
     },
     {
       type: "category",
+      label: "@remotion/cloudrun",
+      link: {
+        type: "doc",
+        id: "cloudrun/api",
+      },
+      items: [
+        {
+          type: "link",
+          href: "/docs/cloudrun/cli",
+          label: "CLI Reference",
+        },
+        "cloudrun/getservices",
+      ],
+    },
+    {
+      type: "category",
       label: "@remotion/three",
       link: {
         type: "doc",

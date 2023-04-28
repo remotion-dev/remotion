@@ -1,7 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../shared/constants';
 import {RENDER_COMMAND} from './commands/render';
-import {CLOUD_RUN_COMMAND} from './commands/services';
+import {SERVICES_COMMAND} from './commands/services';
 import {SITES_COMMAND} from './commands/sites';
 import {Log} from './log';
 
@@ -28,7 +28,7 @@ export const printHelp = () => {
 	Log.info(CliInternals.chalk.gray('Deploy and manage Remotion projects.'));
 
 	Log.info();
-	Log.info(`${BINARY_NAME} ${CLOUD_RUN_COMMAND}`);
+	Log.info(`${BINARY_NAME} ${SERVICES_COMMAND}`);
 	Log.info(
 		CliInternals.chalk.gray('Deploy and manage Cloud Run services on GCP.')
 	);

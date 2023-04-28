@@ -146,7 +146,7 @@ values={[
 Deploy a service that can render videos into your GCP project by executing the following command:
 
 ```bash
-npx remotion cloudrun service deploy
+npx remotion cloudrun services deploy
 ```
 
 </TabItem>

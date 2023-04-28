@@ -2,7 +2,7 @@ import {CliInternals} from '@remotion/cli';
 
 import type {GcpRegion} from '../pricing/gcp-regions';
 
-type CloudrunCommandLineOptions = {
+type servicesCommandLineOptions = {
 	help: boolean;
 	region: GcpRegion;
 	['project-id']: string;
@@ -20,7 +20,7 @@ type CloudrunCommandLineOptions = {
 };
 
 export const parsedCloudrunCli =
-	CliInternals.minimist<CloudrunCommandLineOptions>(process.argv.slice(2), {
+	CliInternals.minimist<servicesCommandLineOptions>(process.argv.slice(2), {
 		boolean: CliInternals.BooleanFlags,
 	});
 
