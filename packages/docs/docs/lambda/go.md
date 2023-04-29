@@ -1,3 +1,21 @@
+---
+title: Triggering renders from Go
+slug: /lambda/php
+sidebar_label: Rendering from Go
+crumb: "@remotion/lambda"
+---
+
+To trigger a Lambda render using Go, you will need to utilize, a go package. Note the following:
+
+- You first need to [complete the Lambda setup](/docs/lambda/setup).
+- Sending large input props (>200KB) is not supported with Go at the moment.
+
+
+:::warning
+The go package utilised on this example is in early stage of development.
+:::
+
+```go title="main.go"
 package main
 
 import (
@@ -93,3 +111,21 @@ func main() {
 	fmt.Printf("bucketName: %s\nRenderId: %s\n", bucketName, renderId)
 
 }
+
+```
+
+## Reference applications
+
+ Reference projects are available:
+
+- Ensure that [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) is already deployed on your AWS Account.
+
+
+## Checking progress
+
+For retrieving the progress of a Lambda render, you need to send another request to the Lambda function. Currently we do not have instructions for it, as a reference you may see [here](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-render-progress.ts) for the payload that is being sent by the TypeScript SDK.
+
+## See also
+
+- [Using Lambda without IAM user](/docs/lambda/without-iam)
+- [Permissions](/docs/lambda/permissions)

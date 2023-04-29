@@ -60,6 +60,6 @@ func invokeLambda(options RemotionOptions) (map[string]interface{}, error) {
 	return output, nil
 }
 
-func RenderMedia(input RemotionOptions) (interface{}, error) {
+func RenderMediaOnLambda(input RemotionOptions) (interface{}, error) {
 	return invokeLambda(input)
 }
