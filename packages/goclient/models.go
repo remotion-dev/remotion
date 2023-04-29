@@ -1,18 +1,18 @@
 package goclient
 
 type RemotionOptions struct {
-	ServeUrl              string                 `json:"serveUrl"`
-	FunctionName          string                 `json:"functionName"`
-	Region                string                 `json:"region"`
+	ServeUrl              string                 `json:"serveUrl" validate:"required"`
+	FunctionName          string                 `json:"functionName" validate:"required"`
+	Region                string                 `json:"region" validate:"required"`
 	InputProps            interface{}            `json:"inputProps"`
-	Composition           string                 `json:"composition"`
+	Composition           string                 `json:"composition" validate:"required"`
 	Type                  string                 `json:"type"`
 	Codec                 string                 `json:"codec"`
 	Version               string                 `json:"version"`
 	ImageFormat           string                 `json:"imageFormat"`
 	Crf                   int                    `json:"crf"`
 	EnvVariables          []interface{}          `json:"envVariables"`
-	Quality               int                    `json:"quality"`
+	Quality               int                    `json:"quality" validate:"required,min=1,max=100"`
 	MaxRetries            int                    `json:"maxRetries"`
 	Privacy               string                 `json:"privacy"`
 	LogLevel              string                 `json:"logLevel"`

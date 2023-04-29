@@ -2,23 +2,13 @@ package goclient
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
 )
 
-func parseLambdaResponse(response []byte) (map[string]interface{}, error) {
-	var output map[string]interface{}
-	err := json.Unmarshal(response, &output)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse Lambda response: %s", err)
-	}
-	return output, nil
-}
-
-func invokeLambda(options *RemotionOptions) (map[string]interface{}, error) {
+func invokeLambda(options RemotionOptions) (map[string]interface{}, error) {
 
 	// Create a new AWS session
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
@@ -36,7 +26,12 @@ func invokeLambda(options *RemotionOptions) (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	internalParams := constructInternals(options)
+	internalParams, validateError := constructInternals(options)
+
+	if validateError != nil {
+		return nil, validateError
+	}
+
 	internalParamByte, err := json.Marshal(internalParams)
 	if err != nil {
 
@@ -65,6 +60,6 @@ func invokeLambda(options *RemotionOptions) (map[string]interface{}, error) {
 	return output, nil
 }
 
-func RenderMedia(input *RemotionOptions) (interface{}, error) {
+func RenderMedia(input RemotionOptions) (interface{}, error) {
 	return invokeLambda(input)
 }

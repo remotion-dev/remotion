@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/remotion-dev/remotion/packages/goclient"
 )
@@ -21,7 +22,7 @@ func main() {
 	functionName := os.Getenv("REMOTION_APP_FUNCTION_NAME")
 	region := os.Getenv("REMOTION_APP_REGION")
 
-	input := &goclient.RemotionOptions{
+	input := goclient.RemotionOptions{
 		ServeUrl:     serveUrl,
 		FunctionName: functionName,
 		Region:       region,
@@ -35,7 +36,7 @@ func main() {
 		ImageFormat:           "jpeg",
 		Crf:                   1,
 		EnvVariables:          []interface{}{},
-		Quality:               80,
+		Quality:               101,
 		MaxRetries:            1,
 		Privacy:               "public",
 		LogLevel:              "info",
@@ -64,7 +65,18 @@ func main() {
 	response, error := goclient.RenderMedia(input)
 
 	if error != nil {
-		log.Fatal(err)
+
+		out := make([]ApiError, len(error.(validator.ValidationErrors)))
+
+		for i, fieldError := range error.(validator.ValidationErrors) {
+			out[i] = ApiError{fieldError.Field(), msgForTag(fieldError)}
+		}
+
+		for _, apiError := range out {
+			fmt.Printf("%s: %s\n", apiError.Param, apiError.Message)
+		}
+		return
+
 	}
 
 	var bucketName string
@@ -88,4 +100,19 @@ func main() {
 
 	fmt.Printf("bucketName: %s\nRenderId: %s\n", bucketName, renderId)
 
+}
+
+type ApiError struct {
+	Param   string
+	Message string
+}
+
+func msgForTag(fe validator.FieldError) string {
+	switch fe.Tag() {
+	case "required":
+		return "This field is required"
+	case "email":
+		return "Invalid email"
+	}
+	return fe.Error() // default error
 }
