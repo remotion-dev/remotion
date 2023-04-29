@@ -19,8 +19,7 @@ func msgForTag(fe validator.FieldError) string {
 	switch fe.Tag() {
 	case "required":
 		return "This field is required"
-	case "email":
-		return "Invalid email"
+
 	}
 	return fe.Error() // default error
 }
@@ -84,11 +83,12 @@ func main() {
 		validationOut := make([]ValidationError, len(error.(validator.ValidationErrors)))
 
 		for i, fieldError := range error.(validator.ValidationErrors) {
+			//println(fieldError.Value().(int))
 			validationOut[i] = ValidationError{fieldError.Field(), msgForTag(fieldError)}
 		}
 
 		for _, apiError := range validationOut {
-			fmt.Printf("%s: %s\n", apiError.Param, apiError.Message)
+			fmt.Printf("%s: %s\n", apiError.Field, apiError.Message)
 		}
 		return
 
