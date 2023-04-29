@@ -14,4 +14,3 @@ packages/example/out
 .vercel
 packages/renderer/target
 packages/example/sa-key.json
-goclient-example
