@@ -3,7 +3,7 @@ package goclient
 import (
 	"strconv"
 
-	"github.com/go-playground/validator"
+	"github.com/go-playground/validator/v10"
 )
 
 func qualityRange(fl validator.FieldLevel) bool {
