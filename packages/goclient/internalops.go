@@ -14,7 +14,7 @@ func constructInternals(options RemotionOptions) (*internalOptions, error) {
 		log.Fatal("Error in serializing input props", serializeError)
 	}
 	validate := validator.New()
-
+	validate.RegisterValidation("privacyTypeValidator", privacyTypeValidator)
 	validationErrors := validate.Struct(options)
 	if validationErrors != nil {
 
@@ -27,7 +27,6 @@ func constructInternals(options RemotionOptions) (*internalOptions, error) {
 		Composition:           options.Composition,
 		Region:                options.Region,
 		Type:                  options.Type,
-		Codec:                 options.Codec,
 		Version:               options.Version,
 		ImageFormat:           options.ImageFormat,
 		Crf:                   options.Crf,
@@ -55,6 +54,10 @@ func constructInternals(options RemotionOptions) (*internalOptions, error) {
 		BucketName:            options.BucketName,
 		AudioCodec:            options.AudioCodec,
 		ForceBucketName:       options.ForceBucketName,
+	}
+
+	if &options.Codec == nil {
+		internalParams.Codec = "h264"
 	}
 
 	return internalParams, nil
