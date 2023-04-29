@@ -25,7 +25,7 @@ type RemotionOptions struct {
 	ImageFormat           string                 `json:"imageFormat"`
 	Crf                   int                    `json:"crf"`
 	EnvVariables          []interface{}          `json:"envVariables"`
-	Quality               int                    `json:"quality" validate:"required,min=1,max=100"`
+	Quality               int                    `json:"quality"`
 	MaxRetries            int                    `json:"maxRetries"`
 	Privacy               PrivacyType            `json:"privacy" validate:"required,privacyTypeValidator"`
 	LogLevel              string                 `json:"logLevel"`
