@@ -1,25 +1,11 @@
 package goclient
 
-type PrivacyType string
-
-const (
-	Public  PrivacyType = "public"
-	Private PrivacyType = "private"
-	NoACL   PrivacyType = "no-acl"
-)
-
-/*
-*
-
-	TODO Validation rules
-*/
 type RemotionOptions struct {
 	ServeUrl              string                 `json:"serveUrl" validate:"required"`
 	FunctionName          string                 `json:"functionName" validate:"required"`
 	Region                string                 `json:"region" validate:"required"`
 	InputProps            interface{}            `json:"inputProps"`
 	Composition           string                 `json:"composition" validate:"required"`
-	Type                  string                 `json:"type" validate:"required"`
 	Codec                 string                 `json:"codec"`
 	Version               string                 `json:"version"`
 	ImageFormat           string                 `json:"imageFormat"`
@@ -27,7 +13,7 @@ type RemotionOptions struct {
 	EnvVariables          []interface{}          `json:"envVariables"`
 	Quality               int                    `json:"quality"`
 	MaxRetries            int                    `json:"maxRetries"`
-	Privacy               PrivacyType            `json:"privacy" validate:"required,privacyTypeValidator"`
+	Privacy               string                 `json:"privacy"`
 	LogLevel              string                 `json:"logLevel"`
 	FrameRange            interface{}            `json:"frameRange"`
 	OutName               interface{}            `json:"outName"`
@@ -64,7 +50,7 @@ type internalOptions struct {
 	EnvVariables          []interface{}
 	Quality               int
 	MaxRetries            int                    `json:"maxRetries"`
-	Privacy               PrivacyType            `json:"privacy"`
+	Privacy               string                 `json:"privacy"`
 	LogLevel              string                 `json:"logLevel"`
 	FrameRange            interface{}            `json:"frameRange"`
 	OutName               interface{}            `json:"outName"`

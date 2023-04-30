@@ -14,7 +14,6 @@ func constructInternals(options RemotionOptions) (*internalOptions, error) {
 		log.Fatal("Error in serializing input props", serializeError)
 	}
 	validate := validator.New()
-	validate.RegisterValidation("privacyTypeValidator", privacyTypeValidator)
 	validationErrors := validate.Struct(options)
 	if validationErrors != nil {
 
@@ -26,12 +25,8 @@ func constructInternals(options RemotionOptions) (*internalOptions, error) {
 		InputProps:       inputProps,
 		Composition:      options.Composition,
 		Region:           options.Region,
-		Type:             options.Type,
+		Type:             "start",
 		Version:          options.Version,
-		ImageFormat:      options.ImageFormat,
-		Crf:              options.Crf,
-		EnvVariables:     options.EnvVariables,
-		Privacy:          options.Privacy,
 		LogLevel:         options.LogLevel,
 		FrameRange:       options.FrameRange,
 		OutName:          options.OutName,
@@ -49,8 +44,24 @@ func constructInternals(options RemotionOptions) (*internalOptions, error) {
 
 	/*
 		Default values
+		TODO: Validation for values
 	*/
 
+	if &options.Codec == nil {
+		internalParams.Codec = "h264"
+	}
+	if &options.ImageFormat == nil {
+		internalParams.ImageFormat = "jpeg"
+	}
+	if &options.Crf == nil {
+		internalParams.Crf = 1
+	}
+	if &options.Privacy == nil {
+		internalParams.Privacy = "public"
+	}
+	if &options.Privacy == nil {
+		internalParams.LogLevel = "info"
+	}
 	if &options.Scale == nil {
 		internalParams.Scale = 1
 	}

@@ -32,26 +32,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	serveUrl := os.Getenv("REMOTION_APP_SERVER_URL")
+	// Specify the URL to your Webpack bundle
+	serveUrl := os.Getenv("REMOTION_APP_SERVE_URL")
+	// Specify the function you would like to call
 	functionName := os.Getenv("REMOTION_APP_FUNCTION_NAME")
+	// Specify the region you deployed to, for example "us-east-1"
 	region := os.Getenv("REMOTION_APP_REGION")
 
 	input := goclient.RemotionOptions{
 		ServeUrl:     serveUrl,
 		FunctionName: functionName,
 		Region:       region,
+		// The data that composition will use
 		InputProps: map[string]interface{}{
 			"data": "Let's play",
 		},
-		Composition: "main",
-		Type:        "start",
-		Codec:       "h264",
-		Version:     "3.3.78",
-		ImageFormat: "jpeg",
-		Crf:         1,
-		Privacy:     "public",
-		LogLevel:    "info",
-		Scale:       1,
+		Composition: "main",   // The composition to use
+		Version:     "3.3.78", // Specify the Remotion version to use
 	}
 	response, error := goclient.RenderMediaOnLambda(input)
 
