@@ -71,7 +71,7 @@ The looping behavior of the GIF. Can be one of these values:
 - `'pause-after-finish'`: The GIF will play once and then show the last frame.
 - `'unmount-after-finish'`: The GIF will play once and then unmount. Note that if you attach a `ref`, it will become `null` after the GIF has finished playing.
 
-### `ref` <AvailableFrom v="3.4.88" />
+### `ref` <AvailableFrom v="3.3.88" />
 
 You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to `<Gif>`. If you use TypeScript, you need to type it with `HTMLCanvasElement`.
 
