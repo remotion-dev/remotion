@@ -21,132 +21,130 @@ func constructInternals(options *RemotionOptions) (*internalOptions, error) {
 	}
 
 	internalParams := internalOptions{
-		ServeUrl:         options.ServeUrl,
-		InputProps:       inputProps,
-		Composition:      options.Composition,
-		Region:           options.Region,
-		Type:             "start",
-		Version:          options.Version,
-		FrameRange:       options.FrameRange,
-		OutName:          options.OutName,
-		DownloadBehavior: options.DownloadBehavior,
-		AudioBitrate:     options.AudioBitrate,
-		VideoBitrate:     options.VideoBitrate,
-		Webhook:          options.Webhook,
-		ForceHeight:      options.ForceHeight,
-		ForceWidth:       options.ForceWidth,
-		BucketName:       options.BucketName,
-		AudioCodec:       options.AudioCodec,
-		ForceBucketName:  options.ForceBucketName,
+		ServeUrl:        options.ServeUrl,
+		InputProps:      inputProps,
+		Composition:     options.Composition,
+		Region:          options.Region,
+		Type:            "start",
+		Version:         options.Version,
+		FrameRange:      options.FrameRange,
+		OutName:         options.OutName,
+		AudioBitrate:    options.AudioBitrate,
+		VideoBitrate:    options.VideoBitrate,
+		Webhook:         options.Webhook,
+		ForceHeight:     options.ForceHeight,
+		ForceWidth:      options.ForceWidth,
+		BucketName:      options.BucketName,
+		AudioCodec:      options.AudioCodec,
+		ForceBucketName: options.ForceBucketName,
 	}
 
-	/**
-	Crf:                   1,
-	EnvVariables:          []interface{}{},
-	Quality:               101,
-	MaxRetries:            1,
-	Privacy:               "public",
-	LogLevel:              "info",
-	FrameRange:            nil,
-	OutName:               nil,
-	TimeoutInMilliseconds: 30000,
-	ChromiumOptions:       []interface{}{},
-	Scale:                 1,
-	EveryNthFrame:         1,
-	NumberOfGifLoops:      0,
-	ConcurrencyPerLambda:  1,
-	DownloadBehavior: map[string]interface{}{
-		"type": "play-in-browser",
-	},
-	Muted:           false,
-	Overwrite:       false,
-	AudioBitrate:    nil,
-	VideoBitrate:    nil,
-	Webhook:         nil,
-	ForceHeight:     nil,
-	ForceWidth:      nil,
-	BucketName:      nil,
-	AudioCodec:      nil,
-	ForceBucketName: nil,
-
-	**/
-	/*
-		Default values
-		TODO: Validation for values
-	*/
-
-	if &options.Codec == nil || options.Codec == "" {
+	internalParams.Muted = options.Muted
+	internalParams.Overwrite = options.Overwrite
+	if options.Codec == "" {
 		internalParams.Codec = "h264"
+	} else {
+		internalParams.Codec = options.Codec
 	}
-
-	if &options.EveryNthFrame == nil || options.EveryNthFrame == 0 {
+	if options.EveryNthFrame == 0 {
 		internalParams.EveryNthFrame = 1
+	} else {
+		internalParams.EveryNthFrame = options.EveryNthFrame
 	}
 
-	if &options.ImageFormat == nil || options.ImageFormat == "" {
+	if options.ImageFormat == "" {
 		internalParams.ImageFormat = "jpeg"
+	} else {
+		internalParams.ImageFormat = options.ImageFormat
 	}
-	if &options.Crf == nil || options.Crf == 0 {
+	if options.Crf == 0 {
 		internalParams.Crf = 1
+	} else {
+		internalParams.Crf = options.Crf
 	}
-	if &options.Privacy == nil || options.Privacy == "" {
+	if options.Privacy == "" {
 		internalParams.Privacy = "public"
+	} else {
+		internalParams.Privacy = options.Privacy
 	}
-	if &options.Privacy == nil || options.Privacy == "" {
+	if options.LogLevel == "" {
 		internalParams.LogLevel = "info"
+	} else {
+		internalParams.LogLevel = options.LogLevel
 	}
-	if &options.Scale == nil || options.Scale == 0 {
+
+	if options.Scale == 0 {
 		internalParams.Scale = 1
+	} else {
+		internalParams.Scale = options.Scale
 	}
-	if &options.Crf == nil || options.Crf == 0 {
+
+	if options.Crf == 0 {
 		internalParams.Crf = 1
+	} else {
+		internalParams.Crf = options.Crf
 	}
-	if &options.Codec == nil || options.Codec == "" {
+
+	if options.Codec == "" {
 		internalParams.Codec = "h264"
+	} else {
+		internalParams.Codec = options.Codec
 	}
-	if &options.MaxRetries == nil || options.MaxRetries == 0 {
+
+	if options.MaxRetries == 0 {
 		internalParams.MaxRetries = 3
+	} else {
+		internalParams.MaxRetries = options.MaxRetries
 	}
-	if &options.Quality == nil || options.Quality == 0 {
+
+	if options.Quality == 0 {
 		internalParams.Quality = 80
+	} else {
+		internalParams.Quality = options.Quality
 	}
-	if &options.Scale == nil {
+
+	if options.Scale == 0 {
 		internalParams.Scale = 1
+	} else {
+		internalParams.Scale = options.Scale
 	}
-	if &options.Muted == nil {
-		internalParams.Muted = false
-	}
-	if &options.Overwrite == nil {
-		internalParams.Overwrite = false
-	}
-	if &options.ConcurrencyPerLambda == nil || options.ConcurrencyPerLambda == 0 {
+
+	if options.ConcurrencyPerLambda == 0 {
 		internalParams.ConcurrencyPerLambda = 1
+	} else {
+		internalParams.ConcurrencyPerLambda = options.ConcurrencyPerLambda
 	}
-	if &options.TimeoutInMilliseconds == nil || options.TimeoutInMilliseconds == 0 {
-		internalParams.TimeoutInMilliseconds = 300000
+
+	if options.TimeoutInMilliseconds == 0 {
+		internalParams.TimeoutInMilliseconds = 30000
+	} else {
+		internalParams.TimeoutInMilliseconds = options.TimeoutInMilliseconds
 	}
-	if &options.NumberOfGifLoops == nil || options.NumberOfGifLoops == 0 {
-		internalParams.NumberOfGifLoops = 0
+	internalParams.NumberOfGifLoops = options.NumberOfGifLoops
+
+	if options.Gl == "" {
+		internalParams.Gl = "swangle"
+	} else {
+		internalParams.Gl = options.Gl
 	}
+
 	if &options.DownloadBehavior == nil {
 		internalParams.DownloadBehavior = map[string]interface{}{
 			"type": "play-in-browser",
 		}
+	} else {
+		internalParams.DownloadBehavior = options.DownloadBehavior
 	}
 	if &options.ChromiumOptions == nil {
 		internalParams.ChromiumOptions = []interface{}{}
+	} else {
+		internalParams.ChromiumOptions = options.ChromiumOptions
 	}
 
 	if &options.EnvVariables == nil {
 		internalParams.EnvVariables = []interface{}{}
-	}
-
-	if &options.Gl == nil || options.Gl == "" {
-		internalParams.Gl = "swangle"
-	}
-
-	if &options.LogLevel == nil || options.LogLevel == "" {
-		internalParams.LogLevel = "info"
+	} else {
+		internalParams.EnvVariables = options.EnvVariables
 	}
 
 	return &internalParams, nil
