@@ -34,6 +34,7 @@ type RemotionOptions struct {
 	BucketName            interface{}            `json:"bucketName"`
 	AudioCodec            interface{}            `json:"audioCodec"`
 	ForceBucketName       *string                `json:"forceBucketName"`
+	Gl                    string                 `json:"gl"`
 }
 
 type internalOptions struct {
@@ -71,6 +72,7 @@ type internalOptions struct {
 	BucketName            interface{}            `json:"bucketName"`
 	AudioCodec            interface{}            `json:"audioCodec"`
 	ForceBucketName       *string                `json:"forceBucketName"`
+	Gl                    string                 `json:"gl"`
 }
 
 type RemotionRenderResponse struct {

@@ -26,7 +26,7 @@ func invokeLambda(options RemotionOptions) (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	internalParams, validateError := constructInternals(options)
+	internalParams, validateError := constructInternals(&options)
 
 	if validateError != nil {
 		return nil, validateError
