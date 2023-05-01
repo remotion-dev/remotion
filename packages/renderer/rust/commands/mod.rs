@@ -22,6 +22,14 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             hi.unwrap();
             Ok(vec![])
         }
+        CliInputCommandPayload::FreeUpMemory(payload) => {
+            ffmpeg::free_up_memory(payload.percent_of_memory)?;
+            Ok(vec![])
+        }
+        CliInputCommandPayload::CloseAllVideos(_) => {
+            ffmpeg::close_all_videos()?;
+            Ok(vec![])
+        }
         CliInputCommandPayload::StartLongRunningProcess(_command) => Err(std::io::Error::new(
             ErrorKind::Other,
             "Cannot start long running process as command",

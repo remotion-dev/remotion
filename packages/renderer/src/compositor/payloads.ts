@@ -51,9 +51,14 @@ export type CompositorCommand = {
 	};
 	StartLongRunningProcess: {
 		concurrency: number;
+		maximum_frame_cache_items: number;
 	};
 	GetOpenVideoStats: {};
 	DeliberatePanic: {};
+	CloseAllVideos: {};
+	FreeUpMemory: {
+		percent_of_memory: number;
+	};
 };
 
 export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {

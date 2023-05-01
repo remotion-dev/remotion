@@ -1,11 +1,13 @@
 use std::{
     io::ErrorKind,
     sync::{Arc, Mutex},
+    time::SystemTime,
 };
 
 use ffmpeg_next::Rational;
 use remotionffmpeg::{format::Pixel, frame::Video, media::Type, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
+use std::time::UNIX_EPOCH;
 
 use crate::{
     errors::ErrorWithBacktrace,
@@ -37,6 +39,13 @@ pub struct OpenedStream {
 
 pub fn calc_position(time: f64, time_base: Rational) -> i64 {
     (time * time_base.1 as f64 / time_base.0 as f64) as i64
+}
+
+pub fn get_time() -> u128 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("time went backwards")
+        .as_millis()
 }
 
 impl OpenedStream {
@@ -100,6 +109,7 @@ impl OpenedStream {
                         frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
                         asked_time: position,
+                        last_used: get_time(),
                     };
 
                     frame_cache.lock()?.add_item(item);
@@ -226,6 +236,7 @@ impl OpenedStream {
                             frame: ScalableFrame::new(frame, self.transparent),
                             id: frame_cache_id,
                             asked_time: position,
+                            last_used: get_time(),
                         };
 
                         frame_cache.lock().unwrap().add_item(item);
