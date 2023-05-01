@@ -33,6 +33,7 @@ import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
 	NoSchemaDefined,
+	ZodNotInstalled,
 } from './SchemaEditor/SchemaErrorMessages';
 import {WarningIndicatorButton} from './WarningIndicatorButton';
 
@@ -302,8 +303,7 @@ export const RenderModalData: React.FC<{
 	}
 
 	if (schema === 'no-zod') {
-		// TODO: Make nicer modal for Zod
-		return <div>Install zod</div>;
+		return <ZodNotInstalled />;
 	}
 
 	if (!z) {

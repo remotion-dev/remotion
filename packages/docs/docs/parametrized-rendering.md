@@ -74,7 +74,45 @@ Default props are useful so you don't preview your video with no data. Default p
 
 ## Define a schema <AvailableFrom v="4.0.0"/>
 
-You can use [`z`](https://github.com/colinhacks/zod) to define a typesafe schema for your composition.
+You can use [Zod](https://github.com/colinhacks/zod) to define a typesafe schema for your composition.
+
+Install Zod using:
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i zod @remotion/zod-types
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add zod @remotion/zod-types
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm i zod @remotion/zod-types
+```
+
+  </TabItem>
+</Tabs>
 
 ```tsx twoslash title="MyComp.tsx"
 import { z } from "zod";
