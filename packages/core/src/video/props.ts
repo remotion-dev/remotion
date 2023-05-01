@@ -23,7 +23,7 @@ type DeprecatedOffthreadVideoProps = {
 	/**
 	 * @deprecated Use the `transparent` prop instead
 	 */
-	imageFormat: never;
+	imageFormat?: never;
 };
 
 export type OffthreadVideoProps = {
