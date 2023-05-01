@@ -139,11 +139,27 @@ fn open_stream(
 }
 
 impl OpenedVideo {
+    pub fn close(&mut self) -> Result<(), ErrorWithBacktrace> {
+        self.opened_streams = vec![];
+
+        Ok(())
+    }
     pub fn open_new_stream(&mut self, transparent: bool) -> Result<usize, ErrorWithBacktrace> {
         let (opened_stream, _, _) = open_stream(&self.src, transparent)?;
         let arc_mutex = Arc::new(Mutex::new(opened_stream));
         self.opened_streams.push(arc_mutex);
         return Ok(self.opened_streams.len() - 1);
+    }
+
+    pub fn close_video_if_frame_cache_empty(&mut self) -> Result<bool, ErrorWithBacktrace> {
+        if self.transparent_frame_cache.lock()?.is_empty()
+            && self.opaque_frame_cache.lock()?.is_empty()
+        {
+            self.close()?;
+            Ok(true)
+        } else {
+            Ok(false)
+        }
     }
 
     pub fn get_frame_cache(&self, transparent: bool) -> Arc<Mutex<FrameCache>> {
@@ -152,6 +168,14 @@ impl OpenedVideo {
         } else {
             self.opaque_frame_cache.clone()
         }
+    }
+
+    pub fn get_cache_size(&self) -> Result<usize, ErrorWithBacktrace> {
+        Ok(self
+            .transparent_frame_cache
+            .lock()?
+            .get_cache_item_count()
+            .saturating_add(self.opaque_frame_cache.lock()?.get_cache_item_count()))
     }
 
     pub fn get_cache_item_from_id(

@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
+use crate::frame_cache::FrameCacheReference;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
@@ -16,11 +17,39 @@ pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
     let open_videos = manager.get_open_videos()?;
     let open_streams = manager.get_open_video_streams()?;
+    let frames_in_cache = manager.get_frames_in_cache()?;
 
     Ok(OpenVideoStats {
         open_videos,
         open_streams,
+        frames_in_cache,
     })
+}
+
+pub fn close_all_videos() -> Result<(), ErrorWithBacktrace> {
+    let manager = OpenedVideoManager::get_instance();
+
+    let video_sources: Vec<String> = manager.videos.read()?.keys().cloned().collect();
+    for video_source in video_sources {
+        manager.remove_video(&video_source)?;
+    }
+    Ok(())
+}
+
+pub fn free_up_memory(ratio: f64) -> Result<(), ErrorWithBacktrace> {
+    let manager = OpenedVideoManager::get_instance();
+
+    manager.prune_oldest(ratio)?;
+
+    Ok(())
+}
+
+pub fn keep_only_latest_frames(frames: usize) -> Result<(), ErrorWithBacktrace> {
+    let manager = OpenedVideoManager::get_instance();
+
+    manager.only_keep_n_frames(frames)?;
+
+    Ok(())
 }
 
 pub fn extract_frame(
@@ -134,10 +163,79 @@ impl OpenedVideoManager {
         return Ok(self.videos.read()?.len());
     }
 
+    fn get_frame_references(&self) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
+        let mut vec: Vec<FrameCacheReference> = Vec::new();
+        // 0..2 loops twice, not 0..1
+        for i in 0..2 {
+            let transparent = i == 0;
+            for video in self.videos.read()?.values() {
+                let video_locked = video.lock()?;
+                let frame_cache = video_locked.get_frame_cache(transparent);
+                let frame_cache_locked = frame_cache.lock()?;
+                let references =
+                    frame_cache_locked.get_references(video_locked.src.clone(), transparent)?;
+                for reference in references {
+                    vec.push(reference);
+                }
+            }
+        }
+
+        return Ok(vec);
+    }
+
+    pub fn only_keep_n_frames(&self, n_frames: usize) -> Result<(), ErrorWithBacktrace> {
+        let references = self.get_frame_references()?;
+        // Pay attention to underflow, usize is unsigned
+        if references.len() < n_frames {
+            return Ok(());
+        }
+        let to_remove = references.len() - n_frames;
+        self.prune(to_remove)
+    }
+
+    pub fn prune_oldest(&self, ratio: f64) -> Result<(), ErrorWithBacktrace> {
+        let references = self.get_frame_references()?;
+        let oldest_n = (references.len() as f64 * ratio).ceil() as usize;
+        self.prune(oldest_n)
+    }
+
+    pub fn prune(&self, oldest_n: usize) -> Result<(), ErrorWithBacktrace> {
+        let references = self.get_frame_references()?;
+        let mut sorted = references.clone();
+        sorted.sort_by(|a, b| a.last_used.cmp(&b.last_used));
+        let mut to_remove: Vec<FrameCacheReference> = Vec::new();
+        for i in 0..oldest_n {
+            to_remove.push(sorted[i].clone());
+        }
+        for removal in to_remove {
+            let video_locked = self.get_video(&removal.src, removal.transparent)?;
+            let mut video = video_locked.lock()?;
+            video
+                .get_frame_cache(removal.transparent)
+                .lock()?
+                .remove_item_by_id(removal.id)?;
+
+            let closed = video.close_video_if_frame_cache_empty()?;
+            if closed {
+                self.videos.write()?.remove(&video.src);
+            }
+        }
+
+        Ok(())
+    }
+
     pub fn get_open_video_streams(&self) -> Result<usize, ErrorWithBacktrace> {
         let mut count = 0;
         for video in self.videos.read()?.values() {
             count += video.lock()?.opened_streams.len();
+        }
+        return Ok(count);
+    }
+
+    pub fn get_frames_in_cache(&self) -> Result<usize, ErrorWithBacktrace> {
+        let mut count = 0;
+        for video in self.videos.read()?.values() {
+            count += video.lock()?.get_cache_size()?;
         }
         return Ok(count);
     }
@@ -168,9 +266,20 @@ impl OpenedVideoManager {
         Ok(self.videos.read()?.get(src).unwrap().clone())
     }
 
-    pub fn remove_video(&self, src: String) -> Result<(), ErrorWithBacktrace> {
+    pub fn remove_video(&self, src: &str) -> Result<(), ErrorWithBacktrace> {
+        {
+            self.videos
+                .read()?
+                .get(src)
+                .cloned()
+                .unwrap()
+                .lock()
+                .unwrap()
+                .close()?;
+        }
+
         let mut vid = self.videos.write()?;
-        vid.remove(&src);
+        vid.remove(src);
         Ok(())
     }
 }
