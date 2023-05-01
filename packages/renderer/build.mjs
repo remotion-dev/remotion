@@ -260,9 +260,7 @@ for (const arch of archs) {
 			recursive: true,
 		}
 	);
-	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'bindings.rs'), {
-		recursive: true,
-	});
+
 	copyFileSync(copyInstructions.from, copyInstructions.to);
 
 	const output = execSync('npm pack --json', {

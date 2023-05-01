@@ -33,7 +33,7 @@ export const getIdealMaximumFrameCacheItems = () => {
 	const max = Math.floor(freeMemory / (1024 * 1024 * 6));
 
 	// Never store more than 500 frames
-	return Math.min(max, 500);
+	return Math.min(max, 1000);
 };
 
 export const startLongRunningCompositor = (maximumFrameCacheItems: number) => {
