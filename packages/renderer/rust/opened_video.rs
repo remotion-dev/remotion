@@ -151,6 +151,17 @@ impl OpenedVideo {
         return Ok(self.opened_streams.len() - 1);
     }
 
+    pub fn close_video_if_frame_cache_empty(&mut self) -> Result<bool, ErrorWithBacktrace> {
+        if self.transparent_frame_cache.lock()?.is_empty()
+            && self.opaque_frame_cache.lock()?.is_empty()
+        {
+            self.close()?;
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    }
+
     pub fn get_frame_cache(&self, transparent: bool) -> Arc<Mutex<FrameCache>> {
         if transparent {
             self.transparent_frame_cache.clone()
