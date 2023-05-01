@@ -185,11 +185,16 @@ impl OpenedVideoManager {
         }
         for removal in to_remove {
             let video_locked = self.get_video(&removal.src, removal.transparent)?;
-            let video = video_locked.lock()?;
+            let mut video = video_locked.lock()?;
             video
                 .get_frame_cache(removal.transparent)
                 .lock()?
                 .remove_item_by_id(removal.id)?;
+
+            let closed = video.close_video_if_frame_cache_empty()?;
+            if closed {
+                self.videos.write()?.remove(&video.src);
+            }
         }
 
         Ok(())

@@ -100,6 +100,10 @@ impl FrameCache {
         Ok(())
     }
 
+    pub fn is_empty(&self) -> bool {
+        self.items.is_empty()
+    }
+
     pub fn get_item_id(
         &mut self,
         time: i64,
