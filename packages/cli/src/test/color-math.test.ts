@@ -1,7 +1,7 @@
 import {expect, test} from 'vitest';
 import {getZTypesIfPossible} from '../editor/components/get-zod-if-possible';
 
-const getZColor = async () => {
+const getZodTypes = async () => {
 	const z = await getZTypesIfPossible();
 	if (!z) {
 		throw new Error('@remotion/zod-types not found');
@@ -11,7 +11,7 @@ const getZColor = async () => {
 };
 
 test('Color math', async () => {
-	const mod = await getZColor();
+	const mod = await getZodTypes();
 	expect(mod.ZodZypesInternals.parseColor('rgba(255, 255, 255, 0.5)')).toEqual({
 		a: 128,
 		r: 255,

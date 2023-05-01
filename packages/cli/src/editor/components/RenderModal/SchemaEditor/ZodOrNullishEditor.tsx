@@ -60,7 +60,7 @@ export const ZodOrNullishEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const zColor = useZodTypesIfPossible();
+	const zodTypes = useZodTypesIfPossible();
 
 	const isChecked = value === nullishValue;
 
@@ -76,10 +76,10 @@ export const ZodOrNullishEditor: React.FC<{
 			(e) => {
 				const val = e.target.checked
 					? nullishValue
-					: createZodValues(schema, z, zColor);
+					: createZodValues(schema, z, zodTypes);
 				onValueChange(val);
 			},
-			[nullishValue, onValueChange, schema, z, zColor]
+			[nullishValue, onValueChange, schema, z, zodTypes]
 		);
 
 	const reset = useCallback(() => {

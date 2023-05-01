@@ -4,7 +4,7 @@ import type {ZodType, ZodTypesType} from '../../get-zod-if-possible';
 export const createZodValues = (
 	schema: Zod.ZodTypeAny,
 	zodRuntime: ZodType,
-	zColorRuntime: ZodTypesType | null
+	zodTypes: ZodTypesType | null
 ): unknown => {
 	if (!schema) {
 		throw new Error('Invalid zod schema');
@@ -44,7 +44,7 @@ export const createZodValues = (
 			const shape = (def as z.ZodObjectDef).shape();
 			const keys = Object.keys(shape);
 			const returnValue = keys.reduce((existing, key) => {
-				existing[key] = createZodValues(shape[key], zodRuntime, zColorRuntime);
+				existing[key] = createZodValues(shape[key], zodRuntime, zodTypes);
 				return existing;
 			}, {} as Record<string, unknown>);
 			return returnValue;
@@ -52,20 +52,20 @@ export const createZodValues = (
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodArray: {
 			return [
-				createZodValues((def as z.ZodArrayDef).type, zodRuntime, zColorRuntime),
+				createZodValues((def as z.ZodArrayDef).type, zodRuntime, zodTypes),
 			];
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodUnion: {
 			const firstOptions = (def as z.ZodUnionDef).options[0];
 			return firstOptions
-				? createZodValues(firstOptions, zodRuntime, zColorRuntime)
+				? createZodValues(firstOptions, zodRuntime, zodTypes)
 				: undefined;
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodDiscriminatedUnion: {
 			const options = (def as z.ZodDiscriminatedUnionDef<string>).options[0];
-			return createZodValues(options, zodRuntime, zColorRuntime);
+			return createZodValues(options, zodRuntime, zodTypes);
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodLiteral: {
@@ -74,9 +74,9 @@ export const createZodValues = (
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodEffects: {
 			if (
-				zColorRuntime &&
+				zodTypes &&
 				schema._def.description ===
-					zColorRuntime.ZodZypesInternals.REMOTION_COLOR_BRAND
+					zodTypes.ZodZypesInternals.REMOTION_COLOR_BRAND
 			) {
 				return '#ffffff';
 			}
@@ -84,20 +84,20 @@ export const createZodValues = (
 			return createZodValues(
 				(def as z.ZodEffectsDef).schema,
 				zodRuntime,
-				zColorRuntime
+				zodTypes
 			);
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodIntersection: {
 			const {left, right} = def as z.ZodIntersectionDef;
-			const leftValue = createZodValues(left, zodRuntime, zColorRuntime);
+			const leftValue = createZodValues(left, zodRuntime, zodTypes);
 			if (typeof leftValue !== 'object') {
 				throw new Error(
 					'Cannot create value for type z.intersection: Left side is not an object'
 				);
 			}
 
-			const rightValue = createZodValues(right, zodRuntime, zColorRuntime);
+			const rightValue = createZodValues(right, zodRuntime, zodTypes);
 
 			if (typeof rightValue !== 'object') {
 				throw new Error(
@@ -110,7 +110,7 @@ export const createZodValues = (
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodTuple: {
 			const items = (def as z.ZodTupleDef).items.map((item) =>
-				createZodValues(item, zodRuntime, zColorRuntime)
+				createZodValues(item, zodRuntime, zodTypes)
 			);
 			return items;
 		}
@@ -119,35 +119,27 @@ export const createZodValues = (
 			const values = createZodValues(
 				(def as z.ZodRecordDef).valueType,
 				zodRuntime,
-				zColorRuntime
+				zodTypes
 			);
 			return {key: values};
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodMap: {
 			const defType = def as z.ZodMapDef;
-			const values = createZodValues(
-				defType.valueType,
-				zodRuntime,
-				zColorRuntime
-			);
-			const key = createZodValues(defType.keyType, zodRuntime, zColorRuntime);
+			const values = createZodValues(defType.valueType, zodRuntime, zodTypes);
+			const key = createZodValues(defType.keyType, zodRuntime, zodTypes);
 			return new Map([[key, values]]);
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodLazy: {
 			const defType = def as z.ZodLazyDef;
 			const type = defType.getter();
-			return createZodValues(type, zodRuntime, zColorRuntime);
+			return createZodValues(type, zodRuntime, zodTypes);
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodSet: {
 			const defType = def as z.ZodSetDef;
-			const values = createZodValues(
-				defType.valueType,
-				zodRuntime,
-				zColorRuntime
-			);
+			const values = createZodValues(defType.valueType, zodRuntime, zodTypes);
 			return new Set([values]);
 		}
 
@@ -166,21 +158,13 @@ export const createZodValues = (
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodOptional: {
 			const defType = def as z.ZodOptionalDef;
-			const value = createZodValues(
-				defType.innerType,
-				zodRuntime,
-				zColorRuntime
-			);
+			const value = createZodValues(defType.innerType, zodRuntime, zodTypes);
 			return value;
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodNullable: {
 			const defType = def as z.ZodNullableDef;
-			const value = createZodValues(
-				defType.innerType,
-				zodRuntime,
-				zColorRuntime
-			);
+			const value = createZodValues(defType.innerType, zodRuntime, zodTypes);
 			return value;
 		}
 
@@ -191,31 +175,27 @@ export const createZodValues = (
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodCatch: {
 			const defType = def as z.ZodCatchDef;
-			const value = createZodValues(
-				defType.innerType,
-				zodRuntime,
-				zColorRuntime
-			);
+			const value = createZodValues(defType.innerType, zodRuntime, zodTypes);
 			return value;
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodPromise: {
 			const defType = def as z.ZodPromiseDef;
-			const value = createZodValues(defType.type, zodRuntime, zColorRuntime);
+			const value = createZodValues(defType.type, zodRuntime, zodTypes);
 			return Promise.resolve(value);
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodBranded: {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const defType = def as z.ZodBrandedDef<any>;
-			const value = createZodValues(defType.type, zodRuntime, zColorRuntime);
+			const value = createZodValues(defType.type, zodRuntime, zodTypes);
 			return value;
 		}
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodPipeline: {
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const defType = def as z.ZodPipelineDef<any, any>;
-			const value = createZodValues(defType.out, zodRuntime, zColorRuntime);
+			const value = createZodValues(defType.out, zodRuntime, zodTypes);
 			return value;
 		}
 
