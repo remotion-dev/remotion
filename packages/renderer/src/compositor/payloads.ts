@@ -55,6 +55,9 @@ export type CompositorCommand = {
 	GetOpenVideoStats: {};
 	DeliberatePanic: {};
 	CloseAllVideos: {};
+	FreeUpMemory: {
+		percent_of_memory: number;
+	};
 };
 
 export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {

@@ -2,6 +2,7 @@ use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
 use crate::frame_cache::FrameCacheReference;
+use crate::global_printer::_print_debug;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
@@ -17,10 +18,12 @@ pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
     let open_videos = manager.get_open_videos()?;
     let open_streams = manager.get_open_video_streams()?;
+    let frames_in_cache = manager.get_frames_in_cache()?;
 
     Ok(OpenVideoStats {
         open_videos,
         open_streams,
+        frames_in_cache,
     })
 }
 
@@ -155,7 +158,8 @@ impl OpenedVideoManager {
 
     fn get_frame_references(&self) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
         let mut vec: Vec<FrameCacheReference> = Vec::new();
-        for i in 0..1 {
+        // 0..2 loops twice, not 0..1
+        for i in 0..2 {
             let transparent = i == 0;
             for video in self.videos.read()?.values() {
                 let video_locked = video.lock()?;
@@ -175,9 +179,13 @@ impl OpenedVideoManager {
     pub fn prune_oldest(&self, ratio: f64) -> Result<(), ErrorWithBacktrace> {
         let references = self.get_frame_references()?;
         let oldest_n = (references.len() as f64 * ratio).ceil() as usize;
+        _print_debug(&format!(
+            "removing {} items {} {}",
+            oldest_n,
+            ratio,
+            references.len()
+        ));
         let mut sorted = references.clone();
-        // TODO: Created at is not necessarily the last used
-        // TODO: Remove video if no items in frame cache anymore
         sorted.sort_by(|a, b| a.last_used.cmp(&b.last_used));
         let mut to_remove: Vec<FrameCacheReference> = Vec::new();
         for i in 0..oldest_n {
@@ -204,6 +212,14 @@ impl OpenedVideoManager {
         let mut count = 0;
         for video in self.videos.read()?.values() {
             count += video.lock()?.opened_streams.len();
+        }
+        return Ok(count);
+    }
+
+    pub fn get_frames_in_cache(&self) -> Result<usize, ErrorWithBacktrace> {
+        let mut count = 0;
+        for video in self.videos.read()?.values() {
+            count += video.lock()?.get_cache_size()?;
         }
         return Ok(count);
     }

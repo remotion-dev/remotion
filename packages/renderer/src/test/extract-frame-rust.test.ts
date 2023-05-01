@@ -1,24 +1,8 @@
-import {execSync} from 'child_process';
-import path from 'path';
 import {expect, test} from 'vitest';
 import {startLongRunningCompositor} from '../compositor/compositor';
+import {exampleVideos} from './example-videos';
 
 const BMP_HEADER_SIZE = 54;
-
-const examplePackage = path.join(__dirname, '..', '..', '..', 'example');
-const docsPackage = path.join(__dirname, '..', '..', '..', 'docs');
-
-const exampleVideos = {
-	bigBuckBunny: path.join(examplePackage, 'public/bigbuckbunny.mp4'),
-	transparentWebm: path.join(docsPackage, '/static/img/transparent-video.webm'),
-	framerWithoutFileExtension: path.join(
-		examplePackage,
-		'public',
-		'framermp4withoutfileextension'
-	),
-	corrupted: path.join(examplePackage, 'public', 'corrupted.mp4'),
-	customDar: path.join(examplePackage, 'public', 'custom-dar.mp4'),
-};
 
 test(
 	'Should be able to extract a frame using Rust',
@@ -329,60 +313,10 @@ test('Two different starting times should not result in big seeking', async () =
 	]);
 
 	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
-	expect(JSON.parse(stats.toString('utf-8'))).toEqual({
-		open_streams: 2,
-		open_videos: 1,
-	});
+	const statsJson = JSON.parse(stats.toString('utf-8'));
+	expect(statsJson.open_streams).toBe(2);
+	expect(statsJson.open_videos).toBe(1);
 
 	compositor.finishCommands();
 	await compositor.waitForDone();
 });
-
-test('Memory usage should be determined ', async () => {
-	if (process.platform === 'win32') {
-		return;
-	}
-
-	const compositor = startLongRunningCompositor();
-
-	expect(
-		getMemoryUsageByPid((compositor.pid as Number).toString())
-	).toBeLessThan(10 * 1024 * 1024);
-
-	await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.bigBuckBunny,
-		time: 3.333,
-		transparent: false,
-	});
-
-	expect(
-		getMemoryUsageByPid((compositor.pid as Number).toString())
-	).toBeGreaterThan(100 * 1024 * 1024);
-
-	await compositor.executeCommand('CloseAllVideos', {});
-
-	expect(
-		getMemoryUsageByPid((compositor.pid as Number).toString())
-	).toBeLessThan(10 * 1024 * 1024);
-});
-
-export function getMemoryUsageByPid(pid: string) {
-	const data = execSync(`top -l 1 -pid ${pid} -stats mem`);
-	const str = data.toString('utf-8');
-	const lines = str.split('\n');
-	const last = lines[lines.length - 2];
-
-	if (last.endsWith('G')) {
-		return parseFloat(last.replace('G', '').trim()) * 1024 * 1024 * 1024;
-	}
-
-	if (last.endsWith('M')) {
-		return parseInt(last.replace('M', '').trim(), 10) * 1024 * 1024;
-	}
-
-	if (last.endsWith('K')) {
-		return parseInt(last.replace('K', '').trim(), 10) * 1024;
-	}
-
-	throw new Error('cannot parse' + last);
-}
