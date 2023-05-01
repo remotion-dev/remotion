@@ -33,6 +33,7 @@ export const ZodColorEditor: React.FC<{
 	onRemove: null | (() => void);
 	compact: boolean;
 	showSaveButton: boolean;
+	saving: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -43,6 +44,7 @@ export const ZodColorEditor: React.FC<{
 	compact,
 	onSave,
 	onRemove,
+	saving,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -189,6 +191,7 @@ export const ZodColorEditor: React.FC<{
 				onSave={save}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 			<div style={fullWidth}>
 				<Row align="center">

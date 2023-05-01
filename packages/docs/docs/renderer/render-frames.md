@@ -77,7 +77,7 @@ Either a Webpack bundle or a URL pointing to a bundled Remotion project. Call [`
 
 ### `imageFormat`
 
-A `string` which must be either `png`, `jpeg` or `none`.
+_optional since v4.0 - default "jpeg"_
 
 - Choose `jpeg` by default because it is the fastest.
 - Choose `png` if you want your image sequence to have an alpha channel (for transparency).

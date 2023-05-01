@@ -46,6 +46,7 @@ export const ZodUnionEditor: React.FC<{
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 	onSave: (updater: (oldNum: unknown) => unknown) => void;
 	onRemove: null | (() => void);
+	saving: boolean;
 }> = ({
 	jsonPath,
 	compact,
@@ -56,6 +57,7 @@ export const ZodUnionEditor: React.FC<{
 	value,
 	showSaveButton,
 	onRemove,
+	saving,
 }) => {
 	const {options} = schema._def as z.ZodUnionDef;
 
@@ -71,6 +73,7 @@ export const ZodUnionEditor: React.FC<{
 				label={'Union with more than 2 options not editable'}
 				compact={compact}
 				showSaveButton={showSaveButton}
+				saving={saving}
 			/>
 		);
 	}
@@ -82,6 +85,7 @@ export const ZodUnionEditor: React.FC<{
 				label={'Union with less than 2 options not editable'}
 				compact={compact}
 				showSaveButton={showSaveButton}
+				saving={saving}
 			/>
 		);
 	}
@@ -95,6 +99,7 @@ export const ZodUnionEditor: React.FC<{
 				label={'Union only editable with 1 value being null'}
 				compact={compact}
 				showSaveButton={showSaveButton}
+				saving={saving}
 			/>
 		);
 	}
@@ -108,6 +113,7 @@ export const ZodUnionEditor: React.FC<{
 				label={'Not editable - both union values are nullish'}
 				compact={compact}
 				showSaveButton={showSaveButton}
+				saving={saving}
 			/>
 		);
 	}
@@ -124,6 +130,7 @@ export const ZodUnionEditor: React.FC<{
 			showSaveButton={showSaveButton}
 			value={value}
 			nullishValue={nullishValue}
+			saving={saving}
 		/>
 	);
 };

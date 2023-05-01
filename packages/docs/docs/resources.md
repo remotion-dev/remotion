@@ -85,6 +85,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [DevContainer Template](https://github.com/openscript/remotion-devcontainer-template)
 - [Usage with Anime.JS](https://github.com/remotion-dev/anime-example)
 - [Displaying a spinner while content is loading](https://github.com/remotion-dev/video-buffering-example)
+- [Mapbox example](https://github.com/remotion-dev/mapbox-example)
 
 ## Videos
 

@@ -6,12 +6,15 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyComposition} from 'remotion';
-import {getInputProps} from 'remotion';
-import {PreviewServerConnectionCtx} from '../../helpers/client-id';
+import {getInputProps, Internals} from 'remotion';
+import type {z} from 'zod';
 import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {ValidationMessage} from '../NewComposition/ValidationMessage';
+
+import {PreviewServerConnectionCtx} from '../../helpers/client-id';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
-import {ValidationMessage} from '../NewComposition/ValidationMessage';
+import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {
 	canUpdateDefaultProps,
 	updateDefaultProps,
@@ -20,7 +23,12 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import type {TypeCanSaveState} from './get-render-modal-warnings';
 import {getRenderModalWarnings} from './get-render-modal-warnings';
-import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor';
+import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
+import type {SerializedJSONWithDate} from './SchemaEditor/date-serialization';
+import {
+	deserializeJSONWithDate,
+	serializeJSONWithDate,
+} from './SchemaEditor/date-serialization';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -29,6 +37,20 @@ import {
 import {WarningIndicatorButton} from './WarningIndicatorButton';
 
 type Mode = 'json' | 'schema';
+
+export type State =
+	| {
+			str: string;
+			value: unknown;
+			validJSON: true;
+	  }
+	| {
+			str: string;
+			validJSON: false;
+			error: string;
+	  };
+
+export type PropsEditType = 'input-props' | 'default-props';
 
 const errorExplanation: React.CSSProperties = {
 	fontSize: 14,
@@ -70,6 +92,15 @@ const tabWrapper: React.CSSProperties = {
 
 const persistanceKey = 'remotion.show-render-modalwarning';
 
+const parseJSON = (str: string): State => {
+	try {
+		const value = deserializeJSONWithDate(str);
+		return {str, value, validJSON: true};
+	} catch (e) {
+		return {str, validJSON: false, error: (e as Error).message};
+	}
+};
+
 const getPersistedShowWarningState = () => {
 	const val = localStorage.getItem(persistanceKey);
 	if (!val) {
@@ -89,13 +120,32 @@ export const RenderModalData: React.FC<{
 	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
 	compact: boolean;
 	mayShowSaveButton: boolean;
-}> = ({composition, inputProps, setInputProps, compact, mayShowSaveButton}) => {
+	propsEditType: PropsEditType;
+}> = ({
+	composition,
+	inputProps,
+	setInputProps,
+	compact,
+	mayShowSaveButton,
+	propsEditType,
+}) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
-
+	const [saving, setSaving] = useState(false);
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState()
 	);
+
+	const inJSONEditor = mode === 'json';
+	const serializedJSON: SerializedJSONWithDate | null = useMemo(() => {
+		if (!inJSONEditor) {
+			return null;
+		}
+
+		const value = inputProps ?? {};
+		return serializeJSONWithDate(value, 2);
+	}, [inJSONEditor, inputProps]);
+
 	const cliProps = getInputProps();
 	const [canSaveDefaultProps, setCanSaveDefaultProps] =
 		useState<TypeCanSaveState>({
@@ -144,6 +194,10 @@ export const RenderModalData: React.FC<{
 				return val(prevVal);
 			});
 		}, []);
+
+	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
+
+	const {fastRefreshes} = useContext(Internals.NonceContext);
 
 	useEffect(() => {
 		canUpdateDefaultProps(composition.id)
@@ -199,9 +253,20 @@ export const RenderModalData: React.FC<{
 		updateDefaultProps(composition.id, inputProps);
 	}, [composition.id, inputProps]);
 
+	useEffect(() => {
+		setSaving(false);
+	}, [fastRefreshes]);
+
 	const onSave = useCallback(
 		(updater: (oldState: unknown) => unknown) => {
-			updateDefaultProps(composition.id, updater(composition.defaultProps));
+			setSaving(true);
+			updateDefaultProps(
+				composition.id,
+				updater(composition.defaultProps)
+			).catch((err) => {
+				sendErrorNotification(`Cannot update default props: ${err.message}`);
+				setSaving(false);
+			});
 		},
 		[composition.defaultProps, composition.id]
 	);
@@ -209,8 +274,20 @@ export const RenderModalData: React.FC<{
 	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
 
 	const warnings = useMemo(() => {
-		return getRenderModalWarnings({canSaveDefaultProps, cliProps});
-	}, [canSaveDefaultProps, cliProps]);
+		return getRenderModalWarnings({
+			canSaveDefaultProps,
+			cliProps,
+			isCustomDateUsed: serializedJSON ? serializedJSON.customDateUsed : false,
+			inJSONEditor,
+			propsEditType,
+		});
+	}, [
+		canSaveDefaultProps,
+		cliProps,
+		inJSONEditor,
+		propsEditType,
+		serializedJSON,
+	]);
 
 	if (connectionStatus === 'disconnected') {
 		return (
@@ -237,9 +314,9 @@ export const RenderModalData: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const def: Zod.ZodTypeDef = schema._def;
+	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const typeName = (def as any).typeName as Zod.ZodFirstPartyTypeKind;
+	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
 		return <NoSchemaDefined />;
@@ -248,8 +325,6 @@ export const RenderModalData: React.FC<{
 	if (!composition.defaultProps) {
 		return <NoDefaultProps />;
 	}
-
-	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
 	return (
 		<div style={outer}>
@@ -289,9 +364,10 @@ export const RenderModalData: React.FC<{
 					defaultProps={composition.defaultProps}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
+					saving={saving}
 				/>
 			) : (
-				<RenderModalJSONInputPropsEditor
+				<RenderModalJSONPropsEditor
 					value={inputProps ?? {}}
 					setValue={setInputProps}
 					zodValidationResult={zodValidationResult}
@@ -299,6 +375,8 @@ export const RenderModalData: React.FC<{
 					onSave={onUpdate}
 					valBeforeSafe={valBeforeSafe}
 					showSaveButton={showSaveButton}
+					serializedJSON={serializedJSON}
+					parseJSON={parseJSON}
 				/>
 			)}
 		</div>

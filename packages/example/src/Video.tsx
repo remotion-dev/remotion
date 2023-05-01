@@ -533,6 +533,14 @@ export const Index: React.FC = () => {
 					width={850}
 				/>
 				<Composition
+					id="LottieInitializationBugfix"
+					lazyComponent={() => import('./Lottie/LottieInitializationBugfix')}
+					durationInFrames={300}
+					fps={30}
+					height={850}
+					width={850}
+				/>
+				<Composition
 					id="loader"
 					lazyComponent={() => import('./Lottie/Loader')}
 					durationInFrames={240}

@@ -4,31 +4,8 @@ import {useKeybinding} from '../../helpers/use-keybinding';
 import {Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
-import {
-	deserializeJSONWithDate,
-	serializeJSONWithDate,
-} from './SchemaEditor/date-serialization';
-
-type State =
-	| {
-			str: string;
-			value: unknown;
-			validJSON: true;
-	  }
-	| {
-			str: string;
-			validJSON: false;
-			error: string;
-	  };
-
-const parseJSON = (str: string): State => {
-	try {
-		const value = deserializeJSONWithDate(str);
-		return {str, value, validJSON: true};
-	} catch (e) {
-		return {str, validJSON: false, error: (e as Error).message};
-	}
-};
+import type {State} from './RenderModalData';
+import type {SerializedJSONWithDate} from './SchemaEditor/date-serialization';
 
 const style: React.CSSProperties = {
 	fontFamily: 'monospace',
@@ -50,8 +27,9 @@ const scrollable: React.CSSProperties = {
 	flex: 1,
 };
 
-// TODO: Note if custom 'remotion-date:' pattern has been used
-export const RenderModalJSONInputPropsEditor: React.FC<{
+export type EditType = 'inputProps' | 'defaultProps';
+
+export const RenderModalJSONPropsEditor: React.FC<{
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
 	zodValidationResult: Zod.SafeParseReturnType<unknown, unknown>;
@@ -59,6 +37,8 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	onSave: () => void;
 	valBeforeSafe: unknown;
 	showSaveButton: boolean;
+	parseJSON: (str: string) => State;
+	serializedJSON: SerializedJSONWithDate | null;
 }> = ({
 	setValue,
 	value,
@@ -67,11 +47,17 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 	onSave,
 	valBeforeSafe,
 	showSaveButton,
+	parseJSON,
+	serializedJSON,
 }) => {
+	if (serializedJSON === null) {
+		throw new Error('expecting serializedJSON to be defined');
+	}
+
 	const keybindings = useKeybinding();
 
 	const [localValue, setLocalValue] = React.useState<State>(() => {
-		return parseJSON(serializeJSONWithDate(value, 2));
+		return parseJSON(serializedJSON.serializedString);
 	});
 
 	const onPretty = useCallback(() => {
@@ -81,7 +67,7 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 
 		const parsed = JSON.parse(localValue.str);
 		setLocalValue({...localValue, str: JSON.stringify(parsed, null, 2)});
-	}, [localValue]);
+	}, [localValue, setLocalValue]);
 
 	const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
 		(e) => {
@@ -105,7 +91,7 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 				setValue(parsed.value);
 			}
 		},
-		[setValue]
+		[parseJSON, setLocalValue, setValue]
 	);
 
 	const hasChanged = useMemo(() => {
@@ -133,7 +119,6 @@ export const RenderModalJSONInputPropsEditor: React.FC<{
 		};
 	}, [keybindings, onQuickSave, onSave]);
 
-	// TODO: Indicate saving progress
 	return (
 		<div style={scrollable}>
 			<RemTextarea

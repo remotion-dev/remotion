@@ -21,6 +21,7 @@ export const SchemaEditor: React.FC<{
 	defaultProps: unknown;
 	onSave: (updater: (oldState: unknown) => unknown) => void;
 	showSaveButton: boolean;
+	saving: boolean;
 }> = ({
 	schema,
 	value,
@@ -30,6 +31,7 @@ export const SchemaEditor: React.FC<{
 	defaultProps,
 	onSave,
 	showSaveButton,
+	saving,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -75,6 +77,7 @@ export const SchemaEditor: React.FC<{
 					}
 					showSaveButton={showSaveButton}
 					onRemove={null}
+					saving={saving}
 				/>
 			</div>
 		);
