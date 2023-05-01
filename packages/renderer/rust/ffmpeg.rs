@@ -179,12 +179,6 @@ impl OpenedVideoManager {
     pub fn prune_oldest(&self, ratio: f64) -> Result<(), ErrorWithBacktrace> {
         let references = self.get_frame_references()?;
         let oldest_n = (references.len() as f64 * ratio).ceil() as usize;
-        _print_debug(&format!(
-            "removing {} items {} {}",
-            oldest_n,
-            ratio,
-            references.len()
-        ));
         let mut sorted = references.clone();
         sorted.sort_by(|a, b| a.last_used.cmp(&b.last_used));
         let mut to_remove: Vec<FrameCacheReference> = Vec::new();

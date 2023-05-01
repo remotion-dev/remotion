@@ -78,9 +78,18 @@ test('Memory usage should be determined ', async () => {
 		open_videos: 0,
 	});
 
+	await new Promise((resolve) => {
+		setTimeout(resolve, 3000);
+	});
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString())
 	).toBeLessThan(30 * 1024 * 1024);
+
+	await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.framerWithoutFileExtension,
+		time: 3.333,
+		transparent: false,
+	});
 });
 
 test('Should be able to take commands for freeing up memory', async () => {
