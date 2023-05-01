@@ -299,9 +299,7 @@ test('Last frame should be fast', async () => {
 });
 
 test('Two different starting times should not result in big seeking', async () => {
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems()
-	);
+	const compositor = startLongRunningCompositor(300);
 
 	const expected = [];
 
