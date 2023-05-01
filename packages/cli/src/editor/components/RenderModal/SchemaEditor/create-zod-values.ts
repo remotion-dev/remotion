@@ -1,10 +1,10 @@
 import type {z} from 'zod';
-import type {ZodColorType, ZodType} from '../../get-zod-if-possible';
+import type {ZodType, ZodTypesType} from '../../get-zod-if-possible';
 
 export const createZodValues = (
 	schema: Zod.ZodTypeAny,
 	zodRuntime: ZodType,
-	zColorRuntime: ZodColorType | null
+	zColorRuntime: ZodTypesType | null
 ): unknown => {
 	if (!schema) {
 		throw new Error('Invalid zod schema');
@@ -76,7 +76,7 @@ export const createZodValues = (
 			if (
 				zColorRuntime &&
 				schema._def.description ===
-					zColorRuntime.ZColorInternals.REMOTION_COLOR_BRAND
+					zColorRuntime.ZodZypesInternals.REMOTION_COLOR_BRAND
 			) {
 				return '#ffffff';
 			}

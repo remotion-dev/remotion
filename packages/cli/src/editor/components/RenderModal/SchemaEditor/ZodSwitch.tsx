@@ -1,8 +1,8 @@
 import React from 'react';
 import type {z} from 'zod';
 import {
-	useZodColorIfPossible,
 	useZodIfPossible,
+	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
 import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
@@ -51,7 +51,7 @@ export const ZodSwitch: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const zodColor = useZodColorIfPossible();
+	const zodTypes = useZodTypesIfPossible();
 
 	// TODO: (Maybe?) enable saving of inserted input props by cmd+s /ctrl + s (also for JSON view)
 
@@ -241,8 +241,9 @@ export const ZodSwitch: React.FC<{
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodEffects) {
 		if (
-			zodColor &&
-			schema._def.description === zodColor.ZColorInternals.REMOTION_COLOR_BRAND
+			zodTypes &&
+			schema._def.description ===
+				zodTypes.ZodZypesInternals.REMOTION_COLOR_BRAND
 		) {
 			return (
 				<ZodColorEditor

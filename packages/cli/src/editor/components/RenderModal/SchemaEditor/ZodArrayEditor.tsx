@@ -6,8 +6,8 @@ import {
 	INPUT_BORDER_COLOR_UNHOVERED,
 } from '../../../helpers/colors';
 import {
-	useZodColorIfPossible,
 	useZodIfPossible,
+	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
@@ -70,7 +70,7 @@ export const ZodArrayEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const zColor = useZodColorIfPossible();
+	const zColor = useZodTypesIfPossible();
 
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
 	if (typeName !== z.ZodFirstPartyTypeKind.ZodArray) {
