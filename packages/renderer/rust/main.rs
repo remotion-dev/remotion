@@ -11,7 +11,6 @@ mod payloads;
 mod scalable_frame;
 use commands::execute_command;
 use errors::{error_to_json, ErrorWithBacktrace};
-use global_printer::_print_debug;
 use std::env;
 
 use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload};

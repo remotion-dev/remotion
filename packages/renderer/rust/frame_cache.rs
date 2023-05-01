@@ -1,11 +1,8 @@
 extern crate ffmpeg_next as remotionffmpeg;
 
-use std::{
-    sync::atomic::{AtomicUsize, Ordering},
-    time::Instant,
-};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::{errors::ErrorWithBacktrace, scalable_frame::ScalableFrame};
+use crate::{errors::ErrorWithBacktrace, opened_stream::get_time, scalable_frame::ScalableFrame};
 
 pub fn get_frame_cache_id() -> usize {
     static COUNTER: AtomicUsize = AtomicUsize::new(1);
@@ -18,7 +15,7 @@ pub struct FrameCacheItem {
     pub asked_time: i64,
     pub frame: ScalableFrame,
     pub id: usize,
-    pub last_used: Instant,
+    pub last_used: u128,
 }
 
 pub struct FrameCache {
@@ -29,7 +26,7 @@ pub struct FrameCache {
 #[derive(Clone)]
 pub struct FrameCacheReference {
     pub id: usize,
-    pub last_used: i64,
+    pub last_used: u128,
     pub src: String,
     pub transparent: bool,
 }
@@ -51,7 +48,7 @@ impl FrameCache {
         for item in &self.items {
             references.push(FrameCacheReference {
                 id: item.id,
-                last_used: item.last_used.elapsed().as_millis() as i64,
+                last_used: item.last_used,
                 src: src.clone(),
                 transparent,
             });
@@ -80,7 +77,7 @@ impl FrameCache {
             if self.items[i].id == id {
                 self.items[i].frame.ensure_data()?;
                 self.items[i].asked_time = 0;
-                self.items[i].last_used = Instant::now();
+                self.items[i].last_used = get_time();
                 data = Some(self.items[i].frame.get_data()?);
                 break;
             }
