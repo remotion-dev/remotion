@@ -1,20 +1,13 @@
 import type {GcpRegion} from '../client';
 import {RENDER_SERVICE_PREFIX} from '../shared/constants';
 import {SERVICE_VERSION_STRING} from '../shared/service-version-string';
+import type {ServiceInfo} from './get-service-info';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 import type {IService} from './helpers/IService';
 
 export type GetServicesInput = {
 	region: GcpRegion;
 	compatibleOnly: boolean;
-};
-
-export type ServiceInfo = {
-	serviceName: string;
-	timeoutInSeconds: number;
-	memoryLimit: string;
-	cpuLimit: string;
-	remotionVersion: string | null;
 };
 
 /**

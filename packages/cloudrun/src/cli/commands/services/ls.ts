@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {getServiceInfo} from '../../../api/get-service-info';
 import {getServices} from '../../../api/get-services';
 import {getGcpRegion} from '../../get-gcp-region';
 
@@ -17,6 +18,13 @@ export const servicesLsCommand = async () => {
 		cancelSignal: null,
 	});
 	fetchingOutput.update('Getting services...');
+
+	const serviceTest = await getServiceInfo({
+		region,
+		serviceName: 'remotion--3-3-82--mem512mi--cpu2-0',
+	});
+
+	CliInternals.Log.info('serviceTest: ', serviceTest);
 
 	const services = await getServices({
 		region,

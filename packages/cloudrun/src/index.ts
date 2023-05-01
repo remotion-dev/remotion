@@ -5,7 +5,10 @@ import type {
 import {deployService} from './api/deploy-service';
 import {deploySite} from './api/deploy-site';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
+import {getRegions} from './api/get-regions';
+import {getServiceInfo} from './api/get-service-info';
 import {getServices} from './api/get-services';
+import {getSites} from './api/get-sites';
 import {renderMediaOnCloudrun} from './api/render-media-on-cloudrun';
 import {renderStillOnCloudrun} from './api/render-still-on-cloudrun';
 import {CloudrunInternals} from './internals';
@@ -18,5 +21,8 @@ export {
 	getOrCreateBucket,
 	renderMediaOnCloudrun,
 	renderStillOnCloudrun,
+	getServiceInfo,
+	getRegions,
+	getSites,
 };
 export type {DeployServiceInput, DeployServiceOutput};
