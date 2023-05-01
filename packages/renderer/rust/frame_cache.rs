@@ -26,6 +26,11 @@ pub struct FrameCache {
     pub last_frame: Option<usize>,
 }
 
+pub struct FrameCacheReference {
+    pub id: usize,
+    pub created_at: i64,
+}
+
 impl FrameCache {
     pub fn new() -> Self {
         Self {
