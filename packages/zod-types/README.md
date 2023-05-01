@@ -2,4 +2,4 @@
 
 Includes utility types and Remotion-specific types for [Zod](https://github.com/colinhacks/zod).
 
-See documentation at https://github.com/remotion-dev/zod-types.
+See documentation at https://remotion.dev/zod-types.
