@@ -51,6 +51,7 @@ export type CompositorCommand = {
 	};
 	StartLongRunningProcess: {
 		concurrency: number;
+		maximum_frame_cache_items: number;
 	};
 	GetOpenVideoStats: {};
 	DeliberatePanic: {};

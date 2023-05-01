@@ -1,9 +1,14 @@
 import {expect, test} from 'vitest';
 import {callCompositor, serializeCommand} from '../compositor/compose';
-import {startLongRunningCompositor} from '../compositor/compositor';
+import {
+	getIdealMaximumFrameCacheItems,
+	startLongRunningCompositor,
+} from '../compositor/compositor';
 
 test('Should get Rust errors in a good way', async () => {
-	const compositor = startLongRunningCompositor();
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems()
+	);
 
 	try {
 		await compositor.executeCommand('ExtractFrame', {
@@ -20,7 +25,9 @@ test('Should get Rust errors in a good way', async () => {
 });
 
 test('Handle panics', async () => {
-	const compositor = startLongRunningCompositor();
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems()
+	);
 
 	try {
 		await compositor.executeCommand('DeliberatePanic', {});

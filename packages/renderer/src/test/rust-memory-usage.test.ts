@@ -1,6 +1,9 @@
 import {execSync} from 'child_process';
 import {expect, test} from 'vitest';
-import {startLongRunningCompositor} from '../compositor/compositor';
+import {
+	getIdealMaximumFrameCacheItems,
+	startLongRunningCompositor,
+} from '../compositor/compositor';
 import {exampleVideos} from './example-videos';
 
 test('Memory usage should be determined ', async () => {
@@ -8,7 +11,9 @@ test('Memory usage should be determined ', async () => {
 		return;
 	}
 
-	const compositor = startLongRunningCompositor();
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems()
+	);
 
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString())
@@ -97,7 +102,9 @@ test('Should be able to take commands for freeing up memory', async () => {
 		return;
 	}
 
-	const compositor = startLongRunningCompositor();
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems()
+	);
 
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString())
