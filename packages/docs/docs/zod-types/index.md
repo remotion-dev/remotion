@@ -6,13 +6,13 @@ crumb: Schema
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
-import {TableOfContents} from '../../components/TableOfContents/rive';
+import {TableOfContents} from '../../components/TableOfContents/zod-types';
 
-This package provides a component for rendering [Rive](https://rive.app) animations in Remotion.
+Includes utility types and Remotion-specific types for [Zod](https://github.com/colinhacks/zod).
 
 ## Installation
 
-Install `@remotion/rive`
+Install `@remotion/zod-types`
 
 <Tabs defaultValue="npm" values={[
 { label: 'npm', value: 'npm', },
