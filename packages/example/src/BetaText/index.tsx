@@ -1,14 +1,9 @@
+import {zColor} from '@remotion/zod-types';
 import {mix} from 'polished';
 import React from 'react';
-import {
-	interpolate,
-	spring,
-	useCurrentFrame,
-	useVideoConfig,
-	z,
-	zColor,
-} from 'remotion';
+import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';
 import styled from 'styled-components';
+import {z} from 'zod';
 
 const BRAND_GRADIENT = ['#5851db', '#405de6'];
 const solidBrand = mix(0.5, BRAND_GRADIENT[0], BRAND_GRADIENT[1]);

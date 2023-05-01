@@ -83,8 +83,6 @@ module.exports = {
         "series",
         "folder",
         "easing",
-        "z",
-        "z-color",
         "null",
         "clipper",
       ],
@@ -329,6 +327,15 @@ module.exports = {
         id: "rive/index",
       },
       items: ["rive/index", "rive/remotionrivecanvas"],
+    },
+    {
+      type: "category",
+      label: "@remotion/zod-types",
+      link: {
+        type: "doc",
+        id: "zod-types/index",
+      },
+      items: ["zod-types/z-color"],
     },
   ],
   mainSidebar: [

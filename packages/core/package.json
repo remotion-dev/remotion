@@ -43,7 +43,8 @@
 		"rollup": "^2.70.1",
 		"typescript": "^4.7.0",
 		"vitest": "0.24.3",
-		"webpack": "5.76.1"
+		"webpack": "5.76.1",
+		"zod": "3.21.4"
 	},
 	"keywords": [
 		"remotion",
@@ -76,8 +77,5 @@
 				"dist/cjs/version.d.ts"
 			]
 		}
-	},
-	"dependencies": {
-		"zod": "3.21.4"
 	}
 }

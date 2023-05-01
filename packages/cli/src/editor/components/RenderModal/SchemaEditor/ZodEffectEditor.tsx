@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {z} from 'remotion';
+import type {z} from 'zod';
 import {FAIL_COLOR} from '../../../helpers/colors';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import type {JSONPath} from './zod-types';
 import {ZodSwitch} from './ZodSwitch';
@@ -37,6 +38,11 @@ export const ZodEffectEditor: React.FC<{
 	showSaveButton,
 	saving,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,

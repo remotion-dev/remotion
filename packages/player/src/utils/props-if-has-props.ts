@@ -1,4 +1,4 @@
-import type {z} from 'remotion';
+import type {z} from 'zod';
 
 export type PropsIfHasProps<
 	Schema extends z.ZodTypeAny,
