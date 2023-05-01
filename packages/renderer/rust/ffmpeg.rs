@@ -178,7 +178,7 @@ impl OpenedVideoManager {
         let mut sorted = references.clone();
         // TODO: Created at is not necessarily the last used
         // TODO: Remove video if no items in frame cache anymore
-        sorted.sort_by(|a, b| a.created_at.cmp(&b.created_at));
+        sorted.sort_by(|a, b| a.last_used.cmp(&b.last_used));
         let mut to_remove: Vec<FrameCacheReference> = Vec::new();
         for i in 0..oldest_n {
             to_remove.push(sorted[i].clone());
