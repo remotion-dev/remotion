@@ -19,6 +19,13 @@ export type RemotionVideoProps = Omit<
 	allowAmplificationDuringRender?: boolean;
 };
 
+type DeprecatedOffthreadVideoProps = {
+	/**
+	 * @deprecated Use the `transparent` prop instead
+	 */
+	imageFormat?: never;
+};
+
 export type OffthreadVideoProps = {
 	src: string;
 	className?: string;
@@ -30,4 +37,4 @@ export type OffthreadVideoProps = {
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
 	transparent?: boolean;
-};
+} & DeprecatedOffthreadVideoProps;
