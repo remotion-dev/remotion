@@ -70,7 +70,7 @@ export const ZodArrayEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const zColor = useZodTypesIfPossible();
+	const zodTypes = useZodTypesIfPossible();
 
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
 	if (typeName !== z.ZodFirstPartyTypeKind.ZodArray) {
@@ -121,7 +121,7 @@ export const ZodArrayEditor: React.FC<{
 
 	const onAdd = useCallback(() => {
 		onChange((oldV) => {
-			return [...oldV, createZodValues(def.type, z, zColor)];
+			return [...oldV, createZodValues(def.type, z, zodTypes)];
 		}, true);
 	}, [def.type, onChange, z]);
 
