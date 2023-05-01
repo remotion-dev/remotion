@@ -40,6 +40,19 @@ const openDocs = () => {
 	);
 };
 
+export const ZodNotInstalled = () => {
+	return (
+		<div style={explainer}>
+			<div style={errorExplanation}>
+				Install <code style={codeSnippet}>zod</code> as a dependency to
+				interactively control the props of the composition.
+			</div>
+			<Spacing y={2} block />
+			<Button onClick={openDocs}>Learn how</Button>
+		</div>
+	);
+};
+
 export const NoSchemaDefined = () => {
 	return (
 		<div style={explainer}>
