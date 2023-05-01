@@ -1,4 +1,4 @@
-import {zColor} from '@remotion/z-color';
+import {zColor} from '@remotion/zod-types';
 import {mix} from 'polished';
 import React from 'react';
 import {interpolate, spring, useCurrentFrame, useVideoConfig} from 'remotion';

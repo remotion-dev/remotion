@@ -18,8 +18,8 @@
 						"allowTypeImports": true
 					},
 					{
-						"name": "@remotion/z-color",
-						"message": "Can only import @remotion/z-color as a type",
+						"name": "@remotion/zod-types",
+						"message": "Can only import @remotion/zod-types as a type",
 						"allowTypeImports": true
 					}
 				]

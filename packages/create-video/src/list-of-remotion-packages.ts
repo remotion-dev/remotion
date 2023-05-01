@@ -20,6 +20,6 @@ export const listOfRemotionPackages = [
 	'@remotion/rive',
 	'@remotion/gif',
 	'@remotion/shapes',
-	'@remotion/z-color',
+	'@remotion/zod-types',
 	'remotion',
 ];

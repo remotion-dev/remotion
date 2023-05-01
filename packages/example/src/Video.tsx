@@ -1,4 +1,4 @@
-import {zColor} from '@remotion/z-color';
+import {zColor} from '@remotion/zod-types';
 import {alias} from 'lib/alias';
 import React from 'react';
 import {Composition, Folder, getInputProps, Still} from 'remotion';

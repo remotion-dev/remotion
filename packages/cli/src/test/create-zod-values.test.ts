@@ -17,7 +17,7 @@ const getZ = async () => {
 const getZColor = async () => {
 	const z = await getZColorIfPossible();
 	if (!z) {
-		throw new Error('z-color not found');
+		throw new Error('@remotion/zod-types not found');
 	}
 
 	return z;
