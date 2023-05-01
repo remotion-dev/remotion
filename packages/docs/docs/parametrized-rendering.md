@@ -74,10 +74,10 @@ Default props are useful so you don't preview your video with no data. Default p
 
 ## Define a schema <AvailableFrom v="4.0.0"/>
 
-You can use [`z`](/docs/z) to define a typesafe schema for your composition.
+You can use [`z`](https://github.com/colinhacks/zod) to define a typesafe schema for your composition.
 
 ```tsx twoslash title="MyComp.tsx"
-import { z } from "remotion";
+import { z } from "zod";
 
 export const myCompSchema = z.object({
   propOne: z.string(),

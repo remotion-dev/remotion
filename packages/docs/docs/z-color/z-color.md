@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-z-color.png
-id: z-color
 title: zColor()
+slug: z-color/z-color
 ---
 
 Using `zColor()`, you can specify in your [schema](/docs/parametrized-rendering) that a string has to be a color.
@@ -10,5 +10,4 @@ In the Remotion Preview, a color picker will be displayed allowing to change and
 
 ## See also
 
-- [Parametrized rendereding](/docs/parametrized-rendering)
-- [`z`](/docs/z)
+- [Parametrized rendering](/docs/parametrized-rendering)
