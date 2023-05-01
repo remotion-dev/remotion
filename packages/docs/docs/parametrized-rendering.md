@@ -140,7 +140,7 @@ Then, export the schema, and import it in your root file:
 ```tsx twoslash title="src/Root.tsx" {14-18}
 // @filename: MyComponent.tsx
 import React from "react";
-import { z } from "remotion";
+import { z } from "zod";
 
 export const myCompSchema = z.object({
   propOne: z.string(),
