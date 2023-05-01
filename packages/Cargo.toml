@@ -17,7 +17,6 @@ lazy_static = "1.4"
 rayon = "1.7.0"
 ffmpeg-next = {git = "https://github.com/JonnyBurger/rust-ffmpeg", rev ="6a2ee0602090645a549e68c7e640434eb47b55ad"}
 
-
 [[bin]]
 name = "compositor"
 path = "renderer/rust/main.rs"
