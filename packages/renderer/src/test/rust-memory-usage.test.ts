@@ -97,6 +97,24 @@ test('Memory usage should be determined ', async () => {
 	});
 });
 
+test('Should respect the maximum frame cache limit', async () => {
+	const compositor = startLongRunningCompositor(50);
+
+	await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.bigBuckBunny,
+		time: 3.333,
+		transparent: false,
+	});
+
+	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
+	const statsJson = JSON.parse(stats.toString('utf-8'));
+	expect(statsJson).toEqual({
+		frames_in_cache: 50,
+		open_streams: 1,
+		open_videos: 1,
+	});
+});
+
 test('Should be able to take commands for freeing up memory', async () => {
 	if (process.platform === 'win32') {
 		return;

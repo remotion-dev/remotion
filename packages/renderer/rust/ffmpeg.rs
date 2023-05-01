@@ -2,7 +2,6 @@ use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
 use crate::frame_cache::FrameCacheReference;
-use crate::global_printer::_print_debug;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
@@ -41,6 +40,14 @@ pub fn free_up_memory(ratio: f64) -> Result<(), ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
 
     manager.prune_oldest(ratio)?;
+
+    Ok(())
+}
+
+pub fn keep_only_latest_frames(frames: usize) -> Result<(), ErrorWithBacktrace> {
+    let manager = OpenedVideoManager::get_instance();
+
+    manager.only_keep_n_frames(frames)?;
 
     Ok(())
 }
@@ -176,9 +183,24 @@ impl OpenedVideoManager {
         return Ok(vec);
     }
 
+    pub fn only_keep_n_frames(&self, n_frames: usize) -> Result<(), ErrorWithBacktrace> {
+        let references = self.get_frame_references()?;
+        // Pay attention to underflow, usize is unsigned
+        if references.len() < n_frames {
+            return Ok(());
+        }
+        let to_remove = references.len() - n_frames;
+        self.prune(to_remove)
+    }
+
     pub fn prune_oldest(&self, ratio: f64) -> Result<(), ErrorWithBacktrace> {
         let references = self.get_frame_references()?;
         let oldest_n = (references.len() as f64 * ratio).ceil() as usize;
+        self.prune(oldest_n)
+    }
+
+    pub fn prune(&self, oldest_n: usize) -> Result<(), ErrorWithBacktrace> {
+        let references = self.get_frame_references()?;
         let mut sorted = references.clone();
         sorted.sort_by(|a, b| a.last_used.cmp(&b.last_used));
         let mut to_remove: Vec<FrameCacheReference> = Vec::new();

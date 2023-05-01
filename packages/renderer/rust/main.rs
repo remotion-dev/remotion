@@ -32,7 +32,7 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
 
     match opts.payload {
         CliInputCommandPayload::StartLongRunningProcess(payload) => {
-            start_long_running_process(payload.concurrency)?;
+            start_long_running_process(payload.concurrency, payload.maximum_frame_cache_items)?;
         }
         _ => {
             let data = execute_command(opts.payload)?;
@@ -49,7 +49,10 @@ pub fn parse_init_command(json: &str) -> Result<CliInputCommand, ErrorWithBacktr
     Ok(cli_input)
 }
 
-fn start_long_running_process(threads: usize) -> Result<(), ErrorWithBacktrace> {
+fn start_long_running_process(
+    threads: usize,
+    frames_to_keep: usize,
+) -> Result<(), ErrorWithBacktrace> {
     let pool = rayon::ThreadPoolBuilder::new()
         .num_threads(threads)
         .build()?;
@@ -68,14 +71,17 @@ fn start_long_running_process(threads: usize) -> Result<(), ErrorWithBacktrace> 
             break;
         }
         let opts: CliInputCommand = parse_cli(&input)?;
-        pool.install(move || match execute_command(opts.payload) {
-            Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
-            Err(err) => global_printer::synchronized_write_buf(
-                1,
-                &opts.nonce,
-                &error_to_json(err).unwrap().as_bytes(),
-            )
-            .unwrap(),
+        pool.install(move || {
+            match execute_command(opts.payload) {
+                Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
+                Err(err) => global_printer::synchronized_write_buf(
+                    1,
+                    &opts.nonce,
+                    &error_to_json(err).unwrap().as_bytes(),
+                )
+                .unwrap(),
+            };
+            ffmpeg::keep_only_latest_frames(frames_to_keep).unwrap()
         });
     }
 
