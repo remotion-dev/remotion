@@ -18,8 +18,7 @@ The following GCP regions are available:
 
 <GcpRegionList />
 
-// TODO: Link
-You can call `getRegions()` or type `npx remotion cloudrun regions` to get this list programmatically.
+You can call [`getRegions()`](/docs/cloudrun/getregions) or type [`npx remotion cloudrun regions`](/docs/cloudrun/cli/regions) to get this list programmatically.
 
 ## Default region
 
@@ -31,13 +30,7 @@ There are 3 ways of selection a region:
 
 - When using the Node.JS APIs, you have to pass the region explicitly to each function. Make sure your projects satisfy the Typescript types or follow the documentation.
 
-- When using the CLI, you can set the region using the `REMOTION_GCP_REGION` environment variable. It's best to put it in a `.env` file so you don't forget it sometimes.
-
-- You can also pass the `--region` flag to all CLI commands to override the region. The flag takes precedence over the environment variable.
-
-:::info
-The REMOTION_GCP_REGION environment variable and `--region` flag do not have an effect when using the Node.JS APIs. You need to pass a region explicitly.
-:::
+- You can pass the `--region` flag to all CLI commands to set the region.
 
 If you don't set a region, Remotion will use the default region.
 

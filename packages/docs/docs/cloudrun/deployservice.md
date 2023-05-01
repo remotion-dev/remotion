@@ -1,14 +1,14 @@
 ---
 image: /generated/articles-docs-cloudrun-deployservice.png
 id: deployservice
-title: deployservice()
+title: deployService()
 slug: /cloudrun/deployservice
 crumb: "Cloudrun API"
 ---
 
-Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function in your AWS account that will be able to render a video in the cloud.
+Creates a [GCP Cloud Run](https://cloud.google.com/run) service in your GCP project that will be able to render a video in the cloud.
 
-If a function with the same version, memory size and timeout already existed, it will be returned instead without a new one being created. This means this function can be treated as idempotent.
+If a service with the same version, memory limit and cpu limit already existed, it will be returned instead without a new one being created. This means this service can be treated as idempotent.
 
 ## Example
 
@@ -16,69 +16,59 @@ If a function with the same version, memory size and timeout already existed, it
 // @module: esnext
 // @target: es2017
 
-import { deployFunction } from "@remotion/lambda";
+import { deployService } from "@remotion/cloudrun";
 
-const { functionName } = await deployFunction({
-  region: "us-east-1",
-  timeoutInSeconds: 120,
-  memorySizeInMb: 2048,
-  createCloudWatchLogGroup: true,
-  diskSizeInMb: 2048,
+const { shortName } = await deployService({
+  remotionVersion: "3.3.82",
+  memory: "2GiB",
+  cpu: "2.0",
+  projectID: "my-remotion-project",
+  region: "us-east1",
 });
-console.log(functionName);
+console.log(shortName);
 ```
 
 ## Arguments
 
 An object with the following properties:
 
+### `remotionVersion`
+
+The Remotion version of the service. Remotion is versioning the Cloud Run service and a render can only be triggered from a version of `@remotion/cloudrun` that is matching the one of the service.
+
+### `memory`
+
+The upper bound on the amount of RAM that the Cloud Run service can consume. By default we recommend a value of 2GiB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512MiB`, the maximum allowed number is `32GiB`. Since the costs of Remotion Cloud Run is directly proportional to the amount of RAM, we recommend to keep this amount as low as possible.
+
+### `cpu`
+
+The maximum number of CPU cores that the Cloud Run service can use to process requests.
+
+### `projectID`
+
+The [project ID](https://cloud.google.com/resource-manager/docs/creating-managing-projects#:~:text=to%20be%20unique.-,Project%20ID,-%3A%20A%20globally%20unique) of the GCP Project that has been configured for Remotion Cloud Run.
+
 ### `region`
 
-The [AWS region](/docs/lambda/region-selection) which you want to deploy the Lambda function too. It must be the same region that your Lambda Layer resides in.
+The [GCP region](/docs/cloudrun/region-selection) which you want to deploy the Cloud Run Service too.
 
 ### `timeoutInSeconds`
 
-How long the Lambda function may run before it gets killed. Must be below 900 seconds.
+How long the Cloud Run Service may run before it gets killed. Must be below 900 seconds.
 We recommend a timeout of 120 seconds or lower - remember, Remotion Lambda is the fastest if you render with a high concurrency. If your video takes longer to render, the concurrency should be increased rather than the timeout.
-
-### `memorySizeInMb`
-
-How many megabytes of RAM the Lambda function should have. By default we recommend a value of 2048MB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512`, the maximum allowed number is `10240`. Since the costs of Remotion Lambda is directly proportional to the amount of RAM, we recommend to keep this amount as low as possible.
-
-### `createCloudWatchLogGroup`
-
-_boolean_
-
-Whether logs should be saved into CloudWatch. We recommend enabling this option.
-
-### `cloudWatchLogRetentionPeriodInDays`
-
-_optional_
-
-Retention period for the CloudWatch Logs. Default: 14 days.
-
-### `diskSizeInMb`
-
-_optional_
-
-Sets the amount of disk storage that is available in the Lambda function. Must be between 512MB and 10240MB (10GB). Default: 2048MB. Set this higher if you want to render longer videos. See also: [Disk size](/docs/lambda/disk-size)
-
-### `customRoleArn`
-
-_optional_
-
-Use a custom role for the function instead of the default (`arn:aws:iam::[aws-account-id]:role/remotion-lambda-role`)
 
 ## Return value
 
 An object with the following values:
 
-- `functionName` (_string_): The name of the function just created.
-- `alreadyExisted`: (_boolean_): Whether the creation was skipped because the function already existed.
+- `fullName` (_string_): The full name of the service just created, in the form `projects/remotion-6/locations/{region}/services/{serviceName}`.
+- `shortName` (_string_): The name of the service just created, as it appears in the console.
+- `uri` (_string_): The endpoint of the service just created.
+- `alreadyExists`: (_boolean_): Whether the creation was skipped because the service already existed.
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-function.ts)
-- [CLI equivalent: npx remotion lambda functions deploy](/docs/lambda/cli/functions#deploy)
-- [deleteFunction()](/docs/lambda/deletefunction)
-- [getFunctions()](/docs/lambda/getfunctions)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/cloudrun/src/api/deploy-service.ts)
+- [CLI equivalent: npx remotion cloudrun services deploy](/docs/cloudrun/cli/services#deploy)
+- [deleteService()](/docs/cloudrun/deleteservice)
+- [getServices()](/docs/cloudrun/getservices)

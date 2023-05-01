@@ -1,12 +1,12 @@
 ---
-image: /generated/articles-docs-lambda-api.png
-title: "@remotion/lambda"
-crumb: "Render videos without servers"
+image: /generated/articles-docs-cloudrun-api.png
+title: "@remotion/cloudrun"
+crumb: "Render videos without servers on GCP"
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
-import {TableOfContents} from '../../components/TableOfContents/lambda';
+import {TableOfContents} from '../../components/TableOfContents/cloudrun';
 
 <Tabs
 defaultValue="npm"
@@ -19,7 +19,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i @remotion/lambda
+npm i @remotion/cloudrun
 ```
 
   </TabItem>
@@ -27,14 +27,14 @@ npm i @remotion/lambda
   <TabItem value="pnpm">
 
 ```bash
-pnpm i @remotion/lambda
+pnpm i @remotion/cloudrun
 ```
 
   </TabItem>
   <TabItem value="yarn">
 
 ```bash
-yarn add @remotion/lambda
+yarn add @remotion/cloudrun
 ```
 
   </TabItem>
@@ -47,7 +47,7 @@ Also update **all the other Remotion packages** to have the same version: `remot
 Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
 :::
 
-**See the [setup guide](/docs/lambda/setup) for complete instructions on how to get started.**
+**See the [setup guide](/docs/cloudrun/setup) for complete instructions on how to get started.**
 
 ## APIs
 
@@ -57,4 +57,4 @@ The following Node.JS are available:
 
 ## CLI
 
-See [here](/docs/lambda/cli) for a list of CLI commands.
+See [here](/docs/cloudrun/cli) for a list of CLI commands.

@@ -12,7 +12,6 @@ export type DeployServiceInput = {
 	cpu?: string;
 	projectID: string;
 	region: string;
-	redeploy: boolean;
 };
 
 export type DeployServiceOutput = {

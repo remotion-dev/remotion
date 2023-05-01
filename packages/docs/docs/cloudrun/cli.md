@@ -10,8 +10,10 @@ To use the Remotion Cloudrun CLI, you first need to [install it](/docs/cloudrun/
 
 ## Commands
 
-// TODO
-
-## Global options
-
-// TODO
+- [sites](/docs/cloudrun/cli/sites)
+- [functions](/docs/cloudrun/cli/functions)
+- [render](/docs/cloudrun/cli/render)
+- [still](/docs/cloudrun/cli/still)
+- [compositions](/docs/cloudrun/cli/compositions)
+- [policies](/docs/cloudrun/cli/policies)
+- [quotas](/docs/cloudrun/cli/quotas)
