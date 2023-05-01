@@ -3,8 +3,8 @@ import type {z} from 'zod';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Checkbox} from '../../Checkbox';
 import {
-	useZodColorIfPossible,
 	useZodIfPossible,
+	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {createZodValues} from './create-zod-values';
@@ -60,7 +60,7 @@ export const ZodOrNullishEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const zColor = useZodColorIfPossible();
+	const zColor = useZodTypesIfPossible();
 
 	const isChecked = value === nullishValue;
 

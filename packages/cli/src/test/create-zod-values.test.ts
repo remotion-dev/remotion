@@ -1,7 +1,7 @@
 import {expect, test} from 'vitest';
 import {
-	getZColorIfPossible,
 	getZodIfPossible,
+	getZTypesIfPossible,
 } from '../editor/components/get-zod-if-possible';
 import {createZodValues} from '../editor/components/RenderModal/SchemaEditor/create-zod-values';
 
@@ -15,7 +15,7 @@ const getZ = async () => {
 };
 
 const getZColor = async () => {
-	const z = await getZColorIfPossible();
+	const z = await getZTypesIfPossible();
 	if (!z) {
 		throw new Error('@remotion/zod-types not found');
 	}

@@ -1,11 +1,11 @@
-import type {ZodColorType} from './editor/components/get-zod-if-possible';
+import type {ZodTypesType} from './editor/components/get-zod-if-possible';
 
 export const colorWithNewOpacity = (
 	color: string,
 	opacity: number,
-	zColor: ZodColorType
+	zColor: ZodTypesType
 ) => {
-	const {r, g, b} = zColor.ZColorInternals.parseColor(color);
+	const {r, g, b} = zColor.ZodZypesInternals.parseColor(color);
 	if (opacity >= 255) {
 		return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
 	}

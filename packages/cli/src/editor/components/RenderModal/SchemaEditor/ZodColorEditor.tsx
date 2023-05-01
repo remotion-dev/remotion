@@ -2,8 +2,8 @@ import React, {useCallback, useMemo, useState} from 'react';
 import type {z} from 'zod';
 import {colorWithNewOpacity} from '../../../../color-math';
 import {
-	useZodColorIfPossible,
 	useZodIfPossible,
+	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
 import {Row, Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
@@ -51,8 +51,8 @@ export const ZodColorEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const zodColor = useZodColorIfPossible();
-	if (!zodColor) {
+	const zodTypes = useZodTypesIfPossible();
+	if (!zodTypes) {
 		throw new Error('expected zod color');
 	}
 
@@ -79,7 +79,7 @@ export const ZodColorEditor: React.FC<{
 	);
 
 	const {a, b, g, r} = localValue.zodValidation.success
-		? zodColor.ZColorInternals.parseColor(localValue.value)
+		? zodTypes.ZodZypesInternals.parseColor(localValue.value)
 		: {a: 1, b: 0, g: 0, r: 0};
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -87,7 +87,7 @@ export const ZodColorEditor: React.FC<{
 			const newColor = colorWithNewOpacity(
 				e.target.value,
 				Math.round(a),
-				zodColor
+				zodTypes
 			);
 			const safeParse = schema.safeParse(newColor);
 			const newLocalState: LocalState = {
@@ -99,7 +99,7 @@ export const ZodColorEditor: React.FC<{
 				setValue(newColor);
 			}
 		},
-		[a, schema, setValue, zodColor]
+		[a, schema, setValue, zodTypes]
 	);
 
 	const onTextChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -145,7 +145,7 @@ export const ZodColorEditor: React.FC<{
 			const newColor = colorWithNewOpacity(
 				localValue.value,
 				Math.round((Number(newValue) / 100) * 255),
-				zodColor
+				zodTypes
 			);
 			const safeParse = schema.safeParse(newColor);
 			const newLocalState: LocalState = {
@@ -157,7 +157,7 @@ export const ZodColorEditor: React.FC<{
 				setValue(newColor);
 			}
 		},
-		[localValue.value, schema, setValue, zodColor]
+		[localValue.value, schema, setValue, zodTypes]
 	);
 
 	const onOpacityValueChange = useCallback(
@@ -165,7 +165,7 @@ export const ZodColorEditor: React.FC<{
 			const newColor = colorWithNewOpacity(
 				localValue.value,
 				Math.round((Number(newValue) / 100) * 255),
-				zodColor
+				zodTypes
 			);
 
 			const safeParse = schema.safeParse(newColor);
@@ -178,7 +178,7 @@ export const ZodColorEditor: React.FC<{
 				setValue(newColor);
 			}
 		},
-		[localValue.value, schema, setValue, zodColor]
+		[localValue.value, schema, setValue, zodTypes]
 	);
 
 	return (
