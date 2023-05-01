@@ -18,7 +18,7 @@ pub struct FrameCacheItem {
     pub asked_time: i64,
     pub frame: ScalableFrame,
     pub id: usize,
-    pub created_at: Instant,
+    pub last_used: Instant,
 }
 
 pub struct FrameCache {
@@ -29,7 +29,7 @@ pub struct FrameCache {
 #[derive(Clone)]
 pub struct FrameCacheReference {
     pub id: usize,
-    pub created_at: i64,
+    pub last_used: i64,
     pub src: String,
     pub transparent: bool,
 }
@@ -51,7 +51,7 @@ impl FrameCache {
         for item in &self.items {
             references.push(FrameCacheReference {
                 id: item.id,
-                created_at: item.created_at.elapsed().as_millis() as i64,
+                last_used: item.last_used.elapsed().as_millis() as i64,
                 src: src.clone(),
                 transparent,
             });
@@ -80,6 +80,7 @@ impl FrameCache {
             if self.items[i].id == id {
                 self.items[i].frame.ensure_data()?;
                 self.items[i].asked_time = 0;
+                self.items[i].last_used = Instant::now();
                 data = Some(self.items[i].frame.get_data()?);
                 break;
             }

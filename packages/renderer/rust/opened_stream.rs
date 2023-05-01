@@ -101,7 +101,7 @@ impl OpenedStream {
                         frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
                         asked_time: position,
-                        created_at: Instant::now(),
+                        last_used: Instant::now(),
                     };
 
                     frame_cache.lock()?.add_item(item);
@@ -228,7 +228,7 @@ impl OpenedStream {
                             frame: ScalableFrame::new(frame, self.transparent),
                             id: frame_cache_id,
                             asked_time: position,
-                            created_at: Instant::now(),
+                            last_used: Instant::now(),
                         };
 
                         frame_cache.lock().unwrap().add_item(item);
