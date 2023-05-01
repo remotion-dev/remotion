@@ -1,5 +1,6 @@
 import React, {useCallback, useState} from 'react';
-import type {z} from 'remotion';
+import type {z} from 'zod';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
@@ -39,6 +40,11 @@ export const ZodStringEditor: React.FC<{
 	onRemove,
 	saving,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,

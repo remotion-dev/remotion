@@ -1,5 +1,6 @@
 import React, {useCallback} from 'react';
-import {z} from 'remotion';
+import type {z} from 'zod';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
 import {InvalidDefaultProps, InvalidSchema} from './SchemaErrorMessages';
 import {ZodObjectEditor} from './ZodObjectEditor';
@@ -32,6 +33,11 @@ export const SchemaEditor: React.FC<{
 	showSaveButton,
 	saving,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;

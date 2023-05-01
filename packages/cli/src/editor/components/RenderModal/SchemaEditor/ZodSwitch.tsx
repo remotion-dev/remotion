@@ -1,5 +1,9 @@
 import React from 'react';
-import {Internals, z} from 'remotion';
+import type {z} from 'zod';
+import {
+	useZodIfPossible,
+	useZodTypesIfPossible,
+} from '../../get-zod-if-possible';
 import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodBooleanEditor} from './ZodBooleanEditor';
@@ -41,6 +45,13 @@ export const ZodSwitch: React.FC<{
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
+
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
+	const zodTypes = useZodTypesIfPossible();
 
 	// TODO: (Maybe?) enable saving of inserted input props by cmd+s /ctrl + s (also for JSON view)
 
@@ -229,7 +240,11 @@ export const ZodSwitch: React.FC<{
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodEffects) {
-		if (schema._def.description === Internals.REMOTION_COLOR_BRAND) {
+		if (
+			zodTypes &&
+			schema._def.description ===
+				zodTypes.ZodZypesInternals.REMOTION_COLOR_BRAND
+		) {
 			return (
 				<ZodColorEditor
 					value={value as string}

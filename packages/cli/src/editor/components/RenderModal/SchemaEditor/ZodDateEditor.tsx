@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import type {z} from 'remotion';
+import type {z} from 'zod';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing, SPACING_UNIT} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';

@@ -6,11 +6,13 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyComposition} from 'remotion';
-import {getInputProps, Internals, z} from 'remotion';
+import {getInputProps, Internals} from 'remotion';
+import type {z} from 'zod';
 import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
+import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
 import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {
@@ -31,6 +33,7 @@ import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
 	NoSchemaDefined,
+	ZodNotInstalled,
 } from './SchemaEditor/SchemaErrorMessages';
 import {WarningIndicatorButton} from './WarningIndicatorButton';
 
@@ -130,9 +133,6 @@ export const RenderModalData: React.FC<{
 	const [mode, setMode] = useState<Mode>('schema');
 	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
 	const [saving, setSaving] = useState(false);
-	const zodValidationResult = useMemo(() => {
-		return composition.schema.safeParse(inputProps);
-	}, [composition.schema, inputProps]);
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState()
 	);
@@ -154,6 +154,34 @@ export const RenderModalData: React.FC<{
 			reason: 'Loading...',
 			determined: false,
 		});
+
+	const z = useZodIfPossible();
+
+	const schema = useMemo(() => {
+		if (!z) {
+			return 'no-zod' as const;
+		}
+
+		if (!composition.schema) {
+			return z.any();
+		}
+
+		if (!(typeof composition.schema.safeParse === 'function')) {
+			throw new Error(
+				'A value which is not a Zod schema was passed to `schema`'
+			);
+		}
+
+		return composition.schema;
+	}, [composition.schema, z]);
+
+	const zodValidationResult = useMemo(() => {
+		if (schema === 'no-zod') {
+			return 'no-zod' as const;
+		}
+
+		return schema.safeParse(inputProps);
+	}, [inputProps, schema]);
 
 	const setShowWarning: React.Dispatch<React.SetStateAction<boolean>> =
 		useCallback((val) => {
@@ -274,7 +302,19 @@ export const RenderModalData: React.FC<{
 		);
 	}
 
-	const def: z.ZodTypeDef = composition.schema._def;
+	if (schema === 'no-zod') {
+		return <ZodNotInstalled />;
+	}
+
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
+	if (zodValidationResult === 'no-zod') {
+		throw new Error('expected zod');
+	}
+
+	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
 
@@ -318,7 +358,7 @@ export const RenderModalData: React.FC<{
 				<SchemaEditor
 					value={inputProps}
 					setValue={setInputProps}
-					schema={composition.schema}
+					schema={schema}
 					zodValidationResult={zodValidationResult}
 					compact={compact}
 					defaultProps={composition.defaultProps}
