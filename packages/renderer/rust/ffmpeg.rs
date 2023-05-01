@@ -2,6 +2,7 @@ use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
 use crate::frame_cache::FrameCacheReference;
+use crate::logger::log_callback;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
@@ -146,6 +147,7 @@ pub struct OpenedVideoManager {
 
 pub fn make_opened_stream_manager() -> Result<OpenedVideoManager, ErrorWithBacktrace> {
     remotionffmpeg::init()?;
+    remotionffmpeg::log::set_callback(Some(log_callback));
     Ok(OpenedVideoManager {
         videos: RwLock::new(HashMap::new()),
     })
