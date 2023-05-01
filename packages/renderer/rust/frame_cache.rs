@@ -105,6 +105,10 @@ impl FrameCache {
         self.items.is_empty()
     }
 
+    pub fn get_cache_item_count(&self) -> usize {
+        self.items.len()
+    }
+
     pub fn get_item_id(
         &mut self,
         time: i64,
