@@ -25,6 +25,7 @@ export const ZodEffectEditor: React.FC<{
 	onSave: (updater: (oldState: unknown) => unknown) => void;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
+	saving: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -35,6 +36,7 @@ export const ZodEffectEditor: React.FC<{
 	onSave,
 	onRemove,
 	showSaveButton,
+	saving,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -98,6 +100,7 @@ export const ZodEffectEditor: React.FC<{
 					onSave={onSave}
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}
+					saving={saving}
 				/>
 			</div>
 			{!localValue.zodValidation.success && (

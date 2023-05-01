@@ -33,6 +33,7 @@ export const ZodObjectEditor: React.FC<{
 	) => void;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
+	saving: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -43,6 +44,7 @@ export const ZodObjectEditor: React.FC<{
 	onSave,
 	showSaveButton,
 	onRemove,
+	saving,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -112,6 +114,7 @@ export const ZodObjectEditor: React.FC<{
 									onRemove={null}
 									compact={compact}
 									showSaveButton={showSaveButton}
+									saving={saving}
 								/>
 							);
 						})}

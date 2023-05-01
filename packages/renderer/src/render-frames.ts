@@ -59,7 +59,7 @@ type RenderFramesOptions = {
 	outputDir: string | null;
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
-	imageFormat: VideoImageFormat;
+	imageFormat?: VideoImageFormat;
 	/**
 	 * @deprecated Renamed to "jpegQuality"
 	 */

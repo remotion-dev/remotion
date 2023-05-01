@@ -3,9 +3,9 @@ import {existsSync, mkdirSync, unlinkSync} from 'fs';
 
 const toolchains = [
 	'x86_64_gnu_toolchain',
-	'aarch_gnu_toolchain',
 	'x86_64_musl_toolchain',
-	'aarch64-musl-toolchain',
+	'aarch64_musl_toolchain',
+	'aarch64_gnu_toolchain',
 ];
 
 const unpatched = [
