@@ -1,7 +1,6 @@
 ---
 image: /generated/articles-docs-z-color.png
 title: zColor()
-slug: zod-types/z-color
 ---
 
 Using `zColor()`, you can specify in your [schema](/docs/parametrized-rendering) that a string has to be a color.
