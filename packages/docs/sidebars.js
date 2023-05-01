@@ -330,12 +330,12 @@ module.exports = {
     },
     {
       type: "category",
-      label: "@remotion/z-color",
+      label: "@remotion/zod-types",
       link: {
         type: "doc",
-        id: "z-color/index",
+        id: "zod-types/index",
       },
-      items: ["z-color/z-color"],
+      items: ["zod-types/z-color"],
     },
   ],
   mainSidebar: [

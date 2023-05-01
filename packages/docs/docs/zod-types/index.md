@@ -1,6 +1,6 @@
 ---
 sidebar_label: Overview
-title: "@remotion/z-color"
+title: "@remotion/zod-types"
 crumb: Schema
 ---
 
@@ -23,18 +23,18 @@ Install `@remotion/rive`
 <TabItem value="npm">
 
 ```bash
-npm i @remotion/z-color
+npm i @remotion/zod-types
 ```
 
 </TabItem>
 <TabItem value="yarn">
 ```bash
-yarn add @remotion/z-color
+yarn add @remotion/zod-types
 ```
 </TabItem>
 <TabItem value="pnpm">
 ```bash
-pnpm i @remotion/z-color
+pnpm i @remotion/zod-types
 ```
 </TabItem>
 </Tabs>

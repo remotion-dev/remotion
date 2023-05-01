@@ -4,7 +4,7 @@ import {getZColorIfPossible} from '../editor/components/get-zod-if-possible';
 const getZColor = async () => {
 	const z = await getZColorIfPossible();
 	if (!z) {
-		throw new Error('z-color not found');
+		throw new Error('@remotion/zod-types not found');
 	}
 
 	return z;

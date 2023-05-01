@@ -8,7 +8,7 @@ Config.overrideWebpackConfig((config) => {
       alias: {
         ...config.resolve?.alias,
         zod: false,
-        "@remotion/z-color": false,
+        "@remotion/zod-types": false,
       },
     },
   };

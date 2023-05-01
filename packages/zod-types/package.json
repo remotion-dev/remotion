@@ -1,5 +1,5 @@
 {
-	"name": "@remotion/z-color",
+	"name": "@remotion/zod-types",
 	"version": "3.3.84",
 	"description": "A color validator for Zod",
 	"main": "dist/cjs/index.js",
