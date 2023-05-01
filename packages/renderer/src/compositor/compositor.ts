@@ -1,4 +1,5 @@
 import {spawn} from 'child_process';
+import os from 'os';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getActualConcurrency} from '../get-concurrency';
 import {serializeCommand} from './compose';
@@ -25,9 +26,20 @@ type Waiter = {
 	reject: (err: Error) => void;
 };
 
-export const startLongRunningCompositor = () => {
+export const getIdealMaximumFrameCacheItems = () => {
+	const freeMemory = os.freemem();
+	// Assuming 1 frame is approximately 6MB
+	// Assuming only half the available memory should be used
+	const max = Math.floor(freeMemory / (1024 * 1024 * 6));
+
+	// Never store more than 500 frames
+	return Math.min(max, 500);
+};
+
+export const startLongRunningCompositor = (maximumFrameCacheItems: number) => {
 	return startCompositor('StartLongRunningProcess', {
 		concurrency: getActualConcurrency(null),
+		maximum_frame_cache_items: maximumFrameCacheItems,
 	});
 };
 
