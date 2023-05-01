@@ -1,6 +1,7 @@
 use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
+use crate::frame_cache::FrameCacheReference;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
 use crate::opened_video::OpenedVideo;
@@ -33,8 +34,10 @@ pub fn close_all_videos() -> Result<(), ErrorWithBacktrace> {
     Ok(())
 }
 
-pub fn free_up_memory() -> Result<(), ErrorWithBacktrace> {
+pub fn free_up_memory(ratio: f64) -> Result<(), ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
+
+    manager.prune_oldest(ratio)?;
 
     Ok(())
 }
@@ -148,6 +151,48 @@ impl OpenedVideoManager {
 
     pub fn get_open_videos(&self) -> Result<usize, ErrorWithBacktrace> {
         return Ok(self.videos.read()?.len());
+    }
+
+    fn get_frame_references(&self) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
+        let mut vec: Vec<FrameCacheReference> = Vec::new();
+        for i in 0..1 {
+            let transparent = i == 0;
+            for video in self.videos.read()?.values() {
+                let video_locked = video.lock()?;
+                let frame_cache = video_locked.get_frame_cache(transparent);
+                let frame_cache_locked = frame_cache.lock()?;
+                let references =
+                    frame_cache_locked.get_references(video_locked.src.clone(), transparent)?;
+                for reference in references {
+                    vec.push(reference);
+                }
+            }
+        }
+
+        return Ok(vec);
+    }
+
+    pub fn prune_oldest(&self, ratio: f64) -> Result<(), ErrorWithBacktrace> {
+        let references = self.get_frame_references()?;
+        let oldest_n = (references.len() as f64 * ratio).ceil() as usize;
+        let mut sorted = references.clone();
+        // TODO: Created at is not necessarily the last used
+        // TODO: Remove video if no items in frame cache anymore
+        sorted.sort_by(|a, b| a.created_at.cmp(&b.created_at));
+        let mut to_remove: Vec<FrameCacheReference> = Vec::new();
+        for i in 0..oldest_n {
+            to_remove.push(sorted[i].clone());
+        }
+        for removal in to_remove {
+            let video_locked = self.get_video(&removal.src, removal.transparent)?;
+            let video = video_locked.lock()?;
+            video
+                .get_frame_cache(removal.transparent)
+                .lock()?
+                .remove_item_by_id(removal.id)?;
+        }
+
+        Ok(())
     }
 
     pub fn get_open_video_streams(&self) -> Result<usize, ErrorWithBacktrace> {

@@ -26,9 +26,12 @@ pub struct FrameCache {
     pub last_frame: Option<usize>,
 }
 
+#[derive(Clone)]
 pub struct FrameCacheReference {
     pub id: usize,
     pub created_at: i64,
+    pub src: String,
+    pub transparent: bool,
 }
 
 impl FrameCache {
@@ -39,17 +42,28 @@ impl FrameCache {
         }
     }
 
-    pub fn prune_oldest(&mut self, percentage: f64) -> Result<(), ErrorWithBacktrace> {
-        if self.items.len() == 0 {
-            return Ok(());
+    pub fn get_references(
+        &self,
+        src: String,
+        transparent: bool,
+    ) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
+        let mut references: Vec<FrameCacheReference> = Vec::new();
+        for item in &self.items {
+            references.push(FrameCacheReference {
+                id: item.id,
+                created_at: item.created_at.elapsed().as_millis() as i64,
+                src: src.clone(),
+                transparent,
+            });
         }
+        Ok(references)
+    }
 
-        self.items.sort_by(|a, b| a.created_at.cmp(&b.created_at));
-        let items_to_remove = ((self.items.len() as f64 * percentage) as usize).max(1);
-        for i in 0..items_to_remove {
-            self.remove_item_by_id(self.items[i].id)?;
-        }
-        Ok(())
+    pub fn remove_from_frame_reference(
+        &mut self,
+        frame_cache_reference: FrameCacheReference,
+    ) -> Result<(), ErrorWithBacktrace> {
+        self.remove_item_by_id(frame_cache_reference.id)
     }
 
     pub fn add_item(&mut self, item: FrameCacheItem) {
@@ -76,6 +90,9 @@ impl FrameCache {
     pub fn remove_item_by_id(&mut self, id: usize) -> Result<(), ErrorWithBacktrace> {
         for i in 0..self.items.len() {
             if self.items[i].id == id {
+                if self.last_frame.is_some() && id == self.last_frame.expect("last_frame") {
+                    self.last_frame = None;
+                }
                 self.items.remove(i);
                 break;
             }
