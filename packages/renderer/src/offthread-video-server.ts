@@ -3,7 +3,10 @@ import {URLSearchParams} from 'url';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
-import {startCompositor} from './compositor/compositor';
+import {
+	getIdealMaximumFrameCacheItems,
+	startCompositor,
+} from './compositor/compositor';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
 	const parsed = new URL(url, 'http://localhost');
@@ -47,6 +50,7 @@ export const startOffthreadVideoServer = ({
 }): {listener: RequestListener; close: () => Promise<void>} => {
 	const compositor = startCompositor('StartLongRunningProcess', {
 		concurrency,
+		maximum_frame_cache_items: getIdealMaximumFrameCacheItems(),
 	});
 
 	return {
