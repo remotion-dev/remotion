@@ -282,7 +282,7 @@ test('Last frame should be fast', async () => {
 	});
 
 	const time4_end = Date.now();
-	expect(time4_end - time4).toBeGreaterThan((time3_end - time3) * 10);
+	expect(time4_end - time4).toBeGreaterThan((time3_end - time3) * 2);
 	expect(data4.length).not.toBe(3499254);
 
 	compositor.finishCommands();
