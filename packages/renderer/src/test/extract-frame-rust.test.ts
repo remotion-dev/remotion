@@ -150,9 +150,9 @@ test(
 		const topLeftPixelG = data[expectedLength - 2];
 		const topLeftPixelB = data[expectedLength - 3];
 
-		expect(topLeftPixelR).toBeCloseTo(48, 1);
-		expect(topLeftPixelG).toBeCloseTo(113, 1);
-		expect(topLeftPixelB).toBeCloseTo(196, 1);
+		expect(topLeftPixelR / 100).toBeCloseTo(0.48, 0.01);
+		expect(topLeftPixelG / 100).toBeCloseTo(1.13, 0.01);
+		expect(topLeftPixelB / 100).toBeCloseTo(1.96, 0.01);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
@@ -176,9 +176,9 @@ test(
 
 		// Pixel fixing
 		expect(data.length).toBe(6220854);
-		expect(data[1045650]).toBeCloseTo(18, 1);
-		expect(data[1645650]).toBeCloseTo(41, 1);
-		expect(data[2000000]).toBeCloseTo(20, 1);
+		expect(data[1045650] / 100).toBeCloseTo(0.18, 0.01);
+		expect(data[1645650] / 100).toBeCloseTo(0.41, 0.01);
+		expect(data[2000000] / 100).toBeCloseTo(0.2, 0.01);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
