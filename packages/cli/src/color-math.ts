@@ -1,7 +1,11 @@
-import {Internals} from 'remotion';
+import type {ZodTypesType} from './editor/components/get-zod-if-possible';
 
-export const colorWithNewOpacity = (color: string, opacity: number) => {
-	const {r, g, b} = Internals.parseColor(color);
+export const colorWithNewOpacity = (
+	color: string,
+	opacity: number,
+	zodTypes: ZodTypesType
+) => {
+	const {r, g, b} = zodTypes.ZodZypesInternals.parseColor(color);
 	if (opacity >= 255) {
 		return `#${r.toString(16)}${g.toString(16)}${b.toString(16)}`;
 	}

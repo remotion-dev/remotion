@@ -1,6 +1,5 @@
 ---
 image: /generated/articles-docs-z-color.png
-id: z-color
 title: zColor()
 ---
 
@@ -10,5 +9,4 @@ In the Remotion Preview, a color picker will be displayed allowing to change and
 
 ## See also
 
-- [Parametrized rendereding](/docs/parametrized-rendering)
-- [`z`](/docs/z)
+- [Parametrized rendering](/docs/parametrized-rendering)

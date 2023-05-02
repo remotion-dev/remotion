@@ -1,4 +1,4 @@
-import type {z} from 'remotion';
+import type {z} from 'zod';
 import type {JSONPath} from './zod-types';
 import {ZodOrNullishEditor} from './ZodOrNullishEditor';
 
