@@ -5,14 +5,14 @@ sidebar_label: Rendering from Go
 crumb: "@remotion/lambda"
 ---
 
-To trigger a Lambda render using Go, you will need to utilize, a go package. Note the following:
+To trigger a Lambda render using Go, you will need to utilize remotion [goclient](https://github.com/remotion-dev/remotion/blob/main/packages/goclient/goclient.go) package. Note of the following:
 
 - You first need to [complete the Lambda setup](/docs/lambda/setup).
 - Sending large input props (>200KB) is not supported with Go at the moment.
 
 
 :::warning
-The go package utilised on this example is in early stage of development.
+The go package utilized on this example is in early stage of development.
 :::
 
 ```go title="main.go"
@@ -57,7 +57,8 @@ func main() {
 	// Specify the region you deployed to, for example "us-east-1"
 	region := os.Getenv("REMOTION_APP_REGION")
 
-	input := goclient.RemotionOptions{
+	// Set parameters for render
+	renderInputRequest := goclient.RemotionOptions{
 		ServeUrl:     serveUrl,
 		FunctionName: functionName,
 		Region:       region,
@@ -68,14 +69,17 @@ func main() {
 		Composition: "main",   // The composition to use
 		Version:     "3.3.78", // Specify the Remotion version to use
 	}
-	response, error := goclient.RenderMediaOnLambda(input)
 
-	if error != nil {
+	// Execute the render process
+	renderResponse, renderError := goclient.RenderMediaOnLambda(renderInputRequest)
 
-		validationOut := make([]ValidationError, len(error.(validator.ValidationErrors)))
+	// Check if there are validation errors
+	if renderError != nil {
 
-		for i, fieldError := range error.(validator.ValidationErrors) {
-			//println(fieldError.Value().(int))
+		validationOut := make([]ValidationError, len(renderError.(validator.ValidationErrors)))
+
+		for i, fieldError := range renderError.(validator.ValidationErrors) {
+
 			validationOut[i] = ValidationError{fieldError.Field(), msgForTag(fieldError)}
 		}
 
@@ -86,42 +90,36 @@ func main() {
 
 	}
 
-	var bucketName string
-	var renderId string
+	// Get bucket information
+	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.BucketName, renderResponse.RenderId)
 
-	output, ok := response.(map[string]interface{})
-	if !ok {
+	// Render Progress request
+	renderProgressInputRequest := goclient.RenderConfig{
+		FunctionName: functionName,
+		Region:       region,
+		RenderId:     renderResponse.RenderId,
+		BucketName:   renderResponse.BucketName,
+	}
+	// Execute getting the render progress
+	renderProgressResponse, renderProgressError := goclient.GetRenderProgress(renderProgressInputRequest)
 
-		log.Fatal("%s %s", "invalid response format", err)
+	// Check if we have error
+	if renderProgressError != nil {
+		log.Fatal("%s %s", "Invalid render progress response", renderProgressError)
 	}
 
-	for key, value := range output {
-		switch key {
-		case "bucketName":
-			bucketName, _ = value.(string)
-		case "renderId":
-			renderId, _ = value.(string)
-
-		}
-	}
-
-	fmt.Printf("bucketName: %s\nRenderId: %s\n", bucketName, renderId)
+	// Get the overall render progress
+	fmt.Printf("overallprogress: %f ", renderProgressResponse.OverallProgress)
 
 }
-
 
 ```
 
 ## Reference applications
 
- Reference projects are available:
-
-- Ensure that [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app) is already deployed on your AWS Account.
+ The project utilizes [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app), ensure that it is already deployed on your AWS Account.
 
 
-## Checking progress
-
-For retrieving the progress of a Lambda render, you need to send another request to the Lambda function. Currently we do not have instructions for it, as a reference you may see [here](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/get-render-progress.ts) for the payload that is being sent by the TypeScript SDK.
 
 ## See also
 

@@ -39,7 +39,8 @@ func main() {
 	// Specify the region you deployed to, for example "us-east-1"
 	region := os.Getenv("REMOTION_APP_REGION")
 
-	input := goclient.RemotionOptions{
+	// Set parameters for render
+	renderInputRequest := goclient.RemotionOptions{
 		ServeUrl:     serveUrl,
 		FunctionName: functionName,
 		Region:       region,
@@ -50,14 +51,17 @@ func main() {
 		Composition: "main",   // The composition to use
 		Version:     "3.3.78", // Specify the Remotion version to use
 	}
-	response, error := goclient.RenderMediaOnLambda(input)
 
-	if error != nil {
+	// Execute the render process
+	renderResponse, renderError := goclient.RenderMediaOnLambda(renderInputRequest)
 
-		validationOut := make([]ValidationError, len(error.(validator.ValidationErrors)))
+	// Check if there are validation errors
+	if renderError != nil {
 
-		for i, fieldError := range error.(validator.ValidationErrors) {
-			//println(fieldError.Value().(int))
+		validationOut := make([]ValidationError, len(renderError.(validator.ValidationErrors)))
+
+		for i, fieldError := range renderError.(validator.ValidationErrors) {
+
 			validationOut[i] = ValidationError{fieldError.Field(), msgForTag(fieldError)}
 		}
 
@@ -68,25 +72,25 @@ func main() {
 
 	}
 
-	var bucketName string
-	var renderId string
+	// Get bucket information
+	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.BucketName, renderResponse.RenderId)
 
-	output, ok := response.(map[string]interface{})
-	if !ok {
+	// Render Progress request
+	renderProgressInputRequest := goclient.RenderConfig{
+		FunctionName: functionName,
+		Region:       region,
+		RenderId:     renderResponse.RenderId,
+		BucketName:   renderResponse.BucketName,
+	}
+	// Execute getting the render progress
+	renderProgressResponse, renderProgressError := goclient.GetRenderProgress(renderProgressInputRequest)
 
-		log.Fatal("%s %s", "invalid response format", err)
+	// Check if we have error
+	if renderProgressError != nil {
+		log.Fatal("%s %s", "Invalid render progress response", renderProgressError)
 	}
 
-	for key, value := range output {
-		switch key {
-		case "bucketName":
-			bucketName, _ = value.(string)
-		case "renderId":
-			renderId, _ = value.(string)
-
-		}
-	}
-
-	fmt.Printf("bucketName: %s\nRenderId: %s\n", bucketName, renderId)
+	// Get the overall render progress
+	fmt.Printf("overallprogress: %f ", renderProgressResponse.OverallProgress)
 
 }

@@ -6,7 +6,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func constructInternals(options *RemotionOptions) (*internalOptions, error) {
+func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions, error) {
 
 	inputProps, serializeError := serializeInputProps(options.InputProps, options.Region, "video-or-audio", options.ForceBucketName)
 
@@ -20,7 +20,7 @@ func constructInternals(options *RemotionOptions) (*internalOptions, error) {
 		return nil, validationErrors
 	}
 
-	internalParams := internalOptions{
+	internalParams := renderInternalOptions{
 		ServeUrl:        options.ServeUrl,
 		InputProps:      inputProps,
 		Composition:     options.Composition,
