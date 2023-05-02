@@ -20,8 +20,8 @@ import { deployService } from "@remotion/cloudrun";
 
 const { shortName } = await deployService({
   remotionVersion: "3.3.82",
-  memory: "2GiB",
-  cpu: "2.0",
+  memoryLimit: "2Gi",
+  cpuLimit: "2.0",
   projectID: "my-remotion-project",
   region: "us-east1",
 });
@@ -36,11 +36,11 @@ An object with the following properties:
 
 The Remotion version of the service. Remotion is versioning the Cloud Run service and a render can only be triggered from a version of `@remotion/cloudrun` that is matching the one of the service.
 
-### `memory`
+### `memoryLimit`
 
 The upper bound on the amount of RAM that the Cloud Run service can consume. By default we recommend a value of 2GiB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512MiB`, the maximum allowed number is `32GiB`. Since the costs of Remotion Cloud Run is directly proportional to the amount of RAM, we recommend to keep this amount as low as possible.
 
-### `cpu`
+### `cpuLimit`
 
 The maximum number of CPU cores that the Cloud Run service can use to process requests.
 

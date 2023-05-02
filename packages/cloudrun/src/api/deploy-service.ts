@@ -8,8 +8,8 @@ import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
 export type DeployServiceInput = {
 	remotionVersion: string;
-	memory?: string;
-	cpu?: string;
+	memoryLimit?: string;
+	cpuLimit?: string;
 	projectID: string;
 	region: string;
 };
@@ -36,12 +36,12 @@ export const deployService = async (
 	validateProjectID(options.projectID);
 	validateRemotionVersion(options.remotionVersion);
 
-	if (!options.memory) {
-		options.memory = '512Mi';
+	if (!options.memoryLimit) {
+		options.memoryLimit = '512Mi';
 	}
 
-	if (!options.cpu) {
-		options.cpu = '1.0';
+	if (!options.cpuLimit) {
+		options.cpuLimit = '1.0';
 	}
 
 	const parent = `projects/${options.projectID}/locations/${options.region}`;
@@ -49,15 +49,15 @@ export const deployService = async (
 	const cloudRunClient = getCloudRunClient();
 
 	const existingService = await checkIfServiceExists({
-		memory: options.memory,
-		cpu: options.cpu,
+		memoryLimit: options.memoryLimit,
+		cpuLimit: options.cpuLimit,
 		projectID: options.projectID,
 		region: options.region,
 	});
 
 	const serviceName = generateServiceName({
-		memory: options.memory,
-		cpu: options.cpu,
+		memoryLimit: options.memoryLimit,
+		cpuLimit: options.cpuLimit,
 	});
 
 	if (existingService) {
@@ -75,8 +75,8 @@ export const deployService = async (
 			// service structure: https://googleapis.dev/nodejs/run/latest/google.cloud.run.v2.IService.html
 			template: constructServiceTemplate({
 				remotionVersion: options.remotionVersion,
-				memory: options.memory,
-				cpu: options.cpu,
+				memoryLimit: options.memoryLimit,
+				cpuLimit: options.cpuLimit,
 			}),
 		},
 		serviceId: serviceName,

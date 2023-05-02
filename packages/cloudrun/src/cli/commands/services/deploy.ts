@@ -18,11 +18,11 @@ export const cloudRunDeploySubcommand = async () => {
 	const remotionVersion = VERSION;
 	const allowUnauthenticated =
 		parsedCloudrunCli['allow-unauthenticated'] ?? false;
-	let memory = parsedCloudrunCli.memory ?? '512Mi';
-	let cpu = parsedCloudrunCli.cpu ?? '1.0';
+	let memoryLimit = parsedCloudrunCli.memoryLimit ?? '512Mi';
+	let cpuLimit = parsedCloudrunCli.cpuLimit ?? '1.0';
 
-	memory = String(memory);
-	cpu = String(cpu);
+	memoryLimit = String(memoryLimit);
+	cpuLimit = String(cpuLimit);
 
 	if (!CliInternals.quietFlagProvided()) {
 		Log.info(
@@ -31,8 +31,8 @@ export const cloudRunDeploySubcommand = async () => {
 Validating Deployment of Cloud Run Service:
 
     Remotion Version = ${remotionVersion}
-    Service Memory Limit = ${memory}
-    Service CPU Limit = ${cpu}
+    Service Memory Limit = ${memoryLimit}
+    Service CPU Limit = ${cpuLimit}
     Project Name = ${projectID}
     Region = ${region}
     Allow Unauthenticated Access = ${allowUnauthenticated}
@@ -56,8 +56,8 @@ Validating Deployment of Cloud Run Service:
 	try {
 		const deployResult = await deployService({
 			remotionVersion,
-			memory,
-			cpu,
+			memoryLimit,
+			cpuLimit,
 			projectID,
 			region,
 		});
@@ -115,8 +115,8 @@ Validating Deployment of Cloud Run Service:
 		Log.error(
 			CliInternals.chalk.red(
 				`Failed to deploy service - ${generateServiceName({
-					memory,
-					cpu,
+					memoryLimit,
+					cpuLimit,
 				})}.`
 			)
 		);

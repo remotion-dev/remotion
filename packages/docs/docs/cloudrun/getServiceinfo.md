@@ -26,7 +26,7 @@ const info = await getServiceInfo({
 });
 console.log(info.serviceName); // remotion--3-3-82--mem512mi--cpu1-0
 console.log(info.timeoutInSeconds); // 120
-console.log(info.memoryLImit); // 1500
+console.log(info.memoryLimit); // 1500
 console.log(info.cpuLimit); // 2048
 console.log(info.remotionVersion); // '2021-07-14'
 ```
@@ -46,9 +46,9 @@ The name of the service.
 ## Return value
 
 If the service does not exist, an error is thrown by the GCP SDK.
-If the service exists, promise resolving to an object with the following properties is returned:
+If the service exists, a promise resolving to an object with the following properties is returned:
 
-### `memoryLImit`
+### `memoryLimit`
 
 The upper bound on the amount of RAM that the Cloud Run service can consume.
 
