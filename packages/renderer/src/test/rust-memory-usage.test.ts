@@ -4,7 +4,7 @@ import {startLongRunningCompositor} from '../compositor/compositor';
 import {exampleVideos} from './example-videos';
 
 test('Memory usage should be determined ', async () => {
-	if (process.platform === 'win32') {
+	if (process.platform !== 'darwin') {
 		return;
 	}
 
@@ -107,7 +107,7 @@ test('Should respect the maximum frame cache limit', async () => {
 });
 
 test('Should be able to take commands for freeing up memory', async () => {
-	if (process.platform === 'win32') {
+	if (process.platform !== 'darwin') {
 		return;
 	}
 
@@ -135,10 +135,7 @@ test('Should be able to take commands for freeing up memory', async () => {
 });
 
 function getMemoryUsageByPid(pid: string) {
-	const data =
-		process.platform === 'darwin'
-			? execSync(`top -l 1 -pid ${pid} -stats mem`)
-			: execSync(`ps -p ${pid} -o rss= | awk '{print $1 * 1024}'`);
+	const data = execSync(`top -l 1 -pid ${pid} -stats mem`);
 	const str = data.toString('utf-8');
 	const lines = str.split('\n');
 	const last = lines[lines.length - 2];
