@@ -6,4 +6,4 @@ See the public APIs here: https://remotion.dev/docs/renderer
 
 ## Development
 
-For developing the Rust parts, see https://remotion.devdocs/contributing/rust.
+For developing the Rust parts, see https://remotion.dev/docs/contributing/rust.
