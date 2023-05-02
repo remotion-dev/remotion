@@ -2,15 +2,15 @@ import {RENDER_SERVICE_PREFIX} from './constants';
 import {SERVICE_VERSION_STRING} from './service-version-string';
 
 export const generateServiceName = ({
-	memory,
-	cpu,
+	memoryLimit,
+	cpuLimit,
 }: {
-	memory: string;
-	cpu: string;
+	memoryLimit: string;
+	cpuLimit: string;
 }): string => {
-	const sanitisedCPU = cpu.replace(/\./g, '-').substring(0, 10);
+	const sanitisedCPU = cpuLimit.replace(/\./g, '-').substring(0, 10);
 
-	const sanitisedMem = memory
+	const sanitisedMem = memoryLimit
 		.replace(/\./g, '-')
 		.substring(0, 10)
 		.toLowerCase();

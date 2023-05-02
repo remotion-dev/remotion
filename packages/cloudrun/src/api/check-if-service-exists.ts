@@ -7,8 +7,8 @@ import {validateProjectID} from '../shared/validate-project-id';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
 export type CheckIfServiceExistsInput = {
-	memory: string;
-	cpu: string;
+	memoryLimit: string;
+	cpuLimit: string;
 	projectID: string;
 	region: string;
 };
@@ -30,8 +30,8 @@ export const checkIfServiceExists = async (
 	const parent = `projects/${options.projectID}/locations/${options.region}`;
 
 	const serviceName = generateServiceName({
-		memory: options.memory,
-		cpu: options.cpu,
+		memoryLimit: options.memoryLimit,
+		cpuLimit: options.cpuLimit,
 	});
 
 	const cloudRunClient = getCloudRunClient();
