@@ -7,11 +7,11 @@ export const dynamicLibraryPathOptions = () => {
 	const lib = path.join(getExecutablePath('ffmpeg-cwd'), 'remotion', 'lib');
 
 	return {
-		env:
-			process.platform === 'darwin'
+		env: {
+			RUST_BACKTRACE: 'full',
+			...(process.platform === 'darwin'
 				? {
 						DYLD_LIBRARY_PATH: lib,
-						RUST_BACKTRACE: '1',
 				  }
 				: process.platform === 'win32'
 				? {
@@ -19,7 +19,8 @@ export const dynamicLibraryPathOptions = () => {
 				  }
 				: {
 						LD_LIBRARY_PATH: lib,
-				  },
+				  }),
+		},
 	};
 };
 

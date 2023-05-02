@@ -1,5 +1,6 @@
 import React from 'react';
-import {AbsoluteFill, Sequence, z} from 'remotion';
+import {AbsoluteFill, Sequence} from 'remotion';
+import {z} from 'zod';
 
 export const schemaTestSchema = z.object({
 	title: z.string().nullable(),

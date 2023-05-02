@@ -49,7 +49,17 @@ export type CompositorCommand = {
 	Echo: {
 		message: string;
 	};
-	StartLongRunningProcess: {};
+	StartLongRunningProcess: {
+		concurrency: number;
+		maximum_frame_cache_items: number;
+		verbose: boolean;
+	};
+	GetOpenVideoStats: {};
+	DeliberatePanic: {};
+	CloseAllVideos: {};
+	FreeUpMemory: {
+		percent_of_memory: number;
+	};
 };
 
 export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {

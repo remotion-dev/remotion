@@ -1,5 +1,5 @@
 import type {Codec} from './codec';
-import {getCodecName} from './get-codec-name';
+import {getValidCrfRanges} from './crf';
 
 type MediaSupport = {
 	video: boolean;
@@ -53,8 +53,24 @@ export const codecSupportsMedia = (codec: Codec): MediaSupport => {
 	return support[codec];
 };
 
+const codecSupportsVideoBitrateMap: {[key in Codec]: boolean} = {
+	'h264-mkv': true,
+	aac: false,
+	gif: false,
+	h264: true,
+	h265: true,
+	mp3: false,
+	prores: false,
+	vp8: true,
+	vp9: true,
+	wav: false,
+};
+
 export const codecSupportsCrf = (codec: Codec) => {
-	const encoderName = getCodecName(codec);
-	const supportsCrf = Boolean(encoderName) && codec !== 'prores';
-	return supportsCrf;
+	const range = getValidCrfRanges(codec);
+	return range[0] !== range[1];
+};
+
+export const codecSupportsVideoBitrate = (codec: Codec) => {
+	return codecSupportsVideoBitrateMap[codec];
 };

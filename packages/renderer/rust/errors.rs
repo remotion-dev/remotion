@@ -1,10 +1,19 @@
+use crate::ffmpeg::OpenedVideoManager;
+use crate::frame_cache::FrameCache;
+use crate::opened_stream::OpenedStream;
+use crate::opened_video::OpenedVideo;
 use crate::payloads::payloads::ErrorPayload;
 use ffmpeg_next as remotionffmpeg;
+use png::EncodingError;
 use std::any::Any;
 use std::backtrace::Backtrace;
+use std::collections::HashMap;
+use std::sync::{
+    Arc, Mutex, MutexGuard, PoisonError, RwLockReadGuard, RwLockWriteGuard, TryLockError,
+};
 
-pub fn error_to_string(err: &PossibleErrors) -> String {
-    match err {
+pub fn error_to_string(err: &ErrorWithBacktrace) -> String {
+    match &err.error {
         PossibleErrors::IoError(err) => err.to_string(),
         PossibleErrors::FfmpegError(err) => err.to_string(),
         PossibleErrors::TryFromIntError(err) => err.to_string(),
@@ -12,22 +21,26 @@ pub fn error_to_string(err: &PossibleErrors) -> String {
         PossibleErrors::JpegDecoderError(err) => err.to_string(),
         PossibleErrors::SerdeError(err) => err.to_string(),
         PossibleErrors::WorkerError(err) => format!("{:?}", err),
+        PossibleErrors::EncodingError(err) => err.to_string(),
+        PossibleErrors::ThreadPoolBuilderError(err) => err.to_string(),
     }
 }
 
-pub fn handle_error(err: PossibleErrors) -> ! {
-    let err = ErrorPayload {
+pub fn error_to_json(err: ErrorWithBacktrace) -> Result<String, ErrorWithBacktrace> {
+    let json = ErrorPayload {
         error: error_to_string(&err),
-        backtrace: Backtrace::force_capture().to_string(),
+        backtrace: err.backtrace,
     };
-    // TODO: Handling this error with the other print is better
-    let j = serde_json::to_string(&err).unwrap();
+    Ok(serde_json::to_string(&json)?)
+}
 
-    eprint!("{}", j);
+pub fn handle_global_error(err: ErrorWithBacktrace) -> ! {
+    // Only log printing to stderr
+    eprint!("{}", error_to_json(err).unwrap());
     std::process::exit(1);
 }
 
-pub enum PossibleErrors {
+enum PossibleErrors {
     IoError(std::io::Error),
     FfmpegError(remotionffmpeg::Error),
     TryFromIntError(std::num::TryFromIntError),
@@ -35,53 +48,189 @@ pub enum PossibleErrors {
     JpegDecoderError(jpeg_decoder::Error),
     SerdeError(serde_json::Error),
     WorkerError(Box<dyn Any + Send>),
+    EncodingError(EncodingError),
+    ThreadPoolBuilderError(rayon::ThreadPoolBuildError),
 }
 
-impl From<Box<dyn Any + Send>> for PossibleErrors {
-    fn from(err: Box<dyn Any + Send>) -> PossibleErrors {
-        PossibleErrors::WorkerError(err)
+pub struct ErrorWithBacktrace {
+    error: PossibleErrors,
+    pub backtrace: String,
+}
+
+impl From<Box<dyn Any + Send>> for ErrorWithBacktrace {
+    fn from(err: Box<dyn Any + Send>) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::WorkerError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl From<remotionffmpeg::Error> for PossibleErrors {
-    fn from(err: remotionffmpeg::Error) -> PossibleErrors {
-        PossibleErrors::FfmpegError(err)
+impl From<remotionffmpeg::Error> for ErrorWithBacktrace {
+    fn from(err: remotionffmpeg::Error) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::FfmpegError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl From<std::io::Error> for PossibleErrors {
-    fn from(err: std::io::Error) -> PossibleErrors {
-        PossibleErrors::IoError(err)
+impl From<std::io::Error> for ErrorWithBacktrace {
+    fn from(err: std::io::Error) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::IoError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl From<std::num::TryFromIntError> for PossibleErrors {
-    fn from(err: std::num::TryFromIntError) -> PossibleErrors {
-        PossibleErrors::TryFromIntError(err)
+impl From<std::num::TryFromIntError> for ErrorWithBacktrace {
+    fn from(err: std::num::TryFromIntError) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::TryFromIntError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl From<serde_json::Error> for PossibleErrors {
-    fn from(err: serde_json::Error) -> PossibleErrors {
-        PossibleErrors::SerdeError(err)
+impl From<serde_json::Error> for ErrorWithBacktrace {
+    fn from(err: serde_json::Error) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::SerdeError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl From<png::DecodingError> for PossibleErrors {
-    fn from(err: png::DecodingError) -> PossibleErrors {
-        PossibleErrors::DecodingError(err)
+impl From<png::DecodingError> for ErrorWithBacktrace {
+    fn from(err: png::DecodingError) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::DecodingError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl From<jpeg_decoder::Error> for PossibleErrors {
-    fn from(err: jpeg_decoder::Error) -> PossibleErrors {
-        PossibleErrors::JpegDecoderError(err)
+impl From<jpeg_decoder::Error> for ErrorWithBacktrace {
+    fn from(err: jpeg_decoder::Error) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::JpegDecoderError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
     }
 }
 
-impl std::fmt::Debug for PossibleErrors {
+impl From<EncodingError> for ErrorWithBacktrace {
+    fn from(err: EncodingError) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::EncodingError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
+    }
+}
+
+impl From<rayon::ThreadPoolBuildError> for ErrorWithBacktrace {
+    fn from(err: rayon::ThreadPoolBuildError) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::ThreadPoolBuilderError(err),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
+    }
+}
+
+impl From<&str> for ErrorWithBacktrace {
+    fn from(err: &str) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::IoError(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                err.to_string(),
+            )),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
+    }
+}
+
+impl From<std::string::String> for ErrorWithBacktrace {
+    fn from(err: std::string::String) -> ErrorWithBacktrace {
+        ErrorWithBacktrace {
+            error: PossibleErrors::IoError(std::io::Error::new(std::io::ErrorKind::Other, err)),
+            backtrace: Backtrace::force_capture().to_string(),
+        }
+    }
+}
+
+fn create_error_with_backtrace<T>(err: PoisonError<MutexGuard<'_, T>>) -> ErrorWithBacktrace {
+    ErrorWithBacktrace {
+        error: PossibleErrors::IoError(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            err.to_string(),
+        )),
+        backtrace: Backtrace::force_capture().to_string(),
+    }
+}
+
+impl From<PoisonError<MutexGuard<'_, FrameCache>>> for ErrorWithBacktrace {
+    fn from(err: PoisonError<MutexGuard<'_, FrameCache>>) -> ErrorWithBacktrace {
+        create_error_with_backtrace(err)
+    }
+}
+
+impl From<PoisonError<MutexGuard<'_, OpenedVideo>>> for ErrorWithBacktrace {
+    fn from(err: PoisonError<MutexGuard<'_, OpenedVideo>>) -> ErrorWithBacktrace {
+        create_error_with_backtrace(err)
+    }
+}
+
+impl From<PoisonError<MutexGuard<'_, OpenedStream>>> for ErrorWithBacktrace {
+    fn from(err: PoisonError<MutexGuard<'_, OpenedStream>>) -> ErrorWithBacktrace {
+        create_error_with_backtrace(err)
+    }
+}
+impl From<PoisonError<MutexGuard<'_, OpenedVideoManager>>> for ErrorWithBacktrace {
+    fn from(err: PoisonError<MutexGuard<'_, OpenedVideoManager>>) -> ErrorWithBacktrace {
+        create_error_with_backtrace(err)
+    }
+}
+
+impl From<PoisonError<RwLockReadGuard<'_, HashMap<std::string::String, Arc<Mutex<OpenedVideo>>>>>>
+    for ErrorWithBacktrace
+{
+    fn from(
+        err: PoisonError<
+            RwLockReadGuard<'_, HashMap<std::string::String, Arc<Mutex<OpenedVideo>>>>,
+        >,
+    ) -> ErrorWithBacktrace {
+        ErrorWithBacktrace::from(err.to_string())
+    }
+}
+
+impl From<PoisonError<RwLockWriteGuard<'_, HashMap<std::string::String, Arc<Mutex<OpenedVideo>>>>>>
+    for ErrorWithBacktrace
+{
+    fn from(
+        err: PoisonError<
+            RwLockWriteGuard<'_, HashMap<std::string::String, Arc<Mutex<OpenedVideo>>>>,
+        >,
+    ) -> ErrorWithBacktrace {
+        ErrorWithBacktrace::from(err.to_string())
+    }
+}
+
+impl From<TryLockError<RwLockReadGuard<'_, HashMap<std::string::String, Arc<Mutex<OpenedVideo>>>>>>
+    for ErrorWithBacktrace
+{
+    fn from(
+        err: TryLockError<
+            RwLockReadGuard<'_, HashMap<std::string::String, Arc<Mutex<OpenedVideo>>>>,
+        >,
+    ) -> ErrorWithBacktrace {
+        ErrorWithBacktrace::from(err.to_string())
+    }
+}
+
+impl std::fmt::Debug for ErrorWithBacktrace {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
+        match &self.error {
             PossibleErrors::IoError(err) => write!(f, "IoError: {:?}", err),
             PossibleErrors::FfmpegError(err) => write!(f, "FfmpegError: {:?}", err),
             PossibleErrors::TryFromIntError(err) => write!(f, "TryFromIntError: {:?}", err),
@@ -89,6 +238,10 @@ impl std::fmt::Debug for PossibleErrors {
             PossibleErrors::JpegDecoderError(err) => write!(f, "JpegDecoderError: {:?}", err),
             PossibleErrors::SerdeError(err) => write!(f, "SerdeError: {:?}", err),
             PossibleErrors::WorkerError(err) => write!(f, "WorkerError: {:?}", err),
+            PossibleErrors::EncodingError(err) => write!(f, "EncodingError: {:?}", err),
+            PossibleErrors::ThreadPoolBuilderError(err) => {
+                write!(f, "ThreadPoolBuilderError: {:?}", err)
+            }
         }
     }
 }

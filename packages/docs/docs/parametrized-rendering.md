@@ -74,10 +74,48 @@ Default props are useful so you don't preview your video with no data. Default p
 
 ## Define a schema <AvailableFrom v="4.0.0"/>
 
-You can use [`z`](/docs/z) to define a typesafe schema for your composition.
+You can use [Zod](https://github.com/colinhacks/zod) to define a typesafe schema for your composition.
+
+Install Zod using:
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i zod @remotion/zod-types
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add zod @remotion/zod-types
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm i zod @remotion/zod-types
+```
+
+  </TabItem>
+</Tabs>
 
 ```tsx twoslash title="MyComp.tsx"
-import { z } from "remotion";
+import { z } from "zod";
 
 export const myCompSchema = z.object({
   propOne: z.string(),
@@ -102,7 +140,7 @@ Then, export the schema, and import it in your root file:
 ```tsx twoslash title="src/Root.tsx" {14-18}
 // @filename: MyComponent.tsx
 import React from "react";
-import { z } from "remotion";
+import { z } from "zod";
 
 export const myCompSchema = z.object({
   propOne: z.string(),

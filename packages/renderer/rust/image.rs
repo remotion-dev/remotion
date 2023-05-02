@@ -2,6 +2,8 @@ use std::{fs::File, io::BufWriter, path::Path};
 
 use jpeg_encoder::{ColorType, Encoder};
 
+use crate::errors::ErrorWithBacktrace;
+
 pub fn save_as_jpeg(
     width: u32,
     height: u32,
@@ -50,7 +52,11 @@ pub fn save_as_jpeg(
     Ok(())
 }
 
-pub fn get_png_data(rgba_data: &[u8], width: u32, height: u32) -> Vec<u8> {
+pub fn get_png_data(
+    rgba_data: &[u8],
+    width: u32,
+    height: u32,
+) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let mut png_data = Vec::new();
 
     {
@@ -68,10 +74,10 @@ pub fn get_png_data(rgba_data: &[u8], width: u32, height: u32) -> Vec<u8> {
         );
         encoder.set_source_chromaticities(source_chromaticities);
 
-        let mut writer = encoder.write_header().unwrap();
-        writer.write_image_data(&rgba_data).unwrap();
+        let mut writer = encoder.write_header()?;
+        writer.write_image_data(&rgba_data)?;
     }
-    png_data.clone()
+    Ok(png_data.clone())
 }
 
 pub fn save_as_png(

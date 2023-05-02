@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import type {z} from 'remotion';
+import type {z} from 'zod';
 import {Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
@@ -80,6 +80,7 @@ export const ZodNumberEditor: React.FC<{
 	onSave: (updater: (oldNum: unknown) => number) => void;
 	onRemove: null | (() => void);
 	showSaveButton: boolean;
+	saving: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -90,6 +91,7 @@ export const ZodNumberEditor: React.FC<{
 	defaultValue,
 	onRemove,
 	showSaveButton,
+	saving,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -128,8 +130,6 @@ export const ZodNumberEditor: React.FC<{
 		[schema, setValue]
 	);
 
-	// TODO: Error message does not align well
-
 	const isDefault = value === defaultValue;
 
 	const reset = useCallback(() => {
@@ -150,6 +150,7 @@ export const ZodNumberEditor: React.FC<{
 				showSaveButton={showSaveButton}
 				compact={compact}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 			<div style={fullWidth}>
 				<InputDragger
@@ -169,7 +170,7 @@ export const ZodNumberEditor: React.FC<{
 					<>
 						<Spacing y={1} block />
 						<ValidationMessage
-							align="flex-end"
+							align="flex-start"
 							message={localValue.zodValidation.error.format()._errors[0]}
 							type="error"
 						/>

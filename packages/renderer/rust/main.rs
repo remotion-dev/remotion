@@ -5,25 +5,27 @@ mod ffmpeg;
 mod frame_cache;
 mod global_printer;
 mod image;
+mod logger;
+mod opened_stream;
 mod opened_video;
 mod payloads;
 mod scalable_frame;
 use commands::execute_command;
-use errors::{error_to_string, PossibleErrors};
-use std::{backtrace::Backtrace, env};
-use threadpool::ThreadPool;
+use errors::{error_to_json, ErrorWithBacktrace};
+use global_printer::set_verbose_logging;
+use std::env;
 
-use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload, ErrorPayload};
+use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload};
 
 extern crate png;
 
-fn mainfn() -> Result<(), PossibleErrors> {
+fn mainfn() -> Result<(), ErrorWithBacktrace> {
     let args = env::args();
 
     let first_arg =
         args.skip(1)
             .next()
-            .ok_or(errors::PossibleErrors::IoError(std::io::Error::new(
+            .ok_or(errors::ErrorWithBacktrace::from(std::io::Error::new(
                 std::io::ErrorKind::Other,
                 "No input",
             )))?;
@@ -31,8 +33,12 @@ fn mainfn() -> Result<(), PossibleErrors> {
     let opts: CliInputCommand = parse_init_command(&first_arg)?;
 
     match opts.payload {
-        CliInputCommandPayload::StartLongRunningProcess(_) => {
-            start_long_running_process()?;
+        CliInputCommandPayload::StartLongRunningProcess(payload) => {
+            start_long_running_process(
+                payload.concurrency,
+                payload.maximum_frame_cache_items,
+                payload.verbose,
+            )?;
         }
         _ => {
             let data = execute_command(opts.payload)?;
@@ -43,14 +49,22 @@ fn mainfn() -> Result<(), PossibleErrors> {
     Ok(())
 }
 
-pub fn parse_init_command(json: &str) -> Result<CliInputCommand, PossibleErrors> {
+pub fn parse_init_command(json: &str) -> Result<CliInputCommand, ErrorWithBacktrace> {
     let cli_input: CliInputCommand = serde_json::from_str(json)?;
 
     Ok(cli_input)
 }
 
-fn start_long_running_process() -> Result<(), PossibleErrors> {
-    let pool = ThreadPool::new(4);
+fn start_long_running_process(
+    threads: usize,
+    frames_to_keep: usize,
+    verbose: bool,
+) -> Result<(), ErrorWithBacktrace> {
+    set_verbose_logging(verbose);
+
+    let pool = rayon::ThreadPoolBuilder::new()
+        .num_threads(threads)
+        .build()?;
 
     loop {
         let mut input = String::new();
@@ -65,24 +79,20 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
         if input == "EOF" {
             break;
         }
-        let opts: CliInputCommand = parse_cli(&input).unwrap();
-        pool.execute(move || match execute_command(opts.payload) {
-            Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
-            Err(err) => {
-                let err = ErrorPayload {
-                    error: error_to_string(&err),
-                    backtrace: Backtrace::force_capture().to_string(),
-                };
-
-                let err_payload = serde_json::to_string(&err).unwrap();
-                let j = err_payload.as_bytes();
-
-                global_printer::synchronized_write_buf(1, &opts.nonce, &j).unwrap()
-            }
+        let opts: CliInputCommand = parse_cli(&input)?;
+        pool.install(move || {
+            match execute_command(opts.payload) {
+                Ok(res) => global_printer::synchronized_write_buf(0, &opts.nonce, &res).unwrap(),
+                Err(err) => global_printer::synchronized_write_buf(
+                    1,
+                    &opts.nonce,
+                    &error_to_json(err).unwrap().as_bytes(),
+                )
+                .unwrap(),
+            };
+            ffmpeg::keep_only_latest_frames(frames_to_keep).unwrap();
         });
     }
-
-    pool.join();
 
     Ok(())
 }
@@ -90,6 +100,6 @@ fn start_long_running_process() -> Result<(), PossibleErrors> {
 fn main() {
     match mainfn() {
         Ok(_) => (),
-        Err(err) => errors::handle_error(err),
+        Err(err) => errors::handle_global_error(err),
     }
 }

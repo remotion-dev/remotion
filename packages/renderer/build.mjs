@@ -10,6 +10,7 @@ import {
 } from 'fs';
 import os from 'os';
 import path from 'path';
+import {toolchains} from './toolchains.mjs';
 
 const isWin = os.platform() === 'win32';
 const where = isWin ? 'where' : 'which';
@@ -148,6 +149,29 @@ if (!existsSync('toolchains') && all) {
 	);
 }
 
+for (const toolchain of toolchains) {
+	if (!existsSync(path.join('toolchains', toolchain)) && all) {
+		throw new Error(
+			`Toolchain for ${toolchain} not found. Run "node install-toolchain.mjs" if you want to build all platforms`
+		);
+	}
+}
+
+const stdout = execSync('cargo metadata --format-version=1');
+const {packages} = JSON.parse(stdout);
+
+const rustFfmpegSys = packages.find((p) => p.name === 'ffmpeg-sys-next');
+
+if (!rustFfmpegSys) {
+	console.error(
+		'Could not find ffmpeg-sys-next when running cargo metadata --format-version=1'
+	);
+	process.exit(1);
+}
+
+const manifest = rustFfmpegSys.manifest_path;
+const binariesDirectory = path.join(path.dirname(manifest), 'zips');
+
 const archs = all ? targets : [nativeArch];
 
 for (const arch of archs) {
@@ -156,43 +180,30 @@ for (const arch of archs) {
 		mkdirSync(ffmpegFolder);
 	}
 
-	execSync(
-		`tar xf ffmpeg/${copyDestinations[arch].ffmpeg_bin} -C ${ffmpegFolder}`
-	);
-	const link = path.join(process.cwd(), ffmpegFolder, 'remotion', 'include');
+	execSync(`tar xf ${binariesDirectory}/${arch}.gz -C ${ffmpegFolder}`);
 	const command = `cargo build ${debug ? '' : '--release'} --target=${arch}`;
 	console.log(command);
+
+	// debuginfo will keep symbols, which are used for backtrace.
+	// symbols makes it a tiny bit smaller, but error messages will be hard to debug.
+
+	const optimizations = all
+		? '-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes'
+		: '';
+
 	execSync(command, {
 		stdio: 'inherit',
 		env: {
 			...process.env,
-			REMOTION_FFMPEG_RUST_BINDINGS_OUT_DIR: path.join(
-				process.cwd(),
-				copyDestinations[arch].dir,
-				'ffmpeg'
-			),
-			CPATH:
-				arch === 'aarch64-apple-darwin'
-					? '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include'
-					: undefined,
-			RUSTFLAGS: `-L ${link}`,
-			FFMPEG_DIR: path.join(
-				process.cwd(),
-				copyDestinations[arch].dir,
-				'ffmpeg',
-				'remotion'
-			),
+			RUSTFLAGS: optimizations,
 			CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER:
 				nativeArch === 'aarch64-unknown-linux-gnu'
 					? undefined
-					: path.join(
-							process.cwd(),
-							'toolchains/aarch_gnu_toolchain/bin/aarch64-unknown-linux-gnu-gcc'
-					  ),
+					: 'toolchains/aarch64_gnu_toolchain/bin/aarch64-unknown-linux-gnu-gcc',
 			CARGO_TARGET_AARCH64_UNKNOWN_LINUX_MUSL_LINKER:
 				nativeArch === 'aarch64-unknown-linux-musl'
 					? undefined
-					: 'toolchains/aarch64-musl-toolchain/bin/aarch64-unknown-linux-musl-gcc',
+					: 'toolchains/aarch64_musl_toolchain/bin/aarch64-unknown-linux-musl-gcc',
 			CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER:
 				nativeArch === 'x86_64-unknown-linux-gnu'
 					? undefined
@@ -244,7 +255,6 @@ for (const arch of archs) {
 		}
 	}
 
-	rmSync(path.join(libDir, 'pkgconfig'), {recursive: true});
 	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'share'), {
 		recursive: true,
 	});

@@ -27,6 +27,12 @@ export const OffthreadVideo: React.FC<
 		);
 	}
 
+	if (props.imageFormat) {
+		throw new TypeError(
+			`The \`<OffthreadVideo>\` tag does no longer accept \`imageFormat\`. Use the \`transparent\` prop if you want to render a transparent video.`
+		);
+	}
+
 	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
 		validateStartFromProps(startFrom, endAt);
 

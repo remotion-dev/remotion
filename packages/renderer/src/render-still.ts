@@ -55,6 +55,7 @@ type InnerStillOptions = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
+	verbose?: boolean;
 };
 
 type RenderStillReturnValue = {buffer: Buffer | null};
@@ -291,6 +292,8 @@ export const renderStill = (
 			port: options.port ?? null,
 			downloadMap,
 			remotionRoot: findRemotionRoot(),
+			concurrency: 1,
+			verbose: options.verbose ?? false,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;

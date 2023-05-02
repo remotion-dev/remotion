@@ -4,7 +4,7 @@ extern crate serde;
 extern crate serde_json;
 
 pub mod payloads {
-    use crate::errors::PossibleErrors;
+    use crate::errors::ErrorWithBacktrace;
     use serde::{Deserialize, Serialize};
 
     #[derive(Serialize, Deserialize, Debug)]
@@ -62,7 +62,32 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
-    pub struct StartPayLoad {}
+    pub struct StartPayLoad {
+        pub concurrency: usize,
+        pub maximum_frame_cache_items: usize,
+        pub verbose: bool,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct GetOpenVideoStats {}
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct DeliberatePanic {}
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct CloseAllVideos {}
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct OpenVideoStats {
+        pub open_videos: usize,
+        pub open_streams: usize,
+        pub frames_in_cache: usize,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct FreeUpMemory {
+        pub percent_of_memory: f64,
+    }
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct EchoPayload {
@@ -75,6 +100,10 @@ pub mod payloads {
         ExtractFrame(ExtractFrameCommand),
         Compose(CliGenerateImageCommand),
         StartLongRunningProcess(StartPayLoad),
+        DeliberatePanic(DeliberatePanic),
+        CloseAllVideos(CloseAllVideos),
+        GetOpenVideoStats(GetOpenVideoStats),
+        FreeUpMemory(FreeUpMemory),
         Echo(EchoPayload),
     }
 
@@ -84,7 +113,7 @@ pub mod payloads {
         pub nonce: String,
     }
 
-    pub fn parse_cli(json: &str) -> Result<CliInputCommand, PossibleErrors> {
+    pub fn parse_cli(json: &str) -> Result<CliInputCommand, ErrorWithBacktrace> {
         let cli_input: CliInputCommand = serde_json::from_str(json)?;
 
         return Ok(cli_input);

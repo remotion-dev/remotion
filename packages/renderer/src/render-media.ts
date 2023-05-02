@@ -438,6 +438,7 @@ export const renderMedia = ({
 				cancelSignal: cancelRenderFrames.cancelSignal,
 				downloadMap,
 				muted: disableAudio,
+				verbose: options.verbose ?? false,
 			});
 
 			return renderFramesProc;
