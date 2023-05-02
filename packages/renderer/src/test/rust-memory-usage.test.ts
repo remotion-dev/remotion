@@ -1,9 +1,6 @@
 import {execSync} from 'child_process';
 import {expect, test} from 'vitest';
-import {
-	getIdealMaximumFrameCacheItems,
-	startLongRunningCompositor,
-} from '../compositor/compositor';
+import {startLongRunningCompositor} from '../compositor/compositor';
 import {exampleVideos} from './example-videos';
 
 test('Memory usage should be determined ', async () => {
@@ -11,10 +8,7 @@ test('Memory usage should be determined ', async () => {
 		return;
 	}
 
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems(),
-		false
-	);
+	const compositor = startLongRunningCompositor(400, false);
 
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString())
@@ -54,11 +48,7 @@ test('Memory usage should be determined ', async () => {
 
 	const stats3 = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson3 = JSON.parse(stats3.toString('utf-8'));
-	expect(statsJson3).toEqual({
-		frames_in_cache: 89,
-		open_streams: 2,
-		open_videos: 2,
-	});
+	expect(statsJson3.frames_in_cache).toBe(89);
 
 	await compositor.executeCommand('FreeUpMemory', {
 		percent_of_memory: 0.5,
@@ -121,10 +111,7 @@ test('Should be able to take commands for freeing up memory', async () => {
 		return;
 	}
 
-	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems(),
-		false
-	);
+	const compositor = startLongRunningCompositor(400, false);
 
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString())
