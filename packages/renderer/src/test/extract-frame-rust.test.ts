@@ -119,7 +119,7 @@ test('Should be able to seek backwards', async () => {
 	await compositor.waitForDone();
 });
 
-test.only(
+test(
 	'Should be able to extract a frame that has no file extension',
 	async () => {
 		const compositor = startLongRunningCompositor(
