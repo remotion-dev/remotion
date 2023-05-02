@@ -2,7 +2,7 @@ use std::os::raw::{c_char, c_int, c_void};
 
 use ffmpeg_next::log::VaListLoggerArg;
 
-use crate::global_printer::_print_debug;
+use crate::global_printer::{_print_debug, _print_verbose};
 
 pub unsafe extern "C" fn log_callback(
     _arg1: *mut c_void,
@@ -14,5 +14,7 @@ pub unsafe extern "C" fn log_callback(
 
     if level <= ffmpeg_next::log::Level::Info.into() {
         _print_debug(&format!("[FFmpeg] {}", message.unwrap())).unwrap();
+    } else if level <= ffmpeg_next::log::Level::Verbose.into() {
+        _print_verbose(&format!("[FFmpeg] {}", message.unwrap())).unwrap();
     }
 }
