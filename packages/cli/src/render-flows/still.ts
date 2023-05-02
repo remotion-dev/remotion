@@ -18,6 +18,7 @@ import {
 import {mkdirSync} from 'fs';
 import path from 'path';
 import {chalk} from '../chalk';
+import {registerCleanupJob} from '../cleanup-before-quit';
 import {ConfigInternals} from '../config';
 import {determineFinalStillImageFormat} from '../determine-image-format';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
@@ -152,6 +153,11 @@ export const renderStillFlow = async ({
 			indentOutput,
 			logLevel,
 			bundlingStep: steps.indexOf('bundling'),
+			onDirectoryCreated: (dir) => {
+				registerCleanupJob(() => {
+					RenderInternals.deleteDirectory(dir);
+				});
+			},
 		}
 	);
 
