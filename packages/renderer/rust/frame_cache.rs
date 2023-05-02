@@ -14,7 +14,6 @@ pub fn get_frame_cache_id() -> usize {
 
 pub struct FrameCacheItem {
     pub resolved_pts: i64,
-    pub resolved_dts: i64,
     pub asked_time: i64,
     pub frame: ScalableFrame,
     pub id: usize,
