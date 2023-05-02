@@ -44,4 +44,4 @@ A more sophisticated way of embedding a video, which:
 ⛔ &nbsp; The video needs to be downloaded fully before a frame can be rendered.  
 ⛔ &nbsp; No ref can be attached to this element, as it is `<video>` during preview but a `<Img/>` during render.  
 ⛔ &nbsp; The video cannot be drawn to a canvas.  
-⛔ &nbsp; Supports [embedded transparent videos](/docs/transparent-videos) only if [`transparent=true`](/docs/offthreadvideo#imageformat) is set which leads to a performance penalty.
+⛔ &nbsp; Supports embedded transparent videos only if [`transparent`](/docs/offthreadvideo#transparent-) is set which leads to a performance penalty.
