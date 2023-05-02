@@ -155,5 +155,5 @@ function getMemoryUsageByPid(pid: string) {
 		return parseInt(last.replace('K', '').trim(), 10) * 1024;
 	}
 
-	throw new Error('cannot parse' + last);
+	return parseInt(last, 10);
 }
