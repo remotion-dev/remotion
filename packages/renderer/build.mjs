@@ -168,7 +168,6 @@ for (const arch of archs) {
 	execSync(
 		`tar xf ffmpeg/${copyDestinations[arch].ffmpeg_bin} -C ${ffmpegFolder}`
 	);
-	const link = path.join(process.cwd(), ffmpegFolder, 'remotion', 'include');
 	const command = `cargo build ${debug ? '' : '--release'} --target=${arch}`;
 	console.log(command);
 	execSync(command, {
@@ -179,17 +178,6 @@ for (const arch of archs) {
 				process.cwd(),
 				copyDestinations[arch].dir,
 				'ffmpeg'
-			),
-			CPATH:
-				arch === 'aarch64-apple-darwin'
-					? '/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/include'
-					: undefined,
-			RUSTFLAGS: `-L ${link}`,
-			FFMPEG_DIR: path.join(
-				process.cwd(),
-				copyDestinations[arch].dir,
-				'ffmpeg',
-				'remotion'
 			),
 			CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER:
 				nativeArch === 'aarch64-unknown-linux-gnu'
@@ -250,16 +238,12 @@ for (const arch of archs) {
 		}
 	}
 
-	rmSync(path.join(libDir, 'pkgconfig'), {recursive: true});
 	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'share'), {
 		recursive: true,
 	});
-	rmSync(
-		path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'include'),
-		{
-			recursive: true,
-		}
-	);
+	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'bindings.rs'), {
+		recursive: true,
+	});
 	copyFileSync(copyInstructions.from, copyInstructions.to);
 
 	const output = execSync('npm pack --json', {
