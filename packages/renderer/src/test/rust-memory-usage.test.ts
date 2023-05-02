@@ -148,7 +148,10 @@ test('Should be able to take commands for freeing up memory', async () => {
 });
 
 function getMemoryUsageByPid(pid: string) {
-	const data = execSync(`top -l 1 -pid ${pid} -stats mem`);
+	const data =
+		process.platform === 'darwin'
+			? execSync(`top -l 1 -pid ${pid} -stats mem`)
+			: execSync(`ps -p ${pid} -o rss= | awk '{print $1 * 1024}'`);
 	const str = data.toString('utf-8');
 	const lines = str.split('\n');
 	const last = lines[lines.length - 2];
