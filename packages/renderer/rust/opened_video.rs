@@ -132,6 +132,7 @@ fn open_stream(
         duration_or_zero,
         reached_eof: false,
         transparent,
+        pts_offset: None,
     };
 
     Ok((opened_stream, fps, time_base))

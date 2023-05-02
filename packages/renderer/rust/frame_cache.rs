@@ -148,6 +148,8 @@ impl FrameCache {
         }
         match best_item {
             Some(best_item) => {
+                _print_debug(&format!("FOUND IN CACHE WITH DISTANCE {}", best_distance));
+
                 self.items[best_item].frame.ensure_data()?;
                 Ok(Some(self.items[best_item].id))
             }

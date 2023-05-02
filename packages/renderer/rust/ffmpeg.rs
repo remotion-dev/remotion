@@ -69,7 +69,7 @@ pub fn extract_frame(
         time + (1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64)),
         vid.time_base,
     );
-    let threshold = one_frame_after - position;
+    let threshold = (one_frame_after - position) / 2;
     let cache_item = vid.get_cache_item_id(transparent, position, threshold);
 
     match cache_item {
@@ -113,7 +113,6 @@ pub fn extract_frame(
         &vid.get_frame_cache(transparent),
         position,
         vid.time_base,
-        threshold,
     )?;
 
     let from_cache = vid
