@@ -12,7 +12,7 @@ use std::time::UNIX_EPOCH;
 use crate::{
     errors::ErrorWithBacktrace,
     frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
-    global_printer::_print_debug,
+    global_printer::_print_verbose,
     scalable_frame::{NotRgbFrame, ScalableFrame},
 };
 
@@ -141,7 +141,7 @@ impl OpenedStream {
         if position < self.last_position.resolved_pts
             || self.last_position.resolved_pts < calc_position(time - 1.0, time_base)
         {
-            _print_debug(&format!(
+            _print_verbose(&format!(
                 "Seeking to {} from resolved_pts = {}, and dts = {}, duration = {}",
                 position,
                 self.last_position.resolved_pts,
