@@ -35,7 +35,7 @@ const printSitesHelp = () => {
 	);
 	CliInternals.Log.info();
 	CliInternals.Log.info(
-		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RMALL_COMMAND} <site-id>`
+		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RMALL_COMMAND}`
 	);
 	CliInternals.Log.info(
 		CliInternals.chalk.gray('Remove all sites from the S3 bucket.')
