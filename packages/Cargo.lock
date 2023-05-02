@@ -133,7 +133,7 @@ checksum = "7fcaabb2fef8c910e7f4c7ce9f67a1283a1715879a7c230ca9d6d1ae31f16d91"
 [[package]]
 name = "ffmpeg-next"
 version = "6.0.0"
-source = "git+https://github.com/JonnyBurger/rust-ffmpeg?rev=a3924db17d5da602b97a3202ba8e1d8f4d8a53f9#a3924db17d5da602b97a3202ba8e1d8f4d8a53f9"
+source = "git+https://github.com/JonnyBurger/rust-ffmpeg?rev=dd948e48dbd96b2a9dd0c0dcba3743834a03865b#dd948e48dbd96b2a9dd0c0dcba3743834a03865b"
 dependencies = [
  "bitflags",
  "ffmpeg-sys-next",
@@ -143,7 +143,7 @@ dependencies = [
 [[package]]
 name = "ffmpeg-sys-next"
 version = "6.0.1"
-source = "git+https://github.com/remotion-dev/rust-ffmpeg-sys?rev=ca1148d571c841e262cfd199f0fcb8bb1ddc3720#ca1148d571c841e262cfd199f0fcb8bb1ddc3720"
+source = "git+https://github.com/remotion-dev/rust-ffmpeg-sys?rev=8a4a13b36cd048800d02bd9f7f5f108301fca8c9#8a4a13b36cd048800d02bd9f7f5f108301fca8c9"
 dependencies = [
  "bindgen",
  "cc",
