@@ -4,6 +4,8 @@ import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {sitesCreateSubcommand, SITES_CREATE_SUBCOMMAND} from './create';
 import {sitesLsSubcommand, SITES_LS_SUBCOMMAND} from './ls';
+import {sitesRmSubcommand, SITES_RM_COMMAND} from './rm';
+import {sitesRmallSubcommand, SITES_RMALL_COMMAND} from './rmall';
 
 export const SITES_COMMAND = 'sites';
 
@@ -23,13 +25,33 @@ const printSitesHelp = () => {
 	CliInternals.Log.info(
 		CliInternals.chalk.gray('Lists the sites currently deployed')
 	);
+	CliInternals.Log.info();
+	CliInternals.Log.info(
+		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RM_COMMAND} <site-id>`
+	);
+	CliInternals.Log.info(
+		CliInternals.chalk.gray('Remove a site from the Cloud Storage bucket.')
+	);
+	CliInternals.Log.info();
+	CliInternals.Log.info(
+		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RMALL_COMMAND}`
+	);
+	CliInternals.Log.info(
+		CliInternals.chalk.gray('Remove all sites from the Cloud Storage bucket.')
+	);
 };
-
-// TODO: Add RM, RMALL subcommands
 
 export const sitesCommand = (args: string[], remotionRoot: string) => {
 	if (args[0] === SITES_LS_SUBCOMMAND) {
 		return sitesLsSubcommand();
+	}
+
+	if (args[0] === SITES_RM_COMMAND) {
+		return sitesRmSubcommand(args.slice(1));
+	}
+
+	if (args[0] === SITES_RMALL_COMMAND) {
+		return sitesRmallSubcommand();
 	}
 
 	if (args[0] === SITES_CREATE_SUBCOMMAND) {
