@@ -42,15 +42,18 @@ export const startOffthreadVideoServer = ({
 	onError,
 	downloadMap,
 	concurrency,
+	verbose,
 }: {
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 	downloadMap: DownloadMap;
 	concurrency: number;
+	verbose: boolean;
 }): {listener: RequestListener; close: () => Promise<void>} => {
 	const compositor = startCompositor('StartLongRunningProcess', {
 		concurrency,
 		maximum_frame_cache_items: getIdealMaximumFrameCacheItems(),
+		verbose,
 	});
 
 	return {

@@ -8,7 +8,8 @@ test(
 	'Compositor should process messages in the right order',
 	async () => {
 		const compositor = startLongRunningCompositor(
-			getIdealMaximumFrameCacheItems()
+			getIdealMaximumFrameCacheItems(),
+			true
 		);
 
 		const matching = await Promise.all(
