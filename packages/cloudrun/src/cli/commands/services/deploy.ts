@@ -41,9 +41,9 @@ Validating Deployment of Cloud Run Service:
     `.trim()
 			)
 		);
-	}
 
-	Log.info();
+		Log.info();
+	}
 
 	validateGcpRegion(region);
 	validateRemotionVersion(remotionVersion);
@@ -54,7 +54,11 @@ Validating Deployment of Cloud Run Service:
 	}
 
 	// if no existing service, deploy new service
-	Log.info(CliInternals.chalk.white('\nDeploying Cloud Run Service...'));
+
+	if (!CliInternals.quietFlagProvided()) {
+		Log.info(CliInternals.chalk.white('\nDeploying Cloud Run Service...'));
+	}
+
 	try {
 		const deployResult = await deployService({
 			remotionVersion,
@@ -82,32 +86,40 @@ Validating Deployment of Cloud Run Service:
 		if (deployResult.alreadyExists) {
 			Log.info();
 
-			Log.info(
-				CliInternals.chalk.blueBright(
-					`
-	Service Already Deployed! Check GCP Console for Cloud Run URL.
-	
+			if (CliInternals.quietFlagProvided()) {
+				CliInternals.Log.info(deployResult.shortName);
+			} else {
+				Log.info(
+					CliInternals.chalk.blueBright(
+						`
+Service Already Deployed! Check GCP Console for Cloud Run URL.
+		
     Full Service Name = ${deployResult.fullName}
     Project = ${projectID}
     GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/revisions
-					`.trim()
-				)
-			);
+						`.trim()
+					)
+				);
+			}
 		} else {
 			Log.info();
 
-			Log.info(
-				CliInternals.chalk.blueBright(
-					`
-	🎉 Cloud Run Deployed! 🎉
-	
-	Full Service Name = ${deployResult.fullName}
+			if (CliInternals.quietFlagProvided()) {
+				CliInternals.Log.info(deployResult.shortName);
+			} else {
+				Log.info(
+					CliInternals.chalk.blueBright(
+						`
+🎉 Cloud Run Deployed! 🎉
+		
+    Full Service Name = ${deployResult.fullName}
     Cloud Run URL = ${deployResult.uri}
     Project = ${projectID}
     GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/revisions
-					`.trim()
-				)
-			);
+						`.trim()
+					)
+				);
+			}
 		}
 
 		await allowUnauthenticatedAccessToService(
@@ -128,30 +140,33 @@ Validating Deployment of Cloud Run Service:
 	}
 };
 
-if (CliInternals.quietFlagProvided()) {
-	// Log.info(functionName);
-}
-
 async function allowUnauthenticatedAccessToService(
 	serviceName: string,
 	allowUnauthenticated: boolean
 ) {
 	if (allowUnauthenticated) {
 		try {
-			Log.info(
-				CliInternals.chalk.white(
-					'\nAllowing unauthenticated access to the Cloud Run service...'
-				)
-			);
+			if (!CliInternals.quietFlagProvided()) {
+				Log.info(
+					CliInternals.chalk.white(
+						'\nAllowing unauthenticated access to the Cloud Run service...'
+					)
+				);
+			}
+
 			await allowUnauthenticatedAccess(serviceName, allowUnauthenticated);
 
-			Log.info();
+			if (CliInternals.quietFlagProvided()) {
+				Log.info('Unauthenticated access granted');
+			} else {
+				Log.info();
 
-			Log.info(
-				CliInternals.chalk.blueBright(
-					`    ✅ Unauthenticated access granted on ${serviceName}`
-				)
-			);
+				Log.info(
+					CliInternals.chalk.blueBright(
+						`    ✅ Unauthenticated access granted on ${serviceName}`
+					)
+				);
+			}
 		} catch (e) {
 			Log.error(
 				CliInternals.chalk.red(
@@ -162,22 +177,29 @@ async function allowUnauthenticatedAccessToService(
 		}
 	} else {
 		try {
-			Log.info();
+			if (!CliInternals.quietFlagProvided()) {
+				Log.info();
 
-			Log.info(
-				CliInternals.chalk.white(
-					'Ensuring only authenticated access to the Cloud Run service...'
-				)
-			);
+				Log.info(
+					CliInternals.chalk.white(
+						'Ensuring only authenticated access to the Cloud Run service...'
+					)
+				);
+			}
+
 			await allowUnauthenticatedAccess(serviceName, allowUnauthenticated);
 
-			Log.info();
+			if (CliInternals.quietFlagProvided()) {
+				Log.info('Authenticated access granted');
+			} else {
+				Log.info();
 
-			Log.info(
-				CliInternals.chalk.blueBright(
-					`    🔒 Only authenticated access granted on ${serviceName}`
-				)
-			);
+				Log.info(
+					CliInternals.chalk.blueBright(
+						`    🔒 Only authenticated access granted on ${serviceName}`
+					)
+				);
+			}
 		} catch (e) {
 			Log.error(
 				CliInternals.chalk.red(

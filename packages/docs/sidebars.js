@@ -41,7 +41,7 @@ module.exports = {
           },
           items: [
             "cloudrun/cli/sites",
-            "lambda/cli/functions",
+            "cloudrun/cli/services",
             "lambda/cli/render",
             "lambda/cli/still",
             "lambda/cli/policies",
