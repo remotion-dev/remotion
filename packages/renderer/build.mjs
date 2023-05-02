@@ -241,6 +241,12 @@ for (const arch of archs) {
 	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'share'), {
 		recursive: true,
 	});
+	rmSync(
+		path.join(copyDestinations[arch].dir, 'ffmpeg', 'remotion', 'include'),
+		{
+			recursive: true,
+		}
+	);
 	rmSync(path.join(copyDestinations[arch].dir, 'ffmpeg', 'bindings.rs'), {
 		recursive: true,
 	});
