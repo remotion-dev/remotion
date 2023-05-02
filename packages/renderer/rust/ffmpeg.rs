@@ -2,6 +2,7 @@ use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
 use crate::frame_cache::FrameCacheReference;
+use crate::global_printer::_print_debug;
 use crate::logger::log_callback;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
@@ -63,6 +64,7 @@ pub fn extract_frame(
     let mut vid = video_locked.lock()?;
 
     let position = calc_position(time, vid.time_base);
+    _print_debug(&format!("time, position {} {}", time, position));
     let one_frame_after = calc_position(
         time + (1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64)),
         vid.time_base,
@@ -77,7 +79,6 @@ pub fn extract_frame(
             return Err(err);
         }
     }
-
     let open_stream_count = vid.opened_streams.len();
     let mut suitable_open_stream: Option<usize> = None;
 
@@ -87,18 +88,6 @@ pub fn extract_frame(
     let min_stream_position = calc_position(time - 15.0, vid.time_base);
     for i in 0..open_stream_count {
         let stream = vid.opened_streams[i].lock()?;
-        if stream.reached_eof {
-            continue;
-        }
-        if transparent != stream.transparent {
-            continue;
-        }
-        if stream.last_position.resolved_pts > max_stream_position {
-            continue;
-        }
-        if stream.last_position.resolved_pts < min_stream_position {
-            continue;
-        }
 
         suitable_open_stream = Some(i);
         break;
@@ -124,6 +113,7 @@ pub fn extract_frame(
         &vid.get_frame_cache(transparent),
         position,
         vid.time_base,
+        threshold,
     )?;
 
     let from_cache = vid

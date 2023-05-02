@@ -62,9 +62,7 @@ fn start_long_running_process(
 ) -> Result<(), ErrorWithBacktrace> {
     set_verbose_logging(verbose);
 
-    let pool = rayon::ThreadPoolBuilder::new()
-        .num_threads(threads)
-        .build()?;
+    let pool = rayon::ThreadPoolBuilder::new().num_threads(1).build()?;
 
     loop {
         let mut input = String::new();
@@ -90,7 +88,6 @@ fn start_long_running_process(
                 )
                 .unwrap(),
             };
-            ffmpeg::keep_only_latest_frames(frames_to_keep).unwrap();
         });
     }
 

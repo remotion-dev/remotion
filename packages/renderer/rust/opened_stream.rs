@@ -12,7 +12,7 @@ use std::time::UNIX_EPOCH;
 use crate::{
     errors::ErrorWithBacktrace,
     frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
-    global_printer::_print_verbose,
+    global_printer::{_print_debug, _print_verbose},
     scalable_frame::{NotRgbFrame, ScalableFrame},
 };
 
@@ -134,6 +134,7 @@ impl OpenedStream {
         frame_cache: &Arc<Mutex<FrameCache>>,
         position: i64,
         time_base: Rational,
+        threshold: i64,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_position = self.duration_or_zero.min(position);
@@ -157,9 +158,17 @@ impl OpenedStream {
 
         loop {
             // -1 because uf 67 and we want to process 66.66 -> rounding error
-            if (self.last_position.resolved_pts - 1) > position && last_frame_received.is_some() {
+            if (self.last_position.resolved_pts >= position) && last_frame_received.is_some() {
                 break;
             }
+
+            _print_debug(&format!(
+                "continue {} {} {} {}",
+                position,
+                self.last_position.resolved_pts,
+                threshold,
+                last_frame_received.is_some()
+            ))?;
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
@@ -213,6 +222,11 @@ impl OpenedStream {
                     Ok(Some(video)) => unsafe {
                         let linesize = (*video.as_ptr()).linesize;
                         let frame_cache_id = get_frame_cache_id();
+
+                        _print_debug(&format!(
+                            "receive frame {} {} {} {}\n",
+                            self.last_position.resolved_pts, position, time_base, threshold
+                        ));
 
                         let amount_of_planes = video.planes();
                         let mut planes = Vec::with_capacity(amount_of_planes);
