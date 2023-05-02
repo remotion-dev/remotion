@@ -1,4 +1,4 @@
-import type {z} from 'remotion';
+import type {z} from 'zod';
 import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
@@ -37,6 +37,19 @@ const openDocs = () => {
 	window.open(
 		// TODO: Make sure to update this link when we release v4
 		'https://v4.remotion.dev/docs/parametrized-rendering#define-a-schema-'
+	);
+};
+
+export const ZodNotInstalled = () => {
+	return (
+		<div style={explainer}>
+			<div style={errorExplanation}>
+				Install <code style={codeSnippet}>zod</code> as a dependency to
+				interactively control the props of the composition.
+			</div>
+			<Spacing y={2} block />
+			<Button onClick={openDocs}>Learn how</Button>
+		</div>
 	);
 };
 

@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useMemo} from 'react';
-import type {z} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {Row, Spacing} from '../layout';
@@ -33,7 +32,7 @@ export type EditType = 'inputProps' | 'defaultProps';
 export const RenderModalJSONPropsEditor: React.FC<{
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<unknown>>;
-	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
+	zodValidationResult: Zod.SafeParseReturnType<unknown, unknown>;
 	switchToSchema: () => void;
 	onSave: () => void;
 	valBeforeSafe: unknown;
