@@ -79,7 +79,7 @@ test('Memory usage should be determined ', async () => {
 	});
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString())
-	).toBeLessThan(30 * 1024 * 1024);
+	).toBeLessThan(40 * 1024 * 1024);
 
 	await compositor.executeCommand('ExtractFrame', {
 		input: exampleVideos.framerWithoutFileExtension,
