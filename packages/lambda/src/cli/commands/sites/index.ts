@@ -33,6 +33,13 @@ const printSitesHelp = () => {
 	CliInternals.Log.info(
 		CliInternals.chalk.gray('Remove a site from the S3 bucket.')
 	);
+	CliInternals.Log.info();
+	CliInternals.Log.info(
+		`${BINARY_NAME} ${SITES_COMMAND} ${SITES_RMALL_COMMAND}`
+	);
+	CliInternals.Log.info(
+		CliInternals.chalk.gray('Remove all sites from the S3 bucket.')
+	);
 };
 
 export const sitesCommand = (args: string[], remotionRoot: string) => {
