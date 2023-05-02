@@ -60,7 +60,6 @@ Validating Deployment of Cloud Run Service:
 			cpu,
 			projectID,
 			region,
-			redeploy: true,
 		});
 
 		if (!deployResult.fullName) {
