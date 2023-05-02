@@ -22,10 +22,10 @@ import { getServiceInfo } from "@remotion/cloudrun";
 
 const info = await getServiceInfo({
   region: "us-east1",
-  serviceName: "remotion--3-3-82--mem512mi--cpu1-0",
+  serviceName: "remotion--3-3-82--mem512mi--cpu1-0--t-500",
 });
-console.log(info.serviceName); // remotion--3-3-82--mem512mi--cpu1-0
-console.log(info.timeoutInSeconds); // 120
+console.log(info.serviceName); // remotion--3-3-82--mem512mi--cpu1-0--t-500
+console.log(info.timeoutInSeconds); // 500
 console.log(info.memoryLimit); // 1500
 console.log(info.cpuLimit); // 2048
 console.log(info.remotionVersion); // '2021-07-14'

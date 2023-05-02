@@ -9,6 +9,7 @@ import {getCloudRunClient} from './helpers/get-cloud-run-client';
 export type CheckIfServiceExistsInput = {
 	memoryLimit: string;
 	cpuLimit: string;
+	timeoutSeconds: number;
 	projectID: string;
 	region: string;
 };
@@ -32,6 +33,7 @@ export const checkIfServiceExists = async (
 	const serviceName = generateServiceName({
 		memoryLimit: options.memoryLimit,
 		cpuLimit: options.cpuLimit,
+		timeoutSeconds: options.timeoutSeconds,
 	});
 
 	const cloudRunClient = getCloudRunClient();

@@ -20,6 +20,7 @@ export const cloudRunDeploySubcommand = async () => {
 		parsedCloudrunCli['allow-unauthenticated'] ?? false;
 	let memoryLimit = parsedCloudrunCli.memoryLimit ?? '512Mi';
 	let cpuLimit = parsedCloudrunCli.cpuLimit ?? '1.0';
+	const timeoutSeconds = parsedCloudrunCli.timeoutSeconds ?? 300;
 
 	memoryLimit = String(memoryLimit);
 	cpuLimit = String(cpuLimit);
@@ -33,6 +34,7 @@ Validating Deployment of Cloud Run Service:
     Remotion Version = ${remotionVersion}
     Service Memory Limit = ${memoryLimit}
     Service CPU Limit = ${cpuLimit}
+    Service Timeout In Seconds = ${timeoutSeconds}
     Project Name = ${projectID}
     Region = ${region}
     Allow Unauthenticated Access = ${allowUnauthenticated}
@@ -58,6 +60,7 @@ Validating Deployment of Cloud Run Service:
 			remotionVersion,
 			memoryLimit,
 			cpuLimit,
+			timeoutSeconds,
 			projectID,
 			region,
 		});
@@ -117,6 +120,7 @@ Validating Deployment of Cloud Run Service:
 				`Failed to deploy service - ${generateServiceName({
 					memoryLimit,
 					cpuLimit,
+					timeoutSeconds,
 				})}.`
 			)
 		);
