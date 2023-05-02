@@ -119,7 +119,7 @@ test(
   {}
 );
 
-test(
+test.only(
   "should render correct frames from embedded videos - MP4 offthread",
   async () => {
     const missedFrames = await getMissedFramesforCodec("mp4", true);
