@@ -170,7 +170,7 @@ if (!rustFfmpegSys) {
 }
 
 const manifest = rustFfmpegSys.manifest_path;
-const binariesDirectory = path.join(path.dirname(manifest), 'bindings');
+const binariesDirectory = path.join(path.dirname(manifest), 'zips');
 
 const archs = all ? targets : [nativeArch];
 
@@ -180,9 +180,7 @@ for (const arch of archs) {
 		mkdirSync(ffmpegFolder);
 	}
 
-	execSync(
-		`tar xf ${binariesDirectory}/${copyDestinations[arch].ffmpeg_bin} -C ${ffmpegFolder}`
-	);
+	execSync(`tar xf ${binariesDirectory}/${arch}.gz -C ${ffmpegFolder}`);
 	const command = `cargo build ${debug ? '' : '--release'} --target=${arch}`;
 	console.log(command);
 
