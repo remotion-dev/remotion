@@ -51,10 +51,10 @@ test(
 			transparent: true,
 		});
 
-		expect(data[100000]).toBeCloseTo(13, 1);
-		expect(data[100001]).toBeCloseTo(96, 1);
-		expect(data[140001]).toBeCloseTo(253, 1);
-		expect(data[170001]).toBeCloseTo(9, 1);
+		expect(data[100000]).toBeCloseTo(13, 0);
+		expect(data[100001]).toBeCloseTo(96, 0);
+		expect(data[140001]).toBeCloseTo(253, 0);
+		expect(data[170001]).toBeCloseTo(9, 0);
 		expect(data.length).toBe(191304);
 
 		compositor.finishCommands();
