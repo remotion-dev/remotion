@@ -20,21 +20,6 @@ function isMusl() {
 	return !glibcVersionRuntime;
 }
 
-const stdout = execSync('cargo metadata --format-version=1');
-const {packages} = JSON.parse(stdout);
-
-const rustFfmpegSys = packages.find((p) => p.name === 'ffmpeg-sys-next');
-
-if (!rustFfmpegSys) {
-	console.error(
-		'Could not find ffmpeg-sys-next when running cargo metadata --format-version=1'
-	);
-	process.exit(1);
-}
-
-const manifest = rustFfmpegSys.manifest_path;
-const binariesDirectory = path.join(path.dirname(manifest), 'bindings');
-
 const targets = [
 	'x86_64-pc-windows-gnu',
 	'x86_64-unknown-linux-musl',
@@ -172,6 +157,21 @@ for (const toolchain of toolchains) {
 	}
 }
 
+const stdout = execSync('cargo metadata --format-version=1');
+const {packages} = JSON.parse(stdout);
+
+const rustFfmpegSys = packages.find((p) => p.name === 'ffmpeg-sys-next');
+
+if (!rustFfmpegSys) {
+	console.error(
+		'Could not find ffmpeg-sys-next when running cargo metadata --format-version=1'
+	);
+	process.exit(1);
+}
+
+const manifest = rustFfmpegSys.manifest_path;
+const binariesDirectory = path.join(path.dirname(manifest), 'bindings');
+
 const archs = all ? targets : [nativeArch];
 
 for (const arch of archs) {
@@ -189,11 +189,6 @@ for (const arch of archs) {
 		stdio: 'inherit',
 		env: {
 			...process.env,
-			REMOTION_FFMPEG_RUST_BINDINGS_OUT_DIR: path.join(
-				process.cwd(),
-				copyDestinations[arch].dir,
-				'ffmpeg'
-			),
 			CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER:
 				nativeArch === 'aarch64-unknown-linux-gnu'
 					? undefined
