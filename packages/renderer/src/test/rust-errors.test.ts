@@ -1,3 +1,4 @@
+import path from 'path';
 import {expect, test} from 'vitest';
 import {callCompositor, serializeCommand} from '../compositor/compose';
 import {
@@ -35,7 +36,9 @@ test('Handle panics', async () => {
 		await compositor.executeCommand('DeliberatePanic', {});
 	} catch (err) {
 		expect((err as Error).message).toContain('Compositor panicked');
-		expect((err as Error).message).toContain('/rust/commands/mod');
+		expect((err as Error).message).toContain(
+			path.join('rust', 'commands', 'mod')
+		);
 	}
 
 	try {
