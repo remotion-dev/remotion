@@ -36,10 +36,14 @@ export const getIdealMaximumFrameCacheItems = () => {
 	return Math.min(max, 500);
 };
 
-export const startLongRunningCompositor = (maximumFrameCacheItems: number) => {
+export const startLongRunningCompositor = (
+	maximumFrameCacheItems: number,
+	verbose: boolean
+) => {
 	return startCompositor('StartLongRunningProcess', {
 		concurrency: getActualConcurrency(null),
 		maximum_frame_cache_items: maximumFrameCacheItems,
+		verbose,
 	});
 };
 

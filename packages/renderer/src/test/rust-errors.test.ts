@@ -7,7 +7,8 @@ import {
 
 test('Should get Rust errors in a good way', async () => {
 	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems()
+		getIdealMaximumFrameCacheItems(),
+		false
 	);
 
 	try {
@@ -26,7 +27,8 @@ test('Should get Rust errors in a good way', async () => {
 
 test('Handle panics', async () => {
 	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems()
+		getIdealMaximumFrameCacheItems(),
+		false
 	);
 
 	try {

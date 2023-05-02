@@ -12,7 +12,8 @@ test('Memory usage should be determined ', async () => {
 	}
 
 	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems()
+		getIdealMaximumFrameCacheItems(),
+		false
 	);
 
 	expect(
@@ -98,7 +99,7 @@ test('Memory usage should be determined ', async () => {
 });
 
 test('Should respect the maximum frame cache limit', async () => {
-	const compositor = startLongRunningCompositor(50);
+	const compositor = startLongRunningCompositor(50, false);
 
 	await compositor.executeCommand('ExtractFrame', {
 		input: exampleVideos.bigBuckBunny,
@@ -121,7 +122,8 @@ test('Should be able to take commands for freeing up memory', async () => {
 	}
 
 	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems()
+		getIdealMaximumFrameCacheItems(),
+		false
 	);
 
 	expect(

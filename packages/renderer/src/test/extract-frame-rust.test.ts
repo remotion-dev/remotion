@@ -11,7 +11,8 @@ test(
 	'Should be able to extract a frame using Rust',
 	async () => {
 		const compositor = startLongRunningCompositor(
-			getIdealMaximumFrameCacheItems()
+			getIdealMaximumFrameCacheItems(),
+			false
 		);
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -40,7 +41,8 @@ test(
 	'Should be able to get a PNG',
 	async () => {
 		const compositor = startLongRunningCompositor(
-			getIdealMaximumFrameCacheItems()
+			getIdealMaximumFrameCacheItems(),
+			false
 		);
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -63,11 +65,13 @@ test(
 
 test('Should be able to start two compositors', async () => {
 	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems()
+		getIdealMaximumFrameCacheItems(),
+		false
 	);
 
 	const compositor2 = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems()
+		getIdealMaximumFrameCacheItems(),
+		false
 	);
 
 	await compositor.executeCommand('ExtractFrame', {
@@ -84,7 +88,8 @@ test('Should be able to start two compositors', async () => {
 
 test('Should be able to seek backwards', async () => {
 	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems()
+		getIdealMaximumFrameCacheItems(),
+		false
 	);
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -108,7 +113,8 @@ test(
 	'Should be able to extract a frame that has no file extension',
 	async () => {
 		const compositor = startLongRunningCompositor(
-			getIdealMaximumFrameCacheItems()
+			getIdealMaximumFrameCacheItems(),
+			false
 		);
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -128,7 +134,8 @@ test(
 	'Should get the last frame if out of range',
 	async () => {
 		const compositor = startLongRunningCompositor(
-			getIdealMaximumFrameCacheItems()
+			getIdealMaximumFrameCacheItems(),
+			false
 		);
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -157,7 +164,8 @@ test(
 	'Should get the last frame of a corrupted video',
 	async () => {
 		const compositor = startLongRunningCompositor(
-			getIdealMaximumFrameCacheItems()
+			getIdealMaximumFrameCacheItems(),
+			false
 		);
 
 		const data = await compositor.executeCommand('ExtractFrame', {
@@ -180,7 +188,8 @@ test(
 
 test('Should be able to extract a frame with abnormal DAR', async () => {
 	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems()
+		getIdealMaximumFrameCacheItems(),
+		false
 	);
 
 	const data = await compositor.executeCommand('ExtractFrame', {
@@ -203,7 +212,8 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 
 test('Should be able to extract the frames in reverse order', async () => {
 	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems()
+		getIdealMaximumFrameCacheItems(),
+		false
 	);
 
 	let prevPixel = '';
@@ -244,7 +254,8 @@ test('Should be able to extract the frames in reverse order', async () => {
 
 test('Last frame should be fast', async () => {
 	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems()
+		getIdealMaximumFrameCacheItems(),
+		false
 	);
 
 	const time = Date.now();
@@ -299,7 +310,7 @@ test('Last frame should be fast', async () => {
 });
 
 test('Two different starting times should not result in big seeking', async () => {
-	const compositor = startLongRunningCompositor(300);
+	const compositor = startLongRunningCompositor(300, false);
 
 	const expected = [];
 
