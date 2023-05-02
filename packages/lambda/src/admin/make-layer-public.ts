@@ -34,25 +34,24 @@ const layerInfo: HostedLayers = {
 	'sa-east-1': [],
 	'us-west-1': [],
 };
-const architecture = 'arm64';
 
 const makeLayerPublic = async () => {
 	const layers = ['fonts', 'ffmpeg', 'chromium'] as const;
 	for (const region of getRegions()) {
 		for (const layer of layers) {
-			const layerName = `remotion-binaries-${layer}-${architecture}`;
+			const layerName = `remotion-binaries-${layer}-arm64`;
 			const {Version, LayerArn} = await getLambdaClient(region).send(
 				new PublishLayerVersionCommand({
 					Content: {
 						S3Bucket: 'remotionlambda-binaries-' + region,
-						S3Key: `remotion-layer-${layer}-v9-${architecture}.zip`,
+						S3Key: `remotion-layer-${layer}-v10-arm64.zip`,
 					},
 					LayerName: layerName,
 					LicenseInfo:
 						layer === 'chromium'
-							? 'Chromium 104, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
+							? 'Chromium 114, compiled from source. Read Chromium License: https://chromium.googlesource.com/chromium/src/+/refs/heads/main/LICENSE'
 							: layer === 'ffmpeg'
-							? 'Compiled from FFMPEG source. Read FFMPEG license: https://ffmpeg.org/legal.html'
+							? 'FFmpeg 6.0, compiled from source. Read FFMPEG license: https://ffmpeg.org/legal.html'
 							: 'Contains Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
 					CompatibleRuntimes: runtimes,
 					Description: VERSION,

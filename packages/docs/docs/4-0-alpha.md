@@ -73,7 +73,7 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 - Fix rendering with FFmpeg on Linux
 - Make all strings `as const` when saving back to the root file to ensure type safety.
-- New [`zColor()`](/docs/z-color) API
+- New [`zColor()`](/docs/zod-types/z-color) API
 - New sidebar design and new mechanism for toggling sidebars
 - Create new array items
 - Zod union type support

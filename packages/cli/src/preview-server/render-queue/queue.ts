@@ -130,6 +130,13 @@ const processJobIfPossible = async ({
 	remotionRoot: string;
 	entryPoint: string;
 }) => {
+	const runningJob = jobQueue.find((q) => {
+		return q.status === 'running';
+	});
+	if (runningJob) {
+		return;
+	}
+
 	const nextJob = jobQueue.find((q) => {
 		return q.status === 'idle';
 	});
@@ -248,4 +255,6 @@ const processJobIfPossible = async ({
 	} finally {
 		await Promise.all(jobCleanups.map((c) => c()));
 	}
+
+	processJobIfPossible({remotionRoot, entryPoint});
 };

@@ -83,8 +83,6 @@ module.exports = {
         "series",
         "folder",
         "easing",
-        "z",
-        "z-color",
         "null",
         "clipper",
       ],
@@ -330,6 +328,15 @@ module.exports = {
       },
       items: ["rive/index", "rive/remotionrivecanvas"],
     },
+    {
+      type: "category",
+      label: "@remotion/zod-types",
+      link: {
+        type: "doc",
+        id: "zod-types/index",
+      },
+      items: ["zod-types/z-color"],
+    },
   ],
   mainSidebar: [
     "4-0-alpha",
@@ -461,6 +468,7 @@ module.exports = {
         "lambda/upgrading",
         "lambda/uninstall",
         "lambda/feb-2023-incident",
+        "lambda/s3-public-access",
       ],
     },
     {
@@ -487,6 +495,7 @@ module.exports = {
         "troubleshooting/defaultprops-too-big",
         "troubleshooting/could-not-be-parsed-as-a-value-list",
         "troubleshooting/player-flicker",
+        "troubleshooting/broken-fast-refresh",
       ],
     },
     {
@@ -558,6 +567,7 @@ module.exports = {
         "contributing/option",
         "contributing/docs",
         "contributing/bounty",
+        "contributing/rust",
       ],
     },
     "license",

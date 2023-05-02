@@ -1,12 +1,6 @@
 import {execSync} from 'child_process';
 import {existsSync, mkdirSync, unlinkSync} from 'fs';
-
-const toolchains = [
-	'x86_64_gnu_toolchain',
-	'aarch_gnu_toolchain',
-	'x86_64_musl_toolchain',
-	'aarch64-musl-toolchain',
-];
+import {toolchains} from './toolchains.mjs';
 
 const unpatched = [
 	'x86_64-apple-darwin',

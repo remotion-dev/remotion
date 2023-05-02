@@ -7,8 +7,15 @@ import {
 test('date serialization', () => {
 	const date = {data: new Date(), hi: 'there'};
 
-	const chat = serializeJSONWithDate(date, 2);
-	const deserialized = deserializeJSONWithDate(chat);
+	const {serializedString, customDateUsed} = serializeJSONWithDate(date, 2);
+	expect(customDateUsed).toEqual(true);
+
+	const deserialized = deserializeJSONWithDate(serializedString);
 
 	expect(deserialized.data).toBeInstanceOf(Date);
+});
+
+test('No date used', () => {
+	const {customDateUsed} = serializeJSONWithDate({a: 'hi'}, 2);
+	expect(customDateUsed).toEqual(false);
 });

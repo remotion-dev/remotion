@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {z} from 'remotion';
+import type {z} from 'zod';
 import {Checkmark} from '../../../icons/Checkmark';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
@@ -28,6 +29,7 @@ export const ZodEnumEditor: React.FC<{
 	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
+	saving: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -38,7 +40,13 @@ export const ZodEnumEditor: React.FC<{
 	onSave,
 	showSaveButton,
 	onRemove,
+	saving,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,
@@ -110,7 +118,9 @@ export const ZodEnumEditor: React.FC<{
 				onReset={reset}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
+				saving={saving}
 			/>
+
 			<div style={isRoot ? undefined : container}>
 				<Combobox values={comboBoxValues} selectedId={value} title={value} />
 			</div>
@@ -118,7 +128,7 @@ export const ZodEnumEditor: React.FC<{
 				<>
 					<Spacing x={1} />
 					<ValidationMessage
-						align="flex-end"
+						align="flex-start"
 						message={localValue.zodValidation.error.format()._errors[0]}
 						type="error"
 					/>

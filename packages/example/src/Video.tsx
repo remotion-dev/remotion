@@ -1,6 +1,8 @@
+import {zColor} from '@remotion/zod-types';
 import {alias} from 'lib/alias';
 import React from 'react';
-import {Composition, Folder, getInputProps, Still, z, zColor} from 'remotion';
+import {Composition, Folder, getInputProps, Still} from 'remotion';
+import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';
 import {CancelRender} from './CancelRender';
@@ -525,6 +527,14 @@ export const Index: React.FC = () => {
 				<Composition
 					id="image-in-lottie"
 					lazyComponent={() => import('./Lottie/ImageInLottie')}
+					durationInFrames={300}
+					fps={30}
+					height={850}
+					width={850}
+				/>
+				<Composition
+					id="LottieInitializationBugfix"
+					lazyComponent={() => import('./Lottie/LottieInitializationBugfix')}
 					durationInFrames={300}
 					fps={30}
 					height={850}
