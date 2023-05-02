@@ -181,7 +181,7 @@ for (const arch of archs) {
 	}
 
 	execSync(
-		`${binariesDirectory}/${copyDestinations[arch].ffmpeg_bin} -C ${ffmpegFolder}`
+		`tar xf ${binariesDirectory}/${copyDestinations[arch].ffmpeg_bin} -C ${ffmpegFolder}`
 	);
 	const command = `cargo build ${debug ? '' : '--release'} --target=${arch}`;
 	console.log(command);
