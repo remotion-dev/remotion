@@ -56,6 +56,9 @@ export const listCompositionsCommand = async (
 			logLevel: ConfigInternals.Logging.getLogLevel(),
 			bundlingStep: 0,
 			steps: 1,
+			onDirectoryCreated: (dir) => {
+				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
+			},
 		});
 
 	registerCleanupJob(() => cleanupBundle());
