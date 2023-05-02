@@ -2,7 +2,10 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::{errors::ErrorWithBacktrace, opened_stream::get_time, scalable_frame::ScalableFrame};
+use crate::{
+    errors::ErrorWithBacktrace, global_printer::_print_debug, opened_stream::get_time,
+    scalable_frame::ScalableFrame,
+};
 
 pub fn get_frame_cache_id() -> usize {
     static COUNTER: AtomicUsize = AtomicUsize::new(1);
@@ -76,7 +79,6 @@ impl FrameCache {
         for i in 0..self.items.len() {
             if self.items[i].id == id {
                 self.items[i].frame.ensure_data()?;
-                self.items[i].asked_time = 0;
                 self.items[i].last_used = get_time();
                 data = Some(self.items[i].frame.get_data()?);
                 break;
@@ -128,6 +130,7 @@ impl FrameCache {
 
             // Exact same time as requested
             if self.items[i].resolved_pts == time {
+                _print_debug(&format!("FOUND IN CACHE WITH PERFECT MATCH {}", time));
                 self.items[i].frame.ensure_data()?;
 
                 return Ok(Some(self.items[i].id));

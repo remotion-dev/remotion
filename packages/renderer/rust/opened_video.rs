@@ -4,6 +4,7 @@ use std::sync::{Arc, Mutex};
 use crate::{
     errors::ErrorWithBacktrace,
     frame_cache::FrameCache,
+    global_printer::_print_debug,
     opened_stream::{
         calculate_display_video_size, get_display_aspect_ratio, LastSeek, OpenedStream,
     },
@@ -105,6 +106,7 @@ fn open_stream(
 
     let original_width = decoder.width();
     let original_height = decoder.height();
+    _print_debug(&format!("delay {}", decoder.delay()));
     let fps = mut_stream.avg_frame_rate();
 
     let aspect_ratio = get_display_aspect_ratio(&mut_stream);
