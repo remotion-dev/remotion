@@ -20,6 +20,21 @@ function isMusl() {
 	return !glibcVersionRuntime;
 }
 
+const stdout = execSync('cargo metadata --format-version=1');
+const {packages} = JSON.parse(stdout);
+
+const rustFfmpegSys = packages.find((p) => p.name === 'ffmpeg-sys-next');
+
+if (!rustFfmpegSys) {
+	console.error(
+		'Could not find ffmpeg-sys-next when running cargo metadata --format-version=1'
+	);
+	process.exit(1);
+}
+
+const manifest = rustFfmpegSys.manifest_path;
+const binariesDirectory = path.join(path.dirname(manifest), 'bindings');
+
 const targets = [
 	'x86_64-pc-windows-gnu',
 	'x86_64-unknown-linux-musl',
@@ -166,7 +181,7 @@ for (const arch of archs) {
 	}
 
 	execSync(
-		`tar xf ffmpeg/${copyDestinations[arch].ffmpeg_bin} -C ${ffmpegFolder}`
+		`${binariesDirectory}/${copyDestinations[arch].ffmpeg_bin} -C ${ffmpegFolder}`
 	);
 	const command = `cargo build ${debug ? '' : '--release'} --target=${arch}`;
 	console.log(command);
