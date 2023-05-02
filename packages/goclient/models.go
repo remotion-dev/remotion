@@ -37,18 +37,18 @@ type RemotionOptions struct {
 	Gl                    string                 `json:"gl"`
 }
 
-type internalOptions struct {
-	ServeUrl              string      `json:"serveUrl"`
-	FunctionName          string      `json:"functionName"`
-	Region                string      `json:"region"`
-	InputProps            interface{} `json:"inputProps"`
-	Composition           string      `json:"composition"`
-	Type                  string      `json:"type"`
-	Codec                 string      `json:"codec"`
-	Version               string      `json:"version"`
-	ImageFormat           string      `json:"imageFormat"`
-	Crf                   int
-	EnvVariables          []interface{}
+type renderInternalOptions struct {
+	ServeUrl              string        `json:"serveUrl" validate:"required"`
+	FunctionName          string        `json:"functionName" validate:"required"`
+	Region                string        `json:"region" validate:"required"`
+	InputProps            interface{}   `json:"inputProps"`
+	Composition           string        `json:"composition" validate:"required"`
+	Type                  string        `json:"type"`
+	Codec                 string        `json:"codec"`
+	Version               string        `json:"version"`
+	ImageFormat           string        `json:"imageFormat"`
+	Crf                   int           `json:"crf"`
+	EnvVariables          []interface{} `json:"envVariables"`
 	Quality               int
 	MaxRetries            int                    `json:"maxRetries"`
 	Privacy               string                 `json:"privacy"`
@@ -80,4 +80,60 @@ type RemotionRenderResponse struct {
 	BucketName        string `json:"bucketName"`
 	CloudWatchLogs    string `json:"cloudWatchLogs"`
 	FolderInS3Console string `json:"folderInS3Console"`
+}
+
+type RenderConfig struct {
+	RenderId     string `json:"renderId" validate:"required"`
+	BucketName   string `json:"bucketName" validate:"required"`
+	FunctionName string `json:"functionName" validate:"required"`
+	Region       string `json:"region" validate:"required"`
+}
+
+type RenderProgressResponse struct {
+	OverallProgress          float64         `json:"overallProgress"`
+	Chunks                   int             `json:"chunks"`
+	Done                     bool            `json:"done"`
+	EncodingStatus           *EncodingStatus `json:"encodingStatus,omitempty"`
+	Costs                    *Costs          `json:"costs,omitempty"`
+	RenderId                 string          `json:"renderId"`
+	RenderMetadata           *RenderMetadata `json:"renderMetadata,omitempty"`
+	OutputFile               *string         `json:"outputFile,omitempty"`
+	OutKey                   *string         `json:"outKey,omitempty"`
+	TimeToFinish             *int            `json:"timeToFinish,omitempty"`
+	Errors                   []string        `json:"errors,omitempty"`
+	FatalErrorEncountered    bool            `json:"fatalErrorEncountered"`
+	CurrentTime              int64           `json:"currentTime"`
+	RenderSize               int64           `json:"renderSize"`
+	OutputSizeInBytes        *int64          `json:"outputSizeInBytes,omitempty"`
+	LambdasInvoked           int             `json:"lambdasInvoked"`
+	FramesRendered           *int            `json:"framesRendered,omitempty"`
+	MostExpensiveFrameRanges []FrameRange    `json:"mostExpensiveFrameRanges,omitempty"`
+}
+
+type EncodingStatus struct {
+	FramesEncoded int `json:"framesEncoded"`
+}
+
+type Costs struct {
+	AccruedSoFar float64 `json:"accruedSoFar"`
+	Currency     string  `json:"currency"`
+	DisplayCost  string  `json:"displayCost"`
+	Disclaimer   string  `json:"disclaimer"`
+}
+
+type RenderMetadata struct {
+	TotalFrames                      int    `json:"totalFrames"`
+	StartedDate                      int64  `json:"startedDate"`
+	TotalChunks                      int    `json:"totalChunks"`
+	EstimatedTotalLambdaInvokations  int    `json:"estimatedTotalLambdaInvokations"`
+	EstimatedRenderLambdaInvokations int    `json:"estimatedRenderLambdaInvokations"`
+	CompositionId                    string `json:"compositionId"`
+	Codec                            string `json:"codec"`
+	Bucket                           string `json:"bucket"`
+}
+
+type FrameRange struct {
+	Chunk              int    `json:"chunk"`
+	TimeInMilliseconds int    `json:"timeInMilliseconds"`
+	FrameRange         [2]int `json:"frameRange"`
 }
