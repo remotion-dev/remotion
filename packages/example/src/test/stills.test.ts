@@ -40,6 +40,7 @@ test(
 			downloadMap,
 			remotionRoot: process.cwd(),
 			concurrency: RenderInternals.getActualConcurrency(null),
+			verbose: false,
 		});
 
 		const serveUrl = `http://localhost:${port}`;
@@ -118,6 +119,7 @@ test(
 			downloadMap,
 			remotionRoot: process.cwd(),
 			concurrency: RenderInternals.getActualConcurrency(null),
+			verbose: false,
 		});
 
 		const serveUrl = `http://localhost:${port}`;
