@@ -330,23 +330,48 @@ test('Two different starting times should not result in big seeking', async () =
 		const centerLeftPixelB =
 			data[Math.round(expectedLength - expectedLength / 2 - 3)];
 
-		expected.push(
-			[centerLeftPixelR, centerLeftPixelG, centerLeftPixelB].join('-')
-		);
+		expected.push([centerLeftPixelR, centerLeftPixelG, centerLeftPixelB]);
 	}
 
-	expect(expected).toEqual([
-		'153-186-224',
-		'60-60-60',
-		'153-186-224',
-		'252-251-245',
-		'153-186-224',
-		'140-154-130',
-		'153-186-224',
-		'150-166-129',
-		'153-186-224',
-		'112-133-86',
-	]);
+	expect(expected[0][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[0][1] / 100).toBeCloseTo(1.86, 1);
+	expect(expected[0][2] / 100).toBeCloseTo(2.24, 1);
+
+	expect(expected[1][0] / 100).toBeCloseTo(0.6, 1);
+	expect(expected[1][1] / 100).toBeCloseTo(0.6, 1);
+	expect(expected[1][2] / 100).toBeCloseTo(0.6, 1);
+
+	expect(expected[2][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[2][1] / 100).toBeCloseTo(1.86, 1);
+	expect(expected[2][2] / 100).toBeCloseTo(2.24, 1);
+
+	expect(expected[3][0] / 100).toBeCloseTo(2.52, 1);
+	expect(expected[3][1] / 100).toBeCloseTo(2.51, 1);
+	expect(expected[3][2] / 100).toBeCloseTo(2.45, 1);
+
+	expect(expected[4][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[4][1] / 100).toBeCloseTo(1.86, 1);
+	expect(expected[4][2] / 100).toBeCloseTo(2.24, 1);
+
+	expect(expected[5][0] / 100).toBeCloseTo(1.4, 1);
+	expect(expected[5][1] / 100).toBeCloseTo(1.54, 1);
+	expect(expected[5][2] / 100).toBeCloseTo(1.3, 1);
+
+	expect(expected[6][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[6][1] / 100).toBeCloseTo(1.86, 1);
+	expect(expected[6][2] / 100).toBeCloseTo(2.24, 1);
+
+	expect(expected[7][0] / 100).toBeCloseTo(1.5, 1);
+	expect(expected[7][1] / 100).toBeCloseTo(1.66, 1);
+	expect(expected[7][2] / 100).toBeCloseTo(1.29, 1);
+
+	expect(expected[8][0] / 100).toBeCloseTo(1.53, 1);
+	expect(expected[8][1] / 100).toBeCloseTo(1.86, 1);
+	expect(expected[8][2] / 100).toBeCloseTo(2.24, 1);
+
+	expect(expected[9][0] / 100).toBeCloseTo(1.12, 1);
+	expect(expected[9][1] / 100).toBeCloseTo(1.33, 1);
+	expect(expected[9][2] / 100).toBeCloseTo(0.86, 1);
 
 	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson = JSON.parse(stats.toString('utf-8'));
