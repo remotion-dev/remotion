@@ -22,6 +22,11 @@ pub unsafe extern "C" fn log_callback(
         return;
     }
 
+    // libvpx on windows logs this
+    if message.trim() == "v1.13.0" {
+        return;
+    }
+
     if level <= ffmpeg_next::log::Level::Info.into() {
         _print_debug(&format!("[FFmpeg] {}", message)).unwrap();
     } else if level <= ffmpeg_next::log::Level::Verbose.into() {
