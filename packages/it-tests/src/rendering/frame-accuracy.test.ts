@@ -31,6 +31,8 @@ const getMissedFramesforCodec = async (
       outputPath,
       "--image-format",
       "jpeg",
+      "--frames",
+      "0-99",
       "--jpeg-quality",
       "100",
       "--sequence",
@@ -117,7 +119,7 @@ test(
   {}
 );
 
-test.only(
+test(
   "should render correct frames from embedded videos - MP4 offthread",
   async () => {
     const missedFrames = await getMissedFramesforCodec("mp4", true);
