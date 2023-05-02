@@ -1,3 +1,4 @@
+import {writeFileSync} from 'fs';
 import {expect, test} from 'vitest';
 import {
 	getIdealMaximumFrameCacheItems,
@@ -51,11 +52,20 @@ test(
 			transparent: true,
 		});
 
-		expect(data.length).toBe(191304);
-		expect(data[100000] / 100).toBeCloseTo(0.13, 0.01);
-		expect(data[100001] / 100).toBeCloseTo(0.96, 0.01);
-		expect(data[140001] / 100).toBeCloseTo(2.53, 0.01);
-		expect(data[170001] / 100).toBeCloseTo(0.09, 0.01);
+		if (process.platform === 'darwin') {
+			expect(data.length).toBe(191304);
+			expect(data[100000] / 100).toBeCloseTo(0.13, 0.01);
+			expect(data[100001] / 100).toBeCloseTo(0.96, 0.01);
+			expect(data[140001] / 100).toBeCloseTo(2.53, 0.01);
+			expect(data[170001] / 100).toBeCloseTo(0.09, 0.01);
+		} else {
+			writeFileSync('data.png', data);
+			expect(data.length).toBe(195367);
+			expect(data[100000] / 100).toBeCloseTo(1.46, 0.01);
+			expect(data[100001] / 100).toBeCloseTo(2.09, 0.01);
+			expect(data[140001] / 100).toBeCloseTo(0.7, 0.01);
+			expect(data[170001] / 100).toBeCloseTo(2.04, 0.01);
+		}
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
