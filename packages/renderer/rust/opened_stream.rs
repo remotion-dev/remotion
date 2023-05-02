@@ -18,7 +18,6 @@ use crate::{
 
 pub struct LastSeek {
     pub resolved_pts: i64,
-    pub resolved_dts: i64,
 }
 
 pub struct OpenedStream {
@@ -105,7 +104,6 @@ impl OpenedStream {
 
                     let item = FrameCacheItem {
                         resolved_pts: self.last_position.resolved_pts,
-                        resolved_dts: self.last_position.resolved_dts,
                         frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
                         asked_time: position,
@@ -138,16 +136,14 @@ impl OpenedStream {
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_position = self.duration_or_zero.min(position);
+        let mut pts_offset = None;
 
         if position < self.last_position.resolved_pts
             || self.last_position.resolved_pts < calc_position(time - 1.0, time_base)
         {
             _print_verbose(&format!(
-                "Seeking to {} from resolved_pts = {}, and dts = {}, duration = {}",
-                position,
-                self.last_position.resolved_pts,
-                self.last_position.resolved_dts,
-                self.duration_or_zero
+                "Seeking to {} from resolved_pts = {}, duration = {}",
+                position, self.last_position.resolved_pts, self.duration_or_zero
             ))?;
             self.input
                 .seek(self.stream_index as i32, 0, position, last_position, 0)?;
@@ -164,8 +160,8 @@ impl OpenedStream {
 
             _print_debug(&format!(
                 "continue {} {} {} {}",
-                position,
                 self.last_position.resolved_pts,
+                position,
                 threshold,
                 last_frame_received.is_some()
             ))?;
@@ -188,6 +184,9 @@ impl OpenedStream {
                 Ok(packet) => packet,
                 Err(err) => Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?,
             };
+            if pts_offset.is_none() {
+                pts_offset = Some(packet.dts().expect("expected pts"));
+            }
 
             if stream.parameters().medium() != Type::Video {
                 continue;
@@ -198,7 +197,7 @@ impl OpenedStream {
                 } else {
                     match packet.pts() {
                         Some(pts) => {
-                            last_position = pts - 1;
+                            last_position = pts - pts_offset.unwrap() - 1;
 
                             self.input
                                 .seek(self.stream_index as i32, 0, pts, last_position, 0)?;
@@ -214,8 +213,7 @@ impl OpenedStream {
                 let result = self.receive_frame();
 
                 self.last_position = LastSeek {
-                    resolved_pts: packet.pts().expect("expected pts"),
-                    resolved_dts: packet.dts().expect("expected dts"),
+                    resolved_pts: packet.pts().expect("expected pts") + pts_offset.unwrap(),
                 };
 
                 match result {
@@ -246,7 +244,6 @@ impl OpenedStream {
 
                         let item = FrameCacheItem {
                             resolved_pts: self.last_position.resolved_pts,
-                            resolved_dts: self.last_position.resolved_dts,
                             frame: ScalableFrame::new(frame, self.transparent),
                             id: frame_cache_id,
                             asked_time: position,
