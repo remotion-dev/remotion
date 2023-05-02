@@ -185,10 +185,19 @@ for (const arch of archs) {
 	);
 	const command = `cargo build ${debug ? '' : '--release'} --target=${arch}`;
 	console.log(command);
+
+	// debuginfo will keep symbols, which are used for backtrace.
+	// symbols makes it a tiny bit smaller, but error messages will be hard to debug.
+
+	const optimizations = all
+		? '-C opt-level=3 -C lto=fat -C strip=debuginfo -C embed-bitcode=yes'
+		: '';
+
 	execSync(command, {
 		stdio: 'inherit',
 		env: {
 			...process.env,
+			RUSTFLAGS: optimizations,
 			CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER:
 				nativeArch === 'aarch64-unknown-linux-gnu'
 					? undefined
