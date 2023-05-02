@@ -22,6 +22,7 @@ const { shortName } = await deployService({
   remotionVersion: "3.3.82",
   memoryLimit: "2Gi",
   cpuLimit: "2.0",
+  timeoutSeconds: 500,
   projectID: "my-remotion-project",
   region: "us-east1",
 });
@@ -44,6 +45,10 @@ The upper bound on the amount of RAM that the Cloud Run service can consume. By 
 
 The maximum number of CPU cores that the Cloud Run service can use to process requests.
 
+### `timeoutSeconds`
+
+How long the Cloud Run Service may run before it gets killed. Must be below 3600 seconds.
+
 ### `projectID`
 
 The [project ID](https://cloud.google.com/resource-manager/docs/creating-managing-projects#:~:text=to%20be%20unique.-,Project%20ID,-%3A%20A%20globally%20unique) of the GCP Project that has been configured for Remotion Cloud Run.
@@ -51,11 +56,6 @@ The [project ID](https://cloud.google.com/resource-manager/docs/creating-managin
 ### `region`
 
 The [GCP region](/docs/cloudrun/region-selection) which you want to deploy the Cloud Run Service too.
-
-### `timeoutInSeconds`
-
-How long the Cloud Run Service may run before it gets killed. Must be below 900 seconds.
-We recommend a timeout of 120 seconds or lower - remember, Remotion Lambda is the fastest if you render with a high concurrency. If your video takes longer to render, the concurrency should be increased rather than the timeout.
 
 ## Return value
 

@@ -10,6 +10,7 @@ export type DeployServiceInput = {
 	remotionVersion: string;
 	memoryLimit?: string;
 	cpuLimit?: string;
+	timeoutSeconds?: number;
 	projectID: string;
 	region: string;
 };
@@ -44,6 +45,10 @@ export const deployService = async (
 		options.cpuLimit = '1.0';
 	}
 
+	if (!options.timeoutSeconds) {
+		options.timeoutSeconds = 300;
+	}
+
 	const parent = `projects/${options.projectID}/locations/${options.region}`;
 
 	const cloudRunClient = getCloudRunClient();
@@ -51,6 +56,7 @@ export const deployService = async (
 	const existingService = await checkIfServiceExists({
 		memoryLimit: options.memoryLimit,
 		cpuLimit: options.cpuLimit,
+		timeoutSeconds: options.timeoutSeconds,
 		projectID: options.projectID,
 		region: options.region,
 	});
@@ -58,6 +64,7 @@ export const deployService = async (
 	const serviceName = generateServiceName({
 		memoryLimit: options.memoryLimit,
 		cpuLimit: options.cpuLimit,
+		timeoutSeconds: options.timeoutSeconds,
 	});
 
 	if (existingService) {
@@ -77,6 +84,7 @@ export const deployService = async (
 				remotionVersion: options.remotionVersion,
 				memoryLimit: options.memoryLimit,
 				cpuLimit: options.cpuLimit,
+				timeoutSeconds: options.timeoutSeconds,
 			}),
 		},
 		serviceId: serviceName,
