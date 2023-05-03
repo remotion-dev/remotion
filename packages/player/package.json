@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "3.3.87",
+	"version": "4.0.0-alpha4",
 	"description": "Remotion Player",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
