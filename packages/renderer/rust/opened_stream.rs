@@ -16,10 +16,6 @@ use crate::{
     scalable_frame::{NotRgbFrame, ScalableFrame},
 };
 
-pub struct LastSeek {
-    pub resolved_dts: i64,
-}
-
 pub struct OpenedStream {
     pub stream_index: usize,
     pub original_width: u32,
@@ -30,7 +26,7 @@ pub struct OpenedStream {
     pub video: remotionffmpeg::codec::decoder::Video,
     pub src: String,
     pub input: remotionffmpeg::format::context::Input,
-    pub last_position: LastSeek,
+    pub last_position: i64,
     pub duration_or_zero: i64,
     pub reached_eof: bool,
     pub transparent: bool,
@@ -107,7 +103,7 @@ impl OpenedStream {
                     offset = offset + one_frame_in_time_base;
 
                     let item = FrameCacheItem {
-                        resolved_dts: self.last_position.resolved_dts + offset,
+                        resolved_dts: self.last_position + offset,
                         frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
                         asked_time: position,
@@ -141,12 +137,12 @@ impl OpenedStream {
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = self.duration_or_zero.min(position);
-        if position < self.last_position.resolved_dts
-            || self.last_position.resolved_dts < calc_position(time - 1.0, time_base)
+        if position < self.last_position
+            || self.last_position < calc_position(time - 1.0, time_base)
         {
             _print_verbose(&format!(
-                "Seeking to {} from resolved_dts = {}, duration = {}",
-                position, self.last_position.resolved_dts, self.duration_or_zero
+                "Seeking to {} from dts = {}, duration = {}",
+                position, self.last_position, self.duration_or_zero
             ))?;
             self.input
                 .seek(self.stream_index as i32, 0, position, last_seek_position, 0)?;
@@ -156,8 +152,7 @@ impl OpenedStream {
         let mut last_frame_received: Option<usize> = None;
 
         loop {
-            // -1 because uf 67 and we want to process 66.66 -> rounding error
-            if (self.last_position.resolved_dts >= position) && last_frame_received.is_some() {
+            if (self.last_position >= position) && last_frame_received.is_some() {
                 break;
             }
 
@@ -209,9 +204,7 @@ impl OpenedStream {
                 self.video.send_packet(&packet)?;
                 let result = self.receive_frame();
 
-                self.last_position = LastSeek {
-                    resolved_dts: packet.dts().expect("expected pts"),
-                };
+                self.last_position = packet.dts().expect("expected pts");
 
                 match result {
                     Ok(Some(video)) => unsafe {
@@ -235,7 +228,7 @@ impl OpenedStream {
                         };
 
                         let item = FrameCacheItem {
-                            resolved_dts: self.last_position.resolved_dts,
+                            resolved_dts: self.last_position,
                             frame: ScalableFrame::new(frame, self.transparent),
                             id: frame_cache_id,
                             asked_time: position,
