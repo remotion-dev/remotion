@@ -40,10 +40,14 @@ for (const dir of dirs) {
       cwd: path.join(process.cwd(), "packages", dir),
     });
   } catch (e) {
-    console.log(e.message);
+    // console.log(e.message);
   }
 }
 console.log(dirs);
+
+execSync("node ensure-correct-version.js", {
+  cwd: "packages/core",
+});
 
 execSync("pnpm exec vitest src/monorepo --run", {
   cwd: "packages/it-tests",
