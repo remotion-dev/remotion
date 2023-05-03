@@ -8,9 +8,9 @@ sidebar_label: "ffmpeg"
 
 _available since v4.0_
 
-In order to use FFmpeg tools without having to directly install it, Remotion provides a part of FFmpegs toolkit via `npx remotion ffmpeg`
+In order to use `ffmpeg` without having to directly install it, Remotion provides it via `npx remotion ffmpeg`.
 
-Note that in order to keep the binary size small, we only support the most commonly used codecs, namely h264, h265, vp8, vp9 and prores videos. FFmpeg 6.0 is used.
+Note that in order to keep the binary size small, the FFmpeg binary only understand the codecs that Remotion itself supports: H.264, H.265, VP8, VP9 and ProRes. A binary from the 6.0 release line of FFmpeg is used.
 
 # Example
 
