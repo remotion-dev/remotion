@@ -4,9 +4,7 @@ use std::sync::{Arc, Mutex};
 use crate::{
     errors::ErrorWithBacktrace,
     frame_cache::FrameCache,
-    opened_stream::{
-        calculate_display_video_size, get_display_aspect_ratio, LastSeek, OpenedStream,
-    },
+    opened_stream::{calculate_display_video_size, get_display_aspect_ratio, OpenedStream},
 };
 extern crate ffmpeg_next as remotionffmpeg;
 
@@ -126,7 +124,7 @@ fn open_stream(
         video: decoder,
         src: src.to_string(),
         input,
-        last_position: LastSeek { resolved_dts: 0 },
+        last_position: 0,
         duration_or_zero,
         reached_eof: false,
         transparent,
