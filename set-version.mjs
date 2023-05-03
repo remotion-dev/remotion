@@ -9,6 +9,8 @@ import {
 import path from "path";
 
 let version = process.argv[2];
+let noCommit = process.argv.includes("--no-commit");
+
 if (!version) {
   throw new Error("Please specify a version");
 }
@@ -54,6 +56,8 @@ execSync("pnpm exec vitest src/monorepo --run", {
   stdio: "inherit",
 });
 
-execSync("git add .", { stdio: "inherit" });
-execSync(`git commit -m "v${version}"`, { stdio: "inherit" });
-execSync(`git tag v${version}`, { stdio: "inherit" });
+if (!noCommit) {
+  execSync("git add .", { stdio: "inherit" });
+  execSync(`git commit -m "v${version}"`, { stdio: "inherit" });
+  execSync(`git tag v${version}`, { stdio: "inherit" });
+}
