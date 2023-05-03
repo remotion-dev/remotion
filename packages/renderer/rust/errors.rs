@@ -1,7 +1,7 @@
-use crate::ffmpeg::OpenedVideoManager;
 use crate::frame_cache::FrameCache;
 use crate::opened_stream::OpenedStream;
 use crate::opened_video::OpenedVideo;
+use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::ErrorPayload;
 use ffmpeg_next as remotionffmpeg;
 use png::EncodingError;
