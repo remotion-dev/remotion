@@ -17,7 +17,7 @@ use crate::{
 };
 
 pub struct LastSeek {
-    pub resolved_pts: i64,
+    pub resolved_dts: i64,
 }
 
 pub struct OpenedStream {
@@ -108,7 +108,7 @@ impl OpenedStream {
                     offset = offset + one_frame_in_time_base;
 
                     let item = FrameCacheItem {
-                        resolved_pts: self.last_position.resolved_pts + offset,
+                        resolved_dts: self.last_position.resolved_dts + offset,
                         frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
                         asked_time: position,
@@ -142,12 +142,12 @@ impl OpenedStream {
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = self.duration_or_zero.min(position);
-        if position < self.last_position.resolved_pts
-            || self.last_position.resolved_pts < calc_position(time - 1.0, time_base)
+        if position < self.last_position.resolved_dts
+            || self.last_position.resolved_dts < calc_position(time - 1.0, time_base)
         {
             _print_verbose(&format!(
-                "Seeking to {} from resolved_pts = {}, duration = {}",
-                position, self.last_position.resolved_pts, self.duration_or_zero
+                "Seeking to {} from resolved_dts = {}, duration = {}",
+                position, self.last_position.resolved_dts, self.duration_or_zero
             ))?;
             self.input
                 .seek(self.stream_index as i32, 0, position, last_seek_position, 0)?;
@@ -158,7 +158,7 @@ impl OpenedStream {
 
         loop {
             // -1 because uf 67 and we want to process 66.66 -> rounding error
-            if (self.last_position.resolved_pts >= position) && last_frame_received.is_some() {
+            if (self.last_position.resolved_dts >= position) && last_frame_received.is_some() {
                 break;
             }
 
@@ -214,7 +214,7 @@ impl OpenedStream {
                 let result = self.receive_frame();
 
                 self.last_position = LastSeek {
-                    resolved_pts: packet.dts().expect("expected pts"),
+                    resolved_dts: packet.dts().expect("expected pts"),
                 };
 
                 match result {
@@ -239,7 +239,7 @@ impl OpenedStream {
                         };
 
                         let item = FrameCacheItem {
-                            resolved_pts: self.last_position.resolved_pts,
+                            resolved_dts: self.last_position.resolved_dts,
                             frame: ScalableFrame::new(frame, self.transparent),
                             id: frame_cache_id,
                             asked_time: position,

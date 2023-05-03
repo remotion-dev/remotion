@@ -126,7 +126,7 @@ fn open_stream(
         video: decoder,
         src: src.to_string(),
         input,
-        last_position: LastSeek { resolved_pts: 0 },
+        last_position: LastSeek { resolved_dts: 0 },
         duration_or_zero,
         reached_eof: false,
         transparent,

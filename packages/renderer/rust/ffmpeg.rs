@@ -96,10 +96,10 @@ pub fn extract_frame(
         if transparent != stream.transparent {
             continue;
         }
-        if stream.last_position.resolved_pts > max_stream_position {
+        if stream.last_position.resolved_dts > max_stream_position {
             continue;
         }
-        if stream.last_position.resolved_pts < min_stream_position {
+        if stream.last_position.resolved_dts < min_stream_position {
             continue;
         }
         suitable_open_stream = Some(i);
