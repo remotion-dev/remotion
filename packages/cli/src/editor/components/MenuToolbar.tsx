@@ -21,6 +21,10 @@ const row: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
+const fixedWidth: React.CSSProperties = {
+	minWidth: '300px',
+};
+
 const flex: React.CSSProperties = {
 	flex: 1,
 };
@@ -83,27 +87,32 @@ export const MenuToolbar: React.FC = () => {
 	}, [setSelected]);
 
 	return (
-		<Row align="center" className="css-reset" style={row}>
-			{structure.map((s) => {
-				return (
-					<MenuItem
-						key={s.id}
-						selected={selected === s.id}
-						onItemSelected={itemClicked}
-						onItemHovered={itemHovered}
-						id={s.id}
-						label={s.label}
-						onItemQuit={onItemQuit}
-						menu={s}
-						onPreviousMenu={onPreviousMenu}
-						onNextMenu={onNextMenu}
-						leaveLeftPadding={s.leaveLeftPadding}
-					/>
-				);
-			})}
+		<Row justify="center" align="center" className="css-reset" style={row}>
+			<div style={fixedWidth}>
+				{structure.map((s) => {
+					return (
+						<MenuItem
+							key={s.id}
+							selected={selected === s.id}
+							onItemSelected={itemClicked}
+							onItemHovered={itemHovered}
+							id={s.id}
+							label={s.label}
+							onItemQuit={onItemQuit}
+							menu={s}
+							onPreviousMenu={onPreviousMenu}
+							onNextMenu={onNextMenu}
+							leaveLeftPadding={s.leaveLeftPadding}
+						/>
+					);
+				})}
+			</div>
+
 			<UpdateCheck />
 			<div style={flex} />
 			<MenuBuildIndicator />
+			<div style={flex} />
+			<div style={fixedWidth} />
 			<Spacing x={1} />
 			<SidebarCollapserControls />
 		</Row>
