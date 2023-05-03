@@ -4,29 +4,6 @@ import type {TAsset} from 'remotion';
 import {deleteDirectory} from '../delete-directory';
 import {tmpDir} from '../tmp-dir';
 
-type EncodingStatus =
-	| {
-			type: 'encoding';
-	  }
-	| {
-			type: 'done';
-			src: string;
-	  }
-	| undefined;
-
-export type SpecialVCodecForTransparency = 'vp9' | 'vp8' | 'none';
-
-export type NeedsResize = [number, number] | null;
-
-export type Vp9Result = {
-	specialVcodecForTransparency: SpecialVCodecForTransparency;
-	needsResize: NeedsResize;
-};
-export type VideoDurationResult = {
-	duration: number | null;
-	fps: number | null;
-};
-
 export type AudioChannelsAndDurationResultCache = {
 	channels: number;
 	duration: number | null;
@@ -49,11 +26,6 @@ export type DownloadMap = {
 			| undefined;
 	};
 	listeners: {[key: string]: {[downloadDir: string]: (() => void)[]}};
-	lastFrameMap: Record<string, {lastAccessed: number; data: Buffer}>;
-	isBeyondLastFrameMap: Record<string, number>;
-	isVp9VideoCache: Record<string, Vp9Result>;
-	ensureFileHasPresentationTimestamp: Record<string, EncodingStatus>;
-	videoDurationResultCache: Record<string, VideoDurationResult>;
 	durationOfAssetCache: Record<string, AudioChannelsAndDurationResultCache>;
 	downloadDir: string;
 	preEncode: string;
@@ -96,11 +68,6 @@ export const makeDownloadMap = (): DownloadMap => {
 		isDownloadingMap: {},
 		hasBeenDownloadedMap: {},
 		listeners: {},
-		lastFrameMap: {},
-		isBeyondLastFrameMap: {},
-		ensureFileHasPresentationTimestamp: {},
-		isVp9VideoCache: {},
-		videoDurationResultCache: {},
 		durationOfAssetCache: {},
 		id: String(Math.random()),
 		assetDir: dir,

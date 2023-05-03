@@ -140,6 +140,16 @@ const tangent = getTangentAtLength(parts[0], length / 2);
 
 The `onBucketEnsured()` option of [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket) has been removed because creating the bucket is the only operation of `getOrCreateBucket()`. Therefore, you can just await the function itself.
 
+## `imageFormat` removed from `<OffthreadVideo>`
+
+Until now, you could optionally pass the `imageFormat` prop into `<OffthreadVideo>`. This option was introduced in order to make transparent videos possible.
+
+Now, you can instead use the optional `transparent` prop.
+
+Due to this this change, the `OffthreadVideoImageFormat` type is no longer neccessary and has therefore been removed.
+
+## `OffthreadVideoImageFormat` removed
+
 ## `<Img>` will cancel the render if the image cannot be loaded
 
 Before, [`<Img>`](/docs/img) would only log to the console if an image cannot be loaded and inevitably lead to a timeout if the error is not handled.

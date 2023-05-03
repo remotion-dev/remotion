@@ -266,6 +266,13 @@ export const articles = [
     crumb: "Contributing",
   },
   {
+    id: "contributing/rust",
+    title: "Contributing Rust code",
+    relativePath: "docs/contributing/rust.md",
+    compId: "articles-docs-contributing-rust",
+    crumb: "Contributing",
+  },
+  {
     id: "data-fetching",
     title: "Data fetching",
     relativePath: "docs/data-fetching.md",
