@@ -5,7 +5,7 @@ use std::{
 };
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{format::Pixel, frame::Video, media::Type, StreamMut};
+use remotionffmpeg::{codec::Id, format::Pixel, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
 
@@ -282,4 +282,105 @@ pub fn get_display_aspect_ratio(mut_stream: &StreamMut) -> Rational {
         let asp = mut_stream.get_display_aspect_ratio();
         return Rational::new(asp.numerator(), asp.denominator());
     }
+}
+
+pub fn open_stream(
+    src: &str,
+    transparent: bool,
+) -> Result<(OpenedStream, Rational, Rational), ErrorWithBacktrace> {
+    let mut dictionary = Dictionary::new();
+    dictionary.set("fflags", "+genpts");
+    let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
+
+    // TODO: Don't open stream and stream_mut, might need to adapt rust-ffmpeg for it
+    let stream = match input
+        .streams()
+        .find(|s| s.parameters().medium() == Type::Video)
+    {
+        Some(stream) => stream,
+        None => {
+            return Err(ErrorWithBacktrace::from(
+                "No video stream found in input file",
+            ));
+        }
+    };
+
+    let stream_index = stream.index();
+
+    drop(stream);
+
+    let mut_stream = input
+        .stream_mut(stream_index)
+        .ok_or(ErrorWithBacktrace::from(
+            "No video stream found in input file",
+        ))?;
+    let duration_or_zero = mut_stream.duration().max(0);
+
+    let time_base = mut_stream.time_base();
+    let parameters = mut_stream.parameters();
+
+    let mut parameters_cloned = parameters.clone();
+    let is_vp8_or_vp9_and_transparent = match transparent {
+        true => unsafe {
+            let codec_id = (*(*(mut_stream).as_ptr()).codecpar).codec_id;
+            let is_vp8 = codec_id == remotionffmpeg::codec::id::get_av_codec_id(Id::VP8);
+            let is_vp9 = codec_id == remotionffmpeg::codec::id::get_av_codec_id(Id::VP9);
+
+            if is_vp8 || is_vp9 {
+                (*parameters_cloned.as_mut_ptr()).format =
+                    remotionffmpeg::util::format::pixel::to_av_pixel_format(Pixel::YUVA420P) as i32;
+            }
+
+            if is_vp8 {
+                Some("vp8")
+            } else if is_vp9 {
+                Some("vp9")
+            } else {
+                None
+            }
+        },
+        false => None,
+    };
+
+    let video = remotionffmpeg::codec::context::Context::from_parameters(parameters_cloned)?;
+
+    let decoder = match is_vp8_or_vp9_and_transparent {
+        Some("vp8") => video.decoder().video_with_codec("libvpx")?,
+        Some("vp9") => video.decoder().video_with_codec("libvpx-vp9")?,
+        Some(_) => unreachable!(),
+        None => video.decoder().video()?,
+    };
+
+    let format = decoder.format();
+
+    let original_width = decoder.width();
+    let original_height = decoder.height();
+    let fps = mut_stream.avg_frame_rate();
+
+    let aspect_ratio = get_display_aspect_ratio(&mut_stream);
+
+    let (scaled_width, scaled_height) = calculate_display_video_size(
+        aspect_ratio.0,
+        aspect_ratio.1,
+        original_width,
+        original_height,
+    );
+
+    let opened_stream = OpenedStream {
+        stream_index,
+        original_height,
+        original_width,
+        scaled_height,
+        scaled_width,
+        format,
+        video: decoder,
+        src: src.to_string(),
+        input,
+        last_position: 0,
+        duration_or_zero,
+        reached_eof: false,
+        transparent,
+    };
+
+    Ok((opened_stream, fps, time_base))
 }
