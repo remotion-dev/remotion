@@ -21,8 +21,18 @@ const row: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
-const fixedWidth: React.CSSProperties = {
+const fixedWidthRight: React.CSSProperties = {
 	minWidth: '300px',
+	display: 'flex',
+	justifyContent: 'flex-end',
+	alignItems: 'center',
+};
+
+const fixedWidthLeft: React.CSSProperties = {
+	minWidth: '300px',
+	display: 'flex',
+	justifyContent: 'flex-start',
+	alignItems: 'center',
 };
 
 const flex: React.CSSProperties = {
@@ -88,7 +98,7 @@ export const MenuToolbar: React.FC = () => {
 
 	return (
 		<Row justify="center" align="center" className="css-reset" style={row}>
-			<div style={fixedWidth}>
+			<div style={fixedWidthLeft}>
 				{structure.map((s) => {
 					return (
 						<MenuItem
@@ -112,9 +122,10 @@ export const MenuToolbar: React.FC = () => {
 			<div style={flex} />
 			<MenuBuildIndicator />
 			<div style={flex} />
-			<div style={fixedWidth} />
+			<div style={fixedWidthRight}>
+				<SidebarCollapserControls />
+			</div>
 			<Spacing x={1} />
-			<SidebarCollapserControls />
 		</Row>
 	);
 };

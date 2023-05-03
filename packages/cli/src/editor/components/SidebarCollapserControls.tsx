@@ -7,7 +7,6 @@ import {
 import {SidebarContext} from '../state/sidebar';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
-import {Row} from './layout';
 import {useResponsiveSidebarStatus} from './TopPanel';
 
 const style: React.CSSProperties = {
@@ -163,9 +162,9 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 	);
 
 	return (
-		<Row>
+		<>
 			<InlineAction onClick={toggleLeft} renderAction={toggleLeftAction} />
 			<InlineAction onClick={toggleRight} renderAction={toggleRightAction} />
-		</Row>
+		</>
 	);
 };
