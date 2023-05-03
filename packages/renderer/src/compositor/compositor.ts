@@ -208,12 +208,6 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	});
 
 	child.stderr.on('data', (data) => {
-		if (
-			data.toString('utf-8').includes('No accelerated colorspace conversion')
-		) {
-			return;
-		}
-
 		stderrChunks.push(data);
 	});
 
