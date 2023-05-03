@@ -34,7 +34,6 @@ pub struct OpenedStream {
     pub duration_or_zero: i64,
     pub reached_eof: bool,
     pub transparent: bool,
-    pub pts_offset: Option<i64>,
 }
 
 pub fn calc_position(time: f64, time_base: Rational) -> i64 {
@@ -180,9 +179,6 @@ impl OpenedStream {
                 Ok(packet) => packet,
                 Err(err) => Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?,
             };
-            if self.pts_offset.is_none() {
-                self.pts_offset = Some(packet.dts().expect("expected pts"));
-            }
 
             if stream.parameters().medium() != Type::Video {
                 continue;
