@@ -90,7 +90,18 @@ pub fn extract_frame(
     let min_stream_position = calc_position(time - 15.0, vid.time_base);
     for i in 0..open_stream_count {
         let stream = vid.opened_streams[i].lock()?;
-
+        if stream.reached_eof {
+            continue;
+        }
+        if transparent != stream.transparent {
+            continue;
+        }
+        if stream.last_position.resolved_pts > max_stream_position {
+            continue;
+        }
+        if stream.last_position.resolved_pts < min_stream_position {
+            continue;
+        }
         suitable_open_stream = Some(i);
         break;
     }
