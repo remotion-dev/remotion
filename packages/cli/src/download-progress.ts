@@ -42,6 +42,7 @@ export const makeMultiDownloadProgress = (
 
 	return [
 		indent ? INDENT_TOKEN : null,
+		// TODO: Shifted 1 character to the right in v4
 		`    +`,
 		everyFileHasContentLength
 			? makeProgressBar(

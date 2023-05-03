@@ -18,6 +18,7 @@ test('Need to pass valid metadata', async () => {
 			output: '/file/output.png',
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 			downloadMap,
+			verbose: false,
 		})
 	).rejects.toThrow(/not be NaN, but is NaN/);
 	cleanDownloadMap(downloadMap);
@@ -37,6 +38,7 @@ test('Returns buffer in promise result', async () => {
 		frame: 0,
 		serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 		downloadMap,
+		verbose: false,
 	});
 	expect(buffer?.length).toBeGreaterThan(1000);
 	cleanDownloadMap(downloadMap);
@@ -58,6 +60,7 @@ test('Need to pass valid metadata', async () => {
 			output: '/file/output.png',
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 			downloadMap,
+			verbose: false,
 		})
 	).rejects.toThrow(
 		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/

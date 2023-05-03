@@ -567,6 +567,7 @@ module.exports = {
         "contributing/option",
         "contributing/docs",
         "contributing/bounty",
+        "contributing/rust",
       ],
     },
     "license",

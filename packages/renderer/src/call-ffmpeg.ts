@@ -3,12 +3,13 @@ import path from 'path';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {truthy} from './truthy';
 
-export const callFfExtraOptions = () => {
+export const dynamicLibraryPathOptions = () => {
 	const lib = path.join(getExecutablePath('ffmpeg-cwd'), 'remotion', 'lib');
 
 	return {
-		env:
-			process.platform === 'darwin'
+		env: {
+			RUST_BACKTRACE: 'full',
+			...(process.platform === 'darwin'
 				? {
 						DYLD_LIBRARY_PATH: lib,
 				  }
@@ -18,7 +19,8 @@ export const callFfExtraOptions = () => {
 				  }
 				: {
 						LD_LIBRARY_PATH: lib,
-				  },
+				  }),
+		},
 	};
 };
 
@@ -28,7 +30,7 @@ export const callFf = (
 	options?: execa.Options<string>
 ) => {
 	return execa(getExecutablePath(bin), args.filter(truthy), {
-		...callFfExtraOptions(),
+		...dynamicLibraryPathOptions(),
 		...options,
 	});
 };

@@ -1,11 +1,12 @@
 import type {RequestListener} from 'http';
-import type {OffthreadVideoImageFormat} from 'remotion';
-import {Internals} from 'remotion';
 import {URLSearchParams} from 'url';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
-import {extractFrameFromVideo} from './extract-frame-from-video';
+import {
+	getIdealMaximumFrameCacheItems,
+	startCompositor,
+} from './compositor/compositor';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
 	const parsed = new URL(url, 'http://localhost');
@@ -27,18 +28,12 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 		throw new Error('Did not get `time` parameter');
 	}
 
-	const imageFormat = params.get('imageFormat');
-
-	if (!imageFormat) {
-		throw new TypeError('Did not get `imageFormat` parameter');
-	}
-
-	Internals.validateOffthreadVideoImageFormat(imageFormat);
+	const transparent = params.get('transparent');
 
 	return {
 		src,
 		time: parseFloat(time),
-		imageFormat: imageFormat as OffthreadVideoImageFormat,
+		transparent: transparent === 'true',
 	};
 };
 
@@ -46,68 +41,81 @@ export const startOffthreadVideoServer = ({
 	onDownload,
 	onError,
 	downloadMap,
-	remotionRoot,
+	concurrency,
+	verbose,
 }: {
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
 	downloadMap: DownloadMap;
-	remotionRoot: string;
-}): RequestListener => {
-	return (req, res) => {
-		if (!req.url) {
-			throw new Error('Request came in without URL');
-		}
+	concurrency: number;
+	verbose: boolean;
+}): {listener: RequestListener; close: () => Promise<void>} => {
+	const compositor = startCompositor('StartLongRunningProcess', {
+		concurrency,
+		maximum_frame_cache_items: getIdealMaximumFrameCacheItems(),
+		verbose,
+	});
 
-		if (!req.url.startsWith('/proxy')) {
-			res.writeHead(404);
-			res.end();
-			return;
-		}
-
-		const {src, time, imageFormat} = extractUrlAndSourceFromUrl(req.url);
-		res.setHeader('access-control-allow-origin', '*');
-		res.setHeader(
-			'content-type',
-			`image/${imageFormat === 'jpeg' ? 'jpg' : 'png'}`
-		);
-
-		// Handling this case on Lambda:
-		// https://support.google.com/chrome/a/answer/7679408?hl=en
-		// Chrome sends Private Network Access preflights for subresources
-		if (req.method === 'OPTIONS') {
-			res.statusCode = 200;
-			if (req.headers['access-control-request-private-network']) {
-				res.setHeader('Access-Control-Allow-Private-Network', 'true');
+	return {
+		close: () => {
+			compositor.finishCommands();
+			return compositor.waitForDone();
+		},
+		listener: (req, res) => {
+			if (!req.url) {
+				throw new Error('Request came in without URL');
 			}
 
-			res.end();
-			return;
-		}
+			if (!req.url.startsWith('/proxy')) {
+				res.writeHead(404);
+				res.end();
+				return;
+			}
 
-		downloadAsset({src, onDownload, downloadMap})
-			.then((to) => {
-				return extractFrameFromVideo({
-					time,
-					src: to,
-					imageFormat,
-					downloadMap,
-					remotionRoot,
-				});
-			})
-			.then((readable) => {
-				if (!readable) {
-					throw new Error('no readable from ffmpeg');
+			const {src, time, transparent} = extractUrlAndSourceFromUrl(req.url);
+			res.setHeader('access-control-allow-origin', '*');
+			if (transparent) {
+				res.setHeader('content-type', `image/png`);
+			} else {
+				res.setHeader('content-type', `image/bmp`);
+			}
+
+			// Handling this case on Lambda:
+			// https://support.google.com/chrome/a/answer/7679408?hl=en
+			// Chrome sends Private Network Access preflights for subresources
+			if (req.method === 'OPTIONS') {
+				res.statusCode = 200;
+				if (req.headers['access-control-request-private-network']) {
+					res.setHeader('Access-Control-Allow-Private-Network', 'true');
 				}
 
-				res.writeHead(200);
-				res.write(readable);
 				res.end();
-			})
-			.catch((err) => {
-				res.writeHead(500);
-				res.end();
-				onError(err);
-				console.log('Error occurred', err);
-			});
+				return;
+			}
+
+			downloadAsset({src, onDownload, downloadMap})
+				.then((to) => {
+					return compositor.executeCommand('ExtractFrame', {
+						input: to,
+						time,
+						transparent,
+					});
+				})
+				.then((readable) => {
+					if (!readable) {
+						throw new Error('no readable from ffmpeg');
+					}
+
+					res.writeHead(200);
+					res.write(readable);
+					res.end();
+				})
+				.catch((err) => {
+					res.writeHead(500);
+					res.end();
+					onError(err);
+					console.log('Error occurred', err);
+				});
+		},
 	};
 };

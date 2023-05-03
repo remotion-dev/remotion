@@ -13,6 +13,8 @@ export const prepareServer = async ({
 	port,
 	downloadMap,
 	remotionRoot,
+	concurrency,
+	verbose,
 }: {
 	webpackConfigOrServeUrl: string;
 	onDownload: RenderMediaOnDownload;
@@ -20,6 +22,8 @@ export const prepareServer = async ({
 	port: number | null;
 	downloadMap: DownloadMap;
 	remotionRoot: string;
+	concurrency: number;
+	verbose: boolean;
 }): Promise<{
 	serveUrl: string;
 	closeServer: (force: boolean) => Promise<unknown>;
@@ -32,6 +36,8 @@ export const prepareServer = async ({
 			port,
 			downloadMap,
 			remotionRoot,
+			concurrency,
+			verbose,
 		});
 
 		return Promise.resolve({
@@ -58,6 +64,8 @@ export const prepareServer = async ({
 		port,
 		downloadMap,
 		remotionRoot,
+		concurrency,
+		verbose,
 	});
 	return Promise.resolve({
 		closeServer: async (force: boolean) => {

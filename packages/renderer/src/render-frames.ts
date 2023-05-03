@@ -86,6 +86,7 @@ type RenderFramesOptions = {
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
+	verbose?: boolean;
 };
 
 const innerRenderFrames = ({
@@ -549,6 +550,8 @@ export const renderFrames = (
 					port: options.port ?? null,
 					downloadMap,
 					remotionRoot: findRemotionRoot(),
+					concurrency: actualConcurrency,
+					verbose: options.verbose ?? false,
 				}),
 				browserInstance,
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {

@@ -54,7 +54,6 @@ import {
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
-import {validateOffthreadVideoImageFormat} from './validation/validate-offthreadvideo-image-format.js';
 import {DurationsContextProvider} from './video/duration-state.js';
 import type {
 	MediaVolumeContextValue,
@@ -106,7 +105,6 @@ export const Internals = {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	portalNode,
 	waitForRoot,
-	validateOffthreadVideoImageFormat,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
 	PrefetchProvider,
