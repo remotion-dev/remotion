@@ -223,7 +223,15 @@ export const RenderModalData: React.FC<{
 
 	const onUpdate = useCallback(() => {
 		setValBeforeSafe(inputProps);
-		updateDefaultProps(composition.id, inputProps);
+		updateDefaultProps(composition.id, inputProps)
+			.then((res) => {
+				if (res.status === 'fail') {
+					sendErrorNotification(res.errorMessage);
+				}
+			})
+			.catch((err) => {
+				sendErrorNotification(err.message);
+			});
 	}, [composition.id, inputProps]);
 
 	useEffect(() => {

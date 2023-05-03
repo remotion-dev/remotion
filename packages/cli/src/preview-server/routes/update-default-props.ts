@@ -13,22 +13,25 @@ export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse
 > = async ({input: {compositionId, defaultProps}, remotionRoot}) => {
-	const projectInfo = await getProjectInfo(remotionRoot);
-	// TODO: What happens if this error is thrown? Handle in frontend
-	if (!projectInfo.videoFile) {
-		throw new Error('Cannot find root file in project');
+	try {
+		const projectInfo = await getProjectInfo(remotionRoot);
+
+		if (!projectInfo.videoFile) {
+			throw new Error('Cannot find root file in project');
+		}
+
+		checkIfTypeScriptFile(projectInfo.videoFile);
+
+		const updated = await updateDefaultProps({
+			compositionId,
+			input: readFileSync(projectInfo.videoFile, 'utf-8'),
+			newDefaultProps: deserializeJSONWithDate(defaultProps),
+		});
+
+		writeFileSync(projectInfo.videoFile, updated);
+
+		return {status: 'success'};
+	} catch (error) {
+		return {status: 'fail', errorMessage: (error as Error).message};
 	}
-
-	checkIfTypeScriptFile(projectInfo.videoFile);
-
-	// TODO: Pass error to frontend
-	const updated = await updateDefaultProps({
-		compositionId,
-		input: readFileSync(projectInfo.videoFile, 'utf-8'),
-		newDefaultProps: deserializeJSONWithDate(defaultProps),
-	});
-
-	writeFileSync(projectInfo.videoFile, updated);
-
-	return {status: 'success'};
 };
