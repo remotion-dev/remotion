@@ -8,7 +8,7 @@ crumb: "Lambda API"
 
 Gets an array of Remotion projects in your S3 account.
 
-The projects are located in the `sites/` subdirectory of your S3 bucket. Remember - you should only have one bucket for Remotion Lambba per region, therefore you do not need to specify the name of the bucket for this function.
+The projects are located in the `sites/` subdirectory of your S3 bucket. Remember - you should only have one bucket for Remotion Lambda per region, therefore you do not need to specify the name of the bucket for this function.
 
 ## Example
 
