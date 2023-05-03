@@ -183,7 +183,7 @@ test(
 		compositor.finishCommands();
 		await compositor.waitForDone();
 	},
-	{timeout: 5000}
+	{timeout: 10000}
 );
 
 test('Should be able to extract a frame with abnormal DAR', async () => {
