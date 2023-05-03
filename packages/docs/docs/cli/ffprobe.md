@@ -8,7 +8,7 @@ sidebar_label: "ffprobe"
 
 _available since v4.0_
 
-In order to use ffprobe tools without having to directly install it, remotion provides a part of the ffprobe toolkit via `npx remotion ffprobe`
+In order to use `ffprobe` without having to directly install it, Remotion provides it via `npx remotion ffprobe`.
 
 Note that in order to keep the binary size small, the FFprobe binary only understand the codecs that Remotion itself supports: H.264, H.265, VP8, VP9 and ProRes. A binary from the 6.0 release line of FFprobe is used.
 
