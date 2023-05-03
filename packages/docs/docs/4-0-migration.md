@@ -78,7 +78,7 @@ To clarify the meaning of this option, it is now universally called "JPEG Qualit
 
 FFmpeg is now baked into the `@remotion/renderer` package. Therefore, the `ffmpegExecutable` and `ffprobeExecutable` options have been removed.
 
-Therefore, the `npx remotion install ffmpeg` and `npx remotion install ffprope` commands have been removed.
+Furthermore, the `npx remotion install ffmpeg` and `npx remotion install ffprobe` commands no longer exist.
 
 **How to upgrade:**
 
