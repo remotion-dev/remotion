@@ -57,10 +57,9 @@ impl OpenedVideo {
     }
 
     pub fn get_frame_cache(&self, transparent: bool) -> Arc<Mutex<FrameCache>> {
-        if transparent {
-            self.transparent_frame_cache.clone()
-        } else {
-            self.opaque_frame_cache.clone()
+        match transparent {
+            true => self.transparent_frame_cache.clone(),
+            false => self.opaque_frame_cache.clone(),
         }
     }
 
