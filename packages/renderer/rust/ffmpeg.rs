@@ -2,7 +2,6 @@ use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
 use crate::frame_cache::FrameCacheReference;
-use crate::global_printer::_print_debug;
 use crate::logger::log_callback;
 use crate::opened_stream::calc_position;
 use crate::opened_video::open_video;
@@ -64,9 +63,12 @@ pub fn extract_frame(
     let mut vid = video_locked.lock()?;
 
     let position = calc_position(time, vid.time_base);
-    _print_debug(&format!("time, position {} {}", time, position));
     let one_frame_after = calc_position(
         time + (1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64)),
+        vid.time_base,
+    );
+    let one_frame_in_time_base = calc_position(
+        1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64),
         vid.time_base,
     );
     let threshold = (one_frame_after - position) / 2;
@@ -113,6 +115,8 @@ pub fn extract_frame(
         &vid.get_frame_cache(transparent),
         position,
         vid.time_base,
+        one_frame_in_time_base,
+        threshold,
     )?;
 
     let from_cache = vid
