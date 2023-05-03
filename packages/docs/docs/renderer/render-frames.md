@@ -297,6 +297,10 @@ Accepted values:
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
 
+#### `userAgent` <AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
 ## Return value
 
 A promise resolving to an object containing the following properties:

@@ -71,6 +71,7 @@ test('Should make a transparent video', async () => {
 			rendererFunctionName: null,
 			bucketName: null,
 			audioCodec: null,
+			dumpBrowserLogs: false,
 		},
 		extraContext
 	);
@@ -94,7 +95,6 @@ test('Should make a transparent video', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-	console.log('got file', file);
 
 	// We create a temporary directory for storing the frames
 	const tmpdir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-'));

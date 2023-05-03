@@ -459,6 +459,7 @@ module.exports = {
         "lambda/upgrading",
         "lambda/uninstall",
         "lambda/feb-2023-incident",
+        "lambda/s3-public-access",
       ],
     },
     {
@@ -485,6 +486,7 @@ module.exports = {
         "troubleshooting/defaultprops-too-big",
         "troubleshooting/could-not-be-parsed-as-a-value-list",
         "troubleshooting/player-flicker",
+        "troubleshooting/broken-fast-refresh",
       ],
     },
     {

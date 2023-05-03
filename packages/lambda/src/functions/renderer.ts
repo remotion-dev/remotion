@@ -159,10 +159,9 @@ const renderHandler = async (
 			serveUrl: params.serveUrl,
 			quality: params.quality,
 			envVariables: params.envVariables,
-			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
-				params.logLevel,
-				'verbose'
-			),
+			dumpBrowserLogs:
+				params.dumpBrowserLogs ??
+				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 			verbose: RenderInternals.isEqualOrBelowLogLevel(
 				params.logLevel,
 				'verbose'

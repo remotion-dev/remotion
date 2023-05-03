@@ -271,7 +271,7 @@ const PlayerFn = <T,>(
 	validatePlaybackRate(playbackRate);
 
 	useEffect(() => {
-		emitter.dispatchRatechange(playbackRate);
+		emitter.dispatchRateChange(playbackRate);
 	}, [emitter, playbackRate]);
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
