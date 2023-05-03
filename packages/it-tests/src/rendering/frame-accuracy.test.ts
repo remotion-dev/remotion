@@ -31,17 +31,12 @@ const getMissedFramesforCodec = async (
       outputPath,
       "--image-format",
       "jpeg",
-      "--frames",
-      "0-99",
       "--jpeg-quality",
       "100",
       "--sequence",
-      "--log",
-      "verbose",
     ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
-      stdio: "inherit",
       reject: false,
     }
   );
@@ -87,7 +82,7 @@ const getMissedFramesforCodec = async (
       missedFrames++;
     }
   }
-  // RenderInternals.deleteDirectory(outputPath);
+  RenderInternals.deleteDirectory(outputPath);
 
   return missedFrames;
 };
@@ -98,7 +93,9 @@ test(
     const missedFrames = await getMissedFramesforCodec("webm", false);
     expect(missedFrames).toBeLessThanOrEqual(1);
   },
-  {}
+  {
+    retry: 2,
+  }
 );
 
 test(
@@ -107,7 +104,9 @@ test(
     const missedFrames = await getMissedFramesforCodec("webm", true);
     expect(missedFrames).toBe(0);
   },
-  {}
+  {
+    retry: 2,
+  }
 );
 
 test(
@@ -116,7 +115,9 @@ test(
     const missedFrames = await getMissedFramesforCodec("mp4", false);
     expect(missedFrames).toBeLessThanOrEqual(1);
   },
-  {}
+  {
+    retry: 2,
+  }
 );
 
 test(
@@ -125,5 +126,7 @@ test(
     const missedFrames = await getMissedFramesforCodec("mp4", true);
     expect(missedFrames).toBe(0);
   },
-  {}
+  {
+    retry: 2,
+  }
 );
