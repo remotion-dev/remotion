@@ -88,10 +88,11 @@ Furthermore, the `npx remotion install ffmpeg` and `npx remotion install ffprobe
 - Remove all calls to [`ensureFfprobe()`](/docs/renderer/ensure-ffprobe).
 - Remove the `--ffmpeg-executable` flag from [`npx remotion render`](/docs/cli/render), [`npx remotion still`](/docs/cli/still) and [`npx remotion benchmark`](/docs/cli/benchmark)
 - Remove the `--ffprobe-executable` flag from [`npx remotion render`](/docs/cli/render), [`npx remotion still`](/docs/cli/still) and [`npx remotion benchmark`](/docs/cli/benchmark)
+- Don't use the [`npx remotion install`](/docs/cli/install) command anymore
 
 ## Added `npx remotion ffmpeg` and `npx remotion ffprobe`
 
-Since FFmpeg and FFprobe no longer have to be installed, the `ffmpeg` and `ffprobe` commands are no longer globally available. In order to still be able to use some of `FFmpeg`s handy commands, we introduced `npx remotion ffmpeg` and `npx remotion ffprobe`.
+Since FFmpeg and FFprobe no longer have to be installed, the [`ffmpeg`] and [`ffprobe`](/docs/cli/ffprobe) commands are no longer globally available. In order to still be able to use some of `FFmpeg`s handy commands, we introduced [`npx remotion ffmpeg`](/docs/cli/ffmpeg) and [`npx remotion ffprobe`](/docs/cli/ffprobe).
 Note that in order to keep the binary size small, we only support the most commonly used codecs: h264, h265, vp8, vp9 and prores videos.
 
 ## Moved `onSlowestFrames` API
