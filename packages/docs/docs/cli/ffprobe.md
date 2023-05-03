@@ -1,8 +1,9 @@
 ---
 image: /generated/articles-docs-cli-ffprobe.png
 id: ffprobe
-title: ffprobe
+title: npx remotion ffprobe
 crumb: "@remotion/cli"
+sidebar_label: "ffprobe"
 ---
 
 _available since v4.0_
@@ -18,3 +19,7 @@ npx remotion ffprobe your_video.mp4
 ```
 
 To find out more about FFprobe, visit their [docs](https://ffmpeg.org/ffprobe.html).
+
+## See also
+
+- [`npx remotion ffmpeg`](/docs/cli/ffmpeg)
