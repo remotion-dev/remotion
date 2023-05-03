@@ -10,7 +10,7 @@ _available since v4.0_
 
 In order to use ffprobe tools without having to directly install it, remotion provides a part of the ffprobe toolkit via `npx remotion ffprobe`
 
-Note that in order to keep the binary size small, we only support the most commonly used codecs, namely h264, h265, vp8, vp9 and prores videos. FFmpeg 6.0 is used.
+Note that in order to keep the binary size small, the FFprobe binary only understand the codecs that Remotion itself supports: H.264, H.265, VP8, VP9 and ProRes. A binary from the 6.0 release line of FFprobe is used.
 
 # Example
 
