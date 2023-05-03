@@ -1,4 +1,3 @@
-import {writeFileSync} from 'fs';
 import {expect, test} from 'vitest';
 import {
 	getIdealMaximumFrameCacheItems,
@@ -52,20 +51,11 @@ test(
 			transparent: true,
 		});
 
-		if (process.platform === 'darwin') {
-			expect(data.length).toBe(191304);
-			expect(data[100000] / 100).toBeCloseTo(0.13, 0.01);
-			expect(data[100001] / 100).toBeCloseTo(0.96, 0.01);
-			expect(data[140001] / 100).toBeCloseTo(2.53, 0.01);
-			expect(data[170001] / 100).toBeCloseTo(0.09, 0.01);
-		} else {
-			writeFileSync('data.png', data);
-			expect(data.length).toBe(195367);
-			expect(data[100000] / 100).toBeCloseTo(1.46, 0.01);
-			expect(data[100001] / 100).toBeCloseTo(2.09, 0.01);
-			expect(data[140001] / 100).toBeCloseTo(0.7, 0.01);
-			expect(data[170001] / 100).toBeCloseTo(2.04, 0.01);
-		}
+		expect(data.length).toBe(195708);
+		expect(data[100000] / 100).toBeCloseTo(0.04, 0.01);
+		expect(data[100001] / 100).toBeCloseTo(0.16, 0.01);
+		expect(data[140001] / 100).toBeCloseTo(0.76, 0.01);
+		expect(data[170001] / 100).toBeCloseTo(1.23, 0.01);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
@@ -129,7 +119,7 @@ test(
 
 		const data = await compositor.executeCommand('ExtractFrame', {
 			input: exampleVideos.framerWithoutFileExtension,
-			time: 1,
+			time: 0.04,
 			transparent: false,
 		});
 		expect(data.length).toBe(3499254);
@@ -347,9 +337,9 @@ test('Two different starting times should not result in big seeking', async () =
 	expect(expected[0][1] / 100).toBeCloseTo(1.86, 1);
 	expect(expected[0][2] / 100).toBeCloseTo(2.24, 1);
 
-	expect(expected[1][0] / 100).toBeCloseTo(0.6, 1);
-	expect(expected[1][1] / 100).toBeCloseTo(0.6, 1);
-	expect(expected[1][2] / 100).toBeCloseTo(0.6, 1);
+	expect(expected[1][0] / 100).toBeCloseTo(0.69, 1);
+	expect(expected[1][1] / 100).toBeCloseTo(0.7, 1);
+	expect(expected[1][2] / 100).toBeCloseTo(0.68, 1);
 
 	expect(expected[2][0] / 100).toBeCloseTo(1.53, 1);
 	expect(expected[2][1] / 100).toBeCloseTo(1.86, 1);
@@ -363,25 +353,25 @@ test('Two different starting times should not result in big seeking', async () =
 	expect(expected[4][1] / 100).toBeCloseTo(1.86, 1);
 	expect(expected[4][2] / 100).toBeCloseTo(2.24, 1);
 
-	expect(expected[5][0] / 100).toBeCloseTo(1.4, 1);
-	expect(expected[5][1] / 100).toBeCloseTo(1.54, 1);
-	expect(expected[5][2] / 100).toBeCloseTo(1.3, 1);
+	expect(expected[5][0] / 100).toBeCloseTo(1.32, 1);
+	expect(expected[5][1] / 100).toBeCloseTo(1.59, 1);
+	expect(expected[5][2] / 100).toBeCloseTo(1.2, 1);
 
 	expect(expected[6][0] / 100).toBeCloseTo(1.53, 1);
 	expect(expected[6][1] / 100).toBeCloseTo(1.86, 1);
 	expect(expected[6][2] / 100).toBeCloseTo(2.24, 1);
 
-	expect(expected[7][0] / 100).toBeCloseTo(1.5, 1);
-	expect(expected[7][1] / 100).toBeCloseTo(1.66, 1);
-	expect(expected[7][2] / 100).toBeCloseTo(1.29, 1);
+	expect(expected[7][0] / 100).toBeCloseTo(1.38, 1);
+	expect(expected[7][1] / 100).toBeCloseTo(1.41, 1);
+	expect(expected[7][2] / 100).toBeCloseTo(1.07, 1);
 
 	expect(expected[8][0] / 100).toBeCloseTo(1.53, 1);
 	expect(expected[8][1] / 100).toBeCloseTo(1.86, 1);
 	expect(expected[8][2] / 100).toBeCloseTo(2.24, 1);
 
-	expect(expected[9][0] / 100).toBeCloseTo(1.12, 1);
-	expect(expected[9][1] / 100).toBeCloseTo(1.33, 1);
-	expect(expected[9][2] / 100).toBeCloseTo(0.86, 1);
+	expect(expected[9][0] / 100).toBeCloseTo(1.27, 1);
+	expect(expected[9][1] / 100).toBeCloseTo(1.47, 1);
+	expect(expected[9][2] / 100).toBeCloseTo(1.07, 1);
 
 	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson = JSON.parse(stats.toString('utf-8'));

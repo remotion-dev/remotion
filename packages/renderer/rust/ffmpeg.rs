@@ -67,7 +67,11 @@ pub fn extract_frame(
         time + (1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64)),
         vid.time_base,
     );
-    let threshold = one_frame_after - position;
+    let one_frame_in_time_base = calc_position(
+        1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64),
+        vid.time_base,
+    );
+    let threshold = (one_frame_after - position) / 2;
     let cache_item = vid.get_cache_item_id(transparent, position, threshold);
 
     match cache_item {
@@ -77,7 +81,6 @@ pub fn extract_frame(
             return Err(err);
         }
     }
-
     let open_stream_count = vid.opened_streams.len();
     let mut suitable_open_stream: Option<usize> = None;
 
@@ -93,13 +96,12 @@ pub fn extract_frame(
         if transparent != stream.transparent {
             continue;
         }
-        if stream.last_position.resolved_pts > max_stream_position {
+        if stream.last_position.resolved_dts > max_stream_position {
             continue;
         }
-        if stream.last_position.resolved_pts < min_stream_position {
+        if stream.last_position.resolved_dts < min_stream_position {
             continue;
         }
-
         suitable_open_stream = Some(i);
         break;
     }
@@ -124,6 +126,8 @@ pub fn extract_frame(
         &vid.get_frame_cache(transparent),
         position,
         vid.time_base,
+        one_frame_in_time_base,
+        threshold,
     )?;
 
     let from_cache = vid

@@ -17,7 +17,6 @@ use crate::{
 };
 
 pub struct LastSeek {
-    pub resolved_pts: i64,
     pub resolved_dts: i64,
 }
 
@@ -35,6 +34,7 @@ pub struct OpenedStream {
     pub duration_or_zero: i64,
     pub reached_eof: bool,
     pub transparent: bool,
+    pub pts_offset: Option<i64>,
 }
 
 pub fn calc_position(time: f64, time_base: Rational) -> i64 {
@@ -73,10 +73,12 @@ impl OpenedStream {
         &mut self,
         position: i64,
         frame_cache: &Arc<Mutex<FrameCache>>,
+        one_frame_in_time_base: i64,
     ) -> Result<Option<usize>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
         let mut latest_frame: Option<usize> = None;
+        let mut offset = 0;
 
         loop {
             let result = self.receive_frame();
@@ -103,9 +105,10 @@ impl OpenedStream {
                         scaled_width: self.scaled_width,
                     };
 
+                    offset = offset + one_frame_in_time_base;
+
                     let item = FrameCacheItem {
-                        resolved_pts: self.last_position.resolved_pts,
-                        resolved_dts: self.last_position.resolved_dts,
+                        resolved_dts: self.last_position.resolved_dts + offset,
                         frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
                         asked_time: position,
@@ -134,22 +137,20 @@ impl OpenedStream {
         frame_cache: &Arc<Mutex<FrameCache>>,
         position: i64,
         time_base: Rational,
+        one_frame_in_time_base: i64,
+        threshold: i64,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
-        let mut last_position = self.duration_or_zero.min(position);
-
-        if position < self.last_position.resolved_pts
-            || self.last_position.resolved_pts < calc_position(time - 1.0, time_base)
+        let mut last_seek_position = self.duration_or_zero.min(position);
+        if position < self.last_position.resolved_dts
+            || self.last_position.resolved_dts < calc_position(time - 1.0, time_base)
         {
             _print_verbose(&format!(
-                "Seeking to {} from resolved_pts = {}, and dts = {}, duration = {}",
-                position,
-                self.last_position.resolved_pts,
-                self.last_position.resolved_dts,
-                self.duration_or_zero
+                "Seeking to {} from resolved_dts = {}, duration = {}",
+                position, self.last_position.resolved_dts, self.duration_or_zero
             ))?;
             self.input
-                .seek(self.stream_index as i32, 0, position, last_position, 0)?;
+                .seek(self.stream_index as i32, 0, position, last_seek_position, 0)?;
             freshly_seeked = true
         }
 
@@ -157,13 +158,13 @@ impl OpenedStream {
 
         loop {
             // -1 because uf 67 and we want to process 66.66 -> rounding error
-            if (self.last_position.resolved_pts - 1) > position && last_frame_received.is_some() {
+            if (self.last_position.resolved_dts >= position) && last_frame_received.is_some() {
                 break;
             }
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
-                    let data = self.handle_eof(position, frame_cache)?;
+                    let data = self.handle_eof(position, frame_cache, one_frame_in_time_base)?;
                     if data.is_some() {
                         last_frame_received = data;
                     }
@@ -179,6 +180,9 @@ impl OpenedStream {
                 Ok(packet) => packet,
                 Err(err) => Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?,
             };
+            if self.pts_offset.is_none() {
+                self.pts_offset = Some(packet.dts().expect("expected pts"));
+            }
 
             if stream.parameters().medium() != Type::Video {
                 continue;
@@ -187,12 +191,17 @@ impl OpenedStream {
                 if packet.is_key() {
                     freshly_seeked = false
                 } else {
-                    match packet.pts() {
-                        Some(pts) => {
-                            last_position = pts - 1;
+                    match packet.dts() {
+                        Some(dts) => {
+                            last_seek_position = dts - 1;
 
-                            self.input
-                                .seek(self.stream_index as i32, 0, pts, last_position, 0)?;
+                            self.input.seek(
+                                self.stream_index as i32,
+                                0,
+                                dts,
+                                last_seek_position,
+                                0,
+                            )?;
                         }
                         None => {}
                     }
@@ -205,8 +214,7 @@ impl OpenedStream {
                 let result = self.receive_frame();
 
                 self.last_position = LastSeek {
-                    resolved_pts: packet.pts().expect("expected pts"),
-                    resolved_dts: packet.dts().expect("expected dts"),
+                    resolved_dts: packet.dts().expect("expected pts"),
                 };
 
                 match result {
@@ -231,7 +239,6 @@ impl OpenedStream {
                         };
 
                         let item = FrameCacheItem {
-                            resolved_pts: self.last_position.resolved_pts,
                             resolved_dts: self.last_position.resolved_dts,
                             frame: ScalableFrame::new(frame, self.transparent),
                             id: frame_cache_id,
@@ -254,11 +261,17 @@ impl OpenedStream {
                 }
             }
         }
-        if last_frame_received.is_none() {
+
+        let final_frame = frame_cache
+            .lock()
+            .unwrap()
+            .get_item_id(position, threshold)?;
+
+        if final_frame.is_none() {
             return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;
         }
 
-        Ok(last_frame_received.unwrap())
+        return Ok(final_frame.unwrap());
     }
 }
 

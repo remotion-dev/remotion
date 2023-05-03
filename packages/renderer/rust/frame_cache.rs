@@ -10,7 +10,6 @@ pub fn get_frame_cache_id() -> usize {
 }
 
 pub struct FrameCacheItem {
-    pub resolved_pts: i64,
     pub resolved_dts: i64,
     pub asked_time: i64,
     pub frame: ScalableFrame,
@@ -76,7 +75,6 @@ impl FrameCache {
         for i in 0..self.items.len() {
             if self.items[i].id == id {
                 self.items[i].frame.ensure_data()?;
-                self.items[i].asked_time = 0;
                 self.items[i].last_used = get_time();
                 data = Some(self.items[i].frame.get_data()?);
                 break;
@@ -118,7 +116,7 @@ impl FrameCache {
             // Is last frame or beyond
             match self.last_frame {
                 Some(last_frame_id) => {
-                    if self.items[i].id == last_frame_id && self.items[i].resolved_pts < time {
+                    if self.items[i].id == last_frame_id && self.items[i].resolved_dts < time {
                         self.items[i].frame.ensure_data()?;
                         return Ok(Some(self.items[i].id));
                     }
@@ -127,7 +125,7 @@ impl FrameCache {
             }
 
             // Exact same time as requested
-            if self.items[i].resolved_pts == time {
+            if self.items[i].resolved_dts == time {
                 self.items[i].frame.ensure_data()?;
 
                 return Ok(Some(self.items[i].id));
