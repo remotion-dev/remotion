@@ -78,6 +78,8 @@ To clarify the meaning of this option, it is now universally called "JPEG Qualit
 
 FFmpeg is now baked into the `@remotion/renderer` package. Therefore, the `ffmpegExecutable` and `ffprobeExecutable` options have been removed.
 
+Furthermore, the `npx remotion install ffmpeg` and `npx remotion install ffprobe` commands no longer exist.
+
 **How to upgrade:**
 
 - Remove the `ffmpegExecutable` option from [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`getCompositions()`](/docs/renderer/get-compositions), [`renderFrames()`](/docs/renderer/render-frames) and [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) calls.
@@ -86,6 +88,14 @@ FFmpeg is now baked into the `@remotion/renderer` package. Therefore, the `ffmpe
 - Remove all calls to [`ensureFfprobe()`](/docs/renderer/ensure-ffprobe).
 - Remove the `--ffmpeg-executable` flag from [`npx remotion render`](/docs/cli/render), [`npx remotion still`](/docs/cli/still) and [`npx remotion benchmark`](/docs/cli/benchmark)
 - Remove the `--ffprobe-executable` flag from [`npx remotion render`](/docs/cli/render), [`npx remotion still`](/docs/cli/still) and [`npx remotion benchmark`](/docs/cli/benchmark)
+- Don't use the [`npx remotion install`](/docs/cli/install) command anymore
+
+## Added `npx remotion ffmpeg` and `npx remotion ffprobe`
+
+Since FFmpeg and FFprobe no longer have to be installed, the `ffmpeg` and `ffprobe` commands might also not be in your environment anymore. In order to still be able to use some of FFmpeg's handy commands, we introduced [`npx remotion ffmpeg`](/docs/cli/ffmpeg) and [`npx remotion ffprobe`](/docs/cli/ffprobe).
+Note that in order to keep the binary size small, those FFmpeg binaries only understand the codecs that Remotion itself supports: H.264, H.265, VP8, VP9 and ProRes.
+
+A binary from the 6.0 release line of FFmpeg is used.
 
 ## Moved `onSlowestFrames` API
 
