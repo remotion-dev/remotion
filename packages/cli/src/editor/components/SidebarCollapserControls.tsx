@@ -12,6 +12,7 @@ import {useResponsiveSidebarStatus} from './TopPanel';
 const style: React.CSSProperties = {
 	width: 16,
 	height: 16,
+	minWidth: 16,
 	border: '1px solid currentColor',
 	borderRadius: 3,
 	color: 'currentColor',
@@ -139,26 +140,33 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 		? 'Toggle Right Sidebar'
 		: `Toggle Right Sidebar (${cmdOrCtrlCharacter}+J)`;
 
+	const colorStyle = useCallback((color: string): React.CSSProperties => {
+		return {
+			...style,
+			color,
+		};
+	}, []);
+
 	const toggleLeftAction: RenderInlineAction = useCallback(
 		(color) => {
 			return (
-				<div style={style} title={toggleLeftTooltip}>
+				<div style={colorStyle(color)} title={toggleLeftTooltip}>
 					<div style={leftIcon(color)} />
 				</div>
 			);
 		},
-		[leftIcon, toggleLeftTooltip]
+		[colorStyle, leftIcon, toggleLeftTooltip]
 	);
 
 	const toggleRightAction: RenderInlineAction = useCallback(
 		(color) => {
 			return (
-				<div style={style} title={toggleRightTooltip}>
+				<div style={colorStyle(color)} title={toggleRightTooltip}>
 					<div style={rightIcon(color)} />
 				</div>
 			);
 		},
-		[rightIcon, toggleRightTooltip]
+		[colorStyle, rightIcon, toggleRightTooltip]
 	);
 
 	return (
