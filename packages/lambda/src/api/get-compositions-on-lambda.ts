@@ -16,6 +16,7 @@ export type GetCompositionsOnLambdaInput = {
 	logLevel?: LogLevel;
 	timeoutInMilliseconds?: number;
 	forceBucketName?: string;
+	dumpBrowserLogs?: boolean;
 };
 
 export type GetCompositionsOnLambdaOutput = TCompMetadata[];
@@ -31,6 +32,7 @@ export type GetCompositionsOnLambdaOutput = TCompMetadata[];
  * @param params.logLevel The log level of the Lambda function
  * @param params.timeoutInMilliseconds The timeout of the Lambda function
  * @param params.chromiumOptions The options to pass to Chromium
+ * @param params.dumpBrowserLogs Whether to print browser logs to CloudWatch
  * @returns The compositions
  */
 export const getCompositionsOnLambda = async ({
@@ -43,6 +45,7 @@ export const getCompositionsOnLambda = async ({
 	logLevel,
 	timeoutInMilliseconds,
 	forceBucketName: bucketName,
+	dumpBrowserLogs,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const serializedInputProps = await serializeInputProps({
 		inputProps,
@@ -64,6 +67,7 @@ export const getCompositionsOnLambda = async ({
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				version: VERSION,
 				bucketName: bucketName ?? null,
+				dumpBrowserLogs: dumpBrowserLogs ?? false,
 			},
 			region,
 		});

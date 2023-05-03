@@ -66,6 +66,7 @@ test('Should fail when using an incompatible version', async () => {
 				rendererFunctionName: null,
 				bucketName: null,
 				audioCodec: null,
+				dumpBrowserLogs: false,
 			},
 			extraContext
 		)

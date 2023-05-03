@@ -189,6 +189,10 @@ Accepted values:
 Default: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
 
+#### `userAgent` <AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
 ## Return Value
 
 The return value is a promise that resolves to an object with the following keys:

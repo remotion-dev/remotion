@@ -1,6 +1,7 @@
 import {useEffect, useRef} from 'react';
 import {Internals} from 'remotion';
 import {calculateNextFrame} from './calculate-next-frame.js';
+import {useIsBackgrounded} from './is-backgrounded.js';
 import {usePlayer} from './use-player.js';
 
 export const usePlayback = ({
@@ -21,6 +22,11 @@ export const usePlayback = ({
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 
+	// requestAnimationFrame() does not work if the tab is not active.
+	// This means that audio will keep playing even if it has ended.
+	// In that case, we use setTimeout() instead.
+	const isBackgroundedRef = useIsBackgrounded();
+
 	const frameRef = useRef(frame);
 	frameRef.current = frame;
 
@@ -36,15 +42,32 @@ export const usePlayback = ({
 		}
 
 		let hasBeenStopped = false;
-		let reqAnimFrameCall: number | null = null;
+		let reqAnimFrameCall:
+			| {
+					type: 'raf';
+					id: number;
+			  }
+			| {
+					type: 'timeout';
+					id: NodeJS.Timeout;
+			  }
+			| null = null;
 		const startedTime = performance.now();
 		let framesAdvanced = 0;
 
+		const cancelQueuedFrame = () => {
+			if (reqAnimFrameCall !== null) {
+				if (reqAnimFrameCall.type === 'raf') {
+					cancelAnimationFrame(reqAnimFrameCall.id);
+				} else {
+					clearTimeout(reqAnimFrameCall.id);
+				}
+			}
+		};
+
 		const stop = () => {
 			hasBeenStopped = true;
-			if (reqAnimFrameCall !== null) {
-				cancelAnimationFrame(reqAnimFrameCall);
-			}
+			cancelQueuedFrame();
 		};
 
 		const callback = () => {
@@ -79,13 +102,39 @@ export const usePlayback = ({
 			}
 
 			if (!hasBeenStopped) {
-				reqAnimFrameCall = requestAnimationFrame(callback);
+				queueNextFrame();
 			}
 		};
 
-		reqAnimFrameCall = requestAnimationFrame(callback);
+		const queueNextFrame = () => {
+			if (isBackgroundedRef.current) {
+				reqAnimFrameCall = {
+					type: 'timeout',
+					// Note: Most likely, this will not be 1000 / fps, but the browser will throttle it to ~1/sec.
+					id: setTimeout(callback, 1000 / config.fps),
+				};
+			} else {
+				reqAnimFrameCall = {type: 'raf', id: requestAnimationFrame(callback)};
+			}
+		};
+
+		queueNextFrame();
+
+		const onVisibilityChange = () => {
+			if (document.visibilityState === 'visible') {
+				return;
+			}
+
+			// If tab goes into the background, cancel requestAnimationFrame() and update immediately.
+			// , so the transition to setTimeout() can be fulfilled.
+			cancelQueuedFrame();
+			callback();
+		};
+
+		window.addEventListener('visibilitychange', onVisibilityChange);
 
 		return () => {
+			window.removeEventListener('visibilitychange', onVisibilityChange);
 			stop();
 		};
 	}, [
@@ -99,6 +148,7 @@ export const usePlayback = ({
 		inFrame,
 		outFrame,
 		moveToBeginningWhenEnded,
+		isBackgroundedRef,
 	]);
 
 	useEffect(() => {
