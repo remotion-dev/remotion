@@ -785,8 +785,6 @@ importers:
       remotion: workspace:*
       typescript: ^4.7.0
     dependencies:
-      react: 18.0.0
-      react-dom: 18.0.0_react@18.0.0
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
@@ -795,6 +793,8 @@ importers:
       eslint: 8.25.0
       prettier: 2.7.1
       prettier-plugin-organize-imports: 2.3.4_j2odc4yr77iddtreafyicbq5hi
+      react: 18.0.0
+      react-dom: 18.0.0_react@18.0.0
       typescript: 4.7.2
 
   packages/motion-blur:
@@ -926,6 +926,8 @@ importers:
       '@types/react-dom': 18.0.10
       eslint: ^8.3.0
       next: ^13.1.3
+      prettier: ^2.7.1
+      prettier-plugin-organize-imports: ^2.3.4
       react: 18.2.0
       react-dom: 18.2.0
       remotion: workspace:*
@@ -945,6 +947,9 @@ importers:
       react-dom: 18.2.0_react@18.2.0
       remotion: link:../core
       typescript: 4.7.2
+    devDependencies:
+      prettier: 2.8.4
+      prettier-plugin-organize-imports: 2.3.4_sleyu2lpiyw25c2kdlrjimfidi
 
   packages/preload:
     specifiers:
@@ -12301,8 +12306,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
-      JSONStream: 1.3.5
       is-text-path: 1.0.1
+      JSONStream: 1.3.5
       lodash: 4.17.21
       meow: 8.1.2
       split2: 3.2.2
@@ -20451,6 +20456,16 @@ packages:
       typescript: '>=2.9'
     dependencies:
       prettier: 2.4.1
+      typescript: 4.7.2
+    dev: true
+
+  /prettier-plugin-organize-imports/2.3.4_sleyu2lpiyw25c2kdlrjimfidi:
+    resolution: {integrity: sha512-R8o23sf5iVL/U71h9SFUdhdOEPsi3nm42FD/oDYIZ2PQa4TNWWuWecxln6jlIQzpZTDMUeO1NicJP6lLn2TtRw==}
+    peerDependencies:
+      prettier: '>=2.0'
+      typescript: '>=2.9'
+    dependencies:
+      prettier: 2.8.4
       typescript: 4.7.2
     dev: true
 
