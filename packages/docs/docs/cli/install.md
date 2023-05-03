@@ -7,7 +7,7 @@ crumb: CLI Reference
 
 _removed in v4.0.0_
 
-_See [no more FFmpeg install](../4-0-migration#no-more-ffmpeg-install-ffmpegexecutable-option-removed)._ Here for archive purpose.
+_See ["No more FFmpeg installation"](/docs/4-0-migration#no-more-ffmpeg-install-ffmpegexecutable-option-removed)._ Here for archival purpose.
 
 _available from v3.3_
 
