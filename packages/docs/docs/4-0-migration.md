@@ -92,7 +92,7 @@ Therefore, the `npx remotion install ffmpeg` and `npx remotion install ffprope` 
 ## Added `npx remotion ffmpeg` and `npx remotion ffprobe`
 
 Since FFmpeg and FFprobe no longer have to be installed, the `ffmpeg` and `ffprobe` commands are no longer globally available. In order to still be able to use some of `FFmpeg`s handy commands, we introduced `npx remotion ffmpeg` and `npx remotion ffprobe`.
-Note that in order to keep the binary size small, we only support the most commonly used codecs: h264, h265, vp8, vp9 and prores videos.
+Note that in order to keep the binary size small, those FFmpeg binaries only understand the codecs that Remotion itself supports: H.264, H.265, VP8, VP9 and ProRes.
 
 ## Moved `onSlowestFrames` API
 
