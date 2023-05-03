@@ -95,6 +95,8 @@ Furthermore, the `npx remotion install ffmpeg` and `npx remotion install ffprobe
 Since FFmpeg and FFprobe no longer have to be installed, the [`ffmpeg`] and [`ffprobe`](/docs/cli/ffprobe) commands are no longer globally available. In order to still be able to use some of `FFmpeg`s handy commands, we introduced [`npx remotion ffmpeg`](/docs/cli/ffmpeg) and [`npx remotion ffprobe`](/docs/cli/ffprobe).
 Note that in order to keep the binary size small, those FFmpeg binaries only understand the codecs that Remotion itself supports: H.264, H.265, VP8, VP9 and ProRes.
 
+A binary from the 6.0 release line of FFmpeg is used.
+
 ## Moved `onSlowestFrames` API
 
 In V3, `onSlowestFrames` has been a callback function that you could pass to `renderMedia()`.  
