@@ -11,7 +11,7 @@ import type {
 	ErrorPayload,
 } from './payloads';
 
-export type Compositor = {
+type Compositor = {
 	finishCommands: () => void;
 	executeCommand: <T extends keyof CompositorCommand>(
 		type: T,
