@@ -36,6 +36,7 @@ for (const dir of dirs) {
   packageJson.version = version;
   writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
   try {
+    console.log("setting version for", dir);
     execSync("pnpm exec prettier --write package.json", {
       cwd: path.join(process.cwd(), "packages", dir),
     });
@@ -43,7 +44,6 @@ for (const dir of dirs) {
     // console.log(e.message);
   }
 }
-console.log(dirs);
 
 execSync("node ensure-correct-version.js", {
   cwd: "packages/core",
@@ -53,3 +53,7 @@ execSync("pnpm exec vitest src/monorepo --run", {
   cwd: "packages/it-tests",
   stdio: "inherit",
 });
+
+execSync("git add .", { stdio: "inherit" });
+execSync(`git commit -m "v${version}"`, { stdio: "inherit" });
+execSync(`git tag v${version}`, { stdio: "inherit" });
