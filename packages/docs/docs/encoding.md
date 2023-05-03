@@ -16,7 +16,7 @@ Remotion supports 5 video codecs: `h264` (_default_), `h265`, `vp8`, `vp9` and `
     <th>Codec</th>
     <th>File extension</th>
     <th>File size</th>
-    <th>Rendering time</th>
+    <th>Encoding time</th>
     <th>Browser compatibility</th>
   </tr>
   <tr>
