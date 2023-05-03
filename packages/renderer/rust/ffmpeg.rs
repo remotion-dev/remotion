@@ -62,16 +62,17 @@ pub fn extract_frame(
     let video_locked = manager.get_video(&src, transparent)?;
     let mut vid = video_locked.lock()?;
 
+    // The requested position in the video.
     let position = calc_position(time, vid.time_base);
-    let one_frame_after = calc_position(
-        time + (1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64)),
-        vid.time_base,
-    );
+
+    // How much the distance between 1 frame is in the videos internal time format.
     let one_frame_in_time_base = calc_position(
         1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64),
         vid.time_base,
     );
-    let threshold = (one_frame_after - position) / 2;
+
+    // The amount a frame can deviate from the target timestamp to still hit the cache.
+    let threshold = one_frame_in_time_base / 2;
     let cache_item = vid.get_cache_item_id(transparent, position, threshold);
 
     match cache_item {
