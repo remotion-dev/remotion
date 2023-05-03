@@ -2,6 +2,7 @@ use crate::compositor::draw_layer;
 use crate::errors::ErrorWithBacktrace;
 use crate::ffmpeg;
 use crate::image::{save_as_jpeg, save_as_png};
+use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::CliInputCommandPayload;
 use std::io::ErrorKind;
 
@@ -27,7 +28,9 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             Ok(vec![])
         }
         CliInputCommandPayload::CloseAllVideos(_) => {
-            ffmpeg::close_all_videos()?;
+            let manager = OpenedVideoManager::get_instance();
+            manager.close_all_videos()?;
+
             Ok(vec![])
         }
         CliInputCommandPayload::StartLongRunningProcess(_command) => Err(std::io::Error::new(

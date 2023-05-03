@@ -8,6 +8,7 @@ mod image;
 mod logger;
 mod opened_stream;
 mod opened_video;
+mod opened_video_manager;
 mod payloads;
 mod scalable_frame;
 use commands::execute_command;
