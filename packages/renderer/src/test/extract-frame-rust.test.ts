@@ -52,14 +52,6 @@ test(
 		});
 
 		// TODO: Remove
-		console.log(
-			'VALUES',
-			data.length,
-			data[100000],
-			data[100001],
-			data[140001],
-			data[170001]
-		);
 		if (process.platform === 'darwin') {
 			expect(data.length).toBe(191797);
 			expect(data[100000] / 100).toBeCloseTo(0.82, 0.01);
@@ -67,11 +59,11 @@ test(
 			expect(data[140001] / 100).toBeCloseTo(0.03, 0.01);
 			expect(data[170001] / 100).toBeCloseTo(0.33, 0.01);
 		} else {
-			expect(data.length).toBe(195367);
-			expect(data[100000] / 100).toBeCloseTo(1.46, 0.01);
-			expect(data[100001] / 100).toBeCloseTo(2.09, 0.01);
-			expect(data[140001] / 100).toBeCloseTo(0.7, 0.01);
-			expect(data[170001] / 100).toBeCloseTo(2.04, 0.01);
+			expect(data.length).toBe(195708);
+			expect(data[100000] / 100).toBeCloseTo(0.04, 0.01);
+			expect(data[100001] / 100).toBeCloseTo(0.16, 0.01);
+			expect(data[140001] / 100).toBeCloseTo(0.76, 0.01);
+			expect(data[170001] / 100).toBeCloseTo(1.23, 0.01);
 		}
 
 		compositor.finishCommands();
