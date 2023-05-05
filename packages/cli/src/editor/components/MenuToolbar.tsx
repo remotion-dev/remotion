@@ -22,17 +22,17 @@ const row: React.CSSProperties = {
 };
 
 const fixedWidthRight: React.CSSProperties = {
-	minWidth: '300px',
+	minWidth: '350px',
 	display: 'flex',
-	justifyContent: 'flex-end',
 	alignItems: 'center',
+	justifyContent: 'flex-end',
 };
 
 const fixedWidthLeft: React.CSSProperties = {
-	minWidth: '300px',
+	minWidth: '350px',
 	display: 'flex',
-	justifyContent: 'flex-start',
 	alignItems: 'center',
+	justifyContent: 'flex-start',
 };
 
 const flex: React.CSSProperties = {
@@ -116,9 +116,9 @@ export const MenuToolbar: React.FC = () => {
 						/>
 					);
 				})}
+				<UpdateCheck />
 			</div>
 
-			<UpdateCheck />
 			<div style={flex} />
 			<MenuBuildIndicator />
 			<div style={flex} />
