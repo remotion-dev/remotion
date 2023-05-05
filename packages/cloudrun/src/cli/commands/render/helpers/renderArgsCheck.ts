@@ -3,6 +3,7 @@ import {ConfigInternals} from '@remotion/cli/config';
 
 import {getCompositions} from '@remotion/renderer';
 import {getOrCreateBucket} from '../../../../api/get-or-create-bucket';
+import {getServiceInfo} from '../../../../api/get-service-info';
 import {BINARY_NAME} from '../../../../shared/constants';
 import {validateServeUrl} from '../../../../shared/validate-serveurl';
 import {parsedCloudrunCli} from '../../../args';
@@ -15,7 +16,9 @@ export const renderArgsCheck = async (
 	args: string[],
 	remotionRoot: string
 ) => {
-	const serveUrl = args[0];
+	let region;
+
+	let serveUrl = args[0];
 	if (!serveUrl) {
 		Log.error('No serve URL passed.');
 		Log.info(
@@ -23,30 +26,23 @@ export const renderArgsCheck = async (
 		);
 		Log.info();
 		Log.info(
-			`${BINARY_NAME} ${subcommand} <serve-url> <cloud-run-url> <composition-id> [output-location]`
+			`${BINARY_NAME} ${subcommand} <serve-url> <composition-id> [output-location]`
 		);
 		quit(1);
 	}
 
-	const cloudRunUrl = args[1];
-	if (!cloudRunUrl) {
-		Log.error('No Cloud Run Service URL passed.');
-		Log.info(
-			'Pass an additional argument specifying the endpoint of your Cloud Run Service.'
-		);
-		Log.info();
-		Log.info(
-			`${BINARY_NAME} ${subcommand} <serve-url> <cloud-run-url> <composition-id> [output-location]`
-		);
-		quit(1);
+	if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
+		const siteName = serveUrl;
+		region = region ?? getGcpRegion();
+		Log.info('site-name passed, constructing serve url...');
+		const bucketName = await getOrCreateBucket({region});
+		serveUrl = `https://storage.googleapis.com/${bucketName}/sites/${siteName}/index.html`;
+		Log.info(`<serve-url> constructed: ${serveUrl}\n`);
 	}
 
-	let composition: string = args[2];
+	let composition: string = args[1];
 	if (!composition) {
-		Log.info(
-			`<serve-url> passed: ${serveUrl} 
-<cloud-run-url> passed: ${cloudRunUrl}`
-		);
+		Log.info(`<serve-url> passed: ${serveUrl}`);
 		Log.info('No compositions passed. Fetching compositions...');
 
 		validateServeUrl(serveUrl);
@@ -59,7 +55,7 @@ export const renderArgsCheck = async (
 		parsedCloudrunCli['out-name'] ?? subcommand === 'still'
 			? 'out.png'
 			: 'out.mp4'; // Todo, workout file extension instead of assuming mp4
-	const downloadName = args[2] ?? null;
+	const downloadName = args[1] ?? null;
 
 	const {codec} = CliInternals.getFinalOutputCodec({
 		downloadName,
@@ -82,10 +78,43 @@ export const renderArgsCheck = async (
 
 	let outputBucket = parsedCloudrunCli['output-bucket'];
 	if (!outputBucket) {
+		region = region ?? getGcpRegion();
+
 		const {bucketName} = await getOrCreateBucket({
-			region: getGcpRegion(),
+			region,
 		});
 		outputBucket = bucketName;
+	}
+
+	let cloudRunUrl = parsedCloudrunCli['cloud-run-url'];
+	const serviceName = parsedCloudrunCli['service-name'];
+	if ((cloudRunUrl && serviceName) || (!cloudRunUrl && !serviceName)) {
+		if (cloudRunUrl && serviceName) {
+			Log.error('Both a Cloud Run URL and a Service Name was provided.');
+		} else {
+			Log.error('Neither a Cloud Run URL nor a Service Name was provided.');
+		}
+
+		Log.info(
+			'To render on GCP, provide either the Service Name or the Cloud Run URL endpoint of the service you want to use.'
+		);
+		Log.info();
+		Log.info(
+			`${BINARY_NAME} ${subcommand} <serve-url> <composition-id> [output-location] --cloud-run-url=<url>`
+		);
+		Log.info('or');
+		Log.info(
+			`${BINARY_NAME} ${subcommand} <serve-url> <composition-id> [output-location] --service-name=<name>`
+		);
+		quit(1);
+	}
+
+	if (serviceName) {
+		Log.info('Service name passed, fetching url...');
+		region = region ?? getGcpRegion();
+		const {uri} = await getServiceInfo({serviceName, region});
+		console.log('cloud run url found: ', uri);
+		cloudRunUrl = uri;
 	}
 
 	const authenticatedRequest = !parsedCloudrunCli['unauthenticated-request'];

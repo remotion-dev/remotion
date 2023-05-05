@@ -8,6 +8,7 @@ export type ServiceInfo = {
 	memoryLimit: string;
 	cpuLimit: string;
 	remotionVersion: string | null;
+	uri: string;
 };
 
 export type GetServiceInfoInput = {
@@ -49,5 +50,6 @@ export const getServiceInfo = async ({
 			?.replace(parent + '/services/' + RENDER_SERVICE_PREFIX + '--', '')
 			.split('--')[0]
 			.replace(/-/g, '.') as string,
+		uri: service.uri as string,
 	};
 };
