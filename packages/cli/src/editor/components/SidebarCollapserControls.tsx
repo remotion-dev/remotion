@@ -17,6 +17,7 @@ const style: React.CSSProperties = {
 	borderRadius: 3,
 	color: 'currentColor',
 	position: 'relative',
+	backgroundClip: 'padding-box',
 };
 
 export const SidebarCollapserControls: React.FC<{}> = () => {
@@ -27,10 +28,20 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 
 	const leftIcon = useCallback(
 		(color: string): React.CSSProperties => {
+			console.log(color);
+			const rightBorderStyle =
+				leftSidebarStatus === 'collapsed'
+					? '1px solid ' + color
+					: '1px solid transparent';
+
+			console.log(rightBorderStyle);
 			return {
 				width: '35%',
 				height: '100%',
-				borderRight: '1px solid ' + color,
+				backgroundClip: 'padding-box',
+				borderRight: rightBorderStyle,
+				borderTopLeftRadius: 1.86,
+				borderBottomLeftRadius: 1.86,
 				background: leftSidebarStatus === 'expanded' ? color : 'transparent',
 			};
 		},
@@ -43,6 +54,7 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 				width: '35%',
 				height: '100%',
 				right: 0,
+				backgroundClip: 'padding-box',
 				position: 'absolute',
 				borderLeft: '1px solid ' + color,
 				background:
