@@ -35,7 +35,7 @@ export const renderArgsCheck = async (
 		const siteName = serveUrl;
 		region = region ?? getGcpRegion();
 		Log.info('site-name passed, constructing serve url...');
-		const bucketName = await getOrCreateBucket({region});
+		const {bucketName} = await getOrCreateBucket({region});
 		serveUrl = `https://storage.googleapis.com/${bucketName}/sites/${siteName}/index.html`;
 		Log.info(`<serve-url> constructed: ${serveUrl}\n`);
 	}
