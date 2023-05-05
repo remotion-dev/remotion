@@ -20,7 +20,7 @@ const problematicCharacters = {
 
 type HexCode = keyof typeof problematicCharacters;
 
-type HexInfo =
+export type HexInfo =
 	| {
 			containsHex: false;
 	  }
