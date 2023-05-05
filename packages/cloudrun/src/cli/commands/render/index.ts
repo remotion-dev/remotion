@@ -19,8 +19,6 @@ const printCloudRunHelp = () => {
 	Log.info(CliInternals.chalk.gray('Render Still on Cloud Run'));
 };
 
-// TODO: Add LS, RM, RMALL subcommands
-
 export const renderCommand = (args: string[], remotionRoot: string) => {
 	if (args[0] === RENDER_MEDIA_SUBCOMMAND) {
 		return renderMediaSubcommand(args.slice(1), remotionRoot);
