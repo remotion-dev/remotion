@@ -1,4 +1,8 @@
-import type {IncomingMessage, OutgoingHttpHeaders, ServerResponse} from 'http';
+import type {
+	IncomingMessage,
+	OutgoingHttpHeaders,
+	ServerResponse,
+} from 'node:http';
 import type {EventSourceEvent} from '../event-source-events';
 import {unsubscribeClientFileExistenceWatchers} from './file-existence-watchers';
 

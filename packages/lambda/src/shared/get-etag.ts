@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import fs from 'node:fs';
 
 const chunk = 1024 * 1024 * 5; // 5MB

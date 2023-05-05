@@ -1,4 +1,4 @@
-import type {IncomingMessage, ServerResponse} from 'http';
+import type {IncomingMessage, ServerResponse} from 'node:http';
 import type {ApiHandler} from './api-types';
 import {parseRequestBody} from './parse-body';
 

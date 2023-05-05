@@ -7,8 +7,8 @@ import {
 } from '@remotion/renderer';
 import {cleanDownloadMap} from '@remotion/renderer/dist/assets/download-map';
 import {existsSync, unlinkSync} from 'node:fs';
+import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {tmpdir} from 'os';
 import {AnyCompMetadata} from 'remotion';
 import {expect, test} from 'vitest';
 import {webpackOverride} from '../webpack-override';

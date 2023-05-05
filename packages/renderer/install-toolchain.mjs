@@ -1,4 +1,4 @@
-import {execSync} from 'child_process';
+import {execSync} from 'node:child_process';
 import {existsSync, mkdirSync, unlinkSync} from 'node:fs';
 import {toolchains} from './toolchains.mjs';
 

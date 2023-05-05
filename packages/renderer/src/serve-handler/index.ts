@@ -1,7 +1,7 @@
 // Native
-import type {IncomingMessage, ServerResponse} from 'http';
 import type {Stats} from 'node:fs';
 import {createReadStream, promises} from 'node:fs';
+import type {IncomingMessage, ServerResponse} from 'node:http';
 import path from 'node:path';
 import url from 'node:url';
 import {mimeContentType} from '../mime-types';

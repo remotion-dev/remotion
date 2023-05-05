@@ -1,7 +1,7 @@
 import type {AudioCodec} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs, {createWriteStream, promises} from 'node:fs';
-import path, {join} from 'path';
+import path, {join} from 'node:path';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,

@@ -1,9 +1,9 @@
 import fs, {promises} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import {promisify} from 'util';
+import {promisify} from 'node:util';
+import {isMainThread} from 'node:worker_threads';
 import webpack from 'webpack';
-import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';

@@ -1,5 +1,5 @@
 import fs from 'node:fs';
-import {join} from 'path';
+import {join} from 'node:path';
 
 export let deletedFiles: string[] = [];
 export let deletedFilesSize = 0;

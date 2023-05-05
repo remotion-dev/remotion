@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import * as childProcess from 'child_process';
+import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
 import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
