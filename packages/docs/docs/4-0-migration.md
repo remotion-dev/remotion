@@ -169,3 +169,9 @@ If this happens now and the error is not handled, the render will be aborted and
 ## `crf` is not allowed for GIFs anymore
 
 Previously you were able to set a value for `crf` when rendering a GIF. This was a mistake and GIF does not support them.
+
+## `staticFile()` URI-unsafe characters handling
+
+Up to now, [`staticFile()`](/docs/staticfile) did not handle URI-unsafe characters contained in the provided path. This could in some specific cases lead to problems, which forced users to encode paths containing unsafe characters by themselves.
+
+Now, `staticFile()` checks for aforementioned characters and encodes them if contained in the path. If you encoded the path by yourself until now, make sure to drop your encoding before passing the path into `staticFile()` to avoid double encoding.
