@@ -1,21 +1,24 @@
-export type HexCode =
-	| '%3A'
-	| '%2F'
-	| '%3F'
-	| '%23'
-	| '%5B'
-	| '%5D'
-	| '%40'
-	| '%21'
-	| '%24'
-	| '%26'
-	| '%27'
-	| '%28'
-	| '%29'
-	| '%2A'
-	| '%2B'
-	| '%2C'
-	| '%3B';
+const decodedChars = {
+	'%3A': ':',
+	'%2F': '/',
+	'%3F': '?',
+	'%23': '#',
+	'%5B': '[',
+	'%5D': ']',
+	'%40': '@',
+	'%21': '!',
+	'%24': '$',
+	'%26': '&',
+	'%27': "'",
+	'%28': '(',
+	'%29': ')',
+	'%2A': '*',
+	'%2B': '+',
+	'%2C': ',',
+	'%3B': ';',
+};
+
+export type HexCode = keyof typeof decodedChars;
 
 export type HexInfo =
 	| {
@@ -37,26 +40,6 @@ const warnOnce = (message: string) => {
 };
 
 export const includesHexOfUnsafeChar = (path: string): HexInfo => {
-	const decodedChars = {
-		'%3A': ':',
-		'%2F': '/',
-		'%3F': '?',
-		'%23': '#',
-		'%5B': '[',
-		'%5D': ']',
-		'%40': '@',
-		'%21': '!',
-		'%24': '$',
-		'%26': '&',
-		'%27': "'",
-		'%28': '(',
-		'%29': ')',
-		'%2A': '*',
-		'%2B': '+',
-		'%2C': ',',
-		'%3B': ';',
-	};
-
 	for (const key of Object.keys(
 		decodedChars
 	) as (keyof typeof decodedChars)[]) {
