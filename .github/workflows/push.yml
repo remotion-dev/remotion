@@ -16,6 +16,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.23"
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
