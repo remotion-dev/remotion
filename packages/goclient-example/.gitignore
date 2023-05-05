@@ -11,6 +11,4 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-go.mod
-go.sum
 goclient-example
