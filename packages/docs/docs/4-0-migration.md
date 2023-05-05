@@ -172,6 +172,20 @@ Previously you were able to set a value for `crf` when rendering a GIF. This was
 
 ## `staticFile()` URI-unsafe characters handling
 
-Up to now, [`staticFile()`](/docs/staticfile) did not handle URI-unsafe characters contained in the provided path. This could in some specific cases lead to problems, which forced users to encode paths containing unsafe characters by themselves.
+Previously, [`staticFile()`](/docs/staticfile) did not handle URI-unsafe characters contained in the provided path:
 
-Now, `staticFile()` checks for aforementioned characters and encodes them if contained in the path. If you encoded the path by yourself until now, make sure to drop your encoding before passing the path into `staticFile()` to avoid double encoding.
+```tsx title="Before v4"
+staticFile("my-image#portrait.png"); //output: "my-image#portrait.png"
+```
+
+This could lead to problems, when unsafe characters such as `#`, `?` and `&` were part of the filename.
+
+Now, [`staticFile()`](/docs/staticfile) encodes the filename using `encodeURIComponent`:
+
+```tsx title="Since v4.0.0"
+staticFile("my-image#portrait.png"); // "my-image%23portrait.png"
+```
+
+**How to upgrade:**
+
+If you encoded the path by yourself until now, don't do so anymore to avoid double encoding.
