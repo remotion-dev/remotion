@@ -8,5 +8,5 @@ test('staticFile() should convert # into %23', () => {
 
 test('staticFile() passing already encoded path should give warning', () => {
 	const unsafeName = '/test%2Fexample%23music';
-	expect(staticFile(unsafeName)).toBe('/test%2Fexample%23music');
+	expect(staticFile(unsafeName)).toBe('/%2Ftest%252Fexample%2523music');
 });
