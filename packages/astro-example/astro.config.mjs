@@ -1,4 +1,4 @@
-import { defineConfig } stro/config';
+import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
 
 // https://astro.build/config
