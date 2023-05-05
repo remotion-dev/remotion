@@ -169,3 +169,23 @@ If this happens now and the error is not handled, the render will be aborted and
 ## `crf` is not allowed for GIFs anymore
 
 Previously you were able to set a value for `crf` when rendering a GIF. This was a mistake and GIF does not support them.
+
+## `staticFile()` URI-unsafe characters handling
+
+Previously, [`staticFile()`](/docs/staticfile) did not handle URI-unsafe characters contained in the provided path:
+
+```tsx title="Before v4"
+staticFile("my-image#portrait.png"); //output: "my-image#portrait.png"
+```
+
+This could lead to problems, when unsafe characters such as `#`, `?` and `&` were part of the filename.
+
+Now, [`staticFile()`](/docs/staticfile) encodes the filename using `encodeURIComponent`:
+
+```tsx title="Since v4.0.0"
+staticFile("my-image#portrait.png"); // "my-image%23portrait.png"
+```
+
+**How to upgrade:**
+
+If you encoded the path by yourself until now, don't do so anymore to avoid double encoding.

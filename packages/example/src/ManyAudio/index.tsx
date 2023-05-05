@@ -4,8 +4,8 @@ import {AbsoluteFill, Audio, staticFile} from 'remotion';
 export const ManyAudio: React.FC = () => {
 	return (
 		<AbsoluteFill>
-			{new Array(32).fill(true).map((_, i) => {
-				return <Audio src={staticFile('music.mp3?mus=' + i)} />;
+			{new Array(32).fill(true).map(() => {
+				return <Audio src={staticFile('music.mp3')} />;
 			})}
 		</AbsoluteFill>
 	);
