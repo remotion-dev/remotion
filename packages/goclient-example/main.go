@@ -5,9 +5,10 @@ import (
 	"log"
 	"os"
 
+	"goclient"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
-	"github.com/remotion-dev/remotion/packages/goclient"
 )
 
 type ValidationError struct {
