@@ -111,8 +111,7 @@ jobs:
         with:
           channel: "1.67.1"
           profile: minimal
-          targets:
-            - x86_64-pc-windows-gnu
+          targets: [x86_64-pc-windows-gnu]
       - run: |
           corepack enable
       - uses: Iamshankhadeep/setup-ffmpeg@v1.2
