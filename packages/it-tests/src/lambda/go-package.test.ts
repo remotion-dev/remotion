@@ -36,6 +36,5 @@ test("Go package should create the same payload as normal Lambda package", async
     codec: "h264",
   });
 
-  console.log(parsed, nativeVersion);
   expect(parsed).toEqual(nativeVersion);
 });
