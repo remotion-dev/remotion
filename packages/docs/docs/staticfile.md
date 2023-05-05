@@ -67,34 +67,31 @@ If you are a Create React App or Next.JS user, you might be used to just to be a
 
 Use the `getStaticFiles()` API to get a list of available options.
 
-## Handling URI-unsafe characters <AvailableFrom v="4.0"/>
+## Handling URI-unsafe characters <AvailableFrom v="4.0.0"/>
 
-Before `v4.0`, `staticFile()` did not handle URI-unsafe characters contained in the provided path. This could lead to problems in some cases, which forced users to encode paths containing unsafe characters by themselves.
+Since `v4.0`, `staticFile()` encodes the filename using `encodeURIComponent`.  
+If you encoded the path by yourself until now, make sure to drop your encoding before passing the path into `staticFile()` to avoid double encoding.
 
-Since `v4.0`, `staticFile()` checks for URI-unsave characters and encodes them into their hexadeciaml code. If you encoded the path by yourself until now, make sure to drop your encoding before passing the path into `staticFile()` to avoid double encoding.
+Before `v4.0`, `staticFile()` did not handle URI-unsafe characters contained in the provided path. This could lead to problems in some cases when filenames would contain characters such as `#`, `?` and or `&`.
 
 ### Example
 
 Before `v4`
 
-```tsx
-const path = "/my-image#portrait.png";
-const url = staticFile(path);
-console.log(url); //output: "/my-image#portrait.png"
+```tsx title="Before v4"
+staticFile("/my-image#portrait.png"); //output: "/my-image#portrait.png"
 ```
 
-If this URL is passed to a component accepting an URL, the part after the # will simply be left away, leading
+If this URL is passed to a component accepting an URL, the part after `#` will be left out, leading
 to an error because the file can't be found.
 
-Since `v4`
+Since `v4.0.0`:
 
-```tsx
-const path = "/my-image#portrait.png";
-const url = staticFile(path);
-console.log(url); //output: "/my-image%23portrait.png"
+```tsx title="After v4"
+const url = staticFile("/my-image#portrait.png"); // "/my-image%23portrait.png"
 ```
 
-The `#` will be encoded into hexadecimal code.
+The image will now be loaded properly, however, you must avoid to encode the filename yourself.
 
 ## See also
 
