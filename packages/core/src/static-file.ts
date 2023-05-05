@@ -1,4 +1,4 @@
-const decodedChars = {
+const problematicCharacters = {
 	'%3A': ':',
 	'%2F': '/',
 	'%3F': '?',
@@ -18,9 +18,9 @@ const decodedChars = {
 	'%3B': ';',
 };
 
-export type HexCode = keyof typeof decodedChars;
+type HexCode = keyof typeof problematicCharacters;
 
-export type HexInfo =
+type HexInfo =
 	| {
 			containsHex: false;
 	  }
@@ -41,8 +41,8 @@ const warnOnce = (message: string) => {
 
 export const includesHexOfUnsafeChar = (path: string): HexInfo => {
 	for (const key of Object.keys(
-		decodedChars
-	) as (keyof typeof decodedChars)[]) {
+		problematicCharacters
+	) as (keyof typeof problematicCharacters)[]) {
 		if (path.includes(key)) {
 			return {containsHex: true, hexCode: key as HexCode};
 		}
@@ -53,7 +53,7 @@ export const includesHexOfUnsafeChar = (path: string): HexInfo => {
 
 const trimLeadingSlash = (path: string): string => {
 	if (path.startsWith('/')) {
-		return trimLeadingSlash(path.substr(1));
+		return trimLeadingSlash(path.substring(1));
 	}
 
 	return path;
@@ -106,14 +106,14 @@ export const staticFile = (path: string) => {
 		);
 	}
 
-	const encodedURI = encodeURIComponent(path);
-	const preparsed = inner(encodedURI);
-	const includesHex = includesHexOfUnsafeChar(preparsed);
+	const includesHex = includesHexOfUnsafeChar(path);
 	if (includesHex.containsHex) {
 		warnOnce(
 			`WARNING: You seem to pass an already encoded path (path contains ${includesHex.hexCode}). The encoding gets automatically handled by staticFile()  `
 		);
 	}
+
+	const preparsed = inner(encodeURIComponent(path));
 
 	if (!preparsed.startsWith('/')) {
 		return `/${preparsed}`;
