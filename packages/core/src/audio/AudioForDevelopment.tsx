@@ -82,8 +82,17 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		() =>
 			`audio-${random(src ?? '')}-${sequenceContext?.relativeFrom}-${
 				sequenceContext?.cumulatedFrom
-			}-${sequenceContext?.durationInFrames}-muted:${props.muted}`,
-		[props.muted, src, sequenceContext]
+			}-${sequenceContext?.durationInFrames}-muted:${props.muted}-loop:${
+				props.loop
+			}`,
+		[
+			src,
+			sequenceContext?.relativeFrom,
+			sequenceContext?.cumulatedFrom,
+			sequenceContext?.durationInFrames,
+			props.muted,
+			props.loop,
+		]
 	);
 
 	const audioRef = useSharedAudio(propsToPass, id).el;
@@ -136,12 +145,12 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		}
 
 		if (current.duration) {
-			currentOnDurationCallback.current?.(src, current.duration);
+			currentOnDurationCallback.current?.(current.src, current.duration);
 			return;
 		}
 
 		const onLoadedMetadata = () => {
-			currentOnDurationCallback.current?.(src, current.duration);
+			currentOnDurationCallback.current?.(current.src, current.duration);
 		};
 
 		current.addEventListener('loadedmetadata', onLoadedMetadata);
