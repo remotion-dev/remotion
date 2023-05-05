@@ -1,0 +1,5 @@
+go 1.23
+
+use packages/goclient
+
+use packages/goclient-example
