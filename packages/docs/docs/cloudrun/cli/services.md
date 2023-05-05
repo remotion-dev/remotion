@@ -108,7 +108,7 @@ Prints only the service names in a space-separated list. If no services exist, p
 ## rm
 
 ```
-npx remotion cloudrun services rm remotion-render-2021-12-16-2048mb-240sec
+npx remotion cloudrun services rm remotion--3-3-82--mem512mi--cpu1-0--t-800
 ```
 
 Removes one or more services from your GCP project. Pass a space-separated list of services you'd like to delete.
@@ -119,10 +119,11 @@ Example output
 </summary>
 <pre>
 <br/>
-Function name:   remotion-render-2021-12-16-2048mb-240sec<br/>
-Memory:          2048MB<br/>
-Timeout:         120sec<br/>
-Version:         2021-12-16<br/>
+Service name:    remotion--3-3-82--mem2gi--cpu1-0--t-800<br/>
+Version:         3.3.82<br/>
+CPU Limit:       1.0<br/>
+Memory Limit:    2Gi<br/>
+Timeout:         300sec<br/>
 Delete? (Y/n):  Y<br/>
 Deleted!
 <br/>
@@ -152,17 +153,19 @@ Example output
 </summary>
 <pre>
 <br/>
-Function name:   remotion-render-2021-12-16-2048mb-240sec<br/>
-Memory:          2048MB<br/>
-Timeout:         120sec<br/>
-Version:         2021-12-16<br/>
+Service name:    remotion--3-3-82--mem2gi--cpu1-0--t-800<br/>
+Version:         3.3.82<br/>
+CPU Limit:       1.0<br/>
+Memory Limit:    2Gi<br/>
+Timeout:         300sec<br/>
 Delete? (Y/n):  Y<br/>
 Deleted!
 <br/>
-Function name:   remotion-render-2021-12-18-2048mb-240sec<br/>
-Memory:          2048MB<br/>
-Timeout:         120sec<br/>
-Version:         2021-12-16<br/>
+Service name:    remotion--3-3-82--mem4gi--cpu2-0--t-1200<br/>
+Version:         3.3.82<br/>
+CPU Limit:       1.0<br/>
+Memory Limit:    2Gi<br/>
+Timeout:         300sec<br/>
 Delete? (Y/n):  Y<br/>
 Deleted!
 <br/>

@@ -3,5 +3,8 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": false,
     "source.fixAll": true
-  }
+  },
+  "cSpell.words": [
+    "rmall"
+  ]
 }
