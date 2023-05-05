@@ -15,7 +15,7 @@
  */
 
 import * as childProcess from 'child_process';
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
 import {assert} from './assert';

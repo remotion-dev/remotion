@@ -1,8 +1,8 @@
 import {RenderInternals} from '@remotion/renderer';
-import type {ReadStream} from 'fs';
 import type {IncomingMessage, ServerResponse} from 'http';
-import path from 'path';
-import querystring from 'querystring';
+import type {ReadStream} from 'node:fs';
+import path from 'node:path';
+import querystring from 'node:querystring';
 import {parse} from 'url';
 import {send, setHeaderForResponse} from './compatible-api';
 import {getPaths} from './get-paths';

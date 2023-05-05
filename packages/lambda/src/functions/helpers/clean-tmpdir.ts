@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import {join} from 'path';
 
 export let deletedFiles: string[] = [];

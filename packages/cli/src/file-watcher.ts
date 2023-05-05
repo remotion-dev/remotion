@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 
 type FileChangeType = 'created' | 'deleted' | 'changed';
 

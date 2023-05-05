@@ -1,4 +1,4 @@
-import fs, {existsSync} from 'fs';
+import fs, {existsSync} from 'node:fs';
 import {isServeUrl} from './is-serve-url';
 
 export const deleteDirectory = (directory: string): void => {

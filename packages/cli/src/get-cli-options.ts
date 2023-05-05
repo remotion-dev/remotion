@@ -4,8 +4,8 @@ import type {
 	FrameRange,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';

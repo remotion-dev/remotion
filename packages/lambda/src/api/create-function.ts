@@ -8,7 +8,7 @@ import {
 	PutFunctionEventInvokeConfigCommand,
 	PutRuntimeManagementConfigCommand,
 } from '@aws-sdk/client-lambda';
-import {readFileSync} from 'fs';
+import {readFileSync} from 'node:fs';
 import {LOG_GROUP_PREFIX} from '../defaults';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';

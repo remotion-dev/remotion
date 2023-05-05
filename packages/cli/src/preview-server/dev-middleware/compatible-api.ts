@@ -1,5 +1,5 @@
-import type {ReadStream} from 'fs';
 import type {IncomingMessage, ServerResponse} from 'http';
+import type {ReadStream} from 'node:fs';
 
 export function setHeaderForResponse(
 	res: ServerResponse,

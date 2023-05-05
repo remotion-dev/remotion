@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import path from 'path';
+import path from 'node:path';
 import {openBrowser} from './better-opn';
 import {chalk} from './chalk';
 import {ConfigInternals} from './config';

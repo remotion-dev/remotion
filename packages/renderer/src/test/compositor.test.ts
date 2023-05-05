@@ -1,4 +1,4 @@
-import {unlinkSync} from 'fs';
+import {unlinkSync} from 'node:fs';
 import {expect, test} from 'vitest';
 import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {compose} from '../compositor/compose';

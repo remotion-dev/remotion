@@ -1,6 +1,6 @@
 // Combine multiple video chunks, useful for decentralized rendering
 
-import {rmSync, writeFileSync} from 'fs';
+import {rmSync, writeFileSync} from 'node:fs';
 import {join} from 'path';
 import type {AudioCodec} from './audio-codec';
 import {

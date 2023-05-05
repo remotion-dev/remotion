@@ -1,5 +1,5 @@
 import {execSync} from 'child_process';
-import {existsSync, mkdirSync, unlinkSync} from 'fs';
+import {existsSync, mkdirSync, unlinkSync} from 'node:fs';
 import {toolchains} from './toolchains.mjs';
 
 const unpatched = [
