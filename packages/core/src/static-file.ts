@@ -61,7 +61,6 @@ export const includesHexOfUnsafeChar = (path: string): HexInfo => {
 		decodedChars
 	) as (keyof typeof decodedChars)[]) {
 		if (path.includes(key)) {
-			console.log(`Path contains ${decodedChars[key]}`);
 			return {containsHex: true, hexCode: key as HexCode};
 		}
 	}
