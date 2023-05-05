@@ -1,5 +1,5 @@
-import fs, {statSync} from 'fs';
-import path from 'path';
+import fs, {statSync} from 'node:fs';
+import path from 'node:path';
 import type {AnySmallCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';

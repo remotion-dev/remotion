@@ -1,9 +1,9 @@
 // Native
-import type {Stats} from 'fs';
-import {createReadStream, promises} from 'fs';
 import type {IncomingMessage, ServerResponse} from 'http';
-import path from 'path';
-import url from 'url';
+import type {Stats} from 'node:fs';
+import {createReadStream, promises} from 'node:fs';
+import path from 'node:path';
+import url from 'node:url';
 import {mimeContentType} from '../mime-types';
 // Packages
 import {isPathInside} from './is-path-inside';

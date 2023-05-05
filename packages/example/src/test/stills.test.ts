@@ -6,9 +6,9 @@ import {
 	StillImageFormat,
 } from '@remotion/renderer';
 import {cleanDownloadMap} from '@remotion/renderer/dist/assets/download-map';
-import {existsSync, unlinkSync} from 'fs';
+import {existsSync, unlinkSync} from 'node:fs';
+import path from 'node:path';
 import {tmpdir} from 'os';
-import path from 'path';
 import {AnyCompMetadata} from 'remotion';
 import {expect, test} from 'vitest';
 import {webpackOverride} from '../webpack-override';

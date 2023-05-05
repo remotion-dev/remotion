@@ -1,5 +1,5 @@
 import execa from 'execa';
-import path from 'path';
+import path from 'node:path';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {truthy} from './truthy';
 

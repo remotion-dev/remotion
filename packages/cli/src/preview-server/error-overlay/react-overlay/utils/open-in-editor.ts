@@ -12,10 +12,10 @@
  */
 import type {ChildProcess} from 'child_process';
 import child_process, {exec} from 'child_process';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-import util from 'util';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import util from 'node:util';
 import {Log} from '../../../../log';
 
 const execProm = util.promisify(exec);

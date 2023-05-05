@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import path, {extname} from 'path';
 import type {TAsset} from 'remotion';
 import {random} from 'remotion';

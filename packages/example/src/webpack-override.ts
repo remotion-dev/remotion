@@ -1,5 +1,5 @@
 import {WebpackOverrideFn} from '@remotion/bundler';
-import path from 'path';
+import path from 'node:path';
 type Bundler = 'webpack' | 'esbuild';
 
 const WEBPACK_OR_ESBUILD = 'esbuild' as Bundler;

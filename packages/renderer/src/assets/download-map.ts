@@ -1,5 +1,5 @@
-import fs, {mkdirSync} from 'fs';
-import path from 'path';
+import fs, {mkdirSync} from 'node:fs';
+import path from 'node:path';
 import type {TAsset} from 'remotion';
 import {deleteDirectory} from '../delete-directory';
 import {tmpDir} from '../tmp-dir';

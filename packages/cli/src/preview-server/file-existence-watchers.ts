@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import {installFileWatcher} from '../file-watcher';
 import {waitForLiveEventsListener} from './live-events';
 

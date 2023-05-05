@@ -1,4 +1,4 @@
-import {readFileSync, writeFileSync} from 'fs';
+import {readFileSync, writeFileSync} from 'node:fs';
 import {updateDefaultProps} from '../../codemods/update-default-props';
 import {deserializeJSONWithDate} from '../../editor/components/RenderModal/SchemaEditor/date-serialization';
 import type {ApiHandler} from '../api-types';

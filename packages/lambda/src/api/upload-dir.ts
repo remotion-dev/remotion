@@ -1,8 +1,8 @@
 import {Upload} from '@aws-sdk/lib-storage';
-import type {Dirent} from 'fs';
-import {createReadStream, promises as fs} from 'fs';
 import mimeTypes from 'mime-types';
-import path from 'path';
+import type {Dirent} from 'node:fs';
+import {createReadStream, promises as fs} from 'node:fs';
+import path from 'node:path';
 import type {Privacy} from '../defaults';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';

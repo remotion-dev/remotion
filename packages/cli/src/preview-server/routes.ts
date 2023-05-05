@@ -1,8 +1,8 @@
 import {BundlerInternals} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
-import {createReadStream, statSync} from 'fs';
 import type {IncomingMessage, ServerResponse} from 'http';
-import path from 'path';
+import {createReadStream, statSync} from 'node:fs';
+import path from 'node:path';
 import {URLSearchParams} from 'url';
 import {ConfigInternals} from '../config';
 import {getNumberOfSharedAudioTags} from '../config/number-of-shared-audio-tags';

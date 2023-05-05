@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {performance} from 'perf_hooks';
 import type {AnySmallCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';

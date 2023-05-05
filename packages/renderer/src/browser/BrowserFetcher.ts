@@ -15,12 +15,12 @@
  */
 
 import * as childProcess from 'child_process';
-import * as fs from 'fs';
 import * as http from 'http';
 import * as https from 'https';
+import * as fs from 'node:fs';
+import util from 'node:util';
 import * as os from 'os';
 import * as path from 'path';
-import util from 'util';
 
 import extractZip from 'extract-zip';
 

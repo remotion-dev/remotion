@@ -1,5 +1,5 @@
-import fs, {statSync} from 'fs';
-import path from 'path';
+import fs, {statSync} from 'node:fs';
+import path from 'node:path';
 import type {StaticFile} from 'remotion';
 
 export const readRecursively = ({

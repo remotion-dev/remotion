@@ -1,6 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
-import fs, {existsSync, mkdirSync, rmSync} from 'fs';
+import fs, {existsSync, mkdirSync, rmSync} from 'node:fs';
 import {join} from 'path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
