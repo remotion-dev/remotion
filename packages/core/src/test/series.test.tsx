@@ -26,6 +26,11 @@ const Third = () => {
 	return <div>{'third ' + frame}</div>;
 };
 
+const Fourth = () => {
+	const frame = useCurrentFrame();
+	return <div>{'fourth ' + frame}</div>;
+};
+
 const renderForFrame = (frame: number, markup: React.ReactNode) => {
 	return renderToString(
 		<CanUseRemotionHooksProvider>
@@ -84,9 +89,14 @@ test('Should support fragments', () => {
 					<Series.Sequence key="0" durationInFrames={5}>
 						<Second />
 					</Series.Sequence>
-					<Series.Sequence key="1" durationInFrames={5}>
-						<Third />
-					</Series.Sequence>
+					<>
+						<Series.Sequence key="1" durationInFrames={5}>
+							<Third />
+						</Series.Sequence>
+						<Series.Sequence key="2" durationInFrames={5}>
+							<Fourth />
+						</Series.Sequence>
+					</>
 				</>
 			</Series>
 		</WrapSequenceContext>
