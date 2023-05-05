@@ -76,8 +76,6 @@ Before `v4.0`, `staticFile()` did not handle URI-unsafe characters contained in 
 
 ### Example
 
-Before `v4`
-
 ```tsx title="Before v4"
 staticFile("/my-image#portrait.png"); //output: "/my-image#portrait.png"
 ```
@@ -85,9 +83,7 @@ staticFile("/my-image#portrait.png"); //output: "/my-image#portrait.png"
 If this URL is passed to a component accepting an URL, the part after `#` will be left out, leading
 to an error because the file can't be found.
 
-Since `v4.0.0`:
-
-```tsx title="After v4"
+```tsx title="Since v4.0.0"
 const url = staticFile("/my-image#portrait.png"); // "/my-image%23portrait.png"
 ```
 
