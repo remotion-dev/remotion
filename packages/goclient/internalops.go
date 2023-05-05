@@ -128,20 +128,20 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		internalParams.Gl = options.Gl
 	}
 
-	if &options.DownloadBehavior == nil {
+	if options.DownloadBehavior == nil {
 		internalParams.DownloadBehavior = map[string]interface{}{
 			"type": "play-in-browser",
 		}
 	} else {
 		internalParams.DownloadBehavior = options.DownloadBehavior
 	}
-	if &options.ChromiumOptions == nil {
+	if options.ChromiumOptions == nil {
 		internalParams.ChromiumOptions = []interface{}{}
 	} else {
 		internalParams.ChromiumOptions = options.ChromiumOptions
 	}
 
-	if &options.EnvVariables == nil {
+	if options.EnvVariables == nil {
 		internalParams.EnvVariables = []interface{}{}
 	} else {
 		internalParams.EnvVariables = options.EnvVariables

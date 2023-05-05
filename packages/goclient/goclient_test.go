@@ -12,6 +12,7 @@ func TestPrintVersion(t *testing.T) {
 		Composition:  "react-svg",
 		FunctionName: "remotion-render",
 		ServeUrl:     "testbed",
+		Codec:        "h264",
 	})
 	if err != nil {
 		log.Fatalf("Error marshaling struct to JSON: %v", err)

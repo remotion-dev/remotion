@@ -6,7 +6,7 @@ type RemotionOptions struct {
 	Region                string                 `json:"region" validate:"required"`
 	InputProps            interface{}            `json:"inputProps"`
 	Composition           string                 `json:"composition" validate:"required"`
-	Codec                 string                 `json:"codec"`
+	Codec                 string                 `json:"codec" validate:"required"`
 	Version               string                 `json:"version"`
 	ImageFormat           string                 `json:"imageFormat"`
 	Crf                   int                    `json:"crf"`
@@ -39,7 +39,6 @@ type RemotionOptions struct {
 
 type renderInternalOptions struct {
 	ServeUrl              string        `json:"serveUrl" validate:"required"`
-	FunctionName          string        `json:"functionName" validate:"required"`
 	Region                string        `json:"region" validate:"required"`
 	InputProps            interface{}   `json:"inputProps"`
 	Composition           string        `json:"composition" validate:"required"`
