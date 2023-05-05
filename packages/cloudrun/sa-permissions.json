@@ -5,6 +5,7 @@
         "run.routes.invoke",
         "run.services.create",
         "run.services.get",
+        "run.services.delete",
         "run.services.list",
         "run.services.update",
         "storage.buckets.create",
