@@ -1,3 +1,74 @@
+export type HexCode =
+	| '%3A'
+	| '%2F'
+	| '%3F'
+	| '%23'
+	| '%5B'
+	| '%5D'
+	| '%40'
+	| '%21'
+	| '%24'
+	| '%26'
+	| '%27'
+	| '%28'
+	| '%29'
+	| '%2A'
+	| '%2B'
+	| '%2C'
+	| '%3B';
+
+export type HexInfo =
+	| {
+			containsHex: false;
+	  }
+	| {
+			containsHex: true;
+			hexCode: HexCode;
+	  };
+
+const didWarn: {[key: string]: boolean} = {};
+const warnOnce = (message: string) => {
+	if (didWarn[message]) {
+		return;
+	}
+
+	console.warn(message);
+	didWarn[message] = true;
+};
+
+export const includesHexOfUnsafeChar = (path: string): HexInfo => {
+	const decodedChars = {
+		'%3A': ':',
+		'%2F': '/',
+		'%3F': '?',
+		'%23': '#',
+		'%5B': '[',
+		'%5D': ']',
+		'%40': '@',
+		'%21': '!',
+		'%24': '$',
+		'%26': '&',
+		'%27': "'",
+		'%28': '(',
+		'%29': ')',
+		'%2A': '*',
+		'%2B': '+',
+		'%2C': ',',
+		'%3B': ';',
+	};
+
+	for (const key of Object.keys(
+		decodedChars
+	) as (keyof typeof decodedChars)[]) {
+		if (path.includes(key)) {
+			console.log(`Path contains ${decodedChars[key]}`);
+			return {containsHex: true, hexCode: key as HexCode};
+		}
+	}
+
+	return {containsHex: false};
+};
+
 const trimLeadingSlash = (path: string): string => {
 	if (path.startsWith('/')) {
 		return trimLeadingSlash(path.substr(1));
@@ -53,7 +124,15 @@ export const staticFile = (path: string) => {
 		);
 	}
 
-	const preparsed = inner(path);
+	const encodedURI = encodeURIComponent(path);
+	const preparsed = inner(encodedURI);
+	const includesHex = includesHexOfUnsafeChar(preparsed);
+	if (includesHex.containsHex) {
+		warnOnce(
+			`WARNING: You seem to pass an already encoded path (path contains ${includesHex.hexCode}). The encoding gets automatically handled by staticFile()  `
+		);
+	}
+
 	if (!preparsed.startsWith('/')) {
 		return `/${preparsed}`;
 	}
