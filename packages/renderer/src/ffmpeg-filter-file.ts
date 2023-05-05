@@ -1,8 +1,8 @@
 // While an FFMPEG filter can be passed directly, if it's too long
 // we run into Windows command length limits.
 
-import fs, {existsSync} from 'fs';
-import path from 'path';
+import fs, {existsSync} from 'node:fs';
+import path from 'node:path';
 import type {DownloadMap} from './assets/download-map';
 import type {FilterWithoutPaddingApplied} from './stringify-ffmpeg-filter';
 

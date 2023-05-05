@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 
 const examplePackage = path.join(__dirname, '..', '..', '..', 'example');
 const docsPackage = path.join(__dirname, '..', '..', '..', 'docs');

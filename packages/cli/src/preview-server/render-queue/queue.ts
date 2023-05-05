@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import {chalk} from '../../chalk';
 import {installFileWatcher} from '../../file-watcher';
 import {handleCommonError} from '../../handle-common-errors';

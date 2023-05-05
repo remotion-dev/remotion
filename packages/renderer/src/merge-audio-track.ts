@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import type {DownloadMap} from './assets/download-map';
 import {callFf} from './call-ffmpeg';
 import {chunk} from './chunk';

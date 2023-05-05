@@ -1,5 +1,5 @@
-import {existsSync} from 'fs';
-import path from 'path';
+import {existsSync} from 'node:fs';
+import path from 'node:path';
 import {expect, test} from 'vitest';
 import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {getAudioChannelsAndDuration} from '../assets/get-audio-channels';

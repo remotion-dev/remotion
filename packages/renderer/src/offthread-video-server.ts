@@ -1,5 +1,5 @@
-import type {RequestListener} from 'http';
-import {URLSearchParams} from 'url';
+import type {RequestListener} from 'node:http';
+import {URLSearchParams} from 'node:url';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';

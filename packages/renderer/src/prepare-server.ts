@@ -1,5 +1,5 @@
-import {existsSync} from 'fs';
-import path from 'path';
+import {existsSync} from 'node:fs';
+import path from 'node:path';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {isServeUrl} from './is-serve-url';

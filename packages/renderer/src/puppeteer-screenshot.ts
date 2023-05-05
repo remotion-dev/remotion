@@ -1,4 +1,4 @@
-import * as assert from 'assert';
+import * as assert from 'node:assert';
 import type {ClipRegion} from 'remotion';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
