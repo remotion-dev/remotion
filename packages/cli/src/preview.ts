@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import path from 'node:path';
 import {openBrowser} from './better-opn';
 import {chalk} from './chalk';

@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import crypto from 'node:crypto';
 import {writeFileSync} from 'node:fs';
 
 const md5 = (data: string) =>

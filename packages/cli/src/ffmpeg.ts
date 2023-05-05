@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {spawnSync} from 'child_process';
+import {spawnSync} from 'node:child_process';
 
 export const ffmpegCommand = (_root: string, args: string[]) => {
 	const done = spawnSync(RenderInternals.getExecutablePath('ffmpeg'), args, {

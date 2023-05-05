@@ -1,6 +1,6 @@
-import {spawn} from 'child_process';
-import {createHash} from 'crypto';
-import {copyFile} from 'fs/promises';
+import {spawn} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {copyFile} from 'node:fs/promises';
 import type {DownloadMap} from '../assets/download-map';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getExecutablePath} from './get-executable-path';

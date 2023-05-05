@@ -1,5 +1,5 @@
-import http from 'http';
 import type {Socket} from 'net';
+import http from 'node:http';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {getDesiredPort} from './get-port';

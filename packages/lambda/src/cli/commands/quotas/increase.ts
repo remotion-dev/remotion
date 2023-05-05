@@ -4,7 +4,7 @@ import {
 	ListRequestedServiceQuotaChangeHistoryByQuotaCommand,
 	RequestServiceQuotaIncreaseCommand,
 } from '@aws-sdk/client-service-quotas';
-import {exit} from 'process';
+import {exit} from 'node:process';
 import {QUOTAS_COMMAND} from '.';
 import type {AwsRegion} from '../../../client';
 import {BINARY_NAME, LAMBDA_CONCURRENCY_LIMIT_QUOTA} from '../../../defaults';

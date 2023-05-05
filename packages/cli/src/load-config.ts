@@ -1,7 +1,7 @@
 import {BundlerInternals} from '@remotion/bundler';
 import fs from 'node:fs';
 import path from 'node:path';
-import {isMainThread} from 'worker_threads';
+import {isMainThread} from 'node:worker_threads';
 import {Log} from './log';
 
 export const loadConfigFile = async (
