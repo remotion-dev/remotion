@@ -4,7 +4,7 @@ import {
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
-import path from 'path';
+import path from 'node:path';
 import {webpackOverride} from './webpack-override';
 
 const start = async () => {

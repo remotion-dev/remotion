@@ -1,6 +1,6 @@
-import fs, {mkdirSync} from 'fs';
-import os from 'os';
-import path from 'path';
+import fs, {mkdirSync} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
 

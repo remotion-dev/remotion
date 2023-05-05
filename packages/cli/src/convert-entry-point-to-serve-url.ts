@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import path from 'path';
+import path from 'node:path';
 
 export const convertEntryPointToServeUrl = (entryPoint: string) => {
 	const fullPath = RenderInternals.isServeUrl(entryPoint)

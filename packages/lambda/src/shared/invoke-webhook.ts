@@ -1,6 +1,6 @@
-import * as Crypto from 'crypto';
-import http from 'http';
 import https from 'https';
+import * as Crypto from 'node:crypto';
+import http from 'node:http';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AfterRenderCost} from './constants';
 

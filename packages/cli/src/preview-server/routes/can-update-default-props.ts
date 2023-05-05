@@ -1,4 +1,4 @@
-import {readFileSync} from 'fs';
+import {readFileSync} from 'node:fs';
 import {updateDefaultProps} from '../../codemods/update-default-props';
 import type {ApiHandler} from '../api-types';
 import {getProjectInfo} from '../project-info';

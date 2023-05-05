@@ -1,4 +1,4 @@
-import {createHash} from 'crypto';
+import {createHash} from 'node:crypto';
 import ReactDOM from 'react-dom';
 import {Internals} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';

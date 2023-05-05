@@ -1,4 +1,4 @@
-import {extname} from 'path';
+import {extname} from 'node:path';
 import {mimeDb} from './mime-db';
 
 const extensions: Record<string, string[]> = {};
