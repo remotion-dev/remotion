@@ -42,29 +42,25 @@ npx remotion cloudrun render media test-site tiles --service-name=remotion--3-3-
 Passing in input props:
 
 ```
-npx remotion cloudrun render --props='{"hi": "there"}' testbed my-comp
+npx remotion cloudrun render media test-site tiles --service-name=remotion--3-3-82--mem512mi--cpu1-0--t-800 --props='{"hi": "there"}'
 ```
 
 ## Flags
 
 ### `--region`
 
-The [AWS region](/docs/cloudrun/region-selection) to select. Both project and function should be in this region.
+The [GCP region](/docs/cloudrun/region-selection) to select. Both the Service and the Cloud Storage bucket should be in this region.
 
 ### `--props`
 
 [React Props to pass to the root component of your video.](/docs/parametrized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).
 
-### `--log`
-
-Log level to be used inside the Lambda function. Also, if you set it to `verbose`, a link to CloudWatch will be printed where you can inspect logs.
-
 ### `--privacy`
 
 One of:
 
-- `"public"` (_default_): The rendered media is publicly accessible under the S3 URL.
-- `"private"`: The rendered media is not publicly available, but signed links can be created using [presignUrl()](/docs/cloudrun/presignurl).
+- `"public"` (_default_): The rendered media is publicly accessible under the Cloud Storage URL.
+- `"private"`: The rendered media is not publicly available, but is available within the GCP project to those with the correct permissions.
 
 ### `--max-retries`
 
@@ -73,10 +69,6 @@ How many times a single chunk is being retried if it fails to render. Default `1
 ### `--jpeg-quality`
 
 [Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
-
-### ~~`--quality`~~
-
-Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--muted` <AvailableFrom v="3.2.1" />
 
