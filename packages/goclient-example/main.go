@@ -49,8 +49,8 @@ func main() {
 		InputProps: map[string]interface{}{
 			"data": "Let's play",
 		},
-		Composition: "main",   // The composition to use
-		Version:     "3.3.78", // Specify the Remotion version to use
+		Composition: "main", // The composition to use
+
 	}
 
 	// Execute the render process

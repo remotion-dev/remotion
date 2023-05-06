@@ -20,11 +20,17 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		return nil, validationErrors
 	}
 
+	// set default version
+	versionToUse := VERSION
+	if options.Version == "" {
+		versionToUse = options.Version
+	}
+
 	internalParams := renderInternalOptions{
 		ServeUrl:             options.ServeUrl,
 		InputProps:           inputProps,
 		Composition:          options.Composition,
-		Version:              VERSION,
+		Version:              versionToUse,
 		FrameRange:           options.FrameRange,
 		OutName:              options.OutName,
 		AudioBitrate:         options.AudioBitrate,
