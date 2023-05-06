@@ -30,7 +30,7 @@ If you make changes locally, you need to redeploy the site. Use [`--site-name`](
 
 You can use this "Serve URL" to render a video on Remotion Cloud Run using:
 
-- The [`npx remotion cloudrun render media`](/docs/cloudrun/cli/render#media) and [`npx remotion cloudrun render still`](/docs/cloudrun/cli/render#still) commands
+- The [`npx remotion cloudrun render`](/docs/cloudrun/cli/render) command.
 - Locally using the [`renderMedia()`](/docs/renderer/render-media) and [`renderStill()`](/docs/renderer/render-still) functions.
 - Locally using the [`npx remotion render`](/docs/cli) and [`npx remotion still`](/docs/cli) commands
 
