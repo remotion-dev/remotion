@@ -2,14 +2,18 @@ import got from 'got/dist/source';
 import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
 import type {CloudrunCodec} from '../shared/validate-gcp-codec';
 import {validateCloudrunCodec} from '../shared/validate-gcp-codec';
+import {validateRegion} from '../shared/validate-region';
 import {validateServeUrl} from '../shared/validate-serveurl';
+import {validateServiceName} from '../shared/validate-service-name';
+import {getServiceInfo} from './get-service-info';
 import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
 
 export type RenderMediaOnCloudrunInput = {
 	authenticatedRequest: boolean;
 	cloudRunUrl: string;
-	// serviceName?: string;
-	serveUrl: string;
+	serviceName?: string;
+	region?: string;
+	serveUrl?: string;
 	composition: string;
 	inputProps?: unknown;
 	codec: CloudrunCodec;
@@ -49,7 +53,8 @@ export type RenderMediaOnCloudrunOutput = {
 export const renderMediaOnCloudrun = async ({
 	authenticatedRequest,
 	cloudRunUrl,
-	// serviceName,
+	serviceName,
+	region,
 	serveUrl,
 	composition,
 	inputProps,
@@ -60,9 +65,23 @@ export const renderMediaOnCloudrun = async ({
 }: RenderMediaOnCloudrunInput): Promise<RenderMediaOnCloudrunOutput> => {
 	const actualCodec = validateCloudrunCodec(codec);
 	validateServeUrl(serveUrl);
-	validateCloudRunUrl(cloudRunUrl);
+	if (!cloudRunUrl && !serviceName)
+		throw new Error('Either cloudRunUrl or serviceName must be provided');
+	if (cloudRunUrl && serviceName)
+		throw new Error(
+			'Either cloudRunUrl or serviceName must be provided, not both'
+		);
 
-	// todo: allow serviceName to be passed in, and fetch the cloud run URL based on the name
+	if (cloudRunUrl) {
+		validateCloudRunUrl(cloudRunUrl);
+	}
+
+	if (serviceName) {
+		validateServiceName(serviceName);
+		const validatedRegion = validateRegion(region);
+		const {uri} = await getServiceInfo({serviceName, region: validatedRegion});
+		cloudRunUrl = uri;
+	}
 
 	const data = {
 		type: 'media',

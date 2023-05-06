@@ -1,12 +1,16 @@
 import got from 'got';
 import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
+import {validateRegion} from '../shared/validate-region';
 import {validateServeUrl} from '../shared/validate-serveurl';
+import {validateServiceName} from '../shared/validate-service-name';
+import {getServiceInfo} from './get-service-info';
 import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
 
 export type RenderStillOnCloudrunInput = {
 	authenticatedRequest: boolean;
 	cloudRunUrl: string;
-	// serviceName?: string;
+	serviceName?: string;
+	region?: string;
 	serveUrl: string;
 	composition: string;
 	inputProps?: unknown;
@@ -43,7 +47,8 @@ export type RenderStillOnCloudrunOutput = {
 export const renderStillOnCloudrun = async ({
 	authenticatedRequest,
 	cloudRunUrl,
-	// serviceName,
+	serviceName,
+	region,
 	serveUrl,
 	composition,
 	inputProps,
@@ -51,9 +56,23 @@ export const renderStillOnCloudrun = async ({
 	outputFile,
 }: RenderStillOnCloudrunInput): Promise<RenderStillOnCloudrunOutput> => {
 	validateServeUrl(serveUrl);
-	validateCloudRunUrl(cloudRunUrl);
+	if (!cloudRunUrl && !serviceName)
+		throw new Error('Either cloudRunUrl or serviceName must be provided');
+	if (cloudRunUrl && serviceName)
+		throw new Error(
+			'Either cloudRunUrl or serviceName must be provided, not both'
+		);
 
-	// todo: allow serviceName to be passed in, and fetch the cloud run URL based on the name
+	if (cloudRunUrl) {
+		validateCloudRunUrl(cloudRunUrl);
+	}
+
+	if (serviceName) {
+		validateServiceName(serviceName);
+		const validatedRegion = validateRegion(region);
+		const {uri} = await getServiceInfo({serviceName, region: validatedRegion});
+		cloudRunUrl = uri;
+	}
 
 	const data = {
 		type: 'still',
