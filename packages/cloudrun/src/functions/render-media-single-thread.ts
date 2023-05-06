@@ -38,14 +38,12 @@ export const renderMediaSingleThread = async (
 	const storage = new Storage();
 
 	const publicUpload = req.body.privacy === 'public' || !req.body.privacy;
-	const privateUpload = req.body.privacy === 'private';
 
 	const uploadedResponse = await storage
 		.bucket(req.body.outputBucket)
 		.upload(tempFilePath, {
 			destination: `renders/${renderId}/${req.body.outputFile}`,
-			public: publicUpload,
-			private: privateUpload,
+			predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
 		});
 
 	const uploadedFile = uploadedResponse[0];
@@ -57,6 +55,7 @@ export const renderMediaSingleThread = async (
 		bucketName: req.body.outputBucket,
 		renderId,
 		status: 'success',
+		privacy: publicUpload ? 'publicRead' : 'projectPrivate',
 	};
 
 	console.log('Render Completed:', responseData);

@@ -102,6 +102,7 @@ Sending request to Cloud Run:
     Cloud Storage Uri = ${success.cloudStorageUri}
     Size (KB) = ${Math.round(Number(success.size) / 1000)}
     Bucket Name = ${success.bucketName}
+		Privacy = ${success.privacy}
     Render ID = ${success.renderId}
       `.trim()
 		)
