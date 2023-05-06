@@ -57,6 +57,7 @@ export const getServices = async (
 				?.replace(parent + '/services/' + RENDER_SERVICE_PREFIX + '--', '')
 				.split('--')[0]
 				.replace(/-/g, '.') as string,
+			uri: service.uri as string,
 		};
 	});
 };

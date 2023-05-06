@@ -32,6 +32,7 @@ export type RenderMediaOnCloudrunOutput = {
 	bucketName: string;
 	renderId: string;
 	status: string;
+	privacy: string;
 	errMessage: string;
 	error: any;
 };
