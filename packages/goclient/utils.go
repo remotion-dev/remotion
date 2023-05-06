@@ -7,7 +7,7 @@ import (
 )
 
 func serializeInputProps(inputProps interface{}, region string, inputType string,
-	userSpecifiedBucketName *string) (map[string]interface{}, error) {
+	userSpecifiedBucketName string) (*PayloadData, error) {
 	payload, err := json.Marshal(inputProps)
 	if err != nil {
 		return nil, errors.New("error serializing inputProps. Check it has no circular references or reduce the size if the object is big")
@@ -24,8 +24,14 @@ func serializeInputProps(inputProps interface{}, region string, inputType string
 		return nil, fmt.Errorf("warning: inputProps are over %dKB (%dKB) in size. This is not currently supported", maxInlinePayloadSize/1000, len(payload)/1024)
 	}
 
-	return map[string]interface{}{
-		"type":    "payload",
-		"payload": string(payload),
+	if &payload != nil && &inputProps == nil {
+		return &PayloadData{
+			Payload: string(payload),
+			Type:    "payload",
+		}, nil
+	}
+	return &PayloadData{
+		Payload: "{}",
+		Type:    "payload",
 	}, nil
 }
