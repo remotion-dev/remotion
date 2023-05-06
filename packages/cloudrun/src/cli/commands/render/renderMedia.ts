@@ -20,6 +20,7 @@ export const renderMediaSubcommand = async (
 		codec,
 		inputProps,
 		outputBucket,
+		privacy,
 		authenticatedRequest,
 	} = await renderArgsCheck(RENDER_MEDIA_SUBCOMMAND, args, remotionRoot);
 
@@ -36,6 +37,7 @@ Sending request to Cloud Run:
     Codec = ${codec}
     Output Bucket = ${outputBucket}
     Output File = ${outName}
+		Output File Privacy = ${privacy}
 			`.trim()
 		)
 	);
@@ -75,12 +77,12 @@ Sending request to Cloud Run:
 	const res = await renderMediaOnCloudrun({
 		authenticatedRequest,
 		cloudRunUrl,
-		// serviceName,
 		serveUrl,
 		composition,
 		inputProps,
 		codec: codec as CloudrunCodec,
 		outputBucket,
+		privacy,
 		outputFile: outName,
 		updateRenderProgress,
 	});

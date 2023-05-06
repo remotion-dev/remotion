@@ -1,5 +1,6 @@
 import got from 'got';
 import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
+import {validatePrivacy} from '../shared/validate-privacy';
 import {validateRegion} from '../shared/validate-region';
 import {validateServeUrl} from '../shared/validate-serveurl';
 import {validateServiceName} from '../shared/validate-service-name';
@@ -15,6 +16,7 @@ export type RenderStillOnCloudrunInput = {
 	composition: string;
 	inputProps?: unknown;
 	outputBucket: string;
+	privacy?: string;
 	outputFile: string;
 };
 
@@ -53,9 +55,12 @@ export const renderStillOnCloudrun = async ({
 	composition,
 	inputProps,
 	outputBucket,
+	privacy,
 	outputFile,
 }: RenderStillOnCloudrunInput): Promise<RenderStillOnCloudrunOutput> => {
 	validateServeUrl(serveUrl);
+	if (privacy) validatePrivacy(privacy);
+
 	if (!cloudRunUrl && !serviceName)
 		throw new Error('Either cloudRunUrl or serviceName must be provided');
 	if (cloudRunUrl && serviceName)
@@ -81,6 +86,7 @@ export const renderStillOnCloudrun = async ({
 		inputProps,
 		outputBucket,
 		outputFile,
+		privacy,
 	};
 
 	if (authenticatedRequest) {

@@ -2,6 +2,7 @@ import got from 'got/dist/source';
 import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
 import type {CloudrunCodec} from '../shared/validate-gcp-codec';
 import {validateCloudrunCodec} from '../shared/validate-gcp-codec';
+import {validatePrivacy} from '../shared/validate-privacy';
 import {validateRegion} from '../shared/validate-region';
 import {validateServeUrl} from '../shared/validate-serveurl';
 import {validateServiceName} from '../shared/validate-service-name';
@@ -17,6 +18,7 @@ export type RenderMediaOnCloudrunInput = {
 	composition: string;
 	inputProps?: unknown;
 	codec: CloudrunCodec;
+	privacy?: string;
 	outputBucket: string;
 	outputFile: string;
 	updateRenderProgress?: (progress: number) => void;
@@ -60,11 +62,14 @@ export const renderMediaOnCloudrun = async ({
 	inputProps,
 	codec,
 	outputBucket,
+	privacy,
 	outputFile,
 	updateRenderProgress,
 }: RenderMediaOnCloudrunInput): Promise<RenderMediaOnCloudrunOutput> => {
 	const actualCodec = validateCloudrunCodec(codec);
 	validateServeUrl(serveUrl);
+	if (privacy) validatePrivacy(privacy);
+
 	if (!cloudRunUrl && !serviceName)
 		throw new Error('Either cloudRunUrl or serviceName must be provided');
 	if (cloudRunUrl && serviceName)
@@ -90,6 +95,7 @@ export const renderMediaOnCloudrun = async ({
 		codec: actualCodec,
 		inputProps,
 		outputBucket,
+		privacy,
 		outputFile,
 	};
 
