@@ -3,14 +3,15 @@ package goclient
 type RemotionOptions struct {
 	ServeUrl              string                 `json:"serveUrl" validate:"required"`
 	FunctionName          string                 `json:"functionName" validate:"required"`
+	RendererFunctionName  string                 `json:"rendererFunctionName"`
 	Region                string                 `json:"region" validate:"required"`
 	InputProps            interface{}            `json:"inputProps"`
 	Composition           string                 `json:"composition" validate:"required"`
-	Codec                 string                 `json:"codec" validate:"required"`
+	Codec                 string                 `json:"codec"`
 	Version               string                 `json:"version"`
 	ImageFormat           string                 `json:"imageFormat"`
 	Crf                   int                    `json:"crf"`
-	EnvVariables          []interface{}          `json:"envVariables"`
+	EnvVariables          interface{}            `json:"envVariables"`
 	Quality               int                    `json:"quality"`
 	MaxRetries            int                    `json:"maxRetries"`
 	Privacy               string                 `json:"privacy"`
@@ -18,7 +19,7 @@ type RemotionOptions struct {
 	FrameRange            interface{}            `json:"frameRange"`
 	OutName               interface{}            `json:"outName"`
 	TimeoutInMilliseconds int                    `json:"timeoutInMilliseconds"`
-	ChromiumOptions       []interface{}          `json:"chromiumOptions"`
+	ChromiumOptions       interface{}            `json:"chromiumOptions"`
 	Scale                 int                    `json:"scale"`
 	EveryNthFrame         int                    `json:"everyNthFrame"`
 	NumberOfGifLoops      int                    `json:"numberOfGifLoops"`
@@ -33,35 +34,37 @@ type RemotionOptions struct {
 	ForceWidth            interface{}            `json:"forceWidth"`
 	BucketName            interface{}            `json:"bucketName"`
 	AudioCodec            interface{}            `json:"audioCodec"`
-	ForceBucketName       *string                `json:"forceBucketName"`
+	DumpBrowserLogs       bool                   `json:"dumpBrowserLogs"`
+	ForceBucketName       string                 `json:"forceBucketName"`
 	Gl                    string                 `json:"gl"`
 }
 
 type renderInternalOptions struct {
-	ServeUrl              string        `json:"serveUrl" validate:"required"`
-	Region                string        `json:"region" validate:"required"`
-	InputProps            interface{}   `json:"inputProps"`
-	Composition           string        `json:"composition" validate:"required"`
-	Type                  string        `json:"type"`
-	Codec                 string        `json:"codec"`
-	Version               string        `json:"version"`
-	ImageFormat           string        `json:"imageFormat"`
-	Crf                   int           `json:"crf"`
-	EnvVariables          []interface{} `json:"envVariables"`
-	Quality               int
+	RendererFunctionName  *string                `json:"rendererFunctionName"`
+	FramesPerLambda       *string                `json:"framesPerLambda"`
+	Composition           string                 `json:"composition" validate:"required"`
+	ServeUrl              string                 `json:"serveUrl" validate:"required"`
+	InputProps            interface{}            `json:"inputProps"`
+	Type                  string                 `json:"type,omitempty"`
+	Codec                 string                 `json:"codec"`
+	ImageFormat           string                 `json:"imageFormat"`
+	Crf                   int                    `json:"crf,omitempty"`
+	EnvVariables          interface{}            `json:"envVariables,omitempty"`
+	Quality               int                    `json:"quality,omitempty"`
 	MaxRetries            int                    `json:"maxRetries"`
 	Privacy               string                 `json:"privacy"`
 	LogLevel              string                 `json:"logLevel"`
 	FrameRange            interface{}            `json:"frameRange"`
 	OutName               interface{}            `json:"outName"`
 	TimeoutInMilliseconds int                    `json:"timeoutInMilliseconds"`
-	ChromiumOptions       []interface{}          `json:"chromiumOptions"`
+	ChromiumOptions       interface{}            `json:"chromiumOptions"`
 	Scale                 int                    `json:"scale"`
 	EveryNthFrame         int                    `json:"everyNthFrame"`
 	NumberOfGifLoops      int                    `json:"numberOfGifLoops"`
 	ConcurrencyPerLambda  int                    `json:"concurrencyPerLambda"`
 	DownloadBehavior      map[string]interface{} `json:"downloadBehavior"`
 	Muted                 bool                   `json:"muted"`
+	Version               string                 `json:"version"`
 	Overwrite             bool                   `json:"overwrite"`
 	AudioBitrate          interface{}            `json:"audioBitrate"`
 	VideoBitrate          interface{}            `json:"videoBitrate"`
@@ -70,8 +73,10 @@ type renderInternalOptions struct {
 	ForceWidth            interface{}            `json:"forceWidth"`
 	BucketName            interface{}            `json:"bucketName"`
 	AudioCodec            interface{}            `json:"audioCodec"`
-	ForceBucketName       *string                `json:"forceBucketName"`
-	Gl                    string                 `json:"gl"`
+	DumpBrowserLogs       bool                   `json:"dumpBrowserLogs"`
+
+	ForceBucketName string  `json:"forceBucketName,omitempty"`
+	Gl              *string `json:"gl,omitempty"`
 }
 
 type RemotionRenderResponse struct {
@@ -135,4 +140,9 @@ type FrameRange struct {
 	Chunk              int    `json:"chunk"`
 	TimeInMilliseconds int    `json:"timeInMilliseconds"`
 	FrameRange         [2]int `json:"frameRange"`
+}
+
+type PayloadData struct {
+	Type    string `json:"type"`
+	Payload string `json:"payload"`
 }

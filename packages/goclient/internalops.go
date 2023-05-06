@@ -21,26 +21,29 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 
 	internalParams := renderInternalOptions{
-		ServeUrl:        options.ServeUrl,
-		InputProps:      inputProps,
-		Composition:     options.Composition,
-		Region:          options.Region,
-		Type:            "start",
-		Version:         VERSION,
-		FrameRange:      options.FrameRange,
-		OutName:         options.OutName,
-		AudioBitrate:    options.AudioBitrate,
-		VideoBitrate:    options.VideoBitrate,
-		Webhook:         options.Webhook,
-		ForceHeight:     options.ForceHeight,
-		ForceWidth:      options.ForceWidth,
-		BucketName:      options.BucketName,
-		AudioCodec:      options.AudioCodec,
-		ForceBucketName: options.ForceBucketName,
+		ServeUrl:             options.ServeUrl,
+		InputProps:           inputProps,
+		Composition:          options.Composition,
+		Version:              VERSION,
+		FrameRange:           options.FrameRange,
+		OutName:              options.OutName,
+		AudioBitrate:         options.AudioBitrate,
+		VideoBitrate:         options.VideoBitrate,
+		Webhook:              options.Webhook,
+		ForceHeight:          options.ForceHeight,
+		ForceWidth:           options.ForceWidth,
+		BucketName:           options.BucketName,
+		AudioCodec:           options.AudioCodec,
+		ForceBucketName:      options.ForceBucketName,
+		RendererFunctionName: &options.RendererFunctionName,
 	}
 
 	internalParams.Muted = options.Muted
 	internalParams.Overwrite = options.Overwrite
+
+	if options.RendererFunctionName == "" {
+		internalParams.RendererFunctionName = nil
+	}
 	if options.Codec == "" {
 		internalParams.Codec = "h264"
 	} else {
@@ -57,11 +60,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	} else {
 		internalParams.ImageFormat = options.ImageFormat
 	}
-	if options.Crf == 0 {
-		internalParams.Crf = 1
-	} else {
-		internalParams.Crf = options.Crf
-	}
+	internalParams.Crf = options.Crf
 	if options.Privacy == "" {
 		internalParams.Privacy = "public"
 	} else {
@@ -79,12 +78,6 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		internalParams.Scale = options.Scale
 	}
 
-	if options.Crf == 0 {
-		internalParams.Crf = 1
-	} else {
-		internalParams.Crf = options.Crf
-	}
-
 	if options.Codec == "" {
 		internalParams.Codec = "h264"
 	} else {
@@ -92,15 +85,9 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 
 	if options.MaxRetries == 0 {
-		internalParams.MaxRetries = 3
+		internalParams.MaxRetries = 1
 	} else {
 		internalParams.MaxRetries = options.MaxRetries
-	}
-
-	if options.Quality == 0 {
-		internalParams.Quality = 80
-	} else {
-		internalParams.Quality = options.Quality
 	}
 
 	if options.Scale == 0 {
@@ -122,12 +109,6 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 	internalParams.NumberOfGifLoops = options.NumberOfGifLoops
 
-	if options.Gl == "" {
-		internalParams.Gl = "swangle"
-	} else {
-		internalParams.Gl = options.Gl
-	}
-
 	if options.DownloadBehavior == nil {
 		internalParams.DownloadBehavior = map[string]interface{}{
 			"type": "play-in-browser",
@@ -136,16 +117,11 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		internalParams.DownloadBehavior = options.DownloadBehavior
 	}
 	if options.ChromiumOptions == nil {
-		internalParams.ChromiumOptions = []interface{}{}
+		internalParams.ChromiumOptions = map[string]interface{}{}
 	} else {
 		internalParams.ChromiumOptions = options.ChromiumOptions
 	}
-
-	if options.EnvVariables == nil {
-		internalParams.EnvVariables = []interface{}{}
-	} else {
-		internalParams.EnvVariables = options.EnvVariables
-	}
+	internalParams.EnvVariables = options.EnvVariables
 
 	return &internalParams, nil
 }
