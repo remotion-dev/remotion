@@ -21,9 +21,9 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 	}
 
 	// set default version
-	versionToUse := VERSION
+	versionToUse := options.Version
 	if options.Version == "" {
-		versionToUse = options.Version
+		versionToUse = VERSION
 	}
 
 	internalParams := renderInternalOptions{
