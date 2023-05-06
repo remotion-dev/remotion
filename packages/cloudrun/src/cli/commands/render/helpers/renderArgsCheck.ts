@@ -4,7 +4,11 @@ import {ConfigInternals} from '@remotion/cli/config';
 import {getCompositions} from '@remotion/renderer';
 import {getOrCreateBucket} from '../../../../api/get-or-create-bucket';
 import {getServiceInfo} from '../../../../api/get-service-info';
-import {BINARY_NAME} from '../../../../shared/constants';
+import {
+	BINARY_NAME,
+	DEFAULT_OUTPUT_PRIVACY,
+} from '../../../../shared/constants';
+import {validatePrivacy} from '../../../../shared/validate-privacy';
 import {validateServeUrl} from '../../../../shared/validate-serveurl';
 import {parsedCloudrunCli} from '../../../args';
 import {getGcpRegion} from '../../../get-gcp-region';
@@ -34,7 +38,7 @@ export const renderArgsCheck = async (
 	if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 		const siteName = serveUrl;
 		region = region ?? getGcpRegion();
-		Log.info('site-name passed, constructing serve url...');
+		Log.info('Remotion site-name passed, constructing serve url...');
 		const {bucketName} = await getOrCreateBucket({region});
 		serveUrl = `https://storage.googleapis.com/${bucketName}/sites/${siteName}/index.html`;
 		Log.info(`<serve-url> constructed: ${serveUrl}\n`);
@@ -42,8 +46,9 @@ export const renderArgsCheck = async (
 
 	let composition: string = args[1];
 	if (!composition) {
-		Log.info(`<serve-url> passed: ${serveUrl}`);
-		Log.info('No compositions passed. Fetching compositions...');
+		Log.info(
+			`No compositions passed. Fetching compositions for ${serveUrl}...`
+		);
 
 		validateServeUrl(serveUrl);
 		const comps = await getCompositions(serveUrl);
@@ -70,11 +75,9 @@ export const renderArgsCheck = async (
 		isLambda: true, // TODO: what do I need to do with this?
 		remotionRoot,
 	});
-	// const maxRetries = parsedCloudrunCli['max-retries'] ?? DEFAULT_MAX_RETRIES;
-	// validateMaxRetries(maxRetries);
 
-	// const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
-	// validatePrivacy(privacy);
+	const privacy = parsedCloudrunCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
+	validatePrivacy(privacy);
 
 	let outputBucket = parsedCloudrunCli['output-bucket'];
 	if (!outputBucket) {
@@ -110,7 +113,7 @@ export const renderArgsCheck = async (
 	}
 
 	if (serviceName) {
-		Log.info('Service name passed, fetching url...');
+		Log.info('Cloud Run service name passed, fetching Cloud Run url...');
 		region = region ?? getGcpRegion();
 		const {uri} = await getServiceInfo({serviceName, region});
 		console.log('cloud run url found: ', uri);
@@ -127,6 +130,7 @@ export const renderArgsCheck = async (
 		codec,
 		inputProps,
 		outputBucket,
+		privacy,
 		authenticatedRequest,
 	};
 };

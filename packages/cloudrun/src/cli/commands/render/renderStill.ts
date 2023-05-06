@@ -17,6 +17,7 @@ export const renderStillSubcommand = async (
 		outName,
 		inputProps,
 		outputBucket,
+		privacy,
 		authenticatedRequest,
 	} = await renderArgsCheck(RENDER_STILL_SUBCOMMAND, args, remotionRoot);
 
@@ -32,6 +33,7 @@ Sending request to Cloud Run:
     Composition = ${composition}
     Output Bucket = ${outputBucket}
     Output File = ${outName}
+    Output File Privacy = ${privacy}
 			`.trim()
 		)
 	);
@@ -59,11 +61,11 @@ Sending request to Cloud Run:
 	const res = await renderStillOnCloudrun({
 		authenticatedRequest,
 		cloudRunUrl,
-		// serviceName,
 		serveUrl,
 		composition,
 		inputProps,
 		outputBucket,
+		privacy,
 		outputFile: outName,
 	});
 	doneIn = Date.now() - renderStart;

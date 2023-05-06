@@ -13,3 +13,6 @@ export const DEFAULT_MAX_RETRIES = 1;
 export const inputPropsKey = (hash: string) => {
 	return `input-props/${hash}.json`;
 };
+
+export type Privacy = 'public' | 'private';
+export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
