@@ -14,16 +14,16 @@ test("Set the right version for gotest", () => {
   const version = referenceVersionJson.version;
   expect(typeof version).toBe("string");
 
-  const VERSION = `package goclient;\n\nconst VERSION = "${version}"`;
+  const VERSION = `package remotionlambda;\n\nconst VERSION = "${version}"`;
   writeFileSync(
-    path.join(process.cwd(), "..", "goclient", "version.go"),
+    path.join(process.cwd(), "..", "lambda-go", "version.go"),
     VERSION
   );
 });
 
 test("Go package should create the same payload as normal Lambda package", async () => {
   const goOutput = execSync("go test", {
-    cwd: path.join(process.cwd(), "..", "goclient"),
+    cwd: path.join(process.cwd(), "..", "lambda-go"),
   });
   const firstLine = goOutput.toString().split("\n")[0];
   const parsed = JSON.parse(firstLine);

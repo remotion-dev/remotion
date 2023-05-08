@@ -1,5 +1,5 @@
 go 1.23
 
-use packages/goclient
+use packages/lambda-go
 
-use packages/goclient-example
+use packages/lambda-go-example

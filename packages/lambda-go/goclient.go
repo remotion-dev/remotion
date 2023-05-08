@@ -1,4 +1,4 @@
-package goclient
+package remotionlambda
 
 func RenderMediaOnLambda(input RemotionOptions) (*RemotionRenderResponse, error) {
 	return invokeRenderLambda(input)

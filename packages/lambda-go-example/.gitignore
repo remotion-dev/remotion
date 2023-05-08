@@ -11,4 +11,4 @@
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
 
-goclient-example
+lambdago-example
