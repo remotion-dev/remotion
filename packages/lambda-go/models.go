@@ -8,7 +8,6 @@ type RemotionOptions struct {
 	InputProps            interface{}            `json:"inputProps"`
 	Composition           string                 `json:"composition" validate:"required"`
 	Codec                 string                 `json:"codec"`
-	Version               string                 `json:"version"`
 	ImageFormat           string                 `json:"imageFormat"`
 	Crf                   int                    `json:"crf"`
 	EnvVariables          interface{}            `json:"envVariables"`
