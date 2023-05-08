@@ -1,4 +1,4 @@
-package goclient
+package remotionlambda
 
 import (
 	"encoding/json"

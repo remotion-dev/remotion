@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"goclient"
+	"lambdago"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
@@ -41,7 +41,7 @@ func main() {
 	region := os.Getenv("REMOTION_APP_REGION")
 
 	// Set parameters for render
-	renderInputRequest := goclient.RemotionOptions{
+	renderInputRequest := lambdago.RemotionOptions{
 		ServeUrl:     serveUrl,
 		FunctionName: functionName,
 		Region:       region,
@@ -54,7 +54,7 @@ func main() {
 	}
 
 	// Execute the render process
-	renderResponse, renderError := goclient.RenderMediaOnLambda(renderInputRequest)
+	renderResponse, renderError := lambdago.RenderMediaOnLambda(renderInputRequest)
 
 	// Check if there are validation errors
 	if renderError != nil {
@@ -77,14 +77,14 @@ func main() {
 	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.BucketName, renderResponse.RenderId)
 
 	// Render Progress request
-	renderProgressInputRequest := goclient.RenderConfig{
+	renderProgressInputRequest := lambdago.RenderConfig{
 		FunctionName: functionName,
 		Region:       region,
 		RenderId:     renderResponse.RenderId,
 		BucketName:   renderResponse.BucketName,
 	}
 	// Execute getting the render progress
-	renderProgressResponse, renderProgressError := goclient.GetRenderProgress(renderProgressInputRequest)
+	renderProgressResponse, renderProgressError := lambdago.GetRenderProgress(renderProgressInputRequest)
 
 	// Check if we have error
 	if renderProgressError != nil {

@@ -1,4 +1,4 @@
-module goclient
+module remotionlambda
 
 go 1.20
 

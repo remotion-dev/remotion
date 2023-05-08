@@ -5,15 +5,10 @@ sidebar_label: Rendering from Go
 crumb: "@remotion/lambda"
 ---
 
-To trigger a Lambda render using Go, you will need to utilize remotion [goclient](https://github.com/remotion-dev/remotion/blob/main/packages/goclient/goclient.go) package. Note of the following:
+To trigger a Lambda render using Go, you can use the Remotion Lambda Go client. Note the following:
 
 - You first need to [complete the Lambda setup](/docs/lambda/setup).
 - Sending large input props (>200KB) is not supported with Go at the moment.
-
-
-:::warning
-The go package utilized on this example is in early stage of development.
-:::
 
 ```go title="main.go"
 package main
@@ -25,7 +20,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
-	"github.com/remotion-dev/remotion/packages/goclient"
+	"github.com/remotion-dev/remotion/packages/lambda-go"
 )
 
 type ValidationError struct {
@@ -58,7 +53,7 @@ func main() {
 	region := os.Getenv("REMOTION_APP_REGION")
 
 	// Set parameters for render
-	renderInputRequest := goclient.RemotionOptions{
+	renderInputRequest := remotionlambda.RemotionOptions{
 		ServeUrl:     serveUrl,
 		FunctionName: functionName,
 		Region:       region,
@@ -71,7 +66,7 @@ func main() {
 	}
 
 	// Execute the render process
-	renderResponse, renderError := goclient.RenderMediaOnLambda(renderInputRequest)
+	renderResponse, renderError := remotionlambda.RenderMediaOnLambda(renderInputRequest)
 
 	// Check if there are validation errors
 	if renderError != nil {
@@ -94,14 +89,14 @@ func main() {
 	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.BucketName, renderResponse.RenderId)
 
 	// Render Progress request
-	renderProgressInputRequest := goclient.RenderConfig{
+	renderProgressInputRequest := remotionlambda.RenderConfig{
 		FunctionName: functionName,
 		Region:       region,
 		RenderId:     renderResponse.RenderId,
 		BucketName:   renderResponse.BucketName,
 	}
 	// Execute getting the render progress
-	renderProgressResponse, renderProgressError := goclient.GetRenderProgress(renderProgressInputRequest)
+	renderProgressResponse, renderProgressError := remotionlambda.GetRenderProgress(renderProgressInputRequest)
 
 	// Check if we have error
 	if renderProgressError != nil {
@@ -117,9 +112,7 @@ func main() {
 
 ## Reference applications
 
- The project utilizes [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app), ensure that it is already deployed on your AWS Account.
-
-
+The project utilizes [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app), ensure that it is already deployed on your AWS Account.
 
 ## See also
 

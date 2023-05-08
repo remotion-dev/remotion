@@ -1,4 +1,4 @@
-package goclient
+package remotionlambda
 
 type RemotionOptions struct {
 	ServeUrl              string                 `json:"serveUrl" validate:"required"`
