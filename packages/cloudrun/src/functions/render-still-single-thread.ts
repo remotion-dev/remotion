@@ -21,6 +21,9 @@ export const renderStillSingleThread = async (
 		serveUrl: req.body.serveUrl,
 		output: tempFilePath,
 		inputProps: req.body.inputProps,
+		jpegQuality: req.body.jpegQuality,
+		imageFormat: req.body.imageFormat,
+		scale: req.body.scale,
 	});
 
 	const storage = new Storage();

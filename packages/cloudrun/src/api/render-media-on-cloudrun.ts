@@ -22,6 +22,32 @@ export type RenderMediaOnCloudrunInput = {
 	outputBucket: string;
 	outputFile?: string;
 	updateRenderProgress?: (progress: number) => void;
+	jpegQuality?: number;
+	audioCodec?: 'mp3' | 'aac' | 'pcm-16' | 'opus';
+	audioBitrate?: string;
+	videoBitrate?: string;
+	proResProfile?:
+		| '4444-xq'
+		| '4444'
+		| 'hq'
+		| 'standard'
+		| 'light'
+		| 'proxy'
+		| undefined;
+	crf?: number;
+	pixelFormat?:
+		| 'yuv420p'
+		| 'yuva420p'
+		| 'yuv422p'
+		| 'yuv444p'
+		| 'yuv420p10le'
+		| 'yuv422p10le'
+		| 'yuv444p10le'
+		| 'yuva444p10le';
+	imageFormat?: 'png' | 'jpeg' | 'none';
+	scale?: number;
+	everyNthFrame?: number;
+	numberOfGifLoops?: number;
 };
 
 export type RenderMediaOnCloudrunOutput = {
@@ -66,6 +92,17 @@ export const renderMediaOnCloudrun = async ({
 	privacy,
 	outputFile,
 	updateRenderProgress,
+	jpegQuality,
+	audioCodec,
+	audioBitrate,
+	videoBitrate,
+	proResProfile,
+	crf,
+	pixelFormat,
+	imageFormat,
+	scale,
+	everyNthFrame,
+	numberOfGifLoops,
 }: RenderMediaOnCloudrunInput): Promise<RenderMediaOnCloudrunOutput> => {
 	const actualCodec = validateCloudrunCodec(codec);
 	validateServeUrl(serveUrl);
@@ -98,6 +135,17 @@ export const renderMediaOnCloudrun = async ({
 		outputBucket,
 		privacy,
 		outputFile,
+		jpegQuality,
+		audioCodec,
+		audioBitrate,
+		videoBitrate,
+		proResProfile,
+		crf,
+		pixelFormat,
+		imageFormat,
+		scale,
+		everyNthFrame,
+		numberOfGifLoops,
 	};
 
 	if (authenticatedRequest) {

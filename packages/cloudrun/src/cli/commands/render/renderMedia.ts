@@ -25,6 +25,17 @@ export const renderMediaSubcommand = async (
 		downloadName,
 		privacy,
 		authenticatedRequest,
+		jpegQuality,
+		audioCodec,
+		audioBitrate,
+		videoBitrate,
+		proResProfile,
+		crf,
+		pixelFormat,
+		imageFormat,
+		scale,
+		everyNthFrame,
+		numberOfGifLoops,
 	} = await renderArgsCheck(RENDER_MEDIA_SUBCOMMAND, args, remotionRoot);
 
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
@@ -41,6 +52,7 @@ Sending request to Cloud Run:
     Output Bucket = ${outputBucket}
     Output File = ${outName ?? 'out.mp4'}
 		Output File Privacy = ${privacy}
+${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 			`.trim()
 		)
 	);
@@ -88,6 +100,17 @@ Sending request to Cloud Run:
 		privacy,
 		outputFile: outName,
 		updateRenderProgress,
+		jpegQuality,
+		audioCodec,
+		audioBitrate,
+		videoBitrate,
+		proResProfile,
+		crf,
+		pixelFormat,
+		imageFormat,
+		scale,
+		everyNthFrame,
+		numberOfGifLoops,
 	});
 	renderProgress.doneIn = Date.now() - renderStart;
 	updateProgress();

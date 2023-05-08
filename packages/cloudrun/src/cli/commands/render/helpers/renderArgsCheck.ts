@@ -119,6 +119,28 @@ export const renderArgsCheck = async (
 
 	const authenticatedRequest = !parsedCloudrunCli['unauthenticated-request'];
 
+	const jpegQuality = parsedCloudrunCli['jpeg-quality'];
+
+	const audioCodec = parsedCloudrunCli['audio-codec'];
+
+	const audioBitrate = parsedCloudrunCli['audio-bitrate'];
+
+	const videoBitrate = parsedCloudrunCli['video-bitrate'];
+
+	const proResProfile = parsedCloudrunCli['prores-profile'];
+
+	const {crf} = parsedCloudrunCli;
+
+	const pixelFormat = parsedCloudrunCli['pixel-format'];
+
+	const imageFormat = parsedCloudrunCli['image-format'];
+
+	const {scale} = parsedCloudrunCli;
+
+	const everyNthFrame = parsedCloudrunCli['every-nth-frame'];
+
+	const numberOfGifLoops = parsedCloudrunCli['number-of-gif-loops'];
+
 	return {
 		serveUrl,
 		cloudRunUrl,
@@ -131,5 +153,16 @@ export const renderArgsCheck = async (
 		privacy,
 		authenticatedRequest,
 		downloadName,
+		jpegQuality,
+		audioCodec,
+		audioBitrate,
+		videoBitrate,
+		proResProfile,
+		crf,
+		pixelFormat,
+		imageFormat,
+		scale,
+		everyNthFrame,
+		numberOfGifLoops,
 	};
 };
