@@ -7,7 +7,7 @@ export function validatePrivacy(privacy: unknown): asserts privacy is Privacy {
 
 	if (privacy !== 'private' && privacy !== 'public' && privacy !== 'no-acl') {
 		throw new TypeError(
-			'Privacy must be either "private", "public-read" or "no-acl"'
+			'Privacy must be either "private", "public" or "no-acl"'
 		);
 	}
 }
