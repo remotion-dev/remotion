@@ -16,4 +16,4 @@ if (!hasGo()) {
   console.log("Environment has no Go. Skipping...");
   process.exit(0);
 }
-execSync("go build", { stdio: "inherit" });
+execSync("go mod tidy", { stdio: "inherit" });
