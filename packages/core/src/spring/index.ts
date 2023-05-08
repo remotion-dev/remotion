@@ -19,15 +19,17 @@ import {springCalculation} from './spring-utils.js';
  * @param {?number} [config.to] The end value of the animation. Default `1`
  * @param {?number} [config.durationInFrames] Stretch the duration of an animation to  a set value.. Default `undefined`
  * @param {?number} [config.durationThreshold] How close to the end the animation is considered to be done. Default `0.005`
+ * @param {?number} [config.delay] Delay the animation for this amount of frames. Default `0`
  */
 export function spring({
-	frame,
+	frame: passedFrame,
 	fps,
 	config = {},
 	from = 0,
 	to = 1,
 	durationInFrames,
 	durationRestThreshold,
+	delay = 0,
 }: {
 	frame: number;
 	fps: number;
@@ -36,9 +38,14 @@ export function spring({
 	to?: number;
 	durationInFrames?: number;
 	durationRestThreshold?: number;
+	delay?: number;
 }): number {
 	validateSpringDuration(durationInFrames);
-	validateFrame({frame, durationInFrames: Infinity, allowFloats: true});
+	validateFrame({
+		frame: passedFrame,
+		durationInFrames: Infinity,
+		allowFloats: true,
+	});
 	validateFps(fps, 'to spring()', false);
 
 	const durationRatio =
@@ -52,6 +59,9 @@ export function spring({
 					to,
 					threshold: durationRestThreshold,
 			  });
+
+	// Delay the spring by telling the calculation we're at an earlier frame.
+	const frame = passedFrame - delay;
 
 	const spr = springCalculation({
 		fps,
