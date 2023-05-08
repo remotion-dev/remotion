@@ -50,10 +50,14 @@ The props [`onError`](/docs/img#onerror), `className` and `style` are supported 
 Either `jpeg` or `png`. Default `jpeg`.  
 With `png`, transparent videos (VP8, VP9, ProRes) can be displayed, however it is around 40% slower, with VP8 videos being [much slower](/docs/slow-method-to-extract-frame).
 
-## `allowAmplificationDuringRender` <AvailableFrom v="3.3.17" />
+### `allowAmplificationDuringRender` <AvailableFrom v="3.3.17" />
 
 Make values for [`volume`](/docs/video#volume) greater than `1` result in amplification during renders.  
 During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+
+### `onError`
+
+Handle an error playing the video. From v3.3.89, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
 
 ## Performance tips
 
