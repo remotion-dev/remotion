@@ -9,6 +9,7 @@ To trigger a Lambda render using Go, you can use the Remotion Lambda Go client. 
 
 - You first need to [complete the Lambda setup](/docs/lambda/setup).
 - Sending large input props (>200KB) is not supported with Go at the moment.
+- Always match the version of the Go client with the version of the Lambda function you deployed. Otherwise, calls will fail due to version mismatch!
 
 ```go title="main.go"
 package main
@@ -20,7 +21,8 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
-	"github.com/remotion-dev/remotion/packages/lambda-go"
+	// Match the version with the version of your deployed functions
+	"github.com/remotion-dev/remotion/packages/lambda-go/v3.3.89"
 )
 
 type ValidationError struct {
@@ -62,7 +64,6 @@ func main() {
 			"data": "Let's play",
 		},
 		Composition: "main",   // The composition to use
-		Version:     "3.3.78", // Specify the Remotion version to use
 	}
 
 	// Execute the render process
@@ -86,7 +87,7 @@ func main() {
 	}
 
 	// Get bucket information
-	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.BucketName, renderResponse.RenderId)
+	fmt.Printf("Bucket name: %s, Render ID: %s\n", renderResponse.BucketName, renderResponse.RenderId)
 
 	// Render Progress request
 	renderProgressInputRequest := remotionlambda.RenderConfig{
@@ -104,15 +105,9 @@ func main() {
 	}
 
 	// Get the overall render progress
-	fmt.Printf("overallprogress: %f ", renderProgressResponse.OverallProgress)
-
+	fmt.Printf("Progress: %f", renderProgressResponse.OverallProgress)
 }
-
 ```
-
-## Reference applications
-
-The project utilizes [remotion-app](https://github.com/alexfernandez803/remotion-serverless/tree/main/remotion-app), ensure that it is already deployed on your AWS Account.
 
 ## See also
 
