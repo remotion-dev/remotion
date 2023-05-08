@@ -3,6 +3,6 @@
   "private": true,
   "version": "3.3.88",
   "scripts": {
-    "build": "node build.mjs"
+    "lint": "node build.mjs"
   }
 }

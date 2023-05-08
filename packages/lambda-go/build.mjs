@@ -17,3 +17,4 @@ if (!hasGo()) {
   process.exit(0);
 }
 execSync("go mod tidy", { stdio: "inherit" });
+console.log("Linted lambda-go");
