@@ -20,7 +20,7 @@ export type RenderMediaOnCloudrunInput = {
 	codec: CloudrunCodec;
 	privacy?: string;
 	outputBucket: string;
-	outputFile: string;
+	outputFile?: string;
 	updateRenderProgress?: (progress: number) => void;
 };
 

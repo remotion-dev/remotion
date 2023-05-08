@@ -56,16 +56,13 @@ export const renderArgsCheck = async (
 		composition = compositionId;
 	}
 
-	const outName =
-		parsedCloudrunCli['out-name'] ?? subcommand === 'still'
-			? 'out.png'
-			: 'out.mp4'; // Todo, workout file extension instead of assuming mp4
-	const downloadName = args[1] ?? null;
+	const outName = parsedCloudrunCli['out-name'];
+	const downloadName = args[2] ?? null;
 
-	const {codec} = CliInternals.getFinalOutputCodec({
+	const {codec, reason} = CliInternals.getFinalOutputCodec({
+		cliFlag: CliInternals.parsedCli.codec,
 		downloadName,
 		outName: outName ?? null,
-		cliFlag: CliInternals.parsedCli.codec,
 		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
 		uiCodec: null,
 	});
@@ -128,9 +125,11 @@ export const renderArgsCheck = async (
 		composition,
 		outName,
 		codec,
+		codecReason: reason,
 		inputProps,
 		outputBucket,
 		privacy,
 		authenticatedRequest,
+		downloadName,
 	};
 };
