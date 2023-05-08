@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-go.png
 title: Triggering renders from Go
 slug: /lambda/go
 sidebar_label: Rendering from Go
