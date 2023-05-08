@@ -40,7 +40,7 @@ You can override the location of your dotenv file using the [configuration file 
 
 When using the [Node.js APIs](/docs/renderer) such as [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), the environment variables are **not** picked up automatically.
 
-The reason is that one might integrate Remotion as a small part of a big application and if Remotion would read the `.env` file and pick up all secrets and forwards it to renders, it would lead to a security issue.
+The reason is that one might integrate Remotion as a small part of a big application and if Remotion would read the `.env` file automatically and forward all variables  to renders, it would lead to a security issue.
 
 To pass environment variables while server-side-rendering, pass an object to the [`envVariables` option of `renderMedia()`](/docs/renderer/render-media#envvariables).
 
