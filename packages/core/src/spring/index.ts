@@ -22,7 +22,7 @@ import {springCalculation} from './spring-utils.js';
  * @param {?number} [config.delay] Delay the animation for this amount of frames. Default `0`
  */
 export function spring({
-	frame,
+	frame: passedFrame,
 	fps,
 	config = {},
 	from = 0,
@@ -41,7 +41,11 @@ export function spring({
 	delay?: number;
 }): number {
 	validateSpringDuration(durationInFrames);
-	validateFrame({frame, durationInFrames: Infinity, allowFloats: true});
+	validateFrame({
+		frame: passedFrame,
+		durationInFrames: Infinity,
+		allowFloats: true,
+	});
 	validateFps(fps, 'to spring()', false);
 
 	const durationRatio =
@@ -56,9 +60,8 @@ export function spring({
 					threshold: durationRestThreshold,
 			  });
 
-		// Delay the spring by telling the calculation we're at an earlier frame.
-		// All frames up to the delay will be clamped to zero.
-		frame = Math.max(0, frame - delay);
+	// Delay the spring by telling the calculation we're at an earlier frame.
+	const frame = passedFrame - delay;
 
 	const spr = springCalculation({
 		fps,
