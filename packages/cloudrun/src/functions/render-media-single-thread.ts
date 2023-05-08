@@ -32,6 +32,17 @@ export const renderMediaSingleThread = async (
 		codec: req.body.codec,
 		outputLocation: tempFilePath,
 		inputProps: req.body.inputProps,
+		jpegQuality: req.body.jpegQuality,
+		audioCodec: req.body.audioCodec,
+		audioBitrate: req.body.audioBitrate,
+		videoBitrate: req.body.videoBitrate,
+		crf: req.body.crf,
+		pixelFormat: req.body.pixelFormat,
+		imageFormat: req.body.imageFormat,
+		scale: req.body.scale,
+		proResProfile: req.body.proResProfile,
+		everyNthFrame: req.body.everyNthFrame,
+		numberOfGifLoops: req.body.numberOfGifLoops,
 		onProgress,
 	});
 
