@@ -18,6 +18,7 @@ export const renderMediaSubcommand = async (
 		composition,
 		outName,
 		codec,
+		codecReason,
 		inputProps,
 		outputBucket,
 		privacy,
@@ -36,7 +37,7 @@ Sending request to Cloud Run:
     Composition = ${composition}
     Codec = ${codec}
     Output Bucket = ${outputBucket}
-    Output File = ${outName}
+    Output File = ${outName ?? 'out.mp4'}
 		Output File Privacy = ${privacy}
 			`.trim()
 		)
@@ -104,6 +105,7 @@ Sending request to Cloud Run:
     Bucket Name = ${success.bucketName}
 		Privacy = ${success.privacy}
     Render ID = ${success.renderId}
+    Codec = ${codec} (${codecReason})
       `.trim()
 		)
 	);

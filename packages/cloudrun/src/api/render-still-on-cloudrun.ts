@@ -17,7 +17,7 @@ export type RenderStillOnCloudrunInput = {
 	inputProps?: unknown;
 	outputBucket: string;
 	privacy?: string;
-	outputFile: string;
+	outputFile?: string;
 };
 
 export type RenderStillOnCloudrunOutput = {

@@ -42,7 +42,7 @@ export const renderMediaSingleThread = async (
 	const uploadedResponse = await storage
 		.bucket(req.body.outputBucket)
 		.upload(tempFilePath, {
-			destination: `renders/${renderId}/${req.body.outputFile}`,
+			destination: `renders/${renderId}/${req.body.outputFile ?? 'out.mp4'}`,
 			predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
 		});
 

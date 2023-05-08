@@ -19,6 +19,7 @@ export const renderStillSubcommand = async (
 		outputBucket,
 		privacy,
 		authenticatedRequest,
+		downloadName,
 	} = await renderArgsCheck(RENDER_STILL_SUBCOMMAND, args, remotionRoot);
 
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
@@ -32,8 +33,9 @@ Sending request to Cloud Run:
     Type = still
     Composition = ${composition}
     Output Bucket = ${outputBucket}
-    Output File = ${outName}
+    Output File = ${outName ?? 'out.png'}
     Output File Privacy = ${privacy}
+${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			`.trim()
 		)
 	);
