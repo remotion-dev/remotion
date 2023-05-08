@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {downloadFile} from '../../../api/download-file';
 import type {RenderStillOnCloudrunOutput} from '../../../api/render-still-on-cloudrun';
 import {renderStillOnCloudrun} from '../../../api/render-still-on-cloudrun';
 import {Log} from '../../log';
@@ -80,7 +81,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 	Log.info(
 		CliInternals.chalk.blueBright(
 			`
-🤘 Rendered on Cloud Run! 🤘
+🤘 Rendered still on Cloud Run! 🤘
 
     Public URL = ${success.publicUrl}
     Cloud Storage Uri = ${success.cloudStorageUri}
@@ -91,4 +92,19 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
       `.trim()
 		)
 	);
+
+	if (downloadName) {
+		Log.info('');
+		Log.info('downloading file...');
+
+		const destination = await downloadFile({
+			bucketName: success.bucketName,
+			gsutilURI: success.cloudStorageUri,
+			downloadName,
+		});
+
+		Log.info(
+			CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
+		);
+	}
 };

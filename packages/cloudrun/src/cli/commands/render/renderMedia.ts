@@ -3,6 +3,7 @@ import type {RenderMediaOnCloudrunOutput} from '../../../api/render-media-on-clo
 import {renderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
 import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
 // import {validateMaxRetries} from '../../../shared/validate-retries';
+import {downloadFile} from '../../../api/download-file';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
 
@@ -21,6 +22,7 @@ export const renderMediaSubcommand = async (
 		codecReason,
 		inputProps,
 		outputBucket,
+		downloadName,
 		privacy,
 		authenticatedRequest,
 	} = await renderArgsCheck(RENDER_MEDIA_SUBCOMMAND, args, remotionRoot);
@@ -97,7 +99,7 @@ Sending request to Cloud Run:
 	Log.info(
 		CliInternals.chalk.blueBright(
 			`
-🤘 Rendered on Cloud Run! 🤘
+🤘 Rendered media on Cloud Run! 🤘
 
     Public URL = ${success.publicUrl}
     Cloud Storage Uri = ${success.cloudStorageUri}
@@ -109,4 +111,19 @@ Sending request to Cloud Run:
       `.trim()
 		)
 	);
+
+	if (downloadName) {
+		Log.info('');
+		Log.info('downloading file...');
+
+		const destination = await downloadFile({
+			bucketName: success.bucketName,
+			gsutilURI: success.cloudStorageUri,
+			downloadName,
+		});
+
+		Log.info(
+			CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
+		);
+	}
 };
