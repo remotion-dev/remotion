@@ -78,10 +78,6 @@ One of:
 
 Specify a location for a dotenv file. Default `.env`.
 
-### `--frames`
-
-[Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames. To render a still, use the [`still`](/docs/cloudrun/cli/still) command.
-
 ### `--out-name`
 
 The file name of the media output as stored in the Cloud Storage bucket. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
@@ -137,3 +133,7 @@ For example only every second frame, every third frame and so on. Only works for
 ### `--number-of-gif-loops`
 
 [Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
+
+### `--frames`
+
+[Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames. To render a still, use the [`still`](/docs/lambda/cli/still) command.

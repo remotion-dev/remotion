@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
 import {downloadFile} from '../../../api/download-file';
 import type {RenderStillOnCloudrunOutput} from '../../../api/render-still-on-cloudrun';
 import {renderStillOnCloudrun} from '../../../api/render-still-on-cloudrun';
@@ -21,8 +22,25 @@ export const renderStillSubcommand = async (
 		privacy,
 		authenticatedRequest,
 		downloadName,
+		envVariables,
+		stillFrame,
+		jpegQuality,
+		chromiumOptions,
+		scale,
+		height,
+		width,
 	} = await renderArgsCheck(RENDER_STILL_SUBCOMMAND, args, remotionRoot);
 
+	const {format: imageFormat, source: imageFormatReason} =
+		CliInternals.determineFinalStillImageFormat({
+			downloadName,
+			outName: outName ?? null,
+			cliFlag: CliInternals.parsedCli['image-format'] ?? null,
+			isLambda: true,
+			fromUi: null,
+			configImageFormat:
+				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
+		});
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
 	CliInternals.Log.info(
 		CliInternals.chalk.gray(
@@ -62,13 +80,21 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 	};
 
 	const res = await renderStillOnCloudrun({
-		authenticatedRequest,
 		cloudRunUrl,
 		serveUrl,
-		composition,
 		inputProps,
-		outputBucket,
+		imageFormat,
+		composition,
 		privacy,
+		envVariables,
+		frame: stillFrame,
+		jpegQuality,
+		chromiumOptions,
+		scale,
+		forceHeight: height,
+		forceWidth: width,
+		authenticatedRequest,
+		outputBucket,
 		outputFile: outName,
 	});
 	doneIn = Date.now() - renderStart;
@@ -89,6 +115,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
     Bucket Name = ${success.bucketName}
     Privacy = ${success.privacy}
     Render ID = ${success.renderId}
+    Image Format = ${imageFormat} (${imageFormatReason})
       `.trim()
 		)
 	);
