@@ -31,7 +31,12 @@ export const callLambda = async <T extends LambdaRoutines>({
 				errorMessage: string;
 				trace: string[];
 		  };
-	if (json && 'errorMessage' in json) {
+
+	if (json === null) {
+		throw new Error('Lambda function unexpectedly returned null');
+	}
+
+	if ('errorMessage' in json) {
 		const err = new Error(json.errorMessage);
 		err.name = json.errorType;
 		err.stack = (json.trace ?? []).join('\n');
