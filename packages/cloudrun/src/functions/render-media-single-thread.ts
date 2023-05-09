@@ -27,7 +27,11 @@ export const renderMediaSingleThread = async (
 	res.writeHead(200, {'Content-Type': 'text/html'});
 
 	await renderMedia({
-		composition,
+		composition: {
+			...composition,
+			height: req.body.forceHeight ?? composition.height,
+			width: req.body.forceWidth ?? composition.width,
+		},
 		serveUrl: req.body.serveUrl,
 		codec: req.body.codec,
 		outputLocation: tempFilePath,
@@ -46,6 +50,8 @@ export const renderMediaSingleThread = async (
 		onProgress,
 		frameRange: req.body.frameRange,
 		envVariables: req.body.envVariables,
+		chromiumOptions: req.body.chromiumOptions,
+		muted: req.body.muted,
 	});
 
 	const storage = new Storage();

@@ -98,7 +98,6 @@ export const renderStillOnCloudrun = async ({
 	}
 
 	const data = {
-		type: 'still',
 		composition,
 		serveUrl,
 		inputProps,
@@ -107,12 +106,12 @@ export const renderStillOnCloudrun = async ({
 		privacy,
 		imageFormat,
 		envVariables,
-		frame,
 		jpegQuality,
 		chromiumOptions,
 		scale,
 		forceWidth,
 		forceHeight,
+		frame: frame ?? 0,
 	};
 
 	if (authenticatedRequest) {

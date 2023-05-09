@@ -1,6 +1,6 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
-import {renderStill} from '@remotion/renderer';
+import {RenderInternals, renderStill} from '@remotion/renderer';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 
@@ -17,7 +17,11 @@ export const renderStillSingleThread = async (
 	const renderId = randomHash({randomInTests: true});
 
 	await renderStill({
-		composition,
+		composition: {
+			...composition,
+			height: req.body.forceHeight ?? composition.height,
+			width: req.body.forceWidth ?? composition.width,
+		},
 		serveUrl: req.body.serveUrl,
 		output: tempFilePath,
 		inputProps: req.body.inputProps,
@@ -25,6 +29,11 @@ export const renderStillSingleThread = async (
 		imageFormat: req.body.imageFormat,
 		scale: req.body.scale,
 		envVariables: req.body.envVariables,
+		chromiumOptions: req.body.chromiumOptions,
+		frame: RenderInternals.convertToPositiveFrameIndex({
+			frame: req.body.frame,
+			durationInFrames: composition.durationInFrames,
+		}),
 	});
 
 	const storage = new Storage();
