@@ -33,7 +33,17 @@ export const callLambda = async <T extends LambdaRoutines>({
 		  };
 
 	if (json === null) {
-		throw new Error('Lambda function unexpectedly returned null');
+		throw new Error(
+			'Lambda function unexpectedly returned null: ' +
+				JSON.stringify({
+					payload,
+					type,
+					functionName,
+					json,
+					error: res.FunctionError,
+					version: res.$metadata,
+				})
+		);
 	}
 
 	if ('errorMessage' in json) {
