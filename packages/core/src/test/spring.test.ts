@@ -1,4 +1,4 @@
-import {expect, test} from 'vitest';
+import {describe, expect, test} from 'vitest';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {spring} from '../spring/index.js';
 
@@ -52,3 +52,50 @@ test('Should be able to set duration for spring', () => {
 		})
 	).toBeCloseTo(1);
 });
+
+
+describe('Should be able to delay a spring', () => {
+	test('Should clamp all frames before the delay to zero', () => {
+		expect(
+			spring({
+				fps: 30,
+				frame: 0,
+				delay: 25,
+			})
+		).toEqual(0);
+
+		expect(
+			spring({
+				fps: 30,
+				frame: 15,
+				delay: 25,
+			})
+		).toEqual(0);
+
+		expect(
+			spring({
+				fps: 30,
+				frame: 25,
+				delay: 25,
+			})
+		).toEqual(0);
+	});
+
+	test('Should start calculations from the delay + 1', () => {
+		expect(spring({
+			fps: 30,
+			frame: 26,
+			delay: 25,
+		})).toBeGreaterThan(0)
+	});
+
+	test('Should be close to 1', () => {
+		expect(
+			spring({
+				fps: 30,
+				frame: 25+30,
+				delay: 25,
+			})
+		).toBeCloseTo(1);
+	});
+})
