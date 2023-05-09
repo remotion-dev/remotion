@@ -96,13 +96,21 @@ const value = spring({
 });
 ```
 
-## `durationRestThreshold` <AvailableFrom v="3.0.27" />
+### `durationRestThreshold` <AvailableFrom v="3.0.27" />
 
 _optional_
 
 How close the animation should be to the end in order to be considered finished for the calculation of the duration. Only has an effect if `durationInFrames` is also specified.
 
 For example, if a `durationRestThreshold` of `0.001` is given, and the durationOfFrames is `30`, it means that after 30 frames, the spring has reached 99.9% (`1 - 0.001 = 0.999`) of it's distance to the end value.
+
+### `delay` <AvailableFrom v="3.3.90" />
+
+_optional_
+
+How many frames to delay the animation for.
+
+For example, if a `delay` of `25` is given frames 0-24 will return the initial value, and the animation will effectively start from frame 25.
 
 ## YouTube video
 

@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../shared/constants';
+import {COMPOSITIONS_COMMAND} from './commands/compositions';
 import {FUNCTIONS_COMMAND} from './commands/functions';
 import {POLICIES_COMMAND} from './commands/policies/policies';
 import {QUOTAS_COMMAND} from './commands/quotas';
@@ -34,6 +35,12 @@ export const printHelp = () => {
 	Log.info();
 	Log.info(`${BINARY_NAME} ${SITES_COMMAND}`);
 	Log.info(CliInternals.chalk.gray('Deploy and manage Remotion projects.'));
+
+	Log.info();
+	Log.info(`${BINARY_NAME} ${COMPOSITIONS_COMMAND}`);
+	Log.info(
+		CliInternals.chalk.gray('Print list of composition IDs from a serve URL.')
+	);
 
 	Log.info();
 	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND}`);
