@@ -17,19 +17,26 @@ export const renderStillSubcommand = async (
 		cloudRunUrl,
 		composition,
 		outName,
-		inputProps,
 		outputBucket,
 		privacy,
 		authenticatedRequest,
 		downloadName,
-		envVariables,
-		stillFrame,
-		jpegQuality,
+	} = await renderArgsCheck(RENDER_STILL_SUBCOMMAND, args);
+
+	const {
 		chromiumOptions,
+		envVariables,
+		inputProps,
+		jpegQuality,
+		stillFrame,
 		scale,
 		height,
 		width,
-	} = await renderArgsCheck(RENDER_STILL_SUBCOMMAND, args, remotionRoot);
+	} = await CliInternals.getCliOptions({
+		type: 'still',
+		isLambda: true,
+		remotionRoot,
+	});
 
 	const {format: imageFormat, source: imageFormatReason} =
 		CliInternals.determineFinalStillImageFormat({
