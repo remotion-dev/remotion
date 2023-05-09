@@ -5,21 +5,7 @@ id: audio-visualization
 crumb: "Techniques"
 ---
 
-Using the audio visualization APIs in Remotion 2.0, you can create animations based on the frequency of the audio. This is often used to make graphics react to the volume or sound spectrum of the music.
-
-## Import audio
-
-You can import an audio file using an `import` statement:
-
-```ts twoslash
-import { Audio } from "remotion";
-// ---cut---
-import audio from "./audio.mp3";
-```
-
-`audio` will resolve to a string pointing to an audio file. You may also skip importing and use an `https://` URL to load audio from a remote location, if the audio is allowed to be loaded by the domains CORS policy.
-
-## Render audio visualization
+Remotion has APIs for visualizing audio, for example for creating audiograms or music visualizers.
 
 The `@remotion/media-utils` package provides helper functions for reading and processing audio. Using the [`getAudioData()`](/docs/get-audio-data) API you can read audio, and using the [`useAudioData()`](/docs/use-audio-data) helper hook you can load this audio data directly into your component.
 
@@ -30,7 +16,6 @@ Refer to the documentation of the above mentioned functions to learn more.
 ```tsx twoslash
 import { useAudioData, visualizeAudio } from "@remotion/media-utils";
 import { Audio, useCurrentFrame, useVideoConfig } from "remotion";
-import music from "./music.mp3";
 
 export const MyComponent: React.FC = () => {
   const frame = useCurrentFrame();
@@ -52,7 +37,7 @@ export const MyComponent: React.FC = () => {
   // the longer the bar
   return (
     <div>
-      <Audio src={music} />
+      <Audio src={staticFile("music.mp3")} />
       {visualization.map((v) => {
         return (
           <div
