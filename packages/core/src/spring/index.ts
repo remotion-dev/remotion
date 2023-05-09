@@ -10,6 +10,7 @@ import {springCalculation} from './spring-utils.js';
  * @see [Documentation](https://www.remotion.dev/docs/spring)
  * @param {number} frame The current time value. Most of the time you want to pass in the return value of useCurrentFrame.
  * @param {number} fps The framerate at which the animation runs. Pass in the value obtained by `useVideoConfig()`.
+ * @param {?boolean} reverse Whether the animation plays in reverse or not. Default `false`.
  * @param {?Object} config optional object that allows you to customize the physical properties of the animation.
  * @param {number} [config.mass=1] The weight of the spring. If you reduce the mass, the animation becomes faster!
  * @param {number} [config.damping=10] How hard the animation decelerates.
@@ -30,6 +31,7 @@ export function spring({
 	durationInFrames,
 	durationRestThreshold,
 	delay = 0,
+	reverse = false
 }: {
 	frame: number;
 	fps: number;
@@ -39,6 +41,7 @@ export function spring({
 	durationInFrames?: number;
 	durationRestThreshold?: number;
 	delay?: number;
+	reverse?: boolean;
 }): number {
 	validateSpringDuration(durationInFrames);
 	validateFrame({
@@ -48,20 +51,25 @@ export function spring({
 	});
 	validateFps(fps, 'to spring()', false);
 
-	const durationRatio =
-		durationInFrames === undefined
-			? 1
-			: durationInFrames /
-			  measureSpring({
-					fps,
-					config,
-					from,
-					to,
-					threshold: durationRestThreshold,
-			  });
+	const duration = measureSpring({
+		fps,
+		config,
+		from,
+		to,
+		threshold: durationRestThreshold,
+	});
+	if (durationInFrames === undefined) {
+		durationInFrames = duration;
+	}
+
+	const durationRatio = durationInFrames / duration;
 
 	// Delay the spring by telling the calculation we're at an earlier frame.
-	const frame = passedFrame - delay;
+	let frame = passedFrame - delay;
+
+	if (reverse) {
+		frame = durationInFrames - frame;
+	}
 
 	const spr = springCalculation({
 		fps,

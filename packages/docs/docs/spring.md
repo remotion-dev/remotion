@@ -46,6 +46,12 @@ The end value of the animation. Note that depending on the parameters, spring an
 
 For how many frames per second the spring animation should be calculated. This should always be the `fps` property of the return value of [`useVideoConfig()`](/docs/use-video-config).
 
+### reverse
+
+_Default:_ `false`
+
+Render the animation in reverse. When this option is enabled, passing a `frame` is like passing `duration - frame`.
+
 ### config
 
 An optional object that allows you to customize the physical properties of the animation.
