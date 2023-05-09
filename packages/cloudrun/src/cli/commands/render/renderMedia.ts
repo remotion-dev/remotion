@@ -3,7 +3,9 @@ import type {RenderMediaOnCloudrunOutput} from '../../../api/render-media-on-clo
 import {renderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
 import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
 // import {validateMaxRetries} from '../../../shared/validate-retries';
+import {ConfigInternals} from '@remotion/cli/config';
 import {downloadFile} from '../../../api/download-file';
+import {parsedCloudrunCli} from '../../args';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
 
@@ -18,31 +20,46 @@ export const renderMediaSubcommand = async (
 		cloudRunUrl,
 		composition,
 		outName,
-		codec,
-		codecReason,
-		inputProps,
 		outputBucket,
 		downloadName,
 		privacy,
 		authenticatedRequest,
-		jpegQuality,
-		audioCodec,
-		audioBitrate,
-		videoBitrate,
-		proResProfile,
+	} = await renderArgsCheck(RENDER_MEDIA_SUBCOMMAND, args);
+
+	const {codec, reason: codecReason} = CliInternals.getFinalOutputCodec({
+		cliFlag: CliInternals.parsedCli.codec,
+		downloadName,
+		outName: outName ?? null,
+		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+		uiCodec: null,
+	});
+
+	const imageFormat = parsedCloudrunCli['image-format'];
+
+	const audioCodec = parsedCloudrunCli['audio-codec'];
+
+	const {
+		chromiumOptions,
 		crf,
+		envVariables,
+		frameRange,
+		inputProps,
 		pixelFormat,
-		imageFormat,
+		proResProfile,
+		jpegQuality,
 		scale,
 		everyNthFrame,
 		numberOfGifLoops,
-		frameRange,
-		envVariables,
-		chromiumOptions,
 		muted,
+		audioBitrate,
+		videoBitrate,
 		height,
 		width,
-	} = await renderArgsCheck(RENDER_MEDIA_SUBCOMMAND, args, remotionRoot);
+	} = await CliInternals.getCliOptions({
+		type: 'series',
+		isLambda: true,
+		remotionRoot,
+	});
 
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
 	CliInternals.Log.info(

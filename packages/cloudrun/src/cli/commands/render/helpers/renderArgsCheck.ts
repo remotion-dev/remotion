@@ -1,5 +1,4 @@
 import {CliInternals} from '@remotion/cli';
-import {ConfigInternals} from '@remotion/cli/config';
 
 import {getCompositions} from '@remotion/renderer';
 import {getOrCreateBucket} from '../../../../api/get-or-create-bucket';
@@ -15,11 +14,7 @@ import {getGcpRegion} from '../../../get-gcp-region';
 import {quit} from '../../../helpers/quit';
 import {Log} from '../../../log';
 
-export const renderArgsCheck = async (
-	subcommand: string,
-	args: string[],
-	remotionRoot: string
-) => {
+export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 	let region;
 
 	let serveUrl = args[0];
@@ -58,41 +53,6 @@ export const renderArgsCheck = async (
 
 	const outName = parsedCloudrunCli['out-name'];
 	const downloadName = args[2] ?? null;
-
-	const {codec, reason} = CliInternals.getFinalOutputCodec({
-		cliFlag: CliInternals.parsedCli.codec,
-		downloadName,
-		outName: outName ?? null,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		uiCodec: null,
-	});
-
-	const {
-		chromiumOptions,
-		crf,
-		envVariables,
-		frameRange,
-		inputProps,
-		logLevel,
-		pixelFormat,
-		proResProfile,
-		puppeteerTimeout,
-		jpegQuality,
-		scale,
-		everyNthFrame,
-		numberOfGifLoops,
-		muted,
-		overwrite,
-		audioBitrate,
-		videoBitrate,
-		height,
-		width,
-		stillFrame,
-	} = await CliInternals.getCliOptions({
-		type: 'series',
-		isLambda: true,
-		remotionRoot,
-	});
 
 	const privacy = parsedCloudrunCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy);
@@ -140,42 +100,14 @@ export const renderArgsCheck = async (
 
 	const authenticatedRequest = !parsedCloudrunCli['unauthenticated-request'];
 
-	const audioCodec = parsedCloudrunCli['audio-codec'];
-
-	const imageFormat = parsedCloudrunCli['image-format'];
-
 	return {
 		serveUrl,
 		cloudRunUrl,
 		composition,
 		outName,
-		codec,
-		codecReason: reason,
-		inputProps,
 		outputBucket,
 		privacy,
 		authenticatedRequest,
 		downloadName,
-		jpegQuality,
-		audioCodec,
-		audioBitrate,
-		videoBitrate,
-		proResProfile,
-		crf,
-		pixelFormat,
-		imageFormat,
-		scale,
-		everyNthFrame,
-		numberOfGifLoops,
-		frameRange,
-		envVariables,
-		chromiumOptions,
-		logLevel,
-		puppeteerTimeout,
-		muted,
-		overwrite,
-		height,
-		width,
-		stillFrame,
 	};
 };
