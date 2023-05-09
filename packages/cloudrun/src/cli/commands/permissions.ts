@@ -2,12 +2,12 @@ import {CliInternals} from '@remotion/cli';
 import {
 	logPermissionOutput,
 	simulatePermissions,
-} from '../../../api/iam-validation/simulate';
-import {Log} from '../../log';
+} from '../../api/iam-validation/simulate';
+import {Log} from '../log';
 
-export const VALIDATE_SUBCOMMAND = 'validate';
+export const PERMISSIONS_COMMAND = 'permissions';
 
-export const validateSubcommand = async () => {
+export const permissionsCommand = async () => {
 	try {
 		Log.info(
 			CliInternals.chalk.blueBright(

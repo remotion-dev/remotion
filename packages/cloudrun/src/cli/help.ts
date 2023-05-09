@@ -1,5 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {BINARY_NAME} from '../shared/constants';
+import {PERMISSIONS_COMMAND} from './commands/permissions';
+import {REGIONS_COMMAND} from './commands/regions';
 import {RENDER_COMMAND} from './commands/render';
 import {SERVICES_COMMAND} from './commands/services';
 import {SITES_COMMAND} from './commands/sites';
@@ -17,15 +19,11 @@ export const printHelp = () => {
 	Log.info('Available commands:');
 	Log.info('');
 
-	// Log.info(`${BINARY_NAME} ${RENDER_COMMAND} <s3-url> <composition-id>`);
-	// Log.info(CliInternals.chalk.gray('Render a video in the cloud.'));
-
-	// Log.info(`${BINARY_NAME} ${STILL_COMMAND} <s3-url> <composition-id>`);
-	// Log.info(CliInternals.chalk.gray('Render a still image in the cloud.'));
-
 	Log.info();
-	Log.info(`${BINARY_NAME} ${SITES_COMMAND}`);
-	Log.info(CliInternals.chalk.gray('Deploy and manage Remotion projects.'));
+	Log.info(`${BINARY_NAME} ${RENDER_COMMAND}`);
+	Log.info(
+		CliInternals.chalk.gray('Render Remotion media/still on GCP Cloud Run.')
+	);
 
 	Log.info();
 	Log.info(`${BINARY_NAME} ${SERVICES_COMMAND}`);
@@ -34,6 +32,16 @@ export const printHelp = () => {
 	);
 
 	Log.info();
-	Log.info(`${BINARY_NAME} ${RENDER_COMMAND}`);
-	Log.info(CliInternals.chalk.gray('Render Remotion media on GCP Cloud Run.'));
+	Log.info(`${BINARY_NAME} ${SITES_COMMAND}`);
+	Log.info(CliInternals.chalk.gray('Deploy and manage Remotion projects.'));
+
+	Log.info();
+	Log.info(`${BINARY_NAME} ${PERMISSIONS_COMMAND}`);
+	Log.info(
+		CliInternals.chalk.gray('View and validate required GCP permissions.')
+	);
+
+	Log.info();
+	Log.info(`${BINARY_NAME} ${REGIONS_COMMAND}`);
+	Log.info(CliInternals.chalk.gray('Show the list of GCP regions supported.'));
 };
