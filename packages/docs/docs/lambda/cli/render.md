@@ -160,7 +160,7 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `--env-file`
 
-Specify a location for a dotenv file. Default `.env`.
+Specify a location for a dotenv file. Default `.env`. This is not for invoking the lambda function, but for passing environment variables that you would want to read inside the render.
 
 ### `--frames`
 
