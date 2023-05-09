@@ -3,7 +3,7 @@ import {
 	compositionsCommand,
 	COMPOSITIONS_COMMAND,
 } from './commands/compositions';
-import {policiesCommand, POLICIES_COMMAND} from './commands/permissions';
+import {permissionsCommand, PERMISSIONS_COMMAND} from './commands/permissions';
 import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
 import {renderCommand, RENDER_COMMAND} from './commands/render';
 import {servicesCommand, SERVICES_COMMAND} from './commands/services';
@@ -38,8 +38,8 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 		return regionsCommand();
 	}
 
-	if (args[0] === POLICIES_COMMAND) {
-		return policiesCommand(args.slice(1));
+	if (args[0] === PERMISSIONS_COMMAND) {
+		return permissionsCommand();
 	}
 
 	if (args[0] === 'deploy') {
@@ -57,7 +57,7 @@ export const executeCommand = async (args: string[], remotionRoot: string) => {
 		await matchCommand(args, remotionRoot);
 	} catch (err) {
 		const error = err as Error;
-		// catch errors and print a message. Check lambda cli for example
+		// todo: catch errors and print a message. Check lambda cli for example
 
 		Log.error(error.stack);
 		quit(1);
