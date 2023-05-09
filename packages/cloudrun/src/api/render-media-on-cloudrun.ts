@@ -1,3 +1,4 @@
+import type {ChromiumOptions, FrameRange} from '@remotion/renderer';
 import got from 'got/dist/source';
 import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
 import type {CloudrunCodec} from '../shared/validate-gcp-codec';
@@ -24,8 +25,8 @@ export type RenderMediaOnCloudrunInput = {
 	updateRenderProgress?: (progress: number) => void;
 	jpegQuality?: number;
 	audioCodec?: 'mp3' | 'aac' | 'pcm-16' | 'opus';
-	audioBitrate?: string;
-	videoBitrate?: string;
+	audioBitrate?: string | null;
+	videoBitrate?: string | null;
 	proResProfile?:
 		| '4444-xq'
 		| '4444'
@@ -34,7 +35,7 @@ export type RenderMediaOnCloudrunInput = {
 		| 'light'
 		| 'proxy'
 		| undefined;
-	crf?: number;
+	crf?: number | undefined;
 	pixelFormat?:
 		| 'yuv420p'
 		| 'yuva420p'
@@ -47,7 +48,13 @@ export type RenderMediaOnCloudrunInput = {
 	imageFormat?: 'png' | 'jpeg' | 'none';
 	scale?: number;
 	everyNthFrame?: number;
-	numberOfGifLoops?: number;
+	numberOfGifLoops?: number | null;
+	frameRange?: FrameRange;
+	envVariables?: Record<string, string>;
+	chromiumOptions?: ChromiumOptions;
+	muted?: boolean;
+	forceWidth?: number | null;
+	forceHeight?: number | null;
 };
 
 export type RenderMediaOnCloudrunOutput = {
@@ -103,6 +110,12 @@ export const renderMediaOnCloudrun = async ({
 	scale,
 	everyNthFrame,
 	numberOfGifLoops,
+	frameRange,
+	envVariables,
+	chromiumOptions,
+	muted,
+	forceWidth,
+	forceHeight,
 }: RenderMediaOnCloudrunInput): Promise<RenderMediaOnCloudrunOutput> => {
 	const actualCodec = validateCloudrunCodec(codec);
 	validateServeUrl(serveUrl);
@@ -146,6 +159,12 @@ export const renderMediaOnCloudrun = async ({
 		scale,
 		everyNthFrame,
 		numberOfGifLoops,
+		frameRange,
+		envVariables,
+		chromiumOptions,
+		muted,
+		forceWidth,
+		forceHeight,
 	};
 
 	if (authenticatedRequest) {

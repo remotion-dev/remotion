@@ -44,6 +44,8 @@ export const renderMediaSingleThread = async (
 		everyNthFrame: req.body.everyNthFrame,
 		numberOfGifLoops: req.body.numberOfGifLoops,
 		onProgress,
+		frameRange: req.body.frameRange,
+		envVariables: req.body.envVariables,
 	});
 
 	const storage = new Storage();

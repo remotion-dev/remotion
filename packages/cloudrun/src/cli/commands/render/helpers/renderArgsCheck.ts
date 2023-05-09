@@ -67,9 +67,30 @@ export const renderArgsCheck = async (
 		uiCodec: null,
 	});
 
-	const {inputProps} = await CliInternals.getCliOptions({
+	const {
+		chromiumOptions,
+		crf,
+		envVariables,
+		frameRange,
+		inputProps,
+		logLevel,
+		pixelFormat,
+		proResProfile,
+		puppeteerTimeout,
+		jpegQuality,
+		scale,
+		everyNthFrame,
+		numberOfGifLoops,
+		muted,
+		overwrite,
+		audioBitrate,
+		videoBitrate,
+		height,
+		width,
+		stillFrame,
+	} = await CliInternals.getCliOptions({
 		type: 'series',
-		isLambda: true, // TODO: what do I need to do with this?
+		isLambda: true,
 		remotionRoot,
 	});
 
@@ -119,27 +140,9 @@ export const renderArgsCheck = async (
 
 	const authenticatedRequest = !parsedCloudrunCli['unauthenticated-request'];
 
-	const jpegQuality = parsedCloudrunCli['jpeg-quality'];
-
 	const audioCodec = parsedCloudrunCli['audio-codec'];
 
-	const audioBitrate = parsedCloudrunCli['audio-bitrate'];
-
-	const videoBitrate = parsedCloudrunCli['video-bitrate'];
-
-	const proResProfile = parsedCloudrunCli['prores-profile'];
-
-	const {crf} = parsedCloudrunCli;
-
-	const pixelFormat = parsedCloudrunCli['pixel-format'];
-
 	const imageFormat = parsedCloudrunCli['image-format'];
-
-	const {scale} = parsedCloudrunCli;
-
-	const everyNthFrame = parsedCloudrunCli['every-nth-frame'];
-
-	const numberOfGifLoops = parsedCloudrunCli['number-of-gif-loops'];
 
 	return {
 		serveUrl,
@@ -164,5 +167,15 @@ export const renderArgsCheck = async (
 		scale,
 		everyNthFrame,
 		numberOfGifLoops,
+		frameRange,
+		envVariables,
+		chromiumOptions,
+		logLevel,
+		puppeteerTimeout,
+		muted,
+		overwrite,
+		height,
+		width,
+		stillFrame,
 	};
 };

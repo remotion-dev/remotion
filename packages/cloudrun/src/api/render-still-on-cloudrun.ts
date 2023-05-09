@@ -1,3 +1,4 @@
+import type {ChromiumOptions, StillImageFormat} from '@remotion/renderer';
 import got from 'got';
 import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
 import {validatePrivacy} from '../shared/validate-privacy';
@@ -18,6 +19,14 @@ export type RenderStillOnCloudrunInput = {
 	outputBucket: string;
 	privacy?: string;
 	outputFile?: string;
+	imageFormat: StillImageFormat;
+	envVariables?: Record<string, string>;
+	frame?: number;
+	jpegQuality?: number;
+	chromiumOptions?: ChromiumOptions;
+	scale?: number;
+	forceWidth?: number | null;
+	forceHeight?: number | null;
 };
 
 export type RenderStillOnCloudrunOutput = {
@@ -58,6 +67,14 @@ export const renderStillOnCloudrun = async ({
 	outputBucket,
 	privacy,
 	outputFile,
+	imageFormat,
+	envVariables,
+	frame,
+	jpegQuality,
+	chromiumOptions,
+	scale,
+	forceWidth,
+	forceHeight,
 }: RenderStillOnCloudrunInput): Promise<RenderStillOnCloudrunOutput> => {
 	validateServeUrl(serveUrl);
 	if (privacy) validatePrivacy(privacy);
@@ -88,6 +105,14 @@ export const renderStillOnCloudrun = async ({
 		outputBucket,
 		outputFile,
 		privacy,
+		imageFormat,
+		envVariables,
+		frame,
+		jpegQuality,
+		chromiumOptions,
+		scale,
+		forceWidth,
+		forceHeight,
 	};
 
 	if (authenticatedRequest) {

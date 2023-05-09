@@ -24,6 +24,7 @@ export const renderStillSingleThread = async (
 		jpegQuality: req.body.jpegQuality,
 		imageFormat: req.body.imageFormat,
 		scale: req.body.scale,
+		envVariables: req.body.envVariables,
 	});
 
 	const storage = new Storage();
