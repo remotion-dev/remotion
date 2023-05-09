@@ -76,7 +76,7 @@ One of:
 
 ### `--env-file`
 
-Specify a location for a dotenv file. Default `.env`.
+Specify a location for a dotenv file. Default `.env`. This is not for invoking the cloud run service, but for passing environment variables that you would want to read inside the render.
 
 ### `--out-name`
 
@@ -87,6 +87,8 @@ The file name of the media output as stored in the Cloud Storage bucket. By defa
 Specify the name of the service which should be used to perform the render.
 
 ## Media Rendering Specific Flags
+
+The above flags can be used for rendering both Still and Media. These flags are specific for Media rendering.
 
 ### `--codec`
 
