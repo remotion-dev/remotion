@@ -15,7 +15,9 @@ Refer to the documentation of the above mentioned functions to learn more.
 
 ```tsx twoslash
 import { useAudioData, visualizeAudio } from "@remotion/media-utils";
-import { Audio, useCurrentFrame, useVideoConfig } from "remotion";
+import { Audio, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
+
+const music = staticFile("music.mp3");
 
 export const MyComponent: React.FC = () => {
   const frame = useCurrentFrame();
@@ -37,7 +39,7 @@ export const MyComponent: React.FC = () => {
   // the longer the bar
   return (
     <div>
-      <Audio src={staticFile("music.mp3")} />
+      <Audio src={music} />
       {visualization.map((v) => {
         return (
           <div
