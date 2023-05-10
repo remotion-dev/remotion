@@ -28,10 +28,10 @@ export function spring({
 	config = {},
 	from = 0,
 	to = 1,
-	durationInFrames,
+	durationInFrames: passedDurationInFrames,
 	durationRestThreshold,
 	delay = 0,
-	reverse = false
+	reverse = false,
 }: {
 	frame: number;
 	fps: number;
@@ -43,7 +43,7 @@ export function spring({
 	delay?: number;
 	reverse?: boolean;
 }): number {
-	validateSpringDuration(durationInFrames);
+	validateSpringDuration(passedDurationInFrames);
 	validateFrame({
 		frame: passedFrame,
 		durationInFrames: Infinity,
@@ -51,29 +51,42 @@ export function spring({
 	});
 	validateFps(fps, 'to spring()', false);
 
-	const duration = measureSpring({
-		fps,
-		config,
-		from,
-		to,
-		threshold: durationRestThreshold,
-	});
-	if (durationInFrames === undefined) {
-		durationInFrames = duration;
-	}
+	const needsToCalculateNaturalDuration =
+		reverse || typeof passedDurationInFrames !== 'undefined';
 
-	const durationRatio = durationInFrames / duration;
+	const naturalDuration = needsToCalculateNaturalDuration
+		? measureSpring({
+				fps,
+				config,
+				from,
+				to,
+				threshold: durationRestThreshold,
+		  })
+		: undefined;
 
-	// Delay the spring by telling the calculation we're at an earlier frame.
-	let frame = passedFrame - delay;
+	const naturalDurationGetter = needsToCalculateNaturalDuration
+		? {
+				get: () => naturalDuration as number,
+		  }
+		: {
+				get: () => {
+					throw new Error(
+						'did not calculate natural duration, this is an error with Remotion. Please report'
+					);
+				},
+		  };
 
-	if (reverse) {
-		frame = durationInFrames - frame;
-	}
+	const frame = reverse
+		? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame
+		: passedFrame;
 
 	const spr = springCalculation({
 		fps,
-		frame: frame / durationRatio,
+		frame:
+			(passedDurationInFrames === undefined
+				? frame
+				: frame / (passedDurationInFrames / naturalDurationGetter.get())) -
+			delay,
 		config,
 		from,
 		to,
