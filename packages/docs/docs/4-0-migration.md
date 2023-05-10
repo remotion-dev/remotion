@@ -186,6 +186,10 @@ Now, [`staticFile()`](/docs/staticfile) encodes the filename using `encodeURICom
 staticFile("my-image#portrait.png"); // "my-image%23portrait.png"
 ```
 
+## Type `WebpackOverrideFn` moved
+
+The type `WebpackOverrideFn` which gets used in [`bundle()`](/docs/bundle) has been moved from the `@remotion` to `@remotion/bundler` package.
+
 **How to upgrade:**
 
 If you encoded the path by yourself until now, don't do so anymore to avoid double encoding.
