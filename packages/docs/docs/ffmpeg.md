@@ -5,7 +5,9 @@ sidebar_label: Installing FFmpeg
 crumb: "(you don't have to)"
 ---
 
-Since Remotion v4.0, Remotion comes bundled with a lightweight version of FFmpeg.
+:::info
+Since Remotion v4.0, Remotion comes bundled with a lightweight version of FFmpeg. An installation of FFmpeg is no longer needed.
+:::
 
 ## FFmpeg in V3 of Remotion
 
