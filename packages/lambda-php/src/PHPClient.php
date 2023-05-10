@@ -4,6 +4,11 @@ namespace Remotion;
 
 use Aws\Lambda\LambdaClient;
 
+// Define a custom JSON_UNESCAPED_SLASHES flag with a filter function
+define('JSON_UNESCAPED_SLASHES_NULL_FILTER', function ($value) {
+    return is_null($value) ? '' : $value;
+});
+
 class PHPClient
 {
     private $client;
@@ -21,89 +26,25 @@ class PHPClient
     }
 
     public function constructInternals(
-        array $data,
-        string $composition = 'main',
-        string $type = 'start',
-        string $codec = 'h264',
-        string $version = '3.3.78',
-        string $imageFormat = 'jpeg',
-        int $crf = 1,
-        array $envVariables = [],
-        int $quality = 80,
-        int $maxRetries = 1,
-        string $privacy = 'public',
-        string $logLevel = 'info',
-        ? string $frameRange = null,
-        ? string $outName = null,
-        int $timeoutInMilliseconds = 30000,
-        array $chromiumOptions = [],
-        float $scale = 1,
-        int $everyNthFrame = 1,
-        int $numberOfGifLoops = 0,
-        int $concurrencyPerLambda = 1,
-        array $downloadBehavior = [
-            'type' => 'play-in-browser',
-        ],
-        bool $muted = false,
-        bool $overwrite = false,
-        ? int $audioBitrate = null,
-        ? int $videoBitrate = null,
-        ? string $webhook = null,
-        ? int $forceHeight = null,
-        ? int $forceWidth = null,
-        ? string $audioCodec = null,
+        RenderParams $render
     ) {
-        $input = serializeInputProps(
+        if (empty($render->getComposition())) {
+            throw new ValidationException("'compostion' is required.");
+        }
+        $input = $this->serializeInputProps(
             $data,
             $region,
             "video-or-audio",
             null
         );
 
-        $params = [
-            "serveUrl" => $serveUrl,
-            "inputProps" => $input,
-            "composition" => $composition,
-            "type" => $type,
-            "codec" => $codec,
-            "version" => $version,
-            "imageFormat" => $imageFormat,
-            "crf" => $crf,
-            "envVariables" => $envVariables,
-            "quality" => $quality,
-            "maxRetries" => $maxRetries,
-            "privacy" => $privacy,
-            "logLevel" => $logLevel,
-            "frameRange" => $frameRange,
-            "outName" => $outName,
-            "timeoutInMilliseconds" => $timeoutInMilliseconds,
-            "chromiumOptions" => $chromiumOptions,
-            "scale" => $scale,
-            "everyNthFrame" => $everyNthFrame,
-            "numberOfGifLoops" => $numberOfGifLoops,
-            "concurrencyPerLambda" => $concurrencyPerLambda,
-            "downloadBehavior" => $downloadBehavior,
-            "muted" => $muted,
-            "overwrite" => $overwrite,
-            "audioBitrate" => $audioBitrate,
-            "videoBitrate" => $videoBitrate,
-            "webhook" => $webhook,
-            "forceHeight" => $forceHeight,
-            "forceWidth" => $forceWidth,
-            "bucketName" => $bucketName,
-            "audioCodec" => $audioCodec,
-            "forceBucketName" => $bucketName,
-        ];
-        // Remove null values
-        $data = array_filter($params, function ($value) {
-            return !is_null($value);
-        });
+        $json = json_encode($obj, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES_NULL_FILTER);
 
-        return json_encode($data);
+        return $json;
 
     }
 
-    public function invokeLambda(RenderParams $render) :  ? string
+    public function invokeLambda(RenderParams $render):  ? string
     {
         // $this->constructInternals($data, )
         $result = $this->client->invoke([
@@ -126,6 +67,38 @@ class PHPClient
         } else {
             // The Lambda function encountered an error
             throw new Exception("Failed to invoke Lambda function");
+        }
+    }
+
+    private function serializeInputProps($inputProps, string $region, string $type,  ? string $userSpecifiedBucketName) : array
+    {
+        try {
+            $payload = json_encode($inputProps);
+            $hash = randomHash();
+
+            $MAX_INLINE_PAYLOAD_SIZE = $type === 'still' ? 5000000 : 200000;
+
+            if (strlen($payload) > $MAX_INLINE_PAYLOAD_SIZE) {
+
+                throw new Exception(
+                    sprintf(
+                        "Warning: inputProps are over %dKB (%dKB) in size.\n This is not currently supported.",
+                        round($MAX_INLINE_PAYLOAD_SIZE / 1000),
+                        ceil(strlen($payload) / 1024)
+                    )
+
+                );
+
+            }
+
+            return [
+                'type' => 'payload',
+                'payload' => $payload,
+            ];
+        } catch (Exception $e) {
+            throw new Exception(
+                'Error serializing inputProps. Check it has no circular references or reduce the size if the object is big.'
+            );
         }
     }
 }
