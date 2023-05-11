@@ -32,9 +32,8 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 
 	if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 		const siteName = serveUrl;
-		region = region ?? getGcpRegion();
 		Log.info('Remotion site-name passed, constructing serve url...');
-		const {bucketName} = await getOrCreateBucket({region});
+		const {bucketName} = await getOrCreateBucket();
 		serveUrl = `https://storage.googleapis.com/${bucketName}/sites/${siteName}/index.html`;
 		Log.info(`<serve-url> constructed: ${serveUrl}\n`);
 	}

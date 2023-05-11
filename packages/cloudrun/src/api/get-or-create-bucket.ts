@@ -25,7 +25,7 @@ export type GetOrCreateBucketOutput = {
  * @returns {Promise<GetOrCreateBucketOutput>} An object containing the `bucketName`.
  */
 export const getOrCreateBucket = async (
-	options: GetOrCreateBucketInput
+	options?: GetOrCreateBucketInput
 ): Promise<GetOrCreateBucketOutput> => {
 	// checking for existing bucket
 	const {remotionBuckets} = await getRemotionStorageBuckets();
@@ -38,21 +38,27 @@ export const getOrCreateBucket = async (
 	}
 
 	if (remotionBuckets.length === 1) {
-		options.updateBucketState?.('Using existing bucket');
+		options?.updateBucketState?.('Using existing bucket');
 		return {
 			bucketName: remotionBuckets[0].name,
 		};
 	}
 
-	options.updateBucketState?.('Creating new bucket');
+	if (options?.region) {
+		options.updateBucketState?.('Creating new bucket');
 
-	const bucketName = makeBucketName();
+		const bucketName = makeBucketName();
+		await createBucket({
+			bucketName,
+			region: options.region,
+		});
 
-	await createBucket({
-		bucketName,
-		region: options.region,
-	});
-	options.updateBucketState?.('Created bucket');
+		options.updateBucketState?.('Created bucket');
 
-	return {bucketName};
+		return {bucketName};
+	}
+
+	throw new Error(
+		'Bucket creation is required, but no region has been passed.'
+	);
 };
