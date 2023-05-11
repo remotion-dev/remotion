@@ -1,10 +1,10 @@
 import {CliInternals} from '@remotion/cli';
-import {getCompositionsOnGcp} from '../../../api/get-compositions-on-gcp';
-import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
-import {BINARY_NAME} from '../../../shared/constants';
-import {validateServeUrl} from '../../../shared/validate-serveurl';
-import {quit} from '../../helpers/quit';
-import {Log} from '../../log';
+import {getCompositionsOnGcp} from '../../api/get-compositions-on-gcp';
+import {getOrCreateBucket} from '../../api/get-or-create-bucket';
+import {BINARY_NAME} from '../../shared/constants';
+import {validateServeUrl} from '../../shared/validate-serveurl';
+import {quit} from '../helpers/quit';
+import {Log} from '../log';
 
 export const COMPOSITIONS_COMMAND = 'compositions';
 
