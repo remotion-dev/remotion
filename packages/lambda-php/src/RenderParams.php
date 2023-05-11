@@ -37,7 +37,7 @@ class RenderParams
     private $audioCodec = null;
 
     public function __construct(
-        array $data,
+        array $data = array(),
         string $composition = 'main',
         string $type = 'start',
         string $codec = 'h264',
@@ -522,6 +522,47 @@ class RenderParams
     public function getForceWidth()
     {
         return $this->forceWidth;
+    }
+
+    public function toJson()
+    {
+        $json = [
+            'data' => $this->getData(),
+            'composition' => $this->getComposition(),
+            'type' => $this->getType(),
+            'codec' => $this->getCodec(),
+            'version' => $this->getVersion(),
+            'imageFormat' => $this->getImageFormat(),
+            'crf' => $this->getCrf(),
+            'envVariables' => $this->getEnvVariables(),
+            'quality' => $this->getQuality(),
+            'maxRetries' => $this->getMaxRetries(),
+            'privacy' => $this->getPrivacy(),
+            'logLevel' => $this->getLogLevel(),
+            'frameRange' => $this->getFrameRange(),
+            'outName' => $this->getOutName(),
+            'timeoutInMilliseconds' => $this->getTimeoutInMilliseconds(),
+            'chromiumOptions' => $this->getChromiumOptions(),
+            'scale' => $this->getScale(),
+            'everyNthFrame' => $this->getEveryNthFrame(),
+            'numberOfGifLoops' => $this->getNumberOfGifLoops(),
+            'concurrencyPerLambda' => $this->getConcurrencyPerLambda(),
+            'downloadBehavior' => $this->getDownloadBehavior(),
+            'muted' => $this->getMuted(),
+            'overwrite' => $this->getOverwrite(),
+            'audioBitrate' => $this->getAudioBitrate(),
+            'videoBitrate' => $this->getVideoBitrate(),
+            'webhook' => $this->getWebhook(),
+            'forceHeight' => $this->getForceHeight(),
+            'forceWidth' => $this->getForceWidth(),
+            'audioCodec' => $this->getAudioCodec(),
+        ];
+
+        $json = array_filter($json, function ($value) {
+            return $value !== null;
+        });
+
+        return json_encode($json);
     }
 
 }
