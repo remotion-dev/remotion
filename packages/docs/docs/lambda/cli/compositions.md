@@ -13,19 +13,34 @@ Print list of composition IDs from a serve URL, fetched from inside a Lambda fun
 npx remotion lambda compositions <serve-url>
 ```
 
+<details>
+<summary>Show output
+</summary>
+<pre>
+looped                          60      1080x1080      200 (3.33 sec)<br/>
+cancel-render                   30      920x720        100 (3.33 sec)<br/>
+iframe                          30      1080x1080      10 (0.33 sec)<br/>
+stagger-test                    30      1280x720       100 (3.33 sec)<br/>
+freeze-example                  30      1280x720       300 (10.00 sec)<br/>
+base-spring                     30      1080x1080      100 (3.33 sec)<br/>
+spring-with-duration            30      1080x1080      100 (3.33 sec)<br/>
+missing-img                     30      1080x1080      10 (0.33 sec)<br/>
+ten-frame-tester                30      1080x1080      10 (0.33 sec)<br/>
+framer                          30      1080x1080      100 (3.33 sec)<br/>
+skip-zero-frame                 30      1280x720       100 (3.33 sec)<br/>
+scripts                         30      1280x720       100 (3.33 sec)<br/>
+many-audio                      30      1280x720       30 (1.00 sec)<br/>
+error-on-frame-10               30      1280x720       1000000 (33333.33 sec)<br/>
+wrapped-in-context                      1280x720       Still<br/>
+drop-dots                       30      1080x1080      5400 (180.00 sec)<br/>
+</pre>
+</details>
+
 - The serve URL is obtained by deploying a project to Remotion using the [`sites create`](/docs/lambda/cli/sites#create) command or calling [`deploySite()`](/docs/lambda/deploysite).
 
 Note that you can also get the compositions of a site that is hosted on Lambda using [`npx remotion compositions`](/docs/cli/compositions). Vice versa, you can also get the compositions from a serve URL that is not hosted on AWS Lambda using `npx remotion lambda compositions`.
 
 You should use `npx remotion lambda compositions` if you cannot use [`npx remotion compositions`](/docs/cli/compositions) because the machine cannot run Chrome.
-
-## Example commands
-
-Rendering a still:
-
-```
-npx remotion lambda compositions https://remotionlambda-abcdef.s3.eu-central-1.amazonaws.com/sites/testbed/index.html
-```
 
 ## Flags
 
