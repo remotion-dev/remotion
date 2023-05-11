@@ -1,7 +1,6 @@
 import {deleteSite} from '../../../api/delete-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {getSites} from '../../../api/get-sites';
-import {getGcpRegion} from '../../get-gcp-region';
 import {confirmCli} from '../../helpers/confirm';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
@@ -20,12 +19,10 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		return;
 	}
 
-	const region = getGcpRegion();
-
 	const deployedSites = await getSites();
 
 	for (const siteName of args) {
-		const {bucketName} = await getOrCreateBucket({region});
+		const {bucketName} = await getOrCreateBucket();
 
 		const site = deployedSites.sites.find((s) => s.id === siteName.trim());
 		if (!site) {
