@@ -12,17 +12,23 @@ define('JSON_UNESCAPED_SLASHES_NULL_FILTER', function ($value) {
 class PHPClient
 {
     private $client;
+    private $region;
+    private $serveUrl;
+    private $functionName;
 
     public function __construct(
         string $region,
         string $serveUrl,
         string $functionName,
-        array $credential) {
+        ? array $credential) {
         $this->client = LambdaClient::factory([
             'version' => 'latest',
             'region' => $region,
             'credentials' => $credential,
         ]);
+        $this->setRegion($region);
+        $this->setServeUrl($serveUrl);
+        $this->setFunctionName($functionName);
     }
 
     public function constructInternals(
@@ -32,19 +38,19 @@ class PHPClient
             throw new ValidationException("'compostion' is required.");
         }
         $input = $this->serializeInputProps(
-            $data,
-            $region,
+            $render->getData(),
+            $this->getRegion(),
             "video-or-audio",
             null
         );
 
-        $json = json_encode($obj, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES_NULL_FILTER);
+        $render->setData($input);
 
-        return $json;
+        return json_encode($render->toJson());
 
     }
 
-    public function invokeLambda(RenderParams $render):  ? string
+    public function invokeLambda(RenderParams $render) :  ? string
     {
         // $this->constructInternals($data, )
         $result = $this->client->invoke([
@@ -74,7 +80,6 @@ class PHPClient
     {
         try {
             $payload = json_encode($inputProps);
-            $hash = randomHash();
 
             $MAX_INLINE_PAYLOAD_SIZE = $type === 'still' ? 5000000 : 200000;
 
@@ -101,4 +106,35 @@ class PHPClient
             );
         }
     }
+
+    public function getRegion() : string
+    {
+        return $this->region;
+    }
+
+    public function setRegion(string $region): void
+    {
+        $this->region = $region;
+    }
+
+    public function getServeUrl(): string
+    {
+        return $this->serveUrl;
+    }
+
+    public function setServeUrl(string $serveUrl): void
+    {
+        $this->serveUrl = $serveUrl;
+    }
+
+    public function getFunctionName(): string
+    {
+        return $this->functionName;
+    }
+
+    public function setFunctionName(string $functionName): void
+    {
+        $this->functionName = $functionName;
+    }
+
 }
