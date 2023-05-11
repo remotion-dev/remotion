@@ -188,7 +188,7 @@ staticFile("my-image#portrait.png"); // "my-image%23portrait.png"
 
 ## Type `WebpackOverrideFn` moved
 
-The type `WebpackOverrideFn` which gets used in [`bundle()`](/docs/bundle) has been moved from the `@remotion` to the `@remotion/bundler` package.
+The `WebpackOverrideFn` type useful for overriding the Webpack config in the config file and in [`bundle()`](/docs/bundle) has moved from the `remotion` to the `@remotion/bundler` package.
 
 **How to upgrade:**
 
