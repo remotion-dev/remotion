@@ -44,7 +44,6 @@ module.exports = {
             "cloudrun/cli/services",
             "cloudrun/cli/render",
             "cloudrun/cli/permissions",
-            "cloudrun/cli/compositions",
             "cloudrun/cli/regions",
           ],
         },

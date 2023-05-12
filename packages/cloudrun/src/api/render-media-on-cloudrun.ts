@@ -1,18 +1,15 @@
 import type {ChromiumOptions, FrameRange} from '@remotion/renderer';
 import got from 'got/dist/source';
-import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
 import type {CloudrunCodec} from '../shared/validate-gcp-codec';
 import {validateCloudrunCodec} from '../shared/validate-gcp-codec';
 import {validatePrivacy} from '../shared/validate-privacy';
-import {validateRegion} from '../shared/validate-region';
 import {validateServeUrl} from '../shared/validate-serveurl';
-import {validateServiceName} from '../shared/validate-service-name';
-import {getServiceInfo} from './get-service-info';
 import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
+import {getCloudrunEndpoint} from './helpers/get-cloudrun-endpoint';
 
 export type RenderMediaOnCloudrunInput = {
 	authenticatedRequest: boolean;
-	cloudRunUrl: string;
+	cloudRunUrl?: string;
 	serviceName?: string;
 	region?: string;
 	serveUrl?: string;
@@ -121,23 +118,11 @@ export const renderMediaOnCloudrun = async ({
 	validateServeUrl(serveUrl);
 	if (privacy) validatePrivacy(privacy);
 
-	if (!cloudRunUrl && !serviceName)
-		throw new Error('Either cloudRunUrl or serviceName must be provided');
-	if (cloudRunUrl && serviceName)
-		throw new Error(
-			'Either cloudRunUrl or serviceName must be provided, not both'
-		);
-
-	if (cloudRunUrl) {
-		validateCloudRunUrl(cloudRunUrl);
-	}
-
-	if (serviceName) {
-		validateServiceName(serviceName);
-		const validatedRegion = validateRegion(region);
-		const {uri} = await getServiceInfo({serviceName, region: validatedRegion});
-		cloudRunUrl = uri;
-	}
+	const cloudRunEndpoint = await getCloudrunEndpoint({
+		cloudRunUrl,
+		serviceName,
+		region,
+	});
 
 	const data = {
 		composition,
@@ -164,15 +149,16 @@ export const renderMediaOnCloudrun = async ({
 		outputFile,
 		forceWidth,
 		forceHeight,
+		type: 'media',
 	};
 
 	if (authenticatedRequest) {
-		const client = await getAuthClientForUrl(cloudRunUrl);
+		const client = await getAuthClientForUrl(cloudRunEndpoint);
 
 		const authenticatedDataPromise = new Promise((resolve, reject) => {
 			client
 				.request({
-					url: cloudRunUrl,
+					url: cloudRunEndpoint,
 					method: 'POST',
 					data,
 					responseType: 'stream',
@@ -205,7 +191,7 @@ export const renderMediaOnCloudrun = async ({
 
 	const dataPromise = new Promise((resolve, reject) => {
 		got.stream
-			.post(cloudRunUrl, {json: data})
+			.post(cloudRunEndpoint, {json: data})
 			.on('data', (chunk) => {
 				const chunkResponse = JSON.parse(chunk.toString());
 				if (chunkResponse.response) {
