@@ -7,7 +7,7 @@ Potential support for React Native is currently under consideration.
 A proof of concept was shown at App.js Conf on May 12th 2023:
 
 - [Repository](https://github.com/remotion-dev/react-native-demo)
-- [Talk](https://www.youtube.com/watch?v=t0KDn4_zdrk) - Timestamp ~7:15:00
+- [Talk](https://youtu.be/t0KDn4_zdrk?t=27073) - Timestamp: 7:31:13
 
 ## Current status
 
