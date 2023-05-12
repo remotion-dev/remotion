@@ -1,4 +1,4 @@
-import type {GcpRegion} from '../client';
+import type {GcpRegion} from '../pricing/gcp-regions';
 import {RENDER_SERVICE_PREFIX} from '../shared/constants';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
