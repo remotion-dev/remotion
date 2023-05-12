@@ -30,7 +30,7 @@ The default region is `us-east-1`.
 
 ## Selecting a region
 
-There are 3 ways of selection a region:
+There are 3 ways to select a region:
 
 - When using the Node.JS APIs, you have to pass the region explicitly to each function. Make sure your projects satisfy the Typescript types or follow the documentation.
 
