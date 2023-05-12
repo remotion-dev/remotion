@@ -37,6 +37,7 @@ import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
+import {useTimelineInOutFramePosition} from '../../state/in-out';
 
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
@@ -309,9 +310,10 @@ export const RenderModal: React.FC<{
 		};
 	}, [headless, disableWebSecurity, ignoreCertificateErrors, openGlOption]);
 
+	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const [outName, setOutName] = useState(() => initialOutName);
-	const [endFrameOrNull, setEndFrame] = useState<number | null>(() => null);
-	const [startFrameOrNull, setStartFrame] = useState<number | null>(() => null);
+	const [endFrameOrNull, setEndFrame] = useState<number | null>(outFrame);
+	const [startFrameOrNull, setStartFrame] = useState<number | null>(inFrame);
 	const [proResProfileSetting, setProResProfile] = useState<ProResProfile>(
 		() => initialProResProfile
 	);
