@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {BACKGROUND, BORDER_COLOR} from '../../helpers/colors';
+import {BACKGROUND, BORDER_COLOR, INPUT_BACKGROUND} from '../../helpers/colors';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {SHADOW_TOWARDS_BOTTOM, SHADOW_TOWARDS_TOP} from '../Menu/styles';
 
@@ -33,6 +33,7 @@ export const InfoTooltip: React.FC<{
 			border: '0.5px solid ' + BORDER_COLOR,
 			maxHeight: 200,
 			overflow: 'auto',
+			borderRadius: '4px',
 		};
 	}, [arrowDirection]);
 	return (
@@ -50,7 +51,7 @@ export const InfoTooltip: React.FC<{
 				<svg viewBox="0 0 14 7" style={arrowDown}>
 					<path
 						d={`M 14 0 L 7 7 L 0 0`}
-						fill={BACKGROUND}
+						fill={INPUT_BACKGROUND}
 						strokeLinecap="butt"
 						stroke={BORDER_COLOR}
 						strokeWidth={0.5}
@@ -61,7 +62,7 @@ export const InfoTooltip: React.FC<{
 				<svg viewBox="0 0 14 7" style={arrowUp}>
 					<path
 						d={`M 0 7 L 7 0 L 14 7`}
-						fill={BACKGROUND}
+						fill={INPUT_BACKGROUND}
 						strokeLinecap="butt"
 						stroke={BORDER_COLOR}
 						strokeWidth={0.5}
