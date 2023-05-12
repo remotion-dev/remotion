@@ -1,16 +1,13 @@
 import type {ChromiumOptions, StillImageFormat} from '@remotion/renderer';
 import got from 'got';
-import {validateCloudRunUrl} from '../shared/validate-cloudrun-url';
 import {validatePrivacy} from '../shared/validate-privacy';
-import {validateRegion} from '../shared/validate-region';
 import {validateServeUrl} from '../shared/validate-serveurl';
-import {validateServiceName} from '../shared/validate-service-name';
-import {getServiceInfo} from './get-service-info';
 import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
+import {getCloudrunEndpoint} from './helpers/get-cloudrun-endpoint';
 
 export type RenderStillOnCloudrunInput = {
 	authenticatedRequest: boolean;
-	cloudRunUrl: string;
+	cloudRunUrl?: string;
 	serviceName?: string;
 	region?: string;
 	serveUrl: string;
@@ -79,23 +76,11 @@ export const renderStillOnCloudrun = async ({
 	validateServeUrl(serveUrl);
 	if (privacy) validatePrivacy(privacy);
 
-	if (!cloudRunUrl && !serviceName)
-		throw new Error('Either cloudRunUrl or serviceName must be provided');
-	if (cloudRunUrl && serviceName)
-		throw new Error(
-			'Either cloudRunUrl or serviceName must be provided, not both'
-		);
-
-	if (cloudRunUrl) {
-		validateCloudRunUrl(cloudRunUrl);
-	}
-
-	if (serviceName) {
-		validateServiceName(serviceName);
-		const validatedRegion = validateRegion(region);
-		const {uri} = await getServiceInfo({serviceName, region: validatedRegion});
-		cloudRunUrl = uri;
-	}
+	const cloudRunEndpoint = await getCloudrunEndpoint({
+		cloudRunUrl,
+		serviceName,
+		region,
+	});
 
 	const data = {
 		composition,
@@ -112,10 +97,11 @@ export const renderStillOnCloudrun = async ({
 		forceWidth,
 		forceHeight,
 		frame: frame ?? 0,
+		type: 'still',
 	};
 
 	if (authenticatedRequest) {
-		const client = await getAuthClientForUrl(cloudRunUrl);
+		const client = await getAuthClientForUrl(cloudRunEndpoint);
 
 		const authenticatedResponse = await client.request({
 			url: cloudRunUrl,
@@ -126,7 +112,7 @@ export const renderStillOnCloudrun = async ({
 	}
 
 	const response: RenderStillOnCloudrunOutput = await got
-		.post(cloudRunUrl, {json: data})
+		.post(cloudRunEndpoint, {json: data})
 		.json();
 	return response;
 };

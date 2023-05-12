@@ -1,8 +1,4 @@
 import {parsedCloudrunCli} from './args';
-import {
-	compositionsCommand,
-	COMPOSITIONS_COMMAND,
-} from './commands/compositions';
 import {permissionsCommand, PERMISSIONS_COMMAND} from './commands/permissions';
 import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
 import {renderCommand, RENDER_COMMAND} from './commands/render';
@@ -28,10 +24,6 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 
 	if (args[0] === SITES_COMMAND) {
 		return sitesCommand(args.slice(1), remotionRoot);
-	}
-
-	if (args[0] === COMPOSITIONS_COMMAND) {
-		return compositionsCommand(args.slice(1));
 	}
 
 	if (args[0] === REGIONS_COMMAND) {

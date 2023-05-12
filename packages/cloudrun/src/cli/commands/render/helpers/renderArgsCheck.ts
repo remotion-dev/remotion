@@ -7,6 +7,7 @@ import {
 	BINARY_NAME,
 	DEFAULT_OUTPUT_PRIVACY,
 } from '../../../../shared/constants';
+import {convertToServeUrl} from '../../../../shared/convert-to-serve-url';
 import {validatePrivacy} from '../../../../shared/validate-privacy';
 import {validateServeUrl} from '../../../../shared/validate-serveurl';
 import {parsedCloudrunCli} from '../../../args';
@@ -34,7 +35,7 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 		const siteName = serveUrl;
 		Log.info('Remotion site-name passed, constructing serve url...');
 		const {bucketName} = await getOrCreateBucket();
-		serveUrl = `https://storage.googleapis.com/${bucketName}/sites/${siteName}/index.html`;
+		serveUrl = convertToServeUrl({urlOrId: siteName, bucketName});
 		Log.info(`<serve-url> constructed: ${serveUrl}\n`);
 	}
 
