@@ -154,10 +154,13 @@ export const RenderModalPicture: React.FC<{
 			) : null}
 			{qualityControlType === 'bitrate' && renderMode !== 'still' ? (
 				<div style={optionRow}>
-					<div style={label}>Target video bitrate</div>
-					<InfoBubble title="Learn more about this option">
-						<OptionExplainer option={BrowserSafeApis.options.videoBitrate} />
-					</InfoBubble>
+					<div style={label}>
+						Target video bitrate
+						<InfoBubble title="Learn more about this option">
+							<OptionExplainer option={BrowserSafeApis.options.videoBitrate} />
+						</InfoBubble>
+					</div>
+
 					<div style={rightRow}>
 						<div>
 							<RemotionInput
