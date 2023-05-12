@@ -43,7 +43,7 @@ Example output
 <pre>
 (1/3) [====================] Bundled video 3975ms<br/>
 (2/3) [====================] Created bucket 457ms<br/>
-(3/3) [====================] Uploaded to S3 25118ms<br/>
+(3/3) [====================] Uploaded to GCP Storage Bucket 25118ms<br/>
 <br/>
 Deployed to GCP Cloud Storage!<br/>
 Serve URL: https://storage.googleapis.com/remotioncloudrun-12345/sites/mySite123/index.html<br/>
@@ -53,7 +53,7 @@ Site Name: mySite123<br/>
 
 ### `--region`
 
-The [GCP region](/docs/cloudrun/region-selection) to select. Both project and service should be in this region.
+The [GCP region](/docs/cloudrun/region-selection) to select. The service should also be in this same region to minimise latency.
 
 ### `--site-name`
 
@@ -92,11 +92,12 @@ Get a list of sites. The URL that is printed can be passed to the `render` comma
 Example output
 </summary>
 <pre>
-Site Name             Bucket                        Last updated<br/>
-pr6fwglz05          remotioncloudrun-abcdefg        2021-12-02<br/>     
-https://storage.googleapis.com/remotioncloudrun-abcdefg/sites/pr6fwglz05/index.html<br/><br/>   
-testbed             remotioncloudrun-abcdefg        2021-12-02  <br/>
-https://storage.googleapis.com/remotioncloudrun-abcdefg/sites/testbed/index.html<br/>
+2 sites in us-east1, in the remotion-6 project.<br/><br/>
+Site Name             Bucket                        Region<br/>
+another-site          remotioncloudrun-abcdefg      us-east1<br/>     
+https://storage.googleapis.com/remotioncloudrun-abcdefg/sites/another-site/index.html<br/><br/>   
+test-site             remotioncloudrun-abcdefg      us-east1  <br/>
+https://storage.googleapis.com/remotioncloudrun-abcdefg/sites/test-site/index.html<br/>
 </pre>
 </details>
 
@@ -117,21 +118,50 @@ pr6fwglz05 testbed<br/>
 </pre>
 </details>
 
-## rm
+### `--all-regions`,
 
-Removes a site (or multiple) from Cloud Storage by it's ID.
+Ignores region, returning sites across all regions for the project
 
-```bash
-npx remotion cloudrun sites rm abcdef
-npx remotion cloudrun sites rm abcdef my-project # multiple at once
+```
+npx remotion cloudrun sites ls --all-regions
 ```
 
 <details>
 <summary>
 Example output
 </summary>
-<pre>Site abcdef in bucket remotionlambda-gc1w0xbfzl: Delete? (Y/n): Y
-<br/>Deleted site abcdef from bucket remotionlambda-gc1w0xbfzl.
+<pre>
+3 sites in all regions, in the remotion-6 project.<br/><br/>
+Site Name             Bucket                        Region<br/>
+another-site          remotioncloudrun-abcdefg      us-east1<br/>
+https://storage.googleapis.com/remotioncloudrun-abcdefg/sites/another-site/index.html<br/><br/>
+test-site             remotioncloudrun-abcdefg      us-east1  <br/>
+https://storage.googleapis.com/remotioncloudrun-abcdefg/sites/test-site/index.html<br/><br/>
+central-site          remotioncloudrun-123456       us-central1  <br/>
+https://storage.googleapis.com/remotioncloudrun-123456/sites/central-site/index.html<br/>
+</pre>
+</details>
+
+## rm
+
+Removes a site (or multiple) from Cloud Storage by it's ID.
+
+```bash
+npx remotion cloudrun sites rm central-site
+npx remotion cloudrun sites rm central-site another-site # multiple at once
+```
+
+<details>
+<summary>
+Example output
+</summary>
+<pre>
+Site:            central-site<br/>
+Bucket:          remotioncloudrun-123456<br/>
+Region:          us-central1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-123456/sites/central-site/index.html<br/><br/>
+Site central-site in bucket remotioncloudrun-123456: Delete? (Y/n): Y<br/>
+Deleted site central-site from bucket remotioncloudrun-123456.
 <br/>
 </pre>
 </details>
@@ -141,7 +171,7 @@ Example output
 Removes a site without asking for confirmation.
 
 ```
-npx remotion cloudrun sites rm abcdef -y
+npx remotion cloudrun sites rm central-site -y
 ```
 
 ## rmall

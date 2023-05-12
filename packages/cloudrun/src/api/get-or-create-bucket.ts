@@ -19,16 +19,16 @@ export type GetOrCreateBucketOutput = {
 	bucketName: string;
 };
 /**
- * @description Creates a bucket for Remotion Cloud Run in your GCP Project. If one already exists, it will get returned instead.
+ * @description Creates a bucket for Remotion Cloud Run in your GCP Project, in a particular region. If one already exists, it will get returned instead.
  * @link https://remotion.dev/docs/lambda/getorcreatebucket
  * @param options.region The region in which you want your Storage bucket to reside in.
  * @returns {Promise<GetOrCreateBucketOutput>} An object containing the `bucketName`.
  */
 export const getOrCreateBucket = async (
-	options?: GetOrCreateBucketInput
+	options: GetOrCreateBucketInput
 ): Promise<GetOrCreateBucketOutput> => {
-	// checking for existing bucket
-	const {remotionBuckets} = await getRemotionStorageBuckets();
+	const {remotionBuckets} = await getRemotionStorageBuckets(options.region);
+
 	if (remotionBuckets.length > 1) {
 		throw new Error(
 			`You have multiple buckets (${remotionBuckets.map(

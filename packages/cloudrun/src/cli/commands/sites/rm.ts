@@ -1,10 +1,12 @@
+import {CliInternals} from '@remotion/cli';
 import {deleteSite} from '../../../api/delete-site';
-import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {getSites} from '../../../api/get-sites';
 import {confirmCli} from '../../helpers/confirm';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
+
 export const SITES_RM_COMMAND = 'rm';
+const LEFT_COL = 16;
 
 export const sitesRmSubcommand = async (args: string[]) => {
 	if (args.length === 0) {
@@ -19,18 +21,30 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		return;
 	}
 
-	const deployedSites = await getSites();
+	const deployedSites = await getSites('all regions');
 
 	for (const siteName of args) {
-		const {bucketName} = await getOrCreateBucket();
+		const infoOutput = CliInternals.createOverwriteableCliOutput({
+			quiet: CliInternals.quietFlagProvided(),
+			cancelSignal: null,
+		});
+		infoOutput.update('Getting site info...');
 
 		const site = deployedSites.sites.find((s) => s.id === siteName.trim());
 		if (!site) {
-			Log.error(
-				`No site ${siteName.trim()} was found in your bucket ${bucketName}.`
-			);
-			return quit(1);
+			throw new Error(`${siteName.trim()} was not found.`);
 		}
+
+		infoOutput.update(
+			[
+				'Site: '.padEnd(LEFT_COL, ' ') + ' ' + site.id,
+				'Bucket: '.padEnd(LEFT_COL, ' ') + ' ' + site.bucketName,
+				'Region: '.padEnd(LEFT_COL, ' ') + ' ' + site.bucketRegion,
+				'Serve Url: '.padEnd(LEFT_COL, ' ') + ' ' + site.serveUrl,
+			].join('\n')
+		);
+		Log.info();
+		Log.info();
 
 		const confirmDelete = await confirmCli({
 			delMessage: `Site ${site.id} in bucket ${site.bucketName}: Delete? (Y/n)`,
@@ -43,7 +57,7 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		}
 
 		await deleteSite({
-			bucketName,
+			bucketName: site.bucketName,
 			siteName,
 		});
 

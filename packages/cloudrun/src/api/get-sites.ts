@@ -1,4 +1,4 @@
-import type {GcpRegion} from '../client';
+import type {GcpRegion} from '../pricing/gcp-regions';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {getCloudStorageClient} from './helpers/get-cloud-storage-client';
 
@@ -7,10 +7,7 @@ type Site = {
 	bucketName: string;
 	id: string;
 	serveUrl: string;
-};
-
-export type GetSitesInput = {
-	bucketName?: string;
+	bucketRegion: GcpRegion;
 };
 
 export type BucketWithLocation = {
@@ -25,11 +22,14 @@ export type GetSitesOutput = {
 };
 
 /**
- * @description Gets all the deployed sites for a certain GCP project.
+ * @description Gets all the deployed sites for a certain GCP project, within the specified region.
  * @see [Documentation](https://remotion.dev/docs/cloudrun/getsites)
+ * @param {GcpRegion} params.region The GCP region that you want to query for.
  * @returns {Promise<GetSitesOutput>} A Promise containing an object with `sites` and `bucket` keys. Consult documentation for details.
  */
-export const getSites = async (): Promise<GetSitesOutput> => {
+export const getSites = async (
+	region: GcpRegion | 'all regions'
+): Promise<GetSitesOutput> => {
 	const cloudStorageClient = getCloudStorageClient();
 	const buckets: BucketWithLocation[] = [];
 	const sites: Site[] = [];
@@ -37,11 +37,15 @@ export const getSites = async (): Promise<GetSitesOutput> => {
 	const [fetchedBuckets] = await cloudStorageClient.getBuckets();
 
 	for (const bucket of fetchedBuckets) {
-		if (bucket.name?.startsWith(REMOTION_BUCKET_PREFIX)) {
+		if (
+			bucket.name?.startsWith(REMOTION_BUCKET_PREFIX) &&
+			(region === 'all regions' ||
+				bucket.metadata.location === region.toUpperCase())
+		) {
 			const bucketObject = {
 				name: bucket.name,
 				creationDate: new Date(bucket.metadata?.timeCreated).getTime(),
-				region: bucket.metadata.location,
+				region: bucket.metadata.location.toLowerCase(),
 			};
 			buckets.push(bucketObject);
 		}
@@ -60,6 +64,7 @@ export const getSites = async (): Promise<GetSitesOutput> => {
 				id: sitePath[1],
 				serveUrl: `https://storage.googleapis.com/${bucket.name}/${prefix}index.html`,
 				lastModified: null,
+				bucketRegion: bucket.region,
 			});
 		}
 	}
