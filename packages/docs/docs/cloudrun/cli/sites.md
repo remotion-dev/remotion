@@ -53,7 +53,7 @@ Site Name: mySite123<br/>
 
 ### `--region`
 
-The [GCP region](/docs/cloudrun/region-selection) to select. Both project and function should be in this region.
+The [GCP region](/docs/cloudrun/region-selection) to select. Both project and service should be in this region.
 
 ### `--site-name`
 
