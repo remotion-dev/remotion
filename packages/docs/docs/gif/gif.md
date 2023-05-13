@@ -63,7 +63,7 @@ Callback that gets called once the GIF has loaded and finished processing. As it
 
 Allows to pass in custom CSS styles.
 
-### `loopingBehavior` <AvailableFrom v="3.3.4" />
+### `loopBehavior` <AvailableFrom v="3.3.4" />
 
 The looping behavior of the GIF. Can be one of these values:
 
