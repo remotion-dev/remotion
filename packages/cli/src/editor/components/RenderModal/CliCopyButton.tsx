@@ -80,7 +80,9 @@ export const CliCopyButton: React.FC<{valueToCopy: string}> = ({
 	}, [copied]);
 
 	// eslint-disable-next-line no-negated-condition
-	return !copied ? (
+	return copied ? (
+		<span style={copiedStyle}>{checkSvg}</span>
+	) : (
 		<button
 			type="button"
 			onPointerEnter={onPointerEnter}
@@ -98,7 +100,5 @@ export const CliCopyButton: React.FC<{valueToCopy: string}> = ({
 		>
 			{clipboardIcon}
 		</button>
-	) : (
-		<span style={copiedStyle}>{checkSvg}</span>
 	);
 };
