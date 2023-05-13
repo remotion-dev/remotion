@@ -79,7 +79,6 @@ export const CliCopyButton: React.FC<{valueToCopy: string}> = ({
 		return () => clearTimeout(to);
 	}, [copied]);
 
-	// eslint-disable-next-line no-negated-condition
 	return copied ? (
 		<span style={copiedStyle}>{checkSvg}</span>
 	) : (
