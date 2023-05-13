@@ -73,6 +73,10 @@ export const webpackConfig = ({
 		optimization: {
 			minimize: false,
 		},
+		// zod and `@remotion/zod-types` are optional
+		ignoreWarnings: [
+			(e) => e.message.includes("Can't resolve") && e.message.includes('zod'),
+		],
 		experiments: {
 			lazyCompilation:
 				environment === 'production'
