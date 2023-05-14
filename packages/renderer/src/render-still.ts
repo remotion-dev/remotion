@@ -7,7 +7,9 @@ import type {DownloadMap} from './assets/download-map';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
+import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
+import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -42,6 +44,7 @@ type InnerStillOptions = {
 	envVariables?: Record<string, string>;
 	overwrite?: boolean;
 	browserExecutable?: BrowserExecutable;
+	onBrowserLog?: (log: BrowserLog) => void;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
@@ -82,6 +85,7 @@ const innerRenderStill = async ({
 	proxyPort,
 	cancelSignal,
 	downloadMap,
+	onBrowserLog,
 }: InnerStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
@@ -180,6 +184,7 @@ const innerRenderStill = async ({
 
 	const cleanup = async () => {
 		cleanUpJSException();
+		page.off('console', logCallback);
 
 		if (puppeteerInstance) {
 			await page.close();
@@ -193,6 +198,18 @@ const innerRenderStill = async ({
 	cancelSignal?.(() => {
 		cleanup();
 	});
+
+	const logCallback = (log: ConsoleMessage) => {
+		onBrowserLog?.({
+			stackTrace: log.stackTrace(),
+			text: log.text,
+			type: log.type,
+		});
+	};
+
+	if (onBrowserLog) {
+		page.on('console', logCallback);
+	}
 
 	await setPropsAndEnv({
 		inputProps,
