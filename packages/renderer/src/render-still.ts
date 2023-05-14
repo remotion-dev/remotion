@@ -182,6 +182,14 @@ const innerRenderStill = async ({
 		frame: null,
 	});
 
+	const logCallback = (log: ConsoleMessage) => {
+		onBrowserLog?.({
+			stackTrace: log.stackTrace(),
+			text: log.text,
+			type: log.type,
+		});
+	};
+
 	const cleanup = async () => {
 		cleanUpJSException();
 		page.off('console', logCallback);
@@ -198,14 +206,6 @@ const innerRenderStill = async ({
 	cancelSignal?.(() => {
 		cleanup();
 	});
-
-	const logCallback = (log: ConsoleMessage) => {
-		onBrowserLog?.({
-			stackTrace: log.stackTrace(),
-			text: log.text,
-			type: log.type,
-		});
-	};
 
 	if (onBrowserLog) {
 		page.on('console', logCallback);
