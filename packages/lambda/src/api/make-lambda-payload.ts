@@ -21,7 +21,6 @@ export const makeLambdaPayload = async ({
 	envVariables,
 	pixelFormat,
 	proResProfile,
-	quality,
 	maxRetries,
 	privacy,
 	logLevel,
@@ -42,7 +41,15 @@ export const makeLambdaPayload = async ({
 	muted,
 	overwrite,
 	dumpBrowserLogs,
+	jpegQuality,
+	quality,
 }: RenderMediaOnLambdaInput) => {
+	if (quality) {
+		throw new Error(
+			'quality has been renamed to jpegQuality. Please rename the option.'
+		);
+	}
+
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda({
@@ -69,7 +76,7 @@ export const makeLambdaPayload = async ({
 		envVariables,
 		pixelFormat,
 		proResProfile,
-		quality,
+		jpegQuality,
 		maxRetries: maxRetries ?? 1,
 		privacy: privacy ?? 'public',
 		logLevel: logLevel ?? 'info',
