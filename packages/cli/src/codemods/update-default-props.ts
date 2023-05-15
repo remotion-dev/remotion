@@ -1,3 +1,5 @@
+import {stringifyDefaultProps} from './stringify-with-path';
+
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
 type PrettierType = typeof import('prettier');
 
@@ -92,26 +94,6 @@ const findTerminators = (input: string, position: number) => {
 	return Infinity;
 };
 
-const stringifyDefaultProps = (props: unknown) => {
-	// Don't replace with arrow function
-	return JSON.stringify(props, function (key, value) {
-		if (this[key] instanceof Date) {
-			return `__REMOVEQUOTE__new Date('${new Date(
-				this[key]
-			).toISOString()}')__REMOVEQUOTE__`;
-		}
-
-		if (typeof this[key] === 'string') {
-			return `${this[key]}__ADD_AS_CONST__`;
-		}
-
-		return value;
-	})
-		.replace(/"__REMOVEQUOTE__/g, '')
-		.replace(/__REMOVEQUOTE__"/g, '')
-		.replace(/__ADD_AS_CONST__"/g, '" as const');
-};
-
 // TODO: Add more sanity checks
 export const updateDefaultProps = async ({
 	input,
@@ -154,7 +136,7 @@ export const updateDefaultProps = async ({
 
 	const newFile =
 		input.substring(0, startPos) +
-		stringifyDefaultProps(newDefaultProps) +
+		stringifyDefaultProps({props: newDefaultProps}) +
 		input.substring(endPos);
 
 	const configFilePath = await resolveConfigFile();
