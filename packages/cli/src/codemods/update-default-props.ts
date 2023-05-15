@@ -141,7 +141,6 @@ export const updateDefaultProps = async ({
 		input.substring(0, startPos) +
 		stringifyDefaultProps({props: newDefaultProps, enumPaths}) +
 		input.substring(endPos);
-	console.log(newFile);
 
 	const configFilePath = await resolveConfigFile();
 	if (!configFilePath) {
