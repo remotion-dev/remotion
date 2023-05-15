@@ -1,4 +1,5 @@
 import {spawn} from 'node:child_process';
+import {chmodSync} from 'node:fs';
 import os from 'node:os';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getActualConcurrency} from '../get-concurrency';
@@ -53,6 +54,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	payload: CompositorCommand[T]
 ): Compositor => {
 	const bin = getExecutablePath('compositor');
+	chmodSync(bin, 0o755);
 
 	const fullCommand: CompositorCommandSerialized<T> = serializeCommand(
 		type,
