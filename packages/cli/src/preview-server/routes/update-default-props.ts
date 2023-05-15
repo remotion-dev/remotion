@@ -9,7 +9,7 @@ import {checkIfTypeScriptFile} from './can-update-default-props';
 export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,
 	void
-> = async ({input: {compositionId, defaultProps}, remotionRoot}) => {
+> = async ({input: {compositionId, defaultProps, enumPaths}, remotionRoot}) => {
 	const projectInfo = await getProjectInfo(remotionRoot);
 	// TODO: What happens if this error is thrown? Handle in frontend
 	if (!projectInfo.videoFile) {
@@ -23,6 +23,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 		compositionId,
 		input: readFileSync(projectInfo.videoFile, 'utf-8'),
 		newDefaultProps: deserializeJSONWithDate(defaultProps),
+		enumPaths,
 	});
 
 	writeFileSync(projectInfo.videoFile, updated);

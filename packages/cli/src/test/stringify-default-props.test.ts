@@ -11,7 +11,7 @@ test('Should stringify default props correctly', () => {
 			abc: 'def',
 			newDate: new Date('2022-01-02'),
 		},
-		enumPath: [],
+		enumPaths: [],
 	});
 	expect(result).toBe(
 		`{"abc":"def","newDate":new Date('2022-01-02T00:00:00.000Z')}`
@@ -34,7 +34,7 @@ test('Should stringify default props correctly', () => {
 	const enumPaths = extractEnumJsonPaths(schema, z, []);
 	expect(enumPaths).toStrictEqual([['abc'], ['array', '[]']]);
 
-	const result = stringifyDefaultProps({props: values, enumPath: enumPaths});
+	const result = stringifyDefaultProps({props: values, enumPaths});
 	expect(result).toBe(
 		`{"abc":"hi" as const,"array":["hi" as const],"notAnEnum":""}`
 	);
