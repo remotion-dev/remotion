@@ -57,11 +57,11 @@ RUN apt-get update
 ```
 
 <p>
-<Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM), FFmpeg and Chromium. 
+<Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM) and Chromium. 
 </p>
 
 ```docker
-RUN apt-get install -y nodejs npm ffmpeg chromium
+RUN apt-get install -y nodejs npm chromium
 ```
 
 <p>
