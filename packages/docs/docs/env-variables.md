@@ -40,11 +40,18 @@ You can override the location of your dotenv file using the [configuration file 
 
 When using the [Node.js APIs](/docs/renderer) such as [`renderMedia()`](/docs/renderer/render-media) or [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda), the environment variables are **not** picked up automatically.
 
-The reason is that one might integrate Remotion as a small part of a big application and if Remotion would read the `.env` file and pick up all secrets and forwards it to renders, it would lead to a security issue.
+The reason is that one might integrate Remotion as a small part of a big application and if Remotion would read the `.env` file automatically and forward all variables to renders, it would lead to a security issue.
 
 To pass environment variables while server-side-rendering, pass an object to the [`envVariables` option of `renderMedia()`](/docs/renderer/render-media#envvariables).
 
 If you want to read the environment variables from a `.env` file, use the [dotenv](https://www.npmjs.com/package/dotenv) package.
+
+## The `envVariables` option
+
+The `envVariables` option of [`renderMedia()`](/docs/renderer/render-media#envvariables), [`renderMediaOnLambda`](/docs/lambda/rendermediaonlambda) accepts an object of key-value pairs.  
+These values can then be read from `process.env` inside your React component.
+
+The option is not for authenticating with AWS - instead, load the AWS credentials using one of the described methods above.
 
 ## See also
 

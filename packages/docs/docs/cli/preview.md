@@ -33,7 +33,7 @@ Specify a location for the Remotion config file.
 
 ### `--env-file` <AvailableFrom v="2.2.0" />
 
-Specify a location for a dotenv file. Default `.env`.
+Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)
 
 ### `--log`
 
