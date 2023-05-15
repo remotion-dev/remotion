@@ -5,7 +5,7 @@ import {Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {State} from './RenderModalData';
-import type {SerializedJSONWithDate} from './SchemaEditor/date-serialization';
+import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
 
 const style: React.CSSProperties = {
 	fontFamily: 'monospace',
@@ -38,7 +38,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	valBeforeSafe: unknown;
 	showSaveButton: boolean;
 	parseJSON: (str: string) => State;
-	serializedJSON: SerializedJSONWithDate | null;
+	serializedJSON: SerializedJSONWithCustomFields | null;
 }> = ({
 	setValue,
 	value,

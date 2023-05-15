@@ -784,7 +784,7 @@ export const Index: React.FC = () => {
 						color: '#eb3a60',
 						nullable: null,
 						optional: 'hihi',
-						filePath: staticFile('logo.png'),
+						filePath: 'remotion-file:jpeg.png',
 					}}
 					durationInFrames={150}
 				/>
