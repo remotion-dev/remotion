@@ -24,12 +24,12 @@ import {SegmentedControl} from '../SegmentedControl';
 import type {TypeCanSaveState} from './get-render-modal-warnings';
 import {getRenderModalWarnings} from './get-render-modal-warnings';
 import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
-import type {SerializedJSONWithDate} from './SchemaEditor/date-serialization';
+import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
+import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
 import {
 	deserializeJSONWithDate,
 	serializeJSONWithDate,
-} from './SchemaEditor/date-serialization';
-import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
+} from './SchemaEditor/input-props-serialization';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -139,7 +139,7 @@ export const RenderModalData: React.FC<{
 	);
 
 	const inJSONEditor = mode === 'json';
-	const serializedJSON: SerializedJSONWithDate | null = useMemo(() => {
+	const serializedJSON: SerializedJSONWithCustomFields | null = useMemo(() => {
 		if (!inJSONEditor) {
 			return null;
 		}

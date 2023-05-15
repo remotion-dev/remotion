@@ -12,8 +12,8 @@ import type {
 	RenderJob,
 } from '../../../preview-server/render-queue/job';
 import type {RequiredChromiumOptions} from '../../../required-chromium-options';
-import {serializeJSONWithDate} from '../RenderModal/SchemaEditor/date-serialization';
 import type {EnumPath} from '../RenderModal/SchemaEditor/extract-enum-json-paths';
+import {serializeJSONWithDate} from '../RenderModal/SchemaEditor/input-props-serialization';
 
 const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
