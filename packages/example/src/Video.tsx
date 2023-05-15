@@ -776,17 +776,15 @@ export const Index: React.FC = () => {
 						yo: {hi: ' there'},
 						un: 'hi',
 						num: '179',
-						date: new Date('1999-02-12T20:20:00.000Z'),
+						date: new Date('1999-02-12T22:20:00.000Z'),
 						values: 'a' as const,
 						supersuperlongvalueabcdefghji: 'hi',
 						incompatible: null,
 						longEnum: 'k' as const,
 						color: '#eb3a60',
 						nullable: null,
-						optional: '5645656',
-						filePath: staticFile(
-							'remotion-file:remotion-file%3Aremotion-file%253Anested%252Fmp3.png'
-						),
+						optional: '',
+						filePath: staticFile('nested/logö.png'),
 					}}
 					durationInFrames={150}
 				/>

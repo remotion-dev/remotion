@@ -37,7 +37,9 @@ export const stringifyDefaultProps = ({
 			}
 
 			if (typeof item === 'string' && item.startsWith(FILE_TOKEN)) {
-				return `__REMOVEQUOTE____WRAP_IN_STATIC_FILE_START__${item}__WRAP_IN_STATIC_FILE_END____REMOVEQUOTE__`;
+				return `__REMOVEQUOTE____WRAP_IN_STATIC_FILE_START__${decodeURIComponent(
+					item.replace(FILE_TOKEN, '')
+				)}__WRAP_IN_STATIC_FILE_END____REMOVEQUOTE__`;
 			}
 
 			return value;
