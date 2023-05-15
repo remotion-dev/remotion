@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {displaySiteInfo} from '.';
 import {deleteService} from '../../../api/delete-service';
 import {getServiceInfo} from '../../../api/get-service-info';
 import {getServices} from '../../../api/get-services';
@@ -7,7 +8,6 @@ import {confirmCli} from '../../helpers/confirm';
 import {Log} from '../../log';
 
 export const SERVICES_RMALL_SUBCOMMAND = 'rmall';
-const LEFT_COL = 16;
 
 export const servicesRmallCommand = async () => {
 	const region = getGcpRegion();
@@ -27,15 +27,8 @@ export const servicesRmallCommand = async () => {
 			serviceName: serv.serviceName,
 		});
 
-		infoOutput.update(
-			[
-				'Service name: '.padEnd(LEFT_COL, ' ') + ' ' + info.serviceName,
-				'Version: '.padEnd(LEFT_COL, ' ') + ' ' + info.remotionVersion,
-				'CPU Limit: '.padEnd(LEFT_COL, ' ') + ' ' + info.cpuLimit,
-				'Memory Limit: '.padEnd(LEFT_COL, ' ') + ' ' + info.memoryLimit,
-				'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + info.timeoutInSeconds + 'sec',
-			].join('\n')
-		);
+		infoOutput.update(displaySiteInfo(info));
+
 		Log.info();
 
 		const confirmDelete = await confirmCli({

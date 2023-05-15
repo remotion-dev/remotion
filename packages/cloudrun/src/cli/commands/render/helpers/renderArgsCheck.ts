@@ -17,6 +17,7 @@ import {Log} from '../../../log';
 
 export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 	let region;
+	let remotionBucket;
 
 	let serveUrl = args[0];
 	if (!serveUrl) {
@@ -34,8 +35,12 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 	if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 		const siteName = serveUrl;
 		Log.info('Remotion site-name passed, constructing serve url...');
-		const {bucketName} = await getOrCreateBucket();
-		serveUrl = convertToServeUrl({urlOrId: siteName, bucketName});
+		region = region ?? getGcpRegion();
+		remotionBucket = (await getOrCreateBucket({region})).bucketName;
+		serveUrl = convertToServeUrl({
+			urlOrId: siteName,
+			bucketName: remotionBucket,
+		});
 		Log.info(`<serve-url> constructed: ${serveUrl}\n`);
 	}
 
@@ -61,10 +66,11 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 	if (!outputBucket) {
 		region = region ?? getGcpRegion();
 
-		const {bucketName} = await getOrCreateBucket({
-			region,
-		});
-		outputBucket = bucketName;
+		if (!remotionBucket) {
+			remotionBucket = (await getOrCreateBucket({region})).bucketName;
+		}
+
+		outputBucket = remotionBucket;
 	}
 
 	let cloudRunUrl = parsedCloudrunCli['cloud-run-url'];

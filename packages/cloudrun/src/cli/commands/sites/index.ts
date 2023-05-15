@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {Site} from '../../../api/get-sites';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
@@ -8,6 +9,16 @@ import {sitesRmSubcommand, SITES_RM_COMMAND} from './rm';
 import {sitesRmallSubcommand, SITES_RMALL_COMMAND} from './rmall';
 
 export const SITES_COMMAND = 'sites';
+
+export const displaySiteInfo = (site: Site) => {
+	const LEFT_COL = 16;
+	return [
+		'Site: '.padEnd(LEFT_COL, ' ') + ' ' + site.id,
+		'Bucket: '.padEnd(LEFT_COL, ' ') + ' ' + site.bucketName,
+		'Region: '.padEnd(LEFT_COL, ' ') + ' ' + site.bucketRegion,
+		'Serve Url: '.padEnd(LEFT_COL, ' ') + ' ' + site.serveUrl,
+	].join('\n');
+};
 
 const printSitesHelp = () => {
 	Log.info(`${BINARY_NAME} ${SITES_COMMAND} <subcommand>`);

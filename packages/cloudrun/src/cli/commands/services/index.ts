@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import type {ServiceInfo} from '../../../api/get-service-info';
 import {BINARY_NAME} from '../../../shared/constants';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
@@ -8,6 +9,17 @@ import {servicesRmCommand, SERVICES_RM_SUBCOMMAND} from './rm';
 import {servicesRmallCommand, SERVICES_RMALL_SUBCOMMAND} from './rmall';
 
 export const SERVICES_COMMAND = 'services';
+
+export const displaySiteInfo = (service: ServiceInfo) => {
+	const LEFT_COL = 16;
+	return [
+		'Service name: '.padEnd(LEFT_COL, ' ') + ' ' + service.serviceName,
+		'Version: '.padEnd(LEFT_COL, ' ') + ' ' + service.remotionVersion,
+		'CPU Limit: '.padEnd(LEFT_COL, ' ') + ' ' + service.cpuLimit,
+		'Memory Limit: '.padEnd(LEFT_COL, ' ') + ' ' + service.memoryLimit,
+		'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + service.timeoutInSeconds + 'sec',
+	].join('\n');
+};
 
 const printCloudRunHelp = () => {
 	Log.info(`${BINARY_NAME} ${SERVICES_COMMAND} <subcommand>`);

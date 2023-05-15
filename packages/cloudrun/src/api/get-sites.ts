@@ -2,7 +2,7 @@ import type {GcpRegion} from '../pricing/gcp-regions';
 import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {getCloudStorageClient} from './helpers/get-cloud-storage-client';
 
-type Site = {
+export type Site = {
 	lastModified: number | null;
 	bucketName: string;
 	id: string;
@@ -55,6 +55,10 @@ export const getSites = async (
 		const [, , apiResponse] = await cloudStorageClient
 			.bucket(bucket.name)
 			.getFiles({autoPaginate: false, delimiter: '/', prefix: 'sites/'});
+
+		if (!apiResponse.prefixes) {
+			continue; // no sites folder within bucket
+		}
 
 		for (const prefix of apiResponse.prefixes) {
 			const sitePath = prefix.split('/');
