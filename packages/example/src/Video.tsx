@@ -1,7 +1,7 @@
 import {zColor} from '@remotion/zod-types';
 import {alias} from 'lib/alias';
 import React from 'react';
-import {Composition, Folder, getInputProps, Still} from 'remotion';
+import {Composition, Folder, getInputProps, staticFile, Still} from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';
@@ -726,6 +726,7 @@ export const Index: React.FC = () => {
 						color: zColor(),
 						nullable: z.nullable(z.string()),
 						optional: z.string().optional(),
+						filePath: z.string().refine((v) => v.endsWith('.png')),
 						longEnum: z.enum([
 							'a',
 							'b',
@@ -783,6 +784,7 @@ export const Index: React.FC = () => {
 						color: '#eb3a60',
 						nullable: null,
 						optional: 'hihi',
+						filePath: staticFile('logo.png'),
 					}}
 					durationInFrames={150}
 				/>
