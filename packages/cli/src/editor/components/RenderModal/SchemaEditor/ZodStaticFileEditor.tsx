@@ -124,7 +124,11 @@ export const ZodStaticFileEditor: React.FC<{
 			/>
 
 			<div style={isRoot ? undefined : container}>
-				<Combobox values={comboBoxValues} selectedId={value} title={value} />
+				<Combobox
+					values={comboBoxValues}
+					selectedId={localValue.value}
+					title={value}
+				/>
 			</div>
 			{!localValue.zodValidation.success && (
 				<>
