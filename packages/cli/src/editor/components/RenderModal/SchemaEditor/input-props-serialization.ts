@@ -1,5 +1,3 @@
-import {staticFile} from 'remotion';
-
 export type SerializedJSONWithCustomFields = {
 	serializedString: string;
 	customDateUsed: boolean;
@@ -7,7 +5,7 @@ export type SerializedJSONWithCustomFields = {
 };
 
 const DATE_TOKEN = 'remotion-date:';
-const FILE_TOKEN = 'remotion-file:';
+export const FILE_TOKEN = 'remotion-file:';
 
 export const serializeJSONWithDate = (
 	data: unknown,
@@ -43,14 +41,10 @@ export const serializeJSONWithDate = (
 	return {serializedString, customDateUsed, customFileUsed};
 };
 
-export const deserializeJSONWithDate = (data: string) => {
+export const deserializeJSONWithCustomFields = (data: string) => {
 	return JSON.parse(data, (_, value) => {
 		if (typeof value === 'string' && value.startsWith(DATE_TOKEN)) {
 			return new Date(value.replace(DATE_TOKEN, ''));
-		}
-
-		if (typeof value === 'string' && value.startsWith(FILE_TOKEN)) {
-			return staticFile(value.replace(FILE_TOKEN, ''));
 		}
 
 		return value;

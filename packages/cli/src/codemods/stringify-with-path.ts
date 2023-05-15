@@ -1,4 +1,5 @@
 import type {EnumPath} from '../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
+import {FILE_TOKEN} from '../editor/components/RenderModal/SchemaEditor/input-props-serialization';
 
 const doesMatchPath = (path1: EnumPath, enumPaths: EnumPath[]) => {
 	return enumPaths.some((p) =>
@@ -31,8 +32,12 @@ export const stringifyDefaultProps = ({
 				return `__REMOVEQUOTE__new Date('${item.toISOString()}')__REMOVEQUOTE__`;
 			}
 
-			if (typeof this[key] === 'string' && doesMatchPath(path, enumPaths)) {
-				return `${this[key]}__ADD_AS_CONST__`;
+			if (typeof item === 'string' && doesMatchPath(path, enumPaths)) {
+				return `${item}__ADD_AS_CONST__`;
+			}
+
+			if (typeof item === 'string' && item.startsWith(FILE_TOKEN)) {
+				return `__REMOVEQUOTE____WRAP_IN_STATIC_FILE_START__${item}__WRAP_IN_STATIC_FILE_END____REMOVEQUOTE__`;
 			}
 
 			return value;
@@ -40,7 +45,9 @@ export const stringifyDefaultProps = ({
 	)
 		.replace(/"__REMOVEQUOTE__/g, '')
 		.replace(/__REMOVEQUOTE__"/g, '')
-		.replace(/__ADD_AS_CONST__"/g, '" as const');
+		.replace(/__ADD_AS_CONST__"/g, '" as const')
+		.replace(/__WRAP_IN_STATIC_FILE_START__/g, 'staticFile("')
+		.replace(/__WRAP_IN_STATIC_FILE_END__/g, '")');
 
 function replacerWithPath(
 	replacer: (

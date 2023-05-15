@@ -1,4 +1,5 @@
 import React, {useCallback, useMemo, useState} from 'react';
+import {getStaticFiles} from 'remotion';
 import type {z} from 'zod';
 import {Checkmark} from '../../../icons/Checkmark';
 import {useZodIfPossible} from '../../get-zod-if-possible';
@@ -20,13 +21,13 @@ type LocalState = {
 	zodValidation: z.SafeParseReturnType<unknown, unknown>;
 };
 
-export const ZodEnumEditor: React.FC<{
+export const ZodStaticFileEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: string;
 	defaultValue: string;
 	setValue: UpdaterFunction<string>;
-	onSave: UpdaterFunction<string>;
+	onSave: (updater: (oldState: string) => string) => void;
 	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
@@ -59,7 +60,7 @@ export const ZodEnumEditor: React.FC<{
 	const def = schema._def;
 
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
-	if (typeName !== z.ZodFirstPartyTypeKind.ZodEnum) {
+	if (typeName !== z.ZodFirstPartyTypeKind.ZodString) {
 		throw new Error('expected enum');
 	}
 
@@ -88,13 +89,13 @@ export const ZodEnumEditor: React.FC<{
 	}, [defaultValue, onChange]);
 
 	const comboBoxValues = useMemo(() => {
-		return def.values.map((option: string): ComboboxValue => {
+		return getStaticFiles().map((option): ComboboxValue => {
 			return {
-				value: option,
-				label: option,
-				id: option,
+				value: option.src,
+				label: option.name,
+				id: option.src,
 				keyHint: null,
-				leftItem: option === value ? <Checkmark /> : null,
+				leftItem: option.src === value ? <Checkmark /> : null,
 				onClick: (id: string) => {
 					onChange(() => id);
 				},
@@ -103,7 +104,7 @@ export const ZodEnumEditor: React.FC<{
 				type: 'item',
 			};
 		});
-	}, [def.values, onChange, value]);
+	}, [onChange, value]);
 
 	const save = useCallback(() => {
 		onSave(() => value);
