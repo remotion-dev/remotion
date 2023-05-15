@@ -295,6 +295,7 @@ export const RenderModalData: React.FC<{
 			canSaveDefaultProps,
 			cliProps,
 			isCustomDateUsed: serializedJSON ? serializedJSON.customDateUsed : false,
+			customFileUsed: serializedJSON ? serializedJSON.customFileUsed : false,
 			inJSONEditor,
 			propsEditType,
 		});
