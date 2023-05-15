@@ -127,7 +127,6 @@ export const webpackConfig = ({
 				  ],
 		output: {
 			hashFunction: 'xxhash64',
-			globalObject: 'this',
 			filename: 'bundle.js',
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:

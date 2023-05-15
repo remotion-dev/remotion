@@ -81,13 +81,25 @@ export const useMediaPlayback = ({
 			}
 		}
 
+		// Only perform a seek if the time is not already the same.
+		// Chrome rounds to 6 digits, so 0.033333333 -> 0.033333,
+		// therefore a threshold is allowed.
+		// Refer to the https://github.com/remotion-dev/video-buffering-example
+		// which is fixed by only seeking conditionally.
+		const makesSenseToSeek =
+			Math.abs(mediaRef.current.currentTime - shouldBeTime) > 0.00001;
+
 		if (!playing || absoluteFrame === 0) {
-			mediaRef.current.currentTime = shouldBeTime;
+			if (makesSenseToSeek) {
+				mediaRef.current.currentTime = shouldBeTime;
+			}
 		}
 
 		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
-			const {current} = mediaRef;
-			current.currentTime = shouldBeTime;
+			if (makesSenseToSeek) {
+				mediaRef.current.currentTime = shouldBeTime;
+			}
+
 			playAndHandleNotAllowedError(mediaRef, mediaType);
 		}
 	}, [

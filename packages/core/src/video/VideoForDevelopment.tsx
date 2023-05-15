@@ -120,8 +120,13 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		const errorHandler = () => {
 			if (current?.error) {
 				console.error('Error occurred in video', current?.error);
+				// If user is handling the error, we don't cause an unhandled exception
+				if (props.onError) {
+					return;
+				}
+
 				throw new Error(
-					`The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+					`The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`
 				);
 			} else {
 				throw new Error('The browser threw an error');
@@ -132,7 +137,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, [src]);
+	}, [props.onError, src]);
 
 	const currentOnDurationCallback =
 		useRef<VideoForDevelopmentProps['onDuration']>();

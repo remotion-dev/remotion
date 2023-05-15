@@ -14,7 +14,7 @@ import {VideoForDevelopment} from './VideoForDevelopment.js';
 export const OffthreadVideo: React.FC<
 	Omit<OffthreadVideoProps & RemotionMainVideoProps, 'loop'>
 > = (props) => {
-	const {startFrom, endAt, ...otherProps} = props;
+	const {startFrom, endAt, imageFormat, ...otherProps} = props;
 	const environment = useRemotionEnvironment();
 
 	const onDuration = useCallback(() => undefined, []);
@@ -53,7 +53,9 @@ export const OffthreadVideo: React.FC<
 	validateMediaProps(props, 'Video');
 
 	if (environment === 'rendering') {
-		return <OffthreadVideoForRendering {...otherProps} />;
+		return (
+			<OffthreadVideoForRendering imageFormat={imageFormat} {...otherProps} />
+		);
 	}
 
 	return (

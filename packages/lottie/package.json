@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lottie",
-	"version": "3.3.88",
+	"version": "3.3.92",
 	"description": "Remotion Lottie",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",

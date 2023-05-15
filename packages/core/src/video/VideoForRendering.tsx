@@ -204,8 +204,14 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		const errorHandler = () => {
 			if (current?.error) {
 				console.error('Error occurred in video', current?.error);
+
+				// If user is handling the error, we don't cause an unhandled exception
+				if (onError) {
+					return;
+				}
+
 				throw new Error(
-					`The browser threw an error while playing the video ${props.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+					`The browser threw an error while playing the video ${props.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`
 				);
 			} else {
 				throw new Error('The browser threw an error');
@@ -228,6 +234,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		videoConfig.fps,
 		frame,
 		mediaStartsAt,
+		onError,
 	]);
 
 	const {src} = props;
