@@ -23,7 +23,7 @@
     "README.md"
   ],
   "dependencies": {
-    "@rive-app/canvas-advanced": "^1.0.98",
+    "@rive-app/canvas-advanced": "1.0.98",
     "remotion": "workspace:*"
   },
   "peerDependencies": {
