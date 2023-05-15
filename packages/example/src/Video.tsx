@@ -783,8 +783,10 @@ export const Index: React.FC = () => {
 						longEnum: 'k' as const,
 						color: '#eb3a60',
 						nullable: null,
-						optional: 'hihi',
-						filePath: staticFile('remotion-file:nested/mp3.png'),
+						optional: '5645656',
+						filePath: staticFile(
+							'remotion-file:remotion-file%3Aremotion-file%253Anested%252Fmp3.png'
+						),
 					}}
 					durationInFrames={150}
 				/>
