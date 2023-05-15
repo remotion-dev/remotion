@@ -9,6 +9,7 @@ import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
 
 import type {Configuration} from 'webpack';
+import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
 
 export type WebpackOverrideFn = (
@@ -118,6 +119,7 @@ export const webpackConfig = ({
 							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
 								JSON.stringify(envVariables),
 						}),
+						new AllowOptionalDependenciesPlugin(),
 				  ]
 				: [
 						new ProgressPlugin((p) => {
@@ -125,6 +127,7 @@ export const webpackConfig = ({
 								onProgress(Number((p * 100).toFixed(2)));
 							}
 						}),
+						new AllowOptionalDependenciesPlugin(),
 				  ],
 		output: {
 			hashFunction: 'xxhash64',
