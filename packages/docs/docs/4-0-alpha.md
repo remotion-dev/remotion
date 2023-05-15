@@ -71,6 +71,13 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
+### `4.0.0-alpha6`
+
+- Fixes `EACCES` errors appearing
+- GUI design improvements
+- Fix warnings if Zod is not installed
+- Breaking change: `staticFile()` now encodes the filename using `encodeURIComponent`. You don't have to and should not do it manually anymore - see migration guide
+
 ### `4.0.0-alpha5`
 
 May 3rd 2023:
