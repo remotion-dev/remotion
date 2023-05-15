@@ -1,5 +1,6 @@
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
+import {chmodSync} from 'node:fs';
 import {copyFile} from 'node:fs/promises';
 import type {DownloadMap} from '../assets/download-map';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
@@ -70,11 +71,9 @@ export const compose = async ({
 
 export const callCompositor = (payload: string) => {
 	return new Promise<void>((resolve, reject) => {
-		const child = spawn(
-			getExecutablePath('compositor'),
-			[payload],
-			dynamicLibraryPathOptions()
-		);
+		const execPath = getExecutablePath('compositor');
+		chmodSync(execPath, 0o755);
+		const child = spawn(execPath, [payload], dynamicLibraryPathOptions());
 		child.stdin.write(payload);
 		child.stdin.end();
 
