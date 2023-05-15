@@ -26,11 +26,17 @@ The default region is `us-east1`.
 
 ## Selecting a region
 
-There are 3 ways of selection a region:
+There are 3 ways to select a region:
 
 - When using the Node.JS APIs, you have to pass the region explicitly to each function. Make sure your projects satisfy the Typescript types or follow the documentation.
 
-- You can pass the `--region` flag to all CLI commands to set the region.
+- When using the CLI, you can set the region using the `REMOTION_GCP_REGION` environment variable. It's best to put it in a `.env` file so you don't forget it sometimes.
+
+- You can also pass the `--region` flag to all CLI commands to override the region. The flag takes precedence over the environment variable.
+
+:::info
+The REMOTION_GCP_REGION environment variable and `--region` flag do not have an effect when using the Node.JS APIs. You need to pass a region explicitly.
+:::
 
 If you don't set a region, Remotion will use the default region.
 
@@ -40,4 +46,4 @@ Note that each region falls into one of two different pricing tiers. Some region
 
 ## Other considerations
 
-- The Cloud Run service and Cloud Storage bucket must be in the same region to eliminate latency across datacenters.
+- The Cloud Run service and Cloud Storage bucket should be in the same region to eliminate latency across datacenters.

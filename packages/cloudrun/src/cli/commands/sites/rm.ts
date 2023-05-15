@@ -1,17 +1,23 @@
 import {CliInternals} from '@remotion/cli';
+import {displaySiteInfo, SITES_COMMAND} from '.';
 import {deleteSite} from '../../../api/delete-site';
 import {getSites} from '../../../api/get-sites';
+import {BINARY_NAME} from '../../../shared/constants';
+import {getGcpRegion} from '../../get-gcp-region';
 import {confirmCli} from '../../helpers/confirm';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
+import {SITES_LS_SUBCOMMAND} from './ls';
 
 export const SITES_RM_COMMAND = 'rm';
-const LEFT_COL = 16;
 
 export const sitesRmSubcommand = async (args: string[]) => {
 	if (args.length === 0) {
 		Log.error(
 			'No site name was passed. Run the command again and pass another argument <site-name>.'
+		);
+		Log.error(
+			`To get a list of sites, run \`${BINARY_NAME} ${SITES_COMMAND} ${SITES_LS_SUBCOMMAND}\``
 		);
 		quit(1);
 	}
@@ -21,33 +27,30 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		return;
 	}
 
-	const deployedSites = await getSites('all regions');
+	const region = getGcpRegion();
+	const infoOutput = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+	});
+	infoOutput.update(`Checking ${region} for sites...`);
+
+	const deployedSites = await getSites(region);
 
 	for (const siteName of args) {
-		const infoOutput = CliInternals.createOverwriteableCliOutput({
-			quiet: CliInternals.quietFlagProvided(),
-			cancelSignal: null,
-		});
 		infoOutput.update('Getting site info...');
 
 		const site = deployedSites.sites.find((s) => s.id === siteName.trim());
 		if (!site) {
-			throw new Error(`${siteName.trim()} was not found.`);
+			infoOutput.update('');
+			throw new Error(`${siteName.trim()} was not found in ${region}.`);
 		}
 
-		infoOutput.update(
-			[
-				'Site: '.padEnd(LEFT_COL, ' ') + ' ' + site.id,
-				'Bucket: '.padEnd(LEFT_COL, ' ') + ' ' + site.bucketName,
-				'Region: '.padEnd(LEFT_COL, ' ') + ' ' + site.bucketRegion,
-				'Serve Url: '.padEnd(LEFT_COL, ' ') + ' ' + site.serveUrl,
-			].join('\n')
-		);
+		infoOutput.update(displaySiteInfo(site));
 		Log.info();
 		Log.info();
 
 		const confirmDelete = await confirmCli({
-			delMessage: `Site ${site.id} in bucket ${site.bucketName}: Delete? (Y/n)`,
+			delMessage: 'Delete? (Y/n)',
 			allowForceFlag: true,
 		});
 

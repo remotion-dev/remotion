@@ -53,14 +53,14 @@ Site Name: mySite123<br/>
 
 ### `--region`
 
-The [GCP region](/docs/cloudrun/region-selection) to select. The service should also be in this same region to minimise latency.
+The [GCP region](/docs/cloudrun/region-selection) to select. The service accessing the site should also be in this same region to minimise latency.
 
 ### `--site-name`
 
-Uploads the project to a specific directory and returns a deterministic URL. If a site already existed under this name, it will be overwritten. Can only contain the following characters: `0-9`, `a-z`, `A-Z`, `-`, `!`, `_`, `.`, `*`, `'`, `(`, `)`
+Uploads the project to a specific directory and returns a deterministic URL. If a site already existed under this name, in the same region, it will be overwritten. Can only contain the following characters: `0-9`, `a-z`, `A-Z`, `-`, `!`, `_`, `.`, `*`, `'`, `(`, `)`
 
 ```
-npx remotion cloudrun sites create src/index.ts --site-name=my-project
+npx remotion cloudrun sites create src/index.ts --site-name=another-site
 ```
 
 <details>
@@ -70,11 +70,11 @@ Example output
 <pre>
 (1/3) [====================] Bundled video 3975ms<br/>
 (2/3) [====================] Created bucket 457ms<br/>
-(3/3) [====================] Uploaded to S3 25118ms<br/>
+(3/3) [====================] Uploaded to Cloud Storage 25118ms<br/>
 <br/>
 Deployed to GCP Cloud Storage!<br/>
-Serve URL: https://storage.googleapis.com/remotioncloudrun-12345/sites/my-project/index.html<br/>
-Site Name: my-project<br/>
+Serve URL: https://storage.googleapis.com/remotioncloudrun-12345/sites/another-site/index.html<br/>
+Site Name: another-site<br/>
 
 </pre>
 </details>
@@ -93,11 +93,47 @@ Example output
 </summary>
 <pre>
 2 sites in us-east1, in the remotion-6 project.<br/><br/>
-Site Name             Bucket                        Region<br/>
-another-site          remotioncloudrun-abcdefg      us-east1<br/>     
-https://storage.googleapis.com/remotioncloudrun-abcdefg/sites/another-site/index.html<br/><br/>   
-test-site             remotioncloudrun-abcdefg      us-east1  <br/>
-https://storage.googleapis.com/remotioncloudrun-abcdefg/sites/test-site/index.html<br/>
+Site:            another-site<br/>
+Bucket:          remotioncloudrun-12345<br/>
+Region:          us-east1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-12345/sites/another-site/index.html<br/><br/>
+Site:            test-site<br/>
+Bucket:          remotioncloudrun-12345<br/>
+Region:          us-east1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-12345/sites/test-site/index.html<br/>
+</pre>
+</details>
+
+### `--region`
+
+The [GCP region](/docs/cloudrun/region-selection) to list sites from.
+
+### `--all-regions`,
+
+Ignores region, returning sites across all regions for the project.
+
+```
+npx remotion cloudrun sites ls --all-regions
+```
+
+<details>
+<summary>
+Example output
+</summary>
+<pre>
+3 sites in all regions, in the remotion-6 project.<br/><br/>
+Site:            another-site<br/>
+Bucket:          remotioncloudrun-12345<br/>
+Region:          us-east1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-12345/sites/another-site/index.html<br/><br/>
+Site:            test-site<br/>
+Bucket:          remotioncloudrun-12345<br/>
+Region:          us-east1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-12345/sites/test-site/index.html<br/><br/>
+Site:            central-site<br/>
+Bucket:          remotioncloudrun-abcdefgh<br/>
+Region:          us-central1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-abcdefgh/sites/central-site/index.html
 </pre>
 </details>
 
@@ -114,31 +150,7 @@ npx remotion cloudrun sites ls -q
 Example output
 </summary>
 <pre>
-pr6fwglz05 testbed<br/>
-</pre>
-</details>
-
-### `--all-regions`,
-
-Ignores region, returning sites across all regions for the project
-
-```
-npx remotion cloudrun sites ls --all-regions
-```
-
-<details>
-<summary>
-Example output
-</summary>
-<pre>
-3 sites in all regions, in the remotion-6 project.<br/><br/>
-Site Name             Bucket                        Region<br/>
-another-site          remotioncloudrun-abcdefg      us-east1<br/>
-https://storage.googleapis.com/remotioncloudrun-abcdefg/sites/another-site/index.html<br/><br/>
-test-site             remotioncloudrun-abcdefg      us-east1  <br/>
-https://storage.googleapis.com/remotioncloudrun-abcdefg/sites/test-site/index.html<br/><br/>
-central-site          remotioncloudrun-123456       us-central1  <br/>
-https://storage.googleapis.com/remotioncloudrun-123456/sites/central-site/index.html<br/>
+another-site test-site central-site<br/>
 </pre>
 </details>
 
@@ -157,18 +169,26 @@ Example output
 </summary>
 <pre>
 Site:            central-site<br/>
-Bucket:          remotioncloudrun-123456<br/>
+Bucket:          remotioncloudrun-abcdefgh<br/>
 Region:          us-central1<br/>
-Serve Url:       https://storage.googleapis.com/remotioncloudrun-123456/sites/central-site/index.html<br/><br/>
-Site central-site in bucket remotioncloudrun-123456: Delete? (Y/n): Y<br/>
-Deleted site central-site from bucket remotioncloudrun-123456.
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-abcdefgh/sites/central-site/index.html<br/><br/>
+Delete? (Y/n) Y<br/>
+Deleted site central-site from bucket remotioncloudrun-abcdefgh.
 <br/>
 </pre>
 </details>
 
+### `--region`
+
+The [GCP region](/docs/cloudrun/region-selection) to remove sites from.
+
+:::note
+The `rm` command does not support the --all-regions flag, as it is possible to have the same site name in multiple regions. This makes it difficult to remove multiple site-names from multiple regions.
+:::
+
 ### `--yes`, `-y`
 
-Removes a site without asking for confirmation.
+Removes a site (or multiple) without asking for confirmation.
 
 ```
 npx remotion cloudrun sites rm central-site -y
@@ -186,9 +206,59 @@ npx remotion cloudrun sites rmall
 <summary>
 Example output
 </summary>
-<pre>Site abcdef in bucket remotionlambda-gc1w0xbfzl: Delete? (Y/n): Y
-<br/>Deleted site abcdef from bucket remotionlambda-gc1w0xbfzl.
-<br/>
+<pre>
+Retrieving sites in us-east1.<br/><br/>
+Site:            another-site<br/>
+Bucket:          remotioncloudrun-12345<br/>
+Region:          us-east1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-12345/sites/another-site/index.html<br/><br/>
+Delete? (Y/n) n<br/>
+Skipping site - another-site.<br/><br/><br/>
+Site:            test-site<br/>
+Bucket:          remotioncloudrun-12345<br/>
+Region:          us-east1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-12345/sites/test-site/index.html<br/><br/>
+Delete? (Y/n) n<br/>
+Skipping site - test-site.
+</pre>
+</details>
+
+### `--region`
+
+The [GCP region](/docs/cloudrun/region-selection) to remove all sites from.
+
+### `--all-regions`,
+
+Ignores region, removing sites across all regions for the project.
+
+```
+npx remotion cloudrun sites rmall --all-regions
+```
+
+<details>
+<summary>
+Example output
+</summary>
+<pre>
+Retrieving sites in all regions.<br/><br/>
+Site:            another-site<br/>
+Bucket:          remotioncloudrun-12345<br/>
+Region:          us-east1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-12345/sites/another-site/index.html<br/><br/>
+Delete? (Y/n) n<br/>
+Skipping site - another-site.<br/><br/><br/>
+Site:            test-site<br/>
+Bucket:          remotioncloudrun-12345<br/>
+Region:          us-east1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-12345/sites/test-site/index.html<br/><br/>
+Delete? (Y/n) n<br/>
+Skipping site - test-site.<br/><br/><br/>
+Site:            central-site<br/>
+Bucket:          remotioncloudrun-abcdefgh<br/>
+Region:          us-central1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-abcdefgh/sites/central-site/index.html<br/><br/>
+Delete? (Y/n) n<br/>
+Skipping site - central-site.
 </pre>
 </details>
 

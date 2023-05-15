@@ -6,11 +6,10 @@ import {getGcpRegion} from '../../get-gcp-region';
 import {confirmCli} from '../../helpers/confirm';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
-import {SERVICES_COMMAND} from './index';
+import {displaySiteInfo, SERVICES_COMMAND} from './index';
 import {SERVICES_LS_SUBCOMMAND} from './ls';
 
 export const SERVICES_RM_SUBCOMMAND = 'rm';
-const LEFT_COL = 16;
 
 export const servicesRmCommand = async (args: string[]) => {
 	if (args.length === 0) {
@@ -42,15 +41,7 @@ export const servicesRmCommand = async (args: string[]) => {
 			serviceName,
 		});
 
-		infoOutput.update(
-			[
-				'Service name: '.padEnd(LEFT_COL, ' ') + ' ' + info.serviceName,
-				'Version: '.padEnd(LEFT_COL, ' ') + ' ' + info.remotionVersion,
-				'CPU Limit: '.padEnd(LEFT_COL, ' ') + ' ' + info.cpuLimit,
-				'Memory Limit: '.padEnd(LEFT_COL, ' ') + ' ' + info.memoryLimit,
-				'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + info.timeoutInSeconds + 'sec',
-			].join('\n')
-		);
+		infoOutput.update(displaySiteInfo(info));
 		Log.info();
 
 		const confirmDelete = await confirmCli({
