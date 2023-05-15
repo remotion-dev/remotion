@@ -780,7 +780,7 @@ export const Index: React.FC = () => {
 						supersuperlongvalueabcdefghji: 'hi',
 						incompatible: null,
 						longEnum: 'k' as const,
-						color: '#eb3a60' as const,
+						color: '#eb3a60',
 						nullable: null,
 						optional: 'hihi',
 					}}
