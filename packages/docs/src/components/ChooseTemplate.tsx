@@ -31,6 +31,7 @@ export const ChooseTemplate: React.FC = () => {
             borderRadius: 50,
             alignItems: "center",
             padding: 8,
+            width: "100%",
           }}
         >
           {CreateVideoInternals.FEATURED_TEMPLATES.slice(0, 4).map(
