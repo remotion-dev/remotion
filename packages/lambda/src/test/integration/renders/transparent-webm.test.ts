@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
-import fs, {createWriteStream} from 'fs';
-import os from 'os';
-import path from 'path';
+import fs, {createWriteStream} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
@@ -71,6 +71,7 @@ test('Should make a transparent video', async () => {
 			rendererFunctionName: null,
 			bucketName: null,
 			audioCodec: null,
+			dumpBrowserLogs: false,
 		},
 		extraContext
 	);
@@ -94,7 +95,6 @@ test('Should make a transparent video', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-	console.log('got file', file);
 
 	// We create a temporary directory for storing the frames
 	const tmpdir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'remotion-'));

@@ -1,6 +1,7 @@
 import React from 'react';
-import {Still, z} from 'remotion';
+import {Still} from 'remotion';
 // Test file just for making sure the types are sound
+import {z} from 'zod';
 
 type MyComponentProps = {
 	a: number;

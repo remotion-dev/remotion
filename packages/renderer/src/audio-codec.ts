@@ -23,14 +23,9 @@ if (_satisfies) {
 	// Just for type checking
 }
 
-export const audioCodecNames = [
-	'pcm_s16le',
-	'aac',
-	'libmp3lame',
-	'libopus',
-] as const;
+const audioCodecNames = ['pcm_s16le', 'aac', 'libmp3lame', 'libopus'] as const;
 
-export type FfmpegAudioCodecName = typeof audioCodecNames[number];
+type FfmpegAudioCodecName = typeof audioCodecNames[number];
 
 export const mapAudioCodecToFfmpegAudioCodecName = (
 	audioCodec: AudioCodec

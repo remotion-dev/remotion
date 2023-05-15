@@ -7,6 +7,7 @@ import {
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {useZIndex} from '../../state/z-index';
+import {Spacing} from '../layout';
 import type {TimelineActionState} from './timeline-state-reducer';
 import {TimelineCollapseToggle} from './TimelineCollapseToggle';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
@@ -24,6 +25,9 @@ export const TOTAL_TIMELINE_LAYER_LEFT_PADDING =
 
 const textStyle: React.CSSProperties = {
 	fontSize: 13,
+	whiteSpace: 'nowrap',
+	textOverflow: 'ellipsis',
+	overflow: 'hidden',
 };
 
 const outer: React.CSSProperties = {
@@ -55,16 +59,20 @@ const hook: React.CSSProperties = {
 
 const space: React.CSSProperties = {
 	width: SPACING,
+	flexShrink: 0,
 };
 
 const smallSpace: React.CSSProperties = {
 	width: SPACING * 0.5,
+
+	flexShrink: 0,
 };
 
 const collapser: React.CSSProperties = {
 	width: TIMELINE_COLLAPSER_WIDTH,
 	userSelect: 'none',
 	marginRight: TIMELINE_COLLAPSER_MARGIN_RIGHT,
+	flexShrink: 0,
 };
 
 const collapserButton: React.CSSProperties = {
@@ -105,6 +113,7 @@ export const TimelineListItem: React.FC<{
 	const padder = useMemo((): React.CSSProperties => {
 		return {
 			width: leftOffset * nestedDepth,
+			flexShrink: 0,
 		};
 	}, [leftOffset, nestedDepth]);
 
@@ -150,13 +159,14 @@ export const TimelineListItem: React.FC<{
 					<div style={space} />
 				</>
 			) : null}
-			<div style={textStyle}>
+			<div title={text || 'Untitled'} style={textStyle}>
 				{text || 'Untitled'}
 				<TimelineSequenceFrame
 					duration={sequence.duration}
 					from={sequence.from}
 				/>
 			</div>
+			<Spacing x={1} />
 		</div>
 	);
 };

@@ -14,7 +14,7 @@ import minimist from 'minimist';
 import {Config, ConfigInternals} from './config';
 import {Log} from './log';
 
-export type CommandLineOptions = {
+type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
 	['pixel-format']: PixelFormat;
 	['image-format']: VideoImageFormat | StillImageFormat;
@@ -64,6 +64,7 @@ export type CommandLineOptions = {
 	['no-open']: boolean;
 	['browser']: string;
 	['browser-args']: string;
+	['user-agent']: string;
 };
 
 export const BooleanFlags = [
@@ -123,6 +124,10 @@ export const parseCommandLine = () => {
 
 	if (parsedCli['disable-headless']) {
 		Config.setChromiumHeadlessMode(false);
+	}
+
+	if (parsedCli['user-agent']) {
+		Config.setChromiumUserAgent(parsedCli['user-agent']);
 	}
 
 	if (parsedCli.log) {

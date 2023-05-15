@@ -14,7 +14,7 @@ import type {
 import type {RequiredChromiumOptions} from '../../../required-chromium-options';
 import {serializeJSONWithDate} from '../RenderModal/SchemaEditor/date-serialization';
 
-export const callApi = <Endpoint extends keyof ApiRoutes>(
+const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
 	body: ApiRoutes[Endpoint]['Request']
 ): Promise<ApiRoutes[Endpoint]['Response']> => {
@@ -219,7 +219,8 @@ export const updateDefaultProps = (
 ) => {
 	return callApi('/api/update-default-props', {
 		compositionId,
-		defaultProps: serializeJSONWithDate(defaultProps, undefined),
+		defaultProps: serializeJSONWithDate(defaultProps, undefined)
+			.serializedString,
 	});
 };
 

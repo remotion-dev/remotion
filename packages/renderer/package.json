@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/renderer",
-	"version": "3.3.82",
+	"version": "3.3.92",
 	"description": "Renderer for Remotion",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
@@ -46,7 +46,8 @@
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
 		"typescript": "^4.7.0",
-		"vitest": "0.24.3"
+		"vitest": "0.24.3",
+		"zod": "^3.21.4"
 	},
 	"optionalDependencies": {
 		"@remotion/compositor-darwin-arm64": "workspace:*",

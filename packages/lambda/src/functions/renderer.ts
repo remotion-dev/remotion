@@ -1,8 +1,8 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {BrowserLog, Codec} from '@remotion/renderer';
 import {RenderInternals, renderMedia} from '@remotion/renderer';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import {writeLambdaInitializedFile} from '../shared/chunk-progress';
@@ -159,10 +159,9 @@ const renderHandler = async (
 			serveUrl: params.serveUrl,
 			jpegQuality: params.jpegQuality,
 			envVariables: params.envVariables,
-			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
-				params.logLevel,
-				'verbose'
-			),
+			dumpBrowserLogs:
+				params.dumpBrowserLogs ??
+				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 			verbose: RenderInternals.isEqualOrBelowLogLevel(
 				params.logLevel,
 				'verbose'

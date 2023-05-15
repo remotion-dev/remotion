@@ -1,7 +1,7 @@
 import {BundlerInternals} from '@remotion/bundler';
-import {binaryPath as armBinaryPath} from '@remotion/compositor-linux-arm64-musl';
-import fs from 'fs';
-import path from 'path';
+import {binaryPath} from '@remotion/compositor-linux-arm64-gnu';
+import fs from 'node:fs';
+import path from 'node:path';
 import {quit} from '../cli/helpers/quit';
 import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
 import zl = require('zip-lib');
@@ -37,11 +37,10 @@ const bundleLambda = async () => {
 	});
 
 	const compositorFile = `${outdir}/compositor`;
-	fs.copyFileSync(armBinaryPath, compositorFile);
+	fs.copyFileSync(binaryPath, compositorFile);
 	await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
 
-	fs.unlinkSync(compositorFile);
-	fs.unlinkSync(outfile);
+	fs.rmSync(outdir, {recursive: true});
 };
 
 bundleLambda()

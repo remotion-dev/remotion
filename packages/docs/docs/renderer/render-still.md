@@ -135,6 +135,12 @@ _optional_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available.
 
+### `onBrowserLog?` <AvailableFrom v="3.3.93" />
+
+_optional_
+
+Gets called when your project calls `console.log` or another method from console. See the documentation for [`renderFrames`](/docs/renderer/render-frames#onbrowserlog-) for more information.
+
 ### `timeoutInMilliseconds?` <AvailableFrom v="2.6.3" />
 
 _optional_
@@ -192,6 +198,10 @@ Accepted values:
 
 Default: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
+
+#### `userAgent` <AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
 
 ## Return Value
 

@@ -1,9 +1,9 @@
-import fs, {promises} from 'fs';
-import os from 'os';
-import path from 'path';
-import {promisify} from 'util';
+import fs, {promises} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {promisify} from 'node:util';
+import {isMainThread} from 'node:worker_threads';
 import webpack from 'webpack';
-import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';
@@ -87,6 +87,7 @@ export type BundleOptions = {
 	entryPoint: string;
 	onProgress?: (progress: number) => void;
 	ignoreRegisterRootWarning?: boolean;
+	onDirectoryCreated?: (dir: string) => void;
 } & LegacyBundleOptions;
 
 type Arguments =
@@ -166,6 +167,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 	}
 
 	const outDir = await prepareOutDir(actualArgs?.outDir ?? null);
+	actualArgs.onDirectoryCreated?.(outDir);
 
 	// The config might use an override which might use
 	// `process.cwd()`. The context should always be the Remotion root.

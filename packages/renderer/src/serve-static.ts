@@ -1,5 +1,5 @@
-import http from 'http';
 import type {Socket} from 'net';
+import http from 'node:http';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {getDesiredPort} from './get-port';
@@ -14,17 +14,21 @@ export const serveStatic = async (
 		onError: (err: Error) => void;
 		downloadMap: DownloadMap;
 		remotionRoot: string;
+		concurrency: number;
+		verbose: boolean;
 	}
 ): Promise<{
 	port: number;
 	close: () => Promise<void>;
 }> => {
-	const offthreadRequest = startOffthreadVideoServer({
-		onDownload: options.onDownload,
-		onError: options.onError,
-		downloadMap: options.downloadMap,
-		remotionRoot: options.remotionRoot,
-	});
+	const {listener: offthreadRequest, close: closeCompositor} =
+		startOffthreadVideoServer({
+			onDownload: options.onDownload,
+			onError: options.onError,
+			downloadMap: options.downloadMap,
+			concurrency: options.concurrency,
+			verbose: options.verbose,
+		});
 
 	const connections: Record<string, Socket> = {};
 
@@ -81,24 +85,27 @@ export const serveStatic = async (
 				for (const key in connections) connections[key].destroy();
 			};
 
-			const close = () => {
-				return new Promise<void>((resolve, reject) => {
-					destroyConnections();
-					server.close((err) => {
-						if (err) {
-							if (
-								(err as Error & {code: string}).code ===
-								'ERR_SERVER_NOT_RUNNING'
-							) {
-								return resolve();
-							}
+			const close = async () => {
+				await Promise.all([
+					closeCompositor(),
+					new Promise<void>((resolve, reject) => {
+						destroyConnections();
+						server.close((err) => {
+							if (err) {
+								if (
+									(err as Error & {code: string}).code ===
+									'ERR_SERVER_NOT_RUNNING'
+								) {
+									return resolve();
+								}
 
-							reject(err);
-						} else {
-							resolve();
-						}
-					});
-				});
+								reject(err);
+							} else {
+								resolve();
+							}
+						});
+					}),
+				]);
 			};
 
 			return {port: selectedPort, close};

@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import path from 'path';
+import path from 'node:path';
 import {ConfigInternals} from './config';
 import {getLatestRemotionVersion} from './get-latest-remotion-version';
 import {listOfRemotionPackages} from './list-of-remotion-packages';

@@ -2,7 +2,6 @@ import type {CancelSignal} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {AnsiDiff} from './ansi/ansi-diff';
 import {chalk} from './chalk';
-import {ConfigInternals} from './config';
 import {
 	getFileSizeDownloadBar,
 	makeMultiDownloadProgress,
@@ -15,24 +14,6 @@ import type {
 	StitchingProgressInput,
 } from './progress-types';
 import {truthy} from './truthy';
-
-export const createProgressBar = (
-	quiet: boolean,
-	cancelSignal: CancelSignal | null
-): {
-	update: (str: string) => boolean;
-} => {
-	if (
-		!RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'info'
-		)
-	) {
-		return {update: () => false};
-	}
-
-	return createOverwriteableCliOutput({quiet, cancelSignal});
-};
 
 export type OverwriteableCliOutput = {
 	update: (up: string) => boolean;
@@ -171,7 +152,7 @@ export const makeBundlingAndCopyProgress = (
 		.join('\n');
 };
 
-export const makeRenderingProgress = (
+const makeRenderingProgress = (
 	{frames, totalFrames, steps, concurrency, doneIn}: RenderingProgressInput,
 	indent: boolean
 ) => {
@@ -189,7 +170,7 @@ export const makeRenderingProgress = (
 		.join(' ');
 };
 
-export const makeStitchingProgress = ({
+const makeStitchingProgress = ({
 	stitchingProgress,
 	indent,
 	steps,
@@ -265,9 +246,7 @@ export const makeRenderingAndStitchingProgress = ({
 	return {output, progress, message: getGuiProgressSubtitle(prog)};
 };
 
-export const getGuiProgressSubtitle = (
-	progress: AggregateRenderProgress
-): string => {
+const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 	if (progress.bundling.progress < 1) {
 		return `Bundling ${Math.round(progress.bundling.progress * 100)}%`;
 	}

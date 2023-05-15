@@ -24,6 +24,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	logLevel,
 	bundlingStep,
 	steps,
+	onDirectoryCreated,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -36,6 +37,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	logLevel: LogLevel;
 	bundlingStep: number;
 	steps: number;
+	onDirectoryCreated: (path: string) => void;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -56,6 +58,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		logLevel,
 		bundlingStep,
 		steps,
+		onDirectoryCreated,
 	});
 
 	return {
@@ -64,7 +67,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	};
 };
 
-export const bundleOnCli = async ({
+const bundleOnCli = async ({
 	fullPath,
 	remotionRoot,
 	publicDir,
@@ -73,6 +76,7 @@ export const bundleOnCli = async ({
 	logLevel,
 	bundlingStep,
 	steps,
+	onDirectoryCreated,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -85,6 +89,7 @@ export const bundleOnCli = async ({
 	logLevel: LogLevel;
 	bundlingStep: number;
 	steps: number;
+	onDirectoryCreated: (path: string) => void;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -201,6 +206,7 @@ export const bundleOnCli = async ({
 			};
 			updateProgress(false);
 		},
+		onDirectoryCreated,
 		...options,
 	});
 

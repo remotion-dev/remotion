@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
+import fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
 
 import {assert} from './assert';
 import {Browser} from './Browser';
-import {BrowserFetcher} from './BrowserFetcher';
 import {BrowserRunner} from './BrowserRunner';
 
 import type {PuppeteerNodeLaunchOptions} from './LaunchOptions';
 
+import {getRevisionInfo} from './BrowserFetcher';
 import type {Product} from './Product';
 
 const tmpDir = () => {
@@ -151,13 +151,7 @@ function resolveExecutablePath(launcher: ChromeLauncher): {
 } {
 	const {product, _preferredRevision} = launcher;
 
-	const browserFetcher = new BrowserFetcher({
-		product,
-		path: null,
-		platform: null,
-	});
-
-	const revisionInfo = browserFetcher.revisionInfo(_preferredRevision);
+	const revisionInfo = getRevisionInfo(_preferredRevision, 'chrome');
 
 	const firefoxHelp = `Run \`PUPPETEER_PRODUCT=firefox npm install\` to download a supported Firefox browser binary.`;
 	const chromeHelp = `Run \`npm install\` to download the correct Chromium revision (${launcher._preferredRevision}).`;

@@ -12,7 +12,7 @@ import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import {StillIcon} from '../icons/still';
 import {FilmIcon} from '../icons/video';
 import {Row, Spacing} from './layout';
-import {RenderButton} from './RenderButton';
+import {SidebarRenderButton} from './SidebarRenderButton';
 
 const COMPOSITION_ITEM_HEIGHT = 32;
 
@@ -200,7 +200,10 @@ export const CompositionSelectorItem: React.FC<{
 				<div style={label}>{item.composition.id}</div>
 				<Spacing x={0.5} />
 				<div>
-					<RenderButton visible={hovered} composition={item.composition} />
+					<SidebarRenderButton
+						visible={hovered}
+						composition={item.composition}
+					/>
 				</div>
 			</button>
 		</Row>

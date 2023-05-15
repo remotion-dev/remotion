@@ -166,8 +166,18 @@
       "permanent": false
     },
     {
+      "source": "/zod-types",
+      "destination": "https://www.remotion.dev/docs/zod-types",
+      "permanent": false
+    },
+    {
       "source": "/get-help",
       "destination": "https://www.remotion.dev/docs/get-help",
+      "permanent": false
+    },
+    {
+      "source": "/native",
+      "destination": "https://remotion.dev/docs/react-native",
       "permanent": false
     }
   ]

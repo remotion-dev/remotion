@@ -1,5 +1,5 @@
-import fs, {promises} from 'fs';
-import path from 'path';
+import fs, {promises} from 'node:fs';
+import path from 'node:path';
 import type {TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
@@ -163,7 +163,7 @@ const getAssetsData = async ({
 	return outName;
 };
 
-export const spawnFfmpeg = async (
+const spawnFfmpeg = async (
 	options: StitcherOptions,
 	remotionRoot: string
 ): Promise<ReturnType> => {
@@ -323,10 +323,10 @@ export const spawnFfmpeg = async (
 	}
 
 	const ffmpegArgs = [
-		['-r', String(options.fps)],
 		...(options.internalOptions?.preEncodedFileLocation
 			? [['-i', options.internalOptions?.preEncodedFileLocation]]
 			: [
+					['-r', String(options.fps)],
 					['-f', 'image2'],
 					['-s', `${options.width}x${options.height}`],
 					['-start_number', String(options.assetsInfo.firstFrameIndex)],

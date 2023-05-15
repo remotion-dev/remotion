@@ -8,7 +8,7 @@ import {
 } from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
-import {callFf, callFfExtraOptions} from './call-ffmpeg';
+import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
@@ -79,10 +79,9 @@ export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception'
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
-export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
-export {getActualConcurrency} from './get-concurrency';
 export {
+	ImageFormat,
 	StillImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
 	VideoImageFormat,
@@ -167,7 +166,7 @@ export const RenderInternals = {
 	defaultCodecsForFileExtension,
 	getExecutablePath,
 	callFf,
-	callFfExtraOptions,
+	dynamicLibraryPathOptions,
 	validStillImageFormats,
 	validVideoImageFormats,
 	DEFAULT_STILL_IMAGE_FORMAT,

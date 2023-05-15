@@ -1,5 +1,9 @@
 import React from 'react';
-import {Internals, z} from 'remotion';
+import type {z} from 'zod';
+import {
+	useZodIfPossible,
+	useZodTypesIfPossible,
+} from '../../get-zod-if-possible';
 import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodBooleanEditor} from './ZodBooleanEditor';
@@ -8,8 +12,10 @@ import {ZodDateEditor} from './ZodDateEditor';
 import {ZodEffectEditor} from './ZodEffectEditor';
 import {ZodEnumEditor} from './ZodEnumEditor';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
+import {ZodNullableEditor} from './ZodNullableEditor';
 import {ZodNumberEditor} from './ZodNumberEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
+import {ZodOptionalEditor} from './ZodOptionalEditor';
 import {ZodStringEditor} from './ZodStringEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
 
@@ -23,6 +29,7 @@ export const ZodSwitch: React.FC<{
 	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
+	saving: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -33,10 +40,18 @@ export const ZodSwitch: React.FC<{
 	onSave,
 	showSaveButton,
 	onRemove,
+	saving,
 }) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
+
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
+	const zodTypes = useZodTypesIfPossible();
 
 	// TODO: (Maybe?) enable saving of inserted input props by cmd+s /ctrl + s (also for JSON view)
 
@@ -58,6 +73,7 @@ export const ZodSwitch: React.FC<{
 				}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -74,6 +90,7 @@ export const ZodSwitch: React.FC<{
 				defaultValue={defaultValue as string}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -90,6 +107,7 @@ export const ZodSwitch: React.FC<{
 				defaultValue={defaultValue as Date}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -106,6 +124,7 @@ export const ZodSwitch: React.FC<{
 				onSave={onSave}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -121,6 +140,7 @@ export const ZodSwitch: React.FC<{
 				onSave={onSave}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -132,6 +152,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'undefined'}
+				saving={saving}
 			/>
 		);
 	}
@@ -143,6 +164,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'null'}
+				saving={saving}
 			/>
 		);
 	}
@@ -154,6 +176,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'any (not editable)'}
+				saving={saving}
 			/>
 		);
 	}
@@ -165,6 +188,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'BigInt (not editable)'}
+				saving={saving}
 			/>
 		);
 	}
@@ -176,6 +200,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'unknown (not editable)'}
+				saving={saving}
 			/>
 		);
 	}
@@ -192,6 +217,7 @@ export const ZodSwitch: React.FC<{
 				onSave={onSave as (newValue: (oldVal: unknown[]) => unknown[]) => void}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -208,12 +234,17 @@ export const ZodSwitch: React.FC<{
 				onSave={onSave as (newValue: (oldVal: string) => string) => void}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodEffects) {
-		if (schema._def.description === Internals.REMOTION_COLOR_BRAND) {
+		if (
+			zodTypes &&
+			schema._def.description ===
+				zodTypes.ZodZypesInternals.REMOTION_COLOR_BRAND
+		) {
 			return (
 				<ZodColorEditor
 					value={value as string}
@@ -225,6 +256,7 @@ export const ZodSwitch: React.FC<{
 					defaultValue={defaultValue as string}
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}
+					saving={saving}
 				/>
 			);
 		}
@@ -240,6 +272,7 @@ export const ZodSwitch: React.FC<{
 				onSave={onSave}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -256,6 +289,41 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue}
 				onSave={onSave}
 				onRemove={onRemove}
+				saving={saving}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodOptional) {
+		return (
+			<ZodOptionalEditor
+				compact={compact}
+				jsonPath={jsonPath}
+				showSaveButton={showSaveButton}
+				defaultValue={defaultValue}
+				value={value}
+				setValue={setValue}
+				onSave={onSave}
+				onRemove={onRemove}
+				schema={schema}
+				saving={saving}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodNullable) {
+		return (
+			<ZodNullableEditor
+				compact={compact}
+				jsonPath={jsonPath}
+				showSaveButton={showSaveButton}
+				defaultValue={defaultValue}
+				value={value}
+				setValue={setValue}
+				onSave={onSave}
+				onRemove={onRemove}
+				schema={schema}
+				saving={saving}
 			/>
 		);
 	}
@@ -266,6 +334,7 @@ export const ZodSwitch: React.FC<{
 			jsonPath={jsonPath}
 			showSaveButton={showSaveButton}
 			label={`${typeName} (not editable)`}
+			saving={saving}
 		/>
 	);
 };

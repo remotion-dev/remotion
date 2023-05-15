@@ -1,6 +1,6 @@
-import * as Crypto from 'crypto';
-import http from 'http';
 import https from 'https';
+import * as Crypto from 'node:crypto';
+import http from 'node:http';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AfterRenderCost} from './constants';
 
@@ -93,7 +93,7 @@ export function invokeWebhook({
 				if (res.statusCode && res.statusCode > 299) {
 					reject(
 						new Error(
-							`Sent a webhook but got a status code of ${res.statusCode} with message '${res.statusMessage}'`
+							`Sent a webhook to ${url} but got a status code of ${res.statusCode} with message '${res.statusMessage}'`
 						)
 					);
 					return;

@@ -21,7 +21,7 @@ export const Tabs: React.FC<{
 	return <div style={definiteStyle}>{children}</div>;
 };
 
-export const selectorButton: React.CSSProperties = {
+const selectorButton: React.CSSProperties = {
 	border: 'none',
 	flex: 1,
 	padding: 8,

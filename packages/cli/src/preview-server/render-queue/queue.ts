@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import {chalk} from '../../chalk';
 import {installFileWatcher} from '../../file-watcher';
 import {handleCommonError} from '../../handle-common-errors';
@@ -33,7 +33,7 @@ export const getRenderQueue = (): RenderJob[] => {
 	});
 };
 
-export const notifyClientsOfJobUpdate = () => {
+const notifyClientsOfJobUpdate = () => {
 	waitForLiveEventsListener().then((listener) => {
 		listener.sendEventToClient({
 			type: 'render-queue-updated',
@@ -42,7 +42,7 @@ export const notifyClientsOfJobUpdate = () => {
 	});
 };
 
-export const processJob = async ({
+const processJob = async ({
 	job,
 	remotionRoot,
 	entryPoint,
@@ -123,13 +123,20 @@ export const cancelJob = (jobId: string) => {
 };
 
 // TODO: Currently, concurrency = 1 is not enforced
-export const processJobIfPossible = async ({
+const processJobIfPossible = async ({
 	remotionRoot,
 	entryPoint,
 }: {
 	remotionRoot: string;
 	entryPoint: string;
 }) => {
+	const runningJob = jobQueue.find((q) => {
+		return q.status === 'running';
+	});
+	if (runningJob) {
+		return;
+	}
+
 	const nextJob = jobQueue.find((q) => {
 		return q.status === 'idle';
 	});
@@ -248,4 +255,6 @@ export const processJobIfPossible = async ({
 	} finally {
 		await Promise.all(jobCleanups.map((c) => c()));
 	}
+
+	processJobIfPossible({remotionRoot, entryPoint});
 };

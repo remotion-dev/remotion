@@ -66,6 +66,7 @@ export const NumberSetting: React.FC<{
 						max={max}
 						formatter={formatter}
 						status="ok"
+						rightAlign
 					/>
 				</RightAlignInput>
 			</div>

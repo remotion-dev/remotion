@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda",
-	"version": "3.3.82",
+	"version": "3.3.92",
 	"description": "Distributed renderer for Remotion based on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -43,10 +43,10 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
 		"@remotion/bundler": "workspace:*",
-		"@remotion/compositor-linux-arm64-musl": "workspace:*",
+		"@remotion/compositor-linux-arm64-gnu": "workspace:*",
 		"@types/mime-types": "2.1.1",
 		"@types/minimist": "1.2.2",
-		"@types/node": "^14.14.14",
+		"@types/node": "^18.16.0",
 		"@types/prompt": "^1.1.0",
 		"eslint": "8.25.0",
 		"prettier": "^2.4.1",

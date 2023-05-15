@@ -24,6 +24,10 @@ export const AvailableFrom: React.FC<{
     throw new Error("v is required");
   }
 
+  if (v.startsWith("v")) {
+    throw new Error("do not include v");
+  }
+
   return (
     <a
       target={"_blank"}

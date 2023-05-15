@@ -77,7 +77,7 @@ Either a Webpack bundle or a URL pointing to a bundled Remotion project. Call [`
 
 ### `imageFormat`
 
-A `string` which must be either `png`, `jpeg` or `none`.
+_optional since v4.0 - default "jpeg"_
 
 - Choose `jpeg` by default because it is the fastest.
 - Choose `png` if you want your image sequence to have an alpha channel (for transparency).
@@ -288,6 +288,10 @@ Accepted values:
 
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
+
+#### `userAgent` <AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
 
 ### ~~`ffmpegExecutable`~~
 

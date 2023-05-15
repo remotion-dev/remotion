@@ -1,7 +1,7 @@
 import type {ExecaChildProcess} from 'execa';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import type {AnySmallCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -45,6 +45,7 @@ import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateEveryNthFrame} from './validate-every-nth-frame';
 import {validateFfmpegOverride} from './validate-ffmpeg-override';
+import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
@@ -198,6 +199,7 @@ export const renderMedia = ({
 	const everyNthFrame = options.everyNthFrame ?? 1;
 	validateEveryNthFrame(everyNthFrame, codec);
 	const numberOfGifLoops = options.numberOfGifLoops ?? null;
+	validateNumberOfGifLoops(numberOfGifLoops, codec);
 
 	let stitchStage: StitchingState = 'encoding';
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
@@ -436,6 +438,7 @@ export const renderMedia = ({
 				cancelSignal: cancelRenderFrames.cancelSignal,
 				downloadMap,
 				muted: disableAudio,
+				verbose: options.verbose ?? false,
 			});
 
 			return renderFramesProc;

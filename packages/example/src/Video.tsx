@@ -1,6 +1,8 @@
+import {zColor} from '@remotion/zod-types';
 import {alias} from 'lib/alias';
 import React from 'react';
-import {Composition, Folder, getInputProps, Still, z, zColor} from 'remotion';
+import {Composition, Folder, getInputProps, Still} from 'remotion';
+import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';
 import {CancelRender} from './CancelRender';
@@ -531,6 +533,14 @@ export const Index: React.FC = () => {
 					width={850}
 				/>
 				<Composition
+					id="LottieInitializationBugfix"
+					lazyComponent={() => import('./Lottie/LottieInitializationBugfix')}
+					durationInFrames={300}
+					fps={30}
+					height={850}
+					width={850}
+				/>
+				<Composition
 					id="loader"
 					lazyComponent={() => import('./Lottie/Loader')}
 					durationInFrames={240}
@@ -714,6 +724,8 @@ export const Index: React.FC = () => {
 						supersuperlongvalueabcdefghji: z.string(),
 						incompatible: z.null().or(z.undefined()),
 						color: zColor(),
+						nullable: z.nullable(z.string()),
+						optional: z.string().optional(),
 						longEnum: z.enum([
 							'a',
 							'b',
@@ -769,6 +781,8 @@ export const Index: React.FC = () => {
 						incompatible: null,
 						longEnum: 'k' as const,
 						color: '#eb3a60' as const,
+						nullable: null,
+						optional: undefined,
 					}}
 					durationInFrames={150}
 				/>

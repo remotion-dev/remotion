@@ -9,6 +9,7 @@ import React, {
 	useState,
 } from 'react';
 import type {z} from 'zod';
+import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {TFolder} from './Folder.js';
 import type {PropsIfHasProps} from './props-if-has-props.js';
 
@@ -22,7 +23,7 @@ export type TComposition<Schema extends z.ZodTypeAny, Props> = {
 	parentFolderName: string | null;
 	component: LazyExoticComponent<ComponentType<Props>>;
 	nonce: number;
-	schema: Schema;
+	schema: Schema | null;
 } & PropsIfHasProps<Schema, Props>;
 
 export type AnyComposition = TComposition<z.ZodTypeAny, unknown>;
@@ -141,7 +142,8 @@ export const compositionsRef = React.createRef<{
 
 export const CompositionManagerProvider: React.FC<{
 	children: React.ReactNode;
-}> = ({children}) => {
+	numberOfAudioTags: number;
+}> = ({children, numberOfAudioTags}) => {
 	// Wontfix, expected to have
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const [compositions, setCompositions] = useState<TComposition<any, any>[]>(
@@ -294,9 +296,18 @@ export const CompositionManagerProvider: React.FC<{
 		currentCompositionMetadata,
 	]);
 
+	const composition = compositions.find(
+		(c) => c.id === currentComposition
+	)?.component;
+
 	return (
 		<CompositionManager.Provider value={contextValue}>
-			{children}
+			<SharedAudioContextProvider
+				numberOfAudioTags={numberOfAudioTags}
+				component={composition ?? null}
+			>
+				{children}
+			</SharedAudioContextProvider>
 		</CompositionManager.Provider>
 	);
 };

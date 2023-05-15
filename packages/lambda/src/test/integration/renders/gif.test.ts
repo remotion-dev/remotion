@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {createWriteStream} from 'fs';
+import {createWriteStream} from 'node:fs';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
@@ -69,6 +69,7 @@ test('Should make a distributed GIF', async () => {
 			rendererFunctionName: null,
 			bucketName: null,
 			audioCodec: null,
+			dumpBrowserLogs: false,
 		},
 		extraContext
 	);

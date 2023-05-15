@@ -84,6 +84,8 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Twitch stinger example](https://github.com/JonnyBurger/ledevevent-stinger)
 - [DevContainer Template](https://github.com/openscript/remotion-devcontainer-template)
 - [Usage with Anime.JS](https://github.com/remotion-dev/anime-example)
+- [Displaying a spinner while content is loading](https://github.com/remotion-dev/video-buffering-example)
+- [Mapbox example](https://github.com/remotion-dev/mapbox-example)
 
 ## Videos
 
@@ -102,12 +104,16 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - ["Create videos with Code" by Prismic](https://prismic.io/blog/create-videos-with-code-remotion-tutorial)
 - [Integrate GreenSock with Remotion](https://enlear.academy/how-to-integrate-greensock-with-remotion-e4eee6f5a41f)
 
+## Tooling
+
+- [VS Code extension](https://marketplace.visualstudio.com/items?itemName=KarelNagel.remotion-vscode)
+- [GIF Pull request previews](https://github.com/stoat-dev/example-remotion)
+- [Loading compositions remotely](https://github.com/musafiroon/remotion-remote-composition)
+
 ## Hacks
 
 - [GitHub Actions Matrix renderer](https://github.com/yuvraj108c/Remotion-Matrix-Renderer)
 - [WebKit renderer](https://iosexample.com/using-wkwebview-as-a-faster-alternative-for-rendering-remotion-compositions/)
-- [VS Code extension](https://marketplace.visualstudio.com/items?itemName=KarelNagel.remotion-vscode)
-- [GIF Pull request previews](https://github.com/stoat-dev/example-remotion)
 - [Side-by-side editor](https://www.loom.com/share/7b2aa7fe14c04e858838f137ed19dfd8)
 
 ## Humans
