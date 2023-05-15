@@ -12,7 +12,7 @@ import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManag
 import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
-import {RenderButton} from './RenderToolbarIcon';
+import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
@@ -70,12 +70,13 @@ export const PreviewToolbar: React.FC = () => {
 			<TimelineInOutPointToggle />
 			<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
 			<Spacing x={2} />
-			<RenderButton />
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />
 				<FpsCounter playbackSpeed={playbackRate} />
-				<div style={padding} />
+				<Spacing x={2} />
+				<RenderButton />
+				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
 			<PlaybackRatePersistor />

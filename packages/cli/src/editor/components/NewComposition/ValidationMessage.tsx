@@ -12,8 +12,8 @@ const WarningTriangle: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 };
 
 const style: React.CSSProperties = {
-	width: 11,
-	height: 11,
+	width: 12,
+	height: 12,
 	flexShrink: 0,
 };
 

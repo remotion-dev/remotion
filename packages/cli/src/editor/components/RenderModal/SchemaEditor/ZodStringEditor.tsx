@@ -1,5 +1,6 @@
 import React, {useCallback, useState} from 'react';
-import type {z} from 'remotion';
+import type {z} from 'zod';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
@@ -26,6 +27,7 @@ export const ZodStringEditor: React.FC<{
 	onRemove: null | (() => void);
 	compact: boolean;
 	showSaveButton: boolean;
+	saving: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -36,7 +38,13 @@ export const ZodStringEditor: React.FC<{
 	compact,
 	onSave,
 	onRemove,
+	saving,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,
@@ -84,6 +92,7 @@ export const ZodStringEditor: React.FC<{
 				onSave={save}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput
@@ -91,12 +100,13 @@ export const ZodStringEditor: React.FC<{
 					status={localValue.zodValidation.success ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
+					rightAlign={false}
 				/>
 				{!localValue.zodValidation.success && (
 					<>
 						<Spacing y={1} block />
 						<ValidationMessage
-							align="flex-end"
+							align="flex-start"
 							message={localValue.zodValidation.error.format()._errors[0]}
 							type="error"
 						/>

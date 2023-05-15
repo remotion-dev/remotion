@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {z} from 'remotion';
+import type {z} from 'zod';
 import {FAIL_COLOR} from '../../../helpers/colors';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import type {JSONPath} from './zod-types';
 import {ZodSwitch} from './ZodSwitch';
@@ -24,6 +25,7 @@ export const ZodEffectEditor: React.FC<{
 	onSave: (updater: (oldState: unknown) => unknown) => void;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
+	saving: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -34,7 +36,13 @@ export const ZodEffectEditor: React.FC<{
 	onSave,
 	onRemove,
 	showSaveButton,
+	saving,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,
@@ -92,12 +100,13 @@ export const ZodEffectEditor: React.FC<{
 					onSave={onSave}
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}
+					saving={saving}
 				/>
 			</div>
 			{!localValue.zodValidation.success && (
 				<legend>
 					<ValidationMessage
-						align="flex-end"
+						align="flex-start"
 						message={localValue.zodValidation.error.format()._errors[0]}
 						type="error"
 					/>

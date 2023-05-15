@@ -97,6 +97,7 @@ import {setProResProfile} from './prores-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
+import {getChromiumUserAgent, setChromiumUserAgent} from './user-agent';
 import {setWebpackCaching} from './webpack-caching';
 import {
 	getWebpackPolling,
@@ -217,6 +218,11 @@ declare global {
 			renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader'
 		) => void;
 		/**
+		 * Set the user agent for Chrome. Only works during rendering.
+		 * Default is the default user agent for Chrome
+		 */
+		readonly setChromiumUserAgent: (userAgent: string | null) => void;
+		/**
 		 * Set a custom location for a .env file.
 		 * Default: `.env`
 		 */
@@ -231,8 +237,11 @@ declare global {
 		 */
 		readonly setQuality: (q: never) => void;
 		/**
+		 * @deprecated Separated into `setStillImageFormat()` and `setVideoImageFormat()`.
+		 */
+		readonly setImageFormat: (q: never) => void;
+		/**
 		 * Set the JPEG quality for the frames.
-		 * Must be between 0 and 100.
 		 * Must be between 0 and 100.
 		 * Default: 80
 		 */
@@ -394,11 +403,17 @@ export const Config: FlatConfig = {
 	setChromiumIgnoreCertificateErrors,
 	setChromiumHeadlessMode,
 	setChromiumOpenGlRenderer,
+	setChromiumUserAgent,
 	setDotEnvLocation,
 	setConcurrency,
 	setQuality: () => {
 		throw new Error(
 			'setQuality() has been renamed - use setJpegQuality() instead.'
+		);
+	},
+	setImageFormat: () => {
+		throw new Error(
+			'setImageFormat() has been renamed - use setVideoImageFormat() or setStillImageFormat() instead.'
 		);
 	},
 	setJpegQuality,
@@ -422,7 +437,6 @@ export const Config: FlatConfig = {
 	overrideHeight,
 	overrideWidth,
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
-	// Options added after migration
 	setAudioCodec,
 };
 
@@ -476,4 +490,5 @@ export const ConfigInternals = {
 	getNumberOfGifLoops,
 	getWebpackPolling,
 	getShouldOpenBrowser,
+	getChromiumUserAgent,
 };

@@ -19,17 +19,23 @@ export type RemotionVideoProps = Omit<
 	allowAmplificationDuringRender?: boolean;
 };
 
-export type OffthreadVideoImageFormat = 'png' | 'jpeg';
+type DeprecatedOffthreadVideoProps = {
+	/**
+	 * @deprecated Use the `transparent` prop instead
+	 */
+	imageFormat?: never;
+};
 
 export type OffthreadVideoProps = {
 	src: string;
 	className?: string;
+	id?: string;
 	style?: React.CSSProperties;
 	volume?: VolumeProp;
 	playbackRate?: number;
 	muted?: boolean;
 	onError?: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement>;
-	imageFormat?: OffthreadVideoImageFormat;
 	acceptableTimeShiftInSeconds?: number;
 	allowAmplificationDuringRender?: boolean;
-};
+	transparent?: boolean;
+} & DeprecatedOffthreadVideoProps;

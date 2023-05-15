@@ -17,7 +17,7 @@ The structure of a command is as follows:
 npx remotion lambda render <serve-url> [<composition-id>] [<output-location>]
 ```
 
-- The serve URL is obtained by deploying a project to Remotion using the [`sites create`](/docs/lambda/cli/sites#create) command or calling [`deploySite()`](/docs/lambda/deploysite).
+- The serve URL is obtained by deploying a Remotion project to an AWS S3 bucket using the [`sites create`](/docs/lambda/cli/sites#create) command or calling [`deploySite()`](/docs/lambda/deploysite).
 - The [composition ID](/docs/terminology#composition-id). If not specified, the list of compositions will be fetched and you can choose a composition.
 - The `output-location` parameter is optional. If you don't specify it, the video is stored in your S3 bucket. If you specify a location, it gets downloaded to your device in an additional step.
 
@@ -164,7 +164,7 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `--env-file`
 
-Specify a location for a dotenv file. Default `.env`.
+Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)
 
 ### `--frames`
 
@@ -227,3 +227,7 @@ Results in invalid SSL certificates in Chrome, such as self-signed ones, being i
 ### `--disable-web-security`
 
 This will most notably disable CORS in Chrome among other security features.
+
+### `--user-agent` <AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.

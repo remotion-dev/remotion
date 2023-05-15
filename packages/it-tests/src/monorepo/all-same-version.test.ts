@@ -8,10 +8,6 @@ test("All packages require the same remotion version", () => {
     lstatSync(path.join(process.cwd(), "..", p)).isDirectory()
   );
 
-  const lernaVersion = JSON.parse(
-    readFileSync(path.join(process.cwd(), "..", "..", "lerna.json"), "utf-8")
-  ).version;
-
   let deps = 0;
   for (const folder of folders) {
     const packageJsonPath = path.join(

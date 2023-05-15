@@ -21,9 +21,9 @@ import {
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
 import type {Loop} from '../config/number-of-gif-loops';
@@ -215,6 +215,9 @@ export const renderVideoFlow = async ({
 			logLevel,
 			bundlingStep: steps.indexOf('bundling'),
 			steps: steps.length,
+			onDirectoryCreated: (dir) => {
+				addCleanupCallback(() => RenderInternals.deleteDirectory(dir));
+			},
 		}
 	);
 

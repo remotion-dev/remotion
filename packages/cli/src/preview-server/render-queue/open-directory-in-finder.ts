@@ -1,6 +1,6 @@
-import {spawn} from 'child_process';
-import {platform} from 'os';
-import path from 'path';
+import {spawn} from 'node:child_process';
+import {platform} from 'node:os';
+import path from 'node:path';
 import {truthy} from '../../truthy';
 
 export const openDirectoryInFinder = (

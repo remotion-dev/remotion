@@ -34,7 +34,6 @@ export const rightRow: React.CSSProperties = {
 
 export const input: React.CSSProperties = {
 	minWidth: 250,
-	textAlign: 'right',
 };
 
 export const fieldsetLabel: React.CSSProperties = {

@@ -32,10 +32,10 @@ const requiresCredentials = (args: string[]) => {
 		if (args[1] === ROLE_SUBCOMMAND) {
 			return false;
 		}
+	}
 
-		if (args[1] === REGIONS_COMMAND) {
-			return false;
-		}
+	if (args[0] === REGIONS_COMMAND) {
+		return false;
 	}
 
 	return true;

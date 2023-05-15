@@ -1,10 +1,14 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {z} from 'remotion';
+import type {z} from 'zod';
 import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
 import {
 	FAIL_COLOR,
 	INPUT_BORDER_COLOR_UNHOVERED,
 } from '../../../helpers/colors';
+import {
+	useZodIfPossible,
+	useZodTypesIfPossible,
+} from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {optionRow} from '../layout';
@@ -38,6 +42,7 @@ export const ZodArrayEditor: React.FC<{
 	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
+	saving: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -48,6 +53,7 @@ export const ZodArrayEditor: React.FC<{
 	onSave,
 	showSaveButton,
 	onRemove,
+	saving,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -58,6 +64,13 @@ export const ZodArrayEditor: React.FC<{
 	});
 
 	const def = schema._def as z.ZodArrayDef;
+
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
+	const zodTypes = useZodTypesIfPossible();
 
 	const typeName = def.typeName as z.ZodFirstPartyTypeKind;
 	if (typeName !== z.ZodFirstPartyTypeKind.ZodArray) {
@@ -108,9 +121,9 @@ export const ZodArrayEditor: React.FC<{
 
 	const onAdd = useCallback(() => {
 		onChange((oldV) => {
-			return [...oldV, createZodValues(def.type)];
+			return [...oldV, createZodValues(def.type, z, zodTypes)];
 		}, true);
-	}, [def.type, onChange]);
+	}, [def.type, onChange, z]);
 
 	return (
 		<div style={style}>
@@ -134,6 +147,7 @@ export const ZodArrayEditor: React.FC<{
 									defaultValue={defaultValue[i] ?? child}
 									onSave={onSave}
 									showSaveButton={showSaveButton}
+									saving={saving}
 								/>
 							);
 						})}
@@ -142,7 +156,7 @@ export const ZodArrayEditor: React.FC<{
 						<>
 							<Spacing x={1} />
 							<ValidationMessage
-								align="flex-end"
+								align="flex-start"
 								message={localValue.zodValidation.error.format()._errors[0]}
 								type="error"
 							/>

@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import type {z} from 'remotion';
+import type {z} from 'zod';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing, SPACING_UNIT} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
@@ -63,6 +63,7 @@ export const ZodDateEditor: React.FC<{
 	onRemove: null | (() => void);
 	compact: boolean;
 	showSaveButton: boolean;
+	saving: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -73,6 +74,7 @@ export const ZodDateEditor: React.FC<{
 	compact,
 	onSave,
 	onRemove,
+	saving,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -122,6 +124,7 @@ export const ZodDateEditor: React.FC<{
 				onSave={save}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput
@@ -131,6 +134,7 @@ export const ZodDateEditor: React.FC<{
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
 					style={inputStyle}
+					rightAlign={false}
 				/>
 				<Spacing y={1} block />
 				<div style={explainer}>Date is in local format</div>
@@ -138,7 +142,7 @@ export const ZodDateEditor: React.FC<{
 					<>
 						<Spacing y={1} block />
 						<ValidationMessage
-							align="flex-end"
+							align="flex-start"
 							message={localValue.zodValidation.error.format()._errors[0]}
 							type="error"
 						/>

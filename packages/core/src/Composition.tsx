@@ -1,7 +1,7 @@
 import type {ComponentType, PropsWithChildren} from 'react';
 import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
-import {z} from 'zod';
+import type {z} from 'zod';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import {
 	CanUseRemotionHooks,
@@ -128,7 +128,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 			defaultProps: defaultProps as z.infer<Schema> & Props,
 			nonce,
 			parentFolderName: parentName,
-			schema: schema ?? (z.any() as unknown as Schema),
+			schema: schema ?? null,
 		});
 
 		return () => {

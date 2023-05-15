@@ -1,8 +1,8 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import type {Browser} from './browser';
 import type {BrowserExecutable} from './browser-executable';
+import {getRevisionInfo} from './browser/BrowserFetcher';
 import {downloadBrowser} from './browser/create-browser-fetcher';
-import {puppeteer} from './browser/node';
 import type {Product} from './browser/Product';
 import {PUPPETEER_REVISIONS} from './browser/revisions';
 
@@ -47,19 +47,6 @@ const getLocalBrowser = (product: Product) => {
 	return null;
 };
 
-const getBrowserRevision = (product: Product) => {
-	const browserFetcher = puppeteer.createBrowserFetcher({
-		product,
-		path: null,
-		platform: null,
-	});
-	const revisionInfo = browserFetcher.revisionInfo(
-		PUPPETEER_REVISIONS.chromium
-	);
-
-	return revisionInfo;
-};
-
 type BrowserStatus =
 	| {
 			type: 'user-defined-path';
@@ -96,8 +83,8 @@ const getBrowserStatus = (
 		return {path: localBrowser, type: 'local-browser'};
 	}
 
-	const revision = getBrowserRevision(product);
-	if (revision.local !== null && fs.existsSync(revision.executablePath)) {
+	const revision = getRevisionInfo(PUPPETEER_REVISIONS.chromium, product);
+	if (revision.local && fs.existsSync(revision.executablePath)) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
 

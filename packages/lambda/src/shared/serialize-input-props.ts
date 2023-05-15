@@ -6,7 +6,7 @@ import {inputPropsKey} from './constants';
 import {randomHash} from './random-hash';
 
 export const serializeInputProps = async ({
-	inputProps,
+	inputProps = {},
 	region,
 	type,
 	userSpecifiedBucketName,

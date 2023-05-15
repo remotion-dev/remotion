@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {performance} from 'perf_hooks';
 import type {AnySmallCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
@@ -59,7 +59,7 @@ type RenderFramesOptions = {
 	outputDir: string | null;
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
-	imageFormat: VideoImageFormat;
+	imageFormat?: VideoImageFormat;
 	/**
 	 * @deprecated Renamed to "jpegQuality"
 	 */
@@ -86,6 +86,7 @@ type RenderFramesOptions = {
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
+	verbose?: boolean;
 };
 
 const innerRenderFrames = ({
@@ -549,6 +550,8 @@ export const renderFrames = (
 					port: options.port ?? null,
 					downloadMap,
 					remotionRoot: findRemotionRoot(),
+					concurrency: actualConcurrency,
+					verbose: options.verbose ?? false,
 				}),
 				browserInstance,
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {

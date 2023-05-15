@@ -5,7 +5,6 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import {CompositionManagerProvider} from './CompositionManager.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {EditorPropsProvider} from './EditorProps.js';
@@ -102,14 +101,11 @@ export const RemotionRoot: React.FC<{
 					<EditorPropsProvider>
 						<PrefetchProvider>
 							<NativeLayersProvider>
-								<CompositionManagerProvider>
+								<CompositionManagerProvider
+									numberOfAudioTags={numberOfAudioTags}
+								>
 									<DurationsContextProvider>
-										<SharedAudioContextProvider
-											// In the preview, which is mostly played on Desktop, we opt out of the autoplay policy fix as described in https://github.com/remotion-dev/remotion/pull/554, as it mostly applies to mobile.
-											numberOfAudioTags={numberOfAudioTags}
-										>
-											{children}
-										</SharedAudioContextProvider>
+										{children}
 									</DurationsContextProvider>
 								</CompositionManagerProvider>
 							</NativeLayersProvider>

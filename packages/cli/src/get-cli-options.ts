@@ -4,8 +4,8 @@ import type {
 	FrameRange,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {ConfigInternals} from './config';
 import {getEnvironmentVariables} from './get-env';
 import {getInputProps} from './get-input-props';
@@ -116,6 +116,7 @@ export const getCliOptions = async (options: {
 		gl:
 			ConfigInternals.getChromiumOpenGlRenderer() ??
 			RenderInternals.DEFAULT_OPENGL_RENDERER,
+		userAgent: ConfigInternals.getChromiumUserAgent(),
 	};
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
 	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();

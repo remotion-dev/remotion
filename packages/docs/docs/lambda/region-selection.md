@@ -30,7 +30,7 @@ The default region is `us-east-1`.
 
 ## Selecting a region
 
-There are 3 ways of selection a region:
+There are 3 ways to select a region:
 
 - When using the Node.JS APIs, you have to pass the region explicitly to each function. Make sure your projects satisfy the Typescript types or follow the documentation.
 
@@ -70,9 +70,9 @@ see [here]
 
 ## Other considerations
 
-- The function and S3 bucket must be in the same region to eliminate latency across datacenters. Rendering with functions and buckets that ahave mismatching regions is not supported
+- The function and S3 bucket must be in the same region to eliminate latency across datacenters. Rendering with functions and buckets that have mismatching regions is not supported
 
-- You may deploy your whole architecture to different regions to further increase the amount of renders you can make concurrently. The tradeoff is higher redundancy, and not being able to benefit less from already warm functions.
+- You may deploy your whole architecture to different regions to further increase the amount of renders you can make concurrently. This has the advantage of higher redundancy, but a potential drawback of hitting a non-warm function.
 
 - Some regions are more expensive than others (for example `af-south-1`).
   Consult the [Lambda Pricing page](https://aws.amazon.com/lambda/pricing/) from AWS.

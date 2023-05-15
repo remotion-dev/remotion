@@ -8,7 +8,7 @@ import {
 	PutFunctionEventInvokeConfigCommand,
 	PutRuntimeManagementConfigCommand,
 } from '@aws-sdk/client-lambda';
-import {readFileSync} from 'fs';
+import {readFileSync} from 'node:fs';
 import {LOG_GROUP_PREFIX} from '../defaults';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getCloudWatchLogsClient, getLambdaClient} from '../shared/aws-clients';
@@ -115,12 +115,12 @@ export const createFunction = async ({
 			new PutRuntimeManagementConfigCommand({
 				FunctionName,
 				UpdateRuntimeOn: 'Manual',
-				RuntimeVersionArn: `arn:aws:lambda:${region}::runtime:69000d3430a08938bcab71617dffcb8ea551a2cbc36c59f38c52a1ea087e461b`,
+				RuntimeVersionArn: `arn:aws:lambda:${region}::runtime:b97ad873eb5228db2e7d5727cd116734cc24c92ff1381739c4400c095404a2d3`,
 			})
 		);
 	} catch (err) {
 		console.warn(
-			'⚠️ Could not lock the runtime version. We recommend to update your policies to prevent your functions from breaking soon: https://remotion.dev/docs/lambda/feb-2023-incident'
+			'⚠️ Could not lock the runtime version. We recommend to update your policies to prevent your functions from breaking in the future in case the AWS runtime changes. See https://remotion.dev/docs/lambda/feb-2023-incident for an example on how to update your policy.'
 		);
 	}
 

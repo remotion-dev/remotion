@@ -35,7 +35,7 @@ Specify a location for the Remotion config file.
 
 ### `--env-file` <AvailableFrom v="2.2.0" />
 
-Specify a location for a dotenv file. Default `.env`.
+Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)
 
 ### `--bundle-cache`
 
@@ -78,6 +78,10 @@ This will most notably disable CORS in Chrome among other security features.
 ### `--disable-headless`
 
 Opens an actual browser to observe the composition fetching.
+
+### `--user-agent` <AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
 
 ### `--quiet`, `--q`
 

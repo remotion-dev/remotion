@@ -1,7 +1,11 @@
 import {useCallback} from 'react';
-import type {z} from 'remotion';
+import type {z} from 'zod';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Checkbox} from '../../Checkbox';
+import {
+	useZodIfPossible,
+	useZodTypesIfPossible,
+} from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {createZodValues} from './create-zod-values';
 import {SchemaLabel} from './SchemaLabel';
@@ -37,6 +41,7 @@ export const ZodOrNullishEditor: React.FC<{
 	onSave: (updater: (oldNum: unknown) => unknown) => void;
 	onRemove: null | (() => void);
 	nullishValue: null | undefined;
+	saving: boolean;
 }> = ({
 	jsonPath,
 	compact,
@@ -48,7 +53,15 @@ export const ZodOrNullishEditor: React.FC<{
 	showSaveButton,
 	onRemove,
 	nullishValue,
+	saving,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
+	const zodTypes = useZodTypesIfPossible();
+
 	const isChecked = value === nullishValue;
 
 	const onValueChange = useCallback(
@@ -61,11 +74,12 @@ export const ZodOrNullishEditor: React.FC<{
 	const onCheckBoxChange: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
-				console.log({schema, newVal: createZodValues(schema)});
-				const val = e.target.checked ? nullishValue : createZodValues(schema);
+				const val = e.target.checked
+					? nullishValue
+					: createZodValues(schema, z, zodTypes);
 				onValueChange(val);
 			},
-			[nullishValue, onValueChange, schema]
+			[nullishValue, onValueChange, schema, z, zodTypes]
 		);
 
 	const reset = useCallback(() => {
@@ -78,7 +92,7 @@ export const ZodOrNullishEditor: React.FC<{
 
 	return (
 		<>
-			{value === null ? (
+			{value === nullishValue ? (
 				<SchemaLabel
 					isDefaultValue={value === defaultValue}
 					jsonPath={jsonPath}
@@ -87,6 +101,7 @@ export const ZodOrNullishEditor: React.FC<{
 					showSaveButton={showSaveButton}
 					compact={compact}
 					onRemove={onRemove}
+					saving={saving}
 				/>
 			) : (
 				<div style={fullWidth}>
@@ -100,6 +115,7 @@ export const ZodOrNullishEditor: React.FC<{
 						onSave={onSave}
 						showSaveButton={showSaveButton}
 						onRemove={onRemove}
+						saving={saving}
 					/>
 				</div>
 			)}

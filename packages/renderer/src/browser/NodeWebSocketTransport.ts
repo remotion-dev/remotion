@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {promises as dns} from 'dns';
-import {URL} from 'url';
+import {promises as dns} from 'node:dns';
+import {URL} from 'node:url';
 import type {WS} from '../ws/ws-types';
 import {ws as NodeWebSocket} from '../ws/ws-types';
 

@@ -38,7 +38,7 @@ Specify a location for the Remotion config file.
 
 ### `--env-file`
 
-Specify a location for a dotenv file. Default `.env`.
+Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)
 
 ### `--jpeg-quality` <AvailableFrom v="4.0.0" />
 
@@ -116,6 +116,10 @@ Accepted values:
 
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
+
+### `--user-agent` <AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
 
 ### ~~`--ffmpeg-executable`~~
 

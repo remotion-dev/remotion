@@ -36,7 +36,6 @@ export const useCrfState = (codec: Codec) => {
 		setCrf,
 		minCrf: range[0],
 		maxCrf: range[1],
-		shouldDisplayOption: range[0] !== range[1],
 	};
 };
 

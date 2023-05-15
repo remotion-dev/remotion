@@ -13,9 +13,9 @@ import type {
 	PlayableMediaTag,
 	SetTimelineContextValue,
 	TimelineContextValue,
-	z,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
+import type {z} from 'zod';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import {PlayerEmitter} from './event-emitter.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
@@ -273,7 +273,7 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 	validatePlaybackRate(playbackRate);
 
 	useEffect(() => {
-		emitter.dispatchRatechange(playbackRate);
+		emitter.dispatchRateChange(playbackRate);
 	}, [emitter, playbackRate]);
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);

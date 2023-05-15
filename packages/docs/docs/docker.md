@@ -8,14 +8,15 @@ crumb: "Building video apps"
 We recommend the following structure for your Dockerfile. Read below about the individual steps and whether you need to adjust them.
 
 ```docker title="Dockerfile"
-FROM debian:bookworm
+FROM debian:bookworm-20230411
 
 RUN apt-get update
-RUN apt-get install -y nodejs="18.13.0+dfsg1-1" npm="9.2.0~ds1-1" chromium="111.0.5563.110-1"
+RUN apt-get install -y nodejs npm ffmpeg chromium
 
 # Copy everything from your project to the Docker image. Adjust if needed.
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* tsconfig.json* remotion.config.* ./
 COPY src ./src
+# If you have a public folder:
 COPY public ./public
 
 # Specify the location of the Chromium browser
@@ -40,11 +41,11 @@ This Dockerfile is unable to render WebGL content. Suggestions on how to improve
 ## Line-by-line
 
 <p>
-<Step>1</Step> Specify the base image for the Dockerfile. In this case, we use Debian. It is recommended to pin the version to prevent unexpected changes in the future,
+<Step>1</Step> Specify the base image for the Dockerfile. In this case, we use Debian.
 </p>
 
 ```docker
-FROM debian:bookworm-20230320-slim
+FROM debian:bookworm-20230411
 ```
 
 <p>
@@ -56,11 +57,11 @@ RUN apt-get update
 ```
 
 <p>
-<Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM), FFmpeg and Chromium. We pin the versions to minimize chance of future breakage.
+<Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM) and Chromium. 
 </p>
 
 ```docker
-RUN apt-get install -y nodejs="18.13.0+dfsg1-1" npm="9.2.0~ds1-1" ffmpeg="7:5.1.2-3" chromium="111.0.5563.110-1"
+RUN apt-get install -y nodejs npm chromium
 ```
 
 <p>
@@ -161,6 +162,12 @@ Use the following command to run the image:
 docker run remotion-app
 ```
 
+## Why are the packages not pinned?
+
+In Debian (and also Alpine), old packages are removed from the repositories once new versions are released. This means that pinning the versions will actually cause the Dockerfiles to break in the future. We choose Debian as the distribution because the packages get well tested before they get released into the repository.
+
 ## Changelog
+
+**April 15th, 2023**: Unpinning the versions in Debian since it would cause breakage.
 
 **April 3rd, 2023**: Changed the Alpine Docker image to a Debian one, since the versions of Alpine packages cannot be pinned. This makes the Debian one less likely to break.

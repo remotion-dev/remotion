@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import * as childProcess from 'child_process';
-import * as fs from 'fs';
+import * as childProcess from 'node:child_process';
+import * as fs from 'node:fs';
 import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
 import {assert} from './assert';
@@ -35,8 +35,6 @@ const PROCESS_ERROR_EXPLANATION = `Puppeteer was unable to kill the process whic
  This means that, on future Puppeteer launches, Puppeteer might not be able to launch the browser.
  Please check your open processes and ensure that the browser processes that Puppeteer launched have been killed.
  If you think this is a bug, please report it on the Puppeteer issue tracker.`;
-
-export const INDENT_TOKEN = '│';
 
 export class BrowserRunner {
 	#executablePath: string;

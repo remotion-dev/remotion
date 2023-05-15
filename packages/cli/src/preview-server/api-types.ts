@@ -1,4 +1,4 @@
-import type {IncomingMessage, ServerResponse} from 'http';
+import type {IncomingMessage, ServerResponse} from 'node:http';
 import type {
 	AddRenderRequest,
 	CancelRenderRequest,
@@ -20,11 +20,6 @@ export type ApiHandler<ReqData, ResData> = (params: {
 	request: IncomingMessage;
 	response: ServerResponse;
 }) => Promise<ResData>;
-
-export type ApiRoute<ReqData, ResData> = {
-	handler: ApiHandler<ReqData, ResData>;
-	endpoint: string;
-};
 
 type ReqAndRes<A, B> = {
 	Request: A;
