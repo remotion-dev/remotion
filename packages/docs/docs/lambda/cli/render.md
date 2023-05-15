@@ -160,7 +160,7 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `--env-file`
 
-Specify a location for a dotenv file. Default `.env`.
+Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)
 
 ### `--frames`
 
