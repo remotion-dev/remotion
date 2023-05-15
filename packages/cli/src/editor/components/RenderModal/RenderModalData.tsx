@@ -29,6 +29,7 @@ import {
 	deserializeJSONWithDate,
 	serializeJSONWithDate,
 } from './SchemaEditor/date-serialization';
+import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -250,9 +251,18 @@ export const RenderModalData: React.FC<{
 	}, []);
 
 	const onUpdate = useCallback(() => {
+		if (schema === 'no-zod' || z === null) {
+			sendErrorNotification('Cannot update default props: No Zod schema');
+			return;
+		}
+
 		setValBeforeSafe(inputProps);
-		updateDefaultProps(composition.id, inputProps);
-	}, [composition.id, inputProps]);
+		updateDefaultProps(
+			composition.id,
+			inputProps,
+			extractEnumJsonPaths(schema, z, [])
+		);
+	}, [composition.id, inputProps, schema, z]);
 
 	useEffect(() => {
 		setSaving(false);
@@ -260,16 +270,22 @@ export const RenderModalData: React.FC<{
 
 	const onSave = useCallback(
 		(updater: (oldState: unknown) => unknown) => {
+			if (schema === 'no-zod' || z === null) {
+				sendErrorNotification('Cannot update default props: No Zod schema');
+				return;
+			}
+
 			setSaving(true);
 			updateDefaultProps(
 				composition.id,
-				updater(composition.defaultProps)
+				updater(composition.defaultProps),
+				extractEnumJsonPaths(schema, z, [])
 			).catch((err) => {
 				sendErrorNotification(`Cannot update default props: ${err.message}`);
 				setSaving(false);
 			});
 		},
-		[composition.defaultProps, composition.id]
+		[composition.defaultProps, composition.id, schema, z]
 	);
 
 	const connectionStatus = useContext(PreviewServerConnectionCtx).type;

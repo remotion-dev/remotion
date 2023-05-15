@@ -1,6 +1,8 @@
 import type {z} from 'zod';
 import type {ZodType} from '../../get-zod-if-possible';
 
+export type EnumPath = (string | number)[];
+
 export const extractEnumJsonPaths = (
 	schema: Zod.ZodTypeAny,
 	zodRuntime: ZodType,

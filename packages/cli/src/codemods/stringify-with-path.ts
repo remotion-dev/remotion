@@ -1,6 +1,6 @@
-type Path = (string | number)[];
+import type {EnumPath} from '../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
 
-const doesMatchPath = (path1: Path, enumPaths: Path[]) => {
+const doesMatchPath = (path1: EnumPath, enumPaths: EnumPath[]) => {
 	return enumPaths.some((p) =>
 		path1.every((item, index) => {
 			if (p[index] === '[]' && !Number.isNaN(Number(item))) {
@@ -18,10 +18,10 @@ const doesMatchPath = (path1: Path, enumPaths: Path[]) => {
 
 export const stringifyDefaultProps = ({
 	props,
-	enumPath,
+	enumPaths,
 }: {
 	props: unknown;
-	enumPath: Path[];
+	enumPaths: EnumPath[];
 }) =>
 	JSON.stringify(
 		props,
@@ -31,7 +31,7 @@ export const stringifyDefaultProps = ({
 				return `__REMOVEQUOTE__new Date('${item.toISOString()}')__REMOVEQUOTE__`;
 			}
 
-			if (typeof this[key] === 'string' && doesMatchPath(path, enumPath)) {
+			if (typeof this[key] === 'string' && doesMatchPath(path, enumPaths)) {
 				return `${this[key]}__ADD_AS_CONST__`;
 			}
 

@@ -1,3 +1,4 @@
+import type {EnumPath} from '../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import {stringifyDefaultProps} from './stringify-with-path';
 
 // eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -99,10 +100,12 @@ export const updateDefaultProps = async ({
 	input,
 	compositionId,
 	newDefaultProps,
+	enumPaths,
 }: {
 	input: string;
 	compositionId: string;
 	newDefaultProps: unknown;
+	enumPaths: EnumPath[];
 }): Promise<string> => {
 	const starter = findStarter({input, compositionId});
 
@@ -136,7 +139,7 @@ export const updateDefaultProps = async ({
 
 	const newFile =
 		input.substring(0, startPos) +
-		stringifyDefaultProps({props: newDefaultProps}) +
+		stringifyDefaultProps({props: newDefaultProps, enumPaths}) +
 		input.substring(endPos);
 
 	const configFilePath = await resolveConfigFile();

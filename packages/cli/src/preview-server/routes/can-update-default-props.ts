@@ -34,6 +34,7 @@ export const canUpdateDefaultPropsHandler: ApiHandler<
 			compositionId,
 			input: readFileSync(projectInfo.videoFile, 'utf-8'),
 			newDefaultProps: {},
+			enumPaths: [],
 		});
 
 		return {
