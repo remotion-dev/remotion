@@ -784,7 +784,7 @@ export const Index: React.FC = () => {
 						color: '#eb3a60',
 						nullable: null,
 						optional: 'hihi',
-						filePath: 'remotion-file:jpeg.png',
+						filePath: staticFile('remotion-file:nested/mp3.png'),
 					}}
 					durationInFrames={150}
 				/>

@@ -1,6 +1,6 @@
 import {expect, test} from 'vitest';
 import {
-	deserializeJSONWithDate,
+	deserializeJSONWithCustomFields,
 	serializeJSONWithDate,
 } from '../editor/components/RenderModal/SchemaEditor/input-props-serialization';
 
@@ -10,7 +10,7 @@ test('date serialization', () => {
 	const {serializedString, customDateUsed} = serializeJSONWithDate(date, 2);
 	expect(customDateUsed).toEqual(true);
 
-	const deserialized = deserializeJSONWithDate(serializedString);
+	const deserialized = deserializeJSONWithCustomFields(serializedString);
 
 	expect(deserialized.data).toBeInstanceOf(Date);
 });

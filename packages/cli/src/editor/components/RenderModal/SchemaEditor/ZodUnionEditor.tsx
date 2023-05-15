@@ -43,7 +43,7 @@ export const ZodUnionEditor: React.FC<{
 	value: unknown;
 	defaultValue: unknown;
 	schema: z.ZodTypeAny;
-	setValue: React.Dispatch<React.SetStateAction<unknown>>;
+	setValue: (updater: (oldState: unknown) => unknown) => void;
 	onSave: (updater: (oldNum: unknown) => unknown) => void;
 	onRemove: null | (() => void);
 	saving: boolean;

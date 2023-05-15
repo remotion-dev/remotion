@@ -27,7 +27,7 @@ import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
 import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
 import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
 import {
-	deserializeJSONWithDate,
+	deserializeJSONWithCustomFields,
 	serializeJSONWithDate,
 } from './SchemaEditor/input-props-serialization';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
@@ -96,7 +96,7 @@ const persistanceKey = 'remotion.show-render-modalwarning';
 
 const parseJSON = (str: string): State => {
 	try {
-		const value = deserializeJSONWithDate(str);
+		const value = deserializeJSONWithCustomFields(str);
 		return {str, value, validJSON: true};
 	} catch (e) {
 		return {str, validJSON: false, error: (e as Error).message};
