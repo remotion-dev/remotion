@@ -212,7 +212,7 @@ importers:
       '@jonny/eslint-config': 3.0.266
       '@remotion/bundler': workspace:*
       '@remotion/cli': workspace:*
-      '@remotion/compositor-linux-x64-musl': workspace:*
+      '@remotion/compositor-linux-x64-gnu': workspace:*
       '@remotion/renderer': workspace:*
       '@types/minimist': 1.2.2
       eslint: 8.25.0
@@ -236,7 +236,7 @@ importers:
       remotion: link:../core
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
-      '@remotion/compositor-linux-x64-musl': link:../compositor-linux-x64-musl
+      '@remotion/compositor-linux-x64-gnu': link:../compositor-linux-x64-gnu
       '@types/minimist': 1.2.2
       eslint: 8.25.0
       prettier: 2.8.4

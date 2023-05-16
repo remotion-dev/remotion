@@ -1,5 +1,5 @@
 import {BundlerInternals} from '@remotion/bundler';
-import {binaryPath as x64BinaryPath} from '@remotion/compositor-linux-x64-musl';
+import {binaryPath as x64BinaryPath} from '@remotion/compositor-linux-x64-gnu';
 import fs from 'fs';
 import path from 'path';
 
