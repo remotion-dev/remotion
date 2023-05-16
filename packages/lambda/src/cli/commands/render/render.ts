@@ -152,6 +152,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
 		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({logLevel}),
+		indent: false,
 	});
 
 	Log.info(
@@ -187,7 +188,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			verbose,
 			totalFrames: getTotalFrames(status),
 			timeToEncode: status.timeToEncode,
-		})
+		}),
+		false
 	);
 
 	// eslint-disable-next-line no-constant-condition
@@ -209,7 +211,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				verbose,
 				timeToEncode: newStatus.timeToEncode,
 				totalFrames: getTotalFrames(newStatus),
-			})
+			}),
+			false
 		);
 
 		if (newStatus.done) {
@@ -222,7 +225,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					verbose,
 					timeToEncode: newStatus.timeToEncode,
 					totalFrames: getTotalFrames(newStatus),
-				})
+				}),
+				false
 			);
 			if (downloadName) {
 				const downloadStart = Date.now();
@@ -245,7 +249,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 								verbose,
 								timeToEncode: newStatus.timeToEncode,
 								totalFrames: getTotalFrames(newStatus),
-							})
+							}),
+							false
 						);
 					},
 				});
@@ -262,7 +267,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 						verbose,
 						timeToEncode: newStatus.timeToEncode,
 						totalFrames: getTotalFrames(newStatus),
-					})
+					}),
+					false
 				);
 				Log.info();
 				Log.info();

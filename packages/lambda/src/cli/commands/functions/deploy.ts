@@ -53,8 +53,9 @@ CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
 			logLevel: RenderInternals.getLogLevel(),
 		}),
+		indent: false,
 	});
-	output.update('Deploying Lambda...');
+	output.update('Deploying Lambda...', false);
 	const {functionName, alreadyExisted} = await deployFunction({
 		createCloudWatchLogGroup,
 		region,
@@ -69,8 +70,8 @@ CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 	}
 
 	if (alreadyExisted) {
-		output.update(`Already exists as ${functionName}\n`);
+		output.update(`Already exists as ${functionName}`, true);
 	} else {
-		output.update(`Deployed as ${functionName}\n`);
+		output.update(`Deployed as ${functionName}\n`, true);
 	}
 };
