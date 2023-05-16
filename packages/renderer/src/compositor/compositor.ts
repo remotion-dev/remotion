@@ -3,6 +3,7 @@ import {chmodSync} from 'node:fs';
 import os from 'node:os';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getActualConcurrency} from '../get-concurrency';
+import {log} from '../logger';
 import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
@@ -79,7 +80,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		data: Buffer
 	) => {
 		if (nonce === '0') {
-			console.log('[Compositor]', data.toString('utf8'));
+			log('Compositor', data.toString('utf8'));
 		}
 
 		if (waiters.has(nonce)) {
