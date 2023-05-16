@@ -40,6 +40,10 @@ The option should be documented in the [API reference](/docs/api) and the [CLI r
 
 Note from which version the option is available.
 
+## Testing changes to the CLI
+
+Check out the [Running the CLI](/docs/contributing) section in the contributing docs.
+
 ## See also
 
 - [Implementing a new feature](/docs/contributing/feature)
