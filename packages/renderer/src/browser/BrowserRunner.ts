@@ -62,15 +62,9 @@ export class BrowserRunner {
 	}
 
 	start(options: LaunchOptions): void {
-		const {dumpio, env, pipe} = options;
+		const {dumpio, env} = options;
 		let stdio: Array<'ignore' | 'pipe'>;
-		if (pipe) {
-			if (dumpio) {
-				stdio = ['ignore', 'pipe', 'pipe', 'pipe', 'pipe'];
-			} else {
-				stdio = ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'];
-			}
-		} else if (dumpio) {
+		if (dumpio) {
 			stdio = ['pipe', 'pipe', 'pipe'];
 		} else {
 			stdio = ['pipe', 'ignore', 'pipe'];
