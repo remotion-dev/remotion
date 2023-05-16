@@ -242,7 +242,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	});
 
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
-	const invokers = Math.round(Math.sqrt(chunks.length));
 
 	const reqSend = timer('sending off requests');
 	const lambdaPayloads = chunks.map((chunkPayload) => {
@@ -298,9 +297,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		estimatedTotalLambdaInvokations: [
 			// Direct invokations
 			chunks.length,
-			// Parent invokers
-			invokers,
 			// This function
+			1,
 		].reduce((a, b) => a + b, 0),
 		estimatedRenderLambdaInvokations: chunks.length,
 		compositionId: comp.id,
