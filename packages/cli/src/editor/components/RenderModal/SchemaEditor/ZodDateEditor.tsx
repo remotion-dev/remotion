@@ -85,14 +85,14 @@ export const ZodDateEditor: React.FC<{
 	});
 
 	const onValueChange = useCallback(
-		(newValue: Date) => {
+		(newValue: Date, forceApply: boolean) => {
 			const safeParse = schema.safeParse(newValue);
 			const newLocalState: LocalState = {
 				value: newValue,
 				zodValidation: safeParse,
 			};
 			setLocalValue(newLocalState);
-			if (safeParse.success) {
+			if (safeParse.success || forceApply) {
 				setValue(() => newValue);
 			}
 		},
@@ -102,13 +102,13 @@ export const ZodDateEditor: React.FC<{
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			// React does not support e.target.valueAsDate :(
-			onValueChange(new Date(e.target.value));
+			onValueChange(new Date(e.target.value), false);
 		},
 		[onValueChange]
 	);
 
 	const reset = useCallback(() => {
-		onValueChange(defaultValue);
+		onValueChange(defaultValue, true);
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
