@@ -1,7 +1,3 @@
-export const log = (tag: string, message: string) => {
-	console.log(message);
-};
-
 import {chalk} from './chalk';
 import type {LogLevel} from './log-level';
 import {isEqualOrBelowLogLevel} from './log-level';
@@ -9,19 +5,33 @@ import {truthy} from './truthy';
 
 export const INDENT_TOKEN = chalk.gray('│');
 
+type LogOptions = {
+	indent: boolean;
+	logLevel: LogLevel;
+};
+
+type VerboseLogOptions = LogOptions & {
+	tag?: string;
+};
+
+export const verboseTag = (str: string) => {
+	return chalk.bgBlack(` ${str.toUpperCase()} `);
+};
+
 export const Log = {
 	verbose: (...args: Parameters<typeof console.log>) => {
 		Log.verboseAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
 	},
 	verboseAdvanced: (
-		options: {indent: boolean; logLevel: LogLevel},
+		options: VerboseLogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
 		if (isEqualOrBelowLogLevel(options.logLevel, 'verbose')) {
 			return console.log(
 				...[
 					options.indent ? INDENT_TOKEN : null,
-					...args.map((a) => chalk.blueBright(a)),
+					options.tag ? verboseTag(options.tag) : null,
+					...args.map((a) => chalk.gray(a)),
 				].filter(truthy)
 			);
 		}
@@ -30,7 +40,7 @@ export const Log = {
 		Log.infoAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
 	},
 	infoAdvanced: (
-		options: {indent: boolean; logLevel: LogLevel},
+		options: LogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
 		if (isEqualOrBelowLogLevel(options.logLevel, 'info')) {
@@ -43,7 +53,7 @@ export const Log = {
 		Log.warnAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
 	},
 	warnAdvanced: (
-		options: {indent: boolean; logLevel: LogLevel},
+		options: LogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
 		if (isEqualOrBelowLogLevel(options.logLevel, 'warn')) {

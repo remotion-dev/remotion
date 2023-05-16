@@ -458,9 +458,9 @@ export const renderVideoFlow = async ({
 		internal: {
 			onCtrlCExit: addCleanupCallback,
 			downloadMap,
+			indent,
 		},
 		cancelSignal: cancelSignal ?? undefined,
-		printLog: (...str) => Log.verboseAdvanced({indent, logLevel}, ...str),
 		audioCodec,
 		preferLossless: false,
 		imageFormat,

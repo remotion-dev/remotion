@@ -28,6 +28,7 @@ import type {VideoImageFormat} from './image-format';
 import {validateSelectedPixelFormatAndImageFormatCombination} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {validateJpegQuality} from './jpeg-quality';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -106,6 +107,10 @@ export type RenderMediaOptions = {
 		 * @deprecated Only for Remotion internal usage
 		 */
 		onCtrlCExit?: (fn: () => void) => void;
+		/**
+		 * @deprecated Only for Remotion internal usage
+		 */
+		indent?: boolean;
 	};
 	preferLossless?: boolean;
 	muted?: boolean;
@@ -114,7 +119,6 @@ export type RenderMediaOptions = {
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
 	disallowParallelEncoding?: boolean;
-	printLog?: (...data: unknown[]) => void;
 	audioCodec?: AudioCodec | null;
 	serveUrl: string;
 	concurrency?: number | string | null;
@@ -223,27 +227,53 @@ export const renderMedia = ({
 		hasEnoughMemory &&
 		canUseParallelEncoding(codec);
 
-	if (options.verbose) {
-		const log = options.printLog ?? console.log;
-		log(
-			'[PRESTITCHER] Free memory:',
-			freeMemory,
-			'Estimated usage parallel encoding',
-			estimatedUsage
+	Log.verboseAdvanced(
+		{
+			indent: options.internal?.indent ?? false,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'PARALLEL ENCODING',
+		},
+		'Free memory:',
+		freeMemory,
+		'Estimated usage parallel encoding',
+		estimatedUsage
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.internal?.indent ?? false,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'PARALLEL ENCODING',
+		},
+		'Codec supports parallel rendering:',
+		canUseParallelEncoding(codec)
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.internal?.indent ?? false,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'PARALLEL ENCODING',
+		},
+		'User disallowed parallel encoding:',
+		Boolean(options.disallowParallelEncoding)
+	);
+	if (parallelEncoding) {
+		Log.verboseAdvanced(
+			{
+				indent: options.internal?.indent ?? false,
+				logLevel: options.verbose ? 'verbose' : 'info',
+				tag: 'PARALLEL ENCODING',
+			},
+			'Parallel encoding is enabled.'
 		);
-		log(
-			'[PRESTITCHER]: Codec supports parallel rendering:',
-			canUseParallelEncoding(codec)
+	} else {
+		Log.verboseAdvanced(
+			{
+				indent: options.internal?.indent ?? false,
+				logLevel: options.verbose ? 'verbose' : 'info',
+				tag: 'PARALLEL ENCODING',
+			},
+			'Parallel encoding is disabled.'
 		);
-		log(
-			'[PRESTITCHER]: User disallowed parallel encoding:',
-			Boolean(options.disallowParallelEncoding)
-		);
-		if (parallelEncoding) {
-			log('[PRESTITCHER] Parallel encoding is enabled.');
-		} else {
-			log('[PRESTITCHER] Parallel encoding is disabled.');
-		}
 	}
 
 	const imageFormat: VideoImageFormat = isAudioCodec(codec)
@@ -439,6 +469,7 @@ export const renderMedia = ({
 				downloadMap,
 				muted: disableAudio,
 				verbose: options.verbose ?? false,
+				indent: options.internal?.indent ?? false,
 			});
 
 			return renderFramesProc;
