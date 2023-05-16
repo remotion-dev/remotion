@@ -63,12 +63,9 @@ export class BrowserRunner {
 
 	start(options: LaunchOptions): void {
 		const {dumpio, env} = options;
-		let stdio: Array<'ignore' | 'pipe'>;
-		if (dumpio) {
-			stdio = ['pipe', 'pipe', 'pipe'];
-		} else {
-			stdio = ['pipe', 'ignore', 'pipe'];
-		}
+		const stdio: ('ignore' | 'pipe')[] = dumpio
+			? ['ignore', 'pipe', 'pipe']
+			: ['pipe', 'ignore', 'pipe'];
 
 		assert(!this.proc, 'This process has previously been started.');
 		this.proc = childProcess.spawn(
