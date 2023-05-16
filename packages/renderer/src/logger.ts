@@ -1,4 +1,5 @@
 import {chalk} from './chalk';
+import {isColorSupported} from './chalk/is-color-supported';
 import type {LogLevel} from './log-level';
 import {isEqualOrBelowLogLevel} from './log-level';
 import {truthy} from './truthy';
@@ -15,7 +16,9 @@ type VerboseLogOptions = LogOptions & {
 };
 
 export const verboseTag = (str: string) => {
-	return chalk.bgBlack(` ${str.toUpperCase()} `);
+	return isColorSupported
+		? chalk.bgBlack(` ${str.toUpperCase()} `)
+		: `[${str.toUpperCase()}]`;
 };
 
 export const Log = {

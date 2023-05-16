@@ -1,5 +1,6 @@
 const hasColor = () => {
 	if (typeof process !== 'undefined') {
+		if (process.env.NO_COLOR) return false;
 		return process.env.FORCE_COLOR !== '0';
 	}
 
