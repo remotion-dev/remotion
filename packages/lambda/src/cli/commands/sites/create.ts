@@ -53,6 +53,7 @@ export const sitesCreateSubcommand = async (
 		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
 			logLevel: RenderInternals.getLogLevel(),
 		}),
+		indent: false,
 	});
 
 	const multiProgress: {
@@ -81,7 +82,8 @@ export const sitesCreateSubcommand = async (
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
-			].join('\n')
+			].join('\n'),
+			false
 		);
 	};
 

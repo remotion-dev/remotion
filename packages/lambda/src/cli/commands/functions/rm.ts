@@ -39,8 +39,9 @@ export const functionsRmCommand = async (args: string[]) => {
 			updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
 				logLevel: RenderInternals.getLogLevel(),
 			}),
+			indent: false,
 		});
-		infoOutput.update('Getting function info...');
+		infoOutput.update('Getting function info...', false);
 		const info = await getFunctionInfo({
 			region,
 			functionName,
@@ -52,9 +53,9 @@ export const functionsRmCommand = async (args: string[]) => {
 				'Memory: '.padEnd(LEFT_COL, ' ') + ' ' + info.memorySizeInMb + 'MB',
 				'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + info.timeoutInSeconds + 'sec',
 				'Version: '.padEnd(LEFT_COL, ' ') + ' ' + info.version,
-			].join('\n')
+			].join('\n'),
+			true
 		);
-		Log.info();
 
 		await confirmCli({delMessage: 'Delete? (Y/n)', allowForceFlag: true});
 		const output = CliInternals.createOverwriteableCliOutput({
@@ -63,9 +64,10 @@ export const functionsRmCommand = async (args: string[]) => {
 			updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
 				logLevel: RenderInternals.getLogLevel(),
 			}),
+			indent: false,
 		});
-		output.update('Deleting...');
+		output.update('Deleting...', false);
 		await deleteFunction({region, functionName});
-		output.update('Deleted!\n');
+		output.update('Deleted!', true);
 	}
 };
