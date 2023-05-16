@@ -50,7 +50,13 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 			) as TComposition;
 			if (!foundComposition) {
 				throw new Error(
-					'Found no composition with the name ' + state.compositionName
+					`Found no composition with the name ${
+						state.compositionName
+					}. The following compositions were found instead: ${compositions.compositions
+						.map((c) => c.id)
+						.join(
+							', '
+						)}. All compositions must have their ID calculated deterministically and must be mounted at the same time.`
 				);
 			}
 
