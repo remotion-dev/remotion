@@ -79,7 +79,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		data: Buffer
 	) => {
 		if (nonce === '0') {
-			console.log(data.toString('utf8'));
+			console.log('[Compositor]', data.toString('utf8'));
 		}
 
 		if (waiters.has(nonce)) {

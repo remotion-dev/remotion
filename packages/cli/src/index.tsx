@@ -4,6 +4,7 @@ import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
 import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
 import {listCompositionsCommand} from './compositions';
+import {ConfigInternals} from './config';
 import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
@@ -88,7 +89,10 @@ export const cli = async () => {
 		}
 	} catch (err) {
 		Log.info();
-		await handleCommonError(err as Error);
+		await handleCommonError(
+			err as Error,
+			ConfigInternals.Logging.getLogLevel()
+		);
 		cleanupBeforeQuit();
 		process.exit(1);
 	} finally {

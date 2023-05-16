@@ -37,6 +37,7 @@ import type {
 } from '../progress-types';
 import {initialAggregateRenderProgress} from '../progress-types';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
+import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
 import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {
@@ -158,6 +159,7 @@ export const renderStillFlow = async ({
 					RenderInternals.deleteDirectory(dir);
 				});
 			},
+			quietProgress: false,
 		}
 	);
 
@@ -226,6 +228,7 @@ export const renderStillFlow = async ({
 	renderProgress = createOverwriteableCliOutput({
 		quiet: quietFlagProvided(),
 		cancelSignal,
+		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 	});
 	const renderStart = Date.now();
 
