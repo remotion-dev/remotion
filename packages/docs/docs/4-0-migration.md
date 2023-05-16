@@ -213,3 +213,11 @@ const composition: AnyComposition = {
   // ...
 };
 ```
+
+## `getCanExtractFramesFast()` function has been removed
+
+The [`getCanExtractFramesFast()`](/docs/renderer/get-can-extract-frames-fast) function has been removed, since frames can always be extracted fast now using `<OffthreadVideo>`.
+
+**How to upgrade:**
+
+You can now remove your re-encoding logic!
