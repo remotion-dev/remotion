@@ -8,24 +8,31 @@ import {interpolate} from 'remotion';
 import {noop} from '../../helpers/noop';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
+import type {RemInputStatus} from './RemInput';
 import {inputBaseStyle, RemotionInput} from './RemInput';
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
 	onValueChange: (newVal: number) => void;
 	onTextChange: (newVal: string) => void;
+	status: RemInputStatus;
+	formatter?: (str: number | string) => string;
+	rightAlign: boolean;
 };
 
 export const InputDragger: React.FC<Props> = ({
 	onValueChange,
 	min: _min,
+	max: _max,
 	step: _step,
 	value,
 	onTextChange,
+	formatter = (q) => String(q),
+	status,
+	rightAlign,
 	...props
 }) => {
 	const [inputFallback, setInputFallback] = useState(false);
 	const fallbackRef = useRef<HTMLInputElement>(null);
-
 	const style = useMemo(() => {
 		return {
 			...inputBaseStyle,
@@ -91,6 +98,11 @@ export const InputDragger: React.FC<Props> = ({
 		[]
 	);
 
+	const roundToStep = (val: number, stepSize: number) => {
+		const factor = 1 / stepSize;
+		return Math.ceil(val * factor) / factor;
+	};
+
 	const onPointerDown: PointerEventHandler = useCallback(
 		(e) => {
 			const {pageX, pageY} = e;
@@ -101,6 +113,8 @@ export const InputDragger: React.FC<Props> = ({
 				);
 				const step = Number(_step ?? 1);
 				const min = Number(_min ?? 0);
+				const max = Number(_max ?? Infinity);
+
 				if (distanceFromStart > 4) {
 					setClickLock(true);
 				}
@@ -110,9 +124,9 @@ export const InputDragger: React.FC<Props> = ({
 					[-5, -4, 0, 4, 5],
 					[-step, 0, 0, 0, step]
 				);
-				const newValue = Math.max(min, Math.floor(Number(value) + diff));
-				const roundToStep = Math.floor(newValue / step) * step;
-				onValueChange(roundToStep);
+				const newValue = Math.min(max, Math.max(min, Number(value) + diff));
+				const roundedToStep = roundToStep(newValue, step);
+				onValueChange(roundedToStep);
 			};
 
 			window.addEventListener('mousemove', moveListener);
@@ -129,7 +143,7 @@ export const InputDragger: React.FC<Props> = ({
 				}
 			);
 		},
-		[_step, _min, value, onValueChange]
+		[_step, _min, _max, value, onValueChange]
 	);
 
 	useEffect(() => {
@@ -137,7 +151,6 @@ export const InputDragger: React.FC<Props> = ({
 			fallbackRef.current?.select();
 		}
 	}, [inputFallback]);
-
 	if (inputFallback) {
 		return (
 			<HigherZIndex onEscape={onEscape} onOutsideClick={noop}>
@@ -149,6 +162,9 @@ export const InputDragger: React.FC<Props> = ({
 					min={_min}
 					step={_step}
 					defaultValue={value}
+					status={status}
+					pattern={'[0-9]*[.]?[0-9]*'}
+					rightAlign={rightAlign}
 					{...props}
 				/>
 			</HigherZIndex>
@@ -162,7 +178,7 @@ export const InputDragger: React.FC<Props> = ({
 			onClick={onClick}
 			onPointerDown={onPointerDown}
 		>
-			<span style={span}>{value}</span>
+			<span style={span}>{formatter(value as string | number)}</span>
 		</button>
 	);
 };

@@ -5,7 +5,7 @@ import type {RefObject} from 'react';
 import React from 'react';
 import {afterAll, beforeAll, expect, test, vitest} from 'vitest';
 import type {CompositionManagerContext} from '../CompositionManager.js';
-import {Internals} from '../internals.js';
+import {CompositionManager} from '../CompositionManager.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import * as useVideoConfigModule from '../use-video-config.js';
 import {renderHook} from './render-hook.js';
@@ -33,7 +33,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 	const wrapper: React.FC<{
 		children: React.ReactNode;
 	}> = ({children}) => (
-		<Internals.CompositionManager.Provider
+		<CompositionManager.Provider
 			value={
 				// eslint-disable-next-line react/jsx-no-constructed-context-values
 				{
@@ -44,7 +44,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 			}
 		>
 			{children}
-		</Internals.CompositionManager.Provider>
+		</CompositionManager.Provider>
 	);
 
 	const audioRef = {

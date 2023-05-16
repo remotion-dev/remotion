@@ -1,4 +1,5 @@
 node_modules
-ffmpeg
+ffmpeg/remotion/include
+ffmpeg/remotion/lib/pkgconfig
 remotionlambda-arm64.zip
 remotionlambda-x64.zip

@@ -7,9 +7,9 @@ import React from 'react';
 import {describe, expect, test} from 'vitest';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {Freeze} from '../freeze.js';
-import type {TimelineContextValue} from '../internals.js';
-import {Internals} from '../internals.js';
 import {Sequence} from '../Sequence.js';
+import type {TimelineContextValue} from '../timeline-position-state.js';
+import {TimelineContext} from '../timeline-position-state.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {WrapSequenceContext} from './wrap-sequence-context.js';
 
@@ -36,13 +36,13 @@ describe('Composition-validation render should NOT throw with valid props', () =
 		const {queryByText} = render(
 			<CanUseRemotionHooksProvider>
 				<WrapSequenceContext>
-					<Internals.Timeline.TimelineContext.Provider value={context}>
+					<TimelineContext.Provider value={context}>
 						<Freeze frame={10000}>
 							<Sequence durationInFrames={2424} from={9265}>
 								<Inner />
 							</Sequence>
 						</Freeze>
-					</Internals.Timeline.TimelineContext.Provider>
+					</TimelineContext.Provider>
 				</WrapSequenceContext>
 			</CanUseRemotionHooksProvider>
 		);

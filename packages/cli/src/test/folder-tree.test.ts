@@ -1,6 +1,7 @@
 import type {ComponentType} from 'react';
 import React from 'react';
 import {expect, test} from 'vitest';
+import {getZodIfPossible} from '../editor/components/get-zod-if-possible';
 import {createFolderTree} from '../editor/helpers/create-folder-tree';
 
 const SampleComp: React.FC<{}> = () => null;
@@ -8,7 +9,19 @@ const component = React.lazy(() =>
 	Promise.resolve({default: SampleComp as ComponentType<unknown>})
 );
 
-test('Should create a good folder tree with 1 item inside and 1 item outside', () => {
+const getZ = async () => {
+	const z = await getZodIfPossible();
+	if (!z) {
+		throw new Error('Zod not found');
+	}
+
+	return z;
+};
+
+test('Should create a good folder tree with 1 item inside and 1 item outside', async () => {
+	const z = await getZ();
+
+	const any = z.any();
 	const tree = createFolderTree(
 		[
 			{
@@ -22,6 +35,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 				nonce: 0,
 				width: 1080,
 				parentFolderName: null,
+				schema: any,
 			},
 			{
 				component,
@@ -34,6 +48,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 				nonce: 0,
 				width: 1080,
 				parentFolderName: null,
+				schema: any,
 			},
 		],
 		[
@@ -61,6 +76,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 						id: 'my-comp',
 						nonce: 0,
 						width: 1080,
+						schema: any,
 					},
 					key: 'my-comp',
 					type: 'composition',
@@ -83,6 +99,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 				id: 'second-comp',
 				nonce: 0,
 				width: 1080,
+				schema: any,
 			},
 			key: 'second-comp',
 			type: 'composition',
@@ -90,7 +107,10 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', (
 	]);
 });
 
-test('Should handle nested folders well', () => {
+test('Should handle nested folders well', async () => {
+	const z = await getZ();
+	const any = z.any();
+
 	const tree = createFolderTree(
 		[
 			{
@@ -104,6 +124,7 @@ test('Should handle nested folders well', () => {
 				nonce: 0,
 				width: 1080,
 				parentFolderName: 'my-third-folder/my-second-folder',
+				schema: any,
 			},
 		],
 		[
@@ -156,6 +177,7 @@ test('Should handle nested folders well', () => {
 										id: 'my-comp',
 										nonce: 0,
 										width: 1080,
+										schema: any,
 									},
 									key: 'my-comp',
 									type: 'composition',

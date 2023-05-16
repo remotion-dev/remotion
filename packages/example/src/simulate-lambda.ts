@@ -4,7 +4,7 @@ import {
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
-import path from 'path';
+import path from 'node:path';
 import {webpackOverride} from './webpack-override';
 
 const start = async () => {
@@ -47,8 +47,6 @@ const start = async () => {
 		onProgress: () => console.log('progress'),
 		output: 'out/combined.mp4',
 		numberOfGifLoops: null,
-		ffmpegExecutable: null,
-		remotionRoot: process.cwd(),
 		audioCodec: 'aac',
 	});
 

@@ -13,6 +13,7 @@ import {
 } from 'react';
 import type {CompProps, TimelineContextValue} from 'remotion';
 import {Internals, random} from 'remotion';
+import type {z} from 'zod';
 import {ThumbnailEmitterContext} from './emitter-context.js';
 import {ThumbnailEmitter} from './event-emitter.js';
 import type {ThumbnailMethods} from './player-methods.js';
@@ -21,21 +22,23 @@ import {SharedPlayerContexts} from './SharedPlayerContext.js';
 import ThumbnailUI from './ThumbnailUI.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
-type ThumbnailProps<T> = PropsIfHasProps<T> &
-	CompProps<T> & {
+type ThumbnailProps<Schema extends z.ZodTypeAny, Props> = PropsIfHasProps<
+	Schema,
+	Props
+> &
+	CompProps<Schema> & {
 		frameToDisplay: number;
 		style?: CSSProperties;
 		durationInFrames: number;
 		compositionWidth: number;
 		compositionHeight: number;
-		inputProps?: unknown;
 		fps: number;
 		errorFallback?: ErrorFallback;
 		renderLoading?: RenderLoading;
 		className?: string;
 	};
 
-export const ThumbnailFn = <T,>(
+export const ThumbnailFn = <Schema extends z.ZodTypeAny, Props>(
 	{
 		frameToDisplay,
 		style,
@@ -48,7 +51,7 @@ export const ThumbnailFn = <T,>(
 		errorFallback = () => '⚠️',
 		renderLoading,
 		...componentProps
-	}: ThumbnailProps<T>,
+	}: ThumbnailProps<Schema, Props>,
 	ref: MutableRefObject<ThumbnailMethods>
 ) => {
 	const [thumbnailId] = useState(() => String(random(null)));

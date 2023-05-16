@@ -1,4 +1,4 @@
-import type {TComposition, TFolder} from 'remotion';
+import type {AnyComposition, TFolder} from 'remotion';
 import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
 
@@ -45,7 +45,7 @@ const doesFolderExist = (
 	return false;
 };
 
-export const findItemListToPush = (
+const findItemListToPush = (
 	items: CompositionSelectorItemType[],
 	folderName: string | null,
 	parentName: string | null
@@ -108,7 +108,7 @@ const createFolderIfDoesNotExist = (
 };
 
 export const createFolderTree = (
-	comps: TComposition<unknown>[],
+	comps: AnyComposition[],
 	folders: TFolder[],
 	foldersExpanded: Record<string, boolean>
 ): CompositionSelectorItemType[] => {

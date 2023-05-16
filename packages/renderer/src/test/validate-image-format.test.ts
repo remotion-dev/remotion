@@ -1,10 +1,12 @@
 import {expect, test} from 'vitest';
-import {validateNonNullImageFormat} from '../image-format';
+import {validateStillImageFormat} from '../image-format';
 
 test('"none" is not a valid image format', () => {
-	expect(() => validateNonNullImageFormat('jpeg')).not.toThrow();
-	expect(() => validateNonNullImageFormat('png')).not.toThrow();
-	expect(() => validateNonNullImageFormat('none')).toThrow(
-		/Image format should be either "png" or "jpeg"/
+	expect(() => validateStillImageFormat('jpeg')).not.toThrow();
+	expect(() => validateStillImageFormat('png')).not.toThrow();
+	expect(() => validateStillImageFormat('pdf')).not.toThrow();
+	// @ts-expect-error
+	expect(() => validateStillImageFormat('none')).toThrow(
+		/Image format should be one of: "png", "jpeg", "pdf", "webp"/
 	);
 });

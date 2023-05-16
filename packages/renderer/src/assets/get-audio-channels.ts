@@ -1,6 +1,4 @@
-import execa from 'execa';
-import type {FfmpegExecutable} from '../ffmpeg-executable';
-import {getExecutableBinary} from '../ffmpeg-flags';
+import {callFf} from '../call-ffmpeg';
 import {pLimit} from '../p-limit';
 import type {
 	AudioChannelsAndDurationResultCache,
@@ -11,9 +9,7 @@ const limit = pLimit(1);
 
 async function getAudioChannelsAndDurationUnlimited(
 	downloadMap: DownloadMap,
-	src: string,
-	ffprobeExecutable: FfmpegExecutable,
-	remotionRoot: string
+	src: string
 ): Promise<AudioChannelsAndDurationResultCache> {
 	if (downloadMap.durationOfAssetCache[src]) {
 		return downloadMap.durationOfAssetCache[src];
@@ -28,10 +24,7 @@ async function getAudioChannelsAndDurationUnlimited(
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await execa(
-		await getExecutableBinary(ffprobeExecutable, remotionRoot, 'ffprobe'),
-		args
-	);
+	const task = await callFf('ffprobe', args);
 
 	const channels = task.stdout.match(/channels=([0-9]+)/);
 	const duration = task.stdout.match(/duration=([0-9.]+)/);
@@ -48,16 +41,7 @@ async function getAudioChannelsAndDurationUnlimited(
 
 export const getAudioChannelsAndDuration = (
 	downloadMap: DownloadMap,
-	src: string,
-	ffprobeExecutable: FfmpegExecutable,
-	remotionRoot: string
+	src: string
 ): Promise<AudioChannelsAndDurationResultCache> => {
-	return limit(() =>
-		getAudioChannelsAndDurationUnlimited(
-			downloadMap,
-			src,
-			ffprobeExecutable,
-			remotionRoot
-		)
-	);
+	return limit(() => getAudioChannelsAndDurationUnlimited(downloadMap, src));
 };

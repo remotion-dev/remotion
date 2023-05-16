@@ -1,4 +1,5 @@
 import type {StaticFile} from 'remotion';
+import type {RenderJob} from './preview-server/render-queue/job';
 
 export type EventSourceEvent =
 	| {
@@ -7,10 +8,28 @@ export type EventSourceEvent =
 	  }
 	| {
 			type: 'init';
+			clientId: string;
 	  }
 	| {
 			type: 'new-env-variables';
 			newEnvVariables: Record<string, string>;
+	  }
+	| {
+			type: 'render-queue-updated';
+			queue: RenderJob[];
+	  }
+	| {
+			type: 'render-job-failed';
+			compositionId: string;
+			error: Error;
+	  }
+	| {
+			type: 'watched-file-undeleted';
+			file: string;
+	  }
+	| {
+			type: 'watched-file-deleted';
+			file: string;
 	  }
 	| {
 			type: 'new-public-folder';
