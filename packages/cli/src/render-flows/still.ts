@@ -110,17 +110,14 @@ export const renderStillFlow = async ({
 		'rendering' as const,
 	].filter(truthy);
 
-	const updateProgress = () => {
+	const updateProgress = (newline: boolean) => {
 		const {output, progress, message} = makeRenderingAndStitchingProgress({
 			prog: aggregate,
 			steps: steps.length,
 			stitchingStep: steps.indexOf('stitching'),
 		});
 		if (renderProgress) {
-			renderProgress.update(
-				updatesDontOverwrite ? message : output,
-				progress === 1
-			);
+			renderProgress.update(updatesDontOverwrite ? message : output, newline);
 		}
 
 		onProgress({message, value: progress, ...aggregate});
@@ -153,7 +150,7 @@ export const renderStillFlow = async ({
 			onProgress: ({copying, bundling}) => {
 				aggregate.bundling = bundling;
 				aggregate.copyingState = copying;
-				updateProgress();
+				updateProgress(false);
 			},
 			indentOutput,
 			logLevel,
@@ -249,7 +246,7 @@ export const renderStillFlow = async ({
 		totalFrames: 1,
 	};
 
-	updateProgress();
+	updateProgress(false);
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
@@ -261,11 +258,11 @@ export const renderStillFlow = async ({
 			totalBytes: null,
 		};
 		downloads.push(download);
-		updateProgress();
+		updateProgress(false);
 
 		return ({percent}) => {
 			download.progress = percent;
-			updateProgress();
+			updateProgress(false);
 		};
 	};
 
@@ -297,8 +294,7 @@ export const renderStillFlow = async ({
 		steps,
 		totalFrames: 1,
 	};
-	updateProgress();
-	Log.infoAdvanced({indent: indentOutput, logLevel});
+	updateProgress(true);
 	Log.infoAdvanced(
 		{indent: indentOutput, logLevel},
 		chalk.blue(`▶️ ${absoluteOutputLocation}`)
