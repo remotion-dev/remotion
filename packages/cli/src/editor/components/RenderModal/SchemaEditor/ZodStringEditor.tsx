@@ -54,14 +54,14 @@ export const ZodStringEditor: React.FC<{
 	});
 
 	const onValueChange = useCallback(
-		(newValue: string) => {
+		(newValue: string, forceApply: boolean) => {
 			const safeParse = schema.safeParse(newValue);
 			const newLocalState: LocalState = {
 				value: newValue,
 				zodValidation: safeParse,
 			};
 			setLocalValue(newLocalState);
-			if (safeParse.success) {
+			if (safeParse.success || forceApply) {
 				setValue(() => newValue);
 			}
 		},
@@ -70,13 +70,13 @@ export const ZodStringEditor: React.FC<{
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			onValueChange(e.target.value);
+			onValueChange(e.target.value, false);
 		},
 		[onValueChange]
 	);
 
 	const reset = useCallback(() => {
-		onValueChange(defaultValue);
+		onValueChange(defaultValue, true);
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
