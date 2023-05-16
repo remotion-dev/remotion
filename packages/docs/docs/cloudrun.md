@@ -72,8 +72,7 @@ You can control Remotion Cloud Run using the `npx remotion cloudrun` command.
 
 ## Node.JS API
 
-// TODO: Link to API reference
-Everything you can do using the CLI, you can also control using Node.JS APIs. See the reference [here](#).
+Everything you can do using the CLI, you can also control using Node.JS APIs. See the reference [here](/docs/cloudrun/api).
 
 ## License
 
