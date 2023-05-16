@@ -341,13 +341,14 @@ export const benchmarkCommand = async (
 							run,
 							doneIn: null,
 							progress,
-						})
+						}),
+						false
 					);
 				}
 			);
 
-			benchmarkProgress.update('');
-			benchmarkProgress.update(getResults(timeTaken, runs));
+			benchmarkProgress.update('', false);
+			benchmarkProgress.update(getResults(timeTaken, runs), false);
 
 			benchmark[composition.id][`${con}`] = timeTaken;
 		}

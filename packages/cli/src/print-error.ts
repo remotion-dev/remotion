@@ -15,15 +15,17 @@ export const printError = async (err: Error, logLevel: LogLevel) => {
 			indent: false,
 		});
 		output.update(
-			chalk.red('Symbolicating minified error message...\n' + err.message)
+			chalk.red('Symbolicating minified error message...\n' + err.message),
+			false
 		);
 		try {
 			const symbolicated = await RenderInternals.symbolicateError(err);
 			if (symbolicated.frame === null) {
-				output.update(chalk.red('An error occurred:\n'));
+				output.update(chalk.red('An error occurred:'), true);
 			} else {
 				output.update(
-					chalk.red(`An error occurred while rendering frame ${err.frame}:\n`)
+					chalk.red(`An error occurred while rendering frame ${err.frame}:`),
+					true
 				);
 			}
 
@@ -31,8 +33,9 @@ export const printError = async (err: Error, logLevel: LogLevel) => {
 		} catch (e) {
 			output.update(
 				chalk.red(
-					'(Error occurred symbolicating stack trace - printing minified stack trace)\n'
-				)
+					'(Error occurred symbolicating stack trace - printing minified stack trace)'
+				),
+				true
 			);
 			Log.error();
 			Log.error(err.stack || err);

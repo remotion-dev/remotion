@@ -15,7 +15,7 @@ import type {
 import {truthy} from './truthy';
 
 export type OverwriteableCliOutput = {
-	update: (up: string) => boolean;
+	update: (up: string, newline: boolean) => boolean;
 };
 
 export const createOverwriteableCliOutput = (options: {
@@ -60,7 +60,7 @@ export const createOverwriteableCliOutput = (options: {
 	});
 
 	return {
-		update: (up: string): boolean => {
+		update: (up: string, newline: boolean): boolean => {
 			if (options.indent) {
 				return process.stdout.write(
 					diff.update(
@@ -68,7 +68,7 @@ export const createOverwriteableCliOutput = (options: {
 							.split('\n')
 							.filter((a) => a.trim())
 							.map((l) => `${RenderInternals.INDENT_TOKEN} ${l}`)
-							.join('\n')
+							.join('\n') + (newline ? '\n' : '')
 					)
 				);
 			}
