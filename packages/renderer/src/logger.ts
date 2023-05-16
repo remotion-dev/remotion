@@ -11,10 +11,7 @@ export const INDENT_TOKEN = chalk.gray('│');
 
 export const Log = {
 	verbose: (...args: Parameters<typeof console.log>) => {
-		Log.verboseAdvanced(
-			{indent: false, logLevel: ConfigInternals.Logging.getLogLevel()},
-			...args
-		);
+		Log.verboseAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
 	},
 	verboseAdvanced: (
 		options: {indent: boolean; logLevel: LogLevel},
@@ -30,10 +27,7 @@ export const Log = {
 		}
 	},
 	info: (...args: Parameters<typeof console.log>) => {
-		Log.infoAdvanced(
-			{indent: false, logLevel: ConfigInternals.Logging.getLogLevel()},
-			...args
-		);
+		Log.infoAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
 	},
 	infoAdvanced: (
 		options: {indent: boolean; logLevel: LogLevel},
@@ -46,10 +40,7 @@ export const Log = {
 		}
 	},
 	warn: (...args: Parameters<typeof console.log>) => {
-		Log.warnAdvanced(
-			{indent: false, logLevel: ConfigInternals.Logging.getLogLevel()},
-			...args
-		);
+		Log.warnAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
 	},
 	warnAdvanced: (
 		options: {indent: boolean; logLevel: LogLevel},
@@ -65,10 +56,18 @@ export const Log = {
 		}
 	},
 	error: (...args: Parameters<typeof console.log>) => {
-		if (
-			isEqualOrBelowLogLevel(ConfigInternals.Logging.getLogLevel(), 'error')
-		) {
+		if (isEqualOrBelowLogLevel(getLogLevel(), 'error')) {
 			return console.error(...args.map((a) => chalk.red(a)));
 		}
 	},
+};
+
+let logLevel: LogLevel = 'info';
+
+export const getLogLevel = () => {
+	return logLevel;
+};
+
+export const setLogLevel = (newLogLevel: LogLevel) => {
+	logLevel = newLogLevel;
 };
