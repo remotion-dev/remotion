@@ -215,3 +215,31 @@ Config.overrideWebpackConfig((config) => {
   };
 });
 ```
+
+## The `TComposition` type now includes a Zod schema
+
+The `TComposition` type now has two generic arguments:
+
+```ts
+export type TComposition<Schema extends z.ZodTypeAny, Props> = {};
+```
+
+If you need a type for a generic composition, you can use the new `AnyComposition` type:
+
+```ts
+import { AnyComposition } from "remotion";
+
+const composition: AnyComposition = {
+  width: 1920,
+  height: 1080,
+  // ...
+};
+```
+
+## `getCanExtractFramesFast()` function has been removed
+
+The [`getCanExtractFramesFast()`](/docs/renderer/get-can-extract-frames-fast) function has been removed, since frames can always be extracted fast now using `<OffthreadVideo>`.
+
+**How to upgrade:**
+
+You can now remove your re-encoding logic!
