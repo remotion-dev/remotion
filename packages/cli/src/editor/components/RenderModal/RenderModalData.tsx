@@ -145,7 +145,11 @@ export const RenderModalData: React.FC<{
 		}
 
 		const value = inputProps ?? {};
-		return serializeJSONWithDate(value, 2);
+		return serializeJSONWithDate({
+			data: value,
+			indent: 2,
+			staticBase: window.remotion_staticBase,
+		});
 	}, [inJSONEditor, inputProps]);
 
 	const cliProps = getInputProps();

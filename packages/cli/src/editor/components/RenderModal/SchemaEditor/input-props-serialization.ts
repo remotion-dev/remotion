@@ -7,10 +7,15 @@ export type SerializedJSONWithCustomFields = {
 const DATE_TOKEN = 'remotion-date:';
 export const FILE_TOKEN = 'remotion-file:';
 
-export const serializeJSONWithDate = (
-	data: unknown,
-	indent: number | undefined
-): SerializedJSONWithCustomFields => {
+export const serializeJSONWithDate = ({
+	data,
+	indent,
+	staticBase,
+}: {
+	data: unknown;
+	indent: number | undefined;
+	staticBase: string;
+}): SerializedJSONWithCustomFields => {
 	let customDateUsed = false;
 	let customFileUsed = false;
 
@@ -23,15 +28,9 @@ export const serializeJSONWithDate = (
 				return `${DATE_TOKEN}${item.toISOString()}`;
 			}
 
-			if (
-				typeof item === 'string' &&
-				item.startsWith(window.remotion_staticBase)
-			) {
+			if (typeof item === 'string' && item.startsWith(staticBase)) {
 				customFileUsed = true;
-				return `${FILE_TOKEN}${item.replace(
-					window.remotion_staticBase + '/',
-					''
-				)}`;
+				return `${FILE_TOKEN}${item.replace(staticBase + '/', '')}`;
 			}
 
 			return value;
