@@ -3,6 +3,7 @@ import type {LayoutAndStyle} from '../Sequence.js';
 import {Sequence} from '../Sequence.js';
 import {useVideoConfig} from '../use-video-config.js';
 import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
+import { useCurrentFrame } from '../use-current-frame.js';
 
 export type LoopProps = {
 	// The duration of the content to be looped
@@ -24,7 +25,9 @@ export const Loop: React.FC<LoopProps> = ({
 	name,
 	...props
 }) => {
+	const currentFrame = useCurrentFrame();
 	const {durationInFrames: compDuration} = useVideoConfig();
+
 	validateDurationInFrames({
 		durationInFrames,
 		component: 'of the <Loop /> component',
@@ -52,26 +55,20 @@ export const Loop: React.FC<LoopProps> = ({
 	const maxTimes = Math.ceil(compDuration / durationInFrames);
 	const actualTimes = Math.min(maxTimes, times);
 	const style = props.layout === 'none' ? undefined : props.style;
+	const maxFrame = durationInFrames * (actualTimes - 1);
+	const start = Math.floor(currentFrame / durationInFrames) * durationInFrames;
 
 	return (
-		<>
-			{new Array(actualTimes).fill(true).map((_, i) => {
-				return (
-					<Sequence
-						// eslint-disable-next-line react/no-array-index-key
-						key={`loop-${i}`}
-						durationInFrames={durationInFrames}
-						from={i * durationInFrames}
-						name={name}
-						showLoopTimesInTimeline={actualTimes}
-						showInTimeline={i === 0}
-						layout={props.layout}
-						style={style}
-					>
-						{children}
-					</Sequence>
-				);
-			})}
-		</>
-	);
+		<Sequence
+			durationInFrames={durationInFrames}
+			from={Math.min(start, maxFrame)}
+			name={name}
+			showLoopTimesInTimeline={actualTimes}
+			showInTimeline={start === 0}
+			layout={props.layout}
+			style={style}
+		>
+			{children}
+		</Sequence>
+	)
 };
