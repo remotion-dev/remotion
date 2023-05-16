@@ -11,7 +11,6 @@ We recommend the following structure for your Dockerfile. Read below about the i
 FROM debian:bookworm-20230411
 
 RUN apt-get update
-RUN apt show chromium
 RUN apt-get install -y nodejs npm ffmpeg chromium
 
 # Copy everything from your project to the Docker image. Adjust if needed.
@@ -58,11 +57,11 @@ RUN apt-get update
 ```
 
 <p>
-<Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM), FFmpeg and Chromium. 
+<Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM) and Chromium. 
 </p>
 
 ```docker
-RUN apt-get install -y nodejs npm ffmpeg chromium
+RUN apt-get install -y nodejs npm chromium
 ```
 
 <p>

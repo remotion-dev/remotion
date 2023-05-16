@@ -3,7 +3,7 @@ import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 
 export const MAX_TIMELINE_TRACKS =
 	typeof process.env.MAX_TIMELINE_TRACKS === 'undefined'
-		? 15
+		? 90
 		: Number(process.env.MAX_TIMELINE_TRACKS);
 
 export const MAX_TIMELINE_TRACKS_NOTICE_HEIGHT = 24;

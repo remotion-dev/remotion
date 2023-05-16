@@ -2,7 +2,7 @@ import {selectAsync} from './composition-prompts';
 
 import type {getCompositions} from '@remotion/renderer';
 import {chalk} from './chalk';
-export type Await<T> = T extends PromiseLike<infer U> ? U : T;
+type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 export const selectComposition = async (
 	validCompositions: Await<ReturnType<typeof getCompositions>>

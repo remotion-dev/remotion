@@ -11,7 +11,7 @@ export default [
 				sourcemap: false,
 			},
 		],
-		external: ['react', 'react-dom', 'react/jsx-runtime'],
+		external: ['react', 'react-dom', 'react/jsx-runtime', 'zod'],
 		plugins: [
 			typescript({
 				tsconfig: 'tsconfig-esm.json',

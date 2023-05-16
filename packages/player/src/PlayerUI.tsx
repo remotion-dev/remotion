@@ -11,6 +11,7 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
+import type {z} from 'zod';
 import {
 	calculateCanvasTransformation,
 	calculateContainerStyle,
@@ -471,8 +472,9 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<VideoComponent
-								{...((video?.defaultProps as unknown as {}) ?? {})}
-								{...((inputProps as unknown as {}) ?? {})}
+								{...((video?.defaultProps as unknown as z.infer<z.ZodTypeAny>) ??
+									{})}
+								{...((inputProps as unknown as z.infer<z.ZodTypeAny>) ?? {})}
 							/>
 						</ErrorBoundary>
 					) : null}

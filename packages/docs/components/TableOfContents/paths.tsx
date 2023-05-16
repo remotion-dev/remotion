@@ -79,16 +79,6 @@ export const TableOfContents: React.FC = () => {
           <strong>reduceInstructions()</strong>
           <div>Reduce the amount of instruction types</div>
         </TOCItem>{" "}
-        <TOCItem link="/docs/paths/get-parts">
-          <strong
-            style={{
-              textDecoration: "line-through",
-            }}
-          >
-            getParts()
-          </strong>
-          <div>Split SVG path into its parts</div>
-        </TOCItem>
       </Grid>
     </div>
   );

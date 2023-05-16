@@ -57,14 +57,6 @@ If you don't feel like passing command line flags every time, consider creating 
 
 [Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
 
-### `--ffmpeg-executable`
-
-[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
-
-### `--ffprobe-executable`
-
-[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
-
 ### `--timeout`
 
 Define how long it may take to resolve all [`delayRender()`](/docs/delay-render) calls before the composition fetching times out in milliseconds. Default: `30000`.
@@ -94,6 +86,18 @@ Lets you set a custom user agent that the headless Chrome browser assumes.
 ### `--quiet`, `--q`
 
 Only prints the composition IDs, separated by a space.
+
+### ~~`--ffmpeg-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+
+### ~~`--ffprobe-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
 
 ## See also
 

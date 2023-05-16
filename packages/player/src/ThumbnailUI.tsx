@@ -7,6 +7,7 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals} from 'remotion';
+import type {z} from 'zod';
 import {
 	calculateCanvasTransformation,
 	calculateContainerStyle,
@@ -125,8 +126,9 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 				{VideoComponent ? (
 					<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 						<VideoComponent
-							{...((video?.defaultProps as unknown as {}) ?? {})}
-							{...((inputProps as unknown as {}) ?? {})}
+							{...((video?.defaultProps as unknown as z.infer<z.ZodTypeAny>) ??
+								{})}
+							{...((inputProps as unknown as z.infer<z.ZodTypeAny>) ?? {})}
 						/>
 					</ErrorBoundary>
 				) : null}

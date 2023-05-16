@@ -1,6 +1,8 @@
 import {formatBytes} from './format-bytes';
+import {INDENT_TOKEN} from './log';
 import {makeProgressBar} from './make-progress-bar';
-import type {DownloadProgress} from './progress-bar';
+import type {DownloadProgress} from './progress-types';
+import {truthy} from './truthy';
 
 export const getFileSizeDownloadBar = (downloaded: number) => {
 	const desiredLength = makeProgressBar(0).length;
@@ -8,7 +10,10 @@ export const getFileSizeDownloadBar = (downloaded: number) => {
 	return `[${formatBytes(downloaded).padEnd(desiredLength - 2, ' ')}]`;
 };
 
-export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
+export const makeMultiDownloadProgress = (
+	progresses: DownloadProgress[],
+	indent: boolean
+) => {
 	if (progresses.length === 0) {
 		return null;
 	}
@@ -20,12 +25,15 @@ export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
 				? progress.name.substring(0, 57) + '...'
 				: progress.name;
 		return [
+			indent ? INDENT_TOKEN : null,
 			`    +`,
 			progress.progress
 				? makeProgressBar(progress.progress)
 				: getFileSizeDownloadBar(progress.downloaded),
 			`Downloading ${truncatedFileName}`,
-		].join(' ');
+		]
+			.filter(truthy)
+			.join(' ');
 	}
 
 	const everyFileHasContentLength = progresses.every(
@@ -33,6 +41,8 @@ export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
 	);
 
 	return [
+		indent ? INDENT_TOKEN : null,
+		// TODO: Shifted 1 character to the right in v4
 		`    +`,
 		everyFileHasContentLength
 			? makeProgressBar(
@@ -43,5 +53,7 @@ export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
 					progresses.reduce((a, b) => a + b.downloaded, 0)
 			  ),
 		`Downloading ${progresses.length} files`,
-	].join(' ');
+	]
+		.filter(truthy)
+		.join(' ');
 };

@@ -1,5 +1,3 @@
-import {enableLegacyRemotionConfig} from './config.js';
-
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -19,13 +17,16 @@ import type {
 import {CompositionManager, compositionsRef} from './CompositionManager.js';
 import * as CSSUtils from './default-css.js';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render.js';
+import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
 import type {RemotionEnvironment} from './get-environment.js';
 import {
 	getRemotionEnvironment,
 	useRemotionEnvironment,
 } from './get-environment.js';
 import {getPreviewDomElement} from './get-preview-dom-element.js';
+import {processColor} from './interpolate-colors.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
+import {NonceContext} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
@@ -53,7 +54,6 @@ import {
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
-import {validateOffthreadVideoImageFormat} from './validation/validate-offthreadvideo-image-format.js';
 import {DurationsContextProvider} from './video/duration-state.js';
 import type {
 	MediaVolumeContextValue,
@@ -105,17 +105,19 @@ export const Internals = {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	portalNode,
 	waitForRoot,
-	validateOffthreadVideoImageFormat,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
-	enableLegacyRemotionConfig,
 	PrefetchProvider,
 	DurationsContextProvider,
 	IsPlayerContextProvider,
 	useIsPlayer,
 	useRemotionEnvironment,
 	validateFrame,
+	EditorPropsProvider,
+	EditorPropsContext,
 	usePreload,
+	processColor,
+	NonceContext,
 };
 
 export type {

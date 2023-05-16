@@ -6,7 +6,7 @@ import React, {
 	useReducer,
 	useRef,
 } from 'react';
-import { openInEditor } from '../../../editor/helpers/open-in-editor';
+import {openInEditor} from '../../../editor/helpers/open-in-editor';
 import {useKeybinding} from '../../../editor/helpers/use-keybinding';
 import type {SymbolicatedStackFrame} from '../react-overlay/utils/stack-frame';
 import {Button} from './Button';
@@ -126,6 +126,7 @@ export const OpenInEditor: React.FC<{
 			callback: onEditor,
 			commandCtrlKey: true,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		return () => unregister();
 	}, [canHaveKeyboardShortcuts, openInBrowser, registerKeybinding]);

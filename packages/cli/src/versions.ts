@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import fs from 'fs';
+import fs from 'node:fs';
 import {ConfigInternals} from './config';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
