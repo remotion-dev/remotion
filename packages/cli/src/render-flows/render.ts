@@ -201,7 +201,10 @@ export const renderVideoFlow = async ({
 		});
 		onProgress({message, value: progress, ...aggregateRenderProgress});
 
-		return renderProgress.update(updatesDontOverwrite ? message : output);
+		return renderProgress.update(
+			updatesDontOverwrite ? message : output,
+			progress === 1
+		);
 	};
 
 	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(

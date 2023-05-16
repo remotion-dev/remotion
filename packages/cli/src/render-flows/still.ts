@@ -117,7 +117,10 @@ export const renderStillFlow = async ({
 			stitchingStep: steps.indexOf('stitching'),
 		});
 		if (renderProgress) {
-			renderProgress.update(updatesDontOverwrite ? message : output);
+			renderProgress.update(
+				updatesDontOverwrite ? message : output,
+				progress === 1
+			);
 		}
 
 		onProgress({message, value: progress, ...aggregate});

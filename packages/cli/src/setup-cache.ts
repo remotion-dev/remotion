@@ -128,7 +128,8 @@ const bundleOnCli = async ({
 				},
 				bundlingStep,
 				steps
-			) + (newline ? '\n' : '')
+			),
+			newline
 		);
 		onProgressCallback({
 			bundling: bundlingState,
