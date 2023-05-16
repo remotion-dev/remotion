@@ -35,12 +35,14 @@ export const createOverwriteableCliOutput = (options: {
 			update: (up: string) => {
 				if (options.indent) {
 					process.stdout.write(
-						up
-							.split('\n')
-							.map((l) => {
-								return `${RenderInternals.INDENT_TOKEN} ${l}`;
-							})
-							.join('\n') + '\n'
+						up.trim() === ''
+							? ''
+							: up
+									.split('\n')
+									.map((l) => {
+										return `${RenderInternals.INDENT_TOKEN} ${l}`;
+									})
+									.join('\n') + '\n'
 					);
 				} else {
 					process.stdout.write(up + '\n');
@@ -62,10 +64,12 @@ export const createOverwriteableCliOutput = (options: {
 			if (options.indent) {
 				return process.stdout.write(
 					diff.update(
-						up
-							.split('\n')
-							.map((l) => `${RenderInternals.INDENT_TOKEN} ${l}`)
-							.join('\n')
+						up.trim() === ''
+							? ''
+							: up
+									.split('\n')
+									.map((l) => `${RenderInternals.INDENT_TOKEN} ${l}`)
+									.join('\n')
 					)
 				);
 			}
