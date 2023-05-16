@@ -1,34 +1,37 @@
 import {CliInternals} from '@remotion/cli';
-import {displaySiteInfo} from '.';
 import {deleteService} from '../../../api/delete-service';
-import {getServiceInfo} from '../../../api/get-service-info';
 import {getServices} from '../../../api/get-services';
+import {parsedCloudrunCli} from '../../args';
 import {getGcpRegion} from '../../get-gcp-region';
 import {confirmCli} from '../../helpers/confirm';
 import {Log} from '../../log';
+import {displayServiceInfo} from './index';
 
 export const SERVICES_RMALL_SUBCOMMAND = 'rmall';
 
 export const servicesRmallCommand = async () => {
-	const region = getGcpRegion();
+	const allRegions = parsedCloudrunCli['all-regions'];
+
+	const region = allRegions ? 'all regions' : getGcpRegion();
+
+	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+	});
+	fetchingOutput.update(`Getting services in ${region}...`);
+
 	const services = await getServices({
 		region,
 		compatibleOnly: false,
 	});
 
+	const pluralized = services.length === 1 ? 'service' : 'services';
+	fetchingOutput.update(`${services.length} ${pluralized} in ${region}`);
+	Log.info();
+	Log.info();
+
 	for (const serv of services) {
-		const infoOutput = CliInternals.createOverwriteableCliOutput({
-			quiet: CliInternals.quietFlagProvided(),
-			cancelSignal: null,
-		});
-		infoOutput.update('Getting service info...');
-		const info = await getServiceInfo({
-			region,
-			serviceName: serv.serviceName,
-		});
-
-		infoOutput.update(displaySiteInfo(info));
-
+		Log.info(displayServiceInfo(serv));
 		Log.info();
 
 		const confirmDelete = await confirmCli({
@@ -37,7 +40,8 @@ export const servicesRmallCommand = async () => {
 		});
 
 		if (!confirmDelete) {
-			Log.info(`Skipping service - ${info.serviceName}.`);
+			Log.info(`Skipping service - ${serv.serviceName}.`);
+			Log.info();
 			continue;
 		}
 

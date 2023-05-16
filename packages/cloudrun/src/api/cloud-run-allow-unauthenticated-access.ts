@@ -12,8 +12,6 @@ export const allowUnauthenticatedAccess = async (
 ): Promise<Boolean> => {
 	const cloudRunClient = getCloudRunClient();
 
-	// ToDo: once this is finalised, need to test out the testCall code - is it able to invoke the Cloud Run service using the stored json credentials, where as the got() call should fail.
-
 	const existingPolicy = await cloudRunClient.getIamPolicy({
 		resource: serviceName,
 	});
