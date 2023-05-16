@@ -104,10 +104,10 @@ pnpm start
 
 ## Running the CLI
 
-You can test changes to the local instance of the changing to the `src/packages/examples` directory and using `pnpm` to execute the cli:
+You can test changes to the CLI by moving to `packages/examples` directory and using `pnpm exec` to execute the CLI:
 
 ```sh
-cd src/packages/examples
+cd packages/examples
 # Example - Get available compositions
 pnpm exec remotion compositions
 # Example - Render command
