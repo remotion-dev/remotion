@@ -5,7 +5,11 @@ id: get-can-extract-frames-fast
 crumb: "@remotion/renderer"
 ---
 
-_Available since v3.3.2 - Part of the `@remotion/renderer` package._
+:::warning
+From v4.0 on, frames can always be extracted fast and therefore the function has been removed. The information in this document only applies to older versions of Remotion and is preserved for people who are still using them.
+:::
+
+_Available since v3.3.2, removed in v4.0 - Part of the `@remotion/renderer` package._
 
 Probes whether frames of a video can be efficiently extracted when using [`<OffthreadVideo>`](/docs/offthreadvideo).
 
