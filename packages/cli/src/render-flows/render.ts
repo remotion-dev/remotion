@@ -185,7 +185,7 @@ export const renderVideoFlow = async ({
 		doneIn: null,
 	};
 
-	const updateRenderProgress = () => {
+	const updateRenderProgress = (newline: boolean) => {
 		const aggregateRenderProgress: AggregateRenderProgress = {
 			rendering: renderingProgress,
 			stitching: shouldOutputImageSequence ? null : stitchingProgress,
@@ -203,7 +203,7 @@ export const renderVideoFlow = async ({
 
 		return renderProgress.update(
 			updatesDontOverwrite ? message : output,
-			progress === 1
+			newline
 		);
 	};
 
@@ -215,7 +215,7 @@ export const renderVideoFlow = async ({
 			onProgress: ({bundling, copying}) => {
 				bundlingProgress = bundling;
 				copyingState = copying;
-				updateRenderProgress();
+				updateRenderProgress(false);
 			},
 			indentOutput: indent,
 			logLevel,
@@ -240,12 +240,12 @@ export const renderVideoFlow = async ({
 			totalBytes: null,
 		};
 		downloads.push(download);
-		updateRenderProgress();
+		updateRenderProgress(false);
 		return ({percent, downloaded, totalSize}) => {
 			download.progress = percent;
 			download.totalBytes = totalSize;
 			download.downloaded = downloaded;
-			updateRenderProgress();
+			updateRenderProgress(false);
 		};
 	};
 
@@ -362,7 +362,7 @@ export const renderVideoFlow = async ({
 			inputProps,
 			onFrameUpdate: (rendered) => {
 				(renderingProgress as RenderingProgressInput).frames = rendered;
-				updateRenderProgress();
+				updateRenderProgress(false);
 			},
 			onStart: () => undefined,
 			onDownload: (src: string) => {
@@ -399,8 +399,7 @@ export const renderVideoFlow = async ({
 			composition: config,
 		});
 
-		updateRenderProgress();
-		process.stdout.write('\n');
+		updateRenderProgress(true);
 		Log.infoAdvanced({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
 		return;
 	}
@@ -458,7 +457,7 @@ export const renderVideoFlow = async ({
 				update.renderedDoneIn;
 			(renderingProgress as RenderingProgressInput).frames =
 				update.renderedFrames;
-			updateRenderProgress();
+			updateRenderProgress(false);
 		},
 		puppeteerInstance,
 		onDownload,
@@ -483,7 +482,7 @@ export const renderVideoFlow = async ({
 		);
 	});
 
-	updateRenderProgress();
+	updateRenderProgress(true);
 	Log.infoAdvanced({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
 
 	for (const line of RenderInternals.perf.getPerf()) {
