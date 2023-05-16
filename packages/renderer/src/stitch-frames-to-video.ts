@@ -17,7 +17,6 @@ import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
-import {getExecutablePath} from './compositor/get-executable-path';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
@@ -229,21 +228,69 @@ const spawnFfmpeg = async (
 				`out.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`
 		  );
 
-	if (options.verbose) {
-		console.log('[verbose] ffmpeg', getExecutablePath('ffmpeg'));
-		console.log('[verbose] encoder', encoderName);
-		console.log('[verbose] audioCodec', resolvedAudioCodec);
-		console.log('[verbose] pixelFormat', pixelFormat);
-
-		if (options.ffmpegOverride) {
-			console.log('[verbose] ffmpegOverride', options.ffmpegOverride);
-		}
-
-		console.log('[verbose] codec', codec);
-		console.log('[verbose] shouldRenderAudio', shouldRenderAudio);
-		console.log('[verbose] shouldRenderVideo', shouldRenderVideo);
-		console.log('[verbose] proResProfileName', proResProfileName);
-	}
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'encoder',
+		encoderName
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'audioCodec',
+		resolvedAudioCodec
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'pixelFormat',
+		pixelFormat
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'codec',
+		codec
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'shouldRenderAudio',
+		shouldRenderAudio
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'shouldRenderVideo',
+		shouldRenderVideo
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'proResProfileName',
+		proResProfileName
+	);
 
 	validateQualitySettings({
 		crf: options.crf,
@@ -379,23 +426,6 @@ const spawnFfmpeg = async (
 		options.force ? '-y' : null,
 		options.outputLocation ?? tempFile,
 	];
-
-	Log.verboseAdvanced(
-		{
-			indent: options.indent,
-			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
-		},
-		'Generated FFMPEG command:'
-	);
-	Log.verboseAdvanced(
-		{
-			indent: options.indent,
-			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
-		},
-		ffmpegArgs.join(' ')
-	);
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
 	const finalFfmpegString = options.ffmpegOverride

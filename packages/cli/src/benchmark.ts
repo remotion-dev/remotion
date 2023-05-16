@@ -279,6 +279,7 @@ export const benchmarkCommand = async (
 				quiet: quietFlagProvided(),
 				cancelSignal: null,
 				updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
+				indent: false,
 			});
 			Log.info();
 			Log.info(
