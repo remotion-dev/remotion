@@ -9,6 +9,7 @@ export type ServiceInfo = {
 	cpuLimit: string;
 	remotionVersion: string | null;
 	uri: string;
+	region: string;
 };
 
 export type GetServiceInfoInput = {
@@ -51,5 +52,6 @@ export const getServiceInfo = async ({
 			.split('--')[0]
 			.replace(/-/g, '.') as string,
 		uri: service.uri as string,
+		region: service.name?.split('/')[3] as string,
 	};
 };

@@ -16,7 +16,7 @@ const bundleRenderLogic = async () => {
 
 	await BundlerInternals.esbuild.build({
 		platform: 'node',
-		target: 'node14',
+		target: 'node16',
 		bundle: true,
 		outfile,
 		entryPoints: [template],

@@ -62,6 +62,10 @@ One of:
 - `"public"` (_default_): The rendered media is publicly accessible under the Cloud Storage URL.
 - `"private"`: The rendered media is not publicly available, but is available within the GCP project to those with the correct permissions.
 
+### `output-bucket`
+
+The bucket to place the rendered media/still in. The resulting Google Cloud Storage URL will be in the format `gs://{bucket-name}/renders/{render-id}/{file-name}`
+
 ### `--jpeg-quality`
 
 [Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
@@ -82,9 +86,17 @@ Specify a location for a dotenv file. Default `.env`. This is not for invoking t
 
 The file name of the media output as stored in the Cloud Storage bucket. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
 
+### `--cloud-run-url`
+
+Specify the url of the service which should be used to perform the render. You must set either `cloud-run-url` _or_ `service-name`, but not both
+
 ### `--service-name`
 
-Specify the name of the service which should be used to perform the render.
+Specify the name of the service which should be used to perform the render. This is used in conjunction with the region to determine the service endpoint, as the same service name can exist across multiple regions. You must set either `cloud-run-url` _or_ `service-name`, but not both
+
+### `--unauthenticated-request`
+
+When this flag is set, the endpoint will be called without making use of credentials in the .env file. This requires the service to allow unauthenticated invocations. This can be set with the [--allow-unauthenticated](/docs/cloudrun/cli/services#--allow-unauthenticated) flag through the CLI, or through the [allowUnauthenticatedAccess](/docs/cloudrun/allowunauthenticatedaccess) method in the Node API.
 
 ## Media Rendering Specific Flags
 

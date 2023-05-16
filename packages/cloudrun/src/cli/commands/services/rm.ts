@@ -6,7 +6,7 @@ import {getGcpRegion} from '../../get-gcp-region';
 import {confirmCli} from '../../helpers/confirm';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
-import {displaySiteInfo, SERVICES_COMMAND} from './index';
+import {displayServiceInfo, SERVICES_COMMAND} from './index';
 import {SERVICES_LS_SUBCOMMAND} from './ls';
 
 export const SERVICES_RM_SUBCOMMAND = 'rm';
@@ -41,7 +41,7 @@ export const servicesRmCommand = async (args: string[]) => {
 			serviceName,
 		});
 
-		infoOutput.update(displaySiteInfo(info));
+		infoOutput.update(displayServiceInfo(info));
 		Log.info();
 
 		const confirmDelete = await confirmCli({

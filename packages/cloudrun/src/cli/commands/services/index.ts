@@ -10,7 +10,7 @@ import {servicesRmallCommand, SERVICES_RMALL_SUBCOMMAND} from './rmall';
 
 export const SERVICES_COMMAND = 'services';
 
-export const displaySiteInfo = (service: ServiceInfo) => {
+export const displayServiceInfo = (service: ServiceInfo) => {
 	const LEFT_COL = 16;
 	return [
 		'Service name: '.padEnd(LEFT_COL, ' ') + ' ' + service.serviceName,
@@ -18,6 +18,7 @@ export const displaySiteInfo = (service: ServiceInfo) => {
 		'CPU Limit: '.padEnd(LEFT_COL, ' ') + ' ' + service.cpuLimit,
 		'Memory Limit: '.padEnd(LEFT_COL, ' ') + ' ' + service.memoryLimit,
 		'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + service.timeoutInSeconds + 'sec',
+		'Region: '.padEnd(LEFT_COL, ' ') + ' ' + service.region,
 	].join('\n');
 };
 

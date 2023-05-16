@@ -54,6 +54,10 @@ Deploying Cloud Run Service...
 </pre>
 </details>
 
+### `--region`
+
+The [GCP region](/docs/cloudrun/region-selection) to select. The site that the service will be accessing should also be in this same region to minimise latency.
+
 ### `--memoryLimit`
 
 The upper bound on the amount of RAM that the Cloud Run service can consume. Default: 512 MB.
@@ -91,13 +95,58 @@ Lists the services that you have deployed to GCP in the [selected region](/docs/
 Example output
 </summary>
 <pre>
-3 services in the us-east1 region<br/>
-Name                                                                  Version        CPU Limit      Memory Limit   Timeout (sec) <br/>
-remotion--3-3-82--mem512mi--cpu1-0--t-800                             3.3.82         1.0            512Mi          800           <br/>
-remotion--3-3-82--mem512mi--cpu1-0--t-500                             3.3.82         1.0            512Mi          500           <br/>
-remotion--3-3-82--mem1gi--cpu1-0--t-300                               3.3.82         1.0            1Gi            300           <br/>
-<br/>
+2 services in us-east1<br/><br/>
+Service name:    remotion--3-3-92--mem512mi--cpu2--t-1200<br/>
+Version:         3.3.92<br/>
+CPU Limit:       2<br/>
+Memory Limit:    512Mi<br/>
+Timeout:         1200sec<br/>
+Region:          us-east1<br/><br/>
+Service name:    remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
+Version:         3.3.82<br/>
+CPU Limit:       1.0<br/>
+Memory Limit:    512Mi<br/>
+Timeout:         800sec<br/>
+Region:          us-east1<br/>
+</pre>
+</details>
 
+### `--region`
+
+The [GCP region](/docs/cloudrun/region-selection) to list services from.
+
+### `--all-regions`,
+
+Ignores region, returning services across all regions for the project.
+
+```
+npx remotion cloudrun services ls --all-regions
+```
+
+<details>
+<summary>
+Example output
+</summary>
+<pre>
+3 services in all regions<br/><br/>
+Service name:    remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
+Version:         3.3.82<br/>
+CPU Limit:       1.0<br/>
+Memory Limit:    512Mi<br/>
+Timeout:         800sec<br/>
+Region:          us-central1<br/><br/>
+Service name:    remotion--3-3-92--mem512mi--cpu2--t-1200<br/>
+Version:         3.3.92<br/>
+CPU Limit:       2<br/>
+Memory Limit:    512Mi<br/>
+Timeout:         1200sec<br/>
+Region:          us-east1<br/><br/>
+Service name:    remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
+Version:         3.3.82<br/>
+CPU Limit:       1.0<br/>
+Memory Limit:    512Mi<br/>
+Timeout:         800sec<br/>
+Region:          us-east1<br/>
 </pre>
 </details>
 
@@ -124,6 +173,7 @@ Version:         3.3.82<br/>
 CPU Limit:       1.0<br/>
 Memory Limit:    2Gi<br/>
 Timeout:         300sec<br/>
+Region:          us-east1<br/>
 Delete? (Y/n):  Y<br/>
 Deleted!
 <br/>
@@ -134,6 +184,10 @@ Deleted!
 ### `--region`
 
 The [GCP region](/docs/cloudrun/region-selection) to select.
+
+:::note
+The `rm` command does not support the --all-regions flag, as it is possible to have the same service name in multiple regions. This makes it difficult to remove multiple service names from multiple regions.
+:::
 
 ### `--yes`, `-y`
 
@@ -145,37 +199,77 @@ Skips confirmation.
 npx remotion cloudrun services rmall
 ```
 
-Removes all services in a region from your GCP project.
+Removes all services from your GCP project for a certain region (or all regions if the --all-regions flag is passed).
 
 <details>
 <summary>
 Example output
 </summary>
 <pre>
-<br/>
-Service name:    remotion--3-3-82--mem2gi--cpu1-0--t-800<br/>
+2 services in us-east1<br/><br/>
+Service name:    remotion--3-3-92--mem512mi--cpu2--t-1200<br/>
+Version:         3.3.92<br/>
+CPU Limit:       2<br/>
+Memory Limit:    512Mi<br/>
+Timeout:         1200sec<br/>
+Region:          us-east1<br/><br/>
+Delete? (Y/n) n<br/>
+Skipping service - remotion--3-3-92--mem512mi--cpu2--t-1200.<br/><br/>
+Service name:    remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
 Version:         3.3.82<br/>
 CPU Limit:       1.0<br/>
-Memory Limit:    2Gi<br/>
-Timeout:         300sec<br/>
-Delete? (Y/n):  Y<br/>
-Deleted!
-<br/>
-Service name:    remotion--3-3-82--mem4gi--cpu2-0--t-1200<br/>
-Version:         3.3.82<br/>
-CPU Limit:       1.0<br/>
-Memory Limit:    2Gi<br/>
-Timeout:         300sec<br/>
-Delete? (Y/n):  Y<br/>
-Deleted!
-<br/>
-
+Memory Limit:    512Mi<br/>
+Timeout:         800sec<br/>
+Region:          us-east1<br/><br/>
+Delete? (Y/n) n<br/>
+Skipping service - remotion--3-3-82--mem512mi--cpu1-0--t-800.<br/>
 </pre>
 </details>
 
 ### `--region`
 
-The [GCP region](/docs/cloudrun/region-selection) to select.
+The [GCP region](/docs/cloudrun/region-selection) to remove services from.
+
+### `--all-regions`,
+
+Ignores region, removing services across all regions for the project.
+
+```
+npx remotion cloudrun services rmall --all-regions
+```
+
+<details>
+<summary>
+Example output
+</summary>
+<pre>
+3 services in all regions<br/><br/>
+Service name:    remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
+Version:         3.3.82<br/>
+CPU Limit:       1.0<br/>
+Memory Limit:    512Mi<br/>
+Timeout:         800sec<br/>
+Region:          us-central1<br/><br/>
+Delete? (Y/n) n<br/>
+Skipping service - remotion--3-3-82--mem512mi--cpu1-0--t-800.<br/><br/>
+Service name:    remotion--3-3-92--mem512mi--cpu2--t-1200<br/>
+Version:         3.3.92<br/>
+CPU Limit:       2<br/>
+Memory Limit:    512Mi<br/>
+Timeout:         1200sec<br/>
+Region:          us-east1<br/><br/>
+Delete? (Y/n) n<br/>
+Skipping service - remotion--3-3-92--mem512mi--cpu2--t-1200.<br/><br/>
+Service name:    remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
+Version:         3.3.82<br/>
+CPU Limit:       1.0<br/>
+Memory Limit:    512Mi<br/>
+Timeout:         800sec<br/>
+Region:          us-east1<br/><br/>
+Delete? (Y/n) n<br/>
+Skipping service - remotion--3-3-82--mem512mi--cpu1-0--t-800.<br/>
+</pre>
+</details>
 
 ### `--yes`, `-y`
 

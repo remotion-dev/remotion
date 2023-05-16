@@ -1,3 +1,4 @@
+import {JWT} from 'google-auth-library';
 import type {GcpRegion} from '../pricing/gcp-regions';
 import {RENDER_SERVICE_PREFIX} from '../shared/constants';
 import {SERVICE_VERSION_STRING} from '../shared/service-version-string';
@@ -6,8 +7,36 @@ import {getCloudRunClient} from './helpers/get-cloud-run-client';
 import type {IService} from './helpers/IService';
 
 export type GetServicesInput = {
-	region: GcpRegion;
+	region: GcpRegion | 'all regions';
 	compatibleOnly: boolean;
+};
+
+type v1Data = {
+	items: {
+		metadata: {
+			name: string;
+			uid: string;
+			labels: {
+				'cloud.googleapis.com/location': string;
+			};
+			creationTimestamp: string;
+		};
+		status: {
+			url: string;
+		};
+		spec: {
+			template: {
+				spec: {
+					timeoutSeconds: number;
+					containers: {
+						resources: {
+							limits: {cpu: string; memory: string};
+						};
+					}[];
+				};
+			};
+		};
+	}[];
 };
 
 /**
@@ -21,6 +50,38 @@ export type GetServicesInput = {
 export const getServices = async (
 	options: GetServicesInput
 ): Promise<ServiceInfo[]> => {
+	if (options.region === 'all regions') {
+		const cloudRunEndpoint = `https://run.googleapis.com/apis/serving.knative.dev/v1/namespaces/${process.env.REMOTION_GCP_PROJECT_ID}/services`;
+
+		const client = new JWT({
+			email: process.env.REMOTION_GCP_CLIENT_EMAIL,
+			key: process.env.REMOTION_GCP_PRIVATE_KEY,
+			scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+		});
+
+		const res = await client.request({url: cloudRunEndpoint});
+
+		const data = res.data as v1Data;
+
+		return data.items.map((service): ServiceInfo => {
+			return {
+				serviceName: service.metadata.name as string,
+				timeoutInSeconds: service.spec.template.spec.timeoutSeconds as number,
+				memoryLimit: service.spec.template.spec.containers?.[0].resources
+					?.limits?.memory as string,
+				cpuLimit: service.spec.template.spec.containers?.[0].resources?.limits
+					?.cpu as string,
+				remotionVersion: service.metadata.name
+					.split('--')[1]
+					.replace(/-/g, '.') as string,
+				uri: service.status.url as string,
+				region: service.metadata.labels[
+					'cloud.googleapis.com/location'
+				] as string,
+			};
+		});
+	}
+
 	const cloudRunClient = getCloudRunClient();
 
 	const parent = `projects/${process.env.REMOTION_GCP_PROJECT_ID}/locations/${options.region}`;
@@ -58,6 +119,7 @@ export const getServices = async (
 				.split('--')[0]
 				.replace(/-/g, '.') as string,
 			uri: service.uri as string,
+			region: service.name?.split('/')[3] as string,
 		};
 	});
 };
