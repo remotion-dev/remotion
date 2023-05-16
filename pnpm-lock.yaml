@@ -766,6 +766,12 @@ importers:
       vitest: 0.24.3
       zip-lib: 0.7.2
 
+  packages/lambda-go:
+    specifiers: {}
+
+  packages/lambda-go-example:
+    specifiers: {}
+
   packages/lottie:
     specifiers:
       '@jonny/eslint-config': 3.0.266
@@ -1059,7 +1065,7 @@ importers:
   packages/rive:
     specifiers:
       '@jonny/eslint-config': ^3.0.273
-      '@rive-app/canvas-advanced': ^1.0.98
+      '@rive-app/canvas-advanced': 1.0.98
       '@rollup/plugin-typescript': ^8.2.0
       '@types/node': ^18.14.6
       '@types/react': ^18.0.28
