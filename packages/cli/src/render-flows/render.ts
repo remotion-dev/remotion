@@ -197,7 +197,7 @@ export const renderVideoFlow = async ({
 		const {output, message, progress} = makeRenderingAndStitchingProgress({
 			prog: aggregateRenderProgress,
 			steps: steps.length,
-			stitchingStep: steps.indexOf('bundling'),
+			stitchingStep: steps.indexOf('stitching'),
 		});
 		onProgress({message, value: progress, ...aggregateRenderProgress});
 
