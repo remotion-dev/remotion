@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {RenderInternals} from '@remotion/renderer';
 import {deleteFunction} from '../../../api/delete-function';
 import {getFunctionInfo} from '../../../api/get-function-info';
 import {BINARY_NAME} from '../../../shared/constants';
@@ -35,6 +36,9 @@ export const functionsRmCommand = async (args: string[]) => {
 		const infoOutput = CliInternals.createOverwriteableCliOutput({
 			quiet: CliInternals.quietFlagProvided(),
 			cancelSignal: null,
+			updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
+				logLevel: RenderInternals.getLogLevel(),
+			}),
 		});
 		infoOutput.update('Getting function info...');
 		const info = await getFunctionInfo({
@@ -56,6 +60,9 @@ export const functionsRmCommand = async (args: string[]) => {
 		const output = CliInternals.createOverwriteableCliOutput({
 			quiet: CliInternals.quietFlagProvided(),
 			cancelSignal: null,
+			updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
+				logLevel: RenderInternals.getLogLevel(),
+			}),
 		});
 		output.update('Deleting...');
 		await deleteFunction({region, functionName});

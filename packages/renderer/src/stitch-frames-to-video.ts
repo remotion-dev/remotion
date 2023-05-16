@@ -28,6 +28,7 @@ import {getCodecName} from './get-codec-name';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {VideoImageFormat} from './image-format';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
@@ -78,6 +79,7 @@ export type StitcherOptions = {
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
+	indent: boolean;
 };
 
 type ReturnType = {
@@ -378,20 +380,44 @@ const spawnFfmpeg = async (
 		options.outputLocation ?? tempFile,
 	];
 
-	if (options.verbose) {
-		console.log('Generated FFMPEG command:');
-		console.log(ffmpegArgs);
-	}
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'Generated FFMPEG command:'
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		ffmpegArgs.join(' ')
+	);
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
 	const finalFfmpegString = options.ffmpegOverride
 		? options.ffmpegOverride({type: 'stitcher', args: ffmpegString})
 		: ffmpegString;
 
-	if (options.verbose && options.ffmpegOverride) {
-		console.log('Generated final FFMPEG command:');
-		console.log(finalFfmpegString);
-	}
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'Generated final FFMPEG command:'
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		finalFfmpegString.join(' ')
+	);
 
 	const task = callFf('ffmpeg', finalFfmpegString, {
 		cwd: options.dir,

@@ -23,7 +23,7 @@ import {ConfigInternals} from '../config';
 import {determineFinalStillImageFormat} from '../determine-image-format';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
-import {INDENT_TOKEN, Log} from '../log';
+import {Log} from '../log';
 import {parsedCli, quietFlagProvided} from '../parse-command-line';
 import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {OverwriteableCliOutput} from '../progress-bar';
@@ -137,7 +137,7 @@ export const renderStillFlow = async ({
 		chromiumOptions,
 		shouldDumpIo,
 		forceDeviceScaleFactor: scale,
-		indentationString: indentOutput ? INDENT_TOKEN + ' ' : '',
+		indent: indentOutput,
 	});
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(

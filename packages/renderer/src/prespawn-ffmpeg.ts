@@ -8,6 +8,7 @@ import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {VideoImageFormat} from './image-format';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
@@ -33,6 +34,7 @@ type PreStitcherOptions = {
 	ffmpegOverride: FfmpegOverrideFn;
 	signal: CancelSignal;
 	videoBitrate: string | null;
+	indent: boolean;
 };
 
 export const prespawnFfmpeg = (options: PreStitcherOptions) => {
@@ -112,10 +114,22 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		options.outputLocation,
 	];
 
-	if (options.verbose) {
-		console.log('Generated FFMPEG command:');
-		console.log(ffmpegArgs);
-	}
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'Generated FFMPEG command:'
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		ffmpegArgs.join(' ')
+	);
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
 	const finalFfmpegString = options.ffmpegOverride

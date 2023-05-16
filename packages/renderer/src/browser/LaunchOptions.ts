@@ -31,7 +31,7 @@ export interface LaunchOptions {
 	dumpio?: boolean;
 	env?: Record<string, string | undefined>;
 	product?: Product;
-	indentationString: string;
+	indent: boolean;
 }
 
 export type PuppeteerNodeLaunchOptions = BrowserLaunchArgumentOptions &

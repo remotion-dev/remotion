@@ -51,7 +51,7 @@ export class ChromeLauncher implements ProductLauncher {
 			defaultViewport,
 			timeout = 60000,
 			debuggingPort,
-			indentationString,
+			indent,
 		} = options;
 
 		const chromeArguments = args;
@@ -89,7 +89,7 @@ export class ChromeLauncher implements ProductLauncher {
 		runner.start({
 			dumpio,
 			env,
-			indentationString,
+			indent,
 		});
 
 		let browser;

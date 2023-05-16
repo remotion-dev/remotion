@@ -176,6 +176,7 @@ export const benchmarkCommand = async (
 		),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
+		indent: false,
 	});
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =

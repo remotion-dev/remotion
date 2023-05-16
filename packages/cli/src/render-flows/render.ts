@@ -32,7 +32,7 @@ import {getCompositionWithDimensionOverride} from '../get-composition-with-dimen
 import {getOutputFilename} from '../get-filename';
 import {getFinalOutputCodec} from '../get-final-output-codec';
 import {getVideoImageFormat} from '../image-formats';
-import {INDENT_TOKEN, Log} from '../log';
+import {Log} from '../log';
 import {parsedCli} from '../parse-command-line';
 import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {BundlingState, CopyingState} from '../progress-bar';
@@ -156,7 +156,7 @@ export const renderVideoFlow = async ({
 		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
-		indentationString: indent ? INDENT_TOKEN + ' ' : '',
+		indent,
 	});
 
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
