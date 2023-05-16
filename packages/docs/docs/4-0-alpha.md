@@ -22,19 +22,21 @@ See the [changelog](#changelog) to find the latest version.
 Upgrade `remotion` and all packages starting with `@remotion` to the latest version, e.g. `4.0.0`:
 
 ```diff title="package.json"
-- "remotion": "^3.3.43"
-- "@remotion/bundler": "^3.3.43"
-- "@remotion/eslint-config": "^3.3.43"
-- "@remotion/eslint-plugin": "^3.3.43"
-- "@remotion/cli": "^3.3.43"
-- "@remotion/renderer": "^3.3.43"
-+ "remotion": "4.0.0-alpha.115+764023ad5"
-+ "@remotion/bundler": "4.0.0-alpha.115+764023ad5"
-+ "@remotion/eslint-config": "4.0.0-alpha.115+764023ad5"
-+ "@remotion/eslint-plugin": "4.0.0-alpha.115+764023ad5"
-+ "@remotion/cli": "4.0.0-alpha.115+764023ad5"
-+ "@remotion/renderer": "4.0.0-alpha.115+764023ad5"
+- "remotion": "^3.3.87"
+- "@remotion/bundler": "^3.3.87"
+- "@remotion/eslint-config": "^3.3.87"
+- "@remotion/eslint-plugin": "^3.3.87"
+- "@remotion/cli": "^3.3.87"
+- "@remotion/renderer": "^3.3.87"
++ "remotion": "4.0.0-alpha5"
++ "@remotion/bundler": "4.0.0-alpha5"
++ "@remotion/eslint-config": "4.0.0-alpha5"
++ "@remotion/eslint-plugin": "4.0.0-alpha5"
++ "@remotion/cli": "4.0.0-alpha5"
++ "@remotion/renderer": "4.0.0-alpha5"
 ```
+
+Make sure the versions don't have a `^` character in front of it.
 
 Most important breaking changes:
 
@@ -69,11 +71,27 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
+### `4.0.0-alpha6`
+
+- Fixes `EACCES` errors appearing
+- GUI design improvements
+- Fix warnings if Zod is not installed
+- Breaking change: `staticFile()` now encodes the filename using `encodeURIComponent`. You don't have to and should not do it manually anymore - see migration guide
+
+### `4.0.0-alpha5`
+
+May 3rd 2023:
+
+- Features the new Rust renderer enabling faster `<OffthreadVideo>`!
+- `z` is not exported from Remotion anymore, instead, just install `zod`!
+- `zColor` is now to be installed from `@remotion/zod-types`
+- Overall polish of the editor
+
 ### `4.0.0-alpha.185+1b8f0e746`
 
 - Fix rendering with FFmpeg on Linux
 - Make all strings `as const` when saving back to the root file to ensure type safety.
-- New [`zColor()`](/docs/z-color) API
+- New [`zColor()`](/docs/zod-types/z-color) API
 - New sidebar design and new mechanism for toggling sidebars
 - Create new array items
 - Zod union type support

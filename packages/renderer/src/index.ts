@@ -8,8 +8,9 @@ import {
 } from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
-import {callFf, callFfExtraOptions} from './call-ffmpeg';
+import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
+import {chalk} from './chalk';
 import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {combineVideos} from './combine-videos';
@@ -43,6 +44,7 @@ import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
+import {getLogLevel, INDENT_TOKEN, Log, setLogLevel} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
@@ -79,9 +81,7 @@ export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception'
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
-export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
-export {getActualConcurrency} from './get-concurrency';
 export {
 	ImageFormat,
 	StillImageFormat,
@@ -109,6 +109,7 @@ export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
+
 export const RenderInternals = {
 	ensureLocalBrowser,
 	getActualConcurrency,
@@ -168,11 +169,16 @@ export const RenderInternals = {
 	defaultCodecsForFileExtension,
 	getExecutablePath,
 	callFf,
-	callFfExtraOptions,
+	dynamicLibraryPathOptions,
 	validStillImageFormats,
 	validVideoImageFormats,
 	DEFAULT_STILL_IMAGE_FORMAT,
 	DEFAULT_VIDEO_IMAGE_FORMAT,
+	chalk,
+	Log,
+	getLogLevel,
+	setLogLevel,
+	INDENT_TOKEN,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

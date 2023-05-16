@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {deployFunction} from '../../../api/deploy-function';
 import {
@@ -49,8 +50,12 @@ CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 	const output = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
+		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
+			logLevel: RenderInternals.getLogLevel(),
+		}),
+		indent: false,
 	});
-	output.update('Deploying Lambda...');
+	output.update('Deploying Lambda...', false);
 	const {functionName, alreadyExisted} = await deployFunction({
 		createCloudWatchLogGroup,
 		region,
@@ -65,8 +70,8 @@ CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 	}
 
 	if (alreadyExisted) {
-		output.update(`Already exists as ${functionName}\n`);
+		output.update(`Already exists as ${functionName}`, true);
 	} else {
-		output.update(`Deployed as ${functionName}\n`);
+		output.update(`Deployed as ${functionName}\n`, true);
 	}
 };

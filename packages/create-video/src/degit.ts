@@ -1,7 +1,7 @@
-import fs from 'fs';
 import https from 'https';
-import {tmpdir} from 'os';
-import path from 'path';
+import fs from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 import tar from 'tar';
 import {mkdirp} from './mkdirp';
 

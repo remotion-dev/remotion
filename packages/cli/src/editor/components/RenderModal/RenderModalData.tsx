@@ -6,12 +6,15 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyComposition} from 'remotion';
-import {getInputProps, z} from 'remotion';
+import {getInputProps, Internals} from 'remotion';
+import type {z} from 'zod';
 import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
+import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
+import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {
 	canUpdateDefaultProps,
 	updateDefaultProps,
@@ -20,15 +23,36 @@ import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import type {TypeCanSaveState} from './get-render-modal-warnings';
 import {getRenderModalWarnings} from './get-render-modal-warnings';
-import {RenderModalJSONInputPropsEditor} from './RenderModalJSONInputPropsEditor';
+import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
+import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
+import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
+import {
+	deserializeJSONWithCustomFields,
+	serializeJSONWithDate,
+} from './SchemaEditor/input-props-serialization';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
 	NoSchemaDefined,
+	ZodNotInstalled,
 } from './SchemaEditor/SchemaErrorMessages';
 import {WarningIndicatorButton} from './WarningIndicatorButton';
 
 type Mode = 'json' | 'schema';
+
+export type State =
+	| {
+			str: string;
+			value: unknown;
+			validJSON: true;
+	  }
+	| {
+			str: string;
+			validJSON: false;
+			error: string;
+	  };
+
+export type PropsEditType = 'input-props' | 'default-props';
 
 const errorExplanation: React.CSSProperties = {
 	fontSize: 14,
@@ -70,6 +94,15 @@ const tabWrapper: React.CSSProperties = {
 
 const persistanceKey = 'remotion.show-render-modalwarning';
 
+const parseJSON = (str: string): State => {
+	try {
+		const value = deserializeJSONWithCustomFields(str);
+		return {str, value, validJSON: true};
+	} catch (e) {
+		return {str, validJSON: false, error: (e as Error).message};
+	}
+};
+
 const getPersistedShowWarningState = () => {
 	const val = localStorage.getItem(persistanceKey);
 	if (!val) {
@@ -89,15 +122,36 @@ export const RenderModalData: React.FC<{
 	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
 	compact: boolean;
 	mayShowSaveButton: boolean;
-}> = ({composition, inputProps, setInputProps, compact, mayShowSaveButton}) => {
+	propsEditType: PropsEditType;
+}> = ({
+	composition,
+	inputProps,
+	setInputProps,
+	compact,
+	mayShowSaveButton,
+	propsEditType,
+}) => {
 	const [mode, setMode] = useState<Mode>('schema');
 	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
-	const zodValidationResult = useMemo(() => {
-		return composition.schema.safeParse(inputProps);
-	}, [composition.schema, inputProps]);
+	const [saving, setSaving] = useState(false);
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState()
 	);
+
+	const inJSONEditor = mode === 'json';
+	const serializedJSON: SerializedJSONWithCustomFields | null = useMemo(() => {
+		if (!inJSONEditor) {
+			return null;
+		}
+
+		const value = inputProps ?? {};
+		return serializeJSONWithDate({
+			data: value,
+			indent: 2,
+			staticBase: window.remotion_staticBase,
+		});
+	}, [inJSONEditor, inputProps]);
+
 	const cliProps = getInputProps();
 	const [canSaveDefaultProps, setCanSaveDefaultProps] =
 		useState<TypeCanSaveState>({
@@ -105,6 +159,34 @@ export const RenderModalData: React.FC<{
 			reason: 'Loading...',
 			determined: false,
 		});
+
+	const z = useZodIfPossible();
+
+	const schema = useMemo(() => {
+		if (!z) {
+			return 'no-zod' as const;
+		}
+
+		if (!composition.schema) {
+			return z.any();
+		}
+
+		if (!(typeof composition.schema.safeParse === 'function')) {
+			throw new Error(
+				'A value which is not a Zod schema was passed to `schema`'
+			);
+		}
+
+		return composition.schema;
+	}, [composition.schema, z]);
+
+	const zodValidationResult = useMemo(() => {
+		if (schema === 'no-zod') {
+			return 'no-zod' as const;
+		}
+
+		return schema.safeParse(inputProps);
+	}, [inputProps, schema]);
 
 	const setShowWarning: React.Dispatch<React.SetStateAction<boolean>> =
 		useCallback((val) => {
@@ -120,6 +202,8 @@ export const RenderModalData: React.FC<{
 		}, []);
 
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
+
+	const {fastRefreshes} = useContext(Internals.NonceContext);
 
 	useEffect(() => {
 		canUpdateDefaultProps(composition.id)
@@ -171,22 +255,61 @@ export const RenderModalData: React.FC<{
 	}, []);
 
 	const onUpdate = useCallback(() => {
+		if (schema === 'no-zod' || z === null) {
+			sendErrorNotification('Cannot update default props: No Zod schema');
+			return;
+		}
+
 		setValBeforeSafe(inputProps);
-		updateDefaultProps(composition.id, inputProps);
-	}, [composition.id, inputProps]);
+		updateDefaultProps(
+			composition.id,
+			inputProps,
+			extractEnumJsonPaths(schema, z, [])
+		);
+	}, [composition.id, inputProps, schema, z]);
+
+	useEffect(() => {
+		setSaving(false);
+	}, [fastRefreshes]);
 
 	const onSave = useCallback(
 		(updater: (oldState: unknown) => unknown) => {
-			updateDefaultProps(composition.id, updater(composition.defaultProps));
+			if (schema === 'no-zod' || z === null) {
+				sendErrorNotification('Cannot update default props: No Zod schema');
+				return;
+			}
+
+			setSaving(true);
+			updateDefaultProps(
+				composition.id,
+				updater(composition.defaultProps),
+				extractEnumJsonPaths(schema, z, [])
+			).catch((err) => {
+				sendErrorNotification(`Cannot update default props: ${err.message}`);
+				setSaving(false);
+			});
 		},
-		[composition.defaultProps, composition.id]
+		[composition.defaultProps, composition.id, schema, z]
 	);
 
 	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
 
 	const warnings = useMemo(() => {
-		return getRenderModalWarnings({canSaveDefaultProps, cliProps});
-	}, [canSaveDefaultProps, cliProps]);
+		return getRenderModalWarnings({
+			canSaveDefaultProps,
+			cliProps,
+			isCustomDateUsed: serializedJSON ? serializedJSON.customDateUsed : false,
+			customFileUsed: serializedJSON ? serializedJSON.customFileUsed : false,
+			inJSONEditor,
+			propsEditType,
+		});
+	}, [
+		canSaveDefaultProps,
+		cliProps,
+		inJSONEditor,
+		propsEditType,
+		serializedJSON,
+	]);
 
 	if (connectionStatus === 'disconnected') {
 		return (
@@ -200,7 +323,19 @@ export const RenderModalData: React.FC<{
 		);
 	}
 
-	const def: z.ZodTypeDef = composition.schema._def;
+	if (schema === 'no-zod') {
+		return <ZodNotInstalled />;
+	}
+
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
+	if (zodValidationResult === 'no-zod') {
+		throw new Error('expected zod');
+	}
+
+	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
 
@@ -244,15 +379,16 @@ export const RenderModalData: React.FC<{
 				<SchemaEditor
 					value={inputProps}
 					setValue={setInputProps}
-					schema={composition.schema}
+					schema={schema}
 					zodValidationResult={zodValidationResult}
 					compact={compact}
 					defaultProps={composition.defaultProps}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
+					saving={saving}
 				/>
 			) : (
-				<RenderModalJSONInputPropsEditor
+				<RenderModalJSONPropsEditor
 					value={inputProps ?? {}}
 					setValue={setInputProps}
 					zodValidationResult={zodValidationResult}
@@ -260,6 +396,8 @@ export const RenderModalData: React.FC<{
 					onSave={onUpdate}
 					valBeforeSafe={valBeforeSafe}
 					showSaveButton={showSaveButton}
+					serializedJSON={serializedJSON}
+					parseJSON={parseJSON}
 				/>
 			)}
 		</div>

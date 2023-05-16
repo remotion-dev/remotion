@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-import * as childProcess from 'child_process';
-import * as fs from 'fs';
+import * as childProcess from 'node:child_process';
+import * as fs from 'node:fs';
 import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
+import {getLogLevel, Log} from '../logger';
 import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
@@ -62,19 +63,10 @@ export class BrowserRunner {
 	}
 
 	start(options: LaunchOptions): void {
-		const {dumpio, env, pipe} = options;
-		let stdio: Array<'ignore' | 'pipe'>;
-		if (pipe) {
-			if (dumpio) {
-				stdio = ['ignore', 'pipe', 'pipe', 'pipe', 'pipe'];
-			} else {
-				stdio = ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'];
-			}
-		} else if (dumpio) {
-			stdio = ['pipe', 'pipe', 'pipe'];
-		} else {
-			stdio = ['pipe', 'ignore', 'pipe'];
-		}
+		const {dumpio, env} = options;
+		const stdio: ('ignore' | 'pipe')[] = dumpio
+			? ['ignore', 'pipe', 'pipe']
+			: ['pipe', 'ignore', 'pipe'];
 
 		assert(!this.proc, 'This process has previously been started.');
 		this.proc = childProcess.spawn(
@@ -92,12 +84,16 @@ export class BrowserRunner {
 		);
 		if (dumpio) {
 			this.proc.stdout?.on('data', (d) => {
-				process.stdout.write(options.indentationString);
-				process.stdout.write(d.toString().trimStart());
+				Log.verboseAdvanced(
+					{indent: options.indent, logLevel: getLogLevel(), tag: 'chrome'},
+					d.toString().trim()
+				);
 			});
 			this.proc.stderr?.on('data', (d) => {
-				process.stderr.write(options.indentationString);
-				process.stderr.write(d.toString().trimStart());
+				Log.verboseAdvanced(
+					{indent: options.indent, logLevel: getLogLevel(), tag: 'chrome'},
+					d.toString().trim()
+				);
 			});
 		}
 

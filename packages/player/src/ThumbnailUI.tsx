@@ -6,8 +6,8 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import type {z} from 'remotion';
 import {Internals} from 'remotion';
+import type {z} from 'zod';
 import {
 	calculateCanvasTransformation,
 	calculateContainerStyle,

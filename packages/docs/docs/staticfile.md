@@ -67,6 +67,28 @@ If you are a Create React App or Next.JS user, you might be used to just to be a
 
 Use the `getStaticFiles()` API to get a list of available options.
 
+## Handling URI-unsafe characters <AvailableFrom v="4.0.0"/>
+
+Since `v4.0`, `staticFile()` encodes the filename using `encodeURIComponent`.  
+If you encoded the path by yourself until now, make sure to drop your encoding before passing the path into `staticFile()` to avoid double encoding.
+
+Before `v4.0`, `staticFile()` did not handle URI-unsafe characters contained in the provided path. This could lead to problems in some cases when filenames would contain characters such as `#`, `?` and or `&`.
+
+### Example
+
+```tsx title="Before v4"
+staticFile("my-image#portrait.png"); //output: "/my-image#portrait.png"
+```
+
+If this URL is passed to a component accepting an URL, the part after `#` will be left out, leading
+to an error because the file can't be found.
+
+```tsx title="Since v4.0.0"
+staticFile("my-image#portrait.png"); // "/my-image%23portrait.png"
+```
+
+The image will now be loaded properly, however, you must avoid to encode the filename yourself.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/static-file.ts)

@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "3.3.84",
+  "version": "3.3.92",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
@@ -67,7 +67,8 @@
     "swc-loader": "^0.2.3",
     "three": "0.145.0",
     "uuid": "^8.3.2",
-    "vitest": "0.24.3"
+    "vitest": "0.24.3",
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@tsconfig/docusaurus": "^1.0.5",

@@ -6,9 +6,9 @@ import {
 	StillImageFormat,
 } from '@remotion/renderer';
 import {cleanDownloadMap} from '@remotion/renderer/dist/assets/download-map';
-import {existsSync, unlinkSync} from 'fs';
-import {tmpdir} from 'os';
-import path from 'path';
+import {existsSync, unlinkSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
 import {AnyCompMetadata} from 'remotion';
 import {expect, test} from 'vitest';
 import {webpackOverride} from '../webpack-override';
@@ -39,6 +39,9 @@ test(
 			},
 			downloadMap,
 			remotionRoot: process.cwd(),
+			concurrency: RenderInternals.getActualConcurrency(null),
+			verbose: false,
+			indent: false,
 		});
 
 		const serveUrl = `http://localhost:${port}`;
@@ -116,6 +119,9 @@ test(
 			},
 			downloadMap,
 			remotionRoot: process.cwd(),
+			concurrency: RenderInternals.getActualConcurrency(null),
+			verbose: false,
+			indent: false,
 		});
 
 		const serveUrl = `http://localhost:${port}`;

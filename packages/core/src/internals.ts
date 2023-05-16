@@ -24,7 +24,9 @@ import {
 	useRemotionEnvironment,
 } from './get-environment.js';
 import {getPreviewDomElement} from './get-preview-dom-element.js';
+import {processColor} from './interpolate-colors.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
+import {NonceContext} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
@@ -52,7 +54,6 @@ import {
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
-import {validateOffthreadVideoImageFormat} from './validation/validate-offthreadvideo-image-format.js';
 import {DurationsContextProvider} from './video/duration-state.js';
 import type {
 	MediaVolumeContextValue,
@@ -68,7 +69,6 @@ import {
 	RemotionContextProvider,
 	useRemotionContexts,
 } from './wrap-remotion-context.js';
-import {parseColor, REMOTION_COLOR_BRAND} from './z-color.js';
 const Timeline = TimelinePosition;
 
 // Mark them as Internals so use don't assume this is public
@@ -105,7 +105,6 @@ export const Internals = {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	portalNode,
 	waitForRoot,
-	validateOffthreadVideoImageFormat,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
 	PrefetchProvider,
@@ -117,8 +116,8 @@ export const Internals = {
 	EditorPropsProvider,
 	EditorPropsContext,
 	usePreload,
-	REMOTION_COLOR_BRAND,
-	parseColor,
+	processColor,
+	NonceContext,
 };
 
 export type {

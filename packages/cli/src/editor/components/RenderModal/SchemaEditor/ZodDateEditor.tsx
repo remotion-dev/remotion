@@ -1,5 +1,5 @@
 import React, {useCallback, useState} from 'react';
-import type {z} from 'remotion';
+import type {z} from 'zod';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing, SPACING_UNIT} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
@@ -7,6 +7,7 @@ import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 
 type LocalState = {
 	value: Date;
@@ -58,11 +59,12 @@ export const ZodDateEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: Date;
 	defaultValue: Date;
-	setValue: React.Dispatch<React.SetStateAction<Date>>;
+	setValue: UpdaterFunction<Date>;
 	onSave: (updater: (oldNum: unknown) => Date) => void;
 	onRemove: null | (() => void);
 	compact: boolean;
 	showSaveButton: boolean;
+	saving: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -73,6 +75,7 @@ export const ZodDateEditor: React.FC<{
 	compact,
 	onSave,
 	onRemove,
+	saving,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -90,7 +93,7 @@ export const ZodDateEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(newValue);
+				setValue(() => newValue);
 			}
 		},
 		[schema, setValue]
@@ -122,6 +125,7 @@ export const ZodDateEditor: React.FC<{
 				onSave={save}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput

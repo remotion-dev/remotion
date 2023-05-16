@@ -7,6 +7,7 @@ import {PreviewSizeProvider} from '../state/preview-size';
 
 import {SidebarContextProvider} from '../state/sidebar';
 import {CheckerboardProvider} from './CheckerboardProvider';
+import {ZodProvider} from './get-zod-if-possible';
 import {MediaVolumeProvider} from './MediaVolumeProvider';
 import {ModalsProvider} from './ModalsProvider';
 import {PlayerEmitterContext} from './PlayerEmitterContext';
@@ -18,32 +19,34 @@ export const EditorContexts: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	return (
-		<PreviewServerConnection>
-			<RenderQueueContextProvider>
-				<KeybindingContextProvider>
-					<CheckerboardProvider>
-						<ZoomGesturesProvider>
-							<PreviewSizeProvider>
-								<ModalsProvider>
-									<MediaVolumeProvider>
-										<PlayerEmitterContext>
-											<SidebarContextProvider>
-												<FolderContextProvider>
-													<HighestZIndexProvider>
-														<SetTimelineInOutProvider>
-															{children}
-														</SetTimelineInOutProvider>
-													</HighestZIndexProvider>
-												</FolderContextProvider>
-											</SidebarContextProvider>
-										</PlayerEmitterContext>
-									</MediaVolumeProvider>
-								</ModalsProvider>
-							</PreviewSizeProvider>
-						</ZoomGesturesProvider>
-					</CheckerboardProvider>
-				</KeybindingContextProvider>
-			</RenderQueueContextProvider>
-		</PreviewServerConnection>
+		<ZodProvider>
+			<PreviewServerConnection>
+				<RenderQueueContextProvider>
+					<KeybindingContextProvider>
+						<CheckerboardProvider>
+							<ZoomGesturesProvider>
+								<PreviewSizeProvider>
+									<ModalsProvider>
+										<MediaVolumeProvider>
+											<PlayerEmitterContext>
+												<SidebarContextProvider>
+													<FolderContextProvider>
+														<HighestZIndexProvider>
+															<SetTimelineInOutProvider>
+																{children}
+															</SetTimelineInOutProvider>
+														</HighestZIndexProvider>
+													</FolderContextProvider>
+												</SidebarContextProvider>
+											</PlayerEmitterContext>
+										</MediaVolumeProvider>
+									</ModalsProvider>
+								</PreviewSizeProvider>
+							</ZoomGesturesProvider>
+						</CheckerboardProvider>
+					</KeybindingContextProvider>
+				</RenderQueueContextProvider>
+			</PreviewServerConnection>
+		</ZodProvider>
 	);
 };

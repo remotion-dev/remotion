@@ -78,6 +78,8 @@ To clarify the meaning of this option, it is now universally called "JPEG Qualit
 
 FFmpeg is now baked into the `@remotion/renderer` package. Therefore, the `ffmpegExecutable` and `ffprobeExecutable` options have been removed.
 
+Furthermore, the `npx remotion install ffmpeg` and `npx remotion install ffprobe` commands no longer exist.
+
 **How to upgrade:**
 
 - Remove the `ffmpegExecutable` option from [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`getCompositions()`](/docs/renderer/get-compositions), [`renderFrames()`](/docs/renderer/render-frames) and [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) calls.
@@ -86,6 +88,14 @@ FFmpeg is now baked into the `@remotion/renderer` package. Therefore, the `ffmpe
 - Remove all calls to [`ensureFfprobe()`](/docs/renderer/ensure-ffprobe).
 - Remove the `--ffmpeg-executable` flag from [`npx remotion render`](/docs/cli/render), [`npx remotion still`](/docs/cli/still) and [`npx remotion benchmark`](/docs/cli/benchmark)
 - Remove the `--ffprobe-executable` flag from [`npx remotion render`](/docs/cli/render), [`npx remotion still`](/docs/cli/still) and [`npx remotion benchmark`](/docs/cli/benchmark)
+- Don't use the [`npx remotion install`](/docs/cli/install) command anymore
+
+## Added `npx remotion ffmpeg` and `npx remotion ffprobe`
+
+Since FFmpeg and FFprobe no longer have to be installed, the `ffmpeg` and `ffprobe` commands might also not be in your environment anymore. In order to still be able to use some of FFmpeg's handy commands, we introduced [`npx remotion ffmpeg`](/docs/cli/ffmpeg) and [`npx remotion ffprobe`](/docs/cli/ffprobe).
+Note that in order to keep the binary size small, those FFmpeg binaries only understand the codecs that Remotion itself supports: H.264, H.265, VP8, VP9 and ProRes.
+
+A binary from the 6.0 release line of FFmpeg is used.
 
 ## Moved `onSlowestFrames` API
 
@@ -140,8 +150,98 @@ const tangent = getTangentAtLength(parts[0], length / 2);
 
 The `onBucketEnsured()` option of [`getOrCreateBucket()`](/docs/lambda/getorcreatebucket) has been removed because creating the bucket is the only operation of `getOrCreateBucket()`. Therefore, you can just await the function itself.
 
+## `imageFormat` removed from `<OffthreadVideo>`
+
+Until now, you could optionally pass the `imageFormat` prop into `<OffthreadVideo>`. This option was introduced in order to make transparent videos possible.
+
+Now, you can instead use the optional `transparent` prop.
+
+Due to this this change, the `OffthreadVideoImageFormat` type is no longer neccessary and has therefore been removed.
+
+## `OffthreadVideoImageFormat` removed
+
 ## `<Img>` will cancel the render if the image cannot be loaded
 
 Before, [`<Img>`](/docs/img) would only log to the console if an image cannot be loaded and inevitably lead to a timeout if the error is not handled.
 
 If this happens now and the error is not handled, the render will be aborted and the error reported.
+
+## `crf` is not allowed for GIFs anymore
+
+Previously you were able to set a value for `crf` when rendering a GIF. This was a mistake and GIF does not support them.
+
+## `staticFile()` URI-unsafe characters handling
+
+Previously, [`staticFile()`](/docs/staticfile) did not handle URI-unsafe characters contained in the provided path:
+
+```tsx title="Before v4"
+staticFile("my-image#portrait.png"); //output: "my-image#portrait.png"
+```
+
+This could lead to problems, when unsafe characters such as `#`, `?` and `&` were part of the filename.
+
+Now, [`staticFile()`](/docs/staticfile) encodes the filename using `encodeURIComponent`:
+
+```tsx title="Since v4.0.0"
+staticFile("my-image#portrait.png"); // "my-image%23portrait.png"
+```
+
+## Type `WebpackOverrideFn` moved
+
+The `WebpackOverrideFn` type useful for overriding the Webpack config in the config file and in [`bundle()`](/docs/bundle) has moved from the `remotion` to the `@remotion/bundler` package.
+
+**How to upgrade:**
+
+If you encoded the path by yourself until now, don't do so anymore to avoid double encoding.
+
+## `react-native` no longer aliases to `react-native-web`
+
+Remotion no longer aliases `react-native` automatically to `react-native-web`.  
+If you are using `react-native-web`, override the Webpack config like this to restore the previous behavior:
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+
+Config.overrideWebpackConfig((config) => {
+  return {
+    ...config,
+    resolve: {
+      ...config.resolve,
+      alias: {
+        ...config.resolve?.alias,
+        "react-native$": "react-native-web",
+      },
+    },
+  };
+});
+```
+
+This is automatically applied in [`@remotion/skia`](/docs/skia).
+
+## The `TComposition` type now includes a Zod schema
+
+The `TComposition` type now has two generic arguments:
+
+```ts
+export type TComposition<Schema extends z.ZodTypeAny, Props> = {};
+```
+
+If you need a type for a generic composition, you can use the new `AnyComposition` type:
+
+```ts
+import { AnyComposition } from "remotion";
+
+const composition: AnyComposition = {
+  width: 1920,
+  height: 1080,
+  // ...
+};
+```
+
+## `getCanExtractFramesFast()` function has been removed
+
+The [`getCanExtractFramesFast()`](/docs/renderer/get-can-extract-frames-fast) function has been removed, since frames can always be extracted fast now using `<OffthreadVideo>`.
+
+**How to upgrade:**
+
+You can now remove your re-encoding logic!

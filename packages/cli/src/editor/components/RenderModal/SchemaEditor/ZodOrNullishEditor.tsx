@@ -1,11 +1,16 @@
 import {useCallback} from 'react';
-import type {z} from 'remotion';
+import type {z} from 'zod';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Checkbox} from '../../Checkbox';
+import {
+	useZodIfPossible,
+	useZodTypesIfPossible,
+} from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {createZodValues} from './create-zod-values';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
 
 const fullWidth: React.CSSProperties = {
@@ -33,10 +38,11 @@ export const ZodOrNullishEditor: React.FC<{
 	value: unknown;
 	defaultValue: unknown;
 	schema: z.ZodTypeAny;
-	setValue: React.Dispatch<React.SetStateAction<unknown>>;
+	setValue: (updater: (oldState: unknown) => unknown) => void;
 	onSave: (updater: (oldNum: unknown) => unknown) => void;
 	onRemove: null | (() => void);
 	nullishValue: null | undefined;
+	saving: boolean;
 }> = ({
 	jsonPath,
 	compact,
@@ -48,12 +54,20 @@ export const ZodOrNullishEditor: React.FC<{
 	showSaveButton,
 	onRemove,
 	nullishValue,
+	saving,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
+	const zodTypes = useZodTypesIfPossible();
+
 	const isChecked = value === nullishValue;
 
-	const onValueChange = useCallback(
-		(newValue: unknown) => {
-			setValue(newValue);
+	const onValueChange: UpdaterFunction<unknown> = useCallback(
+		(updater) => {
+			setValue(updater);
 		},
 		[setValue]
 	);
@@ -61,14 +75,16 @@ export const ZodOrNullishEditor: React.FC<{
 	const onCheckBoxChange: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
-				const val = e.target.checked ? nullishValue : createZodValues(schema);
-				onValueChange(val);
+				const val = e.target.checked
+					? nullishValue
+					: createZodValues(schema, z, zodTypes);
+				onValueChange(() => val);
 			},
-			[nullishValue, onValueChange, schema]
+			[nullishValue, onValueChange, schema, z, zodTypes]
 		);
 
 	const reset = useCallback(() => {
-		onValueChange(defaultValue);
+		onValueChange(() => defaultValue);
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
@@ -86,6 +102,7 @@ export const ZodOrNullishEditor: React.FC<{
 					showSaveButton={showSaveButton}
 					compact={compact}
 					onRemove={onRemove}
+					saving={saving}
 				/>
 			) : (
 				<div style={fullWidth}>
@@ -99,6 +116,7 @@ export const ZodOrNullishEditor: React.FC<{
 						onSave={onSave}
 						showSaveButton={showSaveButton}
 						onRemove={onRemove}
+						saving={saving}
 					/>
 				</div>
 			)}

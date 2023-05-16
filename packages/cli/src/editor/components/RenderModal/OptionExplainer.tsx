@@ -1,5 +1,6 @@
 import type {RemotionOption} from '@remotion/renderer';
 import React from 'react';
+import {INPUT_BACKGROUND} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {MenuDivider} from '../Menu/MenuDivider';
 import {CliCopyButton} from './CliCopyButton';
@@ -8,11 +9,12 @@ const container: React.CSSProperties = {
 	fontSize: 14,
 	paddingTop: 10,
 	paddingBottom: 10,
+	backgroundColor: INPUT_BACKGROUND,
 };
 
 const padding: React.CSSProperties = {
-	paddingLeft: 12,
-	paddingRight: 12,
+	paddingLeft: 20,
+	paddingRight: 20,
 };
 
 const title: React.CSSProperties = {
@@ -45,6 +47,16 @@ const infoRowLabel: React.CSSProperties = {
 	color: 'white',
 };
 
+const flexSpacer: React.CSSProperties = {
+	display: 'flex',
+	flex: 1,
+};
+
+const copyWrapper: React.CSSProperties = {
+	display: 'flex',
+	justifyContent: 'flex-end',
+};
+
 export const OptionExplainer: React.FC<{
 	option: RemotionOption;
 }> = ({option}) => {
@@ -53,6 +65,10 @@ export const OptionExplainer: React.FC<{
 			<div style={padding}>
 				<div>
 					<strong style={title}>{option.name}</strong>
+					<Spacing x={1} />
+					<a style={link} href={option.docLink} target="_blank">
+						Docs
+					</a>
 				</div>
 				<div style={description}>{option.description}</div>
 			</div>
@@ -61,21 +77,20 @@ export const OptionExplainer: React.FC<{
 			<Spacing y={0.5} block />
 			<div>
 				<div style={infoRow}>
-					<div style={infoRowLabel}>CLI flag:</div>
+					<div style={infoRowLabel}>CLI flag</div>
+					<div style={flexSpacer} />
 					<code>{option.cliFlag}</code>
-					<div style={{display: 'flex', justifyContent: 'flex-end', flex: 1}}>
+					<div style={copyWrapper}>
 						<CliCopyButton valueToCopy={option.cliFlag} />
 					</div>
 				</div>
 				<div style={infoRow}>
-					<div style={infoRowLabel}>Node.JS option:</div>
+					<div style={infoRowLabel}>Node.JS option</div>
+					<div style={flexSpacer} />
 					<code>{option.ssrName}</code>
+					<Spacing x={3.75} />
 				</div>
-				<div style={infoRow}>
-					<a style={link} href={option.docLink} target="_blank">
-						Docs
-					</a>
-				</div>
+				<div style={infoRow} />
 			</div>
 		</div>
 	);

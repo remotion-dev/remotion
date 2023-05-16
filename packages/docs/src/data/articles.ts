@@ -266,6 +266,13 @@ export const articles = [
     crumb: "Contributing",
   },
   {
+    id: "contributing/rust",
+    title: "Contributing Rust code",
+    relativePath: "docs/contributing/rust.md",
+    compId: "articles-docs-contributing-rust",
+    crumb: "Contributing",
+  },
+  {
     id: "data-fetching",
     title: "Data fetching",
     relativePath: "docs/data-fetching.md",
@@ -812,6 +819,13 @@ export const articles = [
     crumb: "Lambda API",
   },
   {
+    id: "lambda/go",
+    title: "Triggering renders from Go",
+    relativePath: "docs/lambda/go.md",
+    compId: "articles-docs-lambda-go",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "lambda/light-client",
     title: "Light client",
     relativePath: "docs/lambda/light-client.md",
@@ -887,6 +901,13 @@ export const articles = [
     relativePath: "docs/lambda/runtime.md",
     compId: "articles-docs-lambda-runtime",
     crumb: "Lambda",
+  },
+  {
+    id: "lambda/s3-public-access",
+    title: "Cannot create a S3 bucket using Remotion",
+    relativePath: "docs/lambda/s3-public-access.md",
+    compId: "articles-docs-lambda-s3-public-access",
+    crumb: "DevOps advisory",
   },
   {
     id: "lambda/serverless-framework-integration",
@@ -2030,6 +2051,13 @@ export const articles = [
     relativePath: "docs/troubleshooting/background-image.md",
     compId: "articles-docs-troubleshooting-background-image",
     crumb: "Common mistakes",
+  },
+  {
+    id: "broken-fast-refresh",
+    title: "Fast Refresh not working",
+    relativePath: "docs/troubleshooting/broken-fast-refresh.md",
+    compId: "articles-docs-troubleshooting-broken-fast-refresh",
+    crumb: "Troubleshooting",
   },
   {
     id: "troubleshooting/could-not-be-parsed-as-a-value-list",

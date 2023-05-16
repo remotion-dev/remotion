@@ -1,5 +1,5 @@
-import {existsSync} from 'fs';
-import path from 'path';
+import {existsSync} from 'node:fs';
+import path from 'node:path';
 import {loadConfigFile} from './load-config';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';

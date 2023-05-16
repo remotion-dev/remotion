@@ -21,6 +21,20 @@ const row: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
+const fixedWidthRight: React.CSSProperties = {
+	minWidth: '350px',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'flex-end',
+};
+
+const fixedWidthLeft: React.CSSProperties = {
+	minWidth: '350px',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'flex-start',
+};
+
 const flex: React.CSSProperties = {
 	flex: 1,
 };
@@ -83,29 +97,35 @@ export const MenuToolbar: React.FC = () => {
 	}, [setSelected]);
 
 	return (
-		<Row align="center" className="css-reset" style={row}>
-			{structure.map((s) => {
-				return (
-					<MenuItem
-						key={s.id}
-						selected={selected === s.id}
-						onItemSelected={itemClicked}
-						onItemHovered={itemHovered}
-						id={s.id}
-						label={s.label}
-						onItemQuit={onItemQuit}
-						menu={s}
-						onPreviousMenu={onPreviousMenu}
-						onNextMenu={onNextMenu}
-						leaveLeftPadding={s.leaveLeftPadding}
-					/>
-				);
-			})}
-			<UpdateCheck />
+		<Row justify="center" align="center" className="css-reset" style={row}>
+			<div style={fixedWidthLeft}>
+				{structure.map((s) => {
+					return (
+						<MenuItem
+							key={s.id}
+							selected={selected === s.id}
+							onItemSelected={itemClicked}
+							onItemHovered={itemHovered}
+							id={s.id}
+							label={s.label}
+							onItemQuit={onItemQuit}
+							menu={s}
+							onPreviousMenu={onPreviousMenu}
+							onNextMenu={onNextMenu}
+							leaveLeftPadding={s.leaveLeftPadding}
+						/>
+					);
+				})}
+				<UpdateCheck />
+			</div>
+
 			<div style={flex} />
 			<MenuBuildIndicator />
+			<div style={flex} />
+			<div style={fixedWidthRight}>
+				<SidebarCollapserControls />
+			</div>
 			<Spacing x={1} />
-			<SidebarCollapserControls />
 		</Row>
 	);
 };

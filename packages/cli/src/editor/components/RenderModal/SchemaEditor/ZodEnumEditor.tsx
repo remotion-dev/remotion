@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {z} from 'remotion';
+import type {z} from 'zod';
 import {Checkmark} from '../../../icons/Checkmark';
+import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
@@ -8,6 +9,7 @@ import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -23,11 +25,12 @@ export const ZodEnumEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: string;
 	defaultValue: string;
-	setValue: React.Dispatch<React.SetStateAction<string>>;
-	onSave: (updater: (oldState: string) => string) => void;
+	setValue: UpdaterFunction<string>;
+	onSave: UpdaterFunction<string>;
 	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
+	saving: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -38,7 +41,13 @@ export const ZodEnumEditor: React.FC<{
 	onSave,
 	showSaveButton,
 	onRemove,
+	saving,
 }) => {
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,
@@ -110,7 +119,9 @@ export const ZodEnumEditor: React.FC<{
 				onReset={reset}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
+				saving={saving}
 			/>
+
 			<div style={isRoot ? undefined : container}>
 				<Combobox values={comboBoxValues} selectedId={value} title={value} />
 			</div>

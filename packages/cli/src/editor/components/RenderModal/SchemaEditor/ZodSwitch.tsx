@@ -1,5 +1,9 @@
 import React from 'react';
-import {Internals, z} from 'remotion';
+import type {z} from 'zod';
+import {
+	useZodIfPossible,
+	useZodTypesIfPossible,
+} from '../../get-zod-if-possible';
 import type {JSONPath} from './zod-types';
 import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodBooleanEditor} from './ZodBooleanEditor';
@@ -12,19 +16,23 @@ import {ZodNullableEditor} from './ZodNullableEditor';
 import {ZodNumberEditor} from './ZodNumberEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
 import {ZodOptionalEditor} from './ZodOptionalEditor';
+import {ZodStaticFileEditor} from './ZodStaticFileEditor';
 import {ZodStringEditor} from './ZodStringEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
+
+export type UpdaterFunction<T> = (updater: (oldValue: T) => T) => void;
 
 export const ZodSwitch: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: unknown;
 	defaultValue: unknown;
-	setValue: React.Dispatch<React.SetStateAction<unknown>>;
+	setValue: UpdaterFunction<unknown>;
 	onSave: (newValue: (oldVal: unknown) => unknown) => void;
 	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
+	saving: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -35,40 +43,60 @@ export const ZodSwitch: React.FC<{
 	onSave,
 	showSaveButton,
 	onRemove,
+	saving,
 }) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const typeName = (def as any).typeName as z.ZodFirstPartyTypeKind;
+
+	const z = useZodIfPossible();
+	if (!z) {
+		throw new Error('expected zod');
+	}
+
+	const zodTypes = useZodTypesIfPossible();
 
 	// TODO: (Maybe?) enable saving of inserted input props by cmd+s /ctrl + s (also for JSON view)
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodObject) {
 		return (
 			<ZodObjectEditor
-				setValue={setValue}
+				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
 				value={value}
 				defaultValue={defaultValue}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
-				onSave={
-					onSave as (
-						newValue: (
-							oldVal: Record<string, unknown>
-						) => Record<string, unknown>
-					) => void
-				}
+				onSave={onSave as UpdaterFunction<Record<string, unknown>>}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodString) {
+		if ((value as string).startsWith(window.remotion_staticBase)) {
+			return (
+				<ZodStaticFileEditor
+					setValue={setValue as UpdaterFunction<string>}
+					value={value as string}
+					jsonPath={jsonPath}
+					schema={schema}
+					compact={compact}
+					defaultValue={defaultValue as string}
+					onSave={onSave as (newValue: (oldVal: string) => string) => void}
+					showSaveButton={showSaveButton}
+					onRemove={onRemove}
+					saving={saving}
+				/>
+			);
+		}
+
 		return (
 			<ZodStringEditor
 				value={value as string}
-				setValue={setValue as React.Dispatch<React.SetStateAction<string>>}
+				setValue={setValue as UpdaterFunction<string>}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
@@ -76,6 +104,7 @@ export const ZodSwitch: React.FC<{
 				defaultValue={defaultValue as string}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -84,7 +113,7 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodDateEditor
 				value={value as Date}
-				setValue={setValue as React.Dispatch<React.SetStateAction<Date>>}
+				setValue={setValue as UpdaterFunction<Date>}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
@@ -92,6 +121,7 @@ export const ZodSwitch: React.FC<{
 				defaultValue={defaultValue as Date}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -100,7 +130,7 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodNumberEditor
 				value={value as number}
-				setValue={setValue as React.Dispatch<React.SetStateAction<unknown>>}
+				setValue={setValue as UpdaterFunction<number>}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
@@ -108,6 +138,7 @@ export const ZodSwitch: React.FC<{
 				onSave={onSave}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -116,13 +147,14 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodBooleanEditor
 				value={value as boolean}
-				setValue={setValue as React.Dispatch<React.SetStateAction<unknown>>}
+				setValue={setValue as UpdaterFunction<boolean>}
 				jsonPath={jsonPath}
 				compact={compact}
 				defaultValue={defaultValue as boolean}
 				onSave={onSave}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -134,6 +166,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'undefined'}
+				saving={saving}
 			/>
 		);
 	}
@@ -145,6 +178,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'null'}
+				saving={saving}
 			/>
 		);
 	}
@@ -156,6 +190,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'any (not editable)'}
+				saving={saving}
 			/>
 		);
 	}
@@ -167,6 +202,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'BigInt (not editable)'}
+				saving={saving}
 			/>
 		);
 	}
@@ -178,6 +214,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'unknown (not editable)'}
+				saving={saving}
 			/>
 		);
 	}
@@ -185,15 +222,16 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodArray) {
 		return (
 			<ZodArrayEditor
-				setValue={setValue as React.Dispatch<React.SetStateAction<unknown[]>>}
+				setValue={setValue as UpdaterFunction<unknown[]>}
 				value={value as unknown[]}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
 				defaultValue={defaultValue as unknown[]}
-				onSave={onSave as (newValue: (oldVal: unknown[]) => unknown[]) => void}
+				onSave={onSave as UpdaterFunction<unknown[]>}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -201,25 +239,30 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodEnum) {
 		return (
 			<ZodEnumEditor
-				setValue={setValue as React.Dispatch<React.SetStateAction<string>>}
+				setValue={setValue as UpdaterFunction<string>}
 				value={value as string}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
 				defaultValue={defaultValue as string}
-				onSave={onSave as (newValue: (oldVal: string) => string) => void}
+				onSave={onSave as UpdaterFunction<string>}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodEffects) {
-		if (schema._def.description === Internals.REMOTION_COLOR_BRAND) {
+		if (
+			zodTypes &&
+			schema._def.description ===
+				zodTypes.ZodZypesInternals.REMOTION_COLOR_BRAND
+		) {
 			return (
 				<ZodColorEditor
 					value={value as string}
-					setValue={setValue as React.Dispatch<React.SetStateAction<string>>}
+					setValue={setValue as UpdaterFunction<string>}
 					jsonPath={jsonPath}
 					schema={schema}
 					compact={compact}
@@ -227,6 +270,7 @@ export const ZodSwitch: React.FC<{
 					defaultValue={defaultValue as string}
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}
+					saving={saving}
 				/>
 			);
 		}
@@ -242,6 +286,7 @@ export const ZodSwitch: React.FC<{
 				onSave={onSave}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -258,6 +303,7 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue}
 				onSave={onSave}
 				onRemove={onRemove}
+				saving={saving}
 			/>
 		);
 	}
@@ -274,6 +320,7 @@ export const ZodSwitch: React.FC<{
 				onSave={onSave}
 				onRemove={onRemove}
 				schema={schema}
+				saving={saving}
 			/>
 		);
 	}
@@ -290,6 +337,7 @@ export const ZodSwitch: React.FC<{
 				onSave={onSave}
 				onRemove={onRemove}
 				schema={schema}
+				saving={saving}
 			/>
 		);
 	}
@@ -300,6 +348,7 @@ export const ZodSwitch: React.FC<{
 			jsonPath={jsonPath}
 			showSaveButton={showSaveButton}
 			label={`${typeName} (not editable)`}
+			saving={saving}
 		/>
 	);
 };

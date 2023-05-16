@@ -17,6 +17,7 @@ export type RemotionGifProps = {
 	fit?: GifFillMode;
 	style?: React.CSSProperties;
 	loopBehavior?: GifLoopBehavior;
+	id?: string;
 };
 
 export type GifState = {
