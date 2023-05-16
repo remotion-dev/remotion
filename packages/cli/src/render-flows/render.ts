@@ -486,7 +486,7 @@ export const renderVideoFlow = async ({
 	updateRenderProgress(true);
 	Log.infoAdvanced(
 		{indent, logLevel},
-		chalk.blue(`${exists ? '⌾' : '+'} ${absoluteOutputFile}`)
+		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`)
 	);
 
 	for (const line of RenderInternals.perf.getPerf()) {

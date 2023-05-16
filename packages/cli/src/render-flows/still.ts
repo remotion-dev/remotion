@@ -298,6 +298,6 @@ export const renderStillFlow = async ({
 	updateProgress(true);
 	Log.infoAdvanced(
 		{indent: indentOutput, logLevel},
-		chalk.blue(`${exists ? '⌾' : '+'} ${absoluteOutputLocation}`)
+		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputLocation}`)
 	);
 };
