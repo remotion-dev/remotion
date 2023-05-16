@@ -19,7 +19,7 @@ export const ZodEffectEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: unknown;
-	setValue: (value: unknown) => void;
+	setValue: (updater: (oldState: unknown) => unknown) => void;
 	compact: boolean;
 	defaultValue: unknown;
 	onSave: (updater: (oldState: unknown) => unknown) => void;
@@ -57,8 +57,9 @@ export const ZodEffectEditor: React.FC<{
 	}
 
 	const onChange = useCallback(
-		(newValue: unknown) => {
-			setLocalValue(() => {
+		(updater: (oldValue: unknown) => unknown) => {
+			setLocalValue((oldLocalState) => {
+				const newValue = updater(oldLocalState.value);
 				const safeParse = schema.safeParse(newValue);
 				if (safeParse.success) {
 					updateValue(() => newValue);

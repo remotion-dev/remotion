@@ -7,6 +7,7 @@ import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 
 type LocalState = {
 	value: Date;
@@ -58,7 +59,7 @@ export const ZodDateEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: Date;
 	defaultValue: Date;
-	setValue: React.Dispatch<React.SetStateAction<Date>>;
+	setValue: UpdaterFunction<Date>;
 	onSave: (updater: (oldNum: unknown) => Date) => void;
 	onRemove: null | (() => void);
 	compact: boolean;
@@ -92,7 +93,7 @@ export const ZodDateEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(newValue);
+				setValue(() => newValue);
 			}
 		},
 		[schema, setValue]

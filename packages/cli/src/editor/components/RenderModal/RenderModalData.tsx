@@ -24,11 +24,12 @@ import {SegmentedControl} from '../SegmentedControl';
 import type {TypeCanSaveState} from './get-render-modal-warnings';
 import {getRenderModalWarnings} from './get-render-modal-warnings';
 import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
-import type {SerializedJSONWithDate} from './SchemaEditor/date-serialization';
+import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
+import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
 import {
-	deserializeJSONWithDate,
+	deserializeJSONWithCustomFields,
 	serializeJSONWithDate,
-} from './SchemaEditor/date-serialization';
+} from './SchemaEditor/input-props-serialization';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -95,7 +96,7 @@ const persistanceKey = 'remotion.show-render-modalwarning';
 
 const parseJSON = (str: string): State => {
 	try {
-		const value = deserializeJSONWithDate(str);
+		const value = deserializeJSONWithCustomFields(str);
 		return {str, value, validJSON: true};
 	} catch (e) {
 		return {str, validJSON: false, error: (e as Error).message};
@@ -138,13 +139,17 @@ export const RenderModalData: React.FC<{
 	);
 
 	const inJSONEditor = mode === 'json';
-	const serializedJSON: SerializedJSONWithDate | null = useMemo(() => {
+	const serializedJSON: SerializedJSONWithCustomFields | null = useMemo(() => {
 		if (!inJSONEditor) {
 			return null;
 		}
 
 		const value = inputProps ?? {};
-		return serializeJSONWithDate(value, 2);
+		return serializeJSONWithDate({
+			data: value,
+			indent: 2,
+			staticBase: window.remotion_staticBase,
+		});
 	}, [inJSONEditor, inputProps]);
 
 	const cliProps = getInputProps();
@@ -250,9 +255,18 @@ export const RenderModalData: React.FC<{
 	}, []);
 
 	const onUpdate = useCallback(() => {
+		if (schema === 'no-zod' || z === null) {
+			sendErrorNotification('Cannot update default props: No Zod schema');
+			return;
+		}
+
 		setValBeforeSafe(inputProps);
-		updateDefaultProps(composition.id, inputProps);
-	}, [composition.id, inputProps]);
+		updateDefaultProps(
+			composition.id,
+			inputProps,
+			extractEnumJsonPaths(schema, z, [])
+		);
+	}, [composition.id, inputProps, schema, z]);
 
 	useEffect(() => {
 		setSaving(false);
@@ -260,16 +274,22 @@ export const RenderModalData: React.FC<{
 
 	const onSave = useCallback(
 		(updater: (oldState: unknown) => unknown) => {
+			if (schema === 'no-zod' || z === null) {
+				sendErrorNotification('Cannot update default props: No Zod schema');
+				return;
+			}
+
 			setSaving(true);
 			updateDefaultProps(
 				composition.id,
-				updater(composition.defaultProps)
+				updater(composition.defaultProps),
+				extractEnumJsonPaths(schema, z, [])
 			).catch((err) => {
 				sendErrorNotification(`Cannot update default props: ${err.message}`);
 				setSaving(false);
 			});
 		},
-		[composition.defaultProps, composition.id]
+		[composition.defaultProps, composition.id, schema, z]
 	);
 
 	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
@@ -279,6 +299,7 @@ export const RenderModalData: React.FC<{
 			canSaveDefaultProps,
 			cliProps,
 			isCustomDateUsed: serializedJSON ? serializedJSON.customDateUsed : false,
+			customFileUsed: serializedJSON ? serializedJSON.customFileUsed : false,
 			inJSONEditor,
 			propsEditType,
 		});
