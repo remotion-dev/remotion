@@ -101,6 +101,8 @@ export const renderStillFlow = async ({
 	const downloads: DownloadProgress[] = [];
 
 	const aggregate: AggregateRenderProgress = initialAggregateRenderProgress();
+	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
+
 	let renderProgress: OverwriteableCliOutput | null = null;
 
 	const steps: RenderStep[] = [
@@ -111,12 +113,11 @@ export const renderStillFlow = async ({
 	const updateProgress = () => {
 		const {output, progress, message} = makeRenderingAndStitchingProgress({
 			prog: aggregate,
-			indent: indentOutput,
 			steps: steps.length,
 			stitchingStep: steps.indexOf('stitching'),
 		});
 		if (renderProgress) {
-			renderProgress.update(output);
+			renderProgress.update(updatesDontOverwrite ? message : output);
 		}
 
 		onProgress({message, value: progress, ...aggregate});
@@ -159,7 +160,7 @@ export const renderStillFlow = async ({
 					RenderInternals.deleteDirectory(dir);
 				});
 			},
-			quietProgress: false,
+			quietProgress: updatesDontOverwrite,
 		}
 	);
 
@@ -218,10 +219,14 @@ export const renderStillFlow = async ({
 		recursive: true,
 	});
 
+	Log.verboseAdvanced(
+		{indent: indentOutput, logLevel, tag: 'config'},
+		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`)
+	);
 	Log.infoAdvanced(
 		{indent: indentOutput, logLevel},
 		chalk.gray(
-			`Entry point = ${fullEntryPoint} (${entryPointReason}), Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
+			`Composition = ${compositionId} (${reason}), Format = ${imageFormat} (${source}), Output = ${relativeOutputLocation}`
 		)
 	);
 
@@ -229,6 +234,7 @@ export const renderStillFlow = async ({
 		quiet: quietFlagProvided(),
 		cancelSignal,
 		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
+		indent: indentOutput,
 	});
 	const renderStart = Date.now();
 
@@ -292,6 +298,6 @@ export const renderStillFlow = async ({
 	Log.infoAdvanced({indent: indentOutput, logLevel});
 	Log.infoAdvanced(
 		{indent: indentOutput, logLevel},
-		chalk.cyan(`▶️ ${absoluteOutputLocation}`)
+		chalk.blue(`▶️ ${absoluteOutputLocation}`)
 	);
 };

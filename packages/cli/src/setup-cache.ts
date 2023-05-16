@@ -126,7 +126,6 @@ const bundleOnCli = async ({
 					copying: copyingState,
 					symLinks: symlinkState,
 				},
-				indent,
 				bundlingStep,
 				steps
 			) + (newline ? '\n' : '')
@@ -197,6 +196,7 @@ const bundleOnCli = async ({
 		quiet: quietProgress || quietFlagProvided(),
 		cancelSignal: null,
 		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
+		indent,
 	});
 
 	let bundlingState: BundlingState = {

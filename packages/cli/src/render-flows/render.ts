@@ -164,6 +164,7 @@ export const renderVideoFlow = async ({
 		quiet,
 		cancelSignal,
 		updatesDontOverwrite,
+		indent,
 	});
 
 	const steps: RenderStep[] = [
@@ -195,7 +196,6 @@ export const renderVideoFlow = async ({
 
 		const {output, message, progress} = makeRenderingAndStitchingProgress({
 			prog: aggregateRenderProgress,
-			indent,
 			steps: steps.length,
 			stitchingStep: steps.indexOf('bundling'),
 		});
@@ -297,10 +297,14 @@ export const renderVideoFlow = async ({
 		logLevel,
 	});
 
+	Log.verboseAdvanced(
+		{indent, logLevel, tag: 'config'},
+		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`)
+	);
 	Log.infoAdvanced(
 		{indent, logLevel},
 		chalk.gray(
-			`Entry point = ${fullEntryPoint} (${entryPointReason}), Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
+			`Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
 		)
 	);
 
@@ -394,7 +398,7 @@ export const renderVideoFlow = async ({
 
 		updateRenderProgress();
 		process.stdout.write('\n');
-		Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
+		Log.infoAdvanced({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
 		return;
 	}
 
@@ -477,8 +481,7 @@ export const renderVideoFlow = async ({
 	});
 
 	updateRenderProgress();
-	process.stdout.write('\n');
-	Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
+	Log.infoAdvanced({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
 
 	for (const line of RenderInternals.perf.getPerf()) {
 		Log.verboseAdvanced({indent, logLevel}, line);

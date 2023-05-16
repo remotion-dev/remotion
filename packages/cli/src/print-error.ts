@@ -12,6 +12,7 @@ export const printError = async (err: Error, logLevel: LogLevel) => {
 			quiet: false,
 			cancelSignal: null,
 			updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
+			indent: false,
 		});
 		output.update(
 			chalk.red('Symbolicating minified error message...\n' + err.message)
