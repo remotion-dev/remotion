@@ -22,10 +22,20 @@ export type OverwriteableCliOutput = {
 export const createOverwriteableCliOutput = (options: {
 	quiet: boolean;
 	cancelSignal: CancelSignal | null;
+	updatesDontOverwrite: boolean;
 }): OverwriteableCliOutput => {
 	if (options.quiet) {
 		return {
 			update: () => false,
+		};
+	}
+
+	if (options.updatesDontOverwrite) {
+		return {
+			update: (up: string) => {
+				process.stdout.write(up + '\n');
+				return true;
+			},
 		};
 	}
 

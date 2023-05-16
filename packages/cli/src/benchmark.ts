@@ -19,6 +19,7 @@ import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {selectCompositions} from './select-composition';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
+import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {truthy} from './truthy';
 
 const DEFAULT_RUNS = 3;
@@ -190,6 +191,7 @@ export const benchmarkCommand = async (
 			onDirectoryCreated: (dir) => {
 				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
 			},
+			quietProgress: false,
 		});
 
 	registerCleanupJob(() => cleanupBundle());
@@ -261,6 +263,7 @@ export const benchmarkCommand = async (
 			height,
 			width,
 			concurrency: unparsedConcurrency,
+			logLevel,
 		} = await getCliOptions({
 			isLambda: false,
 			type: 'series',
@@ -274,6 +277,7 @@ export const benchmarkCommand = async (
 			const benchmarkProgress = createOverwriteableCliOutput({
 				quiet: quietFlagProvided(),
 				cancelSignal: null,
+				updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 			});
 			Log.info();
 			Log.info(

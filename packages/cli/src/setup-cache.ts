@@ -14,6 +14,7 @@ import {
 	createOverwriteableCliOutput,
 	makeBundlingAndCopyProgress,
 } from './progress-bar';
+import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 
 export const bundleOnCliOrTakeServeUrl = async ({
 	fullPath,
@@ -25,6 +26,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	bundlingStep,
 	steps,
 	onDirectoryCreated,
+	quietProgress,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -38,6 +40,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	bundlingStep: number;
 	steps: number;
 	onDirectoryCreated: (path: string) => void;
+	quietProgress: boolean;
 }): Promise<{
 	urlOrBundle: string;
 	cleanup: () => void;
@@ -59,6 +62,7 @@ export const bundleOnCliOrTakeServeUrl = async ({
 		bundlingStep,
 		steps,
 		onDirectoryCreated,
+		quietProgress,
 	});
 
 	return {
@@ -77,6 +81,7 @@ const bundleOnCli = async ({
 	bundlingStep,
 	steps,
 	onDirectoryCreated,
+	quietProgress,
 }: {
 	fullPath: string;
 	remotionRoot: string;
@@ -90,6 +95,7 @@ const bundleOnCli = async ({
 	bundlingStep: number;
 	steps: number;
 	onDirectoryCreated: (path: string) => void;
+	quietProgress: boolean;
 }) => {
 	const shouldCache = ConfigInternals.getWebpackCaching();
 
@@ -188,8 +194,9 @@ const bundleOnCli = async ({
 
 	const bundleStartTime = Date.now();
 	const bundlingProgress = createOverwriteableCliOutput({
-		quiet: quietFlagProvided(),
+		quiet: quietProgress || quietFlagProvided(),
 		cancelSignal: null,
+		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
 	});
 
 	let bundlingState: BundlingState = {

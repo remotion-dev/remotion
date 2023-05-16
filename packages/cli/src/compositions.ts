@@ -59,6 +59,7 @@ export const listCompositionsCommand = async (
 			onDirectoryCreated: (dir) => {
 				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
 			},
+			quietProgress: false,
 		});
 
 	registerCleanupJob(() => cleanupBundle());

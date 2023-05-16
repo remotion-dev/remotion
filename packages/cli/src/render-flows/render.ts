@@ -47,6 +47,7 @@ import type {
 	StitchingProgressInput,
 } from '../progress-types';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
+import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
 import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
@@ -158,9 +159,11 @@ export const renderVideoFlow = async ({
 		indentationString: indent ? INDENT_TOKEN + ' ' : '',
 	});
 
+	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 	const renderProgress = createOverwriteableCliOutput({
 		quiet,
 		cancelSignal,
+		updatesDontOverwrite,
 	});
 
 	const steps: RenderStep[] = [
@@ -198,7 +201,7 @@ export const renderVideoFlow = async ({
 		});
 		onProgress({message, value: progress, ...aggregateRenderProgress});
 
-		return renderProgress.update(output);
+		return renderProgress.update(updatesDontOverwrite ? message : output);
 	};
 
 	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
@@ -218,6 +221,7 @@ export const renderVideoFlow = async ({
 			onDirectoryCreated: (dir) => {
 				addCleanupCallback(() => RenderInternals.deleteDirectory(dir));
 			},
+			quietProgress: updatesDontOverwrite,
 		}
 	);
 
