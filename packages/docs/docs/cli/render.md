@@ -74,7 +74,7 @@ Renamed to `--jpeg-quality` in v4.0.0
 
 Sets the output file path, similar to the `output-location` argument.
 
-::info
+:::info
 The `--output` flag is only used if no `output-location` argument is passed. If you pass an `output-location` argument, the `--output` flag will be ignored, and a warning will be printed.
 :::
 
