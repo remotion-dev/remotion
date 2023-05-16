@@ -5,6 +5,10 @@ title: "Slow method to extract frame"
 crumb: "Troubleshooting"
 ---
 
+:::warning
+From v4.0 on, this warning does not appear anymore and video frame extraction should always be fast. The information in this document only applies to older versions of Remotion and is preserved for people who are still using them.
+:::
+
 When using the [`<OffthreadVideo>`](/docs/offthreadvideo) component, the following warning message may appear:
 
 ```
