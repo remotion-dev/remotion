@@ -7,7 +7,11 @@ import {
 test('date serialization', () => {
 	const date = {data: new Date(), hi: 'there'};
 
-	const {serializedString, customDateUsed} = serializeJSONWithDate(date, 2);
+	const {serializedString, customDateUsed} = serializeJSONWithDate({
+		data: date,
+		indent: 2,
+		staticBase: '/static',
+	});
 	expect(customDateUsed).toEqual(true);
 
 	const deserialized = deserializeJSONWithCustomFields(serializedString);
@@ -16,6 +20,10 @@ test('date serialization', () => {
 });
 
 test('No date used', () => {
-	const {customDateUsed} = serializeJSONWithDate({a: 'hi'}, 2);
+	const {customDateUsed} = serializeJSONWithDate({
+		data: {a: 'hi'},
+		indent: 2,
+		staticBase: '/static',
+	});
 	expect(customDateUsed).toEqual(false);
 });
