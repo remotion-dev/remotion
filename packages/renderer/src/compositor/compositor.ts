@@ -61,7 +61,9 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	indent: boolean
 ): Compositor => {
 	const bin = getExecutablePath('compositor');
-	chmodSync(bin, 0o755);
+	if (!process.env.READ_ONLY_FS) {
+		chmodSync(bin, 0o755);
+	}
 
 	const fullCommand: CompositorCommandSerialized<T> = serializeCommand(
 		type,
