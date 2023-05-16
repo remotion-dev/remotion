@@ -18,7 +18,7 @@ export const cloudRunDeploySubcommand = async () => {
 	const remotionVersion = parsedCloudrunCli['remotion-version'] ?? VERSION;
 	const allowUnauthenticated =
 		parsedCloudrunCli['allow-unauthenticated'] ?? false;
-	let memoryLimit = parsedCloudrunCli.memoryLimit ?? '512Mi';
+	let memoryLimit = parsedCloudrunCli.memoryLimit ?? '2Gi';
 	let cpuLimit = parsedCloudrunCli.cpuLimit ?? '1.0';
 	const timeoutSeconds = parsedCloudrunCli.timeoutSeconds ?? 300;
 

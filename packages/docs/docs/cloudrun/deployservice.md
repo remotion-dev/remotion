@@ -8,7 +8,7 @@ crumb: "Cloudrun API"
 
 Creates a [GCP Cloud Run](https://cloud.google.com/run) service in your GCP project that will be able to render a video in the cloud.
 
-If a service with the same version, memory limit and cpu limit already existed, it will be returned instead without a new one being created. This means this service can be treated as idempotent.
+If a service with the same Remotion version, memory limit, cpu limit and timeout already existed in the specified region, it will be returned instead without a new one being created. This means this service can be treated as idempotent.
 
 ## Example
 
@@ -35,15 +35,15 @@ An object with the following properties:
 
 ### `remotionVersion`
 
-The Remotion version of the service. Remotion is versioning the Cloud Run service and a render can only be triggered from a version of `@remotion/cloudrun` that is matching the one of the service.
+The Remotion version of the service. Remotion is versioning the Cloud Run service and a render can only be triggered from a version of `@remotion/cloudrun` that is matching the service.
 
 ### `memoryLimit`
 
-The upper bound on the amount of RAM that the Cloud Run service can consume. By default we recommend a value of 2GiB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512MiB`, the maximum allowed number is `32GiB`. Since the costs of Remotion Cloud Run is directly proportional to the amount of RAM, we recommend to keep this amount as low as possible.
+The upper bound on the amount of RAM that the Cloud Run service can consume. By default we recommend a value of 2GiB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512MiB`, the maximum allowed number is `32GiB`. Since the costs of Remotion Cloud Run is directly proportional to the amount of RAM, we recommend to keep this amount as low as possible. As the Memory limit is raised, there is a [corresponding minimum CPU Limit](https://cloud.google.com/run/docs/configuring/memory-limits#cpu-minimum) that must be observed.
 
 ### `cpuLimit`
 
-The maximum number of CPU cores that the Cloud Run service can use to process requests.
+The maximum number of CPU cores that the Cloud Run service can use to process requests. The default is 1. As the CPU limit is raised, there is a [corresponding minimum Memory Limit](https://cloud.google.com/run/docs/configuring/cpu#setting) that must be observed.
 
 ### `timeoutSeconds`
 
@@ -56,6 +56,10 @@ The [project ID](https://cloud.google.com/resource-manager/docs/creating-managin
 ### `region`
 
 The [GCP region](/docs/cloudrun/region-selection) which you want to deploy the Cloud Run Service too.
+
+### `performImageVersionValidation`
+
+Default as true. This will validate that an image exists in the public Artifact Registry that matches the Remotion Version you are trying to deploy. Can be set false for a potential time saving.
 
 ## Return value
 
