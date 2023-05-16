@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
-import fs, {createWriteStream} from 'fs';
-import os from 'os';
-import path from 'path';
+import fs, {createWriteStream} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';

@@ -1,19 +1,21 @@
-import React, {useCallback, useContext, useEffect, useMemo} from 'react';
+import React, {useCallback, useContext, useEffect} from 'react';
 import {cmdOrCtrlCharacter} from '../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
 import {
 	areKeyboardShortcutsDisabled,
 	useKeybinding,
 } from '../helpers/use-keybinding';
 import {SidebarContext} from '../state/sidebar';
+import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
-import {Row} from './layout';
 import {useResponsiveSidebarStatus} from './TopPanel';
 
 const style: React.CSSProperties = {
 	width: 16,
 	height: 16,
-	border: '1px solid white',
+	minWidth: 16,
+	border: '1px solid currentColor',
 	borderRadius: 3,
+	color: 'currentColor',
 	position: 'relative',
 };
 
@@ -22,26 +24,33 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 		useContext(SidebarContext);
 	const keybindings = useKeybinding();
 	const leftSidebarStatus = useResponsiveSidebarStatus();
-	const leftIcon: React.CSSProperties = useMemo(() => {
-		return {
-			width: '35%',
-			height: '100%',
-			borderRight: '1px solid white',
-			background: leftSidebarStatus === 'expanded' ? 'white' : 'transparent',
-		};
-	}, [leftSidebarStatus]);
 
-	const rightIcon: React.CSSProperties = useMemo(() => {
-		return {
-			width: '35%',
-			height: '100%',
-			right: 0,
-			position: 'absolute',
-			borderLeft: '1px solid white',
-			background:
-				sidebarCollapsedStateRight === 'expanded' ? 'white' : 'transparent',
-		};
-	}, [sidebarCollapsedStateRight]);
+	const leftIcon = useCallback(
+		(color: string): React.CSSProperties => {
+			return {
+				width: '35%',
+				height: '100%',
+				borderRight: '1px solid ' + color,
+				background: leftSidebarStatus === 'expanded' ? color : 'transparent',
+			};
+		},
+		[leftSidebarStatus]
+	);
+
+	const rightIcon = useCallback(
+		(color: string): React.CSSProperties => {
+			return {
+				width: '35%',
+				height: '100%',
+				right: 0,
+				position: 'absolute',
+				borderLeft: '1px solid ' + color,
+				background:
+					sidebarCollapsedStateRight === 'expanded' ? color : 'transparent',
+			};
+		},
+		[sidebarCollapsedStateRight]
+	);
 
 	const toggleLeft = useCallback(() => {
 		setSidebarCollapsedState({
@@ -131,18 +140,39 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 		? 'Toggle Right Sidebar'
 		: `Toggle Right Sidebar (${cmdOrCtrlCharacter}+J)`;
 
+	const colorStyle = useCallback((color: string): React.CSSProperties => {
+		return {
+			...style,
+			color,
+		};
+	}, []);
+
+	const toggleLeftAction: RenderInlineAction = useCallback(
+		(color) => {
+			return (
+				<div style={colorStyle(color)} title={toggleLeftTooltip}>
+					<div style={leftIcon(color)} />
+				</div>
+			);
+		},
+		[colorStyle, leftIcon, toggleLeftTooltip]
+	);
+
+	const toggleRightAction: RenderInlineAction = useCallback(
+		(color) => {
+			return (
+				<div style={colorStyle(color)} title={toggleRightTooltip}>
+					<div style={rightIcon(color)} />
+				</div>
+			);
+		},
+		[colorStyle, rightIcon, toggleRightTooltip]
+	);
+
 	return (
-		<Row>
-			<InlineAction onClick={toggleLeft}>
-				<div style={style} title={toggleLeftTooltip}>
-					<div style={leftIcon} />
-				</div>
-			</InlineAction>
-			<InlineAction onClick={toggleRight}>
-				<div style={style} title={toggleRightTooltip}>
-					<div style={rightIcon} />
-				</div>
-			</InlineAction>
-		</Row>
+		<>
+			<InlineAction onClick={toggleLeft} renderAction={toggleLeftAction} />
+			<InlineAction onClick={toggleRight} renderAction={toggleRightAction} />
+		</>
 	);
 };

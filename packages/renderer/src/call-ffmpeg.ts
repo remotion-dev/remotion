@@ -1,14 +1,16 @@
 import execa from 'execa';
-import path from 'path';
+import {chmodSync} from 'node:fs';
+import path from 'node:path';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {truthy} from './truthy';
 
-export const callFfExtraOptions = () => {
+export const dynamicLibraryPathOptions = () => {
 	const lib = path.join(getExecutablePath('ffmpeg-cwd'), 'remotion', 'lib');
 
 	return {
-		env:
-			process.platform === 'darwin'
+		env: {
+			RUST_BACKTRACE: 'full',
+			...(process.platform === 'darwin'
 				? {
 						DYLD_LIBRARY_PATH: lib,
 				  }
@@ -18,7 +20,8 @@ export const callFfExtraOptions = () => {
 				  }
 				: {
 						LD_LIBRARY_PATH: lib,
-				  },
+				  }),
+		},
 	};
 };
 
@@ -27,8 +30,10 @@ export const callFf = (
 	args: (string | null)[],
 	options?: execa.Options<string>
 ) => {
-	return execa(getExecutablePath(bin), args.filter(truthy), {
-		...callFfExtraOptions(),
+	const executablePath = getExecutablePath(bin);
+	chmodSync(executablePath, 0o755);
+	return execa(executablePath, args.filter(truthy), {
+		...dynamicLibraryPathOptions(),
 		...options,
 	});
 };

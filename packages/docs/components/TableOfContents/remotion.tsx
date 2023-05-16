@@ -132,10 +132,6 @@ export const TableOfContents: React.FC = () => {
           <strong>getInputProps()</strong>
           <div>Receive the user-defined input data</div>
         </TOCItem>
-        <TOCItem link="/docs/z">
-          <strong>z</strong>
-          <div>The Zod library</div>
-        </TOCItem>
       </Grid>
       <h2>Assets</h2>
       <Grid>

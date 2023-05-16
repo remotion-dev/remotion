@@ -1,5 +1,5 @@
-import {existsSync} from 'fs';
-import path from 'path';
+import {existsSync} from 'node:fs';
+import path from 'node:path';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import {isServeUrl} from './is-serve-url';
@@ -13,6 +13,9 @@ export const prepareServer = async ({
 	port,
 	downloadMap,
 	remotionRoot,
+	concurrency,
+	verbose,
+	indent,
 }: {
 	webpackConfigOrServeUrl: string;
 	onDownload: RenderMediaOnDownload;
@@ -20,6 +23,9 @@ export const prepareServer = async ({
 	port: number | null;
 	downloadMap: DownloadMap;
 	remotionRoot: string;
+	concurrency: number;
+	verbose: boolean;
+	indent: boolean;
 }): Promise<{
 	serveUrl: string;
 	closeServer: (force: boolean) => Promise<unknown>;
@@ -32,6 +38,9 @@ export const prepareServer = async ({
 			port,
 			downloadMap,
 			remotionRoot,
+			concurrency,
+			verbose,
+			indent,
 		});
 
 		return Promise.resolve({
@@ -58,6 +67,9 @@ export const prepareServer = async ({
 		port,
 		downloadMap,
 		remotionRoot,
+		concurrency,
+		verbose,
+		indent,
 	});
 	return Promise.resolve({
 		closeServer: async (force: boolean) => {

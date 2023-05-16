@@ -12,7 +12,7 @@ import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManag
 import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
-import {RenderButton} from './RenderToolbarIcon';
+import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';

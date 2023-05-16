@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import type {ClipRegion} from 'remotion';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';

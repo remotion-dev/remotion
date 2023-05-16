@@ -1,8 +1,8 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {StillImageFormat} from '@remotion/renderer';
 import {RenderInternals, renderStill} from '@remotion/renderer';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';

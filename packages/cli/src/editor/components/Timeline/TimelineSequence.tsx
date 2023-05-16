@@ -38,8 +38,10 @@ export const TimelineSequence: React.FC<{
 	}
 
 	const {marginLeft, width} = getTimelineSequenceLayout({
-		durationInFrames: s.duration * (s.showLoopTimesInTimeline ?? 1),
-		startFrom: s.from,
+		durationInFrames: s.loopDisplay
+			? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
+			: s.duration,
+		startFrom: s.loopDisplay ? s.from + s.loopDisplay.startOffset : s.from,
 		startFromMedia: s.type === 'sequence' ? 0 : s.startMediaFrom,
 		maxMediaDuration,
 		video,
@@ -82,8 +84,8 @@ export const TimelineSequence: React.FC<{
 				/>
 			) : null}
 			{s.type === 'video' ? <TimelineVideoInfo src={s.src} /> : null}
-			{s.showLoopTimesInTimeline === undefined ? null : (
-				<LoopedTimelineIndicator loops={s.showLoopTimesInTimeline} />
+			{s.loopDisplay === undefined ? null : (
+				<LoopedTimelineIndicator loops={s.loopDisplay.numberOfTimes} />
 			)}
 		</div>
 	);

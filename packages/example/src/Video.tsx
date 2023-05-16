@@ -1,6 +1,8 @@
+import {zColor} from '@remotion/zod-types';
 import {alias} from 'lib/alias';
 import React from 'react';
-import {Composition, Folder, getInputProps, Still, z, zColor} from 'remotion';
+import {Composition, Folder, getInputProps, staticFile, Still} from 'remotion';
+import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
 import BetaText, {betaTextSchema} from './BetaText';
 import {CancelRender} from './CancelRender';
@@ -531,6 +533,14 @@ export const Index: React.FC = () => {
 					width={850}
 				/>
 				<Composition
+					id="LottieInitializationBugfix"
+					lazyComponent={() => import('./Lottie/LottieInitializationBugfix')}
+					durationInFrames={300}
+					fps={30}
+					height={850}
+					width={850}
+				/>
+				<Composition
 					id="loader"
 					lazyComponent={() => import('./Lottie/Loader')}
 					durationInFrames={240}
@@ -716,6 +726,7 @@ export const Index: React.FC = () => {
 						color: zColor(),
 						nullable: z.nullable(z.string()),
 						optional: z.string().optional(),
+						filePath: z.string().refine((v) => v.endsWith('.png')),
 						longEnum: z.enum([
 							'a',
 							'b',
@@ -746,33 +757,34 @@ export const Index: React.FC = () => {
 						]),
 					})}
 					defaultProps={{
-						vehicle: 'car' as const,
-						other: 'hi' as const,
+						vehicle: 'car',
+						other: 'hi',
 						abc: {
 							union: null,
-							def: {unionArray: [null], pef: 'hu' as const},
-							jkl: 'sting' as const,
-							xyz: 'hi' as const,
+							def: {unionArray: [null], pef: 'hu'},
+							jkl: 'sting',
+							xyz: 'hi',
 						},
 						array: [
-							{a: 'a' as const, b: 'bbbbb' as const},
-							{a: 'a' as const, b: 'b' as const},
+							{a: 'a', b: 'bbbbb'},
+							{a: 'a', b: 'b'},
 						],
 						array2: [[12], [12]],
 						mynum: 4,
 						value: true,
 						haha: null,
-						yo: {hi: ' there' as const},
-						un: 'hi' as const,
-						num: '179' as const,
-						date: new Date('1999-02-12T20:20:00.000Z'),
+						yo: {hi: ' there'},
+						un: 'hi',
+						num: '179',
+						date: new Date('1999-02-12T22:20:00.000Z'),
 						values: 'a' as const,
-						supersuperlongvalueabcdefghji: 'hi' as const,
+						supersuperlongvalueabcdefghji: 'hi',
 						incompatible: null,
 						longEnum: 'k' as const,
-						color: '#eb3a60' as const,
+						color: '#eb3a60',
 						nullable: null,
-						optional: undefined,
+						optional: '',
+						filePath: staticFile('nested/logö.png'),
 					}}
 					durationInFrames={150}
 				/>

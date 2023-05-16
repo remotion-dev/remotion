@@ -1,7 +1,7 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
-import fs, {existsSync, mkdirSync, rmSync} from 'fs';
-import {join} from 'path';
+import fs, {existsSync, mkdirSync, rmSync} from 'node:fs';
+import {join} from 'node:path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
@@ -240,7 +240,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	});
 
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
-	const invokers = Math.round(Math.sqrt(chunks.length));
 
 	const reqSend = timer('sending off requests');
 	const lambdaPayloads = chunks.map((chunkPayload) => {
@@ -296,9 +295,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		estimatedTotalLambdaInvokations: [
 			// Direct invokations
 			chunks.length,
-			// Parent invokers
-			invokers,
 			// This function
+			1,
 		].reduce((a, b) => a + b, 0),
 		estimatedRenderLambdaInvokations: chunks.length,
 		compositionId: comp.id,

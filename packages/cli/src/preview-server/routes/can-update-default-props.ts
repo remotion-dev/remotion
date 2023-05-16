@@ -1,4 +1,4 @@
-import {readFileSync} from 'fs';
+import {readFileSync} from 'node:fs';
 import {updateDefaultProps} from '../../codemods/update-default-props';
 import type {ApiHandler} from '../api-types';
 import {getProjectInfo} from '../project-info';
@@ -34,6 +34,7 @@ export const canUpdateDefaultPropsHandler: ApiHandler<
 			compositionId,
 			input: readFileSync(projectInfo.videoFile, 'utf-8'),
 			newDefaultProps: {},
+			enumPaths: [],
 		});
 
 		return {

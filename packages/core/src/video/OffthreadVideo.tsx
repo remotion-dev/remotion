@@ -3,7 +3,6 @@ import {useRemotionEnvironment} from '../get-environment.js';
 import {Sequence} from '../Sequence.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
-import {validateOffthreadVideoImageFormat} from '../validation/validate-offthreadvideo-image-format.js';
 import {OffthreadVideoForRendering} from './OffthreadVideoForRendering.js';
 import type {OffthreadVideoProps, RemotionMainVideoProps} from './props.js';
 import {VideoForDevelopment} from './VideoForDevelopment.js';
@@ -15,7 +14,7 @@ import {VideoForDevelopment} from './VideoForDevelopment.js';
 export const OffthreadVideo: React.FC<
 	Omit<OffthreadVideoProps & RemotionMainVideoProps, 'loop'>
 > = (props) => {
-	const {startFrom, endAt, ...otherProps} = props;
+	const {startFrom, endAt, imageFormat, ...otherProps} = props;
 	const environment = useRemotionEnvironment();
 
 	const onDuration = useCallback(() => undefined, []);
@@ -25,6 +24,12 @@ export const OffthreadVideo: React.FC<
 			`The \`<OffthreadVideo>\` tag requires a string for \`src\`, but got ${JSON.stringify(
 				props.src
 			)} instead.`
+		);
+	}
+
+	if (props.imageFormat) {
+		throw new TypeError(
+			`The \`<OffthreadVideo>\` tag does no longer accept \`imageFormat\`. Use the \`transparent\` prop if you want to render a transparent video.`
 		);
 	}
 
@@ -46,10 +51,11 @@ export const OffthreadVideo: React.FC<
 	}
 
 	validateMediaProps(props, 'Video');
-	validateOffthreadVideoImageFormat(props.imageFormat);
 
 	if (environment === 'rendering') {
-		return <OffthreadVideoForRendering {...otherProps} />;
+		return (
+			<OffthreadVideoForRendering imageFormat={imageFormat} {...otherProps} />
+		);
 	}
 
 	return (
