@@ -44,7 +44,7 @@ import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
-import {Log} from './logger';
+import {getLogLevel, Log, setLogLevel} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
@@ -109,6 +109,7 @@ export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
+
 export const RenderInternals = {
 	ensureLocalBrowser,
 	getActualConcurrency,
@@ -175,6 +176,8 @@ export const RenderInternals = {
 	DEFAULT_VIDEO_IMAGE_FORMAT,
 	chalk,
 	Log,
+	getLogLevel,
+	setLogLevel,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
