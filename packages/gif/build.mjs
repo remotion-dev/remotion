@@ -1,5 +1,5 @@
 import esbuild from 'esbuild';
-import fs from 'fs';
+import fs from 'node:fs';
 
 const tmp = 'bundled-worker.js';
 

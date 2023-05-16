@@ -14,7 +14,6 @@ import type {VolumeProp} from './volume-prop.js';
 import {evaluateVolume} from './volume-prop.js';
 
 const didWarn: {[key: string]: boolean} = {};
-
 const warnOnce = (message: string) => {
 	if (didWarn[message]) {
 		return;

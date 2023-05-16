@@ -6,7 +6,10 @@ import {createOverwriteableCliOutput} from './progress-bar';
 
 export const printError = async (err: Error) => {
 	if (err instanceof RenderInternals.SymbolicateableError) {
-		const output = createOverwriteableCliOutput(false);
+		const output = createOverwriteableCliOutput({
+			quiet: false,
+			cancelSignal: null,
+		});
 		output.update(
 			chalk.red('Symbolicating minified error message...\n' + err.message)
 		);
@@ -34,6 +37,5 @@ export const printError = async (err: Error) => {
 		return;
 	}
 
-	Log.error('An error occurred:');
 	Log.error(err.stack || err);
 };

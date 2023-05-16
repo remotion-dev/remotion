@@ -6,7 +6,8 @@
 /* eslint-disable no-dupe-class-members */
 /// <reference types="node" />
 
-import {EventEmitter} from 'events';
+import type {Server as HTTPSServer} from 'https';
+import {EventEmitter} from 'node:events';
 import type {
 	Agent,
 	ClientRequest,
@@ -14,12 +15,11 @@ import type {
 	IncomingMessage,
 	OutgoingHttpHeaders,
 	Server as HTTPServer,
-} from 'http';
-import type {Server as HTTPSServer} from 'https';
+} from 'node:http';
+import type {URL} from 'node:url';
+import type {ZlibOptions} from 'node:zlib';
 import type {Duplex, DuplexOptions} from 'stream';
 import type {SecureContextOptions} from 'tls';
-import type {URL} from 'url';
-import type {ZlibOptions} from 'zlib';
 declare class WebSocket extends EventEmitter {
 	/** The connection is not yet open. */
 	static readonly CONNECTING: 0;

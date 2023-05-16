@@ -1,10 +1,14 @@
-import {spawn} from 'child_process';
-import {createHash} from 'crypto';
-import {copyFile} from 'fs/promises';
+import {spawn} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {chmodSync} from 'node:fs';
+import {copyFile} from 'node:fs/promises';
 import type {DownloadMap} from '../assets/download-map';
+import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getExecutablePath} from './get-executable-path';
+import {makeNonce} from './make-nonce';
 import type {
-	CliInput,
+	CompositorCommand,
+	CompositorCommandSerialized,
 	CompositorImageFormat,
 	ErrorPayload,
 	Layer,
@@ -21,6 +25,19 @@ const getCompositorHash = ({...input}: CompositorInput): string => {
 	return createHash('sha256').update(JSON.stringify(input)).digest('base64');
 };
 
+export const serializeCommand = <Type extends keyof CompositorCommand>(
+	command: Type,
+	params: CompositorCommand[Type]
+): CompositorCommandSerialized<Type> => {
+	return {
+		nonce: makeNonce(),
+		payload: {
+			type: command,
+			params,
+		},
+	};
+};
+
 export const compose = async ({
 	height,
 	width,
@@ -32,7 +49,6 @@ export const compose = async ({
 	downloadMap: DownloadMap;
 	output: string;
 }) => {
-	const bin = getExecutablePath();
 	const hash = getCompositorHash({height, width, layers, imageFormat});
 
 	if (downloadMap.compositorCache[hash]) {
@@ -40,18 +56,25 @@ export const compose = async ({
 		return;
 	}
 
-	const payload: CliInput = {
-		v: 1,
+	const payload = serializeCommand('Compose', {
 		height,
 		width,
 		layers,
 		output,
 		output_format: imageFormat,
-	};
+	});
 
-	await new Promise<void>((resolve, reject) => {
-		const child = spawn(bin);
-		child.stdin.write(JSON.stringify(payload));
+	await callCompositor(JSON.stringify(payload));
+
+	downloadMap.compositorCache[hash] = output;
+};
+
+export const callCompositor = (payload: string) => {
+	return new Promise<void>((resolve, reject) => {
+		const execPath = getExecutablePath('compositor');
+		chmodSync(execPath, 0o755);
+		const child = spawn(execPath, [payload], dynamicLibraryPathOptions());
+		child.stdin.write(payload);
 		child.stdin.end();
 
 		const stderrChunks: Buffer[] = [];
@@ -63,15 +86,17 @@ export const compose = async ({
 			} else {
 				const message = Buffer.concat(stderrChunks).toString('utf-8');
 
-				const parsed = JSON.parse(message) as ErrorPayload;
+				try {
+					// Try to see if the error is a JSON
+					const parsed = JSON.parse(message) as ErrorPayload;
+					const msg = `Compositor error: ${parsed.error}`;
+					const err = new Error(`${msg}\n${parsed.backtrace}`);
 
-				const err = new Error(parsed.error);
-				err.stack = parsed.error + '\n' + parsed.backtrace;
-
-				reject(err);
+					reject(err);
+				} catch (err) {
+					reject(new Error(`Compositor panicked: ${message}`));
+				}
 			}
 		});
 	});
-
-	downloadMap.compositorCache[hash] = output;
 };

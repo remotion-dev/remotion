@@ -5,7 +5,7 @@ import {S3Client} from '@aws-sdk/client-s3';
 import {ServiceQuotasClient} from '@aws-sdk/client-service-quotas';
 import {STSClient} from '@aws-sdk/client-sts';
 import {fromIni} from '@aws-sdk/credential-providers';
-import {createHash} from 'crypto';
+import {createHash} from 'node:crypto';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {checkCredentials} from './check-credentials';
 import {isInsideLambda} from './is-in-lambda';

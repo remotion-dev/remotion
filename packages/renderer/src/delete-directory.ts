@@ -1,5 +1,4 @@
-import execa from 'execa';
-import fs, {existsSync} from 'fs';
+import fs, {existsSync} from 'node:fs';
 import {isServeUrl} from './is-serve-url';
 
 export const deleteDirectory = (directory: string): void => {
@@ -11,18 +10,26 @@ export const deleteDirectory = (directory: string): void => {
 		return;
 	}
 
-	if (process.platform === 'win32') {
-		// We use del before to remove all files inside the directories otherwise
-		// rmdir will throw an error.
-		execa.sync('cmd', ['/c', 'del', '/f', '/s', '/q', directory]);
+	// Working around a bug with NodeJS 16 on Windows:
+	// If a subdirectory is already deleted, it will fail with EPERM
+	// even with force: true and recursive and maxRetries set higher.
+	// This is even with the fixWinEPERMSync function being called by Node.JS.
+
+	// This is a workaround for this issue.
+	let retries = 2;
+	while (retries >= 0) {
 		try {
-			execa.sync('cmd', ['/c', 'rmdir', '/s', '/q', directory]);
+			fs.rmSync(directory, {
+				maxRetries: 2,
+				recursive: true,
+				force: true,
+				retryDelay: 100,
+			});
 		} catch (err) {
-			// Is not a directory
+			retries--;
+			continue;
 		}
-	} else {
-		(fs.rmSync ?? fs.rmdirSync)(directory, {
-			recursive: true,
-		});
+
+		break;
 	}
 };

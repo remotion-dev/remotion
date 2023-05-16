@@ -28,7 +28,7 @@ If one of those constraints is a dealbreaker for you, resort to normal [server-s
 
 ## Architecture
 
-- **Lambda function**: Requires a layer with Chromium and FFMPEG, currently hosted by Remotion. Only one Lambda function is required, but it can execute different actions.
+- **Lambda function**: Requires a layer with Chromium, currently hosted by Remotion. Only one Lambda function is required, but it can execute different actions.
 - **S3 bucket**: Stores the projects, the renders, and render metadata.
 - **CLI**: Allows to control the overall architecture from the command line. Is installed by adding `@remotion/lambda` to a project.
 - **Node.JS API**: Has the same features as the CLI but is easier to use programmatically

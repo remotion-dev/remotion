@@ -148,9 +148,13 @@ See [`renderMedia() -> pixelFormat`](/docs/renderer/render-media#pixelformat).
 
 See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile).
 
-### `quality`
+### `jpegQuality`
 
-See [`renderMedia() -> quality`](/docs/renderer/render-media#quality).
+See [`renderMedia() -> jpegQuality`](/docs/renderer/render-media#jpegquality).
+
+### ~~`quality`~~
+
+Renamed to `jpegQuality` in v4.0.0.
 
 ### `audioBitrate`
 

@@ -1,8 +1,8 @@
 import {expect, test} from 'vitest';
 import {createFfmpegMergeFilter} from '../create-ffmpeg-merge-filter';
 
-test('FFMPEG merge filters', async () => {
-	const filter = await createFfmpegMergeFilter({
+test('FFMPEG merge filters', () => {
+	const filter = createFfmpegMergeFilter({
 		inputs: [
 			{
 				filter: {
@@ -19,8 +19,6 @@ test('FFMPEG merge filters', async () => {
 				outName: '1.wav',
 			},
 		],
-		ffmpegExecutable: null,
-		remotionRoot: process.cwd(),
 	});
 	expect(
 		filter ===

@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {CompositionManagerProvider} from './CompositionManager.js';
 import {continueRender, delayRender} from './delay-render.js';
+import {EditorPropsProvider} from './EditorProps.js';
 import {NativeLayersProvider} from './NativeLayers.js';
 import type {TNonceContext} from './nonce.js';
 import {NonceContext} from './nonce.js';
@@ -97,13 +98,19 @@ export const RemotionRoot: React.FC<{
 		<NonceContext.Provider value={nonceContext}>
 			<TimelineContext.Provider value={timelineContextValue}>
 				<SetTimelineContext.Provider value={setTimelineContextValue}>
-					<PrefetchProvider>
-						<NativeLayersProvider>
-							<CompositionManagerProvider numberOfAudioTags={numberOfAudioTags}>
-								<DurationsContextProvider>{children}</DurationsContextProvider>
-							</CompositionManagerProvider>
-						</NativeLayersProvider>
-					</PrefetchProvider>
+					<EditorPropsProvider>
+						<PrefetchProvider>
+							<NativeLayersProvider>
+								<CompositionManagerProvider
+									numberOfAudioTags={numberOfAudioTags}
+								>
+									<DurationsContextProvider>
+										{children}
+									</DurationsContextProvider>
+								</CompositionManagerProvider>
+							</NativeLayersProvider>
+						</PrefetchProvider>
+					</EditorPropsProvider>
 				</SetTimelineContext.Provider>
 			</TimelineContext.Provider>
 		</NonceContext.Provider>

@@ -38,7 +38,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 		return expect(() =>
 			// @ts-expect-error
 			renderFrames({
-				config: {
+				composition: {
 					durationInFrames: 1,
 					fps: 30,
 					height: 1000.5,
@@ -54,7 +54,7 @@ describe('Should validate invalid data passed to renderFrames', () => {
 		return expect(() =>
 			// @ts-expect-error
 			renderFrames({
-				config: {
+				composition: {
 					durationInFrames: 1,
 					fps: 30,
 					width: 1000.5,

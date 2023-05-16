@@ -1,6 +1,6 @@
 // Copied from https://github.com/michaellzc/better-opn#readme
 
-import {exec} from 'child_process';
+import {exec} from 'node:child_process';
 import type {Writable} from 'stream';
 import open = require('open');
 
