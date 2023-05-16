@@ -1,25 +1,20 @@
-import execa from 'execa';
 import type {DownloadMap} from './assets/download-map';
 import {getAudioChannelsAndDuration} from './assets/get-audio-channels';
 import type {MediaAsset} from './assets/types';
 import {calculateFfmpegFilter} from './calculate-ffmpeg-filters';
-import type {FfmpegExecutable} from './ffmpeg-executable';
+import {callFf} from './call-ffmpeg';
 import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
-import {getExecutableBinary} from './ffmpeg-flags';
 import {pLimit} from './p-limit';
 import {resolveAssetSrc} from './resolve-asset-src';
 import {DEFAULT_SAMPLE_RATE} from './sample-rate';
 import type {ProcessedTrack} from './stringify-ffmpeg-filter';
 
 type Options = {
-	ffmpegExecutable: FfmpegExecutable;
-	ffprobeExecutable: FfmpegExecutable;
 	outName: string;
 	asset: MediaAsset;
 	expectedFrames: number;
 	fps: number;
 	downloadMap: DownloadMap;
-	remotionRoot: string;
 };
 
 export type PreprocessedAudioTrack = {
@@ -28,20 +23,15 @@ export type PreprocessedAudioTrack = {
 };
 
 const preprocessAudioTrackUnlimited = async ({
-	ffmpegExecutable,
-	ffprobeExecutable,
 	outName,
 	asset,
 	expectedFrames,
 	fps,
 	downloadMap,
-	remotionRoot,
 }: Options): Promise<PreprocessedAudioTrack | null> => {
 	const {channels, duration} = await getAudioChannelsAndDuration(
 		downloadMap,
-		resolveAssetSrc(asset.src),
-		ffprobeExecutable,
-		remotionRoot
+		resolveAssetSrc(asset.src)
 	);
 
 	const filter = calculateFfmpegFilter({
@@ -67,10 +57,7 @@ const preprocessAudioTrackUnlimited = async ({
 		['-y', outName],
 	].flat(2);
 
-	await execa(
-		await getExecutableBinary(ffmpegExecutable, remotionRoot, 'ffmpeg'),
-		args
-	);
+	await callFf('ffmpeg', args);
 
 	cleanup();
 	return {outName, filter};

@@ -39,6 +39,7 @@ import type {
 import {EventEmitter} from './EventEmitter';
 import {EVALUATION_SCRIPT_URL, ExecutionContext} from './ExecutionContext';
 import type {HTTPResponse} from './HTTPResponse';
+import {isTargetClosedErr} from './is-target-closed-err';
 import type {JSHandle} from './JSHandle';
 import type {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import {LifecycleWatcher} from './LifecycleWatcher';
@@ -160,11 +161,7 @@ export class FrameManager extends EventEmitter {
 			]);
 		} catch (error) {
 			// The target might have been closed before the initialization finished.
-			if (
-				isErrorLike(error) &&
-				(error.message.includes('Target closed') ||
-					error.message.includes('Session closed'))
-			) {
+			if (isErrorLike(error) && isTargetClosedErr(error)) {
 				return;
 			}
 

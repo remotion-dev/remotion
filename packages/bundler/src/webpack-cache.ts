@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 type Environment = 'development' | 'production';
 
@@ -62,12 +62,9 @@ const remotionCacheLocation = (
 };
 
 export const clearCache = (remotionRoot: string) => {
-	return (fs.promises.rm ?? fs.promises.rmdir)(
-		getWebpackCacheDir(remotionRoot),
-		{
-			recursive: true,
-		}
-	);
+	return fs.promises.rm(getWebpackCacheDir(remotionRoot), {
+		recursive: true,
+	});
 };
 
 const getPrefix = (environment: Environment) => {

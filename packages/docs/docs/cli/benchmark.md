@@ -49,18 +49,6 @@ _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--crf)
 
-### `--ffmpeg-executable`
-
-_optional_
-
-Inherited from [`npx remotion render`](/docs/cli/render#--ffmpeg-executable)
-
-### `--ffprobe-executable`
-
-_optional_
-
-Inherited from [`npx remotion render`](/docs/cli/render#--ffprobe-executable)
-
 ### `--frames`
 
 _optional_
@@ -91,11 +79,17 @@ _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--prores-profile)
 
-### `--quality`
+### `--jpeg-quality`
 
-_optional_
+_optional, available from v4.0.0_
 
-Inherited from [`npx remotion render`](/docs/cli/render#--quality)
+Inherited from [`npx remotion render`](/docs/cli/render#--jpeg-quality)
+
+### ~~`--quality`~~
+
+_optional, removed in v4.0.0_
+
+Renamed to `--jpeg-quality`.
 
 ### `--log`
 
@@ -210,3 +204,15 @@ Inherited from [`npx remotion render`](/docs/cli/render#--video-bitrate)
 _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--audio-bitrate)
+
+### ~~`--ffmpeg-executable`~~
+
+_optional, removed in v4.0_
+
+Inherited from [`npx remotion render`](/docs/cli/render#--ffmpeg-executable)
+
+### ~~`--ffprobe-executable`~~
+
+_optional, removed in v4.0_
+
+Inherited from [`npx remotion render`](/docs/cli/render#--ffprobe-executable)

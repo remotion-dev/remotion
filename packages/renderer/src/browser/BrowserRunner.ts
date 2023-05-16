@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import * as childProcess from 'child_process';
-import * as fs from 'fs';
+import * as childProcess from 'node:child_process';
+import * as fs from 'node:fs';
 import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
 import {assert} from './assert';
@@ -91,8 +91,14 @@ export class BrowserRunner {
 			}
 		);
 		if (dumpio) {
-			this.proc.stderr?.pipe(process.stderr);
-			this.proc.stdout?.pipe(process.stdout);
+			this.proc.stdout?.on('data', (d) => {
+				process.stdout.write(options.indentationString);
+				process.stdout.write(d.toString().trimStart());
+			});
+			this.proc.stderr?.on('data', (d) => {
+				process.stderr.write(options.indentationString);
+				process.stderr.write(d.toString().trimStart());
+			});
 		}
 
 		this.#closed = false;

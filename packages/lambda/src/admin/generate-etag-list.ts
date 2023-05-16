@@ -1,5 +1,5 @@
-import crypto from 'crypto';
-import {writeFileSync} from 'fs';
+import crypto from 'node:crypto';
+import {writeFileSync} from 'node:fs';
 
 const md5 = (data: string) =>
 	crypto.createHash('md5').update(data).digest('hex');

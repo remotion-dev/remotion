@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
-import fs, {createWriteStream} from 'fs';
-import os from 'os';
-import path from 'path';
+import fs, {createWriteStream} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
@@ -51,7 +51,7 @@ test('Should make a transparent video', async () => {
 			pixelFormat: 'yuva420p',
 			privacy: 'public',
 			proResProfile: undefined,
-			quality: undefined,
+			jpegQuality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
 			numberOfGifLoops: null,
@@ -104,10 +104,7 @@ test('Should make a transparent video', async () => {
 	await new Promise<void>((resolve) => {
 		file.on('close', () => resolve());
 	});
-	const probe = await RenderInternals.execa(
-		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
-		[out]
-	);
+	const probe = await RenderInternals.callFf('ffprobe', [out]);
 	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
 	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
 	expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);

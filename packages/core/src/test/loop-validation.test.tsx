@@ -6,6 +6,7 @@ import type {ComponentType} from 'react';
 import React, {useContext} from 'react';
 import {renderToString} from 'react-dom/server';
 import {describe, expect, test} from 'vitest';
+import {z} from 'zod';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {CompositionManager} from '../CompositionManager.js';
 import {Loop} from '../loop/index.js';
@@ -40,6 +41,7 @@ const Wrapper: React.FC<{
 								defaultProps: undefined,
 								folderName: null,
 								parentFolderName: null,
+								schema: z.any(),
 							},
 						],
 						currentComposition: 'markup',

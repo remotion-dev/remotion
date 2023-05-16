@@ -1,4 +1,5 @@
-import React, {createRef, useImperativeHandle, useState} from 'react';
+import React, {useContext} from 'react';
+import {PreviewServerConnectionCtx} from '../../helpers/client-id';
 
 const container: React.CSSProperties = {
 	position: 'fixed',
@@ -31,35 +32,15 @@ const inlineCode: React.CSSProperties = {
 	fontFamily: 'monospace',
 };
 
-export const serverDisconnectedRef = createRef<{
-	setServerDisconnected: () => void;
-	setServerConnected: () => void;
-}>();
-
 let pageIsGoingToReload = false;
 window.addEventListener('beforeunload', () => {
 	pageIsGoingToReload = true;
 });
 
 export const ServerDisconnected: React.FC = () => {
-	const [serverDisconnected, setServerDisconnected] = useState(false);
+	const ctx = useContext(PreviewServerConnectionCtx);
 
-	useImperativeHandle(
-		serverDisconnectedRef,
-		() => {
-			return {
-				setServerDisconnected: () => {
-					setServerDisconnected(true);
-				},
-				setServerConnected: () => {
-					setServerDisconnected(false);
-				},
-			};
-		},
-		[]
-	);
-
-	if (!serverDisconnected) {
+	if (ctx.type !== 'disconnected') {
 		return null;
 	}
 

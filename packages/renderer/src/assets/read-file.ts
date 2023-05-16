@@ -1,5 +1,5 @@
-import http from 'http';
 import https from 'https';
+import http from 'node:http';
 import {redirectStatusCodes} from '../redirect-status-codes';
 
 const getClient = (url: string) => {

@@ -36,11 +36,11 @@ test("Legacy SSR way of rendering videos should still work", async () => {
   const outPath = path.join(tmpDir, "out.mp4");
 
   const { assetsInfo } = await renderFrames({
-    config: reactSvg,
+    composition: reactSvg,
     imageFormat: "jpeg",
     inputProps: {},
     onFrameUpdate: () => undefined,
-    webpackBundle: "https://gleaming-wisp-de5d2a.netlify.app/",
+    serveUrl: "https://gleaming-wisp-de5d2a.netlify.app/",
     concurrency: null,
     frameRange: [0, 10],
     outputDir: framesDir,
@@ -58,10 +58,7 @@ test("Legacy SSR way of rendering videos should still work", async () => {
     codec: "h264",
   });
   expect(fs.existsSync(outPath)).toBe(true);
-  const probe = await execa(
-    await RenderInternals.getExecutableBinary(null, process.cwd(), "ffprobe"),
-    [outPath]
-  );
+  const probe = await RenderInternals.callFf("ffprobe", [outPath]);
   expect(probe.stderr).toMatch(/Video: h264/);
 
   RenderInternals.deleteDirectory(framesDir);

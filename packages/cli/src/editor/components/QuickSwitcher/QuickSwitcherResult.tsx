@@ -1,8 +1,8 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
 import {getBackgroundFromHoverState, LIGHT_TEXT} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {FilmIcon} from '../../icons/film';
 import {StillIcon} from '../../icons/still';
+import {FilmIcon} from '../../icons/video';
 import {Spacing} from '../layout';
 
 type QuickSwitcherResultDetail =
@@ -94,6 +94,8 @@ export const QuickSwitcherResult: React.FC<{
 			commandCtrlKey: false,
 			event: 'keydown',
 			preventDefault: true,
+			// Input will be focused while sleection
+			triggerIfInputFieldFocused: true,
 		});
 
 		return () => {
@@ -137,9 +139,12 @@ export const QuickSwitcherResult: React.FC<{
 		<div ref={ref} key={result.id} style={style} onClick={result.onSelected}>
 			{result.type === 'composition' ? (
 				result.compositionType === 'still' ? (
-					<StillIcon style={iconStyle} />
+					<StillIcon
+						color={selected ? 'white' : LIGHT_TEXT}
+						style={iconStyle}
+					/>
 				) : (
-					<FilmIcon style={iconStyle} />
+					<FilmIcon color={selected ? 'white' : LIGHT_TEXT} style={iconStyle} />
 				)
 			) : null}
 			<Spacing x={1} />
