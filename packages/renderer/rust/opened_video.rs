@@ -4,6 +4,7 @@ use std::sync::{Arc, Mutex};
 use crate::{
     errors::ErrorWithBacktrace,
     frame_cache::FrameCache,
+    global_printer::_print_verbose,
     opened_stream::{self, OpenedStream},
 };
 extern crate ffmpeg_next as remotionffmpeg;
@@ -28,6 +29,11 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, ErrorWith
         time_base,
         src: src.to_string(),
     };
+
+    _print_verbose(&format!(
+        "Opening video {} with time base {} and fps {}",
+        src, time_base, fps
+    ))?;
 
     Ok(opened_video)
 }
