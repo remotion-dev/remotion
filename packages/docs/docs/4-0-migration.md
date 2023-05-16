@@ -193,3 +193,23 @@ The `WebpackOverrideFn` type useful for overriding the Webpack config in the con
 **How to upgrade:**
 
 If you encoded the path by yourself until now, don't do so anymore to avoid double encoding.
+
+## The `TComposition` type now includes a Zod schema
+
+The `TComposition` type now has two generic arguments:
+
+```ts
+export type TComposition<Schema extends z.ZodTypeAny, Props> = {};
+```
+
+If you need a type for a generic composition, you can use the new `AnyComposition` type:
+
+```ts
+import { AnyComposition } from "remotion";
+
+const composition: AnyComposition = {
+  width: 1920,
+  height: 1080,
+  // ...
+};
+```
