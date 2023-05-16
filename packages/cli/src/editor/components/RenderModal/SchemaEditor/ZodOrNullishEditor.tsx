@@ -1,4 +1,4 @@
-import {useCallback} from 'react';
+import {useCallback, useState} from 'react';
 import type {z} from 'zod';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Checkbox} from '../../Checkbox';
@@ -12,6 +12,11 @@ import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
+
+type LocalState = {
+	value: unknown;
+	zodValidation: z.SafeParseReturnType<unknown, unknown>;
+};
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -65,11 +70,33 @@ export const ZodOrNullishEditor: React.FC<{
 
 	const isChecked = value === nullishValue;
 
+	const [localNonNullishValueValue, setLocalNonNullishValue] =
+		useState<LocalState>(() => {
+			return {
+				value,
+				zodValidation:
+					value === nullishValue
+						? {success: true, data: value}
+						: schema.safeParse(value),
+			};
+		});
+
 	const onValueChange: UpdaterFunction<unknown> = useCallback(
 		(updater) => {
+			setLocalNonNullishValue((oldState) => {
+				const newValue = updater(oldState.value);
+				if (newValue === nullishValue) {
+					return oldState;
+				}
+
+				return {
+					value: newValue,
+					zodValidation: schema.safeParse(newValue),
+				};
+			});
 			setValue(updater);
 		},
-		[setValue]
+		[nullishValue, schema, setValue]
 	);
 
 	const onCheckBoxChange: React.ChangeEventHandler<HTMLInputElement> =
@@ -77,10 +104,27 @@ export const ZodOrNullishEditor: React.FC<{
 			(e) => {
 				const val = e.target.checked
 					? nullishValue
-					: createZodValues(schema, z, zodTypes);
+					: localNonNullishValueValue.value === nullishValue
+					? createZodValues(schema, z, zodTypes)
+					: localNonNullishValueValue.value;
+
+				if (val !== nullishValue) {
+					setLocalNonNullishValue({
+						value: val,
+						zodValidation: schema.safeParse(val),
+					});
+				}
+
 				onValueChange(() => val);
 			},
-			[nullishValue, onValueChange, schema, z, zodTypes]
+			[
+				localNonNullishValueValue,
+				nullishValue,
+				onValueChange,
+				schema,
+				z,
+				zodTypes,
+			]
 		);
 
 	const reset = useCallback(() => {
