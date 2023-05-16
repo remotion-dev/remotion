@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-lambda.png
+image: /generated/articles-docs-cloudrun.png
 id: cloudrun
 sidebar_label: Overview
 title: "@remotion/cloudrun"

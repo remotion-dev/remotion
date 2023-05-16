@@ -7,6 +7,7 @@ import {validateProjectID} from '../shared/validate-project-id';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
 export type CheckIfServiceExistsInput = {
+	remotionVersion: string;
 	memoryLimit: string;
 	cpuLimit: string;
 	timeoutSeconds: number;
@@ -17,23 +18,31 @@ export type CheckIfServiceExistsInput = {
 /**
  * @description Lists Cloud Run services in the project, and checks for a matching name.
  * @link https://remotion.dev/docs/lambda/deployfunction
- * @param options.projectID GCP Project ID to deploy the Cloud Run service to.
- * @param options.serviceNameToCheck The name of the Cloud Run service.
- * @param options.region The region you want to deploy your Cloud Run service to.
+ * @param projectID GCP Project ID to deploy the Cloud Run service to.
+ * @param serviceNameToCheck The name of the Cloud Run service.
+ * @param region The region you want to deploy your Cloud Run service to.
  * @returns {Promise<protos.google.cloud.run.v2.IService>} If the service exists, the service object will be returned, otherwise false.
  */
-export const checkIfServiceExists = async (
-	options: CheckIfServiceExistsInput
-): Promise<protos.google.cloud.run.v2.IService | undefined> => {
-	validateGcpRegion(options.region);
-	validateProjectID(options.projectID);
+export const checkIfServiceExists = async ({
+	remotionVersion,
+	memoryLimit,
+	cpuLimit,
+	timeoutSeconds,
+	projectID,
+	region,
+}: CheckIfServiceExistsInput): Promise<
+	protos.google.cloud.run.v2.IService | undefined
+> => {
+	validateGcpRegion(region);
+	validateProjectID(projectID);
 
-	const parent = `projects/${options.projectID}/locations/${options.region}`;
+	const parent = `projects/${projectID}/locations/${region}`;
 
 	const serviceName = generateServiceName({
-		memoryLimit: options.memoryLimit,
-		cpuLimit: options.cpuLimit,
-		timeoutSeconds: options.timeoutSeconds,
+		remotionVersion,
+		memoryLimit,
+		cpuLimit,
+		timeoutSeconds,
 	});
 
 	const cloudRunClient = getCloudRunClient();

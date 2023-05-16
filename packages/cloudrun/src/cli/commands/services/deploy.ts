@@ -4,7 +4,7 @@ import {allowUnauthenticatedAccess} from '../../../api/cloud-run-allow-unauthent
 import {deployService} from '../../../api/deploy-service';
 import {generateServiceName} from '../../../shared/generate-service-name';
 import {validateGcpRegion} from '../../../shared/validate-gcp-region';
-import {validateRemotionVersion} from '../../../shared/validate-remotion-version';
+import {validateImageRemotionVersion} from '../../../shared/validate-image-remotion-version';
 import {parsedCloudrunCli} from '../../args';
 import {getGcpRegion} from '../../get-gcp-region';
 import {quit} from '../../helpers/quit';
@@ -15,7 +15,7 @@ export const CLOUD_RUN_DEPLOY_SUBCOMMAND = 'deploy';
 export const cloudRunDeploySubcommand = async () => {
 	const region = getGcpRegion();
 	const projectID = process.env.REMOTION_GCP_PROJECT_ID as string;
-	const remotionVersion = VERSION;
+	const remotionVersion = parsedCloudrunCli['remotion-version'] ?? VERSION;
 	const allowUnauthenticated =
 		parsedCloudrunCli['allow-unauthenticated'] ?? false;
 	let memoryLimit = parsedCloudrunCli.memoryLimit ?? '512Mi';
@@ -46,7 +46,7 @@ Validating Deployment of Cloud Run Service:
 	}
 
 	validateGcpRegion(region);
-	validateRemotionVersion(remotionVersion);
+	await validateImageRemotionVersion(remotionVersion);
 
 	if (projectID === undefined) {
 		Log.error(`REMOTION_GCP_PROJECT_ID not found in the .env file.`);
@@ -62,6 +62,7 @@ Validating Deployment of Cloud Run Service:
 	try {
 		const deployResult = await deployService({
 			remotionVersion,
+			performImageVersionValidation: false, // this is already performed above
 			memoryLimit,
 			cpuLimit,
 			timeoutSeconds,
@@ -133,6 +134,7 @@ Service Already Deployed! Check GCP Console for Cloud Run URL.
 					memoryLimit,
 					cpuLimit,
 					timeoutSeconds,
+					remotionVersion,
 				})}.`
 			)
 		);

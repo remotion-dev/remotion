@@ -8,7 +8,7 @@ crumb: "Cloudrun"
 
 import {GcpRegionList} from '../../components/cloudrun/regions.tsx';
 
-Before going live with Remotion Cloud Run, you need to think about into which GCP region you are deploying your service and bucket.
+Before going live with Remotion Cloud Run, you need to think about into which GCP region you are deploying your service and bucket (which will hold your sites and renders).
 
 This document explains how to select a region and which considerations you need to make.
 
