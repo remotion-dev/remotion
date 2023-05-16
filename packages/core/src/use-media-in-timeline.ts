@@ -113,7 +113,7 @@ export const useMediaInTimeline = ({
 			nonce,
 			startMediaFrom: 0 - startsAt,
 			doesVolumeChange,
-			showLoopTimesInTimeline: undefined,
+			loopDisplay: undefined,
 			playbackRate,
 		});
 		return () => {
