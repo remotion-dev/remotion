@@ -193,3 +193,11 @@ The `WebpackOverrideFn` type useful for overriding the Webpack config in the con
 **How to upgrade:**
 
 If you encoded the path by yourself until now, don't do so anymore to avoid double encoding.
+
+## `getCanExtractFramesFast()` function has been removed
+
+The [`getCanExtractFramesFast()`](/docs/renderer/get-can-extract-frames-fast) function has been removed, since frames can always be extracted fast now using `<OffthreadVideo>`.
+
+**How to upgrade:**
+
+You can now remove your re-encoding logic!
