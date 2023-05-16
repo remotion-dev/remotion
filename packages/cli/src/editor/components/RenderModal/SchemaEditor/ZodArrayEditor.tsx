@@ -16,6 +16,7 @@ import {createZodValues} from './create-zod-values';
 import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
+import type {UpdaterFunction} from './ZodSwitch';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -37,8 +38,8 @@ export const ZodArrayEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: unknown[];
 	defaultValue: unknown[];
-	setValue: React.Dispatch<React.SetStateAction<unknown[]>>;
-	onSave: (updater: (oldState: unknown[]) => unknown[]) => void;
+	setValue: UpdaterFunction<unknown[]>;
+	onSave: UpdaterFunction<unknown[]>;
 	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);

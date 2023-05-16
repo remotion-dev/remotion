@@ -3,6 +3,7 @@ import {Checkbox} from '../../Checkbox';
 import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -11,7 +12,7 @@ const fullWidth: React.CSSProperties = {
 export const ZodBooleanEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: boolean;
-	setValue: React.Dispatch<React.SetStateAction<boolean>>;
+	setValue: UpdaterFunction<boolean>;
 	compact: boolean;
 	defaultValue: boolean;
 	onSave: (updater: (oldNum: unknown) => boolean) => void;
@@ -31,7 +32,7 @@ export const ZodBooleanEditor: React.FC<{
 }) => {
 	const onValueChange = useCallback(
 		(newValue: boolean) => {
-			setValue(newValue);
+			setValue(() => newValue);
 		},
 		[setValue]
 	);

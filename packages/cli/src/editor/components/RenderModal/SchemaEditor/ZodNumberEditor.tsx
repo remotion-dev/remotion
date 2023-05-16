@@ -6,6 +6,7 @@ import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 
 type LocalState = {
 	value: string;
@@ -74,7 +75,7 @@ export const ZodNumberEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: number;
-	setValue: React.Dispatch<React.SetStateAction<number>>;
+	setValue: UpdaterFunction<number>;
 	compact: boolean;
 	defaultValue: number;
 	onSave: (updater: (oldNum: unknown) => number) => void;
@@ -109,7 +110,7 @@ export const ZodNumberEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(Number(newValue));
+				setValue(() => Number(newValue));
 			}
 		},
 		[schema, setValue]
@@ -124,7 +125,7 @@ export const ZodNumberEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(newValue);
+				setValue(() => newValue);
 			}
 		},
 		[schema, setValue]

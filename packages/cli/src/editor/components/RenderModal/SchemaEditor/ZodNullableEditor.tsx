@@ -9,7 +9,7 @@ export const ZodNullableEditor: React.FC<{
 	value: unknown;
 	defaultValue: unknown;
 	schema: z.ZodTypeAny;
-	setValue: React.Dispatch<React.SetStateAction<unknown>>;
+	setValue: (updater: (oldNum: unknown) => unknown) => void;
 	onSave: (updater: (oldNum: unknown) => unknown) => void;
 	onRemove: null | (() => void);
 	saving: boolean;

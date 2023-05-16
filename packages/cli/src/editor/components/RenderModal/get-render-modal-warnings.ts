@@ -42,7 +42,15 @@ const getCannotSaveDefaultProps = (canSaveDefaultProps: TypeCanSaveState) => {
 
 const customDateUsed = (used: boolean | undefined, inJSONEditor: boolean) => {
 	if (used && inJSONEditor) {
-		return "There is a Date in the schema which can't be serialized. It has been converted into a string.";
+		return 'There is a Date in the schema which was serialized. Note the custom syntax.';
+	}
+
+	return null;
+};
+
+const staticFileUsed = (used: boolean | undefined, inJSONEditor: boolean) => {
+	if (used && inJSONEditor) {
+		return 'There is a staticFile() in the schema which was serialized. Note the custom syntax.';
 	}
 
 	return null;
@@ -52,12 +60,14 @@ export const getRenderModalWarnings = ({
 	cliProps,
 	canSaveDefaultProps,
 	isCustomDateUsed,
+	customFileUsed,
 	inJSONEditor,
 	propsEditType,
 }: {
 	cliProps: unknown;
 	canSaveDefaultProps: TypeCanSaveState;
-	isCustomDateUsed: boolean | undefined;
+	isCustomDateUsed: boolean;
+	customFileUsed: boolean;
 	inJSONEditor: boolean;
 	propsEditType: PropsEditType;
 }) => {
@@ -65,5 +75,6 @@ export const getRenderModalWarnings = ({
 		getInputPropsWarning({cliProps, propsEditType}),
 		getCannotSaveDefaultProps(canSaveDefaultProps),
 		customDateUsed(isCustomDateUsed, inJSONEditor),
+		staticFileUsed(customFileUsed, inJSONEditor),
 	].filter(truthy);
 };

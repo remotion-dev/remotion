@@ -12,7 +12,8 @@ import type {
 	RenderJob,
 } from '../../../preview-server/render-queue/job';
 import type {RequiredChromiumOptions} from '../../../required-chromium-options';
-import {serializeJSONWithDate} from '../RenderModal/SchemaEditor/date-serialization';
+import type {EnumPath} from '../RenderModal/SchemaEditor/extract-enum-json-paths';
+import {serializeJSONWithDate} from '../RenderModal/SchemaEditor/input-props-serialization';
 
 const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
@@ -215,12 +216,17 @@ export const cancelRenderJob = (job: RenderJob) => {
 
 export const updateDefaultProps = (
 	compositionId: string,
-	defaultProps: unknown
+	defaultProps: unknown,
+	enumPaths: EnumPath[]
 ) => {
 	return callApi('/api/update-default-props', {
 		compositionId,
-		defaultProps: serializeJSONWithDate(defaultProps, undefined)
-			.serializedString,
+		defaultProps: serializeJSONWithDate({
+			data: defaultProps,
+			indent: undefined,
+			staticBase: window.remotion_staticBase,
+		}).serializedString,
+		enumPaths,
 	});
 };
 

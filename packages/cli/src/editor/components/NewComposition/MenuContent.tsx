@@ -51,7 +51,7 @@ export const MenuContent: React.FC<{
 	}
 
 	const [selectedItem, setSelectedItem] = useState<string | null>(
-		typeof preselectIndex === 'number'
+		typeof preselectIndex === 'number' && preselectIndex >= 0
 			? (values[preselectIndex].id as string)
 			: null
 	);

@@ -17,6 +17,7 @@ test('Should be able to update default props', async () => {
 		input: file,
 		compositionId: 'Comp3',
 		newDefaultProps: {abc: 'def', newDate: new Date('2022-01-02')},
+		enumPaths: [],
 	});
 
 	expect(update).toBe(expected);
