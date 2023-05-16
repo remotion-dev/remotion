@@ -130,7 +130,7 @@ impl FrameCache {
 
                 return Ok(Some(self.items[i].id));
             }
-            let distance = (self.items[i].asked_time - time as i64).abs();
+            let distance = (self.items[i].resolved_dts - time as i64).abs();
             // LTE: IF multiple items have the same distance, we take the last one.
             // This is because the last frame is more likely to have been decoded
             if distance <= best_distance as i64 {
