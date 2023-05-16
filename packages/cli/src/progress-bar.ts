@@ -6,7 +6,6 @@ import {
 	getFileSizeDownloadBar,
 	makeMultiDownloadProgress,
 } from './download-progress';
-import {INDENT_TOKEN} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import type {
 	AggregateRenderProgress,
@@ -39,7 +38,7 @@ export const createOverwriteableCliOutput = (options: {
 						up
 							.split('\n')
 							.map((l) => {
-								return `${INDENT_TOKEN} ${l}`;
+								return `${RenderInternals.INDENT_TOKEN} ${l}`;
 							})
 							.join('\n') + '\n'
 					);
@@ -65,7 +64,7 @@ export const createOverwriteableCliOutput = (options: {
 					diff.update(
 						up
 							.split('\n')
-							.map((l) => `${INDENT_TOKEN} ${l}`)
+							.map((l) => `${RenderInternals.INDENT_TOKEN} ${l}`)
 							.join('\n')
 					)
 				);
