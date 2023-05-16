@@ -215,3 +215,5 @@ Config.overrideWebpackConfig((config) => {
   };
 });
 ```
+
+This is automatically applied in [`@remotion/skia`](/docs/skia).
