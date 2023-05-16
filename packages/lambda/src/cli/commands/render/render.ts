@@ -151,6 +151,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
+		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({logLevel}),
 	});
 
 	Log.info(
@@ -321,7 +322,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					stack: err.stack,
 					stackFrame: frames,
 				});
-				await CliInternals.handleCommonError(errorWithStackFrame);
+				await CliInternals.handleCommonError(errorWithStackFrame, logLevel);
 			}
 
 			quit(1);

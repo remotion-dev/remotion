@@ -177,6 +177,7 @@ const innerRenderStill = async ({
 			shouldDumpIo: dumpBrowserLogs,
 			chromiumOptions,
 			forceDeviceScaleFactor: scale ?? 1,
+			indent: false,
 		}));
 	const page = await browserInstance.newPage();
 	await page.setViewport({

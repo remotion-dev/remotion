@@ -18,6 +18,7 @@ import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
 import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
+import {getLogLevel, Log} from '../logger';
 import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
@@ -83,12 +84,16 @@ export class BrowserRunner {
 		);
 		if (dumpio) {
 			this.proc.stdout?.on('data', (d) => {
-				process.stdout.write(options.indentationString);
-				process.stdout.write(d.toString().trimStart());
+				Log.verboseAdvanced(
+					{indent: options.indent, logLevel: getLogLevel(), tag: 'chrome'},
+					d.toString().trim()
+				);
 			});
 			this.proc.stderr?.on('data', (d) => {
-				process.stderr.write(options.indentationString);
-				process.stderr.write(d.toString().trimStart());
+				Log.verboseAdvanced(
+					{indent: options.indent, logLevel: getLogLevel(), tag: 'chrome'},
+					d.toString().trim()
+				);
 			});
 		}
 

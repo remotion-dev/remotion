@@ -27,6 +27,7 @@ import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
 import {selectComposition} from './select-composition';
+import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
 import {upgrade} from './upgrade';
 import {
@@ -125,4 +126,5 @@ export const CliInternals = {
 	printCompositions,
 	getFinalOutputCodec,
 	listOfRemotionPackages,
+	shouldUseNonOverlayingLogger,
 };

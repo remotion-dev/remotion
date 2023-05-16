@@ -363,6 +363,7 @@ export const renderMedia = ({
 				signal: cancelPrestitcher.cancelSignal,
 				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
 				videoBitrate: videoBitrate ?? null,
+				indent: options.internal?.indent ?? false,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -519,6 +520,7 @@ export const renderMedia = ({
 					audioBitrate,
 					videoBitrate,
 					audioCodec: audioCodec ?? null,
+					indent: options.internal?.indent ?? false,
 				}),
 				stitchStart,
 			]);

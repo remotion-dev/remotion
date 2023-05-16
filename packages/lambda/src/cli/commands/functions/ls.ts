@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {RenderInternals} from '@remotion/renderer';
 import {getFunctions} from '../../../api/get-functions';
 import {getAwsRegion} from '../../get-aws-region';
 
@@ -15,6 +16,9 @@ export const functionsLsCommand = async () => {
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
+		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
+			logLevel: RenderInternals.getLogLevel(),
+		}),
 	});
 	fetchingOutput.update('Getting functions...');
 
