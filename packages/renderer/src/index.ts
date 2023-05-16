@@ -10,6 +10,7 @@ import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
+import {chalk} from './chalk';
 import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {combineVideos} from './combine-videos';
@@ -43,6 +44,7 @@ import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
 import {validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
+import {Log} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
@@ -171,6 +173,8 @@ export const RenderInternals = {
 	validVideoImageFormats,
 	DEFAULT_STILL_IMAGE_FORMAT,
 	DEFAULT_VIDEO_IMAGE_FORMAT,
+	chalk,
+	Log,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
