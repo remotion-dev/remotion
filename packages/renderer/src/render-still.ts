@@ -58,6 +58,10 @@ type InnerStillOptions = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	indent?: boolean;
 	verbose?: boolean;
 };
 
@@ -173,6 +177,7 @@ const innerRenderStill = async ({
 			shouldDumpIo: dumpBrowserLogs,
 			chromiumOptions,
 			forceDeviceScaleFactor: scale ?? 1,
+			indent: false,
 		}));
 	const page = await browserInstance.newPage();
 	await page.setViewport({
@@ -311,6 +316,7 @@ export const renderStill = (
 			remotionRoot: findRemotionRoot(),
 			concurrency: 1,
 			verbose: options.verbose ?? false,
+			indent: options.indent ?? false,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;

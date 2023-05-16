@@ -54,6 +54,7 @@ export const getBrowserInstance = async (
 		browserExecutable: execPath,
 		shouldDumpIo,
 		chromiumOptions: actualChromiumOptions,
+		indent: false,
 	});
 	_browserInstance.on('disconnected', () => {
 		console.log('Browser disconnected / crashed');

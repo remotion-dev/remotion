@@ -83,6 +83,10 @@ type RenderFramesOptions = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	indent?: boolean;
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
@@ -514,6 +518,7 @@ export const renderFrames = (
 			browserExecutable: options.browserExecutable,
 			chromiumOptions: options.chromiumOptions,
 			forceDeviceScaleFactor: options.scale ?? 1,
+			indent: options.indent ?? false,
 		});
 
 	const browserInstance = options.puppeteerInstance ?? makeBrowser();
@@ -552,6 +557,7 @@ export const renderFrames = (
 					remotionRoot: findRemotionRoot(),
 					concurrency: actualConcurrency,
 					verbose: options.verbose ?? false,
+					indent: options.indent ?? false,
 				}),
 				browserInstance,
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {

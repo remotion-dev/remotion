@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 
+import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
@@ -49,6 +50,10 @@ export const sitesCreateSubcommand = async (
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
+		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
+			logLevel: RenderInternals.getLogLevel(),
+		}),
+		indent: false,
 	});
 
 	const multiProgress: {
@@ -77,7 +82,8 @@ export const sitesCreateSubcommand = async (
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
-			].join('\n')
+			].join('\n'),
+			false
 		);
 	};
 

@@ -41,6 +41,7 @@ test(
 			remotionRoot: process.cwd(),
 			concurrency: RenderInternals.getActualConcurrency(null),
 			verbose: false,
+			indent: false,
 		});
 
 		const serveUrl = `http://localhost:${port}`;
@@ -120,6 +121,7 @@ test(
 			remotionRoot: process.cwd(),
 			concurrency: RenderInternals.getActualConcurrency(null),
 			verbose: false,
+			indent: false,
 		});
 
 		const serveUrl = `http://localhost:${port}`;

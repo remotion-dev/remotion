@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {RenderInternals} from '@remotion/renderer';
 import {getFunctions} from '../../../api/get-functions';
 import {getAwsRegion} from '../../get-aws-region';
 
@@ -15,8 +16,12 @@ export const functionsLsCommand = async () => {
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
+		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
+			logLevel: RenderInternals.getLogLevel(),
+		}),
+		indent: false,
 	});
-	fetchingOutput.update('Getting functions...');
+	fetchingOutput.update('Getting functions...', false);
 
 	const functions = await getFunctions({
 		region,
@@ -33,11 +38,12 @@ export const functionsLsCommand = async () => {
 		return;
 	}
 
-	fetchingOutput.update('Getting function info...');
+	fetchingOutput.update('Getting function info...', false);
 
 	const pluralized = functions.length === 1 ? 'function' : 'functions';
 	fetchingOutput.update(
-		`${functions.length} ${pluralized} in the ${region} region`
+		`${functions.length} ${pluralized} in the ${region} region`,
+		true
 	);
 	CliInternals.Log.info();
 	CliInternals.Log.info(
