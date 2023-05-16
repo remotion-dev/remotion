@@ -206,6 +206,7 @@ importers:
 
   packages/cloudrun:
     specifiers:
+      '@google-cloud/artifact-registry': ^2.2.2
       '@google-cloud/functions-framework': ^3.1.3
       '@google-cloud/run': ^0.4.0
       '@google-cloud/storage': ^6.9.1
@@ -225,6 +226,7 @@ importers:
       typescript: 4.7.2
       vitest: 0.24.3
     dependencies:
+      '@google-cloud/artifact-registry': 2.2.2
       '@google-cloud/functions-framework': 3.2.0
       '@google-cloud/run': 0.4.2
       '@google-cloud/storage': 6.10.1
@@ -7509,6 +7511,16 @@ packages:
     resolution: {integrity: sha512-JXdzbRiWclLVoD8sNUjR443VVlYqiYmDVT6rGUEIEHU5YJW0gaVZwV2xgM7D4arkvASqD0IlLUVjHiFuxaftRw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
+
+  /@google-cloud/artifact-registry/2.2.2:
+    resolution: {integrity: sha512-Y00m9sYpTdHuW8miR9B/mdG6sK8aTKZMQ7ATUf4ixr5hrq85vokF9IRE/MzGWpGozjYqVFRJpGkiTs+Lx4lKyw==}
+    engines: {node: '>=12.0.0'}
+    dependencies:
+      google-gax: 3.6.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
 
   /@google-cloud/functions-framework/3.2.0:
     resolution: {integrity: sha512-eFafD4xocXmt3KM1z2X3lARvT2zLuXcw1V+T6xGoOAPfXQDduK77bKpkJx44QCAXh2c8qHYIT6dlSJWu5n5Lmg==}
@@ -21161,6 +21173,7 @@ packages:
   /source-map/0.6.1:
     resolution: {integrity: sha512-UjgapumWlbMhkBgzT7Ykc5YXUT46F0iKu8SGXq0bcwP5dz/h0Plj6enJqjz1Zbq2l5WaqYnrVbwWOWMyF3F47g==}
     engines: {node: '>=0.10.0'}
+    requiresBuild: true
 
   /source-map/0.7.3:
     resolution: {integrity: sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==}

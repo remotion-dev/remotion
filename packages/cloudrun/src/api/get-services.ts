@@ -1,7 +1,8 @@
 import {JWT} from 'google-auth-library';
+import {VERSION} from 'remotion/version';
 import type {GcpRegion} from '../pricing/gcp-regions';
 import {RENDER_SERVICE_PREFIX} from '../shared/constants';
-import {SERVICE_VERSION_STRING} from '../shared/service-version-string';
+import {serviceVersionString} from '../shared/service-version-string';
 import type {ServiceInfo} from './get-service-info';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 import type {IService} from './helpers/IService';
@@ -95,7 +96,9 @@ export const getServices = async (
 	if (options.compatibleOnly) {
 		remotionServices = services.filter((s) => {
 			return s.name?.startsWith(
-				`${parent}/services/${RENDER_SERVICE_PREFIX}--${SERVICE_VERSION_STRING}--`
+				`${parent}/services/${RENDER_SERVICE_PREFIX}--${serviceVersionString(
+					VERSION
+				)}--`
 			);
 		});
 	} else {

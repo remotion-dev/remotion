@@ -1,5 +1,3 @@
-import {VERSION} from 'remotion/version';
-
-export const SERVICE_VERSION_STRING = VERSION.replace(/\./g, '-')
-	.replace(/\+/g, '-')
-	.substring(0, 10);
+export const serviceVersionString = (version: string) => {
+	return version.replace(/\./g, '-').replace(/\+/g, '-').substring(0, 10);
+};
