@@ -194,6 +194,30 @@ The `WebpackOverrideFn` type useful for overriding the Webpack config in the con
 
 If you encoded the path by yourself until now, don't do so anymore to avoid double encoding.
 
+## `react-native` no longer aliases to `react-native-web`
+
+Remotion no longer aliases `react-native` automatically to `react-native-web`.  
+If you are using `react-native-web`, override the Webpack config like this to restore the previous behavior:
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+
+Config.overrideWebpackConfig((config) => {
+  return {
+    ...config,
+    resolve: {
+      ...config.resolve,
+      alias: {
+        ...config.resolve?.alias,
+        "react-native$": "react-native-web",
+      },
+    },
+  };
+});
+```
+
+This is automatically applied in [`@remotion/skia`](/docs/skia).
+
 ## The `TComposition` type now includes a Zod schema
 
 The `TComposition` type now has two generic arguments:
