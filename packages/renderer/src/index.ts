@@ -1,24 +1,25 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
-import {getDefaultAudioCodec, validAudioCodecs} from './audio-codec';
+import {
+	getDefaultAudioCodec,
+	supportedAudioCodecs,
+	validAudioCodecs,
+} from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {combineVideos} from './combine-videos';
+import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
-import {
-	ffmpegHasFeature,
-	getExecutableBinary,
-	getFfmpegVersion,
-} from './ffmpeg-flags';
-import {defaultFileExtensionMap, supportedAudioCodecs} from './file-extensions';
+import {defaultFileExtensionMap} from './file-extensions';
 import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
@@ -32,22 +33,30 @@ import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
-import {validImageFormats} from './image-format';
+import {
+	DEFAULT_STILL_IMAGE_FORMAT,
+	DEFAULT_VIDEO_IMAGE_FORMAT,
+	validStillImageFormats,
+	validVideoImageFormats,
+} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
+import {validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {mimeContentType, mimeLookup} from './mime-types';
 import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
-import {validateQuality} from './quality';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {tmpDir} from './tmp-dir';
-import {validateConcurrency} from './validate-concurrency';
+import {
+	getMaxConcurrency,
+	getMinConcurrency,
+	validateConcurrency,
+} from './validate-concurrency';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import {validateFfmpeg} from './validate-ffmpeg';
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
@@ -66,34 +75,26 @@ export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
 export {Codec, CodecOrUndefined} from './codec';
 export {Crf} from './crf';
-export {
-	ensureFfmpeg,
-	EnsureFfmpegOptions,
-	ensureFfprobe,
-} from './ensure-ffmpeg';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
-export {FfmpegExecutable} from './ffmpeg-executable';
-export {FfmpegVersion} from './ffmpeg-flags';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
-export {getCanExtractFramesFast} from './get-can-extract-frames-fast';
 export {getCompositions} from './get-compositions';
 export {
 	ImageFormat,
 	StillImageFormat,
 	validateSelectedPixelFormatAndImageFormatCombination,
-	validImageFormats,
+	VideoImageFormat,
 } from './image-format';
 export type {LogLevel} from './log-level';
 export {CancelSignal, makeCancelSignal} from './make-cancel-signal';
 export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
+export {RemotionOption} from './options/option';
 export {PixelFormat} from './pixel-format';
 export {ProResProfile} from './prores-profile';
 export {renderFrames} from './render-frames';
 export {
-	OnSlowestFrames,
 	renderMedia,
 	RenderMediaOnProgress,
 	RenderMediaOptions,
@@ -106,12 +107,9 @@ export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
-
 export const RenderInternals = {
 	ensureLocalBrowser,
-	ffmpegHasFeature,
 	getActualConcurrency,
-	validateFfmpeg,
 	serveStatic,
 	validateEvenDimensionsWithCodec,
 	getFileExtensionFromCodec,
@@ -142,10 +140,9 @@ export const RenderInternals = {
 	validateFrameRange,
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
-	validImageFormats,
 	validCodecs,
 	DEFAULT_PIXEL_FORMAT,
-	validateQuality,
+	validateJpegQuality,
 	DEFAULT_TIMEOUT,
 	DEFAULT_CODEC,
 	isAudioCodec,
@@ -157,16 +154,23 @@ export const RenderInternals = {
 	cleanDownloadMap,
 	convertToPositiveFrameIndex,
 	findRemotionRoot,
-	getExecutableBinary,
 	validateBitrate,
-	getFfmpegVersion,
 	combineVideos,
+	getMinConcurrency,
+	getMaxConcurrency,
 	getDefaultAudioCodec,
 	validAudioCodecs,
 	defaultFileExtensionMap,
 	supportedAudioCodecs,
 	makeFileExtensionMap,
 	defaultCodecsForFileExtension,
+	getExecutablePath,
+	callFf,
+	dynamicLibraryPathOptions,
+	validStillImageFormats,
+	validVideoImageFormats,
+	DEFAULT_STILL_IMAGE_FORMAT,
+	DEFAULT_VIDEO_IMAGE_FORMAT,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

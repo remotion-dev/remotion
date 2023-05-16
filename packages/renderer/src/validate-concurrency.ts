@@ -16,15 +16,17 @@ export const validateConcurrency = (value: unknown, setting: string) => {
 			throw new Error(setting + ' must be an integer, but is ' + value);
 		}
 
-		if (value < 1) {
-			throw new Error(setting + ' must be at least 1, but is ' + value);
+		if (value < getMinConcurrency()) {
+			throw new Error(
+				`${setting} must be at least ${getMinConcurrency()}, but is ${JSON.stringify(
+					value
+				)}`
+			);
 		}
 
-		if (value > require('os').cpus().length) {
+		if (value > getMaxConcurrency()) {
 			throw new Error(
-				`${setting} is set higher than the amount of CPU cores available. Available CPU cores: ${
-					require('os').cpus().length
-				}, value set: ${value}`
+				`${setting} is set higher than the amount of CPU cores available. Available CPU cores: ${getMaxConcurrency()}, value set: ${value}`
 			);
 		}
 	} else if (!/^\d+(\.\d+)?%$/.test(value)) {
@@ -35,3 +37,9 @@ export const validateConcurrency = (value: unknown, setting: string) => {
 		);
 	}
 };
+
+export const getMaxConcurrency = () => {
+	return require('os').cpus().length;
+};
+
+export const getMinConcurrency = () => 1;

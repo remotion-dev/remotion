@@ -106,9 +106,13 @@ The `framesPerLambda` parameter cannot result in more than 200 functions being s
 
 By default, each Lambda function renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
 
-### `--quality`
+### `--jpeg-quality`
 
-[Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
+
+### ~~`--quality`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--muted` <AvailableFrom v="3.2.1" />
 
@@ -152,7 +156,7 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 ### `--image-format`
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setimageformat) The default image format is `jpeg`.
+[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setvideoimageformat) The default image format is `jpeg`.
 
 ### `--scale`
 

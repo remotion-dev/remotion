@@ -436,16 +436,10 @@ const rgbaColor = (r: number, g: number, b: number, alpha: number): string => {
 	return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
-function processColorInitially(color: string): number {
-	let normalizedColor = normalizeColor(color);
+export function processColor(color: string): number {
+	const normalizedColor = normalizeColor(color);
 
-	normalizedColor = ((normalizedColor << 24) | (normalizedColor >>> 8)) >>> 0; // argb
-	return normalizedColor;
-}
-
-function processColor(color: string): number {
-	const normalizedColor = processColorInitially(color);
-	return normalizedColor;
+	return ((normalizedColor << 24) | (normalizedColor >>> 8)) >>> 0; // argb
 }
 
 const interpolateColorsRGB = (

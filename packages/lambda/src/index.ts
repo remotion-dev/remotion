@@ -15,7 +15,7 @@ import type {
 	DownloadMediaInput,
 	DownloadMediaOutput,
 } from './api/download-media';
-import {downloadMedia, downloadVideo} from './api/download-media';
+import {downloadMedia} from './api/download-media';
 import type {EstimatePriceInput} from './api/estimate-price';
 import {estimatePrice} from './api/estimate-price';
 import type {GetAwsClientInput, GetAwsClientOutput} from './api/get-aws-client';
@@ -73,7 +73,6 @@ import type {AwsRegion} from './pricing/aws-regions';
 import type {CustomCredentials} from './shared/aws-clients';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
-import type {LambdaArchitecture} from './shared/validate-architecture';
 
 /**
  * @deprecated Import this from `@remotion/lambda/client` instead
@@ -100,7 +99,6 @@ export {
 	deployFunction,
 	deploySite,
 	downloadMedia,
-	downloadVideo,
 	getFunctions,
 	getUserPolicy,
 	getRolePolicy,
@@ -153,7 +151,6 @@ export type {
 	SimulatePermissionsOutput,
 	GetAwsClientInput,
 	GetAwsClientOutput,
-	LambdaArchitecture,
 	CustomCredentials,
 	WebhookPayload,
 	LambdaErrorInfo,

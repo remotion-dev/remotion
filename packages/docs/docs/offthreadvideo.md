@@ -45,7 +45,16 @@ The props [`volume`](/docs/video#volume), [`playbackRate`](/docs/video#playbackr
 
 The props [`onError`](/docs/img#onerror), `className` and `style` are supported and get passed to the underlying HTML element. Remember that during render, this is a `<img>` element, and during preview, this is a `<video>` element.
 
-### `imageFormat` <AvailableFrom v="3.0.22" />
+### `transparent` <AvailableFrom v="4.0.0" />
+
+_optional, boolean_
+If set to `true`, frames will be extracted as PNG, enabling transparency but also slowing down your render.
+
+If set to `false`(_default_), frames will be extracted as bitmap (BMP), which is faster.
+
+### ~~`imageFormat` <AvailableFrom v="3.0.22" />~~
+
+_removed in v4.0.0_
 
 Either `jpeg` or `png`. Default `jpeg`.  
 With `png`, transparent videos (VP8, VP9, ProRes) can be displayed, however it is around 40% slower, with VP8 videos being [much slower](/docs/slow-method-to-extract-frame).

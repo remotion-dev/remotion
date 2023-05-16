@@ -7,17 +7,15 @@ import {
 import {CompositionManager} from '../CompositionManager.js';
 import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
 import {Img} from '../Img.js';
-import {Internals} from '../internals.js';
 import {random} from '../random.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
+import {truthy} from '../truthy.js';
 import {useCurrentFrame} from '../use-current-frame.js';
 import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
 import {evaluateVolume} from '../volume-prop.js';
 import {getExpectedMediaFrameUncorrected} from './get-current-time.js';
-import type {OffthreadVideoImageFormat, OffthreadVideoProps} from './props.js';
-
-const DEFAULT_IMAGE_FORMAT: OffthreadVideoImageFormat = 'jpeg';
+import type {OffthreadVideoProps} from './props.js';
 
 export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	onError,
@@ -25,8 +23,8 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	playbackRate,
 	src,
 	muted,
-	imageFormat,
 	allowAmplificationDuringRender,
+	transparent = false,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -126,10 +124,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			window.remotion_proxyPort
 		}/proxy?src=${encodeURIComponent(
 			getAbsoluteSrc(src)
-		)}&time=${encodeURIComponent(currentTime)}&imageFormat=${
-			imageFormat ?? DEFAULT_IMAGE_FORMAT
-		}`;
-	}, [currentTime, imageFormat, src]);
+		)}&time=${encodeURIComponent(currentTime)}&transparent=${String(
+			transparent
+		)}`;
+	}, [currentTime, src, transparent]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
 		useCallback(
@@ -141,7 +139,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 
 	const className = useMemo(() => {
 		return [OFFTHREAD_VIDEO_CLASS_NAME, props.className]
-			.filter(Internals.truthy)
+			.filter(truthy)
 			.join(' ');
 	}, [props.className]);
 
