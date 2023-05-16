@@ -15,7 +15,7 @@ import {
 	RenderInternals,
 	renderStill,
 } from '@remotion/renderer';
-import {mkdirSync} from 'node:fs';
+import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {chalk} from '../chalk';
 import {registerCleanupJob} from '../cleanup-before-quit';
@@ -214,6 +214,7 @@ export const renderStillFlow = async ({
 		relativeOutputLocation,
 		overwrite
 	);
+	const exists = existsSync(absoluteOutputLocation);
 
 	mkdirSync(path.join(absoluteOutputLocation, '..'), {
 		recursive: true,
@@ -297,6 +298,6 @@ export const renderStillFlow = async ({
 	updateProgress(true);
 	Log.infoAdvanced(
 		{indent: indentOutput, logLevel},
-		chalk.blue(`▶️ ${absoluteOutputLocation}`)
+		chalk.blue(`${exists ? '⌾' : '+'} ${absoluteOutputLocation}`)
 	);
 };

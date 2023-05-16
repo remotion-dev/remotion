@@ -21,7 +21,7 @@ import {
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
-import fs from 'node:fs';
+import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {chalk} from '../chalk';
@@ -315,6 +315,7 @@ export const renderVideoFlow = async ({
 		relativeOutputLocation,
 		overwrite
 	);
+	const exists = existsSync(absoluteOutputFile);
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		config.durationInFrames,
@@ -483,7 +484,10 @@ export const renderVideoFlow = async ({
 	});
 
 	updateRenderProgress(true);
-	Log.infoAdvanced({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
+	Log.infoAdvanced(
+		{indent, logLevel},
+		chalk.blue(`${exists ? '⌾' : '+'} ${absoluteOutputFile}`)
+	);
 
 	for (const line of RenderInternals.perf.getPerf()) {
 		Log.verboseAdvanced({indent, logLevel}, line);
