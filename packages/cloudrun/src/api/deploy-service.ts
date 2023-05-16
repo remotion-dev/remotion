@@ -47,7 +47,7 @@ export const deployService = async ({
 	}
 
 	if (!memoryLimit) {
-		memoryLimit = '512Mi';
+		memoryLimit = '2Gi';
 	}
 
 	if (!cpuLimit) {
