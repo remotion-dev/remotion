@@ -116,7 +116,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			`
 🤘 Rendered still on Cloud Run! 🤘
 
-    Public URL = ${success.publicUrl}
+    Public URL = ${decodeURIComponent(success.publicUrl)}
     Cloud Storage Uri = ${success.cloudStorageUri}
     Size (KB) = ${Math.round(Number(success.size) / 1000)}
     Bucket Name = ${success.bucketName}
