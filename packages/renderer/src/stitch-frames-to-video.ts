@@ -95,6 +95,7 @@ const getAssetsData = async ({
 	onProgress,
 	downloadMap,
 	remotionRoot,
+	indent,
 }: {
 	assets: TAsset[][];
 	onDownload: RenderMediaOnDownload | undefined;
@@ -104,6 +105,7 @@ const getAssetsData = async ({
 	onProgress: (progress: number) => void;
 	downloadMap: DownloadMap;
 	remotionRoot: string;
+	indent: boolean;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
@@ -114,9 +116,11 @@ const getAssetsData = async ({
 	markAllAssetsAsDownloaded(downloadMap);
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
-	if (verbose) {
-		console.log('asset positions', assetPositions);
-	}
+	Log.verboseAdvanced(
+		{indent, logLevel: verbose ? 'verbose' : 'info', tag: 'audio'},
+		'asset positions',
+		JSON.stringify(assetPositions)
+	);
 
 	const preprocessProgress = new Array(assetPositions.length).fill(0);
 
@@ -317,6 +321,7 @@ const spawnFfmpeg = async (
 				onProgress: (prog) => updateProgress(prog, 0),
 				downloadMap: options.assetsInfo.downloadMap,
 				remotionRoot,
+				indent: options.indent,
 		  })
 		: null;
 
