@@ -8,7 +8,7 @@ export const supportedAudioCodecs = {
 	h264: ['aac', 'pcm-16'] as const,
 	'h264-mkv': ['pcm-16'] as const,
 	aac: ['aac', 'pcm-16'] as const,
-	gif: [] as const,
+	gif: [] as const[],
 	h265: ['aac', 'pcm-16'] as const,
 	mp3: ['mp3', 'pcm-16'] as const,
 	prores: ['aac', 'pcm-16'] as const,
@@ -23,14 +23,9 @@ if (_satisfies) {
 	// Just for type checking
 }
 
-export const audioCodecNames = [
-	'pcm_s16le',
-	'aac',
-	'libmp3lame',
-	'libopus',
-] as const;
+const audioCodecNames = ['pcm_s16le', 'aac', 'libmp3lame', 'libopus'] as const;
 
-export type FfmpegAudioCodecName = typeof audioCodecNames[number];
+type FfmpegAudioCodecName = typeof audioCodecNames[number];
 
 export const mapAudioCodecToFfmpegAudioCodecName = (
 	audioCodec: AudioCodec
@@ -87,8 +82,7 @@ export const defaultAudioCodecs: {
 	},
 	prores: {
 		lossless: 'pcm-16',
-		// V4.0: Make pcm the default
-		compressed: 'aac',
+		compressed: 'pcm-16',
 	},
 	vp8: {
 		lossless: 'pcm-16',

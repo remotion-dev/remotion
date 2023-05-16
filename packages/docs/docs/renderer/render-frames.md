@@ -77,7 +77,7 @@ Either a Webpack bundle or a URL pointing to a bundled Remotion project. Call [`
 
 ### `imageFormat`
 
-A `string` which must be either `png`, `jpeg` or `none`.
+_optional since v4.0 - default "jpeg"_
 
 - Choose `jpeg` by default because it is the fastest.
 - Choose `png` if you want your image sequence to have an alpha channel (for transparency).
@@ -99,13 +99,17 @@ _number - default: 1_
 
 [Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
 
-### `quality?`
+### `jpegQuality?`
 
 _optional_
 
 Sets the quality of the generated JPEG images. Must be an integer between 0 and 100. Default is to leave it up to the browser, [current default is 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `frameRange?`
 
@@ -209,18 +213,6 @@ renderFrames({
 });
 ```
 
-### `ffmpegExecutable?` <AvailableFrom v="3.0.11" />
-
-_optional_
-
-An absolute path overriding the `ffmpeg` executable to use.
-
-### `ffprobeExecutable?` <AvailableFrom v="3.0.17" />
-
-_optional_
-
-An absolute path overriding the `ffprobe` executable to use.
-
 ### `browserExecutable?` <AvailableFrom v="3.0.11" />
 
 _optional_
@@ -300,6 +292,18 @@ Accepted values:
 #### `userAgent` <AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### ~~`ffmpegExecutable`~~
+
+_removed in v4.0, optional_
+
+An absolute path overriding the `ffmpeg` executable to use.
+
+### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
+
+_removed in v4.0, optional_
+
+An absolute path overriding the `ffprobe` executable to use.
 
 ## Return value
 

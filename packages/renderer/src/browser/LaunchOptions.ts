@@ -32,6 +32,7 @@ export interface LaunchOptions {
 	env?: Record<string, string | undefined>;
 	pipe?: boolean;
 	product?: Product;
+	indentationString: string;
 }
 
 export type PuppeteerNodeLaunchOptions = BrowserLaunchArgumentOptions &

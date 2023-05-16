@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import type {ClipRegion} from 'remotion';
 import type {Page} from './browser/BrowserPage';
 import type {StillImageFormat} from './image-format';
@@ -11,13 +11,13 @@ export const screenshotTask = async ({
 	page,
 	width,
 	path,
-	quality,
+	jpegQuality,
 	clipRegion,
 }: {
 	page: Page;
 	format: StillImageFormat;
 	path?: string;
-	quality?: number;
+	jpegQuality?: number;
 	omitBackground: boolean;
 	width: number;
 	height: number;
@@ -33,7 +33,7 @@ export const screenshotTask = async ({
 	});
 	stopPerfMeasure(perfTarget);
 
-	const shouldSetDefaultBackground = omitBackground && format === 'png';
+	const shouldSetDefaultBackground = omitBackground;
 	if (shouldSetDefaultBackground)
 		await client.send('Emulation.setDefaultBackgroundColorOverride', {
 			color: {r: 0, g: 0, b: 0, a: 0},
@@ -41,28 +41,42 @@ export const screenshotTask = async ({
 
 	const cap = startPerfMeasure('capture');
 	try {
-		const result = await client.send('Page.captureScreenshot', {
-			format,
-			quality,
-			clip:
-				clipRegion !== null && clipRegion !== 'hide'
-					? {
-							x: clipRegion.x,
-							y: clipRegion.y,
-							height: clipRegion.height,
-							scale: 1,
-							width: clipRegion.width,
-					  }
-					: {
-							x: 0,
-							y: 0,
-							height,
-							scale: 1,
-							width,
-					  },
-			captureBeyondViewport: true,
-			optimizeForSpeed: true,
-		});
+		let result;
+		if (format === 'pdf') {
+			result = await client.send('Page.printToPDF', {
+				paperWidth: width / 96, // Convert to Inch
+				paperHeight: height / 96, // Convert to Inch
+				marginTop: 0,
+				marginBottom: 0,
+				marginLeft: 0,
+				marginRight: 0,
+				scale: 1,
+				printBackground: true,
+			});
+		} else {
+			result = await client.send('Page.captureScreenshot', {
+				format,
+				quality: jpegQuality,
+				clip:
+					clipRegion !== null && clipRegion !== 'hide'
+						? {
+								x: clipRegion.x,
+								y: clipRegion.y,
+								height: clipRegion.height,
+								scale: 1,
+								width: clipRegion.width,
+						  }
+						: {
+								x: 0,
+								y: 0,
+								height,
+								scale: 1,
+								width,
+						  },
+				captureBeyondViewport: true,
+				optimizeForSpeed: true,
+			});
+		}
 
 		stopPerfMeasure(cap);
 		if (shouldSetDefaultBackground)

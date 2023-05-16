@@ -25,6 +25,7 @@ export const useKeybinding = () => {
 			commandCtrlKey: boolean;
 			callback: (e: KeyboardEvent) => void;
 			preventDefault: boolean;
+			triggerIfInputFieldFocused: boolean;
 		}) => {
 			if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {
 				return {
@@ -46,6 +47,17 @@ export const useKeybinding = () => {
 					e.key.toLowerCase() === options.key.toLowerCase() &&
 					options.commandCtrlKey === commandKey
 				) {
+					if (!options.triggerIfInputFieldFocused) {
+						const {activeElement} = document;
+						if (activeElement instanceof HTMLInputElement) {
+							return;
+						}
+
+						if (activeElement instanceof HTMLTextAreaElement) {
+							return;
+						}
+					}
+
 					options.callback(e);
 					if (options.preventDefault) {
 						e.preventDefault();

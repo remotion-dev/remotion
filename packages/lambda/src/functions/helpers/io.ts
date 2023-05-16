@@ -6,8 +6,8 @@ import {
 	ListObjectsV2Command,
 	PutObjectCommand,
 } from '@aws-sdk/client-s3';
-import type {ReadStream} from 'fs';
 import mimeTypes from 'mime-types';
+import type {ReadStream} from 'node:fs';
 import type {Readable} from 'stream';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {CustomCredentials} from '../../shared/aws-clients';

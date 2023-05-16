@@ -37,13 +37,17 @@ export type SimulatePermissionsOutput = {
 export const simulatePermissions = async (
 	options: SimulatePermissionsInput
 ): Promise<SimulatePermissionsOutput> => {
-	const callerIdentity = await getStsClient(options.region).send(new GetCallerIdentityCommand({}));
+	const callerIdentity = await getStsClient(options.region).send(
+		new GetCallerIdentityCommand({})
+	);
 
 	if (!callerIdentity || !callerIdentity.Arn) {
 		throw new Error('No valid AWS Caller Identity detected');
 	}
 
-	const callerIdentityArnComponents = callerIdentity.Arn!.match(/arn:aws:([^:]+)::(\d+):([^/]+)(.*)/)
+	const callerIdentityArnComponents = callerIdentity.Arn.match(
+		/arn:aws:([^:]+)::(\d+):([^/]+)(.*)/
+	);
 	if (!callerIdentityArnComponents) {
 		throw new Error('Unknown AWS Caller Identity ARN detected');
 	}
@@ -51,15 +55,24 @@ export const simulatePermissions = async (
 	const callerIdentityArnType = callerIdentityArnComponents[1];
 
 	let callerArn;
-	if (callerIdentityArnType === 'iam' && callerIdentityArnComponents[3] === 'user') {
+	if (
+		callerIdentityArnType === 'iam' &&
+		callerIdentityArnComponents[3] === 'user'
+	) {
 		callerArn = callerIdentity.Arn as string;
-	} else if (callerIdentityArnType === 'sts' && callerIdentityArnComponents[3] === 'assumed-role') {
-		const assumedRoleComponents = callerIdentityArnComponents[4].match(/\/([^/]+)\/(.*)/)
+	} else if (
+		callerIdentityArnType === 'sts' &&
+		callerIdentityArnComponents[3] === 'assumed-role'
+	) {
+		const assumedRoleComponents =
+			callerIdentityArnComponents[4].match(/\/([^/]+)\/(.*)/);
 		if (!assumedRoleComponents) {
-			throw new Error('Unsupported AWS Caller Identity as Assumed-Role ARN detected');
+			throw new Error(
+				'Unsupported AWS Caller Identity as Assumed-Role ARN detected'
+			);
 		}
 
-		callerArn = `arn:aws:iam::${callerIdentityArnComponents[2]}:role/${assumedRoleComponents[1]}`
+		callerArn = `arn:aws:iam::${callerIdentityArnComponents[2]}:role/${assumedRoleComponents[1]}`;
 	} else {
 		throw new Error('Unsupported AWS Caller Identity ARN detected');
 	}
