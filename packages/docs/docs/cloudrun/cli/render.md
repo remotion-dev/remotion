@@ -49,7 +49,7 @@ npx remotion cloudrun render media test-site tiles --service-name=remotion--3-3-
 
 ### `--region`
 
-The [GCP region](/docs/cloudrun/region-selection) to select. Both the Service and the Cloud Storage bucket should be in this region.
+The [GCP region](/docs/cloudrun/region-selection) to select. For lowest latency, the service, site and output bucket should be in the same region.
 
 ### `--props`
 
@@ -64,7 +64,7 @@ One of:
 
 ### `output-bucket`
 
-The bucket to place the rendered media/still in. The resulting Google Cloud Storage URL will be in the format `gs://{bucket-name}/renders/{render-id}/{file-name}`
+The bucket to place the rendered media/still in. The resulting Google Cloud Storage URL will be in the format `gs://{bucket-name}/renders/{render-id}/{file-name}`. If this is not passed, the bucket that matches the region will be used.
 
 ### `--jpeg-quality`
 
