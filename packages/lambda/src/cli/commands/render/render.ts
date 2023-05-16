@@ -151,6 +151,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
+		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({logLevel}),
+		indent: false,
 	});
 
 	Log.info(
@@ -186,7 +188,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			verbose,
 			totalFrames: getTotalFrames(status),
 			timeToEncode: status.timeToEncode,
-		})
+		}),
+		false
 	);
 
 	// eslint-disable-next-line no-constant-condition
@@ -208,7 +211,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				verbose,
 				timeToEncode: newStatus.timeToEncode,
 				totalFrames: getTotalFrames(newStatus),
-			})
+			}),
+			false
 		);
 
 		if (newStatus.done) {
@@ -221,7 +225,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					verbose,
 					timeToEncode: newStatus.timeToEncode,
 					totalFrames: getTotalFrames(newStatus),
-				})
+				}),
+				false
 			);
 			if (downloadName) {
 				const downloadStart = Date.now();
@@ -244,7 +249,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 								verbose,
 								timeToEncode: newStatus.timeToEncode,
 								totalFrames: getTotalFrames(newStatus),
-							})
+							}),
+							false
 						);
 					},
 				});
@@ -261,7 +267,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 						verbose,
 						timeToEncode: newStatus.timeToEncode,
 						totalFrames: getTotalFrames(newStatus),
-					})
+					}),
+					false
 				);
 				Log.info();
 				Log.info();
@@ -321,7 +328,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					stack: err.stack,
 					stackFrame: frames,
 				});
-				await CliInternals.handleCommonError(errorWithStackFrame);
+				await CliInternals.handleCommonError(errorWithStackFrame, logLevel);
 			}
 
 			quit(1);

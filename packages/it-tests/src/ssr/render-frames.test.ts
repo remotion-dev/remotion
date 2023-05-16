@@ -7,7 +7,6 @@ import {
   renderFrames,
   stitchFramesToVideo,
 } from "@remotion/renderer";
-import execa from "execa";
 import { expect, test } from "vitest";
 import { RenderInternals } from "@remotion/renderer";
 
@@ -62,5 +61,5 @@ test("Legacy SSR way of rendering videos should still work", async () => {
   expect(probe.stderr).toMatch(/Video: h264/);
 
   RenderInternals.deleteDirectory(framesDir);
-  await puppeteerInstance.close();
+  await puppeteerInstance.close(false);
 });

@@ -1,10 +1,11 @@
+import type {LogLevel} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {Log} from './log';
 import {printError} from './print-error';
 import {truthy} from './truthy';
 
-export const handleCommonError = async (err: Error) => {
-	await printError(err);
+export const handleCommonError = async (err: Error, logLevel: LogLevel) => {
+	await printError(err, logLevel);
 	if (err.message.includes('Could not play video with')) {
 		Log.info();
 		Log.info(

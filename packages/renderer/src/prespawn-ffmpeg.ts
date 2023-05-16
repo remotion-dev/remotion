@@ -2,12 +2,12 @@ import {Internals} from 'remotion';
 import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
-import {getExecutablePath} from './compositor/get-executable-path';
 import {validateQualitySettings} from './crf';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {VideoImageFormat} from './image-format';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
@@ -33,6 +33,7 @@ type PreStitcherOptions = {
 	ffmpegOverride: FfmpegOverrideFn;
 	signal: CancelSignal;
 	videoBitrate: string | null;
+	indent: boolean;
 };
 
 export const prespawnFfmpeg = (options: PreStitcherOptions) => {
@@ -69,17 +70,54 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 
 	const supportsCrf = codec !== 'prores';
 
-	if (options.verbose) {
-		console.log('[verbose] ffmpeg', getExecutablePath('ffmpeg'));
-		console.log('[verbose] encoder', encoderName);
-		console.log('[verbose] pixelFormat', pixelFormat);
-		if (supportsCrf) {
-			console.log('[verbose] crf', options.crf);
-		}
-
-		console.log('[verbose] codec', codec);
-		console.log('[verbose] proResProfileName', proResProfileName);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'encoder',
+		encoderName
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'pixelFormat',
+		pixelFormat
+	);
+	if (supportsCrf) {
+		Log.verboseAdvanced(
+			{
+				indent: options.indent,
+				logLevel: options.verbose ? 'verbose' : 'info',
+				tag: 'encoder',
+			},
+			'pixelFormat',
+			options.crf
+		);
 	}
+
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'codec',
+		codec
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'proResProfileName',
+		proResProfileName
+	);
 
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
@@ -112,10 +150,22 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		options.outputLocation,
 	];
 
-	if (options.verbose) {
-		console.log('Generated FFMPEG command:');
-		console.log(ffmpegArgs);
-	}
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'Generated FFMPEG command:'
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		ffmpegArgs.join(' ')
+	);
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
 	const finalFfmpegString = options.ffmpegOverride

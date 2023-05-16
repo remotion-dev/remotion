@@ -16,6 +16,7 @@ export const serveStatic = async (
 		remotionRoot: string;
 		concurrency: number;
 		verbose: boolean;
+		indent: boolean;
 	}
 ): Promise<{
 	port: number;
@@ -28,6 +29,7 @@ export const serveStatic = async (
 			downloadMap: options.downloadMap,
 			concurrency: options.concurrency,
 			verbose: options.verbose,
+			indent: options.indent,
 		});
 
 	const connections: Record<string, Socket> = {};
