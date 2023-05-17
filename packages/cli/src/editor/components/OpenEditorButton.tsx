@@ -61,6 +61,10 @@ export const OpenEditorButton: React.FC<{}> = () => {
 		setHovered(false);
 	}, []);
 
+	if (!window.remotion_editorName) {
+		return null;
+	}
+
 	return (
 		<button
 			title={buttonTooltip}

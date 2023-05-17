@@ -12,6 +12,7 @@ const cwd: React.CSSProperties = {
 export const MenuBuildIndicator: React.FC = () => {
 	const [isBuilding, setIsBuilding] = useState(false);
 
+	const editorFound = window.remotion_editorName;
 	useEffect(() => {
 		window.remotion_isBuilding = () => {
 			setIsBuilding(true);
@@ -29,7 +30,7 @@ export const MenuBuildIndicator: React.FC = () => {
 
 	return (
 		<div style={cwd} title={window.remotion_cwd}>
-			<Spacing x={5} />
+			{editorFound ? <Spacing x={5} /> : null}
 			{isBuilding ? 'Building...' : window.remotion_projectName}
 			<OpenEditorButton />
 		</div>
