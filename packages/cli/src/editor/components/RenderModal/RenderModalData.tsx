@@ -302,6 +302,8 @@ export const RenderModalData: React.FC<{
 			customFileUsed: serializedJSON ? serializedJSON.customFileUsed : false,
 			inJSONEditor,
 			propsEditType,
+			jsMapUsed: serializedJSON ? serializedJSON.mapUsed : false,
+			jsSetUsed: serializedJSON ? serializedJSON.setUsed : false,
 		});
 	}, [
 		canSaveDefaultProps,
