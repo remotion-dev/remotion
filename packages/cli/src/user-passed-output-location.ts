@@ -1,6 +1,5 @@
 import {ConfigInternals} from './config';
 import {getDefaultOutLocation} from './get-default-out-name';
-import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
 export const getUserPassedOutputLocation = (args: string[]) => {
@@ -21,10 +20,14 @@ export const getOutputLocation = ({
 	args: string[];
 	type: 'asset' | 'sequence';
 }) => {
-	if (typeof args[0] !== 'undefined' && typeof parsedCli.output !== 'undefined')
-		Log.warn(
-			'You passed both an output flag (--output) and an output location as an argument. The output flag will be ignored.'
+	if (
+		typeof args[0] !== 'undefined' &&
+		typeof parsedCli.output !== 'undefined'
+	) {
+		throw new Error(
+			'You passed both an output flag (--output) and an output location as an positional argument. Choose only one of the ways.'
 		);
+	}
 
 	return (
 		getUserPassedOutputLocation(args) ??
