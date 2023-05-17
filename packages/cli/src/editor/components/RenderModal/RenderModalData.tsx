@@ -8,12 +8,11 @@ import React, {
 import type {AnyComposition} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
 import type {z} from 'zod';
-import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
-import {ValidationMessage} from '../NewComposition/ValidationMessage';
-
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
+import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
+import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {
 	canUpdateDefaultProps,
@@ -39,6 +38,10 @@ import {
 import {WarningIndicatorButton} from './WarningIndicatorButton';
 
 type Mode = 'json' | 'schema';
+
+type AllCompStates = {
+	[key: string]: TypeCanSaveState;
+};
 
 export type State =
 	| {
@@ -153,12 +156,15 @@ export const RenderModalData: React.FC<{
 	}, [inJSONEditor, inputProps]);
 
 	const cliProps = getInputProps();
-	const [canSaveDefaultProps, setCanSaveDefaultProps] =
-		useState<TypeCanSaveState>({
-			canUpdate: false,
-			reason: 'Loading...',
-			determined: false,
-		});
+	const [canSaveDefaultProps, setCanSaveDefaultProps] = useState<AllCompStates>(
+		{
+			[composition.id]: {
+				canUpdate: false,
+				reason: 'Loading...',
+				determined: false,
+			},
+		}
+	);
 
 	const z = useZodIfPossible();
 
@@ -201,31 +207,51 @@ export const RenderModalData: React.FC<{
 			});
 		}, []);
 
-	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
+	const showSaveButton =
+		mayShowSaveButton && canSaveDefaultProps[composition.id]?.canUpdate;
 
 	const {fastRefreshes} = useContext(Internals.NonceContext);
+
+	const derivedCurrentState = useMemo(() => {
+		return canSaveDefaultProps[composition.id]
+			? canSaveDefaultProps[composition.id]
+			: {
+					canUpdate: false,
+					reason: 'Loading...',
+					determined: false,
+			  };
+	}, [canSaveDefaultProps, composition.id]);
 
 	useEffect(() => {
 		canUpdateDefaultProps(composition.id)
 			.then((can) => {
 				if (can.canUpdate) {
-					setCanSaveDefaultProps({
-						canUpdate: true,
-					});
+					setCanSaveDefaultProps((prevState) => ({
+						...prevState,
+						[composition.id]: {
+							canUpdate: true,
+						},
+					}));
 				} else {
-					setCanSaveDefaultProps({
-						canUpdate: false,
-						reason: can.reason,
-						determined: true,
-					});
+					setCanSaveDefaultProps((prevState) => ({
+						...prevState,
+						[composition.id]: {
+							canUpdate: false,
+							reason: can.reason,
+							determined: true,
+						},
+					}));
 				}
 			})
 			.catch((err) => {
-				setCanSaveDefaultProps({
-					canUpdate: false,
-					reason: (err as Error).message,
-					determined: true,
-				});
+				setCanSaveDefaultProps((prevState) => ({
+					...prevState,
+					[composition.id]: {
+						canUpdate: false,
+						reason: (err as Error).message,
+						determined: true,
+					},
+				}));
 			});
 	}, [composition.id]);
 
@@ -296,7 +322,7 @@ export const RenderModalData: React.FC<{
 
 	const warnings = useMemo(() => {
 		return getRenderModalWarnings({
-			canSaveDefaultProps,
+			canSaveDefaultProps: derivedCurrentState,
 			cliProps,
 			isCustomDateUsed: serializedJSON ? serializedJSON.customDateUsed : false,
 			customFileUsed: serializedJSON ? serializedJSON.customFileUsed : false,
@@ -306,8 +332,8 @@ export const RenderModalData: React.FC<{
 			jsSetUsed: serializedJSON ? serializedJSON.setUsed : false,
 		});
 	}, [
-		canSaveDefaultProps,
 		cliProps,
+		derivedCurrentState,
 		inJSONEditor,
 		propsEditType,
 		serializedJSON,
