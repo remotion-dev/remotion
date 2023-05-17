@@ -197,10 +197,6 @@ export const parseCommandLine = () => {
 		);
 	}
 
-	if (parsedCli.output) {
-		Config.setOutputLocation(parsedCli.output);
-	}
-
 	if (parsedCli.overwrite) {
 		Config.setOverwriteOutput(parsedCli.overwrite);
 	}
