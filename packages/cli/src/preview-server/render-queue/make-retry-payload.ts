@@ -53,6 +53,8 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
 			defaultProps: job.inputProps,
+			inFrameMark: null,
+			outFrameMark: null,
 		};
 	}
 
@@ -96,6 +98,8 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
 			defaultProps: job.inputProps,
+			inFrameMark: job.startFrame,
+			outFrameMark: job.endFrame,
 		};
 	}
 
