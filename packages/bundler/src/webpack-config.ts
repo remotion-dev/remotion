@@ -4,7 +4,6 @@ import {Internals} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
 import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
-import {AllowOptionalDependenciesPlugin} from './optional-depdendencies';
 import {jsonStringifyWithCircularReferences} from './stringify-with-circular-references';
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
