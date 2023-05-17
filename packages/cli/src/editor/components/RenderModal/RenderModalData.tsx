@@ -21,7 +21,10 @@ import {
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import type {TypeCanSaveState} from './get-render-modal-warnings';
-import {getRenderModalWarnings} from './get-render-modal-warnings';
+import {
+	defaultTypeCanSaveState,
+	getRenderModalWarnings,
+} from './get-render-modal-warnings';
 import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
 import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
 import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
@@ -158,11 +161,7 @@ export const RenderModalData: React.FC<{
 	const cliProps = getInputProps();
 	const [canSaveDefaultProps, setCanSaveDefaultProps] = useState<AllCompStates>(
 		{
-			[composition.id]: {
-				canUpdate: false,
-				reason: 'Loading...',
-				determined: false,
-			},
+			[composition.id]: defaultTypeCanSaveState,
 		}
 	);
 
@@ -207,20 +206,15 @@ export const RenderModalData: React.FC<{
 			});
 		}, []);
 
-	const showSaveButton =
-		mayShowSaveButton && canSaveDefaultProps[composition.id]?.canUpdate;
-
-	const {fastRefreshes} = useContext(Internals.NonceContext);
-
 	const derivedCurrentState = useMemo(() => {
 		return canSaveDefaultProps[composition.id]
 			? canSaveDefaultProps[composition.id]
-			: {
-					canUpdate: false,
-					reason: 'Loading...',
-					determined: false,
-			  };
+			: defaultTypeCanSaveState;
 	}, [canSaveDefaultProps, composition.id]);
+
+	const showSaveButton = mayShowSaveButton && derivedCurrentState.canUpdate;
+
+	const {fastRefreshes} = useContext(Internals.NonceContext);
 
 	useEffect(() => {
 		canUpdateDefaultProps(composition.id)

@@ -11,6 +11,12 @@ export type TypeCanSaveState =
 			determined: boolean;
 	  };
 
+export const defaultTypeCanSaveState: TypeCanSaveState = {
+	canUpdate: false,
+	reason: 'Loading...',
+	determined: false,
+};
+
 const getInputPropsWarning = ({
 	cliProps,
 	propsEditType,
