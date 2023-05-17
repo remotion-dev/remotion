@@ -19,6 +19,7 @@ import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {selectCompositions} from './select-composition';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
+import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {truthy} from './truthy';
 
 const DEFAULT_RUNS = 3;
@@ -175,6 +176,7 @@ export const benchmarkCommand = async (
 		),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
+		indent: false,
 	});
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
@@ -190,6 +192,7 @@ export const benchmarkCommand = async (
 			onDirectoryCreated: (dir) => {
 				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
 			},
+			quietProgress: false,
 		});
 
 	registerCleanupJob(() => cleanupBundle());
@@ -261,6 +264,7 @@ export const benchmarkCommand = async (
 			height,
 			width,
 			concurrency: unparsedConcurrency,
+			logLevel,
 		} = await getCliOptions({
 			isLambda: false,
 			type: 'series',
@@ -274,6 +278,8 @@ export const benchmarkCommand = async (
 			const benchmarkProgress = createOverwriteableCliOutput({
 				quiet: quietFlagProvided(),
 				cancelSignal: null,
+				updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
+				indent: false,
 			});
 			Log.info();
 			Log.info(
@@ -335,13 +341,14 @@ export const benchmarkCommand = async (
 							run,
 							doneIn: null,
 							progress,
-						})
+						}),
+						false
 					);
 				}
 			);
 
-			benchmarkProgress.update('');
-			benchmarkProgress.update(getResults(timeTaken, runs));
+			benchmarkProgress.update('', false);
+			benchmarkProgress.update(getResults(timeTaken, runs), false);
 
 			benchmark[composition.id][`${con}`] = timeTaken;
 		}

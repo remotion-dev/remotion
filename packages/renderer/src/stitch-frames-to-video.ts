@@ -17,7 +17,6 @@ import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
-import {getExecutablePath} from './compositor/get-executable-path';
 import {convertNumberOfGifLoopsToFfmpegSyntax} from './convert-number-of-gif-loops-to-ffmpeg';
 import {validateQualitySettings} from './crf';
 import {deleteDirectory} from './delete-directory';
@@ -28,6 +27,7 @@ import {getCodecName} from './get-codec-name';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {VideoImageFormat} from './image-format';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import {mergeAudioTrack} from './merge-audio-track';
@@ -78,6 +78,7 @@ export type StitcherOptions = {
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
+	indent: boolean;
 };
 
 type ReturnType = {
@@ -94,6 +95,7 @@ const getAssetsData = async ({
 	onProgress,
 	downloadMap,
 	remotionRoot,
+	indent,
 }: {
 	assets: TAsset[][];
 	onDownload: RenderMediaOnDownload | undefined;
@@ -103,6 +105,7 @@ const getAssetsData = async ({
 	onProgress: (progress: number) => void;
 	downloadMap: DownloadMap;
 	remotionRoot: string;
+	indent: boolean;
 }): Promise<string> => {
 	const fileUrlAssets = await convertAssetsToFileUrls({
 		assets,
@@ -113,9 +116,11 @@ const getAssetsData = async ({
 	markAllAssetsAsDownloaded(downloadMap);
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
-	if (verbose) {
-		console.log('asset positions', assetPositions);
-	}
+	Log.verboseAdvanced(
+		{indent, logLevel: verbose ? 'verbose' : 'info', tag: 'audio'},
+		'asset positions',
+		JSON.stringify(assetPositions)
+	);
 
 	const preprocessProgress = new Array(assetPositions.length).fill(0);
 
@@ -227,21 +232,69 @@ const spawnFfmpeg = async (
 				`out.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`
 		  );
 
-	if (options.verbose) {
-		console.log('[verbose] ffmpeg', getExecutablePath('ffmpeg'));
-		console.log('[verbose] encoder', encoderName);
-		console.log('[verbose] audioCodec', resolvedAudioCodec);
-		console.log('[verbose] pixelFormat', pixelFormat);
-
-		if (options.ffmpegOverride) {
-			console.log('[verbose] ffmpegOverride', options.ffmpegOverride);
-		}
-
-		console.log('[verbose] codec', codec);
-		console.log('[verbose] shouldRenderAudio', shouldRenderAudio);
-		console.log('[verbose] shouldRenderVideo', shouldRenderVideo);
-		console.log('[verbose] proResProfileName', proResProfileName);
-	}
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'encoder',
+		encoderName
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'audioCodec',
+		resolvedAudioCodec
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'pixelFormat',
+		pixelFormat
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'codec',
+		codec
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'shouldRenderAudio',
+		shouldRenderAudio
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'shouldRenderVideo',
+		shouldRenderVideo
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'proResProfileName',
+		proResProfileName
+	);
 
 	validateQualitySettings({
 		crf: options.crf,
@@ -268,6 +321,7 @@ const spawnFfmpeg = async (
 				onProgress: (prog) => updateProgress(prog, 0),
 				downloadMap: options.assetsInfo.downloadMap,
 				remotionRoot,
+				indent: options.indent,
 		  })
 		: null;
 
@@ -323,10 +377,10 @@ const spawnFfmpeg = async (
 	}
 
 	const ffmpegArgs = [
-		['-r', String(options.fps)],
 		...(options.internalOptions?.preEncodedFileLocation
 			? [['-i', options.internalOptions?.preEncodedFileLocation]]
 			: [
+					['-r', String(options.fps)],
 					['-f', 'image2'],
 					['-s', `${options.width}x${options.height}`],
 					['-start_number', String(options.assetsInfo.firstFrameIndex)],
@@ -378,20 +432,27 @@ const spawnFfmpeg = async (
 		options.outputLocation ?? tempFile,
 	];
 
-	if (options.verbose) {
-		console.log('Generated FFMPEG command:');
-		console.log(ffmpegArgs);
-	}
-
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
 	const finalFfmpegString = options.ffmpegOverride
 		? options.ffmpegOverride({type: 'stitcher', args: ffmpegString})
 		: ffmpegString;
 
-	if (options.verbose && options.ffmpegOverride) {
-		console.log('Generated final FFMPEG command:');
-		console.log(finalFfmpegString);
-	}
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'Generated final FFMPEG command:'
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		finalFfmpegString.join(' ')
+	);
 
 	const task = callFf('ffmpeg', finalFfmpegString, {
 		cwd: options.dir,

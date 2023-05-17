@@ -36,6 +36,7 @@ type CommandLineOptions = {
 	['audio-codec']: AudioCodec;
 	crf: number;
 	force: boolean;
+	output: string;
 	overwrite: boolean;
 	png: boolean;
 	props: string;

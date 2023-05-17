@@ -29,6 +29,7 @@ type DeprecatedOffthreadVideoProps = {
 export type OffthreadVideoProps = {
 	src: string;
 	className?: string;
+	id?: string;
 	style?: React.CSSProperties;
 	volume?: VolumeProp;
 	playbackRate?: number;

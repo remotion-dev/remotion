@@ -102,6 +102,18 @@ cd packages/docs
 pnpm start
 ```
 
+## Running the CLI
+
+You can test changes to the CLI by moving to `packages/examples` directory and using `pnpm exec` to execute the CLI:
+
+```sh
+cd packages/examples
+# Example - Get available compositions
+pnpm exec remotion compositions
+# Example - Render command
+pnpm exec remotion render ten-frame-tester --output ../../out/video.mp4
+```
+
 ## Troubleshooting
 
 If your `pnpm build` throws errors, oftentimes it is because of caching issues. You can resolve many of these errors by running
@@ -111,7 +123,6 @@ pnpm run clean
 ```
 
 in the root directory. Make sure to beforehand kill any `pnpm watch` commands, as those might regenerate files as you clean them!
-
 
 ## Developing Rust parts
 

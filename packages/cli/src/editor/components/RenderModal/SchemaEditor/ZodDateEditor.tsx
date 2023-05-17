@@ -7,6 +7,7 @@ import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 
 type LocalState = {
 	value: Date;
@@ -58,7 +59,7 @@ export const ZodDateEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: Date;
 	defaultValue: Date;
-	setValue: React.Dispatch<React.SetStateAction<Date>>;
+	setValue: UpdaterFunction<Date>;
 	onSave: (updater: (oldNum: unknown) => Date) => void;
 	onRemove: null | (() => void);
 	compact: boolean;
@@ -84,15 +85,15 @@ export const ZodDateEditor: React.FC<{
 	});
 
 	const onValueChange = useCallback(
-		(newValue: Date) => {
+		(newValue: Date, forceApply: boolean) => {
 			const safeParse = schema.safeParse(newValue);
 			const newLocalState: LocalState = {
 				value: newValue,
 				zodValidation: safeParse,
 			};
 			setLocalValue(newLocalState);
-			if (safeParse.success) {
-				setValue(newValue);
+			if (safeParse.success || forceApply) {
+				setValue(() => newValue);
 			}
 		},
 		[schema, setValue]
@@ -101,13 +102,13 @@ export const ZodDateEditor: React.FC<{
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			// React does not support e.target.valueAsDate :(
-			onValueChange(new Date(e.target.value));
+			onValueChange(new Date(e.target.value), false);
 		},
 		[onValueChange]
 	);
 
 	const reset = useCallback(() => {
-		onValueChange(defaultValue);
+		onValueChange(defaultValue, true);
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {

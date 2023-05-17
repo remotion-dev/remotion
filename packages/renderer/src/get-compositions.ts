@@ -28,6 +28,10 @@ type GetCompositionsConfig = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	indent?: boolean;
 	verbose?: boolean;
 };
 
@@ -121,6 +125,7 @@ export const getCompositions = async (
 			remotionRoot: findRemotionRoot(),
 			concurrency: 1,
 			verbose: config?.verbose ?? false,
+			indent: config?.indent ?? false,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;

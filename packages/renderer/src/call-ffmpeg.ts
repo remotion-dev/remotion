@@ -1,4 +1,5 @@
 import execa from 'execa';
+import {chmodSync} from 'node:fs';
 import path from 'node:path';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {truthy} from './truthy';
@@ -29,7 +30,12 @@ export const callFf = (
 	args: (string | null)[],
 	options?: execa.Options<string>
 ) => {
-	return execa(getExecutablePath(bin), args.filter(truthy), {
+	const executablePath = getExecutablePath(bin);
+	if (!process.env.READ_ONLY_FS) {
+		chmodSync(executablePath, 0o755);
+	}
+
+	return execa(executablePath, args.filter(truthy), {
 		...dynamicLibraryPathOptions(),
 		...options,
 	});

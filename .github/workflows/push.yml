@@ -16,11 +16,10 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - uses: actions-rs/toolchain@v1
+      - name: Set up Go
+        uses: actions/setup-go@v4
         with:
-          profile: minimal
-          toolchain: stable
-          override: true
+          go-version: "1.20"
       - run: |
           corepack enable
       - name: Cache .pnpm-store
@@ -49,11 +48,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
       - run: |
           corepack enable
       - name: Cache .pnpm-store
@@ -91,11 +85,6 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
-      - uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: stable
-          override: true
       - run: |
           corepack enable
       - name: Cache .pnpm-store

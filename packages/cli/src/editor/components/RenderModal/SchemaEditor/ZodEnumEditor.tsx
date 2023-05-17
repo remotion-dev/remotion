@@ -9,6 +9,7 @@ import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -24,8 +25,8 @@ export const ZodEnumEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: string;
 	defaultValue: string;
-	setValue: React.Dispatch<React.SetStateAction<string>>;
-	onSave: (updater: (oldState: string) => string) => void;
+	setValue: UpdaterFunction<string>;
+	onSave: UpdaterFunction<string>;
 	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
@@ -65,11 +66,11 @@ export const ZodEnumEditor: React.FC<{
 	const isRoot = jsonPath.length === 0;
 
 	const onChange = useCallback(
-		(updater: (oldV: string) => string) => {
+		(updater: (oldV: string) => string, forceApply: boolean) => {
 			setLocalValue((oldLocalState) => {
 				const newValue = updater(oldLocalState.value);
 				const safeParse = schema.safeParse(newValue);
-				if (safeParse.success) {
+				if (safeParse.success || forceApply) {
 					updateValue(updater);
 				}
 
@@ -83,7 +84,7 @@ export const ZodEnumEditor: React.FC<{
 	);
 
 	const reset = useCallback(() => {
-		onChange(() => defaultValue);
+		onChange(() => defaultValue, true);
 	}, [defaultValue, onChange]);
 
 	const comboBoxValues = useMemo(() => {
@@ -95,7 +96,7 @@ export const ZodEnumEditor: React.FC<{
 				keyHint: null,
 				leftItem: option === value ? <Checkmark /> : null,
 				onClick: (id: string) => {
-					onChange(() => id);
+					onChange(() => id, false);
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,

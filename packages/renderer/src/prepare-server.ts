@@ -15,6 +15,7 @@ export const prepareServer = async ({
 	remotionRoot,
 	concurrency,
 	verbose,
+	indent,
 }: {
 	webpackConfigOrServeUrl: string;
 	onDownload: RenderMediaOnDownload;
@@ -24,6 +25,7 @@ export const prepareServer = async ({
 	remotionRoot: string;
 	concurrency: number;
 	verbose: boolean;
+	indent: boolean;
 }): Promise<{
 	serveUrl: string;
 	closeServer: (force: boolean) => Promise<unknown>;
@@ -38,6 +40,7 @@ export const prepareServer = async ({
 			remotionRoot,
 			concurrency,
 			verbose,
+			indent,
 		});
 
 		return Promise.resolve({
@@ -66,6 +69,7 @@ export const prepareServer = async ({
 		remotionRoot,
 		concurrency,
 		verbose,
+		indent,
 	});
 	return Promise.resolve({
 		closeServer: async (force: boolean) => {

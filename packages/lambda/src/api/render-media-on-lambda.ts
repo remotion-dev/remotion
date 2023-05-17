@@ -7,19 +7,14 @@ import type {
 	ProResProfile,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchStreamUrl, getS3RenderUrl} from '../shared/get-aws-urls';
-import {serializeInputProps} from '../shared/serialize-input-props';
-import {validateDownloadBehavior} from '../shared/validate-download-behavior';
-import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
-import {validateLambdaCodec} from '../shared/validate-lambda-codec';
-import {validateServeUrl} from '../shared/validate-serveurl';
+import {makeLambdaPayload} from './make-lambda-payload';
 
 export type RenderMediaOnLambdaInput = {
 	region: AwsRegion;
@@ -95,104 +90,16 @@ export type RenderMediaOnLambdaOutput = {
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 
-export const renderMediaOnLambda = async ({
-	functionName,
-	serveUrl,
-	inputProps,
-	codec,
-	imageFormat,
-	crf,
-	envVariables,
-	pixelFormat,
-	proResProfile,
-	quality,
-	jpegQuality,
-	region,
-	maxRetries,
-	composition,
-	framesPerLambda,
-	privacy,
-	logLevel,
-	frameRange,
-	outName,
-	timeoutInMilliseconds,
-	chromiumOptions,
-	scale,
-	numberOfGifLoops,
-	everyNthFrame,
-	concurrencyPerLambda,
-	downloadBehavior,
-	muted,
-	overwrite,
-	audioBitrate,
-	videoBitrate,
-	webhook,
-	forceHeight,
-	forceWidth,
-	rendererFunctionName,
-	forceBucketName: bucketName,
-	audioCodec,
-	dumpBrowserLogs,
-}: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
-	if (quality) {
-		throw new Error(`"quality" has been renamed. Use "jpegQuality" instead.`);
-	}
+export const renderMediaOnLambda = async (
+	input: RenderMediaOnLambdaInput
+): Promise<RenderMediaOnLambdaOutput> => {
+	const {functionName, region, rendererFunctionName} = input;
 
-	const actualCodec = validateLambdaCodec(codec);
-	validateServeUrl(serveUrl);
-	validateFramesPerLambda({
-		framesPerLambda: framesPerLambda ?? null,
-		durationInFrames: 1,
-	});
-	validateDownloadBehavior(downloadBehavior);
-
-	const serializedInputProps = await serializeInputProps({
-		inputProps,
-		region,
-		type: 'video-or-audio',
-		userSpecifiedBucketName: bucketName ?? null,
-	});
 	try {
 		const res = await callLambda({
 			functionName,
 			type: LambdaRoutines.start,
-			payload: {
-				rendererFunctionName: rendererFunctionName ?? null,
-				framesPerLambda: framesPerLambda ?? null,
-				composition,
-				serveUrl,
-				inputProps: serializedInputProps,
-				codec: actualCodec,
-				imageFormat: imageFormat ?? 'jpeg',
-				crf,
-				envVariables,
-				pixelFormat,
-				proResProfile,
-				jpegQuality,
-				maxRetries: maxRetries ?? 1,
-				privacy: privacy ?? 'public',
-				logLevel: logLevel ?? 'info',
-				frameRange: frameRange ?? null,
-				outName: outName ?? null,
-				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-				chromiumOptions: chromiumOptions ?? {},
-				scale: scale ?? 1,
-				everyNthFrame: everyNthFrame ?? 1,
-				numberOfGifLoops: numberOfGifLoops ?? 0,
-				concurrencyPerLambda: concurrencyPerLambda ?? 1,
-				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
-				muted: muted ?? false,
-				version: VERSION,
-				overwrite: overwrite ?? false,
-				audioBitrate: audioBitrate ?? null,
-				videoBitrate: videoBitrate ?? null,
-				webhook: webhook ?? null,
-				forceHeight: forceHeight ?? null,
-				forceWidth: forceWidth ?? null,
-				bucketName: bucketName ?? null,
-				audioCodec: audioCodec ?? null,
-				dumpBrowserLogs: dumpBrowserLogs ?? false,
-			},
+			payload: await makeLambdaPayload(input),
 			region,
 		});
 		return {

@@ -180,7 +180,9 @@ export const Combobox: React.FC<{
 		};
 	}, [opened, size]);
 
-	const selected = values.find((v) => v.id === selectedId) as SelectionItem;
+	const selected = values.find((v) => v.id === selectedId) as
+		| SelectionItem
+		| undefined;
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
@@ -209,14 +211,16 @@ export const Combobox: React.FC<{
 				style={style}
 				className={MENU_INITIATOR_CLASSNAME}
 			>
-				<div
-					title={
-						typeof selected.label === 'string' ? selected.label : undefined
-					}
-					style={label}
-				>
-					{selected?.label}
-				</div>
+				{selected ? (
+					<div
+						title={
+							typeof selected.label === 'string' ? selected.label : undefined
+						}
+						style={label}
+					>
+						{selected?.label}
+					</div>
+				) : null}
 				<Spacing x={1} /> <CaretDown />
 			</button>
 			{portalStyle
@@ -232,7 +236,7 @@ export const Combobox: React.FC<{
 											onHide={onHide}
 											leaveLeftSpace
 											preselectIndex={values.findIndex(
-												(v) => v.id === selected.id
+												(v) => selected && v.id === selected.id
 											)}
 											topItemCanBeUnselected={false}
 										/>

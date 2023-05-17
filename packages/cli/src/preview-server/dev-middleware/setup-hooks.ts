@@ -1,7 +1,7 @@
 import type {webpack} from '@remotion/bundler';
+import {RenderInternals} from '@remotion/renderer';
 import {Log} from '../../log';
 import {truthy} from '../../truthy';
-import {isColorSupported} from './is-color-supported';
 import type {DevMiddlewareContext} from './types';
 
 export function setupHooks(context: DevMiddlewareContext) {
@@ -28,7 +28,7 @@ export function setupHooks(context: DevMiddlewareContext) {
 
 			const statsOptions: webpack.Configuration['stats'] = {
 				preset: 'errors-warnings',
-				colors: isColorSupported,
+				colors: RenderInternals.isColorSupported,
 			};
 
 			const printedStats = stats.toString(statsOptions);
