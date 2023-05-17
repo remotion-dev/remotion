@@ -1,4 +1,5 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
+import {PreviewServerConnectionCtx} from '../helpers/client-id';
 import {Spacing} from './layout';
 import {OpenEditorButton} from './OpenEditorButton';
 
@@ -11,8 +12,9 @@ const cwd: React.CSSProperties = {
 
 export const MenuBuildIndicator: React.FC = () => {
 	const [isBuilding, setIsBuilding] = useState(false);
+	const ctx = useContext(PreviewServerConnectionCtx);
 
-	const editorFound = window.remotion_editorName;
+	const showButton = window.remotion_editorName && ctx.type === 'connected';
 	useEffect(() => {
 		window.remotion_isBuilding = () => {
 			setIsBuilding(true);
@@ -30,9 +32,9 @@ export const MenuBuildIndicator: React.FC = () => {
 
 	return (
 		<div style={cwd} title={window.remotion_cwd}>
-			{editorFound ? <Spacing x={5} /> : null}
+			{showButton ? <Spacing x={5} /> : null}
 			{isBuilding ? 'Building...' : window.remotion_projectName}
-			<OpenEditorButton />
+			{showButton ? <OpenEditorButton /> : null}
 		</div>
 	);
 };
