@@ -1,5 +1,5 @@
 import {BundlerInternals} from '@remotion/bundler';
-import {binaryPath} from '@remotion/compositor-linux-arm64-gnu';
+import {binaryPath, ffmpegCwd} from '@remotion/compositor-linux-arm64-gnu';
 import fs from 'node:fs';
 import path from 'node:path';
 import {quit} from '../cli/helpers/quit';
@@ -38,6 +38,8 @@ const bundleLambda = async () => {
 
 	const compositorFile = `${outdir}/compositor`;
 	fs.copyFileSync(binaryPath, compositorFile);
+	fs.cpSync(ffmpegCwd, `${outdir}/ffmpeg`, {recursive: true});
+
 	await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
 
 	fs.rmSync(outdir, {recursive: true});

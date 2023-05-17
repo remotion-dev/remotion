@@ -12,6 +12,7 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor(
 			getIdealMaximumFrameCacheItems(),
+			false,
 			false
 		);
 
@@ -42,6 +43,7 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor(
 			getIdealMaximumFrameCacheItems(),
+			false,
 			false
 		);
 
@@ -51,11 +53,19 @@ test(
 			transparent: true,
 		});
 
-		expect(data.length).toBe(195708);
-		expect(data[100000] / 100).toBeCloseTo(0.04, 0.01);
-		expect(data[100001] / 100).toBeCloseTo(0.16, 0.01);
-		expect(data[140001] / 100).toBeCloseTo(0.76, 0.01);
-		expect(data[170001] / 100).toBeCloseTo(1.23, 0.01);
+		// Platform specific PNG encoder settings
+		if (data.length === 195708) {
+			expect(data[100000] / 100).toBeCloseTo(0.04, 0.01);
+			expect(data[100001] / 100).toBeCloseTo(0.16, 0.01);
+			expect(data[140001] / 100).toBeCloseTo(0.76, 0.01);
+			expect(data[170001] / 100).toBeCloseTo(1.23, 0.01);
+		} else {
+			expect(data.length).toBe(191797);
+			expect(data[100000] / 100).toBeCloseTo(0.82, 0.01);
+			expect(data[100001] / 100).toBeCloseTo(2.41, 0.01);
+			expect(data[140001] / 100).toBeCloseTo(0.03, 0.01);
+			expect(data[170001] / 100).toBeCloseTo(0.33, 0.01);
+		}
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
@@ -66,11 +76,13 @@ test(
 test('Should be able to start two compositors', async () => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
+		false,
 		false
 	);
 
 	const compositor2 = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
+		false,
 		false
 	);
 
@@ -89,6 +101,7 @@ test('Should be able to start two compositors', async () => {
 test('Should be able to seek backwards', async () => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
+		false,
 		false
 	);
 
@@ -114,6 +127,7 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor(
 			getIdealMaximumFrameCacheItems(),
+			false,
 			false
 		);
 
@@ -135,6 +149,7 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor(
 			getIdealMaximumFrameCacheItems(),
+			false,
 			false
 		);
 
@@ -165,6 +180,7 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor(
 			getIdealMaximumFrameCacheItems(),
+			false,
 			false
 		);
 
@@ -189,6 +205,7 @@ test(
 test('Should be able to extract a frame with abnormal DAR', async () => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
+		false,
 		false
 	);
 
@@ -213,6 +230,7 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 test('Should be able to extract the frames in reverse order', async () => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
+		false,
 		false
 	);
 
@@ -255,6 +273,7 @@ test('Should be able to extract the frames in reverse order', async () => {
 test('Last frame should be fast', async () => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
+		false,
 		false
 	);
 
@@ -310,7 +329,7 @@ test('Last frame should be fast', async () => {
 });
 
 test('Two different starting times should not result in big seeking', async () => {
-	const compositor = startLongRunningCompositor(300, false);
+	const compositor = startLongRunningCompositor(300, false, false);
 
 	const expected = [];
 

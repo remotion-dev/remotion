@@ -7,6 +7,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import type {EnumPath} from '../../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import type {AggregateRenderProgress} from '../../progress-types';
 import type {RequiredChromiumOptions} from '../../required-chromium-options';
 
@@ -158,6 +159,7 @@ export type UnsubscribeFromFileExistenceRequest = {
 export type UpdateDefaultPropsRequest = {
 	compositionId: string;
 	defaultProps: string;
+	enumPaths: EnumPath[];
 };
 
 export type CanUpdateDefaultPropsRequest = {

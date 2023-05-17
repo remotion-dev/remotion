@@ -7,7 +7,9 @@ import type {DownloadMap} from './assets/download-map';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
+import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
+import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -46,6 +48,7 @@ type InnerStillOptions = {
 	envVariables?: Record<string, string>;
 	overwrite?: boolean;
 	browserExecutable?: BrowserExecutable;
+	onBrowserLog?: (log: BrowserLog) => void;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
@@ -55,6 +58,10 @@ type InnerStillOptions = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	indent?: boolean;
 	verbose?: boolean;
 };
 
@@ -86,6 +93,7 @@ const innerRenderStill = async ({
 	cancelSignal,
 	downloadMap,
 	jpegQuality,
+	onBrowserLog,
 }: InnerStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
@@ -169,6 +177,7 @@ const innerRenderStill = async ({
 			shouldDumpIo: dumpBrowserLogs,
 			chromiumOptions,
 			forceDeviceScaleFactor: scale ?? 1,
+			indent: false,
 		}));
 	const page = await browserInstance.newPage();
 	await page.setViewport({
@@ -188,8 +197,17 @@ const innerRenderStill = async ({
 		frame: null,
 	});
 
+	const logCallback = (log: ConsoleMessage) => {
+		onBrowserLog?.({
+			stackTrace: log.stackTrace(),
+			text: log.text,
+			type: log.type,
+		});
+	};
+
 	const cleanup = async () => {
 		cleanUpJSException();
+		page.off('console', logCallback);
 
 		if (puppeteerInstance) {
 			await page.close();
@@ -203,6 +221,10 @@ const innerRenderStill = async ({
 	cancelSignal?.(() => {
 		cleanup();
 	});
+
+	if (onBrowserLog) {
+		page.on('console', logCallback);
+	}
 
 	await setPropsAndEnv({
 		inputProps,
@@ -294,6 +316,7 @@ export const renderStill = (
 			remotionRoot: findRemotionRoot(),
 			concurrency: 1,
 			verbose: options.verbose ?? false,
+			indent: options.indent ?? false,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
 				close = closeServer;

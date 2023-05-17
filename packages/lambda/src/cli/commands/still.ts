@@ -144,7 +144,10 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			stack: (err as Error).stack,
 			stackFrame: frames,
 		});
-		await CliInternals.handleCommonError(errorWithStackFrame);
+		await CliInternals.handleCommonError(
+			errorWithStackFrame,
+			RenderInternals.getLogLevel()
+		);
 		quit(1);
 	}
 };

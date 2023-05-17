@@ -68,6 +68,12 @@ type EnhancedTSequenceData =
 			playbackRate: number;
 	  };
 
+export type LoopDisplay = {
+	numberOfTimes: number;
+	startOffset: number;
+	durationInFrames: number;
+};
+
 export type TSequence = {
 	from: number;
 	duration: number;
@@ -77,7 +83,7 @@ export type TSequence = {
 	rootId: string;
 	showInTimeline: boolean;
 	nonce: number;
-	showLoopTimesInTimeline: number | undefined;
+	loopDisplay: LoopDisplay | undefined;
 } & EnhancedTSequenceData;
 
 export type TAsset = {

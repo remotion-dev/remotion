@@ -4,6 +4,7 @@ import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
 import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
 import {listCompositionsCommand} from './compositions';
+import {ConfigInternals} from './config';
 import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
@@ -26,6 +27,7 @@ import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
 import {selectComposition} from './select-composition';
+import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
 import {upgrade} from './upgrade';
 import {
@@ -88,7 +90,10 @@ export const cli = async () => {
 		}
 	} catch (err) {
 		Log.info();
-		await handleCommonError(err as Error);
+		await handleCommonError(
+			err as Error,
+			ConfigInternals.Logging.getLogLevel()
+		);
 		cleanupBeforeQuit();
 		process.exit(1);
 	} finally {
@@ -121,4 +126,5 @@ export const CliInternals = {
 	printCompositions,
 	getFinalOutputCodec,
 	listOfRemotionPackages,
+	shouldUseNonOverlayingLogger,
 };

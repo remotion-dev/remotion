@@ -15,11 +15,6 @@ export const hostedLayers: HostedLayers = {
 		},
 		{
 			layerArn:
-				'arn:aws:lambda:ap-northeast-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 10,
-		},
-		{
-			layerArn:
 				'arn:aws:lambda:ap-northeast-1:678892195805:layer:remotion-binaries-chromium-arm64',
 			version: 12,
 		},
@@ -29,11 +24,6 @@ export const hostedLayers: HostedLayers = {
 			layerArn:
 				'arn:aws:lambda:ap-south-1:678892195805:layer:remotion-binaries-fonts-arm64',
 			version: 8,
-		},
-		{
-			layerArn:
-				'arn:aws:lambda:ap-south-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 10,
 		},
 		{
 			layerArn:
@@ -49,11 +39,6 @@ export const hostedLayers: HostedLayers = {
 		},
 		{
 			layerArn:
-				'arn:aws:lambda:ap-southeast-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 10,
-		},
-		{
-			layerArn:
 				'arn:aws:lambda:ap-southeast-1:678892195805:layer:remotion-binaries-chromium-arm64',
 			version: 12,
 		},
@@ -63,11 +48,6 @@ export const hostedLayers: HostedLayers = {
 			layerArn:
 				'arn:aws:lambda:ap-southeast-2:678892195805:layer:remotion-binaries-fonts-arm64',
 			version: 8,
-		},
-		{
-			layerArn:
-				'arn:aws:lambda:ap-southeast-2:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 10,
 		},
 		{
 			layerArn:
@@ -83,11 +63,6 @@ export const hostedLayers: HostedLayers = {
 		},
 		{
 			layerArn:
-				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 11,
-		},
-		{
-			layerArn:
 				'arn:aws:lambda:eu-central-1:678892195805:layer:remotion-binaries-chromium-arm64',
 			version: 18,
 		},
@@ -97,11 +72,6 @@ export const hostedLayers: HostedLayers = {
 			layerArn:
 				'arn:aws:lambda:eu-west-1:678892195805:layer:remotion-binaries-fonts-arm64',
 			version: 9,
-		},
-		{
-			layerArn:
-				'arn:aws:lambda:eu-west-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 10,
 		},
 		{
 			layerArn:
@@ -117,11 +87,6 @@ export const hostedLayers: HostedLayers = {
 		},
 		{
 			layerArn:
-				'arn:aws:lambda:eu-west-2:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 10,
-		},
-		{
-			layerArn:
 				'arn:aws:lambda:eu-west-2:678892195805:layer:remotion-binaries-chromium-arm64',
 			version: 12,
 		},
@@ -131,11 +96,6 @@ export const hostedLayers: HostedLayers = {
 			layerArn:
 				'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-fonts-arm64',
 			version: 13,
-		},
-		{
-			layerArn:
-				'arn:aws:lambda:us-east-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 19,
 		},
 		{
 			layerArn:
@@ -151,11 +111,6 @@ export const hostedLayers: HostedLayers = {
 		},
 		{
 			layerArn:
-				'arn:aws:lambda:us-east-2:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 10,
-		},
-		{
-			layerArn:
 				'arn:aws:lambda:us-east-2:678892195805:layer:remotion-binaries-chromium-arm64',
 			version: 12,
 		},
@@ -165,11 +120,6 @@ export const hostedLayers: HostedLayers = {
 			layerArn:
 				'arn:aws:lambda:us-west-2:678892195805:layer:remotion-binaries-fonts-arm64',
 			version: 8,
-		},
-		{
-			layerArn:
-				'arn:aws:lambda:us-west-2:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 10,
 		},
 		{
 			layerArn:
@@ -185,11 +135,6 @@ export const hostedLayers: HostedLayers = {
 		},
 		{
 			layerArn:
-				'arn:aws:lambda:af-south-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 3,
-		},
-		{
-			layerArn:
 				'arn:aws:lambda:af-south-1:678892195805:layer:remotion-binaries-chromium-arm64',
 			version: 5,
 		},
@@ -199,11 +144,6 @@ export const hostedLayers: HostedLayers = {
 			layerArn:
 				'arn:aws:lambda:ap-east-1:678892195805:layer:remotion-binaries-fonts-arm64',
 			version: 5,
-		},
-		{
-			layerArn:
-				'arn:aws:lambda:ap-east-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 3,
 		},
 		{
 			layerArn:
@@ -219,11 +159,6 @@ export const hostedLayers: HostedLayers = {
 		},
 		{
 			layerArn:
-				'arn:aws:lambda:ap-northeast-2:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 3,
-		},
-		{
-			layerArn:
 				'arn:aws:lambda:ap-northeast-2:678892195805:layer:remotion-binaries-chromium-arm64',
 			version: 5,
 		},
@@ -233,11 +168,6 @@ export const hostedLayers: HostedLayers = {
 			layerArn:
 				'arn:aws:lambda:ap-northeast-3:678892195805:layer:remotion-binaries-fonts-arm64',
 			version: 5,
-		},
-		{
-			layerArn:
-				'arn:aws:lambda:ap-northeast-3:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 3,
 		},
 		{
 			layerArn:
@@ -253,11 +183,6 @@ export const hostedLayers: HostedLayers = {
 		},
 		{
 			layerArn:
-				'arn:aws:lambda:ca-central-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 3,
-		},
-		{
-			layerArn:
 				'arn:aws:lambda:ca-central-1:678892195805:layer:remotion-binaries-chromium-arm64',
 			version: 5,
 		},
@@ -267,11 +192,6 @@ export const hostedLayers: HostedLayers = {
 			layerArn:
 				'arn:aws:lambda:eu-north-1:678892195805:layer:remotion-binaries-fonts-arm64',
 			version: 5,
-		},
-		{
-			layerArn:
-				'arn:aws:lambda:eu-north-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 3,
 		},
 		{
 			layerArn:
@@ -287,11 +207,6 @@ export const hostedLayers: HostedLayers = {
 		},
 		{
 			layerArn:
-				'arn:aws:lambda:eu-south-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 3,
-		},
-		{
-			layerArn:
 				'arn:aws:lambda:eu-south-1:678892195805:layer:remotion-binaries-chromium-arm64',
 			version: 5,
 		},
@@ -301,11 +216,6 @@ export const hostedLayers: HostedLayers = {
 			layerArn:
 				'arn:aws:lambda:eu-west-3:678892195805:layer:remotion-binaries-fonts-arm64',
 			version: 5,
-		},
-		{
-			layerArn:
-				'arn:aws:lambda:eu-west-3:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 3,
 		},
 		{
 			layerArn:
@@ -321,11 +231,6 @@ export const hostedLayers: HostedLayers = {
 		},
 		{
 			layerArn:
-				'arn:aws:lambda:me-south-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 3,
-		},
-		{
-			layerArn:
 				'arn:aws:lambda:me-south-1:678892195805:layer:remotion-binaries-chromium-arm64',
 			version: 5,
 		},
@@ -338,11 +243,6 @@ export const hostedLayers: HostedLayers = {
 		},
 		{
 			layerArn:
-				'arn:aws:lambda:sa-east-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 3,
-		},
-		{
-			layerArn:
 				'arn:aws:lambda:sa-east-1:678892195805:layer:remotion-binaries-chromium-arm64',
 			version: 5,
 		},
@@ -352,11 +252,6 @@ export const hostedLayers: HostedLayers = {
 			layerArn:
 				'arn:aws:lambda:us-west-1:678892195805:layer:remotion-binaries-fonts-arm64',
 			version: 5,
-		},
-		{
-			layerArn:
-				'arn:aws:lambda:us-west-1:678892195805:layer:remotion-binaries-ffmpeg-arm64',
-			version: 3,
 		},
 		{
 			layerArn:

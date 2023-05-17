@@ -1,5 +1,6 @@
 import path from 'node:path';
 import {chalk} from '../../chalk';
+import {ConfigInternals} from '../../config';
 import {installFileWatcher} from '../../file-watcher';
 import {handleCommonError} from '../../handle-common-errors';
 import {Log} from '../../log';
@@ -243,7 +244,10 @@ const processJobIfPossible = async ({
 			};
 		});
 
-		await handleCommonError(err as Error);
+		await handleCommonError(
+			err as Error,
+			ConfigInternals.Logging.getLogLevel()
+		);
 
 		waitForLiveEventsListener().then((listener) => {
 			listener.sendEventToClient({

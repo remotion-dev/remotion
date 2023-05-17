@@ -38,7 +38,7 @@ Specify a location for the Remotion config file.
 
 ### `--env-file`
 
-Specify a location for a dotenv file. Default `.env`.
+Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)
 
 ### `--jpeg-quality` <AvailableFrom v="4.0.0" />
 
@@ -47,6 +47,10 @@ Specify a location for a dotenv file. Default `.env`.
 ### ~~`--quality`~~ <AvailableFrom v="1.4.0" />
 
 Renamed to `--jpeg-quality` in v4.0.0
+
+### `--output` <AvailableFrom v="4.0.0" />
+
+Sets the output file path, as an alternative to the `output-location` positional argument.
 
 ### `--overwrite`
 

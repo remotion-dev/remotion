@@ -292,9 +292,8 @@ pub fn open_stream(
     dictionary.set("fflags", "+genpts");
     let mut input = remotionffmpeg::format::input_with_dictionary(&src, dictionary)?;
 
-    // TODO: Don't open stream and stream_mut, might need to adapt rust-ffmpeg for it
-    let stream = match input
-        .streams()
+    let mut_stream = match input
+        .streams_mut()
         .find(|s| s.parameters().medium() == Type::Video)
     {
         Some(stream) => stream,
@@ -305,15 +304,8 @@ pub fn open_stream(
         }
     };
 
-    let stream_index = stream.index();
+    let stream_index = mut_stream.index();
 
-    drop(stream);
-
-    let mut_stream = input
-        .stream_mut(stream_index)
-        .ok_or(ErrorWithBacktrace::from(
-            "No video stream found in input file",
-        ))?;
     let duration_or_zero = mut_stream.duration().max(0);
 
     let time_base = mut_stream.time_base();
