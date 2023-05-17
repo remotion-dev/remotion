@@ -209,8 +209,8 @@ export const RenderModal: React.FC<{
 	initialIgnoreCertificateErrors: boolean;
 	initialHeadless: boolean;
 	defaultProps: unknown;
-	inFrameMark?: number | null;
-	outFrameMark?: number | null;
+	inFrameMark: number | null;
+	outFrameMark: number | null;
 }> = ({
 	compositionId,
 	initialFrame,
