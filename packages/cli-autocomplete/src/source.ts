@@ -1,6 +1,12 @@
+import {uniqueOptions} from './unique-options';
+
 const alwaysOptions: Fig.Option[] = [
 	{
-		name: ['--quiet', '-q'],
+		name: '--quiet',
+		description: 'Print less output',
+	},
+	{
+		name: '-q',
 		description: 'Print less output',
 	},
 	{
@@ -443,27 +449,29 @@ const globalLambdaOptions: Fig.Option[] = [
 	},
 ];
 
-const benchmarkOptions: Fig.Option[] = [
-	...renderOptions,
-	...localRenderOptions,
-	...localRenderAndStillOptions,
-	...alwaysOptions,
-	{
-		name: '--concurrencies',
-		description:
-			'Comma-separated list of concurrency values to include in benchmark',
-	},
-].filter((b) => {
-	if (b.name === '--overwrite') {
-		return false;
-	}
+const benchmarkOptions: Fig.Option[] = uniqueOptions(
+	[
+		...renderOptions,
+		...localRenderOptions,
+		...localRenderAndStillOptions,
+		...alwaysOptions,
+		{
+			name: '--concurrencies',
+			description:
+				'Comma-separated list of concurrency values to include in benchmark',
+		},
+	].filter((b) => {
+		if (b.name === '--overwrite') {
+			return false;
+		}
 
-	if (b.name === '--concurrency') {
-		return false;
-	}
+		if (b.name === '--concurrency') {
+			return false;
+		}
 
-	return true;
-});
+		return true;
+	})
+);
 
 const completionSpec: Fig.Spec = {
 	name: 'remotion',
@@ -566,13 +574,13 @@ const completionSpec: Fig.Spec = {
 							isOptional: true,
 						},
 					],
-					options: [
+					options: uniqueOptions([
 						...lambdaRenderAndStillOptions,
 						...lambdaRenderOptions,
 						...renderOptions,
 						...globalLambdaOptions,
 						...alwaysOptions,
-					],
+					]),
 				},
 				{
 					name: 'compositions',
@@ -626,12 +634,12 @@ const completionSpec: Fig.Spec = {
 							],
 						},
 					],
-					options: [
+					options: uniqueOptions([
 						...lambdaRenderAndStillOptions,
 						...stillOptions,
 						...globalLambdaOptions,
 						...alwaysOptions,
-					],
+					]),
 				},
 				{
 					name: 'functions',
@@ -800,12 +808,12 @@ const completionSpec: Fig.Spec = {
 					isOptional: true,
 				},
 			],
-			options: [
+			options: uniqueOptions([
 				...renderOptions,
 				...localRenderOptions,
 				...localRenderAndStillOptions,
 				...alwaysOptions,
-			],
+			]),
 		},
 		{
 			name: 'still',
