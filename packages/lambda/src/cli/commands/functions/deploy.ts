@@ -1,5 +1,4 @@
 import {CliInternals} from '@remotion/cli';
-import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {deployFunction} from '../../../api/deploy-function';
 import {
@@ -50,9 +49,8 @@ CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
 	const output = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
-		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
-			logLevel: RenderInternals.getLogLevel(),
-		}),
+		// No browser logs
+		updatesDontOverwrite: false,
 		indent: false,
 	});
 	output.update('Deploying Lambda...', false);
