@@ -74,8 +74,6 @@ export const callCompositor = (payload: string) => {
 		const execPath = getExecutablePath('compositor');
 		chmodSync(execPath, 0o755);
 		const child = spawn(execPath, [payload], dynamicLibraryPathOptions());
-		child.stdin.write(payload);
-		child.stdin.end();
 
 		const stderrChunks: Buffer[] = [];
 		child.stderr.on('data', (d) => stderrChunks.push(d));
@@ -98,5 +96,8 @@ export const callCompositor = (payload: string) => {
 				}
 			}
 		});
+
+		child.stdin.write(payload);
+		child.stdin.end();
 	});
 };
