@@ -4,7 +4,10 @@ import {chmodSync} from 'node:fs';
 
 export const ffmpegCommand = (_root: string, args: string[]) => {
 	const binary = RenderInternals.getExecutablePath('ffmpeg');
-	chmodSync(binary, 0o755);
+	if (!process.env.READ_ONLY_FS) {
+		chmodSync(binary, 0o755);
+	}
+
 	const done = spawnSync(binary, args, {
 		...RenderInternals.dynamicLibraryPathOptions(),
 		stdio: 'inherit',
@@ -14,7 +17,10 @@ export const ffmpegCommand = (_root: string, args: string[]) => {
 
 export const ffprobeCommand = (_root: string, args: string[]) => {
 	const binary = RenderInternals.getExecutablePath('ffprobe');
-	chmodSync(binary, 0o755);
+	if (!process.env.READ_ONLY_FS) {
+		chmodSync(binary, 0o755);
+	}
+
 	const done = spawnSync(binary, args, {
 		...RenderInternals.dynamicLibraryPathOptions(),
 		stdio: 'inherit',
