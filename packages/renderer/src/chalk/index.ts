@@ -39,7 +39,6 @@ type ColorsWithMethods = Colors & {
 	yellow: Method;
 	blue: Method;
 	magenta: Method;
-	cyan: Method;
 	white: Method;
 	gray: Method;
 	bgBlack: Method;
@@ -48,7 +47,6 @@ type ColorsWithMethods = Colors & {
 	bgYellow: Method;
 	bgBlue: Method;
 	bgMagenta: Method;
-	bgCyan: Method;
 	bgWhite: Method;
 	blackBright: Method;
 	redBright: Method;
@@ -56,7 +54,6 @@ type ColorsWithMethods = Colors & {
 	yellowBright: Method;
 	blueBright: Method;
 	magentaBright: Method;
-	cyanBright: Method;
 	whiteBright: Method;
 	bgBlackBright: Method;
 	bgRedBright: Method;
@@ -64,7 +61,6 @@ type ColorsWithMethods = Colors & {
 	bgYellowBright: Method;
 	bgBlueBright: Method;
 	bgMagentaBright: Method;
-	bgCyanBright: Method;
 	bgWhiteBright: Method;
 };
 
@@ -143,7 +139,6 @@ export const chalk = (() => {
 	define('yellow', [33, 39], 'color');
 	define('blue', [34, 39], 'color');
 	define('magenta', [35, 39], 'color');
-	define('cyan', [36, 39], 'color');
 	define('white', [37, 39], 'color');
 	define('gray', [90, 39], 'color');
 	define('grey', [90, 39], 'color');
@@ -154,7 +149,6 @@ export const chalk = (() => {
 	define('bgYellow', [43, 49], 'bg');
 	define('bgBlue', [44, 49], 'bg');
 	define('bgMagenta', [45, 49], 'bg');
-	define('bgCyan', [46, 49], 'bg');
 	define('bgWhite', [47, 49], 'bg');
 
 	define('blackBright', [90, 39], 'bright');
@@ -163,7 +157,6 @@ export const chalk = (() => {
 	define('yellowBright', [93, 39], 'bright');
 	define('blueBright', [94, 39], 'bright');
 	define('magentaBright', [95, 39], 'bright');
-	define('cyanBright', [96, 39], 'bright');
 	define('whiteBright', [97, 39], 'bright');
 
 	define('bgBlackBright', [100, 49], 'bgBright');
@@ -172,7 +165,6 @@ export const chalk = (() => {
 	define('bgYellowBright', [103, 49], 'bgBright');
 	define('bgBlueBright', [104, 49], 'bgBright');
 	define('bgMagentaBright', [105, 49], 'bgBright');
-	define('bgCyanBright', [106, 49], 'bgBright');
 	define('bgWhiteBright', [107, 49], 'bgBright');
 
 	colors.alias = (name: string, color: string) => {
