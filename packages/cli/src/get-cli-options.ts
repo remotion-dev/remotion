@@ -97,8 +97,6 @@ export const getCliOptions = async (options: {
 					frameRange,
 			  });
 
-	const output = ConfigInternals.getOutputLocation();
-
 	const overwrite = ConfigInternals.getShouldOverwrite({
 		defaultValue: !options.isLambda,
 	});
@@ -149,7 +147,6 @@ export const getCliOptions = async (options: {
 		logLevel: ConfigInternals.Logging.getLogLevel(),
 		scale,
 		chromiumOptions,
-		output,
 		overwrite,
 		port: port ?? null,
 		muted: ConfigInternals.getMuted(),

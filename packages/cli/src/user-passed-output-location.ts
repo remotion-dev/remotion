@@ -4,7 +4,8 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
 export const getUserPassedOutputLocation = (args: string[]) => {
-	const filename = args[0] ?? ConfigInternals.getOutputLocation();
+	const filename =
+		args[0] ?? parsedCli.output ?? ConfigInternals.getOutputLocation();
 
 	return filename;
 };
