@@ -11,6 +11,7 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import {chalk} from './chalk';
+import {isColorSupported} from './chalk/is-color-supported';
 import {checkNodeVersionAndWarnAboutRosetta} from './check-apple-silicon';
 import {DEFAULT_CODEC, validCodecs} from './codec';
 import {combineVideos} from './combine-videos';
@@ -179,6 +180,7 @@ export const RenderInternals = {
 	getLogLevel,
 	setLogLevel,
 	INDENT_TOKEN,
+	isColorSupported,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

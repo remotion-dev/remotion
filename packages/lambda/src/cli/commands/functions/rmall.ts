@@ -20,9 +20,8 @@ export const functionsRmallCommand = async () => {
 		const infoOutput = CliInternals.createOverwriteableCliOutput({
 			quiet: CliInternals.quietFlagProvided(),
 			cancelSignal: null,
-			updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
-				logLevel: RenderInternals.getLogLevel(),
-			}),
+			// No browser logs
+			updatesDontOverwrite: false,
 			indent: false,
 		});
 		infoOutput.update('Getting function info...', false);
