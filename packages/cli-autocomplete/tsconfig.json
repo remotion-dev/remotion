@@ -6,7 +6,7 @@
 		"outDir": "./dist",
 		"skipLibCheck": true,
 		"jsx": "react-jsx",
-		"types": ["@withfig/autocomplete-types"]
+		"types": ["@withfig/autocomplete-types", "@types/node"]
 	},
 	"include": ["./src"],
 	"references": [{"path": "../core"}]
