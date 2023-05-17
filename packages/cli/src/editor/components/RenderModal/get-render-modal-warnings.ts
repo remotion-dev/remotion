@@ -64,12 +64,21 @@ const mapUsed = (used: boolean | undefined, inJSONEditor: boolean) => {
 	return null;
 };
 
+const setUsed = (used: boolean | undefined, inJSONEditor: boolean) => {
+	if (used && inJSONEditor) {
+		return 'A `Set` was used in the schema which can not be serialized to JSON.';
+	}
+
+	return null;
+};
+
 export const getRenderModalWarnings = ({
 	cliProps,
 	canSaveDefaultProps,
 	isCustomDateUsed,
 	customFileUsed,
 	jsMapUsed,
+	jsSetUsed,
 	inJSONEditor,
 	propsEditType,
 }: {
@@ -78,6 +87,7 @@ export const getRenderModalWarnings = ({
 	isCustomDateUsed: boolean;
 	customFileUsed: boolean;
 	jsMapUsed: boolean;
+	jsSetUsed: boolean;
 	inJSONEditor: boolean;
 	propsEditType: PropsEditType;
 }) => {
@@ -87,5 +97,6 @@ export const getRenderModalWarnings = ({
 		customDateUsed(isCustomDateUsed, inJSONEditor),
 		staticFileUsed(customFileUsed, inJSONEditor),
 		mapUsed(jsMapUsed, inJSONEditor),
+		setUsed(jsSetUsed, inJSONEditor),
 	].filter(truthy);
 };
