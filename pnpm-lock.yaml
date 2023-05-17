@@ -202,29 +202,23 @@ importers:
     specifiers:
       '@fig/eslint-config-autocomplete': ^1.1.0
       '@jonny/eslint-config': 3.0.266
-      '@rollup/plugin-typescript': ^8.2.0
+      '@remotion/renderer': workspace:*
       '@types/node': ^18.11.2
       '@withfig/autocomplete-types': ^1.20.0
       eslint: 8.25.0
       prettier: ^2.7.1
-      prettier-plugin-organize-imports: ^2.3.4
-      rollup: ^2.70.1
       ts-node: ^10.8.0
       typescript: ^4.7.0
-      vitest: 0.24.3
     devDependencies:
       '@fig/eslint-config-autocomplete': 1.2.1_mx6jhvnay66odhn2yt7eqo2wou
       '@jonny/eslint-config': 3.0.266_mx6jhvnay66odhn2yt7eqo2wou
-      '@rollup/plugin-typescript': 8.5.0_fwpt2ygywzxjmp7kqug2rtl7qq
+      '@remotion/renderer': link:../renderer
       '@types/node': 18.14.6
       '@withfig/autocomplete-types': 1.28.0
       eslint: 8.25.0
       prettier: 2.8.4
-      prettier-plugin-organize-imports: 2.3.4_silln3pw57har7jydmecgzoypa
-      rollup: 2.76.0
       ts-node: 10.8.0_alpjt73dvgv6kni625hu7f2l4m
       typescript: 4.9.5
-      vitest: 0.24.3
 
   packages/compositor-darwin-arm64:
     specifiers: {}
@@ -18755,16 +18749,6 @@ packages:
     dependencies:
       prettier: 2.4.1
       typescript: 4.7.2
-    dev: true
-
-  /prettier-plugin-organize-imports/2.3.4_silln3pw57har7jydmecgzoypa:
-    resolution: {integrity: sha512-R8o23sf5iVL/U71h9SFUdhdOEPsi3nm42FD/oDYIZ2PQa4TNWWuWecxln6jlIQzpZTDMUeO1NicJP6lLn2TtRw==}
-    peerDependencies:
-      prettier: '>=2.0'
-      typescript: '>=2.9'
-    dependencies:
-      prettier: 2.8.4
-      typescript: 4.9.5
     dev: true
 
   /prettier-plugin-organize-imports/2.3.4_sleyu2lpiyw25c2kdlrjimfidi:
