@@ -2,12 +2,7 @@
 
 import type {Compiler} from 'webpack';
 
-export const OPTIONAL_DEPENDENCIES = [
-	'zod',
-	'@remotion/zod-types',
-	'react-native-reanimated',
-	'react-native-reanimated/package.json',
-];
+export const OPTIONAL_DEPENDENCIES = ['zod', '@remotion/zod-types'];
 
 export class AllowOptionalDependenciesPlugin {
 	filter(error: Error) {
