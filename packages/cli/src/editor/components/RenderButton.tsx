@@ -16,6 +16,7 @@ import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-vi
 import {PreviewServerConnectionCtx} from '../helpers/client-id';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {RenderIcon} from '../icons/render';
+import {useTimelineInOutFramePosition} from '../state/in-out';
 import {ModalsContext} from '../state/modals';
 import {Row, Spacing} from './layout';
 
@@ -31,6 +32,7 @@ const label: React.CSSProperties = {
 };
 
 export const RenderButton: React.FC = () => {
+	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {type} = useContext(PreviewServerConnectionCtx);
 
@@ -115,8 +117,10 @@ export const RenderButton: React.FC = () => {
 			initialHeadless: defaults.headless,
 			initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
 			defaultProps: props[video.id] ?? video.defaultProps,
+			inFrameMark: inFrame,
+			outFrameMark: outFrame,
 		});
-	}, [video, setSelectedModal, frame, props]);
+	}, [video, setSelectedModal, frame, props, inFrame, outFrame]);
 
 	if (!video) {
 		return null;

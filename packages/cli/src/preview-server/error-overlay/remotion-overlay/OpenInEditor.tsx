@@ -77,7 +77,6 @@ export const OpenInEditor: React.FC<{
 	const isMounted = useRef(true);
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const {registerKeybinding} = useKeybinding();
-
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
 		dispatch(payload);
@@ -130,7 +129,6 @@ export const OpenInEditor: React.FC<{
 		});
 		return () => unregister();
 	}, [canHaveKeyboardShortcuts, openInBrowser, registerKeybinding]);
-
 	const label = useMemo(() => {
 		switch (state.type) {
 			case 'error':
