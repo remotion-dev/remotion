@@ -31,6 +31,7 @@ const link: React.CSSProperties = {
 	maxWidth: 200,
 	color: '#0b84f3',
 	wordWrap: 'break-word',
+	textDecoration: 'none',
 };
 
 const infoRow: React.CSSProperties = {
