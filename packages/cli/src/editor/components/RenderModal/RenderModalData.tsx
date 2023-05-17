@@ -159,11 +159,10 @@ export const RenderModalData: React.FC<{
 	}, [inJSONEditor, inputProps]);
 
 	const cliProps = getInputProps();
-	const [canSaveDefaultProps, setCanSaveDefaultProps] = useState<AllCompStates>(
-		{
+	const [canSaveDefaultPropsObjectState, setCanSaveDefaultProps] =
+		useState<AllCompStates>({
 			[composition.id]: defaultTypeCanSaveState,
-		}
-	);
+		});
 
 	const z = useZodIfPossible();
 
@@ -206,13 +205,13 @@ export const RenderModalData: React.FC<{
 			});
 		}, []);
 
-	const derivedCurrentState = useMemo(() => {
-		return canSaveDefaultProps[composition.id]
-			? canSaveDefaultProps[composition.id]
+	const canSaveDefaultProps = useMemo(() => {
+		return canSaveDefaultPropsObjectState[composition.id]
+			? canSaveDefaultPropsObjectState[composition.id]
 			: defaultTypeCanSaveState;
-	}, [canSaveDefaultProps, composition.id]);
+	}, [canSaveDefaultPropsObjectState, composition.id]);
 
-	const showSaveButton = mayShowSaveButton && derivedCurrentState.canUpdate;
+	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
 	const {fastRefreshes} = useContext(Internals.NonceContext);
 
@@ -316,7 +315,7 @@ export const RenderModalData: React.FC<{
 
 	const warnings = useMemo(() => {
 		return getRenderModalWarnings({
-			canSaveDefaultProps: derivedCurrentState,
+			canSaveDefaultProps,
 			cliProps,
 			isCustomDateUsed: serializedJSON ? serializedJSON.customDateUsed : false,
 			customFileUsed: serializedJSON ? serializedJSON.customFileUsed : false,
@@ -327,7 +326,7 @@ export const RenderModalData: React.FC<{
 		});
 	}, [
 		cliProps,
-		derivedCurrentState,
+		canSaveDefaultProps,
 		inJSONEditor,
 		propsEditType,
 		serializedJSON,
