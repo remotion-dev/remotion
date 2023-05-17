@@ -37,7 +37,6 @@ import {FileIcon} from '../../icons/file';
 import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
-import {useTimelineInOutFramePosition} from '../../state/in-out';
 
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
@@ -210,6 +209,8 @@ export const RenderModal: React.FC<{
 	initialIgnoreCertificateErrors: boolean;
 	initialHeadless: boolean;
 	defaultProps: unknown;
+	inFrameMark?: number | null;
+	outFrameMark?: number | null;
 }> = ({
 	compositionId,
 	initialFrame,
@@ -241,6 +242,8 @@ export const RenderModal: React.FC<{
 	initialHeadless,
 	initialIgnoreCertificateErrors,
 	defaultProps,
+	inFrameMark,
+	outFrameMark,
 }) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 
@@ -310,10 +313,13 @@ export const RenderModal: React.FC<{
 		};
 	}, [headless, disableWebSecurity, ignoreCertificateErrors, openGlOption]);
 
-	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const [outName, setOutName] = useState(() => initialOutName);
-	const [endFrameOrNull, setEndFrame] = useState<number | null>(outFrame);
-	const [startFrameOrNull, setStartFrame] = useState<number | null>(inFrame);
+	const [endFrameOrNull, setEndFrame] = useState<number | null>(
+		() => outFrameMark ?? null
+	);
+	const [startFrameOrNull, setStartFrame] = useState<number | null>(
+		() => inFrameMark ?? null
+	);
 	const [proResProfileSetting, setProResProfile] = useState<ProResProfile>(
 		() => initialProResProfile
 	);
