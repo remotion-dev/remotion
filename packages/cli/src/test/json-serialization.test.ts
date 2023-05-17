@@ -7,12 +7,14 @@ import {
 test('date serialization', () => {
 	const date = {data: new Date(), hi: 'there'};
 
-	const {serializedString, customDateUsed} = serializeJSONWithDate({
-		data: date,
-		indent: 2,
-		staticBase: '/static',
-	});
+	const {serializedString, customDateUsed, customFileUsed} =
+		serializeJSONWithDate({
+			data: date,
+			indent: 2,
+			staticBase: '/static',
+		});
 	expect(customDateUsed).toEqual(true);
+	expect(customFileUsed).toEqual(false);
 
 	const deserialized = deserializeJSONWithCustomFields(serializedString);
 
@@ -20,10 +22,21 @@ test('date serialization', () => {
 });
 
 test('No date used', () => {
-	const {customDateUsed} = serializeJSONWithDate({
+	const {customDateUsed, customFileUsed, mapUsed} = serializeJSONWithDate({
 		data: {a: 'hi'},
 		indent: 2,
 		staticBase: '/static',
 	});
 	expect(customDateUsed).toEqual(false);
+	expect(customFileUsed).toEqual(false);
+	expect(mapUsed).toEqual(false);
+});
+
+test('Map used', () => {
+	const {mapUsed} = serializeJSONWithDate({
+		data: {a: 'hi', map: new Map()},
+		indent: 2,
+		staticBase: '/static',
+	});
+	expect(mapUsed).toEqual(true);
 });

@@ -2,6 +2,7 @@ export type SerializedJSONWithCustomFields = {
 	serializedString: string;
 	customDateUsed: boolean;
 	customFileUsed: boolean;
+	mapUsed: boolean;
 };
 
 const DATE_TOKEN = 'remotion-date:';
@@ -18,6 +19,7 @@ export const serializeJSONWithDate = ({
 }): SerializedJSONWithCustomFields => {
 	let customDateUsed = false;
 	let customFileUsed = false;
+	let mapUsed = false;
 
 	const serializedString = JSON.stringify(
 		data,
@@ -26,6 +28,11 @@ export const serializeJSONWithDate = ({
 			if (item instanceof Date) {
 				customDateUsed = true;
 				return `${DATE_TOKEN}${item.toISOString()}`;
+			}
+
+			if (item instanceof Map) {
+				mapUsed = true;
+				return value;
 			}
 
 			if (typeof item === 'string' && item.startsWith(staticBase)) {
@@ -37,7 +44,7 @@ export const serializeJSONWithDate = ({
 		},
 		indent
 	);
-	return {serializedString, customDateUsed, customFileUsed};
+	return {serializedString, customDateUsed, customFileUsed, mapUsed};
 };
 
 export const deserializeJSONWithCustomFields = (data: string) => {
