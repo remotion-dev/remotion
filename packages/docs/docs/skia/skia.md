@@ -55,7 +55,7 @@ pnpm i @remotion/skia @shopify/react-native-skia
 </Tabs>
 
 :::note
-Since Remotion `v3.3.93` and `0.1.190`, `react-native-web` is not a dependency anymore. You can remove it from your project.
+Since Remotion `v3.3.93` and React Native Skia `0.1.191`, `react-native-web` is not a dependency anymore. You may remove it from your project.
 :::
 
 Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.
