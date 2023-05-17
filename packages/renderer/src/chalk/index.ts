@@ -1,10 +1,11 @@
+import {isColorSupported} from './is-color-supported';
+
 const hasColor = () => {
-	if (typeof process !== 'undefined') {
-		if (process.env.NO_COLOR) return false;
-		return process.env.FORCE_COLOR !== '0';
+	if (typeof process !== 'undefined' && process.env.FORCE_COLOR) {
+		return true;
 	}
 
-	return false;
+	return isColorSupported;
 };
 
 type Style = {
