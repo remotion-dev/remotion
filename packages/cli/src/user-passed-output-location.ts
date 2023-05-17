@@ -25,7 +25,7 @@ export const getOutputLocation = ({
 		typeof parsedCli.output !== 'undefined'
 	) {
 		throw new Error(
-			'Both–an output flag (--output), and an output location as a positional argument were passed. Please choose only one of the ways.'
+			'Both an output flag (--output) and an output location as a positional argument were passed. Please choose only one of the ways.'
 		);
 	}
 
