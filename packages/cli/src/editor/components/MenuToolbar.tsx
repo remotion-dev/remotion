@@ -118,7 +118,6 @@ export const MenuToolbar: React.FC = () => {
 				})}
 				<UpdateCheck />
 			</div>
-
 			<div style={flex} />
 			<MenuBuildIndicator />
 			<div style={flex} />
