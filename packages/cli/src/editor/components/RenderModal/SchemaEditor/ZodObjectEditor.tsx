@@ -26,7 +26,9 @@ export const ZodObjectEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: unknown;
 	defaultValue: unknown;
-	setValue: React.Dispatch<React.SetStateAction<unknown>>;
+	setValue: (
+		updater: (oldState: Record<string, unknown>) => Record<string, unknown>
+	) => void;
 	compact: boolean;
 	onSave: (
 		updater: (oldVal: Record<string, unknown>) => Record<string, unknown>
@@ -94,7 +96,7 @@ export const ZodObjectEditor: React.FC<{
 										((defaultValue as Record<string, string>) ?? value)[key]
 									}
 									setValue={(val) => {
-										setValue((oldVal: Record<string, string>) => {
+										setValue((oldVal) => {
 											return {
 												...oldVal,
 												[key]:
@@ -103,7 +105,7 @@ export const ZodObjectEditor: React.FC<{
 										});
 									}}
 									onSave={(val) => {
-										onSave((oldVal: Record<string, unknown>) => {
+										onSave((oldVal) => {
 											return {
 												...oldVal,
 												[key]:

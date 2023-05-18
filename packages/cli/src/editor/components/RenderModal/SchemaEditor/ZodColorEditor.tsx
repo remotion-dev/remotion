@@ -13,6 +13,7 @@ import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 
 type LocalState = {
 	value: string;
@@ -28,7 +29,7 @@ export const ZodColorEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: string;
 	defaultValue: string;
-	setValue: React.Dispatch<React.SetStateAction<string>>;
+	setValue: UpdaterFunction<string>;
 	onSave: (updater: (oldNum: unknown) => string) => void;
 	onRemove: null | (() => void);
 	compact: boolean;
@@ -64,15 +65,15 @@ export const ZodColorEditor: React.FC<{
 	});
 
 	const onValueChange = useCallback(
-		(newValue: string) => {
+		(newValue: string, forceApply: boolean) => {
 			const safeParse = schema.safeParse(newValue);
 			const newLocalState: LocalState = {
 				value: newValue,
 				zodValidation: safeParse,
 			};
 			setLocalValue(newLocalState);
-			if (safeParse.success) {
-				setValue(newValue);
+			if (safeParse.success || forceApply) {
+				setValue(() => newValue);
 			}
 		},
 		[schema, setValue]
@@ -96,7 +97,7 @@ export const ZodColorEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(newColor);
+				setValue(() => newColor);
 			}
 		},
 		[a, schema, setValue, zodTypes]
@@ -112,14 +113,14 @@ export const ZodColorEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(newValue);
+				setValue(() => newValue);
 			}
 		},
 		[schema, setValue]
 	);
 
 	const reset = useCallback(() => {
-		onValueChange(defaultValue);
+		onValueChange(defaultValue, true);
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
@@ -154,7 +155,7 @@ export const ZodColorEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(newColor);
+				setValue(() => newColor);
 			}
 		},
 		[localValue.value, schema, setValue, zodTypes]
@@ -175,7 +176,7 @@ export const ZodColorEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(newColor);
+				setValue(() => newColor);
 			}
 		},
 		[localValue.value, schema, setValue, zodTypes]

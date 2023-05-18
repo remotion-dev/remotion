@@ -21,7 +21,7 @@ import {
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
-import fs from 'node:fs';
+import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {chalk} from '../chalk';
@@ -32,7 +32,7 @@ import {getCompositionWithDimensionOverride} from '../get-composition-with-dimen
 import {getOutputFilename} from '../get-filename';
 import {getFinalOutputCodec} from '../get-final-output-codec';
 import {getVideoImageFormat} from '../image-formats';
-import {INDENT_TOKEN, Log} from '../log';
+import {Log} from '../log';
 import {parsedCli} from '../parse-command-line';
 import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {BundlingState, CopyingState} from '../progress-bar';
@@ -47,6 +47,7 @@ import type {
 	StitchingProgressInput,
 } from '../progress-types';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
+import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
 import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
@@ -155,12 +156,15 @@ export const renderVideoFlow = async ({
 		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
-		indentationString: indent ? INDENT_TOKEN + ' ' : '',
+		indent,
 	});
 
+	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
 	const renderProgress = createOverwriteableCliOutput({
 		quiet,
 		cancelSignal,
+		updatesDontOverwrite,
+		indent,
 	});
 
 	const steps: RenderStep[] = [
@@ -181,7 +185,7 @@ export const renderVideoFlow = async ({
 		doneIn: null,
 	};
 
-	const updateRenderProgress = () => {
+	const updateRenderProgress = (newline: boolean) => {
 		const aggregateRenderProgress: AggregateRenderProgress = {
 			rendering: renderingProgress,
 			stitching: shouldOutputImageSequence ? null : stitchingProgress,
@@ -192,13 +196,15 @@ export const renderVideoFlow = async ({
 
 		const {output, message, progress} = makeRenderingAndStitchingProgress({
 			prog: aggregateRenderProgress,
-			indent,
 			steps: steps.length,
-			stitchingStep: steps.indexOf('bundling'),
+			stitchingStep: steps.indexOf('stitching'),
 		});
 		onProgress({message, value: progress, ...aggregateRenderProgress});
 
-		return renderProgress.update(output);
+		return renderProgress.update(
+			updatesDontOverwrite ? message : output,
+			newline
+		);
 	};
 
 	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
@@ -209,7 +215,7 @@ export const renderVideoFlow = async ({
 			onProgress: ({bundling, copying}) => {
 				bundlingProgress = bundling;
 				copyingState = copying;
-				updateRenderProgress();
+				updateRenderProgress(false);
 			},
 			indentOutput: indent,
 			logLevel,
@@ -218,6 +224,7 @@ export const renderVideoFlow = async ({
 			onDirectoryCreated: (dir) => {
 				addCleanupCallback(() => RenderInternals.deleteDirectory(dir));
 			},
+			quietProgress: updatesDontOverwrite,
 		}
 	);
 
@@ -233,12 +240,12 @@ export const renderVideoFlow = async ({
 			totalBytes: null,
 		};
 		downloads.push(download);
-		updateRenderProgress();
+		updateRenderProgress(false);
 		return ({percent, downloaded, totalSize}) => {
 			download.progress = percent;
 			download.totalBytes = totalSize;
 			download.downloaded = downloaded;
-			updateRenderProgress();
+			updateRenderProgress(false);
 		};
 	};
 
@@ -293,10 +300,14 @@ export const renderVideoFlow = async ({
 		logLevel,
 	});
 
+	Log.verboseAdvanced(
+		{indent, logLevel, tag: 'config'},
+		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`)
+	);
 	Log.infoAdvanced(
 		{indent, logLevel},
 		chalk.gray(
-			`Entry point = ${fullEntryPoint} (${entryPointReason}), Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
+			`Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
 		)
 	);
 
@@ -304,6 +315,7 @@ export const renderVideoFlow = async ({
 		relativeOutputLocation,
 		overwrite
 	);
+	const exists = existsSync(absoluteOutputFile);
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		config.durationInFrames,
@@ -351,7 +363,7 @@ export const renderVideoFlow = async ({
 			inputProps,
 			onFrameUpdate: (rendered) => {
 				(renderingProgress as RenderingProgressInput).frames = rendered;
-				updateRenderProgress();
+				updateRenderProgress(false);
 			},
 			onStart: () => undefined,
 			onDownload: (src: string) => {
@@ -388,9 +400,8 @@ export const renderVideoFlow = async ({
 			composition: config,
 		});
 
-		updateRenderProgress();
-		process.stdout.write('\n');
-		Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
+		updateRenderProgress(true);
+		Log.infoAdvanced({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
 		return;
 	}
 
@@ -447,16 +458,16 @@ export const renderVideoFlow = async ({
 				update.renderedDoneIn;
 			(renderingProgress as RenderingProgressInput).frames =
 				update.renderedFrames;
-			updateRenderProgress();
+			updateRenderProgress(false);
 		},
 		puppeteerInstance,
 		onDownload,
 		internal: {
 			onCtrlCExit: addCleanupCallback,
 			downloadMap,
+			indent,
 		},
 		cancelSignal: cancelSignal ?? undefined,
-		printLog: (...str) => Log.verboseAdvanced({indent, logLevel}, ...str),
 		audioCodec,
 		preferLossless: false,
 		imageFormat,
@@ -472,9 +483,11 @@ export const renderVideoFlow = async ({
 		);
 	});
 
-	updateRenderProgress();
-	process.stdout.write('\n');
-	Log.infoAdvanced({indent, logLevel}, chalk.cyan(`▶ ${absoluteOutputFile}`));
+	updateRenderProgress(true);
+	Log.infoAdvanced(
+		{indent, logLevel},
+		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`)
+	);
 
 	for (const line of RenderInternals.perf.getPerf()) {
 		Log.verboseAdvanced({indent, logLevel}, line);

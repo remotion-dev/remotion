@@ -16,15 +16,18 @@ import {ZodNullableEditor} from './ZodNullableEditor';
 import {ZodNumberEditor} from './ZodNumberEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
 import {ZodOptionalEditor} from './ZodOptionalEditor';
+import {ZodStaticFileEditor} from './ZodStaticFileEditor';
 import {ZodStringEditor} from './ZodStringEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
+
+export type UpdaterFunction<T> = (updater: (oldValue: T) => T) => void;
 
 export const ZodSwitch: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: unknown;
 	defaultValue: unknown;
-	setValue: React.Dispatch<React.SetStateAction<unknown>>;
+	setValue: UpdaterFunction<unknown>;
 	onSave: (newValue: (oldVal: unknown) => unknown) => void;
 	compact: boolean;
 	showSaveButton: boolean;
@@ -58,19 +61,13 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodObject) {
 		return (
 			<ZodObjectEditor
-				setValue={setValue}
+				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
 				value={value}
 				defaultValue={defaultValue}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
-				onSave={
-					onSave as (
-						newValue: (
-							oldVal: Record<string, unknown>
-						) => Record<string, unknown>
-					) => void
-				}
+				onSave={onSave as UpdaterFunction<Record<string, unknown>>}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
@@ -79,10 +76,27 @@ export const ZodSwitch: React.FC<{
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodString) {
+		if ((value as string).startsWith(window.remotion_staticBase)) {
+			return (
+				<ZodStaticFileEditor
+					setValue={setValue as UpdaterFunction<string>}
+					value={value as string}
+					jsonPath={jsonPath}
+					schema={schema}
+					compact={compact}
+					defaultValue={defaultValue as string}
+					onSave={onSave as (newValue: (oldVal: string) => string) => void}
+					showSaveButton={showSaveButton}
+					onRemove={onRemove}
+					saving={saving}
+				/>
+			);
+		}
+
 		return (
 			<ZodStringEditor
 				value={value as string}
-				setValue={setValue as React.Dispatch<React.SetStateAction<string>>}
+				setValue={setValue as UpdaterFunction<string>}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
@@ -99,7 +113,7 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodDateEditor
 				value={value as Date}
-				setValue={setValue as React.Dispatch<React.SetStateAction<Date>>}
+				setValue={setValue as UpdaterFunction<Date>}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
@@ -116,7 +130,7 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodNumberEditor
 				value={value as number}
-				setValue={setValue as React.Dispatch<React.SetStateAction<unknown>>}
+				setValue={setValue as UpdaterFunction<number>}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
@@ -133,7 +147,7 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodBooleanEditor
 				value={value as boolean}
-				setValue={setValue as React.Dispatch<React.SetStateAction<unknown>>}
+				setValue={setValue as UpdaterFunction<boolean>}
 				jsonPath={jsonPath}
 				compact={compact}
 				defaultValue={defaultValue as boolean}
@@ -208,13 +222,13 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodArray) {
 		return (
 			<ZodArrayEditor
-				setValue={setValue as React.Dispatch<React.SetStateAction<unknown[]>>}
+				setValue={setValue as UpdaterFunction<unknown[]>}
 				value={value as unknown[]}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
 				defaultValue={defaultValue as unknown[]}
-				onSave={onSave as (newValue: (oldVal: unknown[]) => unknown[]) => void}
+				onSave={onSave as UpdaterFunction<unknown[]>}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
@@ -225,13 +239,13 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodEnum) {
 		return (
 			<ZodEnumEditor
-				setValue={setValue as React.Dispatch<React.SetStateAction<string>>}
+				setValue={setValue as UpdaterFunction<string>}
 				value={value as string}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
 				defaultValue={defaultValue as string}
-				onSave={onSave as (newValue: (oldVal: string) => string) => void}
+				onSave={onSave as UpdaterFunction<string>}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
@@ -248,7 +262,7 @@ export const ZodSwitch: React.FC<{
 			return (
 				<ZodColorEditor
 					value={value as string}
-					setValue={setValue as React.Dispatch<React.SetStateAction<string>>}
+					setValue={setValue as UpdaterFunction<string>}
 					jsonPath={jsonPath}
 					schema={schema}
 					compact={compact}

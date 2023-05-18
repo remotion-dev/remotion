@@ -91,6 +91,8 @@ export const SidebarRenderButton: React.FC<{
 				initialHeadless: defaults.headless,
 				initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
 				defaultProps: props[composition.id] ?? composition.defaultProps,
+				inFrameMark: null,
+				outFrameMark: null,
 			});
 		},
 		[composition.defaultProps, composition.id, isVideo, props, setSelectedModal]

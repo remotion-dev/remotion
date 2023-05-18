@@ -30,6 +30,12 @@ pub struct FrameCacheReference {
     pub transparent: bool,
 }
 
+#[derive(Clone, Copy)]
+struct LastFrameFoundSoFar {
+    pub id: usize,
+    pub dts: i64,
+}
+
 impl FrameCache {
     pub fn new() -> Self {
         Self {
@@ -68,6 +74,34 @@ impl FrameCache {
 
     pub fn set_last_frame(&mut self, id: usize) {
         self.last_frame = Some(id);
+    }
+
+    pub fn set_biggest_frame_as_last_frame(&mut self) {
+        let mut last_frame_found: Option<LastFrameFoundSoFar> = None;
+        for i in 0..self.items.len() {
+            match last_frame_found {
+                Some(exists) => {
+                    if self.items[i].resolved_dts > exists.dts {
+                        last_frame_found = Some(LastFrameFoundSoFar {
+                            id: self.items[i].id,
+                            dts: self.items[i].resolved_dts,
+                        });
+                    }
+                }
+                None => {
+                    last_frame_found = Some(LastFrameFoundSoFar {
+                        id: self.items[i].id,
+                        dts: self.items[i].resolved_dts,
+                    });
+                }
+            }
+        }
+        match last_frame_found {
+            Some(biggest_frame) => {
+                self.set_last_frame(biggest_frame.id);
+            }
+            None => {}
+        }
     }
 
     pub fn get_item_from_id(&mut self, id: usize) -> Result<Option<Vec<u8>>, ErrorWithBacktrace> {
@@ -130,7 +164,7 @@ impl FrameCache {
 
                 return Ok(Some(self.items[i].id));
             }
-            let distance = (self.items[i].asked_time - time as i64).abs();
+            let distance = (self.items[i].resolved_dts - time as i64).abs();
             // LTE: IF multiple items have the same distance, we take the last one.
             // This is because the last frame is more likely to have been decoded
             if distance <= best_distance as i64 {

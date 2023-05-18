@@ -15,7 +15,7 @@ import {
 	RenderInternals,
 	renderStill,
 } from '@remotion/renderer';
-import {mkdirSync} from 'node:fs';
+import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {chalk} from '../chalk';
 import {registerCleanupJob} from '../cleanup-before-quit';
@@ -23,7 +23,7 @@ import {ConfigInternals} from '../config';
 import {determineFinalStillImageFormat} from '../determine-image-format';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
-import {INDENT_TOKEN, Log} from '../log';
+import {Log} from '../log';
 import {parsedCli, quietFlagProvided} from '../parse-command-line';
 import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {OverwriteableCliOutput} from '../progress-bar';
@@ -37,6 +37,7 @@ import type {
 } from '../progress-types';
 import {initialAggregateRenderProgress} from '../progress-types';
 import {bundleOnCliOrTakeServeUrl} from '../setup-cache';
+import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger';
 import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {
@@ -100,6 +101,8 @@ export const renderStillFlow = async ({
 	const downloads: DownloadProgress[] = [];
 
 	const aggregate: AggregateRenderProgress = initialAggregateRenderProgress();
+	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
+
 	let renderProgress: OverwriteableCliOutput | null = null;
 
 	const steps: RenderStep[] = [
@@ -107,15 +110,14 @@ export const renderStillFlow = async ({
 		'rendering' as const,
 	].filter(truthy);
 
-	const updateProgress = () => {
+	const updateProgress = (newline: boolean) => {
 		const {output, progress, message} = makeRenderingAndStitchingProgress({
 			prog: aggregate,
-			indent: indentOutput,
 			steps: steps.length,
 			stitchingStep: steps.indexOf('stitching'),
 		});
 		if (renderProgress) {
-			renderProgress.update(output);
+			renderProgress.update(updatesDontOverwrite ? message : output, newline);
 		}
 
 		onProgress({message, value: progress, ...aggregate});
@@ -136,7 +138,7 @@ export const renderStillFlow = async ({
 		chromiumOptions,
 		shouldDumpIo,
 		forceDeviceScaleFactor: scale,
-		indentationString: indentOutput ? INDENT_TOKEN + ' ' : '',
+		indent: indentOutput,
 	});
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
@@ -148,7 +150,7 @@ export const renderStillFlow = async ({
 			onProgress: ({copying, bundling}) => {
 				aggregate.bundling = bundling;
 				aggregate.copyingState = copying;
-				updateProgress();
+				updateProgress(false);
 			},
 			indentOutput,
 			logLevel,
@@ -158,6 +160,7 @@ export const renderStillFlow = async ({
 					RenderInternals.deleteDirectory(dir);
 				});
 			},
+			quietProgress: updatesDontOverwrite,
 		}
 	);
 
@@ -211,21 +214,28 @@ export const renderStillFlow = async ({
 		relativeOutputLocation,
 		overwrite
 	);
+	const exists = existsSync(absoluteOutputLocation);
 
 	mkdirSync(path.join(absoluteOutputLocation, '..'), {
 		recursive: true,
 	});
 
+	Log.verboseAdvanced(
+		{indent: indentOutput, logLevel, tag: 'config'},
+		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`)
+	);
 	Log.infoAdvanced(
 		{indent: indentOutput, logLevel},
 		chalk.gray(
-			`Entry point = ${fullEntryPoint} (${entryPointReason}), Output = ${relativeOutputLocation}, Format = ${imageFormat} (${source}), Composition = ${compositionId} (${reason})`
+			`Composition = ${compositionId} (${reason}), Format = ${imageFormat} (${source}), Output = ${relativeOutputLocation}`
 		)
 	);
 
 	renderProgress = createOverwriteableCliOutput({
 		quiet: quietFlagProvided(),
 		cancelSignal,
+		updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
+		indent: indentOutput,
 	});
 	const renderStart = Date.now();
 
@@ -237,7 +247,7 @@ export const renderStillFlow = async ({
 		totalFrames: 1,
 	};
 
-	updateProgress();
+	updateProgress(false);
 
 	const onDownload: RenderMediaOnDownload = (src) => {
 		const id = Math.random();
@@ -249,11 +259,11 @@ export const renderStillFlow = async ({
 			totalBytes: null,
 		};
 		downloads.push(download);
-		updateProgress();
+		updateProgress(false);
 
 		return ({percent}) => {
 			download.progress = percent;
-			updateProgress();
+			updateProgress(false);
 		};
 	};
 
@@ -285,10 +295,9 @@ export const renderStillFlow = async ({
 		steps,
 		totalFrames: 1,
 	};
-	updateProgress();
-	Log.infoAdvanced({indent: indentOutput, logLevel});
+	updateProgress(true);
 	Log.infoAdvanced(
 		{indent: indentOutput, logLevel},
-		chalk.cyan(`▶️ ${absoluteOutputLocation}`)
+		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputLocation}`)
 	);
 };
