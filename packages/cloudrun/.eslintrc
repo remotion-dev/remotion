@@ -12,5 +12,13 @@
 				]
 			}
 		]
-	}
+	},
+	"overrides": [
+		{
+			"files": "./gcpInstaller/**",
+			"rules": {
+				"no-console": "off"
+			}
+		}
+	]
 }
