@@ -1,25 +1,16 @@
-FROM node:alpine
+FROM debian:bookworm-20230411
 
-RUN apk add --no-cache \
-    chromium \
-    nss \
-    freetype \
-    freetype-dev \
-    harfbuzz \
-    ca-certificates \
-    ttf-freefont \
-    ffmpeg \
-    font-noto-emoji
+RUN apt-get update
+RUN apt-get install -y nodejs npm chromium
 
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 WORKDIR /usr/app
 
 COPY package*.json ./
-COPY dist ./dist
-
 RUN npm i
+
+COPY dist ./dist
 
 EXPOSE 8080
 
