@@ -15,7 +15,6 @@ export const CLOUD_RUN_DEPLOY_SUBCOMMAND = 'deploy';
 export const cloudRunDeploySubcommand = async () => {
 	const region = getGcpRegion();
 	const projectID = process.env.REMOTION_GCP_PROJECT_ID as string;
-	const remotionVersion = parsedCloudrunCli['remotion-version'] ?? VERSION;
 	const allowUnauthenticated =
 		parsedCloudrunCli['allow-unauthenticated'] ?? false;
 	let memoryLimit = parsedCloudrunCli.memoryLimit ?? '2Gi';
@@ -31,7 +30,7 @@ export const cloudRunDeploySubcommand = async () => {
 				`
 Validating Deployment of Cloud Run Service:
 
-    Remotion Version = ${remotionVersion}
+    Remotion Version = ${VERSION}
     Service Memory Limit = ${memoryLimit}
     Service CPU Limit = ${cpuLimit}
     Service Timeout In Seconds = ${timeoutSeconds}
@@ -46,7 +45,7 @@ Validating Deployment of Cloud Run Service:
 	}
 
 	validateGcpRegion(region);
-	await validateImageRemotionVersion(remotionVersion);
+	await validateImageRemotionVersion();
 
 	if (projectID === undefined) {
 		Log.error(`REMOTION_GCP_PROJECT_ID not found in the .env file.`);
@@ -61,7 +60,7 @@ Validating Deployment of Cloud Run Service:
 
 	try {
 		const deployResult = await deployService({
-			remotionVersion,
+			remotionVersion: VERSION,
 			performImageVersionValidation: false, // this is already performed above
 			memoryLimit,
 			cpuLimit,
@@ -127,14 +126,13 @@ Service Already Deployed! Check GCP Console for Cloud Run URL.
 			deployResult.fullName,
 			allowUnauthenticated
 		);
-	} catch (e: any) {
+	} catch (e) {
 		Log.error(
 			CliInternals.chalk.red(
 				`Failed to deploy service - ${generateServiceName({
 					memoryLimit,
 					cpuLimit,
 					timeoutSeconds,
-					remotionVersion,
 				})}.`
 			)
 		);

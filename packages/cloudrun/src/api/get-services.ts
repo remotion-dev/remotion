@@ -1,5 +1,4 @@
 import {JWT} from 'google-auth-library';
-import {VERSION} from 'remotion/version';
 import type {GcpRegion} from '../pricing/gcp-regions';
 import {RENDER_SERVICE_PREFIX} from '../shared/constants';
 import {serviceVersionString} from '../shared/service-version-string';
@@ -99,9 +98,7 @@ export const getServices = async (
 	if (options.compatibleOnly) {
 		remotionServices = services.filter((s) => {
 			return s.name?.startsWith(
-				`${parent}/services/${RENDER_SERVICE_PREFIX}--${serviceVersionString(
-					VERSION
-				)}--`
+				`${parent}/services/${RENDER_SERVICE_PREFIX}--${serviceVersionString()}--`
 			);
 		});
 	} else {

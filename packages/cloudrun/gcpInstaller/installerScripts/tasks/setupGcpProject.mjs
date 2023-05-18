@@ -14,6 +14,7 @@ export async function setupGcpProject(projectID) {
 	/****************************************
 	 * Prompt user for Remotion version
 	 ****************************************/
+	// TODO: Should take version from Remotion
 	const remotionVersion = await remotionVersionPrompt();
 
 	/****************************************

@@ -28,7 +28,7 @@ console.log(info.serviceName); // remotion--3-3-82--mem512mi--cpu1-0--t-500
 console.log(info.timeoutInSeconds); // 500
 console.log(info.memoryLimit); // 1500
 console.log(info.cpuLimit); // 2048
-console.log(info.remotionVersion); // '2021-07-14'
+console.log(info.remotionVersion); // '4.0.1'
 console.log(info.uri); // "https://remotion--3-3-82--mem512mi--cpu1-0--t-500-1a2b3c4d5e-ue.a.run.app"
 console.log(info.region); // "us-east1"
 console.log(info.consoleUrl); // "https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-500/logs"

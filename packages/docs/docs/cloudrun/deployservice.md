@@ -19,7 +19,6 @@ If a service with the same Remotion version, memory limit, cpu limit and timeout
 import { deployService } from "@remotion/cloudrun";
 
 const { shortName } = await deployService({
-  remotionVersion: "3.3.82",
   memoryLimit: "2Gi",
   cpuLimit: "2.0",
   timeoutSeconds: 500,
@@ -32,10 +31,6 @@ console.log(shortName);
 ## Arguments
 
 An object with the following properties:
-
-### `remotionVersion`
-
-The Remotion version of the service. Remotion is versioning the Cloud Run service and a render can only be triggered from a version of `@remotion/cloudrun` that is matching the service.
 
 ### `memoryLimit`
 

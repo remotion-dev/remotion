@@ -289,7 +289,6 @@ To render a still, send a POST request to the URL with the following body:
 
 ### deploy cloud-run command
 
-- add remotionVersion validation
 - add cpu and memory limit arguments
 - returning error from deployNewCloudRun - typed as any, can I get a type from the protos?
 - sprinkle quietFlagProvided() throughout
@@ -300,7 +299,6 @@ To render a still, send a POST request to the URL with the following body:
 
 ### create sites command
 
-- add remotionVersion validation
 - sprinkle quietFlagProvided() throughout
 - time for uploading to GCP Storage Bucket is always 0ms
 - add LS, RM, RMALL subcommands

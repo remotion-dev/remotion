@@ -36,7 +36,7 @@ for (const service of info) {
   console.log(service.timeoutInSeconds); // 300
   console.log(service.memoryLimit); // 512Mi
   console.log(service.cpuLimit); // 1.0
-  console.log(service.remotionVersion); // "3.3.82"
+  console.log(service.remotionVersion); // "4.0.1"
   console.log(service.uri); // "https://remotion--3-3-82--mem512mi--cpu1-0--t-300-1a2b3c4d5e-ue.a.run.app"
   console.log(service.region); // "us-east1"
   console.log(service.consoleUrl); // "https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-300/logs"
@@ -67,7 +67,7 @@ for (const service of info) {
   console.log(service.timeoutInSeconds); // 1100
   console.log(service.memoryLimit); // 2Gi
   console.log(service.cpuLimit); // 2
-  console.log(service.remotionVersion); // "3.3.82"
+  console.log(service.remotionVersion); // "4.0.1"
   console.log(service.uri); // "https://remotion--3-3-82--mem2gi--cpu2--t-1100-1a2b3c4d5e-uc.a.run.app"
   console.log(service.region); // "us-central1"
   console.log(service.consoleUrl); // "https://console.cloud.google.com/run/detail/us-central1/remotion--3-3-82--mem2gi--cpu2--t-1100/logs"
