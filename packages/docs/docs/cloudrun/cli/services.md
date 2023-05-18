@@ -31,22 +31,22 @@ Example output
 <pre>
 Validating Deployment of Cloud Run Service:
 
-    Remotion Version = 3.3.82
-    Service Memory Limit = 512Mi
-    Service CPU Limit = 1.0
-    Service Timeout In Seconds = 300
-    Project Name = remotion-6
-    Region = us-east1
+Remotion Version = 3.3.82
+Service Memory Limit = 512Mi
+Service CPU Limit = 1.0
+Service Timeout In Seconds = 300
+Project Name = remotion-6
+Region = us-east1
 
 Deploying Cloud Run Service...
 
 <br/>
-🎉 Cloud Run Deployed! 🎉
+Cloud Run Deployed!
 
-    Full Service Name = projects/remotion-6/locations/us-east1/services/remotion--3-3-82--mem512mi--cpu1-0--t-300
-    Cloud Run URL = https://remotion--3-3-82--mem512mi--cpu1-0--t-300-abcdefg-ue.a.run.app
-    Project = remotion-6
-    GCP Console URL = https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-300/logs
+Full Service Name = projects/remotion-6/locations/us-east1/services/remotion--3-3-82--mem512mi--cpu1-0--t-300
+Cloud Run URL = https://remotion--3-3-82--mem512mi--cpu1-0--t-300-abcdefg-ue.a.run.app
+Project = remotion-6
+GCP Console URL = https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-300/logs
 
 <br/>
 

@@ -24,12 +24,12 @@ export const cloudRunDeploySubcommand = async () => {
 				`
 Validating Deployment of Cloud Run Service:
 
-    Remotion Version = ${VERSION}
-    Service Memory Limit = ${memoryLimit}
-    Service CPU Limit = ${cpuLimit}
-    Service Timeout In Seconds = ${timeoutSeconds}
-    Project Name = ${projectID}
-    Region = ${region}
+Remotion Version = ${VERSION}
+Service Memory Limit = ${memoryLimit}
+Service CPU Limit = ${cpuLimit}
+Service Timeout In Seconds = ${timeoutSeconds}
+Project Name = ${projectID}
+Region = ${region}
     `.trim()
 			)
 		);
@@ -86,9 +86,9 @@ Validating Deployment of Cloud Run Service:
 						`
 Service Already Deployed! Check GCP Console for Cloud Run URL.
 		
-    Full Service Name = ${deployResult.fullName}
-    Project = ${projectID}
-    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/logs
+Full Service Name = ${deployResult.fullName}
+Project = ${projectID}
+GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/logs
 						`.trim()
 					)
 				);
@@ -102,12 +102,11 @@ Service Already Deployed! Check GCP Console for Cloud Run URL.
 				Log.info(
 					CliInternals.chalk.blueBright(
 						`
-🎉 Cloud Run Deployed! 🎉
-		
-    Full Service Name = ${deployResult.fullName}
-    Cloud Run URL = ${deployResult.uri}
-    Project = ${projectID}
-    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/logs
+Cloud Run Deployed!
+Full Service Name = ${deployResult.fullName}
+Cloud Run URL = ${deployResult.uri}
+Project = ${projectID}
+GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/logs
 						`.trim()
 					)
 				);
