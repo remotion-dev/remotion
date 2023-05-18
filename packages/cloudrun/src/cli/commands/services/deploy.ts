@@ -14,12 +14,9 @@ export const CLOUD_RUN_DEPLOY_SUBCOMMAND = 'deploy';
 export const cloudRunDeploySubcommand = async () => {
 	const region = getGcpRegion();
 	const projectID = process.env.REMOTION_GCP_PROJECT_ID as string;
-	let memoryLimit = parsedCloudrunCli.memoryLimit ?? '2Gi';
-	let cpuLimit = parsedCloudrunCli.cpuLimit ?? '1.0';
+	const memoryLimit = String(parsedCloudrunCli.memoryLimit ?? '2Gi');
+	const cpuLimit = String(parsedCloudrunCli.cpuLimit ?? '1.0');
 	const timeoutSeconds = parsedCloudrunCli.timeoutSeconds ?? 300;
-
-	memoryLimit = String(memoryLimit);
-	cpuLimit = String(cpuLimit);
 
 	if (!CliInternals.quietFlagProvided()) {
 		Log.info(
