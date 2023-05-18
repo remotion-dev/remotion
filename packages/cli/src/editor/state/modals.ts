@@ -47,6 +47,8 @@ export type RenderModalState = {
 	minConcurrency: number;
 	maxConcurrency: number;
 	defaultProps: unknown;
+	inFrameMark: number | null;
+	outFrameMark: number | null;
 };
 
 export type ModalState =
