@@ -20,7 +20,6 @@
 		"@remotion/cli": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"google-auth-library": "^8.7.0",
-		"got": "11.8.2",
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {

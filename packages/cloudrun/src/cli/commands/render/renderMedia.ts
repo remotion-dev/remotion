@@ -23,7 +23,6 @@ export const renderMediaSubcommand = async (
 		outputBucket,
 		downloadName,
 		privacy,
-		authenticatedRequest,
 	} = await renderArgsCheck(RENDER_MEDIA_SUBCOMMAND, args);
 
 	const {codec, reason: codecReason} = CliInternals.getFinalOutputCodec({
@@ -68,7 +67,6 @@ export const renderMediaSubcommand = async (
 Sending request to Cloud Run:
 
     Cloud Run Service URL = ${cloudRunUrl}
-    Authenticated Request = ${authenticatedRequest}
     Type = media
     Composition = ${composition}
     Codec = ${codec}
@@ -140,7 +138,6 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		forceHeight: height,
 		forceWidth: width,
 		audioCodec,
-		authenticatedRequest,
 		outputBucket,
 		updateRenderProgress,
 	});

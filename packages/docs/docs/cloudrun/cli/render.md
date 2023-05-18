@@ -94,10 +94,6 @@ Specify the url of the service which should be used to perform the render. You m
 
 Specify the name of the service which should be used to perform the render. This is used in conjunction with the region to determine the service endpoint, as the same service name can exist across multiple regions. You must set either `cloud-run-url` _or_ `service-name`, but not both
 
-### `--unauthenticated-request`
-
-When this flag is set, the endpoint will be called without making use of credentials in the .env file. This requires the service to allow unauthenticated invocations. This can be set with the [--allow-unauthenticated](/docs/cloudrun/cli/services#--allow-unauthenticated) flag through the CLI, or through the [allowUnauthenticatedAccess](/docs/cloudrun/allowunauthenticatedaccess) method in the Node API.
-
 ## Media Rendering Specific Flags
 
 The above flags can be used for rendering both Still and Media. These flags are specific for Media rendering.

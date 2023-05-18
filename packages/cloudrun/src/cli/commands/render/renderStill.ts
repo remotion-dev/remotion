@@ -19,7 +19,6 @@ export const renderStillSubcommand = async (
 		outName,
 		outputBucket,
 		privacy,
-		authenticatedRequest,
 		downloadName,
 	} = await renderArgsCheck(RENDER_STILL_SUBCOMMAND, args);
 
@@ -55,7 +54,6 @@ export const renderStillSubcommand = async (
 Sending request to Cloud Run:
 
     Cloud Run Service URL = ${cloudRunUrl}
-    Authenticated Request = ${authenticatedRequest}
     Type = still
     Composition = ${composition}
     Output Bucket = ${outputBucket}
@@ -103,7 +101,6 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		scale,
 		forceHeight: height,
 		forceWidth: width,
-		authenticatedRequest,
 		outputBucket,
 		outputFile: outName,
 	});

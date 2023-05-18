@@ -1,12 +1,10 @@
 import type {ChromiumOptions, StillImageFormat} from '@remotion/renderer';
-import got from 'got';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {validateServeUrl} from '../shared/validate-serveurl';
 import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
 import {getCloudrunEndpoint} from './helpers/get-cloudrun-endpoint';
 
 export type RenderStillOnCloudrunInput = {
-	authenticatedRequest: boolean;
 	cloudRunUrl?: string;
 	serviceName?: string;
 	region?: string;
@@ -54,7 +52,6 @@ export type RenderStillOnCloudrunOutput = {
  */
 
 export const renderStillOnCloudrun = async ({
-	authenticatedRequest,
 	cloudRunUrl,
 	serviceName,
 	region,
@@ -100,19 +97,12 @@ export const renderStillOnCloudrun = async ({
 		type: 'still',
 	};
 
-	if (authenticatedRequest) {
-		const client = await getAuthClientForUrl(cloudRunEndpoint);
+	const client = await getAuthClientForUrl(cloudRunEndpoint);
 
-		const authenticatedResponse = await client.request({
-			url: cloudRunUrl,
-			method: 'POST',
-			data,
-		});
-		return authenticatedResponse.data as RenderStillOnCloudrunOutput;
-	}
-
-	const response: RenderStillOnCloudrunOutput = await got
-		.post(cloudRunEndpoint, {json: data})
-		.json();
-	return response;
+	const authenticatedResponse = await client.request({
+		url: cloudRunUrl,
+		method: 'POST',
+		data,
+	});
+	return authenticatedResponse.data as RenderStillOnCloudrunOutput;
 };
