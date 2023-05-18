@@ -25,7 +25,7 @@ export function remotionVersionPrompt() {
         if (semverRegex.test(answer.trim())) {
           try {
             execSync(
-              `gcloud storage ls gs://remotion-sa/${answer.trim()}/sa-permissions.json`
+              `gcloud storage ls gs://remotion-sa/sa-permissions.json`
             );
             return resolve(answer.trim());
           } catch {
