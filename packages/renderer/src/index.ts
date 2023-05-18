@@ -51,6 +51,7 @@ import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
+import {proResProfileOptions} from './prores-profile';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {tmpDir} from './tmp-dir';
@@ -63,6 +64,7 @@ import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-c
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
+	validOpenGlRenderers,
 } from './validate-opengl-renderer';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
@@ -181,6 +183,8 @@ export const RenderInternals = {
 	setLogLevel,
 	INDENT_TOKEN,
 	isColorSupported,
+	proResProfileOptions,
+	validOpenGlRenderers,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

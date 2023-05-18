@@ -20,7 +20,8 @@
 		"@remotion/cli": "workspace:*",
 		"@remotion/renderer": "workspace:*",
 		"google-auth-library": "^8.7.0",
-		"remotion": "workspace:*"
+		"remotion": "workspace:*",
+		"zod": "^3.21.4"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",

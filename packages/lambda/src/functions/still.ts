@@ -160,10 +160,7 @@ const innerStillHandler = async (
 			lambdaParams.dumpBrowserLogs ??
 			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
 		envVariables: lambdaParams.envVariables,
-		frame: RenderInternals.convertToPositiveFrameIndex({
-			frame: lambdaParams.frame,
-			durationInFrames: composition.durationInFrames,
-		}),
+		frame: lambdaParams.frame,
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
 		inputProps,
 		overwrite: false,
