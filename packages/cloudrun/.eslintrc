@@ -19,6 +19,12 @@
 			"rules": {
 				"no-console": "off"
 			}
+		},
+		{
+			"files": "./src/admin/**",
+			"rules": {
+				"no-console": "off"
+			}
 		}
 	]
 }
