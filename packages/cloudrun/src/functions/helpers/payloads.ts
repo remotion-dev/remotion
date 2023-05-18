@@ -62,30 +62,45 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 	}),
 ]);
 
-const renderStillOnLambdaResponsePayload = z.object({
-	publicUrl: z.string(),
-	cloudStorageUri: z.string(),
-	size: z.number(),
-	bucketName: z.string(),
-	renderId: z.string(),
-	status: z.literal('success'),
-	privacy: z.enum(['public-read', 'project-private']),
+const renderFailResponsePayload = z.object({
+	status: z.literal('error'),
+	error: z.string(),
+	stack: z.string(),
 });
 
-const renderMediaOnLambdaResponsePayload = z.object({
-	publicUrl: z.string(),
-	cloudStorageUri: z.string(),
-	size: z.number(),
-	bucketName: z.string(),
-	renderId: z.string(),
-	status: z.literal('success'),
-	privacy: z.enum(['public-read', 'project-private']),
-});
+const renderStillOnLambdaResponsePayload = z.discriminatedUnion('status', [
+	z.object({
+		publicUrl: z.string(),
+		cloudStorageUri: z.string(),
+		size: z.number(),
+		bucketName: z.string(),
+		renderId: z.string(),
+		status: z.literal('success'),
+		privacy: z.enum(['public-read', 'project-private']),
+	}),
+	renderFailResponsePayload,
+]);
+
+const renderMediaOnLambdaResponsePayload = z.discriminatedUnion('status', [
+	z.object({
+		publicUrl: z.string(),
+		cloudStorageUri: z.string(),
+		size: z.number(),
+		bucketName: z.string(),
+		renderId: z.string(),
+		status: z.literal('success'),
+		privacy: z.enum(['public-read', 'project-private']),
+	}),
+	renderFailResponsePayload,
+]);
 
 export type CloudRunPayloadType = z.infer<typeof CloudRunPayload>;
+
 export type RenderStillOnCloudrunOutput = z.infer<
 	typeof renderStillOnLambdaResponsePayload
 >;
 export type RenderMediaOnCloudrunOutput = z.infer<
 	typeof renderMediaOnLambdaResponsePayload
 >;
+
+export type ErrorResponsePayload = z.infer<typeof renderFailResponsePayload>;

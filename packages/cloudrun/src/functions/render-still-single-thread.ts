@@ -1,7 +1,6 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
-import {renderStill} from '@remotion/renderer';
-import {Log} from '../cli/log';
+import {RenderInternals, renderStill} from '@remotion/renderer';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 import type {
@@ -65,7 +64,7 @@ export const renderStillSingleThread = async (
 		privacy: publicUpload ? 'public-read' : 'project-private',
 	};
 
-	Log.info('Render Completed:', responseData);
+	RenderInternals.Log.info('Render Completed:', responseData);
 
 	const jsonContent = JSON.stringify(responseData);
 

@@ -2,7 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {downloadFile} from '../../../api/download-file';
 import {renderStillOnCloudrun} from '../../../api/render-still-on-cloudrun';
-import type {RenderStillOnCloudrunOutput} from '../../../functions/helpers/payloads';
+import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
 
@@ -51,8 +51,6 @@ export const renderStillSubcommand = async (
 	CliInternals.Log.info(
 		CliInternals.chalk.gray(
 			`
-Sending request to Cloud Run:
-
 Cloud Run Service URL = ${cloudRunUrl}
 Type = still
 Composition = ${composition}
@@ -107,38 +105,43 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 	doneIn = Date.now() - renderStart;
 	updateProgress();
 
-	const success = res as RenderStillOnCloudrunOutput;
-	Log.info(`
+	if (res.status === 'success') {
+		Log.info(`
 		
 		`);
-	Log.info(
-		CliInternals.chalk.blueBright(
-			`
+		Log.info(
+			CliInternals.chalk.blueBright(
+				`
 🤘 Rendered still on Cloud Run! 🤘
 
-    Public URL = ${decodeURIComponent(success.publicUrl)}
-    Cloud Storage Uri = ${success.cloudStorageUri}
-    Size (KB) = ${Math.round(Number(success.size) / 1000)}
-    Bucket Name = ${success.bucketName}
-    Privacy = ${success.privacy}
-    Render ID = ${success.renderId}
+    Public URL = ${decodeURIComponent(res.publicUrl)}
+    Cloud Storage Uri = ${res.cloudStorageUri}
+    Size (KB) = ${Math.round(Number(res.size) / 1000)}
+    Bucket Name = ${res.bucketName}
+    Privacy = ${res.privacy}
+    Render ID = ${res.renderId}
     Image Format = ${imageFormat} (${imageFormatReason})
       `.trim()
-		)
-	);
-
-	if (downloadName) {
-		Log.info('');
-		Log.info('downloading file...');
-
-		const destination = await downloadFile({
-			bucketName: success.bucketName,
-			gsutilURI: success.cloudStorageUri,
-			downloadName,
-		});
-
-		Log.info(
-			CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
+			)
 		);
+
+		if (downloadName) {
+			Log.info('');
+			Log.info('downloading file...');
+
+			const destination = await downloadFile({
+				bucketName: res.bucketName,
+				gsutilURI: res.cloudStorageUri,
+				downloadName,
+			});
+
+			Log.info(
+				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
+			);
+		}
+	} else {
+		Log.error('Render failed with the following reason:');
+		Log.error(res.stack);
+		quit(1);
 	}
 };
