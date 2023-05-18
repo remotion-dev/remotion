@@ -232,6 +232,11 @@ module.exports = {
         "cloudrun/getservices",
         "cloudrun/getregions",
         "cloudrun/deployservice",
+        "cloudrun/deleteservice",
+        "cloudrun/speculateservicename",
+        "cloudrun/deploysite",
+        "cloudrun/rendermediaoncloudrun",
+        "cloudrun/renderstilloncloudrun",
       ],
     },
     {
@@ -519,6 +524,8 @@ module.exports = {
         "cloudrun/setup",
         "cloudrun/generate-env",
         "cloudrun/region-selection",
+        "cloudrun/faq",
+        "cloudrun/upgrading",
       ],
     },
     {
