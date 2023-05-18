@@ -281,17 +281,14 @@ You already have the service name from a previous step. But since you only need 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {
-  // getServices,
-  renderMediaOnCloudrun,
-} from "@remotion/cloudrun";
+import { getServices, renderMediaOnCloudrun } from "@remotion/cloudrun";
 
-// const services = await getServices({
-//   region: "us-east1",
-//   compatibleOnly: true,
-// });
+const services = await getServices({
+  region: "us-east1",
+  compatibleOnly: true,
+});
 
-// const serviceName = services[0].serviceName;
+const serviceName = services[0].serviceName;
 ```
 
 We can now trigger a render of a video using the [`renderMediaOnCloudrun()`](/docs/cloudrun/renderMediaOnCloudrun) function.
@@ -299,22 +296,19 @@ We can now trigger a render of a video using the [`renderMediaOnCloudrun()`](/do
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {
-  // getServices,
-  renderMediaOnCloudrun,
-} from "@remotion/cloudrun";
+import { getServices, renderMediaOnCloudrun } from "@remotion/cloudrun";
 
 const url = "string";
 const cloudRunUrl = "string";
 const outputBucket = "string";
 const outputFile = "string";
 const updateRenderProgress = (progress: number) => {};
-// const services = await getServices({
-//   region: "us-east1",
-//   compatibleOnly: true,
-// });
+const services = await getServices({
+  region: "us-east1",
+  compatibleOnly: true,
+});
 
-// const serviceName = services[0].serviceName;
+const serviceName = services[0].serviceName;
 // ---cut---
 
 const { renderId, bucketName } = await renderMediaOnCloudrun({
@@ -341,17 +335,14 @@ You already have the service name from a previous step. But since you only need 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {
-  // getServices,
-  renderStillOnCloudrun,
-} from "@remotion/cloudrun";
+import { getServices, renderStillOnCloudrun } from "@remotion/cloudrun";
 
-// const services = await getServices({
-//   region: "us-east1",
-//   compatibleOnly: true,
-// });
+const services = await getServices({
+  region: "us-east1",
+  compatibleOnly: true,
+});
 
-// const serviceName = services[0].serviceName;
+const serviceName = services[0].serviceName;
 ```
 
 We can now trigger a render of a still using the [`renderStillOnCloudrun()`](/docs/cloudrun/renderStillOnCloudrun) function.
@@ -376,7 +367,7 @@ const outputFile = "string";
 // const functionName = functions[0].functionName;
 // ---cut---
 
-const { renderId, bucketName } = await renderStillOnCloudrun({
+const { renderId, publicUrl } = await renderStillOnCloudrun({
   authenticatedRequest: false, // unauthenticated request - requires cloud run service to be public
   cloudRunUrl,
   serveUrl: url,
@@ -384,6 +375,7 @@ const { renderId, bucketName } = await renderStillOnCloudrun({
   inputProps: {},
   outputBucket,
   outputFile,
+  imageFormat: "jpeg",
 });
 ```
 
