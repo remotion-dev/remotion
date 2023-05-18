@@ -7,7 +7,6 @@ import {constructServiceTemplate} from './helpers/construct-service-deploy-reque
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
 export type DeployServiceInput = {
-	remotionVersion: string;
 	performImageVersionValidation?: boolean;
 	memoryLimit?: string;
 	cpuLimit?: string;

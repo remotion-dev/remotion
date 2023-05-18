@@ -60,7 +60,6 @@ Validating Deployment of Cloud Run Service:
 
 	try {
 		const deployResult = await deployService({
-			remotionVersion: VERSION,
 			performImageVersionValidation: false, // this is already performed above
 			memoryLimit,
 			cpuLimit,
