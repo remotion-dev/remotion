@@ -149,15 +149,13 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		Log.info(
 			CliInternals.chalk.blueBright(
 				`
-🤘 Rendered media on Cloud Run! 🤘
-
-    Public URL = ${decodeURIComponent(res.publicUrl)}
-    Cloud Storage Uri = ${res.cloudStorageUri}
-    Size (KB) = ${Math.round(Number(res.size) / 1000)}
-    Bucket Name = ${res.bucketName}
-		Privacy = ${res.privacy}
-    Render ID = ${res.renderId}
-    Codec = ${codec} (${codecReason})
+Public URL = ${decodeURIComponent(res.publicUrl)}
+Cloud Storage Uri = ${res.cloudStorageUri}
+Size (KB) = ${Math.round(Number(res.size) / 1000)}
+Bucket Name = ${res.bucketName}
+Privacy = ${res.privacy}
+Render ID = ${res.renderId}
+Codec = ${codec} (${codecReason})
       `.trim()
 			)
 		);
