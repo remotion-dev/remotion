@@ -5,8 +5,10 @@
 		"esModuleInterop": true,
 		"strict": true,
 		"outDir": "dist",
-		"resolveJsonModule": true
+		"resolveJsonModule": true,
+		"composite": true,
+		"rootDir": "src"
 	},
-	"include": ["src/**/*", "gcpInstaller/**/*", "gcpInstaller/*"],
+	"include": ["src"],
 	"exclude": ["node_modules"]
 }

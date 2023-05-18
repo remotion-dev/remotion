@@ -41,7 +41,6 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 			urlOrId: siteName,
 			bucketName: remotionBucket,
 		});
-		Log.info(`Serve URL: ${serveUrl}\n`);
 	}
 
 	let composition: string = args[1];
@@ -97,10 +96,8 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 	}
 
 	if (serviceName) {
-		Log.info('Cloud Run service name passed, fetching Cloud Run url...');
 		region = region ?? getGcpRegion();
 		const {uri} = await getServiceInfo({serviceName, region});
-		Log.info('cloud run url found: ', uri);
 		cloudRunUrl = uri;
 	}
 
