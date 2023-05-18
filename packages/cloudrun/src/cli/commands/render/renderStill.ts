@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {downloadFile} from '../../../api/download-file';
-import type {RenderStillOnCloudrunOutput} from '../../../api/render-still-on-cloudrun';
 import {renderStillOnCloudrun} from '../../../api/render-still-on-cloudrun';
+import type {RenderStillOnCloudrunOutput} from '../../../functions/helpers/payloads';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
 

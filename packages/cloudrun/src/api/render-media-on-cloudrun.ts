@@ -1,4 +1,8 @@
 import type {ChromiumOptions, FrameRange} from '@remotion/renderer';
+import type {
+	CloudRunPayloadType,
+	RenderMediaOnCloudrunOutput,
+} from '../functions/helpers/payloads';
 import type {CloudrunCodec} from '../shared/validate-gcp-codec';
 import {validateCloudrunCodec} from '../shared/validate-gcp-codec';
 import {validatePrivacy} from '../shared/validate-privacy';
@@ -10,11 +14,11 @@ export type RenderMediaOnCloudrunInput = {
 	cloudRunUrl?: string;
 	serviceName?: string;
 	region?: string;
-	serveUrl?: string;
+	serveUrl: string;
 	composition: string;
 	inputProps?: unknown;
 	codec: CloudrunCodec;
-	privacy?: string;
+	privacy?: 'public' | 'private';
 	outputBucket: string;
 	outputFile?: string;
 	updateRenderProgress?: (progress: number) => void;
@@ -50,19 +54,6 @@ export type RenderMediaOnCloudrunInput = {
 	muted?: boolean;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
-};
-
-export type RenderMediaOnCloudrunOutput = {
-	authenticatedRequest: boolean;
-	publicUrl: string;
-	cloudStorageUri: string;
-	size: string;
-	bucketName: string;
-	renderId: string;
-	status: string;
-	privacy: string;
-	errMessage: string;
-	error: any;
 };
 
 /**
@@ -121,7 +112,7 @@ export const renderMediaOnCloudrun = async ({
 		region,
 	});
 
-	const data = {
+	const data: CloudRunPayloadType = {
 		composition,
 		serveUrl,
 		codec: actualCodec,
@@ -158,30 +149,35 @@ export const renderMediaOnCloudrun = async ({
 		responseType: 'stream',
 	});
 
-	const authenticatedDataPromise = new Promise((resolve, reject) => {
-		// TODO: Add any sort of type safety
-		let response: any;
+	const authenticatedDataPromise =
+		await new Promise<RenderMediaOnCloudrunOutput>((resolve, reject) => {
+			// TODO: Add any sort of type safety
+			let response: any;
 
-		const stream: any = postResponse.data;
+			const stream: any = postResponse.data;
 
-		stream.on('data', (chunk: Buffer) => {
-			const chunkResponse = JSON.parse(chunk.toString());
-			if (chunkResponse.response) {
-				authenticatedResponse = chunkResponse.response;
-			} else if (chunkResponse.onProgress) {
-				updateRenderProgress?.(chunkResponse.onProgress);
-			}
+			stream.on('data', (chunk: Buffer) => {
+				const chunkResponse = JSON.parse(chunk.toString());
+				if (chunkResponse.response) {
+					response = chunkResponse.response;
+				} else if (chunkResponse.onProgress) {
+					updateRenderProgress?.(chunkResponse.onProgress);
+				}
+			});
+
+			stream.on('end', () => {
+				if (!response) {
+					reject(new Error('no response received'));
+					return;
+				}
+
+				resolve(response);
+			});
+
+			stream.on('error', (error: Error) => {
+				reject(error);
+			});
 		});
 
-		stream.on('end', () => {
-			resolve(response);
-		});
-
-		stream.on('error', (error: any) => {
-			reject(error);
-		});
-	});
-
-	let authenticatedResponse = await authenticatedDataPromise;
-	return authenticatedResponse as RenderMediaOnCloudrunOutput;
+	return authenticatedDataPromise;
 };

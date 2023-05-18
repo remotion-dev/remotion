@@ -10,9 +10,9 @@ const proResProfile = z.enum(RenderInternals.proResProfileOptions);
 const chromiumOptions = z.object({
 	ignoreCertificateErrors: z.boolean().optional(),
 	disableWebSecurity: z.boolean().optional(),
-	gl: z.enum(RenderInternals.validOpenGlRenderers).optional(),
+	gl: z.enum(RenderInternals.validOpenGlRenderers).optional().nullable(),
 	headless: z.boolean().optional(),
-	userAgent: z.string().optional(),
+	userAgent: z.string().optional().nullable(),
 });
 
 export const CloudRunPayload = z.discriminatedUnion('type', [
@@ -20,8 +20,8 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		type: z.literal('media'),
 		serveUrl: z.string(),
 		composition: z.string(),
-		forceHeight: z.number().optional(),
-		forceWidth: z.number().optional(),
+		forceHeight: z.number().optional().nullable(),
+		forceWidth: z.number().optional().nullable(),
 		codec,
 		inputProps: z.unknown(),
 		jpegQuality: z.number().optional(),
@@ -34,7 +34,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		scale: z.number().optional(),
 		proResProfile: proResProfile.optional(),
 		everyNthFrame: z.number().optional(),
-		numberOfGifLoops: z.number().optional(),
+		numberOfGifLoops: z.number().optional().nullable(),
 		frameRange: z.tuple([z.number(), z.number()]).or(z.number()).optional(),
 		envVariables: z.record(z.string()).optional(),
 		chromiumOptions: chromiumOptions.optional(),
@@ -47,8 +47,8 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		type: z.literal('still'),
 		serveUrl: z.string(),
 		composition: z.string(),
-		forceHeight: z.number().optional(),
-		forceWidth: z.number().optional(),
+		forceHeight: z.number().optional().nullable(),
+		forceWidth: z.number().optional().nullable(),
 		inputProps: z.unknown(),
 		jpegQuality: z.number().optional(),
 		imageFormat: stillImageFormat.optional(),
@@ -83,9 +83,9 @@ const renderMediaOnLambdaResponsePayload = z.object({
 });
 
 export type CloudRunPayloadType = z.infer<typeof CloudRunPayload>;
-export type RenderStillOnLambdaResponsePayloadType = z.infer<
+export type RenderStillOnCloudrunOutput = z.infer<
 	typeof renderStillOnLambdaResponsePayload
 >;
-export type RenderMediaOnLambdaResponsePayloadType = z.infer<
+export type RenderMediaOnCloudrunOutput = z.infer<
 	typeof renderMediaOnLambdaResponsePayload
 >;

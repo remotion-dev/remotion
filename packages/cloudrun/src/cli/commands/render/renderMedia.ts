@@ -1,10 +1,10 @@
 import {CliInternals} from '@remotion/cli';
-import type {RenderMediaOnCloudrunOutput} from '../../../api/render-media-on-cloudrun';
 import {renderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
 import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
 // import {validateMaxRetries} from '../../../shared/validate-retries';
 import {ConfigInternals} from '@remotion/cli/config';
 import {downloadFile} from '../../../api/download-file';
+import type {RenderMediaOnCloudrunOutput} from '../../../functions/helpers/payloads';
 import {parsedCloudrunCli} from '../../args';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';

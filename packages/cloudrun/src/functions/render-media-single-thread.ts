@@ -7,7 +7,7 @@ import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 import type {
 	CloudRunPayloadType,
-	RenderMediaOnLambdaResponsePayloadType,
+	RenderMediaOnCloudrunOutput,
 } from './helpers/payloads';
 
 export const renderMediaSingleThread = async (
@@ -76,7 +76,7 @@ export const renderMediaSingleThread = async (
 
 	const uploadedFile = uploadedResponse[0];
 	const renderMetadata = await uploadedFile.getMetadata();
-	const responseData: RenderMediaOnLambdaResponsePayloadType = {
+	const responseData: RenderMediaOnCloudrunOutput = {
 		status: 'success',
 		publicUrl: uploadedFile.publicUrl(),
 		cloudStorageUri: uploadedFile.cloudStorageURI.href,
