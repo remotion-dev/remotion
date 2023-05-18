@@ -48,7 +48,6 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
-
 	const sizes = getUniqueSizes(size);
 
 	const structure = useMemo((): Structure => {

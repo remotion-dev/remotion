@@ -161,12 +161,11 @@ impl OpenedStream {
                     let data = self.handle_eof(position, frame_cache, one_frame_in_time_base)?;
                     if data.is_some() {
                         last_frame_received = data;
-                    }
-                    match last_frame_received {
-                        Some(received) => {
-                            frame_cache.lock()?.set_last_frame(received);
-                        }
-                        None => {}
+                        frame_cache
+                            .lock()?
+                            .set_last_frame(last_frame_received.unwrap());
+                    } else {
+                        frame_cache.lock()?.set_biggest_frame_as_last_frame();
                     }
 
                     break;

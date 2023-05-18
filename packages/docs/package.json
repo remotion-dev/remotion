@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "3.3.92",
+  "version": "3.3.94",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
@@ -44,7 +44,7 @@
     "@remotion/shapes": "workspace:*",
     "@remotion/skia": "workspace:*",
     "@remotion/three": "workspace:*",
-    "@shopify/react-native-skia": "^0.1.139",
+    "@shopify/react-native-skia": "^0.1.190",
     "@splitbee/web": "^0.2.4",
     "@swc/core": "^1.3.27",
     "@types/uuid": "^8.3.4",

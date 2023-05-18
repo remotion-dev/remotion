@@ -15,6 +15,13 @@ const copiedStyle: React.CSSProperties = {
 	justifyContent: 'center',
 };
 
+const buttonStyle: React.CSSProperties = {
+	width: '30px',
+	height: '30px',
+	border: 'none',
+	cursor: 'pointer',
+};
+
 export const CliCopyButton: React.FC<{valueToCopy: string}> = ({
 	valueToCopy,
 }) => {
@@ -86,12 +93,7 @@ export const CliCopyButton: React.FC<{valueToCopy: string}> = ({
 			type="button"
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
-			style={{
-				width: '30px',
-				height: '30px',
-				border: 'none',
-				cursor: 'pointer',
-			}}
+			style={buttonStyle}
 			onClick={() => {
 				navigator.clipboard.writeText(valueToCopy);
 				setCopied(true);
