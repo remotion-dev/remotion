@@ -6,7 +6,7 @@ slug: /cloudrun/getservices
 crumb: "Cloudrun API"
 ---
 
-Retrieves a list of Remotion services deployed to GCP Cloud Run in a certain region, or for all regions.
+Retrieves a list of Remotion services deployed to GCP Cloud Run.
 
 The parameter `compatibleOnly` determines whether only services that are compatible with the installed version of Remotion Cloud Run should be returned.
 
@@ -47,6 +47,10 @@ An object containing the following properties:
 ### `region`
 
 The [GCP region](/docs/cloudrun/region-selection) that you would like to query. It is also possible to pass 'all regions' here, to ignore the region constraint.
+
+### `compatibleOnly`
+
+If `true`, only services that match the version of the current Remotion Lambda package are returned. If `false`, all services are returned.
 
 ## Example
 

@@ -17,8 +17,10 @@ export const servicesRmallCommand = async () => {
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
+		updatesDontOverwrite: false,
+		indent: false,
 	});
-	fetchingOutput.update(`Getting services in ${region}...`);
+	fetchingOutput.update(`Getting services in ${region}...`, false);
 
 	const services = await getServices({
 		region,
@@ -26,7 +28,7 @@ export const servicesRmallCommand = async () => {
 	});
 
 	const pluralized = services.length === 1 ? 'service' : 'services';
-	fetchingOutput.update(`${services.length} ${pluralized} in ${region}`);
+	fetchingOutput.update(`${services.length} ${pluralized} in ${region}`, false);
 	Log.info();
 	Log.info();
 
@@ -48,9 +50,11 @@ export const servicesRmallCommand = async () => {
 		const output = CliInternals.createOverwriteableCliOutput({
 			quiet: CliInternals.quietFlagProvided(),
 			cancelSignal: null,
+			updatesDontOverwrite: false,
+			indent: false,
 		});
-		output.update('Deleting...');
-		await deleteService({region, serviceName: serv.serviceName});
-		output.update('Deleted!\n');
+		output.update('Deleting...', false);
+		await deleteService({region: serv.region, serviceName: serv.serviceName});
+		output.update('Deleted!\n', false);
 	}
 };

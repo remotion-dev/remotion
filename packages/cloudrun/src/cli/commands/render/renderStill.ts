@@ -71,6 +71,8 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
+		updatesDontOverwrite: false,
+		indent: false,
 	});
 
 	type DoneIn = number | null;
@@ -82,7 +84,8 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			[
 				`Rendering on Cloud Run: `,
 				`${doneIn === null ? '...' : `Rendered in ${doneIn}ms`}`,
-			].join(' ')
+			].join(' '),
+			false
 		);
 	};
 

@@ -34,14 +34,16 @@ export const servicesRmCommand = async (args: string[]) => {
 		const infoOutput = CliInternals.createOverwriteableCliOutput({
 			quiet: CliInternals.quietFlagProvided(),
 			cancelSignal: null,
+			updatesDontOverwrite: false,
+			indent: false,
 		});
-		infoOutput.update('Getting service info...');
+		infoOutput.update('Getting service info...', false);
 		const info = await getServiceInfo({
 			region,
 			serviceName,
 		});
 
-		infoOutput.update(displayServiceInfo(info));
+		infoOutput.update(displayServiceInfo(info), false);
 		Log.info();
 
 		const confirmDelete = await confirmCli({
@@ -57,12 +59,14 @@ export const servicesRmCommand = async (args: string[]) => {
 		const output = CliInternals.createOverwriteableCliOutput({
 			quiet: CliInternals.quietFlagProvided(),
 			cancelSignal: null,
+			updatesDontOverwrite: false,
+			indent: false,
 		});
-		output.update('Deleting...');
+		output.update('Deleting...', false);
 		await deleteService({
 			serviceName,
 			region,
 		});
-		output.update('Deleted!\n');
+		output.update('Deleted!\n', false);
 	}
 };

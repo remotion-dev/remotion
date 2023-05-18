@@ -14,8 +14,10 @@ export const servicesLsCommand = async () => {
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
+		updatesDontOverwrite: false,
+		indent: false,
 	});
-	fetchingOutput.update(`Getting services in ${region}...`);
+	fetchingOutput.update(`Getting services in ${region}...`, false);
 
 	const services = await getServices({
 		region,
@@ -32,10 +34,10 @@ export const servicesLsCommand = async () => {
 		return;
 	}
 
-	fetchingOutput.update('Getting service info...');
+	fetchingOutput.update('Getting service info...', false);
 
 	const pluralized = services.length === 1 ? 'service' : 'services';
-	fetchingOutput.update(`${services.length} ${pluralized} in ${region}`);
+	fetchingOutput.update(`${services.length} ${pluralized} in ${region}`, false);
 	Log.info();
 
 	for (const service of services) {

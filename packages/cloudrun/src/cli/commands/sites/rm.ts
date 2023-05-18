@@ -31,21 +31,23 @@ export const sitesRmSubcommand = async (args: string[]) => {
 	const infoOutput = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
+		updatesDontOverwrite: false,
+		indent: false,
 	});
-	infoOutput.update(`Checking ${region} for sites...`);
+	infoOutput.update(`Checking ${region} for sites...`, false);
 
 	const deployedSites = await getSites(region);
 
 	for (const siteName of args) {
-		infoOutput.update('Getting site info...');
+		infoOutput.update('Getting site info...', false);
 
 		const site = deployedSites.sites.find((s) => s.id === siteName.trim());
 		if (!site) {
-			infoOutput.update('');
+			infoOutput.update('', false);
 			throw new Error(`${siteName.trim()} was not found in ${region}.`);
 		}
 
-		infoOutput.update(displaySiteInfo(site));
+		infoOutput.update(displaySiteInfo(site), false);
 		Log.info();
 		Log.info();
 
