@@ -5,14 +5,19 @@ import {renderMedia} from '@remotion/renderer';
 import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
+import type {CloudRunPayloadType} from './helpers/payloads';
 
 export const renderMediaSingleThread = async (
-	req: ff.Request,
+	body: CloudRunPayloadType,
 	res: ff.Response
 ) => {
+	if (body.type !== 'media') {
+		throw new Error('expected type media');
+	}
+
 	const composition = await getCompositionFromBody(
-		req.body.serveUrl,
-		req.body.composition
+		body.serveUrl,
+		body.composition
 	);
 
 	const tempFilePath = '/tmp/output.mp4';
@@ -30,39 +35,39 @@ export const renderMediaSingleThread = async (
 	await renderMedia({
 		composition: {
 			...composition,
-			height: req.body.forceHeight ?? composition.height,
-			width: req.body.forceWidth ?? composition.width,
+			height: body.forceHeight ?? composition.height,
+			width: body.forceWidth ?? composition.width,
 		},
-		serveUrl: req.body.serveUrl,
-		codec: req.body.codec,
+		serveUrl: body.serveUrl,
+		codec: body.codec,
 		outputLocation: tempFilePath,
-		inputProps: req.body.inputProps,
-		jpegQuality: req.body.jpegQuality,
-		audioCodec: req.body.audioCodec,
-		audioBitrate: req.body.audioBitrate,
-		videoBitrate: req.body.videoBitrate,
-		crf: req.body.crf,
-		pixelFormat: req.body.pixelFormat,
-		imageFormat: req.body.imageFormat,
-		scale: req.body.scale,
-		proResProfile: req.body.proResProfile,
-		everyNthFrame: req.body.everyNthFrame,
-		numberOfGifLoops: req.body.numberOfGifLoops,
+		inputProps: body.inputProps,
+		jpegQuality: body.jpegQuality,
+		audioCodec: body.audioCodec,
+		audioBitrate: body.audioBitrate,
+		videoBitrate: body.videoBitrate,
+		crf: body.crf,
+		pixelFormat: body.pixelFormat,
+		imageFormat: body.imageFormat,
+		scale: body.scale,
+		proResProfile: body.proResProfile,
+		everyNthFrame: body.everyNthFrame,
+		numberOfGifLoops: body.numberOfGifLoops,
 		onProgress,
-		frameRange: req.body.frameRange,
-		envVariables: req.body.envVariables,
-		chromiumOptions: req.body.chromiumOptions,
-		muted: req.body.muted,
+		frameRange: body.frameRange,
+		envVariables: body.envVariables,
+		chromiumOptions: body.chromiumOptions,
+		muted: body.muted,
 	});
 
 	const storage = new Storage();
 
-	const publicUpload = req.body.privacy === 'public' || !req.body.privacy;
+	const publicUpload = body.privacy === 'public' || !body.privacy;
 
 	const uploadedResponse = await storage
-		.bucket(req.body.outputBucket)
+		.bucket(body.outputBucket)
 		.upload(tempFilePath, {
-			destination: `renders/${renderId}/${req.body.outputFile ?? 'out.mp4'}`,
+			destination: `renders/${renderId}/${body.outputFile ?? 'out.mp4'}`,
 			predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
 		});
 
@@ -72,7 +77,7 @@ export const renderMediaSingleThread = async (
 		publicUrl: uploadedFile.publicUrl(),
 		cloudStorageUri: uploadedFile.cloudStorageURI.href,
 		size: renderMetadata[0].size,
-		bucketName: req.body.outputBucket,
+		bucketName: body.outputBucket,
 		renderId,
 		status: 'success',
 		privacy: publicUpload ? 'publicRead' : 'projectPrivate',

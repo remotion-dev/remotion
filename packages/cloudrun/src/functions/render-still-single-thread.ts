@@ -1,17 +1,22 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
-import {RenderInternals, renderStill} from '@remotion/renderer';
+import {renderStill} from '@remotion/renderer';
 import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
+import type {CloudRunPayloadType} from './helpers/payloads';
 
 export const renderStillSingleThread = async (
-	req: ff.Request,
+	body: CloudRunPayloadType,
 	res: ff.Response
 ) => {
+	if (body.type !== 'still') {
+		throw new Error('expected type still');
+	}
+
 	const composition = await getCompositionFromBody(
-		req.body.serveUrl,
-		req.body.composition
+		body.serveUrl,
+		body.composition
 	);
 
 	const tempFilePath = '/tmp/still.png';
@@ -20,31 +25,28 @@ export const renderStillSingleThread = async (
 	await renderStill({
 		composition: {
 			...composition,
-			height: req.body.forceHeight ?? composition.height,
-			width: req.body.forceWidth ?? composition.width,
+			height: body.forceHeight ?? composition.height,
+			width: body.forceWidth ?? composition.width,
 		},
-		serveUrl: req.body.serveUrl,
+		serveUrl: body.serveUrl,
 		output: tempFilePath,
-		inputProps: req.body.inputProps,
-		jpegQuality: req.body.jpegQuality,
-		imageFormat: req.body.imageFormat,
-		scale: req.body.scale,
-		envVariables: req.body.envVariables,
-		chromiumOptions: req.body.chromiumOptions,
-		frame: RenderInternals.convertToPositiveFrameIndex({
-			frame: req.body.frame,
-			durationInFrames: composition.durationInFrames,
-		}),
+		inputProps: body.inputProps,
+		jpegQuality: body.jpegQuality,
+		imageFormat: body.imageFormat,
+		scale: body.scale,
+		envVariables: body.envVariables,
+		chromiumOptions: body.chromiumOptions,
+		frame: body.frame,
 	});
 
 	const storage = new Storage();
 
-	const publicUpload = req.body.privacy === 'public' || !req.body.privacy;
+	const publicUpload = body.privacy === 'public' || !body.privacy;
 
 	const uploadedResponse = await storage
-		.bucket(req.body.outputBucket)
+		.bucket(body.outputBucket)
 		.upload(tempFilePath, {
-			destination: `renders/${renderId}/${req.body.outputFile ?? 'out.png'}`,
+			destination: `renders/${renderId}/${body.outputFile ?? 'out.png'}`,
 			predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
 		});
 
@@ -54,7 +56,7 @@ export const renderStillSingleThread = async (
 		publicUrl: uploadedFile.publicUrl(),
 		cloudStorageUri: uploadedFile.cloudStorageURI.href,
 		size: renderMetadata[0].size,
-		bucketName: req.body.outputBucket,
+		bucketName: body.outputBucket,
 		renderId,
 		status: 'success',
 		privacy: publicUpload ? 'publicRead' : 'projectPrivate',
