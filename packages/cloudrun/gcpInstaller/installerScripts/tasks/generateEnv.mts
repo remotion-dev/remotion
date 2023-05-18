@@ -3,7 +3,7 @@ import readline from 'readline';
 import {checkEnvFile} from '../components/checkEnvFile.mjs';
 import {colorCode} from '../components/colorCodes.mjs';
 
-export async function generateEnv(projectID) {
+export async function generateEnv(projectID: string) {
 	/****************************************
 	 * Generate .env file
 	 ****************************************/
@@ -53,10 +53,10 @@ export async function generateEnv(projectID) {
 				`\n${colorCode.greenText}To delete one of these keys, type in the KEY_ID. Otherwise, press enter to continue. ${colorCode.blueText}`,
 				async (answer) => {
 					// reset terminal color
-					rl.output.write(`${colorCode.resetText}`);
+					rl.write(`${colorCode.resetText}`);
 
 					if (answer.trim() === '') {
-						rl.output.write(
+						rl.write(
 							`${colorCode.blueText}<enter pressed>\n${colorCode.resetText}`
 						);
 						rl.close();

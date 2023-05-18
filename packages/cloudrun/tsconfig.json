@@ -1,16 +1,12 @@
 {
-    "compilerOptions": {
-        "target": "es2016",
-        "module": "commonjs",
-        "esModuleInterop": true,
-        "strict": true,
-        "outDir": "dist",
-        "resolveJsonModule": true,
-    },
-    "include": [
-        "src/**/*",
-    ],
-    "exclude": [
-        "node_modules"
-    ]
+	"compilerOptions": {
+		"target": "es2016",
+		"module": "commonjs",
+		"esModuleInterop": true,
+		"strict": true,
+		"outDir": "dist",
+		"resolveJsonModule": true
+	},
+	"include": ["src/**/*", "gcpInstaller/**/*", "gcpInstaller/*"],
+	"exclude": ["node_modules"]
 }

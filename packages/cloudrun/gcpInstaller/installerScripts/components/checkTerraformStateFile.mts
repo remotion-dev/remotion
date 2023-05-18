@@ -2,7 +2,7 @@ import {execSync} from 'child_process';
 import {existsSync, readFileSync} from 'fs';
 import {colorCode} from './colorCodes.mjs';
 
-export function checkTerraformStateFile(projectID) {
+export function checkTerraformStateFile(projectID: string) {
 	/****************************************
 	 * Check for existing Terraform State
 	 ****************************************/

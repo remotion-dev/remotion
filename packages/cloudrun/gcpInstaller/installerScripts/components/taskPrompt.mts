@@ -2,7 +2,7 @@ import {execSync} from 'child_process';
 import readline from 'readline';
 import {colorCode} from './colorCodes.mjs';
 
-export function taskPrompt(projectID) {
+export function taskPrompt(projectID: string) {
 	return new Promise((resolve) => {
 		const rl = readline.createInterface({
 			input: process.stdin,
@@ -13,10 +13,10 @@ export function taskPrompt(projectID) {
 			`What would you like to do?\n[1] Cloud Run rendering in ${colorCode.blueText}${projectID}${colorCode.resetText} - Setup / Update Remotion version.\n[2] ${colorCode.blueText}${projectID}${colorCode.resetText} is already set up for Remotion, generate a new .env file or manage keys for the Remotion Service Account.\n${colorCode.blueText}`,
 			async (answer) => {
 				// reset terminal color
-				rl.output.write(`\n${colorCode.resetText}`);
+				rl.write(`\n${colorCode.resetText}`);
 
 				if (answer.trim() === '1') {
-					rl.output.write(
+					rl.write(
 						`${colorCode.blueText}<Terraform selected>\n\n${colorCode.resetText}`
 					);
 					rl.close();
@@ -24,7 +24,7 @@ export function taskPrompt(projectID) {
 				}
 
 				if (answer.trim() === '2') {
-					rl.output.write(
+					rl.write(
 						`${colorCode.blueText}<.env creation selected>\n\n${colorCode.resetText}`
 					);
 					rl.close();
@@ -39,7 +39,7 @@ export function taskPrompt(projectID) {
 					}
 				);
 
-				const result = await taskPrompt();
+				const result = await taskPrompt(projectID);
 
 				resolve(result);
 			}

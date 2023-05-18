@@ -12,7 +12,7 @@ export function terraformApplyPrompt() {
 			`\n${colorCode.greenText}Do you want to apply the above plan? ${colorCode.blueText}`,
 			async (answer) => {
 				// reset terminal color
-				rl.output.write(colorCode.resetText);
+				rl.write(colorCode.resetText);
 				rl.close();
 
 				if (['yes', 'y'].indexOf(answer.trim().toLowerCase()) >= 0)

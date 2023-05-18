@@ -3,7 +3,7 @@ import readline from 'readline';
 import {colorCode} from './colorCodes.mjs';
 
 export function projectIdPrompt() {
-	return new Promise((resolve) => {
+	return new Promise<string>((resolve) => {
 		const rl = readline.createInterface({
 			input: process.stdin,
 			output: process.stdout,

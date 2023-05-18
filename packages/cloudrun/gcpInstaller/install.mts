@@ -13,44 +13,45 @@ import {setupGcpProject} from './installerScripts/tasks/setupGcpProject.mjs';
  ****************************************/
 cloudRunSplashScreen();
 
-/****************************************
- * Set project ID for Terraform and gcloud commands
- ****************************************/
-execSync(`echo "Retrieving current Project ID..."`, {
-	stdio: 'inherit',
-});
-
-let projectID = execSync('gcloud config get-value project', {
-	stdio: ['inherit', 'pipe', 'pipe'],
-})
-	.toString()
-	.trim();
-
-if (!projectID) {
-	projectID = await projectIdPrompt();
-}
-
-execSync(
-	`echo "Project set to ${colorCode.blueText}${projectID}${colorCode.resetText}\n"`,
-	{
+const start = async () => {
+	/****************************************
+	 * Set project ID for Terraform and gcloud commands
+	 ****************************************/
+	execSync(`echo "Retrieving current Project ID..."`, {
 		stdio: 'inherit',
+	});
+
+	const projectID =
+		execSync('gcloud config get-value project', {
+			stdio: ['inherit', 'pipe', 'pipe'],
+		})
+			.toString()
+			.trim() || (await projectIdPrompt());
+
+	execSync(
+		`echo "Project set to ${colorCode.blueText}${projectID}${colorCode.resetText}\n"`,
+		{
+			stdio: 'inherit',
+		}
+	);
+
+	/****************************************
+	 * Check task the user is trying to complete
+	 ****************************************/
+	const selection = await taskPrompt(projectID);
+
+	switch (selection) {
+		case 'runTerraform':
+			await setupGcpProject(projectID);
+			break;
+
+		case 'generateEnv':
+			await generateEnv(projectID);
+			break;
+
+		default:
+			break;
 	}
-);
+};
 
-/****************************************
- * Check task the user is trying to complete
- ****************************************/
-const selection = await taskPrompt(projectID);
-
-switch (selection) {
-	case 'runTerraform':
-		await setupGcpProject(projectID);
-		break;
-
-	case 'generateEnv':
-		await generateEnv(projectID);
-		break;
-
-	default:
-		break;
-}
+start();
