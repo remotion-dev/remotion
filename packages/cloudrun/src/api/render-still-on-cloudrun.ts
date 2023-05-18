@@ -38,7 +38,7 @@ export type RenderStillOnCloudrunOutput = {
 
 /**
  * @description Triggers a render on a GCP Cloud Run service given a composition and a Cloud Run URL.
- * @see [Documentation](https://remotion.dev/docs/cloudrun/renderStillOnCloudrun)
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/renderstilloncloudrun)
  * @param params.authenticatedRequest If this is an authenticated request, .env file will be checked for GCP credentials
  * @param params.cloudRunUrl The url of the Cloud Run service that should be used
  * @param params.serviceName The name of the Cloud Run service that should be used

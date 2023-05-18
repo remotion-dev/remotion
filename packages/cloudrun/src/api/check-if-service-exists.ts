@@ -44,14 +44,9 @@ export const checkIfServiceExists = async ({
 
 	const cloudRunClient = getCloudRunClient();
 
-	// Construct request
-	const request = {
-		parent,
-	};
-
 	// Run request
 	try {
-		const iterable = cloudRunClient.listServicesAsync(request);
+		const iterable = cloudRunClient.listServicesAsync({parent});
 		for await (const response of iterable) {
 			if (response.name === `${parent}/services/${serviceName}`) {
 				return response;

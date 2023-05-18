@@ -276,7 +276,7 @@ const services = await getServices({
 const serviceName = services[0].serviceName;
 ```
 
-We can now trigger a render of a video using the [`renderMediaOnCloudrun()`](/docs/cloudrun/renderMediaOnCloudrun) function.
+We can now trigger a render of a video using the [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun) function.
 
 ```ts twoslash
 // @module: ESNext
@@ -308,7 +308,7 @@ const { renderId, bucketName } = await renderMediaOnCloudrun({
 });
 ```
 
-The render will now run and after a while the video will be available in your cloud storage bucket. You can keep track of the render progress by passing a function to the [updateRenderProgress](/docs/cloudrun/renderMediaOnCloudrun#updateRenderProgress) attribute, to receive progress as a number.
+The render will now run and after a while the video will be available in your cloud storage bucket. You can keep track of the render progress by passing a function to the [updateRenderProgress](/docs/cloudrun/rendermediaoncloudrun#updateRenderProgress) attribute, to receive progress as a number.
 
 Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/storage/browser) - you just rendered your first still using Remotion CloudRun 🚀
 </TabItem>
@@ -329,7 +329,7 @@ const services = await getServices({
 const serviceName = services[0].serviceName;
 ```
 
-We can now trigger a render of a still using the [`renderStillOnCloudrun()`](/docs/cloudrun/renderStillOnCloudrun) function.
+We can now trigger a render of a still using the [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun) function.
 
 ```ts twoslash
 // @module: ESNext
