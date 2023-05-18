@@ -9,7 +9,7 @@ export type ServiceInfo = {
 	cpuLimit: string;
 	remotionVersion: string | null;
 	uri: string;
-	region: string;
+	region: GcpRegion;
 	consoleUrl: string;
 };
 
@@ -58,7 +58,7 @@ export const getServiceInfo = async ({
 			.split('--')[0]
 			.replace(/-/g, '.') as string,
 		uri: service.uri as string,
-		region: deployedRegion,
+		region: deployedRegion as GcpRegion,
 		consoleUrl: `https://console.cloud.google.com/run/detail/${deployedRegion}/${deployedServiceName}/logs`,
 	};
 };
