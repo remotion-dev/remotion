@@ -157,7 +157,7 @@ npx remotion cloudrun services deploy
 </TabItem>
 <TabItem value="node">
 
-You can deploy a service that can render videos into your GCP project using [`deployFunction()`](/docs/cloudrun/deployservice).
+You can deploy a service that can render videos into your GCP project using [`deployService()`](/docs/cloudrun/deployservice).
 
 ```ts twoslash
 // @module: ESNext
@@ -169,7 +169,6 @@ const deployResult = await deployService({
   remotionVersion: "3.3.75",
   projectID: "my-remotion-project",
   region: "us-east1",
-  redeploy: false,
 });
 ```
 
