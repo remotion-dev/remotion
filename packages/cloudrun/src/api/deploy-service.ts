@@ -76,7 +76,7 @@ export const deployService = async ({
 
 	if (existingService) {
 		return {
-			fullName: `projects/remotion-6/locations/${region}/services/${serviceName}`,
+			fullName: `projects/${projectID}/locations/${region}/services/${serviceName}`,
 			shortName: serviceName,
 			uri: null,
 			alreadyExists: true,

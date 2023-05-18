@@ -60,7 +60,7 @@ Default as true. This will validate that an image exists in the public Artifact 
 
 An object with the following values:
 
-- `fullName` (_string_): The full name of the service just created, in the form `projects/remotion-6/locations/{region}/services/{serviceName}`.
+- `fullName` (_string_): The full name of the service just created, in the form `projects/{projectId}/locations/{region}/services/{serviceName}`.
 - `shortName` (_string_): The name of the service just created, as it appears in the console.
 - `uri` (_string_): The endpoint of the service just created.
 - `alreadyExists`: (_boolean_): Whether the creation was skipped because the service already existed.
