@@ -90,7 +90,7 @@ This means that you can pull in a script that runs a couple of gcloud and Terraf
    // TODO: Switch to remotion-dev repo
 
    ```bash
-   curl -L https://github.com/UmungoBungo/remotion/raw/gcp-lambda-alternative/packages/cloudrun/gcpInstaller/gcpInstaller.tar | tar -x --strip-components=1 -C . && node install.mjs
+   curl -L https://github.com/UmungoBungo/remotion/raw/gcp-lambda-alternative/packages/cloudrun/gcpInstaller/gcpInstaller.tar | tar -x -C . && node install.mjs
    ```
 
 - Select <Step>1</Step> if you are using Remotion Cloud Run for the first time in this GCP project or want to upgrade.
