@@ -3,7 +3,6 @@ import {execSync} from 'child_process';
 import {checkTerraformStateFile} from '../components/checkTerraformStateFile.mjs';
 import {colorCode} from '../components/colorCodes.mjs';
 import {generateEnvPrompt} from '../components/generateEnvPrompt.mjs';
-import {remotionVersionPrompt} from '../components/remotionVersionPrompt.mjs';
 import {terraformApplyPrompt} from '../components/terraformApplyPrompt.mjs';
 import {tfSuccessScreen} from '../components/tfSuccessScreen.mjs';
 // Tasks
@@ -11,11 +10,6 @@ import {generateEnv} from './generateEnv.mjs';
 
 export async function setupGcpProject(projectID: string) {
 	checkTerraformStateFile(projectID);
-	/****************************************
-	 * Prompt user for Remotion version
-	 ****************************************/
-	// TODO: Should take version from Remotion
-	const remotionVersion = await remotionVersionPrompt();
 
 	/****************************************
 	 * Check if Remotion Service Account already exists
@@ -198,7 +192,7 @@ export async function setupGcpProject(projectID: string) {
 	console.log(
 		`\n\n${colorCode.greenBackground}                Running Terraform               ${colorCode.resetText}`
 	);
-	const terraformVariables = `-var="remotion_version=${remotionVersion}" -var="project_id=${projectID}"`;
+	const terraformVariables = `-var="project_id=${projectID}"`;
 
 	execSync('terraform init', {stdio: 'inherit'});
 

@@ -14,10 +14,6 @@ variable "project_id" {
   description = "The ID of the project in which the resources will be created."
 }
 
-variable "remotion_version" {
-  type        = string
-  description = "The version of Remotion being deployed."
-}
 
 variable "service_account_exists" {
   type        = bool
@@ -54,7 +50,6 @@ resource "google_service_account" "remotion_sa" {
   count        = var.service_account_exists ? 0 : 1 //  if the service account already exists, don't create it
   account_id   = "remotion-sa"
   display_name = "Remotion Service Account"
-  description  = var.remotion_version
 }
 
 # Bind the IAM role to the service account
