@@ -4,7 +4,8 @@
 		"rootDir": "src",
 		"outDir": "dist",
 		"jsx": "react-jsx",
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"composite": true
 	},
 	"references": [
 		{"path": "../core"},
