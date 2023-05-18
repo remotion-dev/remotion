@@ -12,7 +12,7 @@ export function generateEnvPrompt() {
 			`\n${colorCode.greenText}Do you want to generate the .env file for your code base? ${colorCode.blueText}`,
 			async (answer) => {
 				// reset terminal color
-				rl.output.write(`${colorCode.resetText}`);
+				rl.write(`${colorCode.resetText}`);
 				rl.close();
 
 				if (['yes', 'y'].indexOf(answer.trim().toLowerCase()) >= 0)

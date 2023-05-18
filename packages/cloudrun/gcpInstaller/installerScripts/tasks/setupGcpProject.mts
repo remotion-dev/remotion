@@ -9,7 +9,7 @@ import {tfSuccessScreen} from '../components/tfSuccessScreen.mjs';
 // Tasks
 import {generateEnv} from './generateEnv.mjs';
 
-export async function setupGcpProject(projectID) {
+export async function setupGcpProject(projectID: string) {
 	checkTerraformStateFile(projectID);
 	/****************************************
 	 * Prompt user for Remotion version
