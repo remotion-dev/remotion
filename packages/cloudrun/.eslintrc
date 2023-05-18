@@ -1,3 +1,16 @@
 {
-  "extends": "@jonny"
+	"extends": "@jonny",
+	"rules": {
+		"no-console": "error",
+		"no-restricted-imports": [
+			"error",
+			{
+				"patterns": [
+					"@remotion/*/src/*",
+					"@remotion/renderer/*/src/*",
+					"@remotion/cli/*/src/*"
+				]
+			}
+		]
+	}
 }
