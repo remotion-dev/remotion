@@ -2,6 +2,7 @@ import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
 import type {RenderMediaOnProgress} from '@remotion/renderer';
 import {renderMedia} from '@remotion/renderer';
+import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 
@@ -77,6 +78,6 @@ export const renderMediaSingleThread = async (
 		privacy: publicUpload ? 'publicRead' : 'projectPrivate',
 	};
 
-	console.log('Render Completed:', responseData);
+	Log.info('Render Completed:', responseData);
 	res.end(JSON.stringify({response: responseData}));
 };

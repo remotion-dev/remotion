@@ -9,7 +9,7 @@ const cloudrunCodecs = [
 	'prores',
 ] as const;
 
-export type CloudrunCodec = typeof cloudrunCodecs[number];
+export type CloudrunCodec = (typeof cloudrunCodecs)[number];
 
 export const validateCloudrunCodec = (codec: unknown): CloudrunCodec => {
 	if (typeof codec !== 'string') {
@@ -25,12 +25,10 @@ export const validateCloudrunCodec = (codec: unknown): CloudrunCodec => {
 		);
 	}
 
-	if ((codec as string) === 'h264-mkv') {
-		console.warn(
+	if (codec === 'h264-mkv') {
+		throw new Error(
 			'The "h264-mkv" codec for renderMediaOnCloudrun() is deprecated - it\'s now just "h264".'
 		);
-
-		return 'h264';
 	}
 
 	return codec as CloudrunCodec;
