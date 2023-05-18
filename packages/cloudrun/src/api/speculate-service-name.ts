@@ -13,17 +13,14 @@ export const speculateFunctionName = ({
 	memoryLimit,
 	cpuLimit,
 	timeoutSeconds,
-	remotionVersion,
 }: {
 	memoryLimit: string;
 	cpuLimit: string;
 	timeoutSeconds: number;
-	remotionVersion: string;
 }): string => {
 	return generateServiceName({
 		memoryLimit,
 		cpuLimit,
 		timeoutSeconds,
-		remotionVersion,
 	});
 };

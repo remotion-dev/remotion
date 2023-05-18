@@ -7,7 +7,6 @@ import {validateProjectID} from '../shared/validate-project-id';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
 export type CheckIfServiceExistsInput = {
-	remotionVersion: string;
 	memoryLimit: string;
 	cpuLimit: string;
 	timeoutSeconds: number;
@@ -24,7 +23,6 @@ export type CheckIfServiceExistsInput = {
  * @returns {Promise<protos.google.cloud.run.v2.IService>} If the service exists, the service object will be returned, otherwise false.
  */
 export const checkIfServiceExists = async ({
-	remotionVersion,
 	memoryLimit,
 	cpuLimit,
 	timeoutSeconds,
@@ -39,7 +37,6 @@ export const checkIfServiceExists = async ({
 	const parent = `projects/${projectID}/locations/${region}`;
 
 	const serviceName = generateServiceName({
-		remotionVersion,
 		memoryLimit,
 		cpuLimit,
 		timeoutSeconds,

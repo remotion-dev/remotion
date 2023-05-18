@@ -5,12 +5,10 @@ export const generateServiceName = ({
 	memoryLimit,
 	cpuLimit,
 	timeoutSeconds,
-	remotionVersion,
 }: {
 	memoryLimit: string;
 	cpuLimit: string;
 	timeoutSeconds: number;
-	remotionVersion: string;
 }): string => {
 	const sanitisedCPU = cpuLimit.replace(/\./g, '-').substring(0, 10);
 
@@ -21,7 +19,7 @@ export const generateServiceName = ({
 
 	return [
 		RENDER_SERVICE_PREFIX,
-		serviceVersionString(remotionVersion),
+		serviceVersionString(),
 		`mem${sanitisedMem}`,
 		`cpu${sanitisedCPU}`,
 		`t-${String(timeoutSeconds)}`,

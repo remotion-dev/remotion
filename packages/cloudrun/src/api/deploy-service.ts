@@ -32,7 +32,6 @@ export type DeployServiceOutput = {
  * @returns {Promise<IService>} An object that contains the `functionName` property
  */
 export const deployService = async ({
-	remotionVersion,
 	performImageVersionValidation = true, // default value set here
 	memoryLimit,
 	cpuLimit,
@@ -43,7 +42,7 @@ export const deployService = async ({
 	validateGcpRegion(region);
 	validateProjectID(projectID);
 	if (performImageVersionValidation) {
-		validateImageRemotionVersion(remotionVersion);
+		validateImageRemotionVersion();
 	}
 
 	if (!memoryLimit) {
@@ -63,7 +62,6 @@ export const deployService = async ({
 	const cloudRunClient = getCloudRunClient();
 
 	const existingService = await checkIfServiceExists({
-		remotionVersion,
 		memoryLimit,
 		cpuLimit,
 		timeoutSeconds,
@@ -75,7 +73,6 @@ export const deployService = async ({
 		memoryLimit,
 		cpuLimit,
 		timeoutSeconds,
-		remotionVersion,
 	});
 
 	if (existingService) {
@@ -92,7 +89,6 @@ export const deployService = async ({
 		service: {
 			// service structure: https://googleapis.dev/nodejs/run/latest/google.cloud.run.v2.IService.html
 			template: constructServiceTemplate({
-				remotionVersion,
 				memoryLimit,
 				cpuLimit,
 				timeoutSeconds,

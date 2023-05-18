@@ -1,10 +1,10 @@
+import {VERSION} from 'remotion/version';
+
 export const constructServiceTemplate = ({
-	remotionVersion,
 	memoryLimit,
 	cpuLimit,
 	timeoutSeconds,
 }: {
-	remotionVersion: string;
 	memoryLimit: string;
 	cpuLimit: string;
 	timeoutSeconds: number;
@@ -15,7 +15,7 @@ export const constructServiceTemplate = ({
 		},
 		containers: [
 			{
-				image: `us-docker.pkg.dev/remotion-dev/cloud-run/render:${remotionVersion}`,
+				image: `us-docker.pkg.dev/remotion-dev/cloud-run/render:${VERSION}`,
 				resources: {
 					limits: {
 						memory: memoryLimit,

@@ -166,7 +166,6 @@ import { deployService } from "@remotion/cloudrun";
 
 // ---cut---
 const deployResult = await deployService({
-  remotionVersion: "3.3.75",
   projectID: "my-remotion-project",
   region: "us-east1",
 });
