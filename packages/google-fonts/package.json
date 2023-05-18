@@ -1,6 +1,6 @@
 {
   "name": "@remotion/google-fonts",
-  "version": "3.3.94",
+  "version": "4.0.0-alpha8",
   "description": "Load Google Fonts in Remotion",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.mjs",
