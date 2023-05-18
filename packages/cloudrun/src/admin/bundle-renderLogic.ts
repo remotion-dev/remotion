@@ -1,5 +1,8 @@
 import {BundlerInternals} from '@remotion/bundler';
-import {binaryPath as x64BinaryPath} from '@remotion/compositor-linux-x64-gnu';
+import {
+	binaryPath as x64BinaryPath,
+	ffmpegCwd,
+} from '@remotion/compositor-linux-x64-musl';
 import fs from 'fs';
 import path from 'path';
 
@@ -16,7 +19,7 @@ const bundleRenderLogic = async () => {
 
 	await BundlerInternals.esbuild.build({
 		platform: 'node',
-		target: 'node16',
+		target: 'node18',
 		bundle: true,
 		outfile,
 		entryPoints: [template],
@@ -32,6 +35,7 @@ const bundleRenderLogic = async () => {
 	const compositorFile = `${outdir}/compositor`;
 
 	fs.copyFileSync(x64BinaryPath, compositorFile);
+	fs.cpSync(ffmpegCwd, `${outdir}/ffmpeg`, {recursive: true});
 
 	console.log('distribution bundled.');
 };
