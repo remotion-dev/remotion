@@ -29,6 +29,9 @@ console.log(info.timeoutInSeconds); // 500
 console.log(info.memoryLimit); // 1500
 console.log(info.cpuLimit); // 2048
 console.log(info.remotionVersion); // '2021-07-14'
+console.log(service.uri); // "https://remotion--3-3-82--mem512mi--cpu1-0--t-500-1a2b3c4d5e-ue.a.run.app"
+console.log(service.region); // "us-east1"
+console.log(service.consoleUrl); // "https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-500/logs"
 ```
 
 ## Arguments
@@ -63,6 +66,18 @@ The Remotion version of the service. Remotion is versioning the Cloud Run servic
 ### `timeoutInSeconds`
 
 The timeout that has been assigned to the Cloud Run service.
+
+### `uri`
+
+The endpoint of the service.
+
+### `region`
+
+The region of the deployed service.
+
+### `consoleUrl`
+
+A link to the GCP console page for this service. Specifically, a link to logs display.
 
 ## See also
 
