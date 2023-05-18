@@ -11,7 +11,7 @@ import {servicesRmallCommand, SERVICES_RMALL_SUBCOMMAND} from './rmall';
 export const SERVICES_COMMAND = 'services';
 
 export const displayServiceInfo = (service: ServiceInfo) => {
-	const LEFT_COL = 16;
+	const LEFT_COL = 18;
 	return [
 		'Service name: '.padEnd(LEFT_COL, ' ') + ' ' + service.serviceName,
 		'Version: '.padEnd(LEFT_COL, ' ') + ' ' + service.remotionVersion,
@@ -19,6 +19,8 @@ export const displayServiceInfo = (service: ServiceInfo) => {
 		'Memory Limit: '.padEnd(LEFT_COL, ' ') + ' ' + service.memoryLimit,
 		'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + service.timeoutInSeconds + 'sec',
 		'Region: '.padEnd(LEFT_COL, ' ') + ' ' + service.region,
+		'Service URL: '.padEnd(LEFT_COL, ' ') + ' ' + service.uri,
+		'GCP Console URL: '.padEnd(LEFT_COL, ' ') + ' ' + service.consoleUrl,
 	].join('\n');
 };
 

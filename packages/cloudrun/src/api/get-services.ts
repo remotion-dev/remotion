@@ -65,6 +65,10 @@ export const getServices = async (
 		const data = res.data as v1Data;
 
 		return data.items.map((service): ServiceInfo => {
+			const deployedRegion = service.metadata.labels[
+				'cloud.googleapis.com/location'
+			] as string;
+
 			return {
 				serviceName: service.metadata.name as string,
 				timeoutInSeconds: service.spec.template.spec.timeoutSeconds as number,
@@ -76,9 +80,8 @@ export const getServices = async (
 					.split('--')[1]
 					.replace(/-/g, '.') as string,
 				uri: service.status.url as string,
-				region: service.metadata.labels[
-					'cloud.googleapis.com/location'
-				] as string,
+				region: deployedRegion,
+				consoleUrl: `https://console.cloud.google.com/run/detail/${deployedRegion}/${service.metadata.name}/logs`,
 			};
 		});
 	}
@@ -110,8 +113,14 @@ export const getServices = async (
 	}
 
 	return remotionServices.map((service): ServiceInfo => {
+		const deployedServiceName = service.name?.replace(
+			parent + '/services/',
+			''
+		) as string;
+		const deployedRegion = service.name?.split('/')[3] as string;
+
 		return {
-			serviceName: service.name?.replace(parent + '/services/', '') as string,
+			serviceName: deployedServiceName,
 			timeoutInSeconds: service.template?.timeout?.seconds as number,
 			memoryLimit: service.template?.containers?.[0].resources?.limits
 				?.memory as string,
@@ -122,7 +131,8 @@ export const getServices = async (
 				.split('--')[0]
 				.replace(/-/g, '.') as string,
 			uri: service.uri as string,
-			region: service.name?.split('/')[3] as string,
+			region: deployedRegion,
+			consoleUrl: `https://console.cloud.google.com/run/detail/${deployedRegion}/${deployedServiceName}/logs`,
 		};
 	});
 };

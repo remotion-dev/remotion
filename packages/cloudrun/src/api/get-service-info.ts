@@ -10,6 +10,7 @@ export type ServiceInfo = {
 	remotionVersion: string | null;
 	uri: string;
 	region: string;
+	consoleUrl: string;
 };
 
 export type GetServiceInfoInput = {
@@ -39,9 +40,14 @@ export const getServiceInfo = async ({
 	}
 
 	const parent = `projects/${process.env.REMOTION_GCP_PROJECT_ID}/locations/${region}`;
+	const deployedRegion = service.name?.split('/')[3] as string;
+	const deployedServiceName = service.name?.replace(
+		parent + '/services/',
+		''
+	) as string;
 
 	return {
-		serviceName: service.name?.replace(parent + '/services/', '') as string,
+		serviceName: deployedServiceName,
 		timeoutInSeconds: service.template?.timeout?.seconds as number,
 		memoryLimit: service.template?.containers?.[0].resources?.limits
 			?.memory as string,
@@ -52,6 +58,7 @@ export const getServiceInfo = async ({
 			.split('--')[0]
 			.replace(/-/g, '.') as string,
 		uri: service.uri as string,
-		region: service.name?.split('/')[3] as string,
+		region: deployedRegion,
+		consoleUrl: `https://console.cloud.google.com/run/detail/${deployedRegion}/${deployedServiceName}/logs`,
 	};
 };

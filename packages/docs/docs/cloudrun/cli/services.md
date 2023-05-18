@@ -47,7 +47,7 @@ Deploying Cloud Run Service...
     Full Service Name = projects/remotion-6/locations/us-east1/services/remotion--3-3-82--mem512mi--cpu1-0--t-300
     Cloud Run URL = https://remotion--3-3-82--mem512mi--cpu1-0--t-300-abcdefg-ue.a.run.app
     Project = remotion-6
-    GCP Console URL = https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-300/revisions
+    GCP Console URL = https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-300/logs
 
 <br/>
 
@@ -96,18 +96,22 @@ Example output
 </summary>
 <pre>
 2 services in us-east1<br/><br/>
-Service name:    remotion--3-3-92--mem512mi--cpu2--t-1200<br/>
-Version:         3.3.92<br/>
-CPU Limit:       2<br/>
-Memory Limit:    512Mi<br/>
-Timeout:         1200sec<br/>
-Region:          us-east1<br/><br/>
-Service name:    remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
-Version:         3.3.82<br/>
-CPU Limit:       1.0<br/>
-Memory Limit:    512Mi<br/>
-Timeout:         800sec<br/>
-Region:          us-east1<br/>
+Service name:      remotion--3-3-92--mem512mi--cpu2--t-1200<br/>
+Version:           3.3.92<br/>
+CPU Limit:         2<br/>
+Memory Limit:      512Mi<br/>
+Timeout:           1200sec<br/>
+Region:            us-east1<br/>
+Service URL:       https://remotion--3-3-92--mem512mi--cpu2--t-1200-1a2b3c4d5e-ue.a.run.app<br/>
+GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-92--mem512mi--cpu2--t-1200/logs<br/><br/>
+Service name:      remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
+Version:           3.3.82<br/>
+CPU Limit:         1.0<br/>
+Memory Limit:      512Mi<br/>
+Timeout:           800sec<br/>
+Region:            us-east1<br/>
+Service URL:       https://remotion--3-3-82--mem512mi--cpu1-0--t-800-1a2b3c4d5e-ue.a.run.app<br/>
+GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-800/logs<br/><br/>
 </pre>
 </details>
 
@@ -129,24 +133,30 @@ Example output
 </summary>
 <pre>
 3 services in all regions<br/><br/>
-Service name:    remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
-Version:         3.3.82<br/>
-CPU Limit:       1.0<br/>
-Memory Limit:    512Mi<br/>
-Timeout:         800sec<br/>
-Region:          us-central1<br/><br/>
-Service name:    remotion--3-3-92--mem512mi--cpu2--t-1200<br/>
-Version:         3.3.92<br/>
-CPU Limit:       2<br/>
-Memory Limit:    512Mi<br/>
-Timeout:         1200sec<br/>
-Region:          us-east1<br/><br/>
-Service name:    remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
-Version:         3.3.82<br/>
-CPU Limit:       1.0<br/>
-Memory Limit:    512Mi<br/>
-Timeout:         800sec<br/>
-Region:          us-east1<br/>
+Service name:      remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
+Version:           3.3.82<br/>
+CPU Limit:         1.0<br/>
+Memory Limit:      512Mi<br/>
+Timeout:           800sec<br/>
+Region:            us-central1<br/>
+Service URL:       https://remotion--3-3-82--mem512mi--cpu1-0--t-800-1a2b3c4d5e-uc.a.run.app<br/>
+GCP Console URL:   https://console.cloud.google.com/run/detail/us-central1/remotion--3-3-82--mem512mi--cpu1-0--t-800/logs<br/><br/>
+Service name:      remotion--3-3-92--mem512mi--cpu2--t-1200<br/>
+Version:           3.3.92<br/>
+CPU Limit:         2<br/>
+Memory Limit:      512Mi<br/>
+Timeout:           1200sec<br/>
+Region:            us-east1<br/>
+Service URL:       https://remotion--3-3-92--mem512mi--cpu2--t-1200-1a2b3c4d5e-ue.a.run.app<br/>
+GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-92--mem512mi--cpu2--t-1200/logs<br/><br/>
+Service name:      remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
+Version:           3.3.82<br/>
+CPU Limit:         1.0<br/>
+Memory Limit:      512Mi<br/>
+Timeout:           800sec<br/>
+Region:            us-east1<br/>
+Service URL:       https://remotion--3-3-82--mem512mi--cpu1-0--t-800-1a2b3c4d5e-ue.a.run.app<br/>
+GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-800/logs
 </pre>
 </details>
 
@@ -168,12 +178,14 @@ Example output
 </summary>
 <pre>
 <br/>
-Service name:    remotion--3-3-82--mem2gi--cpu1-0--t-800<br/>
-Version:         3.3.82<br/>
-CPU Limit:       1.0<br/>
-Memory Limit:    2Gi<br/>
-Timeout:         300sec<br/>
-Region:          us-east1<br/>
+Service name:      remotion--3-3-82--mem2gi--cpu1-0--t-800<br/>
+Version:           3.3.82<br/>
+CPU Limit:         1.0<br/>
+Memory Limit:      2Gi<br/>
+Timeout:           300sec<br/>
+Region:            us-east1<br/>
+Service URL:       https://remotion--3-3-82--mem2gi--cpu1-0--t-800-1a2b3c4d5e-ue.a.run.app<br/>
+GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem2gi--cpu1-0--t-800/logs
 Delete? (Y/n):  Y<br/>
 Deleted!
 <br/>
@@ -207,20 +219,24 @@ Example output
 </summary>
 <pre>
 2 services in us-east1<br/><br/>
-Service name:    remotion--3-3-92--mem512mi--cpu2--t-1200<br/>
-Version:         3.3.92<br/>
-CPU Limit:       2<br/>
-Memory Limit:    512Mi<br/>
-Timeout:         1200sec<br/>
-Region:          us-east1<br/><br/>
+Service name:      remotion--3-3-92--mem512mi--cpu2--t-1200<br/>
+Version:           3.3.92<br/>
+CPU Limit:         2<br/>
+Memory Limit:      512Mi<br/>
+Timeout:           1200sec<br/>
+Region:            us-east1<br/>
+Service URL:       https://remotion--3-3-92--mem512mi--cpu2--t-1200-1a2b3c4d5e-ue.a.run.app<br/>
+GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-92--mem512mi--cpu2--t-1200/logs<br/><br/>
 Delete? (Y/n) n<br/>
 Skipping service - remotion--3-3-92--mem512mi--cpu2--t-1200.<br/><br/>
-Service name:    remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
-Version:         3.3.82<br/>
-CPU Limit:       1.0<br/>
-Memory Limit:    512Mi<br/>
-Timeout:         800sec<br/>
-Region:          us-east1<br/><br/>
+Service name:      remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
+Version:           3.3.82<br/>
+CPU Limit:         1.0<br/>
+Memory Limit:      512Mi<br/>
+Timeout:           800sec<br/>
+Region:            us-east1<br/>
+Service URL:       https://remotion--3-3-82--mem512mi--cpu1-0--t-800-1a2b3c4d5e-ue.a.run.app<br/>
+GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-800/logs<br/><br/>
 Delete? (Y/n) n<br/>
 Skipping service - remotion--3-3-82--mem512mi--cpu1-0--t-800.<br/>
 </pre>
@@ -244,28 +260,33 @@ Example output
 </summary>
 <pre>
 3 services in all regions<br/><br/>
-Service name:    remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
-Version:         3.3.82<br/>
-CPU Limit:       1.0<br/>
-Memory Limit:    512Mi<br/>
-Timeout:         800sec<br/>
-Region:          us-central1<br/><br/>
+Service name:      remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
+Version:           3.3.82<br/>
+CPU Limit:         1.0<br/>
+Memory Limit:      512Mi<br/>
+Timeout:           800sec<br/>
+Region:            us-central1<br/>
+Service URL:       https://remotion--3-3-82--mem512mi--cpu1-0--t-800-1a2b3c4d5e-ue.a.run.app<br/>
+GCP Console URL:   https://console.cloud.google.com/run/detail/us-central1/remotion--3-3-82--mem512mi--cpu1-0--t-800/logs<br/><br/>
 Delete? (Y/n) n<br/>
-Skipping service - remotion--3-3-82--mem512mi--cpu1-0--t-800.<br/><br/>
-Service name:    remotion--3-3-92--mem512mi--cpu2--t-1200<br/>
-Version:         3.3.92<br/>
-CPU Limit:       2<br/>
-Memory Limit:    512Mi<br/>
-Timeout:         1200sec<br/>
-Region:          us-east1<br/><br/>
+Service name:      remotion--3-3-92--mem512mi--cpu2--t-1200<br/>
+Version:           3.3.92<br/>
+CPU Limit:         2<br/>
+Memory Limit:      512Mi<br/>
+Timeout:           1200sec<br/>
+Region:            us-east1<br/>
+Service URL:       https://remotion--3-3-92--mem512mi--cpu2--t-1200-1a2b3c4d5e-ue.a.run.app<br/>
+GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-92--mem512mi--cpu2--t-1200/logs<br/><br/>
 Delete? (Y/n) n<br/>
 Skipping service - remotion--3-3-92--mem512mi--cpu2--t-1200.<br/><br/>
-Service name:    remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
-Version:         3.3.82<br/>
-CPU Limit:       1.0<br/>
-Memory Limit:    512Mi<br/>
-Timeout:         800sec<br/>
-Region:          us-east1<br/><br/>
+Service name:      remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
+Version:           3.3.82<br/>
+CPU Limit:         1.0<br/>
+Memory Limit:      512Mi<br/>
+Timeout:           800sec<br/>
+Region:            us-east1<br/>
+Service URL:       https://remotion--3-3-82--mem512mi--cpu1-0--t-800-1a2b3c4d5e-ue.a.run.app<br/>
+GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-800/logs<br/><br/>
 Delete? (Y/n) n<br/>
 Skipping service - remotion--3-3-82--mem512mi--cpu1-0--t-800.<br/>
 </pre>

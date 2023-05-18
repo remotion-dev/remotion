@@ -10,7 +10,7 @@ Gets information about a service given it's name and region.
 
 To get a list of deployed services, use [`getServices()`](/docs/cloudrun/getservices).
 
-To deploy a service, use [`deployService()`](/docs/lambda/deployservice).
+To deploy a service, use [`deployService()`](/docs/cloudrun/deployservice).
 
 ## Example
 

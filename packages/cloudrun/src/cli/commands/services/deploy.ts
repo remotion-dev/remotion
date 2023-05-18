@@ -97,7 +97,7 @@ Service Already Deployed! Check GCP Console for Cloud Run URL.
 		
     Full Service Name = ${deployResult.fullName}
     Project = ${projectID}
-    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/revisions
+    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/logs
 						`.trim()
 					)
 				);
@@ -116,7 +116,7 @@ Service Already Deployed! Check GCP Console for Cloud Run URL.
     Full Service Name = ${deployResult.fullName}
     Cloud Run URL = ${deployResult.uri}
     Project = ${projectID}
-    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/revisions
+    GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/logs
 						`.trim()
 					)
 				);

@@ -37,6 +37,8 @@ for (const service of info) {
   console.log(service.memoryLimit); // 512Mi
   console.log(service.cpuLimit); // 1.0
   console.log(service.remotionVersion); // "3.3.82"
+  console.log(service.uri); // "https://remotion--3-3-82--mem512mi--cpu1-0--t-300-1a2b3c4d5e-ue.a.run.app"
+  console.log(service.region); // "us-east1"
 }
 ```
 
@@ -47,12 +49,6 @@ An object containing the following properties:
 ### `region`
 
 The [GCP region](/docs/cloudrun/region-selection) that you would like to query. It is also possible to pass 'all regions' here, to ignore the region constraint.
-
-### `compatibleOnly`
-
-If `true`, only services that match the version of the current Remotion Lambda package are returned. If `false`, all services are returned.
-
-## Example
 
 ```ts twoslash
 // @module: esnext
