@@ -1,4 +1,8 @@
 import type {ChromiumOptions, StillImageFormat} from '@remotion/renderer';
+import type {
+	CloudRunPayloadType,
+	RenderStillOnCloudrunOutput,
+} from '../functions/helpers/payloads';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {validateServeUrl} from '../shared/validate-serveurl';
 import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
@@ -12,7 +16,7 @@ export type RenderStillOnCloudrunInput = {
 	composition: string;
 	inputProps?: unknown;
 	outputBucket: string;
-	privacy?: string;
+	privacy?: 'public' | 'private';
 	outputFile?: string;
 	imageFormat: StillImageFormat;
 	envVariables?: Record<string, string>;
@@ -22,18 +26,6 @@ export type RenderStillOnCloudrunInput = {
 	scale?: number;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
-};
-
-export type RenderStillOnCloudrunOutput = {
-	publicUrl: string;
-	cloudStorageUri: string;
-	size: string;
-	bucketName: string;
-	renderId: string;
-	status: string;
-	privacy: string;
-	errMessage: string;
-	error: any;
 };
 
 /**
@@ -79,7 +71,7 @@ export const renderStillOnCloudrun = async ({
 		region,
 	});
 
-	const data = {
+	const data: CloudRunPayloadType = {
 		composition,
 		serveUrl,
 		inputProps,
