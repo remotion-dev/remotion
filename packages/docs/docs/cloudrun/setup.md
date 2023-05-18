@@ -53,10 +53,10 @@ Make sure no package version number has a `^` character in front of it as it can
 Your package.json should look like the following:
 
 ```json
-  "@remotion/cli": "3.0.0", // Replace 3.0.0 with the current version
-  "@remotion/cloudrun": "3.0.0", // Remove any `^` character
+  "@remotion/cli": "4.0.0", // Replace 4.0.0 with the current version
+  "@remotion/cloudrun": "4.0.0", // Remove any `^` character
   // ...
-  "remotion": "3.0.0",
+  "remotion": "4.0.0",
 ```
 
 ## 2. Create a GCP project
@@ -87,6 +87,7 @@ This means that you can pull in a script that runs a couple of gcloud and Terraf
    <img src="/img/cloudrun/selectCloudShell.jpg" width="200" />
 
 2. Within the Cloud Shell, type the following command and follow the prompts.
+   // TODO: Switch to remotion-dev repo
 
    ```bash
    curl -L https://github.com/UmungoBungo/remotion/raw/gcp-lambda-alternative/packages/cloudrun/gcpInstaller/gcpInstaller.tar | tar -x --strip-components=1 -C . && node install.mjs
@@ -96,9 +97,9 @@ This means that you can pull in a script that runs a couple of gcloud and Terraf
 
    If this is the first time initialising Remotion in the GCP project, you will want to select option 1.
    If you are updating the version of Remotion for this GCP project, you will want to select option 1.
-
+   // TODO: Cannot do relative links in Docusaurus
    If you want to [generate a new .env file](./generateEnvFile.md), or manage keys already created, you will want to select option 2. You will be presented with an opportunity to generate this file after completing option 1.
-   <!-- ToDo - host this in the official Remotion repo -->
+     <!-- ToDo - host this in the official Remotion repo -->
 
 3. Download the .env file by clicking the vertical ellipsis, in the top right of the cloud shell window, and selecting Download. Then type .env at the end of the prefilled path, and click DOWNLOAD;  
     <img src="/img/cloudrun/downloadEnv.jpg" width="350" />  
@@ -123,6 +124,8 @@ This means that you can pull in a script that runs a couple of gcloud and Terraf
 ## 5. Optional: Validate the permission setup
 
 From within your code base, run the following command to validate the permissions are setup correctly in GCP. As long as your GCP project was setup with a matching Remotion version, this should pass.
+
+TODO: This command does not exist
 
 ```
 npx remotion cloudrun policies validate
