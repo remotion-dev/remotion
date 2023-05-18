@@ -62,4 +62,30 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 	}),
 ]);
 
+const renderStillOnLambdaResponsePayload = z.object({
+	publicUrl: z.string(),
+	cloudStorageUri: z.string(),
+	size: z.number(),
+	bucketName: z.string(),
+	renderId: z.string(),
+	status: z.literal('success'),
+	privacy: z.enum(['publicRead', 'projectPrivate']),
+});
+
+const renderMediaOnLambdaResponsePayload = z.object({
+	publicUrl: z.string(),
+	cloudStorageUri: z.string(),
+	size: z.number(),
+	bucketName: z.string(),
+	renderId: z.string(),
+	status: z.literal('success'),
+	privacy: z.enum(['publicRead', 'projectPrivate']),
+});
+
 export type CloudRunPayloadType = z.infer<typeof CloudRunPayload>;
+export type RenderStillOnLambdaResponsePayloadType = z.infer<
+	typeof renderStillOnLambdaResponsePayload
+>;
+export type RenderMediaOnLambdaResponsePayloadType = z.infer<
+	typeof renderMediaOnLambdaResponsePayload
+>;

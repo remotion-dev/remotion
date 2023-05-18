@@ -4,7 +4,10 @@ import {renderStill} from '@remotion/renderer';
 import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
-import type {CloudRunPayloadType} from './helpers/payloads';
+import type {
+	CloudRunPayloadType,
+	RenderStillOnLambdaResponsePayloadType,
+} from './helpers/payloads';
 
 export const renderStillSingleThread = async (
 	body: CloudRunPayloadType,
@@ -52,7 +55,7 @@ export const renderStillSingleThread = async (
 
 	const uploadedFile = uploadedResponse[0];
 	const renderMetadata = await uploadedFile.getMetadata();
-	const responseData = {
+	const responseData: RenderStillOnLambdaResponsePayloadType = {
 		publicUrl: uploadedFile.publicUrl(),
 		cloudStorageUri: uploadedFile.cloudStorageURI.href,
 		size: renderMetadata[0].size,
