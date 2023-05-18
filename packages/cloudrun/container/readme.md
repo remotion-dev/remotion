@@ -10,7 +10,7 @@ The Dockerfile also bundles chromium and ffmpeg, and installs the [functions-fra
 
 ## GCP Artifact Registry
 
-The Artifact Regsitry in GCP is a place to store container images. The Remotion-dev project has been created in GCP as a central place to host a public registry which can be read from by anyone. In particular, it is read from in the [Remotion GCP API when deploying a new Cloud Run instance](../src/api/deploy-new-cloud-run.ts). The image that is retrieved is located at `us-docker.pkg.dev/remotion-dev/cloud-run/render:${remotionVersion}` where remotionVersion is a prop that gets passed in. Therefore, whenever a new version of Remotion is released, a new image needs to be added to the Artifact Registry that makes use of the latest Remotion Package. The images are tagged with the Remotion version, so that people can get the required version for their environment.
+The Artifact Registry in GCP is a place to store container images. The Remotion-dev project has been created in GCP as a central place to host a public registry which can be read from by anyone. In particular, it is read from in the [Remotion GCP API when deploying a new Cloud Run instance](../src/api/deploy-new-cloud-run.ts). The image that is retrieved is located at `us-docker.pkg.dev/remotion-dev/cloud-run/render:${remotionVersion}` where remotionVersion is a prop that gets passed in. Therefore, whenever a new version of Remotion is released, a new image needs to be added to the Artifact Registry that makes use of the latest Remotion Package. The images are tagged with the Remotion version, so that people can get the required version for their environment.
 
 ## Build Pipeline
 
