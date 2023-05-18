@@ -1,0 +1,26 @@
+{
+  "steps": [
+    {
+      "name": "gcr.io/cloud-builders/docker",
+      "entrypoint": "bash",
+      "args": [
+        "-c",
+        "docker pull us-docker.pkg.dev/remotion-dev/cloud-run/render:cachebase || exit 0"
+      ]
+    },
+    {
+      "name": "gcr.io/cloud-builders/docker",
+      "args": [
+        "build",
+        "-t",
+        "us-docker.pkg.dev/remotion-dev/cloud-run/render:3.3.94",
+        "--cache-from",
+        "us-docker.pkg.dev/remotion-dev/cloud-run/render:cachebase",
+        "."
+      ]
+    }
+  ],
+  "images": [
+    "us-docker.pkg.dev/remotion-dev/cloud-run/render:3.3.94"
+  ]
+}
