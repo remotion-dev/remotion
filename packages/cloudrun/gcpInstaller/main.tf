@@ -14,10 +14,6 @@ variable "project_id" {
   description = "The ID of the project in which the resources will be created."
 }
 
-variable "remotion_version" {
-  type        = string
-  description = "The version of Remotion being deployed."
-}
 
 
 provider "google" {
@@ -48,7 +44,6 @@ resource "google_project_iam_custom_role" "remotion_sa" {
 resource "google_service_account" "remotion_sa" {
   account_id   = "remotion-sa"
   display_name = "Remotion Service Account"
-  description  = var.remotion_version
 }
 
 # Bind the IAM role to the service account
