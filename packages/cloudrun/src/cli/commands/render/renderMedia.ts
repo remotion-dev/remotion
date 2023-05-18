@@ -4,8 +4,8 @@ import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
 // import {validateMaxRetries} from '../../../shared/validate-retries';
 import {ConfigInternals} from '@remotion/cli/config';
 import {downloadFile} from '../../../api/download-file';
-import type {RenderMediaOnCloudrunOutput} from '../../../functions/helpers/payloads';
 import {parsedCloudrunCli} from '../../args';
+import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
 
@@ -144,38 +144,43 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	renderProgress.doneIn = Date.now() - renderStart;
 	updateProgress();
 
-	const success = res as RenderMediaOnCloudrunOutput;
-	Log.info(`
+	if (res.status === 'success') {
+		Log.info(`
 		
 		`);
-	Log.info(
-		CliInternals.chalk.blueBright(
-			`
+		Log.info(
+			CliInternals.chalk.blueBright(
+				`
 🤘 Rendered media on Cloud Run! 🤘
 
-    Public URL = ${decodeURIComponent(success.publicUrl)}
-    Cloud Storage Uri = ${success.cloudStorageUri}
-    Size (KB) = ${Math.round(Number(success.size) / 1000)}
-    Bucket Name = ${success.bucketName}
-		Privacy = ${success.privacy}
-    Render ID = ${success.renderId}
+    Public URL = ${decodeURIComponent(res.publicUrl)}
+    Cloud Storage Uri = ${res.cloudStorageUri}
+    Size (KB) = ${Math.round(Number(res.size) / 1000)}
+    Bucket Name = ${res.bucketName}
+		Privacy = ${res.privacy}
+    Render ID = ${res.renderId}
     Codec = ${codec} (${codecReason})
       `.trim()
-		)
-	);
-
-	if (downloadName) {
-		Log.info('');
-		Log.info('downloading file...');
-
-		const destination = await downloadFile({
-			bucketName: success.bucketName,
-			gsutilURI: success.cloudStorageUri,
-			downloadName,
-		});
-
-		Log.info(
-			CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
+			)
 		);
+
+		if (downloadName) {
+			Log.info('');
+			Log.info('downloading file...');
+
+			const destination = await downloadFile({
+				bucketName: res.bucketName,
+				gsutilURI: res.cloudStorageUri,
+				downloadName,
+			});
+
+			Log.info(
+				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
+			);
+		}
+	} else {
+		Log.error('Render failed with the following error: ');
+		Log.error(res.stack);
+		quit(1);
 	}
 };
