@@ -95,7 +95,7 @@ This pipeline should work as is, but the steps are recorded here for future trou
 
 ## Backup - Manual Upload to Artifact Registry
 
-Complete a build for the GCP package, so that `gcp/container` contains an up-to-date `dist` folder.
+Complete a build for the GCP package, so that `cloudrun/container` contains an up-to-date `dist` folder.
 
 1. Install the GCloud CLI - [Link](https://cloud.google.com/sdk/docs/install)
 2. Init GCloud CLI by running `gcloud init`  
@@ -103,7 +103,7 @@ Complete a build for the GCP package, so that `gcp/container` contains an up-to-
    b. Within the shell, you should see remotion-dev as a project to use. Select this  
    c. Typing `gcloud config list` should show that the correct account and project are active
    d. if remotion-dev is not the current project, run `gcloud config set project remotion-dev`
-3. `cd` into the `packages/gcp/container` folder.
+3. `cd` into the `packages/cloudrun/container` folder.
 4. Run `gcloud builds submit --tag us-docker.pkg.dev/remotion-dev/cloud-run/render:VERSION` replacing
    VERSION with the current Remotion version.
 5. Navigate to [Artifact Registry](https://console.cloud.google.com/artifacts/docker/remotion-dev/us/cloud-run/render?project=remotion-dev) to see the new image, with the correct tag.
