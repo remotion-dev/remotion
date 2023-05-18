@@ -47,6 +47,7 @@ export const renderStillSubcommand = async (
 			configImageFormat:
 				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		});
+	Log.verbose(`Image format: (${imageFormat}), ${imageFormatReason}`);
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
 	CliInternals.Log.info(
 		CliInternals.chalk.gray(
@@ -75,13 +76,13 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 
 	let doneIn: DoneIn = null;
 
-	const updateProgress = () => {
+	const updateProgress = (newline: boolean) => {
 		progressBar.update(
 			[
-				`Rendering on Cloud Run: `,
+				`Rendering on Cloud Run:`,
 				`${doneIn === null ? '...' : `Rendered in ${doneIn}ms`}`,
 			].join(' '),
-			false
+			newline
 		);
 	};
 
@@ -103,27 +104,21 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		outputFile: outName,
 	});
 	doneIn = Date.now() - renderStart;
-	updateProgress();
+	updateProgress(true);
 
 	if (res.status === 'success') {
-		Log.info(`
-		
-		`);
 		Log.info(
-			CliInternals.chalk.blueBright(
-				`
-🤘 Rendered still on Cloud Run! 🤘
-
-    Public URL = ${decodeURIComponent(res.publicUrl)}
-    Cloud Storage Uri = ${res.cloudStorageUri}
-    Size (KB) = ${Math.round(Number(res.size) / 1000)}
-    Bucket Name = ${res.bucketName}
-    Privacy = ${res.privacy}
-    Render ID = ${res.renderId}
-    Image Format = ${imageFormat} (${imageFormatReason})
-      `.trim()
+			CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`)
+		);
+		Log.info(CliInternals.chalk.gray(`Render ID = ${res.renderId}`));
+		Log.info(
+			CliInternals.chalk.gray(
+				`${Math.round(Number(res.size) / 1000)} KB, Privacy: ${
+					res.privacy
+				}, Bucket: ${res.bucketName}`
 			)
 		);
+		Log.info(CliInternals.chalk.blue(`○ ${res.publicUrl}`));
 
 		if (downloadName) {
 			Log.info('');

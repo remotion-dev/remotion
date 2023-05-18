@@ -15,7 +15,7 @@
 	},
 	"overrides": [
 		{
-			"files": "./gcpInstaller/**",
+			"files": "./src/gcpInstaller/**",
 			"rules": {
 				"no-console": "off"
 			}

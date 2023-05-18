@@ -64,8 +64,6 @@ export const renderMediaSubcommand = async (
 	CliInternals.Log.info(
 		CliInternals.chalk.gray(
 			`
-Sending request to Cloud Run:
-
 Cloud Run Service URL = ${cloudRunUrl}
 Type = media
 Composition = ${composition}

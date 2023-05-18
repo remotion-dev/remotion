@@ -14,17 +14,14 @@ const bundleInstaller = async () => {
 		bundle: true,
 		outfile: bundlemjs,
 		format: 'esm',
-		entryPoints: [path.resolve(__dirname, '../../gcpInstaller/install.mts')],
+		entryPoints: [path.resolve(__dirname, '../gcpInstaller/install.mts')],
 	});
 
 	const tfoutfile = path.join(outdir, 'main.tf');
-	copyFileSync(
-		path.resolve(__dirname, '../../gcpInstaller/main.tf'),
-		tfoutfile
-	);
+	copyFileSync(path.resolve(__dirname, '../gcpInstaller/main.tf'), tfoutfile);
 
 	execSync(
-		`tar -cf ../../gcpInstaller/gcpInstaller.tar -C . ${path.relative(
+		`tar -cf ../gcpInstaller/gcpInstaller.tar -C . ${path.relative(
 			outdir,
 			bundlemjs
 		)} ${path.relative(outdir, tfoutfile)}`,
