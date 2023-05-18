@@ -86,8 +86,6 @@ This means that you can pull in a script that runs a couple of gcloud and Terraf
 
    <img src="/img/cloudrun/selectCloudShell.jpg" width="200" />
 
-// TODO: Cannot do relative links in Docusaurus
-
 2. Within the Cloud Shell, type the following command and follow the prompts.
    // TODO: Switch to remotion-dev repo
 
@@ -95,32 +93,19 @@ This means that you can pull in a script that runs a couple of gcloud and Terraf
    curl -L https://github.com/UmungoBungo/remotion/raw/gcp-lambda-alternative/packages/cloudrun/gcpInstaller/gcpInstaller.tar | tar -x --strip-components=1 -C . && node install.mjs
    ```
 
-   _The first command downloads a tar file from the Remotion repo, and extracts it to the current directory. The second command runs the installer script._
+- Select <Step>1</Step> if you are using Remotion Cloud Run for the first time in this GCP project or want to upgrade.
+- Select <Step>2</Step> if you want to [generate a new .env file](/docs/cloudrun/generate-env), or manage keys already created.
 
-   If this is the first time initialising Remotion in the GCP project, you will want to select option 1.
-   If you are updating the version of Remotion for this GCP project, you will want to select option 1.
-   If you want to [generate a new .env file](./generateEnvFile.md), or manage keys already created, you will want to select option 2. You will be presented with an opportunity to generate this file after completing option 1.
+4. Run the following command to view the environment variables. Copy them into your local `.env` file (create it if it doesn't exist):
 
-3. Download the .env file by clicking the vertical ellipsis, in the top right of the cloud shell window, and selecting Download. Then type .env at the end of the prefilled path, and click DOWNLOAD;  
-    <img src="/img/cloudrun/downloadEnv.jpg" width="350" />  
-   <br />
-   <br />
-   <img src="/img/cloudrun/downloadEnvFolder.png" width="300" />
+   ```bash
+   cat .env
+   ```
 
-// ToDo - host this in the official Remotion repo
-
-4. Remove the .env file from the virtual machine, using this command;
+5. Remove the .env file from the virtual machine:
 
    ```bash
    rm .env
-   ```
-
-5. Place the downloaded .env file into the root of the Remotion project. You may need to rename it from `env.txt`, to `.env`. The file should have this format;
-
-   ```txt title=".env"
-   REMOTION_GCP_PRIVATE_KEY=<private key>
-   REMOTION_GCP_CLIENT_EMAIL=<client email>
-   REMOTION_GCP_PROJECT_ID=<project id>
    ```
 
 ## 5. Optional: Validate the permission setup

@@ -1,8 +1,7 @@
 ---
 image: /generated/articles-docs-cloudrun-generateEnvFile.png
-id: generateEnvFile
+id: generate-env
 title: Generate .env File
-slug: /cloudrun/generateEnvFile
 crumb: "Cloudrun"
 ---
 
@@ -32,24 +31,16 @@ GCP allows a maximum of 10 keys per service account. If you have already created
 
    <!-- ToDo - host this in the official Remotion repo -->
 
-4. Download the .env file by clicking the vertical ellipsis, in the top right of the cloud shell window, and selecting Download. Then type .env at the end of the prefilled path, and click DOWNLOAD;  
-    <img src="/img/cloudrun/downloadEnv.jpg" width="350" />  
-   <br />
-   <br />
-   <img src="/img/cloudrun/downloadEnvFolder.png" width="300" />
+4. Run the following command to view the environment variables. Copy them into your local `.env` file (create it if it doesn't exist):
 
-5. Remove the .env file from the virtual machine, using this command;
+   ```bash
+   cat .env
+   ```
+
+5. Remove the .env file from the virtual machine, using this command:
 
    ```bash
    rm .env
-   ```
-
-6. Place the downloaded .env file into the root of the Remotion project. You may need to rename it from `env.txt`, to `.env`. The file should have this format;
-
-   ```txt title=".env"
-   REMOTION_GCP_PRIVATE_KEY=<private key>
-   REMOTION_GCP_CLIENT_EMAIL=<client email>
-   REMOTION_GCP_PROJECT_ID=<project id>
    ```
 
 ## 5. Optional: Validate the permission setup
