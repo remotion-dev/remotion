@@ -5,7 +5,10 @@ import {renderMedia} from '@remotion/renderer';
 import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
-import type {CloudRunPayloadType} from './helpers/payloads';
+import type {
+	CloudRunPayloadType,
+	RenderMediaOnLambdaResponsePayloadType,
+} from './helpers/payloads';
 
 export const renderMediaSingleThread = async (
 	body: CloudRunPayloadType,
@@ -73,13 +76,13 @@ export const renderMediaSingleThread = async (
 
 	const uploadedFile = uploadedResponse[0];
 	const renderMetadata = await uploadedFile.getMetadata();
-	const responseData = {
+	const responseData: RenderMediaOnLambdaResponsePayloadType = {
+		status: 'success',
 		publicUrl: uploadedFile.publicUrl(),
 		cloudStorageUri: uploadedFile.cloudStorageURI.href,
 		size: renderMetadata[0].size,
 		bucketName: body.outputBucket,
 		renderId,
-		status: 'success',
 		privacy: publicUpload ? 'publicRead' : 'projectPrivate',
 	};
 
