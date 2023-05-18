@@ -34,14 +34,14 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 
 	if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 		const siteName = serveUrl;
-		Log.info('Remotion site-name passed, constructing serve url...');
+		Log.verbose('Remotion site-name passed, constructing serve url...');
 		region = region ?? getGcpRegion();
 		remotionBucket = (await getOrCreateBucket({region})).bucketName;
 		serveUrl = convertToServeUrl({
 			urlOrId: siteName,
 			bucketName: remotionBucket,
 		});
-		Log.info(`<serve-url> constructed: ${serveUrl}\n`);
+		Log.info(`Serve URL: ${serveUrl}\n`);
 	}
 
 	let composition: string = args[1];
