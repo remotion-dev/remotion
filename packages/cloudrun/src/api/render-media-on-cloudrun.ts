@@ -1,5 +1,4 @@
 import type {ChromiumOptions, FrameRange} from '@remotion/renderer';
-import got from 'got/dist/source';
 import type {CloudrunCodec} from '../shared/validate-gcp-codec';
 import {validateCloudrunCodec} from '../shared/validate-gcp-codec';
 import {validatePrivacy} from '../shared/validate-privacy';
@@ -8,7 +7,6 @@ import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
 import {getCloudrunEndpoint} from './helpers/get-cloudrun-endpoint';
 
 export type RenderMediaOnCloudrunInput = {
-	authenticatedRequest: boolean;
 	cloudRunUrl?: string;
 	serviceName?: string;
 	region?: string;
@@ -84,7 +82,6 @@ export type RenderMediaOnCloudrunOutput = {
  */
 
 export const renderMediaOnCloudrun = async ({
-	authenticatedRequest,
 	cloudRunUrl,
 	serviceName,
 	region,
@@ -152,62 +149,39 @@ export const renderMediaOnCloudrun = async ({
 		type: 'media',
 	};
 
-	if (authenticatedRequest) {
-		const client = await getAuthClientForUrl(cloudRunEndpoint);
+	const client = await getAuthClientForUrl(cloudRunEndpoint);
 
-		const authenticatedDataPromise = new Promise((resolve, reject) => {
-			client
-				.request({
-					url: cloudRunEndpoint,
-					method: 'POST',
-					data,
-					responseType: 'stream',
-				})
-				.then((postResponse) => {
-					const stream: any = postResponse.data;
-
-					stream.on('data', (chunk: Buffer) => {
-						const chunkResponse = JSON.parse(chunk.toString());
-						if (chunkResponse.response) {
-							authenticatedResponse = chunkResponse.response;
-						} else if (chunkResponse.onProgress) {
-							updateRenderProgress?.(chunkResponse.onProgress);
-						}
-					});
-
-					stream.on('end', () => {
-						resolve(response);
-					});
-
-					stream.on('error', (error: any) => {
-						reject(error);
-					});
-				});
-		});
-
-		let authenticatedResponse = await authenticatedDataPromise;
-		return authenticatedResponse as RenderMediaOnCloudrunOutput;
-	}
-
-	const dataPromise = new Promise((resolve, reject) => {
-		got.stream
-			.post(cloudRunEndpoint, {json: data})
-			.on('data', (chunk) => {
-				const chunkResponse = JSON.parse(chunk.toString());
-				if (chunkResponse.response) {
-					response = chunkResponse.response;
-				} else if (chunkResponse.onProgress) {
-					updateRenderProgress?.(chunkResponse.onProgress);
-				}
-			})
-			.on('end', () => {
-				resolve(response);
-			})
-			.on('error', (error) => {
-				reject(error);
-			});
+	const postResponse = await client.request({
+		url: cloudRunEndpoint,
+		method: 'POST',
+		data,
+		responseType: 'stream',
 	});
 
-	let response = await dataPromise;
-	return response as RenderMediaOnCloudrunOutput;
+	const authenticatedDataPromise = new Promise((resolve, reject) => {
+		// TODO: Add any sort of type safety
+		let response: any;
+
+		const stream: any = postResponse.data;
+
+		stream.on('data', (chunk: Buffer) => {
+			const chunkResponse = JSON.parse(chunk.toString());
+			if (chunkResponse.response) {
+				authenticatedResponse = chunkResponse.response;
+			} else if (chunkResponse.onProgress) {
+				updateRenderProgress?.(chunkResponse.onProgress);
+			}
+		});
+
+		stream.on('end', () => {
+			resolve(response);
+		});
+
+		stream.on('error', (error: any) => {
+			reject(error);
+		});
+	});
+
+	let authenticatedResponse = await authenticatedDataPromise;
+	return authenticatedResponse as RenderMediaOnCloudrunOutput;
 };

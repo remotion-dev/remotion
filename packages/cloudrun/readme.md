@@ -135,9 +135,9 @@ For information only, here are the reasons for the above permissions
 - storage.objects.list
   - ToDo...
 - run.services.getIamPolicy
-  - used to check the existing IAM policy on a service, before modifying it for (un)authenticated invoking.
+  - used to check the existing IAM policy on a service
 - run.services.setIamPolicy
-  - used to set the IAM policy on a service, to allow unauthenticated invoking, or remove unauthenticated invoking.
+  - used to set the IAM policy on a service
 
 ### 2. Create a service account in the Google Cloud Console
 
@@ -187,20 +187,17 @@ Options:
 - --service-name (required):
   - the name of the Cloud Run service to deploy or update. Service names must be 49 characters or less and must be unique per region and project. A service name cannot be changed later and is publicly visible. The service does not need to exist yet. If it does exist, a new revision will be deployed.
 - --region: the region of the service
-- --allow-unauthenticated (optional, default to false):
-  - whether to allow unauthenticated requests to the service. For now, I would suggest setting this to true, to avoid having to create a service account and grant it access to the service. In the future, it would be recommended to not set this tru.
 - --overwrite-service (optional, default to false):
   - if an existing service is found with the same name, a prompt will come up asking if a new revision should be deployed. If this flag is set to true, the prompt will be skipped and a new revision will be deployed automatically.
 
 Taking the above into account, a valid command would be:  
-`npx remotion gcp cloud-run deploy --service-name=cloud-run-render --project-id=new-remotion-project --allow-unauthenticated`
+`npx remotion gcp cloud-run deploy --service-name=cloud-run-render --project-id=new-remotion-project`
 
 To view the deployed service, navigate to the [Cloud Run](https://console.cloud.google.com/run) screen in Google Cloud Console, and selecting the project from the drop-down menu in the top left corner.
 
 - The URL is visible at the top of the screen. This is where to send POST requests for rendering.
 - Revisions are listed under the revisions tab. You can also manage traffic splitting, and view resource limits for each revision.
 - Logs are available under the logs tab. For troubleshooting, it is best to click on the new tab icon to open the Logs Explorer, and then click on Stream Logs in the top right to have a live view of logs.
-- The security tab allows you to manage authentication and authorization for the service. If you set `--allow-unauthenticated` to true, you will see that unauthenticated invocations are allowed.
 
 <br><br>
 

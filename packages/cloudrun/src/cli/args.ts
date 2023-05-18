@@ -7,7 +7,6 @@ type servicesCommandLineOptions = {
 	region: GcpRegion;
 	['project-id']: string;
 	['service-name']: string;
-	['allow-unauthenticated']: boolean | undefined;
 	y: boolean;
 	yes: boolean;
 	force: boolean;

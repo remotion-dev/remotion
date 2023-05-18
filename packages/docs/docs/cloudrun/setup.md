@@ -297,7 +297,6 @@ const serviceName = services[0].serviceName;
 // ---cut---
 
 const { renderId, bucketName } = await renderMediaOnCloudrun({
-  authenticatedRequest: false, // unauthenticated request - requires cloud run service to be public
   cloudRunUrl,
   serveUrl: url,
   composition: "HelloWorld",
@@ -353,7 +352,6 @@ const outputFile = "string";
 // ---cut---
 
 const { renderId, publicUrl } = await renderStillOnCloudrun({
-  authenticatedRequest: false, // unauthenticated request - requires cloud run service to be public
   cloudRunUrl,
   serveUrl: url,
   composition: "HelloWorld",

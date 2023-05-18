@@ -37,7 +37,6 @@ Validating Deployment of Cloud Run Service:
     Service Timeout In Seconds = 300
     Project Name = remotion-6
     Region = us-east1
-    Allow Unauthenticated Access = false
 
 Deploying Cloud Run Service...
 
@@ -74,13 +73,9 @@ Timeout of the Cloud Run service. Default: 300 seconds.
 Not to be confused with the [`--timeout` flag when rendering which defines the timeout for `delayRender()`](/docs/cli/render#--timeout).
 :::
 
-### `--allow-unauthenticated`
-
-If passed this allows anyone, including unauthenticated users, to access and interact with the deployed service's endpoint.
-
 ### `--quiet`, `-q`
 
-Only logs the service name, and 'Authenticated access granted' or 'Unauthenticated access granted'.
+Only logs the service name, and 'Authenticated access granted'.
 
 ## ls
 

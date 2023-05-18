@@ -104,8 +104,6 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 		cloudRunUrl = uri;
 	}
 
-	const authenticatedRequest = !parsedCloudrunCli['unauthenticated-request'];
-
 	return {
 		serveUrl,
 		cloudRunUrl,
@@ -113,7 +111,6 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 		outName,
 		outputBucket,
 		privacy,
-		authenticatedRequest,
 		downloadName,
 	};
 };
