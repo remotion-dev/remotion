@@ -3,6 +3,7 @@ import {chmodSync} from 'node:fs';
 import os from 'node:os';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getActualConcurrency} from '../get-concurrency';
+import {getLogLevel, Log} from '../logger';
 import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
@@ -40,21 +41,29 @@ export const getIdealMaximumFrameCacheItems = () => {
 
 export const startLongRunningCompositor = (
 	maximumFrameCacheItems: number,
-	verbose: boolean
+	verbose: boolean,
+	indent: boolean
 ) => {
-	return startCompositor('StartLongRunningProcess', {
-		concurrency: getActualConcurrency(null),
-		maximum_frame_cache_items: maximumFrameCacheItems,
-		verbose,
-	});
+	return startCompositor(
+		'StartLongRunningProcess',
+		{
+			concurrency: getActualConcurrency(null),
+			maximum_frame_cache_items: maximumFrameCacheItems,
+			verbose,
+		},
+		indent
+	);
 };
 
 export const startCompositor = <T extends keyof CompositorCommand>(
 	type: T,
-	payload: CompositorCommand[T]
+	payload: CompositorCommand[T],
+	indent: boolean
 ): Compositor => {
 	const bin = getExecutablePath('compositor');
-	chmodSync(bin, 0o755);
+	if (!process.env.READ_ONLY_FS) {
+		chmodSync(bin, 0o755);
+	}
 
 	const fullCommand: CompositorCommandSerialized<T> = serializeCommand(
 		type,
@@ -79,7 +88,10 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		data: Buffer
 	) => {
 		if (nonce === '0') {
-			console.log(data.toString('utf8'));
+			Log.verboseAdvanced(
+				{indent, logLevel: getLogLevel(), tag: 'COMPOSITOR'},
+				data.toString('utf8')
+			);
 		}
 
 		if (waiters.has(nonce)) {

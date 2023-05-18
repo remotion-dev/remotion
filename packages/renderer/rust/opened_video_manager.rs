@@ -11,6 +11,7 @@ use lazy_static::lazy_static;
 use crate::{
     errors::ErrorWithBacktrace,
     frame_cache::FrameCacheReference,
+    global_printer::_print_verbose,
     logger::log_callback,
     opened_video::{open_video, OpenedVideo},
 };
@@ -96,6 +97,12 @@ impl OpenedVideoManager {
                 self.videos.write()?.remove(&video.src);
             }
         }
+
+        _print_verbose(&format!(
+            "Pruned {} to save memory, keeping {}",
+            oldest_n,
+            self.get_frames_in_cache()?
+        ))?;
 
         Ok(())
     }

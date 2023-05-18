@@ -8,12 +8,11 @@ import React, {
 import type {AnyComposition} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
 import type {z} from 'zod';
-import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
-import {ValidationMessage} from '../NewComposition/ValidationMessage';
-
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
+import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
+import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {
 	canUpdateDefaultProps,
@@ -22,13 +21,17 @@ import {
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import type {TypeCanSaveState} from './get-render-modal-warnings';
-import {getRenderModalWarnings} from './get-render-modal-warnings';
-import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
-import type {SerializedJSONWithDate} from './SchemaEditor/date-serialization';
 import {
-	deserializeJSONWithDate,
+	defaultTypeCanSaveState,
+	getRenderModalWarnings,
+} from './get-render-modal-warnings';
+import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
+import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
+import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
+import {
+	deserializeJSONWithCustomFields,
 	serializeJSONWithDate,
-} from './SchemaEditor/date-serialization';
+} from './SchemaEditor/input-props-serialization';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -38,6 +41,10 @@ import {
 import {WarningIndicatorButton} from './WarningIndicatorButton';
 
 type Mode = 'json' | 'schema';
+
+type AllCompStates = {
+	[key: string]: TypeCanSaveState;
+};
 
 export type State =
 	| {
@@ -95,7 +102,7 @@ const persistanceKey = 'remotion.show-render-modalwarning';
 
 const parseJSON = (str: string): State => {
 	try {
-		const value = deserializeJSONWithDate(str);
+		const value = deserializeJSONWithCustomFields(str);
 		return {str, value, validJSON: true};
 	} catch (e) {
 		return {str, validJSON: false, error: (e as Error).message};
@@ -138,21 +145,23 @@ export const RenderModalData: React.FC<{
 	);
 
 	const inJSONEditor = mode === 'json';
-	const serializedJSON: SerializedJSONWithDate | null = useMemo(() => {
+	const serializedJSON: SerializedJSONWithCustomFields | null = useMemo(() => {
 		if (!inJSONEditor) {
 			return null;
 		}
 
 		const value = inputProps ?? {};
-		return serializeJSONWithDate(value, 2);
+		return serializeJSONWithDate({
+			data: value,
+			indent: 2,
+			staticBase: window.remotion_staticBase,
+		});
 	}, [inJSONEditor, inputProps]);
 
 	const cliProps = getInputProps();
-	const [canSaveDefaultProps, setCanSaveDefaultProps] =
-		useState<TypeCanSaveState>({
-			canUpdate: false,
-			reason: 'Loading...',
-			determined: false,
+	const [canSaveDefaultPropsObjectState, setCanSaveDefaultProps] =
+		useState<AllCompStates>({
+			[composition.id]: defaultTypeCanSaveState,
 		});
 
 	const z = useZodIfPossible();
@@ -196,6 +205,12 @@ export const RenderModalData: React.FC<{
 			});
 		}, []);
 
+	const canSaveDefaultProps = useMemo(() => {
+		return canSaveDefaultPropsObjectState[composition.id]
+			? canSaveDefaultPropsObjectState[composition.id]
+			: defaultTypeCanSaveState;
+	}, [canSaveDefaultPropsObjectState, composition.id]);
+
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
 	const {fastRefreshes} = useContext(Internals.NonceContext);
@@ -204,23 +219,32 @@ export const RenderModalData: React.FC<{
 		canUpdateDefaultProps(composition.id)
 			.then((can) => {
 				if (can.canUpdate) {
-					setCanSaveDefaultProps({
-						canUpdate: true,
-					});
+					setCanSaveDefaultProps((prevState) => ({
+						...prevState,
+						[composition.id]: {
+							canUpdate: true,
+						},
+					}));
 				} else {
-					setCanSaveDefaultProps({
-						canUpdate: false,
-						reason: can.reason,
-						determined: true,
-					});
+					setCanSaveDefaultProps((prevState) => ({
+						...prevState,
+						[composition.id]: {
+							canUpdate: false,
+							reason: can.reason,
+							determined: true,
+						},
+					}));
 				}
 			})
 			.catch((err) => {
-				setCanSaveDefaultProps({
-					canUpdate: false,
-					reason: (err as Error).message,
-					determined: true,
-				});
+				setCanSaveDefaultProps((prevState) => ({
+					...prevState,
+					[composition.id]: {
+						canUpdate: false,
+						reason: (err as Error).message,
+						determined: true,
+					},
+				}));
 			});
 	}, [composition.id]);
 
@@ -250,9 +274,18 @@ export const RenderModalData: React.FC<{
 	}, []);
 
 	const onUpdate = useCallback(() => {
+		if (schema === 'no-zod' || z === null) {
+			sendErrorNotification('Cannot update default props: No Zod schema');
+			return;
+		}
+
 		setValBeforeSafe(inputProps);
-		updateDefaultProps(composition.id, inputProps);
-	}, [composition.id, inputProps]);
+		updateDefaultProps(
+			composition.id,
+			inputProps,
+			extractEnumJsonPaths(schema, z, [])
+		);
+	}, [composition.id, inputProps, schema, z]);
 
 	useEffect(() => {
 		setSaving(false);
@@ -260,16 +293,22 @@ export const RenderModalData: React.FC<{
 
 	const onSave = useCallback(
 		(updater: (oldState: unknown) => unknown) => {
+			if (schema === 'no-zod' || z === null) {
+				sendErrorNotification('Cannot update default props: No Zod schema');
+				return;
+			}
+
 			setSaving(true);
 			updateDefaultProps(
 				composition.id,
-				updater(composition.defaultProps)
+				updater(composition.defaultProps),
+				extractEnumJsonPaths(schema, z, [])
 			).catch((err) => {
 				sendErrorNotification(`Cannot update default props: ${err.message}`);
 				setSaving(false);
 			});
 		},
-		[composition.defaultProps, composition.id]
+		[composition.defaultProps, composition.id, schema, z]
 	);
 
 	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
@@ -279,12 +318,15 @@ export const RenderModalData: React.FC<{
 			canSaveDefaultProps,
 			cliProps,
 			isCustomDateUsed: serializedJSON ? serializedJSON.customDateUsed : false,
+			customFileUsed: serializedJSON ? serializedJSON.customFileUsed : false,
 			inJSONEditor,
 			propsEditType,
+			jsMapUsed: serializedJSON ? serializedJSON.mapUsed : false,
+			jsSetUsed: serializedJSON ? serializedJSON.setUsed : false,
 		});
 	}, [
-		canSaveDefaultProps,
 		cliProps,
+		canSaveDefaultProps,
 		inJSONEditor,
 		propsEditType,
 		serializedJSON,

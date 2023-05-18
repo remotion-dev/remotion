@@ -9,7 +9,8 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor(
 			getIdealMaximumFrameCacheItems(),
-			true
+			true,
+			false
 		);
 
 		const matching = await Promise.all(

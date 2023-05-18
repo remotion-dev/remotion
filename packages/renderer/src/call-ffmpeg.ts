@@ -31,7 +31,10 @@ export const callFf = (
 	options?: execa.Options<string>
 ) => {
 	const executablePath = getExecutablePath(bin);
-	chmodSync(executablePath, 0o755);
+	if (!process.env.READ_ONLY_FS) {
+		chmodSync(executablePath, 0o755);
+	}
+
 	return execa(executablePath, args.filter(truthy), {
 		...dynamicLibraryPathOptions(),
 		...options,

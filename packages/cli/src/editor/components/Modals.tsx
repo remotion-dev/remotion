@@ -55,6 +55,8 @@ export const Modals: React.FC = () => {
 						modalContextType.initialIgnoreCertificateErrors
 					}
 					defaultProps={modalContextType.defaultProps}
+					inFrameMark={modalContextType.inFrameMark}
+					outFrameMark={modalContextType.outFrameMark}
 				/>
 			)}
 

@@ -142,7 +142,6 @@ export const webpackConfig = ({
 					? require.resolve('react-dom/client')
 					: require.resolve('react-dom'),
 				remotion: require.resolve('remotion'),
-				'react-native$': 'react-native-web',
 			},
 		},
 		module: {

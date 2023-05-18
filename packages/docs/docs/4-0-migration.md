@@ -193,3 +193,55 @@ The `WebpackOverrideFn` type useful for overriding the Webpack config in the con
 **How to upgrade:**
 
 If you encoded the path by yourself until now, don't do so anymore to avoid double encoding.
+
+## `react-native` no longer aliases to `react-native-web`
+
+Remotion no longer aliases `react-native` automatically to `react-native-web`.  
+If you are using `react-native-web`, override the Webpack config like this to restore the previous behavior:
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+
+Config.overrideWebpackConfig((config) => {
+  return {
+    ...config,
+    resolve: {
+      ...config.resolve,
+      alias: {
+        ...config.resolve?.alias,
+        "react-native$": "react-native-web",
+      },
+    },
+  };
+});
+```
+
+This is automatically applied in [`@remotion/skia`](/docs/skia).
+
+## The `TComposition` type now includes a Zod schema
+
+The `TComposition` type now has two generic arguments:
+
+```ts
+export type TComposition<Schema extends z.ZodTypeAny, Props> = {};
+```
+
+If you need a type for a generic composition, you can use the new `AnyComposition` type:
+
+```ts
+import { AnyComposition } from "remotion";
+
+const composition: AnyComposition = {
+  width: 1920,
+  height: 1080,
+  // ...
+};
+```
+
+## `getCanExtractFramesFast()` function has been removed
+
+The [`getCanExtractFramesFast()`](/docs/renderer/get-can-extract-frames-fast) function has been removed, since frames can always be extracted fast now using `<OffthreadVideo>`.
+
+**How to upgrade:**
+
+You can now remove your re-encoding logic!

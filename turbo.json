@@ -3,7 +3,8 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", ".rollup.cache"],
+      "outputMode": "new-only"
     },
     "test": {
       "dependsOn": ["^build", "build"],
@@ -16,12 +17,14 @@
       "dependsOn": ["@remotion/eslint-config#build"]
     },
     "@remotion/google-fonts#build": {
-      "outputs": ["src", ".cache-css", "dist/**"],
-      "dependsOn": ["^build"]
+      "outputs": ["src", ".cache-css", "dist/**", ".rollup.cache"],
+      "dependsOn": ["^build"],
+      "outputMode": "new-only"
     },
     "@remotion/renderer#build": {
       "outputs": ["dist/**", "target/**"],
-      "dependsOn": ["^build"]
+      "dependsOn": ["^build"],
+      "outputMode": "new-only"
     },
     "@remotion/player-example#lint": {
       "dependsOn": ["@remotion/eslint-config#build"]

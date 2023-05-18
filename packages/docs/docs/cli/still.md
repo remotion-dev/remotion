@@ -48,6 +48,10 @@ Specify a location for a dotenv file - Default `.env`. [Read about how environme
 
 Renamed to `--jpeg-quality` in v4.0.0
 
+### `--output` <AvailableFrom v="4.0.0" />
+
+Sets the output file path, as an alternative to the `output-location` positional argument.
+
 ### `--overwrite`
 
 [Write to output even if file already exists.](/docs/config#setoverwriteoutput). This flag is enabled by default, use `--overwrite=false` to disable it.

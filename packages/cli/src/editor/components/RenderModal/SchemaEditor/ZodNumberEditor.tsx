@@ -6,6 +6,7 @@ import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 
 type LocalState = {
 	value: string;
@@ -74,7 +75,7 @@ export const ZodNumberEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: number;
-	setValue: React.Dispatch<React.SetStateAction<number>>;
+	setValue: UpdaterFunction<number>;
 	compact: boolean;
 	defaultValue: number;
 	onSave: (updater: (oldNum: unknown) => number) => void;
@@ -109,31 +110,38 @@ export const ZodNumberEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(Number(newValue));
+				setValue(() => Number(newValue));
 			}
 		},
 		[schema, setValue]
 	);
 
 	const onValueChange = useCallback(
-		(newValue: number) => {
+		(newValue: number, forceApply: boolean) => {
 			const safeParse = schema.safeParse(newValue);
 			const newLocalState: LocalState = {
 				value: String(newValue),
 				zodValidation: safeParse,
 			};
 			setLocalValue(newLocalState);
-			if (safeParse.success) {
-				setValue(newValue);
+			if (safeParse.success || forceApply) {
+				setValue(() => newValue);
 			}
 		},
 		[schema, setValue]
 	);
 
+	const onNumberChange = useCallback(
+		(newValue: number) => {
+			onValueChange(newValue, false);
+		},
+		[onValueChange]
+	);
+
 	const isDefault = value === defaultValue;
 
 	const reset = useCallback(() => {
-		onValueChange(defaultValue);
+		onValueChange(defaultValue, true);
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
@@ -160,7 +168,7 @@ export const ZodNumberEditor: React.FC<{
 					status={localValue.zodValidation.success ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					onTextChange={onChange}
-					onValueChange={onValueChange}
+					onValueChange={onNumberChange}
 					min={getMinValue(schema)}
 					max={getMaxValue(schema)}
 					step={getStep(schema)}
