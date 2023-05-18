@@ -3,6 +3,7 @@ import {CliInternals} from '@remotion/cli';
 import {getCompositions} from '@remotion/renderer';
 import {getOrCreateBucket} from '../../../../api/get-or-create-bucket';
 import {getServiceInfo} from '../../../../api/get-service-info';
+import {getServices} from '../../../../api/get-services';
 import {
 	BINARY_NAME,
 	DEFAULT_OUTPUT_PRIVACY,
@@ -14,9 +15,11 @@ import {parsedCloudrunCli} from '../../../args';
 import {getGcpRegion} from '../../../get-gcp-region';
 import {quit} from '../../../helpers/quit';
 import {Log} from '../../../log';
+import {SERVICES_COMMAND} from '../../services';
+import {CLOUD_RUN_DEPLOY_SUBCOMMAND} from '../../services/deploy';
 
 export const renderArgsCheck = async (subcommand: string, args: string[]) => {
-	let region;
+	let region = getGcpRegion();
 	let remotionBucket;
 
 	let serveUrl = args[0];
@@ -63,8 +66,6 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 
 	let outputBucket = parsedCloudrunCli['output-bucket'];
 	if (!outputBucket) {
-		region = region ?? getGcpRegion();
-
 		if (!remotionBucket) {
 			remotionBucket = (await getOrCreateBucket({region})).bucketName;
 		}
@@ -73,30 +74,31 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 	}
 
 	let cloudRunUrl = parsedCloudrunCli['cloud-run-url'];
-	const serviceName = parsedCloudrunCli['service-name'];
-	if ((cloudRunUrl && serviceName) || (!cloudRunUrl && !serviceName)) {
-		if (cloudRunUrl && serviceName) {
-			Log.error('Both a Cloud Run URL and a Service Name was provided.');
-		} else {
-			Log.error('Neither a Cloud Run URL nor a Service Name was provided.');
-		}
-
-		Log.info(
-			'To render on GCP, provide either the Service Name or the Cloud Run URL endpoint of the service you want to use.'
-		);
-		Log.info();
-		Log.info(
-			`${BINARY_NAME} ${subcommand} <serve-url> <composition-id> [output-location] --cloud-run-url=<url>`
-		);
-		Log.info('or');
-		Log.info(
-			`${BINARY_NAME} ${subcommand} <serve-url> <composition-id> [output-location] --service-name=<name>`
+	let serviceName = parsedCloudrunCli['service-name'];
+	if (cloudRunUrl && serviceName) {
+		Log.error(
+			'Both a Cloud Run URL and a Service Name was provided. Specify only one.'
 		);
 		quit(1);
 	}
 
-	if (serviceName) {
-		region = region ?? getGcpRegion();
+	if (!cloudRunUrl && !serviceName) {
+		const services = await getServices({region, compatibleOnly: true});
+		if (services.length === 0) {
+			// TODO: Log if there is an incompatible service
+			Log.error('No compatible services found. Please create a service first:');
+			Log.info();
+			Log.info(
+				`  ${BINARY_NAME} ${SERVICES_COMMAND} ${CLOUD_RUN_DEPLOY_SUBCOMMAND}`
+			);
+			quit(1);
+		}
+
+		serviceName = services[0].serviceName;
+		cloudRunUrl = services[0].uri;
+	}
+
+	if (serviceName && !cloudRunUrl) {
 		const {uri} = await getServiceInfo({serviceName, region});
 		cloudRunUrl = uri;
 	}
