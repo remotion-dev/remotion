@@ -14,7 +14,7 @@ const bundleInstaller = async () => {
 		bundle: true,
 		outfile: bundlemjs,
 		format: 'esm',
-		entryPoints: [path.resolve(__dirname, '../../gcpInstaller/install.mjs')],
+		entryPoints: [path.resolve(__dirname, '../../gcpInstaller/install.mts')],
 	});
 
 	const tfoutfile = path.join(outdir, 'main.tf');
