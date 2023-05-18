@@ -7,7 +7,7 @@ const bundleInstaller = async () => {
 	const outdir = path.join(__dirname, '..', `build-installer`);
 	mkdirSync(outdir, {recursive: true});
 
-	const bundlemjs = path.join(outdir, 'bundled.mjs');
+	const bundlemjs = path.join(outdir, 'install.mjs');
 	await BundlerInternals.esbuild.build({
 		platform: 'node',
 		target: 'node18',
