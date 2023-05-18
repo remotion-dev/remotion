@@ -100,7 +100,7 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 		Log.info('Cloud Run service name passed, fetching Cloud Run url...');
 		region = region ?? getGcpRegion();
 		const {uri} = await getServiceInfo({serviceName, region});
-		console.log('cloud run url found: ', uri);
+		Log.info('cloud run url found: ', uri);
 		cloudRunUrl = uri;
 	}
 
