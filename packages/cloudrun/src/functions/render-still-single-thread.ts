@@ -62,7 +62,7 @@ export const renderStillSingleThread = async (
 		bucketName: body.outputBucket,
 		renderId,
 		status: 'success',
-		privacy: publicUpload ? 'publicRead' : 'projectPrivate',
+		privacy: publicUpload ? 'public-read' : 'project-private',
 	};
 
 	Log.info('Render Completed:', responseData);

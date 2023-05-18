@@ -83,7 +83,7 @@ export const renderMediaSingleThread = async (
 		size: renderMetadata[0].size,
 		bucketName: body.outputBucket,
 		renderId,
-		privacy: publicUpload ? 'publicRead' : 'projectPrivate',
+		privacy: publicUpload ? 'public-read' : 'project-private',
 	};
 
 	Log.info('Render Completed:', responseData);
