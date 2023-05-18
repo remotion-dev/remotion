@@ -54,7 +54,7 @@ jobs:
         id: version
         uses: notiz-dev/github-action-json-property@release
         with:
-          path: "packages/gcp/container/package.json"
+          path: "packages/cloudrun/container/package.json"
           prop_path: "version"
 
       - run: echo version pulled from package.json":" "${{ steps.version.outputs.prop }}"
@@ -79,7 +79,7 @@ jobs:
         name: Tag Docker image and push to Google Artifact Registry
         uses: docker/build-push-action@v4
         with:
-          context: packages/gcp/container
+          context: packages/cloudrun/container
           push: true
           tags: |
             us-docker.pkg.dev/remotion-dev/cloud-run/render:${{ steps.version.outputs.prop }}
