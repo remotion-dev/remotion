@@ -32,7 +32,7 @@ provider "google" {
 }
 
 data "http" "permissions" {
-  url = "https://storage.googleapis.com/remotion-sa/${var.remotion_version}/sa-permissions.json"
+  url = "https://storage.googleapis.com/remotion-sa/sa-permissions.json"
 }
 
 locals {
