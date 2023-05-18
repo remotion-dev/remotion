@@ -69,7 +69,7 @@ const renderStillOnLambdaResponsePayload = z.object({
 	bucketName: z.string(),
 	renderId: z.string(),
 	status: z.literal('success'),
-	privacy: z.enum(['publicRead', 'projectPrivate']),
+	privacy: z.enum(['public-read', 'project-private']),
 });
 
 const renderMediaOnLambdaResponsePayload = z.object({
@@ -79,7 +79,7 @@ const renderMediaOnLambdaResponsePayload = z.object({
 	bucketName: z.string(),
 	renderId: z.string(),
 	status: z.literal('success'),
-	privacy: z.enum(['publicRead', 'projectPrivate']),
+	privacy: z.enum(['public-read', 'project-private']),
 });
 
 export type CloudRunPayloadType = z.infer<typeof CloudRunPayload>;
