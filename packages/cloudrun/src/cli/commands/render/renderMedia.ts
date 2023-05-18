@@ -66,13 +66,13 @@ export const renderMediaSubcommand = async (
 			`
 Sending request to Cloud Run:
 
-    Cloud Run Service URL = ${cloudRunUrl}
-    Type = media
-    Composition = ${composition}
-    Codec = ${codec}
-    Output Bucket = ${outputBucket}
-    Output File = ${outName ?? 'out.mp4'}
-		Output File Privacy = ${privacy}
+Cloud Run Service URL = ${cloudRunUrl}
+Type = media
+Composition = ${composition}
+Codec = ${codec}
+Output Bucket = ${outputBucket}
+Output File = ${outName ?? 'out.mp4'}
+Output File Privacy = ${privacy}
 ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 			`.trim()
 		)

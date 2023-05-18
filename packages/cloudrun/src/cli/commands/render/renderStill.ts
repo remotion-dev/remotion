@@ -53,12 +53,12 @@ export const renderStillSubcommand = async (
 			`
 Sending request to Cloud Run:
 
-    Cloud Run Service URL = ${cloudRunUrl}
-    Type = still
-    Composition = ${composition}
-    Output Bucket = ${outputBucket}
-    Output File = ${outName ?? 'out.png'}
-    Output File Privacy = ${privacy}
+Cloud Run Service URL = ${cloudRunUrl}
+Type = still
+Composition = ${composition}
+Output Bucket = ${outputBucket}
+Output File = ${outName ?? 'out.png'}
+Output File Privacy = ${privacy}
 ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			`.trim()
 		)
