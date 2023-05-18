@@ -85,6 +85,8 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const progressBar = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,
+		updatesDontOverwrite: false,
+		indent: false,
 	});
 
 	const renderProgress: {
@@ -103,7 +105,8 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 				renderProgress.doneIn === null
 					? `${Math.round(renderProgress.progress * 100)}%`
 					: CliInternals.chalk.gray(`${renderProgress.doneIn}ms`),
-			].join(' ')
+			].join(' '),
+			false
 		);
 	};
 
