@@ -32,7 +32,6 @@ type LocalState = {
 	revision: number;
 };
 
-// TODO: Ability to revert a change (e.g entry deletion )
 export const ZodArrayEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
@@ -126,12 +125,25 @@ export const ZodArrayEditor: React.FC<{
 		}, true);
 	}, [def.type, onChange, z, zodTypes]);
 
+	const reset = useCallback(() => {
+		onChange(() => defaultValue, true);
+	}, [defaultValue, onChange]);
+
+	const isDefaultValue = useMemo(() => {
+		return deepEqual(localValue.value, defaultValue);
+	}, [defaultValue, localValue.value]);
+
 	return (
 		<div style={style}>
 			<div style={fullWidth}>
 				<Element style={fieldset}>
 					{isRoot ? null : (
-						<SchemaFieldsetLabel jsonPath={jsonPath} onRemove={onRemove} />
+						<SchemaFieldsetLabel
+							onReset={reset}
+							isDefaultValue={isDefaultValue}
+							jsonPath={jsonPath}
+							onRemove={onRemove}
+						/>
 					)}
 					<div style={isRoot ? undefined : container}>
 						{localValue.value.map((child, i) => {
@@ -170,3 +182,34 @@ export const ZodArrayEditor: React.FC<{
 		</div>
 	);
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function deepEqual(a: any, b: any): boolean {
+	if (a === b) {
+		return true;
+	}
+
+	if (
+		typeof a !== 'object' ||
+		a === null ||
+		typeof b !== 'object' ||
+		b === null
+	) {
+		return false;
+	}
+
+	const keysA = Object.keys(a);
+	const keysB = Object.keys(b);
+
+	if (keysA.length !== keysB.length) {
+		return false;
+	}
+
+	for (const key of keysA) {
+		if (!keysB.includes(key) || !deepEqual(a[key], b[key])) {
+			return false;
+		}
+	}
+
+	return true;
+}
