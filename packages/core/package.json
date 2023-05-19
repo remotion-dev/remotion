@@ -6,6 +6,7 @@
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"scripts": {
+		"formatting": "prettier src --check",
 		"prepublishOnly": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",

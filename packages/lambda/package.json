@@ -8,6 +8,7 @@
 		"remotion-lambda": "remotion-lambda-cli.js"
 	},
 	"scripts": {
+		"formatting": "prettier src --check",
 		"testintegration": "vitest src/test/integration --run",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest src/test/unit --run",

@@ -62,9 +62,8 @@ export const joinPoints = (
 							type: 'M',
 							x: computeRadius[0] + x,
 							y: computeRadius[1] + y,
-						}
-					]
-
+						},
+					];
 				}
 
 				return [
@@ -75,7 +74,6 @@ export const joinPoints = (
 					},
 				];
 			}
-
 
 			if (cornerRadius && edgeRoundness !== null) {
 				throw new Error(

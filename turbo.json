@@ -13,6 +13,9 @@
     "lint": {
       "outputs": []
     },
+    "formatting": {
+      "outputs": []
+    },
     "@remotion/example#lint": {
       "dependsOn": ["@remotion/eslint-config#build"]
     },

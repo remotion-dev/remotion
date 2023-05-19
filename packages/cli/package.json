@@ -8,6 +8,7 @@
 		"remotion": "remotion-cli.js"
 	},
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"build": "tsc -d",

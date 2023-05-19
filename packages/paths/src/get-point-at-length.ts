@@ -6,7 +6,7 @@ import {getPartAtLength} from './helpers/get-part-at-length';
  * @param {string} path A valid SVG path
  * @param {number} length The length at which the point should be sampled
  * @see [Documentation](https://remotion.dev/docs/paths/get-point-at-length)
-*/
+ */
 export const getPointAtLength = (path: string, length: number) => {
 	const constructed = construct(path);
 	const fractionPart = getPartAtLength(path, length);
