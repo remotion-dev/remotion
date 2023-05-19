@@ -88,12 +88,12 @@ jobs:
             packages/**/tsconfig.tsbuildinfo
             node_modules/.cache
           key: ts-${{ runner.os }}-node16-v3
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: "packages/renderer -> target"
       - name: build
         run: |
           pnpm build
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "packages/renderer -> target"
       - name: Test SSR
         timeout-minutes: 5
         run: |
@@ -129,9 +129,6 @@ jobs:
             packages/**/tsconfig.tsbuildinfo
             node_modules/.cache
           key: deps-${{ runner.os }}-node16-v3
-      - uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: "packages/renderer -> target"
       - name: Install
         run: pnpm install --frozen-lockfile
       - name: Perform stylecheck
