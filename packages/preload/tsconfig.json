@@ -4,10 +4,5 @@
 		"rootDir": "src",
 		"outDir": "dist",
 		"skipLibCheck": true
-	},
-	"references": [
-		{
-			"path": "../core"
-		}
-	]
+	}
 }

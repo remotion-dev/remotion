@@ -7,5 +7,6 @@
     "noUnusedLocals": true,
     "outDir": "./dist/cjs"
   },
-  "include": ["./src"]
+  "include": ["./src"],
+  "references": [{ "path": "../core" }]
 }

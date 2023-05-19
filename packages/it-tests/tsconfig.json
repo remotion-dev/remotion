@@ -13,5 +13,22 @@
     "resolveJsonModule": true,
     "incremental": true,
     "noUnusedLocals": true
-  }
+  },
+  "references": [
+    {
+      "path": "../bundler"
+    },
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../lambda"
+    },
+    {
+      "path": "../renderer"
+    },
+    {
+      "path": "../cli"
+    }
+  ]
 }
