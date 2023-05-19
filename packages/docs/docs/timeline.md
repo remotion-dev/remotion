@@ -71,13 +71,25 @@ By default the video will play with 1x speed. You can speed up or slow down the 
 
 You may also choose a negative value which will play the video in reverse. Note that [`<Audio/>`](/docs/audio) and [`<Video/>`](/docs/video) tags cannot be played in reverse, this is a browser limitation.
 
+## Render a composition
+
+Click on the render button or press <kbd>R</kbd> to open the render modal from where you can adjust settings and render your composition.
+
+If you are using `In / Out Markers`, the selected sequence is taken as initial framerange for the render.
+
+## Quickly switch between compositions
+
+Use <kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>k</kbd> to access the quick switcher from which you can directly chose the composition you want to display.
+
 ## Advanced playback controls
 
 Use the <kbd>J</kbd>, <kbd>K</kbd>, <kbd>L</kbd> keys to quickly move around the timeline while your video is playing.
 
-<kbd>L</kbd> will play the video forward, pressing it repeatedly will play it faster.<br/>
+<kbd>L</kbd> will play the video forward, pressing it repeatedly will play it faster.
+<br />
 
-<kbd>J</kbd> will play the video backwards, pressing it repeatedly will play it faster.<br/>
+<kbd>J</kbd> will play the video backwards, pressing it repeatedly will play it faster.
+<br />
 
 <kbd>K</kbd> will pause the video and reset the speed to 1x.
 
