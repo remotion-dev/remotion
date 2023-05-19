@@ -21,7 +21,6 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"copy-webpack-plugin": "11",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
