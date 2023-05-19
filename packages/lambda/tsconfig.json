@@ -10,6 +10,7 @@
 	"references": [
 		{"path": "../core"},
 		{"path": "../bundler"},
+		{"path": "../cli"},
 		{"path": "../renderer"}
 	]
 }
