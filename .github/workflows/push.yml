@@ -48,7 +48,6 @@ jobs:
             packages/**/dist
             packages/**/tsconfig.tsbuildinfo
             packages/renderer/target
-            ${{ steps.pnpm-cache.outputs.CARGO_PATH }}
           key: ts-${{ runner.os }}-node16-v3
       - name: build
         run: |
@@ -95,7 +94,6 @@ jobs:
             packages/**/dist
             packages/**/tsconfig.tsbuildinfo
             packages/renderer/target
-            ${{ steps.pnpm-cache.outputs.CARGO_PATH }}
           key: ts-${{ runner.os }}-node-v3
       - name: build
         run: |
@@ -163,7 +161,6 @@ jobs:
         shell: bash
         run: |
           echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
-          echo "CARGO_PATH=$CARGO_HOME" >> $GITHUB_OUTPUT
       - uses: actions/cache@v3
         name: Setup pnpm cache
         with:
@@ -186,7 +183,6 @@ jobs:
             packages/**/dist
             packages/**/tsconfig.tsbuildinfo
             packages/renderer/target
-            ${{ steps.pnpm-cache.outputs.CARGO_PATH }}
           key: ts-${{ runner.os }}-node${{ matrix.node_version }}-v3
 
       - name: Build & Test
