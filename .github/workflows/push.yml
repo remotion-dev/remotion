@@ -47,7 +47,6 @@ jobs:
           path: |
             packages/**/dist
             packages/**/tsconfig.tsbuildinfo
-            packages/renderer/target
           key: ts-${{ runner.os }}-node16-v3
       - name: build
         run: |
@@ -93,7 +92,6 @@ jobs:
           path: |
             packages/**/dist
             packages/**/tsconfig.tsbuildinfo
-            packages/renderer/target
           key: ts-${{ runner.os }}-node-v3
       - name: build
         run: |
@@ -182,7 +180,6 @@ jobs:
           path: |
             packages/**/dist
             packages/**/tsconfig.tsbuildinfo
-            packages/renderer/target
           key: ts-${{ runner.os }}-node${{ matrix.node_version }}-v3
 
       - name: Build & Test
