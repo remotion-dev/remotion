@@ -104,6 +104,39 @@ jobs:
         timeout-minutes: 5
         run: |
           cd packages/it-tests && pnpm run testssr
+  lint:
+    runs-on: ubuntu-latest
+    name: Linting + Formatting
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: |
+          corepack enable
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+              - name: Cache node_modules/.cache
+              uses: actions/cache@v3.0.11
+              with:
+                path: node_modules/.cache
+                key: deps-${{ runner.os }}-node-v3
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Perform stylecheck
+        timeout-minutes: 5
+        run: |
+          pnpm run stylecheck
   build:
     name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
