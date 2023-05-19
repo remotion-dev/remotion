@@ -7,7 +7,7 @@ crumb: "How to"
 
 One of the coolest things about Remotion is that you can fetch data from an API.
 
-It works almost like you are used to: You can use the [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) API to load data in a [`useEffect()`](https://reactjs.org/docs/hooks-effect.html) call and set a state.
+It works almost like you are used to: You can use the [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) API to load data in a [`useEffect()`](https://react.dev/reference/react/useEffect) call and set a state.
 
 ## Telling Remotion to wait until the data is loaded
 
