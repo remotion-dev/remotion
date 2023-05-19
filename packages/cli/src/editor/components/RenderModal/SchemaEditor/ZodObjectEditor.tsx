@@ -1,4 +1,4 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../../helpers/colors';
 import {useZodIfPossible} from '../../get-zod-if-possible';
@@ -76,12 +76,19 @@ export const ZodObjectEditor: React.FC<{
 		return {paddingTop};
 	}, [isRoot, paddingTop]);
 
+	const onRes = useCallback(() => undefined, []);
+
 	return (
 		<div style={style}>
 			<div style={fullWidth}>
 				<Element style={fieldset}>
 					{isRoot ? null : (
-						<SchemaFieldsetLabel jsonPath={jsonPath} onRemove={onRemove} />
+						<SchemaFieldsetLabel
+							isDefaultValue
+							onReset={onRes}
+							jsonPath={jsonPath}
+							onRemove={onRemove}
+						/>
 					)}
 					<div style={isRoot ? undefined : container}>
 						{keys.map((key) => {
