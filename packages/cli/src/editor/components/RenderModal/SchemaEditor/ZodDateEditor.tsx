@@ -126,6 +126,7 @@ export const ZodDateEditor: React.FC<{
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
+				valid={localValue.zodValidation.success}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput

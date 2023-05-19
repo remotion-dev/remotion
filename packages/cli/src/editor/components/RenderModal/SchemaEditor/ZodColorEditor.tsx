@@ -193,6 +193,7 @@ export const ZodColorEditor: React.FC<{
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
+				valid={localValue.zodValidation.success}
 			/>
 			<div style={fullWidth}>
 				<Row align="center">
