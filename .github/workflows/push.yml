@@ -43,9 +43,9 @@ jobs:
         uses: actions/cache@v3.0.11
         with:
           path: |
-            packages/**/dist
-            packages/**/.turbo
-            packages/**/tsconfig.tsbuildinfo
+            packages/*/dist
+            packages/*/.turbo
+            packages/*/tsconfig.tsbuildinfo
             node_modules/.cache
           key: ts-${{ runner.os }}-node16-v3
       - name: build
@@ -85,9 +85,9 @@ jobs:
         uses: actions/cache@v3.0.11
         with:
           path: |
-            packages/**/dist
-            packages/**/.turbo
-            packages/**/tsconfig.tsbuildinfo
+            packages/*/dist
+            packages/*/.turbo
+            packages/*/tsconfig.tsbuildinfo
             node_modules/.cache
           key: ts-${{ runner.os }}-node16-v3
       - uses: Swatinem/rust-cache@v2
@@ -176,9 +176,9 @@ jobs:
         uses: actions/cache@v3.0.11
         with:
           path: |
-            packages/**/dist
-            packages/**/.turbo
-            packages/**/tsconfig.tsbuildinfo
+            packages/*/dist
+            packages/*/.turbo
+            packages/*/tsconfig.tsbuildinfo
             node_modules/.cache
           key: ts-${{ runner.os }}-node${{ matrix.node_version }}-v3
 
