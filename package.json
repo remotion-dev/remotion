@@ -21,10 +21,10 @@
     "@types/node": "^18.11.2"
   },
   "dependencies": {
-    "turbo": "1.9.6"
+    "turbo": "1.9.8"
   },
   "workspaces": [
     "packages/*"
   ],
-  "packageManager": "pnpm@7.7.1"
+  "packageManager": "pnpm@8.5.1"
 }
