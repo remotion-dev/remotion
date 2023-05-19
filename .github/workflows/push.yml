@@ -38,7 +38,7 @@ jobs:
               uses: actions/cache@v3.0.11
               with:
                 path: node_modules/.cache
-                key: deps-${{ runner.os }}-node-v3
+                key: deps-${{ runner.os }}-node16-v3
       - name: Install
         run: pnpm install --frozen-lockfile
       - name: Build cache
@@ -49,7 +49,7 @@ jobs:
             packages/**/tsconfig.tsbuildinfo
             packages/renderer/target
             ${{ steps.pnpm-cache.outputs.CARGO_PATH }}
-          key: ts-${{ runner.os }}-node-v3
+          key: ts-${{ runner.os }}-node16-v3
       - name: build
         run: |
           pnpm build
