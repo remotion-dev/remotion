@@ -34,10 +34,23 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
+              - name: Cache node_modules/.cache
+              uses: actions/cache@v3.0.11
+              with:
+                path: node_modules/.cache
+                key: deps-${{ runner.os }}-node-v3
       - name: Install
         run: pnpm install --frozen-lockfile
-
-      - name: Build
+      - name: Build cache
+        uses: actions/cache@v3.0.11
+        with:
+          path: |
+            packages/**/dist
+            packages/**/tsconfig.tsbuildinfo
+            packages/renderer/target
+            ${{ steps.pnpm-cache.outputs.CARGO_PATH }}
+          key: ts-${{ runner.os }}-node-v3
+      - name: build
         run: |
           pnpm build
       - name: Test Lambda IT
@@ -68,9 +81,22 @@ jobs:
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
+              - name: Cache node_modules/.cache
+              uses: actions/cache@v3.0.11
+              with:
+                path: node_modules/.cache
+                key: deps-${{ runner.os }}-node-v3
       - name: Install
         run: pnpm install --frozen-lockfile
-
+      - name: Build cache
+        uses: actions/cache@v3.0.11
+        with:
+          path: |
+            packages/**/dist
+            packages/**/tsconfig.tsbuildinfo
+            packages/renderer/target
+            ${{ steps.pnpm-cache.outputs.CARGO_PATH }}
+          key: ts-${{ runner.os }}-node-v3
       - name: build
         run: |
           pnpm build
