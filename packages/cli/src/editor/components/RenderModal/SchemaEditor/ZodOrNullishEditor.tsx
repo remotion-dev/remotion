@@ -147,6 +147,7 @@ export const ZodOrNullishEditor: React.FC<{
 					compact={compact}
 					onRemove={onRemove}
 					saving={saving}
+					valid={localNonNullishValueValue.zodValidation.success}
 				/>
 			) : (
 				<div style={fullWidth}>

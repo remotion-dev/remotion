@@ -63,6 +63,7 @@ export const ZodBooleanEditor: React.FC<{
 				compact={compact}
 				onRemove={onRemove}
 				saving={saving}
+				valid
 			/>
 			<div style={fullWidth}>
 				<Checkbox checked={value} onChange={onChange} disabled={false} />

@@ -121,6 +121,7 @@ export const ZodStaticFileEditor: React.FC<{
 				jsonPath={jsonPath}
 				onRemove={onRemove}
 				saving={saving}
+				valid={localValue.zodValidation.success}
 			/>
 
 			<div style={isRoot ? undefined : container}>
