@@ -93,6 +93,9 @@ jobs:
             packages/**/dist
             packages/**/tsconfig.tsbuildinfo
           key: ts-${{ runner.os }}-node-v3
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "packages/renderer -> target"
       - name: build
         run: |
           pnpm build
@@ -127,6 +130,9 @@ jobs:
               with:
                 path: node_modules/.cache
                 key: deps-${{ runner.os }}-node-v3
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "packages/renderer -> target"
       - name: Install
         run: pnpm install --frozen-lockfile
       - name: Perform stylecheck
@@ -172,6 +178,9 @@ jobs:
         with:
           path: node_modules/.cache
           key: deps-${{ runner.os }}-node${{ matrix.node_version }}-v3
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "packages/renderer -> target"
       - name: Install
         run: pnpm install --frozen-lockfile
       - name: Build cache
