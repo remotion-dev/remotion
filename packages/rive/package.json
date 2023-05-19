@@ -6,6 +6,8 @@
   "types": "dist/cjs/index.d.ts",
   "module": "dist/esm/index.mjs",
   "scripts": {
+    "formatting": "prettier src --check",
+    "lint": "eslint src --ext ts,tsx",
     "build": "rollup --config rollup.config.js && tsc -d",
     "watch": "tsc -w"
   },

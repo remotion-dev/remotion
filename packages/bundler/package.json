@@ -11,6 +11,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"build": "tsc -d",
 		"watch": "tsc -w",

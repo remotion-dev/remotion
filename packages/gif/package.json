@@ -18,6 +18,7 @@
 		"dist"
 	],
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"build": "node build.mjs && rollup --config rollup.config.js && tsc -d",
 		"watch": "tsc -w"

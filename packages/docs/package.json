@@ -3,6 +3,7 @@
   "version": "3.3.94",
   "private": true,
   "scripts": {
+    "formatting": "prettier src --check",
     "docusaurus": "docusaurus",
     "start": "docusaurus start --host 0.0.0.0",
     "start-docs": "docusaurus start",

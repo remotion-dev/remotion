@@ -10,6 +10,7 @@
 		"dist"
 	],
 	"scripts": {
+		"formatting": "prettier src --check",
 		"start": "remotion preview --props src/my-props.json",
 		"start-js": "remotion preview src/entry.jsx",
 		"comps": "remotion compositions",
