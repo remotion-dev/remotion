@@ -22,7 +22,6 @@
     { "path": "../rive" },
     { "path": "../skia" },
     { "path": "../three" },
-    { "path": "../google-fonts" },
     { "path": "../shapes" },
     { "path": "../gif" },
     { "path": "../motion-blur" },
