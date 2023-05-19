@@ -175,7 +175,6 @@ for (const arch of archs) {
 	execSync(`tar xf ${binariesDirectory}/${arch}.gz -C ${ffmpegFolder}`, {
 		stdio: 'inherit',
 	});
-	console.log(readdirSync(path.join(ffmpegFolder, 'remotion', 'lib')));
 	const command = `cargo build ${debug ? '' : '--release'} --target=${arch}`;
 	console.log(command);
 
@@ -273,7 +272,6 @@ for (const arch of archs) {
 		/^@remotion\//,
 		'remotion-'
 	);
-	console.log(filename);
 	const tgzPath = path.join(
 		process.cwd(),
 		copyDestinations[arch].dir,
