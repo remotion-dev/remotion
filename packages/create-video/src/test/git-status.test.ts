@@ -13,7 +13,7 @@ test('Get git status', async () => {
 	expect(
 		status.location ===
 			path.posix.join(__dirname, '..', '..', '..', '..').replace(/\\/g, '/') ||
-			status.location === '../../..'
+			status.location === 'D:/a/remotion/remotion'
 	).toEqual(true);
 
 	if (status.type !== 'is-git-repo') {
