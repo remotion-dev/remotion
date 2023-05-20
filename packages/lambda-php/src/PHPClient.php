@@ -1,8 +1,6 @@
 <?php
-
 namespace Remotion\LambdaPhp;
 
-require_once dirname(__DIR__) . '/vendor/autoload.php';
 use Aws\Lambda\LambdaClient;
 use Exception;
 use stdClass;
@@ -14,11 +12,8 @@ class PHPClient
     private $serveUrl;
     private $functionName;
 
-    public function __construct(
-        string $region,
-        string $serveUrl,
-        string $functionName,
-        ? array $credential) {
+    public function __construct(string $region, string $serveUrl, string $functionName,  ? array $credential)
+    {
         $this->client = LambdaClient::factory([
             'version' => 'latest',
             'region' => $region,
@@ -29,12 +24,12 @@ class PHPClient
         $this->setFunctionName($functionName);
     }
 
-    public function constructInternals(
-        RenderParams $render
-    ) {
+    public function constructInternals(RenderParams $render)
+    {
         if (empty($render->getComposition())) {
-            throw new ValidationException("'compostion' is required.");
+            throw new ValidationException("'composition' is required.");
         }
+
         $input = $this->serializeInputProps(
             $render->getData(),
             $this->getRegion(),
@@ -45,40 +40,20 @@ class PHPClient
         $render->setInputProps($input);
         $render->setServerUrl($this->getServeUrl());
         $render->setRegion($this->getRegion());
-        return ($render->serializeParams());
-
+        return $render->serializeParams();
     }
 
     public function renderMediaOnLambda(RenderParams $render) :  ? stdClass
     {
         $params = $this->constructInternals($render);
         $params['type'] = 'start';
-        $result = $this->client->invoke([
-            'InvocationType' => 'RequestResponse',
-            'FunctionName' => $this->getFunctionName(),
-            'Payload' => json_encode($params),
-        ]);
 
-        // Check if the invocation was successful
-        if ($result['StatusCode'] == 200) {
-            // Get the response from the invocation
-            $response = ($result['Payload']->getContents());
-
-            if (isset($response->errorMessage)) {
-                // The Lambda function encountered an error
-                throw new Exception($response->errorMessage);
-            } else {
-                // The Lambda function was invoked successfully
-                return json_decode($response);
-            }
-        } else {
-            // The Lambda function encountered an error
-            throw new Exception("Failed to invoke Lambda function");
-        }
+        $result = $this->invokeLambdaFunction(json_encode($params));
+        return $this->handleLambdaResponse($result);
     }
-    public function getRenderProgress(string $renderId,
-        string $bucketName) :  ? stdClass{
 
+    public function getRenderProgress(string $renderId, string $bucketName) :  ? stdClass
+    {
         $params = array(
             'renderId' => $renderId,
             'bucketName' => $bucketName,
@@ -86,48 +61,50 @@ class PHPClient
             "version" => VERSION,
         );
 
+        $result = $this->invokeLambdaFunction(json_encode($params));
+        return $this->handleLambdaResponse($result);
+    }
+
+    private function invokeLambdaFunction(string $payload)
+    {
         $result = $this->client->invoke([
             'InvocationType' => 'RequestResponse',
             'FunctionName' => $this->getFunctionName(),
-            'Payload' => json_encode($params),
+            'Payload' => $payload,
         ]);
 
-        // Check if the invocation was successful
-        if ($result['StatusCode'] == 200) {
-            // Get the response from the invocation
-            $response = ($result['Payload']->getContents());
-
-            if (isset($response->errorMessage)) {
-                // The Lambda function encountered an error
-                throw new Exception($response->errorMessage);
-            } else {
-                // The Lambda function was invoked successfully
-                return json_decode($response);
-            }
-        } else {
-            // The Lambda function encountered an error
+        if ($result['StatusCode'] !== 200) {
             throw new Exception("Failed to invoke Lambda function");
         }
+
+        return $result['Payload']->getContents();
+    }
+
+    private function handleLambdaResponse(string $response) :  ? stdClass
+    {
+        $response = json_decode($response);
+
+        if (isset($response->errorMessage)) {
+            throw new Exception($response->errorMessage);
+        }
+
+        return $response;
     }
 
     private function serializeInputProps($inputProps, string $region, string $type,  ? string $userSpecifiedBucketName) : array
     {
         try {
             $payload = json_encode($inputProps);
-
             $MAX_INLINE_PAYLOAD_SIZE = $type === 'still' ? 5000000 : 200000;
 
             if (strlen($payload) > $MAX_INLINE_PAYLOAD_SIZE) {
-
                 throw new Exception(
                     sprintf(
                         "Warning: inputProps are over %dKB (%dKB) in size.\n This is not currently supported.",
                         round($MAX_INLINE_PAYLOAD_SIZE / 1000),
                         ceil(strlen($payload) / 1024)
                     )
-
                 );
-
             }
 
             return [
@@ -171,5 +148,4 @@ class PHPClient
     {
         $this->functionName = $functionName;
     }
-
 }

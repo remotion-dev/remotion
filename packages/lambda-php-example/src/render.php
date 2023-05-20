@@ -1,44 +1,45 @@
 <?php
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
+use Dotenv\Dotenv;
 use Remotion\LambdaPhp\PHPClient;
 use Remotion\LambdaPhp\RenderParams;
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+// Load environment variables
+$dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-// get all params
+// Get environment variables
 $region = $_ENV['REMOTION_APP_REGION'];
 $functionName = $_ENV['REMOTION_APP_FUNCTION_NAME'];
-$serveUrl = $_ENV["REMOTION_APP_SERVE_URL"];
+$serveUrl = $_ENV['REMOTION_APP_SERVE_URL'];
 
-// instantiate the client
-$client = new PHPClient(
-    $region,
-    $serveUrl,
-    $functionName,
-    null);
+// Instantiate the client
+$client = new PHPClient($region, $serveUrl, $functionName, null);
 
-// initiate the param object, customize as needed
+// Initiate the param object and customize as needed
 $params = new RenderParams();
+$params->setComposition('react-svg');
 
-// define the composition to render
-$params->setComposition("react-svg");
+// Execute the render and get the response
+$renderResponse = $client->renderMediaOnLambda($params);
 
-/* execute the render
- ***
+// Output render response
+print_r($renderResponse);
+
+/****
 Response
 (
 [bucketName] => remotionlambda-apsoutheast2-xxxx
 [renderId] => xxxxxxx
 ) */
-$renderResponse = $client->renderMediaOnLambda($params);
 
-// Get the proggress
-print_r($renderResponse);
+// Get render progress
+$renderId = $renderResponse->renderId;
+$bucketName = $renderResponse->bucketName;
+$renderProgressResponse = $client->getRenderProgress($renderId, $bucketName);
 
-$renderProgressResponse = $client->getRenderProgress($renderResponse->renderId, $renderResponse->bucketName);
-
+// Output render progress response
 print_r($renderProgressResponse);
 
 /**

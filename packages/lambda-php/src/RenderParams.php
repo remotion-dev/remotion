@@ -8,7 +8,7 @@ use VERSION;
 class RenderParams
 {
 
-    private $data = array();
+    private $data = null;
     private $bucketName = null;
     private $region = null;
     private $outName = null;
@@ -27,7 +27,7 @@ class RenderParams
     private $logLevel = 'info';
     private $frameRange = null;
     private $timeoutInMilliseconds = 30000;
-    private $chromiumOptions;
+    private $chromiumOptions = null;
     private $scale = 1;
     private $everyNthFrame = 1;
     private $numberOfGifLoops = 0;
@@ -52,10 +52,10 @@ class RenderParams
         ? array $data = null,
         ? string $composition = 'main',
         string $codec = 'h264',
-        string $version = null,
+        ? string $version = null,
         string $imageFormat = 'jpeg',
-        int $crf = null,
-        array $envVariables = null,
+        ? int $crf = null,
+        ? array $envVariables = null,
         ? int $quality = null,
         int $maxRetries = 1,
         string $privacy = 'public',
@@ -68,9 +68,7 @@ class RenderParams
         ? int $everyNthFrame = 1,
         ? int $numberOfGifLoops = 0,
         ? int $concurrencyPerLambda = 1,
-        ? array $downloadBehavior = [
-            'type' => 'play-in-browser',
-        ],
+        ? array $downloadBehavior = null,
         ? bool $muted = false,
         ? bool $overwrite = false,
         ? int $audioBitrate = null,
@@ -104,7 +102,7 @@ class RenderParams
         $this->everyNthFrame = $everyNthFrame;
         $this->numberOfGifLoops = $numberOfGifLoops;
         $this->concurrencyPerLambda = $concurrencyPerLambda;
-        $this->downloadBehavior = $downloadBehavior;
+        $this->downloadBehavior = $downloadBehavior ?? ['type' => 'play-in-browser'];
         $this->muted = $muted;
         $this->overwrite = $overwrite;
         $this->audioBitrate = $audioBitrate;
@@ -114,7 +112,8 @@ class RenderParams
         $this->forceWidth = $forceWidth;
         $this->audioCodec = $audioCodec;
         $this->dumpBrowserLogs = $dumpBrowserLogs;
-        $this->outName = $outName;
+        $this->framesPerLambda = $framesPerLambda;
+        $this->rendererFunctionName = $rendererFunctionName;
         $this->proResProfile = $proResProfile;
         $this->pixelFormat = $pixelFormat;
     }
@@ -155,23 +154,24 @@ class RenderParams
             'dumpBrowserLogs' => $this->getDumpBrowserLogs(),
         ];
 
-        if (!empty($this->getCrf())) {
-            $json['crf'] = $this->getCrf();
+        if ($this->getCrf() !== null) {
+            $parameters['crf'] = $this->getCrf();
         }
 
-        if (!empty($this->getEnvVariables())) {
-            $json['envVariables'] = $this->getEnvVariables();
+        if ($this->getEnvVariables() !== null) {
+            $parameters['envVariables'] = $this->getEnvVariables();
         }
 
-        if (!empty($this->getPixelFormat())) {
-            $json['pixelFormat'] = $this->getPixelFormat();
+        if ($this->getPixelFormat() !== null) {
+            $parameters['pixelFormat'] = $this->getPixelFormat();
         }
-        if (!empty($this->getProResProfile())) {
-            $json['proResProfile'] = $this->getProResProfile();
 
+        if ($this->getProResProfile() !== null) {
+            $parameters['proResProfile'] = $this->getProResProfile();
         }
-        if (!empty($this->getQuality())) {
-            $json['quality'] = $this->getQuality();
+
+        if ($this->getQuality() !== null) {
+            $parameters['quality'] = $this->getQuality();
         }
 
         return $parameters;
