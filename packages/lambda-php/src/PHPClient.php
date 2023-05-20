@@ -1,6 +1,6 @@
 <?php
 
-namespace Remotion;
+namespace Remotion\LambdaPhp;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 use Aws\Lambda\LambdaClient;
@@ -44,17 +44,17 @@ class PHPClient
         $render->setInputProps($input);
         $render->setServerUrl($this->getServeUrl());
         $render->setRegion($this->getRegion());
-        return json_encode($render->toJson());
+        return json_encode($render->serializeParams());
 
     }
 
-    public function invokeLambda(RenderParams $render) :  ? string
+    public function render(RenderParams $render) :  ? string
     {
-        // $this->constructInternals($data, )
+        $params = $this->constructInternals($render);
         $result = $this->client->invoke([
             'InvocationType' => 'RequestResponse',
             'FunctionName' => $functionName,
-            'Payload' => json_encode($data),
+            'Payload' => json_encode($params),
         ]);
 
         // Check if the invocation was successful

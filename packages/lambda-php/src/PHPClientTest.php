@@ -4,8 +4,8 @@ require_once dirname(__DIR__) . '/vendor/autoload.php';
 require_once __DIR__ . '/PHPClient.php';
 require_once __DIR__ . '/RenderParams.php';
 
-use Remotion\PHPClient;
-use Remotion\RenderParams;
+use Remotion\LambdaPhp\PHPClient;
+use Remotion\LambdaPhp\RenderParams;
 
 class PHPClientTest extends PHPUnit\Framework\TestCase
 
@@ -23,7 +23,7 @@ class PHPClientTest extends PHPUnit\Framework\TestCase
         $params->setComposition("react-svg");
         $internalParams = $client->constructInternals($params);
         $this->assertEquals($client->getRegion(), "us-east-1");
-        print($internalParams);
+        print(json_encode($internalParams));
 
     }
 }
