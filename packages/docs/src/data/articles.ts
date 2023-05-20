@@ -1934,6 +1934,20 @@ export const articles = [
     crumb: "Let us help you",
   },
   {
+    id: "tailwind/enable-tailwind",
+    title: "enableTailwind()",
+    relativePath: "docs/tailwind/enable-tailwind.md",
+    compId: "articles-docs-tailwind-enable-tailwind",
+    crumb: "@remotion/tailwind",
+  },
+  {
+    id: "tailwind",
+    title: "@remotion/tailwind",
+    relativePath: "docs/tailwind/overview.md",
+    compId: "articles-docs-tailwind-overview",
+    crumb: null,
+  },
+  {
     id: "tailwind-legacy",
     title: "TailwindCSS v2 (Legacy)",
     relativePath: "docs/tailwind-2.md",
