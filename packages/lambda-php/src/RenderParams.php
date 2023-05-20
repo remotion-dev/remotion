@@ -12,7 +12,7 @@ class RenderParams
     private $bucketName = null;
     private $region = null;
     private $outName = null;
-    private $composition = 'main';
+    private $composition = null;
     private $serverUrl = null;
     private $framesPerLambda = null;
 
@@ -114,7 +114,7 @@ class RenderParams
         $this->forceWidth = $forceWidth;
         $this->audioCodec = $audioCodec;
         $this->dumpBrowserLogs = $dumpBrowserLogs;
-        $this->setOutName($outName);
+        $this->outName = $outName;
         $this->proResProfile = $proResProfile;
         $this->pixelFormat = $pixelFormat;
     }
