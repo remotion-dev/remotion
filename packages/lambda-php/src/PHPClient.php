@@ -49,7 +49,7 @@ class PHPClient
 
     }
 
-    public function render(RenderParams $render) :  ? string
+    public function renderMediaOnLambda(RenderParams $render) :  ? stdClass
     {
         $params = $this->constructInternals($render);
         $params['type'] = 'start';
@@ -69,7 +69,40 @@ class PHPClient
                 throw new Exception($response->errorMessage);
             } else {
                 // The Lambda function was invoked successfully
-                return $response->output;
+                return json_decode($response);
+            }
+        } else {
+            // The Lambda function encountered an error
+            throw new Exception("Failed to invoke Lambda function");
+        }
+    }
+    public function getRenderProgress(string $renderId,
+        string $bucketName) :  ? stdClass{
+
+        $params = array(
+            'renderId' => $renderId,
+            'bucketName' => $bucketName,
+            'type' => 'status',
+            "version" => VERSION,
+        );
+
+        $result = $this->client->invoke([
+            'InvocationType' => 'RequestResponse',
+            'FunctionName' => $this->getFunctionName(),
+            'Payload' => json_encode($params),
+        ]);
+
+        // Check if the invocation was successful
+        if ($result['StatusCode'] == 200) {
+            // Get the response from the invocation
+            $response = ($result['Payload']->getContents());
+
+            if (isset($response->errorMessage)) {
+                // The Lambda function encountered an error
+                throw new Exception($response->errorMessage);
+            } else {
+                // The Lambda function was invoked successfully
+                return json_decode($response);
             }
         } else {
             // The Lambda function encountered an error
