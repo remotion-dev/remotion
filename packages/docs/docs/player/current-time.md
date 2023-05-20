@@ -11,7 +11,7 @@ When rendering a [`<Player>`](/docs/player) in your app, special considerations 
 
 This is why the [`useCurrentFrame()`](/docs/use-current-frame) hook does not work outside a composition.
 
-:::warn
+:::warning
 Do not put this hook into the same component in which the `<Player>` is rendered, otherwise you'll see constant re-renders. Instead, put it inside a component that is rendered alongside the Player.
 :::
 

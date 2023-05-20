@@ -10,7 +10,7 @@ export const TableOfContents: React.FC = () => {
           <strong>getLength()</strong>
           <div>Obtain length of an SVG path</div>
         </TOCItem>
-        <TOCItem link="/docs/paths/get-tangent-at-length">
+        <TOCItem link="/docs/paths/get-point-at-length">
           <strong>getPointAtLength()</strong>
           <div>Get coordinates at a certain point of an SVG path</div>
         </TOCItem>
