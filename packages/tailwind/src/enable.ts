@@ -13,17 +13,7 @@ export const enableTailwind: WebpackOverrideFn = (currentConfiguration) => {
         ...(currentConfiguration.module?.rules
           ? currentConfiguration.module.rules
           : []
-        ).filter((rule) => {
-          if (rule === "...") {
-            return false;
-          }
-
-          if (rule.test?.toString().includes(".css")) {
-            return false;
-          }
-
-          return true;
-        }),
+        ).filter((rule) => rule !== "..." && !rule.test?.toString().includes(".css")),
         {
           test: /\.css$/i,
           use: [
