@@ -1,4 +1,6 @@
 <?php
+
+// We'll assume you use Composer, which will add autoload.php
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 
 use Dotenv\Dotenv;
@@ -9,9 +11,11 @@ use Remotion\LambdaPhp\RenderParams;
 $dotenv = Dotenv::createImmutable(__DIR__);
 $dotenv->load();
 
-// Get environment variables
+// Specify the region you deployed to, for example "us-east-1"
 $region = $_ENV['REMOTION_APP_REGION'];
+// Specify the function you would like to call
 $functionName = $_ENV['REMOTION_APP_FUNCTION_NAME'];
+// Specify the URL to your Webpack bundle
 $serveUrl = $_ENV['REMOTION_APP_SERVE_URL'];
 
 // Instantiate the client
