@@ -43,6 +43,7 @@
 		"@remotion/rive": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/skia": "workspace:*",
+		"@remotion/tailwind": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@types/express": "^4.17.11",
 		"@types/node": "^16.7.5",

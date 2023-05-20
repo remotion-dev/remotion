@@ -47,7 +47,7 @@ yarn create video -- --tailwind
 
 ## Install in existing project
 
-1. Install the following dependencies:
+1. Install [`@remotion/tailwind`](/docs/tailwind/tailwind) package and TailwindCSS dependencies.
 
 <Tabs
 defaultValue="npm"
@@ -60,7 +60,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i -D postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
+npm i -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
 ```
 
   </TabItem>
@@ -68,88 +68,37 @@ npm i -D postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-
   <TabItem value="yarn">
 
 ```bash
-yarn add -D postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
+yarn add -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i -D postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
+pnpm i -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
 ```
 
   </TabItem>
 </Tabs>
 
-2. Create a function for overriding the webpack config
-
-```ts twoslash title="src/enable-tailwind.ts"
-import { WebpackOverrideFn } from "@remotion/bundler";
-
-export const enableTailwind: WebpackOverrideFn = (currentConfiguration) => {
-  return {
-    ...currentConfiguration,
-    module: {
-      ...currentConfiguration.module,
-      rules: [
-        ...(currentConfiguration.module?.rules
-          ? currentConfiguration.module.rules
-          : []
-        ).filter((rule) => {
-          if (rule === "...") {
-            return false;
-          }
-          if (rule.test?.toString().includes(".css")) {
-            return false;
-          }
-          return true;
-        }),
-        {
-          test: /\.css$/i,
-          use: [
-            "style-loader",
-            "css-loader",
-            {
-              loader: "postcss-loader",
-              options: {
-                postcssOptions: {
-                  plugins: [
-                    "postcss-preset-env",
-                    "tailwindcss",
-                    "autoprefixer",
-                  ],
-                },
-              },
-            },
-          ],
-        },
-      ],
-    },
-  };
-};
-```
-
-3. Add the Webpack override to your config file:
+2. Add the Webpack override from `@remotion/tailwind` to your config file:
 
 ```ts twoslash title="remotion.config.ts"
-// @filename: ./src/enable-tailwind.ts
-import { WebpackOverrideFn } from "@remotion/bundler";
-export const enableTailwind: WebpackOverrideFn = (c) => c;
-// @filename: remotion.config.ts
-// ---cut---
 import { Config } from "remotion";
-import { enableTailwind } from "./src/enable-tailwind";
+import { enableTailwind } from "@remotion/tailwind";
 
-Config.overrideWebpackConfig(enableTailwind);
+Config.overrideWebpackConfig((currentConfiguration) => {
+  return enableTailwind(currentConfiguration);
+});
 ```
 
 :::note
 Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
 :::
 
-4. If you use the [`bundle()` or `deploySite()` Node.JS API, add the Webpack override to it as well](/docs/webpack#when-using-bundle-and-deploysite).
+3. If you use the [`bundle()` or `deploySite()` Node.JS API, add the Webpack override to it as well](/docs/webpack#when-using-bundle-and-deploysite).
 
-5. Create a file `src/style.css` with the following content:
+4. Create a file `src/style.css` with the following content:
 
 ```css title="src/style.css"
 @tailwind base;
@@ -157,13 +106,13 @@ Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig
 @tailwind utilities;
 ```
 
-6. Import the stylesheet in your `src/Root.tsx` file. Add to the top of the file:
+5. Import the stylesheet in your `src/Root.tsx` file. Add to the top of the file:
 
 ```js title="src/Root.tsx"
 import "./style.css";
 ```
 
-7.  Add a `tailwind.config.js` file to the root of your project:
+6. Add a `tailwind.config.js` file to the root of your project:
 
 ```js title="tailwind.config.js"
 /* eslint-env node */
@@ -176,7 +125,7 @@ module.exports = {
 };
 ```
 
-8. Ensure your `package.json` does not have `"sideEffects": false` set. If it has, declare that CSS files have a side effect:
+7. Ensure your `package.json` does not have `"sideEffects": false` set. If it has, declare that CSS files have a side effect:
 
 ```diff title="package.json"
 {
@@ -186,7 +135,7 @@ module.exports = {
 }
 ```
 
-9. Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
+8. Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
 
 ## See also
 

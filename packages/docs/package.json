@@ -43,6 +43,7 @@
     "@remotion/rive": "workspace:*",
     "@remotion/shapes": "workspace:*",
     "@remotion/skia": "workspace:*",
+    "@remotion/tailwind": "workspace:*",
     "@remotion/three": "workspace:*",
     "@shopify/react-native-skia": "^0.1.139",
     "@splitbee/web": "^0.2.4",
