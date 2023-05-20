@@ -43,7 +43,6 @@
 		"@remotion/rive": "workspace:*",
 		"@remotion/shapes": "workspace:*",
 		"@remotion/skia": "workspace:*",
-		"@remotion/tailwind": "workspace:*",
 		"@remotion/three": "workspace:*",
 		"@types/express": "^4.17.11",
 		"@types/node": "^16.7.5",
@@ -66,15 +65,23 @@
 		"vitest": "0.24.3"
 	},
 	"devDependencies": {
+		"@remotion/tailwind": "workspace:*",
 		"@types/babel__core": "^7.1.12",
 		"@types/babel__template": "^7.4.0",
 		"@typescript-eslint/eslint-plugin": "5.18.0",
 		"@typescript-eslint/parser": "5.18.0",
+		"autoprefixer": "^10.4.14",
+		"css-loader": "5.2.7",
 		"eslint": "8.25.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.29.4",
 		"eslint-plugin-react-hooks": "4.4.0",
-		"prettier-plugin-organize-imports": "^2.3.4"
+		"postcss": "^8.4.23",
+		"postcss-loader": "^7.3.0",
+		"postcss-preset-env": "^8.3.2",
+		"prettier-plugin-organize-imports": "^2.3.4",
+		"style-loader": "2.0.0",
+		"tailwindcss": "^3.3.2"
 	},
 	"publishConfig": {
 		"access": "public"

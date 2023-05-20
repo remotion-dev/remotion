@@ -1,10 +1,13 @@
 import {WebpackOverrideFn} from '@remotion/bundler';
+import { enableTailwind } from "@remotion/tailwind";
 import path from 'path';
 type Bundler = 'webpack' | 'esbuild';
 
 const WEBPACK_OR_ESBUILD = 'esbuild' as Bundler;
 
 export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
+	const configWithTailwind = enableTailwind(currentConfiguration);
+
 	const replaced = (() => {
 		if (WEBPACK_OR_ESBUILD === 'webpack') {
 			const {replaceLoadersWithBabel} = require(path.join(
@@ -14,12 +17,12 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 				'example',
 				'node_modules',
 				'@remotion/babel-loader'
-			));
-			return replaceLoadersWithBabel(currentConfiguration);
-		}
-
-		return currentConfiguration;
-	})();
+				));
+				return replaceLoadersWithBabel(configWithTailwind);
+			}
+			
+			return configWithTailwind;
+		})();
 	return {
 		...replaced,
 		module: {

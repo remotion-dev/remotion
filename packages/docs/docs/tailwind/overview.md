@@ -26,7 +26,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
+npm i -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
 ```
 
   </TabItem>
@@ -34,7 +34,7 @@ npm i @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss a
   <TabItem value="yarn">
 
 ```bash
-yarn add @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
+yarn add -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
 ```
 
   </TabItem>
@@ -42,7 +42,7 @@ yarn add @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcs
   <TabItem value="pnpm">
 
 ```bash
-pnpm i @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
+pnpm i -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
 ```
 
   </TabItem>
