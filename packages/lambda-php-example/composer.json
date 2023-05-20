@@ -1,0 +1,23 @@
+{
+  "name": "remotion/lambda-php-example",
+  "type": "project",
+  "scripts": {
+    "render": "php src/render.php"
+  },
+  "autoload": {
+    "psr-4": {
+      "remotion\\LambdaPhpExample\\": "src/"
+    }
+  },
+  "authors": [],
+  "repositories": [
+    {
+      "type": "path",
+      "url": "../lambda-php"
+    }
+  ],
+  "require": {
+    "vlucas/phpdotenv": "^5.5",
+    "remotion/lambda-php": "^1.0"
+  }
+}

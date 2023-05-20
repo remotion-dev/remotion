@@ -1,6 +1,7 @@
 {
   "name": "remotion/lambda-php",
   "type": "library",
+  "version": "1.0.0",
   "autoload": {
     "psr-4": {
       "Remotion\\LambdaPhp\\": "src/"
