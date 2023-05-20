@@ -4,6 +4,7 @@ namespace Remotion\LambdaPhp;
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 use Aws\Lambda\LambdaClient;
+use Exception;
 use stdClass;
 
 class PHPClient
@@ -44,23 +45,25 @@ class PHPClient
         $render->setInputProps($input);
         $render->setServerUrl($this->getServeUrl());
         $render->setRegion($this->getRegion());
-        return json_encode($render->serializeParams());
+        return ($render->serializeParams());
 
     }
 
     public function render(RenderParams $render) :  ? string
     {
         $params = $this->constructInternals($render);
+        $params['type'] = 'start';
         $result = $this->client->invoke([
             'InvocationType' => 'RequestResponse',
-            'FunctionName' => $functionName,
+            'FunctionName' => $this->getFunctionName(),
             'Payload' => json_encode($params),
         ]);
 
         // Check if the invocation was successful
-        if ($result->getStatusCode() == 200) {
+        if ($result['StatusCode'] == 200) {
             // Get the response from the invocation
-            $response = json_decode($result->get('Payload'));
+            $response = ($result['Payload']->getContents());
+
             if (isset($response->errorMessage)) {
                 // The Lambda function encountered an error
                 throw new Exception($response->errorMessage);
