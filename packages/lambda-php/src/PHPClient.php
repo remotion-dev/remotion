@@ -2,12 +2,9 @@
 
 namespace Remotion;
 
+require_once dirname(__DIR__) . '/vendor/autoload.php';
 use Aws\Lambda\LambdaClient;
-
-// Define a custom JSON_UNESCAPED_SLASHES flag with a filter function
-define('JSON_UNESCAPED_SLASHES_NULL_FILTER', function ($value) {
-    return is_null($value) ? '' : $value;
-});
+use stdClass;
 
 class PHPClient
 {
@@ -44,8 +41,9 @@ class PHPClient
             null
         );
 
-        $render->setData($input);
-
+        $render->setInputProps($input);
+        $render->setServerUrl($this->getServeUrl());
+        $render->setRegion($this->getRegion());
         return json_encode($render->toJson());
 
     }
@@ -98,7 +96,8 @@ class PHPClient
 
             return [
                 'type' => 'payload',
-                'payload' => $payload,
+                'payload' => !is_null($payload) && !empty($payload) && $payload !== "null" ?
+                json_encode($payload) : json_encode(new stdClass()),
             ];
         } catch (Exception $e) {
             throw new Exception(

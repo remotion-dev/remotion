@@ -14,9 +14,9 @@ test("Set the right version for phpunit", () => {
   const version = referenceVersionJson.version;
   expect(typeof version).toBe("string");
 
-  const VERSION = `<?php \nnamespace remotion;\n\nconst VERSION = "${version};"`;
+  const VERSION = `<?php \nnamespace remotion;\n\nconst VERSION = "${version}";`;
   writeFileSync(
-    path.join(process.cwd(), "..", "lambda-php", "Version.php"),
+    path.join(process.cwd(), "..", "lambda-php", "src", "Version.php"),
     VERSION
   );
 });
@@ -36,8 +36,17 @@ test("PHP package should create the same payload as normal Lambda package", asyn
     codec: "h264",
   });
 
-  //const parsed = JSON.parse(firstLine);
-  /* 
- 
-  expect(parsed).toEqual(nativeVersion); */
+  const raw = firstLine.substring(0, firstLine.lastIndexOf('"') + 1);
+
+  console.log("raw");
+  console.log(raw);
+
+  const parsedJson = JSON.parse(JSON.parse(raw));
+  console.log("====");
+  console.log(JSON.stringify(parsedJson, null, 3));
+  console.log("");
+  console.log(JSON.stringify(nativeVersion, null, 3));
+  expect(JSON.stringify(parsedJson, null, 3)).toEqual(
+    JSON.stringify(nativeVersion, null, 3)
+  );
 });
