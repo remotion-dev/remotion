@@ -14,7 +14,7 @@ test("Set the right version for phpunit", () => {
   const version = referenceVersionJson.version;
   expect(typeof version).toBe("string");
 
-  const VERSION = `<?php \nnamespace remotion;\n\nconst VERSION = "${version}";`;
+  const VERSION = `<?php \nnamespace Remotion\\LambdaPhp;\n\nconst VERSION = "${version}";`;
   writeFileSync(
     path.join(process.cwd(), "..", "lambda-php", "src", "Version.php"),
     VERSION

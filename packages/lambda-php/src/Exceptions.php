@@ -1,6 +1,6 @@
 <?php
 
-namespace Remotion;
+namespace Remotion\LambdaPhp;
 
 class ValidationException extends Exception
 {}

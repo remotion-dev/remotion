@@ -1,5 +1,5 @@
 <?php
-namespace Remotion;
+namespace Remotion\LambdaPhp;
 
 require_once __DIR__ . '/Version.php';
 use stdClass;
@@ -11,6 +11,7 @@ class RenderParams
     private $data = array();
     private $bucketName = null;
     private $region = null;
+    private $outName = null;
     private $composition = 'main';
     private $serverUrl = null;
     private $framesPerLambda = null;
@@ -81,7 +82,8 @@ class RenderParams
         ? bool $dumpBrowserLogs = false,
         ? int $framesPerLambda = null,
         ? string $rendererFunctionName = null,
-        ? string $proResProfile = null
+        ? string $proResProfile = null,
+        ? string $pixelFormat = null
     ) {
         $this->data = $data;
         $this->composition = $composition;
@@ -112,15 +114,15 @@ class RenderParams
         $this->forceWidth = $forceWidth;
         $this->audioCodec = $audioCodec;
         $this->dumpBrowserLogs = $dumpBrowserLogs;
-        $this->outName = $outName;
+        $this->setOutName($outName);
         $this->proResProfile = $proResProfile;
         $this->pixelFormat = $pixelFormat;
     }
 
     private array $inputProps = array();
-    public function toJson()
+    public function serializeParams()
     {
-        $json = [
+        $parameters = [
             'rendererFunctionName' => $this->getRendererFunctionName(),
             'framesPerLambda' => $this->getFramesPerLambda(),
             'composition' => $this->getComposition(),
@@ -172,7 +174,7 @@ class RenderParams
             $json['quality'] = $this->getQuality();
         }
 
-        return json_encode($json);
+        return $parameters;
     }
 
     /**
