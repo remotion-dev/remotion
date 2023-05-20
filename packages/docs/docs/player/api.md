@@ -695,7 +695,7 @@ playerRef.current.addEventListener("timeupdate", (e) => {
 
 Prefer the [`seeked`](#seeked) event if you only want to get time updates during seeking.
 
-Prefer the [`frameupdate`](#frameupdate) event if you need an update for every single frame.
+Prefer the [`frameupdate`](#frameupdate-) event if you need an update for every single frame.
 
 ### `frameupdate` <AvailableFrom v="3.2.27" />
 
@@ -758,7 +758,7 @@ When a video throws an exception, you may handle the error using the [`error` ev
 The video will unmount and show an error UI, but the host application (The React app which is embedding the player) will not crash.
 It is up to you to handle the error and to re-mount the video (for example by changing the `key` prop in React).
 
-This feature is implemented using an [error boundary](https://reactjs.org/docs/error-boundaries.html), so only errors in the render function will be caught. Errors in event handlers and asynchronous code will not be reported and will not cause the video to unmount.
+This feature is implemented using an [error boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary), so only errors in the render function will be caught. Errors in event handlers and asynchronous code will not be reported and will not cause the video to unmount.
 
 You can customize the error message that is shown if a video crashes:
 

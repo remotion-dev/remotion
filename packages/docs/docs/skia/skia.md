@@ -19,7 +19,7 @@ It may change in minor version updates. Monitor this documentation page to see b
 
 ## Installation
 
-Install, `@remotion/skia` as well as `@shopify/react-native-skia` and `react-native-web`.
+Install, `@remotion/skia` as well as `@shopify/react-native-skia`.
 
 <Tabs
 defaultValue="npm"
@@ -32,7 +32,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i @remotion/skia @shopify/react-native-skia react-native-web
+npm i @remotion/skia @shopify/react-native-skia
 ```
 
   </TabItem>
@@ -40,7 +40,7 @@ npm i @remotion/skia @shopify/react-native-skia react-native-web
   <TabItem value="yarn">
 
 ```bash
-yarn add @remotion/skia @shopify/react-native-skia react-native-web
+yarn add @remotion/skia @shopify/react-native-skia
 ```
 
   </TabItem>
@@ -48,11 +48,15 @@ yarn add @remotion/skia @shopify/react-native-skia react-native-web
   <TabItem value="pnpm">
 
 ```bash
-pnpm i @remotion/skia @shopify/react-native-skia react-native-web
+pnpm i @remotion/skia @shopify/react-native-skia
 ```
 
   </TabItem>
 </Tabs>
+
+:::note
+Since Remotion `v3.3.93` and React Native Skia `0.1.191`, `react-native-web` is not a dependency anymore. You may remove it from your project.
+:::
 
 Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.
 

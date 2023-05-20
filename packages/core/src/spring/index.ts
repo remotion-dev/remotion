@@ -10,6 +10,7 @@ import {springCalculation} from './spring-utils.js';
  * @see [Documentation](https://www.remotion.dev/docs/spring)
  * @param {number} frame The current time value. Most of the time you want to pass in the return value of useCurrentFrame.
  * @param {number} fps The framerate at which the animation runs. Pass in the value obtained by `useVideoConfig()`.
+ * @param {?boolean} reverse Whether the animation plays in reverse or not. Default `false`.
  * @param {?Object} config optional object that allows you to customize the physical properties of the animation.
  * @param {number} [config.mass=1] The weight of the spring. If you reduce the mass, the animation becomes faster!
  * @param {number} [config.damping=10] How hard the animation decelerates.
@@ -27,9 +28,10 @@ export function spring({
 	config = {},
 	from = 0,
 	to = 1,
-	durationInFrames,
+	durationInFrames: passedDurationInFrames,
 	durationRestThreshold,
 	delay = 0,
+	reverse = false,
 }: {
 	frame: number;
 	fps: number;
@@ -39,8 +41,9 @@ export function spring({
 	durationInFrames?: number;
 	durationRestThreshold?: number;
 	delay?: number;
+	reverse?: boolean;
 }): number {
-	validateSpringDuration(durationInFrames);
+	validateSpringDuration(passedDurationInFrames);
 	validateFrame({
 		frame: passedFrame,
 		durationInFrames: Infinity,
@@ -48,24 +51,42 @@ export function spring({
 	});
 	validateFps(fps, 'to spring()', false);
 
-	const durationRatio =
-		durationInFrames === undefined
-			? 1
-			: durationInFrames /
-			  measureSpring({
-					fps,
-					config,
-					from,
-					to,
-					threshold: durationRestThreshold,
-			  });
+	const needsToCalculateNaturalDuration =
+		reverse || typeof passedDurationInFrames !== 'undefined';
 
-	// Delay the spring by telling the calculation we're at an earlier frame.
-	const frame = passedFrame - delay;
+	const naturalDuration = needsToCalculateNaturalDuration
+		? measureSpring({
+				fps,
+				config,
+				from,
+				to,
+				threshold: durationRestThreshold,
+		  })
+		: undefined;
+
+	const naturalDurationGetter = needsToCalculateNaturalDuration
+		? {
+				get: () => naturalDuration as number,
+		  }
+		: {
+				get: () => {
+					throw new Error(
+						'did not calculate natural duration, this is an error with Remotion. Please report'
+					);
+				},
+		  };
+
+	const frame = reverse
+		? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame
+		: passedFrame;
 
 	const spr = springCalculation({
 		fps,
-		frame: frame / durationRatio,
+		frame:
+			(passedDurationInFrames === undefined
+				? frame
+				: frame / (passedDurationInFrames / naturalDurationGetter.get())) -
+			delay,
 		config,
 		from,
 		to,

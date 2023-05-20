@@ -27,7 +27,7 @@ export const MyComposition = () => {
 // - MyComposition
 ```
 
-The basic idea behind Remotion is that we'll give you a frame number and a blank canvas, and the freedom to render anything you want using [React](https://reactjs.org).
+The basic idea behind Remotion is that we'll give you a frame number and a blank canvas, and the freedom to render anything you want using [React](https://react.dev).
 
 ```tsx twoslash
 // @include: example-MyComposition
