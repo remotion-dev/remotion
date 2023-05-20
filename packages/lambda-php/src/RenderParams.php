@@ -1,25 +1,32 @@
 <?php
 namespace Remotion;
 
+require_once __DIR__ . '/Version.php';
+use stdClass;
+use VERSION;
+
 class RenderParams
 {
 
     private $data = array();
+    private $bucketName = null;
+    private $region = null;
     private $composition = 'main';
-    private $type = 'start';
+    private $serverUrl = null;
+    private $framesPerLambda = null;
+
     private $codec = 'h264';
-    private $version = '3.3.78';
+    private $version = "";
     private $imageFormat = 'jpeg';
-    private $crf = 1;
+    private $crf = null;
     private $envVariables = [];
-    private $quality = 80;
+    private $quality = null;
     private $maxRetries = 1;
     private $privacy = 'private';
     private $logLevel = 'info';
     private $frameRange = null;
-    private $outName = null;
     private $timeoutInMilliseconds = 30000;
-    private $chromiumOptions = [];
+    private $chromiumOptions;
     private $scale = 1;
     private $everyNthFrame = 1;
     private $numberOfGifLoops = 0;
@@ -35,43 +42,49 @@ class RenderParams
     private $forceHeight = null;
     private $forceWidth = null;
     private $audioCodec = null;
+    private $dumpBrowserLogs = false;
+    private $rendererFunctionName = null;
+    private $proResProfile = null;
+    private $pixelFormat = null;
 
     public function __construct(
-        array $data = array(),
-        string $composition = 'main',
-        string $type = 'start',
+        ? array $data = null,
+        ? string $composition = 'main',
         string $codec = 'h264',
-        string $version = '3.3.78',
+        string $version = null,
         string $imageFormat = 'jpeg',
-        int $crf = 1,
-        array $envVariables = [],
-        int $quality = 80,
+        int $crf = null,
+        array $envVariables = null,
+        ? int $quality = null,
         int $maxRetries = 1,
         string $privacy = 'public',
         string $logLevel = 'info',
         ? string $frameRange = null,
         ? string $outName = null,
-        int $timeoutInMilliseconds = 30000,
-        array $chromiumOptions = [],
-        float $scale = 1,
-        int $everyNthFrame = 1,
-        int $numberOfGifLoops = 0,
-        int $concurrencyPerLambda = 1,
-        array $downloadBehavior = [
+        ? int $timeoutInMilliseconds = 30000,
+        ? object $chromiumOptions = new stdClass(),
+        ? int $scale = 1,
+        ? int $everyNthFrame = 1,
+        ? int $numberOfGifLoops = 0,
+        ? int $concurrencyPerLambda = 1,
+        ? array $downloadBehavior = [
             'type' => 'play-in-browser',
         ],
-        bool $muted = false,
-        bool $overwrite = false,
+        ? bool $muted = false,
+        ? bool $overwrite = false,
         ? int $audioBitrate = null,
         ? int $videoBitrate = null,
         ? string $webhook = null,
         ? int $forceHeight = null,
         ? int $forceWidth = null,
-        ? string $audioCodec = null
+        ? string $audioCodec = null,
+        ? bool $dumpBrowserLogs = false,
+        ? int $framesPerLambda = null,
+        ? string $rendererFunctionName = null,
+        ? string $proResProfile = null
     ) {
         $this->data = $data;
         $this->composition = $composition;
-        $this->type = $type;
         $this->codec = $codec;
         $this->version = $version;
         $this->imageFormat = $imageFormat;
@@ -98,7 +111,128 @@ class RenderParams
         $this->forceHeight = $forceHeight;
         $this->forceWidth = $forceWidth;
         $this->audioCodec = $audioCodec;
+        $this->dumpBrowserLogs = $dumpBrowserLogs;
+        $this->outName = $outName;
+        $this->proResProfile = $proResProfile;
+        $this->pixelFormat = $pixelFormat;
+    }
 
+    private array $inputProps = array();
+    public function toJson()
+    {
+        $json = [
+            'rendererFunctionName' => $this->getRendererFunctionName(),
+            'framesPerLambda' => $this->getFramesPerLambda(),
+            'composition' => $this->getComposition(),
+            'serveUrl' => $this->getServerUrl(),
+            'inputProps' => $this->getInputProps(),
+            'codec' => $this->getCodec(),
+            'imageFormat' => $this->getImageFormat(),
+            'maxRetries' => $this->getMaxRetries(),
+            'privacy' => $this->getPrivacy(),
+            'logLevel' => $this->getLogLevel(),
+            'frameRange' => $this->getFrameRange(),
+            'outName' => $this->getOutName(),
+            'timeoutInMilliseconds' => $this->getTimeoutInMilliseconds(),
+            'chromiumOptions' => $this->getChromiumOptions(),
+            'scale' => $this->getScale(),
+            'everyNthFrame' => $this->getEveryNthFrame(),
+            'numberOfGifLoops' => $this->getNumberOfGifLoops(),
+            'concurrencyPerLambda' => $this->getConcurrencyPerLambda(),
+            'downloadBehavior' => $this->getDownloadBehavior(),
+            'muted' => $this->getMuted(),
+            'version' => VERSION,
+            'overwrite' => $this->getOverwrite(),
+            'audioBitrate' => $this->getAudioBitrate(),
+            'videoBitrate' => $this->getVideoBitrate(),
+            'webhook' => $this->getWebhook(),
+            'forceHeight' => $this->getForceHeight(),
+            'forceWidth' => $this->getForceWidth(),
+            'bucketName' => $this->getBucketName(),
+            'audioCodec' => $this->getAudioCodec(),
+            'dumpBrowserLogs' => $this->getDumpBrowserLogs(),
+        ];
+
+        if (!empty($this->getCrf())) {
+            $json['crf'] = $this->getCrf();
+        }
+
+        if (!empty($this->getEnvVariables())) {
+            $json['envVariables'] = $this->getEnvVariables();
+        }
+
+        if (!empty($this->getPixelFormat())) {
+            $json['pixelFormat'] = $this->getPixelFormat();
+        }
+        if (!empty($this->getProResProfile())) {
+            $json['proResProfile'] = $this->getProResProfile();
+
+        }
+        if (!empty($this->getQuality())) {
+            $json['quality'] = $this->getQuality();
+        }
+
+        return json_encode($json);
+    }
+
+    /**
+     * Get the value of dumpBrowserLogs
+     */
+    public function getDumpBrowserLogs()
+    {
+        return $this->dumpBrowserLogs;
+    }
+
+    /**
+     * Set the value of dumpBrowserLogs
+     *
+     * @return  self
+     */
+    public function setDumpBrowserLogs($dumpBrowserLogs)
+    {
+        $this->dumpBrowserLogs = $dumpBrowserLogs;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of inputProps
+     */
+    public function getInputProps()
+    {
+        return $this->inputProps;
+    }
+
+    /**
+     * Set the value of inputProps
+     *
+     * @return  self
+     */
+    public function setInputProps($inputProps)
+    {
+        $this->inputProps = $inputProps;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of bucketName
+     */
+    public function getBucketName()
+    {
+        return $this->bucketName;
+    }
+
+    /**
+     * Set the value of bucketName
+     *
+     * @return  self
+     */
+    public function setBucketName($bucketName)
+    {
+        $this->bucketName = $bucketName;
+
+        return $this;
     }
 
     /**
@@ -157,26 +291,6 @@ class RenderParams
     public function setComposition($composition)
     {
         $this->composition = $composition;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of type
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * Set the value of type
-     *
-     * @return  self
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
 
         return $this;
     }
@@ -524,45 +638,123 @@ class RenderParams
         return $this->forceWidth;
     }
 
-    public function toJson()
+    /**
+     * Get the value of serverUrl
+     */
+    public function getServerUrl()
     {
-        $json = [
-            'data' => $this->getData(),
-            'composition' => $this->getComposition(),
-            'type' => $this->getType(),
-            'codec' => $this->getCodec(),
-            'version' => $this->getVersion(),
-            'imageFormat' => $this->getImageFormat(),
-            'crf' => $this->getCrf(),
-            'envVariables' => $this->getEnvVariables(),
-            'quality' => $this->getQuality(),
-            'maxRetries' => $this->getMaxRetries(),
-            'privacy' => $this->getPrivacy(),
-            'logLevel' => $this->getLogLevel(),
-            'frameRange' => $this->getFrameRange(),
-            'outName' => $this->getOutName(),
-            'timeoutInMilliseconds' => $this->getTimeoutInMilliseconds(),
-            'chromiumOptions' => $this->getChromiumOptions(),
-            'scale' => $this->getScale(),
-            'everyNthFrame' => $this->getEveryNthFrame(),
-            'numberOfGifLoops' => $this->getNumberOfGifLoops(),
-            'concurrencyPerLambda' => $this->getConcurrencyPerLambda(),
-            'downloadBehavior' => $this->getDownloadBehavior(),
-            'muted' => $this->getMuted(),
-            'overwrite' => $this->getOverwrite(),
-            'audioBitrate' => $this->getAudioBitrate(),
-            'videoBitrate' => $this->getVideoBitrate(),
-            'webhook' => $this->getWebhook(),
-            'forceHeight' => $this->getForceHeight(),
-            'forceWidth' => $this->getForceWidth(),
-            'audioCodec' => $this->getAudioCodec(),
-        ];
-
-        $json = array_filter($json, function ($value) {
-            return $value !== null;
-        });
-
-        return json_encode($json);
+        return $this->serverUrl;
     }
 
+    /**
+     * Set the value of serverUrl
+     *
+     * @return  self
+     */
+    public function setServerUrl($serverUrl)
+    {
+        $this->serverUrl = $serverUrl;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of rendererFunctionName
+     */
+    public function getRendererFunctionName()
+    {
+        return $this->rendererFunctionName;
+    }
+
+    /**
+     * Set the value of rendererFunctionName
+     *
+     * @return  self
+     */
+    public function setRendererFunctionName($rendererFunctionName)
+    {
+        $this->rendererFunctionName = $rendererFunctionName;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of framesPerLambda
+     */
+    public function getFramesPerLambda()
+    {
+        return $this->framesPerLambda;
+    }
+
+    /**
+     * Set the value of framesPerLambda
+     *
+     * @return  self
+     */
+    public function setFramesPerLambda($framesPerLambda)
+    {
+        $this->framesPerLambda = $framesPerLambda;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of region
+     */
+    public function getRegion()
+    {
+        return $this->region;
+    }
+
+    /**
+     * Set the value of region
+     *
+     * @return  self
+     */
+    public function setRegion($region)
+    {
+        $this->region = $region;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of proResProfile
+     */
+    public function getProResProfile()
+    {
+        return $this->proResProfile;
+    }
+
+    /**
+     * Set the value of proResProfile
+     *
+     * @return  self
+     */
+    public function setProResProfile($proResProfile)
+    {
+        $this->proResProfile = $proResProfile;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pixelFormat
+     */
+    public function getPixelFormat()
+    {
+        return $this->pixelFormat;
+    }
+
+    /**
+     * Set the value of pixelFormat
+     *
+     * @return  self
+     */
+    public function setPixelFormat($pixelFormat)
+    {
+        $this->pixelFormat = $pixelFormat;
+
+        return $this;
+    }
 }
