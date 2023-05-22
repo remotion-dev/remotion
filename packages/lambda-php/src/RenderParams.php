@@ -135,7 +135,7 @@ class RenderParams
             'frameRange' => $this->getFrameRange(),
             'outName' => $this->getOutName(),
             'timeoutInMilliseconds' => $this->getTimeoutInMilliseconds(),
-            'chromiumOptions' => $this->getChromiumOptions(),
+            'chromiumOptions' => $this->getChromiumOptions() === null ? new stdClass() : $this->getChromiumOptions(),
             'scale' => $this->getScale(),
             'everyNthFrame' => $this->getEveryNthFrame(),
             'numberOfGifLoops' => $this->getNumberOfGifLoops(),
