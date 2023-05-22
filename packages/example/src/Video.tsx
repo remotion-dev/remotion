@@ -832,10 +832,13 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={100}
-					calculateStuff={() => {
-						return Promise.resolve({
-							durationInFrames: Math.random() * 100,
-						});
+					calculateStuff={async () => {
+						return {
+							durationInFrames: Math.round(Math.random() * 100),
+							fps: 30,
+							height: Math.round(Math.random() * 2 * 500),
+							width: Math.round(Math.random() * 2 * 500),
+						};
 					}}
 				/>
 			</Folder>

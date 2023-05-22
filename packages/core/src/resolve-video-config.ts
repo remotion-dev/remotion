@@ -1,4 +1,6 @@
 import type {AnyComposition} from './CompositionManager.js';
+import {validateDimension} from './validation/validate-dimensions.js';
+import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import type {VideoConfig} from './video-config.js';
 
 export const resolveVideoConfig = async (
@@ -15,12 +17,16 @@ export const resolveVideoConfig = async (
 		);
 	}
 
+	validateDimension(width, 'width', 'calculated by calculateMetadata()');
+
 	const height = calculated?.height ?? comp.height ?? null;
 	if (!height) {
 		throw new TypeError(
 			'Composition height was neither specified via the `height` prop nor the `calculateMetadata` function.'
 		);
 	}
+
+	validateDimension(width, 'height', 'calculated by calculateMetadata()');
 
 	const fps = calculated?.fps ?? comp.fps ?? null;
 	if (!fps) {
@@ -36,6 +42,12 @@ export const resolveVideoConfig = async (
 			'Composition durationInFrames was neither specified via the `durationInFrames` prop nor the `calculateMetadata` function.'
 		);
 	}
+
+	validateDurationInFrames({
+		durationInFrames,
+		component: 'calculated by calculateMetadata()',
+		allowFloats: false,
+	});
 
 	return {
 		width,
