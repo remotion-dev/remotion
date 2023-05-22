@@ -91,7 +91,7 @@ A class name to be applied to the container. If `layout` is set to `none`, there
 
 _optional_
 
-You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to a `<Series.Sequence>`. If you use TypeScript, you need to type it with `HTMLDivElement`:
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to a `<Series.Sequence>`. If you use TypeScript, you need to type it with `HTMLDivElement`:
 
 ```tsx twoslash title="src/Example.tsx"
 const Square: React.FC<{
