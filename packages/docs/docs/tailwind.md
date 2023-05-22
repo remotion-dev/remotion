@@ -139,6 +139,10 @@ module.exports = {
 
 8. Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
 
+:::note
+Your package manager might show a peer dependency warning. You can safely ignore it or add `strict-peer-dependencies=false` to your `.npmrc` to suppress it.
+:::
+
 ## See also
 
 - [TailwindCSS v2 (legacy)](/docs/tailwind-legacy)
