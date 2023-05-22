@@ -4,6 +4,8 @@ title: enableTailwind()
 crumb: "@remotion/tailwind"
 ---
 
+_available from v3.3.95_
+
 A function that modifies the default Webpack configuration to make the necessary changes to support TailwindCSS.
 
 ```ts twoslash title="remotion.config.ts"
@@ -14,10 +16,6 @@ Config.overrideWebpackConfig((currentConfiguration) => {
   return enableTailwind(currentConfiguration);
 });
 ```
-
-:::note
-Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
-:::
 
 If you want to make other configuration changes, you can do so by doing them reducer-style:
 
@@ -33,9 +31,5 @@ Config.overrideWebpackConfig((currentConfiguration) => {
   });
 });
 ```
-
-:::note
-Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
-:::
 
 See the [setup](/docs/tailwind) to see full instructions on how to setup TailwindCSS in Remotion.
