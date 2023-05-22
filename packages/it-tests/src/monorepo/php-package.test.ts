@@ -25,6 +25,8 @@ test("PHP package should create the same payload as normal Lambda package", asyn
   const phpOutput = execSync("phpunit ./src/PHPClientTest.php", {
     cwd: path.join(process.cwd(), "..", "lambda-php"),
   });
+  console.log("show php output");
+  console.log(phpOutput.toString());
   const firstLine = phpOutput.toString().split("\n")[4];
 
   const nativeVersion = await LambdaInternals.makeLambdaPayload({
@@ -36,6 +38,8 @@ test("PHP package should create the same payload as normal Lambda package", asyn
   });
 
   const raw = firstLine.substring(0, firstLine.lastIndexOf("}") + 1);
+  console.log("show php output raw");
+  console.log(raw);
   const parsedJson = JSON.parse(raw);
 
   expect(JSON.stringify(parsedJson, null, 3)).toEqual(
