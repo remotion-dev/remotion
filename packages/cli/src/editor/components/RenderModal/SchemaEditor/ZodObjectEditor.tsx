@@ -3,6 +3,7 @@ import type {z} from 'zod';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../../helpers/colors';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {optionRow} from '../layout';
+import {useLocalState} from './local-state';
 import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -21,12 +22,11 @@ const fieldset: React.CSSProperties = {
 	borderColor: INPUT_BORDER_COLOR_UNHOVERED,
 };
 
-// TODO: First validate locally
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
-	value: unknown;
-	defaultValue: unknown;
+	value: Record<string, unknown>;
+	defaultValue: Record<string, unknown>;
 	setValue: UpdaterFunction<Record<string, unknown>>;
 	compact: boolean;
 	onSave: UpdaterFunction<Record<string, unknown>>;
@@ -49,6 +49,12 @@ export const ZodObjectEditor: React.FC<{
 	if (!z) {
 		throw new Error('expected zod');
 	}
+
+	const {localValue, onChange} = useLocalState({
+		schema,
+		setValue,
+		value,
+	});
 
 	const def = schema._def;
 
@@ -73,7 +79,9 @@ export const ZodObjectEditor: React.FC<{
 		return {paddingTop};
 	}, [isRoot, paddingTop]);
 
-	const onRes = useCallback(() => undefined, []);
+	const onRes = useCallback(() => {
+		onChange(() => defaultValue, true);
+	}, [defaultValue, onChange]);
 
 	return (
 		<div style={style}>
@@ -94,11 +102,9 @@ export const ZodObjectEditor: React.FC<{
 									key={key}
 									jsonPath={[...jsonPath, key]}
 									schema={shape[key]}
-									value={(value as Record<string, string>)[key]}
+									value={localValue.value[key]}
 									// In case of null | {a: string, b: string} type, we need to fallback to the default value
-									defaultValue={
-										((defaultValue as Record<string, string>) ?? value)[key]
-									}
+									defaultValue={(defaultValue ?? value)[key]}
 									setValue={(val, forceApply) => {
 										setValue((oldVal) => {
 											return {
