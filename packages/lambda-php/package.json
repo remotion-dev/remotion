@@ -1,0 +1,8 @@
+{
+  "name": "@remotion/lambda-php",
+  "private": true,
+  "version": "3.3.94",
+  "scripts": {
+    "lint": "node build.mjs"
+  }
+}
