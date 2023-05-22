@@ -25,9 +25,8 @@
   padding: 14px;
 }
 .item:hover {
-  border: 1px solid var(--ifm-color-emphasis-500);  
+  border: 1px solid var(--ifm-color-emphasis-500);
 }
-
 
 @media (max-width: 1000px) {
   .grid {

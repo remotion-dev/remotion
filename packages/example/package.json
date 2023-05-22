@@ -10,6 +10,7 @@
 		"dist"
 	],
 	"scripts": {
+		"formatting": "prettier src --check",
 		"start": "remotion preview --props src/my-props.json",
 		"start-js": "remotion preview src/entry.jsx",
 		"comps": "remotion compositions",
@@ -63,7 +64,7 @@
 		"ts-unused-exports": "^7.0.1",
 		"typescript": "^4.7.0",
 		"use-asset": "^1.0.4",
-		"vitest": "0.24.3",
+		"vitest": "0.31.1",
 		"zod": "^3.21.4"
 	},
 	"devDependencies": {

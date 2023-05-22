@@ -11,12 +11,5 @@
     }
   },
   "include": ["src"],
-  "references": [
-    { "path": "../core" },
-    { "path": "../media-utils" },
-    { "path": "../babel-loader" },
-    { "path": "../three" },
-    { "path": "../rive" },
-    { "path": "../motion-blur" }
-  ]
+  "references": [{ "path": "../core" }, { "path": "../cli" }]
 }

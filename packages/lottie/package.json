@@ -7,6 +7,7 @@
 	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"build": "rollup --config rollup.config.js && tsc -d",
@@ -58,7 +59,7 @@
 		"react-dom": "^18.0.0",
 		"rollup": "^2.70.1",
 		"typescript": "^4.7.0",
-		"vitest": "0.24.3"
+		"vitest": "0.31.1"
 	},
 	"keywords": [
 		"remotion",
