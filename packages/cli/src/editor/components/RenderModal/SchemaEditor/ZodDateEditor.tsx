@@ -1,18 +1,14 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback} from 'react';
 import type {z} from 'zod';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing, SPACING_UNIT} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
+import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
-
-type LocalState = {
-	value: Date;
-	zodValidation: z.SafeParseReturnType<unknown, unknown>;
-};
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -77,26 +73,17 @@ export const ZodDateEditor: React.FC<{
 	onRemove,
 	saving,
 }) => {
-	const [localValue, setLocalValue] = useState<LocalState>(() => {
-		return {
-			value,
-			zodValidation: schema.safeParse(value),
-		};
+	const {localValue, onChange: setLocalValue} = useLocalState({
+		schema,
+		setValue,
+		value,
 	});
 
 	const onValueChange = useCallback(
 		(newValue: Date, forceApply: boolean) => {
-			const safeParse = schema.safeParse(newValue);
-			const newLocalState: LocalState = {
-				value: newValue,
-				zodValidation: safeParse,
-			};
-			setLocalValue(newLocalState);
-			if (safeParse.success || forceApply) {
-				setValue(() => newValue, false, forceApply);
-			}
+			setLocalValue(() => newValue, false, forceApply);
 		},
-		[schema, setValue]
+		[setLocalValue]
 	);
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
