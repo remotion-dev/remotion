@@ -70,7 +70,7 @@ export const ZodColorEditor: React.FC<{
 				Math.round(a),
 				zodTypes
 			);
-			onValueChange(() => newColor, false, false);
+			onValueChange(() => newColor, false);
 		},
 		[a, onValueChange, zodTypes]
 	);
@@ -78,17 +78,17 @@ export const ZodColorEditor: React.FC<{
 	const onTextChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			const newValue = e.target.value;
-			onValueChange(() => newValue, false, false);
+			onValueChange(() => newValue, false);
 		},
 		[onValueChange]
 	);
 
 	const reset = useCallback(() => {
-		onValueChange(() => defaultValue, false, true);
+		onValueChange(() => defaultValue, true);
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false, false);
+		onSave(() => value, false);
 	}, [onSave, value]);
 
 	const rgb = `#${r.toString(16).padStart(2, '0')}${g
@@ -112,7 +112,7 @@ export const ZodColorEditor: React.FC<{
 				Math.round((Number(newValue) / 100) * 255),
 				zodTypes
 			);
-			onValueChange(() => newColor, false, false);
+			onValueChange(() => newColor, false);
 		},
 		[localValue.value, onValueChange, zodTypes]
 	);
@@ -124,7 +124,7 @@ export const ZodColorEditor: React.FC<{
 				Math.round((Number(newValue) / 100) * 255),
 				zodTypes
 			);
-			onValueChange(() => newColor, false, false);
+			onValueChange(() => newColor, false);
 		},
 		[localValue.value, onValueChange, zodTypes]
 	);

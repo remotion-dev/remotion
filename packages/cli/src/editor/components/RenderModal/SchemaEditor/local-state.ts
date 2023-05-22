@@ -28,19 +28,15 @@ export const useLocalState = <T>({
 	stateRef.current = localValue;
 
 	const onChange = useCallback(
-		(
-			updater: (oldV: T) => T,
-			incrementRevision: boolean,
-			forceApply: boolean
-		) => {
+		(updater: (oldV: T) => T, forceApply: boolean) => {
 			const newValue = updater(stateRef.current.value);
 			const safeParse = schema.safeParse(newValue);
 
 			if (safeParse.success || forceApply) {
-				setValue(updater, incrementRevision, forceApply);
+				setValue(updater, forceApply);
 				setLocalValue((oldLocalState) => {
 					return {
-						revision: oldLocalState.revision + (incrementRevision ? 1 : 0),
+						revision: oldLocalState.revision + 1,
 						value: newValue,
 						zodValidation: safeParse,
 					};
@@ -48,7 +44,7 @@ export const useLocalState = <T>({
 			} else {
 				setLocalValue((oldLocalState) => {
 					return {
-						revision: oldLocalState.revision + (incrementRevision ? 1 : 0),
+						revision: oldLocalState.revision + 1,
 						value: newValue,
 						zodValidation: safeParse,
 					};

@@ -22,7 +22,6 @@ import {ZodUnionEditor} from './ZodUnionEditor';
 
 export type UpdaterFunction<T> = (
 	updater: (oldValue: T) => T,
-	incrementRevision: boolean,
 	forceApply: boolean
 ) => void;
 
