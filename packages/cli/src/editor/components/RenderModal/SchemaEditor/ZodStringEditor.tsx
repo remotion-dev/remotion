@@ -1,18 +1,14 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback} from 'react';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
+import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
-
-type LocalState = {
-	value: string;
-	zodValidation: z.SafeParseReturnType<unknown, unknown>;
-};
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -46,38 +42,22 @@ export const ZodStringEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const [localValue, setLocalValue] = useState<LocalState>(() => {
-		return {
-			value,
-			zodValidation: schema.safeParse(value),
-		};
+	const {localValue, onChange: setLocalValue} = useLocalState({
+		schema,
+		setValue,
+		value,
 	});
-
-	const onValueChange = useCallback(
-		(newValue: string, forceApply: boolean) => {
-			const safeParse = schema.safeParse(newValue);
-			const newLocalState: LocalState = {
-				value: newValue,
-				zodValidation: safeParse,
-			};
-			setLocalValue(newLocalState);
-			if (safeParse.success || forceApply) {
-				setValue(() => newValue, false, forceApply);
-			}
-		},
-		[schema, setValue]
-	);
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			onValueChange(e.target.value, false);
+			setLocalValue(() => e.target.value, false, false);
 		},
-		[onValueChange]
+		[setLocalValue]
 	);
 
 	const reset = useCallback(() => {
-		onValueChange(defaultValue, true);
-	}, [defaultValue, onValueChange]);
+		setLocalValue(() => defaultValue, false, true);
+	}, [defaultValue, setLocalValue]);
 
 	const save = useCallback(() => {
 		onSave(() => value, false, false);

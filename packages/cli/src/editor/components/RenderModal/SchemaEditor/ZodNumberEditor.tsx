@@ -1,17 +1,13 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback} from 'react';
 import type {z} from 'zod';
 import {Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
+import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
-
-type LocalState = {
-	value: string;
-	zodValidation: z.SafeParseReturnType<unknown, unknown>;
-};
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -94,55 +90,31 @@ export const ZodNumberEditor: React.FC<{
 	showSaveButton,
 	saving,
 }) => {
-	const [localValue, setLocalValue] = useState<LocalState>(() => {
-		return {
-			value: String(value),
-			zodValidation: schema.safeParse(value),
-		};
+	const {localValue, onChange: setLocalValue} = useLocalState({
+		value,
+		schema,
+		setValue,
 	});
-
-	const onChange = useCallback(
-		(newValue: string) => {
-			const safeParse = schema.safeParse(Number(newValue));
-			const newLocalState: LocalState = {
-				value: newValue,
-				zodValidation: safeParse,
-			};
-			setLocalValue(newLocalState);
-			if (safeParse.success) {
-				setValue(() => Number(newValue), false, false);
-			}
-		},
-		[schema, setValue]
-	);
-
-	const onValueChange = useCallback(
-		(newValue: number, forceApply: boolean) => {
-			const safeParse = schema.safeParse(newValue);
-			const newLocalState: LocalState = {
-				value: String(newValue),
-				zodValidation: safeParse,
-			};
-			setLocalValue(newLocalState);
-			if (safeParse.success || forceApply) {
-				setValue(() => newValue, false, forceApply);
-			}
-		},
-		[schema, setValue]
-	);
 
 	const onNumberChange = useCallback(
 		(newValue: number) => {
-			onValueChange(newValue, false);
+			setLocalValue(() => newValue, false, false);
 		},
-		[onValueChange]
+		[setLocalValue]
 	);
 
 	const isDefault = value === defaultValue;
 
 	const reset = useCallback(() => {
-		onValueChange(defaultValue, true);
-	}, [defaultValue, onValueChange]);
+		setLocalValue(() => defaultValue, false, true);
+	}, [defaultValue, setLocalValue]);
+
+	const onTextChange = useCallback(
+		(newValue: string) => {
+			setLocalValue(() => Number(newValue), true, false);
+		},
+		[setLocalValue]
+	);
 
 	const save = useCallback(() => {
 		onSave(() => value, false, false);
@@ -167,7 +139,7 @@ export const ZodNumberEditor: React.FC<{
 					style={fullWidth}
 					status={localValue.zodValidation.success ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
-					onTextChange={onChange}
+					onTextChange={onTextChange}
 					onValueChange={onNumberChange}
 					min={getMinValue(schema)}
 					max={getMaxValue(schema)}
