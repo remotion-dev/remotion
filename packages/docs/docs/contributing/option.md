@@ -40,6 +40,14 @@ The option should be documented in the [API reference](/docs/api) and the [CLI r
 
 Note from which version the option is available.
 
+## Testing changes to the CLI
+
+Check out the [Running the CLI](/docs/contributing) section in the contributing docs.
+
+## Add CLI autocompletion
+
+In the `cli-autocomplete` package under `src/source.ts`, you can add new options. People who use [Fig](https://fig.io) will then be able to get accurate autocompletion for your feature.
+
 ## See also
 
 - [Implementing a new feature](/docs/contributing/feature)

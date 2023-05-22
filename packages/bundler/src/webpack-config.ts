@@ -5,6 +5,7 @@ import {Internals} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
 import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
+import {AllowOptionalDependenciesPlugin} from './optional-depdendencies';
 import {jsonStringifyWithCircularReferences} from './stringify-with-circular-references';
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
@@ -108,6 +109,7 @@ export const webpackConfig = ({
 							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
 								JSON.stringify(envVariables),
 						}),
+						new AllowOptionalDependenciesPlugin(),
 				  ]
 				: [
 						new ProgressPlugin((p) => {
@@ -115,10 +117,10 @@ export const webpackConfig = ({
 								onProgress(Number((p * 100).toFixed(2)));
 							}
 						}),
+						new AllowOptionalDependenciesPlugin(),
 				  ],
 		output: {
 			hashFunction: 'xxhash64',
-			globalObject: 'this',
 			filename: 'bundle.js',
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:

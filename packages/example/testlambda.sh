@@ -1,3 +1,4 @@
+set -e
 cd ..
 cd lambda
 npm run buildlambda

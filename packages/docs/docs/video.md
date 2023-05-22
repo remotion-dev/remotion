@@ -178,14 +178,18 @@ export const MyComposition = () => {
 };
 ```
 
-## `acceptableTimeShiftInSeconds` <AvailableFrom v="3.2.42" />
+### `acceptableTimeShiftInSeconds` <AvailableFrom v="3.2.42" />
 
 During [Preview](/docs/terminology#remotion-preview) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
-## `allowAmplificationDuringRender` <AvailableFrom v="3.3.17" />
+### `allowAmplificationDuringRender` <AvailableFrom v="3.3.17" />
 
 Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
 During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+
+### `onError`
+
+Handle an error playing the video. From v3.3.89, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
 
 ## Speed up renders for video with silent audio
 
