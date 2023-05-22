@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import type {z} from 'zod';
 import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
 import {
@@ -63,6 +63,9 @@ export const ZodArrayEditor: React.FC<{
 		};
 	});
 
+	const stateRef = useRef(localValue);
+	stateRef.current = localValue;
+
 	const def = schema._def as z.ZodArrayDef;
 
 	const z = useZodIfPossible();
@@ -93,23 +96,26 @@ export const ZodArrayEditor: React.FC<{
 
 	const onChange = useCallback(
 		(updater: (oldV: unknown[]) => unknown[], incrementRevision: boolean) => {
-			let applyToParent = false;
-			setLocalValue((oldLocalState) => {
-				const newValue = updater(oldLocalState.value);
-				const safeParse = schema.safeParse(newValue);
-				if (safeParse.success) {
-					applyToParent = true;
-				}
+			const newValue = updater(stateRef.current.value);
+			const safeParse = schema.safeParse(newValue);
 
-				return {
-					revision: oldLocalState.revision + (incrementRevision ? 1 : 0),
-					value: newValue,
-					zodValidation: safeParse,
-				};
-			});
-
-			if (applyToParent) {
+			if (safeParse.success) {
 				setValue(updater);
+				setLocalValue((oldLocalState) => {
+					return {
+						revision: oldLocalState.revision + (incrementRevision ? 1 : 0),
+						value: newValue,
+						zodValidation: safeParse,
+					};
+				});
+			} else {
+				setLocalValue((oldLocalState) => {
+					return {
+						revision: oldLocalState.revision + (incrementRevision ? 1 : 0),
+						value: newValue,
+						zodValidation: safeParse,
+					};
+				});
 			}
 		},
 		[schema, setValue]
@@ -134,8 +140,9 @@ export const ZodArrayEditor: React.FC<{
 	}, [defaultValue, onChange]);
 
 	const isDefaultValue = useMemo(() => {
-		return deepEqual(localValue.value, defaultValue);
-	}, [defaultValue, localValue.value]);
+		const equal = deepEqual(localValue.value, defaultValue);
+		return equal;
+	}, [defaultValue, localValue]);
 
 	return (
 		<div style={style}>
