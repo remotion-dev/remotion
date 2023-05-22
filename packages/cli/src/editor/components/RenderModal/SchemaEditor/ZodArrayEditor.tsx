@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef} from 'react';
 import type {z} from 'zod';
 import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
 import {
@@ -13,6 +13,7 @@ import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {optionRow} from '../layout';
 import {createZodValues} from './create-zod-values';
+import {useLocalState} from './local-state';
 import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
@@ -24,12 +25,6 @@ const container: React.CSSProperties = {
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
-};
-
-type LocalState = {
-	value: unknown[];
-	zodValidation: z.SafeParseReturnType<unknown, unknown>;
-	revision: number;
 };
 
 export const ZodArrayEditor: React.FC<{
@@ -55,12 +50,10 @@ export const ZodArrayEditor: React.FC<{
 	onRemove,
 	saving,
 }) => {
-	const [localValue, setLocalValue] = useState<LocalState>(() => {
-		return {
-			value,
-			zodValidation: schema.safeParse(value),
-			revision: 0,
-		};
+	const {localValue, onChange} = useLocalState({
+		value,
+		schema,
+		setValue,
 	});
 
 	const stateRef = useRef(localValue);
@@ -94,33 +87,6 @@ export const ZodArrayEditor: React.FC<{
 		};
 	}, [localValue.zodValidation.success]);
 
-	const onChange = useCallback(
-		(updater: (oldV: unknown[]) => unknown[], incrementRevision: boolean) => {
-			const newValue = updater(stateRef.current.value);
-			const safeParse = schema.safeParse(newValue);
-
-			if (safeParse.success) {
-				setValue(updater);
-				setLocalValue((oldLocalState) => {
-					return {
-						revision: oldLocalState.revision + (incrementRevision ? 1 : 0),
-						value: newValue,
-						zodValidation: safeParse,
-					};
-				});
-			} else {
-				setLocalValue((oldLocalState) => {
-					return {
-						revision: oldLocalState.revision + (incrementRevision ? 1 : 0),
-						value: newValue,
-						zodValidation: safeParse,
-					};
-				});
-			}
-		},
-		[schema, setValue]
-	);
-
 	const style = useMemo((): React.CSSProperties | undefined => {
 		if (isRoot) {
 			return undefined;
@@ -140,8 +106,7 @@ export const ZodArrayEditor: React.FC<{
 	}, [defaultValue, onChange]);
 
 	const isDefaultValue = useMemo(() => {
-		const equal = deepEqual(localValue.value, defaultValue);
-		return equal;
+		return deepEqual(localValue.value, defaultValue);
 	}, [defaultValue, localValue]);
 
 	return (

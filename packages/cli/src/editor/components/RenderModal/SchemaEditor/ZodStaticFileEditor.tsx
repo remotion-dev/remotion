@@ -72,7 +72,7 @@ export const ZodStaticFileEditor: React.FC<{
 				const newValue = updater(oldLocalState.value);
 				const safeParse = schema.safeParse(newValue);
 				if (safeParse.success || forceApply) {
-					updateValue(updater);
+					updateValue(updater, false);
 				}
 
 				return {

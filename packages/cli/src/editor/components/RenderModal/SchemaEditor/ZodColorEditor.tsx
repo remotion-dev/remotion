@@ -30,7 +30,7 @@ export const ZodColorEditor: React.FC<{
 	value: string;
 	defaultValue: string;
 	setValue: UpdaterFunction<string>;
-	onSave: (updater: (oldNum: unknown) => string) => void;
+	onSave: UpdaterFunction<string>;
 	onRemove: null | (() => void);
 	compact: boolean;
 	showSaveButton: boolean;
@@ -73,7 +73,7 @@ export const ZodColorEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success || forceApply) {
-				setValue(() => newValue);
+				setValue(() => newValue, false);
 			}
 		},
 		[schema, setValue]
@@ -97,7 +97,7 @@ export const ZodColorEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(() => newColor);
+				setValue(() => newColor, false);
 			}
 		},
 		[a, schema, setValue, zodTypes]
@@ -113,7 +113,7 @@ export const ZodColorEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(() => newValue);
+				setValue(() => newValue, false);
 			}
 		},
 		[schema, setValue]
@@ -124,7 +124,7 @@ export const ZodColorEditor: React.FC<{
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value);
+		onSave(() => value, false);
 	}, [onSave, value]);
 
 	const rgb = `#${r.toString(16).padStart(2, '0')}${g
@@ -155,7 +155,7 @@ export const ZodColorEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(() => newColor);
+				setValue(() => newColor, false);
 			}
 		},
 		[localValue.value, schema, setValue, zodTypes]
@@ -176,7 +176,7 @@ export const ZodColorEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(() => newColor);
+				setValue(() => newColor, false);
 			}
 		},
 		[localValue.value, schema, setValue, zodTypes]

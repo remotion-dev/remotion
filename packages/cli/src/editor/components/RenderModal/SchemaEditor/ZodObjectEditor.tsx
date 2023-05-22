@@ -5,6 +5,7 @@ import {useZodIfPossible} from '../../get-zod-if-possible';
 import {optionRow} from '../layout';
 import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
 
 const container: React.CSSProperties = {
@@ -26,13 +27,9 @@ export const ZodObjectEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: unknown;
 	defaultValue: unknown;
-	setValue: (
-		updater: (oldState: Record<string, unknown>) => Record<string, unknown>
-	) => void;
+	setValue: UpdaterFunction<Record<string, unknown>>;
 	compact: boolean;
-	onSave: (
-		updater: (oldVal: Record<string, unknown>) => Record<string, unknown>
-	) => void;
+	onSave: UpdaterFunction<Record<string, unknown>>;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
@@ -109,7 +106,7 @@ export const ZodObjectEditor: React.FC<{
 												[key]:
 													typeof val === 'function' ? val(oldVal[key]) : val,
 											};
-										});
+										}, false);
 									}}
 									onSave={(val) => {
 										onSave((oldVal) => {
@@ -118,7 +115,7 @@ export const ZodObjectEditor: React.FC<{
 												[key]:
 													typeof val === 'function' ? val(oldVal[key]) : val,
 											};
-										});
+										}, false);
 									}}
 									onRemove={null}
 									compact={compact}

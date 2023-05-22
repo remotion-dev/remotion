@@ -60,7 +60,7 @@ export const ZodDateEditor: React.FC<{
 	value: Date;
 	defaultValue: Date;
 	setValue: UpdaterFunction<Date>;
-	onSave: (updater: (oldNum: unknown) => Date) => void;
+	onSave: UpdaterFunction<Date>;
 	onRemove: null | (() => void);
 	compact: boolean;
 	showSaveButton: boolean;
@@ -93,7 +93,7 @@ export const ZodDateEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success || forceApply) {
-				setValue(() => newValue);
+				setValue(() => newValue, false);
 			}
 		},
 		[schema, setValue]
@@ -112,7 +112,7 @@ export const ZodDateEditor: React.FC<{
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value);
+		onSave(() => value, false);
 	}, [onSave, value]);
 
 	return (
