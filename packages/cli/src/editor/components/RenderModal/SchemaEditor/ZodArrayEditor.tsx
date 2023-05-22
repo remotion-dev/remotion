@@ -48,7 +48,7 @@ export const ZodArrayEditor: React.FC<{
 	schema,
 	jsonPath,
 	compact,
-	setValue: updateValue,
+	setValue,
 	defaultValue,
 	value,
 	onSave,
@@ -94,12 +94,12 @@ export const ZodArrayEditor: React.FC<{
 
 	const onChange = useCallback(
 		(updater: (oldV: unknown[]) => unknown[], incrementRevision: boolean) => {
+			let applyToParent = false;
 			setLocalValue((oldLocalState) => {
 				const newValue = updater(oldLocalState.value);
 				const safeParse = schema.safeParse(newValue);
-				// TODO: This logs an error to the console
 				if (safeParse.success) {
-					updateValue(updater);
+					applyToParent = true;
 				}
 
 				return {
@@ -108,8 +108,12 @@ export const ZodArrayEditor: React.FC<{
 					zodValidation: safeParse,
 				};
 			});
+
+			if (applyToParent) {
+				setValue(updater);
+			}
 		},
-		[schema, updateValue]
+		[schema, setValue]
 	);
 
 	const style = useMemo((): React.CSSProperties | undefined => {
