@@ -42,6 +42,14 @@ During Hacktoberfest (i.e., October), the Remotion team provides more guidance, 
 
 The rest of the year, there is less guidance provided when tackling a bounty issue. You are expected to have a basic idea how to solve the issue. Of course, questions can always arise, but there is less hand-holding than during Hacktoberfest.
 
+## Acceptance criteria
+
+Every bounty issue has a description of what is expected to be delivered. Everytime, the following is expected as well:
+
+- Documentation of new options or features
+- Green checks for tests and formatting
+- No `console.log` and commented out code remaining when you mark the PR as ready
+
 ## See also
 
 - [General information](/docs/contributing)
