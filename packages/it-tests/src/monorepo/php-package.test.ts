@@ -27,7 +27,7 @@ test("PHP package should create the same payload as normal Lambda package", asyn
   });
   console.log("show php output");
   console.log(phpOutput.toString());
-  const firstLine = phpOutput.toString().split("\n")[4];
+  const firstLine = phpOutput.toString().split("\n")[3];
 
   const nativeVersion = await LambdaInternals.makeLambdaPayload({
     region: "us-east-1",
