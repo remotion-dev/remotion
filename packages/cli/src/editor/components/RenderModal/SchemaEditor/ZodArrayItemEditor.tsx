@@ -30,7 +30,6 @@ export const ZodArrayItemEditor: React.FC<{
 	const onRemove = useCallback(() => {
 		onChange(
 			(oldV) => [...oldV.slice(0, index), ...oldV.slice(index + 1)],
-			true,
 			false
 		);
 	}, [index, onChange]);
@@ -43,7 +42,6 @@ export const ZodArrayItemEditor: React.FC<{
 					typeof val === 'function' ? val(oldV[index]) : val,
 					...oldV.slice(index + 1),
 				],
-				false,
 				false
 			);
 		},
@@ -60,7 +58,6 @@ export const ZodArrayItemEditor: React.FC<{
 					updater(oldV[index]),
 					...oldV.slice(index + 1),
 				],
-				false,
 				false
 			);
 		},

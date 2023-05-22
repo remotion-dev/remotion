@@ -81,7 +81,7 @@ export const ZodDateEditor: React.FC<{
 
 	const onValueChange = useCallback(
 		(newValue: Date, forceApply: boolean) => {
-			setLocalValue(() => newValue, false, forceApply);
+			setLocalValue(() => newValue, forceApply);
 		},
 		[setLocalValue]
 	);
@@ -99,7 +99,7 @@ export const ZodDateEditor: React.FC<{
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false, false);
+		onSave(() => value, false);
 	}, [onSave, value]);
 
 	return (

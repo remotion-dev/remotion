@@ -94,7 +94,7 @@ export const ZodOrNullishEditor: React.FC<{
 					zodValidation: schema.safeParse(newValue),
 				};
 			});
-			setValue(updater, false, false);
+			setValue(updater, false);
 		},
 		[nullishValue, schema, setValue]
 	);
@@ -115,7 +115,7 @@ export const ZodOrNullishEditor: React.FC<{
 					});
 				}
 
-				onValueChange(() => val, false, false);
+				onValueChange(() => val, false);
 			},
 			[
 				localNonNullishValueValue,
@@ -128,11 +128,11 @@ export const ZodOrNullishEditor: React.FC<{
 		);
 
 	const reset = useCallback(() => {
-		onValueChange(() => defaultValue, false, true);
+		onValueChange(() => defaultValue, true);
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false, false);
+		onSave(() => value, false);
 	}, [onSave, value]);
 
 	return (

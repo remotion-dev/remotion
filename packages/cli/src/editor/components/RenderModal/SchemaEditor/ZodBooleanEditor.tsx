@@ -32,7 +32,7 @@ export const ZodBooleanEditor: React.FC<{
 }) => {
 	const onValueChange = useCallback(
 		(newValue: boolean, forceApply: boolean) => {
-			setValue(() => newValue, false, forceApply);
+			setValue(() => newValue, forceApply);
 		},
 		[setValue]
 	);
@@ -49,7 +49,7 @@ export const ZodBooleanEditor: React.FC<{
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false, false);
+		onSave(() => value, false);
 	}, [onSave, value]);
 
 	return (

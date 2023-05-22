@@ -61,7 +61,7 @@ export const ZodStaticFileEditor: React.FC<{
 	const isRoot = jsonPath.length === 0;
 
 	const reset = useCallback(() => {
-		setLocalValue(() => defaultValue, false, true);
+		setLocalValue(() => defaultValue, true);
 	}, [defaultValue, setLocalValue]);
 
 	const comboBoxValues = useMemo(() => {
@@ -73,7 +73,7 @@ export const ZodStaticFileEditor: React.FC<{
 				keyHint: null,
 				leftItem: option.src === value ? <Checkmark /> : null,
 				onClick: (id: string) => {
-					setLocalValue(() => id, false, false);
+					setLocalValue(() => id, false);
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,
