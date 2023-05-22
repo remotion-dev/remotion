@@ -1,4 +1,4 @@
-import type {AnyComposition} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import {TIMELINE_PADDING} from './timeline-layout';
 
 export const SEQUENCE_BORDER_WIDTH = 1;
@@ -37,7 +37,7 @@ export const getTimelineSequenceLayout = ({
 	startFrom: number;
 	startFromMedia: number;
 	maxMediaDuration: number | null;
-	video: AnyComposition;
+	video: VideoConfig;
 	windowWidth: number;
 }) => {
 	const maxMediaSequenceDuration =

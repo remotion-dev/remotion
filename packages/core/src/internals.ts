@@ -32,6 +32,7 @@ import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
+import {resolveVideoConfig} from './resolve-video-config.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
 	ENV_VARIABLES_ENV_NAME,
@@ -118,6 +119,7 @@ export const Internals = {
 	usePreload,
 	processColor,
 	NonceContext,
+	resolveVideoConfig,
 };
 
 export type {
