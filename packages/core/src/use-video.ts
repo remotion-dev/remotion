@@ -1,27 +1,36 @@
+import type {ComponentType, LazyExoticComponent} from 'react';
 import {useContext, useMemo} from 'react';
 import {CompositionManager} from './CompositionManager.js';
+import type {VideoConfig} from './video-config.js';
 
-export const useVideo = () => {
+type ReturnType =
+	| (VideoConfig & {
+			component: LazyExoticComponent<ComponentType<unknown>>;
+	  })
+	| null;
+
+export const useVideo = (): ReturnType => {
 	const context = useContext(CompositionManager);
 
-	return useMemo(() => {
-		const selected = context.compositions.find((c) => {
-			return c.id === context.currentComposition;
-		});
+	const selected = context.compositions.find((c) => {
+		return c.id === context.currentComposition;
+	});
 
-		if (selected) {
+	return useMemo((): ReturnType => {
+		const {resolved} = context;
+
+		if (resolved && selected) {
 			return {
-				...selected,
+				...resolved,
+				defaultProps: selected.defaultProps,
+				id: selected.id,
 				// We override the selected metadata with the metadata that was passed to renderMedia(),
 				// and don't allow it to be changed during render anymore
 				...(context.currentCompositionMetadata ?? {}),
+				component: selected.component,
 			};
 		}
 
 		return null;
-	}, [
-		context.compositions,
-		context.currentComposition,
-		context.currentCompositionMetadata,
-	]);
+	}, [context, selected]);
 };

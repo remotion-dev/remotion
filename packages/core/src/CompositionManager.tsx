@@ -2,6 +2,7 @@ import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {
 	createContext,
 	useCallback,
+	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
@@ -10,8 +11,11 @@ import React, {
 } from 'react';
 import type {z} from 'zod';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
+import type {CalculateMetadataFunction} from './Composition.js';
 import type {TFolder} from './Folder.js';
 import type {PropsIfHasProps} from './props-if-has-props.js';
+import {resolveVideoConfig} from './use-unsafe-video-config.js';
+import type {VideoConfig} from './video-config.js';
 
 export type TComposition<Schema extends z.ZodTypeAny, Props> = {
 	width: number;
@@ -24,6 +28,7 @@ export type TComposition<Schema extends z.ZodTypeAny, Props> = {
 	component: LazyExoticComponent<ComponentType<Props>>;
 	nonce: number;
 	schema: Schema | null;
+	calculateMetadata: CalculateMetadataFunction | null;
 } & PropsIfHasProps<Schema, Props>;
 
 export type AnyComposition = TComposition<z.ZodTypeAny, unknown>;
@@ -121,6 +126,7 @@ export type CompositionManagerContext = {
 	sequences: TSequence[];
 	assets: TAsset[];
 	folders: TFolder[];
+	resolved: TCompMetadata<z.ZodTypeAny, unknown> | null;
 };
 
 export const CompositionManager = createContext<CompositionManagerContext>({
@@ -140,6 +146,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	assets: [],
 	folders: [],
 	currentCompositionMetadata: null,
+	resolved: null,
 });
 
 export const compositionsRef = React.createRef<{
@@ -266,6 +273,37 @@ export const CompositionManagerProvider: React.FC<{
 		[]
 	);
 
+	const composition = compositions.find((c) => c.id === currentComposition);
+
+	const [resolvedConfigs, setResolvedConfigs] = useState<
+		Record<string, VideoConfig>
+	>({});
+
+	useEffect(() => {
+		const comp = compositions.find((c) => c.id === currentComposition);
+		if (comp) {
+			resolveVideoConfig(comp).then((c) => {
+				setResolvedConfigs((r) => ({
+					...r,
+					[comp.id]: c,
+				}));
+			});
+		}
+	}, [compositions, currentComposition]);
+
+	const resolved = useMemo(() => {
+		if (!composition) {
+			return null;
+		}
+
+		// TODO: Might be out of date
+		if (!resolvedConfigs[composition.id]) {
+			return null;
+		}
+
+		return resolvedConfigs[composition.id] as VideoConfig;
+	}, [composition, resolvedConfigs]);
+
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
 			compositions,
@@ -284,6 +322,7 @@ export const CompositionManagerProvider: React.FC<{
 			unregisterFolder,
 			currentCompositionMetadata,
 			setCurrentCompositionMetadata,
+			resolved,
 		};
 	}, [
 		compositions,
@@ -300,17 +339,14 @@ export const CompositionManagerProvider: React.FC<{
 		registerFolder,
 		unregisterFolder,
 		currentCompositionMetadata,
+		resolved,
 	]);
-
-	const composition = compositions.find(
-		(c) => c.id === currentComposition
-	)?.component;
 
 	return (
 		<CompositionManager.Provider value={contextValue}>
 			<SharedAudioContextProvider
 				numberOfAudioTags={numberOfAudioTags}
-				component={composition ?? null}
+				component={composition?.component ?? null}
 			>
 				{children}
 			</SharedAudioContextProvider>
