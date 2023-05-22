@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
 import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
 import {
@@ -13,6 +13,7 @@ import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {optionRow} from '../layout';
 import {createZodValues} from './create-zod-values';
+import {useLocalState} from './local-state';
 import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
@@ -26,13 +27,6 @@ const fullWidth: React.CSSProperties = {
 	width: '100%',
 };
 
-type LocalState = {
-	value: unknown[];
-	zodValidation: z.SafeParseReturnType<unknown, unknown>;
-	revision: number;
-};
-
-// TODO: Ability to revert a change (e.g entry deletion )
 export const ZodArrayEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
@@ -56,12 +50,10 @@ export const ZodArrayEditor: React.FC<{
 	onRemove,
 	saving,
 }) => {
-	const [localValue, setLocalValue] = useState<LocalState>(() => {
-		return {
-			value,
-			zodValidation: schema.safeParse(value),
-			revision: 0,
-		};
+	const {localValue, onChange} = useLocalState({
+		value,
+		schema,
+		setValue,
 	});
 
 	const def = schema._def as z.ZodArrayDef;
@@ -92,30 +84,6 @@ export const ZodArrayEditor: React.FC<{
 		};
 	}, [localValue.zodValidation.success]);
 
-	const onChange = useCallback(
-		(updater: (oldV: unknown[]) => unknown[], incrementRevision: boolean) => {
-			let applyToParent = false;
-			setLocalValue((oldLocalState) => {
-				const newValue = updater(oldLocalState.value);
-				const safeParse = schema.safeParse(newValue);
-				if (safeParse.success) {
-					applyToParent = true;
-				}
-
-				return {
-					revision: oldLocalState.revision + (incrementRevision ? 1 : 0),
-					value: newValue,
-					zodValidation: safeParse,
-				};
-			});
-
-			if (applyToParent) {
-				setValue(updater);
-			}
-		},
-		[schema, setValue]
-	);
-
 	const style = useMemo((): React.CSSProperties | undefined => {
 		if (isRoot) {
 			return undefined;
@@ -127,15 +95,28 @@ export const ZodArrayEditor: React.FC<{
 	const onAdd = useCallback(() => {
 		onChange((oldV) => {
 			return [...oldV, createZodValues(def.type, z, zodTypes)];
-		}, true);
+		}, false);
 	}, [def.type, onChange, z, zodTypes]);
+
+	const reset = useCallback(() => {
+		onChange(() => defaultValue, true);
+	}, [defaultValue, onChange]);
+
+	const isDefaultValue = useMemo(() => {
+		return deepEqual(localValue.value, defaultValue);
+	}, [defaultValue, localValue]);
 
 	return (
 		<div style={style}>
 			<div style={fullWidth}>
 				<Element style={fieldset}>
 					{isRoot ? null : (
-						<SchemaFieldsetLabel jsonPath={jsonPath} onRemove={onRemove} />
+						<SchemaFieldsetLabel
+							onReset={reset}
+							isDefaultValue={isDefaultValue}
+							jsonPath={jsonPath}
+							onRemove={onRemove}
+						/>
 					)}
 					<div style={isRoot ? undefined : container}>
 						{localValue.value.map((child, i) => {
@@ -174,3 +155,34 @@ export const ZodArrayEditor: React.FC<{
 		</div>
 	);
 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function deepEqual(a: any, b: any): boolean {
+	if (a === b) {
+		return true;
+	}
+
+	if (
+		typeof a !== 'object' ||
+		a === null ||
+		typeof b !== 'object' ||
+		b === null
+	) {
+		return false;
+	}
+
+	const keysA = Object.keys(a);
+	const keysB = Object.keys(b);
+
+	if (keysA.length !== keysB.length) {
+		return false;
+	}
+
+	for (const key of keysA) {
+		if (!keysB.includes(key) || !deepEqual(a[key], b[key])) {
+			return false;
+		}
+	}
+
+	return true;
+}
