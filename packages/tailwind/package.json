@@ -1,0 +1,63 @@
+{
+	"name": "@remotion/tailwind",
+	"version": "3.3.94",
+	"description": "Utilities for using tailwind css in Remotion",
+	"main": "dist/cjs/index.js",
+	"types": "dist/cjs/index.d.ts",
+	"module": "dist/esm/index.mjs",
+	"sideEffects": false,
+	"scripts": {
+		"lint": "eslint src --ext ts,tsx",
+		"watch": "tsc -w",
+		"build": "rollup --config rollup.config.js && tsc -d"
+	},
+	"author": "Jonny Burger <jonny@remotion.dev>",
+	"contributors": [],
+	"license": "MIT",
+	"repository": {
+		"url": "https://github.com/remotion-dev/remotion"
+	},
+	"bugs": {
+		"url": "https://github.com/remotion-dev/remotion/issues"
+	},
+	"dependencies": {
+		"autoprefixer": "^10.4.14",
+		"css-loader": "5.2.7",
+		"postcss": "^8.4.21",
+		"postcss-loader": "^7.3.0",
+		"postcss-preset-env": "^8.3.2",
+		"style-loader": "2.0.0",
+		"tailwindcss": "^3.3.2"
+	},
+	"peerDependencies": {
+		"@remotion/bundler": "workspace:*"
+	},
+	"devDependencies": {
+		"@jonny/eslint-config": "3.0.266",
+		"@remotion/bundler": "workspace:*",
+		"@rollup/plugin-typescript": "^8.2.0",
+		"@types/node": "^16.7.5",
+		"autoprefixer": "^10.4.14",
+		"eslint": "8.25.0",
+		"prettier": "^2.7.1",
+		"prettier-plugin-organize-imports": "^2.3.4",
+		"rollup": "^2.70.1",
+		"typescript": "^4.7.0"
+	},
+	"keywords": [
+		"remotion",
+		"tailwind"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/cjs/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/cjs/index.js"
+		}
+	}
+}
