@@ -20,5 +20,6 @@ export const listOfRemotionPackages = [
 	'@remotion/rive',
 	'@remotion/gif',
 	'@remotion/shapes',
+	'@remotion/tailwind',
 	'remotion',
 ];
