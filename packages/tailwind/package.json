@@ -59,6 +59,12 @@
 			"module": "./dist/esm/index.mjs",
 			"import": "./dist/esm/index.mjs",
 			"require": "./dist/cjs/index.js"
+		},
+		"./enable": {
+			"types": "./dist/cjs/enable.d.ts",
+			"module": "./dist/esm/enable.mjs",
+			"import": "./dist/esm/enable.mjs",
+			"require": "./dist/cjs/enable.js"
 		}
 	}
 }
