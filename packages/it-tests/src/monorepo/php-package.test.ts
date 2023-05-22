@@ -52,13 +52,14 @@ test("PHP package should create the same payload as normal Lambda package", asyn
     codec: "h264",
   });
 
-  const raw = toParse.substring(
-    toParse.lastIndexOf("(100%)"),
+  const startMarker = "(100%)";
+  const jsonOutput = toParse.substring(
+    toParse.lastIndexOf(startMarker) + startMarker.length,
     toParse.lastIndexOf("}") + 1
   );
-  console.log("show php output raw");
-  console.log(raw);
-  const parsedJson = JSON.parse(raw);
+  console.log("The element to parse");
+  console.log(jsonOutput);
+  const parsedJson = JSON.parse(jsonOutput);
 
   expect(JSON.stringify(parsedJson, null, 3)).toEqual(
     JSON.stringify(nativeVersion, null, 3)
