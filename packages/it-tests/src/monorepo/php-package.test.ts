@@ -52,7 +52,10 @@ test("PHP package should create the same payload as normal Lambda package", asyn
     codec: "h264",
   });
 
-  const raw = toParse.substring(0, toParse.lastIndexOf("}") + 1);
+  const raw = toParse.substring(
+    toParse.lastIndexOf("(100%)"),
+    toParse.lastIndexOf("}") + 1
+  );
   console.log("show php output raw");
   console.log(raw);
   const parsedJson = JSON.parse(raw);
