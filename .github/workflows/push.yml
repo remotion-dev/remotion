@@ -20,7 +20,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
-          tools: phpunit:10.1
+          tools: phpunit
       - run: |
           corepack enable
       - uses: Iamshankhadeep/setup-ffmpeg@v1.2
