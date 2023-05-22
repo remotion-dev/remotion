@@ -138,6 +138,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		audioCodec,
 		outputBucket,
 		updateRenderProgress,
+		logLevel: ConfigInternals.Logging.getLogLevel(),
 	});
 	renderProgress.doneIn = Date.now() - renderStart;
 	updateProgress();

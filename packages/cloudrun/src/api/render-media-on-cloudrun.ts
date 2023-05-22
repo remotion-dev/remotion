@@ -1,4 +1,4 @@
-import type {ChromiumOptions, FrameRange} from '@remotion/renderer';
+import type {ChromiumOptions, FrameRange, LogLevel} from '@remotion/renderer';
 import type {
 	CloudRunPayloadType,
 	RenderMediaOnCloudrunOutput,
@@ -54,6 +54,7 @@ export type RenderMediaOnCloudrunInput = {
 	muted?: boolean;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
+	logLevel?: LogLevel;
 };
 
 /**
@@ -101,6 +102,7 @@ export const renderMediaOnCloudrun = async ({
 	muted,
 	forceWidth,
 	forceHeight,
+	logLevel,
 }: RenderMediaOnCloudrunInput): Promise<RenderMediaOnCloudrunOutput> => {
 	const actualCodec = validateCloudrunCodec(codec);
 	validateServeUrl(serveUrl);
@@ -138,6 +140,7 @@ export const renderMediaOnCloudrun = async ({
 		forceWidth,
 		forceHeight,
 		type: 'media',
+		logLevel: logLevel ?? 'info',
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);

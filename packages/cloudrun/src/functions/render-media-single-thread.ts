@@ -60,6 +60,7 @@ export const renderMediaSingleThread = async (
 		envVariables: body.envVariables,
 		chromiumOptions: body.chromiumOptions,
 		muted: body.muted,
+		verbose: RenderInternals.isEqualOrBelowLogLevel(body.logLevel, 'verbose'),
 	});
 
 	const storage = new Storage();
