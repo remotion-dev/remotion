@@ -5,35 +5,37 @@ import type {WebpackOverrideFn} from '@remotion/bundler';
  * @see [Documentation](https://www.remotion.dev/docs/tailwind/enable-tailwind)
  */
 export const enableTailwind: WebpackOverrideFn = (currentConfiguration) => {
-  return {
-    ...currentConfiguration,
-    module: {
-      ...currentConfiguration.module,
-      rules: [
-        ...(currentConfiguration.module?.rules
-          ? currentConfiguration.module.rules
-          : []
-        ).filter((rule) => rule !== "..." && !rule.test?.toString().includes(".css")),
-        {
-          test: /\.css$/i,
-          use: [
-            "style-loader",
-            "css-loader",
-            {
-              loader: "postcss-loader",
-              options: {
-                postcssOptions: {
-                  plugins: [
-                    "postcss-preset-env",
-                    "tailwindcss",
-                    "autoprefixer",
-                  ],
-                },
-              },
-            },
-          ],
-        },
-      ],
-    },
-  };
+	return {
+		...currentConfiguration,
+		module: {
+			...currentConfiguration.module,
+			rules: [
+				...(currentConfiguration.module?.rules
+					? currentConfiguration.module.rules
+					: []
+				).filter(
+					(rule) => rule !== '...' && !rule.test?.toString().includes('.css')
+				),
+				{
+					test: /\.css$/i,
+					use: [
+						require.resolve('style-loader'),
+						require.resolve('css-loader'),
+						{
+							loader: require.resolve('postcss-loader'),
+							options: {
+								postcssOptions: {
+									plugins: [
+										require.resolve('postcss-preset-env'),
+										require.resolve('tailwindcss'),
+										require.resolve('autoprefixer'),
+									],
+								},
+							},
+						},
+					],
+				},
+			],
+		},
+	};
 };
