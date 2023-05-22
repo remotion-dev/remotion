@@ -16,8 +16,11 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - uses: php-actions/composer@v6
-      - uses: php-actions/phpunit@v3
+      - name: Setup PHP with PHPUnit
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          tools: phpunit
       - run: |
           corepack enable
       - uses: Iamshankhadeep/setup-ffmpeg@v1.2
