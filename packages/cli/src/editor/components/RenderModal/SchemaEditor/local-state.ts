@@ -35,19 +35,27 @@ export const useLocalState = <T>({
 			if (safeParse.success || forceApply) {
 				setValue(updater, forceApply);
 				setLocalValue((oldLocalState) => {
-					return {
+					const newState = {
 						revision: oldLocalState.revision + 1,
 						value: newValue,
 						zodValidation: safeParse,
 					};
+
+					stateRef.current = newState;
+
+					return newState;
 				});
 			} else {
 				setLocalValue((oldLocalState) => {
-					return {
+					const newState = {
 						revision: oldLocalState.revision + 1,
 						value: newValue,
 						zodValidation: safeParse,
 					};
+
+					stateRef.current = newState;
+
+					return newState;
 				});
 			}
 		},
