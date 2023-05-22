@@ -172,7 +172,7 @@ See the [`<Series />`](/docs/series) helper component, which helps you calculate
 
 ## Adding a ref
 
-You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to an `<Sequence>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to an `<Sequence>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
 
 ```tsx twoslash
 import { useRef } from "react";

@@ -29,7 +29,7 @@ export const MyComposition = () => {
 // - MyComposition
 ```
 
-The fundamental idea of Remotion is to give you a frame number and a blank canvas, to which you can render anything you want using [React](https://react.dev). This is an example React component that renders the current frame as text:
+The idea of Remotion is to give you a frame number and a blank canvas, to which you can render anything you want using [React](https://react.dev). This is an example React component that renders the current frame as text:
 
 ```tsx twoslash title="MyComposition.tsx"
 // @include: example-MyComposition
