@@ -99,23 +99,31 @@ export const ZodObjectEditor: React.FC<{
 									defaultValue={
 										((defaultValue as Record<string, string>) ?? value)[key]
 									}
-									setValue={(val) => {
-										setValue((oldVal) => {
-											return {
-												...oldVal,
-												[key]:
-													typeof val === 'function' ? val(oldVal[key]) : val,
-											};
-										}, false);
+									setValue={(val, inc, forceApply) => {
+										setValue(
+											(oldVal) => {
+												return {
+													...oldVal,
+													[key]:
+														typeof val === 'function' ? val(oldVal[key]) : val,
+												};
+											},
+											inc,
+											forceApply
+										);
 									}}
-									onSave={(val) => {
-										onSave((oldVal) => {
-											return {
-												...oldVal,
-												[key]:
-													typeof val === 'function' ? val(oldVal[key]) : val,
-											};
-										}, false);
+									onSave={(val, inc, forceApply) => {
+										onSave(
+											(oldVal) => {
+												return {
+													...oldVal,
+													[key]:
+														typeof val === 'function' ? val(oldVal[key]) : val,
+												};
+											},
+											inc,
+											forceApply
+										);
 									}}
 									onRemove={null}
 									compact={compact}

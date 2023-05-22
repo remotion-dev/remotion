@@ -31,25 +31,25 @@ export const ZodBooleanEditor: React.FC<{
 	saving,
 }) => {
 	const onValueChange = useCallback(
-		(newValue: boolean) => {
-			setValue(() => newValue, false);
+		(newValue: boolean, forceApply: boolean) => {
+			setValue(() => newValue, false, forceApply);
 		},
 		[setValue]
 	);
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			onValueChange(e.target.checked);
+			onValueChange(e.target.checked, false);
 		},
 		[onValueChange]
 	);
 
 	const reset = useCallback(() => {
-		onValueChange(defaultValue);
+		onValueChange(defaultValue, true);
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (

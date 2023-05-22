@@ -22,7 +22,8 @@ import {ZodUnionEditor} from './ZodUnionEditor';
 
 export type UpdaterFunction<T> = (
 	updater: (oldValue: T) => T,
-	incrementRevision: boolean
+	incrementRevision: boolean,
+	forceApply: boolean
 ) => void;
 
 export const ZodSwitch: React.FC<{

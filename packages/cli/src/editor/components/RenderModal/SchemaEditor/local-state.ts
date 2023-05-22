@@ -28,12 +28,16 @@ export const useLocalState = <T>({
 	stateRef.current = localValue;
 
 	const onChange = useCallback(
-		(updater: (oldV: T) => T, incrementRevision: boolean) => {
+		(
+			updater: (oldV: T) => T,
+			incrementRevision: boolean,
+			forceApply: boolean
+		) => {
 			const newValue = updater(stateRef.current.value);
 			const safeParse = schema.safeParse(newValue);
 
-			if (safeParse.success) {
-				setValue(updater, incrementRevision);
+			if (safeParse.success || forceApply) {
+				setValue(updater, incrementRevision, forceApply);
 				setLocalValue((oldLocalState) => {
 					return {
 						revision: oldLocalState.revision + (incrementRevision ? 1 : 0),

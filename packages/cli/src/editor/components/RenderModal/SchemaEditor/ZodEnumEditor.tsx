@@ -71,7 +71,7 @@ export const ZodEnumEditor: React.FC<{
 				const newValue = updater(oldLocalState.value);
 				const safeParse = schema.safeParse(newValue);
 				if (safeParse.success || forceApply) {
-					updateValue(updater, false);
+					updateValue(updater, false, forceApply);
 				}
 
 				return {
@@ -106,7 +106,7 @@ export const ZodEnumEditor: React.FC<{
 	}, [def.values, onChange, value]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (
