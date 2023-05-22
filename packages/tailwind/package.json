@@ -30,7 +30,6 @@
 		"tailwindcss": "^3.3.2"
 	},
 	"peerDependencies": {
-		"remotion": "workspace:*",
 		"@remotion/bundler": "workspace:*"
 	},
 	"devDependencies": {

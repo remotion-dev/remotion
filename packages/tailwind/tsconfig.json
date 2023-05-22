@@ -9,7 +9,7 @@
 	"include": ["src"],
 	"references": [
 		{
-			"path": "../core"
+			"path": "../bundler"
 		}
 	]
 }
