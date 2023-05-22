@@ -47,6 +47,8 @@ yarn create video -- --tailwind
 
 ## Install in existing project
 
+_from v3.3.95, see [instructions for older versions](https://github.com/remotion-dev/remotion/blob/88a5d8d17f50d6ab2b8a408556118d15a3686343/packages/docs/docs/tailwind.md)_
+
 1. Install [`@remotion/tailwind`](/docs/tailwind/tailwind) package and TailwindCSS dependencies.
 
 <Tabs
@@ -60,7 +62,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
+npm i -D @remotion/tailwind
 ```
 
   </TabItem>
@@ -68,14 +70,14 @@ npm i -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcs
   <TabItem value="yarn">
 
 ```bash
-yarn add -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
+yarn add -D @remotion/tailwind
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
+pnpm i -D @remotion/tailwind
 ```
 
   </TabItem>
