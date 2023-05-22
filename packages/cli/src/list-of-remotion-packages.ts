@@ -21,5 +21,6 @@ export const listOfRemotionPackages = [
 	'@remotion/gif',
 	'@remotion/shapes',
 	'@remotion/zod-types',
+	'@remotion/tailwind',
 	'remotion',
 ];
