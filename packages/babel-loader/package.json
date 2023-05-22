@@ -4,6 +4,7 @@
 	"description": "babel-loader polyfill for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d"
@@ -28,7 +29,7 @@
 		"@webhotelier/webpack-fast-refresh": "5.1.0",
 		"babel-loader": "8.2.2",
 		"react-refresh": "0.9.0",
-		"webpack": "5.76.1"
+		"webpack": "5.83.1"
 	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",

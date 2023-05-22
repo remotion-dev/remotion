@@ -18,6 +18,7 @@
 		"dist"
 	],
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"build": "node build.mjs && rollup --config rollup.config.js && tsc -d",
 		"watch": "tsc -w"
@@ -48,7 +49,7 @@
 		"react-dom": "18.0.0",
 		"rollup": "^2.70.1",
 		"typescript": "^4.7.0",
-		"webpack": "5.76.1"
+		"webpack": "5.83.1"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",

@@ -8,6 +8,7 @@
 		"remotion": "remotion-cli.js"
 	},
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"build": "tsc -d",
@@ -72,7 +73,7 @@
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
 		"typescript": "^4.7.0",
-		"vitest": "0.24.3",
+		"vitest": "0.31.1",
 		"zod": "^3.21.4"
 	},
 	"keywords": [
