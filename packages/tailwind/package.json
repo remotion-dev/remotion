@@ -21,10 +21,6 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"remotion": "workspace:*"
-	},
-	"peerDependencies": {
-		"@remotion/bundler": "workspace:*",
 		"autoprefixer": "^10.4.14",
 		"css-loader": "5.2.7",
 		"postcss": "^8.4.21",
@@ -33,22 +29,20 @@
 		"style-loader": "2.0.0",
 		"tailwindcss": "^3.3.2"
 	},
+	"peerDependencies": {
+		"remotion": "workspace:*",
+		"@remotion/bundler": "workspace:*"
+	},
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
 		"@remotion/bundler": "workspace:*",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/node": "^16.7.5",
 		"autoprefixer": "^10.4.14",
-		"css-loader": "5.2.7",
 		"eslint": "8.25.0",
-		"postcss": "^8.4.21",
-		"postcss-loader": "^7.3.0",
-		"postcss-preset-env": "^8.3.2",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"rollup": "^2.70.1",
-		"style-loader": "2.0.0",
-		"tailwindcss": "^3.3.2",
 		"typescript": "^4.7.0"
 	},
 	"keywords": [
