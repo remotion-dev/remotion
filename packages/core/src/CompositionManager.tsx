@@ -14,7 +14,7 @@ import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {TFolder} from './Folder.js';
 import type {PropsIfHasProps} from './props-if-has-props.js';
-import {resolveVideoConfig} from './use-unsafe-video-config.js';
+import {resolveVideoConfig} from './resolve-video-config.js';
 import type {VideoConfig} from './video-config.js';
 
 export type TComposition<Schema extends z.ZodTypeAny, Props> = {
