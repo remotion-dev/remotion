@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useRef} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
 import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
 import {
@@ -55,9 +55,6 @@ export const ZodArrayEditor: React.FC<{
 		schema,
 		setValue,
 	});
-
-	const stateRef = useRef(localValue);
-	stateRef.current = localValue;
 
 	const def = schema._def as z.ZodArrayDef;
 
