@@ -11,7 +11,7 @@ export default [
 				sourcemap: false,
 			},
 		],
-		external: ['react', 'copy-webpack-plugin'],
+		external: ['react'],
 		plugins: [
 			typescript({
 				tsconfig: 'tsconfig-esm.json',
