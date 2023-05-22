@@ -78,7 +78,7 @@ export const ZodNumberEditor: React.FC<{
 	setValue: UpdaterFunction<number>;
 	compact: boolean;
 	defaultValue: number;
-	onSave: (updater: (oldNum: unknown) => number) => void;
+	onSave: UpdaterFunction<number>;
 	onRemove: null | (() => void);
 	showSaveButton: boolean;
 	saving: boolean;
@@ -110,7 +110,7 @@ export const ZodNumberEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(() => Number(newValue));
+				setValue(() => Number(newValue), false);
 			}
 		},
 		[schema, setValue]
@@ -125,7 +125,7 @@ export const ZodNumberEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success || forceApply) {
-				setValue(() => newValue);
+				setValue(() => newValue, false);
 			}
 		},
 		[schema, setValue]
@@ -145,7 +145,7 @@ export const ZodNumberEditor: React.FC<{
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value);
+		onSave(() => value, false);
 	}, [onSave, value]);
 
 	return (

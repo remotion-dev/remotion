@@ -1,20 +1,18 @@
 import {useCallback, useMemo} from 'react';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
 
 export const ZodArrayItemEditor: React.FC<{
 	jsonPath: JSONPath;
-	onChange: (
-		updater: (oldV: unknown[]) => unknown[],
-		incrementRevision: boolean
-	) => void;
+	onChange: UpdaterFunction<unknown[]>;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	def: any;
 	index: number;
 	value: unknown;
 	compact: boolean;
 	defaultValue: unknown;
-	onSave: (updater: (oldState: unknown[]) => unknown[]) => void;
+	onSave: UpdaterFunction<unknown[]>;
 	showSaveButton: boolean;
 	saving: boolean;
 }> = ({
@@ -54,11 +52,14 @@ export const ZodArrayItemEditor: React.FC<{
 
 	const onSave = useCallback(
 		(updater: (oldState: unknown) => unknown) => {
-			onSaveObject((oldV) => [
-				...oldV.slice(0, index),
-				updater(oldV[index]),
-				...oldV.slice(index + 1),
-			]);
+			onSaveObject(
+				(oldV) => [
+					...oldV.slice(0, index),
+					updater(oldV[index]),
+					...oldV.slice(index + 1),
+				],
+				false
+			);
 		},
 		[index, onSaveObject]
 	);

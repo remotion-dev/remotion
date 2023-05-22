@@ -4,6 +4,7 @@ import {useZodIfPossible} from '../../get-zod-if-possible';
 import type {JSONPath} from './zod-types';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
 import {ZodOrNullishEditor} from './ZodOrNullishEditor';
+import type {UpdaterFunction} from './ZodSwitch';
 const findNull = (
 	value: readonly [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]],
 	zodType: ZodType
@@ -43,8 +44,8 @@ export const ZodUnionEditor: React.FC<{
 	value: unknown;
 	defaultValue: unknown;
 	schema: z.ZodTypeAny;
-	setValue: (updater: (oldState: unknown) => unknown) => void;
-	onSave: (updater: (oldNum: unknown) => unknown) => void;
+	setValue: UpdaterFunction<unknown>;
+	onSave: UpdaterFunction<unknown>;
 	onRemove: null | (() => void);
 	saving: boolean;
 }> = ({
