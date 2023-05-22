@@ -23,8 +23,6 @@
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"@remotion/bundler": "workspace:*",
-		"@remotion/skia": "workspace:*",
-		"@remotion/tailwind": "workspace:*",
 		"@remotion/media-utils": "workspace:*",
 		"@remotion/player": "workspace:*",
 		"@remotion/renderer": "workspace:*",
