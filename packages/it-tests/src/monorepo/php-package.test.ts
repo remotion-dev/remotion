@@ -27,7 +27,22 @@ test("PHP package should create the same payload as normal Lambda package", asyn
   });
   console.log("show php output");
   console.log(phpOutput.toString());
-  const firstLine = phpOutput.toString().split("\n")[3];
+
+  const output = phpOutput.toString().split("\n");
+
+  console.log("first Line");
+  console.log(output[0]);
+  console.log("second Line");
+  console.log(output[1]);
+  console.log("third Line");
+  console.log(output[2]);
+  console.log("fourth Line");
+  console.log(output[3]);
+
+  console.log("whole output");
+  console.log(output);
+
+  const toParse = output[2];
 
   const nativeVersion = await LambdaInternals.makeLambdaPayload({
     region: "us-east-1",
@@ -37,7 +52,7 @@ test("PHP package should create the same payload as normal Lambda package", asyn
     codec: "h264",
   });
 
-  const raw = firstLine.substring(0, firstLine.lastIndexOf("}") + 1);
+  const raw = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   console.log("show php output raw");
   console.log(raw);
   const parsedJson = JSON.parse(raw);
