@@ -102,6 +102,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		forceWidth: width,
 		outputBucket,
 		outputFile: outName,
+		logLevel: ConfigInternals.Logging.getLogLevel(),
 	});
 	doneIn = Date.now() - renderStart;
 	updateProgress(true);

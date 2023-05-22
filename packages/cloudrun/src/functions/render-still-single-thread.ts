@@ -39,6 +39,7 @@ export const renderStillSingleThread = async (
 		envVariables: body.envVariables,
 		chromiumOptions: body.chromiumOptions,
 		frame: body.frame,
+		verbose: RenderInternals.isEqualOrBelowLogLevel(body.logLevel, 'verbose'),
 	});
 
 	const storage = new Storage();

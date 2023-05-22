@@ -14,6 +14,7 @@ const chromiumOptions = z.object({
 	headless: z.boolean().optional(),
 	userAgent: z.string().optional().nullable(),
 });
+const logLevel = z.enum(RenderInternals.logLevels);
 
 export const CloudRunPayload = z.discriminatedUnion('type', [
 	z.object({
@@ -42,6 +43,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		outputBucket: z.string(),
 		outputFile: z.string().optional(),
 		privacy: z.enum(['public', 'private']).optional(),
+		logLevel,
 	}),
 	z.object({
 		type: z.literal('still'),
@@ -59,6 +61,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		outputBucket: z.string(),
 		outputFile: z.string().optional(),
 		frame: z.number(),
+		logLevel,
 	}),
 ]);
 
