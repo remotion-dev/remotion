@@ -33,6 +33,20 @@ export type TComposition<Schema extends z.ZodTypeAny, Props> = {
 
 export type AnyComposition = TComposition<z.ZodTypeAny, unknown>;
 
+export type TCompMetadataWithCalcFunction<
+	Schema extends z.ZodTypeAny,
+	Props
+> = Pick<
+	TComposition<Schema, Props>,
+	| 'id'
+	| 'height'
+	| 'width'
+	| 'fps'
+	| 'durationInFrames'
+	| 'defaultProps'
+	| 'calculateMetadata'
+>;
+
 export type TCompMetadata<Schema extends z.ZodTypeAny, Props> = Pick<
 	TComposition<Schema, Props>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
@@ -150,7 +164,7 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 });
 
 export const compositionsRef = React.createRef<{
-	getCompositions: () => TCompMetadata<z.ZodTypeAny, unknown>[];
+	getCompositions: () => TCompMetadataWithCalcFunction<z.ZodTypeAny, unknown>[];
 }>();
 
 export const CompositionManagerProvider: React.FC<{
@@ -301,7 +315,10 @@ export const CompositionManagerProvider: React.FC<{
 			return null;
 		}
 
-		return resolvedConfigs[composition.id] as VideoConfig;
+		return resolvedConfigs[composition.id] as TCompMetadata<
+			z.ZodTypeAny,
+			unknown
+		>;
 	}, [composition, resolvedConfigs]);
 
 	const contextValue = useMemo((): CompositionManagerContext => {

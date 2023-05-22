@@ -1,6 +1,4 @@
-import type {AnyComposition} from 'remotion';
-
-export const isCompositionStill = (comp: AnyComposition | null) => {
+export const isCompositionStill = (comp: {durationInFrames: number} | null) => {
 	if (!comp) {
 		return false;
 	}

@@ -1,10 +1,11 @@
-import type {AnyComposition} from './CompositionManager.js';
+import type {ZodTypeAny} from 'zod';
+import type {TCompMetadataWithCalcFunction} from './CompositionManager.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import type {VideoConfig} from './video-config.js';
 
 export const resolveVideoConfig = async (
-	comp: AnyComposition
+	comp: TCompMetadataWithCalcFunction<ZodTypeAny, unknown>
 ): Promise<VideoConfig> => {
 	const calculated = comp.calculateMetadata
 		? await comp.calculateMetadata(comp.defaultProps)

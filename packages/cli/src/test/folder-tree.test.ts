@@ -36,6 +36,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 				width: 1080,
 				parentFolderName: null,
 				schema: any,
+				calculateMetadata: null,
 			},
 			{
 				component,
@@ -49,6 +50,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 				width: 1080,
 				parentFolderName: null,
 				schema: any,
+				calculateMetadata: null,
 			},
 		],
 		[
@@ -125,6 +127,7 @@ test('Should handle nested folders well', async () => {
 				width: 1080,
 				parentFolderName: 'my-third-folder/my-second-folder',
 				schema: any,
+				calculateMetadata: null,
 			},
 		],
 		[

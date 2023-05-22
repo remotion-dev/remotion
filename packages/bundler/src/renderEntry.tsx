@@ -273,7 +273,21 @@ if (typeof window !== 'undefined') {
 		});
 	};
 
-	window.siteVersion = '4';
+	window.calculateComposition = (compId: string) => {
+		if (!Internals.compositionsRef.current) {
+			throw new Error('Unexpectedly did not have a CompositionManager');
+		}
+
+		const compositions = Internals.compositionsRef.current.getCompositions();
+		const selectedComp = compositions.find((c) => c.id === compId);
+		if (!selectedComp) {
+			throw new Error(`Could not find composition with ID ${compId}`);
+		}
+
+		return Internals.resolveVideoConfig(selectedComp);
+	};
+
+	window.siteVersion = '5';
 	window.remotion_version = VERSION;
 	window.setBundleMode = setBundleModeAndUpdate;
 }
