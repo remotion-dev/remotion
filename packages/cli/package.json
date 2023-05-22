@@ -49,6 +49,7 @@
 		"@types/semver": "^7.3.4",
 		"@typescript-eslint/eslint-plugin": "5.18.0",
 		"@typescript-eslint/parser": "5.18.0",
+		"@remotion/tailwind": "workspace:*",
 		"eslint": "8.25.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.29.4",
