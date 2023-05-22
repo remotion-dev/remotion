@@ -1,7 +1,8 @@
 import type {CanvasProps} from '@shopify/react-native-skia';
 import {Canvas} from '@shopify/react-native-skia';
 import type {ReactNode} from 'react';
-import {useMemo} from 'react';
+import React, {useMemo} from 'react';
+import type {ViewProps} from 'react-native';
 import {Internals} from 'remotion';
 
 type RemotionCanvasProps = CanvasProps & {
@@ -23,18 +24,20 @@ export const SkiaCanvas = ({
 }: RemotionCanvasProps) => {
 	const contexts = Internals.useRemotionContexts();
 
+	const mergedStyles: React.CSSProperties = useMemo(() => {
+		return {
+			width,
+			height,
+			...((style as React.CSSProperties) ?? {}),
+		};
+	}, [height, style, width]);
+
 	const props: Omit<CanvasProps, 'children'> = useMemo(() => {
 		return {
-			style: [
-				{
-					width,
-					height,
-				},
-				style,
-			],
+			style: mergedStyles as ViewProps['style'],
 			...otherProps,
 		};
-	}, [height, otherProps, style, width]);
+	}, [mergedStyles, otherProps]);
 
 	return (
 		<Canvas {...props}>

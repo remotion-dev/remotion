@@ -63,7 +63,7 @@ Callback that gets called once the GIF has loaded and finished processing. As it
 
 Allows to pass in custom CSS styles.
 
-### `loopingBehavior` <AvailableFrom v="3.3.4" />
+### `loopBehavior` <AvailableFrom v="3.3.4" />
 
 The looping behavior of the GIF. Can be one of these values:
 
@@ -71,18 +71,25 @@ The looping behavior of the GIF. Can be one of these values:
 - `'pause-after-finish'`: The GIF will play once and then show the last frame.
 - `'unmount-after-finish'`: The GIF will play once and then unmount. Note that if you attach a `ref`, it will become `null` after the GIF has finished playing.
 
+### `ref` <AvailableFrom v="3.3.88" />
+
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to `<Gif>`. If you use TypeScript, you need to type it with `HTMLCanvasElement`.
+
 ## Example
 
 ```tsx twoslash
+import { useRef } from "react";
 import { useVideoConfig } from "remotion";
 // ---cut---
 import { Gif } from "@remotion/gif";
 
 export const MyComponent: React.FC = () => {
   const { width, height } = useVideoConfig();
+  const ref = useRef<HTMLCanvasElement>(null);
 
   return (
     <Gif
+      ref={ref}
       src="https://media.giphy.com/media/3o72F7YT6s0EMFI0Za/giphy.gif"
       width={width}
       height={height}

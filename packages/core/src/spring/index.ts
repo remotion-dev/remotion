@@ -10,6 +10,7 @@ import {springCalculation} from './spring-utils.js';
  * @see [Documentation](https://www.remotion.dev/docs/spring)
  * @param {number} frame The current time value. Most of the time you want to pass in the return value of useCurrentFrame.
  * @param {number} fps The framerate at which the animation runs. Pass in the value obtained by `useVideoConfig()`.
+ * @param {?boolean} reverse Whether the animation plays in reverse or not. Default `false`.
  * @param {?Object} config optional object that allows you to customize the physical properties of the animation.
  * @param {number} [config.mass=1] The weight of the spring. If you reduce the mass, the animation becomes faster!
  * @param {number} [config.damping=10] How hard the animation decelerates.
@@ -19,15 +20,18 @@ import {springCalculation} from './spring-utils.js';
  * @param {?number} [config.to] The end value of the animation. Default `1`
  * @param {?number} [config.durationInFrames] Stretch the duration of an animation to  a set value.. Default `undefined`
  * @param {?number} [config.durationThreshold] How close to the end the animation is considered to be done. Default `0.005`
+ * @param {?number} [config.delay] Delay the animation for this amount of frames. Default `0`
  */
 export function spring({
-	frame,
+	frame: passedFrame,
 	fps,
 	config = {},
 	from = 0,
 	to = 1,
-	durationInFrames,
+	durationInFrames: passedDurationInFrames,
 	durationRestThreshold,
+	delay = 0,
+	reverse = false,
 }: {
 	frame: number;
 	fps: number;
@@ -36,26 +40,53 @@ export function spring({
 	to?: number;
 	durationInFrames?: number;
 	durationRestThreshold?: number;
+	delay?: number;
+	reverse?: boolean;
 }): number {
-	validateSpringDuration(durationInFrames);
-	validateFrame({frame, durationInFrames: Infinity, allowFloats: true});
+	validateSpringDuration(passedDurationInFrames);
+	validateFrame({
+		frame: passedFrame,
+		durationInFrames: Infinity,
+		allowFloats: true,
+	});
 	validateFps(fps, 'to spring()', false);
 
-	const durationRatio =
-		durationInFrames === undefined
-			? 1
-			: durationInFrames /
-			  measureSpring({
-					fps,
-					config,
-					from,
-					to,
-					threshold: durationRestThreshold,
-			  });
+	const needsToCalculateNaturalDuration =
+		reverse || typeof passedDurationInFrames !== 'undefined';
+
+	const naturalDuration = needsToCalculateNaturalDuration
+		? measureSpring({
+				fps,
+				config,
+				from,
+				to,
+				threshold: durationRestThreshold,
+		  })
+		: undefined;
+
+	const naturalDurationGetter = needsToCalculateNaturalDuration
+		? {
+				get: () => naturalDuration as number,
+		  }
+		: {
+				get: () => {
+					throw new Error(
+						'did not calculate natural duration, this is an error with Remotion. Please report'
+					);
+				},
+		  };
+
+	const frame = reverse
+		? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame
+		: passedFrame;
 
 	const spr = springCalculation({
 		fps,
-		frame: frame / durationRatio,
+		frame:
+			(passedDurationInFrames === undefined
+				? frame
+				: frame / (passedDurationInFrames / naturalDurationGetter.get())) -
+			delay,
 		config,
 		from,
 		to,

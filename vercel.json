@@ -169,6 +169,11 @@
       "source": "/get-help",
       "destination": "https://www.remotion.dev/docs/get-help",
       "permanent": false
+    },
+    {
+      "source": "/native",
+      "destination": "https://remotion.dev/docs/react-native",
+      "permanent": false
     }
   ]
 }

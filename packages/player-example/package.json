@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player-example",
-	"version": "3.3.87",
+	"version": "3.3.94",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -22,6 +22,10 @@
 		"react-dom": "18.2.0",
 		"remotion": "workspace:*",
 		"typescript": "^4.7.0"
+	},
+	"devDependencies": {
+		"prettier": "^2.7.1",
+		"prettier-plugin-organize-imports": "^2.3.4"
 	},
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",

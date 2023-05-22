@@ -798,6 +798,13 @@ export const articles = [
     crumb: "Lambda API",
   },
   {
+    id: "lambda/go",
+    title: "Triggering renders from Go",
+    relativePath: "docs/lambda/go.md",
+    compId: "articles-docs-lambda-go",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "lambda/light-client",
     title: "Light client",
     relativePath: "docs/lambda/light-client.md",

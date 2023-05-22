@@ -456,6 +456,7 @@ module.exports = {
           ],
         },
         "lambda/php",
+        "lambda/go",
         "lambda/serverless-framework-integration",
         "lambda/sqs",
         "lambda/multiple-buckets",
@@ -528,6 +529,7 @@ module.exports = {
       href: "/docs/api",
       label: "API Reference",
     },
+    "react-native",
     "terminology",
     {
       type: "category",
