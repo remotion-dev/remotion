@@ -96,13 +96,17 @@ export const ZodArrayEditor: React.FC<{
 	}, [isRoot, paddingTop]);
 
 	const onAdd = useCallback(() => {
-		onChange((oldV) => {
-			return [...oldV, createZodValues(def.type, z, zodTypes)];
-		}, true);
+		onChange(
+			(oldV) => {
+				return [...oldV, createZodValues(def.type, z, zodTypes)];
+			},
+			true,
+			false
+		);
 	}, [def.type, onChange, z, zodTypes]);
 
 	const reset = useCallback(() => {
-		onChange(() => defaultValue, true);
+		onChange(() => defaultValue, true, true);
 	}, [defaultValue, onChange]);
 
 	const isDefaultValue = useMemo(() => {

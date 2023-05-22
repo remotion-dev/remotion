@@ -110,7 +110,7 @@ export const ZodNumberEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success) {
-				setValue(() => Number(newValue), false);
+				setValue(() => Number(newValue), false, false);
 			}
 		},
 		[schema, setValue]
@@ -125,7 +125,7 @@ export const ZodNumberEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success || forceApply) {
-				setValue(() => newValue, false);
+				setValue(() => newValue, false, forceApply);
 			}
 		},
 		[schema, setValue]
@@ -145,7 +145,7 @@ export const ZodNumberEditor: React.FC<{
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (

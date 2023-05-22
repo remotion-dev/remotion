@@ -62,7 +62,7 @@ export const ZodStringEditor: React.FC<{
 			};
 			setLocalValue(newLocalState);
 			if (safeParse.success || forceApply) {
-				setValue(() => newValue, false);
+				setValue(() => newValue, false, forceApply);
 			}
 		},
 		[schema, setValue]
@@ -80,7 +80,7 @@ export const ZodStringEditor: React.FC<{
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (
