@@ -138,6 +138,7 @@ importers:
       '@remotion/media-utils': workspace:*
       '@remotion/player': workspace:*
       '@remotion/renderer': workspace:*
+      '@remotion/tailwind': workspace:*
       '@types/minimist': ^1.2.2
       '@types/node': ^16.7.5
       '@types/prompts': ^2.4.1
@@ -179,6 +180,7 @@ importers:
       source-map: 0.6.1
     devDependencies:
       '@jonny/eslint-config': 3.0.266_t54va6jeo5lf3vtqih5uiyrm5e
+      '@remotion/tailwind': link:../tailwind
       '@types/minimist': 1.2.2
       '@types/node': 16.10.2
       '@types/prompts': 2.4.1
@@ -573,6 +575,7 @@ importers:
       '@remotion/rive': link:../rive
       '@remotion/shapes': link:../shapes
       '@remotion/skia': link:../skia
+      '@remotion/tailwind': link:../tailwind
       '@remotion/three': link:../three
       '@types/express': 4.17.13
       '@types/node': 16.10.2
@@ -594,7 +597,6 @@ importers:
       use-asset: 1.0.4_react@18.2.0
       vitest: 0.24.3
     devDependencies:
-      '@remotion/tailwind': link:../tailwind
       '@types/babel__core': 7.1.16
       '@types/babel__template': 7.4.1
       '@typescript-eslint/eslint-plugin': 5.18.0_sjor5xiixfpkviiagy75ykktdy
