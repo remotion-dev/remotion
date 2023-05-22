@@ -21,11 +21,9 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"dependencies": {
-		"copy-webpack-plugin": "11",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
-		"@remotion/bundler": "workspace:*",
 		"@shopify/react-native-skia": "^0.1.190",
 		"react": ">=16.8.0",
 		"react-dom": ">=16.8.0"

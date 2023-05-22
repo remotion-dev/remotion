@@ -37,7 +37,7 @@ export const SidebarRenderButton: React.FC<{
 	const {props} = useContext(Internals.EditorPropsContext);
 
 	const isVideo = composition.durationInFrames > 1;
-	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+	const onClick: React.MouseEventHandler<HTMLAnchorElement> = useCallback(
 		(e) => {
 			const defaults = window.remotion_renderDefaults;
 			if (!defaults) {
