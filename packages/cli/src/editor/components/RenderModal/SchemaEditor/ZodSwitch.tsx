@@ -65,8 +65,8 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodObjectEditor
 				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
-				value={value}
-				defaultValue={defaultValue}
+				value={value as Record<string, unknown>}
+				defaultValue={defaultValue as Record<string, unknown>}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
