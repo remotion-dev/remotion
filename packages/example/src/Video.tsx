@@ -824,6 +824,21 @@ export const Index: React.FC = () => {
 					durationInFrames={60}
 				/>
 			</Folder>
+			<Folder name="dynamic-parameters">
+				<Composition
+					id="dynamic-length"
+					component={Tailwind}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					calculateStuff={() => {
+						return Promise.resolve({
+							durationInFrames: Math.random() * 100,
+						});
+					}}
+				/>
+			</Folder>
 		</>
 	);
 };

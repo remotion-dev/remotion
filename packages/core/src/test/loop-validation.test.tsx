@@ -42,6 +42,7 @@ const Wrapper: React.FC<{
 								folderName: null,
 								parentFolderName: null,
 								schema: z.any(),
+								calculateMetadata: null,
 							},
 						],
 						currentComposition: 'markup',
