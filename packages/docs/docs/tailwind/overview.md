@@ -26,7 +26,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
+npm i -D @remotion/tailwind
 ```
 
   </TabItem>
@@ -34,7 +34,7 @@ npm i -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcs
   <TabItem value="yarn">
 
 ```bash
-yarn add -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
+yarn add -D @remotion/tailwind
 ```
 
   </TabItem>
@@ -42,7 +42,7 @@ yarn add -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwin
   <TabItem value="pnpm">
 
 ```bash
-pnpm i -D @remotion/tailwind postcss-loader postcss postcss-preset-env tailwindcss autoprefixer css-loader style-loader
+pnpm i -D @remotion/tailwind
 ```
 
   </TabItem>
@@ -64,10 +64,6 @@ Config.overrideWebpackConfig((currentConfiguration) => {
   return enableTailwind(currentConfiguration);
 });
 ```
-
-:::note
-Prior to `v3.3.39`, the option was called `Config.Bundling.overrideWebpackConfig()`.
-:::
 
 Then follow the remaining set up steps from the [TailwindCSS](/docs/tailwind) page.
 
