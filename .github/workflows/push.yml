@@ -22,16 +22,33 @@ jobs:
           go-version: "1.20"
       - run: |
           corepack enable
-      - name: Cache .pnpm-store
-        uses: actions/cache@v3.0.11
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
         with:
-          path: ~/.pnpm-store
-          key: v2-${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}
-
+          path: ${{ steps.pnpm-cache.outputs.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "packages/renderer -> target"
       - name: Install
         run: pnpm install --frozen-lockfile
-
-      - name: Build
+      - name: Build cache
+        uses: actions/cache@v3.0.11
+        with:
+          path: |
+            packages/*/dist
+            packages/*/.turbo
+            packages/*/tsconfig.tsbuildinfo
+            node_modules/.cache
+          key: ts-${{ runner.os }}-node16-v3
+      - name: build
         run: |
           pnpm build
       - name: Test Lambda IT
@@ -50,15 +67,32 @@ jobs:
           node-version: 16
       - run: |
           corepack enable
-      - name: Cache .pnpm-store
-        uses: actions/cache@v3.0.11
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
         with:
-          path: ~/.pnpm-store
-          key: ${{ runner.os }}-node${{ matrix.node-version }}-${{ hashFiles('**/pnpm-lock.yaml') }}-bust
-
+          path: ${{ steps.pnpm-cache.outputs.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
       - name: Install
         run: pnpm install --frozen-lockfile
-
+      - name: Build cache
+        uses: actions/cache@v3.0.11
+        with:
+          path: |
+            packages/*/dist
+            packages/*/.turbo
+            packages/*/tsconfig.tsbuildinfo
+            node_modules/.cache
+          key: ts-${{ runner.os }}-node16-v3
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "packages/renderer -> target"
       - name: build
         run: |
           pnpm build
@@ -66,6 +100,34 @@ jobs:
         timeout-minutes: 5
         run: |
           cd packages/it-tests && pnpm run testssr
+  lint:
+    runs-on: ubuntu-latest
+    name: Linting + Formatting
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: |
+          corepack enable
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
+        with:
+          path: ${{ steps.pnpm-cache.outputs.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Perform stylecheck
+        timeout-minutes: 5
+        run: |
+          pnpm run stylecheck
   build:
     name: Build Node ${{ matrix.node_version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -87,25 +149,38 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: |
           corepack enable
-      - name: Cache .pnpm-store
-        uses: actions/cache@v3.0.11
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "PNPM_STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+      - uses: actions/cache@v3
+        name: Setup pnpm cache
         with:
-          path: ~/.pnpm-store
-          key: v2-deps-${{ runner.os }}-node${{ matrix.node_version }}
+          path: ${{ steps.pnpm-cache.outputs.PNPM_STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
 
       - name: Cache node_modules/.cache
         uses: actions/cache@v3.0.11
         with:
           path: node_modules/.cache
-          key: v2-deps-${{ runner.os }}-node${{ matrix.node_version }}-v2
+          key: deps-${{ runner.os }}-node${{ matrix.node_version }}-v3
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: "packages/renderer -> target"
       - name: Install
         run: pnpm install --frozen-lockfile
-      - name: Cache dist/ folders
+      - name: Build cache
         uses: actions/cache@v3.0.11
-        if: runner.os != 'windows'
         with:
-          path: packages/**/dist
-          key: dist-${{ runner.os }}-node${{ matrix.node_version }}-v2-bust
+          path: |
+            packages/*/dist
+            packages/*/.turbo
+            packages/*/tsconfig.tsbuildinfo
+            node_modules/.cache
+          key: ts-${{ runner.os }}-node${{ matrix.node_version }}-v3
 
       - name: Build & Test
         run: |

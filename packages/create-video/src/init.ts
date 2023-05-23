@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import execa from 'execa';
+import path from 'node:path';
 import {createYarnYmlFile} from './add-yarn2-support';
 import {degit} from './degit';
 import {getLatestRemotionVersion} from './latest-remotion-version';
@@ -85,7 +86,9 @@ export const init = async () => {
 	if (result.type === 'is-git-repo') {
 		const should = await yesOrNo({
 			defaultValue: false,
-			question: `You are already inside a Git repo (${result.location}).\nThis might lead to a Git Submodule being created. Do you want to continue? (y/N):`,
+			question: `You are already inside a Git repo (${path.resolve(
+				result.location
+			)}).\nThis might lead to a Git Submodule being created. Do you want to continue? (y/N):`,
 		});
 		if (!should) {
 			Log.error('Aborting.');

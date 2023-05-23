@@ -1,12 +1,13 @@
 {
 	"name": "@remotion/noise",
-	"version": "3.3.94",
+	"version": "3.3.95",
 	"description": "Noise effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "rollup --config rollup.config.js && tsc -d",
@@ -47,7 +48,7 @@
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"rollup": "^2.70.1",
 		"typescript": "^4.7.0",
-		"vitest": "0.24.3"
+		"vitest": "0.31.1"
 	},
 	"keywords": [
 		"remotion",

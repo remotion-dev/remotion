@@ -8,5 +8,6 @@
     "gsutil",
     "Overwriteable",
     "rmall"
-  ]
+  ],
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
 }

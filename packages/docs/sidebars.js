@@ -241,6 +241,15 @@ module.exports = {
     },
     {
       type: "category",
+      label: "@remotion/tailwind",
+      link: {
+        type: "doc",
+        id: "tailwind/tailwind",
+      },
+      items: ["tailwind/enable-tailwind"],
+    },
+    {
+      type: "category",
       label: "@remotion/three",
       link: {
         type: "doc",

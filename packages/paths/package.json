@@ -1,10 +1,11 @@
 {
 	"name": "@remotion/paths",
-	"version": "3.3.94",
+	"version": "3.3.95",
 	"description": "Utility functions for SVG paths",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d",
@@ -25,7 +26,7 @@
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"typescript": "^4.7.0",
-		"vitest": "0.24.3"
+		"vitest": "0.31.1"
 	},
 	"keywords": [
 		"svg",

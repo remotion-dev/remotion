@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "3.3.94",
+	"version": "3.3.95",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -11,6 +11,7 @@
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"build": "tsc -d",
 		"watch": "tsc -w",
@@ -28,7 +29,7 @@
 		"react-refresh": "0.9.0",
 		"remotion": "workspace:*",
 		"style-loader": "2.0.0",
-		"webpack": "5.76.1"
+		"webpack": "5.83.1"
 	},
 	"peerDependencies": {
 		"react": ">=16.8.0",
@@ -50,7 +51,7 @@
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
 		"typescript": "^4.7.0",
-		"vitest": "0.24.3"
+		"vitest": "0.31.1"
 	},
 	"keywords": [
 		"remotion",

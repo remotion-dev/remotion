@@ -1,5 +1,5 @@
 {
-  "version": "3.3.94",
+  "version": "3.3.95",
   "name": "@remotion/fig-autocomplete",
   "private": true,
   "devDependencies": {
@@ -14,6 +14,7 @@
     "@remotion/renderer": "workspace:*"
   },
   "scripts": {
+    "formatting": "prettier src --check",
     "build": "ts-node src/generate.ts"
   }
 }
