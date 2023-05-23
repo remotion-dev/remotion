@@ -75,14 +75,11 @@ In order to enable the Cloud Run API, billing must be enabled in this project. N
 
 ## 4. Setup Permissions / APIs / Service Account in GCP
 
-_Note, this process does not require an understanding of Terraform._  
-[Google Cloud Shell](https://cloud.google.com/shell) is a browser-based command-line interface (CLI) for managing resources and applications hosted on GCP. It provides a virtual machine with pre-installed command-line tools and utilities, including the Google Cloud SDK and Terraform.
+:::info
+[Google Cloud Shell](https://cloud.google.com/shell) is a browser-based command-line interface (CLI) for managing resources and applications hosted on GCP. It provides a virtual machine with pre-installed command-line tools and utilities, including the Google Cloud SDK and Terraform. Through this shell you can access your projects, resources, and services directly in the browser. The following steps pull in a script to enable necessary APIs, resources and permissions in your project.
+:::
 
-Google Cloud Shell is fully integrated with GCP, which means that you can access your projects, resources, and services directly from the command line without having to switch between multiple interfaces. Additionally, Cloud Shell offers a persistent disk for storing your data and files, as well as a web-based code editor for editing files and running scripts.
-
-This means that you can pull in a script that runs a couple of gcloud and Terraform commands, and have a Remotion-ready GCP project in minutes 🚀.
-
-1. In the top right hand corner of the screen, click the Activate Cloud Shell icon
+1. Navigate to the [Dashboard](https://console.cloud.google.com/home/dashboard) and ensure your new project selected in the top drop-down. Then, in the top right hand corner of the screen, click the Activate Cloud Shell icon
 
    <img src="/img/cloudrun/selectCloudShell.jpg" width="200" />
 
@@ -93,8 +90,10 @@ This means that you can pull in a script that runs a couple of gcloud and Terraf
    curl -L https://github.com/UmungoBungo/remotion/raw/gcp-lambda-alternative/packages/cloudrun/src/gcpInstaller/gcpInstaller.tar | tar -x -C . && node install.mjs
    ```
 
-- Select <Step>1</Step> if you are using Remotion Cloud Run for the first time in this GCP project or want to upgrade.
-- Select <Step>2</Step> if you want to [generate a new .env file](/docs/cloudrun/generate-env), or manage keys already created.
+- Select <Step>1</Step>to setup this project for Remotion Cloud Run, or to run the setup again for an update.
+- Select <Step>2</Step>to generate a new .env file, or manage keys already created, and [follow these steps instead](/docs/cloudrun/generate-env).
+
+3. When prompted to apply the plan, type `yes`. When prompted to generate the .env files, type `yes`.
 
 4. Run the following command to view the environment variables. Copy them into your local `.env` file (create it if it doesn't exist):
 
@@ -112,10 +111,8 @@ This means that you can pull in a script that runs a couple of gcloud and Terraf
 
 From within your code base, run the following command to validate the permissions are setup correctly in GCP. As long as your GCP project was setup with a matching Remotion version, this should pass.
 
-TODO: This command does not exist
-
 ```
-npx remotion cloudrun policies validate
+npx remotion cloudrun permissions
 ```
 
 <hr/>
@@ -175,7 +172,7 @@ values={[
 }>
 <TabItem value="cli">
 
-Run the following command to deploy your Remotion project to an Cloud Storage bucket. Pass as the last argument the [entry point](/docs/terminology#entry-point) of the project.
+Run the following command to deploy your Remotion project to a Cloud Storage bucket. Pass as the last argument the [entry point](/docs/terminology#entry-point) of the project.
 
 ```bash
 npx remotion cloudrun sites create src/index.ts --site-name=my-video
@@ -243,7 +240,7 @@ values={[
 - `<composition-id>` Pass in the [ID of the composition](/docs/composition) you'd like to render.
 
 ```bash
-npx remotion cloudrun render <media | still> <serve-url> <cloud-run-url> <composition-id>
+npx remotion cloudrun render <media | still> <serve-url | site-name> <composition-id> <cloud-run-url>
 ```
 
 Progress will be printed until the video finished rendering. Congrats! You rendered your first video using Remotion Cloudrun 🚀
