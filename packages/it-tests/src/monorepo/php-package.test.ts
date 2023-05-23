@@ -38,11 +38,13 @@ test("PHP package should create the same payload as normal Lambda package", asyn
   console.log(output[2]);
   console.log("fourth Line");
   console.log(output[3]);
+  console.log("Fifth Line");
+  console.log(output[4]);
 
   console.log("whole output");
   console.log(output);
 
-  const toParse = output[2];
+  const toParse = output[4];
 
   const nativeVersion = await LambdaInternals.makeLambdaPayload({
     region: "us-east-1",
@@ -52,11 +54,8 @@ test("PHP package should create the same payload as normal Lambda package", asyn
     codec: "h264",
   });
 
-  const startMarker = "(100%)";
-  const jsonOutput = toParse.substring(
-    toParse.lastIndexOf(startMarker) + startMarker.length,
-    toParse.lastIndexOf("}") + 1
-  );
+  //const startMarker = "(100%)";
+  const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   console.log("The element to parse");
   console.log(jsonOutput);
   const parsedJson = JSON.parse(jsonOutput);
