@@ -3,7 +3,6 @@ import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {getCloudStorageClient} from './helpers/get-cloud-storage-client';
 
 export type Site = {
-	lastModified: number | null;
 	bucketName: string;
 	id: string;
 	serveUrl: string;
@@ -67,7 +66,6 @@ export const getSites = async (
 				bucketName: bucket.name,
 				id: sitePath[1],
 				serveUrl: `https://storage.googleapis.com/${bucket.name}/${prefix}index.html`,
-				lastModified: null,
 				bucketRegion: bucket.region,
 			});
 		}

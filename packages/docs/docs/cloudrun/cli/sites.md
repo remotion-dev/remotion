@@ -72,10 +72,11 @@ Example output
 (2/3) [====================] Created bucket 457ms<br/>
 (3/3) [====================] Uploaded to Cloud Storage 25118ms<br/>
 <br/>
-Deployed to GCP Cloud Storage!<br/>
-Serve URL: https://storage.googleapis.com/remotioncloudrun-12345/sites/another-site/index.html<br/>
-Site Name: another-site<br/>
-
+Deployed to GCP Cloud Storage!<br/><br/>
+Site:            another-site<br/>
+Bucket:          remotioncloudrun-12345<br/>
+Region:          us-east1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-12345/sites/another-site/index.html<br/>
 </pre>
 </details>
 
