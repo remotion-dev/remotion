@@ -10,8 +10,9 @@ import {servicesRmallCommand, SERVICES_RMALL_SUBCOMMAND} from './rmall';
 
 export const SERVICES_COMMAND = 'services';
 
+export const LEFT_COL = 18;
+
 export const displayServiceInfo = (service: ServiceInfo) => {
-	const LEFT_COL = 18;
 	return [
 		'Service name: '.padEnd(LEFT_COL, ' ') + ' ' + service.serviceName,
 		'Version: '.padEnd(LEFT_COL, ' ') + ' ' + service.remotionVersion,

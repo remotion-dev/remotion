@@ -1,5 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {VERSION} from 'remotion/version';
+import {displayServiceInfo, LEFT_COL} from '.';
 import {deployService} from '../../../api/deploy-service';
 import {generateServiceName} from '../../../shared/generate-service-name';
 import {validateGcpRegion} from '../../../shared/validate-gcp-region';
@@ -24,16 +25,17 @@ export const cloudRunDeploySubcommand = async () => {
 				`
 Validating Deployment of Cloud Run Service:
 
-Remotion Version = ${VERSION}
-Service Memory Limit = ${memoryLimit}
-Service CPU Limit = ${cpuLimit}
-Service Timeout In Seconds = ${timeoutSeconds}
-Project Name = ${projectID}
-Region = ${region}
+${[
+	'Remotion Version: '.padEnd(LEFT_COL, ' ') + ' ' + VERSION,
+	'Memory Limit: '.padEnd(LEFT_COL, ' ') + ' ' + memoryLimit,
+	'CPU Limit: '.padEnd(LEFT_COL, ' ') + ' ' + cpuLimit,
+	'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + timeoutSeconds,
+	'Project Name: '.padEnd(LEFT_COL, ' ') + ' ' + projectID,
+	'Region: '.padEnd(LEFT_COL, ' ') + ' ' + region,
+].join('\n')}
     `.trim()
 			)
 		);
-
 		Log.info();
 	}
 
@@ -75,6 +77,8 @@ Region = ${region}
 			Log.error('service uri not returned from Cloud Run API.');
 		}
 
+		const consoleUrl = `https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/logs`;
+
 		if (deployResult.alreadyExists) {
 			Log.info();
 
@@ -84,11 +88,18 @@ Region = ${region}
 				Log.info(
 					CliInternals.chalk.blueBright(
 						`
-Service Already Deployed! Check GCP Console for Cloud Run URL.
+Service already exists, skipping deployment;
 		
-Full Service Name = ${deployResult.fullName}
-Project = ${projectID}
-GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/logs
+${displayServiceInfo({
+	serviceName: deployResult.shortName,
+	timeoutInSeconds: timeoutSeconds,
+	memoryLimit,
+	cpuLimit,
+	remotionVersion: VERSION,
+	uri: deployResult.uri,
+	region,
+	consoleUrl,
+})}
 						`.trim()
 					)
 				);
@@ -103,11 +114,18 @@ GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deploy
 					CliInternals.chalk.blueBright(
 						`
 Cloud Run Deployed!
-Full Service Name = ${deployResult.fullName}
-Cloud Run URL = ${deployResult.uri}
-Project = ${projectID}
-GCP Console URL = https://console.cloud.google.com/run/detail/${region}/${deployResult.shortName}/logs
-						`.trim()
+
+${displayServiceInfo({
+	serviceName: deployResult.shortName,
+	timeoutInSeconds: timeoutSeconds,
+	memoryLimit,
+	cpuLimit,
+	remotionVersion: VERSION,
+	uri: deployResult.uri,
+	region,
+	consoleUrl,
+})}
+		`.trim()
 					)
 				);
 			}

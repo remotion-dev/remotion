@@ -45,9 +45,11 @@ Example output
 (2/3) [====================] Created bucket 457ms<br/>
 (3/3) [====================] Uploaded to GCP Storage Bucket 25118ms<br/>
 <br/>
-Deployed to GCP Cloud Storage!<br/>
-Serve URL: https://storage.googleapis.com/remotioncloudrun-12345/sites/mySite123/index.html<br/>
-Site Name: mySite123<br/>
+Deployed to GCP Cloud Storage!<br/><br/>
+Site:            mySite123<br/>
+Bucket:          remotioncloudrun-12345<br/>
+Region:          us-east1<br/>
+Serve Url:       https://storage.googleapis.com/remotioncloudrun-12345/sites/mySite123/index.html<br/>
 </pre>
 </details>
 
@@ -93,7 +95,7 @@ Get a list of sites. The URL that is printed can be passed to the `render` comma
 Example output
 </summary>
 <pre>
-2 sites in us-east1, in the remotion-6 project.<br/><br/>
+2 sites in us-east1, in the remotion-example project.<br/><br/>
 Site:            another-site<br/>
 Bucket:          remotioncloudrun-12345<br/>
 Region:          us-east1<br/>
@@ -122,7 +124,7 @@ npx remotion cloudrun sites ls --all-regions
 Example output
 </summary>
 <pre>
-3 sites in all regions, in the remotion-6 project.<br/><br/>
+3 sites in all regions, in the remotion-example project.<br/><br/>
 Site:            another-site<br/>
 Bucket:          remotioncloudrun-12345<br/>
 Region:          us-east1<br/>
