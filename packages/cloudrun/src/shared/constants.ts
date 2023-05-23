@@ -16,18 +16,3 @@ export const inputPropsKey = (hash: string) => {
 
 export type Privacy = 'public' | 'private';
 export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
-
-export enum CloudrunRoutines {
-	info = 'info',
-	media = 'media',
-	still = 'still',
-}
-
-export type DownloadBehavior =
-	| {
-			type: 'play-in-browser';
-	  }
-	| {
-			type: 'download';
-			fileName: string | null;
-	  };
