@@ -71,6 +71,11 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
+### `4.0.0-alpha8`
+
+- Props editor polish
+- Fix a crash with `<OffthreadVideo>`
+
 ### `4.0.0-alpha7`
 
 - Fix bugs reported with `<OffthreadVideo>` and more verbose logging

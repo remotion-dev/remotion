@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda",
-	"version": "3.3.94",
+	"version": "3.3.95",
 	"description": "Distributed renderer for Remotion based on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -8,6 +8,7 @@
 		"remotion-lambda": "remotion-lambda-cli.js"
 	},
 	"scripts": {
+		"formatting": "prettier src --check",
 		"testintegration": "vitest src/test/integration --run",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest src/test/unit --run",

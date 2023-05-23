@@ -1,10 +1,11 @@
 {
 	"name": "@remotion/media-utils",
-	"version": "3.3.94",
+	"version": "3.3.95",
 	"description": "Utility functions for audio and video",
 	"main": "dist/index.js",
 	"sideEffects": false,
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d"

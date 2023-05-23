@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "3.3.94",
+	"version": "3.3.95",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -8,6 +8,7 @@
 		"remotion": "remotion-cli.js"
 	},
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
 		"build": "tsc -d",
@@ -63,6 +64,7 @@
 		"@typescript-eslint/eslint-plugin": "5.18.0",
 		"@typescript-eslint/parser": "5.18.0",
 		"@remotion/zod-types": "workspace:*",
+		"@remotion/tailwind": "workspace:*",
 		"eslint": "8.25.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.29.4",
@@ -72,7 +74,7 @@
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
 		"typescript": "^4.7.0",
-		"vitest": "0.24.3",
+		"vitest": "0.31.1",
 		"zod": "^3.21.4"
 	},
 	"keywords": [

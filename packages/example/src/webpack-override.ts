@@ -1,5 +1,6 @@
 import {WebpackOverrideFn} from '@remotion/bundler';
 import path from 'node:path';
+import {enableTailwind} from '@remotion/tailwind';
 type Bundler = 'webpack' | 'esbuild';
 
 const WEBPACK_OR_ESBUILD = 'esbuild' as Bundler;
@@ -20,7 +21,7 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 
 		return currentConfiguration;
 	})();
-	return {
+	return enableTailwind({
 		...replaced,
 		module: {
 			...replaced.module,
@@ -55,5 +56,5 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 				lib: path.join(process.cwd(), 'src', 'lib'),
 			},
 		},
-	};
+	});
 };
