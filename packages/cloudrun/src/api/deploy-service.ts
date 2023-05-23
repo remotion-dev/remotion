@@ -18,7 +18,7 @@ export type DeployServiceInput = {
 export type DeployServiceOutput = {
 	fullName: string | null | undefined;
 	shortName: string | null | undefined;
-	uri: string | null | undefined;
+	uri: string;
 	alreadyExists: boolean;
 };
 
@@ -78,7 +78,7 @@ export const deployService = async ({
 		return {
 			fullName: `projects/${projectID}/locations/${region}/services/${serviceName}`,
 			shortName: serviceName,
-			uri: null,
+			uri: existingService.uri as string,
 			alreadyExists: true,
 		};
 	}
@@ -103,7 +103,7 @@ export const deployService = async ({
 	return {
 		fullName: response.name,
 		shortName: serviceName,
-		uri: response.uri,
+		uri: response.uri as string,
 		alreadyExists: false,
 	};
 };
