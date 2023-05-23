@@ -2,6 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {existsSync, lstatSync} from 'fs';
 import {Internals} from 'remotion';
+import {displaySiteInfo} from '.';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
 import {BINARY_NAME} from '../../../shared/constants';
@@ -101,8 +102,10 @@ export const sitesCreateSubcommand = async (
 
 	const bucketStart = Date.now();
 
+	const region = getGcpRegion();
+
 	const {bucketName} = await getOrCreateBucket({
-		region: getGcpRegion(),
+		region,
 		updateBucketState: (state) => {
 			multiProgress.bucketProgress.creationState = state;
 			updateProgress();
@@ -159,9 +162,16 @@ export const sitesCreateSubcommand = async (
 	Log.info();
 	Log.info();
 	Log.info('Deployed to GCP Storage!');
+	Log.info();
 
-	Log.info(`Serve URL: ${serveUrl}`);
-	Log.info(`Site Name: ${siteName}`);
+	Log.info(
+		displaySiteInfo({
+			bucketName,
+			id: siteName,
+			serveUrl,
+			bucketRegion: region,
+		})
+	);
 
 	Log.info();
 	Log.info(
