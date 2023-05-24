@@ -44,7 +44,7 @@ writeFileSync(
   ].join("\n")
 );
 execSync("git add .", { cwd: workingDir });
-execSync("git commit -m 'Update'", { cwd: workingDir });
+execSync(`git commit -m 'Release ${VERSION}'`, { cwd: workingDir });
 execSync(`git tag ${VERSION}`, { cwd: workingDir });
 execSync("git push", { cwd: workingDir });
 execSync(`git push origin ${VERSION}`, { cwd: workingDir });
