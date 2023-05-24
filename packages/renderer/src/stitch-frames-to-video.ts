@@ -1,7 +1,8 @@
-import fs, {promises} from 'node:fs';
+import {promises} from 'node:fs';
 import path from 'node:path';
 import type {TAsset} from 'remotion';
 import {Internals} from 'remotion';
+import {VERSION} from 'remotion/version';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
@@ -43,12 +44,6 @@ import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
-
-const packageJsonPath = path.join(__dirname, '..', 'package.json');
-
-const packageJson = fs.existsSync(packageJsonPath)
-	? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
-	: null;
 
 export type StitcherOptions = {
 	audioBitrate?: string | null;
@@ -421,13 +416,7 @@ const spawnFfmpeg = async (
 		resolvedAudioCodec ? ['-b:a', options.audioBitrate || '512K'] : null,
 		// Ignore metadata that may come from remote media
 		['-map_metadata', '-1'],
-		[
-			'-metadata',
-			`comment=` +
-				[`Made with Remotion`, packageJson ? packageJson.version : null].join(
-					' '
-				),
-		],
+		['-metadata', `comment=` + [`Made with Remotion ${VERSION}`].join(' ')],
 		options.force ? '-y' : null,
 		options.outputLocation ?? tempFile,
 	];
@@ -518,8 +507,9 @@ export const stitchFramesToVideo = async (
 	const remotionRoot = findRemotionRoot();
 	const {task, getLogs} = await spawnFfmpeg(options, remotionRoot);
 
-	const happyPath = task.catch(() => {
-		throw new Error(getLogs());
+	const happyPath = task.catch((err) => {
+		Log.error('Error while stitching frames to video', err);
+		throw new Error((err as Error).stack + ' FFmpeg logs:' + getLogs());
 	});
 
 	warnAboutM2Bug(options.codec ?? null, options.pixelFormat ?? null);

@@ -46,6 +46,7 @@ export const renderStillSingleThread = async (
 		frame: body.frame,
 		verbose: RenderInternals.isEqualOrBelowLogLevel(body.logLevel, 'verbose'),
 	});
+	Log.info('Still rendered');
 
 	const storage = new Storage();
 
@@ -57,6 +58,8 @@ export const renderStillSingleThread = async (
 			destination: `renders/${renderId}/${body.outputFile ?? 'out.png'}`,
 			predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
 		});
+
+	Log.info('Still uploaded');
 
 	const uploadedFile = uploadedResponse[0];
 	const renderMetadata = await uploadedFile.getMetadata();
