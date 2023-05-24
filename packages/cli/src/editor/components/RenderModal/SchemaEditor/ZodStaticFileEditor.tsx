@@ -49,6 +49,8 @@ export const ZodStaticFileEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
+	console.log(value);
+
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,
@@ -122,6 +124,7 @@ export const ZodStaticFileEditor: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				valid={localValue.zodValidation.success}
+				saveDisabledByParent={false}
 			/>
 
 			<div style={isRoot ? undefined : container}>

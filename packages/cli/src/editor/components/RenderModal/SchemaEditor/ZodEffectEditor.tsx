@@ -102,6 +102,7 @@ export const ZodEffectEditor: React.FC<{
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}
 					saving={saving}
+					saveDisabledByParent={!localValue.zodValidation.success}
 				/>
 			</div>
 			{!localValue.zodValidation.success && (

@@ -148,6 +148,7 @@ export const ZodOrNullishEditor: React.FC<{
 					onRemove={onRemove}
 					saving={saving}
 					valid={localNonNullishValueValue.zodValidation.success}
+					saveDisabledByParent={false}
 				/>
 			) : (
 				<div style={fullWidth}>
@@ -162,6 +163,7 @@ export const ZodOrNullishEditor: React.FC<{
 						showSaveButton={showSaveButton}
 						onRemove={onRemove}
 						saving={saving}
+						saveDisabledByParent={false}
 					/>
 				</div>
 			)}

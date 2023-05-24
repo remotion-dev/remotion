@@ -160,6 +160,7 @@ export const ZodNumberEditor: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				valid={localValue.zodValidation.success}
+				saveDisabledByParent={false}
 			/>
 			<div style={fullWidth}>
 				<InputDragger

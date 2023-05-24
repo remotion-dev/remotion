@@ -33,6 +33,7 @@ export const ZodSwitch: React.FC<{
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
+	saveDisabledByParent: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -44,6 +45,7 @@ export const ZodSwitch: React.FC<{
 	showSaveButton,
 	onRemove,
 	saving,
+	saveDisabledByParent,
 }) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -105,6 +107,7 @@ export const ZodSwitch: React.FC<{
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 		);
 	}

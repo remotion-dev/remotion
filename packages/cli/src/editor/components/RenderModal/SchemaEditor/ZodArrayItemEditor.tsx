@@ -75,6 +75,7 @@ export const ZodArrayItemEditor: React.FC<{
 			showSaveButton={showSaveButton}
 			onRemove={onRemove}
 			saving={saving}
+			saveDisabledByParent={false}
 		/>
 	);
 };

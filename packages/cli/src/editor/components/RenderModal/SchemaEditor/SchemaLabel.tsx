@@ -43,6 +43,7 @@ export const SchemaLabel: React.FC<{
 	compact: boolean;
 	saving: boolean;
 	valid: boolean;
+	saveDisabledByParent: boolean;
 }> = ({
 	jsonPath,
 	isDefaultValue,
@@ -53,8 +54,9 @@ export const SchemaLabel: React.FC<{
 	onRemove,
 	saving,
 	valid,
+	saveDisabledByParent,
 }) => {
-	const disableSave = saving || !valid;
+	const disableSave = saving || !valid || saveDisabledByParent;
 	return (
 		<div style={compact ? compactStyles : wideStyles}>
 			<span style={labelStyle}>{getSchemaLabel(jsonPath)}</span>
