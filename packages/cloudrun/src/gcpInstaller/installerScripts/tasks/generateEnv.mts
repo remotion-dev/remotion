@@ -24,7 +24,7 @@ export async function generateEnv(projectID: string) {
 		);
 
 		const listOfKeys = execSync(
-			`gcloud iam service-accounts keys list --iam-account=remotion-sa@remotion-7.iam.gserviceaccount.com --format json | 
+			`gcloud iam service-accounts keys list --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com --format json | 
 			jq -r '.[] | "\(.name | split("/") | last) \(.validAfterTime) \(.validBeforeTime) \(.keyOrigin)"'`,
 			{
 				stdio: ['inherit', 'pipe', 'pipe'],
