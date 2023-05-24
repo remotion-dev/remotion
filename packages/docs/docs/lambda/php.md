@@ -6,7 +6,9 @@ sidebar_label: Rendering from PHP
 crumb: "@remotion/lambda"
 ---
 
-To trigger a Lambda render using PHP, install the `remotion/lambda-php` package using `composer`.
+_available from v3.3.96_
+
+To trigger a Lambda render using PHP, install the `remotion/lambda` package using `composer`. Use the same version as the `remotion` version you are using from NPM and pin the version by removing the `^` character in your `composer.json`.
 
 Below is a snippet showing how to initiate a render request and get its status. Note the following before continuing:
 
