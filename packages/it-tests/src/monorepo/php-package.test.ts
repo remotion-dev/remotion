@@ -22,6 +22,10 @@ test("Set the right version for phpunit", () => {
 });
 
 test("PHP package should create the same payload as normal Lambda package", async () => {
+  execSync("php composer.phar install", {
+    cwd: path.join(process.cwd(), "..", "lambda-php"),
+    stdio: "inherit",
+  });
   const phpOutput = execSync("phpunit ./src/PHPClientTest.php", {
     cwd: path.join(process.cwd(), "..", "lambda-php"),
   });
