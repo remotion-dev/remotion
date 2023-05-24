@@ -6,7 +6,9 @@ sidebar_label: Rendering from PHP
 crumb: "@remotion/lambda"
 ---
 
-To trigger a Lambda render using PHP, you need to use a PHP client. This is installed using `composer` with the package `remotion/lambda-php`. Below is a snippet showing how to initiate a render request and get its status. Note the following before continuing:
+To trigger a Lambda render using PHP, install the `remotion/lambda-php` package using `composer`.
+
+Below is a snippet showing how to initiate a render request and get its status. Note the following before continuing:
 
 - You first need to [complete the Lambda setup](/docs/lambda/setup).
 - Sending large input props (>200KB) is not supported with PHP at the moment.
@@ -47,12 +49,12 @@ print_r($renderResponse);
 
 /****
  * Response
- * 
+ *
  stdClass Object
     (
         [bucketName] => remotionlambda-apsoutheast2-xxxx
         [renderId] => xxxxxxx
-    ) 
+    )
 */
 
 // Get render progress
@@ -108,6 +110,7 @@ print_r($renderProgressResponse);
  */
 
 ```
+
 ## See also
 
 - [Using Lambda without IAM user](/docs/lambda/without-iam)
