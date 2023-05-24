@@ -48,7 +48,6 @@ export const ZodStringEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	console.log(defaultValue === value);
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,
