@@ -4,20 +4,46 @@ import path from "path";
 import { expect, test } from "vitest";
 import { LambdaInternals } from "@remotion/lambda";
 
-test("Set the right version for phpunit", () => {
-  const referenceVersion = readFileSync(
-    path.join(process.cwd(), "..", "core", "package.json"),
-    "utf-8"
-  );
+const referenceVersion = readFileSync(
+  path.join(process.cwd(), "..", "core", "package.json"),
+  "utf-8"
+);
+const referenceVersionJson = JSON.parse(referenceVersion);
+const version = referenceVersionJson.version;
 
-  const referenceVersionJson = JSON.parse(referenceVersion);
-  const version = referenceVersionJson.version;
+test("Set the right version for phpunit", () => {
   expect(typeof version).toBe("string");
 
   const VERSION = `<?php \nnamespace Remotion\\LambdaPhp;\n\nconst VERSION = "${version}";`;
   writeFileSync(
     path.join(process.cwd(), "..", "lambda-php", "src", "Version.php"),
     VERSION
+  );
+});
+
+test("Set the right version for composer.json", () => {
+  const composerJson = readFileSync(
+    path.join(process.cwd(), "..", "lambda-php", "composer.json"),
+    "utf-8"
+  );
+  const composerJsonJson = JSON.parse(composerJson);
+  composerJsonJson.version = version;
+  writeFileSync(
+    path.join(process.cwd(), "..", "lambda-php", "composer.json"),
+    JSON.stringify(composerJsonJson, null, 2) + "\n"
+  );
+});
+
+test("Set the right verison for composer.json in example", () => {
+  const composerJson = readFileSync(
+    path.join(process.cwd(), "..", "lambda-php-example", "composer.json"),
+    "utf-8"
+  );
+  const composerJsonJson = JSON.parse(composerJson);
+  composerJsonJson.require["remotion/lambda-php"] = version;
+  writeFileSync(
+    path.join(process.cwd(), "..", "lambda-php-example", "composer.json"),
+    JSON.stringify(composerJsonJson, null, 2) + "\n"
   );
 });
 
