@@ -92,6 +92,12 @@ type RenderConfig struct {
 	Region       string `json:"region" validate:"required"`
 }
 
+type renderProgressInternalConfig struct {
+	RenderId   string `json:"renderId" validate:"required"`
+	BucketName string `json:"bucketName" validate:"required"`
+	Type       string `json:"type" validate:"required"`
+}
+
 type RenderProgressResponse struct {
 	OverallProgress          float64         `json:"overallProgress"`
 	Chunks                   int             `json:"chunks"`

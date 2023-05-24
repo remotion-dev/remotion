@@ -22,7 +22,7 @@ export const lambdaReadFile: typeof readOriginal = ({
 }) => {
 	const file = readMockS3File({region, key, bucketName});
 	if (!file) {
-		throw new Error('no file');
+		throw new Error(`no file ${key}`);
 	}
 
 	if (typeof file.content === 'string') {
