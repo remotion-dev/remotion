@@ -91,6 +91,7 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 			{new Array(actualSamples).fill(true).map((_, i) => {
 				const sample = i + 1;
 				const sampleFrameOffset = shutterFraction * (sample / actualSamples);
+
 				return (
 					<AbsoluteFill
 						key={`frame-${i.toString()}`}
