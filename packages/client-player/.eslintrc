@@ -1,0 +1,4 @@
+{
+	"extends": ["@jonny", "plugin:require-extensions/recommended"],
+	"plugins": ["require-extensions"]
+}

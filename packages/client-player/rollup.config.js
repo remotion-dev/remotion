@@ -1,5 +1,6 @@
 // rollup.config.js
 import typescript from '@rollup/plugin-typescript';
+import banner from 'rollup-plugin-banner';
 export default [
 	{
 		input: 'src/index.ts',
@@ -17,6 +18,7 @@ export default [
 				sourceMap: false,
 				outputToFilesystem: true,
 			}),
+			banner(`'use client'; \n`),
 		],
 	},
 ];
