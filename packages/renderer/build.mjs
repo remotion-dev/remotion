@@ -136,6 +136,8 @@ if (!hasCargo()) {
 const nativeArch = getTarget();
 
 const all = process.argv.includes('--all');
+const cloudrun = process.argv.includes('--cloudrun');
+const lambda = process.argv.includes('--lambda');
 if (!existsSync('toolchains') && all) {
 	throw new Error(
 		'Run "node install-toolchain.mjs" if you want to build all platforms'
@@ -164,7 +166,13 @@ if (!rustFfmpegSys) {
 
 const manifest = rustFfmpegSys.manifest_path;
 const binariesDirectory = path.join(path.dirname(manifest), 'zips');
-const archs = all ? targets : [nativeArch];
+const archs = all
+	? targets
+	: lambda
+	? ['aarch64-unknown-linux-gnu']
+	: cloudrun
+	? ['x86_64-unknown-linux-gnu']
+	: [nativeArch];
 
 for (const arch of archs) {
 	const ffmpegFolder = path.join(copyDestinations[arch].dir, 'ffmpeg');
