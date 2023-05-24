@@ -76,17 +76,17 @@ export function spring({
 				},
 		  };
 
-	const frame = reverse
-		? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame
-		: passedFrame;
+	const frame =
+		(reverse
+			? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame
+			: passedFrame) - delay;
 
 	const spr = springCalculation({
 		fps,
 		frame:
-			(passedDurationInFrames === undefined
+			passedDurationInFrames === undefined
 				? frame
-				: frame / (passedDurationInFrames / naturalDurationGetter.get())) -
-			delay,
+				: frame / (passedDurationInFrames / naturalDurationGetter.get()),
 		config,
 		from,
 		to,
