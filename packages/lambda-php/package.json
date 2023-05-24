@@ -3,6 +3,10 @@
   "private": true,
   "version": "3.3.95",
   "scripts": {
-    "lint": "node build.mjs"
+    "lint": "node build.mjs",
+    "publish": "node publish.mjs"
+  },
+  "devDependencies": {
+    "remotion": "workspace:*"
   }
 }
