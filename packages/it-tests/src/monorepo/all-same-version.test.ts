@@ -57,7 +57,6 @@ test("All packages require the same remotion version", () => {
 
   const versions = new Set<string>();
 
-  let deps = 0;
   for (const folder of folders) {
     const packageJsonPath = path.join(
       process.cwd(),
