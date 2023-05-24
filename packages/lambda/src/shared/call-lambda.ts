@@ -1,4 +1,5 @@
-import {InvokeCommand} from '@aws-sdk/client-lambda';
+import type {InvokeWithResponseStreamResponseEvent} from '@aws-sdk/client-lambda';
+import {InvokeWithResponseStreamCommand} from '@aws-sdk/client-lambda';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaPayloads, LambdaRoutines} from './constants';
@@ -16,13 +17,40 @@ export const callLambda = async <T extends LambdaRoutines>({
 	region: AwsRegion;
 }): Promise<LambdaReturnValues[T]> => {
 	const res = await getLambdaClient(region).send(
-		new InvokeCommand({
+		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
 			// @ts-expect-error
 			Payload: JSON.stringify({type, ...payload}),
 		})
 	);
-	const string = Buffer.from(res.Payload as Uint8Array).toString();
+
+	const events =
+		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
+	let responsePayload: Uint8Array = new Uint8Array();
+
+	for await (const event of events) {
+		// There are two types of events you can get on a stream.
+
+		// `PayloadChunk`: These contain the actual raw bytes of the chunk
+		// It has a single property: `Payload`
+		if (event.PayloadChunk) {
+			// Decode the raw bytes into a string a human can read
+			const decoded = new TextDecoder('utf-8').decode(
+				event.PayloadChunk.Payload
+			);
+			responsePayload = Buffer.concat([responsePayload, Buffer.from(decoded)]);
+		}
+
+		if (event.InvokeComplete) {
+			if (event.InvokeComplete.ErrorCode) {
+				throw new Error(
+					`Lambda function ${functionName} failed with error code ${event.InvokeComplete.ErrorCode}: ${event.InvokeComplete.ErrorDetails}}`
+				);
+			}
+		}
+	}
+
+	const string = Buffer.from(responsePayload).toString();
 
 	const json = JSON.parse(string) as
 		| LambdaReturnValues[T]
@@ -30,21 +58,12 @@ export const callLambda = async <T extends LambdaRoutines>({
 				errorType: string;
 				errorMessage: string;
 				trace: string[];
+		  }
+		| {
+				statusCode: number;
+				headers: Record<string, string>;
+				body: string;
 		  };
-
-	if (json === null) {
-		throw new Error(
-			'Lambda function unexpectedly returned null: ' +
-				JSON.stringify({
-					payload,
-					type,
-					functionName,
-					json,
-					error: res.FunctionError,
-					version: res.$metadata,
-				})
-		);
-	}
 
 	if ('errorMessage' in json) {
 		const err = new Error(json.errorMessage);
@@ -53,5 +72,17 @@ export const callLambda = async <T extends LambdaRoutines>({
 		throw err;
 	}
 
+	// Streaming: 3.3.96+
+	if ('statusCode' in json) {
+		if (json.statusCode !== 200) {
+			throw new Error(
+				`Lambda function ${functionName} failed with status code ${json.statusCode}: ${json.body}`
+			);
+		}
+
+		return JSON.parse(json.body) as LambdaReturnValues[T];
+	}
+
+	// Non-streaming: 3.3.95 and below
 	return json;
 };
