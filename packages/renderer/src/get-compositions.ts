@@ -8,6 +8,7 @@ import type {Page} from './browser/BrowserPage';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
+import {Log} from './logger';
 import type {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -53,6 +54,7 @@ const innerGetCompositions = async (
 
 	validatePuppeteerTimeout(config?.timeoutInMilliseconds);
 
+	Log.verbose('Setting props and env');
 	await setPropsAndEnv({
 		inputProps: config?.inputProps,
 		envVariables: config?.envVariables,
@@ -65,6 +67,7 @@ const innerGetCompositions = async (
 		audioEnabled: false,
 		videoEnabled: false,
 	});
+	Log.verbose('Set props and env successfully!');
 
 	await puppeteerEvaluateWithCatch({
 		page,
@@ -78,6 +81,8 @@ const innerGetCompositions = async (
 	});
 
 	await waitForReady(page);
+	Log.verbose('Page is ready!');
+
 	const result = await puppeteerEvaluateWithCatch({
 		pageFunction: () => {
 			return window.getStaticCompositions();
@@ -86,6 +91,8 @@ const innerGetCompositions = async (
 		page,
 		args: [],
 	});
+
+	Log.verbose('Got compositions', (result as AnyCompMetadata[]).length);
 
 	return result as AnyCompMetadata[];
 };
@@ -100,11 +107,15 @@ export const getCompositions = async (
 ) => {
 	const downloadMap = config?.downloadMap ?? makeDownloadMap();
 
+	Log.verbose('Getting compositions...');
+
 	const {page, cleanup} = await getPageAndCleanupFn({
 		passedInInstance: config?.puppeteerInstance,
 		browserExecutable: config?.browserExecutable ?? null,
 		chromiumOptions: config?.chromiumOptions ?? {},
 	});
+
+	Log.verbose('Created Chrome page');
 
 	return new Promise<AnyCompMetadata[]>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
@@ -128,6 +139,7 @@ export const getCompositions = async (
 			indent: config?.indent ?? false,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
+				Log.verbose('Remotion is ready', serveUrl);
 				close = closeServer;
 				return innerGetCompositions(
 					serveUrl,
@@ -139,12 +151,14 @@ export const getCompositions = async (
 
 			.then((comp): Promise<[AnyCompMetadata[], unknown]> => {
 				if (close) {
+					Log.verbose('Closing server');
 					return Promise.all([comp, close(true)]);
 				}
 
 				return Promise.resolve([comp, null]);
 			})
 			.then(([comp]) => {
+				Log.verbose('Resolving compositions successfully!');
 				return resolve(comp);
 			})
 			.catch((err) => {
