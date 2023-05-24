@@ -91,7 +91,6 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 			{new Array(actualSamples).fill(true).map((_, i) => {
 				const sample = i + 1;
 				const sampleFrameOffset = shutterFraction * (sample / actualSamples);
-
 				return (
 					<AbsoluteFill
 						key={`frame-${i.toString()}`}
@@ -100,7 +99,9 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 							filter: `opacity(${1 / actualSamples})`,
 						}}
 					>
-						<Freeze frame={currentFrame - sampleFrameOffset}>{children}</Freeze>
+						<Freeze frame={currentFrame - sampleFrameOffset + 1}>
+							{children}
+						</Freeze>
 					</AbsoluteFill>
 				);
 			})}
