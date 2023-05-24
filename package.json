@@ -9,7 +9,7 @@
     "build": "turbo run build",
     "ci": "turbo run build lint test --concurrency=50%",
     "watch": "pnpm run --recursive --stream --parallel watch",
-    "release": "pnpm recursive publish",
+    "release": "pnpm recursive publish && pnpm recursive run publish && git push --tags && git push",
     "release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks",
     "clean": "rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo"
   },
