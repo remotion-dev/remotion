@@ -13,12 +13,19 @@ export async function generateEnv(projectID: string) {
 		console.log('');
 
 		execSync(
-			`gcloud iam service-accounts keys list --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com`,
+			/* eslint-disable no-useless-escape */
+			`{
+				echo "KEY_ID CREATED_AT EXPIRES_AT KEY_ORIGIN"; 
+				gcloud iam service-accounts keys list --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com --format json | 
+				jq -r '.[] | "\(.name | split("/") | last) \(.validAfterTime) \(.validBeforeTime) \(.keyOrigin)"'
+				} | column -t`,
+
 			{stdio: 'inherit'}
 		);
 
 		const listOfKeys = execSync(
-			`gcloud iam service-accounts keys list --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com`,
+			`gcloud iam service-accounts keys list --iam-account=remotion-sa@remotion-7.iam.gserviceaccount.com --format json | 
+			jq -r '.[] | "\(.name | split("/") | last) \(.validAfterTime) \(.validBeforeTime) \(.keyOrigin)"'`,
 			{
 				stdio: ['inherit', 'pipe', 'pipe'],
 			}
@@ -26,6 +33,7 @@ export async function generateEnv(projectID: string) {
 			.toString()
 			.trim()
 			.split('\n');
+		/* eslint-enable no-useless-escape */
 
 		let keyCount = 0;
 		if (listOfKeys.length > 1) {
