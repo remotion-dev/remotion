@@ -1,5 +1,6 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {RenderInternals} from '@remotion/renderer';
+import {Log} from '../cli/log';
 import type {ErrorResponsePayload} from './helpers/payloads';
 import {CloudRunPayload} from './helpers/payloads';
 import {renderMediaSingleThread} from './render-media-single-thread';
@@ -25,6 +26,7 @@ const renderOnCloudRun = async (req: ff.Request, res: ff.Response) => {
 					.send('Invalid render type, must be either "media" or "still"');
 		}
 	} catch (err) {
+		Log.error('Error while rendering', err);
 		const response: ErrorResponsePayload = {
 			error: (err as Error).message,
 			status: 'error',
