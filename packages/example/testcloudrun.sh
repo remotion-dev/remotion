@@ -10,4 +10,4 @@ cd example
 pnpm exec remotion cloudrun services rmall -f
 pnpm exec remotion cloudrun sites create --site-name=testbed
 pnpm exec remotion cloudrun services deploy --cpuLimit=4.0
-pnpm exec remotion cloudrun render still testbed react-svg
+pnpm exec remotion cloudrun render still testbed react-svg --log=verbose
