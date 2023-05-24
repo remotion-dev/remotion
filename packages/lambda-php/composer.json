@@ -1,7 +1,9 @@
 {
-  "name": "remotion/lambda-php",
+  "name": "remotion/lambda",
   "type": "library",
   "version": "3.3.95",
+  "description": "A PHP library for working with Remotion Lambda",
+  "license": "proprietary",
   "autoload": {
     "psr-4": {
       "Remotion\\LambdaPhp\\": "src/"

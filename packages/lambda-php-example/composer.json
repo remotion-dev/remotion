@@ -1,6 +1,7 @@
 {
   "name": "remotion/lambda-php-example",
   "type": "project",
+  "description": "Example project for using Remotion Lambda PHP",
   "scripts": {
     "render": "php src/render.php"
   },
@@ -18,6 +19,6 @@
   ],
   "require": {
     "vlucas/phpdotenv": "^5.5",
-    "remotion/lambda-php": "3.3.95"
+    "remotion/lambda": "3.3.95"
   }
 }
