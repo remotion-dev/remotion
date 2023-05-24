@@ -127,6 +127,15 @@ module.exports = {
     },
     {
       type: "category",
+      link: {
+        type: "doc",
+        id: "player/installation",
+      },
+      label: "@remotion/client-player",
+      items: ["player/client-player"],
+    },
+    {
+      type: "category",
       label: "@remotion/gif",
       link: {
         type: "doc",
