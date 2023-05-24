@@ -13,7 +13,10 @@ import {
 import {LambdaRoutines} from '../../defaults';
 import {handler} from '../../functions';
 import {mockableHttpClients} from '../../shared/invoke-webhook';
-import type {LambdaReturnValues} from '../../shared/return-values';
+import type {
+	LambdaReturnValues,
+	StreamedResponse,
+} from '../../shared/return-values';
 import {disableLogs, enableLogs} from '../disable-logs';
 
 const extraContext = {
@@ -112,17 +115,21 @@ describe('Webhooks', () => {
 			},
 			extraContext
 		);
-		const startRes = res as Await<LambdaReturnValues[LambdaRoutines.start]>;
+		const startRes = res as StreamedResponse;
 
-		(await handler(
+		const parsed = JSON.parse(startRes.body) as Await<
+			LambdaReturnValues[LambdaRoutines.start]
+		>;
+
+		await handler(
 			{
 				type: LambdaRoutines.status,
-				bucketName: startRes.bucketName,
-				renderId: startRes.renderId,
+				bucketName: parsed.bucketName,
+				renderId: parsed.renderId,
 				version: VERSION,
 			},
 			extraContext
-		)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
+		);
 
 		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
 		expect(mockableHttpClients.http).toHaveBeenCalledWith(

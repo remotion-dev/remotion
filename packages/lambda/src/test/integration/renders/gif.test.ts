@@ -5,7 +5,10 @@ import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
-import type {LambdaReturnValues} from '../../../shared/return-values';
+import type {
+	LambdaReturnValues,
+	StreamedResponse,
+} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
 
 const extraContext = {
@@ -28,7 +31,7 @@ afterAll(async () => {
 test('Should make a distributed GIF', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-	const res = await handler(
+	const res = (await handler(
 		{
 			type: LambdaRoutines.start,
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
@@ -72,8 +75,11 @@ test('Should make a distributed GIF', async () => {
 			dumpBrowserLogs: false,
 		},
 		extraContext
-	);
-	const startRes = res as Await<LambdaReturnValues[LambdaRoutines.start]>;
+	)) as StreamedResponse;
+
+	const startRes = JSON.parse(res.body) as Await<
+		LambdaReturnValues[LambdaRoutines.start]
+	>;
 
 	const progress = (await handler(
 		{
@@ -83,11 +89,15 @@ test('Should make a distributed GIF', async () => {
 			version: VERSION,
 		},
 		extraContext
-	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
+	)) as StreamedResponse;
+
+	const parsed = JSON.parse(progress.body) as Await<
+		LambdaReturnValues[LambdaRoutines.status]
+	>;
 
 	const file = await lambdaReadFile({
-		bucketName: progress.outBucket as string,
-		key: progress.outKey as string,
+		bucketName: parsed.outBucket as string,
+		key: parsed.outKey as string,
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
