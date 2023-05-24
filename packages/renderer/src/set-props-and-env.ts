@@ -6,18 +6,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {redirectStatusCodes} from './redirect-status-codes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
-export const setPropsAndEnv = async ({
-	inputProps,
-	envVariables,
-	page,
-	serveUrl,
-	initialFrame,
-	timeoutInMilliseconds,
-	proxyPort,
-	retriesRemaining,
-	audioEnabled,
-	videoEnabled,
-}: {
+type SetPropsAndEnv = {
 	inputProps: unknown;
 	envVariables: Record<string, string> | undefined;
 	page: Page;
@@ -28,7 +17,20 @@ export const setPropsAndEnv = async ({
 	retriesRemaining: number;
 	audioEnabled: boolean;
 	videoEnabled: boolean;
-}): Promise<void> => {
+};
+
+const innerSetPropsAndEnv = async ({
+	inputProps,
+	envVariables,
+	page,
+	serveUrl,
+	initialFrame,
+	timeoutInMilliseconds,
+	proxyPort,
+	retriesRemaining,
+	audioEnabled,
+	videoEnabled,
+}: SetPropsAndEnv): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
 	page.setDefaultTimeout(actualTimeout);
@@ -89,7 +91,7 @@ export const setPropsAndEnv = async ({
 			}, 2000);
 		});
 
-		return setPropsAndEnv({
+		return innerSetPropsAndEnv({
 			envVariables,
 			initialFrame,
 			inputProps,
@@ -162,4 +164,19 @@ export const setPropsAndEnv = async ({
 			);
 		}
 	}
+};
+
+export const setPropsAndEnv = (params: SetPropsAndEnv) => {
+	return Promise.race([
+		innerSetPropsAndEnv(params),
+		new Promise((_, reject) => {
+			setTimeout(() => {
+				reject(
+					new Error(
+						'Timed out while setting up the headless browser - the browser seems to not respond. This error is thrown to trigger a retry.'
+					)
+				);
+			}, 10000);
+		}),
+	]);
 };
