@@ -1,6 +1,7 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
 import {RenderInternals, renderStill} from '@remotion/renderer';
+import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 import type {
@@ -16,10 +17,14 @@ export const renderStillSingleThread = async (
 		throw new Error('expected type still');
 	}
 
+	Log.verbose('Rendering still frame', body);
+
 	const composition = await getCompositionFromBody(
 		body.serveUrl,
 		body.composition
 	);
+
+	Log.verbose('Composition loaded', composition);
 
 	const tempFilePath = '/tmp/still.png';
 	const renderId = randomHash({randomInTests: true});
