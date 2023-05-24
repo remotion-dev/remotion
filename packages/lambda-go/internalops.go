@@ -125,3 +125,21 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 
 	return &internalParams, nil
 }
+
+func constructGetProgressInternals(options *RenderConfig) (*renderProgressInternalConfig, error) {
+
+	validate := validator.New()
+	validationErrors := validate.Struct(options)
+	if validationErrors != nil {
+
+		return nil, validationErrors
+	}
+
+	internalParams := renderProgressInternalConfig{
+		RenderId:   options.RenderId,
+		BucketName: options.BucketName,
+		Type:       "status",
+	}
+
+	return &internalParams, nil
+}
