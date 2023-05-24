@@ -46,6 +46,7 @@ export const ZodStringEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
+	console.log(defaultValue === value);
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
 			value,
@@ -74,7 +75,6 @@ export const ZodStringEditor: React.FC<{
 		},
 		[onValueChange]
 	);
-
 	const reset = useCallback(() => {
 		onValueChange(defaultValue, true);
 	}, [defaultValue, onValueChange]);
@@ -87,7 +87,7 @@ export const ZodStringEditor: React.FC<{
 		<div style={compact ? narrowOption : optionRow}>
 			<SchemaLabel
 				compact={compact}
-				isDefaultValue={value === defaultValue}
+				isDefaultValue={localValue.value === defaultValue}
 				jsonPath={jsonPath}
 				onReset={reset}
 				onSave={save}
@@ -99,7 +99,7 @@ export const ZodStringEditor: React.FC<{
 			<div style={fullWidth}>
 				<RemotionInput
 					value={localValue.value}
-					status={localValue.zodValidation.success ? 'ok' : 'error'}
+					status={localValue.zodValidation ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
 					rightAlign={false}
