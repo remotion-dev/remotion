@@ -1,5 +1,8 @@
 set -e
 cd ..
+cd renderer
+node build.mjs --cloudrun
+cd ..
 cd cloudrun
 pnpm run buildContainer
 cd container
