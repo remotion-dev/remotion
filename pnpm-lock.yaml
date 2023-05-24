@@ -357,9 +357,9 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.266
         version: 3.0.266(eslint@8.25.0)(typescript@4.7.2)
-      '@remotion/compositor-linux-x64-musl':
+      '@remotion/compositor-linux-x64-gnu':
         specifier: workspace:*
-        version: link:../compositor-linux-x64-musl
+        version: link:../compositor-linux-x64-gnu
       '@types/minimist':
         specifier: 1.2.2
         version: 1.2.2
@@ -22415,7 +22415,7 @@ packages:
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.2
       '@types/node': 18.14.6
-      acorn: 8.8.1
+      acorn: 8.8.0
       acorn-walk: 8.2.0
       arg: 4.1.3
       create-require: 1.1.1
