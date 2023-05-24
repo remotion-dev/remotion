@@ -69,11 +69,10 @@ export const handler = streamifyResponse(
 				inputProps: JSON.stringify(params.inputProps),
 				isWarm,
 			});
-			const response = await launchHandler(params, {
+			await launchHandler(params, {
 				expectedBucketOwner: currentUserId,
 				getRemainingTimeInMillis: context.getRemainingTimeInMillis,
 			});
-			responseStream.write(JSON.stringify(response));
 			responseStream.end();
 			return;
 		}
@@ -102,11 +101,10 @@ export const handler = streamifyResponse(
 				inputProps: JSON.stringify(params.inputProps),
 				isWarm,
 			});
-			const response = await rendererHandler(params, {
+			await rendererHandler(params, {
 				expectedBucketOwner: currentUserId,
 				isWarm,
 			});
-			responseStream.write(JSON.stringify(response));
 			responseStream.end();
 			return;
 		}
