@@ -29,6 +29,7 @@ export const ZodStringEditor: React.FC<{
 	compact: boolean;
 	showSaveButton: boolean;
 	saving: boolean;
+	saveDisabledByParent: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -40,6 +41,7 @@ export const ZodStringEditor: React.FC<{
 	onSave,
 	onRemove,
 	saving,
+	saveDisabledByParent,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -95,6 +97,7 @@ export const ZodStringEditor: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				valid={localValue.zodValidation.success}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput

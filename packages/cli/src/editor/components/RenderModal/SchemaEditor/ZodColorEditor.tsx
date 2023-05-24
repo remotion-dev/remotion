@@ -194,6 +194,7 @@ export const ZodColorEditor: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				valid={localValue.zodValidation.success}
+				saveDisabledByParent={false}
 			/>
 			<div style={fullWidth}>
 				<Row align="center">

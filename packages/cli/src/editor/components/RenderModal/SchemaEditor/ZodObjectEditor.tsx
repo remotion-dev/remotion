@@ -117,6 +117,7 @@ export const ZodObjectEditor: React.FC<{
 									compact={compact}
 									showSaveButton={showSaveButton}
 									saving={saving}
+									saveDisabledByParent={false}
 								/>
 							);
 						})}
