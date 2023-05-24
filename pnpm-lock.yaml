@@ -767,6 +767,12 @@ importers:
   packages/lambda-go-example:
     specifiers: {}
 
+  packages/lambda-php:
+    specifiers:
+      remotion: workspace:*
+    devDependencies:
+      remotion: link:../core
+
   packages/lottie:
     specifiers:
       '@jonny/eslint-config': 3.0.266

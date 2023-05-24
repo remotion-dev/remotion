@@ -6,7 +6,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
-	"github.com/go-playground/validator/v10"
 )
 
 func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error) {
@@ -65,14 +64,13 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgressResponse, e
 	// Create a new Lambda client
 	svc := lambda.New(sess)
 
-	validate := validator.New()
-	validationErrors := validate.Struct(config)
+	internalParams, validateError := constructGetProgressInternals(&config)
 
-	if validationErrors != nil {
-		return nil, validationErrors
+	if validateError != nil {
+		return nil, validateError
 	}
 
-	internalParamsJSON, marshallingError := json.Marshal(config)
+	internalParamsJSON, marshallingError := json.Marshal(internalParams)
 	if marshallingError != nil {
 
 		return nil, marshallingError
