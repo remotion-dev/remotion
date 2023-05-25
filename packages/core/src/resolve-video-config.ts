@@ -26,7 +26,7 @@ export const resolveVideoConfig = async ({
 	const width = calculated?.width ?? comp.width ?? null;
 	if (!width) {
 		throw new TypeError(
-			'Composition width was neither specified via the `width` prop nor the `calculateMetadata` function.'
+			'Composition width was neither specified via the `width` prop nor the `calculateMetadata()` function.'
 		);
 	}
 
@@ -35,7 +35,7 @@ export const resolveVideoConfig = async ({
 	const height = calculated?.height ?? comp.height ?? null;
 	if (!height) {
 		throw new TypeError(
-			'Composition height was neither specified via the `height` prop nor the `calculateMetadata` function.'
+			'Composition height was neither specified via the `height` prop nor the `calculateMetadata()` function.'
 		);
 	}
 
@@ -44,7 +44,7 @@ export const resolveVideoConfig = async ({
 	const fps = calculated?.fps ?? comp.fps ?? null;
 	if (!fps) {
 		throw new TypeError(
-			'Composition fps was neither specified via the `fps` prop nor the `calculateMetadata` function.'
+			'Composition fps was neither specified via the `fps` prop nor the `calculateMetadata()` function.'
 		);
 	}
 
@@ -52,7 +52,7 @@ export const resolveVideoConfig = async ({
 		calculated?.durationInFrames ?? comp.durationInFrames ?? null;
 	if (!durationInFrames) {
 		throw new TypeError(
-			'Composition durationInFrames was neither specified via the `durationInFrames` prop nor the `calculateMetadata` function.'
+			'Composition durationInFrames was neither specified via the `durationInFrames` prop nor the `calculateMetadata()` function.'
 		);
 	}
 

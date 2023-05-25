@@ -20,7 +20,7 @@ const left: React.CSSProperties = {
 
 const errName: React.CSSProperties = {
 	fontSize: 18,
-	color: '#4290f5',
+	color: 'var(--blue)',
 	display: 'inline-block',
 };
 
