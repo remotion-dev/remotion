@@ -2,33 +2,33 @@ import {GoogleAuth} from 'google-auth-library';
 import {permissionsPath} from '../../shared/constants';
 import {getCloudStorageClient} from '../helpers/get-cloud-storage-client';
 
-export const logPermissionOutput = (output: SimulationResult) => {
+export const logPermissionOutput = (output: TestResult) => {
 	return [output.decision ? '✅' : '❌', output.permissionName].join(' ');
 };
 
-type SimulationResult = {
+type TestResult = {
 	decision: true | false;
 	permissionName: string;
 };
 
-type SimulatePermissionsInput = {
-	onSimulation?: (result: SimulationResult) => void;
+type TestPermissionsInput = {
+	onTest?: (result: TestResult) => void;
 };
 
-type SimulatePermissionsOutput = {
-	results: SimulationResult[];
+type TestPermissionsOutput = {
+	results: TestResult[];
 };
 
 /**
- * @description Simulates calls using the AWS Simulator to validate the correct permissions.
- * @see [Remotion-Documentation](http://remotion.dev/docs/cloudrun/simulatepermissions)
- * @see [Cloudrun-Documentation]https://cloud.google.com/iam/docs/testing-permissions)
- * @param {(result: SimulationResult) => void} options.onSimulation Function to run on each simulation result
- * @returns {Promise<SimulatePermissionsOutput>} See documentation for detailed response structure.
+ * @description Test the permissions on the service account match the permissions required.
+ * @see [Remotion-Documentation](http://remotion.dev/docs/cloudrun/testpermissions)
+ * @see [Cloudrun-Documentation](https://cloud.google.com/resource-manager/reference/rest/v1/projects/testIamPermissions)
+ * @param {(result: TestResult) => void} options.onTest Function to run on each test result
+ * @returns {Promise<TestPermissionsOutput>} Returns array of TestResult objects
  */
-export const simulatePermissions = async (
-	options: SimulatePermissionsInput
-): Promise<SimulatePermissionsOutput> => {
+export const testPermissions = async (
+	options: TestPermissionsInput
+): Promise<TestPermissionsOutput> => {
 	const auth = new GoogleAuth({
 		credentials: {
 			client_email: process.env.REMOTION_GCP_CLIENT_EMAIL,
@@ -60,7 +60,9 @@ export const simulatePermissions = async (
 		permissions: saPermissions.list,
 	};
 
-	const results: SimulationResult[] = [];
+	const results: TestResult[] = [];
+
+	// The service account, which calls the testIamPermissions method, receives a list of permissions that match the permissions specified in the request.
 
 	const response: {
 		data: {
@@ -76,11 +78,11 @@ export const simulatePermissions = async (
 		if (response?.data?.permissions.includes(permission)) {
 			const thisResult = {decision: true, permissionName: permission};
 			results.push(thisResult);
-			options.onSimulation?.(thisResult);
+			options.onTest?.(thisResult);
 		} else {
 			const thisResult = {decision: false, permissionName: permission};
 			results.push(thisResult);
-			options.onSimulation?.(thisResult);
+			options.onTest?.(thisResult);
 		}
 	});
 
