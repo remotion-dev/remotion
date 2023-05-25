@@ -61,7 +61,7 @@ Callback that gets called once the GIF has loaded and finished processing. As it
 
 ### `style`
 
-Allows to pass in custom CSS styles.
+Allows to pass in custom CSS styles. You may not pass `width` and `height`, instead use the props `width` and `height` to set the size of the GIF.
 
 ### `loopBehavior` <AvailableFrom v="3.3.4" />
 

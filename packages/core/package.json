@@ -1,6 +1,6 @@
 {
 	"name": "remotion",
-	"version": "3.3.95",
+	"version": "3.3.96",
 	"description": "Render videos in React",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -10,7 +10,7 @@
 		"prepublishOnly": "node ensure-correct-version.js && cp ../../README.md .",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"build": "rollup --config rollup-version.config.js && rollup --config rollup.config.js && tsc -d",
+		"build": "tsc -d && rollup --config rollup-version.config.js && rollup --config rollup.config.js",
 		"watch": "tsc -w"
 	},
 	"repository": {
@@ -29,7 +29,7 @@
 		"@jonny/eslint-config": "3.0.273",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@testing-library/react": "14.0.0",
-		"@types/node": "^16.7.5",
+		"@types/node": "18.14.6",
 		"@types/react": "18.0.26",
 		"@types/react-dom": "18.0.10",
 		"@vitejs/plugin-react": "^2.0.0",

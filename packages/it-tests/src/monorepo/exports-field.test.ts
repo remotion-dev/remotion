@@ -2,7 +2,7 @@ import { existsSync, lstatSync, readdirSync, readFileSync } from "fs";
 import path from "path";
 import { test } from "vitest";
 
-test("All packages require the same remotion version", () => {
+test("All packages should export package.json", () => {
   const packages = readdirSync(path.join(process.cwd(), ".."));
   const folders = packages.filter((p) =>
     lstatSync(path.join(process.cwd(), "..", p)).isDirectory()

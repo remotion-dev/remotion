@@ -2,7 +2,10 @@ import {expect, test} from 'vitest';
 import {handler} from '../../functions/index';
 import type {Await} from '../../shared/await';
 import {LambdaRoutines} from '../../shared/constants';
-import type {LambdaReturnValues} from '../../shared/return-values';
+import type {
+	LambdaReturnValues,
+	StreamedResponse,
+} from '../../shared/return-values';
 
 test('Info handler should return version', async () => {
 	const response = await handler(
@@ -12,8 +15,10 @@ test('Info handler should return version', async () => {
 		{invokedFunctionArn: '::::::', getRemainingTimeInMillis: () => 1000}
 	);
 
-	expect(
-		typeof (response as Await<LambdaReturnValues[LambdaRoutines.info]>)
-			.version === 'string'
-	).toBe(true);
+	const res = response as StreamedResponse;
+	const parsed = JSON.parse(res.body) as Await<
+		LambdaReturnValues[LambdaRoutines.info]
+	>;
+
+	expect(typeof parsed.version === 'string').toBe(true);
 });

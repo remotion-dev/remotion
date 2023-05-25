@@ -146,3 +146,21 @@ describe('Should be able to delay a spring', () => {
 		).toBeCloseTo(1);
 	});
 });
+
+test('Should apply delay in the right order', () => {
+	expect(
+		spring({
+			fps: 30,
+			frame: 61,
+			delay: 60,
+			durationInFrames: 10,
+		})
+	).toBe(
+		spring({
+			fps: 30,
+			frame: 1,
+			delay: 0,
+			durationInFrames: 10,
+		})
+	);
+});
