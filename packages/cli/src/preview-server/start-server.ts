@@ -68,7 +68,7 @@ export const startServer = async (options: {
 				});
 			})
 			.then(() => {
-				return handleRoutes({
+				handleRoutes({
 					hash: options.hash,
 					hashPrefix: options.hashPrefix,
 					request,
