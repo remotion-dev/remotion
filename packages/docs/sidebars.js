@@ -380,6 +380,7 @@ module.exports = {
         "encoding",
         "transparent-videos",
         "dynamic-metadata",
+        "dynamic-metadata-v2",
         "ssr",
         "webpack",
         "tailwind",
