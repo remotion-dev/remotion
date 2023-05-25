@@ -166,12 +166,11 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 		compProps.calculateMetadata,
 	]);
 
-	if (resolved === null) {
-		return <div style={{color: 'white'}}>Loading...</div>;
-	}
-
 	if (environment === 'preview' && video && video.component === lazy) {
 		const Comp = lazy;
+		if (resolved === null) {
+			return <div style={{color: 'white'}}>Loading...</div>;
+		}
 
 		return createPortal(
 			<ClipComposition>
@@ -193,6 +192,10 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 
 	if (environment === 'rendering' && video && video.component === lazy) {
 		const Comp = lazy;
+
+		if (resolved === null) {
+			return <div style={{color: 'white'}}>Loading...</div>;
+		}
 
 		return createPortal(
 			<CanUseRemotionHooksProvider>
