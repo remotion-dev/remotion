@@ -13,14 +13,12 @@
       "args": [
         "build",
         "-t",
-        "us-docker.pkg.dev/remotion-dev/cloud-run/render:3.3.95",
+        "us-docker.pkg.dev/remotion-dev/cloud-run/render:3.3.96",
         "--cache-from",
         "us-docker.pkg.dev/remotion-dev/cloud-run/render:cachebase",
         "."
       ]
     }
   ],
-  "images": [
-    "us-docker.pkg.dev/remotion-dev/cloud-run/render:3.3.95"
-  ]
+  "images": ["us-docker.pkg.dev/remotion-dev/cloud-run/render:3.3.96"]
 }
