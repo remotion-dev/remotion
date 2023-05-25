@@ -11,6 +11,7 @@ import {findEntryPoint} from './entry-point';
 import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {formatBytes} from './format-bytes';
 import {getCliOptions} from './get-cli-options';
+import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
 import {getFinalOutputCodec} from './get-final-output-codec';
 import {handleCommonError} from './handle-common-errors';
@@ -27,7 +28,6 @@ import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
-import {showSingleCompositionsPicker} from './show-compositions-picker';
 import {still} from './still';
 import {upgrade} from './upgrade';
 import {
@@ -120,11 +120,11 @@ export const CliInternals = {
 	getFileSizeDownloadBar,
 	determineFinalStillImageFormat,
 	minimist,
-	showSingleCompositionsPicker,
 	findEntryPoint,
 	getVideoImageFormat,
 	printCompositions,
 	getFinalOutputCodec,
 	listOfRemotionPackages,
 	shouldUseNonOverlayingLogger,
+	getCompositionWithDimensionOverride,
 };
