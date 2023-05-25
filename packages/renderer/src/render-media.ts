@@ -10,7 +10,7 @@ import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {AudioCodec} from './audio-codec';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
-import type {Browser as PuppeteerBrowser} from './browser/Browser';
+import type {HeadlessBrowser as PuppeteerBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';

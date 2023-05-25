@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type {Browser, BrowserContext} from './Browser';
+import type {BrowserContext, HeadlessBrowser} from './Browser';
 import {Page} from './BrowserPage';
 import type {CDPSession} from './Connection';
 import type {TargetInfo} from './devtools-types';
@@ -143,7 +143,7 @@ export class Target {
 	/**
 	 * Get the browser the target belongs to.
 	 */
-	browser(): Browser {
+	browser(): HeadlessBrowser {
 		return this.#browserContext.browser();
 	}
 

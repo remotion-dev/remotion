@@ -37,7 +37,7 @@ export const enum BrowserEmittedEvents {
 	ClosedSilent = 'closed-silent',
 }
 
-export class Browser extends EventEmitter {
+export class HeadlessBrowser extends EventEmitter {
 	static async _create({
 		connection,
 		contextIds,
@@ -48,8 +48,8 @@ export class Browser extends EventEmitter {
 		contextIds: string[];
 		defaultViewport: Viewport;
 		closeCallback?: BrowserCloseCallback;
-	}): Promise<Browser> {
-		const browser = new Browser(
+	}): Promise<HeadlessBrowser> {
+		const browser = new HeadlessBrowser(
 			connection,
 			contextIds,
 			defaultViewport,
@@ -265,10 +265,10 @@ export class Browser extends EventEmitter {
 }
 
 export class BrowserContext extends EventEmitter {
-	#browser: Browser;
+	#browser: HeadlessBrowser;
 	#id?: string;
 
-	constructor(browser: Browser, contextId?: string) {
+	constructor(browser: HeadlessBrowser, contextId?: string) {
 		super();
 		this.#browser = browser;
 		this.#id = contextId;
@@ -304,7 +304,7 @@ export class BrowserContext extends EventEmitter {
 		return this.#browser._createPageInContext(this.#id);
 	}
 
-	browser(): Browser {
+	browser(): HeadlessBrowser {
 		return this.#browser;
 	}
 }

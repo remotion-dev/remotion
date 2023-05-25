@@ -1,3 +1,11 @@
+import type {
+	BrowserExecutable,
+	BrowserLog,
+	ChromiumOptions,
+	DownloadMap,
+	HeadlessBrowser,
+} from '@remotion/renderer';
+import {getCompositions, selectComposition} from '@remotion/renderer';
 import type {AnyCompMetadata} from 'remotion';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';
@@ -27,13 +35,35 @@ const getCompName = ({
 };
 
 export const getCompositionId = async ({
-	validCompositions,
 	args,
 	compositionIdFromUi,
+	inputProps,
+	puppeteerInstance,
+	envVariables,
+	timeoutInMilliseconds,
+	chromiumOptions,
+	port,
+	browserExecutable,
+	downloadMap,
+	serveUrlOrWebpackUrl,
+	verbose,
+	onBrowserLog,
+	indent,
 }: {
-	validCompositions: AnyCompMetadata[];
 	args: string[];
 	compositionIdFromUi: string | null;
+	inputProps?: object | null;
+	puppeteerInstance?: HeadlessBrowser;
+	envVariables?: Record<string, string>;
+	timeoutInMilliseconds?: number;
+	chromiumOptions?: ChromiumOptions;
+	port?: number | null;
+	browserExecutable?: BrowserExecutable;
+	downloadMap?: DownloadMap;
+	serveUrlOrWebpackUrl: string;
+	verbose: boolean;
+	onBrowserLog?: (log: BrowserLog) => void;
+	indent: boolean;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -49,14 +79,22 @@ export const getCompositionId = async ({
 		compositionIdFromUi,
 	});
 	if (compName) {
-		const config = validCompositions.find((c) => c.id === compName);
+		const config = await selectComposition({
+			id: compName,
+			inputProps,
+			puppeteerInstance,
+			envVariables,
+			timeoutInMilliseconds,
+			serveUrl: serveUrlOrWebpackUrl,
+			browserExecutable,
+			chromiumOptions,
+			onBrowserLog,
+			port,
+			verbose,
+		});
 
 		if (!config) {
-			throw new Error(
-				`Cannot find composition with ID "${compName}". Available composition: ${validCompositions
-					.map((c) => c.id)
-					.join(', ')}`
-			);
+			throw new Error(`Cannot find composition with ID "${compName}"`);
 		}
 
 		return {
@@ -68,16 +106,25 @@ export const getCompositionId = async ({
 	}
 
 	if (!process.env.CI) {
-		const {compositionId, reason} = await showSingleCompositionsPicker(
-			validCompositions
-		);
+		const comps = await getCompositions(serveUrlOrWebpackUrl, {
+			inputProps,
+			puppeteerInstance,
+			envVariables,
+			timeoutInMilliseconds,
+			chromiumOptions,
+			port,
+			browserExecutable,
+			downloadMap,
+			onBrowserLog,
+			verbose,
+			indent,
+		});
+		const {compositionId, reason} = await showSingleCompositionsPicker(comps);
 		if (compositionId && typeof compositionId === 'string') {
 			return {
 				compositionId,
 				reason,
-				config: validCompositions.find(
-					(c) => c.id === compositionId
-				) as AnyCompMetadata,
+				config: comps.find((c) => c.id === compositionId) as AnyCompMetadata,
 				argsAfterComposition: args,
 			};
 		}

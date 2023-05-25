@@ -1,5 +1,5 @@
 import type {Browser} from './browser';
-import type {Browser as PuppeteerBrowser} from './browser/Browser';
+import type {HeadlessBrowser as PuppeteerBrowser} from './browser/Browser';
 import {puppeteer} from './browser/node';
 import type {Viewport} from './browser/PuppeteerViewport';
 import {
