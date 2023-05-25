@@ -7,20 +7,21 @@ import {validateProjectID} from '../shared/validate-project-id';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 
 export type CheckIfServiceExistsInput = {
+	projectID: string;
 	memoryLimit: string;
 	cpuLimit: string;
 	timeoutSeconds: number;
-	projectID: string;
 	region: string;
 };
 
 /**
  * @description Lists Cloud Run services in the project, and checks for a matching name.
- * @link https://remotion.dev/docs/lambda/deployfunction
- * @param projectID GCP Project ID to deploy the Cloud Run service to.
- * @param serviceNameToCheck The name of the Cloud Run service.
- * @param region The region you want to deploy your Cloud Run service to.
- * @returns {Promise<protos.google.cloud.run.v2.IService>} If the service exists, the service object will be returned, otherwise false.
+ * @param projectID GCP Project ID of Cloud Run service to check for.
+ * @param memoryLimit Memory limit of Cloud Run service to check for.
+ * @param cpuLimit CPU limit of Cloud Run service to check for.
+ * @param timeoutSeconds Timeout of Cloud Run service to check for.
+ * @param region The region of Cloud Run service to check for.
+ * @returns {Promise<protos.google.cloud.run.v2.IService>} Returns Service object.
  */
 export const checkIfServiceExists = async ({
 	memoryLimit,
