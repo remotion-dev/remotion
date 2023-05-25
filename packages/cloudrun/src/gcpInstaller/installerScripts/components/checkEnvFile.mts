@@ -11,7 +11,8 @@ function deleteEnvPrompt() {
 		});
 
 		rl.question(
-			`${colorCode.redText}.env file exists in this directory. Delete and create new .env file [yes, no]? ${colorCode.blueText}`,
+			`
+${colorCode.redText}.env file exists in this directory. Delete and create new .env file [yes, no]? ${colorCode.blueText}`,
 			async (answer) => {
 				// reset terminal color
 				rl.write(`\n${colorCode.resetText}`);

@@ -10,7 +10,7 @@ export function taskPrompt(projectID: string) {
 		});
 
 		rl.question(
-			`What would you like to do?\n[1] Cloud Run rendering in ${colorCode.blueText}${projectID}${colorCode.resetText} - Setup / Update Remotion version.\n[2] ${colorCode.blueText}${projectID}${colorCode.resetText} is already set up for Remotion, generate a new .env file or manage keys for the Remotion Service Account.\n${colorCode.blueText}`,
+			`What would you like to do?\n[1] Cloud Run rendering in ${colorCode.blueText}${projectID}${colorCode.resetText} - Setup / Update Remotion version.\n[2] ${colorCode.blueText}${projectID}${colorCode.resetText} is already set up for Remotion. Manage keys and/or generate a new .env file for the Remotion Service Account.\n${colorCode.blueText}`,
 			async (answer) => {
 				// reset terminal color
 				rl.write(`\n${colorCode.resetText}`);
@@ -25,7 +25,7 @@ export function taskPrompt(projectID: string) {
 
 				if (answer.trim() === '2') {
 					rl.write(
-						`${colorCode.blueText}<.env creation selected>\n\n${colorCode.resetText}`
+						`${colorCode.blueText}<key management selected>\n\n${colorCode.resetText}`
 					);
 					rl.close();
 					return resolve('generateEnv');

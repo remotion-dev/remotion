@@ -11,7 +11,7 @@ export function cloudRunSplashScreen() {
 			stdio: 'inherit',
 		}
 	);
-	execSync('echo "     GCP project setup for Remotion Cloud Run    "', {
+	execSync('echo "    GCP project setup for Remotion Cloud Run    "', {
 		stdio: 'inherit',
 	});
 	execSync(
