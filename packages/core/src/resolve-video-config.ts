@@ -12,6 +12,8 @@ export const resolveVideoConfig = async ({
 	comp: TCompMetadataWithCalcFunction<ZodTypeAny, unknown>;
 	editorProps: object;
 }): Promise<VideoConfig> => {
+	const potentialErrorLocation = `calculated by calculateMetadata() for the composition "${comp.id}"`;
+
 	const calculated = comp.calculateMetadata
 		? await comp.calculateMetadata({
 				defaultProps: comp.defaultProps,
@@ -30,7 +32,7 @@ export const resolveVideoConfig = async ({
 		);
 	}
 
-	validateDimension(width, 'width', 'calculated by calculateMetadata()');
+	validateDimension(width, 'width', potentialErrorLocation);
 
 	const height = calculated?.height ?? comp.height ?? null;
 	if (!height) {
@@ -39,7 +41,7 @@ export const resolveVideoConfig = async ({
 		);
 	}
 
-	validateDimension(width, 'height', 'calculated by calculateMetadata()');
+	validateDimension(width, 'height', potentialErrorLocation);
 
 	const fps = calculated?.fps ?? comp.fps ?? null;
 	if (!fps) {
@@ -58,7 +60,7 @@ export const resolveVideoConfig = async ({
 
 	validateDurationInFrames({
 		durationInFrames,
-		component: 'calculated by calculateMetadata()',
+		component: potentialErrorLocation,
 		allowFloats: false,
 	});
 
