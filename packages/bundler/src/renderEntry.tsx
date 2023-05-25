@@ -226,7 +226,7 @@ export const setBundleModeAndUpdate = (state: BundleState) => {
 };
 
 if (typeof window !== 'undefined') {
-	window.getStaticCompositions = (): AnyCompMetadata[] => {
+	window.getStaticCompositions = (): Promise<AnyCompMetadata[]> => {
 		if (!Internals.getRoot()) {
 			throw new Error(
 				'registerRoot() was never called. 1. Make sure you specified the correct entrypoint for your bundle. 2. If your registerRoot() call is deferred, use the delayRender/continueRender pattern to tell Remotion to wait.'
@@ -261,16 +261,11 @@ if (typeof window !== 'undefined') {
 			);
 		}
 
-		return compositions.map((c): AnyCompMetadata => {
-			return {
-				defaultProps: c.defaultProps,
-				durationInFrames: c.durationInFrames,
-				fps: c.fps,
-				height: c.height,
-				id: c.id,
-				width: c.width,
-			};
-		});
+		return Promise.all(
+			compositions.map((c): Promise<AnyCompMetadata> => {
+				return Internals.resolveVideoConfig(c);
+			})
+		);
 	};
 
 	window.calculateComposition = (compId: string) => {

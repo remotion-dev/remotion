@@ -8,7 +8,7 @@ export const resolveVideoConfig = async (
 	comp: TCompMetadataWithCalcFunction<ZodTypeAny, unknown>
 ): Promise<VideoConfig> => {
 	const calculated = comp.calculateMetadata
-		? await comp.calculateMetadata(comp.defaultProps)
+		? await comp.calculateMetadata({defaultProps: comp.defaultProps})
 		: null;
 
 	const width = calculated?.width ?? comp.width ?? null;

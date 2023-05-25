@@ -155,7 +155,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 		return valueFromRemoteObject(remoteObject);
 	} catch (error) {
 		if (
-			(error as {originalMessage: string})?.originalMessage.startsWith(
+			(error as {originalMessage: string})?.originalMessage?.startsWith(
 				"Object couldn't be returned by value"
 			)
 		) {

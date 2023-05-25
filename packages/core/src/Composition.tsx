@@ -35,18 +35,21 @@ export type CompProps<Props> =
 			component: LooseComponentType<Props>;
 	  };
 
-export type CalculateMetadataFunction = (defaultProps: unknown) => Promise<{
+export type CalculateMetadataFunction = (options: {
+	defaultProps: unknown;
+}) => Promise<{
 	durationInFrames: number;
 	fps: number;
 	width: number;
 	height: number;
+	props: unknown;
 }>;
 
 export type StillProps<Schema extends z.ZodTypeAny, Props> = {
 	width: number;
 	height: number;
 	id: string;
-	calculateStuff?: CalculateMetadataFunction;
+	calculateMetadata?: CalculateMetadataFunction;
 	schema?: Schema;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
@@ -137,7 +140,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 			nonce,
 			parentFolderName: parentName,
 			schema: schema ?? null,
-			calculateMetadata: compProps.calculateStuff ?? null,
+			calculateMetadata: compProps.calculateMetadata ?? null,
 		});
 
 		return () => {
@@ -157,7 +160,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 		nonce,
 		parentName,
 		schema,
-		compProps.calculateStuff,
+		compProps.calculateMetadata,
 	]);
 
 	const editorPropsOrUndefined = allEditorProps[id] ?? {};

@@ -53,6 +53,7 @@ export const SharedPlayerContexts: React.FC<{
 					defaultProps: undefined,
 					parentFolderName: null,
 					schema: null,
+					calculateMetadata: null,
 				},
 			],
 			folders: [],
@@ -71,6 +72,7 @@ export const SharedPlayerContexts: React.FC<{
 			setCurrentCompositionMetadata: () => undefined,
 			assets: [],
 			setClipRegion: () => undefined,
+			resolved: null,
 		};
 	}, [
 		component,
