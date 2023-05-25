@@ -100,7 +100,9 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 							filter: `opacity(${1 / actualSamples})`,
 						}}
 					>
-						<Freeze frame={currentFrame - sampleFrameOffset}>{children}</Freeze>
+						<Freeze frame={currentFrame - sampleFrameOffset + 1}>
+							{children}
+						</Freeze>
 					</AbsoluteFill>
 				);
 			})}

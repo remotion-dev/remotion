@@ -11,7 +11,7 @@ export default [
 				sourcemap: false,
 			},
 		],
-		external: ['react'],
+		external: ['react', '@remotion/bundler', 'fs'],
 		plugins: [
 			typescript({
 				tsconfig: 'tsconfig-esm.json',
