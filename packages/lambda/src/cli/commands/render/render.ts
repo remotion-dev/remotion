@@ -48,7 +48,9 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 		validateServeUrl(serveUrl);
 		const comps = await getCompositions(serveUrl);
-		const {compositionId} = await CliInternals.selectComposition(comps);
+		const {compositionId} = await CliInternals.showSingleCompositionsPicker(
+			comps
+		);
 		composition = compositionId;
 	}
 
