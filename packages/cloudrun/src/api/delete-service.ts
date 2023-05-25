@@ -8,7 +8,8 @@ export type DeleteServiceInput = {
 /**
  * @description Deletes a service from GCP Cloud Run
  * @see [Documentation](https://remotion.dev/docs/cloudrun/deleteservice)
- * @param options.serviceName The name of the service.
+ * @param options.serviceName The name of the service to delete.
+ * @param options.region The region of the service to delete.
  * @returns {Promise<void>} Nothing. Throws if the service failed to delete.
  */
 export const deleteService = async (
