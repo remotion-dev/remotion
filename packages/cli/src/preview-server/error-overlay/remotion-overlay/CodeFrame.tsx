@@ -1,9 +1,11 @@
 import React from 'react';
+import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../../editor/components/Menu/is-menu-item';
 import type {ScriptLine} from '../react-overlay/utils/stack-frame';
 
 const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
+	width: '100%',
 };
 
 const frame: React.CSSProperties = {
@@ -14,7 +16,6 @@ const frame: React.CSSProperties = {
 
 const lineNumber: React.CSSProperties = {
 	whiteSpace: 'pre',
-	marginRight: 6,
 	paddingRight: 12,
 	color: 'inherit',
 	fontSize: 14,
@@ -32,21 +33,13 @@ export const CodeFrame: React.FC<{
 	lineNumberWidth: number;
 }> = ({source, lineNumberWidth}) => {
 	return (
-		<div style={frame}>
+		<div style={frame} className={HORIZONTAL_SCROLLBAR_CLASSNAME}>
 			{source.map((s, j) => {
 				return (
 					<div
 						// eslint-disable-next-line react/no-array-index-key
 						key={j}
-						style={{
-							...container,
-							fontFamily: 'monospace',
-							whiteSpace: 'pre',
-							tabSize: 2,
-							color: s.highlight ? 'white' : 'rgba(255, 255, 255, 0.6)',
-							backgroundColor: s.highlight ? 'var(--blue)' : 'transparent',
-							lineHeight: 1.7,
-						}}
+						style={container}
 					>
 						<div
 							style={{
@@ -57,7 +50,19 @@ export const CodeFrame: React.FC<{
 						>
 							{String(s.lineNumber).padStart(lineNumberWidth, ' ')}
 						</div>
-						{s.content}
+						<div
+							style={{
+								fontFamily: 'monospace',
+								whiteSpace: 'pre',
+								tabSize: 2,
+								color: s.highlight ? 'white' : 'rgba(255, 255, 255, 0.6)',
+								backgroundColor: s.highlight ? 'var(--blue)' : 'transparent',
+								lineHeight: 1.7,
+								paddingRight: 12,
+							}}
+						>
+							{s.content}
+						</div>
 					</div>
 				);
 			})}
