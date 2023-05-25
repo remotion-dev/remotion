@@ -287,10 +287,6 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		[onInMark, onInOutClear, onOutMark, setInAndOutFrames]
 	);
 
-	if (!videoConfig) {
-		return null;
-	}
-
 	if (isStill) {
 		return null;
 	}
@@ -302,7 +298,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				aria-label={getTooltipText('In', 'I')}
 				onClick={(e) => onInMark(e)}
 				onContextMenu={clearInMark}
-				disabled={timelinePosition === 0}
+				disabled={!videoConfig || timelinePosition === 0}
 			>
 				<TimelineInPointer
 					color={inFrame === null ? 'white' : 'var(--blue)'}
@@ -314,7 +310,9 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				aria-label={getTooltipText('Out', 'O')}
 				onClick={onOutMark}
 				onContextMenu={clearOutMark}
-				disabled={timelinePosition === videoConfig.durationInFrames - 1}
+				disabled={
+					!videoConfig || timelinePosition === videoConfig.durationInFrames - 1
+				}
 			>
 				<TimelineOutPointer
 					color={outFrame === null ? 'white' : 'var(--blue)'}
