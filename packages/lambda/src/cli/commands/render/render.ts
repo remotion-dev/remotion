@@ -100,7 +100,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	validateMaxRetries(maxRetries);
 
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
-	validatePrivacy(privacy);
+	validatePrivacy(privacy, true);
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	validateFramesPerLambda({framesPerLambda, durationInFrames: 1});
 
