@@ -18,7 +18,7 @@ export const resolveVideoConfig = async ({
 		? await comp.calculateMetadata({
 				defaultProps: comp.defaultProps,
 				props: {
-					...(comp.defaultProps ?? {}),
+					...((comp.defaultProps ?? {}) as object),
 					...(editorPropsOrUndefined ?? {}),
 					...(getInputProps() ?? {}),
 				},

@@ -1,4 +1,4 @@
-import {CalculateMetadataFunction, random} from 'remotion';
+import {CalculateMetadataFunction} from 'remotion';
 import {zColor} from '@remotion/zod-types';
 import './style.css';
 import {alias} from 'lib/alias';
@@ -94,7 +94,7 @@ export const Index: React.FC = () => {
 					defaultProps={{duration: 50}}
 				/>
 				<Composition
-					id="failing-dynmiac-length"
+					id="failing-dynamic-length"
 					component={DynamicDuration}
 					width={1080}
 					height={1080}
