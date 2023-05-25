@@ -1,14 +1,26 @@
 import type {ZodTypeAny} from 'zod';
 import type {TCompMetadataWithCalcFunction} from './CompositionManager.js';
+import {getInputProps} from './config/input-props.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import type {VideoConfig} from './video-config.js';
 
-export const resolveVideoConfig = async (
-	comp: TCompMetadataWithCalcFunction<ZodTypeAny, unknown>
-): Promise<VideoConfig> => {
+export const resolveVideoConfig = async ({
+	comp,
+	editorProps: editorPropsOrUndefined,
+}: {
+	comp: TCompMetadataWithCalcFunction<ZodTypeAny, unknown>;
+	editorProps: object;
+}): Promise<VideoConfig> => {
 	const calculated = comp.calculateMetadata
-		? await comp.calculateMetadata({defaultProps: comp.defaultProps})
+		? await comp.calculateMetadata({
+				defaultProps: comp.defaultProps,
+				props: {
+					...(comp.defaultProps ?? {}),
+					...(editorPropsOrUndefined ?? {}),
+					...(getInputProps() ?? {}),
+				},
+		  })
 		: null;
 
 	const width = calculated?.width ?? comp.width ?? null;

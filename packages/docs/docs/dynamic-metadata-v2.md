@@ -32,6 +32,8 @@ import { Composition } from "remotion";
 />;
 ```
 
+## Data loading
+
 ## How props flow
 
 ## In a `<Player>`
