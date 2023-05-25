@@ -1,7 +1,7 @@
 import React, {useCallback, useContext, useMemo} from 'react';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {SidebarContext} from '../state/sidebar';
-import {Canvas} from './Canvas';
+import {CanvasOrLoading} from './CanvasOrLoading';
 import {CompositionSelector} from './CompositionSelector';
 import {
 	CurrentCompositionKeybindings,
@@ -116,7 +116,7 @@ export const TopPanel: React.FC = () => {
 						>
 							<SplitterElement type="flexer">
 								<div style={canvasContainer}>
-									<Canvas />
+									<CanvasOrLoading />
 								</div>
 							</SplitterElement>
 							{actualStateRight === 'expanded' ? (

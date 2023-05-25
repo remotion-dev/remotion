@@ -301,7 +301,7 @@ export const CompositionManagerProvider: React.FC<{
 	const composition = compositions.find((c) => c.id === currentComposition);
 
 	const [resolvedConfigs, setResolvedConfigs] = useState<
-		Record<string, VideoConfig>
+		Record<string, VideoConfig | undefined>
 	>({});
 
 	const {props: allEditorProps} = useContext(EditorPropsContext);
@@ -310,6 +310,10 @@ export const CompositionManagerProvider: React.FC<{
 		const comp = compositions.find((c) => c.id === currentComposition);
 		if (comp) {
 			const editorProps = allEditorProps[comp.id] ?? {};
+			setResolvedConfigs((r) => ({
+				...r,
+				[comp.id]: undefined,
+			}));
 			resolveVideoConfig({comp, editorProps}).then((c) => {
 				setResolvedConfigs((r) => ({
 					...r,
