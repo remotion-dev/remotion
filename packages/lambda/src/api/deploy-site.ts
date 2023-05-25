@@ -10,6 +10,7 @@ import {makeS3ServeUrl} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateBucketName} from '../shared/validate-bucketname';
+import {validatePrivacy} from '../shared/validate-privacy';
 import {validateSiteName} from '../shared/validate-site-name';
 import {bucketExistsInRegion} from './bucket-exists';
 import type {UploadDirProgress} from './upload-dir';
@@ -30,6 +31,7 @@ export type DeploySiteInput = {
 		rootDir?: string;
 		bypassBucketNameValidation?: boolean;
 	};
+	privacy?: 'public' | 'no-acl';
 };
 
 export type DeploySiteOutput = Promise<{
@@ -57,6 +59,7 @@ export const deploySite = async ({
 	siteName,
 	options,
 	region,
+	privacy: passedPrivacy,
 }: DeploySiteInput): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {
@@ -65,6 +68,8 @@ export const deploySite = async ({
 
 	const siteId = siteName ?? randomHash();
 	validateSiteName(siteId);
+	const privacy = passedPrivacy ?? 'public';
+	validatePrivacy(privacy, false);
 
 	const accountId = await getAccountId({region});
 
@@ -111,7 +116,7 @@ export const deploySite = async ({
 			localDir: bundled,
 			onProgress: options?.onUploadProgress ?? (() => undefined),
 			keyPrefix: subFolder,
-			privacy: 'public',
+			privacy: privacy ?? 'public',
 			toUpload,
 		}),
 		Promise.all(
