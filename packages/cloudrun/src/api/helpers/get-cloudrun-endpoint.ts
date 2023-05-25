@@ -3,26 +3,26 @@ import {validateRegion} from '../../shared/validate-region';
 import {validateServiceName} from '../../shared/validate-service-name';
 import {getServiceInfo} from '../get-service-info';
 
-export type RenderMediaOnCloudrunInput = {
+export type getCloudrunEndpointInput = {
 	cloudRunUrl?: string;
 	serviceName?: string;
 	region?: string;
 };
 
 /**
- * @description Triggers a render on a GCP Cloud Run service given a composition and a Cloud Run URL.
+ * @description If the Cloud Run URL is passed, it will be validated and returned. If the service name is passed, the service will be looked up and the endpoint will be returned.
  * @see [Documentation](https://remotion.dev/docs/lambda/renderMediaOnGcp)
- * @param params.cloudRunUrl The url of the Cloud Run service that should be used
- * @param params.serviceName The name of the Cloud Run service that should be used
- * @param params.serveUrl The URL of the deployed project
- * @returns {Promise<string>} See documentation for detailed structure
+ * @param params.cloudRunUrl The url of the Cloud Run service
+ * @param params.serviceName The name of the Cloud Run service
+ * @param params.region The region of the service - required if the serviceName is passed.
+ * @returns {Promise<string>} Returns the endpoint of the Cloud Run service
  */
 
 export const getCloudrunEndpoint = async ({
 	cloudRunUrl,
 	serviceName,
 	region,
-}: RenderMediaOnCloudrunInput): Promise<string> => {
+}: getCloudrunEndpointInput): Promise<string> => {
 	if (!cloudRunUrl && !serviceName)
 		throw new Error('Either cloudRunUrl or serviceName must be provided');
 	if (cloudRunUrl && serviceName)
