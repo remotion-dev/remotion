@@ -40,7 +40,7 @@ test("Set the right verison for composer.json in example", () => {
     "utf-8"
   );
   const composerJsonJson = JSON.parse(composerJson);
-  composerJsonJson.require["remotion/lambda-php"] = version;
+  composerJsonJson.require["remotion/lambda"] = version;
   writeFileSync(
     path.join(process.cwd(), "..", "lambda-php-example", "composer.json"),
     JSON.stringify(composerJsonJson, null, 2) + "\n"
