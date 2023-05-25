@@ -2,6 +2,7 @@ import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {
 	createContext,
 	useCallback,
+	useContext,
 	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
@@ -12,6 +13,7 @@ import React, {
 import type {z} from 'zod';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {CalculateMetadataFunction} from './Composition.js';
+import {EditorPropsContext} from './EditorProps.js';
 import type {TFolder} from './Folder.js';
 import type {
 	PropsIfHasProps,
@@ -302,17 +304,20 @@ export const CompositionManagerProvider: React.FC<{
 		Record<string, VideoConfig>
 	>({});
 
+	const {props: allEditorProps} = useContext(EditorPropsContext);
+
 	useEffect(() => {
 		const comp = compositions.find((c) => c.id === currentComposition);
 		if (comp) {
-			resolveVideoConfig(comp).then((c) => {
+			const editorProps = allEditorProps[comp.id] ?? {};
+			resolveVideoConfig({comp, editorProps}).then((c) => {
 				setResolvedConfigs((r) => ({
 					...r,
 					[comp.id]: c,
 				}));
 			});
 		}
-	}, [compositions, currentComposition]);
+	}, [allEditorProps, compositions, currentComposition]);
 
 	const resolved = useMemo(() => {
 		if (!composition) {
