@@ -1,7 +1,8 @@
+import {CalculateMetadataFunction, random} from 'remotion';
 import {zColor} from '@remotion/zod-types';
 import './style.css';
 import {alias} from 'lib/alias';
-import React from 'react';
+import React, {useCallback} from 'react';
 import {Composition, Folder, getInputProps, staticFile, Still} from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
@@ -55,8 +56,36 @@ if (alias !== 'alias') {
 
 export const Index: React.FC = () => {
 	const inputProps = getInputProps();
+
+	const calculateMetadata: CalculateMetadataFunction = useCallback(
+		async ({defaultProps}) => {
+			await new Promise((r) => {
+				setTimeout(r, 1000);
+			});
+			return {
+				durationInFrames: random(null) * 100,
+				fps: 30,
+				height: Math.round(random(null) * 2 * 500),
+				width: Math.round(random(null) * 2 * 500),
+				props: defaultProps,
+			};
+		},
+		[]
+	);
+
 	return (
 		<>
+			<Folder name="dynamic-parameters">
+				<Composition
+					id="dynamic-length"
+					component={Tailwind}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					calculateMetadata={calculateMetadata}
+				/>
+			</Folder>
 			<Folder name="components">
 				<Composition
 					id="looped"
@@ -822,24 +851,6 @@ export const Index: React.FC = () => {
 					height={1080}
 					fps={30}
 					durationInFrames={60}
-				/>
-			</Folder>
-			<Folder name="dynamic-parameters">
-				<Composition
-					id="dynamic-length"
-					component={Tailwind}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={100}
-					calculateStuff={async () => {
-						return {
-							durationInFrames: Math.round(Math.random() * 100),
-							fps: 30,
-							height: Math.round(Math.random() * 2 * 500),
-							width: Math.round(Math.random() * 2 * 500),
-						};
-					}}
 				/>
 			</Folder>
 		</>

@@ -34,8 +34,9 @@ const AvailableCompositions: React.FC = () => {
 		let timeout: NodeJS.Timeout | null = null;
 		const check = () => {
 			if (window.ready === true) {
-				const newComps = window.getStaticCompositions();
-				setComps(newComps);
+				window.getStaticCompositions().then((newComps) => {
+					setComps(newComps);
+				});
 			} else {
 				timeout = setTimeout(check, 250);
 			}
