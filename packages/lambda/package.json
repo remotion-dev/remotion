@@ -47,7 +47,7 @@
 		"@remotion/compositor-linux-arm64-gnu": "workspace:*",
 		"@types/mime-types": "2.1.1",
 		"@types/minimist": "1.2.2",
-		"@types/node": "^18.16.0",
+		"@types/node": "18.14.6",
 		"@types/prompt": "^1.1.0",
 		"eslint": "8.25.0",
 		"prettier": "^2.4.1",
