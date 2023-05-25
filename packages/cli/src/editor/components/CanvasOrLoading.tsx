@@ -1,5 +1,6 @@
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
+import {BACKGROUND} from '../helpers/colors';
 import {Canvas} from './Canvas';
 import {Spinner} from './Spinner';
 
@@ -9,6 +10,7 @@ const container: React.CSSProperties = {
 	justifyContent: 'center',
 	alignItems: 'center',
 	display: 'flex',
+	backgroundColor: BACKGROUND,
 };
 
 export const CanvasOrLoading: React.FC = () => {
@@ -16,7 +18,7 @@ export const CanvasOrLoading: React.FC = () => {
 
 	if (!resolved) {
 		return (
-			<div style={container}>
+			<div style={container} className="css-reset">
 				<Spinner size={30} duration={1} />
 			</div>
 		);
