@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
+import {BACKGROUND} from '../helpers/colors';
 import {RenderModalData} from './RenderModal/RenderModalData';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
@@ -62,7 +63,9 @@ const getSelectedPanel = (): SidebarPanel => {
 	return 'input-props';
 };
 
-const tabsContainer: React.CSSProperties = {};
+const tabsContainer: React.CSSProperties = {
+	backgroundColor: BACKGROUND,
+};
 
 export const persistSelectedPanel = (panel: SidebarPanel) => {
 	localStorage.setItem(localStorageKey, panel);

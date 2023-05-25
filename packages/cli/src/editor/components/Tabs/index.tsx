@@ -1,5 +1,10 @@
 import React, {useCallback, useMemo, useState} from 'react';
-import {CLEAR_HOVER, INPUT_BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
+import {
+	BACKGROUND,
+	CLEAR_HOVER,
+	INPUT_BACKGROUND,
+	LIGHT_TEXT,
+} from '../../helpers/colors';
 import {useZIndex} from '../../state/z-index';
 
 const tabsContainer: React.CSSProperties = {
@@ -54,7 +59,7 @@ export const Tab: React.FC<{
 		return {
 			...selectorButton,
 			backgroundColor: selected
-				? 'transparent'
+				? BACKGROUND
 				: hovered
 				? CLEAR_HOVER
 				: INPUT_BACKGROUND,

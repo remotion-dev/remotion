@@ -9,7 +9,7 @@ import type {AnyComposition} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
 import type {z} from 'zod';
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
-import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -82,6 +82,7 @@ const outer: React.CSSProperties = {
 	flexDirection: 'column',
 	flex: 1,
 	overflow: 'hidden',
+	backgroundColor: BACKGROUND,
 };
 
 const controlContainer: React.CSSProperties = {
