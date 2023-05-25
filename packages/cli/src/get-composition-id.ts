@@ -1,6 +1,6 @@
 import type {AnyCompMetadata} from 'remotion';
 import {Log} from './log';
-import {selectComposition} from './select-composition';
+import {selectComposition} from './show-compositions-picker';
 
 const getCompName = ({
 	cliArgs,
