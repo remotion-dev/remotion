@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/shapes",
-	"version": "3.3.95",
+	"version": "3.3.96",
 	"description": "Utility functions and components for SVG shapes",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -22,7 +22,7 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
 		"@testing-library/react": "^13.4.0",
-		"@types/node": "^16.7.5",
+		"@types/node": "18.14.6",
 		"@types/react": "18.0.26",
 		"@vitejs/plugin-react": "^2.0.0",
 		"eslint": "8.25.0",

@@ -56,6 +56,10 @@ execSync("pnpm exec vitest src/monorepo --run", {
   stdio: "inherit",
 });
 
+execSync("node build.mjs --all", {
+  cwd: "packages/renderer",
+});
+
 if (!noCommit) {
   execSync("git add .", { stdio: "inherit" });
   execSync(`git commit -m "v${version}"`, { stdio: "inherit" });
