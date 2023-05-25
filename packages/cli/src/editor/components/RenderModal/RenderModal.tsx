@@ -125,7 +125,6 @@ const container: React.CSSProperties = {
 const rightPanel: React.CSSProperties = {
 	display: 'flex',
 	width: '100%',
-	height: 600,
 };
 
 const horizontalLayout: React.CSSProperties = {
