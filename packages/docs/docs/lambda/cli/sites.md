@@ -68,6 +68,10 @@ npx remotion lambda sites create src/index.ts --site-name=my-project
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
+### `--privacy` <AvailableFrom v="3.3.97" />
+
+Either `public` (default) or `no-acl` if you are not using ACL. Sites must have a public URL to be able to be rendered on Lambda, since the headless browser opens that URL.
+
 <details>
 <summary>
 Example output
