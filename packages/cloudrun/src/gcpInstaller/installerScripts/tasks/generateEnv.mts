@@ -17,7 +17,7 @@ export async function generateEnv(projectID: string) {
 			`{
 				echo "KEY_ID CREATED_AT EXPIRES_AT KEY_ORIGIN"; 
 				gcloud iam service-accounts keys list --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com --format json | 
-				jq -r '.[] | "\\(.name | split("/") | last) \\(.validAfterTime) \\(.validBeforeTime) \\(.keyOrigin)"'
+				jq -r '.[] | select(.keyType != "SYSTEM_MANAGED") | "\\(.name | split("/") | last) \\(.validAfterTime) \\(.validBeforeTime) \\(.keyOrigin)"'
 				} | column -t`,
 
 			{stdio: 'inherit'}
@@ -25,7 +25,7 @@ export async function generateEnv(projectID: string) {
 
 		const listOfKeys = execSync(
 			`gcloud iam service-accounts keys list --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com --format json | 
-			jq -r '.[] | "\\(.name | split("/") | last) \\(.validAfterTime) \\(.validBeforeTime) \\(.keyOrigin)"'`,
+			jq -r '.[] | select(.keyType != "SYSTEM_MANAGED") | "\\(.name | split("/") | last) \\(.validAfterTime) \\(.validBeforeTime) \\(.keyOrigin)"'`,
 			{
 				stdio: ['inherit', 'pipe', 'pipe'],
 			}
@@ -44,10 +44,13 @@ export async function generateEnv(projectID: string) {
 			});
 		}
 
-		// Minus 1 because the key managed by GCP is not counted
-		execSync(`echo "\nThere are ${keyCount - 1} keys currently."`, {
+		const pluralized = keyCount === 1 ? 'key' : 'keys';
+
+		execSync(`echo "\n${keyCount} service account ${pluralized} currently"`, {
 			stdio: 'inherit',
 		});
+
+		return keyCount > 0;
 	}
 
 	function deleteKeyPrompt() {
@@ -101,9 +104,9 @@ export async function generateEnv(projectID: string) {
 		}
 	);
 
-	listAndCountKeys();
+	const existingKeys = listAndCountKeys();
 
-	await deleteKeyPrompt();
+	if (existingKeys) await deleteKeyPrompt();
 
 	execSync(`echo "\nGenerating new Service Account key...\n"`, {
 		stdio: 'inherit',
