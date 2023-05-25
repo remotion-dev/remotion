@@ -29,12 +29,12 @@ export const getCompositionWithDimensionOverride = async ({
 	args: string[];
 	compositionIdFromUi: string | null;
 	timeoutInMilliseconds: number;
-	puppeteerInstance: HeadlessBrowser;
+	puppeteerInstance: HeadlessBrowser | undefined;
 	envVariables: Record<string, string>;
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
 	browserExecutable: BrowserExecutable | null;
-	downloadMap: DownloadMap;
+	downloadMap: DownloadMap | undefined;
 	serveUrlOrWebpackUrl: string;
 	indent: boolean;
 	verbose: boolean;

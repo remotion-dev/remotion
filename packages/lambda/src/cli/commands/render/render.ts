@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
@@ -42,29 +42,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const region = getAwsRegion();
 
-	let composition: string = args[1];
-	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
-
-		validateServeUrl(serveUrl);
-		const comps = await getCompositions(serveUrl);
-		const {compositionId} = await CliInternals.showSingleCompositionsPicker(
-			comps
-		);
-		composition = compositionId;
-	}
-
-	const outName = parsedLambdaCli['out-name'];
-	const downloadName = args[2] ?? null;
-
-	const {codec, reason} = CliInternals.getFinalOutputCodec({
-		cliFlag: CliInternals.parsedCli.codec,
-		downloadName,
-		outName: outName ?? null,
-		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
-		uiCodec: null,
-	});
-
 	const {
 		chromiumOptions,
 		crf,
@@ -85,10 +62,49 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		videoBitrate,
 		height,
 		width,
+		browserExecutable,
+		port,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
+	});
+
+	let composition: string = args[1];
+	if (!composition) {
+		Log.info('No compositions passed. Fetching compositions...');
+
+		validateServeUrl(serveUrl);
+		const {compositionId} =
+			await CliInternals.getCompositionWithDimensionOverride({
+				args,
+				compositionIdFromUi: null,
+				browserExecutable,
+				chromiumOptions,
+				downloadMap: undefined,
+				envVariables,
+				height,
+				indent: false,
+				inputProps,
+				port,
+				puppeteerInstance: undefined,
+				serveUrlOrWebpackUrl: serveUrl,
+				timeoutInMilliseconds: puppeteerTimeout,
+				verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+				width,
+			});
+		composition = compositionId;
+	}
+
+	const outName = parsedLambdaCli['out-name'];
+	const downloadName = args[2] ?? null;
+
+	const {codec, reason} = CliInternals.getFinalOutputCodec({
+		cliFlag: CliInternals.parsedCli.codec,
+		downloadName,
+		outName: outName ?? null,
+		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+		uiCodec: null,
 	});
 
 	const imageFormat = CliInternals.getVideoImageFormat({
