@@ -9,14 +9,16 @@ import {
 	useMemo,
 	useState,
 } from 'react';
-import type {z} from 'zod';
-import type {AnyComposition, TCompMetadata} from './CompositionManager.js';
+import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManager.js';
 import {EditorPropsContext} from './EditorProps.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import type {VideoConfig} from './video-config.js';
 
-type ResolveCompositionConfigContect = Record<string, VideoConfig | undefined>;
+type ResolveCompositionConfigContect = Record<
+	string,
+	VideoConfigState | undefined
+>;
 
 const ResolveCompositionContext =
 	createContext<ResolveCompositionConfigContect | null>(null);
@@ -24,6 +26,19 @@ const ResolveCompositionContext =
 export const resolveCompositionsRef = createRef<{
 	setCurrentRenderModalComposition: (compositionId: string | null) => void;
 }>();
+
+type VideoConfigState =
+	| {
+			type: 'loading';
+	  }
+	| {
+			type: 'success';
+			result: VideoConfig;
+	  }
+	| {
+			type: 'error';
+			error: Error;
+	  };
 
 export const ResolveCompositionConfig: React.FC<
 	PropsWithChildren<{
@@ -61,7 +76,7 @@ export const ResolveCompositionConfig: React.FC<
 	);
 
 	const [resolvedConfigs, setResolvedConfigs] = useState<
-		Record<string, VideoConfig | undefined>
+		Record<string, VideoConfigState | undefined>
 	>({});
 
 	const selectedEditorProps = useMemo(() => {
@@ -78,16 +93,45 @@ export const ResolveCompositionConfig: React.FC<
 
 	const doResolution = useCallback(
 		(composition: AnyComposition, editorProps: object) => {
+			const controller = new AbortController();
+			const {signal} = controller;
+
 			setResolvedConfigs((r) => ({
 				...r,
-				[composition.id]: undefined,
+				[composition.id]: {
+					type: 'loading',
+				},
 			}));
-			resolveVideoConfig({composition, editorProps}).then((c) => {
-				setResolvedConfigs((r) => ({
-					...r,
-					[composition.id]: c,
-				}));
-			});
+
+			resolveVideoConfig({composition, editorProps, signal})
+				.then((c) => {
+					if (controller.signal.aborted) {
+						return;
+					}
+
+					setResolvedConfigs((r) => ({
+						...r,
+						[composition.id]: {
+							type: 'success',
+							result: c,
+						},
+					}));
+				})
+				.catch((err) => {
+					if (controller.signal.aborted) {
+						return;
+					}
+
+					setResolvedConfigs((r) => ({
+						...r,
+						[composition.id]: {
+							type: 'error',
+							error: err,
+						},
+					}));
+				});
+
+			return controller;
 		},
 		[]
 	);
@@ -96,13 +140,19 @@ export const ResolveCompositionConfig: React.FC<
 
 	useEffect(() => {
 		if (selectedComposition) {
-			doResolution(selectedComposition, selectedEditorProps);
+			const controller = doResolution(selectedComposition, selectedEditorProps);
+			return () => {
+				controller.abort();
+			};
 		}
 	}, [doResolution, selectedComposition, selectedEditorProps]);
 
 	useEffect(() => {
 		if (renderModalComposition && !isTheSame) {
-			doResolution(renderModalComposition, renderModalProps);
+			const controller = doResolution(renderModalComposition, renderModalProps);
+			return () => {
+				controller.abort();
+			};
 		}
 	}, [doResolution, isTheSame, renderModalComposition, renderModalProps]);
 
@@ -127,10 +177,9 @@ export const useResolvedVideoConfig = (
 		return null;
 	}
 
-	// TODO: Might be out of date
 	if (!context[composition.id]) {
 		return null;
 	}
 
-	return context[composition.id] as TCompMetadata<z.ZodTypeAny, unknown>;
+	return context[composition.id] as VideoConfigState;
 };

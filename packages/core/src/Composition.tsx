@@ -40,6 +40,7 @@ export type CompProps<Props> =
 export type CalculateMetadataFunction<T = unknown> = (options: {
 	defaultProps: T;
 	props: T;
+	abortSignal: AbortSignal;
 }) => Promise<{
 	durationInFrames?: number;
 	fps?: number;
@@ -170,7 +171,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 
 	if (environment === 'preview' && video && video.component === lazy) {
 		const Comp = lazy;
-		if (resolved === null) {
+		if (resolved === null || resolved.type !== 'success') {
 			return null;
 		}
 
@@ -181,7 +182,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 						<Comp
 							{
 								// eslint-disable-next-line @typescript-eslint/no-explicit-any
-								...((resolved.defaultProps ?? {}) as any)
+								...((resolved.result.defaultProps ?? {}) as any)
 							}
 						/>
 					</Suspense>
@@ -193,7 +194,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 
 	if (environment === 'rendering' && video && video.component === lazy) {
 		const Comp = lazy;
-		if (resolved === null) {
+		if (resolved === null || resolved.type !== 'success') {
 			return null;
 		}
 
@@ -203,7 +204,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 					<Comp
 						{
 							// eslint-disable-next-line @typescript-eslint/no-explicit-any
-							...((resolved.defaultProps ?? {}) as any)
+							...((resolved.result.defaultProps ?? {}) as any)
 						}
 					/>
 				</Suspense>

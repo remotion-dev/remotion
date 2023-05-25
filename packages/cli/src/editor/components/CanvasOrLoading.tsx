@@ -38,6 +38,10 @@ export const CanvasOrLoading: React.FC = () => {
 	}, [takesALongTime]);
 
 	if (!resolved) {
+		return null;
+	}
+
+	if (resolved.type === 'loading') {
 		return (
 			<div style={container} className="css-reset">
 				<Spinner size={30} duration={1} />
