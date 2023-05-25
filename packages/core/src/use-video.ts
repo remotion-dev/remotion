@@ -16,7 +16,7 @@ export const useVideo = (): ReturnType => {
 	const selected = context.compositions.find((c) => {
 		return c.id === context.currentComposition;
 	});
-	const resolved = useResolvedVideoConfig();
+	const resolved = useResolvedVideoConfig(context.currentComposition);
 
 	return useMemo((): ReturnType => {
 		if (resolved && selected) {

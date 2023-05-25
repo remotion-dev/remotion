@@ -166,7 +166,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 		schema,
 		compProps.calculateMetadata,
 	]);
-	const resolved = useResolvedVideoConfig();
+	const resolved = useResolvedVideoConfig(id);
 
 	if (environment === 'preview' && video && video.component === lazy) {
 		const Comp = lazy;
