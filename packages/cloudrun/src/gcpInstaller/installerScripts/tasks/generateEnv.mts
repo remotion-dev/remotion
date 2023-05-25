@@ -7,42 +7,20 @@ export async function generateEnv(projectID: string) {
 	/****************************************
 	 * Generate .env file
 	 ****************************************/
-	await checkEnvFile();
 
-	function listAndCountKeys() {
-		console.log('');
+	const gloudSAKeyCmd = `gcloud iam service-accounts keys list --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com --format json | 
+	jq -r '.[] | select(.keyType != "SYSTEM_MANAGED") | "\\(.name | split("/") | last) \\(.validAfterTime) \\(.validBeforeTime) \\(.keyOrigin)"'`;
 
-		execSync(
-			/* eslint-disable no-useless-escape */
-			`{
-				echo "KEY_ID CREATED_AT EXPIRES_AT KEY_ORIGIN"; 
-				gcloud iam service-accounts keys list --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com --format json | 
-				jq -r '.[] | select(.keyType != "SYSTEM_MANAGED") | "\\(.name | split("/") | last) \\(.validAfterTime) \\(.validBeforeTime) \\(.keyOrigin)"'
-				} | column -t`,
-
-			{stdio: 'inherit'}
-		);
-
-		const listOfKeys = execSync(
-			`gcloud iam service-accounts keys list --iam-account=remotion-sa@${projectID}.iam.gserviceaccount.com --format json | 
-			jq -r '.[] | select(.keyType != "SYSTEM_MANAGED") | "\\(.name | split("/") | last) \\(.validAfterTime) \\(.validBeforeTime) \\(.keyOrigin)"'`,
-			{
-				stdio: ['inherit', 'pipe', 'pipe'],
-			}
-		)
+	function countKeys() {
+		const output = execSync(gloudSAKeyCmd, {
+			stdio: ['inherit', 'pipe', 'pipe'],
+		})
 			.toString()
-			.trim()
-			.split('\n');
-		/* eslint-enable no-useless-escape */
+			.trim();
 
-		let keyCount = 0;
-		if (listOfKeys.length > 1) {
-			listOfKeys.forEach((key) => {
-				const keyId = key.split(' ')[0];
-				if (keyId === 'KEY_ID') return;
-				keyCount += 1;
-			});
-		}
+		const listOfKeys = output === '' ? [] : output.split('\n');
+
+		const keyCount = listOfKeys.length;
 
 		const pluralized = keyCount === 1 ? 'key' : 'keys';
 
@@ -51,6 +29,19 @@ export async function generateEnv(projectID: string) {
 		});
 
 		return keyCount > 0;
+	}
+
+	function listKeys() {
+		console.log('');
+
+		execSync(
+			`{
+				echo "KEY_ID CREATED_AT EXPIRES_AT KEY_ORIGIN"; 
+				${gloudSAKeyCmd}
+				} | column -t`,
+
+			{stdio: 'inherit'}
+		);
 	}
 
 	function deleteKeyPrompt() {
@@ -80,7 +71,7 @@ export async function generateEnv(projectID: string) {
 						{stdio: 'inherit'}
 					);
 
-					listAndCountKeys();
+					listKeys();
 
 					const result = await deleteKeyPrompt();
 
@@ -90,23 +81,30 @@ export async function generateEnv(projectID: string) {
 		});
 	}
 
-	execSync(
-		`echo "\nThere is a limit of 10 keys per Service Account in GCP (not including the one managed by GCP itself).\n"`,
-		{
-			stdio: 'inherit',
-		}
-	);
+	// count keys
+	const existingKeys = countKeys();
 
-	execSync(
-		`echo "You should delete any of these keys that are no longer in use for ${colorCode.blueText}remotion-sa@${projectID}.iam.gserviceaccount.com${colorCode.resetText}:"`,
-		{
-			stdio: 'inherit',
-		}
-	);
+	if (existingKeys) {
+		execSync(
+			`echo "\nThere is a limit of 10 keys per Service Account in GCP (not including the one managed by GCP itself).\n"`,
+			{
+				stdio: 'inherit',
+			}
+		);
 
-	const existingKeys = listAndCountKeys();
+		execSync(
+			`echo "You should delete any of these keys that are no longer in use for ${colorCode.blueText}remotion-sa@${projectID}.iam.gserviceaccount.com${colorCode.resetText}:"`,
+			{
+				stdio: 'inherit',
+			}
+		);
 
-	if (existingKeys) await deleteKeyPrompt();
+		listKeys();
+
+		await deleteKeyPrompt();
+	}
+
+	await checkEnvFile();
 
 	execSync(`echo "\nGenerating new Service Account key...\n"`, {
 		stdio: 'inherit',
