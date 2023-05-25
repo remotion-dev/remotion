@@ -13,7 +13,10 @@ import type {z} from 'zod';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {TFolder} from './Folder.js';
-import type {PropsIfHasProps} from './props-if-has-props.js';
+import type {
+	PropsIfHasProps,
+	RenamePropsIfHasProps,
+} from './props-if-has-props.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import type {VideoConfig} from './video-config.js';
 
@@ -28,7 +31,9 @@ export type TComposition<Schema extends z.ZodTypeAny, Props> = {
 	component: LazyExoticComponent<ComponentType<Props>>;
 	nonce: number;
 	schema: Schema | null;
-	calculateMetadata: CalculateMetadataFunction | null;
+	calculateMetadata: CalculateMetadataFunction<
+		RenamePropsIfHasProps<Schema, Props>
+	> | null;
 } & PropsIfHasProps<Schema, Props>;
 
 export type AnyComposition = TComposition<z.ZodTypeAny, unknown>;
@@ -211,7 +216,11 @@ export const CompositionManagerProvider: React.FC<{
 					);
 				}
 
-				return [...comps, comp].slice().sort((a, b) => a.nonce - b.nonce);
+				const value = [...comps, comp]
+					.slice()
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					.sort((a, b) => a.nonce - b.nonce) as TComposition<any, any>[];
+				return value;
 			});
 		},
 		[updateCompositions]

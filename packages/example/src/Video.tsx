@@ -818,6 +818,14 @@ export const Index: React.FC = () => {
 						filePath: staticFile('nested/logö.png'),
 					}}
 					durationInFrames={150}
+					calculateMetadata={async ({defaultProps}) => {
+						return {
+							durationInFrames: defaultProps.mynum * 10,
+							props: {
+								...defaultProps,
+							},
+						};
+					}}
 				/>
 			</Folder>
 			<Folder name="Schema">

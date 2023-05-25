@@ -17,7 +17,10 @@ import {Loading} from './loading-indicator.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
-import type {PropsIfHasProps} from './props-if-has-props.js';
+import type {
+	PropsIfHasProps,
+	RenamePropsIfHasProps,
+} from './props-if-has-props.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
@@ -35,21 +38,23 @@ export type CompProps<Props> =
 			component: LooseComponentType<Props>;
 	  };
 
-export type CalculateMetadataFunction = (options: {
-	defaultProps: unknown;
+export type CalculateMetadataFunction<T = unknown> = (options: {
+	defaultProps: T;
 }) => Promise<{
 	durationInFrames: number;
 	fps: number;
 	width: number;
 	height: number;
-	props: unknown;
+	props: T;
 }>;
 
 export type StillProps<Schema extends z.ZodTypeAny, Props> = {
 	width: number;
 	height: number;
 	id: string;
-	calculateMetadata?: CalculateMetadataFunction;
+	calculateMetadata?: CalculateMetadataFunction<
+		RenamePropsIfHasProps<Schema, Props>
+	>;
 	schema?: Schema;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
