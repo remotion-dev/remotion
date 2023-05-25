@@ -4,7 +4,10 @@
 
 import React, {useMemo} from 'react';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
-import {CompositionManager} from './CompositionManager.js';
+import {
+	CompositionManager,
+	ProvideCompositionManager,
+} from './CompositionManager.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
 import {PreloadContext} from './prefetch-state.js';
@@ -61,7 +64,9 @@ export const RemotionContextProvider = (
 			<NonceContext.Provider value={contexts.nonceContext}>
 				<NativeLayersContext.Provider value={contexts.nativeLayersContext}>
 					<PreloadContext.Provider value={contexts.preloadContext}>
-						<CompositionManager.Provider value={contexts.compositionManagerCtx}>
+						<ProvideCompositionManager
+							compositionManagerContext={contexts.compositionManagerCtx}
+						>
 							<TimelineContext.Provider value={contexts.timelineContext}>
 								<SetTimelineContext.Provider
 									value={contexts.setTimelineContext}
@@ -71,7 +76,7 @@ export const RemotionContextProvider = (
 									</SequenceContext.Provider>
 								</SetTimelineContext.Provider>
 							</TimelineContext.Provider>
-						</CompositionManager.Provider>
+						</ProvideCompositionManager>
 					</PreloadContext.Provider>
 				</NativeLayersContext.Provider>
 			</NonceContext.Provider>

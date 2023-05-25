@@ -110,8 +110,8 @@ export const SharedPlayerContexts: React.FC<{
 	return (
 		<Internals.CanUseRemotionHooksProvider>
 			<Internals.Timeline.TimelineContext.Provider value={timelineContext}>
-				<Internals.CompositionManager.Provider
-					value={compositionManagerContext}
+				<Internals.ProvideCompositionManager
+					compositionManagerContext={compositionManagerContext}
 				>
 					<Internals.PrefetchProvider>
 						<Internals.DurationsContextProvider>
@@ -131,7 +131,7 @@ export const SharedPlayerContexts: React.FC<{
 							</Internals.MediaVolumeContext.Provider>
 						</Internals.DurationsContextProvider>
 					</Internals.PrefetchProvider>
-				</Internals.CompositionManager.Provider>
+				</Internals.ProvideCompositionManager>
 			</Internals.Timeline.TimelineContext.Provider>
 		</Internals.CanUseRemotionHooksProvider>
 	);
