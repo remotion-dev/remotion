@@ -1,8 +1,8 @@
 import {CliInternals} from '@remotion/cli';
 import {
 	logPermissionOutput,
-	simulatePermissions,
-} from '../../api/iam-validation/simulate';
+	testPermissions,
+} from '../../api/iam-validation/testPermissions';
 import {Log} from '../log';
 
 export const PERMISSIONS_COMMAND = 'permissions';
@@ -15,8 +15,8 @@ export const permissionsCommand = async () => {
 			)
 		);
 		Log.info();
-		await simulatePermissions({
-			onSimulation: (res) => {
+		await testPermissions({
+			onTest: (res) => {
 				Log.info(logPermissionOutput(res));
 			},
 		});
