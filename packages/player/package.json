@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "3.3.95",
+	"version": "3.3.96",
 	"description": "Remotion Player",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -62,6 +62,7 @@
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
 		"rollup": "^2.70.1",
+		"rollup-plugin-banner2": "^1.2.2",
 		"typescript": "^4.7.0",
 		"vitest": "0.31.1",
 		"webpack": "5.83.1",
