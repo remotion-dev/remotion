@@ -27,7 +27,7 @@ import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
-import {selectComposition} from './show-compositions-picker';
+import {showSingleCompositionsPicker} from './show-compositions-picker';
 import {still} from './still';
 import {upgrade} from './upgrade';
 import {
@@ -120,7 +120,7 @@ export const CliInternals = {
 	getFileSizeDownloadBar,
 	determineFinalStillImageFormat,
 	minimist,
-	selectComposition,
+	selectComposition: showSingleCompositionsPicker,
 	findEntryPoint,
 	getVideoImageFormat,
 	printCompositions,

@@ -19,7 +19,7 @@ import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
-import {showCompositionsPicker} from './show-compositions-picker';
+import {showMultiCompositionsPicker} from './show-compositions-picker';
 import {truthy} from './truthy';
 
 const DEFAULT_RUNS = 3;
@@ -214,7 +214,7 @@ export const benchmarkCommand = async (
 					.split(',')
 					.map((c) => c.trim())
 					.filter(truthy)
-			: await showCompositionsPicker(comps)
+			: await showMultiCompositionsPicker(comps)
 	) as string[];
 
 	const compositions = ids.map((compId) => {

@@ -1,6 +1,6 @@
 import type {AnyCompMetadata} from 'remotion';
 import {Log} from './log';
-import {selectComposition} from './show-compositions-picker';
+import {showSingleCompositionsPicker} from './show-compositions-picker';
 
 const getCompName = ({
 	cliArgs,
@@ -68,7 +68,9 @@ export const getCompositionId = async ({
 	}
 
 	if (!process.env.CI) {
-		const {compositionId, reason} = await selectComposition(validCompositions);
+		const {compositionId, reason} = await showSingleCompositionsPicker(
+			validCompositions
+		);
 		if (compositionId && typeof compositionId === 'string') {
 			return {
 				compositionId,
