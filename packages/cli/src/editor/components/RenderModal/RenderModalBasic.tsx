@@ -1,7 +1,8 @@
 import type {Codec, ProResProfile} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
-import type {AnyComposition} from 'remotion';
+import type {TCompMetadata} from 'remotion';
+import type {ZodTypeAny} from 'zod';
 import {labelProResProfile} from '../../helpers/prores-labels';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkmark} from '../../icons/Checkmark';
@@ -33,7 +34,7 @@ export const RenderModalBasic: React.FC<{
 	setProResProfile: React.Dispatch<React.SetStateAction<ProResProfile>>;
 	frame: number;
 	setFrame: React.Dispatch<React.SetStateAction<number>>;
-	currentComposition: AnyComposition;
+	resolvedComposition: TCompMetadata<ZodTypeAny, unknown>;
 	setOutName: (value: React.SetStateAction<string>) => void;
 	setEndFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	startFrame: number;
@@ -50,7 +51,7 @@ export const RenderModalBasic: React.FC<{
 	setProResProfile,
 	frame,
 	setFrame,
-	currentComposition,
+	resolvedComposition,
 	setOutName,
 	setEndFrame,
 	endFrame,
@@ -155,7 +156,7 @@ export const RenderModalBasic: React.FC<{
 					</div>
 				</div>
 			)}
-			{renderMode === 'still' && currentComposition.durationInFrames > 1 ? (
+			{renderMode === 'still' && resolvedComposition.durationInFrames > 1 ? (
 				<div style={optionRow}>
 					<div style={label}>Frame</div>
 					<div style={rightRow}>
@@ -163,13 +164,13 @@ export const RenderModalBasic: React.FC<{
 							<InputDragger
 								value={frame}
 								onTextChange={onFrameChanged}
-								placeholder={`0-${currentComposition.durationInFrames - 1}`}
+								placeholder={`0-${resolvedComposition.durationInFrames - 1}`}
 								onValueChange={onFrameSetDirectly}
 								name="frame"
 								step={1}
 								min={0}
 								status="ok"
-								max={currentComposition.durationInFrames - 1}
+								max={resolvedComposition.durationInFrames - 1}
 								rightAlign
 							/>
 						</RightAlignInput>
@@ -190,7 +191,7 @@ export const RenderModalBasic: React.FC<{
 			) : null}
 			{renderMode === 'still' ? null : (
 				<FrameRangeSetting
-					durationInFrames={currentComposition.durationInFrames}
+					durationInFrames={resolvedComposition.durationInFrames}
 					endFrame={endFrame}
 					setEndFrame={setEndFrame}
 					setStartFrame={setStartFrame}

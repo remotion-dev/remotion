@@ -6,8 +6,6 @@ import type {
 import React, {
 	createContext,
 	useCallback,
-	useContext,
-	useEffect,
 	useImperativeHandle,
 	useLayoutEffect,
 	useMemo,
@@ -17,14 +15,12 @@ import React, {
 import type {z} from 'zod';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {CalculateMetadataFunction} from './Composition.js';
-import {EditorPropsContext} from './EditorProps.js';
 import type {TFolder} from './Folder.js';
 import type {
 	PropsIfHasProps,
 	RenamePropsIfHasProps,
 } from './props-if-has-props.js';
-import {resolveVideoConfig} from './resolve-video-config.js';
-import type {VideoConfig} from './video-config.js';
+import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
 
 export type TComposition<Schema extends z.ZodTypeAny, Props> = {
 	width: number;
@@ -151,7 +147,6 @@ export type CompositionManagerContext = {
 	sequences: TSequence[];
 	assets: TAsset[];
 	folders: TFolder[];
-	resolved: TCompMetadata<z.ZodTypeAny, unknown> | null;
 };
 
 export const CompositionManager = createContext<CompositionManagerContext>({
@@ -171,7 +166,6 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	assets: [],
 	folders: [],
 	currentCompositionMetadata: null,
-	resolved: null,
 });
 
 export const compositionsRef = React.createRef<{
@@ -304,45 +298,6 @@ export const CompositionManagerProvider: React.FC<{
 
 	const composition = compositions.find((c) => c.id === currentComposition);
 
-	const [resolvedConfigs, setResolvedConfigs] = useState<
-		Record<string, VideoConfig | undefined>
-	>({});
-
-	const {props: allEditorProps} = useContext(EditorPropsContext);
-
-	useEffect(() => {
-		const comp = compositions.find((c) => c.id === currentComposition);
-		if (comp) {
-			const editorProps = allEditorProps[comp.id] ?? {};
-			setResolvedConfigs((r) => ({
-				...r,
-				[comp.id]: undefined,
-			}));
-			resolveVideoConfig({comp, editorProps}).then((c) => {
-				setResolvedConfigs((r) => ({
-					...r,
-					[comp.id]: c,
-				}));
-			});
-		}
-	}, [allEditorProps, compositions, currentComposition]);
-
-	const resolved = useMemo(() => {
-		if (!composition) {
-			return null;
-		}
-
-		// TODO: Might be out of date
-		if (!resolvedConfigs[composition.id]) {
-			return null;
-		}
-
-		return resolvedConfigs[composition.id] as TCompMetadata<
-			z.ZodTypeAny,
-			unknown
-		>;
-	}, [composition, resolvedConfigs]);
-
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
 			compositions,
@@ -361,7 +316,6 @@ export const CompositionManagerProvider: React.FC<{
 			unregisterFolder,
 			currentCompositionMetadata,
 			setCurrentCompositionMetadata,
-			resolved,
 		};
 	}, [
 		compositions,
@@ -378,7 +332,6 @@ export const CompositionManagerProvider: React.FC<{
 		registerFolder,
 		unregisterFolder,
 		currentCompositionMetadata,
-		resolved,
 	]);
 
 	return (
@@ -400,7 +353,7 @@ export const ProvideCompositionManager: React.FC<
 > = ({compositionManagerContext, children}) => {
 	return (
 		<CompositionManager.Provider value={compositionManagerContext}>
-			{children}
+			<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
 		</CompositionManager.Provider>
 	);
 };

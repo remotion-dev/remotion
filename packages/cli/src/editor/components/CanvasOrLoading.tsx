@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React from 'react';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
 import {Canvas} from './Canvas';
@@ -14,7 +14,7 @@ const container: React.CSSProperties = {
 };
 
 export const CanvasOrLoading: React.FC = () => {
-	const {resolved} = useContext(Internals.CompositionManager);
+	const resolved = Internals.useResolvedVideoConfig(null);
 
 	if (!resolved) {
 		return (

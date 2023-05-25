@@ -1,6 +1,7 @@
 import type {ComponentType, LazyExoticComponent} from 'react';
 import {useContext, useMemo} from 'react';
 import {CompositionManager} from './CompositionManager.js';
+import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import type {VideoConfig} from './video-config.js';
 
 type ReturnType =
@@ -15,10 +16,9 @@ export const useVideo = (): ReturnType => {
 	const selected = context.compositions.find((c) => {
 		return c.id === context.currentComposition;
 	});
+	const resolved = useResolvedVideoConfig();
 
 	return useMemo((): ReturnType => {
-		const {resolved} = context;
-
 		if (resolved && selected) {
 			return {
 				...resolved,
@@ -32,5 +32,5 @@ export const useVideo = (): ReturnType => {
 		}
 
 		return null;
-	}, [context, selected]);
+	}, [context.currentCompositionMetadata, resolved, selected]);
 };
