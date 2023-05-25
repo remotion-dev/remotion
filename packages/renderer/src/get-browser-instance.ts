@@ -1,6 +1,6 @@
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
-import type {Browser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
@@ -10,7 +10,7 @@ export const getPageAndCleanupFn = async ({
 	browserExecutable,
 	chromiumOptions,
 }: {
-	passedInInstance: Browser | undefined;
+	passedInInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
 	chromiumOptions: ChromiumOptions;
 }): Promise<{

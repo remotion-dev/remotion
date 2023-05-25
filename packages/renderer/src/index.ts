@@ -7,6 +7,7 @@ import {
 	validAudioCodecs,
 } from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
+import {HeadlessBrowser} from './browser/Browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
@@ -76,6 +77,7 @@ export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
 export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
+export type {HeadlessBrowser} from './browser/Browser';
 export {Codec, CodecOrUndefined} from './codec';
 export {Crf} from './crf';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
@@ -182,6 +184,7 @@ export const RenderInternals = {
 	setLogLevel,
 	INDENT_TOKEN,
 	isColorSupported,
+	HeadlessBrowser,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

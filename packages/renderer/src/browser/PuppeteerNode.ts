@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import type {Browser} from './Browser';
+import type {HeadlessBrowser} from './Browser';
 import type {BrowserConnectOptions} from './BrowserConnector';
 import type {ProductLauncher} from './Launcher';
 import {ChromeLauncher} from './Launcher';
@@ -48,7 +48,7 @@ export class PuppeteerNode {
 		this.executablePath = this.executablePath.bind(this);
 	}
 
-	launch(options: PuppeteerLaunchOptions): Promise<Browser> {
+	launch(options: PuppeteerLaunchOptions): Promise<HeadlessBrowser> {
 		if (options.product) {
 			this.#productName = options.product;
 		}

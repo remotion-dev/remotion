@@ -3,7 +3,7 @@ import type {DownloadMap} from './assets/download-map';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
-import type {Browser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
@@ -18,7 +18,7 @@ import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 type SelectCompositionsConfig = {
 	inputProps?: object | null;
 	envVariables?: Record<string, string>;
-	puppeteerInstance?: Browser;
+	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;
@@ -35,8 +35,11 @@ type SelectCompositionsConfig = {
 	verbose?: boolean;
 	serveUrl: string;
 	id: string;
+};
+
+type InnerSelectCompositionConfig = Omit<SelectCompositionsConfig, 'port'> & {
 	page: Page;
-	proxyPort: number;
+	port: number;
 };
 
 const innerSelectComposition = async ({
@@ -46,9 +49,9 @@ const innerSelectComposition = async ({
 	envVariables,
 	serveUrl,
 	timeoutInMilliseconds,
-	proxyPort,
+	port,
 	id,
-}: SelectCompositionsConfig): Promise<AnyCompMetadata> => {
+}: InnerSelectCompositionConfig): Promise<AnyCompMetadata> => {
 	if (onBrowserLog) {
 		page.on('console', (log) => {
 			onBrowserLog?.({
@@ -68,7 +71,7 @@ const innerSelectComposition = async ({
 		serveUrl,
 		initialFrame: 0,
 		timeoutInMilliseconds,
-		proxyPort,
+		proxyPort: port,
 		retriesRemaining: 2,
 		audioEnabled: false,
 		videoEnabled: false,
@@ -149,7 +152,7 @@ export const selectComposition = async (options: SelectCompositionsConfig) => {
 					...options,
 					serveUrl,
 					page,
-					proxyPort: offthreadPort,
+					port: offthreadPort,
 				});
 			})
 
