@@ -32,7 +32,7 @@ export const selectComposition = async (
 	return {compositionId: selectedComposition, reason: 'Selected'};
 };
 
-export const selectCompositions = async (
+export const showCompositionsPicker = async (
 	validCompositions: Await<ReturnType<typeof getCompositions>>
 ): Promise<string[]> => {
 	if (validCompositions.length === 1) {
