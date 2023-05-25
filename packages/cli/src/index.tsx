@@ -120,7 +120,7 @@ export const CliInternals = {
 	getFileSizeDownloadBar,
 	determineFinalStillImageFormat,
 	minimist,
-	selectComposition: showSingleCompositionsPicker,
+	showSingleCompositionsPicker,
 	findEntryPoint,
 	getVideoImageFormat,
 	printCompositions,
