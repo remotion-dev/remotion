@@ -169,7 +169,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 	if (environment === 'preview' && video && video.component === lazy) {
 		const Comp = lazy;
 		if (resolved === null) {
-			return <div style={{color: 'white'}}>Loading...</div>;
+			return null;
 		}
 
 		return createPortal(
@@ -185,16 +185,14 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 					</Suspense>
 				</CanUseRemotionHooksProvider>
 			</ClipComposition>,
-
 			portalNode()
 		);
 	}
 
 	if (environment === 'rendering' && video && video.component === lazy) {
 		const Comp = lazy;
-
 		if (resolved === null) {
-			return <div style={{color: 'white'}}>Loading...</div>;
+			return null;
 		}
 
 		return createPortal(

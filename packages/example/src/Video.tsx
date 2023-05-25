@@ -46,6 +46,7 @@ import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {Tailwind} from './Tailwind';
+import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -57,33 +58,31 @@ if (alias !== 'alias') {
 export const Index: React.FC = () => {
 	const inputProps = getInputProps();
 
-	const calculateMetadata: CalculateMetadataFunction = useCallback(
-		async ({defaultProps}) => {
-			await new Promise((r) => {
-				setTimeout(r, 1000);
-			});
-			return {
-				durationInFrames: random(null) * 100,
-				fps: 30,
-				height: Math.round(random(null) * 2 * 500),
-				width: Math.round(random(null) * 2 * 500),
-				props: defaultProps,
-			};
-		},
-		[]
-	);
+	const calculateMetadata: CalculateMetadataFunction<
+		z.infer<typeof dynamicDurationSchema>
+	> = useCallback(async ({props}) => {
+		await new Promise((r) => {
+			setTimeout(r, 1000);
+		});
+		return {
+			durationInFrames: props.duration,
+			fps: 30,
+		};
+	}, []);
 
 	return (
 		<>
 			<Folder name="dynamic-parameters">
 				<Composition
 					id="dynamic-length"
-					component={Tailwind}
+					component={DynamicDuration}
 					width={1080}
 					height={1080}
 					fps={30}
 					durationInFrames={100}
 					calculateMetadata={calculateMetadata}
+					schema={dynamicDurationSchema}
+					defaultProps={{duration: 50}}
 				/>
 			</Folder>
 			<Folder name="components">

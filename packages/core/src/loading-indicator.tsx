@@ -7,7 +7,7 @@ const rotate: React.CSSProperties = {
 const ICON_SIZE = 40;
 
 const label: React.CSSProperties = {
-	color: '#555',
+	color: 'white',
 	fontSize: 14,
 	fontFamily: 'sans-serif',
 };
