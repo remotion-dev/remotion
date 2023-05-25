@@ -7,7 +7,10 @@ import React, {useContext} from 'react';
 import {describe, expect, test} from 'vitest';
 import {z} from 'zod';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
-import {CompositionManager} from '../CompositionManager.js';
+import {
+	CompositionManager,
+	ProvideCompositionManager,
+} from '../CompositionManager.js';
 import {RemotionRoot} from '../RemotionRoot.js';
 import {Video} from '../video/index.js';
 import {expectToThrow} from './expect-to-throw.js';
@@ -19,9 +22,9 @@ const Wrapper: React.FC<{
 	return (
 		<CanUseRemotionHooksProvider>
 			<RemotionRoot numberOfAudioTags={0}>
-				<CompositionManager.Provider
+				<ProvideCompositionManager
 					// eslint-disable-next-line react/jsx-no-constructed-context-values
-					value={{
+					compositionManagerContext={{
 						...compositions,
 						compositions: [
 							{
@@ -47,7 +50,7 @@ const Wrapper: React.FC<{
 					}}
 				>
 					{children}
-				</CompositionManager.Provider>
+				</ProvideCompositionManager>
 			</RemotionRoot>
 		</CanUseRemotionHooksProvider>
 	);

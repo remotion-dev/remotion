@@ -14,7 +14,11 @@ import type {
 	TComposition,
 	TSequence,
 } from './CompositionManager.js';
-import {CompositionManager, compositionsRef} from './CompositionManager.js';
+import {
+	CompositionManager,
+	compositionsRef,
+	ProvideCompositionManager,
+} from './CompositionManager.js';
 import * as CSSUtils from './default-css.js';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render.js';
 import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
@@ -78,6 +82,7 @@ export const Internals = {
 	useUnsafeVideoConfig,
 	Timeline,
 	CompositionManager,
+	ProvideCompositionManager,
 	RemotionRoot,
 	useVideo,
 	getRoot,
