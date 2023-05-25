@@ -263,7 +263,11 @@ if (typeof window !== 'undefined') {
 
 		return Promise.all(
 			compositions.map((c): Promise<AnyCompMetadata> => {
-				return Internals.resolveVideoConfig({composition: c, editorProps: {}});
+				return Internals.resolveVideoConfig({
+					composition: c,
+					editorProps: {},
+					signal: new AbortController().signal,
+				});
 			})
 		);
 	};
@@ -279,9 +283,12 @@ if (typeof window !== 'undefined') {
 			throw new Error(`Could not find composition with ID ${compId}`);
 		}
 
+		const abortController = new AbortController();
+
 		return Internals.resolveVideoConfig({
 			composition: selectedComp,
 			editorProps: {},
+			signal: abortController.signal,
 		});
 	};
 
