@@ -39,9 +39,12 @@ import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 
 import type {ZodTypeAny} from 'zod';
+import {LIGHT_TEXT} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
+import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {inlineCodeSnippet} from '../Menu/styles';
 import {
 	getMaxModalHeight,
 	getMaxModalWidth,
@@ -1120,7 +1123,13 @@ export const RenderModalWithLoader: React.FC<RenderModalProps> = (props) => {
 	if (!resolved) {
 		return (
 			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-				<Spinner duration={1} size={50} />
+				<div style={loaderContainer}>
+					<Spinner duration={1} size={30} />
+					<Spacing y={2} />
+					<div style={loaderLabel}>
+						Running <code style={inlineCodeSnippet}>calculateMetadata()</code>
+					</div>
+				</div>
 			</ModalContainer>
 		);
 	}
@@ -1135,4 +1144,22 @@ export const RenderModalWithLoader: React.FC<RenderModalProps> = (props) => {
 			/>
 		</ModalContainer>
 	);
+};
+
+const loaderContainer: React.CSSProperties = {
+	paddingTop: 40,
+	paddingBottom: 40,
+	paddingLeft: 100,
+	paddingRight: 100,
+	display: 'flex',
+	justifyContent: 'center',
+	alignItems: 'center',
+	flexDirection: 'column',
+};
+
+const loaderLabel: React.CSSProperties = {
+	fontSize: 14,
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	lineHeight: 1.5,
 };

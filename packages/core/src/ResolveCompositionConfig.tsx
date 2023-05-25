@@ -92,6 +92,8 @@ export const ResolveCompositionConfig: React.FC<
 		[]
 	);
 
+	const isTheSame = selectedComposition?.id === renderModalComposition?.id;
+
 	useEffect(() => {
 		if (selectedComposition) {
 			doResolution(selectedComposition, selectedEditorProps);
@@ -99,10 +101,10 @@ export const ResolveCompositionConfig: React.FC<
 	}, [doResolution, selectedComposition, selectedEditorProps]);
 
 	useEffect(() => {
-		if (renderModalComposition) {
+		if (renderModalComposition && !isTheSame) {
 			doResolution(renderModalComposition, renderModalProps);
 		}
-	}, [doResolution, renderModalComposition, renderModalProps]);
+	}, [doResolution, isTheSame, renderModalComposition, renderModalProps]);
 
 	return (
 		<ResolveCompositionContext.Provider value={resolvedConfigs}>
