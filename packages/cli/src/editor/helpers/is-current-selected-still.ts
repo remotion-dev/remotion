@@ -3,7 +3,7 @@ import {Internals} from 'remotion';
 import {isCompositionStill} from './is-composition-still';
 
 export const useIsStill = () => {
-	const {resolved} = useContext(Internals.CompositionManager);
+	const resolved = Internals.useResolvedVideoConfig(null);
 
 	if (!resolved) {
 		return false;

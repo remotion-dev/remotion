@@ -40,7 +40,7 @@ const PropsEditor: React.FC<{
 
 	return (
 		<RenderModalData
-			composition={composition}
+			unresolvedComposition={composition}
 			inputProps={props[composition.id] ?? composition.defaultProps}
 			setInputProps={setInputProps}
 			compact

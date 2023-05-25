@@ -263,7 +263,7 @@ if (typeof window !== 'undefined') {
 
 		return Promise.all(
 			compositions.map((c): Promise<AnyCompMetadata> => {
-				return Internals.resolveVideoConfig({comp: c, editorProps: {}});
+				return Internals.resolveVideoConfig({composition: c, editorProps: {}});
 			})
 		);
 	};
@@ -279,7 +279,10 @@ if (typeof window !== 'undefined') {
 			throw new Error(`Could not find composition with ID ${compId}`);
 		}
 
-		return Internals.resolveVideoConfig({comp: selectedComp, editorProps: {}});
+		return Internals.resolveVideoConfig({
+			composition: selectedComp,
+			editorProps: {},
+		});
 	};
 
 	window.siteVersion = '5';

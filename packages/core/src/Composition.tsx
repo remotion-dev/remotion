@@ -19,6 +19,7 @@ import type {
 	PropsIfHasProps,
 	RenamePropsIfHasProps,
 } from './props-if-has-props.js';
+import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
@@ -89,7 +90,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 	schema,
 	...compProps
 }: CompositionProps<Schema, Props>) => {
-	const {registerComposition, unregisterComposition, resolved} =
+	const {registerComposition, unregisterComposition} =
 		useContext(CompositionManager);
 	const video = useVideo();
 
@@ -165,6 +166,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 		schema,
 		compProps.calculateMetadata,
 	]);
+	const resolved = useResolvedVideoConfig();
 
 	if (environment === 'preview' && video && video.component === lazy) {
 		const Comp = lazy;

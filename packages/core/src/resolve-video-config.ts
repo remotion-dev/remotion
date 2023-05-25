@@ -6,26 +6,26 @@ import {validateDurationInFrames} from './validation/validate-duration-in-frames
 import type {VideoConfig} from './video-config.js';
 
 export const resolveVideoConfig = async ({
-	comp,
+	composition,
 	editorProps: editorPropsOrUndefined,
 }: {
-	comp: TCompMetadataWithCalcFunction<ZodTypeAny, unknown>;
+	composition: TCompMetadataWithCalcFunction<ZodTypeAny, unknown>;
 	editorProps: object;
 }): Promise<VideoConfig> => {
-	const potentialErrorLocation = `calculated by calculateMetadata() for the composition "${comp.id}"`;
+	const potentialErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
 
-	const calculated = comp.calculateMetadata
-		? await comp.calculateMetadata({
-				defaultProps: comp.defaultProps,
+	const calculated = composition.calculateMetadata
+		? await composition.calculateMetadata({
+				defaultProps: composition.defaultProps,
 				props: {
-					...((comp.defaultProps ?? {}) as object),
+					...((composition.defaultProps ?? {}) as object),
 					...(editorPropsOrUndefined ?? {}),
 					...(getInputProps() ?? {}),
 				},
 		  })
 		: null;
 
-	const width = calculated?.width ?? comp.width ?? null;
+	const width = calculated?.width ?? composition.width ?? null;
 	if (!width) {
 		throw new TypeError(
 			'Composition width was neither specified via the `width` prop nor the `calculateMetadata()` function.'
@@ -34,7 +34,7 @@ export const resolveVideoConfig = async ({
 
 	validateDimension(width, 'width', potentialErrorLocation);
 
-	const height = calculated?.height ?? comp.height ?? null;
+	const height = calculated?.height ?? composition.height ?? null;
 	if (!height) {
 		throw new TypeError(
 			'Composition height was neither specified via the `height` prop nor the `calculateMetadata()` function.'
@@ -43,7 +43,7 @@ export const resolveVideoConfig = async ({
 
 	validateDimension(width, 'height', potentialErrorLocation);
 
-	const fps = calculated?.fps ?? comp.fps ?? null;
+	const fps = calculated?.fps ?? composition.fps ?? null;
 	if (!fps) {
 		throw new TypeError(
 			'Composition fps was neither specified via the `fps` prop nor the `calculateMetadata()` function.'
@@ -51,7 +51,7 @@ export const resolveVideoConfig = async ({
 	}
 
 	const durationInFrames =
-		calculated?.durationInFrames ?? comp.durationInFrames ?? null;
+		calculated?.durationInFrames ?? composition.durationInFrames ?? null;
 	if (!durationInFrames) {
 		throw new TypeError(
 			'Composition durationInFrames was neither specified via the `durationInFrames` prop nor the `calculateMetadata()` function.'
@@ -69,7 +69,7 @@ export const resolveVideoConfig = async ({
 		height,
 		fps,
 		durationInFrames,
-		id: comp.id,
-		defaultProps: comp.defaultProps,
+		id: composition.id,
+		defaultProps: composition.defaultProps,
 	};
 };
