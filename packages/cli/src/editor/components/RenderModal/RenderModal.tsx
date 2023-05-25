@@ -1121,6 +1121,10 @@ export const RenderModalWithLoader: React.FC<RenderModalProps> = (props) => {
 	}
 
 	if (!resolved) {
+		return null;
+	}
+
+	if (resolved.type === 'loading') {
 		return (
 			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 				<div style={loaderContainer}>
@@ -1134,13 +1138,31 @@ export const RenderModalWithLoader: React.FC<RenderModalProps> = (props) => {
 		);
 	}
 
+	if (resolved.type === 'error') {
+		return (
+			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
+				<div style={loaderContainer}>
+					<Spacing y={2} />
+					<div style={loaderLabel}>
+						Running <code style={inlineCodeSnippet}>calculateMetadata()</code>{' '}
+						yielded an error:
+					</div>
+					<Spacing y={1} />
+					<div style={loaderLabel}>
+						{resolved.error.message || 'Unknown error'}
+					</div>
+				</div>
+			</ModalContainer>
+		);
+	}
+
 	return (
 		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
 			<RenderModal
 				unresolvedComposition={unresolved}
 				{...props}
 				onClose={onQuit}
-				resolvedComposition={resolved}
+				resolvedComposition={resolved.result}
 			/>
 		</ModalContainer>
 	);

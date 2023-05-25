@@ -5,11 +5,11 @@ import {isCompositionStill} from './is-composition-still';
 export const useIsStill = () => {
 	const resolved = Internals.useResolvedVideoConfig(null);
 
-	if (!resolved) {
+	if (!resolved || resolved.type !== 'success') {
 		return false;
 	}
 
-	return isCompositionStill(resolved);
+	return isCompositionStill(resolved.result);
 };
 
 export const useDimensions = () => {

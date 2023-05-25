@@ -19,18 +19,31 @@ export const useVideo = (): ReturnType => {
 	const resolved = useResolvedVideoConfig(context.currentComposition);
 
 	return useMemo((): ReturnType => {
-		if (resolved && selected) {
-			return {
-				...resolved,
-				defaultProps: selected.defaultProps,
-				id: selected.id,
-				// We override the selected metadata with the metadata that was passed to renderMedia(),
-				// and don't allow it to be changed during render anymore
-				...(context.currentCompositionMetadata ?? {}),
-				component: selected.component,
-			};
+		if (!resolved) {
+			return null;
 		}
 
-		return null;
+		if (resolved.type === 'error') {
+			// TODO: In the future, can be niver
+			throw resolved.error;
+		}
+
+		if (resolved.type === 'loading') {
+			return null;
+		}
+
+		if (!selected) {
+			return null;
+		}
+
+		return {
+			...resolved.result,
+			defaultProps: selected.defaultProps,
+			id: selected.id,
+			// We override the selected metadata with the metadata that was passed to renderMedia(),
+			// and don't allow it to be changed during render anymore
+			...(context.currentCompositionMetadata ?? {}),
+			component: selected.component,
+		};
 	}, [context.currentCompositionMetadata, resolved, selected]);
 };

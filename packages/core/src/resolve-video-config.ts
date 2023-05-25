@@ -8,9 +8,11 @@ import type {VideoConfig} from './video-config.js';
 export const resolveVideoConfig = async ({
 	composition,
 	editorProps: editorPropsOrUndefined,
+	signal,
 }: {
 	composition: TCompMetadataWithCalcFunction<ZodTypeAny, unknown>;
 	editorProps: object;
+	signal: AbortSignal;
 }): Promise<VideoConfig> => {
 	const potentialErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
 
@@ -22,6 +24,7 @@ export const resolveVideoConfig = async ({
 					...(editorPropsOrUndefined ?? {}),
 					...(getInputProps() ?? {}),
 				},
+				abortSignal: signal,
 		  })
 		: null;
 
