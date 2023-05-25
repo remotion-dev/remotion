@@ -68,7 +68,7 @@ const innerStillHandler = async (
 	}
 
 	validateDownloadBehavior(lambdaParams.downloadBehavior);
-	validatePrivacy(lambdaParams.privacy);
+	validatePrivacy(lambdaParams.privacy, true);
 	validateOutname(lambdaParams.outName, null, null);
 
 	const start = Date.now();
