@@ -14,7 +14,10 @@ variable "project_id" {
   description = "The ID of the project in which the resources will be created."
 }
 
-
+variable "permissions_path" {
+  type        = string
+  description = "The path to the sa-permissions.json file."
+}
 
 provider "google" {
   project = var.project_id
@@ -23,11 +26,10 @@ provider "google" {
 }
 
 data "http" "permissions" {
-  url = "https://storage.googleapis.com/remotion-sa/sa-permissions.json"
+  url = var.permissions_path
 }
 
 locals {
-  # permissions = jsondecode(file("${path.module}/../src/shared/sa-permissions.json"))
   cloudrun-permissions  = jsondecode(data.http.permissions.response_body)
   service-account-email = "remotion-sa@${var.project_id}.iam.gserviceaccount.com"
 }
