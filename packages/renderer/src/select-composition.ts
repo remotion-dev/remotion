@@ -52,6 +52,7 @@ const innerSelectComposition = async ({
 	port,
 	id,
 }: InnerSelectCompositionConfig): Promise<AnyCompMetadata> => {
+	console.log('gonna select');
 	if (onBrowserLog) {
 		page.on('console', (log) => {
 			onBrowserLog?.({
@@ -91,12 +92,12 @@ const innerSelectComposition = async ({
 	await waitForReady(page);
 
 	const result = await puppeteerEvaluateWithCatch({
-		pageFunction: () => {
-			return window.calculateComposition(id);
+		pageFunction: (_id: string) => {
+			return window.calculateComposition(_id);
 		},
 		frame: null,
 		page,
-		args: [],
+		args: [id],
 	});
 
 	return result as AnyCompMetadata;
