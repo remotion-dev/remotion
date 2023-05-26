@@ -230,7 +230,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	}
 
 	validateOutname(params.outName, params.codec, params.audioCodec);
-	validatePrivacy(params.privacy);
+	validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
 	const {chunks} = planFrameRanges({

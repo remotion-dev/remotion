@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
 import {colorWithNewOpacity} from '../../../../color-math';
 import {
@@ -11,14 +11,10 @@ import {RemotionInput} from '../../NewComposition/RemInput';
 import {RemInputTypeColor} from '../../NewComposition/RemInputTypeColor';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
+import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
-
-type LocalState = {
-	value: string;
-	zodValidation: z.SafeParseReturnType<unknown, unknown>;
-};
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -30,7 +26,7 @@ export const ZodColorEditor: React.FC<{
 	value: string;
 	defaultValue: string;
 	setValue: UpdaterFunction<string>;
-	onSave: (updater: (oldNum: unknown) => string) => void;
+	onSave: UpdaterFunction<string>;
 	onRemove: null | (() => void);
 	compact: boolean;
 	showSaveButton: boolean;
@@ -59,27 +55,11 @@ export const ZodColorEditor: React.FC<{
 		throw new Error('expected zod color');
 	}
 
-	const [localValue, setLocalValue] = useState<LocalState>(() => {
-		return {
-			value,
-			zodValidation: schema.safeParse(value),
-		};
+	const {localValue, onChange: onValueChange} = useLocalState({
+		schema,
+		setValue,
+		value,
 	});
-
-	const onValueChange = useCallback(
-		(newValue: string, forceApply: boolean) => {
-			const safeParse = schema.safeParse(newValue);
-			const newLocalState: LocalState = {
-				value: newValue,
-				zodValidation: safeParse,
-			};
-			setLocalValue(newLocalState);
-			if (safeParse.success || forceApply) {
-				setValue(() => newValue);
-			}
-		},
-		[schema, setValue]
-	);
 
 	const {a, b, g, r} = localValue.zodValidation.success
 		? zodTypes.ZodZypesInternals.parseColor(localValue.value)
@@ -92,41 +72,25 @@ export const ZodColorEditor: React.FC<{
 				Math.round(a),
 				zodTypes
 			);
-			const safeParse = schema.safeParse(newColor);
-			const newLocalState: LocalState = {
-				value: newColor,
-				zodValidation: safeParse,
-			};
-			setLocalValue(newLocalState);
-			if (safeParse.success) {
-				setValue(() => newColor);
-			}
+			onValueChange(() => newColor, false);
 		},
-		[a, schema, setValue, zodTypes]
+		[a, onValueChange, zodTypes]
 	);
 
 	const onTextChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			const newValue = e.target.value;
-			const safeParse = schema.safeParse(newValue);
-			const newLocalState: LocalState = {
-				value: newValue,
-				zodValidation: safeParse,
-			};
-			setLocalValue(newLocalState);
-			if (safeParse.success) {
-				setValue(() => newValue);
-			}
+			onValueChange(() => newValue, false);
 		},
-		[schema, setValue]
+		[onValueChange]
 	);
 
 	const reset = useCallback(() => {
-		onValueChange(defaultValue, true);
+		onValueChange(() => defaultValue, true);
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value);
+		onSave(() => value, false);
 	}, [onSave, value]);
 
 	const rgb = `#${r.toString(16).padStart(2, '0')}${g
@@ -150,17 +114,9 @@ export const ZodColorEditor: React.FC<{
 				Math.round((Number(newValue) / 100) * 255),
 				zodTypes
 			);
-			const safeParse = schema.safeParse(newColor);
-			const newLocalState: LocalState = {
-				value: newColor,
-				zodValidation: safeParse,
-			};
-			setLocalValue(newLocalState);
-			if (safeParse.success) {
-				setValue(() => newColor);
-			}
+			onValueChange(() => newColor, false);
 		},
-		[localValue.value, schema, setValue, zodTypes]
+		[localValue.value, onValueChange, zodTypes]
 	);
 
 	const onOpacityValueChange = useCallback(
@@ -170,18 +126,9 @@ export const ZodColorEditor: React.FC<{
 				Math.round((Number(newValue) / 100) * 255),
 				zodTypes
 			);
-
-			const safeParse = schema.safeParse(newColor);
-			const newLocalState: LocalState = {
-				value: String(newColor),
-				zodValidation: safeParse,
-			};
-			setLocalValue(newLocalState);
-			if (safeParse.success) {
-				setValue(() => newColor);
-			}
+			onValueChange(() => newColor, false);
 		},
-		[localValue.value, schema, setValue, zodTypes]
+		[localValue.value, onValueChange, zodTypes]
 	);
 
 	return (

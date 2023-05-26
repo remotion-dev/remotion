@@ -20,7 +20,10 @@ import {ZodStaticFileEditor} from './ZodStaticFileEditor';
 import {ZodStringEditor} from './ZodStringEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
 
-export type UpdaterFunction<T> = (updater: (oldValue: T) => T) => void;
+export type UpdaterFunction<T> = (
+	updater: (oldValue: T) => T,
+	forceApply: boolean
+) => void;
 
 export const ZodSwitch: React.FC<{
 	schema: z.ZodTypeAny;
@@ -28,7 +31,7 @@ export const ZodSwitch: React.FC<{
 	value: unknown;
 	defaultValue: unknown;
 	setValue: UpdaterFunction<unknown>;
-	onSave: (newValue: (oldVal: unknown) => unknown) => void;
+	onSave: UpdaterFunction<unknown>;
 	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
@@ -64,8 +67,8 @@ export const ZodSwitch: React.FC<{
 		return (
 			<ZodObjectEditor
 				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
-				value={value}
-				defaultValue={defaultValue}
+				value={value as Record<string, unknown>}
+				defaultValue={defaultValue as Record<string, unknown>}
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
@@ -104,7 +107,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
-				onSave={onSave}
+				onSave={onSave as UpdaterFunction<string>}
 				defaultValue={defaultValue as string}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
@@ -122,7 +125,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				schema={schema}
 				compact={compact}
-				onSave={onSave}
+				onSave={onSave as UpdaterFunction<Date>}
 				defaultValue={defaultValue as Date}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
@@ -141,7 +144,7 @@ export const ZodSwitch: React.FC<{
 				schema={schema}
 				compact={compact}
 				defaultValue={defaultValue as number}
-				onSave={onSave}
+				onSave={onSave as UpdaterFunction<number>}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
@@ -158,7 +161,7 @@ export const ZodSwitch: React.FC<{
 				jsonPath={jsonPath}
 				compact={compact}
 				defaultValue={defaultValue as boolean}
-				onSave={onSave}
+				onSave={onSave as UpdaterFunction<boolean>}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
@@ -275,7 +278,7 @@ export const ZodSwitch: React.FC<{
 					jsonPath={jsonPath}
 					schema={schema}
 					compact={compact}
-					onSave={onSave}
+					onSave={onSave as UpdaterFunction<string>}
 					defaultValue={defaultValue as string}
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}

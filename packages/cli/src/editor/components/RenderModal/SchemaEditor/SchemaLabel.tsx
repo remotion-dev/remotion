@@ -73,11 +73,14 @@ export const SchemaLabel: React.FC<{
 export const SchemaFieldsetLabel: React.FC<{
 	jsonPath: JSONPath;
 	onRemove: null | (() => void);
-}> = ({jsonPath, onRemove}) => {
+	isDefaultValue: boolean;
+	onReset: () => void;
+}> = ({jsonPath, onRemove, isDefaultValue, onReset}) => {
 	return (
 		<legend style={fieldsetLabel}>
 			{getSchemaLabel(jsonPath)}
 			<Flex />
+			{isDefaultValue ? null : <SchemaResetButton onClick={onReset} />}
 			{onRemove ? (
 				<>
 					<Spacing x={1} /> <InlineRemoveButton onClick={onRemove} />

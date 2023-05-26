@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import {getStaticFiles} from 'remotion';
 import type {z} from 'zod';
 import {Checkmark} from '../../../icons/Checkmark';
@@ -8,17 +8,13 @@ import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {narrowOption, optionRow} from '../layout';
+import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 
 const container: React.CSSProperties = {
 	width: '100%',
-};
-
-type LocalState = {
-	value: string;
-	zodValidation: z.SafeParseReturnType<unknown, unknown>;
 };
 
 export const ZodStaticFileEditor: React.FC<{
@@ -37,7 +33,7 @@ export const ZodStaticFileEditor: React.FC<{
 	schema,
 	jsonPath,
 	compact,
-	setValue: updateValue,
+	setValue,
 	defaultValue,
 	value,
 	onSave,
@@ -51,12 +47,10 @@ export const ZodStaticFileEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const [localValue, setLocalValue] = useState<LocalState>(() => {
-		return {
-			value,
-			zodValidation: schema.safeParse(value),
-			revision: 0,
-		};
+	const {localValue, onChange: setLocalValue} = useLocalState({
+		schema,
+		setValue,
+		value,
 	});
 
 	const def = schema._def;
@@ -68,27 +62,9 @@ export const ZodStaticFileEditor: React.FC<{
 
 	const isRoot = jsonPath.length === 0;
 
-	const onChange = useCallback(
-		(updater: (oldV: string) => string, forceApply: boolean) => {
-			setLocalValue((oldLocalState) => {
-				const newValue = updater(oldLocalState.value);
-				const safeParse = schema.safeParse(newValue);
-				if (safeParse.success || forceApply) {
-					updateValue(updater);
-				}
-
-				return {
-					value: newValue,
-					zodValidation: safeParse,
-				};
-			});
-		},
-		[schema, updateValue]
-	);
-
 	const reset = useCallback(() => {
-		onChange(() => defaultValue, true);
-	}, [defaultValue, onChange]);
+		setLocalValue(() => defaultValue, true);
+	}, [defaultValue, setLocalValue]);
 
 	const comboBoxValues = useMemo(() => {
 		return getStaticFiles().map((option): ComboboxValue => {
@@ -99,14 +75,14 @@ export const ZodStaticFileEditor: React.FC<{
 				keyHint: null,
 				leftItem: option.src === value ? <Checkmark /> : null,
 				onClick: (id: string) => {
-					onChange(() => id, false);
+					setLocalValue(() => id, false);
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,
 				type: 'item',
 			};
 		});
-	}, [onChange, value]);
+	}, [setLocalValue, value]);
 
 	const save = useCallback(() => {
 		onSave(() => value);

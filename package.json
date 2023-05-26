@@ -5,26 +5,26 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "turbo run lint test",
-    "lint": "turbo run lint",
+    "stylecheck": "turbo run lint formatting",
     "build": "turbo run build",
-    "ci": "turbo run build lint test --concurrency=50%",
+    "ci": "turbo run build test --concurrency=50%",
     "watch": "pnpm run --recursive --stream --parallel watch",
     "clean": "rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf packages/**/.rollup.cache",
-    "release": "pnpm recursive publish",
-    "release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks"
+    "release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks",
+    "release": "pnpm recursive publish && pnpm recursive run publish && git push --tags && git push"
   },
   "engines": {
     "node": ">=16",
     "pnpm": ">=3"
   },
   "devDependencies": {
-    "@types/node": "^18.11.2"
+    "@types/node": "18.14.6"
   },
   "dependencies": {
-    "turbo": "1.9.6"
+    "turbo": "1.9.9"
   },
   "workspaces": [
     "packages/*"
   ],
-  "packageManager": "pnpm@7.7.1"
+  "packageManager": "pnpm@8.5.1"
 }

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player-example",
-	"version": "3.3.94",
+	"version": "3.3.96",
 	"private": true,
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
@@ -28,6 +28,7 @@
 		"prettier-plugin-organize-imports": "^2.3.4"
 	},
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"dev": "next dev",
 		"build-site": "next build"

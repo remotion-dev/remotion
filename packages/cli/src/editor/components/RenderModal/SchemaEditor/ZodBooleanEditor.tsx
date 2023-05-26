@@ -15,7 +15,7 @@ export const ZodBooleanEditor: React.FC<{
 	setValue: UpdaterFunction<boolean>;
 	compact: boolean;
 	defaultValue: boolean;
-	onSave: (updater: (oldNum: unknown) => boolean) => void;
+	onSave: UpdaterFunction<boolean>;
 	onRemove: null | (() => void);
 	showSaveButton: boolean;
 	saving: boolean;
@@ -33,25 +33,25 @@ export const ZodBooleanEditor: React.FC<{
 	saveDisabledByParent,
 }) => {
 	const onValueChange = useCallback(
-		(newValue: boolean) => {
-			setValue(() => newValue);
+		(newValue: boolean, forceApply: boolean) => {
+			setValue(() => newValue, forceApply);
 		},
 		[setValue]
 	);
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			onValueChange(e.target.checked);
+			onValueChange(e.target.checked, false);
 		},
 		[onValueChange]
 	);
 
 	const reset = useCallback(() => {
-		onValueChange(defaultValue);
+		onValueChange(defaultValue, true);
 	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value);
+		onSave(() => value, false);
 	}, [onSave, value]);
 
 	return (
