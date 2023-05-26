@@ -169,8 +169,28 @@ export const ResolveCompositionConfig: React.FC<
 		}
 	}, [doResolution, isTheSame, renderModalComposition, renderModalProps]);
 
+	const resolvedConfigsIncludingStaticOnes = useMemo(() => {
+		const staticComps = compositions.filter((c) => {
+			return c.calculateMetadata === null;
+		});
+		return {
+			...resolvedConfigs,
+			...staticComps.reduce((acc, curr) => {
+				return {
+					...acc,
+					[curr.id]: {
+						type: 'success',
+						result: {...curr, defaultProps: curr.defaultProps ?? {}},
+					},
+				};
+			}, {}),
+		};
+	}, [compositions, resolvedConfigs]);
+
 	return (
-		<ResolveCompositionContext.Provider value={resolvedConfigs}>
+		<ResolveCompositionContext.Provider
+			value={resolvedConfigsIncludingStaticOnes}
+		>
 			{children}
 		</ResolveCompositionContext.Provider>
 	);
@@ -193,7 +213,7 @@ export const useResolvedVideoConfig = (
 
 	if (!context[composition.id]) {
 		const needsResolution = composition.calculateMetadata;
-		if (!needsResolution) {
+		if (needsResolution === null) {
 			return {
 				type: 'success',
 				result: {...composition, defaultProps: composition.defaultProps ?? {}},
