@@ -40,6 +40,8 @@ export const ZonNonEditableValue: React.FC<{
 				compact={compact}
 				onRemove={null}
 				saving={saving}
+				valid
+				saveDisabledByParent
 			/>
 			<div style={fullWidth}>
 				<em style={compact ? emptyLabel : wideEmptyLabel}>{label}</em>
