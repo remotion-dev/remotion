@@ -36,6 +36,36 @@ const start = async () => {
 	);
 
 	/****************************************
+	 * Ensure billing is setup for project
+	 ****************************************/
+	execSync(`echo "Checking that billing is enabled..."`, {
+		stdio: 'inherit',
+	});
+
+	const billingEnabledString = execSync(
+		`gcloud beta billing projects describe ${projectID} --format=json | jq .billingEnabled`,
+		{
+			stdio: ['inherit', 'pipe', 'pipe'],
+		}
+	)
+		.toString()
+		.trim();
+
+	if (billingEnabledString === 'false') {
+		execSync(
+			`echo "${colorCode.redText}Billing is not enabled for this project. Please enable billing at https://console.cloud.google.com/billing and try again.${colorCode.resetText}"`,
+			{
+				stdio: 'inherit',
+			}
+		);
+		process.exit(1);
+	} else {
+		execSync(`echo "Billing is enabled for this ${projectID}"`, {
+			stdio: 'inherit',
+		});
+	}
+
+	/****************************************
 	 * Check task the user is trying to complete
 	 ****************************************/
 	const selection = await taskPrompt(projectID);
