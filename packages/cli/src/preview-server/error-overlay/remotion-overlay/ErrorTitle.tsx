@@ -38,7 +38,8 @@ export const ErrorTitle: React.FC<{
 	name: string;
 	message: string;
 	symbolicating: boolean;
-}> = ({name, message, symbolicating}) => {
+	canHaveDismissButton: boolean;
+}> = ({name, message, symbolicating, canHaveDismissButton}) => {
 	return (
 		<div style={title} className="css-reset">
 			<div style={left}>
@@ -54,7 +55,9 @@ export const ErrorTitle: React.FC<{
 					<ErrorMessage message={message} />
 				</div>
 			</div>
-			{didUnmountReactApp() ? null : <DismissButton />}
+			{didUnmountReactApp() ? null : canHaveDismissButton ? (
+				<DismissButton />
+			) : null}
 		</div>
 	);
 };
