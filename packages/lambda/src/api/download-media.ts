@@ -23,7 +23,7 @@ export type DownloadMediaOutput = {
 };
 
 /**
- * @description Triggers a render on a lambda given a composition and a lambda function.
+ * @description Downloads a rendered video, audio or still to the disk of the machine this API is called from.
  * @see [Documentation](https://remotion.dev/docs/lambda/downloadmedia)
  * @param params.region The AWS region in which the media resides.
  * @param params.bucketName The `bucketName` that was specified during the render.
