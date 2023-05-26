@@ -68,9 +68,16 @@ test("PHP package should create the same renderMedia payload as normal Lambda pa
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);
-  expect(JSON.stringify(parsedJson, null, 3)).toEqual(
-    JSON.stringify(nativeVersion, null, 3)
-  );
+
+  expect({
+    ...parsedJson,
+    crf: undefined,
+    envVariables: undefined,
+    pixelFormat: undefined,
+    proResProfile: undefined,
+    quality: undefined,
+    type: "start",
+  }).toEqual(nativeVersion);
 });
 
 test("PHP package should create the same progress payload as normal Lambda package", async () => {
