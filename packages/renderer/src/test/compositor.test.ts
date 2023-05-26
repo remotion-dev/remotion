@@ -33,6 +33,9 @@ test('Should handle the overlay', async () => {
 			compositor,
 		});
 
+		compositor.finishCommands();
+		await compositor.waitForDone();
+
 		cleanDownloadMap(map);
 
 		throw new Error('should not reach here');
@@ -75,6 +78,9 @@ test('Should handle valid', async () => {
 		imageFormat: 'Png',
 		compositor,
 	});
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
 
 	unlinkSync('test.png');
 	cleanDownloadMap(map);
