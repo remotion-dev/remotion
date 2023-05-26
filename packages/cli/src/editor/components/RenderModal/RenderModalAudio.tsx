@@ -103,14 +103,16 @@ export const RenderModalAudio: React.FC<{
 				</div>
 			) : null}
 
-			{renderMode === 'video' && (
+			{renderMode === 'video' ? (
+				<MutedSetting
+					enforceAudioTrack={enforceAudioTrack}
+					muted={muted}
+					setMuted={setMuted}
+					hint={BrowserSafeApis.options.muteOption}
+				/>
+			) : null}
+			{(renderMode === 'video' || renderMode === 'audio') && (
 				<>
-					<MutedSetting
-						enforceAudioTrack={enforceAudioTrack}
-						muted={muted}
-						setMuted={setMuted}
-						hint={BrowserSafeApis.options.muteOption}
-					/>
 					<EnforceAudioTrackSetting
 						muted={muted}
 						enforceAudioTrack={enforceAudioTrack}
