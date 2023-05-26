@@ -23,11 +23,11 @@ type TestPermissionsOutput = {
  * @description Test the permissions on the service account match the permissions required.
  * @see [Remotion-Documentation](http://remotion.dev/docs/cloudrun/testpermissions)
  * @see [Cloudrun-Documentation](https://cloud.google.com/resource-manager/reference/rest/v1/projects/testIamPermissions)
- * @param {(result: TestResult) => void} options.onTest Function to run on each test result
+ * @param {(result: TestResult) => void} params.onTest Function to run on each test result
  * @returns {Promise<TestPermissionsOutput>} Returns array of TestResult objects
  */
 export const testPermissions = async (
-	options: TestPermissionsInput
+	params: TestPermissionsInput
 ): Promise<TestPermissionsOutput> => {
 	const auth = new GoogleAuth({
 		credentials: {
@@ -67,11 +67,11 @@ export const testPermissions = async (
 		if (response?.data?.permissions.includes(permission)) {
 			const thisResult = {decision: true, permissionName: permission};
 			results.push(thisResult);
-			options.onTest?.(thisResult);
+			params.onTest?.(thisResult);
 		} else {
 			const thisResult = {decision: false, permissionName: permission};
 			results.push(thisResult);
-			options.onTest?.(thisResult);
+			params.onTest?.(thisResult);
 		}
 	});
 

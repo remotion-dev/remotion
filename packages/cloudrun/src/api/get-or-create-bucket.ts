@@ -21,13 +21,14 @@ export type GetOrCreateBucketOutput = {
 /**
  * @description Creates a bucket for Remotion Cloud Run in your GCP Project, in a particular region. If one already exists, it will get returned instead.
  * @link https://remotion.dev/docs/cloudrun/getorcreatebucket
- * @param options.region The region in which you want your Storage bucket to reside in.
+ * @param params.region The region in which you want your Storage bucket to reside in.
+ * @param params.updateBucketState A function that gets called whenever the state of the bucket changes. This is useful for CLI updates.
  * @returns {Promise<GetOrCreateBucketOutput>} An object containing the `bucketName`.
  */
 export const getOrCreateBucket = async (
-	options: GetOrCreateBucketInput
+	params: GetOrCreateBucketInput
 ): Promise<GetOrCreateBucketOutput> => {
-	const {remotionBuckets} = await getRemotionStorageBuckets(options.region);
+	const {remotionBuckets} = await getRemotionStorageBuckets(params.region);
 
 	if (remotionBuckets.length > 1) {
 		throw new Error(
@@ -38,22 +39,22 @@ export const getOrCreateBucket = async (
 	}
 
 	if (remotionBuckets.length === 1) {
-		options?.updateBucketState?.('Using existing bucket');
+		params?.updateBucketState?.('Using existing bucket');
 		return {
 			bucketName: remotionBuckets[0].name,
 		};
 	}
 
-	if (options?.region) {
-		options.updateBucketState?.('Creating new bucket');
+	if (params?.region) {
+		params.updateBucketState?.('Creating new bucket');
 
 		const bucketName = makeBucketName();
 		await createBucket({
 			bucketName,
-			region: options.region,
+			region: params.region,
 		});
 
-		options.updateBucketState?.('Created bucket');
+		params.updateBucketState?.('Created bucket');
 
 		return {bucketName};
 	}

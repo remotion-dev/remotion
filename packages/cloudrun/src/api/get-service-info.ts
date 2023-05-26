@@ -20,8 +20,8 @@ export type GetServiceInfoInput = {
 /**
  * @description Given a region and service name, returns information about the service such as version, memory limit and timeout.
  * @see [Documentation](https://remotion.dev/docs/cloudrun/getserviceinfo)
- * @param options.region The region in which the service resides in.
- * @param options.serviceName The name of the service.
+ * @param params.region The region in which the service resides in.
+ * @param params.serviceName The name of the service.
  * @returns {Promise<ServiceInfo[]>} An array with the objects containing information about the deployed services.
  */
 
