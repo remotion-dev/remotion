@@ -2,7 +2,9 @@ import React, {useMemo} from 'react';
 import type {z} from 'zod';
 import {FAIL_COLOR} from '../../../helpers/colors';
 import {useZodIfPossible} from '../../get-zod-if-possible';
+import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
+import {InfoBubble} from '../InfoBubble';
 import {useLocalState} from './local-state';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -10,6 +12,15 @@ import {ZodSwitch} from './ZodSwitch';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
+};
+
+const stackTrace: React.CSSProperties = {
+	fontSize: '10px',
+	padding: '10px',
+};
+
+const legend: React.CSSProperties = {
+	display: 'flex',
 };
 
 export const ZodEffectEditor: React.FC<{
@@ -84,12 +95,20 @@ export const ZodEffectEditor: React.FC<{
 				/>
 			</div>
 			{!localValue.zodValidation.success && (
-				<legend>
+				<legend style={legend}>
 					<ValidationMessage
 						align="flex-start"
 						message={localValue.zodValidation.error.format()._errors[0]}
 						type="error"
 					/>
+					<Spacing x={0.5} />
+					<InfoBubble title="Stack Trace">
+						<div style={stackTrace}>
+							Zod Validation has failed! <br />
+							{localValue.zodValidation.error.stack}
+						</div>
+					</InfoBubble>
+					<Spacing x={0.5} />
 				</legend>
 			)}
 		</fieldset>
