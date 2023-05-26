@@ -32,6 +32,7 @@ export const ZodStaticFileEditor: React.FC<{
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
+	saveDisabledByParent: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -43,13 +44,12 @@ export const ZodStaticFileEditor: React.FC<{
 	showSaveButton,
 	onRemove,
 	saving,
+	saveDisabledByParent,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
 	}
-
-	console.log(value);
 
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -112,19 +112,20 @@ export const ZodStaticFileEditor: React.FC<{
 		onSave(() => value);
 	}, [onSave, value]);
 
+	console.log(localValue);
 	return (
 		<div style={compact ? narrowOption : optionRow}>
 			<SchemaLabel
 				onSave={save}
 				showSaveButton={showSaveButton}
-				isDefaultValue={value === defaultValue}
+				isDefaultValue={localValue.value === defaultValue}
 				compact={compact}
 				onReset={reset}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
 				saving={saving}
 				valid={localValue.zodValidation.success}
-				saveDisabledByParent={false}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 
 			<div style={isRoot ? undefined : container}>

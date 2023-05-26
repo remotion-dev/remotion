@@ -91,6 +91,7 @@ export const ZodSwitch: React.FC<{
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}
 					saving={saving}
+					saveDisabledByParent={saveDisabledByParent}
 				/>
 			);
 		}
