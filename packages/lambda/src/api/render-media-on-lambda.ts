@@ -21,7 +21,7 @@ export type RenderMediaOnLambdaInput = {
 	functionName: string;
 	serveUrl: string;
 	composition: string;
-	inputProps?: unknown;
+	inputProps?: Record<string, unknown>;
 	codec: LambdaCodec;
 	imageFormat?: VideoImageFormat;
 	crf?: number | undefined;

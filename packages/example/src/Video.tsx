@@ -24,7 +24,12 @@ import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
-import {SchemaTest, schemaTestSchema} from './SchemaTest';
+import {
+	ArrayTest,
+	schemaArrayTestSchema,
+	SchemaTest,
+	schemaTestSchema,
+} from './SchemaTest';
 import {Scripts} from './Scripts';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
@@ -812,6 +817,17 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 					schema={schemaTestSchema}
+				/>
+				<Composition
+					id="array-schem"
+					component={ArrayTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+					// @ts-expect-error Needs an object
+					schema={schemaArrayTestSchema}
+					defaultProps={{}}
 				/>
 			</Folder>
 			<Folder name="TailwindCSS">

@@ -223,7 +223,7 @@ This is automatically applied in [`@remotion/skia`](/docs/skia).
 The `TComposition` type now has two generic arguments:
 
 ```ts
-export type TComposition<Schema extends z.ZodTypeAny, Props> = {};
+export type TComposition<Schema extends AnyZodObject, Props> = {};
 ```
 
 If you need a type for a generic composition, you can use the new `AnyComposition` type:
@@ -245,3 +245,11 @@ The [`getCanExtractFramesFast()`](/docs/renderer/get-can-extract-frames-fast) fu
 **How to upgrade:**
 
 You can now remove your re-encoding logic!
+
+## Input props must be an object
+
+Since the input props are passed to a React component, they must not explicitly be objects (`{}`). You can still use other data structures such as arrays, but they must be wrapped in an object.
+
+## `defaultProps` is required if the component has props
+
+If you register a composition with a component that requires some props, you now are required to provide a `defaultProps` object.

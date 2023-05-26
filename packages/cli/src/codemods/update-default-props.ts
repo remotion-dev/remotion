@@ -95,7 +95,6 @@ const findTerminators = (input: string, position: number) => {
 	return Infinity;
 };
 
-// TODO: Add more sanity checks
 export const updateDefaultProps = async ({
 	input,
 	compositionId,
@@ -104,7 +103,7 @@ export const updateDefaultProps = async ({
 }: {
 	input: string;
 	compositionId: string;
-	newDefaultProps: unknown;
+	newDefaultProps: Record<string, unknown>;
 	enumPaths: EnumPath[];
 }): Promise<string> => {
 	const starter = findStarter({input, compositionId});

@@ -16,7 +16,7 @@ import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type GetCompositionsConfig = {
-	inputProps?: object | null;
+	inputProps?: Record<string, unknown> | null;
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: Browser;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -54,7 +54,7 @@ const innerGetCompositions = async (
 	validatePuppeteerTimeout(config?.timeoutInMilliseconds);
 
 	await setPropsAndEnv({
-		inputProps: config?.inputProps,
+		inputProps: config?.inputProps ?? {},
 		envVariables: config?.envVariables,
 		page,
 		serveUrl,

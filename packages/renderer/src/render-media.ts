@@ -70,7 +70,7 @@ export type RenderMediaOptions = {
 	outputLocation?: string | null;
 	codec: Codec;
 	composition: AnySmallCompMetadata;
-	inputProps?: unknown;
+	inputProps?: Record<string, unknown>;
 	crf?: number | null;
 	imageFormat?: VideoImageFormat;
 	pixelFormat?: PixelFormat;
@@ -434,7 +434,7 @@ export const renderMedia = ({
 					callUpdate();
 					onStart?.(data);
 				},
-				inputProps,
+				inputProps: inputProps ?? {},
 				envVariables,
 				imageFormat,
 				jpegQuality,
