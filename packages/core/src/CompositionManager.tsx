@@ -8,12 +8,15 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {z} from 'zod';
+import type {AnyZodObject} from 'zod';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {TFolder} from './Folder.js';
 import type {PropsIfHasProps} from './props-if-has-props.js';
 
-export type TComposition<Schema extends z.ZodTypeAny, Props> = {
+export type TComposition<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown> | undefined
+> = {
 	width: number;
 	height: number;
 	fps: number;
@@ -26,22 +29,37 @@ export type TComposition<Schema extends z.ZodTypeAny, Props> = {
 	schema: Schema | null;
 } & PropsIfHasProps<Schema, Props>;
 
-export type AnyComposition = TComposition<z.ZodTypeAny, unknown>;
+export type AnyComposition = TComposition<
+	AnyZodObject,
+	Record<string, unknown> | undefined
+>;
 
-export type TCompMetadata<Schema extends z.ZodTypeAny, Props> = Pick<
+export type TCompMetadata<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown> | undefined
+> = Pick<
 	TComposition<Schema, Props>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
 >;
 
-export type AnyCompMetadata = TCompMetadata<z.ZodTypeAny, unknown>;
+export type AnyCompMetadata = TCompMetadata<
+	AnyZodObject,
+	Record<string, unknown> | undefined
+>;
 
-export type SmallTCompMetadata<T extends z.ZodTypeAny, Props> = Pick<
+export type SmallTCompMetadata<
+	T extends AnyZodObject,
+	Props extends Record<string, unknown> | undefined
+> = Pick<
 	TComposition<T, Props>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
 > &
 	Partial<Pick<TComposition<T, Props>, 'defaultProps'>>;
 
-export type AnySmallCompMetadata = SmallTCompMetadata<z.ZodTypeAny, unknown>;
+export type AnySmallCompMetadata = SmallTCompMetadata<
+	AnyZodObject,
+	Record<string, unknown> | undefined
+>;
 
 type EnhancedTSequenceData =
 	| {
@@ -104,7 +122,10 @@ type BaseMetadata = Pick<
 
 export type CompositionManagerContext = {
 	compositions: AnyComposition[];
-	registerComposition: <Schema extends z.ZodTypeAny, Props>(
+	registerComposition: <
+		Schema extends AnyZodObject,
+		Props extends Record<string, unknown> | undefined
+	>(
 		comp: TComposition<Schema, Props>
 	) => void;
 	unregisterComposition: (name: string) => void;
@@ -143,7 +164,10 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 });
 
 export const compositionsRef = React.createRef<{
-	getCompositions: () => TCompMetadata<z.ZodTypeAny, unknown>[];
+	getCompositions: () => TCompMetadata<
+		AnyZodObject,
+		Record<string, unknown> | undefined
+	>[];
 }>();
 
 export const CompositionManagerProvider: React.FC<{
@@ -182,7 +206,12 @@ export const CompositionManagerProvider: React.FC<{
 	);
 
 	const registerComposition = useCallback(
-		<Schema extends z.ZodTypeAny, Props>(comp: TComposition<Schema, Props>) => {
+		<
+			Schema extends AnyZodObject,
+			Props extends Record<string, unknown> | undefined
+		>(
+			comp: TComposition<Schema, Props>
+		) => {
 			updateCompositions((comps) => {
 				if (comps.find((c) => c.id === comp.id)) {
 					throw new Error(

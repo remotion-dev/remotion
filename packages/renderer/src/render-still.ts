@@ -36,7 +36,7 @@ type InnerStillOptions = {
 	composition: AnySmallCompMetadata;
 	output?: string | null;
 	frame?: number;
-	inputProps?: unknown;
+	inputProps?: Record<string, unknown>;
 	imageFormat?: StillImageFormat;
 	/**
 	 * @deprecated Renamed to `jpegQuality`
@@ -227,7 +227,7 @@ const innerRenderStill = async ({
 	}
 
 	await setPropsAndEnv({
-		inputProps,
+		inputProps: inputProps ?? {},
 		envVariables,
 		page,
 		serveUrl,
@@ -243,7 +243,7 @@ const innerRenderStill = async ({
 		// eslint-disable-next-line max-params
 		pageFunction: (
 			id: string,
-			defaultProps: unknown,
+			defaultProps: Record<string, unknown>,
 			durationInFrames: number,
 			fps: number,
 			height: number,

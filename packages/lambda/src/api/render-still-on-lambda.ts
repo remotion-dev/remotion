@@ -17,7 +17,7 @@ export type RenderStillOnLambdaInput = {
 	functionName: string;
 	serveUrl: string;
 	composition: string;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	imageFormat: StillImageFormat;
 	privacy: Privacy;
 	maxRetries?: number;

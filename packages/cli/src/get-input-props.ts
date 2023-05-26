@@ -5,8 +5,8 @@ import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
 export const getInputProps = (
-	onUpdate: ((newProps: object) => void) | null
-): object => {
+	onUpdate: ((newProps: Record<string, unknown>) => void) | null
+): Record<string, unknown> => {
 	if (!parsedCli.props) {
 		return {};
 	}

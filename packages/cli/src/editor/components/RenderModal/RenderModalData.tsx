@@ -49,7 +49,7 @@ type AllCompStates = {
 export type State =
 	| {
 			str: string;
-			value: unknown;
+			value: Record<string, unknown>;
 			validJSON: true;
 	  }
 	| {
@@ -124,8 +124,8 @@ const setPersistedShowWarningState = (val: boolean) => {
 
 export const RenderModalData: React.FC<{
 	composition: AnyComposition;
-	inputProps: unknown;
-	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
+	inputProps: Record<string, unknown>;
+	setInputProps: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	compact: boolean;
 	mayShowSaveButton: boolean;
 	propsEditType: PropsEditType;
@@ -150,7 +150,7 @@ export const RenderModalData: React.FC<{
 			return null;
 		}
 
-		const value = inputProps ?? {};
+		const value = inputProps;
 		return serializeJSONWithDate({
 			data: value,
 			indent: 2,
@@ -172,7 +172,7 @@ export const RenderModalData: React.FC<{
 		}
 
 		if (!composition.schema) {
-			return z.any();
+			return z.object({});
 		}
 
 		if (!(typeof composition.schema.safeParse === 'function')) {

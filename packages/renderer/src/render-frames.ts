@@ -57,7 +57,7 @@ type RenderFramesOptions = {
 		timeToRenderInMilliseconds: number
 	) => void;
 	outputDir: string | null;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	envVariables?: Record<string, string>;
 	imageFormat?: VideoImageFormat;
 	/**
@@ -196,7 +196,7 @@ const innerRenderFrames = ({
 			// eslint-disable-next-line max-params
 			pageFunction: (
 				id: string,
-				defaultProps: unknown,
+				defaultProps: Record<string, unknown>,
 				durationInFrames: number,
 				fps: number,
 				height: number,
