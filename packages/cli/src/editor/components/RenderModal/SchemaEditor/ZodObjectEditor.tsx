@@ -20,7 +20,6 @@ const fieldset: React.CSSProperties = {
 	borderColor: INPUT_BORDER_COLOR_UNHOVERED,
 };
 
-// TODO: First validate locally
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
@@ -36,6 +35,7 @@ export const ZodObjectEditor: React.FC<{
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
+	saveDisabledByParent: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -47,6 +47,7 @@ export const ZodObjectEditor: React.FC<{
 	showSaveButton,
 	onRemove,
 	saving,
+	saveDisabledByParent,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -117,7 +118,7 @@ export const ZodObjectEditor: React.FC<{
 									compact={compact}
 									showSaveButton={showSaveButton}
 									saving={saving}
-									saveDisabledByParent={false}
+									saveDisabledByParent={saveDisabledByParent}
 								/>
 							);
 						})}

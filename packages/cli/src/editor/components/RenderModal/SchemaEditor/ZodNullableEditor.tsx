@@ -13,6 +13,7 @@ export const ZodNullableEditor: React.FC<{
 	onSave: (updater: (oldNum: unknown) => unknown) => void;
 	onRemove: null | (() => void);
 	saving: boolean;
+	saveDisabledByParent: boolean;
 }> = ({
 	jsonPath,
 	compact,
@@ -24,6 +25,7 @@ export const ZodNullableEditor: React.FC<{
 	showSaveButton,
 	onRemove,
 	saving,
+	saveDisabledByParent,
 }) => {
 	const {innerType} = schema._def as z.ZodOptionalDef;
 
@@ -40,6 +42,7 @@ export const ZodNullableEditor: React.FC<{
 			value={value}
 			nullishValue={null}
 			saving={saving}
+			saveDisabledByParent={saveDisabledByParent}
 		/>
 	);
 };

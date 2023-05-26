@@ -47,6 +47,7 @@ export const ZodUnionEditor: React.FC<{
 	onSave: (updater: (oldNum: unknown) => unknown) => void;
 	onRemove: null | (() => void);
 	saving: boolean;
+	saveDisabledByParent: boolean;
 }> = ({
 	jsonPath,
 	compact,
@@ -58,6 +59,7 @@ export const ZodUnionEditor: React.FC<{
 	showSaveButton,
 	onRemove,
 	saving,
+	saveDisabledByParent,
 }) => {
 	const {options} = schema._def as z.ZodUnionDef;
 
@@ -131,6 +133,7 @@ export const ZodUnionEditor: React.FC<{
 			value={value}
 			nullishValue={nullishValue}
 			saving={saving}
+			saveDisabledByParent={saveDisabledByParent}
 		/>
 	);
 };

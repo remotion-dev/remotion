@@ -112,7 +112,6 @@ export const ZodStaticFileEditor: React.FC<{
 		onSave(() => value);
 	}, [onSave, value]);
 
-	console.log(localValue);
 	return (
 		<div style={compact ? narrowOption : optionRow}>
 			<SchemaLabel

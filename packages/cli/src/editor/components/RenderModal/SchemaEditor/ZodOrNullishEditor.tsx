@@ -48,6 +48,7 @@ export const ZodOrNullishEditor: React.FC<{
 	onRemove: null | (() => void);
 	nullishValue: null | undefined;
 	saving: boolean;
+	saveDisabledByParent: boolean;
 }> = ({
 	jsonPath,
 	compact,
@@ -60,6 +61,7 @@ export const ZodOrNullishEditor: React.FC<{
 	onRemove,
 	nullishValue,
 	saving,
+	saveDisabledByParent,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -148,7 +150,7 @@ export const ZodOrNullishEditor: React.FC<{
 					onRemove={onRemove}
 					saving={saving}
 					valid={localNonNullishValueValue.zodValidation.success}
-					saveDisabledByParent={false}
+					saveDisabledByParent={saveDisabledByParent}
 				/>
 			) : (
 				<div style={fullWidth}>
@@ -163,7 +165,7 @@ export const ZodOrNullishEditor: React.FC<{
 						showSaveButton={showSaveButton}
 						onRemove={onRemove}
 						saving={saving}
-						saveDisabledByParent={false}
+						saveDisabledByParent={saveDisabledByParent}
 					/>
 				</div>
 			)}
