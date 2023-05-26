@@ -1,5 +1,5 @@
 import type {SetStateAction} from 'react';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -31,6 +31,7 @@ export const MenuContent: React.FC<{
 	leaveLeftSpace: boolean;
 	preselectIndex: false | number;
 	topItemCanBeUnselected: boolean;
+	individualHeight: number | null;
 }> = ({
 	onHide,
 	values,
@@ -39,6 +40,7 @@ export const MenuContent: React.FC<{
 	onPreviousMenu,
 	leaveLeftSpace,
 	topItemCanBeUnselected,
+	individualHeight,
 }) => {
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -154,6 +156,17 @@ export const MenuContent: React.FC<{
 
 		setSubMenuActivated('without-mouse');
 	}, [onNextMenu, selectedItem, values]);
+
+	const mergedContainer: React.CSSProperties = useMemo(() => {
+		if (!individualHeight) {
+			return container;
+		}
+
+		return {
+			...container,
+			maxHeight: individualHeight,
+		};
+	}, [individualHeight]);
 
 	useEffect(() => {
 		const escapeBinding = keybindings.registerKeybinding({
@@ -278,7 +291,7 @@ export const MenuContent: React.FC<{
 	return (
 		<div
 			ref={containerRef}
-			style={container}
+			style={mergedContainer}
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 		>
 			{values.map((item) => {
