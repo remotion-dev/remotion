@@ -21,7 +21,7 @@ const getZ = async () => {
 test('Should create a good folder tree with 1 item inside and 1 item outside', async () => {
 	const z = await getZ();
 
-	const any = z.any();
+	const obj = z.object({});
 	const tree = createFolderTree(
 		[
 			{
@@ -35,7 +35,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 				nonce: 0,
 				width: 1080,
 				parentFolderName: null,
-				schema: any,
+				schema: obj,
 			},
 			{
 				component,
@@ -48,7 +48,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 				nonce: 0,
 				width: 1080,
 				parentFolderName: null,
-				schema: any,
+				schema: obj,
 			},
 		],
 		[
@@ -76,7 +76,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 						id: 'my-comp',
 						nonce: 0,
 						width: 1080,
-						schema: any,
+						schema: obj,
 					},
 					key: 'my-comp',
 					type: 'composition',
@@ -99,7 +99,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 				id: 'second-comp',
 				nonce: 0,
 				width: 1080,
-				schema: any,
+				schema: obj,
 			},
 			key: 'second-comp',
 			type: 'composition',
@@ -109,7 +109,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 
 test('Should handle nested folders well', async () => {
 	const z = await getZ();
-	const any = z.any();
+	const obj = z.object({});
 
 	const tree = createFolderTree(
 		[
@@ -124,7 +124,7 @@ test('Should handle nested folders well', async () => {
 				nonce: 0,
 				width: 1080,
 				parentFolderName: 'my-third-folder/my-second-folder',
-				schema: any,
+				schema: obj,
 			},
 		],
 		[
@@ -177,7 +177,7 @@ test('Should handle nested folders well', async () => {
 										id: 'my-comp',
 										nonce: 0,
 										width: 1080,
-										schema: any,
+										schema: obj,
 									},
 									key: 'my-comp',
 									type: 'composition',

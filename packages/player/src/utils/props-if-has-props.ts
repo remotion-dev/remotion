@@ -1,9 +1,9 @@
-import type {z} from 'zod';
+import type {AnyZodObject, z} from 'zod';
 
 export type PropsIfHasProps<
-	Schema extends z.ZodTypeAny,
+	Schema extends AnyZodObject,
 	Props
-> = z.ZodTypeAny extends Schema
+> = AnyZodObject extends Schema
 	? {} extends Props
 		? {
 				// Neither props nor schema specified

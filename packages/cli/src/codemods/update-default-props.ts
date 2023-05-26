@@ -104,7 +104,7 @@ export const updateDefaultProps = async ({
 }: {
 	input: string;
 	compositionId: string;
-	newDefaultProps: unknown;
+	newDefaultProps: Record<string, unknown>;
 	enumPaths: EnumPath[];
 }): Promise<string> => {
 	const starter = findStarter({input, compositionId});

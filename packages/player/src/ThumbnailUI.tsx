@@ -7,7 +7,6 @@ import React, {
 	useRef,
 } from 'react';
 import {Internals} from 'remotion';
-import type {z} from 'zod';
 import {
 	calculateCanvasTransformation,
 	calculateContainerStyle,
@@ -34,7 +33,7 @@ const doesReactVersionSupportSuspense = parseInt(reactVersion, 10) >= 18;
 const ThumbnailUI: React.ForwardRefRenderFunction<
 	ThumbnailMethods,
 	{
-		inputProps: unknown;
+		inputProps: Record<string, unknown>;
 		style?: React.CSSProperties;
 		errorFallback: ErrorFallback;
 		renderLoading: RenderLoading | undefined;
@@ -126,9 +125,8 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 				{VideoComponent ? (
 					<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 						<VideoComponent
-							{...((video?.defaultProps as unknown as z.infer<z.ZodTypeAny>) ??
-								{})}
-							{...((inputProps as unknown as z.infer<z.ZodTypeAny>) ?? {})}
+							{...(video?.defaultProps ?? {})}
+							{...(inputProps ?? {})}
 						/>
 					</ErrorBoundary>
 				) : null}

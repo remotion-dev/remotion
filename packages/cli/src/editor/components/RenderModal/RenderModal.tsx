@@ -208,7 +208,7 @@ export const RenderModal: React.FC<{
 	initialGl: OpenGlRenderer | null;
 	initialIgnoreCertificateErrors: boolean;
 	initialHeadless: boolean;
-	defaultProps: unknown;
+	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
 }> = ({

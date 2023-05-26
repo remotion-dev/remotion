@@ -13,7 +13,7 @@ import {
 } from 'react';
 import type {CompProps, TimelineContextValue} from 'remotion';
 import {Internals, random} from 'remotion';
-import type {z} from 'zod';
+import type {AnyZodObject} from 'zod';
 import {ThumbnailEmitterContext} from './emitter-context.js';
 import {ThumbnailEmitter} from './event-emitter.js';
 import type {ThumbnailMethods} from './player-methods.js';
@@ -22,7 +22,7 @@ import {SharedPlayerContexts} from './SharedPlayerContext.js';
 import ThumbnailUI from './ThumbnailUI.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
-type ThumbnailProps<Schema extends z.ZodTypeAny, Props> = PropsIfHasProps<
+type ThumbnailProps<Schema extends AnyZodObject, Props> = PropsIfHasProps<
 	Schema,
 	Props
 > &
@@ -38,7 +38,7 @@ type ThumbnailProps<Schema extends z.ZodTypeAny, Props> = PropsIfHasProps<
 		className?: string;
 	};
 
-export const ThumbnailFn = <Schema extends z.ZodTypeAny, Props>(
+export const ThumbnailFn = <Schema extends AnyZodObject, Props>(
 	{
 		frameToDisplay,
 		style,
@@ -94,7 +94,7 @@ export const ThumbnailFn = <Schema extends z.ZodTypeAny, Props>(
 				compositionWidth={compositionWidth}
 				durationInFrames={durationInFrames}
 				fps={fps}
-				inputProps={inputProps}
+				inputProps={passedInputProps}
 				numberOfSharedAudioTags={0}
 				initiallyMuted
 			>

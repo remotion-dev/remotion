@@ -81,7 +81,7 @@ export type RenderJob = {
 	cancelToken: ReturnType<typeof makeCancelSignal>;
 	chromiumOptions: RequiredChromiumOptions;
 	envVariables: Record<string, string>;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {
@@ -131,7 +131,7 @@ export type AddRenderRequest = {
 	chromiumOptions: RequiredChromiumOptions;
 	delayRenderTimeout: number;
 	envVariables: Record<string, string>;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 } & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {
