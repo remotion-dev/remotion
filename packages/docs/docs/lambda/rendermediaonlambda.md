@@ -116,6 +116,14 @@ _available from v3.2.40_
 
 Overrides default composition height.
 
+### `framesPerLambda`
+
+Specify a single frame (a number) or a range of frames (a tuple [number, number]) to be rendered.
+
+### `logLevel`
+
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Defaults to `info`.
+
 ### `forceWidth`
 
 _available from v3.2.40_
