@@ -73,6 +73,7 @@ export const ZodSwitch: React.FC<{
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 		);
 	}
@@ -126,6 +127,7 @@ export const ZodSwitch: React.FC<{
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 		);
 	}
@@ -143,6 +145,7 @@ export const ZodSwitch: React.FC<{
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 		);
 	}
@@ -159,6 +162,7 @@ export const ZodSwitch: React.FC<{
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 		);
 	}
@@ -236,6 +240,7 @@ export const ZodSwitch: React.FC<{
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 		);
 	}
@@ -275,6 +280,7 @@ export const ZodSwitch: React.FC<{
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}
 					saving={saving}
+					saveDisabledByParent={saveDisabledByParent}
 				/>
 			);
 		}
@@ -308,6 +314,7 @@ export const ZodSwitch: React.FC<{
 				onSave={onSave}
 				onRemove={onRemove}
 				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 		);
 	}
@@ -325,6 +332,7 @@ export const ZodSwitch: React.FC<{
 				onRemove={onRemove}
 				schema={schema}
 				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 		);
 	}
@@ -342,6 +350,7 @@ export const ZodSwitch: React.FC<{
 				onRemove={onRemove}
 				schema={schema}
 				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 		);
 	}

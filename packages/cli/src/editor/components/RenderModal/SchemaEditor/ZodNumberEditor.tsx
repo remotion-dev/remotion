@@ -82,6 +82,7 @@ export const ZodNumberEditor: React.FC<{
 	onRemove: null | (() => void);
 	showSaveButton: boolean;
 	saving: boolean;
+	saveDisabledByParent: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -93,6 +94,7 @@ export const ZodNumberEditor: React.FC<{
 	onRemove,
 	showSaveButton,
 	saving,
+	saveDisabledByParent,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -160,7 +162,7 @@ export const ZodNumberEditor: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				valid={localValue.zodValidation.success}
-				saveDisabledByParent={false}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 			<div style={fullWidth}>
 				<InputDragger

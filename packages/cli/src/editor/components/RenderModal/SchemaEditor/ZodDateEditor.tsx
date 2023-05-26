@@ -65,6 +65,7 @@ export const ZodDateEditor: React.FC<{
 	compact: boolean;
 	showSaveButton: boolean;
 	saving: boolean;
+	saveDisabledByParent: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -76,6 +77,7 @@ export const ZodDateEditor: React.FC<{
 	onSave,
 	onRemove,
 	saving,
+	saveDisabledByParent,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -127,7 +129,7 @@ export const ZodDateEditor: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				valid={localValue.zodValidation.success}
-				saveDisabledByParent={false}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput

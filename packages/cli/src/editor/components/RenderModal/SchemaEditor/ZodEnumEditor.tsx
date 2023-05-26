@@ -121,7 +121,7 @@ export const ZodEnumEditor: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				valid={localValue.zodValidation.success}
-				saveDisabledByParent={false}
+				saveDisabledByParent={!localValue.zodValidation.success}
 			/>
 
 			<div style={isRoot ? undefined : container}>

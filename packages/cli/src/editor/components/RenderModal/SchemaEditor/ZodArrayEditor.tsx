@@ -44,6 +44,7 @@ export const ZodArrayEditor: React.FC<{
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
+	saveDisabledByParent: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -55,6 +56,7 @@ export const ZodArrayEditor: React.FC<{
 	showSaveButton,
 	onRemove,
 	saving,
+	saveDisabledByParent,
 }) => {
 	const [localValue, setLocalValue] = useState<LocalState>(() => {
 		return {
@@ -149,6 +151,7 @@ export const ZodArrayEditor: React.FC<{
 									onSave={onSave}
 									showSaveButton={showSaveButton}
 									saving={saving}
+									saveDisabledByParent={saveDisabledByParent}
 								/>
 							);
 						})}
