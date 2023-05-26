@@ -1,5 +1,5 @@
 import {VERSION} from 'remotion/version';
-import type {LambdaPayload} from '../defaults';
+import type {LambdaStartPayload, LambdaStatusPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
 import {serializeInputProps} from '../shared/serialize-input-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
@@ -45,7 +45,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	muted,
 	overwrite,
 	dumpBrowserLogs,
-}: RenderMediaOnLambdaInput): Promise<LambdaPayload> => {
+}: RenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda({
@@ -104,7 +104,7 @@ export const getRenderProgressPayload = ({
 	bucketName,
 	renderId,
 	s3OutputProvider,
-}: GetRenderInput): LambdaPayload => {
+}: GetRenderInput): LambdaStatusPayload => {
 	return {
 		type: LambdaRoutines.status,
 		bucketName,
