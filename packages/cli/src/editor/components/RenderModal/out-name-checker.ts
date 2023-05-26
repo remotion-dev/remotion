@@ -124,7 +124,11 @@ const isValidOutName = ({
 					`The extension ${extension} is not supported for audio codec ${audioCodec}`
 				);
 			}
-		} else if (audioCodec !== extension) {
+
+			return;
+		}
+
+		if (audioCodec !== extension) {
 			throw new Error(
 				`The extension ${extension} is not supported for audio codec ${audioCodec}`
 			);
