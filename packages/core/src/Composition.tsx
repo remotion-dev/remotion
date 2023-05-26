@@ -21,6 +21,7 @@ import type {PropsIfHasProps} from './props-if-has-props.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
+import {validateDefaultAndInputProps} from './validation/validate-default-props.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
@@ -123,6 +124,7 @@ export const Composition = <
 		});
 
 		validateFps(fps, 'as a prop of the <Composition/> component', false);
+		validateDefaultAndInputProps(defaultProps, 'defaultProps');
 		registerComposition<Schema, Props>({
 			durationInFrames,
 			fps,
