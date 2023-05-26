@@ -61,7 +61,7 @@ test('Should be able to set duration for spring when in reverse', () => {
 			fps: 30,
 			frame: 5,
 			durationInFrames: 5,
-			reverse: true
+			reverse: true,
 		})
 	).toBeCloseTo(0);
 });
@@ -72,7 +72,7 @@ test('Should be able to set duration for spring when in reverse', () => {
 			fps: 30,
 			frame: 0,
 			durationInFrames: 5,
-			reverse: true
+			reverse: true,
 		})
 	).toBeCloseTo(1);
 });
@@ -84,8 +84,8 @@ test('Should be approxmiately the same when in reverse', () => {
 			fps: 30,
 			// duration - 1
 			frame: measureSpring({fps: 30}) - 1,
-			reverse: true
-		}),
+			reverse: true,
+		})
 	).toBeCloseTo(0.04941510804510185);
 });
 
@@ -94,7 +94,7 @@ test('Should be close to 0 when in reverse', () => {
 		spring({
 			fps: 30,
 			frame: 100,
-			reverse: true
+			reverse: true,
 		})
 	).toBeCloseTo(0);
 });
@@ -127,20 +127,40 @@ describe('Should be able to delay a spring', () => {
 	});
 
 	test('Should start calculations from the delay + 1', () => {
-		expect(spring({
-			fps: 30,
-			frame: 26,
-			delay: 25,
-		})).toBeGreaterThan(0)
+		expect(
+			spring({
+				fps: 30,
+				frame: 26,
+				delay: 25,
+			})
+		).toBeGreaterThan(0);
 	});
 
 	test('Should be close to 1', () => {
 		expect(
 			spring({
 				fps: 30,
-				frame: 25+30,
+				frame: 25 + 30,
 				delay: 25,
 			})
 		).toBeCloseTo(1);
 	});
-})
+});
+
+test('Should apply delay in the right order', () => {
+	expect(
+		spring({
+			fps: 30,
+			frame: 61,
+			delay: 60,
+			durationInFrames: 10,
+		})
+	).toBe(
+		spring({
+			fps: 30,
+			frame: 1,
+			delay: 0,
+			durationInFrames: 10,
+		})
+	);
+});

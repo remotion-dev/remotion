@@ -26,12 +26,11 @@ import { Config } from "@remotion/cli/config";
 import { enableSkia } from "@remotion/skia/enable";
 
 Config.overrideWebpackConfig((currentConfiguration) => {
-  const newConfig = enableSkia(currentConfiguration);
+  return enableSkia({
+    ...currentConfiguration,
 
-  return {
-    ...newConfig,
     // Make other changes
-  };
+  });
 });
 ```
 

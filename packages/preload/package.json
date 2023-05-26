@@ -1,11 +1,12 @@
 {
 	"name": "@remotion/preload",
-	"version": "3.3.94",
+	"version": "3.3.96",
 	"description": "Utility functions for preloading assets in HTML5",
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "tsc -d"

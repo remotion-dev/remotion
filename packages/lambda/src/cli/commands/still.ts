@@ -71,7 +71,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 	validateMaxRetries(maxRetries);
 
 	const privacy = parsedLambdaCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
-	validatePrivacy(privacy);
+	validatePrivacy(privacy, true);
 
 	const {format: imageFormat, source: imageFormatReason} =
 		CliInternals.determineFinalStillImageFormat({

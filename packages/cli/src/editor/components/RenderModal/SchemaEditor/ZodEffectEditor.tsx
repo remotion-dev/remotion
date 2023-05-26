@@ -1,15 +1,12 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useMemo} from 'react';
 import type {z} from 'zod';
 import {FAIL_COLOR} from '../../../helpers/colors';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
+import {useLocalState} from './local-state';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
-
-type LocalState = {
-	value: unknown;
-	zodValidation: z.SafeParseReturnType<unknown, unknown>;
-};
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -19,10 +16,10 @@ export const ZodEffectEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: unknown;
-	setValue: (updater: (oldState: unknown) => unknown) => void;
+	setValue: UpdaterFunction<unknown>;
 	compact: boolean;
 	defaultValue: unknown;
-	onSave: (updater: (oldState: unknown) => unknown) => void;
+	onSave: UpdaterFunction<unknown>;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
@@ -43,11 +40,10 @@ export const ZodEffectEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const [localValue, setLocalValue] = useState<LocalState>(() => {
-		return {
-			value,
-			zodValidation: schema.safeParse(value),
-		};
+	const {localValue, onChange} = useLocalState({
+		value,
+		schema,
+		setValue: updateValue,
 	});
 
 	const def = schema._def;
@@ -55,24 +51,6 @@ export const ZodEffectEditor: React.FC<{
 	if (typeName !== z.ZodFirstPartyTypeKind.ZodEffects) {
 		throw new Error('expected effect');
 	}
-
-	const onChange = useCallback(
-		(updater: (oldValue: unknown) => unknown) => {
-			setLocalValue((oldLocalState) => {
-				const newValue = updater(oldLocalState.value);
-				const safeParse = schema.safeParse(newValue);
-				if (safeParse.success) {
-					updateValue(() => newValue);
-				}
-
-				return {
-					value: newValue,
-					zodValidation: safeParse,
-				};
-			});
-		},
-		[schema, updateValue]
-	);
 
 	const container = useMemo((): React.CSSProperties => {
 		if (!localValue.zodValidation.success) {

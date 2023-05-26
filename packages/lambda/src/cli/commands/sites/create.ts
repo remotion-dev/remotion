@@ -4,6 +4,7 @@ import {ConfigInternals} from '@remotion/cli/config';
 import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
+import type {Privacy} from '../../../shared/constants';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
@@ -127,6 +128,7 @@ export const sitesCreateSubcommand = async (
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
 		},
 		region: getAwsRegion(),
+		privacy: parsedLambdaCli.privacy as Exclude<Privacy, 'private'> | undefined,
 	});
 	const uploadDuration = Date.now() - uploadStart;
 	multiProgress.deployProgress = {

@@ -1,5 +1,6 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
-import CopyPlugin from 'copy-webpack-plugin';
+import {webpack} from '@remotion/bundler';
+import fs from 'fs';
 
 /**
  * @description A function that modifies the default Webpack configuration to make the necessary changes to support Skia.
@@ -10,11 +11,33 @@ export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 		...currentConfiguration,
 		plugins: [
 			...(currentConfiguration.plugins ?? []),
-			new CopyPlugin({
-				patterns: [
-					{from: 'node_modules/canvaskit-wasm/bin/full/canvaskit.wasm'},
-				],
-			}),
+			new (class CopySkiaPlugin {
+				apply(compiler: webpack.Compiler) {
+					compiler.hooks.thisCompilation.tap('AddSkiaPlugin', (compilation) => {
+						compilation.hooks.processAssets.tapPromise(
+							{
+								name: 'copy-skia',
+								stage:
+									compiler.webpack.Compilation.PROCESS_ASSETS_STAGE_ADDITIONAL,
+							},
+							async () => {
+								const src = require.resolve(
+									'canvaskit-wasm/bin/full/canvaskit.wasm'
+								);
+								if (compilation.getAsset(src)) {
+									// Skip emitting the asset again because it's immutable
+									return;
+								}
+
+								compilation.emitAsset(
+									'/canvaskit.wasm',
+									new webpack.sources.RawSource(await fs.promises.readFile(src))
+								);
+							}
+						);
+					});
+				}
+			})(),
 		],
 		resolve: {
 			...currentConfiguration.resolve,

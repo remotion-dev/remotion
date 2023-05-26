@@ -1,10 +1,12 @@
-import React, {useMemo} from 'react';
+import React, {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../../helpers/colors';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {optionRow} from '../layout';
+import {useLocalState} from './local-state';
 import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
 
 const container: React.CSSProperties = {
@@ -23,15 +25,11 @@ const fieldset: React.CSSProperties = {
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
-	value: unknown;
-	defaultValue: unknown;
-	setValue: (
-		updater: (oldState: Record<string, unknown>) => Record<string, unknown>
-	) => void;
+	value: Record<string, unknown>;
+	defaultValue: Record<string, unknown>;
+	setValue: UpdaterFunction<Record<string, unknown>>;
 	compact: boolean;
-	onSave: (
-		updater: (oldVal: Record<string, unknown>) => Record<string, unknown>
-	) => void;
+	onSave: UpdaterFunction<Record<string, unknown>>;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
@@ -53,6 +51,12 @@ export const ZodObjectEditor: React.FC<{
 	if (!z) {
 		throw new Error('expected zod');
 	}
+
+	const {localValue, onChange} = useLocalState({
+		schema,
+		setValue,
+		value,
+	});
 
 	const def = schema._def;
 
@@ -77,12 +81,21 @@ export const ZodObjectEditor: React.FC<{
 		return {paddingTop};
 	}, [isRoot, paddingTop]);
 
+	const onRes = useCallback(() => {
+		onChange(() => defaultValue, true);
+	}, [defaultValue, onChange]);
+
 	return (
 		<div style={style}>
 			<div style={fullWidth}>
 				<Element style={fieldset}>
 					{isRoot ? null : (
-						<SchemaFieldsetLabel jsonPath={jsonPath} onRemove={onRemove} />
+						<SchemaFieldsetLabel
+							isDefaultValue
+							onReset={onRes}
+							jsonPath={jsonPath}
+							onRemove={onRemove}
+						/>
 					)}
 					<div style={isRoot ? undefined : container}>
 						{keys.map((key) => {
@@ -91,28 +104,26 @@ export const ZodObjectEditor: React.FC<{
 									key={key}
 									jsonPath={[...jsonPath, key]}
 									schema={shape[key]}
-									value={(value as Record<string, string>)[key]}
+									value={localValue.value[key]}
 									// In case of null | {a: string, b: string} type, we need to fallback to the default value
-									defaultValue={
-										((defaultValue as Record<string, string>) ?? value)[key]
-									}
-									setValue={(val) => {
+									defaultValue={(defaultValue ?? value)[key]}
+									setValue={(val, forceApply) => {
 										setValue((oldVal) => {
 											return {
 												...oldVal,
 												[key]:
 													typeof val === 'function' ? val(oldVal[key]) : val,
 											};
-										});
+										}, forceApply);
 									}}
-									onSave={(val) => {
+									onSave={(val, forceApply) => {
 										onSave((oldVal) => {
 											return {
 												...oldVal,
 												[key]:
 													typeof val === 'function' ? val(oldVal[key]) : val,
 											};
-										});
+										}, forceApply);
 									}}
 									onRemove={null}
 									compact={compact}

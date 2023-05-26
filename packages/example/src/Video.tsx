@@ -1,4 +1,5 @@
 import {zColor} from '@remotion/zod-types';
+import './style.css';
 import {alias} from 'lib/alias';
 import React from 'react';
 import {Composition, Folder, getInputProps, staticFile, Still} from 'remotion';
@@ -43,6 +44,7 @@ import {VideoSpeed} from './VideoSpeed';
 import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
+import {Tailwind} from './Tailwind';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -810,6 +812,16 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 					schema={schemaTestSchema}
+				/>
+			</Folder>
+			<Folder name="TailwindCSS">
+				<Composition
+					id="tailwind"
+					component={Tailwind}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={60}
 				/>
 			</Folder>
 		</>

@@ -10,5 +10,24 @@
     "target": "ES2019",
     "moduleResolution": "node"
   },
-  "references": [{ "path": "../player" }]
+  "references": [
+    { "path": "../player" },
+    { "path": "../core" },
+    { "path": "../media-utils" },
+    { "path": "../babel-loader" },
+    { "path": "../lottie" },
+    { "path": "../noise" },
+    { "path": "../paths" },
+    { "path": "../preload" },
+    { "path": "../rive" },
+    { "path": "../skia" },
+    { "path": "../three" },
+    { "path": "../shapes" },
+    { "path": "../gif" },
+    { "path": "../motion-blur" },
+    { "path": "../lambda" },
+    { "path": "../bundler" },
+    { "path": "../renderer" },
+    { "path": "../cli" }
+  ]
 }

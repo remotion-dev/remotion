@@ -1,6 +1,7 @@
 import type {z} from 'zod';
 import type {JSONPath} from './zod-types';
 import {ZodOrNullishEditor} from './ZodOrNullishEditor';
+import type {UpdaterFunction} from './ZodSwitch';
 
 export const ZodOptionalEditor: React.FC<{
 	showSaveButton: boolean;
@@ -9,8 +10,8 @@ export const ZodOptionalEditor: React.FC<{
 	value: unknown;
 	defaultValue: unknown;
 	schema: z.ZodTypeAny;
-	setValue: (updater: (oldNum: unknown) => unknown) => void;
-	onSave: (updater: (oldNum: unknown) => unknown) => void;
+	setValue: UpdaterFunction<unknown>;
+	onSave: UpdaterFunction<unknown>;
 	onRemove: null | (() => void);
 	saving: boolean;
 	saveDisabledByParent: boolean;

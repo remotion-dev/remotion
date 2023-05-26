@@ -61,7 +61,7 @@ Callback that gets called once the GIF has loaded and finished processing. As it
 
 ### `style`
 
-Allows to pass in custom CSS styles.
+Allows to pass in custom CSS styles. You may not pass `width` and `height`, instead use the props `width` and `height` to set the size of the GIF.
 
 ### `loopBehavior` <AvailableFrom v="3.3.4" />
 
@@ -73,7 +73,7 @@ The looping behavior of the GIF. Can be one of these values:
 
 ### `ref` <AvailableFrom v="3.3.88" />
 
-You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to `<Gif>`. If you use TypeScript, you need to type it with `HTMLCanvasElement`.
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to `<Gif>`. If you use TypeScript, you need to type it with `HTMLCanvasElement`.
 
 ## Example
 

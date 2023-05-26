@@ -1,12 +1,13 @@
 {
 	"name": "@remotion/motion-blur",
-	"version": "3.3.94",
+	"version": "3.3.96",
 	"description": "Motion blur effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
 	"module": "dist/esm/index.mjs",
 	"sideEffects": false,
 	"scripts": {
+		"formatting": "prettier src --check",
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
 		"build": "rollup --config rollup.config.js && tsc -d"

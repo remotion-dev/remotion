@@ -64,12 +64,12 @@ export const SchemaEditor: React.FC<{
 		return (
 			<div style={scrollable} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 				<ZodObjectEditor
-					value={value}
+					value={value as Record<string, unknown>}
 					setValue={setValue}
 					jsonPath={[]}
 					schema={schema}
 					compact={compact}
-					defaultValue={defaultProps}
+					defaultValue={defaultProps as Record<string, unknown>}
 					onSave={
 						onSave as (
 							newValue: (
