@@ -6,7 +6,7 @@ test("Should be able to cancel render", async () => {
     const { cancel, cancelSignal } = makeCancelSignal();
     const val = renderMedia({
       codec: "h264",
-      serveUrl: "https://gleaming-wisp-de5d2a.netlify.app/",
+      serveUrl: "https://thunderous-heliotrope-48a698.netlify.app/",
       composition: {
         durationInFrames: 1000000,
         fps: 30,
