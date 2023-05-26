@@ -11,6 +11,7 @@ import {MAX_MENU_WIDTH, MENU_VERTICAL_PADDING} from '../Menu/styles';
 import type {ComboboxValue} from './ComboBox';
 
 const BORDER_SIZE = 1;
+
 const container: React.CSSProperties = {
 	paddingTop: MENU_VERTICAL_PADDING,
 	paddingBottom: MENU_VERTICAL_PADDING,
@@ -20,7 +21,6 @@ const container: React.CSSProperties = {
 	overflowX: 'hidden',
 	minWidth: 200,
 	maxWidth: MAX_MENU_WIDTH,
-	maxHeight: 600,
 };
 
 export const MenuContent: React.FC<{
@@ -157,9 +157,9 @@ export const MenuContent: React.FC<{
 		setSubMenuActivated('without-mouse');
 	}, [onNextMenu, selectedItem, values]);
 
-	const mergedContainer: React.CSSProperties = useMemo(() => {
-		if (!fixedHeight) {
-			return container;
+	const containerWithHeight: React.CSSProperties = useMemo(() => {
+		if (fixedHeight === null) {
+			return {...container, maxHeight: 600};
 		}
 
 		return {
@@ -291,7 +291,7 @@ export const MenuContent: React.FC<{
 	return (
 		<div
 			ref={containerRef}
-			style={mergedContainer}
+			style={containerWithHeight}
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 		>
 			{values.map((item) => {
