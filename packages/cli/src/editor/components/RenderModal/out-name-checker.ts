@@ -84,7 +84,7 @@ const isValidOutName = ({
 		return prefix.split('').some((char) => invalidCharacters.includes(char));
 	};
 
-	if (renderMode === 'video') {
+	if (renderMode === 'video' || renderMode === 'audio') {
 		BrowserSafeApis.validateOutputFilename({
 			codec,
 			audioCodec: audioCodec ?? null,
@@ -115,23 +115,5 @@ const isValidOutName = ({
 		throw new Error(
 			`The extension ${extension} is not supported for still image format ${stillImageFormat}`
 		);
-	}
-
-	if (renderMode === 'audio') {
-		if (audioCodec === 'pcm-16') {
-			if (extension !== 'wav' && extension !== 'wave') {
-				throw new Error(
-					`The extension ${extension} is not supported for audio codec ${audioCodec}`
-				);
-			}
-
-			return;
-		}
-
-		if (audioCodec !== extension) {
-			throw new Error(
-				`The extension ${extension} is not supported for audio codec ${audioCodec}`
-			);
-		}
 	}
 };
