@@ -24,8 +24,7 @@ export const useVideo = (): ReturnType => {
 		}
 
 		if (resolved.type === 'error') {
-			// TODO: In the future, can be niver
-			throw resolved.error;
+			return null;
 		}
 
 		if (resolved.type === 'loading') {
