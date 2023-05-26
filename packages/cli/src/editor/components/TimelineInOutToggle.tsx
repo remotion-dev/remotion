@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {truthy} from '../../truthy';
+import {BLUE} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {
 	areKeyboardShortcutsDisabled,
@@ -305,7 +306,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				disabled={timelinePosition === 0}
 			>
 				<TimelineInPointer
-					color={inFrame === null ? 'white' : 'var(--blue)'}
+					color={inFrame === null ? 'white' : BLUE}
 					style={style}
 				/>
 			</ControlButton>
@@ -317,7 +318,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				disabled={timelinePosition === videoConfig.durationInFrames - 1}
 			>
 				<TimelineOutPointer
-					color={outFrame === null ? 'white' : 'var(--blue)'}
+					color={outFrame === null ? 'white' : BLUE}
 					style={style}
 				/>
 			</ControlButton>

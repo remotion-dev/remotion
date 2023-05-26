@@ -1,6 +1,6 @@
 import type {z} from 'zod';
 import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
-import {LIGHT_TEXT} from '../../../helpers/colors';
+import {BLUE, LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {SchemaEmptyStateGraphic} from './SchemaEmptyStateGraphic';
 import {ZodErrorMessages} from './ZodErrorMessages';
@@ -24,7 +24,7 @@ const errorExplanation: React.CSSProperties = {
 
 const codeSnippet: React.CSSProperties = {
 	fontSize: 14,
-	color: 'var(--blue)',
+	color: BLUE,
 	fontFamily: 'monospace',
 };
 

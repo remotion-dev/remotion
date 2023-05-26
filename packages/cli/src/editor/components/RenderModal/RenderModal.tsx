@@ -38,6 +38,7 @@ import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 
+import {BLUE, BLUE_DISABLED} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -164,7 +165,7 @@ const icon: React.CSSProperties = {
 };
 
 const buttonStyle: React.CSSProperties = {
-	backgroundColor: 'var(--blue)',
+	backgroundColor: BLUE,
 	color: 'white',
 };
 
@@ -900,9 +901,7 @@ export const RenderModal: React.FC<{
 						disabled={renderDisabled}
 						style={{
 							...buttonStyle,
-							backgroundColor: outnameValidation.valid
-								? 'var(--blue)'
-								: 'var(--blue-disabled)',
+							backgroundColor: outnameValidation.valid ? BLUE : BLUE_DISABLED,
 						}}
 					>
 						{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
