@@ -20,7 +20,7 @@ export type GetOrCreateBucketOutput = {
 };
 /**
  * @description Creates a bucket for Remotion Cloud Run in your GCP Project, in a particular region. If one already exists, it will get returned instead.
- * @link https://remotion.dev/docs/lambda/getorcreatebucket
+ * @link https://remotion.dev/docs/cloudrun/getorcreatebucket
  * @param options.region The region in which you want your Storage bucket to reside in.
  * @returns {Promise<GetOrCreateBucketOutput>} An object containing the `bucketName`.
  */

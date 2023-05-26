@@ -44,8 +44,8 @@ export type DeploySiteOutput = Promise<{
  * @param {object} params.options Further options, see documentation page for this function.
  */
 export const deploySite = async ({
-	bucketName,
 	entryPoint,
+	bucketName,
 	siteName,
 	options,
 }: DeploySiteInput): DeploySiteOutput => {

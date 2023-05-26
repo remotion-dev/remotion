@@ -7,7 +7,7 @@ export type DeleteSiteInput = {
 
 /**
  *
- * @description Deletes a deployed site from your S3 bucket. The opposite of deploySite().
+ * @description Deletes a deployed site from your Cloud Run bucket. The opposite of deploySite().
  * @see [Documentation](https://remotion.dev/docs/cloudrun/deletesite)
  * @param options.bucketName The name of the Cloud Storage bucket where the site resides in.
  * @param options.siteName The ID of the site to delete.

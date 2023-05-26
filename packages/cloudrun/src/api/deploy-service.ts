@@ -24,14 +24,17 @@ export type DeployServiceOutput = {
 
 /**
  * @description Creates a Cloud Run service in your project that will be able to render a video in GCP.
- * @link https://remotion.dev/docs/lambda/deployfunction
- * @param remotionVersion Which version of Remotion to use within the Cloud Run service.
- * @param projectID GCP Project ID to deploy the Cloud Run service to.
- * @param region The region you want to deploy your Cloud Run service to.
- * @returns {Promise<IService>} An object that contains the `functionName` property
+ * @link https://remotion.dev/docs/cloudrun/deployservice
+ * @param params.performImageVersionValidation Validate that an image exists in the public Artifact Registry that matches the Remotion Version. Default true
+ * @param params.memoryLimit Memory limit of Cloud Run service to deploy.
+ * @param params.cpuLimit CPU limit of Cloud Run service to deploy.
+ * @param params.timeoutSeconds After how many seconds the Cloud Run service should be killed if it does not end itself.
+ * @param params.projectID GCP Project ID to deploy the Cloud Run service to.
+ * @param params.region GCP region to deploy the Cloud Run service to.
+ * @returns {Promise<DeployServiceOutput>}  See documentation for detailed structure
  */
 export const deployService = async ({
-	performImageVersionValidation = true, // default value set here
+	performImageVersionValidation = true,
 	memoryLimit,
 	cpuLimit,
 	timeoutSeconds,

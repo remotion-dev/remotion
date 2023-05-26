@@ -36,15 +36,24 @@ export type RenderStillOnCloudrunInput = {
 /**
  * @description Triggers a render on a GCP Cloud Run service given a composition and a Cloud Run URL.
  * @see [Documentation](https://remotion.dev/docs/cloudrun/renderstilloncloudrun)
- * @param params.authenticatedRequest If this is an authenticated request, .env file will be checked for GCP credentials
- * @param params.cloudRunUrl The url of the Cloud Run service that should be used
- * @param params.serviceName The name of the Cloud Run service that should be used
+ * @param params.cloudRunUrl The URL of the Cloud Run service that should be used. Use either this or serviceName.
+ * @param params.serviceName The name of the Cloud Run service that should be used. Use either this or cloudRunUrl.
+ * @param params.region The region that the Cloud Run service is deployed in.
  * @param params.serveUrl The URL of the deployed project
  * @param params.composition The ID of the composition which should be rendered.
  * @param params.inputProps The input props that should be passed to the composition.
- * @param params.outputBucket The name of the GCP Storage Bucket that will store the rendered media output.
- * @param params.outputFolderPath The folder path of the GCP Storage Bucket that will store the rendered media output.
- * @param params.outName The file name of the rendered media output.
+ * @param params.outputBucket The name of the bucket that the output file should be uploaded to.
+ * @param params.privacy Whether the output file should be public or private.
+ * @param params.outputFile The name of the output file.
+ * @param params.imageFormat Which image format the frame should be rendered in.
+ * @param params.envVariables Object containing environment variables to be injected in your project.
+ * @param params.frame Which frame of the composition should be rendered. Frames are zero-indexed.
+ * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
+ * @param params.chromiumOptions Allows you to set certain Chromium / Google Chrome flags.
+ * @param params.scale Scales the output dimensions by a factor.
+ * @param params.forceWidth Overrides default composition width.
+ * @param params.forceHeight Overrides default composition height.
+ * @param params.logLevel Level of logging that Cloud Run service should perform. Default "info".
  * @returns {Promise<RenderStillOnCloudrunOutput>} See documentation for detailed structure
  */
 

@@ -301,7 +301,7 @@ export async function setupGcpProject(projectID: string) {
 			}
 		);
 
-		// If cloud run service already in tfstate file, skip this step. Otherwise, import it to the state file
+		// If Cloud Run service already in tfstate file, skip this step. Otherwise, import it to the state file
 		try {
 			execSync('terraform state list google_project_service.cloud_run', {
 				stdio: 'pipe',

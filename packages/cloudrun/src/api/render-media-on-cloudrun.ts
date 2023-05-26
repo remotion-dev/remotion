@@ -60,16 +60,35 @@ export type RenderMediaOnCloudrunInput = {
 /**
  * @description Triggers a render on a GCP Cloud Run service given a composition and a Cloud Run URL.
  * @see [Documentation](https://remotion.dev/docs/lambda/renderMediaOnGcp)
- * @param params.authenticatedRequest If this is an authenticated request, .env file will be checked for GCP credentials
- * @param params.cloudRunUrl The url of the Cloud Run service that should be used
- * @param params.serviceName The name of the Cloud Run service that should be used
+ * @param params.cloudRunUrl The URL of the Cloud Run service that should be used. Use either this or serviceName.
+ * @param params.serviceName The name of the Cloud Run service that should be used. Use either this or cloudRunUrl.
+ * @param params.region The region that the Cloud Run service is deployed in.
  * @param params.serveUrl The URL of the deployed project
  * @param params.composition The ID of the composition which should be rendered.
  * @param params.inputProps The input props that should be passed to the composition.
  * @param params.codec The media codec which should be used for encoding.
- * @param params.outputBucket The name of the GCP Storage Bucket that will store the rendered media output.
- * @param params.outputFolderPath The folder path of the GCP Storage Bucket that will store the rendered media output.
- * @param params.outName The file name of the rendered media output.
+ * @param params.outputBucket The name of the bucket that the output file should be uploaded to.
+ * @param params.privacy Whether the output file should be public or private.
+ * @param params.outputFile The name of the output file.
+ * @param params.updateRenderProgress A callback that is called with the progress of the render.
+ * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
+ * @param params.audioCodec The encoding of the audio of the output video.
+ * @param params.audioBitrate The target bitrate for the audio of the generated video.
+ * @param params.videoBitrate The target bitrate of the generated video.
+ * @param params.proResProfile Sets a ProRes profile. Only applies to videos rendered with prores codec.
+ * @param params.crf Constant Rate Factor, controlling the quality.
+ * @param params.pixelFormat Custom pixel format to use. Usually used for special use cases like transparent videos.
+ * @param params.imageFormat Which image format the frames should be rendered in.
+ * @param params.scale Scales the output dimensions by a factor.
+ * @param params.everyNthFrame Only used if rendering gigs - renders only every nth frame.
+ * @param params.numberOfGifLoops Only used if rendering gigs - how many times the gif should loop. Null means infinite.
+ * @param params.frameRange Specify a single frame (a number) or a range of frames (a tuple [number, number]) to be rendered.
+ * @param params.envVariables Object containing environment variables to be injected in your project.
+ * @param params.chromiumOptions Allows you to set certain Chromium / Google Chrome flags.
+ * @param params.muted If set to true, no audio is rendered.
+ * @param params.forceWidth Overrides default composition width.
+ * @param params.forceHeight Overrides default composition height.
+ * @param params.logLevel Level of logging that Cloud Run service should perform. Default "info".
  * @returns {Promise<RenderMediaOnCloudrunOutput>} See documentation for detailed structure
  */
 
