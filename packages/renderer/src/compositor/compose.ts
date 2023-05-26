@@ -4,6 +4,7 @@ import {chmodSync} from 'node:fs';
 import {copyFile} from 'node:fs/promises';
 import type {DownloadMap} from '../assets/download-map';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
+import type {Compositor} from './compositor';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
 import type {
@@ -45,9 +46,11 @@ export const compose = async ({
 	output,
 	downloadMap,
 	imageFormat,
+	compositor,
 }: CompositorInput & {
 	downloadMap: DownloadMap;
 	output: string;
+	compositor: Compositor;
 }) => {
 	const hash = getCompositorHash({height, width, layers, imageFormat});
 
@@ -56,15 +59,13 @@ export const compose = async ({
 		return;
 	}
 
-	const payload = serializeCommand('Compose', {
+	await compositor.executeCommand('Compose', {
 		height,
 		width,
 		layers,
 		output,
 		output_format: imageFormat,
 	});
-
-	await callCompositor(JSON.stringify(payload));
 
 	downloadMap.compositorCache[hash] = output;
 };

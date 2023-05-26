@@ -13,7 +13,7 @@ import type {
 	ErrorPayload,
 } from './payloads';
 
-type Compositor = {
+export type Compositor = {
 	finishCommands: () => void;
 	executeCommand: <T extends keyof CompositorCommand>(
 		type: T,
