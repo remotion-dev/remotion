@@ -31,7 +31,7 @@ export const MenuContent: React.FC<{
 	leaveLeftSpace: boolean;
 	preselectIndex: false | number;
 	topItemCanBeUnselected: boolean;
-	individualHeight: number | null;
+	fixedHeight: number | null;
 }> = ({
 	onHide,
 	values,
@@ -40,7 +40,7 @@ export const MenuContent: React.FC<{
 	onPreviousMenu,
 	leaveLeftSpace,
 	topItemCanBeUnselected,
-	individualHeight,
+	fixedHeight,
 }) => {
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -158,15 +158,15 @@ export const MenuContent: React.FC<{
 	}, [onNextMenu, selectedItem, values]);
 
 	const mergedContainer: React.CSSProperties = useMemo(() => {
-		if (!individualHeight) {
+		if (!fixedHeight) {
 			return container;
 		}
 
 		return {
 			...container,
-			maxHeight: individualHeight,
+			maxHeight: fixedHeight,
 		};
-	}, [individualHeight]);
+	}, [fixedHeight]);
 
 	useEffect(() => {
 		const escapeBinding = keybindings.registerKeybinding({

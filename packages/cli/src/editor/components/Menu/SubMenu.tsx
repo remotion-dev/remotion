@@ -34,7 +34,7 @@ export const SubMenuComponent: React.FC<{
 							: false
 					}
 					topItemCanBeUnselected={false}
-					individualHeight={null}
+					fixedHeight={null}
 				/>
 			</div>
 		</HigherZIndex>
