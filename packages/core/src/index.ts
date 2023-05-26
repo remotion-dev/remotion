@@ -1,6 +1,6 @@
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
-import type {TAsset, TCompMetadata} from './CompositionManager.js';
+import type {AnyCompMetadata, TAsset} from './CompositionManager.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
@@ -11,7 +11,7 @@ declare global {
 	interface Window {
 		ready: boolean;
 		remotion_cancelledError: string | undefined;
-		getStaticCompositions: () => TCompMetadata[];
+		getStaticCompositions: () => AnyCompMetadata[];
 		setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
@@ -57,22 +57,18 @@ export type BundleState =
 	  };
 
 checkMultipleRemotionVersions();
-
 export * from './AbsoluteFill.js';
 export * from './audio/index.js';
 export {cancelRender} from './cancel-render.js';
 export * from './Composition.js';
 export {
+	AnyCompMetadata,
+	AnyComposition,
+	AnySmallCompMetadata,
 	SmallTCompMetadata,
 	TAsset,
 	TCompMetadata,
 } from './CompositionManager.js';
-export {
-	Config,
-	ConfigType,
-	WebpackConfiguration,
-	WebpackOverrideFn,
-} from './config.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
 export * from './easing.js';
@@ -118,3 +114,37 @@ export const Experimental = {
 	Null,
 	useIsPlayer,
 };
+
+const proxyObj = {};
+
+export const Config = new Proxy(proxyObj, {
+	get(_, prop): unknown {
+		if (
+			prop === 'Bundling' ||
+			prop === 'Rendering' ||
+			prop === 'Log' ||
+			prop === 'Puppeteer' ||
+			prop === 'Output'
+		) {
+			return Config;
+		}
+
+		return () => {
+			console.warn(
+				'⚠️  The CLI configuration has been extracted from Remotion Core.'
+			);
+			console.warn('Update the import from the config file:');
+			console.warn();
+			console.warn('- Delete:');
+			console.warn('import {Config} from "remotion";');
+			console.warn('+ Replace:');
+			console.warn('import {Config} from "@remotion/cli/config";');
+			console.warn();
+			console.warn(
+				'For more information, see https://v4.remotion.dev/docs/4-0-migration.'
+			);
+
+			process.exit(1);
+		};
+	},
+});

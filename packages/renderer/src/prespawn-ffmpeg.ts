@@ -1,14 +1,13 @@
-import execa from 'execa';
 import {Internals} from 'remotion';
+import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {DEFAULT_CODEC} from './codec';
 import {validateQualitySettings} from './crf';
-import type {FfmpegExecutable} from './ffmpeg-executable';
-import {getExecutableBinary} from './ffmpeg-flags';
 import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
-import type {ImageFormat} from './image-format';
+import type {VideoImageFormat} from './image-format';
+import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import type {PixelFormat} from './pixel-format';
@@ -18,9 +17,8 @@ import {
 } from './pixel-format';
 import type {ProResProfile} from './prores-profile';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import {validateFfmpeg} from './validate-ffmpeg';
 
-type PreSticherOptions = {
+type PreStitcherOptions = {
 	fps: number;
 	width: number;
 	height: number;
@@ -31,17 +29,14 @@ type PreSticherOptions = {
 	onProgress: (progress: number) => void;
 	proResProfile: ProResProfile | undefined;
 	verbose: boolean;
-	ffmpegExecutable: FfmpegExecutable | undefined;
-	imageFormat: ImageFormat;
+	imageFormat: VideoImageFormat;
 	ffmpegOverride: FfmpegOverrideFn;
 	signal: CancelSignal;
 	videoBitrate: string | null;
+	indent: boolean;
 };
 
-export const prespawnFfmpeg = async (
-	options: PreSticherOptions,
-	remotionRoot: string
-) => {
+export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 	Internals.validateDimension(
 		options.height,
 		'height',
@@ -65,11 +60,6 @@ export const prespawnFfmpeg = async (
 		scale: 1,
 	});
 	const pixelFormat = options.pixelFormat ?? DEFAULT_PIXEL_FORMAT;
-	await validateFfmpeg(
-		options.ffmpegExecutable ?? null,
-		remotionRoot,
-		'ffmpeg'
-	);
 
 	const encoderName = getCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, options.proResProfile);
@@ -80,20 +70,54 @@ export const prespawnFfmpeg = async (
 
 	const supportsCrf = codec !== 'prores';
 
-	if (options.verbose) {
-		console.log(
-			'[verbose] ffmpeg',
-			options.ffmpegExecutable ?? 'ffmpeg in PATH'
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'encoder',
+		encoderName
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'pixelFormat',
+		pixelFormat
+	);
+	if (supportsCrf) {
+		Log.verboseAdvanced(
+			{
+				indent: options.indent,
+				logLevel: options.verbose ? 'verbose' : 'info',
+				tag: 'encoder',
+			},
+			'pixelFormat',
+			options.crf
 		);
-		console.log('[verbose] encoder', encoderName);
-		console.log('[verbose] pixelFormat', pixelFormat);
-		if (supportsCrf) {
-			console.log('[verbose] crf', options.crf);
-		}
-
-		console.log('[verbose] codec', codec);
-		console.log('[verbose] proResProfileName', proResProfileName);
 	}
+
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'codec',
+		codec
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'proResProfileName',
+		proResProfileName
+	);
 
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
@@ -126,24 +150,29 @@ export const prespawnFfmpeg = async (
 		options.outputLocation,
 	];
 
-	if (options.verbose) {
-		console.log('Generated FFMPEG command:');
-		console.log(ffmpegArgs);
-	}
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		'Generated FFMPEG command:'
+	);
+	Log.verboseAdvanced(
+		{
+			indent: options.indent,
+			logLevel: options.verbose ? 'verbose' : 'info',
+			tag: 'encoder',
+		},
+		ffmpegArgs.join(' ')
+	);
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];
 	const finalFfmpegString = options.ffmpegOverride
 		? options.ffmpegOverride({type: 'pre-stitcher', args: ffmpegString})
 		: ffmpegString;
 
-	const task = execa(
-		await getExecutableBinary(
-			options.ffmpegExecutable ?? null,
-			remotionRoot,
-			'ffmpeg'
-		),
-		finalFfmpegString
-	);
+	const task = callFf('ffmpeg', finalFfmpegString);
 
 	options.signal(() => {
 		task.kill();

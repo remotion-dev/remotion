@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
+import fs from 'node:fs';
+import * as os from 'node:os';
+import * as path from 'node:path';
 
-import {assert} from './assert';
 import {Browser} from './Browser';
 import {BrowserRunner} from './BrowserRunner';
 
@@ -48,11 +47,11 @@ export class ChromeLauncher implements ProductLauncher {
 			args = [],
 			dumpio = false,
 			executablePath,
-			pipe = false,
 			env = process.env,
 			defaultViewport,
 			timeout = 60000,
 			debuggingPort,
+			indent,
 		} = options;
 
 		const chromeArguments = args;
@@ -62,15 +61,7 @@ export class ChromeLauncher implements ProductLauncher {
 				return argument.startsWith('--remote-debugging-');
 			})
 		) {
-			if (pipe) {
-				assert(
-					!debuggingPort,
-					'Browser should be launched with either pipe or debugging port - not both.'
-				);
-				chromeArguments.push('--remote-debugging-pipe');
-			} else {
-				chromeArguments.push(`--remote-debugging-port=${debuggingPort || 0}`);
-			}
+			chromeArguments.push(`--remote-debugging-port=${debuggingPort || 0}`);
 		}
 
 		// Check for the user data dir argument, which will always be set even
@@ -98,7 +89,7 @@ export class ChromeLauncher implements ProductLauncher {
 		runner.start({
 			dumpio,
 			env,
-			pipe: false,
+			indent,
 		});
 
 		let browser;

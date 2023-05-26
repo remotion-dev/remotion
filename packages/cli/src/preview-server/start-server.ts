@@ -1,7 +1,7 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
-import http from 'http';
+import http from 'node:http';
 import {ConfigInternals} from '../config';
 import {Log} from '../log';
 import {wdm} from './dev-middleware';
@@ -68,7 +68,7 @@ export const startServer = async (options: {
 				});
 			})
 			.then(() => {
-				return handleRoutes({
+				handleRoutes({
 					hash: options.hash,
 					hashPrefix: options.hashPrefix,
 					request,
@@ -77,6 +77,7 @@ export const startServer = async (options: {
 					getCurrentInputProps: options.getCurrentInputProps,
 					getEnvVariables: options.getEnvVariables,
 					remotionRoot: options.remotionRoot,
+					entryPoint: options.userDefinedComponent,
 					publicDir: options.publicDir,
 				});
 			})

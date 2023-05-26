@@ -10,7 +10,7 @@ import {AngleChangelog} from '../../components/AngleChangelog';
 Render a video or audio based on the entry point, the composition ID and save it to the output location.
 
 ```bash
-npx remotion render <entry-file> [<composition-id>] [<output-location>]
+npx remotion render <entry-file?> [<composition-id>] [<output-location>]
 ```
 
 If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
@@ -52,7 +52,7 @@ Inline JSON string isn't supported on Windows because it removes the `"` charact
 
 ### `--image-format` <AvailableFrom v="1.4.0" />
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setimageformat) The default image format is `jpeg` since v1.1.
+[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setvideoimageformat) The default image format is `jpeg` since v1.1.
 
 ### `--config` <AvailableFrom v="1.2.0" />
 
@@ -62,9 +62,17 @@ Specify a location for the Remotion config file.
 
 Specify a location for a dotenv file. Default `.env`.
 
-### `--quality` <AvailableFrom v="1.4.0" />
+### `--jpeg-quality` <AvailableFrom v="4.0.0" />
 
-[Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
+
+### ~~`--quality`~~ <AvailableFrom v="1.4.0" />
+
+Renamed to `--jpeg-quality` in v4.0.0
+
+### `--output` <AvailableFrom v="4.0.0" />
+
+Sets the output file path, as an alternative to the `output-location` positional argument.
 
 ### `--overwrite`
 
@@ -152,14 +160,6 @@ For example only every second frame, every third frame and so on. Only works for
 
 [Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
 
-### `--ffmpeg-executable`
-
-[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
-
-### `--ffprobe-executable` <AvailableFrom v="3.0.17" />
-
-[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
-
 ### `--timeout`
 
 Define how long a single frame may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout) in milliseconds. Default: `30000`.
@@ -199,3 +199,15 @@ Accepted values:
 ### `--user-agent` <AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### ~~`--ffmpeg-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+
+### ~~`--ffprobe-executable`~~ <AvailableFrom v="3.0.17" />
+
+_removed in v4.0_
+
+[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.

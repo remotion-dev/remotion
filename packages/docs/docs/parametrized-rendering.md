@@ -1,15 +1,17 @@
 ---
 image: /generated/articles-docs-parametrized-rendering.png
 id: parametrized-rendering
-title: Parametrized rendering
+title: Parametrized videos
 crumb: "How To"
 ---
 
 ```twoslash include example
-export const MyComponent: React.FC<{
+type Props = {
   propOne: string;
   propTwo: number;
-}> = ({propOne, propTwo}) => {
+}
+
+export const MyComponent: React.FC<Props> = ({propOne, propTwo}) => {
   return (
     <div>props: {propOne}, {propTwo}</div>
   );
@@ -17,27 +19,32 @@ export const MyComponent: React.FC<{
 // - MyComponent
 ```
 
-Parametrized rendering is the idea of creating a video template once and then render as many videos as you want with different parameters. Just like in regular React, we use props to reuse and customize components!
+You can parametrize the content of the videos using [React properties ("props")](https://react.dev/learn/passing-props-to-a-component).
 
 ## Defining accepted props
 
 To define which props your video accepts, simply give your component the `React.FC` type and pass in a generic argument describing the shape of the props you want to accept.
 
-```tsx twoslash {1-2}
+```tsx twoslash title="src/MyComponent.tsx"
 // @include: example-MyComponent
 ```
 
 ## Define default props
 
-When registering the component as a sequence, you can define the default props:
+When registering the component as a composition, you can define default props:
 
-```tsx twoslash {14-17}
+```tsx twoslash {14-17} title="src/Root.tsx"
+// organize-imports-ignore
+
 // @filename: MyComponent.tsx
 import React from "react";
-export const MyComponent: React.FC<{ propOne: string; propTwo: number }> = () =>
-  null;
+export const MyComponent: React.FC<{
+  propOne: string;
+  propTwo: number;
+}> = () => null;
 
 // @filename: Root.tsx
+
 // ---cut---
 import React from "react";
 import { Composition } from "remotion";
@@ -63,7 +70,122 @@ export const Root: React.FC = () => {
 };
 ```
 
-By using `React.FC`, you can ensure type safety and avoid errors caused by typos.
+Default props are useful so you don't preview your video with no data. Default props will overriden by input props.
+
+## Define a schema <AvailableFrom v="4.0.0"/>
+
+You can use [Zod](https://github.com/colinhacks/zod) to define a typesafe schema for your composition.
+
+Install Zod using:
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
+
+```bash
+npm i zod @remotion/zod-types
+```
+
+  </TabItem>
+
+  <TabItem value="yarn">
+
+```bash
+yarn add zod @remotion/zod-types
+```
+
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm i zod @remotion/zod-types
+```
+
+  </TabItem>
+</Tabs>
+
+```tsx twoslash title="MyComp.tsx"
+import { z } from "zod";
+
+export const myCompSchema = z.object({
+  propOne: z.string(),
+  propTwo: z.string(),
+});
+
+export const MyComp: React.FC<z.infer<typeof myCompSchema>> = ({
+  propOne,
+  propTwo,
+}) => {
+  return (
+    <div>
+      props: {propOne}, {propTwo}
+    </div>
+  );
+};
+```
+
+To define a schema, create a type using Zod and infer the props in your component using `z.infer`.  
+Then, export the schema, and import it in your root file:
+
+```tsx twoslash title="src/Root.tsx" {14-18}
+// @filename: MyComponent.tsx
+import React from "react";
+import { z } from "zod";
+
+export const myCompSchema = z.object({
+  propOne: z.string(),
+  propTwo: z.string(),
+});
+
+export const MyComponent: React.FC<z.infer<typeof myCompSchema>> = ({
+  propOne,
+  propTwo,
+}) => {
+  return (
+    <div>
+      <h1>{propOne}</h1>
+      <h2>{propTwo}</h2>
+    </div>
+  );
+};
+
+// @filename: Root.tsx
+// organize-imports-ignore
+// ---cut---
+import React from "react";
+import { Composition } from "remotion";
+import { MyComponent, myCompSchema } from "./MyComponent";
+
+export const RemotionRoot: React.FC = () => {
+  return (
+    <Composition
+      id="my-video"
+      component={MyComponent}
+      durationInFrames={100}
+      fps={30}
+      width={1920}
+      height={1080}
+      schema={myCompSchema}
+      defaultProps={{
+        propOne: "Hello World",
+        propTwo: "Welcome to Remotion",
+      }}
+    />
+  );
+};
+```
+
+If you define a schema, you will be able to visually manipulate the props in the Remotion Preview and render a parametrized video by filling out a form.
 
 ## Input props
 
@@ -146,7 +268,7 @@ _Available since v2.0._: You can also use the `getInputProps()` function to retr
 ## You can still use components as normal
 
 Even if you have registered a component as a composition,
-you can still use it normally in your videos and pass its props directly. Default props don't apply in this case.
+you can still use it normally in your React markup and pass its props directly. Default props don't apply in this case.
 
 ```tsx twoslash
 // @include: example-MyComponent

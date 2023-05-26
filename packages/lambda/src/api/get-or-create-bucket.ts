@@ -6,7 +6,6 @@ import {getRemotionS3Buckets} from './get-buckets';
 
 export type GetOrCreateBucketInput = {
 	region: AwsRegion;
-	onBucketEnsured?: () => void;
 };
 
 export type GetOrCreateBucketOutput = {
@@ -34,7 +33,6 @@ export const getOrCreateBucket = async (
 	}
 
 	if (remotionBuckets.length === 1) {
-		params.onBucketEnsured?.();
 		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
 	}
 
@@ -44,7 +42,6 @@ export const getOrCreateBucket = async (
 		bucketName,
 		region: params.region,
 	});
-	params.onBucketEnsured?.();
 
 	return {bucketName, alreadyExisted: false};
 };

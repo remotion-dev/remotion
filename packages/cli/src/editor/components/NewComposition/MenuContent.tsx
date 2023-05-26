@@ -1,20 +1,26 @@
 import type {SetStateAction} from 'react';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {MenuDivider} from '../Menu/MenuDivider';
 import type {MenuId} from '../Menu/MenuItem';
 import type {SubMenuActivated} from '../Menu/MenuSubItem';
 import {MenuSubItem} from '../Menu/MenuSubItem';
-import {MENU_VERTICAL_PADDING} from '../Menu/styles';
+import {MAX_MENU_WIDTH, MENU_VERTICAL_PADDING} from '../Menu/styles';
 import type {ComboboxValue} from './ComboBox';
 
 const BORDER_SIZE = 1;
+
 const container: React.CSSProperties = {
 	paddingTop: MENU_VERTICAL_PADDING,
 	paddingBottom: MENU_VERTICAL_PADDING,
 	border: `${BORDER_SIZE}px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
 	marginLeft: 0 - BORDER_SIZE,
+	overflowY: 'auto',
+	overflowX: 'hidden',
+	minWidth: 200,
+	maxWidth: MAX_MENU_WIDTH,
 };
 
 export const MenuContent: React.FC<{
@@ -25,6 +31,7 @@ export const MenuContent: React.FC<{
 	leaveLeftSpace: boolean;
 	preselectIndex: false | number;
 	topItemCanBeUnselected: boolean;
+	fixedHeight: number | null;
 }> = ({
 	onHide,
 	values,
@@ -33,6 +40,7 @@ export const MenuContent: React.FC<{
 	onPreviousMenu,
 	leaveLeftSpace,
 	topItemCanBeUnselected,
+	fixedHeight,
 }) => {
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -45,7 +53,7 @@ export const MenuContent: React.FC<{
 	}
 
 	const [selectedItem, setSelectedItem] = useState<string | null>(
-		typeof preselectIndex === 'number'
+		typeof preselectIndex === 'number' && preselectIndex >= 0
 			? (values[preselectIndex].id as string)
 			: null
 	);
@@ -149,6 +157,17 @@ export const MenuContent: React.FC<{
 		setSubMenuActivated('without-mouse');
 	}, [onNextMenu, selectedItem, values]);
 
+	const containerWithHeight: React.CSSProperties = useMemo(() => {
+		if (fixedHeight === null) {
+			return {...container, maxHeight: 600};
+		}
+
+		return {
+			...container,
+			maxHeight: fixedHeight,
+		};
+	}, [fixedHeight]);
+
 	useEffect(() => {
 		const escapeBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -156,6 +175,7 @@ export const MenuContent: React.FC<{
 			callback: onEscape,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const rightBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -163,6 +183,7 @@ export const MenuContent: React.FC<{
 			commandCtrlKey: false,
 			callback: onArrowRight,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const leftBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -170,13 +191,16 @@ export const MenuContent: React.FC<{
 			key: 'ArrowLeft',
 			callback: onPreviousMenu,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
+
 		const downBinding = keybindings.registerKeybinding({
 			event: 'keydown',
 			key: 'ArrowDown',
 			commandCtrlKey: false,
 			callback: onArrowDown,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const upBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -184,6 +208,7 @@ export const MenuContent: React.FC<{
 			callback: onArrowUp,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const enterBinding = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -191,6 +216,7 @@ export const MenuContent: React.FC<{
 			callback: onEnter,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const spaceBinding = keybindings.registerKeybinding({
 			event: 'keyup',
@@ -198,6 +224,7 @@ export const MenuContent: React.FC<{
 			callback: onEnter,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		return () => {
 			escapeBinding.unregister();
@@ -262,7 +289,11 @@ export const MenuContent: React.FC<{
 	}, [onHide, subMenuActivated]);
 
 	return (
-		<div ref={containerRef} style={container}>
+		<div
+			ref={containerRef}
+			style={containerWithHeight}
+			className={VERTICAL_SCROLLBAR_CLASSNAME}
+		>
 			{values.map((item) => {
 				if (item.type === 'divider') {
 					return <MenuDivider key={item.id} />;

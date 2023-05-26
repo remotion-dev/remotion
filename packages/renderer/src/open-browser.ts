@@ -60,6 +60,7 @@ export const openBrowser = async (
 		chromiumOptions?: ChromiumOptions;
 		forceDeviceScaleFactor?: number;
 		viewport?: Viewport;
+		indent?: boolean;
 	}
 ): Promise<PuppeteerBrowser> => {
 	if (browser === 'firefox') {
@@ -83,6 +84,7 @@ export const openBrowser = async (
 		executablePath,
 		product: browser,
 		dumpio: options?.shouldDumpIo ?? false,
+		indent: options?.indent ?? false,
 		args: [
 			'about:blank',
 			'--allow-pre-commit-input',

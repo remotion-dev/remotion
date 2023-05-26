@@ -1,14 +1,20 @@
-import {createHash} from 'crypto';
+import {createHash} from 'node:crypto';
 import ReactDOM from 'react-dom';
-import type {WebpackConfiguration, WebpackOverrideFn} from 'remotion';
 import {Internals} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
 import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
-import {AllowOptionalDependenciesPlugin} from './optional-depdendencies';
 import {jsonStringifyWithCircularReferences} from './stringify-with-circular-references';
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
+
+import type {Configuration} from 'webpack';
+import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
+export type WebpackConfiguration = Configuration;
+
+export type WebpackOverrideFn = (
+	currentConfiguration: WebpackConfiguration
+) => WebpackConfiguration;
 
 if (!ReactDOM || !ReactDOM.version) {
 	throw new Error('Could not find "react-dom" package. Did you install it?');
@@ -136,7 +142,6 @@ export const webpackConfig = ({
 					? require.resolve('react-dom/client')
 					: require.resolve('react-dom'),
 				remotion: require.resolve('remotion'),
-				'react-native$': 'react-native-web',
 			},
 		},
 		module: {

@@ -86,7 +86,7 @@ pnpm i -D @remotion/tailwind
 2. Add the Webpack override from `@remotion/tailwind` to your config file:
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 import { enableTailwind } from "@remotion/tailwind";
 
 Config.overrideWebpackConfig((currentConfiguration) => {

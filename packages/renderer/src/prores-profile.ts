@@ -1,6 +1,6 @@
 import type {Codec} from './codec';
 
-const proResProfileOptions = [
+export const proResProfileOptions = [
 	'4444-xq',
 	'4444',
 	'hq',

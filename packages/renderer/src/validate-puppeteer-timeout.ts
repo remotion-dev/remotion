@@ -11,6 +11,7 @@ export const validatePuppeteerTimeout = (timeoutInMilliseconds: unknown) => {
 		);
 	}
 
+	// Value also appears in packages/cli/src/editor/components/RenderModal/RenderModalAdvanced.tsx
 	if (timeoutInMilliseconds < 7000 && process.env.NODE_ENV !== 'test') {
 		throw new TypeError(
 			`'timeoutInMilliseconds' should be bigger or equal than 7000, but is ${timeoutInMilliseconds}`

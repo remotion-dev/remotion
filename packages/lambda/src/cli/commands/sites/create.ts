@@ -1,4 +1,6 @@
-import {CliInternals, ConfigInternals} from '@remotion/cli';
+import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
+
 import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
@@ -45,9 +47,13 @@ export const sitesCreateSubcommand = async (
 		validateSiteName(desiredSiteName);
 	}
 
-	const progressBar = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
+	const progressBar = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+		// No browser logs
+		updatesDontOverwrite: false,
+		indent: false,
+	});
 
 	const multiProgress: {
 		bundleProgress: BundleProgress;
@@ -59,7 +65,6 @@ export const sitesCreateSubcommand = async (
 			progress: 0,
 		},
 		bucketProgress: {
-			bucketCreated: false,
 			doneIn: null,
 		},
 		deployProgress: {
@@ -76,7 +81,8 @@ export const sitesCreateSubcommand = async (
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
-			].join('\n')
+			].join('\n'),
+			false
 		);
 	};
 
@@ -89,10 +95,6 @@ export const sitesCreateSubcommand = async (
 		(
 			await getOrCreateBucket({
 				region: getAwsRegion(),
-				onBucketEnsured: () => {
-					multiProgress.bucketProgress.bucketCreated = true;
-					updateProgress();
-				},
 			})
 		).bucketName;
 

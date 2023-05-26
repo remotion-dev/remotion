@@ -18,6 +18,8 @@ test('Need to pass valid metadata', async () => {
 			output: '/file/output.png',
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 			downloadMap,
+			verbose: false,
+			indent: false,
 		})
 	).rejects.toThrow(/not be NaN, but is NaN/);
 	cleanDownloadMap(downloadMap);
@@ -37,6 +39,8 @@ test('Returns buffer in promise result', async () => {
 		frame: 0,
 		serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 		downloadMap,
+		verbose: false,
+		indent: false,
 	});
 	expect(buffer?.length).toBeGreaterThan(1000);
 	cleanDownloadMap(downloadMap);
@@ -58,6 +62,8 @@ test('Need to pass valid metadata', async () => {
 			output: '/file/output.png',
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 			downloadMap,
+			verbose: false,
+			indent: false,
 		})
 	).rejects.toThrow(
 		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/
@@ -82,5 +88,7 @@ test('Catches invalid image format', () => {
 			output: '/file/output.png',
 			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
 		})
-	).rejects.toThrow(/Image format should be either "png" or "jpeg"/);
+	).rejects.toThrow(
+		/Image format should be one of: "png", "jpeg", "pdf", "webp"/
+	);
 });

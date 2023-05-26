@@ -14,6 +14,20 @@ export const articles = [
     crumb: "Version Upgrade",
   },
   {
+    id: "4-0-alpha",
+    title: "v4.0 Alpha",
+    relativePath: "docs/4-0-alpha.md",
+    compId: "articles-docs-4-0-alpha",
+    crumb: "Version Upgrade",
+  },
+  {
+    id: "4-0-migration",
+    title: "v4.0 Migration",
+    relativePath: "docs/4-0-migration.md",
+    compId: "articles-docs-4-0-migration",
+    crumb: "Version Upgrade",
+  },
+  {
     id: "absolute-fill",
     title: "<AbsoluteFill>",
     relativePath: "docs/absolute-fill.md",
@@ -252,6 +266,13 @@ export const articles = [
     crumb: "Contributing",
   },
   {
+    id: "contributing/rust",
+    title: "Contributing Rust code",
+    relativePath: "docs/contributing/rust.md",
+    compId: "articles-docs-contributing-rust",
+    crumb: "Contributing",
+  },
+  {
     id: "data-fetching",
     title: "Data fetching",
     relativePath: "docs/data-fetching.md",
@@ -407,7 +428,7 @@ export const articles = [
   },
   {
     id: "getting-started",
-    title: "Setup and Installation",
+    title: "Creating a new project",
     relativePath: "docs/getting-started.md",
     compId: "articles-docs-getting-started",
     crumb: "Let's begin!",
@@ -1298,7 +1319,7 @@ export const articles = [
   },
   {
     id: "parametrized-rendering",
-    title: "Parametrized rendering",
+    title: "Parametrized videos",
     relativePath: "docs/parametrized-rendering.md",
     compId: "articles-docs-parametrized-rendering",
     crumb: "How To",
@@ -1739,7 +1760,7 @@ export const articles = [
   },
   {
     id: "reusability",
-    title: "Reuse components using Sequences",
+    title: "Making components reusable",
     relativePath: "docs/sequences.md",
     compId: "articles-docs-sequences",
     crumb: "The power of React",
@@ -2198,5 +2219,19 @@ export const articles = [
     relativePath: "docs/wrong-composition-mount.md",
     compId: "articles-docs-wrong-composition-mount",
     crumb: "Troubleshooting",
+  },
+  {
+    id: "z-color",
+    title: "zColor()",
+    relativePath: "docs/z-color.md",
+    compId: "articles-docs-z-color",
+    crumb: null,
+  },
+  {
+    id: "z",
+    title: "z",
+    relativePath: "docs/z.md",
+    compId: "articles-docs-z",
+    crumb: "API",
   },
 ];

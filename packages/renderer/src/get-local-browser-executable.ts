@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import type {Browser} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import {getRevisionInfo} from './browser/BrowserFetcher';

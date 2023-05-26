@@ -30,8 +30,8 @@ export interface LaunchOptions {
 	timeout?: number;
 	dumpio?: boolean;
 	env?: Record<string, string | undefined>;
-	pipe?: boolean;
 	product?: Product;
+	indent: boolean;
 }
 
 export type PuppeteerNodeLaunchOptions = BrowserLaunchArgumentOptions &

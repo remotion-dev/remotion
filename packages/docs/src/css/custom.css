@@ -163,7 +163,6 @@ code {
   font-size: 60px;
 }
 
-
 @media screen and (max-width: 996px) {
   .row-on-desktop {
     display: block;
@@ -172,9 +171,8 @@ code {
   .big-title-on-desktop {
     font-size: 36px;
   }
-    
+
   .only-desktop {
     display: none;
   }
 }
-

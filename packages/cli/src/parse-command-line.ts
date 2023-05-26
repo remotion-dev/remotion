@@ -2,25 +2,22 @@ import type {
 	AudioCodec,
 	BrowserExecutable,
 	Codec,
-	FfmpegExecutable,
-	ImageFormat,
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
+	StillImageFormat,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import minimist from 'minimist';
-import {resolve} from 'path';
 import {Config, ConfigInternals} from './config';
 import {Log} from './log';
 
-export type CommandLineOptions = {
+type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
-	['ffmpeg-executable']: FfmpegExecutable;
-	['ffprobe-executable']: FfmpegExecutable;
 	['pixel-format']: PixelFormat;
-	['image-format']: ImageFormat;
+	['image-format']: VideoImageFormat | StillImageFormat;
 	['prores-profile']: ProResProfile;
 	['bundle-cache']: string;
 	['env-file']: string;
@@ -39,10 +36,12 @@ export type CommandLineOptions = {
 	['audio-codec']: AudioCodec;
 	crf: number;
 	force: boolean;
+	output: string;
 	overwrite: boolean;
 	png: boolean;
 	props: string;
 	quality: number;
+	['jpeg-quality']: number;
 	frames: string | number;
 	scale: number;
 	sequence: boolean;
@@ -104,24 +103,12 @@ export const parseCommandLine = () => {
 		Config.setPixelFormat(parsedCli['pixel-format']);
 	}
 
-	if (parsedCli['image-format']) {
-		Config.setImageFormat(parsedCli['image-format']);
-	}
-
 	if (parsedCli['browser-executable']) {
 		Config.setBrowserExecutable(parsedCli['browser-executable']);
 	}
 
-	if (parsedCli['ffmpeg-executable']) {
-		Config.setFfmpegExecutable(resolve(parsedCli['ffmpeg-executable']));
-	}
-
 	if (parsedCli['number-of-gif-loops']) {
 		Config.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
-	}
-
-	if (parsedCli['ffprobe-executable']) {
-		Config.setFfprobeExecutable(resolve(parsedCli['ffprobe-executable']));
 	}
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
@@ -183,11 +170,9 @@ export const parseCommandLine = () => {
 	}
 
 	if (parsedCli.png) {
-		Log.warn(
+		throw new Error(
 			'The --png flag has been deprecrated. Use --sequence --image-format=png from now on.'
 		);
-		Config.setImageSequence(true);
-		Config.setImageFormat('png');
 	}
 
 	if (parsedCli.sequence) {
@@ -217,7 +202,12 @@ export const parseCommandLine = () => {
 	}
 
 	if (typeof parsedCli.quality !== 'undefined') {
-		Config.setQuality(parsedCli.quality);
+		Log.warn('The --quality flag has been renamed to --jpeg-quality instead.');
+		Config.setJpegQuality(parsedCli.quality);
+	}
+
+	if (typeof parsedCli['jpeg-quality'] !== 'undefined') {
+		Config.setJpegQuality(parsedCli['jpeg-quality']);
 	}
 
 	if (typeof parsedCli.scale !== 'undefined') {

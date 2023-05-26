@@ -1,5 +1,10 @@
-import type {IncomingMessage, OutgoingHttpHeaders, ServerResponse} from 'http';
+import type {
+	IncomingMessage,
+	OutgoingHttpHeaders,
+	ServerResponse,
+} from 'node:http';
 import type {EventSourceEvent} from '../event-source-events';
+import {unsubscribeClientFileExistenceWatchers} from './file-existence-watchers';
 
 type Client = {
 	id: string;
@@ -31,9 +36,8 @@ export const makeLiveEventsRouter = (): LiveEventsServer => {
 			return;
 		}
 
-		response.write(serializeMessage({type: 'init'}));
-
 		const clientId = String(Math.random());
+		response.write(serializeMessage({type: 'init', clientId}));
 
 		const newClient = {
 			id: clientId,
@@ -42,6 +46,7 @@ export const makeLiveEventsRouter = (): LiveEventsServer => {
 		clients.push(newClient);
 
 		request.on('close', () => {
+			unsubscribeClientFileExistenceWatchers(clientId);
 			clients = clients.filter((client) => client.id !== clientId);
 		});
 	};
@@ -56,4 +61,26 @@ export const makeLiveEventsRouter = (): LiveEventsServer => {
 		sendEventToClient,
 		router,
 	};
+};
+
+type Waiter = (list: LiveEventsServer) => void;
+
+let liveEventsListener: LiveEventsServer | null = null;
+const waiters: Waiter[] = [];
+
+export const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {
+	if (liveEventsListener) {
+		return Promise.resolve(liveEventsListener);
+	}
+
+	return new Promise<LiveEventsServer>((resolve) => {
+		waiters.push((list: LiveEventsServer) => {
+			resolve(list);
+		});
+	});
+};
+
+export const setLiveEventsListener = (listener: LiveEventsServer) => {
+	liveEventsListener = listener;
+	waiters.forEach((w) => w(listener));
 };

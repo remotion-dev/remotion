@@ -1,5 +1,9 @@
-import type {TComposition} from 'remotion';
+import type {AnyComposition} from 'remotion';
 
-export const isCompositionStill = (comp: TComposition) => {
+export const isCompositionStill = (comp: AnyComposition | null) => {
+	if (!comp) {
+		return false;
+	}
+
 	return comp.durationInFrames === 1;
 };

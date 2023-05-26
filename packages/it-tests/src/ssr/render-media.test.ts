@@ -31,7 +31,7 @@ test("Render video with browser instance open", async () => {
     frameRange: [0, 2],
     puppeteerInstance,
   });
-  await puppeteerInstance.close();
+  await puppeteerInstance.close(false);
   expect(existsSync(outPath)).toBe(true);
 });
 
@@ -90,7 +90,7 @@ test("should fail on invalid CRF", async () => {
     );
   }
 
-  await browserInstance.close();
+  await browserInstance.close(false);
 });
 
 test("Render video to a buffer", async () => {
@@ -104,7 +104,7 @@ test("Render video to a buffer", async () => {
     throw new Error("not found");
   }
 
-  const buffer = await renderMedia({
+  const { buffer } = await renderMedia({
     codec: "h264",
     serveUrl: "https://gleaming-wisp-de5d2a.netlify.app/",
     composition: reactSvg,

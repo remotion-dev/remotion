@@ -8,6 +8,7 @@
 		"remotion-lambda": "remotion-lambda-cli.js"
 	},
 	"scripts": {
+		"formatting": "prettier src --check",
 		"testintegration": "vitest src/test/integration --run",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest src/test/unit --run",
@@ -43,11 +44,10 @@
 	"devDependencies": {
 		"@jonny/eslint-config": "3.0.266",
 		"@remotion/bundler": "workspace:*",
-		"@remotion/compositor-linux-arm64-musl": "workspace:*",
-		"@remotion/compositor-linux-x64-musl": "workspace:*",
+		"@remotion/compositor-linux-arm64-gnu": "workspace:*",
 		"@types/mime-types": "2.1.1",
 		"@types/minimist": "1.2.2",
-		"@types/node": "^14.14.14",
+		"@types/node": "18.14.6",
 		"@types/prompt": "^1.1.0",
 		"eslint": "8.25.0",
 		"prettier": "^2.4.1",
