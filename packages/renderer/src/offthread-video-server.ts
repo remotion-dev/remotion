@@ -3,6 +3,7 @@ import {URLSearchParams} from 'node:url';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
+import type {Compositor} from './compositor/compositor';
 import {
 	getIdealMaximumFrameCacheItems,
 	startCompositor,
@@ -51,7 +52,11 @@ export const startOffthreadVideoServer = ({
 	concurrency: number;
 	verbose: boolean;
 	indent: boolean;
-}): {listener: RequestListener; close: () => Promise<void>} => {
+}): {
+	listener: RequestListener;
+	close: () => Promise<void>;
+	compositor: Compositor;
+} => {
 	const compositor = startCompositor(
 		'StartLongRunningProcess',
 		{
@@ -123,5 +128,6 @@ export const startOffthreadVideoServer = ({
 					console.log('Error occurred', err);
 				});
 		},
+		compositor,
 	};
 };
