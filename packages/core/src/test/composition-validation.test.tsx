@@ -387,4 +387,21 @@ describe('Composition-validation render should NOT throw with valid props', () =
 			)
 		).not.toThrow();
 	});
+	test('It should not allow an array as default props', () => {
+		expectToThrow(
+			() =>
+				render(
+					<Composition
+						lazyComponent={() => Promise.resolve({default: AnyComp})}
+						durationInFrames={100}
+						fps={1}
+						height={100}
+						width={100}
+						id="id"
+						defaultProps={[]}
+					/>
+				),
+			/"defaultProps" must be an object, an array was passed for composition "id"/
+		);
+	});
 });

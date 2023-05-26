@@ -124,7 +124,7 @@ export const Composition = <
 		});
 
 		validateFps(fps, 'as a prop of the <Composition/> component', false);
-		validateDefaultAndInputProps(defaultProps, 'defaultProps');
+		validateDefaultAndInputProps(defaultProps, 'defaultProps', id);
 		registerComposition<Schema, Props>({
 			durationInFrames,
 			fps,
