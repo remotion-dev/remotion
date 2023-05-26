@@ -59,6 +59,7 @@ export const CodeFrame: React.FC<{
 								backgroundColor: s.highlight ? 'var(--blue)' : 'transparent',
 								lineHeight: 1.7,
 								paddingRight: 12,
+								paddingLeft: 12,
 							}}
 						>
 							{s.content}

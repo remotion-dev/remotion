@@ -1,5 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
+import {ErrorLoader} from '../../preview-server/error-overlay/remotion-overlay/ErrorLoader';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {Canvas} from './Canvas';
 import {Spacing} from './layout';
@@ -50,6 +51,16 @@ export const CanvasOrLoading: React.FC = () => {
 					Running <code style={inlineCodeSnippet}>calculateMetadata()</code>...
 				</div>
 			</div>
+		);
+	}
+
+	if (resolved.type === 'error') {
+		return (
+			<ErrorLoader
+				key={resolved.error.stack}
+				keyboardShortcuts={false}
+				error={resolved.error}
+			/>
 		);
 	}
 
