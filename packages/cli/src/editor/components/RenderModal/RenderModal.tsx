@@ -433,6 +433,10 @@ export const RenderModal: React.FC<{
 			return enforceAudioTrackState;
 		}
 
+		if (renderMode === 'audio') {
+			return enforceAudioTrackState;
+		}
+
 		return false;
 	}, [enforceAudioTrackState, renderMode]);
 
