@@ -258,7 +258,7 @@ export const Combobox: React.FC<{
 												(v) => selected && v.id === selected.id
 											)}
 											topItemCanBeUnselected={false}
-											individualHeight={derivedMaxHeight}
+											fixedHeight={derivedMaxHeight}
 										/>
 									</div>
 								</HigherZIndex>
