@@ -5,6 +5,9 @@ use Aws\Lambda\LambdaClient;
 use Exception;
 use stdClass;
 
+require_once __DIR__ . '/Version.php';
+use VERSION;
+
 class PHPClient
 {
     private $client;
@@ -110,7 +113,7 @@ class PHPClient
             return [
                 'type' => 'payload',
                 'payload' => !is_null($payload) && !empty($payload) && $payload !== "null" ?
-                json_encode($payload) : json_encode(new stdClass()),
+                $payload : json_encode(new stdClass()),
             ];
         } catch (Exception $e) {
             throw new Exception(
