@@ -61,7 +61,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 	if (job.type === 'video') {
 		const {initialAudioCodec, initialRenderType, initialVideoCodec} =
 			getDefaultCodecs({
-				defaultCodec: defaults.codec as Codec,
+				defaultCodec: job.codec,
 				isStill: false,
 			});
 		return {
