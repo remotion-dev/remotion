@@ -25,6 +25,7 @@ export const ZodStringEditor: React.FC<{
 	compact: boolean;
 	showSaveButton: boolean;
 	saving: boolean;
+	saveDisabledByParent: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -36,6 +37,7 @@ export const ZodStringEditor: React.FC<{
 	onSave,
 	onRemove,
 	saving,
+	saveDisabledByParent,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -54,7 +56,6 @@ export const ZodStringEditor: React.FC<{
 		},
 		[setLocalValue]
 	);
-
 	const reset = useCallback(() => {
 		setLocalValue(() => defaultValue, true);
 	}, [defaultValue, setLocalValue]);
@@ -67,18 +68,20 @@ export const ZodStringEditor: React.FC<{
 		<div style={compact ? narrowOption : optionRow}>
 			<SchemaLabel
 				compact={compact}
-				isDefaultValue={value === defaultValue}
+				isDefaultValue={localValue.value === defaultValue}
 				jsonPath={jsonPath}
 				onReset={reset}
 				onSave={save}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
+				valid={localValue.zodValidation.success}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput
 					value={localValue.value}
-					status={localValue.zodValidation.success ? 'ok' : 'error'}
+					status={localValue.zodValidation ? 'ok' : 'error'}
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
 					rightAlign={false}
