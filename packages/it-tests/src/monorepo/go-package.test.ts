@@ -28,7 +28,7 @@ test("Go package should create the same payload as normal Lambda package", async
   const firstLine = goOutput.toString().split("\n")[0];
   const parsed = JSON.parse(firstLine);
 
-  const nativeVersion = await LambdaInternals.makeLambdaPayload({
+  const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
     region: "us-east-1",
     composition: "react-svg",
     functionName: "remotion-render",
