@@ -15,7 +15,7 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
-import type {z} from 'zod';
+import type {AnyZodObject} from 'zod';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import {PlayerEmitter} from './event-emitter.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
@@ -34,7 +34,7 @@ import {validatePlaybackRate} from './utils/validate-playbackrate.js';
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
-export type PlayerProps<Schema extends z.ZodTypeAny, Props> = {
+export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	durationInFrames: number;
 	compositionWidth: number;
 	compositionHeight: number;
@@ -80,7 +80,7 @@ export const componentOrNullIfLazy = <Props,>(
 	return null;
 };
 
-const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
+const PlayerFn = <Schema extends AnyZodObject, Props>(
 	{
 		durationInFrames,
 		compositionHeight,
@@ -191,6 +191,7 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 		allowFloats: false,
 	});
 	Internals.validateFps(fps, 'as a prop of the <Player/> component', false);
+	Internals.validateDefaultAndInputProps(inputProps, 'inputProps', null);
 
 	validateInOutFrames({
 		durationInFrames,
@@ -316,6 +317,8 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 		}, []);
 	}
 
+	const actualInputProps = useMemo(() => inputProps ?? {}, [inputProps]);
+
 	return (
 		<Internals.IsPlayerContextProvider>
 			<SharedPlayerContexts
@@ -325,7 +328,7 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 				compositionWidth={compositionWidth}
 				durationInFrames={durationInFrames}
 				fps={fps}
-				inputProps={inputProps}
+				inputProps={actualInputProps}
 				numberOfSharedAudioTags={numberOfSharedAudioTags}
 				initiallyMuted={initiallyMuted}
 			>

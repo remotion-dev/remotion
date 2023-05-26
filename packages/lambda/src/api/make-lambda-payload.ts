@@ -59,7 +59,7 @@ export const makeLambdaPayload = async ({
 	validateDownloadBehavior(downloadBehavior);
 
 	const serializedInputProps = await serializeInputProps({
-		inputProps,
+		inputProps: inputProps ?? {},
 		region,
 		type: 'video-or-audio',
 		userSpecifiedBucketName: bucketName ?? null,

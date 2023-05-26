@@ -12,7 +12,7 @@ type ValidateCompositionOptions = {
 	serveUrl: string;
 	composition: string;
 	browserInstance: Await<ReturnType<typeof openBrowser>>;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string> | undefined;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
@@ -37,7 +37,7 @@ export const validateComposition = async ({
 }: ValidateCompositionOptions): Promise<AnyCompMetadata> => {
 	const compositions = await getCompositions(serveUrl, {
 		puppeteerInstance: browserInstance,
-		inputProps: inputProps as object,
+		inputProps,
 		envVariables,
 		timeoutInMilliseconds,
 		chromiumOptions,

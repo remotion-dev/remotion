@@ -39,7 +39,7 @@ const Wrapper: React.FC<{
 								defaultProps: undefined,
 								folderName: null,
 								parentFolderName: null,
-								schema: z.any(),
+								schema: z.object({}),
 							},
 						],
 						currentComposition: 'markup',

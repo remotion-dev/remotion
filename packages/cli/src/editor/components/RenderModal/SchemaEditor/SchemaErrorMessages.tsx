@@ -133,3 +133,23 @@ export const InvalidSchema: React.FC<{
 		</div>
 	);
 };
+
+export const TopLevelZodValue: React.FC<{
+	typeReceived: string;
+}> = ({typeReceived}) => {
+	return (
+		<div style={explainer}>
+			<div style={errorExplanation}>
+				The top-level type of the schema must be a pure{' '}
+				<code style={codeSnippet}>z.object</code>. Instead got a schema of type{' '}
+				<code style={codeSnippet}>{typeReceived}</code>
+			</div>
+			<Spacing y={1} />
+			<div style={errorExplanation}>
+				Fix the schema by changing the top-level Zod type to an object.
+			</div>
+			<Spacing y={2} block />
+			<Button onClick={openDocs}>Learn more</Button>
+		</div>
+	);
+};
