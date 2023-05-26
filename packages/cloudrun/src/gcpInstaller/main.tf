@@ -25,7 +25,7 @@ data "local_file" "permissions" {
 }
 
 locals {
-  cloudrun-permissions  = jsondecode(data.http.permissions.response_body)
+  cloudrun-permissions  = jsondecode(data.local_file.permissions.content)
   service-account-email = "remotion-sa@${var.project_id}.iam.gserviceaccount.com"
 }
 
