@@ -15,7 +15,8 @@ import {
 import {AudioForRendering} from '../audio/AudioForRendering.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import type {CompositionManagerContext} from '../CompositionManager.js';
-import {ProvideCompositionManager} from '../CompositionManager.js';
+import {CompositionManager} from '../CompositionManager.js';
+import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import {expectToThrow} from './expect-to-throw.js';
 
 interface MockCompositionManagerContext {
@@ -35,17 +36,19 @@ describe('Register and unregister asset', () => {
 		}> = ({children}) => {
 			return (
 				<CanUseRemotionHooksProvider>
-					<ProvideCompositionManager
-						compositionManagerContext={
-							// eslint-disable-next-line react/jsx-no-constructed-context-values
-							{
-								registerAsset,
-								unregisterAsset,
-							} as unknown as CompositionManagerContext
-						}
-					>
-						{children}
-					</ProvideCompositionManager>
+					<ResolveCompositionConfig>
+						<CompositionManager.Provider
+							value={
+								// eslint-disable-next-line react/jsx-no-constructed-context-values
+								{
+									registerAsset,
+									unregisterAsset,
+								} as unknown as CompositionManagerContext
+							}
+						>
+							{children}
+						</CompositionManager.Provider>
+					</ResolveCompositionConfig>
 				</CanUseRemotionHooksProvider>
 			);
 		};

@@ -1,7 +1,8 @@
 import React from 'react';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import type {CompositionManagerContext} from '../CompositionManager.js';
-import {ProvideCompositionManager} from '../CompositionManager.js';
+import {CompositionManager} from '../CompositionManager.js';
+import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 
 const Comp: React.FC = () => null;
 
@@ -41,11 +42,9 @@ export const WrapSequenceContext: React.FC<{
 }> = ({children}) => {
 	return (
 		<CanUseRemotionHooksProvider>
-			<ProvideCompositionManager
-				compositionManagerContext={mockCompositionContext}
-			>
-				{children}
-			</ProvideCompositionManager>
+			<CompositionManager.Provider value={mockCompositionContext}>
+				<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
+			</CompositionManager.Provider>
 		</CanUseRemotionHooksProvider>
 	);
 };

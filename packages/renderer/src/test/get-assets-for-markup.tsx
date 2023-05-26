@@ -104,11 +104,11 @@ export const getAssetsForMarkup = async (
 		return (
 			<Internals.CanUseRemotionHooksProvider>
 				<Internals.RemotionRoot numberOfAudioTags={0}>
-					<Internals.ProvideCompositionManager
-						compositionManagerContext={value}
-					>
-						<Markup />
-					</Internals.ProvideCompositionManager>
+					<Internals.CompositionManager.Provider value={value}>
+						<Internals.ResolveCompositionConfig>
+							<Markup />
+						</Internals.ResolveCompositionConfig>
+					</Internals.CompositionManager.Provider>
 				</Internals.RemotionRoot>
 			</Internals.CanUseRemotionHooksProvider>
 		);

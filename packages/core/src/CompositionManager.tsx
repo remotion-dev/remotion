@@ -1,8 +1,4 @@
-import type {
-	ComponentType,
-	LazyExoticComponent,
-	PropsWithChildren,
-} from 'react';
+import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {
 	createContext,
 	useCallback,
@@ -335,25 +331,15 @@ export const CompositionManagerProvider: React.FC<{
 	]);
 
 	return (
-		<ProvideCompositionManager compositionManagerContext={contextValue}>
-			<SharedAudioContextProvider
-				numberOfAudioTags={numberOfAudioTags}
-				component={composition?.component ?? null}
-			>
-				{children}
-			</SharedAudioContextProvider>
-		</ProvideCompositionManager>
-	);
-};
-
-export const ProvideCompositionManager: React.FC<
-	PropsWithChildren<{
-		compositionManagerContext: CompositionManagerContext;
-	}>
-> = ({compositionManagerContext, children}) => {
-	return (
-		<CompositionManager.Provider value={compositionManagerContext}>
-			<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
+		<CompositionManager.Provider value={contextValue}>
+			<ResolveCompositionConfig>
+				<SharedAudioContextProvider
+					numberOfAudioTags={numberOfAudioTags}
+					component={composition?.component ?? null}
+				>
+					{children}
+				</SharedAudioContextProvider>
+			</ResolveCompositionConfig>
 		</CompositionManager.Provider>
 	);
 };

@@ -14,11 +14,7 @@ import type {
 	TComposition,
 	TSequence,
 } from './CompositionManager.js';
-import {
-	CompositionManager,
-	compositionsRef,
-	ProvideCompositionManager,
-} from './CompositionManager.js';
+import {CompositionManager, compositionsRef} from './CompositionManager.js';
 import * as CSSUtils from './default-css.js';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render.js';
 import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
@@ -38,6 +34,7 @@ import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
+	ResolveCompositionConfig,
 	resolveCompositionsRef,
 	useResolvedVideoConfig,
 } from './ResolveCompositionConfig.js';
@@ -86,7 +83,6 @@ export const Internals = {
 	useUnsafeVideoConfig,
 	Timeline,
 	CompositionManager,
-	ProvideCompositionManager,
 	RemotionRoot,
 	useVideo,
 	getRoot,
@@ -131,6 +127,7 @@ export const Internals = {
 	resolveVideoConfig,
 	useResolvedVideoConfig,
 	resolveCompositionsRef,
+	ResolveCompositionConfig,
 };
 
 export type {
