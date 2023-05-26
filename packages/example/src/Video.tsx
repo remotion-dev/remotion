@@ -827,7 +827,7 @@ export const Index: React.FC = () => {
 					durationInFrames={150}
 					// @ts-expect-error Needs an object
 					schema={schemaArrayTestSchema}
-					defaultProps={[1] as number[]}
+					defaultProps={{}}
 				/>
 			</Folder>
 			<Folder name="TailwindCSS">
