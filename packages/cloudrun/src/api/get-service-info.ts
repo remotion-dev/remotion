@@ -18,10 +18,10 @@ export type GetServiceInfoInput = {
 	serviceName: string;
 };
 /**
- * @description Lists Remotion Cloud Run render services deployed to GCP Cloud Run.
- * @see [Documentation](https://remotion.dev/docs/cloudrun/getservices)
- * @param options.region The region of which the services should be listed.
- * @param options.compatibleOnly Whether only services compatible with the installed version of Remotion Cloud Run should be returned.
+ * @description Given a region and service name, returns information about the service such as version, memory limit and timeout.
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/getserviceinfo)
+ * @param options.region The region in which the service resides in.
+ * @param options.serviceName The name of the service.
  * @returns {Promise<ServiceInfo[]>} An array with the objects containing information about the deployed services.
  */
 
