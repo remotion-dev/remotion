@@ -181,7 +181,7 @@ const bundleOnCli = async ({
 			{indent, logLevel},
 			'🧹 Cache disabled but found. Deleting... '
 		);
-		await BundlerInternals.clearCache(remotionRoot);
+		await BundlerInternals.clearCache(remotionRoot, 'production');
 	}
 
 	if (cacheExistedBefore === 'other-exists' && shouldCache) {
@@ -189,7 +189,7 @@ const bundleOnCli = async ({
 			{indent, logLevel},
 			'🧹 Webpack config change detected. Clearing cache... '
 		);
-		await BundlerInternals.clearCache(remotionRoot);
+		await BundlerInternals.clearCache(remotionRoot, 'production');
 	}
 
 	const bundleStartTime = Date.now();
