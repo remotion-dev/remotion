@@ -21,6 +21,7 @@ export const mockCompositionContext: CompositionManagerContext = {
 			width: 1080,
 			parentFolderName: null,
 			nonce: 0,
+			calculateMetadata: null,
 		},
 	],
 	currentComposition: 'my-comp',
