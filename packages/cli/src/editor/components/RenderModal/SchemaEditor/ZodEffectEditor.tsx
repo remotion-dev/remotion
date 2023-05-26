@@ -15,7 +15,7 @@ const fullWidth: React.CSSProperties = {
 };
 
 const stackTrace: React.CSSProperties = {
-	fontSize: '10px',
+	fontSize: '14px',
 	padding: '10px',
 };
 
@@ -103,10 +103,7 @@ export const ZodEffectEditor: React.FC<{
 					/>
 					<Spacing x={0.5} />
 					<InfoBubble title="Stack Trace">
-						<div style={stackTrace}>
-							Zod Validation has failed! <br />
-							{localValue.zodValidation.error.stack}
-						</div>
+						<div style={stackTrace}>Zod Validation has failed!</div>
 					</InfoBubble>
 					<Spacing x={0.5} />
 				</legend>
