@@ -162,6 +162,16 @@ export type UpdateDefaultPropsRequest = {
 	enumPaths: EnumPath[];
 };
 
+export type UpdateDefaultPropsResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type CanUpdateDefaultPropsRequest = {
 	compositionId: string;
 };

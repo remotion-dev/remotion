@@ -284,7 +284,13 @@ export const RenderModalData: React.FC<{
 			composition.id,
 			inputProps,
 			extractEnumJsonPaths(schema, z, [])
-		);
+		).then((response) => {
+			if (!response.success) {
+				sendErrorNotification(
+					'Cannot update default props: ' + response.reason
+				);
+			}
+		});
 	}, [composition.id, inputProps, schema, z]);
 
 	useEffect(() => {
@@ -303,10 +309,19 @@ export const RenderModalData: React.FC<{
 				composition.id,
 				updater(composition.defaultProps),
 				extractEnumJsonPaths(schema, z, [])
-			).catch((err) => {
-				sendErrorNotification(`Cannot update default props: ${err.message}`);
-				setSaving(false);
-			});
+			)
+				.then((response) => {
+					if (!response.success) {
+						console.log(response.stack);
+						sendErrorNotification(
+							`Cannot update default props: ${response.reason}. See console for more information.`
+						);
+					}
+				})
+				.catch((err) => {
+					sendErrorNotification(`Cannot update default props: ${err.message}`);
+					setSaving(false);
+				});
 		},
 		[composition.defaultProps, composition.id, schema, z]
 	);

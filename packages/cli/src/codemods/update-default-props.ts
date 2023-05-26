@@ -95,7 +95,6 @@ const findTerminators = (input: string, position: number) => {
 	return Infinity;
 };
 
-// TODO: Add more sanity checks
 export const updateDefaultProps = async ({
 	input,
 	compositionId,
