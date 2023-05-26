@@ -8,8 +8,8 @@ type CreateBucketInput = {
 
 /**
  * @description Creates a bucket for GCP Cloud Run.
- * @param options.region The region for the bucket to be deployed to.
- * @param options.bucketName The name of the bucket.
+ * @param params.region The region for the bucket to be deployed to.
+ * @param params.bucketName The name of the bucket.
  * @returns {Promise<void>} Nothing. Throws if the bucket creation failed.
  */
 export const createBucket = async ({region, bucketName}: CreateBucketInput) => {

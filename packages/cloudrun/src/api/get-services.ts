@@ -42,15 +42,15 @@ type v1Data = {
 /**
  * @description Lists Remotion Cloud Run render services deployed to GCP Cloud Run.
  * @see [Documentation](https://remotion.dev/docs/cloudrun/getservices)
- * @param options.region The region of which the services should be listed.
- * @param options.compatibleOnly Whether only services compatible with the installed version of Remotion Cloud Run should be returned.
+ * @param params.region The region of which the services should be listed.
+ * @param params.compatibleOnly Whether only services compatible with the installed version of Remotion Cloud Run should be returned.
  * @returns {Promise<ServiceInfo[]>} An array with the objects containing information about the deployed services.
  */
 
 export const getServices = async (
-	options: GetServicesInput
+	params: GetServicesInput
 ): Promise<ServiceInfo[]> => {
-	if (options.region === 'all regions') {
+	if (params.region === 'all regions') {
 		const cloudRunEndpoint = `https://run.googleapis.com/apis/serving.knative.dev/v1/namespaces/${process.env.REMOTION_GCP_PROJECT_ID}/services`;
 
 		const client = new JWT({
@@ -87,7 +87,7 @@ export const getServices = async (
 
 	const cloudRunClient = getCloudRunClient();
 
-	const parent = `projects/${process.env.REMOTION_GCP_PROJECT_ID}/locations/${options.region}`;
+	const parent = `projects/${process.env.REMOTION_GCP_PROJECT_ID}/locations/${params.region}`;
 
 	const [services] = await cloudRunClient.listServices({
 		parent,
@@ -95,7 +95,7 @@ export const getServices = async (
 
 	let remotionServices: IService[] = [];
 
-	if (options.compatibleOnly) {
+	if (params.compatibleOnly) {
 		remotionServices = services.filter((s) => {
 			return s.name?.startsWith(
 				`${parent}/services/${RENDER_SERVICE_PREFIX}--${serviceVersionString()}--`

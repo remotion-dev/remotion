@@ -9,8 +9,8 @@ export type DeleteSiteInput = {
  *
  * @description Deletes a deployed site from your Cloud Run bucket. The opposite of deploySite().
  * @see [Documentation](https://remotion.dev/docs/cloudrun/deletesite)
- * @param options.bucketName The name of the Cloud Storage bucket where the site resides in.
- * @param options.siteName The ID of the site to delete.
+ * @param params.bucketName The name of the Cloud Storage bucket where the site resides in.
+ * @param params.siteName The ID of the site to delete.
  * @returns {Promise<void>} Nothing. Throws if the site failed to delete.
  */
 export const deleteSite = ({
