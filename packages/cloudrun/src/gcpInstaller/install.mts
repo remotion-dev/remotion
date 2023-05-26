@@ -53,14 +53,14 @@ const start = async () => {
 
 	if (billingEnabledString === 'false') {
 		execSync(
-			`echo "${colorCode.redText}Billing is not enabled for this project. Please enable billing at https://console.cloud.google.com/billing and try again.${colorCode.resetText}"`,
+			`echo "${colorCode.redText}Billing is not enabled for this project. Please enable billing at https://console.cloud.google.com/billing and try again.${colorCode.resetText}\n"`,
 			{
 				stdio: 'inherit',
 			}
 		);
 		process.exit(1);
 	} else {
-		execSync(`echo "Billing is enabled for this ${projectID}"`, {
+		execSync(`echo "Billing is enabled for this ${projectID}\n"`, {
 			stdio: 'inherit',
 		});
 	}
