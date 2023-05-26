@@ -2,6 +2,7 @@ import {unlinkSync} from 'node:fs';
 import {expect, test} from 'vitest';
 import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {compose} from '../compositor/compose';
+import {startCompositor} from '../compositor/compositor';
 import type {Layer} from '../compositor/payloads';
 
 test('Should handle the overlay', async () => {
@@ -12,6 +13,16 @@ test('Should handle the overlay', async () => {
 			},
 		];
 		const map = makeDownloadMap();
+		const compositor = startCompositor(
+			'StartLongRunningProcess',
+			{
+				concurrency: 2,
+				maximum_frame_cache_items: 100,
+				verbose: false,
+			},
+			false
+		);
+
 		await compose({
 			height: 1080,
 			width: 1080,
@@ -19,6 +30,7 @@ test('Should handle the overlay', async () => {
 			output: 'test.mp4',
 			downloadMap: map,
 			imageFormat: 'Png',
+			compositor,
 		});
 
 		cleanDownloadMap(map);
@@ -43,6 +55,17 @@ test('Should handle valid', async () => {
 		},
 	];
 	const map = makeDownloadMap();
+
+	const compositor = startCompositor(
+		'StartLongRunningProcess',
+		{
+			concurrency: 2,
+			maximum_frame_cache_items: 100,
+			verbose: false,
+		},
+		false
+	);
+
 	await compose({
 		height: 1080,
 		width: 1080,
@@ -50,6 +73,7 @@ test('Should handle valid', async () => {
 		output: 'test.png',
 		downloadMap: map,
 		imageFormat: 'Png',
+		compositor,
 	});
 
 	unlinkSync('test.png');

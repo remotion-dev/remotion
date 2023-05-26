@@ -10,6 +10,7 @@ import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {Browser as PuppeteerBrowser} from './browser/Browser';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
+import type {Compositor} from './compositor/compositor';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -94,11 +95,13 @@ const innerRenderStill = async ({
 	downloadMap,
 	jpegQuality,
 	onBrowserLog,
+	compositor,
 }: InnerStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
+	compositor: Compositor;
 }): Promise<RenderStillReturnValue> => {
 	if (quality) {
 		throw new Error(
@@ -283,6 +286,7 @@ const innerRenderStill = async ({
 		output,
 		jpegQuality,
 		wantsBuffer: !output,
+		compositor,
 	});
 
 	await cleanup();
@@ -318,7 +322,7 @@ export const renderStill = (
 			verbose: options.verbose ?? false,
 			indent: options.indent ?? false,
 		})
-			.then(({serveUrl, closeServer, offthreadPort}) => {
+			.then(({serveUrl, closeServer, offthreadPort, compositor}) => {
 				close = closeServer;
 				return innerRenderStill({
 					...options,
@@ -326,6 +330,7 @@ export const renderStill = (
 					onError: (err) => reject(err),
 					proxyPort: offthreadPort,
 					downloadMap,
+					compositor,
 				});
 			})
 

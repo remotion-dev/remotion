@@ -4,6 +4,7 @@ import type {ClipRegion, TAsset} from 'remotion';
 import type {DownloadMap} from './assets/download-map';
 import type {Page} from './browser/BrowserPage';
 import {compose} from './compositor/compose';
+import type {Compositor} from './compositor/compositor';
 import type {StillImageFormat, VideoImageFormat} from './image-format';
 import {provideScreenshot} from './provide-screenshot';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -20,6 +21,7 @@ export const takeFrameAndCompose = async ({
 	scale,
 	downloadMap,
 	wantsBuffer,
+	compositor,
 }: {
 	freePage: Page;
 	imageFormat: VideoImageFormat | StillImageFormat;
@@ -31,6 +33,7 @@ export const takeFrameAndCompose = async ({
 	scale: number;
 	downloadMap: DownloadMap;
 	wantsBuffer: boolean;
+	compositor: Compositor;
 }): Promise<{buffer: Buffer | null; collectedAssets: TAsset[]}> => {
 	const [clipRegion, collectedAssets] = await Promise.all([
 		puppeteerEvaluateWithCatch<ClipRegion | null>({
@@ -132,6 +135,7 @@ export const takeFrameAndCompose = async ({
 			output: needsComposing.finalOutFile,
 			downloadMap,
 			imageFormat: imageFormat === 'jpeg' ? 'Jpeg' : 'Png',
+			compositor,
 		});
 		if (wantsBuffer) {
 			const buffer = await fs.promises.readFile(needsComposing.finalOutFile);
