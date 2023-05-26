@@ -14,11 +14,6 @@ variable "project_id" {
   description = "The ID of the project in which the resources will be created."
 }
 
-variable "permissions_path" {
-  type        = string
-  description = "The path to the sa-permissions.json file."
-}
-
 provider "google" {
   project = var.project_id
   region  = "us-central1"
@@ -26,7 +21,7 @@ provider "google" {
 }
 
 data "http" "permissions" {
-  url = var.permissions_path
+  url = "./sa-permissions.json"
 }
 
 locals {
