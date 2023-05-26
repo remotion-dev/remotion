@@ -20,7 +20,7 @@ provider "google" {
   zone    = "us-central1-c"
 }
 
-data "http" "permissions" {
+data "local_file" "permissions" {
   url = "./sa-permissions.json"
 }
 
