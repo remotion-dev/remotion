@@ -50,6 +50,16 @@ const getWebpackCacheDir = (remotionRoot: string) => {
 	return path.resolve(dir, 'node_modules/.cache/webpack');
 };
 
+const remotionCacheLocationForEnv = (
+	remotionRoot: string,
+	environment: Environment
+) => {
+	return path.join(
+		getWebpackCacheDir(remotionRoot),
+		getWebpackCacheEnvDir(environment)
+	);
+};
+
 const remotionCacheLocation = (
 	remotionRoot: string,
 	environment: Environment,
@@ -61,24 +71,22 @@ const remotionCacheLocation = (
 	);
 };
 
-export const clearCache = (remotionRoot: string) => {
-	return fs.promises.rm(getWebpackCacheDir(remotionRoot), {
+export const clearCache = (remotionRoot: string, env: Environment) => {
+	return fs.promises.rm(remotionCacheLocationForEnv(remotionRoot, env), {
 		recursive: true,
 	});
 };
 
 const getPrefix = (environment: Environment) => {
-	return `remotion-v4-${environment}`;
+	return `remotion-v5-${environment}`;
+};
+
+export const getWebpackCacheEnvDir = (environment: Environment) => {
+	return getPrefix(environment);
 };
 
 export const getWebpackCacheName = (environment: Environment, hash: string) => {
-	if (environment === 'development') {
-		return `${getPrefix(environment)}-${hash}`;
-	}
-
-	// In production, the cache is independent from input props because
-	// they are passed over URL params. Speed is mostly important in production.
-	return `${getPrefix(environment)}-${hash}`;
+	return [getWebpackCacheEnvDir(environment), hash].join(path.sep);
 };
 
 const hasOtherCache = ({
