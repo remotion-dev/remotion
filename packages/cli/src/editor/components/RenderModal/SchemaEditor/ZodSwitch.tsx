@@ -372,6 +372,7 @@ export const ZodSwitch: React.FC<{
 				onRemove={onRemove}
 				schema={schema}
 				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
 			/>
 		);
 	}
