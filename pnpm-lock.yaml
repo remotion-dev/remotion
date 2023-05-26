@@ -773,6 +773,12 @@ importers:
     devDependencies:
       remotion: link:../core
 
+  packages/lambda-php-example/vendor/remotion/lambda:
+    specifiers:
+      remotion: workspace:*
+    devDependencies:
+      remotion: link:../../../../core
+
   packages/lottie:
     specifiers:
       '@jonny/eslint-config': 3.0.266
