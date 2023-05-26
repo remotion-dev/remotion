@@ -21,7 +21,7 @@ provider "google" {
 }
 
 data "local_file" "permissions" {
-  url = "./sa-permissions.json"
+  filename = "./sa-permissions.json"
 }
 
 locals {
