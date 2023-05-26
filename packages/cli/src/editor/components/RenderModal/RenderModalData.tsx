@@ -407,6 +407,7 @@ export const RenderModalData: React.FC<{
 					onSave={onSave}
 					showSaveButton={showSaveButton}
 					saving={saving}
+					saveDisabledByParent={!zodValidationResult.success}
 				/>
 			) : (
 				<RenderModalJSONPropsEditor
