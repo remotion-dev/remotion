@@ -55,13 +55,7 @@ export const CanvasOrLoading: React.FC = () => {
 	}
 
 	if (resolved.type === 'error') {
-		return (
-			<ErrorLoader
-				key={resolved.error.stack}
-				keyboardShortcuts={false}
-				error={resolved.error}
-			/>
-		);
+		return <ErrorLoading error={resolved.error} />;
 	}
 
 	return <Canvas />;
@@ -72,4 +66,29 @@ const loaderLabel: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
+};
+
+const loaderContainer: React.CSSProperties = {
+	marginLeft: 'auto',
+	marginRight: 'auto',
+	width: '100%',
+};
+
+export const ErrorLoading: React.FC<{
+	error: Error;
+}> = ({error}) => {
+	return (
+		<div style={loaderContainer}>
+			<ErrorLoader
+				key={error.stack}
+				canHaveDismissButton={false}
+				keyboardShortcuts={false}
+				error={error}
+				onRetry={() =>
+					Internals.resolveCompositionsRef.current?.reloadCurrentlySelectedComposition()
+				}
+				calculateMetadata
+			/>
+		</div>
+	);
 };

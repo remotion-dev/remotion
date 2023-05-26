@@ -25,6 +25,7 @@ const ResolveCompositionContext =
 
 export const resolveCompositionsRef = createRef<{
 	setCurrentRenderModalComposition: (compositionId: string | null) => void;
+	reloadCurrentlySelectedComposition: () => void;
 }>();
 
 type VideoConfigState =
@@ -62,18 +63,6 @@ export const ResolveCompositionConfig: React.FC<
 		(c) => c.id === currentRenderModalComposition
 	);
 	const {props: allEditorProps} = useContext(EditorPropsContext);
-
-	useImperativeHandle(
-		resolveCompositionsRef,
-		() => {
-			return {
-				setCurrentRenderModalComposition: (id: string | null) => {
-					setCurrentRenderModalComposition(id);
-				},
-			};
-		},
-		[]
-	);
 
 	const [resolvedConfigs, setResolvedConfigs] = useState<
 		Record<string, VideoConfigState | undefined>
@@ -134,6 +123,37 @@ export const ResolveCompositionConfig: React.FC<
 			return controller;
 		},
 		[]
+	);
+
+	useImperativeHandle(
+		resolveCompositionsRef,
+		() => {
+			return {
+				setCurrentRenderModalComposition: (id: string | null) => {
+					setCurrentRenderModalComposition(id);
+				},
+				reloadCurrentlySelectedComposition: () => {
+					if (!currentComposition) {
+						return;
+					}
+
+					const composition = compositions.find(
+						(c) => c.id === currentComposition
+					);
+
+					if (!composition) {
+						throw new Error(
+							`Could not find composition with id ${currentComposition}`
+						);
+					}
+
+					const editorProps = allEditorProps[currentComposition] ?? {};
+
+					doResolution(composition, editorProps);
+				},
+			};
+		},
+		[allEditorProps, compositions, currentComposition, doResolution]
 	);
 
 	const isTheSame = selectedComposition?.id === renderModalComposition?.id;
