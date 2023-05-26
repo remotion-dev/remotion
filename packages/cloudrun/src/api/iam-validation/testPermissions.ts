@@ -1,6 +1,6 @@
+import fs from 'fs';
 import {GoogleAuth} from 'google-auth-library';
-import {permissionsPath} from '../../shared/constants';
-import {getCloudStorageClient} from '../helpers/get-cloud-storage-client';
+import path from 'path';
 
 export const logPermissionOutput = (output: TestResult) => {
 	return [output.decision ? '✅' : '❌', output.permissionName].join(' ');
@@ -38,23 +38,12 @@ export const testPermissions = async (
 	});
 	const client = await auth.getClient();
 
-	const cloudStorageClient = getCloudStorageClient();
-
-	const urlWithoutPrefix = permissionsPath.replace(
-		'https://storage.googleapis.com/',
-		''
+	const saPermissions = JSON.parse(
+		fs.readFileSync(
+			path.join(__dirname, '../../shared/sa-permissions.json'),
+			'utf-8'
+		)
 	);
-	const firstSlashIndex = urlWithoutPrefix.indexOf('/');
-
-	const bucketName = urlWithoutPrefix.substring(0, firstSlashIndex);
-	const filePath = urlWithoutPrefix.substring(firstSlashIndex + 1);
-
-	const file = await cloudStorageClient
-		.bucket(bucketName)
-		.file(filePath)
-		.download();
-
-	const saPermissions = JSON.parse(file[0].toString('utf8'));
 
 	const data = {
 		permissions: saPermissions.list,

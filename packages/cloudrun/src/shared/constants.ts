@@ -16,6 +16,3 @@ export const inputPropsKey = (hash: string) => {
 
 export type Privacy = 'public' | 'private';
 export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
-
-export const permissionsPath =
-	'https://storage.googleapis.com/remotion-sa/sa-permissions.json';
