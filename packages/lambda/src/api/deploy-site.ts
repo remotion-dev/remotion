@@ -1,5 +1,5 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
-import fs from 'fs';
+import fs from 'node:fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
@@ -132,13 +132,9 @@ export const deploySite = async ({
 	]);
 
 	if (!process.env.VITEST) {
-		if (fs.rmSync) {
-			fs.rmSync(bundled, {
-				recursive: true,
-			});
-		} else {
-			fs.rmdirSync(bundled, {recursive: true});
-		}
+		fs.rmSync(bundled, {
+			recursive: true,
+		});
 	}
 
 	return {

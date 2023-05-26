@@ -2,7 +2,6 @@ export {evolvePath} from './evolve-path';
 export {extendViewBox} from './extend-viewbox';
 export {getBoundingBox} from './get-bounding-box';
 export {getLength} from './get-length';
-export {getParts} from './get-parts';
 export {getPointAtLength} from './get-point-at-length';
 export {getSubpaths} from './get-subpaths';
 export {getTangentAtLength} from './get-tangent-at-length';

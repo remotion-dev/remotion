@@ -3,12 +3,13 @@ import type {
 	ChromiumOptions,
 	Codec,
 	FrameRange,
-	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
+	StillImageFormat,
+	VideoImageFormat,
 } from '@remotion/renderer';
-import type {VideoConfig} from 'remotion';
+import type {AnyCompMetadata} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -18,14 +19,11 @@ import type {
 } from './aws-clients';
 import type {DownloadBehavior} from './content-disposition-header';
 import type {ExpensiveChunk} from './get-most-expensive-chunks';
-import type {LambdaArchitecture} from './validate-architecture';
 import type {LambdaCodec} from './validate-lambda-codec';
 
 export const MIN_MEMORY = 512;
 export const MAX_MEMORY = 10240;
 export const DEFAULT_MEMORY_SIZE = 2048;
-
-export const DEFAULT_ARCHITECTURE: LambdaArchitecture = 'arm64';
 
 export const DEFAULT_TIMEOUT = 120;
 export const MIN_TIMEOUT = 15;
@@ -155,7 +153,7 @@ export type OutNameOutput = {
 export const getSitesKey = (siteId: string) => `sites/${siteId}`;
 export const outName = (renderId: string, extension: string) =>
 	`${rendersPrefix(renderId)}/out.${extension}`;
-export const outStillName = (renderId: string, imageFormat: ImageFormat) =>
+export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
 	`${rendersPrefix(renderId)}/out.${imageFormat}`;
 export const customOutName = (
 	renderId: string,
@@ -228,12 +226,12 @@ export type LambdaPayloads = {
 		inputProps: SerializedInputProps;
 		codec: LambdaCodec;
 		audioCodec: AudioCodec | null;
-		imageFormat: ImageFormat;
+		imageFormat: VideoImageFormat;
 		crf: number | undefined;
 		envVariables: Record<string, string> | undefined;
 		pixelFormat: PixelFormat | undefined;
 		proResProfile: ProResProfile | undefined;
-		quality: number | undefined;
+		jpegQuality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
@@ -266,14 +264,14 @@ export type LambdaPayloads = {
 		bucketName: string;
 		inputProps: SerializedInputProps;
 		renderId: string;
-		imageFormat: ImageFormat;
+		imageFormat: VideoImageFormat;
 		codec: LambdaCodec;
 		audioCodec: AudioCodec | null;
 		crf: number | undefined;
 		envVariables: Record<string, string> | undefined;
 		pixelFormat: PixelFormat | undefined;
 		proResProfile: ProResProfile | undefined;
-		quality: number | undefined;
+		jpegQuality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
 		logLevel: LogLevel;
@@ -317,12 +315,12 @@ export type LambdaPayloads = {
 		retriesLeft: number;
 		inputProps: SerializedInputProps;
 		renderId: string;
-		imageFormat: ImageFormat;
+		imageFormat: VideoImageFormat;
 		codec: LambdaCodec;
 		crf: number | undefined;
 		proResProfile: ProResProfile | undefined;
 		pixelFormat: PixelFormat | undefined;
-		quality: number | undefined;
+		jpegQuality: number | undefined;
 		envVariables: Record<string, string> | undefined;
 		privacy: Privacy;
 		attempt: number;
@@ -344,10 +342,10 @@ export type LambdaPayloads = {
 		serveUrl: string;
 		composition: string;
 		inputProps: SerializedInputProps;
-		imageFormat: ImageFormat;
+		imageFormat: StillImageFormat;
 		envVariables: Record<string, string> | undefined;
 		attempt: number;
-		quality: number | undefined;
+		jpegQuality: number | undefined;
 		maxRetries: number;
 		frame: number;
 		privacy: Privacy;
@@ -383,9 +381,19 @@ export type EncodingProgress = {
 	framesEncoded: number;
 };
 
-export type RenderMetadata = {
+type Discriminated =
+	| {
+			type: 'still';
+			imageFormat: StillImageFormat;
+	  }
+	| {
+			type: 'video';
+			imageFormat: VideoImageFormat;
+	  };
+
+export type RenderMetadata = Discriminated & {
 	siteId: string;
-	videoConfig: VideoConfig;
+	videoConfig: AnyCompMetadata;
 	startedDate: number;
 	totalChunks: number;
 	estimatedTotalLambdaInvokations: number;
@@ -393,8 +401,6 @@ export type RenderMetadata = {
 	compositionId: string;
 	codec: Codec | null;
 	audioCodec: AudioCodec | null;
-	type: 'still' | 'video';
-	imageFormat: ImageFormat;
 	inputProps: SerializedInputProps;
 	framesPerLambda: number;
 	memorySizeInMb: number;

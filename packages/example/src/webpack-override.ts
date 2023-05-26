@@ -1,6 +1,6 @@
 import {WebpackOverrideFn} from '@remotion/bundler';
+import path from 'node:path';
 import {enableTailwind} from '@remotion/tailwind';
-import path from 'path';
 type Bundler = 'webpack' | 'esbuild';
 
 const WEBPACK_OR_ESBUILD = 'esbuild' as Bundler;

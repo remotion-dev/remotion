@@ -200,6 +200,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 			},
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const oKey = keybindings.registerKeybinding({
 			event: 'keypress',
@@ -209,6 +210,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 			},
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const xKey = keybindings.registerKeybinding({
 			event: 'keypress',
@@ -218,6 +220,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 			},
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		return () => {
 			oKey.unregister();

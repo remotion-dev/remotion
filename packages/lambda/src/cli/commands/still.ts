@@ -1,4 +1,5 @@
-import {CliInternals, ConfigInternals} from '@remotion/cli';
+import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
 import {getCompositions, RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
@@ -53,7 +54,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		inputProps,
 		logLevel,
 		puppeteerTimeout,
-		quality,
+		jpegQuality,
 		stillFrame,
 		scale,
 		height,
@@ -73,12 +74,14 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 	validatePrivacy(privacy, true);
 
 	const {format: imageFormat, source: imageFormatReason} =
-		CliInternals.determineFinalImageFormat({
+		CliInternals.determineFinalStillImageFormat({
 			downloadName,
 			outName: outName ?? null,
-			configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
 			cliFlag: CliInternals.parsedCli['image-format'] ?? null,
 			isLambda: true,
+			fromUi: null,
+			configImageFormat:
+				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		});
 
 	try {
@@ -99,7 +102,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			maxRetries,
 			envVariables,
 			frame: stillFrame,
-			quality,
+			jpegQuality,
 			logLevel,
 			outName,
 			chromiumOptions,
@@ -141,7 +144,10 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			stack: (err as Error).stack,
 			stackFrame: frames,
 		});
-		await CliInternals.handleCommonError(errorWithStackFrame);
+		await CliInternals.handleCommonError(
+			errorWithStackFrame,
+			RenderInternals.getLogLevel()
+		);
 		quit(1);
 	}
 };

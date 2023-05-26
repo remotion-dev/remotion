@@ -1,30 +1,31 @@
-import {existsSync} from 'fs';
-import path from 'path';
+import {existsSync} from 'node:fs';
+import path from 'node:path';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
-import type {FfmpegExecutable} from './ffmpeg-executable';
 import {isServeUrl} from './is-serve-url';
 import {serveStatic} from './serve-static';
 import {waitForSymbolicationToBeDone} from './wait-for-symbolication-error-to-be-done';
 
 export const prepareServer = async ({
-	ffmpegExecutable,
-	ffprobeExecutable,
 	onDownload,
 	onError,
 	webpackConfigOrServeUrl,
 	port,
 	downloadMap,
 	remotionRoot,
+	concurrency,
+	verbose,
+	indent,
 }: {
 	webpackConfigOrServeUrl: string;
 	onDownload: RenderMediaOnDownload;
 	onError: (err: Error) => void;
-	ffmpegExecutable: FfmpegExecutable;
-	ffprobeExecutable: FfmpegExecutable;
 	port: number | null;
 	downloadMap: DownloadMap;
 	remotionRoot: string;
+	concurrency: number;
+	verbose: boolean;
+	indent: boolean;
 }): Promise<{
 	serveUrl: string;
 	closeServer: (force: boolean) => Promise<unknown>;
@@ -34,11 +35,12 @@ export const prepareServer = async ({
 		const {port: offthreadPort, close: closeProxy} = await serveStatic(null, {
 			onDownload,
 			onError,
-			ffmpegExecutable,
-			ffprobeExecutable,
 			port,
 			downloadMap,
 			remotionRoot,
+			concurrency,
+			verbose,
+			indent,
 		});
 
 		return Promise.resolve({
@@ -62,11 +64,12 @@ export const prepareServer = async ({
 	const {port: serverPort, close} = await serveStatic(webpackConfigOrServeUrl, {
 		onDownload,
 		onError,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		port,
 		downloadMap,
 		remotionRoot,
+		concurrency,
+		verbose,
+		indent,
 	});
 	return Promise.resolve({
 		closeServer: async (force: boolean) => {

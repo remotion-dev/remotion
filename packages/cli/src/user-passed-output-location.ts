@@ -1,25 +1,12 @@
 import {ConfigInternals} from './config';
+import {getDefaultOutLocation} from './get-default-out-name';
+import {parsedCli} from './parse-command-line';
 
 export const getUserPassedOutputLocation = (args: string[]) => {
-	const filename = args[0] ?? ConfigInternals.getOutputLocation();
+	const filename =
+		args[0] ?? parsedCli.output ?? ConfigInternals.getOutputLocation();
 
 	return filename;
-};
-
-const getDefaultOutLocation = ({
-	compositionName,
-	defaultExtension,
-	type,
-}: {
-	compositionName: string;
-	defaultExtension: string;
-	type: 'asset' | 'sequence';
-}) => {
-	if (type === 'sequence') {
-		return `out/${compositionName}`;
-	}
-
-	return `out/${compositionName}.${defaultExtension}`;
 };
 
 export const getOutputLocation = ({
@@ -33,6 +20,15 @@ export const getOutputLocation = ({
 	args: string[];
 	type: 'asset' | 'sequence';
 }) => {
+	if (
+		typeof args[0] !== 'undefined' &&
+		typeof parsedCli.output !== 'undefined'
+	) {
+		throw new Error(
+			'Both an output flag (--output) and an output location as a positional argument were passed. Please choose only one of the ways.'
+		);
+	}
+
 	return (
 		getUserPassedOutputLocation(args) ??
 		getDefaultOutLocation({

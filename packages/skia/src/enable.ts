@@ -55,6 +55,10 @@ export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 				'.tsx',
 				'...',
 			],
+			alias: {
+				...currentConfiguration.resolve?.alias,
+				'react-native$': 'react-native-web',
+			},
 		},
 		externals: {
 			...((currentConfiguration.externals as Record<string, string>) ?? {}),

@@ -17,7 +17,7 @@ You can override it reducer-style by creating a function that takes the previous
 In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackConfig()` from `remotion`.
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
 Config.overrideWebpackConfig((currentConfiguration) => {
   return {
@@ -58,7 +58,7 @@ import { WebpackOverrideFn } from "@remotion/bundler";
 export const webpackOverride: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 import { webpackOverride } from "./src/webpack-override";
 
 Config.overrideWebpackConfig(webpackOverride);
@@ -191,7 +191,7 @@ import { WebpackOverrideFn } from "@remotion/bundler";
 export const enableMdx: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 import { enableMdx } from "./src/enable-mdx";
 
 Config.overrideWebpackConfig(enableMdx);
@@ -278,7 +278,7 @@ import { WebpackOverrideFn } from "@remotion/bundler";
 export const enableSass: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // ---cut---
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 import { enableSass } from "./src/enable-sass";
 
 Config.overrideWebpackConfig(enableSass);
@@ -356,7 +356,7 @@ export const enableGlsl: WebpackOverrideFn = (c) => c;
 
 // @filename: remotion.config.ts
 // ---cut---
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 import { enableGlsl } from "./src/enable-glsl";
 
 Config.overrideWebpackConfig(enableGlsl);
@@ -381,7 +381,7 @@ declare module "*.glsl" {
 There are two WebAssembly modes: asynchronous and synchronous. We recommend testing both and seeing which one works for the WASM library you are trying to use.
 
 ```ts twoslash title="remotion.config.ts - synchronous"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
 Config.overrideWebpackConfig((conf) => {
   return {
@@ -398,7 +398,7 @@ Since Webpack does not allow synchronous WebAssembly code in the main chunk, you
 :::
 
 ```ts twoslash title="remotion.config.ts - asynchronous"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
 Config.overrideWebpackConfig((conf) => {
   return {

@@ -132,7 +132,7 @@ export const Timeline: React.FC = () => {
 							timeline={shown}
 						/>
 					</SplitterElement>
-					<SplitterHandle onCollapse={noop} allowToCollapse={false} />
+					<SplitterHandle onCollapse={noop} allowToCollapse="none" />
 					<SplitterElement type="anti-flexer">
 						<TimelineScrollable>
 							<TimelineTracks

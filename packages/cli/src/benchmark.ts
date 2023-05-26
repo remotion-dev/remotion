@@ -8,29 +8,27 @@ import {
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
+import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
-import {getCliOptions, getFinalCodec} from './get-cli-options';
-import {getRenderMediaOptions} from './get-render-media-options';
+import {getCliOptions} from './get-cli-options';
+import {getFinalOutputCodec} from './get-final-output-codec';
+import {getVideoImageFormat} from './image-formats';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {parsedCli, quietFlagProvided} from './parse-command-line';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {selectCompositions} from './select-composition';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
+import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {truthy} from './truthy';
 
 const DEFAULT_RUNS = 3;
 
-const getValidConcurrency = (renderMediaOptions: RenderMediaOptions) => {
-	const concurrency =
-		'concurrency' in renderMediaOptions
-			? renderMediaOptions.concurrency ?? null
-			: null;
-
+const getValidConcurrency = (cliConcurrency: number | string | null) => {
 	const {concurrencies} = parsedCli;
 
 	if (!concurrencies) {
-		return [RenderInternals.getActualConcurrency(concurrency)];
+		return [RenderInternals.getActualConcurrency(cliConcurrency)];
 	}
 
 	return (concurrencies as string)
@@ -150,12 +148,12 @@ export const benchmarkCommand = async (
 		process.exit(1);
 	}
 
+	const fullEntryPoint = convertEntryPointToServeUrl(file);
+
 	const {
 		inputProps,
 		envVariables,
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		chromiumOptions,
 		port,
 		puppeteerTimeout,
@@ -168,7 +166,7 @@ export const benchmarkCommand = async (
 		remotionRoot,
 	});
 
-	Log.verbose('Entry point:', file, 'reason:', reason);
+	Log.verbose('Entry point:', fullEntryPoint, 'reason:', reason);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
@@ -178,14 +176,23 @@ export const benchmarkCommand = async (
 		),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
+		indent: false,
 	});
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
-			fullPath: file,
+			fullPath: fullEntryPoint,
 			publicDir,
 			remotionRoot,
-			steps: ['bundling'],
+			onProgress: () => undefined,
+			indentOutput: false,
+			logLevel: ConfigInternals.Logging.getLogLevel(),
+			bundlingStep: 0,
+			steps: 1,
+			onDirectoryCreated: (dir) => {
+				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
+			},
+			quietProgress: false,
 		});
 
 	registerCleanupJob(() => cleanupBundle());
@@ -197,8 +204,6 @@ export const benchmarkCommand = async (
 		envVariables,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		port,
 		puppeteerInstance,
 	});
@@ -232,26 +237,50 @@ export const benchmarkCommand = async (
 
 	let count = 1;
 
-	const {codec, reason: codecReason} = getFinalCodec({
+	const {codec, reason: codecReason} = getFinalOutputCodec({
+		cliFlag: parsedCli.codec,
 		downloadName: null,
 		outName: null,
+		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+		uiCodec: null,
 	});
 
 	for (const composition of compositions) {
-		const renderMediaOptions = await getRenderMediaOptions({
-			config: composition,
-			outputLocation: undefined,
-			serveUrl: bundleLocation,
-			codec,
+		const {
+			proResProfile,
+			frameRange: defaultFrameRange,
+			overwrite,
+			jpegQuality,
+			crf: configFileCrf,
+			pixelFormat,
+			scale: configFileScale,
+			numberOfGifLoops,
+			everyNthFrame,
+			muted,
+			enforceAudioTrack,
+			ffmpegOverride,
+			audioBitrate,
+			videoBitrate,
+			height,
+			width,
+			concurrency: unparsedConcurrency,
+			logLevel,
+		} = await getCliOptions({
+			isLambda: false,
+			type: 'series',
 			remotionRoot,
 		});
-		const concurrency = getValidConcurrency(renderMediaOptions);
+
+		const concurrency = getValidConcurrency(unparsedConcurrency);
 
 		benchmark[composition.id] = {};
 		for (const con of concurrency) {
-			const benchmarkProgress = createOverwriteableCliOutput(
-				quietFlagProvided()
-			);
+			const benchmarkProgress = createOverwriteableCliOutput({
+				quiet: quietFlagProvided(),
+				cancelSignal: null,
+				updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
+				indent: false,
+			});
 			Log.info();
 			Log.info(
 				`${chalk.bold(`Benchmark #${count++}:`)} ${chalk.gray(
@@ -262,7 +291,46 @@ export const benchmarkCommand = async (
 			const timeTaken = await runBenchmark(
 				runs,
 				{
-					...renderMediaOptions,
+					outputLocation: undefined,
+					composition: {
+						...composition,
+						width: width ?? composition.width,
+						height: height ?? composition.height,
+					},
+					crf: configFileCrf,
+					envVariables,
+					frameRange: defaultFrameRange,
+					imageFormat: getVideoImageFormat({
+						codec,
+						uiImageFormat: null,
+					}),
+					inputProps,
+					overwrite,
+					pixelFormat,
+					proResProfile,
+					jpegQuality,
+					dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
+						ConfigInternals.Logging.getLogLevel(),
+						'verbose'
+					),
+					chromiumOptions,
+					timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+					scale: configFileScale,
+					port,
+					numberOfGifLoops,
+					everyNthFrame,
+					verbose: RenderInternals.isEqualOrBelowLogLevel(
+						ConfigInternals.Logging.getLogLevel(),
+						'verbose'
+					),
+					muted,
+					enforceAudioTrack,
+					browserExecutable,
+					ffmpegOverride,
+					serveUrl: bundleLocation,
+					codec,
+					audioBitrate,
+					videoBitrate,
 					puppeteerInstance,
 					concurrency: con,
 				},
@@ -273,13 +341,14 @@ export const benchmarkCommand = async (
 							run,
 							doneIn: null,
 							progress,
-						})
+						}),
+						false
 					);
 				}
 			);
 
-			benchmarkProgress.update('');
-			benchmarkProgress.update(getResults(timeTaken, runs));
+			benchmarkProgress.update('', false);
+			benchmarkProgress.update(getResults(timeTaken, runs), false);
 
 			benchmark[composition.id][`${con}`] = timeTaken;
 		}

@@ -5,19 +5,19 @@ id: timeline
 crumb: "Timeline basics"
 ---
 
-You can start the preview server of Remotion using
+You can start the preview server of Remotion using:
 
-```sh
+```bash
 npm start
 ```
 
-This is a shorthand for
+This is a shorthand for the `preview` command of the [Remotion CLI](/docs/cli):
 
 ```bash
 npx remotion preview
 ```
 
-A server will be started on port 3000 (or 3001 if it's not available, and so on) and the preview should open in the browser.
+A server will be started on port `3000` (or a higher port if it's not available) and the preview should open in the browser.
 
 <img src="/img/timeline.png"></img>
 
@@ -45,15 +45,25 @@ By default, the background of your video is a checkerboard pattern signifying th
 
 ## In / Out Markers
 
-Use the <svg viewBox="0 0 256 256" fill="none" style={{width: 16, height: 16}}><path d="M158 25H99V230.5H158" stroke="currentcolor" strokeWidth="42" strokeLinecap="round" strokeLinejoin="round"/></svg> and <svg viewBox="0 0 256 256" fill="none" style={{width: 16, height: 16}}><path d="M98 25H157V230.5H98" stroke="currentcolor" strokeWidth="42" strokeLinecap="round" strokeLinejoin="round"/></svg> buttons to set an In or Out marker. When you play the video again, only the range within the markers will play.
+Use the <svg viewBox="0 0 256 256" fill="none" style={{width: 16, height: 16}}><path d="M158 25H99V230.5H158" stroke="currentcolor" strokeWidth="42" strokeLinecap="round" strokeLinejoin="round"/></svg> and <svg viewBox="0 0 256 256" fill="none" style={{width: 16, height: 16}}><path d="M98 25H157V230.5H98" stroke="currentcolor" strokeWidth="42" strokeLinecap="round" strokeLinejoin="round"/></svg> buttons to set an In or Out marker. When you play the video again, only the range within the markers will play.  
+To clear a marker, make sure your playback head is at the point of a marker and press the button you pressed to activate it again.
 
-You may also set markers using the <kbd>I</kbd> and <kbd>O</kbd> keys.
+You may also use the keyboard shortcuts:
 
-To clear a marker, make sure your playback head is at the point of a marker and press the button you pressed to activate it again. Or use the <kbd>X</kbd> key to clear both markers.
+- <kbd>I</kbd>: Set an in marker
+- <kbd>O</kbd> (the letter "O"): Set an out marker
+- <kbd>X</kbd>: Clear both markers.
 
 ## Change the canvas size
 
-The default scaling mode is "Fit", which will scale the video so it fits in the preview window. Use the left dropdown to choose a different scale.
+By default the video scales to fit in the preview window.  
+You can pinch:
+
+- pinch to zoom
+- hold <kbd>Shift</kbd> and use the scrollwheel or
+- use the dropdown that says `Fit`
+
+to change the size of the canvas.
 
 ## Change the playback speed
 
@@ -61,45 +71,31 @@ By default the video will play with 1x speed. You can speed up or slow down the 
 
 You may also choose a negative value which will play the video in reverse. Note that [`<Audio/>`](/docs/audio) and [`<Video/>`](/docs/video) tags cannot be played in reverse, this is a browser limitation.
 
+## Render a composition
+
+Click on the `Render` button or press <kbd>R</kbd> to open the Render dialog from where you can adjust settings and render your composition.
+
+If you are using `In / Out Markers`, the render dialog will automatically set the `Start Frame` and `End Frame` to your selected markers.
+
+## Quickly switch between compositions
+
+Use <kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>k</kbd> to access the Quick Switcher from which you can directly chose the composition you want to display. Start your input with `>` to switch to the command palette or start your input with `?` to search the documentation.
+
 ## Advanced playback controls
 
 Use the <kbd>J</kbd>, <kbd>K</kbd>, <kbd>L</kbd> keys to quickly move around the timeline while your video is playing.
 
-<kbd>L</kbd> will play the video forward, pressing it repeatedly will play it faster.<br/>
+<kbd>L</kbd> will play the video forward, pressing it repeatedly will play it faster.
+<br />
 
-<kbd>J</kbd> will play the video backwards, pressing it repeatedly will play it faster.<br/>
+<kbd>J</kbd> will play the video backwards, pressing it repeatedly will play it faster.
+<br />
 
 <kbd>K</kbd> will pause the video and reset the speed to 1x.
 
-## Timeline modes
+## Keyboard shortcuts and help
 
-At the bottom of the Remotion preview player, you will see a timeline.
-Remotions timeline has two modes: **Simple timeline** (_default_) and **Rich timeline** (experimental, will become default in the future).
-
-You may switch between the two modes by clicking the icon with the three lines:
-
-<img src="/img/timeline-toggle.png"></img>
-
-### Simple timeline
-
-The **simple timeline** will visualize the content that is rendered by your composition at the current time. This is a simple and efficient way of visualizing your content, as it will only render what you anyway see in the top panel of the editor. However, it is limited: If you place your cursor outside the time range of a sequence, Remotion cannot gather information about that sequence because it simply is not rendered at this time. This means that while the playback head is moving, the timeline may change.
-
-### Rich timeline
-
-The **rich timeline** will render additional frames to gather enough information to visualize a full timeline.
-Sequences which are normally not rendered because the playback head is not within the time range of the sequence, will appear because Remotion is doing an additional render at a time where the sequence is visible.
-
-These additional renders will appear as thumbnails in the timeline. Therefore, these thumbnails are only available in rich timeline mode.
-
-### Which mode should I use?
-
-Generally, the rich timeline mode will provide you with a more accurate timeline. Since your timeline gets rendered more than once at a time, you must ensure that your timeline is free of side effects and only relies on [`useCurrentFrame`](/docs/use-current-frame) for animation.
-
-More renders also mean slower rendering. If you are suffering from slow playback and timeline scrubbing performance, consider disabling the rich timeline mode.
-
-The rich timeline will become the default in the future, but right now it is disabled by default.
-
-We encourage you to try out the rich timeline mode and [letting us know about any issues you will face](https://github.com/remotion-dev/remotion/issues/new).
+Press <kbd>?</kbd> to open the help dialog which shows you all available keyboard shortcuts. In the opened dialog, enter a search term to search our vast documentation.
 
 ## See also
 

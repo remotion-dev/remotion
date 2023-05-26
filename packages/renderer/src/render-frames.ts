@@ -1,7 +1,7 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {performance} from 'perf_hooks';
-import type {SmallTCompMetadata, TAsset} from 'remotion';
+import type {AnySmallCompMetadata, TAsset} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -13,10 +13,10 @@ import type {BrowserLog} from './browser-log';
 import type {Browser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
+import {isTargetClosedErr} from './browser/is-target-closed-err';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
 import type {FrameRange} from './frame-range';
 import {getActualConcurrency} from './get-concurrency';
@@ -27,10 +27,9 @@ import {
 	getFrameOutputFileName,
 } from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
-import type {ImageFormat} from './image-format';
-import {DEFAULT_IMAGE_FORMAT} from './image-format';
-import type {ServeUrlOrWebpackBundle} from './legacy-webpack-config';
-import {getServeUrlWithFallback} from './legacy-webpack-config';
+import type {VideoImageFormat} from './image-format';
+import {DEFAULT_VIDEO_IMAGE_FORMAT} from './image-format';
+import {validateJpegQuality} from './jpeg-quality';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -39,7 +38,6 @@ import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {Pool} from './pool';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
-import {validateQuality} from './quality';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
@@ -48,28 +46,6 @@ import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
-
-type ConfigOrComposition =
-	| {
-			/**
-			 * @deprecated This field has been renamed to `composition`
-			 */
-			config: SmallTCompMetadata;
-	  }
-	| {
-			composition: SmallTCompMetadata;
-	  };
-
-type ConcurrencyOrParallelism =
-	| {
-			concurrency?: number | string | null;
-	  }
-	| {
-			/**
-			 * @deprecated This field has been renamed to `concurrency`
-			 */
-			parallelism?: number | null;
-	  };
 
 const MAX_RETRIES_PER_FRAME = 1;
 
@@ -83,8 +59,12 @@ type RenderFramesOptions = {
 	outputDir: string | null;
 	inputProps: unknown;
 	envVariables?: Record<string, string>;
-	imageFormat: ImageFormat;
-	quality?: number;
+	imageFormat?: VideoImageFormat;
+	/**
+	 * @deprecated Renamed to "jpegQuality"
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
 	dumpBrowserLogs?: boolean;
@@ -96,41 +76,21 @@ type RenderFramesOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	scale?: number;
-	ffmpegExecutable?: FfmpegExecutable;
-	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
+	composition: AnySmallCompMetadata;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	indent?: boolean;
 	muted?: boolean;
-} & ConfigOrComposition &
-	ConcurrencyOrParallelism &
-	ServeUrlOrWebpackBundle;
-
-const getComposition = (others: ConfigOrComposition) => {
-	if ('composition' in others) {
-		return others.composition;
-	}
-
-	if ('config' in others) {
-		return others.config;
-	}
-
-	return undefined;
-};
-
-const getConcurrency = (others: ConcurrencyOrParallelism) => {
-	if ('concurrency' in others) {
-		return others.concurrency;
-	}
-
-	if ('parallelism' in others) {
-		return others.parallelism;
-	}
-
-	return undefined;
+	concurrency?: number | string | null;
+	serveUrl: string;
+	verbose?: boolean;
 };
 
 const innerRenderFrames = ({
@@ -138,8 +98,9 @@ const innerRenderFrames = ({
 	outputDir,
 	onStart,
 	inputProps,
+	jpegQuality,
 	quality,
-	imageFormat = DEFAULT_IMAGE_FORMAT,
+	imageFormat = DEFAULT_VIDEO_IMAGE_FORMAT,
 	frameRange,
 	onError,
 	envVariables,
@@ -163,7 +124,7 @@ const innerRenderFrames = ({
 	onError: (err: Error) => void;
 	pagesArray: Page[];
 	serveUrl: string;
-	composition: SmallTCompMetadata;
+	composition: AnySmallCompMetadata;
 	actualConcurrency: number;
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
@@ -177,6 +138,12 @@ const innerRenderFrames = ({
 				recursive: true,
 			});
 		}
+	}
+
+	if (quality) {
+		throw new Error(
+			`The "quality" option has been renamed. Use "jpegQuality" instead.`
+		);
 	}
 
 	const downloadPromises: Promise<unknown>[] = [];
@@ -359,7 +326,7 @@ const innerRenderFrames = ({
 					totalFrames: framesToRender.length,
 				})
 			),
-			quality,
+			jpegQuality,
 			width,
 			scale,
 			downloadMap,
@@ -422,16 +389,20 @@ const innerRenderFrames = ({
 		attempt: number
 	) => {
 		try {
-			await renderFrame(frame, index);
+			await Promise.race([
+				renderFrame(frame, index),
+				new Promise((_, reject) => {
+					cancelSignal?.(() => {
+						reject(new Error(cancelErrorMessages.renderFrames));
+					});
+				}),
+			]);
 		} catch (err) {
-			if (
-				!(err as Error)?.message?.includes('Target closed') &&
-				!(err as Error)?.message?.includes('Session closed')
-			) {
+			if (isUserCancelledRender(err)) {
 				throw err;
 			}
 
-			if (isUserCancelledRender(err)) {
+			if (!isTargetClosedErr(err as Error)) {
 				throw err;
 			}
 
@@ -504,8 +475,7 @@ type CleanupFn = () => void;
 export const renderFrames = (
 	options: RenderFramesOptions
 ): Promise<RenderFramesOutput> => {
-	const composition = getComposition(options);
-	const concurrency = getConcurrency(options);
+	const {composition, concurrency} = options;
 
 	if (!composition) {
 		throw new Error(
@@ -533,15 +503,13 @@ export const renderFrames = (
 		component: 'in the `config` object passed to `renderFrames()`',
 		allowFloats: false,
 	});
-	if (options.quality !== undefined && options.imageFormat !== 'jpeg') {
+	if (options.jpegQuality !== undefined && options.imageFormat !== 'jpeg') {
 		throw new Error(
-			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
+			"You can only pass the `jpegQuality` option if `imageFormat` is 'jpeg'."
 		);
 	}
 
-	const selectedServeUrl = getServeUrlWithFallback(options);
-
-	validateQuality(options.quality);
+	validateJpegQuality(options.jpegQuality);
 	validateScale(options.scale);
 
 	const makeBrowser = () =>
@@ -550,6 +518,7 @@ export const renderFrames = (
 			browserExecutable: options.browserExecutable,
 			chromiumOptions: options.chromiumOptions,
 			forceDeviceScaleFactor: options.scale ?? 1,
+			indent: options.indent ?? false,
 		});
 
 	const browserInstance = options.puppeteerInstance ?? makeBrowser();
@@ -580,14 +549,15 @@ export const renderFrames = (
 			}),
 			Promise.all([
 				prepareServer({
-					webpackConfigOrServeUrl: selectedServeUrl,
+					webpackConfigOrServeUrl: options.serveUrl,
 					onDownload,
 					onError,
-					ffmpegExecutable: options.ffmpegExecutable ?? null,
-					ffprobeExecutable: options.ffprobeExecutable ?? null,
 					port: options.port ?? null,
 					downloadMap,
 					remotionRoot: findRemotionRoot(),
+					concurrency: actualConcurrency,
+					verbose: options.verbose ?? false,
+					indent: options.indent ?? false,
 				}),
 				browserInstance,
 			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
@@ -628,11 +598,11 @@ export const renderFrames = (
 
 				if (options.puppeteerInstance) {
 					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
-						if (
-							!(err as Error | undefined)?.message.includes('Target closed')
-						) {
-							console.log('Unable to close browser tab', err);
+						if (isTargetClosedErr(err)) {
+							return;
 						}
+
+						console.log('Unable to close browser tab', err);
 					});
 				} else {
 					Promise.resolve(browserInstance)

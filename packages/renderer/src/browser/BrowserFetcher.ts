@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-import * as childProcess from 'child_process';
-import * as fs from 'fs';
-import * as http from 'http';
 import * as https from 'https';
-import * as os from 'os';
-import * as path from 'path';
-import util from 'util';
+import * as childProcess from 'node:child_process';
+import * as fs from 'node:fs';
+import * as http from 'node:http';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import util from 'node:util';
 
 import extractZip from 'extract-zip';
 
-import * as URL from 'url';
-import {promisify} from 'util';
+import * as URL from 'node:url';
+import {promisify} from 'node:util';
 import {assert} from './assert';
 import type {Product} from './Product';
 
@@ -389,7 +389,7 @@ function parseFolderPath(
 	return {product, platform, revision};
 }
 
-export function _downloadFile(
+function _downloadFile(
 	url: string,
 	destinationPath: string,
 	progressCallback: (x: number, y: number) => void
