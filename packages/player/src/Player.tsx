@@ -191,6 +191,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		allowFloats: false,
 	});
 	Internals.validateFps(fps, 'as a prop of the <Player/> component', false);
+	Internals.validateDefaultAndInputProps(inputProps, 'inputProps');
 
 	validateInOutFrames({
 		durationInFrames,
