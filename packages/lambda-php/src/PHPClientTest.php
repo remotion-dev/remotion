@@ -19,7 +19,11 @@ class PHPClientTest extends TestCase
             null
         );
 
-        $params = new RenderParams();
+        $params = new RenderParams(
+            data: [
+                'hi' => 'there'
+            ],
+        );
         $params->setComposition("react-svg");
 
         $internalParams = $client->constructInternals($params);
