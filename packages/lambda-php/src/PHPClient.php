@@ -43,28 +43,35 @@ class PHPClient
         $render->setInputProps($input);
         $render->setServerUrl($this->getServeUrl());
         $render->setRegion($this->getRegion());
+
         return $render->serializeParams();
     }
 
     public function renderMediaOnLambda(RenderParams $render) :  ? stdClass
     {
         $params = $this->constructInternals($render);
-        $params['type'] = 'start';
 
         $result = $this->invokeLambdaFunction(json_encode($params));
         return $this->handleLambdaResponse($result);
     }
 
-    public function getRenderProgress(string $renderId, string $bucketName) :  ? stdClass
+    public function makeRenderProgressPayload(string $renderId, string $bucketName)
     {
         $params = array(
             'renderId' => $renderId,
             'bucketName' => $bucketName,
             'type' => 'status',
             "version" => VERSION,
+            "s3OutputProvider" => null
         );
+        $result = json_encode($params);
+        return $result;
+    }
 
-        $result = $this->invokeLambdaFunction(json_encode($params));
+    public function getRenderProgress(string $renderId, string $bucketName) :  ? stdClass
+    {
+        $payload = $this->makeRenderProgressPayload($renderId, $bucketName);
+        $result = $this->invokeLambdaFunction($payload);
         return $this->handleLambdaResponse($result);
     }
 
