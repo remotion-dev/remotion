@@ -62,6 +62,9 @@ test("PHP package should create the same payload as normal Lambda package", asyn
     functionName: "remotion-render",
     serveUrl: "testbed",
     codec: "h264",
+    inputProps: {
+      hi: "there",
+    },
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);
