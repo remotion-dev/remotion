@@ -83,7 +83,7 @@ describe('Render correctly with props', () => {
 			)
 		).not.toThrow();
 	});
-	test.only('It should render Video with startFrom and endAt props', () => {
+	test('It should render Video with startFrom and endAt props', () => {
 		expect(() =>
 			render(
 				<Wrapper>
