@@ -124,9 +124,7 @@ const isValidOutName = ({
 					`The extension ${extension} is not supported for audio codec ${audioCodec}`
 				);
 			}
-		}
-
-		if (audioCodec !== 'pcm-16' && audioCodec !== extension) {
+		} else if (audioCodec !== extension) {
 			throw new Error(
 				`The extension ${extension} is not supported for audio codec ${audioCodec}`
 			);
