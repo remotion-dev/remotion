@@ -8,11 +8,9 @@ import {describe, expect, test} from 'vitest';
 import {z} from 'zod';
 import {Audio} from '../audio/index.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
-import {
-	CompositionManager,
-	ProvideCompositionManager,
-} from '../CompositionManager.js';
+import {CompositionManager} from '../CompositionManager.js';
 import {RemotionRoot} from '../RemotionRoot.js';
+import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 
 const Wrapper: React.FC<{
 	children: React.ReactNode;
@@ -21,9 +19,9 @@ const Wrapper: React.FC<{
 	return (
 		<CanUseRemotionHooksProvider>
 			<RemotionRoot numberOfAudioTags={0}>
-				<ProvideCompositionManager
+				<CompositionManager.Provider
 					// eslint-disable-next-line react/jsx-no-constructed-context-values
-					compositionManagerContext={{
+					value={{
 						...compositions,
 						compositions: [
 							{
@@ -48,8 +46,8 @@ const Wrapper: React.FC<{
 						currentComposition: 'markup',
 					}}
 				>
-					{children}
-				</ProvideCompositionManager>
+					<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
+				</CompositionManager.Provider>
 			</RemotionRoot>
 		</CanUseRemotionHooksProvider>
 	);

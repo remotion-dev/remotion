@@ -46,13 +46,6 @@ export const ResolveCompositionConfig: React.FC<
 		children: React.ReactNode;
 	}>
 > = ({children}) => {
-	const existingContext = useContext(ResolveCompositionContext);
-	if (existingContext) {
-		throw new Error(
-			'Cannot nest ResolveCompositionConfig components. You can only have one per project.'
-		);
-	}
-
 	const [currentRenderModalComposition, setCurrentRenderModalComposition] =
 		useState<string | null>(null);
 	const {compositions, currentComposition} = useContext(CompositionManager);
@@ -185,10 +178,11 @@ export const ResolveCompositionConfig: React.FC<
 
 export const useResolvedVideoConfig = (
 	preferredCompositionId: string | null
-) => {
+): VideoConfigState | null => {
 	const context = useContext(
 		ResolveCompositionContext
 	) as ResolveCompositionConfigContect;
+
 	const {compositions, currentComposition} = useContext(CompositionManager);
 	const compositionId = preferredCompositionId ?? currentComposition;
 	const composition = compositions.find((c) => c.id === compositionId);
@@ -198,6 +192,14 @@ export const useResolvedVideoConfig = (
 	}
 
 	if (!context[composition.id]) {
+		const needsResolution = composition.calculateMetadata;
+		if (!needsResolution) {
+			return {
+				type: 'success',
+				result: {...composition, defaultProps: composition.defaultProps ?? {}},
+			};
+		}
+
 		return null;
 	}
 

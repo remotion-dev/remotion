@@ -4,13 +4,11 @@
 
 import React, {useMemo} from 'react';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
-import {
-	CompositionManager,
-	ProvideCompositionManager,
-} from './CompositionManager.js';
+import {CompositionManager} from './CompositionManager.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
 import {PreloadContext} from './prefetch-state.js';
+import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
 	SetTimelineContext,
@@ -64,19 +62,19 @@ export const RemotionContextProvider = (
 			<NonceContext.Provider value={contexts.nonceContext}>
 				<NativeLayersContext.Provider value={contexts.nativeLayersContext}>
 					<PreloadContext.Provider value={contexts.preloadContext}>
-						<ProvideCompositionManager
-							compositionManagerContext={contexts.compositionManagerCtx}
-						>
-							<TimelineContext.Provider value={contexts.timelineContext}>
-								<SetTimelineContext.Provider
-									value={contexts.setTimelineContext}
-								>
-									<SequenceContext.Provider value={contexts.sequenceContext}>
-										{children}
-									</SequenceContext.Provider>
-								</SetTimelineContext.Provider>
-							</TimelineContext.Provider>
-						</ProvideCompositionManager>
+						<CompositionManager.Provider value={contexts.compositionManagerCtx}>
+							<ResolveCompositionConfig>
+								<TimelineContext.Provider value={contexts.timelineContext}>
+									<SetTimelineContext.Provider
+										value={contexts.setTimelineContext}
+									>
+										<SequenceContext.Provider value={contexts.sequenceContext}>
+											{children}
+										</SequenceContext.Provider>
+									</SetTimelineContext.Provider>
+								</TimelineContext.Provider>
+							</ResolveCompositionConfig>
+						</CompositionManager.Provider>
 					</PreloadContext.Provider>
 				</NativeLayersContext.Provider>
 			</NonceContext.Provider>
