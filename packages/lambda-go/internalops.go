@@ -36,6 +36,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		AudioCodec:           options.AudioCodec,
 		ForceBucketName:      options.ForceBucketName,
 		RendererFunctionName: &options.RendererFunctionName,
+		Type:                 "start",
 	}
 
 	internalParams.Muted = options.Muted
