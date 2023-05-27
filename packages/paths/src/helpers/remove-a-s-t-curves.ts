@@ -134,7 +134,7 @@ export const removeATSHVInstructions = (
 ): ReducedInstruction[] => {
 	return iterateOverSegments<ReducedInstruction>({
 		segments,
-		iterate: ({segment, prevSegment, x, y}) => {
+		iterate: ({segment, prevSegment, x, y, cpX, cpY}) => {
 			if (segment.type === 'H') {
 				return [{type: 'L', x: segment.x, y}];
 			}
@@ -187,10 +187,12 @@ export const removeATSHVInstructions = (
 			if (segment.type === 'T') {
 				let prevControlX = 0;
 				let prevControlY = 0;
-				// TODO: Previous command could be a T segment
-				if (prevSegment && prevSegment.type === 'Q') {
-					prevControlX = prevSegment.cpx;
-					prevControlY = prevSegment.cpy;
+				if (
+					prevSegment &&
+					(prevSegment.type === 'Q' || prevSegment.type === 'T')
+				) {
+					prevControlX = cpX as number;
+					prevControlY = cpY as number;
 				} else {
 					prevControlX = x;
 					prevControlY = y;
