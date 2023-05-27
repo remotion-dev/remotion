@@ -36,5 +36,9 @@ test("Go package should create the same payload as normal Lambda package", async
     codec: "h264",
   });
 
-  expect(parsed).toEqual(nativeVersion);
+  expect(removeUndefined(parsed)).toEqual(removeUndefined(nativeVersion));
 });
+
+const removeUndefined = (data: unknown) => {
+  return JSON.parse(JSON.stringify(data));
+};
