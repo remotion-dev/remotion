@@ -71,6 +71,10 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
+### `4.0.0-alpha9`
+
+- Various polish for the Remotion Preview
+
 ### `4.0.0-alpha8`
 
 - Props editor polish
