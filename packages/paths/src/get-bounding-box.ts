@@ -90,7 +90,7 @@ function minmaxC(A: [number, number, number, number]): minMax {
 
 /**
  * @description Returns the bounding box of the given path, suitable for calculating the viewBox value that you need to pass to an SVG.
- * @param {string} d 
+ * @param {string} d
  * @see [Documentation](https://www.remotion.dev/docs/paths/get-bounding-box)
  */
 export const getBoundingBox = (d: string): BoundingBox => {
@@ -110,10 +110,35 @@ export const getBoundingBoxFromInstructions = (
 
 	let x = 0;
 	let y = 0;
+	let lastMoveX = 0;
+	let lastMoveY = 0;
 
 	for (const seg of instructions) {
 		switch (seg.type) {
-			case 'M':
+			case 'M': {
+				lastMoveX = seg.x;
+				lastMoveY = seg.y;
+				if (minX > seg.x) {
+					minX = seg.x;
+				}
+
+				if (minY > seg.y) {
+					minY = seg.y;
+				}
+
+				if (maxX < seg.x) {
+					maxX = seg.x;
+				}
+
+				if (maxY < seg.y) {
+					maxY = seg.y;
+				}
+
+				x = seg.x;
+				y = seg.y;
+				break;
+			}
+
 			case 'L': {
 				if (minX > seg.x) {
 					minX = seg.x;
@@ -188,6 +213,8 @@ export const getBoundingBoxFromInstructions = (
 			}
 
 			case 'Z':
+				x = lastMoveX;
+				y = lastMoveY;
 				break;
 
 			default:
