@@ -21,11 +21,19 @@ export const normalizeInstructions = (
 
 	let x = 0;
 	let y = 0;
-	const initialX = 0;
-	const initialY = 0;
+	let moveX = 0;
+	let moveY = 0;
 
 	for (let i = 0; i < instructions.length; i++) {
 		const instruction = instructions[i];
+		if (instruction.type === 'M') {
+			moveX = instruction.x;
+			moveY = instruction.y;
+		} else if (instruction.type === 'm') {
+			moveX += instruction.dx;
+			moveY += instruction.dy;
+		}
+
 		if (
 			instruction.type === 'A' ||
 			instruction.type === 'C' ||
@@ -145,8 +153,8 @@ export const normalizeInstructions = (
 
 		if (instruction.type === 'Z') {
 			normalized.push(instruction);
-			x = initialX;
-			y = initialY;
+			x = moveX;
+			y = moveY;
 			continue;
 		}
 
