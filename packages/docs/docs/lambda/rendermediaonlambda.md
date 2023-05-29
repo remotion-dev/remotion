@@ -116,7 +116,7 @@ _available from v3.2.40_
 
 Overrides default composition height.
 
-### `framesPerLambda`
+### `frameRange`
 
 Specify a single frame (a number) or a range of frames (a tuple [number, number]) to be rendered.
 
