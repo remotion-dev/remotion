@@ -83,3 +83,7 @@ Input props are data that can be passed to a render in order to parametrize the 
 In the [Remotion Preview](#remotion-preview), you can set [default props](/docs/composition#defaultprops) to serve as placeholder data for designing your video. If your input props don't override the default props, the default props will be used.
 
 In the [Remotion Player](#remotion-player), there are no default props, but you can pass [`inputProps`](/docs/player/player#inputprops) directly to the [`<Player>`](/docs/player).
+
+## Cloud Run Url
+
+For rendering on Cloud Run, this url is the address you use to access the service that performs the render. It is possible to make use of a custom domain, by visiting the console in GCP and navigating to Cloud Run.

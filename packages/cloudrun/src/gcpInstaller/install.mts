@@ -60,7 +60,7 @@ const start = async () => {
 		);
 		process.exit(1);
 	} else {
-		execSync(`echo "Billing is enabled for this ${projectID}\n"`, {
+		execSync(`echo "Billing is enabled for ${projectID}\n"`, {
 			stdio: 'inherit',
 		});
 	}
