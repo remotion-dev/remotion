@@ -135,7 +135,7 @@ Config.setChromiumOpenGlRenderer("swiftshader");
 Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumOpenGlRenderer()`.
 :::
 
-## `--user-agent` <AvailableFrom v="3.3.83"/>
+## `--user-agent`<AvailableFrom v="3.3.83"/>
 
 ### Via Node.JS APIs
 
