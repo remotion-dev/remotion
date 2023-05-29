@@ -1,16 +1,17 @@
 import React from "react";
 
-const FALLBACK_VERSION = "3.0.1";
+const FALLBACK_VERSION = "4.0.1";
 
 export const Prerelease: React.FC<{
   onlySnippet: boolean;
-}> = ({ onlySnippet }) => {
+  packageName: string;
+}> = ({ onlySnippet, packageName = "@remotion/lambda" }) => {
   const version =
     typeof URLSearchParams === "undefined"
       ? FALLBACK_VERSION
       : typeof window === "undefined"
-      ? FALLBACK_VERSION
-      : new URLSearchParams(window.location.search).get("version") ??
+        ? FALLBACK_VERSION
+        : new URLSearchParams(window.location.search).get("version") ??
         FALLBACK_VERSION;
   return (
     <div>
@@ -32,13 +33,13 @@ export const Prerelease: React.FC<{
         {[
           "@remotion/bundler",
           "@remotion/renderer",
-          "@remotion/lambda",
+          packageName,
           "remotion",
         ].map((r) => {
           return (
             <div key={r}>
               <span style={{ color: "#e13238" }}>
-                - &quot;{r}&quot;: &quot;{"3.0.0"}&quot;
+                - &quot;{r}&quot;: &quot;{"4.0.0"}&quot;
               </span>
               {"\n"}
               <span style={{ color: "#009400" }}>

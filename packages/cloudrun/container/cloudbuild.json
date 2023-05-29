@@ -20,5 +20,7 @@
       ]
     }
   ],
-  "images": ["us-docker.pkg.dev/remotion-dev/cloud-run/render:3.3.96"]
+  "images": [
+    "us-docker.pkg.dev/remotion-dev/cloud-run/render:3.3.96"
+  ]
 }
