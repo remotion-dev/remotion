@@ -161,7 +161,7 @@ In Debian (and also Alpine), old packages are removed from the repositories once
 
 ## Notes for older versions
 
-- If you are on Remotion `v4.0.0` or lower, add `ffmpeg` to the list of packages to install:
+- If you are on a lower version than `v4.0.0`, add `ffmpeg` to the list of packages to install:
 
   ```docker
   RUN apt-get install -y nodejs ffmpeg npm chromium
@@ -175,7 +175,7 @@ In Debian (and also Alpine), old packages are removed from the repositories once
 
 ## Recommendation: Don't use Alpine Linux
 
-Alpine Linux is a lightweight distribution often used in Docker. There are two drawbacks for using it in Remotion:
+Alpine Linux is a lightweight distribution often used in Docker. There are two known issues with it when used in conjunction with Remotion:
 
 - The launch of the Rust parts of Remotion may be very slow (>10sec slowdown per render)
 - If a new version of Chrome gets released in the registry, you might be unable to downgrade because old versions are not kept and breaking changes can not be ruled out.
