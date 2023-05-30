@@ -366,22 +366,33 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Techniques",
+      label: "Designing videos",
       items: [
         "transforms",
         "assets",
-        "data-fetching",
-        {
-          type: "category",
-          label: "Parametrized videos",
-          items: ["parametrized-rendering", "schemas", "props-resolution"],
-        },
         "use-img-and-iframe",
         "using-audio",
         "fonts",
         "using-randomness",
         "audio-visualization",
         "noise-visualization",
+      ],
+    },
+    {
+      type: "category",
+      label: "Parametrized videos",
+      items: [
+        "parametrized-rendering",
+        "schemas",
+        "visual-editing",
+        "props-resolution",
+      ],
+    },
+    {
+      type: "category",
+      label: "How To",
+      items: [
+        "data-fetching",
         "encoding",
         "transparent-videos",
         "dynamic-metadata",
@@ -399,6 +410,7 @@ module.exports = {
         "javascript",
       ],
     },
+
     {
       type: "category",
       link: {
