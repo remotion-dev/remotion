@@ -329,6 +329,9 @@ importers:
       '@google-cloud/functions-framework':
         specifier: ^3.1.3
         version: 3.1.3
+      '@google-cloud/resource-manager':
+        specifier: ^4.3.0
+        version: 4.3.0
       '@google-cloud/run':
         specifier: ^0.4.0
         version: 0.4.0
@@ -7695,6 +7698,16 @@ packages:
   /@google-cloud/promisify@3.0.1:
     resolution: {integrity: sha512-z1CjRjtQyBOYL+5Qr9DdYIfrdLBe746jRTYfaYU6MeXkqp7UfYs/jX16lFFVzZ7PGEJvqZNqYUEtb1mvDww4pA==}
     engines: {node: '>=12'}
+    dev: false
+
+  /@google-cloud/resource-manager@4.3.0:
+    resolution: {integrity: sha512-7koRyrEv2yAeWk1P5ADnLzMIwPCGui7daI615dj3vx7nGJK+D9kZ3DqvgBTHI/r8LUOwnOWMVYemtTUSy+ei5Q==}
+    engines: {node: '>=12.0.0'}
+    dependencies:
+      google-gax: 3.6.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
     dev: false
 
   /@google-cloud/run@0.4.0:
