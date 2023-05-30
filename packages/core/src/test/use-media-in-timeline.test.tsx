@@ -4,8 +4,8 @@
 import type {RefObject} from 'react';
 import React from 'react';
 import {afterAll, beforeAll, expect, test, vitest} from 'vitest';
-import type {CompositionManagerContext} from '../CompositionManager.js';
-import {CompositionManager} from '../CompositionManager.js';
+import type {CompositionManagerContext} from '../CompositionManagerContext.js';
+import {CompositionManager} from '../CompositionManagerContext.js';
 import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import * as useVideoConfigModule from '../use-video-config.js';

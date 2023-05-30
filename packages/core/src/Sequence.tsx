@@ -7,7 +7,7 @@ import React, {
 } from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay} from './CompositionManager.js';
-import {CompositionManager} from './CompositionManager.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import {useRemotionEnvironment} from './get-environment.js';
 import {getTimelineClipName} from './get-timeline-clip-name.js';
 import {useNonce} from './nonce.js';

@@ -8,13 +8,14 @@ import {
 } from './CanUseRemotionHooks.js';
 import type {CompProps} from './Composition.js';
 import type {
-	CompositionManagerContext,
 	TAsset,
 	TCompMetadata,
 	TComposition,
 	TSequence,
 } from './CompositionManager.js';
-import {CompositionManager, compositionsRef} from './CompositionManager.js';
+import {compositionsRef} from './CompositionManager.js';
+import type {CompositionManagerContext} from './CompositionManagerContext.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render.js';
 import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
