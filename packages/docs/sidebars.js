@@ -374,7 +374,7 @@ module.exports = {
         {
           type: "category",
           label: "Parametrized videos",
-          items: ["parametrized-rendering", "props-resolution"],
+          items: ["parametrized-rendering", "schemas", "props-resolution"],
         },
         "use-img-and-iframe",
         "using-audio",
@@ -385,7 +385,6 @@ module.exports = {
         "encoding",
         "transparent-videos",
         "dynamic-metadata",
-        "dynamic-metadata-v2",
         "ssr",
         "webpack",
         "tailwind",
