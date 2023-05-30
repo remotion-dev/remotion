@@ -1,5 +1,5 @@
 import type {SetStateAction} from 'react';
-import React, {useCallback, useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {INPUT_BORDER_COLOR_UNHOVERED} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -11,6 +11,7 @@ import {MAX_MENU_WIDTH, MENU_VERTICAL_PADDING} from '../Menu/styles';
 import type {ComboboxValue} from './ComboBox';
 
 const BORDER_SIZE = 1;
+
 const container: React.CSSProperties = {
 	paddingTop: MENU_VERTICAL_PADDING,
 	paddingBottom: MENU_VERTICAL_PADDING,
@@ -20,7 +21,6 @@ const container: React.CSSProperties = {
 	overflowX: 'hidden',
 	minWidth: 200,
 	maxWidth: MAX_MENU_WIDTH,
-	maxHeight: 600,
 };
 
 export const MenuContent: React.FC<{
@@ -31,6 +31,7 @@ export const MenuContent: React.FC<{
 	leaveLeftSpace: boolean;
 	preselectIndex: false | number;
 	topItemCanBeUnselected: boolean;
+	fixedHeight: number | null;
 }> = ({
 	onHide,
 	values,
@@ -39,6 +40,7 @@ export const MenuContent: React.FC<{
 	onPreviousMenu,
 	leaveLeftSpace,
 	topItemCanBeUnselected,
+	fixedHeight,
 }) => {
 	const keybindings = useKeybinding();
 	const containerRef = useRef<HTMLDivElement>(null);
@@ -154,6 +156,17 @@ export const MenuContent: React.FC<{
 
 		setSubMenuActivated('without-mouse');
 	}, [onNextMenu, selectedItem, values]);
+
+	const containerWithHeight: React.CSSProperties = useMemo(() => {
+		if (fixedHeight === null) {
+			return {...container, maxHeight: 600};
+		}
+
+		return {
+			...container,
+			maxHeight: fixedHeight,
+		};
+	}, [fixedHeight]);
 
 	useEffect(() => {
 		const escapeBinding = keybindings.registerKeybinding({
@@ -278,7 +291,7 @@ export const MenuContent: React.FC<{
 	return (
 		<div
 			ref={containerRef}
-			style={container}
+			style={containerWithHeight}
 			className={VERTICAL_SCROLLBAR_CLASSNAME}
 		>
 			{values.map((item) => {

@@ -6,6 +6,7 @@ import type {ZodTypeAny} from 'zod';
 import {labelProResProfile} from '../../helpers/prores-labels';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkmark} from '../../icons/Checkmark';
+import {Spacing} from '../layout';
 import type {ComboboxValue} from '../NewComposition/ComboBox';
 import {Combobox} from '../NewComposition/ComboBox';
 import {InputDragger} from '../NewComposition/InputDragger';
@@ -140,6 +141,7 @@ export const RenderModalBasic: React.FC<{
 				<div style={optionRow}>
 					<div style={label}>
 						Codec
+						<Spacing x={0.5} />
 						<InfoBubble title="Learn more about this option">
 							<OptionExplainer
 								option={BrowserSafeApis.options.videoCodecOption}

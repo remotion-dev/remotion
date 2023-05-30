@@ -14,7 +14,7 @@ export const deserializeInputProps = async ({
 	region: AwsRegion;
 	bucketName: string;
 	expectedBucketOwner: string;
-}): Promise<object> => {
+}): Promise<Record<string, unknown>> => {
 	if (serialized.type === 'payload') {
 		return JSON.parse(serialized.payload as string);
 	}

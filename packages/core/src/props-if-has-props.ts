@@ -1,9 +1,19 @@
-import type {z} from 'zod';
+import type {AnyZodObject, z} from 'zod';
 
 export type PropsIfHasProps<
-	Schema extends z.ZodTypeAny,
-	Props
-> = unknown extends RenamePropsIfHasProps<Schema, Props>
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown> | undefined
+> = AnyZodObject extends Schema
+	? {} extends Props
+		? {
+				// Neither props nor schema specified
+				defaultProps?: Props;
+		  }
+		: {
+				// Only props specified
+				defaultProps: Props;
+		  }
+	: {} extends Props
 	? {
 			defaultProps?: RenamePropsIfHasProps<Schema, Props>;
 	  }

@@ -106,7 +106,7 @@ export const renderVideoFlow = async ({
 	indent: boolean;
 	shouldOutputImageSequence: boolean;
 	publicDir: string | null;
-	inputProps: object;
+	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string>;
 	puppeteerTimeout: number;
 	port: number | null;

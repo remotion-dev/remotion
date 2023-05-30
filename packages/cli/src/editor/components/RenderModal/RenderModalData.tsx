@@ -49,7 +49,7 @@ type AllCompStates = {
 export type State =
 	| {
 			str: string;
-			value: unknown;
+			value: Record<string, unknown>;
 			validJSON: true;
 	  }
 	| {
@@ -125,8 +125,8 @@ const setPersistedShowWarningState = (val: boolean) => {
 
 export const RenderModalData: React.FC<{
 	unresolvedComposition: AnyComposition;
-	inputProps: unknown;
-	setInputProps: React.Dispatch<React.SetStateAction<unknown>>;
+	inputProps: Record<string, unknown>;
+	setInputProps: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	compact: boolean;
 	mayShowSaveButton: boolean;
 	propsEditType: PropsEditType;
@@ -151,7 +151,7 @@ export const RenderModalData: React.FC<{
 			return null;
 		}
 
-		const value = inputProps ?? {};
+		const value = inputProps;
 		return serializeJSONWithDate({
 			data: value,
 			indent: 2,
@@ -172,8 +172,8 @@ export const RenderModalData: React.FC<{
 			return 'no-zod' as const;
 		}
 
-		if (!unresolvedComposition.schema) {
-			return z.any();
+		if (!composition.schema) {
+			return z.object({});
 		}
 
 		if (!(typeof unresolvedComposition.schema.safeParse === 'function')) {
@@ -285,8 +285,14 @@ export const RenderModalData: React.FC<{
 			unresolvedComposition.id,
 			inputProps,
 			extractEnumJsonPaths(schema, z, [])
-		);
-	}, [unresolvedComposition.id, inputProps, schema, z]);
+		).then((response) => {
+			if (!response.success) {
+				sendErrorNotification(
+					'Cannot update default props: ' + response.reason
+				);
+			}
+		});
+	}, [composition.id, inputProps, schema, z]);
 
 	useEffect(() => {
 		setSaving(false);
@@ -304,10 +310,19 @@ export const RenderModalData: React.FC<{
 				unresolvedComposition.id,
 				updater(unresolvedComposition.defaultProps),
 				extractEnumJsonPaths(schema, z, [])
-			).catch((err) => {
-				sendErrorNotification(`Cannot update default props: ${err.message}`);
-				setSaving(false);
-			});
+			)
+				.then((response) => {
+					if (!response.success) {
+						console.log(response.stack);
+						sendErrorNotification(
+							`Cannot update default props: ${response.reason}. See console for more information.`
+						);
+					}
+				})
+				.catch((err) => {
+					sendErrorNotification(`Cannot update default props: ${err.message}`);
+					setSaving(false);
+				});
 		},
 		[unresolvedComposition.defaultProps, unresolvedComposition.id, schema, z]
 	);

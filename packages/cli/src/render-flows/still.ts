@@ -71,7 +71,7 @@ export const renderStillFlow = async ({
 	fullEntryPoint: string;
 	entryPointReason: string;
 	remainingArgs: string[];
-	inputProps: object;
+	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string>;
 	jpegQuality: number | undefined;
 	browser: Browser;

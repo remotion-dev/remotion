@@ -39,7 +39,7 @@ import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 
 import type {ZodTypeAny} from 'zod';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Spacing} from '../layout';
@@ -168,7 +168,7 @@ const icon: React.CSSProperties = {
 };
 
 const buttonStyle: React.CSSProperties = {
-	backgroundColor: 'var(--blue)',
+	backgroundColor: BLUE,
 	color: 'white',
 };
 
@@ -212,7 +212,7 @@ type RenderModalProps = {
 	initialGl: OpenGlRenderer | null;
 	initialIgnoreCertificateErrors: boolean;
 	initialHeadless: boolean;
-	defaultProps: unknown;
+	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
 };
@@ -437,6 +437,10 @@ const RenderModal: React.FC<
 
 	const enforceAudioTrack = useMemo(() => {
 		if (renderMode === 'video') {
+			return enforceAudioTrackState;
+		}
+
+		if (renderMode === 'audio') {
 			return enforceAudioTrackState;
 		}
 

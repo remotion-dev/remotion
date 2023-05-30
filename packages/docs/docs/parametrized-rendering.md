@@ -72,7 +72,7 @@ export const Root: React.FC = () => {
 
 Default props are useful so you don't preview your video with no data. Default props will overriden by input props.
 
-## Define a schema <AvailableFrom v="4.0.0"/>
+## Define a schema<AvailableFrom v="4.0.0"/>
 
 You can use [Zod](https://github.com/colinhacks/zod) to define a typesafe schema for your composition.
 
@@ -187,9 +187,17 @@ export const RemotionRoot: React.FC = () => {
 
 If you define a schema, you will be able to visually manipulate the props in the Remotion Preview and render a parametrized video by filling out a form.
 
+:::note
+The schema must use an object `{}` as the top-level type because React props are passed as an object.
+:::
+
 ## Input props
 
-Input props are props that are passed in externally while rendering that can replace or override the default props
+Input props are props that are passed in externally while rendering that can replace or override the default props.
+
+:::note
+Input props must be an object and serializable.
+:::
 
 ### Passing input props in the CLI
 

@@ -75,19 +75,19 @@ _optional_
 
 Either `"absolute-fill"` _(default)_ or `"none"` By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`.
 
-### `style` <AvailableFrom v="3.3.4"/>
+### `style`<AvailableFrom v="3.3.4"/>
 
 _optional_
 
 CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
-### `className` <AvailableFrom v="3.3.45"/>
+### `className`<AvailableFrom v="3.3.45"/>
 
 _optional_
 
 A class name to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
-### `ref` <AvailableFrom v="3.3.4" />
+### `ref`<AvailableFrom v="3.3.4" />
 
 _optional_
 

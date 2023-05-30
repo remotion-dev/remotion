@@ -3,6 +3,7 @@ import React from "react";
 const link: React.CSSProperties = {
   textDecoration: "none",
   fontSize: 16,
+  marginLeft: 8,
 };
 
 const label: React.CSSProperties = {

@@ -28,20 +28,29 @@ const PropsEditor: React.FC<{
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
 
 	const setInputProps = useCallback(
-		(newProps: unknown | ((oldProps: unknown) => unknown)) => {
+		(
+			newProps:
+				| Record<string, unknown>
+				| ((oldProps: Record<string, unknown>) => Record<string, unknown>)
+		) => {
 			updateProps({
 				id: composition.id,
-				defaultProps: composition.defaultProps as object,
-				newProps: newProps as object,
+				defaultProps: composition.defaultProps as Record<string, unknown>,
+				newProps,
 			});
 		},
 		[composition.defaultProps, composition.id, updateProps]
 	);
 
+	const actualProps = useMemo(
+		() => props[composition.id] ?? composition.defaultProps ?? {},
+		[composition.defaultProps, composition.id, props]
+	);
+
 	return (
 		<RenderModalData
 			unresolvedComposition={composition}
-			inputProps={props[composition.id] ?? composition.defaultProps}
+			inputProps={actualProps}
 			setInputProps={setInputProps}
 			compact
 			mayShowSaveButton

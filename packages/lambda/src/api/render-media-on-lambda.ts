@@ -14,14 +14,14 @@ import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchStreamUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
-import {makeLambdaPayload} from './make-lambda-payload';
+import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 
 export type RenderMediaOnLambdaInput = {
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
 	composition: string;
-	inputProps?: unknown;
+	inputProps?: Record<string, unknown>;
 	codec: LambdaCodec;
 	imageFormat?: VideoImageFormat;
 	crf?: number | undefined;
@@ -99,7 +99,7 @@ export const renderMediaOnLambda = async (
 		const res = await callLambda({
 			functionName,
 			type: LambdaRoutines.start,
-			payload: await makeLambdaPayload(input),
+			payload: await makeLambdaRenderMediaPayload(input),
 			region,
 		});
 		return {

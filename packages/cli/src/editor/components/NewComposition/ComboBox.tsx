@@ -144,13 +144,32 @@ export const Combobox: React.FC<{
 		};
 	}, [refresh]);
 
+	const spaceToBottom = useMemo(() => {
+		const margin = 10;
+		if (size && opened) {
+			return size.windowSize.height - (size.top + size.height) - margin;
+		}
+
+		return 0;
+	}, [opened, size]);
+
+	const spaceToTop = useMemo(() => {
+		const margin = 10;
+		if (size && opened) {
+			return size.top - margin;
+		}
+
+		return 0;
+	}, [opened, size]);
+
+	const derivedMaxHeight = useMemo(() => {
+		return spaceToTop > spaceToBottom ? spaceToTop : spaceToBottom;
+	}, [spaceToBottom, spaceToTop]);
+
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!opened || !size) {
 			return null;
 		}
-
-		const spaceToBottom = size.windowSize.height - (size.top + size.height);
-		const spaceToTop = size.top;
 
 		const spaceToRight = size.windowSize.width - (size.left + size.width);
 
@@ -178,7 +197,7 @@ export const Combobox: React.FC<{
 						right: size.windowSize.width - size.left - size.width,
 				  }),
 		};
-	}, [opened, size]);
+	}, [opened, size, spaceToBottom, spaceToTop]);
 
 	const selected = values.find((v) => v.id === selectedId) as
 		| SelectionItem
@@ -239,6 +258,7 @@ export const Combobox: React.FC<{
 												(v) => selected && v.id === selected.id
 											)}
 											topItemCanBeUnselected={false}
+											fixedHeight={derivedMaxHeight}
 										/>
 									</div>
 								</HigherZIndex>

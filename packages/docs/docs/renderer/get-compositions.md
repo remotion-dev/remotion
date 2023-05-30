@@ -38,17 +38,17 @@ _optional_
 
 Define custom props that can be retrieved using [`getInputProps()`](/docs/get-input-props) at runtime. Useful for [setting a dynamic duration or dimensions](/docs/dynamic-metadata) for your video.
 
-#### `puppeteerInstance?` <AvailableFrom v="3.0.0" />
+#### `puppeteerInstance?`<AvailableFrom v="3.0.0" />
 
 _optional_
 
 An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
-#### `browserExecutable?` <AvailableFrom v="2.3.1" />
+#### `browserExecutable?`<AvailableFrom v="2.3.1" />
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
-#### `onBrowserLog?` <AvailableFrom v="3.0.0" />
+#### `onBrowserLog?`<AvailableFrom v="3.0.0" />
 
 _optional_
 
@@ -121,11 +121,11 @@ getCompositions({
 });
 ```
 
-#### `timeoutInMilliseconds?` <AvailableFrom v="2.6.3" />
+#### `timeoutInMilliseconds?`<AvailableFrom v="2.6.3" />
 
 A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails(/docs/timeout). Default: `30000`
 
-### `chromiumOptions?` <AvailableFrom v="2.6.5" />
+### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 
 _optional_
 
@@ -166,7 +166,7 @@ Accepted values:
 
 Default: `null`.
 
-#### `userAgent` <AvailableFrom v="3.3.83"/>
+#### `userAgent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
