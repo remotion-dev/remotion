@@ -32,7 +32,7 @@ To define which props your video accepts, give your component the `React.FC` typ
 
 ## Define default props
 
-When registering the component as a composition, you can define default props:
+When registering a component that takes props as a composition, you must define default props:
 
 ```tsx twoslash {14-17} title="src/Root.tsx"
 // organize-imports-ignore
@@ -71,7 +71,7 @@ export const Root: React.FC = () => {
 };
 ```
 
-Default props are useful so you don't preview your video with no data. Default props will overriden by input props.
+Default props are useful so you don't preview your video with no data. [Default props will overriden by input props](/docs/props-resolution).
 
 ## Define a schema<AvailableFrom v="4.0.0"/>
 
