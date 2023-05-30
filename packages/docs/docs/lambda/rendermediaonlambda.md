@@ -116,6 +116,10 @@ _available from v3.2.40_
 
 Overrides default composition height.
 
+### `frameRange`
+
+Specify range of frames (a tuple of type [number, number]) to be rendered. By default, the full video will be rendered. To render a single frame, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda)
+
 ### `forceWidth`
 
 _available from v3.2.40_
@@ -310,7 +314,7 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 
 If the `logLevel` is set to `verbose`, the `dumpBrowserLogs` flag will also be enabled.
 
-### `dumpBrowserLogs?` <AvailableFrom v="3.3.83" />
+### `dumpBrowserLogs?`<AvailableFrom v="3.3.83" />
 
 If set to true, all `console` statements from the headless browser will be forwarded to the CloudWatch logs.
 
