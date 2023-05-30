@@ -35,6 +35,10 @@ This only works on UNIX-based systems (Linux, macOS) and on WSL in Windows.
 You can create a script that fits you using the [Node.JS APIs](/docs/renderer). Below is an example
 
 ```ts twoslash title="render-all.mjs"
+// @module: esnext
+// @target: es2022
+// ---cut---
+
 import { bundle } from "@remotion/bundler";
 import { getCompositions, renderMedia } from "@remotion/renderer";
 import { createRequire } from "module";
