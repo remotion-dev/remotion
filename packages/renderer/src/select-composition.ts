@@ -52,7 +52,6 @@ const innerSelectComposition = async ({
 	port,
 	id,
 }: InnerSelectCompositionConfig): Promise<AnyCompMetadata> => {
-	console.log('gonna select');
 	if (onBrowserLog) {
 		page.on('console', (log) => {
 			onBrowserLog?.({
