@@ -14,8 +14,8 @@ import {
 } from 'vitest';
 import {AudioForRendering} from '../audio/AudioForRendering.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
-import type {CompositionManagerContext} from '../CompositionManager.js';
-import {CompositionManager} from '../CompositionManager.js';
+import type {CompositionManagerContext} from '../CompositionManagerContext.js';
+import {CompositionManager} from '../CompositionManagerContext.js';
 import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import {expectToThrow} from './expect-to-throw.js';
 

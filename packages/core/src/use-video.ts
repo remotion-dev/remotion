@@ -1,6 +1,6 @@
 import type {ComponentType, LazyExoticComponent} from 'react';
 import {useContext, useMemo} from 'react';
-import {CompositionManager} from './CompositionManager.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import type {VideoConfig} from './video-config.js';
 

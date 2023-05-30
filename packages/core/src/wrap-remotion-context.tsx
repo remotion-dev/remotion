@@ -4,7 +4,7 @@
 
 import React, {useMemo} from 'react';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
-import {CompositionManager} from './CompositionManager.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
 import {PreloadContext} from './prefetch-state.js';
