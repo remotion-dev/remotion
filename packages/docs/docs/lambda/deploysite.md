@@ -117,11 +117,11 @@ The directory in which the Remotion project is rooted in. This should be set to 
 The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
 :::
 
-#### `ignoreRegisterRootWarning?` <AvailableFrom v="3.3.55" />
+#### `ignoreRegisterRootWarning?`<AvailableFrom v="3.3.55" />
 
 Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
 
-#### `privacy?` <AvailableFrom v="3.3.97" />
+#### `privacy?`<AvailableFrom v="3.3.97" />
 
 Either `public` (default) or `no-acl` if you are not using ACL. Sites must have a public URL to be able to be rendered on Lambda, since the headless browser opens that URL.
 

@@ -152,6 +152,7 @@ class RenderParams
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
             'dumpBrowserLogs' => $this->getDumpBrowserLogs(),
+            'type' => 'start'
         ];
 
         if ($this->getCrf() !== null) {
