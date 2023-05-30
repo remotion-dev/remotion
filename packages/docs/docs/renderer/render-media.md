@@ -446,16 +446,6 @@ The return value is an object with the following properties:
 - `buffer`: If `outputLocation` is not specified or `null`, contains a buffer, otherwise `null`.
 - `slowestFrames`: An array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
 
-```ts twoslash
-import type { SlowFrame } from "@remotion/renderer";
-const slowestFrames: SlowFrame[] = [];
-// ---cut---
-console.log("The slowest 10 frames are:");
-for (const slowFrame of slowestFrames) {
-  console.log(`Frame ${slowFrame.frame} (${slowFrame.time}ms)`);
-}
-```
-
 _**from v3.0.26**:_
 
 If `outputLocation` is not specified or `null`, the return value is a Promise that resolves a `Buffer`. If an output location is specified, the return value is a Promise that resolves no value.
