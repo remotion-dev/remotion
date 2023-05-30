@@ -57,7 +57,7 @@ One of:
 The name of the deployed Lambda function.
 Use [`deployFunction()`](/docs/lambda/deployfunction) to create a new function and [`getFunctions()`](/docs/lambda/getfunctions) to obtain currently deployed Lambdas.
 
-### `framesPerLambda`
+### `framesPerLambda?`
 
 _optional_
 
@@ -98,6 +98,7 @@ See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
 ### `audioCodec?`
 
+_optional_
 _"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
 
 Choose the encoding of your audio.
@@ -110,23 +111,21 @@ Choose the encoding of your audio.
 
 Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
 
-### `forceHeight`
+### `forceHeight?`
 
-_available from v3.2.40_
+_optional, available from v3.2.40_
 
 Overrides default composition height.
 
-### `frameRange`
+### `forceWidth?`
 
-Specify range of frames (a tuple of type [number, number]) to be rendered. By default, the full video will be rendered. To render a single frame, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda)
-
-### `forceWidth`
-
-_available from v3.2.40_
+_optional, available from v3.2.40_
 
 Overrides default composition width.
 
-### `muted`
+### `muted?`
+
+_optional_
 
 Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).
 
@@ -136,19 +135,27 @@ _optional since v3.2.27_
 
 See [`renderMedia() -> imageFormat`](/docs/renderer/render-media#imageformat).
 
-### `crf`
+### `crf?`
+
+_optional_
 
 See [`renderMedia() -> crf`](/docs/renderer/render-media#crf).
 
-### `envVariables`
+### `envVariables?`
+
+_optional_
 
 See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
 
-### `pixelFormat`
+### `pixelFormat?`
+
+_optional_
 
 See [`renderMedia() -> pixelFormat`](/docs/renderer/render-media#pixelformat).
 
-### `proResProfile`
+### `proResProfile?`
+
+_optional_
 
 See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile).
 
@@ -156,11 +163,15 @@ See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile
 
 See [`renderMedia() -> quality`](/docs/renderer/render-media#quality).
 
-### `audioBitrate`
+### `audioBitrate?`
+
+_optional_
 
 See [`renderMedia() -> audioBitrate`](/docs/renderer/render-media#audiobitrate).
 
-### `videoBitrate`
+### `videoBitrate?`
+
+_optional_
 
 See [`renderMedia() -> videoBitrate`](/docs/renderer/render-media#videobitrate).
 
@@ -171,13 +182,13 @@ _optional since v3.2.27, default `1`_
 How often a chunk may be retried to render in case the render fails.
 If a rendering of a chunk is failed, the error will be reported in the [`getRenderProgress()`](/docs/lambda/getrenderprogress) object and retried up to as many times as you specify using this option.
 
-### `scale`
+### `scale?`
 
 _optional_
 
 Scales the output dimensions by a factor. See [Scaling](/docs/scaling) to learn more about this feature.
 
-### `outName`
+### `outName?`
 
 _optional_
 
@@ -298,15 +309,17 @@ const webhook: RenderMediaOnLambdaInput["webhook"] = {
 };
 ```
 
+[See here for detailed instructions on how to set up your webhook](/docs/lambda/webhooks).
+
 ### `forceBucketName?`
 
 _optional, available from v3.3.42_
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
-[See here for detailed instructions on how to set up your webhook](/docs/lambda/webhooks).
-
 ### `logLevel?`
+
+_optional_
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
 
@@ -314,7 +327,9 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 
 If the `logLevel` is set to `verbose`, the `dumpBrowserLogs` flag will also be enabled.
 
-### `dumpBrowserLogs?`<AvailableFrom v="3.3.83" />
+### `dumpBrowserLogs?`
+
+_optional, available from v3.3.83_
 
 If set to true, all `console` statements from the headless browser will be forwarded to the CloudWatch logs.
 
