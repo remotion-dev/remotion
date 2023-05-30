@@ -38,7 +38,7 @@ export const getCompositionWithDimensionOverride = async ({
 	serveUrlOrWebpackUrl: string;
 	indent: boolean;
 	verbose: boolean;
-	inputProps: object | null;
+	inputProps: Record<string, unknown> | null;
 }): Promise<{
 	compositionId: string;
 	reason: string;

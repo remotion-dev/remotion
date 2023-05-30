@@ -172,7 +172,7 @@ export const RenderModalData: React.FC<{
 			return 'no-zod' as const;
 		}
 
-		if (!composition.schema) {
+		if (!unresolvedComposition.schema) {
 			return z.object({});
 		}
 
@@ -292,7 +292,7 @@ export const RenderModalData: React.FC<{
 				);
 			}
 		});
-	}, [composition.id, inputProps, schema, z]);
+	}, [unresolvedComposition.id, inputProps, schema, z]);
 
 	useEffect(() => {
 		setSaving(false);

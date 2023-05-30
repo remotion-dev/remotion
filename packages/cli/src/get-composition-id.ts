@@ -52,7 +52,7 @@ export const getCompositionId = async ({
 }: {
 	args: string[];
 	compositionIdFromUi: string | null;
-	inputProps?: object | null;
+	inputProps?: Record<string, unknown> | null;
 	puppeteerInstance?: HeadlessBrowser;
 	envVariables?: Record<string, string>;
 	timeoutInMilliseconds?: number;

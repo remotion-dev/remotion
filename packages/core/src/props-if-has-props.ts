@@ -13,18 +13,15 @@ export type PropsIfHasProps<
 				// Only props specified
 				defaultProps: Props;
 		  }
-	: {} extends Props
-	? {
-			defaultProps?: RenamePropsIfHasProps<Schema, Props>;
-	  }
 	: {
+			// Only schema specified
 			defaultProps: RenamePropsIfHasProps<Schema, Props>;
 	  };
 
 export type RenamePropsIfHasProps<
-	Schema extends z.ZodTypeAny,
+	Schema extends AnyZodObject,
 	Props
-> = z.ZodTypeAny extends Schema
+> = AnyZodObject extends Schema
 	? {} extends Props
 		? // Neither props nor schema specified
 		  unknown
