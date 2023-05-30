@@ -414,17 +414,6 @@ Introduced in v3.2.29, removed from v4.0. `slowestFrames` has been moved to the 
 Callback function that gets called right before `renderMedia()` resolves.  
 The only argument `slowestFrames` is an array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
 
-```tsx twoslash
-import type { OnSlowestFrames } from "@remotion/renderer";
-
-const onSlowestFrames: OnSlowestFrames = (slowestFrames) => {
-  console.log("The slowest 10 frames are:");
-  for (const slowFrame of slowestFrames) {
-    console.log(`Frame ${slowFrame.frame} (${slowFrame.time}ms)`);
-  }
-};
-```
-
 ### ~~`ffmpegExecutable`~~
 
 _removed in v4.0, string, optional_

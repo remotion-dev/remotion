@@ -371,7 +371,11 @@ module.exports = {
         "transforms",
         "assets",
         "data-fetching",
-        "parametrized-rendering",
+        {
+          type: "category",
+          label: "Parametrized videos",
+          items: ["parametrized-rendering", "how-props-flow"],
+        },
         "use-img-and-iframe",
         "using-audio",
         "fonts",
