@@ -1,4 +1,4 @@
-import type {ZodTypeAny} from 'zod';
+import type {AnyZodObject} from 'zod';
 import type {TCompMetadataWithCalcFunction} from './CompositionManager.js';
 import {getInputProps} from './config/input-props.js';
 import {validateDimension} from './validation/validate-dimensions.js';
@@ -10,7 +10,10 @@ export const resolveVideoConfig = async ({
 	editorProps: editorPropsOrUndefined,
 	signal,
 }: {
-	composition: TCompMetadataWithCalcFunction<ZodTypeAny, unknown>;
+	composition: TCompMetadataWithCalcFunction<
+		AnyZodObject,
+		Record<string, unknown> | undefined
+	>;
 	editorProps: object;
 	signal: AbortSignal;
 }): Promise<VideoConfig> => {
@@ -18,7 +21,7 @@ export const resolveVideoConfig = async ({
 
 	const calculated = composition.calculateMetadata
 		? await composition.calculateMetadata({
-				defaultProps: composition.defaultProps,
+				defaultProps: composition.defaultProps ?? {},
 				props: {
 					...((composition.defaultProps ?? {}) as object),
 					...(editorPropsOrUndefined ?? {}),

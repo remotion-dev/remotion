@@ -16,7 +16,7 @@ import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type SelectCompositionsConfig = {
-	inputProps?: object | null;
+	inputProps?: Record<string, unknown> | null;
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -66,7 +66,7 @@ const innerSelectComposition = async ({
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	await setPropsAndEnv({
-		inputProps,
+		inputProps: inputProps ?? {},
 		envVariables,
 		page,
 		serveUrl,

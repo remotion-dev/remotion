@@ -2,7 +2,7 @@ import type {Codec, ProResProfile} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
 import type {TCompMetadata} from 'remotion';
-import type {ZodTypeAny} from 'zod';
+import type {AnyZodObject} from 'zod';
 import {labelProResProfile} from '../../helpers/prores-labels';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkmark} from '../../icons/Checkmark';
@@ -35,7 +35,10 @@ export const RenderModalBasic: React.FC<{
 	setProResProfile: React.Dispatch<React.SetStateAction<ProResProfile>>;
 	frame: number;
 	setFrame: React.Dispatch<React.SetStateAction<number>>;
-	resolvedComposition: TCompMetadata<ZodTypeAny, unknown>;
+	resolvedComposition: TCompMetadata<
+		AnyZodObject,
+		Record<string, unknown> | undefined
+	>;
 	setOutName: (value: React.SetStateAction<string>) => void;
 	setEndFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	startFrame: number;

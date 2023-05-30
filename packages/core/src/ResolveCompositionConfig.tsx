@@ -10,6 +10,7 @@ import {
 	useState,
 } from 'react';
 import type {AnyComposition} from './CompositionManager.js';
+// TODO: Cicular dependency
 import {CompositionManager} from './CompositionManager.js';
 import {EditorPropsContext} from './EditorProps.js';
 import {resolveVideoConfig} from './resolve-video-config.js';

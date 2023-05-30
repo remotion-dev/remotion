@@ -21,7 +21,7 @@ beforeAll(() => {
 			fps: 30,
 			durationInFrames: 100,
 			id: 'hithere',
-			defaultProps: () => ({}),
+			defaultProps: {},
 		}));
 });
 afterAll(() => {
