@@ -1,16 +1,13 @@
 import {CliInternals} from '@remotion/cli';
 import {displayServiceInfo} from '.';
 import {getServices} from '../../../api/get-services';
-import {parsedCloudrunCli} from '../../args';
 import {getGcpRegion} from '../../get-gcp-region';
 import {Log} from '../../log';
 
 export const SERVICES_LS_SUBCOMMAND = 'ls';
 
 export const servicesLsCommand = async () => {
-	const allRegions = parsedCloudrunCli['all-regions'];
-
-	const region = allRegions ? 'all regions' : getGcpRegion();
+	const region = getGcpRegion();
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
 		cancelSignal: null,

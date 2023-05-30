@@ -110,47 +110,6 @@ GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion
 
 The [GCP region](/docs/cloudrun/region-selection) to list services from.
 
-### `--all-regions`,
-
-Ignores region, returning services across all regions for the project.
-
-```
-npx remotion cloudrun services ls --all-regions
-```
-
-<details>
-<summary>
-Example output
-</summary>
-<pre>
-3 services in all regions<br/><br/>
-Service name:      remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
-Version:           3.3.82<br/>
-CPU Limit:         1.0<br/>
-Memory Limit:      512Mi<br/>
-Timeout:           800sec<br/>
-Region:            us-central1<br/>
-Service URL:       https://remotion--3-3-82--mem512mi--cpu1-0--t-800-1a2b3c4d5e-uc.a.run.app<br/>
-GCP Console URL:   https://console.cloud.google.com/run/detail/us-central1/remotion--3-3-82--mem512mi--cpu1-0--t-800/logs<br/><br/>
-Service name:      remotion--3-3-95--mem512mi--cpu2--t-1200<br/>
-Version:           3.3.95<br/>
-CPU Limit:         2<br/>
-Memory Limit:      512Mi<br/>
-Timeout:           1200sec<br/>
-Region:            us-east1<br/>
-Service URL:       https://remotion--3-3-95--mem512mi--cpu2--t-1200-1a2b3c4d5e-ue.a.run.app<br/>
-GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-95--mem512mi--cpu2--t-1200/logs<br/><br/>
-Service name:      remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
-Version:           3.3.82<br/>
-CPU Limit:         1.0<br/>
-Memory Limit:      512Mi<br/>
-Timeout:           800sec<br/>
-Region:            us-east1<br/>
-Service URL:       https://remotion--3-3-82--mem512mi--cpu1-0--t-800-1a2b3c4d5e-ue.a.run.app<br/>
-GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-800/logs
-</pre>
-</details>
-
 ### `--quiet`, `-q`
 
 Prints only the service names in a space-separated list. If no services exist, prints `()`
@@ -188,10 +147,6 @@ Deleted!
 
 The [GCP region](/docs/cloudrun/region-selection) to select.
 
-:::note
-The `rm` command does not support the --all-regions flag, as it is possible to have the same service name in multiple regions. This makes it difficult to remove multiple service names from multiple regions.
-:::
-
 ### `--yes`, `-y`
 
 Skips confirmation.
@@ -202,7 +157,7 @@ Skips confirmation.
 npx remotion cloudrun services rmall
 ```
 
-Removes all services from your GCP project for a certain region (or all regions if the --all-regions flag is passed).
+Removes all services from your GCP project for a certain region.
 
 <details>
 <summary>
@@ -236,52 +191,6 @@ Skipping service - remotion--3-3-82--mem512mi--cpu1-0--t-800.<br/>
 ### `--region`
 
 The [GCP region](/docs/cloudrun/region-selection) to remove services from.
-
-### `--all-regions`,
-
-Ignores region, removing services across all regions for the project.
-
-```
-npx remotion cloudrun services rmall --all-regions
-```
-
-<details>
-<summary>
-Example output
-</summary>
-<pre>
-3 services in all regions<br/><br/>
-Service name:      remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
-Version:           3.3.82<br/>
-CPU Limit:         1.0<br/>
-Memory Limit:      512Mi<br/>
-Timeout:           800sec<br/>
-Region:            us-central1<br/>
-Service URL:       https://remotion--3-3-82--mem512mi--cpu1-0--t-800-1a2b3c4d5e-ue.a.run.app<br/>
-GCP Console URL:   https://console.cloud.google.com/run/detail/us-central1/remotion--3-3-82--mem512mi--cpu1-0--t-800/logs<br/><br/>
-Delete? (Y/n) n<br/>
-Service name:      remotion--3-3-95--mem512mi--cpu2--t-1200<br/>
-Version:           3.3.95<br/>
-CPU Limit:         2<br/>
-Memory Limit:      512Mi<br/>
-Timeout:           1200sec<br/>
-Region:            us-east1<br/>
-Service URL:       https://remotion--3-3-95--mem512mi--cpu2--t-1200-1a2b3c4d5e-ue.a.run.app<br/>
-GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-95--mem512mi--cpu2--t-1200/logs<br/><br/>
-Delete? (Y/n) n<br/>
-Skipping service - remotion--3-3-95--mem512mi--cpu2--t-1200.<br/><br/>
-Service name:      remotion--3-3-82--mem512mi--cpu1-0--t-800<br/>
-Version:           3.3.82<br/>
-CPU Limit:         1.0<br/>
-Memory Limit:      512Mi<br/>
-Timeout:           800sec<br/>
-Region:            us-east1<br/>
-Service URL:       https://remotion--3-3-82--mem512mi--cpu1-0--t-800-1a2b3c4d5e-ue.a.run.app<br/>
-GCP Console URL:   https://console.cloud.google.com/run/detail/us-east1/remotion--3-3-82--mem512mi--cpu1-0--t-800/logs<br/><br/>
-Delete? (Y/n) n<br/>
-Skipping service - remotion--3-3-82--mem512mi--cpu1-0--t-800.<br/>
-</pre>
-</details>
 
 ### `--yes`, `-y`
 

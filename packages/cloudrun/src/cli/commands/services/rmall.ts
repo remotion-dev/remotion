@@ -1,7 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {deleteService} from '../../../api/delete-service';
 import {getServices} from '../../../api/get-services';
-import {parsedCloudrunCli} from '../../args';
 import {getGcpRegion} from '../../get-gcp-region';
 import {confirmCli} from '../../helpers/confirm';
 import {Log} from '../../log';
@@ -10,9 +9,7 @@ import {displayServiceInfo} from './index';
 export const SERVICES_RMALL_SUBCOMMAND = 'rmall';
 
 export const servicesRmallCommand = async () => {
-	const allRegions = parsedCloudrunCli['all-regions'];
-
-	const region = allRegions ? 'all regions' : getGcpRegion();
+	const region = getGcpRegion();
 
 	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
 		quiet: CliInternals.quietFlagProvided(),
