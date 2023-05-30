@@ -135,7 +135,7 @@ A string defining the absolute path on disk of the browser executable that shoul
 
 _optional_
 
-Gets called when your project calls `console.log` or another method from console. See the documentation for [`renderFrames`](/docs/renderer/render-frames#onbrowserlog-) for more information.
+Gets called when your project calls `console.log` or another method from console. See the documentation for [`renderFrames`](/docs/renderer/render-frames#onbrowserlog) for more information.
 
 ### `timeoutInMilliseconds?`<AvailableFrom v="2.6.3" />
 

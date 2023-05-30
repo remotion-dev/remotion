@@ -139,7 +139,7 @@ Prior to `v3.3.39`, the option was called `Config.Puppeteer.setChromiumOpenGlRen
 
 ### Via Node.JS APIs
 
-In [`getCompositions()`](/docs/renderer/get-compositions#useragent-), [`renderStill()`](/docs/renderer/render-still#useragent-), [`renderMedia()`](/docs/renderer/render-media#useragent-), [`renderFrames()`](/docs/renderer/render-frames#useragent-), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#useragent-), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#useragent-) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#useragent-), you can pass [`chromiumOptions.userAgent`](/docs/renderer/render-still#useragent-).
+In [`getCompositions()`](/docs/renderer/get-compositions#useragent), [`renderStill()`](/docs/renderer/render-still#useragent), [`renderMedia()`](/docs/renderer/render-media#useragent), [`renderFrames()`](/docs/renderer/render-frames#useragent), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda#useragent), [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#useragent) and [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#chromiumoptions), you can pass [`chromiumOptions.userAgent`](/docs/renderer/render-still#useragent).
 
 ### Via CLI flag
 
