@@ -385,6 +385,7 @@ module.exports = {
         "parametrized-rendering",
         "schemas",
         "visual-editing",
+        "data-fetching",
         "props-resolution",
       ],
     },
@@ -392,7 +393,6 @@ module.exports = {
       type: "category",
       label: "How To",
       items: [
-        "data-fetching",
         "encoding",
         "transparent-videos",
         "dynamic-metadata",
