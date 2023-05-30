@@ -70,7 +70,7 @@ export const renderMediaSingleThread = async (
 	const uploadedResponse = await storage
 		.bucket(body.outputBucket)
 		.upload(tempFilePath, {
-			destination: `renders/${renderId}/${body.outputFile ?? 'out.mp4'}`,
+			destination: `renders/${renderId}/${body.outName ?? 'out.mp4'}`,
 			predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
 		});
 
@@ -78,7 +78,7 @@ export const renderMediaSingleThread = async (
 	const renderMetadata = await uploadedFile.getMetadata();
 	const responseData: RenderMediaOnCloudrunOutput = {
 		status: 'success',
-		publicUrl: uploadedFile.publicUrl(),
+		publicUrl: publicUpload ? uploadedFile.publicUrl() : null,
 		cloudStorageUri: uploadedFile.cloudStorageURI.href,
 		size: renderMetadata[0].size,
 		bucketName: body.outputBucket,

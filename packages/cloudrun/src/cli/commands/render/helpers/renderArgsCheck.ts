@@ -64,14 +64,10 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 	const privacy = parsedCloudrunCli.privacy ?? DEFAULT_OUTPUT_PRIVACY;
 	validatePrivacy(privacy);
 
-	let outputBucket = parsedCloudrunCli['output-bucket'];
-	if (!outputBucket) {
-		if (!remotionBucket) {
-			remotionBucket = (await getOrCreateBucket({region})).bucketName;
-		}
-
-		outputBucket = remotionBucket;
-	}
+	const forceBucketName =
+		parsedCloudrunCli['force-bucket-name'] ??
+		remotionBucket ??
+		(await getOrCreateBucket({region})).bucketName;
 
 	let cloudRunUrl = parsedCloudrunCli['cloud-run-url'];
 	let serviceName = parsedCloudrunCli['service-name'];
@@ -108,8 +104,9 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 		cloudRunUrl,
 		composition,
 		outName,
-		outputBucket,
+		forceBucketName,
 		privacy,
 		downloadName,
+		region,
 	};
 };

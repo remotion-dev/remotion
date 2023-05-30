@@ -3,27 +3,29 @@ import type {
 	CloudRunPayloadType,
 	RenderMediaOnCloudrunOutput,
 } from '../functions/helpers/payloads';
+import type {GcpRegion} from '../pricing/gcp-regions';
 import type {CloudrunCodec} from '../shared/validate-gcp-codec';
 import {validateCloudrunCodec} from '../shared/validate-gcp-codec';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {validateServeUrl} from '../shared/validate-serveurl';
+import {getOrCreateBucket} from './get-or-create-bucket';
 import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
 import {getCloudrunEndpoint} from './helpers/get-cloudrun-endpoint';
 
 export type RenderMediaOnCloudrunInput = {
 	cloudRunUrl?: string;
 	serviceName?: string;
-	region?: string;
+	region: GcpRegion;
 	serveUrl: string;
 	composition: string;
 	inputProps?: unknown;
-	codec: CloudrunCodec;
 	privacy?: 'public' | 'private';
-	outputBucket: string;
-	outputFile?: string;
+	forceBucketName?: string;
+	outName?: string;
 	updateRenderProgress?: (progress: number) => void;
-	jpegQuality?: number;
+	codec: CloudrunCodec;
 	audioCodec?: 'mp3' | 'aac' | 'pcm-16' | 'opus';
+	jpegQuality?: number;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
 	proResProfile?:
@@ -67,7 +69,7 @@ export type RenderMediaOnCloudrunInput = {
  * @param params.composition The ID of the composition which should be rendered.
  * @param params.inputProps The input props that should be passed to the composition.
  * @param params.codec The media codec which should be used for encoding.
- * @param params.outputBucket The name of the bucket that the output file should be uploaded to.
+ * @param params.forceBucketName The name of the bucket that the output file should be uploaded to.
  * @param params.privacy Whether the output file should be public or private.
  * @param params.outputFile The name of the output file.
  * @param params.updateRenderProgress A callback that is called with the progress of the render.
@@ -100,9 +102,9 @@ export const renderMediaOnCloudrun = async ({
 	composition,
 	inputProps,
 	codec,
-	outputBucket,
+	forceBucketName,
 	privacy,
-	outputFile,
+	outName,
 	updateRenderProgress,
 	jpegQuality,
 	audioCodec,
@@ -126,6 +128,9 @@ export const renderMediaOnCloudrun = async ({
 	const actualCodec = validateCloudrunCodec(codec);
 	validateServeUrl(serveUrl);
 	if (privacy) validatePrivacy(privacy);
+
+	const outputBucket =
+		forceBucketName ?? (await getOrCreateBucket({region})).bucketName;
 
 	const cloudRunEndpoint = await getCloudrunEndpoint({
 		cloudRunUrl,
@@ -155,7 +160,7 @@ export const renderMediaOnCloudrun = async ({
 		muted,
 		outputBucket,
 		privacy,
-		outputFile,
+		outName,
 		forceWidth,
 		forceHeight,
 		type: 'media',

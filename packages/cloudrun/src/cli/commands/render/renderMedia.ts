@@ -20,9 +20,10 @@ export const renderMediaSubcommand = async (
 		cloudRunUrl,
 		composition,
 		outName,
-		outputBucket,
+		forceBucketName,
 		downloadName,
 		privacy,
+		region,
 	} = await renderArgsCheck(RENDER_MEDIA_SUBCOMMAND, args);
 
 	const {codec, reason: codecReason} = CliInternals.getFinalOutputCodec({
@@ -65,10 +66,11 @@ export const renderMediaSubcommand = async (
 		CliInternals.chalk.gray(
 			`
 Cloud Run Service URL = ${cloudRunUrl}
+Region = ${region}
 Type = media
 Composition = ${composition}
 Codec = ${codec}
-Output Bucket = ${outputBucket}
+Output Bucket = ${forceBucketName}
 Output File = ${outName ?? 'out.mp4'}
 Output File Privacy = ${privacy}
 ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
@@ -114,6 +116,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	const res = await renderMediaOnCloudrun({
 		cloudRunUrl,
 		serveUrl,
+		region,
 		inputProps,
 		codec: codec as CloudrunCodec,
 		imageFormat,
@@ -125,7 +128,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		composition,
 		privacy,
 		frameRange: frameRange ?? undefined,
-		outputFile: outName,
+		outName,
 		chromiumOptions,
 		scale,
 		numberOfGifLoops,
@@ -136,7 +139,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		forceHeight: height,
 		forceWidth: width,
 		audioCodec,
-		outputBucket,
+		forceBucketName,
 		updateRenderProgress,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
 	});
@@ -150,7 +153,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		Log.info(
 			CliInternals.chalk.blueBright(
 				`
-Public URL = ${decodeURIComponent(res.publicUrl)}
+${res.publicUrl ? `Public URL = ${decodeURIComponent(res.publicUrl)}` : ``}
 Cloud Storage Uri = ${res.cloudStorageUri}
 Size (KB) = ${Math.round(Number(res.size) / 1000)}
 Bucket Name = ${res.bucketName}
