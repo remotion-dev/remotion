@@ -1,7 +1,8 @@
 ---
 image: /generated/articles-docs-parametrized-rendering.png
 id: parametrized-rendering
-title: Parametrized videos
+title: Passing props to a composition
+sidebar_label: Passing props
 crumb: "How To"
 ---
 
@@ -23,7 +24,7 @@ You can parametrize the content of the videos using [React properties ("props")]
 
 ## Defining accepted props
 
-To define which props your video accepts, simply give your component the `React.FC` type and pass in a generic argument describing the shape of the props you want to accept.
+To define which props your video accepts, give your component the `React.FC` type and pass in a generic argument describing the shape of the props you want to accept:
 
 ```tsx twoslash title="src/MyComponent.tsx"
 // @include: example-MyComponent
