@@ -116,6 +116,10 @@ _available from v3.2.40_
 
 Overrides default composition height.
 
+### `frameRange`
+
+Specify range of frames (a tuple of type [number, number]) to be rendered. By default, the full video will be rendered. To render a single frame, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda)
+
 ### `forceWidth`
 
 _available from v3.2.40_
