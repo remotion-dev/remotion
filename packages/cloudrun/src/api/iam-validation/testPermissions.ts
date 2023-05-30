@@ -1,6 +1,6 @@
 import fs from 'fs';
-import {GoogleAuth} from 'google-auth-library';
 import path from 'path';
+import {getResourceManagerClient} from '../helpers/get-resource-manager-client';
 
 export const logPermissionOutput = (output: TestResult) => {
 	return [output.decision ? '✅' : '❌', output.permissionName].join(' ');
@@ -29,14 +29,7 @@ type TestPermissionsOutput = {
 export const testPermissions = async (
 	params: TestPermissionsInput
 ): Promise<TestPermissionsOutput> => {
-	const auth = new GoogleAuth({
-		credentials: {
-			client_email: process.env.REMOTION_GCP_CLIENT_EMAIL,
-			private_key: process.env.REMOTION_GCP_PRIVATE_KEY,
-		},
-		scopes: 'https://www.googleapis.com/auth/cloud-platform',
-	});
-	const client = await auth.getClient();
+	const resourceManagerClient = getResourceManagerClient();
 
 	const saPermissions = JSON.parse(
 		fs.readFileSync(
@@ -45,26 +38,23 @@ export const testPermissions = async (
 		)
 	);
 
-	const data = {
+	const response = await resourceManagerClient.testIamPermissions({
+		resource: `projects/${process.env.REMOTION_GCP_PROJECT_ID}`,
 		permissions: saPermissions.list,
-	};
+	});
+
+	const returnedPermissions = response[0].permissions;
+
+	if (!returnedPermissions) {
+		throw new Error(
+			'No permissions returned from the testIamPermissions call.'
+		);
+	}
 
 	const results: TestResult[] = [];
 
-	// The service account, which calls the testIamPermissions method, receives a list of permissions that match the permissions specified in the request.
-
-	const response: {
-		data: {
-			permissions: string[];
-		};
-	} = await client.request({
-		url: `https://cloudresourcemanager.googleapis.com/v1/projects/${process.env.REMOTION_GCP_PROJECT_ID}:testIamPermissions`,
-		method: 'POST',
-		data,
-	});
-
 	saPermissions.list.forEach((permission: string) => {
-		if (response?.data?.permissions.includes(permission)) {
+		if (returnedPermissions.includes(permission)) {
 			const thisResult = {decision: true, permissionName: permission};
 			results.push(thisResult);
 			params.onTest?.(thisResult);
