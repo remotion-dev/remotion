@@ -314,7 +314,7 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 
 If the `logLevel` is set to `verbose`, the `dumpBrowserLogs` flag will also be enabled.
 
-### `dumpBrowserLogs?` <AvailableFrom v="3.3.83" />
+### `dumpBrowserLogs?`<AvailableFrom v="3.3.83" />
 
 If set to true, all `console` statements from the headless browser will be forwarded to the CloudWatch logs.
 
