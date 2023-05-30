@@ -11,7 +11,7 @@ Render a video or an audio programmatically.
 
 ## Example
 
-See an example of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) on the [server-side rendering page](/docs/ssr#render-a-video-using-nodejs-apis).
+See an example of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) on the [server-side rendering page](/docs/ssr).
 
 ## Arguments
 

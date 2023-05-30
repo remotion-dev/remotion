@@ -15,7 +15,7 @@ If you want to render a video, use [renderMedia()](/docs/renderer/render-media) 
 
 ## Example usage
 
-You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr/#render-a-video-programmatically) for an example how to come up with the `bundleLocation` and `composition` variables.
+You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr) for an example how to come up with the `bundleLocation` and `composition` variables.
 
 ```ts twoslash
 // @module: ESNext
