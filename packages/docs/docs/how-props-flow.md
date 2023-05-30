@@ -1,5 +1,5 @@
 ---
-id: how-props-flow
+id: props-resolution
 title: How props get resolved
 crumb: "Parametrized videos"
 ---

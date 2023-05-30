@@ -374,7 +374,7 @@ module.exports = {
         {
           type: "category",
           label: "Parametrized videos",
-          items: ["parametrized-rendering", "how-props-flow"],
+          items: ["parametrized-rendering", "props-resolution"],
         },
         "use-img-and-iframe",
         "using-audio",
