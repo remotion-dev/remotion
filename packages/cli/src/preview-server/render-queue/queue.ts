@@ -123,7 +123,6 @@ export const cancelJob = (jobId: string) => {
 	}
 };
 
-// TODO: Currently, concurrency = 1 is not enforced
 const processJobIfPossible = async ({
 	remotionRoot,
 	entryPoint,

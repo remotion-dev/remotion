@@ -51,7 +51,7 @@ export type BundleState =
 	| {
 			type: 'composition';
 			compositionName: string;
-			compositionDefaultProps: unknown;
+			compositionDefaultProps: Record<string, unknown>;
 			compositionHeight: number;
 			compositionDurationInFrames: number;
 			compositionWidth: number;

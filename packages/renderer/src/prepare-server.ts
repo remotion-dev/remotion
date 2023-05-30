@@ -2,6 +2,7 @@ import {existsSync} from 'node:fs';
 import path from 'node:path';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
+import type {Compositor} from './compositor/compositor';
 import {isServeUrl} from './is-serve-url';
 import {serveStatic} from './serve-static';
 import {waitForSymbolicationToBeDone} from './wait-for-symbolication-error-to-be-done';
@@ -30,9 +31,14 @@ export const prepareServer = async ({
 	serveUrl: string;
 	closeServer: (force: boolean) => Promise<unknown>;
 	offthreadPort: number;
+	compositor: Compositor;
 }> => {
 	if (isServeUrl(webpackConfigOrServeUrl)) {
-		const {port: offthreadPort, close: closeProxy} = await serveStatic(null, {
+		const {
+			port: offthreadPort,
+			close: closeProxy,
+			compositor: comp,
+		} = await serveStatic(null, {
 			onDownload,
 			onError,
 			port,
@@ -49,6 +55,7 @@ export const prepareServer = async ({
 				return closeProxy();
 			},
 			offthreadPort,
+			compositor: comp,
 		});
 	}
 
@@ -61,7 +68,11 @@ export const prepareServer = async ({
 		);
 	}
 
-	const {port: serverPort, close} = await serveStatic(webpackConfigOrServeUrl, {
+	const {
+		port: serverPort,
+		close,
+		compositor,
+	} = await serveStatic(webpackConfigOrServeUrl, {
 		onDownload,
 		onError,
 		port,
@@ -81,5 +92,6 @@ export const prepareServer = async ({
 		},
 		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,
+		compositor,
 	});
 };

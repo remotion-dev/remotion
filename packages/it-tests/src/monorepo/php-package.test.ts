@@ -47,7 +47,7 @@ test("Set the right verison for composer.json in example", () => {
   );
 });
 
-test("PHP package should create the same payload as normal Lambda package", async () => {
+test("PHP package should create the same renderMedia payload as normal Lambda package", async () => {
   execSync("php composer.phar install", {
     cwd: path.join(process.cwd(), "..", "lambda-php"),
   });
@@ -56,16 +56,47 @@ test("PHP package should create the same payload as normal Lambda package", asyn
   });
   const output = phpOutput.toString().split("\n");
   const toParse = output[4];
-  const nativeVersion = await LambdaInternals.makeLambdaPayload({
+  const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
     region: "us-east-1",
     composition: "react-svg",
     functionName: "remotion-render",
     serveUrl: "testbed",
     codec: "h264",
+    inputProps: {
+      hi: "there",
+    },
   });
   const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
   const parsedJson = JSON.parse(jsonOutput);
-  expect(JSON.stringify(parsedJson, null, 3)).toEqual(
-    JSON.stringify(nativeVersion, null, 3)
-  );
+
+  expect(
+    removeUndefined({
+      ...parsedJson,
+      type: "start",
+    })
+  ).toEqual(removeUndefined(nativeVersion));
 });
+
+test("PHP package should create the same progress payload as normal Lambda package", async () => {
+  execSync("php composer.phar install", {
+    cwd: path.join(process.cwd(), "..", "lambda-php"),
+  });
+  const phpOutput = execSync("phpunit ./src/PHPRenderProgressTest.php", {
+    cwd: path.join(process.cwd(), "..", "lambda-php"),
+  });
+  const output = phpOutput.toString().split("\n");
+  const toParse = output[4];
+  const nativeVersion = LambdaInternals.getRenderProgressPayload({
+    region: "us-east-1",
+    functionName: "remotion-render",
+    bucketName: "remotion-render",
+    renderId: "abcdef",
+  });
+  const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
+  const parsedJson = JSON.parse(jsonOutput);
+  expect(parsedJson).toEqual({ ...nativeVersion, s3OutputProvider: null });
+});
+
+const removeUndefined = (data: unknown) => {
+  return JSON.parse(JSON.stringify(data));
+};

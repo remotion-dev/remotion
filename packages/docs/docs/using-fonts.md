@@ -25,7 +25,7 @@ const GoogleFontsComp: React.FC = () => {
 
 ## Google Fonts using CSS
 
-Import the CSS that Google Fonts gives you. From version 2.2 on, Remotion will automatically wait until the fonts are loaded
+Import the CSS that Google Fonts gives you. From version 2.2 on, Remotion will automatically wait until the fonts are loaded.
 
 :::note
 This does not work if you use [`lazyComponent`](/docs/composition#lazycomponent).

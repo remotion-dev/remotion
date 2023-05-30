@@ -102,7 +102,7 @@ Minimum value: <MinimumFramesPerLambda />
 The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
 :::
 
-### `--concurrency-per-lambda` <AvailableFrom v="3.0.30" />
+### `--concurrency-per-lambda`<AvailableFrom v="3.0.30" />
 
 By default, each Lambda function renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
 
@@ -114,7 +114,7 @@ By default, each Lambda function renders with concurrency 1 (one open browser ta
 
 Renamed to `jpegQuality` in `v4.0.0`.
 
-### `--muted` <AvailableFrom v="3.2.1" />
+### `--muted`<AvailableFrom v="3.2.1" />
 
 [Disables audio output.](/docs/config#setmuted) This option may only be used when rendering a video.
 
@@ -122,11 +122,11 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 [`h264` or `h265` or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
 
-### `--audio-codec` <AvailableFrom v="3.3.42" />
+### `--audio-codec`<AvailableFrom v="3.3.42" />
 
 [Set which codec the audio should have.](/docs/config#setaudiocodec) For defaults and possible values, refer to the [Encoding guide](/docs/encoding/#audio-codec).
 
-### `--audio-bitrate` <AvailableFrom v="3.2.32" />
+### `--audio-bitrate`<AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated audio.  
 The syntax for FFMPEGs `-b:a` parameter should be used.  
@@ -134,7 +134,7 @@ FFMPEG may encode the video in a way that will not result in the exact audio bit
 Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
 Default: `320k`
 
-### `--video-bitrate` <AvailableFrom v="3.2.32" />
+### `--video-bitrate`<AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated video.  
 The syntax for FFMPEGs `-b:v` parameter should be used.  
@@ -170,13 +170,13 @@ Specify a location for a dotenv file - Default `.env`. [Read about how environme
 
 [Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames. To render a still, use the [`still`](/docs/lambda/cli/still) command.
 
-### `--every-nth-frame` <AvailableFrom v="3.1.0" />
+### `--every-nth-frame`<AvailableFrom v="3.1.0" />
 
 [Render only every nth frame.](/docs/config#seteverynthframe) This option may only be set when rendering GIFs. This allows you to lower the FPS of the GIF.
 
 For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
 
-### `--number-of-gif-loops` <AvailableFrom v="3.1.0" />
+### `--number-of-gif-loops`<AvailableFrom v="3.1.0" />
 
 [Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
 
@@ -184,39 +184,39 @@ For example only every second frame, every third frame and so on. Only works for
 
 The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.mp4`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
 
-### `--overwrite` <AvailableFrom v="3.2.25" />
+### `--overwrite`<AvailableFrom v="3.2.25" />
 
 If a custom out name is specified and a file already exists at this key in the S3 bucket, decide whether that file will be deleted before the render begins. Default `false`.
 
 An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
 
-### `--webhook` <AvailableFrom v="3.2.30" />
+### `--webhook`<AvailableFrom v="3.2.30" />
 
 Sets a webhook to be called when the render finishes or fails. [`renderMediaOnLambda() -> webhook.url`](/docs/lambda/rendermediaonlambda#webhook). To be used together with `--webhook-secret`.
 
-### `--webhook-secret` <AvailableFrom v="3.2.30" />
+### `--webhook-secret`<AvailableFrom v="3.2.30" />
 
 Sets a webhook secret for the webhook (see above). [`renderMediaOnLambda() -> webhook.secret`](/docs/lambda/rendermediaonlambda#webhook). To be used together with `--webhook`.
 
-### `--height` <AvailableFrom v="3.2.40" />
+### `--height`<AvailableFrom v="3.2.40" />
 
 [Overrides composition height.](/docs/config#overrideheight)
 
-### `--width` <AvailableFrom v="3.2.40" />
+### `--width`<AvailableFrom v="3.2.40" />
 
 [Overrides composition width.](/docs/config#overridewidth)
 
-### `--function-name` <AvailableFrom v="3.3.38" />
+### `--function-name`<AvailableFrom v="3.3.38" />
 
 Specify the name of the function which should be used to invoke and orchestrate the render. You only need to pass it if there are multiple functions with different configurations.
 
-### `--renderer-function-name` <AvailableFrom v="3.3.38" />
+### `--renderer-function-name`<AvailableFrom v="3.3.38" />
 
 If specified, this function will be used for rendering the individual chunks. This is useful if you want to use a function with higher or lower power for rendering the chunks than the main orchestration function.
 
 If you want to use this option, the function must be in the same region, the same account and have the same version as the main function.
 
-### `--force-bucket-name` <AvailableFrom v="3.3.42" />
+### `--force-bucket-name`<AvailableFrom v="3.3.42" />
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
@@ -228,6 +228,6 @@ Results in invalid SSL certificates in Chrome, such as self-signed ones, being i
 
 This will most notably disable CORS in Chrome among other security features.
 
-### `--user-agent` <AvailableFrom v="3.3.83"/>
+### `--user-agent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.

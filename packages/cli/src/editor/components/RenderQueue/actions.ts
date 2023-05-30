@@ -70,7 +70,7 @@ export const addStillRenderJob = ({
 	chromiumOptions: RequiredChromiumOptions;
 	delayRenderTimeout: number;
 	envVariables: Record<string, string>;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -139,7 +139,7 @@ export const addVideoRenderJob = ({
 	disallowParallelEncoding: boolean;
 	chromiumOptions: RequiredChromiumOptions;
 	envVariables: Record<string, string>;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 }) => {
 	return callApi('/api/render', {
 		compositionId,

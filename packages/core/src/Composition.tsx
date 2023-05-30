@@ -1,7 +1,7 @@
 import type {ComponentType, PropsWithChildren} from 'react';
 import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
-import type {z} from 'zod';
+import type {AnyZodObject, z} from 'zod';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import {
 	CanUseRemotionHooks,
@@ -23,6 +23,7 @@ import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
+import {validateDefaultAndInputProps} from './validation/validate-default-props.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
@@ -49,7 +50,10 @@ export type CalculateMetadataFunction<T = unknown> = (options: {
 	props?: T;
 }>;
 
-export type StillProps<Schema extends z.ZodTypeAny, Props> = {
+export type StillProps<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown> | undefined
+> = {
 	width: number;
 	height: number;
 	id: string;
@@ -60,10 +64,10 @@ export type StillProps<Schema extends z.ZodTypeAny, Props> = {
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
-export type CompositionProps<Schema extends z.ZodTypeAny, Props> = StillProps<
-	Schema,
-	Props
-> & {
+export type CompositionProps<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown> | undefined
+> = StillProps<Schema, Props> & {
 	fps: number;
 	durationInFrames: number;
 };
@@ -81,7 +85,10 @@ const Fallback: React.FC = () => {
  * @see [Documentation](https://www.remotion.dev/docs/composition)
  */
 
-export const Composition = <Schema extends z.ZodTypeAny, Props>({
+export const Composition = <
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown> | undefined
+>({
 	width,
 	height,
 	fps,
@@ -133,6 +140,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 		});
 
 		validateFps(fps, 'as a prop of the <Composition/> component', false);
+		validateDefaultAndInputProps(defaultProps, 'defaultProps', id);
 		registerComposition<Schema, Props>({
 			durationInFrames,
 			fps,

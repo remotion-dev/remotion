@@ -1,6 +1,6 @@
 import type {z} from 'zod';
 import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
-import {LIGHT_TEXT} from '../../../helpers/colors';
+import {BLUE, LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {inlineCodeSnippet} from '../../Menu/styles';
 import {SchemaEmptyStateGraphic} from './SchemaEmptyStateGraphic';
@@ -21,6 +21,12 @@ const errorExplanation: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
 	lineHeight: 1.5,
+};
+
+const codeSnippet: React.CSSProperties = {
+	fontSize: 14,
+	color: BLUE,
+	fontFamily: 'monospace',
 };
 
 const errorContainer: React.CSSProperties = {
@@ -127,6 +133,26 @@ export const InvalidSchema: React.FC<{
 			</div>
 			<Spacing y={1} block />
 			<Button onClick={reset}>Reset props</Button>
+		</div>
+	);
+};
+
+export const TopLevelZodValue: React.FC<{
+	typeReceived: string;
+}> = ({typeReceived}) => {
+	return (
+		<div style={explainer}>
+			<div style={errorExplanation}>
+				The top-level type of the schema must be a pure{' '}
+				<code style={codeSnippet}>z.object</code>. Instead got a schema of type{' '}
+				<code style={codeSnippet}>{typeReceived}</code>
+			</div>
+			<Spacing y={1} />
+			<div style={errorExplanation}>
+				Fix the schema by changing the top-level Zod type to an object.
+			</div>
+			<Spacing y={2} block />
+			<Button onClick={openDocs}>Learn more</Button>
 		</div>
 	);
 };

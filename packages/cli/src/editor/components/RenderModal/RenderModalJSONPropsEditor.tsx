@@ -31,7 +31,7 @@ export type EditType = 'inputProps' | 'defaultProps';
 
 export const RenderModalJSONPropsEditor: React.FC<{
 	value: unknown;
-	setValue: React.Dispatch<React.SetStateAction<unknown>>;
+	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	zodValidationResult: Zod.SafeParseReturnType<unknown, unknown>;
 	switchToSchema: () => void;
 	onSave: () => void;

@@ -95,6 +95,6 @@ Results in invalid SSL certificates in Chrome, such as self-signed ones, being i
 
 This will most notably disable CORS in Chrome among other security features.
 
-### `--user-agent` <AvailableFrom v="3.3.83"/>
+### `--user-agent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.

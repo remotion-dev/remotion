@@ -57,6 +57,7 @@ import {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
 } from './validation/validate-composition-id.js';
+import {validateDefaultAndInputProps} from './validation/validate-default-props.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
@@ -100,6 +101,7 @@ export const Internals = {
 	SetMediaVolumeContext,
 	validateDurationInFrames,
 	validateFps,
+	validateDefaultAndInputProps,
 	validateDimension,
 	getRemotionEnvironment,
 	SharedAudioContext,

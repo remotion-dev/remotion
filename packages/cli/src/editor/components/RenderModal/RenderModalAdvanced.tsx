@@ -133,7 +133,6 @@ export const RenderModalAdvanced: React.FC<{
 				/>
 			)}
 			<NumberSetting
-				// TODO: Should be right aligned
 				// Also appears in packages/renderer/src/validate-puppeteer-timeout.ts
 				min={7_000}
 				max={900_000}

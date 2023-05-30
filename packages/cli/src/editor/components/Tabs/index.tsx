@@ -1,6 +1,7 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {
 	BACKGROUND,
+	BLUE,
 	CLEAR_HOVER,
 	INPUT_BACKGROUND,
 	LIGHT_TEXT,
@@ -55,8 +56,8 @@ export const Tab: React.FC<{
 		setHovered(false);
 	}, []);
 
-	const definiteStyle: React.CSSProperties = useMemo(() => {
-		return {
+	const definiteStyle: React.CSSProperties = useMemo(
+		() => ({
 			...selectorButton,
 			backgroundColor: selected
 				? BACKGROUND
@@ -64,11 +65,12 @@ export const Tab: React.FC<{
 				? CLEAR_HOVER
 				: INPUT_BACKGROUND,
 			color: selected ? 'white' : LIGHT_TEXT,
-			borderTop: selected ? '2px solid var(--blue)' : '2px solid transparent',
+			borderTop: selected ? '2px solid ' + BLUE : '2px solid transparent',
 			boxShadow: selected ? 'none' : undefined,
 			...style,
-		};
-	}, [hovered, selected, style]);
+		}),
+		[hovered, selected, style]
+	);
 
 	return (
 		<button

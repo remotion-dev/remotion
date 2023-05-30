@@ -14,6 +14,7 @@ import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {isTargetClosedErr} from './browser/is-target-closed-err';
+import type {Compositor} from './compositor/compositor';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
@@ -57,7 +58,7 @@ type RenderFramesOptions = {
 		timeToRenderInMilliseconds: number
 	) => void;
 	outputDir: string | null;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	envVariables?: Record<string, string>;
 	imageFormat?: VideoImageFormat;
 	/**
@@ -120,6 +121,7 @@ const innerRenderFrames = ({
 	muted,
 	makeBrowser,
 	browserReplacer,
+	compositor,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -131,6 +133,7 @@ const innerRenderFrames = ({
 	downloadMap: DownloadMap;
 	makeBrowser: () => Promise<HeadlessBrowser>;
 	browserReplacer: BrowserReplacer;
+	compositor: Compositor;
 }): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -196,7 +199,7 @@ const innerRenderFrames = ({
 			// eslint-disable-next-line max-params
 			pageFunction: (
 				id: string,
-				defaultProps: unknown,
+				defaultProps: Record<string, unknown>,
 				durationInFrames: number,
 				fps: number,
 				height: number,
@@ -331,6 +334,7 @@ const innerRenderFrames = ({
 			scale,
 			downloadMap,
 			wantsBuffer: Boolean(onFrameBuffer),
+			compositor,
 		});
 		if (onFrameBuffer) {
 			if (!buffer) {
@@ -382,12 +386,17 @@ const innerRenderFrames = ({
 		});
 	};
 
-	const renderFrameAndRetryTargetClose = async (
-		frame: number,
-		index: number,
-		retriesLeft: number,
-		attempt: number
-	) => {
+	const renderFrameAndRetryTargetClose = async ({
+		frame,
+		index,
+		retriesLeft,
+		attempt,
+	}: {
+		frame: number;
+		index: number;
+		retriesLeft: number;
+		attempt: number;
+	}) => {
 		try {
 			await Promise.race([
 				renderFrame(frame, index),
@@ -430,18 +439,23 @@ const innerRenderFrames = ({
 					pool.release(newPage);
 				}
 			});
-			await renderFrameAndRetryTargetClose(
+			await renderFrameAndRetryTargetClose({
 				frame,
 				index,
-				retriesLeft - 1,
-				attempt + 1
-			);
+				retriesLeft: retriesLeft - 1,
+				attempt: attempt + 1,
+			});
 		}
 	};
 
 	const progress = Promise.all(
 		framesToRender.map((frame, index) =>
-			renderFrameAndRetryTargetClose(frame, index, MAX_RETRIES_PER_FRAME, 1)
+			renderFrameAndRetryTargetClose({
+				frame,
+				index,
+				retriesLeft: MAX_RETRIES_PER_FRAME,
+				attempt: 1,
+			})
 		)
 	);
 
@@ -560,32 +574,38 @@ export const renderFrames = (
 					indent: options.indent ?? false,
 				}),
 				browserInstance,
-			]).then(([{serveUrl, closeServer, offthreadPort}, puppeteerInstance]) => {
-				const browserReplacer = handleBrowserCrash(puppeteerInstance);
-
-				const {stopCycling} = cycleBrowserTabs(
-					browserReplacer,
-					actualConcurrency
-				);
-
-				cleanup.push(stopCycling);
-				cleanup.push(() => closeServer(false));
-
-				return innerRenderFrames({
-					...options,
+			]).then(
+				([
+					{serveUrl, closeServer, offthreadPort, compositor},
 					puppeteerInstance,
-					onError,
-					pagesArray: openedPages,
-					serveUrl,
-					composition,
-					actualConcurrency,
-					onDownload,
-					proxyPort: offthreadPort,
-					downloadMap,
-					makeBrowser,
-					browserReplacer,
-				});
-			}),
+				]) => {
+					const browserReplacer = handleBrowserCrash(puppeteerInstance);
+
+					const {stopCycling} = cycleBrowserTabs(
+						browserReplacer,
+						actualConcurrency
+					);
+
+					cleanup.push(stopCycling);
+					cleanup.push(() => closeServer(false));
+
+					return innerRenderFrames({
+						...options,
+						puppeteerInstance,
+						onError,
+						pagesArray: openedPages,
+						serveUrl,
+						composition,
+						actualConcurrency,
+						onDownload,
+						proxyPort: offthreadPort,
+						downloadMap,
+						makeBrowser,
+						browserReplacer,
+						compositor,
+					});
+				}
+			),
 		])
 			.then((res) => {
 				return resolve(res);

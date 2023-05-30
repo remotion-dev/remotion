@@ -5,6 +5,7 @@ import type {
 } from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {interpolate} from 'remotion';
+import {BLUE} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
@@ -43,9 +44,9 @@ export const InputDragger: React.FC<Props> = ({
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
-			borderBottom: '1px dotted var(--blue)',
+			borderBottom: '1px dotted ' + BLUE,
 			paddingBottom: 1,
-			color: 'var(--blue)',
+			color: BLUE,
 			cursor: 'ew-resize',
 			userSelect: 'none',
 			fontSize: 13,

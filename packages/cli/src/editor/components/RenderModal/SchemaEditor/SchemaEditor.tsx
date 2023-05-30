@@ -1,8 +1,12 @@
 import React, {useCallback} from 'react';
-import type {z} from 'zod';
+import type {AnyZodObject, z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
-import {InvalidDefaultProps, InvalidSchema} from './SchemaErrorMessages';
+import {
+	InvalidDefaultProps,
+	InvalidSchema,
+	TopLevelZodValue,
+} from './SchemaErrorMessages';
 import {ZodObjectEditor} from './ZodObjectEditor';
 
 const scrollable: React.CSSProperties = {
@@ -13,12 +17,12 @@ const scrollable: React.CSSProperties = {
 };
 
 export const SchemaEditor: React.FC<{
-	schema: z.ZodTypeAny;
+	schema: AnyZodObject;
 	value: unknown;
-	setValue: React.Dispatch<React.SetStateAction<unknown>>;
+	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
 	compact: boolean;
-	defaultProps: unknown;
+	defaultProps: Record<string, unknown>;
 	onSave: (updater: (oldState: unknown) => unknown) => void;
 	showSaveButton: boolean;
 	saving: boolean;
@@ -60,31 +64,31 @@ export const SchemaEditor: React.FC<{
 		);
 	}
 
-	if (typeName === z.ZodFirstPartyTypeKind.ZodObject) {
-		return (
-			<div style={scrollable} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-				<ZodObjectEditor
-					value={value as Record<string, unknown>}
-					setValue={setValue}
-					jsonPath={[]}
-					schema={schema}
-					compact={compact}
-					defaultValue={defaultProps as Record<string, unknown>}
-					onSave={
-						onSave as (
-							newValue: (
-								oldVal: Record<string, unknown>
-							) => Record<string, unknown>
-						) => void
-					}
-					showSaveButton={showSaveButton}
-					onRemove={null}
-					saving={saving}
-					saveDisabledByParent={saveDisabledByParent}
-				/>
-			</div>
-		);
+	if (typeName !== z.ZodFirstPartyTypeKind.ZodObject) {
+		return <TopLevelZodValue typeReceived={typeName} />;
 	}
 
-	return null;
+	return (
+		<div style={scrollable} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+			<ZodObjectEditor
+				value={value as Record<string, unknown>}
+				setValue={setValue}
+				jsonPath={[]}
+				schema={schema}
+				compact={compact}
+				defaultValue={defaultProps as Record<string, unknown>}
+				onSave={
+					onSave as (
+						newValue: (
+							oldVal: Record<string, unknown>
+						) => Record<string, unknown>
+					) => void
+				}
+				showSaveButton={showSaveButton}
+				onRemove={null}
+				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
+			/>
+		</div>
+	);
 };

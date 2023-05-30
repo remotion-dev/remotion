@@ -46,7 +46,7 @@ export type RenderModalState = {
 	initialHeadless: boolean;
 	minConcurrency: number;
 	maxConcurrency: number;
-	defaultProps: unknown;
+	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
 };

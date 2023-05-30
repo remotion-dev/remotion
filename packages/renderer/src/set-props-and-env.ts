@@ -7,7 +7,7 @@ import {redirectStatusCodes} from './redirect-status-codes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type SetPropsAndEnv = {
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string> | undefined;
 	page: Page;
 	serveUrl: string;

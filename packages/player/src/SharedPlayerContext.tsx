@@ -14,7 +14,7 @@ import {getPreferredVolume, persistVolume} from './volume-persistance.js';
 export const SharedPlayerContexts: React.FC<{
 	children: React.ReactNode;
 	timelineContext: TimelineContextValue;
-	inputProps?: unknown;
+	inputProps?: Record<string, unknown>;
 	fps: number;
 	compositionWidth: number;
 	compositionHeight: number;
