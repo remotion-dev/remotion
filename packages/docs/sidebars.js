@@ -107,6 +107,7 @@ module.exports = {
       label: "@remotion/renderer",
       items: [
         "renderer/get-compositions",
+        "renderer/select-composition",
         "renderer/render-media",
         "renderer/render-frames",
         "renderer/render-still",

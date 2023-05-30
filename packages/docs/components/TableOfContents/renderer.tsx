@@ -10,6 +10,10 @@ export const TableOfContents: React.FC = () => {
           <strong>getCompositions()</strong>
           <div>List available compositions</div>
         </TOCItem>
+        <TOCItem link="/docs/renderer/selectComposition">
+          <strong>selectComposition()</strong>
+          <div>List available compositions</div>
+        </TOCItem>
         <TOCItem link="/docs/renderer/render-media">
           <strong>renderMedia()</strong>
           <div>Render a video or audio</div>
