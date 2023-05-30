@@ -12,7 +12,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/renderer/selectComposition">
           <strong>selectComposition()</strong>
-          <div>List available compositions</div>
+          <div>Get a composition</div>
         </TOCItem>
         <TOCItem link="/docs/renderer/render-media">
           <strong>renderMedia()</strong>
