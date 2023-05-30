@@ -15,10 +15,7 @@ import {Loading} from './loading-indicator.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
-import type {
-	PropsIfHasProps,
-	RenamePropsIfHasProps,
-} from './props-if-has-props.js';
+import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
@@ -57,9 +54,7 @@ export type StillProps<
 	width: number;
 	height: number;
 	id: string;
-	calculateMetadata?: CalculateMetadataFunction<
-		RenamePropsIfHasProps<Schema, Props>
-	>;
+	calculateMetadata?: CalculateMetadataFunction<InferProps<Schema, Props>>;
 	schema?: Schema;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;

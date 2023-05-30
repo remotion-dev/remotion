@@ -16,10 +16,7 @@ import type {
 } from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import type {TFolder} from './Folder.js';
-import type {
-	PropsIfHasProps,
-	RenamePropsIfHasProps,
-} from './props-if-has-props.js';
+import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
 
 export type TComposition<
@@ -37,7 +34,7 @@ export type TComposition<
 	nonce: number;
 	schema: Schema | null;
 	calculateMetadata: CalculateMetadataFunction<
-		RenamePropsIfHasProps<Schema, Props>
+		InferProps<Schema, Props>
 	> | null;
 } & PropsIfHasProps<Schema, Props>;
 
