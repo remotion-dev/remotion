@@ -63,7 +63,7 @@ Callback that gets called once the GIF has loaded and finished processing. As it
 
 Allows to pass in custom CSS styles. You may not pass `width` and `height`, instead use the props `width` and `height` to set the size of the GIF.
 
-### `loopBehavior` <AvailableFrom v="3.3.4" />
+### `loopBehavior`<AvailableFrom v="3.3.4" />
 
 The looping behavior of the GIF. Can be one of these values:
 
@@ -71,7 +71,7 @@ The looping behavior of the GIF. Can be one of these values:
 - `'pause-after-finish'`: The GIF will play once and then show the last frame.
 - `'unmount-after-finish'`: The GIF will play once and then unmount. Note that if you attach a `ref`, it will become `null` after the GIF has finished playing.
 
-### `ref` <AvailableFrom v="3.3.88" />
+### `ref`<AvailableFrom v="3.3.88" />
 
 You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to `<Gif>`. If you use TypeScript, you need to type it with `HTMLCanvasElement`.
 

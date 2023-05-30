@@ -12,7 +12,7 @@ Since JavaScript code is executing, it may happen that a render may due to an ex
 By enabling more detailed logging, all `console.log` statements from your code will be made visible alongside other debugging information.
 
 From the CLI: Add the [`--log=verbose`](/docs/cli/render#--log) flag to your render command.  
-From Node.JS: Add the [`verbose: true`](/docs/renderer/render-media#verbose-) and [`dumpBrowserLogs: true`](/docs/renderer/render-media#dumpbrowserlogs) options to `renderMedia()`.
+From Node.JS: Add the [`verbose: true`](/docs/renderer/render-media#verbose) and [`dumpBrowserLogs: true`](/docs/renderer/render-media#dumpbrowserlogs) options to `renderMedia()`.
 
 :::note
 If you see a log multiple times, it is because the render is split up to multiple threads. Set `--concurrency=1` temporarily to only see each log once.
