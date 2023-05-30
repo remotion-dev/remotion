@@ -695,7 +695,7 @@ playerRef.current.addEventListener("timeupdate", (e) => {
 
 Prefer the [`seeked`](#seeked) event if you only want to get time updates during seeking.
 
-Prefer the [`frameupdate`](#frameupdate-) event if you need an update for every single frame.
+Prefer the [`frameupdate`](#frameupdate) event if you need an update for every single frame.
 
 ### `frameupdate`<AvailableFrom v="3.2.27" />
 
