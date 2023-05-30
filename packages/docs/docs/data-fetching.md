@@ -5,28 +5,63 @@ title: Data fetching
 crumb: "How to"
 ---
 
-One of the coolest things about Remotion is that you can fetch data from an API.
+## Fetching data before the render
 
-It works almost like you are used to: You can use the [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API) API to load data in a [`useEffect()`](https://react.dev/reference/react/useEffect) call and set a state.
+You may use the [`calculateMetadata`](/docs/composition#calculatemetadata) prop of the [`<Composition />`](/docs/composition) component to alter the props that get passed to your React component.
 
-## Telling Remotion to wait until the data is loaded
+```tsx twoslash
+const MyVideo: React.FC = () => null;
+// ---cut---
+import { useCallback } from "react";
+import { Composition } from "remotion";
 
-There are two functions, [`delayRender`](/docs/delay-render) and [`continueRender`](/docs/continue-render), which you can use to tell Remotion to not yet render the frame. If you want to asynchronously render a frame, you should call `delayRender()` as soon as possible, before the window `onload` event is fired. The function returns a handle that you need to give Remotion the green light to render later using `continueRender()`.
+export const Root: React.FC = () => {
+  const calculateMyVideoMetadata = useCallback(async () => {
+    const data = await fetch("http://example.com/api");
+    const json = await data.json();
+
+    return {
+      props: json,
+    };
+  }, []);
+
+  return (
+    <Composition
+      id="MyVideo"
+      component={MyVideo}
+      durationInFrames={300}
+      fps={30}
+      width={1920}
+      height={1080}
+      calculateMetadata={calculateMyVideoMetadata}
+    />
+  );
+};
+```
+
+## Fetching data during the render
+
+Using [`delayRender()`](/docs/delay-render) and [`continueRender()`](/docs/continue-render) you can tell Remotion to wait for asynchronous operations to finish before rendering a frame.  
+Call `delayRender()` as soon as possible, for example when initializing the state inside your component.
 
 ```tsx twoslash
 import { useCallback, useEffect, useState } from "react";
-import { continueRender, delayRender } from "remotion";
+import { cancelRender, continueRender, delayRender } from "remotion";
 
 export const MyVideo = () => {
   const [data, setData] = useState(null);
   const [handle] = useState(() => delayRender());
 
   const fetchData = useCallback(async () => {
-    const response = await fetch("http://example.com/api");
-    const json = await response.json();
-    setData(json);
+    try {
+      const response = await fetch("http://example.com/api");
+      const json = await response.json();
+      setData(json);
 
-    continueRender(handle);
+      continueRender(handle);
+    } catch (err) {
+      cancelRender(err);
+    }
   }, [handle]);
 
   useEffect(() => {
@@ -43,25 +78,22 @@ export const MyVideo = () => {
 };
 ```
 
-## Best practices
-
-During rendering, multiple tabs are opened to speed up rendering. In each of these tabs, the tree is re-rendered by changing the value of [`useCurrentFrame()`](/docs/use-current-frame) and then screenshotted.
-
-- Each tab will execute the data fetching individually, so if you are rendering with a high concurrency, you may run into a rate limit.
-- You can use the `localStorage` API to persist data after a network request and make a request only if the local storage is empty.
-- The data returned by an API must be the same when called multiple times, otherwise [flickering](/docs/flickering) may apply.
-- Consider fetching data before the render, and pass data as [input props](/docs/parametrized-rendering)
-- Make sure to not have `frame` as a dependency of the `useEffect()`, otherwise data will be fetched every frame leading to slowdown and potentially running into rate limits.
+Once the data is fetched, you can call [`continueRender()`](/docs/continue-render) to tell Remotion to continue rendering the video.  
+In case the data fetching fails, you can call [`cancelRender()`](/docs/cancel-render) to cancel the render without waiting for the timeout.
 
 ## Time limit
 
 You need to clear all handles created by [`delayRender()`](/docs/delay-render) within 30 seconds after the page is opened. You may [increase the timeout](/docs/timeout#increase-timeout).
 
-## Using `delayRender()` to calculate video metadata
+## Prevent overfetching
 
-You can also customize duration, frame rate and dimensions based on asynchronous data fetching:
+During rendering, multiple headless browser tabs are opened to speed up rendering.  
+This means that if you are fetching data inside your component, the data fetching will be executed multiple times.
 
-- **See: [Dynamic duration, FPS & dimensions](/docs/dynamic-metadata)**
+<Step>1</Step> Each tab will execute the data fetching individually, so if you are rendering with a high concurrency, you may run into a rate limit. <br/>
+<Step>2</Step> The data returned by an API must be the same when called multiple times, otherwise <a href="/docs/flickering">flickering</a> may occur. <br/>
+<Step>3</Step> Consider fetching data before the render, and pass data as <a href="/docs/parametrized-rendering">input props</a> <br/>
+<Step>4</Step> Make sure to not have <code>frame</code> as a dependency of the <code>useEffect()</code>, otherwise data will be fetched every frame leading to slowdown and potentially running into rate limits. <br/>
 
 ## See also
 
