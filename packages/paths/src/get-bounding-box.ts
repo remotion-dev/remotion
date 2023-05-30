@@ -223,5 +223,13 @@ export const getBoundingBoxFromInstructions = (
 		}
 	}
 
-	return {x1: minX, y1: minY, x2: maxX, y2: maxY};
+	return {
+		x1: minX,
+		y1: minY,
+		x2: maxX,
+		y2: maxY,
+		viewBox: `${minX} ${minY} ${maxX - minX} ${maxY - minY}`,
+		width: maxX - minX,
+		height: maxY - minY,
+	};
 };

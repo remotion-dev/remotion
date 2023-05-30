@@ -21,6 +21,18 @@ const boundingBox = getBoundingBox(
 
 This function will throw if the SVG path is invalid.
 
+## Return type
+
+Includes the following properties:
+
+- `x1`: The leftmost x coordinate of the bounding box
+- `x2`: The rightmost x coordinate of the bounding box
+- `y1`: The topmost y coordinate of the bounding box
+- `y2`: The bottommost y coordinate of the bounding box
+- `width`: The width of the bounding box, _returned from v3.3.97_
+- `height`: The height of the bounding box, _returned from v3.3.97_
+- `viewBox`: The `viewBox` value that you can pass to an SVG, _returned from v3.3.97_
+
 ## `BoundingBox` type
 
 In TypeScript, you can get the shape of the return value by importing the `BoundingBox` type:

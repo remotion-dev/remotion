@@ -116,6 +116,10 @@ _available from v3.2.40_
 
 Overrides default composition height.
 
+### `frameRange`
+
+Specify range of frames (a tuple of type [number, number]) to be rendered. By default, the full video will be rendered. To render a single frame, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda)
+
 ### `forceWidth`
 
 _available from v3.2.40_
@@ -195,12 +199,6 @@ _optional_
 
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
-### `chromiumOptions?`
-
-_optional, available from v2.6.5_
-
-Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
-
 ### `concurrencyPerLambda?`
 
 _optional, available from v3.0.30_
@@ -228,6 +226,10 @@ Either:
 
 - `{"type": "play-in-browser"}` - the default. The video will play in the browser.
 - `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
+
+### `chromiumOptions?`
+
+Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
 #### `disableWebSecurity`
 
@@ -316,7 +318,7 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 
 If the `logLevel` is set to `verbose`, the `dumpBrowserLogs` flag will also be enabled.
 
-### `dumpBrowserLogs?` <AvailableFrom v="3.3.83" />
+### `dumpBrowserLogs?`<AvailableFrom v="3.3.83" />
 
 If set to true, all `console` statements from the headless browser will be forwarded to the CloudWatch logs.
 

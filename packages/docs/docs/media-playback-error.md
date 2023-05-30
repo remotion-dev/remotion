@@ -48,7 +48,7 @@ Open the DevTools and go to the network tab to validate that this is the case.
 
 You might be importing a video that is not compatible with Chrome at all, e.g. FLV.
 
-## Recover from this error <AvailableFrom v="3.3.89" />
+## Recover from this error<AvailableFrom v="3.3.89" />
 
 You can handle this error and replace it with a different video by passing the `onError()` prop to the `<Video>` or `<OffthreadVideo>` component.
 
