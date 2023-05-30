@@ -10,10 +10,16 @@ crumb: "How to"
 You may use the [`calculateMetadata`](/docs/composition#calculatemetadata) prop of the [`<Composition />`](/docs/composition) component to alter the props that get passed to your React component.
 
 ```tsx twoslash
-const MyVideo: React.FC = () => null;
 // ---cut---
 import { useCallback } from "react";
 import { Composition } from "remotion";
+
+type MyVideoProps = {
+  title: string;
+  description: string;
+};
+
+const MyVideo: React.FC<MyVideoProps> = () => null;
 
 export const Root: React.FC = () => {
   const calculateMyVideoMetadata = useCallback(async () => {
@@ -33,6 +39,10 @@ export const Root: React.FC = () => {
       fps={30}
       width={1920}
       height={1080}
+      defaultProps={{
+        title: "My video",
+        description: "This is my video",
+      }}
       calculateMetadata={calculateMyVideoMetadata}
     />
   );
