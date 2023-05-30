@@ -38,7 +38,7 @@ import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 
-import type {ZodTypeAny} from 'zod';
+import type {AnyZodObject} from 'zod';
 import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
@@ -220,7 +220,10 @@ type RenderModalProps = {
 const RenderModal: React.FC<
 	Omit<RenderModalProps, 'compositionId'> & {
 		onClose: () => void;
-		resolvedComposition: TCompMetadata<ZodTypeAny, unknown>;
+		resolvedComposition: TCompMetadata<
+			AnyZodObject,
+			Record<string, unknown> | undefined
+		>;
 		unresolvedComposition: AnyComposition;
 	}
 > = ({
