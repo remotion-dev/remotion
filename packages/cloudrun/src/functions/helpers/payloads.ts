@@ -41,7 +41,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		chromiumOptions: chromiumOptions.optional(),
 		muted: z.boolean().optional(),
 		outputBucket: z.string(),
-		outputFile: z.string().optional(),
+		outName: z.string().optional(),
 		privacy: z.enum(['public', 'private']).optional(),
 		logLevel,
 	}),
@@ -73,7 +73,7 @@ const renderFailResponsePayload = z.object({
 
 const renderStillOnLambdaResponsePayload = z.discriminatedUnion('status', [
 	z.object({
-		publicUrl: z.string(),
+		publicUrl: z.string().optional().nullable(),
 		cloudStorageUri: z.string(),
 		size: z.number(),
 		bucketName: z.string(),
@@ -86,7 +86,7 @@ const renderStillOnLambdaResponsePayload = z.discriminatedUnion('status', [
 
 const renderMediaOnLambdaResponsePayload = z.discriminatedUnion('status', [
 	z.object({
-		publicUrl: z.string(),
+		publicUrl: z.string().optional().nullable(),
 		cloudStorageUri: z.string(),
 		size: z.number(),
 		bucketName: z.string(),

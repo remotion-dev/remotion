@@ -62,9 +62,9 @@ One of:
 - `"public"` (_default_): The rendered media is publicly accessible under the Cloud Storage URL.
 - `"private"`: The rendered media is not publicly available, but is available within the GCP project to those with the correct permissions.
 
-### `output-bucket`
+### `--force-bucket-name`
 
-The bucket to place the rendered media/still in. The resulting Google Cloud Storage URL will be in the format `gs://{bucket-name}/renders/{render-id}/{file-name}`. If this is not passed, the bucket that matches the region will be used.
+Specify a specific bucket name to be used for the output. The resulting Google Cloud Storage URL will be in the format `gs://{bucket-name}/renders/{render-id}/{file-name}`. If not set, Remotion will choose the right bucket to use based on the region.
 
 ### `--jpeg-quality`
 

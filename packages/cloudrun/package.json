@@ -43,9 +43,6 @@
 	},
 	"typesVersions": {
 		">=1.0": {
-			"defaults": [
-				"dist/defaults.d.ts"
-			],
 			"regions": [
 				"dist/regions.d.ts"
 			]
