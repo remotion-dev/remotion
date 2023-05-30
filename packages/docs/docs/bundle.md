@@ -79,7 +79,7 @@ _optional_
 
 The path of the URL where the bundle is going to be hosted. By default it is `/`, meaning that the bundle is going to be hosted at the root of the domain (e.g. `https://localhost:3000/`). In some cases like rendering on Lambda, the public path might be a subdirectory.
 
-#### `rootDir?` <AvailableFrom v="3.1.6" />
+#### `rootDir?`<AvailableFrom v="3.1.6" />
 
 _optional_
 
@@ -89,19 +89,19 @@ The directory in which the Remotion project is rooted in. This should be set to 
 The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
 :::
 
-#### `publicDir?` <AvailableFrom v="3.2.13" />
+#### `publicDir?`<AvailableFrom v="3.2.13" />
 
 Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology#remotion-root). If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology#remotion-root).
 
-#### `onPublicDirCopyProgress?` <AvailableFrom v="3.3.3" />
+#### `onPublicDirCopyProgress?`<AvailableFrom v="3.3.3" />
 
 Reports progress of how many bytes have been written while copying the `public/` directoy. Useful to warn the user if the directory is large that this operation is slow.
 
-#### `onSymlinkDetected?` <AvailableFrom v="3.3.3" />
+#### `onSymlinkDetected?`<AvailableFrom v="3.3.3" />
 
 Gets called when a symbolic link is detected in the `public/` directory. Since Remotion will forward the symbolic link, it might be useful to display a hint to the user that if the original symbolic link gets deleted, the bundle will also break.
 
-#### `ignoreRegisterRootWarning?` <AvailableFrom v="3.3.46" />
+#### `ignoreRegisterRootWarning?`<AvailableFrom v="3.3.46" />
 
 Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
 

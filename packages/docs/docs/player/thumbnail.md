@@ -146,7 +146,7 @@ _optional_
 
 A regular `style` prop for a HTMLDivElement. You can pass a different height and width if you would like different dimensions for the thumbnail than the original composition dimensions.
 
-### `className` <AvailableFrom v="3.1.3" />
+### `className`<AvailableFrom v="3.1.3" />
 
 _optional_
 
