@@ -143,6 +143,8 @@ All schemas that are supported by [Zod](https://zod.dev/) are supported by Remot
 
 Remotion requires that the top-level type is a `z.object()`, because the collection of props of a React component is always an object.
 
+In addition to the built in types, the `@remotion/zod-types` also provides [`zColor()`](/docs/zod-types/z-color), including a color picker interface in the Remotion Preview.
+
 ## Editing props visually
 
 When you have defined a schema for your props, you can [edit them visually in the Remotion Preview](/docs/visual-editing). This is useful if you want to quickly try out different values for your props.
