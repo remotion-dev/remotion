@@ -386,6 +386,7 @@ module.exports = {
         "schemas",
         "visual-editing",
         "data-fetching",
+        "dynamic-metadata",
         "props-resolution",
       ],
     },
@@ -395,7 +396,6 @@ module.exports = {
       items: [
         "encoding",
         "transparent-videos",
-        "dynamic-metadata",
         "ssr",
         "webpack",
         "tailwind",
