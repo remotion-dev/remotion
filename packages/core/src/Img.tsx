@@ -15,15 +15,23 @@ function exponentialBackoff(errorCount: number): number {
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
-	React.DetailedHTMLProps<
-		React.ImgHTMLAttributes<HTMLImageElement>,
-		HTMLImageElement
+	Omit<
+		React.DetailedHTMLProps<
+			React.ImgHTMLAttributes<HTMLImageElement>,
+			HTMLImageElement
+		>,
+		'src'
 	> & {
 		maxRetries?: number;
+		src: string;
 	}
 > = ({onError, maxRetries = 2, src, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
+
+	if (!src) {
+		throw new Error('No "src" prop was passed to <Img>.');
+	}
 
 	useImperativeHandle(
 		ref,
