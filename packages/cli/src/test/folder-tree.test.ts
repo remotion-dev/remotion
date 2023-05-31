@@ -79,6 +79,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 						nonce: 0,
 						width: 1080,
 						schema: obj,
+						calculateMetadata: null,
 					},
 					key: 'my-comp',
 					type: 'composition',
@@ -102,6 +103,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 				nonce: 0,
 				width: 1080,
 				schema: obj,
+				calculateMetadata: null,
 			},
 			key: 'second-comp',
 			type: 'composition',
@@ -170,6 +172,7 @@ test('Should handle nested folders well', async () => {
 							items: [
 								{
 									composition: {
+										calculateMetadata: null,
 										component,
 										defaultProps: {},
 										durationInFrames: 200,
