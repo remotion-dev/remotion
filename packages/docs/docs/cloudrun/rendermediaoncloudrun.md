@@ -30,6 +30,7 @@ const result = await renderMediaOnCloudrun({
 });
 
 console.log(result.bucketName);
+console.log(result.renderId);
 ```
 
 ## Arguments

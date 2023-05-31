@@ -2,7 +2,6 @@ import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {downloadFile} from '../../../api/download-file';
 import {renderStillOnCloudrun} from '../../../api/render-still-on-cloudrun';
-import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
 
@@ -17,9 +16,10 @@ export const renderStillSubcommand = async (
 		cloudRunUrl,
 		composition,
 		outName,
-		outputBucket,
+		forceBucketName,
 		privacy,
 		downloadName,
+		region,
 	} = await renderArgsCheck(RENDER_STILL_SUBCOMMAND, args);
 
 	const {
@@ -53,9 +53,10 @@ export const renderStillSubcommand = async (
 		CliInternals.chalk.gray(
 			`
 Cloud Run Service URL = ${cloudRunUrl}
+Region = ${region}
 Type = still
 Composition = ${composition}
-Output Bucket = ${outputBucket}
+Output Bucket = ${forceBucketName}
 Output File = ${outName ?? 'out.png'}
 Output File Privacy = ${privacy}
 ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
@@ -89,6 +90,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 	const res = await renderStillOnCloudrun({
 		cloudRunUrl,
 		serveUrl,
+		region,
 		inputProps,
 		imageFormat,
 		composition,
@@ -100,44 +102,38 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		scale,
 		forceHeight: height,
 		forceWidth: width,
-		outputBucket,
+		forceBucketName,
 		outputFile: outName,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
 	});
 	doneIn = Date.now() - renderStart;
 	updateProgress(true);
 
-	if (res.status === 'success') {
+	Log.info(
+		CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`)
+	);
+	Log.info(CliInternals.chalk.gray(`Render ID = ${res.renderId}`));
+	Log.info(
+		CliInternals.chalk.gray(
+			`${Math.round(Number(res.size) / 1000)} KB, Privacy: ${
+				res.privacy
+			}, Bucket: ${res.bucketName}`
+		)
+	);
+	Log.info(CliInternals.chalk.blue(`○ ${res.publicUrl}`));
+
+	if (downloadName) {
+		Log.info('');
+		Log.info('downloading file...');
+
+		const destination = await downloadFile({
+			bucketName: res.bucketName,
+			gsutilURI: res.cloudStorageUri,
+			downloadName,
+		});
+
 		Log.info(
-			CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`)
+			CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
 		);
-		Log.info(CliInternals.chalk.gray(`Render ID = ${res.renderId}`));
-		Log.info(
-			CliInternals.chalk.gray(
-				`${Math.round(Number(res.size) / 1000)} KB, Privacy: ${
-					res.privacy
-				}, Bucket: ${res.bucketName}`
-			)
-		);
-		Log.info(CliInternals.chalk.blue(`○ ${res.publicUrl}`));
-
-		if (downloadName) {
-			Log.info('');
-			Log.info('downloading file...');
-
-			const destination = await downloadFile({
-				bucketName: res.bucketName,
-				gsutilURI: res.cloudStorageUri,
-				downloadName,
-			});
-
-			Log.info(
-				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
-			);
-		}
-	} else {
-		Log.error('Render failed with the following reason:');
-		Log.error(res.stack);
-		quit(1);
 	}
 };
