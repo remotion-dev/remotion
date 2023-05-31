@@ -57,22 +57,20 @@ Especially 1.x releases could timeout when importing large assets
 
 [Open an issue](https://github.com/remotion-dev/remotion/issues/new) and try to describe your issue in a way that is reproducible for us. We will try to help you out.
 
-## Increase timeout
+## Increase timeout<AvailableFrom v="2.6.3"/>
 
-Sometimes, you cannot avoid a render taking longer than 30 seconds. For example:
+Sometimes, you cannot avoid a frame taking longer than 30 seconds to render. For example:
 
 - Expensive WebGL scenes
 - Expensive preprocessing of data
 
-You can increase the default timeout from v2.6.3 on:
+You can increase the default timeout:
 
 - Using the [`--timeout`](/docs/cli/render#--timeout) CLI flag
 - Using the `timeoutInMilliseconds` option in [`renderStill()`](/docs/renderer/render-still#timeoutinmilliseconds), [`renderFrames()`](/docs/renderer/render-frames#timeoutinmilliseconds), [`getCompositions()`](/docs/renderer/get-compositions#timeoutinmilliseconds), [`renderMedia()`](/docs/renderer/render-media#timeoutinmilliseconds), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda#timeoutinmilliseconds) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda#timeoutinmilliseconds)
 - Using the [`Config.setDelayRenderTimeoutInMilliseconds()`](/docs/config#setdelayrendertimeoutinmilliseconds) option in the config file
 
-## Adding a label to help debugging
-
-_Available from v2.6.13_
+## Adding a label to help debugging<AvailableFrom v="2.6.13"/>
 
 If you encounter a timeout and don't know where it came from, you can add a label as a parameter:
 

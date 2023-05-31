@@ -35,7 +35,7 @@ export type CompProps<Props> =
 			component: LooseComponentType<Props>;
 	  };
 
-export type CalculateMetadataFunction<T = unknown> = (options: {
+export type CalculateMetadataFunction<T> = (options: {
 	defaultProps: T;
 	props: T;
 	abortSignal: AbortSignal;
