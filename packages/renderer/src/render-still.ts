@@ -8,7 +8,7 @@ import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
-import type {HeadlessBrowser as PuppeteerBrowser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import type {Compositor} from './compositor/compositor';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
@@ -44,7 +44,7 @@ type InnerStillOptions = {
 	 */
 	quality?: never;
 	jpegQuality?: number;
-	puppeteerInstance?: PuppeteerBrowser;
+	puppeteerInstance?: HeadlessBrowser;
 	dumpBrowserLogs?: boolean;
 	envVariables?: Record<string, string>;
 	overwrite?: boolean;

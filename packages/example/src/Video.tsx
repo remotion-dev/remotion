@@ -867,7 +867,7 @@ export const Index: React.FC = () => {
 						filePath: staticFile('nested/logö.png'),
 					}}
 					durationInFrames={150}
-					calculateMetadata={async ({defaultProps}) => {
+					calculateMetadata={({defaultProps}) => {
 						return {
 							durationInFrames: defaultProps.mynum * 10,
 							props: {
