@@ -62,9 +62,10 @@ export const Root: React.FC = () => {
 };
 ```
 
-The `props` being passed to `calculateMetadata()` are the [input props merged together with the default props](/docs/props-resolution). If you only want to fetch based on the default props, use the `defaultProps` also available in the same object.
+The `props` being passed to `calculateMetadata()` are the [input props merged together with the default props](/docs/props-resolution).  
+In addition to `props`, `defaultProps` can also be read from the same object.
 
-The type of the untransformed input and the transformed output must be the same.  
+When transforming, the input and the output must be the same TypeScript type.
 Consider using a nullable type for your data and throw an error inside your component to deal with the `null` type:
 
 ```tsx twoslash title="MyComp.tsx"
@@ -226,6 +227,32 @@ export const Root = () => {
 ```
 
 By implementing this pattern, The `id` in the [props editor](/docs/visual-editing) can now be tweaked and Remotion will refetch the data whenever it changes.
+
+### Setting the duration based on data
+
+You may set the `durationInFrames`, `fps`, `width` and `height` by returning those keys in the callback function:
+
+```tsx twoslash
+import { CalculateMetadataFunction } from "remotion";
+
+type MyCompProps = {
+  durationInSeconds: number;
+};
+
+export const calculateMyCompMetadata: CalculateMetadataFunction<
+  MyCompProps
+> = async ({ props }) => {
+  const fps = 30;
+  const durationInSeconds = props.durationInSeconds;
+
+  return {
+    durationInFrames: durationInSeconds * fps,
+    fps,
+  };
+};
+```
+
+Learn more about this feature in the [Variable metadata](/docs/variable-metadata) page.
 
 ### Aborting stale requests
 
