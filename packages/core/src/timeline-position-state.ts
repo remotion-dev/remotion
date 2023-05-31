@@ -1,6 +1,6 @@
 import type {MutableRefObject} from 'react';
 import {createContext, useContext, useMemo} from 'react';
-import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
+import {useVideo} from './use-video.js';
 
 export type PlayableMediaTag = {
 	play: () => void;
@@ -46,7 +46,7 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 });
 
 export const useTimelinePosition = (): number => {
-	const videoConfig = useUnsafeVideoConfig();
+	const videoConfig = useVideo();
 	const state = useContext(TimelineContext);
 
 	// A dynamically calculated duration using calculateMetadata()
