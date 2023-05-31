@@ -159,7 +159,7 @@ The object that is returned contains a name field, which you'll need for renderi
 
 The service consists of necessary binaries and JavaScript code that can take a [serve URL](/docs/terminology#serve-url) and make renders from it. A service is bound to the Remotion version, if you upgrade Remotion, you [need to deploy a new service](/docs/cloudrun/upgrading). A service does not include your Remotion code, it will be deployed in the next step instead.
 
-A [`cloudRunUrl`](/docs/terminology#cloud-run-url) will be printed, providing unique endpoint for accessing the deployed service and performing a render.
+A [`Cloud Run URL`](/docs/terminology#cloud-run-url) will be printed, providing unique endpoint for accessing the deployed service and performing a render. Alternatively you can use the [`Service Name`](/docs/terminology#service-name), that is also printed, for accessing the deployed service and performing a render.
 
 ## 7. Deploy a site
 
@@ -235,13 +235,37 @@ values={[
 <TabItem value="cli">
 
 - `<media | still>` The deployed Cloud Run service is capable of rendering media and stills. Pass either `media` or `still` to render as needed.
-- `<serve-url>` The serve URL was returned during step 7, site deployment.
-- `<cloud-run-url>` The Cloud Run URL was returned during step 6, service deployment.
+- `<serve-url | site-name>` The serve URL was returned during step 7, site deployment. If using a serve url from a Cloud Storage bucket, you can pass the site-name instead.
 - `<composition-id>` Pass in the [ID of the composition](/docs/composition) you'd like to render.
 
+<Tabs
+groupId="cliRender"
+defaultValue="cloudRunUrl"
+values={[
+{ label: 'Render using Cloud Run Url', value: 'cloudRunUrl', },
+{ label: 'Render using Service Name', value: 'serviceName', },
+]
+}>
+<TabItem value="cloudRunUrl">
+
+- `<cloud-run-url>` The Cloud Run URL was returned during step 6, service deployment.
+
 ```bash
-npx remotion cloudrun render <media | still> <serve-url | site-name> <composition-id> <cloud-run-url>
+npx remotion cloudrun render <media | still> <serve-url | site-name> <composition-id> --cloud-run-url=<cloud-run-url>
 ```
+
+</TabItem>
+<TabItem value="serviceName">
+
+- `<service-name>` The Service Name was returned during step 6, service deployment.
+- `<region>` The region the Service is in, which was returned during step 6, service deployment. This is only required if using the service name.
+
+```bash
+npx remotion cloudrun render <media | still> <serve-url | site-name> <composition-id> --service-name=<service-name> --region=<region>
+```
+
+</TabItem>
+</Tabs>
 
 Progress will be printed until the video finished rendering. Congrats! You rendered your first video using Remotion Cloudrun 🚀
 
@@ -278,36 +302,27 @@ We can now trigger a render of a video using the [`renderMediaOnCloudrun()`](/do
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { getServices, renderMediaOnCloudrun } from "@remotion/cloudrun";
+import { renderMediaOnCloudrun } from "@remotion/cloudrun";
 
 const url = "string";
-const cloudRunUrl = "string";
-const outputBucket = "string";
-const outputFile = "string";
+const serviceName = "string";
 const updateRenderProgress = (progress: number) => {};
-const services = await getServices({
-  region: "us-east1",
-  compatibleOnly: true,
-});
-
-const serviceName = services[0].serviceName;
 // ---cut---
 
 const { renderId, bucketName } = await renderMediaOnCloudrun({
-  cloudRunUrl,
+  serviceName,
+  region: "us-east1",
   serveUrl: url,
   composition: "HelloWorld",
   inputProps: {},
   codec: "h264",
-  outputBucket,
-  outputFile,
   updateRenderProgress,
 });
 ```
 
-The render will now run and after a while the video will be available in your cloud storage bucket. You can keep track of the render progress by passing a function to the [updateRenderProgress](/docs/cloudrun/rendermediaoncloudrun#updateRenderProgress) attribute, to receive progress as a number.
+The render will now run and after a while the video will be available in your cloud storage bucket. You can keep track of the render progress by passing a function to the [updateRenderProgress](/docs/cloudrun/rendermediaoncloudrun#updaterenderprogress) attribute, to receive progress as a number.
 
-Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/storage/browser) - you just rendered your first still using Remotion CloudRun 🚀
+Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/storage/browser) - you just rendered your first video using Remotion CloudRun 🚀
 </TabItem>
 <TabItem value="still">
 
@@ -331,30 +346,18 @@ We can now trigger a render of a still using the [`renderStillOnCloudrun()`](/do
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import {
-  // getFunctions,
-  renderStillOnCloudrun,
-} from "@remotion/cloudrun";
+import { renderStillOnCloudrun } from "@remotion/cloudrun";
 
 const url = "string";
-const cloudRunUrl = "string";
-const outputBucket = "string";
-const outputFile = "string";
-// const functions = await getFunctions({
-//   region: "us-east-1",
-//   compatibleOnly: true,
-// });
-
-// const functionName = functions[0].functionName;
+const serviceName = "string";
 // ---cut---
 
-const { renderId, publicUrl } = await renderStillOnCloudrun({
-  cloudRunUrl,
+const { renderId, bucketName } = await renderStillOnCloudrun({
+  serviceName,
+  region: "us-east1",
   serveUrl: url,
   composition: "HelloWorld",
   inputProps: {},
-  outputBucket,
-  outputFile,
   imageFormat: "jpeg",
 });
 ```
@@ -371,8 +374,8 @@ Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/sto
 
 ## Next steps
 
-- Select [which region(s)](/docs/lambda/region-selection) you want to run Remotion Lambda in.
+- Select [which region(s)](/docs/cloudrun/region-selection) you want to run Remotion Cloud Run in.
 - Familiarize yourself with the CLI and the Node.JS APIs (list in sidebar).
-- Learn how to [upgrade Remotion Lambda](/docs/lambda/upgrading).
-- Before going live, go through the [Production checklist](/docs/lambda/checklist).
-- If you have any questions, go through the [FAQ](/docs/lambda/faq) or ask in our [Discord channel](https://remotion.dev/discord)
+- Learn how to [upgrade Remotion Cloud Run](/docs/cloudrun/upgrading).
+- Before going live, go through the [Production checklist](/docs/cloudrun/checklist).
+- If you have any questions, go through the [FAQ](/docs/cloudrun/faq) or ask in our [Discord channel](https://remotion.dev/discord)
