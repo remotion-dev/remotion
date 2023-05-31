@@ -20,7 +20,7 @@ type ResolveCompositionConfigContect = Record<
 	VideoConfigState | undefined
 >;
 
-const ResolveCompositionContext =
+export const ResolveCompositionContext =
 	createContext<ResolveCompositionConfigContect | null>(null);
 
 export const resolveCompositionsRef = createRef<{
