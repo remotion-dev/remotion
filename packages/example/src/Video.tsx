@@ -81,7 +81,11 @@ export const Index: React.FC = () => {
 		await new Promise((r) => {
 			setTimeout(r, 1000);
 		});
-		throw new Error('Failed to calculate metadata');
+		// Enable this for testing, however it will break getCompositions():
+		// throw new Error('Failed to calculate metadata');
+		return {
+			props: {duration: 100},
+		};
 	}, []);
 
 	return (
