@@ -36,19 +36,18 @@ describe('Register and unregister asset', () => {
 		}> = ({children}) => {
 			return (
 				<CanUseRemotionHooksProvider>
-					<ResolveCompositionConfig>
-						<CompositionManager.Provider
-							value={
-								// eslint-disable-next-line react/jsx-no-constructed-context-values
-								{
-									registerAsset,
-									unregisterAsset,
-								} as unknown as CompositionManagerContext
-							}
-						>
-							{children}
-						</CompositionManager.Provider>
-					</ResolveCompositionConfig>
+					<CompositionManager.Provider
+						value={
+							// eslint-disable-next-line react/jsx-no-constructed-context-values
+							{
+								registerAsset,
+								unregisterAsset,
+								compositions: [],
+							} as unknown as CompositionManagerContext
+						}
+					>
+						<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
+					</CompositionManager.Provider>
 				</CanUseRemotionHooksProvider>
 			);
 		};
