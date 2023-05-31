@@ -11,7 +11,7 @@ export const mockCompositionContext: CompositionManagerContext = {
 	compositions: [
 		{
 			id: 'my-comp',
-			durationInFrames: 100,
+			durationInFrames: 1000000,
 			// @ts-expect-error
 			component: Comp,
 			defaultProps: {},
