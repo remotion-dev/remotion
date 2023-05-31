@@ -8,7 +8,7 @@ import {CompositionManager} from './CompositionManagerContext.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
 import {PreloadContext} from './prefetch-state.js';
-import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
+import {ResolveCompositionContext} from './ResolveCompositionConfig.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
 	SetTimelineContext,
@@ -24,6 +24,8 @@ export function useRemotionContexts() {
 	const canUseRemotionHooksContext = React.useContext(CanUseRemotionHooks);
 	const nativeLayersContext = React.useContext(NativeLayersContext);
 	const preloadContext = React.useContext(PreloadContext);
+	const resolveCompositionContext = React.useContext(ResolveCompositionContext);
+
 	return useMemo(
 		() => ({
 			compositionManagerCtx,
@@ -34,6 +36,7 @@ export function useRemotionContexts() {
 			canUseRemotionHooksContext,
 			nativeLayersContext,
 			preloadContext,
+			resolveCompositionContext,
 		}),
 		[
 			compositionManagerCtx,
@@ -44,6 +47,7 @@ export function useRemotionContexts() {
 			canUseRemotionHooksContext,
 			nativeLayersContext,
 			preloadContext,
+			resolveCompositionContext,
 		]
 	);
 }
@@ -63,7 +67,9 @@ export const RemotionContextProvider = (
 				<NativeLayersContext.Provider value={contexts.nativeLayersContext}>
 					<PreloadContext.Provider value={contexts.preloadContext}>
 						<CompositionManager.Provider value={contexts.compositionManagerCtx}>
-							<ResolveCompositionConfig>
+							<ResolveCompositionContext.Provider
+								value={contexts.resolveCompositionContext}
+							>
 								<TimelineContext.Provider value={contexts.timelineContext}>
 									<SetTimelineContext.Provider
 										value={contexts.setTimelineContext}
@@ -73,7 +79,7 @@ export const RemotionContextProvider = (
 										</SequenceContext.Provider>
 									</SetTimelineContext.Provider>
 								</TimelineContext.Provider>
-							</ResolveCompositionConfig>
+							</ResolveCompositionContext.Provider>
 						</CompositionManager.Provider>
 					</PreloadContext.Provider>
 				</NativeLayersContext.Provider>
