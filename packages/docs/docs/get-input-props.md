@@ -7,7 +7,7 @@ crumb: "API"
 
 _Available from v2.0_.
 
-Using this method, you can retrieve inputs that you pass in from the command line using [`--props`](/docs/cli), or the [`inputProps`](/docs/ssr#render-a-video-programmatically) parameter if you are using the Node.JS API.
+Using this method, you can retrieve inputs that you pass in from the command line using [`--props`](/docs/cli), or the [`inputProps`](/docs/ssr) parameter if you are using the Node.JS API.
 
 You should whenever possible prefer to retrieve props directly in your composition, like you would read props from a component if you were to code a React application, but this method is useful if you want to retrieve the input props outside of a composition.
 

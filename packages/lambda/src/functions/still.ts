@@ -115,6 +115,7 @@ const innerStillHandler = async (
 		downloadMap,
 		forceHeight: lambdaParams.forceHeight,
 		forceWidth: lambdaParams.forceWidth,
+		logLevel: lambdaParams.logLevel,
 	});
 
 	const renderMetadata: RenderMetadata = {

@@ -1,18 +1,44 @@
+import type {
+	BrowserExecutable,
+	ChromiumOptions,
+	DownloadMap,
+	HeadlessBrowser,
+} from '@remotion/renderer';
 import type {AnyCompMetadata} from 'remotion';
 import {getCompositionId} from './get-composition-id';
 
 export const getCompositionWithDimensionOverride = async ({
-	validCompositions,
 	height,
 	width,
 	args,
 	compositionIdFromUi,
+	chromiumOptions,
+	envVariables,
+	port,
+	puppeteerInstance,
+	timeoutInMilliseconds,
+	browserExecutable,
+	downloadMap,
+	serveUrlOrWebpackUrl,
+	indent,
+	inputProps,
+	verbose,
 }: {
-	validCompositions: AnyCompMetadata[];
 	height: number | null;
 	width: number | null;
 	args: string[];
 	compositionIdFromUi: string | null;
+	timeoutInMilliseconds: number;
+	puppeteerInstance: HeadlessBrowser | undefined;
+	envVariables: Record<string, string>;
+	chromiumOptions: ChromiumOptions;
+	port: number | null;
+	browserExecutable: BrowserExecutable | null;
+	downloadMap: DownloadMap | undefined;
+	serveUrlOrWebpackUrl: string;
+	indent: boolean;
+	verbose: boolean;
+	inputProps: Record<string, unknown> | null;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -20,9 +46,19 @@ export const getCompositionWithDimensionOverride = async ({
 	argsAfterComposition: string[];
 }> => {
 	const returnValue = await getCompositionId({
-		validCompositions,
 		args,
 		compositionIdFromUi,
+		indent,
+		serveUrlOrWebpackUrl,
+		verbose,
+		browserExecutable,
+		chromiumOptions,
+		downloadMap,
+		envVariables,
+		inputProps,
+		port,
+		puppeteerInstance,
+		timeoutInMilliseconds,
 	});
 
 	return {

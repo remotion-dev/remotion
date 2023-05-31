@@ -1,6 +1,6 @@
 import type {FC} from 'react';
 import {createContext, useContext, useEffect, useMemo} from 'react';
-import {CompositionManager} from './CompositionManager.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import {truthy} from './truthy.js';
 import {validateFolderName} from './validation/validate-folder-name.js';
 

@@ -1,7 +1,8 @@
 import React, {useContext} from 'react';
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
-import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {RenderQueueContext} from './context';
 import {RenderQueueItem} from './RenderQueueItem';
 
@@ -24,6 +25,13 @@ const explainer: React.CSSProperties = {
 	justifyContent: 'center',
 	alignItems: 'center',
 	textAlign: 'center',
+	background: BACKGROUND,
+};
+
+const renderQueue: React.CSSProperties = {
+	background: BACKGROUND,
+	flex: 1,
+	overflowY: 'auto',
 };
 
 export const RenderQueue: React.FC = () => {
@@ -52,7 +60,10 @@ export const RenderQueue: React.FC = () => {
 	}
 
 	return (
-		<div>
+		<div
+			style={renderQueue}
+			className={['css-reset', VERTICAL_SCROLLBAR_CLASSNAME].join(' ')}
+		>
 			{jobs.map((j, index) => {
 				return (
 					<div

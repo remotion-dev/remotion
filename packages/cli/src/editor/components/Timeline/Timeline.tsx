@@ -6,6 +6,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {calculateTimeline} from '../../helpers/calculate-timeline';
+import {BACKGROUND} from '../../helpers/colors';
 import type {TrackWithHash} from '../../helpers/get-timeline-sequence-sort-key';
 import {
 	TIMELINE_BORDER,
@@ -37,6 +38,7 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	height: 0,
 	overflowY: 'auto',
+	backgroundColor: BACKGROUND,
 };
 
 const noop = () => undefined;
@@ -112,7 +114,7 @@ export const Timeline: React.FC = () => {
 	}, [hasBeenCut, shown.length]);
 
 	if (!videoConfig) {
-		return null;
+		return <div style={container} className="css-reset" />;
 	}
 
 	return (

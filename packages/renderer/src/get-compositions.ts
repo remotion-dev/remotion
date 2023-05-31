@@ -3,7 +3,7 @@ import type {DownloadMap} from './assets/download-map';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
-import type {Browser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
@@ -18,7 +18,7 @@ import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 type GetCompositionsConfig = {
 	inputProps?: Record<string, unknown> | null;
 	envVariables?: Record<string, string>;
-	puppeteerInstance?: Browser;
+	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;

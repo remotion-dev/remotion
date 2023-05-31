@@ -4,8 +4,9 @@
 import type {RefObject} from 'react';
 import React from 'react';
 import {afterAll, beforeAll, expect, test, vitest} from 'vitest';
-import type {CompositionManagerContext} from '../CompositionManager.js';
-import {CompositionManager} from '../CompositionManager.js';
+import type {CompositionManagerContext} from '../CompositionManagerContext.js';
+import {CompositionManager} from '../CompositionManagerContext.js';
+import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import * as useVideoConfigModule from '../use-video-config.js';
 import {renderHook} from './render-hook.js';
@@ -20,7 +21,7 @@ beforeAll(() => {
 			fps: 30,
 			durationInFrames: 100,
 			id: 'hithere',
-			defaultProps: () => ({}),
+			defaultProps: {},
 		}));
 });
 afterAll(() => {
@@ -43,7 +44,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 				} as unknown as CompositionManagerContext
 			}
 		>
-			{children}
+			<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
 		</CompositionManager.Provider>
 	);
 
