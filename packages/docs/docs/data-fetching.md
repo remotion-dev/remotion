@@ -107,7 +107,7 @@ import { CalculateMetadataFunction } from "remotion";
 
 export const calculateMyCompMetadata: CalculateMetadataFunction<
   MyCompProps
-> = async ({ props }) => {
+> = ({ props }) => {
   return {
     props: {
       ...props,
@@ -241,7 +241,7 @@ type MyCompProps = {
 
 export const calculateMyCompMetadata: CalculateMetadataFunction<
   MyCompProps
-> = async ({ props }) => {
+> = ({ props }) => {
   const fps = 30;
   const durationInSeconds = props.durationInSeconds;
 

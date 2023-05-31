@@ -35,17 +35,19 @@ export type CompProps<Props> =
 			component: LooseComponentType<Props>;
 	  };
 
-export type CalculateMetadataFunction<T> = (options: {
-	defaultProps: T;
-	props: T;
-	abortSignal: AbortSignal;
-}) => Promise<{
+type CalcMetadataReturnType<T> = {
 	durationInFrames?: number;
 	fps?: number;
 	width?: number;
 	height?: number;
 	props?: T;
-}>;
+};
+
+export type CalculateMetadataFunction<T> = (options: {
+	defaultProps: T;
+	props: T;
+	abortSignal: AbortSignal;
+}) => Promise<CalcMetadataReturnType<T>> | CalcMetadataReturnType<T>;
 
 export type StillProps<
 	Schema extends AnyZodObject,
