@@ -16,7 +16,8 @@ test('Need to pass valid metadata', async () => {
 			},
 			frame: 0,
 			output: '/file/output.png',
-			serveUrl: 'https://thunderous-heliotrope-48a698.netlify.app/',
+			serveUrl:
+				'https://6477646d36b0613569ac2e2f--melodious-sopapillas-d35e3e.netlify.app/',
 			downloadMap,
 			verbose: false,
 			indent: false,
@@ -37,7 +38,8 @@ test('Returns buffer in promise result', async () => {
 			defaultProps: undefined,
 		},
 		frame: 0,
-		serveUrl: 'https://thunderous-heliotrope-48a698.netlify.app/',
+		serveUrl:
+			'https://6477646d36b0613569ac2e2f--melodious-sopapillas-d35e3e.netlify.app/',
 		downloadMap,
 		verbose: false,
 		indent: false,
@@ -60,7 +62,8 @@ test('Need to pass valid metadata', async () => {
 			},
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl: 'https://thunderous-heliotrope-48a698.netlify.app/',
+			serveUrl:
+				'https://6477646d36b0613569ac2e2f--melodious-sopapillas-d35e3e.netlify.app/',
 			downloadMap,
 			verbose: false,
 			indent: false,
@@ -86,7 +89,8 @@ test('Catches invalid image format', () => {
 			imageFormat: 'jjj',
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl: 'https://thunderous-heliotrope-48a698.netlify.app/',
+			serveUrl:
+				'https://6477646d36b0613569ac2e2f--melodious-sopapillas-d35e3e.netlify.app/',
 		})
 	).rejects.toThrow(
 		/Image format should be one of: "png", "jpeg", "pdf", "webp"/
