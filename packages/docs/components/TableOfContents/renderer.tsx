@@ -10,7 +10,7 @@ export const TableOfContents: React.FC = () => {
           <strong>getCompositions()</strong>
           <div>List available compositions</div>
         </TOCItem>
-        <TOCItem link="/docs/renderer/selectComposition">
+        <TOCItem link="/docs/renderer/select-composition">
           <strong>selectComposition()</strong>
           <div>Get a composition</div>
         </TOCItem>

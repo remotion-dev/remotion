@@ -10,7 +10,7 @@ To edit props visually, first register a [`schema`](/docs/composition#schema) wi
 ## Opening the props editor
 
 To open the props editor, press the <svg style={{width: 20, verticalAlign:"middle", marginLeft: 4, marginRight: 4}} viewBox="0 0 100 100" fill="transparent"><rect x="3" y="3" width="94" height="94" rx="7" stroke="var(--ifm-font-color-base)" strokeWidth="6"/><path d="M59 91.5V8.5C59 4.63401 62.134 1.5 66 1.5H92C95.866 1.5 99 4.63401 99 8.5V91.5C99 95.366 95.866 98.5 92 98.5H66C62.134 98.5 59 95.366 59 91.5Z" fill="var(--ifm-font-color-base)" stroke="var(--ifm-font-color-base)"/></svg>
-icon in the top right corner of the Remotion Preview to open the right sidebar. Alternatively, press <kbd>Cmd/Ctrl</kbd> + <kbd>B</kbd> to toggle the sidebar. Select the <code>Props</code> tab.
+icon in the top right corner of the Remotion Preview to open the right sidebar. Alternatively, press <kbd>Cmd/Ctrl</kbd> + <kbd>J</kbd> to toggle the sidebar. Select the <code>Props</code> tab.
 
 ## Editing props
 
@@ -26,7 +26,7 @@ Controls are implemented for:
 - `z.number()`
 - `z.boolean()`
 - `z.array()`
-- `z.union()` (only with two types, one of them being `z.null()` or `z.undefined()`)
+- `z.union()` (only unions of two types, one of them being `z.null()` or `z.undefined()`)
 - `z.optional()`
 - `z.nullable()`
 - `z.enum()`

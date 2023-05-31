@@ -15,7 +15,7 @@ The easiest and fastest way to render videos in the cloud is to use [`@remotion/
 
 ## Render a video using Node.JS APIs
 
-The NPM package `@remotion/renderer` provides you with an API for rendering the videos programmatically. You can make a video in three steps:
+The NPM package `@remotion/renderer` provides you with an API for rendering media programmatically. You can make a video in three steps:
 
 <Step>1</Step> Creating a <a href="/docs/terminology#bundle">Remotion Bundle</a><br/>
 <Step>2</Step> Select the composition to render and calculate its metadata<br/>

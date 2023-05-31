@@ -252,7 +252,7 @@ export const calculateMyCompMetadata: CalculateMetadataFunction<
 };
 ```
 
-Learn more about this feature in the [Variable metadata](/docs/variable-metadata) page.
+Learn more about this feature in the [Variable metadata](/docs/dynamic-metadata) page.
 
 ### Aborting stale requests
 

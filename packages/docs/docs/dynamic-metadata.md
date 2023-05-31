@@ -50,7 +50,7 @@ export const Root: React.FC = () => {
 };
 ```
 
-The `props` defaults to the `defaultProps` specified, but may be overriden by [passing input props to the render](/props-resolution).
+The `props` defaults to the `defaultProps` specified, but may be overriden by [passing input props to the render](/docs/props-resolution).
 
 Return an object with `durationInFrames` to change the duration of the video.
 In addition or instead, you may also return `fps`, `width` and `height` to update the video's resolution and framerate.

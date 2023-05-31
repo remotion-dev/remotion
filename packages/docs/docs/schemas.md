@@ -5,7 +5,7 @@ sidebar_label: Defining a schema
 crumb: "How To"
 ---
 
-As an alternative to [using TypeScript types](/docs/parametrized-rendering) to define the shape of the props your composition accepts, you may use [Zod](https://zod.dev/) to define a schema for your props. You may do so if you want to:
+As an alternative to [using TypeScript types](/docs/parametrized-rendering) to define the shape of the props your component accepts, you may use [Zod](https://zod.dev/) to define a schema for your props. You may do so if you want to:
 
 <Step>1</Step> Validate the props during rendering. [TODO] <br/>
 <Step>2</Step> Edit the props visually in the Remotion Preview.
@@ -137,14 +137,14 @@ export const RemotionRoot: React.FC = () => {
 };
 ```
 
+## Editing props visually
+
+When you have defined a schema for your props, you can [edit them visually in the Remotion Preview](/docs/visual-editing). This is useful if you want to quickly try out different values for your props.
+
 ## Supported types
 
 All schemas that are supported by [Zod](https://zod.dev/) are supported by Remotion.
 
 Remotion requires that the top-level type is a `z.object()`, because the collection of props of a React component is always an object.
 
-In addition to the built in types, the `@remotion/zod-types` also provides [`zColor()`](/docs/zod-types/z-color), including a color picker interface in the Remotion Preview.
-
-## Editing props visually
-
-When you have defined a schema for your props, you can [edit them visually in the Remotion Preview](/docs/visual-editing). This is useful if you want to quickly try out different values for your props.
+In addition to the built in types, the `@remotion/zod-types` package also provides [`zColor()`](/docs/zod-types/z-color), including a color picker interface for the Remotion Preview.

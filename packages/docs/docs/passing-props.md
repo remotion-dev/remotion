@@ -70,7 +70,7 @@ export const Root: React.FC = () => {
 };
 ```
 
-Default props are useful so you don't preview your video with no data. [Default props will overriden by input props](/docs/props-resolution).
+Default props are useful so you don't preview your video with no data. [Default props will ne overriden by input props](/docs/props-resolution).
 
 ## Define a schema<AvailableFrom v="4.0.0"/>
 
