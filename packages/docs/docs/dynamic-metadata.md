@@ -181,9 +181,7 @@ import { Player } from "@remotion/player";
 
 type Props = {};
 
-const calculateMetadataFunction: CalculateMetadataFunction<
-  Props
-> = async () => {
+const calculateMetadataFunction: CalculateMetadataFunction<Props> = () => {
   return {
     props: {},
     durationInFrames: 1,

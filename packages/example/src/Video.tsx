@@ -88,6 +88,16 @@ export const Index: React.FC = () => {
 		};
 	}, []);
 
+	const syncCalculateMetadata: CalculateMetadataFunction<
+		z.infer<typeof dynamicDurationSchema>
+	> = useCallback(() => {
+		// Enable this for testing, however it will break getCompositions():
+		// throw new Error('Failed to calculate metadata');
+		return {
+			props: {duration: 100},
+		};
+	}, []);
+
 	return (
 		<>
 			<Folder name="dynamic-parameters">
@@ -110,6 +120,17 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={100}
 					calculateMetadata={failingCalculateMetadata}
+					schema={dynamicDurationSchema}
+					defaultProps={{duration: 50}}
+				/>
+				<Composition
+					id="sync-dynamic-length"
+					component={DynamicDuration}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					calculateMetadata={syncCalculateMetadata}
 					schema={dynamicDurationSchema}
 					defaultProps={{duration: 50}}
 				/>
