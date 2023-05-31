@@ -7,19 +7,21 @@ import type {
 	CloudRunPayloadType,
 	RenderStillOnCloudrunOutput,
 } from '../functions/helpers/payloads';
+import type {GcpRegion} from '../pricing/gcp-regions';
 import {validatePrivacy} from '../shared/validate-privacy';
 import {validateServeUrl} from '../shared/validate-serveurl';
+import {getOrCreateBucket} from './get-or-create-bucket';
 import {getAuthClientForUrl} from './helpers/get-auth-client-for-url';
 import {getCloudrunEndpoint} from './helpers/get-cloudrun-endpoint';
 
 export type RenderStillOnCloudrunInput = {
 	cloudRunUrl?: string;
 	serviceName?: string;
-	region?: string;
+	region: GcpRegion;
 	serveUrl: string;
 	composition: string;
 	inputProps?: unknown;
-	outputBucket: string;
+	forceBucketName: string;
 	privacy?: 'public' | 'private';
 	outputFile?: string;
 	imageFormat: StillImageFormat;
@@ -42,7 +44,7 @@ export type RenderStillOnCloudrunInput = {
  * @param params.serveUrl The URL of the deployed project
  * @param params.composition The ID of the composition which should be rendered.
  * @param params.inputProps The input props that should be passed to the composition.
- * @param params.outputBucket The name of the bucket that the output file should be uploaded to.
+ * @param params.forceBucketName The name of the bucket that the output file should be uploaded to.
  * @param params.privacy Whether the output file should be public or private.
  * @param params.outputFile The name of the output file.
  * @param params.imageFormat Which image format the frame should be rendered in.
@@ -64,7 +66,7 @@ export const renderStillOnCloudrun = async ({
 	serveUrl,
 	composition,
 	inputProps,
-	outputBucket,
+	forceBucketName,
 	privacy,
 	outputFile,
 	imageFormat,
@@ -79,6 +81,9 @@ export const renderStillOnCloudrun = async ({
 }: RenderStillOnCloudrunInput): Promise<RenderStillOnCloudrunOutput> => {
 	validateServeUrl(serveUrl);
 	if (privacy) validatePrivacy(privacy);
+
+	const outputBucket =
+		forceBucketName ?? (await getOrCreateBucket({region})).bucketName;
 
 	const cloudRunEndpoint = await getCloudrunEndpoint({
 		cloudRunUrl,

@@ -1,6 +1,7 @@
 import type {ChromiumOptions, FrameRange, LogLevel} from '@remotion/renderer';
 import type {
 	CloudRunPayloadType,
+	ErrorResponsePayload,
 	RenderMediaOnCloudrunOutput,
 } from '../functions/helpers/payloads';
 import type {GcpRegion} from '../pricing/gcp-regions';
@@ -179,7 +180,7 @@ export const renderMediaOnCloudrun = async ({
 	const authenticatedDataPromise =
 		await new Promise<RenderMediaOnCloudrunOutput>((resolve, reject) => {
 			// TODO: Add any sort of type safety
-			let response: any;
+			let response: RenderMediaOnCloudrunOutput | ErrorResponsePayload;
 
 			const stream: any = postResponse.data;
 
@@ -193,9 +194,8 @@ export const renderMediaOnCloudrun = async ({
 			});
 
 			stream.on('end', () => {
-				if (!response) {
-					reject(new Error('no response received'));
-					return;
+				if (response.status !== 'success') {
+					throw new Error(response.stack);
 				}
 
 				resolve(response);

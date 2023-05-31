@@ -5,7 +5,6 @@ import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
 import {ConfigInternals} from '@remotion/cli/config';
 import {downloadFile} from '../../../api/download-file';
 import {parsedCloudrunCli} from '../../args';
-import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
 
@@ -146,13 +145,12 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 	renderProgress.doneIn = Date.now() - renderStart;
 	updateProgress();
 
-	if (res.status === 'success') {
-		Log.info(`
+	Log.info(`
 		
 		`);
-		Log.info(
-			CliInternals.chalk.blueBright(
-				`
+	Log.info(
+		CliInternals.chalk.blueBright(
+			`
 ${res.publicUrl ? `Public URL = ${decodeURIComponent(res.publicUrl)}` : ``}
 Cloud Storage Uri = ${res.cloudStorageUri}
 Size (KB) = ${Math.round(Number(res.size) / 1000)}
@@ -161,26 +159,21 @@ Privacy = ${res.privacy}
 Render ID = ${res.renderId}
 Codec = ${codec} (${codecReason})
       `.trim()
-			)
+		)
+	);
+
+	if (downloadName) {
+		Log.info('');
+		Log.info('downloading file...');
+
+		const destination = await downloadFile({
+			bucketName: res.bucketName,
+			gsutilURI: res.cloudStorageUri,
+			downloadName,
+		});
+
+		Log.info(
+			CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
 		);
-
-		if (downloadName) {
-			Log.info('');
-			Log.info('downloading file...');
-
-			const destination = await downloadFile({
-				bucketName: res.bucketName,
-				gsutilURI: res.cloudStorageUri,
-				downloadName,
-			});
-
-			Log.info(
-				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
-			);
-		}
-	} else {
-		Log.error('Render failed with the following error: ');
-		Log.error(res.stack);
-		quit(1);
 	}
 };
