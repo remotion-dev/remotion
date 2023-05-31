@@ -146,17 +146,18 @@ export const RenderModalData: React.FC<{
 
 	const inJSONEditor = mode === 'json';
 	const serializedJSON: SerializedJSONWithCustomFields | null = useMemo(() => {
-		if (!inJSONEditor) {
-			return null;
-		}
-
 		const value = inputProps;
 		return serializeJSONWithDate({
 			data: value,
 			indent: 2,
 			staticBase: window.remotion_staticBase,
 		});
-	}, [inJSONEditor, inputProps]);
+	}, [inputProps]);
+
+	const [localJsonEditorValue, setLocalJsonEditorValue] =
+		useState<State | null>(() => {
+			return serializedJSON ? parseJSON(serializedJSON.serializedString) : null;
+		});
 
 	const cliProps = getInputProps();
 	const [canSaveDefaultPropsObjectState, setCanSaveDefaultProps] =
@@ -424,7 +425,7 @@ export const RenderModalData: React.FC<{
 					saving={saving}
 					saveDisabledByParent={!zodValidationResult.success}
 				/>
-			) : (
+			) : localJsonEditorValue ? (
 				<RenderModalJSONPropsEditor
 					value={inputProps ?? {}}
 					setValue={setInputProps}
@@ -435,8 +436,12 @@ export const RenderModalData: React.FC<{
 					showSaveButton={showSaveButton}
 					serializedJSON={serializedJSON}
 					parseJSON={parseJSON}
+					schema={schema}
+					defaultProps={composition.defaultProps}
+					localJsonEditorValue={localJsonEditorValue}
+					setLocalJsonEditorValue={setLocalJsonEditorValue}
 				/>
-			)}
+			) : null}
 		</div>
 	);
 };
