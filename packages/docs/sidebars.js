@@ -381,8 +381,12 @@ module.exports = {
     {
       type: "category",
       label: "Parametrized videos",
+      link: {
+        type: "doc",
+        id: "parametrized-rendering",
+      },
       items: [
-        "parametrized-rendering",
+        "passing-props",
         "schemas",
         "visual-editing",
         "data-fetching",
