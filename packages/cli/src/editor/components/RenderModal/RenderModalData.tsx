@@ -435,6 +435,7 @@ export const RenderModalData: React.FC<{
 					showSaveButton={showSaveButton}
 					serializedJSON={serializedJSON}
 					parseJSON={parseJSON}
+					compact={compact}
 				/>
 			)}
 		</div>

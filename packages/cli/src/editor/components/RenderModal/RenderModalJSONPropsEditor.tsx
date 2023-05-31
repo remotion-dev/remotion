@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {Row, Spacing} from '../layout';
@@ -39,6 +39,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	showSaveButton: boolean;
 	parseJSON: (str: string) => State;
 	serializedJSON: SerializedJSONWithCustomFields | null;
+	compact: boolean;
 }> = ({
 	setValue,
 	value,
@@ -49,10 +50,43 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	showSaveButton,
 	parseJSON,
 	serializedJSON,
+	compact: inSidebar,
 }) => {
 	if (serializedJSON === null) {
 		throw new Error('expecting serializedJSON to be defined');
 	}
+
+	const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+
+	useEffect(() => {
+		const handleResize = () => {
+			setWindowHeight(window.innerHeight);
+		};
+
+		window.addEventListener('resize', handleResize);
+
+		return () => {
+			window.removeEventListener('resize', handleResize);
+		};
+	}, []);
+
+	const textAreaStyle: React.CSSProperties = useMemo(() => {
+		if (inSidebar) {
+			return {
+				...style,
+				maxHeight: windowHeight - 300,
+			};
+		}
+
+		const maxHeight = 340;
+		const dynamicHeight =
+			windowHeight > 550 ? windowHeight / 2.2 : windowHeight - 300;
+
+		return {
+			...style,
+			maxHeight: windowHeight > 700 ? maxHeight : dynamicHeight,
+		};
+	}, [inSidebar, windowHeight]);
 
 	const keybindings = useKeybinding();
 
@@ -125,7 +159,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 				onChange={onChange}
 				value={localValue.str}
 				status={localValue.validJSON ? 'ok' : 'error'}
-				style={style}
+				style={textAreaStyle}
 			/>
 			<Spacing y={1} />
 			{localValue.validJSON === false ? (
