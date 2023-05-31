@@ -16,7 +16,7 @@ afterEach(async () => {
 test("Render video with browser instance open", async () => {
   const puppeteerInstance = await openBrowser("chrome");
   const compositions = await getCompositions(
-    "https://thunderous-heliotrope-48a698.netlify.app/",
+    "https://6477646d36b0613569ac2e2f--melodious-sopapillas-d35e3e.netlify.app/",
     {
       puppeteerInstance,
     }
@@ -34,7 +34,8 @@ test("Render video with browser instance open", async () => {
 
   const { buffer } = await renderStill({
     output: outPath,
-    serveUrl: "https://thunderous-heliotrope-48a698.netlify.app/",
+    serveUrl:
+      "https://6477646d36b0613569ac2e2f--melodious-sopapillas-d35e3e.netlify.app/",
     composition: reactSvg,
     puppeteerInstance,
   });
@@ -44,7 +45,7 @@ test("Render video with browser instance open", async () => {
 
 test("Render still with browser instance not open and legacy webpack config", async () => {
   const compositions = await getCompositions(
-    "https://thunderous-heliotrope-48a698.netlify.app/"
+    "https://6477646d36b0613569ac2e2f--melodious-sopapillas-d35e3e.netlify.app/"
   );
 
   const reactSvg = compositions.find((c) => c.id === "react-svg");
@@ -59,7 +60,8 @@ test("Render still with browser instance not open and legacy webpack config", as
 
   await renderStill({
     output: outPath,
-    serveUrl: "https://thunderous-heliotrope-48a698.netlify.app/",
+    serveUrl:
+      "https://6477646d36b0613569ac2e2f--melodious-sopapillas-d35e3e.netlify.app/",
     composition: reactSvg,
   });
   expect(existsSync(outPath)).toBe(true);

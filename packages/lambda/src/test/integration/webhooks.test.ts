@@ -69,7 +69,8 @@ describe('Webhooks', () => {
 		const res = await handler(
 			{
 				type: LambdaRoutines.start,
-				serveUrl: 'https://thunderous-heliotrope-48a698.netlify.app/',
+				serveUrl:
+					'https://6477646d36b0613569ac2e2f--melodious-sopapillas-d35e3e.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -155,7 +156,8 @@ describe('Webhooks', () => {
 		await handler(
 			{
 				type: LambdaRoutines.launch,
-				serveUrl: 'https://thunderous-heliotrope-48a698.netlify.app/',
+				serveUrl:
+					'https://6477646d36b0613569ac2e2f--melodious-sopapillas-d35e3e.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
