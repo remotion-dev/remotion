@@ -203,11 +203,13 @@ export const Index: React.FC = () => {
   const [metadata, setMetadata] = useState<Metadata | null>(null);
 
   useEffect(() => {
-    calculateMetadataFunction({
-      defaultProps: {},
-      props: {},
-      abortSignal: new AbortController().signal,
-    })
+    Promise.resolve(
+      calculateMetadataFunction({
+        defaultProps: {},
+        props: {},
+        abortSignal: new AbortController().signal,
+      })
+    )
       .then(({ durationInFrames, props, width, height, fps }) => {
         setMetadata({
           durationInFrames: durationInFrames as number,
