@@ -21,7 +21,7 @@ export type RenderStillOnCloudrunInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps?: unknown;
-	forceBucketName: string;
+	forceBucketName?: string;
 	privacy?: 'public' | 'private';
 	outputFile?: string;
 	imageFormat: StillImageFormat;
