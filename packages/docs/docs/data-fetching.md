@@ -353,7 +353,7 @@ During rendering, multiple headless browser tabs are opened to speed up renderin
 In Remotion Lambda, the [rendering concurrency](/docs/lambda/concurrency) may be up to 200x.  
 This means that if you are fetching data inside your component, the data fetching will be performed many times.
 
-<Step>1</Step> Prefer fetching the data before render if possible. <br/>
+<Step>1</Step> Prefer fetching the data before rendering if possible. <br/>
 <Step>2</Step> Ensure you are entitled to a high request rate without running into a rate limit.<br/>
 <Step>3</Step> The data returned by the API must be the same on all threads, otherwise <a href="/docs/flickering">flickering</a> may occur. <br/>
 <Step>4</Step> Make sure to not have <code>frame</code> as a dependency of the <code>useEffect()</code>, directly or indirectly, otherwise data will be fetched every frame leading to slowdown and potentially running into rate limits. <br/>

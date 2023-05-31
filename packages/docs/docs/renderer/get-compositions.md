@@ -11,7 +11,7 @@ _Part of the `@remotion/renderer` package._
 
 Gets a list of compositions defined in a Remotion project based on a [Remotion Bundle](/docs/terminology#bundle) by evaluating the [Remotion Root](/docs/terminology#remotion-root).
 
-For every compositions their `calculateMetadata()` function is evaluated. If you just want to evaluate one composition that you want to render, use [`selectComposition()`](/docs/renderer/select-composition).
+For every compositions their [`calculateMetadata()`](/docs/composition#calculatemetadata) function is evaluated. If you just want to evaluate one composition that you want to render, use [`selectComposition()`](/docs/renderer/select-composition).
 
 ```ts
 const getCompositions: (
