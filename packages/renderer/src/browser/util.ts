@@ -15,7 +15,7 @@
  */
 
 import {assert} from './assert';
-import type {Browser} from './Browser';
+import type {HeadlessBrowser} from './Browser';
 import {BrowserEmittedEvents} from './Browser';
 import type {CDPSession} from './Connection';
 import type {DevtoolsRemoteObject, ExceptionDetails} from './devtools-types';
@@ -199,7 +199,7 @@ export async function waitWithTimeout<T>(
 	promise: Promise<T>,
 	taskName: string,
 	timeout: number,
-	browser: Browser
+	browser: HeadlessBrowser
 ): Promise<T> {
 	let reject: (reason?: Error) => void;
 	const timeoutError = new TimeoutError(

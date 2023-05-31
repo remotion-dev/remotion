@@ -4,7 +4,7 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
-import {CompositionManager} from '../CompositionManager.js';
+import {CompositionManager} from '../CompositionManagerContext.js';
 import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
 import {Img} from '../Img.js';
 import {random} from '../random.js';

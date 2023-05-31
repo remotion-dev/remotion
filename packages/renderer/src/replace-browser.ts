@@ -1,26 +1,28 @@
-import type {Browser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 
 export type BrowserReplacer = {
-	getBrowser: () => Browser;
+	getBrowser: () => HeadlessBrowser;
 	replaceBrowser: (
-		make: () => Promise<Browser>,
+		make: () => Promise<HeadlessBrowser>,
 		makeNewPages: () => Promise<void>
-	) => Promise<Browser>;
+	) => Promise<HeadlessBrowser>;
 };
 
-export const handleBrowserCrash = (instance: Browser): BrowserReplacer => {
+export const handleBrowserCrash = (
+	instance: HeadlessBrowser
+): BrowserReplacer => {
 	let _instance = instance;
 	const waiters: {
-		resolve: (br: Browser) => void;
+		resolve: (br: HeadlessBrowser) => void;
 		reject: (err: Error) => void;
 	}[] = [];
 	let replacing = false;
 
 	return {
 		getBrowser: () => _instance,
-		replaceBrowser: async (make, makeNewPages): Promise<Browser> => {
+		replaceBrowser: async (make, makeNewPages): Promise<HeadlessBrowser> => {
 			if (replacing) {
-				const waiter = new Promise<Browser>((resolve, reject) => {
+				const waiter = new Promise<HeadlessBrowser>((resolve, reject) => {
 					waiters.push({
 						resolve,
 						reject,

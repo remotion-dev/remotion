@@ -15,7 +15,6 @@ import type {
 	VideoImageFormat,
 } from '@remotion/renderer';
 import {
-	getCompositions,
 	openBrowser,
 	renderFrames,
 	RenderInternals,
@@ -252,24 +251,23 @@ export const renderVideoFlow = async ({
 	const puppeteerInstance = await browserInstance;
 	addCleanupCallback(() => puppeteerInstance.close(false));
 
-	const comps = await getCompositions(urlOrBundle, {
-		inputProps,
-		puppeteerInstance,
-		envVariables,
-		timeoutInMilliseconds: puppeteerTimeout,
-		chromiumOptions,
-		browserExecutable,
-		downloadMap,
-		port,
-	});
-
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
-			validCompositions: comps,
 			height,
 			width,
 			args: remainingArgs,
 			compositionIdFromUi,
+			browserExecutable,
+			chromiumOptions,
+			downloadMap,
+			envVariables,
+			indent,
+			inputProps,
+			port,
+			puppeteerInstance,
+			serveUrlOrWebpackUrl: urlOrBundle,
+			timeoutInMilliseconds: puppeteerTimeout,
+			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		});
 
 	const {codec, reason: codecReason} = getFinalOutputCodec({

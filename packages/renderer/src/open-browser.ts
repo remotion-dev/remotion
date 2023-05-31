@@ -1,5 +1,5 @@
 import type {Browser} from './browser';
-import type {Browser as PuppeteerBrowser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 import {puppeteer} from './browser/node';
 import type {Viewport} from './browser/PuppeteerViewport';
 import {
@@ -38,7 +38,7 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	return [`--use-gl=${renderer}`];
 };
 
-const browserInstances: PuppeteerBrowser[] = [];
+const browserInstances: HeadlessBrowser[] = [];
 
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
@@ -62,7 +62,7 @@ export const openBrowser = async (
 		viewport?: Viewport;
 		indent?: boolean;
 	}
-): Promise<PuppeteerBrowser> => {
+): Promise<HeadlessBrowser> => {
 	if (browser === 'firefox') {
 		throw new TypeError(
 			'Firefox supported is not yet turned on. Stay tuned for the future.'

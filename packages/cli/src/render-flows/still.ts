@@ -9,12 +9,7 @@ import type {
 	RenderMediaOnDownload,
 	StillImageFormat,
 } from '@remotion/renderer';
-import {
-	getCompositions,
-	openBrowser,
-	RenderInternals,
-	renderStill,
-} from '@remotion/renderer';
+import {openBrowser, RenderInternals, renderStill} from '@remotion/renderer';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {chalk} from '../chalk';
@@ -173,24 +168,23 @@ export const renderStillFlow = async ({
 
 	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
 
-	const comps = await getCompositions(urlOrBundle, {
-		inputProps,
-		puppeteerInstance,
-		envVariables,
-		timeoutInMilliseconds: puppeteerTimeout,
-		chromiumOptions,
-		port,
-		browserExecutable,
-		downloadMap,
-	});
-
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
-			validCompositions: comps,
 			height,
 			width,
 			args: remainingArgs,
 			compositionIdFromUi,
+			browserExecutable,
+			chromiumOptions,
+			downloadMap,
+			envVariables,
+			indent: indentOutput,
+			inputProps,
+			port,
+			puppeteerInstance,
+			serveUrlOrWebpackUrl: urlOrBundle,
+			timeoutInMilliseconds: puppeteerTimeout,
+			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({

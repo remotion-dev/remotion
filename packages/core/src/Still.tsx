@@ -4,7 +4,7 @@ import type {CompositionProps, StillProps} from './Composition.js';
 import {Composition} from './Composition.js';
 
 /**
- * @description A <Still /> is a <Composition /> that is only 1 frame long.
+ * @description A `<Still />` is a `<Composition />` that is only 1 frame long.
  * @see [Documentation](https://www.remotion.dev/docs/still)
  */
 

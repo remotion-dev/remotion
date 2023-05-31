@@ -1,6 +1,5 @@
 import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {
-	createContext,
 	useCallback,
 	useImperativeHandle,
 	useLayoutEffect,
@@ -10,8 +9,15 @@ import React, {
 } from 'react';
 import type {AnyZodObject} from 'zod';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
+import type {CalculateMetadataFunction} from './Composition.js';
+import type {
+	BaseMetadata,
+	CompositionManagerContext,
+} from './CompositionManagerContext.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import type {TFolder} from './Folder.js';
-import type {PropsIfHasProps} from './props-if-has-props.js';
+import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
+import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
 
 export type TComposition<
 	Schema extends AnyZodObject,
@@ -27,11 +33,28 @@ export type TComposition<
 	component: LazyExoticComponent<ComponentType<Props>>;
 	nonce: number;
 	schema: Schema | null;
+	calculateMetadata: CalculateMetadataFunction<
+		InferProps<Schema, Props>
+	> | null;
 } & PropsIfHasProps<Schema, Props>;
 
 export type AnyComposition = TComposition<
 	AnyZodObject,
 	Record<string, unknown> | undefined
+>;
+
+export type TCompMetadataWithCalcFunction<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown> | undefined
+> = Pick<
+	TComposition<Schema, Props>,
+	| 'id'
+	| 'height'
+	| 'width'
+	| 'fps'
+	| 'durationInFrames'
+	| 'defaultProps'
+	| 'calculateMetadata'
 >;
 
 export type TCompMetadata<
@@ -115,56 +138,8 @@ export type TAsset = {
 	allowAmplificationDuringRender: boolean;
 };
 
-type BaseMetadata = Pick<
-	AnyCompMetadata,
-	'durationInFrames' | 'fps' | 'defaultProps' | 'height' | 'width'
->;
-
-export type CompositionManagerContext = {
-	compositions: AnyComposition[];
-	registerComposition: <
-		Schema extends AnyZodObject,
-		Props extends Record<string, unknown> | undefined
-	>(
-		comp: TComposition<Schema, Props>
-	) => void;
-	unregisterComposition: (name: string) => void;
-	registerFolder: (name: string, parent: string | null) => void;
-	unregisterFolder: (name: string, parent: string | null) => void;
-	currentComposition: string | null;
-	setCurrentComposition: (curr: string) => void;
-	setCurrentCompositionMetadata: (metadata: BaseMetadata) => void;
-	currentCompositionMetadata: BaseMetadata | null;
-	registerSequence: (seq: TSequence) => void;
-	unregisterSequence: (id: string) => void;
-	registerAsset: (asset: TAsset) => void;
-	unregisterAsset: (id: string) => void;
-	sequences: TSequence[];
-	assets: TAsset[];
-	folders: TFolder[];
-};
-
-export const CompositionManager = createContext<CompositionManagerContext>({
-	compositions: [],
-	registerComposition: () => undefined,
-	unregisterComposition: () => undefined,
-	registerFolder: () => undefined,
-	unregisterFolder: () => undefined,
-	currentComposition: null,
-	setCurrentComposition: () => undefined,
-	setCurrentCompositionMetadata: () => undefined,
-	registerSequence: () => undefined,
-	unregisterSequence: () => undefined,
-	registerAsset: () => undefined,
-	unregisterAsset: () => undefined,
-	sequences: [],
-	assets: [],
-	folders: [],
-	currentCompositionMetadata: null,
-});
-
 export const compositionsRef = React.createRef<{
-	getCompositions: () => TCompMetadata<
+	getCompositions: () => TCompMetadataWithCalcFunction<
 		AnyZodObject,
 		Record<string, unknown> | undefined
 	>[];
@@ -176,9 +151,7 @@ export const CompositionManagerProvider: React.FC<{
 }> = ({children, numberOfAudioTags}) => {
 	// Wontfix, expected to have
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const [compositions, setCompositions] = useState<TComposition<any, any>[]>(
-		[]
-	);
+	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
 	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
 		null
@@ -194,7 +167,7 @@ export const CompositionManagerProvider: React.FC<{
 	const updateCompositions = useCallback(
 		(
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			updateComps: (comp: TComposition<any, any>[]) => TComposition<any, any>[]
+			updateComps: (comp: AnyComposition[]) => AnyComposition[]
 		) => {
 			setCompositions((comps) => {
 				const updated = updateComps(comps);
@@ -219,7 +192,11 @@ export const CompositionManagerProvider: React.FC<{
 					);
 				}
 
-				return [...comps, comp].slice().sort((a, b) => a.nonce - b.nonce);
+				const value = [...comps, comp]
+					.slice()
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					.sort((a, b) => a.nonce - b.nonce) as AnyComposition[];
+				return value;
 			});
 		},
 		[updateCompositions]
@@ -295,6 +272,8 @@ export const CompositionManagerProvider: React.FC<{
 		[]
 	);
 
+	const composition = compositions.find((c) => c.id === currentComposition);
+
 	const contextValue = useMemo((): CompositionManagerContext => {
 		return {
 			compositions,
@@ -331,18 +310,16 @@ export const CompositionManagerProvider: React.FC<{
 		currentCompositionMetadata,
 	]);
 
-	const composition = compositions.find(
-		(c) => c.id === currentComposition
-	)?.component;
-
 	return (
 		<CompositionManager.Provider value={contextValue}>
-			<SharedAudioContextProvider
-				numberOfAudioTags={numberOfAudioTags}
-				component={composition ?? null}
-			>
-				{children}
-			</SharedAudioContextProvider>
+			<ResolveCompositionConfig>
+				<SharedAudioContextProvider
+					numberOfAudioTags={numberOfAudioTags}
+					component={composition?.component ?? null}
+				>
+					{children}
+				</SharedAudioContextProvider>
+			</ResolveCompositionConfig>
 		</CompositionManager.Provider>
 	);
 };

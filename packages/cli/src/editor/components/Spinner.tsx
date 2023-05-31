@@ -10,10 +10,10 @@ const remotionSpinnerAnimation = '__remotion_spinner_animation';
 const translated =
 	'M 44 0 L 50 0 a 6 6 0 0 1 6 6 L 56 26 a 6 6 0 0 1 -6 6 L 50 32 a 6 6 0 0 1 -6 -6 L 44 6 a 6 6 0 0 1 6 -6 Z';
 
-const totalDuration = 0.5;
 export const Spinner: React.FC<{
 	size: number;
-}> = ({size}) => {
+	duration: number;
+}> = ({size, duration}) => {
 	const style = useMemo(() => {
 		return {
 			width: size,
@@ -34,7 +34,7 @@ export const Spinner: React.FC<{
         }
         
         .${className} {
-            animation: ${remotionSpinnerAnimation} ${totalDuration}s linear infinite;
+            animation: ${remotionSpinnerAnimation} ${duration}s linear infinite;
         }        
 			`}</style>
 			<svg style={style} viewBox={`0 0 ${viewBox} ${viewBox}`}>
@@ -47,9 +47,7 @@ export const Spinner: React.FC<{
 							style={{
 								rotate: `${(index * Math.PI * 2) / lines}rad`,
 								transformOrigin: 'center center',
-								animationDelay: `${
-									index * (totalDuration / lines) - totalDuration
-								}s`,
+								animationDelay: `${index * (duration / lines) - duration}s`,
 							}}
 							d={translated}
 							fill={LIGHT_TEXT}

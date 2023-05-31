@@ -1,5 +1,6 @@
 import type {MutableRefObject} from 'react';
 import {createContext, useContext, useMemo} from 'react';
+import {useVideo} from './use-video.js';
 
 export type PlayableMediaTag = {
 	play: () => void;
@@ -45,8 +46,17 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 });
 
 export const useTimelinePosition = (): number => {
+	const videoConfig = useVideo();
 	const state = useContext(TimelineContext);
-	return state.frame;
+
+	// A dynamically calculated duration using calculateMetadata()
+	// may lead to the frame being bigger than the duration.
+	// If we have the config, we clamp the frame to the duration.
+	if (!videoConfig) {
+		return state.frame;
+	}
+
+	return Math.min(videoConfig.durationInFrames - 1, state.frame);
 };
 
 export const useTimelineSetFrame = (): ((

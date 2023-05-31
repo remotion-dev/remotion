@@ -7,17 +7,16 @@ import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
-import {CompositionManager} from './CompositionManager.js';
-import {getInputProps} from './config/input-props.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import {continueRender, delayRender} from './delay-render.js';
-import {EditorPropsContext} from './EditorProps.js';
 import {FolderContext} from './Folder.js';
 import {useRemotionEnvironment} from './get-environment.js';
 import {Loading} from './loading-indicator.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
-import type {PropsIfHasProps} from './props-if-has-props.js';
+import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
+import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
@@ -36,6 +35,20 @@ export type CompProps<Props> =
 			component: LooseComponentType<Props>;
 	  };
 
+type CalcMetadataReturnType<T> = {
+	durationInFrames?: number;
+	fps?: number;
+	width?: number;
+	height?: number;
+	props?: T;
+};
+
+export type CalculateMetadataFunction<T> = (options: {
+	defaultProps: T;
+	props: T;
+	abortSignal: AbortSignal;
+}) => Promise<CalcMetadataReturnType<T>> | CalcMetadataReturnType<T>;
+
 export type StillProps<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown> | undefined
@@ -43,6 +56,7 @@ export type StillProps<
 	width: number;
 	height: number;
 	id: string;
+	calculateMetadata?: CalculateMetadataFunction<InferProps<Schema, Props>>;
 	schema?: Schema;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
@@ -86,7 +100,6 @@ export const Composition = <
 	const video = useVideo();
 
 	const lazy = useLazyComponent<Props>(compProps as CompProps<Props>);
-	const {props: allEditorProps} = useContext(EditorPropsContext);
 	const nonce = useNonce();
 	const environment = useRemotionEnvironment();
 
@@ -137,6 +150,7 @@ export const Composition = <
 			nonce,
 			parentFolderName: parentName,
 			schema: schema ?? null,
+			calculateMetadata: compProps.calculateMetadata ?? null,
 		});
 
 		return () => {
@@ -156,39 +170,48 @@ export const Composition = <
 		nonce,
 		parentName,
 		schema,
+		compProps.calculateMetadata,
 	]);
-
-	const editorPropsOrUndefined = allEditorProps[id] ?? {};
+	const resolved = useResolvedVideoConfig(id);
 
 	if (environment === 'preview' && video && video.component === lazy) {
 		const Comp = lazy;
-		const inputProps = getInputProps();
+		if (resolved === null || resolved.type !== 'success') {
+			return null;
+		}
 
 		return createPortal(
 			<ClipComposition>
 				<CanUseRemotionHooksProvider>
 					<Suspense fallback={<Loading />}>
 						<Comp
-							{...defaultProps}
-							{...editorPropsOrUndefined}
-							{...inputProps}
+							{
+								// eslint-disable-next-line @typescript-eslint/no-explicit-any
+								...((resolved.result.defaultProps ?? {}) as any)
+							}
 						/>
 					</Suspense>
 				</CanUseRemotionHooksProvider>
 			</ClipComposition>,
-
 			portalNode()
 		);
 	}
 
 	if (environment === 'rendering' && video && video.component === lazy) {
 		const Comp = lazy;
-		const inputProps = getInputProps();
+		if (resolved === null || resolved.type !== 'success') {
+			return null;
+		}
 
 		return createPortal(
 			<CanUseRemotionHooksProvider>
 				<Suspense fallback={<Fallback />}>
-					<Comp {...defaultProps} {...editorPropsOrUndefined} {...inputProps} />
+					<Comp
+						{
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							...((resolved.result.defaultProps ?? {}) as any)
+						}
+					/>
 				</Suspense>
 			</CanUseRemotionHooksProvider>,
 			portalNode()
