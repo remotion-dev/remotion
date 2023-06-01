@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-visual-editing.png
 id: visual-editing
 title: Edit props visually
 sidebar_label: Visual editing

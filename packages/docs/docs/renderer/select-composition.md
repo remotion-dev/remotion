@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-renderer-select-composition.png
 title: selectComposition()
 id: select-composition
 crumb: "@remotion/renderer"

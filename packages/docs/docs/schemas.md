@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-schemas.png
 id: schemas
 title: Defining a schema for your props
 sidebar_label: Defining a schema
