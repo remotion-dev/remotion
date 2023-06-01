@@ -58,12 +58,12 @@ import {SegmentedControl} from '../SegmentedControl';
 import {Spinner} from '../Spinner';
 import {VerticalTab} from '../Tabs/vertical';
 import {useCrfState} from './CrfSetting';
+import {DataEditor} from './DataEditor';
 import {validateOutnameGui} from './out-name-checker';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
 import {RenderModalAudio} from './RenderModalAudio';
 import {RenderModalBasic} from './RenderModalBasic';
-import {RenderModalData} from './RenderModalData';
 import {RenderModalGif} from './RenderModalGif';
 import type {QualityControl} from './RenderModalPicture';
 import {RenderModalPicture} from './RenderModalPicture';
@@ -1060,7 +1060,7 @@ const RenderModal: React.FC<
 							setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
 						/>
 					) : tab === 'data' ? (
-						<RenderModalData
+						<DataEditor
 							inputProps={inputProps}
 							setInputProps={setInputProps}
 							unresolvedComposition={unresolvedComposition}

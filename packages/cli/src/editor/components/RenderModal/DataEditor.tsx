@@ -112,7 +112,7 @@ const setPersistedShowWarningState = (val: boolean) => {
 	localStorage.setItem(persistanceKey, String(Boolean(val)));
 };
 
-export const RenderModalData: React.FC<{
+export const DataEditor: React.FC<{
 	unresolvedComposition: AnyComposition;
 	inputProps: Record<string, unknown>;
 	setInputProps: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
