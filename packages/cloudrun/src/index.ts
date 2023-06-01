@@ -11,9 +11,11 @@ import {getRegions} from './api/get-regions';
 import {getServiceInfo} from './api/get-service-info';
 import {getServices} from './api/get-services';
 import {getSites} from './api/get-sites';
+import {testPermissions} from './api/iam-validation/testPermissions';
 import type {RenderMediaOnCloudrunInput} from './api/render-media-on-cloudrun';
 import {renderMediaOnCloudrun} from './api/render-media-on-cloudrun';
 import {renderStillOnCloudrun} from './api/render-still-on-cloudrun';
+import {speculateServiceName} from './api/speculate-service-name';
 import type {RenderMediaOnCloudrunOutput} from './functions/helpers/payloads';
 import {CloudrunInternals} from './internals';
 import type {GcpRegion} from './pricing/gcp-regions';
@@ -31,6 +33,8 @@ export {
 	getServiceInfo,
 	getRegions,
 	getSites,
+	speculateServiceName,
+	testPermissions,
 };
 export type {
 	GcpRegion,
