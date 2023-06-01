@@ -1,4 +1,5 @@
 import {deleteService} from './api/delete-service';
+import {deleteSite} from './api/delete-site';
 import type {
 	DeployServiceInput,
 	DeployServiceOutput,
@@ -15,11 +16,13 @@ import {renderMediaOnCloudrun} from './api/render-media-on-cloudrun';
 import {renderStillOnCloudrun} from './api/render-still-on-cloudrun';
 import type {RenderMediaOnCloudrunOutput} from './functions/helpers/payloads';
 import {CloudrunInternals} from './internals';
+import type {GcpRegion} from './pricing/gcp-regions';
 
 export {
 	CloudrunInternals,
 	deployService,
 	deploySite,
+	deleteSite,
 	deleteService,
 	getServices,
 	getOrCreateBucket,
@@ -30,6 +33,7 @@ export {
 	getSites,
 };
 export type {
+	GcpRegion,
 	DeployServiceInput,
 	DeployServiceOutput,
 	RenderMediaOnCloudrunOutput,

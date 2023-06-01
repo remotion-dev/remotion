@@ -19,9 +19,11 @@ export type DeploySiteInput = {
 		onBundleProgress?: (progress: number) => void;
 		onUploadProgress?: (upload: UploadDirProgress) => void;
 		webpackOverride?: WebpackOverrideFn;
+		ignoreRegisterRootWarning?: boolean;
 		enableCaching?: boolean;
 		publicDir?: string | null;
 		rootDir?: string;
+		bypassBucketNameValidation?: boolean;
 	};
 };
 
@@ -67,12 +69,15 @@ export const deploySite = async ({
 			bucketName,
 			prefix: subFolder,
 		}),
-		bundleSite(entryPoint, options?.onBundleProgress ?? (() => undefined), {
+		bundleSite({
 			publicPath: `/${bucketName}/${subFolder}/`,
 			webpackOverride: options?.webpackOverride ?? ((f) => f),
 			enableCaching: options?.enableCaching ?? true,
 			publicDir: options?.publicDir,
 			rootDir: options?.rootDir,
+			ignoreRegisterRootWarning: options?.ignoreRegisterRootWarning,
+			onProgress: options?.onBundleProgress ?? (() => undefined),
+			entryPoint,
 		}),
 	]);
 

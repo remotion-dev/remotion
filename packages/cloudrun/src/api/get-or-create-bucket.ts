@@ -17,6 +17,7 @@ export type GetOrCreateBucketInput = {
 
 export type GetOrCreateBucketOutput = {
 	bucketName: string;
+	alreadyExisted: boolean;
 };
 /**
  * @description Creates a bucket for Remotion Cloud Run in your GCP Project, in a particular region. If one already exists, it will get returned instead.
@@ -42,6 +43,7 @@ export const getOrCreateBucket = async (
 		params?.updateBucketState?.('Using existing bucket');
 		return {
 			bucketName: remotionBuckets[0].name,
+			alreadyExisted: true,
 		};
 	}
 
@@ -56,7 +58,7 @@ export const getOrCreateBucket = async (
 
 		params.updateBucketState?.('Created bucket');
 
-		return {bucketName};
+		return {bucketName, alreadyExisted: false};
 	}
 
 	throw new Error(
