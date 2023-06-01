@@ -1,5 +1,5 @@
 import {truthy} from '../../../truthy';
-import type {PropsEditType} from './RenderModalData';
+import type {PropsEditType} from './DataEditor';
 
 export type TypeCanSaveState =
 	| {

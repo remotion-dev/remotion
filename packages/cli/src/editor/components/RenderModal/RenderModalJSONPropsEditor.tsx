@@ -6,7 +6,7 @@ import {useKeybinding} from '../../helpers/use-keybinding';
 import {Flex, Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
-import type {State} from './RenderModalData';
+import type {State} from './DataEditor';
 import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
 import {deserializeJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
 import {ZodErrorMessages} from './SchemaEditor/ZodErrorMessages';
