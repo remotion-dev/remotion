@@ -274,7 +274,10 @@ export const renderVideoFlow = async ({
 		cliFlag: parsedCli.codec,
 		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
 		downloadName: null,
-		outName: getUserPassedOutputLocation(argsAfterComposition),
+		outName: getUserPassedOutputLocation(
+			argsAfterComposition,
+			outputLocationFromUI
+		),
 		uiCodec,
 	});
 

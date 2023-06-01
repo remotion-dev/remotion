@@ -81,5 +81,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 			registerCleanupJob(c);
 		},
 		cancelSignal: null,
+		outputLocationFromUi: null,
 	});
 };
