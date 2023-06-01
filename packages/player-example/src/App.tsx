@@ -155,6 +155,24 @@ const ControlsOnly: React.FC<{
 			]);
 		};
 
+		const volumechangeCallbackListener: CallbackListener<
+			'volumechange'
+		> = (e) => {
+			setLogs((l) => [
+				...l,
+				'volumechange ' + e.detail.volume + ' ' + Date.now(),
+			]);
+		};
+
+		const mutechangeCallbackListener: CallbackListener<
+			'mutechange'
+		> = (e) => {
+			setLogs((l) => [
+				...l,
+				'mutechange ' + e.detail.isMuted + ' ' + Date.now(),
+			]);
+		};
+
 		const {current} = ref;
 		if (!current) {
 			return;
@@ -169,6 +187,8 @@ const ControlsOnly: React.FC<{
 		current.addEventListener('frameupdate', frameupdateCallbackListener);
 		current.addEventListener('ratechange', ratechangeCallbackListener);
 		current.addEventListener('scalechange', scalechangeCallbackListener);
+		current.addEventListener('volumechange', volumechangeCallbackListener);
+		current.addEventListener('mutechange', mutechangeCallbackListener);
 		current.addEventListener(
 			'fullscreenchange',
 			fullscreenChangeCallbackListener
@@ -184,6 +204,8 @@ const ControlsOnly: React.FC<{
 			current.removeEventListener('frameupdate', frameupdateCallbackListener);
 			current.removeEventListener('ratechange', ratechangeCallbackListener);
 			current.removeEventListener('scalechange', scalechangeCallbackListener);
+			current.removeEventListener('volumechange', volumechangeCallbackListener);
+			current.removeEventListener('mutechange', mutechangeCallbackListener);
 			current.removeEventListener(
 				'fullscreenchange',
 				fullscreenChangeCallbackListener
