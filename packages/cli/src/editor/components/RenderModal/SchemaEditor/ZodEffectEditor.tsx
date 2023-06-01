@@ -15,8 +15,11 @@ const fullWidth: React.CSSProperties = {
 };
 
 const stackTrace: React.CSSProperties = {
-	fontSize: '14px',
-	padding: '10px',
+	padding: 10,
+};
+
+const stackTraceLabel: React.CSSProperties = {
+	fontSize: 14,
 };
 
 const legend: React.CSSProperties = {
@@ -102,8 +105,17 @@ export const ZodEffectEditor: React.FC<{
 						type="error"
 					/>
 					<Spacing x={0.5} />
-					<InfoBubble title="Stack Trace">
-						<div style={stackTrace}>Zod Validation has failed!</div>
+					<InfoBubble title="Zod validation failure">
+						<div style={stackTrace}>
+							<div style={stackTraceLabel}>Zod Validation has failed:</div>
+							{localValue.zodValidation.error.errors.map((error, index) => (
+								// eslint-disable-next-line react/no-array-index-key
+								<div key={index} style={stackTraceLabel}>
+									Type: {error.code} <br />
+									Message: {error.message}
+								</div>
+							))}
+						</div>
 					</InfoBubble>
 					<Spacing x={0.5} />
 				</legend>
