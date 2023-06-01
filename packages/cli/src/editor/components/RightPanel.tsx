@@ -9,7 +9,7 @@ import React, {
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
-import {RenderModalData} from './RenderModal/RenderModalData';
+import {DataEditor} from './RenderModal/DataEditor';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
@@ -48,7 +48,7 @@ const PropsEditor: React.FC<{
 	);
 
 	return (
-		<RenderModalData
+		<DataEditor
 			key={composition.id}
 			unresolvedComposition={composition}
 			inputProps={actualProps}
