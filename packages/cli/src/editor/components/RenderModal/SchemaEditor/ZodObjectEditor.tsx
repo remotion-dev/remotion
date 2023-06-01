@@ -108,7 +108,7 @@ export const ZodObjectEditor: React.FC<{
 									// In case of null | {a: string, b: string} type, we need to fallback to the default value
 									defaultValue={(defaultValue ?? value)[key]}
 									setValue={(val, forceApply) => {
-										setValue((oldVal) => {
+										onChange((oldVal) => {
 											return {
 												...oldVal,
 												[key]:
