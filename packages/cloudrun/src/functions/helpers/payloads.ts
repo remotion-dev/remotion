@@ -59,7 +59,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		envVariables: z.record(z.string()).optional(),
 		chromiumOptions: chromiumOptions.optional(),
 		outputBucket: z.string(),
-		outputFile: z.string().optional(),
+		outName: z.string().optional(),
 		frame: z.number(),
 		logLevel,
 	}),

@@ -103,7 +103,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		forceHeight: height,
 		forceWidth: width,
 		forceBucketName,
-		outputFile: outName,
+		outName,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
 	});
 	doneIn = Date.now() - renderStart;

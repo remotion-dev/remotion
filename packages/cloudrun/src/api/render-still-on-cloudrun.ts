@@ -21,9 +21,9 @@ export type RenderStillOnCloudrunInput = {
 	serveUrl: string;
 	composition: string;
 	inputProps?: unknown;
-	forceBucketName?: string;
 	privacy?: 'public' | 'private';
-	outputFile?: string;
+	forceBucketName?: string;
+	outName?: string;
 	imageFormat: StillImageFormat;
 	envVariables?: Record<string, string>;
 	frame?: number;
@@ -46,7 +46,7 @@ export type RenderStillOnCloudrunInput = {
  * @param params.inputProps The input props that should be passed to the composition.
  * @param params.forceBucketName The name of the bucket that the output file should be uploaded to.
  * @param params.privacy Whether the output file should be public or private.
- * @param params.outputFile The name of the output file.
+ * @param params.outName The name of the output file.
  * @param params.imageFormat Which image format the frame should be rendered in.
  * @param params.envVariables Object containing environment variables to be injected in your project.
  * @param params.frame Which frame of the composition should be rendered. Frames are zero-indexed.
@@ -68,7 +68,7 @@ export const renderStillOnCloudrun = async ({
 	inputProps,
 	forceBucketName,
 	privacy,
-	outputFile,
+	outName,
 	imageFormat,
 	envVariables,
 	frame,
@@ -96,7 +96,7 @@ export const renderStillOnCloudrun = async ({
 		serveUrl,
 		inputProps,
 		outputBucket,
-		outputFile,
+		outName,
 		privacy,
 		imageFormat,
 		envVariables,
@@ -112,10 +112,10 @@ export const renderStillOnCloudrun = async ({
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
 
-	const authenticatedResponse = await client.request({
+	const renderResponse = await client.request({
 		url: cloudRunUrl,
 		method: 'POST',
 		data,
 	});
-	return authenticatedResponse.data as RenderStillOnCloudrunOutput;
+	return renderResponse.data as RenderStillOnCloudrunOutput;
 };

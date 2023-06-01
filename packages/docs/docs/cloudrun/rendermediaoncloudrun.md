@@ -5,8 +5,6 @@ title: renderMediaOnCloudrun()
 crumb: "Cloud Run API"
 ---
 
-import { MinimumFramesPerLambda } from "../../components/lambda/default-frames-per-lambda";
-
 Kicks off a media rendering process on Remotion Cloud Run.
 
 Requires a [service](/docs/cloudrun/deployservice) to already be deployed to execute the render.  
@@ -51,7 +49,7 @@ The name of the Cloud Run service which should be used to perform the render. Th
 
 ### `region`
 
-In which region your Cloud Run service is deployed. It's highly recommended that your Remotion site is also in the same region.
+In which [GCP region](/docs/cloudrun/region-selection) your Cloud Run service is deployed. It's highly recommended that your Remotion site is also in the same region.
 
 ### `serveUrl`
 
@@ -221,19 +219,19 @@ Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render
 
 ### `forceWidth?`
 
-_available_
+_optional_
 
 Overrides default composition width.
 
 ### `forceHeight?`
 
-_available_
+_optional_
 
 Overrides default composition height.
 
 ### `logLevel?`
 
-_available_
+_optional_
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Defaults to `info`.
 

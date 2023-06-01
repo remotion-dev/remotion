@@ -177,8 +177,8 @@ export const renderMediaOnCloudrun = async ({
 		responseType: 'stream',
 	});
 
-	const authenticatedDataPromise =
-		await new Promise<RenderMediaOnCloudrunOutput>((resolve, reject) => {
+	const renderResponse = await new Promise<RenderMediaOnCloudrunOutput>(
+		(resolve, reject) => {
 			// TODO: Add any sort of type safety
 			let response: RenderMediaOnCloudrunOutput | ErrorResponsePayload;
 
@@ -204,7 +204,8 @@ export const renderMediaOnCloudrun = async ({
 			stream.on('error', (error: Error) => {
 				reject(error);
 			});
-		});
+		}
+	);
 
-	return authenticatedDataPromise;
+	return renderResponse;
 };

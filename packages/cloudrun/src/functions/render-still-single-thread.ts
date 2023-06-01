@@ -55,7 +55,7 @@ export const renderStillSingleThread = async (
 	const uploadedResponse = await storage
 		.bucket(body.outputBucket)
 		.upload(tempFilePath, {
-			destination: `renders/${renderId}/${body.outputFile ?? 'out.png'}`,
+			destination: `renders/${renderId}/${body.outName ?? 'out.png'}`,
 			predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
 		});
 
