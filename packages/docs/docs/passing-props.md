@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-passing-props.png
 id: passing-props
 title: Passing props to a composition
 sidebar_label: Passing props

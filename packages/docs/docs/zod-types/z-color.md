@@ -1,5 +1,5 @@
 ---
-image: /generated/articles-docs-z-color.png
+image: /generated/articles-docs-zod-types-z-color.png
 title: zColor()
 ---
 
