@@ -83,7 +83,7 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 _optional - default `"png"`_
 
-The image format that you want - either `"png"` or `"jpeg"`.
+See [`renderMedia() -> imageFormat`](/docs/renderer/render-still#imageformat).
 
 ### `quality?`
 
@@ -103,7 +103,7 @@ How often a frame render may be retried until it fails.
 
 _optional - default `{}`_
 
-See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
+See [`renderStill() -> envVariables`](/docs/renderer/render-still#envvariables).
 
 ### `forceHeight?`
 
