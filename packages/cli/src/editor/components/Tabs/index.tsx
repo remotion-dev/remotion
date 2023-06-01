@@ -1,5 +1,6 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import {
+	BACKGROUND,
 	BLUE,
 	CLEAR_HOVER,
 	INPUT_BACKGROUND,
@@ -59,7 +60,7 @@ export const Tab: React.FC<{
 		() => ({
 			...selectorButton,
 			backgroundColor: selected
-				? 'transparent'
+				? BACKGROUND
 				: hovered
 				? CLEAR_HOVER
 				: INPUT_BACKGROUND,

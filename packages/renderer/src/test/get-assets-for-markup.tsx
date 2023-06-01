@@ -90,6 +90,11 @@ export const getAssetsForMarkup = async (
 						folderName: null,
 						parentFolderName: null,
 						schema: null,
+						calculateMetadata: null,
+						durationInFrames: config.durationInFrames,
+						fps: config.fps,
+						height: config.height,
+						width: config.width,
 					},
 				],
 				currentComposition: 'markup',
@@ -100,7 +105,9 @@ export const getAssetsForMarkup = async (
 			<Internals.CanUseRemotionHooksProvider>
 				<Internals.RemotionRoot numberOfAudioTags={0}>
 					<Internals.CompositionManager.Provider value={value}>
-						<Markup />
+						<Internals.ResolveCompositionConfig>
+							<Markup />
+						</Internals.ResolveCompositionConfig>
 					</Internals.CompositionManager.Provider>
 				</Internals.RemotionRoot>
 			</Internals.CanUseRemotionHooksProvider>

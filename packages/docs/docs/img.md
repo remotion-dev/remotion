@@ -66,7 +66,7 @@ If an error occurs, the component must be unmounted or the `src` must be replace
 
 From `v3.3.82`, the image load will first be retried before `onError` is thrown.
 
-### `maxRetries` <AvailableFrom v="3.3.82"/>
+### `maxRetries`<AvailableFrom v="3.3.82"/>
 
 If an image fails to load, it will be retried from `v3.3.82`. The default value is `2`.  
 An exponential backoff is being used, with 1000ms delay between the first and second attempt, then 2000ms, then 4000ms and so on.

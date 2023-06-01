@@ -6,12 +6,14 @@ import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import type {ClipRegion} from './NativeLayers.js';
 import {Null} from './Null.js';
+import type {VideoConfig} from './video-config.js';
 
 declare global {
 	interface Window {
 		ready: boolean;
 		remotion_cancelledError: string | undefined;
-		getStaticCompositions: () => AnyCompMetadata[];
+		getStaticCompositions: () => Promise<AnyCompMetadata[]>;
+		calculateComposition: (compId: string) => Promise<VideoConfig>;
 		setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
@@ -33,7 +35,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '4';
+		siteVersion: '5';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 	}

@@ -9,7 +9,7 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {CompositionManager} from '../CompositionManager.js';
+import {CompositionManager} from '../CompositionManagerContext.js';
 import {continueRender, delayRender} from '../delay-render.js';
 import {useRemotionEnvironment} from '../get-environment.js';
 import {random} from '../random.js';

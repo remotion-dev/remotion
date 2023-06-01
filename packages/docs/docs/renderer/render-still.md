@@ -15,7 +15,7 @@ If you want to render a video, use [renderMedia()](/docs/renderer/render-media) 
 
 ## Example usage
 
-You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr/#render-a-video-programmatically) for an example how to come up with the `bundleLocation` and `composition` variables.
+You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr) for an example how to come up with the `bundleLocation` and `composition` variables.
 
 ```ts twoslash
 // @module: ESNext
@@ -109,7 +109,7 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 _optional - default `null`_
 
-An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
 ### `envVariables?`
 
@@ -129,31 +129,31 @@ _optional - default `true`_
 
 Whether the file should be overwritten if the output already exists.
 
-### `browserExecutable?` <AvailableFrom v="2.3.1" />
+### `browserExecutable?`<AvailableFrom v="2.3.1" />
 
 _optional_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available.
 
-### `onBrowserLog?` <AvailableFrom v="3.3.93" />
+### `onBrowserLog?`<AvailableFrom v="3.3.93" />
 
 _optional_
 
-Gets called when your project calls `console.log` or another method from console. See the documentation for [`renderFrames`](/docs/renderer/render-frames#onbrowserlog-) for more information.
+Gets called when your project calls `console.log` or another method from console. See the documentation for [`renderFrames`](/docs/renderer/render-frames#onbrowserlog) for more information.
 
-### `timeoutInMilliseconds?` <AvailableFrom v="2.6.3" />
+### `timeoutInMilliseconds?`<AvailableFrom v="2.6.3" />
 
 _optional_
 
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
-### `cancelSignal?` <AvailableFrom v="3.0.15" />
+### `cancelSignal?`<AvailableFrom v="3.0.15" />
 
 _optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
-### `chromiumOptions?` <AvailableFrom v="2.6.5" />
+### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 
 _optional_
 
@@ -199,7 +199,7 @@ Accepted values:
 Default: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
 
-#### `userAgent` <AvailableFrom v="3.3.83"/>
+#### `userAgent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 

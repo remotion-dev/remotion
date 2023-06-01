@@ -37,3 +37,9 @@ export const fullScreenOverlay: React.CSSProperties = {
 export const outerPortal: React.CSSProperties = {
 	position: 'fixed',
 };
+
+export const inlineCodeSnippet: React.CSSProperties = {
+	fontSize: 14,
+	color: 'var(--blue)',
+	fontFamily: 'monospace',
+};

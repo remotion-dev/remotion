@@ -93,7 +93,7 @@ A `number` specifying how many render processes should be started in parallel, a
 
 Renamed to `concurrency` in v3.2.17.
 
-### `scale?` <AvailableFrom v="2.6.7" />
+### `scale?`<AvailableFrom v="2.6.7" />
 
 _number - default: 1_
 
@@ -117,7 +117,7 @@ _optional_
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
-### `muted` <AvailableFrom v="3.2.1" />
+### `muted`<AvailableFrom v="3.2.1" />
 
 _optional_
 
@@ -133,15 +133,15 @@ Passes the `dumpio` flag to Puppeteer which will log all browser logs to the con
 
 _optional_
 
-An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
-### `envVariables?` <AvailableFrom v="2.2.0" />
+### `envVariables?`<AvailableFrom v="2.2.0" />
 
 _optional_
 
 An object containing key-value pairs of environment variables which will be injected into your Remotion projected and which can be accessed by reading the global `process.env` object.
 
-### `onBrowserLog?` <AvailableFrom v="3.0.0" />
+### `onBrowserLog?`<AvailableFrom v="3.0.0" />
 
 _optional_
 
@@ -213,37 +213,37 @@ renderFrames({
 });
 ```
 
-### `browserExecutable?` <AvailableFrom v="3.0.11" />
+### `browserExecutable?`<AvailableFrom v="3.0.11" />
 
 _optional_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
-### `cancelSignal?` <AvailableFrom v="3.0.15" />
+### `cancelSignal?`<AvailableFrom v="3.0.15" />
 
 _optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
-### `onFrameBuffer?` <AvailableFrom v="3.0.0" />
+### `onFrameBuffer?`<AvailableFrom v="3.0.0" />
 
 _optional_
 
 If you passed `null` to `outputDir`, this method will be called passing a buffer of the current frame. This is mostly used internally by Remotion to implement [`renderMedia()`](/docs/renderer/render-media) and might have limited usefulness for end users.
 
-### `timeoutInMilliseconds?` <AvailableFrom v="2.6.3" />
+### `timeoutInMilliseconds?`<AvailableFrom v="2.6.3" />
 
 _optional_
 
 A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails(/docs/timeout). Default: `30000`
 
-### `everyNthFrame` <AvailableFrom v="3.1.0" />
+### `everyNthFrame`<AvailableFrom v="3.1.0" />
 
 _optional_
 
 Renders only every nth frame. For example only every second frame, every third frame and so on. Only meant for rendering GIFs. [See here for more details.](/docs/render-as-gif)
 
-### `chromiumOptions?` <AvailableFrom v="2.6.5" />
+### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 
 _optional_
 
@@ -289,7 +289,7 @@ Accepted values:
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
 
-#### `userAgent` <AvailableFrom v="3.3.83"/>
+#### `userAgent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 

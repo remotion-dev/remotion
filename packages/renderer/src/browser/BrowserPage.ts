@@ -15,7 +15,7 @@
  */
 
 import {assert} from './assert';
-import type {Browser} from './Browser';
+import type {HeadlessBrowser} from './Browser';
 import type {CDPSession} from './Connection';
 import type {ConsoleMessageType} from './ConsoleMessage';
 import {ConsoleMessage} from './ConsoleMessage';
@@ -75,7 +75,7 @@ export class Page extends EventEmitter {
 		client: CDPSession,
 		target: Target,
 		defaultViewport: Viewport,
-		browser: Browser
+		browser: HeadlessBrowser
 	): Promise<Page> {
 		const page = new Page(client, target, browser);
 		await page.#initialize();
@@ -90,10 +90,10 @@ export class Page extends EventEmitter {
 	#timeoutSettings = new TimeoutSettings();
 	#frameManager: FrameManager;
 	#pageBindings = new Map<string, Function>();
-	browser: Browser;
+	browser: HeadlessBrowser;
 	screenshotTaskQueue: TaskQueue;
 
-	constructor(client: CDPSession, target: Target, browser: Browser) {
+	constructor(client: CDPSession, target: Target, browser: HeadlessBrowser) {
 		super();
 		this.#client = client;
 		this.#target = target;
