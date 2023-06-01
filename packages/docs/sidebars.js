@@ -236,9 +236,11 @@ module.exports = {
         "cloudrun/speculateservicename",
         "cloudrun/deploysite",
         "cloudrun/deletesite",
+        "cloudrun/getsites",
         "cloudrun/getorcreatebucket",
         "cloudrun/rendermediaoncloudrun",
         "cloudrun/renderstilloncloudrun",
+        "cloudrun/testpermissions",
       ],
     },
     {
