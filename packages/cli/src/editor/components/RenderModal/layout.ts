@@ -22,6 +22,9 @@ export const label: React.CSSProperties = {
 	lineHeight: '40px',
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
 };
 
 export const rightRow: React.CSSProperties = {
