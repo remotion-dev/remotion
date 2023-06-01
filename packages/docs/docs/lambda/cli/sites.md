@@ -131,7 +131,7 @@ pr6fwglz05 testbed<br/>
 
 ## rm
 
-Removes a site (or multiple) from S3 by it's ID.
+Removes a site (or multiple) from S3 by its ID.
 
 ```bash
 npx remotion lambda sites rm abcdef
