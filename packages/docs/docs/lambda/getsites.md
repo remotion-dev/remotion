@@ -85,7 +85,7 @@ URL of the deployed site. You can pass it into [`renderMediaOnLambda()`](/docs/l
 An array of all buckets in the selected region in your account that start with `remotionlambda-`.
 
 :::info
-You should only have [1 bucket](/docs/lambda/multiple-buckets) for all your Remotion projects. Nonetheless `buckets` is an array, since we cannot prevent you from manually creating additional buckets with the `remotionlambda-` prefix.
+You should only have [1 bucket](/docs/lambda/multiple-buckets) per region for all your Remotion projects. Nonetheless `buckets` is an array, since we cannot prevent you from manually creating additional buckets with the `remotionlambda-` prefix.
 :::
 
 Each item contains the following properties:

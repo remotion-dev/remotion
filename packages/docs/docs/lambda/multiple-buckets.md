@@ -6,7 +6,7 @@ sidebar_label: Multiple buckets
 crumb: "@remotion/lambda"
 ---
 
-The ideal setup is if you use **1 bucket per region and account** that your use Remotion Lambda in.
+The ideal setup is if you use **1 bucket per region and account** that you use Remotion Lambda in.
 
 While it is discouraged, it is possible to use multiple buckets from version v3.3.42 on.
 
