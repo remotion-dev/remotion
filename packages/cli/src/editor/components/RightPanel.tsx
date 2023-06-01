@@ -49,6 +49,7 @@ const PropsEditor: React.FC<{
 
 	return (
 		<RenderModalData
+			key={composition.id}
 			unresolvedComposition={composition}
 			inputProps={actualProps}
 			setInputProps={setInputProps}
