@@ -597,6 +597,10 @@ useEffect(() => {
     console.log("scalechange", e.detail.scale);
   };
 
+  const onMuteChange: CallbackListener<"mutechange"> = (e) => {
+    console.log("mutechange", e.detail.isMuted);
+  };
+
   playerRef.current.addEventListener("play", onPlay);
   playerRef.current.addEventListener("ratechange", onRateChange);
   playerRef.current.addEventListener("volumechange", onVolumeChange);
@@ -605,6 +609,7 @@ useEffect(() => {
   playerRef.current.addEventListener("error", onError);
   playerRef.current.addEventListener("fullscreenchange", onFullscreenChange);
   playerRef.current.addEventListener("scalechange", onScaleChange);
+  playerRef.current.addEventListener("mutechange", onMuteChange);
 
   // See below for difference between `seeked` and `timeupdate`
   playerRef.current.addEventListener("seeked", onSeeked);
@@ -624,6 +629,7 @@ useEffect(() => {
         onFullscreenChange
       );
       playerRef.current.removeEventListener("scalechange", onScaleChange);
+      playerRef.current.removeEventListener("mutechange", onMuteChange);
       playerRef.current.removeEventListener("seeked", onSeeked);
       playerRef.current.removeEventListener("timeupdate", onTimeupdate);
     }
@@ -732,6 +738,23 @@ if (!playerRef.current) {
 // ---cut---
 playerRef.current.addEventListener("fullscreenchange", (e) => {
   console.log("is fullscreen" + e.detail.isFullscreen); // is fullscreen true
+});
+```
+
+### `mutechange`<AvailableFrom v="3.3.98" />
+
+Fires when the player's audio is muted or not. Also returned by [`isMuted()`](#ismuted).
+
+```tsx twoslash
+import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
+const playerRef = useRef<PlayerRef>(null);
+if (!playerRef.current) {
+  throw new Error();
+}
+// ---cut---
+playerRef.current.addEventListener("mutechange", (e) => {
+  console.log("is mute" + e.detail.isMuted); // is mute true
 });
 ```
 
