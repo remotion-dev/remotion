@@ -61,7 +61,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	const keybindings = useKeybinding();
 
 	const [localValue, setLocalValue] = React.useState<State>(() => {
-		// TODO: What if schema changes?
 		return parseJSON(serializedJSON.serializedString, schema);
 	});
 
