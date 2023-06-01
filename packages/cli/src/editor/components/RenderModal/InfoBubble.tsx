@@ -1,7 +1,7 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {LIGHT_TEXT} from '../../helpers/colors';
+import {INPUT_BACKGROUND, LIGHT_TEXT} from '../../helpers/colors';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
 import {getPortal} from '../Menu/portals';
 import {outerPortal} from '../Menu/styles';
@@ -120,6 +120,7 @@ export const InfoBubble: React.FC<{
 			display: 'inline-flex',
 			flexDirection: 'row',
 			alignItems: 'center',
+			padding: 6,
 		};
 	}, []);
 
@@ -144,7 +145,12 @@ export const InfoBubble: React.FC<{
 						<div style={outerPortal} className="css-reset">
 							<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
 								<div style={portalStyle}>
-									<InfoTooltip arrowDirection={layout}>{children}</InfoTooltip>
+									<InfoTooltip
+										backgroundColor={INPUT_BACKGROUND}
+										arrowDirection={layout}
+									>
+										{children}
+									</InfoTooltip>
 								</div>
 							</HigherZIndex>
 						</div>,
