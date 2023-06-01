@@ -235,6 +235,8 @@ module.exports = {
         "cloudrun/deleteservice",
         "cloudrun/speculateservicename",
         "cloudrun/deploysite",
+        "cloudrun/deletesite",
+        "cloudrun/getorcreatebucket",
         "cloudrun/rendermediaoncloudrun",
         "cloudrun/renderstilloncloudrun",
       ],
