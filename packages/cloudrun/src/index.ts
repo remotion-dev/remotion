@@ -1,3 +1,4 @@
+import {deleteService} from './api/delete-service';
 import type {
 	DeployServiceInput,
 	DeployServiceOutput,
@@ -19,6 +20,7 @@ export {
 	CloudrunInternals,
 	deployService,
 	deploySite,
+	deleteService,
 	getServices,
 	getOrCreateBucket,
 	renderMediaOnCloudrun,
