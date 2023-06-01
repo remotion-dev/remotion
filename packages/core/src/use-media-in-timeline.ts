@@ -1,7 +1,7 @@
 import type {RefObject} from 'react';
 import {useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
-import {CompositionManager} from './CompositionManager.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {useRemotionEnvironment} from './get-environment.js';
 import {useNonce} from './nonce.js';

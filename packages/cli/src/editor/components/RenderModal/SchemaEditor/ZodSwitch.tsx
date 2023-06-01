@@ -9,6 +9,7 @@ import {ZodArrayEditor} from './ZodArrayEditor';
 import {ZodBooleanEditor} from './ZodBooleanEditor';
 import {ZodColorEditor} from './ZodColorEditor';
 import {ZodDateEditor} from './ZodDateEditor';
+import {ZodDefaultEditor} from './ZodDefaultEditor';
 import {ZodEffectEditor} from './ZodEffectEditor';
 import {ZodEnumEditor} from './ZodEnumEditor';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
@@ -343,6 +344,24 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodNullable) {
 		return (
 			<ZodNullableEditor
+				compact={compact}
+				jsonPath={jsonPath}
+				showSaveButton={showSaveButton}
+				defaultValue={defaultValue}
+				value={value}
+				setValue={setValue}
+				onSave={onSave}
+				onRemove={onRemove}
+				schema={schema}
+				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodDefault) {
+		return (
+			<ZodDefaultEditor
 				compact={compact}
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}

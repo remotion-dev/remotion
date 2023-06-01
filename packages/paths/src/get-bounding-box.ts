@@ -110,10 +110,35 @@ export const getBoundingBoxFromInstructions = (
 
 	let x = 0;
 	let y = 0;
+	let lastMoveX = 0;
+	let lastMoveY = 0;
 
 	for (const seg of instructions) {
 		switch (seg.type) {
-			case 'M':
+			case 'M': {
+				lastMoveX = seg.x;
+				lastMoveY = seg.y;
+				if (minX > seg.x) {
+					minX = seg.x;
+				}
+
+				if (minY > seg.y) {
+					minY = seg.y;
+				}
+
+				if (maxX < seg.x) {
+					maxX = seg.x;
+				}
+
+				if (maxY < seg.y) {
+					maxY = seg.y;
+				}
+
+				x = seg.x;
+				y = seg.y;
+				break;
+			}
+
 			case 'L': {
 				if (minX > seg.x) {
 					minX = seg.x;
@@ -188,6 +213,8 @@ export const getBoundingBoxFromInstructions = (
 			}
 
 			case 'Z':
+				x = lastMoveX;
+				y = lastMoveY;
 				break;
 
 			default:
@@ -196,5 +223,13 @@ export const getBoundingBoxFromInstructions = (
 		}
 	}
 
-	return {x1: minX, y1: minY, x2: maxX, y2: maxY};
+	return {
+		x1: minX,
+		y1: minY,
+		x2: maxX,
+		y2: maxY,
+		viewBox: `${minX} ${minY} ${maxX - minX} ${maxY - minY}`,
+		width: maxX - minX,
+		height: maxY - minY,
+	};
 };

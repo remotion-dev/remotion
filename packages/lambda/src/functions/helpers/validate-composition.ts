@@ -1,9 +1,10 @@
 import type {
 	ChromiumOptions,
 	DownloadMap,
+	LogLevel,
 	openBrowser,
 } from '@remotion/renderer';
-import {getCompositions} from '@remotion/renderer';
+import {RenderInternals, selectComposition} from '@remotion/renderer';
 import type {AnyCompMetadata} from 'remotion';
 import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
@@ -20,6 +21,7 @@ type ValidateCompositionOptions = {
 	downloadMap: DownloadMap;
 	forceHeight: number | null;
 	forceWidth: number | null;
+	logLevel: LogLevel;
 };
 
 export const validateComposition = async ({
@@ -34,8 +36,10 @@ export const validateComposition = async ({
 	downloadMap,
 	forceHeight,
 	forceWidth,
+	logLevel,
 }: ValidateCompositionOptions): Promise<AnyCompMetadata> => {
-	const compositions = await getCompositions(serveUrl, {
+	const comp = await selectComposition({
+		id: composition,
 		puppeteerInstance: browserInstance,
 		inputProps,
 		envVariables,
@@ -44,20 +48,13 @@ export const validateComposition = async ({
 		port,
 		downloadMap,
 		browserExecutable: executablePath(),
+		serveUrl,
+		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 	});
 
-	const found = compositions.find((c) => c.id === composition);
-	if (!found) {
-		throw new Error(
-			`No composition with ID ${composition} found. Available compositions: ${compositions
-				.map((c) => c.id)
-				.join(', ')}`
-		);
-	}
-
 	return {
-		...found,
-		height: forceHeight ?? found.height,
-		width: forceWidth ?? found.width,
+		...comp,
+		height: forceHeight ?? comp.height,
+		width: forceWidth ?? comp.width,
 	};
 };

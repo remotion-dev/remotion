@@ -4,10 +4,11 @@
 
 import React, {useMemo} from 'react';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
-import {CompositionManager} from './CompositionManager.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
 import {PreloadContext} from './prefetch-state.js';
+import {ResolveCompositionContext} from './ResolveCompositionConfig.js';
 import {SequenceContext} from './SequenceContext.js';
 import {
 	SetTimelineContext,
@@ -23,6 +24,8 @@ export function useRemotionContexts() {
 	const canUseRemotionHooksContext = React.useContext(CanUseRemotionHooks);
 	const nativeLayersContext = React.useContext(NativeLayersContext);
 	const preloadContext = React.useContext(PreloadContext);
+	const resolveCompositionContext = React.useContext(ResolveCompositionContext);
+
 	return useMemo(
 		() => ({
 			compositionManagerCtx,
@@ -33,6 +36,7 @@ export function useRemotionContexts() {
 			canUseRemotionHooksContext,
 			nativeLayersContext,
 			preloadContext,
+			resolveCompositionContext,
 		}),
 		[
 			compositionManagerCtx,
@@ -43,6 +47,7 @@ export function useRemotionContexts() {
 			canUseRemotionHooksContext,
 			nativeLayersContext,
 			preloadContext,
+			resolveCompositionContext,
 		]
 	);
 }
@@ -62,15 +67,19 @@ export const RemotionContextProvider = (
 				<NativeLayersContext.Provider value={contexts.nativeLayersContext}>
 					<PreloadContext.Provider value={contexts.preloadContext}>
 						<CompositionManager.Provider value={contexts.compositionManagerCtx}>
-							<TimelineContext.Provider value={contexts.timelineContext}>
-								<SetTimelineContext.Provider
-									value={contexts.setTimelineContext}
-								>
-									<SequenceContext.Provider value={contexts.sequenceContext}>
-										{children}
-									</SequenceContext.Provider>
-								</SetTimelineContext.Provider>
-							</TimelineContext.Provider>
+							<ResolveCompositionContext.Provider
+								value={contexts.resolveCompositionContext}
+							>
+								<TimelineContext.Provider value={contexts.timelineContext}>
+									<SetTimelineContext.Provider
+										value={contexts.setTimelineContext}
+									>
+										<SequenceContext.Provider value={contexts.sequenceContext}>
+											{children}
+										</SequenceContext.Provider>
+									</SetTimelineContext.Provider>
+								</TimelineContext.Provider>
+							</ResolveCompositionContext.Provider>
 						</CompositionManager.Provider>
 					</PreloadContext.Provider>
 				</NativeLayersContext.Provider>

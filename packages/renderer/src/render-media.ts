@@ -10,7 +10,7 @@ import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {AudioCodec} from './audio-codec';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
-import type {Browser as PuppeteerBrowser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
@@ -83,7 +83,7 @@ export type RenderMediaOptions = {
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
 	numberOfGifLoops?: number | null;
-	puppeteerInstance?: PuppeteerBrowser;
+	puppeteerInstance?: HeadlessBrowser;
 	overwrite?: boolean;
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
@@ -497,6 +497,7 @@ export const renderMedia = ({
 						preEncodedFileLocation,
 						imageFormat,
 						preferLossless: options.preferLossless ?? false,
+						indent: options.internal?.indent ?? false,
 					},
 					force: overwrite ?? DEFAULT_OVERWRITE,
 					pixelFormat,
@@ -520,7 +521,6 @@ export const renderMedia = ({
 					audioBitrate,
 					videoBitrate,
 					audioCodec: audioCodec ?? null,
-					indent: options.internal?.indent ?? false,
 				}),
 				stitchStart,
 			]);

@@ -213,48 +213,58 @@ export type SerializedInputProps =
 			payload: unknown;
 	  };
 
+export type LambdaStartPayload = {
+	rendererFunctionName: string | null;
+	type: LambdaRoutines.start;
+	serveUrl: string;
+	composition: string;
+	framesPerLambda: number | null;
+	inputProps: SerializedInputProps;
+	codec: LambdaCodec;
+	audioCodec: AudioCodec | null;
+	imageFormat: VideoImageFormat;
+	crf: number | undefined;
+	envVariables: Record<string, string> | undefined;
+	pixelFormat: PixelFormat | undefined;
+	proResProfile: ProResProfile | undefined;
+	jpegQuality: number | undefined;
+	maxRetries: number;
+	privacy: Privacy;
+	logLevel: LogLevel;
+	frameRange: FrameRange | null;
+	outName: OutNameInput | null;
+	timeoutInMilliseconds: number;
+	chromiumOptions: ChromiumOptions;
+	scale: number;
+	everyNthFrame: number;
+	numberOfGifLoops: number | null;
+	concurrencyPerLambda: number;
+	downloadBehavior: DownloadBehavior;
+	muted: boolean;
+	version: string;
+	overwrite: boolean;
+	audioBitrate: string | null;
+	videoBitrate: string | null;
+	webhook: WebhookOption;
+	forceHeight: number | null;
+	forceWidth: number | null;
+	bucketName: string | null;
+	dumpBrowserLogs: boolean;
+};
+
+export type LambdaStatusPayload = {
+	type: LambdaRoutines.status;
+	bucketName: string;
+	renderId: string;
+	version: string;
+	s3OutputProvider?: CustomCredentials;
+};
+
 export type LambdaPayloads = {
 	info: {
 		type: LambdaRoutines.info;
 	};
-	start: {
-		rendererFunctionName: string | null;
-		type: LambdaRoutines.start;
-		serveUrl: string;
-		composition: string;
-		framesPerLambda: number | null;
-		inputProps: SerializedInputProps;
-		codec: LambdaCodec;
-		audioCodec: AudioCodec | null;
-		imageFormat: VideoImageFormat;
-		crf: number | undefined;
-		envVariables: Record<string, string> | undefined;
-		pixelFormat: PixelFormat | undefined;
-		proResProfile: ProResProfile | undefined;
-		jpegQuality: number | undefined;
-		maxRetries: number;
-		privacy: Privacy;
-		logLevel: LogLevel;
-		frameRange: FrameRange | null;
-		outName: OutNameInput | null;
-		timeoutInMilliseconds: number;
-		chromiumOptions: ChromiumOptions;
-		scale: number;
-		everyNthFrame: number;
-		numberOfGifLoops: number | null;
-		concurrencyPerLambda: number;
-		downloadBehavior: DownloadBehavior;
-		muted: boolean;
-		version: string;
-		overwrite: boolean;
-		audioBitrate: string | null;
-		videoBitrate: string | null;
-		webhook: WebhookOption;
-		forceHeight: number | null;
-		forceWidth: number | null;
-		bucketName: string | null;
-		dumpBrowserLogs: boolean;
-	};
+	start: LambdaStartPayload;
 	launch: {
 		rendererFunctionName: string | null;
 		type: LambdaRoutines.launch;
@@ -293,13 +303,7 @@ export type LambdaPayloads = {
 		forceWidth: number | null;
 		dumpBrowserLogs: boolean;
 	};
-	status: {
-		type: LambdaRoutines.status;
-		bucketName: string;
-		renderId: string;
-		version: string;
-		s3OutputProvider?: CustomCredentials;
-	};
+	status: LambdaStatusPayload;
 	renderer: {
 		concurrencyPerLambda: number;
 		type: LambdaRoutines.renderer;

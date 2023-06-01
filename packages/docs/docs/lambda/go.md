@@ -6,6 +6,10 @@ sidebar_label: Rendering from Go
 crumb: "@remotion/lambda"
 ---
 
+<ExperimentalBadge>
+This feature is new. Please report any issues you encounter.
+</ExperimentalBadge>
+
 To trigger a Lambda render using Go, you can use the Remotion Lambda Go client. Note the following:
 
 - You first need to [complete the Lambda setup](/docs/lambda/setup).

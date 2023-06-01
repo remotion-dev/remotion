@@ -226,7 +226,7 @@ export const setBundleModeAndUpdate = (state: BundleState) => {
 };
 
 if (typeof window !== 'undefined') {
-	window.getStaticCompositions = (): AnyCompMetadata[] => {
+	window.getStaticCompositions = (): Promise<AnyCompMetadata[]> => {
 		if (!Internals.getRoot()) {
 			throw new Error(
 				'registerRoot() was never called. 1. Make sure you specified the correct entrypoint for your bundle. 2. If your registerRoot() call is deferred, use the delayRender/continueRender pattern to tell Remotion to wait.'
@@ -261,19 +261,38 @@ if (typeof window !== 'undefined') {
 			);
 		}
 
-		return compositions.map((c): AnyCompMetadata => {
-			return {
-				defaultProps: c.defaultProps,
-				durationInFrames: c.durationInFrames,
-				fps: c.fps,
-				height: c.height,
-				id: c.id,
-				width: c.width,
-			};
+		return Promise.all(
+			compositions.map((c): Promise<AnyCompMetadata> => {
+				return Internals.resolveVideoConfig({
+					composition: c,
+					editorProps: {},
+					signal: new AbortController().signal,
+				});
+			})
+		);
+	};
+
+	window.calculateComposition = (compId: string) => {
+		if (!Internals.compositionsRef.current) {
+			throw new Error('Unexpectedly did not have a CompositionManager');
+		}
+
+		const compositions = Internals.compositionsRef.current.getCompositions();
+		const selectedComp = compositions.find((c) => c.id === compId);
+		if (!selectedComp) {
+			throw new Error(`Could not find composition with ID ${compId}`);
+		}
+
+		const abortController = new AbortController();
+
+		return Internals.resolveVideoConfig({
+			composition: selectedComp,
+			editorProps: {},
+			signal: abortController.signal,
 		});
 	};
 
-	window.siteVersion = '4';
+	window.siteVersion = '5';
 	window.remotion_version = VERSION;
 	window.setBundleMode = setBundleModeAndUpdate;
 }
