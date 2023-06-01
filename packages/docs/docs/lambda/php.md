@@ -46,7 +46,7 @@ $client = new PHPClient($region, $serveUrl, $functionName, null);
 // Initiate the param object and customize as needed
 $params = new RenderParams();
 
-$params->setComposition('main');
+$params->setComposition('react-svg');
 
 // Execute the render and get the response
 
