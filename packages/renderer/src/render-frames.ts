@@ -10,7 +10,7 @@ import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
-import type {Browser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {isTargetClosedErr} from './browser/is-target-closed-err';
@@ -69,7 +69,7 @@ type RenderFramesOptions = {
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
 	dumpBrowserLogs?: boolean;
-	puppeteerInstance?: Browser;
+	puppeteerInstance?: HeadlessBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
 	onFrameBuffer?: (buffer: Buffer, frame: number) => void;
@@ -131,7 +131,7 @@ const innerRenderFrames = ({
 	onDownload: RenderMediaOnDownload;
 	proxyPort: number;
 	downloadMap: DownloadMap;
-	makeBrowser: () => Promise<Browser>;
+	makeBrowser: () => Promise<HeadlessBrowser>;
 	browserReplacer: BrowserReplacer;
 	compositor: Compositor;
 }): Promise<RenderFramesOutput> => {

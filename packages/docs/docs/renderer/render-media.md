@@ -11,7 +11,7 @@ Render a video or an audio programmatically.
 
 ## Example
 
-See an example of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) on the [server-side rendering page](/docs/ssr#render-a-video-using-nodejs-apis).
+See an example of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) on the [server-side rendering page](/docs/ssr).
 
 ## Arguments
 
@@ -175,7 +175,7 @@ Render a silent audio track if there wouldn't be any otherwise.
 
 _puppeteer.Browser - optional_
 
-An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
 ### `scale?`
 
@@ -413,17 +413,6 @@ Introduced in v3.2.29, removed from v4.0. `slowestFrames` has been moved to the 
 
 Callback function that gets called right before `renderMedia()` resolves.  
 The only argument `slowestFrames` is an array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
-
-```tsx twoslash
-import type { OnSlowestFrames } from "@remotion/renderer";
-
-const onSlowestFrames: OnSlowestFrames = (slowestFrames) => {
-  console.log("The slowest 10 frames are:");
-  for (const slowFrame of slowestFrames) {
-    console.log(`Frame ${slowFrame.frame} (${slowFrame.time}ms)`);
-  }
-};
-```
 
 ### ~~`ffmpegExecutable`~~
 

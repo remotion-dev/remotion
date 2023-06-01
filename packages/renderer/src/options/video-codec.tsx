@@ -5,9 +5,9 @@ export const videoCodecOption: RemotionOption = {
 	cliFlag: '--codec',
 	description: (
 		<>
-			Remotion supports 5 video codecs: h264 (default), h265, vp8, vp9 and
-			prores. While H264 will work well in most cases, sometimes it&apos;s worth
-			going for a different codec. Follow the link below for an overview.
+			H264 works well in most cases, sometimes it&apos;s worth going for a
+			different codec. WebM achieves higher compression but is slower to render.
+			WebM and ProRes support transparency.
 		</>
 	),
 	ssrName: 'codec',

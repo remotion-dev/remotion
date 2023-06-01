@@ -9,7 +9,7 @@ import type {AnyComposition} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
 import type {z} from 'zod';
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
-import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
@@ -82,6 +82,7 @@ const outer: React.CSSProperties = {
 	flexDirection: 'column',
 	flex: 1,
 	overflow: 'hidden',
+	backgroundColor: BACKGROUND,
 };
 
 const controlContainer: React.CSSProperties = {
@@ -123,14 +124,14 @@ const setPersistedShowWarningState = (val: boolean) => {
 };
 
 export const RenderModalData: React.FC<{
-	composition: AnyComposition;
+	unresolvedComposition: AnyComposition;
 	inputProps: Record<string, unknown>;
 	setInputProps: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	compact: boolean;
 	mayShowSaveButton: boolean;
 	propsEditType: PropsEditType;
 }> = ({
-	composition,
+	unresolvedComposition,
 	inputProps,
 	setInputProps,
 	compact,
@@ -162,7 +163,7 @@ export const RenderModalData: React.FC<{
 	const cliProps = getInputProps();
 	const [canSaveDefaultPropsObjectState, setCanSaveDefaultProps] =
 		useState<AllCompStates>({
-			[composition.id]: defaultTypeCanSaveState,
+			[unresolvedComposition.id]: defaultTypeCanSaveState,
 		});
 
 	const z = useZodIfPossible();
@@ -172,18 +173,18 @@ export const RenderModalData: React.FC<{
 			return 'no-zod' as const;
 		}
 
-		if (!composition.schema) {
+		if (!unresolvedComposition.schema) {
 			return z.object({});
 		}
 
-		if (!(typeof composition.schema.safeParse === 'function')) {
+		if (!(typeof unresolvedComposition.schema.safeParse === 'function')) {
 			throw new Error(
 				'A value which is not a Zod schema was passed to `schema`'
 			);
 		}
 
-		return composition.schema;
-	}, [composition.schema, z]);
+		return unresolvedComposition.schema;
+	}, [unresolvedComposition.schema, z]);
 
 	const zodValidationResult = useMemo(() => {
 		if (schema === 'no-zod') {
@@ -207,29 +208,29 @@ export const RenderModalData: React.FC<{
 		}, []);
 
 	const canSaveDefaultProps = useMemo(() => {
-		return canSaveDefaultPropsObjectState[composition.id]
-			? canSaveDefaultPropsObjectState[composition.id]
+		return canSaveDefaultPropsObjectState[unresolvedComposition.id]
+			? canSaveDefaultPropsObjectState[unresolvedComposition.id]
 			: defaultTypeCanSaveState;
-	}, [canSaveDefaultPropsObjectState, composition.id]);
+	}, [canSaveDefaultPropsObjectState, unresolvedComposition.id]);
 
 	const showSaveButton = mayShowSaveButton && canSaveDefaultProps.canUpdate;
 
 	const {fastRefreshes} = useContext(Internals.NonceContext);
 
 	useEffect(() => {
-		canUpdateDefaultProps(composition.id)
+		canUpdateDefaultProps(unresolvedComposition.id)
 			.then((can) => {
 				if (can.canUpdate) {
 					setCanSaveDefaultProps((prevState) => ({
 						...prevState,
-						[composition.id]: {
+						[unresolvedComposition.id]: {
 							canUpdate: true,
 						},
 					}));
 				} else {
 					setCanSaveDefaultProps((prevState) => ({
 						...prevState,
-						[composition.id]: {
+						[unresolvedComposition.id]: {
 							canUpdate: false,
 							reason: can.reason,
 							determined: true,
@@ -240,14 +241,14 @@ export const RenderModalData: React.FC<{
 			.catch((err) => {
 				setCanSaveDefaultProps((prevState) => ({
 					...prevState,
-					[composition.id]: {
+					[unresolvedComposition.id]: {
 						canUpdate: false,
 						reason: (err as Error).message,
 						determined: true,
 					},
 				}));
 			});
-	}, [composition.id]);
+	}, [unresolvedComposition.id]);
 
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
@@ -282,7 +283,7 @@ export const RenderModalData: React.FC<{
 
 		setValBeforeSafe(inputProps);
 		updateDefaultProps(
-			composition.id,
+			unresolvedComposition.id,
 			inputProps,
 			extractEnumJsonPaths(schema, z, [])
 		).then((response) => {
@@ -292,7 +293,7 @@ export const RenderModalData: React.FC<{
 				);
 			}
 		});
-	}, [composition.id, inputProps, schema, z]);
+	}, [unresolvedComposition.id, inputProps, schema, z]);
 
 	useEffect(() => {
 		setSaving(false);
@@ -307,8 +308,8 @@ export const RenderModalData: React.FC<{
 
 			setSaving(true);
 			updateDefaultProps(
-				composition.id,
-				updater(composition.defaultProps),
+				unresolvedComposition.id,
+				updater(unresolvedComposition.defaultProps),
 				extractEnumJsonPaths(schema, z, [])
 			)
 				.then((response) => {
@@ -324,7 +325,7 @@ export const RenderModalData: React.FC<{
 					setSaving(false);
 				});
 		},
-		[composition.defaultProps, composition.id, schema, z]
+		[unresolvedComposition.defaultProps, unresolvedComposition.id, schema, z]
 	);
 
 	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
@@ -380,7 +381,7 @@ export const RenderModalData: React.FC<{
 		return <NoSchemaDefined />;
 	}
 
-	if (!composition.defaultProps) {
+	if (!unresolvedComposition.defaultProps) {
 		return <NoDefaultProps />;
 	}
 
@@ -419,7 +420,7 @@ export const RenderModalData: React.FC<{
 					schema={schema}
 					zodValidationResult={zodValidationResult}
 					compact={compact}
-					defaultProps={composition.defaultProps}
+					defaultProps={unresolvedComposition.defaultProps}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
 					saving={saving}

@@ -15,7 +15,7 @@ If you want to render a video, use [renderMedia()](/docs/renderer/render-media) 
 
 ## Example usage
 
-You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr/#render-a-video-programmatically) for an example how to come up with the `bundleLocation` and `composition` variables.
+You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr) for an example how to come up with the `bundleLocation` and `composition` variables.
 
 ```ts twoslash
 // @module: ESNext
@@ -109,7 +109,7 @@ Renamed to `jpegQuality` in `v4.0.0`.
 
 _optional - default `null`_
 
-An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
 ### `envVariables?`
 

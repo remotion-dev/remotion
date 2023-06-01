@@ -1,4 +1,5 @@
 import React from 'react';
+import {BLUE} from '../../../editor/helpers/colors';
 import {didUnmountReactApp} from '../react-overlay';
 import {DismissButton} from './DismissButton';
 import {ErrorMessage} from './ErrorMessage';
@@ -20,7 +21,7 @@ const left: React.CSSProperties = {
 
 const errName: React.CSSProperties = {
 	fontSize: 18,
-	color: '#4290f5',
+	color: BLUE,
 	display: 'inline-block',
 };
 
@@ -38,7 +39,8 @@ export const ErrorTitle: React.FC<{
 	name: string;
 	message: string;
 	symbolicating: boolean;
-}> = ({name, message, symbolicating}) => {
+	canHaveDismissButton: boolean;
+}> = ({name, message, symbolicating, canHaveDismissButton}) => {
 	return (
 		<div style={title} className="css-reset">
 			<div style={left}>
@@ -54,7 +56,9 @@ export const ErrorTitle: React.FC<{
 					<ErrorMessage message={message} />
 				</div>
 			</div>
-			{didUnmountReactApp() ? null : <DismissButton />}
+			{didUnmountReactApp() ? null : canHaveDismissButton ? (
+				<DismissButton />
+			) : null}
 		</div>
 	);
 };

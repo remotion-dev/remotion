@@ -181,6 +181,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		downloadMap,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
+		logLevel: params.logLevel,
 	});
 	Internals.validateDurationInFrames({
 		durationInFrames: comp.durationInFrames,

@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-zod-types-index.png
 sidebar_label: Overview
 title: "@remotion/zod-types"
 crumb: Schema

@@ -74,11 +74,11 @@ export type StitcherOptions = {
 		preEncodedFileLocation: string | null;
 		imageFormat: VideoImageFormat;
 		preferLossless: boolean;
+		indent: boolean;
 	};
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
-	indent: boolean;
 };
 
 type ReturnType = {
@@ -234,7 +234,7 @@ const spawnFfmpeg = async (
 
 	Log.verboseAdvanced(
 		{
-			indent: options.indent,
+			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
 			tag: 'encoder',
 		},
@@ -243,7 +243,7 @@ const spawnFfmpeg = async (
 	);
 	Log.verboseAdvanced(
 		{
-			indent: options.indent,
+			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
 			tag: 'encoder',
 		},
@@ -252,7 +252,7 @@ const spawnFfmpeg = async (
 	);
 	Log.verboseAdvanced(
 		{
-			indent: options.indent,
+			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
 			tag: 'encoder',
 		},
@@ -261,7 +261,7 @@ const spawnFfmpeg = async (
 	);
 	Log.verboseAdvanced(
 		{
-			indent: options.indent,
+			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
 			tag: 'encoder',
 		},
@@ -270,7 +270,7 @@ const spawnFfmpeg = async (
 	);
 	Log.verboseAdvanced(
 		{
-			indent: options.indent,
+			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
 			tag: 'encoder',
 		},
@@ -279,7 +279,7 @@ const spawnFfmpeg = async (
 	);
 	Log.verboseAdvanced(
 		{
-			indent: options.indent,
+			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
 			tag: 'encoder',
 		},
@@ -288,7 +288,7 @@ const spawnFfmpeg = async (
 	);
 	Log.verboseAdvanced(
 		{
-			indent: options.indent,
+			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
 			tag: 'encoder',
 		},
@@ -321,7 +321,7 @@ const spawnFfmpeg = async (
 				onProgress: (prog) => updateProgress(prog, 0),
 				downloadMap: options.assetsInfo.downloadMap,
 				remotionRoot,
-				indent: options.indent,
+				indent: options.internalOptions?.indent ?? false,
 		  })
 		: null;
 
@@ -439,7 +439,7 @@ const spawnFfmpeg = async (
 
 	Log.verboseAdvanced(
 		{
-			indent: options.indent,
+			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
 			tag: 'encoder',
 		},
@@ -447,7 +447,7 @@ const spawnFfmpeg = async (
 	);
 	Log.verboseAdvanced(
 		{
-			indent: options.indent,
+			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
 			tag: 'encoder',
 		},
