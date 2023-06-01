@@ -66,6 +66,7 @@ export const renderStillFlow = async ({
 	indentOutput,
 	addCleanupCallback,
 	cancelSignal,
+	outputLocationFromUi,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -92,6 +93,7 @@ export const renderStillFlow = async ({
 	indentOutput: boolean;
 	addCleanupCallback: (cb: () => void) => void;
 	cancelSignal: CancelSignal | null;
+	outputLocationFromUi: string | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -192,7 +194,10 @@ export const renderStillFlow = async ({
 		configImageFormat:
 			ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		downloadName: null,
-		outName: getUserPassedOutputLocation(argsAfterComposition),
+		outName: getUserPassedOutputLocation(
+			argsAfterComposition,
+			outputLocationFromUi
+		),
 		isLambda: false,
 		fromUi: imageFormatFromUi,
 	});
@@ -202,6 +207,7 @@ export const renderStillFlow = async ({
 		defaultExtension: imageFormat,
 		args: argsAfterComposition,
 		type: 'asset',
+		outputLocationFromUi,
 	});
 
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(

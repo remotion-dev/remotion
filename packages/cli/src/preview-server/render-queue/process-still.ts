@@ -55,5 +55,6 @@ export const processStill = async ({
 		indentOutput: true,
 		addCleanupCallback,
 		cancelSignal: job.cancelToken.cancelSignal,
+		outputLocationFromUi: job.outName,
 	});
 };
