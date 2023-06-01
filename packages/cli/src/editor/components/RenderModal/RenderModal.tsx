@@ -134,6 +134,7 @@ const horizontalLayout: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	overflowY: 'auto',
+	flex: 1,
 };
 
 const leftSidebar: React.CSSProperties = {
@@ -180,6 +181,8 @@ const outer: React.CSSProperties = {
 	width: getMaxModalWidth(1000),
 	height: getMaxModalHeight(640),
 	overflow: 'hidden',
+	display: 'flex',
+	flexDirection: 'column',
 };
 
 type RenderModalProps = {
