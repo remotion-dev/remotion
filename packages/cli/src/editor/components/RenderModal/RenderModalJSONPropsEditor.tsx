@@ -110,6 +110,11 @@ export const RenderModalJSONPropsEditor: React.FC<{
 		}
 	}, [hasChanged, onSave]);
 
+	// If schema is changed in code
+	useEffect(() => {
+		setLocalValue(parseJSON(localValue.str, schema));
+	}, [localValue.str, schema]);
+
 	useEffect(() => {
 		const save = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -127,7 +132,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 
 	const reset = useCallback(() => {
 		setLocalValue(parseJSON(serializedJSON.serializedString, schema));
-		console.log('local', parseJSON(serializedJSON.serializedString, schema));
 		setValue(defaultProps);
 	}, [defaultProps, schema, serializedJSON.serializedString, setValue]);
 
