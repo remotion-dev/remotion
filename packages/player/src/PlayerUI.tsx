@@ -264,6 +264,10 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		Internals.SetMediaVolumeContext
 	);
 	const {mediaMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
+	useEffect(() => {
+		player.emitter.dispatchVolumeChange(mediaVolume);
+	}, [player.emitter, mediaVolume])
+
 	const isMuted = mediaMuted || mediaVolume === 0;
 	useEffect(() => {
 		player.emitter.dispatchMuteChange({
@@ -327,7 +331,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					}
 
 					setMediaVolume(vol);
-					player.emitter.dispatchVolumeChange(vol);
 				},
 				isMuted: () => isMuted,
 				mute: () => {
