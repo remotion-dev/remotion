@@ -1,5 +1,6 @@
 import React from 'react';
 import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../../../editor/components/Menu/is-menu-item';
+import {BLUE} from '../../../editor/helpers/colors';
 import type {ScriptLine} from '../react-overlay/utils/stack-frame';
 
 const container: React.CSSProperties = {
@@ -56,7 +57,7 @@ export const CodeFrame: React.FC<{
 								whiteSpace: 'pre',
 								tabSize: 2,
 								color: s.highlight ? 'white' : 'rgba(255, 255, 255, 0.6)',
-								backgroundColor: s.highlight ? 'var(--blue)' : 'transparent',
+								backgroundColor: s.highlight ? BLUE : 'transparent',
 								lineHeight: 1.7,
 								paddingRight: 12,
 								paddingLeft: 12,

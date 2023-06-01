@@ -39,7 +39,7 @@ import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 
 import type {AnyZodObject} from 'zod';
-import {BLUE, LIGHT_TEXT} from '../../helpers/colors';
+import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
 import {Spacing} from '../layout';
@@ -898,9 +898,7 @@ const RenderModal: React.FC<
 					disabled={renderDisabled}
 					style={{
 						...buttonStyle,
-						backgroundColor: outnameValidation.valid
-							? 'var(--blue)'
-							: 'var(--blue-disabled)',
+						backgroundColor: outnameValidation.valid ? BLUE : BLUE_DISABLED,
 					}}
 				>
 					{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}

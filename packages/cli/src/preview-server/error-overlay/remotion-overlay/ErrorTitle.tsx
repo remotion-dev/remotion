@@ -1,4 +1,5 @@
 import React from 'react';
+import {BLUE} from '../../../editor/helpers/colors';
 import {didUnmountReactApp} from '../react-overlay';
 import {DismissButton} from './DismissButton';
 import {ErrorMessage} from './ErrorMessage';
@@ -20,7 +21,7 @@ const left: React.CSSProperties = {
 
 const errName: React.CSSProperties = {
 	fontSize: 18,
-	color: 'var(--blue)',
+	color: BLUE,
 	display: 'inline-block',
 };
 
