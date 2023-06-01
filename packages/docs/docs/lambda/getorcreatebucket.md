@@ -36,7 +36,7 @@ Allows to pass a callback after the bucket was created and before the S3 website
 
 ## Return value
 
-A promise resolving to an object with the following property:
+A promise resolving to an object with the following properties:
 
 ### `bucketName`
 
@@ -44,7 +44,8 @@ The name of your bucket that was found or created.
 
 ### `alreadyExisted`
 
-<AvailableFrom v="v3.3.78" />
+_available from v3.3.78_
+
 A boolean indicating whether the bucket already existed or was newly created.
 
 ## See also
