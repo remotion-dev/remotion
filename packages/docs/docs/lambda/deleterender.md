@@ -6,7 +6,7 @@ slug: /lambda/deleterender
 crumb: "Lambda API"
 ---
 
-Deletes a rendered video, audio or still and it's associated metada.
+Deletes a rendered video, audio or still and its associated metada.
 
 ```ts twoslash
 // @module: ESNext

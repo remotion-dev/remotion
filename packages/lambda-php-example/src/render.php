@@ -23,71 +23,53 @@ $client = new PHPClient($region, $serveUrl, $functionName, null);
 
 // Initiate the param object and customize as needed
 $params = new RenderParams();
+
 $params->setComposition('react-svg');
 
 // Execute the render and get the response
+
 $renderResponse = $client->renderMediaOnLambda($params);
 
 // Output render response
-print_r($renderResponse);
+print_r($renderResponse->body);
 
 /****
-Response
+stdClass Object
 (
-[bucketName] => remotionlambda-apsoutheast2-xxxx
-[renderId] => xxxxxxx
-) */
+[statusCode] => 200
+[headers] => stdClass Object
+(
+[content-type] => application/json
+)
 
-// Get render progress
-$renderId = $renderResponse->renderId;
-$bucketName = $renderResponse->bucketName;
-$renderProgressResponse = $client->getRenderProgress($renderId, $bucketName);
+[body] => {"bucketName":"remotionlambda-apsoutheast2-qv16gcf02l","renderId":"zjllgavb07"}
+)
+ **/
+// check the status of the render
+if ($renderResponse->statusCode === 200) {
+    $responseObject = json_decode($renderResponse->body);
 
-// Output render progress response
-print_r($renderProgressResponse);
+    // Get render progress
+    $renderId = $responseObject->renderId;
+    $bucketName = $responseObject->bucketName;
+
+    $renderProgressResponse = $client->getRenderProgress($renderId, $bucketName);
+
+    // Output render progress response
+    print_r($renderProgressResponse);
+}
 
 /**
  * Response
  *
  *
- * stdClass Object
+ * (
+[statusCode] => 200
+[headers] => stdClass Object
 (
-[framesRendered] => 0
-[chunks] => 0
-[done] =>
-[encodingStatus] =>
-[costs] => stdClass Object
-(
-[accruedSoFar] => 0
-[displayCost] => <$0.001
-[currency] => USD
-[disclaimer] => Estimated cost only. Does not include charges for other AWS services.
+[content-type] => application/json
 )
 
-[renderId] => 2q989xf6id
-[renderMetadata] =>
-[bucket] => remotionlambda-apsoutheast2-qv16gcf02l
-[outputFile] =>
-[timeToFinish] =>
-[errors] => Array
-(
-)
-
-[fatalErrorEncountered] =>
-[currentTime] => 1684570372214
-[renderSize] => 22
-[lambdasInvoked] => 0
-[cleanup] =>
-[timeToFinishChunks] =>
-[overallProgress] => 0
-[retriesInfo] => Array
-(
-)
-
-[outKey] =>
-[outBucket] =>
-[mostExpensiveFrameRanges] =>
-[timeToEncode] =>
-[outputSizeInBytes] =>
+[body] => {"framesRendered":0,"chunks":0,"done":false,"encodingStatus":null,"costs":{"accruedSoFar":0,"displayCost":"<$0.001","currency":"USD","disclaimer":"Estimated cost only. Does not include charges for other AWS services."},"renderId":"61j7un13i1","renderMetadata":null,"bucket":"remotionlambda-apsoutheast2-xxxx","outputFile":null,"timeToFinish":null,"errors":[],"fatalErrorEncountered":false,"currentTime":1685605900279,"renderSize":22,"lambdasInvoked":0,"cleanup":null,"timeToFinishChunks":null,"overallProgress":0,"retriesInfo":[],"outKey":null,"outBucket":null,"mostExpensiveFrameRanges":null,"timeToEncode":null,"outputSizeInBytes":null}
 )
  */
