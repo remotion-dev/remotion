@@ -1,5 +1,5 @@
 import type React from 'react';
-import {BACKGROUND} from '../../helpers/colors';
+import {BACKGROUND, BLUE} from '../../helpers/colors';
 
 export const MENU_VERTICAL_PADDING = 4;
 export const SUBMENU_LEFT_INSET = -8;
@@ -40,6 +40,6 @@ export const outerPortal: React.CSSProperties = {
 
 export const inlineCodeSnippet: React.CSSProperties = {
 	fontSize: 14,
-	color: 'var(--blue)',
+	color: BLUE,
 	fontFamily: 'monospace',
 };
