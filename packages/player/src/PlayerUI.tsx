@@ -264,6 +264,13 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		Internals.SetMediaVolumeContext
 	);
 	const {mediaMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
+	const isMuted = mediaMuted || mediaVolume === 0;
+	useEffect(() => {
+		player.emitter.dispatchMuteChange({
+			isMuted
+		})
+	},
+	[player.emitter, isMuted]);
 
 	useImperativeHandle(
 		ref,
@@ -322,7 +329,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					setMediaVolume(vol);
 					player.emitter.dispatchVolumeChange(vol);
 				},
-				isMuted: () => mediaMuted || mediaVolume === 0,
+				isMuted: () => isMuted,
 				mute: () => {
 					setMediaMuted(true);
 				},
@@ -339,6 +346,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			isFullscreen,
 			loop,
 			mediaMuted,
+			isMuted,
 			mediaVolume,
 			player,
 			requestFullscreen,
