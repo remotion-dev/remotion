@@ -83,7 +83,7 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 _optional - default `"png"`_
 
-See [`renderMedia() -> imageFormat`](/docs/renderer/render-still#imageformat).
+See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat).
 
 ### `quality?`
 
