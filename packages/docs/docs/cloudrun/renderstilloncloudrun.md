@@ -22,6 +22,7 @@ const result = await renderStillOnCloudrun({
   region: "us-east1",
   serviceName: "remotion-render-bds9aab",
   composition: "MyStill",
+  imageFormat: "png",
   serveUrl:
     "https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh",
 });
