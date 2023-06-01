@@ -37,15 +37,14 @@ Removed in v4.0 since we don't use the website option anymore.
 
 ## Return value
 
-A promise resolving to an object with the following property:
+A promise resolving to an object with the following properties:
 
 ### `bucketName`
 
 The name of your bucket that was found or created.
 
-### `alreadyExisted`
+### `alreadyExisted`<AvailableFrom v="3.3.78" />
 
-<AvailableFrom v="3.3.78" />
 A boolean indicating whether the bucket already existed or was newly created.
 
 ## See also

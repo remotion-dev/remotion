@@ -202,7 +202,7 @@ router.post("/my-remotion-webhook-endpoint", jsonParser, (req, res) => {
 
 Similary, here is an example endpoint in Next.JS.
 
-Since this endpoint is going to be executed in an AWS Lambda function on it's own, you want to import the Remotion functions from [`@remotion/lambda/client`](/docs/lambda/light-client).
+Since this endpoint is going to be executed in an AWS Lambda function on its own, you want to import the Remotion functions from [`@remotion/lambda/client`](/docs/lambda/light-client).
 
 ```tsx twoslash title="pages/api/webhook.ts"
 type NextApiRequest = {

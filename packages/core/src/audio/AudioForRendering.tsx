@@ -128,14 +128,14 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 
 			const didLoad = () => {
 				if (current?.duration) {
-					onDuration(src as string, current.duration);
+					onDuration(current.src as string, current.duration);
 				}
 
 				continueRender(newHandle);
 			};
 
 			if (current?.duration) {
-				onDuration(src as string, current.duration);
+				onDuration(current.src as string, current.duration);
 				continueRender(newHandle);
 			} else {
 				current?.addEventListener('loadedmetadata', didLoad, {once: true});
