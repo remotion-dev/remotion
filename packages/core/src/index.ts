@@ -62,7 +62,13 @@ checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
 export * from './audio/index.js';
 export {cancelRender} from './cancel-render.js';
-export * from './Composition.js';
+export {
+	CalculateMetadataFunction,
+	Composition,
+	CompositionProps,
+	CompProps,
+	StillProps,
+} from './Composition.js';
 export {
 	AnyCompMetadata,
 	AnyComposition,

@@ -35,7 +35,7 @@ export type CompProps<Props> =
 			component: LooseComponentType<Props>;
 	  };
 
-type CalcMetadataReturnType<T> = {
+export type CalcMetadataReturnType<T> = {
 	durationInFrames?: number;
 	fps?: number;
 	width?: number;
@@ -221,7 +221,7 @@ export const Composition = <
 	return null;
 };
 
-export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
+const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
 	const {clipRegion} = useContext(NativeLayersContext);
 	const style: React.CSSProperties = useMemo(() => {
 		return {

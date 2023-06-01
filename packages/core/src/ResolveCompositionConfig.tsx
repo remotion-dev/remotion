@@ -78,40 +78,51 @@ export const ResolveCompositionConfig: React.FC<
 			const controller = new AbortController();
 			const {signal} = controller;
 
-			setResolvedConfigs((r) => ({
-				...r,
-				[composition.id]: {
-					type: 'loading',
-				},
-			}));
+			const promOrNot = resolveVideoConfig({composition, editorProps, signal});
 
-			resolveVideoConfig({composition, editorProps, signal})
-				.then((c) => {
-					if (controller.signal.aborted) {
-						return;
-					}
+			if (typeof promOrNot === 'object' && 'then' in promOrNot) {
+				setResolvedConfigs((r) => ({
+					...r,
+					[composition.id]: {
+						type: 'loading',
+					},
+				}));
+				promOrNot
+					.then((c) => {
+						if (controller.signal.aborted) {
+							return;
+						}
 
-					setResolvedConfigs((r) => ({
-						...r,
-						[composition.id]: {
-							type: 'success',
-							result: c,
-						},
-					}));
-				})
-				.catch((err) => {
-					if (controller.signal.aborted) {
-						return;
-					}
+						setResolvedConfigs((r) => ({
+							...r,
+							[composition.id]: {
+								type: 'success',
+								result: c,
+							},
+						}));
+					})
+					.catch((err) => {
+						if (controller.signal.aborted) {
+							return;
+						}
 
-					setResolvedConfigs((r) => ({
-						...r,
-						[composition.id]: {
-							type: 'error',
-							error: err,
-						},
-					}));
-				});
+						setResolvedConfigs((r) => ({
+							...r,
+							[composition.id]: {
+								type: 'error',
+								error: err,
+							},
+						}));
+					});
+			} else {
+				setResolvedConfigs((r) => ({
+					...r,
+					[composition.id]: {
+						type: 'success',
+						result: promOrNot,
+					},
+				}));
+			}
 
 			return controller;
 		},
@@ -163,6 +174,7 @@ export const ResolveCompositionConfig: React.FC<
 	useEffect(() => {
 		if (renderModalComposition && !isTheSame) {
 			const controller = doResolution(renderModalComposition, renderModalProps);
+
 			return () => {
 				controller.abort();
 			};
@@ -211,15 +223,15 @@ export const useResolvedVideoConfig = (
 		return null;
 	}
 
-	if (!context[composition.id]) {
-		const needsResolution = composition.calculateMetadata;
-		if (needsResolution === null) {
-			return {
-				type: 'success',
-				result: {...composition, defaultProps: composition.defaultProps ?? {}},
-			};
-		}
+	const needsResolution = composition.calculateMetadata;
+	if (needsResolution === null) {
+		return {
+			type: 'success',
+			result: {...composition, defaultProps: composition.defaultProps ?? {}},
+		};
+	}
 
+	if (!context[composition.id]) {
 		return null;
 	}
 

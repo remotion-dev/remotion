@@ -4,8 +4,9 @@ import {getInputProps} from './config/input-props.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import type {VideoConfig} from './video-config.js';
+import type { CalcMetadataReturnType } from './Composition.js';
 
-export const resolveVideoConfig = async ({
+export const resolveVideoConfig = ({
 	composition,
 	editorProps: editorPropsOrUndefined,
 	signal,
@@ -16,11 +17,9 @@ export const resolveVideoConfig = async ({
 	>;
 	editorProps: object;
 	signal: AbortSignal;
-}): Promise<VideoConfig> => {
-	const potentialErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
-
-	const calculated = composition.calculateMetadata
-		? await composition.calculateMetadata({
+}): VideoConfig | Promise<VideoConfig> => {
+	const calculatedProm = composition.calculateMetadata
+		? composition.calculateMetadata({
 				defaultProps: composition.defaultProps ?? {},
 				props: {
 					...((composition.defaultProps ?? {}) as object),
@@ -30,6 +29,50 @@ export const resolveVideoConfig = async ({
 				abortSignal: signal,
 		  })
 		: null;
+
+	if (
+		calculatedProm !== null &&
+		typeof calculatedProm === 'object' &&
+		'then' in calculatedProm
+	) {
+		return calculatedProm.then((c) => {
+			const {height, width, durationInFrames, fps} = validateCalculated({
+				calculated: c,
+				composition,
+			});
+			return {
+				width,
+				height,
+				fps,
+				durationInFrames,
+				id: composition.id,
+				defaultProps: composition.defaultProps,
+			};
+		});
+	}
+
+	const data = validateCalculated({
+		calculated: calculatedProm,
+		composition,
+	});
+	return {
+		...data,
+		id: composition.id,
+		defaultProps: composition.defaultProps,
+	};
+};
+
+const validateCalculated = ({
+	composition,
+	calculated,
+}: {
+	composition: TCompMetadataWithCalcFunction<
+		AnyZodObject,
+		Record<string, unknown> | undefined
+	>;
+	calculated: CalcMetadataReturnType<unknown> | null;
+}) => {
+	const potentialErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
 
 	const width = calculated?.width ?? composition.width ?? null;
 	if (!width) {
@@ -70,12 +113,5 @@ export const resolveVideoConfig = async ({
 		allowFloats: false,
 	});
 
-	return {
-		width,
-		height,
-		fps,
-		durationInFrames,
-		id: composition.id,
-		defaultProps: composition.defaultProps,
-	};
+	return {width, height, fps, durationInFrames};
 };
