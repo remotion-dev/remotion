@@ -886,7 +886,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 					schema={schemaTestSchema}
-					defaultProps={{title: 'fsdfsdfsdfsd', delay: 5.2}}
+					defaultProps={{title: 'fsdfsdfsdfsdf', delay: 5.2}}
 				/>
 				{/**
 				 // @ts-expect-error */}
