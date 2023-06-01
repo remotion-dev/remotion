@@ -28,10 +28,7 @@ import {
 import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
 import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
 import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
-import {
-	deserializeJSONWithCustomFields,
-	serializeJSONWithDate,
-} from './SchemaEditor/input-props-serialization';
+import {serializeJSONWithDate} from './SchemaEditor/input-props-serialization';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -51,6 +48,7 @@ export type State =
 			str: string;
 			value: Record<string, unknown>;
 			validJSON: true;
+			zodValidation: Zod.SafeParseReturnType<unknown, unknown>;
 	  }
 	| {
 			str: string;
@@ -100,15 +98,6 @@ const tabWrapper: React.CSSProperties = {
 };
 
 const persistanceKey = 'remotion.show-render-modalwarning';
-
-const parseJSON = (str: string): State => {
-	try {
-		const value = deserializeJSONWithCustomFields(str);
-		return {str, value, validJSON: true};
-	} catch (e) {
-		return {str, validJSON: false, error: (e as Error).message};
-	}
-};
 
 const getPersistedShowWarningState = () => {
 	const val = localStorage.getItem(persistanceKey);
@@ -270,10 +259,6 @@ export const RenderModalData: React.FC<{
 		];
 	}, [mode]);
 
-	const switchToSchema = useCallback(() => {
-		setMode('schema');
-	}, []);
-
 	const onUpdate = useCallback(() => {
 		if (schema === 'no-zod' || z === null) {
 			sendErrorNotification('Cannot update default props: No Zod schema');
@@ -429,13 +414,12 @@ export const RenderModalData: React.FC<{
 				<RenderModalJSONPropsEditor
 					value={inputProps ?? {}}
 					setValue={setInputProps}
-					zodValidationResult={zodValidationResult}
-					switchToSchema={switchToSchema}
 					onSave={onUpdate}
 					valBeforeSafe={valBeforeSafe}
 					showSaveButton={showSaveButton}
 					serializedJSON={serializedJSON}
-					parseJSON={parseJSON}
+					defaultProps={unresolvedComposition.defaultProps}
+					schema={schema}
 				/>
 			)}
 		</div>
