@@ -263,11 +263,13 @@ if (typeof window !== 'undefined') {
 
 		return Promise.all(
 			compositions.map((c): Promise<AnyCompMetadata> => {
-				return Internals.resolveVideoConfig({
-					composition: c,
-					editorProps: {},
-					signal: new AbortController().signal,
-				});
+				return Promise.resolve(
+					Internals.resolveVideoConfig({
+						composition: c,
+						editorProps: {},
+						signal: new AbortController().signal,
+					})
+				);
 			})
 		);
 	};
@@ -285,11 +287,13 @@ if (typeof window !== 'undefined') {
 
 		const abortController = new AbortController();
 
-		return Internals.resolveVideoConfig({
-			composition: selectedComp,
-			editorProps: {},
-			signal: abortController.signal,
-		});
+		return Promise.resolve(
+			Internals.resolveVideoConfig({
+				composition: selectedComp,
+				editorProps: {},
+				signal: abortController.signal,
+			})
+		);
 	};
 
 	window.siteVersion = '5';
