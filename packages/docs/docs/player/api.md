@@ -385,11 +385,15 @@ _optional_
 
 If true, displays the player controls at all times even if the mouse is outside the player area. Default `false`.
 
-### `showPlaybackControl`<AvailableFrom v="3.3.98" />
+### `showPlaybackRateControl`<AvailableFrom v="3.3.98" />
 
 _optional_
 
-If true, displays the control to change playback rate. Default `false`.
+If `true`, displays a gear icon allowing the user to change the playback rate.
+
+You may pass an array with the available playback rates for selection, however, updating the list dynamically is not supported. `true` is an alias for `[0.5, 0.8, 1, 1.2, 1.5, 1.8, 2, 2.5, 3]`.
+
+Default `false`.
 
 ## `PlayerRef`
 
