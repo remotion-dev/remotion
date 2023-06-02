@@ -100,6 +100,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 	);
 
 	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (process.env.NODE_ENV === 'test') {
 				return;
