@@ -103,7 +103,7 @@ const handleFallback = async ({
 			envVariables: getEnvVariables(),
 			inputProps: getCurrentInputProps(),
 			remotionRoot,
-			previewServerCommand:
+			studioServerCommand:
 				packageManager === 'unknown' ? null : packageManager.startCommand,
 			renderQueue: getRenderQueue(),
 			numberOfAudioTags:
