@@ -4,6 +4,7 @@ import {Internals} from 'remotion';
 import {formatTime} from './format-time.js';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
+import {PlaybackButton} from './PlaybackButton.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import type {usePlayer} from './use-player.js';
 import {
@@ -129,6 +130,7 @@ export const Controls: React.FC<{
 	renderPlayPauseButton: RenderPlayPauseButton | null;
 	renderFullscreenButton: RenderFullscreenButton | null;
 	alwaysShowControls: boolean;
+	showPlaybackRateControl: boolean;
 }> = ({
 	durationInFrames,
 	hovered,
@@ -149,6 +151,7 @@ export const Controls: React.FC<{
 	renderPlayPauseButton,
 	renderFullscreenButton,
 	alwaysShowControls,
+	showPlaybackRateControl,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -260,6 +263,12 @@ export const Controls: React.FC<{
 							renderPlayPauseButton({playing: player.playing})
 						)}
 					</button>
+					{showPlaybackRateControl && (
+						<>
+							<div style={xSpacer} />
+							<PlaybackButton />
+						</>
+					)}
 					{showVolumeControls ? (
 						<>
 							<div style={xSpacer} />
