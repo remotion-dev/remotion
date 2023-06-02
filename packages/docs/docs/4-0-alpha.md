@@ -28,12 +28,12 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 - "@remotion/eslint-plugin": "^3.3.87"
 - "@remotion/cli": "^3.3.87"
 - "@remotion/renderer": "^3.3.87"
-+ "remotion": "4.0.0-alpha5"
-+ "@remotion/bundler": "4.0.0-alpha5"
-+ "@remotion/eslint-config": "4.0.0-alpha5"
-+ "@remotion/eslint-plugin": "4.0.0-alpha5"
-+ "@remotion/cli": "4.0.0-alpha5"
-+ "@remotion/renderer": "4.0.0-alpha5"
++ "remotion": "4.0.0-alpha10"
++ "@remotion/bundler": "4.0.0-alpha10"
++ "@remotion/eslint-config": "4.0.0-alpha10"
++ "@remotion/eslint-plugin": "4.0.0-alpha10"
++ "@remotion/cli": "4.0.0-alpha10"
++ "@remotion/renderer": "4.0.0-alpha10"
 ```
 
 Make sure the versions don't have a `^` character in front of it.
@@ -60,16 +60,13 @@ Config.setVideoImageFormat("jpeg");
 
 See how to migrate: [Migration guide](/docs/4-0-migration)
 
-## Known issues
-
-- The render queue does currently render multiple videos at once
-- The render queue does not handle if the Preview Server is disconnected
-- Saving input props has no progress indication
-- Button for saving input props shows up even if saving is not possible
-- Unserializable values in `defaultProps` make the JSON editor act up.
-- All strings are `as const` when saving back to the root file.
-
 ## Changelog
+
+### `4.0.0-alpha10`
+
+- Renamed Remotion Preview to Remotion Studio
+- Various fixes for the Remotion Studio
+- New prop for Composition: `calculateMetadata`! See: [Data fetching](/docs/data-fetching) and [Variable metadata](/docs/dynamic-metadata)
 
 ### `4.0.0-alpha9`
 
