@@ -157,7 +157,7 @@ import { Config } from "@remotion/cli/config";
 Config.setKeyboardShortcutsEnabled(false);
 ```
 
-The [command line flag](/docs/cli/preview#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
+The [command line flag](/docs/cli/studio#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
 
 ## setWebpackPollingInMilliseconds()<AvailableFrom v="3.3.11" />
 
@@ -170,7 +170,7 @@ import { Config } from "@remotion/cli/config";
 Config.setWebpackPollingInMilliseconds(1000);
 ```
 
-The [command line flag](/docs/cli/preview#--webpack-poll) `--webpack-poll` will take precedence over this option.
+The [command line flag](/docs/cli/studio#--webpack-poll) `--webpack-poll` will take precedence over this option.
 
 ## setNumberOfSharedAudioTags()<AvailableFrom v="3.3.2" />
 
