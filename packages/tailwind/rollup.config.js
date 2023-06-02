@@ -1,5 +1,6 @@
 // rollup.config.js
 import typescript from '@rollup/plugin-typescript';
+import banner2 from 'rollup-plugin-banner2';
 
 export default [
 	{
@@ -18,6 +19,10 @@ export default [
 				sourceMap: false,
 				outputToFilesystem: true,
 			}),
+			banner2(
+				() =>
+					`import {createRequire} from "module";\nconst require = createRequire(import.meta.url);\n\n`
+			),
 		],
 	},
 ];
