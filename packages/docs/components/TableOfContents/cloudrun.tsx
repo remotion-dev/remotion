@@ -10,14 +10,6 @@ export const TableOfContents: React.FC = () => {
           <strong>getServiceInfo()</strong>
           <div>Gets information about a service</div>
         </TOCItem>
-        <TOCItem link="/docs/cloudrun/getservices">
-          <strong>getServices()</strong>
-          <div>Lists available Remotion Cloud Run services</div>
-        </TOCItem>
-        <TOCItem link="/docs/cloudrun/getregions">
-          <strong>getRegions()</strong>
-          <div>Get all available regions</div>
-        </TOCItem>
         <TOCItem link="/docs/cloudrun/deployservice">
           <strong>deployService()</strong>
           <div>Create a new service in GCP Cloud Run</div>
@@ -26,9 +18,17 @@ export const TableOfContents: React.FC = () => {
           <strong>deleteService()</strong>
           <div>Delete a service in GCP Cloud Run</div>
         </TOCItem>
+        <TOCItem link="/docs/cloudrun/getservices">
+          <strong>getServices()</strong>
+          <div>Lists available Remotion Cloud Run services</div>
+        </TOCItem>
         <TOCItem link="/docs/cloudrun/speculateservicename">
           <strong>speculateServiceName()</strong>
           <div>Speculate a service name based on its configuration</div>
+        </TOCItem>
+        <TOCItem link="/docs/cloudrun/getregions">
+          <strong>getRegions()</strong>
+          <div>Get all available regions</div>
         </TOCItem>
         <TOCItem link="/docs/cloudrun/deploysite">
           <strong>deploySite()</strong>
