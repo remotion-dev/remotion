@@ -1,59 +1,129 @@
-import React, {useCallback, useContext} from 'react';
+import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {SettingsIcon} from './icons.js';
 import useComponentVisible from './utils/use-component-visible.js';
 
+const playbackPopup: React.CSSProperties = {
+	position: 'absolute',
+	right: 0,
+	width: 125,
+	bottom: 35,
+	background: '#fff',
+	borderRadius: 4,
+	overflow: 'hidden',
+	color: 'black',
+	textAlign: 'left',
+};
+
+const rateDiv: React.CSSProperties = {
+	height: 30,
+	paddingRight: 15,
+	paddingLeft: 12,
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
+};
+
+const checkmarkContainer: React.CSSProperties = {
+	width: 22,
+	display: 'flex',
+	alignItems: 'center',
+};
+
+const checkmarkStyle: React.CSSProperties = {
+	width: 14,
+	height: 14,
+	color: 'black',
+};
+
+export const Checkmark = () => (
+	<svg viewBox="0 0 512 512" style={checkmarkStyle}>
+		<path
+			fill="currentColor"
+			d="M435.848 83.466L172.804 346.51l-96.652-96.652c-4.686-4.686-12.284-4.686-16.971 0l-28.284 28.284c-4.686 4.686-4.686 12.284 0 16.971l133.421 133.421c4.686 4.686 12.284 4.686 16.971 0l299.813-299.813c4.686-4.686 4.686-12.284 0-16.971l-28.284-28.284c-4.686-4.686-12.284-4.686-16.97 0z"
+		/>
+	</svg>
+);
+
 const PlaybackPopup: React.FC<{
 	setIsComponentVisible: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({setIsComponentVisible}) => {
-	const PLAYBACK_RATES = [0.5, 0.8, 1, 1.2, 1.5, 1.8, 2, 2.5, 3, 3.5];
+	const PLAYBACK_RATES = [0.5, 0.8, 1, 1.2, 1.5, 1.8, 2, 2.5, 3];
 
-	const {setPlaybackRate} = useContext(Internals.Timeline.TimelineContext);
+	const {setPlaybackRate, playbackRate} = useContext(
+		Internals.Timeline.TimelineContext
+	);
 
-	const playbackPopup: React.CSSProperties = {
-		position: 'absolute',
-		left: 0,
-		width: 125,
-		bottom: 35,
-		background: 'rgb(0 0 0 / 50%)',
-		borderRadius: 8,
-		color: '#fff',
-		textAlign: 'left',
-		backdropFilter: 'blur(10px)',
-		zIndex: 100,
-	};
-
-	const rateDiv: React.CSSProperties = {
-		height: 30,
-		lineHeight: '30px',
-		padding: '0 15px',
-	};
-
-	const speedText: React.CSSProperties = {
-		fontWeight: '700',
-		padding: '15px 15px 0 15px',
-		cursor: 'default',
-	};
+	const onSelect = useCallback(
+		(rate: number) => {
+			setPlaybackRate(rate);
+			setIsComponentVisible(false);
+		},
+		[setIsComponentVisible, setPlaybackRate]
+	);
 
 	return (
 		<div style={playbackPopup}>
-			<div style={speedText}>Change speed</div>
 			{PLAYBACK_RATES.map((rate) => {
 				return (
-					<div
+					<PlaybackrateOption
 						key={rate}
-						style={rateDiv}
-						onPointerUp={(e) => {
-							e.stopPropagation();
-							e.preventDefault();
-							setPlaybackRate(rate);
-							setIsComponentVisible(false);
-						}}
-					>
-						{rate}
-					</div>
+						selectedRate={playbackRate}
+						onSelect={onSelect}
+						rate={rate}
+					/>
 				);
 			})}
+		</div>
+	);
+};
+
+const PlaybackrateOption: React.FC<{
+	rate: number;
+	selectedRate: number;
+	onSelect: (rate: number) => void;
+}> = ({rate, onSelect, selectedRate}) => {
+	const onClick: React.MouseEventHandler<HTMLDivElement> = useCallback(
+		(e) => {
+			e.stopPropagation();
+			e.preventDefault();
+			onSelect(rate);
+		},
+		[onSelect, rate]
+	);
+
+	const [hovered, setHovered] = useState(false);
+
+	const onMouseEnter: React.MouseEventHandler<HTMLDivElement> =
+		useCallback(() => {
+			setHovered(true);
+		}, []);
+
+	const onMouseLeave: React.MouseEventHandler<HTMLDivElement> =
+		useCallback(() => {
+			setHovered(false);
+		}, []);
+
+	const actualStyle = useMemo(() => {
+		return {
+			...rateDiv,
+			backgroundColor: hovered ? '#eee' : 'transparent',
+		};
+	}, [hovered]);
+
+	return (
+		<div
+			key={rate}
+			onMouseEnter={onMouseEnter}
+			onMouseLeave={onMouseLeave}
+			tabIndex={0}
+			style={actualStyle}
+			onClick={onClick}
+		>
+			<div style={checkmarkContainer}>
+				{rate === selectedRate ? <Checkmark /> : null}
+			</div>
+			{rate.toFixed(1)}x
 		</div>
 	);
 };
