@@ -34,6 +34,6 @@ During Preview in the browser, the props are resolved in a similar way, but with
 
 The following rules <strong>stay the same</strong>, which you should be aware of:
 
-<Step>1</Step> If you start the Preview with the <a href="/docs/cli/preview#--props"><code>--props</code></a> flag, this data will take priority over the default props, including modifications in the sidebar. It is not recommended to pass input props to the Preview. <br/>
+<Step>1</Step> If you start the Preview with the <a href="/docs/cli/studio#--props"><code>--props</code></a> flag, this data will take priority over the default props, including modifications in the sidebar. It is not recommended to pass input props to the Preview. <br/>
 
 <Step>2</Step> The passed input props may get transformed by <a href="/docs/composition#calculatemetadata"><code>calculateMetadata()</code></a>. <br/>
