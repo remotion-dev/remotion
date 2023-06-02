@@ -17,7 +17,7 @@ export const StudioServerConnectionCtx =
 		type: 'init',
 	});
 
-export const previewServerConnectionRef = createRef<{
+export const studioServerConnectionRef = createRef<{
 	set: (jobs: PreviewServerState) => void;
 }>();
 
@@ -29,7 +29,7 @@ export const PreviewServerConnection: React.FC<{
 	});
 
 	useImperativeHandle(
-		previewServerConnectionRef,
+		studioServerConnectionRef,
 		() => {
 			return {
 				set: (newState) => {
