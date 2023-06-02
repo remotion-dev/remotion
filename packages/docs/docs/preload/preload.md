@@ -9,7 +9,7 @@ import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 import {TableOfContents} from '../../components/TableOfContents/preload';
 
-This package provides functions for preloading assets. While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the preview. Currently, three functions are implemented:
+This package provides functions for preloading assets. While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the Studio. Currently, three functions are implemented:
 
 <TableOfContents />
 

@@ -31,7 +31,7 @@ export const CurrentCompositionKeybindings: React.FC = () => {
 		}
 
 		if (type !== 'connected') {
-			sendErrorNotification('Preview server is offline');
+			sendErrorNotification('Studio server is offline');
 			return;
 		}
 

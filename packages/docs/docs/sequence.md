@@ -67,7 +67,7 @@ For how many frames the sequence should be displayed. Children are unmounted if 
 
 _optional_
 
-You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion preview. This property is purely for helping you keep track of sequences in the timeline.
+You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of sequences in the timeline.
 
 ### `layout`
 

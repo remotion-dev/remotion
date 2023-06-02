@@ -10,7 +10,7 @@ _This function is part of the [`@remotion/preload`](/docs/preload) package._
 
 This function preloads an image so that when an [`<Img>`](/docs/img) tag is mounted, it can display immediately.
 
-While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the preview.
+While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the Studio.
 
 An alternative to `preloadImage()` is the [`prefetch()`](/docs/prefetch) API. See [`@remotion/preload` vs `prefetch()`](/docs/player/preloading#remotionpreload-vs-prefetch) to decide which one is better for your usecase.
 

@@ -5,7 +5,7 @@ import {useZIndex} from '../state/z-index';
 
 if (!process.env.KEYBOARD_SHORTCUTS_ENABLED) {
 	console.warn(
-		'Keyboard shortcuts disabled either due to: a) --disable-keyboard-shortcuts being passed b) Config.Preview.setKeyboardShortcutsEnabled(false) being set or c) a Remotion version mismatch.'
+		'Keyboard shortcuts disabled either due to: a) --disable-keyboard-shortcuts being passed b) Config.setKeyboardShortcutsEnabled(false) being set or c) a Remotion version mismatch.'
 	);
 }
 

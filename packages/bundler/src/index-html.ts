@@ -1,5 +1,6 @@
 import path from 'node:path';
 import type {StaticFile} from 'remotion';
+import {Internals} from 'remotion';
 
 export type RenderDefaults = {
 	jpegQuality: number;
@@ -122,7 +123,7 @@ ${
 		}
 		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
 		
-		<div id="container"></div>
+		<div id="${Internals.REMOTION_STUDIO_CONTAINER_ELEMENT}"></div>
 		<div id="menuportal-0"></div>
 		<div id="menuportal-1"></div>
 		<div id="menuportal-2"></div>

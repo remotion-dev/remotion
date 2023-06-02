@@ -51,7 +51,7 @@ export const ServerDisconnected: React.FC = () => {
 	return (
 		<div style={container} className="css-reset">
 			<div style={message}>
-				The preview server has disconnected. <br />
+				The studio server has disconnected. <br />
 				{window.remotion_studioServerCommand ? (
 					<span>
 						Run{' '}

@@ -354,7 +354,7 @@ export const DataEditor: React.FC<{
 			<div style={explainer}>
 				<Spacing y={5} />
 				<div style={errorExplanation}>
-					The preview server has disconnected. Reconnect to edit the schema.
+					The studio server has disconnected. Reconnect to edit the schema.
 				</div>
 				<Spacing y={2} block />
 			</div>

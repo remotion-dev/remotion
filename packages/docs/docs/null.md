@@ -33,7 +33,7 @@ export const MyComp: React.FC = () => {
 <Step>1</Step> If this component is rendered, no screenshot will be taken during rendering
 </div>
 <div>
-<Step>2</Step> In the preview, the content will be rendered with zero opacity.
+<Step>2</Step> In the Remotion Studio and the Remotion Player, the content will be rendered with zero opacity.
 </div>
 <div>
 <Step>3</Step> Even elements <strong>outside</strong> of the <code>{"<Null>"}</code> component will disappear.

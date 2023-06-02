@@ -71,7 +71,7 @@ If you use `lazyComponent`, Remotion will use React Suspense to load the compone
 
 _optional_
 
-Give your component default props that will be shown in the preview. You can override these props during render using a CLI flag.
+Give your component default props. Default props can be overriden using the [Props editor](/docs/visual-editing) and with [Input Props](/docs/props-resolution)
 
 :::note
 Type your components using the `React.FC<{}>` type and the `defaultProps` prop will be typesafe.

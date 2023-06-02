@@ -43,7 +43,7 @@ export const RenderQueue: React.FC = () => {
 		return (
 			<div style={explainer}>
 				<Spacing y={5} />
-				<div style={errorExplanation}>The preview server has disconnected.</div>
+				<div style={errorExplanation}>The studio server has disconnected.</div>
 				<Spacing y={2} block />
 			</div>
 		);

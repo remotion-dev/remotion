@@ -41,7 +41,7 @@ export const RenderButton: React.FC = () => {
 	const tooltip =
 		type === 'connected'
 			? 'Export the current composition ' + shortcut
-			: 'Connect to the preview server to render';
+			: 'Connect to the Studio server to render';
 
 	const iconStyle: SVGProps<SVGSVGElement> = useMemo(() => {
 		return {

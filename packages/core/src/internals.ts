@@ -24,7 +24,10 @@ import {
 	getRemotionEnvironment,
 	useRemotionEnvironment,
 } from './get-environment.js';
-import {getPreviewDomElement} from './get-preview-dom-element.js';
+import {
+	getPreviewDomElement,
+	REMOTION_STUDIO_CONTAINER_ELEMENT,
+} from './get-preview-dom-element.js';
 import {processColor} from './interpolate-colors.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {NonceContext} from './nonce.js';
@@ -131,6 +134,7 @@ export const Internals = {
 	useResolvedVideoConfig,
 	resolveCompositionsRef,
 	ResolveCompositionConfig,
+	REMOTION_STUDIO_CONTAINER_ELEMENT,
 };
 
 export type {

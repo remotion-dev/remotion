@@ -18,7 +18,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/folder">
           <strong>{"<Folder>"}</strong>
-          <div>Organize compositions in the preview sidebar</div>
+          <div>Organize compositions in the Studio sidebar</div>
         </TOCItem>
         <TOCItem link="/docs/register-root">
           <strong>{"registerRoot()"}</strong>

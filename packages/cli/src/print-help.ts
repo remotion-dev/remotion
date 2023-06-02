@@ -20,7 +20,7 @@ export const printHelp = () => {
 	Log.info('Available commands:');
 	Log.info('');
 	Log.info('remotion studio <entry-point.ts>');
-	Log.info(chalk.gray('Start the preview server.'));
+	Log.info(chalk.gray('Start the Remotion studio.'));
 	printFlags([['--props', 'Pass input props as filename or as JSON']]);
 	Log.info();
 	Log.info('remotion render <entry-point.ts> <comp-id> <output-file.mp4>');
