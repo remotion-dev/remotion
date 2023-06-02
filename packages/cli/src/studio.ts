@@ -59,16 +59,16 @@ const getPort = () => {
 	return null;
 };
 
-export const previewCommand = async (remotionRoot: string, args: string[]) => {
+export const studioCommand = async (remotionRoot: string, args: string[]) => {
 	const {file, reason} = findEntryPoint(args, remotionRoot);
 
 	Log.verbose('Entry point:', file, 'reason:', reason);
 
 	if (!file) {
 		Log.error(
-			'The preview command requires you to specify a root file. For example'
+			'No Remotion entrypoint was found. Specify an additional argument manually:'
 		);
-		Log.error('  npx remotion preview src/index.ts');
+		Log.error('  npx remotion studio src/index.ts');
 		Log.error(
 			'See https://www.remotion.dev/docs/register-root for more information.'
 		);
