@@ -22,13 +22,13 @@ import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {BooleanFlags, parsedCli, quietFlagProvided} from './parse-command-line';
-import {previewCommand} from './preview';
 import {printCompositions} from './print-compositions';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
+import {studioCommand} from './studio';
 import {upgrade} from './upgrade';
 import {
 	validateVersionsBeforeCommand,
@@ -59,8 +59,8 @@ export const cli = async () => {
 	try {
 		if (command === 'compositions') {
 			await listCompositionsCommand(remotionRoot, args);
-		} else if (command === 'preview') {
-			await previewCommand(remotionRoot, args);
+		} else if (command === 'preview' || command === 'studio') {
+			await studioCommand(remotionRoot, args);
 		} else if (command === 'lambda') {
 			await lambdaCommand(remotionRoot, args);
 		} else if (command === 'render') {
