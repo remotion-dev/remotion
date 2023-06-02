@@ -65,6 +65,7 @@ export type PlayerProps<T> = {
 	renderFullscreenButton?: RenderFullscreenButton;
 	alwaysShowControls?: boolean;
 	initiallyMuted?: boolean;
+	showPlaybackRateControl?: boolean | number[];
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 
@@ -112,6 +113,7 @@ const PlayerFn = <T,>(
 		renderPlayPauseButton,
 		alwaysShowControls = false,
 		initiallyMuted = false,
+		showPlaybackRateControl = false,
 		...componentProps
 	}: PlayerProps<T>,
 	ref: MutableRefObject<PlayerRef>
@@ -160,6 +162,7 @@ const PlayerFn = <T,>(
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const imperativePlaying = useRef(false);
+	const [currentPlaybackRate, setCurrentPlaybackRate] = useState(playbackRate);
 
 	if (typeof compositionHeight !== 'number') {
 		throw new TypeError(
@@ -268,11 +271,15 @@ const PlayerFn = <T,>(
 		);
 	}
 
-	validatePlaybackRate(playbackRate);
+	validatePlaybackRate(currentPlaybackRate);
 
 	useEffect(() => {
-		emitter.dispatchRateChange(playbackRate);
-	}, [emitter, playbackRate]);
+		emitter.dispatchRateChange(currentPlaybackRate);
+	}, [emitter, currentPlaybackRate]);
+
+	useEffect(() => {
+		setCurrentPlaybackRate(playbackRate);
+	}, [playbackRate]);
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
@@ -284,14 +291,14 @@ const PlayerFn = <T,>(
 			playing,
 			rootId,
 			shouldRegisterSequences: false,
-			playbackRate,
+			playbackRate: currentPlaybackRate,
 			imperativePlaying,
-			setPlaybackRate: () => {
-				throw new Error('playback rate');
+			setPlaybackRate: (rate) => {
+				setCurrentPlaybackRate(rate);
 			},
 			audioAndVideoTags,
 		};
-	}, [frame, playbackRate, playing, rootId]);
+	}, [frame, currentPlaybackRate, playing, rootId]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
@@ -350,7 +357,7 @@ const PlayerFn = <T,>(
 							showVolumeControls={Boolean(showVolumeControls)}
 							doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
 							spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
-							playbackRate={playbackRate}
+							playbackRate={currentPlaybackRate}
 							className={className ?? undefined}
 							showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
 							showPosterWhenEnded={Boolean(showPosterWhenEnded)}
@@ -362,6 +369,7 @@ const PlayerFn = <T,>(
 							renderFullscreen={renderFullscreenButton ?? null}
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
 							alwaysShowControls={alwaysShowControls}
+							showPlaybackRateControl={showPlaybackRateControl}
 						/>
 					</PlayerEventEmitterContext.Provider>
 				</Internals.Timeline.SetTimelineContext.Provider>

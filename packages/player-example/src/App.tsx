@@ -66,6 +66,8 @@ const ControlsOnly: React.FC<{
 	showVolumeControls: boolean;
 	setShowVolumeControls: React.Dispatch<React.SetStateAction<boolean>>;
 	durationInFrames: number;
+	showPlaybackrateControl: boolean;
+	setShowPlaybackRateControl: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	playerRef: ref,
 	color,
@@ -100,6 +102,8 @@ const ControlsOnly: React.FC<{
 	durationInFrames,
 	setShowVolumeControls,
 	showVolumeControls,
+	showPlaybackrateControl: showPlaybackControl,
+	setShowPlaybackRateControl: setShowPlaybackControl,
 }) => {
 	const [logs, setLogs] = useState<string[]>(() => []);
 
@@ -155,18 +159,16 @@ const ControlsOnly: React.FC<{
 			]);
 		};
 
-		const volumechangeCallbackListener: CallbackListener<
-			'volumechange'
-		> = (e) => {
+		const volumechangeCallbackListener: CallbackListener<'volumechange'> = (
+			e
+		) => {
 			setLogs((l) => [
 				...l,
 				'volumechange ' + e.detail.volume + ' ' + Date.now(),
 			]);
 		};
 
-		const mutechangeCallbackListener: CallbackListener<
-			'mutechange'
-		> = (e) => {
+		const mutechangeCallbackListener: CallbackListener<'mutechange'> = (e) => {
 			setLogs((l) => [
 				...l,
 				'mutechange ' + e.detail.isMuted + ' ' + Date.now(),
@@ -327,6 +329,14 @@ const ControlsOnly: React.FC<{
 				}}
 			>
 				-1x speed
+			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setShowPlaybackControl(!showPlaybackControl);
+				}}
+			>
+				showPlaybackRateControl = {String(showPlaybackControl)}
 			</button>
 			<br />
 			<button type="button" onClick={() => ref.current?.mute()}>
@@ -496,6 +506,7 @@ const PlayerOnly: React.FC<
 		outFrame: number | null;
 		alwaysShowControls: boolean;
 		showVolumeControls: boolean;
+		showPlaybackRateControl: boolean | number[];
 	} & CompProps<any>
 > = ({
 	playerRef,
@@ -514,6 +525,7 @@ const PlayerOnly: React.FC<
 	outFrame,
 	alwaysShowControls,
 	showVolumeControls,
+	showPlaybackRateControl,
 	...props
 }) => {
 	const renderLoading: RenderLoading = useCallback(() => {
@@ -573,6 +585,7 @@ const PlayerOnly: React.FC<
 			inFrame={inFrame}
 			outFrame={outFrame}
 			alwaysShowControls={alwaysShowControls}
+			showPlaybackRateControl={showPlaybackRateControl}
 			style={{
 				height: '100%',
 				width: '100%',
@@ -610,6 +623,7 @@ export default ({
 	const [outFrame, setOutFrame] = useState<number | null>(null);
 	const [alwaysShowControls, setAlwaysShowControls] = useState(false);
 	const [showVolumeControls, setShowVolumeControls] = useState(true);
+	const [showPlaybackRateControl, setPlaybackRateControl] = useState(false);
 
 	const ref = useRef<PlayerRef>(null);
 
@@ -639,6 +653,7 @@ export default ({
 				showPosterWhenPaused={showPosterWhenPaused}
 				showPosterWhenUnplayed={showPosterWhenUnplayed}
 				showVolumeControls={showVolumeControls}
+				showPlaybackRateControl={showPlaybackRateControl}
 				inFrame={inFrame}
 				outFrame={outFrame}
 			/>
@@ -676,6 +691,8 @@ export default ({
 				inFrame={inFrame}
 				outFrame={outFrame}
 				durationInFrames={durationInFrames}
+				showPlaybackrateControl={showPlaybackRateControl}
+				setShowPlaybackRateControl={setPlaybackRateControl}
 			/>
 		</div>
 	);
