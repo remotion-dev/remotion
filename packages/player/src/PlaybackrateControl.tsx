@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useCallback, useContext} from 'react';
 import {Internals} from 'remotion';
 import {SettingsIcon} from './icons.js';
 import useComponentVisible from './utils/use-component-visible.js';
@@ -73,17 +73,22 @@ export const PlaybackrateControl = () => {
 	const {ref, isComponentVisible, setIsComponentVisible} =
 		useComponentVisible(false);
 
+	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
+		(e) => {
+			e.stopPropagation();
+			e.preventDefault();
+			setIsComponentVisible(!isComponentVisible);
+		},
+		[isComponentVisible, setIsComponentVisible]
+	);
+
 	return (
 		<div ref={ref}>
 			<button
 				type="button"
 				aria-label="Change playback rate"
 				style={playbackButton}
-				onPointerUp={(e) => {
-					e.stopPropagation();
-					e.preventDefault();
-					setIsComponentVisible(!isComponentVisible);
-				}}
+				onClick={onClick}
 			>
 				<SettingsIcon iconSize={22} />
 				{isComponentVisible && (
