@@ -245,6 +245,32 @@ export const Controls: React.FC<{
 		};
 	}, [maxTimeLabelWidth]);
 
+	const playbackRates = useMemo(() => {
+		if (showPlaybackRateControl === true) {
+			return [0.5, 0.8, 1, 1.2, 1.5, 1.8, 2, 2.5, 3];
+		}
+
+		if (Array.isArray(showPlaybackRateControl)) {
+			for (const rate of showPlaybackRateControl) {
+				if (typeof rate !== 'number') {
+					throw new Error(
+						'Every item in showPlaybackRateControl must be a number'
+					);
+				}
+
+				if (rate <= 0) {
+					throw new Error(
+						'Every item in showPlaybackRateControl must be positive'
+					);
+				}
+			}
+
+			return showPlaybackRateControl;
+		}
+
+		return null;
+	}, [showPlaybackRateControl]);
+
 	return (
 		<div style={containerCss}>
 			<div style={controlsRow}>
@@ -278,8 +304,8 @@ export const Controls: React.FC<{
 					<div style={xSpacer} />
 				</div>
 				<div style={flex1} />
-				{showPlaybackRateControl && <PlaybackrateControl />}
-				{showPlaybackRateControl && supportsFullscreen && allowFullscreen ? (
+				{playbackRates && <PlaybackrateControl playbackRates={playbackRates} />}
+				{playbackRates && supportsFullscreen && allowFullscreen ? (
 					<div style={xSpacer} />
 				) : null}
 				<div style={fullscreen}>
