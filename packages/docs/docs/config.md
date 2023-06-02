@@ -81,7 +81,7 @@ By default, Remotion will try to find a free port.
 If you specify a port, but it's not available, Remotion will throw an error.
 
 :::note
-When starting the [Remotion Preview](/docs/terminology#remotion-preview), a server will be started to host it.  
+When starting the [Remotion Studio](/docs/terminology#remotion-studio), a server will be started to host it.  
 During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology#bundle).
 :::
 
@@ -139,7 +139,7 @@ The [command line flag](/docs/cli/render#--log) `--log` will take precedence ove
 
 ## setMaxTimelineTracks()<AvailableFrom v="2.1.10" />
 
-Set how many tracks are being displayed in the timeline in the Preview at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
+Set how many tracks are being displayed in the timeline in the Studio at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -149,7 +149,7 @@ Config.setMaxTimelineTracks(20);
 
 ## setKeyboardShortcutsEnabled()<AvailableFrom v="3.2.11" />
 
-Whether the Preview should react to keyboard shortcuts. Default `true`.
+Whether the Studio should react to keyboard shortcuts. Default `true`.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -174,7 +174,7 @@ The [command line flag](/docs/cli/studio#--webpack-poll) `--webpack-poll` will t
 
 ## setNumberOfSharedAudioTags()<AvailableFrom v="3.3.2" />
 
-How many shared audio tags should be mounted in the Preview. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. See [this article](/docs/player/autoplay#use-the-numberofsharedaudiotags-property) which covers the same option but for the Player. Default `0`, meaning no autoplay policies are circumvented.
+How many shared audio tags should be mounted in the Studio. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. See [this article](/docs/player/autoplay#use-the-numberofsharedaudiotags-property) which covers the same option but for the Player. Default `0`, meaning no autoplay policies are circumvented.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -185,7 +185,7 @@ Config.setNumberOfSharedAudioTags(5);
 
 ## setShouldOpenBrowser()<AvailableFrom v="3.3.19" />
 
-Whether Remotion should open a browser when starting the Preview. Default `true`.
+Whether Remotion should open a browser when starting the Studio. Default `true`.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";

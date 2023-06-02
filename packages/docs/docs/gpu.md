@@ -12,7 +12,7 @@ Some types of content in Remotion can benefit from a GPU being available on the 
 - 2D Canvas graphics
 - GPU-accelerated CSS properties such as `box-shadow`, `filter: blur()` and `filter: drop-shadow`
 
-If a GPU is available, it should be enabled by default while rendering the preview. However, in headless mode, Chromium disables the GPU, leading to a significant
+If a GPU is available, it should be enabled by default while in the Remotion Studio or Remotion Player. However, in headless mode, Chromium disables the GPU, leading to a significant
 slowdown in rendering time.
 
 ## Use `--gl=angle` for local renders

@@ -171,7 +171,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						onClick: () => {
 							closeMenu();
 							if (type !== 'connected') {
-								sendErrorNotification('Preview server is offline');
+								sendErrorNotification('Restart the studio to render');
 								return;
 							}
 

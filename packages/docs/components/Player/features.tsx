@@ -1,9 +1,9 @@
 import { useColorMode } from "@docusaurus/theme-common";
 import React, { useState } from "react";
-import styles from "./features.module.css";
+import { ColorPicker, colorPickerColors } from "../Player/ColorPicker";
 import { PlayerExample } from "../PlayerExample";
 import { CoolInput } from "../TextInput";
-import { ColorPicker, colorPickerColors } from "../Player/ColorPicker";
+import styles from "./features.module.css";
 
 export const PlayerFeatures: React.FC = () => {
   const { colorMode } = useColorMode();
@@ -88,7 +88,7 @@ export const PlayerFeatures: React.FC = () => {
           <p>
             Connect to the Remotion server-side rendering APIs to turn the
             preview into real videos. We have support for audio and various
-            codecs, and allow rendering in Node.JS or serverless (coming soon).
+            codecs, and allow rendering in Node.JS or AWS Lambda.
           </p>
         </div>
         <div style={{ width: 20 }} />

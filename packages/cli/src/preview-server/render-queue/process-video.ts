@@ -33,7 +33,7 @@ export const processVideoJob = async ({
 		browser,
 		browserExecutable,
 		chromiumOptions: job.chromiumOptions,
-		entryPointReason: 'same as preview',
+		entryPointReason: 'same as Studio',
 		envVariables: job.envVariables,
 		height: null,
 		fullEntryPoint,

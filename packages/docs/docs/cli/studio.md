@@ -51,7 +51,7 @@ Specify a location for a dotenv file - Default `.env`. [Read about how environme
 
 ### `--disable-keyboard-shortcuts`<AvailableFrom v="3.2.11" />
 
-[Disables all keyboard shortcuts in the Preview](/docs/config#setkeyboardshortcutsenabled).
+[Disables all keyboard shortcuts in the Studio](/docs/config#setkeyboardshortcutsenabled).
 
 ### `--webpack-poll`<AvailableFrom v="3.3.11" />
 
@@ -75,7 +75,5 @@ For backwards compatibility, the `BROWSER` environment variable is also supporte
 A set of command line flags that should be passed to the browser. Pass them like this:
 
 ```console
-remotion preview --browser-args="--disable-web-security"
+npx remotion studio --browser-args="--disable-web-security"
 ```
-
-Notice that Chrome will try to reuse the process, so you want to quit it first before you start it with the flags.

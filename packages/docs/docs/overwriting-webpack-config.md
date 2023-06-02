@@ -286,7 +286,7 @@ Config.overrideWebpackConfig(enableSass);
 
 4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
 
-5. Restart the preview server.
+5. Restart the Remotion Studio.
 
 ### Enable support for GLSL imports
 
@@ -374,7 +374,7 @@ declare module "*.glsl" {
 4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
 
 5. Reset the webpack cache by deleting the `node_modules/.cache` folder.
-6. Restart the preview server.
+6. Restart the Remotion Studio.
 
 ### Enable WebAssembly
 

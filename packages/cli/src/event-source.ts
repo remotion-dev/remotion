@@ -66,7 +66,7 @@ export const openEventSource = () => {
 			'error',
 			() => {
 				studioServerConnectionRef.current?.set({type: 'disconnected'});
-				// Display an error message that the preview server has disconnected.
+				// Display an error message that the studio server has disconnected.
 				source?.close();
 
 				// Retry later

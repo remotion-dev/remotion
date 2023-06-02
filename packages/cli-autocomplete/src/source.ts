@@ -849,10 +849,9 @@ const completionSpec: Fig.Spec = {
       ],
     },
     {
-      name: "preview",
+      name: ["preview", "studio"],
       priority: 50,
-      description:
-        "Start the server which allows you to preview the Remotion video",
+      description: "Start the Remotion Studio",
       args: {
         name: "entry",
         template: ["filepaths"],

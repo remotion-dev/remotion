@@ -53,7 +53,7 @@ yarn create video
 
 Choose the template that is most suitable for you. For your first project, we recommend the [Hello World](/templates/hello-world) template.
 
-After the project has been scaffolded, we recommend to open the project in your text editor and running to start the Remotion Preview:
+After the project has been scaffolded, we recommend to open the project in your text editor and starting the [Remotion Studio](/docs/timeline):
 
 ```bash
 npm start

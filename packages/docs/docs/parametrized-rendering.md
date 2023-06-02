@@ -16,7 +16,7 @@ Props are a React concept and take the shape of a JavaScript object.
 
 To determine the data which gets passed to the video, the following steps are taken:
 
-<Step>1</Step> <strong>Default props</strong> are defined statically, so that the video can be designed in the Preview without any data. <br/>
+<Step>1</Step> <strong>Default props</strong> are defined statically, so that the video can be designed in the Studio without any data. <br/>
 
 <ul>
 <li>
@@ -26,7 +26,7 @@ The default props define the shape of the data.
 A schema can be defined and validated.
 </li>
 <li>
-In absence of data, default props can be edited in the Remotion Preview.
+In absence of data, default props can be edited in the Remotion Studio.
 </li>
 </ul>
 <Step>2</Step> <strong>Input props</strong> may be specified when rendering a video to override the default props.<br/>

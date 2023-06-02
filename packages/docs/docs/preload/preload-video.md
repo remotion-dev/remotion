@@ -11,7 +11,7 @@ _This function is part of the [`@remotion/preload`](/docs/preload) package._
 
 This function preloads a video in the DOM so that when a video tag is mounted, it can play immediately.
 
-While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the preview.
+While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the Studio.
 
 An alternative to `preloadVideo()` is the [`prefetch()`](/docs/prefetch) API. See [`@remotion/preload` vs `prefetch()`](/docs/player/preloading#remotionpreload-vs-prefetch) to decide which one is better for your usecase.
 

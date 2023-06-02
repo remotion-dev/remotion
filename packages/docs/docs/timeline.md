@@ -21,7 +21,7 @@ A server will be started on port `3000` (or a higher port if it isn't available)
 
 <img src="/img/timeline.png"></img>
 
-## Preview controls
+## Playback controls
 
 Use the <svg
 aria-hidden="true"
