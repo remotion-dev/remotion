@@ -75,6 +75,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderPlayPauseButton: RenderPlayPauseButton | null;
 		renderFullscreen: RenderFullscreenButton | null;
 		alwaysShowControls: boolean;
+		showPlaybackRateControl: boolean | number[];
 	}
 > = (
 	{
@@ -103,6 +104,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderFullscreen: renderFullscreenButton,
 		renderPlayPauseButton,
 		alwaysShowControls,
+		showPlaybackRateControl,
 	},
 	ref
 ) => {
@@ -266,15 +268,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const {mediaMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
 	useEffect(() => {
 		player.emitter.dispatchVolumeChange(mediaVolume);
-	}, [player.emitter, mediaVolume])
+	}, [player.emitter, mediaVolume]);
 
 	const isMuted = mediaMuted || mediaVolume === 0;
 	useEffect(() => {
 		player.emitter.dispatchMuteChange({
-			isMuted
-		})
-	},
-	[player.emitter, isMuted]);
+			isMuted,
+		});
+	}, [player.emitter, isMuted]);
 
 	useImperativeHandle(
 		ref,
@@ -521,6 +522,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					renderFullscreenButton={renderFullscreenButton}
 					renderPlayPauseButton={renderPlayPauseButton}
 					alwaysShowControls={alwaysShowControls}
+					showPlaybackRateControl={showPlaybackRateControl}
 				/>
 			) : null}
 		</>
