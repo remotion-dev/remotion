@@ -17,6 +17,7 @@ import {
 } from './preview-server/live-events';
 import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
 import {startServer} from './preview-server/start-server';
+import {watchRootFile} from './watch-root-file';
 
 const noop = () => undefined;
 
@@ -118,6 +119,8 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 		},
 		staticHash,
 	});
+
+	watchRootFile(remotionRoot);
 
 	const {port, liveEventsServer} = await startServer({
 		entry: path.resolve(__dirname, 'previewEntry.js'),
