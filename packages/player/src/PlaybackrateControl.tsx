@@ -53,9 +53,8 @@ export const Checkmark = () => (
 
 const PlaybackPopup: React.FC<{
 	setIsComponentVisible: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({setIsComponentVisible}) => {
-	const PLAYBACK_RATES = [0.5, 0.8, 1, 1.2, 1.5, 1.8, 2, 2.5, 3];
-
+	playbackRates: number[];
+}> = ({setIsComponentVisible, playbackRates}) => {
 	const {setPlaybackRate, playbackRate} = useContext(
 		Internals.Timeline.TimelineContext
 	);
@@ -67,7 +66,7 @@ const PlaybackPopup: React.FC<{
 		const listener = (e: KeyboardEvent) => {
 			e.preventDefault();
 			if (e.key === 'ArrowUp') {
-				const currentIndex = PLAYBACK_RATES.findIndex(
+				const currentIndex = playbackRates.findIndex(
 					(rate) => rate === keyboardSelectedRate
 				);
 				if (currentIndex === 0) {
@@ -75,22 +74,22 @@ const PlaybackPopup: React.FC<{
 				}
 
 				if (currentIndex === -1) {
-					setKeyboardSelectedRate(PLAYBACK_RATES[0]);
+					setKeyboardSelectedRate(playbackRates[0]);
 				} else {
-					setKeyboardSelectedRate(PLAYBACK_RATES[currentIndex - 1]);
+					setKeyboardSelectedRate(playbackRates[currentIndex - 1]);
 				}
 			} else if (e.key === 'ArrowDown') {
-				const currentIndex = PLAYBACK_RATES.findIndex(
+				const currentIndex = playbackRates.findIndex(
 					(rate) => rate === keyboardSelectedRate
 				);
-				if (currentIndex === PLAYBACK_RATES.length - 1) {
+				if (currentIndex === playbackRates.length - 1) {
 					return;
 				}
 
 				if (currentIndex === -1) {
-					setKeyboardSelectedRate(PLAYBACK_RATES[PLAYBACK_RATES.length - 1]);
+					setKeyboardSelectedRate(playbackRates[playbackRates.length - 1]);
 				} else {
-					setKeyboardSelectedRate(PLAYBACK_RATES[currentIndex + 1]);
+					setKeyboardSelectedRate(playbackRates[currentIndex + 1]);
 				}
 			} else if (e.key === 'Enter') {
 				setPlaybackRate(keyboardSelectedRate);
@@ -103,7 +102,12 @@ const PlaybackPopup: React.FC<{
 		return () => {
 			window.removeEventListener('keydown', listener);
 		};
-	}, [PLAYBACK_RATES, keyboardSelectedRate]);
+	}, [
+		playbackRates,
+		keyboardSelectedRate,
+		setPlaybackRate,
+		setIsComponentVisible,
+	]);
 
 	const onSelect = useCallback(
 		(rate: number) => {
@@ -115,7 +119,7 @@ const PlaybackPopup: React.FC<{
 
 	return (
 		<div style={playbackPopup}>
-			{PLAYBACK_RATES.map((rate) => {
+			{playbackRates.map((rate) => {
 				return (
 					<PlaybackrateOption
 						key={rate}
@@ -193,7 +197,9 @@ const playbackButton: React.CSSProperties = {
 	cursor: 'pointer',
 };
 
-export const PlaybackrateControl = () => {
+export const PlaybackrateControl: React.FC<{
+	playbackRates: number[];
+}> = ({playbackRates}) => {
 	const {ref, isComponentVisible, setIsComponentVisible} =
 		useComponentVisible(false);
 
@@ -216,7 +222,10 @@ export const PlaybackrateControl = () => {
 			>
 				<SettingsIcon iconSize={22} />
 				{isComponentVisible && (
-					<PlaybackPopup setIsComponentVisible={setIsComponentVisible} />
+					<PlaybackPopup
+						playbackRates={playbackRates}
+						setIsComponentVisible={setIsComponentVisible}
+					/>
 				)}
 			</button>
 		</div>

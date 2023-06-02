@@ -65,7 +65,7 @@ export type PlayerProps<T> = {
 	renderFullscreenButton?: RenderFullscreenButton;
 	alwaysShowControls?: boolean;
 	initiallyMuted?: boolean;
-	showPlaybackRateControl?: boolean;
+	showPlaybackRateControl?: boolean | number[];
 } & PropsIfHasProps<T> &
 	CompProps<T>;
 

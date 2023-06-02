@@ -75,7 +75,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderPlayPauseButton: RenderPlayPauseButton | null;
 		renderFullscreen: RenderFullscreenButton | null;
 		alwaysShowControls: boolean;
-		showPlaybackRateControl: boolean;
+		showPlaybackRateControl: boolean | number[];
 	}
 > = (
 	{
