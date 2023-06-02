@@ -4,6 +4,7 @@ import type {
 	ServerResponse,
 } from 'node:http';
 import type {EventSourceEvent} from '../event-source-events';
+import {printServerReadyComment} from '../server-ready-comment';
 import {unsubscribeClientFileExistenceWatchers} from './file-existence-watchers';
 
 type Client = {
@@ -48,6 +49,11 @@ export const makeLiveEventsRouter = (): LiveEventsServer => {
 		request.on('close', () => {
 			unsubscribeClientFileExistenceWatchers(clientId);
 			clients = clients.filter((client) => client.id !== clientId);
+
+			// If all clients disconnected, print a comment so user can easily restart it.
+			if (clients.length === 0) {
+				printServerReadyComment();
+			}
 		});
 	};
 
@@ -64,8 +70,8 @@ export const makeLiveEventsRouter = (): LiveEventsServer => {
 };
 
 type Waiter = (list: LiveEventsServer) => void;
-
 let liveEventsListener: LiveEventsServer | null = null;
+
 const waiters: Waiter[] = [];
 
 export const waitForLiveEventsListener = (): Promise<LiveEventsServer> => {

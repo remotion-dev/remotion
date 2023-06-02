@@ -17,6 +17,10 @@ import {
 } from './preview-server/live-events';
 import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
 import {startServer} from './preview-server/start-server';
+import {
+	printServerReadyComment,
+	setServerReadyComment,
+} from './server-ready-comment';
 import {watchRootFile} from './watch-root-file';
 
 const noop = () => undefined;
@@ -142,14 +146,16 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 	setLiveEventsListener(liveEventsServer);
 	const networkAddress = getNetworkAddress();
 	if (networkAddress) {
-		Log.info(
+		setServerReadyComment(
 			`Server ready - Local: ${chalk.underline(
 				`http://localhost:${port}`
 			)}, Network: ${chalk.underline(`http://${networkAddress}:${port}`)}`
 		);
 	} else {
-		Log.info(`Running on http://localhost:${port}`);
+		setServerReadyComment(`Running on http://localhost:${port}`);
 	}
+
+	printServerReadyComment();
 
 	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser();
 
