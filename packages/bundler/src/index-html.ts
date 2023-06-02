@@ -40,7 +40,7 @@ export const indexHtml = ({
 	envVariables,
 	staticHash,
 	remotionRoot,
-	previewServerCommand,
+	studioServerCommand,
 	renderQueue,
 	numberOfAudioTags,
 	publicFiles,
@@ -54,7 +54,7 @@ export const indexHtml = ({
 	inputProps: object | null;
 	envVariables?: Record<string, string>;
 	remotionRoot: string;
-	previewServerCommand: string | null;
+	studioServerCommand: string | null;
 	renderQueue: unknown | null;
 	numberOfAudioTags: number;
 	publicFiles: StaticFile[];
@@ -93,8 +93,8 @@ ${
 			renderDefaults
 		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
-		<script>window.remotion_previewServerCommand = ${
-			previewServerCommand ? JSON.stringify(previewServerCommand) : 'null'
+		<script>window.remotion_studioServerCommand = ${
+			studioServerCommand ? JSON.stringify(studioServerCommand) : 'null'
 		};</script>
 		${
 			inputProps

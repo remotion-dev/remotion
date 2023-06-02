@@ -246,7 +246,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		editorName: null,
 		inputProps: null,
 		remotionRoot: resolvedRemotionRoot,
-		previewServerCommand: null,
+		studioServerCommand: null,
 		renderQueue: null,
 		numberOfAudioTags: 0,
 		publicFiles: readRecursively({

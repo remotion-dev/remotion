@@ -21,7 +21,7 @@ declare global {
 		remotion_numberOfAudioTags: number;
 		remotion_projectName: string;
 		remotion_cwd: string;
-		remotion_previewServerCommand: string;
+		remotion_studioServerCommand: string;
 		remotion_setFrame: (frame: number) => void;
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
