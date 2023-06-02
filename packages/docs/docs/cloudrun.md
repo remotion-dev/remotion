@@ -27,7 +27,7 @@ If one of those constraints is a dealbreaker for you, resort to normal [server-s
 - A Cloud Run service and a Cloud Storage bucket are created in GCP.
 - A Remotion project gets deployed to a Cloud Storage bucket as a website.
 - The Cloud Run service gets invoked and opens the Remotion project.
-- The Cloud Run service renders the video or still, and the final video gets uploaded to Cloud Storage and is available for download.
+- The Cloud Run service renders the video or still, and the final file gets uploaded to Cloud Storage and is available for download.
 
 ## Architecture
 
@@ -48,21 +48,22 @@ The following regions are available for Remotion Cloud Run:
 
 [**See here for configurations and considerations.**](/docs/cloudrun/region-selection)
 
-## Limitations
+## Quotas and Limits
 
-- You only have up to 10GB of storage available in a Lambda function. This must be sufficient for both the separated chunks and the concatenated output, therefore the output file can only be about 5GB maximum, limiting the maximum video length to around 2 hours of Full HD video.
-- [Lambda has a global limit of 1000 concurrent lambdas per region by default, although it can be increased](/docs/lambda/troubleshooting/rate-limit).
-- Lambda has a [burst limit of as low as 500](https://docs.aws.amazon.com/lambda/latest/dg/invocation-scaling.html) (depending per region) functions that can be spawned in a short amount of time. If you render a lot of videos, you must slowly build up invocations rather than trigger them all at once.
+For all up-to-date values, check the [official Cloud Run docs](https://cloud.google.com/run/quotas).
+
+- The maximum memory size is 32gb.
+- The maximum number of vCPUs is 8.
+- The maximum writeable, in-memory filesystem, limited by instance memory, is 32gb.
+- The maximum timeout is 60 minutes.
 
 ## Cost
 
-Most of our users render multiple minutes of video for just a few pennies. The exact cost is dependent on the region, assigned memory, type of video and other parameters. For each render, we estimate a cost and display it to you. You might also need a Remotion license (see below).
+Most of our users render multiple minutes of video for just a few pennies. The exact cost is dependent on the region, assigned memory, type of video and other parameters. You might also need a Remotion license (see below).
 
 ## GCP permissions
 
-Remotion Cloud Run requires you to create a GCP project and create a Service Account with some permissions attached to it. We require only the minimal amount of permissions required for operating Remotion Cloud Run.
-
-// TODO: Create doc link to permissions
+Remotion Cloud Run requires you to create a GCP project and create a Service Account with some permissions attached to it. We require only the minimal amount of permissions required for operating Remotion Cloud Run. [Service Account permission list and reasons](docs/cloudrun/permissions).
 
 ## CLI
 
@@ -82,6 +83,6 @@ Companies need to buy 1 cloud rendering seat per 2000 renders per month - see ht
 
 ## Uninstalling
 
-We make it easy to remove all Remotion resources from your GCP account without leaving any traces or causing further costs.
+We make it easy to remove all Remotion resources from your GCP project without leaving any traces or causing further costs.
 
-// TODO: Link to uninstall page
+[How to uninstall Remotion Cloud Run](docs/cloudrun/uninstall).
