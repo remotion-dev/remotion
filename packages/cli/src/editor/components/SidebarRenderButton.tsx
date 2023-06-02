@@ -13,7 +13,7 @@ import type {AnyCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
 import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-video-contexts';
-import {PreviewServerConnectionCtx} from '../helpers/client-id';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ThinRenderIcon} from '../icons/render';
 import {ModalsContext} from '../state/modals';
 import type {RenderInlineAction} from './InlineAction';
@@ -33,7 +33,7 @@ export const SidebarRenderButton: React.FC<{
 		};
 	}, []);
 
-	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 	const {props} = useContext(Internals.EditorPropsContext);
 
 	const isVideo = composition.durationInFrames > 1;

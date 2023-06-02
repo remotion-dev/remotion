@@ -175,13 +175,6 @@ export const articles = [
     crumb: "CLI Reference",
   },
   {
-    id: "cli/preview",
-    title: "npx remotion preview",
-    relativePath: "docs/cli/preview.md",
-    compId: "articles-docs-cli-preview",
-    crumb: "CLI Reference",
-  },
-  {
     id: "cli/render",
     title: "npx remotion render",
     relativePath: "docs/cli/render.md",
@@ -193,6 +186,13 @@ export const articles = [
     title: "npx remotion still",
     relativePath: "docs/cli/still.md",
     compId: "articles-docs-cli-still",
+    crumb: "CLI Reference",
+  },
+  {
+    id: "cli/studio",
+    title: "npx remotion studio",
+    relativePath: "docs/cli/studio.md",
+    compId: "articles-docs-cli-studio",
     crumb: "CLI Reference",
   },
   {

@@ -5,12 +5,12 @@ import {
 	subscribeToFileExistenceWatcher,
 	unsubscribeFromFileExistenceWatcher,
 } from '../components/RenderQueue/actions';
-import {PreviewServerConnectionCtx} from './client-id';
+import {StudioServerConnectionCtx} from './client-id';
 
 export const useFileExistence = (outName: string) => {
 	const [exists, setExists] = useState(false);
 
-	const state = useContext(PreviewServerConnectionCtx);
+	const state = useContext(StudioServerConnectionCtx);
 	const clientId = state.type === 'connected' ? state.clientId : undefined;
 
 	const currentOutName = useRef('');

@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {PreviewServerConnectionCtx} from '../../helpers/client-id';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 
 const container: React.CSSProperties = {
 	position: 'fixed',
@@ -38,7 +38,7 @@ window.addEventListener('beforeunload', () => {
 });
 
 export const ServerDisconnected: React.FC = () => {
-	const ctx = useContext(PreviewServerConnectionCtx);
+	const ctx = useContext(StudioServerConnectionCtx);
 
 	if (ctx.type !== 'disconnected') {
 		return null;

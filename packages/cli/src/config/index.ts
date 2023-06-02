@@ -141,7 +141,7 @@ declare global {
 		 */
 		readonly setMaxTimelineTracks: (maxTracks: number) => void;
 		/**
-		 * Enable Keyboard shortcuts in the Remotion Preview.
+		 * Enable Keyboard shortcuts in the Remotion Studio.
 		 * @param enabled Boolean whether to enable the keyboard shortcuts
 		 * @default true
 		 */

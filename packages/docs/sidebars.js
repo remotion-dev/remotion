@@ -10,7 +10,7 @@ module.exports = {
       },
       collapsed: true,
       items: [
-        "cli/preview",
+        "cli/studio",
         "cli/render",
         "cli/still",
         "cli/compositions",

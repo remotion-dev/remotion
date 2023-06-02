@@ -13,7 +13,7 @@ import {Internals, useCurrentFrame} from 'remotion';
 import {getDefaultOutLocation} from '../../get-default-out-name';
 import {Button} from '../../preview-server/error-overlay/remotion-overlay/Button';
 import {getDefaultCodecs} from '../../preview-server/render-queue/get-default-video-contexts';
-import {PreviewServerConnectionCtx} from '../helpers/client-id';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {areKeyboardShortcutsDisabled} from '../helpers/use-keybinding';
 import {RenderIcon} from '../icons/render';
 import {useTimelineInOutFramePosition} from '../state/in-out';
@@ -34,9 +34,9 @@ const label: React.CSSProperties = {
 export const RenderButton: React.FC = () => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const {setSelectedModal} = useContext(ModalsContext);
-	const {type} = useContext(PreviewServerConnectionCtx);
+	const {type} = useContext(StudioServerConnectionCtx);
 
-	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 	const shortcut = areKeyboardShortcutsDisabled() ? '' : '(R)';
 	const tooltip =
 		type === 'connected'

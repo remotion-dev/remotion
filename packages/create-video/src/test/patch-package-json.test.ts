@@ -13,7 +13,7 @@ for (const packageManager of packageManagers) {
 			version: '1.0.0',
 			description: 'My Remotion video',
 			scripts: {
-				start: 'remotion preview',
+				start: 'remotion studio',
 			},
 			dependencies: {
 				'@remotion/cli': 'stale-remotion-version',
