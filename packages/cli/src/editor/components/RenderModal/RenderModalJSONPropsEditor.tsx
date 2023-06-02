@@ -162,7 +162,10 @@ export const RenderModalJSONPropsEditor: React.FC<{
 					type="error"
 				/>
 			) : localValue.zodValidation.success === false ? (
-				<ZodErrorMessages zodValidationResult={localValue.zodValidation} />
+				<ZodErrorMessages
+					zodValidationResult={localValue.zodValidation}
+					viewTab="json"
+				/>
 			) : null}
 			<Spacing y={1} />
 			<Row>

@@ -103,7 +103,10 @@ export const InvalidDefaultProps: React.FC<{
 				<code style={inlineCodeSnippet}>{'<Composition>'}</code> is not valid:
 			</div>
 			<Spacing y={1} block />
-			<ZodErrorMessages zodValidationResult={zodValidationResult} />
+			<ZodErrorMessages
+				zodValidationResult={zodValidationResult}
+				viewTab="schema"
+			/>
 			<Spacing y={1} block />
 			<div style={errorExplanation}>
 				Fix the schema by changing the{' '}
@@ -122,7 +125,10 @@ export const InvalidSchema: React.FC<{
 		<div style={errorContainer}>
 			<div style={errorExplanation}>The data does not satisfy the schema:</div>
 			<Spacing y={1} block />
-			<ZodErrorMessages zodValidationResult={zodValidationResult} />
+			<ZodErrorMessages
+				zodValidationResult={zodValidationResult}
+				viewTab="schema"
+			/>
 			<Spacing y={1} block />
 			<div style={errorExplanation}>Fix the schema using the JSON editor.</div>
 			<Spacing y={1} block />
