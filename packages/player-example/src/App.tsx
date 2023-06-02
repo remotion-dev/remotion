@@ -336,7 +336,7 @@ const ControlsOnly: React.FC<{
 					setShowPlaybackControl(!showPlaybackControl);
 				}}
 			>
-				showPlaybackRateControls = {String(showPlaybackControl)}
+				showPlaybackRateControl = {String(showPlaybackControl)}
 			</button>
 			<br />
 			<button type="button" onClick={() => ref.current?.mute()}>
