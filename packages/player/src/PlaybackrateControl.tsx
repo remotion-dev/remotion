@@ -1,4 +1,10 @@
-import React, {useCallback, useContext, useMemo, useState} from 'react';
+import React, {
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useState,
+} from 'react';
 import {Internals} from 'remotion';
 import {SettingsIcon} from './icons.js';
 import useComponentVisible from './utils/use-component-visible.js';
@@ -54,6 +60,51 @@ const PlaybackPopup: React.FC<{
 		Internals.Timeline.TimelineContext
 	);
 
+	const [keyboardSelectedRate, setKeyboardSelectedRate] =
+		useState<number>(playbackRate);
+
+	useEffect(() => {
+		const listener = (e: KeyboardEvent) => {
+			e.preventDefault();
+			if (e.key === 'ArrowUp') {
+				const currentIndex = PLAYBACK_RATES.findIndex(
+					(rate) => rate === keyboardSelectedRate
+				);
+				if (currentIndex === 0) {
+					return;
+				}
+
+				if (currentIndex === -1) {
+					setKeyboardSelectedRate(PLAYBACK_RATES[0]);
+				} else {
+					setKeyboardSelectedRate(PLAYBACK_RATES[currentIndex - 1]);
+				}
+			} else if (e.key === 'ArrowDown') {
+				const currentIndex = PLAYBACK_RATES.findIndex(
+					(rate) => rate === keyboardSelectedRate
+				);
+				if (currentIndex === PLAYBACK_RATES.length - 1) {
+					return;
+				}
+
+				if (currentIndex === -1) {
+					setKeyboardSelectedRate(PLAYBACK_RATES[PLAYBACK_RATES.length - 1]);
+				} else {
+					setKeyboardSelectedRate(PLAYBACK_RATES[currentIndex + 1]);
+				}
+			} else if (e.key === 'Enter') {
+				setPlaybackRate(keyboardSelectedRate);
+				setIsComponentVisible(false);
+			}
+		};
+
+		window.addEventListener('keydown', listener);
+
+		return () => {
+			window.removeEventListener('keydown', listener);
+		};
+	}, [PLAYBACK_RATES, keyboardSelectedRate]);
+
 	const onSelect = useCallback(
 		(rate: number) => {
 			setPlaybackRate(rate);
@@ -71,6 +122,7 @@ const PlaybackPopup: React.FC<{
 						selectedRate={playbackRate}
 						onSelect={onSelect}
 						rate={rate}
+						keyboardSelectedRate={keyboardSelectedRate}
 					/>
 				);
 			})}
@@ -82,7 +134,8 @@ const PlaybackrateOption: React.FC<{
 	rate: number;
 	selectedRate: number;
 	onSelect: (rate: number) => void;
-}> = ({rate, onSelect, selectedRate}) => {
+	keyboardSelectedRate: number;
+}> = ({rate, onSelect, selectedRate, keyboardSelectedRate}) => {
 	const onClick: React.MouseEventHandler<HTMLDivElement> = useCallback(
 		(e) => {
 			e.stopPropagation();
@@ -107,9 +160,10 @@ const PlaybackrateOption: React.FC<{
 	const actualStyle = useMemo(() => {
 		return {
 			...rateDiv,
-			backgroundColor: hovered ? '#eee' : 'transparent',
+			backgroundColor:
+				hovered || keyboardSelectedRate === rate ? '#eee' : 'transparent',
 		};
-	}, [hovered]);
+	}, [hovered, keyboardSelectedRate, rate]);
 
 	return (
 		<div
