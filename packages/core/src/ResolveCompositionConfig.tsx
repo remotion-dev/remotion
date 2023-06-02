@@ -219,21 +219,23 @@ export const useResolvedVideoConfig = (
 	const compositionId = preferredCompositionId ?? currentComposition;
 	const composition = compositions.find((c) => c.id === compositionId);
 
-	if (!composition) {
-		return null;
-	}
+	return useMemo(() => {
+		if (!composition) {
+			return null;
+		}
 
-	const needsResolution = composition.calculateMetadata;
-	if (needsResolution === null) {
-		return {
-			type: 'success',
-			result: {...composition, defaultProps: composition.defaultProps ?? {}},
-		};
-	}
+		const needsResolution = composition.calculateMetadata;
+		if (needsResolution === null) {
+			return {
+				type: 'success',
+				result: {...composition, defaultProps: composition.defaultProps ?? {}},
+			};
+		}
 
-	if (!context[composition.id]) {
-		return null;
-	}
+		if (!context[composition.id]) {
+			return null;
+		}
 
-	return context[composition.id] as VideoConfigState;
+		return context[composition.id] as VideoConfigState;
+	}, [composition, context]);
 };
