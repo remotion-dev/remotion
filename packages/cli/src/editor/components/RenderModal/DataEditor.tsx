@@ -9,7 +9,7 @@ import type {AnyComposition} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
 import type {z} from 'zod';
 import {subscribeToEvent} from '../../../event-source';
-import {PreviewServerConnectionCtx} from '../../helpers/client-id';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
@@ -328,7 +328,7 @@ export const DataEditor: React.FC<{
 		[unresolvedComposition.defaultProps, unresolvedComposition.id, schema, z]
 	);
 
-	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 
 	const warnings = useMemo(() => {
 		return getRenderModalWarnings({

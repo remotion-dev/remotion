@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {PreviewServerConnectionCtx} from '../helpers/client-id';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {ModalsContext} from '../state/modals';
 import NewComposition from './NewComposition/NewComposition';
 import QuickSwitcher from './QuickSwitcher/QuickSwitcher';
@@ -9,7 +9,7 @@ import {UpdateModal} from './UpdateModal/UpdateModal';
 
 export const Modals: React.FC = () => {
 	const {selectedModal: modalContextType} = useContext(ModalsContext);
-	const canRender = useContext(PreviewServerConnectionCtx).type === 'connected';
+	const canRender = useContext(StudioServerConnectionCtx).type === 'connected';
 
 	return (
 		<>

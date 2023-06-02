@@ -57,9 +57,13 @@ The entry point is the file where the Remotion CLI and Node.JS APIs will look fo
 
 In the [Remotion Player](#remotion-player), there is no concept of an entry point. You directly pass a React component and metadata to the [`<Player>`](/docs/player/player).
 
+## Remotion Studio
+
+The Remotion Studio is the editor that opens that when you run [`npx remotion studio`](/docs/cli/studio) or `npx remotion preview`. It allows fast editing and playback of [compositions](#composition). It is included in the `@remotion/cli` package. It is not the same as the [Remotion Player](#remotion-player).
+
 ## Remotion Preview
 
-The Remotion Preview is the editor that opens that when you run `npx remotion preview ` followed by the [entry point](#entry-point). It allows fast editing and playback of [compositions](#composition). It is included in the `@remotion/cli` package. It is not the same as the [Remotion Player](#remotion-player).
+The former name of the [Remotion Studio](#remotion-studio), renamed in v4.0. Since the Preview gained more capabilities than just previewing, the name was not fitting anymore.
 
 ## Remotion Player
 

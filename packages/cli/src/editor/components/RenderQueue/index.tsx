@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {PreviewServerConnectionCtx} from '../../helpers/client-id';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
@@ -35,7 +35,7 @@ const renderQueue: React.CSSProperties = {
 };
 
 export const RenderQueue: React.FC = () => {
-	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 	const {jobs} = useContext(RenderQueueContext);
 	const jobCount = jobs.length;
 

@@ -1,14 +1,16 @@
 ---
-image: /generated/articles-docs-cli-preview.png
-title: npx remotion preview
-sidebar_label: preview
+image: /generated/articles-docs-cli-studio.png
+title: npx remotion studio
+sidebar_label: studio
 crumb: CLI Reference
 ---
 
-Start the server which allows you to preview the Remotion video. The only argument to pass is the entry file:
+_Alias: npx remotion preview_
+
+Start the Remotion Studio. The only argument to pass is the entry file:
 
 ```bash
-npx remotion preview <entry-file>
+npx remotion studio <entry-file>
 ```
 
 If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:

@@ -12,7 +12,7 @@ type PreviewServerState =
 			type: 'disconnected';
 	  };
 
-export const PreviewServerConnectionCtx =
+export const StudioServerConnectionCtx =
 	React.createContext<PreviewServerState>({
 		type: 'init',
 	});
@@ -41,8 +41,8 @@ export const PreviewServerConnection: React.FC<{
 	);
 
 	return (
-		<PreviewServerConnectionCtx.Provider value={state}>
+		<StudioServerConnectionCtx.Provider value={state}>
 			{children}
-		</PreviewServerConnectionCtx.Provider>
+		</StudioServerConnectionCtx.Provider>
 	);
 };

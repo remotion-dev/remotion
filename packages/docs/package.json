@@ -15,7 +15,7 @@
     "clear": "docusaurus clear",
     "lint": "eslint components && eslint src",
     "test": "vitest --run",
-    "remotion": "remotion preview src/remotion/entry.ts"
+    "remotion": "remotion studio src/remotion/entry.ts"
   },
   "dependencies": {
     "@aws-sdk/s3-request-presigner": "3.215.0",

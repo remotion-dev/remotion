@@ -146,6 +146,11 @@
       "permanent": false
     },
     {
+      "source": "/docs/cli/preview",
+      "destination": "/docs/cli/studio",
+      "permanent": false
+    },
+    {
       "source": "/links",
       "destination": "https://linktr.ee/remotion",
       "permanent": false

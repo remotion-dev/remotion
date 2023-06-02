@@ -44,7 +44,7 @@ export const algoliaSearch = async (
 
 	url.searchParams.set(
 		'x-algolia-agen',
-		encodeURIComponent('Remotion Preview DocSearch')
+		encodeURIComponent('Remotion Studio DocSearch')
 	);
 	url.searchParams.set('x-algolia-api-key', ALGOLIA_API_KEY);
 	url.searchParams.set('x-algolia-application-id', ALGOLIA_APPLICATION_ID);

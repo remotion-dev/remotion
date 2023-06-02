@@ -111,7 +111,7 @@ const handleFallback = async ({
 				getNumberOfSharedAudioTags(),
 			publicFiles: getFiles(),
 			includeFavicon: true,
-			title: 'Remotion Preview',
+			title: 'Remotion Studio',
 			renderDefaults: {
 				jpegQuality: defaultJpegQuality ?? 80,
 				scale: defaultScale ?? 1,
