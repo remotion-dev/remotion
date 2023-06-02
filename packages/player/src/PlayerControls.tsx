@@ -130,7 +130,7 @@ export const Controls: React.FC<{
 	renderPlayPauseButton: RenderPlayPauseButton | null;
 	renderFullscreenButton: RenderFullscreenButton | null;
 	alwaysShowControls: boolean;
-	showPlaybackRateControl: boolean;
+	showPlaybackRateControl: boolean | number[];
 }> = ({
 	durationInFrames,
 	hovered,
