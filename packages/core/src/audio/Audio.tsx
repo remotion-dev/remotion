@@ -1,4 +1,5 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
+import {getAbsoluteSrc} from '../absolute-src.js';
 import {useRemotionEnvironment} from '../get-environment.js';
 import {Loop} from '../loop/index.js';
 import {Sequence} from '../Sequence.js';
@@ -48,8 +49,8 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		[setDurations]
 	);
 
-	if (loop && props.src && durations[props.src as string] !== undefined) {
-		const duration = Math.floor(durations[props.src as string] * fps);
+	if (loop && props.src && durations[getAbsoluteSrc(props.src)] !== undefined) {
+		const duration = Math.floor(durations[getAbsoluteSrc(props.src)] * fps);
 		const playbackRate = props.playbackRate ?? 1;
 		const actualDuration = duration / playbackRate;
 
