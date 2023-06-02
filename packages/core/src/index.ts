@@ -10,7 +10,7 @@ import type {VideoConfig} from './video-config.js';
 
 declare global {
 	interface Window {
-		ready: boolean;
+		remotion_renderReady: boolean;
 		remotion_cancelledError: string | undefined;
 		getStaticCompositions: () => Promise<AnyCompMetadata[]>;
 		calculateComposition: (compId: string) => Promise<VideoConfig>;
