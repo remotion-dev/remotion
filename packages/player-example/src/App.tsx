@@ -506,7 +506,7 @@ const PlayerOnly: React.FC<
 		outFrame: number | null;
 		alwaysShowControls: boolean;
 		showVolumeControls: boolean;
-		showPlaybackRateControl: boolean;
+		showPlaybackRateControl: boolean | number[];
 	} & CompProps<any>
 > = ({
 	playerRef,
