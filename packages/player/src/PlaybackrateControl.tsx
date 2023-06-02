@@ -58,20 +58,20 @@ const PlaybackPopup: React.FC<{
 	);
 };
 
-export const PlaybackButton = () => {
+const playbackButton: React.CSSProperties = {
+	position: 'relative',
+	display: 'inline-flex',
+	alignItems: 'center',
+	padding: '6px 0 6px 0',
+	border: 'none',
+	background: 'none',
+	height: 36,
+	cursor: 'pointer',
+};
+
+export const PlaybackrateControl = () => {
 	const {ref, isComponentVisible, setIsComponentVisible} =
 		useComponentVisible(false);
-
-	const playbackButton: React.CSSProperties = {
-		position: 'relative',
-		display: 'inline-flex',
-		alignItems: 'center',
-		padding: '6px 0 6px 0',
-		border: 'none',
-		background: 'none',
-		height: 37,
-		cursor: 'pointer',
-	};
 
 	return (
 		<div ref={ref}>

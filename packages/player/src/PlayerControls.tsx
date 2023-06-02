@@ -4,7 +4,7 @@ import {Internals} from 'remotion';
 import {formatTime} from './format-time.js';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
-import {PlaybackButton} from './PlaybackButton.js';
+import {PlaybackrateControl} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import type {usePlayer} from './use-player.js';
 import {
@@ -83,7 +83,7 @@ const leftPartStyle: React.CSSProperties = {
 };
 
 const xSpacer: React.CSSProperties = {
-	width: 10,
+	width: 12,
 };
 
 const ySpacer: React.CSSProperties = {
@@ -263,12 +263,6 @@ export const Controls: React.FC<{
 							renderPlayPauseButton({playing: player.playing})
 						)}
 					</button>
-					{showPlaybackRateControl && (
-						<>
-							<div style={xSpacer} />
-							<PlaybackButton />
-						</>
-					)}
 					{showVolumeControls ? (
 						<>
 							<div style={xSpacer} />
@@ -284,6 +278,10 @@ export const Controls: React.FC<{
 					<div style={xSpacer} />
 				</div>
 				<div style={flex1} />
+				{showPlaybackRateControl && <PlaybackrateControl />}
+				{showPlaybackRateControl && supportsFullscreen && allowFullscreen ? (
+					<div style={xSpacer} />
+				) : null}
 				<div style={fullscreen}>
 					{supportsFullscreen && allowFullscreen ? (
 						<button
