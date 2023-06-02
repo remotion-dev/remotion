@@ -8,6 +8,7 @@ import React, {
 import type {AnyComposition} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
 import type {z} from 'zod';
+import {subscribeToEvent} from '../../../event-source';
 import {PreviewServerConnectionCtx} from '../../helpers/client-id';
 import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {useZodIfPossible} from '../get-zod-if-possible';
@@ -205,38 +206,53 @@ export const DataEditor: React.FC<{
 
 	const {fastRefreshes} = useContext(Internals.NonceContext);
 
-	useEffect(() => {
-		canUpdateDefaultProps(unresolvedComposition.id)
-			.then((can) => {
-				if (can.canUpdate) {
-					setCanSaveDefaultProps((prevState) => ({
-						...prevState,
-						[unresolvedComposition.id]: {
-							canUpdate: true,
-						},
-					}));
-				} else {
-					setCanSaveDefaultProps((prevState) => ({
-						...prevState,
-						[unresolvedComposition.id]: {
-							canUpdate: false,
-							reason: can.reason,
-							determined: true,
-						},
-					}));
-				}
-			})
-			.catch((err) => {
+	const checkIfCanSaveDefaultProps = useCallback(async () => {
+		try {
+			const can = await canUpdateDefaultProps(unresolvedComposition.id);
+
+			if (can.canUpdate) {
+				setCanSaveDefaultProps((prevState) => ({
+					...prevState,
+					[unresolvedComposition.id]: {
+						canUpdate: true,
+					},
+				}));
+			} else {
 				setCanSaveDefaultProps((prevState) => ({
 					...prevState,
 					[unresolvedComposition.id]: {
 						canUpdate: false,
-						reason: (err as Error).message,
+						reason: can.reason,
 						determined: true,
 					},
 				}));
-			});
+			}
+		} catch (err) {
+			setCanSaveDefaultProps((prevState) => ({
+				...prevState,
+				[unresolvedComposition.id]: {
+					canUpdate: false,
+					reason: (err as Error).message,
+					determined: true,
+				},
+			}));
+		}
 	}, [unresolvedComposition.id]);
+
+	useEffect(() => {
+		checkIfCanSaveDefaultProps();
+	}, [checkIfCanSaveDefaultProps]);
+
+	useEffect(() => {
+		const unsub = subscribeToEvent(
+			'root-file-changed',
+			checkIfCanSaveDefaultProps
+		);
+
+		return () => {
+			unsub();
+		};
+	}, [checkIfCanSaveDefaultProps]);
 
 	const modeItems = useMemo((): SegmentedControlItem[] => {
 		return [
