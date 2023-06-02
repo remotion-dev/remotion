@@ -155,18 +155,16 @@ const ControlsOnly: React.FC<{
 			]);
 		};
 
-		const volumechangeCallbackListener: CallbackListener<
-			'volumechange'
-		> = (e) => {
+		const volumechangeCallbackListener: CallbackListener<'volumechange'> = (
+			e
+		) => {
 			setLogs((l) => [
 				...l,
 				'volumechange ' + e.detail.volume + ' ' + Date.now(),
 			]);
 		};
 
-		const mutechangeCallbackListener: CallbackListener<
-			'mutechange'
-		> = (e) => {
+		const mutechangeCallbackListener: CallbackListener<'mutechange'> = (e) => {
 			setLogs((l) => [
 				...l,
 				'mutechange ' + e.detail.isMuted + ' ' + Date.now(),
