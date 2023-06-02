@@ -1171,6 +1171,7 @@ importers:
       prettier: ^2.7.1
       prettier-plugin-organize-imports: ^2.3.4
       rollup: ^2.70.1
+      rollup-plugin-banner2: ^1.2.2
       style-loader: 2.0.0
       tailwindcss: ^3.3.2
       typescript: ^4.7.0
@@ -1191,6 +1192,7 @@ importers:
       prettier: 2.8.4
       prettier-plugin-organize-imports: 2.3.4_silln3pw57har7jydmecgzoypa
       rollup: 2.76.0
+      rollup-plugin-banner2: 1.2.2
       typescript: 4.9.5
 
   packages/three:
