@@ -66,8 +66,8 @@ const ControlsOnly: React.FC<{
 	showVolumeControls: boolean;
 	setShowVolumeControls: React.Dispatch<React.SetStateAction<boolean>>;
 	durationInFrames: number;
-	showPlaybackControl: boolean;
-	setShowPlaybackControl: React.Dispatch<React.SetStateAction<boolean>>;
+	showPlaybackrateControl: boolean;
+	setShowPlaybackRateControl: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	playerRef: ref,
 	color,
@@ -102,8 +102,8 @@ const ControlsOnly: React.FC<{
 	durationInFrames,
 	setShowVolumeControls,
 	showVolumeControls,
-	showPlaybackControl,
-	setShowPlaybackControl,
+	showPlaybackrateControl: showPlaybackControl,
+	setShowPlaybackRateControl: setShowPlaybackControl,
 }) => {
 	const [logs, setLogs] = useState<string[]>(() => []);
 
@@ -336,7 +336,7 @@ const ControlsOnly: React.FC<{
 					setShowPlaybackControl(!showPlaybackControl);
 				}}
 			>
-				showPlaybackControls = {String(showPlaybackControl)}
+				showPlaybackRateControls = {String(showPlaybackControl)}
 			</button>
 			<br />
 			<button type="button" onClick={() => ref.current?.mute()}>
@@ -691,8 +691,8 @@ export default ({
 				inFrame={inFrame}
 				outFrame={outFrame}
 				durationInFrames={durationInFrames}
-				showPlaybackControl={showPlaybackRateControl}
-				setShowPlaybackControl={setPlaybackRateControl}
+				showPlaybackrateControl={showPlaybackRateControl}
+				setShowPlaybackRateControl={setPlaybackRateControl}
 			/>
 		</div>
 	);
