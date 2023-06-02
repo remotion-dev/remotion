@@ -51,7 +51,7 @@ const AvailableCompositions: React.FC = () => {
 
 		let timeout: NodeJS.Timeout | null = null;
 		const check = () => {
-			if (window.ready === true) {
+			if (window.remotion_renderReady === true) {
 				setComps({type: 'loading'});
 
 				window
