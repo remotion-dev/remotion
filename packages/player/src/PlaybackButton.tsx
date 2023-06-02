@@ -1,7 +1,7 @@
 import React, {useContext} from 'react';
 import {Internals} from 'remotion';
-import {SettingsIcon} from './icons';
-import useComponentVisible from './utils/use-component-visible';
+import {SettingsIcon} from './icons.js';
+import useComponentVisible from './utils/use-component-visible.js';
 
 const PlaybackPopup: React.FC<{
 	setIsComponentVisible: React.Dispatch<React.SetStateAction<boolean>>;
@@ -76,6 +76,8 @@ export const PlaybackButton = () => {
 	return (
 		<div ref={ref}>
 			<button
+				type="button"
+				aria-label="Change playback rate"
 				style={playbackButton}
 				onPointerUp={(e) => {
 					e.stopPropagation();
