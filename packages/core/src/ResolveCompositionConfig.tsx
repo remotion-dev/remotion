@@ -11,6 +11,7 @@ import {
 } from 'react';
 import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
+import {getInputProps} from './config/input-props.js';
 import {EditorPropsContext} from './EditorProps.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import type {VideoConfig} from './video-config.js';
@@ -214,10 +215,15 @@ export const useResolvedVideoConfig = (
 	const context = useContext(
 		ResolveCompositionContext
 	) as ResolveCompositionConfigContect;
+	const {props: allEditorProps} = useContext(EditorPropsContext);
 
 	const {compositions, currentComposition} = useContext(CompositionManager);
 	const compositionId = preferredCompositionId ?? currentComposition;
 	const composition = compositions.find((c) => c.id === compositionId);
+
+	const selectedEditorProps = useMemo(() => {
+		return composition ? allEditorProps[composition.id] ?? {} : {};
+	}, [allEditorProps, composition]);
 
 	return useMemo(() => {
 		if (!composition) {
@@ -228,7 +234,14 @@ export const useResolvedVideoConfig = (
 		if (needsResolution === null) {
 			return {
 				type: 'success',
-				result: {...composition, defaultProps: composition.defaultProps ?? {}},
+				result: {
+					...composition,
+					defaultProps: {
+						...(composition.defaultProps ?? {}),
+						...(selectedEditorProps ?? {}),
+						...(getInputProps() ?? {}),
+					},
+				},
 			};
 		}
 
@@ -237,5 +250,5 @@ export const useResolvedVideoConfig = (
 		}
 
 		return context[composition.id] as VideoConfigState;
-	}, [composition, context]);
+	}, [composition, context, selectedEditorProps]);
 };
