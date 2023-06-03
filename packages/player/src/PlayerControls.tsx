@@ -4,6 +4,7 @@ import {Internals} from 'remotion';
 import {formatTime} from './format-time.js';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
+import {PlaybackrateControl} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import type {usePlayer} from './use-player.js';
 import {
@@ -82,7 +83,7 @@ const leftPartStyle: React.CSSProperties = {
 };
 
 const xSpacer: React.CSSProperties = {
-	width: 10,
+	width: 12,
 };
 
 const ySpacer: React.CSSProperties = {
@@ -129,6 +130,7 @@ export const Controls: React.FC<{
 	renderPlayPauseButton: RenderPlayPauseButton | null;
 	renderFullscreenButton: RenderFullscreenButton | null;
 	alwaysShowControls: boolean;
+	showPlaybackRateControl: boolean | number[];
 }> = ({
 	durationInFrames,
 	hovered,
@@ -149,6 +151,7 @@ export const Controls: React.FC<{
 	renderPlayPauseButton,
 	renderFullscreenButton,
 	alwaysShowControls,
+	showPlaybackRateControl,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
@@ -242,6 +245,32 @@ export const Controls: React.FC<{
 		};
 	}, [maxTimeLabelWidth]);
 
+	const playbackRates = useMemo(() => {
+		if (showPlaybackRateControl === true) {
+			return [0.5, 0.8, 1, 1.2, 1.5, 1.8, 2, 2.5, 3];
+		}
+
+		if (Array.isArray(showPlaybackRateControl)) {
+			for (const rate of showPlaybackRateControl) {
+				if (typeof rate !== 'number') {
+					throw new Error(
+						'Every item in showPlaybackRateControl must be a number'
+					);
+				}
+
+				if (rate <= 0) {
+					throw new Error(
+						'Every item in showPlaybackRateControl must be positive'
+					);
+				}
+			}
+
+			return showPlaybackRateControl;
+		}
+
+		return null;
+	}, [showPlaybackRateControl]);
+
 	return (
 		<div style={containerCss}>
 			<div style={controlsRow}>
@@ -275,6 +304,10 @@ export const Controls: React.FC<{
 					<div style={xSpacer} />
 				</div>
 				<div style={flex1} />
+				{playbackRates && <PlaybackrateControl playbackRates={playbackRates} />}
+				{playbackRates && supportsFullscreen && allowFullscreen ? (
+					<div style={xSpacer} />
+				) : null}
 				<div style={fullscreen}>
 					{supportsFullscreen && allowFullscreen ? (
 						<button

@@ -75,6 +75,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderPlayPauseButton: RenderPlayPauseButton | null;
 		renderFullscreen: RenderFullscreenButton | null;
 		alwaysShowControls: boolean;
+		showPlaybackRateControl: boolean | number[];
 	}
 > = (
 	{
@@ -103,6 +104,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderFullscreen: renderFullscreenButton,
 		renderPlayPauseButton,
 		alwaysShowControls,
+		showPlaybackRateControl,
 	},
 	ref
 ) => {
@@ -520,6 +522,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					renderFullscreenButton={renderFullscreenButton}
 					renderPlayPauseButton={renderPlayPauseButton}
 					alwaysShowControls={alwaysShowControls}
+					showPlaybackRateControl={showPlaybackRateControl}
 				/>
 			) : null}
 		</>
