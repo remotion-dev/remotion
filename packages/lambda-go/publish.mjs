@@ -14,7 +14,7 @@ import path from "node:path";
 
 const tmpDir = tmpdir();
 
-const workingDir = path.join(tmpDir, "lambda-go-sdk");
+const workingDir = path.join(tmpDir, `lambda-go-sdk-${Math.random()}`);
 if (existsSync(workingDir)) {
   rmSync(workingDir, { recursive: true });
 }
