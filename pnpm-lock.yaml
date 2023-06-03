@@ -762,7 +762,10 @@ importers:
       zip-lib: 0.7.2
 
   packages/lambda-go:
-    specifiers: {}
+    specifiers:
+      remotion: workspace:*
+    devDependencies:
+      remotion: link:../core
 
   packages/lambda-go-example:
     specifiers: {}
@@ -772,6 +775,12 @@ importers:
       remotion: workspace:*
     devDependencies:
       remotion: link:../core
+
+  packages/lambda-php-example/vendor/remotion/lambda:
+    specifiers:
+      remotion: workspace:*
+    devDependencies:
+      remotion: link:../../../../core
 
   packages/lottie:
     specifiers:
