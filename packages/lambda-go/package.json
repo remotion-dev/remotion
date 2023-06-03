@@ -4,5 +4,8 @@
   "version": "3.3.97",
   "scripts": {
     "lint": "node build.mjs"
+  },
+  "devDependencies": {
+    "remotion": "workspace:*"
   }
 }
