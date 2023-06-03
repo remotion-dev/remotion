@@ -13,7 +13,7 @@ import path from "node:path";
 
 const tmpDir = tmpdir();
 
-const workingDir = path.join(tmpDir, "lambda-php-sdk");
+const workingDir = path.join(tmpDir, `lambda-php-sdk-${Math.random()}`);
 if (existsSync(workingDir)) {
   rmSync(workingDir, { recursive: true });
 }
