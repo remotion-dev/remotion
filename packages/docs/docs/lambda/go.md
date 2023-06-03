@@ -27,7 +27,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	// Match the version with the version of your deployed functions
-	"github.com/remotion-dev/remotion/packages/lambda-go/v3.3.89"
+	"github.com/remotion-dev/lambda-go-sdk/v3.3.98"
 )
 
 type ValidationError struct {
