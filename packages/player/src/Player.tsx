@@ -67,6 +67,7 @@ export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	alwaysShowControls?: boolean;
 	schema?: Schema;
 	initiallyMuted?: boolean;
+	showPlaybackRateControl?: boolean | number[];
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -114,6 +115,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		renderPlayPauseButton,
 		alwaysShowControls = false,
 		initiallyMuted = false,
+		showPlaybackRateControl = false,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>
@@ -162,6 +164,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const imperativePlaying = useRef(false);
+	const [currentPlaybackRate, setCurrentPlaybackRate] = useState(playbackRate);
 
 	if (typeof compositionHeight !== 'number') {
 		throw new TypeError(
@@ -271,11 +274,15 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		);
 	}
 
-	validatePlaybackRate(playbackRate);
+	validatePlaybackRate(currentPlaybackRate);
 
 	useEffect(() => {
-		emitter.dispatchRateChange(playbackRate);
-	}, [emitter, playbackRate]);
+		emitter.dispatchRateChange(currentPlaybackRate);
+	}, [emitter, currentPlaybackRate]);
+
+	useEffect(() => {
+		setCurrentPlaybackRate(playbackRate);
+	}, [playbackRate]);
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
@@ -287,14 +294,14 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 			playing,
 			rootId,
 			shouldRegisterSequences: false,
-			playbackRate,
+			playbackRate: currentPlaybackRate,
 			imperativePlaying,
-			setPlaybackRate: () => {
-				throw new Error('playback rate');
+			setPlaybackRate: (rate) => {
+				setCurrentPlaybackRate(rate);
 			},
 			audioAndVideoTags,
 		};
-	}, [frame, playbackRate, playing, rootId]);
+	}, [frame, currentPlaybackRate, playing, rootId]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
@@ -355,7 +362,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 							showVolumeControls={Boolean(showVolumeControls)}
 							doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
 							spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
-							playbackRate={playbackRate}
+							playbackRate={currentPlaybackRate}
 							className={className ?? undefined}
 							showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
 							showPosterWhenEnded={Boolean(showPosterWhenEnded)}
@@ -367,6 +374,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 							renderFullscreen={renderFullscreenButton ?? null}
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
 							alwaysShowControls={alwaysShowControls}
+							showPlaybackRateControl={showPlaybackRateControl}
 						/>
 					</PlayerEventEmitterContext.Provider>
 				</Internals.Timeline.SetTimelineContext.Provider>
