@@ -1,3 +1,3 @@
 package remotionlambda;
 
-const VERSION = "3.3.97"
+const VERSION = "3.3.98"
