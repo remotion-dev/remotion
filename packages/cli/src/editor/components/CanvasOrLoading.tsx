@@ -72,6 +72,9 @@ const loaderContainer: React.CSSProperties = {
 	marginLeft: 'auto',
 	marginRight: 'auto',
 	width: '100%',
+	position: 'absolute',
+	height: '100%',
+	overflowY: 'auto',
 };
 
 export const ErrorLoading: React.FC<{
