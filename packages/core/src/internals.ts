@@ -1,3 +1,4 @@
+import {AssetManager} from './AssetManager.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -133,6 +134,7 @@ export const Internals = {
 	resolveCompositionsRef,
 	ResolveCompositionConfig,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
+	AssetManager,
 };
 
 export type {
