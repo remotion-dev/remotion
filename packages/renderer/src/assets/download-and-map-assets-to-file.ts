@@ -50,7 +50,7 @@ const waitForAssetToBeDownloaded = ({
 	return new Promise<string>((resolve) => {
 		downloadMap.listeners[src][downloadDir].push(() => {
 			const srcMap = downloadMap.hasBeenDownloadedMap[src];
-			if (!srcMap || !srcMap[downloadDir]) {
+			if (!srcMap?.[downloadDir]) {
 				throw new Error(
 					'Expected file for ' + src + 'to be available in ' + downloadDir
 				);

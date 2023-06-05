@@ -15,7 +15,7 @@ export type WebpackOverrideFn = (
 	currentConfiguration: WebpackConfiguration
 ) => WebpackConfiguration;
 
-if (!ReactDOM || !ReactDOM.version) {
+if (!ReactDOM?.version) {
 	throw new Error('Could not find "react-dom" package. Did you install it?');
 }
 
