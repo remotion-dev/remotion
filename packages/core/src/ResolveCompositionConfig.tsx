@@ -164,7 +164,7 @@ export const ResolveCompositionConfig: React.FC<
 	const isTheSame = selectedComposition?.id === renderModalComposition?.id;
 
 	useEffect(() => {
-		if (selectedComposition) {
+		if (selectedComposition && needsResolution(selectedComposition)) {
 			const controller = doResolution(selectedComposition, selectedEditorProps);
 			return () => {
 				controller.abort();
@@ -209,6 +209,10 @@ export const ResolveCompositionConfig: React.FC<
 	);
 };
 
+export const needsResolution = (composition: AnyComposition) => {
+	return Boolean(composition.calculateMetadata);
+};
+
 export const useResolvedVideoConfig = (
 	preferredCompositionId: string | null
 ): VideoConfigState | null => {
@@ -230,8 +234,7 @@ export const useResolvedVideoConfig = (
 			return null;
 		}
 
-		const needsResolution = composition.calculateMetadata;
-		if (needsResolution === null) {
+		if (!needsResolution(composition)) {
 			return {
 				type: 'success',
 				result: {
