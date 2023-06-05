@@ -18,6 +18,7 @@ import {CompositionManager} from './CompositionManagerContext.js';
 import type {TFolder} from './Folder.js';
 import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
 import {ResolveCompositionConfig} from './ResolveCompositionConfig.js';
+import {SequenceManagerProvider} from './SequenceManager.js';
 
 export type TComposition<
 	Schema extends AnyZodObject,
@@ -159,8 +160,6 @@ export const CompositionManagerProvider: React.FC<{
 	const [assets, setAssets] = useState<TAsset[]>([]);
 	const [folders, setFolders] = useState<TFolder[]>([]);
 
-	const [sequences, setSequences] = useState<TSequence[]>([]);
-
 	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
 		useState<BaseMetadata | null>(null);
 
@@ -202,20 +201,10 @@ export const CompositionManagerProvider: React.FC<{
 		[updateCompositions]
 	);
 
-	const registerSequence = useCallback((seq: TSequence) => {
-		setSequences((seqs) => {
-			return [...seqs, seq];
-		});
-	}, []);
-
 	const unregisterComposition = useCallback((id: string) => {
 		setCompositions((comps) => {
 			return comps.filter((c) => c.id !== id);
 		});
-	}, []);
-
-	const unregisterSequence = useCallback((seq: string) => {
-		setSequences((seqs) => seqs.filter((s) => s.id !== seq));
 	}, []);
 
 	const registerAsset = useCallback((asset: TAsset) => {
@@ -281,11 +270,8 @@ export const CompositionManagerProvider: React.FC<{
 			unregisterComposition,
 			currentComposition,
 			setCurrentComposition,
-			registerSequence,
-			unregisterSequence,
 			registerAsset,
 			unregisterAsset,
-			sequences,
 			assets,
 			folders,
 			registerFolder,
@@ -298,11 +284,8 @@ export const CompositionManagerProvider: React.FC<{
 		registerComposition,
 		unregisterComposition,
 		currentComposition,
-		registerSequence,
-		unregisterSequence,
 		registerAsset,
 		unregisterAsset,
-		sequences,
 		assets,
 		folders,
 		registerFolder,
@@ -312,14 +295,16 @@ export const CompositionManagerProvider: React.FC<{
 
 	return (
 		<CompositionManager.Provider value={contextValue}>
-			<ResolveCompositionConfig>
-				<SharedAudioContextProvider
-					numberOfAudioTags={numberOfAudioTags}
-					component={composition?.component ?? null}
-				>
-					{children}
-				</SharedAudioContextProvider>
-			</ResolveCompositionConfig>
+			<SequenceManagerProvider>
+				<ResolveCompositionConfig>
+					<SharedAudioContextProvider
+						numberOfAudioTags={numberOfAudioTags}
+						component={composition?.component ?? null}
+					>
+						{children}
+					</SharedAudioContextProvider>
+				</ResolveCompositionConfig>
+			</SequenceManagerProvider>
 		</CompositionManager.Provider>
 	);
 };
