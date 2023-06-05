@@ -73,9 +73,6 @@ export const getAssetsForMarkup = async (
 		const value: CompositionManagerContext = useMemo(() => {
 			return {
 				...compositions,
-				assets,
-				registerAsset,
-				unregisterAsset,
 				compositions: [
 					{
 						...config,
@@ -99,15 +96,21 @@ export const getAssetsForMarkup = async (
 				],
 				currentComposition: 'markup',
 			};
-		}, [assets, compositions, registerAsset, unregisterAsset]);
+		}, [compositions]);
+
+		const assetContext = useMemo(() => {
+			return {assets, registerAsset, unregisterAsset};
+		}, [assets, registerAsset, unregisterAsset]);
 
 		return (
 			<Internals.CanUseRemotionHooksProvider>
 				<Internals.RemotionRoot numberOfAudioTags={0}>
 					<Internals.CompositionManager.Provider value={value}>
-						<Internals.ResolveCompositionConfig>
-							<Markup />
-						</Internals.ResolveCompositionConfig>
+						<Internals.AssetManager.Provider value={assetContext}>
+							<Internals.ResolveCompositionConfig>
+								<Markup />
+							</Internals.ResolveCompositionConfig>
+						</Internals.AssetManager.Provider>
 					</Internals.CompositionManager.Provider>
 				</Internals.RemotionRoot>
 			</Internals.CanUseRemotionHooksProvider>
