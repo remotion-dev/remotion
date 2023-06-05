@@ -35,7 +35,8 @@ export const deleteSite = async ({
 
 	let files = await lambdaLs({
 		bucketName,
-		prefix: getSitesKey(siteName),
+		// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
+		prefix: `${getSitesKey(siteName)}/`,
 		region,
 		expectedBucketOwner: accountId,
 	});
@@ -55,7 +56,8 @@ export const deleteSite = async ({
 		});
 		files = await lambdaLs({
 			bucketName,
-			prefix: getSitesKey(siteName),
+			// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
+			prefix: `${getSitesKey(siteName)}/`,
 			region,
 			expectedBucketOwner: accountId,
 		});
