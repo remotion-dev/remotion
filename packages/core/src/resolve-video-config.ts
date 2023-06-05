@@ -46,7 +46,7 @@ export const resolveVideoConfig = ({
 				fps,
 				durationInFrames,
 				id: composition.id,
-				defaultProps: composition.defaultProps,
+				defaultProps: c.props as Record<string, unknown>,
 			};
 		});
 	}
@@ -58,7 +58,7 @@ export const resolveVideoConfig = ({
 	return {
 		...data,
 		id: composition.id,
-		defaultProps: composition.defaultProps,
+		defaultProps: (calculatedProm?.props ?? {}) as Record<string, unknown>,
 	};
 };
 
