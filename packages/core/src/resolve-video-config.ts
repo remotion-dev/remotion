@@ -2,6 +2,7 @@ import type {AnyZodObject} from 'zod';
 import type {CalcMetadataReturnType} from './Composition.js';
 import type {TCompMetadataWithCalcFunction} from './CompositionManager.js';
 import {getInputProps} from './config/input-props.js';
+import {getRemotionEnvironment} from './get-environment.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import type {VideoConfig} from './video-config.js';
@@ -24,7 +25,11 @@ export const resolveVideoConfig = ({
 				props: {
 					...((composition.defaultProps ?? {}) as object),
 					...(editorPropsOrUndefined ?? {}),
-					...(typeof window === 'undefined' ? {} : getInputProps() ?? {}),
+					...(typeof window === 'undefined' ||
+					getRemotionEnvironment() === 'player-development' ||
+					getRemotionEnvironment() === 'player-production'
+						? {}
+						: getInputProps() ?? {}),
 				},
 				abortSignal: signal,
 		  })
