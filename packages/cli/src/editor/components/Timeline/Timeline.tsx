@@ -44,7 +44,7 @@ const container: React.CSSProperties = {
 const noop = () => undefined;
 
 export const Timeline: React.FC = () => {
-	const {sequences} = useContext(Internals.CompositionManager);
+	const {sequences} = useContext(Internals.SequenceManager);
 	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const [state, dispatch] = useReducer(timelineStateReducer, {

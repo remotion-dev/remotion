@@ -5,7 +5,6 @@ import type {
 	AnyComposition,
 	TAsset,
 	TComposition,
-	TSequence,
 } from './CompositionManager.js';
 import type {TFolder} from './Folder.js';
 
@@ -29,11 +28,8 @@ export type CompositionManagerContext = {
 	setCurrentComposition: (curr: string) => void;
 	setCurrentCompositionMetadata: (metadata: BaseMetadata) => void;
 	currentCompositionMetadata: BaseMetadata | null;
-	registerSequence: (seq: TSequence) => void;
-	unregisterSequence: (id: string) => void;
 	registerAsset: (asset: TAsset) => void;
 	unregisterAsset: (id: string) => void;
-	sequences: TSequence[];
 	assets: TAsset[];
 	folders: TFolder[];
 };
@@ -47,11 +43,8 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	currentComposition: null,
 	setCurrentComposition: () => undefined,
 	setCurrentCompositionMetadata: () => undefined,
-	registerSequence: () => undefined,
-	unregisterSequence: () => undefined,
 	registerAsset: () => undefined,
 	unregisterAsset: () => undefined,
-	sequences: [],
 	assets: [],
 	folders: [],
 	currentCompositionMetadata: null,
