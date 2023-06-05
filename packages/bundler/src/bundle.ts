@@ -74,8 +74,6 @@ export const getConfig = ({
 		onProgress,
 		enableCaching: options?.enableCaching ?? true,
 		maxTimelineTracks: 90,
-		// For production, the variables are set dynamically
-		envVariables: {},
 		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: false,

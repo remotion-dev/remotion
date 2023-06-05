@@ -36,7 +36,6 @@ export const startServer = async (options: {
 		environment: 'development',
 		webpackOverride:
 			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
-		envVariables: options?.getEnvVariables() ?? {},
 		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
 		entryPoints: [
 			require.resolve('./hot-middleware/client'),
