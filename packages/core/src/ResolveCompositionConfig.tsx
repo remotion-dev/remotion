@@ -239,7 +239,7 @@ export const useResolvedVideoConfig = (
 					defaultProps: {
 						...(composition.defaultProps ?? {}),
 						...(selectedEditorProps ?? {}),
-						...(getInputProps() ?? {}),
+						...(typeof window === 'undefined' ? {} : getInputProps() ?? {}),
 					},
 				},
 			};

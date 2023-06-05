@@ -24,7 +24,7 @@ export const resolveVideoConfig = ({
 				props: {
 					...((composition.defaultProps ?? {}) as object),
 					...(editorPropsOrUndefined ?? {}),
-					...(getInputProps() ?? {}),
+					...(typeof window === 'undefined' ? {} : getInputProps() ?? {}),
 				},
 				abortSignal: signal,
 		  })
