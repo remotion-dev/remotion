@@ -61,8 +61,6 @@
 		"@types/prettier": "^2.7.2",
 		"@types/react-dom": "18.0.10",
 		"@types/semver": "^7.3.4",
-		"@typescript-eslint/eslint-plugin": "5.18.0",
-		"@typescript-eslint/parser": "5.18.0",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
 		"eslint": "8.25.0",
