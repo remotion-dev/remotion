@@ -32,10 +32,7 @@ import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
 import {SequenceContext} from './SequenceContext.js';
-import {
-	ENV_VARIABLES_ENV_NAME,
-	setupEnvVariables,
-} from './setup-env-variables.js';
+import {setupEnvVariables} from './setup-env-variables.js';
 import type {
 	SetTimelineContextValue,
 	TimelineContextValue,
@@ -89,7 +86,6 @@ export const Internals = {
 	RemotionContextProvider,
 	CSSUtils,
 	setupEnvVariables,
-	ENV_VARIABLES_ENV_NAME,
 	MediaVolumeContext,
 	SetMediaVolumeContext,
 	validateDurationInFrames,
