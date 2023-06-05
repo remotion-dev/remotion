@@ -30,7 +30,7 @@ export const useElementSize = (
 			// The clientRect returns the size with `scale()` being applied.
 			const newSize = entries[0].target.getClientRects();
 
-			if (!newSize || !newSize[0]) {
+			if (!newSize?.[0]) {
 				setSize(null);
 				return;
 			}
