@@ -83,7 +83,6 @@ export const RemotionRoot: React.FC<{
 	}, [fastRefreshes]);
 
 	useEffect(() => {
-		// TODO: This can be moved to renderer?
 		if (typeof __webpack_module__ !== 'undefined') {
 			if (__webpack_module__.hot) {
 				__webpack_module__.hot.addStatusHandler((status) => {
