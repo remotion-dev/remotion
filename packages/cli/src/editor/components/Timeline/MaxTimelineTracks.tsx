@@ -1,9 +1,11 @@
 import React from 'react';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 
+export const DEFAULT_TIMELINE_TRACKS = 90;
+
 export const MAX_TIMELINE_TRACKS =
 	typeof process.env.MAX_TIMELINE_TRACKS === 'undefined'
-		? 90
+		? DEFAULT_TIMELINE_TRACKS
 		: Number(process.env.MAX_TIMELINE_TRACKS);
 
 export const MAX_TIMELINE_TRACKS_NOTICE_HEIGHT = 24;
