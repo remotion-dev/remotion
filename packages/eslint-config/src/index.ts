@@ -290,23 +290,6 @@ const getRules = (typescript: boolean) => {
     "no-restricted-globals": ["error", "event"],
     "no-shadow-restricted-names": "error",
     "no-undef-init": "error",
-    "no-undef": [
-      "error",
-      {
-        typeof: true,
-      },
-    ],
-    "no-unused-vars": [
-      "error",
-      {
-        vars: "all",
-        args: "after-used",
-        ignoreRestSiblings: true,
-        argsIgnorePattern: /^_/.source,
-        caughtErrors: "all",
-        caughtErrorsIgnorePattern: /^_$/.source,
-      },
-    ],
     "no-buffer-constructor": "error",
     "no-restricted-imports": [
       "error",
@@ -538,7 +521,26 @@ const getRules = (typescript: boolean) => {
           // Using `require` is useful for importing PNG sequences: require('frame' + frame + '.png')
           "@typescript-eslint/no-var-requires": "off",
         }
-      : {}),
+      : {
+          "no-undef": [
+            "error",
+            {
+              typeof: true,
+            },
+          ],
+
+          "no-unused-vars": [
+            "error",
+            {
+              vars: "all",
+              args: "after-used",
+              ignoreRestSiblings: true,
+              argsIgnorePattern: /^_/.source,
+              caughtErrors: "all",
+              caughtErrorsIgnorePattern: /^_$/.source,
+            },
+          ],
+        }),
     // In Root.tsx we encourage using fragment for just a single composition
     // since we intend to add more compositions later and you should then use a fragment.
     "react/jsx-no-useless-fragment": "off",
