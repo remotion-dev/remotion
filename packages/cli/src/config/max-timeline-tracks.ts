@@ -1,4 +1,6 @@
-let maxTimelineTracks = 15;
+import {DEFAULT_TIMELINE_TRACKS} from '../editor/components/Timeline/MaxTimelineTracks';
+
+let maxTimelineTracks = DEFAULT_TIMELINE_TRACKS;
 
 export const setMaxTimelineTracks = (maxTracks: number) => {
 	if (typeof maxTracks !== 'number') {
