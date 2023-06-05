@@ -9,7 +9,7 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {CompositionManager} from '../CompositionManagerContext.js';
+import {AssetManager} from '../AssetManager.js';
 import {continueRender, delayRender} from '../delay-render.js';
 import {useRemotionEnvironment} from '../get-environment.js';
 import {random} from '../random.js';
@@ -34,7 +34,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const volumePropFrame = useFrameForVolumeProp();
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
-	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+	const {registerAsset, unregisterAsset} = useContext(AssetManager);
 	const environment = useRemotionEnvironment();
 
 	// Generate a string that's as unique as possible for this asset

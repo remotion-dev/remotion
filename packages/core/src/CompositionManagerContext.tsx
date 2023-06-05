@@ -3,7 +3,6 @@ import type {AnyZodObject} from 'zod';
 import type {
 	AnyCompMetadata,
 	AnyComposition,
-	TAsset,
 	TComposition,
 } from './CompositionManager.js';
 import type {TFolder} from './Folder.js';
@@ -28,9 +27,6 @@ export type CompositionManagerContext = {
 	setCurrentComposition: (curr: string) => void;
 	setCurrentCompositionMetadata: (metadata: BaseMetadata) => void;
 	currentCompositionMetadata: BaseMetadata | null;
-	registerAsset: (asset: TAsset) => void;
-	unregisterAsset: (id: string) => void;
-	assets: TAsset[];
 	folders: TFolder[];
 };
 
@@ -43,9 +39,6 @@ export const CompositionManager = createContext<CompositionManagerContext>({
 	currentComposition: null,
 	setCurrentComposition: () => undefined,
 	setCurrentCompositionMetadata: () => undefined,
-	registerAsset: () => undefined,
-	unregisterAsset: () => undefined,
-	assets: [],
 	folders: [],
 	currentCompositionMetadata: null,
 });
