@@ -13,6 +13,7 @@ import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {getInputProps} from './config/input-props.js';
 import {EditorPropsContext} from './EditorProps.js';
+import {getRemotionEnvironment} from './get-environment.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import type {VideoConfig} from './video-config.js';
 
@@ -242,7 +243,11 @@ export const useResolvedVideoConfig = (
 					defaultProps: {
 						...(composition.defaultProps ?? {}),
 						...(selectedEditorProps ?? {}),
-						...(typeof window === 'undefined' ? {} : getInputProps() ?? {}),
+						...(typeof window === 'undefined' ||
+						getRemotionEnvironment() === 'player-development' ||
+						getRemotionEnvironment() === 'player-production'
+							? {}
+							: getInputProps() ?? {}),
 					},
 				},
 			};
