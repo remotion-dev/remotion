@@ -259,9 +259,9 @@ Learn more about this feature in the [Variable metadata](/docs/dynamic-metadata)
 The props in the props editor may rapidly change for example by typing fast.  
 It is a good practice to cancel requests which are stale using the `abortSignal` that gets passed to the [`calculateMetadata()`](/docs/composition#calculatemetadata) function:
 
-```tsx twoslash title="src/Root.tsx" {3-6}
+```tsx twoslash title="src/MyComp.tsx" {3-6}
 // ---cut---
-import { CalculateMetadataFunction } from "remotion";
+import type { CalculateMetadataFunction } from "remotion";
 
 type ApiResponse = {
   title: string;
@@ -293,6 +293,95 @@ export const MyComp: React.FC<MyCompProps> = () => null;
 ```
 
 This `abortSignal` is created by Remotion using the [`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController) API.
+
+### Debouncing requests
+
+If you are making requests to an expensive API, you might want to only fire a request after the user has stopped typing for a while. You may use the following function for doing so:
+
+```tsx twoslash title="src/wait-for-no-input.ts"
+import { Internals } from "remotion";
+
+export const waitForNoInput = (signal: AbortSignal, ms: number) => {
+  // Don't wait during rendering
+  if (Internals.getRemotionEnvironment() === "rendering") {
+    return Promise.resolve();
+  }
+
+  if (signal.aborted) {
+    return Promise.reject(new Error("stale"));
+  }
+
+  return Promise.race<void>([
+    new Promise<void>((_, reject) => {
+      signal.addEventListener("abort", () => {
+        reject(new Error("stale"));
+      });
+    }),
+    new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, ms);
+    }),
+  ]);
+};
+```
+
+```tsx twoslash title="src/MyComp.tsx" {4}
+import { CalculateMetadataFunction, Internals } from "remotion";
+
+const waitForNoInput = (signal: AbortSignal, ms: number) => {
+  // Don't wait during rendering
+  if (Internals.getRemotionEnvironment() === "rendering") {
+    return Promise.resolve();
+  }
+
+  if (signal.aborted) {
+    return Promise.reject(new Error("stale"));
+  }
+
+  return Promise.race<void>([
+    new Promise<void>((_, reject) => {
+      signal.addEventListener("abort", () => {
+        reject(new Error("stale"));
+      });
+    }),
+    new Promise<void>((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, ms);
+    }),
+  ]);
+};
+
+type ApiResponse = {
+  title: string;
+  description: string;
+};
+type MyCompProps = {
+  id: string;
+  data: ApiResponse | null;
+};
+
+// ---cut---
+export const calculateMyCompMetadata: CalculateMetadataFunction<
+  MyCompProps
+> = async ({ props, abortSignal }) => {
+  await waitForNoInput(abortSignal, 750);
+  const data = await fetch(`https://example.com/api/${props.id}`, {
+    signal: abortSignal,
+  });
+  const json = await data.json();
+
+  return {
+    props: {
+      ...props,
+      data: json,
+    },
+  };
+};
+
+export const MyComp: React.FC<MyCompProps> = () => null;
+```
 
 ## Fetching data during the render
 
