@@ -13,7 +13,7 @@ import { RenderInternals } from "@remotion/renderer";
 test("Legacy SSR way of rendering videos should still work", async () => {
   const puppeteerInstance = await openBrowser("chrome");
   const compositions = await getCompositions(
-    "https://6477646d36b0613569ac2e2f--melodious-sopapillas-d35e3e.netlify.app/",
+    "https://647dacd8a098e04aa1bfcb19--radiant-mermaid-29c23c.netlify.app/",
     {
       puppeteerInstance,
     }
@@ -40,7 +40,7 @@ test("Legacy SSR way of rendering videos should still work", async () => {
     inputProps: {},
     onFrameUpdate: () => undefined,
     serveUrl:
-      "https://6477646d36b0613569ac2e2f--melodious-sopapillas-d35e3e.netlify.app/",
+      "https://647dacd8a098e04aa1bfcb19--radiant-mermaid-29c23c.netlify.app/",
     concurrency: null,
     frameRange: [0, 10],
     outputDir: framesDir,
