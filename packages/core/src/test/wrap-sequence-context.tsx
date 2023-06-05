@@ -29,13 +29,10 @@ export const mockCompositionContext: CompositionManagerContext = {
 	registerAsset: () => undefined,
 	registerComposition: () => undefined,
 	registerFolder: () => undefined,
-	registerSequence: () => undefined,
-	sequences: [],
 	setCurrentComposition: () => undefined,
 	unregisterAsset: () => undefined,
 	unregisterComposition: () => undefined,
 	unregisterFolder: () => undefined,
-	unregisterSequence: () => undefined,
 };
 
 export const WrapSequenceContext: React.FC<{
