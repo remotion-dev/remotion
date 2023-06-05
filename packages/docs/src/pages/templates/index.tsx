@@ -47,23 +47,25 @@ export default () => {
           Jumpstart your project with a template that fits your usecase.
         </p>
         <div className={styles.grid}>
-          {CreateVideoInternals.FEATURED_TEMPLATES.map((template) => {
-            return (
-              <Link
-                key={template.cliId}
-                className={styles.item}
-                style={outer}
-                to={`/templates/${template.cliId}`}
-              >
-                <Item
-                  label={template.homePageLabel}
-                  description={template.description}
+          {CreateVideoInternals.FEATURED_TEMPLATES.filter((f) => f.listed).map(
+            (template) => {
+              return (
+                <Link
+                  key={template.cliId}
+                  className={styles.item}
+                  style={outer}
+                  to={`/templates/${template.cliId}`}
                 >
-                  <IconForTemplate scale={0.7} template={template} />
-                </Item>
-              </Link>
-            );
-          })}
+                  <Item
+                    label={template.homePageLabel}
+                    description={template.description}
+                  >
+                    <IconForTemplate scale={0.7} template={template} />
+                  </Item>
+                </Link>
+              );
+            }
+          )}
         </div>
         <br />
         <p style={lowerpara}>

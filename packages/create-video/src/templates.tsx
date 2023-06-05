@@ -38,6 +38,7 @@ export type Template = {
 		| 'tailwind'
 		| 'overlay';
 	defaultBranch: string;
+	listed: boolean;
 } & DynamicTemplate;
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
@@ -65,6 +66,7 @@ const nextTemplate: Template = {
 	cliId: 'next',
 	type: 'image',
 	defaultBranch: 'main',
+	listed: true,
 };
 
 // Note that this page is statically analyzed by extract-articles.mjs
@@ -85,6 +87,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'hello-world' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		listed: true,
 	},
 	ENABLE_NEXT ? nextTemplate : null,
 	{
@@ -103,6 +106,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'blank' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		listed: true,
 	},
 	{
 		homePageLabel: 'JavaScript',
@@ -120,6 +124,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'javascript' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		listed: true,
 	},
 	{
 		homePageLabel: 'Remix',
@@ -137,6 +142,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'remix' as const,
 		type: 'image' as const,
 		defaultBranch: 'main',
+		listed: true,
 	},
 	{
 		homePageLabel: '3D',
@@ -154,6 +160,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'three' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		listed: true,
 	},
 	{
 		homePageLabel: 'Stills',
@@ -171,6 +178,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'still' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		listed: true,
 	},
 	{
 		homePageLabel: 'Text-To-Speech',
@@ -188,6 +196,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'tts' as const,
 		type: 'video' as const,
 		defaultBranch: 'master',
+		listed: false,
 	},
 	{
 		homePageLabel: 'Audiogram',
@@ -205,6 +214,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'audiogram' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		listed: true,
 	},
 	{
 		homePageLabel: 'Skia',
@@ -221,6 +231,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'skia' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		listed: true,
 	},
 	{
 		homePageLabel: 'Tailwind',
@@ -238,6 +249,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'tailwind' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		listed: true,
 	},
 
 	{
@@ -261,5 +273,6 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'overlay' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		listed: true,
 	},
 ].filter(truthy);

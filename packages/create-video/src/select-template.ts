@@ -5,6 +5,8 @@ import {stripAnsi} from './strip-ansi';
 import type {Template} from './templates';
 import {FEATURED_TEMPLATES} from './templates';
 
+const SHOWN_TEMPLATES = FEATURED_TEMPLATES.filter((t) => t.listed);
+
 const parsed = minimist(process.argv.slice(2), {
 	boolean: FEATURED_TEMPLATES.map((f) => f.cliId),
 });
@@ -17,7 +19,7 @@ function padEnd(str: string, width: number): string {
 
 const descriptionColumn =
 	Math.max(
-		...FEATURED_TEMPLATES.map((t) =>
+		...SHOWN_TEMPLATES.map((t) =>
 			typeof t === 'object' ? t.shortName.length : 0
 		)
 	) + 2;
@@ -35,7 +37,7 @@ export const selectTemplate = async () => {
 		{
 			message: 'Choose a template:',
 			optionsPerPage: 20,
-			choices: FEATURED_TEMPLATES.map((template) => {
+			choices: SHOWN_TEMPLATES.map((template) => {
 				if (typeof template === 'string') {
 					return prompts.separator(template);
 				}
