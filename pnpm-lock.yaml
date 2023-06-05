@@ -1109,7 +1109,11 @@ importers:
         specifier: ^0.7.2
         version: 0.7.2
 
-  packages/lambda-go: {}
+  packages/lambda-go:
+    devDependencies:
+      remotion:
+        specifier: workspace:*
+        version: link:../core
 
   packages/lambda-go-example: {}
 
