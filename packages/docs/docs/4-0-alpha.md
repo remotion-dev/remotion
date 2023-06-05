@@ -28,12 +28,12 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 - "@remotion/eslint-plugin": "^3.3.87"
 - "@remotion/cli": "^3.3.87"
 - "@remotion/renderer": "^3.3.87"
-+ "remotion": "4.0.0-alpha10"
-+ "@remotion/bundler": "4.0.0-alpha10"
-+ "@remotion/eslint-config": "4.0.0-alpha10"
-+ "@remotion/eslint-plugin": "4.0.0-alpha10"
-+ "@remotion/cli": "4.0.0-alpha10"
-+ "@remotion/renderer": "4.0.0-alpha10"
++ "remotion": "4.0.0-alpha13"
++ "@remotion/bundler": "4.0.0-alpha13"
++ "@remotion/eslint-config": "4.0.0-alpha13"
++ "@remotion/eslint-plugin": "4.0.0-alpha13"
++ "@remotion/cli": "4.0.0-alpha13"
++ "@remotion/renderer": "4.0.0-alpha13"
 ```
 
 Make sure the versions don't have a `^` character in front of it.
@@ -61,6 +61,10 @@ Config.setVideoImageFormat("jpeg");
 See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
+
+### `4.0.0-alpha13`
+
+- Fix editor props not being applied
 
 ### `4.0.0-alpha12`
 
