@@ -2,12 +2,12 @@ import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {
 	useCallback,
 	useImperativeHandle,
-	useLayoutEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
 import type {AnyZodObject} from 'zod';
+import {AssetManagerProvider} from './AssetManager.js';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {
@@ -157,7 +157,6 @@ export const CompositionManagerProvider: React.FC<{
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
 		null
 	);
-	const [assets, setAssets] = useState<TAsset[]>([]);
 	const [folders, setFolders] = useState<TFolder[]>([]);
 
 	const [currentCompositionMetadata, setCurrentCompositionMetadata] =
@@ -207,18 +206,6 @@ export const CompositionManagerProvider: React.FC<{
 		});
 	}, []);
 
-	const registerAsset = useCallback((asset: TAsset) => {
-		setAssets((assts) => {
-			return [...assts, asset];
-		});
-	}, []);
-
-	const unregisterAsset = useCallback((id: string) => {
-		setAssets((assts) => {
-			return assts.filter((a) => a.id !== id);
-		});
-	}, []);
-
 	const registerFolder = useCallback((name: string, parent: string | null) => {
 		setFolders((prevFolders) => {
 			return [
@@ -242,15 +229,6 @@ export const CompositionManagerProvider: React.FC<{
 		[]
 	);
 
-	useLayoutEffect(() => {
-		if (typeof window !== 'undefined') {
-			window.remotion_collectAssets = () => {
-				setAssets([]); // clear assets at next render
-				return assets;
-			};
-		}
-	}, [assets]);
-
 	useImperativeHandle(
 		compositionsRef,
 		() => {
@@ -270,9 +248,6 @@ export const CompositionManagerProvider: React.FC<{
 			unregisterComposition,
 			currentComposition,
 			setCurrentComposition,
-			registerAsset,
-			unregisterAsset,
-			assets,
 			folders,
 			registerFolder,
 			unregisterFolder,
@@ -284,9 +259,6 @@ export const CompositionManagerProvider: React.FC<{
 		registerComposition,
 		unregisterComposition,
 		currentComposition,
-		registerAsset,
-		unregisterAsset,
-		assets,
 		folders,
 		registerFolder,
 		unregisterFolder,
@@ -296,14 +268,16 @@ export const CompositionManagerProvider: React.FC<{
 	return (
 		<CompositionManager.Provider value={contextValue}>
 			<SequenceManagerProvider>
-				<ResolveCompositionConfig>
-					<SharedAudioContextProvider
-						numberOfAudioTags={numberOfAudioTags}
-						component={composition?.component ?? null}
-					>
-						{children}
-					</SharedAudioContextProvider>
-				</ResolveCompositionConfig>
+				<AssetManagerProvider>
+					<ResolveCompositionConfig>
+						<SharedAudioContextProvider
+							numberOfAudioTags={numberOfAudioTags}
+							component={composition?.component ?? null}
+						>
+							{children}
+						</SharedAudioContextProvider>
+					</ResolveCompositionConfig>
+				</AssetManagerProvider>
 			</SequenceManagerProvider>
 		</CompositionManager.Provider>
 	);
