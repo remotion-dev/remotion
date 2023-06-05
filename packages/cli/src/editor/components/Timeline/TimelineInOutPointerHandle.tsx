@@ -1,5 +1,7 @@
-import React, {createRef, useMemo} from 'react';
-import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
+import React, {createRef, useContext, useMemo} from 'react';
+import {useVideoConfig} from 'remotion';
+import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const line: React.CSSProperties = {
 	height: '100%',
@@ -19,16 +21,25 @@ export const TimelineInOutPointerHandle: React.FC<{
 	type: 'in' | 'out';
 	atFrame: number;
 }> = ({dragging, type, atFrame}) => {
-	const {get} = useGetXPositionOfItemInTimeline();
+	const timelineWidth = useContext(TimelineWidthContext);
+	const videoConfig = useVideoConfig();
+	if (timelineWidth === null) {
+		throw new Error('Timeline width is null');
+	}
+
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...line,
 			backgroundColor: dragging
 				? 'rgba(255, 255, 255, 0.7)'
 				: 'rgba(255, 255, 255, 0.1)',
-			transform: `translateX(${get(atFrame)}px)`,
+			transform: `translateX(${getXPositionOfItemInTimelineImperatively(
+				atFrame,
+				videoConfig.durationInFrames,
+				timelineWidth
+			)}px)`,
 		};
-	}, [atFrame, dragging, get]);
+	}, [atFrame, dragging, timelineWidth, videoConfig.durationInFrames]);
 
 	return (
 		<div

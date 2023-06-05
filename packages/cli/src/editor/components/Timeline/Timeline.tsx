@@ -13,6 +13,7 @@ import {
 	TIMELINE_LAYER_HEIGHT,
 } from '../../helpers/timeline-layout';
 import {timelineRef} from '../../state/timeline-ref';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {SplitterContainer} from '../Splitter/SplitterContainer';
 import {SplitterElement} from '../Splitter/SplitterElement';
 import {SplitterHandle} from '../Splitter/SplitterHandle';
@@ -31,6 +32,7 @@ import {TimelineScrollable} from './TimelineScrollable';
 import {TimelineSlider} from './TimelineSlider';
 import {TIMELINE_TIME_INDICATOR_HEIGHT} from './TimelineTimeIndicators';
 import {TimelineTracks} from './TimelineTracks';
+import {TimelineWidthProvider} from './TimelineWidthProvider';
 
 const container: React.CSSProperties = {
 	minHeight: '100%',
@@ -113,44 +115,45 @@ export const Timeline: React.FC = () => {
 		};
 	}, [hasBeenCut, shown.length]);
 
-	if (!videoConfig) {
-		return <div style={container} className="css-reset" />;
-	}
-
 	return (
-		<div ref={timelineVerticalScroll} style={container} className="css-reset">
-			<div style={inner}>
-				<SplitterContainer
-					orientation="vertical"
-					defaultFlex={0.2}
-					id="names-to-timeline"
-					maxFlex={0.5}
-					minFlex={0.15}
-				>
-					<SplitterElement type="flexer">
-						<TimelineList
-							dispatchStateChange={dispatch}
-							viewState={state}
-							timeline={shown}
-						/>
-					</SplitterElement>
-					<SplitterHandle onCollapse={noop} allowToCollapse="none" />
-					<SplitterElement type="anti-flexer">
-						<TimelineScrollable>
-							<TimelineTracks
+		<div
+			ref={timelineVerticalScroll}
+			style={container}
+			className={'css-reset ' + VERTICAL_SCROLLBAR_CLASSNAME}
+		>
+			<TimelineWidthProvider>
+				<div style={inner}>
+					<SplitterContainer
+						orientation="vertical"
+						defaultFlex={0.2}
+						id="names-to-timeline"
+						maxFlex={0.5}
+						minFlex={0.15}
+					>
+						<SplitterElement type="flexer">
+							<TimelineList
+								dispatchStateChange={dispatch}
 								viewState={state}
 								timeline={shown}
-								fps={videoConfig.fps}
-								hasBeenCut={hasBeenCut}
 							/>
-							<TimelineInOutPointer />
-							<TimelineDragHandler />
-							<TimelineSlider />
-							<TimelinePlayCursorSyncer />
-						</TimelineScrollable>
-					</SplitterElement>
-				</SplitterContainer>
-			</div>
+						</SplitterElement>
+						<SplitterHandle onCollapse={noop} allowToCollapse="none" />
+						<SplitterElement type="anti-flexer">
+							<TimelineScrollable>
+								<TimelineTracks
+									viewState={state}
+									timeline={shown}
+									hasBeenCut={hasBeenCut}
+								/>
+								<TimelineInOutPointer />
+								<TimelineDragHandler />
+								<TimelineSlider />
+								<TimelinePlayCursorSyncer />
+							</TimelineScrollable>
+						</SplitterElement>
+					</SplitterContainer>
+				</div>
+			</TimelineWidthProvider>
 		</div>
 	);
 };
