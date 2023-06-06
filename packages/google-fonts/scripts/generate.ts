@@ -13,7 +13,8 @@ type FontInfo = {
 };
 
 import { getCssLink, unquote, quote, removeWhitespace } from "./utils";
-import { Font, googleFonts } from "./google-fonts";
+import { Font } from "./google-fonts";
+import { filteredFonts } from "./filtered-fonts";
 
 const OUTDIR = "./src";
 const CSS_CACHE_DIR = "./.cache-css";
@@ -108,7 +109,7 @@ const generate = async (font: Font) => {
     if (!style) throw Error("no style");
     if (!weight) throw Error("no weight");
     if (!subset) throw Error("no subset");
-    if (!unicodeRange) throw Error("no unicodeRange");
+    if (!unicodeRange) throw Error("no unicodeRange" + font.family);
     if (!src) throw Error("no src");
 
     //  Set unicode range data
@@ -173,7 +174,7 @@ const run = async () => {
   }
 
   // Batch convert
-  for (const font of googleFonts) {
+  for (const font of filteredFonts) {
     await generate(font);
   }
 
