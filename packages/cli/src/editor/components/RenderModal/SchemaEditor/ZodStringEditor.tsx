@@ -75,6 +75,7 @@ export const ZodStringEditor: React.FC<{
 				saving={saving}
 				valid={localValue.zodValidation.success}
 				saveDisabledByParent={saveDisabledByParent}
+				suffix={null}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput

@@ -149,6 +149,7 @@ export const ZodOrNullishEditor: React.FC<{
 					saving={saving}
 					valid={localNonNullishValueValue.zodValidation.success}
 					saveDisabledByParent={saveDisabledByParent}
+					suffix={null}
 				/>
 			) : (
 				<ZodSwitch

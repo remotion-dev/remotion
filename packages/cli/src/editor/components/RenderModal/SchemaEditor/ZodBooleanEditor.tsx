@@ -69,6 +69,7 @@ export const ZodBooleanEditor: React.FC<{
 				saving={saving}
 				valid
 				saveDisabledByParent={saveDisabledByParent}
+				suffix={null}
 			/>
 			<div style={fullWidth}>
 				<Checkbox
