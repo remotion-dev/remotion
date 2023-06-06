@@ -97,7 +97,7 @@ export const ZodOrNullishEditor: React.FC<{
 	}, [innerSchema, z, zodTypes]);
 
 	return (
-		<Fieldset shouldPad success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			{localValue.value === nullishValue ? (
 				<SchemaLabel
 					isDefaultValue={localValue.value === defaultValue}
@@ -123,7 +123,7 @@ export const ZodOrNullishEditor: React.FC<{
 					onRemove={onRemove}
 					saving={saving}
 					saveDisabledByParent={saveDisabledByParent}
-					mayPad={mayPad}
+					mayPad={false}
 				/>
 			)}
 			<div style={checkBoxWrapper}>

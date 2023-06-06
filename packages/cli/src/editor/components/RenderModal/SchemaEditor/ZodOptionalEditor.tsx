@@ -14,6 +14,7 @@ export const ZodOptionalEditor: React.FC<{
 	onRemove: null | (() => void);
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
 	schema,
@@ -25,6 +26,7 @@ export const ZodOptionalEditor: React.FC<{
 	onRemove,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const {innerType} = schema._def as z.ZodOptionalDef;
 
@@ -41,7 +43,7 @@ export const ZodOptionalEditor: React.FC<{
 			nullishValue={undefined}
 			saving={saving}
 			saveDisabledByParent={saveDisabledByParent}
-			mayPad={false}
+			mayPad={mayPad}
 			innerSchema={innerType}
 		/>
 	);

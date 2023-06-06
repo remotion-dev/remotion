@@ -15,6 +15,7 @@ export const ZodDefaultEditor: React.FC<{
 	onRemove: null | (() => void);
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
 	schema,
@@ -26,6 +27,7 @@ export const ZodDefaultEditor: React.FC<{
 	onRemove,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const {innerType} = schema._def as z.ZodDefaultDef;
 
@@ -41,7 +43,7 @@ export const ZodDefaultEditor: React.FC<{
 			value={value}
 			saving={saving}
 			saveDisabledByParent={saveDisabledByParent}
-			mayPad={false}
+			mayPad={mayPad}
 		/>
 	);
 };

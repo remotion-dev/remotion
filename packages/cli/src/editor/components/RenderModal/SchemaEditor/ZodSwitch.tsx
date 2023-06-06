@@ -138,6 +138,7 @@ export const ZodSwitch: React.FC<{
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodNumber) {
+		console.log('ZodNumberEditor', mayPad);
 		return (
 			<ZodNumberEditor
 				value={value as number}
@@ -301,6 +302,7 @@ export const ZodSwitch: React.FC<{
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -336,6 +338,7 @@ export const ZodSwitch: React.FC<{
 				schema={schema}
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -371,6 +374,7 @@ export const ZodSwitch: React.FC<{
 				schema={schema}
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
+				mayPad={mayPad}
 			/>
 		);
 	}
