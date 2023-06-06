@@ -34,7 +34,7 @@ export const ZodOptionalEditor: React.FC<{
 			jsonPath={jsonPath}
 			onRemove={onRemove}
 			onSave={onSave}
-			schema={innerType}
+			schema={schema}
 			setValue={setValue}
 			showSaveButton={showSaveButton}
 			value={value}
@@ -42,6 +42,7 @@ export const ZodOptionalEditor: React.FC<{
 			saving={saving}
 			saveDisabledByParent={saveDisabledByParent}
 			mayPad={false}
+			innerSchema={innerType}
 		/>
 	);
 };
