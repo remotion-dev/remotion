@@ -36,7 +36,8 @@ export const ZodNullableEditor: React.FC<{
 			jsonPath={jsonPath}
 			onRemove={onRemove}
 			onSave={onSave}
-			schema={innerType}
+			schema={schema}
+			innerSchema={innerType}
 			setValue={setValue}
 			showSaveButton={showSaveButton}
 			value={value}

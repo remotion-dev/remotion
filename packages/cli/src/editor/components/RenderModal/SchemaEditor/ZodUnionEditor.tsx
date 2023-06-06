@@ -127,7 +127,8 @@ export const ZodUnionEditor: React.FC<{
 			jsonPath={jsonPath}
 			onRemove={onRemove}
 			onSave={onSave}
-			schema={otherSchema}
+			schema={schema}
+			innerSchema={otherSchema}
 			setValue={setValue}
 			showSaveButton={showSaveButton}
 			value={value}
