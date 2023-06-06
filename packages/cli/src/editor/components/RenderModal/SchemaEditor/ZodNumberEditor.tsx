@@ -110,7 +110,7 @@ export const ZodNumberEditor: React.FC<{
 		[setLocalValue]
 	);
 
-	const isDefault = value === defaultValue;
+	const isDefault = localValue.value === defaultValue;
 
 	const onTextChange = useCallback(
 		(newValue: string) => {

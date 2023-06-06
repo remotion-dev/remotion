@@ -107,7 +107,7 @@ export const ZodDateEditor: React.FC<{
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
-				isDefaultValue={value.getTime() === defaultValue.getTime()}
+				isDefaultValue={localValue.value.getTime() === defaultValue.getTime()}
 				jsonPath={jsonPath}
 				onReset={reset}
 				onSave={save}
