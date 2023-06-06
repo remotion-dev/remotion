@@ -67,7 +67,7 @@ export const ZodEffectEditor: React.FC<{
 	}
 
 	return (
-		<Fieldset success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={false} success={localValue.zodValidation.success}>
 			<div style={fullWidth}>
 				<ZodSwitch
 					value={value}

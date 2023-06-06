@@ -69,7 +69,12 @@ export const ZodBooleanEditor: React.FC<{
 				saveDisabledByParent={saveDisabledByParent}
 			/>
 			<div style={fullWidth}>
-				<Checkbox checked={value} onChange={onChange} disabled={false} />
+				<Checkbox
+					name={jsonPath.join('.')}
+					checked={value}
+					onChange={onChange}
+					disabled={false}
+				/>
 			</div>
 		</div>
 	);

@@ -130,6 +130,7 @@ export const RenderModalAudio: React.FC<{
 						<Checkbox
 							checked={shouldHaveCustomTargetAudioBitrate}
 							onChange={onShouldHaveTargetAudioBitrateChanged}
+							name="custom-audio-bitrate"
 						/>
 					</div>
 				</div>

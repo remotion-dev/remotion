@@ -99,15 +99,13 @@ export const ZodArrayEditor: React.FC<{
 	return (
 		<div style={style}>
 			<div style={fullWidth}>
-				<Fieldset success={localValue.zodValidation.success}>
-					{isRoot ? null : (
-						<SchemaFieldsetLabel
-							onReset={reset}
-							isDefaultValue={isDefaultValue}
-							jsonPath={jsonPath}
-							onRemove={onRemove}
-						/>
-					)}
+				<Fieldset shouldPad={false} success={localValue.zodValidation.success}>
+					<SchemaFieldsetLabel
+						onReset={reset}
+						isDefaultValue={isDefaultValue}
+						jsonPath={jsonPath}
+						onRemove={onRemove}
+					/>
 					<div style={isRoot ? undefined : container}>
 						{localValue.value.map((child, i) => {
 							return (

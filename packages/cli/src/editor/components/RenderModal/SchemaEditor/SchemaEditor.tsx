@@ -10,7 +10,6 @@ import {
 import {ZodObjectEditor} from './ZodObjectEditor';
 
 const scrollable: React.CSSProperties = {
-	padding: '8px 12px',
 	display: 'flex',
 	flexDirection: 'column',
 	overflowY: 'auto',

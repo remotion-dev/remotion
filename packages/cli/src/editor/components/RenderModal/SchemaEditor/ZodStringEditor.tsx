@@ -4,11 +4,11 @@ import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {narrowOption, optionRow} from '../layout';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -65,7 +65,7 @@ export const ZodStringEditor: React.FC<{
 	}, [onSave, value]);
 
 	return (
-		<div style={compact ? narrowOption : optionRow}>
+		<Fieldset shouldPad success={false}>
 			<SchemaLabel
 				compact={compact}
 				isDefaultValue={localValue.value === defaultValue}
@@ -85,6 +85,7 @@ export const ZodStringEditor: React.FC<{
 					placeholder={jsonPath.join('.')}
 					onChange={onChange}
 					rightAlign={false}
+					name={jsonPath.join('.')}
 				/>
 				{!localValue.zodValidation.success && (
 					<>
@@ -97,6 +98,6 @@ export const ZodStringEditor: React.FC<{
 					</>
 				)}
 			</div>
-		</div>
+		</Fieldset>
 	);
 };

@@ -174,6 +174,7 @@ export const ZodOrNullishEditor: React.FC<{
 					checked={isChecked}
 					onChange={onCheckBoxChange}
 					disabled={false}
+					name={jsonPath.join('.')}
 				/>
 				<Spacing x={1} />
 				<div style={labelStyle}>{String(nullishValue)}</div>
