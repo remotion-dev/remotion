@@ -116,6 +116,9 @@
       "AlexBrush": [
         "dist/esm/AlexBrush.d.ts"
       ],
+      "Alexandria": [
+        "dist/esm/Alexandria.d.ts"
+      ],
       "AlfaSlabOne": [
         "dist/esm/AlfaSlabOne.d.ts"
       ],
@@ -130,6 +133,9 @@
       ],
       "Alkalami": [
         "dist/esm/Alkalami.d.ts"
+      ],
+      "Alkatra": [
+        "dist/esm/Alkatra.d.ts"
       ],
       "Allan": [
         "dist/esm/Allan.d.ts"
@@ -257,8 +263,14 @@
       "Antonio": [
         "dist/esm/Antonio.d.ts"
       ],
+      "Anuphan": [
+        "dist/esm/Anuphan.d.ts"
+      ],
       "Anybody": [
         "dist/esm/Anybody.d.ts"
+      ],
+      "AoboshiOne": [
+        "dist/esm/AoboshiOne.d.ts"
       ],
       "Arapey": [
         "dist/esm/Arapey.d.ts"
@@ -292,9 +304,6 @@
       ],
       "Arima": [
         "dist/esm/Arima.d.ts"
-      ],
-      "ArimaMadurai": [
-        "dist/esm/ArimaMadurai.d.ts"
       ],
       "Arimo": [
         "dist/esm/Arimo.d.ts"
@@ -629,11 +638,20 @@
       "BowlbyOneSC": [
         "dist/esm/BowlbyOneSC.d.ts"
       ],
+      "BraahOne": [
+        "dist/esm/BraahOne.d.ts"
+      ],
       "Brawler": [
         "dist/esm/Brawler.d.ts"
       ],
       "BreeSerif": [
         "dist/esm/BreeSerif.d.ts"
+      ],
+      "BrunoAce": [
+        "dist/esm/BrunoAce.d.ts"
+      ],
+      "BrunoAceSC": [
+        "dist/esm/BrunoAceSC.d.ts"
       ],
       "Brygada1918": [
         "dist/esm/Brygada1918.d.ts"
@@ -734,6 +752,9 @@
       "Cardo": [
         "dist/esm/Cardo.d.ts"
       ],
+      "Carlito": [
+        "dist/esm/Carlito.d.ts"
+      ],
       "Carme": [
         "dist/esm/Carme.d.ts"
       ],
@@ -748,6 +769,9 @@
       ],
       "Castoro": [
         "dist/esm/Castoro.d.ts"
+      ],
+      "CastoroTitling": [
+        "dist/esm/CastoroTitling.d.ts"
       ],
       "Catamaran": [
         "dist/esm/Catamaran.d.ts"
@@ -806,6 +830,9 @@
       "Cherish": [
         "dist/esm/Cherish.d.ts"
       ],
+      "CherryBombOne": [
+        "dist/esm/CherryBombOne.d.ts"
+      ],
       "CherryCreamSoda": [
         "dist/esm/CherryCreamSoda.d.ts"
       ],
@@ -824,6 +851,12 @@
       "Chivo": [
         "dist/esm/Chivo.d.ts"
       ],
+      "ChivoMono": [
+        "dist/esm/ChivoMono.d.ts"
+      ],
+      "Chokokutai": [
+        "dist/esm/Chokokutai.d.ts"
+      ],
       "Chonburi": [
         "dist/esm/Chonburi.d.ts"
       ],
@@ -835,6 +868,9 @@
       ],
       "ClickerScript": [
         "dist/esm/ClickerScript.d.ts"
+      ],
+      "ClimateCrisis": [
+        "dist/esm/ClimateCrisis.d.ts"
       ],
       "Coda": [
         "dist/esm/Coda.d.ts"
@@ -865,6 +901,9 @@
       ],
       "ComingSoon": [
         "dist/esm/ComingSoon.d.ts"
+      ],
+      "Comme": [
+        "dist/esm/Comme.d.ts"
       ],
       "Commissioner": [
         "dist/esm/Commissioner.d.ts"
@@ -986,6 +1025,9 @@
       "DarkerGrotesque": [
         "dist/esm/DarkerGrotesque.d.ts"
       ],
+      "DarumadropOne": [
+        "dist/esm/DarumadropOne.d.ts"
+      ],
       "DavidLibre": [
         "dist/esm/DavidLibre.d.ts"
       ],
@@ -1000,6 +1042,9 @@
       ],
       "DelaGothicOne": [
         "dist/esm/DelaGothicOne.d.ts"
+      ],
+      "DeliciousHandrawn": [
+        "dist/esm/DeliciousHandrawn.d.ts"
       ],
       "Delius": [
         "dist/esm/Delius.d.ts"
@@ -1277,6 +1322,9 @@
       "FlowRounded": [
         "dist/esm/FlowRounded.d.ts"
       ],
+      "Foldit": [
+        "dist/esm/Foldit.d.ts"
+      ],
       "Fondamento": [
         "dist/esm/Fondamento.d.ts"
       ],
@@ -1285,6 +1333,9 @@
       ],
       "Forum": [
         "dist/esm/Forum.d.ts"
+      ],
+      "FragmentMono": [
+        "dist/esm/FragmentMono.d.ts"
       ],
       "FrancoisOne": [
         "dist/esm/FrancoisOne.d.ts"
@@ -1303,9 +1354,6 @@
       ],
       "Fredoka": [
         "dist/esm/Fredoka.d.ts"
-      ],
-      "FredokaOne": [
-        "dist/esm/FredokaOne.d.ts"
       ],
       "Freehand": [
         "dist/esm/Freehand.d.ts"
@@ -1343,6 +1391,9 @@
       "Gafata": [
         "dist/esm/Gafata.d.ts"
       ],
+      "GajrajOne": [
+        "dist/esm/GajrajOne.d.ts"
+      ],
       "Galada": [
         "dist/esm/Galada.d.ts"
       ],
@@ -1370,9 +1421,6 @@
       "Genos": [
         "dist/esm/Genos.d.ts"
       ],
-      "GentiumBookBasic": [
-        "dist/esm/GentiumBookBasic.d.ts"
-      ],
       "GentiumBookPlus": [
         "dist/esm/GentiumBookPlus.d.ts"
       ],
@@ -1381,6 +1429,9 @@
       ],
       "Geo": [
         "dist/esm/Geo.d.ts"
+      ],
+      "Geologica": [
+        "dist/esm/Geologica.d.ts"
       ],
       "Georama": [
         "dist/esm/Georama.d.ts"
@@ -1415,6 +1466,9 @@
       "Glegoo": [
         "dist/esm/Glegoo.d.ts"
       ],
+      "Gloock": [
+        "dist/esm/Gloock.d.ts"
+      ],
       "GloriaHallelujah": [
         "dist/esm/GloriaHallelujah.d.ts"
       ],
@@ -1432,6 +1486,9 @@
       ],
       "Goldman": [
         "dist/esm/Goldman.d.ts"
+      ],
+      "GolosText": [
+        "dist/esm/GolosText.d.ts"
       ],
       "Gorditas": [
         "dist/esm/Gorditas.d.ts"
@@ -1529,6 +1586,9 @@
       "Handlee": [
         "dist/esm/Handlee.d.ts"
       ],
+      "HankenGrotesk": [
+        "dist/esm/HankenGrotesk.d.ts"
+      ],
       "Hanuman": [
         "dist/esm/Hanuman.d.ts"
       ],
@@ -1606,6 +1666,9 @@
       ],
       "IBMPlexSansHebrew": [
         "dist/esm/IBMPlexSansHebrew.d.ts"
+      ],
+      "IBMPlexSansJP": [
+        "dist/esm/IBMPlexSansJP.d.ts"
       ],
       "IBMPlexSansKR": [
         "dist/esm/IBMPlexSansKR.d.ts"
@@ -1693,6 +1756,12 @@
       ],
       "Inspiration": [
         "dist/esm/Inspiration.d.ts"
+      ],
+      "InstrumentSans": [
+        "dist/esm/InstrumentSans.d.ts"
+      ],
+      "InstrumentSerif": [
+        "dist/esm/InstrumentSerif.d.ts"
       ],
       "Inter": [
         "dist/esm/Inter.d.ts"
@@ -1811,9 +1880,6 @@
       "Kanit": [
         "dist/esm/Kanit.d.ts"
       ],
-      "Kantumruy": [
-        "dist/esm/Kantumruy.d.ts"
-      ],
       "KantumruyPro": [
         "dist/esm/KantumruyPro.d.ts"
       ],
@@ -1889,6 +1955,9 @@
       "KolkerBrush": [
         "dist/esm/KolkerBrush.d.ts"
       ],
+      "KonkhmerSleokchher": [
+        "dist/esm/KonkhmerSleokchher.d.ts"
+      ],
       "Kosugi": [
         "dist/esm/Kosugi.d.ts"
       ],
@@ -1936,6 +2005,9 @@
       ],
       "LaBelleAurore": [
         "dist/esm/LaBelleAurore.d.ts"
+      ],
+      "Labrada": [
+        "dist/esm/Labrada.d.ts"
       ],
       "Lacquer": [
         "dist/esm/Lacquer.d.ts"
@@ -2204,6 +2276,9 @@
       "Margarine": [
         "dist/esm/Margarine.d.ts"
       ],
+      "Marhey": [
+        "dist/esm/Marhey.d.ts"
+      ],
       "MarkaziText": [
         "dist/esm/MarkaziText.d.ts"
       ],
@@ -2218,6 +2293,9 @@
       ],
       "MartelSans": [
         "dist/esm/MartelSans.d.ts"
+      ],
+      "MartianMono": [
+        "dist/esm/MartianMono.d.ts"
       ],
       "Marvel": [
         "dist/esm/Marvel.d.ts"
@@ -2260,9 +2338,6 @@
       ],
       "Merienda": [
         "dist/esm/Merienda.d.ts"
-      ],
-      "MeriendaOne": [
-        "dist/esm/MeriendaOne.d.ts"
       ],
       "Merriweather": [
         "dist/esm/Merriweather.d.ts"
@@ -2344,6 +2419,9 @@
       ],
       "Monofett": [
         "dist/esm/Monofett.d.ts"
+      ],
+      "MonomaniacOne": [
+        "dist/esm/MonomaniacOne.d.ts"
       ],
       "Monoton": [
         "dist/esm/Monoton.d.ts"
@@ -2431,6 +2509,9 @@
       ],
       "MySoul": [
         "dist/esm/MySoul.d.ts"
+      ],
+      "Mynerve": [
+        "dist/esm/Mynerve.d.ts"
       ],
       "MysteryQuest": [
         "dist/esm/MysteryQuest.d.ts"
@@ -2597,6 +2678,9 @@
       "NotoSansCherokee": [
         "dist/esm/NotoSansCherokee.d.ts"
       ],
+      "NotoSansChorasmian": [
+        "dist/esm/NotoSansChorasmian.d.ts"
+      ],
       "NotoSansCoptic": [
         "dist/esm/NotoSansCoptic.d.ts"
       ],
@@ -2711,6 +2795,9 @@
       "NotoSansLao": [
         "dist/esm/NotoSansLao.d.ts"
       ],
+      "NotoSansLaoLooped": [
+        "dist/esm/NotoSansLaoLooped.d.ts"
+      ],
       "NotoSansLepcha": [
         "dist/esm/NotoSansLepcha.d.ts"
       ],
@@ -2762,6 +2849,9 @@
       "NotoSansMeeteiMayek": [
         "dist/esm/NotoSansMeeteiMayek.d.ts"
       ],
+      "NotoSansMendeKikakui": [
+        "dist/esm/NotoSansMendeKikakui.d.ts"
+      ],
       "NotoSansMeroitic": [
         "dist/esm/NotoSansMeroitic.d.ts"
       ],
@@ -2791,6 +2881,12 @@
       ],
       "NotoSansNabataean": [
         "dist/esm/NotoSansNabataean.d.ts"
+      ],
+      "NotoSansNagMundari": [
+        "dist/esm/NotoSansNagMundari.d.ts"
+      ],
+      "NotoSansNandinagari": [
+        "dist/esm/NotoSansNandinagari.d.ts"
       ],
       "NotoSansNewTaiLue": [
         "dist/esm/NotoSansNewTaiLue.d.ts"
@@ -2882,6 +2978,9 @@
       "NotoSansSiddham": [
         "dist/esm/NotoSansSiddham.d.ts"
       ],
+      "NotoSansSignWriting": [
+        "dist/esm/NotoSansSignWriting.d.ts"
+      ],
       "NotoSansSinhala": [
         "dist/esm/NotoSansSinhala.d.ts"
       ],
@@ -2935,6 +3034,9 @@
       ],
       "NotoSansTamilSupplement": [
         "dist/esm/NotoSansTamilSupplement.d.ts"
+      ],
+      "NotoSansTangsa": [
+        "dist/esm/NotoSansTangsa.d.ts"
       ],
       "NotoSansTelugu": [
         "dist/esm/NotoSansTelugu.d.ts"
@@ -3029,6 +3131,9 @@
       "NotoSerifKhmer": [
         "dist/esm/NotoSerifKhmer.d.ts"
       ],
+      "NotoSerifKhojki": [
+        "dist/esm/NotoSerifKhojki.d.ts"
+      ],
       "NotoSerifLao": [
         "dist/esm/NotoSerifLao.d.ts"
       ],
@@ -3038,8 +3143,11 @@
       "NotoSerifMyanmar": [
         "dist/esm/NotoSerifMyanmar.d.ts"
       ],
-      "NotoSerifNyiakengPuachueHmong": [
-        "dist/NotoSerifNyiakengPuachueHmong.d.ts"
+      "NotoSerifNPHmong": [
+        "dist/esm/NotoSerifNPHmong.d.ts"
+      ],
+      "NotoSerifOriya": [
+        "dist/esm/NotoSerifOriya.d.ts"
       ],
       "NotoSerifSC": [
         "dist/esm/NotoSerifSC.d.ts"
@@ -3064,6 +3172,9 @@
       ],
       "NotoSerifTibetan": [
         "dist/esm/NotoSerifTibetan.d.ts"
+      ],
+      "NotoSerifToto": [
+        "dist/esm/NotoSerifToto.d.ts"
       ],
       "NotoSerifYezidi": [
         "dist/esm/NotoSerifYezidi.d.ts"
@@ -3215,11 +3326,17 @@
       "Padauk": [
         "dist/esm/Padauk.d.ts"
       ],
+      "PadyakkeExpandedOne": [
+        "dist/esm/PadyakkeExpandedOne.d.ts"
+      ],
       "Palanquin": [
         "dist/esm/Palanquin.d.ts"
       ],
       "PalanquinDark": [
         "dist/esm/PalanquinDark.d.ts"
+      ],
+      "PaletteMosaic": [
+        "dist/esm/PaletteMosaic.d.ts"
       ],
       "Pangolin": [
         "dist/esm/Pangolin.d.ts"
@@ -3238,6 +3355,9 @@
       ],
       "PassionsConflict": [
         "dist/esm/PassionsConflict.d.ts"
+      ],
+      "PathwayExtreme": [
+        "dist/esm/PathwayExtreme.d.ts"
       ],
       "PathwayGothicOne": [
         "dist/esm/PathwayGothicOne.d.ts"
@@ -3281,6 +3401,9 @@
       "Philosopher": [
         "dist/esm/Philosopher.d.ts"
       ],
+      "Phudu": [
+        "dist/esm/Phudu.d.ts"
+      ],
       "Piazzolla": [
         "dist/esm/Piazzolla.d.ts"
       ],
@@ -3302,6 +3425,9 @@
       "Playball": [
         "dist/esm/Playball.d.ts"
       ],
+      "Playfair": [
+        "dist/esm/Playfair.d.ts"
+      ],
       "PlayfairDisplay": [
         "dist/esm/PlayfairDisplay.d.ts"
       ],
@@ -3319,6 +3445,9 @@
       ],
       "PollerOne": [
         "dist/esm/PollerOne.d.ts"
+      ],
+      "PoltawskiNowy": [
+        "dist/esm/PoltawskiNowy.d.ts"
       ],
       "Poly": [
         "dist/esm/Poly.d.ts"
@@ -3557,6 +3686,9 @@
       "Rochester": [
         "dist/esm/Rochester.d.ts"
       ],
+      "Rock3D": [
+        "dist/esm/Rock3D.d.ts"
+      ],
       "RockSalt": [
         "dist/esm/RockSalt.d.ts"
       ],
@@ -3590,6 +3722,9 @@
       "Rubik": [
         "dist/esm/Rubik.d.ts"
       ],
+      "Rubik80sFade": [
+        "dist/esm/Rubik80sFade.d.ts"
+      ],
       "RubikBeastly": [
         "dist/esm/RubikBeastly.d.ts"
       ],
@@ -3604,6 +3739,9 @@
       ],
       "RubikDistressed": [
         "dist/esm/RubikDistressed.d.ts"
+      ],
+      "RubikGemstones": [
+        "dist/esm/RubikGemstones.d.ts"
       ],
       "RubikGlitch": [
         "dist/esm/RubikGlitch.d.ts"
@@ -3626,8 +3764,20 @@
       "RubikMoonrocks": [
         "dist/esm/RubikMoonrocks.d.ts"
       ],
+      "RubikPixels": [
+        "dist/esm/RubikPixels.d.ts"
+      ],
       "RubikPuddles": [
         "dist/esm/RubikPuddles.d.ts"
+      ],
+      "RubikSprayPaint": [
+        "dist/esm/RubikSprayPaint.d.ts"
+      ],
+      "RubikStorm": [
+        "dist/esm/RubikStorm.d.ts"
+      ],
+      "RubikVinyl": [
+        "dist/esm/RubikVinyl.d.ts"
       ],
       "RubikWetPaint": [
         "dist/esm/RubikWetPaint.d.ts"
@@ -3731,6 +3881,9 @@
       "ScheherazadeNew": [
         "dist/esm/ScheherazadeNew.d.ts"
       ],
+      "SchibstedGrotesk": [
+        "dist/esm/SchibstedGrotesk.d.ts"
+      ],
       "Schoolbell": [
         "dist/esm/Schoolbell.d.ts"
       ],
@@ -3770,6 +3923,9 @@
       "Shalimar": [
         "dist/esm/Shalimar.d.ts"
       ],
+      "ShantellSans": [
+        "dist/esm/ShantellSans.d.ts"
+      ],
       "Shanti": [
         "dist/esm/Shanti.d.ts"
       ],
@@ -3794,6 +3950,9 @@
       "ShipporiMinchoB1": [
         "dist/esm/ShipporiMinchoB1.d.ts"
       ],
+      "Shizuru": [
+        "dist/esm/Shizuru.d.ts"
+      ],
       "Shojumaru": [
         "dist/esm/Shojumaru.d.ts"
       ],
@@ -3805,6 +3964,9 @@
       ],
       "Siemreap": [
         "dist/esm/Siemreap.d.ts"
+      ],
+      "Sigmar": [
+        "dist/esm/Sigmar.d.ts"
       ],
       "SigmarOne": [
         "dist/esm/SigmarOne.d.ts"
@@ -3845,6 +4007,9 @@
       "Slackey": [
         "dist/esm/Slackey.d.ts"
       ],
+      "SlacksideOne": [
+        "dist/esm/SlacksideOne.d.ts"
+      ],
       "Smokum": [
         "dist/esm/Smokum.d.ts"
       ],
@@ -3872,11 +4037,29 @@
       "Sofia": [
         "dist/esm/Sofia.d.ts"
       ],
+      "SofiaSans": [
+        "dist/esm/SofiaSans.d.ts"
+      ],
+      "SofiaSansCondensed": [
+        "dist/esm/SofiaSansCondensed.d.ts"
+      ],
+      "SofiaSansExtraCondensed": [
+        "dist/esm/SofiaSansExtraCondensed.d.ts"
+      ],
+      "SofiaSansSemiCondensed": [
+        "dist/esm/SofiaSansSemiCondensed.d.ts"
+      ],
+      "Solitreo": [
+        "dist/esm/Solitreo.d.ts"
+      ],
       "Solway": [
         "dist/esm/Solway.d.ts"
       ],
       "SongMyung": [
         "dist/esm/SongMyung.d.ts"
+      ],
+      "Sono": [
+        "dist/esm/Sono.d.ts"
       ],
       "SonsieOne": [
         "dist/esm/SonsieOne.d.ts"
@@ -4088,6 +4271,15 @@
       "Tillana": [
         "dist/esm/Tillana.d.ts"
       ],
+      "TiltNeon": [
+        "dist/esm/TiltNeon.d.ts"
+      ],
+      "TiltPrism": [
+        "dist/esm/TiltPrism.d.ts"
+      ],
+      "TiltWarp": [
+        "dist/esm/TiltWarp.d.ts"
+      ],
       "Timmana": [
         "dist/esm/Timmana.d.ts"
       ],
@@ -4154,6 +4346,9 @@
       "Trykker": [
         "dist/esm/Trykker.d.ts"
       ],
+      "TsukimiRounded": [
+        "dist/esm/TsukimiRounded.d.ts"
+      ],
       "TulpenOne": [
         "dist/esm/TulpenOne.d.ts"
       ],
@@ -4177,6 +4372,9 @@
       ],
       "Ultra": [
         "dist/esm/Ultra.d.ts"
+      ],
+      "Unbounded": [
+        "dist/esm/Unbounded.d.ts"
       ],
       "UncialAntiqua": [
         "dist/esm/UncialAntiqua.d.ts"
@@ -4247,6 +4445,9 @@
       "Viga": [
         "dist/esm/Viga.d.ts"
       ],
+      "VinaSans": [
+        "dist/esm/VinaSans.d.ts"
+      ],
       "Voces": [
         "dist/esm/Voces.d.ts"
       ],
@@ -4298,6 +4499,12 @@
       "WireOne": [
         "dist/esm/WireOne.d.ts"
       ],
+      "WixMadeforDisplay": [
+        "dist/esm/WixMadeforDisplay.d.ts"
+      ],
+      "WixMadeforText": [
+        "dist/esm/WixMadeforText.d.ts"
+      ],
       "WorkSans": [
         "dist/esm/WorkSans.d.ts"
       ],
@@ -4334,8 +4541,17 @@
       "Yrsa": [
         "dist/esm/Yrsa.d.ts"
       ],
+      "Ysabeau": [
+        "dist/esm/Ysabeau.d.ts"
+      ],
       "YujiBoku": [
         "dist/esm/YujiBoku.d.ts"
+      ],
+      "YujiHentaiganaAkari": [
+        "dist/esm/YujiHentaiganaAkari.d.ts"
+      ],
+      "YujiHentaiganaAkebono": [
+        "dist/esm/YujiHentaiganaAkebono.d.ts"
       ],
       "YujiMai": [
         "dist/esm/YujiMai.d.ts"
@@ -4396,108 +4612,6 @@
       ],
       "ZillaSlabHighlight": [
         "dist/esm/ZillaSlabHighlight.d.ts"
-      ],
-      "Alexandria": [
-        "dist/esm/Alexandria.d.ts"
-      ],
-      "ChivoMono": [
-        "dist/esm/ChivoMono.d.ts"
-      ],
-      "FragmentMono": [
-        "dist/esm/FragmentMono.d.ts"
-      ],
-      "GajrajOne": [
-        "dist/esm/GajrajOne.d.ts"
-      ],
-      "Gloock": [
-        "dist/esm/Gloock.d.ts"
-      ],
-      "HankenGrotesk": [
-        "dist/esm/HankenGrotesk.d.ts"
-      ],
-      "IBMPlexSansJP": [
-        "dist/esm/IBMPlexSansJP.d.ts"
-      ],
-      "Labrada": [
-        "dist/esm/Labrada.d.ts"
-      ],
-      "Marhey": [
-        "dist/esm/Marhey.d.ts"
-      ],
-      "MartianMono": [
-        "dist/esm/MartianMono.d.ts"
-      ],
-      "Mynerve": [
-        "dist/esm/Mynerve.d.ts"
-      ],
-      "NotoSansLaoLooped": [
-        "dist/esm/NotoSansLaoLooped.d.ts"
-      ],
-      "NotoSansMendeKikakui": [
-        "dist/esm/NotoSansMendeKikakui.d.ts"
-      ],
-      "NotoSansSignWriting": [
-        "dist/esm/NotoSansSignWriting.d.ts"
-      ],
-      "NotoSansTangsa": [
-        "dist/esm/NotoSansTangsa.d.ts"
-      ],
-      "NotoSerifKhojki": [
-        "dist/esm/NotoSerifKhojki.d.ts"
-      ],
-      "NotoSerifNPHmong": [
-        "dist/esm/NotoSerifNPHmong.d.ts"
-      ],
-      "NotoSerifOriya": [
-        "dist/esm/NotoSerifOriya.d.ts"
-      ],
-      "NotoSerifToto": [
-        "dist/esm/NotoSerifToto.d.ts"
-      ],
-      "PadyakkeExpandedOne": [
-        "dist/esm/PadyakkeExpandedOne.d.ts"
-      ],
-      "Phudu": [
-        "dist/esm/Phudu.d.ts"
-      ],
-      "Rubik80sFade": [
-        "dist/esm/Rubik80sFade.d.ts"
-      ],
-      "RubikGemstones": [
-        "dist/esm/RubikGemstones.d.ts"
-      ],
-      "RubikSprayPaint": [
-        "dist/esm/RubikSprayPaint.d.ts"
-      ],
-      "RubikStorm": [
-        "dist/esm/RubikStorm.d.ts"
-      ],
-      "RubikVinyl": [
-        "dist/esm/RubikVinyl.d.ts"
-      ],
-      "ShantellSans": [
-        "dist/esm/ShantellSans.d.ts"
-      ],
-      "SofiaSans": [
-        "dist/esm/SofiaSans.d.ts"
-      ],
-      "SofiaSansCondensed": [
-        "dist/esm/SofiaSansCondensed.d.ts"
-      ],
-      "SofiaSansExtraCondensed": [
-        "dist/esm/SofiaSansExtraCondensed.d.ts"
-      ],
-      "SofiaSansSemiCondensed": [
-        "dist/esm/SofiaSansSemiCondensed.d.ts"
-      ],
-      "Solitreo": [
-        "dist/esm/Solitreo.d.ts"
-      ],
-      "Sono": [
-        "dist/esm/Sono.d.ts"
-      ],
-      "Unbounded": [
-        "dist/esm/Unbounded.d.ts"
       ]
     }
   },
@@ -4671,6 +4785,12 @@
       "import": "./dist/esm/AlexBrush.mjs",
       "types": "./dist/cjs/AlexBrush.d.ts"
     },
+    "./Alexandria": {
+      "require": "./dist/cjs/Alexandria.cjs",
+      "module": "./dist/esm/Alexandria.mjs",
+      "import": "./dist/esm/Alexandria.mjs",
+      "types": "./dist/cjs/Alexandria.d.ts"
+    },
     "./AlfaSlabOne": {
       "require": "./dist/cjs/AlfaSlabOne.cjs",
       "module": "./dist/esm/AlfaSlabOne.mjs",
@@ -4700,6 +4820,12 @@
       "module": "./dist/esm/Alkalami.mjs",
       "import": "./dist/esm/Alkalami.mjs",
       "types": "./dist/cjs/Alkalami.d.ts"
+    },
+    "./Alkatra": {
+      "require": "./dist/cjs/Alkatra.cjs",
+      "module": "./dist/esm/Alkatra.mjs",
+      "import": "./dist/esm/Alkatra.mjs",
+      "types": "./dist/cjs/Alkatra.d.ts"
     },
     "./Allan": {
       "require": "./dist/cjs/Allan.cjs",
@@ -4953,11 +5079,23 @@
       "import": "./dist/esm/Antonio.mjs",
       "types": "./dist/cjs/Antonio.d.ts"
     },
+    "./Anuphan": {
+      "require": "./dist/cjs/Anuphan.cjs",
+      "module": "./dist/esm/Anuphan.mjs",
+      "import": "./dist/esm/Anuphan.mjs",
+      "types": "./dist/cjs/Anuphan.d.ts"
+    },
     "./Anybody": {
       "require": "./dist/cjs/Anybody.cjs",
       "module": "./dist/esm/Anybody.mjs",
       "import": "./dist/esm/Anybody.mjs",
       "types": "./dist/cjs/Anybody.d.ts"
+    },
+    "./AoboshiOne": {
+      "require": "./dist/cjs/AoboshiOne.cjs",
+      "module": "./dist/esm/AoboshiOne.mjs",
+      "import": "./dist/esm/AoboshiOne.mjs",
+      "types": "./dist/cjs/AoboshiOne.d.ts"
     },
     "./Arapey": {
       "require": "./dist/cjs/Arapey.cjs",
@@ -5024,12 +5162,6 @@
       "module": "./dist/esm/Arima.mjs",
       "import": "./dist/esm/Arima.mjs",
       "types": "./dist/cjs/Arima.d.ts"
-    },
-    "./ArimaMadurai": {
-      "require": "./dist/cjs/ArimaMadurai.cjs",
-      "module": "./dist/esm/ArimaMadurai.mjs",
-      "import": "./dist/esm/ArimaMadurai.mjs",
-      "types": "./dist/cjs/ArimaMadurai.d.ts"
     },
     "./Arimo": {
       "require": "./dist/cjs/Arimo.cjs",
@@ -5697,6 +5829,12 @@
       "import": "./dist/esm/BowlbyOneSC.mjs",
       "types": "./dist/cjs/BowlbyOneSC.d.ts"
     },
+    "./BraahOne": {
+      "require": "./dist/cjs/BraahOne.cjs",
+      "module": "./dist/esm/BraahOne.mjs",
+      "import": "./dist/esm/BraahOne.mjs",
+      "types": "./dist/cjs/BraahOne.d.ts"
+    },
     "./Brawler": {
       "require": "./dist/cjs/Brawler.cjs",
       "module": "./dist/esm/Brawler.mjs",
@@ -5708,6 +5846,18 @@
       "module": "./dist/esm/BreeSerif.mjs",
       "import": "./dist/esm/BreeSerif.mjs",
       "types": "./dist/cjs/BreeSerif.d.ts"
+    },
+    "./BrunoAce": {
+      "require": "./dist/cjs/BrunoAce.cjs",
+      "module": "./dist/esm/BrunoAce.mjs",
+      "import": "./dist/esm/BrunoAce.mjs",
+      "types": "./dist/cjs/BrunoAce.d.ts"
+    },
+    "./BrunoAceSC": {
+      "require": "./dist/cjs/BrunoAceSC.cjs",
+      "module": "./dist/esm/BrunoAceSC.mjs",
+      "import": "./dist/esm/BrunoAceSC.mjs",
+      "types": "./dist/cjs/BrunoAceSC.d.ts"
     },
     "./Brygada1918": {
       "require": "./dist/cjs/Brygada1918.cjs",
@@ -5907,6 +6057,12 @@
       "import": "./dist/esm/Cardo.mjs",
       "types": "./dist/cjs/Cardo.d.ts"
     },
+    "./Carlito": {
+      "require": "./dist/cjs/Carlito.cjs",
+      "module": "./dist/esm/Carlito.mjs",
+      "import": "./dist/esm/Carlito.mjs",
+      "types": "./dist/cjs/Carlito.d.ts"
+    },
     "./Carme": {
       "require": "./dist/cjs/Carme.cjs",
       "module": "./dist/esm/Carme.mjs",
@@ -5936,6 +6092,12 @@
       "module": "./dist/esm/Castoro.mjs",
       "import": "./dist/esm/Castoro.mjs",
       "types": "./dist/cjs/Castoro.d.ts"
+    },
+    "./CastoroTitling": {
+      "require": "./dist/cjs/CastoroTitling.cjs",
+      "module": "./dist/esm/CastoroTitling.mjs",
+      "import": "./dist/esm/CastoroTitling.mjs",
+      "types": "./dist/cjs/CastoroTitling.d.ts"
     },
     "./Catamaran": {
       "require": "./dist/cjs/Catamaran.cjs",
@@ -6051,6 +6213,12 @@
       "import": "./dist/esm/Cherish.mjs",
       "types": "./dist/cjs/Cherish.d.ts"
     },
+    "./CherryBombOne": {
+      "require": "./dist/cjs/CherryBombOne.cjs",
+      "module": "./dist/esm/CherryBombOne.mjs",
+      "import": "./dist/esm/CherryBombOne.mjs",
+      "types": "./dist/cjs/CherryBombOne.d.ts"
+    },
     "./CherryCreamSoda": {
       "require": "./dist/cjs/CherryCreamSoda.cjs",
       "module": "./dist/esm/CherryCreamSoda.mjs",
@@ -6087,6 +6255,18 @@
       "import": "./dist/esm/Chivo.mjs",
       "types": "./dist/cjs/Chivo.d.ts"
     },
+    "./ChivoMono": {
+      "require": "./dist/cjs/ChivoMono.cjs",
+      "module": "./dist/esm/ChivoMono.mjs",
+      "import": "./dist/esm/ChivoMono.mjs",
+      "types": "./dist/cjs/ChivoMono.d.ts"
+    },
+    "./Chokokutai": {
+      "require": "./dist/cjs/Chokokutai.cjs",
+      "module": "./dist/esm/Chokokutai.mjs",
+      "import": "./dist/esm/Chokokutai.mjs",
+      "types": "./dist/cjs/Chokokutai.d.ts"
+    },
     "./Chonburi": {
       "require": "./dist/cjs/Chonburi.cjs",
       "module": "./dist/esm/Chonburi.mjs",
@@ -6110,6 +6290,12 @@
       "module": "./dist/esm/ClickerScript.mjs",
       "import": "./dist/esm/ClickerScript.mjs",
       "types": "./dist/cjs/ClickerScript.d.ts"
+    },
+    "./ClimateCrisis": {
+      "require": "./dist/cjs/ClimateCrisis.cjs",
+      "module": "./dist/esm/ClimateCrisis.mjs",
+      "import": "./dist/esm/ClimateCrisis.mjs",
+      "types": "./dist/cjs/ClimateCrisis.d.ts"
     },
     "./Coda": {
       "require": "./dist/cjs/Coda.cjs",
@@ -6170,6 +6356,12 @@
       "module": "./dist/esm/ComingSoon.mjs",
       "import": "./dist/esm/ComingSoon.mjs",
       "types": "./dist/cjs/ComingSoon.d.ts"
+    },
+    "./Comme": {
+      "require": "./dist/cjs/Comme.cjs",
+      "module": "./dist/esm/Comme.mjs",
+      "import": "./dist/esm/Comme.mjs",
+      "types": "./dist/cjs/Comme.d.ts"
     },
     "./Commissioner": {
       "require": "./dist/cjs/Commissioner.cjs",
@@ -6411,6 +6603,12 @@
       "import": "./dist/esm/DarkerGrotesque.mjs",
       "types": "./dist/cjs/DarkerGrotesque.d.ts"
     },
+    "./DarumadropOne": {
+      "require": "./dist/cjs/DarumadropOne.cjs",
+      "module": "./dist/esm/DarumadropOne.mjs",
+      "import": "./dist/esm/DarumadropOne.mjs",
+      "types": "./dist/cjs/DarumadropOne.d.ts"
+    },
     "./DavidLibre": {
       "require": "./dist/cjs/DavidLibre.cjs",
       "module": "./dist/esm/DavidLibre.mjs",
@@ -6440,6 +6638,12 @@
       "module": "./dist/esm/DelaGothicOne.mjs",
       "import": "./dist/esm/DelaGothicOne.mjs",
       "types": "./dist/cjs/DelaGothicOne.d.ts"
+    },
+    "./DeliciousHandrawn": {
+      "require": "./dist/cjs/DeliciousHandrawn.cjs",
+      "module": "./dist/esm/DeliciousHandrawn.mjs",
+      "import": "./dist/esm/DeliciousHandrawn.mjs",
+      "types": "./dist/cjs/DeliciousHandrawn.d.ts"
     },
     "./Delius": {
       "require": "./dist/cjs/Delius.cjs",
@@ -6993,6 +7197,12 @@
       "import": "./dist/esm/FlowRounded.mjs",
       "types": "./dist/cjs/FlowRounded.d.ts"
     },
+    "./Foldit": {
+      "require": "./dist/cjs/Foldit.cjs",
+      "module": "./dist/esm/Foldit.mjs",
+      "import": "./dist/esm/Foldit.mjs",
+      "types": "./dist/cjs/Foldit.d.ts"
+    },
     "./Fondamento": {
       "require": "./dist/cjs/Fondamento.cjs",
       "module": "./dist/esm/Fondamento.mjs",
@@ -7010,6 +7220,12 @@
       "module": "./dist/esm/Forum.mjs",
       "import": "./dist/esm/Forum.mjs",
       "types": "./dist/cjs/Forum.d.ts"
+    },
+    "./FragmentMono": {
+      "require": "./dist/cjs/FragmentMono.cjs",
+      "module": "./dist/esm/FragmentMono.mjs",
+      "import": "./dist/esm/FragmentMono.mjs",
+      "types": "./dist/cjs/FragmentMono.d.ts"
     },
     "./FrancoisOne": {
       "require": "./dist/cjs/FrancoisOne.cjs",
@@ -7046,12 +7262,6 @@
       "module": "./dist/esm/Fredoka.mjs",
       "import": "./dist/esm/Fredoka.mjs",
       "types": "./dist/cjs/Fredoka.d.ts"
-    },
-    "./FredokaOne": {
-      "require": "./dist/cjs/FredokaOne.cjs",
-      "module": "./dist/esm/FredokaOne.mjs",
-      "import": "./dist/esm/FredokaOne.mjs",
-      "types": "./dist/cjs/FredokaOne.d.ts"
     },
     "./Freehand": {
       "require": "./dist/cjs/Freehand.cjs",
@@ -7125,6 +7335,12 @@
       "import": "./dist/esm/Gafata.mjs",
       "types": "./dist/cjs/Gafata.d.ts"
     },
+    "./GajrajOne": {
+      "require": "./dist/cjs/GajrajOne.cjs",
+      "module": "./dist/esm/GajrajOne.mjs",
+      "import": "./dist/esm/GajrajOne.mjs",
+      "types": "./dist/cjs/GajrajOne.d.ts"
+    },
     "./Galada": {
       "require": "./dist/cjs/Galada.cjs",
       "module": "./dist/esm/Galada.mjs",
@@ -7179,12 +7395,6 @@
       "import": "./dist/esm/Genos.mjs",
       "types": "./dist/cjs/Genos.d.ts"
     },
-    "./GentiumBookBasic": {
-      "require": "./dist/cjs/GentiumBookBasic.cjs",
-      "module": "./dist/esm/GentiumBookBasic.mjs",
-      "import": "./dist/esm/GentiumBookBasic.mjs",
-      "types": "./dist/cjs/GentiumBookBasic.d.ts"
-    },
     "./GentiumBookPlus": {
       "require": "./dist/cjs/GentiumBookPlus.cjs",
       "module": "./dist/esm/GentiumBookPlus.mjs",
@@ -7202,6 +7412,12 @@
       "module": "./dist/esm/Geo.mjs",
       "import": "./dist/esm/Geo.mjs",
       "types": "./dist/cjs/Geo.d.ts"
+    },
+    "./Geologica": {
+      "require": "./dist/cjs/Geologica.cjs",
+      "module": "./dist/esm/Geologica.mjs",
+      "import": "./dist/esm/Geologica.mjs",
+      "types": "./dist/cjs/Geologica.d.ts"
     },
     "./Georama": {
       "require": "./dist/cjs/Georama.cjs",
@@ -7269,6 +7485,12 @@
       "import": "./dist/esm/Glegoo.mjs",
       "types": "./dist/cjs/Glegoo.d.ts"
     },
+    "./Gloock": {
+      "require": "./dist/cjs/Gloock.cjs",
+      "module": "./dist/esm/Gloock.mjs",
+      "import": "./dist/esm/Gloock.mjs",
+      "types": "./dist/cjs/Gloock.d.ts"
+    },
     "./GloriaHallelujah": {
       "require": "./dist/cjs/GloriaHallelujah.cjs",
       "module": "./dist/esm/GloriaHallelujah.mjs",
@@ -7304,6 +7526,12 @@
       "module": "./dist/esm/Goldman.mjs",
       "import": "./dist/esm/Goldman.mjs",
       "types": "./dist/cjs/Goldman.d.ts"
+    },
+    "./GolosText": {
+      "require": "./dist/cjs/GolosText.cjs",
+      "module": "./dist/esm/GolosText.mjs",
+      "import": "./dist/esm/GolosText.mjs",
+      "types": "./dist/cjs/GolosText.d.ts"
     },
     "./Gorditas": {
       "require": "./dist/cjs/Gorditas.cjs",
@@ -7497,6 +7725,12 @@
       "import": "./dist/esm/Handlee.mjs",
       "types": "./dist/cjs/Handlee.d.ts"
     },
+    "./HankenGrotesk": {
+      "require": "./dist/cjs/HankenGrotesk.cjs",
+      "module": "./dist/esm/HankenGrotesk.mjs",
+      "import": "./dist/esm/HankenGrotesk.mjs",
+      "types": "./dist/cjs/HankenGrotesk.d.ts"
+    },
     "./Hanuman": {
       "require": "./dist/cjs/Hanuman.cjs",
       "module": "./dist/esm/Hanuman.mjs",
@@ -7652,6 +7886,12 @@
       "module": "./dist/esm/IBMPlexSansHebrew.mjs",
       "import": "./dist/esm/IBMPlexSansHebrew.mjs",
       "types": "./dist/cjs/IBMPlexSansHebrew.d.ts"
+    },
+    "./IBMPlexSansJP": {
+      "require": "./dist/cjs/IBMPlexSansJP.cjs",
+      "module": "./dist/esm/IBMPlexSansJP.mjs",
+      "import": "./dist/esm/IBMPlexSansJP.mjs",
+      "types": "./dist/cjs/IBMPlexSansJP.d.ts"
     },
     "./IBMPlexSansKR": {
       "require": "./dist/cjs/IBMPlexSansKR.cjs",
@@ -7826,6 +8066,18 @@
       "module": "./dist/esm/Inspiration.mjs",
       "import": "./dist/esm/Inspiration.mjs",
       "types": "./dist/cjs/Inspiration.d.ts"
+    },
+    "./InstrumentSans": {
+      "require": "./dist/cjs/InstrumentSans.cjs",
+      "module": "./dist/esm/InstrumentSans.mjs",
+      "import": "./dist/esm/InstrumentSans.mjs",
+      "types": "./dist/cjs/InstrumentSans.d.ts"
+    },
+    "./InstrumentSerif": {
+      "require": "./dist/cjs/InstrumentSerif.cjs",
+      "module": "./dist/esm/InstrumentSerif.mjs",
+      "import": "./dist/esm/InstrumentSerif.mjs",
+      "types": "./dist/cjs/InstrumentSerif.d.ts"
     },
     "./Inter": {
       "require": "./dist/cjs/Inter.cjs",
@@ -8061,12 +8313,6 @@
       "import": "./dist/esm/Kanit.mjs",
       "types": "./dist/cjs/Kanit.d.ts"
     },
-    "./Kantumruy": {
-      "require": "./dist/cjs/Kantumruy.cjs",
-      "module": "./dist/esm/Kantumruy.mjs",
-      "import": "./dist/esm/Kantumruy.mjs",
-      "types": "./dist/cjs/Kantumruy.d.ts"
-    },
     "./KantumruyPro": {
       "require": "./dist/cjs/KantumruyPro.cjs",
       "module": "./dist/esm/KantumruyPro.mjs",
@@ -8217,6 +8463,12 @@
       "import": "./dist/esm/KolkerBrush.mjs",
       "types": "./dist/cjs/KolkerBrush.d.ts"
     },
+    "./KonkhmerSleokchher": {
+      "require": "./dist/cjs/KonkhmerSleokchher.cjs",
+      "module": "./dist/esm/KonkhmerSleokchher.mjs",
+      "import": "./dist/esm/KonkhmerSleokchher.mjs",
+      "types": "./dist/cjs/KonkhmerSleokchher.d.ts"
+    },
     "./Kosugi": {
       "require": "./dist/cjs/Kosugi.cjs",
       "module": "./dist/esm/Kosugi.mjs",
@@ -8312,6 +8564,12 @@
       "module": "./dist/esm/LaBelleAurore.mjs",
       "import": "./dist/esm/LaBelleAurore.mjs",
       "types": "./dist/cjs/LaBelleAurore.d.ts"
+    },
+    "./Labrada": {
+      "require": "./dist/cjs/Labrada.cjs",
+      "module": "./dist/esm/Labrada.mjs",
+      "import": "./dist/esm/Labrada.mjs",
+      "types": "./dist/cjs/Labrada.d.ts"
     },
     "./Lacquer": {
       "require": "./dist/cjs/Lacquer.cjs",
@@ -8847,6 +9105,12 @@
       "import": "./dist/esm/Margarine.mjs",
       "types": "./dist/cjs/Margarine.d.ts"
     },
+    "./Marhey": {
+      "require": "./dist/cjs/Marhey.cjs",
+      "module": "./dist/esm/Marhey.mjs",
+      "import": "./dist/esm/Marhey.mjs",
+      "types": "./dist/cjs/Marhey.d.ts"
+    },
     "./MarkaziText": {
       "require": "./dist/cjs/MarkaziText.cjs",
       "module": "./dist/esm/MarkaziText.mjs",
@@ -8876,6 +9140,12 @@
       "module": "./dist/esm/MartelSans.mjs",
       "import": "./dist/esm/MartelSans.mjs",
       "types": "./dist/cjs/MartelSans.d.ts"
+    },
+    "./MartianMono": {
+      "require": "./dist/cjs/MartianMono.cjs",
+      "module": "./dist/esm/MartianMono.mjs",
+      "import": "./dist/esm/MartianMono.mjs",
+      "types": "./dist/cjs/MartianMono.d.ts"
     },
     "./Marvel": {
       "require": "./dist/cjs/Marvel.cjs",
@@ -8960,12 +9230,6 @@
       "module": "./dist/esm/Merienda.mjs",
       "import": "./dist/esm/Merienda.mjs",
       "types": "./dist/cjs/Merienda.d.ts"
-    },
-    "./MeriendaOne": {
-      "require": "./dist/cjs/MeriendaOne.cjs",
-      "module": "./dist/esm/MeriendaOne.mjs",
-      "import": "./dist/esm/MeriendaOne.mjs",
-      "types": "./dist/cjs/MeriendaOne.d.ts"
     },
     "./Merriweather": {
       "require": "./dist/cjs/Merriweather.cjs",
@@ -9128,6 +9392,12 @@
       "module": "./dist/esm/Monofett.mjs",
       "import": "./dist/esm/Monofett.mjs",
       "types": "./dist/cjs/Monofett.d.ts"
+    },
+    "./MonomaniacOne": {
+      "require": "./dist/cjs/MonomaniacOne.cjs",
+      "module": "./dist/esm/MonomaniacOne.mjs",
+      "import": "./dist/esm/MonomaniacOne.mjs",
+      "types": "./dist/cjs/MonomaniacOne.d.ts"
     },
     "./Monoton": {
       "require": "./dist/cjs/Monoton.cjs",
@@ -9302,6 +9572,12 @@
       "module": "./dist/esm/MySoul.mjs",
       "import": "./dist/esm/MySoul.mjs",
       "types": "./dist/cjs/MySoul.d.ts"
+    },
+    "./Mynerve": {
+      "require": "./dist/cjs/Mynerve.cjs",
+      "module": "./dist/esm/Mynerve.mjs",
+      "import": "./dist/esm/Mynerve.mjs",
+      "types": "./dist/cjs/Mynerve.d.ts"
     },
     "./MysteryQuest": {
       "require": "./dist/cjs/MysteryQuest.cjs",
@@ -9633,6 +9909,12 @@
       "import": "./dist/esm/NotoSansCherokee.mjs",
       "types": "./dist/cjs/NotoSansCherokee.d.ts"
     },
+    "./NotoSansChorasmian": {
+      "require": "./dist/cjs/NotoSansChorasmian.cjs",
+      "module": "./dist/esm/NotoSansChorasmian.mjs",
+      "import": "./dist/esm/NotoSansChorasmian.mjs",
+      "types": "./dist/cjs/NotoSansChorasmian.d.ts"
+    },
     "./NotoSansCoptic": {
       "require": "./dist/cjs/NotoSansCoptic.cjs",
       "module": "./dist/esm/NotoSansCoptic.mjs",
@@ -9861,6 +10143,12 @@
       "import": "./dist/esm/NotoSansLao.mjs",
       "types": "./dist/cjs/NotoSansLao.d.ts"
     },
+    "./NotoSansLaoLooped": {
+      "require": "./dist/cjs/NotoSansLaoLooped.cjs",
+      "module": "./dist/esm/NotoSansLaoLooped.mjs",
+      "import": "./dist/esm/NotoSansLaoLooped.mjs",
+      "types": "./dist/cjs/NotoSansLaoLooped.d.ts"
+    },
     "./NotoSansLepcha": {
       "require": "./dist/cjs/NotoSansLepcha.cjs",
       "module": "./dist/esm/NotoSansLepcha.mjs",
@@ -9963,6 +10251,12 @@
       "import": "./dist/esm/NotoSansMeeteiMayek.mjs",
       "types": "./dist/cjs/NotoSansMeeteiMayek.d.ts"
     },
+    "./NotoSansMendeKikakui": {
+      "require": "./dist/cjs/NotoSansMendeKikakui.cjs",
+      "module": "./dist/esm/NotoSansMendeKikakui.mjs",
+      "import": "./dist/esm/NotoSansMendeKikakui.mjs",
+      "types": "./dist/cjs/NotoSansMendeKikakui.d.ts"
+    },
     "./NotoSansMeroitic": {
       "require": "./dist/cjs/NotoSansMeroitic.cjs",
       "module": "./dist/esm/NotoSansMeroitic.mjs",
@@ -10022,6 +10316,18 @@
       "module": "./dist/esm/NotoSansNabataean.mjs",
       "import": "./dist/esm/NotoSansNabataean.mjs",
       "types": "./dist/cjs/NotoSansNabataean.d.ts"
+    },
+    "./NotoSansNagMundari": {
+      "require": "./dist/cjs/NotoSansNagMundari.cjs",
+      "module": "./dist/esm/NotoSansNagMundari.mjs",
+      "import": "./dist/esm/NotoSansNagMundari.mjs",
+      "types": "./dist/cjs/NotoSansNagMundari.d.ts"
+    },
+    "./NotoSansNandinagari": {
+      "require": "./dist/cjs/NotoSansNandinagari.cjs",
+      "module": "./dist/esm/NotoSansNandinagari.mjs",
+      "import": "./dist/esm/NotoSansNandinagari.mjs",
+      "types": "./dist/cjs/NotoSansNandinagari.d.ts"
     },
     "./NotoSansNewTaiLue": {
       "require": "./dist/cjs/NotoSansNewTaiLue.cjs",
@@ -10203,6 +10509,12 @@
       "import": "./dist/esm/NotoSansSiddham.mjs",
       "types": "./dist/cjs/NotoSansSiddham.d.ts"
     },
+    "./NotoSansSignWriting": {
+      "require": "./dist/cjs/NotoSansSignWriting.cjs",
+      "module": "./dist/esm/NotoSansSignWriting.mjs",
+      "import": "./dist/esm/NotoSansSignWriting.mjs",
+      "types": "./dist/cjs/NotoSansSignWriting.d.ts"
+    },
     "./NotoSansSinhala": {
       "require": "./dist/cjs/NotoSansSinhala.cjs",
       "module": "./dist/esm/NotoSansSinhala.mjs",
@@ -10310,6 +10622,12 @@
       "module": "./dist/esm/NotoSansTamilSupplement.mjs",
       "import": "./dist/esm/NotoSansTamilSupplement.mjs",
       "types": "./dist/cjs/NotoSansTamilSupplement.d.ts"
+    },
+    "./NotoSansTangsa": {
+      "require": "./dist/cjs/NotoSansTangsa.cjs",
+      "module": "./dist/esm/NotoSansTangsa.mjs",
+      "import": "./dist/esm/NotoSansTangsa.mjs",
+      "types": "./dist/cjs/NotoSansTangsa.d.ts"
     },
     "./NotoSansTelugu": {
       "require": "./dist/cjs/NotoSansTelugu.cjs",
@@ -10497,6 +10815,12 @@
       "import": "./dist/esm/NotoSerifKhmer.mjs",
       "types": "./dist/cjs/NotoSerifKhmer.d.ts"
     },
+    "./NotoSerifKhojki": {
+      "require": "./dist/cjs/NotoSerifKhojki.cjs",
+      "module": "./dist/esm/NotoSerifKhojki.mjs",
+      "import": "./dist/esm/NotoSerifKhojki.mjs",
+      "types": "./dist/cjs/NotoSerifKhojki.d.ts"
+    },
     "./NotoSerifLao": {
       "require": "./dist/cjs/NotoSerifLao.cjs",
       "module": "./dist/esm/NotoSerifLao.mjs",
@@ -10515,7 +10839,18 @@
       "import": "./dist/esm/NotoSerifMyanmar.mjs",
       "types": "./dist/cjs/NotoSerifMyanmar.d.ts"
     },
-    "./NotoSerifNyiakengPuachueHmong": "./dist/NotoSerifNyiakengPuachueHmong.js",
+    "./NotoSerifNPHmong": {
+      "require": "./dist/cjs/NotoSerifNPHmong.cjs",
+      "module": "./dist/esm/NotoSerifNPHmong.mjs",
+      "import": "./dist/esm/NotoSerifNPHmong.mjs",
+      "types": "./dist/cjs/NotoSerifNPHmong.d.ts"
+    },
+    "./NotoSerifOriya": {
+      "require": "./dist/cjs/NotoSerifOriya.cjs",
+      "module": "./dist/esm/NotoSerifOriya.mjs",
+      "import": "./dist/esm/NotoSerifOriya.mjs",
+      "types": "./dist/cjs/NotoSerifOriya.d.ts"
+    },
     "./NotoSerifSC": {
       "require": "./dist/cjs/NotoSerifSC.cjs",
       "module": "./dist/esm/NotoSerifSC.mjs",
@@ -10563,6 +10898,12 @@
       "module": "./dist/esm/NotoSerifTibetan.mjs",
       "import": "./dist/esm/NotoSerifTibetan.mjs",
       "types": "./dist/cjs/NotoSerifTibetan.d.ts"
+    },
+    "./NotoSerifToto": {
+      "require": "./dist/cjs/NotoSerifToto.cjs",
+      "module": "./dist/esm/NotoSerifToto.mjs",
+      "import": "./dist/esm/NotoSerifToto.mjs",
+      "types": "./dist/cjs/NotoSerifToto.d.ts"
     },
     "./NotoSerifYezidi": {
       "require": "./dist/cjs/NotoSerifYezidi.cjs",
@@ -10864,6 +11205,12 @@
       "import": "./dist/esm/Padauk.mjs",
       "types": "./dist/cjs/Padauk.d.ts"
     },
+    "./PadyakkeExpandedOne": {
+      "require": "./dist/cjs/PadyakkeExpandedOne.cjs",
+      "module": "./dist/esm/PadyakkeExpandedOne.mjs",
+      "import": "./dist/esm/PadyakkeExpandedOne.mjs",
+      "types": "./dist/cjs/PadyakkeExpandedOne.d.ts"
+    },
     "./Palanquin": {
       "require": "./dist/cjs/Palanquin.cjs",
       "module": "./dist/esm/Palanquin.mjs",
@@ -10875,6 +11222,12 @@
       "module": "./dist/esm/PalanquinDark.mjs",
       "import": "./dist/esm/PalanquinDark.mjs",
       "types": "./dist/cjs/PalanquinDark.d.ts"
+    },
+    "./PaletteMosaic": {
+      "require": "./dist/cjs/PaletteMosaic.cjs",
+      "module": "./dist/esm/PaletteMosaic.mjs",
+      "import": "./dist/esm/PaletteMosaic.mjs",
+      "types": "./dist/cjs/PaletteMosaic.d.ts"
     },
     "./Pangolin": {
       "require": "./dist/cjs/Pangolin.cjs",
@@ -10911,6 +11264,12 @@
       "module": "./dist/esm/PassionsConflict.mjs",
       "import": "./dist/esm/PassionsConflict.mjs",
       "types": "./dist/cjs/PassionsConflict.d.ts"
+    },
+    "./PathwayExtreme": {
+      "require": "./dist/cjs/PathwayExtreme.cjs",
+      "module": "./dist/esm/PathwayExtreme.mjs",
+      "import": "./dist/esm/PathwayExtreme.mjs",
+      "types": "./dist/cjs/PathwayExtreme.d.ts"
     },
     "./PathwayGothicOne": {
       "require": "./dist/cjs/PathwayGothicOne.cjs",
@@ -10996,6 +11355,12 @@
       "import": "./dist/esm/Philosopher.mjs",
       "types": "./dist/cjs/Philosopher.d.ts"
     },
+    "./Phudu": {
+      "require": "./dist/cjs/Phudu.cjs",
+      "module": "./dist/esm/Phudu.mjs",
+      "import": "./dist/esm/Phudu.mjs",
+      "types": "./dist/cjs/Phudu.d.ts"
+    },
     "./Piazzolla": {
       "require": "./dist/cjs/Piazzolla.cjs",
       "module": "./dist/esm/Piazzolla.mjs",
@@ -11038,6 +11403,12 @@
       "import": "./dist/esm/Playball.mjs",
       "types": "./dist/cjs/Playball.d.ts"
     },
+    "./Playfair": {
+      "require": "./dist/cjs/Playfair.cjs",
+      "module": "./dist/esm/Playfair.mjs",
+      "import": "./dist/esm/Playfair.mjs",
+      "types": "./dist/cjs/Playfair.d.ts"
+    },
     "./PlayfairDisplay": {
       "require": "./dist/cjs/PlayfairDisplay.cjs",
       "module": "./dist/esm/PlayfairDisplay.mjs",
@@ -11073,6 +11444,12 @@
       "module": "./dist/esm/PollerOne.mjs",
       "import": "./dist/esm/PollerOne.mjs",
       "types": "./dist/cjs/PollerOne.d.ts"
+    },
+    "./PoltawskiNowy": {
+      "require": "./dist/cjs/PoltawskiNowy.cjs",
+      "module": "./dist/esm/PoltawskiNowy.mjs",
+      "import": "./dist/esm/PoltawskiNowy.mjs",
+      "types": "./dist/cjs/PoltawskiNowy.d.ts"
     },
     "./Poly": {
       "require": "./dist/cjs/Poly.cjs",
@@ -11548,6 +11925,12 @@
       "import": "./dist/esm/Rochester.mjs",
       "types": "./dist/cjs/Rochester.d.ts"
     },
+    "./Rock3D": {
+      "require": "./dist/cjs/Rock3D.cjs",
+      "module": "./dist/esm/Rock3D.mjs",
+      "import": "./dist/esm/Rock3D.mjs",
+      "types": "./dist/cjs/Rock3D.d.ts"
+    },
     "./RockSalt": {
       "require": "./dist/cjs/RockSalt.cjs",
       "module": "./dist/esm/RockSalt.mjs",
@@ -11614,6 +11997,12 @@
       "import": "./dist/esm/Rubik.mjs",
       "types": "./dist/cjs/Rubik.d.ts"
     },
+    "./Rubik80sFade": {
+      "require": "./dist/cjs/Rubik80sFade.cjs",
+      "module": "./dist/esm/Rubik80sFade.mjs",
+      "import": "./dist/esm/Rubik80sFade.mjs",
+      "types": "./dist/cjs/Rubik80sFade.d.ts"
+    },
     "./RubikBeastly": {
       "require": "./dist/cjs/RubikBeastly.cjs",
       "module": "./dist/esm/RubikBeastly.mjs",
@@ -11643,6 +12032,12 @@
       "module": "./dist/esm/RubikDistressed.mjs",
       "import": "./dist/esm/RubikDistressed.mjs",
       "types": "./dist/cjs/RubikDistressed.d.ts"
+    },
+    "./RubikGemstones": {
+      "require": "./dist/cjs/RubikGemstones.cjs",
+      "module": "./dist/esm/RubikGemstones.mjs",
+      "import": "./dist/esm/RubikGemstones.mjs",
+      "types": "./dist/cjs/RubikGemstones.d.ts"
     },
     "./RubikGlitch": {
       "require": "./dist/cjs/RubikGlitch.cjs",
@@ -11686,11 +12081,35 @@
       "import": "./dist/esm/RubikMoonrocks.mjs",
       "types": "./dist/cjs/RubikMoonrocks.d.ts"
     },
+    "./RubikPixels": {
+      "require": "./dist/cjs/RubikPixels.cjs",
+      "module": "./dist/esm/RubikPixels.mjs",
+      "import": "./dist/esm/RubikPixels.mjs",
+      "types": "./dist/cjs/RubikPixels.d.ts"
+    },
     "./RubikPuddles": {
       "require": "./dist/cjs/RubikPuddles.cjs",
       "module": "./dist/esm/RubikPuddles.mjs",
       "import": "./dist/esm/RubikPuddles.mjs",
       "types": "./dist/cjs/RubikPuddles.d.ts"
+    },
+    "./RubikSprayPaint": {
+      "require": "./dist/cjs/RubikSprayPaint.cjs",
+      "module": "./dist/esm/RubikSprayPaint.mjs",
+      "import": "./dist/esm/RubikSprayPaint.mjs",
+      "types": "./dist/cjs/RubikSprayPaint.d.ts"
+    },
+    "./RubikStorm": {
+      "require": "./dist/cjs/RubikStorm.cjs",
+      "module": "./dist/esm/RubikStorm.mjs",
+      "import": "./dist/esm/RubikStorm.mjs",
+      "types": "./dist/cjs/RubikStorm.d.ts"
+    },
+    "./RubikVinyl": {
+      "require": "./dist/cjs/RubikVinyl.cjs",
+      "module": "./dist/esm/RubikVinyl.mjs",
+      "import": "./dist/esm/RubikVinyl.mjs",
+      "types": "./dist/cjs/RubikVinyl.d.ts"
     },
     "./RubikWetPaint": {
       "require": "./dist/cjs/RubikWetPaint.cjs",
@@ -11896,6 +12315,12 @@
       "import": "./dist/esm/ScheherazadeNew.mjs",
       "types": "./dist/cjs/ScheherazadeNew.d.ts"
     },
+    "./SchibstedGrotesk": {
+      "require": "./dist/cjs/SchibstedGrotesk.cjs",
+      "module": "./dist/esm/SchibstedGrotesk.mjs",
+      "import": "./dist/esm/SchibstedGrotesk.mjs",
+      "types": "./dist/cjs/SchibstedGrotesk.d.ts"
+    },
     "./Schoolbell": {
       "require": "./dist/cjs/Schoolbell.cjs",
       "module": "./dist/esm/Schoolbell.mjs",
@@ -11974,6 +12399,12 @@
       "import": "./dist/esm/Shalimar.mjs",
       "types": "./dist/cjs/Shalimar.d.ts"
     },
+    "./ShantellSans": {
+      "require": "./dist/cjs/ShantellSans.cjs",
+      "module": "./dist/esm/ShantellSans.mjs",
+      "import": "./dist/esm/ShantellSans.mjs",
+      "types": "./dist/cjs/ShantellSans.d.ts"
+    },
     "./Shanti": {
       "require": "./dist/cjs/Shanti.cjs",
       "module": "./dist/esm/Shanti.mjs",
@@ -12022,6 +12453,12 @@
       "import": "./dist/esm/ShipporiMinchoB1.mjs",
       "types": "./dist/cjs/ShipporiMinchoB1.d.ts"
     },
+    "./Shizuru": {
+      "require": "./dist/cjs/Shizuru.cjs",
+      "module": "./dist/esm/Shizuru.mjs",
+      "import": "./dist/esm/Shizuru.mjs",
+      "types": "./dist/cjs/Shizuru.d.ts"
+    },
     "./Shojumaru": {
       "require": "./dist/cjs/Shojumaru.cjs",
       "module": "./dist/esm/Shojumaru.mjs",
@@ -12045,6 +12482,12 @@
       "module": "./dist/esm/Siemreap.mjs",
       "import": "./dist/esm/Siemreap.mjs",
       "types": "./dist/cjs/Siemreap.d.ts"
+    },
+    "./Sigmar": {
+      "require": "./dist/cjs/Sigmar.cjs",
+      "module": "./dist/esm/Sigmar.mjs",
+      "import": "./dist/esm/Sigmar.mjs",
+      "types": "./dist/cjs/Sigmar.d.ts"
     },
     "./SigmarOne": {
       "require": "./dist/cjs/SigmarOne.cjs",
@@ -12124,6 +12567,12 @@
       "import": "./dist/esm/Slackey.mjs",
       "types": "./dist/cjs/Slackey.d.ts"
     },
+    "./SlacksideOne": {
+      "require": "./dist/cjs/SlacksideOne.cjs",
+      "module": "./dist/esm/SlacksideOne.mjs",
+      "import": "./dist/esm/SlacksideOne.mjs",
+      "types": "./dist/cjs/SlacksideOne.d.ts"
+    },
     "./Smokum": {
       "require": "./dist/cjs/Smokum.cjs",
       "module": "./dist/esm/Smokum.mjs",
@@ -12178,6 +12627,36 @@
       "import": "./dist/esm/Sofia.mjs",
       "types": "./dist/cjs/Sofia.d.ts"
     },
+    "./SofiaSans": {
+      "require": "./dist/cjs/SofiaSans.cjs",
+      "module": "./dist/esm/SofiaSans.mjs",
+      "import": "./dist/esm/SofiaSans.mjs",
+      "types": "./dist/cjs/SofiaSans.d.ts"
+    },
+    "./SofiaSansCondensed": {
+      "require": "./dist/cjs/SofiaSansCondensed.cjs",
+      "module": "./dist/esm/SofiaSansCondensed.mjs",
+      "import": "./dist/esm/SofiaSansCondensed.mjs",
+      "types": "./dist/cjs/SofiaSansCondensed.d.ts"
+    },
+    "./SofiaSansExtraCondensed": {
+      "require": "./dist/cjs/SofiaSansExtraCondensed.cjs",
+      "module": "./dist/esm/SofiaSansExtraCondensed.mjs",
+      "import": "./dist/esm/SofiaSansExtraCondensed.mjs",
+      "types": "./dist/cjs/SofiaSansExtraCondensed.d.ts"
+    },
+    "./SofiaSansSemiCondensed": {
+      "require": "./dist/cjs/SofiaSansSemiCondensed.cjs",
+      "module": "./dist/esm/SofiaSansSemiCondensed.mjs",
+      "import": "./dist/esm/SofiaSansSemiCondensed.mjs",
+      "types": "./dist/cjs/SofiaSansSemiCondensed.d.ts"
+    },
+    "./Solitreo": {
+      "require": "./dist/cjs/Solitreo.cjs",
+      "module": "./dist/esm/Solitreo.mjs",
+      "import": "./dist/esm/Solitreo.mjs",
+      "types": "./dist/cjs/Solitreo.d.ts"
+    },
     "./Solway": {
       "require": "./dist/cjs/Solway.cjs",
       "module": "./dist/esm/Solway.mjs",
@@ -12189,6 +12668,12 @@
       "module": "./dist/esm/SongMyung.mjs",
       "import": "./dist/esm/SongMyung.mjs",
       "types": "./dist/cjs/SongMyung.d.ts"
+    },
+    "./Sono": {
+      "require": "./dist/cjs/Sono.cjs",
+      "module": "./dist/esm/Sono.mjs",
+      "import": "./dist/esm/Sono.mjs",
+      "types": "./dist/cjs/Sono.d.ts"
     },
     "./SonsieOne": {
       "require": "./dist/cjs/SonsieOne.cjs",
@@ -12610,6 +13095,24 @@
       "import": "./dist/esm/Tillana.mjs",
       "types": "./dist/cjs/Tillana.d.ts"
     },
+    "./TiltNeon": {
+      "require": "./dist/cjs/TiltNeon.cjs",
+      "module": "./dist/esm/TiltNeon.mjs",
+      "import": "./dist/esm/TiltNeon.mjs",
+      "types": "./dist/cjs/TiltNeon.d.ts"
+    },
+    "./TiltPrism": {
+      "require": "./dist/cjs/TiltPrism.cjs",
+      "module": "./dist/esm/TiltPrism.mjs",
+      "import": "./dist/esm/TiltPrism.mjs",
+      "types": "./dist/cjs/TiltPrism.d.ts"
+    },
+    "./TiltWarp": {
+      "require": "./dist/cjs/TiltWarp.cjs",
+      "module": "./dist/esm/TiltWarp.mjs",
+      "import": "./dist/esm/TiltWarp.mjs",
+      "types": "./dist/cjs/TiltWarp.d.ts"
+    },
     "./Timmana": {
       "require": "./dist/cjs/Timmana.cjs",
       "module": "./dist/esm/Timmana.mjs",
@@ -12742,6 +13245,12 @@
       "import": "./dist/esm/Trykker.mjs",
       "types": "./dist/cjs/Trykker.d.ts"
     },
+    "./TsukimiRounded": {
+      "require": "./dist/cjs/TsukimiRounded.cjs",
+      "module": "./dist/esm/TsukimiRounded.mjs",
+      "import": "./dist/esm/TsukimiRounded.mjs",
+      "types": "./dist/cjs/TsukimiRounded.d.ts"
+    },
     "./TulpenOne": {
       "require": "./dist/cjs/TulpenOne.cjs",
       "module": "./dist/esm/TulpenOne.mjs",
@@ -12789,6 +13298,12 @@
       "module": "./dist/esm/Ultra.mjs",
       "import": "./dist/esm/Ultra.mjs",
       "types": "./dist/cjs/Ultra.d.ts"
+    },
+    "./Unbounded": {
+      "require": "./dist/cjs/Unbounded.cjs",
+      "module": "./dist/esm/Unbounded.mjs",
+      "import": "./dist/esm/Unbounded.mjs",
+      "types": "./dist/cjs/Unbounded.d.ts"
     },
     "./UncialAntiqua": {
       "require": "./dist/cjs/UncialAntiqua.cjs",
@@ -12928,6 +13443,12 @@
       "import": "./dist/esm/Viga.mjs",
       "types": "./dist/cjs/Viga.d.ts"
     },
+    "./VinaSans": {
+      "require": "./dist/cjs/VinaSans.cjs",
+      "module": "./dist/esm/VinaSans.mjs",
+      "import": "./dist/esm/VinaSans.mjs",
+      "types": "./dist/cjs/VinaSans.d.ts"
+    },
     "./Voces": {
       "require": "./dist/cjs/Voces.cjs",
       "module": "./dist/esm/Voces.mjs",
@@ -13030,6 +13551,18 @@
       "import": "./dist/esm/WireOne.mjs",
       "types": "./dist/cjs/WireOne.d.ts"
     },
+    "./WixMadeforDisplay": {
+      "require": "./dist/cjs/WixMadeforDisplay.cjs",
+      "module": "./dist/esm/WixMadeforDisplay.mjs",
+      "import": "./dist/esm/WixMadeforDisplay.mjs",
+      "types": "./dist/cjs/WixMadeforDisplay.d.ts"
+    },
+    "./WixMadeforText": {
+      "require": "./dist/cjs/WixMadeforText.cjs",
+      "module": "./dist/esm/WixMadeforText.mjs",
+      "import": "./dist/esm/WixMadeforText.mjs",
+      "types": "./dist/cjs/WixMadeforText.d.ts"
+    },
     "./WorkSans": {
       "require": "./dist/cjs/WorkSans.cjs",
       "module": "./dist/esm/WorkSans.mjs",
@@ -13102,11 +13635,29 @@
       "import": "./dist/esm/Yrsa.mjs",
       "types": "./dist/cjs/Yrsa.d.ts"
     },
+    "./Ysabeau": {
+      "require": "./dist/cjs/Ysabeau.cjs",
+      "module": "./dist/esm/Ysabeau.mjs",
+      "import": "./dist/esm/Ysabeau.mjs",
+      "types": "./dist/cjs/Ysabeau.d.ts"
+    },
     "./YujiBoku": {
       "require": "./dist/cjs/YujiBoku.cjs",
       "module": "./dist/esm/YujiBoku.mjs",
       "import": "./dist/esm/YujiBoku.mjs",
       "types": "./dist/cjs/YujiBoku.d.ts"
+    },
+    "./YujiHentaiganaAkari": {
+      "require": "./dist/cjs/YujiHentaiganaAkari.cjs",
+      "module": "./dist/esm/YujiHentaiganaAkari.mjs",
+      "import": "./dist/esm/YujiHentaiganaAkari.mjs",
+      "types": "./dist/cjs/YujiHentaiganaAkari.d.ts"
+    },
+    "./YujiHentaiganaAkebono": {
+      "require": "./dist/cjs/YujiHentaiganaAkebono.cjs",
+      "module": "./dist/esm/YujiHentaiganaAkebono.mjs",
+      "import": "./dist/esm/YujiHentaiganaAkebono.mjs",
+      "types": "./dist/cjs/YujiHentaiganaAkebono.d.ts"
     },
     "./YujiMai": {
       "require": "./dist/cjs/YujiMai.cjs",
@@ -13228,216 +13779,11 @@
       "import": "./dist/esm/ZillaSlabHighlight.mjs",
       "types": "./dist/cjs/ZillaSlabHighlight.d.ts"
     },
-    "./index": "./dist/index.js",
     ".": {
       "require": "./dist/cjs/index.js",
       "module": "./dist/esm/index.mjs",
       "import": "./dist/esm/index.mjs",
       "types": "./dist/cjs/index.d.ts"
-    },
-    "./Alexandria": {
-      "require": "./dist/cjs/Alexandria.cjs",
-      "module": "./dist/esm/Alexandria.mjs",
-      "import": "./dist/esm/Alexandria.mjs",
-      "types": "./dist/cjs/Alexandria.d.ts"
-    },
-    "./ChivoMono": {
-      "require": "./dist/cjs/ChivoMono.cjs",
-      "module": "./dist/esm/ChivoMono.mjs",
-      "import": "./dist/esm/ChivoMono.mjs",
-      "types": "./dist/cjs/ChivoMono.d.ts"
-    },
-    "./FragmentMono": {
-      "require": "./dist/cjs/FragmentMono.cjs",
-      "module": "./dist/esm/FragmentMono.mjs",
-      "import": "./dist/esm/FragmentMono.mjs",
-      "types": "./dist/cjs/FragmentMono.d.ts"
-    },
-    "./GajrajOne": {
-      "require": "./dist/cjs/GajrajOne.cjs",
-      "module": "./dist/esm/GajrajOne.mjs",
-      "import": "./dist/esm/GajrajOne.mjs",
-      "types": "./dist/cjs/GajrajOne.d.ts"
-    },
-    "./Gloock": {
-      "require": "./dist/cjs/Gloock.cjs",
-      "module": "./dist/esm/Gloock.mjs",
-      "import": "./dist/esm/Gloock.mjs",
-      "types": "./dist/cjs/Gloock.d.ts"
-    },
-    "./HankenGrotesk": {
-      "require": "./dist/cjs/HankenGrotesk.cjs",
-      "module": "./dist/esm/HankenGrotesk.mjs",
-      "import": "./dist/esm/HankenGrotesk.mjs",
-      "types": "./dist/cjs/HankenGrotesk.d.ts"
-    },
-    "./IBMPlexSansJP": {
-      "require": "./dist/cjs/IBMPlexSansJP.cjs",
-      "module": "./dist/esm/IBMPlexSansJP.mjs",
-      "import": "./dist/esm/IBMPlexSansJP.mjs",
-      "types": "./dist/cjs/IBMPlexSansJP.d.ts"
-    },
-    "./Labrada": {
-      "require": "./dist/cjs/Labrada.cjs",
-      "module": "./dist/esm/Labrada.mjs",
-      "import": "./dist/esm/Labrada.mjs",
-      "types": "./dist/cjs/Labrada.d.ts"
-    },
-    "./Marhey": {
-      "require": "./dist/cjs/Marhey.cjs",
-      "module": "./dist/esm/Marhey.mjs",
-      "import": "./dist/esm/Marhey.mjs",
-      "types": "./dist/cjs/Marhey.d.ts"
-    },
-    "./MartianMono": {
-      "require": "./dist/cjs/MartianMono.cjs",
-      "module": "./dist/esm/MartianMono.mjs",
-      "import": "./dist/esm/MartianMono.mjs",
-      "types": "./dist/cjs/MartianMono.d.ts"
-    },
-    "./Mynerve": {
-      "require": "./dist/cjs/Mynerve.cjs",
-      "module": "./dist/esm/Mynerve.mjs",
-      "import": "./dist/esm/Mynerve.mjs",
-      "types": "./dist/cjs/Mynerve.d.ts"
-    },
-    "./NotoSansLaoLooped": {
-      "require": "./dist/cjs/NotoSansLaoLooped.cjs",
-      "module": "./dist/esm/NotoSansLaoLooped.mjs",
-      "import": "./dist/esm/NotoSansLaoLooped.mjs",
-      "types": "./dist/cjs/NotoSansLaoLooped.d.ts"
-    },
-    "./NotoSansMendeKikakui": {
-      "require": "./dist/cjs/NotoSansMendeKikakui.cjs",
-      "module": "./dist/esm/NotoSansMendeKikakui.mjs",
-      "import": "./dist/esm/NotoSansMendeKikakui.mjs",
-      "types": "./dist/cjs/NotoSansMendeKikakui.d.ts"
-    },
-    "./NotoSansSignWriting": {
-      "require": "./dist/cjs/NotoSansSignWriting.cjs",
-      "module": "./dist/esm/NotoSansSignWriting.mjs",
-      "import": "./dist/esm/NotoSansSignWriting.mjs",
-      "types": "./dist/cjs/NotoSansSignWriting.d.ts"
-    },
-    "./NotoSansTangsa": {
-      "require": "./dist/cjs/NotoSansTangsa.cjs",
-      "module": "./dist/esm/NotoSansTangsa.mjs",
-      "import": "./dist/esm/NotoSansTangsa.mjs",
-      "types": "./dist/cjs/NotoSansTangsa.d.ts"
-    },
-    "./NotoSerifKhojki": {
-      "require": "./dist/cjs/NotoSerifKhojki.cjs",
-      "module": "./dist/esm/NotoSerifKhojki.mjs",
-      "import": "./dist/esm/NotoSerifKhojki.mjs",
-      "types": "./dist/cjs/NotoSerifKhojki.d.ts"
-    },
-    "./NotoSerifNPHmong": {
-      "require": "./dist/cjs/NotoSerifNPHmong.cjs",
-      "module": "./dist/esm/NotoSerifNPHmong.mjs",
-      "import": "./dist/esm/NotoSerifNPHmong.mjs",
-      "types": "./dist/cjs/NotoSerifNPHmong.d.ts"
-    },
-    "./NotoSerifOriya": {
-      "require": "./dist/cjs/NotoSerifOriya.cjs",
-      "module": "./dist/esm/NotoSerifOriya.mjs",
-      "import": "./dist/esm/NotoSerifOriya.mjs",
-      "types": "./dist/cjs/NotoSerifOriya.d.ts"
-    },
-    "./NotoSerifToto": {
-      "require": "./dist/cjs/NotoSerifToto.cjs",
-      "module": "./dist/esm/NotoSerifToto.mjs",
-      "import": "./dist/esm/NotoSerifToto.mjs",
-      "types": "./dist/cjs/NotoSerifToto.d.ts"
-    },
-    "./PadyakkeExpandedOne": {
-      "require": "./dist/cjs/PadyakkeExpandedOne.cjs",
-      "module": "./dist/esm/PadyakkeExpandedOne.mjs",
-      "import": "./dist/esm/PadyakkeExpandedOne.mjs",
-      "types": "./dist/cjs/PadyakkeExpandedOne.d.ts"
-    },
-    "./Phudu": {
-      "require": "./dist/cjs/Phudu.cjs",
-      "module": "./dist/esm/Phudu.mjs",
-      "import": "./dist/esm/Phudu.mjs",
-      "types": "./dist/cjs/Phudu.d.ts"
-    },
-    "./Rubik80sFade": {
-      "require": "./dist/cjs/Rubik80sFade.cjs",
-      "module": "./dist/esm/Rubik80sFade.mjs",
-      "import": "./dist/esm/Rubik80sFade.mjs",
-      "types": "./dist/cjs/Rubik80sFade.d.ts"
-    },
-    "./RubikGemstones": {
-      "require": "./dist/cjs/RubikGemstones.cjs",
-      "module": "./dist/esm/RubikGemstones.mjs",
-      "import": "./dist/esm/RubikGemstones.mjs",
-      "types": "./dist/cjs/RubikGemstones.d.ts"
-    },
-    "./RubikSprayPaint": {
-      "require": "./dist/cjs/RubikSprayPaint.cjs",
-      "module": "./dist/esm/RubikSprayPaint.mjs",
-      "import": "./dist/esm/RubikSprayPaint.mjs",
-      "types": "./dist/cjs/RubikSprayPaint.d.ts"
-    },
-    "./RubikStorm": {
-      "require": "./dist/cjs/RubikStorm.cjs",
-      "module": "./dist/esm/RubikStorm.mjs",
-      "import": "./dist/esm/RubikStorm.mjs",
-      "types": "./dist/cjs/RubikStorm.d.ts"
-    },
-    "./RubikVinyl": {
-      "require": "./dist/cjs/RubikVinyl.cjs",
-      "module": "./dist/esm/RubikVinyl.mjs",
-      "import": "./dist/esm/RubikVinyl.mjs",
-      "types": "./dist/cjs/RubikVinyl.d.ts"
-    },
-    "./ShantellSans": {
-      "require": "./dist/cjs/ShantellSans.cjs",
-      "module": "./dist/esm/ShantellSans.mjs",
-      "import": "./dist/esm/ShantellSans.mjs",
-      "types": "./dist/cjs/ShantellSans.d.ts"
-    },
-    "./SofiaSans": {
-      "require": "./dist/cjs/SofiaSans.cjs",
-      "module": "./dist/esm/SofiaSans.mjs",
-      "import": "./dist/esm/SofiaSans.mjs",
-      "types": "./dist/cjs/SofiaSans.d.ts"
-    },
-    "./SofiaSansCondensed": {
-      "require": "./dist/cjs/SofiaSansCondensed.cjs",
-      "module": "./dist/esm/SofiaSansCondensed.mjs",
-      "import": "./dist/esm/SofiaSansCondensed.mjs",
-      "types": "./dist/cjs/SofiaSansCondensed.d.ts"
-    },
-    "./SofiaSansExtraCondensed": {
-      "require": "./dist/cjs/SofiaSansExtraCondensed.cjs",
-      "module": "./dist/esm/SofiaSansExtraCondensed.mjs",
-      "import": "./dist/esm/SofiaSansExtraCondensed.mjs",
-      "types": "./dist/cjs/SofiaSansExtraCondensed.d.ts"
-    },
-    "./SofiaSansSemiCondensed": {
-      "require": "./dist/cjs/SofiaSansSemiCondensed.cjs",
-      "module": "./dist/esm/SofiaSansSemiCondensed.mjs",
-      "import": "./dist/esm/SofiaSansSemiCondensed.mjs",
-      "types": "./dist/cjs/SofiaSansSemiCondensed.d.ts"
-    },
-    "./Solitreo": {
-      "require": "./dist/cjs/Solitreo.cjs",
-      "module": "./dist/esm/Solitreo.mjs",
-      "import": "./dist/esm/Solitreo.mjs",
-      "types": "./dist/cjs/Solitreo.d.ts"
-    },
-    "./Sono": {
-      "require": "./dist/cjs/Sono.cjs",
-      "module": "./dist/esm/Sono.mjs",
-      "import": "./dist/esm/Sono.mjs",
-      "types": "./dist/cjs/Sono.d.ts"
-    },
-    "./Unbounded": {
-      "require": "./dist/cjs/Unbounded.cjs",
-      "module": "./dist/esm/Unbounded.mjs",
-      "import": "./dist/esm/Unbounded.mjs",
-      "types": "./dist/cjs/Unbounded.d.ts"
     }
   }
 }

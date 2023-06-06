@@ -137,6 +137,11 @@ export const getAvailableFonts = () => [
     importName: 'Alkalami',
     load: () => import('./Alkalami'),
   },
+  {
+    fontFamily: 'Alkatra',
+    importName: 'Alkatra',
+    load: () => import('./Alkatra'),
+  },
   { fontFamily: 'Allan', importName: 'Allan', load: () => import('./Allan') },
   {
     fontFamily: 'Allerta',
@@ -324,9 +329,19 @@ export const getAvailableFonts = () => [
     load: () => import('./Antonio'),
   },
   {
+    fontFamily: 'Anuphan',
+    importName: 'Anuphan',
+    load: () => import('./Anuphan'),
+  },
+  {
     fontFamily: 'Anybody',
     importName: 'Anybody',
     load: () => import('./Anybody'),
+  },
+  {
+    fontFamily: 'Aoboshi One',
+    importName: 'AoboshiOne',
+    load: () => import('./AoboshiOne'),
   },
   {
     fontFamily: 'Arapey',
@@ -379,11 +394,6 @@ export const getAvailableFonts = () => [
     load: () => import('./ArefRuqaaInk'),
   },
   { fontFamily: 'Arima', importName: 'Arima', load: () => import('./Arima') },
-  {
-    fontFamily: 'Arima Madurai',
-    importName: 'ArimaMadurai',
-    load: () => import('./ArimaMadurai'),
-  },
   { fontFamily: 'Arimo', importName: 'Arimo', load: () => import('./Arimo') },
   {
     fontFamily: 'Arizonia',
@@ -876,6 +886,11 @@ export const getAvailableFonts = () => [
     load: () => import('./BowlbyOneSC'),
   },
   {
+    fontFamily: 'Braah One',
+    importName: 'BraahOne',
+    load: () => import('./BraahOne'),
+  },
+  {
     fontFamily: 'Brawler',
     importName: 'Brawler',
     load: () => import('./Brawler'),
@@ -884,6 +899,16 @@ export const getAvailableFonts = () => [
     fontFamily: 'Bree Serif',
     importName: 'BreeSerif',
     load: () => import('./BreeSerif'),
+  },
+  {
+    fontFamily: 'Bruno Ace',
+    importName: 'BrunoAce',
+    load: () => import('./BrunoAce'),
+  },
+  {
+    fontFamily: 'Bruno Ace SC',
+    importName: 'BrunoAceSC',
+    load: () => import('./BrunoAceSC'),
   },
   {
     fontFamily: 'Brygada 1918',
@@ -1030,6 +1055,11 @@ export const getAvailableFonts = () => [
     load: () => import('./Carattere'),
   },
   { fontFamily: 'Cardo', importName: 'Cardo', load: () => import('./Cardo') },
+  {
+    fontFamily: 'Carlito',
+    importName: 'Carlito',
+    load: () => import('./Carlito'),
+  },
   { fontFamily: 'Carme', importName: 'Carme', load: () => import('./Carme') },
   {
     fontFamily: 'Carrois Gothic',
@@ -1050,6 +1080,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Castoro',
     importName: 'Castoro',
     load: () => import('./Castoro'),
+  },
+  {
+    fontFamily: 'Castoro Titling',
+    importName: 'CastoroTitling',
+    load: () => import('./CastoroTitling'),
   },
   {
     fontFamily: 'Catamaran',
@@ -1143,6 +1178,11 @@ export const getAvailableFonts = () => [
     load: () => import('./Cherish'),
   },
   {
+    fontFamily: 'Cherry Bomb One',
+    importName: 'CherryBombOne',
+    load: () => import('./CherryBombOne'),
+  },
+  {
     fontFamily: 'Cherry Cream Soda',
     importName: 'CherryCreamSoda',
     load: () => import('./CherryCreamSoda'),
@@ -1170,6 +1210,11 @@ export const getAvailableFonts = () => [
     load: () => import('./ChivoMono'),
   },
   {
+    fontFamily: 'Chokokutai',
+    importName: 'Chokokutai',
+    load: () => import('./Chokokutai'),
+  },
+  {
     fontFamily: 'Chonburi',
     importName: 'Chonburi',
     load: () => import('./Chonburi'),
@@ -1188,6 +1233,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Clicker Script',
     importName: 'ClickerScript',
     load: () => import('./ClickerScript'),
+  },
+  {
+    fontFamily: 'Climate Crisis',
+    importName: 'ClimateCrisis',
+    load: () => import('./ClimateCrisis'),
   },
   { fontFamily: 'Coda', importName: 'Coda', load: () => import('./Coda') },
   {
@@ -1227,6 +1277,7 @@ export const getAvailableFonts = () => [
     importName: 'ComingSoon',
     load: () => import('./ComingSoon'),
   },
+  { fontFamily: 'Comme', importName: 'Comme', load: () => import('./Comme') },
   {
     fontFamily: 'Commissioner',
     importName: 'Commissioner',
@@ -1424,6 +1475,11 @@ export const getAvailableFonts = () => [
     load: () => import('./DarkerGrotesque'),
   },
   {
+    fontFamily: 'Darumadrop One',
+    importName: 'DarumadropOne',
+    load: () => import('./DarumadropOne'),
+  },
+  {
     fontFamily: 'David Libre',
     importName: 'DavidLibre',
     load: () => import('./DavidLibre'),
@@ -1443,6 +1499,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Dela Gothic One',
     importName: 'DelaGothicOne',
     load: () => import('./DelaGothicOne'),
+  },
+  {
+    fontFamily: 'Delicious Handrawn',
+    importName: 'DeliciousHandrawn',
+    load: () => import('./DeliciousHandrawn'),
   },
   {
     fontFamily: 'Delius',
@@ -1861,6 +1922,11 @@ export const getAvailableFonts = () => [
     load: () => import('./FlowRounded'),
   },
   {
+    fontFamily: 'Foldit',
+    importName: 'Foldit',
+    load: () => import('./Foldit'),
+  },
+  {
     fontFamily: 'Fondamento',
     importName: 'Fondamento',
     load: () => import('./Fondamento'),
@@ -1905,11 +1971,6 @@ export const getAvailableFonts = () => [
     fontFamily: 'Fredoka',
     importName: 'Fredoka',
     load: () => import('./Fredoka'),
-  },
-  {
-    fontFamily: 'Fredoka One',
-    importName: 'FredokaOne',
-    load: () => import('./FredokaOne'),
   },
   {
     fontFamily: 'Freehand',
@@ -2014,11 +2075,6 @@ export const getAvailableFonts = () => [
   },
   { fontFamily: 'Genos', importName: 'Genos', load: () => import('./Genos') },
   {
-    fontFamily: 'Gentium Book Basic',
-    importName: 'GentiumBookBasic',
-    load: () => import('./GentiumBookBasic'),
-  },
-  {
     fontFamily: 'Gentium Book Plus',
     importName: 'GentiumBookPlus',
     load: () => import('./GentiumBookPlus'),
@@ -2029,6 +2085,11 @@ export const getAvailableFonts = () => [
     load: () => import('./GentiumPlus'),
   },
   { fontFamily: 'Geo', importName: 'Geo', load: () => import('./Geo') },
+  {
+    fontFamily: 'Geologica',
+    importName: 'Geologica',
+    load: () => import('./Geologica'),
+  },
   {
     fontFamily: 'Georama',
     importName: 'Georama',
@@ -2114,6 +2175,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Goldman',
     importName: 'Goldman',
     load: () => import('./Goldman'),
+  },
+  {
+    fontFamily: 'Golos Text',
+    importName: 'GolosText',
+    load: () => import('./GolosText'),
   },
   {
     fontFamily: 'Gorditas',
@@ -2528,6 +2594,16 @@ export const getAvailableFonts = () => [
     importName: 'Inspiration',
     load: () => import('./Inspiration'),
   },
+  {
+    fontFamily: 'Instrument Sans',
+    importName: 'InstrumentSans',
+    load: () => import('./InstrumentSans'),
+  },
+  {
+    fontFamily: 'Instrument Serif',
+    importName: 'InstrumentSerif',
+    load: () => import('./InstrumentSerif'),
+  },
   { fontFamily: 'Inter', importName: 'Inter', load: () => import('./Inter') },
   {
     fontFamily: 'Inter Tight',
@@ -2672,11 +2748,6 @@ export const getAvailableFonts = () => [
   },
   { fontFamily: 'Kanit', importName: 'Kanit', load: () => import('./Kanit') },
   {
-    fontFamily: 'Kantumruy',
-    importName: 'Kantumruy',
-    load: () => import('./Kantumruy'),
-  },
-  {
     fontFamily: 'Kantumruy Pro',
     importName: 'KantumruyPro',
     load: () => import('./KantumruyPro'),
@@ -2768,6 +2839,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Kolker Brush',
     importName: 'KolkerBrush',
     load: () => import('./KolkerBrush'),
+  },
+  {
+    fontFamily: 'Konkhmer Sleokchher',
+    importName: 'KonkhmerSleokchher',
+    load: () => import('./KonkhmerSleokchher'),
   },
   {
     fontFamily: 'Kosugi',
@@ -3357,11 +3433,6 @@ export const getAvailableFonts = () => [
     load: () => import('./Merienda'),
   },
   {
-    fontFamily: 'Merienda One',
-    importName: 'MeriendaOne',
-    load: () => import('./MeriendaOne'),
-  },
-  {
     fontFamily: 'Merriweather',
     importName: 'Merriweather',
     load: () => import('./Merriweather'),
@@ -3463,6 +3534,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Monofett',
     importName: 'Monofett',
     load: () => import('./Monofett'),
+  },
+  {
+    fontFamily: 'Monomaniac One',
+    importName: 'MonomaniacOne',
+    load: () => import('./MonomaniacOne'),
   },
   {
     fontFamily: 'Monoton',
@@ -3874,6 +3950,11 @@ export const getAvailableFonts = () => [
     load: () => import('./NotoSansCherokee'),
   },
   {
+    fontFamily: 'Noto Sans Chorasmian',
+    importName: 'NotoSansChorasmian',
+    load: () => import('./NotoSansChorasmian'),
+  },
+  {
     fontFamily: 'Noto Sans Coptic',
     importName: 'NotoSansCoptic',
     load: () => import('./NotoSansCoptic'),
@@ -4207,6 +4288,16 @@ export const getAvailableFonts = () => [
     fontFamily: 'Noto Sans Nabataean',
     importName: 'NotoSansNabataean',
     load: () => import('./NotoSansNabataean'),
+  },
+  {
+    fontFamily: 'Noto Sans Nag Mundari',
+    importName: 'NotoSansNagMundari',
+    load: () => import('./NotoSansNagMundari'),
+  },
+  {
+    fontFamily: 'Noto Sans Nandinagari',
+    importName: 'NotoSansNandinagari',
+    load: () => import('./NotoSansNandinagari'),
   },
   {
     fontFamily: 'Noto Sans New Tai Lue',
@@ -4942,6 +5033,11 @@ export const getAvailableFonts = () => [
     load: () => import('./PalanquinDark'),
   },
   {
+    fontFamily: 'Palette Mosaic',
+    importName: 'PaletteMosaic',
+    load: () => import('./PaletteMosaic'),
+  },
+  {
     fontFamily: 'Pangolin',
     importName: 'Pangolin',
     load: () => import('./Pangolin'),
@@ -4970,6 +5066,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Passions Conflict',
     importName: 'PassionsConflict',
     load: () => import('./PassionsConflict'),
+  },
+  {
+    fontFamily: 'Pathway Extreme',
+    importName: 'PathwayExtreme',
+    load: () => import('./PathwayExtreme'),
   },
   {
     fontFamily: 'Pathway Gothic One',
@@ -5074,6 +5175,11 @@ export const getAvailableFonts = () => [
     load: () => import('./Playball'),
   },
   {
+    fontFamily: 'Playfair',
+    importName: 'Playfair',
+    load: () => import('./Playfair'),
+  },
+  {
     fontFamily: 'Playfair Display',
     importName: 'PlayfairDisplay',
     load: () => import('./PlayfairDisplay'),
@@ -5102,6 +5208,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Poller One',
     importName: 'PollerOne',
     load: () => import('./PollerOne'),
+  },
+  {
+    fontFamily: 'Poltawski Nowy',
+    importName: 'PoltawskiNowy',
+    load: () => import('./PoltawskiNowy'),
   },
   { fontFamily: 'Poly', importName: 'Poly', load: () => import('./Poly') },
   {
@@ -5479,6 +5590,11 @@ export const getAvailableFonts = () => [
     load: () => import('./Rochester'),
   },
   {
+    fontFamily: 'Rock 3D',
+    importName: 'Rock3D',
+    load: () => import('./Rock3D'),
+  },
+  {
     fontFamily: 'Rock Salt',
     importName: 'RockSalt',
     load: () => import('./RockSalt'),
@@ -5598,6 +5714,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Rubik Moonrocks',
     importName: 'RubikMoonrocks',
     load: () => import('./RubikMoonrocks'),
+  },
+  {
+    fontFamily: 'Rubik Pixels',
+    importName: 'RubikPixels',
+    load: () => import('./RubikPixels'),
   },
   {
     fontFamily: 'Rubik Puddles',
@@ -5766,6 +5887,11 @@ export const getAvailableFonts = () => [
     load: () => import('./ScheherazadeNew'),
   },
   {
+    fontFamily: 'Schibsted Grotesk',
+    importName: 'SchibstedGrotesk',
+    load: () => import('./SchibstedGrotesk'),
+  },
+  {
     fontFamily: 'Schoolbell',
     importName: 'Schoolbell',
     load: () => import('./Schoolbell'),
@@ -5868,6 +5994,11 @@ export const getAvailableFonts = () => [
     load: () => import('./ShipporiMinchoB1'),
   },
   {
+    fontFamily: 'Shizuru',
+    importName: 'Shizuru',
+    load: () => import('./Shizuru'),
+  },
+  {
     fontFamily: 'Shojumaru',
     importName: 'Shojumaru',
     load: () => import('./Shojumaru'),
@@ -5886,6 +6017,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Siemreap',
     importName: 'Siemreap',
     load: () => import('./Siemreap'),
+  },
+  {
+    fontFamily: 'Sigmar',
+    importName: 'Sigmar',
+    load: () => import('./Sigmar'),
   },
   {
     fontFamily: 'Sigmar One',
@@ -5951,6 +6087,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Slackey',
     importName: 'Slackey',
     load: () => import('./Slackey'),
+  },
+  {
+    fontFamily: 'Slackside One',
+    importName: 'SlacksideOne',
+    load: () => import('./SlacksideOne'),
   },
   {
     fontFamily: 'Smokum',
@@ -6348,6 +6489,21 @@ export const getAvailableFonts = () => [
     load: () => import('./Tillana'),
   },
   {
+    fontFamily: 'Tilt Neon',
+    importName: 'TiltNeon',
+    load: () => import('./TiltNeon'),
+  },
+  {
+    fontFamily: 'Tilt Prism',
+    importName: 'TiltPrism',
+    load: () => import('./TiltPrism'),
+  },
+  {
+    fontFamily: 'Tilt Warp',
+    importName: 'TiltWarp',
+    load: () => import('./TiltWarp'),
+  },
+  {
     fontFamily: 'Timmana',
     importName: 'Timmana',
     load: () => import('./Timmana'),
@@ -6452,6 +6608,11 @@ export const getAvailableFonts = () => [
     fontFamily: 'Trykker',
     importName: 'Trykker',
     load: () => import('./Trykker'),
+  },
+  {
+    fontFamily: 'Tsukimi Rounded',
+    importName: 'TsukimiRounded',
+    load: () => import('./TsukimiRounded'),
   },
   {
     fontFamily: 'Tulpen One',
@@ -6581,6 +6742,11 @@ export const getAvailableFonts = () => [
     load: () => import('./Vidaloka'),
   },
   { fontFamily: 'Viga', importName: 'Viga', load: () => import('./Viga') },
+  {
+    fontFamily: 'Vina Sans',
+    importName: 'VinaSans',
+    load: () => import('./VinaSans'),
+  },
   { fontFamily: 'Voces', importName: 'Voces', load: () => import('./Voces') },
   {
     fontFamily: 'Volkhov',
@@ -6663,6 +6829,16 @@ export const getAvailableFonts = () => [
     load: () => import('./WireOne'),
   },
   {
+    fontFamily: 'Wix Madefor Display',
+    importName: 'WixMadeforDisplay',
+    load: () => import('./WixMadeforDisplay'),
+  },
+  {
+    fontFamily: 'Wix Madefor Text',
+    importName: 'WixMadeforText',
+    load: () => import('./WixMadeforText'),
+  },
+  {
     fontFamily: 'Work Sans',
     importName: 'WorkSans',
     load: () => import('./WorkSans'),
@@ -6719,9 +6895,24 @@ export const getAvailableFonts = () => [
   },
   { fontFamily: 'Yrsa', importName: 'Yrsa', load: () => import('./Yrsa') },
   {
+    fontFamily: 'Ysabeau',
+    importName: 'Ysabeau',
+    load: () => import('./Ysabeau'),
+  },
+  {
     fontFamily: 'Yuji Boku',
     importName: 'YujiBoku',
     load: () => import('./YujiBoku'),
+  },
+  {
+    fontFamily: 'Yuji Hentaigana Akari',
+    importName: 'YujiHentaiganaAkari',
+    load: () => import('./YujiHentaiganaAkari'),
+  },
+  {
+    fontFamily: 'Yuji Hentaigana Akebono',
+    importName: 'YujiHentaiganaAkebono',
+    load: () => import('./YujiHentaiganaAkebono'),
   },
   {
     fontFamily: 'Yuji Mai',
