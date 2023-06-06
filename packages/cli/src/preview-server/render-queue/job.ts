@@ -10,6 +10,7 @@ import type {
 import type {EnumPath} from '../../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import type {AggregateRenderProgress} from '../../progress-types';
 import type {RequiredChromiumOptions} from '../../required-chromium-options';
+import type {PackageManager} from '../get-package-manager';
 
 type BaseRenderProgress = {
 	message: string;
@@ -184,3 +185,12 @@ export type CanUpdateDefaultPropsResponse =
 			canUpdate: false;
 			reason: string;
 	  };
+
+export type UpdateAvailableRequest = {};
+export type UpdateAvailableResponse = {
+	currentVersion: string;
+	latestVersion: string;
+	updateAvailable: boolean;
+	timedOut: boolean;
+	packageManager: PackageManager | 'unknown';
+};
