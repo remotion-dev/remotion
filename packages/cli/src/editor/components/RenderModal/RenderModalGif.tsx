@@ -46,6 +46,7 @@ export const RenderModalGif: React.FC<{
 					<Checkbox
 						checked={limitNumberOfGifLoops}
 						onChange={onShouldLimitNumberOfGifLoops}
+						name="limitNumberOfGifLoops"
 					/>
 				</div>
 			</div>

@@ -16,6 +16,7 @@ type Props = React.DetailedHTMLProps<
 	HTMLInputElement
 > & {
 	status: RemInputStatus;
+	name: string;
 };
 
 const inputBaseStyle: React.CSSProperties = {
@@ -81,6 +82,7 @@ const RemInputTypeColorForwardRef: React.ForwardRefRenderFunction<
 			type="color"
 			tabIndex={tabIndex}
 			{...props}
+			name={props.name}
 			style={style}
 		/>
 	);
