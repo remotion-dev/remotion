@@ -7,14 +7,10 @@ import {SchemaResetButton} from './SchemaResetButton';
 import {SchemaSaveButton} from './SchemaSaveButton';
 import type {JSONPath} from './zod-types';
 
-const commonStyles: React.CSSProperties = {
+const compactStyles: React.CSSProperties = {
 	fontSize: 15,
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
-};
-
-const compactStyles: React.CSSProperties = {
-	...commonStyles,
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
