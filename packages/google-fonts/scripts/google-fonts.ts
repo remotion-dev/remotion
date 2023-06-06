@@ -4706,6 +4706,24 @@ export const googleFonts: Font[] = [
     category: "sans-serif",
   },
   {
+    family: "Geologica",
+    variants: [
+      "100",
+      "200",
+      "300",
+      "regular",
+      "500",
+      "600",
+      "700",
+      "800",
+      "900",
+    ],
+    subsets: ["cyrillic", "cyrillic-ext", "latin", "latin-ext", "vietnamese"],
+    version: "v1",
+    lastModified: "2023-04-12",
+    category: "sans-serif",
+  },
+  {
     family: "Georama",
     variants: [
       "100",

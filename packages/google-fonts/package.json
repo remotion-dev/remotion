@@ -1382,6 +1382,9 @@
       "Geo": [
         "dist/esm/Geo.d.ts"
       ],
+      "Geologica": [
+        "dist/esm/Geologica.d.ts"
+      ],
       "Georama": [
         "dist/esm/Georama.d.ts"
       ],
@@ -7202,6 +7205,12 @@
       "module": "./dist/esm/Geo.mjs",
       "import": "./dist/esm/Geo.mjs",
       "types": "./dist/cjs/Geo.d.ts"
+    },
+    "./Geologica": {
+      "require": "./dist/cjs/Geologica.cjs",
+      "module": "./dist/esm/Geologica.mjs",
+      "import": "./dist/esm/Geologica.mjs",
+      "types": "./dist/cjs/Geologica.d.ts"
     },
     "./Georama": {
       "require": "./dist/cjs/Georama.cjs",
