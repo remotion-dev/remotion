@@ -1,6 +1,5 @@
 import React, {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
-import {INPUT_BORDER_COLOR_UNHOVERED} from '../../../helpers/colors';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {optionRow} from '../layout';
 import {useLocalState} from './local-state';
@@ -8,6 +7,7 @@ import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -15,11 +15,6 @@ const container: React.CSSProperties = {
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
-};
-
-const fieldset: React.CSSProperties = {
-	borderRadius: 4,
-	borderColor: INPUT_BORDER_COLOR_UNHOVERED,
 };
 
 export const ZodObjectEditor: React.FC<{
@@ -69,7 +64,6 @@ export const ZodObjectEditor: React.FC<{
 	const keys = Object.keys(shape);
 
 	const isRoot = jsonPath.length === 0;
-	const Element = isRoot ? 'div' : 'fieldset';
 
 	const {paddingTop} = optionRow;
 
@@ -88,7 +82,7 @@ export const ZodObjectEditor: React.FC<{
 	return (
 		<div style={style}>
 			<div style={fullWidth}>
-				<Element style={fieldset}>
+				<Fieldset success={localValue.zodValidation.success}>
 					{isRoot ? null : (
 						<SchemaFieldsetLabel
 							isDefaultValue
@@ -134,7 +128,7 @@ export const ZodObjectEditor: React.FC<{
 							);
 						})}
 					</div>
-				</Element>
+				</Fieldset>
 			</div>
 		</div>
 	);
