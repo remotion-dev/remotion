@@ -10,6 +10,8 @@ import type {
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
 	UnsubscribeFromFileExistenceRequest,
+	UpdateAvailableRequest,
+	UpdateAvailableResponse,
 	UpdateDefaultPropsRequest,
 	UpdateDefaultPropsResponse,
 } from './render-queue/job';
@@ -47,5 +49,9 @@ export type ApiRoutes = {
 	'/api/can-update-default-props': ReqAndRes<
 		CanUpdateDefaultPropsRequest,
 		CanUpdateDefaultPropsResponse
+	>;
+	'/api/update-available': ReqAndRes<
+		UpdateAvailableRequest,
+		UpdateAvailableResponse
 	>;
 };

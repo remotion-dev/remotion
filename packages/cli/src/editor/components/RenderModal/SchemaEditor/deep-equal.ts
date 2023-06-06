@@ -4,6 +4,10 @@ export function deepEqual(a: any, b: any): boolean {
 		return true;
 	}
 
+	if (a instanceof Date && b instanceof Date) {
+		return a.getTime() === b.getTime();
+	}
+
 	if (
 		typeof a !== 'object' ||
 		a === null ||

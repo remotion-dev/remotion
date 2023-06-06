@@ -5,13 +5,11 @@ export const getSchemaLabel = (jsonPath: JSONPath): string => {
 	if (typeof lastKey === 'number') {
 		const secondLastKey = jsonPath[jsonPath.length - 2];
 		if (typeof secondLastKey === 'undefined') {
-			return `[${lastKey}]`;
+			return `[${lastKey}]:`;
 		}
 
-		return `${getSchemaLabel(
-			jsonPath.slice(0, jsonPath.length - 1)
-		)}[${lastKey}]`;
+		return `${lastKey}:`;
 	}
 
-	return lastKey;
+	return `${lastKey}:`;
 };

@@ -117,14 +117,12 @@ export const DataEditor: React.FC<{
 	unresolvedComposition: AnyComposition;
 	inputProps: Record<string, unknown>;
 	setInputProps: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
-	compact: boolean;
 	mayShowSaveButton: boolean;
 	propsEditType: PropsEditType;
 }> = ({
 	unresolvedComposition,
 	inputProps,
 	setInputProps,
-	compact,
 	mayShowSaveButton,
 	propsEditType,
 }) => {
@@ -431,7 +429,6 @@ export const DataEditor: React.FC<{
 					setValue={setInputProps}
 					schema={schema}
 					zodValidationResult={zodValidationResult}
-					compact={compact}
 					defaultProps={unresolvedComposition.defaultProps}
 					onSave={onSave}
 					showSaveButton={showSaveButton}

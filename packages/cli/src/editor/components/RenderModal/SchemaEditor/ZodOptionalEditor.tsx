@@ -6,7 +6,6 @@ import type {UpdaterFunction} from './ZodSwitch';
 export const ZodOptionalEditor: React.FC<{
 	showSaveButton: boolean;
 	jsonPath: JSONPath;
-	compact: boolean;
 	value: unknown;
 	defaultValue: unknown;
 	schema: z.ZodTypeAny;
@@ -15,9 +14,9 @@ export const ZodOptionalEditor: React.FC<{
 	onRemove: null | (() => void);
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
-	compact,
 	schema,
 	setValue,
 	onSave,
@@ -27,23 +26,25 @@ export const ZodOptionalEditor: React.FC<{
 	onRemove,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const {innerType} = schema._def as z.ZodOptionalDef;
 
 	return (
 		<ZodOrNullishEditor
-			compact={compact}
 			defaultValue={defaultValue}
 			jsonPath={jsonPath}
 			onRemove={onRemove}
 			onSave={onSave}
-			schema={innerType}
+			schema={schema}
 			setValue={setValue}
 			showSaveButton={showSaveButton}
 			value={value}
 			nullishValue={undefined}
 			saving={saving}
 			saveDisabledByParent={saveDisabledByParent}
+			mayPad={mayPad}
+			innerSchema={innerType}
 		/>
 	);
 };
