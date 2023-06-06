@@ -159,6 +159,7 @@ export const ZodColorEditor: React.FC<{
 							onChange={onChange}
 							className="__remotion_color_picker"
 							status={status}
+							name={jsonPath.join('.')}
 						/>
 					</div>
 					<Spacing x={1} block />

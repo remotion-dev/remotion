@@ -42,8 +42,6 @@ export const input: React.CSSProperties = {
 export const fieldsetLabel: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontSize: 14,
-	paddingLeft: 5,
-	paddingRight: 5,
 	display: 'flex',
 	flexDirection: 'row',
 	fontFamily: 'monospace',

@@ -26,7 +26,6 @@ const labelStyle: React.CSSProperties = {
 };
 
 const checkBoxWrapper: React.CSSProperties = {
-	margin: '2px',
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
@@ -46,6 +45,7 @@ export const ZodOrNullishEditor: React.FC<{
 	nullishValue: null | undefined;
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
 	compact,
@@ -59,6 +59,7 @@ export const ZodOrNullishEditor: React.FC<{
 	nullishValue,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -165,7 +166,7 @@ export const ZodOrNullishEditor: React.FC<{
 					onRemove={onRemove}
 					saving={saving}
 					saveDisabledByParent={saveDisabledByParent}
-					mayPad={false}
+					mayPad={mayPad}
 				/>
 			)}
 			<div style={checkBoxWrapper}>
