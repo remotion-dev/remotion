@@ -45,10 +45,11 @@ export const ZodArrayEditor: React.FC<{
 	saveDisabledByParent,
 	mayPad,
 }) => {
-	const {localValue, onChange} = useLocalState({
+	const {localValue, onChange, RevisionContextProvider, reset} = useLocalState({
 		value,
 		schema,
 		setValue,
+		defaultValue,
 	});
 
 	const def = schema._def as z.ZodArrayDef;
@@ -75,10 +76,6 @@ export const ZodArrayEditor: React.FC<{
 		);
 	}, [def.type, onChange, z, zodTypes]);
 
-	const reset = useCallback(() => {
-		onChange(() => defaultValue, true, true);
-	}, [defaultValue, onChange]);
-
 	const isDefaultValue = useMemo(() => {
 		return deepEqual(localValue.value, defaultValue);
 	}, [defaultValue, localValue]);
@@ -103,31 +100,34 @@ export const ZodArrayEditor: React.FC<{
 				showSaveButton={showSaveButton}
 				valid={localValue.zodValidation.success}
 			/>
-			<SchemaVerticalGuide isRoot={false}>
-				{localValue.value.map((child, i) => {
-					return (
-						// eslint-disable-next-line react/no-array-index-key
-						<React.Fragment key={`${i}${localValue.revision}`}>
-							<ZodArrayItemEditor
-								onChange={onChange}
-								value={child}
-								def={def}
-								index={i}
-								jsonPath={jsonPath}
-								defaultValue={defaultValue[i] ?? child}
-								onSave={onSave}
-								showSaveButton={showSaveButton}
-								saving={saving}
-								saveDisabledByParent={saveDisabledByParent}
-								mayPad={mayPad}
-							/>
-							{i === localValue.value.length - 1 ? null : (
-								<SchemaSeparationLine />
-							)}
-						</React.Fragment>
-					);
-				})}
-			</SchemaVerticalGuide>
+			<RevisionContextProvider>
+				<SchemaVerticalGuide isRoot={false}>
+					{localValue.value.map((child, i) => {
+						return (
+							// eslint-disable-next-line react/no-array-index-key
+							<React.Fragment key={`${i}${localValue.keyStabilityRevision}`}>
+								<ZodArrayItemEditor
+									onChange={onChange}
+									value={child}
+									def={def}
+									index={i}
+									jsonPath={jsonPath}
+									defaultValue={defaultValue[i] ?? child}
+									onSave={onSave}
+									showSaveButton={showSaveButton}
+									saving={saving}
+									saveDisabledByParent={saveDisabledByParent}
+									mayPad={mayPad}
+								/>
+								{i === localValue.value.length - 1 ? null : (
+									<SchemaSeparationLine />
+								)}
+							</React.Fragment>
+						);
+					})}
+				</SchemaVerticalGuide>
+			</RevisionContextProvider>
+
 			<div
 				style={{
 					...fieldsetLabel,

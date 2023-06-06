@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Flex} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
@@ -6,6 +6,7 @@ import {getSchemaLabel} from './get-schema-label';
 import {SchemaResetButton} from './SchemaResetButton';
 import {SchemaSaveButton} from './SchemaSaveButton';
 import type {JSONPath} from './zod-types';
+import {FAIL_COLOR} from '../../../helpers/colors';
 
 const compactStyles: React.CSSProperties = {
 	fontSize: 15,
@@ -14,13 +15,6 @@ const compactStyles: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-};
-
-const labelStyle: React.CSSProperties = {
-	fontFamily: 'monospace',
-	fontSize: 14,
-	color: LIGHT_TEXT,
-	lineHeight: '24px',
 };
 
 export const SchemaLabel: React.FC<{
@@ -47,6 +41,15 @@ export const SchemaLabel: React.FC<{
 	suffix,
 }) => {
 	const disableSave = saving || !valid || saveDisabledByParent;
+
+	const labelStyle: React.CSSProperties = useMemo(() => {
+		return {
+			fontFamily: 'monospace',
+			fontSize: 14,
+			color: valid ? LIGHT_TEXT : FAIL_COLOR,
+			lineHeight: '24px',
+		};
+	}, [valid]);
 
 	return (
 		<div style={compactStyles}>

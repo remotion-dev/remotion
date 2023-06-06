@@ -91,10 +91,16 @@ export const ZodNumberEditor: React.FC<{
 	saveDisabledByParent,
 	mayPad,
 }) => {
-	const {localValue, onChange: setLocalValue} = useLocalState({
+	const {
+		localValue,
+		onChange: setLocalValue,
+
+		reset,
+	} = useLocalState({
 		value,
 		schema,
 		setValue,
+		defaultValue,
 	});
 
 	const onNumberChange = useCallback(
@@ -105,10 +111,6 @@ export const ZodNumberEditor: React.FC<{
 	);
 
 	const isDefault = value === defaultValue;
-
-	const reset = useCallback(() => {
-		setLocalValue(() => defaultValue, true, false);
-	}, [defaultValue, setLocalValue]);
 
 	const onTextChange = useCallback(
 		(newValue: string) => {

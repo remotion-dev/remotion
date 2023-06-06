@@ -43,10 +43,15 @@ export const ZodStringEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const {localValue, onChange: setLocalValue} = useLocalState({
+	const {
+		localValue,
+		onChange: setLocalValue,
+		reset,
+	} = useLocalState({
 		schema,
 		setValue,
 		value,
+		defaultValue,
 	});
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -55,9 +60,6 @@ export const ZodStringEditor: React.FC<{
 		},
 		[setLocalValue]
 	);
-	const reset = useCallback(() => {
-		setLocalValue(() => defaultValue, true, false);
-	}, [defaultValue, setLocalValue]);
 
 	const save = useCallback(() => {
 		onSave(() => value, false, false);

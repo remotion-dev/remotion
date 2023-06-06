@@ -36,10 +36,11 @@ export const ZodBooleanEditor: React.FC<{
 	saveDisabledByParent,
 	mayPad,
 }) => {
-	const {localValue, onChange} = useLocalState({
+	const {localValue, onChange, reset} = useLocalState({
 		schema,
 		setValue,
 		value,
+		defaultValue,
 	});
 
 	const onToggle: React.ChangeEventHandler<HTMLInputElement> = useCallback(
@@ -48,10 +49,6 @@ export const ZodBooleanEditor: React.FC<{
 		},
 		[onChange]
 	);
-
-	const reset = useCallback(() => {
-		onChange(() => defaultValue, true, false);
-	}, [defaultValue, onChange]);
 
 	const save = useCallback(() => {
 		onSave(() => value, false, false);
