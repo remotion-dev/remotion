@@ -141,6 +141,7 @@ export const ZodUnionEditor: React.FC<{
 			nullishValue={nullishValue}
 			saving={saving}
 			saveDisabledByParent={saveDisabledByParent}
+			mayPad={mayPad}
 		/>
 	);
 };

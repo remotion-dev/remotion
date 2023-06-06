@@ -8,6 +8,8 @@ import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
 import {Fieldset} from './Fieldset';
 import {SchemaSeparationLine} from './SchemaSeparationLine';
+import {fieldsetLabel} from '../layout';
+import {SchemaVerticalGuide} from './SchemaVerticalGuide';
 
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
@@ -72,9 +74,10 @@ export const ZodObjectEditor: React.FC<{
 						onReset={onRes}
 						jsonPath={jsonPath}
 						onRemove={onRemove}
+						suffix={' {'}
 					/>
 				)}
-				<div>
+				<SchemaVerticalGuide isRoot={isRoot}>
 					{keys.map((key, i) => {
 						return (
 							<React.Fragment key={key}>
@@ -113,7 +116,8 @@ export const ZodObjectEditor: React.FC<{
 							</React.Fragment>
 						);
 					})}
-				</div>
+				</SchemaVerticalGuide>
+				{isRoot ? null : <div style={fieldsetLabel}>{'}'}</div>}
 			</Fieldset>
 		</div>
 	);

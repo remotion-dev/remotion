@@ -1,13 +1,11 @@
 import React, {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
-import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
 import {
 	useZodIfPossible,
 	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {optionRow} from '../layout';
 import {createZodValues} from './create-zod-values';
 import {deepEqual} from './deep-equal';
 import {useLocalState} from './local-state';
@@ -16,14 +14,12 @@ import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
 import type {UpdaterFunction} from './ZodSwitch';
 import {Fieldset} from './Fieldset';
-
-const container: React.CSSProperties = {
-	width: '100%',
-};
-
-const fullWidth: React.CSSProperties = {
-	width: '100%',
-};
+import {SchemaVerticalGuide} from './SchemaVerticalGuide';
+import {fieldsetLabel} from '../layout';
+import {SchemaSeparationLine} from './SchemaSeparationLine';
+import type {RenderInlineAction} from '../../InlineAction';
+import {InlineAction} from '../../InlineAction';
+import {Plus} from '../../../icons/plus';
 
 export const ZodArrayEditor: React.FC<{
 	schema: z.ZodTypeAny;
@@ -37,6 +33,7 @@ export const ZodArrayEditor: React.FC<{
 	onRemove: null | (() => void);
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -49,6 +46,7 @@ export const ZodArrayEditor: React.FC<{
 	onRemove,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const {localValue, onChange} = useLocalState({
 		value,
@@ -70,18 +68,6 @@ export const ZodArrayEditor: React.FC<{
 		throw new Error('expected object');
 	}
 
-	const isRoot = jsonPath.length === 0;
-
-	const {paddingTop} = optionRow;
-
-	const style = useMemo((): React.CSSProperties | undefined => {
-		if (isRoot) {
-			return undefined;
-		}
-
-		return {paddingTop};
-	}, [isRoot, paddingTop]);
-
 	const onAdd = useCallback(() => {
 		onChange((oldV) => {
 			return [...oldV, createZodValues(def.type, z, zodTypes)];
@@ -96,52 +82,66 @@ export const ZodArrayEditor: React.FC<{
 		return deepEqual(localValue.value, defaultValue);
 	}, [defaultValue, localValue]);
 
+	const renderAddButton: RenderInlineAction = useCallback((color) => {
+		return <Plus color={color} style={{height: 12}} />;
+	}, []);
+
 	return (
-		<div style={style}>
-			<div style={fullWidth}>
-				<Fieldset shouldPad={false} success={localValue.zodValidation.success}>
-					<SchemaFieldsetLabel
-						onReset={reset}
-						isDefaultValue={isDefaultValue}
-						jsonPath={jsonPath}
-						onRemove={onRemove}
-					/>
-					<div style={isRoot ? undefined : container}>
-						{localValue.value.map((child, i) => {
-							return (
-								<ZodArrayItemEditor
-									// eslint-disable-next-line react/no-array-index-key
-									key={`${i}${localValue.revision}`}
-									onChange={onChange}
-									value={child}
-									def={def}
-									index={i}
-									jsonPath={jsonPath}
-									compact={compact}
-									defaultValue={defaultValue[i] ?? child}
-									onSave={onSave}
-									showSaveButton={showSaveButton}
-									saving={saving}
-									saveDisabledByParent={saveDisabledByParent}
-									mayPad={false}
-								/>
-							);
-						})}
-					</div>
-					{!localValue.zodValidation.success && (
-						<>
-							<Spacing x={1} />
-							<ValidationMessage
-								align="flex-start"
-								message={localValue.zodValidation.error.format()._errors[0]}
-								type="error"
+		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+			<SchemaFieldsetLabel
+				onReset={reset}
+				isDefaultValue={isDefaultValue}
+				jsonPath={jsonPath}
+				onRemove={onRemove}
+				suffix={' ['}
+			/>
+			<SchemaVerticalGuide isRoot={false}>
+				{localValue.value.map((child, i) => {
+					return (
+						// eslint-disable-next-line react/no-array-index-key
+						<React.Fragment key={`${i}${localValue.revision}`}>
+							<ZodArrayItemEditor
+								onChange={onChange}
+								value={child}
+								def={def}
+								index={i}
+								jsonPath={jsonPath}
+								compact={compact}
+								defaultValue={defaultValue[i] ?? child}
+								onSave={onSave}
+								showSaveButton={showSaveButton}
+								saving={saving}
+								saveDisabledByParent={saveDisabledByParent}
+								mayPad={mayPad}
 							/>
-						</>
-					)}
-					<Spacing y={1} block />
-					<Button onClick={onAdd}>+ Add item</Button>
-				</Fieldset>
+							{i === localValue.value.length - 1 ? null : (
+								<SchemaSeparationLine />
+							)}
+						</React.Fragment>
+					);
+				})}
+			</SchemaVerticalGuide>
+			<div
+				style={{
+					...fieldsetLabel,
+					alignItems: 'center',
+					display: 'flex',
+				}}
+			>
+				{']'}
+				<InlineAction onClick={onAdd} renderAction={renderAddButton} />
 			</div>
-		</div>
+
+			{!localValue.zodValidation.success && (
+				<>
+					<Spacing x={1} />
+					<ValidationMessage
+						align="flex-start"
+						message={localValue.zodValidation.error.format()._errors[0]}
+						type="error"
+					/>
+				</>
+			)}
+		</Fieldset>
 	);
 };

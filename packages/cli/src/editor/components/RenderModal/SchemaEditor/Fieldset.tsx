@@ -1,5 +1,7 @@
 import React, {useMemo} from 'react';
 
+export const SCHEMA_EDITOR_FIELDSET_PADDING = 10;
+
 export const Fieldset: React.FC<{
 	children: React.ReactNode;
 	success: boolean;
@@ -8,7 +10,9 @@ export const Fieldset: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		if (shouldPad) {
 			return {
-				padding: 10,
+				padding: SCHEMA_EDITOR_FIELDSET_PADDING,
+				paddingTop: SCHEMA_EDITOR_FIELDSET_PADDING / 2,
+				paddingRight: 0,
 			};
 		}
 
