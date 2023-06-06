@@ -4,12 +4,15 @@ import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {Fieldset} from './Fieldset';
+import {useLocalState} from './local-state';
+import type {z} from 'zod';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
 };
 
 export const ZodBooleanEditor: React.FC<{
+	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: boolean;
 	setValue: UpdaterFunction<boolean>;
@@ -22,6 +25,7 @@ export const ZodBooleanEditor: React.FC<{
 	saveDisabledByParent: boolean;
 	mayPad: boolean;
 }> = ({
+	schema,
 	jsonPath,
 	value,
 	setValue,
@@ -34,30 +38,29 @@ export const ZodBooleanEditor: React.FC<{
 	saveDisabledByParent,
 	mayPad,
 }) => {
-	const onValueChange = useCallback(
-		(newValue: boolean, forceApply: boolean) => {
-			setValue(() => newValue, forceApply);
-		},
-		[setValue]
-	);
+	const {localValue, onChange} = useLocalState({
+		schema,
+		setValue,
+		value,
+	});
 
-	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
+	const onToggle: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			onValueChange(e.target.checked, false);
+			onChange(() => e.target.checked, false);
 		},
-		[onValueChange]
+		[onChange]
 	);
 
 	const reset = useCallback(() => {
-		onValueChange(defaultValue, true);
-	}, [defaultValue, onValueChange]);
+		onChange(() => defaultValue, true);
+	}, [defaultValue, onChange]);
 
 	const save = useCallback(() => {
 		onSave(() => value, false);
 	}, [onSave, value]);
 
 	return (
-		<Fieldset shouldPad={mayPad} success>
+		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
 				isDefaultValue={value === defaultValue}
 				jsonPath={jsonPath}
@@ -73,8 +76,8 @@ export const ZodBooleanEditor: React.FC<{
 			<div style={fullWidth}>
 				<Checkbox
 					name={jsonPath.join('.')}
-					checked={value}
-					onChange={onChange}
+					checked={localValue.value}
+					onChange={onToggle}
 					disabled={false}
 				/>
 			</div>
