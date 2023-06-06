@@ -3,7 +3,6 @@ import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/
 import {BLUE, LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {inlineCodeSnippet} from '../../Menu/styles';
-import {SchemaEmptyStateGraphic} from './SchemaEmptyStateGraphic';
 import {ZodErrorMessages} from './ZodErrorMessages';
 
 const explainer: React.CSSProperties = {
@@ -91,8 +90,6 @@ export const NoDefaultProps = () => {
 export const InvalidDefaultProps: React.FC<{
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
 }> = ({zodValidationResult}) => {
-	// TODO: Does not react to when schema is updated
-
 	return (
 		<div style={errorContainer}>
 			<div style={errorExplanation}>
