@@ -147,15 +147,15 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 	const networkAddress = getNetworkAddress();
 	if (networkAddress) {
 		setServerReadyComment(
-			`Server ready - Local: ${chalk.underline(
+			`Local: ${chalk.underline(
 				`http://localhost:${port}`
 			)}, Network: ${chalk.underline(`http://${networkAddress}:${port}`)}`
 		);
 	} else {
-		setServerReadyComment(`Running on http://localhost:${port}`);
+		setServerReadyComment(`http://localhost:${port}`);
 	}
 
-	printServerReadyComment();
+	printServerReadyComment('Server ready');
 
 	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser();
 
