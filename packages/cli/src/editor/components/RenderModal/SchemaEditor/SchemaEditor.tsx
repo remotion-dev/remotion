@@ -8,13 +8,11 @@ import {
 	TopLevelZodValue,
 } from './SchemaErrorMessages';
 import {ZodObjectEditor} from './ZodObjectEditor';
-import {SCHEMA_EDITOR_FIELDSET_PADDING} from './Fieldset';
 
 const scrollable: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	overflowY: 'auto',
-	paddingRight: SCHEMA_EDITOR_FIELDSET_PADDING,
 };
 
 export const SchemaEditor: React.FC<{
