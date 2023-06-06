@@ -1,21 +1,13 @@
-import React, {useCallback, useMemo} from 'react';
+import React, {useCallback} from 'react';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
-import {optionRow} from '../layout';
 import {useLocalState} from './local-state';
 import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
 import {Fieldset} from './Fieldset';
-
-const container: React.CSSProperties = {
-	width: '100%',
-};
-
-const fullWidth: React.CSSProperties = {
-	width: '100%',
-};
+import {SchemaSeparationLine} from './SchemaSeparationLine';
 
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
@@ -65,37 +57,26 @@ export const ZodObjectEditor: React.FC<{
 
 	const isRoot = jsonPath.length === 0;
 
-	const {paddingTop} = optionRow;
-
-	const style = useMemo((): React.CSSProperties => {
-		if (isRoot) {
-			return {};
-		}
-
-		return {paddingTop};
-	}, [isRoot, paddingTop]);
-
 	const onRes = useCallback(() => {
 		onChange(() => defaultValue, true);
 	}, [defaultValue, onChange]);
 
 	return (
-		<div style={style}>
-			<div style={fullWidth}>
-				<Fieldset success={localValue.zodValidation.success}>
-					{isRoot ? null : (
-						<SchemaFieldsetLabel
-							isDefaultValue
-							onReset={onRes}
-							jsonPath={jsonPath}
-							onRemove={onRemove}
-						/>
-					)}
-					<div style={isRoot ? undefined : container}>
-						{keys.map((key) => {
-							return (
+		<div>
+			<Fieldset shouldPad={!isRoot} success={localValue.zodValidation.success}>
+				{isRoot ? null : (
+					<SchemaFieldsetLabel
+						isDefaultValue
+						onReset={onRes}
+						jsonPath={jsonPath}
+						onRemove={onRemove}
+					/>
+				)}
+				<div>
+					{keys.map((key, i) => {
+						return (
+							<React.Fragment key={key}>
 								<ZodSwitch
-									key={key}
 									jsonPath={[...jsonPath, key]}
 									schema={shape[key]}
 									value={localValue.value[key]}
@@ -125,11 +106,12 @@ export const ZodObjectEditor: React.FC<{
 									saving={saving}
 									saveDisabledByParent={saveDisabledByParent}
 								/>
-							);
-						})}
-					</div>
-				</Fieldset>
-			</div>
+								{i === keys.length - 1 ? null : <SchemaSeparationLine />}
+							</React.Fragment>
+						);
+					})}
+				</div>
+			</Fieldset>
 		</div>
 	);
 };

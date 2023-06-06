@@ -35,6 +35,7 @@ export const EnforceAudioTrackSetting: React.FC<{
 					disabled={muted && !enforceAudioTrack}
 					checked={enforceAudioTrack}
 					onChange={onEnforceAudioTrackChanged}
+					name="enforce-audio-track"
 				/>
 			</div>
 		</div>
