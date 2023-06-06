@@ -51,16 +51,16 @@ export const ZodStringEditor: React.FC<{
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			setLocalValue(() => e.target.value, false);
+			setLocalValue(() => e.target.value, false, false);
 		},
 		[setLocalValue]
 	);
 	const reset = useCallback(() => {
-		setLocalValue(() => defaultValue, true);
+		setLocalValue(() => defaultValue, true, false);
 	}, [defaultValue, setLocalValue]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (

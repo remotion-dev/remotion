@@ -29,7 +29,9 @@ export const useLocalState = <T>({
 	stateRef.current = localValue;
 
 	const onChange = useCallback(
-		(updater: (oldV: T) => T, forceApply: boolean) => {
+		// Increment is to regenerate `key` attributes in array items,
+		// so should increment when changing array items
+		(updater: (oldV: T) => T, forceApply: boolean, increment: boolean) => {
 			const newValue = updater(stateRef.current.value);
 			const isSame = deepEqual(newValue, stateRef.current.value);
 			if (isSame) {
@@ -39,12 +41,12 @@ export const useLocalState = <T>({
 			const safeParse = schema.safeParse(newValue);
 
 			if (safeParse.success || forceApply) {
-				setValue(updater, forceApply);
+				setValue(updater, forceApply, increment);
 			}
 
 			setLocalValue((oldLocalState) => {
 				const newState = {
-					revision: oldLocalState.revision + 1,
+					revision: oldLocalState.revision + (increment ? 1 : 0),
 					value: newValue,
 					zodValidation: safeParse,
 				};

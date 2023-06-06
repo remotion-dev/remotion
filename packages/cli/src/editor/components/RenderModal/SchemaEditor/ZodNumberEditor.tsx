@@ -99,7 +99,7 @@ export const ZodNumberEditor: React.FC<{
 
 	const onNumberChange = useCallback(
 		(newValue: number) => {
-			setLocalValue(() => newValue, false);
+			setLocalValue(() => newValue, false, false);
 		},
 		[setLocalValue]
 	);
@@ -107,18 +107,18 @@ export const ZodNumberEditor: React.FC<{
 	const isDefault = value === defaultValue;
 
 	const reset = useCallback(() => {
-		setLocalValue(() => defaultValue, true);
+		setLocalValue(() => defaultValue, true, false);
 	}, [defaultValue, setLocalValue]);
 
 	const onTextChange = useCallback(
 		(newValue: string) => {
-			setLocalValue(() => Number(newValue), false);
+			setLocalValue(() => Number(newValue), false, false);
 		},
 		[setLocalValue]
 	);
 
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (

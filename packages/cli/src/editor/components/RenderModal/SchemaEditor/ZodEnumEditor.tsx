@@ -57,7 +57,7 @@ export const ZodEnumEditor: React.FC<{
 	const isRoot = jsonPath.length === 0;
 
 	const reset = useCallback(() => {
-		setLocalValue(() => defaultValue, true);
+		setLocalValue(() => defaultValue, true, false);
 	}, [defaultValue, setLocalValue]);
 
 	const comboBoxValues = useMemo(() => {
@@ -69,7 +69,7 @@ export const ZodEnumEditor: React.FC<{
 				keyHint: null,
 				leftItem: option === value ? <Checkmark /> : null,
 				onClick: (id: string) => {
-					setLocalValue(() => id, false);
+					setLocalValue(() => id, false, false);
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,
@@ -79,7 +79,7 @@ export const ZodEnumEditor: React.FC<{
 	}, [def.values, setLocalValue, value]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (
