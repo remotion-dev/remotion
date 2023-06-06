@@ -24,6 +24,8 @@ const stackTraceLabel: React.CSSProperties = {
 
 const legend: React.CSSProperties = {
 	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
 };
 
 export const ZodEffectEditor: React.FC<{
@@ -67,7 +69,7 @@ export const ZodEffectEditor: React.FC<{
 	}
 
 	return (
-		<Fieldset shouldPad={false} success={localValue.zodValidation.success}>
+		<Fieldset shouldPad success={localValue.zodValidation.success}>
 			<div style={fullWidth}>
 				<ZodSwitch
 					value={value}
@@ -85,7 +87,7 @@ export const ZodEffectEditor: React.FC<{
 				/>
 			</div>
 			{!localValue.zodValidation.success && (
-				<legend style={legend}>
+				<div style={legend}>
 					<ValidationMessage
 						align="flex-start"
 						message={localValue.zodValidation.error.format()._errors[0]}
@@ -105,7 +107,7 @@ export const ZodEffectEditor: React.FC<{
 						</div>
 					</InfoBubble>
 					<Spacing x={0.5} />
-				</legend>
+				</div>
 			)}
 		</Fieldset>
 	);

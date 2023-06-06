@@ -30,6 +30,7 @@ const labelStyle: React.CSSProperties = {
 	fontFamily: 'monospace',
 	fontSize: 14,
 	color: LIGHT_TEXT,
+	lineHeight: '24px',
 };
 
 export const SchemaLabel: React.FC<{
