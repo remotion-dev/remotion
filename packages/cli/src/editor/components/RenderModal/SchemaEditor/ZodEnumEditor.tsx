@@ -88,7 +88,7 @@ export const ZodEnumEditor: React.FC<{
 			<SchemaLabel
 				onSave={save}
 				showSaveButton={showSaveButton}
-				isDefaultValue={value === defaultValue}
+				isDefaultValue={localValue.value === defaultValue}
 				onReset={reset}
 				jsonPath={jsonPath}
 				onRemove={onRemove}

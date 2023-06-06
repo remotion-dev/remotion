@@ -135,7 +135,7 @@ export const ZodColorEditor: React.FC<{
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
-				isDefaultValue={value === defaultValue}
+				isDefaultValue={localValue.value === defaultValue}
 				jsonPath={jsonPath}
 				onReset={reset}
 				onSave={save}
