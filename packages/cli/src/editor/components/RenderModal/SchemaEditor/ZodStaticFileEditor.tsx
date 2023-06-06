@@ -3,15 +3,14 @@ import {getStaticFiles} from 'remotion';
 import type {z} from 'zod';
 import {Checkmark} from '../../../icons/Checkmark';
 import {useZodIfPossible} from '../../get-zod-if-possible';
-import {Spacing} from '../../layout';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
-import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {Fieldset} from './Fieldset';
+import {ZodFieldValidation} from './ZodFieldValidation';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -24,7 +23,6 @@ export const ZodStaticFileEditor: React.FC<{
 	defaultValue: string;
 	setValue: UpdaterFunction<string>;
 	onSave: (updater: (oldState: string) => string) => void;
-	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
@@ -33,7 +31,6 @@ export const ZodStaticFileEditor: React.FC<{
 }> = ({
 	schema,
 	jsonPath,
-	compact,
 	setValue,
 	defaultValue,
 	value,
@@ -96,7 +93,6 @@ export const ZodStaticFileEditor: React.FC<{
 				onSave={save}
 				showSaveButton={showSaveButton}
 				isDefaultValue={localValue.value === defaultValue}
-				compact={compact}
 				onReset={reset}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
@@ -112,16 +108,7 @@ export const ZodStaticFileEditor: React.FC<{
 					title={value}
 				/>
 			</div>
-			{!localValue.zodValidation.success && (
-				<>
-					<Spacing x={1} />
-					<ValidationMessage
-						align="flex-start"
-						message={localValue.zodValidation.error.format()._errors[0]}
-						type="error"
-					/>
-				</>
-			)}
+			<ZodFieldValidation path={jsonPath} localValue={localValue} />
 		</Fieldset>
 	);
 };

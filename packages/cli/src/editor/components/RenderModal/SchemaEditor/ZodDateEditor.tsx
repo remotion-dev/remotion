@@ -3,12 +3,12 @@ import type {z} from 'zod';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
-import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {Fieldset} from './Fieldset';
+import {ZodFieldValidation} from './ZodFieldValidation';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -57,7 +57,6 @@ export const ZodDateEditor: React.FC<{
 	setValue: UpdaterFunction<Date>;
 	onSave: UpdaterFunction<Date>;
 	onRemove: null | (() => void);
-	compact: boolean;
 	showSaveButton: boolean;
 	saving: boolean;
 	saveDisabledByParent: boolean;
@@ -69,7 +68,6 @@ export const ZodDateEditor: React.FC<{
 	showSaveButton,
 	defaultValue,
 	schema,
-	compact,
 	onSave,
 	onRemove,
 	saving,
@@ -108,7 +106,6 @@ export const ZodDateEditor: React.FC<{
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
-				compact={compact}
 				isDefaultValue={value.getTime() === defaultValue.getTime()}
 				jsonPath={jsonPath}
 				onReset={reset}
@@ -131,16 +128,7 @@ export const ZodDateEditor: React.FC<{
 				/>
 				<Spacing y={1} block />
 				<div style={explainer}>Date is in local format</div>
-				{!localValue.zodValidation.success && (
-					<>
-						<Spacing y={1} block />
-						<ValidationMessage
-							align="flex-start"
-							message={localValue.zodValidation.error.format()._errors[0]}
-							type="error"
-						/>
-					</>
-				)}
+				<ZodFieldValidation path={jsonPath} localValue={localValue} />
 			</div>
 		</Fieldset>
 	);

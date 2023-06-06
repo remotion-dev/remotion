@@ -7,7 +7,6 @@ import {ZodSwitch} from './ZodSwitch';
 export const ZodDefaultEditor: React.FC<{
 	showSaveButton: boolean;
 	jsonPath: JSONPath;
-	compact: boolean;
 	value: unknown;
 	defaultValue: unknown;
 	schema: z.ZodTypeAny;
@@ -18,7 +17,6 @@ export const ZodDefaultEditor: React.FC<{
 	saveDisabledByParent: boolean;
 }> = ({
 	jsonPath,
-	compact,
 	schema,
 	setValue,
 	onSave,
@@ -33,7 +31,6 @@ export const ZodDefaultEditor: React.FC<{
 
 	return (
 		<ZodSwitch
-			compact={compact}
 			defaultValue={defaultValue}
 			jsonPath={jsonPath}
 			onRemove={onRemove}

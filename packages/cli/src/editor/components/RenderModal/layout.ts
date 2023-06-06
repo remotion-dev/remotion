@@ -11,11 +11,6 @@ export const optionRow: React.CSSProperties = {
 	paddingBottom: 8,
 };
 
-export const narrowOption: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-};
-
 export const label: React.CSSProperties = {
 	width: 170,
 	fontSize: 15,

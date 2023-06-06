@@ -1,13 +1,12 @@
 import React, {useCallback} from 'react';
 import type {z} from 'zod';
-import {Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
-import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {Fieldset} from './Fieldset';
+import {ZodFieldValidation} from './ZodFieldValidation';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -72,7 +71,6 @@ export const ZodNumberEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: number;
 	setValue: UpdaterFunction<number>;
-	compact: boolean;
 	defaultValue: number;
 	onSave: UpdaterFunction<number>;
 	onRemove: null | (() => void);
@@ -86,7 +84,6 @@ export const ZodNumberEditor: React.FC<{
 	schema,
 	setValue,
 	onSave,
-	compact,
 	defaultValue,
 	onRemove,
 	showSaveButton,
@@ -132,7 +129,6 @@ export const ZodNumberEditor: React.FC<{
 				onReset={reset}
 				onSave={save}
 				showSaveButton={showSaveButton}
-				compact={compact}
 				onRemove={onRemove}
 				saving={saving}
 				valid={localValue.zodValidation.success}
@@ -152,16 +148,7 @@ export const ZodNumberEditor: React.FC<{
 					step={getStep(schema)}
 					rightAlign={false}
 				/>
-				{!localValue.zodValidation.success && (
-					<>
-						<Spacing y={1} block />
-						<ValidationMessage
-							align="flex-start"
-							message={localValue.zodValidation.error.format()._errors[0]}
-							type="error"
-						/>
-					</>
-				)}
+				<ZodFieldValidation path={jsonPath} localValue={localValue} />
 			</div>
 		</Fieldset>
 	);

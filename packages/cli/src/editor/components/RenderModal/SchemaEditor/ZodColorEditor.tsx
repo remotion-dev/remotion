@@ -9,12 +9,12 @@ import {Row, Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {RemInputTypeColor} from '../../NewComposition/RemInputTypeColor';
-import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {Fieldset} from './Fieldset';
+import {ZodFieldValidation} from './ZodFieldValidation';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -28,7 +28,6 @@ export const ZodColorEditor: React.FC<{
 	setValue: UpdaterFunction<string>;
 	onSave: UpdaterFunction<string>;
 	onRemove: null | (() => void);
-	compact: boolean;
 	showSaveButton: boolean;
 	saving: boolean;
 	saveDisabledByParent: boolean;
@@ -40,7 +39,6 @@ export const ZodColorEditor: React.FC<{
 	showSaveButton,
 	defaultValue,
 	schema,
-	compact,
 	onSave,
 	onRemove,
 	saving,
@@ -136,7 +134,6 @@ export const ZodColorEditor: React.FC<{
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
-				compact={compact}
 				isDefaultValue={value === defaultValue}
 				jsonPath={jsonPath}
 				onReset={reset}
@@ -183,16 +180,7 @@ export const ZodColorEditor: React.FC<{
 						rightAlign={false}
 					/>
 				</Row>
-				{!localValue.zodValidation.success && (
-					<>
-						<Spacing y={1} block />
-						<ValidationMessage
-							align="flex-start"
-							message={localValue.zodValidation.error.format()._errors[0]}
-							type="error"
-						/>
-					</>
-				)}
+				<ZodFieldValidation path={jsonPath} localValue={localValue} />
 			</div>
 		</Fieldset>
 	);

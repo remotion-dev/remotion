@@ -3,7 +3,7 @@ import type {z} from 'zod';
 import {deepEqual} from './deep-equal';
 import type {UpdaterFunction} from './ZodSwitch';
 
-type LocalState<T> = {
+export type LocalState<T> = {
 	value: T;
 	zodValidation: z.SafeParseReturnType<unknown, unknown>;
 	revision: number;

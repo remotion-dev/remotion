@@ -6,7 +6,6 @@ import type {UpdaterFunction} from './ZodSwitch';
 export const ZodNullableEditor: React.FC<{
 	showSaveButton: boolean;
 	jsonPath: JSONPath;
-	compact: boolean;
 	value: unknown;
 	defaultValue: unknown;
 	schema: z.ZodTypeAny;
@@ -18,7 +17,6 @@ export const ZodNullableEditor: React.FC<{
 	mayPad: boolean;
 }> = ({
 	jsonPath,
-	compact,
 	schema,
 	setValue,
 	onSave,
@@ -34,7 +32,6 @@ export const ZodNullableEditor: React.FC<{
 
 	return (
 		<ZodOrNullishEditor
-			compact={compact}
 			defaultValue={defaultValue}
 			jsonPath={jsonPath}
 			onRemove={onRemove}

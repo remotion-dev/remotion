@@ -2,7 +2,7 @@ import React from 'react';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Flex, Spacing} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
-import {fieldsetLabel, label} from '../layout';
+import {fieldsetLabel} from '../layout';
 import {getSchemaLabel} from './get-schema-label';
 import {SchemaResetButton} from './SchemaResetButton';
 import {SchemaSaveButton} from './SchemaSaveButton';
@@ -21,11 +21,6 @@ const compactStyles: React.CSSProperties = {
 	alignItems: 'center',
 };
 
-const wideStyles: React.CSSProperties = {
-	...commonStyles,
-	width: label.width,
-};
-
 const labelStyle: React.CSSProperties = {
 	fontFamily: 'monospace',
 	fontSize: 14,
@@ -40,7 +35,6 @@ export const SchemaLabel: React.FC<{
 	onSave: () => void;
 	onRemove: null | (() => void);
 	showSaveButton: boolean;
-	compact: boolean;
 	saving: boolean;
 	valid: boolean;
 	saveDisabledByParent: boolean;
@@ -50,17 +44,17 @@ export const SchemaLabel: React.FC<{
 	onReset,
 	onSave,
 	showSaveButton,
-	compact,
 	onRemove,
 	saving,
 	valid,
 	saveDisabledByParent,
 }) => {
 	const disableSave = saving || !valid || saveDisabledByParent;
+
 	return (
-		<div style={compact ? compactStyles : wideStyles}>
+		<div style={compactStyles}>
 			<span style={labelStyle}>{getSchemaLabel(jsonPath)}</span>
-			{compact ? <Flex /> : <Spacing x={1} />}
+			<Flex />
 			{isDefaultValue ? null : <SchemaResetButton onClick={onReset} />}
 			{isDefaultValue ? null : showSaveButton ? (
 				<SchemaSaveButton onClick={onSave} disabled={disableSave} />

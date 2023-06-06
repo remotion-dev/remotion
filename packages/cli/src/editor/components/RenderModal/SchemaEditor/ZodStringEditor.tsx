@@ -1,14 +1,13 @@
 import React, {useCallback} from 'react';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
-import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
-import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {Fieldset} from './Fieldset';
+import {ZodFieldValidation} from './ZodFieldValidation';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -22,7 +21,6 @@ export const ZodStringEditor: React.FC<{
 	setValue: UpdaterFunction<string>;
 	onSave: UpdaterFunction<string>;
 	onRemove: null | (() => void);
-	compact: boolean;
 	showSaveButton: boolean;
 	saving: boolean;
 	saveDisabledByParent: boolean;
@@ -34,7 +32,6 @@ export const ZodStringEditor: React.FC<{
 	showSaveButton,
 	defaultValue,
 	schema,
-	compact,
 	onSave,
 	onRemove,
 	saving,
@@ -69,7 +66,6 @@ export const ZodStringEditor: React.FC<{
 	return (
 		<Fieldset shouldPad={mayPad} success={false}>
 			<SchemaLabel
-				compact={compact}
 				isDefaultValue={localValue.value === defaultValue}
 				jsonPath={jsonPath}
 				onReset={reset}
@@ -89,16 +85,7 @@ export const ZodStringEditor: React.FC<{
 					rightAlign={false}
 					name={jsonPath.join('.')}
 				/>
-				{!localValue.zodValidation.success && (
-					<>
-						<Spacing y={1} block />
-						<ValidationMessage
-							align="flex-start"
-							message={localValue.zodValidation.error.format()._errors[0]}
-							type="error"
-						/>
-					</>
-				)}
+				<ZodFieldValidation path={jsonPath} localValue={localValue} />
 			</div>
 		</Fieldset>
 	);
