@@ -2,7 +2,6 @@ import React, {useCallback} from 'react';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {useLocalState} from './local-state';
-import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
@@ -10,6 +9,7 @@ import {Fieldset} from './Fieldset';
 import {SchemaSeparationLine} from './SchemaSeparationLine';
 import {fieldsetLabel} from '../layout';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
+import {SchemaLabel} from './SchemaLabel';
 
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
@@ -67,12 +67,21 @@ export const ZodObjectEditor: React.FC<{
 		<div>
 			<Fieldset shouldPad={!isRoot} success={localValue.zodValidation.success}>
 				{isRoot ? null : (
-					<SchemaFieldsetLabel
+					<SchemaLabel
 						isDefaultValue
 						onReset={onRes}
 						jsonPath={jsonPath}
 						onRemove={onRemove}
 						suffix={' {'}
+						onSave={() => {
+							onSave(() => {
+								return localValue.value;
+							}, false);
+						}}
+						saveDisabledByParent={saveDisabledByParent}
+						saving={saving}
+						showSaveButton={showSaveButton}
+						valid={localValue.zodValidation.success}
 					/>
 				)}
 				<SchemaVerticalGuide isRoot={isRoot}>

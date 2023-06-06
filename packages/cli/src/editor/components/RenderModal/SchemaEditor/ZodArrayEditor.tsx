@@ -7,7 +7,6 @@ import {
 import {createZodValues} from './create-zod-values';
 import {deepEqual} from './deep-equal';
 import {useLocalState} from './local-state';
-import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
 import type {UpdaterFunction} from './ZodSwitch';
@@ -19,6 +18,7 @@ import type {RenderInlineAction} from '../../InlineAction';
 import {InlineAction} from '../../InlineAction';
 import {Plus} from '../../../icons/plus';
 import {ZodFieldValidation} from './ZodFieldValidation';
+import {SchemaLabel} from './SchemaLabel';
 
 export const ZodArrayEditor: React.FC<{
 	schema: z.ZodTypeAny;
@@ -85,12 +85,19 @@ export const ZodArrayEditor: React.FC<{
 
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
-			<SchemaFieldsetLabel
+			<SchemaLabel
 				onReset={reset}
 				isDefaultValue={isDefaultValue}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
 				suffix={' ['}
+				onSave={() => {
+					onSave(() => localValue.value, false);
+				}}
+				saveDisabledByParent={saveDisabledByParent}
+				saving={saving}
+				showSaveButton={showSaveButton}
+				valid={localValue.zodValidation.success}
 			/>
 			<SchemaVerticalGuide isRoot={false}>
 				{localValue.value.map((child, i) => {

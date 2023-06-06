@@ -99,6 +99,7 @@ export const ZodStaticFileEditor: React.FC<{
 				saving={saving}
 				valid={localValue.zodValidation.success}
 				saveDisabledByParent={saveDisabledByParent}
+				suffix={null}
 			/>
 
 			<div style={isRoot ? undefined : container}>

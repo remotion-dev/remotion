@@ -94,6 +94,7 @@ export const ZodEnumEditor: React.FC<{
 				saving={saving}
 				valid={localValue.zodValidation.success}
 				saveDisabledByParent={!localValue.zodValidation.success}
+				suffix={null}
 			/>
 
 			<div style={isRoot ? undefined : container}>
