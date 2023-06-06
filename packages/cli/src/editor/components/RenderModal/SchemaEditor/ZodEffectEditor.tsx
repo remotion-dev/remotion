@@ -22,6 +22,7 @@ export const ZodEffectEditor: React.FC<{
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
+	mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -32,6 +33,7 @@ export const ZodEffectEditor: React.FC<{
 	onRemove,
 	showSaveButton,
 	saving,
+	mayPad,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -52,7 +54,7 @@ export const ZodEffectEditor: React.FC<{
 	}
 
 	return (
-		<Fieldset shouldPad success={localValue.zodValidation.success}>
+		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<div style={fullWidth}>
 				<ZodSwitch
 					value={value}

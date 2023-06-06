@@ -67,86 +67,83 @@ export const ZodObjectEditor: React.FC<{
 	}, [defaultValue, localValue]);
 
 	return (
-		<div>
-			<Fieldset shouldPad={!isRoot} success={localValue.zodValidation.success}>
-				{isRoot ? null : (
-					<SchemaLabel
-						isDefaultValue={isDefaultValue}
-						onReset={reset}
-						jsonPath={jsonPath}
-						onRemove={onRemove}
-						suffix={' {'}
-						onSave={() => {
-							onSave(
-								() => {
-									return localValue.value;
-								},
-								false,
-								false
-							);
-						}}
-						saveDisabledByParent={saveDisabledByParent}
-						saving={saving}
-						showSaveButton={showSaveButton}
-						valid={localValue.zodValidation.success}
-					/>
-				)}
-				<RevisionContextProvider>
-					<SchemaVerticalGuide isRoot={isRoot}>
-						{keys.map((key, i) => {
-							return (
-								<React.Fragment key={key}>
-									<ZodSwitch
-										mayPad={mayPad}
-										jsonPath={[...jsonPath, key]}
-										schema={shape[key]}
-										value={localValue.value[key]}
-										// In case of null | {a: string, b: string} type, we need to fallback to the default value
-										defaultValue={(defaultValue ?? value)[key]}
-										setValue={(val, forceApply) => {
-											onChange(
-												(oldVal) => {
-													return {
-														...oldVal,
-														[key]:
-															typeof val === 'function'
-																? val(oldVal[key])
-																: val,
-													};
-												},
-												forceApply,
-												false
-											);
-										}}
-										onSave={(val, forceApply) => {
-											onSave(
-												(oldVal) => {
-													return {
-														...oldVal,
-														[key]:
-															typeof val === 'function'
-																? val(oldVal[key])
-																: val,
-													};
-												},
-												forceApply,
-												false
-											);
-										}}
-										onRemove={null}
-										showSaveButton={showSaveButton}
-										saving={saving}
-										saveDisabledByParent={saveDisabledByParent}
-									/>
-									{i === keys.length - 1 ? null : <SchemaSeparationLine />}
-								</React.Fragment>
-							);
-						})}
-					</SchemaVerticalGuide>
-				</RevisionContextProvider>
+		<Fieldset
+			shouldPad={!isRoot && mayPad}
+			success={localValue.zodValidation.success}
+		>
+			{isRoot ? null : (
+				<SchemaLabel
+					isDefaultValue={isDefaultValue}
+					onReset={reset}
+					jsonPath={jsonPath}
+					onRemove={onRemove}
+					suffix={' {'}
+					onSave={() => {
+						onSave(
+							() => {
+								return localValue.value;
+							},
+							false,
+							false
+						);
+					}}
+					saveDisabledByParent={saveDisabledByParent}
+					saving={saving}
+					showSaveButton={showSaveButton}
+					valid={localValue.zodValidation.success}
+				/>
+			)}
+			<RevisionContextProvider>
+				<SchemaVerticalGuide isRoot={isRoot}>
+					{keys.map((key, i) => {
+						return (
+							<React.Fragment key={key}>
+								<ZodSwitch
+									mayPad
+									jsonPath={[...jsonPath, key]}
+									schema={shape[key]}
+									value={localValue.value[key]}
+									// In case of null | {a: string, b: string} type, we need to fallback to the default value
+									defaultValue={(defaultValue ?? value)[key]}
+									setValue={(val, forceApply) => {
+										onChange(
+											(oldVal) => {
+												return {
+													...oldVal,
+													[key]:
+														typeof val === 'function' ? val(oldVal[key]) : val,
+												};
+											},
+											forceApply,
+											false
+										);
+									}}
+									onSave={(val, forceApply) => {
+										onSave(
+											(oldVal) => {
+												return {
+													...oldVal,
+													[key]:
+														typeof val === 'function' ? val(oldVal[key]) : val,
+												};
+											},
+											forceApply,
+											false
+										);
+									}}
+									onRemove={null}
+									showSaveButton={showSaveButton}
+									saving={saving}
+									saveDisabledByParent={saveDisabledByParent}
+								/>
+								{i === keys.length - 1 ? null : <SchemaSeparationLine />}
+							</React.Fragment>
+						);
+					})}
+				</SchemaVerticalGuide>
+			</RevisionContextProvider>
 
-				{isRoot ? null : <div style={fieldsetLabel}>{'}'}</div>}
-			</Fieldset>
-		</div>
+			{isRoot ? null : <div style={fieldsetLabel}>{'}'}</div>}
+		</Fieldset>
 	);
 };
