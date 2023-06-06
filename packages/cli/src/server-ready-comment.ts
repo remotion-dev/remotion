@@ -6,6 +6,6 @@ export const setServerReadyComment = (newMessage: string) => {
 	message = newMessage;
 };
 
-export const printServerReadyComment = () => {
-	Log.info(message);
+export const printServerReadyComment = (prefix: string) => {
+	Log.info(`${prefix} - ${message}`);
 };
