@@ -4616,6 +4616,7 @@
     }
   },
   "exports": {
+    "./package.json": "./package.json",
     "./ABeeZee": {
       "require": "./dist/cjs/ABeeZee.cjs",
       "module": "./dist/esm/ABeeZee.mjs",
