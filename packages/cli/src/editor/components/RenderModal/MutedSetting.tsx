@@ -36,6 +36,7 @@ export const MutedSetting: React.FC<{
 					checked={muted}
 					disabled={enforceAudioTrack && !muted}
 					onChange={onMutedChanged}
+					name="muted"
 				/>
 			</div>
 		</div>

@@ -29,8 +29,9 @@ const box: React.CSSProperties = {
 export const Checkbox: React.FC<{
 	checked: boolean;
 	onChange: React.ChangeEventHandler<HTMLInputElement>;
+	name: string;
 	disabled?: boolean;
-}> = ({checked, onChange, disabled}) => {
+}> = ({checked, onChange, disabled, name}) => {
 	const input: React.CSSProperties = useMemo(() => {
 		return {
 			appearance: 'none',
@@ -53,6 +54,7 @@ export const Checkbox: React.FC<{
 				checked={checked}
 				onChange={onChange}
 				disabled={disabled}
+				name={name}
 			/>
 			<div style={box}>{checked ? <Checkmark /> : null}</div>
 		</div>

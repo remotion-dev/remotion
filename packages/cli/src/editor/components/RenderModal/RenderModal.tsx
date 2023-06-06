@@ -1064,7 +1064,6 @@ const RenderModal: React.FC<
 							inputProps={inputProps}
 							setInputProps={setInputProps}
 							unresolvedComposition={unresolvedComposition}
-							compact={false}
 							mayShowSaveButton={false}
 							propsEditType="input-props"
 						/>
