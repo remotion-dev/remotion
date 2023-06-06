@@ -257,6 +257,7 @@ If you register a composition with a component that requires some props, you now
 ## Changelog
 
 - "Remotion Preview" has been renamed to "Remotion Studio"
+- `npx remotion preview` is deprecated for `npx remotion studio`
 - New Props editor allows for editing props with schema
 - New render button allows for rendering through the CLI
 - New `@remotion/zod-types` package
@@ -293,3 +294,26 @@ If you register a composition with a component that requires some props, you now
 - `downloadVideo()` alias has been removed.
 - `<MotionBlur>` has been removed
 - `getParts()` has been removed
+- Studio now has custom scrollbars preventing
+- FFmpeg has been updated to 6.0
+- Chrome on Lambda has been updated to
+- `eslint-plugin-react` has been updated to `7.32.2`
+- `eslint-plugin-react-hooks` has been updated to `4.6.0`
+- New ESLint rule: Use the right import in the config file
+- New logger for verbose mode: No more interlacing between logs and progress bars
+- New indicator whether a file has been overwritten (`○`) or newly created (`+`)
+- Printing server URL again to the console if all Studio instances have been closed
+- Less React re-renders across the Remotion Studio
+- Dropdown component does not overflow anymore
+- New shortcut for collapsing left sidebar: `Cmd/Ctrl+B`
+- Allow open of the project in editor from the Remotion Studio
+- `quality` is now `--jpeg-quality`
+- `estimatePrice` does not accept `architecture` anymore.
+- Remotion Studio is tested to work well offline.
+- If an `<Audio>` cannot be fetched, it will cancel the render.
+- Types: `src` is required for an `<Img>` tag
+- The development Webpack cache will not be removed anymore if setting `--bundle-cache=false`.
+- For contributors: Updated `pnpm` to `8.5.1`
+- `Date` objects now work as default props
+- Recommended Docker file does not install `ffmpeg` anymore
+- Removed `ensureFfmpeg()` and `ensureFfprobe()`
