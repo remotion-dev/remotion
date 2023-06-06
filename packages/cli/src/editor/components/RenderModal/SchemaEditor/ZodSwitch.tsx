@@ -138,7 +138,6 @@ export const ZodSwitch: React.FC<{
 	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodNumber) {
-		console.log('ZodNumberEditor', mayPad);
 		return (
 			<ZodNumberEditor
 				value={value as number}
