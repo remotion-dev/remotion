@@ -253,3 +253,43 @@ Since the input props are passed to a React component, they must not explicitly 
 ## `defaultProps` is required if the component has props
 
 If you register a composition with a component that requires some props, you now are required to provide a `defaultProps` object.
+
+## Changelog
+
+- "Remotion Preview" has been renamed to "Remotion Studio"
+- New Props editor allows for editing props with schema
+- New render button allows for rendering through the CLI
+- New `@remotion/zod-types` package
+- Node 14 is not supported anymore
+- `defaultProps` is now mandatory if the component accepts props
+- New [`selectComposition()`](/docs/renderer/select-composition) API
+- `<Composition>` now accepts a [`calculateMetadata`](/docs/composition) prop
+- `getCanExtractFramesFast()` has been removed
+- New `npx remotion ffmpeg` command
+- New `npx remotion ffprobe` command
+- `<Composition>` now accepts a schema
+- `react-native` no longer aliases to `react-native-web`
+- Configuration logic has been moved to `@remotion/cli/config`
+- Rich timeline was removed
+- FFmpeg is now included in Remotion, no need to install it anymore
+- ProRes now exports uncompressed audio by default
+- `onSlowestFrames` has been removed
+- `ImageFormat` has been removed in favor of `StillImageFormat` and `VideoImageFormat`
+- You can now export stills as PDF or WebP
+- Lambda does not support the x86 architecture anymore
+- `OffthreadVideoImageFormat` has been removed
+- `imageFormat` has been removed from `<OffthreadVideo>`
+- `<Img>` will cancel the render if the image cannot be loaded
+- The `TComposition` type now includes a Zod schema
+- Type `WebpackOverrideFn` moved
+- `staticFile()` URI-unsafe characters handling
+- ESLint has been upgraded to `8.42.0`
+- Webpack has been upgraded to `5.83.1`
+- TypeScript ESLint has been upgraded to `5.59.9`
+- `<OffthreadVideo>` now uses a Rust-based frame extractor
+- New Google TTS template
+- `Config.*.setOption()` syntax has been removed.
+- `Config.setOutputFormat()` has now been removed.
+- `downloadVideo()` alias has been removed.
+- `<MotionBlur>` has been removed
+- `getParts()` has been removed
