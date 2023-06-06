@@ -38,6 +38,7 @@ export const ZodSwitch: React.FC<{
 	onRemove: null | (() => void);
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -50,6 +51,7 @@ export const ZodSwitch: React.FC<{
 	onRemove,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -78,6 +80,7 @@ export const ZodSwitch: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -114,6 +117,7 @@ export const ZodSwitch: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -132,6 +136,7 @@ export const ZodSwitch: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -167,6 +172,7 @@ export const ZodSwitch: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -179,6 +185,7 @@ export const ZodSwitch: React.FC<{
 				showSaveButton={showSaveButton}
 				label={'undefined'}
 				saving={saving}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -191,6 +198,7 @@ export const ZodSwitch: React.FC<{
 				showSaveButton={showSaveButton}
 				label={'null'}
 				saving={saving}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -203,6 +211,7 @@ export const ZodSwitch: React.FC<{
 				showSaveButton={showSaveButton}
 				label={'any (not editable)'}
 				saving={saving}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -215,6 +224,7 @@ export const ZodSwitch: React.FC<{
 				showSaveButton={showSaveButton}
 				label={'BigInt (not editable)'}
 				saving={saving}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -227,6 +237,7 @@ export const ZodSwitch: React.FC<{
 				showSaveButton={showSaveButton}
 				label={'unknown (not editable)'}
 				saving={saving}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -285,6 +296,7 @@ export const ZodSwitch: React.FC<{
 					onRemove={onRemove}
 					saving={saving}
 					saveDisabledByParent={saveDisabledByParent}
+					mayPad={mayPad}
 				/>
 			);
 		}
@@ -319,6 +331,7 @@ export const ZodSwitch: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -384,6 +397,7 @@ export const ZodSwitch: React.FC<{
 			showSaveButton={showSaveButton}
 			label={`${typeName} (not editable)`}
 			saving={saving}
+			mayPad={mayPad}
 		/>
 	);
 };

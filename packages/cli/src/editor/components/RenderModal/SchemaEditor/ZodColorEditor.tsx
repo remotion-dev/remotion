@@ -10,11 +10,11 @@ import {InputDragger} from '../../NewComposition/InputDragger';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {RemInputTypeColor} from '../../NewComposition/RemInputTypeColor';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {narrowOption, optionRow} from '../layout';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -32,6 +32,7 @@ export const ZodColorEditor: React.FC<{
 	showSaveButton: boolean;
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -44,6 +45,7 @@ export const ZodColorEditor: React.FC<{
 	onRemove,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -132,7 +134,7 @@ export const ZodColorEditor: React.FC<{
 	);
 
 	return (
-		<div style={compact ? narrowOption : optionRow}>
+		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
 				compact={compact}
 				isDefaultValue={value === defaultValue}
@@ -191,6 +193,6 @@ export const ZodColorEditor: React.FC<{
 					</>
 				)}
 			</div>
-		</div>
+		</Fieldset>
 	);
 };

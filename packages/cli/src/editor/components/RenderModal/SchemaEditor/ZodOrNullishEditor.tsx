@@ -12,14 +12,11 @@ import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
 
 type LocalState = {
 	value: unknown;
 	zodValidation: z.SafeParseReturnType<unknown, unknown>;
-};
-
-const fullWidth: React.CSSProperties = {
-	width: '100%',
 };
 
 const labelStyle: React.CSSProperties = {
@@ -138,7 +135,10 @@ export const ZodOrNullishEditor: React.FC<{
 	}, [onSave, value]);
 
 	return (
-		<>
+		<Fieldset
+			shouldPad
+			success={localNonNullishValueValue.zodValidation.success}
+		>
 			{value === nullishValue ? (
 				<SchemaLabel
 					isDefaultValue={value === defaultValue}
@@ -153,21 +153,20 @@ export const ZodOrNullishEditor: React.FC<{
 					saveDisabledByParent={saveDisabledByParent}
 				/>
 			) : (
-				<div style={fullWidth}>
-					<ZodSwitch
-						value={value}
-						setValue={onValueChange}
-						jsonPath={jsonPath}
-						schema={schema}
-						compact={compact}
-						defaultValue={defaultValue}
-						onSave={onSave}
-						showSaveButton={showSaveButton}
-						onRemove={onRemove}
-						saving={saving}
-						saveDisabledByParent={saveDisabledByParent}
-					/>
-				</div>
+				<ZodSwitch
+					value={value}
+					setValue={onValueChange}
+					jsonPath={jsonPath}
+					schema={schema}
+					compact={compact}
+					defaultValue={defaultValue}
+					onSave={onSave}
+					showSaveButton={showSaveButton}
+					onRemove={onRemove}
+					saving={saving}
+					saveDisabledByParent={saveDisabledByParent}
+					mayPad={false}
+				/>
 			)}
 			<div style={checkBoxWrapper}>
 				<Checkbox
@@ -179,6 +178,6 @@ export const ZodOrNullishEditor: React.FC<{
 				<Spacing x={1} />
 				<div style={labelStyle}>{String(nullishValue)}</div>
 			</div>
-		</>
+		</Fieldset>
 	);
 };

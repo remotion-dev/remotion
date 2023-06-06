@@ -21,6 +21,7 @@ export const ZodObjectEditor: React.FC<{
 	onRemove: null | (() => void);
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
@@ -33,6 +34,7 @@ export const ZodObjectEditor: React.FC<{
 	onRemove,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -77,6 +79,7 @@ export const ZodObjectEditor: React.FC<{
 						return (
 							<React.Fragment key={key}>
 								<ZodSwitch
+									mayPad={mayPad}
 									jsonPath={[...jsonPath, key]}
 									schema={shape[key]}
 									value={localValue.value[key]}

@@ -123,6 +123,7 @@ export const ZodArrayEditor: React.FC<{
 									showSaveButton={showSaveButton}
 									saving={saving}
 									saveDisabledByParent={saveDisabledByParent}
+									mayPad={false}
 								/>
 							);
 						})}

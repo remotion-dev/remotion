@@ -49,6 +49,7 @@ export const ZodUnionEditor: React.FC<{
 	onRemove: null | (() => void);
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
 	compact,
@@ -61,6 +62,7 @@ export const ZodUnionEditor: React.FC<{
 	onRemove,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const {options} = schema._def as z.ZodUnionDef;
 
@@ -77,6 +79,7 @@ export const ZodUnionEditor: React.FC<{
 				compact={compact}
 				showSaveButton={showSaveButton}
 				saving={saving}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -89,6 +92,7 @@ export const ZodUnionEditor: React.FC<{
 				compact={compact}
 				showSaveButton={showSaveButton}
 				saving={saving}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -103,6 +107,7 @@ export const ZodUnionEditor: React.FC<{
 				compact={compact}
 				showSaveButton={showSaveButton}
 				saving={saving}
+				mayPad={mayPad}
 			/>
 		);
 	}
@@ -117,6 +122,7 @@ export const ZodUnionEditor: React.FC<{
 				compact={compact}
 				showSaveButton={showSaveButton}
 				saving={saving}
+				mayPad={mayPad}
 			/>
 		);
 	}

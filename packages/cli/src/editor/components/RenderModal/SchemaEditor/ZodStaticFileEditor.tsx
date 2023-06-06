@@ -7,11 +7,11 @@ import {Spacing} from '../../layout';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {narrowOption, optionRow} from '../layout';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -89,7 +89,7 @@ export const ZodStaticFileEditor: React.FC<{
 	}, [onSave, value]);
 
 	return (
-		<div style={compact ? narrowOption : optionRow}>
+		<Fieldset shouldPad success={localValue.zodValidation.success}>
 			<SchemaLabel
 				onSave={save}
 				showSaveButton={showSaveButton}
@@ -120,6 +120,6 @@ export const ZodStaticFileEditor: React.FC<{
 					/>
 				</>
 			)}
-		</div>
+		</Fieldset>
 	);
 };
