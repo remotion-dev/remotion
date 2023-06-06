@@ -67,7 +67,7 @@ If you are a Create React App or Next.JS user, you might be used to just to be a
 
 Use the `getStaticFiles()` API to get a list of available options.
 
-## Handling URI-unsafe characters <AvailableFrom v="4.0.0"/>
+## Handling URI-unsafe characters<AvailableFrom v="4.0.0"/>
 
 Since `v4.0`, `staticFile()` encodes the filename using `encodeURIComponent`.  
 If you encoded the path by yourself until now, make sure to drop your encoding before passing the path into `staticFile()` to avoid double encoding.
