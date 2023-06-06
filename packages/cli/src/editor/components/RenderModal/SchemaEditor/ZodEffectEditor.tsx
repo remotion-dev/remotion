@@ -1,6 +1,5 @@
-import React, {useMemo} from 'react';
+import React from 'react';
 import type {z} from 'zod';
-import {FAIL_COLOR} from '../../../helpers/colors';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
@@ -9,6 +8,7 @@ import {useLocalState} from './local-state';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -66,22 +66,8 @@ export const ZodEffectEditor: React.FC<{
 		throw new Error('expected effect');
 	}
 
-	const container = useMemo((): React.CSSProperties => {
-		if (!localValue.zodValidation.success) {
-			return {
-				border: `1px solid ${FAIL_COLOR}`,
-				borderRadius: 4,
-			};
-		}
-
-		return {
-			border: 'none',
-			padding: 0,
-		};
-	}, [localValue.zodValidation.success]);
-
 	return (
-		<fieldset style={container}>
+		<Fieldset success={localValue.zodValidation.success}>
 			<div style={fullWidth}>
 				<ZodSwitch
 					value={value}
@@ -120,6 +106,6 @@ export const ZodEffectEditor: React.FC<{
 					<Spacing x={0.5} />
 				</legend>
 			)}
-		</fieldset>
+		</Fieldset>
 	);
 };

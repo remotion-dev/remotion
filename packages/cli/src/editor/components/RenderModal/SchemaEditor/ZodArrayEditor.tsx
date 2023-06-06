@@ -2,10 +2,6 @@ import React, {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
 import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
 import {
-	FAIL_COLOR,
-	INPUT_BORDER_COLOR_UNHOVERED,
-} from '../../../helpers/colors';
-import {
 	useZodIfPossible,
 	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
@@ -19,6 +15,7 @@ import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import {ZodArrayItemEditor} from './ZodArrayItemEditor';
 import type {UpdaterFunction} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -74,18 +71,8 @@ export const ZodArrayEditor: React.FC<{
 	}
 
 	const isRoot = jsonPath.length === 0;
-	const Element = isRoot ? 'div' : 'fieldset';
 
 	const {paddingTop} = optionRow;
-
-	const fieldset: React.CSSProperties = useMemo(() => {
-		return {
-			borderRadius: 4,
-			borderColor: localValue.zodValidation.success
-				? INPUT_BORDER_COLOR_UNHOVERED
-				: FAIL_COLOR,
-		};
-	}, [localValue.zodValidation.success]);
 
 	const style = useMemo((): React.CSSProperties | undefined => {
 		if (isRoot) {
@@ -112,7 +99,7 @@ export const ZodArrayEditor: React.FC<{
 	return (
 		<div style={style}>
 			<div style={fullWidth}>
-				<Element style={fieldset}>
+				<Fieldset success={localValue.zodValidation.success}>
 					{isRoot ? null : (
 						<SchemaFieldsetLabel
 							onReset={reset}
@@ -154,7 +141,7 @@ export const ZodArrayEditor: React.FC<{
 					)}
 					<Spacing y={1} block />
 					<Button onClick={onAdd}>+ Add item</Button>
-				</Element>
+				</Fieldset>
 			</div>
 		</div>
 	);
