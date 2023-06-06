@@ -44,17 +44,17 @@ export const ZodBooleanEditor: React.FC<{
 
 	const onToggle: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			onChange(() => e.target.checked, false);
+			onChange(() => e.target.checked, false, false);
 		},
 		[onChange]
 	);
 
 	const reset = useCallback(() => {
-		onChange(() => defaultValue, true);
+		onChange(() => defaultValue, true, false);
 	}, [defaultValue, onChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (

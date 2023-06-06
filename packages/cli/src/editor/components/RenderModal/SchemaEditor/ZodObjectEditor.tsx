@@ -1,3 +1,4 @@
+import {useMemo} from 'react';
 import React, {useCallback} from 'react';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
@@ -10,6 +11,7 @@ import {SchemaSeparationLine} from './SchemaSeparationLine';
 import {fieldsetLabel} from '../layout';
 import {SchemaVerticalGuide} from './SchemaVerticalGuide';
 import {SchemaLabel} from './SchemaLabel';
+import {deepEqual} from './deep-equal';
 
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
@@ -59,24 +61,32 @@ export const ZodObjectEditor: React.FC<{
 
 	const isRoot = jsonPath.length === 0;
 
-	const onRes = useCallback(() => {
-		onChange(() => defaultValue, true);
+	const onReset = useCallback(() => {
+		onChange(() => defaultValue, true, false);
 	}, [defaultValue, onChange]);
+
+	const isDefaultValue = useMemo(() => {
+		return deepEqual(localValue.value, defaultValue);
+	}, [defaultValue, localValue]);
 
 	return (
 		<div>
 			<Fieldset shouldPad={!isRoot} success={localValue.zodValidation.success}>
 				{isRoot ? null : (
 					<SchemaLabel
-						isDefaultValue
-						onReset={onRes}
+						isDefaultValue={isDefaultValue}
+						onReset={onReset}
 						jsonPath={jsonPath}
 						onRemove={onRemove}
 						suffix={' {'}
 						onSave={() => {
-							onSave(() => {
-								return localValue.value;
-							}, false);
+							onSave(
+								() => {
+									return localValue.value;
+								},
+								false,
+								false
+							);
 						}}
 						saveDisabledByParent={saveDisabledByParent}
 						saving={saving}
@@ -96,22 +106,30 @@ export const ZodObjectEditor: React.FC<{
 									// In case of null | {a: string, b: string} type, we need to fallback to the default value
 									defaultValue={(defaultValue ?? value)[key]}
 									setValue={(val, forceApply) => {
-										onChange((oldVal) => {
-											return {
-												...oldVal,
-												[key]:
-													typeof val === 'function' ? val(oldVal[key]) : val,
-											};
-										}, forceApply);
+										onChange(
+											(oldVal) => {
+												return {
+													...oldVal,
+													[key]:
+														typeof val === 'function' ? val(oldVal[key]) : val,
+												};
+											},
+											forceApply,
+											false
+										);
 									}}
 									onSave={(val, forceApply) => {
-										onSave((oldVal) => {
-											return {
-												...oldVal,
-												[key]:
-													typeof val === 'function' ? val(oldVal[key]) : val,
-											};
-										}, forceApply);
+										onSave(
+											(oldVal) => {
+												return {
+													...oldVal,
+													[key]:
+														typeof val === 'function' ? val(oldVal[key]) : val,
+												};
+											},
+											forceApply,
+											false
+										);
 									}}
 									onRemove={null}
 									showSaveButton={showSaveButton}
