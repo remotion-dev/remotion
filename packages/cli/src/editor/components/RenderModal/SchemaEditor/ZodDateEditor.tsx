@@ -1,14 +1,14 @@
 import React, {useCallback} from 'react';
 import type {z} from 'zod';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
-import {Spacing, SPACING_UNIT} from '../../layout';
+import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {narrowOption, optionRow} from '../layout';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -18,7 +18,6 @@ const explainer: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	color: VERY_LIGHT_TEXT,
-	marginBottom: SPACING_UNIT,
 };
 
 // This will do 2 things:
@@ -62,6 +61,7 @@ export const ZodDateEditor: React.FC<{
 	showSaveButton: boolean;
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -74,6 +74,7 @@ export const ZodDateEditor: React.FC<{
 	onRemove,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const {localValue, onChange: setLocalValue} = useLocalState({
 		schema,
@@ -105,7 +106,7 @@ export const ZodDateEditor: React.FC<{
 	}, [onSave, value]);
 
 	return (
-		<div style={compact ? narrowOption : optionRow}>
+		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
 				compact={compact}
 				isDefaultValue={value.getTime() === defaultValue.getTime()}
@@ -141,6 +142,6 @@ export const ZodDateEditor: React.FC<{
 					</>
 				)}
 			</div>
-		</div>
+		</Fieldset>
 	);
 };

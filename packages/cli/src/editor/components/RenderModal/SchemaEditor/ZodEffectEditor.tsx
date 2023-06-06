@@ -81,6 +81,7 @@ export const ZodEffectEditor: React.FC<{
 					onRemove={onRemove}
 					saving={saving}
 					saveDisabledByParent={!localValue.zodValidation.success}
+					mayPad={false}
 				/>
 			</div>
 			{!localValue.zodValidation.success && (

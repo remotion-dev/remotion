@@ -44,6 +44,7 @@ export const ZodDefaultEditor: React.FC<{
 			value={value}
 			saving={saving}
 			saveDisabledByParent={saveDisabledByParent}
+			mayPad={false}
 		/>
 	);
 };

@@ -1,9 +1,9 @@
 import React, {useCallback} from 'react';
 import {Checkbox} from '../../Checkbox';
-import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -20,6 +20,7 @@ export const ZodBooleanEditor: React.FC<{
 	showSaveButton: boolean;
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -31,6 +32,7 @@ export const ZodBooleanEditor: React.FC<{
 	showSaveButton,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const onValueChange = useCallback(
 		(newValue: boolean, forceApply: boolean) => {
@@ -55,7 +57,7 @@ export const ZodBooleanEditor: React.FC<{
 	}, [onSave, value]);
 
 	return (
-		<div style={compact ? narrowOption : optionRow}>
+		<Fieldset shouldPad={mayPad} success>
 			<SchemaLabel
 				isDefaultValue={value === defaultValue}
 				jsonPath={jsonPath}
@@ -76,6 +78,6 @@ export const ZodBooleanEditor: React.FC<{
 					disabled={false}
 				/>
 			</div>
-		</div>
+		</Fieldset>
 	);
 };

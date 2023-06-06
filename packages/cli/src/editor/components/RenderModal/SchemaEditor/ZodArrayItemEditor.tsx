@@ -16,6 +16,7 @@ export const ZodArrayItemEditor: React.FC<{
 	showSaveButton: boolean;
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	def,
 	onChange,
@@ -28,6 +29,7 @@ export const ZodArrayItemEditor: React.FC<{
 	showSaveButton,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const onRemove = useCallback(() => {
 		onChange(
@@ -79,6 +81,7 @@ export const ZodArrayItemEditor: React.FC<{
 			onRemove={onRemove}
 			saving={saving}
 			saveDisabledByParent={saveDisabledByParent}
+			mayPad={mayPad}
 		/>
 	);
 };

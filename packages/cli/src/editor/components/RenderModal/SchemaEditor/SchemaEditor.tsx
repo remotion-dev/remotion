@@ -87,6 +87,7 @@ export const SchemaEditor: React.FC<{
 				onRemove={null}
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
+				mayPad
 			/>
 		</div>
 	);

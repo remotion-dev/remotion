@@ -26,6 +26,7 @@ export const ZodStringEditor: React.FC<{
 	showSaveButton: boolean;
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -38,6 +39,7 @@ export const ZodStringEditor: React.FC<{
 	onRemove,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -65,7 +67,7 @@ export const ZodStringEditor: React.FC<{
 	}, [onSave, value]);
 
 	return (
-		<Fieldset shouldPad success={false}>
+		<Fieldset shouldPad={mayPad} success={false}>
 			<SchemaLabel
 				compact={compact}
 				isDefaultValue={localValue.value === defaultValue}

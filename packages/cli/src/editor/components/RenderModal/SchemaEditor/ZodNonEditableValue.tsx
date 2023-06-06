@@ -1,8 +1,8 @@
 import React, {useCallback} from 'react';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
-import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import {Fieldset} from './Fieldset';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -26,11 +26,12 @@ export const ZonNonEditableValue: React.FC<{
 	compact: boolean;
 	showSaveButton: boolean;
 	saving: boolean;
-}> = ({jsonPath, label, compact, showSaveButton, saving}) => {
+	mayPad: boolean;
+}> = ({jsonPath, label, compact, showSaveButton, saving, mayPad}) => {
 	const save = useCallback(() => undefined, []);
 	const reset = useCallback(() => undefined, []);
 	return (
-		<div style={compact ? narrowOption : optionRow}>
+		<Fieldset shouldPad={mayPad} success>
 			<SchemaLabel
 				isDefaultValue
 				jsonPath={jsonPath}
@@ -46,6 +47,6 @@ export const ZonNonEditableValue: React.FC<{
 			<div style={fullWidth}>
 				<em style={compact ? emptyLabel : wideEmptyLabel}>{label}</em>
 			</div>
-		</div>
+		</Fieldset>
 	);
 };
