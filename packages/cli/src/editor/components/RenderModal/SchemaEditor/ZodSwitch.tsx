@@ -155,6 +155,7 @@ export const ZodSwitch: React.FC<{
 				onRemove={onRemove}
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
+				mayPad={mayPad}
 			/>
 		);
 	}

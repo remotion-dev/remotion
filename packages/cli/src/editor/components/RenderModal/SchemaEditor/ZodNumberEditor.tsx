@@ -3,11 +3,11 @@ import type {z} from 'zod';
 import {Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {narrowOption, optionRow} from '../layout';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -79,6 +79,7 @@ export const ZodNumberEditor: React.FC<{
 	showSaveButton: boolean;
 	saving: boolean;
 	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -91,6 +92,7 @@ export const ZodNumberEditor: React.FC<{
 	showSaveButton,
 	saving,
 	saveDisabledByParent,
+	mayPad,
 }) => {
 	const {localValue, onChange: setLocalValue} = useLocalState({
 		value,
@@ -123,7 +125,7 @@ export const ZodNumberEditor: React.FC<{
 	}, [onSave, value]);
 
 	return (
-		<div style={compact ? narrowOption : optionRow}>
+		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
 				isDefaultValue={isDefault}
 				jsonPath={jsonPath}
@@ -161,6 +163,6 @@ export const ZodNumberEditor: React.FC<{
 					</>
 				)}
 			</div>
-		</div>
+		</Fieldset>
 	);
 };
