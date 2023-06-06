@@ -55,10 +55,15 @@ export const ZodColorEditor: React.FC<{
 		throw new Error('expected zod color');
 	}
 
-	const {localValue, onChange: onValueChange} = useLocalState({
+	const {
+		localValue,
+		onChange: onValueChange,
+		reset,
+	} = useLocalState({
 		schema,
 		setValue,
 		value,
+		defaultValue,
 	});
 
 	const {a, b, g, r} = localValue.zodValidation.success
@@ -84,10 +89,6 @@ export const ZodColorEditor: React.FC<{
 		},
 		[onValueChange]
 	);
-
-	const reset = useCallback(() => {
-		onValueChange(() => defaultValue, true, false);
-	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
 		onSave(() => value, false, false);

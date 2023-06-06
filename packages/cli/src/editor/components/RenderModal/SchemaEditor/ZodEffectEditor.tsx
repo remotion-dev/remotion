@@ -42,6 +42,7 @@ export const ZodEffectEditor: React.FC<{
 		value,
 		schema,
 		setValue: updateValue,
+		defaultValue,
 	});
 
 	const def = schema._def;

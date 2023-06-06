@@ -41,10 +41,15 @@ export const ZodEnumEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const {localValue, onChange: setLocalValue} = useLocalState({
+	const {
+		localValue,
+		onChange: setLocalValue,
+		reset,
+	} = useLocalState({
 		schema,
 		setValue,
 		value,
+		defaultValue,
 	});
 
 	const def = schema._def;
@@ -55,10 +60,6 @@ export const ZodEnumEditor: React.FC<{
 	}
 
 	const isRoot = jsonPath.length === 0;
-
-	const reset = useCallback(() => {
-		setLocalValue(() => defaultValue, true, false);
-	}, [defaultValue, setLocalValue]);
 
 	const comboBoxValues = useMemo(() => {
 		return def.values.map((option: string): ComboboxValue => {

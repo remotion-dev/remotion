@@ -74,10 +74,15 @@ export const ZodDateEditor: React.FC<{
 	saveDisabledByParent,
 	mayPad,
 }) => {
-	const {localValue, onChange: setLocalValue} = useLocalState({
+	const {
+		localValue,
+		onChange: setLocalValue,
+		reset,
+	} = useLocalState({
 		schema,
 		setValue,
 		value,
+		defaultValue,
 	});
 
 	const onValueChange = useCallback(
@@ -94,10 +99,6 @@ export const ZodDateEditor: React.FC<{
 		},
 		[onValueChange]
 	);
-
-	const reset = useCallback(() => {
-		onValueChange(defaultValue, true);
-	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
 		onSave(() => value, false, false);
