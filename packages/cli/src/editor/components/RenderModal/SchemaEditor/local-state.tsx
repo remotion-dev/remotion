@@ -86,14 +86,14 @@ export const useLocalState = <T,>({
 
 				return {
 					...localValue,
-					[resetRevision]: newState,
+					[parentRevision]: newState,
 				};
 			});
 		},
 		[
 			currentLocalValue.keyStabilityRevision,
 			localValue,
-			resetRevision,
+			parentRevision,
 			schema,
 			setValue,
 		]

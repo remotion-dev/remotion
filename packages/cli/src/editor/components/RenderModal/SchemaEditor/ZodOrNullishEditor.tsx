@@ -1,4 +1,4 @@
-import {useCallback} from 'react';
+import {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Checkbox} from '../../Checkbox';
@@ -92,6 +92,10 @@ export const ZodOrNullishEditor: React.FC<{
 		onSave(() => value, false, false);
 	}, [onSave, value]);
 
+	const switchDefaultValue = useMemo(() => {
+		return createZodValues(innerSchema, z, zodTypes);
+	}, [innerSchema, z, zodTypes]);
+
 	return (
 		<Fieldset shouldPad success={localValue.zodValidation.success}>
 			{localValue.value === nullishValue ? (
@@ -110,10 +114,10 @@ export const ZodOrNullishEditor: React.FC<{
 			) : (
 				<ZodSwitch
 					value={localValue.value}
-					setValue={setValue}
+					setValue={setLocalValue}
 					jsonPath={jsonPath}
 					schema={innerSchema}
-					defaultValue={defaultValue}
+					defaultValue={switchDefaultValue}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}
