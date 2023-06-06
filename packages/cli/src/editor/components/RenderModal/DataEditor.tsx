@@ -163,7 +163,7 @@ export const DataEditor: React.FC<{
 		}
 
 		if (!unresolvedComposition.schema) {
-			return z.object({});
+			return 'no-schema' as const;
 		}
 
 		if (!(typeof unresolvedComposition.schema.safeParse === 'function')) {
@@ -178,6 +178,10 @@ export const DataEditor: React.FC<{
 	const zodValidationResult = useMemo(() => {
 		if (schema === 'no-zod') {
 			return 'no-zod' as const;
+		}
+
+		if (schema === 'no-schema') {
+			return 'no-schema' as const;
 		}
 
 		return schema.safeParse(inputProps);
@@ -276,7 +280,7 @@ export const DataEditor: React.FC<{
 	}, [mode]);
 
 	const onUpdate = useCallback(() => {
-		if (schema === 'no-zod' || z === null) {
+		if (schema === 'no-zod' || schema === 'no-schema' || z === null) {
 			sendErrorNotification('Cannot update default props: No Zod schema');
 			return;
 		}
@@ -301,7 +305,7 @@ export const DataEditor: React.FC<{
 
 	const onSave = useCallback(
 		(updater: (oldState: unknown) => unknown) => {
-			if (schema === 'no-zod' || z === null) {
+			if (schema === 'no-zod' || schema === 'no-schema' || z === null) {
 				sendErrorNotification('Cannot update default props: No Zod schema');
 				return;
 			}
@@ -365,12 +369,20 @@ export const DataEditor: React.FC<{
 		return <ZodNotInstalled />;
 	}
 
+	if (schema === 'no-schema') {
+		return <NoSchemaDefined />;
+	}
+
 	if (!z) {
 		throw new Error('expected zod');
 	}
 
 	if (zodValidationResult === 'no-zod') {
 		throw new Error('expected zod');
+	}
+
+	if (zodValidationResult === 'no-schema') {
+		throw new Error('expected schema');
 	}
 
 	const def: z.ZodTypeDef = schema._def;

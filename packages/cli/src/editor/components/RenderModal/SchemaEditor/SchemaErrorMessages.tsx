@@ -57,8 +57,6 @@ export const ZodNotInstalled = () => {
 export const NoSchemaDefined = () => {
 	return (
 		<div style={explainer}>
-			<SchemaEmptyStateGraphic />
-			<Spacing y={5} />
 			<div style={errorExplanation}>
 				Make the props of this composition interactively editable by adding a{' '}
 				<code style={inlineCodeSnippet}>schema</code> prop to the{' '}
