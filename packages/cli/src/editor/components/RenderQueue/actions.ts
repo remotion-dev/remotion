@@ -17,7 +17,8 @@ import {serializeJSONWithDate} from '../RenderModal/SchemaEditor/input-props-ser
 
 const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
-	body: ApiRoutes[Endpoint]['Request']
+	body: ApiRoutes[Endpoint]['Request'],
+	signal?: AbortSignal
 ): Promise<ApiRoutes[Endpoint]['Response']> => {
 	return new Promise<ApiRoutes[Endpoint]['Response']>((resolve, reject) => {
 		fetch(endpoint, {
@@ -25,6 +26,7 @@ const callApi = <Endpoint extends keyof ApiRoutes>(
 			headers: {
 				'content-type': 'application/json',
 			},
+			signal,
 			body: JSON.stringify(body),
 		})
 			.then((res) => res.json())
@@ -212,6 +214,10 @@ export const cancelRenderJob = (job: RenderJob) => {
 	return callApi('/api/cancel', {
 		jobId: job.id,
 	});
+};
+
+export const updateAvailable = (signal: AbortSignal) => {
+	return callApi('/api/update-available', {}, signal);
 };
 
 export const updateDefaultProps = (
