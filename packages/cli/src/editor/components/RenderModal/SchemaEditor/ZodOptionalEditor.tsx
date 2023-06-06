@@ -6,7 +6,6 @@ import type {UpdaterFunction} from './ZodSwitch';
 export const ZodOptionalEditor: React.FC<{
 	showSaveButton: boolean;
 	jsonPath: JSONPath;
-	compact: boolean;
 	value: unknown;
 	defaultValue: unknown;
 	schema: z.ZodTypeAny;
@@ -17,7 +16,6 @@ export const ZodOptionalEditor: React.FC<{
 	saveDisabledByParent: boolean;
 }> = ({
 	jsonPath,
-	compact,
 	schema,
 	setValue,
 	onSave,
@@ -32,7 +30,6 @@ export const ZodOptionalEditor: React.FC<{
 
 	return (
 		<ZodOrNullishEditor
-			compact={compact}
 			defaultValue={defaultValue}
 			jsonPath={jsonPath}
 			onRemove={onRemove}

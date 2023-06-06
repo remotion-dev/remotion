@@ -10,7 +10,6 @@ export const ZodArrayItemEditor: React.FC<{
 	def: any;
 	index: number;
 	value: unknown;
-	compact: boolean;
 	defaultValue: unknown;
 	onSave: UpdaterFunction<unknown[]>;
 	showSaveButton: boolean;
@@ -23,7 +22,6 @@ export const ZodArrayItemEditor: React.FC<{
 	jsonPath,
 	index,
 	value,
-	compact,
 	defaultValue,
 	onSave: onSaveObject,
 	showSaveButton,
@@ -74,7 +72,6 @@ export const ZodArrayItemEditor: React.FC<{
 			schema={def.type}
 			value={value}
 			setValue={setValue}
-			compact={compact}
 			defaultValue={defaultValue}
 			onSave={onSave}
 			showSaveButton={showSaveButton}

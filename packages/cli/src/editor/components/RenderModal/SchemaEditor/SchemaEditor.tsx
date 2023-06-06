@@ -22,7 +22,6 @@ export const SchemaEditor: React.FC<{
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
-	compact: boolean;
 	defaultProps: Record<string, unknown>;
 	onSave: (updater: (oldState: unknown) => unknown) => void;
 	showSaveButton: boolean;
@@ -33,7 +32,6 @@ export const SchemaEditor: React.FC<{
 	value,
 	setValue,
 	zodValidationResult,
-	compact,
 	defaultProps,
 	onSave,
 	showSaveButton,
@@ -76,7 +74,6 @@ export const SchemaEditor: React.FC<{
 				setValue={setValue}
 				jsonPath={[]}
 				schema={schema}
-				compact={compact}
 				defaultValue={defaultProps as Record<string, unknown>}
 				onSave={
 					onSave as (

@@ -33,7 +33,6 @@ export const ZodSwitch: React.FC<{
 	defaultValue: unknown;
 	setValue: UpdaterFunction<unknown>;
 	onSave: UpdaterFunction<unknown>;
-	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
@@ -42,7 +41,6 @@ export const ZodSwitch: React.FC<{
 }> = ({
 	schema,
 	jsonPath,
-	compact,
 	value,
 	setValue,
 	defaultValue,
@@ -74,7 +72,6 @@ export const ZodSwitch: React.FC<{
 				defaultValue={defaultValue as Record<string, unknown>}
 				jsonPath={jsonPath}
 				schema={schema}
-				compact={compact}
 				onSave={onSave as UpdaterFunction<Record<string, unknown>>}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
@@ -93,7 +90,6 @@ export const ZodSwitch: React.FC<{
 					value={value as string}
 					jsonPath={jsonPath}
 					schema={schema}
-					compact={compact}
 					defaultValue={defaultValue as string}
 					onSave={onSave as (newValue: (oldVal: string) => string) => void}
 					showSaveButton={showSaveButton}
@@ -111,7 +107,6 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue as UpdaterFunction<string>}
 				jsonPath={jsonPath}
 				schema={schema}
-				compact={compact}
 				onSave={onSave as UpdaterFunction<string>}
 				defaultValue={defaultValue as string}
 				showSaveButton={showSaveButton}
@@ -130,7 +125,6 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue as UpdaterFunction<Date>}
 				jsonPath={jsonPath}
 				schema={schema}
-				compact={compact}
 				onSave={onSave as UpdaterFunction<Date>}
 				defaultValue={defaultValue as Date}
 				showSaveButton={showSaveButton}
@@ -149,7 +143,6 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue as UpdaterFunction<number>}
 				jsonPath={jsonPath}
 				schema={schema}
-				compact={compact}
 				defaultValue={defaultValue as number}
 				onSave={onSave as UpdaterFunction<number>}
 				showSaveButton={showSaveButton}
@@ -167,7 +160,6 @@ export const ZodSwitch: React.FC<{
 				value={value as boolean}
 				setValue={setValue as UpdaterFunction<boolean>}
 				jsonPath={jsonPath}
-				compact={compact}
 				defaultValue={defaultValue as boolean}
 				onSave={onSave as UpdaterFunction<boolean>}
 				showSaveButton={showSaveButton}
@@ -183,7 +175,6 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodUndefined) {
 		return (
 			<ZonNonEditableValue
-				compact={compact}
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'undefined'}
@@ -196,7 +187,6 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodNull) {
 		return (
 			<ZonNonEditableValue
-				compact={compact}
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'null'}
@@ -209,7 +199,6 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodAny) {
 		return (
 			<ZonNonEditableValue
-				compact={compact}
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'any (not editable)'}
@@ -222,7 +211,6 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodBigInt) {
 		return (
 			<ZonNonEditableValue
-				compact={compact}
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'BigInt (not editable)'}
@@ -235,7 +223,6 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodUnknown) {
 		return (
 			<ZonNonEditableValue
-				compact={compact}
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				label={'unknown (not editable)'}
@@ -252,7 +239,6 @@ export const ZodSwitch: React.FC<{
 				value={value as unknown[]}
 				jsonPath={jsonPath}
 				schema={schema}
-				compact={compact}
 				defaultValue={defaultValue as unknown[]}
 				onSave={onSave as UpdaterFunction<unknown[]>}
 				showSaveButton={showSaveButton}
@@ -271,7 +257,6 @@ export const ZodSwitch: React.FC<{
 				value={value as string}
 				jsonPath={jsonPath}
 				schema={schema}
-				compact={compact}
 				defaultValue={defaultValue as string}
 				onSave={onSave as UpdaterFunction<string>}
 				showSaveButton={showSaveButton}
@@ -293,7 +278,6 @@ export const ZodSwitch: React.FC<{
 					setValue={setValue as UpdaterFunction<string>}
 					jsonPath={jsonPath}
 					schema={schema}
-					compact={compact}
 					onSave={onSave as UpdaterFunction<string>}
 					defaultValue={defaultValue as string}
 					showSaveButton={showSaveButton}
@@ -311,7 +295,6 @@ export const ZodSwitch: React.FC<{
 				setValue={setValue}
 				jsonPath={jsonPath}
 				schema={schema}
-				compact={compact}
 				defaultValue={defaultValue}
 				onSave={onSave}
 				showSaveButton={showSaveButton}
@@ -327,7 +310,6 @@ export const ZodSwitch: React.FC<{
 				schema={schema}
 				showSaveButton={showSaveButton}
 				jsonPath={jsonPath}
-				compact={compact}
 				value={value}
 				defaultValue={defaultValue}
 				setValue={setValue}
@@ -343,7 +325,6 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodOptional) {
 		return (
 			<ZodOptionalEditor
-				compact={compact}
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				defaultValue={defaultValue}
@@ -361,7 +342,6 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodNullable) {
 		return (
 			<ZodNullableEditor
-				compact={compact}
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				defaultValue={defaultValue}
@@ -380,7 +360,6 @@ export const ZodSwitch: React.FC<{
 	if (typeName === z.ZodFirstPartyTypeKind.ZodDefault) {
 		return (
 			<ZodDefaultEditor
-				compact={compact}
 				jsonPath={jsonPath}
 				showSaveButton={showSaveButton}
 				defaultValue={defaultValue}
@@ -397,7 +376,6 @@ export const ZodSwitch: React.FC<{
 
 	return (
 		<ZonNonEditableValue
-			compact={compact}
 			jsonPath={jsonPath}
 			showSaveButton={showSaveButton}
 			label={`${typeName} (not editable)`}

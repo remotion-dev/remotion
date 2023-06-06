@@ -1,31 +1,15 @@
 import React from 'react';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
-import {Spacing} from '../../layout';
-import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {InfoBubble} from '../InfoBubble';
 import {useLocalState} from './local-state';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
 import {Fieldset} from './Fieldset';
+import {ZodFieldValidation} from './ZodFieldValidation';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
-};
-
-const stackTrace: React.CSSProperties = {
-	padding: 10,
-};
-
-const stackTraceLabel: React.CSSProperties = {
-	fontSize: 14,
-};
-
-const legend: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'row',
-	alignItems: 'center',
 };
 
 export const ZodEffectEditor: React.FC<{
@@ -33,7 +17,6 @@ export const ZodEffectEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: unknown;
 	setValue: UpdaterFunction<unknown>;
-	compact: boolean;
 	defaultValue: unknown;
 	onSave: UpdaterFunction<unknown>;
 	showSaveButton: boolean;
@@ -44,7 +27,6 @@ export const ZodEffectEditor: React.FC<{
 	jsonPath,
 	value,
 	setValue: updateValue,
-	compact,
 	defaultValue,
 	onSave,
 	onRemove,
@@ -76,7 +58,6 @@ export const ZodEffectEditor: React.FC<{
 					setValue={onChange}
 					jsonPath={jsonPath}
 					schema={def.schema}
-					compact={compact}
 					defaultValue={defaultValue}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
@@ -86,29 +67,7 @@ export const ZodEffectEditor: React.FC<{
 					mayPad={false}
 				/>
 			</div>
-			{!localValue.zodValidation.success && (
-				<div style={legend}>
-					<ValidationMessage
-						align="flex-start"
-						message={localValue.zodValidation.error.format()._errors[0]}
-						type="error"
-					/>
-					<Spacing x={0.5} />
-					<InfoBubble title="Zod validation failure">
-						<div style={stackTrace}>
-							<div style={stackTraceLabel}>Zod Validation has failed:</div>
-							{localValue.zodValidation.error.errors.map((error, index) => (
-								// eslint-disable-next-line react/no-array-index-key
-								<div key={index} style={stackTraceLabel}>
-									Type: {error.code} <br />
-									Message: {error.message}
-								</div>
-							))}
-						</div>
-					</InfoBubble>
-					<Spacing x={0.5} />
-				</div>
-			)}
+			<ZodFieldValidation path={jsonPath} localValue={localValue} />
 		</Fieldset>
 	);
 };

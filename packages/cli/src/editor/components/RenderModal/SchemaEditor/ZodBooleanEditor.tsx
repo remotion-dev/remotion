@@ -16,7 +16,6 @@ export const ZodBooleanEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: boolean;
 	setValue: UpdaterFunction<boolean>;
-	compact: boolean;
 	defaultValue: boolean;
 	onSave: UpdaterFunction<boolean>;
 	onRemove: null | (() => void);
@@ -30,7 +29,6 @@ export const ZodBooleanEditor: React.FC<{
 	value,
 	setValue,
 	onSave,
-	compact,
 	defaultValue,
 	onRemove,
 	showSaveButton,
@@ -67,7 +65,6 @@ export const ZodBooleanEditor: React.FC<{
 				onReset={reset}
 				onSave={save}
 				showSaveButton={showSaveButton}
-				compact={compact}
 				onRemove={onRemove}
 				saving={saving}
 				valid

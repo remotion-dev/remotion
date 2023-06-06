@@ -53,7 +53,6 @@ const PropsEditor: React.FC<{
 			unresolvedComposition={composition}
 			inputProps={actualProps}
 			setInputProps={setInputProps}
-			compact
 			mayShowSaveButton
 			propsEditType="default-props"
 		/>

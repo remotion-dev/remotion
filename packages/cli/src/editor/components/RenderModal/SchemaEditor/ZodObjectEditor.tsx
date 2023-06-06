@@ -17,7 +17,6 @@ export const ZodObjectEditor: React.FC<{
 	value: Record<string, unknown>;
 	defaultValue: Record<string, unknown>;
 	setValue: UpdaterFunction<Record<string, unknown>>;
-	compact: boolean;
 	onSave: UpdaterFunction<Record<string, unknown>>;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
@@ -29,7 +28,6 @@ export const ZodObjectEditor: React.FC<{
 	jsonPath,
 	setValue,
 	value,
-	compact,
 	defaultValue,
 	onSave,
 	showSaveButton,
@@ -107,7 +105,6 @@ export const ZodObjectEditor: React.FC<{
 										}, forceApply);
 									}}
 									onRemove={null}
-									compact={compact}
 									showSaveButton={showSaveButton}
 									saving={saving}
 									saveDisabledByParent={saveDisabledByParent}

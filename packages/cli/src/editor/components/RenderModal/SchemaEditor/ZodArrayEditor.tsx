@@ -4,8 +4,6 @@ import {
 	useZodIfPossible,
 	useZodTypesIfPossible,
 } from '../../get-zod-if-possible';
-import {Spacing} from '../../layout';
-import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {createZodValues} from './create-zod-values';
 import {deepEqual} from './deep-equal';
 import {useLocalState} from './local-state';
@@ -20,6 +18,7 @@ import {SchemaSeparationLine} from './SchemaSeparationLine';
 import type {RenderInlineAction} from '../../InlineAction';
 import {InlineAction} from '../../InlineAction';
 import {Plus} from '../../../icons/plus';
+import {ZodFieldValidation} from './ZodFieldValidation';
 
 export const ZodArrayEditor: React.FC<{
 	schema: z.ZodTypeAny;
@@ -28,7 +27,6 @@ export const ZodArrayEditor: React.FC<{
 	defaultValue: unknown[];
 	setValue: UpdaterFunction<unknown[]>;
 	onSave: UpdaterFunction<unknown[]>;
-	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
@@ -37,7 +35,6 @@ export const ZodArrayEditor: React.FC<{
 }> = ({
 	schema,
 	jsonPath,
-	compact,
 	setValue,
 	defaultValue,
 	value,
@@ -106,7 +103,6 @@ export const ZodArrayEditor: React.FC<{
 								def={def}
 								index={i}
 								jsonPath={jsonPath}
-								compact={compact}
 								defaultValue={defaultValue[i] ?? child}
 								onSave={onSave}
 								showSaveButton={showSaveButton}
@@ -131,17 +127,7 @@ export const ZodArrayEditor: React.FC<{
 				{']'}
 				<InlineAction onClick={onAdd} renderAction={renderAddButton} />
 			</div>
-
-			{!localValue.zodValidation.success && (
-				<>
-					<Spacing x={1} />
-					<ValidationMessage
-						align="flex-start"
-						message={localValue.zodValidation.error.format()._errors[0]}
-						type="error"
-					/>
-				</>
-			)}
+			<ZodFieldValidation path={jsonPath} localValue={localValue} />
 		</Fieldset>
 	);
 };

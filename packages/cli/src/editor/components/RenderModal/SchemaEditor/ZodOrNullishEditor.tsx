@@ -35,7 +35,6 @@ const checkBoxWrapper: React.CSSProperties = {
 export const ZodOrNullishEditor: React.FC<{
 	showSaveButton: boolean;
 	jsonPath: JSONPath;
-	compact: boolean;
 	value: unknown;
 	defaultValue: unknown;
 	schema: z.ZodTypeAny;
@@ -48,7 +47,6 @@ export const ZodOrNullishEditor: React.FC<{
 	mayPad: boolean;
 }> = ({
 	jsonPath,
-	compact,
 	schema,
 	setValue,
 	onSave,
@@ -147,7 +145,6 @@ export const ZodOrNullishEditor: React.FC<{
 					onReset={reset}
 					onSave={save}
 					showSaveButton={showSaveButton}
-					compact={compact}
 					onRemove={onRemove}
 					saving={saving}
 					valid={localNonNullishValueValue.zodValidation.success}
@@ -159,7 +156,6 @@ export const ZodOrNullishEditor: React.FC<{
 					setValue={onValueChange}
 					jsonPath={jsonPath}
 					schema={schema}
-					compact={compact}
 					defaultValue={defaultValue}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
