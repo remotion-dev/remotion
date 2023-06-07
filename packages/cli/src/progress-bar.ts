@@ -272,7 +272,7 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 		return `Bundling ${Math.round(progress.bundling.progress * 100)}%`;
 	}
 
-	if (!progress.copyingState.doneIn) {
+	if (progress.copyingState.doneIn === null) {
 		if (progress.copyingState.bytes < 100_000_000) {
 			return 'Bundling 100%';
 		}
