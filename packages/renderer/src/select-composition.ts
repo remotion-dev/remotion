@@ -8,6 +8,7 @@ import type {Page} from './browser/BrowserPage';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
+import {Log} from './logger';
 import type {ChromiumOptions} from './open-browser';
 import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -51,6 +52,8 @@ const innerSelectComposition = async ({
 	timeoutInMilliseconds,
 	port,
 	id,
+	indent,
+	verbose,
 }: InnerSelectCompositionConfig): Promise<AnyCompMetadata> => {
 	if (onBrowserLog) {
 		page.on('console', (log) => {
@@ -90,6 +93,15 @@ const innerSelectComposition = async ({
 
 	await waitForReady(page);
 
+	Log.verboseAdvanced(
+		{
+			indent: indent ?? false,
+			tag: 'selectComposition()',
+			logLevel: verbose ? 'verbose' : 'info',
+		},
+		'Running calculateMetadata()...'
+	);
+	const time = Date.now();
 	const result = await puppeteerEvaluateWithCatch({
 		pageFunction: (_id: string) => {
 			return window.calculateComposition(_id);
@@ -98,6 +110,14 @@ const innerSelectComposition = async ({
 		page,
 		args: [id],
 	});
+	Log.verboseAdvanced(
+		{
+			indent: indent ?? false,
+			tag: 'selectComposition()',
+			logLevel: verbose ? 'verbose' : 'info',
+		},
+		`calculateMetadata() took ${Date.now() - time}ms`
+	);
 
 	return result as AnyCompMetadata;
 };
