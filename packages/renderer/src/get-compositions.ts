@@ -90,6 +90,8 @@ const innerGetCompositions = async (
 	return result as AnyCompMetadata[];
 };
 
+type CleanupFn = () => void;
+
 /**
  * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
@@ -100,21 +102,28 @@ export const getCompositions = async (
 ) => {
 	const downloadMap = config?.downloadMap ?? makeDownloadMap();
 
-	const {page, cleanup} = await getPageAndCleanupFn({
+	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: config?.puppeteerInstance,
 		browserExecutable: config?.browserExecutable ?? null,
 		chromiumOptions: config?.chromiumOptions ?? {},
+		context: null,
 	});
+
+	const cleanup: CleanupFn[] = [cleanupPage];
 
 	return new Promise<AnyCompMetadata[]>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
-		const cleanupPageError = handleJavascriptException({
-			page,
-			frame: null,
-			onError,
-		});
+		if (!config?.downloadMap) {
+			cleanup.push(() => cleanDownloadMap(downloadMap));
+		}
 
-		let close: ((force: boolean) => Promise<unknown>) | null = null;
+		cleanup.push(
+			handleJavascriptException({
+				page,
+				frame: null,
+				onError,
+			})
+		);
 
 		prepareServer({
 			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
@@ -127,8 +136,11 @@ export const getCompositions = async (
 			verbose: config?.verbose ?? false,
 			indent: config?.indent ?? false,
 		})
-			.then(({serveUrl, closeServer, offthreadPort}) => {
-				close = closeServer;
+			.then(({serveUrl, closeServer, offthreadPort, sourceMap}) => {
+				page.setBrowserSourceMapContext(sourceMap);
+
+				cleanup.push(() => closeServer(true));
+
 				return innerGetCompositions(
 					serveUrl,
 					page,
@@ -137,26 +149,16 @@ export const getCompositions = async (
 				);
 			})
 
-			.then((comp): Promise<[AnyCompMetadata[], unknown]> => {
-				if (close) {
-					return Promise.all([comp, close(true)]);
-				}
-
-				return Promise.resolve([comp, null]);
-			})
-			.then(([comp]) => {
+			.then((comp) => {
 				return resolve(comp);
 			})
 			.catch((err) => {
 				reject(err);
 			})
 			.finally(() => {
-				cleanup();
-				cleanupPageError();
-				// Clean download map if it was not passed in
-				if (!config?.downloadMap) {
-					cleanDownloadMap(downloadMap);
-				}
+				cleanup.forEach((c) => {
+					c();
+				});
 			});
 	});
 };

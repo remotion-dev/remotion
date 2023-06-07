@@ -29,6 +29,7 @@ import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
@@ -96,12 +97,14 @@ const innerRenderStill = async ({
 	jpegQuality,
 	onBrowserLog,
 	compositor,
+	sourceMapContext,
 }: InnerStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
 	compositor: Compositor;
+	sourceMapContext: AnySourceMapConsumer | null;
 }): Promise<RenderStillReturnValue> => {
 	if (quality) {
 		throw new Error(
@@ -182,7 +185,7 @@ const innerRenderStill = async ({
 			forceDeviceScaleFactor: scale ?? 1,
 			indent: false,
 		}));
-	const page = await browserInstance.newPage();
+	const page = await browserInstance.newPage(sourceMapContext);
 	await page.setViewport({
 		width: composition.width,
 		height: composition.height,
@@ -302,14 +305,16 @@ const innerRenderStill = async ({
 export const renderStill = (
 	options: RenderStillOptions
 ): Promise<RenderStillReturnValue> => {
+	const cleanup: CleanupFn[] = [];
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
+	if (!options?.downloadMap) {
+		cleanup.push(() => cleanDownloadMap(downloadMap));
+	}
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
 	const happyPath = new Promise<RenderStillReturnValue>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
-
-		let close: ((force: boolean) => Promise<unknown>) | null = null;
 
 		prepareServer({
 			webpackConfigOrServeUrl: options.serveUrl,
@@ -322,8 +327,9 @@ export const renderStill = (
 			verbose: options.verbose ?? false,
 			indent: options.indent ?? false,
 		})
-			.then(({serveUrl, closeServer, offthreadPort, compositor}) => {
-				close = closeServer;
+			.then(({serveUrl, closeServer, offthreadPort, compositor, sourceMap}) => {
+				cleanup.push(() => closeServer(false));
+
 				return innerRenderStill({
 					...options,
 					serveUrl,
@@ -331,18 +337,16 @@ export const renderStill = (
 					proxyPort: offthreadPort,
 					downloadMap,
 					compositor,
+					sourceMapContext: sourceMap,
 				});
 			})
 
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
 			.finally(() => {
-				// Clean download map if it was not passed in
-				if (!options?.downloadMap) {
-					cleanDownloadMap(downloadMap);
-				}
-
-				return close?.(false);
+				cleanup.forEach((c) => {
+					c();
+				});
 			});
 	});
 
@@ -355,3 +359,5 @@ export const renderStill = (
 		}),
 	]);
 };
+
+type CleanupFn = () => void;

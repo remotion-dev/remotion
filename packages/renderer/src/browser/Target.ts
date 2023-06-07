@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import type {BrowserContext, HeadlessBrowser} from './Browser';
 import {Page} from './BrowserPage';
 import type {CDPSession} from './Connection';
@@ -91,15 +92,18 @@ export class Target {
 	/**
 	 * If the target is not of type `"page"` or `"background_page"`, returns `null`.
 	 */
-	async page(): Promise<Page | null> {
+	async page(
+		sourcemapContext: AnySourceMapConsumer | null
+	): Promise<Page | null> {
 		if (isPagetTarget(this.#targetInfo) && !this.#pagePromise) {
 			this.#pagePromise = this.#sessionFactory().then((client) => {
-				return Page._create(
+				return Page._create({
 					client,
-					this,
-					this.#defaultViewport ?? null,
-					this.browser()
-				);
+					target: this,
+					defaultViewport: this.#defaultViewport ?? null,
+					browser: this.browser(),
+					sourcemapContext,
+				});
 			});
 		}
 

@@ -1,4 +1,9 @@
-import type {RawSourceMap} from 'source-map';
+import {readFileSync} from 'fs';
+import type {
+	BasicSourceMapConsumer,
+	IndexedSourceMapConsumer,
+	RawSourceMap,
+} from 'source-map';
 import {SourceMapConsumer} from 'source-map';
 import {readFile} from './assets/read-file';
 import type {UnsymbolicatedStackFrame} from './parse-browser-error-stack';
@@ -23,10 +28,11 @@ function extractSourceMapUrl(fileContents: string): string | null {
 	return match[1].toString();
 }
 
-async function getSourceMap(
-	fileUri: string,
-	fileContents: string
-): Promise<SourceMapConsumer | null> {
+const getSourceMap = async (
+	filePath: string,
+	fileContents: string,
+	type: 'local' | 'remote'
+) => {
 	const sm = extractSourceMapUrl(fileContents);
 	if (sm === null) {
 		return null;
@@ -45,11 +51,15 @@ async function getSourceMap(
 		return new SourceMapConsumer(JSON.parse(converted) as RawSourceMap);
 	}
 
-	const index = fileUri.lastIndexOf('/');
-	const url = fileUri.substring(0, index + 1) + sm;
+	const index = filePath.lastIndexOf('/');
+	const url = filePath.substring(0, index + 1) + sm;
+	if (type === 'local') {
+		return new SourceMapConsumer(readFileSync(url, 'utf8'));
+	}
+
 	const obj = await fetchUrl(url);
 	return new SourceMapConsumer(obj);
-}
+};
 
 const fetchUrl = async (url: string) => {
 	const res = await readFile(url);
@@ -178,5 +188,14 @@ export const symbolicateStackFrame = (
 
 export const getSourceMapFromRemoteFile = async (fileName: string) => {
 	const fileContents = await fetchUrl(fileName);
-	return getSourceMap(fileName, fileContents);
+	return getSourceMap(fileName, fileContents, 'remote');
 };
+
+export const getSourceMapFromLocalFile = (fileName: string) => {
+	const fileContents = readFileSync(fileName, 'utf8');
+	return getSourceMap(fileName, fileContents, 'local');
+};
+
+export type AnySourceMapConsumer =
+	| BasicSourceMapConsumer
+	| IndexedSourceMapConsumer;

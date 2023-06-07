@@ -236,7 +236,7 @@ const spawnFfmpeg = async (
 		{
 			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'stitchFramesToVideo()',
 		},
 		'encoder',
 		encoderName
@@ -245,7 +245,7 @@ const spawnFfmpeg = async (
 		{
 			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'stitchFramesToVideo()',
 		},
 		'audioCodec',
 		resolvedAudioCodec
@@ -254,7 +254,7 @@ const spawnFfmpeg = async (
 		{
 			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'stitchFramesToVideo()',
 		},
 		'pixelFormat',
 		pixelFormat
@@ -263,7 +263,7 @@ const spawnFfmpeg = async (
 		{
 			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'stitchFramesToVideo()',
 		},
 		'codec',
 		codec
@@ -272,7 +272,7 @@ const spawnFfmpeg = async (
 		{
 			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'stitchFramesToVideo()',
 		},
 		'shouldRenderAudio',
 		shouldRenderAudio
@@ -281,7 +281,7 @@ const spawnFfmpeg = async (
 		{
 			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'stitchFramesToVideo()',
 		},
 		'shouldRenderVideo',
 		shouldRenderVideo
@@ -290,7 +290,7 @@ const spawnFfmpeg = async (
 		{
 			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'stitchFramesToVideo()',
 		},
 		'proResProfileName',
 		proResProfileName
@@ -441,7 +441,7 @@ const spawnFfmpeg = async (
 		{
 			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'stitchFramesToVideo()',
 		},
 		'Generated final FFMPEG command:'
 	);
@@ -449,7 +449,7 @@ const spawnFfmpeg = async (
 		{
 			indent: options.internalOptions?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'stitchFramesToVideo()',
 		},
 		finalFfmpegString.join(' ')
 	);

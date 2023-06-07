@@ -75,16 +75,16 @@ export const formatChromeMessage = (
 ): {output: string; tag: string} | null => {
 	const parsed = parseBrowserLogMessage(input);
 	if (!parsed) {
-		return {output: input, tag: 'Chrome'};
+		return {output: input, tag: 'chrome'};
 	}
 
-	const {location} = parsed;
+	const {location, lineNumber, message} = parsed;
 	// Don't print console.log's, these are handled through the WebSocket
 	if (location === 'CONSOLE') {
 		return null;
 	}
 
-	return {output: input, tag: 'Chrome'};
+	return {output: `${location}:${lineNumber}: ${message}`, tag: 'chrome'};
 };
 
 type ChromeLogLocation = {
@@ -107,13 +107,17 @@ export const parseChromeLogLocation = (
 	};
 };
 
-export const retrieveBundleFileFromLocation = (
-	location: ChromeLogLocation,
-	webpackBundle: string,
-	serverPort: number
-) => {
+export const retrieveBundleFileFromLocation = ({
+	url,
+	webpackBundle,
+	serverPort,
+}: {
+	url: string;
+	webpackBundle: string;
+	serverPort: number;
+}) => {
 	const isLocalSource = `http://localhost:${serverPort}/${Internals.bundleName}`;
-	if (location.location !== isLocalSource) {
+	if (url !== isLocalSource) {
 		return null;
 	}
 

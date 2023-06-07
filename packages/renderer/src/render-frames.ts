@@ -43,6 +43,7 @@ import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
@@ -122,6 +123,7 @@ const innerRenderFrames = ({
 	makeBrowser,
 	browserReplacer,
 	compositor,
+	sourcemapContext,
 }: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -134,6 +136,7 @@ const innerRenderFrames = ({
 	makeBrowser: () => Promise<HeadlessBrowser>;
 	browserReplacer: BrowserReplacer;
 	compositor: Compositor;
+	sourcemapContext: AnySourceMapConsumer | null;
 }): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -159,8 +162,8 @@ const innerRenderFrames = ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async () => {
-		const page = await browserReplacer.getBrowser().newPage();
+	const makePage = async (context: AnySourceMapConsumer | null) => {
+		const page = await browserReplacer.getBrowser().newPage(context);
 		pagesArray.push(page);
 		await page.setViewport({
 			width: composition.width,
@@ -232,8 +235,10 @@ const innerRenderFrames = ({
 		return page;
 	};
 
-	const getPool = async () => {
-		const pages = new Array(actualConcurrency).fill(true).map(() => makePage());
+	const getPool = async (context: AnySourceMapConsumer | null) => {
+		const pages = new Array(actualConcurrency)
+			.fill(true)
+			.map(() => makePage(context));
 		const puppeteerPages = await Promise.all(pages);
 		const pool = new Pool(puppeteerPages);
 		return pool;
@@ -251,7 +256,7 @@ const innerRenderFrames = ({
 	});
 	let framesRendered = 0;
 
-	const poolPromise = getPool();
+	const poolPromise = getPool(sourcemapContext);
 
 	onStart({
 		frameCount: framesToRender.length,
@@ -432,7 +437,7 @@ const innerRenderFrames = ({
 			await browserReplacer.replaceBrowser(makeBrowser, async () => {
 				const pages = new Array(actualConcurrency)
 					.fill(true)
-					.map(() => makePage());
+					.map(() => makePage(sourcemapContext));
 				const puppeteerPages = await Promise.all(pages);
 				const pool = await poolPromise;
 				for (const newPage of puppeteerPages) {
@@ -576,7 +581,7 @@ export const renderFrames = (
 				browserInstance,
 			]).then(
 				([
-					{serveUrl, closeServer, offthreadPort, compositor},
+					{serveUrl, closeServer, offthreadPort, compositor, sourceMap},
 					puppeteerInstance,
 				]) => {
 					const browserReplacer = handleBrowserCrash(puppeteerInstance);
@@ -603,6 +608,7 @@ export const renderFrames = (
 						makeBrowser,
 						browserReplacer,
 						compositor,
+						sourcemapContext: sourceMap,
 					});
 				}
 			),
