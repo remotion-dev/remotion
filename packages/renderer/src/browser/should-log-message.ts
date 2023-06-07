@@ -78,13 +78,13 @@ export const formatChromeMessage = (
 		return {output: input, tag: 'Chrome'};
 	}
 
-	const {location} = parsed;
+	const {location, lineNumber, message} = parsed;
 	// Don't print console.log's, these are handled through the WebSocket
 	if (location === 'CONSOLE') {
 		return null;
 	}
 
-	return {output: input, tag: 'Chrome'};
+	return {output: `${location}:${lineNumber}: ${message}`, tag: 'Chrome'};
 };
 
 type ChromeLogLocation = {
