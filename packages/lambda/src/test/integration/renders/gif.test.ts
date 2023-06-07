@@ -35,7 +35,7 @@ test('Should make a distributed GIF', async () => {
 		{
 			type: LambdaRoutines.start,
 			serveUrl:
-				'https://64804302bfd41946b23d7b35--lovely-dieffenbachia-90a6f1.netlify.app/',
+				'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
 			chromiumOptions: {},
 			codec: 'gif',
 			composition: 'framer',
