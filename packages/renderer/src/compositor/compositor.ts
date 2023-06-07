@@ -89,7 +89,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	) => {
 		if (nonce === '0') {
 			Log.verboseAdvanced(
-				{indent, logLevel: getLogLevel(), tag: 'COMPOSITOR'},
+				{indent, logLevel: getLogLevel(), tag: 'compositor'},
 				data.toString('utf8')
 			);
 		}

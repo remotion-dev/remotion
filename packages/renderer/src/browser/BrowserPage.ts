@@ -169,9 +169,13 @@ export class Page extends EventEmitter {
 					.join(':');
 
 				Log.verboseAdvanced(
-					{logLevel: getLogLevel(), tag: `console.${log.type}`, indent: false},
-					log.text,
-					`(${[origPosition.name, file].filter(truthy).join('@')})`
+					{
+						logLevel: getLogLevel(),
+						tag: `console.${log.type}()`,
+						secondTag: [origPosition.name, file].filter(truthy).join('@'),
+						indent: false,
+					},
+					log.text
 				);
 			} else {
 				Log.verboseAdvanced(
