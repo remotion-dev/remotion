@@ -267,7 +267,8 @@ export const makeRenderingAndStitchingProgress = ({
 };
 
 const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
-	if (progress.bundling.progress < 1) {
+	// Handle floating point inaccuracies
+	if (progress.bundling.progress < 0.99999) {
 		return `Bundling ${Math.round(progress.bundling.progress * 100)}%`;
 	}
 
