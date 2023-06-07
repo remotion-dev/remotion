@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {getLogLevel, Log} from '../logger';
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
 import {PageEmittedEvents} from './BrowserPage';
@@ -193,6 +194,14 @@ export class HeadlessBrowser extends EventEmitter {
 				`Failed to create a page for context (id = ${contextId})`
 			);
 		}
+
+		page.on('console', (log) => {
+			// const location = JSON.stringify(log.location());
+			Log.verboseAdvanced(
+				{logLevel: getLogLevel(), tag: `console.${log.type}`, indent: false},
+				log.text
+			);
+		});
 
 		return page;
 	}

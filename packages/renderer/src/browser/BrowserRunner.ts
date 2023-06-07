@@ -90,7 +90,12 @@ export class BrowserRunner {
 			this.proc.stdout?.on('data', (d) => {
 				const message = d.toString('utf8').trim();
 				if (shouldLogBrowserMessage(message)) {
-					const {output, tag} = formatChromeMessage(message);
+					const formatted = formatChromeMessage(message);
+					if (!formatted) {
+						return;
+					}
+
+					const {output, tag} = formatted;
 					Log.verboseAdvanced(
 						{indent: options.indent, logLevel: getLogLevel(), tag},
 						output
@@ -100,8 +105,12 @@ export class BrowserRunner {
 			this.proc.stderr?.on('data', (d) => {
 				const message = d.toString('utf8').trim();
 				if (shouldLogBrowserMessage(message)) {
-					const {output, tag} = formatChromeMessage(message);
+					const formatted = formatChromeMessage(message);
+					if (!formatted) {
+						return;
+					}
 
+					const {output, tag} = formatted;
 					Log.verboseAdvanced(
 						{indent: options.indent, logLevel: getLogLevel(), tag},
 						output
