@@ -144,6 +144,9 @@ export const selectComposition = async (
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
 		context: null,
+		forceDeviceScaleFactor: undefined,
+		indent: indent ?? false,
+		shouldDumpIo: verbose ?? false,
 	});
 	cleanup.push(() => cleanupPage());
 

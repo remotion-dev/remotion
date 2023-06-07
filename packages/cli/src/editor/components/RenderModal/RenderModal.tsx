@@ -598,7 +598,7 @@ const RenderModal: React.FC<
 			compositionId: resolvedComposition.id,
 			outName,
 			imageFormat: stillImageFormat,
-			jpegQuality: stillImageFormat === 'jpeg' ? jpegQuality : null,
+			jpegQuality,
 			frame,
 			scale,
 			verbose,

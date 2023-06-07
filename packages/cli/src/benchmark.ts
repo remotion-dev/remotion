@@ -1,7 +1,6 @@
 import type {RenderMediaOptions} from '@remotion/renderer';
 import {
 	getCompositions,
-	openBrowser,
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
@@ -168,7 +167,8 @@ export const benchmarkCommand = async (
 
 	Log.verbose('Entry point:', fullEntryPoint, 'reason:', reason);
 
-	const browserInstance = openBrowser(browser, {
+	const browserInstance = RenderInternals.internalOpenBrowser({
+		browser,
 		browserExecutable,
 		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
@@ -177,6 +177,7 @@ export const benchmarkCommand = async (
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
 		indent: false,
+		viewport: null,
 	});
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =

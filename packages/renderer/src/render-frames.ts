@@ -29,11 +29,11 @@ import {
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {DEFAULT_VIDEO_IMAGE_FORMAT} from './image-format';
-import {validateJpegQuality} from './jpeg-quality';
+import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
-import {openBrowser} from './open-browser';
+import {internalOpenBrowser} from './open-browser';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {Pool} from './pool';
 import type {RemotionServer} from './prepare-server';
@@ -522,22 +522,19 @@ export const renderFrames = (
 		component: 'in the `config` object passed to `renderFrames()`',
 		allowFloats: false,
 	});
-	if (options.jpegQuality !== undefined && options.imageFormat !== 'jpeg') {
-		throw new Error(
-			"You can only pass the `jpegQuality` option if `imageFormat` is 'jpeg'."
-		);
-	}
 
-	validateJpegQuality(options.jpegQuality);
+	validateJpegQuality(options.jpegQuality ?? DEFAULT_JPEG_QUALITY);
 	validateScale(options.scale);
 
 	const makeBrowser = () =>
-		openBrowser(DEFAULT_BROWSER, {
-			shouldDumpIo: options.dumpBrowserLogs,
-			browserExecutable: options.browserExecutable,
-			chromiumOptions: options.chromiumOptions,
+		internalOpenBrowser({
+			browser: DEFAULT_BROWSER,
+			shouldDumpIo: options.dumpBrowserLogs ?? false,
+			browserExecutable: options.browserExecutable ?? null,
+			chromiumOptions: options.chromiumOptions ?? {},
 			forceDeviceScaleFactor: options.scale ?? 1,
 			indent: options.indent ?? false,
+			viewport: null,
 		});
 
 	const browserInstance = options.puppeteerInstance ?? makeBrowser();

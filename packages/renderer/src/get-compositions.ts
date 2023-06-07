@@ -104,6 +104,9 @@ export const getCompositions = async (
 		browserExecutable: config?.browserExecutable ?? null,
 		chromiumOptions: config?.chromiumOptions ?? {},
 		context: null,
+		forceDeviceScaleFactor: undefined,
+		indent: config?.indent ?? false,
+		shouldDumpIo: config?.verbose ?? false,
 	});
 
 	const cleanup: CleanupFn[] = [cleanupPage];

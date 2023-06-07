@@ -45,7 +45,7 @@ type RenderJobDynamicFields =
 	| ({
 			type: 'still';
 			imageFormat: StillImageFormat;
-			jpegQuality: number | null;
+			jpegQuality: number;
 			frame: number;
 			scale: number;
 	  } & RenderJobDynamicStatus)
@@ -93,7 +93,7 @@ type AddRenderRequestDynamicFields =
 	| {
 			type: 'still';
 			imageFormat: StillImageFormat;
-			jpegQuality: number | null;
+			jpegQuality: number;
 			frame: number;
 			scale: number;
 			verbose: boolean;

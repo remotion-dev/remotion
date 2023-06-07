@@ -3,7 +3,7 @@ import type {BrowserExecutable} from './browser-executable';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ChromiumOptions} from './open-browser';
-import {openBrowser} from './open-browser';
+import {internalOpenBrowser} from './open-browser';
 import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 
 export const getPageAndCleanupFn = async ({
@@ -11,11 +11,17 @@ export const getPageAndCleanupFn = async ({
 	browserExecutable,
 	chromiumOptions,
 	context,
+	forceDeviceScaleFactor,
+	indent,
+	shouldDumpIo,
 }: {
 	passedInInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
 	chromiumOptions: ChromiumOptions;
 	context: AnySourceMapConsumer | null;
+	indent: boolean;
+	forceDeviceScaleFactor: number | undefined;
+	shouldDumpIo: boolean;
 }): Promise<{
 	cleanup: () => void;
 	page: Page;
@@ -34,9 +40,14 @@ export const getPageAndCleanupFn = async ({
 		};
 	}
 
-	const browserInstance = await openBrowser(DEFAULT_BROWSER, {
+	const browserInstance = await internalOpenBrowser({
+		browser: DEFAULT_BROWSER,
 		browserExecutable,
 		chromiumOptions,
+		forceDeviceScaleFactor,
+		indent,
+		shouldDumpIo,
+		viewport: null,
 	});
 	const browserPage = await browserInstance.newPage(context);
 

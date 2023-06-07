@@ -14,12 +14,7 @@ import type {
 	RenderMediaOnDownload,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import {
-	openBrowser,
-	renderFrames,
-	RenderInternals,
-	renderMedia,
-} from '@remotion/renderer';
+import {renderFrames, RenderInternals, renderMedia} from '@remotion/renderer';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -146,12 +141,14 @@ export const renderVideoFlow = async ({
 		browserExecutable
 	);
 
-	const browserInstance = openBrowser(browser, {
+	const browserInstance = RenderInternals.internalOpenBrowser({
+		browser,
 		browserExecutable,
 		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
 		indent,
+		viewport: null,
 	});
 
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
