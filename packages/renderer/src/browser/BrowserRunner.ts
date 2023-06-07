@@ -24,7 +24,10 @@ import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
 import type {LaunchOptions} from './LaunchOptions';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
-import {shouldLogBrowserMessage} from './should-log-message';
+import {
+	formatChromeMessage,
+	shouldLogBrowserMessage,
+} from './should-log-message';
 import type {PuppeteerEventListener} from './util';
 import {
 	addEventListener,
@@ -87,18 +90,21 @@ export class BrowserRunner {
 			this.proc.stdout?.on('data', (d) => {
 				const message = d.toString('utf8').trim();
 				if (shouldLogBrowserMessage(message)) {
+					const {output, tag} = formatChromeMessage(message);
 					Log.verboseAdvanced(
-						{indent: options.indent, logLevel: getLogLevel(), tag: 'chrome'},
-						message
+						{indent: options.indent, logLevel: getLogLevel(), tag},
+						output
 					);
 				}
 			});
 			this.proc.stderr?.on('data', (d) => {
 				const message = d.toString('utf8').trim();
 				if (shouldLogBrowserMessage(message)) {
+					const {output, tag} = formatChromeMessage(message);
+
 					Log.verboseAdvanced(
-						{indent: options.indent, logLevel: getLogLevel(), tag: 'chrome'},
-						message
+						{indent: options.indent, logLevel: getLogLevel(), tag},
+						output
 					);
 				}
 			});
