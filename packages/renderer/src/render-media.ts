@@ -26,7 +26,10 @@ import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
-import {validateSelectedPixelFormatAndImageFormatCombination} from './image-format';
+import {
+	DEFAULT_VIDEO_IMAGE_FORMAT,
+	validateSelectedPixelFormatAndImageFormatCombination,
+} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {Log} from './logger';
@@ -36,7 +39,10 @@ import type {ChromiumOptions} from './open-browser';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {PixelFormat} from './pixel-format';
-import {validateSelectedPixelFormatAndCodecCombination} from './pixel-format';
+import {
+	DEFAULT_PIXEL_FORMAT,
+	validateSelectedPixelFormatAndCodecCombination,
+} from './pixel-format';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
@@ -68,6 +74,49 @@ export type RenderMediaOnProgress = (progress: {
 	progress: number;
 	stitchStage: StitchingState;
 }) => void;
+
+export type InternalRenderMediaOptions = {
+	outputLocation: string | null;
+	codec: Codec;
+	composition: AnySmallCompMetadata;
+	inputProps: Record<string, unknown>;
+	crf: number | null;
+	imageFormat: VideoImageFormat;
+	pixelFormat: PixelFormat;
+	envVariables: Record<string, string>;
+	jpegQuality: number;
+	frameRange: FrameRange | null;
+	everyNthFrame: number;
+	numberOfGifLoops: number | null;
+	puppeteerInstance: HeadlessBrowser | undefined;
+	overwrite: boolean;
+	onProgress: RenderMediaOnProgress;
+	onDownload: RenderMediaOnDownload;
+	proResProfile: ProResProfile | undefined;
+	dumpBrowserLogs: boolean;
+	onBrowserLog: ((log: BrowserLog) => void) | null;
+	onStart: (data: OnStartData) => void;
+	timeoutInMilliseconds: number;
+	chromiumOptions: ChromiumOptions;
+	scale: number;
+	port: number | null;
+	cancelSignal: CancelSignal | undefined;
+	browserExecutable: BrowserExecutable | null;
+	verbose: boolean;
+	onCtrlCExit: (fn: () => void) => void;
+	indent: boolean;
+	server: RemotionServer | undefined;
+	preferLossless: boolean;
+	muted: boolean;
+	enforceAudioTrack: boolean;
+	ffmpegOverride: FfmpegOverrideFn | undefined;
+	audioBitrate: string | null;
+	videoBitrate: string | null;
+	disallowParallelEncoding: boolean;
+	audioCodec: AudioCodec | null;
+	serveUrl: string;
+	concurrency: number | string | null;
+};
 
 export type RenderMediaOptions = {
 	outputLocation?: string | null;
@@ -101,20 +150,6 @@ export type RenderMediaOptions = {
 	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
 	verbose?: boolean;
-	internal?: {
-		/**
-		 * @deprecated Only for Remotion internal usage
-		 */
-		onCtrlCExit?: (fn: () => void) => void;
-		/**
-		 * @deprecated Only for Remotion internal usage
-		 */
-		indent?: boolean;
-		/**
-		 * @deprecated Only for Remotion internal usage
-		 */
-		server?: RemotionServer;
-	};
 	preferLossless?: boolean;
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
@@ -134,12 +169,7 @@ type RenderMediaResult = {
 	slowestFrames: SlowFrame[];
 };
 
-/**
- *
- * @description Render a video from a composition
- * @see [Documentation](https://www.remotion.dev/docs/renderer/render-media)
- */
-export const renderMedia = ({
+export const internalRenderMedia = ({
 	proResProfile,
 	crf,
 	composition,
@@ -168,15 +198,20 @@ export const renderMedia = ({
 	audioBitrate,
 	videoBitrate,
 	audioCodec,
-	...options
-}: RenderMediaOptions): Promise<RenderMediaResult> => {
-	if (options.quality) {
-		throw new Error(
-			`The "quality" option has been renamed. Please use "jpegQuality" instead.`
-		);
-	}
-
-	validateJpegQuality(options.jpegQuality ?? DEFAULT_JPEG_QUALITY);
+	concurrency,
+	disallowParallelEncoding,
+	everyNthFrame,
+	imageFormat: provisionalImageFormat,
+	indent,
+	jpegQuality,
+	numberOfGifLoops,
+	onCtrlCExit,
+	preferLossless,
+	serveUrl,
+	server: reusedServer,
+	verbose,
+}: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
+	validateJpegQuality(jpegQuality);
 	validateQualitySettings({crf, codec, videoBitrate});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
@@ -189,9 +224,9 @@ export const renderMedia = ({
 	if (outputLocation) {
 		validateOutputFilename({
 			codec,
-			audioCodec: audioCodec ?? null,
+			audioCodec,
 			extension: getExtensionOfFilename(outputLocation) as string,
-			preferLossless: options.preferLossless ?? false,
+			preferLossless,
 		});
 	}
 
@@ -203,9 +238,7 @@ export const renderMedia = ({
 
 	validateFfmpegOverride(ffmpegOverride);
 
-	const everyNthFrame = options.everyNthFrame ?? 1;
 	validateEveryNthFrame(everyNthFrame, codec);
-	const numberOfGifLoops = options.numberOfGifLoops ?? null;
 	validateNumberOfGifLoops(numberOfGifLoops, codec);
 
 	let stitchStage: StitchingState = 'encoding';
@@ -225,14 +258,14 @@ export const renderMedia = ({
 			width: composition.width,
 		});
 	const parallelEncoding =
-		!options.disallowParallelEncoding &&
+		!disallowParallelEncoding &&
 		hasEnoughMemory &&
 		canUseParallelEncoding(codec);
 
 	Log.verboseAdvanced(
 		{
-			indent: options.internal?.indent ?? false,
-			logLevel: options.verbose ? 'verbose' : 'info',
+			indent,
+			logLevel: verbose ? 'verbose' : 'info',
 			tag: 'renderMedia()',
 		},
 		'Free memory:',
@@ -242,8 +275,8 @@ export const renderMedia = ({
 	);
 	Log.verboseAdvanced(
 		{
-			indent: options.internal?.indent ?? false,
-			logLevel: options.verbose ? 'verbose' : 'info',
+			indent,
+			logLevel: verbose ? 'verbose' : 'info',
 			tag: 'renderMedia()',
 		},
 		'Codec supports parallel rendering:',
@@ -251,18 +284,18 @@ export const renderMedia = ({
 	);
 	Log.verboseAdvanced(
 		{
-			indent: options.internal?.indent ?? false,
-			logLevel: options.verbose ? 'verbose' : 'info',
+			indent,
+			logLevel: verbose ? 'verbose' : 'info',
 			tag: 'renderMedia()',
 		},
 		'User disallowed parallel encoding:',
-		Boolean(options.disallowParallelEncoding)
+		Boolean(disallowParallelEncoding)
 	);
 	if (parallelEncoding) {
 		Log.verboseAdvanced(
 			{
-				indent: options.internal?.indent ?? false,
-				logLevel: options.verbose ? 'verbose' : 'info',
+				indent,
+				logLevel: verbose ? 'verbose' : 'info',
 				tag: 'renderMedia()',
 			},
 			'Parallel encoding is enabled.'
@@ -270,8 +303,8 @@ export const renderMedia = ({
 	} else {
 		Log.verboseAdvanced(
 			{
-				indent: options.internal?.indent ?? false,
-				logLevel: options.verbose ? 'verbose' : 'info',
+				indent,
+				logLevel: verbose ? 'verbose' : 'info',
 				tag: 'renderMedia()',
 			},
 			'Parallel encoding is disabled.'
@@ -280,8 +313,7 @@ export const renderMedia = ({
 
 	const imageFormat: VideoImageFormat = isAudioCodec(codec)
 		? 'none'
-		: options.imageFormat ?? 'jpeg';
-	const jpegQuality = imageFormat === 'jpeg' ? options.jpegQuality : undefined;
+		: provisionalImageFormat;
 
 	validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
@@ -295,18 +327,18 @@ export const renderMedia = ({
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				workingDir,
-				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec ?? null)
+				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec)
 		  )
 		: null;
 
-	if (options.internal?.onCtrlCExit && workingDir) {
-		options.internal.onCtrlCExit(() => deleteDirectory(workingDir));
+	if (onCtrlCExit && workingDir) {
+		onCtrlCExit(() => deleteDirectory(workingDir));
 	}
 
 	validateEvenDimensionsWithCodec({
 		codec,
 		height: composition.height,
-		scale: scale ?? 1,
+		scale,
 		width: composition.width,
 	});
 
@@ -328,7 +360,7 @@ export const renderMedia = ({
 
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
-		frameRange ?? null
+		frameRange
 	);
 
 	const cancelRenderFrames = makeCancelSignal();
@@ -342,14 +374,14 @@ export const renderMedia = ({
 	const {waitForRightTimeOfFrameToBeInserted, setFrameToStitch, waitForFinish} =
 		ensureFramesInOrder(realFrameRange);
 
-	const fps = composition.fps / (everyNthFrame ?? 1);
+	const fps = composition.fps / everyNthFrame;
 	Internals.validateFps(fps, 'in "renderMedia()"', codec === 'gif');
 
 	const createPrestitcherIfNecessary = () => {
 		if (preEncodedFileLocation) {
 			preStitcher = prespawnFfmpeg({
-				width: composition.width * (scale ?? 1),
-				height: composition.height * (scale ?? 1),
+				width: composition.width * scale,
+				height: composition.height * scale,
 				fps,
 				outputLocation: preEncodedFileLocation,
 				pixelFormat,
@@ -360,12 +392,12 @@ export const renderMedia = ({
 					encodedFrames = frame;
 					callUpdate();
 				},
-				verbose: options.verbose ?? false,
+				verbose,
 				imageFormat,
 				signal: cancelPrestitcher.cancelSignal,
 				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
-				videoBitrate: videoBitrate ?? null,
-				indent: options.internal?.indent ?? false,
+				videoBitrate,
+				indent,
 			});
 			stitcherFfmpeg = preStitcher.task;
 		}
@@ -423,18 +455,17 @@ export const renderMedia = ({
 		Promise.resolve(createPrestitcherIfNecessary())
 			.then(() => {
 				return makeOrReuseServer(
-					options.internal?.server,
+					reusedServer,
 					{
-						// TODO: this can be simplified after refactor
-						concurrency: getActualConcurrency(options.concurrency ?? null),
-						indent: options.internal?.indent ?? false,
-						port: port ?? null,
+						concurrency: getActualConcurrency(concurrency),
+						indent,
+						port,
 						remotionRoot: findRemotionRoot(),
-						verbose: options.verbose ?? false,
-						webpackConfigOrServeUrl: options.serveUrl,
+						verbose,
+						webpackConfigOrServeUrl: serveUrl,
 					},
 					{
-						onDownload: onDownload ?? null,
+						onDownload,
 						onError: (err) => reject(err),
 					}
 				);
@@ -452,18 +483,18 @@ export const renderMedia = ({
 						callUpdate();
 						recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 					},
-					concurrency: options.concurrency ?? null,
+					concurrency,
 					outputDir: parallelEncoding ? null : workingDir,
 					onStart: (data) => {
 						renderedFrames = 0;
 						callUpdate();
 						onStart?.(data);
 					},
-					inputProps: inputProps ?? {},
-					envVariables: envVariables ?? {},
+					inputProps,
+					envVariables,
 					imageFormat,
-					jpegQuality: jpegQuality ?? 80,
-					frameRange: frameRange ?? null,
+					jpegQuality,
+					frameRange,
 					puppeteerInstance,
 					everyNthFrame,
 					onFrameBuffer: parallelEncoding
@@ -482,19 +513,19 @@ export const renderMedia = ({
 								);
 						  }
 						: null,
-					webpackBundleOrServeUrl: options.serveUrl,
-					dumpBrowserLogs: dumpBrowserLogs ?? false,
-					onBrowserLog: onBrowserLog ?? null,
-					onDownload: onDownload ?? null,
-					timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-					chromiumOptions: chromiumOptions ?? {},
-					scale: scale ?? 1,
-					browserExecutable: browserExecutable ?? null,
-					port: port ?? null,
+					webpackBundleOrServeUrl: serveUrl,
+					dumpBrowserLogs,
+					onBrowserLog,
+					onDownload,
+					timeoutInMilliseconds,
+					chromiumOptions,
+					scale,
+					browserExecutable,
+					port,
 					cancelSignal: cancelRenderFrames.cancelSignal,
-					muted: disableAudio ?? false,
-					verbose: options.verbose ?? false,
-					indent: options.internal?.indent ?? false,
+					muted: disableAudio,
+					verbose,
+					indent,
 					server,
 				});
 
@@ -517,17 +548,17 @@ export const renderMedia = ({
 				const stitchStart = Date.now();
 				return Promise.all([
 					stitchFramesToVideo({
-						width: composition.width * (scale ?? 1),
-						height: composition.height * (scale ?? 1),
+						width: composition.width * scale,
+						height: composition.height * scale,
 						fps,
 						outputLocation: absoluteOutputLocation,
 						internalOptions: {
 							preEncodedFileLocation,
 							imageFormat,
-							preferLossless: options.preferLossless ?? false,
-							indent: options.internal?.indent ?? false,
+							preferLossless,
+							indent,
 						},
-						force: overwrite ?? DEFAULT_OVERWRITE,
+						force: overwrite,
 						pixelFormat,
 						codec,
 						proResProfile,
@@ -540,15 +571,15 @@ export const renderMedia = ({
 						},
 						onDownload,
 						numberOfGifLoops,
-						verbose: options.verbose,
-						dir: workingDir ?? undefined,
+						verbose,
+						dir: workingDir,
 						cancelSignal: cancelStitcher.cancelSignal,
 						muted: disableAudio,
 						enforceAudioTrack,
 						ffmpegOverride,
 						audioBitrate,
 						videoBitrate,
-						audioCodec: audioCodec ?? null,
+						audioCodec,
 					}),
 					stitchStart,
 				]);
@@ -613,4 +644,99 @@ export const renderMedia = ({
 			});
 		}),
 	]);
+};
+
+/**
+ *
+ * @description Render a video from a composition
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/render-media)
+ */
+export const renderMedia = ({
+	proResProfile,
+	crf,
+	composition,
+	inputProps,
+	pixelFormat,
+	codec,
+	envVariables,
+	frameRange,
+	puppeteerInstance,
+	outputLocation,
+	onProgress,
+	overwrite,
+	onDownload,
+	dumpBrowserLogs,
+	onBrowserLog,
+	onStart,
+	timeoutInMilliseconds,
+	chromiumOptions,
+	scale,
+	browserExecutable,
+	port,
+	cancelSignal,
+	muted,
+	enforceAudioTrack,
+	ffmpegOverride,
+	audioBitrate,
+	videoBitrate,
+	audioCodec,
+	jpegQuality,
+	concurrency,
+	serveUrl,
+	disallowParallelEncoding,
+	everyNthFrame,
+	imageFormat,
+	numberOfGifLoops,
+	preferLossless,
+	verbose,
+	quality,
+}: RenderMediaOptions): Promise<RenderMediaResult> => {
+	if (quality !== undefined) {
+		console.warn(
+			`The "quality" option has been renamed. Please use "jpegQuality" instead.`
+		);
+	}
+
+	return internalRenderMedia({
+		proResProfile: proResProfile ?? undefined,
+		codec,
+		composition,
+		serveUrl,
+		audioBitrate: audioBitrate ?? null,
+		audioCodec: audioCodec ?? null,
+		browserExecutable: browserExecutable ?? null,
+		cancelSignal,
+		chromiumOptions: chromiumOptions ?? {},
+		concurrency: concurrency ?? null,
+		crf: crf ?? null,
+		disallowParallelEncoding: disallowParallelEncoding ?? false,
+		dumpBrowserLogs: dumpBrowserLogs ?? false,
+		enforceAudioTrack: enforceAudioTrack ?? false,
+		envVariables: envVariables ?? {},
+		everyNthFrame: everyNthFrame ?? 1,
+		ffmpegOverride: ffmpegOverride ?? undefined,
+		frameRange: frameRange ?? null,
+		imageFormat: imageFormat ?? DEFAULT_VIDEO_IMAGE_FORMAT,
+		inputProps: inputProps ?? {},
+		jpegQuality: jpegQuality ?? quality ?? DEFAULT_JPEG_QUALITY,
+		muted: muted ?? false,
+		numberOfGifLoops: numberOfGifLoops ?? null,
+		onBrowserLog: onBrowserLog ?? null,
+		onDownload: onDownload ?? (() => undefined),
+		onProgress: onProgress ?? (() => undefined),
+		onStart: onStart ?? (() => undefined),
+		outputLocation: outputLocation ?? null,
+		overwrite: overwrite ?? DEFAULT_OVERWRITE,
+		pixelFormat: pixelFormat ?? DEFAULT_PIXEL_FORMAT,
+		port: port ?? null,
+		puppeteerInstance: puppeteerInstance ?? undefined,
+		scale: scale ?? 1,
+		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
+		videoBitrate: videoBitrate ?? null,
+		verbose: verbose ?? false,
+		preferLossless: preferLossless ?? false,
+		indent: false,
+		onCtrlCExit: () => undefined,
+		server: undefined,
+	});
 };

@@ -25,6 +25,7 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
+import {DEFAULT_OVERWRITE} from './overwrite';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -420,7 +421,7 @@ export const renderStill = (
 		onBrowserLog: onBrowserLog ?? null,
 		onDownload: onDownload ?? null,
 		output: output ?? null,
-		overwrite: overwrite ?? true,
+		overwrite: overwrite ?? DEFAULT_OVERWRITE,
 		port: port ?? null,
 		puppeteerInstance: puppeteerInstance ?? null,
 		scale: scale ?? 1,

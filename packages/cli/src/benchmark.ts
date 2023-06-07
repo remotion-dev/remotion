@@ -1,5 +1,5 @@
-import type {RenderMediaOptions} from '@remotion/renderer';
-import {RenderInternals, renderMedia} from '@remotion/renderer';
+import type {InternalRenderMediaOptions} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
@@ -33,15 +33,15 @@ const getValidConcurrency = (cliConcurrency: number | string | null) => {
 
 const runBenchmark = async (
 	runs: number,
-	options: RenderMediaOptions,
+	options: Omit<InternalRenderMediaOptions, 'onProgress'>,
 	onProgress?: (run: number, progress: number) => void
 ) => {
 	const timeTaken: number[] = [];
 	for (let run = 0; run < runs; ++run) {
 		const startTime = performance.now();
-		await renderMedia({
-			...options,
+		await RenderInternals.internalRenderMedia({
 			onProgress: ({progress}) => onProgress?.(run, progress),
+			...options,
 		});
 		const endTime = performance.now();
 
@@ -155,6 +155,24 @@ export const benchmarkCommand = async (
 		browser,
 		scale,
 		publicDir,
+		proResProfile,
+		frameRange: defaultFrameRange,
+		overwrite,
+		jpegQuality,
+		crf: configFileCrf,
+		pixelFormat,
+		scale: configFileScale,
+		numberOfGifLoops,
+		everyNthFrame,
+		muted,
+		enforceAudioTrack,
+		ffmpegOverride,
+		audioBitrate,
+		videoBitrate,
+		height,
+		width,
+		concurrency: unparsedConcurrency,
+		logLevel,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -255,31 +273,6 @@ export const benchmarkCommand = async (
 	});
 
 	for (const composition of compositions) {
-		const {
-			proResProfile,
-			frameRange: defaultFrameRange,
-			overwrite,
-			jpegQuality,
-			crf: configFileCrf,
-			pixelFormat,
-			scale: configFileScale,
-			numberOfGifLoops,
-			everyNthFrame,
-			muted,
-			enforceAudioTrack,
-			ffmpegOverride,
-			audioBitrate,
-			videoBitrate,
-			height,
-			width,
-			concurrency: unparsedConcurrency,
-			logLevel,
-		} = await getCliOptions({
-			isLambda: false,
-			type: 'series',
-			remotionRoot,
-		});
-
 		const concurrency = getValidConcurrency(unparsedConcurrency);
 
 		benchmark[composition.id] = {};
@@ -300,13 +293,13 @@ export const benchmarkCommand = async (
 			const timeTaken = await runBenchmark(
 				runs,
 				{
-					outputLocation: undefined,
+					outputLocation: null,
 					composition: {
 						...composition,
 						width: width ?? composition.width,
 						height: height ?? composition.height,
 					},
-					crf: configFileCrf,
+					crf: configFileCrf ?? null,
 					envVariables,
 					frameRange: defaultFrameRange,
 					imageFormat: getVideoImageFormat({
@@ -336,6 +329,16 @@ export const benchmarkCommand = async (
 					videoBitrate,
 					puppeteerInstance,
 					concurrency: con,
+					audioCodec: null,
+					cancelSignal: undefined,
+					disallowParallelEncoding: false,
+					indent: false,
+					onBrowserLog: null,
+					onCtrlCExit: () => undefined,
+					onDownload: () => undefined,
+					onStart: () => undefined,
+					preferLossless: false,
+					server: undefined,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

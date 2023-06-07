@@ -1,6 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {BrowserLog, Codec} from '@remotion/renderer';
-import {RenderInternals, renderMedia} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
@@ -102,7 +102,7 @@ const renderHandler = async (
 
 	const inputProps = await inputPropsPromise;
 	await new Promise<void>((resolve, reject) => {
-		renderMedia({
+		RenderInternals.internalRenderMedia({
 			composition: {
 				id: params.composition,
 				durationInFrames: params.durationInFrames,
@@ -155,8 +155,8 @@ const renderHandler = async (
 			},
 			puppeteerInstance: browserInstance,
 			serveUrl: params.serveUrl,
-			jpegQuality: params.jpegQuality,
-			envVariables: params.envVariables,
+			jpegQuality: params.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
+			envVariables: params.envVariables ?? {},
 			dumpBrowserLogs:
 				params.dumpBrowserLogs ??
 				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
@@ -169,8 +169,8 @@ const renderHandler = async (
 			},
 			outputLocation,
 			codec: chunkCodec,
-			crf: params.crf ?? undefined,
-			pixelFormat: params.pixelFormat,
+			crf: params.crf ?? null,
+			pixelFormat: params.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
 			proResProfile: params.proResProfile,
 			onDownload: (src: string) => {
 				console.log('Downloading', src);
@@ -219,6 +219,12 @@ const renderHandler = async (
 			audioCodec: null,
 			preferLossless: true,
 			browserExecutable: executablePath(),
+			cancelSignal: undefined,
+			disallowParallelEncoding: false,
+			ffmpegOverride: ({args}) => args,
+			indent: false,
+			onCtrlCExit: () => undefined,
+			server: undefined,
 		})
 			.then(({slowestFrames}) => {
 				console.log();
