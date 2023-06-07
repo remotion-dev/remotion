@@ -72,15 +72,16 @@ export const parseBrowserLogMessage = (
 
 export const formatChromeMessage = (
 	input: string
-): {output: string; tag: string} => {
+): {output: string; tag: string} | null => {
 	const parsed = parseBrowserLogMessage(input);
 	if (!parsed) {
 		return {output: input, tag: 'Chrome'};
 	}
 
-	const {message, location} = parsed;
+	const {location} = parsed;
+	// Don't print console.log's, these are handled through the WebSocket
 	if (location === 'CONSOLE') {
-		return {output: message, tag: 'Console'};
+		return null;
 	}
 
 	return {output: input, tag: 'Chrome'};
