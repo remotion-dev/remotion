@@ -7,6 +7,7 @@ import {jsonStringifyWithCircularReferences} from './stringify-with-circular-ref
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
 
+import {Internals} from 'remotion';
 import type {Configuration} from 'webpack';
 import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
@@ -122,7 +123,7 @@ export const webpackConfig = ({
 				  ],
 		output: {
 			hashFunction: 'xxhash64',
-			filename: 'bundle.js',
+			filename: Internals.bundleName,
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',
