@@ -1,6 +1,3 @@
-import path from 'node:path';
-import {Internals} from 'remotion';
-
 export const shouldLogBrowserMessage = (message: string) => {
 	// Not relevant for the user
 	if (message.startsWith('DevTools listening on')) {
@@ -105,21 +102,4 @@ export const parseChromeLogLocation = (
 		lineNumber: parseInt(match[3], 10),
 		location: match[2],
 	};
-};
-
-export const retrieveBundleFileFromLocation = ({
-	url,
-	webpackBundle,
-	serverPort,
-}: {
-	url: string;
-	webpackBundle: string;
-	serverPort: number;
-}) => {
-	const isLocalSource = `http://localhost:${serverPort}/${Internals.bundleName}`;
-	if (url !== isLocalSource) {
-		return null;
-	}
-
-	return path.join(webpackBundle, Internals.bundleName);
 };
