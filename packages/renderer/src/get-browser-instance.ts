@@ -1,9 +1,10 @@
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {HeadlessBrowser} from './browser/Browser';
-import type {BrowserPageSourcemapContext, Page} from './browser/BrowserPage';
+import type {Page} from './browser/BrowserPage';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
+import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 
 export const getPageAndCleanupFn = async ({
 	passedInInstance,
@@ -14,7 +15,7 @@ export const getPageAndCleanupFn = async ({
 	passedInInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
 	chromiumOptions: ChromiumOptions;
-	context: BrowserPageSourcemapContext | null;
+	context: AnySourceMapConsumer | null;
 }): Promise<{
 	cleanup: () => void;
 	page: Page;

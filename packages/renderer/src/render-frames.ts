@@ -11,7 +11,7 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
-import type {BrowserPageSourcemapContext, Page} from './browser/BrowserPage';
+import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {isTargetClosedErr} from './browser/is-target-closed-err';
 import type {Compositor} from './compositor/compositor';
@@ -43,6 +43,7 @@ import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
@@ -135,7 +136,7 @@ const innerRenderFrames = ({
 	makeBrowser: () => Promise<HeadlessBrowser>;
 	browserReplacer: BrowserReplacer;
 	compositor: Compositor;
-	sourcemapContext: BrowserPageSourcemapContext;
+	sourcemapContext: AnySourceMapConsumer | null;
 }): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -161,7 +162,7 @@ const innerRenderFrames = ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async (context: BrowserPageSourcemapContext) => {
+	const makePage = async (context: AnySourceMapConsumer | null) => {
 		const page = await browserReplacer.getBrowser().newPage(context);
 		pagesArray.push(page);
 		await page.setViewport({
@@ -234,7 +235,7 @@ const innerRenderFrames = ({
 		return page;
 	};
 
-	const getPool = async (context: BrowserPageSourcemapContext) => {
+	const getPool = async (context: AnySourceMapConsumer | null) => {
 		const pages = new Array(actualConcurrency)
 			.fill(true)
 			.map(() => makePage(context));
@@ -580,14 +581,9 @@ export const renderFrames = (
 				browserInstance,
 			]).then(
 				([
-					{serveUrl, closeServer, offthreadPort, compositor},
+					{serveUrl, closeServer, offthreadPort, compositor, sourceMap},
 					puppeteerInstance,
 				]) => {
-					const sourcemapContext: BrowserPageSourcemapContext = {
-						serverPort: offthreadPort,
-						webpackBundle: options.serveUrl,
-					};
-
 					const browserReplacer = handleBrowserCrash(puppeteerInstance);
 
 					const {stopCycling} = cycleBrowserTabs(
@@ -612,7 +608,7 @@ export const renderFrames = (
 						makeBrowser,
 						browserReplacer,
 						compositor,
-						sourcemapContext,
+						sourcemapContext: sourceMap,
 					});
 				}
 			),

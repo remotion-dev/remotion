@@ -167,11 +167,8 @@ export const selectComposition = async (options: SelectCompositionsConfig) => {
 			verbose: verbose ?? false,
 			indent: indent ?? false,
 		})
-			.then(({serveUrl, closeServer, offthreadPort}) => {
-				page.setBrowserSourceMapContext({
-					serverPort: offthreadPort,
-					webpackBundle: serveUrlOrWebpackUrl,
-				});
+			.then(({serveUrl, closeServer, offthreadPort, sourceMap}) => {
+				page.setBrowserSourceMapContext(sourceMap);
 				close = closeServer;
 				return innerSelectComposition({
 					...options,

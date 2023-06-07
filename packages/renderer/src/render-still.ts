@@ -9,7 +9,6 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
-import type {BrowserPageSourcemapContext} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import type {Compositor} from './compositor/compositor';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
@@ -30,6 +29,7 @@ import {prepareServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
+import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
@@ -104,7 +104,7 @@ const innerRenderStill = async ({
 	onError: (err: Error) => void;
 	proxyPort: number;
 	compositor: Compositor;
-	sourceMapContext: BrowserPageSourcemapContext;
+	sourceMapContext: AnySourceMapConsumer | null;
 }): Promise<RenderStillReturnValue> => {
 	if (quality) {
 		throw new Error(
@@ -325,12 +325,8 @@ export const renderStill = (
 			verbose: options.verbose ?? false,
 			indent: options.indent ?? false,
 		})
-			.then(({serveUrl, closeServer, offthreadPort, compositor}) => {
+			.then(({serveUrl, closeServer, offthreadPort, compositor, sourceMap}) => {
 				close = closeServer;
-				const sourceMapContext: BrowserPageSourcemapContext = {
-					serverPort: offthreadPort,
-					webpackBundle: options.serveUrl,
-				};
 				return innerRenderStill({
 					...options,
 					serveUrl,
@@ -338,7 +334,7 @@ export const renderStill = (
 					proxyPort: offthreadPort,
 					downloadMap,
 					compositor,
-					sourceMapContext,
+					sourceMapContext: sourceMap,
 				});
 			})
 
