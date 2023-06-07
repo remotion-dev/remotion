@@ -426,7 +426,7 @@ export const renderMedia = ({
 					recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 				},
 				concurrency: options.concurrency,
-				outputDir: workingDir,
+				outputDir: parallelEncoding ? null : workingDir,
 				onStart: (data) => {
 					renderedFrames = 0;
 					callUpdate();
