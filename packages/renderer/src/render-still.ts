@@ -329,7 +329,6 @@ export const renderStill = (
 		})
 			.then(({serveUrl, closeServer, offthreadPort, compositor, sourceMap}) => {
 				cleanup.push(() => closeServer(false));
-				cleanup.push(() => sourceMap?.destroy());
 
 				return innerRenderStill({
 					...options,
