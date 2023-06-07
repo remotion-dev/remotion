@@ -161,14 +161,26 @@ export const renderStillFlow = async ({
 		}
 	);
 
+	const downloadMap = RenderInternals.makeDownloadMap();
+
+	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
+
+	const server = RenderInternals.prepareServer({
+		concurrency: 1,
+		downloadMap,
+		indent: indentOutput,
+		port,
+		remotionRoot,
+		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		webpackConfigOrServeUrl: urlOrBundle,
+	});
+
+	addCleanupCallback(() => server.then((s) => s.closeServer(false)));
+
 	addCleanupCallback(() => cleanupBundle());
 
 	const puppeteerInstance = await browserInstance;
 	addCleanupCallback(() => puppeteerInstance.close(false));
-
-	const downloadMap = RenderInternals.makeDownloadMap();
-
-	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
 
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
@@ -187,6 +199,7 @@ export const renderStillFlow = async ({
 			serveUrlOrWebpackUrl: urlOrBundle,
 			timeoutInMilliseconds: puppeteerTimeout,
 			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			server: await server,
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
@@ -286,6 +299,7 @@ export const renderStillFlow = async ({
 		port,
 		downloadMap,
 		puppeteerInstance,
+		server: await server,
 	});
 
 	aggregate.rendering = {

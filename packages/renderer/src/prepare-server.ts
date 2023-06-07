@@ -148,7 +148,7 @@ export const makeOrReuseServer = async (
 		};
 	}
 
-	const newServer = await prepareServer({...config});
+	const newServer = await prepareServer(config);
 
 	const cleanupOnDownloadNew = attachDownloadListenerToEmitter(
 		newServer.events,
