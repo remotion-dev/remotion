@@ -75,7 +75,7 @@ export const formatChromeMessage = (
 ): {output: string; tag: string} | null => {
 	const parsed = parseBrowserLogMessage(input);
 	if (!parsed) {
-		return {output: input, tag: 'Chrome'};
+		return {output: input, tag: 'chrome'};
 	}
 
 	const {location, lineNumber, message} = parsed;
@@ -84,7 +84,7 @@ export const formatChromeMessage = (
 		return null;
 	}
 
-	return {output: `${location}:${lineNumber}: ${message}`, tag: 'Chrome'};
+	return {output: `${location}:${lineNumber}: ${message}`, tag: 'chrome'};
 };
 
 type ChromeLogLocation = {

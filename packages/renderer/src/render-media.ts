@@ -231,7 +231,7 @@ export const renderMedia = ({
 		{
 			indent: options.internal?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'PARALLEL ENCODING',
+			tag: 'renderMedia()',
 		},
 		'Free memory:',
 		freeMemory,
@@ -242,7 +242,7 @@ export const renderMedia = ({
 		{
 			indent: options.internal?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'PARALLEL ENCODING',
+			tag: 'renderMedia()',
 		},
 		'Codec supports parallel rendering:',
 		canUseParallelEncoding(codec)
@@ -251,7 +251,7 @@ export const renderMedia = ({
 		{
 			indent: options.internal?.indent ?? false,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'PARALLEL ENCODING',
+			tag: 'renderMedia()',
 		},
 		'User disallowed parallel encoding:',
 		Boolean(options.disallowParallelEncoding)
@@ -261,7 +261,7 @@ export const renderMedia = ({
 			{
 				indent: options.internal?.indent ?? false,
 				logLevel: options.verbose ? 'verbose' : 'info',
-				tag: 'PARALLEL ENCODING',
+				tag: 'renderMedia()',
 			},
 			'Parallel encoding is enabled.'
 		);
@@ -270,7 +270,7 @@ export const renderMedia = ({
 			{
 				indent: options.internal?.indent ?? false,
 				logLevel: options.verbose ? 'verbose' : 'info',
-				tag: 'PARALLEL ENCODING',
+				tag: 'renderMedia()',
 			},
 			'Parallel encoding is disabled.'
 		);
