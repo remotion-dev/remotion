@@ -9,6 +9,7 @@ import type {AudioCodec} from './audio-codec';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
 import type {Codec} from './codec';
 import {codecSupportsMedia} from './codec-supports-media';
@@ -42,7 +43,7 @@ import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
-import {renderFrames} from './render-frames';
+import {internalRenderFrames} from './render-frames';
 import {stitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
@@ -440,7 +441,7 @@ export const renderMedia = ({
 			})
 			.then(({server, cleanupServer}) => {
 				cleanupServerFn = cleanupServer;
-				const renderFramesProc = renderFrames({
+				const renderFramesProc = internalRenderFrames({
 					composition,
 					onFrameUpdate: (
 						frame: number,
@@ -451,7 +452,7 @@ export const renderMedia = ({
 						callUpdate();
 						recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 					},
-					concurrency: options.concurrency,
+					concurrency: options.concurrency ?? null,
 					outputDir: parallelEncoding ? null : workingDir,
 					onStart: (data) => {
 						renderedFrames = 0;
@@ -459,9 +460,9 @@ export const renderMedia = ({
 						onStart?.(data);
 					},
 					inputProps: inputProps ?? {},
-					envVariables,
+					envVariables: envVariables ?? {},
 					imageFormat,
-					jpegQuality,
+					jpegQuality: jpegQuality ?? 80,
 					frameRange: frameRange ?? null,
 					puppeteerInstance,
 					everyNthFrame,
@@ -480,18 +481,18 @@ export const renderMedia = ({
 									Math.min(realFrameRange[1] + 1, frame + everyNthFrame)
 								);
 						  }
-						: undefined,
-					serveUrl: options.serveUrl,
-					dumpBrowserLogs,
-					onBrowserLog,
-					onDownload,
-					timeoutInMilliseconds,
-					chromiumOptions,
-					scale,
-					browserExecutable,
-					port,
+						: null,
+					webpackBundleOrServeUrl: options.serveUrl,
+					dumpBrowserLogs: dumpBrowserLogs ?? false,
+					onBrowserLog: onBrowserLog ?? null,
+					onDownload: onDownload ?? null,
+					timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
+					chromiumOptions: chromiumOptions ?? {},
+					scale: scale ?? 1,
+					browserExecutable: browserExecutable ?? null,
+					port: port ?? null,
 					cancelSignal: cancelRenderFrames.cancelSignal,
-					muted: disableAudio,
+					muted: disableAudio ?? false,
 					verbose: options.verbose ?? false,
 					indent: options.internal?.indent ?? false,
 					server,

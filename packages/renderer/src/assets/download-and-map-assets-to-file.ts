@@ -353,7 +353,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	downloadMap,
 }: {
 	asset: TAsset;
-	onDownload: RenderMediaOnDownload;
+	onDownload: RenderMediaOnDownload | null;
 	downloadMap: DownloadMap;
 }): Promise<TAsset> => {
 	const emitter = new OffthreadVideoServerEmitter();
