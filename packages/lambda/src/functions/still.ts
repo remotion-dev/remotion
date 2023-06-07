@@ -1,6 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {StillImageFormat} from '@remotion/renderer';
-import {RenderInternals, renderStill} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
@@ -149,15 +149,16 @@ const innerStillHandler = async (
 		downloadBehavior: null,
 		customCredentials: null,
 	});
-
-	await renderStill({
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(
+		lambdaParams.logLevel,
+		'verbose'
+	);
+	await RenderInternals.internalRenderStill({
 		composition,
 		output: outputPath,
 		serveUrl,
-		dumpBrowserLogs:
-			lambdaParams.dumpBrowserLogs ??
-			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
-		envVariables: lambdaParams.envVariables,
+		dumpBrowserLogs: lambdaParams.dumpBrowserLogs ?? verbose,
+		envVariables: lambdaParams.envVariables ?? {},
 		frame: RenderInternals.convertToPositiveFrameIndex({
 			frame: lambdaParams.frame,
 			durationInFrames: composition.durationInFrames,
@@ -166,11 +167,19 @@ const innerStillHandler = async (
 		inputProps,
 		overwrite: false,
 		puppeteerInstance: browserInstance,
-		jpegQuality: lambdaParams.jpegQuality,
+		jpegQuality:
+			lambdaParams.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		scale: lambdaParams.scale,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		browserExecutable: executablePath(),
+		cancelSignal: null,
+		indent: false,
+		onBrowserLog: null,
+		onDownload: null,
+		port: null,
+		server: undefined,
+		verbose,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(

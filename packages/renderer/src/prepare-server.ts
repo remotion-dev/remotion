@@ -131,7 +131,7 @@ export const makeOrReuseServer = async (
 		onError,
 	}: {
 		onError: (err: Error) => void;
-		onDownload: RenderMediaOnDownload;
+		onDownload: RenderMediaOnDownload | null;
 	}
 ): Promise<{
 	server: RemotionServer;

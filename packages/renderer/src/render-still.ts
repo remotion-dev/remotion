@@ -9,6 +9,7 @@ import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
+import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import type {Compositor} from './compositor/compositor';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
 import {ensureOutputDirectory} from './ensure-output-directory';
@@ -19,7 +20,7 @@ import {
 	DEFAULT_STILL_IMAGE_FORMAT,
 	validateStillImageFormat,
 } from './image-format';
-import {validateJpegQuality} from './jpeg-quality';
+import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -34,16 +35,39 @@ import {takeFrameAndCompose} from './take-frame-and-compose';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 
-type InnerStillOptions = {
+type InternalRenderStillOptions = {
+	composition: AnySmallCompMetadata;
+	output: string | null;
+	frame: number;
+	inputProps: Record<string, unknown>;
+	imageFormat: StillImageFormat;
+	jpegQuality: number;
+	puppeteerInstance: HeadlessBrowser | null;
+	dumpBrowserLogs: boolean;
+	envVariables: Record<string, string>;
+	overwrite: boolean;
+	browserExecutable: BrowserExecutable;
+	onBrowserLog: null | ((log: BrowserLog) => void);
+	timeoutInMilliseconds: number;
+	chromiumOptions: ChromiumOptions;
+	scale: number;
+	onDownload: RenderMediaOnDownload | null;
+	cancelSignal: CancelSignal | null;
+	indent: boolean;
+	server: RemotionServer | undefined;
+	verbose: boolean;
+	serveUrl: string;
+	port: number | null;
+};
+
+export type RenderStillOptions = {
+	port?: number | null;
 	composition: AnySmallCompMetadata;
 	output?: string | null;
 	frame?: number;
 	inputProps?: Record<string, unknown>;
 	imageFormat?: StillImageFormat;
-	/**
-	 * @deprecated Renamed to `jpegQuality`
-	 */
-	quality?: never;
+
 	jpegQuality?: number;
 	puppeteerInstance?: HeadlessBrowser;
 	dumpBrowserLogs?: boolean;
@@ -56,27 +80,19 @@ type InnerStillOptions = {
 	scale?: number;
 	onDownload?: RenderMediaOnDownload;
 	cancelSignal?: CancelSignal;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	indent?: boolean;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	server?: RemotionServer;
 	verbose?: boolean;
-};
-
-type RenderStillReturnValue = {buffer: Buffer | null};
-
-export type RenderStillOptions = InnerStillOptions & {
 	serveUrl: string;
-	port?: number | null;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
 };
+
+type CleanupFn = () => void;
+type RenderStillReturnValue = {buffer: Buffer | null};
 
 const innerRenderStill = async ({
 	composition,
-	quality,
 	imageFormat = DEFAULT_STILL_IMAGE_FORMAT,
 	serveUrl,
 	puppeteerInstance,
@@ -86,11 +102,11 @@ const innerRenderStill = async ({
 	envVariables,
 	output,
 	frame = 0,
-	overwrite = true,
+	overwrite,
 	browserExecutable,
 	timeoutInMilliseconds,
 	chromiumOptions,
-	scale = 1,
+	scale,
 	proxyPort,
 	cancelSignal,
 	jpegQuality,
@@ -98,7 +114,7 @@ const innerRenderStill = async ({
 	compositor,
 	sourceMapContext,
 	downloadMap,
-}: InnerStillOptions & {
+}: InternalRenderStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
 	onError: (err: Error) => void;
@@ -106,12 +122,6 @@ const innerRenderStill = async ({
 	compositor: Compositor;
 	sourceMapContext: AnySourceMapConsumer | null;
 }): Promise<RenderStillReturnValue> => {
-	if (quality) {
-		throw new Error(
-			'quality has been renamed to jpegQuality. Please rename the option.'
-		);
-	}
-
 	Internals.validateDimension(
 		composition.height,
 		'height',
@@ -182,14 +192,14 @@ const innerRenderStill = async ({
 			browserExecutable,
 			shouldDumpIo: dumpBrowserLogs,
 			chromiumOptions,
-			forceDeviceScaleFactor: scale ?? 1,
+			forceDeviceScaleFactor: scale,
 			indent: false,
 		}));
 	const page = await browserInstance.newPage(sourceMapContext);
 	await page.setViewport({
 		width: composition.width,
 		height: composition.height,
-		deviceScaleFactor: scale ?? 1,
+		deviceScaleFactor: scale,
 	});
 
 	const errorCallback = (err: Error) => {
@@ -233,7 +243,7 @@ const innerRenderStill = async ({
 	}
 
 	await setPropsAndEnv({
-		inputProps: inputProps ?? {},
+		inputProps,
 		envVariables,
 		page,
 		serveUrl,
@@ -297,17 +307,10 @@ const innerRenderStill = async ({
 	return {buffer: output ? null : buffer};
 };
 
-/**
- *
- * @description Render a still frame from a composition
- * @see [Documentation](https://www.remotion.dev/docs/renderer/render-still)
- */
-export const renderStill = (
-	options: RenderStillOptions
+export const internalRenderStill = (
+	options: InternalRenderStillOptions
 ): Promise<RenderStillReturnValue> => {
 	const cleanup: CleanupFn[] = [];
-
-	const onDownload = options.onDownload ?? (() => () => undefined);
 
 	const happyPath = new Promise<RenderStillReturnValue>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
@@ -316,14 +319,14 @@ export const renderStill = (
 			options.server,
 			{
 				webpackConfigOrServeUrl: options.serveUrl,
-				port: options.port ?? null,
+				port: options.port,
 				remotionRoot: findRemotionRoot(),
 				concurrency: 1,
-				verbose: options.verbose ?? false,
-				indent: options.indent ?? false,
+				verbose: options.verbose,
+				indent: options.indent,
 			},
 			{
-				onDownload,
+				onDownload: options.onDownload,
 				onError,
 			}
 		)
@@ -335,7 +338,7 @@ export const renderStill = (
 				return innerRenderStill({
 					...options,
 					serveUrl,
-					onError: (err) => reject(err),
+					onError,
 					proxyPort: offthreadPort,
 					compositor,
 					sourceMapContext: sourceMap,
@@ -362,4 +365,66 @@ export const renderStill = (
 	]);
 };
 
-type CleanupFn = () => void;
+/**
+ *
+ * @description Render a still frame from a composition
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/render-still)
+ */
+export const renderStill = (
+	options: RenderStillOptions
+): Promise<RenderStillReturnValue> => {
+	const {
+		composition,
+		serveUrl,
+		browserExecutable,
+		cancelSignal,
+		chromiumOptions,
+		dumpBrowserLogs,
+		envVariables,
+		frame,
+		imageFormat,
+		inputProps,
+		jpegQuality,
+		onBrowserLog,
+		onDownload,
+		output,
+		overwrite,
+		port,
+		puppeteerInstance,
+		scale,
+		timeoutInMilliseconds,
+		verbose,
+		quality,
+	} = options;
+
+	if (quality) {
+		console.warn(
+			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.'
+		);
+	}
+
+	return internalRenderStill({
+		composition,
+		browserExecutable: browserExecutable ?? null,
+		cancelSignal: cancelSignal ?? null,
+		chromiumOptions: chromiumOptions ?? {},
+		dumpBrowserLogs: dumpBrowserLogs ?? false,
+		envVariables: envVariables ?? {},
+		frame: frame ?? 0,
+		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,
+		indent: false,
+		inputProps: inputProps ?? {},
+		jpegQuality: jpegQuality ?? quality ?? DEFAULT_JPEG_QUALITY,
+		onBrowserLog: onBrowserLog ?? null,
+		onDownload: onDownload ?? null,
+		output: output ?? null,
+		overwrite: overwrite ?? false,
+		port: port ?? null,
+		puppeteerInstance: puppeteerInstance ?? null,
+		scale: scale ?? 1,
+		server: undefined,
+		serveUrl,
+		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
+		verbose: verbose ?? false,
+	});
+};
