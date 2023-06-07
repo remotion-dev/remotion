@@ -33,7 +33,7 @@ export type Template = {
 		| 'three'
 		| 'still'
 		| 'tts'
-		| 'gtts'
+		| 'google-tts'
 		| 'audiogram'
 		| 'skia'
 		| 'tailwind'
@@ -202,7 +202,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1920,
 			height: 1080,
 		},
-		cliId: 'gtts' as const,
+		cliId: 'google-tts' as const,
 		type: 'video' as const,
 		defaultBranch: 'master',
 	},

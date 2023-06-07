@@ -88,7 +88,7 @@ export const IconForTemplate: React.FC<{
     );
   }
 
-  if (template.cliId === "gtts") {
+  if (template.cliId === "google-tts") {
     return (
       <TTSIcon
         style={{
