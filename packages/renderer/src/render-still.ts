@@ -393,7 +393,7 @@ export const renderStill = (
 		quality,
 	} = options;
 
-	if (jpegQuality !== undefined && imageFormat !== 'jpeg') {
+	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
 		throw new Error(
 			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
 		);
