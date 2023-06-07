@@ -60,6 +60,14 @@ export const resolveVideoConfig = ({
 		calculated: calculatedProm,
 		composition,
 	});
+	if (calculatedProm === null) {
+		return {
+			...data,
+			id: composition.id,
+			defaultProps: composition?.defaultProps ?? {},
+		};
+	}
+
 	return {
 		...data,
 		id: composition.id,
