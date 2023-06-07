@@ -113,7 +113,7 @@ const getOriginalPosition = (
 	return {line: result.line, column: result.column, source: result.source};
 };
 
-export const symbolicateStackTrace = async (
+export const symbolicateStackTraceFromRemoteFrames = async (
 	frames: UnsymbolicatedStackFrame[]
 ): Promise<SymbolicatedStackFrame[]> => {
 	const uniqueFileNames = [
@@ -125,16 +125,23 @@ export const symbolicateStackTrace = async (
 		),
 	];
 	const maps = await Promise.all(
-		uniqueFileNames.map(async (fileName) => {
-			const fileContents = await fetchUrl(fileName);
-			return getSourceMap(fileName as string, fileContents as string);
+		uniqueFileNames.map((fileName) => {
+			return getSourceMapFromRemoteFile(fileName);
 		})
 	);
+
 	const mapValues: Record<string, SourceMapConsumer | null> = {};
 	for (let i = 0; i < uniqueFileNames.length; i++) {
 		mapValues[uniqueFileNames[i]] = maps[i];
 	}
 
+	return symbolicateFromSources(frames, mapValues);
+};
+
+export const symbolicateFromSources = (
+	frames: UnsymbolicatedStackFrame[],
+	mapValues: Record<string, SourceMapConsumer | null>
+) => {
 	return frames
 		.map((frame): SymbolicatedStackFrame | null => {
 			const map = mapValues[frame.fileName];
@@ -142,28 +149,34 @@ export const symbolicateStackTrace = async (
 				return null;
 			}
 
-			const pos = getOriginalPosition(
-				map,
-				frame.lineNumber,
-				frame.columnNumber
-			);
-
-			const {functionName} = frame;
-			let hasSource: string | null = null;
-			hasSource = pos.source ? map.sourceContentFor(pos.source, false) : null;
-
-			const scriptCode =
-				hasSource && pos.line
-					? getLinesAround(pos.line, 3, hasSource.split('\n'))
-					: null;
-
-			return {
-				originalColumnNumber: pos.column,
-				originalFileName: pos.source,
-				originalFunctionName: functionName,
-				originalLineNumber: pos.line ? pos.line : null,
-				originalScriptCode: scriptCode,
-			};
+			return symbolicateStackFrame(frame, map);
 		})
 		.filter(truthy);
+};
+
+export const symbolicateStackFrame = (
+	frame: UnsymbolicatedStackFrame,
+	map: SourceMapConsumer
+) => {
+	const pos = getOriginalPosition(map, frame.lineNumber, frame.columnNumber);
+
+	const hasSource = pos.source ? map.sourceContentFor(pos.source, false) : null;
+
+	const scriptCode =
+		hasSource && pos.line
+			? getLinesAround(pos.line, 3, hasSource.split('\n'))
+			: null;
+
+	return {
+		originalColumnNumber: pos.column,
+		originalFileName: pos.source,
+		originalFunctionName: frame.functionName,
+		originalLineNumber: pos.line,
+		originalScriptCode: scriptCode,
+	};
+};
+
+export const getSourceMapFromRemoteFile = async (fileName: string) => {
+	const fileContents = await fetchUrl(fileName);
+	return getSourceMap(fileName, fileContents);
 };
