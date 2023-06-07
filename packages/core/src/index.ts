@@ -14,8 +14,8 @@ declare global {
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
 		getStaticCompositions: () => Promise<AnyCompMetadata[]>;
-		calculateComposition: (compId: string) => Promise<VideoConfig>;
-		setBundleMode: (bundleMode: BundleState) => void;
+		remotion_calculateComposition: (compId: string) => Promise<VideoConfig>;
+		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
 		remotion_editorName: string | null;

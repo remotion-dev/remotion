@@ -289,7 +289,7 @@ if (typeof window !== 'undefined') {
 		return getUnevaluatedComps().map((c) => c.id);
 	};
 
-	window.calculateComposition = async (compId: string) => {
+	window.remotion_calculateComposition = async (compId: string) => {
 		const compositions = getUnevaluatedComps();
 		const selectedComp = compositions.find((c) => c.id === compId);
 		if (!selectedComp) {
@@ -315,5 +315,5 @@ if (typeof window !== 'undefined') {
 
 	window.siteVersion = '5';
 	window.remotion_version = VERSION;
-	window.setBundleMode = setBundleModeAndUpdate;
+	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }
