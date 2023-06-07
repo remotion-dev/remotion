@@ -1,7 +1,6 @@
 import {unlinkSync} from 'node:fs';
 import {expect, test} from 'vitest';
-import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
-import {compose} from '../compositor/compose';
+import {composeWithoutCache} from '../compositor/compose';
 import {startCompositor} from '../compositor/compositor';
 import type {Layer} from '../compositor/payloads';
 
@@ -12,7 +11,6 @@ test('Should handle the overlay', async () => {
 				invalid: 'json',
 			},
 		];
-		const map = makeDownloadMap();
 		const compositor = startCompositor(
 			'StartLongRunningProcess',
 			{
@@ -23,20 +21,17 @@ test('Should handle the overlay', async () => {
 			false
 		);
 
-		await compose({
+		await composeWithoutCache({
 			height: 1080,
 			width: 1080,
 			layers: layers as unknown as Layer[],
 			output: 'test.mp4',
-			downloadMap: map,
 			imageFormat: 'Png',
 			compositor,
 		});
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
-
-		cleanDownloadMap(map);
 
 		throw new Error('should not reach here');
 	} catch (err) {
@@ -57,7 +52,6 @@ test('Should handle valid', async () => {
 			},
 		},
 	];
-	const map = makeDownloadMap();
 
 	const compositor = startCompositor(
 		'StartLongRunningProcess',
@@ -69,12 +63,11 @@ test('Should handle valid', async () => {
 		false
 	);
 
-	await compose({
+	await composeWithoutCache({
 		height: 1080,
 		width: 1080,
 		layers,
 		output: 'test.png',
-		downloadMap: map,
 		imageFormat: 'Png',
 		compositor,
 	});
@@ -83,5 +76,4 @@ test('Should handle valid', async () => {
 	await compositor.waitForDone();
 
 	unlinkSync('test.png');
-	cleanDownloadMap(map);
 });
