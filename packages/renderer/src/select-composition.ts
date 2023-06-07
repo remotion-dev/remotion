@@ -126,7 +126,10 @@ const innerSelectComposition = async ({
  * @description Gets a composition defined in a Remotion project based on a Webpack bundle.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/select-composition)
  */
-export const selectComposition = async (options: SelectCompositionsConfig) => {
+export const selectComposition = async (
+	options: SelectCompositionsConfig
+): Promise<AnyCompMetadata> => {
+	const cleanup: CleanupFn[] = [];
 	const {
 		puppeteerInstance,
 		browserExecutable,
@@ -138,22 +141,28 @@ export const selectComposition = async (options: SelectCompositionsConfig) => {
 		port,
 	} = options;
 	const downloadMap = passedDownloadMap ?? makeDownloadMap();
+	if (!passedDownloadMap) {
+		cleanup.push(() => cleanDownloadMap(downloadMap));
+	}
 
-	const {page, cleanup} = await getPageAndCleanupFn({
+	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
+		context: null,
 	});
+	cleanup.push(() => cleanupPage());
 
 	return new Promise<AnyCompMetadata>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
-		const cleanupPageError = handleJavascriptException({
-			page,
-			frame: null,
-			onError,
-		});
 
-		let close: ((force: boolean) => Promise<unknown>) | null = null;
+		cleanup.push(
+			handleJavascriptException({
+				page,
+				frame: null,
+				onError,
+			})
+		);
 
 		prepareServer({
 			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
@@ -166,8 +175,10 @@ export const selectComposition = async (options: SelectCompositionsConfig) => {
 			verbose: verbose ?? false,
 			indent: indent ?? false,
 		})
-			.then(({serveUrl, closeServer, offthreadPort}) => {
-				close = closeServer;
+			.then(({serveUrl, closeServer, offthreadPort, sourceMap}) => {
+				page.setBrowserSourceMapContext(sourceMap);
+				cleanup.push(() => closeServer(true));
+
 				return innerSelectComposition({
 					...options,
 					serveUrl,
@@ -176,26 +187,18 @@ export const selectComposition = async (options: SelectCompositionsConfig) => {
 				});
 			})
 
-			.then((comp): Promise<[AnyCompMetadata, unknown]> => {
-				if (close) {
-					return Promise.all([comp, close(true)]);
-				}
-
-				return Promise.resolve([comp, null]);
-			})
-			.then(([comp]) => {
+			.then((comp) => {
 				return resolve(comp);
 			})
 			.catch((err) => {
 				reject(err);
 			})
 			.finally(() => {
-				cleanup();
-				cleanupPageError();
-				// Clean download map if it was not passed in
-				if (!passedDownloadMap) {
-					cleanDownloadMap(downloadMap);
-				}
+				cleanup.forEach((c) => {
+					c();
+				});
 			});
 	});
 };
+
+type CleanupFn = () => void;

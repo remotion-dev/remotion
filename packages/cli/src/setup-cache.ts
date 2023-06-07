@@ -46,6 +46,16 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	cleanup: () => void;
 }> => {
 	if (RenderInternals.isServeUrl(fullPath)) {
+		onProgress({
+			bundling: {
+				doneIn: 0,
+				progress: 1,
+			},
+			copying: {
+				bytes: 0,
+				doneIn: 0,
+			},
+		});
 		return {
 			urlOrBundle: fullPath,
 			cleanup: () => Promise.resolve(undefined),

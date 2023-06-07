@@ -14,6 +14,10 @@
  * limitations under the License.
  */
 
+import {Internals} from 'remotion';
+import {getLogLevel, Log} from '../logger';
+import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
+import {truthy} from '../truthy';
 import {assert} from './assert';
 import type {HeadlessBrowser} from './Browser';
 import type {CDPSession} from './Connection';
@@ -71,13 +75,20 @@ interface PageEventObject {
 
 export class Page extends EventEmitter {
 	id: string;
-	static async _create(
-		client: CDPSession,
-		target: Target,
-		defaultViewport: Viewport,
-		browser: HeadlessBrowser
-	): Promise<Page> {
-		const page = new Page(client, target, browser);
+	static async _create({
+		client,
+		target,
+		defaultViewport,
+		browser,
+		sourcemapContext,
+	}: {
+		client: CDPSession;
+		target: Target;
+		defaultViewport: Viewport;
+		browser: HeadlessBrowser;
+		sourcemapContext: AnySourceMapConsumer | null;
+	}): Promise<Page> {
+		const page = new Page(client, target, browser, sourcemapContext);
 		await page.#initialize();
 		await page.setViewport(defaultViewport);
 
@@ -92,8 +103,14 @@ export class Page extends EventEmitter {
 	#pageBindings = new Map<string, Function>();
 	browser: HeadlessBrowser;
 	screenshotTaskQueue: TaskQueue;
+	sourcemapContext: AnySourceMapConsumer | null;
 
-	constructor(client: CDPSession, target: Target, browser: HeadlessBrowser) {
+	constructor(
+		client: CDPSession,
+		target: Target,
+		browser: HeadlessBrowser,
+		sourcemapContext: AnySourceMapConsumer | null
+	) {
 		super();
 		this.#client = client;
 		this.#target = target;
@@ -101,6 +118,7 @@ export class Page extends EventEmitter {
 		this.screenshotTaskQueue = new TaskQueue();
 		this.browser = browser;
 		this.id = String(Math.random());
+		this.sourcemapContext = sourcemapContext;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
 			switch (event.targetInfo.type) {
@@ -134,6 +152,42 @@ export class Page extends EventEmitter {
 		});
 		client.on('Log.entryAdded', (event) => {
 			return this.#onLogEntryAdded(event);
+		});
+
+		this.on('console', (log) => {
+			const {url, columnNumber, lineNumber} = log.location();
+			if (
+				url?.endsWith(Internals.bundleName) &&
+				lineNumber &&
+				this.sourcemapContext
+			) {
+				const origPosition = this.sourcemapContext?.originalPositionFor({
+					column: columnNumber ?? 0,
+					line: lineNumber,
+				});
+				const file = [
+					origPosition?.source,
+					origPosition?.line,
+					origPosition?.column,
+				]
+					.filter(truthy)
+					.join(':');
+
+				Log.verboseAdvanced(
+					{
+						logLevel: getLogLevel(),
+						tag: `console.${log.type}()`,
+						secondTag: [origPosition.name, file].filter(truthy).join('@'),
+						indent: false,
+					},
+					log.text
+				);
+			} else {
+				Log.verboseAdvanced(
+					{logLevel: getLogLevel(), tag: `console.${log.type}`, indent: false},
+					log.text
+				);
+			}
 		});
 	}
 
@@ -394,5 +448,9 @@ export class Page extends EventEmitter {
 			});
 			await this.#target._isClosedPromise;
 		}
+	}
+
+	setBrowserSourceMapContext(context: AnySourceMapConsumer | null) {
+		this.sourcemapContext = context;
 	}
 }
