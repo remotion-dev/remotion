@@ -367,18 +367,7 @@ export const renderVideoFlow = async ({
 				updateRenderProgress(false);
 			},
 			onStart: () => undefined,
-			onDownload: (src: string) => {
-				if (src.startsWith('data:')) {
-					Log.infoAdvanced(
-						{indent, logLevel},
-
-						'\nWriting Data URL to file: ',
-						src.substring(0, 30) + '...'
-					);
-				} else {
-					Log.infoAdvanced({indent, logLevel}, '\nDownloading asset... ', src);
-				}
-			},
+			onDownload,
 			cancelSignal: cancelSignal ?? undefined,
 			outputDir,
 			serveUrl: urlOrBundle,
