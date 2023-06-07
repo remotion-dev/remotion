@@ -37,7 +37,8 @@ import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import {Pool} from './pool';
-import {prepareServer} from './prepare-server';
+import type {RemotionServer} from './prepare-server';
+import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import type {BrowserReplacer} from './replace-browser';
 import {handleBrowserCrash} from './replace-browser';
@@ -89,6 +90,10 @@ type RenderFramesOptions = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	indent?: boolean;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	server?: RemotionServer;
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
@@ -567,7 +572,7 @@ export const renderFrames = (
 				});
 			}),
 			Promise.all([
-				prepareServer({
+				makeOrReuseServer(options.server, {
 					webpackConfigOrServeUrl: options.serveUrl,
 					onDownload,
 					onError,
@@ -581,18 +586,18 @@ export const renderFrames = (
 				browserInstance,
 			]).then(
 				([
-					{serveUrl, closeServer, offthreadPort, compositor, sourceMap},
+					{
+						server: {serveUrl, offthreadPort, compositor, sourceMap},
+						cleanupServer,
+					},
 					puppeteerInstance,
 				]) => {
 					const browserReplacer = handleBrowserCrash(puppeteerInstance);
 
-					const {stopCycling} = cycleBrowserTabs(
-						browserReplacer,
-						actualConcurrency
+					cleanup.push(
+						cycleBrowserTabs(browserReplacer, actualConcurrency).stopCycling
 					);
-
-					cleanup.push(stopCycling);
-					cleanup.push(() => closeServer(false));
+					cleanup.push(() => cleanupServer(false));
 
 					return innerRenderFrames({
 						...options,

@@ -10,7 +10,8 @@ import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import {Log} from './logger';
 import type {ChromiumOptions} from './open-browser';
-import {prepareServer} from './prepare-server';
+import type {RemotionServer} from './prepare-server';
+import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
@@ -33,6 +34,10 @@ type SelectCompositionsConfig = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	indent?: boolean;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	server?: RemotionServer;
 	verbose?: boolean;
 	serveUrl: string;
 	id: string;
@@ -164,7 +169,7 @@ export const selectComposition = async (
 			})
 		);
 
-		prepareServer({
+		makeOrReuseServer(options.server, {
 			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 			onDownload: () => undefined,
 			onError,
@@ -175,9 +180,9 @@ export const selectComposition = async (
 			verbose: verbose ?? false,
 			indent: indent ?? false,
 		})
-			.then(({serveUrl, closeServer, offthreadPort, sourceMap}) => {
+			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
 				page.setBrowserSourceMapContext(sourceMap);
-				cleanup.push(() => closeServer(true));
+				cleanup.push(() => cleanupServer(true));
 
 				return innerSelectComposition({
 					...options,

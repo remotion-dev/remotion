@@ -10,6 +10,26 @@ import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {getSourceMapFromLocalFile} from './symbolicate-stacktrace';
 import {waitForSymbolicationToBeDone} from './wait-for-symbolication-error-to-be-done';
 
+export type RemotionServer = {
+	serveUrl: string;
+	closeServer: (force: boolean) => Promise<unknown>;
+	offthreadPort: number;
+	compositor: Compositor;
+	sourceMap: AnySourceMapConsumer | null;
+};
+
+type PrepareServerOptions = {
+	webpackConfigOrServeUrl: string;
+	onDownload: RenderMediaOnDownload;
+	onError: (err: Error) => void;
+	port: number | null;
+	downloadMap: DownloadMap;
+	remotionRoot: string;
+	concurrency: number;
+	verbose: boolean;
+	indent: boolean;
+};
+
 export const prepareServer = async ({
 	onDownload,
 	onError,
@@ -20,23 +40,7 @@ export const prepareServer = async ({
 	concurrency,
 	verbose,
 	indent,
-}: {
-	webpackConfigOrServeUrl: string;
-	onDownload: RenderMediaOnDownload;
-	onError: (err: Error) => void;
-	port: number | null;
-	downloadMap: DownloadMap;
-	remotionRoot: string;
-	concurrency: number;
-	verbose: boolean;
-	indent: boolean;
-}): Promise<{
-	serveUrl: string;
-	closeServer: (force: boolean) => Promise<unknown>;
-	offthreadPort: number;
-	compositor: Compositor;
-	sourceMap: AnySourceMapConsumer | null;
-}> => {
+}: PrepareServerOptions): Promise<RemotionServer> => {
 	if (isServeUrl(webpackConfigOrServeUrl)) {
 		const {
 			port: offthreadPort,
@@ -106,4 +110,31 @@ export const prepareServer = async ({
 		compositor,
 		sourceMap: await sourceMap,
 	});
+};
+
+export const makeOrReuseServer = async (
+	server: RemotionServer | undefined,
+	config: PrepareServerOptions
+): Promise<{
+	server: RemotionServer;
+	cleanupServer: (force: boolean) => Promise<unknown>;
+}> => {
+	const onError = (err: Error) => {
+		if (config.onError) {
+			config.onError(err);
+		}
+	};
+
+	if (server) {
+		return {
+			server,
+			cleanupServer: () => Promise.resolve(undefined),
+		};
+	}
+
+	const newServer = await prepareServer({...config, onError});
+	return {
+		server: newServer,
+		cleanupServer: (force: boolean) => newServer.closeServer(force),
+	};
 };

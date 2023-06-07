@@ -9,7 +9,8 @@ import {handleJavascriptException} from './error-handling/handle-javascript-exce
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
 import type {ChromiumOptions} from './open-browser';
-import {prepareServer} from './prepare-server';
+import type {RemotionServer} from './prepare-server';
+import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
@@ -28,6 +29,10 @@ type GetCompositionsConfig = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	downloadMap?: DownloadMap;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	server?: RemotionServer;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
@@ -125,7 +130,7 @@ export const getCompositions = async (
 			})
 		);
 
-		prepareServer({
+		makeOrReuseServer(config?.server, {
 			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 			onDownload: () => undefined,
 			onError,
@@ -136,10 +141,10 @@ export const getCompositions = async (
 			verbose: config?.verbose ?? false,
 			indent: config?.indent ?? false,
 		})
-			.then(({serveUrl, closeServer, offthreadPort, sourceMap}) => {
+			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
 				page.setBrowserSourceMapContext(sourceMap);
 
-				cleanup.push(() => closeServer(true));
+				cleanup.push(() => cleanupServer(true));
 
 				return innerGetCompositions(
 					serveUrl,
