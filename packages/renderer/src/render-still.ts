@@ -158,12 +158,6 @@ const innerRenderStill = async ({
 	output =
 		typeof output === 'string' ? path.resolve(process.cwd(), output) : null;
 
-	if (jpegQuality !== undefined && imageFormat !== 'jpeg') {
-		throw new Error(
-			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
-		);
-	}
-
 	validateJpegQuality(jpegQuality);
 
 	if (output) {
@@ -398,6 +392,12 @@ export const renderStill = (
 		verbose,
 		quality,
 	} = options;
+
+	if (jpegQuality !== undefined && imageFormat !== 'jpeg') {
+		throw new Error(
+			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
+		);
+	}
 
 	if (quality) {
 		console.warn(
