@@ -82,3 +82,23 @@ export const formatChromeMessage = (
 
 	return {output: input, tag: 'Chrome'};
 };
+
+type ChromeLogLocation = {
+	location: string;
+	lineNumber: number;
+};
+
+export const parseChromeLogLocation = (
+	message: string
+): ChromeLogLocation | null => {
+	const regex = /(.*), source: (.*) \(([0-9]+)\)/;
+	const match = message.match(regex);
+	if (!match) {
+		return null;
+	}
+
+	return {
+		lineNumber: parseInt(match[3], 10),
+		location: match[2],
+	};
+};

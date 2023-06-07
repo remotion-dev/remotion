@@ -1,5 +1,8 @@
 import {expect, test} from 'vitest';
-import {parseBrowserLogMessage} from '../browser/should-log-message';
+import {
+	parseBrowserLogMessage,
+	parseChromeLogLocation,
+} from '../browser/should-log-message';
 
 test('parse console.log message', () => {
 	const parsed = parseBrowserLogMessage(
@@ -16,6 +19,12 @@ test('parse console.log message', () => {
 		location: 'CONSOLE',
 		lineNumber: 83116,
 		message: '"hi thereyo!", source: http://localhost:3000/bundle.js (83116)',
+	});
+
+	const location = parseChromeLogLocation(parsed?.message ?? '');
+	expect(location).toEqual({
+		lineNumber: 83116,
+		location: 'http://localhost:3000/bundle.js',
 	});
 });
 
