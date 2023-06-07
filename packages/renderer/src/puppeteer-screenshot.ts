@@ -16,10 +16,6 @@ export const screenshot = (options: {
 }): Promise<Buffer | string> => {
 	if (options.jpegQuality) {
 		assert.ok(
-			options.type === 'jpeg',
-			`options.quality is unsupported for the ${options.type} screenshots`
-		);
-		assert.ok(
 			typeof options.jpegQuality === 'number',
 			'Expected options.quality to be a number but found ' +
 				typeof options.jpegQuality

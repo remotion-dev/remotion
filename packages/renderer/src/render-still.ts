@@ -420,7 +420,7 @@ export const renderStill = (
 		onBrowserLog: onBrowserLog ?? null,
 		onDownload: onDownload ?? null,
 		output: output ?? null,
-		overwrite: overwrite ?? false,
+		overwrite: overwrite ?? true,
 		port: port ?? null,
 		puppeteerInstance: puppeteerInstance ?? null,
 		scale: scale ?? 1,
