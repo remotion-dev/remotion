@@ -593,6 +593,7 @@ export const renderFrames = (
 
 					cleanup.push(stopCycling);
 					cleanup.push(() => closeServer(false));
+					cleanup.push(() => sourceMap?.destroy());
 
 					return innerRenderFrames({
 						...options,

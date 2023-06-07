@@ -305,14 +305,16 @@ const innerRenderStill = async ({
 export const renderStill = (
 	options: RenderStillOptions
 ): Promise<RenderStillReturnValue> => {
+	const cleanup: CleanupFn[] = [];
 	const downloadMap = options.downloadMap ?? makeDownloadMap();
+	if (!options?.downloadMap) {
+		cleanup.push(() => cleanDownloadMap(downloadMap));
+	}
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
 	const happyPath = new Promise<RenderStillReturnValue>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
-
-		let close: ((force: boolean) => Promise<unknown>) | null = null;
 
 		prepareServer({
 			webpackConfigOrServeUrl: options.serveUrl,
@@ -326,7 +328,9 @@ export const renderStill = (
 			indent: options.indent ?? false,
 		})
 			.then(({serveUrl, closeServer, offthreadPort, compositor, sourceMap}) => {
-				close = closeServer;
+				cleanup.push(() => closeServer(false));
+				cleanup.push(() => sourceMap?.destroy());
+
 				return innerRenderStill({
 					...options,
 					serveUrl,
@@ -341,12 +345,9 @@ export const renderStill = (
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
 			.finally(() => {
-				// Clean download map if it was not passed in
-				if (!options?.downloadMap) {
-					cleanDownloadMap(downloadMap);
-				}
-
-				return close?.(false);
+				cleanup.forEach((c) => {
+					c();
+				});
 			});
 	});
 
@@ -359,3 +360,5 @@ export const renderStill = (
 		}),
 	]);
 };
+
+type CleanupFn = () => void;
