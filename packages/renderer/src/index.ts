@@ -1,6 +1,5 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
-import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {
 	getDefaultAudioCodec,
 	supportedAudioCodecs,
@@ -159,8 +158,6 @@ export const RenderInternals = {
 	isEqualOrBelowLogLevel,
 	isValidLogLevel,
 	perf,
-	makeDownloadMap,
-	cleanDownloadMap,
 	convertToPositiveFrameIndex,
 	findRemotionRoot,
 	validateBitrate,

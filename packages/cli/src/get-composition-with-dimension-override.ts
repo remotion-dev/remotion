@@ -1,7 +1,6 @@
 import type {
 	BrowserExecutable,
 	ChromiumOptions,
-	DownloadMap,
 	HeadlessBrowser,
 	RemotionServer,
 } from '@remotion/renderer';
@@ -19,7 +18,6 @@ export const getCompositionWithDimensionOverride = async ({
 	puppeteerInstance,
 	timeoutInMilliseconds,
 	browserExecutable,
-	downloadMap,
 	serveUrlOrWebpackUrl,
 	indent,
 	inputProps,
@@ -36,7 +34,6 @@ export const getCompositionWithDimensionOverride = async ({
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
 	browserExecutable: BrowserExecutable | null;
-	downloadMap: DownloadMap | undefined;
 	serveUrlOrWebpackUrl: string;
 	indent: boolean;
 	verbose: boolean;
@@ -56,7 +53,6 @@ export const getCompositionWithDimensionOverride = async ({
 		verbose,
 		browserExecutable,
 		chromiumOptions,
-		downloadMap,
 		envVariables,
 		inputProps,
 		port,

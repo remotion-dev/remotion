@@ -1,6 +1,4 @@
 import type {AnyCompMetadata} from 'remotion';
-import type {DownloadMap} from './assets/download-map';
-import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -25,10 +23,6 @@ type GetCompositionsConfig = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	downloadMap?: DownloadMap;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
@@ -105,8 +99,6 @@ export const getCompositions = async (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsConfig
 ) => {
-	const downloadMap = config?.downloadMap ?? makeDownloadMap();
-
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: config?.puppeteerInstance,
 		browserExecutable: config?.browserExecutable ?? null,
@@ -118,9 +110,6 @@ export const getCompositions = async (
 
 	return new Promise<AnyCompMetadata[]>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
-		if (!config?.downloadMap) {
-			cleanup.push(() => cleanDownloadMap(downloadMap));
-		}
 
 		cleanup.push(
 			handleJavascriptException({
@@ -135,7 +124,6 @@ export const getCompositions = async (
 			{
 				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 				port: config?.port ?? null,
-				downloadMap,
 				remotionRoot: findRemotionRoot(),
 				concurrency: 1,
 				verbose: config?.verbose ?? false,

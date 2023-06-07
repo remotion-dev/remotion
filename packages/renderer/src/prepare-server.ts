@@ -4,8 +4,10 @@ import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {attachDownloadListenerToEmitter} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
 import {isServeUrl} from './is-serve-url';
+import {Log} from './logger';
 import type {OffthreadVideoServerEmitter} from './offthread-video-server';
 import {serveStatic} from './serve-static';
 import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
@@ -19,12 +21,12 @@ export type RemotionServer = {
 	compositor: Compositor;
 	sourceMap: AnySourceMapConsumer | null;
 	events: OffthreadVideoServerEmitter;
+	downloadMap: DownloadMap;
 };
 
 type PrepareServerOptions = {
 	webpackConfigOrServeUrl: string;
 	port: number | null;
-	downloadMap: DownloadMap;
 	remotionRoot: string;
 	concurrency: number;
 	verbose: boolean;
@@ -34,12 +36,18 @@ type PrepareServerOptions = {
 export const prepareServer = async ({
 	webpackConfigOrServeUrl,
 	port,
-	downloadMap,
 	remotionRoot,
 	concurrency,
 	verbose,
 	indent,
 }: PrepareServerOptions): Promise<RemotionServer> => {
+	const downloadMap = makeDownloadMap();
+	Log.verboseAdvanced(
+		{indent, logLevel: verbose ? 'verbose' : 'info'},
+		'Created directory for temporary files',
+		downloadMap.assetDir
+	);
+
 	if (isServeUrl(webpackConfigOrServeUrl)) {
 		const {
 			port: offthreadPort,
@@ -58,12 +66,14 @@ export const prepareServer = async ({
 		return Promise.resolve({
 			serveUrl: webpackConfigOrServeUrl,
 			closeServer: () => {
+				cleanDownloadMap(downloadMap);
 				return closeProxy();
 			},
 			offthreadPort,
 			compositor: comp,
 			sourceMap: null,
 			events,
+			downloadMap,
 		});
 	}
 
@@ -97,6 +107,7 @@ export const prepareServer = async ({
 	return Promise.resolve({
 		closeServer: async (force: boolean) => {
 			sourceMap.then((s) => s?.destroy());
+			cleanDownloadMap(downloadMap);
 			if (!force) {
 				await waitForSymbolicationToBeDone();
 			}
@@ -108,6 +119,7 @@ export const prepareServer = async ({
 		compositor,
 		sourceMap: await sourceMap,
 		events: newEvents,
+		downloadMap,
 	});
 };
 

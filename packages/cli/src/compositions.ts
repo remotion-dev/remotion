@@ -3,7 +3,6 @@ import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
-import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
 import {printCompositions} from './print-compositions';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
@@ -26,11 +25,6 @@ export const listCompositionsCommand = async (
 	}
 
 	Log.verbose('Entry point:', file, 'reason:', reason);
-
-	const downloadMap = RenderInternals.makeDownloadMap();
-	registerCleanupJob(() => RenderInternals.cleanDownloadMap(downloadMap));
-
-	await loadConfig(remotionRoot);
 
 	const {
 		browserExecutable,
@@ -71,10 +65,7 @@ export const listCompositionsCommand = async (
 		inputProps,
 		timeoutInMilliseconds: puppeteerTimeout,
 		port,
-		downloadMap,
 	});
 
 	printCompositions(compositions);
-
-	Log.verbose('Cleaned up', downloadMap.assetDir);
 };

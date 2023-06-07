@@ -87,8 +87,6 @@ const innerStillHandler = async (
 
 	const outputPath = path.join(outputDir, 'output');
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
 	const region = getCurrentRegionInFunction();
 	const inputProps = await deserializeInputProps({
 		bucketName,
@@ -112,7 +110,6 @@ const innerStillHandler = async (
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		port: null,
-		downloadMap,
 		forceHeight: lambdaParams.forceHeight,
 		forceWidth: lambdaParams.forceWidth,
 		logLevel: lambdaParams.logLevel,
@@ -173,7 +170,6 @@ const innerStillHandler = async (
 		chromiumOptions: lambdaParams.chromiumOptions,
 		scale: lambdaParams.scale,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
-		downloadMap,
 		browserExecutable: executablePath(),
 	});
 
@@ -214,8 +210,6 @@ const innerStillHandler = async (
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
-
-	RenderInternals.cleanDownloadMap(downloadMap);
 
 	return {
 		output: getOutputUrlFromMetadata(

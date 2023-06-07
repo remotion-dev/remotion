@@ -161,13 +161,8 @@ export const renderStillFlow = async ({
 		}
 	);
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
-	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
-
 	const server = RenderInternals.prepareServer({
 		concurrency: 1,
-		downloadMap,
 		indent: indentOutput,
 		port,
 		remotionRoot,
@@ -190,7 +185,6 @@ export const renderStillFlow = async ({
 			compositionIdFromUi,
 			browserExecutable,
 			chromiumOptions,
-			downloadMap,
 			envVariables,
 			indent: indentOutput,
 			inputProps,
@@ -297,7 +291,6 @@ export const renderStillFlow = async ({
 		overwrite,
 		onDownload,
 		port,
-		downloadMap,
 		puppeteerInstance,
 		server: await server,
 	});

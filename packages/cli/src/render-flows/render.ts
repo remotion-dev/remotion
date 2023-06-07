@@ -139,16 +139,12 @@ export const renderVideoFlow = async ({
 	disallowParallelEncoding: boolean;
 }) => {
 	const downloads: DownloadProgress[] = [];
-	const downloadMap = RenderInternals.makeDownloadMap();
-	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
 
 	Log.verboseAdvanced(
 		{indent, logLevel},
 		'Browser executable: ',
 		browserExecutable
 	);
-
-	Log.verboseAdvanced({indent, logLevel}, 'Asset dirs', downloadMap.assetDir);
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
@@ -254,7 +250,6 @@ export const renderVideoFlow = async ({
 	const actualConcurrency = RenderInternals.getActualConcurrency(concurrency);
 	const server = RenderInternals.prepareServer({
 		concurrency: actualConcurrency,
-		downloadMap,
 		indent,
 		port,
 		remotionRoot,
@@ -271,7 +266,6 @@ export const renderVideoFlow = async ({
 			compositionIdFromUi,
 			browserExecutable,
 			chromiumOptions,
-			downloadMap,
 			envVariables,
 			indent,
 			inputProps,
@@ -398,7 +392,6 @@ export const renderVideoFlow = async ({
 			scale,
 			browserExecutable,
 			port,
-			downloadMap,
 			composition: config,
 			server: await server,
 		});
@@ -467,7 +460,6 @@ export const renderVideoFlow = async ({
 		onDownload,
 		internal: {
 			onCtrlCExit: addCleanupCallback,
-			downloadMap,
 			indent,
 			server: await server,
 		},

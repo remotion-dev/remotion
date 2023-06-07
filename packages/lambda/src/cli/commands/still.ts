@@ -61,7 +61,6 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		validateServeUrl(serveUrl);
 		const server = RenderInternals.prepareServer({
 			concurrency: 1,
-			downloadMap: RenderInternals.makeDownloadMap(),
 			indent: false,
 			port,
 			remotionRoot,
@@ -78,7 +77,6 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 				browserExecutable,
 				chromiumOptions,
-				downloadMap: undefined,
 				envVariables,
 				inputProps,
 				port,
