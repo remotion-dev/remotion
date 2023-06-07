@@ -66,3 +66,19 @@ export const parseBrowserLogMessage = (
 		message,
 	};
 };
+
+export const formatChromeMessage = (
+	input: string
+): {output: string; tag: string} => {
+	const parsed = parseBrowserLogMessage(input);
+	if (!parsed) {
+		return {output: input, tag: 'Chrome'};
+	}
+
+	const {message, location} = parsed;
+	if (location === 'CONSOLE') {
+		return {output: message, tag: 'Console'};
+	}
+
+	return {output: message, tag: 'Chrome'};
+};
