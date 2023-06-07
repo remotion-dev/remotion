@@ -24,6 +24,7 @@ import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {defaultFileExtensionMap} from './file-extensions';
 import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
+import {internalGetCompositions} from './get-compositions';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {
@@ -197,6 +198,7 @@ export const RenderInternals = {
 	internalRenderStill,
 	internalOpenBrowser,
 	internalSelectComposition,
+	internalGetCompositions,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

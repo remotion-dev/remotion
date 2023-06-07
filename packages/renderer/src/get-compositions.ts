@@ -3,6 +3,7 @@ import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
+import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
@@ -14,6 +15,21 @@ import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
+type InternalGetCompositionsOptions = {
+	inputProps: Record<string, unknown>;
+	envVariables: Record<string, string>;
+	puppeteerInstance: HeadlessBrowser | undefined;
+	onBrowserLog: null | ((log: BrowserLog) => void);
+	browserExecutable: BrowserExecutable | null;
+	timeoutInMilliseconds: number;
+	chromiumOptions: ChromiumOptions;
+	port: number | null;
+	server: RemotionServer | undefined;
+	indent: boolean;
+	verbose: boolean;
+	serveUrlOrWebpackUrl: string;
+};
+
 export type GetCompositionsOptions = {
 	inputProps?: Record<string, unknown> | null;
 	envVariables?: Record<string, string>;
@@ -23,26 +39,31 @@ export type GetCompositionsOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	server?: RemotionServer;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	indent?: boolean;
 	verbose?: boolean;
 };
 
-const innerGetCompositions = async (
-	serveUrl: string,
-	page: Page,
-	config: GetCompositionsOptions,
-	proxyPort: number
-): Promise<AnyCompMetadata[]> => {
-	if (config?.onBrowserLog) {
+type InnerGetCompositionsParams = {
+	inputProps: Record<string, unknown>;
+	envVariables: Record<string, string>;
+	onBrowserLog: null | ((log: BrowserLog) => void);
+	timeoutInMilliseconds: number;
+	serveUrl: string;
+	page: Page;
+	proxyPort: number;
+};
+
+const innerGetCompositions = async ({
+	envVariables,
+	inputProps,
+	onBrowserLog,
+	page,
+	proxyPort,
+	serveUrl,
+	timeoutInMilliseconds,
+}: InnerGetCompositionsParams): Promise<AnyCompMetadata[]> => {
+	if (onBrowserLog) {
 		page.on('console', (log) => {
-			config.onBrowserLog?.({
+			onBrowserLog({
 				stackTrace: log.stackTrace(),
 				text: log.text,
 				type: log.type,
@@ -50,15 +71,15 @@ const innerGetCompositions = async (
 		});
 	}
 
-	validatePuppeteerTimeout(config?.timeoutInMilliseconds);
+	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	await setPropsAndEnv({
-		inputProps: config?.inputProps ?? {},
-		envVariables: config?.envVariables,
+		inputProps,
+		envVariables,
 		page,
 		serveUrl,
 		initialFrame: 0,
-		timeoutInMilliseconds: config?.timeoutInMilliseconds,
+		timeoutInMilliseconds,
 		proxyPort,
 		retriesRemaining: 2,
 		audioEnabled: false,
@@ -91,22 +112,28 @@ const innerGetCompositions = async (
 
 type CleanupFn = () => void;
 
-/**
- * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
- * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
- */
-export const getCompositions = async (
-	serveUrlOrWebpackUrl: string,
-	config?: GetCompositionsOptions
-) => {
+export const internalGetCompositions = async ({
+	browserExecutable,
+	chromiumOptions,
+	envVariables,
+	indent,
+	inputProps,
+	onBrowserLog,
+	port,
+	puppeteerInstance,
+	serveUrlOrWebpackUrl,
+	server,
+	timeoutInMilliseconds,
+	verbose,
+}: InternalGetCompositionsOptions) => {
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
-		passedInInstance: config?.puppeteerInstance,
-		browserExecutable: config?.browserExecutable ?? null,
-		chromiumOptions: config?.chromiumOptions ?? {},
+		passedInInstance: puppeteerInstance,
+		browserExecutable,
+		chromiumOptions,
 		context: null,
 		forceDeviceScaleFactor: undefined,
-		indent: config?.indent ?? false,
-		shouldDumpIo: config?.verbose ?? false,
+		indent,
+		shouldDumpIo: verbose,
 	});
 
 	const cleanup: CleanupFn[] = [cleanupPage];
@@ -123,14 +150,14 @@ export const getCompositions = async (
 		);
 
 		makeOrReuseServer(
-			config?.server,
+			server,
 			{
 				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
-				port: config?.port ?? null,
+				port,
 				remotionRoot: findRemotionRoot(),
 				concurrency: 1,
-				verbose: config?.verbose ?? false,
-				indent: config?.indent ?? false,
+				verbose,
+				indent,
 			},
 			{
 				onDownload: () => undefined,
@@ -142,12 +169,15 @@ export const getCompositions = async (
 
 				cleanup.push(() => cleanupServer(true));
 
-				return innerGetCompositions(
-					serveUrl,
+				return innerGetCompositions({
+					envVariables,
+					inputProps,
+					onBrowserLog,
 					page,
-					config ?? {},
-					offthreadPort
-				);
+					proxyPort: offthreadPort,
+					serveUrl,
+					timeoutInMilliseconds,
+				});
 			})
 
 			.then((comp) => {
@@ -161,5 +191,40 @@ export const getCompositions = async (
 					c();
 				});
 			});
+	});
+};
+
+/**
+ * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
+ */
+export const getCompositions = (
+	serveUrlOrWebpackUrl: string,
+	config?: GetCompositionsOptions
+): Promise<AnyCompMetadata[]> => {
+	const {
+		browserExecutable,
+		chromiumOptions,
+		envVariables,
+		inputProps,
+		onBrowserLog,
+		port,
+		puppeteerInstance,
+		timeoutInMilliseconds,
+		verbose,
+	} = config ?? {};
+	return internalGetCompositions({
+		browserExecutable: browserExecutable ?? null,
+		chromiumOptions: chromiumOptions ?? {},
+		envVariables: envVariables ?? {},
+		inputProps: inputProps ?? {},
+		indent: false,
+		onBrowserLog: onBrowserLog ?? null,
+		port: port ?? null,
+		puppeteerInstance: puppeteerInstance ?? undefined,
+		serveUrlOrWebpackUrl,
+		server: undefined,
+		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
+		verbose: verbose ?? false,
 	});
 };

@@ -4,7 +4,7 @@ import type {
 	HeadlessBrowser,
 	RemotionServer,
 } from '@remotion/renderer';
-import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {AnyCompMetadata} from 'remotion';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';
@@ -105,7 +105,7 @@ export const getCompositionId = async ({
 	}
 
 	if (!process.env.CI) {
-		const comps = await getCompositions(serveUrlOrWebpackUrl, {
+		const comps = await RenderInternals.internalGetCompositions({
 			inputProps,
 			puppeteerInstance,
 			envVariables,
@@ -116,6 +116,8 @@ export const getCompositionId = async ({
 			verbose,
 			indent,
 			server,
+			serveUrlOrWebpackUrl,
+			onBrowserLog: null,
 		});
 		const {compositionId, reason} = await showSingleCompositionsPicker(comps);
 		if (compositionId && typeof compositionId === 'string') {

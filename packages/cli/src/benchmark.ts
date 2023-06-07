@@ -1,9 +1,5 @@
 import type {RenderMediaOptions} from '@remotion/renderer';
-import {
-	getCompositions,
-	RenderInternals,
-	renderMedia,
-} from '@remotion/renderer';
+import {RenderInternals, renderMedia} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
@@ -200,13 +196,25 @@ export const benchmarkCommand = async (
 
 	const puppeteerInstance = await browserInstance;
 
-	const comps = await getCompositions(bundleLocation, {
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(
+		ConfigInternals.Logging.getLogLevel(),
+		'verbose'
+	);
+
+	const comps = await RenderInternals.internalGetCompositions({
+		serveUrlOrWebpackUrl: bundleLocation,
 		inputProps,
 		envVariables,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
 		port,
 		puppeteerInstance,
+		browserExecutable,
+		indent: false,
+		onBrowserLog: null,
+		//  Intentionally disabling server to not cache results
+		server: undefined,
+		verbose,
 	});
 
 	const ids = (
@@ -310,20 +318,14 @@ export const benchmarkCommand = async (
 					pixelFormat,
 					proResProfile,
 					jpegQuality,
-					dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
-						ConfigInternals.Logging.getLogLevel(),
-						'verbose'
-					),
+					dumpBrowserLogs: verbose,
 					chromiumOptions,
 					timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 					scale: configFileScale,
 					port,
 					numberOfGifLoops,
 					everyNthFrame,
-					verbose: RenderInternals.isEqualOrBelowLogLevel(
-						ConfigInternals.Logging.getLogLevel(),
-						'verbose'
-					),
+					verbose,
 					muted,
 					enforceAudioTrack,
 					browserExecutable,
