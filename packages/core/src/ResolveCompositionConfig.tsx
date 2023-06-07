@@ -50,7 +50,8 @@ export const ResolveCompositionConfig: React.FC<
 > = ({children}) => {
 	const [currentRenderModalComposition, setCurrentRenderModalComposition] =
 		useState<string | null>(null);
-	const {compositions, currentComposition} = useContext(CompositionManager);
+	const {compositions, currentComposition, currentCompositionMetadata} =
+		useContext(CompositionManager);
 	const selectedComposition = compositions.find(
 		(c) => c.id === currentComposition
 	);
@@ -78,6 +79,10 @@ export const ResolveCompositionConfig: React.FC<
 	const doResolution = useCallback(
 		(composition: AnyComposition, editorProps: object) => {
 			const controller = new AbortController();
+			if (currentCompositionMetadata) {
+				return controller;
+			}
+
 			const {signal} = controller;
 
 			const promOrNot = resolveVideoConfig({composition, editorProps, signal});
@@ -128,7 +133,7 @@ export const ResolveCompositionConfig: React.FC<
 
 			return controller;
 		},
-		[]
+		[currentCompositionMetadata]
 	);
 
 	useImperativeHandle(
@@ -222,7 +227,8 @@ export const useResolvedVideoConfig = (
 	) as ResolveCompositionConfigContect;
 	const {props: allEditorProps} = useContext(EditorPropsContext);
 
-	const {compositions, currentComposition} = useContext(CompositionManager);
+	const {compositions, currentComposition, currentCompositionMetadata} =
+		useContext(CompositionManager);
 	const compositionId = preferredCompositionId ?? currentComposition;
 	const composition = compositions.find((c) => c.id === compositionId);
 
@@ -233,6 +239,17 @@ export const useResolvedVideoConfig = (
 	return useMemo(() => {
 		if (!composition) {
 			return null;
+		}
+
+		if (currentCompositionMetadata) {
+			return {
+				type: 'success',
+				result: {
+					...currentCompositionMetadata,
+					id: composition.id,
+					defaultProps: currentCompositionMetadata.defaultProps ?? {},
+				},
+			};
 		}
 
 		if (!needsResolution(composition)) {
@@ -258,5 +275,5 @@ export const useResolvedVideoConfig = (
 		}
 
 		return context[composition.id] as VideoConfigState;
-	}, [composition, context, selectedEditorProps]);
+	}, [composition, context, currentCompositionMetadata, selectedEditorProps]);
 };
