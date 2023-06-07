@@ -53,6 +53,7 @@ import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
 import {makeOrReuseServer, prepareServer} from './prepare-server';
 import {internalRenderStill} from './render-still';
+import {internalSelectComposition} from './select-composition';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {tmpDir} from './tmp-dir';
@@ -195,6 +196,7 @@ export const RenderInternals = {
 	makeOrReuseServer,
 	internalRenderStill,
 	internalOpenBrowser,
+	internalSelectComposition,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

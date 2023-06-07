@@ -101,18 +101,33 @@ const innerStillHandler = async (
 		bucketName,
 	});
 
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(
+		lambdaParams.logLevel,
+		'verbose'
+	);
+
+	const server = await RenderInternals.prepareServer({
+		concurrency: 1,
+		indent: false,
+		port: null,
+		remotionRoot: process.cwd(),
+		verbose,
+		webpackConfigOrServeUrl: serveUrl,
+	});
+
 	const composition = await validateComposition({
 		serveUrl,
 		browserInstance,
 		composition: lambdaParams.composition,
 		inputProps,
-		envVariables: lambdaParams.envVariables,
+		envVariables: lambdaParams.envVariables ?? {},
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		port: null,
 		forceHeight: lambdaParams.forceHeight,
 		forceWidth: lambdaParams.forceWidth,
 		logLevel: lambdaParams.logLevel,
+		server,
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -149,10 +164,6 @@ const innerStillHandler = async (
 		downloadBehavior: null,
 		customCredentials: null,
 	});
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		lambdaParams.logLevel,
-		'verbose'
-	);
 	await RenderInternals.internalRenderStill({
 		composition,
 		output: outputPath,
@@ -178,7 +189,7 @@ const innerStillHandler = async (
 		onBrowserLog: null,
 		onDownload: null,
 		port: null,
-		server: undefined,
+		server,
 		verbose,
 	});
 
@@ -208,6 +219,7 @@ const innerStillHandler = async (
 			region: getCurrentRegionInFunction(),
 			serialized: lambdaParams.inputProps,
 		}),
+		server.closeServer(true),
 	]);
 
 	const estimatedPrice = estimatePrice({

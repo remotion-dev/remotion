@@ -1,5 +1,10 @@
-import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
-import {RenderInternals, selectComposition} from '@remotion/renderer';
+import type {
+	ChromiumOptions,
+	LogLevel,
+	openBrowser,
+	RemotionServer,
+} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {AnyCompMetadata} from 'remotion';
 import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
@@ -9,13 +14,14 @@ type ValidateCompositionOptions = {
 	composition: string;
 	browserInstance: Await<ReturnType<typeof openBrowser>>;
 	inputProps: Record<string, unknown>;
-	envVariables: Record<string, string> | undefined;
+	envVariables: Record<string, string>;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
 	forceHeight: number | null;
 	forceWidth: number | null;
 	logLevel: LogLevel;
+	server: RemotionServer | undefined;
 };
 
 export const validateComposition = async ({
@@ -30,8 +36,9 @@ export const validateComposition = async ({
 	forceHeight,
 	forceWidth,
 	logLevel,
+	server,
 }: ValidateCompositionOptions): Promise<AnyCompMetadata> => {
-	const comp = await selectComposition({
+	const comp = await RenderInternals.internalSelectComposition({
 		id: composition,
 		puppeteerInstance: browserInstance,
 		inputProps,
@@ -42,6 +49,9 @@ export const validateComposition = async ({
 		browserExecutable: executablePath(),
 		serveUrl,
 		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		indent: false,
+		onBrowserLog: null,
+		server,
 	});
 
 	return {

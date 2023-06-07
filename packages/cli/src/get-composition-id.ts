@@ -4,7 +4,7 @@ import type {
 	HeadlessBrowser,
 	RemotionServer,
 } from '@remotion/renderer';
-import {getCompositions, selectComposition} from '@remotion/renderer';
+import {getCompositions, RenderInternals} from '@remotion/renderer';
 import type {AnyCompMetadata} from 'remotion';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';
@@ -50,13 +50,13 @@ export const getCompositionId = async ({
 }: {
 	args: string[];
 	compositionIdFromUi: string | null;
-	inputProps?: Record<string, unknown> | null;
-	puppeteerInstance?: HeadlessBrowser;
-	envVariables?: Record<string, string>;
-	timeoutInMilliseconds?: number;
-	chromiumOptions?: ChromiumOptions;
-	port?: number | null;
-	browserExecutable?: BrowserExecutable;
+	inputProps: Record<string, unknown>;
+	puppeteerInstance: HeadlessBrowser | undefined;
+	envVariables: Record<string, string>;
+	timeoutInMilliseconds: number;
+	chromiumOptions: ChromiumOptions;
+	port: number | null;
+	browserExecutable: BrowserExecutable;
 	serveUrlOrWebpackUrl: string;
 	verbose: boolean;
 	indent: boolean;
@@ -76,7 +76,7 @@ export const getCompositionId = async ({
 		compositionIdFromUi,
 	});
 	if (compName) {
-		const config = await selectComposition({
+		const config = await RenderInternals.internalSelectComposition({
 			id: compName,
 			inputProps,
 			puppeteerInstance,
@@ -88,6 +88,8 @@ export const getCompositionId = async ({
 			port,
 			verbose,
 			server,
+			indent,
+			onBrowserLog: null,
 		});
 
 		if (!config) {
