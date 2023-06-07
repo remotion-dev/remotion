@@ -312,6 +312,7 @@ If you register a composition with a component that requires some props, you now
 - **@remotion/renderer**: `quality` is now [`jpegQuality`](/docs/renderer/render-media#jpegquality)
 - **@remotion/renderer**: Removed [`ensureFfmpeg()`](/docs/renderer/ensure-ffmpeg) and [`ensureFfprobe()`](/docs/renderer/ensure-ffprobe)
 - **@remotion/renderer**: [`<OffthreadVideo>`](/docs/offthreadvideo) now uses a Rust-based frame extractor
+- **@remotion/renderer**: Noisy Chrome messages are filtered out.
 - **@remotion/zod-types**: [New package](/docs/zod-types)!
 - Only the following platforms are supported by Remotion now: macOS (x64 and arm64), Windows (x64), Linux (x64 and ARM, GNU Libc and MUSL)
 - All packages: The minimum Node version is now 16.0.0
