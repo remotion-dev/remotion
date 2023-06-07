@@ -72,7 +72,6 @@ import {
 	unlockErrorSymbolicationLock,
 } from './wait-for-symbolication-error-to-be-done';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-export type {DownloadMap} from './assets/download-map';
 export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
 export {BrowserExecutable} from './browser-executable';

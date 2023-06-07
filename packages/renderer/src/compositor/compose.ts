@@ -22,6 +22,11 @@ type CompositorInput = {
 	imageFormat: CompositorImageFormat;
 };
 
+type ComposeInput = CompositorInput & {
+	output: string;
+	compositor: Compositor;
+};
+
 const getCompositorHash = ({...input}: CompositorInput): string => {
 	return createHash('sha256').update(JSON.stringify(input)).digest('base64');
 };
@@ -39,6 +44,26 @@ export const serializeCommand = <Type extends keyof CompositorCommand>(
 	};
 };
 
+export const composeWithoutCache = async ({
+	height,
+	width,
+	layers,
+	output,
+	imageFormat,
+	compositor,
+}: CompositorInput & {
+	output: string;
+	compositor: Compositor;
+}) => {
+	await compositor.executeCommand('Compose', {
+		height,
+		width,
+		layers,
+		output,
+		output_format: imageFormat,
+	});
+};
+
 export const compose = async ({
 	height,
 	width,
@@ -47,10 +72,8 @@ export const compose = async ({
 	downloadMap,
 	imageFormat,
 	compositor,
-}: CompositorInput & {
+}: ComposeInput & {
 	downloadMap: DownloadMap;
-	output: string;
-	compositor: Compositor;
 }) => {
 	const hash = getCompositorHash({height, width, layers, imageFormat});
 
@@ -59,12 +82,13 @@ export const compose = async ({
 		return;
 	}
 
-	await compositor.executeCommand('Compose', {
+	await composeWithoutCache({
+		compositor,
 		height,
-		width,
+		imageFormat,
 		layers,
 		output,
-		output_format: imageFormat,
+		width,
 	});
 
 	downloadMap.compositorCache[hash] = output;

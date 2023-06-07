@@ -7,14 +7,7 @@ import type {
 
 const limit = pLimit(1);
 
-async function getAudioChannelsAndDurationUnlimited(
-	downloadMap: DownloadMap,
-	src: string
-): Promise<AudioChannelsAndDurationResultCache> {
-	if (downloadMap.durationOfAssetCache[src]) {
-		return downloadMap.durationOfAssetCache[src];
-	}
-
+export const getAudioChannelsAndDurationWithoutCache = async (src: string) => {
 	const args = [
 		['-v', 'error'],
 		['-show_entries', 'stream=channels:format=duration'],
@@ -33,6 +26,18 @@ async function getAudioChannelsAndDurationUnlimited(
 		channels: channels ? parseInt(channels[1], 10) : 0,
 		duration: duration ? parseFloat(duration[1]) : null,
 	};
+	return result;
+};
+
+async function getAudioChannelsAndDurationUnlimited(
+	downloadMap: DownloadMap,
+	src: string
+): Promise<AudioChannelsAndDurationResultCache> {
+	if (downloadMap.durationOfAssetCache[src]) {
+		return downloadMap.durationOfAssetCache[src];
+	}
+
+	const result = await getAudioChannelsAndDurationWithoutCache(src);
 
 	downloadMap.durationOfAssetCache[src] = result;
 
