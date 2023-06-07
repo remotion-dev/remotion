@@ -101,7 +101,7 @@ const handleFallback = async ({
 			includeFavicon: true,
 			title: 'Remotion Studio',
 			renderDefaults: {
-				jpegQuality: defaultJpegQuality ?? 80,
+				jpegQuality: defaultJpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 				scale: defaultScale ?? 1,
 				logLevel,
 				codec: defaultCodec ?? 'h264',

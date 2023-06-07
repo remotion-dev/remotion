@@ -373,9 +373,13 @@ export const downloadAndMapAssetsToFileUrl = async ({
 
 export const attachDownloadListenerToEmitter = (
 	emitter: OffthreadVideoServerEmitter,
-	onDownload: RenderMediaOnDownload
+	onDownload: RenderMediaOnDownload | null
 ) => {
 	const cleanup: CleanupFn[] = [];
+	if (!onDownload) {
+		return () => undefined;
+	}
+
 	const a = emitter.addEventListener(
 		'download',
 		({detail: {src: initialSrc}}) => {

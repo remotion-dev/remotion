@@ -9,7 +9,7 @@ import type {
 	RenderMediaOnDownload,
 	StillImageFormat,
 } from '@remotion/renderer';
-import {openBrowser, RenderInternals, renderStill} from '@remotion/renderer';
+import {openBrowser, RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {chalk} from '../chalk';
@@ -74,7 +74,7 @@ export const renderStillFlow = async ({
 	remainingArgs: string[];
 	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string>;
-	jpegQuality: number | undefined;
+	jpegQuality: number;
 	browser: Browser;
 	stillFrame: number;
 	browserExecutable: BrowserExecutable;
@@ -125,15 +125,12 @@ export const renderStillFlow = async ({
 		'Browser executable: ',
 		browserExecutable
 	);
-	const shouldDumpIo = RenderInternals.isEqualOrBelowLogLevel(
-		logLevel,
-		'verbose'
-	);
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
 	const browserInstance = openBrowser(browser, {
 		browserExecutable,
 		chromiumOptions,
-		shouldDumpIo,
+		shouldDumpIo: verbose,
 		forceDeviceScaleFactor: scale,
 		indent: indentOutput,
 	});
@@ -274,13 +271,13 @@ export const renderStillFlow = async ({
 		};
 	};
 
-	await renderStill({
+	await RenderInternals.internalRenderStill({
 		composition: config,
 		frame: stillFrame,
 		output: absoluteOutputLocation,
 		serveUrl: urlOrBundle,
 		jpegQuality,
-		dumpBrowserLogs: shouldDumpIo,
+		dumpBrowserLogs: verbose,
 		envVariables,
 		imageFormat,
 		inputProps,
@@ -293,6 +290,10 @@ export const renderStillFlow = async ({
 		port,
 		puppeteerInstance,
 		server: await server,
+		cancelSignal,
+		indent: indentOutput,
+		onBrowserLog: null,
+		verbose,
 	});
 
 	aggregate.rendering = {

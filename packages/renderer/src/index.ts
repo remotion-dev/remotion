@@ -43,7 +43,7 @@ import {
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
-import {validateJpegQuality} from './jpeg-quality';
+import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {getLogLevel, INDENT_TOKEN, Log, setLogLevel} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
@@ -52,6 +52,7 @@ import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
 import {makeOrReuseServer, prepareServer} from './prepare-server';
+import {internalRenderStill} from './render-still';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {tmpDir} from './tmp-dir';
@@ -176,6 +177,7 @@ export const RenderInternals = {
 	validVideoImageFormats,
 	DEFAULT_STILL_IMAGE_FORMAT,
 	DEFAULT_VIDEO_IMAGE_FORMAT,
+	DEFAULT_JPEG_QUALITY,
 	chalk,
 	Log,
 	getLogLevel,
@@ -185,6 +187,7 @@ export const RenderInternals = {
 	HeadlessBrowser,
 	prepareServer,
 	makeOrReuseServer,
+	internalRenderStill,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
