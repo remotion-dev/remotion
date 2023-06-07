@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {Internals} from 'remotion';
 import {getLogLevel, Log} from '../logger';
 import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import {truthy} from '../truthy';
@@ -155,7 +156,11 @@ export class Page extends EventEmitter {
 
 		this.on('console', (log) => {
 			const {url, columnNumber, lineNumber} = log.location();
-			if (url && lineNumber && this.sourcemapContext) {
+			if (
+				url?.endsWith(Internals.bundleName) &&
+				lineNumber &&
+				this.sourcemapContext
+			) {
 				const origPosition = this.sourcemapContext?.originalPositionFor({
 					column: columnNumber ?? 0,
 					line: lineNumber,
