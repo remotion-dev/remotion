@@ -94,6 +94,7 @@ export const prepareServer = async ({
 
 	return Promise.resolve({
 		closeServer: async (force: boolean) => {
+			sourceMap.then((s) => s?.destroy());
 			if (!force) {
 				await waitForSymbolicationToBeDone();
 			}

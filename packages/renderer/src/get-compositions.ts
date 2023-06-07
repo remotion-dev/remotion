@@ -140,7 +140,6 @@ export const getCompositions = async (
 				page.setBrowserSourceMapContext(sourceMap);
 
 				cleanup.push(() => closeServer(true));
-				cleanup.push(() => sourceMap?.destroy());
 
 				return innerGetCompositions(
 					serveUrl,

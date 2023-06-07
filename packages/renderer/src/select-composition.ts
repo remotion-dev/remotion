@@ -178,7 +178,7 @@ export const selectComposition = async (
 			.then(({serveUrl, closeServer, offthreadPort, sourceMap}) => {
 				page.setBrowserSourceMapContext(sourceMap);
 				cleanup.push(() => closeServer(true));
-				cleanup.push(() => sourceMap?.destroy());
+
 				return innerSelectComposition({
 					...options,
 					serveUrl,
