@@ -1,7 +1,6 @@
 import type {
 	BrowserExecutable,
 	ChromiumOptions,
-	DownloadMap,
 	HeadlessBrowser,
 	RemotionServer,
 } from '@remotion/renderer';
@@ -44,7 +43,6 @@ export const getCompositionId = async ({
 	chromiumOptions,
 	port,
 	browserExecutable,
-	downloadMap,
 	serveUrlOrWebpackUrl,
 	verbose,
 	indent,
@@ -59,7 +57,6 @@ export const getCompositionId = async ({
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
 	browserExecutable?: BrowserExecutable;
-	downloadMap?: DownloadMap;
 	serveUrlOrWebpackUrl: string;
 	verbose: boolean;
 	indent: boolean;
@@ -114,7 +111,6 @@ export const getCompositionId = async ({
 			chromiumOptions,
 			port,
 			browserExecutable,
-			downloadMap,
 			verbose,
 			indent,
 			server,

@@ -78,7 +78,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 		const server = RenderInternals.prepareServer({
 			concurrency: 1,
-			downloadMap: RenderInternals.makeDownloadMap(),
 			indent: false,
 			port,
 			remotionRoot,
@@ -92,7 +91,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				compositionIdFromUi: null,
 				browserExecutable,
 				chromiumOptions,
-				downloadMap: undefined,
 				envVariables,
 				height,
 				indent: false,

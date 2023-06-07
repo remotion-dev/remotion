@@ -1,9 +1,7 @@
 import {expect, test} from 'vitest';
-import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
 import {renderStill} from '../render-still';
 
 test('Need to pass valid metadata', async () => {
-	const downloadMap = makeDownloadMap();
 	await expect(() =>
 		renderStill({
 			composition: {
@@ -18,16 +16,13 @@ test('Need to pass valid metadata', async () => {
 			output: '/file/output.png',
 			serveUrl:
 				'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
-			downloadMap,
 			verbose: false,
 			indent: false,
 		})
 	).rejects.toThrow(/not be NaN, but is NaN/);
-	cleanDownloadMap(downloadMap);
 });
 
 test('Returns buffer in promise result', async () => {
-	const downloadMap = makeDownloadMap();
 	const {buffer} = await renderStill({
 		composition: {
 			width: 1000,
@@ -40,16 +35,13 @@ test('Returns buffer in promise result', async () => {
 		frame: 0,
 		serveUrl:
 			'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
-		downloadMap,
 		verbose: false,
 		indent: false,
 	});
 	expect(buffer?.length).toBeGreaterThan(1000);
-	cleanDownloadMap(downloadMap);
 });
 
 test('Need to pass valid metadata', async () => {
-	const downloadMap = makeDownloadMap();
 	await expect(() =>
 		renderStill({
 			composition: {
@@ -64,14 +56,12 @@ test('Need to pass valid metadata', async () => {
 			output: '/file/output.png',
 			serveUrl:
 				'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
-			downloadMap,
 			verbose: false,
 			indent: false,
 		})
 	).rejects.toThrow(
 		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/
 	);
-	cleanDownloadMap(downloadMap);
 });
 
 test('Catches invalid image format', () => {

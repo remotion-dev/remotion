@@ -4,7 +4,6 @@ import type {AnySmallCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
-import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -60,10 +59,6 @@ type InnerStillOptions = {
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
-	downloadMap?: DownloadMap;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
 	indent?: boolean;
 	/**
 	 * @deprecated Only for Remotion internal usage
@@ -98,11 +93,11 @@ const innerRenderStill = async ({
 	scale = 1,
 	proxyPort,
 	cancelSignal,
-	downloadMap,
 	jpegQuality,
 	onBrowserLog,
 	compositor,
 	sourceMapContext,
+	downloadMap,
 }: InnerStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
@@ -284,7 +279,6 @@ const innerRenderStill = async ({
 	await seekToFrame({frame: stillFrame, page});
 
 	const {buffer} = await takeFrameAndCompose({
-		downloadMap,
 		frame: stillFrame,
 		freePage: page,
 		height: composition.height,
@@ -295,6 +289,7 @@ const innerRenderStill = async ({
 		jpegQuality,
 		wantsBuffer: !output,
 		compositor,
+		downloadMap,
 	});
 
 	await cleanup();
@@ -311,10 +306,6 @@ export const renderStill = (
 	options: RenderStillOptions
 ): Promise<RenderStillReturnValue> => {
 	const cleanup: CleanupFn[] = [];
-	const downloadMap = options.downloadMap ?? makeDownloadMap();
-	if (!options?.downloadMap) {
-		cleanup.push(() => cleanDownloadMap(downloadMap));
-	}
 
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
@@ -326,7 +317,6 @@ export const renderStill = (
 			{
 				webpackConfigOrServeUrl: options.serveUrl,
 				port: options.port ?? null,
-				downloadMap,
 				remotionRoot: findRemotionRoot(),
 				concurrency: 1,
 				verbose: options.verbose ?? false,
@@ -337,24 +327,21 @@ export const renderStill = (
 				onError,
 			}
 		)
-			.then(
-				({
-					server: {serveUrl, offthreadPort, compositor, sourceMap},
-					cleanupServer,
-				}) => {
-					cleanup.push(() => cleanupServer(false));
+			.then(({server, cleanupServer}) => {
+				cleanup.push(() => cleanupServer(false));
+				const {serveUrl, offthreadPort, compositor, sourceMap, downloadMap} =
+					server;
 
-					return innerRenderStill({
-						...options,
-						serveUrl,
-						onError: (err) => reject(err),
-						proxyPort: offthreadPort,
-						downloadMap,
-						compositor,
-						sourceMapContext: sourceMap,
-					});
-				}
-			)
+				return innerRenderStill({
+					...options,
+					serveUrl,
+					onError: (err) => reject(err),
+					proxyPort: offthreadPort,
+					compositor,
+					sourceMapContext: sourceMap,
+					downloadMap,
+				});
+			})
 
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))

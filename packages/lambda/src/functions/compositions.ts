@@ -62,8 +62,6 @@ export const compositionsHandler = async (
 		bucketName,
 	});
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
 	const compositions = await getCompositions(realServeUrl, {
 		puppeteerInstance: browserInstance,
 		inputProps,
@@ -71,10 +69,7 @@ export const compositionsHandler = async (
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		port: null,
-		downloadMap,
 	});
-
-	RenderInternals.cleanDownloadMap(downloadMap);
 
 	return Promise.resolve({
 		compositions,

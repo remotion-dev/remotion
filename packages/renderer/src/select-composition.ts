@@ -1,6 +1,4 @@
 import type {AnyCompMetadata} from 'remotion';
-import type {DownloadMap} from './assets/download-map';
-import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -26,10 +24,6 @@ type SelectCompositionsConfig = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	downloadMap?: DownloadMap;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
@@ -139,16 +133,11 @@ export const selectComposition = async (
 		puppeteerInstance,
 		browserExecutable,
 		chromiumOptions,
-		downloadMap: passedDownloadMap,
 		serveUrl: serveUrlOrWebpackUrl,
 		verbose,
 		indent,
 		port,
 	} = options;
-	const downloadMap = passedDownloadMap ?? makeDownloadMap();
-	if (!passedDownloadMap) {
-		cleanup.push(() => cleanDownloadMap(downloadMap));
-	}
 
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -174,7 +163,6 @@ export const selectComposition = async (
 			{
 				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
 				port: port ?? null,
-				downloadMap,
 				remotionRoot: findRemotionRoot(),
 				concurrency: 1,
 				verbose: verbose ?? false,

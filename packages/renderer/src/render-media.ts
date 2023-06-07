@@ -5,8 +5,6 @@ import path from 'node:path';
 import type {AnySmallCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-import type {DownloadMap} from './assets/download-map';
-import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {AudioCodec} from './audio-codec';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -100,10 +98,6 @@ export type RenderMediaOptions = {
 	browserExecutable?: BrowserExecutable;
 	verbose?: boolean;
 	internal?: {
-		/**
-		 * @deprecated Only for Remotion internal usage
-		 */
-		downloadMap?: DownloadMap;
 		/**
 		 * @deprecated Only for Remotion internal usage
 		 */
@@ -220,7 +214,6 @@ export const renderMedia = ({
 	let cancelled = false;
 
 	const renderStart = Date.now();
-	const downloadMap = options.internal?.downloadMap ?? makeDownloadMap();
 
 	const {estimatedUsage, freeMemory, hasEnoughMemory} =
 		shouldUseParallelEncoding({
@@ -291,19 +284,19 @@ export const renderMedia = ({
 		imageFormat
 	);
 
+	const workingDir = fs.mkdtempSync(
+		path.join(os.tmpdir(), 'react-motion-render')
+	);
+
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
-				downloadMap.preEncode,
+				workingDir,
 				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec ?? null)
 		  )
 		: null;
 
-	const outputDir = parallelEncoding
-		? null
-		: fs.mkdtempSync(path.join(os.tmpdir(), 'react-motion-render'));
-
-	if (options.internal?.onCtrlCExit && outputDir) {
-		options.internal.onCtrlCExit(() => deleteDirectory(outputDir));
+	if (options.internal?.onCtrlCExit && workingDir) {
+		options.internal.onCtrlCExit(() => deleteDirectory(workingDir));
 	}
 
 	validateEvenDimensionsWithCodec({
@@ -433,7 +426,7 @@ export const renderMedia = ({
 					recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 				},
 				concurrency: options.concurrency,
-				outputDir,
+				outputDir: workingDir,
 				onStart: (data) => {
 					renderedFrames = 0;
 					callUpdate();
@@ -472,7 +465,6 @@ export const renderMedia = ({
 				browserExecutable,
 				port,
 				cancelSignal: cancelRenderFrames.cancelSignal,
-				downloadMap,
 				muted: disableAudio,
 				verbose: options.verbose ?? false,
 				indent: options.internal?.indent ?? false,
@@ -519,7 +511,7 @@ export const renderMedia = ({
 					onDownload,
 					numberOfGifLoops,
 					verbose: options.verbose,
-					dir: outputDir ?? undefined,
+					dir: workingDir ?? undefined,
 					cancelSignal: cancelStitcher.cancelSignal,
 					muted: disableAudio,
 					enforceAudioTrack,
@@ -574,14 +566,9 @@ export const renderMedia = ({
 				deleteDirectory(path.dirname(preEncodedFileLocation));
 			}
 
-			// Clean download map if it was not passed in
-			if (!options.internal?.downloadMap) {
-				cleanDownloadMap(downloadMap);
-			}
-
 			// Clean temporary image frames when rendering ends or fails
-			if (outputDir && fs.existsSync(outputDir)) {
-				deleteDirectory(outputDir);
+			if (workingDir && fs.existsSync(workingDir)) {
+				deleteDirectory(workingDir);
 			}
 		});
 

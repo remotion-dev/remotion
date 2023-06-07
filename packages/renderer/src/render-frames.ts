@@ -6,7 +6,6 @@ import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
-import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -82,10 +81,6 @@ type RenderFramesOptions = {
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 	composition: AnySmallCompMetadata;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	downloadMap?: DownloadMap;
 	/**
 	 * @deprecated Only for Remotion internal usage
 	 */
@@ -547,8 +542,6 @@ export const renderFrames = (
 
 	const browserInstance = options.puppeteerInstance ?? makeBrowser();
 
-	const downloadMap = options.downloadMap ?? makeDownloadMap();
-
 	const onDownload = options.onDownload ?? (() => () => undefined);
 
 	const actualConcurrency = getActualConcurrency(concurrency ?? null);
@@ -557,9 +550,6 @@ export const renderFrames = (
 
 	return new Promise<RenderFramesOutput>((resolve, reject) => {
 		const cleanup: CleanupFn[] = [];
-		if (!options.downloadMap) {
-			cleanup.push(() => cleanDownloadMap(downloadMap));
-		}
 
 		const onError = (err: Error) => {
 			reject(err);
@@ -577,7 +567,6 @@ export const renderFrames = (
 					{
 						webpackConfigOrServeUrl: options.serveUrl,
 						port: options.port ?? null,
-						downloadMap,
 						remotionRoot: findRemotionRoot(),
 						concurrency: actualConcurrency,
 						verbose: options.verbose ?? false,
@@ -592,7 +581,13 @@ export const renderFrames = (
 			]).then(
 				([
 					{
-						server: {serveUrl, offthreadPort, compositor, sourceMap},
+						server: {
+							serveUrl,
+							offthreadPort,
+							compositor,
+							sourceMap,
+							downloadMap,
+						},
 						cleanupServer,
 					},
 					puppeteerInstance,
@@ -614,11 +609,11 @@ export const renderFrames = (
 						actualConcurrency,
 						onDownload,
 						proxyPort: offthreadPort,
-						downloadMap,
 						makeBrowser,
 						browserReplacer,
 						compositor,
 						sourcemapContext: sourceMap,
+						downloadMap,
 					});
 				}
 			),

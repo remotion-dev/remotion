@@ -1,9 +1,4 @@
-import type {
-	ChromiumOptions,
-	DownloadMap,
-	LogLevel,
-	openBrowser,
-} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals, selectComposition} from '@remotion/renderer';
 import type {AnyCompMetadata} from 'remotion';
 import type {Await} from '../../shared/await';
@@ -18,7 +13,6 @@ type ValidateCompositionOptions = {
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
 	port: number | null;
-	downloadMap: DownloadMap;
 	forceHeight: number | null;
 	forceWidth: number | null;
 	logLevel: LogLevel;
@@ -33,7 +27,6 @@ export const validateComposition = async ({
 	timeoutInMilliseconds,
 	chromiumOptions,
 	port,
-	downloadMap,
 	forceHeight,
 	forceWidth,
 	logLevel,
@@ -46,7 +39,6 @@ export const validateComposition = async ({
 		timeoutInMilliseconds,
 		chromiumOptions,
 		port,
-		downloadMap,
 		browserExecutable: executablePath(),
 		serveUrl,
 		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),

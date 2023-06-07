@@ -5,7 +5,6 @@ import {
 	renderStill,
 	StillImageFormat,
 } from '@remotion/renderer';
-import {cleanDownloadMap} from '@remotion/renderer/dist/assets/download-map';
 import {existsSync, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
@@ -30,13 +29,11 @@ test(
 		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
 		const testOut = path.join(folder, 'still.png');
 
-		const downloadMap = RenderInternals.makeDownloadMap();
 		const server = await RenderInternals.makeOrReuseServer(
 			undefined,
 			{
 				webpackConfigOrServeUrl: bundled,
 				port: null,
-				downloadMap,
 				remotionRoot: process.cwd(),
 				concurrency: RenderInternals.getActualConcurrency(null),
 				verbose: false,
@@ -94,7 +91,6 @@ test(
 		unlinkSync(testOut);
 		RenderInternals.deleteDirectory(bundled);
 		RenderInternals.deleteDirectory(folder);
-		cleanDownloadMap(downloadMap);
 
 		await server.cleanupServer(true);
 	},
@@ -116,13 +112,11 @@ test(
 
 		const compositions = await getCompositions(bundled);
 
-		const downloadMap = RenderInternals.makeDownloadMap();
 		const server = await RenderInternals.makeOrReuseServer(
 			undefined,
 			{
 				webpackConfigOrServeUrl: bundled,
 				port: null,
-				downloadMap,
 				remotionRoot: process.cwd(),
 				concurrency: RenderInternals.getActualConcurrency(null),
 				verbose: false,
@@ -169,7 +163,6 @@ test(
 
 		RenderInternals.deleteDirectory(bundled);
 		RenderInternals.deleteDirectory(folder);
-		cleanDownloadMap(downloadMap);
 
 		await server.cleanupServer(true);
 	},
