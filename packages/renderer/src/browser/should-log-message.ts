@@ -107,13 +107,17 @@ export const parseChromeLogLocation = (
 	};
 };
 
-export const retrieveBundleFileFromLocation = (
-	location: ChromeLogLocation,
-	webpackBundle: string,
-	serverPort: number
-) => {
+export const retrieveBundleFileFromLocation = ({
+	url,
+	webpackBundle,
+	serverPort,
+}: {
+	url: string;
+	webpackBundle: string;
+	serverPort: number;
+}) => {
 	const isLocalSource = `http://localhost:${serverPort}/${Internals.bundleName}`;
-	if (location.location !== isLocalSource) {
+	if (url !== isLocalSource) {
 		return null;
 	}
 

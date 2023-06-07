@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import {getLogLevel, Log} from '../logger';
 import {assert} from './assert';
-import type {Page} from './BrowserPage';
+import type {BrowserPageSourcemapContext, Page} from './BrowserPage';
 import {PageEmittedEvents} from './BrowserPage';
 import type {Connection} from './Connection';
 import type {DevtoolsTargetCreatedEvent} from './devtools-types';
@@ -161,11 +160,13 @@ export class HeadlessBrowser extends EventEmitter {
 		}
 	}
 
-	newPage(): Promise<Page> {
-		return this.#defaultContext.newPage();
+	newPage(context: BrowserPageSourcemapContext | null): Promise<Page> {
+		return this.#defaultContext.newPage(context);
 	}
 
-	async _createPageInContext(): Promise<Page> {
+	async _createPageInContext(
+		context: BrowserPageSourcemapContext | null
+	): Promise<Page> {
 		const {targetId} = await this.connection.send('Target.createTarget', {
 			url: 'about:blank',
 			browserContextId: undefined,
@@ -180,18 +181,10 @@ export class HeadlessBrowser extends EventEmitter {
 			throw new Error(`Failed to create target for page (id = ${targetId})`);
 		}
 
-		const page = await target.page();
+		const page = await target.page(context);
 		if (!page) {
 			throw new Error(`Failed to create a page for context`);
 		}
-
-		page.on('console', (log) => {
-			// const location = JSON.stringify(log.location());
-			Log.verboseAdvanced(
-				{logLevel: getLogLevel(), tag: `console.${log.type}`, indent: false},
-				log.text
-			);
-		});
 
 		return page;
 	}
@@ -290,15 +283,15 @@ export class BrowserContext extends EventEmitter {
 		const pages = await Promise.all(
 			this.targets()
 				.filter((target) => target.type() === 'page')
-				.map((target) => target.page())
+				.map((target) => target.page(null))
 		);
 		return pages.filter((page): page is Page => {
 			return Boolean(page);
 		});
 	}
 
-	newPage(): Promise<Page> {
-		return this.#browser._createPageInContext();
+	newPage(context: BrowserPageSourcemapContext | null): Promise<Page> {
+		return this.#browser._createPageInContext(context);
 	}
 
 	browser(): HeadlessBrowser {
