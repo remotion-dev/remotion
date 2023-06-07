@@ -1,9 +1,9 @@
 import type {Socket} from 'net';
 import http from 'node:http';
-import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
 import {getDesiredPort} from './get-port';
+import type {OffthreadVideoServerEmitter} from './offthread-video-server';
 import {startOffthreadVideoServer} from './offthread-video-server';
 import {serveHandler} from './serve-handler';
 
@@ -11,8 +11,6 @@ export const serveStatic = async (
 	path: string | null,
 	options: {
 		port: number | null;
-		onDownload: RenderMediaOnDownload;
-		onError: (err: Error) => void;
 		downloadMap: DownloadMap;
 		remotionRoot: string;
 		concurrency: number;
@@ -23,14 +21,14 @@ export const serveStatic = async (
 	port: number;
 	close: () => Promise<void>;
 	compositor: Compositor;
+	events: OffthreadVideoServerEmitter;
 }> => {
 	const {
 		listener: offthreadRequest,
 		close: closeCompositor,
 		compositor,
+		events,
 	} = startOffthreadVideoServer({
-		onDownload: options.onDownload,
-		onError: options.onError,
 		downloadMap: options.downloadMap,
 		concurrency: options.concurrency,
 		verbose: options.verbose,
@@ -115,7 +113,7 @@ export const serveStatic = async (
 				]);
 			};
 
-			return {port: selectedPort, close, compositor};
+			return {port: selectedPort, close, compositor, events};
 		} catch (err) {
 			if (!(err instanceof Error)) {
 				throw err;

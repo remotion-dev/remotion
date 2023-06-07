@@ -130,17 +130,22 @@ export const getCompositions = async (
 			})
 		);
 
-		makeOrReuseServer(config?.server, {
-			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
-			onDownload: () => undefined,
-			onError,
-			port: config?.port ?? null,
-			downloadMap,
-			remotionRoot: findRemotionRoot(),
-			concurrency: 1,
-			verbose: config?.verbose ?? false,
-			indent: config?.indent ?? false,
-		})
+		makeOrReuseServer(
+			config?.server,
+			{
+				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
+				port: config?.port ?? null,
+				downloadMap,
+				remotionRoot: findRemotionRoot(),
+				concurrency: 1,
+				verbose: config?.verbose ?? false,
+				indent: config?.indent ?? false,
+			},
+			{
+				onDownload: () => undefined,
+				onError,
+			}
+		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
 				page.setBrowserSourceMapContext(sourceMap);
 

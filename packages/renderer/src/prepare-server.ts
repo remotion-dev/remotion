@@ -2,9 +2,11 @@ import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {attachDownloadListenerToEmitter} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
 import {isServeUrl} from './is-serve-url';
+import type {OffthreadVideoServerEmitter} from './offthread-video-server';
 import {serveStatic} from './serve-static';
 import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {getSourceMapFromLocalFile} from './symbolicate-stacktrace';
@@ -16,12 +18,11 @@ export type RemotionServer = {
 	offthreadPort: number;
 	compositor: Compositor;
 	sourceMap: AnySourceMapConsumer | null;
+	events: OffthreadVideoServerEmitter;
 };
 
 type PrepareServerOptions = {
 	webpackConfigOrServeUrl: string;
-	onDownload: RenderMediaOnDownload;
-	onError: (err: Error) => void;
 	port: number | null;
 	downloadMap: DownloadMap;
 	remotionRoot: string;
@@ -31,8 +32,6 @@ type PrepareServerOptions = {
 };
 
 export const prepareServer = async ({
-	onDownload,
-	onError,
 	webpackConfigOrServeUrl,
 	port,
 	downloadMap,
@@ -46,9 +45,8 @@ export const prepareServer = async ({
 			port: offthreadPort,
 			close: closeProxy,
 			compositor: comp,
+			events,
 		} = await serveStatic(null, {
-			onDownload,
-			onError,
 			port,
 			downloadMap,
 			remotionRoot,
@@ -65,6 +63,7 @@ export const prepareServer = async ({
 			offthreadPort,
 			compositor: comp,
 			sourceMap: null,
+			events,
 		});
 	}
 
@@ -85,9 +84,8 @@ export const prepareServer = async ({
 		port: serverPort,
 		close,
 		compositor,
+		events: newEvents,
 	} = await serveStatic(webpackConfigOrServeUrl, {
-		onDownload,
-		onError,
 		port,
 		downloadMap,
 		remotionRoot,
@@ -109,32 +107,68 @@ export const prepareServer = async ({
 		offthreadPort: serverPort,
 		compositor,
 		sourceMap: await sourceMap,
+		events: newEvents,
 	});
 };
 
 export const makeOrReuseServer = async (
 	server: RemotionServer | undefined,
-	config: PrepareServerOptions
+	config: PrepareServerOptions,
+	{
+		onDownload,
+		onError,
+	}: {
+		onError: (err: Error) => void;
+		onDownload: RenderMediaOnDownload;
+	}
 ): Promise<{
 	server: RemotionServer;
 	cleanupServer: (force: boolean) => Promise<unknown>;
 }> => {
-	const onError = (err: Error) => {
-		if (config.onError) {
-			config.onError(err);
-		}
-	};
-
 	if (server) {
+		const cleanupOnDownload = attachDownloadListenerToEmitter(
+			server.events,
+			onDownload
+		);
+
+		const cleanupError = server.events.addEventListener(
+			'error',
+			({detail: {error}}) => {
+				onError(error);
+			}
+		);
+
 		return {
 			server,
-			cleanupServer: () => Promise.resolve(undefined),
+			cleanupServer: () => {
+				cleanupOnDownload();
+				cleanupError();
+				return Promise.resolve();
+			},
 		};
 	}
 
-	const newServer = await prepareServer({...config, onError});
+	const newServer = await prepareServer({...config});
+
+	const cleanupOnDownloadNew = attachDownloadListenerToEmitter(
+		newServer.events,
+		onDownload
+	);
+
+	const cleanupErrorNew = newServer.events.addEventListener(
+		'error',
+		({detail: {error}}) => {
+			onError(error);
+		}
+	);
+
 	return {
 		server: newServer,
-		cleanupServer: (force: boolean) => newServer.closeServer(force),
+		cleanupServer: (force: boolean) => {
+			newServer.closeServer(force);
+			cleanupOnDownloadNew();
+			cleanupErrorNew();
+			return Promise.resolve();
+		},
 	};
 };
