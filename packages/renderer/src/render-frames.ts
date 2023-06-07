@@ -572,17 +572,22 @@ export const renderFrames = (
 				});
 			}),
 			Promise.all([
-				makeOrReuseServer(options.server, {
-					webpackConfigOrServeUrl: options.serveUrl,
-					onDownload,
-					onError,
-					port: options.port ?? null,
-					downloadMap,
-					remotionRoot: findRemotionRoot(),
-					concurrency: actualConcurrency,
-					verbose: options.verbose ?? false,
-					indent: options.indent ?? false,
-				}),
+				makeOrReuseServer(
+					options.server,
+					{
+						webpackConfigOrServeUrl: options.serveUrl,
+						port: options.port ?? null,
+						downloadMap,
+						remotionRoot: findRemotionRoot(),
+						concurrency: actualConcurrency,
+						verbose: options.verbose ?? false,
+						indent: options.indent ?? false,
+					},
+					{
+						onDownload,
+						onError,
+					}
+				),
 				browserInstance,
 			]).then(
 				([

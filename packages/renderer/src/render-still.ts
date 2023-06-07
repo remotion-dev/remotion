@@ -321,17 +321,22 @@ export const renderStill = (
 	const happyPath = new Promise<RenderStillReturnValue>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 
-		makeOrReuseServer(options.server, {
-			webpackConfigOrServeUrl: options.serveUrl,
-			onDownload,
-			onError,
-			port: options.port ?? null,
-			downloadMap,
-			remotionRoot: findRemotionRoot(),
-			concurrency: 1,
-			verbose: options.verbose ?? false,
-			indent: options.indent ?? false,
-		})
+		makeOrReuseServer(
+			options.server,
+			{
+				webpackConfigOrServeUrl: options.serveUrl,
+				port: options.port ?? null,
+				downloadMap,
+				remotionRoot: findRemotionRoot(),
+				concurrency: 1,
+				verbose: options.verbose ?? false,
+				indent: options.indent ?? false,
+			},
+			{
+				onDownload,
+				onError,
+			}
+		)
 			.then(
 				({
 					server: {serveUrl, offthreadPort, compositor, sourceMap},

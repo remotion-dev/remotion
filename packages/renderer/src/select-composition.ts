@@ -169,17 +169,22 @@ export const selectComposition = async (
 			})
 		);
 
-		makeOrReuseServer(options.server, {
-			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
-			onDownload: () => undefined,
-			onError,
-			port: port ?? null,
-			downloadMap,
-			remotionRoot: findRemotionRoot(),
-			concurrency: 1,
-			verbose: verbose ?? false,
-			indent: indent ?? false,
-		})
+		makeOrReuseServer(
+			options.server,
+			{
+				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
+				port: port ?? null,
+				downloadMap,
+				remotionRoot: findRemotionRoot(),
+				concurrency: 1,
+				verbose: verbose ?? false,
+				indent: indent ?? false,
+			},
+			{
+				onDownload: () => undefined,
+				onError,
+			}
+		)
 			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
 				page.setBrowserSourceMapContext(sourceMap);
 				cleanup.push(() => cleanupServer(true));
