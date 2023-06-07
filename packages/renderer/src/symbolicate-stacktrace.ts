@@ -1,4 +1,5 @@
 import {readFileSync} from 'fs';
+import path from 'path';
 import type {
 	BasicSourceMapConsumer,
 	IndexedSourceMapConsumer,
@@ -51,9 +52,8 @@ const getSourceMap = async (
 		return new SourceMapConsumer(JSON.parse(converted) as RawSourceMap);
 	}
 
-	const index = filePath.lastIndexOf('/');
-	const url = filePath.substring(0, index + 1) + sm;
-	console.log({filePath, url, sm});
+	// Find adjacent file: bundle.js -> bundle.js.map
+	const url = path.join(path.dirname(filePath), sm);
 	if (type === 'local') {
 		return new SourceMapConsumer(readFileSync(url, 'utf8'));
 	}
