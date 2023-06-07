@@ -53,6 +53,7 @@ const getSourceMap = async (
 
 	const index = filePath.lastIndexOf('/');
 	const url = filePath.substring(0, index + 1) + sm;
+	console.log({filePath, url, sm});
 	if (type === 'local') {
 		return new SourceMapConsumer(readFileSync(url, 'utf8'));
 	}
