@@ -14,7 +14,7 @@ import type {
 	RenderMediaOnDownload,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import {RenderInternals, renderMedia} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -410,21 +410,21 @@ export const renderVideoFlow = async ({
 		codec,
 	};
 
-	const {slowestFrames} = await renderMedia({
+	const {slowestFrames} = await RenderInternals.internalRenderMedia({
 		outputLocation: absoluteOutputFile,
 		composition: {
 			...config,
 			width: width ?? config.width,
 			height: height ?? config.height,
 		},
-		crf,
+		crf: crf ?? null,
 		envVariables,
 		frameRange,
 		inputProps,
 		overwrite,
 		pixelFormat,
 		proResProfile,
-		jpegQuality,
+		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 			logLevel,
 			'verbose'
@@ -459,16 +459,16 @@ export const renderVideoFlow = async ({
 		},
 		puppeteerInstance,
 		onDownload,
-		internal: {
-			onCtrlCExit: addCleanupCallback,
-			indent,
-			server: await server,
-		},
+		onCtrlCExit: addCleanupCallback,
+		indent,
+		server: await server,
 		cancelSignal: cancelSignal ?? undefined,
 		audioCodec,
 		preferLossless: false,
 		imageFormat,
 		disallowParallelEncoding,
+		onBrowserLog: null,
+		onStart: () => undefined,
 	});
 
 	Log.verboseAdvanced({indent, logLevel});

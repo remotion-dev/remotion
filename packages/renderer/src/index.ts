@@ -54,6 +54,7 @@ import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
 import {makeOrReuseServer, prepareServer} from './prepare-server';
 import {internalRenderFrames} from './render-frames';
+import {internalRenderMedia} from './render-media';
 import {internalRenderStill} from './render-still';
 import {internalSelectComposition} from './select-composition';
 import {isPathInside} from './serve-handler/is-path-inside';
@@ -104,6 +105,7 @@ export {RemotionServer} from './prepare-server';
 export {ProResProfile} from './prores-profile';
 export {renderFrames, RenderFramesOptions} from './render-frames';
 export {
+	InternalRenderMediaOptions,
 	renderMedia,
 	RenderMediaOnProgress,
 	RenderMediaOptions,
@@ -201,6 +203,7 @@ export const RenderInternals = {
 	internalSelectComposition,
 	internalGetCompositions,
 	internalRenderFrames,
+	internalRenderMedia,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
