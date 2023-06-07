@@ -313,9 +313,10 @@ If you register a composition with a component that requires some props, you now
 - **@remotion/renderer**: Removed [`ensureFfmpeg()`](/docs/renderer/ensure-ffmpeg) and [`ensureFfprobe()`](/docs/renderer/ensure-ffprobe)
 - **@remotion/renderer**: [`<OffthreadVideo>`](/docs/offthreadvideo) now uses a Rust-based frame extractor
 - **@remotion/zod-types**: [New package](/docs/zod-types)!
+- Only the following platforms are supported by Remotion now: macOS (x64 and arm64), Windows (x64), Linux (x64 and ARM, GNU Libc and MUSL)
 - All packages: The minimum Node version is now 16.0.0
-- All packages: For contributors: Updated `pnpm` to `8.5.1`
 - All packages: ESLint has been upgraded to `8.42.0`
 - All packages: TypeScript ESLint has been upgraded to `5.59.9`
+- For contributors: Updated `pnpm` to `8.5.1`
 - [New Google TTS template!](/templates/gtts)
 - [Recommended Docker file](/docs/docker) does not install `ffmpeg` anymore
