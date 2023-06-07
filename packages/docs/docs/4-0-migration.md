@@ -318,5 +318,5 @@ If you register a composition with a component that requires some props, you now
 - All packages: ESLint has been upgraded to `8.42.0`
 - All packages: TypeScript ESLint has been upgraded to `5.59.9`
 - For contributors: Updated `pnpm` to `8.5.1`
-- [New Google TTS template!](/templates/gtts)
+- [New Google TTS template!](/templates/google-tts)
 - [Recommended Docker file](/docs/docker) does not install `ffmpeg` anymore
