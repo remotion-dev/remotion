@@ -1,3 +1,4 @@
+import {readFileSync} from 'fs';
 import type {RawSourceMap} from 'source-map';
 import {SourceMapConsumer} from 'source-map';
 import {readFile} from './assets/read-file';
@@ -23,7 +24,32 @@ function extractSourceMapUrl(fileContents: string): string | null {
 	return match[1].toString();
 }
 
-async function getSourceMap(
+const getSourceMapLocally = (filePath: string, fileContents: string) => {
+	const sm = extractSourceMapUrl(fileContents);
+	if (sm === null) {
+		return null;
+	}
+
+	if (sm.indexOf('data:') === 0) {
+		const base64 = /^data:application\/json;([\w=:"-]+;)*base64,/;
+		const match2 = sm.match(base64);
+		if (!match2) {
+			throw new Error(
+				'Sorry, non-base64 inline source-map encoding is not supported.'
+			);
+		}
+
+		const converted = window.atob(sm.substring(match2[0].length));
+		return new SourceMapConsumer(JSON.parse(converted) as RawSourceMap);
+	}
+
+	const index = filePath.lastIndexOf('/');
+	const url = filePath.substring(0, index + 1) + sm;
+	const obj = readFileSync(url, 'utf8');
+	return new SourceMapConsumer(obj);
+};
+
+async function getSourceMapRemotely(
 	fileUri: string,
 	fileContents: string
 ): Promise<SourceMapConsumer | null> {
@@ -178,5 +204,10 @@ export const symbolicateStackFrame = (
 
 export const getSourceMapFromRemoteFile = async (fileName: string) => {
 	const fileContents = await fetchUrl(fileName);
-	return getSourceMap(fileName, fileContents);
+	return getSourceMapRemotely(fileName, fileContents);
+};
+
+export const getSourceMapFromLocalFile = (fileName: string) => {
+	const fileContents = readFileSync(fileName, 'utf8');
+	return getSourceMapLocally(fileName, fileContents);
 };

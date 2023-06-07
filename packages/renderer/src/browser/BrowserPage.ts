@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {getLogLevel, Log} from '../logger';
+import {getSourceMapFromLocalFile} from '../symbolicate-stacktrace';
 import {assert} from './assert';
 import type {HeadlessBrowser} from './Browser';
 import type {CDPSession} from './Connection';
@@ -40,6 +42,7 @@ import type {HTTPResponse} from './HTTPResponse';
 import type {JSHandle} from './JSHandle';
 import {_createJSHandle} from './JSHandle';
 import type {Viewport} from './PuppeteerViewport';
+import {retrieveBundleFileFromLocation} from './should-log-message';
 import type {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
 import {TimeoutSettings} from './TimeoutSettings';
@@ -71,13 +74,20 @@ interface PageEventObject {
 
 export class Page extends EventEmitter {
 	id: string;
-	static async _create(
-		client: CDPSession,
-		target: Target,
-		defaultViewport: Viewport,
-		browser: HeadlessBrowser
-	): Promise<Page> {
-		const page = new Page(client, target, browser);
+	static async _create({
+		client,
+		target,
+		defaultViewport,
+		browser,
+		sourcemapContext,
+	}: {
+		client: CDPSession;
+		target: Target;
+		defaultViewport: Viewport;
+		browser: HeadlessBrowser;
+		sourcemapContext: BrowserPageSourcemapContext | null;
+	}): Promise<Page> {
+		const page = new Page(client, target, browser, sourcemapContext);
 		await page.#initialize();
 		await page.setViewport(defaultViewport);
 
@@ -92,8 +102,14 @@ export class Page extends EventEmitter {
 	#pageBindings = new Map<string, Function>();
 	browser: HeadlessBrowser;
 	screenshotTaskQueue: TaskQueue;
+	sourcemapContext: BrowserPageSourcemapContext | null;
 
-	constructor(client: CDPSession, target: Target, browser: HeadlessBrowser) {
+	constructor(
+		client: CDPSession,
+		target: Target,
+		browser: HeadlessBrowser,
+		sourcemapContext: BrowserPageSourcemapContext | null
+	) {
 		super();
 		this.#client = client;
 		this.#target = target;
@@ -101,6 +117,7 @@ export class Page extends EventEmitter {
 		this.screenshotTaskQueue = new TaskQueue();
 		this.browser = browser;
 		this.id = String(Math.random());
+		this.sourcemapContext = sourcemapContext;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
 			switch (event.targetInfo.type) {
@@ -134,6 +151,38 @@ export class Page extends EventEmitter {
 		});
 		client.on('Log.entryAdded', (event) => {
 			return this.#onLogEntryAdded(event);
+		});
+
+		this.on('console', (log) => {
+			const {url, columnNumber, lineNumber} = log.location();
+			if (url && lineNumber && this.sourcemapContext) {
+				const bundleLocation = retrieveBundleFileFromLocation({
+					url,
+					serverPort: this.sourcemapContext.serverPort,
+					webpackBundle: this.sourcemapContext.webpackBundle,
+				});
+				if (bundleLocation) {
+					const sourceMap = getSourceMapFromLocalFile(bundleLocation);
+					sourceMap?.then((s) => {
+						const origPosition = s.originalPositionFor({
+							column: columnNumber ?? 0,
+							line: lineNumber,
+						});
+						console.log({
+							bundleLocation,
+							s: this.sourcemapContext,
+							url,
+							sourceMap,
+							origPosition,
+						});
+					});
+				}
+			}
+
+			Log.verboseAdvanced(
+				{logLevel: getLogLevel(), tag: `console.${log.type}`, indent: false},
+				log.text
+			);
 		});
 	}
 
@@ -395,4 +444,13 @@ export class Page extends EventEmitter {
 			await this.#target._isClosedPromise;
 		}
 	}
+
+	setBrowserSourceMapContext(context: BrowserPageSourcemapContext) {
+		this.sourcemapContext = context;
+	}
 }
+
+export type BrowserPageSourcemapContext = {
+	webpackBundle: string;
+	serverPort: number;
+};

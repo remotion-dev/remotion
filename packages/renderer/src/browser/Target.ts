@@ -15,6 +15,7 @@
  */
 
 import type {BrowserContext, HeadlessBrowser} from './Browser';
+import type {BrowserPageSourcemapContext} from './BrowserPage';
 import {Page} from './BrowserPage';
 import type {CDPSession} from './Connection';
 import type {TargetInfo} from './devtools-types';
@@ -91,15 +92,18 @@ export class Target {
 	/**
 	 * If the target is not of type `"page"` or `"background_page"`, returns `null`.
 	 */
-	async page(): Promise<Page | null> {
+	async page(
+		sourcemapContext: BrowserPageSourcemapContext | null
+	): Promise<Page | null> {
 		if (isPagetTarget(this.#targetInfo) && !this.#pagePromise) {
 			this.#pagePromise = this.#sessionFactory().then((client) => {
-				return Page._create(
+				return Page._create({
 					client,
-					this,
-					this.#defaultViewport ?? null,
-					this.browser()
-				);
+					target: this,
+					defaultViewport: this.#defaultViewport ?? null,
+					browser: this.browser(),
+					sourcemapContext,
+				});
 			});
 		}
 

@@ -143,6 +143,7 @@ export const selectComposition = async (options: SelectCompositionsConfig) => {
 		passedInInstance: puppeteerInstance,
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
+		context: null,
 	});
 
 	return new Promise<AnyCompMetadata>((resolve, reject) => {
@@ -167,6 +168,10 @@ export const selectComposition = async (options: SelectCompositionsConfig) => {
 			indent: indent ?? false,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
+				page.setBrowserSourceMapContext({
+					serverPort: offthreadPort,
+					webpackBundle: serveUrlOrWebpackUrl,
+				});
 				close = closeServer;
 				return innerSelectComposition({
 					...options,

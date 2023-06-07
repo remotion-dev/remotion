@@ -104,6 +104,7 @@ export const getCompositions = async (
 		passedInInstance: config?.puppeteerInstance,
 		browserExecutable: config?.browserExecutable ?? null,
 		chromiumOptions: config?.chromiumOptions ?? {},
+		context: null,
 	});
 
 	return new Promise<AnyCompMetadata[]>((resolve, reject) => {
@@ -128,6 +129,10 @@ export const getCompositions = async (
 			indent: config?.indent ?? false,
 		})
 			.then(({serveUrl, closeServer, offthreadPort}) => {
+				page.setBrowserSourceMapContext({
+					serverPort: offthreadPort,
+					webpackBundle: serveUrlOrWebpackUrl,
+				});
 				close = closeServer;
 				return innerGetCompositions(
 					serveUrl,

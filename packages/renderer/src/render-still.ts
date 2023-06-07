@@ -9,6 +9,7 @@ import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
+import type {BrowserPageSourcemapContext} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import type {Compositor} from './compositor/compositor';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
@@ -96,12 +97,14 @@ const innerRenderStill = async ({
 	jpegQuality,
 	onBrowserLog,
 	compositor,
+	sourceMapContext,
 }: InnerStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
 	compositor: Compositor;
+	sourceMapContext: BrowserPageSourcemapContext;
 }): Promise<RenderStillReturnValue> => {
 	if (quality) {
 		throw new Error(
@@ -182,7 +185,7 @@ const innerRenderStill = async ({
 			forceDeviceScaleFactor: scale ?? 1,
 			indent: false,
 		}));
-	const page = await browserInstance.newPage();
+	const page = await browserInstance.newPage(sourceMapContext);
 	await page.setViewport({
 		width: composition.width,
 		height: composition.height,
@@ -324,6 +327,10 @@ export const renderStill = (
 		})
 			.then(({serveUrl, closeServer, offthreadPort, compositor}) => {
 				close = closeServer;
+				const sourceMapContext: BrowserPageSourcemapContext = {
+					serverPort: offthreadPort,
+					webpackBundle: options.serveUrl,
+				};
 				return innerRenderStill({
 					...options,
 					serveUrl,
@@ -331,6 +338,7 @@ export const renderStill = (
 					proxyPort: offthreadPort,
 					downloadMap,
 					compositor,
+					sourceMapContext,
 				});
 			})
 
