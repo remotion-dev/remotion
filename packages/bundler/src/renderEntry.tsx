@@ -226,7 +226,7 @@ export const setBundleModeAndUpdate = (state: BundleState) => {
 };
 
 if (typeof window !== 'undefined') {
-	window.getStaticCompositions = (): Promise<AnyCompMetadata[]> => {
+	const getUnevaluatedComps = () => {
 		if (!Internals.getRoot()) {
 			throw new Error(
 				'registerRoot() was never called. 1. Make sure you specified the correct entrypoint for your bundle. 2. If your registerRoot() call is deferred, use the delayRender/continueRender pattern to tell Remotion to wait.'
@@ -261,6 +261,12 @@ if (typeof window !== 'undefined') {
 			);
 		}
 
+		return compositions;
+	};
+
+	window.getStaticCompositions = (): Promise<AnyCompMetadata[]> => {
+		const compositions = getUnevaluatedComps();
+
 		return Promise.all(
 			compositions.map((c): Promise<AnyCompMetadata> => {
 				return Promise.resolve(
@@ -274,12 +280,12 @@ if (typeof window !== 'undefined') {
 		);
 	};
 
-	window.calculateComposition = (compId: string) => {
-		if (!Internals.compositionsRef.current) {
-			throw new Error('Unexpectedly did not have a CompositionManager');
-		}
+	window.remotion_getCompositionNames = () => {
+		return getUnevaluatedComps().map((c) => c.id);
+	};
 
-		const compositions = Internals.compositionsRef.current.getCompositions();
+	window.calculateComposition = (compId: string) => {
+		const compositions = getUnevaluatedComps();
 		const selectedComp = compositions.find((c) => c.id === compId);
 		if (!selectedComp) {
 			throw new Error(`Could not find composition with ID ${compId}`);

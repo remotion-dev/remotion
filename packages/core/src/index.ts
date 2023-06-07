@@ -12,6 +12,7 @@ declare global {
 	interface Window {
 		remotion_renderReady: boolean;
 		remotion_cancelledError: string | undefined;
+		remotion_getCompositionNames: () => string[];
 		getStaticCompositions: () => Promise<AnyCompMetadata[]>;
 		calculateComposition: (compId: string) => Promise<VideoConfig>;
 		setBundleMode: (bundleMode: BundleState) => void;
