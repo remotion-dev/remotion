@@ -1,4 +1,4 @@
-import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
@@ -23,6 +23,11 @@ export const listCompositionsCommand = async (
 		);
 		process.exit(1);
 	}
+
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(
+		ConfigInternals.Logging.getLogLevel(),
+		'verbose'
+	);
 
 	Log.verbose('Entry point:', file, 'reason:', reason);
 
@@ -58,13 +63,19 @@ export const listCompositionsCommand = async (
 
 	registerCleanupJob(() => cleanupBundle());
 
-	const compositions = await getCompositions(bundled, {
+	const compositions = await RenderInternals.internalGetCompositions({
+		serveUrlOrWebpackUrl: bundled,
 		browserExecutable,
 		chromiumOptions,
 		envVariables,
 		inputProps,
 		timeoutInMilliseconds: puppeteerTimeout,
 		port,
+		indent: false,
+		onBrowserLog: null,
+		puppeteerInstance: undefined,
+		verbose,
+		server: undefined,
 	});
 
 	printCompositions(compositions);
