@@ -80,5 +80,5 @@ export const formatChromeMessage = (
 		return {output: message, tag: 'Console'};
 	}
 
-	return {output: message, tag: 'Chrome'};
+	return {output: input, tag: 'Chrome'};
 };
