@@ -268,14 +268,19 @@ if (typeof window !== 'undefined') {
 		const compositions = getUnevaluatedComps();
 
 		return Promise.all(
-			compositions.map((c): Promise<AnyCompMetadata> => {
-				return Promise.resolve(
-					Internals.resolveVideoConfig({
-						composition: c,
-						editorProps: {},
-						signal: new AbortController().signal,
-					})
+			compositions.map(async (c): Promise<AnyCompMetadata> => {
+				const handle = delayRender(
+					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`
 				);
+				const comp = Internals.resolveVideoConfig({
+					composition: c,
+					editorProps: {},
+					signal: new AbortController().signal,
+				});
+
+				const resolved = await Promise.resolve(comp);
+				continueRender(handle);
+				return resolved;
 			})
 		);
 	};
@@ -284,7 +289,7 @@ if (typeof window !== 'undefined') {
 		return getUnevaluatedComps().map((c) => c.id);
 	};
 
-	window.calculateComposition = (compId: string) => {
+	window.calculateComposition = async (compId: string) => {
 		const compositions = getUnevaluatedComps();
 		const selectedComp = compositions.find((c) => c.id === compId);
 		if (!selectedComp) {
@@ -292,14 +297,20 @@ if (typeof window !== 'undefined') {
 		}
 
 		const abortController = new AbortController();
+		const handle = delayRender(
+			`Running the calculateMetadata() function for composition ${compId}`
+		);
 
-		return Promise.resolve(
+		const prom = await Promise.resolve(
 			Internals.resolveVideoConfig({
 				composition: selectedComp,
 				editorProps: {},
 				signal: abortController.signal,
 			})
 		);
+		continueRender(handle);
+
+		return prom;
 	};
 
 	window.siteVersion = '5';

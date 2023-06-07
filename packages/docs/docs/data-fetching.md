@@ -383,6 +383,10 @@ export const calculateMyCompMetadata: CalculateMetadataFunction<
 export const MyComp: React.FC<MyCompProps> = () => null;
 ```
 
+### Time limit
+
+When Remotion calls the `calculateMetadata()` function, it wraps it in a [`delayRender()`](/docs/delay-render), which by default times out after 30 seconds.
+
 ## Fetching data during the render
 
 Using [`delayRender()`](/docs/delay-render) and [`continueRender()`](/docs/continue-render) you can tell Remotion to wait for asynchronous operations to finish before rendering a frame.
