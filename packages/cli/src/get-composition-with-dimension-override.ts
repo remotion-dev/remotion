@@ -3,6 +3,7 @@ import type {
 	ChromiumOptions,
 	DownloadMap,
 	HeadlessBrowser,
+	RemotionServer,
 } from '@remotion/renderer';
 import type {AnyCompMetadata} from 'remotion';
 import {getCompositionId} from './get-composition-id';
@@ -23,6 +24,7 @@ export const getCompositionWithDimensionOverride = async ({
 	indent,
 	inputProps,
 	verbose,
+	server,
 }: {
 	height: number | null;
 	width: number | null;
@@ -39,6 +41,7 @@ export const getCompositionWithDimensionOverride = async ({
 	indent: boolean;
 	verbose: boolean;
 	inputProps: Record<string, unknown> | null;
+	server: RemotionServer;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -59,6 +62,7 @@ export const getCompositionWithDimensionOverride = async ({
 		port,
 		puppeteerInstance,
 		timeoutInMilliseconds,
+		server,
 	});
 
 	return {

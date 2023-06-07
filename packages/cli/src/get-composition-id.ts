@@ -4,6 +4,7 @@ import type {
 	ChromiumOptions,
 	DownloadMap,
 	HeadlessBrowser,
+	RemotionServer,
 } from '@remotion/renderer';
 import {getCompositions, selectComposition} from '@remotion/renderer';
 import type {AnyCompMetadata} from 'remotion';
@@ -49,6 +50,7 @@ export const getCompositionId = async ({
 	verbose,
 	onBrowserLog,
 	indent,
+	server,
 }: {
 	args: string[];
 	compositionIdFromUi: string | null;
@@ -64,6 +66,7 @@ export const getCompositionId = async ({
 	verbose: boolean;
 	onBrowserLog?: (log: BrowserLog) => void;
 	indent: boolean;
+	server: RemotionServer;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -91,6 +94,7 @@ export const getCompositionId = async ({
 			onBrowserLog,
 			port,
 			verbose,
+			server,
 		});
 
 		if (!config) {
@@ -118,6 +122,7 @@ export const getCompositionId = async ({
 			onBrowserLog,
 			verbose,
 			indent,
+			server,
 		});
 		const {compositionId, reason} = await showSingleCompositionsPicker(comps);
 		if (compositionId && typeof compositionId === 'string') {

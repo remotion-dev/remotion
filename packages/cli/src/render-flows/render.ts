@@ -251,6 +251,18 @@ export const renderVideoFlow = async ({
 	const puppeteerInstance = await browserInstance;
 	addCleanupCallback(() => puppeteerInstance.close(false));
 
+	const actualConcurrency = RenderInternals.getActualConcurrency(concurrency);
+	const server = RenderInternals.prepareServer({
+		concurrency: actualConcurrency,
+		downloadMap,
+		indent,
+		port,
+		remotionRoot,
+		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		webpackConfigOrServeUrl: urlOrBundle,
+	});
+	addCleanupCallback(() => server.then((s) => s.closeServer(false)));
+
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
 			height,
@@ -268,6 +280,7 @@ export const renderVideoFlow = async ({
 			serveUrlOrWebpackUrl: urlOrBundle,
 			timeoutInMilliseconds: puppeteerTimeout,
 			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			server: await server,
 		});
 
 	const {codec, reason: codecReason} = getFinalOutputCodec({
@@ -326,7 +339,6 @@ export const renderVideoFlow = async ({
 		realFrameRange,
 		everyNthFrame
 	);
-	const actualConcurrency = RenderInternals.getActualConcurrency(concurrency);
 
 	renderingProgress = {
 		frames: 0,
@@ -388,6 +400,7 @@ export const renderVideoFlow = async ({
 			port,
 			downloadMap,
 			composition: config,
+			server: await server,
 		});
 
 		updateRenderProgress(true);
@@ -456,6 +469,7 @@ export const renderVideoFlow = async ({
 			onCtrlCExit: addCleanupCallback,
 			downloadMap,
 			indent,
+			server: await server,
 		},
 		cancelSignal: cancelSignal ?? undefined,
 		audioCodec,

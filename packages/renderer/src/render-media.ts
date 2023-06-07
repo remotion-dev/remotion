@@ -36,6 +36,7 @@ import {DEFAULT_OVERWRITE} from './overwrite';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {PixelFormat} from './pixel-format';
 import {validateSelectedPixelFormatAndCodecCombination} from './pixel-format';
+import type {RemotionServer} from './prepare-server';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
@@ -111,6 +112,10 @@ export type RenderMediaOptions = {
 		 * @deprecated Only for Remotion internal usage
 		 */
 		indent?: boolean;
+		/**
+		 * @deprecated Only for Remotion internal usage
+		 */
+		server?: RemotionServer;
 	};
 	preferLossless?: boolean;
 	muted?: boolean;
@@ -471,6 +476,7 @@ export const renderMedia = ({
 				muted: disableAudio,
 				verbose: options.verbose ?? false,
 				indent: options.internal?.indent ?? false,
+				server: options.internal?.server,
 			});
 
 			return renderFramesProc;

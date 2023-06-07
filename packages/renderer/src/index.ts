@@ -52,6 +52,7 @@ import {killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
+import {makeOrReuseServer, prepareServer} from './prepare-server';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {tmpDir} from './tmp-dir';
@@ -97,6 +98,7 @@ export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
 export {RemotionOption} from './options/option';
 export {PixelFormat} from './pixel-format';
+export {RemotionServer} from './prepare-server';
 export {ProResProfile} from './prores-profile';
 export {renderFrames} from './render-frames';
 export {
@@ -185,6 +187,8 @@ export const RenderInternals = {
 	INDENT_TOKEN,
 	isColorSupported,
 	HeadlessBrowser,
+	prepareServer,
+	makeOrReuseServer,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
