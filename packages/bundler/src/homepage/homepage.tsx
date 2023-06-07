@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import type {AnyCompMetadata} from 'remotion';
 import {getBundleMode} from '../bundle-mode';
 import {setBundleModeAndUpdate} from '../renderEntry';
 
@@ -32,7 +31,7 @@ type CompositionState =
 	  }
 	| {
 			type: 'loaded';
-			comps: AnyCompMetadata[];
+			comps: string[];
 	  }
 	| {
 			type: 'error';
@@ -53,13 +52,12 @@ const AvailableCompositions: React.FC = () => {
 		const check = () => {
 			if (window.remotion_renderReady === true) {
 				setComps({type: 'loading'});
-
-				window
-					.getStaticCompositions()
-					.then((newComps) => {
-						setComps({type: 'loaded', comps: newComps});
-					})
-					.catch((err) => ({type: 'error', error: err}));
+				try {
+					const newComps = window.remotion_getCompositionNames();
+					setComps({type: 'loaded', comps: newComps});
+				} catch (err) {
+					setComps({type: 'error', error: err as Error});
+				}
 			} else {
 				timeout = setTimeout(check, 250);
 			}
@@ -106,7 +104,7 @@ const AvailableCompositions: React.FC = () => {
 				{state === null
 					? []
 					: state.comps.map((c) => {
-							return <li key={c.id}>{c.id}</li>;
+							return <li key={c}>{c}</li>;
 					  })}
 			</ul>
 		</div>
