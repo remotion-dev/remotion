@@ -1,6 +1,5 @@
 import type {
 	BrowserExecutable,
-	BrowserLog,
 	ChromiumOptions,
 	DownloadMap,
 	HeadlessBrowser,
@@ -48,7 +47,6 @@ export const getCompositionId = async ({
 	downloadMap,
 	serveUrlOrWebpackUrl,
 	verbose,
-	onBrowserLog,
 	indent,
 	server,
 }: {
@@ -64,7 +62,6 @@ export const getCompositionId = async ({
 	downloadMap?: DownloadMap;
 	serveUrlOrWebpackUrl: string;
 	verbose: boolean;
-	onBrowserLog?: (log: BrowserLog) => void;
 	indent: boolean;
 	server: RemotionServer;
 }): Promise<{
@@ -91,7 +88,6 @@ export const getCompositionId = async ({
 			serveUrl: serveUrlOrWebpackUrl,
 			browserExecutable,
 			chromiumOptions,
-			onBrowserLog,
 			port,
 			verbose,
 			server,
@@ -119,7 +115,6 @@ export const getCompositionId = async ({
 			port,
 			browserExecutable,
 			downloadMap,
-			onBrowserLog,
 			verbose,
 			indent,
 			server,

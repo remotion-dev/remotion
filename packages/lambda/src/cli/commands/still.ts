@@ -59,6 +59,16 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		Log.info('No compositions passed. Fetching compositions...');
 
 		validateServeUrl(serveUrl);
+		const server = RenderInternals.prepareServer({
+			concurrency: 1,
+			downloadMap: RenderInternals.makeDownloadMap(),
+			indent: false,
+			port,
+			remotionRoot,
+			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			webpackConfigOrServeUrl: serveUrl,
+		});
+
 		const {compositionId} =
 			await CliInternals.getCompositionWithDimensionOverride({
 				args,
@@ -76,6 +86,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				timeoutInMilliseconds: puppeteerTimeout,
 				height,
 				width,
+				server: await server,
 			});
 		composition = compositionId;
 	}
