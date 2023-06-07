@@ -50,7 +50,7 @@ import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {internalRenderFrames} from './render-frames';
-import {stitchFramesToVideo} from './stitch-frames-to-video';
+import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateEveryNthFrame} from './validate-every-nth-frame';
@@ -547,17 +547,14 @@ export const internalRenderMedia = ({
 
 				const stitchStart = Date.now();
 				return Promise.all([
-					stitchFramesToVideo({
+					internalStitchFramesToVideo({
 						width: composition.width * scale,
 						height: composition.height * scale,
 						fps,
 						outputLocation: absoluteOutputLocation,
-						internalOptions: {
-							preEncodedFileLocation,
-							imageFormat,
-							preferLossless,
-							indent,
-						},
+						preEncodedFileLocation,
+						preferLossless,
+						indent,
 						force: overwrite,
 						pixelFormat,
 						codec,
@@ -576,7 +573,7 @@ export const internalRenderMedia = ({
 						cancelSignal: cancelStitcher.cancelSignal,
 						muted: disableAudio,
 						enforceAudioTrack,
-						ffmpegOverride,
+						ffmpegOverride: ffmpegOverride ?? null,
 						audioBitrate,
 						videoBitrate,
 						audioCodec,
