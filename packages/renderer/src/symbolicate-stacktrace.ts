@@ -1,5 +1,9 @@
 import {readFileSync} from 'fs';
-import type {RawSourceMap} from 'source-map';
+import type {
+	BasicSourceMapConsumer,
+	IndexedSourceMapConsumer,
+	RawSourceMap,
+} from 'source-map';
 import {SourceMapConsumer} from 'source-map';
 import {readFile} from './assets/read-file';
 import type {UnsymbolicatedStackFrame} from './parse-browser-error-stack';
@@ -211,3 +215,7 @@ export const getSourceMapFromLocalFile = (fileName: string) => {
 	const fileContents = readFileSync(fileName, 'utf8');
 	return getSourceMapLocally(fileName, fileContents);
 };
+
+export type AnySourceMapConsumer =
+	| BasicSourceMapConsumer
+	| IndexedSourceMapConsumer;

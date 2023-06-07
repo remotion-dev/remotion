@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
+import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import {assert} from './assert';
-import type {BrowserPageSourcemapContext, Page} from './BrowserPage';
+import type {Page} from './BrowserPage';
 import {PageEmittedEvents} from './BrowserPage';
 import type {Connection} from './Connection';
 import type {DevtoolsTargetCreatedEvent} from './devtools-types';
@@ -160,12 +161,12 @@ export class HeadlessBrowser extends EventEmitter {
 		}
 	}
 
-	newPage(context: BrowserPageSourcemapContext | null): Promise<Page> {
+	newPage(context: AnySourceMapConsumer | null): Promise<Page> {
 		return this.#defaultContext.newPage(context);
 	}
 
 	async _createPageInContext(
-		context: BrowserPageSourcemapContext | null
+		context: AnySourceMapConsumer | null
 	): Promise<Page> {
 		const {targetId} = await this.connection.send('Target.createTarget', {
 			url: 'about:blank',
@@ -290,7 +291,7 @@ export class BrowserContext extends EventEmitter {
 		});
 	}
 
-	newPage(context: BrowserPageSourcemapContext | null): Promise<Page> {
+	newPage(context: AnySourceMapConsumer | null): Promise<Page> {
 		return this.#browser._createPageInContext(context);
 	}
 

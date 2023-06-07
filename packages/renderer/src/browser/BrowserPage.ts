@@ -15,7 +15,8 @@
  */
 
 import {getLogLevel, Log} from '../logger';
-import {getSourceMapFromLocalFile} from '../symbolicate-stacktrace';
+import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
+import {truthy} from '../truthy';
 import {assert} from './assert';
 import type {HeadlessBrowser} from './Browser';
 import type {CDPSession} from './Connection';
@@ -42,7 +43,6 @@ import type {HTTPResponse} from './HTTPResponse';
 import type {JSHandle} from './JSHandle';
 import {_createJSHandle} from './JSHandle';
 import type {Viewport} from './PuppeteerViewport';
-import {retrieveBundleFileFromLocation} from './should-log-message';
 import type {Target} from './Target';
 import {TaskQueue} from './TaskQueue';
 import {TimeoutSettings} from './TimeoutSettings';
@@ -85,7 +85,7 @@ export class Page extends EventEmitter {
 		target: Target;
 		defaultViewport: Viewport;
 		browser: HeadlessBrowser;
-		sourcemapContext: BrowserPageSourcemapContext | null;
+		sourcemapContext: AnySourceMapConsumer | null;
 	}): Promise<Page> {
 		const page = new Page(client, target, browser, sourcemapContext);
 		await page.#initialize();
@@ -102,13 +102,13 @@ export class Page extends EventEmitter {
 	#pageBindings = new Map<string, Function>();
 	browser: HeadlessBrowser;
 	screenshotTaskQueue: TaskQueue;
-	sourcemapContext: BrowserPageSourcemapContext | null;
+	sourcemapContext: AnySourceMapConsumer | null;
 
 	constructor(
 		client: CDPSession,
 		target: Target,
 		browser: HeadlessBrowser,
-		sourcemapContext: BrowserPageSourcemapContext | null
+		sourcemapContext: AnySourceMapConsumer | null
 	) {
 		super();
 		this.#client = client;
@@ -156,33 +156,29 @@ export class Page extends EventEmitter {
 		this.on('console', (log) => {
 			const {url, columnNumber, lineNumber} = log.location();
 			if (url && lineNumber && this.sourcemapContext) {
-				const bundleLocation = retrieveBundleFileFromLocation({
-					url,
-					serverPort: this.sourcemapContext.serverPort,
-					webpackBundle: this.sourcemapContext.webpackBundle,
+				const origPosition = this.sourcemapContext?.originalPositionFor({
+					column: columnNumber ?? 0,
+					line: lineNumber,
 				});
-				if (bundleLocation) {
-					const sourceMap = getSourceMapFromLocalFile(bundleLocation);
-					sourceMap?.then((s) => {
-						const origPosition = s.originalPositionFor({
-							column: columnNumber ?? 0,
-							line: lineNumber,
-						});
-						console.log({
-							bundleLocation,
-							s: this.sourcemapContext,
-							url,
-							sourceMap,
-							origPosition,
-						});
-					});
-				}
-			}
+				const file = [
+					origPosition?.source,
+					origPosition?.line,
+					origPosition?.column,
+				]
+					.filter(truthy)
+					.join(':');
 
-			Log.verboseAdvanced(
-				{logLevel: getLogLevel(), tag: `console.${log.type}`, indent: false},
-				log.text
-			);
+				Log.verboseAdvanced(
+					{logLevel: getLogLevel(), tag: `console.${log.type}`, indent: false},
+					log.text,
+					`(${[origPosition.name, file].filter(truthy).join('@')})`
+				);
+			} else {
+				Log.verboseAdvanced(
+					{logLevel: getLogLevel(), tag: `console.${log.type}`, indent: false},
+					log.text
+				);
+			}
 		});
 	}
 
@@ -445,12 +441,7 @@ export class Page extends EventEmitter {
 		}
 	}
 
-	setBrowserSourceMapContext(context: BrowserPageSourcemapContext) {
+	setBrowserSourceMapContext(context: AnySourceMapConsumer | null) {
 		this.sourcemapContext = context;
 	}
 }
-
-export type BrowserPageSourcemapContext = {
-	webpackBundle: string;
-	serverPort: number;
-};

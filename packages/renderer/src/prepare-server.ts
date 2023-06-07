@@ -1,10 +1,13 @@
 import {existsSync} from 'node:fs';
 import path from 'node:path';
+import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
 import {isServeUrl} from './is-serve-url';
 import {serveStatic} from './serve-static';
+import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
+import {getSourceMapFromLocalFile} from './symbolicate-stacktrace';
 import {waitForSymbolicationToBeDone} from './wait-for-symbolication-error-to-be-done';
 
 export const prepareServer = async ({
@@ -32,6 +35,7 @@ export const prepareServer = async ({
 	closeServer: (force: boolean) => Promise<unknown>;
 	offthreadPort: number;
 	compositor: Compositor;
+	sourceMap: AnySourceMapConsumer | null;
 }> => {
 	if (isServeUrl(webpackConfigOrServeUrl)) {
 		const {
@@ -56,6 +60,7 @@ export const prepareServer = async ({
 			},
 			offthreadPort,
 			compositor: comp,
+			sourceMap: null,
 		});
 	}
 
@@ -67,6 +72,10 @@ export const prepareServer = async ({
 			`Tried to serve the Webpack bundle on a HTTP server, but the file ${indexFile} does not exist. Is this a valid path to a Webpack bundle?`
 		);
 	}
+
+	const sourceMap = getSourceMapFromLocalFile(
+		path.join(webpackConfigOrServeUrl, Internals.bundleName)
+	);
 
 	const {
 		port: serverPort,
@@ -82,6 +91,7 @@ export const prepareServer = async ({
 		verbose,
 		indent,
 	});
+
 	return Promise.resolve({
 		closeServer: async (force: boolean) => {
 			if (!force) {
@@ -93,5 +103,6 @@ export const prepareServer = async ({
 		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,
 		compositor,
+		sourceMap: await sourceMap,
 	});
 };
