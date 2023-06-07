@@ -14,7 +14,7 @@ import type {
 	RenderMediaOnDownload,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import {renderFrames, RenderInternals, renderMedia} from '@remotion/renderer';
+import {RenderInternals, renderMedia} from '@remotion/renderer';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -362,7 +362,9 @@ export const renderVideoFlow = async ({
 
 		Log.verboseAdvanced({indent, logLevel}, 'Output dir', outputDir);
 
-		await renderFrames({
+		const verbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
+
+		await RenderInternals.internalRenderFrames({
 			imageFormat,
 			inputProps,
 			onFrameUpdate: (rendered) => {
@@ -373,17 +375,14 @@ export const renderVideoFlow = async ({
 			onDownload,
 			cancelSignal: cancelSignal ?? undefined,
 			outputDir,
-			serveUrl: urlOrBundle,
-			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
-				logLevel,
-				'verbose'
-			),
+			webpackBundleOrServeUrl: urlOrBundle,
+			dumpBrowserLogs: verbose,
 			everyNthFrame,
 			envVariables,
 			frameRange,
 			concurrency: actualConcurrency,
 			puppeteerInstance,
-			jpegQuality,
+			jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			timeoutInMilliseconds: puppeteerTimeout,
 			chromiumOptions,
 			scale,
@@ -391,6 +390,11 @@ export const renderVideoFlow = async ({
 			port,
 			composition: config,
 			server: await server,
+			indent,
+			muted,
+			onBrowserLog: null,
+			onFrameBuffer: null,
+			verbose,
 		});
 
 		updateRenderProgress(true);

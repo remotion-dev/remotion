@@ -13,6 +13,7 @@ import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ConsoleMessage} from './browser/ConsoleMessage';
 import {isTargetClosedErr} from './browser/is-target-closed-err';
+import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import type {Compositor} from './compositor/compositor';
 import {compressAsset} from './compress-assets';
 import {cycleBrowserTabs} from './cycle-browser-tabs';
@@ -28,7 +29,6 @@ import {
 } from './get-frame-padded-index';
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
-import {DEFAULT_VIDEO_IMAGE_FORMAT} from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
@@ -50,6 +50,78 @@ import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
 
 const MAX_RETRIES_PER_FRAME = 1;
+
+export type InternalRenderFramesOptions = {
+	onStart: null | ((data: OnStartData) => void);
+	onFrameUpdate:
+		| null
+		| ((
+				framesRendered: number,
+				frameIndex: number,
+				timeToRenderInMilliseconds: number
+		  ) => void);
+	outputDir: string | null;
+	inputProps: Record<string, unknown>;
+	envVariables: Record<string, string>;
+	imageFormat: VideoImageFormat;
+	jpegQuality: number;
+	frameRange: FrameRange | null;
+	everyNthFrame: number;
+	dumpBrowserLogs: boolean;
+	puppeteerInstance: HeadlessBrowser | undefined;
+	browserExecutable: BrowserExecutable | null;
+	onBrowserLog: null | ((log: BrowserLog) => void);
+	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
+	onDownload: RenderMediaOnDownload | null;
+	timeoutInMilliseconds: number;
+	chromiumOptions: ChromiumOptions;
+	scale: number;
+	port: number | null;
+	cancelSignal: CancelSignal | undefined;
+	composition: AnySmallCompMetadata;
+	indent: boolean;
+	server: RemotionServer | undefined;
+	muted: boolean;
+	concurrency: number | string | null;
+	webpackBundleOrServeUrl: string;
+	verbose: boolean;
+};
+
+type InnerRenderFramesOptions = {
+	onStart: null | ((data: OnStartData) => void);
+	onFrameUpdate:
+		| null
+		| ((
+				framesRendered: number,
+				frameIndex: number,
+				timeToRenderInMilliseconds: number
+		  ) => void);
+	outputDir: string | null;
+	inputProps: Record<string, unknown>;
+	envVariables: Record<string, string>;
+	imageFormat: VideoImageFormat;
+	jpegQuality: number;
+	frameRange: FrameRange | null;
+	everyNthFrame: number;
+	onBrowserLog: null | ((log: BrowserLog) => void);
+	onFrameBuffer: null | ((buffer: Buffer, frame: number) => void);
+	onDownload: RenderMediaOnDownload | null;
+	timeoutInMilliseconds: number;
+	scale: number;
+	cancelSignal: CancelSignal | undefined;
+	composition: AnySmallCompMetadata;
+	muted: boolean;
+	onError: (err: Error) => void;
+	pagesArray: Page[];
+	actualConcurrency: number;
+	proxyPort: number;
+	downloadMap: DownloadMap;
+	makeBrowser: () => Promise<HeadlessBrowser>;
+	browserReplacer: BrowserReplacer;
+	compositor: Compositor;
+	sourcemapContext: AnySourceMapConsumer | null;
+	serveUrl: string;
+};
 
 export type RenderFramesOptions = {
 	onStart: (data: OnStartData) => void;
@@ -81,28 +153,19 @@ export type RenderFramesOptions = {
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 	composition: AnySmallCompMetadata;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	indent?: boolean;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	server?: RemotionServer;
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
 	verbose?: boolean;
 };
 
-const innerRenderFrames = ({
+const innerRenderFrames = async ({
 	onFrameUpdate,
 	outputDir,
 	onStart,
 	inputProps,
 	jpegQuality,
-	quality,
-	imageFormat = DEFAULT_VIDEO_IMAGE_FORMAT,
+	imageFormat,
 	frameRange,
 	onError,
 	envVariables,
@@ -113,9 +176,9 @@ const innerRenderFrames = ({
 	serveUrl,
 	composition,
 	timeoutInMilliseconds,
-	scale = 1,
+	scale,
 	actualConcurrency,
-	everyNthFrame = 1,
+	everyNthFrame,
 	proxyPort,
 	cancelSignal,
 	downloadMap,
@@ -124,20 +187,7 @@ const innerRenderFrames = ({
 	browserReplacer,
 	compositor,
 	sourcemapContext,
-}: Omit<RenderFramesOptions, 'url' | 'onDownload'> & {
-	onError: (err: Error) => void;
-	pagesArray: Page[];
-	serveUrl: string;
-	composition: AnySmallCompMetadata;
-	actualConcurrency: number;
-	onDownload: RenderMediaOnDownload;
-	proxyPort: number;
-	downloadMap: DownloadMap;
-	makeBrowser: () => Promise<HeadlessBrowser>;
-	browserReplacer: BrowserReplacer;
-	compositor: Compositor;
-	sourcemapContext: AnySourceMapConsumer | null;
-}): Promise<RenderFramesOutput> => {
+}: InnerRenderFramesOptions): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
 			fs.mkdirSync(outputDir, {
@@ -146,17 +196,11 @@ const innerRenderFrames = ({
 		}
 	}
 
-	if (quality) {
-		throw new Error(
-			`The "quality" option has been renamed. Use "jpegQuality" instead.`
-		);
-	}
-
 	const downloadPromises: Promise<unknown>[] = [];
 
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
-		frameRange ?? null
+		frameRange
 	);
 
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
@@ -168,7 +212,7 @@ const innerRenderFrames = ({
 		await page.setViewport({
 			width: composition.width,
 			height: composition.height,
-			deviceScaleFactor: scale ?? 1,
+			deviceScaleFactor: scale,
 		});
 
 		const logCallback = (log: ConsoleMessage) => {
@@ -258,7 +302,7 @@ const innerRenderFrames = ({
 
 	const poolPromise = getPool(sourcemapContext);
 
-	onStart({
+	onStart?.({
 		frameCount: framesToRender.length,
 	});
 
@@ -367,7 +411,7 @@ const innerRenderFrames = ({
 			});
 		});
 		framesRendered++;
-		onFrameUpdate(framesRendered, frame, performance.now() - startTime);
+		onFrameUpdate?.(framesRendered, frame, performance.now() - startTime);
 		cleanupPageError();
 		freePage.off('error', errorCallbackOnFrame);
 		pool.release(freePage);
@@ -478,30 +522,42 @@ const innerRenderFrames = ({
 		return returnValue;
 	});
 
-	return happyPath
-		.then(() => {
-			return Promise.all(downloadPromises);
-		})
-		.then(() => happyPath);
+	const result = await happyPath;
+	await Promise.all(downloadPromises);
+	return result;
 };
 
 type CleanupFn = () => void;
 
-/**
- * @description Renders a series of images using Puppeteer and computes information for mixing audio.
- * @see [Documentation](https://www.remotion.dev/docs/renderer/render-frames)
- */
-export const renderFrames = (
-	options: RenderFramesOptions
-): Promise<RenderFramesOutput> => {
-	const {composition, concurrency} = options;
-
-	if (!composition) {
-		throw new Error(
-			'No `composition` option has been specified for renderFrames()'
-		);
-	}
-
+export const internalRenderFrames = ({
+	browserExecutable,
+	cancelSignal,
+	chromiumOptions,
+	composition,
+	concurrency,
+	dumpBrowserLogs,
+	envVariables,
+	everyNthFrame,
+	frameRange,
+	imageFormat,
+	indent,
+	inputProps,
+	jpegQuality,
+	muted,
+	onBrowserLog,
+	onDownload,
+	onFrameBuffer,
+	onFrameUpdate,
+	onStart,
+	outputDir,
+	port,
+	puppeteerInstance,
+	scale,
+	server,
+	timeoutInMilliseconds,
+	verbose,
+	webpackBundleOrServeUrl,
+}: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		composition.height,
 		'height',
@@ -523,25 +579,23 @@ export const renderFrames = (
 		allowFloats: false,
 	});
 
-	validateJpegQuality(options.jpegQuality ?? DEFAULT_JPEG_QUALITY);
-	validateScale(options.scale);
+	validateJpegQuality(jpegQuality);
+	validateScale(scale);
 
 	const makeBrowser = () =>
 		internalOpenBrowser({
 			browser: DEFAULT_BROWSER,
-			shouldDumpIo: options.dumpBrowserLogs ?? false,
-			browserExecutable: options.browserExecutable ?? null,
-			chromiumOptions: options.chromiumOptions ?? {},
-			forceDeviceScaleFactor: options.scale ?? 1,
-			indent: options.indent ?? false,
+			shouldDumpIo: dumpBrowserLogs,
+			browserExecutable,
+			chromiumOptions,
+			forceDeviceScaleFactor: scale,
+			indent,
 			viewport: null,
 		});
 
-	const browserInstance = options.puppeteerInstance ?? makeBrowser();
+	const browserInstance = puppeteerInstance ?? makeBrowser();
 
-	const onDownload = options.onDownload ?? (() => () => undefined);
-
-	const actualConcurrency = getActualConcurrency(concurrency ?? null);
+	const actualConcurrency = getActualConcurrency(concurrency);
 
 	const openedPages: Page[] = [];
 
@@ -554,20 +608,20 @@ export const renderFrames = (
 
 		Promise.race([
 			new Promise<RenderFramesOutput>((_, rej) => {
-				options.cancelSignal?.(() => {
+				cancelSignal?.(() => {
 					rej(new Error(cancelErrorMessages.renderFrames));
 				});
 			}),
 			Promise.all([
 				makeOrReuseServer(
-					options.server,
+					server,
 					{
-						webpackConfigOrServeUrl: options.serveUrl,
-						port: options.port ?? null,
+						webpackConfigOrServeUrl: webpackBundleOrServeUrl,
+						port,
 						remotionRoot: findRemotionRoot(),
 						concurrency: actualConcurrency,
-						verbose: options.verbose ?? false,
-						indent: options.indent ?? false,
+						verbose,
+						indent,
 					},
 					{
 						onDownload,
@@ -587,9 +641,9 @@ export const renderFrames = (
 						},
 						cleanupServer,
 					},
-					puppeteerInstance,
+					pInstance,
 				]) => {
-					const browserReplacer = handleBrowserCrash(puppeteerInstance);
+					const browserReplacer = handleBrowserCrash(pInstance);
 
 					cleanup.push(
 						cycleBrowserTabs(browserReplacer, actualConcurrency).stopCycling
@@ -597,8 +651,6 @@ export const renderFrames = (
 					cleanup.push(() => cleanupServer(false));
 
 					return innerRenderFrames({
-						...options,
-						puppeteerInstance,
 						onError,
 						pagesArray: openedPages,
 						serveUrl,
@@ -611,6 +663,21 @@ export const renderFrames = (
 						compositor,
 						sourcemapContext: sourceMap,
 						downloadMap,
+						cancelSignal,
+						envVariables,
+						everyNthFrame,
+						frameRange,
+						imageFormat,
+						inputProps,
+						jpegQuality,
+						muted,
+						onBrowserLog,
+						onFrameBuffer,
+						onFrameUpdate,
+						onStart,
+						outputDir,
+						scale,
+						timeoutInMilliseconds,
 					});
 				}
 			),
@@ -624,7 +691,7 @@ export const renderFrames = (
 				// we opened.
 				// If new browser was opened, then closing the browser as a cleanup.
 
-				if (options.puppeteerInstance) {
+				if (puppeteerInstance) {
 					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
 						if (isTargetClosedErr(err)) {
 							return;
@@ -634,8 +701,8 @@ export const renderFrames = (
 					});
 				} else {
 					Promise.resolve(browserInstance)
-						.then((puppeteerInstance) => {
-							return puppeteerInstance.close(true);
+						.then((instance) => {
+							return instance.close(true);
 						})
 						.catch((err) => {
 							if (
@@ -651,5 +718,90 @@ export const renderFrames = (
 				});
 				// Don't clear download dir because it might be used by stitchFramesToVideo
 			});
+	});
+};
+
+/**
+ * @description Renders a series of images using Puppeteer and computes information for mixing audio.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/render-frames)
+ */
+export const renderFrames = (
+	options: RenderFramesOptions
+): Promise<RenderFramesOutput> => {
+	const {
+		composition,
+		inputProps,
+		onFrameUpdate,
+		onStart,
+		outputDir,
+		serveUrl,
+		browserExecutable,
+		cancelSignal,
+		chromiumOptions,
+		concurrency,
+		dumpBrowserLogs,
+		envVariables,
+		everyNthFrame,
+		frameRange,
+		imageFormat,
+		jpegQuality,
+		muted,
+		onBrowserLog,
+		onDownload,
+		onFrameBuffer,
+		port,
+		puppeteerInstance,
+		scale,
+		timeoutInMilliseconds,
+		verbose,
+		quality,
+	} = options;
+
+	if (!composition) {
+		throw new Error(
+			'No `composition` option has been specified for renderFrames()'
+		);
+	}
+
+	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
+		throw new Error(
+			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
+		);
+	}
+
+	if (quality) {
+		console.warn(
+			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.'
+		);
+	}
+
+	return internalRenderFrames({
+		browserExecutable: browserExecutable ?? null,
+		cancelSignal,
+		chromiumOptions: chromiumOptions ?? {},
+		composition,
+		concurrency: concurrency ?? null,
+		dumpBrowserLogs: dumpBrowserLogs ?? false,
+		envVariables: envVariables ?? {},
+		everyNthFrame: everyNthFrame ?? 1,
+		frameRange: frameRange ?? null,
+		imageFormat: imageFormat ?? 'jpeg',
+		indent: false,
+		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,
+		onDownload: onDownload ?? null,
+		inputProps,
+		puppeteerInstance,
+		muted: muted ?? false,
+		onBrowserLog: onBrowserLog ?? null,
+		onFrameBuffer: onFrameBuffer ?? null,
+		onFrameUpdate,
+		onStart,
+		outputDir,
+		port: port ?? null,
+		scale: scale ?? 1,
+		verbose: verbose ?? false,
+		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
+		webpackBundleOrServeUrl: serveUrl,
+		server: undefined,
 	});
 };

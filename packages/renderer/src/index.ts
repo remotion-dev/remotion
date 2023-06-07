@@ -53,6 +53,7 @@ import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
 import {makeOrReuseServer, prepareServer} from './prepare-server';
+import {internalRenderFrames} from './render-frames';
 import {internalRenderStill} from './render-still';
 import {internalSelectComposition} from './select-composition';
 import {isPathInside} from './serve-handler/is-path-inside';
@@ -199,6 +200,7 @@ export const RenderInternals = {
 	internalOpenBrowser,
 	internalSelectComposition,
 	internalGetCompositions,
+	internalRenderFrames,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
