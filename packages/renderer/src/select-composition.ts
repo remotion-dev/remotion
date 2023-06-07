@@ -83,7 +83,7 @@ const innerSelectComposition = async ({
 	await puppeteerEvaluateWithCatch({
 		page,
 		pageFunction: () => {
-			window.setBundleMode({
+			window.remotion_setBundleMode({
 				type: 'evaluation',
 			});
 		},
@@ -104,7 +104,7 @@ const innerSelectComposition = async ({
 	const time = Date.now();
 	const result = await puppeteerEvaluateWithCatch({
 		pageFunction: (_id: string) => {
-			return window.calculateComposition(_id);
+			return window.remotion_calculateComposition(_id);
 		},
 		frame: null,
 		page,

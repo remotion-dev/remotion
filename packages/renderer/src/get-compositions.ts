@@ -69,7 +69,7 @@ const innerGetCompositions = async (
 	await puppeteerEvaluateWithCatch({
 		page,
 		pageFunction: () => {
-			window.setBundleMode({
+			window.remotion_setBundleMode({
 				type: 'evaluation',
 			});
 		},

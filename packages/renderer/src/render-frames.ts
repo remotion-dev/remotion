@@ -205,7 +205,7 @@ const innerRenderFrames = ({
 				height: number,
 				width: number
 			) => {
-				window.setBundleMode({
+				window.remotion_setBundleMode({
 					type: 'composition',
 					compositionName: id,
 					compositionDefaultProps: defaultProps,
