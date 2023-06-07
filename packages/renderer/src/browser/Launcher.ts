@@ -100,7 +100,6 @@ export class ChromeLauncher implements ProductLauncher {
 			});
 			browser = await HeadlessBrowser._create({
 				connection,
-				contextIds: [],
 				defaultViewport,
 				closeCallback: runner.close.bind(runner),
 			});

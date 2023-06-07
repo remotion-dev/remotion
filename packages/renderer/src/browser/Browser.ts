@@ -41,18 +41,15 @@ export const enum BrowserEmittedEvents {
 export class HeadlessBrowser extends EventEmitter {
 	static async _create({
 		connection,
-		contextIds,
 		defaultViewport,
 		closeCallback,
 	}: {
 		connection: Connection;
-		contextIds: string[];
 		defaultViewport: Viewport;
 		closeCallback?: BrowserCloseCallback;
 	}): Promise<HeadlessBrowser> {
 		const browser = new HeadlessBrowser(
 			connection,
-			contextIds,
 			defaultViewport,
 			closeCallback
 		);
@@ -71,10 +68,8 @@ export class HeadlessBrowser extends EventEmitter {
 		return this.#targets;
 	}
 
-	// eslint-disable-next-line max-params
 	constructor(
 		connection: Connection,
-		contextIds: string[],
 		defaultViewport: Viewport,
 		closeCallback?: BrowserCloseCallback
 	) {
@@ -89,9 +84,6 @@ export class HeadlessBrowser extends EventEmitter {
 
 		this.#defaultContext = new BrowserContext(this);
 		this.#contexts = new Map();
-		for (const contextId of contextIds) {
-			this.#contexts.set(contextId, new BrowserContext(this, contextId));
-		}
 
 		this.#targets = new Map();
 		this.connection.on('Target.targetCreated', this.#targetCreated.bind(this));
@@ -173,10 +165,10 @@ export class HeadlessBrowser extends EventEmitter {
 		return this.#defaultContext.newPage();
 	}
 
-	async _createPageInContext(contextId?: string): Promise<Page> {
+	async _createPageInContext(): Promise<Page> {
 		const {targetId} = await this.connection.send('Target.createTarget', {
 			url: 'about:blank',
-			browserContextId: contextId || undefined,
+			browserContextId: undefined,
 		});
 		const target = this.#targets.get(targetId);
 		if (!target) {
@@ -190,9 +182,7 @@ export class HeadlessBrowser extends EventEmitter {
 
 		const page = await target.page();
 		if (!page) {
-			throw new Error(
-				`Failed to create a page for context (id = ${contextId})`
-			);
+			throw new Error(`Failed to create a page for context`);
 		}
 
 		page.on('console', (log) => {
@@ -275,12 +265,10 @@ export class HeadlessBrowser extends EventEmitter {
 
 export class BrowserContext extends EventEmitter {
 	#browser: HeadlessBrowser;
-	#id?: string;
 
-	constructor(browser: HeadlessBrowser, contextId?: string) {
+	constructor(browser: HeadlessBrowser) {
 		super();
 		this.#browser = browser;
-		this.#id = contextId;
 	}
 
 	targets(): Target[] {
@@ -310,7 +298,7 @@ export class BrowserContext extends EventEmitter {
 	}
 
 	newPage(): Promise<Page> {
-		return this.#browser._createPageInContext(this.#id);
+		return this.#browser._createPageInContext();
 	}
 
 	browser(): HeadlessBrowser {
