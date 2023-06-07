@@ -46,7 +46,7 @@ export class HeadlessBrowser extends EventEmitter {
 	}: {
 		connection: Connection;
 		defaultViewport: Viewport;
-		closeCallback?: BrowserCloseCallback;
+		closeCallback: BrowserCloseCallback;
 	}): Promise<HeadlessBrowser> {
 		const browser = new HeadlessBrowser(
 			connection,
