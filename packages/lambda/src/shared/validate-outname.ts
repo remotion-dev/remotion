@@ -35,7 +35,7 @@ export const validateOutname = (
 				codec,
 				audioCodec,
 				extension: RenderInternals.getExtensionOfFilename(outName) as string,
-				preferLossless: false,
+				preferLossless: true,
 			});
 		}
 
