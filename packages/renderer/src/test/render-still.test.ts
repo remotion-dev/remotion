@@ -17,7 +17,7 @@ test('Need to pass valid metadata', async () => {
 			frame: 0,
 			output: '/file/output.png',
 			serveUrl:
-				'https://647dacd8a098e04aa1bfcb19--radiant-mermaid-29c23c.netlify.app/',
+				'https://64804302bfd41946b23d7b35--lovely-dieffenbachia-90a6f1.netlify.app/',
 			downloadMap,
 			verbose: false,
 			indent: false,
@@ -39,7 +39,7 @@ test('Returns buffer in promise result', async () => {
 		},
 		frame: 0,
 		serveUrl:
-			'https://647dacd8a098e04aa1bfcb19--radiant-mermaid-29c23c.netlify.app/',
+			'https://64804302bfd41946b23d7b35--lovely-dieffenbachia-90a6f1.netlify.app/',
 		downloadMap,
 		verbose: false,
 		indent: false,
@@ -63,7 +63,7 @@ test('Need to pass valid metadata', async () => {
 			frame: 200,
 			output: '/file/output.png',
 			serveUrl:
-				'https://647dacd8a098e04aa1bfcb19--radiant-mermaid-29c23c.netlify.app/',
+				'https://64804302bfd41946b23d7b35--lovely-dieffenbachia-90a6f1.netlify.app/',
 			downloadMap,
 			verbose: false,
 			indent: false,
@@ -90,7 +90,7 @@ test('Catches invalid image format', () => {
 			frame: 200,
 			output: '/file/output.png',
 			serveUrl:
-				'https://647dacd8a098e04aa1bfcb19--radiant-mermaid-29c23c.netlify.app/',
+				'https://64804302bfd41946b23d7b35--lovely-dieffenbachia-90a6f1.netlify.app/',
 		})
 	).rejects.toThrow(
 		/Image format should be one of: "png", "jpeg", "pdf", "webp"/
