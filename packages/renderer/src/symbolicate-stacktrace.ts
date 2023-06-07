@@ -28,7 +28,11 @@ function extractSourceMapUrl(fileContents: string): string | null {
 	return match[1].toString();
 }
 
-const getSourceMapLocally = (filePath: string, fileContents: string) => {
+const getSourceMap = async (
+	filePath: string,
+	fileContents: string,
+	type: 'local' | 'remote'
+) => {
 	const sm = extractSourceMapUrl(fileContents);
 	if (sm === null) {
 		return null;
@@ -49,37 +53,13 @@ const getSourceMapLocally = (filePath: string, fileContents: string) => {
 
 	const index = filePath.lastIndexOf('/');
 	const url = filePath.substring(0, index + 1) + sm;
-	const obj = readFileSync(url, 'utf8');
-	return new SourceMapConsumer(obj);
-};
-
-async function getSourceMapRemotely(
-	fileUri: string,
-	fileContents: string
-): Promise<SourceMapConsumer | null> {
-	const sm = extractSourceMapUrl(fileContents);
-	if (sm === null) {
-		return null;
+	if (type === 'local') {
+		return new SourceMapConsumer(readFileSync(url, 'utf8'));
 	}
 
-	if (sm.indexOf('data:') === 0) {
-		const base64 = /^data:application\/json;([\w=:"-]+;)*base64,/;
-		const match2 = sm.match(base64);
-		if (!match2) {
-			throw new Error(
-				'Sorry, non-base64 inline source-map encoding is not supported.'
-			);
-		}
-
-		const converted = window.atob(sm.substring(match2[0].length));
-		return new SourceMapConsumer(JSON.parse(converted) as RawSourceMap);
-	}
-
-	const index = fileUri.lastIndexOf('/');
-	const url = fileUri.substring(0, index + 1) + sm;
 	const obj = await fetchUrl(url);
 	return new SourceMapConsumer(obj);
-}
+};
 
 const fetchUrl = async (url: string) => {
 	const res = await readFile(url);
@@ -208,12 +188,12 @@ export const symbolicateStackFrame = (
 
 export const getSourceMapFromRemoteFile = async (fileName: string) => {
 	const fileContents = await fetchUrl(fileName);
-	return getSourceMapRemotely(fileName, fileContents);
+	return getSourceMap(fileName, fileContents, 'remote');
 };
 
 export const getSourceMapFromLocalFile = (fileName: string) => {
 	const fileContents = readFileSync(fileName, 'utf8');
-	return getSourceMapLocally(fileName, fileContents);
+	return getSourceMap(fileName, fileContents, 'local');
 };
 
 export type AnySourceMapConsumer =
