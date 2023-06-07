@@ -25,7 +25,8 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {openBrowser} from './open-browser';
-import {prepareServer} from './prepare-server';
+import type {RemotionServer} from './prepare-server';
+import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
@@ -64,6 +65,10 @@ type InnerStillOptions = {
 	 * @deprecated Only for Remotion internal usage
 	 */
 	indent?: boolean;
+	/**
+	 * @deprecated Only for Remotion internal usage
+	 */
+	server?: RemotionServer;
 	verbose?: boolean;
 };
 
@@ -316,7 +321,7 @@ export const renderStill = (
 	const happyPath = new Promise<RenderStillReturnValue>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 
-		prepareServer({
+		makeOrReuseServer(options.server, {
 			webpackConfigOrServeUrl: options.serveUrl,
 			onDownload,
 			onError,
@@ -327,19 +332,24 @@ export const renderStill = (
 			verbose: options.verbose ?? false,
 			indent: options.indent ?? false,
 		})
-			.then(({serveUrl, closeServer, offthreadPort, compositor, sourceMap}) => {
-				cleanup.push(() => closeServer(false));
+			.then(
+				({
+					server: {serveUrl, offthreadPort, compositor, sourceMap},
+					cleanupServer,
+				}) => {
+					cleanup.push(() => cleanupServer(false));
 
-				return innerRenderStill({
-					...options,
-					serveUrl,
-					onError: (err) => reject(err),
-					proxyPort: offthreadPort,
-					downloadMap,
-					compositor,
-					sourceMapContext: sourceMap,
-				});
-			})
+					return innerRenderStill({
+						...options,
+						serveUrl,
+						onError: (err) => reject(err),
+						proxyPort: offthreadPort,
+						downloadMap,
+						compositor,
+						sourceMapContext: sourceMap,
+					});
+				}
+			)
 
 			.then((res) => resolve(res))
 			.catch((err) => reject(err))
