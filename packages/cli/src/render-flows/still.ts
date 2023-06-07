@@ -9,7 +9,7 @@ import type {
 	RenderMediaOnDownload,
 	StillImageFormat,
 } from '@remotion/renderer';
-import {openBrowser, RenderInternals} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {chalk} from '../chalk';
@@ -127,12 +127,14 @@ export const renderStillFlow = async ({
 	);
 	const verbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
-	const browserInstance = openBrowser(browser, {
+	const browserInstance = RenderInternals.internalOpenBrowser({
+		browser,
 		browserExecutable,
 		chromiumOptions,
 		shouldDumpIo: verbose,
 		forceDeviceScaleFactor: scale,
 		indent: indentOutput,
+		viewport: null,
 	});
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(

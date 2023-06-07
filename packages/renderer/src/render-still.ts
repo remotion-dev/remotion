@@ -24,7 +24,7 @@ import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
-import {openBrowser} from './open-browser';
+import {internalOpenBrowser} from './open-browser';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
@@ -188,12 +188,14 @@ const innerRenderStill = async ({
 
 	const browserInstance =
 		puppeteerInstance ??
-		(await openBrowser(DEFAULT_BROWSER, {
+		(await internalOpenBrowser({
+			browser: DEFAULT_BROWSER,
 			browserExecutable,
 			shouldDumpIo: dumpBrowserLogs,
 			chromiumOptions,
 			forceDeviceScaleFactor: scale,
 			indent: false,
+			viewport: null,
 		}));
 	const page = await browserInstance.newPage(sourceMapContext);
 	await page.setViewport({

@@ -47,7 +47,7 @@ import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {getLogLevel, INDENT_TOKEN, Log, setLogLevel} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
-import {killAllBrowsers} from './open-browser';
+import {internalOpenBrowser, killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
@@ -188,6 +188,7 @@ export const RenderInternals = {
 	prepareServer,
 	makeOrReuseServer,
 	internalRenderStill,
+	internalOpenBrowser,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

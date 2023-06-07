@@ -65,7 +65,7 @@ export const addStillRenderJob = ({
 	compositionId: string;
 	outName: string;
 	imageFormat: StillImageFormat;
-	jpegQuality: number | null;
+	jpegQuality: number;
 	frame: number;
 	scale: number;
 	verbose: boolean;

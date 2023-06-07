@@ -25,7 +25,7 @@ import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {validateSelectedPixelFormatAndImageFormatCombination} from './image-format';
 import {isAudioCodec} from './is-audio-codec';
-import {validateJpegQuality} from './jpeg-quality';
+import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
@@ -172,7 +172,7 @@ export const renderMedia = ({
 		);
 	}
 
-	validateJpegQuality(options.jpegQuality);
+	validateJpegQuality(options.jpegQuality ?? DEFAULT_JPEG_QUALITY);
 	validateQualitySettings({crf, codec, videoBitrate});
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');

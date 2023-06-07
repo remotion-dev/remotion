@@ -43,7 +43,7 @@ export const screenshot = (options: {
 			width: options.width,
 			omitBackground: options.omitBackground,
 			path: options.path,
-			jpegQuality: options.jpegQuality,
+			jpegQuality: options.type === 'jpeg' ? options.jpegQuality : undefined,
 			clipRegion: options.clipRegion,
 		})
 	);

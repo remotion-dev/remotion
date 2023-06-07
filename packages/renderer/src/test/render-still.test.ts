@@ -17,7 +17,6 @@ test('Need to pass valid metadata', async () => {
 			serveUrl:
 				'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
 			verbose: false,
-			indent: false,
 		})
 	).rejects.toThrow(/not be NaN, but is NaN/);
 });
@@ -36,7 +35,6 @@ test('Returns buffer in promise result', async () => {
 		serveUrl:
 			'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
 		verbose: false,
-		indent: false,
 	});
 	expect(buffer?.length).toBeGreaterThan(1000);
 });
@@ -57,7 +55,6 @@ test('Need to pass valid metadata', async () => {
 			serveUrl:
 				'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
 			verbose: false,
-			indent: false,
 		})
 	).rejects.toThrow(
 		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/
