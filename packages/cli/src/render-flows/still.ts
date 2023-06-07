@@ -221,7 +221,7 @@ export const renderStillFlow = async ({
 	});
 
 	Log.verboseAdvanced(
-		{indent: indentOutput, logLevel, tag: 'config'},
+		{indent: indentOutput, logLevel},
 		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`)
 	);
 	Log.infoAdvanced(

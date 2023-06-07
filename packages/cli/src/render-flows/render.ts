@@ -302,7 +302,7 @@ export const renderVideoFlow = async ({
 	});
 
 	Log.verboseAdvanced(
-		{indent, logLevel, tag: 'config'},
+		{indent, logLevel},
 		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`)
 	);
 	Log.infoAdvanced(
