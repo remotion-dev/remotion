@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"remotionlambda"
+	"lambda_go_sdk"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
@@ -41,7 +41,7 @@ func main() {
 	region := os.Getenv("REMOTION_APP_REGION")
 
 	// Set parameters for render
-	renderInputRequest := remotionlambda.RemotionOptions{
+	renderInputRequest := lambda_go_sdk.RemotionOptions{
 		ServeUrl:     serveUrl,
 		FunctionName: functionName,
 		Region:       region,
@@ -54,7 +54,7 @@ func main() {
 	}
 
 	// Execute the render process
-	renderResponse, renderError := remotionlambda.RenderMediaOnLambda(renderInputRequest)
+	renderResponse, renderError := lambda_go_sdk.RenderMediaOnLambda(renderInputRequest)
 
 	// Check if there are validation errors
 	if renderError != nil {
@@ -77,14 +77,14 @@ func main() {
 	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.BucketName, renderResponse.RenderId)
 
 	// Render Progress request
-	renderProgressInputRequest := remotionlambda.RenderConfig{
+	renderProgressInputRequest := lambda_go_sdk.RenderConfig{
 		FunctionName: functionName,
 		Region:       region,
 		RenderId:     renderResponse.RenderId,
 		BucketName:   renderResponse.BucketName,
 	}
 	// Execute getting the render progress
-	renderProgressResponse, renderProgressError := remotionlambda.GetRenderProgress(renderProgressInputRequest)
+	renderProgressResponse, renderProgressError := lambda_go_sdk.GetRenderProgress(renderProgressInputRequest)
 
 	// Check if we have error
 	if renderProgressError != nil {
