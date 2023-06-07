@@ -3,6 +3,7 @@ import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
+import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
@@ -15,7 +16,23 @@ import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
-type SelectCompositionsConfig = {
+type InternalSelectCompositionsConfig = {
+	inputProps: Record<string, unknown>;
+	envVariables: Record<string, string>;
+	puppeteerInstance: HeadlessBrowser | undefined;
+	onBrowserLog: null | ((log: BrowserLog) => void);
+	browserExecutable: BrowserExecutable | null;
+	timeoutInMilliseconds: number;
+	chromiumOptions: ChromiumOptions;
+	port: number | null;
+	indent: boolean;
+	server: RemotionServer | undefined;
+	verbose: boolean;
+	serveUrl: string;
+	id: string;
+};
+
+export type SelectCompositionOptions = {
 	inputProps?: Record<string, unknown> | null;
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: HeadlessBrowser;
@@ -24,20 +41,17 @@ type SelectCompositionsConfig = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	indent?: boolean;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	server?: RemotionServer;
 	verbose?: boolean;
 	serveUrl: string;
 	id: string;
 };
 
-type InnerSelectCompositionConfig = Omit<SelectCompositionsConfig, 'port'> & {
+type CleanupFn = () => void;
+
+type InnerSelectCompositionConfig = Omit<
+	InternalSelectCompositionsConfig,
+	'port'
+> & {
 	page: Page;
 	port: number;
 };
@@ -56,7 +70,7 @@ const innerSelectComposition = async ({
 }: InnerSelectCompositionConfig): Promise<AnyCompMetadata> => {
 	if (onBrowserLog) {
 		page.on('console', (log) => {
-			onBrowserLog?.({
+			onBrowserLog({
 				stackTrace: log.stackTrace(),
 				text: log.text,
 				type: log.type,
@@ -67,7 +81,7 @@ const innerSelectComposition = async ({
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	await setPropsAndEnv({
-		inputProps: inputProps ?? {},
+		inputProps,
 		envVariables,
 		page,
 		serveUrl,
@@ -94,7 +108,7 @@ const innerSelectComposition = async ({
 
 	Log.verboseAdvanced(
 		{
-			indent: indent ?? false,
+			indent,
 			tag: 'selectComposition()',
 			logLevel: verbose ? 'verbose' : 'info',
 		},
@@ -111,7 +125,7 @@ const innerSelectComposition = async ({
 	});
 	Log.verboseAdvanced(
 		{
-			indent: indent ?? false,
+			indent,
 			tag: 'selectComposition()',
 			logLevel: verbose ? 'verbose' : 'info',
 		},
@@ -121,12 +135,8 @@ const innerSelectComposition = async ({
 	return result as AnyCompMetadata;
 };
 
-/**
- * @description Gets a composition defined in a Remotion project based on a Webpack bundle.
- * @see [Documentation](https://www.remotion.dev/docs/renderer/select-composition)
- */
-export const selectComposition = async (
-	options: SelectCompositionsConfig
+export const internalSelectComposition = async (
+	options: InternalSelectCompositionsConfig
 ): Promise<AnyCompMetadata> => {
 	const cleanup: CleanupFn[] = [];
 	const {
@@ -137,16 +147,22 @@ export const selectComposition = async (
 		verbose,
 		indent,
 		port,
+		envVariables,
+		id,
+		inputProps,
+		onBrowserLog,
+		server,
+		timeoutInMilliseconds,
 	} = options;
 
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
-		browserExecutable: browserExecutable ?? null,
-		chromiumOptions: chromiumOptions ?? {},
+		browserExecutable,
+		chromiumOptions,
 		context: null,
 		forceDeviceScaleFactor: undefined,
-		indent: indent ?? false,
-		shouldDumpIo: verbose ?? false,
+		indent,
+		shouldDumpIo: verbose,
 	});
 	cleanup.push(() => cleanupPage());
 
@@ -165,11 +181,11 @@ export const selectComposition = async (
 			options.server,
 			{
 				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
-				port: port ?? null,
+				port,
 				remotionRoot: findRemotionRoot(),
 				concurrency: 1,
-				verbose: verbose ?? false,
-				indent: indent ?? false,
+				verbose,
+				indent,
 			},
 			{
 				onDownload: () => undefined,
@@ -181,10 +197,20 @@ export const selectComposition = async (
 				cleanup.push(() => cleanupServer(true));
 
 				return innerSelectComposition({
-					...options,
 					serveUrl,
 					page,
 					port: offthreadPort,
+					browserExecutable,
+					chromiumOptions,
+					envVariables,
+					id,
+					inputProps,
+					onBrowserLog,
+					timeoutInMilliseconds,
+					verbose,
+					indent,
+					puppeteerInstance,
+					server,
 				});
 			})
 
@@ -202,4 +228,39 @@ export const selectComposition = async (
 	});
 };
 
-type CleanupFn = () => void;
+/**
+ * @description Gets a composition defined in a Remotion project based on a Webpack bundle.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/select-composition)
+ */
+export const selectComposition = (
+	options: SelectCompositionOptions
+): Promise<AnyCompMetadata> => {
+	const {
+		id,
+		serveUrl,
+		browserExecutable,
+		chromiumOptions,
+		envVariables,
+		inputProps,
+		onBrowserLog,
+		port,
+		puppeteerInstance,
+		timeoutInMilliseconds,
+		verbose,
+	} = options;
+	return internalSelectComposition({
+		id,
+		serveUrl,
+		browserExecutable: browserExecutable ?? null,
+		chromiumOptions: chromiumOptions ?? {},
+		envVariables: envVariables ?? {},
+		inputProps: inputProps ?? {},
+		onBrowserLog: onBrowserLog ?? null,
+		port: port ?? null,
+		puppeteerInstance,
+		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
+		verbose: verbose ?? false,
+		indent: false,
+		server: undefined,
+	});
+};

@@ -14,7 +14,7 @@ import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
-type GetCompositionsConfig = {
+export type GetCompositionsOptions = {
 	inputProps?: Record<string, unknown> | null;
 	envVariables?: Record<string, string>;
 	puppeteerInstance?: HeadlessBrowser;
@@ -37,7 +37,7 @@ type GetCompositionsConfig = {
 const innerGetCompositions = async (
 	serveUrl: string,
 	page: Page,
-	config: GetCompositionsConfig,
+	config: GetCompositionsOptions,
 	proxyPort: number
 ): Promise<AnyCompMetadata[]> => {
 	if (config?.onBrowserLog) {
@@ -97,7 +97,7 @@ type CleanupFn = () => void;
  */
 export const getCompositions = async (
 	serveUrlOrWebpackUrl: string,
-	config?: GetCompositionsConfig
+	config?: GetCompositionsOptions
 ) => {
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: config?.puppeteerInstance,

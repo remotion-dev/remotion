@@ -84,7 +84,7 @@ export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception'
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
-export {getCompositions} from './get-compositions';
+export {getCompositions, GetCompositionsOptions} from './get-compositions';
 export {
 	ImageFormat,
 	StillImageFormat,
@@ -99,7 +99,7 @@ export {RemotionOption} from './options/option';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
 export {ProResProfile} from './prores-profile';
-export {renderFrames} from './render-frames';
+export {renderFrames, RenderFramesOptions} from './render-frames';
 export {
 	renderMedia,
 	RenderMediaOnProgress,
@@ -108,8 +108,14 @@ export {
 	StitchingState,
 } from './render-media';
 export {renderStill, RenderStillOptions} from './render-still';
-export {selectComposition} from './select-composition';
-export {StitcherOptions, stitchFramesToVideo} from './stitch-frames-to-video';
+export {
+	selectComposition,
+	SelectCompositionOptions,
+} from './select-composition';
+export {
+	stitchFramesToVideo,
+	StitchFramesToVideoOptions,
+} from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';

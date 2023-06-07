@@ -50,7 +50,7 @@ const packageJson = fs.existsSync(packageJsonPath)
 	? JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'))
 	: null;
 
-export type StitcherOptions = {
+export type StitchFramesToVideoOptions = {
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
 	fps: number;
@@ -169,7 +169,7 @@ const getAssetsData = async ({
 };
 
 const spawnFfmpeg = async (
-	options: StitcherOptions,
+	options: StitchFramesToVideoOptions,
 	remotionRoot: string
 ): Promise<ReturnType> => {
 	Internals.validateDimension(
@@ -513,7 +513,7 @@ const spawnFfmpeg = async (
  * @see [Documentation](https://www.remotion.dev/docs/renderer/stitch-frames-to-video)
  */
 export const stitchFramesToVideo = async (
-	options: StitcherOptions
+	options: StitchFramesToVideoOptions
 ): Promise<Buffer | null> => {
 	const remotionRoot = findRemotionRoot();
 	const {task, getLogs} = await spawnFfmpeg(options, remotionRoot);

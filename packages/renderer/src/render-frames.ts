@@ -51,7 +51,7 @@ import {validateScale} from './validate-scale';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
-type RenderFramesOptions = {
+export type RenderFramesOptions = {
 	onStart: (data: OnStartData) => void;
 	onFrameUpdate: (
 		framesRendered: number,
