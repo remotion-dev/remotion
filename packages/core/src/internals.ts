@@ -135,6 +135,7 @@ export const Internals = {
 	ResolveCompositionConfig,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 	AssetManager,
+	bundleName: 'bundle.js'
 };
 
 export type {
