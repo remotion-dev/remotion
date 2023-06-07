@@ -14,7 +14,7 @@ import path from "node:path";
 
 const tmpDir = tmpdir();
 
-const workingDir = path.join(tmpDir, `lambda-go-sdk-${Math.random()}`);
+const workingDir = path.join(tmpDir, `lambda_go_sdk_${Math.random()}`);
 if (existsSync(workingDir)) {
   rmSync(workingDir, { recursive: true });
 }
@@ -22,7 +22,7 @@ mkdirSync(workingDir);
 console.log(tmpDir);
 
 execSync(
-  `git clone git@github.com:remotion-dev/lambda-go-sdk.git ${workingDir}`,
+  `git clone git@github.com:remotion-dev/lambda_go_sdk.git ${workingDir}`,
   {
     cwd: tmpDir,
   }
