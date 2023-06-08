@@ -52,11 +52,14 @@ const getSourceMap = async (
 		return new SourceMapConsumer(JSON.parse(converted) as RawSourceMap);
 	}
 
-	// Find adjacent file: bundle.js -> bundle.js.map
-	const url = path.join(path.dirname(filePath), sm);
 	if (type === 'local') {
-		return new SourceMapConsumer(readFileSync(url, 'utf8'));
+		// Find adjacent file: bundle.js -> bundle.js.map
+		const newFilePath = path.join(path.dirname(filePath), sm);
+		return new SourceMapConsumer(readFileSync(newFilePath, 'utf8'));
 	}
+
+	const index = filePath.lastIndexOf('/');
+	const url = filePath.substring(0, index + 1) + sm;
 
 	const obj = await fetchUrl(url);
 	return new SourceMapConsumer(obj);
