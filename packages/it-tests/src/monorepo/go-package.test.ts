@@ -14,7 +14,7 @@ test("Set the right version for gotest", () => {
   const version = referenceVersionJson.version;
   expect(typeof version).toBe("string");
 
-  const VERSION = `package remotionlambda;\n\nconst VERSION = "${version}"`;
+  const VERSION = `package lambda_go_sdk;\n\nconst VERSION = "${version}"`;
   writeFileSync(
     path.join(process.cwd(), "..", "lambda-go", "version.go"),
     VERSION
