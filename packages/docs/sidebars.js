@@ -535,6 +535,7 @@ module.exports = {
       },
       items: [
         "cloudrun/setup",
+        "cloudrun/permissions",
         "cloudrun/generate-env",
         "cloudrun/region-selection",
         "cloudrun/faq",

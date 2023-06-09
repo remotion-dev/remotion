@@ -38,9 +38,13 @@ export const testPermissions = async (
 		)
 	);
 
+	const permissionList: string[] = saPermissions.list.map(
+		(permission: {name: string; reason: string}) => permission.name
+	);
+
 	const response = await resourceManagerClient.testIamPermissions({
 		resource: `projects/${process.env.REMOTION_GCP_PROJECT_ID}`,
-		permissions: saPermissions.list,
+		permissions: permissionList,
 	});
 
 	const returnedPermissions = response[0].permissions;
@@ -53,13 +57,13 @@ export const testPermissions = async (
 
 	const results: TestResult[] = [];
 
-	saPermissions.list.forEach((permission: string) => {
-		if (returnedPermissions.includes(permission)) {
-			const thisResult = {decision: true, permissionName: permission};
+	saPermissions.list.forEach((permission: {name: string; reason: string}) => {
+		if (returnedPermissions.includes(permission.name)) {
+			const thisResult = {decision: true, permissionName: permission.name};
 			results.push(thisResult);
 			params?.onTest(thisResult);
 		} else {
-			const thisResult = {decision: false, permissionName: permission};
+			const thisResult = {decision: false, permissionName: permission.name};
 			results.push(thisResult);
 			params?.onTest(thisResult);
 		}
