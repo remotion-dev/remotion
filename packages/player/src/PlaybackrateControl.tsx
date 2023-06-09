@@ -6,20 +6,13 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {SettingsIcon} from './icons.js';
 import useComponentVisible from './utils/use-component-visible.js';
+import type {Size} from './utils/use-element-size.js';
 
-const playbackPopup: React.CSSProperties = {
-	position: 'absolute',
-	right: 0,
-	width: 125,
-	bottom: 35,
-	background: '#fff',
-	borderRadius: 4,
-	overflow: 'hidden',
-	color: 'black',
-	textAlign: 'left',
-};
+// To align
+const BOTTOM = 35;
+// Arbitrary to clamp the height of the popup
+const THRESHOLD = 70;
 
 const rateDiv: React.CSSProperties = {
 	height: 30,
@@ -54,7 +47,8 @@ export const Checkmark = () => (
 const PlaybackPopup: React.FC<{
 	setIsComponentVisible: React.Dispatch<React.SetStateAction<boolean>>;
 	playbackRates: number[];
-}> = ({setIsComponentVisible, playbackRates}) => {
+	canvasSize: Size;
+}> = ({setIsComponentVisible, playbackRates, canvasSize}) => {
 	const {setPlaybackRate, playbackRate} = useContext(
 		Internals.Timeline.TimelineContext
 	);
@@ -116,6 +110,21 @@ const PlaybackPopup: React.FC<{
 		},
 		[setIsComponentVisible, setPlaybackRate]
 	);
+
+	const playbackPopup: React.CSSProperties = useMemo(() => {
+		return {
+			position: 'absolute',
+			right: 0,
+			width: 125,
+			maxHeight: canvasSize.height - THRESHOLD - BOTTOM,
+			bottom: 35,
+			background: '#fff',
+			borderRadius: 4,
+			overflow: 'auto',
+			color: 'black',
+			textAlign: 'left',
+		};
+	}, [canvasSize.height]);
 
 	return (
 		<div style={playbackPopup}>
@@ -186,22 +195,46 @@ const PlaybackrateOption: React.FC<{
 	);
 };
 
-const playbackButton: React.CSSProperties = {
-	position: 'relative',
-	display: 'inline-flex',
-	alignItems: 'center',
-	padding: '6px 0 6px 0',
+const label: React.CSSProperties = {
+	fontSize: 13,
+	fontWeight: 'bold',
+	color: 'white',
+	border: '2px solid white',
+	borderRadius: 20,
+	paddingLeft: 8,
+	paddingRight: 8,
+	paddingTop: 2,
+	paddingBottom: 2,
+};
+
+export const playerButtonStyle: React.CSSProperties = {
+	appearance: 'none',
+	backgroundColor: 'transparent',
 	border: 'none',
-	background: 'none',
-	height: 36,
 	cursor: 'pointer',
+	paddingLeft: 0,
+	paddingRight: 0,
+	paddingTop: 6,
+	paddingBottom: 6,
+	height: 37,
+	display: 'inline-flex',
+	marginBottom: 0,
+	marginTop: 0,
+	alignItems: 'center',
+};
+
+const button: React.CSSProperties = {
+	...playerButtonStyle,
+	position: 'relative',
 };
 
 export const PlaybackrateControl: React.FC<{
 	playbackRates: number[];
-}> = ({playbackRates}) => {
+	canvasSize: Size;
+}> = ({playbackRates, canvasSize}) => {
 	const {ref, isComponentVisible, setIsComponentVisible} =
 		useComponentVisible(false);
+	const {playbackRate} = useContext(Internals.Timeline.TimelineContext);
 
 	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
@@ -217,12 +250,13 @@ export const PlaybackrateControl: React.FC<{
 			<button
 				type="button"
 				aria-label="Change playback rate"
-				style={playbackButton}
+				style={button}
 				onClick={onClick}
 			>
-				<SettingsIcon iconSize={22} />
+				<div style={label}>{playbackRate}x</div>
 				{isComponentVisible && (
 					<PlaybackPopup
+						canvasSize={canvasSize}
 						playbackRates={playbackRates}
 						setIsComponentVisible={setIsComponentVisible}
 					/>
