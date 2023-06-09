@@ -1,4 +1,4 @@
-package lambda_go_sdk
+package main
 
 import (
 	"log"

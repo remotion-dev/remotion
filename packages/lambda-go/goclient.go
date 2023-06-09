@@ -1,4 +1,4 @@
-package lambda_go_sdk
+package main
 
 func RenderMediaOnLambda(input RemotionOptions) (*RemotionRenderResponse, error) {
 	return invokeRenderLambda(input)
