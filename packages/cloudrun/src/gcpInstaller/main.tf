@@ -35,7 +35,7 @@ resource "google_project_iam_custom_role" "remotion_sa" {
   role_id     = "RemotionSA"
   title       = "Remotion API Service Account"
   description = "Allow the service account to manage necessary resources for Remotion Cloud Run rendering."
-  permissions = local.cloudrun-permissions.list
+  permissions = local.cloudrun-permissions
 }
 
 # Create a service account
