@@ -155,6 +155,22 @@ Use the following command to run the image:
 docker run remotion-app
 ```
 
+## Emojis
+
+No emojis are installed by default. If you want to use emojis, install an emoji font:
+
+```docker
+RUN apt-get install fonts-noto-color-emoji
+```
+
+## Japanese, Chinese, Korean, etc.
+
+Those fonts may have limited Character support enabled by default. If you need full support, install the following fonts:
+
+```docker
+RUN apt-get install fonts-noto-cjk
+```
+
 ## Why are the packages not pinned?
 
 In Debian (and also Alpine), old packages are removed from the repositories once new versions are released. This means that pinning the versions will actually cause the Dockerfiles to break in the future. We choose Debian as the distribution because the packages get well tested before they get released into the repository.

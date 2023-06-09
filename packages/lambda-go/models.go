@@ -1,4 +1,4 @@
-package remotionlambda
+package lambda_go_sdk
 
 type RemotionOptions struct {
 	ServeUrl              string                 `json:"serveUrl" validate:"required"`

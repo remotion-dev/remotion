@@ -1,4 +1,4 @@
-package remotionlambda
+package lambda_go_sdk
 
 import (
 	"encoding/json"
