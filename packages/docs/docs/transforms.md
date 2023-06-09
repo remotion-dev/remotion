@@ -10,10 +10,10 @@ import {MuxVideo} from '../src/components/MuxVideo';
 import {TransformsTutorial} from '../src/components/tutorials';
 
 <TransformsTutorial />
-Animations occur by transforming the properties of an element over time.  
-Let's take a look at five common transforms that we can apply to any element.
+Animation occurs when the visual properties of an element transform over time.  
+Let's look at five common ways to transform an element.
 
-If you are already familiar with how to apply CSS transforms in React, you can [skip this page](/docs/animating-properties).
+Already familiar with how to apply CSS transforms in React? [skip this page](/docs/animating-properties).
 
 ## The 5 basic transformations
 
