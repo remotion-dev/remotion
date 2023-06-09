@@ -32,6 +32,7 @@ test("Should fail to render if cancelRender() was being used", async () => {
   expect(task.stderr).toContain("CancelledError");
   expect(task.stderr).toContain("This should be the error message");
 
+  console.log(task.stdout);
   // Should symbolicate stacktrace
   expect(task.stdout).toContain("at src/CancelRender/index.tsx:18");
   expect(task.stdout).toContain(
