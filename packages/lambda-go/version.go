@@ -1,3 +1,3 @@
-package lambda_go_sdk;
+package main
 
 const VERSION = "3.3.99"
