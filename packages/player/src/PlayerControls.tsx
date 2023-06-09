@@ -4,7 +4,7 @@ import {Internals} from 'remotion';
 import {formatTime} from './format-time.js';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
-import {PlaybackrateControl} from './PlaybackrateControl.js';
+import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import type {usePlayer} from './use-player.js';
 import {
@@ -49,21 +49,6 @@ const containerStyle: React.CSSProperties = {
 	paddingLeft: X_PADDING,
 	flexDirection: 'column',
 	transition: 'opacity 0.3s',
-};
-
-const buttonStyle: React.CSSProperties = {
-	appearance: 'none',
-	backgroundColor: 'transparent',
-	border: 'none',
-	cursor: 'pointer',
-	paddingLeft: 0,
-	paddingRight: 0,
-	paddingTop: 6,
-	paddingBottom: 6,
-	height: 37,
-	display: 'inline',
-	marginBottom: 0,
-	marginTop: 0,
 };
 
 const controlsRow: React.CSSProperties = {
@@ -278,7 +263,7 @@ export const Controls: React.FC<{
 					<button
 						ref={playButtonRef}
 						type="button"
-						style={buttonStyle}
+						style={playerButtonStyle}
 						onClick={player.playing ? player.pause : player.play}
 						aria-label={player.playing ? 'Pause video' : 'Play video'}
 						title={player.playing ? 'Pause video' : 'Play video'}
@@ -314,7 +299,7 @@ export const Controls: React.FC<{
 							type="button"
 							aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter Fullscreen'}
 							title={isFullscreen ? 'Exit fullscreen' : 'Enter Fullscreen'}
-							style={buttonStyle}
+							style={playerButtonStyle}
 							onClick={
 								isFullscreen
 									? onExitFullscreenButtonClick

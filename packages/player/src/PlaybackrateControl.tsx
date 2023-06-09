@@ -6,7 +6,6 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import {SettingsIcon} from './icons.js';
 import useComponentVisible from './utils/use-component-visible.js';
 
 const playbackPopup: React.CSSProperties = {
@@ -186,15 +185,37 @@ const PlaybackrateOption: React.FC<{
 	);
 };
 
-const playbackButton: React.CSSProperties = {
-	position: 'relative',
-	display: 'inline-flex',
-	alignItems: 'center',
-	padding: '6px 0 6px 0',
+const label: React.CSSProperties = {
+	fontSize: 13,
+	fontWeight: 'bold',
+	color: 'white',
+	border: '2px solid white',
+	borderRadius: 20,
+	paddingLeft: 8,
+	paddingRight: 8,
+	paddingTop: 2,
+	paddingBottom: 2,
+};
+
+export const playerButtonStyle: React.CSSProperties = {
+	appearance: 'none',
+	backgroundColor: 'transparent',
 	border: 'none',
-	background: 'none',
-	height: 36,
 	cursor: 'pointer',
+	paddingLeft: 0,
+	paddingRight: 0,
+	paddingTop: 6,
+	paddingBottom: 6,
+	height: 37,
+	display: 'inline-flex',
+	marginBottom: 0,
+	marginTop: 0,
+	alignItems: 'center',
+};
+
+const button: React.CSSProperties = {
+	...playerButtonStyle,
+	position: 'relative',
 };
 
 export const PlaybackrateControl: React.FC<{
@@ -202,6 +223,7 @@ export const PlaybackrateControl: React.FC<{
 }> = ({playbackRates}) => {
 	const {ref, isComponentVisible, setIsComponentVisible} =
 		useComponentVisible(false);
+	const {playbackRate} = useContext(Internals.Timeline.TimelineContext);
 
 	const onClick: React.MouseEventHandler<HTMLButtonElement> = useCallback(
 		(e) => {
@@ -217,10 +239,10 @@ export const PlaybackrateControl: React.FC<{
 			<button
 				type="button"
 				aria-label="Change playback rate"
-				style={playbackButton}
+				style={button}
 				onClick={onClick}
 			>
-				<SettingsIcon iconSize={22} />
+				<div style={label}>{playbackRate}x</div>
 				{isComponentVisible && (
 					<PlaybackPopup
 						playbackRates={playbackRates}
