@@ -592,8 +592,8 @@ const PlayerOnly: React.FC<
 				resize: 'both',
 				maxWidth: 550,
 				maxHeight: 550,
-				minWidth: 500,
-				minHeight: 500,
+				minWidth: 300,
+				minHeight: 300,
 				display: 'block',
 			}}
 		/>
