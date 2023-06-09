@@ -4,13 +4,14 @@ import {Internals} from 'remotion';
 import {formatTime} from './format-time.js';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
-import {PlaybackrateControl} from './PlaybackrateControl.js';
+import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import type {usePlayer} from './use-player.js';
 import {
 	useVideoControlsResize,
 	X_PADDING,
 } from './use-video-controls-resize.js';
+import type {Size} from './utils/use-element-size.js';
 
 export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
 export type RenderFullscreenButton = (props: {
@@ -49,21 +50,6 @@ const containerStyle: React.CSSProperties = {
 	paddingLeft: X_PADDING,
 	flexDirection: 'column',
 	transition: 'opacity 0.3s',
-};
-
-const buttonStyle: React.CSSProperties = {
-	appearance: 'none',
-	backgroundColor: 'transparent',
-	border: 'none',
-	cursor: 'pointer',
-	paddingLeft: 0,
-	paddingRight: 0,
-	paddingTop: 6,
-	paddingBottom: 6,
-	height: 37,
-	display: 'inline',
-	marginBottom: 0,
-	marginTop: 0,
 };
 
 const controlsRow: React.CSSProperties = {
@@ -126,7 +112,7 @@ export const Controls: React.FC<{
 	inFrame: number | null;
 	outFrame: number | null;
 	initiallyShowControls: number | boolean;
-	playerWidth: number;
+	canvasSize: Size | null;
 	renderPlayPauseButton: RenderPlayPauseButton | null;
 	renderFullscreenButton: RenderFullscreenButton | null;
 	alwaysShowControls: boolean;
@@ -147,7 +133,7 @@ export const Controls: React.FC<{
 	inFrame,
 	outFrame,
 	initiallyShowControls,
-	playerWidth,
+	canvasSize,
 	renderPlayPauseButton,
 	renderFullscreenButton,
 	alwaysShowControls,
@@ -158,7 +144,10 @@ export const Controls: React.FC<{
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
 
 	const {maxTimeLabelWidth, displayVerticalVolumeSlider} =
-		useVideoControlsResize({allowFullscreen, playerWidth});
+		useVideoControlsResize({
+			allowFullscreen,
+			playerWidth: canvasSize?.width ?? 0,
+		});
 	const [shouldShowInitially, setInitiallyShowControls] = useState<
 		boolean | number
 	>(() => {
@@ -278,7 +267,7 @@ export const Controls: React.FC<{
 					<button
 						ref={playButtonRef}
 						type="button"
-						style={buttonStyle}
+						style={playerButtonStyle}
 						onClick={player.playing ? player.pause : player.play}
 						aria-label={player.playing ? 'Pause video' : 'Play video'}
 						title={player.playing ? 'Pause video' : 'Play video'}
@@ -304,7 +293,12 @@ export const Controls: React.FC<{
 					<div style={xSpacer} />
 				</div>
 				<div style={flex1} />
-				{playbackRates && <PlaybackrateControl playbackRates={playbackRates} />}
+				{playbackRates && canvasSize && (
+					<PlaybackrateControl
+						canvasSize={canvasSize}
+						playbackRates={playbackRates}
+					/>
+				)}
 				{playbackRates && supportsFullscreen && allowFullscreen ? (
 					<div style={xSpacer} />
 				) : null}
@@ -314,7 +308,7 @@ export const Controls: React.FC<{
 							type="button"
 							aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter Fullscreen'}
 							title={isFullscreen ? 'Exit fullscreen' : 'Enter Fullscreen'}
-							style={buttonStyle}
+							style={playerButtonStyle}
 							onClick={
 								isFullscreen
 									? onExitFullscreenButtonClick
