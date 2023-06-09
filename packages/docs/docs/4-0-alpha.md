@@ -62,6 +62,14 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
+### `4.0.0-alpha14`
+
+- Make renders via the CLI faster using a reusable server
+- `console.log`'s are symbolicated when rendering locally using `--log=verbose`
+- Fix bug in composition metadata resolution
+- New design for the schema editor
+- Upgrade TypeScript ESLint, Prettier and Turborepo
+
 ### `4.0.0-alpha13`
 
 - Fix editor props not being applied
