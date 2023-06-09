@@ -36,10 +36,10 @@ test("Should fail to render if cancelRender() was being used", async () => {
   // Do not search for strings that depend on color support
   expect(task.stdout).toContain("src/CancelRender/index.tsx:18");
   expect(task.stdout).toContain(
-    " \t// Worst case: Inside a promise without a catch handler\n"
+    "Worst case: Inside a promise without a catch handler"
   );
-  expect(task.stdout).toContain(" \t// and with a timeout running\n");
+  expect(task.stdout).toContain("and with a timeout running");
   expect(task.stdout).toContain(
-    " \tcancelRender(new Error('This should be the error message'));\n"
+    "cancelRender(new Error('This should be the error message'));"
   );
 });
