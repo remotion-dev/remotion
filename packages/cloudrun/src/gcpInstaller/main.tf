@@ -26,7 +26,7 @@ data "local_file" "permissions" {
 
 locals {
   raw-permissions       = jsondecode(data.local_file.permissions.content)
-  cloudrun-permissions  = [for i in local.raw_permissions.list : i.name]
+  cloudrun-permissions  = [for i in local.raw-permissions.list : i.name]
   service-account-email = "remotion-sa@${var.project_id}.iam.gserviceaccount.com"
 }
 
