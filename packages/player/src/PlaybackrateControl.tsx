@@ -7,18 +7,12 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import useComponentVisible from './utils/use-component-visible.js';
+import type {Size} from './utils/use-element-size.js';
 
-const playbackPopup: React.CSSProperties = {
-	position: 'absolute',
-	right: 0,
-	width: 125,
-	bottom: 35,
-	background: '#fff',
-	borderRadius: 4,
-	overflow: 'hidden',
-	color: 'black',
-	textAlign: 'left',
-};
+// To align
+const BOTTOM = 35;
+// Arbitrary to clamp the height of the popup
+const THRESHOLD = 70;
 
 const rateDiv: React.CSSProperties = {
 	height: 30,
@@ -53,7 +47,8 @@ export const Checkmark = () => (
 const PlaybackPopup: React.FC<{
 	setIsComponentVisible: React.Dispatch<React.SetStateAction<boolean>>;
 	playbackRates: number[];
-}> = ({setIsComponentVisible, playbackRates}) => {
+	canvasSize: Size;
+}> = ({setIsComponentVisible, playbackRates, canvasSize}) => {
 	const {setPlaybackRate, playbackRate} = useContext(
 		Internals.Timeline.TimelineContext
 	);
@@ -115,6 +110,21 @@ const PlaybackPopup: React.FC<{
 		},
 		[setIsComponentVisible, setPlaybackRate]
 	);
+
+	const playbackPopup: React.CSSProperties = useMemo(() => {
+		return {
+			position: 'absolute',
+			right: 0,
+			width: 125,
+			maxHeight: canvasSize.height - THRESHOLD - BOTTOM,
+			bottom: 35,
+			background: '#fff',
+			borderRadius: 4,
+			overflow: 'auto',
+			color: 'black',
+			textAlign: 'left',
+		};
+	}, [canvasSize.height]);
 
 	return (
 		<div style={playbackPopup}>
@@ -220,7 +230,8 @@ const button: React.CSSProperties = {
 
 export const PlaybackrateControl: React.FC<{
 	playbackRates: number[];
-}> = ({playbackRates}) => {
+	canvasSize: Size;
+}> = ({playbackRates, canvasSize}) => {
 	const {ref, isComponentVisible, setIsComponentVisible} =
 		useComponentVisible(false);
 	const {playbackRate} = useContext(Internals.Timeline.TimelineContext);
@@ -245,6 +256,7 @@ export const PlaybackrateControl: React.FC<{
 				<div style={label}>{playbackRate}x</div>
 				{isComponentVisible && (
 					<PlaybackPopup
+						canvasSize={canvasSize}
 						playbackRates={playbackRates}
 						setIsComponentVisible={setIsComponentVisible}
 					/>
