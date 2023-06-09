@@ -94,4 +94,4 @@ If you don't have them, [Remotion will try to install FFmpeg for you](/docs/ffmp
 
 ## Installation in existing projects
 
-If you already have a project you want to install Remotion in, don't use the instructions on this page. Instead, check out: [Installation in existing projects](/docs/brownfield)
+Want to install Remotion in an existing project? Go here instead: [Installation in existing projects](/docs/brownfield)
