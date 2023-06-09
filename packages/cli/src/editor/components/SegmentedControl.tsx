@@ -24,6 +24,8 @@ const item: React.CSSProperties = {
 	cursor: 'pointer',
 	appearance: 'none',
 	border: 'none',
+	flex: 1,
+	justifyContent: 'center',
 };
 
 export type SegmentedControlItem = {
