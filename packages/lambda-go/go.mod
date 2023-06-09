@@ -1,4 +1,4 @@
-module remotionlambda
+module lambda_go_sdk
 
 go 1.20
 

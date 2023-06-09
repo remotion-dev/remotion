@@ -538,6 +538,8 @@ _To observe the fullscreen state and react to changes, listen to the [`fullscree
 
 Requests the video to go to fullscreen. This method throws if the `allowFullscreen` prop is false or the browser doesn't support allow the player to go into fullscreen.
 
+In Mobile Safari, Fullscreen is supported from iOS 17.
+
 ### `exitFullscreen()`
 
 Exit fullscreen mode.
