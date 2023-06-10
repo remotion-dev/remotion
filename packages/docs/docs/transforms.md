@@ -13,7 +13,7 @@ import {TransformsTutorial} from '../src/components/tutorials';
 Animation occurs when the visual properties of an element transform over time.  
 Let's look at five common ways to transform an element.
 
-Already familiar with how to apply CSS transforms in React? [skip this page](/docs/animating-properties).
+Already familiar with how to apply CSS transforms in React? [Skip this page](/docs/animating-properties).
 
 ## The 5 basic transformations
 
