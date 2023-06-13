@@ -38,8 +38,8 @@ In order to avoid this error, you need to additionally explicitly pass the `forc
 Also you must pass a `--force-bucket-name=your-bucket-name` option to the following CLI commands:
 
 - [`npx remotion lambda render`](/docs/lambda/cli/render)
-- [`npx remotion lambda still`](/docs/lambda/cli/render)
-- [`npx remotion lambda compositions`](/docs/lambda/cli/render)
+- [`npx remotion lambda still`](/docs/lambda/cli/still)
+- [`npx remotion lambda compositions`](/docs/lambda/cli/compositions)
 - [`npx remotion lambda sites create`](/docs/lambda/cli/sites#create)
 - [`npx remotion lambda sites rm`](/docs/lambda/cli/sites#rm)
 - [`npx remotion lambda sites rmall`](/docs/lambda/cli/sites#rmall)
