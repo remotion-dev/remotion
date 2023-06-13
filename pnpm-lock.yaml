@@ -85,7 +85,7 @@ importers:
         version: 0.9.0
       webpack:
         specifier: 5.83.1
-        version: 5.83.1(esbuild@0.16.12)
+        version: 5.83.1(@swc/core@1.3.27)
     devDependencies:
       '@jonny/eslint-config':
         specifier: 3.0.266
@@ -118,8 +118,8 @@ importers:
         specifier: 5.2.7
         version: 5.2.7(webpack@5.83.1)
       esbuild:
-        specifier: 0.16.17
-        version: 0.16.17
+        specifier: 0.16.12
+        version: 0.16.12
       react-refresh:
         specifier: 0.9.0
         version: 0.9.0
@@ -131,7 +131,7 @@ importers:
         version: 2.0.0(webpack@5.83.1)
       webpack:
         specifier: 5.83.1
-        version: 5.83.1(esbuild@0.16.17)
+        version: 5.83.1(esbuild@0.16.12)
     devDependencies:
       '@jonny/eslint-config':
         specifier: 3.0.266
@@ -454,7 +454,7 @@ importers:
         version: 0.31.1(jsdom@21.1.0)
       webpack:
         specifier: 5.83.1
-        version: 5.83.1(esbuild@0.16.12)
+        version: 5.83.1(@swc/core@1.3.27)
       zod:
         specifier: 3.21.4
         version: 3.21.4
@@ -1430,7 +1430,7 @@ importers:
         version: 0.31.1(jsdom@20.0.1)
       webpack:
         specifier: 5.83.1
-        version: 5.83.1(esbuild@0.16.12)
+        version: 5.83.1(@swc/core@1.3.27)
       zod:
         specifier: ^3.21.4
         version: 3.21.4
@@ -10331,7 +10331,7 @@ packages:
       react-error-overlay: 7.0.0-next.117
       react-refresh: 0.9.0
       sockjs-client: 1.5.2
-      webpack: 5.83.1(esbuild@0.16.12)
+      webpack: 5.83.1(@swc/core@1.3.27)
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -10849,7 +10849,7 @@ packages:
       loader-utils: 1.4.0
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.83.1(esbuild@0.16.12)
+      webpack: 5.83.1(@swc/core@1.3.27)
     dev: false
 
   /babel-loader@8.2.5(@babel/core@7.18.6)(webpack@5.83.1):
@@ -12011,7 +12011,7 @@ packages:
       postcss-value-parser: 4.2.0
       schema-utils: 3.1.2
       semver: 7.3.5
-      webpack: 5.83.1(esbuild@0.16.17)
+      webpack: 5.83.1(esbuild@0.16.12)
     dev: false
 
   /css-loader@6.7.1(webpack@5.83.1):
@@ -14117,7 +14117,7 @@ packages:
       semver: 5.7.1
       tapable: 1.1.3
       typescript: 4.9.5
-      webpack: 5.83.1(esbuild@0.16.12)
+      webpack: 5.83.1(@swc/core@1.3.27)
       worker-rpc: 0.1.1
     transitivePeerDependencies:
       - supports-color
@@ -18205,7 +18205,7 @@ packages:
       klona: 2.0.6
       postcss: 8.4.21
       semver: 7.3.8
-      webpack: 5.83.1(esbuild@0.16.12)
+      webpack: 5.83.1(@swc/core@1.3.27)
     dev: false
 
   /postcss-logical@6.2.0(postcss@8.4.21):
@@ -19404,7 +19404,7 @@ packages:
       strip-ansi: 6.0.0
       text-table: 0.2.0
       typescript: 4.9.5
-      webpack: 5.83.1(esbuild@0.16.12)
+      webpack: 5.83.1(@swc/core@1.3.27)
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -21134,7 +21134,7 @@ packages:
     dependencies:
       loader-utils: 2.0.2
       schema-utils: 3.1.2
-      webpack: 5.83.1(esbuild@0.16.17)
+      webpack: 5.83.1(esbuild@0.16.12)
     dev: false
 
   /style-to-object@0.3.0:
@@ -21450,31 +21450,6 @@ packages:
       serialize-javascript: 6.0.1
       terser: 5.17.5
       webpack: 5.83.1(esbuild@0.16.12)
-
-  /terser-webpack-plugin@5.3.9(esbuild@0.16.17)(webpack@5.83.1):
-    resolution: {integrity: sha512-ZuXsqE07EcggTWQjXUj+Aot/OMcD0bMKGgF63f7UxYcu5/AJF53aIpK1YoP5xR9l6s/Hy2b+t1AM0bLNPRuhwA==}
-    engines: {node: '>= 10.13.0'}
-    peerDependencies:
-      '@swc/core': '*'
-      esbuild: '*'
-      uglify-js: '*'
-      webpack: ^5.1.0
-    peerDependenciesMeta:
-      '@swc/core':
-        optional: true
-      esbuild:
-        optional: true
-      uglify-js:
-        optional: true
-    dependencies:
-      '@jridgewell/trace-mapping': 0.3.18
-      esbuild: 0.16.17
-      jest-worker: 27.5.1
-      schema-utils: 3.1.2
-      serialize-javascript: 6.0.1
-      terser: 5.17.5
-      webpack: 5.83.1(esbuild@0.16.17)
-    dev: false
 
   /terser@5.17.5:
     resolution: {integrity: sha512-NqFkzBX34WExkCbk3K5urmNCpEWqMPZnwGI1pMHwqvJ/zDlXC75u3NI7BrzoR8/pryy8Abx2e1i8ChrWkhH1Hg==}
@@ -22693,7 +22668,7 @@ packages:
         optional: true
     dependencies:
       '@types/node': 18.14.6
-      esbuild: 0.16.17
+      esbuild: 0.16.12
       postcss: 8.4.21
       resolve: 1.22.1
       rollup: 3.10.0
@@ -23226,46 +23201,6 @@ packages:
       - '@swc/core'
       - esbuild
       - uglify-js
-
-  /webpack@5.83.1(esbuild@0.16.17):
-    resolution: {integrity: sha512-TNsG9jDScbNuB+Lb/3+vYolPplCS3bbEaJf+Bj0Gw4DhP3ioAflBb1flcRt9zsWITyvOhM96wMQNRWlSX52DgA==}
-    engines: {node: '>=10.13.0'}
-    hasBin: true
-    peerDependencies:
-      webpack-cli: '*'
-    peerDependenciesMeta:
-      webpack-cli:
-        optional: true
-    dependencies:
-      '@types/eslint-scope': 3.7.3
-      '@types/estree': 1.0.0
-      '@webassemblyjs/ast': 1.11.6
-      '@webassemblyjs/wasm-edit': 1.11.6
-      '@webassemblyjs/wasm-parser': 1.11.6
-      acorn: 8.8.2
-      acorn-import-assertions: 1.8.0(acorn@8.8.2)
-      browserslist: 4.21.5
-      chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.14.0
-      es-module-lexer: 1.2.1
-      eslint-scope: 5.1.1
-      events: 3.3.0
-      glob-to-regexp: 0.4.1
-      graceful-fs: 4.2.10
-      json-parse-even-better-errors: 2.3.1
-      loader-runner: 4.2.0
-      mime-types: 2.1.34
-      neo-async: 2.6.2
-      schema-utils: 3.1.2
-      tapable: 2.2.1
-      terser-webpack-plugin: 5.3.9(esbuild@0.16.17)(webpack@5.83.1)
-      watchpack: 2.4.0
-      webpack-sources: 3.2.3
-    transitivePeerDependencies:
-      - '@swc/core'
-      - esbuild
-      - uglify-js
-    dev: false
 
   /webpackbar@5.0.2(webpack@5.83.1):
     resolution: {integrity: sha512-BmFJo7veBDgQzfWXl/wwYXr/VFus0614qZ8i9znqcl9fnEdiVkdbi0TedLQ6xAK92HZHDJ0QmyQ0fmuZPAgCYQ==}

@@ -1,7 +1,9 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
+import {RenderInternals} from '@remotion/renderer';
 import {downloadFile} from '../../../api/download-file';
 import {renderStillOnCloudrun} from '../../../api/render-still-on-cloudrun';
+import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
 
@@ -14,7 +16,6 @@ export const renderStillSubcommand = async (
 	const {
 		serveUrl,
 		cloudRunUrl,
-		composition,
 		outName,
 		forceBucketName,
 		privacy,
@@ -26,16 +27,55 @@ export const renderStillSubcommand = async (
 		chromiumOptions,
 		envVariables,
 		inputProps,
+		logLevel,
+		puppeteerTimeout,
 		jpegQuality,
 		stillFrame,
 		scale,
 		height,
 		width,
+		browserExecutable,
+		port,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
 		remotionRoot,
 	});
+
+	let composition = args[1];
+	if (!composition) {
+		Log.info('No compositions passed. Fetching compositions...');
+
+		validateServeUrl(serveUrl);
+		const server = RenderInternals.prepareServer({
+			concurrency: 1,
+			indent: false,
+			port,
+			remotionRoot,
+			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			webpackConfigOrServeUrl: serveUrl,
+		});
+
+		const {compositionId} =
+			await CliInternals.getCompositionWithDimensionOverride({
+				args,
+				compositionIdFromUi: null,
+				indent: false,
+				serveUrlOrWebpackUrl: serveUrl,
+				verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+				browserExecutable,
+				chromiumOptions,
+				envVariables,
+				inputProps,
+				port,
+				puppeteerInstance: undefined,
+				timeoutInMilliseconds: puppeteerTimeout,
+				height,
+				width,
+				server: await server,
+			});
+		composition = compositionId;
+	}
 
 	const {format: imageFormat, source: imageFormatReason} =
 		CliInternals.determineFinalStillImageFormat({
