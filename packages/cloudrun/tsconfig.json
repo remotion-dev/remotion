@@ -1,19 +1,14 @@
 {
+	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
-		"target": "es2016",
-		"module": "commonjs",
-		"esModuleInterop": true,
-		"strict": true,
 		"outDir": "dist",
-		"resolveJsonModule": true,
-		"composite": true,
 		"rootDir": "src"
 	},
 	"include": ["src"],
-	"exclude": ["node_modules"],
 	"references": [
 		{"path": "../core"},
 		{"path": "../cli"},
 		{"path": "../renderer"}
-	]
+	],
+	"exclude": ["vitest.config.ts"]
 }
