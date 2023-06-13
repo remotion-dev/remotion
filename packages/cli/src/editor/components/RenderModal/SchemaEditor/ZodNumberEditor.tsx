@@ -1,13 +1,12 @@
 import React, {useCallback} from 'react';
 import type {z} from 'zod';
-import {Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
-import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {narrowOption, optionRow} from '../layout';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
+import {ZodFieldValidation} from './ZodFieldValidation';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -72,65 +71,71 @@ export const ZodNumberEditor: React.FC<{
 	jsonPath: JSONPath;
 	value: number;
 	setValue: UpdaterFunction<number>;
-	compact: boolean;
 	defaultValue: number;
 	onSave: UpdaterFunction<number>;
 	onRemove: null | (() => void);
 	showSaveButton: boolean;
 	saving: boolean;
+	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
 	value,
 	schema,
 	setValue,
 	onSave,
-	compact,
 	defaultValue,
 	onRemove,
 	showSaveButton,
 	saving,
+	saveDisabledByParent,
+	mayPad,
 }) => {
-	const {localValue, onChange: setLocalValue} = useLocalState({
+	const {
+		localValue,
+		onChange: setLocalValue,
+
+		reset,
+	} = useLocalState({
 		value,
 		schema,
 		setValue,
+		defaultValue,
 	});
 
 	const onNumberChange = useCallback(
 		(newValue: number) => {
-			setLocalValue(() => newValue, false);
+			setLocalValue(() => newValue, false, false);
 		},
 		[setLocalValue]
 	);
 
-	const isDefault = value === defaultValue;
-
-	const reset = useCallback(() => {
-		setLocalValue(() => defaultValue, true);
-	}, [defaultValue, setLocalValue]);
+	const isDefault = localValue.value === defaultValue;
 
 	const onTextChange = useCallback(
 		(newValue: string) => {
-			setLocalValue(() => Number(newValue), false);
+			setLocalValue(() => Number(newValue), false, false);
 		},
 		[setLocalValue]
 	);
 
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (
-		<div style={compact ? narrowOption : optionRow}>
+		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
 				isDefaultValue={isDefault}
 				jsonPath={jsonPath}
 				onReset={reset}
 				onSave={save}
 				showSaveButton={showSaveButton}
-				compact={compact}
 				onRemove={onRemove}
 				saving={saving}
+				valid={localValue.zodValidation.success}
+				saveDisabledByParent={saveDisabledByParent}
+				suffix={null}
 			/>
 			<div style={fullWidth}>
 				<InputDragger
@@ -146,17 +151,8 @@ export const ZodNumberEditor: React.FC<{
 					step={getStep(schema)}
 					rightAlign={false}
 				/>
-				{!localValue.zodValidation.success && (
-					<>
-						<Spacing y={1} block />
-						<ValidationMessage
-							align="flex-start"
-							message={localValue.zodValidation.error.format()._errors[0]}
-							type="error"
-						/>
-					</>
-				)}
+				<ZodFieldValidation path={jsonPath} localValue={localValue} />
 			</div>
-		</div>
+		</Fieldset>
 	);
 };

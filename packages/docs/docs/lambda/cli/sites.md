@@ -64,11 +64,11 @@ Uploads the project to a specific directory and returns a deterministic URL. If 
 npx remotion lambda sites create src/index.ts --site-name=my-project
 ```
 
-### `--force-bucket-name` <AvailableFrom v="3.3.42" />
+### `--force-bucket-name`<AvailableFrom v="3.3.42" />
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
-### `--privacy` <AvailableFrom v="3.3.97" />
+### `--privacy`<AvailableFrom v="3.3.97" />
 
 Either `public` (default) or `no-acl` if you are not using ACL. Sites must have a public URL to be able to be rendered on Lambda, since the headless browser opens that URL.
 
@@ -131,7 +131,7 @@ pr6fwglz05 testbed<br/>
 
 ## rm
 
-Removes a site (or multiple) from S3 by it's ID.
+Removes a site (or multiple) from S3 by its ID.
 
 ```bash
 npx remotion lambda sites rm abcdef
@@ -203,7 +203,7 @@ Removes a site without asking for confirmation.
 npx remotion lambda sites rm abcdef -y
 ```
 
-### `--force-bucket-name` <AvailableFrom v="3.3.42" />
+### `--force-bucket-name`<AvailableFrom v="3.3.42" />
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
@@ -280,6 +280,6 @@ Removes all sites without asking for confirmation.
 npx remotion lambda sites rmall -y
 ```
 
-### `--force-bucket-name` <AvailableFrom v="3.3.42" />
+### `--force-bucket-name`<AvailableFrom v="3.3.42" />
 
 Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.

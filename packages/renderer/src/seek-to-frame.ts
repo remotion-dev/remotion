@@ -19,7 +19,10 @@ export const waitForReady = (page: Page) => {
 		}),
 		page
 			.mainFrame()
-			._mainWorld.waitForFunction(page.browser, 'window.ready === true')
+			._mainWorld.waitForFunction(
+				page.browser,
+				'window.remotion_renderReady === true'
+			)
 			.catch((err) => {
 				throw err;
 			}),

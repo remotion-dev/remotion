@@ -1,14 +1,16 @@
 import React, {createContext, useCallback, useMemo} from 'react';
 
 // Key: Composition ID, Value: initialized defaultProps
-type Props = Record<string, object>;
+type Props = Record<string, Record<string, unknown>>;
 
 export type EditorPropsContextType = {
 	props: Props;
 	updateProps: (options: {
 		id: string;
-		defaultProps: object;
-		newProps: object;
+		defaultProps: Record<string, unknown>;
+		newProps:
+			| Record<string, unknown>
+			| ((oldProps: Record<string, unknown>) => Record<string, unknown>);
 	}) => void;
 };
 

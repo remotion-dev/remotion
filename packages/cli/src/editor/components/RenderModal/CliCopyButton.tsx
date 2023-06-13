@@ -20,6 +20,9 @@ const buttonStyle: React.CSSProperties = {
 	height: '30px',
 	border: 'none',
 	cursor: 'pointer',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'center',
 };
 
 export const CliCopyButton: React.FC<{valueToCopy: string}> = ({

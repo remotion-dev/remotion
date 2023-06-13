@@ -5,6 +5,7 @@ import {random} from 'remotion';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import {getExt} from '../mime-types';
+import {OffthreadVideoServerEmitter} from '../offthread-video-server';
 import {downloadFile} from './download-file';
 import type {DownloadMap} from './download-map';
 import {sanitizeFilePath} from './sanitize-filepath';
@@ -50,7 +51,7 @@ const waitForAssetToBeDownloaded = ({
 	return new Promise<string>((resolve) => {
 		downloadMap.listeners[src][downloadDir].push(() => {
 			const srcMap = downloadMap.hasBeenDownloadedMap[src];
-			if (!srcMap || !srcMap[downloadDir]) {
+			if (!srcMap?.[downloadDir]) {
 				throw new Error(
 					'Expected file for ' + src + 'to be available in ' + downloadDir
 				);
@@ -149,11 +150,11 @@ function validateBufferEncoding(
 
 export const downloadAsset = async ({
 	src,
-	onDownload,
 	downloadMap,
+	emitter,
 }: {
 	src: string;
-	onDownload: RenderMediaOnDownload;
+	emitter: OffthreadVideoServerEmitter;
 	downloadMap: DownloadMap;
 }): Promise<string> => {
 	if (isAssetCompressed(src)) {
@@ -199,7 +200,7 @@ export const downloadAsset = async ({
 		console.log('Actually downloading asset', src);
 	}
 
-	const onProgress = onDownload(src);
+	emitter.dispatchDownload(src);
 
 	if (src.startsWith('data:')) {
 		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
@@ -235,7 +236,12 @@ export const downloadAsset = async ({
 	const {to} = await downloadFile({
 		url: src,
 		onProgress: (progress) => {
-			onProgress?.(progress);
+			emitter.dispatchDownloadProgress(
+				src,
+				progress.percent,
+				progress.downloaded,
+				progress.totalSize
+			);
 		},
 		to: (contentDisposition, contentType) =>
 			getSanitizedFilenameForAssetUrl({
@@ -347,17 +353,53 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	downloadMap,
 }: {
 	asset: TAsset;
-	onDownload: RenderMediaOnDownload;
+	onDownload: RenderMediaOnDownload | null;
 	downloadMap: DownloadMap;
 }): Promise<TAsset> => {
+	const emitter = new OffthreadVideoServerEmitter();
+	const cleanup = attachDownloadListenerToEmitter(emitter, onDownload);
 	const newSrc = await downloadAsset({
 		src: asset.src,
-		onDownload,
+		emitter,
 		downloadMap,
 	});
+	cleanup();
 
 	return {
 		...asset,
 		src: newSrc,
 	};
 };
+
+export const attachDownloadListenerToEmitter = (
+	emitter: OffthreadVideoServerEmitter,
+	onDownload: RenderMediaOnDownload | null
+) => {
+	const cleanup: CleanupFn[] = [];
+	if (!onDownload) {
+		return () => undefined;
+	}
+
+	const a = emitter.addEventListener(
+		'download',
+		({detail: {src: initialSrc}}) => {
+			const progress = onDownload(initialSrc);
+			const b = emitter.addEventListener(
+				'progress',
+				({detail: {downloaded, percent, src: progressSrc, totalSize}}) => {
+					if (initialSrc === progressSrc) {
+						progress?.({downloaded, percent, totalSize});
+					}
+				}
+			);
+			cleanup.push(b);
+		}
+	);
+	cleanup.push(() => a());
+
+	return () => {
+		cleanup.forEach((c) => c());
+	};
+};
+
+type CleanupFn = () => void;

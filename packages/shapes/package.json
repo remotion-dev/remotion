@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/shapes",
-	"version": "3.3.96",
+	"version": "3.3.99",
 	"description": "Utility functions and components for SVG shapes",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -25,12 +25,12 @@
 		"@types/node": "18.14.6",
 		"@types/react": "18.0.26",
 		"@vitejs/plugin-react": "^2.0.0",
-		"eslint": "8.25.0",
+		"eslint": "8.42.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
-		"typescript": "^4.7.0",
+		"typescript": "4.9.5",
 		"vitest": "0.31.1"
 	},
 	"keywords": [

@@ -1,9 +1,9 @@
-import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {CustomCredentials} from '../shared/aws-clients';
 import {callLambda} from '../shared/call-lambda';
 import type {RenderProgress} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
+import {getRenderProgressPayload} from './make-lambda-payload';
 
 export type GetRenderInput = {
 	functionName: string;
@@ -23,23 +23,14 @@ export type GetRenderInput = {
  * @param {CustomCredentials} params.s3OutputProvider? Endpoint and credentials if the output file is stored outside of AWS.
  * @returns {Promise<RenderProgress>} See documentation for this function to see all properties on the return object.
  */
-export const getRenderProgress = async ({
-	functionName,
-	bucketName,
-	renderId,
-	region,
-	s3OutputProvider,
-}: GetRenderInput): Promise<RenderProgress> => {
+export const getRenderProgress = async (
+	input: GetRenderInput
+): Promise<RenderProgress> => {
 	const result = await callLambda({
-		functionName,
+		functionName: input.functionName,
 		type: LambdaRoutines.status,
-		payload: {
-			bucketName,
-			renderId,
-			version: VERSION,
-			s3OutputProvider,
-		},
-		region,
+		payload: getRenderProgressPayload(input),
+		region: input.region,
 	});
 	return result;
 };

@@ -1,23 +1,19 @@
 import React, {useCallback, useEffect, useMemo} from 'react';
+import type {z} from 'zod';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
+import {FAIL_COLOR} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
-import {Row, Spacing} from '../layout';
+import {Flex, Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
-import type {State} from './RenderModalData';
+import type {State} from './DataEditor';
 import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
+import {deserializeJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
+import {ZodErrorMessages} from './SchemaEditor/ZodErrorMessages';
 
 const style: React.CSSProperties = {
 	fontFamily: 'monospace',
 	flex: 1,
-};
-
-const schemaButton: React.CSSProperties = {
-	border: 'none',
-	padding: 0,
-	display: 'inline-block',
-	cursor: 'pointer',
-	backgroundColor: 'transparent',
 };
 
 const scrollable: React.CSSProperties = {
@@ -27,28 +23,36 @@ const scrollable: React.CSSProperties = {
 	flex: 1,
 };
 
+const parseJSON = (str: string, schema: z.ZodTypeAny): State => {
+	try {
+		const value = deserializeJSONWithCustomFields(str);
+		const zodValidation = schema.safeParse(value);
+		return {str, value, validJSON: true, zodValidation};
+	} catch (e) {
+		return {str, validJSON: false, error: (e as Error).message};
+	}
+};
+
 export type EditType = 'inputProps' | 'defaultProps';
 
 export const RenderModalJSONPropsEditor: React.FC<{
 	value: unknown;
-	setValue: React.Dispatch<React.SetStateAction<unknown>>;
-	zodValidationResult: Zod.SafeParseReturnType<unknown, unknown>;
-	switchToSchema: () => void;
+	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	onSave: () => void;
 	valBeforeSafe: unknown;
 	showSaveButton: boolean;
-	parseJSON: (str: string) => State;
 	serializedJSON: SerializedJSONWithCustomFields | null;
+	defaultProps: Record<string, unknown>;
+	schema: z.ZodTypeAny;
 }> = ({
 	setValue,
 	value,
-	zodValidationResult,
-	switchToSchema,
+	defaultProps,
 	onSave,
 	valBeforeSafe,
 	showSaveButton,
-	parseJSON,
 	serializedJSON,
+	schema,
 }) => {
 	if (serializedJSON === null) {
 		throw new Error('expecting serializedJSON to be defined');
@@ -57,7 +61,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	const keybindings = useKeybinding();
 
 	const [localValue, setLocalValue] = React.useState<State>(() => {
-		return parseJSON(serializedJSON.serializedString);
+		return parseJSON(serializedJSON.serializedString, schema);
 	});
 
 	const onPretty = useCallback(() => {
@@ -71,14 +75,19 @@ export const RenderModalJSONPropsEditor: React.FC<{
 
 	const onChange: React.ChangeEventHandler<HTMLTextAreaElement> = useCallback(
 		(e) => {
-			const parsed = parseJSON(e.target.value);
+			const parsed = parseJSON(e.target.value, schema);
 
 			if (parsed.validJSON) {
+				const validationResult = schema.safeParse(parsed.value);
 				setLocalValue({
 					str: e.target.value,
 					value: parsed.value,
 					validJSON: parsed.validJSON,
+					zodValidation: validationResult,
 				});
+				if (validationResult.success) {
+					setValue(parsed.value);
+				}
 			} else {
 				setLocalValue({
 					str: e.target.value,
@@ -86,12 +95,8 @@ export const RenderModalJSONPropsEditor: React.FC<{
 					error: parsed.error,
 				});
 			}
-
-			if (parsed.validJSON) {
-				setValue(parsed.value);
-			}
 		},
-		[parseJSON, setLocalValue, setValue]
+		[schema, setValue]
 	);
 
 	const hasChanged = useMemo(() => {
@@ -103,6 +108,11 @@ export const RenderModalJSONPropsEditor: React.FC<{
 			onSave();
 		}
 	}, [hasChanged, onSave]);
+
+	// If schema is changed in code
+	useEffect(() => {
+		setLocalValue(parseJSON(localValue.str, schema));
+	}, [localValue.str, schema]);
 
 	useEffect(() => {
 		const save = keybindings.registerKeybinding({
@@ -119,13 +129,30 @@ export const RenderModalJSONPropsEditor: React.FC<{
 		};
 	}, [keybindings, onQuickSave, onSave]);
 
+	const reset = useCallback(() => {
+		setLocalValue(parseJSON(serializedJSON.serializedString, schema));
+		setValue(defaultProps);
+	}, [defaultProps, schema, serializedJSON.serializedString, setValue]);
+
+	const textAreaStyle: React.CSSProperties = useMemo(() => {
+		const fail = !localValue.validJSON || !localValue.zodValidation.success;
+		if (!fail) {
+			return style;
+		}
+
+		return {
+			...style,
+			borderColor: FAIL_COLOR,
+		};
+	}, [localValue]);
+
 	return (
 		<div style={scrollable}>
 			<RemTextarea
 				onChange={onChange}
 				value={localValue.str}
 				status={localValue.validJSON ? 'ok' : 'error'}
-				style={style}
+				style={textAreaStyle}
 			/>
 			<Spacing y={1} />
 			{localValue.validJSON === false ? (
@@ -134,25 +161,35 @@ export const RenderModalJSONPropsEditor: React.FC<{
 					message={localValue.error}
 					type="error"
 				/>
-			) : zodValidationResult.success === false ? (
-				<button type="button" style={schemaButton} onClick={switchToSchema}>
-					<ValidationMessage
-						align="flex-start"
-						message="Does not match schema"
-						type="warning"
-					/>
-				</button>
+			) : localValue.zodValidation.success === false ? (
+				<ZodErrorMessages
+					zodValidationResult={localValue.zodValidation}
+					viewTab="json"
+				/>
 			) : null}
 			<Spacing y={1} />
 			<Row>
+				<Button
+					disabled={
+						!localValue.validJSON ||
+						!(localValue.validJSON && !localValue.zodValidation.success)
+					}
+					onClick={reset}
+				>
+					Reset
+				</Button>
+				<Flex />
 				<Button disabled={!localValue.validJSON} onClick={onPretty}>
-					Format JSON
+					Format
 				</Button>
 				<Spacing x={1} />
 				<Button
 					onClick={onSave}
 					disabled={
-						!zodValidationResult.success || !hasChanged || !showSaveButton
+						!(localValue.validJSON && localValue.zodValidation.success) ||
+						!localValue.validJSON ||
+						!hasChanged ||
+						!showSaveButton
 					}
 				>
 					Save

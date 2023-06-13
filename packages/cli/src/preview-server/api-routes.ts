@@ -6,6 +6,7 @@ import {handleOpenInFileExplorer} from './routes/open-in-file-explorer';
 import {handleRemoveRender} from './routes/remove-render';
 import {subscribeToFileExistence} from './routes/subscribe-to-file-existence';
 import {unsubscribeFromFileExistence} from './routes/unsubscribe-from-file-existence';
+import {handleUpdate} from './routes/update-available';
 import {updateDefaultPropsHandler} from './routes/update-default-props';
 
 export const allApiRoutes: {
@@ -22,4 +23,5 @@ export const allApiRoutes: {
 	'/api/open-in-file-explorer': handleOpenInFileExplorer,
 	'/api/update-default-props': updateDefaultPropsHandler,
 	'/api/can-update-default-props': canUpdateDefaultPropsHandler,
+	'/api/update-available': handleUpdate,
 };

@@ -24,6 +24,10 @@ import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
 import type {LaunchOptions} from './LaunchOptions';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
+import {
+	formatChromeMessage,
+	shouldLogBrowserMessage,
+} from './should-log-message';
 import type {PuppeteerEventListener} from './util';
 import {
 	addEventListener,
@@ -84,16 +88,34 @@ export class BrowserRunner {
 		);
 		if (dumpio) {
 			this.proc.stdout?.on('data', (d) => {
-				Log.verboseAdvanced(
-					{indent: options.indent, logLevel: getLogLevel(), tag: 'chrome'},
-					d.toString().trim()
-				);
+				const message = d.toString('utf8').trim();
+				if (shouldLogBrowserMessage(message)) {
+					const formatted = formatChromeMessage(message);
+					if (!formatted) {
+						return;
+					}
+
+					const {output, tag} = formatted;
+					Log.verboseAdvanced(
+						{indent: options.indent, logLevel: getLogLevel(), tag},
+						output
+					);
+				}
 			});
 			this.proc.stderr?.on('data', (d) => {
-				Log.verboseAdvanced(
-					{indent: options.indent, logLevel: getLogLevel(), tag: 'chrome'},
-					d.toString().trim()
-				);
+				const message = d.toString('utf8').trim();
+				if (shouldLogBrowserMessage(message)) {
+					const formatted = formatChromeMessage(message);
+					if (!formatted) {
+						return;
+					}
+
+					const {output, tag} = formatted;
+					Log.verboseAdvanced(
+						{indent: options.indent, logLevel: getLogLevel(), tag},
+						output
+					);
+				}
 			});
 		}
 

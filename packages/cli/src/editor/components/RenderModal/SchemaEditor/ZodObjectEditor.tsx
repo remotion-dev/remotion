@@ -1,26 +1,17 @@
-import React, {useCallback, useMemo} from 'react';
+import {useMemo} from 'react';
+import React from 'react';
 import type {z} from 'zod';
-import {INPUT_BORDER_COLOR_UNHOVERED} from '../../../helpers/colors';
 import {useZodIfPossible} from '../../get-zod-if-possible';
-import {optionRow} from '../layout';
 import {useLocalState} from './local-state';
-import {SchemaFieldsetLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
-
-const container: React.CSSProperties = {
-	width: '100%',
-};
-
-const fullWidth: React.CSSProperties = {
-	width: '100%',
-};
-
-const fieldset: React.CSSProperties = {
-	borderRadius: 4,
-	borderColor: INPUT_BORDER_COLOR_UNHOVERED,
-};
+import {Fieldset} from './Fieldset';
+import {SchemaSeparationLine} from './SchemaSeparationLine';
+import {fieldsetLabel} from '../layout';
+import {SchemaVerticalGuide} from './SchemaVerticalGuide';
+import {SchemaLabel} from './SchemaLabel';
+import {deepEqual} from './deep-equal';
 
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
@@ -28,32 +19,35 @@ export const ZodObjectEditor: React.FC<{
 	value: Record<string, unknown>;
 	defaultValue: Record<string, unknown>;
 	setValue: UpdaterFunction<Record<string, unknown>>;
-	compact: boolean;
 	onSave: UpdaterFunction<Record<string, unknown>>;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
+	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	schema,
 	jsonPath,
 	setValue,
 	value,
-	compact,
 	defaultValue,
 	onSave,
 	showSaveButton,
 	onRemove,
 	saving,
+	saveDisabledByParent,
+	mayPad,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
 	}
 
-	const {localValue, onChange} = useLocalState({
+	const {localValue, onChange, RevisionContextProvider, reset} = useLocalState({
 		schema,
 		setValue,
 		value,
+		defaultValue,
 	});
 
 	const def = schema._def;
@@ -67,72 +61,89 @@ export const ZodObjectEditor: React.FC<{
 	const keys = Object.keys(shape);
 
 	const isRoot = jsonPath.length === 0;
-	const Element = isRoot ? 'div' : 'fieldset';
 
-	const {paddingTop} = optionRow;
-
-	const style = useMemo((): React.CSSProperties => {
-		if (isRoot) {
-			return {};
-		}
-
-		return {paddingTop};
-	}, [isRoot, paddingTop]);
-
-	const onRes = useCallback(() => {
-		onChange(() => defaultValue, true);
-	}, [defaultValue, onChange]);
+	const isDefaultValue = useMemo(() => {
+		return deepEqual(localValue.value, defaultValue);
+	}, [defaultValue, localValue]);
 
 	return (
-		<div style={style}>
-			<div style={fullWidth}>
-				<Element style={fieldset}>
-					{isRoot ? null : (
-						<SchemaFieldsetLabel
-							isDefaultValue
-							onReset={onRes}
-							jsonPath={jsonPath}
-							onRemove={onRemove}
-						/>
-					)}
-					<div style={isRoot ? undefined : container}>
-						{keys.map((key) => {
-							return (
+		<Fieldset
+			shouldPad={!isRoot && mayPad}
+			success={localValue.zodValidation.success}
+		>
+			{isRoot ? null : (
+				<SchemaLabel
+					isDefaultValue={isDefaultValue}
+					onReset={reset}
+					jsonPath={jsonPath}
+					onRemove={onRemove}
+					suffix={' {'}
+					onSave={() => {
+						onSave(
+							() => {
+								return localValue.value;
+							},
+							false,
+							false
+						);
+					}}
+					saveDisabledByParent={saveDisabledByParent}
+					saving={saving}
+					showSaveButton={showSaveButton}
+					valid={localValue.zodValidation.success}
+				/>
+			)}
+			<RevisionContextProvider>
+				<SchemaVerticalGuide isRoot={isRoot}>
+					{keys.map((key, i) => {
+						return (
+							<React.Fragment key={key}>
 								<ZodSwitch
-									key={key}
+									mayPad
 									jsonPath={[...jsonPath, key]}
 									schema={shape[key]}
 									value={localValue.value[key]}
 									// In case of null | {a: string, b: string} type, we need to fallback to the default value
 									defaultValue={(defaultValue ?? value)[key]}
 									setValue={(val, forceApply) => {
-										setValue((oldVal) => {
-											return {
-												...oldVal,
-												[key]:
-													typeof val === 'function' ? val(oldVal[key]) : val,
-											};
-										}, forceApply);
+										onChange(
+											(oldVal) => {
+												return {
+													...oldVal,
+													[key]:
+														typeof val === 'function' ? val(oldVal[key]) : val,
+												};
+											},
+											forceApply,
+											false
+										);
 									}}
 									onSave={(val, forceApply) => {
-										onSave((oldVal) => {
-											return {
-												...oldVal,
-												[key]:
-													typeof val === 'function' ? val(oldVal[key]) : val,
-											};
-										}, forceApply);
+										onSave(
+											(oldVal) => {
+												return {
+													...oldVal,
+													[key]:
+														typeof val === 'function' ? val(oldVal[key]) : val,
+												};
+											},
+											forceApply,
+											false
+										);
 									}}
 									onRemove={null}
-									compact={compact}
 									showSaveButton={showSaveButton}
 									saving={saving}
+									saveDisabledByParent={saveDisabledByParent}
 								/>
-							);
-						})}
-					</div>
-				</Element>
-			</div>
-		</div>
+								{i === keys.length - 1 ? null : <SchemaSeparationLine />}
+							</React.Fragment>
+						);
+					})}
+				</SchemaVerticalGuide>
+			</RevisionContextProvider>
+
+			{isRoot ? null : <div style={fieldsetLabel}>{'}'}</div>}
+		</Fieldset>
 	);
 };

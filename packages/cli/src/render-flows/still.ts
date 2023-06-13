@@ -9,12 +9,7 @@ import type {
 	RenderMediaOnDownload,
 	StillImageFormat,
 } from '@remotion/renderer';
-import {
-	getCompositions,
-	openBrowser,
-	RenderInternals,
-	renderStill,
-} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
 import {chalk} from '../chalk';
@@ -71,14 +66,15 @@ export const renderStillFlow = async ({
 	indentOutput,
 	addCleanupCallback,
 	cancelSignal,
+	outputLocationFromUi,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
 	entryPointReason: string;
 	remainingArgs: string[];
-	inputProps: object;
+	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string>;
-	jpegQuality: number | undefined;
+	jpegQuality: number;
 	browser: Browser;
 	stillFrame: number;
 	browserExecutable: BrowserExecutable;
@@ -97,6 +93,7 @@ export const renderStillFlow = async ({
 	indentOutput: boolean;
 	addCleanupCallback: (cb: () => void) => void;
 	cancelSignal: CancelSignal | null;
+	outputLocationFromUi: string | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -128,17 +125,16 @@ export const renderStillFlow = async ({
 		'Browser executable: ',
 		browserExecutable
 	);
-	const shouldDumpIo = RenderInternals.isEqualOrBelowLogLevel(
-		logLevel,
-		'verbose'
-	);
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
-	const browserInstance = openBrowser(browser, {
+	const browserInstance = RenderInternals.internalOpenBrowser({
+		browser,
 		browserExecutable,
 		chromiumOptions,
-		shouldDumpIo,
+		shouldDumpIo: verbose,
 		forceDeviceScaleFactor: scale,
 		indent: indentOutput,
+		viewport: null,
 	});
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
@@ -164,33 +160,39 @@ export const renderStillFlow = async ({
 		}
 	);
 
+	const server = RenderInternals.prepareServer({
+		concurrency: 1,
+		indent: indentOutput,
+		port,
+		remotionRoot,
+		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		webpackConfigOrServeUrl: urlOrBundle,
+	});
+
+	addCleanupCallback(() => server.then((s) => s.closeServer(false)));
+
 	addCleanupCallback(() => cleanupBundle());
 
 	const puppeteerInstance = await browserInstance;
 	addCleanupCallback(() => puppeteerInstance.close(false));
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
-	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
-
-	const comps = await getCompositions(urlOrBundle, {
-		inputProps,
-		puppeteerInstance,
-		envVariables,
-		timeoutInMilliseconds: puppeteerTimeout,
-		chromiumOptions,
-		port,
-		browserExecutable,
-		downloadMap,
-	});
-
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
-			validCompositions: comps,
 			height,
 			width,
 			args: remainingArgs,
 			compositionIdFromUi,
+			browserExecutable,
+			chromiumOptions,
+			envVariables,
+			indent: indentOutput,
+			inputProps,
+			port,
+			puppeteerInstance,
+			serveUrlOrWebpackUrl: urlOrBundle,
+			timeoutInMilliseconds: puppeteerTimeout,
+			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			server: await server,
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
@@ -198,7 +200,10 @@ export const renderStillFlow = async ({
 		configImageFormat:
 			ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		downloadName: null,
-		outName: getUserPassedOutputLocation(argsAfterComposition),
+		outName: getUserPassedOutputLocation(
+			argsAfterComposition,
+			outputLocationFromUi
+		),
 		isLambda: false,
 		fromUi: imageFormatFromUi,
 	});
@@ -208,6 +213,7 @@ export const renderStillFlow = async ({
 		defaultExtension: imageFormat,
 		args: argsAfterComposition,
 		type: 'asset',
+		outputLocationFromUi,
 	});
 
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
@@ -221,7 +227,7 @@ export const renderStillFlow = async ({
 	});
 
 	Log.verboseAdvanced(
-		{indent: indentOutput, logLevel, tag: 'config'},
+		{indent: indentOutput, logLevel},
 		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`)
 	);
 	Log.infoAdvanced(
@@ -267,13 +273,13 @@ export const renderStillFlow = async ({
 		};
 	};
 
-	await renderStill({
+	await RenderInternals.internalRenderStill({
 		composition: config,
 		frame: stillFrame,
 		output: absoluteOutputLocation,
 		serveUrl: urlOrBundle,
 		jpegQuality,
-		dumpBrowserLogs: shouldDumpIo,
+		dumpBrowserLogs: verbose,
 		envVariables,
 		imageFormat,
 		inputProps,
@@ -284,8 +290,12 @@ export const renderStillFlow = async ({
 		overwrite,
 		onDownload,
 		port,
-		downloadMap,
 		puppeteerInstance,
+		server: await server,
+		cancelSignal,
+		indent: indentOutput,
+		onBrowserLog: null,
+		verbose,
 	});
 
 	aggregate.rendering = {

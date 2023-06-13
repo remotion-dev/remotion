@@ -1,5 +1,4 @@
-import {PlayerInternals} from '@remotion/player';
-import React, {useEffect, useMemo, useRef} from 'react';
+import React, {useContext, useEffect, useMemo, useRef} from 'react';
 import {Internals} from 'remotion';
 import {
 	BACKGROUND,
@@ -9,9 +8,10 @@ import {
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {renderFrame} from '../../state/render-frame';
 import {TimeValue} from '../TimeValue';
-import {sliderAreaRef, timelineVerticalScroll} from './timeline-refs';
+import {timelineVerticalScroll} from './timeline-refs';
 import {getFrameIncrementFromWidth} from './timeline-scroll-logic';
 import {TOTAL_TIMELINE_LAYER_LEFT_PADDING} from './TimelineListItem';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 
 export const TIMELINE_TIME_INDICATOR_HEIGHT = 30;
 
@@ -103,15 +103,31 @@ type TimelineTick = {
 };
 
 export const TimelineTimeIndicators: React.FC = () => {
-	const size = PlayerInternals.useElementSize(sliderAreaRef, {
-		triggerOnWindowResize: false,
-		shouldApplyCssTransforms: true,
-	});
-
+	const sliderTrack = useContext(TimelineWidthContext);
 	const video = Internals.useVideo();
 
-	const windowWidth = size?.width ?? 0;
+	if (sliderTrack === null) {
+		return null;
+	}
 
+	if (video === null) {
+		return null;
+	}
+
+	return (
+		<Inner
+			durationInFrames={video.durationInFrames}
+			fps={video.fps}
+			windowWidth={sliderTrack}
+		/>
+	);
+};
+
+const Inner: React.FC<{
+	windowWidth: number;
+	fps: number;
+	durationInFrames: number;
+}> = ({windowWidth, durationInFrames, fps}) => {
 	const ref = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -144,20 +160,16 @@ export const TimelineTimeIndicators: React.FC = () => {
 	}, [windowWidth]);
 
 	const ticks: TimelineTick[] = useMemo(() => {
-		if (!video) {
-			return [];
-		}
-
 		const frameInterval = getFrameIncrementFromWidth(
-			video.durationInFrames,
+			durationInFrames,
 			windowWidth
 		);
 
 		const MIN_SPACING_BETWEEN_TICKS_PX = 5;
 
-		const seconds = Math.floor(video.durationInFrames / video.fps);
+		const seconds = Math.floor(durationInFrames / fps);
 		const secondMarkerEveryNth = Math.ceil(
-			(MIN_SPACING_BETWEEN_TICKS_PX * video.fps) / (frameInterval * video.fps)
+			(MIN_SPACING_BETWEEN_TICKS_PX * fps) / (frameInterval * fps)
 		);
 		const frameMarkerEveryNth = Math.ceil(
 			MIN_SPACING_BETWEEN_TICKS_PX / frameInterval
@@ -168,17 +180,17 @@ export const TimelineTimeIndicators: React.FC = () => {
 			.fill(true)
 			.map((_, index) => {
 				return {
-					frame: index * video.fps,
+					frame: index * fps,
 					style: {
 						...secondTick,
-						left: frameInterval * index * video.fps + TIMELINE_PADDING,
+						left: frameInterval * index * fps + TIMELINE_PADDING,
 					},
 					showTime: index > 0,
 				};
 			})
 			.filter((_, idx) => idx % secondMarkerEveryNth === 0);
 
-		const frameTicks: TimelineTick[] = new Array(video.durationInFrames)
+		const frameTicks: TimelineTick[] = new Array(durationInFrames)
 			.fill(true)
 			.map((_, index) => {
 				return {
@@ -187,7 +199,7 @@ export const TimelineTimeIndicators: React.FC = () => {
 						...tick,
 						left: frameInterval * index + TIMELINE_PADDING,
 						height:
-							index % video.fps === 0
+							index % fps === 0
 								? 10
 								: (index / frameMarkerEveryNth) % 2 === 0
 								? 5
@@ -205,11 +217,7 @@ export const TimelineTimeIndicators: React.FC = () => {
 			hasTicks.push(t.frame);
 			return !alreadyUsed;
 		});
-	}, [video, windowWidth]);
-
-	if (!video) {
-		return null;
-	}
+	}, [durationInFrames, fps, windowWidth]);
 
 	return (
 		<div ref={ref} style={style}>
@@ -217,7 +225,7 @@ export const TimelineTimeIndicators: React.FC = () => {
 				return (
 					<div key={t.frame} style={t.style}>
 						{t.showTime ? (
-							<div style={tickLabel}>{renderFrame(t.frame, video.fps)}</div>
+							<div style={tickLabel}>{renderFrame(t.frame, fps)}</div>
 						) : null}
 					</div>
 				);

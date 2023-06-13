@@ -14,13 +14,7 @@ import type {
 	RenderMediaOnDownload,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import {
-	getCompositions,
-	openBrowser,
-	renderFrames,
-	RenderInternals,
-	renderMedia,
-} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -107,7 +101,7 @@ export const renderVideoFlow = async ({
 	indent: boolean;
 	shouldOutputImageSequence: boolean;
 	publicDir: string | null;
-	inputProps: object;
+	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string>;
 	puppeteerTimeout: number;
 	port: number | null;
@@ -140,8 +134,6 @@ export const renderVideoFlow = async ({
 	disallowParallelEncoding: boolean;
 }) => {
 	const downloads: DownloadProgress[] = [];
-	const downloadMap = RenderInternals.makeDownloadMap();
-	addCleanupCallback(() => RenderInternals.cleanDownloadMap(downloadMap));
 
 	Log.verboseAdvanced(
 		{indent, logLevel},
@@ -149,14 +141,14 @@ export const renderVideoFlow = async ({
 		browserExecutable
 	);
 
-	Log.verboseAdvanced({indent, logLevel}, 'Asset dirs', downloadMap.assetDir);
-
-	const browserInstance = openBrowser(browser, {
+	const browserInstance = RenderInternals.internalOpenBrowser({
+		browser,
 		browserExecutable,
 		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
 		indent,
+		viewport: null,
 	});
 
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
@@ -252,31 +244,44 @@ export const renderVideoFlow = async ({
 	const puppeteerInstance = await browserInstance;
 	addCleanupCallback(() => puppeteerInstance.close(false));
 
-	const comps = await getCompositions(urlOrBundle, {
-		inputProps,
-		puppeteerInstance,
-		envVariables,
-		timeoutInMilliseconds: puppeteerTimeout,
-		chromiumOptions,
-		browserExecutable,
-		downloadMap,
+	const actualConcurrency = RenderInternals.getActualConcurrency(concurrency);
+	const server = RenderInternals.prepareServer({
+		concurrency: actualConcurrency,
+		indent,
 		port,
+		remotionRoot,
+		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		webpackConfigOrServeUrl: urlOrBundle,
 	});
+	addCleanupCallback(() => server.then((s) => s.closeServer(false)));
 
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
-			validCompositions: comps,
 			height,
 			width,
 			args: remainingArgs,
 			compositionIdFromUi,
+			browserExecutable,
+			chromiumOptions,
+			envVariables,
+			indent,
+			inputProps,
+			port,
+			puppeteerInstance,
+			serveUrlOrWebpackUrl: urlOrBundle,
+			timeoutInMilliseconds: puppeteerTimeout,
+			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			server: await server,
 		});
 
 	const {codec, reason: codecReason} = getFinalOutputCodec({
 		cliFlag: parsedCli.codec,
 		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
 		downloadName: null,
-		outName: getUserPassedOutputLocation(argsAfterComposition),
+		outName: getUserPassedOutputLocation(
+			argsAfterComposition,
+			outputLocationFromUI
+		),
 		uiCodec,
 	});
 
@@ -301,7 +306,7 @@ export const renderVideoFlow = async ({
 	});
 
 	Log.verboseAdvanced(
-		{indent, logLevel, tag: 'config'},
+		{indent, logLevel},
 		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`)
 	);
 	Log.infoAdvanced(
@@ -325,7 +330,6 @@ export const renderVideoFlow = async ({
 		realFrameRange,
 		everyNthFrame
 	);
-	const actualConcurrency = RenderInternals.getActualConcurrency(concurrency);
 
 	renderingProgress = {
 		frames: 0,
@@ -358,7 +362,9 @@ export const renderVideoFlow = async ({
 
 		Log.verboseAdvanced({indent, logLevel}, 'Output dir', outputDir);
 
-		await renderFrames({
+		const verbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
+
+		await RenderInternals.internalRenderFrames({
 			imageFormat,
 			inputProps,
 			onFrameUpdate: (rendered) => {
@@ -366,38 +372,29 @@ export const renderVideoFlow = async ({
 				updateRenderProgress(false);
 			},
 			onStart: () => undefined,
-			onDownload: (src: string) => {
-				if (src.startsWith('data:')) {
-					Log.infoAdvanced(
-						{indent, logLevel},
-
-						'\nWriting Data URL to file: ',
-						src.substring(0, 30) + '...'
-					);
-				} else {
-					Log.infoAdvanced({indent, logLevel}, '\nDownloading asset... ', src);
-				}
-			},
+			onDownload,
 			cancelSignal: cancelSignal ?? undefined,
 			outputDir,
-			serveUrl: urlOrBundle,
-			dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
-				logLevel,
-				'verbose'
-			),
+			webpackBundleOrServeUrl: urlOrBundle,
+			dumpBrowserLogs: verbose,
 			everyNthFrame,
 			envVariables,
 			frameRange,
 			concurrency: actualConcurrency,
 			puppeteerInstance,
-			jpegQuality,
+			jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			timeoutInMilliseconds: puppeteerTimeout,
 			chromiumOptions,
 			scale,
 			browserExecutable,
 			port,
-			downloadMap,
 			composition: config,
+			server: await server,
+			indent,
+			muted,
+			onBrowserLog: null,
+			onFrameBuffer: null,
+			verbose,
 		});
 
 		updateRenderProgress(true);
@@ -413,21 +410,21 @@ export const renderVideoFlow = async ({
 		codec,
 	};
 
-	const {slowestFrames} = await renderMedia({
+	const {slowestFrames} = await RenderInternals.internalRenderMedia({
 		outputLocation: absoluteOutputFile,
 		composition: {
 			...config,
 			width: width ?? config.width,
 			height: height ?? config.height,
 		},
-		crf,
+		crf: crf ?? null,
 		envVariables,
 		frameRange,
 		inputProps,
 		overwrite,
 		pixelFormat,
 		proResProfile,
-		jpegQuality,
+		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		dumpBrowserLogs: RenderInternals.isEqualOrBelowLogLevel(
 			logLevel,
 			'verbose'
@@ -462,16 +459,16 @@ export const renderVideoFlow = async ({
 		},
 		puppeteerInstance,
 		onDownload,
-		internal: {
-			onCtrlCExit: addCleanupCallback,
-			downloadMap,
-			indent,
-		},
+		onCtrlCExit: addCleanupCallback,
+		indent,
+		server: await server,
 		cancelSignal: cancelSignal ?? undefined,
 		audioCodec,
 		preferLossless: false,
 		imageFormat,
 		disallowParallelEncoding,
+		onBrowserLog: null,
+		onStart: () => undefined,
 	});
 
 	Log.verboseAdvanced({indent, logLevel});

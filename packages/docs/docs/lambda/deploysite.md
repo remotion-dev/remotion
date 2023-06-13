@@ -56,17 +56,17 @@ An absolute path pointing to the entry point of your Remotion project. [Usually 
 
 The bucket to where the website will be deployed. The bucket must have been created by Remotion Lambda.
 
-### `siteName`
+### `region`
+
+The AWS region in which the bucket resides.
+
+### `siteName?`
 
 _optional_
 
 Specify the subfolder in your S3 bucket that you want the site to deploy to. If you omit this property, a new subfolder with a random name will be created. If a site already exists with the name you passed, it will be overwritten. Can only contain the following characters: `0-9`, `a-z`, `A-Z`, `-`, `!`, `_`, `.`, `*`, `'`, `(`, `)`
 
-### `region`
-
-The AWS region in which the bucket resides.
-
-### `options`
+### `options?`
 
 _optional_
 
@@ -74,13 +74,9 @@ An object with the following properties:
 
 #### `onBundleProgress`
 
-_optional_
-
 Callback from Webpack when the bundling has progressed. Passes a number between 0 and 100 to the callback, see example at the top of the page.
 
 #### `onUploadProgress`
-
-_optional_
 
 Callback function that gets called when uploading of the assets has progressed. Passes an object with the following properties to the callback:
 
@@ -89,27 +85,23 @@ Callback function that gets called when uploading of the assets has progressed. 
 - `totalSize` (_number_): Total size in bytes of all the files in the bundle.
 - `sizeUploaded` (_number_): Amount of bytes uploaded so far.
 
-### `webpackOverride`
-
-_optional_
+#### `webpackOverride`
 
 Allows to pass a custom webpack override. See [`bundle()` -> webpackOverride](/docs/bundle#webpackoverride) for more information.
 
-### `enableCaching`
+#### `enableCaching`
 
-_optional - default true_
+Whether webpack caching should be enabled. Default true. See [`bundle()` -> enableCaching](/docs/bundle#enablecaching) for more information.
 
-Whether webpack caching should be enabled. See [`bundle()` -> enableCaching](/docs/bundle#enablecaching) for more information.
+#### `publicDir`
 
-#### `publicDir?`
-
-_optional, available from v3.2.17_
+_available from v3.2.17_
 
 Set the directory in which the files that can be loaded using [`staticFile()`](/docs/staticfile) are located. By default it is the folder `public/` located in the [Remotion Root](/docs/terminology#remotion-root) folder. If you pass a relative path, it will be resolved against the [Remotion Root](/docs/terminology#remotion-root).
 
-#### `rootDir?`
+#### `rootDir`
 
-_optional, available from v3.2.17_
+_available from v3.2.17_
 
 The directory in which the Remotion project is rooted in. This should be set to the directory that contains the `package.json` which installs Remotion. By default, it is the current working directory.
 
@@ -117,11 +109,15 @@ The directory in which the Remotion project is rooted in. This should be set to 
 The current working directory is the directory from which your program gets executed from. It is not the same as the file where bundle() gets called.
 :::
 
-#### `ignoreRegisterRootWarning?` <AvailableFrom v="3.3.55" />
+#### `ignoreRegisterRootWarning`
+
+_available from v3.3.55_
 
 Ignore an error that gets thrown if you pass an entry point file which does not contain `registerRoot`.
 
-#### `privacy?` <AvailableFrom v="3.3.97" />
+### `privacy`
+
+_available from v3.3.97_
 
 Either `public` (default) or `no-acl` if you are not using ACL. Sites must have a public URL to be able to be rendered on Lambda, since the headless browser opens that URL.
 

@@ -6,20 +6,23 @@ import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
 import type {ClipRegion} from './NativeLayers.js';
 import {Null} from './Null.js';
+import type {VideoConfig} from './video-config.js';
 
 declare global {
 	interface Window {
-		ready: boolean;
+		remotion_renderReady: boolean;
 		remotion_cancelledError: string | undefined;
-		getStaticCompositions: () => AnyCompMetadata[];
-		setBundleMode: (bundleMode: BundleState) => void;
+		remotion_getCompositionNames: () => string[];
+		getStaticCompositions: () => Promise<AnyCompMetadata[]>;
+		remotion_calculateComposition: (compId: string) => Promise<VideoConfig>;
+		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
 		remotion_editorName: string | null;
 		remotion_numberOfAudioTags: number;
 		remotion_projectName: string;
 		remotion_cwd: string;
-		remotion_previewServerCommand: string;
+		remotion_studioServerCommand: string;
 		remotion_setFrame: (frame: number) => void;
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
@@ -33,7 +36,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '4';
+		siteVersion: '5';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 	}
@@ -49,7 +52,7 @@ export type BundleState =
 	| {
 			type: 'composition';
 			compositionName: string;
-			compositionDefaultProps: unknown;
+			compositionDefaultProps: Record<string, unknown>;
 			compositionHeight: number;
 			compositionDurationInFrames: number;
 			compositionWidth: number;
@@ -60,7 +63,13 @@ checkMultipleRemotionVersions();
 export * from './AbsoluteFill.js';
 export * from './audio/index.js';
 export {cancelRender} from './cancel-render.js';
-export * from './Composition.js';
+export {
+	CalculateMetadataFunction,
+	Composition,
+	CompositionProps,
+	CompProps,
+	StillProps,
+} from './Composition.js';
 export {
 	AnyCompMetadata,
 	AnyComposition,

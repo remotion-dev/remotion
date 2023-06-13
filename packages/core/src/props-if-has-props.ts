@@ -1,24 +1,38 @@
-import type {z} from 'zod';
+import type {AnyZodObject, z} from 'zod';
+
+type And<A extends boolean, B extends boolean> = A extends true
+	? B extends true
+		? true
+		: false
+	: false;
 
 export type PropsIfHasProps<
-	Schema extends z.ZodTypeAny,
-	Props
-> = z.ZodTypeAny extends Schema
-	? {} extends Props
-		? {
-				// Neither props nor schema specified
-				defaultProps?: Props;
-		  }
-		: {
-				// Only props specified
-				defaultProps: Props;
-		  }
-	: {} extends Props
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown> | undefined
+> = And<
+	AnyZodObject extends Schema ? true : false,
+	{} extends Props ? true : false
+> extends true
 	? {
-			// Only schema specified
-			defaultProps: z.infer<Schema>;
+			// Neither props nor schema specified
+			defaultProps?: {};
 	  }
-	: {
-			// Props and schema specified
-			defaultProps: z.infer<Schema> & Props;
+	: // All the other cases
+	  {
+			defaultProps: InferProps<Schema, Props>;
 	  };
+
+export type InferProps<
+	Schema extends AnyZodObject,
+	Props
+> = AnyZodObject extends Schema
+	? {} extends Props
+		? // Neither props nor schema specified
+		  unknown
+		: // Only props specified
+		  Props
+	: {} extends Props
+	? // Only schema specified
+	  z.infer<Schema>
+	: // Props and schema specified
+	  z.infer<Schema> & Props;

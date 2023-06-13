@@ -1,6 +1,6 @@
 {
 	"name": "create-video",
-	"version": "3.3.96",
+	"version": "3.3.99",
 	"description": "",
 	"main": "dist/index.js",
 	"bin": {
@@ -33,11 +33,11 @@
 		"@types/prompts": "^2.0.12",
 		"@types/react": "18.0.26",
 		"@types/tar": "6.1.1",
-		"eslint": "8.25.0",
+		"eslint": "8.42.0",
 		"got": "^11",
 		"prettier": "2.6.2",
 		"prettier-plugin-organize-imports": "^2.3.4",
-		"typescript": "^4.7.0",
+		"typescript": "4.9.5",
 		"vitest": "0.31.1"
 	}
 }

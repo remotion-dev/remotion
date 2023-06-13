@@ -1,6 +1,6 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
-import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
 import {
@@ -34,20 +34,6 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		quit(1);
 	}
 
-	const region = getAwsRegion();
-	let composition = args[1];
-	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
-
-		validateServeUrl(serveUrl);
-		const comps = await getCompositions(serveUrl);
-		const {compositionId} = await CliInternals.selectComposition(comps);
-		composition = compositionId;
-	}
-
-	const downloadName = args[2] ?? null;
-	const outName = parsedLambdaCli['out-name'];
-
 	const {
 		chromiumOptions,
 		envVariables,
@@ -59,11 +45,52 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		scale,
 		height,
 		width,
+		browserExecutable,
+		port,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
 		remotionRoot,
 	});
+
+	const region = getAwsRegion();
+	let composition = args[1];
+	if (!composition) {
+		Log.info('No compositions passed. Fetching compositions...');
+
+		validateServeUrl(serveUrl);
+		const server = RenderInternals.prepareServer({
+			concurrency: 1,
+			indent: false,
+			port,
+			remotionRoot,
+			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			webpackConfigOrServeUrl: serveUrl,
+		});
+
+		const {compositionId} =
+			await CliInternals.getCompositionWithDimensionOverride({
+				args,
+				compositionIdFromUi: null,
+				indent: false,
+				serveUrlOrWebpackUrl: serveUrl,
+				verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+				browserExecutable,
+				chromiumOptions,
+				envVariables,
+				inputProps,
+				port,
+				puppeteerInstance: undefined,
+				timeoutInMilliseconds: puppeteerTimeout,
+				height,
+				width,
+				server: await server,
+			});
+		composition = compositionId;
+	}
+
+	const downloadName = args[2] ?? null;
+	const outName = parsedLambdaCli['out-name'];
 
 	const functionName = await findFunctionName();
 

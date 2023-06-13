@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lottie",
-	"version": "3.3.96",
+	"version": "3.3.99",
 	"description": "Remotion Lottie",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -52,13 +52,13 @@
 		"@types/node": "18.14.6",
 		"@types/react": "18.0.26",
 		"@types/react-dom": "18.0.10",
-		"eslint": "8.25.0",
+		"eslint": "8.42.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
 		"rollup": "^2.70.1",
-		"typescript": "^4.7.0",
+		"typescript": "4.9.5",
 		"vitest": "0.31.1"
 	},
 	"keywords": [

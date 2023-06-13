@@ -44,7 +44,7 @@ function populateMaps(
 		const mime = mimeDb[type];
 		const _exts = mime.extensions;
 
-		if (!_exts || !_exts.length) {
+		if (!_exts?.length) {
 			return;
 		}
 

@@ -54,6 +54,10 @@ Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](
 Chromium flags need to be set at browser launch. If you pass an instance to SSR APIs like [`renderMedia()`](/docs/renderer/render-media), the `chromiumOptions` option of that API will not apply, but rather the flags that have been passed to `openBrowser()`.
 :::
 
+#### `forceDeviceScaleFactor?`
+
+Set a [scale](/docs/scaling). If you plan to use scaling, you already need to set it when opening the browser.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/open-browser.ts)

@@ -15,6 +15,9 @@ export type EventSourceEvent =
 			newEnvVariables: Record<string, string>;
 	  }
 	| {
+			type: 'root-file-changed';
+	  }
+	| {
 			type: 'render-queue-updated';
 			queue: RenderJob[];
 	  }

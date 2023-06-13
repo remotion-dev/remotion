@@ -210,4 +210,4 @@ The natural framerate of the Lottie animation.
 
 ## See also
 
-- [Change Remotion composition metadata based on Lottie metadata](/docs/dynamic-metadata#change-metadata-based-on-asynchronous-information)
+- [Change Remotion composition metadata based on Lottie metadata](/docs/dynamic-metadata)

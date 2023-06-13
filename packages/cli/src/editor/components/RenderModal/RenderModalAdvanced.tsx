@@ -133,7 +133,6 @@ export const RenderModalAdvanced: React.FC<{
 				/>
 			)}
 			<NumberSetting
-				// TODO: Should be right aligned
 				// Also appears in packages/renderer/src/validate-puppeteer-timeout.ts
 				min={7_000}
 				max={900_000}
@@ -149,13 +148,18 @@ export const RenderModalAdvanced: React.FC<{
 					<Checkbox
 						checked={disallowParallelEncoding}
 						onChange={onDisallowParallelEncodingChanged}
+						name="disallow-parallel-encoding"
 					/>
 				</div>
 			</div>
 			<div style={optionRow}>
 				<div style={label}>Verbose logging</div>
 				<div style={rightRow}>
-					<Checkbox checked={verbose} onChange={onVerboseLoggingChanged} />
+					<Checkbox
+						checked={verbose}
+						onChange={onVerboseLoggingChanged}
+						name="verbose-logging"
+					/>
 				</div>
 			</div>
 			<RenderModalHr />
@@ -165,6 +169,7 @@ export const RenderModalAdvanced: React.FC<{
 					<Checkbox
 						checked={disableWebSecurity}
 						onChange={onDisableWebSecurityChanged}
+						name="disable-web-security"
 					/>
 				</div>
 			</div>
@@ -174,13 +179,14 @@ export const RenderModalAdvanced: React.FC<{
 					<Checkbox
 						checked={ignoreCertificateErrors}
 						onChange={onIgnoreCertificatErrors}
+						name="ignore-certificate-errors"
 					/>
 				</div>
 			</div>
 			<div style={optionRow}>
 				<div style={label}>Headless mode</div>
 				<div style={rightRow}>
-					<Checkbox checked={headless} onChange={onHeadless} />
+					<Checkbox checked={headless} onChange={onHeadless} name="headless" />
 				</div>
 			</div>
 			<div style={optionRow}>

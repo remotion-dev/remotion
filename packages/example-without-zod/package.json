@@ -1,7 +1,7 @@
 {
   "name": "@remotion/example-without-zod",
   "private": true,
-  "version": "3.3.96",
+  "version": "3.3.99",
   "description": "",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "Jonny Burger",
@@ -16,7 +16,7 @@
     "@remotion/cli": "workspace:*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "typescript": "^4.7.0"
+    "typescript": "4.9.5"
   },
   "devDependencies": {
     "@types/react": "^18.0.38",

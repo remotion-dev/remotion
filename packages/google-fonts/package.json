@@ -1,6 +1,6 @@
 {
   "name": "@remotion/google-fonts",
-  "version": "3.3.96",
+  "version": "3.3.99",
   "description": "Load Google Fonts in Remotion",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.mjs",
@@ -24,7 +24,7 @@
     "prettier": "^2.7.1",
     "rollup": "^2.70.1",
     "ts-node": "^10.8.0",
-    "typescript": "^4.7.0"
+    "typescript": "4.9.5"
   },
   "files": [
     "dist"
@@ -116,6 +116,9 @@
       "AlexBrush": [
         "dist/esm/AlexBrush.d.ts"
       ],
+      "Alexandria": [
+        "dist/esm/Alexandria.d.ts"
+      ],
       "AlfaSlabOne": [
         "dist/esm/AlfaSlabOne.d.ts"
       ],
@@ -130,6 +133,9 @@
       ],
       "Alkalami": [
         "dist/esm/Alkalami.d.ts"
+      ],
+      "Alkatra": [
+        "dist/esm/Alkatra.d.ts"
       ],
       "Allan": [
         "dist/esm/Allan.d.ts"
@@ -257,8 +263,14 @@
       "Antonio": [
         "dist/esm/Antonio.d.ts"
       ],
+      "Anuphan": [
+        "dist/esm/Anuphan.d.ts"
+      ],
       "Anybody": [
         "dist/esm/Anybody.d.ts"
+      ],
+      "AoboshiOne": [
+        "dist/esm/AoboshiOne.d.ts"
       ],
       "Arapey": [
         "dist/esm/Arapey.d.ts"
@@ -292,9 +304,6 @@
       ],
       "Arima": [
         "dist/esm/Arima.d.ts"
-      ],
-      "ArimaMadurai": [
-        "dist/esm/ArimaMadurai.d.ts"
       ],
       "Arimo": [
         "dist/esm/Arimo.d.ts"
@@ -629,11 +638,20 @@
       "BowlbyOneSC": [
         "dist/esm/BowlbyOneSC.d.ts"
       ],
+      "BraahOne": [
+        "dist/esm/BraahOne.d.ts"
+      ],
       "Brawler": [
         "dist/esm/Brawler.d.ts"
       ],
       "BreeSerif": [
         "dist/esm/BreeSerif.d.ts"
+      ],
+      "BrunoAce": [
+        "dist/esm/BrunoAce.d.ts"
+      ],
+      "BrunoAceSC": [
+        "dist/esm/BrunoAceSC.d.ts"
       ],
       "Brygada1918": [
         "dist/esm/Brygada1918.d.ts"
@@ -734,6 +752,9 @@
       "Cardo": [
         "dist/esm/Cardo.d.ts"
       ],
+      "Carlito": [
+        "dist/esm/Carlito.d.ts"
+      ],
       "Carme": [
         "dist/esm/Carme.d.ts"
       ],
@@ -748,6 +769,9 @@
       ],
       "Castoro": [
         "dist/esm/Castoro.d.ts"
+      ],
+      "CastoroTitling": [
+        "dist/esm/CastoroTitling.d.ts"
       ],
       "Catamaran": [
         "dist/esm/Catamaran.d.ts"
@@ -806,6 +830,9 @@
       "Cherish": [
         "dist/esm/Cherish.d.ts"
       ],
+      "CherryBombOne": [
+        "dist/esm/CherryBombOne.d.ts"
+      ],
       "CherryCreamSoda": [
         "dist/esm/CherryCreamSoda.d.ts"
       ],
@@ -824,6 +851,12 @@
       "Chivo": [
         "dist/esm/Chivo.d.ts"
       ],
+      "ChivoMono": [
+        "dist/esm/ChivoMono.d.ts"
+      ],
+      "Chokokutai": [
+        "dist/esm/Chokokutai.d.ts"
+      ],
       "Chonburi": [
         "dist/esm/Chonburi.d.ts"
       ],
@@ -835,6 +868,9 @@
       ],
       "ClickerScript": [
         "dist/esm/ClickerScript.d.ts"
+      ],
+      "ClimateCrisis": [
+        "dist/esm/ClimateCrisis.d.ts"
       ],
       "Coda": [
         "dist/esm/Coda.d.ts"
@@ -865,6 +901,9 @@
       ],
       "ComingSoon": [
         "dist/esm/ComingSoon.d.ts"
+      ],
+      "Comme": [
+        "dist/esm/Comme.d.ts"
       ],
       "Commissioner": [
         "dist/esm/Commissioner.d.ts"
@@ -986,6 +1025,9 @@
       "DarkerGrotesque": [
         "dist/esm/DarkerGrotesque.d.ts"
       ],
+      "DarumadropOne": [
+        "dist/esm/DarumadropOne.d.ts"
+      ],
       "DavidLibre": [
         "dist/esm/DavidLibre.d.ts"
       ],
@@ -1000,6 +1042,9 @@
       ],
       "DelaGothicOne": [
         "dist/esm/DelaGothicOne.d.ts"
+      ],
+      "DeliciousHandrawn": [
+        "dist/esm/DeliciousHandrawn.d.ts"
       ],
       "Delius": [
         "dist/esm/Delius.d.ts"
@@ -1277,6 +1322,9 @@
       "FlowRounded": [
         "dist/esm/FlowRounded.d.ts"
       ],
+      "Foldit": [
+        "dist/esm/Foldit.d.ts"
+      ],
       "Fondamento": [
         "dist/esm/Fondamento.d.ts"
       ],
@@ -1285,6 +1333,9 @@
       ],
       "Forum": [
         "dist/esm/Forum.d.ts"
+      ],
+      "FragmentMono": [
+        "dist/esm/FragmentMono.d.ts"
       ],
       "FrancoisOne": [
         "dist/esm/FrancoisOne.d.ts"
@@ -1303,9 +1354,6 @@
       ],
       "Fredoka": [
         "dist/esm/Fredoka.d.ts"
-      ],
-      "FredokaOne": [
-        "dist/esm/FredokaOne.d.ts"
       ],
       "Freehand": [
         "dist/esm/Freehand.d.ts"
@@ -1343,6 +1391,9 @@
       "Gafata": [
         "dist/esm/Gafata.d.ts"
       ],
+      "GajrajOne": [
+        "dist/esm/GajrajOne.d.ts"
+      ],
       "Galada": [
         "dist/esm/Galada.d.ts"
       ],
@@ -1370,9 +1421,6 @@
       "Genos": [
         "dist/esm/Genos.d.ts"
       ],
-      "GentiumBookBasic": [
-        "dist/esm/GentiumBookBasic.d.ts"
-      ],
       "GentiumBookPlus": [
         "dist/esm/GentiumBookPlus.d.ts"
       ],
@@ -1381,6 +1429,9 @@
       ],
       "Geo": [
         "dist/esm/Geo.d.ts"
+      ],
+      "Geologica": [
+        "dist/esm/Geologica.d.ts"
       ],
       "Georama": [
         "dist/esm/Georama.d.ts"
@@ -1415,6 +1466,9 @@
       "Glegoo": [
         "dist/esm/Glegoo.d.ts"
       ],
+      "Gloock": [
+        "dist/esm/Gloock.d.ts"
+      ],
       "GloriaHallelujah": [
         "dist/esm/GloriaHallelujah.d.ts"
       ],
@@ -1432,6 +1486,9 @@
       ],
       "Goldman": [
         "dist/esm/Goldman.d.ts"
+      ],
+      "GolosText": [
+        "dist/esm/GolosText.d.ts"
       ],
       "Gorditas": [
         "dist/esm/Gorditas.d.ts"
@@ -1529,6 +1586,9 @@
       "Handlee": [
         "dist/esm/Handlee.d.ts"
       ],
+      "HankenGrotesk": [
+        "dist/esm/HankenGrotesk.d.ts"
+      ],
       "Hanuman": [
         "dist/esm/Hanuman.d.ts"
       ],
@@ -1606,6 +1666,9 @@
       ],
       "IBMPlexSansHebrew": [
         "dist/esm/IBMPlexSansHebrew.d.ts"
+      ],
+      "IBMPlexSansJP": [
+        "dist/esm/IBMPlexSansJP.d.ts"
       ],
       "IBMPlexSansKR": [
         "dist/esm/IBMPlexSansKR.d.ts"
@@ -1693,6 +1756,12 @@
       ],
       "Inspiration": [
         "dist/esm/Inspiration.d.ts"
+      ],
+      "InstrumentSans": [
+        "dist/esm/InstrumentSans.d.ts"
+      ],
+      "InstrumentSerif": [
+        "dist/esm/InstrumentSerif.d.ts"
       ],
       "Inter": [
         "dist/esm/Inter.d.ts"
@@ -1811,9 +1880,6 @@
       "Kanit": [
         "dist/esm/Kanit.d.ts"
       ],
-      "Kantumruy": [
-        "dist/esm/Kantumruy.d.ts"
-      ],
       "KantumruyPro": [
         "dist/esm/KantumruyPro.d.ts"
       ],
@@ -1889,6 +1955,9 @@
       "KolkerBrush": [
         "dist/esm/KolkerBrush.d.ts"
       ],
+      "KonkhmerSleokchher": [
+        "dist/esm/KonkhmerSleokchher.d.ts"
+      ],
       "Kosugi": [
         "dist/esm/Kosugi.d.ts"
       ],
@@ -1936,6 +2005,9 @@
       ],
       "LaBelleAurore": [
         "dist/esm/LaBelleAurore.d.ts"
+      ],
+      "Labrada": [
+        "dist/esm/Labrada.d.ts"
       ],
       "Lacquer": [
         "dist/esm/Lacquer.d.ts"
@@ -2204,6 +2276,9 @@
       "Margarine": [
         "dist/esm/Margarine.d.ts"
       ],
+      "Marhey": [
+        "dist/esm/Marhey.d.ts"
+      ],
       "MarkaziText": [
         "dist/esm/MarkaziText.d.ts"
       ],
@@ -2218,6 +2293,9 @@
       ],
       "MartelSans": [
         "dist/esm/MartelSans.d.ts"
+      ],
+      "MartianMono": [
+        "dist/esm/MartianMono.d.ts"
       ],
       "Marvel": [
         "dist/esm/Marvel.d.ts"
@@ -2260,9 +2338,6 @@
       ],
       "Merienda": [
         "dist/esm/Merienda.d.ts"
-      ],
-      "MeriendaOne": [
-        "dist/esm/MeriendaOne.d.ts"
       ],
       "Merriweather": [
         "dist/esm/Merriweather.d.ts"
@@ -2344,6 +2419,9 @@
       ],
       "Monofett": [
         "dist/esm/Monofett.d.ts"
+      ],
+      "MonomaniacOne": [
+        "dist/esm/MonomaniacOne.d.ts"
       ],
       "Monoton": [
         "dist/esm/Monoton.d.ts"
@@ -2431,6 +2509,9 @@
       ],
       "MySoul": [
         "dist/esm/MySoul.d.ts"
+      ],
+      "Mynerve": [
+        "dist/esm/Mynerve.d.ts"
       ],
       "MysteryQuest": [
         "dist/esm/MysteryQuest.d.ts"
@@ -2597,6 +2678,9 @@
       "NotoSansCherokee": [
         "dist/esm/NotoSansCherokee.d.ts"
       ],
+      "NotoSansChorasmian": [
+        "dist/esm/NotoSansChorasmian.d.ts"
+      ],
       "NotoSansCoptic": [
         "dist/esm/NotoSansCoptic.d.ts"
       ],
@@ -2711,6 +2795,9 @@
       "NotoSansLao": [
         "dist/esm/NotoSansLao.d.ts"
       ],
+      "NotoSansLaoLooped": [
+        "dist/esm/NotoSansLaoLooped.d.ts"
+      ],
       "NotoSansLepcha": [
         "dist/esm/NotoSansLepcha.d.ts"
       ],
@@ -2762,6 +2849,9 @@
       "NotoSansMeeteiMayek": [
         "dist/esm/NotoSansMeeteiMayek.d.ts"
       ],
+      "NotoSansMendeKikakui": [
+        "dist/esm/NotoSansMendeKikakui.d.ts"
+      ],
       "NotoSansMeroitic": [
         "dist/esm/NotoSansMeroitic.d.ts"
       ],
@@ -2791,6 +2881,12 @@
       ],
       "NotoSansNabataean": [
         "dist/esm/NotoSansNabataean.d.ts"
+      ],
+      "NotoSansNagMundari": [
+        "dist/esm/NotoSansNagMundari.d.ts"
+      ],
+      "NotoSansNandinagari": [
+        "dist/esm/NotoSansNandinagari.d.ts"
       ],
       "NotoSansNewTaiLue": [
         "dist/esm/NotoSansNewTaiLue.d.ts"
@@ -2882,6 +2978,9 @@
       "NotoSansSiddham": [
         "dist/esm/NotoSansSiddham.d.ts"
       ],
+      "NotoSansSignWriting": [
+        "dist/esm/NotoSansSignWriting.d.ts"
+      ],
       "NotoSansSinhala": [
         "dist/esm/NotoSansSinhala.d.ts"
       ],
@@ -2935,6 +3034,9 @@
       ],
       "NotoSansTamilSupplement": [
         "dist/esm/NotoSansTamilSupplement.d.ts"
+      ],
+      "NotoSansTangsa": [
+        "dist/esm/NotoSansTangsa.d.ts"
       ],
       "NotoSansTelugu": [
         "dist/esm/NotoSansTelugu.d.ts"
@@ -3029,6 +3131,9 @@
       "NotoSerifKhmer": [
         "dist/esm/NotoSerifKhmer.d.ts"
       ],
+      "NotoSerifKhojki": [
+        "dist/esm/NotoSerifKhojki.d.ts"
+      ],
       "NotoSerifLao": [
         "dist/esm/NotoSerifLao.d.ts"
       ],
@@ -3038,8 +3143,11 @@
       "NotoSerifMyanmar": [
         "dist/esm/NotoSerifMyanmar.d.ts"
       ],
-      "NotoSerifNyiakengPuachueHmong": [
-        "dist/NotoSerifNyiakengPuachueHmong.d.ts"
+      "NotoSerifNPHmong": [
+        "dist/esm/NotoSerifNPHmong.d.ts"
+      ],
+      "NotoSerifOriya": [
+        "dist/esm/NotoSerifOriya.d.ts"
       ],
       "NotoSerifSC": [
         "dist/esm/NotoSerifSC.d.ts"
@@ -3064,6 +3172,9 @@
       ],
       "NotoSerifTibetan": [
         "dist/esm/NotoSerifTibetan.d.ts"
+      ],
+      "NotoSerifToto": [
+        "dist/esm/NotoSerifToto.d.ts"
       ],
       "NotoSerifYezidi": [
         "dist/esm/NotoSerifYezidi.d.ts"
@@ -3215,11 +3326,17 @@
       "Padauk": [
         "dist/esm/Padauk.d.ts"
       ],
+      "PadyakkeExpandedOne": [
+        "dist/esm/PadyakkeExpandedOne.d.ts"
+      ],
       "Palanquin": [
         "dist/esm/Palanquin.d.ts"
       ],
       "PalanquinDark": [
         "dist/esm/PalanquinDark.d.ts"
+      ],
+      "PaletteMosaic": [
+        "dist/esm/PaletteMosaic.d.ts"
       ],
       "Pangolin": [
         "dist/esm/Pangolin.d.ts"
@@ -3238,6 +3355,9 @@
       ],
       "PassionsConflict": [
         "dist/esm/PassionsConflict.d.ts"
+      ],
+      "PathwayExtreme": [
+        "dist/esm/PathwayExtreme.d.ts"
       ],
       "PathwayGothicOne": [
         "dist/esm/PathwayGothicOne.d.ts"
@@ -3281,6 +3401,9 @@
       "Philosopher": [
         "dist/esm/Philosopher.d.ts"
       ],
+      "Phudu": [
+        "dist/esm/Phudu.d.ts"
+      ],
       "Piazzolla": [
         "dist/esm/Piazzolla.d.ts"
       ],
@@ -3302,6 +3425,9 @@
       "Playball": [
         "dist/esm/Playball.d.ts"
       ],
+      "Playfair": [
+        "dist/esm/Playfair.d.ts"
+      ],
       "PlayfairDisplay": [
         "dist/esm/PlayfairDisplay.d.ts"
       ],
@@ -3319,6 +3445,9 @@
       ],
       "PollerOne": [
         "dist/esm/PollerOne.d.ts"
+      ],
+      "PoltawskiNowy": [
+        "dist/esm/PoltawskiNowy.d.ts"
       ],
       "Poly": [
         "dist/esm/Poly.d.ts"
@@ -3557,6 +3686,9 @@
       "Rochester": [
         "dist/esm/Rochester.d.ts"
       ],
+      "Rock3D": [
+        "dist/esm/Rock3D.d.ts"
+      ],
       "RockSalt": [
         "dist/esm/RockSalt.d.ts"
       ],
@@ -3590,6 +3722,9 @@
       "Rubik": [
         "dist/esm/Rubik.d.ts"
       ],
+      "Rubik80sFade": [
+        "dist/esm/Rubik80sFade.d.ts"
+      ],
       "RubikBeastly": [
         "dist/esm/RubikBeastly.d.ts"
       ],
@@ -3604,6 +3739,9 @@
       ],
       "RubikDistressed": [
         "dist/esm/RubikDistressed.d.ts"
+      ],
+      "RubikGemstones": [
+        "dist/esm/RubikGemstones.d.ts"
       ],
       "RubikGlitch": [
         "dist/esm/RubikGlitch.d.ts"
@@ -3626,8 +3764,20 @@
       "RubikMoonrocks": [
         "dist/esm/RubikMoonrocks.d.ts"
       ],
+      "RubikPixels": [
+        "dist/esm/RubikPixels.d.ts"
+      ],
       "RubikPuddles": [
         "dist/esm/RubikPuddles.d.ts"
+      ],
+      "RubikSprayPaint": [
+        "dist/esm/RubikSprayPaint.d.ts"
+      ],
+      "RubikStorm": [
+        "dist/esm/RubikStorm.d.ts"
+      ],
+      "RubikVinyl": [
+        "dist/esm/RubikVinyl.d.ts"
       ],
       "RubikWetPaint": [
         "dist/esm/RubikWetPaint.d.ts"
@@ -3731,6 +3881,9 @@
       "ScheherazadeNew": [
         "dist/esm/ScheherazadeNew.d.ts"
       ],
+      "SchibstedGrotesk": [
+        "dist/esm/SchibstedGrotesk.d.ts"
+      ],
       "Schoolbell": [
         "dist/esm/Schoolbell.d.ts"
       ],
@@ -3770,6 +3923,9 @@
       "Shalimar": [
         "dist/esm/Shalimar.d.ts"
       ],
+      "ShantellSans": [
+        "dist/esm/ShantellSans.d.ts"
+      ],
       "Shanti": [
         "dist/esm/Shanti.d.ts"
       ],
@@ -3794,6 +3950,9 @@
       "ShipporiMinchoB1": [
         "dist/esm/ShipporiMinchoB1.d.ts"
       ],
+      "Shizuru": [
+        "dist/esm/Shizuru.d.ts"
+      ],
       "Shojumaru": [
         "dist/esm/Shojumaru.d.ts"
       ],
@@ -3805,6 +3964,9 @@
       ],
       "Siemreap": [
         "dist/esm/Siemreap.d.ts"
+      ],
+      "Sigmar": [
+        "dist/esm/Sigmar.d.ts"
       ],
       "SigmarOne": [
         "dist/esm/SigmarOne.d.ts"
@@ -3845,6 +4007,9 @@
       "Slackey": [
         "dist/esm/Slackey.d.ts"
       ],
+      "SlacksideOne": [
+        "dist/esm/SlacksideOne.d.ts"
+      ],
       "Smokum": [
         "dist/esm/Smokum.d.ts"
       ],
@@ -3872,11 +4037,29 @@
       "Sofia": [
         "dist/esm/Sofia.d.ts"
       ],
+      "SofiaSans": [
+        "dist/esm/SofiaSans.d.ts"
+      ],
+      "SofiaSansCondensed": [
+        "dist/esm/SofiaSansCondensed.d.ts"
+      ],
+      "SofiaSansExtraCondensed": [
+        "dist/esm/SofiaSansExtraCondensed.d.ts"
+      ],
+      "SofiaSansSemiCondensed": [
+        "dist/esm/SofiaSansSemiCondensed.d.ts"
+      ],
+      "Solitreo": [
+        "dist/esm/Solitreo.d.ts"
+      ],
       "Solway": [
         "dist/esm/Solway.d.ts"
       ],
       "SongMyung": [
         "dist/esm/SongMyung.d.ts"
+      ],
+      "Sono": [
+        "dist/esm/Sono.d.ts"
       ],
       "SonsieOne": [
         "dist/esm/SonsieOne.d.ts"
@@ -4088,6 +4271,15 @@
       "Tillana": [
         "dist/esm/Tillana.d.ts"
       ],
+      "TiltNeon": [
+        "dist/esm/TiltNeon.d.ts"
+      ],
+      "TiltPrism": [
+        "dist/esm/TiltPrism.d.ts"
+      ],
+      "TiltWarp": [
+        "dist/esm/TiltWarp.d.ts"
+      ],
       "Timmana": [
         "dist/esm/Timmana.d.ts"
       ],
@@ -4154,6 +4346,9 @@
       "Trykker": [
         "dist/esm/Trykker.d.ts"
       ],
+      "TsukimiRounded": [
+        "dist/esm/TsukimiRounded.d.ts"
+      ],
       "TulpenOne": [
         "dist/esm/TulpenOne.d.ts"
       ],
@@ -4177,6 +4372,9 @@
       ],
       "Ultra": [
         "dist/esm/Ultra.d.ts"
+      ],
+      "Unbounded": [
+        "dist/esm/Unbounded.d.ts"
       ],
       "UncialAntiqua": [
         "dist/esm/UncialAntiqua.d.ts"
@@ -4247,6 +4445,9 @@
       "Viga": [
         "dist/esm/Viga.d.ts"
       ],
+      "VinaSans": [
+        "dist/esm/VinaSans.d.ts"
+      ],
       "Voces": [
         "dist/esm/Voces.d.ts"
       ],
@@ -4298,6 +4499,12 @@
       "WireOne": [
         "dist/esm/WireOne.d.ts"
       ],
+      "WixMadeforDisplay": [
+        "dist/esm/WixMadeforDisplay.d.ts"
+      ],
+      "WixMadeforText": [
+        "dist/esm/WixMadeforText.d.ts"
+      ],
       "WorkSans": [
         "dist/esm/WorkSans.d.ts"
       ],
@@ -4334,8 +4541,17 @@
       "Yrsa": [
         "dist/esm/Yrsa.d.ts"
       ],
+      "Ysabeau": [
+        "dist/esm/Ysabeau.d.ts"
+      ],
       "YujiBoku": [
         "dist/esm/YujiBoku.d.ts"
+      ],
+      "YujiHentaiganaAkari": [
+        "dist/esm/YujiHentaiganaAkari.d.ts"
+      ],
+      "YujiHentaiganaAkebono": [
+        "dist/esm/YujiHentaiganaAkebono.d.ts"
       ],
       "YujiMai": [
         "dist/esm/YujiMai.d.ts"
@@ -4396,108 +4612,6 @@
       ],
       "ZillaSlabHighlight": [
         "dist/esm/ZillaSlabHighlight.d.ts"
-      ],
-      "Alexandria": [
-        "dist/esm/Alexandria.d.ts"
-      ],
-      "ChivoMono": [
-        "dist/esm/ChivoMono.d.ts"
-      ],
-      "FragmentMono": [
-        "dist/esm/FragmentMono.d.ts"
-      ],
-      "GajrajOne": [
-        "dist/esm/GajrajOne.d.ts"
-      ],
-      "Gloock": [
-        "dist/esm/Gloock.d.ts"
-      ],
-      "HankenGrotesk": [
-        "dist/esm/HankenGrotesk.d.ts"
-      ],
-      "IBMPlexSansJP": [
-        "dist/esm/IBMPlexSansJP.d.ts"
-      ],
-      "Labrada": [
-        "dist/esm/Labrada.d.ts"
-      ],
-      "Marhey": [
-        "dist/esm/Marhey.d.ts"
-      ],
-      "MartianMono": [
-        "dist/esm/MartianMono.d.ts"
-      ],
-      "Mynerve": [
-        "dist/esm/Mynerve.d.ts"
-      ],
-      "NotoSansLaoLooped": [
-        "dist/esm/NotoSansLaoLooped.d.ts"
-      ],
-      "NotoSansMendeKikakui": [
-        "dist/esm/NotoSansMendeKikakui.d.ts"
-      ],
-      "NotoSansSignWriting": [
-        "dist/esm/NotoSansSignWriting.d.ts"
-      ],
-      "NotoSansTangsa": [
-        "dist/esm/NotoSansTangsa.d.ts"
-      ],
-      "NotoSerifKhojki": [
-        "dist/esm/NotoSerifKhojki.d.ts"
-      ],
-      "NotoSerifNPHmong": [
-        "dist/esm/NotoSerifNPHmong.d.ts"
-      ],
-      "NotoSerifOriya": [
-        "dist/esm/NotoSerifOriya.d.ts"
-      ],
-      "NotoSerifToto": [
-        "dist/esm/NotoSerifToto.d.ts"
-      ],
-      "PadyakkeExpandedOne": [
-        "dist/esm/PadyakkeExpandedOne.d.ts"
-      ],
-      "Phudu": [
-        "dist/esm/Phudu.d.ts"
-      ],
-      "Rubik80sFade": [
-        "dist/esm/Rubik80sFade.d.ts"
-      ],
-      "RubikGemstones": [
-        "dist/esm/RubikGemstones.d.ts"
-      ],
-      "RubikSprayPaint": [
-        "dist/esm/RubikSprayPaint.d.ts"
-      ],
-      "RubikStorm": [
-        "dist/esm/RubikStorm.d.ts"
-      ],
-      "RubikVinyl": [
-        "dist/esm/RubikVinyl.d.ts"
-      ],
-      "ShantellSans": [
-        "dist/esm/ShantellSans.d.ts"
-      ],
-      "SofiaSans": [
-        "dist/esm/SofiaSans.d.ts"
-      ],
-      "SofiaSansCondensed": [
-        "dist/esm/SofiaSansCondensed.d.ts"
-      ],
-      "SofiaSansExtraCondensed": [
-        "dist/esm/SofiaSansExtraCondensed.d.ts"
-      ],
-      "SofiaSansSemiCondensed": [
-        "dist/esm/SofiaSansSemiCondensed.d.ts"
-      ],
-      "Solitreo": [
-        "dist/esm/Solitreo.d.ts"
-      ],
-      "Sono": [
-        "dist/esm/Sono.d.ts"
-      ],
-      "Unbounded": [
-        "dist/esm/Unbounded.d.ts"
       ]
     }
   },

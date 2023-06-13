@@ -119,7 +119,7 @@ declare global {
 		 */
 		readonly setCachingEnabled: (flag: boolean) => void;
 		/**
-		 * Define on which port Remotion should start it's HTTP servers during preview and rendering.
+		 * Define on which port Remotion should start it's HTTP servers.
 		 * By default, Remotion will try to find a free port.
 		 * If you specify a port, but it's not available, Remotion will throw an error.
 		 */
@@ -141,7 +141,7 @@ declare global {
 		 */
 		readonly setMaxTimelineTracks: (maxTracks: number) => void;
 		/**
-		 * Enable Keyboard shortcuts in the Remotion Preview.
+		 * Enable Keyboard shortcuts in the Remotion Studio.
 		 * @param enabled Boolean whether to enable the keyboard shortcuts
 		 * @default true
 		 */
@@ -153,14 +153,14 @@ declare global {
 		 */
 		readonly setNumberOfSharedAudioTags: (numberOfAudioTags: number) => void;
 		/**
-		 * Enable Webpack polling instead of file system listeners for hot reloading in the preview.
+		 * Enable Webpack polling instead of file system listeners for hot reloading in the Studio.
 		 * This is useful if you are using a remote directory or a virtual machine.
 		 * @param interval
 		 * @default null
 		 */
 		readonly setWebpackPollingInMilliseconds: (interval: number | null) => void;
 		/**
-		 * Whether Remotion should open a browser when starting the Preview.
+		 * Whether Remotion should open a browser when starting the Studio.
 		 * @param should
 		 * @default true
 		 */

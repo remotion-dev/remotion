@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 import {Internals} from 'remotion';
 import {truthy} from '../../truthy';
+import {BLUE} from '../helpers/colors';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {
 	areKeyboardShortcutsDisabled,
@@ -287,10 +288,6 @@ export const TimelineInOutPointToggle: React.FC = () => {
 		[onInMark, onInOutClear, onOutMark, setInAndOutFrames]
 	);
 
-	if (!videoConfig) {
-		return null;
-	}
-
 	if (isStill) {
 		return null;
 	}
@@ -302,10 +299,10 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				aria-label={getTooltipText('In', 'I')}
 				onClick={(e) => onInMark(e)}
 				onContextMenu={clearInMark}
-				disabled={timelinePosition === 0}
+				disabled={!videoConfig || timelinePosition === 0}
 			>
 				<TimelineInPointer
-					color={inFrame === null ? 'white' : 'var(--blue)'}
+					color={inFrame === null ? 'white' : BLUE}
 					style={style}
 				/>
 			</ControlButton>
@@ -314,10 +311,12 @@ export const TimelineInOutPointToggle: React.FC = () => {
 				aria-label={getTooltipText('Out', 'O')}
 				onClick={onOutMark}
 				onContextMenu={clearOutMark}
-				disabled={timelinePosition === videoConfig.durationInFrames - 1}
+				disabled={
+					!videoConfig || timelinePosition === videoConfig.durationInFrames - 1
+				}
 			>
 				<TimelineOutPointer
-					color={outFrame === null ? 'white' : 'var(--blue)'}
+					color={outFrame === null ? 'white' : BLUE}
 					style={style}
 				/>
 			</ControlButton>

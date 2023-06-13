@@ -45,7 +45,7 @@ Config.setCachingEnabled(false);
 
 The old way is deprecated, but will work for the foreseeable future.
 
-## overrideWebpackConfig() <AvailableFrom v="1.1.0" />
+## overrideWebpackConfig()<AvailableFrom v="1.1.0" />
 
 Allows you to insert your custom Webpack config. [See the page about custom Webpack configs](/docs/webpack) for more information.
 
@@ -61,7 +61,7 @@ Config.overrideWebpackConfig((currentConfiguration) => {
 });
 ```
 
-## setCachingEnabled() <AvailableFrom v="2.0.0" />
+## setCachingEnabled()<AvailableFrom v="2.0.0" />
 
 Enable or disable Webpack caching. Default is `true` which will make the Webpack step in the first run a bit slower but will massively speed up subsequent runs.
 
@@ -81,7 +81,7 @@ By default, Remotion will try to find a free port.
 If you specify a port, but it's not available, Remotion will throw an error.
 
 :::note
-When starting the [Remotion Preview](/docs/terminology#remotion-preview), a server will be started to host it.  
+When starting the [Remotion Studio](/docs/terminology#remotion-studio), a server will be started to host it.  
 During rendering, a HTTP server is also started in the background to serve the Webpack [bundle](/docs/terminology#bundle).
 :::
 
@@ -93,7 +93,7 @@ Config.setPort(3003);
 
 The [command line flag](/docs/cli/render#--port) `--port` will take precedence over this option.
 
-## setPublicDir() <AvailableFrom v="3.2.13" />
+## setPublicDir()<AvailableFrom v="3.2.13" />
 
 Define the location of the `public/` directory.  
 By default it is a folder named "public" inside the current working directory.  
@@ -107,7 +107,7 @@ Config.setPublicDir("./publico");
 
 The [command line flag](/docs/cli/render#--public-dir) `--public-dir` will take precedence over this option.
 
-## setEntryPoint() <AvailableFrom v="3.2.40" />
+## setEntryPoint()<AvailableFrom v="3.2.40" />
 
 Sets the Remotion [entry point](/docs/terminology#entry-point), you don't have to specify it for CLI commands.
 
@@ -119,7 +119,7 @@ Config.setEntryPoint("./src/index.ts");
 
 If you pass an entry point as a CLI argument, it will take precedence.
 
-## setLevel() <AvailableFrom v="2.0.1" />
+## setLevel()<AvailableFrom v="2.0.1" />
 
 Increase or decrease the amount of log messages in the CLI.
 Acceptable values:
@@ -137,9 +137,9 @@ Config.setLevel("verbose");
 
 The [command line flag](/docs/cli/render#--log) `--log` will take precedence over this option.
 
-## setMaxTimelineTracks() <AvailableFrom v="2.1.10" />
+## setMaxTimelineTracks()<AvailableFrom v="2.1.10" />
 
-Set how many tracks are being displayed in the timeline in the Preview at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
+Set how many tracks are being displayed in the timeline in the Studio at most. This does not affect your video, just the amount of tracks shown when previewing. Default `15`.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -147,9 +147,9 @@ import { Config } from "@remotion/cli/config";
 Config.setMaxTimelineTracks(20);
 ```
 
-## setKeyboardShortcutsEnabled() <AvailableFrom v="3.2.11" />
+## setKeyboardShortcutsEnabled()<AvailableFrom v="3.2.11" />
 
-Whether the Preview should react to keyboard shortcuts. Default `true`.
+Whether the Studio should react to keyboard shortcuts. Default `true`.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -157,9 +157,9 @@ import { Config } from "@remotion/cli/config";
 Config.setKeyboardShortcutsEnabled(false);
 ```
 
-The [command line flag](/docs/cli/preview#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
+The [command line flag](/docs/cli/studio#--disable-keyboard-shortcuts) `--disable-keyboard-shortcuts` will take precedence over this option.
 
-## setWebpackPollingInMilliseconds() <AvailableFrom v="3.3.11" />
+## setWebpackPollingInMilliseconds()<AvailableFrom v="3.3.11" />
 
 Enables Webpack polling instead of the file system event listeners for hot reloading.
 This is useful if you are inside a virtual machine or have a remote file system.
@@ -170,11 +170,11 @@ import { Config } from "@remotion/cli/config";
 Config.setWebpackPollingInMilliseconds(1000);
 ```
 
-The [command line flag](/docs/cli/preview#--webpack-poll) `--webpack-poll` will take precedence over this option.
+The [command line flag](/docs/cli/studio#--webpack-poll) `--webpack-poll` will take precedence over this option.
 
-## setNumberOfSharedAudioTags() <AvailableFrom v="3.3.2" />
+## setNumberOfSharedAudioTags()<AvailableFrom v="3.3.2" />
 
-How many shared audio tags should be mounted in the Preview. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. See [this article](/docs/player/autoplay#use-the-numberofsharedaudiotags-property) which covers the same option but for the Player. Default `0`, meaning no autoplay policies are circumvented.
+How many shared audio tags should be mounted in the Studio. Shared audio tags can help prevent playback issues due to audio autoplay policies of the browser. See [this article](/docs/player/autoplay#use-the-numberofsharedaudiotags-property) which covers the same option but for the Player. Default `0`, meaning no autoplay policies are circumvented.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -183,9 +183,9 @@ import { Config } from "@remotion/cli/config";
 Config.setNumberOfSharedAudioTags(5);
 ```
 
-## setShouldOpenBrowser() <AvailableFrom v="3.3.19" />
+## setShouldOpenBrowser()<AvailableFrom v="3.3.19" />
 
-Whether Remotion should open a browser when starting the Preview. Default `true`.
+Whether Remotion should open a browser when starting the Studio. Default `true`.
 
 ```ts twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -194,7 +194,7 @@ import { Config } from "@remotion/cli/config";
 Config.setShouldOpenBrowser(false);
 ```
 
-## setBrowserExecutable() <AvailableFrom v="1.5.0" />
+## setBrowserExecutable()<AvailableFrom v="1.5.0" />
 
 Set a custom Chrome or Chromium executable path. By default Remotion will try to find an existing version of Chrome on your system and if not found, it will download one. This flag is useful if you don't have Chrome installed in a standard location and you want to prevent downloading an additional browser or need [support for the H264 codec](/docs/video#codec-support).
 
@@ -206,7 +206,7 @@ Config.setBrowserExecutable("/usr/bin/google-chrome-stable");
 
 The [command line flag](/docs/cli/render#--browser-executable) `--browser-executable` will take precedence over this option.
 
-## setDelayRenderTimeoutInMilliseconds() <AvailableFrom v="2.6.3" />
+## setDelayRenderTimeoutInMilliseconds()<AvailableFrom v="2.6.3" />
 
 _previously named "setTimeoutInMilliseconds"_
 
@@ -220,7 +220,7 @@ Config.setDelayRenderTimeoutInMilliseconds(60000);
 
 The [command line flag](/docs/cli/render#--timeout) `--timeout` will take precedence over this option.
 
-## setChromiumDisableWebSecurity() <AvailableFrom v="2.6.5" />
+## setChromiumDisableWebSecurity()<AvailableFrom v="2.6.5" />
 
 This will most notably disable CORS among other security features during rendering.
 
@@ -234,7 +234,7 @@ Config.setChromiumDisableWebSecurity(true);
 
 The [command line flag](/docs/cli/render#--disable-web-security) `--disable-web-security` will take precedence over this option.
 
-## setChromiumIgnoreCertificateErrors() <AvailableFrom v="2.6.5" />
+## setChromiumIgnoreCertificateErrors()<AvailableFrom v="2.6.5" />
 
 Results in invalid SSL certificates, such as self-signed ones, being ignored during rendering.
 
@@ -248,7 +248,7 @@ Config.setChromiumIgnoreCertificateErrors(true);
 
 The [command line flag](/docs/cli/render#--ignore-certificate-errors) `--ignore-certificate-errors` will take precedence over this option.
 
-## setChromiumHeadlessMode() <AvailableFrom v="2.6.5" />
+## setChromiumHeadlessMode()<AvailableFrom v="2.6.5" />
 
 By default `true`. Disabling it will open an actual Chrome window where you can see the render happen.
 
@@ -279,7 +279,7 @@ The [command line flag](/docs/cli/render#--concurrency) `--concurrency` will tak
 Try to set your concurrency to `os.cpus().length` to all the threads available on your CPU for faster rendering. The drawback is that other parts of your system might slow down.
 :::
 
-## setVideoImageFormat() <AvailableFrom v="4.0.0" />
+## setVideoImageFormat()<AvailableFrom v="4.0.0" />
 
 Determines which in which image format to render the frames. Either:
 
@@ -293,7 +293,7 @@ import { Config } from "@remotion/cli/config";
 Config.setVideoImageFormat("png");
 ```
 
-## setStillImageFormat() <AvailableFrom v="4.0.0" />
+## setStillImageFormat()<AvailableFrom v="4.0.0" />
 
 Determines which in which image format to render the frames. Either:
 
@@ -308,7 +308,7 @@ import { Config } from "@remotion/cli/config";
 Config.setStillImageFormat("pdf");
 ```
 
-## ~~setImageFormat()~~ <AvailableFrom v="1.4.0" />
+## ~~setImageFormat()~~<AvailableFrom v="1.4.0" />
 
 _Removed in v4.0_
 
@@ -328,7 +328,7 @@ Config.setImageFormat("png");
 
 The [command line flag](/docs/cli/render#--image-format) `--image-format` will take precedence over this option.
 
-## setScale() <AvailableFrom v="2.6.7" />
+## setScale()<AvailableFrom v="2.6.7" />
 
 [Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details. Default: `1`.
 
@@ -340,7 +340,7 @@ Config.setScale(2);
 
 The [command line flag](/docs/cli/render#--scale) `--scale` will take precedence over this option.
 
-## setMuted() <AvailableFrom v="3.2.1" />
+## setMuted()<AvailableFrom v="3.2.1" />
 
 Disables audio output. Default `false`.
 
@@ -352,7 +352,7 @@ Config.setMuted(true);
 
 The [command line flag](/docs/cli/render#--muted) `--muted` will take precedence over this option.
 
-## setEnforceAudioTrack() <AvailableFrom v="3.2.1" />
+## setEnforceAudioTrack()<AvailableFrom v="3.2.1" />
 
 Render a silent audio track if there would be none otherwise. Default `false`.
 
@@ -364,7 +364,7 @@ Config.setEnforceAudioTrack(true);
 
 The [command line flag](/docs/cli/render#--enforce-audio-track) `--enforce-audio-track` will take precedence over this option.
 
-## setFrameRange() <AvailableFrom v="2.0.0" />
+## setFrameRange()<AvailableFrom v="2.0.0" />
 
 Pass a number to render a still frame or a tuple to render a subset of a video. The frame sequence is zero-indexed.
 
@@ -438,7 +438,7 @@ Config.setNumberOfGifLoops(2);
 
 The [command line flag](/docs/cli/render#--number-of-gif-loops) `--number-of-gif-loops` will take precedence over this option.
 
-## setOutputLocation() <AvailableFrom v="3.1.6" />
+## setOutputLocation()<AvailableFrom v="3.1.6" />
 
 Set the output location of the video or still, relative to the current working directory. The default is `out/{composition}.{container}`. For example, `out/HelloWorld.mp4`.
 
@@ -477,7 +477,7 @@ Config.setPixelFormat("yuv420p");
 
 The [command line flag](/docs/cli/render#--pixel-format) `--pixel-format` will take precedence over this option.
 
-## setCodec() <AvailableFrom v="1.4.0" />
+## setCodec()<AvailableFrom v="1.4.0" />
 
 Choose one of the supported codecs: `h264` _(default)_, `h265`, `vp8`, `vp9`.
 
@@ -519,7 +519,7 @@ The [command line flag](/docs/cli/render#--audio-codec) `--audio-codec` will tak
 
 Refer to the [Encoding guide](/docs/encoding) to see defaults and supported combinations.
 
-## setProResProfile() <AvailableFrom v="2.1.6" />
+## setProResProfile()<AvailableFrom v="2.1.6" />
 
 Set the ProRes profile. This option is only valid if the codec has been set to `prores`.
 Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`.
@@ -536,7 +536,7 @@ The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` wi
 
 **See also**: [Encoding guide](/docs/encoding), [Transparent videos](/docs/transparent-videos)
 
-## setImageSequence() <AvailableFrom v="1.4.0" />
+## setImageSequence()<AvailableFrom v="1.4.0" />
 
 Set to true if you want to output an image sequence instead of a video.
 
@@ -548,7 +548,7 @@ Config.setImageSequence(true);
 
 The [command line flag](/docs/cli/render#--sequence) `--sequence` will take precedence over this option.
 
-## overrideHeight() <AvailableFrom v="3.2.40" />
+## overrideHeight()<AvailableFrom v="3.2.40" />
 
 Overrides the height of the rendered video.
 
@@ -561,7 +561,7 @@ Config.overrideHeight(600);
 The [command line flag](/docs/cli/render#--height) `--height` will take precedence over this option.
 (see h264 validation?)
 
-## overrideWidth() <AvailableFrom v="3.2.40" />
+## overrideWidth()<AvailableFrom v="3.2.40" />
 
 Overrides the width of the rendered video.
 
@@ -590,7 +590,7 @@ The [command line flags](/docs/cli) `--sequence` and `--codec` will take precede
 
 The [command line flag](/docs/cli) `--quality` will take precedence over this option.
 
-## setCrf() <AvailableFrom v="1.4.0" />
+## setCrf()<AvailableFrom v="1.4.0" />
 
 The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFMPEG how to trade off size and quality.](/docs/encoding#controlling-quality-using-the-crf-setting)
 
@@ -615,7 +615,7 @@ Config.setCrf(16);
 
 The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence over this option.
 
-### `setVideoBitrate()` <AvailableFrom v="3.2.32" />
+### `setVideoBitrate()`<AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated video.  
 The syntax for FFMPEGs `-b:v` parameter should be used.  
@@ -631,7 +631,7 @@ Config.setVideoBitrate("1M");
 
 The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will take precedence over this option.
 
-### `setAudioBitrate` <AvailableFrom v="3.2.32" />
+### `setAudioBitrate`<AvailableFrom v="3.2.32" />
 
 Specify the target bitrate for the generated audio.  
 The syntax for FFMPEGs `-b:a` parameter should be used.  
@@ -647,7 +647,7 @@ Config.setAudioBitrate("128K");
 
 The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will take precedence over this option.
 
-## overrideFfmpegCommand <AvailableFrom v="3.2.22" />
+## overrideFfmpegCommand<AvailableFrom v="3.2.22" />
 
 Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 

@@ -1,6 +1,6 @@
 {
   "name": "@remotion/rive",
-  "version": "3.3.96",
+  "version": "3.3.99",
   "description": "Remotion Rive",
   "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.ts",
@@ -38,12 +38,12 @@
     "@types/node": "18.14.6",
     "@types/react": "^18.0.28",
     "@types/react-dom": "^18.0.11",
-    "eslint": "^8.35.0",
+    "eslint": "8.42.0",
     "prettier": "^2.8.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "rollup": "^2.70.1",
-    "typescript": "^4.9.5"
+    "typescript": "4.9.5"
   },
   "publishConfig": {
     "access": "public"

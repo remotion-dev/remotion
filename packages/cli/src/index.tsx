@@ -12,6 +12,7 @@ import {findEntryPoint} from './entry-point';
 import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {formatBytes} from './format-bytes';
 import {getCliOptions} from './get-cli-options';
+import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
 import {getFinalOutputCodec} from './get-final-output-codec';
 import {handleCommonError} from './handle-common-errors';
@@ -22,14 +23,13 @@ import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {BooleanFlags, parsedCli, quietFlagProvided} from './parse-command-line';
-import {previewCommand} from './preview';
 import {printCompositions} from './print-compositions';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
-import {selectComposition} from './select-composition';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
+import {studioCommand} from './studio';
 import {upgrade} from './upgrade';
 import {
 	validateVersionsBeforeCommand,
@@ -60,8 +60,8 @@ export const cli = async () => {
 	try {
 		if (command === 'compositions') {
 			await listCompositionsCommand(remotionRoot, args);
-		} else if (command === 'preview') {
-			await previewCommand(remotionRoot, args);
+		} else if (command === 'preview' || command === 'studio') {
+			await studioCommand(remotionRoot, args);
 		} else if (command === 'lambda') {
 			await lambdaCommand(remotionRoot, args);
 		} else if (command === 'cloudrun') {
@@ -123,11 +123,11 @@ export const CliInternals = {
 	getFileSizeDownloadBar,
 	determineFinalStillImageFormat,
 	minimist,
-	selectComposition,
 	findEntryPoint,
 	getVideoImageFormat,
 	printCompositions,
 	getFinalOutputCodec,
 	listOfRemotionPackages,
 	shouldUseNonOverlayingLogger,
+	getCompositionWithDimensionOverride,
 };

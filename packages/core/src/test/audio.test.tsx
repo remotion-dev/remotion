@@ -8,8 +8,9 @@ import {describe, expect, test} from 'vitest';
 import {z} from 'zod';
 import {Audio} from '../audio/index.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
-import {CompositionManager} from '../CompositionManager.js';
+import {CompositionManager} from '../CompositionManagerContext.js';
 import {RemotionRoot} from '../RemotionRoot.js';
+import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 
 const Wrapper: React.FC<{
 	children: React.ReactNode;
@@ -38,13 +39,14 @@ const Wrapper: React.FC<{
 								defaultProps: undefined,
 								folderName: null,
 								parentFolderName: null,
-								schema: z.any(),
+								calculateMetadata: null,
+								schema: z.object({}),
 							},
 						],
 						currentComposition: 'markup',
 					}}
 				>
-					{children}
+					<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
 				</CompositionManager.Provider>
 			</RemotionRoot>
 		</CanUseRemotionHooksProvider>

@@ -1,12 +1,15 @@
 import {VERSION} from 'remotion/version';
+import type {LambdaStartPayload, LambdaStatusPayload} from '../defaults';
+import {LambdaRoutines} from '../defaults';
 import {serializeInputProps} from '../shared/serialize-input-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
+import type {GetRenderInput} from './get-render-progress';
 import type {RenderMediaOnLambdaInput} from './render-media-on-lambda';
 
-export const makeLambdaPayload = async ({
+export const makeLambdaRenderMediaPayload = async ({
 	rendererFunctionName,
 	frameRange,
 	framesPerLambda,
@@ -43,7 +46,7 @@ export const makeLambdaPayload = async ({
 	dumpBrowserLogs,
 	jpegQuality,
 	quality,
-}: RenderMediaOnLambdaInput) => {
+}: RenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
 	if (quality) {
 		throw new Error(
 			'quality has been renamed to jpegQuality. Please rename the option.'
@@ -59,7 +62,7 @@ export const makeLambdaPayload = async ({
 	validateDownloadBehavior(downloadBehavior);
 
 	const serializedInputProps = await serializeInputProps({
-		inputProps,
+		inputProps: inputProps ?? {},
 		region,
 		type: 'video-or-audio',
 		userSpecifiedBucketName: bucketName ?? null,
@@ -100,5 +103,20 @@ export const makeLambdaPayload = async ({
 		bucketName: bucketName ?? null,
 		audioCodec: audioCodec ?? null,
 		dumpBrowserLogs: dumpBrowserLogs ?? false,
+		type: LambdaRoutines.start,
+	};
+};
+
+export const getRenderProgressPayload = ({
+	bucketName,
+	renderId,
+	s3OutputProvider,
+}: GetRenderInput): LambdaStatusPayload => {
+	return {
+		type: LambdaRoutines.status,
+		bucketName,
+		renderId,
+		version: VERSION,
+		s3OutputProvider,
 	};
 };

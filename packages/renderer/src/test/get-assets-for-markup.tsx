@@ -23,7 +23,7 @@ const waitForWindowToBeReady = () => {
 	return new Promise<void>((resolve) => {
 		let interval: null | number | NodeJS.Timeout = null;
 		const check = () => {
-			if (window.ready) {
+			if (window.remotion_renderReady) {
 				clearInterval(interval as number);
 				resolve();
 			}
@@ -73,9 +73,6 @@ export const getAssetsForMarkup = async (
 		const value: CompositionManagerContext = useMemo(() => {
 			return {
 				...compositions,
-				assets,
-				registerAsset,
-				unregisterAsset,
 				compositions: [
 					{
 						...config,
@@ -90,17 +87,30 @@ export const getAssetsForMarkup = async (
 						folderName: null,
 						parentFolderName: null,
 						schema: null,
+						calculateMetadata: null,
+						durationInFrames: config.durationInFrames,
+						fps: config.fps,
+						height: config.height,
+						width: config.width,
 					},
 				],
 				currentComposition: 'markup',
 			};
-		}, [assets, compositions, registerAsset, unregisterAsset]);
+		}, [compositions]);
+
+		const assetContext = useMemo(() => {
+			return {assets, registerAsset, unregisterAsset};
+		}, [assets, registerAsset, unregisterAsset]);
 
 		return (
 			<Internals.CanUseRemotionHooksProvider>
 				<Internals.RemotionRoot numberOfAudioTags={0}>
 					<Internals.CompositionManager.Provider value={value}>
-						<Markup />
+						<Internals.AssetManager.Provider value={assetContext}>
+							<Internals.ResolveCompositionConfig>
+								<Markup />
+							</Internals.ResolveCompositionConfig>
+						</Internals.AssetManager.Provider>
 					</Internals.CompositionManager.Provider>
 				</Internals.RemotionRoot>
 			</Internals.CanUseRemotionHooksProvider>

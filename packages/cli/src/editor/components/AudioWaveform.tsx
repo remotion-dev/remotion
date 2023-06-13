@@ -1,6 +1,7 @@
 import type {AudioData} from '@remotion/media-utils';
 import {getAudioData, getWaveformPortion} from '@remotion/media-utils';
 import React, {useEffect, useMemo, useRef, useState} from 'react';
+import {Internals} from 'remotion';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
@@ -36,7 +37,6 @@ const canvasStyle: React.CSSProperties = {
 export const AudioWaveform: React.FC<{
 	src: string;
 	visualizationWidth: number;
-	fps: number;
 	startFrom: number;
 	durationInFrames: number;
 	setMaxMediaDuration: React.Dispatch<React.SetStateAction<number>>;
@@ -45,7 +45,6 @@ export const AudioWaveform: React.FC<{
 	playbackRate: number;
 }> = ({
 	src,
-	fps,
 	startFrom,
 	durationInFrames,
 	visualizationWidth,
@@ -57,6 +56,10 @@ export const AudioWaveform: React.FC<{
 	const [metadata, setMetadata] = useState<AudioData | null>(null);
 	const [error, setError] = useState<Error | null>(null);
 	const mountState = useRef({isMounted: true});
+	const vidConf = Internals.useUnsafeVideoConfig();
+	if (vidConf === null) {
+		throw new Error('Expected video config');
+	}
 
 	const canvas = useRef<HTMLCanvasElement>(null);
 
@@ -107,7 +110,7 @@ export const AudioWaveform: React.FC<{
 		getAudioData(src)
 			.then((data) => {
 				if (mountState.current.isMounted) {
-					setMaxMediaDuration(Math.floor(data.durationInSeconds * fps));
+					setMaxMediaDuration(Math.floor(data.durationInSeconds * vidConf.fps));
 					setMetadata(data);
 				}
 			})
@@ -117,7 +120,7 @@ export const AudioWaveform: React.FC<{
 					setError(err);
 				}
 			});
-	}, [fps, setMaxMediaDuration, src]);
+	}, [setMaxMediaDuration, src, vidConf.fps]);
 
 	const normalized = useMemo(() => {
 		if (!metadata || metadata.numberOfChannels === 0) {
@@ -130,13 +133,13 @@ export const AudioWaveform: React.FC<{
 
 		return getWaveformPortion({
 			audioData: metadata,
-			startTimeInSeconds: startFrom / fps,
-			durationInSeconds: (durationInFrames / fps) * playbackRate,
+			startTimeInSeconds: startFrom / vidConf.fps,
+			durationInSeconds: (durationInFrames / vidConf.fps) * playbackRate,
 			numberOfSamples,
 		});
 	}, [
 		durationInFrames,
-		fps,
+		vidConf.fps,
 		metadata,
 		playbackRate,
 		startFrom,

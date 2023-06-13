@@ -17,6 +17,11 @@ import {
 } from './preview-server/live-events';
 import {getFiles, initPublicFolderWatch} from './preview-server/public-folder';
 import {startServer} from './preview-server/start-server';
+import {
+	printServerReadyComment,
+	setServerReadyComment,
+} from './server-ready-comment';
+import {watchRootFile} from './watch-root-file';
 
 const noop = () => undefined;
 
@@ -58,16 +63,16 @@ const getPort = () => {
 	return null;
 };
 
-export const previewCommand = async (remotionRoot: string, args: string[]) => {
+export const studioCommand = async (remotionRoot: string, args: string[]) => {
 	const {file, reason} = findEntryPoint(args, remotionRoot);
 
 	Log.verbose('Entry point:', file, 'reason:', reason);
 
 	if (!file) {
 		Log.error(
-			'The preview command requires you to specify a root file. For example'
+			'No Remotion entrypoint was found. Specify an additional argument manually:'
 		);
-		Log.error('  npx remotion preview src/index.ts');
+		Log.error('  npx remotion studio src/index.ts');
 		Log.error(
 			'See https://www.remotion.dev/docs/register-root for more information.'
 		);
@@ -119,6 +124,8 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 		staticHash,
 	});
 
+	watchRootFile(remotionRoot);
+
 	const {port, liveEventsServer} = await startServer({
 		entry: path.resolve(__dirname, 'previewEntry.js'),
 		userDefinedComponent: fullEntryPath,
@@ -139,14 +146,16 @@ export const previewCommand = async (remotionRoot: string, args: string[]) => {
 	setLiveEventsListener(liveEventsServer);
 	const networkAddress = getNetworkAddress();
 	if (networkAddress) {
-		Log.info(
-			`Server ready - Local: ${chalk.underline(
+		setServerReadyComment(
+			`Local: ${chalk.underline(
 				`http://localhost:${port}`
 			)}, Network: ${chalk.underline(`http://${networkAddress}:${port}`)}`
 		);
 	} else {
-		Log.info(`Running on http://localhost:${port}`);
+		setServerReadyComment(`http://localhost:${port}`);
 	}
+
+	printServerReadyComment('Server ready');
 
 	const {reasonForBrowserDecision, shouldOpenBrowser} = getShouldOpenBrowser();
 

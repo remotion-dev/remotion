@@ -1,12 +1,12 @@
 import type {RefObject} from 'react';
 import {useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
-import {CompositionManager} from './CompositionManager.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
 import {useRemotionEnvironment} from './get-environment.js';
 import {useNonce} from './nonce.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import {SequenceContext} from './SequenceContext.js';
+import {SequenceManager} from './SequenceManager.js';
 import type {PlayableMediaTag} from './timeline-position-state.js';
 import {TimelineContext, usePlayingState} from './timeline-position-state.js';
 import {useVideoConfig} from './use-video-config.js';
@@ -46,7 +46,7 @@ export const useMediaInTimeline = ({
 		: 0;
 	const [playing] = usePlayingState();
 	const startsAt = useMediaStartsAt();
-	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
+	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 	const [id] = useState(() => String(Math.random()));
 	const [initialVolume] = useState<VolumeProp | undefined>(() => volume);
 

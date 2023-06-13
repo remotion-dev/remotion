@@ -48,7 +48,34 @@ Open the DevTools and go to the network tab to validate that this is the case.
 
 You might be importing a video that is not compatible with Chrome at all, e.g. FLV.
 
-## Recover from this error <AvailableFrom v="3.3.89" />
+## Too many video tags
+
+The error message might contain `error creating media player`, appearing if too many video tags are created.  
+First check that you are not accidentially creating an infite render loop. For example, changing the `key` frequently will re-create the video tag on every frame:
+
+```tsx twoslash
+const uuidv4 = () => "";
+
+// ---cut---
+import { Video } from "remotion";
+
+export default function SBSVideo() {
+  return (
+    <>
+      {[
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      ].map((video, i) => {
+        return <Video key={uuidv4()} src={video} />;
+      })}
+    </>
+  );
+}
+```
+
+If you ruled out this possibility, use [`<OffthreadVideo>`](/docs/offthreadvideo) instead as it does not rely on a `<video>` tag.
+
+## Recover from this error<AvailableFrom v="3.3.89" />
 
 You can handle this error and replace it with a different video by passing the `onError()` prop to the `<Video>` or `<OffthreadVideo>` component.
 

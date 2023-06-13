@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import type {AnyCompMetadata} from 'remotion';
 import {getBundleMode} from '../bundle-mode';
 import {setBundleModeAndUpdate} from '../renderEntry';
 
@@ -23,8 +22,26 @@ const pre: React.CSSProperties = {
 	overflowX: 'auto',
 };
 
+type CompositionState =
+	| {
+			type: 'not-initialized';
+	  }
+	| {
+			type: 'loading';
+	  }
+	| {
+			type: 'loaded';
+			comps: string[];
+	  }
+	| {
+			type: 'error';
+			error: Error;
+	  };
+
 const AvailableCompositions: React.FC = () => {
-	const [comps, setComps] = useState<AnyCompMetadata[] | null>(null);
+	const [state, setComps] = useState<CompositionState>({
+		type: 'not-initialized',
+	});
 
 	useEffect(() => {
 		if (getBundleMode().type !== 'evaluation') {
@@ -33,9 +50,14 @@ const AvailableCompositions: React.FC = () => {
 
 		let timeout: NodeJS.Timeout | null = null;
 		const check = () => {
-			if (window.ready === true) {
-				const newComps = window.getStaticCompositions();
-				setComps(newComps);
+			if (window.remotion_renderReady === true) {
+				setComps({type: 'loading'});
+				try {
+					const newComps = window.remotion_getCompositionNames();
+					setComps({type: 'loaded', comps: newComps});
+				} catch (err) {
+					setComps({type: 'error', error: err as Error});
+				}
 			} else {
 				timeout = setTimeout(check, 250);
 			}
@@ -64,14 +86,25 @@ const AvailableCompositions: React.FC = () => {
 		);
 	}
 
+	if (state.type === 'loading') {
+		return <div>{state === null ? <p>Loading compositions...</p> : null}</div>;
+	}
+
+	if (state.type === 'error') {
+		return <div>Error loading compositions: {state.error.stack}</div>;
+	}
+
+	if (state.type === 'not-initialized') {
+		return <div>Not initialized</div>;
+	}
+
 	return (
 		<div>
-			{comps === null ? <p>Loading compositions...</p> : null}
 			<ul>
-				{comps === null
+				{state === null
 					? []
-					: comps.map((c) => {
-							return <li key={c.id}>{c.id}</li>;
+					: state.comps.map((c) => {
+							return <li key={c}>{c}</li>;
 					  })}
 			</ul>
 		</div>

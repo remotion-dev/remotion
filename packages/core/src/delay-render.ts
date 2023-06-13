@@ -2,7 +2,7 @@ import {getRemotionEnvironment} from './get-environment.js';
 import {truthy} from './truthy.js';
 
 if (typeof window !== 'undefined') {
-	window.ready = false;
+	window.remotion_renderReady = false;
 }
 
 let handles: number[] = [];
@@ -50,7 +50,7 @@ export const delayRender = (label?: string): number => {
 	}
 
 	if (typeof window !== 'undefined') {
-		window.ready = false;
+		window.remotion_renderReady = false;
 	}
 
 	return handle;
@@ -87,6 +87,6 @@ export const continueRender = (handle: number): void => {
 		return true;
 	});
 	if (handles.length === 0 && typeof window !== 'undefined') {
-		window.ready = true;
+		window.remotion_renderReady = true;
 	}
 };

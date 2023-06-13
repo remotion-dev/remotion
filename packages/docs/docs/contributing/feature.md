@@ -28,7 +28,7 @@ See the [CONTRIBUTING.md](https://github.com/remotion-dev/remotion/blob/main/CON
 
 ## Icons
 
-Remotion uses [Font Awesome](https://fontawesome.com/) v5.15.4 for the icons in the Remotion Preview.
+Remotion uses [Font Awesome](https://fontawesome.com/) v5.15.4 for the icons in the Remotion Studio.
 
 We have a license and can grant access to Pro icons if needed.
 

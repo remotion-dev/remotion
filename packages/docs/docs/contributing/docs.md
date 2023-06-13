@@ -8,11 +8,11 @@ crumb: Contributing
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Good documentation makes the difference between frustration and joy! We are happy to accept contributions to the Remotion documentation.
+Good documentation makes the difference between frustration and joy! We happily accept contributions to the Remotion documentation.
 
 ## Editing an existing page
 
-Each page has a button `Improve this page` at the bottom. This is the easiest way to edit a page, since you do not need to setup the repository locally.
+At the bottom of each page, the `Improve this page` button is the easiest way to edit a page. You don't even need to setup the repository locally.
 
 ## Submitting a new page
 

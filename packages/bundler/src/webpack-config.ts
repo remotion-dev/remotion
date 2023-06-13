@@ -1,6 +1,5 @@
 import {createHash} from 'node:crypto';
 import ReactDOM from 'react-dom';
-import {Internals} from 'remotion';
 import webpack, {ProgressPlugin} from 'webpack';
 import type {LoaderOptions} from './esbuild-loader/interfaces';
 import {ReactFreshWebpackPlugin} from './fast-refresh';
@@ -8,6 +7,7 @@ import {jsonStringifyWithCircularReferences} from './stringify-with-circular-ref
 import {getWebpackCacheName} from './webpack-cache';
 import esbuild = require('esbuild');
 
+import {Internals} from 'remotion';
 import type {Configuration} from 'webpack';
 import {AllowOptionalDependenciesPlugin} from './optional-dependencies';
 export type WebpackConfiguration = Configuration;
@@ -16,7 +16,7 @@ export type WebpackOverrideFn = (
 	currentConfiguration: WebpackConfiguration
 ) => WebpackConfiguration;
 
-if (!ReactDOM || !ReactDOM.version) {
+if (!ReactDOM?.version) {
 	throw new Error('Could not find "react-dom" package. Did you install it?');
 }
 
@@ -49,7 +49,6 @@ export const webpackConfig = ({
 	webpackOverride = (f) => f,
 	onProgress,
 	enableCaching = true,
-	envVariables,
 	maxTimelineTracks,
 	entryPoints,
 	remotionRoot,
@@ -63,7 +62,6 @@ export const webpackConfig = ({
 	webpackOverride: WebpackOverrideFn;
 	onProgress?: (f: number) => void;
 	enableCaching?: boolean;
-	envVariables: Record<string, string>;
 	maxTimelineTracks: number;
 	keyboardShortcutsEnabled: boolean;
 	entryPoints: string[];
@@ -112,8 +110,6 @@ export const webpackConfig = ({
 							'process.env.MAX_TIMELINE_TRACKS': maxTimelineTracks,
 							'process.env.KEYBOARD_SHORTCUTS_ENABLED':
 								keyboardShortcutsEnabled,
-							[`process.env.${Internals.ENV_VARIABLES_ENV_NAME}`]:
-								JSON.stringify(envVariables),
 						}),
 						new AllowOptionalDependenciesPlugin(),
 				  ]
@@ -127,7 +123,7 @@ export const webpackConfig = ({
 				  ],
 		output: {
 			hashFunction: 'xxhash64',
-			filename: 'bundle.js',
+			filename: Internals.bundleName,
 			devtoolModuleFilenameTemplate: '[resource-path]',
 			assetModuleFilename:
 				environment === 'development' ? '[path][name][ext]' : '[hash][ext]',

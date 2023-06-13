@@ -1,5 +1,5 @@
 import type {Browser} from './browser';
-import type {Browser as PuppeteerBrowser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 import {puppeteer} from './browser/node';
 import type {Viewport} from './browser/PuppeteerViewport';
 import {
@@ -38,7 +38,7 @@ const getOpenGlRenderer = (option?: OpenGlRenderer | null): string[] => {
 	return [`--use-gl=${renderer}`];
 };
 
-const browserInstances: PuppeteerBrowser[] = [];
+const browserInstances: HeadlessBrowser[] = [];
 
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
@@ -48,43 +48,49 @@ export const killAllBrowsers = async () => {
 	}
 };
 
-/**
- * @description Opens a Chrome or Chromium browser instance.
- * @see [Documentation](https://www.remotion.dev/docs/renderer/open-browser)
- */
-export const openBrowser = async (
-	browser: Browser,
-	options?: {
-		shouldDumpIo?: boolean;
-		browserExecutable?: string | null;
-		chromiumOptions?: ChromiumOptions;
-		forceDeviceScaleFactor?: number;
-		viewport?: Viewport;
-		indent?: boolean;
-	}
-): Promise<PuppeteerBrowser> => {
+type InternalOpenBrowserOptions = {
+	shouldDumpIo: boolean;
+	browserExecutable: string | null;
+	chromiumOptions: ChromiumOptions;
+	forceDeviceScaleFactor: number | undefined;
+	viewport: Viewport | null;
+	indent: boolean;
+	browser: Browser;
+};
+
+export type OpenBrowserOptions = {
+	shouldDumpIo?: boolean;
+	browserExecutable?: string | null;
+	chromiumOptions?: ChromiumOptions;
+	forceDeviceScaleFactor?: number;
+};
+
+export const internalOpenBrowser = async ({
+	browser,
+	browserExecutable,
+	chromiumOptions,
+	forceDeviceScaleFactor,
+	indent,
+	shouldDumpIo,
+	viewport,
+}: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
 	if (browser === 'firefox') {
 		throw new TypeError(
 			'Firefox supported is not yet turned on. Stay tuned for the future.'
 		);
 	}
 
-	await ensureLocalBrowser(browser, options?.browserExecutable ?? null);
+	await ensureLocalBrowser(browser, browserExecutable);
 
-	const executablePath = getLocalBrowserExecutable(
-		browser,
-		options?.browserExecutable ?? null
-	);
+	const executablePath = getLocalBrowserExecutable(browser, browserExecutable);
 
-	const customGlRenderer = getOpenGlRenderer(
-		options?.chromiumOptions?.gl ?? null
-	);
+	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
 
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		product: browser,
-		dumpio: options?.shouldDumpIo ?? false,
-		indent: options?.indent ?? false,
+		dumpio: shouldDumpIo,
+		indent,
 		args: [
 			'about:blank',
 			'--allow-pre-commit-input',
@@ -117,7 +123,7 @@ export const openBrowser = async (
 			'--enable-blink-features=IdleDetection',
 			'--export-tagged-pdf',
 			'--intensive-wake-up-throttling-policy=0',
-			options?.chromiumOptions?.headless ?? true ? '--headless' : null,
+			chromiumOptions.headless ?? true ? '--headless' : null,
 			'--no-sandbox',
 			'--disable-setuid-sandbox',
 			...customGlRenderer,
@@ -135,20 +141,20 @@ export const openBrowser = async (
 			'--no-pings', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoPings&ss=chromium
 			'--font-render-hinting=none',
 			'--no-zygote', // https://source.chromium.org/search?q=lang:cpp+symbol:kNoZygote&ss=chromium,
-			options?.forceDeviceScaleFactor
-				? `--force-device-scale-factor=${options.forceDeviceScaleFactor}`
-				: null,
-			options?.chromiumOptions?.ignoreCertificateErrors
+			typeof forceDeviceScaleFactor === 'undefined'
+				? null
+				: `--force-device-scale-factor=${forceDeviceScaleFactor}`,
+			chromiumOptions.ignoreCertificateErrors
 				? '--ignore-certificate-errors'
 				: null,
-			...(options?.chromiumOptions?.disableWebSecurity
+			...(chromiumOptions?.disableWebSecurity
 				? ['--disable-web-security']
 				: []),
-			options?.chromiumOptions?.userAgent
-				? `--user-agent="${options.chromiumOptions.userAgent}"`
+			chromiumOptions?.userAgent
+				? `--user-agent="${chromiumOptions.userAgent}"`
 				: null,
 		].filter(Boolean) as string[],
-		defaultViewport: options?.viewport ?? {
+		defaultViewport: viewport ?? {
 			height: 720,
 			width: 1280,
 			deviceScaleFactor: 1,
@@ -160,4 +166,29 @@ export const openBrowser = async (
 
 	browserInstances.push(browserInstance);
 	return browserInstance;
+};
+
+/**
+ * @description Opens a Chrome or Chromium browser instance.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/open-browser)
+ */
+export const openBrowser = (
+	browser: Browser,
+	options?: OpenBrowserOptions
+): Promise<HeadlessBrowser> => {
+	const {
+		browserExecutable,
+		chromiumOptions,
+		forceDeviceScaleFactor,
+		shouldDumpIo,
+	} = options ?? {};
+	return internalOpenBrowser({
+		browser,
+		browserExecutable: browserExecutable ?? null,
+		chromiumOptions: chromiumOptions ?? {},
+		forceDeviceScaleFactor,
+		indent: false,
+		shouldDumpIo: shouldDumpIo ?? false,
+		viewport: null,
+	});
 };

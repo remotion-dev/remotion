@@ -1,7 +1,7 @@
 import {RenderInternals} from '@remotion/renderer';
 
-const defaultValue = undefined;
-let quality: number | undefined = defaultValue;
+const defaultValue = RenderInternals.DEFAULT_JPEG_QUALITY;
+let quality: number = defaultValue;
 
 export const setJpegQuality = (q: number | undefined) => {
 	RenderInternals.validateJpegQuality(q);

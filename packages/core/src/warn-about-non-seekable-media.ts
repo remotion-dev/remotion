@@ -31,7 +31,7 @@ export const warnAboutNonSeekableMedia = (
 			console.error(msg);
 		} else if (type === 'console-warning') {
 			console.warn(
-				`The media ${ref.src} does not support seeking. The video will render fine, but may not play correctly in preview and in the <Player>. See https://remotion.dev/docs/non-seekable-media for an explanation.`
+				`The media ${ref.src} does not support seeking. The video will render fine, but may not play correctly in the Remotion Studio and in the <Player>. See https://remotion.dev/docs/non-seekable-media for an explanation.`
 			);
 		} else {
 			throw new Error(msg);

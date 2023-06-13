@@ -13,12 +13,12 @@ describe('Test valid setQuality inputs', () => {
 
 	test('Undefined input', () => {
 		setJpegQuality(undefined);
-		expect(getJpegQuality()).toEqual(undefined);
+		expect(getJpegQuality()).toEqual(80);
 	});
 
 	test('0 input', () => {
 		setJpegQuality(0);
-		expect(getJpegQuality()).toEqual(undefined);
+		expect(getJpegQuality()).toEqual(80);
 	});
 });
 

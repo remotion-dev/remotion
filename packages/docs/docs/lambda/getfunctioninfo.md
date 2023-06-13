@@ -6,7 +6,7 @@ slug: /lambda/getfunctioninfo
 crumb: "Lambda API"
 ---
 
-Gets information about a function given it's name and region.
+Gets information about a function given its name and region.
 
 To get a list of deployed functions, use [`getFunctions()`](/docs/lambda/getfunctions).
 

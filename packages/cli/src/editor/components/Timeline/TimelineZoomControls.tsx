@@ -86,7 +86,7 @@ export const TimelineZoomControls: React.FC = () => {
 				type="button"
 				disabled={TIMELINE_MAX_ZOOM === zoom}
 			>
-				<Plus style={iconStyle} />
+				<Plus color="currentcolor" style={iconStyle} />
 			</ControlButton>
 		</div>
 	);

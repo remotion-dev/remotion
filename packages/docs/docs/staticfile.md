@@ -60,14 +60,14 @@ You can now load the asset via:
 If you are a Create React App or Next.JS user, you might be used to just to be able to reference the asset from a string: `<img src="/my-image.png"/>`. Remotion chooses to be different in that you need to use the `staticFile()` API because:
 
 - It prevents breaking when deploying your site into a subdirectory of a domain: `https://example.com/my-folder/my-logo.png`
-- It avoids conflicts with composition names which might share the same name (for example `http://localhost:3000/conflicting-name` while running the preview)
+- It avoids conflicts with composition names which might share the same name (for example `http://localhost:3000/conflicting-name` while running the studio)
 - It allows us to make paths framework-agnostic, so your code can work across Remotion, Create React App, Next.JS and potentially other frameworks.
 
 ## Getting all files in the public folder
 
 Use the `getStaticFiles()` API to get a list of available options.
 
-## Handling URI-unsafe characters <AvailableFrom v="4.0.0"/>
+## Handling URI-unsafe characters<AvailableFrom v="4.0.0"/>
 
 Since `v4.0`, `staticFile()` encodes the filename using `encodeURIComponent`.  
 If you encoded the path by yourself until now, make sure to drop your encoding before passing the path into `staticFile()` to avoid double encoding.

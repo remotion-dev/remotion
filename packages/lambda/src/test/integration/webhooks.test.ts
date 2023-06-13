@@ -69,7 +69,8 @@ describe('Webhooks', () => {
 		const res = await handler(
 			{
 				type: LambdaRoutines.start,
-				serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
+				serveUrl:
+					'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -155,7 +156,8 @@ describe('Webhooks', () => {
 		await handler(
 			{
 				type: LambdaRoutines.launch,
-				serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
+				serveUrl:
+					'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',

@@ -13,12 +13,15 @@ type LogOptions = {
 
 type VerboseLogOptions = LogOptions & {
 	tag?: string;
+	secondTag?: string;
 };
 
 export const verboseTag = (str: string) => {
-	return isColorSupported
-		? chalk.bgBlack(` ${str.toUpperCase()} `)
-		: `[${str.toUpperCase()}]`;
+	return isColorSupported ? chalk.bgBlack(` ${str} `) : `[${str}]`;
+};
+
+export const secondverboseTag = (str: string) => {
+	return isColorSupported ? chalk.bgWhite(` ${str} `) : `[${str}]`;
 };
 
 export const Log = {
@@ -33,7 +36,12 @@ export const Log = {
 			return console.log(
 				...[
 					options.indent ? INDENT_TOKEN : null,
-					options.tag ? verboseTag(options.tag) : null,
+					[
+						options.tag ? verboseTag(options.tag) : null,
+						options.secondTag ? secondverboseTag(options.secondTag) : null,
+					]
+						.filter(truthy)
+						.join(''),
 					...args.map((a) => chalk.gray(a)),
 				].filter(truthy)
 			);

@@ -9,12 +9,12 @@ import {Row, Spacing} from '../../layout';
 import {InputDragger} from '../../NewComposition/InputDragger';
 import {RemotionInput} from '../../NewComposition/RemInput';
 import {RemInputTypeColor} from '../../NewComposition/RemInputTypeColor';
-import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {narrowOption, optionRow} from '../layout';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
+import {ZodFieldValidation} from './ZodFieldValidation';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -28,9 +28,10 @@ export const ZodColorEditor: React.FC<{
 	setValue: UpdaterFunction<string>;
 	onSave: UpdaterFunction<string>;
 	onRemove: null | (() => void);
-	compact: boolean;
 	showSaveButton: boolean;
 	saving: boolean;
+	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -38,10 +39,11 @@ export const ZodColorEditor: React.FC<{
 	showSaveButton,
 	defaultValue,
 	schema,
-	compact,
 	onSave,
 	onRemove,
 	saving,
+	saveDisabledByParent,
+	mayPad,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -53,10 +55,15 @@ export const ZodColorEditor: React.FC<{
 		throw new Error('expected zod color');
 	}
 
-	const {localValue, onChange: onValueChange} = useLocalState({
+	const {
+		localValue,
+		onChange: onValueChange,
+		reset,
+	} = useLocalState({
 		schema,
 		setValue,
 		value,
+		defaultValue,
 	});
 
 	const {a, b, g, r} = localValue.zodValidation.success
@@ -70,7 +77,7 @@ export const ZodColorEditor: React.FC<{
 				Math.round(a),
 				zodTypes
 			);
-			onValueChange(() => newColor, false);
+			onValueChange(() => newColor, false, false);
 		},
 		[a, onValueChange, zodTypes]
 	);
@@ -78,17 +85,13 @@ export const ZodColorEditor: React.FC<{
 	const onTextChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			const newValue = e.target.value;
-			onValueChange(() => newValue, false);
+			onValueChange(() => newValue, false, false);
 		},
 		[onValueChange]
 	);
 
-	const reset = useCallback(() => {
-		onValueChange(() => defaultValue, true);
-	}, [defaultValue, onValueChange]);
-
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	const rgb = `#${r.toString(16).padStart(2, '0')}${g
@@ -112,7 +115,7 @@ export const ZodColorEditor: React.FC<{
 				Math.round((Number(newValue) / 100) * 255),
 				zodTypes
 			);
-			onValueChange(() => newColor, false);
+			onValueChange(() => newColor, false, false);
 		},
 		[localValue.value, onValueChange, zodTypes]
 	);
@@ -124,22 +127,24 @@ export const ZodColorEditor: React.FC<{
 				Math.round((Number(newValue) / 100) * 255),
 				zodTypes
 			);
-			onValueChange(() => newColor, false);
+			onValueChange(() => newColor, false, false);
 		},
 		[localValue.value, onValueChange, zodTypes]
 	);
 
 	return (
-		<div style={compact ? narrowOption : optionRow}>
+		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
-				compact={compact}
-				isDefaultValue={value === defaultValue}
+				isDefaultValue={localValue.value === defaultValue}
 				jsonPath={jsonPath}
 				onReset={reset}
 				onSave={save}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
+				valid={localValue.zodValidation.success}
+				saveDisabledByParent={saveDisabledByParent}
+				suffix={null}
 			/>
 			<div style={fullWidth}>
 				<Row align="center">
@@ -153,6 +158,7 @@ export const ZodColorEditor: React.FC<{
 							onChange={onChange}
 							className="__remotion_color_picker"
 							status={status}
+							name={jsonPath.join('.')}
 						/>
 					</div>
 					<Spacing x={1} block />
@@ -176,17 +182,8 @@ export const ZodColorEditor: React.FC<{
 						rightAlign={false}
 					/>
 				</Row>
-				{!localValue.zodValidation.success && (
-					<>
-						<Spacing y={1} block />
-						<ValidationMessage
-							align="flex-start"
-							message={localValue.zodValidation.error.format()._errors[0]}
-							type="error"
-						/>
-					</>
-				)}
+				<ZodFieldValidation path={jsonPath} localValue={localValue} />
 			</div>
-		</div>
+		</Fieldset>
 	);
 };

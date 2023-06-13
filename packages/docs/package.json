@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "3.3.96",
+  "version": "3.3.99",
   "private": true,
   "scripts": {
     "formatting": "prettier src --check",
@@ -15,7 +15,7 @@
     "clear": "docusaurus clear",
     "lint": "eslint components && eslint src",
     "test": "vitest --run",
-    "remotion": "remotion preview src/remotion/entry.ts"
+    "remotion": "remotion studio src/remotion/entry.ts"
   },
   "dependencies": {
     "@aws-sdk/s3-request-presigner": "3.215.0",
@@ -79,11 +79,11 @@
     "@types/hls.js": "^0.13.3",
     "@types/node": "18.14.6",
     "@types/react": "18.0.26",
-    "eslint": "8.25.0",
+    "eslint": "8.42.0",
     "lodash.sortby": "^4.7.0",
     "prettier": "^2.7.1",
     "prettier-plugin-organize-imports": "^2.3.4",
-    "typescript": "^4.7.0",
+    "typescript": "4.9.5",
     "url-loader": "^4.1.1"
   }
 }

@@ -11,7 +11,9 @@ const getClient = (url: string) => {
 		return http.get;
 	}
 
-	throw new Error('Can only download URLs starting with http:// or https://');
+	throw new Error(
+		`Can only download URLs starting with http:// or https://, got "${url}"`
+	);
 };
 
 const readFileWithoutRedirect = (

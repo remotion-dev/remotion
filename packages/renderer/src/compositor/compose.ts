@@ -4,6 +4,7 @@ import {chmodSync} from 'node:fs';
 import {copyFile} from 'node:fs/promises';
 import type {DownloadMap} from '../assets/download-map';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
+import type {Compositor} from './compositor';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
 import type {
@@ -19,6 +20,11 @@ type CompositorInput = {
 	width: number;
 	layers: Layer[];
 	imageFormat: CompositorImageFormat;
+};
+
+type ComposeInput = CompositorInput & {
+	output: string;
+	compositor: Compositor;
 };
 
 const getCompositorHash = ({...input}: CompositorInput): string => {
@@ -38,6 +44,26 @@ export const serializeCommand = <Type extends keyof CompositorCommand>(
 	};
 };
 
+export const composeWithoutCache = async ({
+	height,
+	width,
+	layers,
+	output,
+	imageFormat,
+	compositor,
+}: CompositorInput & {
+	output: string;
+	compositor: Compositor;
+}) => {
+	await compositor.executeCommand('Compose', {
+		height,
+		width,
+		layers,
+		output,
+		output_format: imageFormat,
+	});
+};
+
 export const compose = async ({
 	height,
 	width,
@@ -45,9 +71,9 @@ export const compose = async ({
 	output,
 	downloadMap,
 	imageFormat,
-}: CompositorInput & {
+	compositor,
+}: ComposeInput & {
 	downloadMap: DownloadMap;
-	output: string;
 }) => {
 	const hash = getCompositorHash({height, width, layers, imageFormat});
 
@@ -56,15 +82,14 @@ export const compose = async ({
 		return;
 	}
 
-	const payload = serializeCommand('Compose', {
+	await composeWithoutCache({
+		compositor,
 		height,
-		width,
+		imageFormat,
 		layers,
 		output,
-		output_format: imageFormat,
+		width,
 	});
-
-	await callCompositor(JSON.stringify(payload));
 
 	downloadMap.compositorCache[hash] = output;
 };

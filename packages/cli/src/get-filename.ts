@@ -29,6 +29,7 @@ export const getOutputFilename = ({
 		defaultExtension,
 		args,
 		type: imageSequence ? 'sequence' : 'asset',
+		outputLocationFromUi: null,
 	});
 
 	const extension = RenderInternals.getExtensionOfFilename(filename);

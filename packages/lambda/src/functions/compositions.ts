@@ -1,4 +1,4 @@
-import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {LambdaPayload} from '../defaults';
@@ -33,6 +33,10 @@ export const compositionsHandler = async (
 	}
 
 	const region = getCurrentRegionInFunction();
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(
+		lambdaParams.logLevel,
+		'verbose'
+	);
 
 	const [bucketName, browserInstance] = await Promise.all([
 		lambdaParams.bucketName ??
@@ -40,11 +44,7 @@ export const compositionsHandler = async (
 				region,
 			}).then((b) => b.bucketName),
 		getBrowserInstance(
-			lambdaParams.dumpBrowserLogs ??
-				RenderInternals.isEqualOrBelowLogLevel(
-					lambdaParams.logLevel,
-					'verbose'
-				),
+			lambdaParams.dumpBrowserLogs ?? verbose,
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);
@@ -62,19 +62,20 @@ export const compositionsHandler = async (
 		bucketName,
 	});
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
-	const compositions = await getCompositions(realServeUrl, {
+	const compositions = await RenderInternals.internalGetCompositions({
+		serveUrlOrWebpackUrl: realServeUrl,
 		puppeteerInstance: browserInstance,
 		inputProps,
-		envVariables: lambdaParams.envVariables,
+		envVariables: lambdaParams.envVariables ?? {},
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		port: null,
-		downloadMap,
+		server: undefined,
+		verbose,
+		indent: false,
+		browserExecutable: null,
+		onBrowserLog: null,
 	});
-
-	RenderInternals.cleanDownloadMap(downloadMap);
 
 	return Promise.resolve({
 		compositions,

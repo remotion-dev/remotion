@@ -8,7 +8,7 @@ crumb: "@remotion/player"
 import Tabs from "@theme/Tabs";
 import TabItem from '@theme/TabItem';
 
-If you are using the player, a common desire is to share the code with your Remotion Preview and/or server-side rendering. With the correct setup, you can write the component once and use it for previewing, displaying and rendering.
+If you are using the player, a common desire is to share the code with your Remotion Studio and/or server-side rendering. With the correct setup, you can write the component once and use it for previewing, displaying and rendering.
 
 :::note
 Remotion and your React app use a different Webpack config. Therefore, if you want to override your [Webpack configuration](/docs/webpack), you need to override both the Remotion one and the React app one.
@@ -126,19 +126,23 @@ registerRoot(MyVideo);
 Don't move these statements together into one file, as you might break hot reloading.
 :::
 
-## Using Remotion Preview
+## Using Remotion Studion
 
-You can open the Remotion Preview using the `npx remotion preview command`:
+You can open the Remotion Studion using the `npx remotion studio` command:
 
 ```bash
-npx remotion preview src/remotion/index.ts
+npx remotion studio src/remotion/index.ts
 ```
+
+:::note
+Before v4.0, the command was `npx remotion preview`.
+:::
 
 We recommend adding a new script into your package.json for easy access:
 
 ```diff
   "scripts": {
-+    "video": "remotion preview src/remotion/index.ts"
++    "video": "remotion studio src/remotion/index.ts"
   }
 ```
 

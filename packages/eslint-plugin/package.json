@@ -1,6 +1,6 @@
 {
   "name": "@remotion/eslint-plugin",
-  "version": "3.3.96",
+  "version": "3.3.99",
   "description": "A set of rules helping you avoid common pitfalls in Remotion.",
   "scripts": {
     "build": "tsc -d",
@@ -24,8 +24,8 @@
     "eslint": ">=7.0.0"
   },
   "devDependencies": {
-    "eslint": "8.25.0",
-    "typescript": "^4.7.0",
+    "eslint": "8.42.0",
+    "typescript": "4.9.5",
     "vitest": "0.31.1"
   },
   "private": false

@@ -226,7 +226,7 @@ export const setBundleModeAndUpdate = (state: BundleState) => {
 };
 
 if (typeof window !== 'undefined') {
-	window.getStaticCompositions = (): AnyCompMetadata[] => {
+	const getUnevaluatedComps = () => {
 		if (!Internals.getRoot()) {
 			throw new Error(
 				'registerRoot() was never called. 1. Make sure you specified the correct entrypoint for your bundle. 2. If your registerRoot() call is deferred, use the delayRender/continueRender pattern to tell Remotion to wait.'
@@ -261,19 +261,59 @@ if (typeof window !== 'undefined') {
 			);
 		}
 
-		return compositions.map((c): AnyCompMetadata => {
-			return {
-				defaultProps: c.defaultProps,
-				durationInFrames: c.durationInFrames,
-				fps: c.fps,
-				height: c.height,
-				id: c.id,
-				width: c.width,
-			};
-		});
+		return compositions;
 	};
 
-	window.siteVersion = '4';
+	window.getStaticCompositions = (): Promise<AnyCompMetadata[]> => {
+		const compositions = getUnevaluatedComps();
+
+		return Promise.all(
+			compositions.map(async (c): Promise<AnyCompMetadata> => {
+				const handle = delayRender(
+					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`
+				);
+				const comp = Internals.resolveVideoConfig({
+					composition: c,
+					editorProps: {},
+					signal: new AbortController().signal,
+				});
+
+				const resolved = await Promise.resolve(comp);
+				continueRender(handle);
+				return resolved;
+			})
+		);
+	};
+
+	window.remotion_getCompositionNames = () => {
+		return getUnevaluatedComps().map((c) => c.id);
+	};
+
+	window.remotion_calculateComposition = async (compId: string) => {
+		const compositions = getUnevaluatedComps();
+		const selectedComp = compositions.find((c) => c.id === compId);
+		if (!selectedComp) {
+			throw new Error(`Could not find composition with ID ${compId}`);
+		}
+
+		const abortController = new AbortController();
+		const handle = delayRender(
+			`Running the calculateMetadata() function for composition ${compId}`
+		);
+
+		const prom = await Promise.resolve(
+			Internals.resolveVideoConfig({
+				composition: selectedComp,
+				editorProps: {},
+				signal: abortController.signal,
+			})
+		);
+		continueRender(handle);
+
+		return prom;
+	};
+
+	window.siteVersion = '5';
 	window.remotion_version = VERSION;
-	window.setBundleMode = setBundleModeAndUpdate;
+	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }

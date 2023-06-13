@@ -1,5 +1,5 @@
 import React, {useContext} from 'react';
-import {PreviewServerConnectionCtx} from '../../helpers/client-id';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 
 const container: React.CSSProperties = {
 	position: 'fixed',
@@ -38,7 +38,7 @@ window.addEventListener('beforeunload', () => {
 });
 
 export const ServerDisconnected: React.FC = () => {
-	const ctx = useContext(PreviewServerConnectionCtx);
+	const ctx = useContext(StudioServerConnectionCtx);
 
 	if (ctx.type !== 'disconnected') {
 		return null;
@@ -51,12 +51,12 @@ export const ServerDisconnected: React.FC = () => {
 	return (
 		<div style={container} className="css-reset">
 			<div style={message}>
-				The preview server has disconnected. <br />
-				{window.remotion_previewServerCommand ? (
+				The studio server has disconnected. <br />
+				{window.remotion_studioServerCommand ? (
 					<span>
 						Run{' '}
 						<code style={inlineCode}>
-							{window.remotion_previewServerCommand}
+							{window.remotion_studioServerCommand}
 						</code>{' '}
 						to run it again.
 					</span>

@@ -15,7 +15,7 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
-import type {z} from 'zod';
+import type {AnyZodObject} from 'zod';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import {PlayerEmitter} from './event-emitter.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
@@ -34,7 +34,7 @@ import {validatePlaybackRate} from './utils/validate-playbackrate.js';
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
-export type PlayerProps<Schema extends z.ZodTypeAny, Props> = {
+export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	durationInFrames: number;
 	compositionWidth: number;
 	compositionHeight: number;
@@ -67,6 +67,7 @@ export type PlayerProps<Schema extends z.ZodTypeAny, Props> = {
 	alwaysShowControls?: boolean;
 	schema?: Schema;
 	initiallyMuted?: boolean;
+	showPlaybackRateControl?: boolean | number[];
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
@@ -80,7 +81,7 @@ export const componentOrNullIfLazy = <Props,>(
 	return null;
 };
 
-const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
+const PlayerFn = <Schema extends AnyZodObject, Props>(
 	{
 		durationInFrames,
 		compositionHeight,
@@ -114,6 +115,7 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 		renderPlayPauseButton,
 		alwaysShowControls = false,
 		initiallyMuted = false,
+		showPlaybackRateControl = false,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>
@@ -162,6 +164,7 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 	const rootRef = useRef<PlayerRef>(null);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 	const imperativePlaying = useRef(false);
+	const [currentPlaybackRate, setCurrentPlaybackRate] = useState(playbackRate);
 
 	if (typeof compositionHeight !== 'number') {
 		throw new TypeError(
@@ -191,6 +194,7 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 		allowFloats: false,
 	});
 	Internals.validateFps(fps, 'as a prop of the <Player/> component', false);
+	Internals.validateDefaultAndInputProps(inputProps, 'inputProps', null);
 
 	validateInOutFrames({
 		durationInFrames,
@@ -270,11 +274,15 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 		);
 	}
 
-	validatePlaybackRate(playbackRate);
+	validatePlaybackRate(currentPlaybackRate);
 
 	useEffect(() => {
-		emitter.dispatchRateChange(playbackRate);
-	}, [emitter, playbackRate]);
+		emitter.dispatchRateChange(currentPlaybackRate);
+	}, [emitter, currentPlaybackRate]);
+
+	useEffect(() => {
+		setCurrentPlaybackRate(playbackRate);
+	}, [playbackRate]);
 
 	useImperativeHandle(ref, () => rootRef.current as PlayerRef, []);
 
@@ -286,14 +294,14 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 			playing,
 			rootId,
 			shouldRegisterSequences: false,
-			playbackRate,
+			playbackRate: currentPlaybackRate,
 			imperativePlaying,
-			setPlaybackRate: () => {
-				throw new Error('playback rate');
+			setPlaybackRate: (rate) => {
+				setCurrentPlaybackRate(rate);
 			},
 			audioAndVideoTags,
 		};
-	}, [frame, playbackRate, playing, rootId]);
+	}, [frame, currentPlaybackRate, playing, rootId]);
 
 	const setTimelineContextValue = useMemo((): SetTimelineContextValue => {
 		return {
@@ -316,6 +324,8 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 		}, []);
 	}
 
+	const actualInputProps = useMemo(() => inputProps ?? {}, [inputProps]);
+
 	return (
 		<Internals.IsPlayerContextProvider>
 			<SharedPlayerContexts
@@ -325,7 +335,7 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 				compositionWidth={compositionWidth}
 				durationInFrames={durationInFrames}
 				fps={fps}
-				inputProps={inputProps}
+				inputProps={actualInputProps}
 				numberOfSharedAudioTags={numberOfSharedAudioTags}
 				initiallyMuted={initiallyMuted}
 			>
@@ -352,7 +362,7 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 							showVolumeControls={Boolean(showVolumeControls)}
 							doubleClickToFullscreen={Boolean(doubleClickToFullscreen)}
 							spaceKeyToPlayOrPause={Boolean(spaceKeyToPlayOrPause)}
-							playbackRate={playbackRate}
+							playbackRate={currentPlaybackRate}
 							className={className ?? undefined}
 							showPosterWhenUnplayed={Boolean(showPosterWhenUnplayed)}
 							showPosterWhenEnded={Boolean(showPosterWhenEnded)}
@@ -364,6 +374,7 @@ const PlayerFn = <Schema extends z.ZodTypeAny, Props>(
 							renderFullscreen={renderFullscreenButton ?? null}
 							renderPlayPauseButton={renderPlayPauseButton ?? null}
 							alwaysShowControls={alwaysShowControls}
+							showPlaybackRateControl={showPlaybackRateControl}
 						/>
 					</PlayerEventEmitterContext.Provider>
 				</Internals.Timeline.SetTimelineContext.Provider>

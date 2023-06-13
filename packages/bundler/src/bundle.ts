@@ -74,8 +74,6 @@ export const getConfig = ({
 		onProgress,
 		enableCaching: options?.enableCaching ?? true,
 		maxTimelineTracks: 90,
-		// For production, the variables are set dynamically
-		envVariables: {},
 		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: false,
@@ -246,7 +244,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		editorName: null,
 		inputProps: null,
 		remotionRoot: resolvedRemotionRoot,
-		previewServerCommand: null,
+		studioServerCommand: null,
 		renderQueue: null,
 		numberOfAudioTags: 0,
 		publicFiles: readRecursively({

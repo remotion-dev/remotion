@@ -1,6 +1,5 @@
 html {
-	--blue: #0b84f3;
-	--blue-disabled: #284f73;
+	--remotion-cli-internals-blue: #0b84f3;
 }
 
 body {
@@ -18,7 +17,7 @@ body {
 
 .remotion-splitter:hover,
 .remotion-splitter-active {
-	background-color: var(--blue);
+	background-color: var(--remotion-cli-internals-blue);
 }
 
 input::-webkit-outer-spin-button,
@@ -37,9 +36,9 @@ a:focus {
 	border-radius: 0 !important;
 }
 
-input[type="color"].__remotion_color_picker::-webkit-color-swatch-wrapper {
+input[type='color'].__remotion_color_picker::-webkit-color-swatch-wrapper {
 	padding: 0;
 }
-input[type="color"].__remotion_color_picker::-webkit-color-swatch {
+input[type='color'].__remotion_color_picker::-webkit-color-swatch {
 	border: none;
 }

@@ -13,7 +13,7 @@ This API has been removed in v4.0 and is not necessary to call anymore. This pag
 
 Checks if the `ffmpeg` binary is installed and if it is not, [downloads it and puts it into your `node_modules` folder](/docs/ffmpeg).
 
-```ts twoslash title="ensure.mjs"
+```ts title="ensure.mjs"
 // @module: esnext
 // @target: es2018
 import { ensureFfmpeg } from "@remotion/renderer";

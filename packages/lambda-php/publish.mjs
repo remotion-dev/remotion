@@ -13,7 +13,7 @@ import path from "node:path";
 
 const tmpDir = tmpdir();
 
-const workingDir = path.join(tmpDir, "lambda-php-sdk");
+const workingDir = path.join(tmpDir, `lambda-php-sdk-${Math.random()}`);
 if (existsSync(workingDir)) {
   rmSync(workingDir, { recursive: true });
 }
@@ -43,9 +43,12 @@ writeFileSync(
     "Visit https://www.remotion.dev/docs/lambda/php to learn how to install the Remotion Lambda PHP SDK.",
   ].join("\n")
 );
-execSync("git add .", { cwd: workingDir });
-execSync(`git commit -m 'Release ${VERSION}'`, { cwd: workingDir });
-execSync(`git tag ${VERSION}`, { cwd: workingDir });
-execSync("git push", { cwd: workingDir });
-execSync(`git push origin ${VERSION}`, { cwd: workingDir });
-execSync("git push --tags", { cwd: workingDir });
+execSync("git add .", { cwd: workingDir, stdio: "inherit" });
+execSync(`git commit --allow-empty -m 'Release ${VERSION}'`, {
+  cwd: workingDir,
+  stdio: "inherit",
+});
+execSync(`git tag ${VERSION}`, { cwd: workingDir, stdio: "inherit" });
+execSync("git push", { cwd: workingDir, stdio: "inherit" });
+execSync(`git push origin ${VERSION}`, { cwd: workingDir, stdio: "inherit" });
+execSync("git push --tags", { cwd: workingDir, stdio: "inherit" });

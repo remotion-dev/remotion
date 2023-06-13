@@ -1,5 +1,5 @@
-import type {ChromiumOptions} from '@remotion/renderer';
-import {openBrowser} from '@remotion/renderer';
+import type {ChromiumOptions, openBrowser} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
@@ -50,11 +50,14 @@ export const getBrowserInstance = async (
 		gl: chromiumOptions.gl ?? 'swangle',
 	};
 
-	_browserInstance = await openBrowser('chrome', {
+	_browserInstance = await RenderInternals.internalOpenBrowser({
+		browser: 'chrome',
 		browserExecutable: execPath,
 		shouldDumpIo,
 		chromiumOptions: actualChromiumOptions,
+		forceDeviceScaleFactor: undefined,
 		indent: false,
+		viewport: null,
 	});
 	_browserInstance.on('disconnected', () => {
 		console.log('Browser disconnected / crashed');

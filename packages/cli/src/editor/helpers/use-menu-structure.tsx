@@ -18,7 +18,7 @@ import {PreviewSizeContext} from '../state/preview-size';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {timelineRef} from '../state/timeline-ref';
-import {PreviewServerConnectionCtx} from './client-id';
+import {StudioServerConnectionCtx} from './client-id';
 import {openInEditor} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
@@ -41,7 +41,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		EditorZoomGesturesContext
 	);
 	const {size, setSize} = useContext(PreviewSizeContext);
-	const {type} = useContext(PreviewServerConnectionCtx);
+	const {type} = useContext(StudioServerConnectionCtx);
 
 	const {
 		setSidebarCollapsedState,
@@ -171,7 +171,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						onClick: () => {
 							closeMenu();
 							if (type !== 'connected') {
-								sendErrorNotification('Preview server is offline');
+								sendErrorNotification('Restart the studio to render');
 								return;
 							}
 

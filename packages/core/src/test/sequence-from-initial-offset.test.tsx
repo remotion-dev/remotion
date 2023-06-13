@@ -21,7 +21,7 @@ const Inner: React.FC = () => {
 
 const context: TimelineContextValue = {
 	audioAndVideoTags: {current: []},
-	frame: 10000,
+	frame: 100000,
 	imperativePlaying: {
 		current: false,
 	},
@@ -47,6 +47,6 @@ describe('Composition-validation render should NOT throw with valid props', () =
 			</CanUseRemotionHooksProvider>
 		);
 
-		expect(queryByText(/^0$/)).not.toBe(null);
+		expect(queryByText(/^2424$/)).not.toBe(null);
 	});
 });

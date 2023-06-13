@@ -11,7 +11,7 @@ Render a video or an audio programmatically.
 
 ## Example
 
-See an example of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) on the [server-side rendering page](/docs/ssr#render-a-video-using-nodejs-apis).
+See an example of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) on the [server-side rendering page](/docs/ssr).
 
 ## Arguments
 
@@ -56,7 +56,7 @@ Choose the encoding of your audio.
 
 Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
 
-### `audioBitrate?` <AvailableFrom v="3.2.32" />
+### `audioBitrate?`<AvailableFrom v="3.2.32" />
 
 _string - optional_
 
@@ -67,7 +67,7 @@ This option cannot be set if `--crf` is set.
 Example values: `512K` for 512 kbps, `1M` for 1 Mbps.  
 Default: `320k`
 
-### `videoBitrate?` <AvailableFrom v="3.2.32" />
+### `videoBitrate?`<AvailableFrom v="3.2.32" />
 
 _string - optional_
 
@@ -109,19 +109,19 @@ In which image format the frames should be rendered.
 - `png` if you want to [render transparent videos](/docs/transparent-videos/)
 - `none` if you are rendering audio
 
-### `browserExecutable?` <AvailableFrom v="3.0.11" />
+### `browserExecutable?`<AvailableFrom v="3.0.11" />
 
 _optional_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
-### `everyNthFrame?` <AvailableFrom v="3.1.0" />
+### `everyNthFrame?`<AvailableFrom v="3.1.0" />
 
 _optional_
 
 Renders only every nth frame. For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
 
-### `numberOfGifLoops?` <AvailableFrom v="3.1.0" />
+### `numberOfGifLoops?`<AvailableFrom v="3.1.0" />
 
 _optional_
 
@@ -159,13 +159,13 @@ _number | [number, number] - optional_
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
-### `muted?` <AvailableFrom v="3.2.1" />
+### `muted?`<AvailableFrom v="3.2.1" />
 
 _boolean - optional_
 
 If set to true, no audio is being rendered.
 
-### `enforceAudioTrack?` <AvailableFrom v="3.2.1" />
+### `enforceAudioTrack?`<AvailableFrom v="3.2.1" />
 
 _boolean - optional_
 
@@ -175,7 +175,7 @@ Render a silent audio track if there wouldn't be any otherwise.
 
 _puppeteer.Browser - optional_
 
-An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
 ### `scale?`
 
@@ -311,19 +311,19 @@ _optional_
 
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
-### `cancelSignal?` <AvailableFrom v="3.0.15" />
+### `cancelSignal?`<AvailableFrom v="3.0.15" />
 
 _optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
-### `verbose?` <AvailableFrom v="3.1.6" />
+### `verbose?`<AvailableFrom v="3.1.6" />
 
 _optional_
 
 Prints debugging output if set to true.
 
-### `chromiumOptions?` <AvailableFrom v="2.6.5" />
+### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 
 _optional_
 
@@ -367,11 +367,11 @@ Accepted values:
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
 
-#### `userAgent` <AvailableFrom v="3.3.83"/>
+#### `userAgent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
-### `ffmpegOverride?` <AvailableFrom v="3.2.22" />
+### `ffmpegOverride?`<AvailableFrom v="3.2.22" />
 
 _function - optional_
 
@@ -403,7 +403,7 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
 
-### `disallowParallelEncoding` <AvailableFrom v="3.2.29" />
+### `disallowParallelEncoding`<AvailableFrom v="3.2.29" />
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
 
@@ -413,17 +413,6 @@ Introduced in v3.2.29, removed from v4.0. `slowestFrames` has been moved to the 
 
 Callback function that gets called right before `renderMedia()` resolves.  
 The only argument `slowestFrames` is an array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
-
-```tsx twoslash
-import type { OnSlowestFrames } from "@remotion/renderer";
-
-const onSlowestFrames: OnSlowestFrames = (slowestFrames) => {
-  console.log("The slowest 10 frames are:");
-  for (const slowFrame of slowestFrames) {
-    console.log(`Frame ${slowFrame.frame} (${slowFrame.time}ms)`);
-  }
-};
-```
 
 ### ~~`ffmpegExecutable`~~
 
@@ -445,16 +434,6 @@ The return value is an object with the following properties:
 
 - `buffer`: If `outputLocation` is not specified or `null`, contains a buffer, otherwise `null`.
 - `slowestFrames`: An array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
-
-```ts twoslash
-import type { SlowFrame } from "@remotion/renderer";
-const slowestFrames: SlowFrame[] = [];
-// ---cut---
-console.log("The slowest 10 frames are:");
-for (const slowFrame of slowestFrames) {
-  console.log(`Frame ${slowFrame.frame} (${slowFrame.time}ms)`);
-}
-```
 
 _**from v3.0.26**:_
 

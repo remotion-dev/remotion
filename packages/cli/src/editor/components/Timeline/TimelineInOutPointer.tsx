@@ -1,7 +1,8 @@
-import React, {createRef} from 'react';
+import React, {createRef, useContext} from 'react';
 import {Internals} from 'remotion';
-import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
+import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {useTimelineInOutFramePosition} from '../../state/in-out';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const areaHighlight: React.CSSProperties = {
 	position: 'absolute',
@@ -17,9 +18,9 @@ export const outMarkerAreaRef = createRef<HTMLDivElement>();
 export const TimelineInOutPointer: React.FC = () => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 	const videoConfig = Internals.useUnsafeVideoConfig();
-	const {get, width} = useGetXPositionOfItemInTimeline();
+	const timelineWidth = useContext(TimelineWidthContext);
 
-	if (!videoConfig) {
+	if (!videoConfig || timelineWidth === null) {
 		return null;
 	}
 
@@ -31,7 +32,11 @@ export const TimelineInOutPointer: React.FC = () => {
 					style={{
 						...areaHighlight,
 						left: 0,
-						width: get(inFrame ?? 0),
+						width: getXPositionOfItemInTimelineImperatively(
+							inFrame,
+							videoConfig.durationInFrames,
+							timelineWidth
+						),
 					}}
 				/>
 			)}
@@ -41,8 +46,18 @@ export const TimelineInOutPointer: React.FC = () => {
 					ref={outMarkerAreaRef}
 					style={{
 						...areaHighlight,
-						left: get(outFrame),
-						width: width - get(outFrame),
+						left: getXPositionOfItemInTimelineImperatively(
+							outFrame,
+							videoConfig.durationInFrames,
+							timelineWidth
+						),
+						width:
+							timelineWidth -
+							getXPositionOfItemInTimelineImperatively(
+								outFrame,
+								videoConfig.durationInFrames,
+								timelineWidth
+							),
 					}}
 				/>
 			)}

@@ -1,4 +1,5 @@
 import React, {createContext, useMemo, useReducer} from 'react';
+import {getAbsoluteSrc} from '../absolute-src.js';
 type DurationState = Record<string, number>;
 
 type DurationAction = {
@@ -15,7 +16,7 @@ export const durationReducer = (
 		case 'got-duration':
 			return {
 				...state,
-				[action.src]: action.durationInSeconds,
+				[getAbsoluteSrc(action.src)]: action.durationInSeconds,
 			};
 		default:
 			return state;

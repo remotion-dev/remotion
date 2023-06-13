@@ -76,7 +76,7 @@ Choose the encoding of your audio.
 
 Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
 
-### `audioBitrate?` <AvailableFrom v="3.2.32" />
+### `audioBitrate?`<AvailableFrom v="3.2.32" />
 
 _string - optional_
 
@@ -87,7 +87,7 @@ This option cannot be set if `--crf` is set.
 Example values: `512K` for 512 kbps, `1M` for 1 Mbps.  
 Default: `320k`
 
-### `videoBitrate?` <AvailableFrom v="3.2.32" />
+### `videoBitrate?`<AvailableFrom v="3.2.32" />
 
 _string - optional_
 
@@ -133,13 +133,13 @@ const onDownload = (src: string) => {
 };
 ```
 
-### `numberOfGifLoops?` <AvailableFrom v="3.1.0" />
+### `numberOfGifLoops?`<AvailableFrom v="3.1.0" />
 
 _optional_
 
 Set the looping behavior. This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
 
-### `muted?` <AvailableFrom v="3.2.1" />
+### `muted?`<AvailableFrom v="3.2.1" />
 
 _optional_
 
@@ -151,13 +151,13 @@ _optional_
 
 A boolean value that when set to `true`, will log all kinds of debug information. Default `false`.
 
-### `cancelSignal?` <AvailableFrom v="3.0.15" />
+### `cancelSignal?`<AvailableFrom v="3.0.15" />
 
 _optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
-### `ffmpegOverride?` <AvailableFrom v="3.2.22" />
+### `ffmpegOverride?`<AvailableFrom v="3.2.22" />
 
 _function - optional_
 

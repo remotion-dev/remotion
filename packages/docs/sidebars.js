@@ -10,7 +10,7 @@ module.exports = {
       },
       collapsed: true,
       items: [
-        "cli/preview",
+        "cli/studio",
         "cli/render",
         "cli/still",
         "cli/compositions",
@@ -122,6 +122,7 @@ module.exports = {
       label: "@remotion/renderer",
       items: [
         "renderer/get-compositions",
+        "renderer/select-composition",
         "renderer/render-media",
         "renderer/render-frames",
         "renderer/render-still",
@@ -408,21 +409,40 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Techniques",
+      label: "Designing videos",
       items: [
         "transforms",
         "assets",
-        "data-fetching",
-        "parametrized-rendering",
         "use-img-and-iframe",
         "using-audio",
         "fonts",
         "using-randomness",
         "audio-visualization",
         "noise-visualization",
+      ],
+    },
+    {
+      type: "category",
+      label: "Parametrized videos",
+      link: {
+        type: "doc",
+        id: "parametrized-rendering",
+      },
+      items: [
+        "passing-props",
+        "schemas",
+        "visual-editing",
+        "data-fetching",
+        "dynamic-metadata",
+        "props-resolution",
+      ],
+    },
+    {
+      type: "category",
+      label: "How To",
+      items: [
         "encoding",
         "transparent-videos",
-        "dynamic-metadata",
         "ssr",
         "webpack",
         "tailwind",
@@ -437,6 +457,7 @@ module.exports = {
         "javascript",
       ],
     },
+
     {
       type: "category",
       link: {
