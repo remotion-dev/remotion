@@ -1,6 +1,3 @@
-import {CliInternals} from '@remotion/cli';
-
-import {getCompositions} from '@remotion/renderer';
 import {getOrCreateBucket} from '../../../../api/get-or-create-bucket';
 import {getServiceInfo} from '../../../../api/get-service-info';
 import {getServices} from '../../../../api/get-services';
@@ -10,7 +7,6 @@ import {
 } from '../../../../shared/constants';
 import {convertToServeUrl} from '../../../../shared/convert-to-serve-url';
 import {validatePrivacy} from '../../../../shared/validate-privacy';
-import {validateServeUrl} from '../../../../shared/validate-serveurl';
 import {parsedCloudrunCli} from '../../../args';
 import {getGcpRegion} from '../../../get-gcp-region';
 import {quit} from '../../../helpers/quit';
@@ -44,18 +40,6 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 			urlOrId: siteName,
 			bucketName: remotionBucket,
 		});
-	}
-
-	let composition: string = args[1];
-	if (!composition) {
-		Log.info(
-			`No compositions passed. Fetching compositions for ${serveUrl}...`
-		);
-
-		validateServeUrl(serveUrl);
-		const comps = await getCompositions(serveUrl);
-		const {compositionId} = await CliInternals.selectComposition(comps);
-		composition = compositionId;
 	}
 
 	const outName = parsedCloudrunCli['out-name'];
@@ -102,7 +86,6 @@ export const renderArgsCheck = async (subcommand: string, args: string[]) => {
 	return {
 		serveUrl,
 		cloudRunUrl,
-		composition,
 		outName,
 		forceBucketName,
 		privacy,

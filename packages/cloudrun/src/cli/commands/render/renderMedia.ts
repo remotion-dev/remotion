@@ -3,7 +3,9 @@ import {renderMediaOnCloudrun} from '../../../api/render-media-on-cloudrun';
 import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
 // import {validateMaxRetries} from '../../../shared/validate-retries';
 import {ConfigInternals} from '@remotion/cli/config';
+import {RenderInternals} from '@remotion/renderer';
 import {downloadFile} from '../../../api/download-file';
+import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedCloudrunCli} from '../../args';
 import {Log} from '../../log';
 import {renderArgsCheck} from './helpers/renderArgsCheck';
@@ -17,7 +19,6 @@ export const renderMediaSubcommand = async (
 	const {
 		serveUrl,
 		cloudRunUrl,
-		composition,
 		outName,
 		forceBucketName,
 		downloadName,
@@ -43,6 +44,8 @@ export const renderMediaSubcommand = async (
 		envVariables,
 		frameRange,
 		inputProps,
+		logLevel,
+		puppeteerTimeout,
 		pixelFormat,
 		proResProfile,
 		jpegQuality,
@@ -54,11 +57,49 @@ export const renderMediaSubcommand = async (
 		videoBitrate,
 		height,
 		width,
+		browserExecutable,
+		port,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
 	});
+
+	let composition: string = args[1];
+	if (!composition) {
+		Log.info('No compositions passed. Fetching compositions...');
+
+		validateServeUrl(serveUrl);
+
+		const server = RenderInternals.prepareServer({
+			concurrency: 1,
+			indent: false,
+			port,
+			remotionRoot,
+			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			webpackConfigOrServeUrl: serveUrl,
+		});
+
+		const {compositionId} =
+			await CliInternals.getCompositionWithDimensionOverride({
+				args,
+				compositionIdFromUi: null,
+				browserExecutable,
+				chromiumOptions,
+				envVariables,
+				height,
+				indent: false,
+				inputProps,
+				port,
+				puppeteerInstance: undefined,
+				serveUrlOrWebpackUrl: serveUrl,
+				timeoutInMilliseconds: puppeteerTimeout,
+				verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+				width,
+				server: await server,
+			});
+		composition = compositionId;
+	}
 
 	// Todo: Check cloudRunUrl is valid, as the error message is obtuse
 	CliInternals.Log.info(
