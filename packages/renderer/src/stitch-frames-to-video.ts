@@ -1,4 +1,4 @@
-import {promises} from 'node:fs';
+import fs, {promises} from 'node:fs';
 import path from 'node:path';
 import type {TAsset} from 'remotion';
 import {Internals} from 'remotion';
