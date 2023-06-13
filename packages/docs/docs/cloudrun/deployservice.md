@@ -40,6 +40,18 @@ The upper bound on the amount of RAM that the Cloud Run service can consume. By 
 
 The maximum number of CPU cores that the Cloud Run service can use to process requests. The default is 1. As the CPU limit is raised, there is a [corresponding minimum Memory Limit](https://cloud.google.com/run/docs/configuring/cpu#setting) that must be observed.
 
+### `minInstances`
+
+The minimum number of service instances to have available, regardless of requests. The default is 0. Some users may wish to increase the minimum instances so that renders are started faster, though this would only reduce cold start time for simultaneous renders up to that minimum limit. [Read more about the minimum instance limit here](/docs/cloudrun/instancecount#minimum-instance-count)
+
+:::warning
+Any running instances, even if they are not performing a render, will be billable in GCP. The default minimum number of instances is zero, which means that when no requests are made to your service, you are not billed.
+:::
+
+### `maxInstances`
+
+The maximum number of service instances that can be create by GCP in response to incoming requests. The default is 100. [Read more about the maximum instance limit here](/docs/cloudrun/instancecount#maximum-instance-count)
+
 ### `timeoutSeconds`
 
 How long the Cloud Run Service may run before it gets killed. Must be below 3600 seconds.

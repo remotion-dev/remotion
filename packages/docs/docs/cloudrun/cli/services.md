@@ -61,6 +61,18 @@ The upper bound on the amount of RAM that the Cloud Run service can consume. Def
 
 The maximum number of CPU cores that the Cloud Run service can use to process requests. Default: 1.0.
 
+### `--minInstances`
+
+The minimum number of service instances to have available, regardless of requests. Default: 0.
+
+:::note
+Any running instances, even if they are not performing a render, will be billable in GCP. The default minimum number of instances is zero, which means that when no requests are made to your service, you are not billed.
+:::
+
+### `--maxInstances`
+
+The maximum number of service instances that can be create by GCP in response to incoming requests. Default: 100.
+
 ### `--timeoutSeconds`
 
 Timeout of the Cloud Run service. Default: 300 seconds.

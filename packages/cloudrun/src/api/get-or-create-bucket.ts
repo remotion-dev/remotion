@@ -33,9 +33,11 @@ export const getOrCreateBucket = async (
 
 	if (remotionBuckets.length > 1) {
 		throw new Error(
-			`You have multiple buckets (${remotionBuckets.map(
-				(b) => b.name
-			)}) starting with "${REMOTION_BUCKET_PREFIX}". This is an error, please delete buckets so that you have one maximum.`
+			`You have multiple buckets (${remotionBuckets
+				.map((b) => b.name)
+				.join(', ')}) in your Cloud Storage region (${
+				params.region
+			}) starting with "${REMOTION_BUCKET_PREFIX}". This is an error, please delete buckets so that you have one maximum.`
 		);
 	}
 

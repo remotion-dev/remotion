@@ -16,3 +16,7 @@ export const inputPropsKey = (hash: string) => {
 
 export type Privacy = 'public' | 'private';
 export const DEFAULT_OUTPUT_PRIVACY: Privacy = 'public';
+
+export const DEFAULT_TIMEOUT = 300;
+export const DEFAULT_MIN_INSTANCES = 0;
+export const DEFAULT_MAX_INSTANCES = 100;

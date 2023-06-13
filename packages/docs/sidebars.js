@@ -539,7 +539,11 @@ module.exports = {
         "cloudrun/generate-env",
         "cloudrun/region-selection",
         "cloudrun/faq",
+        "cloudrun/checklist",
+        "cloudrun/instancecount",
+        "cloudrun/multiple-buckets",
         "cloudrun/upgrading",
+        "cloudrun/uninstall",
       ],
     },
     {
