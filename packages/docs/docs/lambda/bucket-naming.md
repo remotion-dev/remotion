@@ -6,7 +6,7 @@ sidebar_label: Bucket naming
 crumb: "@remotion/lambda"
 ---
 
-A Remotion Lambda bucket names (for example `remotionlambda-apsouth1-3ysk0nyazp`) has two special attributes:
+A Remotion Lambda bucket name (for example `remotionlambda-apsouth1-3ysk0nyazp`) has two special attributes:
 
 <Step>1</Step> It is prefixed with <code>remotionlambda-</code><br/>
 <Step>2</Step> It contains the region in their name <br/><br/>
