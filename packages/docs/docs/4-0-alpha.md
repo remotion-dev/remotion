@@ -62,6 +62,10 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
+### `4.0.0-alpha15`
+
+- Intention: Lower the minimum required `glibc` version on Linux x64 to support Ubuntu 20.04
+
 ### `4.0.0-alpha14`
 
 - Make renders via the CLI faster using a reusable server
