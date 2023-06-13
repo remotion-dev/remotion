@@ -62,7 +62,7 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
-### `4.0.0-alpha15`
+### `4.0.0-alpha16`
 
 - Intention: Lower the minimum required `glibc` version on Linux x64 to support Ubuntu 20.04
 
