@@ -10,7 +10,7 @@ import {servicesRmallCommand, SERVICES_RMALL_SUBCOMMAND} from './rmall';
 
 export const SERVICES_COMMAND = 'services';
 
-export const LEFT_COL = 18;
+export const LEFT_COL = 20;
 
 export const displayServiceInfo = (service: ServiceInfo) => {
 	return [

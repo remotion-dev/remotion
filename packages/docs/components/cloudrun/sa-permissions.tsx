@@ -8,7 +8,6 @@ type Permission = {
 }
 
 export const SAPermissionList: React.FC = () => {
-  console.log(permissionsJson.list)
   return (
     <div>
       <pre>{permissionsJson.list.map((permission: Permission) => {
@@ -19,7 +18,6 @@ export const SAPermissionList: React.FC = () => {
 };
 
 export const SAPermissionTable: React.FC = () => {
-  console.log(permissionsJson.list)
   return (
     <table>
       <tr>

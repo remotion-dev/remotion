@@ -1,3 +1,8 @@
+import {
+	DEFAULT_MAX_INSTANCES,
+	DEFAULT_MIN_INSTANCES,
+	DEFAULT_TIMEOUT,
+} from '../shared/constants';
 import {generateServiceName} from '../shared/generate-service-name';
 import {validateGcpRegion} from '../shared/validate-gcp-region';
 import {validateImageRemotionVersion} from '../shared/validate-image-remotion-version';
@@ -11,6 +16,8 @@ export type DeployServiceInput = {
 	memoryLimit?: string;
 	cpuLimit?: string;
 	timeoutSeconds?: number;
+	minInstances?: number;
+	maxInstances?: number;
 	projectID: string;
 	region: string;
 };
@@ -38,6 +45,8 @@ export const deployService = async ({
 	memoryLimit,
 	cpuLimit,
 	timeoutSeconds,
+	minInstances,
+	maxInstances,
 	projectID,
 	region,
 }: DeployServiceInput): Promise<DeployServiceOutput> => {
@@ -56,7 +65,15 @@ export const deployService = async ({
 	}
 
 	if (!timeoutSeconds) {
-		timeoutSeconds = 300;
+		timeoutSeconds = DEFAULT_TIMEOUT;
+	}
+
+	if (!minInstances) {
+		minInstances = DEFAULT_MIN_INSTANCES;
+	}
+
+	if (!maxInstances) {
+		maxInstances = DEFAULT_MAX_INSTANCES;
 	}
 
 	const parent = `projects/${projectID}/locations/${region}`;
@@ -94,6 +111,8 @@ export const deployService = async ({
 				memoryLimit,
 				cpuLimit,
 				timeoutSeconds,
+				minInstances,
+				maxInstances,
 			}),
 		},
 		serviceId: serviceName,

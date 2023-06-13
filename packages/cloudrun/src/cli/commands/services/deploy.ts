@@ -2,6 +2,11 @@ import {CliInternals} from '@remotion/cli';
 import {VERSION} from 'remotion/version';
 import {displayServiceInfo, LEFT_COL} from '.';
 import {deployService} from '../../../api/deploy-service';
+import {
+	DEFAULT_MAX_INSTANCES,
+	DEFAULT_MIN_INSTANCES,
+	DEFAULT_TIMEOUT,
+} from '../../../shared/constants';
 import {generateServiceName} from '../../../shared/generate-service-name';
 import {validateGcpRegion} from '../../../shared/validate-gcp-region';
 import {validateImageRemotionVersion} from '../../../shared/validate-image-remotion-version';
@@ -17,7 +22,13 @@ export const cloudRunDeploySubcommand = async () => {
 	const projectID = process.env.REMOTION_GCP_PROJECT_ID as string;
 	const memoryLimit = String(parsedCloudrunCli.memoryLimit ?? '2Gi');
 	const cpuLimit = String(parsedCloudrunCli.cpuLimit ?? '1.0');
-	const timeoutSeconds = parsedCloudrunCli.timeoutSeconds ?? 300;
+	const minInstances = String(
+		parsedCloudrunCli.minInstances ?? DEFAULT_MIN_INSTANCES
+	);
+	const maxInstances = String(
+		parsedCloudrunCli.maxInstances ?? DEFAULT_MAX_INSTANCES
+	);
+	const timeoutSeconds = parsedCloudrunCli.timeoutSeconds ?? DEFAULT_TIMEOUT;
 
 	if (!CliInternals.quietFlagProvided()) {
 		Log.info(
@@ -28,6 +39,9 @@ Validating Deployment of Cloud Run Service:
 ${[
 	'Remotion Version: '.padEnd(LEFT_COL, ' ') + ' ' + VERSION,
 	'Memory Limit: '.padEnd(LEFT_COL, ' ') + ' ' + memoryLimit,
+	'CPU Limit: '.padEnd(LEFT_COL, ' ') + ' ' + cpuLimit,
+	'Minimum Instances: '.padEnd(LEFT_COL, ' ') + ' ' + minInstances,
+	'Maximum Instances: '.padEnd(LEFT_COL, ' ') + ' ' + maxInstances,
 	'CPU Limit: '.padEnd(LEFT_COL, ' ') + ' ' + cpuLimit,
 	'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + timeoutSeconds,
 	'Project Name: '.padEnd(LEFT_COL, ' ') + ' ' + projectID,

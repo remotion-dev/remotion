@@ -39,11 +39,15 @@
 	"exports": {
 		"./package.json": "./package.json",
 		".": "./dist/index.js",
+		"./defaults": "./dist/defaults.js",
 		"./regions": "./dist/regions.js",
 		"./permissions.json": "./dist/shared/sa-permissions.json"
 	},
 	"typesVersions": {
 		">=1.0": {
+			"defaults": [
+				"dist/defaults.d.ts"
+			],
 			"regions": [
 				"dist/regions.d.ts"
 			]
