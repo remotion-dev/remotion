@@ -96,16 +96,7 @@ export const lambdaDeleteFile = async ({
 	);
 };
 
-export const lambdaWriteFile = async ({
-	bucketName,
-	key,
-	body,
-	region,
-	privacy,
-	expectedBucketOwner,
-	downloadBehavior,
-	customCredentials,
-}: {
+type LambdaWriteFileInput = {
 	bucketName: string;
 	key: string;
 	body: ReadStream | string;
@@ -114,7 +105,18 @@ export const lambdaWriteFile = async ({
 	expectedBucketOwner: string | null;
 	downloadBehavior: DownloadBehavior | null;
 	customCredentials: CustomCredentials | null;
-}): Promise<void> => {
+};
+
+export const tryLambdaWriteFile = async ({
+	bucketName,
+	key,
+	body,
+	region,
+	privacy,
+	expectedBucketOwner,
+	downloadBehavior,
+	customCredentials,
+}: LambdaWriteFileInput): Promise<void> => {
 	await getS3Client(region, customCredentials).send(
 		new PutObjectCommand({
 			Bucket: bucketName,
@@ -133,6 +135,30 @@ export const lambdaWriteFile = async ({
 			ContentDisposition: getContentDispositionHeader(downloadBehavior),
 		})
 	);
+};
+
+export const lambdaWriteFile = async (
+	params: LambdaWriteFileInput & {
+		retries?: number;
+	}
+): Promise<void> => {
+	const remainingRetries = params.retries ?? 2;
+	try {
+		await tryLambdaWriteFile(params);
+	} catch (err) {
+		if (remainingRetries === 0) {
+			throw err;
+		}
+
+		console.warn('Failed to write file to Lambda:');
+		console.warn(err);
+		console.warn(`Retrying (${remainingRetries} retries remaining)...`);
+
+		return lambdaWriteFile({
+			...params,
+			retries: (remainingRetries ?? 0) - 1,
+		});
+	}
 };
 
 export const lambdaReadFile = async ({

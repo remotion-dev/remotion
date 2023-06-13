@@ -2,9 +2,15 @@ import {ConfigInternals} from './config';
 import {getDefaultOutLocation} from './get-default-out-name';
 import {parsedCli} from './parse-command-line';
 
-export const getUserPassedOutputLocation = (args: string[]) => {
+export const getUserPassedOutputLocation = (
+	args: string[],
+	uiPassedOutName: string | null
+) => {
 	const filename =
-		args[0] ?? parsedCli.output ?? ConfigInternals.getOutputLocation();
+		uiPassedOutName ??
+		args[0] ??
+		parsedCli.output ??
+		ConfigInternals.getOutputLocation();
 
 	return filename;
 };
@@ -14,8 +20,10 @@ export const getOutputLocation = ({
 	defaultExtension,
 	args,
 	type,
+	outputLocationFromUi,
 }: {
 	compositionId: string;
+	outputLocationFromUi: string | null;
 	defaultExtension: string;
 	args: string[];
 	type: 'asset' | 'sequence';
@@ -30,7 +38,7 @@ export const getOutputLocation = ({
 	}
 
 	return (
-		getUserPassedOutputLocation(args) ??
+		getUserPassedOutputLocation(args, outputLocationFromUi) ??
 		getDefaultOutLocation({
 			compositionName: compositionId,
 			defaultExtension,

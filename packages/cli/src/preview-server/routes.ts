@@ -24,18 +24,6 @@ import {getProjectInfo} from './project-info';
 import {fetchFolder, getFiles} from './public-folder';
 import {getRenderQueue} from './render-queue/queue';
 import {serveStatic} from './serve-static';
-import {isUpdateAvailableWithTimeout} from './update-available';
-
-const handleUpdate = async (
-	remotionRoot: string,
-	_: IncomingMessage,
-	response: ServerResponse
-) => {
-	const data = await isUpdateAvailableWithTimeout(remotionRoot);
-	response.setHeader('content-type', 'application/json');
-	response.writeHead(200);
-	response.end(JSON.stringify(data));
-};
 
 const editorGuess = guessEditor();
 
@@ -103,7 +91,7 @@ const handleFallback = async ({
 			envVariables: getEnvVariables(),
 			inputProps: getCurrentInputProps(),
 			remotionRoot,
-			previewServerCommand:
+			studioServerCommand:
 				packageManager === 'unknown' ? null : packageManager.startCommand,
 			renderQueue: getRenderQueue(),
 			numberOfAudioTags:
@@ -111,9 +99,9 @@ const handleFallback = async ({
 				getNumberOfSharedAudioTags(),
 			publicFiles: getFiles(),
 			includeFavicon: true,
-			title: 'Remotion Preview',
+			title: 'Remotion Studio',
 			renderDefaults: {
-				jpegQuality: defaultJpegQuality ?? 80,
+				jpegQuality: defaultJpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 				scale: defaultScale ?? 1,
 				logLevel,
 				codec: defaultCodec ?? 'h264',
@@ -272,10 +260,6 @@ export const handleRoutes = ({
 	publicDir: string;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
-
-	if (url.pathname === '/api/update') {
-		return handleUpdate(remotionRoot, request, response);
-	}
 
 	if (url.pathname === '/api/project-info') {
 		return handleProjectInfo(remotionRoot, request, response);

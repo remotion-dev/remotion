@@ -46,6 +46,16 @@ export const bundleOnCliOrTakeServeUrl = async ({
 	cleanup: () => void;
 }> => {
 	if (RenderInternals.isServeUrl(fullPath)) {
+		onProgress({
+			bundling: {
+				doneIn: 0,
+				progress: 1,
+			},
+			copying: {
+				bytes: 0,
+				doneIn: 0,
+			},
+		});
 		return {
 			urlOrBundle: fullPath,
 			cleanup: () => Promise.resolve(undefined),
@@ -181,7 +191,7 @@ const bundleOnCli = async ({
 			{indent, logLevel},
 			'🧹 Cache disabled but found. Deleting... '
 		);
-		await BundlerInternals.clearCache(remotionRoot);
+		await BundlerInternals.clearCache(remotionRoot, 'production');
 	}
 
 	if (cacheExistedBefore === 'other-exists' && shouldCache) {
@@ -189,7 +199,7 @@ const bundleOnCli = async ({
 			{indent, logLevel},
 			'🧹 Webpack config change detected. Clearing cache... '
 		);
-		await BundlerInternals.clearCache(remotionRoot);
+		await BundlerInternals.clearCache(remotionRoot, 'production');
 	}
 
 	const bundleStartTime = Date.now();

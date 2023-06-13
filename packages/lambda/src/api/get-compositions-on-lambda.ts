@@ -9,7 +9,7 @@ import {serializeInputProps} from '../shared/serialize-input-props';
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
 	region: AwsRegion;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	functionName: string;
 	serveUrl: string;
 	envVariables?: Record<string, string>;

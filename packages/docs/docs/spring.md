@@ -46,7 +46,7 @@ The end value of the animation. Note that depending on the parameters, spring an
 
 For how many frames per second the spring animation should be calculated. This should always be the `fps` property of the return value of [`useVideoConfig()`](/docs/use-video-config).
 
-### `reverse` <AvailableFrom v="3.3.92" />
+### `reverse`<AvailableFrom v="3.3.92" />
 
 _Default:_ `false`
 
@@ -80,7 +80,7 @@ _Default_: `false`
 
 Determines whether the animation can shoot over the `to` value. If set to true, if the animation goes over `to`, it will just return the value of `to`.
 
-### `durationInFrames` <AvailableFrom v="3.0.27" />
+### `durationInFrames`<AvailableFrom v="3.0.27" />
 
 _optional_
 
@@ -104,7 +104,7 @@ const value = spring({
 
 See also: [Order or operations](#order-of-operations)
 
-### `durationRestThreshold` <AvailableFrom v="3.0.27" />
+### `durationRestThreshold`<AvailableFrom v="3.0.27" />
 
 _optional_
 
@@ -112,7 +112,7 @@ How close the animation should be to the end in order to be considered finished 
 
 For example, if a `durationRestThreshold` of `0.001` is given, and the durationOfFrames is `30`, it means that after 30 frames, the spring has reached 99.9% (`1 - 0.001 = 0.999`) of it's distance to the end value.
 
-### `delay` <AvailableFrom v="3.3.90" />
+### `delay`<AvailableFrom v="3.3.90" />
 
 _optional_
 

@@ -10,7 +10,10 @@ import type {
 	SubscribeToFileExistenceRequest,
 	SubscribeToFileExistenceResponse,
 	UnsubscribeFromFileExistenceRequest,
+	UpdateAvailableRequest,
+	UpdateAvailableResponse,
 	UpdateDefaultPropsRequest,
+	UpdateDefaultPropsResponse,
 } from './render-queue/job';
 
 export type ApiHandler<ReqData, ResData> = (params: {
@@ -39,9 +42,16 @@ export type ApiRoutes = {
 	>;
 	'/api/remove-render': ReqAndRes<RemoveRenderRequest, undefined>;
 	'/api/open-in-file-explorer': ReqAndRes<OpenInFileExplorerRequest, void>;
-	'/api/update-default-props': ReqAndRes<UpdateDefaultPropsRequest, void>;
+	'/api/update-default-props': ReqAndRes<
+		UpdateDefaultPropsRequest,
+		UpdateDefaultPropsResponse
+	>;
 	'/api/can-update-default-props': ReqAndRes<
 		CanUpdateDefaultPropsRequest,
 		CanUpdateDefaultPropsResponse
+	>;
+	'/api/update-available': ReqAndRes<
+		UpdateAvailableRequest,
+		UpdateAvailableResponse
 	>;
 };

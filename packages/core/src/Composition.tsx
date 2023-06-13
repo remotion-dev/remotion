@@ -1,26 +1,26 @@
 import type {ComponentType, PropsWithChildren} from 'react';
 import React, {Suspense, useContext, useEffect, useMemo} from 'react';
 import {createPortal} from 'react-dom';
-import type {z} from 'zod';
+import type {AnyZodObject, z} from 'zod';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
-import {CompositionManager} from './CompositionManager.js';
-import {getInputProps} from './config/input-props.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import {continueRender, delayRender} from './delay-render.js';
-import {EditorPropsContext} from './EditorProps.js';
 import {FolderContext} from './Folder.js';
 import {useRemotionEnvironment} from './get-environment.js';
 import {Loading} from './loading-indicator.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {useNonce} from './nonce.js';
 import {portalNode} from './portal-node.js';
-import type {PropsIfHasProps} from './props-if-has-props.js';
+import type {InferProps, PropsIfHasProps} from './props-if-has-props.js';
+import {useResolvedVideoConfig} from './ResolveCompositionConfig.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
+import {validateDefaultAndInputProps} from './validation/validate-default-props.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
@@ -35,18 +35,36 @@ export type CompProps<Props> =
 			component: LooseComponentType<Props>;
 	  };
 
-export type StillProps<Schema extends z.ZodTypeAny, Props> = {
+export type CalcMetadataReturnType<T> = {
+	durationInFrames?: number;
+	fps?: number;
+	width?: number;
+	height?: number;
+	props?: T;
+};
+
+export type CalculateMetadataFunction<T> = (options: {
+	defaultProps: T;
+	props: T;
+	abortSignal: AbortSignal;
+}) => Promise<CalcMetadataReturnType<T>> | CalcMetadataReturnType<T>;
+
+export type StillProps<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown> | undefined
+> = {
 	width: number;
 	height: number;
 	id: string;
+	calculateMetadata?: CalculateMetadataFunction<InferProps<Schema, Props>>;
 	schema?: Schema;
 } & CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
-export type CompositionProps<Schema extends z.ZodTypeAny, Props> = StillProps<
-	Schema,
-	Props
-> & {
+export type CompositionProps<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown> | undefined
+> = StillProps<Schema, Props> & {
 	fps: number;
 	durationInFrames: number;
 };
@@ -64,7 +82,10 @@ const Fallback: React.FC = () => {
  * @see [Documentation](https://www.remotion.dev/docs/composition)
  */
 
-export const Composition = <Schema extends z.ZodTypeAny, Props>({
+export const Composition = <
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown> | undefined
+>({
 	width,
 	height,
 	fps,
@@ -79,7 +100,6 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 	const video = useVideo();
 
 	const lazy = useLazyComponent<Props>(compProps as CompProps<Props>);
-	const {props: allEditorProps} = useContext(EditorPropsContext);
 	const nonce = useNonce();
 	const environment = useRemotionEnvironment();
 
@@ -117,6 +137,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 		});
 
 		validateFps(fps, 'as a prop of the <Composition/> component', false);
+		validateDefaultAndInputProps(defaultProps, 'defaultProps', id);
 		registerComposition<Schema, Props>({
 			durationInFrames,
 			fps,
@@ -129,6 +150,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 			nonce,
 			parentFolderName: parentName,
 			schema: schema ?? null,
+			calculateMetadata: compProps.calculateMetadata ?? null,
 		});
 
 		return () => {
@@ -148,39 +170,48 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 		nonce,
 		parentName,
 		schema,
+		compProps.calculateMetadata,
 	]);
-
-	const editorPropsOrUndefined = allEditorProps[id] ?? {};
+	const resolved = useResolvedVideoConfig(id);
 
 	if (environment === 'preview' && video && video.component === lazy) {
 		const Comp = lazy;
-		const inputProps = getInputProps();
+		if (resolved === null || resolved.type !== 'success') {
+			return null;
+		}
 
 		return createPortal(
 			<ClipComposition>
 				<CanUseRemotionHooksProvider>
 					<Suspense fallback={<Loading />}>
 						<Comp
-							{...defaultProps}
-							{...editorPropsOrUndefined}
-							{...inputProps}
+							{
+								// eslint-disable-next-line @typescript-eslint/no-explicit-any
+								...((resolved.result.defaultProps ?? {}) as any)
+							}
 						/>
 					</Suspense>
 				</CanUseRemotionHooksProvider>
 			</ClipComposition>,
-
 			portalNode()
 		);
 	}
 
 	if (environment === 'rendering' && video && video.component === lazy) {
 		const Comp = lazy;
-		const inputProps = getInputProps();
+		if (resolved === null || resolved.type !== 'success') {
+			return null;
+		}
 
 		return createPortal(
 			<CanUseRemotionHooksProvider>
 				<Suspense fallback={<Fallback />}>
-					<Comp {...defaultProps} {...editorPropsOrUndefined} {...inputProps} />
+					<Comp
+						{
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							...((resolved.result.defaultProps ?? {}) as any)
+						}
+					/>
 				</Suspense>
 			</CanUseRemotionHooksProvider>,
 			portalNode()
@@ -190,7 +221,7 @@ export const Composition = <Schema extends z.ZodTypeAny, Props>({
 	return null;
 };
 
-export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
+const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
 	const {clipRegion} = useContext(NativeLayersContext);
 	const style: React.CSSProperties = useMemo(() => {
 		return {

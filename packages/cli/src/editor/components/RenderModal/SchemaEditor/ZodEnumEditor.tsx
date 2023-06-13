@@ -2,15 +2,14 @@ import React, {useCallback, useMemo} from 'react';
 import type {z} from 'zod';
 import {Checkmark} from '../../../icons/Checkmark';
 import {useZodIfPossible} from '../../get-zod-if-possible';
-import {Spacing} from '../../layout';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
-import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {narrowOption, optionRow} from '../layout';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
+import {ZodFieldValidation} from './ZodFieldValidation';
 
 const container: React.CSSProperties = {
 	width: '100%',
@@ -23,14 +22,12 @@ export const ZodEnumEditor: React.FC<{
 	defaultValue: string;
 	setValue: UpdaterFunction<string>;
 	onSave: UpdaterFunction<string>;
-	compact: boolean;
 	showSaveButton: boolean;
 	onRemove: null | (() => void);
 	saving: boolean;
 }> = ({
 	schema,
 	jsonPath,
-	compact,
 	setValue,
 	defaultValue,
 	value,
@@ -44,10 +41,15 @@ export const ZodEnumEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
-	const {localValue, onChange: setLocalValue} = useLocalState({
+	const {
+		localValue,
+		onChange: setLocalValue,
+		reset,
+	} = useLocalState({
 		schema,
 		setValue,
 		value,
+		defaultValue,
 	});
 
 	const def = schema._def;
@@ -59,10 +61,6 @@ export const ZodEnumEditor: React.FC<{
 
 	const isRoot = jsonPath.length === 0;
 
-	const reset = useCallback(() => {
-		setLocalValue(() => defaultValue, true);
-	}, [defaultValue, setLocalValue]);
-
 	const comboBoxValues = useMemo(() => {
 		return def.values.map((option: string): ComboboxValue => {
 			return {
@@ -72,7 +70,7 @@ export const ZodEnumEditor: React.FC<{
 				keyHint: null,
 				leftItem: option === value ? <Checkmark /> : null,
 				onClick: (id: string) => {
-					setLocalValue(() => id, false);
+					setLocalValue(() => id, false, false);
 				},
 				quickSwitcherLabel: null,
 				subMenu: null,
@@ -82,35 +80,28 @@ export const ZodEnumEditor: React.FC<{
 	}, [def.values, setLocalValue, value]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (
-		<div style={compact ? narrowOption : optionRow}>
+		<Fieldset shouldPad success={localValue.zodValidation.success}>
 			<SchemaLabel
 				onSave={save}
 				showSaveButton={showSaveButton}
-				isDefaultValue={value === defaultValue}
-				compact={compact}
+				isDefaultValue={localValue.value === defaultValue}
 				onReset={reset}
 				jsonPath={jsonPath}
 				onRemove={onRemove}
 				saving={saving}
+				valid={localValue.zodValidation.success}
+				saveDisabledByParent={!localValue.zodValidation.success}
+				suffix={null}
 			/>
 
 			<div style={isRoot ? undefined : container}>
 				<Combobox values={comboBoxValues} selectedId={value} title={value} />
 			</div>
-			{!localValue.zodValidation.success && (
-				<>
-					<Spacing x={1} />
-					<ValidationMessage
-						align="flex-start"
-						message={localValue.zodValidation.error.format()._errors[0]}
-						type="error"
-					/>
-				</>
-			)}
-		</div>
+			<ZodFieldValidation path={jsonPath} localValue={localValue} />
+		</Fieldset>
 	);
 };

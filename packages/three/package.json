@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/three",
-	"version": "3.3.96",
+	"version": "3.3.99",
 	"description": "Utility functions for using react-three-fiber with remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -39,14 +39,14 @@
 		"@types/react-reconciler": "^0.26.4",
 		"@types/three": "^0.134.0",
 		"@types/web": "0.0.78",
-		"eslint": "8.25.0",
+		"eslint": "8.42.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
 		"rollup": "^2.70.1",
 		"three": "^0.145.0",
-		"typescript": "^4.7.0"
+		"typescript": "4.9.5"
 	},
 	"keywords": [
 		"remotion",

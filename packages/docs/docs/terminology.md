@@ -8,7 +8,7 @@ Here we try to explain the meaning of some terms that are used often in the docu
 
 ## Composition
 
-A composition is the definition of a renderable asset. It consists of a React component, width, height, FPS and a duration. It can be registered in the [Remotion Preview](#remotion-preview) by rendering a [`<Composition>`](/docs/composition) (to render video or audio render target) or a [`<Still>`](/docs/still).
+A composition is the definition of a renderable asset. It consists of a React component, width, height, FPS and a duration. It can be registered in the [Remotion Studio](#remotion-studio) by rendering a [`<Composition>`](/docs/composition) (to render video or audio render target) or a [`<Still>`](/docs/still).
 
 In the [Remotion Player](#remotion-player), you don't use the `<Composition>` component, rather you pass the component and metadata directly to the [`<Player>`](/docs/player).
 
@@ -57,13 +57,17 @@ The entry point is the file where the Remotion CLI and Node.JS APIs will look fo
 
 In the [Remotion Player](#remotion-player), there is no concept of an entry point. You directly pass a React component and metadata to the [`<Player>`](/docs/player/player).
 
+## Remotion Studio
+
+The Remotion Studio is the editor that opens that when you run [`npx remotion studio`](/docs/cli/studio) or `npx remotion preview`. It allows fast editing and playback of [compositions](#composition). It is included in the `@remotion/cli` package. It is not the same as the [Remotion Player](#remotion-player).
+
 ## Remotion Preview
 
-The Remotion Preview is the editor that opens that when you run `npx remotion preview ` followed by the [entry point](#entry-point). It allows fast editing and playback of [compositions](#composition). It is included in the `@remotion/cli` package. It is not the same as the [Remotion Player](#remotion-player).
+The former name of the [Remotion Studio](#remotion-studio), renamed in v4.0. Since the Preview gained more capabilities than just previewing, the name was not fitting anymore.
 
 ## Remotion Player
 
-The Remotion Player is a React component [`<Player>`](/docs/player) that can be embedded into a React app. It can be used by installing the `@remotion/player` package into a React app (for example: Create React App, Next.JS, Remix). It is not the same as the [Remotion Preview](#remotion-preview).
+The Remotion Player is a React component [`<Player>`](/docs/player) that can be embedded into a React app. It can be used by installing the `@remotion/player` package into a React app (for example: Create React App, Next.JS, Remix). It is not the same as the [Remotion Studio](#remotion-studio).
 
 ## Concurrency
 
@@ -80,7 +84,7 @@ Input props are data that can be passed to a render in order to parametrize the 
 - This data is passed as actual React props to the component that you defined in your [composition](#composition)
 - Using the [`getInputProps()`](/docs/get-input-props) function, you can retrieve the props even outside your component, for example to dynamically change the [duration or dimensions](/docs/dynamic-metadata).
 
-In the [Remotion Preview](#remotion-preview), you can set [default props](/docs/composition#defaultprops) to serve as placeholder data for designing your video. If your input props don't override the default props, the default props will be used.
+In the [Remotion Studio](#remotion-studio), you can set [default props](/docs/composition#defaultprops) to serve as placeholder data for designing your video. If your input props don't override the default props, the default props will be used. See: [How props get resolved](/docs/props-resolution)
 
 In the [Remotion Player](#remotion-player), there are no default props, but you can pass [`inputProps`](/docs/player/player#inputprops) directly to the [`<Player>`](/docs/player).
 

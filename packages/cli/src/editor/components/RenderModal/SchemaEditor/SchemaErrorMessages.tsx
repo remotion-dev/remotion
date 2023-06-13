@@ -1,8 +1,8 @@
 import type {z} from 'zod';
 import {Button} from '../../../../preview-server/error-overlay/remotion-overlay/Button';
-import {LIGHT_TEXT} from '../../../helpers/colors';
+import {BLUE, LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
-import {SchemaEmptyStateGraphic} from './SchemaEmptyStateGraphic';
+import {inlineCodeSnippet} from '../../Menu/styles';
 import {ZodErrorMessages} from './ZodErrorMessages';
 
 const explainer: React.CSSProperties = {
@@ -24,7 +24,7 @@ const errorExplanation: React.CSSProperties = {
 
 const codeSnippet: React.CSSProperties = {
 	fontSize: 14,
-	color: 'var(--blue)',
+	color: BLUE,
 	fontFamily: 'monospace',
 };
 
@@ -44,7 +44,7 @@ export const ZodNotInstalled = () => {
 	return (
 		<div style={explainer}>
 			<div style={errorExplanation}>
-				Install <code style={codeSnippet}>zod</code> as a dependency to
+				Install <code style={inlineCodeSnippet}>zod</code> as a dependency to
 				interactively control the props of the composition.
 			</div>
 			<Spacing y={2} block />
@@ -56,12 +56,10 @@ export const ZodNotInstalled = () => {
 export const NoSchemaDefined = () => {
 	return (
 		<div style={explainer}>
-			<SchemaEmptyStateGraphic />
-			<Spacing y={5} />
 			<div style={errorExplanation}>
 				Make the props of this composition interactively editable by adding a{' '}
-				<code style={codeSnippet}>schema</code> prop to the{' '}
-				<code style={codeSnippet}>{'<Composition>'}</code> component.
+				<code style={inlineCodeSnippet}>schema</code> prop to the{' '}
+				<code style={inlineCodeSnippet}>{'<Composition>'}</code> component.
 			</div>
 			<Spacing y={2} block />
 			<Button onClick={openDocs}>Learn how</Button>
@@ -74,13 +72,14 @@ export const NoDefaultProps = () => {
 		<div style={explainer}>
 			<div style={errorExplanation}>
 				The schema can not be edited because the{' '}
-				<code style={codeSnippet}>defaultProps</code> prop in the{' '}
-				<code style={codeSnippet}>{'<Composition>'}</code> does not exist.
+				<code style={inlineCodeSnippet}>defaultProps</code> prop in the{' '}
+				<code style={inlineCodeSnippet}>{'<Composition>'}</code> does not exist.
 			</div>
 			<Spacing y={1} />
 			<div style={errorExplanation}>
-				Fix the schema by adding a <code style={codeSnippet}>defaultProps</code>{' '}
-				prop to your composition.
+				Fix the schema by adding a{' '}
+				<code style={inlineCodeSnippet}>defaultProps</code> prop to your
+				composition.
 			</div>
 			<Spacing y={2} block />
 			<Button onClick={openDocs}>Learn more</Button>
@@ -91,22 +90,23 @@ export const NoDefaultProps = () => {
 export const InvalidDefaultProps: React.FC<{
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
 }> = ({zodValidationResult}) => {
-	// TODO: Does not react to when schema is updated
-
 	return (
 		<div style={errorContainer}>
 			<div style={errorExplanation}>
 				The schema can not be edited because the{' '}
-				<code style={codeSnippet}>defaultProps</code> prop in the{' '}
-				<code style={codeSnippet}>{'<Composition>'}</code> is not valid:
+				<code style={inlineCodeSnippet}>defaultProps</code> prop in the{' '}
+				<code style={inlineCodeSnippet}>{'<Composition>'}</code> is not valid:
 			</div>
 			<Spacing y={1} block />
-			<ZodErrorMessages zodValidationResult={zodValidationResult} />
+			<ZodErrorMessages
+				zodValidationResult={zodValidationResult}
+				viewTab="schema"
+			/>
 			<Spacing y={1} block />
 			<div style={errorExplanation}>
 				Fix the schema by changing the{' '}
-				<code style={codeSnippet}>defaultProps</code> prop in your composition
-				so it does not give a type error.
+				<code style={inlineCodeSnippet}>defaultProps</code> prop in your
+				composition so it does not give a type error.
 			</div>
 		</div>
 	);
@@ -120,16 +120,40 @@ export const InvalidSchema: React.FC<{
 		<div style={errorContainer}>
 			<div style={errorExplanation}>The data does not satisfy the schema:</div>
 			<Spacing y={1} block />
-			<ZodErrorMessages zodValidationResult={zodValidationResult} />
+			<ZodErrorMessages
+				zodValidationResult={zodValidationResult}
+				viewTab="schema"
+			/>
 			<Spacing y={1} block />
 			<div style={errorExplanation}>Fix the schema using the JSON editor.</div>
 			<Spacing y={1} block />
 			<div style={errorExplanation}>
 				Alternatively, reset the data to the{' '}
-				<code style={codeSnippet}>defaultProps</code> that you have defined.
+				<code style={inlineCodeSnippet}>defaultProps</code> that you have
+				defined.
 			</div>
 			<Spacing y={1} block />
 			<Button onClick={reset}>Reset props</Button>
+		</div>
+	);
+};
+
+export const TopLevelZodValue: React.FC<{
+	typeReceived: string;
+}> = ({typeReceived}) => {
+	return (
+		<div style={explainer}>
+			<div style={errorExplanation}>
+				The top-level type of the schema must be a pure{' '}
+				<code style={codeSnippet}>z.object</code>. Instead got a schema of type{' '}
+				<code style={codeSnippet}>{typeReceived}</code>
+			</div>
+			<Spacing y={1} />
+			<div style={errorExplanation}>
+				Fix the schema by changing the top-level Zod type to an object.
+			</div>
+			<Spacing y={2} block />
+			<Button onClick={openDocs}>Learn more</Button>
 		</div>
 	);
 };

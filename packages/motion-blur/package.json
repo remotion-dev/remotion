@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/motion-blur",
-	"version": "3.3.96",
+	"version": "3.3.99",
 	"description": "Motion blur effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -41,14 +41,14 @@
 		"@jonny/eslint-config": "3.0.266",
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/react": "18.0.26",
-		"eslint": "8.25.0",
+		"eslint": "8.42.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
 		"remotion": "workspace:*",
 		"rollup": "^2.70.1",
-		"typescript": "^4.7.0"
+		"typescript": "4.9.5"
 	},
 	"keywords": [
 		"remotion",

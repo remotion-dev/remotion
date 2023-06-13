@@ -42,8 +42,9 @@ export const RemotionRoot: React.FC<{
 	const [playbackRate, setPlaybackRate] = useState(1);
 	const audioAndVideoTags = useRef<PlayableMediaTag[]>([]);
 
-	useLayoutEffect(() => {
-		if (typeof window !== 'undefined') {
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
 			window.remotion_setFrame = (f: number) => {
 				const id = delayRender(`Setting the current frame to ${f}`);
 				setFrame(f);
@@ -51,8 +52,8 @@ export const RemotionRoot: React.FC<{
 			};
 
 			window.remotion_isPlayer = false;
-		}
-	}, []);
+		}, []);
+	}
 
 	const timelineContextValue = useMemo((): TimelineContextValue => {
 		return {
@@ -82,7 +83,6 @@ export const RemotionRoot: React.FC<{
 	}, [fastRefreshes]);
 
 	useEffect(() => {
-		// TODO: This can be moved to renderer?
 		if (typeof __webpack_module__ !== 'undefined') {
 			if (__webpack_module__.hot) {
 				__webpack_module__.hot.addStatusHandler((status) => {

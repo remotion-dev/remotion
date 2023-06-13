@@ -1,27 +1,29 @@
-let maxTimelineTracks = 15;
+import {DEFAULT_TIMELINE_TRACKS} from '../editor/components/Timeline/MaxTimelineTracks';
+
+let maxTimelineTracks = DEFAULT_TIMELINE_TRACKS;
 
 export const setMaxTimelineTracks = (maxTracks: number) => {
 	if (typeof maxTracks !== 'number') {
 		throw new Error(
-			`Need to pass a number to Config.Preview.setMaxTimelineTracks(), got ${typeof maxTracks}`
+			`Need to pass a number to Config.setMaxTimelineTracks(), got ${typeof maxTracks}`
 		);
 	}
 
 	if (Number.isNaN(maxTracks)) {
 		throw new Error(
-			`Need to pass a real number to Config.Preview.setMaxTimelineTracks(), got NaN`
+			`Need to pass a real number to Config.setMaxTimelineTracks(), got NaN`
 		);
 	}
 
 	if (!Number.isFinite(maxTracks)) {
 		throw new Error(
-			`Need to pass a real number to Config.Preview.setMaxTimelineTracks(), got ${maxTracks}`
+			`Need to pass a real number to Config.setMaxTimelineTracks(), got ${maxTracks}`
 		);
 	}
 
 	if (maxTracks < 0) {
 		throw new Error(
-			`Need to pass a non-negative number to Config.Preview.setMaxTimelineTracks(), got ${maxTracks}`
+			`Need to pass a non-negative number to Config.setMaxTimelineTracks(), got ${maxTracks}`
 		);
 	}
 

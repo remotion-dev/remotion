@@ -15,15 +15,23 @@ function exponentialBackoff(errorCount: number): number {
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
-	React.DetailedHTMLProps<
-		React.ImgHTMLAttributes<HTMLImageElement>,
-		HTMLImageElement
+	Omit<
+		React.DetailedHTMLProps<
+			React.ImgHTMLAttributes<HTMLImageElement>,
+			HTMLImageElement
+		>,
+		'src'
 	> & {
 		maxRetries?: number;
+		src: string;
 	}
 > = ({onError, maxRetries = 2, src, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
+
+	if (!src) {
+		throw new Error('No "src" prop was passed to <Img>.');
+	}
 
 	useImperativeHandle(
 		ref,
@@ -97,41 +105,46 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 		[maxRetries, onError, retryIn]
 	);
 
-	useLayoutEffect(() => {
-		if (process.env.NODE_ENV === 'test') {
-			return;
-		}
-
-		const newHandle = delayRender('Loading <Img> with src=' + src);
-		const {current} = imageRef;
-
-		const onComplete = () => {
-			if ((errors.current[imageRef.current?.src as string] ?? 0) > 0) {
-				delete errors.current[imageRef.current?.src as string];
-				console.info(
-					`Retry successful - ${imageRef.current?.src as string} is now loaded`
-				);
+	if (typeof window !== 'undefined') {
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		useLayoutEffect(() => {
+			if (process.env.NODE_ENV === 'test') {
+				return;
 			}
 
-			continueRender(newHandle);
-		};
+			const newHandle = delayRender('Loading <Img> with src=' + src);
+			const {current} = imageRef;
 
-		const didLoad = () => {
-			onComplete();
-		};
+			const onComplete = () => {
+				if ((errors.current[imageRef.current?.src as string] ?? 0) > 0) {
+					delete errors.current[imageRef.current?.src as string];
+					console.info(
+						`Retry successful - ${
+							imageRef.current?.src as string
+						} is now loaded`
+					);
+				}
 
-		if (current?.complete) {
-			onComplete();
-		} else {
-			current?.addEventListener('load', didLoad, {once: true});
-		}
+				continueRender(newHandle);
+			};
 
-		// If tag gets unmounted, clear pending handles because image is not going to load
-		return () => {
-			current?.removeEventListener('load', didLoad);
-			continueRender(newHandle);
-		};
-	}, [src]);
+			const didLoad = () => {
+				onComplete();
+			};
+
+			if (current?.complete) {
+				onComplete();
+			} else {
+				current?.addEventListener('load', didLoad, {once: true});
+			}
+
+			// If tag gets unmounted, clear pending handles because image is not going to load
+			return () => {
+				current?.removeEventListener('load', didLoad);
+				continueRender(newHandle);
+			};
+		}, [src]);
+	}
 
 	return (
 		<img {...props} ref={imageRef} src={actualSrc} onError={didGetError} />

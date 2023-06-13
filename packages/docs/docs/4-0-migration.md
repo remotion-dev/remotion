@@ -216,14 +216,14 @@ Config.overrideWebpackConfig((config) => {
 });
 ```
 
-This is automatically applied in [`@remotion/skia`](/docs/skia).
+The [`@remotion/skia`](/docs/skia) package does not require `react-native` or `react-native-web` anymore.
 
 ## The `TComposition` type now includes a Zod schema
 
 The `TComposition` type now has two generic arguments:
 
 ```ts
-export type TComposition<Schema extends z.ZodTypeAny, Props> = {};
+export type TComposition<Schema extends AnyZodObject, Props> = {};
 ```
 
 If you need a type for a generic composition, you can use the new `AnyComposition` type:
@@ -245,3 +245,80 @@ The [`getCanExtractFramesFast()`](/docs/renderer/get-can-extract-frames-fast) fu
 **How to upgrade:**
 
 You can now remove your re-encoding logic!
+
+## Input props must be an object
+
+Since the input props are passed to a React component, they must not explicitly be objects (`{}`). You can still use other data structures such as arrays, but they must be wrapped in an object.
+
+## `defaultProps` is required if the component has props
+
+If you register a composition with a component that requires some props, you now are required to provide a `defaultProps` object.
+
+## Changelog
+
+- **remotion**: `defaultProps` of a [`<Composition>`](/docs/composition) is now mandatory if the component accepts props
+- **remotion**: [`<Composition>`](/docs/composition) now accepts a schema
+- **remotion**: [`<Composition>`](/docs/composition) now accepts a [`calculateMetadata`](/docs/composition) prop
+- **remotion**: The `OffthreadVideoImageFormat` type has been removed.
+- **remotion**: [`imageFormat`](/docs/offthreadvideo#imageformat-availablefrom-v3022-) has been removed from `<OffthreadVideo>`
+- **remotion**: [`transparent`](/docs/offthreadvideo#transparent) has been added to `<OffthreadVideo>`.
+- **remotion**: [`<Img>`](/docs/img) will cancel the render if the image cannot be loaded
+- **remotion**: If an [`<Audio>`](/docs/audio) tag cannot be loaded, it will cancel the render.
+- **remotion**: The `TComposition` type now requires a Zod schema as a generic.
+- **remotion**: Type `WebpackOverrideFn` moved from `remotion` to `@remotion/bundler`
+- **remotion**: [`staticFile()`](/docs/staticfile#handling-uri-unsafe-characters) now supports URI-unsafe characters by default
+- **remotion**: Types: `src` is required for an [`<Img>`](/docs/img) tag
+- **@remotion/bundler**: The development Webpack cache will not be removed anymore if setting [`--bundle-cache=false`](/docs/cli/render#--bundle-cache).
+- **@remotion/bundler**: `react-native` no longer aliases to `react-native-web`
+- **@remotion/bundler**: Webpack has been upgraded to `5.83.1`
+- **@remotion/cli**: `npx remotion preview` is deprecated for [`npx remotion studio`](/docs/cli/studio)
+- **@remotion/cli**: New [Props editor](/docs/visual-editing) allows for editing props with schema
+- **@remotion/cli**: New [Render button](/docs/render) allows for rendering through the CLI
+- **@remotion/cli**: New [`npx remotion ffmpeg`](/docs/cli/ffmpeg) command
+- **@remotion/cli**: New [`npx remotion ffprobe`](/docs/cli/ffprobe) command
+- **@remotion/cli**: Configuration logic has been moved to [`@remotion/cli/config`](/docs/4-0-migration)
+- **@remotion/cli**: [Rich timeline was removed](https://github.com/remotion-dev/remotion/issues/1602#issuecomment-1401618644).
+- **@remotion/cli**: [`Config.*.setOption()`](/docs/4-0-migration) syntax has been removed.
+- **@remotion/cli**: [`Config.setOutputFormat()`](/docs/config#setoutputformat) has now been removed.
+- **@remotion/cli**: Studio now has custom dark scrollbars
+- **@remotion/cli**: New logger for verbose mode: No more interlacing between logs and progress bars
+- **@remotion/cli**: New indicator whether a file has been overwritten (`○`) or newly created (`+`)
+- **@remotion/cli**: Printing server URL again to the console if all Studio instances have been closed
+- **@remotion/cli**: Less React re-renders across the Remotion Studio
+- **@remotion/cli**: Dropdowns cannot overflow anymore
+- **@remotion/cli**: New shortcut for collapsing left sidebar: `Cmd/Ctrl+B`
+- **@remotion/cli** Allow open of the project in editor from the Remotion Studio
+- **@remotion/cli**: `Date` objects now work properly in `defaultProps`
+- **@remotion/cli**: Remotion Studio is tested to work well offline.
+- **@remotion/cli**: "Remotion Preview" has been renamed to ["Remotion Studio"](/docs/timeline)
+- **@remotion/eslint-config**: `eslint-plugin-react` has been updated to `7.32.2`
+- **@remotion/eslint-config**: `eslint-plugin-react-hooks` has been updated to `4.6.0`
+- **@remotion/eslint-plugin**: New ESLint rule: Use the right import in the config file
+- **@remotion/lambda**: Lambda does not support the [x86 architecture anymore](/docs/lambda/runtime)
+- **@remotion/lambda**: Chrome on Lambda [has been updated to 114](/docs/lambda/runtime)
+- **@remotion/lambda**: [`downloadVideo()`](/docs/lambda/downloadmedia) alias has been removed.
+- **@remotion/lambda**: [`estimatePrice()`](/docs/lambda/estimateprice) does not accept `architecture` anymore.
+- **@remotion/lambda**: Removed FFmpeg from the Lambda Layer.
+- **@remotion/motion-blur**: [`<MotionBlur>`](/docs/motion-blur/motion-blur) has been removed
+- **@remotion/paths**: [`getParts()`](/docs/paths/get-parts) has been removed
+- **@remotion/renderer**: New [`selectComposition()`](/docs/renderer/select-composition) API
+- **@remotion/renderer**: [`getCanExtractFramesFast()`](/docs/renderer/get-can-extract-frames-fast) has been removed
+- **@remotion/renderer**: FFmpeg is now included in Remotion (v6.0), no need to install it anymore
+- **@remotion/renderer**: [ProRes](/docs/encoding) now exports uncompressed audio by default.
+- **@remotion/renderer**: [`onSlowestFrames`](/docs/renderer/render-media#onslowestframes) has been removed
+- **@remotion/renderer**: [`renderMedia()`](/docs/renderer/render-media#return-value) now returns an object instead of a `Buffer`.
+- **@remotion/renderer**: The `ImageFormat` type has been removed in favor of `StillImageFormat` and `VideoImageFormat`
+- **@remotion/renderer**: You can now [export stills as PDF or WebP](/docs/stills)
+- **@remotion/renderer**: `quality` is now [`jpegQuality`](/docs/renderer/render-media#jpegquality)
+- **@remotion/renderer**: Removed [`ensureFfmpeg()`](/docs/renderer/ensure-ffmpeg) and [`ensureFfprobe()`](/docs/renderer/ensure-ffprobe)
+- **@remotion/renderer**: [`<OffthreadVideo>`](/docs/offthreadvideo) now uses a Rust-based frame extractor
+- **@remotion/renderer**: Noisy Chrome messages are filtered out.
+- **@remotion/renderer**: `console.log` statements in your React app now get printed in a tidy format and contain location.
+- **@remotion/zod-types**: [New package](/docs/zod-types)!
+- Only the following platforms are supported by Remotion now: macOS (x64 and arm64), Windows (x64), Linux (x64 and ARM, GNU Libc and MUSL)
+- All packages: The minimum Node version is now 16.0.0
+- All packages: ESLint has been upgraded to `8.42.0`
+- All packages: TypeScript ESLint has been upgraded to `5.59.9`
+- For contributors: Updated `pnpm` to `8.5.1`
+- [New Google TTS template!](/templates/google-tts)
+- [Recommended Docker file](/docs/docker) does not install `ffmpeg` anymore

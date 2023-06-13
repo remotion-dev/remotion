@@ -1,24 +1,33 @@
 import {DEFAULT_BROWSER} from './browser';
 import type {BrowserExecutable} from './browser-executable';
-import type {Browser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
 import type {ChromiumOptions} from './open-browser';
-import {openBrowser} from './open-browser';
+import {internalOpenBrowser} from './open-browser';
+import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 
 export const getPageAndCleanupFn = async ({
 	passedInInstance,
 	browserExecutable,
 	chromiumOptions,
+	context,
+	forceDeviceScaleFactor,
+	indent,
+	shouldDumpIo,
 }: {
-	passedInInstance: Browser | undefined;
+	passedInInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
 	chromiumOptions: ChromiumOptions;
+	context: AnySourceMapConsumer | null;
+	indent: boolean;
+	forceDeviceScaleFactor: number | undefined;
+	shouldDumpIo: boolean;
 }): Promise<{
 	cleanup: () => void;
 	page: Page;
 }> => {
 	if (passedInInstance) {
-		const page = await passedInInstance.newPage();
+		const page = await passedInInstance.newPage(context);
 		return {
 			page,
 			cleanup: () => {
@@ -31,11 +40,16 @@ export const getPageAndCleanupFn = async ({
 		};
 	}
 
-	const browserInstance = await openBrowser(DEFAULT_BROWSER, {
+	const browserInstance = await internalOpenBrowser({
+		browser: DEFAULT_BROWSER,
 		browserExecutable,
 		chromiumOptions,
+		forceDeviceScaleFactor,
+		indent,
+		shouldDumpIo,
+		viewport: null,
 	});
-	const browserPage = await browserInstance.newPage();
+	const browserPage = await browserInstance.newPage(context);
 
 	return {
 		page: browserPage,

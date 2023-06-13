@@ -41,7 +41,7 @@ export const simulatePermissions = async (
 		new GetCallerIdentityCommand({})
 	);
 
-	if (!callerIdentity || !callerIdentity.Arn) {
+	if (!callerIdentity?.Arn) {
 		throw new Error('No valid AWS Caller Identity detected');
 	}
 

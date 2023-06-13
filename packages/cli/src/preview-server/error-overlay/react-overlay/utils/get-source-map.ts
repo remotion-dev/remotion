@@ -45,6 +45,7 @@ function extractSourceMapUrl(fileContents: string): string | null {
 	return match[1].toString();
 }
 
+// TODO: Can import this from BrowserSafeApis.getSourceMapRemotely
 export async function getSourceMap(
 	fileUri: string,
 	fileContents: string

@@ -1,7 +1,8 @@
 import React, {useContext} from 'react';
-import {PreviewServerConnectionCtx} from '../../helpers/client-id';
-import {BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
+import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {Spacing} from '../layout';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {RenderQueueContext} from './context';
 import {RenderQueueItem} from './RenderQueueItem';
 
@@ -24,10 +25,17 @@ const explainer: React.CSSProperties = {
 	justifyContent: 'center',
 	alignItems: 'center',
 	textAlign: 'center',
+	background: BACKGROUND,
+};
+
+const renderQueue: React.CSSProperties = {
+	background: BACKGROUND,
+	flex: 1,
+	overflowY: 'auto',
 };
 
 export const RenderQueue: React.FC = () => {
-	const connectionStatus = useContext(PreviewServerConnectionCtx).type;
+	const connectionStatus = useContext(StudioServerConnectionCtx).type;
 	const {jobs} = useContext(RenderQueueContext);
 	const jobCount = jobs.length;
 
@@ -35,7 +43,7 @@ export const RenderQueue: React.FC = () => {
 		return (
 			<div style={explainer}>
 				<Spacing y={5} />
-				<div style={errorExplanation}>The preview server has disconnected.</div>
+				<div style={errorExplanation}>The studio server has disconnected.</div>
 				<Spacing y={2} block />
 			</div>
 		);
@@ -52,7 +60,10 @@ export const RenderQueue: React.FC = () => {
 	}
 
 	return (
-		<div>
+		<div
+			style={renderQueue}
+			className={['css-reset', VERTICAL_SCROLLBAR_CLASSNAME].join(' ')}
+		>
 			{jobs.map((j, index) => {
 				return (
 					<div

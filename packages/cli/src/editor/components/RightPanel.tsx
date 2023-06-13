@@ -8,7 +8,8 @@ import React, {
 } from 'react';
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
-import {RenderModalData} from './RenderModal/RenderModalData';
+import {BACKGROUND} from '../helpers/colors';
+import {DataEditor} from './RenderModal/DataEditor';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
@@ -27,22 +28,31 @@ const PropsEditor: React.FC<{
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
 
 	const setInputProps = useCallback(
-		(newProps: unknown | ((oldProps: unknown) => unknown)) => {
+		(
+			newProps:
+				| Record<string, unknown>
+				| ((oldProps: Record<string, unknown>) => Record<string, unknown>)
+		) => {
 			updateProps({
 				id: composition.id,
-				defaultProps: composition.defaultProps as object,
-				newProps: newProps as object,
+				defaultProps: composition.defaultProps as Record<string, unknown>,
+				newProps,
 			});
 		},
 		[composition.defaultProps, composition.id, updateProps]
 	);
 
+	const actualProps = useMemo(
+		() => props[composition.id] ?? composition.defaultProps ?? {},
+		[composition.defaultProps, composition.id, props]
+	);
+
 	return (
-		<RenderModalData
-			composition={composition}
-			inputProps={props[composition.id] ?? composition.defaultProps}
+		<DataEditor
+			key={composition.id}
+			unresolvedComposition={composition}
+			inputProps={actualProps}
 			setInputProps={setInputProps}
-			compact
 			mayShowSaveButton
 			propsEditType="default-props"
 		/>
@@ -62,7 +72,9 @@ const getSelectedPanel = (): SidebarPanel => {
 	return 'input-props';
 };
 
-const tabsContainer: React.CSSProperties = {};
+const tabsContainer: React.CSSProperties = {
+	backgroundColor: BACKGROUND,
+};
 
 export const persistSelectedPanel = (panel: SidebarPanel) => {
 	localStorage.setItem(localStorageKey, panel);

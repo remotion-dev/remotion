@@ -74,7 +74,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		{
 			indent: options.indent,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'prespawnFfmpeg()',
 		},
 		'encoder',
 		encoderName
@@ -83,7 +83,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		{
 			indent: options.indent,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'prespawnFfmpeg()',
 		},
 		'pixelFormat',
 		pixelFormat
@@ -93,7 +93,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			{
 				indent: options.indent,
 				logLevel: options.verbose ? 'verbose' : 'info',
-				tag: 'encoder',
+				tag: 'prespawnFfmpeg()',
 			},
 			'pixelFormat',
 			options.crf
@@ -104,7 +104,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		{
 			indent: options.indent,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'prespawnFfmpeg()',
 		},
 		'codec',
 		codec
@@ -113,7 +113,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		{
 			indent: options.indent,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'prespawnFfmpeg()',
 		},
 		'proResProfileName',
 		proResProfileName
@@ -154,7 +154,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		{
 			indent: options.indent,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'prespawnFfmpeg()',
 		},
 		'Generated FFMPEG command:'
 	);
@@ -162,7 +162,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		{
 			indent: options.indent,
 			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'encoder',
+			tag: 'prespawnFfmpeg()',
 		},
 		ffmpegArgs.join(' ')
 	);

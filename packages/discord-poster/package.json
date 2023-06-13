@@ -1,6 +1,6 @@
 {
   "name": "@remotion/discord-poster",
-  "version": "3.3.96",
+  "version": "3.3.99",
   "license": "SEE LICENSE IN LICENSE.md",
   "type": "module",
   "scripts": {
@@ -9,6 +9,6 @@
   "private": true,
   "devDependencies": {
     "@types/node": "18.14.6",
-    "typescript": "^4.7.0"
+    "typescript": "4.9.5"
   }
 }

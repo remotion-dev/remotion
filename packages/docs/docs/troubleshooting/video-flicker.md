@@ -32,7 +32,7 @@ This is a design tradeoff of Remotion, but can be fought with different levels o
 
 <strong><Step>1</Step>Option 1: Ignore</strong><br/>
 
-It should be mentioned that this effect is only happening in the Remotion Preview and the Remotion Player, and will not appear in the rendered video. If you are only looking for a frame-perfect rendered video, you do not need to take additional steps.
+It should be mentioned that this effect is only happening in the Remotion Studio and the Remotion Player, and will not appear in the rendered video. If you are only looking for a frame-perfect rendered video, you do not need to take additional steps.
 
 <strong><Step>2</Step>Option 2: Pause the <code>{"<Player/>"}</code> when media is buffering</strong><br/>
 

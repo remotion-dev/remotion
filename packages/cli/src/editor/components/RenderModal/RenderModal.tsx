@@ -17,7 +17,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {AnyComposition} from 'remotion';
+import type {AnyComposition, TCompMetadata} from 'remotion';
 import {Internals} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {ShortcutHint} from '../../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
@@ -38,9 +38,13 @@ import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 
+import type {AnyZodObject} from 'zod';
+import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
+import {Spacing} from '../layout';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {inlineCodeSnippet} from '../Menu/styles';
 import {
 	getMaxModalHeight,
 	getMaxModalWidth,
@@ -51,14 +55,15 @@ import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
 import {persistSelectedPanel, rightSidebarTabs} from '../RightPanel';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
+import {Spinner} from '../Spinner';
 import {VerticalTab} from '../Tabs/vertical';
 import {useCrfState} from './CrfSetting';
+import {DataEditor} from './DataEditor';
 import {validateOutnameGui} from './out-name-checker';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalAdvanced} from './RenderModalAdvanced';
 import {RenderModalAudio} from './RenderModalAudio';
 import {RenderModalBasic} from './RenderModalBasic';
-import {RenderModalData} from './RenderModalData';
 import {RenderModalGif} from './RenderModalGif';
 import type {QualityControl} from './RenderModalPicture';
 import {RenderModalPicture} from './RenderModalPicture';
@@ -123,13 +128,13 @@ const container: React.CSSProperties = {
 const rightPanel: React.CSSProperties = {
 	display: 'flex',
 	width: '100%',
-	height: 600,
 };
 
 const horizontalLayout: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	overflowY: 'auto',
+	flex: 1,
 };
 
 const leftSidebar: React.CSSProperties = {
@@ -164,7 +169,7 @@ const icon: React.CSSProperties = {
 };
 
 const buttonStyle: React.CSSProperties = {
-	backgroundColor: 'var(--blue)',
+	backgroundColor: BLUE,
 	color: 'white',
 };
 
@@ -176,9 +181,11 @@ const outer: React.CSSProperties = {
 	width: getMaxModalWidth(1000),
 	height: getMaxModalHeight(640),
 	overflow: 'hidden',
+	display: 'flex',
+	flexDirection: 'column',
 };
 
-export const RenderModal: React.FC<{
+type RenderModalProps = {
 	compositionId: string;
 	initialFrame: number;
 	initialVideoImageFormat: VideoImageFormat;
@@ -208,11 +215,21 @@ export const RenderModal: React.FC<{
 	initialGl: OpenGlRenderer | null;
 	initialIgnoreCertificateErrors: boolean;
 	initialHeadless: boolean;
-	defaultProps: unknown;
+	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
 	outFrameMark: number | null;
-}> = ({
-	compositionId,
+};
+
+const RenderModal: React.FC<
+	Omit<RenderModalProps, 'compositionId'> & {
+		onClose: () => void;
+		resolvedComposition: TCompMetadata<
+			AnyZodObject,
+			Record<string, unknown> | undefined
+		>;
+		unresolvedComposition: AnyComposition;
+	}
+> = ({
 	initialFrame,
 	initialVideoImageFormat,
 	initialStillImageFormat,
@@ -244,13 +261,10 @@ export const RenderModal: React.FC<{
 	defaultProps,
 	inFrameMark,
 	outFrameMark,
+	onClose,
+	resolvedComposition,
+	unresolvedComposition,
 }) => {
-	const {setSelectedModal} = useContext(ModalsContext);
-
-	const onQuit = useCallback(() => {
-		setSelectedModal(null);
-	}, [setSelectedModal]);
-
 	const isMounted = useRef(true);
 
 	const [state, dispatch] = useReducer(reducer, initialState);
@@ -432,6 +446,10 @@ export const RenderModal: React.FC<{
 			return enforceAudioTrackState;
 		}
 
+		if (renderMode === 'audio') {
+			return enforceAudioTrackState;
+		}
+
 		return false;
 	}, [enforceAudioTrackState, renderMode]);
 
@@ -443,34 +461,18 @@ export const RenderModal: React.FC<{
 		return null;
 	}, [codec, proResProfileSetting, renderMode]);
 
-	const {compositions} = useContext(Internals.CompositionManager);
-
-	const currentComposition = useMemo((): AnyComposition | null => {
-		for (const composition of compositions) {
-			if (composition.id === compositionId) {
-				return composition;
-			}
-		}
-
-		return null;
-	}, [compositionId, compositions]);
-
-	if (currentComposition === null) {
-		throw new Error('This composition does not exist');
-	}
-
 	const [inputProps, setInputProps] = useState(() => defaultProps);
 
 	const endFrame = useMemo((): number => {
 		if (endFrameOrNull === null) {
-			return currentComposition.durationInFrames - 1;
+			return resolvedComposition.durationInFrames - 1;
 		}
 
 		return Math.max(
 			0,
-			Math.min(currentComposition.durationInFrames - 1, endFrameOrNull)
+			Math.min(resolvedComposition.durationInFrames - 1, endFrameOrNull)
 		);
-	}, [currentComposition.durationInFrames, endFrameOrNull]);
+	}, [resolvedComposition.durationInFrames, endFrameOrNull]);
 
 	const startFrame = useMemo((): number => {
 		if (startFrameOrNull === null) {
@@ -485,9 +487,9 @@ export const RenderModal: React.FC<{
 
 		return Math.max(
 			0,
-			Math.min(currentComposition.durationInFrames - 1, parsed)
+			Math.min(resolvedComposition.durationInFrames - 1, parsed)
 		);
-	}, [currentComposition.durationInFrames, unclampedFrame]);
+	}, [resolvedComposition.durationInFrames, unclampedFrame]);
 
 	const getStringBeforeSuffix = useCallback((fileName: string) => {
 		const dotPos = fileName.lastIndexOf('.');
@@ -593,10 +595,10 @@ export const RenderModal: React.FC<{
 		rightSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addStillRenderJob({
-			compositionId,
+			compositionId: resolvedComposition.id,
 			outName,
 			imageFormat: stillImageFormat,
-			jpegQuality: stillImageFormat === 'jpeg' ? jpegQuality : null,
+			jpegQuality,
 			frame,
 			scale,
 			verbose,
@@ -607,7 +609,7 @@ export const RenderModal: React.FC<{
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
-				setSelectedModal(null);
+				onClose();
 			})
 			.catch(() => {
 				dispatchIfMounted({type: 'fail'});
@@ -615,7 +617,7 @@ export const RenderModal: React.FC<{
 	}, [
 		setSidebarCollapsedState,
 		dispatchIfMounted,
-		compositionId,
+		resolvedComposition.id,
 		outName,
 		stillImageFormat,
 		jpegQuality,
@@ -626,7 +628,7 @@ export const RenderModal: React.FC<{
 		delayRenderTimeout,
 		envVariables,
 		inputProps,
-		setSelectedModal,
+		onClose,
 	]);
 
 	const [everyNthFrameSetting, setEveryNthFrameSetting] = useState(
@@ -649,7 +651,7 @@ export const RenderModal: React.FC<{
 		rightSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addVideoRenderJob({
-			compositionId,
+			compositionId: resolvedComposition.id,
 			outName,
 			imageFormat: videoImageFormat,
 			jpegQuality: stillImageFormat === 'jpeg' ? jpegQuality : null,
@@ -677,7 +679,7 @@ export const RenderModal: React.FC<{
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
-				setSelectedModal(null);
+				onClose();
 			})
 			.catch(() => {
 				dispatchIfMounted({type: 'fail'});
@@ -685,7 +687,7 @@ export const RenderModal: React.FC<{
 	}, [
 		setSidebarCollapsedState,
 		dispatchIfMounted,
-		compositionId,
+		resolvedComposition.id,
 		outName,
 		videoImageFormat,
 		stillImageFormat,
@@ -712,7 +714,7 @@ export const RenderModal: React.FC<{
 		chromiumOptions,
 		envVariables,
 		inputProps,
-		setSelectedModal,
+		onClose,
 	]);
 
 	useEffect(() => {
@@ -807,7 +809,7 @@ export const RenderModal: React.FC<{
 	);
 
 	const renderTabOptions = useMemo((): SegmentedControlItem[] => {
-		if (currentComposition?.durationInFrames < 2) {
+		if (resolvedComposition?.durationInFrames < 2) {
 			return [
 				{
 					label: 'Still',
@@ -846,7 +848,7 @@ export const RenderModal: React.FC<{
 				selected: renderMode === 'audio',
 			},
 		];
-	}, [currentComposition?.durationInFrames, renderMode, setRenderMode]);
+	}, [resolvedComposition?.durationInFrames, renderMode, setRenderMode]);
 
 	const outnameValidation = validateOutnameGui({
 		outName,
@@ -888,217 +890,305 @@ export const RenderModal: React.FC<{
 	}, [registerKeybinding, trigger]);
 
 	return (
-		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
-			<div style={outer}>
-				<NewCompHeader title={`Render ${compositionId}`} />
-				<div style={container}>
-					<SegmentedControl items={renderTabOptions} needsWrapping={false} />
-					<div style={flexer} />
-					<Button
-						autoFocus
-						onClick={trigger}
-						disabled={renderDisabled}
-						style={{
-							...buttonStyle,
-							backgroundColor: outnameValidation.valid
-								? 'var(--blue)'
-								: 'var(--blue-disabled)',
-						}}
-					>
-						{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
-						<ShortcutHint keyToPress="↵" cmdOrCtrl />
-					</Button>
+		<div style={outer}>
+			<NewCompHeader title={`Render ${resolvedComposition.id}`} />
+			<div style={container}>
+				<SegmentedControl items={renderTabOptions} needsWrapping={false} />
+				<div style={flexer} />
+				<Button
+					autoFocus
+					onClick={trigger}
+					disabled={renderDisabled}
+					style={{
+						...buttonStyle,
+						backgroundColor: outnameValidation.valid ? BLUE : BLUE_DISABLED,
+					}}
+				>
+					{state.type === 'idle' ? `Render ${renderMode}` : 'Rendering...'}
+					<ShortcutHint keyToPress="↵" cmdOrCtrl />
+				</Button>
+			</div>
+			<div style={horizontalLayout}>
+				<div style={leftSidebar}>
+					{shownTabs.includes('general') ? (
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'general'}
+							onClick={() => setTab('general')}
+						>
+							<div style={iconContainer}>
+								<FileIcon style={icon} />
+							</div>
+							General
+						</VerticalTab>
+					) : null}
+					{shownTabs.includes('data') ? (
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'data'}
+							onClick={() => setTab('data')}
+						>
+							<div style={iconContainer}>
+								<DataIcon style={icon} />
+							</div>
+							Input Props
+						</VerticalTab>
+					) : null}
+					{shownTabs.includes('picture') ? (
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'picture'}
+							onClick={() => setTab('picture')}
+						>
+							<div style={iconContainer}>
+								<PicIcon style={icon} />
+							</div>
+							Picture
+						</VerticalTab>
+					) : null}
+					{shownTabs.includes('audio') ? (
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'audio'}
+							onClick={() => setTab('audio')}
+						>
+							<div style={iconContainer}>
+								<AudioIcon style={icon} />
+							</div>
+							Audio
+						</VerticalTab>
+					) : null}
+					{shownTabs.includes('gif') ? (
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'gif'}
+							onClick={() => setTab('gif')}
+						>
+							<div style={iconContainer}>
+								<GifIcon style={icon} />
+							</div>
+							GIF
+						</VerticalTab>
+					) : null}
+					{shownTabs.includes('advanced') ? (
+						<VerticalTab
+							style={horizontalTab}
+							selected={tab === 'advanced'}
+							onClick={() => setTab('advanced')}
+						>
+							<div style={iconContainer}>
+								<GearIcon style={icon} />
+							</div>
+							Other
+						</VerticalTab>
+					) : null}
 				</div>
-				<div style={horizontalLayout}>
-					<div style={leftSidebar}>
-						{shownTabs.includes('general') ? (
-							<VerticalTab
-								style={horizontalTab}
-								selected={tab === 'general'}
-								onClick={() => setTab('general')}
-							>
-								<div style={iconContainer}>
-									<FileIcon style={icon} />
-								</div>
-								General
-							</VerticalTab>
-						) : null}
-						{shownTabs.includes('data') ? (
-							<VerticalTab
-								style={horizontalTab}
-								selected={tab === 'data'}
-								onClick={() => setTab('data')}
-							>
-								<div style={iconContainer}>
-									<DataIcon style={icon} />
-								</div>
-								Input Props
-							</VerticalTab>
-						) : null}
-						{shownTabs.includes('picture') ? (
-							<VerticalTab
-								style={horizontalTab}
-								selected={tab === 'picture'}
-								onClick={() => setTab('picture')}
-							>
-								<div style={iconContainer}>
-									<PicIcon style={icon} />
-								</div>
-								Picture
-							</VerticalTab>
-						) : null}
-						{shownTabs.includes('audio') ? (
-							<VerticalTab
-								style={horizontalTab}
-								selected={tab === 'audio'}
-								onClick={() => setTab('audio')}
-							>
-								<div style={iconContainer}>
-									<AudioIcon style={icon} />
-								</div>
-								Audio
-							</VerticalTab>
-						) : null}
-						{shownTabs.includes('gif') ? (
-							<VerticalTab
-								style={horizontalTab}
-								selected={tab === 'gif'}
-								onClick={() => setTab('gif')}
-							>
-								<div style={iconContainer}>
-									<GifIcon style={icon} />
-								</div>
-								GIF
-							</VerticalTab>
-						) : null}
-						{shownTabs.includes('advanced') ? (
-							<VerticalTab
-								style={horizontalTab}
-								selected={tab === 'advanced'}
-								onClick={() => setTab('advanced')}
-							>
-								<div style={iconContainer}>
-									<GearIcon style={icon} />
-								</div>
-								Other
-							</VerticalTab>
-						) : null}
-					</div>
-					<div style={rightPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
-						{tab === 'general' ? (
-							<RenderModalBasic
-								codec={codec}
-								currentComposition={currentComposition}
-								frame={frame}
-								imageFormatOptions={imageFormatOptions}
-								outName={outName}
-								proResProfile={proResProfile}
-								renderMode={renderMode}
-								setVideoCodec={setCodec}
-								setFrame={setFrame}
-								setOutName={setOutName}
-								setProResProfile={setProResProfile}
-								endFrame={endFrame}
-								setEndFrame={setEndFrame}
-								setStartFrame={setStartFrame}
-								startFrame={startFrame}
-								validationMessage={
-									outnameValidation.valid
-										? null
-										: outnameValidation.error.message
-								}
-							/>
-						) : tab === 'picture' ? (
-							<RenderModalPicture
-								renderMode={renderMode}
-								scale={scale}
-								setScale={setScale}
-								pixelFormat={pixelFormat}
-								setPixelFormat={setPixelFormat}
-								imageFormatOptions={imageFormatOptions}
-								crf={crf}
-								setCrf={setCrf}
-								customTargetVideoBitrate={customTargetVideoBitrate}
-								maxCrf={maxCrf}
-								minCrf={minCrf}
-								jpegQuality={jpegQuality}
-								qualityControlType={qualityControlType}
-								setJpegQuality={setJpegQuality}
-								setCustomTargetVideoBitrateValue={
-									setCustomTargetVideoBitrateValue
-								}
-								setQualityControl={setQualityControl}
-								videoImageFormat={videoImageFormat}
-								stillImageFormat={stillImageFormat}
-								shouldDisplayQualityControlPicker={supportsBothQualityControls}
-							/>
-						) : tab === 'audio' ? (
-							<RenderModalAudio
-								muted={muted}
-								renderMode={renderMode}
-								setMuted={setMuted}
-								codec={codec}
-								audioCodec={audioCodec}
-								setAudioCodec={setAudioCodec}
-								enforceAudioTrack={enforceAudioTrack}
-								setEnforceAudioTrackState={setEnforceAudioTrackState}
-								customTargetAudioBitrate={customTargetAudioBitrate}
-								setCustomTargetAudioBitrateValue={
-									setCustomTargetAudioBitrateValue
-								}
-								setShouldHaveCustomTargetAudioBitrate={
-									setShouldHaveCustomTargetAudioBitrate
-								}
-								shouldHaveCustomTargetAudioBitrate={
-									shouldHaveCustomTargetAudioBitrate
-								}
-							/>
-						) : tab === 'gif' ? (
-							<RenderModalGif
-								everyNthFrame={everyNthFrame}
-								limitNumberOfGifLoops={limitNumberOfGifLoops}
-								numberOfGifLoopsSetting={numberOfGifLoopsSetting}
-								setEveryNthFrameSetting={setEveryNthFrameSetting}
-								setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
-								setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
-							/>
-						) : tab === 'data' ? (
-							<RenderModalData
-								inputProps={inputProps}
-								setInputProps={setInputProps}
-								composition={currentComposition}
-								compact={false}
-								mayShowSaveButton={false}
-								propsEditType="input-props"
-							/>
-						) : (
-							<RenderModalAdvanced
-								concurrency={concurrency}
-								maxConcurrency={maxConcurrency}
-								minConcurrency={minConcurrency}
-								renderMode={renderMode}
-								setConcurrency={setConcurrency}
-								setVerboseLogging={setVerboseLogging}
-								verbose={verbose}
-								delayRenderTimeout={delayRenderTimeout}
-								setDelayRenderTimeout={setDelayRenderTimeout}
-								disallowParallelEncoding={disallowParallelEncoding}
-								setDisallowParallelEncoding={setDisallowParallelEncoding}
-								setDisableWebSecurity={setDisableWebSecurity}
-								setIgnoreCertificateErrors={setIgnoreCertificateErrors}
-								setHeadless={setHeadless}
-								headless={headless}
-								ignoreCertificateErrors={ignoreCertificateErrors}
-								disableWebSecurity={disableWebSecurity}
-								openGlOption={openGlOption}
-								setOpenGlOption={setOpenGlOption}
-								setEnvVariables={setEnvVariables}
-								envVariables={envVariables}
-							/>
-						)}
-					</div>
+				<div style={rightPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+					{tab === 'general' ? (
+						<RenderModalBasic
+							codec={codec}
+							resolvedComposition={resolvedComposition}
+							frame={frame}
+							imageFormatOptions={imageFormatOptions}
+							outName={outName}
+							proResProfile={proResProfile}
+							renderMode={renderMode}
+							setVideoCodec={setCodec}
+							setFrame={setFrame}
+							setOutName={setOutName}
+							setProResProfile={setProResProfile}
+							endFrame={endFrame}
+							setEndFrame={setEndFrame}
+							setStartFrame={setStartFrame}
+							startFrame={startFrame}
+							validationMessage={
+								outnameValidation.valid ? null : outnameValidation.error.message
+							}
+						/>
+					) : tab === 'picture' ? (
+						<RenderModalPicture
+							renderMode={renderMode}
+							scale={scale}
+							setScale={setScale}
+							pixelFormat={pixelFormat}
+							setPixelFormat={setPixelFormat}
+							imageFormatOptions={imageFormatOptions}
+							crf={crf}
+							setCrf={setCrf}
+							customTargetVideoBitrate={customTargetVideoBitrate}
+							maxCrf={maxCrf}
+							minCrf={minCrf}
+							jpegQuality={jpegQuality}
+							qualityControlType={qualityControlType}
+							setJpegQuality={setJpegQuality}
+							setCustomTargetVideoBitrateValue={
+								setCustomTargetVideoBitrateValue
+							}
+							setQualityControl={setQualityControl}
+							videoImageFormat={videoImageFormat}
+							stillImageFormat={stillImageFormat}
+							shouldDisplayQualityControlPicker={supportsBothQualityControls}
+						/>
+					) : tab === 'audio' ? (
+						<RenderModalAudio
+							muted={muted}
+							renderMode={renderMode}
+							setMuted={setMuted}
+							codec={codec}
+							audioCodec={audioCodec}
+							setAudioCodec={setAudioCodec}
+							enforceAudioTrack={enforceAudioTrack}
+							setEnforceAudioTrackState={setEnforceAudioTrackState}
+							customTargetAudioBitrate={customTargetAudioBitrate}
+							setCustomTargetAudioBitrateValue={
+								setCustomTargetAudioBitrateValue
+							}
+							setShouldHaveCustomTargetAudioBitrate={
+								setShouldHaveCustomTargetAudioBitrate
+							}
+							shouldHaveCustomTargetAudioBitrate={
+								shouldHaveCustomTargetAudioBitrate
+							}
+						/>
+					) : tab === 'gif' ? (
+						<RenderModalGif
+							everyNthFrame={everyNthFrame}
+							limitNumberOfGifLoops={limitNumberOfGifLoops}
+							numberOfGifLoopsSetting={numberOfGifLoopsSetting}
+							setEveryNthFrameSetting={setEveryNthFrameSetting}
+							setLimitNumberOfGifLoops={setLimitNumberOfGifLoops}
+							setNumberOfGifLoopsSetting={setNumberOfGifLoopsSetting}
+						/>
+					) : tab === 'data' ? (
+						<DataEditor
+							inputProps={inputProps}
+							setInputProps={setInputProps}
+							unresolvedComposition={unresolvedComposition}
+							mayShowSaveButton={false}
+							propsEditType="input-props"
+						/>
+					) : (
+						<RenderModalAdvanced
+							concurrency={concurrency}
+							maxConcurrency={maxConcurrency}
+							minConcurrency={minConcurrency}
+							renderMode={renderMode}
+							setConcurrency={setConcurrency}
+							setVerboseLogging={setVerboseLogging}
+							verbose={verbose}
+							delayRenderTimeout={delayRenderTimeout}
+							setDelayRenderTimeout={setDelayRenderTimeout}
+							disallowParallelEncoding={disallowParallelEncoding}
+							setDisallowParallelEncoding={setDisallowParallelEncoding}
+							setDisableWebSecurity={setDisableWebSecurity}
+							setIgnoreCertificateErrors={setIgnoreCertificateErrors}
+							setHeadless={setHeadless}
+							headless={headless}
+							ignoreCertificateErrors={ignoreCertificateErrors}
+							disableWebSecurity={disableWebSecurity}
+							openGlOption={openGlOption}
+							setOpenGlOption={setOpenGlOption}
+							setEnvVariables={setEnvVariables}
+							envVariables={envVariables}
+						/>
+					)}
 				</div>
 			</div>
+		</div>
+	);
+};
+
+export const RenderModalWithLoader: React.FC<RenderModalProps> = (props) => {
+	const {setSelectedModal} = useContext(ModalsContext);
+
+	const onQuit = useCallback(() => {
+		setSelectedModal(null);
+	}, [setSelectedModal]);
+
+	useEffect(() => {
+		const {current} = Internals.resolveCompositionsRef;
+		if (!current) {
+			throw new Error('resolveCompositionsRef');
+		}
+
+		current.setCurrentRenderModalComposition(props.compositionId);
+		return () => {
+			current.setCurrentRenderModalComposition(null);
+		};
+	}, [props.compositionId]);
+
+	const resolved = Internals.useResolvedVideoConfig(props.compositionId);
+	const unresolvedContext = useContext(Internals.CompositionManager);
+	const unresolved = unresolvedContext.compositions.find(
+		(c) => props.compositionId === c.id
+	);
+
+	if (!unresolved) {
+		throw new Error('Composition not found: ' + props.compositionId);
+	}
+
+	if (!resolved) {
+		return null;
+	}
+
+	if (resolved.type === 'loading') {
+		return (
+			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
+				<div style={loaderContainer}>
+					<Spinner duration={1} size={30} />
+					<Spacing y={2} />
+					<div style={loaderLabel}>
+						Running <code style={inlineCodeSnippet}>calculateMetadata()</code>
+					</div>
+				</div>
+			</ModalContainer>
+		);
+	}
+
+	if (resolved.type === 'error') {
+		return (
+			<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
+				<div style={loaderContainer}>
+					<Spacing y={2} />
+					<div style={loaderLabel}>
+						Running <code style={inlineCodeSnippet}>calculateMetadata()</code>{' '}
+						yielded an error:
+					</div>
+					<Spacing y={1} />
+					<div style={loaderLabel}>
+						{resolved.error.message || 'Unknown error'}
+					</div>
+				</div>
+			</ModalContainer>
+		);
+	}
+
+	return (
+		<ModalContainer onOutsideClick={onQuit} onEscape={onQuit}>
+			<RenderModal
+				unresolvedComposition={unresolved}
+				{...props}
+				onClose={onQuit}
+				resolvedComposition={resolved.result}
+			/>
 		</ModalContainer>
 	);
+};
+
+const loaderContainer: React.CSSProperties = {
+	paddingTop: 40,
+	paddingBottom: 40,
+	paddingLeft: 100,
+	paddingRight: 100,
+	display: 'flex',
+	justifyContent: 'center',
+	alignItems: 'center',
+	flexDirection: 'column',
+};
+
+const loaderLabel: React.CSSProperties = {
+	fontSize: 14,
+	color: LIGHT_TEXT,
+	fontFamily: 'sans-serif',
+	lineHeight: 1.5,
 };

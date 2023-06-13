@@ -9,11 +9,11 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
+import {AssetManager} from '../AssetManager.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
-import {CompositionManager} from '../CompositionManager.js';
 import {continueRender, delayRender} from '../delay-render.js';
 import {useRemotionEnvironment} from '../get-environment.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
@@ -55,7 +55,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const mediaStartsAt = useMediaStartsAt();
 	const environment = useRemotionEnvironment();
 
-	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+	const {registerAsset, unregisterAsset} = useContext(AssetManager);
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads

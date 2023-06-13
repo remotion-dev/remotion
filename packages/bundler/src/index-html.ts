@@ -1,5 +1,6 @@
 import path from 'node:path';
 import type {StaticFile} from 'remotion';
+import {Internals} from 'remotion';
 
 export type RenderDefaults = {
 	jpegQuality: number;
@@ -40,7 +41,7 @@ export const indexHtml = ({
 	envVariables,
 	staticHash,
 	remotionRoot,
-	previewServerCommand,
+	studioServerCommand,
 	renderQueue,
 	numberOfAudioTags,
 	publicFiles,
@@ -54,7 +55,7 @@ export const indexHtml = ({
 	inputProps: object | null;
 	envVariables?: Record<string, string>;
 	remotionRoot: string;
-	previewServerCommand: string | null;
+	studioServerCommand: string | null;
 	renderQueue: unknown | null;
 	numberOfAudioTags: number;
 	publicFiles: StaticFile[];
@@ -93,8 +94,8 @@ ${
 			renderDefaults
 		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
-		<script>window.remotion_previewServerCommand = ${
-			previewServerCommand ? JSON.stringify(previewServerCommand) : 'null'
+		<script>window.remotion_studioServerCommand = ${
+			studioServerCommand ? JSON.stringify(studioServerCommand) : 'null'
 		};</script>
 		${
 			inputProps
@@ -122,7 +123,7 @@ ${
 		}
 		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
 		
-		<div id="container"></div>
+		<div id="${Internals.REMOTION_STUDIO_CONTAINER_ELEMENT}"></div>
 		<div id="menuportal-0"></div>
 		<div id="menuportal-1"></div>
 		<div id="menuportal-2"></div>

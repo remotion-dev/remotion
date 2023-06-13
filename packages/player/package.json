@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "3.3.96",
+	"version": "3.3.99",
 	"description": "Remotion Player",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -54,7 +54,7 @@
 		"@types/react-dom": "18.0.10",
 		"@vitejs/plugin-react": "^2.0.0",
 		"csstype": "^3.1.1",
-		"eslint": "8.25.0",
+		"eslint": "8.42.0",
 		"eslint-plugin-require-extensions": "^0.1.2",
 		"jsdom": "20.0.1",
 		"prettier": "^2.7.1",
@@ -63,7 +63,7 @@
 		"react-dom": "^18.0.0",
 		"rollup": "^2.70.1",
 		"rollup-plugin-banner2": "^1.2.2",
-		"typescript": "^4.7.0",
+		"typescript": "4.9.5",
 		"vitest": "0.31.1",
 		"webpack": "5.83.1",
 		"zod": "^3.21.4"

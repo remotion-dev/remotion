@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
-import {Browser} from './Browser';
+import {HeadlessBrowser} from './Browser';
 import {BrowserRunner} from './BrowserRunner';
 
 import type {PuppeteerNodeLaunchOptions} from './LaunchOptions';
@@ -30,7 +30,7 @@ const tmpDir = () => {
 };
 
 export interface ProductLauncher {
-	launch(object: PuppeteerNodeLaunchOptions): Promise<Browser>;
+	launch(object: PuppeteerNodeLaunchOptions): Promise<HeadlessBrowser>;
 	executablePath: (path?: any) => string;
 	product: Product;
 }
@@ -42,7 +42,7 @@ export class ChromeLauncher implements ProductLauncher {
 		this._preferredRevision = preferredRevision;
 	}
 
-	async launch(options: PuppeteerNodeLaunchOptions): Promise<Browser> {
+	async launch(options: PuppeteerNodeLaunchOptions): Promise<HeadlessBrowser> {
 		const {
 			args = [],
 			dumpio = false,
@@ -98,9 +98,8 @@ export class ChromeLauncher implements ProductLauncher {
 				timeout,
 				preferredRevision: this._preferredRevision,
 			});
-			browser = await Browser._create({
+			browser = await HeadlessBrowser._create({
 				connection,
-				contextIds: [],
 				defaultViewport,
 				closeCallback: runner.close.bind(runner),
 			});

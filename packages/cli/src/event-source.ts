@@ -1,6 +1,6 @@
 import {sendErrorNotification} from './editor/components/Notifications/NotificationCenter';
 import {renderJobsRef} from './editor/components/RenderQueue/context';
-import {previewServerConnectionRef} from './editor/helpers/client-id';
+import {studioServerConnectionRef} from './editor/helpers/client-id';
 import type {EventSourceEvent} from './event-source-events';
 
 let source: EventSource | null = null;
@@ -36,7 +36,7 @@ export const openEventSource = () => {
 		}
 
 		if (newEvent.type === 'init') {
-			previewServerConnectionRef.current?.set({
+			studioServerConnectionRef.current?.set({
 				type: 'connected',
 				clientId: newEvent.clientId,
 			});
@@ -65,8 +65,8 @@ export const openEventSource = () => {
 		(source as EventSource).addEventListener(
 			'error',
 			() => {
-				previewServerConnectionRef.current?.set({type: 'disconnected'});
-				// Display an error message that the preview server has disconnected.
+				studioServerConnectionRef.current?.set({type: 'disconnected'});
+				// Display an error message that the studio server has disconnected.
 				source?.close();
 
 				// Retry later

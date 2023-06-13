@@ -11,17 +11,15 @@ export const optionRow: React.CSSProperties = {
 	paddingBottom: 8,
 };
 
-export const narrowOption: React.CSSProperties = {
-	display: 'flex',
-	flexDirection: 'column',
-};
-
 export const label: React.CSSProperties = {
 	width: 170,
 	fontSize: 15,
 	lineHeight: '40px',
 	color: LIGHT_TEXT,
 	fontFamily: 'sans-serif',
+	display: 'flex',
+	flexDirection: 'row',
+	alignItems: 'center',
 };
 
 export const rightRow: React.CSSProperties = {
@@ -39,8 +37,6 @@ export const input: React.CSSProperties = {
 export const fieldsetLabel: React.CSSProperties = {
 	color: LIGHT_TEXT,
 	fontSize: 14,
-	paddingLeft: 5,
-	paddingRight: 5,
 	display: 'flex',
 	flexDirection: 'row',
 	fontFamily: 'monospace',

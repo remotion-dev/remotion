@@ -160,8 +160,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		params.chromiumOptions
 	);
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
 	const inputPropsPromise = deserializeInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
@@ -174,13 +172,14 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		composition: params.composition,
 		browserInstance,
 		inputProps: await inputPropsPromise,
-		envVariables: params.envVariables,
+		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		port: null,
-		downloadMap,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
+		logLevel: params.logLevel,
+		server: undefined,
 	});
 	Internals.validateDurationInFrames({
 		durationInFrames: comp.durationInFrames,
@@ -573,7 +572,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		customCredentials: null,
 	});
-	RenderInternals.cleanDownloadMap(downloadMap);
 
 	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
 

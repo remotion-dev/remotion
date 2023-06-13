@@ -5,9 +5,9 @@ title: Fast Refresh not working
 crumb: "Troubleshooting"
 ---
 
-If the Remotion Preview does not update after you have updated your file, it is usually due to one of two reasons:
+If the Remotion Studio does not update after you have updated your file, it is usually due to one of two reasons:
 
-<Step>1</Step> Preview server disconnected: This happens when you quit the process that was started when running <code>npx remotion preview</code>, usually using <code>Ctrl+C</code> or by quitting the terminal. <br/><br/>
+<Step>1</Step> Studio server disconnected: This happens when you quit the process that was started when running <code>npx remotion studio</code>, usually using <code>Ctrl+C</code> or by quitting the terminal. <br/><br/>
 
 <Step>2</Step> Mismatched capitalization in the filenames: Ensure that the capitalization of filenames is correct in imports. For example, if your filename is <code>MyComp.tsx</code>, but you import it using <code>{'import {MyComp} from "./myComp.tsx"'}</code>, Fast Refresh may break. <br/><br/>
 

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lambda",
-	"version": "3.3.96",
+	"version": "3.3.99",
 	"description": "Distributed renderer for Remotion based on AWS Lambda",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -49,12 +49,12 @@
 		"@types/minimist": "1.2.2",
 		"@types/node": "18.14.6",
 		"@types/prompt": "^1.1.0",
-		"eslint": "8.25.0",
+		"eslint": "8.42.0",
 		"prettier": "^2.4.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"ts-node": "^10.8.0",
-		"typescript": "^4.7.0",
-		"vitest": "^0.24.3",
+		"typescript": "4.9.5",
+		"vitest": "0.31.1",
 		"zip-lib": "^0.7.2"
 	},
 	"peerDependencies": {

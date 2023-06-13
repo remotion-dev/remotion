@@ -11,7 +11,6 @@ import React, {
 	useState,
 } from 'react';
 import {Internals} from 'remotion';
-import type {z} from 'zod';
 import {
 	calculateCanvasTransformation,
 	calculateContainerStyle,
@@ -55,7 +54,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		loop: boolean;
 		autoPlay: boolean;
 		allowFullscreen: boolean;
-		inputProps: unknown;
+		inputProps: Record<string, unknown>;
 		showVolumeControls: boolean;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
@@ -76,6 +75,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderPlayPauseButton: RenderPlayPauseButton | null;
 		renderFullscreen: RenderFullscreenButton | null;
 		alwaysShowControls: boolean;
+		showPlaybackRateControl: boolean | number[];
 	}
 > = (
 	{
@@ -104,6 +104,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		renderFullscreen: renderFullscreenButton,
 		renderPlayPauseButton,
 		alwaysShowControls,
+		showPlaybackRateControl,
 	},
 	ref
 ) => {
@@ -265,6 +266,16 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		Internals.SetMediaVolumeContext
 	);
 	const {mediaMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
+	useEffect(() => {
+		player.emitter.dispatchVolumeChange(mediaVolume);
+	}, [player.emitter, mediaVolume]);
+
+	const isMuted = mediaMuted || mediaVolume === 0;
+	useEffect(() => {
+		player.emitter.dispatchMuteChange({
+			isMuted,
+		});
+	}, [player.emitter, isMuted]);
 
 	useImperativeHandle(
 		ref,
@@ -321,9 +332,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					}
 
 					setMediaVolume(vol);
-					player.emitter.dispatchVolumeChange(vol);
 				},
-				isMuted: () => mediaMuted || mediaVolume === 0,
+				isMuted: () => isMuted,
 				mute: () => {
 					setMediaMuted(true);
 				},
@@ -340,6 +350,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			isFullscreen,
 			loop,
 			mediaMuted,
+			isMuted,
 			mediaVolume,
 			player,
 			requestFullscreen,
@@ -472,9 +483,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<VideoComponent
-								{...((video?.defaultProps as unknown as z.infer<z.ZodTypeAny>) ??
-									{})}
-								{...((inputProps as unknown as z.infer<z.ZodTypeAny>) ?? {})}
+								{...(video?.defaultProps ?? {})}
+								{...(inputProps ?? {})}
 							/>
 						</ErrorBoundary>
 					) : null}
@@ -508,10 +518,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					inFrame={inFrame}
 					outFrame={outFrame}
 					initiallyShowControls={initiallyShowControls}
-					playerWidth={canvasSize?.width ?? 0}
+					canvasSize={canvasSize}
 					renderFullscreenButton={renderFullscreenButton}
 					renderPlayPauseButton={renderPlayPauseButton}
 					alwaysShowControls={alwaysShowControls}
+					showPlaybackRateControl={showPlaybackRateControl}
 				/>
 			) : null}
 		</>

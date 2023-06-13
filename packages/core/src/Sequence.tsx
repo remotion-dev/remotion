@@ -7,12 +7,12 @@ import React, {
 } from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
 import type {LoopDisplay} from './CompositionManager.js';
-import {CompositionManager} from './CompositionManager.js';
 import {useRemotionEnvironment} from './get-environment.js';
 import {getTimelineClipName} from './get-timeline-clip-name.js';
 import {useNonce} from './nonce.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
+import {SequenceManager} from './SequenceManager.js';
 import {
 	TimelineContext,
 	useTimelinePosition,
@@ -108,7 +108,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		0,
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration)
 	);
-	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
+	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {

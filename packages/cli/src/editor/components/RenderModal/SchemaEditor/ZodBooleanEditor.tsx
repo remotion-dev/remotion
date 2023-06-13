@@ -1,72 +1,81 @@
 import React, {useCallback} from 'react';
 import {Checkbox} from '../../Checkbox';
-import {narrowOption, optionRow} from '../layout';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
+import {useLocalState} from './local-state';
+import type {z} from 'zod';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
 };
 
 export const ZodBooleanEditor: React.FC<{
+	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
 	value: boolean;
 	setValue: UpdaterFunction<boolean>;
-	compact: boolean;
 	defaultValue: boolean;
 	onSave: UpdaterFunction<boolean>;
 	onRemove: null | (() => void);
 	showSaveButton: boolean;
 	saving: boolean;
+	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
+	schema,
 	jsonPath,
 	value,
 	setValue,
 	onSave,
-	compact,
 	defaultValue,
 	onRemove,
 	showSaveButton,
 	saving,
+	saveDisabledByParent,
+	mayPad,
 }) => {
-	const onValueChange = useCallback(
-		(newValue: boolean, forceApply: boolean) => {
-			setValue(() => newValue, forceApply);
-		},
-		[setValue]
-	);
+	const {localValue, onChange, reset} = useLocalState({
+		schema,
+		setValue,
+		value,
+		defaultValue,
+	});
 
-	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
+	const onToggle: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
-			onValueChange(e.target.checked, false);
+			onChange(() => e.target.checked, false, false);
 		},
-		[onValueChange]
+		[onChange]
 	);
-
-	const reset = useCallback(() => {
-		onValueChange(defaultValue, true);
-	}, [defaultValue, onValueChange]);
 
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (
-		<div style={compact ? narrowOption : optionRow}>
+		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
-				isDefaultValue={value === defaultValue}
+				isDefaultValue={localValue.value === defaultValue}
 				jsonPath={jsonPath}
 				onReset={reset}
 				onSave={save}
 				showSaveButton={showSaveButton}
-				compact={compact}
 				onRemove={onRemove}
 				saving={saving}
+				valid
+				saveDisabledByParent={saveDisabledByParent}
+				suffix={null}
 			/>
 			<div style={fullWidth}>
-				<Checkbox checked={value} onChange={onChange} disabled={false} />
+				<Checkbox
+					name={jsonPath.join('.')}
+					checked={localValue.value}
+					onChange={onToggle}
+					disabled={false}
+				/>
 			</div>
-		</div>
+		</Fieldset>
 	);
 };

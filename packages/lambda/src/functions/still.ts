@@ -1,6 +1,6 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {StillImageFormat} from '@remotion/renderer';
-import {RenderInternals, renderStill} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
@@ -87,8 +87,6 @@ const innerStillHandler = async (
 
 	const outputPath = path.join(outputDir, 'output');
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
 	const region = getCurrentRegionInFunction();
 	const inputProps = await deserializeInputProps({
 		bucketName,
@@ -103,18 +101,33 @@ const innerStillHandler = async (
 		bucketName,
 	});
 
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(
+		lambdaParams.logLevel,
+		'verbose'
+	);
+
+	const server = await RenderInternals.prepareServer({
+		concurrency: 1,
+		indent: false,
+		port: null,
+		remotionRoot: process.cwd(),
+		verbose,
+		webpackConfigOrServeUrl: serveUrl,
+	});
+
 	const composition = await validateComposition({
 		serveUrl,
 		browserInstance,
 		composition: lambdaParams.composition,
 		inputProps,
-		envVariables: lambdaParams.envVariables,
+		envVariables: lambdaParams.envVariables ?? {},
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		port: null,
-		downloadMap,
 		forceHeight: lambdaParams.forceHeight,
 		forceWidth: lambdaParams.forceWidth,
+		logLevel: lambdaParams.logLevel,
+		server,
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -151,26 +164,33 @@ const innerStillHandler = async (
 		downloadBehavior: null,
 		customCredentials: null,
 	});
-
-	await renderStill({
+	await RenderInternals.internalRenderStill({
 		composition,
 		output: outputPath,
 		serveUrl,
-		dumpBrowserLogs:
-			lambdaParams.dumpBrowserLogs ??
-			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
-		envVariables: lambdaParams.envVariables,
-		frame: lambdaParams.frame,
+		dumpBrowserLogs: lambdaParams.dumpBrowserLogs ?? verbose,
+		envVariables: lambdaParams.envVariables ?? {},
+		frame: RenderInternals.convertToPositiveFrameIndex({
+			frame: lambdaParams.frame,
+			durationInFrames: composition.durationInFrames,
+		}),
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
 		inputProps,
 		overwrite: false,
 		puppeteerInstance: browserInstance,
-		jpegQuality: lambdaParams.jpegQuality,
+		jpegQuality:
+			lambdaParams.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		scale: lambdaParams.scale,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
-		downloadMap,
 		browserExecutable: executablePath(),
+		cancelSignal: null,
+		indent: false,
+		onBrowserLog: null,
+		onDownload: null,
+		port: null,
+		server,
+		verbose,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -199,6 +219,7 @@ const innerStillHandler = async (
 			region: getCurrentRegionInFunction(),
 			serialized: lambdaParams.inputProps,
 		}),
+		server.closeServer(true),
 	]);
 
 	const estimatedPrice = estimatePrice({
@@ -210,8 +231,6 @@ const innerStillHandler = async (
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
-
-	RenderInternals.cleanDownloadMap(downloadMap);
 
 	return {
 		output: getOutputUrlFromMetadata(

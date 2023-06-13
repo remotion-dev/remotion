@@ -1,12 +1,12 @@
 import execa from 'execa';
 import {downloadFile} from './assets/download-file';
-import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import {
 	getDefaultAudioCodec,
 	supportedAudioCodecs,
 	validAudioCodecs,
 } from './audio-codec';
 import {DEFAULT_BROWSER} from './browser';
+import {HeadlessBrowser} from './browser/Browser';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {callFf, dynamicLibraryPathOptions} from './call-ffmpeg';
 import {canUseParallelEncoding} from './can-use-parallel-encoding';
@@ -24,6 +24,7 @@ import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {defaultFileExtensionMap} from './file-extensions';
 import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
+import {internalGetCompositions} from './get-compositions';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
 import {
@@ -43,15 +44,19 @@ import {
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {isServeUrl} from './is-serve-url';
-import {validateJpegQuality} from './jpeg-quality';
+import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
 import {isEqualOrBelowLogLevel, isValidLogLevel, logLevels} from './log-level';
 import {getLogLevel, INDENT_TOKEN, Log, setLogLevel} from './logger';
 import {mimeContentType, mimeLookup} from './mime-types';
-import {killAllBrowsers} from './open-browser';
+import {internalOpenBrowser, killAllBrowsers} from './open-browser';
 import {parseStack} from './parse-browser-error-stack';
 import * as perf from './perf';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
-import {proResProfileOptions} from './prores-profile';
+import {makeOrReuseServer, prepareServer} from './prepare-server';
+import {internalRenderFrames} from './render-frames';
+import {internalRenderMedia} from './render-media';
+import {internalRenderStill} from './render-still';
+import {internalSelectComposition} from './select-composition';
 import {isPathInside} from './serve-handler/is-path-inside';
 import {serveStatic} from './serve-static';
 import {tmpDir} from './tmp-dir';
@@ -64,7 +69,6 @@ import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-c
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
-	validOpenGlRenderers,
 } from './validate-opengl-renderer';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
@@ -73,18 +77,18 @@ import {
 	unlockErrorSymbolicationLock,
 } from './wait-for-symbolication-error-to-be-done';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
-export type {DownloadMap} from './assets/download-map';
 export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
 export {BrowserExecutable} from './browser-executable';
 export {BrowserLog} from './browser-log';
+export type {HeadlessBrowser} from './browser/Browser';
 export {Codec, CodecOrUndefined} from './codec';
 export {Crf} from './crf';
 export {ErrorWithStackFrame} from './error-handling/handle-javascript-exception';
 export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
-export {getCompositions} from './get-compositions';
+export {getCompositions, GetCompositionsOptions} from './get-compositions';
 export {
 	ImageFormat,
 	StillImageFormat,
@@ -97,9 +101,11 @@ export {openBrowser} from './open-browser';
 export type {ChromiumOptions} from './open-browser';
 export {RemotionOption} from './options/option';
 export {PixelFormat} from './pixel-format';
+export {RemotionServer} from './prepare-server';
 export {ProResProfile} from './prores-profile';
-export {renderFrames} from './render-frames';
+export {renderFrames, RenderFramesOptions} from './render-frames';
 export {
+	InternalRenderMediaOptions,
 	renderMedia,
 	RenderMediaOnProgress,
 	RenderMediaOptions,
@@ -107,7 +113,14 @@ export {
 	StitchingState,
 } from './render-media';
 export {renderStill, RenderStillOptions} from './render-still';
-export {StitcherOptions, stitchFramesToVideo} from './stitch-frames-to-video';
+export {
+	selectComposition,
+	SelectCompositionOptions,
+} from './select-composition';
+export {
+	stitchFramesToVideo,
+	StitchFramesToVideoOptions,
+} from './stitch-frames-to-video';
 export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
@@ -156,8 +169,6 @@ export const RenderInternals = {
 	isEqualOrBelowLogLevel,
 	isValidLogLevel,
 	perf,
-	makeDownloadMap,
-	cleanDownloadMap,
 	convertToPositiveFrameIndex,
 	findRemotionRoot,
 	validateBitrate,
@@ -177,14 +188,22 @@ export const RenderInternals = {
 	validVideoImageFormats,
 	DEFAULT_STILL_IMAGE_FORMAT,
 	DEFAULT_VIDEO_IMAGE_FORMAT,
+	DEFAULT_JPEG_QUALITY,
 	chalk,
 	Log,
 	getLogLevel,
 	setLogLevel,
 	INDENT_TOKEN,
 	isColorSupported,
-	proResProfileOptions,
-	validOpenGlRenderers,
+	HeadlessBrowser,
+	prepareServer,
+	makeOrReuseServer,
+	internalRenderStill,
+	internalOpenBrowser,
+	internalSelectComposition,
+	internalGetCompositions,
+	internalRenderFrames,
+	internalRenderMedia,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)

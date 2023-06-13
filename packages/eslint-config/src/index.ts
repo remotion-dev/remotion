@@ -87,8 +87,6 @@ const getRules = (typescript: boolean) => {
     "wrap-iife": "off",
     "wrap-regex": "off",
     "yield-star-spacing": "off",
-    "@babel/object-curly-spacing": "off",
-    "@babel/semi": "off",
     "@typescript-eslint/brace-style": "off",
     "@typescript-eslint/comma-dangle": "off",
     "@typescript-eslint/comma-spacing": "off",
@@ -103,19 +101,6 @@ const getRules = (typescript: boolean) => {
     "@typescript-eslint/space-before-function-paren": "off",
     "@typescript-eslint/space-infix-ops": "off",
     "@typescript-eslint/type-annotation-spacing": "off",
-    "babel/object-curly-spacing": "off",
-    "babel/semi": "off",
-    "flowtype/boolean-style": "off",
-    "flowtype/delimiter-dangle": "off",
-    "flowtype/generic-spacing": "off",
-    "flowtype/object-type-curly-spacing": "off",
-    "flowtype/object-type-delimiter": "off",
-    "flowtype/quotes": "off",
-    "flowtype/semi": "off",
-    "flowtype/space-after-type-colon": "off",
-    "flowtype/space-before-generic-bracket": "off",
-    "flowtype/space-before-type-colon": "off",
-    "flowtype/union-intersection-spacing": "off",
     "react/jsx-child-element-spacing": "off",
     "react/jsx-closing-bracket-location": "off",
     "react/jsx-closing-tag-location": "off",
@@ -290,23 +275,6 @@ const getRules = (typescript: boolean) => {
     "no-restricted-globals": ["error", "event"],
     "no-shadow-restricted-names": "error",
     "no-undef-init": "error",
-    "no-undef": [
-      "error",
-      {
-        typeof: true,
-      },
-    ],
-    "no-unused-vars": [
-      "error",
-      {
-        vars: "all",
-        args: "after-used",
-        ignoreRestSiblings: true,
-        argsIgnorePattern: /^_/.source,
-        caughtErrors: "all",
-        caughtErrorsIgnorePattern: /^_$/.source,
-      },
-    ],
     "no-buffer-constructor": "error",
     "no-restricted-imports": [
       "error",
@@ -472,7 +440,6 @@ const getRules = (typescript: boolean) => {
       },
     ],
     "react/no-this-in-sfc": "error",
-    "react/no-unknown-property": "error",
     "react/no-unsafe": "error",
     "react/no-unused-prop-types": "error",
     "react/no-unused-state": "error",
@@ -529,7 +496,6 @@ const getRules = (typescript: boolean) => {
     "react/react-in-jsx-scope": "off",
     "react/jsx-key": "off",
     "react/jsx-no-target-blank": "off",
-    "react/prop-types": "off",
     // The following rules are handled by typescript-eslint
     ...(typescript
       ? {
@@ -539,7 +505,26 @@ const getRules = (typescript: boolean) => {
           // Using `require` is useful for importing PNG sequences: require('frame' + frame + '.png')
           "@typescript-eslint/no-var-requires": "off",
         }
-      : {}),
+      : {
+          "no-undef": [
+            "error",
+            {
+              typeof: true,
+            },
+          ],
+
+          "no-unused-vars": [
+            "error",
+            {
+              vars: "all",
+              args: "after-used",
+              ignoreRestSiblings: true,
+              argsIgnorePattern: /^_/.source,
+              caughtErrors: "all",
+              caughtErrorsIgnorePattern: /^_$/.source,
+            },
+          ],
+        }),
     // In Root.tsx we encourage using fragment for just a single composition
     // since we intend to add more compositions later and you should then use a fragment.
     "react/jsx-no-useless-fragment": "off",
@@ -551,7 +536,6 @@ const getRules = (typescript: boolean) => {
         imports: autoImports,
       },
     ],
-    "@typescript-eslint/explicit-module-boundary-types": "off",
   };
 };
 

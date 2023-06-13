@@ -89,7 +89,8 @@ export const deploySite = async ({
 			bucketName,
 			expectedBucketOwner: accountId,
 			region,
-			prefix: subFolder,
+			// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
+			prefix: `${subFolder}/`,
 		}),
 		bundleSite({
 			publicPath: `/${subFolder}/`,

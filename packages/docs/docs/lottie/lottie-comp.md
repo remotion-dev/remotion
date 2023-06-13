@@ -63,7 +63,7 @@ The speed of the animation. A higher number is faster. Default: `1`.
 
 CSS properties to be applied to the `<div>` that contains the animation.
 
-### `onAnimationLoaded` <AvailableFrom v="3.2.29" />
+### `onAnimationLoaded`<AvailableFrom v="3.2.29" />
 
 _optional_
 

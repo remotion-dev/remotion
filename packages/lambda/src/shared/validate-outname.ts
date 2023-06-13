@@ -29,20 +29,20 @@ export const validateOutname = (
 		return;
 	}
 
-	if (typeof outName === 'string') {
-		if (codec) {
-			validateOutputFilename({
-				codec,
-				audioCodec,
-				extension: RenderInternals.getExtensionOfFilename(outName) as string,
-				preferLossless: false,
-			});
-		}
-
-		validateS3Key(outName);
+	if (typeof outName !== 'string') {
+		validateS3Key(outName.key);
+		validateBucketName(outName.bucketName, {mustStartWithRemotion: false});
 		return;
 	}
 
-	validateS3Key(outName.key);
-	validateBucketName(outName.bucketName, {mustStartWithRemotion: false});
+	if (codec) {
+		validateOutputFilename({
+			codec,
+			audioCodec,
+			extension: RenderInternals.getExtensionOfFilename(outName) as string,
+			preferLossless: false,
+		});
+	}
+
+	validateS3Key(outName);
 };

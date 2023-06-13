@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
 import {PageEmittedEvents} from './BrowserPage';
@@ -37,21 +38,18 @@ export const enum BrowserEmittedEvents {
 	ClosedSilent = 'closed-silent',
 }
 
-export class Browser extends EventEmitter {
+export class HeadlessBrowser extends EventEmitter {
 	static async _create({
 		connection,
-		contextIds,
 		defaultViewport,
 		closeCallback,
 	}: {
 		connection: Connection;
-		contextIds: string[];
 		defaultViewport: Viewport;
-		closeCallback?: BrowserCloseCallback;
-	}): Promise<Browser> {
-		const browser = new Browser(
+		closeCallback: BrowserCloseCallback;
+	}): Promise<HeadlessBrowser> {
+		const browser = new HeadlessBrowser(
 			connection,
-			contextIds,
 			defaultViewport,
 			closeCallback
 		);
@@ -70,10 +68,8 @@ export class Browser extends EventEmitter {
 		return this.#targets;
 	}
 
-	// eslint-disable-next-line max-params
 	constructor(
 		connection: Connection,
-		contextIds: string[],
 		defaultViewport: Viewport,
 		closeCallback?: BrowserCloseCallback
 	) {
@@ -88,9 +84,6 @@ export class Browser extends EventEmitter {
 
 		this.#defaultContext = new BrowserContext(this);
 		this.#contexts = new Map();
-		for (const contextId of contextIds) {
-			this.#contexts.set(contextId, new BrowserContext(this, contextId));
-		}
 
 		this.#targets = new Map();
 		this.connection.on('Target.targetCreated', this.#targetCreated.bind(this));
@@ -168,14 +161,16 @@ export class Browser extends EventEmitter {
 		}
 	}
 
-	newPage(): Promise<Page> {
-		return this.#defaultContext.newPage();
+	newPage(context: AnySourceMapConsumer | null): Promise<Page> {
+		return this.#defaultContext.newPage(context);
 	}
 
-	async _createPageInContext(contextId?: string): Promise<Page> {
+	async _createPageInContext(
+		context: AnySourceMapConsumer | null
+	): Promise<Page> {
 		const {targetId} = await this.connection.send('Target.createTarget', {
 			url: 'about:blank',
-			browserContextId: contextId || undefined,
+			browserContextId: undefined,
 		});
 		const target = this.#targets.get(targetId);
 		if (!target) {
@@ -187,11 +182,9 @@ export class Browser extends EventEmitter {
 			throw new Error(`Failed to create target for page (id = ${targetId})`);
 		}
 
-		const page = await target.page();
+		const page = await target.page(context);
 		if (!page) {
-			throw new Error(
-				`Failed to create a page for context (id = ${contextId})`
-			);
+			throw new Error(`Failed to create a page for context`);
 		}
 
 		return page;
@@ -265,13 +258,11 @@ export class Browser extends EventEmitter {
 }
 
 export class BrowserContext extends EventEmitter {
-	#browser: Browser;
-	#id?: string;
+	#browser: HeadlessBrowser;
 
-	constructor(browser: Browser, contextId?: string) {
+	constructor(browser: HeadlessBrowser) {
 		super();
 		this.#browser = browser;
-		this.#id = contextId;
 	}
 
 	targets(): Target[] {
@@ -293,18 +284,18 @@ export class BrowserContext extends EventEmitter {
 		const pages = await Promise.all(
 			this.targets()
 				.filter((target) => target.type() === 'page')
-				.map((target) => target.page())
+				.map((target) => target.page(null))
 		);
 		return pages.filter((page): page is Page => {
 			return Boolean(page);
 		});
 	}
 
-	newPage(): Promise<Page> {
-		return this.#browser._createPageInContext(this.#id);
+	newPage(context: AnySourceMapConsumer | null): Promise<Page> {
+		return this.#browser._createPageInContext(context);
 	}
 
-	browser(): Browser {
+	browser(): HeadlessBrowser {
 		return this.#browser;
 	}
 }

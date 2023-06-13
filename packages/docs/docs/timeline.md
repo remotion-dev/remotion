@@ -5,23 +5,23 @@ id: timeline
 crumb: "Timeline basics"
 ---
 
-You can start the preview server of Remotion using:
+You can start preview your video using:
 
 ```bash
 npm start
 ```
 
-This is a shorthand for the `preview` command of the [Remotion CLI](/docs/cli):
+This is a shorthand for the [`studio`](/docs/cli/studio) command of the [Remotion CLI](/docs/cli):
 
 ```bash
-npx remotion preview
+npx remotion studio
 ```
 
-A server will be started on port `3000` (or a higher port if it's not available) and the preview should open in the browser.
+A server will be started on port `3000` (or a higher port if it isn't available) and the Remotion Studio should open in the browser.
 
 <img src="/img/timeline.png"></img>
 
-## Preview controls
+## Playback controls
 
 Use the <svg
 aria-hidden="true"
@@ -57,11 +57,11 @@ You may also use the keyboard shortcuts:
 ## Change the canvas size
 
 By default the video scales to fit in the preview window.  
-You can pinch:
+You can:
 
-- pinch to zoom
-- hold <kbd>Shift</kbd> and use the scrollwheel or
-- use the dropdown that says `Fit`
+- Pinch to zoom
+- Hold <kbd>Shift</kbd> and use the scrollwheel or
+- Use the dropdown that says `Fit`
 
 to change the size of the canvas.
 
@@ -77,9 +77,11 @@ Click on the `Render` button or press <kbd>R</kbd> to open the Render dialog fro
 
 If you are using `In / Out Markers`, the render dialog will automatically set the `Start Frame` and `End Frame` to your selected markers.
 
-## Quickly switch between compositions
+## Quick Switcher
 
-Use <kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>k</kbd> to access the Quick Switcher from which you can directly chose the composition you want to display. Start your input with `>` to switch to the command palette or start your input with `?` to search the documentation.
+Use <kbd>⌘K</kbd> / <kbd>Ctrl+K</kbd> to access the Quick Switcher to quickly change compositions.  
+Start your input with `>` to switch to the command palette.  
+Start your input with `?` to search the documentation.
 
 ## Advanced playback controls
 
@@ -96,7 +98,3 @@ Use the <kbd>J</kbd>, <kbd>K</kbd>, <kbd>L</kbd> keys to quickly move around the
 ## Keyboard shortcuts and help
 
 Press <kbd>?</kbd> to open the help dialog which shows you all available keyboard shortcuts. In the opened dialog, enter a search term to search our vast documentation.
-
-## See also
-
-- [Customize the number of timeline tracks shown](/docs/config#setmaxtimelinetracks) using the `setMaxTimelineTracks()` configuration.

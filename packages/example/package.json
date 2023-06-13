@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/example",
 	"private": true,
-	"version": "3.3.96",
+	"version": "3.3.99",
 	"description": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
@@ -11,7 +11,7 @@
 	],
 	"scripts": {
 		"formatting": "prettier src --check",
-		"start": "remotion preview --props src/my-props.json",
+		"start": "remotion studio --props src/my-props.json",
 		"start-js": "remotion preview src/entry.jsx",
 		"comps": "remotion compositions",
 		"lint": "eslint src --ext ts,tsx,js,jsx",
@@ -60,21 +60,19 @@
 		"opentype.js": "^1.3.4",
 		"polished": "^4.0.5",
 		"prettier": "^2.7.1",
+		"react": "18.2.0",
+		"react-dom": "18.2.0",
 		"react-is": "^18.2.0",
 		"remotion": "workspace:*",
 		"styled-components": "^5.3.6",
 		"ts-unused-exports": "^7.0.1",
-		"typescript": "^4.7.0",
+		"typescript": "5.1.3",
 		"use-asset": "^1.0.4",
 		"vitest": "0.31.1",
 		"zod": "^3.21.4"
 	},
 	"devDependencies": {
-		"@types/babel__core": "^7.1.12",
-		"@types/babel__template": "^7.4.0",
-		"@typescript-eslint/eslint-plugin": "5.18.0",
-		"@typescript-eslint/parser": "5.18.0",
-		"eslint": "8.25.0",
+		"eslint": "8.42.0",
 		"eslint-plugin-10x": "1.5.2",
 		"eslint-plugin-react": "7.29.4",
 		"eslint-plugin-react-hooks": "4.4.0"

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/tailwind",
-	"version": "3.3.96",
+	"version": "3.3.99",
 	"description": "Utilities for using tailwind css in Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -38,11 +38,12 @@
 		"@rollup/plugin-typescript": "^8.2.0",
 		"@types/node": "18.14.6",
 		"autoprefixer": "^10.4.14",
-		"eslint": "8.25.0",
+		"eslint": "8.42.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
 		"rollup": "^2.70.1",
-		"typescript": "^4.7.0"
+		"rollup-plugin-banner2": "^1.2.2",
+		"typescript": "4.9.5"
 	},
 	"keywords": [
 		"remotion",

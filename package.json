@@ -21,7 +21,7 @@
     "@types/node": "18.14.6"
   },
   "dependencies": {
-    "turbo": "1.9.9"
+    "turbo": "1.10.1"
   },
   "workspaces": [
     "packages/*"

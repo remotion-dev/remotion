@@ -69,7 +69,7 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 					<ul style={ul}>
 						<li style={li}>a) --disable-keyboard-shortcuts being passed</li>
 						<li style={li}>
-							b) Config.Preview.setKeyboardShortcutsEnabled(false) being set or
+							b) Config.setKeyboardShortcutsEnabled(false) being set or
 						</li>
 						<li style={li}> c) a Remotion version mismatch.</li>
 					</ul>

@@ -1,3 +1,4 @@
+import {AssetManager} from './AssetManager.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -8,13 +9,14 @@ import {
 } from './CanUseRemotionHooks.js';
 import type {CompProps} from './Composition.js';
 import type {
-	CompositionManagerContext,
 	TAsset,
 	TCompMetadata,
 	TComposition,
 	TSequence,
 } from './CompositionManager.js';
-import {CompositionManager, compositionsRef} from './CompositionManager.js';
+import {compositionsRef} from './CompositionManager.js';
+import type {CompositionManagerContext} from './CompositionManagerContext.js';
+import {CompositionManager} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render.js';
 import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
@@ -23,7 +25,10 @@ import {
 	getRemotionEnvironment,
 	useRemotionEnvironment,
 } from './get-environment.js';
-import {getPreviewDomElement} from './get-preview-dom-element.js';
+import {
+	getPreviewDomElement,
+	REMOTION_STUDIO_CONTAINER_ELEMENT,
+} from './get-preview-dom-element.js';
 import {processColor} from './interpolate-colors.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {NonceContext} from './nonce.js';
@@ -32,11 +37,15 @@ import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
-import {SequenceContext} from './SequenceContext.js';
+import {resolveVideoConfig} from './resolve-video-config.js';
 import {
-	ENV_VARIABLES_ENV_NAME,
-	setupEnvVariables,
-} from './setup-env-variables.js';
+	ResolveCompositionConfig,
+	resolveCompositionsRef,
+	useResolvedVideoConfig,
+} from './ResolveCompositionConfig.js';
+import {SequenceContext} from './SequenceContext.js';
+import {SequenceManager} from './SequenceManager.js';
+import {setupEnvVariables} from './setup-env-variables.js';
 import type {
 	SetTimelineContextValue,
 	TimelineContextValue,
@@ -51,6 +60,7 @@ import {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
 } from './validation/validate-composition-id.js';
+import {validateDefaultAndInputProps} from './validation/validate-default-props.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import {validateFps} from './validation/validate-fps.js';
@@ -77,6 +87,7 @@ export const Internals = {
 	useUnsafeVideoConfig,
 	Timeline,
 	CompositionManager,
+	SequenceManager,
 	RemotionRoot,
 	useVideo,
 	getRoot,
@@ -89,11 +100,11 @@ export const Internals = {
 	RemotionContextProvider,
 	CSSUtils,
 	setupEnvVariables,
-	ENV_VARIABLES_ENV_NAME,
 	MediaVolumeContext,
 	SetMediaVolumeContext,
 	validateDurationInFrames,
 	validateFps,
+	validateDefaultAndInputProps,
 	validateDimension,
 	getRemotionEnvironment,
 	SharedAudioContext,
@@ -118,6 +129,13 @@ export const Internals = {
 	usePreload,
 	processColor,
 	NonceContext,
+	resolveVideoConfig,
+	useResolvedVideoConfig,
+	resolveCompositionsRef,
+	ResolveCompositionConfig,
+	REMOTION_STUDIO_CONTAINER_ELEMENT,
+	AssetManager,
+	bundleName: 'bundle.js',
 };
 
 export type {

@@ -1,14 +1,14 @@
 import React, {useCallback} from 'react';
 import type {z} from 'zod';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
-import {Spacing, SPACING_UNIT} from '../../layout';
+import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
-import {ValidationMessage} from '../../NewComposition/ValidationMessage';
-import {narrowOption, optionRow} from '../layout';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
+import {Fieldset} from './Fieldset';
+import {ZodFieldValidation} from './ZodFieldValidation';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',
@@ -18,7 +18,6 @@ const explainer: React.CSSProperties = {
 	fontFamily: 'sans-serif',
 	fontSize: 12,
 	color: VERY_LIGHT_TEXT,
-	marginBottom: SPACING_UNIT,
 };
 
 // This will do 2 things:
@@ -58,9 +57,10 @@ export const ZodDateEditor: React.FC<{
 	setValue: UpdaterFunction<Date>;
 	onSave: UpdaterFunction<Date>;
 	onRemove: null | (() => void);
-	compact: boolean;
 	showSaveButton: boolean;
 	saving: boolean;
+	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
 	value,
@@ -68,51 +68,48 @@ export const ZodDateEditor: React.FC<{
 	showSaveButton,
 	defaultValue,
 	schema,
-	compact,
 	onSave,
 	onRemove,
 	saving,
+	saveDisabledByParent,
+	mayPad,
 }) => {
-	const {localValue, onChange: setLocalValue} = useLocalState({
+	const {
+		localValue,
+		onChange: setLocalValue,
+		reset,
+	} = useLocalState({
 		schema,
 		setValue,
 		value,
+		defaultValue,
 	});
-
-	const onValueChange = useCallback(
-		(newValue: Date, forceApply: boolean) => {
-			setLocalValue(() => newValue, forceApply);
-		},
-		[setLocalValue]
-	);
 
 	const onChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			// React does not support e.target.valueAsDate :(
-			onValueChange(new Date(e.target.value), false);
+			setLocalValue(() => new Date(e.target.value), false, false);
 		},
-		[onValueChange]
+		[setLocalValue]
 	);
 
-	const reset = useCallback(() => {
-		onValueChange(defaultValue, true);
-	}, [defaultValue, onValueChange]);
-
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (
-		<div style={compact ? narrowOption : optionRow}>
+		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<SchemaLabel
-				compact={compact}
-				isDefaultValue={value.getTime() === defaultValue.getTime()}
+				isDefaultValue={localValue.value.getTime() === defaultValue.getTime()}
 				jsonPath={jsonPath}
 				onReset={reset}
 				onSave={save}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
+				valid={localValue.zodValidation.success}
+				saveDisabledByParent={saveDisabledByParent}
+				suffix={null}
 			/>
 			<div style={fullWidth}>
 				<RemotionInput
@@ -126,17 +123,8 @@ export const ZodDateEditor: React.FC<{
 				/>
 				<Spacing y={1} block />
 				<div style={explainer}>Date is in local format</div>
-				{!localValue.zodValidation.success && (
-					<>
-						<Spacing y={1} block />
-						<ValidationMessage
-							align="flex-start"
-							message={localValue.zodValidation.error.format()._errors[0]}
-							type="error"
-						/>
-					</>
-				)}
+				<ZodFieldValidation path={jsonPath} localValue={localValue} />
 			</div>
-		</div>
+		</Fieldset>
 	);
 };

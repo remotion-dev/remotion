@@ -1,7 +1,7 @@
 import type React from 'react';
 import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
-import {PreviewServerConnectionCtx} from '../helpers/client-id';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {sendErrorNotification} from './Notifications/NotificationCenter';
 
@@ -10,11 +10,11 @@ export const TitleUpdater: React.FC = () => {
 
 	useEffect(() => {
 		if (!video) {
-			document.title = 'Remotion Preview';
+			document.title = 'Remotion Studio';
 			return;
 		}
 
-		document.title = `${video.id} / ${window.remotion_projectName} - Remotion Preview`;
+		document.title = `${video.id} / ${window.remotion_projectName} - Remotion Studio`;
 	}, [video]);
 
 	return null;
@@ -23,7 +23,7 @@ export const TitleUpdater: React.FC = () => {
 export const CurrentCompositionKeybindings: React.FC = () => {
 	const keybindings = useKeybinding();
 	const video = Internals.useVideo();
-	const {type} = useContext(PreviewServerConnectionCtx);
+	const {type} = useContext(StudioServerConnectionCtx);
 
 	const openRenderModal = useCallback(() => {
 		if (!video) {
@@ -31,7 +31,7 @@ export const CurrentCompositionKeybindings: React.FC = () => {
 		}
 
 		if (type !== 'connected') {
-			sendErrorNotification('Preview server is offline');
+			sendErrorNotification('Studio server is offline');
 			return;
 		}
 

@@ -1,7 +1,7 @@
-import {PlayerInternals} from '@remotion/player';
-import React, {useMemo, useState} from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import type {TSequence} from 'remotion';
 import {Internals} from 'remotion';
+import {BLUE} from '../../helpers/colors';
 import {
 	getTimelineSequenceLayout,
 	SEQUENCE_BORDER_WIDTH,
@@ -9,23 +9,28 @@ import {
 import {TIMELINE_LAYER_HEIGHT} from '../../helpers/timeline-layout';
 import {AudioWaveform} from '../AudioWaveform';
 import {LoopedTimelineIndicator} from './LoopedTimelineIndicators';
-import {sliderAreaRef} from './timeline-refs';
 import {TimelineVideoInfo} from './TimelineVideoInfo';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 
-const SEQUENCE_GRADIENT = 'var(--blue)';
 const AUDIO_GRADIENT = 'linear-gradient(rgb(16 171 58), rgb(43 165 63) 60%)';
 const VIDEO_GRADIENT = 'linear-gradient(to top, #8e44ad, #9b59b6)';
 
 export const TimelineSequence: React.FC<{
 	s: TSequence;
-	fps: number;
-}> = ({s, fps}) => {
-	const size = PlayerInternals.useElementSize(sliderAreaRef, {
-		triggerOnWindowResize: false,
-		shouldApplyCssTransforms: true,
-	});
+}> = ({s}) => {
+	const windowWidth = useContext(TimelineWidthContext);
 
-	const windowWidth = size?.width ?? 0;
+	if (windowWidth === null) {
+		return null;
+	}
+
+	return <Inner windowWidth={windowWidth} s={s} />;
+};
+
+const Inner: React.FC<{
+	s: TSequence;
+	windowWidth: number;
+}> = ({s, windowWidth}) => {
 	// If a duration is 1, it is essentially a still and it should have width 0
 	// Some compositions may not be longer than their media duration,
 	// if that is the case, it needs to be asynchronously determined
@@ -37,16 +42,18 @@ export const TimelineSequence: React.FC<{
 		throw new TypeError('Expected video config');
 	}
 
-	const {marginLeft, width} = getTimelineSequenceLayout({
-		durationInFrames: s.loopDisplay
-			? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
-			: s.duration,
-		startFrom: s.loopDisplay ? s.from + s.loopDisplay.startOffset : s.from,
-		startFromMedia: s.type === 'sequence' ? 0 : s.startMediaFrom,
-		maxMediaDuration,
-		video,
-		windowWidth,
-	});
+	const {marginLeft, width} = useMemo(() => {
+		return getTimelineSequenceLayout({
+			durationInFrames: s.loopDisplay
+				? s.loopDisplay.durationInFrames * s.loopDisplay.numberOfTimes
+				: s.duration,
+			startFrom: s.loopDisplay ? s.from + s.loopDisplay.startOffset : s.from,
+			startFromMedia: s.type === 'sequence' ? 0 : s.startMediaFrom,
+			maxMediaDuration,
+			video,
+			windowWidth,
+		});
+	}, [maxMediaDuration, s, video, windowWidth]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -55,7 +62,7 @@ export const TimelineSequence: React.FC<{
 					? AUDIO_GRADIENT
 					: s.type === 'video'
 					? VIDEO_GRADIENT
-					: SEQUENCE_GRADIENT,
+					: BLUE,
 			border: SEQUENCE_BORDER_WIDTH + 'px solid rgba(255, 255, 255, 0.2)',
 			borderRadius: 4,
 			position: 'absolute',
@@ -77,7 +84,6 @@ export const TimelineSequence: React.FC<{
 					visualizationWidth={width}
 					startFrom={s.startMediaFrom}
 					durationInFrames={s.duration}
-					fps={fps}
 					volume={s.volume}
 					setMaxMediaDuration={setMaxMediaDuration}
 					playbackRate={s.playbackRate}

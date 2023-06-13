@@ -10,6 +10,7 @@ import type {
 import type {EnumPath} from '../../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import type {AggregateRenderProgress} from '../../progress-types';
 import type {RequiredChromiumOptions} from '../../required-chromium-options';
+import type {PackageManager} from '../get-package-manager';
 
 type BaseRenderProgress = {
 	message: string;
@@ -44,7 +45,7 @@ type RenderJobDynamicFields =
 	| ({
 			type: 'still';
 			imageFormat: StillImageFormat;
-			jpegQuality: number | null;
+			jpegQuality: number;
 			frame: number;
 			scale: number;
 	  } & RenderJobDynamicStatus)
@@ -81,7 +82,7 @@ export type RenderJob = {
 	cancelToken: ReturnType<typeof makeCancelSignal>;
 	chromiumOptions: RequiredChromiumOptions;
 	envVariables: Record<string, string>;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {
@@ -92,7 +93,7 @@ type AddRenderRequestDynamicFields =
 	| {
 			type: 'still';
 			imageFormat: StillImageFormat;
-			jpegQuality: number | null;
+			jpegQuality: number;
 			frame: number;
 			scale: number;
 			verbose: boolean;
@@ -131,7 +132,7 @@ export type AddRenderRequest = {
 	chromiumOptions: RequiredChromiumOptions;
 	delayRenderTimeout: number;
 	envVariables: Record<string, string>;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 } & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {
@@ -162,6 +163,16 @@ export type UpdateDefaultPropsRequest = {
 	enumPaths: EnumPath[];
 };
 
+export type UpdateDefaultPropsResponse =
+	| {
+			success: true;
+	  }
+	| {
+			success: false;
+			reason: string;
+			stack: string;
+	  };
+
 export type CanUpdateDefaultPropsRequest = {
 	compositionId: string;
 };
@@ -174,3 +185,12 @@ export type CanUpdateDefaultPropsResponse =
 			canUpdate: false;
 			reason: string;
 	  };
+
+export type UpdateAvailableRequest = {};
+export type UpdateAvailableResponse = {
+	currentVersion: string;
+	latestVersion: string;
+	updateAvailable: boolean;
+	timedOut: boolean;
+	packageManager: PackageManager | 'unknown';
+};

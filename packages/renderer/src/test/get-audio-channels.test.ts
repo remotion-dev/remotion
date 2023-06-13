@@ -2,10 +2,12 @@ import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {expect, test} from 'vitest';
 import {cleanDownloadMap, makeDownloadMap} from '../assets/download-map';
-import {getAudioChannelsAndDuration} from '../assets/get-audio-channels';
+import {
+	getAudioChannelsAndDuration,
+	getAudioChannelsAndDurationWithoutCache,
+} from '../assets/get-audio-channels';
 
 test('Get audio channels for video', async () => {
-	const downloadMap = makeDownloadMap();
 	const videoWithoutAudio = path.join(
 		__dirname,
 		'..',
@@ -17,16 +19,13 @@ test('Get audio channels for video', async () => {
 		'framer-music.mp4'
 	);
 	expect(existsSync(videoWithoutAudio)).toEqual(true);
-	const channels = await getAudioChannelsAndDuration(
-		downloadMap,
+	const channels = await getAudioChannelsAndDurationWithoutCache(
 		videoWithoutAudio
 	);
-	cleanDownloadMap(downloadMap);
 	expect(channels).toEqual({channels: 2, duration: 10});
 }, 90000);
 
 test('Get audio channels for video without music', async () => {
-	const downloadMap = makeDownloadMap();
 	const videoWithAudio = path.join(
 		__dirname,
 		'..',
@@ -38,11 +37,9 @@ test('Get audio channels for video without music', async () => {
 		'framer.mp4'
 	);
 	expect(existsSync(videoWithAudio)).toEqual(true);
-	const channels = await getAudioChannelsAndDuration(
-		downloadMap,
+	const channels = await getAudioChannelsAndDurationWithoutCache(
 		videoWithAudio
 	);
-	cleanDownloadMap(downloadMap);
 
 	expect(channels.channels).toEqual(0);
 	expect(channels.duration).toBeCloseTo(3.334, 2);

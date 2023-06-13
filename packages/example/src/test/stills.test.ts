@@ -5,7 +5,6 @@ import {
 	renderStill,
 	StillImageFormat,
 } from '@remotion/renderer';
-import {cleanDownloadMap} from '@remotion/renderer/dist/assets/download-map';
 import {existsSync, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
@@ -30,21 +29,25 @@ test(
 		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
 		const testOut = path.join(folder, 'still.png');
 
-		const downloadMap = RenderInternals.makeDownloadMap();
-		const {port, close} = await RenderInternals.serveStatic(bundled, {
-			onDownload: () => undefined,
-			port: null,
-			onError: (err) => {
-				throw err;
+		const server = await RenderInternals.makeOrReuseServer(
+			undefined,
+			{
+				webpackConfigOrServeUrl: bundled,
+				port: null,
+				remotionRoot: process.cwd(),
+				concurrency: RenderInternals.getActualConcurrency(null),
+				verbose: false,
+				indent: false,
 			},
-			downloadMap,
-			remotionRoot: process.cwd(),
-			concurrency: RenderInternals.getActualConcurrency(null),
-			verbose: false,
-			indent: false,
-		});
+			{
+				onDownload: () => undefined,
+				onError: (err) => {
+					throw err;
+				},
+			}
+		);
 
-		const serveUrl = `http://localhost:${port}`;
+		const serveUrl = `http://localhost:${server.server.offthreadPort}`;
 		const fileOSRoot = path.parse(__dirname).root;
 
 		await expect(() =>
@@ -88,9 +91,8 @@ test(
 		unlinkSync(testOut);
 		RenderInternals.deleteDirectory(bundled);
 		RenderInternals.deleteDirectory(folder);
-		cleanDownloadMap(downloadMap);
 
-		await close();
+		await server.cleanupServer(true);
 	},
 	{
 		retry: 3,
@@ -110,21 +112,25 @@ test(
 
 		const compositions = await getCompositions(bundled);
 
-		const downloadMap = RenderInternals.makeDownloadMap();
-		const {port, close} = await RenderInternals.serveStatic(bundled, {
-			onDownload: () => undefined,
-			port: null,
-			onError: (err) => {
-				throw err;
+		const server = await RenderInternals.makeOrReuseServer(
+			undefined,
+			{
+				webpackConfigOrServeUrl: bundled,
+				port: null,
+				remotionRoot: process.cwd(),
+				concurrency: RenderInternals.getActualConcurrency(null),
+				verbose: false,
+				indent: false,
 			},
-			downloadMap,
-			remotionRoot: process.cwd(),
-			concurrency: RenderInternals.getActualConcurrency(null),
-			verbose: false,
-			indent: false,
-		});
+			{
+				onDownload: () => undefined,
+				onError: (err) => {
+					throw err;
+				},
+			}
+		);
 
-		const serveUrl = `http://localhost:${port}`;
+		const serveUrl = `http://localhost:${server.server.offthreadPort}`;
 
 		const toRenderCompositions: [string, number][] = [
 			['tiles', 15],
@@ -157,9 +163,8 @@ test(
 
 		RenderInternals.deleteDirectory(bundled);
 		RenderInternals.deleteDirectory(folder);
-		cleanDownloadMap(downloadMap);
 
-		await close();
+		await server.cleanupServer(true);
 	},
 	{
 		retry: 3,

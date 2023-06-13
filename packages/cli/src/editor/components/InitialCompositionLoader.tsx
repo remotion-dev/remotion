@@ -23,7 +23,7 @@ export const useSelectComposition = () => {
 	return (c: AnyComposition, push: boolean) => {
 		inOutHandles.current?.setMarks(loadMarks(c.id, c.durationInFrames));
 		if (push) {
-			window.history.pushState({}, 'Preview', `/${c.id}`);
+			window.history.pushState({}, 'Studio', `/${c.id}`);
 		}
 
 		const frame = getFrameForComposition(c.id);

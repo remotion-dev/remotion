@@ -1,4 +1,4 @@
-import {useCallback, useState} from 'react';
+import {useCallback} from 'react';
 import type {z} from 'zod';
 import {LIGHT_TEXT} from '../../../helpers/colors';
 import {Checkbox} from '../../Checkbox';
@@ -12,15 +12,8 @@ import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
-
-type LocalState = {
-	value: unknown;
-	zodValidation: z.SafeParseReturnType<unknown, unknown>;
-};
-
-const fullWidth: React.CSSProperties = {
-	width: '100%',
-};
+import {Fieldset} from './Fieldset';
+import {useLocalState} from './local-state';
 
 const labelStyle: React.CSSProperties = {
 	fontFamily: 'sans-serif',
@@ -29,7 +22,6 @@ const labelStyle: React.CSSProperties = {
 };
 
 const checkBoxWrapper: React.CSSProperties = {
-	margin: '2px',
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
@@ -39,18 +31,19 @@ const checkBoxWrapper: React.CSSProperties = {
 export const ZodOrNullishEditor: React.FC<{
 	showSaveButton: boolean;
 	jsonPath: JSONPath;
-	compact: boolean;
 	value: unknown;
 	defaultValue: unknown;
 	schema: z.ZodTypeAny;
+	innerSchema: z.ZodTypeAny;
 	setValue: UpdaterFunction<unknown>;
 	onSave: UpdaterFunction<unknown>;
 	onRemove: null | (() => void);
 	nullishValue: null | undefined;
 	saving: boolean;
+	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	jsonPath,
-	compact,
 	schema,
 	setValue,
 	onSave,
@@ -60,6 +53,9 @@ export const ZodOrNullishEditor: React.FC<{
 	onRemove,
 	nullishValue,
 	saving,
+	saveDisabledByParent,
+	mayPad,
+	innerSchema,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -70,109 +66,72 @@ export const ZodOrNullishEditor: React.FC<{
 
 	const isChecked = value === nullishValue;
 
-	const [localNonNullishValueValue, setLocalNonNullishValue] =
-		useState<LocalState>(() => {
-			return {
-				value,
-				zodValidation:
-					value === nullishValue
-						? {success: true, data: value}
-						: schema.safeParse(value),
-			};
-		});
-
-	const onValueChange: UpdaterFunction<unknown> = useCallback(
-		(updater) => {
-			setLocalNonNullishValue((oldState) => {
-				const newValue = updater(oldState.value);
-				if (newValue === nullishValue) {
-					return oldState;
-				}
-
-				return {
-					value: newValue,
-					zodValidation: schema.safeParse(newValue),
-				};
-			});
-			setValue(updater, false);
-		},
-		[nullishValue, schema, setValue]
-	);
+	const {
+		localValue,
+		onChange: setLocalValue,
+		reset,
+	} = useLocalState({
+		schema,
+		setValue,
+		value,
+		defaultValue,
+	});
 
 	const onCheckBoxChange: React.ChangeEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
 				const val = e.target.checked
 					? nullishValue
-					: localNonNullishValueValue.value === nullishValue
-					? createZodValues(schema, z, zodTypes)
-					: localNonNullishValueValue.value;
-
-				if (val !== nullishValue) {
-					setLocalNonNullishValue({
-						value: val,
-						zodValidation: schema.safeParse(val),
-					});
-				}
-
-				onValueChange(() => val, false);
+					: createZodValues(innerSchema, z, zodTypes);
+				setLocalValue(() => val, false, false);
 			},
-			[
-				localNonNullishValueValue,
-				nullishValue,
-				onValueChange,
-				schema,
-				z,
-				zodTypes,
-			]
+			[innerSchema, nullishValue, setLocalValue, z, zodTypes]
 		);
 
-	const reset = useCallback(() => {
-		onValueChange(() => defaultValue, true);
-	}, [defaultValue, onValueChange]);
-
 	const save = useCallback(() => {
-		onSave(() => value, false);
+		onSave(() => value, false, false);
 	}, [onSave, value]);
 
 	return (
-		<>
-			{value === nullishValue ? (
+		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
+			{localValue.value === nullishValue ? (
 				<SchemaLabel
-					isDefaultValue={value === defaultValue}
+					isDefaultValue={localValue.value === defaultValue}
 					jsonPath={jsonPath}
 					onReset={reset}
 					onSave={save}
 					showSaveButton={showSaveButton}
-					compact={compact}
 					onRemove={onRemove}
 					saving={saving}
+					valid={localValue.zodValidation.success}
+					saveDisabledByParent={saveDisabledByParent}
+					suffix={null}
 				/>
 			) : (
-				<div style={fullWidth}>
-					<ZodSwitch
-						value={value}
-						setValue={onValueChange}
-						jsonPath={jsonPath}
-						schema={schema}
-						compact={compact}
-						defaultValue={defaultValue}
-						onSave={onSave}
-						showSaveButton={showSaveButton}
-						onRemove={onRemove}
-						saving={saving}
-					/>
-				</div>
+				<ZodSwitch
+					value={localValue.value}
+					setValue={setLocalValue}
+					jsonPath={jsonPath}
+					schema={innerSchema}
+					defaultValue={value}
+					onSave={onSave}
+					showSaveButton={showSaveButton}
+					onRemove={onRemove}
+					saving={saving}
+					saveDisabledByParent={saveDisabledByParent}
+					mayPad={false}
+				/>
 			)}
 			<div style={checkBoxWrapper}>
 				<Checkbox
 					checked={isChecked}
 					onChange={onCheckBoxChange}
 					disabled={false}
+					name={jsonPath.join('.')}
 				/>
 				<Spacing x={1} />
 				<div style={labelStyle}>{String(nullishValue)}</div>
 			</div>
-		</>
+		</Fieldset>
 	);
 };

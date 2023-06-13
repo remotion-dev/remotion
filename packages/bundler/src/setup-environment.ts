@@ -36,6 +36,7 @@ Internals.CSSUtils.injectCSS(`
     background-color: rgba(0, 0, 0, 1);
   }
 
+
   .__remotion-horizontal-scrollbar::-webkit-scrollbar {
     height: 6px;
   }
@@ -48,6 +49,29 @@ Internals.CSSUtils.injectCSS(`
   .__remotion-horizontal-scrollbar:hover::-webkit-scrollbar-thumb:hover {
     background-color: rgba(0, 0, 0, 1);
   }
+
+
+  @-moz-document url-prefix() {
+    .__remotion-vertical-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.6) rgba(0, 0, 0, 0);
+    }
+
+    .__remotion-vertical-scrollbar:hover {
+      scrollbar-color: rgba(0, 0, 0, 1) rgba(0, 0, 0, 0);
+    }
+
+    .__remotion-horizontal-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.6) rgba(0, 0, 0, 0);
+    }
+
+    .__remotion-horizontal-scrollbar:hover {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 1) rgba(0, 0, 0, 0);
+    }
+  }
+
 
   .__remotion-timeline-slider {
     appearance: none;
@@ -65,5 +89,7 @@ Internals.CSSUtils.injectCSS(`
     background-color: #ffffff;
     appearance: none;
   }
+
+
 
 `);

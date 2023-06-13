@@ -22,7 +22,7 @@ export const CopyHint: React.FC = () => {
 			});
 	}, []);
 
-	if (!projectInfo || !projectInfo.videoFile) {
+	if (!projectInfo?.videoFile) {
 		return null;
 	}
 

@@ -13,7 +13,7 @@ _Available since v3.3.2, removed in v4.0 - Part of the `@remotion/renderer` pack
 
 Probes whether frames of a video can be efficiently extracted when using [`<OffthreadVideo>`](/docs/offthreadvideo).
 
-```ts twoslash
+```ts
 // @module: ESNext
 // @target: ESNext
 import { getCanExtractFramesFast } from "@remotion/renderer";

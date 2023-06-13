@@ -3,6 +3,7 @@ import {BundlerInternals, webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
 import http from 'node:http';
 import {ConfigInternals} from '../config';
+import {DEFAULT_TIMELINE_TRACKS} from '../editor/components/Timeline/MaxTimelineTracks';
 import {Log} from '../log';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
@@ -36,8 +37,7 @@ export const startServer = async (options: {
 		environment: 'development',
 		webpackOverride:
 			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
-		envVariables: options?.getEnvVariables() ?? {},
-		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
+		maxTimelineTracks: options?.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
 		entryPoints: [
 			require.resolve('./hot-middleware/client'),
 			require.resolve('./error-overlay/entry-basic.js'),

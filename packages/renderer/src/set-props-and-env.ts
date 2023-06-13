@@ -7,7 +7,7 @@ import {redirectStatusCodes} from './redirect-status-codes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
 type SetPropsAndEnv = {
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string> | undefined;
 	page: Page;
 	serveUrl: string;
@@ -127,7 +127,9 @@ const innerSetPropsAndEnv = async ({
 		);
 	}
 
-	const siteVersion = await puppeteerEvaluateWithCatch<'4'>({
+	const siteVersion = await puppeteerEvaluateWithCatch<
+		typeof window.siteVersion
+	>({
 		pageFunction: () => {
 			return window.siteVersion;
 		},
@@ -145,7 +147,7 @@ const innerSetPropsAndEnv = async ({
 		page,
 	});
 
-	const requiredVersion = '4';
+	const requiredVersion: typeof window.siteVersion = '5';
 
 	if (siteVersion !== requiredVersion) {
 		throw new Error(

@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {PreviewServerConnectionCtx} from '../helpers/client-id';
+import {StudioServerConnectionCtx} from '../helpers/client-id';
 import {Spacing} from './layout';
 import {OpenEditorButton} from './OpenEditorButton';
 import {Spinner} from './Spinner';
@@ -27,7 +27,7 @@ const noSpinner: React.CSSProperties = {
 
 export const MenuBuildIndicator: React.FC = () => {
 	const [isBuilding, setIsBuilding] = useState(false);
-	const ctx = useContext(PreviewServerConnectionCtx);
+	const ctx = useContext(StudioServerConnectionCtx);
 
 	const showButton = window.remotion_editorName && ctx.type === 'connected';
 	useEffect(() => {
@@ -50,13 +50,14 @@ export const MenuBuildIndicator: React.FC = () => {
 			{showButton ? <Spacing x={2} /> : null}
 			{isBuilding ? (
 				<div style={spinner}>
-					<Spinner size={spinnerSize} />
+					<Spinner duration={0.5} size={spinnerSize} />
 				</div>
 			) : (
 				<div style={noSpinner} />
 			)}
 			{showButton ? <Spacing x={0.5} /> : null}
 			{window.remotion_projectName}
+			{showButton ? <Spacing x={0.5} /> : null}
 			{showButton ? <OpenEditorButton /> : null}
 		</div>
 	);

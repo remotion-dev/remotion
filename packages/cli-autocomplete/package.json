@@ -1,13 +1,13 @@
 {
-  "version": "3.3.96",
+  "version": "3.3.99",
   "name": "@remotion/fig-autocomplete",
   "private": true,
   "devDependencies": {
     "@jonny/eslint-config": "3.0.266",
     "@types/node": "18.14.6",
-    "eslint": "8.25.0",
+    "eslint": "8.42.0",
     "prettier": "^2.7.1",
-    "typescript": "^4.7.0",
+    "typescript": "4.9.5",
     "@fig/eslint-config-autocomplete": "^1.1.0",
     "@withfig/autocomplete-types": "^1.20.0",
     "ts-node": "^10.8.0",

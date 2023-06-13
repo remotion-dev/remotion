@@ -6,6 +6,10 @@ sidebar_label: Rendering from Go
 crumb: "@remotion/lambda"
 ---
 
+<ExperimentalBadge>
+This feature is new. Please report any issues you encounter.
+</ExperimentalBadge>
+
 To trigger a Lambda render using Go, you can use the Remotion Lambda Go client. Note the following:
 
 - You first need to [complete the Lambda setup](/docs/lambda/setup).
@@ -23,7 +27,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	// Match the version with the version of your deployed functions
-	"github.com/remotion-dev/remotion/packages/lambda-go/v3.3.89"
+	"github.com/remotion-dev/lambda_go_sdk/v3.3.98"
 )
 
 type ValidationError struct {

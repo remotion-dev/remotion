@@ -16,10 +16,6 @@ export const screenshot = (options: {
 }): Promise<Buffer | string> => {
 	if (options.jpegQuality) {
 		assert.ok(
-			options.type === 'jpeg',
-			`options.quality is unsupported for the ${options.type} screenshots`
-		);
-		assert.ok(
 			typeof options.jpegQuality === 'number',
 			'Expected options.quality to be a number but found ' +
 				typeof options.jpegQuality
@@ -43,7 +39,7 @@ export const screenshot = (options: {
 			width: options.width,
 			omitBackground: options.omitBackground,
 			path: options.path,
-			jpegQuality: options.jpegQuality,
+			jpegQuality: options.type === 'jpeg' ? options.jpegQuality : undefined,
 			clipRegion: options.clipRegion,
 		})
 	);

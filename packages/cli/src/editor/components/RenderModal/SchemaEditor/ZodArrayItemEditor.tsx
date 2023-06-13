@@ -10,27 +10,30 @@ export const ZodArrayItemEditor: React.FC<{
 	def: any;
 	index: number;
 	value: unknown;
-	compact: boolean;
 	defaultValue: unknown;
 	onSave: UpdaterFunction<unknown[]>;
 	showSaveButton: boolean;
 	saving: boolean;
+	saveDisabledByParent: boolean;
+	mayPad: boolean;
 }> = ({
 	def,
 	onChange,
 	jsonPath,
 	index,
 	value,
-	compact,
 	defaultValue,
 	onSave: onSaveObject,
 	showSaveButton,
 	saving,
+	saveDisabledByParent,
+	mayPad,
 }) => {
 	const onRemove = useCallback(() => {
 		onChange(
 			(oldV) => [...oldV.slice(0, index), ...oldV.slice(index + 1)],
-			false
+			false,
+			true
 		);
 	}, [index, onChange]);
 
@@ -42,6 +45,7 @@ export const ZodArrayItemEditor: React.FC<{
 					typeof val === 'function' ? val(oldV[index]) : val,
 					...oldV.slice(index + 1),
 				],
+				false,
 				false
 			);
 		},
@@ -58,6 +62,7 @@ export const ZodArrayItemEditor: React.FC<{
 					updater(oldV[index]),
 					...oldV.slice(index + 1),
 				],
+				false,
 				false
 			);
 		},
@@ -70,12 +75,13 @@ export const ZodArrayItemEditor: React.FC<{
 			schema={def.type}
 			value={value}
 			setValue={setValue}
-			compact={compact}
 			defaultValue={defaultValue}
 			onSave={onSave}
 			showSaveButton={showSaveButton}
 			onRemove={onRemove}
 			saving={saving}
+			saveDisabledByParent={saveDisabledByParent}
+			mayPad={mayPad}
 		/>
 	);
 };

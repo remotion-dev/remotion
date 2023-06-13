@@ -1,5 +1,6 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
+import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {JumpToStart} from '../icons/jump-to-start';
@@ -26,6 +27,7 @@ export const PlayPause: React.FC<{
 	loop: boolean;
 }> = ({playbackRate, loop}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
+	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	PlayerInternals.usePlayback({
 		loop,
@@ -237,7 +239,7 @@ export const PlayPause: React.FC<{
 			<ControlButton
 				aria-label="Jump to beginning"
 				title="Jump to beginning"
-				disabled={isFirstFrame}
+				disabled={!videoConfig || isFirstFrame}
 				onClick={jumpToStart}
 			>
 				<JumpToStart style={forwardBackStyle} />
@@ -245,7 +247,7 @@ export const PlayPause: React.FC<{
 			<ControlButton
 				aria-label="Step back one frame"
 				title="Step back one frame"
-				disabled={isFirstFrame}
+				disabled={!videoConfig || isFirstFrame}
 				onClick={oneFrameBack}
 			>
 				<StepBack style={forwardBackStyle} />
@@ -255,6 +257,7 @@ export const PlayPause: React.FC<{
 				aria-label={playing ? 'Pause' : 'Play'}
 				title={playing ? 'Pause' : 'Play'}
 				onClick={playing ? pause : play}
+				disabled={!videoConfig}
 			>
 				{playing ? (
 					<Pause
@@ -278,7 +281,7 @@ export const PlayPause: React.FC<{
 			<ControlButton
 				aria-label="Step forward one frame"
 				title="Step forward one frame"
-				disabled={isLastFrame}
+				disabled={!videoConfig || isLastFrame}
 				onClick={oneFrameForward}
 			>
 				<StepForward style={forwardBackStyle} />

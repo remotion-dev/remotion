@@ -1,7 +1,8 @@
+import {CalculateMetadataFunction} from 'remotion';
 import {zColor} from '@remotion/zod-types';
 import './style.css';
 import {alias} from 'lib/alias';
-import React from 'react';
+import React, {useCallback} from 'react';
 import {Composition, Folder, getInputProps, staticFile, Still} from 'remotion';
 import {z} from 'zod';
 import {TwentyTwoKHzAudio} from './22KhzAudio';
@@ -24,7 +25,12 @@ import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
 import RiveVehicle from './Rive/RiveExample';
 import {ScalePath} from './ScalePath';
-import {SchemaTest, schemaTestSchema} from './SchemaTest';
+import {
+	ArrayTest,
+	schemaArrayTestSchema,
+	SchemaTest,
+	schemaTestSchema,
+} from './SchemaTest';
 import {Scripts} from './Scripts';
 import CircleTest from './Shapes/CircleTest';
 import EllipseTest from './Shapes/EllipseTest';
@@ -45,6 +51,7 @@ import {VideoTesting} from './VideoTesting';
 import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {Tailwind} from './Tailwind';
+import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -55,8 +62,79 @@ if (alias !== 'alias') {
 
 export const Index: React.FC = () => {
 	const inputProps = getInputProps();
+
+	const calculateMetadata: CalculateMetadataFunction<
+		z.infer<typeof dynamicDurationSchema>
+	> = useCallback(async ({props}) => {
+		await new Promise((r) => {
+			setTimeout(r, 1000);
+		});
+		return {
+			durationInFrames: props.duration,
+			fps: 30,
+		};
+	}, []);
+
+	const failingCalculateMetadata: CalculateMetadataFunction<
+		z.infer<typeof dynamicDurationSchema>
+	> = useCallback(async () => {
+		await new Promise((r) => {
+			setTimeout(r, 1000);
+		});
+		// Enable this for testing, however it will break getCompositions():
+		// throw new Error('Failed to calculate metadata');
+		return {
+			props: {duration: 100},
+		};
+	}, []);
+
+	const syncCalculateMetadata: CalculateMetadataFunction<
+		z.infer<typeof dynamicDurationSchema>
+	> = useCallback(() => {
+		// Enable this for testing, however it will break getCompositions():
+		// throw new Error('Failed to calculate metadata');
+		return {
+			props: {duration: 100},
+		};
+	}, []);
+
 	return (
 		<>
+			<Folder name="dynamic-parameters">
+				<Composition
+					id="dynamic-length"
+					component={DynamicDuration}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					calculateMetadata={calculateMetadata}
+					schema={dynamicDurationSchema}
+					defaultProps={{duration: 50}}
+				/>
+				<Composition
+					id="failing-dynamic-length"
+					component={DynamicDuration}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					calculateMetadata={failingCalculateMetadata}
+					schema={dynamicDurationSchema}
+					defaultProps={{duration: 50}}
+				/>
+				<Composition
+					id="sync-dynamic-length"
+					component={DynamicDuration}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					calculateMetadata={syncCalculateMetadata}
+					schema={dynamicDurationSchema}
+					defaultProps={{duration: 50}}
+				/>
+			</Folder>
 			<Folder name="components">
 				<Composition
 					id="looped"
@@ -789,6 +867,14 @@ export const Index: React.FC = () => {
 						filePath: staticFile('nested/logö.png'),
 					}}
 					durationInFrames={150}
+					calculateMetadata={({defaultProps}) => {
+						return {
+							durationInFrames: defaultProps.mynum * 10,
+							props: {
+								...defaultProps,
+							},
+						};
+					}}
 				/>
 			</Folder>
 			<Folder name="Schema">
@@ -800,7 +886,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 					schema={schemaTestSchema}
-					defaultProps={{title: 'fsdfsdfsdfsdf', delay: 5.2}}
+					defaultProps={{title: 'sdasdsd', delay: 5.2, color: '#df822a'}}
 				/>
 				{/**
 				 // @ts-expect-error */}
@@ -812,6 +898,17 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 					schema={schemaTestSchema}
+				/>
+				<Composition
+					id="array-schem"
+					component={ArrayTest}
+					width={1200}
+					height={630}
+					fps={30}
+					durationInFrames={150}
+					// @ts-expect-error Needs an object
+					schema={schemaArrayTestSchema}
+					defaultProps={{}}
 				/>
 			</Folder>
 			<Folder name="TailwindCSS">

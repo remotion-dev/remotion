@@ -11,7 +11,7 @@ export const serializeInputProps = async ({
 	type,
 	userSpecifiedBucketName,
 }: {
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	region: AwsRegion;
 	type: 'still' | 'video-or-audio';
 	userSpecifiedBucketName: string | null;

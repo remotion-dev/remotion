@@ -33,7 +33,8 @@ test('Should be able to render to another bucket', async () => {
 	const res = (await handler(
 		{
 			type: LambdaRoutines.start,
-			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
+			serveUrl:
+				'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
 			chromiumOptions: {},
 			codec: 'h264',
 			composition: 'react-svg',

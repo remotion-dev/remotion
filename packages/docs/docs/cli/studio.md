@@ -1,14 +1,16 @@
 ---
-image: /generated/articles-docs-cli-preview.png
-title: npx remotion preview
-sidebar_label: preview
+image: /generated/articles-docs-cli-studio.png
+title: npx remotion studio
+sidebar_label: studio
 crumb: CLI Reference
 ---
 
-Start the server which allows you to preview the Remotion video. The only argument to pass is the entry file:
+_Alias: npx remotion preview_
+
+Start the Remotion Studio. The only argument to pass is the entry file:
 
 ```bash
-npx remotion preview <entry-file>
+npx remotion studio <entry-file>
 ```
 
 If `entry-file` is not passed, Remotion will try to detect the entry file with the following priority order:
@@ -27,11 +29,11 @@ If `entry-file` is not passed, Remotion will try to detect the entry file with t
 Inline JSON string isn't supported on Windows because it removes the `"` character, use a temporary file instead.
 :::
 
-### `--config` <AvailableFrom v="1.2.0" />
+### `--config`<AvailableFrom v="1.2.0" />
 
 Specify a location for the Remotion config file.
 
-### `--env-file` <AvailableFrom v="2.2.0" />
+### `--env-file`<AvailableFrom v="2.2.0" />
 
 Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)
 
@@ -43,24 +45,24 @@ Specify a location for a dotenv file - Default `.env`. [Read about how environme
 
 [Set a custom HTTP server port](/docs/config#setPort). If not defined, Remotion will try to find a free port.
 
-### `--public-dir` <AvailableFrom v="3.2.13" />
+### `--public-dir`<AvailableFrom v="3.2.13" />
 
 [Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
 
-### `--disable-keyboard-shortcuts` <AvailableFrom v="3.2.11" />
+### `--disable-keyboard-shortcuts`<AvailableFrom v="3.2.11" />
 
-[Disables all keyboard shortcuts in the Preview](/docs/config#setkeyboardshortcutsenabled).
+[Disables all keyboard shortcuts in the Studio](/docs/config#setkeyboardshortcutsenabled).
 
-### `--webpack-poll` <AvailableFrom v="3.3.11" />
+### `--webpack-poll`<AvailableFrom v="3.3.11" />
 
 [Enables Webpack polling](/docs/config#setwebpackpollinginmilliseconds) instead of the file system event listeners for hot reloading. This is useful if you are inside a virtual machine or have a remote file system.
 Pass a value in milliseconds, for example `--webpack-poll=1000`.
 
-### `--no-open` <AvailableFrom v="3.3.19" />
+### `--no-open`<AvailableFrom v="3.3.19" />
 
 [Prevents Remotion from trying to open a browser](/docs/config#setshouldopenbrowser). This is useful if you use a different browser for Remotion than the operating system default.
 
-### `--browser` <AvailableFrom v="3.3.79" />
+### `--browser`<AvailableFrom v="3.3.79" />
 
 Specify the browser which should be used for opening tab - using the default browser by default.  
 Pass an absolute string or `"chrome"` to use Chrome.
@@ -68,12 +70,10 @@ If Chrome is selected as the browser and you are on macOS, Remotion will try to 
 
 For backwards compatibility, the `BROWSER` environment variable is also supported.
 
-### `--browser-args` <AvailableFrom v="3.3.79" />
+### `--browser-args`<AvailableFrom v="3.3.79" />
 
 A set of command line flags that should be passed to the browser. Pass them like this:
 
 ```console
-remotion preview --browser-args="--disable-web-security"
+npx remotion studio --browser-args="--disable-web-security"
 ```
-
-Notice that Chrome will try to reuse the process, so you want to quit it first before you start it with the flags.
