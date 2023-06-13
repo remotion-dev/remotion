@@ -55,6 +55,18 @@ export const startLongRunningCompositor = (
 	);
 };
 
+type RunningStatus =
+	| {
+			type: 'running';
+	  }
+	| {
+			type: 'quit-with-error';
+			error: string;
+	  }
+	| {
+			type: 'quit-without-error';
+	  };
+
 export const startCompositor = <T extends keyof CompositorCommand>(
 	type: T,
 	payload: CompositorCommand[T],
@@ -114,7 +126,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		}
 	};
 
-	let quit = false;
+	let runningStatus: RunningStatus = {type: 'running'};
 	let missingData: null | {
 		dataMissing: number;
 	} = null;
@@ -229,9 +241,10 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	let reject: ((reason: Error) => void) | null = null;
 
 	child.on('close', (code) => {
-		quit = true;
 		const waitersToKill = Array.from(waiters.values());
 		if (code === 0) {
+			runningStatus = {type: 'quit-without-error'};
+
 			resolve?.();
 			for (const waiter of waitersToKill) {
 				waiter.reject(new Error(`Compositor already quit`));
@@ -239,9 +252,10 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 
 			waiters.clear();
 		} else {
-			const error = new Error(
-				`Compositor panicked: ${Buffer.concat(stderrChunks).toString('utf-8')}`
-			);
+			const errorMessage = Buffer.concat(stderrChunks).toString('utf-8');
+			runningStatus = {type: 'quit-with-error', error: errorMessage};
+
+			const error = new Error(`Compositor panicked: ${errorMessage}`);
 			for (const waiter of waitersToKill) {
 				waiter.reject(error);
 			}
@@ -255,8 +269,13 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	return {
 		waitForDone: () => {
 			return new Promise<void>((res, rej) => {
-				if (quit) {
+				if (runningStatus.type === 'quit-without-error') {
 					rej(new Error('Compositor already quit'));
+					return;
+				}
+
+				if (runningStatus.type === 'quit-with-error') {
+					rej(new Error(`Compositor already quit: ${runningStatus.error}`));
 					return;
 				}
 
@@ -265,7 +284,11 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			});
 		},
 		finishCommands: () => {
-			if (quit) {
+			if (runningStatus.type === 'quit-with-error') {
+				throw new Error(`Compositor already quit: ${runningStatus.error}`);
+			}
+
+			if (runningStatus.type === 'quit-without-error') {
 				throw new Error('Compositor already quit');
 			}
 
@@ -276,8 +299,12 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			command: Type,
 			params: CompositorCommand[Type]
 		) => {
-			if (quit) {
+			if (runningStatus.type === 'quit-without-error') {
 				throw new Error('Compositor already quit');
+			}
+
+			if (runningStatus.type === 'quit-with-error') {
+				throw new Error(`Compositor quit: ${runningStatus.error}`);
 			}
 
 			return new Promise<Buffer>((_resolve, _reject) => {
