@@ -15,7 +15,7 @@ jpeg-decoder = "0.3"
 jpeg-encoder = "0.5.1"
 lazy_static = "1.4"
 rayon = "1.7.0"
-ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="d406a6687e9c70768ced1441b209dcdbc61f56e1"}
+ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="95874c2bfa6f5829fdbb0eaa23006ea54c864ad8"}
 
 [[bin]]
 name = "compositor"
