@@ -1,8 +1,5 @@
 set -e
 cd ..
-cd renderer
-node build.mjs --lambda
-cd ..
 cd lambda
 npm run buildlambda
 cd ..

@@ -7,7 +7,6 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
-import {Log} from './logger';
 import type {ChromiumOptions} from './open-browser';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
@@ -74,7 +73,6 @@ const innerGetCompositions = async ({
 
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
-	Log.verbose('Setting props and env');
 	await setPropsAndEnv({
 		inputProps,
 		envVariables,
@@ -87,7 +85,6 @@ const innerGetCompositions = async ({
 		audioEnabled: false,
 		videoEnabled: false,
 	});
-	Log.verbose('Set props and env successfully!');
 
 	await puppeteerEvaluateWithCatch({
 		page,
@@ -101,7 +98,6 @@ const innerGetCompositions = async ({
 	});
 
 	await waitForReady(page);
-	Log.verbose('Page is ready!');
 
 	const result = await puppeteerEvaluateWithCatch({
 		pageFunction: () => {
@@ -111,8 +107,6 @@ const innerGetCompositions = async ({
 		page,
 		args: [],
 	});
-
-	Log.verbose('Got compositions', (result as AnyCompMetadata[]).length);
 
 	return result as AnyCompMetadata[];
 };
