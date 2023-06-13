@@ -553,9 +553,8 @@ export const internalStitchFramesToVideo = async (
 	warnAboutM2Bug(options.codec, options.pixelFormat);
 	const {task, getLogs} = await innerStitchFramesToVideo(options, remotionRoot);
 
-	const happyPath = task.catch((err) => {
-		Log.error('Error while stitching frames to video', err);
-		throw new Error((err as Error).stack + ' FFmpeg logs:' + getLogs());
+	const happyPath = task.catch(() => {
+		throw new Error(getLogs());
 	});
 
 	return Promise.race([
