@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {z} from 'zod';
 
 const codec = z.enum(RenderInternals.validCodecs);
@@ -6,7 +7,7 @@ const audioCodec = z.enum(RenderInternals.validAudioCodecs);
 const pixelFormat = z.enum(RenderInternals.validPixelFormats);
 const videoImageFormat = z.enum(RenderInternals.validVideoImageFormats);
 const stillImageFormat = z.enum(RenderInternals.validStillImageFormats);
-const proResProfile = z.enum(RenderInternals.proResProfileOptions);
+const proResProfile = z.enum(BrowserSafeApis.proResProfileOptions);
 const chromiumOptions = z.object({
 	ignoreCertificateErrors: z.boolean().optional(),
 	disableWebSecurity: z.boolean().optional(),
@@ -24,7 +25,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		forceHeight: z.number().optional().nullable(),
 		forceWidth: z.number().optional().nullable(),
 		codec,
-		inputProps: z.unknown(),
+		inputProps: z.record(z.string(), z.unknown()).or(z.undefined()),
 		jpegQuality: z.number().optional(),
 		audioCodec: audioCodec.optional().nullable(),
 		audioBitrate: z.string().optional().nullable(),
@@ -51,7 +52,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		composition: z.string(),
 		forceHeight: z.number().optional().nullable(),
 		forceWidth: z.number().optional().nullable(),
-		inputProps: z.unknown(),
+		inputProps: z.record(z.string(), z.unknown()).or(z.undefined()),
 		jpegQuality: z.number().optional(),
 		imageFormat: stillImageFormat.optional(),
 		scale: z.number().optional(),

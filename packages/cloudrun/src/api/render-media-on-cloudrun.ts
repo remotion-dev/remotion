@@ -19,7 +19,7 @@ export type RenderMediaOnCloudrunInput = {
 	region: GcpRegion;
 	serveUrl: string;
 	composition: string;
-	inputProps?: unknown;
+	inputProps?: Record<string, unknown>;
 	privacy?: 'public' | 'private';
 	forceBucketName?: string;
 	outName?: string;
