@@ -8,7 +8,7 @@ crumb: "Building video apps"
 We recommend the following structure for your Dockerfile. Read below about the individual steps and whether you need to adjust them.
 
 ```docker title="Dockerfile"
-FROM debian:bookworm-20230411
+FROM debian:bookworm
 
 RUN apt-get update
 RUN apt-get install -y nodejs npm chromium
@@ -43,7 +43,7 @@ This Dockerfile is unable to render WebGL content. Suggestions on how to improve
 </p>
 
 ```docker
-FROM debian:bookworm-20230411
+FROM debian:bookworm
 ```
 
 <p>
