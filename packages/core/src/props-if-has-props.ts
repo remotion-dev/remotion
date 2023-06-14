@@ -24,11 +24,11 @@ export type PropsIfHasProps<
 
 export type InferProps<
 	Schema extends AnyZodObject,
-	Props
+	Props extends Record<string, unknown> | undefined
 > = AnyZodObject extends Schema
 	? {} extends Props
 		? // Neither props nor schema specified
-		  unknown
+		  Record<string, unknown>
 		: // Only props specified
 		  Props
 	: {} extends Props

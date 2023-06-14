@@ -23,7 +23,7 @@ export const resolveVideoConfig = ({
 		? composition.calculateMetadata({
 				defaultProps: composition.defaultProps ?? {},
 				props: {
-					...((composition.defaultProps ?? {}) as object),
+					...(composition.defaultProps ?? {}),
 					...(editorPropsOrUndefined ?? {}),
 					...(typeof window === 'undefined' ||
 					getRemotionEnvironment() === 'player-development' ||
@@ -51,7 +51,7 @@ export const resolveVideoConfig = ({
 				fps,
 				durationInFrames,
 				id: composition.id,
-				defaultProps: c.props as Record<string, unknown>,
+				defaultProps: c.props ?? composition.defaultProps ?? {},
 			};
 		});
 	}
@@ -71,7 +71,7 @@ export const resolveVideoConfig = ({
 	return {
 		...data,
 		id: composition.id,
-		defaultProps: (calculatedProm?.props ?? {}) as Record<string, unknown>,
+		defaultProps: calculatedProm?.props ?? composition.defaultProps ?? {},
 	};
 };
 
@@ -83,7 +83,9 @@ const validateCalculated = ({
 		AnyZodObject,
 		Record<string, unknown> | undefined
 	>;
-	calculated: CalcMetadataReturnType<unknown> | null;
+	calculated: CalcMetadataReturnType<
+		Record<string, unknown> | undefined
+	> | null;
 }) => {
 	const potentialErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
 
