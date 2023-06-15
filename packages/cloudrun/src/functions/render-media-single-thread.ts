@@ -1,6 +1,6 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
-import type {RenderMediaOnProgress} from '@remotion/renderer';
+import type {ChromiumOptions, RenderMediaOnProgress} from '@remotion/renderer';
 import {RenderInternals, renderMedia} from '@remotion/renderer';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
@@ -34,6 +34,12 @@ export const renderMediaSingleThread = async (
 
 	res.writeHead(200, {'Content-Type': 'text/html'});
 
+	const actualChromiumOptions: ChromiumOptions = {
+		...body.chromiumOptions,
+		// Override the `null` value, which might come from CLI with swANGLE
+		gl: body.chromiumOptions?.gl ?? 'swangle',
+	};
+
 	await renderMedia({
 		composition: {
 			...composition,
@@ -58,7 +64,7 @@ export const renderMediaSingleThread = async (
 		onProgress,
 		frameRange: body.frameRange,
 		envVariables: body.envVariables,
-		chromiumOptions: body.chromiumOptions,
+		chromiumOptions: actualChromiumOptions,
 		muted: body.muted,
 		verbose: RenderInternals.isEqualOrBelowLogLevel(body.logLevel, 'verbose'),
 	});
