@@ -85,4 +85,4 @@ Companies need to buy 1 cloud rendering seat per 2000 renders per month - see ht
 
 We make it easy to remove all Remotion resources from your GCP project without leaving any traces or causing further costs.
 
-[How to uninstall Remotion Cloud Run](docs/cloudrun/uninstall).
+[How to uninstall Remotion Cloud Run](/docs/cloudrun/uninstall).
