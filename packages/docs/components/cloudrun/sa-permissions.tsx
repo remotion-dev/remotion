@@ -39,3 +39,15 @@ export const SAPermissionTable: React.FC = () => {
     </table>
   );
 };
+
+export const SAPermissionCLI: React.FC = () => {
+  return (
+    <details>
+      <summary>Show output
+      </summary>
+      <pre>{permissionsJson.list.map((permission: Permission) => {
+        return `✅ ${permission.name}\n`
+      })}</pre>
+    </details>
+  );
+};
