@@ -280,6 +280,10 @@ export const top250 = [
     family: "Frank Ruhl Libre",
     load: () => import("@remotion/google-fonts/FrankRuhlLibre"),
   },
+  {
+    family: "Fredoka",
+    load: () => import("@remotion/google-fonts/Fredoka"),
+  },
   { family: "Gelasio", load: () => import("@remotion/google-fonts/Gelasio") },
   {
     family: "Gloria Hallelujah",
