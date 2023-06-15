@@ -1,6 +1,10 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
-import {RenderInternals, renderStill} from '@remotion/renderer';
+import {
+	ChromiumOptions,
+	RenderInternals,
+	renderStill,
+} from '@remotion/renderer';
 import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
@@ -29,6 +33,12 @@ export const renderStillSingleThread = async (
 	const tempFilePath = '/tmp/still.png';
 	const renderId = randomHash({randomInTests: true});
 
+	const actualChromiumOptions: ChromiumOptions = {
+		...body.chromiumOptions,
+		// Override the `null` value, which might come from CLI with swANGLE
+		gl: body.chromiumOptions?.gl ?? 'swangle',
+	};
+
 	await renderStill({
 		composition: {
 			...composition,
@@ -42,7 +52,7 @@ export const renderStillSingleThread = async (
 		imageFormat: body.imageFormat,
 		scale: body.scale,
 		envVariables: body.envVariables,
-		chromiumOptions: body.chromiumOptions,
+		chromiumOptions: actualChromiumOptions,
 		frame: body.frame,
 		verbose: RenderInternals.isEqualOrBelowLogLevel(body.logLevel, 'verbose'),
 	});
