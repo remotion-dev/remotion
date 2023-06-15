@@ -281,8 +281,8 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/FrankRuhlLibre"),
   },
   {
-    family: "Fredoka One",
-    load: () => import("@remotion/google-fonts/FredokaOne"),
+    family: "Fredoka",
+    load: () => import("@remotion/google-fonts/Fredoka"),
   },
   { family: "Gelasio", load: () => import("@remotion/google-fonts/Gelasio") },
   {
