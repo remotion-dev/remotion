@@ -12,7 +12,21 @@ const allFonts = JSON.parse(bypassCors);
 
 const sorted = sortBy(allFonts, (f) => 0 - f.viewsByDateRange["7day"].views);
 
-const topFonts = sortBy(sorted.slice(0, amount), (s) => s.family);
+const topFonts = sortBy(
+  sorted
+    .filter((s) => {
+      return (
+        s.family !== "Material Icons" &&
+        s.family !== "Material Icons Outlined" &&
+        s.family !== "Material Icons Round" &&
+        s.family !== "Material Icons Sharp" &&
+        s.family !== "Material Symbols Outlined" &&
+        s.family !== "Material Icons Two Tone"
+      );
+    })
+    .slice(0, amount),
+  (s) => s.family
+);
 
 const availableFonts = getAvailableFonts();
 const remotionList = topFonts.map((t) => {
