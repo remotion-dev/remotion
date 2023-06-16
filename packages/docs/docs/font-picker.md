@@ -106,6 +106,11 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/AnticSlab"),
   },
   { family: "Anton", load: () => import("@remotion/google-fonts/Anton") },
+  { family: "Antonio", load: () => import("@remotion/google-fonts/Antonio") },
+  {
+    family: "Architects Daughter",
+    load: () => import("@remotion/google-fonts/ArchitectsDaughter"),
+  },
   { family: "Archivo", load: () => import("@remotion/google-fonts/Archivo") },
   {
     family: "Archivo Black",
@@ -116,6 +121,7 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/ArchivoNarrow"),
   },
   { family: "Arimo", load: () => import("@remotion/google-fonts/Arimo") },
+  { family: "Arsenal", load: () => import("@remotion/google-fonts/Arsenal") },
   { family: "Arvo", load: () => import("@remotion/google-fonts/Arvo") },
   { family: "Asap", load: () => import("@remotion/google-fonts/Asap") },
   {
@@ -146,7 +152,6 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/BebasNeue"),
   },
   { family: "Bitter", load: () => import("@remotion/google-fonts/Bitter") },
-  { family: "Blinker", load: () => import("@remotion/google-fonts/Blinker") },
   {
     family: "Bodoni Moda",
     load: () => import("@remotion/google-fonts/BodoniModa"),
@@ -204,10 +209,6 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/Courgette"),
   },
   {
-    family: "Creepster",
-    load: () => import("@remotion/google-fonts/Creepster"),
-  },
-  {
     family: "Crete Round",
     load: () => import("@remotion/google-fonts/CreteRound"),
   },
@@ -243,7 +244,6 @@ export const top250 = [
     family: "EB Garamond",
     load: () => import("@remotion/google-fonts/EBGaramond"),
   },
-  { family: "Eczar", load: () => import("@remotion/google-fonts/Eczar") },
   {
     family: "El Messiri",
     load: () => import("@remotion/google-fonts/ElMessiri"),
@@ -280,10 +280,6 @@ export const top250 = [
     family: "Frank Ruhl Libre",
     load: () => import("@remotion/google-fonts/FrankRuhlLibre"),
   },
-  {
-    family: "Fredoka One",
-    load: () => import("@remotion/google-fonts/FredokaOne"),
-  },
   { family: "Gelasio", load: () => import("@remotion/google-fonts/Gelasio") },
   {
     family: "Gloria Hallelujah",
@@ -297,6 +293,7 @@ export const top250 = [
     family: "Great Vibes",
     load: () => import("@remotion/google-fonts/GreatVibes"),
   },
+  { family: "Gruppo", load: () => import("@remotion/google-fonts/Gruppo") },
   { family: "Handlee", load: () => import("@remotion/google-fonts/Handlee") },
   { family: "Heebo", load: () => import("@remotion/google-fonts/Heebo") },
   { family: "Hind", load: () => import("@remotion/google-fonts/Hind") },
@@ -354,6 +351,10 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/KaushanScript"),
   },
   { family: "Khand", load: () => import("@remotion/google-fonts/Khand") },
+  {
+    family: "Kosugi Maru",
+    load: () => import("@remotion/google-fonts/KosugiMaru"),
+  },
   { family: "Lato", load: () => import("@remotion/google-fonts/Lato") },
   { family: "Lexend", load: () => import("@remotion/google-fonts/Lexend") },
   {
@@ -387,7 +388,6 @@ export const top250 = [
     family: "M PLUS Rounded 1c",
     load: () => import("@remotion/google-fonts/MPLUSRounded1c"),
   },
-  { family: "Macondo", load: () => import("@remotion/google-fonts/Macondo") },
   { family: "Manrope", load: () => import("@remotion/google-fonts/Manrope") },
   {
     family: "Marcellus",
@@ -398,6 +398,8 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/MarckScript"),
   },
   { family: "Martel", load: () => import("@remotion/google-fonts/Martel") },
+  { family: "Mate", load: () => import("@remotion/google-fonts/Mate") },
+  { family: "Mate SC", load: () => import("@remotion/google-fonts/MateSC") },
   {
     family: "Maven Pro",
     load: () => import("@remotion/google-fonts/MavenPro"),
@@ -410,9 +412,7 @@ export const top250 = [
     family: "Merriweather Sans",
     load: () => import("@remotion/google-fonts/MerriweatherSans"),
   },
-  { family: "Michroma", load: () => import("@remotion/google-fonts/Michroma") },
   { family: "Mitr", load: () => import("@remotion/google-fonts/Mitr") },
-  { family: "Monda", load: () => import("@remotion/google-fonts/Monda") },
   {
     family: "Montserrat",
     load: () => import("@remotion/google-fonts/Montserrat"),
@@ -445,6 +445,10 @@ export const top250 = [
   {
     family: "Noticia Text",
     load: () => import("@remotion/google-fonts/NoticiaText"),
+  },
+  {
+    family: "Noto Color Emoji",
+    load: () => import("@remotion/google-fonts/NotoColorEmoji"),
   },
   {
     family: "Noto Kufi Arabic",
@@ -483,6 +487,10 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/NotoSansTC"),
   },
   {
+    family: "Noto Sans Thai",
+    load: () => import("@remotion/google-fonts/NotoSansThai"),
+  },
+  {
     family: "Noto Serif",
     load: () => import("@remotion/google-fonts/NotoSerif"),
   },
@@ -508,10 +516,6 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/OldStandardTT"),
   },
   {
-    family: "Oleo Script",
-    load: () => import("@remotion/google-fonts/OleoScript"),
-  },
-  {
     family: "Open Sans",
     load: () => import("@remotion/google-fonts/OpenSans"),
   },
@@ -520,7 +524,6 @@ export const top250 = [
   { family: "Outfit", load: () => import("@remotion/google-fonts/Outfit") },
   { family: "Overpass", load: () => import("@remotion/google-fonts/Overpass") },
   { family: "Oxygen", load: () => import("@remotion/google-fonts/Oxygen") },
-  { family: "PT Mono", load: () => import("@remotion/google-fonts/PTMono") },
   { family: "PT Sans", load: () => import("@remotion/google-fonts/PTSans") },
   {
     family: "PT Sans Caption",
@@ -620,24 +623,24 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/RobotoCondensed"),
   },
   {
+    family: "Roboto Flex",
+    load: () => import("@remotion/google-fonts/RobotoFlex"),
+  },
+  {
     family: "Roboto Mono",
     load: () => import("@remotion/google-fonts/RobotoMono"),
+  },
+  {
+    family: "Roboto Serif",
+    load: () => import("@remotion/google-fonts/RobotoSerif"),
   },
   {
     family: "Roboto Slab",
     load: () => import("@remotion/google-fonts/RobotoSlab"),
   },
   { family: "Rokkitt", load: () => import("@remotion/google-fonts/Rokkitt") },
-  {
-    family: "Ropa Sans",
-    load: () => import("@remotion/google-fonts/RopaSans"),
-  },
   { family: "Rowdies", load: () => import("@remotion/google-fonts/Rowdies") },
   { family: "Rubik", load: () => import("@remotion/google-fonts/Rubik") },
-  {
-    family: "Rubik Mono One",
-    load: () => import("@remotion/google-fonts/RubikMonoOne"),
-  },
   {
     family: "Russo One",
     load: () => import("@remotion/google-fonts/RussoOne"),
@@ -651,6 +654,7 @@ export const top250 = [
     family: "Saira Condensed",
     load: () => import("@remotion/google-fonts/SairaCondensed"),
   },
+  { family: "Sanchez", load: () => import("@remotion/google-fonts/Sanchez") },
   { family: "Sarabun", load: () => import("@remotion/google-fonts/Sarabun") },
   { family: "Satisfy", load: () => import("@remotion/google-fonts/Satisfy") },
   {
@@ -685,12 +689,8 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/SourceCodePro"),
   },
   {
-    family: "Source Sans Pro",
-    load: () => import("@remotion/google-fonts/SourceSansPro"),
-  },
-  {
-    family: "Source Serif Pro",
-    load: () => import("@remotion/google-fonts/SourceSerifPro"),
+    family: "Source Serif 4",
+    load: () => import("@remotion/google-fonts/SourceSerif4"),
   },
   {
     family: "Space Grotesk",
@@ -710,20 +710,12 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/Staatliches"),
   },
   { family: "Tajawal", load: () => import("@remotion/google-fonts/Tajawal") },
-  {
-    family: "Tangerine",
-    load: () => import("@remotion/google-fonts/Tangerine"),
-  },
   { family: "Teko", load: () => import("@remotion/google-fonts/Teko") },
   {
     family: "Tenor Sans",
     load: () => import("@remotion/google-fonts/TenorSans"),
   },
   { family: "Tinos", load: () => import("@remotion/google-fonts/Tinos") },
-  {
-    family: "Titan One",
-    load: () => import("@remotion/google-fonts/TitanOne"),
-  },
   {
     family: "Titillium Web",
     load: () => import("@remotion/google-fonts/TitilliumWeb"),
@@ -738,6 +730,10 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/UbuntuMono"),
   },
   { family: "Ultra", load: () => import("@remotion/google-fonts/Ultra") },
+  {
+    family: "Unbounded",
+    load: () => import("@remotion/google-fonts/Unbounded"),
+  },
   { family: "Unna", load: () => import("@remotion/google-fonts/Unna") },
   { family: "Urbanist", load: () => import("@remotion/google-fonts/Urbanist") },
   {
@@ -745,6 +741,7 @@ export const top250 = [
     load: () => import("@remotion/google-fonts/VarelaRound"),
   },
   { family: "Vidaloka", load: () => import("@remotion/google-fonts/Vidaloka") },
+  { family: "Viga", load: () => import("@remotion/google-fonts/Viga") },
   { family: "Vollkorn", load: () => import("@remotion/google-fonts/Vollkorn") },
   {
     family: "Work Sans",
@@ -810,6 +807,10 @@ export const top100 = [
   { family: "Bitter", load: () => import("@remotion/google-fonts/Bitter") },
   { family: "Cabin", load: () => import("@remotion/google-fonts/Cabin") },
   { family: "Cairo", load: () => import("@remotion/google-fonts/Cairo") },
+  {
+    family: "Catamaran",
+    load: () => import("@remotion/google-fonts/Catamaran"),
+  },
   { family: "Caveat", load: () => import("@remotion/google-fonts/Caveat") },
   {
     family: "Comfortaa",
@@ -857,16 +858,16 @@ export const top100 = [
     load: () => import("@remotion/google-fonts/HindSiliguri"),
   },
   {
+    family: "IBM Plex Mono",
+    load: () => import("@remotion/google-fonts/IBMPlexMono"),
+  },
+  {
     family: "IBM Plex Sans",
     load: () => import("@remotion/google-fonts/IBMPlexSans"),
   },
   {
     family: "Inconsolata",
     load: () => import("@remotion/google-fonts/Inconsolata"),
-  },
-  {
-    family: "Indie Flower",
-    load: () => import("@remotion/google-fonts/IndieFlower"),
   },
   { family: "Inter", load: () => import("@remotion/google-fonts/Inter") },
   {
@@ -915,12 +916,16 @@ export const top100 = [
     load: () => import("@remotion/google-fonts/NanumGothic"),
   },
   {
+    family: "Noto Color Emoji",
+    load: () => import("@remotion/google-fonts/NotoColorEmoji"),
+  },
+  {
     family: "Noto Sans",
     load: () => import("@remotion/google-fonts/NotoSans"),
   },
   {
-    family: "Noto Sans HK",
-    load: () => import("@remotion/google-fonts/NotoSansHK"),
+    family: "Noto Sans Arabic",
+    load: () => import("@remotion/google-fonts/NotoSansArabic"),
   },
   {
     family: "Noto Sans JP",
@@ -982,6 +987,10 @@ export const top100 = [
   { family: "Rajdhani", load: () => import("@remotion/google-fonts/Rajdhani") },
   { family: "Raleway", load: () => import("@remotion/google-fonts/Raleway") },
   {
+    family: "Red Hat Display",
+    load: () => import("@remotion/google-fonts/RedHatDisplay"),
+  },
+  {
     family: "Righteous",
     load: () => import("@remotion/google-fonts/Righteous"),
   },
@@ -999,11 +1008,6 @@ export const top100 = [
     load: () => import("@remotion/google-fonts/RobotoSlab"),
   },
   { family: "Rubik", load: () => import("@remotion/google-fonts/Rubik") },
-  { family: "Satisfy", load: () => import("@remotion/google-fonts/Satisfy") },
-  {
-    family: "Secular One",
-    load: () => import("@remotion/google-fonts/SecularOne"),
-  },
   {
     family: "Shadows Into Light",
     load: () => import("@remotion/google-fonts/ShadowsIntoLight"),
@@ -1019,14 +1023,6 @@ export const top100 = [
   {
     family: "Source Code Pro",
     load: () => import("@remotion/google-fonts/SourceCodePro"),
-  },
-  {
-    family: "Source Sans Pro",
-    load: () => import("@remotion/google-fonts/SourceSansPro"),
-  },
-  {
-    family: "Source Serif Pro",
-    load: () => import("@remotion/google-fonts/SourceSerifPro"),
   },
   {
     family: "Space Grotesk",
@@ -1051,6 +1047,10 @@ export const top100 = [
     family: "Yanone Kaffeesatz",
     load: () => import("@remotion/google-fonts/YanoneKaffeesatz"),
   },
+  {
+    family: "Zilla Slab",
+    load: () => import("@remotion/google-fonts/ZillaSlab"),
+  },
 ];
 ```
 
@@ -1061,6 +1061,7 @@ To reduce bundle size, you can limit the selection. Instead of calling `getAvail
 ```ts twoslash
 export const top25 = [
   { family: "Inter", load: () => import("@remotion/google-fonts/Inter") },
+  { family: "Kanit", load: () => import("@remotion/google-fonts/Kanit") },
   { family: "Lato", load: () => import("@remotion/google-fonts/Lato") },
   { family: "Lora", load: () => import("@remotion/google-fonts/Lora") },
   {
@@ -1115,10 +1116,6 @@ export const top25 = [
     load: () => import("@remotion/google-fonts/RobotoSlab"),
   },
   { family: "Rubik", load: () => import("@remotion/google-fonts/Rubik") },
-  {
-    family: "Source Sans Pro",
-    load: () => import("@remotion/google-fonts/SourceSansPro"),
-  },
   { family: "Ubuntu", load: () => import("@remotion/google-fonts/Ubuntu") },
   {
     family: "Work Sans",
