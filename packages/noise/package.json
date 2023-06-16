@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/noise",
-	"version": "3.3.100",
+	"version": "3.3.101",
 	"description": "Noise effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",

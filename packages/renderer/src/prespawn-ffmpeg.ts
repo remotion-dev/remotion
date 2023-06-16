@@ -18,6 +18,20 @@ import {
 import type {ProResProfile} from './prores-profile';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 
+type RunningStatus =
+	| {
+			type: 'running';
+	  }
+	| {
+			type: 'quit-successfully';
+			stderr: string;
+	  }
+	| {
+			type: 'quit-with-error';
+			exitCode: number;
+			stderr: string;
+	  };
+
 type PreStitcherOptions = {
 	fps: number;
 	width: number;
@@ -189,5 +203,25 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			}
 		}
 	});
-	return {task, getLogs: () => ffmpegOutput};
+
+	let exitCode: RunningStatus = {
+		type: 'running',
+	};
+
+	task.on('exit', (code) => {
+		if (typeof code === 'number' && code > 0) {
+			exitCode = {
+				type: 'quit-with-error',
+				exitCode: code,
+				stderr: ffmpegOutput,
+			};
+		} else {
+			exitCode = {
+				type: 'quit-successfully',
+				stderr: ffmpegOutput,
+			};
+		}
+	});
+
+	return {task, getLogs: () => ffmpegOutput, getExitStatus: () => exitCode};
 };
