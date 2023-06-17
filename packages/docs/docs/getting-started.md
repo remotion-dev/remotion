@@ -101,4 +101,4 @@ Got instructions for more Linux distributions? [Add them to this page](https://g
 
 ## Installation in existing projects
 
-If you already have a project you want to install Remotion in, see [Installation in existing projects](/docs/brownfield).
+Want to install Remotion in an existing project? Go here instead: [Installation in existing projects](/docs/brownfield)
