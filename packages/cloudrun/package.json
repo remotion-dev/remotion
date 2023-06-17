@@ -52,5 +52,8 @@
 				"dist/regions.d.ts"
 			]
 		}
+	},
+	"publishConfig": {
+		"access": "public"
 	}
 }
