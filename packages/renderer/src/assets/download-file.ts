@@ -16,6 +16,8 @@ type Options = {
 		| undefined;
 };
 
+const incorrectContentLengthToken = 'Download finished with';
+
 const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 	return new Promise<Response>((resolve, reject) => {
 		let rejected = false;
@@ -106,7 +108,7 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 					if (totalSize !== null && downloaded !== totalSize) {
 						rejectAndFlag(
 							new Error(
-								`Download finished with ${downloaded} bytes, but expected ${totalSize} bytes from 'Content-Length'.`
+								`${incorrectContentLengthToken} ${downloaded} bytes, but expected ${totalSize} bytes from 'Content-Length'.`
 							)
 						);
 					}
@@ -122,18 +124,28 @@ const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 
 export const downloadFile = async (
 	options: Options,
-	retries = 2
+	retries = 2,
+	attempt = 1
 ): Promise<Response> => {
 	try {
 		const res = await downloadFileWithoutRetries(options);
 		return res;
 	} catch (err) {
-		if ((err as Error).message === 'aborted') {
+		const {message} = err as Error;
+		if (
+			message === 'aborted' ||
+			message.includes(incorrectContentLengthToken)
+		) {
 			if (retries === 0) {
 				throw err;
 			}
 
-			return downloadFile(options, retries - 1);
+			const backoffInSeconds = (attempt + 1) ** 2;
+			await new Promise<void>((resolve) => {
+				setTimeout(() => resolve(), backoffInSeconds * 1000);
+			});
+
+			return downloadFile(options, retries - 1, attempt + 1);
 		}
 
 		throw err;

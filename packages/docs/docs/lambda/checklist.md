@@ -9,7 +9,7 @@ crumb: "Lambda"
 
 import {DefaultTimeout} from '../../components/lambda/default-timeout';
 
-You have implemented your solution with Remotion Lambda are are ready to launch your project into the world. Congrats!
+You have implemented your solution with Remotion Lambda and are ready to launch your project into the world. Congrats!
 Before you go live, go through this checklist to make sure Lambda is running stable.
 
 ### Optimizing for memory
@@ -18,7 +18,7 @@ Adding too much memory to your Lambda functions can make rendering more costly. 
 
 ### Maximum file size
 
-Lambda is constrained to a maximum output file size of approximately [half the disk space](/docs/lambda/disk-size). Adjust the disk space parameter of Lambda to accomodate for the maximum video length that you would like to support. Test the file sizes of your outputs and make sure they don't run at risk of exceeding the limit.
+Lambda is constrained to a maximum output file size of approximately [half the disk space](/docs/lambda/disk-size). Adjust the disk space parameter of Lambda to accommodate for the maximum video length that you would like to support. Test the file sizes of your outputs and make sure they don't run at risk of exceeding the limit.
 If your video is based on user input, prevent your users from rendering very long videos that would exceed the space available in Remotion Lambda.
 
 ### Permissions

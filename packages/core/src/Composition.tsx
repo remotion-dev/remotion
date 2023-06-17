@@ -35,7 +35,9 @@ export type CompProps<Props> =
 			component: LooseComponentType<Props>;
 	  };
 
-export type CalcMetadataReturnType<T> = {
+export type CalcMetadataReturnType<
+	T extends Record<string, unknown> | undefined
+> = {
 	durationInFrames?: number;
 	fps?: number;
 	width?: number;
@@ -43,7 +45,9 @@ export type CalcMetadataReturnType<T> = {
 	props?: T;
 };
 
-export type CalculateMetadataFunction<T> = (options: {
+export type CalculateMetadataFunction<
+	T extends Record<string, unknown> | undefined
+> = (options: {
 	defaultProps: T;
 	props: T;
 	abortSignal: AbortSignal;

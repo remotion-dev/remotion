@@ -250,7 +250,7 @@ values={[
 }>
 <TabItem value="cli">
 
-Take the URL you received from the step 8 - your "serve URL" - and run the following command. Also pass in the [ID of the composition](/docs/composition) you'd like to render.
+Take the URL you received from the step 9 - your "serve URL" - and run the following command. Also pass in the [ID of the composition](/docs/composition) you'd like to render.
 
 ```bash
 npx remotion lambda render <serve-url> <composition-id>
