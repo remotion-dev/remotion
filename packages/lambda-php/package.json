@@ -1,7 +1,7 @@
 {
   "name": "@remotion/lambda-php",
   "private": true,
-  "version": "3.3.101",
+  "version": "4.1.0-alpha2",
   "scripts": {
     "lint": "node build.mjs",
     "publish": "node publish.mjs"
