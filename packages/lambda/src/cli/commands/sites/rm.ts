@@ -25,7 +25,7 @@ export const sitesRmSubcommand = async (args: string[]) => {
 	const region = getAwsRegion();
 	const deployedSites = await getSites({
 		region,
-	});
+	}, Boolean(parsedLambdaCli['force-bucket-name']));
 
 	for (const siteName of args) {
 		const bucketName =

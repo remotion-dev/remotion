@@ -31,8 +31,8 @@ export type GetSitesOutput = {
  */
 export const getSites = async ({
 	region,
-}: GetSitesInput): Promise<GetSitesOutput> => {
-	const {remotionBuckets} = await getRemotionS3Buckets(region);
+}: GetSitesInput, forced: boolean): Promise<GetSitesOutput> => {
+	const {remotionBuckets} = forced ? await getRemotionS3Buckets(region) : await getRemotionS3Buckets(region, "");
 	const accountId = await getAccountId({region});
 
 	const sites: {[key: string]: Site} = {};
