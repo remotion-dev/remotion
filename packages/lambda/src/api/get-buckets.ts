@@ -11,7 +11,7 @@ export type BucketWithLocation = {
 };
 
 export const getRemotionS3Buckets = async (
-	region: AwsRegion
+	region: AwsRegion, bucketPrefix: string = REMOTION_BUCKET_PREFIX
 ): Promise<{
 	remotionBuckets: BucketWithLocation[];
 }> => {
@@ -23,7 +23,7 @@ export const getRemotionS3Buckets = async (
 	}
 
 	const remotionBuckets = Buckets.filter((b) =>
-		b.Name?.startsWith(REMOTION_BUCKET_PREFIX)
+		b.Name?.startsWith(bucketPrefix)
 	);
 
 	const locations = await Promise.all(
