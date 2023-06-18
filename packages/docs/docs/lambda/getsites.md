@@ -50,6 +50,10 @@ An object with the following properties:
 
 The [AWS region](/docs/lambda/region-selection) which you want to query.
 
+### `forced?`
+
+Whether the bucket name is forced or not. Forcing overrides the default prefix (`REMOTION_BUCKET_PREFIX`, which is currently `'remotionlambda-'`).
+
 ## Return value
 
 A promise resolving to an object with the following properties:
