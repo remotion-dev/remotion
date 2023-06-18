@@ -7,4 +7,3 @@ dist/gcpInstaller
 container
 .eslintrc
 .prettierrc.js
-dist/functions
