@@ -7,7 +7,8 @@ test('Should have no buckets at first', async () => {
 	expect(
 		await getSites({
 			region: 'us-east-1',
-		})
+		},
+		false)
 	).toEqual({buckets: [], sites: []});
 });
 
@@ -32,7 +33,7 @@ test('Should have a site after deploying', async () => {
 			uploadedFiles: 2,
 		},
 	});
-	expect(await getSites({region: 'eu-central-1'})).toEqual({
+	expect(await getSites({region: 'eu-central-1'}, false)).toEqual({
 		buckets: [
 			{
 				creationDate: 0,
