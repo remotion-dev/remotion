@@ -465,7 +465,11 @@ export const Config: FlatConfig = {
 			'setQuality() has been renamed - use setJpegQuality() instead.'
 		);
 	},
-	setImageFormat: () => {},
+	setImageFormat: () => {
+		throw new Error(
+			'Config.setImageFormat() has been renamed - use Config.setVideoImageFormat() instead (default "jpeg"). For rendering stills, use Config.setStillImageFormat() (default "png")'
+		);
+	},
 	setJpegQuality,
 	setStillImageFormat,
 	setVideoImageFormat,
