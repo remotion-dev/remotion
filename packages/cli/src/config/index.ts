@@ -382,9 +382,63 @@ type FlatConfig = RemotionConfigObject &
 		 * See the Encoding guide in the docs for defaults and available options.
 		 */
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
+		/**
+		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
+		 */
+		Bundling: void;
+		/**
+		 * @deprecated 'The config format has changed. Change `Config.Preview.*()` calls to `Config.*()` in your config file.'
+		 */
+		Preview: void;
+		/**
+		 * @deprecated 'The config format has changed. Change `Config.Log.*()` calls to `Config.*()` in your config file.'
+		 */
+		Log: void;
+		/**
+		 * @deprecated 'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.'
+		 */
+		Puppeteer: void;
+		/**
+		 * @deprecated 'The config format has changed. Change `Config.Rendering.*()` calls to `Config.*()` in your config file.'
+		 */
+		Rendering: void;
+		/**
+		 * @deprecated 'The config format has changed. Change `Config.Output.*()` calls to `Config.*()` in your config file.'
+		 */
+		Output: void;
 	};
 
 export const Config: FlatConfig = {
+	get Bundling() {
+		throw new Error(
+			'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
+		);
+	},
+	get Rendering() {
+		throw new Error(
+			'The config format has changed. Change `Config.Rendering.*()` calls to `Config.*()` in your config file.'
+		);
+	},
+	get Output() {
+		throw new Error(
+			'The config format has changed. Change `Config.Output.*()` calls to `Config.*()` in your config file.'
+		);
+	},
+	get Log() {
+		throw new Error(
+			'The config format has changed. Change `Config.Log.*()` calls to `Config.*()` in your config file.'
+		);
+	},
+	get Preview() {
+		throw new Error(
+			'The config format has changed. Change `Config.Preview.*()` calls to `Config.*()` in your config file.'
+		);
+	},
+	get Puppeteer() {
+		throw new Error(
+			'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.'
+		);
+	},
 	setMaxTimelineTracks,
 	setKeyboardShortcutsEnabled,
 	setNumberOfSharedAudioTags,
@@ -411,11 +465,7 @@ export const Config: FlatConfig = {
 			'setQuality() has been renamed - use setJpegQuality() instead.'
 		);
 	},
-	setImageFormat: () => {
-		throw new Error(
-			'setImageFormat() has been renamed - use setVideoImageFormat() or setStillImageFormat() instead.'
-		);
-	},
+	setImageFormat: () => {},
 	setJpegQuality,
 	setStillImageFormat,
 	setVideoImageFormat,
