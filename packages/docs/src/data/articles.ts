@@ -112,6 +112,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "calculate-metadata",
+    title: "calculateMetadata()",
+    relativePath: "docs/calculate-metadata.md",
+    compId: "articles-docs-calculate-metadata",
+    crumb: "API",
+  },
+  {
     id: "cancel-render",
     title: "cancelRender()",
     relativePath: "docs/cancel-render.md",
