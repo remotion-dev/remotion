@@ -9,7 +9,8 @@
 		"tarInstaller": "ts-node src/admin/bundle-installer.ts",
 		"start": "functions-framework --target=TypescriptFunction",
 		"watch": "tsc -w",
-		"lint": "eslint src --ext ts,tsx"
+		"lint": "eslint src --ext ts,tsx",
+		"publish": "node container/submit.mjs"
 	},
 	"dependencies": {
 		"@google-cloud/artifact-registry": "^2.2.2",
