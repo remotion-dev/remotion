@@ -50,9 +50,11 @@ An object with the following properties:
 
 The [AWS region](/docs/lambda/region-selection) which you want to query.
 
-### `forced?`
+### `forceBucketName?`<AvailableFrom v="3.3.102"/>
 
-Whether the bucket name is forced or not. Forcing overrides the default prefix (`REMOTION_BUCKET_PREFIX`, which is currently `'remotionlambda-'`).
+_optional_
+
+Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
 ## Return value
 
