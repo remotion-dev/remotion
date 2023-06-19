@@ -11,7 +11,8 @@
 					"@remotion/cli/*/src/*"
 				]
 			}
-		]
+		],
+		"no-restricted-globals": ["error", "parent"]
 	},
 	"overrides": [
 		{
