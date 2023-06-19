@@ -1,26 +1,28 @@
 import {GcpRegion} from '../../pricing/gcp-regions';
-import {RENDER_SERVICE_PREFIX} from '../../shared/constants';
 
 export const getGcpParent = (region: GcpRegion) => {
 	const parent = `projects/${process.env.REMOTION_GCP_PROJECT_ID}/locations/${region}`;
 	return parent;
 };
 
-export const parseServiceName = (serviceName: string, region: GcpRegion) => {
+export const parseServiceName = (
+	fullServiceName: string,
+	region: GcpRegion
+) => {
 	const parent = getGcpParent(region);
-	const deployedServiceName = serviceName.replace(
-		parent + '/services/',
-		''
-	) as string;
-	const deployedRegion = serviceName.split('/')[3] as string;
+	const shortServiceName = fullServiceName.replace(parent + '/services/', '');
+	const deployedRegion = fullServiceName.split('/')[3] as string;
+
+	const matched = shortServiceName.match(/remotion\-(.*)\-mem([0-9])/);
+
+	if (!matched) {
+		throw new Error(`Could not parse service name ${shortServiceName}`);
+	}
 
 	return {
-		serviceName: deployedServiceName,
-		remotionVersion: serviceName
-			.replace(parent + '/services/' + RENDER_SERVICE_PREFIX + '--', '')
-			.split('--')[0]
-			.replace(/-/g, '.') as string,
+		serviceName: shortServiceName,
+		remotionVersion: matched[1],
 		region: deployedRegion as GcpRegion,
-		consoleUrl: `https://console.cloud.google.com/run/detail/${deployedRegion}/${deployedServiceName}/logs`,
+		consoleUrl: `https://console.cloud.google.com/run/detail/${deployedRegion}/${shortServiceName}/logs`,
 	};
 };

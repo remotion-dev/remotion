@@ -10,6 +10,7 @@
 		"start": "functions-framework --target=TypescriptFunction",
 		"watch": "tsc -w",
 		"lint": "eslint src --ext ts,tsx",
+		"test": "vitest --run",
 		"publish": "node container/submit.mjs"
 	},
 	"dependencies": {

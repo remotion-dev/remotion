@@ -35,14 +35,12 @@ export const getServices = async (
 	if (params.compatibleOnly) {
 		remotionServices = services.filter((s) => {
 			return s.name?.startsWith(
-				`${parent}/services/${RENDER_SERVICE_PREFIX}--${serviceVersionString()}--`
+				`${parent}/services/${RENDER_SERVICE_PREFIX}-${serviceVersionString()}-`
 			);
 		});
 	} else {
 		remotionServices = services.filter((s) => {
-			return s.name?.startsWith(
-				`${parent}/services/${RENDER_SERVICE_PREFIX}--`
-			);
+			return s.name?.startsWith(`${parent}/services/${RENDER_SERVICE_PREFIX}-`);
 		});
 	}
 
