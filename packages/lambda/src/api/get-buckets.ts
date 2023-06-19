@@ -1,7 +1,7 @@
 import {GetBucketLocationCommand, ListBucketsCommand} from '@aws-sdk/client-s3';
+import {REMOTION_BUCKET_PREFIX} from '../defaults';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getS3Client} from '../shared/aws-clients';
-import {REMOTION_BUCKET_PREFIX} from '../shared/constants';
 import {parseBucketName} from '../shared/validate-bucketname';
 
 export type BucketWithLocation = {
@@ -11,7 +11,8 @@ export type BucketWithLocation = {
 };
 
 export const getRemotionS3Buckets = async (
-	region: AwsRegion, bucketPrefix: string = REMOTION_BUCKET_PREFIX
+	region: AwsRegion,
+	forceBucketName?: string
 ): Promise<{
 	remotionBuckets: BucketWithLocation[];
 }> => {
@@ -22,9 +23,13 @@ export const getRemotionS3Buckets = async (
 		return {remotionBuckets: []};
 	}
 
-	const remotionBuckets = Buckets.filter((b) =>
-		b.Name?.startsWith(bucketPrefix)
-	);
+	const remotionBuckets = Buckets.filter((b) => {
+		if (forceBucketName) {
+			return b.Name === forceBucketName;
+		}
+
+		return b.Name?.startsWith(REMOTION_BUCKET_PREFIX);
+	});
 
 	const locations = await Promise.all(
 		remotionBuckets.map(async (bucket) => {
