@@ -22,6 +22,6 @@ export const generateServiceName = ({
 		serviceVersionString(),
 		`mem${sanitisedMem}`,
 		`cpu${sanitisedCPU}`,
-		`t-${String(timeoutSeconds)}`,
-	].join('--');
+		`t${String(timeoutSeconds)}`,
+	].join('-');
 };
