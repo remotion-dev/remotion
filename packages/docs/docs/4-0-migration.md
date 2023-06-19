@@ -38,7 +38,33 @@ The CLI configuration file has been moved out from the core Remotion package to 
 + import {Config} from '@remotion/cli/config';
 ```
 
-TODO: Old config syntax has been removed
+The options have been flattened. For example, instead of `Config.Bundling.overrideWebpackConfig`, you now use `Config.overrideWebpackConfig`.
+
+```diff
+- Config.Bundling.overrideWebpackConfig()
++ Config.overrideWebpackConfig()
+
+- Config.Output.setOverwriteOutput(true);
++ Config.setOverwriteOutput(true);
+```
+
+Apply this to all configuration calls.
+
+## Separating `ImageFormat`
+
+Previously, the `imageFormat` option would be used for both stills and videos. While for stills, PNG is often preferrable, for videos it is overall faster to use JPEG as a default. In Remotion 4.0, the image formats are being separated so you can set defaults for videos and stills separately.
+
+- `Config.setImageFormat` got replaced by [`Config.setVideoImageFormat()`](/docs/cli#setvideoimageformat) and [`Config.setStillImageFormat()`](/docs/cli#setstillimageformat).
+
+```diff
+- Config.setImageFormat('jpeg');
++ Config.setVideoImageFormat('jpeg');
+```
+
+- The CLI option is still `--image-format` for all commands.
+- The Node.JS API name is still `imageFormat`.
+- The TypeScript type `ImageFormat` has been separated into `StillImageFormat` and `VideoImageFormat`.
+- `StillImageFormat` now also supports `webp` and `pdf`!
 
 ## Dropped support for Lambda `architecture`
 
@@ -101,16 +127,6 @@ A binary from the 6.0 release line of FFmpeg is used.
 
 In V3, `onSlowestFrames` has been a callback function that you could pass to `renderMedia()`.  
 In V4, this data has been moved to the [return value](/docs/renderer/render-media#return-value).
-
-## Separating `ImageFormat`
-
-Previously, the `imageFormat` option would be used for both stills and videos. While for stills, PNG is often preferrable, for videos it is overall faster to use JPEG as a default. In Remotion 4.0, the image formats are being separated so you can set defaults for videos and stills separately.
-
-- `Config.setImageFormat` got replaced by [`Config.setVideoImageFormat()`](/docs/cli#setvideoimageformat) and [`Config.setStillImageFormat()`](/docs/cli#setstillimageformat).
-- The CLI option is still `--image-format` for all commands.
-- The Node.JS API name is still `imageFormat`.
-- The TypeScript type `ImageFormat` has been separated into `StillImageFormat` and `VideoImageFormat`.
-- `StillImageFormat` now also supports `webp` and `pdf`!
 
 ## ImageFormat removed
 
