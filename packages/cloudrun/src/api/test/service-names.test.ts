@@ -32,5 +32,6 @@ test('Parse service names', () => {
 		remotionVersion: '4-1-0-alpha2',
 		serviceName: `remotion-${dashedVersion}-mem100000k-cpu8-0-t3600`,
 	});
-	expect(shortServiceName.length).toBeLessThanOrEqual(49);
+	// Max length of service name is 49 characters, asking for less in case the version string gets longer
+	expect(shortServiceName.length).toBeLessThanOrEqual(47);
 });
