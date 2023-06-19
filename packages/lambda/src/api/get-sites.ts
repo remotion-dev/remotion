@@ -16,6 +16,7 @@ type Site = {
 
 export type GetSitesInput = {
 	region: AwsRegion;
+	forceBucketName?: string;
 };
 
 export type GetSitesOutput = {
@@ -31,8 +32,11 @@ export type GetSitesOutput = {
  */
 export const getSites = async ({
 	region,
+	forceBucketName,
 }: GetSitesInput): Promise<GetSitesOutput> => {
-	const {remotionBuckets} = await getRemotionS3Buckets(region);
+	const {remotionBuckets} = forceBucketName
+		? await getRemotionS3Buckets(region, forceBucketName)
+		: await getRemotionS3Buckets(region);
 	const accountId = await getAccountId({region});
 
 	const sites: {[key: string]: Site} = {};
