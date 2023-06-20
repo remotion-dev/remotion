@@ -53,8 +53,6 @@ export const checkIfServiceExists = async ({
 				return response;
 			}
 		}
-
-		return;
 	} catch (e: any) {
 		if (e.code === 7) {
 			Log.error(

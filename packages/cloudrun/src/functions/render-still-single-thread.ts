@@ -1,6 +1,7 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
-import {ChromiumOptions, RenderInternals} from '@remotion/renderer';
+import type {ChromiumOptions} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
