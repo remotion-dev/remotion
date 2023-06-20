@@ -1,4 +1,10 @@
-import type {ChromiumOptions, FrameRange, LogLevel} from '@remotion/renderer';
+import {ConfigInternals} from '@remotion/cli/src/config';
+import {
+	ChromiumOptions,
+	FrameRange,
+	LogLevel,
+	RenderInternals,
+} from '@remotion/renderer';
 import type {
 	CloudRunPayloadType,
 	ErrorResponsePayload,
@@ -58,6 +64,11 @@ export type RenderMediaOnCloudrunInput = {
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	logLevel?: LogLevel;
+	delayRenderTimeoutInMilliseconds?: number;
+	dumpBrowserLogs?: boolean;
+	concurrency?: number | string | null;
+	enforceAudioTrack?: boolean;
+	preferLossless?: boolean;
 };
 
 /**
@@ -125,6 +136,11 @@ export const renderMediaOnCloudrun = async ({
 	forceWidth,
 	forceHeight,
 	logLevel,
+	delayRenderTimeoutInMilliseconds,
+	dumpBrowserLogs,
+	concurrency,
+	enforceAudioTrack,
+	preferLossless,
 }: RenderMediaOnCloudrunInput): Promise<RenderMediaOnCloudrunOutput> => {
 	const actualCodec = validateCloudrunCodec(codec);
 	validateServeUrl(serveUrl);
@@ -139,26 +155,31 @@ export const renderMediaOnCloudrun = async ({
 		region,
 	});
 
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(
+		ConfigInternals.Logging.getLogLevel(),
+		'verbose'
+	);
+
 	const data: CloudRunPayloadType = {
 		composition,
 		serveUrl,
 		codec: actualCodec,
-		inputProps,
-		jpegQuality,
-		audioCodec,
-		audioBitrate,
-		videoBitrate,
-		crf,
-		pixelFormat,
-		imageFormat,
-		scale,
-		proResProfile,
-		everyNthFrame,
-		numberOfGifLoops,
-		frameRange,
-		envVariables,
+		inputProps: inputProps ?? {},
+		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
+		audioCodec: audioCodec ?? null,
+		audioBitrate: audioBitrate ?? null,
+		videoBitrate: videoBitrate ?? null,
+		crf: crf ?? null,
+		pixelFormat: pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
+		imageFormat: imageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
+		scale: scale ?? 1,
+		proResProfile: proResProfile ?? null,
+		everyNthFrame: everyNthFrame ?? 1,
+		numberOfGifLoops: numberOfGifLoops ?? null,
+		frameRange: frameRange ?? null,
+		envVariables: envVariables ?? {},
 		chromiumOptions,
-		muted,
+		muted: muted ?? false,
 		outputBucket,
 		privacy,
 		outName,
@@ -166,6 +187,12 @@ export const renderMediaOnCloudrun = async ({
 		forceHeight,
 		type: 'media',
 		logLevel: logLevel ?? 'info',
+		delayRenderTimeoutInMilliseconds:
+			delayRenderTimeoutInMilliseconds ?? RenderInternals.DEFAULT_TIMEOUT,
+		dumpBrowserLogs: dumpBrowserLogs ?? verbose,
+		concurrency: concurrency ?? null,
+		enforceAudioTrack: enforceAudioTrack ?? false,
+		preferLossless: preferLossless ?? false,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);

@@ -1,10 +1,6 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
-import {
-	ChromiumOptions,
-	RenderInternals,
-	renderStill,
-} from '@remotion/renderer';
+import {ChromiumOptions, RenderInternals} from '@remotion/renderer';
 import {Log} from '../cli/log';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
@@ -39,7 +35,7 @@ export const renderStillSingleThread = async (
 		gl: body.chromiumOptions?.gl ?? 'swangle',
 	};
 
-	await renderStill({
+	await RenderInternals.internalRenderStill({
 		composition: {
 			...composition,
 			height: body.forceHeight ?? composition.height,
@@ -48,13 +44,24 @@ export const renderStillSingleThread = async (
 		serveUrl: body.serveUrl,
 		output: tempFilePath,
 		inputProps: body.inputProps,
-		jpegQuality: body.jpegQuality,
+		jpegQuality: body.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		imageFormat: body.imageFormat,
 		scale: body.scale,
 		envVariables: body.envVariables,
 		chromiumOptions: actualChromiumOptions,
 		frame: body.frame,
 		verbose: RenderInternals.isEqualOrBelowLogLevel(body.logLevel, 'verbose'),
+		browserExecutable: null,
+		cancelSignal: null,
+		dumpBrowserLogs: body.dumpBrowserLogs,
+		indent: false,
+		timeoutInMilliseconds: body.delayRenderTimeoutInMilliseconds,
+		onBrowserLog: null,
+		onDownload: null,
+		overwrite: true,
+		port: null,
+		puppeteerInstance: null,
+		server: undefined,
 	});
 	Log.info('Still rendered');
 

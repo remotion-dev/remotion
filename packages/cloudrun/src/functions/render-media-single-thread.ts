@@ -1,7 +1,7 @@
 import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
 import type {ChromiumOptions, RenderMediaOnProgress} from '@remotion/renderer';
-import {RenderInternals, renderMedia} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 import type {
@@ -40,7 +40,7 @@ export const renderMediaSingleThread = async (
 		gl: body.chromiumOptions?.gl ?? 'swangle',
 	};
 
-	await renderMedia({
+	await RenderInternals.internalRenderMedia({
 		composition: {
 			...composition,
 			height: body.forceHeight ?? composition.height,
@@ -58,7 +58,7 @@ export const renderMediaSingleThread = async (
 		pixelFormat: body.pixelFormat,
 		imageFormat: body.imageFormat,
 		scale: body.scale,
-		proResProfile: body.proResProfile,
+		proResProfile: body.proResProfile ?? undefined,
 		everyNthFrame: body.everyNthFrame,
 		numberOfGifLoops: body.numberOfGifLoops,
 		onProgress,
@@ -67,6 +67,24 @@ export const renderMediaSingleThread = async (
 		chromiumOptions: actualChromiumOptions,
 		muted: body.muted,
 		verbose: RenderInternals.isEqualOrBelowLogLevel(body.logLevel, 'verbose'),
+		browserExecutable: null,
+		timeoutInMilliseconds: body.delayRenderTimeoutInMilliseconds,
+		cancelSignal: undefined,
+		concurrency: body.concurrency,
+		disallowParallelEncoding: false,
+		dumpBrowserLogs: body.dumpBrowserLogs,
+		enforceAudioTrack: body.enforceAudioTrack,
+		ffmpegOverride: undefined,
+		indent: false,
+		onBrowserLog: null,
+		onCtrlCExit: () => undefined,
+		onDownload: () => undefined,
+		onStart: () => undefined,
+		overwrite: true,
+		port: null,
+		preferLossless: body.preferLossless,
+		puppeteerInstance: undefined,
+		server: undefined,
 	});
 
 	const storage = new Storage();

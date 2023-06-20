@@ -1,6 +1,7 @@
-import type {
+import {
 	ChromiumOptions,
 	LogLevel,
+	RenderInternals,
 	StillImageFormat,
 } from '@remotion/renderer';
 import type {
@@ -33,6 +34,8 @@ export type RenderStillOnCloudrunInput = {
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	logLevel?: LogLevel;
+	delayRenderTimeoutInMilliseconds?: number;
+	dumpBrowserLogs?: boolean;
 };
 
 /**
@@ -78,6 +81,8 @@ export const renderStillOnCloudrun = async ({
 	forceWidth,
 	forceHeight,
 	logLevel,
+	delayRenderTimeoutInMilliseconds,
+	dumpBrowserLogs,
 }: RenderStillOnCloudrunInput): Promise<RenderStillOnCloudrunOutput> => {
 	validateServeUrl(serveUrl);
 	if (privacy) validatePrivacy(privacy);
@@ -94,20 +99,23 @@ export const renderStillOnCloudrun = async ({
 	const data: CloudRunPayloadType = {
 		composition,
 		serveUrl,
-		inputProps,
+		inputProps: inputProps ?? {},
 		outputBucket,
 		outName,
-		privacy,
+		privacy: privacy ?? 'public',
 		imageFormat,
-		envVariables,
+		envVariables: envVariables ?? {},
 		jpegQuality,
 		chromiumOptions,
-		scale,
+		scale: scale ?? 1,
 		forceWidth,
 		forceHeight,
 		frame: frame ?? 0,
 		type: 'still',
 		logLevel: logLevel ?? 'info',
+		delayRenderTimeoutInMilliseconds:
+			delayRenderTimeoutInMilliseconds ?? RenderInternals.DEFAULT_TIMEOUT,
+		dumpBrowserLogs: dumpBrowserLogs ?? false,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
