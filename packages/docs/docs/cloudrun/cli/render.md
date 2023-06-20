@@ -7,12 +7,12 @@ slug: /cloudrun/cli/render
 crumb: "Cloud Run CLI Reference"
 ---
 
-Using the `npx remotion cloudrun render` command, you can render a video or image on GCP.
+Using the `npx remotion cloudrun render` command, you can render a video on GCP.
 
 The structure of a command is as follows:
 
 ```
-npx remotion cloudrun render <media | still> <serve-url> [<composition-id>] [<output-location>]
+npx remotion cloudrun render <serve-url> [<composition-id>] [<output-location>]
 ```
 
 - The serve URL is obtained by deploying a Remotion project to a GCP Storage Bucket using the [`sites create`](/docs/cloudrun/cli/sites#create) command or calling [`deployService()`](/docs/cloudrun/deployservice).
@@ -24,25 +24,19 @@ npx remotion cloudrun render <media | still> <serve-url> [<composition-id>] [<ou
 Rendering a video, passing the service name:
 
 ```
-npx remotion cloudrun render media https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh/index.html tiles --service-name=remotion--3-3-82--mem512mi--cpu1-0--t-800
-```
-
-Rendering a still, passing the service name:
-
-```
-npx remotion cloudrun render still https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh/index.html tiles --service-name=remotion--3-3-82--mem512mi--cpu1-0--t-800
+npx remotion cloudrun render https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh/index.html tiles --service-name=remotion--3-3-82--mem512mi--cpu1-0--t-800
 ```
 
 Using the site name as opposed to the full serve-url:
 
 ```
-npx remotion cloudrun render media test-site tiles --service-name=remotion--3-3-82--mem512mi--cpu1-0--t-800
+npx remotion cloudrun render test-site tiles --service-name=remotion--3-3-82--mem512mi--cpu1-0--t-800
 ```
 
 Passing in input props:
 
 ```
-npx remotion cloudrun render media test-site tiles --service-name=remotion--3-3-82--mem512mi--cpu1-0--t-800 --props='{"hi": "there"}'
+npx remotion cloudrun render test-site tiles --service-name=remotion--3-3-82--mem512mi--cpu1-0--t-800 --props='{"hi": "there"}'
 ```
 
 ## Flags
@@ -94,10 +88,6 @@ Specify the url of the service which should be used to perform the render. You m
 
 Specify the name of the service which should be used to perform the render. This is used in conjunction with the region to determine the service endpoint, as the same service name can exist across multiple regions. You must set either `cloud-run-url` _or_ `service-name`, but not both
 
-## Media Rendering Specific Flags
-
-The above flags can be used for rendering both Still and Media. These flags are specific for Media rendering.
-
 ### `--codec`
 
 [`h264` or `h265` or `png` or `vp8` or `mp3` or `aac` or `wav` or `prores`](/docs/config#setcodec). If you don't supply `--codec`, it will use `h264`.
@@ -146,4 +136,4 @@ For example only every second frame, every third frame and so on. Only works for
 
 ### `--frames`
 
-[Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames. To render a still, use the [`still`](/docs/lambda/cli/still) command.
+[Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames.

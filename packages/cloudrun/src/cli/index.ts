@@ -2,6 +2,7 @@ import {parsedCloudrunCli} from './args';
 import {permissionsCommand, PERMISSIONS_COMMAND} from './commands/permissions';
 import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
 import {renderCommand, RENDER_COMMAND} from './commands/render';
+import {stillCommand, STILL_COMMAND} from './commands/still';
 import {servicesCommand, SERVICES_COMMAND} from './commands/services';
 import {sitesCommand, SITES_COMMAND} from './commands/sites';
 import {printHelp} from './help';
@@ -16,6 +17,10 @@ const matchCommand = (args: string[], remotionRoot: string) => {
 
 	if (args[0] === RENDER_COMMAND) {
 		return renderCommand(args.slice(1), remotionRoot);
+	}
+
+	if (args[0] === STILL_COMMAND) {
+		return stillCommand(args.slice(1), remotionRoot);
 	}
 
 	if (args[0] === SERVICES_COMMAND) {

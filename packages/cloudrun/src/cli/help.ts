@@ -5,6 +5,7 @@ import {REGIONS_COMMAND} from './commands/regions';
 import {RENDER_COMMAND} from './commands/render';
 import {SERVICES_COMMAND} from './commands/services';
 import {SITES_COMMAND} from './commands/sites';
+import {STILL_COMMAND} from './commands/still';
 import {Log} from './log';
 
 const packagejson = require('../../package.json');
@@ -21,9 +22,11 @@ export const printHelp = () => {
 
 	Log.info();
 	Log.info(`${BINARY_NAME} ${RENDER_COMMAND}`);
-	Log.info(
-		CliInternals.chalk.gray('Render Remotion media/still on GCP Cloud Run.')
-	);
+	Log.info(CliInternals.chalk.gray('Render Remotion media on GCP Cloud Run.'));
+
+	Log.info();
+	Log.info(`${BINARY_NAME} ${STILL_COMMAND}`);
+	Log.info(CliInternals.chalk.gray('Render Remotion still on GCP Cloud Run.'));
 
 	Log.info();
 	Log.info(`${BINARY_NAME} ${SERVICES_COMMAND}`);
