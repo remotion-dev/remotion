@@ -11,7 +11,7 @@
 		"watch": "tsc -w",
 		"lint": "eslint src --ext ts,tsx",
 		"test": "vitest --run",
-		"publish": "node container/submit.mjs"
+		"publish": "cd container && node submit.mjs"
 	},
 	"dependencies": {
 		"@google-cloud/artifact-registry": "^2.2.2",
