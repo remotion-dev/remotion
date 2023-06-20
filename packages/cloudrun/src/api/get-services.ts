@@ -4,6 +4,7 @@ import {serviceVersionString} from '../shared/service-version-string';
 import type {ServiceInfo} from './get-service-info';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
 import type {IService} from './helpers/IService';
+import {getGcpParent, parseServiceName} from './helpers/parse-service-name';
 
 export type GetServicesInput = {
 	region: GcpRegion;
@@ -23,7 +24,7 @@ export const getServices = async (
 ): Promise<ServiceInfo[]> => {
 	const cloudRunClient = getCloudRunClient();
 
-	const parent = `projects/${process.env.REMOTION_GCP_PROJECT_ID}/locations/${params.region}`;
+	const parent = getGcpParent(params.region);
 
 	const [services] = await cloudRunClient.listServices({
 		parent,
@@ -34,38 +35,32 @@ export const getServices = async (
 	if (params.compatibleOnly) {
 		remotionServices = services.filter((s) => {
 			return s.name?.startsWith(
-				`${parent}/services/${RENDER_SERVICE_PREFIX}--${serviceVersionString()}--`
+				`${parent}/services/${RENDER_SERVICE_PREFIX}-${serviceVersionString()}-`
 			);
 		});
 	} else {
 		remotionServices = services.filter((s) => {
-			return s.name?.startsWith(
-				`${parent}/services/${RENDER_SERVICE_PREFIX}--`
-			);
+			return s.name?.startsWith(`${parent}/services/${RENDER_SERVICE_PREFIX}-`);
 		});
 	}
 
 	return remotionServices.map((service): ServiceInfo => {
-		const deployedServiceName = service.name?.replace(
-			parent + '/services/',
-			''
-		) as string;
-		const deployedRegion = service.name?.split('/')[3] as string;
+		const {consoleUrl, region, remotionVersion, serviceName} = parseServiceName(
+			service.name as string,
+			params.region
+		);
 
 		return {
-			serviceName: deployedServiceName,
+			consoleUrl,
+			region,
+			remotionVersion,
+			serviceName,
 			timeoutInSeconds: service.template?.timeout?.seconds as number,
 			memoryLimit: service.template?.containers?.[0].resources?.limits
 				?.memory as string,
 			cpuLimit: service.template?.containers?.[0].resources?.limits
 				?.cpu as string,
-			remotionVersion: service.name
-				?.replace(parent + '/services/' + RENDER_SERVICE_PREFIX + '--', '')
-				.split('--')[0]
-				.replace(/-/g, '.') as string,
 			uri: service.uri as string,
-			region: deployedRegion as GcpRegion,
-			consoleUrl: `https://console.cloud.google.com/run/detail/${deployedRegion}/${deployedServiceName}/logs`,
 		};
 	});
 };
