@@ -56,13 +56,16 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		width,
 		browserExecutable,
 		port,
+		enforceAudioTrack,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
 	});
 
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	let composition: string = args[1];
+
 	if (!composition) {
 		Log.info('No compositions passed. Fetching compositions...');
 
@@ -73,7 +76,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			indent: false,
 			port,
 			remotionRoot,
-			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			verbose,
 			webpackConfigOrServeUrl: serveUrl,
 		});
 
@@ -179,6 +182,13 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		forceBucketName,
 		updateRenderProgress,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
+		// Special case: Should not use default local concurrency, or from
+		// config file, just when explicitly set
+		concurrency: CliInternals.parsedCli.concurrency ?? null,
+		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
+		dumpBrowserLogs: verbose,
+		enforceAudioTrack,
+		preferLossless: false,
 	});
 	renderProgress.doneIn = Date.now() - renderStart;
 	updateProgress();

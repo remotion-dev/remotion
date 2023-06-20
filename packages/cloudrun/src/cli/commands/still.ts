@@ -24,7 +24,6 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		chromiumOptions,
 		envVariables,
 		inputProps,
-		logLevel,
 		puppeteerTimeout,
 		jpegQuality,
 		stillFrame,
@@ -33,11 +32,14 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		width,
 		browserExecutable,
 		port,
+		logLevel,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
 		remotionRoot,
 	});
+
+	const verbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
 	let composition = args[1];
 	if (!composition) {
@@ -49,7 +51,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			indent: false,
 			port,
 			remotionRoot,
-			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			verbose,
 			webpackConfigOrServeUrl: serveUrl,
 		});
 
@@ -59,7 +61,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				compositionIdFromUi: null,
 				indent: false,
 				serveUrlOrWebpackUrl: serveUrl,
-				verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+				verbose,
 				browserExecutable,
 				chromiumOptions,
 				envVariables,
@@ -142,6 +144,8 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		forceBucketName,
 		outName,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
+		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
+		dumpBrowserLogs: verbose,
 	});
 	doneIn = Date.now() - renderStart;
 	updateProgress(true);
