@@ -29,7 +29,7 @@ test('Parse service names', () => {
 	expect(parsed).toEqual({
 		consoleUrl: `https://console.cloud.google.com/run/detail/asia-east1/remotion-${dashedVersion}-mem100000k-cpu8-0-t3600/logs`,
 		region: 'asia-east1',
-		remotionVersion: '4-1-0-alpha2',
+		remotionVersion: VERSION.replace(/\./g, '-'),
 		serviceName: `remotion-${dashedVersion}-mem100000k-cpu8-0-t3600`,
 	});
 	// Max length of service name is 49 characters, asking for less in case the version string gets longer
