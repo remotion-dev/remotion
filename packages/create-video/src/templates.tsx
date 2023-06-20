@@ -290,9 +290,9 @@ export const FEATURED_TEMPLATES: Template[] = [
 		longerDescription:
 			'Your repo reached a stars milestone? Celebrate with a video of your stargazers!',
 		promoVideo: {
-			muxId: 'zgy7XK01009y33Vfzhns02cZS00rOyeZ6WaanaxcrDysqmU',
-			height: 720,
-			width: 1280,
+			muxId: 'y9rC1DoQ7rCzzI9TGeUywyTliOVU8xhHTHHZZ2BhM014',
+			height: 540,
+			width: 960,
 		},
 		cliId: 'stargazer' as const,
 		type: 'video' as const,

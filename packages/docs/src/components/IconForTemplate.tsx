@@ -12,6 +12,7 @@ import { Tailwind } from "./icons/tailwind";
 import { TypeScriptIcon } from "./icons/ts";
 import { TTSIcon } from "./icons/tts";
 import { Waveform } from "./icons/waveform";
+import { Stargazer } from "./icons/stargazer";
 
 export const IconForTemplate: React.FC<{
   template: Template;
@@ -134,6 +135,10 @@ export const IconForTemplate: React.FC<{
 
   if (template.cliId === "next") {
     return <NextIcon style={{ height: scale * 36 }} />;
+  }
+
+  if (template.cliId === "stargazer") {
+    return <Stargazer style={{ height: scale * 36 }} />;
   }
 
   return (
