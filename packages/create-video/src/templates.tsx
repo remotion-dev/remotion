@@ -17,6 +17,7 @@ type DynamicTemplate =
 				height: number;
 			};
 	  };
+
 export type Template = {
 	shortName: string;
 	description: string;
@@ -37,7 +38,8 @@ export type Template = {
 		| 'audiogram'
 		| 'skia'
 		| 'tailwind'
-		| 'overlay';
+		| 'overlay'
+		| 'stargazer';
 	defaultBranch: string;
 } & DynamicTemplate;
 
@@ -276,6 +278,23 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1280,
 		},
 		cliId: 'overlay' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+	},
+	{
+		homePageLabel: 'Stargazer',
+		shortName: 'Stargazer',
+		org: 'pomber',
+		repoName: 'stargazer',
+		description: 'Celebrate your repo stars with a video',
+		longerDescription:
+			'Your repo reached a stars milestone? Celebrate with a video of your stargazers!',
+		promoVideo: {
+			muxId: 'zgy7XK01009y33Vfzhns02cZS00rOyeZ6WaanaxcrDysqmU',
+			height: 720,
+			width: 1280,
+		},
+		cliId: 'stargazer' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
 	},
