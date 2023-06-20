@@ -45,15 +45,16 @@ Make sure the versions don't have a `^` character in front of it.
 
 ## Changelog
 
-### `unreleased`
-
+### `4.1.0-alpha3`
+Bug fixes leading to public testing.
 
 | Issue | Resolution   | 
 |---|---|
 |When deploying a service, the image didn't exist in Google Artifact Registry. | Added publish script that runs submit.mjs, automatically deploying the image, tagged with the version number. | 
 |Functions folder wasn't included in dist folder, so no CLI commandswould work. | Removed this from .npmignore, so that it is included.  |
-|Fails when using the CLI, to request a render without passing a composition name. It fails to list out compositions|   |
-|Service name structuring clips off alpha version denominator. During alpha, this will make it impossible to deploy multiple services spanning alpha versions.|   |
+|When using the CLI to request a render without passing a composition name, it fails to list out compositions to choose from|Issue raised, present in V4 for Lambda also.   |
+|Service name structuring clips off alpha version denominator. During alpha, this will make it impossible to deploy multiple services spanning alpha versions.|Create new name formatting that meets requirements. Added tests for this.|
+|CLI commands for rendering not aligned with Remotion Lambda.|`npx remotion cloudrun render media` is now `npx remotion cloudrun render`.<br /><br />`npx remotion cloudrun render still` is now `npx cloudrun remotion still`.<br /><br />Documentation also updated.|
 
 ### `4.1.0-alpha2`
 
