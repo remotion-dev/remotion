@@ -395,6 +395,7 @@ module.exports = {
   ],
   mainSidebar: [
     "4-0-alpha",
+    "cloudrun-alpha",
     {
       type: "category",
       label: "Getting started",
@@ -563,6 +564,7 @@ module.exports = {
         "cloudrun/checklist",
         "cloudrun/instancecount",
         "cloudrun/multiple-buckets",
+        "cloudrun/limits",
         "cloudrun/upgrading",
         "cloudrun/uninstall",
       ],
