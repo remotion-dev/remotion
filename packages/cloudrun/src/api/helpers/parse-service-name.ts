@@ -1,4 +1,4 @@
-import {GcpRegion} from '../../pricing/gcp-regions';
+import type {GcpRegion} from '../../pricing/gcp-regions';
 
 export const getGcpParent = (region: GcpRegion) => {
 	const parent = `projects/${process.env.REMOTION_GCP_PROJECT_ID}/locations/${region}`;
@@ -13,7 +13,7 @@ export const parseServiceName = (
 	const shortServiceName = fullServiceName.replace(parent + '/services/', '');
 	const deployedRegion = fullServiceName.split('/')[3] as string;
 
-	const matched = shortServiceName.match(/remotion\-(.*)\-mem([0-9])/);
+	const matched = shortServiceName.match(/remotion-(.*)-mem([0-9])/);
 
 	if (!matched) {
 		throw new Error(`Could not parse service name ${shortServiceName}`);

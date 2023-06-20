@@ -1,10 +1,5 @@
-import {ConfigInternals} from '@remotion/cli/src/config';
-import {
-	ChromiumOptions,
-	FrameRange,
-	LogLevel,
-	RenderInternals,
-} from '@remotion/renderer';
+import type {ChromiumOptions, FrameRange, LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {
 	CloudRunPayloadType,
 	ErrorResponsePayload,
@@ -156,7 +151,7 @@ export const renderMediaOnCloudrun = async ({
 	});
 
 	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		ConfigInternals.Logging.getLogLevel(),
+		logLevel ?? 'info',
 		'verbose'
 	);
 

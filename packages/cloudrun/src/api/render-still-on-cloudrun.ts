@@ -1,9 +1,9 @@
-import {
+import type {
 	ChromiumOptions,
 	LogLevel,
-	RenderInternals,
 	StillImageFormat,
 } from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {
 	CloudRunPayloadType,
 	RenderStillOnCloudrunOutput,
