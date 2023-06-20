@@ -1,6 +1,6 @@
 import type {GcpRegion} from '../pricing/gcp-regions';
-import {RENDER_SERVICE_PREFIX} from '../shared/constants';
 import {getCloudRunClient} from './helpers/get-cloud-run-client';
+import {parseServiceName} from './helpers/parse-service-name';
 
 export type ServiceInfo = {
 	serviceName: string;
@@ -39,12 +39,11 @@ export const getServiceInfo = async ({
 		throw new Error(`Service ${serviceName} not found`);
 	}
 
-	const parent = `projects/${process.env.REMOTION_GCP_PROJECT_ID}/locations/${region}`;
-	const deployedRegion = service.name?.split('/')[3] as string;
-	const deployedServiceName = service.name?.replace(
-		parent + '/services/',
-		''
-	) as string;
+	const {
+		region: deployedRegion,
+		remotionVersion,
+		serviceName: deployedServiceName,
+	} = parseServiceName(service.name as string, region);
 
 	return {
 		serviceName: deployedServiceName,
@@ -53,12 +52,9 @@ export const getServiceInfo = async ({
 			?.memory as string,
 		cpuLimit: service.template?.containers?.[0].resources?.limits
 			?.cpu as string,
-		remotionVersion: service.name
-			?.replace(parent + '/services/' + RENDER_SERVICE_PREFIX + '--', '')
-			.split('--')[0]
-			.replace(/-/g, '.') as string,
+		remotionVersion,
 		uri: service.uri as string,
-		region: deployedRegion as GcpRegion,
+		region: deployedRegion,
 		consoleUrl: `https://console.cloud.google.com/run/detail/${deployedRegion}/${deployedServiceName}/logs`,
 	};
 };
