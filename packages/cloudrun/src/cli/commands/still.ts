@@ -1,18 +1,15 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {RenderInternals} from '@remotion/renderer';
-import {downloadFile} from '../../../api/download-file';
-import {renderStillOnCloudrun} from '../../../api/render-still-on-cloudrun';
-import {validateServeUrl} from '../../../shared/validate-serveurl';
-import {Log} from '../../log';
-import {renderArgsCheck} from './helpers/renderArgsCheck';
+import {downloadFile} from '../../api/download-file';
+import {renderStillOnCloudrun} from '../../api/render-still-on-cloudrun';
+import {validateServeUrl} from '../../shared/validate-serveurl';
+import {Log} from '../log';
+import {renderArgsCheck} from './render/helpers/renderArgsCheck';
 
-export const RENDER_STILL_SUBCOMMAND = 'still';
+export const STILL_COMMAND = 'still';
 
-export const renderStillSubcommand = async (
-	args: string[],
-	remotionRoot: string
-) => {
+export const stillCommand = async (args: string[], remotionRoot: string) => {
 	const {
 		serveUrl,
 		cloudRunUrl,
@@ -21,7 +18,7 @@ export const renderStillSubcommand = async (
 		privacy,
 		downloadName,
 		region,
-	} = await renderArgsCheck(RENDER_STILL_SUBCOMMAND, args);
+	} = await renderArgsCheck(STILL_COMMAND, args);
 
 	const {
 		chromiumOptions,

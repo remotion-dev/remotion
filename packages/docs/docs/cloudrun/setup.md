@@ -234,7 +234,16 @@ values={[
 }>
 <TabItem value="cli">
 
-- `<media | still>` The deployed Cloud Run service is capable of rendering media and stills. Pass either `media` or `still` to render as needed.
+<Tabs
+groupId="renderType"
+defaultValue="media"
+values={[
+{ label: 'Render Media', value: 'media', },
+{ label: 'Render Still', value: 'still', },
+]
+}>
+<TabItem value="media">
+
 - `<serve-url | site-name>` The serve URL was returned during step 7, site deployment. If using a serve url from a Cloud Storage bucket, you can pass the site-name instead.
 - `<composition-id>` Pass in the [ID of the composition](/docs/composition) you'd like to render.
 
@@ -246,12 +255,13 @@ values={[
 { label: 'Render using Service Name', value: 'serviceName', },
 ]
 }>
+
 <TabItem value="cloudRunUrl">
 
 - `<cloud-run-url>` The Cloud Run URL was returned during step 6, service deployment.
 
 ```bash
-npx remotion cloudrun render <media | still> <serve-url | site-name> <composition-id> --cloud-run-url=<cloud-run-url>
+npx remotion cloudrun render <serve-url | site-name> <composition-id> --cloud-run-url=<cloud-run-url>
 ```
 
 </TabItem>
@@ -261,13 +271,57 @@ npx remotion cloudrun render <media | still> <serve-url | site-name> <compositio
 - `<region>` The region the Service is in, which was returned during step 6, service deployment. This is only required if using the service name.
 
 ```bash
-npx remotion cloudrun render <media | still> <serve-url | site-name> <composition-id> --service-name=<service-name> --region=<region>
+npx remotion cloudrun render <serve-url | site-name> <composition-id> --service-name=<service-name> --region=<region>
 ```
 
 </TabItem>
 </Tabs>
 
 Progress will be printed until the video finished rendering. Congrats! You rendered your first video using Remotion Cloudrun 🚀
+
+
+</TabItem>
+<TabItem value="still">
+
+- `<serve-url | site-name>` The serve URL was returned during step 7, site deployment. If using a serve url from a Cloud Storage bucket, you can pass the site-name instead.
+- `<still-id>` Pass in the [ID of the still](/docs/still) you'd like to render.
+
+<Tabs
+groupId="cliRender"
+defaultValue="cloudRunUrl"
+values={[
+{ label: 'Render using Cloud Run Url', value: 'cloudRunUrl', },
+{ label: 'Render using Service Name', value: 'serviceName', },
+]
+}>
+
+<TabItem value="cloudRunUrl">
+
+- `<cloud-run-url>` The Cloud Run URL was returned during step 6, service deployment.
+
+```bash
+npx remotion cloudrun still <serve-url | site-name> <still-id> --cloud-run-url=<cloud-run-url>
+```
+
+</TabItem>
+<TabItem value="serviceName">
+
+- `<service-name>` The Service Name was returned during step 6, service deployment.
+- `<region>` The region the Service is in, which was returned during step 6, service deployment. This is only required if using the service name.
+
+```bash
+npx remotion cloudrun still <serve-url | site-name> <still-id> --service-name=<service-name> --region=<region>
+```
+
+</TabItem>
+</Tabs>
+
+Congrats! You rendered your first still using Remotion Cloudrun 🚀
+
+
+</TabItem>
+</Tabs>
+
 
 </TabItem>
 <TabItem value="node">

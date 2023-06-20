@@ -112,7 +112,7 @@ An object with the following values:
 
   You can use this "Serve URL" to render a video on Remotion Cloud Run using:
 
-  - The [`npx remotion cloudrun render <media | still>`](/docs/cloudrun/cli/render) command
+  - The [`npx remotion cloudrun render`](/docs/cloudrun/cli/render) command
   - The [`renderMediaOnCloudrun()`](/docs/cloudrun/rendermediaoncloudrun) and [`renderStillOnCloudrun()`](/docs/cloudrun/renderstilloncloudrun) functions.
   - Locally using the [`renderMedia()`](/docs/renderer/render-media) and [`renderStill()`](/docs/renderer/render-still) functions.
   - Locally using the [`npx remotion render`](/docs/cli) and [`npx remotion still`](/docs/cli) commands

@@ -43,6 +43,7 @@ module.exports = {
             "cloudrun/cli/sites",
             "cloudrun/cli/services",
             "cloudrun/cli/render",
+            "cloudrun/cli/still",
             "cloudrun/cli/permissions",
             "cloudrun/cli/regions",
           ],
