@@ -16,6 +16,9 @@ export type GetCompositionsOnLambdaInput = {
 	logLevel?: LogLevel;
 	timeoutInMilliseconds?: number;
 	forceBucketName?: string;
+	/**
+	 * @deprecated in favor of `logLevel`: true
+	 */
 	dumpBrowserLogs?: boolean;
 };
 
@@ -32,7 +35,6 @@ export type GetCompositionsOnLambdaOutput = AnyCompMetadata[];
  * @param params.logLevel The log level of the Lambda function
  * @param params.timeoutInMilliseconds The timeout of the Lambda function
  * @param params.chromiumOptions The options to pass to Chromium
- * @param params.dumpBrowserLogs Whether to print browser logs to CloudWatch
  * @returns The compositions
  */
 export const getCompositionsOnLambda = async ({
