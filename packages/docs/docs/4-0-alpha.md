@@ -62,7 +62,7 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
-### `4.0.0-alpha17`
+### `4.0.0-alpha18`
 
 - Nicer and less buggy logging in the CLI
 
