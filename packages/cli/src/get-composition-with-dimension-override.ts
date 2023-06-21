@@ -2,6 +2,7 @@ import type {
 	BrowserExecutable,
 	ChromiumOptions,
 	HeadlessBrowser,
+	LogLevel,
 	RemotionServer,
 } from '@remotion/renderer';
 import type {AnyCompMetadata} from 'remotion';
@@ -21,7 +22,7 @@ export const getCompositionWithDimensionOverride = async ({
 	serveUrlOrWebpackUrl,
 	indent,
 	inputProps,
-	verbose,
+	logLevel,
 	server,
 }: {
 	height: number | null;
@@ -36,7 +37,7 @@ export const getCompositionWithDimensionOverride = async ({
 	browserExecutable: BrowserExecutable | null;
 	serveUrlOrWebpackUrl: string;
 	indent: boolean;
-	verbose: boolean;
+	logLevel: LogLevel;
 	inputProps: Record<string, unknown>;
 	server: RemotionServer;
 }): Promise<{
@@ -50,7 +51,7 @@ export const getCompositionWithDimensionOverride = async ({
 		compositionIdFromUi,
 		indent,
 		serveUrlOrWebpackUrl,
-		verbose,
+		logLevel,
 		browserExecutable,
 		chromiumOptions,
 		envVariables,

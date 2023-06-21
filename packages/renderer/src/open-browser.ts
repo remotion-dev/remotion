@@ -7,6 +7,7 @@ import {
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
+import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
@@ -43,19 +44,19 @@ const browserInstances: HeadlessBrowser[] = [];
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
 		try {
-			await browser.close(true);
+			await browser.close(true, 'info', false);
 		} catch (err) {}
 	}
 };
 
 type InternalOpenBrowserOptions = {
-	shouldDumpIo: boolean;
 	browserExecutable: string | null;
 	chromiumOptions: ChromiumOptions;
 	forceDeviceScaleFactor: number | undefined;
 	viewport: Viewport | null;
 	indent: boolean;
 	browser: Browser;
+	logLevel: LogLevel;
 };
 
 export type OpenBrowserOptions = {
@@ -71,8 +72,8 @@ export const internalOpenBrowser = async ({
 	chromiumOptions,
 	forceDeviceScaleFactor,
 	indent,
-	shouldDumpIo,
 	viewport,
+	logLevel,
 }: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
 	if (browser === 'firefox') {
 		throw new TypeError(
@@ -89,7 +90,8 @@ export const internalOpenBrowser = async ({
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		product: browser,
-		dumpio: shouldDumpIo,
+		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		logLevel,
 		indent,
 		args: [
 			'about:blank',
@@ -161,7 +163,7 @@ export const internalOpenBrowser = async ({
 		},
 	});
 
-	const pages = await browserInstance.pages();
+	const pages = await browserInstance.pages(logLevel, indent);
 	await pages[0].close();
 
 	browserInstances.push(browserInstance);
@@ -188,7 +190,7 @@ export const openBrowser = (
 		chromiumOptions: chromiumOptions ?? {},
 		forceDeviceScaleFactor,
 		indent: false,
-		shouldDumpIo: shouldDumpIo ?? false,
 		viewport: null,
+		logLevel: shouldDumpIo ? 'verbose' : 'info',
 	});
 };

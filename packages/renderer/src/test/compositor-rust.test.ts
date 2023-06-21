@@ -9,7 +9,7 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor(
 			getIdealMaximumFrameCacheItems(),
-			true,
+			'verbose',
 			false
 		);
 

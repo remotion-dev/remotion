@@ -59,6 +59,7 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
+import type {LogLevel} from './log-level';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -102,7 +103,7 @@ export type InternalRenderMediaOptions = {
 	port: number | null;
 	cancelSignal: CancelSignal | undefined;
 	browserExecutable: BrowserExecutable | null;
-	verbose: boolean;
+	logLevel: LogLevel;
 	onCtrlCExit: (fn: () => void) => void;
 	indent: boolean;
 	server: RemotionServer | undefined;
@@ -209,7 +210,7 @@ export const internalRenderMedia = ({
 	preferLossless,
 	serveUrl,
 	server: reusedServer,
-	verbose,
+	logLevel,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	validateJpegQuality(jpegQuality);
 	validateQualitySettings({crf, codec, videoBitrate});
@@ -265,7 +266,7 @@ export const internalRenderMedia = ({
 	Log.verboseAdvanced(
 		{
 			indent,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'renderMedia()',
 		},
 		'Free memory:',
@@ -276,7 +277,7 @@ export const internalRenderMedia = ({
 	Log.verboseAdvanced(
 		{
 			indent,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'renderMedia()',
 		},
 		'Codec supports parallel rendering:',
@@ -285,7 +286,7 @@ export const internalRenderMedia = ({
 	Log.verboseAdvanced(
 		{
 			indent,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'renderMedia()',
 		},
 		'User disallowed parallel encoding:',
@@ -295,7 +296,7 @@ export const internalRenderMedia = ({
 		Log.verboseAdvanced(
 			{
 				indent,
-				logLevel: verbose ? 'verbose' : 'info',
+				logLevel,
 				tag: 'renderMedia()',
 			},
 			'Parallel encoding is enabled.'
@@ -304,7 +305,7 @@ export const internalRenderMedia = ({
 		Log.verboseAdvanced(
 			{
 				indent,
-				logLevel: verbose ? 'verbose' : 'info',
+				logLevel,
 				tag: 'renderMedia()',
 			},
 			'Parallel encoding is disabled.'
@@ -392,7 +393,7 @@ export const internalRenderMedia = ({
 					encodedFrames = frame;
 					callUpdate();
 				},
-				verbose,
+				logLevel,
 				imageFormat,
 				signal: cancelPrestitcher.cancelSignal,
 				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
@@ -461,7 +462,7 @@ export const internalRenderMedia = ({
 						indent,
 						port,
 						remotionRoot: findRemotionRoot(),
-						verbose,
+						logLevel,
 						webpackConfigOrServeUrl: serveUrl,
 					},
 					{
@@ -537,7 +538,7 @@ export const internalRenderMedia = ({
 					port,
 					cancelSignal: cancelRenderFrames.cancelSignal,
 					muted: disableAudio,
-					verbose,
+					logLevel,
 					indent,
 					server,
 				});
@@ -581,7 +582,7 @@ export const internalRenderMedia = ({
 						},
 						onDownload,
 						numberOfGifLoops,
-						verbose,
+						logLevel,
 						dir: workingDir,
 						cancelSignal: cancelStitcher.cancelSignal,
 						muted: disableAudio,
@@ -743,7 +744,7 @@ export const renderMedia = ({
 		scale: scale ?? 1,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		videoBitrate: videoBitrate ?? null,
-		verbose: verbose ?? false,
+		logLevel: verbose ? 'verbose' : 'info',
 		preferLossless: preferLossless ?? false,
 		indent: false,
 		onCtrlCExit: () => undefined,

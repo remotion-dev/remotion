@@ -8,7 +8,7 @@ test('Memory usage should be determined ', async () => {
 		return;
 	}
 
-	const compositor = startLongRunningCompositor(400, false, false);
+	const compositor = startLongRunningCompositor(400, 'info', false);
 
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString())
@@ -89,7 +89,7 @@ test('Memory usage should be determined ', async () => {
 });
 
 test('Should respect the maximum frame cache limit', async () => {
-	const compositor = startLongRunningCompositor(50, false, false);
+	const compositor = startLongRunningCompositor(50, 'info', false);
 
 	await compositor.executeCommand('ExtractFrame', {
 		input: exampleVideos.bigBuckBunny,
@@ -111,7 +111,7 @@ test('Should be able to take commands for freeing up memory', async () => {
 		return;
 	}
 
-	const compositor = startLongRunningCompositor(400, false, false);
+	const compositor = startLongRunningCompositor(400, 'info', false);
 
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString())

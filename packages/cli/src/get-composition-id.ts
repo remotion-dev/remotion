@@ -2,6 +2,7 @@ import type {
 	BrowserExecutable,
 	ChromiumOptions,
 	HeadlessBrowser,
+	LogLevel,
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
@@ -44,7 +45,7 @@ export const getCompositionId = async ({
 	port,
 	browserExecutable,
 	serveUrlOrWebpackUrl,
-	verbose,
+	logLevel,
 	indent,
 	server,
 }: {
@@ -58,7 +59,7 @@ export const getCompositionId = async ({
 	port: number | null;
 	browserExecutable: BrowserExecutable;
 	serveUrlOrWebpackUrl: string;
-	verbose: boolean;
+	logLevel: LogLevel;
 	indent: boolean;
 	server: RemotionServer;
 }): Promise<{
@@ -86,7 +87,7 @@ export const getCompositionId = async ({
 			browserExecutable,
 			chromiumOptions,
 			port,
-			verbose,
+			logLevel,
 			server,
 			indent,
 			onBrowserLog: null,
@@ -113,7 +114,7 @@ export const getCompositionId = async ({
 			chromiumOptions,
 			port,
 			browserExecutable,
-			verbose,
+			logLevel,
 			indent,
 			server,
 			serveUrlOrWebpackUrl,

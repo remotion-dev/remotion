@@ -55,7 +55,8 @@ const renderHandler = async (
 	});
 
 	const browserInstance = await getBrowserInstance(
-		RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+		params.logLevel,
+		false,
 		params.chromiumOptions ?? {}
 	);
 
@@ -160,10 +161,7 @@ const renderHandler = async (
 			dumpBrowserLogs:
 				params.dumpBrowserLogs ??
 				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
-			verbose: RenderInternals.isEqualOrBelowLogLevel(
-				params.logLevel,
-				'verbose'
-			),
+			logLevel: params.logLevel,
 			onBrowserLog: (log) => {
 				logs.push(log);
 			},
@@ -227,10 +225,9 @@ const renderHandler = async (
 			server: undefined,
 		})
 			.then(({slowestFrames}) => {
-				console.log();
 				console.log(`Slowest frames:`);
 				slowestFrames.forEach(({frame, time}) => {
-					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
+					console.log(`  Frame ${frame} (${time.toFixed(3)}ms)`);
 				});
 				resolve();
 			})

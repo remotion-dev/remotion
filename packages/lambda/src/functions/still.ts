@@ -78,7 +78,8 @@ const innerStillHandler = async (
 				region: getCurrentRegionInFunction(),
 			}).then((b) => b.bucketName),
 		getBrowserInstance(
-			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
+			lambdaParams.logLevel,
+			false,
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);
@@ -101,17 +102,12 @@ const innerStillHandler = async (
 		bucketName,
 	});
 
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		lambdaParams.logLevel,
-		'verbose'
-	);
-
 	const server = await RenderInternals.prepareServer({
 		concurrency: 1,
 		indent: false,
 		port: null,
 		remotionRoot: process.cwd(),
-		verbose,
+		logLevel: lambdaParams.logLevel,
 		webpackConfigOrServeUrl: serveUrl,
 	});
 
@@ -168,7 +164,6 @@ const innerStillHandler = async (
 		composition,
 		output: outputPath,
 		serveUrl,
-		dumpBrowserLogs: lambdaParams.dumpBrowserLogs ?? verbose,
 		envVariables: lambdaParams.envVariables ?? {},
 		frame: RenderInternals.convertToPositiveFrameIndex({
 			frame: lambdaParams.frame,
@@ -190,7 +185,7 @@ const innerStillHandler = async (
 		onDownload: null,
 		port: null,
 		server,
-		verbose,
+		logLevel: lambdaParams.logLevel,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(

@@ -135,20 +135,22 @@ export const renderVideoFlow = async ({
 }) => {
 	const downloads: DownloadProgress[] = [];
 
-	Log.verboseAdvanced(
-		{indent, logLevel},
-		'Browser executable: ',
-		browserExecutable
-	);
+	if (browserExecutable) {
+		Log.verboseAdvanced(
+			{indent, logLevel},
+			'Browser executable: ',
+			browserExecutable
+		);
+	}
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
 		browserExecutable,
-		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
 		indent,
 		viewport: null,
+		logLevel,
 	});
 
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
@@ -242,7 +244,7 @@ export const renderVideoFlow = async ({
 	};
 
 	const puppeteerInstance = await browserInstance;
-	addCleanupCallback(() => puppeteerInstance.close(false));
+	addCleanupCallback(() => puppeteerInstance.close(false, logLevel, indent));
 
 	const actualConcurrency = RenderInternals.getActualConcurrency(concurrency);
 	const server = RenderInternals.prepareServer({
@@ -250,7 +252,7 @@ export const renderVideoFlow = async ({
 		indent,
 		port,
 		remotionRoot,
-		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		logLevel,
 		webpackConfigOrServeUrl: urlOrBundle,
 	});
 	addCleanupCallback(() => server.then((s) => s.closeServer(false)));
@@ -270,7 +272,7 @@ export const renderVideoFlow = async ({
 			puppeteerInstance,
 			serveUrlOrWebpackUrl: urlOrBundle,
 			timeoutInMilliseconds: puppeteerTimeout,
-			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			logLevel,
 			server: await server,
 		});
 
@@ -394,7 +396,7 @@ export const renderVideoFlow = async ({
 			muted,
 			onBrowserLog: null,
 			onFrameBuffer: null,
-			verbose,
+			logLevel,
 		});
 
 		updateRenderProgress(true);
@@ -435,7 +437,7 @@ export const renderVideoFlow = async ({
 		port,
 		numberOfGifLoops,
 		everyNthFrame,
-		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		logLevel,
 		muted,
 		enforceAudioTrack,
 		browserExecutable,
@@ -471,20 +473,19 @@ export const renderVideoFlow = async ({
 		onStart: () => undefined,
 	});
 
-	Log.verboseAdvanced({indent, logLevel});
-	Log.verboseAdvanced({indent, logLevel}, `Slowest frames:`);
-	slowestFrames.forEach(({frame, time}) => {
-		Log.verboseAdvanced(
-			{indent, logLevel},
-			`Frame ${frame} (${time.toFixed(3)}ms)`
-		);
-	});
-
 	updateRenderProgress(true);
 	Log.infoAdvanced(
 		{indent, logLevel},
 		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`)
 	);
+
+	Log.verboseAdvanced({indent, logLevel}, `Slowest frames:`);
+	slowestFrames.forEach(({frame, time}) => {
+		Log.verboseAdvanced(
+			{indent, logLevel},
+			`  Frame ${frame} (${time.toFixed(3)}ms)`
+		);
+	});
 
 	for (const line of RenderInternals.perf.getPerf()) {
 		Log.verboseAdvanced({indent, logLevel}, line);

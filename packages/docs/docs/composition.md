@@ -83,7 +83,7 @@ Passing huge objects to `defaultProps` can be slow. [Learn how to avoid it.](/do
 
 ### `calculateMetadata`
 
-TODO
+See: [`calculateMetadata()`](/docs/calculate-metadata)
 
 ### `schema`
 

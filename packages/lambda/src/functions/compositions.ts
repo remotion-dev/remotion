@@ -33,10 +33,6 @@ export const compositionsHandler = async (
 	}
 
 	const region = getCurrentRegionInFunction();
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		lambdaParams.logLevel,
-		'verbose'
-	);
 
 	const [bucketName, browserInstance] = await Promise.all([
 		lambdaParams.bucketName ??
@@ -44,7 +40,8 @@ export const compositionsHandler = async (
 				region,
 			}).then((b) => b.bucketName),
 		getBrowserInstance(
-			lambdaParams.dumpBrowserLogs ?? verbose,
+			lambdaParams.logLevel,
+			false,
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);
@@ -71,7 +68,7 @@ export const compositionsHandler = async (
 		chromiumOptions: lambdaParams.chromiumOptions,
 		port: null,
 		server: undefined,
-		verbose,
+		logLevel: lambdaParams.logLevel,
 		indent: false,
 		browserExecutable: null,
 		onBrowserLog: null,

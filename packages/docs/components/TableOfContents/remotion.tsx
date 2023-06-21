@@ -125,6 +125,10 @@ export const TableOfContents: React.FC = () => {
           <strong>continueRender()</strong>
           <div>Unblock a render</div>
         </TOCItem>
+        <TOCItem link="/docs/cancel-rener">
+          <strong>cancelRender()</strong>
+          <div>Abort an error</div>
+        </TOCItem>
       </Grid>
       <h2>Dynamic data</h2>
       <Grid>

@@ -20,6 +20,10 @@ type Props = InputHTMLAttributes<HTMLInputElement> & {
 	rightAlign: boolean;
 };
 
+const isInt = (num: number) => {
+	return num % 1 === 0;
+};
+
 export const InputDragger: React.FC<Props> = ({
 	onValueChange,
 	min: _min,
@@ -152,6 +156,19 @@ export const InputDragger: React.FC<Props> = ({
 			fallbackRef.current?.select();
 		}
 	}, [inputFallback]);
+
+	const deriveStep = useMemo(() => {
+		if (_step !== undefined) {
+			return _step;
+		}
+
+		if (typeof _min === 'number' && isInt(_min)) {
+			return 1;
+		}
+
+		return 0.0001;
+	}, [_min, _step]);
+
 	if (inputFallback) {
 		return (
 			<HigherZIndex onEscape={onEscape} onOutsideClick={noop}>
@@ -161,7 +178,8 @@ export const InputDragger: React.FC<Props> = ({
 					onKeyPress={onKeyPress}
 					onBlur={onBlur}
 					min={_min}
-					step={_step}
+					max={_max}
+					step={deriveStep}
 					defaultValue={value}
 					status={status}
 					pattern={'[0-9]*[.]?[0-9]*'}
