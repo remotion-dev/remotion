@@ -136,13 +136,13 @@ _optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
-### ~~`ffmpegExecutable`~~
+#### ~~`ffmpegExecutable`~~
 
 _removed in v4.0, optional_
 
 An absolute path overriding the `ffmpeg` executable to use.
 
-### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
+#### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
 
 _removed in v4.0_
 
