@@ -227,10 +227,9 @@ const renderHandler = async (
 			server: undefined,
 		})
 			.then(({slowestFrames}) => {
-				console.log();
 				console.log(`Slowest frames:`);
 				slowestFrames.forEach(({frame, time}) => {
-					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
+					console.log(`  Frame ${frame} (${time.toFixed(3)}ms)`);
 				});
 				resolve();
 			})

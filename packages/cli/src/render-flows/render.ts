@@ -135,11 +135,13 @@ export const renderVideoFlow = async ({
 }) => {
 	const downloads: DownloadProgress[] = [];
 
-	Log.verboseAdvanced(
-		{indent, logLevel},
-		'Browser executable: ',
-		browserExecutable
-	);
+	if (browserExecutable) {
+		Log.verboseAdvanced(
+			{indent, logLevel},
+			'Browser executable: ',
+			browserExecutable
+		);
+	}
 
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
@@ -471,12 +473,11 @@ export const renderVideoFlow = async ({
 		onStart: () => undefined,
 	});
 
-	Log.verboseAdvanced({indent, logLevel});
 	Log.verboseAdvanced({indent, logLevel}, `Slowest frames:`);
 	slowestFrames.forEach(({frame, time}) => {
 		Log.verboseAdvanced(
 			{indent, logLevel},
-			`Frame ${frame} (${time.toFixed(3)}ms)`
+			`  Frame ${frame} (${time.toFixed(3)}ms)`
 		);
 	});
 
