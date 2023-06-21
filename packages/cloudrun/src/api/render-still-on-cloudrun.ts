@@ -59,6 +59,8 @@ export type RenderStillOnCloudrunInput = {
  * @param params.forceWidth Overrides default composition width.
  * @param params.forceHeight Overrides default composition height.
  * @param params.logLevel Level of logging that Cloud Run service should perform. Default "info".
+ * @param params.delayRenderTimeoutInMilliseconds A number describing how long the render may take to resolve all delayRender() calls before it times out.
+ * @param params.dumpBrowserLogs If set to true, all `console` statements from the headless browser will be forwarded to the Cloud Logging in GCP.
  * @returns {Promise<RenderStillOnCloudrunOutput>} See documentation for detailed structure
  */
 

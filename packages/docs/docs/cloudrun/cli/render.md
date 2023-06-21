@@ -60,6 +60,10 @@ One of:
 
 Specify a specific bucket name to be used for the output. The resulting Google Cloud Storage URL will be in the format `gs://{bucket-name}/renders/{render-id}/{file-name}`. If not set, Remotion will choose the right bucket to use based on the region.
 
+### `--concurrency`
+
+By default, each Cloud Run service renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+
 ### `--jpeg-quality`
 
 [Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
