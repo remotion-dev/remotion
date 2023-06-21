@@ -36,6 +36,7 @@ import {takeFrameAndCompose} from './take-frame-and-compose';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 import type {LogLevel} from './log-level';
+import {getLogLevel} from './logger';
 
 type InternalRenderStillOptions = {
 	composition: AnySmallCompMetadata;
@@ -437,6 +438,6 @@ export const renderStill = (
 		server: undefined,
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : 'info',
+		logLevel: verbose || dumpBrowserLogs ? 'verbose' : getLogLevel(),
 	});
 };
