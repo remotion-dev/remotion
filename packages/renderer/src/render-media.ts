@@ -59,7 +59,7 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
-import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
+import {type LogLevel} from './log-level';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -526,7 +526,6 @@ export const internalRenderMedia = ({
 						  }
 						: null,
 					webpackBundleOrServeUrl: serveUrl,
-					dumpBrowserLogs: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 					onBrowserLog,
 					onDownload,
 					timeoutInMilliseconds,

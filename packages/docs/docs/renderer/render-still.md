@@ -117,11 +117,16 @@ _optional - default `{}`_
 
 An object containing key-value pairs of environment variables which will be injected into your Remotion project and which can be accessed by reading the global `process.env` object.
 
-### `dumpBrowserLogs?`
+### ~~`dumpBrowserLogs?`~~
 
-_optional - default `false`_
+_optional - default `false`, deprecated in v4.0_
 
-A boolean value deciding whether Puppeteer logs should be printed to the console, useful for debugging only.
+Deprecated in favor of [`logLevel`](#loglevel).
+
+### `logLevel?`<AvailableFrom v="4.0.0"/>
+
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
+`verbose` will also log `console.log`'s from the browser.
 
 ### `overwrite?`
 

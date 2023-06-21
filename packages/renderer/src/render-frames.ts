@@ -68,7 +68,6 @@ export type InternalRenderFramesOptions = {
 	jpegQuality: number;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
-	dumpBrowserLogs: boolean;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
 	onBrowserLog: null | ((log: BrowserLog) => void);
@@ -542,7 +541,6 @@ export const internalRenderFrames = ({
 	chromiumOptions,
 	composition,
 	concurrency,
-	dumpBrowserLogs,
 	envVariables,
 	everyNthFrame,
 	frameRange,
@@ -597,7 +595,7 @@ export const internalRenderFrames = ({
 			forceDeviceScaleFactor: scale,
 			indent,
 			viewport: null,
-			logLevel: dumpBrowserLogs ? 'verbose' : 'info',
+			logLevel,
 		});
 
 	const browserInstance = puppeteerInstance ?? makeBrowser();
@@ -799,7 +797,6 @@ export const renderFrames = (
 		chromiumOptions: chromiumOptions ?? {},
 		composition,
 		concurrency: concurrency ?? null,
-		dumpBrowserLogs: dumpBrowserLogs ?? false,
 		envVariables: envVariables ?? {},
 		everyNthFrame: everyNthFrame ?? 1,
 		frameRange: frameRange ?? null,
@@ -817,7 +814,7 @@ export const renderFrames = (
 		outputDir,
 		port: port ?? null,
 		scale: scale ?? 1,
-		logLevel: verbose ? 'verbose' : 'info',
+		logLevel: verbose || dumpBrowserLogs ? 'verbose' : 'info',
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,
