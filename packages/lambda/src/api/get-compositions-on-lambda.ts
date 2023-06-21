@@ -1,4 +1,5 @@
-import {RenderInternals, type ChromiumOptions, type LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import type {AnyCompMetadata} from 'remotion';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
@@ -65,7 +66,9 @@ export const getCompositionsOnLambda = async ({
 				serveUrl,
 				envVariables,
 				inputProps: serializedInputProps,
-				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? RenderInternals.getLogLevel(),
+				logLevel: dumpBrowserLogs
+					? 'verbose'
+					: logLevel ?? RenderInternals.getLogLevel(),
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				version: VERSION,
 				bucketName: bucketName ?? null,
