@@ -473,6 +473,12 @@ export const renderVideoFlow = async ({
 		onStart: () => undefined,
 	});
 
+	updateRenderProgress(true);
+	Log.infoAdvanced(
+		{indent, logLevel},
+		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`)
+	);
+
 	Log.verboseAdvanced({indent, logLevel}, `Slowest frames:`);
 	slowestFrames.forEach(({frame, time}) => {
 		Log.verboseAdvanced(
@@ -480,12 +486,6 @@ export const renderVideoFlow = async ({
 			`  Frame ${frame} (${time.toFixed(3)}ms)`
 		);
 	});
-
-	updateRenderProgress(true);
-	Log.infoAdvanced(
-		{indent, logLevel},
-		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`)
-	);
 
 	for (const line of RenderInternals.perf.getPerf()) {
 		Log.verboseAdvanced({indent, logLevel}, line);

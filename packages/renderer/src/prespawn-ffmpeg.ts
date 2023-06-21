@@ -82,57 +82,6 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 		throw new TypeError('encoderName is null: ' + JSON.stringify(options));
 	}
 
-	const supportsCrf = codec !== 'prores';
-
-	Log.verboseAdvanced(
-		{
-			indent: options.indent,
-			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'prespawnFfmpeg()',
-		},
-		'encoder',
-		encoderName
-	);
-	Log.verboseAdvanced(
-		{
-			indent: options.indent,
-			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'prespawnFfmpeg()',
-		},
-		'pixelFormat',
-		pixelFormat
-	);
-	if (supportsCrf) {
-		Log.verboseAdvanced(
-			{
-				indent: options.indent,
-				logLevel: options.verbose ? 'verbose' : 'info',
-				tag: 'prespawnFfmpeg()',
-			},
-			'pixelFormat',
-			options.crf
-		);
-	}
-
-	Log.verboseAdvanced(
-		{
-			indent: options.indent,
-			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'prespawnFfmpeg()',
-		},
-		'codec',
-		codec
-	);
-	Log.verboseAdvanced(
-		{
-			indent: options.indent,
-			logLevel: options.verbose ? 'verbose' : 'info',
-			tag: 'prespawnFfmpeg()',
-		},
-		'proResProfileName',
-		proResProfileName
-	);
-
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 
 	const ffmpegArgs = [
