@@ -192,6 +192,7 @@ export const benchmarkCommand = async (
 		forceDeviceScaleFactor: scale,
 		indent: false,
 		viewport: null,
+		logLevel,
 	});
 
 	const {urlOrBundle: bundleLocation, cleanup: cleanupBundle} =
@@ -232,7 +233,7 @@ export const benchmarkCommand = async (
 		onBrowserLog: null,
 		//  Intentionally disabling server to not cache results
 		server: undefined,
-		verbose,
+		logLevel,
 	});
 
 	const ids = (
@@ -318,7 +319,7 @@ export const benchmarkCommand = async (
 					port,
 					numberOfGifLoops,
 					everyNthFrame,
-					verbose,
+					logLevel,
 					muted,
 					enforceAudioTrack,
 					browserExecutable,

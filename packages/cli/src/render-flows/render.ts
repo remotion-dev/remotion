@@ -151,6 +151,7 @@ export const renderVideoFlow = async ({
 		forceDeviceScaleFactor: scale,
 		indent,
 		viewport: null,
+		logLevel,
 	});
 
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
@@ -252,7 +253,7 @@ export const renderVideoFlow = async ({
 		indent,
 		port,
 		remotionRoot,
-		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		logLevel,
 		webpackConfigOrServeUrl: urlOrBundle,
 	});
 	addCleanupCallback(() => server.then((s) => s.closeServer(false)));
@@ -272,7 +273,7 @@ export const renderVideoFlow = async ({
 			puppeteerInstance,
 			serveUrlOrWebpackUrl: urlOrBundle,
 			timeoutInMilliseconds: puppeteerTimeout,
-			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			logLevel,
 			server: await server,
 		});
 
@@ -396,7 +397,7 @@ export const renderVideoFlow = async ({
 			muted,
 			onBrowserLog: null,
 			onFrameBuffer: null,
-			verbose,
+			logLevel,
 		});
 
 		updateRenderProgress(true);
@@ -437,7 +438,7 @@ export const renderVideoFlow = async ({
 		port,
 		numberOfGifLoops,
 		everyNthFrame,
-		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		logLevel,
 		muted,
 		enforceAudioTrack,
 		browserExecutable,
