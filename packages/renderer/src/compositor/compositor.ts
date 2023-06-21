@@ -12,6 +12,8 @@ import type {
 	CompositorCommandSerialized,
 	ErrorPayload,
 } from './payloads';
+import type {LogLevel} from '../log-level';
+import {isEqualOrBelowLogLevel} from '../log-level';
 
 export type Compositor = {
 	finishCommands: () => void;
@@ -41,7 +43,7 @@ export const getIdealMaximumFrameCacheItems = () => {
 
 export const startLongRunningCompositor = (
 	maximumFrameCacheItems: number,
-	verbose: boolean,
+	logLevel: LogLevel,
 	indent: boolean
 ) => {
 	return startCompositor(
@@ -49,7 +51,7 @@ export const startLongRunningCompositor = (
 		{
 			concurrency: getActualConcurrency(null),
 			maximum_frame_cache_items: maximumFrameCacheItems,
-			verbose,
+			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
 		indent
 	);

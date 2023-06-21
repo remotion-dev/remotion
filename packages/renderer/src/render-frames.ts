@@ -48,6 +48,7 @@ import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
+import type {LogLevel} from './log-level';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
@@ -84,7 +85,7 @@ export type InternalRenderFramesOptions = {
 	muted: boolean;
 	concurrency: number | string | null;
 	webpackBundleOrServeUrl: string;
-	verbose: boolean;
+	logLevel: LogLevel;
 };
 
 type InnerRenderFramesOptions = {
@@ -121,6 +122,7 @@ type InnerRenderFramesOptions = {
 	compositor: Compositor;
 	sourcemapContext: AnySourceMapConsumer | null;
 	serveUrl: string;
+	logLevel: LogLevel;
 };
 
 export type RenderFramesOptions = {
@@ -187,6 +189,7 @@ const innerRenderFrames = async ({
 	browserReplacer,
 	compositor,
 	sourcemapContext,
+	logLevel,
 }: InnerRenderFramesOptions): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -207,7 +210,7 @@ const innerRenderFrames = async ({
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
 	const makePage = async (context: AnySourceMapConsumer | null) => {
-		const page = await browserReplacer.getBrowser().newPage(context);
+		const page = await browserReplacer.getBrowser().newPage(context, logLevel);
 		pagesArray.push(page);
 		await page.setViewport({
 			width: composition.width,
@@ -555,7 +558,7 @@ export const internalRenderFrames = ({
 	scale,
 	server,
 	timeoutInMilliseconds,
-	verbose,
+	logLevel,
 	webpackBundleOrServeUrl,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
@@ -591,6 +594,7 @@ export const internalRenderFrames = ({
 			forceDeviceScaleFactor: scale,
 			indent,
 			viewport: null,
+			logLevel,
 		});
 
 	const browserInstance = puppeteerInstance ?? makeBrowser();
@@ -620,7 +624,7 @@ export const internalRenderFrames = ({
 						port,
 						remotionRoot: findRemotionRoot(),
 						concurrency: actualConcurrency,
-						verbose,
+						logLevel,
 						indent,
 					},
 					{
@@ -643,10 +647,11 @@ export const internalRenderFrames = ({
 					},
 					pInstance,
 				]) => {
-					const browserReplacer = handleBrowserCrash(pInstance);
+					const browserReplacer = handleBrowserCrash(pInstance, logLevel);
 
 					cleanup.push(
-						cycleBrowserTabs(browserReplacer, actualConcurrency).stopCycling
+						cycleBrowserTabs(browserReplacer, actualConcurrency, logLevel)
+							.stopCycling
 					);
 					cleanup.push(() => cleanupServer(false));
 
@@ -678,6 +683,7 @@ export const internalRenderFrames = ({
 						outputDir,
 						scale,
 						timeoutInMilliseconds,
+						logLevel,
 					});
 				}
 			),
@@ -702,7 +708,7 @@ export const internalRenderFrames = ({
 				} else {
 					Promise.resolve(browserInstance)
 						.then((instance) => {
-							return instance.close(true);
+							return instance.close(true, logLevel);
 						})
 						.catch((err) => {
 							if (
@@ -799,7 +805,7 @@ export const renderFrames = (
 		outputDir,
 		port: port ?? null,
 		scale: scale ?? 1,
-		verbose: verbose ?? false,
+		logLevel: verbose ? 'verbose' : 'info',
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,

@@ -7,6 +7,8 @@ import {
 	getIdealMaximumFrameCacheItems,
 	startCompositor,
 } from './compositor/compositor';
+import type {LogLevel} from './log-level';
+import {isEqualOrBelowLogLevel} from './log-level';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
 	const parsed = new URL(url, 'http://localhost');
@@ -40,12 +42,12 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 export const startOffthreadVideoServer = ({
 	downloadMap,
 	concurrency,
-	verbose,
+	logLevel,
 	indent,
 }: {
 	downloadMap: DownloadMap;
 	concurrency: number;
-	verbose: boolean;
+	logLevel: LogLevel;
 	indent: boolean;
 }): {
 	listener: RequestListener;
@@ -59,7 +61,7 @@ export const startOffthreadVideoServer = ({
 		{
 			concurrency,
 			maximum_frame_cache_items: getIdealMaximumFrameCacheItems(),
-			verbose,
+			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
 		indent
 	);

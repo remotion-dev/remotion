@@ -7,6 +7,7 @@ import {
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
+import type {LogLevel} from './log-level';
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
@@ -43,7 +44,7 @@ const browserInstances: HeadlessBrowser[] = [];
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
 		try {
-			await browser.close(true);
+			await browser.close(true, 'info');
 		} catch (err) {}
 	}
 };
@@ -56,6 +57,7 @@ type InternalOpenBrowserOptions = {
 	viewport: Viewport | null;
 	indent: boolean;
 	browser: Browser;
+	logLevel: LogLevel;
 };
 
 export type OpenBrowserOptions = {
@@ -73,6 +75,7 @@ export const internalOpenBrowser = async ({
 	indent,
 	shouldDumpIo,
 	viewport,
+	logLevel,
 }: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
 	if (browser === 'firefox') {
 		throw new TypeError(
@@ -90,6 +93,7 @@ export const internalOpenBrowser = async ({
 		executablePath,
 		product: browser,
 		dumpio: shouldDumpIo,
+		logLevel,
 		indent,
 		args: [
 			'about:blank',
@@ -161,7 +165,7 @@ export const internalOpenBrowser = async ({
 		},
 	});
 
-	const pages = await browserInstance.pages();
+	const pages = await browserInstance.pages(logLevel);
 	await pages[0].close();
 
 	browserInstances.push(browserInstance);
@@ -190,5 +194,6 @@ export const openBrowser = (
 		indent: false,
 		shouldDumpIo: shouldDumpIo ?? false,
 		viewport: null,
+		logLevel: shouldDumpIo ? 'verbose' : 'info',
 	});
 };

@@ -15,6 +15,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
 
 type InternalSelectCompositionsConfig = {
 	inputProps: Record<string, unknown>;
@@ -27,7 +28,7 @@ type InternalSelectCompositionsConfig = {
 	port: number | null;
 	indent: boolean;
 	server: RemotionServer | undefined;
-	verbose: boolean;
+	logLevel: LogLevel;
 	serveUrl: string;
 	id: string;
 };
@@ -66,7 +67,7 @@ const innerSelectComposition = async ({
 	port,
 	id,
 	indent,
-	verbose,
+	logLevel,
 }: InnerSelectCompositionConfig): Promise<AnyCompMetadata> => {
 	if (onBrowserLog) {
 		page.on('console', (log) => {
@@ -110,7 +111,7 @@ const innerSelectComposition = async ({
 		{
 			indent,
 			tag: 'selectComposition()',
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 		},
 		'Running calculateMetadata()...'
 	);
@@ -127,7 +128,7 @@ const innerSelectComposition = async ({
 		{
 			indent,
 			tag: 'selectComposition()',
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 		},
 		`calculateMetadata() took ${Date.now() - time}ms`
 	);
@@ -144,7 +145,7 @@ export const internalSelectComposition = async (
 		browserExecutable,
 		chromiumOptions,
 		serveUrl: serveUrlOrWebpackUrl,
-		verbose,
+		logLevel,
 		indent,
 		port,
 		envVariables,
@@ -162,7 +163,8 @@ export const internalSelectComposition = async (
 		context: null,
 		forceDeviceScaleFactor: undefined,
 		indent,
-		shouldDumpIo: verbose,
+		shouldDumpIo: isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		logLevel,
 	});
 	cleanup.push(() => cleanupPage());
 
@@ -184,7 +186,7 @@ export const internalSelectComposition = async (
 				port,
 				remotionRoot: findRemotionRoot(),
 				concurrency: 1,
-				verbose,
+				logLevel,
 				indent,
 			},
 			{
@@ -207,7 +209,7 @@ export const internalSelectComposition = async (
 					inputProps,
 					onBrowserLog,
 					timeoutInMilliseconds,
-					verbose,
+					logLevel,
 					indent,
 					puppeteerInstance,
 					server,
@@ -259,7 +261,7 @@ export const selectComposition = (
 		port: port ?? null,
 		puppeteerInstance,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		verbose: verbose ?? false,
+		logLevel: verbose ? 'verbose' : 'info',
 		indent: false,
 		server: undefined,
 	});
