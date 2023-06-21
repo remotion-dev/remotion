@@ -282,11 +282,16 @@ _string - optional_
 
 Sets a ProRes profile. Only applies to videos rendered with `prores` codec. See [Encoding guide](/docs/encoding/#controlling-quality-using-prores-profile) for possible options.
 
-### `dumpBrowserLogs?`
+### ~~`dumpBrowserLogs?`~~
 
-_boolean - optional_
+_optional - default `false`, deprecated in v4.0_
 
-If true, will print browser console output to standard output.
+Deprecated in favor of [`logLevel`](#loglevel).
+
+### `logLevel?`<AvailableFrom v="4.0.0"/>
+
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
+`verbose` will also log `console.log`'s from the browser.
 
 ### `onBrowserLog?`
 
@@ -317,11 +322,11 @@ _optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
-### `verbose?`<AvailableFrom v="3.1.6" />
+### ~~`verbose?`~~
 
-_optional_
+_optional, deprecated in v4.0_
 
-Prints debugging output if set to true.
+Deprecated in favor of [`logLevel`](#loglevel).
 
 ### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 

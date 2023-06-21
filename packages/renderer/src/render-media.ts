@@ -140,6 +140,9 @@ export type RenderMediaOptions = {
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
+	/**
+	 * @deprecated Use "logLevel": "verbose" instead
+	 */
 	dumpBrowserLogs?: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
 	onStart?: (data: OnStartData) => void;
@@ -149,6 +152,9 @@ export type RenderMediaOptions = {
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
+	/**
+	 * @deprecated Use "logLevel" instead
+	 */
 	verbose?: boolean;
 	preferLossless?: boolean;
 	muted?: boolean;
@@ -160,6 +166,7 @@ export type RenderMediaOptions = {
 	audioCodec?: AudioCodec | null;
 	serveUrl: string;
 	concurrency?: number | string | null;
+	logLevel?: LogLevel;
 };
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -698,6 +705,7 @@ export const renderMedia = ({
 	preferLossless,
 	verbose,
 	quality,
+	logLevel,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -740,7 +748,7 @@ export const renderMedia = ({
 		scale: scale ?? 1,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		videoBitrate: videoBitrate ?? null,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : 'info',
+		logLevel: verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 		preferLossless: preferLossless ?? false,
 		indent: false,
 		onCtrlCExit: () => undefined,

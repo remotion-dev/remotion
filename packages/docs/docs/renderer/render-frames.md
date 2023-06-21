@@ -123,11 +123,16 @@ _optional_
 
 Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video).
 
-### `dumpBrowserLogs?`
+### ~~`dumpBrowserLogs?`~~
 
-_optional_
+_optional - default `false`, deprecated in v4.0_
 
-Passes the `dumpio` flag to Puppeteer which will log all browser logs to the console. Useful for debugging. `boolean` flag, default is `false`.
+Deprecated in favor of [`logLevel`](#loglevel).
+
+### `logLevel?`<AvailableFrom v="4.0.0"/>
+
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
+`verbose` will also log `console.log`'s from the browser.
 
 ### `puppeteerInstance?`
 
