@@ -281,15 +281,6 @@ const innerStitchFramesToVideo = async (
 			logLevel: verbose ? 'verbose' : 'info',
 			tag: 'stitchFramesToVideo()',
 		},
-		'encoder',
-		encoderName
-	);
-	Log.verboseAdvanced(
-		{
-			indent,
-			logLevel: verbose ? 'verbose' : 'info',
-			tag: 'stitchFramesToVideo()',
-		},
 		'audioCodec',
 		resolvedAudioCodec
 	);
@@ -328,15 +319,6 @@ const innerStitchFramesToVideo = async (
 		},
 		'shouldRenderVideo',
 		shouldRenderVideo
-	);
-	Log.verboseAdvanced(
-		{
-			indent,
-			logLevel: verbose ? 'verbose' : 'info',
-			tag: 'stitchFramesToVideo()',
-		},
-		'proResProfileName',
-		proResProfileName
 	);
 
 	validateQualitySettings({
