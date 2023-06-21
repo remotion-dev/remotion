@@ -45,6 +45,13 @@ Make sure the versions don't have a `^` character in front of it.
 
 ## Changelog
 
+### `unreleased`
+Bug fixes leading to public testing.
+
+| Issue | Resolution   | 
+|---|---|
+|Rendering a still via CLI with defaults results in error - You can only pass the `quality` option if `imageFormat` is 'jpeg'. | Migrated to V4 method, using internalRenderStill() instead of renderStill(). Noticed missing options, added them in and documented. | 
+
 ### `4.1.0-alpha3`
 Bug fixes leading to public testing.
 
