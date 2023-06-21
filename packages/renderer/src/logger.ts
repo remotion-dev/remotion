@@ -13,7 +13,6 @@ type LogOptions = {
 
 type VerboseLogOptions = LogOptions & {
 	tag?: string;
-	secondTag?: string;
 };
 
 export const verboseTag = (str: string) => {
@@ -36,12 +35,7 @@ export const Log = {
 			return console.log(
 				...[
 					options.indent ? INDENT_TOKEN : null,
-					[
-						options.tag ? verboseTag(options.tag) : null,
-						options.secondTag ? secondverboseTag(options.secondTag) : null,
-					]
-						.filter(truthy)
-						.join(''),
+					options.tag ? verboseTag(options.tag) : null,
 					...args.map((a) => chalk.gray(a)),
 				].filter(truthy)
 			);
