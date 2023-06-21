@@ -329,11 +329,11 @@ One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged i
 
 If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
 
-### `dumpBrowserLogs?`
+### ~~`dumpBrowserLogs?`~~
 
-_optional, available from v3.3.83_
+_optional - default `false`, deprecated in v4.0_
 
-If set to true, all `console` statements from the headless browser will be forwarded to the CloudWatch logs.
+Deprecated in favor of [`logLevel`](#loglevel).
 
 ## Return value
 
