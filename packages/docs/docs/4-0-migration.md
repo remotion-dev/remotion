@@ -66,6 +66,12 @@ Previously, the `imageFormat` option would be used for both stills and videos. W
 - The TypeScript type `ImageFormat` has been separated into `StillImageFormat` and `VideoImageFormat`.
 - `StillImageFormat` now also supports `webp` and `pdf`!
 
+## Streamlined logging
+
+For [`getCompositions()`](/docs/renderer/render-media), [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda):
+
+[`verbose`](/docs/renderer/render-media#verbose) and [`dumpBrowserLogs`](/docs/renderer/render-media#dumpbrowserlogs) have been deprecated in favor of [`"logLevel": "verbose"`](/docs/renderer/render-media#loglevel). This makes the options equivalent to the CLI options.
+
 ## Dropped support for Lambda `architecture`
 
 When deploying a Lambda, you were previously able to choose between the `arm64` and `x86_64` architecture.  

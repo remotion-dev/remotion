@@ -101,10 +101,6 @@ _optional - default: `undefined`_
 
 Sets the JPEG quality - must be an integer between 0 and 100 and can only be passed if `imageFormat` is set to `jpeg`.
 
-### ~~`quality?`~~
-
-Renamed to `jpegQuality` in `v4.0.0`.
-
 ### `puppeteerInstance?`
 
 _optional - default `null`_
@@ -116,12 +112,6 @@ An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Reu
 _optional - default `{}`_
 
 An object containing key-value pairs of environment variables which will be injected into your Remotion project and which can be accessed by reading the global `process.env` object.
-
-### ~~`dumpBrowserLogs?`~~
-
-_optional - default `false`, deprecated in v4.0_
-
-Deprecated in favor of [`logLevel`](#loglevel).
 
 ### `logLevel?`<AvailableFrom v="4.0.0"/>
 
@@ -207,6 +197,16 @@ Default: `null`.
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### ~~`dumpBrowserLogs?`~~
+
+_optional - default `false`, deprecated in v4.0_
+
+Deprecated in favor of [`logLevel`](#loglevel).
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ## Return Value
 

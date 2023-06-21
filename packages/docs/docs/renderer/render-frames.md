@@ -89,10 +89,6 @@ _optional_
 
 A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
 
-### ~~`parallelism?`~~
-
-Renamed to `concurrency` in v3.2.17.
-
 ### `scale?`<AvailableFrom v="2.6.7" />
 
 _number - default: 1_
@@ -107,10 +103,6 @@ Sets the quality of the generated JPEG images. Must be an integer between 0 and 
 
 Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
 
-### ~~`quality?`~~
-
-Renamed to `jpegQuality` in `v4.0.0`.
-
 ### `frameRange?`
 
 _optional_
@@ -122,12 +114,6 @@ Specify a single frame (passing a `number`) or a range of frames (passing a tupl
 _optional_
 
 Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video).
-
-### ~~`dumpBrowserLogs?`~~
-
-_optional - default `false`, deprecated in v4.0_
-
-Deprecated in favor of [`logLevel`](#loglevel).
 
 ### `logLevel?`<AvailableFrom v="4.0.0"/>
 
@@ -297,6 +283,21 @@ Accepted values:
 #### `userAgent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
+
+### ~~`dumpBrowserLogs?`~~
+
+_optional - default `false`, deprecated in v4.0_
+
+Deprecated in favor of [`logLevel`](#loglevel).
+
+### ~~`parallelism?`~~
+
+Renamed to `concurrency` in v3.2.17.
+Removed in `v4.0.0`.
 
 ### ~~`ffmpegExecutable`~~
 
