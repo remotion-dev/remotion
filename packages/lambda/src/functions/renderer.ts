@@ -158,9 +158,6 @@ const renderHandler = async (
 			serveUrl: params.serveUrl,
 			jpegQuality: params.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			envVariables: params.envVariables ?? {},
-			dumpBrowserLogs:
-				params.dumpBrowserLogs ??
-				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 			logLevel: params.logLevel,
 			onBrowserLog: (log) => {
 				logs.push(log);
