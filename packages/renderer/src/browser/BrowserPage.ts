@@ -199,8 +199,7 @@ export class Page extends EventEmitter {
 				Log.verboseAdvanced(
 					{
 						logLevel,
-						tag: `console.${log.type}()`,
-						secondTag: [origPosition.name, file].filter(truthy).join('@'),
+						tag: [origPosition.name, file].filter(truthy).join('@'),
 						indent,
 					},
 					log.text
