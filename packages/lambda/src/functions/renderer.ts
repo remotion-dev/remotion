@@ -55,7 +55,8 @@ const renderHandler = async (
 	});
 
 	const browserInstance = await getBrowserInstance(
-		RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+		params.logLevel,
+		false,
 		params.chromiumOptions ?? {}
 	);
 
@@ -160,10 +161,7 @@ const renderHandler = async (
 			dumpBrowserLogs:
 				params.dumpBrowserLogs ??
 				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
-			verbose: RenderInternals.isEqualOrBelowLogLevel(
-				params.logLevel,
-				'verbose'
-			),
+			logLevel: params.logLevel,
 			onBrowserLog: (log) => {
 				logs.push(log);
 			},

@@ -83,6 +83,7 @@ export class Page extends EventEmitter {
 		browser,
 		sourcemapContext,
 		logLevel,
+		indent,
 	}: {
 		client: CDPSession;
 		target: Target;
@@ -90,6 +91,7 @@ export class Page extends EventEmitter {
 		browser: HeadlessBrowser;
 		sourcemapContext: AnySourceMapConsumer | null;
 		logLevel: LogLevel;
+		indent: boolean;
 	}): Promise<Page> {
 		const page = new Page({
 			client,
@@ -97,6 +99,7 @@ export class Page extends EventEmitter {
 			browser,
 			sourcemapContext,
 			logLevel,
+			indent,
 		});
 		await page.#initialize();
 		await page.setViewport(defaultViewport);
@@ -121,12 +124,14 @@ export class Page extends EventEmitter {
 		browser,
 		sourcemapContext,
 		logLevel,
+		indent,
 	}: {
 		client: CDPSession;
 		target: Target;
 		browser: HeadlessBrowser;
 		sourcemapContext: AnySourceMapConsumer | null;
 		logLevel: LogLevel;
+		indent: boolean;
 	}) {
 		super();
 		this.#client = client;
@@ -173,7 +178,6 @@ export class Page extends EventEmitter {
 		});
 
 		this.on('console', (log) => {
-			console.log({log});
 			const {url, columnNumber, lineNumber} = log.location();
 			if (
 				url?.endsWith(Internals.bundleName) &&
@@ -197,13 +201,13 @@ export class Page extends EventEmitter {
 						logLevel,
 						tag: `console.${log.type}()`,
 						secondTag: [origPosition.name, file].filter(truthy).join('@'),
-						indent: false,
+						indent,
 					},
 					log.text
 				);
 			} else {
 				Log.verboseAdvanced(
-					{logLevel, tag: `console.${log.type}`, indent: false},
+					{logLevel, tag: `console.${log.type}`, indent},
 					log.text
 				);
 			}

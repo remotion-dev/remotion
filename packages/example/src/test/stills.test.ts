@@ -36,7 +36,7 @@ test(
 				port: null,
 				remotionRoot: process.cwd(),
 				concurrency: RenderInternals.getActualConcurrency(null),
-				verbose: false,
+				logLevel: 'info',
 				indent: false,
 			},
 			{
@@ -119,7 +119,7 @@ test(
 				port: null,
 				remotionRoot: process.cwd(),
 				concurrency: RenderInternals.getActualConcurrency(null),
-				verbose: false,
+				logLevel: 'info',
 				indent: false,
 			},
 			{

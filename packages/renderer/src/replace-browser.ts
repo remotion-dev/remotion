@@ -11,7 +11,8 @@ export type BrowserReplacer = {
 
 export const handleBrowserCrash = (
 	instance: HeadlessBrowser,
-	logLevel: LogLevel
+	logLevel: LogLevel,
+	indent: boolean
 ): BrowserReplacer => {
 	let _instance = instance;
 	const waiters: {
@@ -36,7 +37,7 @@ export const handleBrowserCrash = (
 			try {
 				replacing = true;
 				await _instance
-					.close(true, logLevel)
+					.close(true, logLevel, indent)
 					.then(() => {
 						console.log('Killed previous browser and making new one');
 					})

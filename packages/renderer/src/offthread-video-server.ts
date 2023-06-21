@@ -63,6 +63,7 @@ export const startOffthreadVideoServer = ({
 			maximum_frame_cache_items: getIdealMaximumFrameCacheItems(),
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
+		logLevel,
 		indent
 	);
 

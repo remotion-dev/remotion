@@ -117,7 +117,7 @@ export class ChromeLauncher implements ProductLauncher {
 				{timeout}
 			);
 		} catch (error) {
-			await browser.close(false, options.logLevel);
+			await browser.close(false, options.logLevel, options.indent);
 			throw error;
 		}
 

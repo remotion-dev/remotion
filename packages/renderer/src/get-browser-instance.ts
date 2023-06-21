@@ -14,7 +14,6 @@ export const getPageAndCleanupFn = async ({
 	context,
 	forceDeviceScaleFactor,
 	indent,
-	shouldDumpIo,
 	logLevel,
 }: {
 	passedInInstance: HeadlessBrowser | undefined;
@@ -23,14 +22,13 @@ export const getPageAndCleanupFn = async ({
 	context: AnySourceMapConsumer | null;
 	indent: boolean;
 	forceDeviceScaleFactor: number | undefined;
-	shouldDumpIo: boolean;
 	logLevel: LogLevel;
 }): Promise<{
 	cleanup: () => void;
 	page: Page;
 }> => {
 	if (passedInInstance) {
-		const page = await passedInInstance.newPage(context, logLevel);
+		const page = await passedInInstance.newPage(context, logLevel, indent);
 		return {
 			page,
 			cleanup: () => {
@@ -49,17 +47,16 @@ export const getPageAndCleanupFn = async ({
 		chromiumOptions,
 		forceDeviceScaleFactor,
 		indent,
-		shouldDumpIo,
 		viewport: null,
 		logLevel,
 	});
-	const browserPage = await browserInstance.newPage(context, logLevel);
+	const browserPage = await browserInstance.newPage(context, logLevel, indent);
 
 	return {
 		page: browserPage,
 		cleanup: () => {
 			// Close whole browser that was just created and don't wait for it to finish.
-			browserInstance.close(true, logLevel).catch((err) => {
+			browserInstance.close(true, logLevel, indent).catch((err) => {
 				console.error('Was not able to close puppeteer page', err);
 			});
 		},

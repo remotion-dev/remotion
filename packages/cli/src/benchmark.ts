@@ -184,10 +184,6 @@ export const benchmarkCommand = async (
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
 		browserExecutable,
-		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(
-			ConfigInternals.Logging.getLogLevel(),
-			'verbose'
-		),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
 		indent: false,
