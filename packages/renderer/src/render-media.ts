@@ -59,7 +59,7 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
-import type {LogLevel} from './log-level';
+import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -94,7 +94,6 @@ export type InternalRenderMediaOptions = {
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
 	proResProfile: ProResProfile | undefined;
-	dumpBrowserLogs: boolean;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	timeoutInMilliseconds: number;
@@ -184,7 +183,6 @@ export const internalRenderMedia = ({
 	onProgress,
 	overwrite,
 	onDownload,
-	dumpBrowserLogs,
 	onBrowserLog,
 	onStart,
 	timeoutInMilliseconds,
@@ -528,7 +526,7 @@ export const internalRenderMedia = ({
 						  }
 						: null,
 					webpackBundleOrServeUrl: serveUrl,
-					dumpBrowserLogs,
+					dumpBrowserLogs: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 					onBrowserLog,
 					onDownload,
 					timeoutInMilliseconds,
@@ -676,7 +674,6 @@ export const renderMedia = ({
 	onProgress,
 	overwrite,
 	onDownload,
-	dumpBrowserLogs,
 	onBrowserLog,
 	onStart,
 	timeoutInMilliseconds,
@@ -698,6 +695,7 @@ export const renderMedia = ({
 	everyNthFrame,
 	imageFormat,
 	numberOfGifLoops,
+	dumpBrowserLogs,
 	preferLossless,
 	verbose,
 	quality,
@@ -721,7 +719,6 @@ export const renderMedia = ({
 		concurrency: concurrency ?? null,
 		crf: crf ?? null,
 		disallowParallelEncoding: disallowParallelEncoding ?? false,
-		dumpBrowserLogs: dumpBrowserLogs ?? false,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		envVariables: envVariables ?? {},
 		everyNthFrame: everyNthFrame ?? 1,
@@ -744,7 +741,7 @@ export const renderMedia = ({
 		scale: scale ?? 1,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		videoBitrate: videoBitrate ?? null,
-		logLevel: verbose ? 'verbose' : 'info',
+		logLevel: verbose || dumpBrowserLogs ? 'verbose' : 'info',
 		preferLossless: preferLossless ?? false,
 		indent: false,
 		onCtrlCExit: () => undefined,
