@@ -364,8 +364,6 @@ export const renderVideoFlow = async ({
 
 		Log.verboseAdvanced({indent, logLevel}, 'Output dir', outputDir);
 
-		const verbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
-
 		await RenderInternals.internalRenderFrames({
 			imageFormat,
 			inputProps,
@@ -378,7 +376,6 @@ export const renderVideoFlow = async ({
 			cancelSignal: cancelSignal ?? undefined,
 			outputDir,
 			webpackBundleOrServeUrl: urlOrBundle,
-			dumpBrowserLogs: verbose,
 			everyNthFrame,
 			envVariables,
 			frameRange,

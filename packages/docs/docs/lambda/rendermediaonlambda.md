@@ -329,8 +329,6 @@ One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged i
 
 If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
 
-If the `logLevel` is set to `verbose`, the `dumpBrowserLogs` flag will also be enabled.
-
 ### `dumpBrowserLogs?`
 
 _optional, available from v3.3.83_
