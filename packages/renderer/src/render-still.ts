@@ -68,9 +68,11 @@ export type RenderStillOptions = {
 	frame?: number;
 	inputProps?: Record<string, unknown>;
 	imageFormat?: StillImageFormat;
-
 	jpegQuality?: number;
 	puppeteerInstance?: HeadlessBrowser;
+	/**
+	 * @deprecated Use "logLevel": "verbose" instead
+	 */
 	dumpBrowserLogs?: boolean;
 	envVariables?: Record<string, string>;
 	overwrite?: boolean;
@@ -81,6 +83,9 @@ export type RenderStillOptions = {
 	scale?: number;
 	onDownload?: RenderMediaOnDownload;
 	cancelSignal?: CancelSignal;
+	/**
+	 * @deprecated Use "logLevel" instead
+	 */
 	verbose?: boolean;
 	serveUrl: string;
 	/**

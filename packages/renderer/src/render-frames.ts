@@ -143,7 +143,15 @@ export type RenderFramesOptions = {
 	jpegQuality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
+	/**
+	 * @deprecated Use "logLevel": "verbose" instead
+	 */
 	dumpBrowserLogs?: boolean;
+	/**
+	 * @deprecated Use "logLevel" instead
+	 */
+	verbose?: boolean;
+	logLevel?: LogLevel;
 	puppeteerInstance?: HeadlessBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -158,7 +166,6 @@ export type RenderFramesOptions = {
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
-	verbose?: boolean;
 };
 
 const innerRenderFrames = async ({
@@ -771,6 +778,7 @@ export const renderFrames = (
 		timeoutInMilliseconds,
 		verbose,
 		quality,
+		logLevel,
 	} = options;
 
 	if (!composition) {
@@ -814,7 +822,7 @@ export const renderFrames = (
 		outputDir,
 		port: port ?? null,
 		scale: scale ?? 1,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : 'info',
+		logLevel: verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,
