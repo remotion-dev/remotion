@@ -235,6 +235,10 @@ _optional_
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Defaults to `info`.
 
+### `dumpBrowserLogs?`
+
+If set to true, all `console` statements from the headless browser will be forwarded to the Cloud Logging in GCP.
+
 ### `outName?`
 
 _optional_
@@ -245,6 +249,24 @@ It can either be:
 
 - `undefined` - it will default to `out` plus the appropriate file extension, for example: `renders/${renderId}/out.mp4`.
 - A `string` - it will get saved to the same Cloud Storage bucket as your site under the key `renders/{renderId}/{outName}`.
+
+### `delayRenderTimeoutInMilliseconds?`
+
+_optional_
+
+A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
+
+### `concurrency?`
+
+By default, each Cloud Run service renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+
+### `enforceAudioTrack?`
+
+Render a silent audio track if there wouldn't be any otherwise.
+
+### `preferLossless?`
+
+Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.
 
 ## Return value
 
