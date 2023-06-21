@@ -76,7 +76,6 @@ test('Should be able to render to another bucket', async () => {
 			rendererFunctionName: null,
 			bucketName: null,
 			audioCodec: null,
-			dumpBrowserLogs: false,
 		},
 		extraContext
 	)) as StreamedResponse;

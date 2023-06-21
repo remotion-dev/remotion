@@ -1,4 +1,4 @@
-import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import {RenderInternals, type ChromiumOptions, type LogLevel} from '@remotion/renderer';
 import type {AnyCompMetadata} from 'remotion';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
@@ -16,6 +16,9 @@ export type GetCompositionsOnLambdaInput = {
 	logLevel?: LogLevel;
 	timeoutInMilliseconds?: number;
 	forceBucketName?: string;
+	/**
+	 * @deprecated in favor of `logLevel`: true
+	 */
 	dumpBrowserLogs?: boolean;
 };
 
@@ -32,7 +35,6 @@ export type GetCompositionsOnLambdaOutput = AnyCompMetadata[];
  * @param params.logLevel The log level of the Lambda function
  * @param params.timeoutInMilliseconds The timeout of the Lambda function
  * @param params.chromiumOptions The options to pass to Chromium
- * @param params.dumpBrowserLogs Whether to print browser logs to CloudWatch
  * @returns The compositions
  */
 export const getCompositionsOnLambda = async ({
@@ -63,11 +65,10 @@ export const getCompositionsOnLambda = async ({
 				serveUrl,
 				envVariables,
 				inputProps: serializedInputProps,
-				logLevel: logLevel ?? 'info',
+				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? RenderInternals.getLogLevel(),
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				version: VERSION,
 				bucketName: bucketName ?? null,
-				dumpBrowserLogs: dumpBrowserLogs ?? false,
 			},
 			region,
 		});

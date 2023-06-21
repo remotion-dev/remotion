@@ -15,13 +15,14 @@ This function returns a signal and a cancel function that allows to you cancel a
 ```tsx twoslash
 // @module: ESNext
 // @target: ESNext
-import { SmallTCompMetadata } from "remotion";
-const composition: SmallTCompMetadata = {
+import { TCompMetadata } from "remotion";
+const composition: TCompMetadata<any, any> = {
   durationInFrames: 1000000,
   fps: 30,
   height: 720,
   id: "react-svg",
   width: 1280,
+  defaultProps: {},
 };
 // ---cut---
 import { makeCancelSignal, renderMedia } from "@remotion/renderer";

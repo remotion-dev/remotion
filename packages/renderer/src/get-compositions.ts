@@ -15,6 +15,7 @@ import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {type LogLevel} from './log-level';
+import {getLogLevel} from './logger';
 
 type InternalGetCompositionsOptions = {
 	inputProps: Record<string, unknown>;
@@ -40,7 +41,7 @@ export type GetCompositionsOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
-	verbose?: boolean;
+	logLevel?: LogLevel;
 };
 
 type InnerGetCompositionsParams = {
@@ -212,7 +213,7 @@ export const getCompositions = (
 		port,
 		puppeteerInstance,
 		timeoutInMilliseconds,
-		verbose,
+		logLevel,
 	} = config ?? {};
 	return internalGetCompositions({
 		browserExecutable: browserExecutable ?? null,
@@ -226,6 +227,6 @@ export const getCompositions = (
 		serveUrlOrWebpackUrl,
 		server: undefined,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: verbose ? 'verbose' : 'info',
+		logLevel: logLevel ?? getLogLevel(),
 	});
 };

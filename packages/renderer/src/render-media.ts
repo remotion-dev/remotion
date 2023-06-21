@@ -32,7 +32,7 @@ import {
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import {Log} from './logger';
+import {Log, getLogLevel} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -59,7 +59,7 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
-import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
+import {type LogLevel} from './log-level';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -140,6 +140,9 @@ export type RenderMediaOptions = {
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
+	/**
+	 * @deprecated Use "logLevel": "verbose" instead
+	 */
 	dumpBrowserLogs?: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
 	onStart?: (data: OnStartData) => void;
@@ -149,6 +152,9 @@ export type RenderMediaOptions = {
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
+	/**
+	 * @deprecated Use "logLevel" instead
+	 */
 	verbose?: boolean;
 	preferLossless?: boolean;
 	muted?: boolean;
@@ -160,6 +166,7 @@ export type RenderMediaOptions = {
 	audioCodec?: AudioCodec | null;
 	serveUrl: string;
 	concurrency?: number | string | null;
+	logLevel?: LogLevel;
 };
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -526,7 +533,6 @@ export const internalRenderMedia = ({
 						  }
 						: null,
 					webpackBundleOrServeUrl: serveUrl,
-					dumpBrowserLogs: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 					onBrowserLog,
 					onDownload,
 					timeoutInMilliseconds,
@@ -699,6 +705,7 @@ export const renderMedia = ({
 	preferLossless,
 	verbose,
 	quality,
+	logLevel,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -741,7 +748,8 @@ export const renderMedia = ({
 		scale: scale ?? 1,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		videoBitrate: videoBitrate ?? null,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : 'info',
+		logLevel:
+			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
 		preferLossless: preferLossless ?? false,
 		indent: false,
 		onCtrlCExit: () => undefined,

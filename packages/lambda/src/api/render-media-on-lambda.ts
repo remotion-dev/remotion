@@ -59,6 +59,9 @@ export type RenderMediaOnLambdaInput = {
 	rendererFunctionName?: string | null;
 	forceBucketName?: string;
 	audioCodec?: AudioCodec | null;
+	/**
+	 * @deprecated in favor of `logLevel`: true
+	 */
 	dumpBrowserLogs?: boolean;
 };
 
@@ -86,7 +89,6 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
  * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
- * @param params.dumpBrowserLogs Whether to print browser logs to CloudWatch
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 

@@ -40,13 +40,13 @@ Make sure the versions don't have a `^` character in front of it.
 
 Most important breaking changes:
 
-<InlineStep>1</InlineStep> The config file must now import the config like the following:
+<Step>1</Step> The config file must now import the config like the following:<br/>
 
 ```ts
 import { Config } from "@remotion/cli/config";
 ```
 
-<InlineStep>2</InlineStep> Also in the config file:
+<Step>2</Step> Also in the config file:<br/>
 
 ```ts
 Config.setImageFormat("jpeg");
