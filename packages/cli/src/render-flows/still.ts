@@ -138,6 +138,7 @@ export const renderStillFlow = async ({
 		forceDeviceScaleFactor: scale,
 		indent: indentOutput,
 		viewport: null,
+		logLevel,
 	});
 
 	const {cleanup: cleanupBundle, urlOrBundle} = await bundleOnCliOrTakeServeUrl(
@@ -168,7 +169,7 @@ export const renderStillFlow = async ({
 		indent: indentOutput,
 		port,
 		remotionRoot,
-		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		logLevel,
 		webpackConfigOrServeUrl: urlOrBundle,
 	});
 
@@ -177,7 +178,7 @@ export const renderStillFlow = async ({
 	addCleanupCallback(() => cleanupBundle());
 
 	const puppeteerInstance = await browserInstance;
-	addCleanupCallback(() => puppeteerInstance.close(false));
+	addCleanupCallback(() => puppeteerInstance.close(false, logLevel));
 
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
@@ -194,7 +195,7 @@ export const renderStillFlow = async ({
 			puppeteerInstance,
 			serveUrlOrWebpackUrl: urlOrBundle,
 			timeoutInMilliseconds: puppeteerTimeout,
-			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			logLevel,
 			server: await server,
 		});
 
@@ -298,7 +299,7 @@ export const renderStillFlow = async ({
 		cancelSignal,
 		indent: indentOutput,
 		onBrowserLog: null,
-		verbose,
+		logLevel,
 	});
 
 	aggregate.rendering = {
