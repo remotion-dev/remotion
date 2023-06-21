@@ -63,7 +63,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		remotionRoot,
 	});
 
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 	let composition: string = args[1];
 
 	if (!composition) {
@@ -76,7 +75,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			indent: false,
 			port,
 			remotionRoot,
-			verbose,
+			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
 		});
 
@@ -94,7 +93,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
 				timeoutInMilliseconds: puppeteerTimeout,
-				verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+				logLevel,
 				width,
 				server: await server,
 			});
@@ -186,7 +185,6 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		// config file, just when explicitly set
 		concurrency: CliInternals.parsedCli.concurrency ?? null,
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
-		dumpBrowserLogs: verbose,
 		enforceAudioTrack,
 		preferLossless: false,
 	});

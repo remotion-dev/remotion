@@ -159,10 +159,6 @@ _optional_
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Defaults to `info`.
 
-### `dumpBrowserLogs?`
-
-If set to true, all `console` statements from the headless browser will be forwarded to the Cloud Logging in GCP.
-
 ### `outName?`
 
 _optional_

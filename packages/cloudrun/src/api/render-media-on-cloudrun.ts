@@ -60,7 +60,6 @@ export type RenderMediaOnCloudrunInput = {
 	forceHeight?: number | null;
 	logLevel?: LogLevel;
 	delayRenderTimeoutInMilliseconds?: number;
-	dumpBrowserLogs?: boolean;
 	concurrency?: number | string | null;
 	enforceAudioTrack?: boolean;
 	preferLossless?: boolean;
@@ -99,7 +98,6 @@ export type RenderMediaOnCloudrunInput = {
  * @param params.forceHeight Overrides default composition height.
  * @param params.logLevel Level of logging that Cloud Run service should perform. Default "info".
  * @param params.delayRenderTimeoutInMilliseconds A number describing how long the render may take to resolve all delayRender() calls before it times out.
- * @param params.dumpBrowserLogs If set to true, all `console` statements from the headless browser will be forwarded to the Cloud Logging in GCP.
  * @param params.concurrency By default, each Cloud Run service renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
  * @param params.enforceAudioTrack Render a silent audio track if there wouldn't be any otherwise.
  * @param params.preferLossless Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.
@@ -137,7 +135,6 @@ export const renderMediaOnCloudrun = async ({
 	forceHeight,
 	logLevel,
 	delayRenderTimeoutInMilliseconds,
-	dumpBrowserLogs,
 	concurrency,
 	enforceAudioTrack,
 	preferLossless,
@@ -154,11 +151,6 @@ export const renderMediaOnCloudrun = async ({
 		serviceName,
 		region,
 	});
-
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		logLevel ?? 'info',
-		'verbose'
-	);
 
 	const data: CloudRunPayloadType = {
 		composition,
@@ -189,7 +181,6 @@ export const renderMediaOnCloudrun = async ({
 		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds:
 			delayRenderTimeoutInMilliseconds ?? RenderInternals.DEFAULT_TIMEOUT,
-		dumpBrowserLogs: dumpBrowserLogs ?? verbose,
 		concurrency: concurrency ?? null,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		preferLossless: preferLossless ?? false,
