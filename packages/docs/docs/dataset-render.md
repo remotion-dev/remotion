@@ -50,7 +50,7 @@ yarn create video --blank
 
 ## Sample dataset
 
-JSON is the most convienient format to import in Remotion. If your dataset is in a different format, you can convert it using one of many available libraries on NPM.
+JSON is the most convenient format to import in Remotion. If your dataset is in a different format, you can convert it using one of many available libraries on NPM.
 
 ```ts title="my-data.ts"
 export const data = [
