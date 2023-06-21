@@ -156,7 +156,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	}, Math.max(options.getRemainingTimeInMillis() - 1000, 1000));
 
 	const browserInstance = await getBrowserInstance(
-		verbose,
+		params.logLevel,
+		false,
 		params.chromiumOptions
 	);
 

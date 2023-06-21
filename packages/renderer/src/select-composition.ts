@@ -15,7 +15,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
-import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
+import {type LogLevel} from './log-level';
 
 type InternalSelectCompositionsConfig = {
 	inputProps: Record<string, unknown>;
@@ -163,7 +163,6 @@ export const internalSelectComposition = async (
 		context: null,
 		forceDeviceScaleFactor: undefined,
 		indent,
-		shouldDumpIo: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		logLevel,
 	});
 	cleanup.push(() => cleanupPage());

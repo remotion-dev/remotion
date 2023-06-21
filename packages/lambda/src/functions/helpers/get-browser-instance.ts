@@ -1,4 +1,4 @@
-import type {ChromiumOptions, openBrowser} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel, openBrowser} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
@@ -24,7 +24,8 @@ const waitForLaunched = () => {
 };
 
 export const getBrowserInstance = async (
-	shouldDumpIo: boolean,
+	logLevel: LogLevel,
+	indent: boolean,
 	chromiumOptions: ChromiumOptions
 ): ReturnType<typeof openBrowser> => {
 	if (launching) {
@@ -53,15 +54,15 @@ export const getBrowserInstance = async (
 	_browserInstance = await RenderInternals.internalOpenBrowser({
 		browser: 'chrome',
 		browserExecutable: execPath,
-		shouldDumpIo,
 		chromiumOptions: actualChromiumOptions,
 		forceDeviceScaleFactor: undefined,
 		indent: false,
 		viewport: null,
+		logLevel,
 	});
 	_browserInstance.on('disconnected', () => {
 		console.log('Browser disconnected / crashed');
-		_browserInstance?.close(true).catch(() => undefined);
+		_browserInstance?.close(true, logLevel, indent).catch(() => undefined);
 		_browserInstance = null;
 	});
 	launching = false;

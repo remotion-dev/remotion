@@ -18,7 +18,7 @@ import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
 import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
-import {getLogLevel, Log} from '../logger';
+import {Log} from '../logger';
 import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
@@ -97,7 +97,7 @@ export class BrowserRunner {
 
 					const {output, tag} = formatted;
 					Log.verboseAdvanced(
-						{indent: options.indent, logLevel: getLogLevel(), tag},
+						{indent: options.indent, logLevel: options.logLevel, tag},
 						output
 					);
 				}
@@ -112,7 +112,7 @@ export class BrowserRunner {
 
 					const {output, tag} = formatted;
 					Log.verboseAdvanced(
-						{indent: options.indent, logLevel: getLogLevel(), tag},
+						{indent: options.indent, logLevel: options.logLevel, tag},
 						output
 					);
 				}

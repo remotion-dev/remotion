@@ -7,7 +7,7 @@ import {
 	getLocalBrowserExecutable,
 } from './get-local-browser-executable';
 import {getIdealVideoThreadsFlag} from './get-video-threads-flag';
-import type {LogLevel} from './log-level';
+import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
@@ -44,13 +44,12 @@ const browserInstances: HeadlessBrowser[] = [];
 export const killAllBrowsers = async () => {
 	for (const browser of browserInstances) {
 		try {
-			await browser.close(true, 'info');
+			await browser.close(true, 'info', false);
 		} catch (err) {}
 	}
 };
 
 type InternalOpenBrowserOptions = {
-	shouldDumpIo: boolean;
 	browserExecutable: string | null;
 	chromiumOptions: ChromiumOptions;
 	forceDeviceScaleFactor: number | undefined;
@@ -73,7 +72,6 @@ export const internalOpenBrowser = async ({
 	chromiumOptions,
 	forceDeviceScaleFactor,
 	indent,
-	shouldDumpIo,
 	viewport,
 	logLevel,
 }: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
@@ -92,7 +90,7 @@ export const internalOpenBrowser = async ({
 	const browserInstance = await puppeteer.launch({
 		executablePath,
 		product: browser,
-		dumpio: shouldDumpIo,
+		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		logLevel,
 		indent,
 		args: [
@@ -165,7 +163,7 @@ export const internalOpenBrowser = async ({
 		},
 	});
 
-	const pages = await browserInstance.pages(logLevel);
+	const pages = await browserInstance.pages(logLevel, indent);
 	await pages[0].close();
 
 	browserInstances.push(browserInstance);
@@ -192,7 +190,6 @@ export const openBrowser = (
 		chromiumOptions: chromiumOptions ?? {},
 		forceDeviceScaleFactor,
 		indent: false,
-		shouldDumpIo: shouldDumpIo ?? false,
 		viewport: null,
 		logLevel: shouldDumpIo ? 'verbose' : 'info',
 	});

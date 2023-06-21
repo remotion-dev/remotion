@@ -54,14 +54,14 @@ export const Log = {
 		options: LogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
-		if (isEqualOrBelowLogLevel(options.logLevel, 'info')) {
-			return console.log(
-				...[options.indent ? INDENT_TOKEN : null, ...args].filter(truthy)
-			);
-		}
+		return console.log(
+			...[options.indent ? INDENT_TOKEN : null, ...args].filter(truthy)
+		);
 	},
 	warn: (...args: Parameters<typeof console.log>) => {
-		Log.warnAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
+		if (isEqualOrBelowLogLevel(getLogLevel(), 'warn')) {
+			Log.warnAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
+		}
 	},
 	warnAdvanced: (
 		options: LogOptions,

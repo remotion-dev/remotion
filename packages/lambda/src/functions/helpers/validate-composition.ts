@@ -48,7 +48,7 @@ export const validateComposition = async ({
 		port,
 		browserExecutable: executablePath(),
 		serveUrl,
-		verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		logLevel,
 		indent: false,
 		onBrowserLog: null,
 		server,

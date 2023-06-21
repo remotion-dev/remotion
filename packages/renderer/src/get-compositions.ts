@@ -14,7 +14,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
-import {isEqualOrBelowLogLevel, type LogLevel} from './log-level';
+import {type LogLevel} from './log-level';
 
 type InternalGetCompositionsOptions = {
 	inputProps: Record<string, unknown>;
@@ -134,7 +134,6 @@ export const internalGetCompositions = async ({
 		context: null,
 		forceDeviceScaleFactor: undefined,
 		indent,
-		shouldDumpIo: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		logLevel,
 	});
 

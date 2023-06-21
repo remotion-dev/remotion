@@ -146,7 +146,6 @@ export const renderVideoFlow = async ({
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
 		browserExecutable,
-		shouldDumpIo: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		chromiumOptions,
 		forceDeviceScaleFactor: scale,
 		indent,
@@ -245,7 +244,7 @@ export const renderVideoFlow = async ({
 	};
 
 	const puppeteerInstance = await browserInstance;
-	addCleanupCallback(() => puppeteerInstance.close(false, logLevel));
+	addCleanupCallback(() => puppeteerInstance.close(false, logLevel, indent));
 
 	const actualConcurrency = RenderInternals.getActualConcurrency(concurrency);
 	const server = RenderInternals.prepareServer({

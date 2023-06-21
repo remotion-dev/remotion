@@ -95,7 +95,8 @@ export class Target {
 	 */
 	async page(
 		sourcemapContext: AnySourceMapConsumer | null,
-		logLevel: LogLevel
+		logLevel: LogLevel,
+		indent: boolean
 	): Promise<Page | null> {
 		if (isPagetTarget(this.#targetInfo) && !this.#pagePromise) {
 			this.#pagePromise = this.#sessionFactory().then((client) => {
@@ -106,6 +107,7 @@ export class Target {
 					browser: this.browser(),
 					sourcemapContext,
 					logLevel,
+					indent,
 				});
 			});
 		}

@@ -128,13 +128,10 @@ export const renderStillFlow = async ({
 		);
 	}
 
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
-
 	const browserInstance = RenderInternals.internalOpenBrowser({
 		browser,
 		browserExecutable,
 		chromiumOptions,
-		shouldDumpIo: verbose,
 		forceDeviceScaleFactor: scale,
 		indent: indentOutput,
 		viewport: null,
@@ -178,7 +175,9 @@ export const renderStillFlow = async ({
 	addCleanupCallback(() => cleanupBundle());
 
 	const puppeteerInstance = await browserInstance;
-	addCleanupCallback(() => puppeteerInstance.close(false, logLevel));
+	addCleanupCallback(() =>
+		puppeteerInstance.close(false, logLevel, indentOutput)
+	);
 
 	const {compositionId, config, reason, argsAfterComposition} =
 		await getCompositionWithDimensionOverride({
@@ -283,7 +282,6 @@ export const renderStillFlow = async ({
 		output: absoluteOutputLocation,
 		serveUrl: urlOrBundle,
 		jpegQuality,
-		dumpBrowserLogs: verbose,
 		envVariables,
 		imageFormat,
 		inputProps,
