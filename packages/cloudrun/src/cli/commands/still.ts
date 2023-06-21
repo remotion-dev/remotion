@@ -39,8 +39,6 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		remotionRoot,
 	});
 
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
-
 	let composition = args[1];
 	if (!composition) {
 		Log.info('No compositions passed. Fetching compositions...');
@@ -51,7 +49,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			indent: false,
 			port,
 			remotionRoot,
-			verbose,
+			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
 		});
 
@@ -61,7 +59,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				compositionIdFromUi: null,
 				indent: false,
 				serveUrlOrWebpackUrl: serveUrl,
-				verbose,
+				logLevel,
 				browserExecutable,
 				chromiumOptions,
 				envVariables,
@@ -145,7 +143,6 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		outName,
 		logLevel: ConfigInternals.Logging.getLogLevel(),
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
-		dumpBrowserLogs: verbose,
 	});
 	doneIn = Date.now() - renderStart;
 	updateProgress(true);

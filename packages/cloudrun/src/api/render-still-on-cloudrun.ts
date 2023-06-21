@@ -35,7 +35,6 @@ export type RenderStillOnCloudrunInput = {
 	forceHeight?: number | null;
 	logLevel?: LogLevel;
 	delayRenderTimeoutInMilliseconds?: number;
-	dumpBrowserLogs?: boolean;
 };
 
 /**
@@ -60,7 +59,6 @@ export type RenderStillOnCloudrunInput = {
  * @param params.forceHeight Overrides default composition height.
  * @param params.logLevel Level of logging that Cloud Run service should perform. Default "info".
  * @param params.delayRenderTimeoutInMilliseconds A number describing how long the render may take to resolve all delayRender() calls before it times out.
- * @param params.dumpBrowserLogs If set to true, all `console` statements from the headless browser will be forwarded to the Cloud Logging in GCP.
  * @returns {Promise<RenderStillOnCloudrunOutput>} See documentation for detailed structure
  */
 
@@ -84,7 +82,6 @@ export const renderStillOnCloudrun = async ({
 	forceHeight,
 	logLevel,
 	delayRenderTimeoutInMilliseconds,
-	dumpBrowserLogs,
 }: RenderStillOnCloudrunInput): Promise<RenderStillOnCloudrunOutput> => {
 	validateServeUrl(serveUrl);
 	if (privacy) validatePrivacy(privacy);
@@ -117,7 +114,6 @@ export const renderStillOnCloudrun = async ({
 		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds:
 			delayRenderTimeoutInMilliseconds ?? RenderInternals.DEFAULT_TIMEOUT,
-		dumpBrowserLogs: dumpBrowserLogs ?? false,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);

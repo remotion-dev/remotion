@@ -46,7 +46,6 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		privacy: z.enum(['public', 'private']).optional(),
 		logLevel,
 		delayRenderTimeoutInMilliseconds: z.number(),
-		dumpBrowserLogs: z.boolean(),
 		concurrency: z.number().or(z.string()).nullable(),
 		enforceAudioTrack: z.boolean(),
 		preferLossless: z.boolean(),
@@ -69,7 +68,6 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		frame: z.number(),
 		delayRenderTimeoutInMilliseconds: z.number(),
 		logLevel,
-		dumpBrowserLogs: z.boolean(),
 	}),
 ]);
 
