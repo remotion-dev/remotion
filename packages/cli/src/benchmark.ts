@@ -211,11 +211,6 @@ export const benchmarkCommand = async (
 
 	const puppeteerInstance = await browserInstance;
 
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		ConfigInternals.Logging.getLogLevel(),
-		'verbose'
-	);
-
 	const comps = await RenderInternals.internalGetCompositions({
 		serveUrlOrWebpackUrl: bundleLocation,
 		inputProps,
@@ -308,7 +303,6 @@ export const benchmarkCommand = async (
 					pixelFormat,
 					proResProfile,
 					jpegQuality,
-					dumpBrowserLogs: verbose,
 					chromiumOptions,
 					timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
 					scale: configFileScale,
