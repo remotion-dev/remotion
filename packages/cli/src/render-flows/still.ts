@@ -120,11 +120,14 @@ export const renderStillFlow = async ({
 		onProgress({message, value: progress, ...aggregate});
 	};
 
-	Log.verboseAdvanced(
-		{indent: indentOutput, logLevel},
-		'Browser executable: ',
-		browserExecutable
-	);
+	if (browserExecutable) {
+		Log.verboseAdvanced(
+			{indent: indentOutput, logLevel},
+			'Browser executable: ',
+			browserExecutable
+		);
+	}
+
 	const verbose = RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose');
 
 	const browserInstance = RenderInternals.internalOpenBrowser({

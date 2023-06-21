@@ -273,17 +273,13 @@ const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
 	}
 
 	if (progress.copyingState.doneIn === null) {
-		if (progress.copyingState.bytes < 100_000_000) {
-			return 'Bundling 100%';
-		}
-
 		const bytes = new Intl.NumberFormat('en', {
 			notation: 'compact',
 			style: 'unit',
 			unit: 'byte',
 			unitDisplay: 'narrow',
 		});
-		return `Copying ${bytes.format(progress.copyingState.bytes)}`;
+		return `Copying public dir ${bytes.format(progress.copyingState.bytes)}`;
 	}
 
 	if (!progress.rendering) {

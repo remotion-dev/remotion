@@ -41,10 +41,12 @@ export const stopPerfMeasure = (id: number) => {
 export const getPerf = () => {
 	return [
 		'Render performance:',
-		...(Object.keys(perf) as PerfId[]).map((p) => {
-			return `  ${p} => ${
-				perf[p].reduce((a, b) => a + b, 0) / perf[p].length
-			} (n = ${perf[p].length})`;
-		}),
+		...(Object.keys(perf) as PerfId[])
+			.filter((p) => perf[p].length)
+			.map((p) => {
+				return `  ${p} => ${
+					perf[p].reduce((a, b) => a + b, 0) / perf[p].length
+				}ms (n = ${perf[p].length})`;
+			}),
 	];
 };
