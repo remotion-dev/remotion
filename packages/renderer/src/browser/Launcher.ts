@@ -90,6 +90,7 @@ export class ChromeLauncher implements ProductLauncher {
 			dumpio,
 			env,
 			indent,
+			logLevel: options.logLevel,
 		});
 
 		let browser;
@@ -116,7 +117,7 @@ export class ChromeLauncher implements ProductLauncher {
 				{timeout}
 			);
 		} catch (error) {
-			await browser.close(false);
+			await browser.close(false, options.logLevel);
 			throw error;
 		}
 

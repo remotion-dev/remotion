@@ -17,6 +17,7 @@ import {
 } from './pixel-format';
 import type {ProResProfile} from './prores-profile';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
+import type {LogLevel} from './log-level';
 
 type RunningStatus =
 	| {
@@ -42,7 +43,7 @@ type PreStitcherOptions = {
 	crf: number | null | undefined;
 	onProgress: (progress: number) => void;
 	proResProfile: ProResProfile | undefined;
-	verbose: boolean;
+	logLevel: LogLevel;
 	imageFormat: VideoImageFormat;
 	ffmpegOverride: FfmpegOverrideFn;
 	signal: CancelSignal;
@@ -116,7 +117,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 	Log.verboseAdvanced(
 		{
 			indent: options.indent,
-			logLevel: options.verbose ? 'verbose' : 'info',
+			logLevel: options.logLevel,
 			tag: 'prespawnFfmpeg()',
 		},
 		'Generated FFMPEG command:'
@@ -124,7 +125,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 	Log.verboseAdvanced(
 		{
 			indent: options.indent,
-			logLevel: options.verbose ? 'verbose' : 'info',
+			logLevel: options.logLevel,
 			tag: 'prespawnFfmpeg()',
 		},
 		ffmpegArgs.join(' ')

@@ -1,8 +1,10 @@
+import type {LogLevel} from './log-level';
 import type {BrowserReplacer} from './replace-browser';
 
 export const cycleBrowserTabs = (
 	puppeteerInstance: BrowserReplacer,
-	concurrency: number
+	concurrency: number,
+	logLevel: LogLevel
 ): {
 	stopCycling: () => void;
 } => {
@@ -19,7 +21,7 @@ export const cycleBrowserTabs = (
 		interval = setTimeout(() => {
 			puppeteerInstance
 				.getBrowser()
-				.pages()
+				.pages(logLevel)
 				.then((pages) => {
 					if (pages.length === 0) {
 						return;

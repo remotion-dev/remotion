@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import type {LogLevel} from '../log-level';
 import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import {assert} from './assert';
 import type {Page} from './BrowserPage';
@@ -161,12 +162,16 @@ export class HeadlessBrowser extends EventEmitter {
 		}
 	}
 
-	newPage(context: AnySourceMapConsumer | null): Promise<Page> {
-		return this.#defaultContext.newPage(context);
+	newPage(
+		context: AnySourceMapConsumer | null,
+		logLevel: LogLevel
+	): Promise<Page> {
+		return this.#defaultContext.newPage(context, logLevel);
 	}
 
 	async _createPageInContext(
-		context: AnySourceMapConsumer | null
+		context: AnySourceMapConsumer | null,
+		logLevel: LogLevel
 	): Promise<Page> {
 		const {targetId} = await this.connection.send('Target.createTarget', {
 			url: 'about:blank',
@@ -182,7 +187,7 @@ export class HeadlessBrowser extends EventEmitter {
 			throw new Error(`Failed to create target for page (id = ${targetId})`);
 		}
 
-		const page = await target.page(context);
+		const page = await target.page(context, logLevel);
 		if (!page) {
 			throw new Error(`Failed to create a page for context`);
 		}
@@ -228,10 +233,10 @@ export class HeadlessBrowser extends EventEmitter {
 		}
 	}
 
-	async pages(): Promise<Page[]> {
+	async pages(logLevel: LogLevel): Promise<Page[]> {
 		const contextPages = await Promise.all(
 			this.browserContexts().map((context) => {
-				return context.pages();
+				return context.pages(logLevel);
 			})
 		);
 		// Flatten array.
@@ -240,9 +245,9 @@ export class HeadlessBrowser extends EventEmitter {
 		}, []);
 	}
 
-	async close(silent: boolean): Promise<void> {
+	async close(silent: boolean, logLevel: LogLevel): Promise<void> {
 		await this.#closeCallback.call(null);
-		(await this.pages()).forEach((page) => {
+		(await this.pages(logLevel)).forEach((page) => {
 			page.emit(PageEmittedEvents.Disposed);
 			page.closed = true;
 		});
@@ -280,19 +285,22 @@ export class BrowserContext extends EventEmitter {
 		}, options);
 	}
 
-	async pages(): Promise<Page[]> {
+	async pages(logLevel: LogLevel): Promise<Page[]> {
 		const pages = await Promise.all(
 			this.targets()
 				.filter((target) => target.type() === 'page')
-				.map((target) => target.page(null))
+				.map((target) => target.page(null, logLevel))
 		);
 		return pages.filter((page): page is Page => {
 			return Boolean(page);
 		});
 	}
 
-	newPage(context: AnySourceMapConsumer | null): Promise<Page> {
-		return this.#browser._createPageInContext(context);
+	newPage(
+		context: AnySourceMapConsumer | null,
+		logLevel: LogLevel
+	): Promise<Page> {
+		return this.#browser._createPageInContext(context, logLevel);
 	}
 
 	browser(): HeadlessBrowser {

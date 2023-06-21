@@ -35,6 +35,7 @@ import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
+import type {LogLevel} from './log-level';
 
 type InternalRenderStillOptions = {
 	composition: AnySmallCompMetadata;
@@ -56,7 +57,7 @@ type InternalRenderStillOptions = {
 	cancelSignal: CancelSignal | null;
 	indent: boolean;
 	server: RemotionServer | undefined;
-	verbose: boolean;
+	logLevel: LogLevel;
 	serveUrl: string;
 	port: number | null;
 };
@@ -115,6 +116,7 @@ const innerRenderStill = async ({
 	compositor,
 	sourceMapContext,
 	downloadMap,
+	logLevel,
 }: InternalRenderStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
@@ -191,8 +193,9 @@ const innerRenderStill = async ({
 			forceDeviceScaleFactor: scale,
 			indent: false,
 			viewport: null,
+			logLevel,
 		}));
-	const page = await browserInstance.newPage(sourceMapContext);
+	const page = await browserInstance.newPage(sourceMapContext, logLevel);
 	await page.setViewport({
 		width: composition.width,
 		height: composition.height,
@@ -225,7 +228,7 @@ const innerRenderStill = async ({
 		if (puppeteerInstance) {
 			await page.close();
 		} else {
-			browserInstance.close(true).catch((err) => {
+			browserInstance.close(true, logLevel).catch((err) => {
 				console.log('Unable to close browser', err);
 			});
 		}
@@ -319,7 +322,7 @@ export const internalRenderStill = (
 				port: options.port,
 				remotionRoot: findRemotionRoot(),
 				concurrency: 1,
-				verbose: options.verbose,
+				logLevel: options.logLevel,
 				indent: options.indent,
 			},
 			{
@@ -428,6 +431,6 @@ export const renderStill = (
 		server: undefined,
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		verbose: verbose ?? false,
+		logLevel: verbose ? 'verbose' : 'info',
 	});
 };
