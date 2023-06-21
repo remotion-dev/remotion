@@ -112,7 +112,6 @@ describe('Webhooks', () => {
 				rendererFunctionName: null,
 				bucketName: null,
 				audioCodec: null,
-				dumpBrowserLogs: false,
 			},
 			extraContext
 		);
@@ -196,7 +195,6 @@ describe('Webhooks', () => {
 				forceWidth: null,
 				rendererFunctionName: null,
 				audioCodec: null,
-				dumpBrowserLogs: false,
 			},
 			{
 				...extraContext,

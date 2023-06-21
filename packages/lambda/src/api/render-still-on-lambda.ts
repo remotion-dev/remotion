@@ -1,7 +1,8 @@
-import type {
-	ChromiumOptions,
-	LogLevel,
-	StillImageFormat,
+import {
+	RenderInternals,
+	type ChromiumOptions,
+	type LogLevel,
+	type StillImageFormat,
 } from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -121,7 +122,7 @@ export const renderStillOnLambda = async ({
 				frame: frame ?? 0,
 				privacy,
 				attempt: 1,
-				logLevel: logLevel ?? 'info',
+				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? RenderInternals.getLogLevel(),
 				outName: outName ?? null,
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				chromiumOptions: chromiumOptions ?? {},
@@ -131,7 +132,6 @@ export const renderStillOnLambda = async ({
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
 				bucketName: forceBucketName ?? null,
-				dumpBrowserLogs: dumpBrowserLogs ?? false,
 			},
 			region,
 		});

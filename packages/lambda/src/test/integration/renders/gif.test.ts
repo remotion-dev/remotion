@@ -73,7 +73,6 @@ test('Should make a distributed GIF', async () => {
 			rendererFunctionName: null,
 			bucketName: null,
 			audioCodec: null,
-			dumpBrowserLogs: false,
 		},
 		extraContext
 	)) as StreamedResponse;
