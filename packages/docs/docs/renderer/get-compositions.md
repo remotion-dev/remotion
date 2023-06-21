@@ -125,19 +125,24 @@ getCompositions({
 
 A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails(/docs/timeout). Default: `30000`
 
+#### `logLevel?`<AvailableFrom v="4.0.0"/>
+
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
+`verbose` will also log `console.log`'s from the browser.
+
 #### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 
 _optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
-### ~~`ffmpegExecutable`~~
+#### ~~`ffmpegExecutable`~~
 
 _removed in v4.0, optional_
 
 An absolute path overriding the `ffmpeg` executable to use.
 
-### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
+#### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
 
 _removed in v4.0_
 

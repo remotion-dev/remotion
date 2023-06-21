@@ -36,6 +36,7 @@ import {takeFrameAndCompose} from './take-frame-and-compose';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 import type {LogLevel} from './log-level';
+import {getLogLevel} from './logger';
 
 type InternalRenderStillOptions = {
 	composition: AnySmallCompMetadata;
@@ -68,9 +69,11 @@ export type RenderStillOptions = {
 	frame?: number;
 	inputProps?: Record<string, unknown>;
 	imageFormat?: StillImageFormat;
-
 	jpegQuality?: number;
 	puppeteerInstance?: HeadlessBrowser;
+	/**
+	 * @deprecated Use "logLevel": "verbose" instead
+	 */
 	dumpBrowserLogs?: boolean;
 	envVariables?: Record<string, string>;
 	overwrite?: boolean;
@@ -81,6 +84,9 @@ export type RenderStillOptions = {
 	scale?: number;
 	onDownload?: RenderMediaOnDownload;
 	cancelSignal?: CancelSignal;
+	/**
+	 * @deprecated Use "logLevel" instead
+	 */
 	verbose?: boolean;
 	serveUrl: string;
 	/**
@@ -432,6 +438,6 @@ export const renderStill = (
 		server: undefined,
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : 'info',
+		logLevel: verbose || dumpBrowserLogs ? 'verbose' : getLogLevel(),
 	});
 };

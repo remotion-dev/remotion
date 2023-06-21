@@ -49,6 +49,7 @@ import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
 import {type LogLevel} from './log-level';
+import {getLogLevel} from './logger';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
@@ -68,7 +69,6 @@ export type InternalRenderFramesOptions = {
 	jpegQuality: number;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
-	dumpBrowserLogs: boolean;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
 	onBrowserLog: null | ((log: BrowserLog) => void);
@@ -144,7 +144,15 @@ export type RenderFramesOptions = {
 	jpegQuality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
+	/**
+	 * @deprecated Use "logLevel": "verbose" instead
+	 */
 	dumpBrowserLogs?: boolean;
+	/**
+	 * @deprecated Use "logLevel" instead
+	 */
+	verbose?: boolean;
+	logLevel?: LogLevel;
 	puppeteerInstance?: HeadlessBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -159,7 +167,6 @@ export type RenderFramesOptions = {
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
-	verbose?: boolean;
 };
 
 const innerRenderFrames = async ({
@@ -542,7 +549,6 @@ export const internalRenderFrames = ({
 	chromiumOptions,
 	composition,
 	concurrency,
-	dumpBrowserLogs,
 	envVariables,
 	everyNthFrame,
 	frameRange,
@@ -597,7 +603,7 @@ export const internalRenderFrames = ({
 			forceDeviceScaleFactor: scale,
 			indent,
 			viewport: null,
-			logLevel: dumpBrowserLogs ? 'verbose' : 'info',
+			logLevel,
 		});
 
 	const browserInstance = puppeteerInstance ?? makeBrowser();
@@ -773,6 +779,7 @@ export const renderFrames = (
 		timeoutInMilliseconds,
 		verbose,
 		quality,
+		logLevel,
 	} = options;
 
 	if (!composition) {
@@ -799,7 +806,6 @@ export const renderFrames = (
 		chromiumOptions: chromiumOptions ?? {},
 		composition,
 		concurrency: concurrency ?? null,
-		dumpBrowserLogs: dumpBrowserLogs ?? false,
 		envVariables: envVariables ?? {},
 		everyNthFrame: everyNthFrame ?? 1,
 		frameRange: frameRange ?? null,
@@ -817,7 +823,8 @@ export const renderFrames = (
 		outputDir,
 		port: port ?? null,
 		scale: scale ?? 1,
-		logLevel: verbose ? 'verbose' : 'info',
+		logLevel:
+			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,

@@ -89,10 +89,6 @@ _optional_
 
 A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
 
-### ~~`parallelism?`~~
-
-Renamed to `concurrency` in v3.2.17.
-
 ### `crf?`
 
 _number | null - optional_
@@ -148,10 +144,6 @@ _number - optional_
 Sets the quality of the generated JPEG images. Must be an integer between 0 and 100. Default is to leave it up to the browser, [current default is 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 Only applies if `imageFormat` is `'jpeg'`, otherwise this option is invalid.
-
-### ~~`quality?`~~
-
-Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `frameRange?`
 
@@ -282,11 +274,10 @@ _string - optional_
 
 Sets a ProRes profile. Only applies to videos rendered with `prores` codec. See [Encoding guide](/docs/encoding/#controlling-quality-using-prores-profile) for possible options.
 
-### `dumpBrowserLogs?`
+### `logLevel?`<AvailableFrom v="4.0.0"/>
 
-_boolean - optional_
-
-If true, will print browser console output to standard output.
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
+`verbose` will also log `console.log`'s from the browser.
 
 ### `onBrowserLog?`
 
@@ -316,12 +307,6 @@ A number describing how long the render may take to resolve all [`delayRender()`
 _optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
-
-### `verbose?`<AvailableFrom v="3.1.6" />
-
-_optional_
-
-Prints debugging output if set to true.
 
 ### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 
@@ -406,6 +391,27 @@ Before you use this hack, reach out to the Remotion team on [Discord](https://re
 ### `disallowParallelEncoding`<AvailableFrom v="3.2.29" />
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
+
+### ~~`parallelism?`~~
+
+Renamed to `concurrency` in v3.2.17.
+Removed in `v4.0.0`.
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
+
+### ~~`dumpBrowserLogs?`~~
+
+_optional - default `false`, deprecated in v4.0_
+
+Deprecated in favor of [`logLevel`](#loglevel).
+
+### ~~`verbose?`~~
+
+_optional, deprecated in v4.0_
+
+Deprecated in favor of [`logLevel`](#loglevel).
 
 ### ~~`onSlowestFrames?`~~
 
