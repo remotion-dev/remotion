@@ -42,7 +42,7 @@ export const createOverwriteableCliOutput = (options: {
 							.map((l) => {
 								return `${RenderInternals.INDENT_TOKEN} ${l}`;
 							})
-							.join('\n')
+							.join('\n') + '\n'
 					);
 				} else {
 					process.stdout.write(up + '\n');
