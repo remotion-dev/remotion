@@ -35,6 +35,7 @@ import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
+import type {LogLevel} from './log-level';
 
 type InternalRenderStillOptions = {
 	composition: AnySmallCompMetadata;
@@ -44,7 +45,6 @@ type InternalRenderStillOptions = {
 	imageFormat: StillImageFormat;
 	jpegQuality: number;
 	puppeteerInstance: HeadlessBrowser | null;
-	dumpBrowserLogs: boolean;
 	envVariables: Record<string, string>;
 	overwrite: boolean;
 	browserExecutable: BrowserExecutable;
@@ -56,7 +56,7 @@ type InternalRenderStillOptions = {
 	cancelSignal: CancelSignal | null;
 	indent: boolean;
 	server: RemotionServer | undefined;
-	verbose: boolean;
+	logLevel: LogLevel;
 	serveUrl: string;
 	port: number | null;
 };
@@ -97,7 +97,6 @@ const innerRenderStill = async ({
 	imageFormat = DEFAULT_STILL_IMAGE_FORMAT,
 	serveUrl,
 	puppeteerInstance,
-	dumpBrowserLogs = false,
 	onError,
 	inputProps,
 	envVariables,
@@ -115,6 +114,8 @@ const innerRenderStill = async ({
 	compositor,
 	sourceMapContext,
 	downloadMap,
+	logLevel,
+	indent,
 }: InternalRenderStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
@@ -186,13 +187,17 @@ const innerRenderStill = async ({
 		(await internalOpenBrowser({
 			browser: DEFAULT_BROWSER,
 			browserExecutable,
-			shouldDumpIo: dumpBrowserLogs,
 			chromiumOptions,
 			forceDeviceScaleFactor: scale,
-			indent: false,
+			indent,
 			viewport: null,
+			logLevel,
 		}));
-	const page = await browserInstance.newPage(sourceMapContext);
+	const page = await browserInstance.newPage(
+		sourceMapContext,
+		logLevel,
+		indent
+	);
 	await page.setViewport({
 		width: composition.width,
 		height: composition.height,
@@ -225,7 +230,7 @@ const innerRenderStill = async ({
 		if (puppeteerInstance) {
 			await page.close();
 		} else {
-			browserInstance.close(true).catch((err) => {
+			browserInstance.close(true, logLevel, indent).catch((err) => {
 				console.log('Unable to close browser', err);
 			});
 		}
@@ -319,7 +324,7 @@ export const internalRenderStill = (
 				port: options.port,
 				remotionRoot: findRemotionRoot(),
 				concurrency: 1,
-				verbose: options.verbose,
+				logLevel: options.logLevel,
 				indent: options.indent,
 			},
 			{
@@ -411,7 +416,6 @@ export const renderStill = (
 		browserExecutable: browserExecutable ?? null,
 		cancelSignal: cancelSignal ?? null,
 		chromiumOptions: chromiumOptions ?? {},
-		dumpBrowserLogs: dumpBrowserLogs ?? false,
 		envVariables: envVariables ?? {},
 		frame: frame ?? 0,
 		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,
@@ -428,6 +432,6 @@ export const renderStill = (
 		server: undefined,
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		verbose: verbose ?? false,
+		logLevel: verbose || dumpBrowserLogs ? 'verbose' : 'info',
 	});
 };

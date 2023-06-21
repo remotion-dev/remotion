@@ -4,6 +4,20 @@ export const shouldLogBrowserMessage = (message: string) => {
 		return false;
 	}
 
+	// In Ubuntu GitHub Action
+	if (message.includes('Falling back to ALSA for audio output')) {
+		return false;
+	}
+
+	// In Ubuntu GitHub Action
+	if (
+		message.includes(
+			'Floss manager not present, cannot set Floss enable/disable'
+		)
+	) {
+		return false;
+	}
+
 	// Noisy but harmless warning
 	if (message.includes('Failed to send GpuControl.CreateCommandBuffer')) {
 		return false;

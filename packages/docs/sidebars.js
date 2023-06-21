@@ -75,6 +75,7 @@ module.exports = {
         "use-current-frame",
         "use-video-config",
         "composition",
+        "calculate-metadata",
         "interpolate",
         "continue-render",
         "delay-render",

@@ -14,6 +14,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {type LogLevel} from './log-level';
 
 type InternalGetCompositionsOptions = {
 	inputProps: Record<string, unknown>;
@@ -26,7 +27,7 @@ type InternalGetCompositionsOptions = {
 	port: number | null;
 	server: RemotionServer | undefined;
 	indent: boolean;
-	verbose: boolean;
+	logLevel: LogLevel;
 	serveUrlOrWebpackUrl: string;
 };
 
@@ -124,7 +125,7 @@ export const internalGetCompositions = async ({
 	serveUrlOrWebpackUrl,
 	server,
 	timeoutInMilliseconds,
-	verbose,
+	logLevel,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -133,7 +134,7 @@ export const internalGetCompositions = async ({
 		context: null,
 		forceDeviceScaleFactor: undefined,
 		indent,
-		shouldDumpIo: verbose,
+		logLevel,
 	});
 
 	const cleanup: CleanupFn[] = [cleanupPage];
@@ -156,7 +157,7 @@ export const internalGetCompositions = async ({
 				port,
 				remotionRoot: findRemotionRoot(),
 				concurrency: 1,
-				verbose,
+				logLevel,
 				indent,
 			},
 			{
@@ -225,6 +226,6 @@ export const getCompositions = (
 		serveUrlOrWebpackUrl,
 		server: undefined,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		verbose: verbose ?? false,
+		logLevel: verbose ? 'verbose' : 'info',
 	});
 };

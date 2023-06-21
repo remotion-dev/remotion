@@ -234,7 +234,7 @@ const bundleOnCli = async ({
 	};
 	copyingState = {
 		...copyingState,
-		doneIn: copyStart ? Date.now() - copyStart : null,
+		doneIn: copyStart ? Date.now() - copyStart : 0,
 	};
 	updateProgress(true);
 
