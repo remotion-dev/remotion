@@ -49,6 +49,7 @@ import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
 import {type LogLevel} from './log-level';
+import {getLogLevel} from './logger';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
@@ -822,7 +823,8 @@ export const renderFrames = (
 		outputDir,
 		port: port ?? null,
 		scale: scale ?? 1,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
+		logLevel:
+			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,

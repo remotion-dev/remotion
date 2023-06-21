@@ -32,7 +32,7 @@ import {
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import {Log} from './logger';
+import {Log, getLogLevel} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -748,7 +748,8 @@ export const renderMedia = ({
 		scale: scale ?? 1,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		videoBitrate: videoBitrate ?? null,
-		logLevel: verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
+		logLevel:
+			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
 		preferLossless: preferLossless ?? false,
 		indent: false,
 		onCtrlCExit: () => undefined,
