@@ -8,7 +8,6 @@ import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
 import type {GetRenderInput} from './get-render-progress';
 import type {RenderMediaOnLambdaInput} from './render-media-on-lambda';
-import {RenderInternals} from '@remotion/renderer';
 
 export const makeLambdaRenderMediaPayload = async ({
 	rendererFunctionName,
@@ -83,9 +82,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		jpegQuality,
 		maxRetries: maxRetries ?? 1,
 		privacy: privacy ?? 'public',
-		logLevel: dumpBrowserLogs
-			? 'verbose'
-			: logLevel ?? RenderInternals.getLogLevel(),
+		logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 		frameRange: frameRange ?? null,
 		outName: outName ?? null,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,

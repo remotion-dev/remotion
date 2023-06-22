@@ -3,7 +3,6 @@ import type {
 	LogLevel,
 	StillImageFormat,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -122,9 +121,7 @@ export const renderStillOnLambda = async ({
 				frame: frame ?? 0,
 				privacy,
 				attempt: 1,
-				logLevel: dumpBrowserLogs
-					? 'verbose'
-					: logLevel ?? RenderInternals.getLogLevel(),
+				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 				outName: outName ?? null,
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				chromiumOptions: chromiumOptions ?? {},
