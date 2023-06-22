@@ -5,10 +5,9 @@ import (
 	"log"
 	"os"
 
-	"lambda_go_sdk"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
+	"github.com/remotion-dev/lambda_go_sdk"
 )
 
 type ValidationError struct {
