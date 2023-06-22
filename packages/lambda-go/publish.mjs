@@ -28,6 +28,13 @@ execSync(
   }
 );
 
+const filesInWorkingDir = readdirSync(workingDir);
+for (const file of filesInWorkingDir) {
+  if (file !== ".git") {
+    rmSync(path.join(workingDir, file), { recursive: true });
+  }
+}
+
 const dir = readdirSync(".");
 for (const file of dir) {
   if (file.endsWith(".go") && !file.endsWith("_test.go")) {
