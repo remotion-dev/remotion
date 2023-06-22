@@ -192,7 +192,7 @@ const MyComp = () => {
 
 ## Note for `@remotion/three`
 
-A `<Sequence>` by default will return a `<div>` component which is not allows inside a [`<ThreeCanvas>`](/docs/three-canvas). To avoid an error, pass `layout="none"` to `<Sequence>`.
+A `<Sequence>` by default will return a `<div>` component which is not allowed inside a [`<ThreeCanvas>`](/docs/three-canvas). Avoid an error, by passing `layout="none"` to `<Sequence>` example: `<Sequence layout="none">`.
 
 ## See also
 
