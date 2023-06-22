@@ -74,8 +74,9 @@ const Series: FC<{
 			const {
 				durationInFrames,
 				children: _children,
+				from,
 				...passedProps
-			} = castedChild.props;
+			} = castedChild.props as SeriesSequenceProps & {from: never}; // `from` is not accepted and must be filtered out if used in JS
 
 			if (
 				i !== flattenedChildren.length - 1 ||
