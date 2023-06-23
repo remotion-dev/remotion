@@ -81,16 +81,17 @@ export class ExecutionContext {
 				? expression
 				: expression + '\n' + suffix;
 
-			const {exceptionDetails: _details, result: _remoteObject} =
-				await this._client
-					.send('Runtime.evaluate', {
-						expression: expressionWithSourceUrl,
-						contextId,
-						returnByValue,
-						awaitPromise: true,
-						userGesture: true,
-					})
-					.catch(rewriteError);
+			const {
+				value: {exceptionDetails: _details, result: _remoteObject},
+			} = await this._client
+				.send('Runtime.evaluate', {
+					expression: expressionWithSourceUrl,
+					contextId,
+					returnByValue,
+					awaitPromise: true,
+					userGesture: true,
+				})
+				.catch(rewriteError);
 
 			if (_details) {
 				throw new Error('Evaluation failed: ' + getExceptionMessage(_details));
@@ -149,8 +150,9 @@ export class ExecutionContext {
 			throw error;
 		}
 
-		const {exceptionDetails, result: remoteObject} =
-			await callFunctionOnPromise.catch(rewriteError);
+		const {
+			value: {exceptionDetails, result: remoteObject},
+		} = await callFunctionOnPromise.catch(rewriteError);
 		if (exceptionDetails) {
 			throw new Error(
 				'Evaluation failed: ' + getExceptionMessage(exceptionDetails)
@@ -214,13 +216,13 @@ export class ExecutionContext {
 			return {value: arg};
 		}
 
-		function rewriteError(error: Error): EvaluateResponse {
+		function rewriteError(error: Error): {value: EvaluateResponse; size: 1} {
 			if (error.message.includes('Object reference chain is too long')) {
-				return {result: {type: 'undefined'}};
+				return {value: {result: {type: 'undefined'}}, size: 1};
 			}
 
 			if (error.message.includes("Object couldn't be returned by value")) {
-				return {result: {type: 'undefined'}};
+				return {value: {result: {type: 'undefined'}}, size: 1};
 			}
 
 			if (

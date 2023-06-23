@@ -68,7 +68,7 @@ const innerSelectComposition = async ({
 	id,
 	indent,
 	logLevel,
-}: InnerSelectCompositionConfig): Promise<VideoConfig> => {
+}: InnerSelectCompositionConfig): Promise<InternalReturnType> => {
 	if (onBrowserLog) {
 		page.on('console', (log) => {
 			onBrowserLog({
@@ -116,7 +116,7 @@ const innerSelectComposition = async ({
 		'Running calculateMetadata()...'
 	);
 	const time = Date.now();
-	const result = await puppeteerEvaluateWithCatch({
+	const {value: result, size} = await puppeteerEvaluateWithCatch({
 		pageFunction: (_id: string) => {
 			return window.remotion_calculateComposition(_id);
 		},
@@ -133,12 +133,14 @@ const innerSelectComposition = async ({
 		`calculateMetadata() took ${Date.now() - time}ms`
 	);
 
-	return result as VideoConfig;
+	return {metadata: result as VideoConfig, propsSize: size};
 };
+
+type InternalReturnType = {metadata: VideoConfig; propsSize: number};
 
 export const internalSelectComposition = async (
 	options: InternalSelectCompositionsConfig
-): Promise<AnyCompMetadata> => {
+): Promise<InternalReturnType> => {
 	const cleanup: CleanupFn[] = [];
 	const {
 		puppeteerInstance,
@@ -167,7 +169,7 @@ export const internalSelectComposition = async (
 	});
 	cleanup.push(() => cleanupPage());
 
-	return new Promise<VideoConfig>((resolve, reject) => {
+	return new Promise<InternalReturnType>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 
 		cleanup.push(
@@ -215,8 +217,8 @@ export const internalSelectComposition = async (
 				});
 			})
 
-			.then((comp) => {
-				return resolve(comp);
+			.then((data) => {
+				return resolve(data);
 			})
 			.catch((err) => {
 				reject(err);
@@ -233,7 +235,7 @@ export const internalSelectComposition = async (
  * @description Gets a composition defined in a Remotion project based on a Webpack bundle.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/select-composition)
  */
-export const selectComposition = (
+export const selectComposition = async (
 	options: SelectCompositionOptions
 ): Promise<AnyCompMetadata> => {
 	const {
@@ -249,7 +251,7 @@ export const selectComposition = (
 		timeoutInMilliseconds,
 		verbose,
 	} = options;
-	return internalSelectComposition({
+	const data = await internalSelectComposition({
 		id,
 		serveUrl,
 		browserExecutable: browserExecutable ?? null,
@@ -264,4 +266,5 @@ export const selectComposition = (
 		indent: false,
 		server: undefined,
 	});
+	return data.metadata;
 };
