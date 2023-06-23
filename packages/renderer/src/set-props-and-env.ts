@@ -176,7 +176,7 @@ export const setPropsAndEnv = (params: SetPropsAndEnv) => {
 						'Timed out while setting up the headless browser - the browser seems to not respond. This error is thrown to trigger a retry.'
 					)
 				);
-			}, 10000);
+			}, 20000);
 		}),
 	]);
 };
