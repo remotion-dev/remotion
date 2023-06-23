@@ -38,7 +38,7 @@ export const validateComposition = async ({
 	logLevel,
 	server,
 }: ValidateCompositionOptions): Promise<AnyCompMetadata> => {
-	const comp = await RenderInternals.internalSelectComposition({
+	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
 		puppeteerInstance: browserInstance,
 		inputProps,
