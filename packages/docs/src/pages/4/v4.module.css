@@ -1,0 +1,30 @@
+.container {
+  position: "relative";
+}
+
+.wrapper {
+  max-width: 1000px;
+  margin: auto;
+  padding-top: 60px;
+  padding-left: 20px;
+  padding-right: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel {
+  background-color: var(--ifm-background-color);
+  box-shadow: var(--box-shadow);
+  padding: 10px;
+  border-radius: 15px;
+  flex: 1;
+  padding-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 1.2rem;
+  margin-bottom: 0;
+  font-weight: bold;
+}
