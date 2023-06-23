@@ -39,7 +39,7 @@ export const useVideo = (): ReturnType => {
 
 		return {
 			...resolved.result,
-			defaultProps: selected.defaultProps,
+			defaultProps: selected.defaultProps ?? {},
 			id: selected.id,
 			// We override the selected metadata with the metadata that was passed to renderMedia(),
 			// and don't allow it to be changed during render anymore

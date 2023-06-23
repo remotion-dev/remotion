@@ -1,4 +1,4 @@
-import type {AnyCompMetadata} from 'remotion';
+import type {AnyCompMetadata, VideoConfig} from 'remotion';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -68,7 +68,7 @@ const innerSelectComposition = async ({
 	id,
 	indent,
 	logLevel,
-}: InnerSelectCompositionConfig): Promise<AnyCompMetadata> => {
+}: InnerSelectCompositionConfig): Promise<VideoConfig> => {
 	if (onBrowserLog) {
 		page.on('console', (log) => {
 			onBrowserLog({
@@ -133,7 +133,7 @@ const innerSelectComposition = async ({
 		`calculateMetadata() took ${Date.now() - time}ms`
 	);
 
-	return result as AnyCompMetadata;
+	return result as VideoConfig;
 };
 
 export const internalSelectComposition = async (
@@ -167,7 +167,7 @@ export const internalSelectComposition = async (
 	});
 	cleanup.push(() => cleanupPage());
 
-	return new Promise<AnyCompMetadata>((resolve, reject) => {
+	return new Promise<VideoConfig>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 
 		cleanup.push(
