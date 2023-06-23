@@ -7,12 +7,12 @@ import {renderMediaSingleThread} from './render-media-single-thread';
 import {renderStillSingleThread} from './render-still-single-thread';
 
 const renderOnCloudRun = async (req: ff.Request, res: ff.Response) => {
-	const body = CloudRunPayload.parse(req.body);
-	const renderType = body.type;
-
-	RenderInternals.setLogLevel(body.logLevel);
-
 	try {
+		Log.info('renderOnCloudRun', req.body);
+		const body = CloudRunPayload.parse(req.body);
+		const renderType = body.type;
+
+		RenderInternals.setLogLevel(body.logLevel);
 		switch (renderType) {
 			case 'media':
 				await renderMediaSingleThread(body, res);
