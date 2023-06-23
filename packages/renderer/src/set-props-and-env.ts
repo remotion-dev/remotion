@@ -111,7 +111,7 @@ const innerSetPropsAndEnv = async ({
 		);
 	}
 
-	const {value: isRemotionFn} = await puppeteerEvaluateWithCatch<
+	const isRemotionFn = await puppeteerEvaluateWithCatch<
 		typeof window['getStaticCompositions']
 	>({
 		pageFunction: () => {
