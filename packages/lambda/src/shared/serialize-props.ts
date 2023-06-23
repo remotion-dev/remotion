@@ -29,7 +29,7 @@ export const serializeInputProps = async ({
 		
 		// TODO: It should take the COMBINED size of default props and resolved props
 		if (payload.length > MAX_INLINE_PAYLOAD_SIZE) {
-			RenderInternals.Log.warn(
+			console.warn(
 				`Warning: inputProps are over ${Math.round(
 					MAX_INLINE_PAYLOAD_SIZE / 1000
 				)}KB (${Math.ceil(
