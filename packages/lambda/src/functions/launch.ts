@@ -17,7 +17,6 @@ import {
 	renderMetadataKey,
 	rendersPrefix,
 } from '../shared/constants';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
 import {getServeUrlHash} from '../shared/make-s3-url';
@@ -45,6 +44,7 @@ import {
 	writeLambdaError,
 } from './helpers/write-lambda-error';
 import {writePostRenderData} from './helpers/write-post-render-data';
+import {deserializeInputProps} from '../shared/serialize-props';
 
 type Options = {
 	expectedBucketOwner: string;

@@ -1,7 +1,7 @@
 import {VERSION} from 'remotion/version';
 import type {LambdaStartPayload, LambdaStatusPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {serializeInputProps} from '../shared/serialize-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';

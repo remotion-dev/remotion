@@ -10,7 +10,7 @@ import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {serializeInputProps} from '../shared/serialize-props';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;

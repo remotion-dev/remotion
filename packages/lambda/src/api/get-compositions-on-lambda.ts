@@ -4,7 +4,7 @@ import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
 import {LambdaRoutines} from '../defaults';
 import {callLambda} from '../shared/call-lambda';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {serializeInputProps} from '../shared/serialize-props';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
