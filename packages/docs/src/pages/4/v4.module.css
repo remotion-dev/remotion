@@ -28,3 +28,8 @@
   margin-bottom: 0;
   font-weight: bold;
 }
+
+.pagetitle {
+  font-size: 3em;
+  text-align: center;
+}

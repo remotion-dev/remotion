@@ -9,6 +9,7 @@ import styles from "./v4.module.css";
 import { BlueButton } from "../../../components/layout/Button";
 import { CoolInput } from "../../../components/TextInput";
 import { Spacer } from "../../../components/layout/Spacer";
+import { V4Countdown } from "../../components/V4Countdown";
 
 const V4: React.FC = () => {
   const [email, setEmail] = useState<string>(null);
@@ -74,8 +75,11 @@ const V4: React.FC = () => {
       <Head>{Seo.renderTitle("Remotion V4")}</Head>
       <div className={styles.container}>
         <div className={styles.wrapper}>
-          <p className={styles.title}>V4 Launch</p>
+          <h1 className={styles.pagetitle}>Remotion V4 launches in</h1>
 
+          <V4Countdown />
+          <Spacer />
+          <Spacer />
           <div className={styles.panel}>
             <p>
               Get a newsletter with all the imporant information when Remotion
