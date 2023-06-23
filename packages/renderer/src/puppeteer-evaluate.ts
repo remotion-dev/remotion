@@ -117,7 +117,6 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 
 	let callFunctionOnPromise;
 	try {
-		console.log({functionText, suffix});
 		callFunctionOnPromise = client.send('Runtime.callFunctionOn', {
 			functionDeclaration: functionText + '\n' + suffix + '\n',
 			executionContextId: contextId,
@@ -138,6 +137,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 	try {
 		const {
 			value: {exceptionDetails, result: remoteObject},
+			size,
 		} = await callFunctionOnPromise;
 
 		if (exceptionDetails) {
@@ -155,7 +155,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			throw err;
 		}
 
-		return valueFromRemoteObject(remoteObject);
+		return {size, value: valueFromRemoteObject(remoteObject)};
 	} catch (error) {
 		if (
 			(error as {originalMessage: string})?.originalMessage?.startsWith(
