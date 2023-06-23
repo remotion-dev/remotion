@@ -12,6 +12,7 @@ Help us shape Remotion Cloud Run!
 ## What to test
 
 We are looking for feedback on the experience of setting up a GCP Project for Remotion Cloud Run, as well as the required components for rendering on the cloud:
+
 - Deploy a rendering service (in Lambda, a service is known as a function).
 - Deploy a Remotion project to GCP Cloud Storage (in Lambda, the storage solution is S3).
 - Render a composition stored in Cloud Storage on a Cloud Run service.
@@ -42,26 +43,29 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 
 Make sure the versions don't have a `^` character in front of it.
 
-
 ## Changelog
 
-### `unreleased`
+### `4.1.0-alpha4`
+
+Fixed schema error when invoking a render.
+
 Bug fixes leading to public testing.
 
-| Issue | Resolution   | 
-|---|---|
-|Rendering a still via CLI with defaults results in error - You can only pass the `quality` option if `imageFormat` is 'jpeg'. | Migrated to V4 method, using internalRenderStill() instead of renderStill(). Noticed missing options, added them in and documented. | 
+| Issue                                                                                                                         | Resolution                                                                                                                          |
+| ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Rendering a still via CLI with defaults results in error - You can only pass the `quality` option if `imageFormat` is 'jpeg'. | Migrated to V4 method, using internalRenderStill() instead of renderStill(). Noticed missing options, added them in and documented. |
 
 ### `4.1.0-alpha3`
+
 Bug fixes leading to public testing.
 
-| Issue | Resolution   | 
-|---|---|
-|When deploying a service, the image didn't exist in Google Artifact Registry. | Added publish script that runs submit.mjs, automatically deploying the image, tagged with the version number. | 
-|Functions folder wasn't included in dist folder, so no CLI commandswould work. | Removed this from .npmignore, so that it is included.  |
-|When using the CLI to request a render without passing a composition name, it fails to list out compositions to choose from|Issue raised, present in V4 for Lambda also.   |
-|Service name structuring clips off alpha version denominator. During alpha, this will make it impossible to deploy multiple services spanning alpha versions.|Create new name formatting that meets requirements. Added tests for this.|
-|CLI commands for rendering not aligned with Remotion Lambda.|`npx remotion cloudrun render media` is now `npx remotion cloudrun render`.<br /><br />`npx remotion cloudrun render still` is now `npx cloudrun remotion still`.<br /><br />Documentation also updated.|
+| Issue                                                                                                                                                         | Resolution                                                                                                                                                                                               |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| When deploying a service, the image didn't exist in Google Artifact Registry.                                                                                 | Added publish script that runs submit.mjs, automatically deploying the image, tagged with the version number.                                                                                            |
+| Functions folder wasn't included in dist folder, so no CLI commandswould work.                                                                                | Removed this from .npmignore, so that it is included.                                                                                                                                                    |
+| When using the CLI to request a render without passing a composition name, it fails to list out compositions to choose from                                   | Issue raised, present in V4 for Lambda also.                                                                                                                                                             |
+| Service name structuring clips off alpha version denominator. During alpha, this will make it impossible to deploy multiple services spanning alpha versions. | Create new name formatting that meets requirements. Added tests for this.                                                                                                                                |
+| CLI commands for rendering not aligned with Remotion Lambda.                                                                                                  | `npx remotion cloudrun render media` is now `npx remotion cloudrun render`.<br /><br />`npx remotion cloudrun render still` is now `npx cloudrun remotion still`.<br /><br />Documentation also updated. |
 
 ### `4.1.0-alpha2`
 
