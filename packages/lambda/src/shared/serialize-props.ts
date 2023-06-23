@@ -1,3 +1,4 @@
+import { RenderInternals } from '@remotion/renderer';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
@@ -25,9 +26,10 @@ export const serializeInputProps = async ({
 		const hash = randomHash();
 
 		const MAX_INLINE_PAYLOAD_SIZE = type === 'still' ? 5000000 : 200000;
-
+		
+		// TODO: It should take the COMBINED size of default props and resolved props
 		if (payload.length > MAX_INLINE_PAYLOAD_SIZE) {
-			console.warn(
+			RenderInternals.Log.warn(
 				`Warning: inputProps are over ${Math.round(
 					MAX_INLINE_PAYLOAD_SIZE / 1000
 				)}KB (${Math.ceil(
