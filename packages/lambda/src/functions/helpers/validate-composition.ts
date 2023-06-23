@@ -5,7 +5,7 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {AnyCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import type {Await} from '../../shared/await';
 import {executablePath} from './get-chromium-executable-path';
 
@@ -37,8 +37,8 @@ export const validateComposition = async ({
 	forceWidth,
 	logLevel,
 	server,
-}: ValidateCompositionOptions): Promise<AnyCompMetadata> => {
-	const comp = await RenderInternals.internalSelectComposition({
+}: ValidateCompositionOptions): Promise<VideoConfig> => {
+	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
 		puppeteerInstance: browserInstance,
 		inputProps,
@@ -58,5 +58,7 @@ export const validateComposition = async ({
 		...comp,
 		height: forceHeight ?? comp.height,
 		width: forceWidth ?? comp.width,
+		defaultProps: comp.defaultProps,
+		props: comp.props,
 	};
 };

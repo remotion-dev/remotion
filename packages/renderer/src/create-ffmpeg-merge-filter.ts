@@ -17,8 +17,6 @@ export const createFfmpegMergeFilter = ({
 		return `[${index}:a]${filters.filter(truthy).join(',')}[padded${index}]`;
 	});
 
-	const normalize = ':normalize=0';
-
 	return [
 		...pads,
 		`${new Array(inputs.length)
@@ -28,6 +26,6 @@ export const createFfmpegMergeFilter = ({
 			})
 			.join('')}amix=inputs=${
 			inputs.length
-		}:dropout_transition=0${normalize}[${OUTPUT_FILTER_NAME}]`,
+		}:dropout_transition=0:normalize=0[${OUTPUT_FILTER_NAME}]`,
 	].join(';');
 };

@@ -127,7 +127,7 @@ const innerSetPropsAndEnv = async ({
 		);
 	}
 
-	const siteVersion = await puppeteerEvaluateWithCatch<
+	const {value: siteVersion} = await puppeteerEvaluateWithCatch<
 		typeof window.siteVersion
 	>({
 		pageFunction: () => {
@@ -138,7 +138,7 @@ const innerSetPropsAndEnv = async ({
 		page,
 	});
 
-	const remotionVersion = await puppeteerEvaluateWithCatch<string>({
+	const {value: remotionVersion} = await puppeteerEvaluateWithCatch<string>({
 		pageFunction: () => {
 			return window.remotion_version;
 		},
@@ -178,7 +178,7 @@ export const setPropsAndEnv = (params: SetPropsAndEnv) => {
 						'Timed out while setting up the headless browser - the browser seems to not respond. This error is thrown to trigger a retry.'
 					)
 				);
-			}, 10000);
+			}, 20000);
 		}),
 	]);
 };

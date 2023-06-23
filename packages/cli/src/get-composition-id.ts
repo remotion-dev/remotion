@@ -6,9 +6,10 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {AnyCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';
+import {formatBytes} from './format-bytes';
 
 const getCompName = ({
 	cliArgs,
@@ -65,7 +66,7 @@ export const getCompositionId = async ({
 }): Promise<{
 	compositionId: string;
 	reason: string;
-	config: AnyCompMetadata;
+	config: VideoConfig;
 	argsAfterComposition: string[];
 }> => {
 	const {
@@ -77,21 +78,30 @@ export const getCompositionId = async ({
 		compositionIdFromUi,
 	});
 	if (compName) {
-		const config = await RenderInternals.internalSelectComposition({
-			id: compName,
-			inputProps,
-			puppeteerInstance,
-			envVariables,
-			timeoutInMilliseconds,
-			serveUrl: serveUrlOrWebpackUrl,
-			browserExecutable,
-			chromiumOptions,
-			port,
-			logLevel,
-			server,
-			indent,
-			onBrowserLog: null,
-		});
+		const {metadata: config, propsSize} =
+			await RenderInternals.internalSelectComposition({
+				id: compName,
+				inputProps,
+				puppeteerInstance,
+				envVariables,
+				timeoutInMilliseconds,
+				serveUrl: serveUrlOrWebpackUrl,
+				browserExecutable,
+				chromiumOptions,
+				port,
+				logLevel,
+				server,
+				indent,
+				onBrowserLog: null,
+			});
+
+		if (propsSize > 10_000_000) {
+			Log.warn(
+				`The props of your composition are large (${formatBytes(
+					propsSize
+				)}). This may cause slowdown.`
+			);
+		}
 
 		if (!config) {
 			throw new Error(`Cannot find composition with ID "${compName}"`);
@@ -125,7 +135,7 @@ export const getCompositionId = async ({
 			return {
 				compositionId,
 				reason,
-				config: comps.find((c) => c.id === compositionId) as AnyCompMetadata,
+				config: comps.find((c) => c.id === compositionId) as VideoConfig,
 				argsAfterComposition: args,
 			};
 		}

@@ -29,6 +29,14 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 
 Run `npm i `, `yarn` or `pnpm i` respectively afterwards.
 
+## System requirements
+
+The minimum Node version is now 16.0.0.
+
+Only the following platforms are supported: Windows (x64 only), macOS, Linux.
+
+Linux distros with glibc need to have at least version 2.34. [See here](https://github.com/remotion-dev/remotion/issues/2439) for more information.
+
 ## Config file changes
 
 The CLI configuration file has been moved out from the core Remotion package to `@remotion/cli/config`. Update your imports like this:
@@ -335,12 +343,13 @@ If you register a composition with a component that requires some props, you now
 - **@remotion/renderer**: Removed [`ensureFfmpeg()`](/docs/renderer/ensure-ffmpeg) and [`ensureFfprobe()`](/docs/renderer/ensure-ffprobe)
 - **@remotion/renderer**: [`<OffthreadVideo>`](/docs/offthreadvideo) now uses a Rust-based frame extractor
 - **@remotion/renderer**: Noisy Chrome messages are filtered out.
-- **@remotion/renderer**: `console.log` statements in your React app now get printed in a tidy format and contain location.
+- **@remotion/renderer**: `console.log` statements in your React app now get printed in a tidy format, contain location, use colors and object previews are printed out.
 - **@remotion/zod-types**: [New package](/docs/zod-types)!
 - Only the following platforms are supported by Remotion now: macOS (x64 and arm64), Windows (x64), Linux (x64 and ARM, GNU Libc and MUSL)
 - All packages: The minimum Node version is now 16.0.0
 - All packages: ESLint has been upgraded to `8.42.0`
 - All packages: TypeScript ESLint has been upgraded to `5.59.9`
+- All packages: ESBuild has been updated to `0.18.6`
 - For contributors: Updated `pnpm` to `8.5.1`
 - [New Google TTS template!](/templates/google-tts)
 - [Recommended Docker file](/docs/docker) does not install `ffmpeg` anymore

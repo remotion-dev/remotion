@@ -10,6 +10,7 @@ esbuild.buildSync({
 	bundle: true,
 	outfile: tmp,
 	minify: true,
+	target: 'es2018',
 });
 
 const content = fs.readFileSync(tmp, 'utf8');

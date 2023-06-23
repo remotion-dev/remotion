@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "3.3.101",
+	"version": "3.3.102",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -25,7 +25,7 @@
 	"license": "SEE LICENSE IN LICENSE.md",
 	"dependencies": {
 		"css-loader": "5.2.7",
-		"esbuild": "0.16.12",
+		"esbuild": "0.18.6",
 		"react-refresh": "0.9.0",
 		"remotion": "workspace:*",
 		"style-loader": "2.0.0",

@@ -179,8 +179,16 @@ export const postRenderDataKey = (renderId: string) => {
 	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
 };
 
+export const defaultPropsKey = (hash: string) => {
+	return `default-props/${hash}.json`;
+};
+
 export const inputPropsKey = (hash: string) => {
 	return `input-props/${hash}.json`;
+};
+
+export const resolvedPropsKey = (hash: string) => {
+	return `resolved-props/${hash}.json`;
 };
 
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
@@ -329,6 +337,8 @@ export type LambdaPayloads = {
 		logLevel: LogLevel;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
+		resolvedProps: SerializedInputProps;
+		defaultProps: SerializedInputProps;
 		scale: number;
 		everyNthFrame: number;
 		muted: boolean;

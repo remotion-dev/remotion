@@ -5,7 +5,7 @@ import type {render, unmountComponentAtNode} from 'react-dom';
 // We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
-import type {AnyCompMetadata, AnyComposition, BundleState} from 'remotion';
+import type {AnyComposition, BundleState, VideoConfig} from 'remotion';
 import {continueRender, delayRender, Internals, VERSION} from 'remotion';
 import {getBundleMode, setBundleMode} from './bundle-mode';
 import {Homepage} from './homepage/homepage';
@@ -62,7 +62,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 
 			compositions.setCurrentComposition(foundComposition?.id ?? null);
 			compositions.setCurrentCompositionMetadata({
-				defaultProps: state.compositionDefaultProps,
+				props: state.props,
 				durationInFrames: state.compositionDurationInFrames,
 				fps: state.compositionFps,
 				height: state.compositionHeight,
@@ -264,11 +264,11 @@ if (typeof window !== 'undefined') {
 		return compositions;
 	};
 
-	window.getStaticCompositions = (): Promise<AnyCompMetadata[]> => {
+	window.getStaticCompositions = (): Promise<VideoConfig[]> => {
 		const compositions = getUnevaluatedComps();
 
 		return Promise.all(
-			compositions.map(async (c): Promise<AnyCompMetadata> => {
+			compositions.map(async (c): Promise<VideoConfig> => {
 				const handle = delayRender(
 					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`
 				);

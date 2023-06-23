@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
-import type {AnySmallCompMetadata, TAsset} from 'remotion';
+import type {TAsset, VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -79,7 +79,7 @@ export type InternalRenderFramesOptions = {
 	scale: number;
 	port: number | null;
 	cancelSignal: CancelSignal | undefined;
-	composition: AnySmallCompMetadata;
+	composition: VideoConfig;
 	indent: boolean;
 	server: RemotionServer | undefined;
 	muted: boolean;
@@ -110,7 +110,7 @@ type InnerRenderFramesOptions = {
 	timeoutInMilliseconds: number;
 	scale: number;
 	cancelSignal: CancelSignal | undefined;
-	composition: AnySmallCompMetadata;
+	composition: VideoConfig;
 	muted: boolean;
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -163,7 +163,7 @@ export type RenderFramesOptions = {
 	scale?: number;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
-	composition: AnySmallCompMetadata;
+	composition: VideoConfig;
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
@@ -260,7 +260,7 @@ const innerRenderFrames = async ({
 			// eslint-disable-next-line max-params
 			pageFunction: (
 				id: string,
-				defaultProps: Record<string, unknown>,
+				props: Record<string, unknown>,
 				durationInFrames: number,
 				fps: number,
 				height: number,
@@ -269,7 +269,7 @@ const innerRenderFrames = async ({
 				window.remotion_setBundleMode({
 					type: 'composition',
 					compositionName: id,
-					compositionDefaultProps: defaultProps,
+					props,
 					compositionDurationInFrames: durationInFrames,
 					compositionFps: fps,
 					compositionHeight: height,
@@ -278,7 +278,7 @@ const innerRenderFrames = async ({
 			},
 			args: [
 				composition.id,
-				composition.defaultProps,
+				composition.props,
 				composition.durationInFrames,
 				composition.fps,
 				composition.height,

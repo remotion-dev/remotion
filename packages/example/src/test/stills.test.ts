@@ -8,7 +8,7 @@ import {
 import {existsSync, unlinkSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import path from 'node:path';
-import {AnyCompMetadata} from 'remotion';
+import {VideoConfig} from 'remotion';
 import {expect, test} from 'vitest';
 import {webpackOverride} from '../webpack-override';
 
@@ -24,7 +24,7 @@ test(
 
 		const composition = compositions.find(
 			(c) => c.id === 'react-svg'
-		) as AnyCompMetadata;
+		) as VideoConfig;
 
 		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
 		const testOut = path.join(folder, 'still.png');
@@ -142,7 +142,7 @@ test(
 		for (const toRenderComposition of toRenderCompositions) {
 			const composition = compositions.find(
 				(c) => c.id === toRenderComposition[0]
-			) as AnyCompMetadata;
+			) as VideoConfig;
 
 			const testOut = path.join(
 				folder,

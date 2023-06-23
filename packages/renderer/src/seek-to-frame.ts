@@ -40,7 +40,7 @@ export const waitForReady = (page: Page) => {
 					page,
 				});
 			})
-			.then((val) => {
+			.then(({value: val}) => {
 				if (typeof val !== 'string') {
 					throw val;
 				}
