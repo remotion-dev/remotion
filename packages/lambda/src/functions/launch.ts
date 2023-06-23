@@ -44,7 +44,10 @@ import {
 	writeLambdaError,
 } from './helpers/write-lambda-error';
 import {writePostRenderData} from './helpers/write-post-render-data';
-import {deserializeInputProps} from '../shared/serialize-props';
+import {
+	deserializeInputProps,
+	serializeInputProps,
+} from '../shared/serialize-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -243,6 +246,15 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 
 	const reqSend = timer('sending off requests');
+
+	const serializedResolvedProps = await serializeInputProps({
+		propsType: 'resolved-props',
+		region: getCurrentRegionInFunction(),
+		inputProps: comp.props,
+		type: 'video-or-audio',
+		userSpecifiedBucketName: params.bucketName,
+	});
+
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
 			type: LambdaRoutines.renderer,
@@ -279,7 +291,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			launchFunctionConfig: {
 				version: VERSION,
 			},
-			resolvedProps: comp.props,
+			resolvedProps: serializedResolvedProps,
 			defaultProps: comp.defaultProps,
 		};
 		return payload;

@@ -333,7 +333,7 @@ export type LambdaPayloads = {
 		logLevel: LogLevel;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
-		resolvedProps: Record<string, unknown>;
+		resolvedProps: SerializedInputProps;
 		defaultProps: Record<string, unknown>;
 		scale: number;
 		everyNthFrame: number;
