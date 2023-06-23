@@ -94,6 +94,7 @@ const innerStillHandler = async (
 		expectedBucketOwner: options.expectedBucketOwner,
 		region,
 		serialized: lambdaParams.inputProps,
+		propsType: 'input-props',
 	});
 
 	const serveUrl = convertToServeUrl({

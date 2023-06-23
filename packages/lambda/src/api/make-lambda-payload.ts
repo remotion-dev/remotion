@@ -66,6 +66,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		region,
 		type: 'video-or-audio',
 		userSpecifiedBucketName: bucketName ?? null,
+		propsType: 'input-props',
 	});
 	return {
 		rendererFunctionName: rendererFunctionName ?? null,

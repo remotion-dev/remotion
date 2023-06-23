@@ -104,6 +104,7 @@ export const renderStillOnLambda = async ({
 		region,
 		type: 'still',
 		userSpecifiedBucketName: forceBucketName ?? null,
+		propsType: 'input-props',
 	});
 
 	try {

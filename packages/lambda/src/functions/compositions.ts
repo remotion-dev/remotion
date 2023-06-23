@@ -51,6 +51,7 @@ export const compositionsHandler = async (
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: lambdaParams.inputProps,
+		propsType: 'input-props',
 	});
 
 	const realServeUrl = convertToServeUrl({

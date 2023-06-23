@@ -52,6 +52,7 @@ const renderHandler = async (
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: params.inputProps,
+		propsType: 'input-props',
 	});
 
 	const browserInstance = await getBrowserInstance(

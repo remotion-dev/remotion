@@ -1,21 +1,24 @@
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
-import type {SerializedInputProps} from './constants';
-import {inputPropsKey} from './constants';
+import {inputPropsKey, resolvedPropsKey, type SerializedInputProps} from './constants';
 import {randomHash} from './random-hash';
 import {streamToString} from './stream-to-string';
+
+type PropsType = 'input-props' | 'resolved-props';
 
 export const serializeInputProps = async ({
 	inputProps,
 	region,
 	type,
 	userSpecifiedBucketName,
+	propsType
 }: {
 	inputProps: Record<string, unknown>;
 	region: AwsRegion;
 	type: 'still' | 'video-or-audio';
 	userSpecifiedBucketName: string | null;
+	propsType: PropsType;
 }): Promise<SerializedInputProps> => {
 	try {
 		const payload = JSON.stringify(inputProps);
@@ -46,7 +49,7 @@ export const serializeInputProps = async ({
 				customCredentials: null,
 				downloadBehavior: null,
 				expectedBucketOwner: null,
-				key: inputPropsKey(hash),
+				key: makeKey(propsType, hash),
 				privacy: 'public',
 			});
 
@@ -72,11 +75,13 @@ export const deserializeInputProps = async ({
 	region,
 	bucketName,
 	expectedBucketOwner,
+	propsType
 }: {
 	serialized: SerializedInputProps;
 	region: AwsRegion;
 	bucketName: string;
 	expectedBucketOwner: string;
+	propsType: PropsType;
 }): Promise<Record<string, unknown>> => {
 	if (serialized.type === 'payload') {
 		return JSON.parse(serialized.payload as string);
@@ -86,7 +91,7 @@ export const deserializeInputProps = async ({
 		const response = await lambdaReadFile({
 			bucketName,
 			expectedBucketOwner,
-			key: inputPropsKey(serialized.hash),
+			key: makeKey(propsType, serialized.hash),
 			region,
 		});
 
@@ -102,3 +107,12 @@ export const deserializeInputProps = async ({
 		);
 	}
 };
+
+const makeKey = (type: PropsType, hash: string): string => {
+	if (type === 'input-props') {
+		return inputPropsKey(hash);
+	}
+
+	return resolvedPropsKey(hash);
+
+}
