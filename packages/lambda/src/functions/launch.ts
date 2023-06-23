@@ -278,6 +278,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			launchFunctionConfig: {
 				version: VERSION,
 			},
+			resolvedProps: comp.props,
+			defaultProps: comp.defaultProps,
 		};
 		return payload;
 	});

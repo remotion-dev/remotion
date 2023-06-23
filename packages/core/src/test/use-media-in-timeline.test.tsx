@@ -24,6 +24,7 @@ beforeAll(() => {
 			durationInFrames: 100,
 			id: 'hithere',
 			defaultProps: {},
+			props: {},
 		}));
 });
 afterAll(() => {
