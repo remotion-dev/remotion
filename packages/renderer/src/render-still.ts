@@ -1,6 +1,6 @@
 import fs, {statSync} from 'node:fs';
 import path from 'node:path';
-import type {AnySmallCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
@@ -39,7 +39,7 @@ import type {LogLevel} from './log-level';
 import {getLogLevel} from './logger';
 
 type InternalRenderStillOptions = {
-	composition: AnySmallCompMetadata;
+	composition: VideoConfig;
 	output: string | null;
 	frame: number;
 	inputProps: Record<string, unknown>;
@@ -64,7 +64,7 @@ type InternalRenderStillOptions = {
 
 export type RenderStillOptions = {
 	port?: number | null;
-	composition: AnySmallCompMetadata;
+	composition: VideoConfig;
 	output?: string | null;
 	frame?: number;
 	inputProps?: Record<string, unknown>;
@@ -285,7 +285,7 @@ const innerRenderStill = async ({
 		},
 		args: [
 			composition.id,
-			composition.defaultProps,
+			composition.props,
 			composition.durationInFrames,
 			composition.fps,
 			composition.height,

@@ -10,7 +10,7 @@ import {Composition} from './Composition.js';
 
 export const Still = <
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown> | undefined
+	Props extends Record<string, unknown>
 >(
 	props: StillProps<Schema, Props>
 ) => {
