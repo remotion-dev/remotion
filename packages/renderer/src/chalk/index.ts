@@ -39,6 +39,7 @@ type ColorsWithMethods = Colors & {
 	yellow: Method;
 	blue: Method;
 	magenta: Method;
+	cyan: Method;
 	white: Method;
 	gray: Method;
 	bgBlack: Method;
@@ -139,6 +140,7 @@ export const chalk = (() => {
 	define('yellow', [33, 39], 'color');
 	define('blue', [34, 39], 'color');
 	define('magenta', [35, 39], 'color');
+	define('cyan', [36, 39], 'color');
 	define('white', [37, 39], 'color');
 	define('gray', [90, 39], 'color');
 	define('grey', [90, 39], 'color');
