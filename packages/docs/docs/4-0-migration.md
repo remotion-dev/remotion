@@ -29,6 +29,14 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 
 Run `npm i `, `yarn` or `pnpm i` respectively afterwards.
 
+## System requirements
+
+The minimum Node version is now 16.0.0.
+
+Only the following platforms are supported: Windows (x64 only), macOS, Linux.
+
+Linux distros with glibc need to have at least version 2.34. [See here](https://github.com/remotion-dev/remotion/issues/2439) for more information.
+
 ## Config file changes
 
 The CLI configuration file has been moved out from the core Remotion package to `@remotion/cli/config`. Update your imports like this:
