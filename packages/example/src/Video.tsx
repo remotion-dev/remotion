@@ -52,6 +52,7 @@ import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {Tailwind} from './Tailwind';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
+import {HugePayload, hugePayloadSchema} from './HugePayload';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -122,6 +123,23 @@ export const Index: React.FC = () => {
 					calculateMetadata={failingCalculateMetadata}
 					schema={dynamicDurationSchema}
 					defaultProps={{duration: 50}}
+				/>
+				<Composition
+					id="huge-payload"
+					component={HugePayload}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={100}
+					calculateMetadata={() => {
+						return {
+							props: {
+								str: 'potato'.repeat(10000000),
+							},
+						};
+					}}
+					schema={hugePayloadSchema}
+					defaultProps={{str: 'st'}}
 				/>
 				<Composition
 					id="sync-dynamic-length"
