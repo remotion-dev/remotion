@@ -90,9 +90,16 @@ const V4: React.FC = () => {
           <div style={{ display: "flex", justifyContent: "center" }}>
             <p className={styles.title}>On July 3, 7 p.m UTC+2</p>
           </div>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <a
+              href="/documents/RemotionV4Launch.ics"
+              download="RemotionV4Launch.ics"
+            >
+              Add to Calendar
+            </a>
+          </div>
 
-          <div style={spacer} />
-          <div style={spacer} />
+          <div style={{ height: "60px" }} />
 
           <p className={styles.title}> July 3: V4 keynotes</p>
           <p> Whats new with Remotion V4? </p>
@@ -129,6 +136,7 @@ const V4: React.FC = () => {
             <Spacer />
             <div style={errorStyle}>{error}</div>
           </div>
+          <div style={spacer} />
           <div style={spacer} />
         </div>
       </div>
