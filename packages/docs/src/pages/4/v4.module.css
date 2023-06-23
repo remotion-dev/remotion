@@ -21,6 +21,7 @@
   padding-bottom: 10px;
   display: flex;
   flex-direction: column;
+  min-height: 100px;
 }
 
 .title {
