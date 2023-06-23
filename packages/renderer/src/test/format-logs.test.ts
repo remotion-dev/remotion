@@ -1,6 +1,8 @@
 import {expect, test} from 'vitest';
 import {formatObjectPreview} from '../format-logs';
 
+process.env.NO_COLOR = '1';
+
 test('Format logs with big object', () => {
 	const result = formatObjectPreview({
 		type: 'object',
