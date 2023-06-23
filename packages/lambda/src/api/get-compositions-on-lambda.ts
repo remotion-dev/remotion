@@ -54,6 +54,7 @@ export const getCompositionsOnLambda = async ({
 		region,
 		type: 'still',
 		userSpecifiedBucketName: bucketName ?? null,
+		propsType: 'input-props',
 	});
 
 	try {
