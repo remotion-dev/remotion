@@ -260,7 +260,7 @@ const innerRenderFrames = async ({
 			// eslint-disable-next-line max-params
 			pageFunction: (
 				id: string,
-				defaultProps: Record<string, unknown>,
+				props: Record<string, unknown>,
 				durationInFrames: number,
 				fps: number,
 				height: number,
@@ -269,7 +269,7 @@ const innerRenderFrames = async ({
 				window.remotion_setBundleMode({
 					type: 'composition',
 					compositionName: id,
-					compositionDefaultProps: defaultProps,
+					props,
 					compositionDurationInFrames: durationInFrames,
 					compositionFps: fps,
 					compositionHeight: height,
