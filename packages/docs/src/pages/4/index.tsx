@@ -11,6 +11,15 @@ import { CoolInput } from "../../../components/TextInput";
 import { Spacer } from "../../../components/layout/Spacer";
 import { V4Countdown } from "../../components/V4Countdown";
 
+const spacer: React.CSSProperties = {
+  height: "10px",
+};
+
+const errorStyle: React.CSSProperties = {
+  color: "#FF3232",
+  textAlign: "center",
+};
+
 const V4: React.FC = () => {
   const [email, setEmail] = useState<string>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -59,7 +68,7 @@ const V4: React.FC = () => {
             alert("Something went wrong. Please try again later.");
           }
         } else {
-          setError("Invalid Email");
+          setError("Invalid email provided");
         }
       } catch (err) {
         setLoading(false);
@@ -78,8 +87,20 @@ const V4: React.FC = () => {
           <h1 className={styles.pagetitle}>Remotion V4 launches in</h1>
 
           <V4Countdown />
-          <Spacer />
-          <Spacer />
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <p className={styles.title}>On July 3, 7 p.m UTC+2</p>
+          </div>
+
+          <div style={spacer} />
+          <div style={spacer} />
+
+          <p className={styles.title}> July 3: V4 keynotes</p>
+          <p> Whats new with Remotion V4? </p>
+          <p className={styles.title}> July 4: .....</p>
+          <p> insert text</p>
+
+          <p className={styles.title}> July 5: .....</p>
+          <p> Insert text</p>
           <div className={styles.panel}>
             <p>
               Get a newsletter with all the imporant information when Remotion
@@ -105,8 +126,10 @@ const V4: React.FC = () => {
             >
               {buttonLabel}
             </BlueButton>
-            {error}
+            <Spacer />
+            <div style={errorStyle}>{error}</div>
           </div>
+          <div style={spacer} />
         </div>
       </div>
     </Layout>
