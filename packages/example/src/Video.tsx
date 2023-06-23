@@ -52,6 +52,7 @@ import {WarpDemoOuter} from './WarpText';
 import {WarpDemo2} from './WarpText/demo2';
 import {Tailwind} from './Tailwind';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
+import {should} from 'vitest';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -66,9 +67,69 @@ export const Index: React.FC = () => {
 	const calculateMetadata: CalculateMetadataFunction<
 		z.infer<typeof dynamicDurationSchema>
 	> = useCallback(async ({props}) => {
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const shouldLog = (..._data: unknown[]) => undefined;
+		// To test logging
+		// const shouldLog = console.log;
+
+		const foo = function* () {
+			yield 'a';
+			yield 'b';
+			yield 'c';
+		};
+		shouldLog('');
+		shouldLog('');
+		shouldLog('');
+		shouldLog('');
+
+		shouldLog('objects', {a: 'string'});
+		shouldLog('boolean:', false);
+		shouldLog('number:', 1);
+		shouldLog('symbol', Symbol('hi'));
+		shouldLog('Date:', new Date());
+		shouldLog('bigint:', BigInt(123));
+		shouldLog('function:', () => 'hi');
+		shouldLog('array:', [1, 2, 3]);
+		shouldLog('regex:', /abc/);
+		shouldLog('');
+		shouldLog('');
+		shouldLog('');
+		shouldLog('');
+		shouldLog('Hello World ArrayBuffer', new ArrayBuffer(1));
+		shouldLog('Hello World DataView', new DataView(new ArrayBuffer(1)));
+		shouldLog('Hello World Error', new Error('hithere'));
+		shouldLog('Hello World Generator', foo());
+		shouldLog('Hello World Iterator', [1, 2, 3].values());
+		const map = new Map();
+		map.set('a', 1);
+		shouldLog('Hello World Map', map);
+		shouldLog('Hello World Node', document.createElement('div'));
+		shouldLog('Hello World null', null);
+		shouldLog(
+			'Hello World Promise',
+			new Promise((resolve) => {
+				resolve();
+			})
+		);
+		shouldLog('Hello World Proxy', new Proxy(document, {}));
+		shouldLog('Hello World RegExp', /abc/);
+		shouldLog('Hello World Set', {a: [1, 2, 3]});
+		shouldLog('Hello World TypedArray', new Uint8Array([1, 2, 3]));
+		const wm3 = new WeakMap();
+		const o1 = {};
+		wm3.set(o1, 'azerty');
+		const ws = new WeakSet();
+		const foo2 = {};
+
+		ws.add(foo2);
+
+		console.log('Hello World WeakMap', wm3);
+		console.log('Hello World WeakSet', ws);
+
 		await new Promise((r) => {
 			setTimeout(r, 1000);
 		});
+
 		return {
 			durationInFrames: props.duration,
 			fps: 30,
