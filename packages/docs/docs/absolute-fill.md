@@ -7,7 +7,7 @@ crumb: "API"
 
 A helper component - it is an absolutely positioned `<div>` with the following styles:
 
-```ts twoslash
+```ts twoslash title="Styles of AbsoluteFill"
 import React from "react";
 // ---cut---
 const style: React.CSSProperties = {
@@ -21,6 +21,27 @@ const style: React.CSSProperties = {
   flexDirection: "column",
 };
 ```
+
+This component is useful for layering content on top of each other. For example, you can use it to create a full-screen video background:
+
+```tsx twoslash title="Layer example"
+import { AbsoluteFill, OffthreadVideo } from "remotion";
+
+const MyComp = () => {
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill>
+        <OffthreadVideo src="https://example.com/video.mp4" />
+      </AbsoluteFill>
+      <AbsoluteFill>
+        <h1>This text is written on top!</h1>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+```
+
+The layers that get rendered last appear on top - this is because of how HTML works.
 
 ## Adding a ref
 
