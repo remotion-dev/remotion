@@ -57,6 +57,7 @@ import {
 	valueFromRemoteObject,
 } from './util';
 import type {LogLevel} from '../log-level';
+import {formatRemoteObject} from '../format-logs';
 
 interface WaitForOptions {
 	timeout?: number;
@@ -202,7 +203,7 @@ export class Page extends EventEmitter {
 						tag: [origPosition.name, file].filter(truthy).join('@'),
 						indent,
 					},
-					log.text
+					log.previewString
 				);
 			} else {
 				Log.verboseAdvanced(
@@ -278,10 +279,24 @@ export class Page extends EventEmitter {
 			});
 		}
 
+		const previewString = args
+			? args
+					.map((arg) => {
+						return formatRemoteObject(arg);
+					})
+					.join(', ')
+			: '';
+
 		if (source !== 'worker') {
 			this.emit(
 				PageEmittedEvents.Console,
-				new ConsoleMessage(level, text, [], [{url, lineNumber}])
+				new ConsoleMessage({
+					type: level,
+					text,
+					args: [],
+					stackTraceLocations: [{url, lineNumber}],
+					previewString,
+				})
 			);
 		}
 	}
@@ -416,12 +431,18 @@ export class Page extends EventEmitter {
 			}
 		}
 
-		const message = new ConsoleMessage(
-			eventType,
-			textTokens.join(' '),
+		const previewString = args
+			.map((a) => formatRemoteObject(a._remoteObject))
+			.filter(Boolean)
+			.join(' ');
+
+		const message = new ConsoleMessage({
+			type: eventType,
+			text: textTokens.join(' '),
 			args,
-			stackTraceLocations
-		);
+			stackTraceLocations,
+			previewString,
+		});
 		this.emit(PageEmittedEvents.Console, message);
 	}
 
