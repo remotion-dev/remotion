@@ -62,7 +62,7 @@ npm start
 <details>
 
 <summary>
-Additional step for Linux users
+Additional information for Linux users
 
 </summary>
 Linux users need to install some additional packages to get Chrome/Puppeteer working correctly.
@@ -94,6 +94,8 @@ Watch out for `apt` wanting to uninstall critical packages (e.g the Desktop) in 
   </TabItem>
 
 </Tabs>
+
+Linux distros that use libc need at least version 2.34 of it. [Check here](https://github.com/remotion-dev/remotion/issues/2439) if your distro has it.
 
 Got instructions for more Linux distributions? [Add them to this page](https://github.com/remotion-dev/remotion/edit/main/packages/docs/docs/getting-started.md)!
 
