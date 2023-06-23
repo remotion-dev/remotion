@@ -55,6 +55,14 @@ const renderHandler = async (
 		propsType: 'input-props',
 	});
 
+	const resolvedPropsPromise = deserializeInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.resolvedProps,
+		propsType: 'resolved-props',
+	});
+
 	const browserInstance = await getBrowserInstance(
 		params.logLevel,
 		false,
@@ -103,6 +111,7 @@ const renderHandler = async (
 	const downloads: Record<string, number> = {};
 
 	const inputProps = await inputPropsPromise;
+	const resolvedProps = await resolvedPropsPromise;
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
 			composition: {
@@ -111,8 +120,8 @@ const renderHandler = async (
 				fps: params.fps,
 				height: params.height,
 				width: params.width,
-				props: params.resolvedProps,
-				defaultProps: params.resolvedProps,
+				props: resolvedProps,
+				defaultProps: params.defaultProps,
 			},
 			imageFormat: params.imageFormat,
 			inputProps,
