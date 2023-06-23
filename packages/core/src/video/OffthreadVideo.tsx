@@ -14,6 +14,8 @@ import {VideoForDevelopment} from './VideoForDevelopment.js';
 export const OffthreadVideo: React.FC<
 	Omit<OffthreadVideoProps & RemotionMainVideoProps, 'loop'>
 > = (props) => {
+	// Should only destruct `startFrom` and `endAt` from props,
+	// rest gets drilled down
 	const {startFrom, endAt, ...otherProps} = props;
 	const environment = useRemotionEnvironment();
 
