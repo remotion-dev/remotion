@@ -295,17 +295,21 @@ export class Page extends EventEmitter {
 		return this.#frameManager.mainFrame();
 	}
 
-	setViewport(viewport: Viewport): Promise<void> {
-		return this.#client.send('Emulation.setDeviceMetricsOverride', {
-			mobile: false,
-			width: viewport.width,
-			height: viewport.height,
-			deviceScaleFactor: viewport.deviceScaleFactor,
-			screenOrientation: {
-				angle: 0,
-				type: 'portraitPrimary',
-			},
-		});
+	async setViewport(viewport: Viewport): Promise<void> {
+		const {value} = await this.#client.send(
+			'Emulation.setDeviceMetricsOverride',
+			{
+				mobile: false,
+				width: viewport.width,
+				height: viewport.height,
+				deviceScaleFactor: viewport.deviceScaleFactor,
+				screenOrientation: {
+					angle: 0,
+					type: 'portraitPrimary',
+				},
+			}
+		);
+		return value;
 	}
 
 	setDefaultNavigationTimeout(timeout: number): void {
