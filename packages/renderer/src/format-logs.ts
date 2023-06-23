@@ -62,7 +62,7 @@ export const formatObjectPreview = (preview: ObjectPreview) => {
 		}
 
 		const properties = preview.properties.map((property) => {
-			return `${property.name}: ${formatProperty(property)}`;
+			return chalk.reset(`${property.name}: ${formatProperty(property)}`);
 		});
 
 		if (preview.subtype === 'array') {
