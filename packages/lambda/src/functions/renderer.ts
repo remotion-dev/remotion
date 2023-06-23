@@ -13,7 +13,6 @@ import {
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -26,6 +25,7 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
+import {deserializeInputProps} from '../shared/serialize-props';
 
 type Options = {
 	expectedBucketOwner: string;

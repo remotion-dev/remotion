@@ -1,12 +1,13 @@
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
-import {lambdaWriteFile} from '../functions/helpers/io';
+import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
 import type {SerializedInputProps} from './constants';
 import {inputPropsKey} from './constants';
 import {randomHash} from './random-hash';
+import {streamToString} from './stream-to-string';
 
 export const serializeInputProps = async ({
-	inputProps = {},
+	inputProps,
 	region,
 	type,
 	userSpecifiedBucketName,
@@ -62,6 +63,42 @@ export const serializeInputProps = async ({
 	} catch (err) {
 		throw new Error(
 			'Error serializing inputProps. Check it has no circular references or reduce the size if the object is big.'
+		);
+	}
+};
+
+export const deserializeInputProps = async ({
+	serialized,
+	region,
+	bucketName,
+	expectedBucketOwner,
+}: {
+	serialized: SerializedInputProps;
+	region: AwsRegion;
+	bucketName: string;
+	expectedBucketOwner: string;
+}): Promise<Record<string, unknown>> => {
+	if (serialized.type === 'payload') {
+		return JSON.parse(serialized.payload as string);
+	}
+
+	try {
+		const response = await lambdaReadFile({
+			bucketName,
+			expectedBucketOwner,
+			key: inputPropsKey(serialized.hash),
+			region,
+		});
+
+		const body = await streamToString(response);
+		const payload = JSON.parse(body);
+
+		return payload;
+	} catch (err) {
+		throw new Error(
+			`Failed to parse input props that were serialized: ${
+				(err as Error).stack
+			}`
 		);
 	}
 };

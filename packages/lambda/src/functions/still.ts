@@ -19,7 +19,6 @@ import {
 	renderMetadataKey,
 } from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
@@ -40,6 +39,7 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
+import {deserializeInputProps} from '../shared/serialize-props';
 
 type Options = {
 	expectedBucketOwner: string;
