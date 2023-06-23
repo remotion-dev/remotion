@@ -62,6 +62,12 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
+### `4.0.0-alpha19`
+
+- Nicer logging
+- Warn if props are bigger than 10MB
+- Upgrade ESBuild to 0.18 (TS 5.0 support)
+
 ### `4.0.0-alpha18`
 
 - Nicer and less buggy logging in the CLI
