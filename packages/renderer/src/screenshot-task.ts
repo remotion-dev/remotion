@@ -43,7 +43,7 @@ export const screenshotTask = async ({
 	try {
 		let result;
 		if (format === 'pdf') {
-			result = await client.send('Page.printToPDF', {
+			const res = await client.send('Page.printToPDF', {
 				paperWidth: width / 96, // Convert to Inch
 				paperHeight: height / 96, // Convert to Inch
 				marginTop: 0,
@@ -53,8 +53,9 @@ export const screenshotTask = async ({
 				scale: 1,
 				printBackground: true,
 			});
+			result = res.value;
 		} else {
-			result = await client.send('Page.captureScreenshot', {
+			const {value} = await client.send('Page.captureScreenshot', {
 				format,
 				quality: jpegQuality,
 				clip:
@@ -76,6 +77,7 @@ export const screenshotTask = async ({
 				captureBeyondViewport: true,
 				optimizeForSpeed: true,
 			});
+			result = value;
 		}
 
 		stopPerfMeasure(cap);

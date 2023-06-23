@@ -2,7 +2,6 @@
 import type {Page} from './browser/BrowserPage';
 import type {
 	CallArgument,
-	CallFunctionOnResponse,
 	DevtoolsRemoteObject,
 } from './browser/devtools-types';
 import {JSHandle} from './browser/JSHandle';
@@ -62,14 +61,15 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			? expression
 			: expression + '\n' + suffix;
 
-		const {exceptionDetails: exceptDetails, result: remotObject} =
-			(await client.send('Runtime.evaluate', {
-				expression: expressionWithSourceUrl,
-				contextId,
-				returnByValue: true,
-				awaitPromise: true,
-				userGesture: true,
-			})) as CallFunctionOnResponse;
+		const {
+			value: {exceptionDetails: exceptDetails, result: remotObject},
+		} = await client.send('Runtime.evaluate', {
+			expression: expressionWithSourceUrl,
+			contextId,
+			returnByValue: true,
+			awaitPromise: true,
+			userGesture: true,
+		});
 
 		if (exceptDetails?.exception) {
 			const err = new SymbolicateableError({
@@ -116,6 +116,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 
 	let callFunctionOnPromise;
 	try {
+		console.log({functionText, suffix});
 		callFunctionOnPromise = client.send('Runtime.callFunctionOn', {
 			functionDeclaration: functionText + '\n' + suffix + '\n',
 			executionContextId: contextId,
@@ -134,8 +135,9 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 	}
 
 	try {
-		const {exceptionDetails, result: remoteObject} =
-			await callFunctionOnPromise;
+		const {
+			value: {exceptionDetails, result: remoteObject},
+		} = await callFunctionOnPromise;
 
 		if (exceptionDetails) {
 			const err = new SymbolicateableError({

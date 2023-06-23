@@ -175,7 +175,9 @@ export class HeadlessBrowser extends EventEmitter {
 		logLevel: LogLevel,
 		indent: boolean
 	): Promise<Page> {
-		const {targetId} = await this.connection.send('Target.createTarget', {
+		const {
+			value: {targetId},
+		} = await this.connection.send('Target.createTarget', {
 			url: 'about:blank',
 			browserContextId: undefined,
 		});

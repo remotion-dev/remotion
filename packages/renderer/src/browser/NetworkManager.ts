@@ -40,7 +40,7 @@ interface CDPSession extends EventEmitter {
 	send<T extends keyof Commands>(
 		method: T,
 		...paramArgs: Commands[T]['paramsType']
-	): Promise<Commands[T]['returnType']>;
+	): Promise<{value: Commands[T]['returnType']; size: number}>;
 }
 
 interface FrameManager {
