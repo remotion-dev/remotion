@@ -5,7 +5,7 @@ const hasColor = () => {
 		return true;
 	}
 
-	return isColorSupported;
+	return isColorSupported();
 };
 
 type Style = {
@@ -17,7 +17,7 @@ type Style = {
 type Method = (str: string) => string;
 
 type Colors = {
-	enabled: boolean;
+	enabled: () => boolean;
 	visible: boolean;
 	styles: Record<string, Style>;
 	keys: Record<string, string[]>;
@@ -67,7 +67,7 @@ type ColorsWithMethods = Colors & {
 
 export const chalk = (() => {
 	const colors: Colors = {
-		enabled: hasColor(),
+		enabled: () => hasColor(),
 		visible: true,
 		styles: {},
 		keys: {},
@@ -95,7 +95,7 @@ export const chalk = (() => {
 
 	const style = (input: string | null | undefined, stack: string[]) => {
 		if (input === '' || input === null || input === undefined) return '';
-		if (colors.enabled === false) return input;
+		if (colors.enabled() === false) return input;
 		if (colors.visible === false) return '';
 		let str = String(input);
 		const nl = str.includes('\n');

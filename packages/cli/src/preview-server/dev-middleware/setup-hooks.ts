@@ -28,7 +28,7 @@ export function setupHooks(context: DevMiddlewareContext) {
 
 			const statsOptions: webpack.Configuration['stats'] = {
 				preset: 'errors-warnings',
-				colors: RenderInternals.isColorSupported,
+				colors: RenderInternals.isColorSupported(),
 			};
 
 			const printedStats = stats.toString(statsOptions);
