@@ -7,7 +7,7 @@ crumb: "remotion.config.ts"
 
 To configure Remotion, create a `remotion.config.ts` file in the root of your Remotion project.
 
-These options will apply to CLI commands such as `npm start` and `npm run build`.
+These options will apply to CLI commands such as `npx remotion studio` and `npx remotion render`.
 
 :::warning
 The configuration file has no effect when using [SSR](/docs/renderer) APIs.

@@ -50,7 +50,7 @@ For how many frames per second the spring animation should be calculated. This s
 
 _Default:_ `false`
 
-Render the animation in reverse. See: [Order or operations](#order-of-operations)
+Render the animation in reverse. See: [Order of operations](#order-of-operations)
 
 ### `config`
 

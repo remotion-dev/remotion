@@ -16,11 +16,11 @@ type VerboseLogOptions = LogOptions & {
 };
 
 export const verboseTag = (str: string) => {
-	return isColorSupported ? chalk.bgBlack(` ${str} `) : `[${str}]`;
+	return isColorSupported() ? chalk.bgBlack(` ${str} `) : `[${str}]`;
 };
 
 export const secondverboseTag = (str: string) => {
-	return isColorSupported ? chalk.bgWhite(` ${str} `) : `[${str}]`;
+	return isColorSupported() ? chalk.bgWhite(` ${str} `) : `[${str}]`;
 };
 
 export const Log = {

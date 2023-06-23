@@ -14,7 +14,7 @@ export const resolveVideoConfig = ({
 }: {
 	composition: TCompMetadataWithCalcFunction<
 		AnyZodObject,
-		Record<string, unknown> | undefined
+		Record<string, unknown>
 	>;
 	editorProps: object;
 	signal: AbortSignal;
@@ -51,7 +51,8 @@ export const resolveVideoConfig = ({
 				fps,
 				durationInFrames,
 				id: composition.id,
-				defaultProps: c.props ?? composition.defaultProps ?? {},
+				defaultProps: composition.defaultProps ?? {},
+				props: c.props ?? composition.defaultProps ?? {},
 			};
 		});
 	}
@@ -64,14 +65,16 @@ export const resolveVideoConfig = ({
 		return {
 			...data,
 			id: composition.id,
-			defaultProps: composition?.defaultProps ?? {},
+			defaultProps: composition.defaultProps ?? {},
+			props: composition.defaultProps ?? {},
 		};
 	}
 
 	return {
 		...data,
 		id: composition.id,
-		defaultProps: calculatedProm?.props ?? composition.defaultProps ?? {},
+		defaultProps: composition.defaultProps ?? {},
+		props: calculatedProm.props ?? composition.defaultProps ?? {},
 	};
 };
 
@@ -81,11 +84,9 @@ const validateCalculated = ({
 }: {
 	composition: TCompMetadataWithCalcFunction<
 		AnyZodObject,
-		Record<string, unknown> | undefined
+		Record<string, unknown>
 	>;
-	calculated: CalcMetadataReturnType<
-		Record<string, unknown> | undefined
-	> | null;
+	calculated: CalcMetadataReturnType<Record<string, unknown>> | null;
 }) => {
 	const potentialErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
 

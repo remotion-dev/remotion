@@ -97,6 +97,123 @@ export interface DevtoolsRemoteObject {
 	 * Unique object identifier (for non-primitive values).
 	 */
 	objectId?: RemoteObjectId;
+	preview?: ObjectPreview;
+}
+
+export interface ObjectPreview {
+	/**
+	 * Object type. (ObjectPreviewType enum)
+	 */
+	type:
+		| 'object'
+		| 'function'
+		| 'undefined'
+		| 'string'
+		| 'number'
+		| 'boolean'
+		| 'symbol'
+		| 'bigint';
+	/**
+	 * Object subtype hint. Specified for `object` type values only. (ObjectPreviewSubtype enum)
+	 */
+	subtype?:
+		| 'array'
+		| 'null'
+		| 'node'
+		| 'regexp'
+		| 'date'
+		| 'map'
+		| 'set'
+		| 'weakmap'
+		| 'weakset'
+		| 'iterator'
+		| 'generator'
+		| 'error'
+		| 'proxy'
+		| 'promise'
+		| 'typedarray'
+		| 'arraybuffer'
+		| 'dataview'
+		| 'webassemblymemory'
+		| 'wasmvalue';
+	/**
+	 * String representation of the object.
+	 */
+	description?: string;
+	/**
+	 * True iff some of the properties or entries of the original object did not fit.
+	 */
+	overflow: boolean;
+	/**
+	 * List of the properties.
+	 */
+	properties: PropertyPreview[];
+	/**
+	 * List of the entries. Specified for `map` and `set` subtype values only.
+	 */
+	entries?: EntryPreview[];
+}
+
+export interface EntryPreview {
+	/**
+	 * Preview of the key. Specified for map-like collection entries.
+	 */
+	key?: ObjectPreview;
+	/**
+	 * Preview of the value.
+	 */
+	value: ObjectPreview;
+}
+
+export interface PropertyPreview {
+	/**
+	 * Property name.
+	 */
+	name: string;
+	/**
+	 * Object type. Accessor means that the property itself is an accessor property. (PropertyPreviewType enum)
+	 */
+	type:
+		| 'object'
+		| 'function'
+		| 'undefined'
+		| 'string'
+		| 'number'
+		| 'boolean'
+		| 'symbol'
+		| 'accessor'
+		| 'bigint';
+	/**
+	 * User-friendly property value string.
+	 */
+	value?: string;
+	/**
+	 * Nested value preview.
+	 */
+	valuePreview?: ObjectPreview;
+	/**
+	 * Object subtype hint. Specified for `object` type values only. (PropertyPreviewSubtype enum)
+	 */
+	subtype?:
+		| 'array'
+		| 'null'
+		| 'node'
+		| 'regexp'
+		| 'date'
+		| 'map'
+		| 'set'
+		| 'weakmap'
+		| 'weakset'
+		| 'iterator'
+		| 'generator'
+		| 'error'
+		| 'proxy'
+		| 'promise'
+		| 'typedarray'
+		| 'arraybuffer'
+		| 'dataview'
+		| 'webassemblymemory'
+		| 'wasmvalue';
 }
 
 type TargetID = string;

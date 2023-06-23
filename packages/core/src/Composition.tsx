@@ -35,9 +35,7 @@ export type CompProps<Props> =
 			component: LooseComponentType<Props>;
 	  };
 
-export type CalcMetadataReturnType<
-	T extends Record<string, unknown> | undefined
-> = {
+export type CalcMetadataReturnType<T extends Record<string, unknown>> = {
 	durationInFrames?: number;
 	fps?: number;
 	width?: number;
@@ -45,17 +43,16 @@ export type CalcMetadataReturnType<
 	props?: T;
 };
 
-export type CalculateMetadataFunction<
-	T extends Record<string, unknown> | undefined
-> = (options: {
-	defaultProps: T;
-	props: T;
-	abortSignal: AbortSignal;
-}) => Promise<CalcMetadataReturnType<T>> | CalcMetadataReturnType<T>;
+export type CalculateMetadataFunction<T extends Record<string, unknown>> =
+	(options: {
+		defaultProps: T;
+		props: T;
+		abortSignal: AbortSignal;
+	}) => Promise<CalcMetadataReturnType<T>> | CalcMetadataReturnType<T>;
 
 export type StillProps<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown> | undefined
+	Props extends Record<string, unknown>
 > = {
 	width: number;
 	height: number;
@@ -67,7 +64,7 @@ export type StillProps<
 
 export type CompositionProps<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown> | undefined
+	Props extends Record<string, unknown>
 > = StillProps<Schema, Props> & {
 	fps: number;
 	durationInFrames: number;
@@ -88,7 +85,7 @@ const Fallback: React.FC = () => {
 
 export const Composition = <
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown> | undefined
+	Props extends Record<string, unknown>
 >({
 	width,
 	height,
@@ -191,7 +188,7 @@ export const Composition = <
 						<Comp
 							{
 								// eslint-disable-next-line @typescript-eslint/no-explicit-any
-								...((resolved.result.defaultProps ?? {}) as any)
+								...((resolved.result.props ?? {}) as any)
 							}
 						/>
 					</Suspense>
@@ -213,7 +210,7 @@ export const Composition = <
 					<Comp
 						{
 							// eslint-disable-next-line @typescript-eslint/no-explicit-any
-							...((resolved.result.defaultProps ?? {}) as any)
+							...((resolved.result.props ?? {}) as any)
 						}
 					/>
 				</Suspense>

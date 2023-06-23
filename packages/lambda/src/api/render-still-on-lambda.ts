@@ -3,7 +3,6 @@ import type {
 	LogLevel,
 	StillImageFormat,
 } from '@remotion/renderer';
-import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -11,7 +10,7 @@ import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {serializeInputProps} from '../shared/serialize-props';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -105,6 +104,7 @@ export const renderStillOnLambda = async ({
 		region,
 		type: 'still',
 		userSpecifiedBucketName: forceBucketName ?? null,
+		propsType: 'input-props',
 	});
 
 	try {
@@ -122,9 +122,7 @@ export const renderStillOnLambda = async ({
 				frame: frame ?? 0,
 				privacy,
 				attempt: 1,
-				logLevel: dumpBrowserLogs
-					? 'verbose'
-					: logLevel ?? RenderInternals.getLogLevel(),
+				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 				outName: outName ?? null,
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				chromiumOptions: chromiumOptions ?? {},

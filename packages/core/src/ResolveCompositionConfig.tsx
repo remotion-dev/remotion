@@ -247,7 +247,8 @@ export const useResolvedVideoConfig = (
 				result: {
 					...currentCompositionMetadata,
 					id: composition.id,
-					defaultProps: currentCompositionMetadata.defaultProps ?? {},
+					props: currentCompositionMetadata.props,
+					defaultProps: composition.defaultProps ?? {},
 				},
 			};
 		}
@@ -257,7 +258,8 @@ export const useResolvedVideoConfig = (
 				type: 'success',
 				result: {
 					...composition,
-					defaultProps: {
+					defaultProps: composition.defaultProps ?? {},
+					props: {
 						...(composition.defaultProps ?? {}),
 						...(selectedEditorProps ?? {}),
 						...(typeof window === 'undefined' ||

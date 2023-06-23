@@ -1,14 +1,13 @@
 import {VERSION} from 'remotion/version';
 import type {LambdaStartPayload, LambdaStatusPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {serializeInputProps} from '../shared/serialize-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
 import type {GetRenderInput} from './get-render-progress';
 import type {RenderMediaOnLambdaInput} from './render-media-on-lambda';
-import {RenderInternals} from '@remotion/renderer';
 
 export const makeLambdaRenderMediaPayload = async ({
 	rendererFunctionName,
@@ -67,6 +66,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		region,
 		type: 'video-or-audio',
 		userSpecifiedBucketName: bucketName ?? null,
+		propsType: 'input-props',
 	});
 	return {
 		rendererFunctionName: rendererFunctionName ?? null,
@@ -83,9 +83,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		jpegQuality,
 		maxRetries: maxRetries ?? 1,
 		privacy: privacy ?? 'public',
-		logLevel: dumpBrowserLogs
-			? 'verbose'
-			: logLevel ?? RenderInternals.getLogLevel(),
+		logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 		frameRange: frameRange ?? null,
 		outName: outName ?? null,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,

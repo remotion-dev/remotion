@@ -124,10 +124,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 			<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 				{VideoComponent ? (
 					<ErrorBoundary onError={onError} errorFallback={errorFallback}>
-						<VideoComponent
-							{...(video?.defaultProps ?? {})}
-							{...(inputProps ?? {})}
-						/>
+						<VideoComponent {...(video?.props ?? {})} {...(inputProps ?? {})} />
 					</ErrorBoundary>
 				) : null}
 			</div>
