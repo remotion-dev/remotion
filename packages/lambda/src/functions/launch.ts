@@ -247,13 +247,22 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const reqSend = timer('sending off requests');
 
-	const serializedResolvedProps = await serializeInputProps({
-		propsType: 'resolved-props',
-		region: getCurrentRegionInFunction(),
-		inputProps: comp.props,
-		type: 'video-or-audio',
-		userSpecifiedBucketName: params.bucketName,
-	});
+	const [serializedResolvedProps, serializedDefaultProps] = await Promise.all([
+		serializeInputProps({
+			propsType: 'resolved-props',
+			region: getCurrentRegionInFunction(),
+			inputProps: comp.props,
+			type: 'video-or-audio',
+			userSpecifiedBucketName: params.bucketName,
+		}),
+		serializeInputProps({
+			propsType: 'default-props',
+			region: getCurrentRegionInFunction(),
+			inputProps: comp.defaultProps,
+			type: 'video-or-audio',
+			userSpecifiedBucketName: params.bucketName,
+		}),
+	]);
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
@@ -292,7 +301,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 				version: VERSION,
 			},
 			resolvedProps: serializedResolvedProps,
-			defaultProps: comp.defaultProps,
+			defaultProps: serializedDefaultProps,
 		};
 		return payload;
 	});

@@ -179,6 +179,10 @@ export const postRenderDataKey = (renderId: string) => {
 	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
 };
 
+export const defaultPropsKey = (hash: string) => {
+	return `default-props/${hash}.json`;
+};
+
 export const inputPropsKey = (hash: string) => {
 	return `input-props/${hash}.json`;
 };
@@ -334,7 +338,7 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		resolvedProps: SerializedInputProps;
-		defaultProps: Record<string, unknown>;
+		defaultProps: SerializedInputProps;
 		scale: number;
 		everyNthFrame: number;
 		muted: boolean;

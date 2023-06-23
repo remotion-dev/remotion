@@ -1,11 +1,11 @@
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
-import {inputPropsKey, resolvedPropsKey, type SerializedInputProps} from './constants';
+import {defaultPropsKey, inputPropsKey, resolvedPropsKey, type SerializedInputProps} from './constants';
 import {randomHash} from './random-hash';
 import {streamToString} from './stream-to-string';
 
-type PropsType = 'input-props' | 'resolved-props';
+type PropsType = 'input-props' | 'resolved-props' | 'default-props';
 
 export const serializeInputProps = async ({
 	inputProps,
@@ -65,7 +65,7 @@ export const serializeInputProps = async ({
 		};
 	} catch (err) {
 		throw new Error(
-			'Error serializing inputProps. Check it has no circular references or reduce the size if the object is big.'
+			`Error serializing ${propsType}. Check it has no circular references or reduce the size if the object is big.`
 		);
 	}
 };
@@ -111,6 +111,10 @@ export const deserializeInputProps = async ({
 const makeKey = (type: PropsType, hash: string): string => {
 	if (type === 'input-props') {
 		return inputPropsKey(hash);
+	}
+
+	if (type === 'default-props') {
+		return defaultPropsKey(hash);
 	}
 
 	return resolvedPropsKey(hash);
