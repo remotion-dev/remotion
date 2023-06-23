@@ -116,7 +116,7 @@ const innerSelectComposition = async ({
 		'Running calculateMetadata()...'
 	);
 	const time = Date.now();
-	const result = await puppeteerEvaluateWithCatch({
+	const {value: result} = await puppeteerEvaluateWithCatch({
 		pageFunction: (_id: string) => {
 			return window.remotion_calculateComposition(_id);
 		},

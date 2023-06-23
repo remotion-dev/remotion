@@ -35,7 +35,7 @@ export const takeFrameAndCompose = async ({
 	wantsBuffer: boolean;
 	compositor: Compositor;
 }): Promise<{buffer: Buffer | null; collectedAssets: TAsset[]}> => {
-	const [clipRegion, collectedAssets] = await Promise.all([
+	const [{value: clipRegion}, {value: collectedAssets}] = await Promise.all([
 		puppeteerEvaluateWithCatch<ClipRegion | null>({
 			pageFunction: () => {
 				if (typeof window.remotion_getClipRegion === 'undefined') {
