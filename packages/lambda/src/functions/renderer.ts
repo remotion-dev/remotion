@@ -63,6 +63,14 @@ const renderHandler = async (
 		propsType: 'resolved-props',
 	});
 
+	const defaultPropsPromise = deserializeInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.defaultProps,
+		propsType: 'default-props',
+	});
+
 	const browserInstance = await getBrowserInstance(
 		params.logLevel,
 		false,
@@ -112,6 +120,8 @@ const renderHandler = async (
 
 	const inputProps = await inputPropsPromise;
 	const resolvedProps = await resolvedPropsPromise;
+	const defaultProps = await defaultPropsPromise;
+
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
 			composition: {
@@ -121,7 +131,7 @@ const renderHandler = async (
 				height: params.height,
 				width: params.width,
 				props: resolvedProps,
-				defaultProps: params.defaultProps,
+				defaultProps,
 			},
 			imageFormat: params.imageFormat,
 			inputProps,
