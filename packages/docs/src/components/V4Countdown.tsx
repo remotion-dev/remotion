@@ -1,24 +1,36 @@
-import { useEffect } from "react";
-import React from "react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 const style: React.CSSProperties = {
-  display: "flex",
+  display: "inline-flex",
   flex: 1,
   justifyContent: "center",
   alignItems: "center",
+  border: "2px solid #000",
+  backgroundColor: "#F9F9F9",
+  borderRadius: 10,
+  padding: 10,
 };
 
 const timeWrapper: React.CSSProperties = {
-  padding: "10px",
-  borderRadius: " 15px",
-  paddingBottom: "10px",
+  borderRadius: "15px",
   display: "flex",
   flexDirection: "column",
-  fontSize: "3em",
   justifyContent: "center",
   alignItems: "center",
   fontVariantNumeric: "tabular-nums",
+  fontFamily: "GTPlanar",
+  width: 80,
+};
+
+const timeAmount: React.CSSProperties = {
+  fontWeight: 900,
+  fontSize: "3em",
+  marginBottom: 0,
+  lineHeight: 1,
+};
+
+const timeLabel: React.CSSProperties = {
+  marginBottom: 0,
 };
 
 export const V4Countdown: React.FC = () => {
@@ -65,21 +77,22 @@ export const V4Countdown: React.FC = () => {
 
   return (
     <div style={style}>
-      <h1 style={timeWrapper}>
-        {countdown[0]}
-        <p style={{ fontSize: "16px" }}> Days</p>
-      </h1>
-      <h1 style={timeWrapper}>
-        {countdown[1]}
-        <p style={{ fontSize: "16px" }}> Hours</p>
-      </h1>
-      <h1 style={timeWrapper}>
-        {countdown[2]}
-        <p style={{ fontSize: "16px" }}> Minutes</p>
-      </h1>
-      <h1 style={timeWrapper}>
-        {countdown[3]} <p style={{ fontSize: "16px" }}> Seconds</p>
-      </h1>
+      <div style={timeWrapper}>
+        <h1 style={timeAmount}>{countdown[0]}</h1>
+        <p style={timeLabel}>days</p>
+      </div>
+      <div style={timeWrapper}>
+        <h1 style={timeAmount}>{countdown[1]}</h1>
+        <p style={timeLabel}>hours</p>
+      </div>
+      <div style={timeWrapper}>
+        <h1 style={timeAmount}>{countdown[2]}</h1>
+        <p style={timeLabel}>min</p>
+      </div>
+      <div style={timeWrapper}>
+        <h1 style={timeAmount}> {countdown[3]}</h1>
+        <p style={timeLabel}>sec</p>
+      </div>
     </div>
   );
 };
