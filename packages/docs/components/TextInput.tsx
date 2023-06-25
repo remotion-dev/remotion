@@ -8,6 +8,7 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 4,
   minWidth: 35,
   fontSize: 16,
+  background: "var(--background)",
 };
 
 const backgroundStyle = (
@@ -15,12 +16,15 @@ const backgroundStyle = (
   fullWidth: boolean
 ): React.CSSProperties => {
   return {
-    padding: 3,
-    background: focused ? "var(--ifm-color-primary)" : "rgba(0, 0, 0, 0.1)",
+    padding: 2,
+    background: focused
+      ? "var(--ifm-color-primary)"
+      : "var(--ifm-font-color-base)",
     display: fullWidth ? "block" : "inline-block",
     transition: "0.2s background-color",
     borderRadius: 7,
     overflow: "hidden",
+    width: "100%",
   };
 };
 

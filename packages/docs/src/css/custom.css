@@ -80,6 +80,7 @@ h6 {
   --clear-hover: rgba(0, 0, 0, 0.04);
   --border-color: rgb(234, 234, 234);
   --box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  --ifm-out-of-focus: #eaeaea;
 }
 [data-theme="dark"] {
   --background: #18191a;
@@ -94,6 +95,7 @@ h6 {
   --subtitle: #8d8d8d;
   --border-color: rgb(42, 42, 42);
   --box-shadow: 0 1px 8px rgba(255, 255, 255, 0.2);
+  --ifm-out-of-focus: #eaeaea;
 }
 
 [data-theme="light"] .docusaurus-highlight-code-line {
