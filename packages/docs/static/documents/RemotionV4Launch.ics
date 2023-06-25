@@ -28,7 +28,7 @@ UID:1687529267812-92949@ical.marudot.com
 DTSTART;TZID=Europe/Zurich:20230703T190000
 DTEND;TZID=Europe/Zurich:20230703T200000
 SUMMARY:Remotion V4 Launch
-DESCRIPTION:https://www.remotion.dev/4\n\nLink to the YoutTube livestream: 
+DESCRIPTION:Watch it on https://www.remotion.dev/4\n 
 BEGIN:VALARM
 ACTION:DISPLAY
 DESCRIPTION:Remotion V4 Launch
