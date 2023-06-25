@@ -1,5 +1,6 @@
 /* eslint-disable no-alert */
 import Head from "@docusaurus/Head";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import React, { useCallback, useMemo, useState } from "react";
 import { Spacer } from "../../../components/layout/Spacer";
@@ -18,6 +19,8 @@ const errorStyle: React.CSSProperties = {
 };
 
 const V4: React.FC = () => {
+  const context = useDocusaurusContext();
+
   const [email, setEmail] = useState<string>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [subscribed, setSubscribed] = useState<boolean>(false);
@@ -78,7 +81,10 @@ const V4: React.FC = () => {
 
   return (
     <Layout>
-      <Head>{Seo.renderTitle("Remotion V4")}</Head>
+      <Head>
+        {Seo.renderTitle("Do more with React | Remotion 4.0")}
+        {Seo.renderImage("/img/remotion4.png", context.siteConfig.url)}
+      </Head>
       <div className={styles.container}>
         <div className={styles.wrapper}>
           <h1 className={styles.pagetitle}>Do more with React.</h1>
@@ -134,7 +140,9 @@ const V4: React.FC = () => {
               title="Last but not least"
             />
             <div className={styles.panel}>
-              <p>Get a reminder on July 3rd:</p>
+              <div style={{ marginBottom: 10 }}>
+                Get a reminder on July 3rd:
+              </div>
               <CoolInput
                 type="email"
                 autoComplete="none"
