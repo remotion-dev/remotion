@@ -20,10 +20,7 @@ export const renderStillSingleThread = async (
 
 	Log.verbose('Rendering still frame', body);
 
-	const composition = await getCompositionFromBody(
-		body.serveUrl,
-		body.composition
-	);
+	const composition = await getCompositionFromBody(body);
 
 	Log.verbose('Composition loaded', composition);
 

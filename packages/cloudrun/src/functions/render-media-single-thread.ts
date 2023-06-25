@@ -17,10 +17,7 @@ export const renderMediaSingleThread = async (
 		throw new Error('expected type media');
 	}
 
-	const composition = await getCompositionFromBody(
-		body.serveUrl,
-		body.composition
-	);
+	const composition = await getCompositionFromBody(body);
 
 	const tempFilePath = '/tmp/output.mp4';
 	const renderId = randomHash({randomInTests: true});

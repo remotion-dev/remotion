@@ -1,15 +1,30 @@
-import {getCompositions} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import type {CloudRunPayloadType} from './payloads';
 
-export const getCompositionFromBody = async (
-	serveUrl: string,
-	compositionName: string
-) => {
-	const comps = await getCompositions(serveUrl);
-	const composition = comps.find((comp) => comp.id === compositionName);
+export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
+	const {metadata, propsSize} = await RenderInternals.internalSelectComposition(
+		{
+			serveUrl: body.serveUrl,
+			browserExecutable: null,
+			chromiumOptions: body.chromiumOptions ?? {},
+			envVariables: body.envVariables ?? {},
+			id: body.composition,
+			indent: false,
+			inputProps: body.inputProps ?? {},
+			logLevel: body.logLevel,
+			onBrowserLog: () => null,
+			port: null,
+			puppeteerInstance: undefined,
+			server: undefined,
+			timeoutInMilliseconds: body.delayRenderTimeoutInMilliseconds,
+		}
+	);
 
-	if (composition) {
-		return composition;
+	if (propsSize > 10_000_000) {
+		RenderInternals.Log.warn(
+			`The props of your composition are large (${propsSize} bytes). This may cause slowdown.`
+		);
 	}
 
-	throw new Error(`Composition not found: ${compositionName}`);
+	return metadata;
 };
