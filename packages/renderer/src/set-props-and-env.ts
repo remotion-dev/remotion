@@ -175,10 +175,10 @@ export const setPropsAndEnv = (params: SetPropsAndEnv) => {
 			setTimeout(() => {
 				reject(
 					new Error(
-						'Timed out while setting up the headless browser - the browser seems to not respond. This error is thrown to trigger a retry.'
+						`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser. This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding. Optimize the site or increase the browser timeout.`
 					)
 				);
-			}, 20000);
+			}, params.timeoutInMilliseconds);
 		}),
 	]);
 };
