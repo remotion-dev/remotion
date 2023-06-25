@@ -2,7 +2,7 @@ import { useColorMode } from "@docusaurus/theme-common";
 import { getBoundingBox, parsePath, resetPath } from "@remotion/paths";
 import { Player } from "@remotion/player";
 import { makeTriangle } from "@remotion/shapes";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   AbsoluteFill,
   interpolate,
@@ -10,6 +10,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
+import { useMobileLayout } from "../../helpers/mobile-layout";
 import { transformElement } from "./element";
 import { Faces } from "./Faces";
 import { extrudeElement } from "./join-inbetween-tiles";
@@ -25,7 +26,8 @@ import {
 
 const InFrameLogo: React.FC<{
   background: string;
-}> = ({ background }) => {
+  dark: boolean;
+}> = ({ background, dark }) => {
   const { width: bBoxWidth, height: bBoxHeight, fps } = useVideoConfig();
   const viewBox = [-bBoxWidth / 2, -bBoxHeight / 2, bBoxWidth, bBoxHeight].join(
     " "
@@ -65,12 +67,15 @@ const InFrameLogo: React.FC<{
           }))) *
         500;
 
+    const darkColor = i === 2 ? "#bbb" : i === 1 ? "#ddd" : "#fff";
     const color = i === 2 ? "#E9F3FD" : i === 1 ? "#C1DBF9" : "#0b84f3";
 
+    const actualColor = dark ? darkColor : color;
+
     const extruded = extrudeElement({
-      backFaceColor: color,
+      backFaceColor: actualColor,
       sideColor: "black",
-      frontFaceColor: color,
+      frontFaceColor: actualColor,
       depth,
       points: parsed,
       strokeWidth: 20,
@@ -121,8 +126,6 @@ const gradientOpacities = [
 
 const globalGradientOpacity = 1;
 
-const inputProps = {};
-
 export const DoMoreHero: React.FC = () => {
   const { colorMode } = useColorMode();
 
@@ -146,6 +149,23 @@ export const DoMoreHero: React.FC = () => {
           })
           .join(", ");
 
+  const mobile = useMobileLayout();
+  const theme = useColorMode();
+
+  const dimensions = mobile
+    ? {
+        width: 1080 * 2,
+        height: 1920 * 0.8,
+      }
+    : {
+        width: 1920 * 2,
+        height: 1080 * 1.4,
+      };
+
+  const inputProps = useMemo(() => {
+    return { dark: theme.isDarkTheme };
+  }, [theme.isDarkTheme]);
+
   return (
     <div
       style={{
@@ -154,8 +174,8 @@ export const DoMoreHero: React.FC = () => {
     >
       <Player
         component={InFrameLogo}
-        compositionWidth={1920 * 2}
-        compositionHeight={1080 * 1.4}
+        compositionWidth={dimensions.width}
+        compositionHeight={dimensions.height}
         durationInFrames={100000}
         fps={30}
         loop

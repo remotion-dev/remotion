@@ -33,6 +33,7 @@
   margin-top: -5px;
   font-weight: 600;
   margin-bottom: 10px;
+  text-align: center;
 }
 
 .eventtitle {
@@ -49,6 +50,12 @@
   font-size: 5em;
   text-align: center;
   font-weight: 900;
+}
+
+@media screen and (max-width: 900px) {
+  .pagetitle {
+    font-size: 3em;
+  }
 }
 
 .button {
@@ -103,6 +110,12 @@
   grid-gap: 20px;
   margin-top: 20px;
   grid-auto-rows: 1fr;
+}
+
+@media screen and (max-width: 900px) {
+  .grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
 }
 
 .submitbutton {
