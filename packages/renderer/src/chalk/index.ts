@@ -1,13 +1,5 @@
 import {isColorSupported} from './is-color-supported';
 
-const hasColor = () => {
-	if (typeof process !== 'undefined' && process.env.FORCE_COLOR) {
-		return true;
-	}
-
-	return isColorSupported();
-};
-
 type Style = {
 	codes: [number, number];
 	name: string;
@@ -67,7 +59,7 @@ type ColorsWithMethods = Colors & {
 
 export const chalk = (() => {
 	const colors: Colors = {
-		enabled: () => hasColor(),
+		enabled: () => isColorSupported(),
 		visible: true,
 		styles: {},
 		keys: {},
