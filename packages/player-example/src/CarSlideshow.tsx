@@ -27,23 +27,8 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 	const [shouldThrowError, setThrowError] = useState(false);
 
 	const dummyText = useCallback(() => {
-		if (shouldThrowError) {
-			throw new Error('some error');
-		}
 		return '';
 	}, [shouldThrowError]);
-
-	useImperativeHandle(
-		playerExampleComp,
-		() => {
-			return {
-				triggerError: () => {
-					setThrowError(true);
-				},
-			};
-		},
-		[]
-	);
 
 	return (
 		<div

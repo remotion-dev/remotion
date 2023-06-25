@@ -30,6 +30,7 @@
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"dev": "next dev",
+		"start": "next dev",
 		"build-site": "next build"
 	}
 }
