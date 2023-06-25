@@ -5,8 +5,7 @@ const style: React.CSSProperties = {
   flex: 1,
   justifyContent: "center",
   alignItems: "center",
-  border: "2px solid #000",
-  backgroundColor: "#F9F9F9",
+  border: "2px solid var(--ifm-font-color-base)",
   borderRadius: 10,
   padding: 10,
 };
