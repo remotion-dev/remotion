@@ -29,10 +29,10 @@ const V4: React.FC = () => {
 
   const buttonLabel = useMemo(() => {
     if (subscribed) {
-      return "Subscribed!";
+      return "You're set!";
     }
 
-    return loading ? "submitting..." : "submit";
+    return loading ? "Submitting..." : "Remind";
   }, [loading, subscribed]);
   const isValidEmail = (inputMail: string) =>
     /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(inputMail);
@@ -117,7 +117,7 @@ const V4: React.FC = () => {
           <div style={{ height: "60px" }} />
           <div className={styles.grid}>
             <EventComp
-              description="Celebrate the launch of Remotion 4.0 and experience the new possibilities of video creation with React."
+              description="Celebrate the launch of Remotion 4.0 and experience the new possibilities of media creation with React."
               date="July 3rd"
               title="Keynote"
               locked={false}
@@ -132,7 +132,7 @@ const V4: React.FC = () => {
               locked
               date="July 5th"
               title="Render button"
-              description="Parametrize React content and export React components as videos and other media with the click of a button."
+              description="Configure, queue and track renders with the newest way to render using Remotion."
             />
             <EventComp
               locked
@@ -150,23 +150,25 @@ const V4: React.FC = () => {
               <div style={{ marginBottom: 10 }}>
                 Get a reminder on July 3rd:
               </div>
-              <CoolInput
-                type="email"
-                autoComplete="none"
-                onChange={onChange}
-                placeholder="Your email adress"
-                style={{ width: "100%", fontFamily: "GTPlanar" }}
-              />
-              <Spacer />
-              <Spacer />
-
-              <button
-                type="submit"
-                onClick={onSubmit}
-                disabled={loading || subscribed}
-              >
-                {buttonLabel}
-              </button>
+              <form style={{ width: "100%" }} onSubmit={onSubmit}>
+                <CoolInput
+                  type="email"
+                  autoComplete="none"
+                  onChange={onChange}
+                  placeholder="Your email adress"
+                  style={{ width: "100%", fontFamily: "GTPlanar" }}
+                />
+                <Spacer />
+                <div>
+                  <button
+                    type="submit"
+                    className={styles.submitbutton}
+                    disabled={loading || subscribed}
+                  >
+                    {buttonLabel}
+                  </button>
+                </div>
+              </form>
               <Spacer />
               <div style={errorStyle}>{error}</div>
             </div>
@@ -189,6 +191,7 @@ export const EventComp: React.FC<{
     <div
       style={{
         border: "2px solid var(--ifm-font-color-base)",
+        borderBottomWidth: 4,
         borderRadius: 8,
         padding: 10,
       }}
