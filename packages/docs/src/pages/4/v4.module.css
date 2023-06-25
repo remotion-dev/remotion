@@ -67,6 +67,10 @@
   border-bottom-width: 4px;
 }
 
+.button:focus {
+  border-bottom-width: 2px;
+}
+
 .calendarbutton {
   margin-top: -20px;
   position: relative;
@@ -75,6 +79,7 @@
 .button a {
   color: white;
   font-family: "GTPlanar";
+  text-decoration: none;
 }
 
 .date {
