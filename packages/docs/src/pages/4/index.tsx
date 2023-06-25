@@ -1,15 +1,12 @@
 /* eslint-disable no-alert */
-import { useMemo } from "react";
-import { useCallback, useState } from "react";
-import React from "react";
-import Layout from "@theme/Layout";
 import Head from "@docusaurus/Head";
-import { Seo } from "../../components/Seo";
-import styles from "./v4.module.css";
-import { BlueButton } from "../../../components/layout/Button";
-import { CoolInput } from "../../../components/TextInput";
+import Layout from "@theme/Layout";
+import React, { useCallback, useMemo, useState } from "react";
 import { Spacer } from "../../../components/layout/Spacer";
+import { CoolInput } from "../../../components/TextInput";
+import { Seo } from "../../components/Seo";
 import { V4Countdown } from "../../components/V4Countdown";
+import styles from "./v4.module.css";
 
 const spacer: React.CSSProperties = {
   height: "10px",
@@ -84,63 +81,106 @@ const V4: React.FC = () => {
       <Head>{Seo.renderTitle("Remotion V4")}</Head>
       <div className={styles.container}>
         <div className={styles.wrapper}>
-          <h1 className={styles.pagetitle}>Remotion V4 launches in</h1>
-
-          <V4Countdown />
+          <h1 className={styles.pagetitle}>Do more with React.</h1>
           <div style={{ display: "flex", justifyContent: "center" }}>
-            <p className={styles.title}>On July 3, 7 p.m UTC+2</p>
+            <p className={styles.title}>
+              Learn about the new possibilities of Remotion 4.0 and celebrate
+              the launch with us.{" "}
+            </p>
           </div>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <a
-              href="/documents/RemotionV4Launch.ics"
-              download="RemotionV4Launch.ics"
-            >
-              Add to Calendar
-            </a>
+          <br />
+          <br />
+          <div style={{ textAlign: "center" }}>
+            <div>
+              <V4Countdown />
+            </div>
+            <div>
+              <div className={[styles.button, styles.calendarbutton].join(" ")}>
+                <a
+                  href="/documents/RemotionV4Launch.ics"
+                  download="RemotionV4Launch.ics"
+                >
+                  Add to Calendar
+                </a>
+              </div>
+            </div>
           </div>
 
           <div style={{ height: "60px" }} />
-
-          <p className={styles.title}> July 3: V4 keynotes</p>
-          <p> Whats new with Remotion V4? </p>
-          <p className={styles.title}> July 4: .....</p>
-          <p> insert text</p>
-
-          <p className={styles.title}> July 5: .....</p>
-          <p> Insert text</p>
-          <div className={styles.panel}>
-            <p>
-              Get a newsletter with all the imporant information when Remotion
-              V4 launches!
-            </p>
-            <CoolInput
-              type="email"
-              autoComplete="none"
-              onChange={onChange}
-              placeholder="Your email adress"
-              style={{ width: "100%" }}
+          <div className={styles.grid}>
+            <EventComp
+              description="Celebrate the launch of Remotion 4.0 and experience the new possibilities of video creation with React."
+              date="July 3rd"
+              title="Keynote"
             />
-            <Spacer />
-            <Spacer />
+            <EventComp
+              date="July 4th"
+              title="Visual editing"
+              description="Expose parameters to the user interface, edit them, see the result in real-time and save them back to code."
+            />
+            <EventComp
+              date="July 5th"
+              title="Render button"
+              description="Parametrize React content and export React components as videos and other media with the click of a button."
+            />
+            <EventComp
+              description="Leverage the new system for data fetching and dynamically calculating the duration and dimensions of your video."
+              date="July 6th"
+              title="Data-driven videos"
+            />
+            <EventComp
+              description="A rundown of the remaining improvements coming with Remotion 4.0."
+              date="July 7th"
+              title="Last but not least"
+            />
+            <div className={styles.panel}>
+              <p>Get a reminder on July 3rd:</p>
+              <CoolInput
+                type="email"
+                autoComplete="none"
+                onChange={onChange}
+                placeholder="Your email adress"
+                style={{ width: "100%", fontFamily: "GTPlanar" }}
+              />
+              <Spacer />
+              <Spacer />
 
-            <BlueButton
-              type="submit"
-              fullWidth
-              onClick={onSubmit}
-              loading={loading}
-              disabled={loading || subscribed}
-              size="bg"
-            >
-              {buttonLabel}
-            </BlueButton>
-            <Spacer />
-            <div style={errorStyle}>{error}</div>
+              <button
+                type="submit"
+                onClick={onSubmit}
+                disabled={loading || subscribed}
+              >
+                {buttonLabel}
+              </button>
+              <Spacer />
+              <div style={errorStyle}>{error}</div>
+            </div>
           </div>
           <div style={spacer} />
           <div style={spacer} />
         </div>
       </div>
     </Layout>
+  );
+};
+
+export const EventComp: React.FC<{
+  date: string;
+  title: string;
+  description: string;
+}> = ({ date, title, description }) => {
+  return (
+    <div
+      style={{
+        border: "2px solid var(--ifm-font-color-base)",
+        borderRadius: 8,
+        padding: 10,
+      }}
+    >
+      <p className={styles.date}>{date}</p>
+      <p className={styles.eventtitle}>{title}</p>
+      <p>{description}</p>
+    </div>
   );
 };
 
