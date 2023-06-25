@@ -5,6 +5,7 @@ import Layout from "@theme/Layout";
 import React, { useCallback, useMemo, useState } from "react";
 import { Spacer } from "../../../components/layout/Spacer";
 import { CoolInput } from "../../../components/TextInput";
+import { DoMoreHero } from "../../components/DoMoreHero/DoMoreHero";
 import { Seo } from "../../components/Seo";
 import { V4Countdown } from "../../components/V4Countdown";
 import styles from "./v4.module.css";
@@ -85,9 +86,10 @@ const V4: React.FC = () => {
         {Seo.renderTitle("Do more with React | Remotion 4.0")}
         {Seo.renderImage("/img/remotion4.png", context.siteConfig.url)}
       </Head>
+      <DoMoreHero />
       <div className={styles.container}>
         <div className={styles.wrapper}>
-          <h1 className={styles.pagetitle}>Do more with React.</h1>
+          <h1 className={styles.pagetitle}>Do more with React</h1>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <p className={styles.title}>
               Learn about the new possibilities of Remotion 4.0 and celebrate
