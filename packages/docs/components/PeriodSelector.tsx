@@ -26,7 +26,7 @@ export const PeriodSelector: React.FC<{
       >
         Monthly
       </MonthlyComponent>
-      <Spacer x={2} />
+      <Spacer />
       <YearlyComponent
         loading={false}
         size="sm"
