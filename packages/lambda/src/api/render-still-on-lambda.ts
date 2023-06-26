@@ -10,7 +10,11 @@ import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
-import {serializeInputProps} from '../shared/serialize-props';
+import {
+	getNeedsToUpload,
+	serializeInputProps,
+	serializeOrThrow,
+} from '../shared/serialize-props';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -99,10 +103,12 @@ export const renderStillOnLambda = async ({
 		);
 	}
 
+	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
+
 	const serializedInputProps = await serializeInputProps({
-		inputProps,
+		stringifiedInputProps,
 		region,
-		type: 'still',
+		needsToUpload: getNeedsToUpload('still', stringifiedInputProps),
 		userSpecifiedBucketName: forceBucketName ?? null,
 		propsType: 'input-props',
 	});

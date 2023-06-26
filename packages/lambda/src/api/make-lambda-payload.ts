@@ -1,7 +1,11 @@
 import {VERSION} from 'remotion/version';
 import type {LambdaStartPayload, LambdaStatusPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
-import {serializeInputProps} from '../shared/serialize-props';
+import {
+	getNeedsToUpload,
+	serializeInputProps,
+	serializeOrThrow,
+} from '../shared/serialize-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
@@ -61,10 +65,15 @@ export const makeLambdaRenderMediaPayload = async ({
 	});
 	validateDownloadBehavior(downloadBehavior);
 
-	const serializedInputProps = await serializeInputProps({
-		inputProps: inputProps ?? {},
+	const stringifiedInputProps = serializeOrThrow(
+		inputProps ?? {},
+		'input-props'
+	);
+
+	const serialized = await serializeInputProps({
+		stringifiedInputProps,
 		region,
-		type: 'video-or-audio',
+		needsToUpload: getNeedsToUpload('video-or-audio', stringifiedInputProps),
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
 	});
@@ -73,7 +82,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		framesPerLambda: framesPerLambda ?? null,
 		composition,
 		serveUrl,
-		inputProps: serializedInputProps,
+		inputProps: serialized,
 		codec: actualCodec,
 		imageFormat: imageFormat ?? 'jpeg',
 		crf,
