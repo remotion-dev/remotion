@@ -34,6 +34,14 @@ const config = (mode) => ({
     }),
   },
   themeConfig: {
+    announcementBar: {
+      id: "support_us",
+      content:
+        '<a id="launch4" rel="noopener noreferrer" href="/4" style="text-decoration: none">Join the Remotion 4.0 launch on July 3rd</a>',
+      backgroundColor: "#fafbfc",
+      textColor: "#091E42",
+      isCloseable: false,
+    },
     algolia: {
       appId: "PLSDUOL1CA",
       apiKey: "3e42dbd4f895fe93ff5cf40d860c4a85",
