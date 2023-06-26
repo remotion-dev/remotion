@@ -1,4 +1,4 @@
-import {interpolate, OffthreadVideo} from 'remotion';
+import {interpolate, OffthreadVideo, staticFile} from 'remotion';
 
 export const OffthreadRemoteVideo: React.FC = () => {
 	return (
@@ -6,7 +6,7 @@ export const OffthreadRemoteVideo: React.FC = () => {
 			volume={(f) =>
 				interpolate(f, [0, 500], [1, 0], {extrapolateRight: 'clamp'})
 			}
-			src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+			src={staticFile('quick.mov')}
 		/>
 	);
 };
