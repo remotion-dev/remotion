@@ -46,7 +46,9 @@ import {
 import {writePostRenderData} from './helpers/write-post-render-data';
 import {
 	deserializeInputProps,
+	getNeedsToUpload,
 	serializeInputProps,
+	serializeOrThrow,
 } from '../shared/serialize-props';
 
 type Options = {
@@ -247,20 +249,31 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const reqSend = timer('sending off requests');
 
+	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
+	const serializedDefault = serializeOrThrow(
+		comp.defaultProps,
+		'default-props'
+	);
+
+	const needsToUpload = getNeedsToUpload(
+		'video-or-audio',
+		serializedResolved + serializedDefault
+	);
+
 	const [serializedResolvedProps, serializedDefaultProps] = await Promise.all([
 		serializeInputProps({
 			propsType: 'resolved-props',
 			region: getCurrentRegionInFunction(),
-			inputProps: comp.props,
-			type: 'video-or-audio',
+			stringifiedInputProps: serializedResolved,
 			userSpecifiedBucketName: params.bucketName,
+			needsToUpload,
 		}),
 		serializeInputProps({
 			propsType: 'default-props',
 			region: getCurrentRegionInFunction(),
-			inputProps: comp.defaultProps,
-			type: 'video-or-audio',
+			stringifiedInputProps: serializedDefault,
 			userSpecifiedBucketName: params.bucketName,
+			needsToUpload,
 		}),
 	]);
 
