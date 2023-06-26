@@ -74,6 +74,7 @@ h6 {
   --text-color: #000;
   --blue-button-color: #084696;
   --blue-underlay: var(--ifm-color-primary);
+  --plain-button: #fff;
   --blue-underlay-hover: #d5e5fd;
   --light-text-color: #777;
   --subtitle: #666;
@@ -87,6 +88,7 @@ h6 {
   --footer-background: #1f1f1f;
   --footer-border: #2f2f2f;
   --text-color: #fff;
+  --plain-button: var(--blue-underlay);
   --blue-underlay: #424243;
   --blue-underlay-hover: #5b5c5e;
   --clear-hover: rgba(255, 255, 255, 0.06);

@@ -59,6 +59,16 @@ export const BlueButton: React.FC<PrestyledProps> = (props) => {
   return <Button {...props} background="var(--blue-underlay)" color="white" />;
 };
 
+export const PlainButton: React.FC<PrestyledProps> = (props) => {
+  return (
+    <Button
+      {...props}
+      background="var(--plain-button)"
+      color="var(--text-color)"
+    />
+  );
+};
+
 export const RedButton: React.FC<PrestyledProps> = (props) => {
   return (
     <Button
