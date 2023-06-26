@@ -103,14 +103,16 @@ const V4: React.FC = () => {
               <V4Countdown />
             </div>
             <div>
-              <div className={[styles.button, styles.calendarbutton].join(" ")}>
-                <a
-                  href="/documents/RemotionV4Launch.ics"
-                  download="RemotionV4Launch.ics"
+              <a
+                href="/documents/RemotionV4Launch.ics"
+                download="RemotionV4Launch.ics"
+              >
+                <div
+                  className={[styles.button, styles.calendarbutton].join(" ")}
                 >
                   Add to Calendar
-                </a>
-              </div>
+                </div>
+              </a>
             </div>
           </div>
 
