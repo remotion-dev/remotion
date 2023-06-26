@@ -1,4 +1,3 @@
-import { RenderInternals } from '@remotion/renderer';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
