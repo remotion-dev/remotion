@@ -87,6 +87,13 @@ const V4: React.FC = () => {
         {Seo.renderImage("/img/remotion4.png", context.siteConfig.url)}
       </Head>
       <DoMoreHero />
+      <style>
+        {`
+        div[class^='announcementBar'] {
+          display: none;
+        }
+          `}
+      </style>
       <div className={styles.container}>
         <div className={styles.wrapper}>
           <h1 className={styles.pagetitle}>Do more with React</h1>
