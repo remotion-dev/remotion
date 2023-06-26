@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useMobileLayout } from "../../src/helpers/mobile-layout";
-import { BlueButton, PlainButton } from "../layout/Button";
+import { PlainButton } from "../layout/Button";
 import styles from "./get-started.module.css";
 import { GithubButton } from "./GithubButton";
 
@@ -39,9 +39,9 @@ export const GetStarted: React.FC = () => {
             href="https://www.youtube.com/watch?v=deg8bOoziaE"
             target="_blank"
           >
-            <BlueButton size="sm" loading={false} fullWidth={false}>
+            <PlainButton size="sm" loading={false} fullWidth={false}>
               Watch demo
-            </BlueButton>
+            </PlainButton>
           </a>
         </div>
       </div>
