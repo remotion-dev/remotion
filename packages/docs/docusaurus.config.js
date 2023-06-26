@@ -176,6 +176,10 @@ const config = (mode) => ({
               "data-splitbee-event-target": "Instagram",
             },
             {
+              label: "YouTube",
+              href: "https://youtube.com/@remotion_dev",
+            },
+            {
               label: "LinkedIn",
               href: "https://www.linkedin.com/company/remotion-dev/",
               "data-splitbee-event": "External Link",
