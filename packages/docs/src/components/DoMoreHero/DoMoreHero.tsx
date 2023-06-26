@@ -23,6 +23,7 @@ import {
   translateY,
   translateZ,
 } from "./matrix";
+import styles from "./more.module.css";
 
 const InFrameLogo: React.FC<{
   background: string;
@@ -114,41 +115,7 @@ const InFrameLogo: React.FC<{
   );
 };
 
-const gradientSteps = [
-  0, 0.013, 0.049, 0.104, 0.175, 0.259, 0.352, 0.45, 0.55, 0.648, 0.741, 0.825,
-  0.896, 0.951, 0.987,
-];
-
-const gradientOpacities = [
-  0, 8.1, 15.5, 22.5, 29, 35.3, 41.2, 47.1, 52.9, 58.8, 64.7, 71, 77.5, 84.5,
-  91.9,
-];
-
-const globalGradientOpacity = 1;
-
 export const DoMoreHero: React.FC = () => {
-  const { colorMode } = useColorMode();
-
-  const targetColor =
-    colorMode === "dark" ? "hsl(240deg, 4%, 11%)" : "hsl(0, 0%, 100%)";
-
-  const steps =
-    colorMode === "dark"
-      ? gradientSteps
-          .map((g, i) => {
-            return `hsla(240deg, 4%, 11%, ${g}) ${
-              gradientOpacities[i] * globalGradientOpacity
-            }%`;
-          })
-          .join(", ")
-      : gradientSteps
-          .map((g, i) => {
-            return `hsla(0, 0%, 100%, ${g}) ${
-              gradientOpacities[i] * globalGradientOpacity
-            }%`;
-          })
-          .join(", ");
-
   const mobile = useMobileLayout();
   const theme = useColorMode();
 
@@ -186,12 +153,12 @@ export const DoMoreHero: React.FC = () => {
         inputProps={inputProps}
       />
       <div
+        className={styles.gradient}
         style={{
           height: "20vw",
           marginTop: "-20vw",
           width: "100%",
           position: "absolute",
-          backgroundImage: `linear-gradient(to bottom, ${steps}, ${targetColor} 100%)`,
         }}
       />
     </div>
