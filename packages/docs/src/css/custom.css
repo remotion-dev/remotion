@@ -73,7 +73,7 @@ h6 {
   --footer-border: #eaeaea;
   --text-color: #000;
   --blue-button-color: #084696;
-  --blue-underlay: #e7effe;
+  --blue-underlay: var(--ifm-color-primary);
   --blue-underlay-hover: #d5e5fd;
   --light-text-color: #777;
   --subtitle: #666;
