@@ -104,6 +104,7 @@ impl OpenedStream {
 
                     let item = FrameCacheItem {
                         resolved_dts: self.last_position + offset,
+                        resolved_pts: self.last_position + offset,
                         frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
                         asked_time: position,
@@ -137,6 +138,12 @@ impl OpenedStream {
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = self.duration_or_zero.min(position);
+        _print_verbose(&format!(
+            "last seek {} position {}",
+            last_seek_position,
+            position 
+        ))?;
+    
         if position < self.last_position
             || self.last_position < calc_position(time - 1.0, time_base)
         {
@@ -152,15 +159,20 @@ impl OpenedStream {
         let mut last_frame_received: Option<usize> = None;
 
         loop {
-            if (self.last_position >= position) && last_frame_received.is_some() {
+            let difference = (self.last_position - position).abs();
+            if (difference <= threshold) && last_frame_received.is_some() {
+                _print_verbose(&format!("breaking here {} {} {}" , self.last_position, position, threshold));
                 break;
             }
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
+                    _print_verbose("Got EOF")?;
                     let data = self.handle_eof(position, frame_cache, one_frame_in_time_base)?;
                     if data.is_some() {
                         last_frame_received = data;
+                        _print_verbose("last frame received ABC")?;
+
                         frame_cache
                             .lock()?
                             .set_last_frame(last_frame_received.unwrap());
@@ -173,6 +185,7 @@ impl OpenedStream {
                 Ok(packet) => packet,
                 Err(err) => Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?,
             };
+            _print_verbose("Got packet")?;
 
             if stream.parameters().medium() != Type::Video {
                 continue;
@@ -185,6 +198,7 @@ impl OpenedStream {
                         Some(dts) => {
                             last_seek_position = dts - 1;
 
+                            _print_verbose("seeking back")?;
                             self.input.seek(
                                 self.stream_index as i32,
                                 0,
@@ -200,6 +214,7 @@ impl OpenedStream {
             }
 
             loop {
+                _print_verbose("sending packet")?;
                 self.video.send_packet(&packet)?;
                 let result = self.receive_frame();
 
@@ -228,6 +243,7 @@ impl OpenedStream {
 
                         let item = FrameCacheItem {
                             resolved_dts: self.last_position,
+                            resolved_pts: packet.pts().expect("expected pts"),
                             frame: ScalableFrame::new(frame, self.transparent),
                             id: frame_cache_id,
                             asked_time: position,
@@ -236,6 +252,7 @@ impl OpenedStream {
 
                         frame_cache.lock().unwrap().add_item(item);
 
+                        _print_verbose("last frame received")?;
                         last_frame_received = Some(frame_cache_id);
 
                         break;
@@ -306,6 +323,8 @@ pub fn open_stream(
     let stream_index = mut_stream.index();
 
     let duration_or_zero = mut_stream.duration().max(0);
+
+
 
     let time_base = mut_stream.time_base();
     let parameters = mut_stream.parameters();
