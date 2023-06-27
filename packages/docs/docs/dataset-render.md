@@ -248,6 +248,8 @@ const composition = {
   fps: 30,
   durationInFrames: 30,
   id: "hi",
+  defaultProps: {},
+  props: {},
 };
 const bundleLocation = "xxx";
 // ---cut---

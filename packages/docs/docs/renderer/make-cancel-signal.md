@@ -16,13 +16,14 @@ This function returns a signal and a cancel function that allows to you cancel a
 // @module: ESNext
 // @target: ESNext
 import { TCompMetadata } from "remotion";
-const composition: TCompMetadata<any, any> = {
+const composition = {
   durationInFrames: 1000000,
   fps: 30,
   height: 720,
   id: "react-svg",
   width: 1280,
   defaultProps: {},
+  props: {},
 };
 // ---cut---
 import { makeCancelSignal, renderMedia } from "@remotion/renderer";
