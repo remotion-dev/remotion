@@ -6,7 +6,7 @@ import type {
 	RemotionServer,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {AnyCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';
 import {formatBytes} from './format-bytes';
@@ -66,7 +66,7 @@ export const getCompositionId = async ({
 }): Promise<{
 	compositionId: string;
 	reason: string;
-	config: AnyCompMetadata;
+	config: VideoConfig;
 	argsAfterComposition: string[];
 }> => {
 	const {
@@ -135,7 +135,7 @@ export const getCompositionId = async ({
 			return {
 				compositionId,
 				reason,
-				config: comps.find((c) => c.id === compositionId) as AnyCompMetadata,
+				config: comps.find((c) => c.id === compositionId) as VideoConfig,
 				argsAfterComposition: args,
 			};
 		}

@@ -35,10 +35,7 @@ export const RenderModalBasic: React.FC<{
 	setProResProfile: React.Dispatch<React.SetStateAction<ProResProfile>>;
 	frame: number;
 	setFrame: React.Dispatch<React.SetStateAction<number>>;
-	resolvedComposition: TCompMetadata<
-		AnyZodObject,
-		Record<string, unknown> | undefined
-	>;
+	resolvedComposition: TCompMetadata<AnyZodObject, Record<string, unknown>>;
 	setOutName: (value: React.SetStateAction<string>) => void;
 	setEndFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	startFrame: number;

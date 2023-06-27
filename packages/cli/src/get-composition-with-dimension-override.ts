@@ -5,7 +5,7 @@ import type {
 	LogLevel,
 	RemotionServer,
 } from '@remotion/renderer';
-import type {AnyCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import {getCompositionId} from './get-composition-id';
 
 export const getCompositionWithDimensionOverride = async ({
@@ -43,7 +43,7 @@ export const getCompositionWithDimensionOverride = async ({
 }): Promise<{
 	compositionId: string;
 	reason: string;
-	config: AnyCompMetadata;
+	config: VideoConfig;
 	argsAfterComposition: string[];
 }> => {
 	const returnValue = await getCompositionId({

@@ -5,4 +5,5 @@ export type VideoConfig = {
 	durationInFrames: number;
 	id: string;
 	defaultProps: Record<string, unknown>;
+	props: Record<string, unknown>;
 };

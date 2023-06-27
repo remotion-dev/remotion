@@ -16,7 +16,7 @@ afterEach(async () => {
 test("Render video with browser instance open", async () => {
   const puppeteerInstance = await openBrowser("chrome");
   const compositions = await getCompositions(
-    "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/",
+    "https://shimmering-youtiao-218c24.netlify.app/",
     {
       puppeteerInstance,
     }
@@ -34,18 +34,17 @@ test("Render video with browser instance open", async () => {
 
   const { buffer } = await renderStill({
     output: outPath,
-    serveUrl:
-      "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/",
+    serveUrl: "https://shimmering-youtiao-218c24.netlify.app/",
     composition: reactSvg,
     puppeteerInstance,
   });
   expect(buffer).toBe(null);
-  await puppeteerInstance.close(false);
+  await puppeteerInstance.close(false, "info", false);
 });
 
 test("Render still with browser instance not open and legacy webpack config", async () => {
   const compositions = await getCompositions(
-    "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/"
+    "https://shimmering-youtiao-218c24.netlify.app/"
   );
 
   const reactSvg = compositions.find((c) => c.id === "react-svg");
@@ -60,8 +59,7 @@ test("Render still with browser instance not open and legacy webpack config", as
 
   await renderStill({
     output: outPath,
-    serveUrl:
-      "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/",
+    serveUrl: "https://shimmering-youtiao-218c24.netlify.app/",
     composition: reactSvg,
   });
   expect(existsSync(outPath)).toBe(true);
