@@ -67,14 +67,10 @@ You can now start using the [`<Lottie>`](/docs/lottie/lottie) component in your 
 [Open an issue](https://remotion.dev/issue) if you want to request a currently unsupported feature.
 :::
 
-## APIs
-
-- [`<Lottie>`](/docs/lottie/lottie)
-
-## Functions
+## Table of contents
 
 <TableOfContents />
 
 ## License
 
-MIT
+[Remotion License](https://remotion.dev/license)
