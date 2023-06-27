@@ -17,7 +17,6 @@ import {
 	renderMetadataKey,
 	rendersPrefix,
 } from '../shared/constants';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
 import {getServeUrlHash} from '../shared/make-s3-url';
@@ -45,6 +44,12 @@ import {
 	writeLambdaError,
 } from './helpers/write-lambda-error';
 import {writePostRenderData} from './helpers/write-post-render-data';
+import {
+	deserializeInputProps,
+	getNeedsToUpload,
+	serializeInputProps,
+	serializeOrThrow,
+} from '../shared/serialize-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -166,6 +171,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: params.inputProps,
+		propsType: 'input-props',
 	});
 
 	const comp = await validateComposition({
@@ -242,6 +248,35 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
 
 	const reqSend = timer('sending off requests');
+
+	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
+	const serializedDefault = serializeOrThrow(
+		comp.defaultProps,
+		'default-props'
+	);
+
+	const needsToUpload = getNeedsToUpload(
+		'video-or-audio',
+		serializedResolved + serializedDefault
+	);
+
+	const [serializedResolvedProps, serializedDefaultProps] = await Promise.all([
+		serializeInputProps({
+			propsType: 'resolved-props',
+			region: getCurrentRegionInFunction(),
+			stringifiedInputProps: serializedResolved,
+			userSpecifiedBucketName: params.bucketName,
+			needsToUpload,
+		}),
+		serializeInputProps({
+			propsType: 'default-props',
+			region: getCurrentRegionInFunction(),
+			stringifiedInputProps: serializedDefault,
+			userSpecifiedBucketName: params.bucketName,
+			needsToUpload,
+		}),
+	]);
+
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
 			type: LambdaRoutines.renderer,
@@ -278,6 +313,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			launchFunctionConfig: {
 				version: VERSION,
 			},
+			resolvedProps: serializedResolvedProps,
+			defaultProps: serializedDefaultProps,
 		};
 		return payload;
 	});

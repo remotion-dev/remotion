@@ -98,7 +98,7 @@ export const handler = streamifyResponse(
 				dumpLogs: String(
 					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
 				),
-				inputProps: JSON.stringify(params.inputProps),
+				resolvedProps: JSON.stringify(params.resolvedProps),
 				isWarm,
 			});
 			await rendererHandler(params, {

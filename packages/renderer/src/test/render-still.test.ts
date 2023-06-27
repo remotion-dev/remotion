@@ -10,12 +10,12 @@ test('Need to pass valid metadata', async () => {
 				fps: 30,
 				durationInFrames: 30,
 				id: 'hithere',
-				defaultProps: undefined,
+				defaultProps: {},
+				props: {},
 			},
 			frame: 0,
 			output: '/file/output.png',
-			serveUrl:
-				'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
+			serveUrl: 'https://shimmering-youtiao-218c24.netlify.app/',
 			verbose: false,
 		})
 	).rejects.toThrow(/not be NaN, but is NaN/);
@@ -29,11 +29,11 @@ test('Returns buffer in promise result', async () => {
 			fps: 30,
 			durationInFrames: 30,
 			id: 'react-svg',
-			defaultProps: undefined,
+			defaultProps: {},
+			props: {},
 		},
 		frame: 0,
-		serveUrl:
-			'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
+		serveUrl: 'https://shimmering-youtiao-218c24.netlify.app/',
 		verbose: false,
 	});
 	expect(buffer?.length).toBeGreaterThan(1000);
@@ -48,12 +48,12 @@ test('Need to pass valid metadata', async () => {
 				fps: 30,
 				durationInFrames: 30,
 				id: 'hithere',
-				defaultProps: undefined,
+				defaultProps: {},
+				props: {},
 			},
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl:
-				'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
+			serveUrl: 'https://shimmering-youtiao-218c24.netlify.app/',
 			verbose: false,
 		})
 	).rejects.toThrow(
@@ -70,14 +70,14 @@ test('Catches invalid image format', () => {
 				fps: 30,
 				durationInFrames: 30,
 				id: 'hithere',
-				defaultProps: undefined,
+				defaultProps: {},
+				props: {},
 			},
 			// @ts-expect-error
 			imageFormat: 'jjj',
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl:
-				'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
+			serveUrl: 'https://shimmering-youtiao-218c24.netlify.app/',
 		})
 	).rejects.toThrow(
 		/Image format should be one of: "png", "jpeg", "pdf", "webp"/

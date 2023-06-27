@@ -1,3 +1,4 @@
+import {RenderInternals} from '@remotion/renderer';
 import type {LambdaRoutines} from '../../defaults';
 
 export const printCloudwatchHelper = (
@@ -8,5 +9,5 @@ export const printCloudwatchHelper = (
 		return [...a, `${b}=${data[b]}`];
 	}, [] as string[]);
 	const msg = [`method=${type}`, ...d].join(',');
-	console.log(msg);
+	RenderInternals.Log.info(msg);
 };

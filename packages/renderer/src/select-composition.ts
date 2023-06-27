@@ -1,4 +1,4 @@
-import type {AnyCompMetadata, VideoConfig} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -237,7 +237,7 @@ export const internalSelectComposition = async (
  */
 export const selectComposition = async (
 	options: SelectCompositionOptions
-): Promise<AnyCompMetadata> => {
+): Promise<VideoConfig> => {
 	const {
 		id,
 		serveUrl,
