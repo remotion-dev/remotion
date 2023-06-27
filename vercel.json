@@ -1,7 +1,6 @@
 {
   "headers": [
     {
-      "//": "Allow CORS for fonts so they can be embedded in Mailerlite",
       "source": "/img/gt-planar(.*)",
       "headers": [
         { "key": "Access-Control-Allow-Credentials", "value": "true" },
