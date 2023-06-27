@@ -6,7 +6,6 @@ export const TableOfContents = () => {
   return (
     <div>
       <Grid>
-        <h1>Functions</h1>
         <TOCItem link="/docs/lottie/getlottiemetadata">
           <strong>getLottieMetadata()</strong>
           <div>Get metadata of a Lottie animation</div>
