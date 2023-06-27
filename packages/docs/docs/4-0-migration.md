@@ -351,5 +351,6 @@ If you register a composition with a component that requires some props, you now
 - All packages: TypeScript ESLint has been upgraded to `5.59.9`
 - All packages: ESBuild has been updated to `0.18.6`
 - For contributors: Updated `pnpm` to `8.5.1`
+- For contributors: Doc snippets failing typechecks now show the failing code in CI
 - [New Google TTS template!](/templates/google-tts)
 - [Recommended Docker file](/docs/docker) does not install `ffmpeg` anymore
