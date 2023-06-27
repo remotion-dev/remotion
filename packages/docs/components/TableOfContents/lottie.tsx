@@ -6,11 +6,15 @@ export const TableOfContents = () => {
   return (
     <div>
       <Grid>
+        <TOCItem link="/docs/lottie/lottie">
+          <strong>{"<Lottie>"}</strong>
+          <div>Embed a Lottie animation in Remotion</div>
+        </TOCItem>
         <TOCItem link="/docs/lottie/getlottiemetadata">
           <strong>getLottieMetadata()</strong>
           <div>Get metadata of a Lottie animation</div>
         </TOCItem>
-        <TOCItem link="/docs/staticfile">
+        <TOCItem link="/docs/lottie/staticfile">
           <strong>staticFile()</strong>
           <div>Load Lottie animations from a static file</div>
         </TOCItem>
