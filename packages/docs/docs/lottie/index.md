@@ -7,6 +7,7 @@ title: "@remotion/lottie"
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import {TableOfContents} from "../../components/TableOfContents/lottie"
 
 This package provides a component for displaying [Lottie](http://airbnb.io/lottie/) animations in Remotion.
 
@@ -66,6 +67,10 @@ You can now start using the [`<Lottie>`](/docs/lottie/lottie) component in your 
 [Open an issue](https://remotion.dev/issue) if you want to request a currently unsupported feature.
 :::
 
-## APIs
+## Table of contents
 
-- [`<Lottie>`](/docs/lottie/lottie)
+<TableOfContents />
+
+## License
+
+[Remotion License](https://remotion.dev/license)

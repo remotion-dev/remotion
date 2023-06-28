@@ -1,5 +1,6 @@
 import React from "react";
 import { BlueButton, ClearButton } from "./layout/Button";
+import { Spacer } from "./layout/Spacer";
 
 enum Period {
   Monthly = "monthly",
@@ -25,6 +26,7 @@ export const PeriodSelector: React.FC<{
       >
         Monthly
       </MonthlyComponent>
+      <Spacer />
       <YearlyComponent
         loading={false}
         size="sm"
