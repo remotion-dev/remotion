@@ -218,7 +218,7 @@ export type SerializedInputProps =
 	  }
 	| {
 			type: 'payload';
-			payload: unknown;
+			payload: string;
 	  };
 
 export type LambdaStartPayload = {

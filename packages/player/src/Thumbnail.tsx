@@ -22,11 +22,11 @@ import {SharedPlayerContexts} from './SharedPlayerContext.js';
 import ThumbnailUI from './ThumbnailUI.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
-type ThumbnailProps<Schema extends AnyZodObject, Props> = PropsIfHasProps<
-	Schema,
-	Props
-> &
-	CompProps<Schema> & {
+type ThumbnailProps<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>
+> = PropsIfHasProps<Schema, Props> &
+	CompProps<Props> & {
 		frameToDisplay: number;
 		style?: CSSProperties;
 		durationInFrames: number;
@@ -38,7 +38,10 @@ type ThumbnailProps<Schema extends AnyZodObject, Props> = PropsIfHasProps<
 		className?: string;
 	};
 
-export const ThumbnailFn = <Schema extends AnyZodObject, Props>(
+export const ThumbnailFn = <
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>
+>(
 	{
 		frameToDisplay,
 		style,

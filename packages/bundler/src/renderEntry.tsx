@@ -289,7 +289,9 @@ if (typeof window !== 'undefined') {
 		return getUnevaluatedComps().map((c) => c.id);
 	};
 
-	window.remotion_calculateComposition = async (compId: string) => {
+	window.remotion_calculateComposition = async (
+		compId: string
+	): Promise<VideoConfig> => {
 		const compositions = getUnevaluatedComps();
 		const selectedComp = compositions.find((c) => c.id === compId);
 		if (!selectedComp) {
@@ -313,7 +315,7 @@ if (typeof window !== 'undefined') {
 		return prom;
 	};
 
-	window.siteVersion = '5';
+	window.siteVersion = '6';
 	window.remotion_version = VERSION;
 	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }

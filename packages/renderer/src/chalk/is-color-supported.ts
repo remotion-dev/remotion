@@ -1,11 +1,19 @@
 import * as tty from 'tty';
 
 export const isColorSupported = () => {
-	const argv = process.argv || [];
 	const env = process.env || {};
 
-	const isDisabled = 'NO_COLOR' in env || argv.includes('--no-color');
-	const isForced = 'FORCE_COLOR' in env || argv.includes('--color');
+	const isForceDisabled = 'NO_COLOR' in env;
+
+	if (isForceDisabled) {
+		return false;
+	}
+
+	const isForced = 'FORCE_COLOR' in env;
+	if (isForced) {
+		return true;
+	}
+
 	const isWindows = process.platform === 'win32';
 
 	const isCompatibleTerminal =
@@ -15,5 +23,5 @@ export const isColorSupported = () => {
 		'CI' in env &&
 		('GITHUB_ACTIONS' in env || 'GITLAB_CI' in env || 'CIRCLECI' in env);
 
-	return !isDisabled && (isForced || isWindows || isCompatibleTerminal || isCI);
+	return isWindows || isCompatibleTerminal || isCI;
 };
