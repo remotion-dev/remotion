@@ -31,7 +31,10 @@ export const Faces: React.FC<
           // eslint-disable-next-line react/no-array-index-key
           <React.Fragment key={i}>
             {sortedFaces.map(
-              ({ points, color, strokeWidth, strokeColor }, idx) => {
+              (
+                { points, color, strokeWidth, strokeColor, crispEdges },
+                idx
+              ) => {
                 return (
                   <Face
                     // eslint-disable-next-line react/no-array-index-key
@@ -40,6 +43,7 @@ export const Faces: React.FC<
                     color={color}
                     points={points}
                     strokeWidth={strokeWidth}
+                    crispEdges={crispEdges}
                     {...svgProps}
                   />
                 );
