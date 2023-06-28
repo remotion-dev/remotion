@@ -5,7 +5,8 @@ test("Should be able to cancel render", async () => {
   try {
     const { cancel, cancelSignal } = makeCancelSignal();
     const val = renderStill({
-      serveUrl: "https://shimmering-youtiao-218c24.netlify.app/",
+      serveUrl:
+        "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/",
       composition: {
         durationInFrames: 1000000,
         fps: 30,
