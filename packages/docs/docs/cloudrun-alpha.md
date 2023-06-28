@@ -45,6 +45,11 @@ Make sure the versions don't have a `^` character in front of it.
 
 ## Changelog
 
+### `4.1.0-alpha5`
+
+- Fix input props not working for dynamic metadata
+- Apply changes from `4.0.0-alpha20`.
+
 ### `4.1.0-alpha4`
 
 Fixed schema error when invoking a render.
