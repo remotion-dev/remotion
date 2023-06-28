@@ -8,14 +8,15 @@ test("Cancelling after success should not throw error", async () => {
   const outputLocation = "out/render.mp4";
   await renderMedia({
     codec: "h264",
-    serveUrl:
-      "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/",
+    serveUrl: "https://shimmering-youtiao-218c24.netlify.app/",
     composition: {
       durationInFrames: 4,
       fps: 30,
       height: 720,
       id: "react-svg",
       width: 1280,
+      defaultProps: {},
+      props: {},
     },
     concurrency: 1,
     outputLocation,

@@ -69,8 +69,7 @@ describe('Webhooks', () => {
 		const res = await handler(
 			{
 				type: LambdaRoutines.start,
-				serveUrl:
-					'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
+				serveUrl: 'https://shimmering-youtiao-218c24.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -155,8 +154,7 @@ describe('Webhooks', () => {
 		await handler(
 			{
 				type: LambdaRoutines.launch,
-				serveUrl:
-					'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
+				serveUrl: 'https://shimmering-youtiao-218c24.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
