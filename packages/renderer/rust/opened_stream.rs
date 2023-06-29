@@ -279,7 +279,13 @@ impl OpenedStream {
         let final_frame = frame_cache.lock().unwrap().get_item_id(position, false)?;
 
         if final_frame.is_none() {
-            return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;
+            return Err(std::io::Error::new(
+                ErrorKind::Other,
+                format!(
+                    "No frame found at position {} for source {}",
+                    position, self.src
+                ),
+            ))?;
         }
 
         return Ok(final_frame.unwrap());
