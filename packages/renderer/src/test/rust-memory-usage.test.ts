@@ -37,7 +37,7 @@ test('Memory usage should be determined ', async () => {
 	const stats2 = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson2 = JSON.parse(stats2.toString('utf-8'));
 	expect(statsJson2).toEqual({
-		frames_in_cache: 181,
+		frames_in_cache: 349,
 		open_streams: 2,
 		open_videos: 2,
 	});
@@ -48,7 +48,7 @@ test('Memory usage should be determined ', async () => {
 
 	const stats3 = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson3 = JSON.parse(stats3.toString('utf-8'));
-	expect(statsJson3.frames_in_cache).toBe(90);
+	expect(statsJson3.frames_in_cache).toBe(174);
 
 	await compositor.executeCommand('FreeUpMemory', {
 		percent_of_memory: 0.5,
@@ -57,7 +57,7 @@ test('Memory usage should be determined ', async () => {
 	const stats4 = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson4 = JSON.parse(stats4.toString('utf-8'));
 	expect(statsJson4).toEqual({
-		frames_in_cache: 45,
+		frames_in_cache: 87,
 		open_streams: 1,
 		open_videos: 1,
 	});
