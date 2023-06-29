@@ -52,17 +52,18 @@ pub fn extract_frame(
         vid.time_base,
     );
 
-    // The amount a frame can deviate from the target timestamp to still hit the cache.
-    let threshold = one_frame_in_time_base / 2;
-    let cache_item = vid.get_cache_item_id(transparent, position, threshold);
+    let cache_item = vid.get_cache_item_id(transparent, position, false);
 
     match cache_item {
-        Ok(Some(item)) => return Ok(vid.get_cache_item_from_id(transparent, item)?),
+        Ok(Some(item)) => {
+            return Ok(vid.get_cache_item_from_id(transparent, item)?);
+        }
         Ok(None) => {}
         Err(err) => {
             return Err(err);
         }
     }
+
     let open_stream_count = vid.opened_streams.len();
     let mut suitable_open_stream: Option<usize> = None;
 
@@ -109,7 +110,6 @@ pub fn extract_frame(
         position,
         vid.time_base,
         one_frame_in_time_base,
-        threshold,
     )?;
 
     let from_cache = vid

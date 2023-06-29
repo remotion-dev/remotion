@@ -103,7 +103,7 @@ impl OpenedStream {
                     offset = offset + one_frame_in_time_base;
 
                     let item = FrameCacheItem {
-                        resolved_dts: self.last_position + offset,
+                        resolved_pts: video.pts().expect("pts"),
                         frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
                         asked_time: position,
@@ -133,10 +133,14 @@ impl OpenedStream {
         position: i64,
         time_base: Rational,
         one_frame_in_time_base: i64,
-        threshold: i64,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = self.duration_or_zero.min(position);
+        _print_verbose(&format!(
+            "last seek {} position {}",
+            last_seek_position, position
+        ))?;
+
         if position < self.last_position
             || self.last_position < calc_position(time - 1.0, time_base)
         {
@@ -150,17 +154,30 @@ impl OpenedStream {
         }
 
         let mut last_frame_received: Option<usize> = None;
+        let mut break_on_next_keyframe = false;
+        let mut last_was_keyframe = false;
 
         loop {
-            if (self.last_position >= position) && last_frame_received.is_some() {
+            if break_on_next_keyframe && last_was_keyframe {
                 break;
+            }
+            if last_frame_received.is_some() {
+                let matching = frame_cache.lock().unwrap().get_item_id(position, false)?;
+                if matching.is_some() {
+                    // Often times there is another package coming with a lower DTS,
+                    // so we receive one more packet
+                    break_on_next_keyframe = true;
+                }
             }
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
+                    _print_verbose("Got EOF")?;
                     let data = self.handle_eof(position, frame_cache, one_frame_in_time_base)?;
                     if data.is_some() {
                         last_frame_received = data;
+                        _print_verbose("last frame received ABC")?;
+
                         frame_cache
                             .lock()?
                             .set_last_frame(last_frame_received.unwrap());
@@ -177,18 +194,26 @@ impl OpenedStream {
             if stream.parameters().medium() != Type::Video {
                 continue;
             }
+            _print_verbose(&format!(
+                "Got packet dts = {} pts ={} key = {}",
+                packet.dts().unwrap(),
+                packet.pts().unwrap(),
+                packet.is_key()
+            ))?;
+            last_was_keyframe = packet.is_key();
             if freshly_seeked {
                 if packet.is_key() {
                     freshly_seeked = false
                 } else {
-                    match packet.dts() {
-                        Some(dts) => {
-                            last_seek_position = dts - 1;
+                    match packet.pts() {
+                        Some(pts) => {
+                            last_seek_position = pts - 1;
 
+                            _print_verbose("seeking back")?;
                             self.input.seek(
                                 self.stream_index as i32,
                                 0,
-                                dts,
+                                pts,
                                 last_seek_position,
                                 0,
                             )?;
@@ -202,8 +227,6 @@ impl OpenedStream {
             loop {
                 self.video.send_packet(&packet)?;
                 let result = self.receive_frame();
-
-                self.last_position = packet.dts().expect("expected pts");
 
                 match result {
                     Ok(Some(video)) => unsafe {
@@ -226,8 +249,10 @@ impl OpenedStream {
                             scaled_width: self.scaled_width,
                         };
 
+                        self.last_position = video.pts().expect("expected pts");
+
                         let item = FrameCacheItem {
-                            resolved_dts: self.last_position,
+                            resolved_pts: video.pts().expect("expected pts"),
                             frame: ScalableFrame::new(frame, self.transparent),
                             id: frame_cache_id,
                             asked_time: position,
@@ -236,6 +261,7 @@ impl OpenedStream {
 
                         frame_cache.lock().unwrap().add_item(item);
 
+                        _print_verbose(&format!("received frame {}", video.pts().expect("pts"),))?;
                         last_frame_received = Some(frame_cache_id);
 
                         break;
@@ -250,10 +276,7 @@ impl OpenedStream {
             }
         }
 
-        let final_frame = frame_cache
-            .lock()
-            .unwrap()
-            .get_item_id(position, threshold)?;
+        let final_frame = frame_cache.lock().unwrap().get_item_id(position, false)?;
 
         if final_frame.is_none() {
             return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;

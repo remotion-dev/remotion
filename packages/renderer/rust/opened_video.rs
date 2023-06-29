@@ -96,11 +96,11 @@ impl OpenedVideo {
         &self,
         transparent: bool,
         time: i64,
-        threshold: i64,
+        exact: bool,
     ) -> Result<Option<usize>, ErrorWithBacktrace> {
         Ok(self
             .get_frame_cache(transparent)
             .lock()?
-            .get_item_id(time, threshold)?)
+            .get_item_id(time, exact)?)
     }
 }

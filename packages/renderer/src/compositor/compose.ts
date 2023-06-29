@@ -125,6 +125,16 @@ export const callCompositor = (payload: string) => {
 			}
 		});
 
+		if (child.stdin.closed) {
+			reject(
+				new Error(
+					'Compositor stdin closed unexpectedly,' +
+						Buffer.concat(stderrChunks).toString('utf-8')
+				)
+			);
+			return;
+		}
+
 		child.stdin.write(payload);
 		child.stdin.end();
 	});
