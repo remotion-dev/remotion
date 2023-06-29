@@ -133,6 +133,7 @@ impl OpenedStream {
         position: i64,
         time_base: Rational,
         one_frame_in_time_base: i64,
+        threshold: i64,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = self.duration_or_zero.min(position);
@@ -162,7 +163,10 @@ impl OpenedStream {
                 break;
             }
             if last_frame_received.is_some() {
-                let matching = frame_cache.lock().unwrap().get_item_id(position, false)?;
+                let matching = frame_cache
+                    .lock()
+                    .unwrap()
+                    .get_item_id(position, threshold)?;
                 if matching.is_some() {
                     // Often times there is another package coming with a lower DTS,
                     // so we receive one more packet
@@ -276,7 +280,10 @@ impl OpenedStream {
             }
         }
 
-        let final_frame = frame_cache.lock().unwrap().get_item_id(position, false)?;
+        let final_frame = frame_cache
+            .lock()
+            .unwrap()
+            .get_item_id(position, threshold)?;
 
         if final_frame.is_none() {
             return Err(std::io::Error::new(

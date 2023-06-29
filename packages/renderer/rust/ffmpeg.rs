@@ -52,7 +52,7 @@ pub fn extract_frame(
         vid.time_base,
     );
 
-    let cache_item = vid.get_cache_item_id(transparent, position, false);
+    let cache_item = vid.get_cache_item_id(transparent, position, one_frame_in_time_base);
 
     match cache_item {
         Ok(Some(item)) => {
@@ -109,6 +109,7 @@ pub fn extract_frame(
         &vid.get_frame_cache(transparent),
         position,
         vid.time_base,
+        one_frame_in_time_base,
         one_frame_in_time_base,
     )?;
 

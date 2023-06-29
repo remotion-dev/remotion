@@ -366,6 +366,25 @@ test('Should get from video with no fps', async () => {
 	await compositor.waitForDone();
 });
 
+test('Should get from broken webcam video', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'verbose',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.webcam,
+		time: 0,
+		transparent: false,
+	});
+
+	expect(data.length).toBe(921654);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
 test('Two different starting times should not result in big seeking', async () => {
 	const compositor = startLongRunningCompositor(300, 'info', false);
 
