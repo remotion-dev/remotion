@@ -98,11 +98,13 @@ impl OpenedVideoManager {
             }
         }
 
-        _print_verbose(&format!(
-            "Pruned {} to save memory, keeping {}",
-            oldest_n,
-            self.get_frames_in_cache()?
-        ))?;
+        if oldest_n > 0 {
+            _print_verbose(&format!(
+                "Pruned {} to save memory, keeping {}",
+                oldest_n,
+                self.get_frames_in_cache()?
+            ))?;
+        }
 
         Ok(())
     }
