@@ -103,7 +103,6 @@ impl OpenedStream {
                     offset = offset + one_frame_in_time_base;
 
                     let item = FrameCacheItem {
-                        resolved_dts: self.last_position + offset,
                         resolved_pts: video.pts().expect("pts"),
                         frame: ScalableFrame::new(frame, self.transparent),
                         id: frame_cache_id,
@@ -253,7 +252,6 @@ impl OpenedStream {
                         };
 
                         let item = FrameCacheItem {
-                            resolved_dts: self.last_position,
                             resolved_pts: video.pts().expect("expected pts"),
                             frame: ScalableFrame::new(frame, self.transparent),
                             id: frame_cache_id,
