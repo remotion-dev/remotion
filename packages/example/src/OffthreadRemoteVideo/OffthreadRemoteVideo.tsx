@@ -6,7 +6,7 @@ export const OffthreadRemoteVideo: React.FC = () => {
 			volume={(f) =>
 				interpolate(f, [0, 500], [1, 0], {extrapolateRight: 'clamp'})
 			}
-			src={staticFile('quick.mov')}
+			src={staticFile('nofps.webm')}
 		/>
 	);
 };

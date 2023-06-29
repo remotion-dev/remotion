@@ -52,9 +52,7 @@ pub fn extract_frame(
         vid.time_base,
     );
 
-    // The amount a frame can deviate from the target timestamp to still hit the cache.
-    let threshold = one_frame_in_time_base / 2;
-    let cache_item = vid.get_cache_item_id(transparent, position, threshold);
+    let cache_item = vid.get_cache_item_id(transparent, position, );
 
     match cache_item {
         Ok(Some(item)) => return Ok(vid.get_cache_item_from_id(transparent, item)?),
@@ -109,7 +107,6 @@ pub fn extract_frame(
         position,
         vid.time_base,
         one_frame_in_time_base,
-        threshold,
     )?;
 
     let from_cache = vid
