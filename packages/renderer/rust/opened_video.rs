@@ -97,7 +97,7 @@ impl OpenedVideo {
         transparent: bool,
         time: i64,
         exact: bool,
-    ) -> Result<Option<(usize, i64, i64)>, ErrorWithBacktrace> {
+    ) -> Result<Option<usize>, ErrorWithBacktrace> {
         Ok(self
             .get_frame_cache(transparent)
             .lock()?

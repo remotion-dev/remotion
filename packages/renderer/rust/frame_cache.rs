@@ -2,12 +2,7 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::{
-    errors::ErrorWithBacktrace,
-    global_printer::{_print_debug, _print_verbose},
-    opened_stream::get_time,
-    scalable_frame::ScalableFrame,
-};
+use crate::{errors::ErrorWithBacktrace, opened_stream::get_time, scalable_frame::ScalableFrame};
 
 pub fn get_frame_cache_id() -> usize {
     static COUNTER: AtomicUsize = AtomicUsize::new(1);
@@ -39,7 +34,6 @@ pub struct FrameCacheReference {
 #[derive(Clone, Copy)]
 struct LastFrameFoundSoFar {
     pub id: usize,
-    pub dts: i64,
     pub pts: i64,
 }
 
@@ -91,7 +85,6 @@ impl FrameCache {
                     if self.items[i].resolved_pts > exists.pts {
                         last_frame_found = Some(LastFrameFoundSoFar {
                             id: self.items[i].id,
-                            dts: self.items[i].resolved_dts,
                             pts: self.items[i].resolved_pts,
                         });
                     }
@@ -99,7 +92,6 @@ impl FrameCache {
                 None => {
                     last_frame_found = Some(LastFrameFoundSoFar {
                         id: self.items[i].id,
-                        dts: self.items[i].resolved_dts,
                         pts: self.items[i].resolved_pts,
                     });
                 }
@@ -151,28 +143,18 @@ impl FrameCache {
         &mut self,
         time: i64,
         exact: bool,
-    ) -> Result<Option<(usize, i64, i64)>, ErrorWithBacktrace> {
+    ) -> Result<Option<usize>, ErrorWithBacktrace> {
         let mut best_item: Option<usize> = None;
         let mut best_distance = std::i64::MAX;
 
-        _print_debug(&format!("items {}", self.items.len()));
         for i in 0..self.items.len() {
             // Is last frame or beyond
             match self.last_frame {
                 Some(last_frame_id) => {
-                    _print_debug(&format!(
-                        "last frame {} {}",
-                        self.items[i].resolved_pts, time
-                    ));
                     if self.items[i].id == last_frame_id && self.items[i].resolved_pts < time {
                         self.items[i].frame.ensure_data()?;
-                        _print_debug("last frame2");
 
-                        return Ok(Some((
-                            self.items[i].id,
-                            self.items[i].resolved_pts,
-                            self.items[i].resolved_dts,
-                        )));
+                        return Ok(Some(self.items[i].id));
                     }
                 }
                 None => {}
@@ -190,12 +172,7 @@ impl FrameCache {
             // Exact same time as requested
             if self.items[i].resolved_pts == time {
                 self.items[i].frame.ensure_data()?;
-                _print_debug(&format!("sending {}", self.items[i].resolved_pts));
-                return Ok(Some((
-                    self.items[i].id,
-                    self.items[i].resolved_pts,
-                    self.items[i].resolved_dts,
-                )));
+                return Ok(Some(self.items[i].id));
             }
             let distance = (self.items[i].resolved_pts - time as i64).abs();
             // LTE: IF multiple items have the same distance, we take the one with the last timestamp.
@@ -212,16 +189,8 @@ impl FrameCache {
 
         match best_item {
             Some(best_item) => {
-                _print_verbose(&format!(
-                    "best item {} {}",
-                    self.items[best_item].resolved_pts, self.items[best_item].resolved_pts
-                ));
                 self.items[best_item].frame.ensure_data()?;
-                Ok(Some((
-                    self.items[best_item].id,
-                    self.items[best_item].resolved_pts,
-                    self.items[best_item].resolved_dts,
-                )))
+                Ok(Some(self.items[best_item].id))
             }
             None => Ok(None),
         }

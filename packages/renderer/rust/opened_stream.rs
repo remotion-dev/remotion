@@ -12,7 +12,7 @@ use std::time::UNIX_EPOCH;
 use crate::{
     errors::ErrorWithBacktrace,
     frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
-    global_printer::{_print_debug, _print_verbose},
+    global_printer::_print_verbose,
     scalable_frame::{NotRgbFrame, ScalableFrame},
 };
 
@@ -112,7 +112,6 @@ impl OpenedStream {
                     };
 
                     frame_cache.lock()?.add_item(item);
-                    _print_debug("adding last frame");
                     latest_frame = Some(frame_cache_id);
                 },
                 Ok(None) => {
@@ -135,7 +134,7 @@ impl OpenedStream {
         position: i64,
         time_base: Rational,
         one_frame_in_time_base: i64,
-    ) -> Result<(usize, i64, i64), ErrorWithBacktrace> {
+    ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = self.duration_or_zero.min(position);
         _print_verbose(&format!(
