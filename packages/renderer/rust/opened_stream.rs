@@ -134,7 +134,6 @@ impl OpenedStream {
         position: i64,
         time_base: Rational,
         one_frame_in_time_base: i64,
-        threshold: i64,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = self.duration_or_zero.min(position);
@@ -159,9 +158,8 @@ impl OpenedStream {
         let mut last_frame_received: Option<usize> = None;
 
         loop {
-            let difference = (self.last_position - position).abs();
-            if (difference <= threshold) && last_frame_received.is_some() {
-                _print_verbose(&format!("breaking here {} {} {}" , self.last_position, position, threshold));
+            if  last_frame_received.is_some() {
+                _print_verbose(&format!("breaking here {} {}" , self.last_position, position));
                 break;
             }
 
@@ -185,7 +183,7 @@ impl OpenedStream {
                 Ok(packet) => packet,
                 Err(err) => Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?,
             };
-            _print_verbose("Got packet")?;
+            _print_verbose(&format!("Got packet dts = {} pts ={} key = {}", packet.pts().unwrap(), packet.pts().unwrap(), packet.is_key()))?;
 
             if stream.parameters().medium() != Type::Video {
                 continue;
@@ -194,15 +192,15 @@ impl OpenedStream {
                 if packet.is_key() {
                     freshly_seeked = false
                 } else {
-                    match packet.dts() {
-                        Some(dts) => {
-                            last_seek_position = dts - 1;
+                    match packet.pts() {
+                        Some(pts) => {
+                            last_seek_position = pts - 1;
 
                             _print_verbose("seeking back")?;
                             self.input.seek(
                                 self.stream_index as i32,
                                 0,
-                                dts,
+                                pts,
                                 last_seek_position,
                                 0,
                             )?;
@@ -218,7 +216,7 @@ impl OpenedStream {
                 self.video.send_packet(&packet)?;
                 let result = self.receive_frame();
 
-                self.last_position = packet.dts().expect("expected pts");
+                self.last_position = packet.pts().expect("expected pts");
 
                 match result {
                     Ok(Some(video)) => unsafe {
@@ -270,7 +268,7 @@ impl OpenedStream {
         let final_frame = frame_cache
             .lock()
             .unwrap()
-            .get_item_id(position, threshold)?;
+            .get_item_id(position)?;
 
         if final_frame.is_none() {
             return Err(std::io::Error::new(ErrorKind::Other, "No frame found"))?;
