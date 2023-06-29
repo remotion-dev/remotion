@@ -117,6 +117,13 @@ const validateCalculated = ({
 
 	const durationInFrames =
 		calculated?.durationInFrames ?? composition.durationInFrames ?? null;
+	if (durationInFrames <= 0) {
+		throw new TypeError(
+			'Composition durationInFrames cannot be less than or equal to 0. Got ' +
+				durationInFrames
+		);
+	}
+
 	if (!durationInFrames) {
 		throw new TypeError(
 			'Composition durationInFrames was neither specified via the `durationInFrames` prop nor the `calculateMetadata()` function.'
