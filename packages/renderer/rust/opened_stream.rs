@@ -196,7 +196,7 @@ impl OpenedStream {
             }
             _print_verbose(&format!(
                 "Got packet dts = {} pts ={} key = {}",
-                packet.pts().unwrap(),
+                packet.dts().unwrap(),
                 packet.pts().unwrap(),
                 packet.is_key()
             ))?;
@@ -228,8 +228,6 @@ impl OpenedStream {
                 self.video.send_packet(&packet)?;
                 let result = self.receive_frame();
 
-                self.last_position = packet.pts().expect("expected pts");
-
                 match result {
                     Ok(Some(video)) => unsafe {
                         let linesize = (*video.as_ptr()).linesize;
@@ -251,6 +249,8 @@ impl OpenedStream {
                             scaled_width: self.scaled_width,
                         };
 
+                        self.last_position = video.pts().expect("expected pts");
+
                         let item = FrameCacheItem {
                             resolved_pts: video.pts().expect("expected pts"),
                             frame: ScalableFrame::new(frame, self.transparent),
@@ -261,11 +261,7 @@ impl OpenedStream {
 
                         frame_cache.lock().unwrap().add_item(item);
 
-                        _print_verbose(&format!(
-                            "received {} {}",
-                            video.pts().expect("pts"),
-                            packet.pts().expect("pts")
-                        ))?;
+                        _print_verbose(&format!("received frame {}", video.pts().expect("pts"),))?;
                         last_frame_received = Some(frame_cache_id);
 
                         break;
