@@ -37,8 +37,8 @@ export const getIdealMaximumFrameCacheItems = () => {
 	const max = Math.floor(freeMemory / (1024 * 1024 * 6));
 
 	// Never store more than 1000 frames
-	// But 100 is needed even if it's going to swap
-	return Math.max(100, Math.min(max, 1000));
+	// But 300 is needed even if it's going to swap
+	return Math.max(300, Math.min(max, 1000));
 };
 
 export const startLongRunningCompositor = (
