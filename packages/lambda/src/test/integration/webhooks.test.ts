@@ -70,7 +70,7 @@ describe('Webhooks', () => {
 			{
 				type: LambdaRoutines.start,
 				serveUrl:
-					'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
+					'https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -156,7 +156,7 @@ describe('Webhooks', () => {
 			{
 				type: LambdaRoutines.launch,
 				serveUrl:
-					'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
+					'https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',

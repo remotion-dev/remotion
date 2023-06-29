@@ -2,7 +2,7 @@ import type {ExecaChildProcess} from 'execa';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type {AnySmallCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {AudioCodec} from './audio-codec';
@@ -79,7 +79,7 @@ export type RenderMediaOnProgress = (progress: {
 export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
 	codec: Codec;
-	composition: AnySmallCompMetadata;
+	composition: VideoConfig;
 	inputProps: Record<string, unknown>;
 	crf: number | null;
 	imageFormat: VideoImageFormat;
@@ -121,7 +121,7 @@ export type InternalRenderMediaOptions = {
 export type RenderMediaOptions = {
 	outputLocation?: string | null;
 	codec: Codec;
-	composition: AnySmallCompMetadata;
+	composition: VideoConfig;
 	inputProps?: Record<string, unknown>;
 	crf?: number | null;
 	imageFormat?: VideoImageFormat;

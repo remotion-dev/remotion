@@ -58,6 +58,7 @@ export const validateComposition = async ({
 		...comp,
 		height: forceHeight ?? comp.height,
 		width: forceWidth ?? comp.width,
-		defaultProps: comp.defaultProps ?? {},
+		defaultProps: comp.defaultProps,
+		props: comp.props,
 	};
 };

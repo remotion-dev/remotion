@@ -1,6 +1,6 @@
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
-import type {AnyCompMetadata, TAsset} from './CompositionManager.js';
+import type {TAsset} from './CompositionManager.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
@@ -13,7 +13,7 @@ declare global {
 		remotion_renderReady: boolean;
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
-		getStaticCompositions: () => Promise<AnyCompMetadata[]>;
+		getStaticCompositions: () => Promise<VideoConfig[]>;
 		remotion_calculateComposition: (compId: string) => Promise<VideoConfig>;
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
@@ -36,7 +36,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '5';
+		siteVersion: '6';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 	}
@@ -73,7 +73,6 @@ export {
 export {
 	AnyCompMetadata,
 	AnyComposition,
-	AnySmallCompMetadata,
 	SmallTCompMetadata,
 	TAsset,
 	TCompMetadata,

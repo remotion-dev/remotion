@@ -4,7 +4,11 @@ import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
 import {LambdaRoutines} from '../defaults';
 import {callLambda} from '../shared/call-lambda';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {
+	getNeedsToUpload,
+	serializeInputProps,
+	serializeOrThrow,
+} from '../shared/serialize-props';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
@@ -49,11 +53,14 @@ export const getCompositionsOnLambda = async ({
 	forceBucketName: bucketName,
 	dumpBrowserLogs,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
+	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
+
 	const serializedInputProps = await serializeInputProps({
-		inputProps,
+		stringifiedInputProps,
 		region,
-		type: 'still',
 		userSpecifiedBucketName: bucketName ?? null,
+		propsType: 'input-props',
+		needsToUpload: getNeedsToUpload('video-or-audio', stringifiedInputProps),
 	});
 
 	try {

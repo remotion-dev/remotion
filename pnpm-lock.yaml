@@ -594,8 +594,8 @@ importers:
         specifier: 18.0.0
         version: 18.0.0(react@18.0.0)
       remark-shiki-twoslash:
-        specifier: ^3.1.0
-        version: 3.1.0
+        specifier: ^3.1.3
+        version: 3.1.3(typescript@4.9.5)
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -19044,17 +19044,20 @@ packages:
       unified: 10.1.2
     dev: false
 
-  /remark-shiki-twoslash@3.1.0:
-    resolution: {integrity: sha512-6LqSqVtHQR4S0DKfdQ2/ePn9loTKUtpyopYvwk8johjDTeUW5MkaLQuZHlWNkkST/4aMbz6aTkstIcwfwcHpXg==}
+  /remark-shiki-twoslash@3.1.3(typescript@4.9.5):
+    resolution: {integrity: sha512-4e8OH3ySOCw5wUbDcPszokOKjKuebOqlP2WlySvC7ITBOq27BiGsFlq+FNWhxppZ+JzhTWah4gQrnMjX3KDbAQ==}
+    peerDependencies:
+      typescript: '>3'
     dependencies:
+      '@types/unist': 2.0.6
       '@typescript/twoslash': 3.1.0
       '@typescript/vfs': 1.3.4
       fenceparser: 1.1.1
       regenerator-runtime: 0.13.9
       shiki: 0.10.1
-      shiki-twoslash: 3.1.0
+      shiki-twoslash: 3.1.2(typescript@4.9.5)
       tslib: 2.1.0
-      typescript: 5.1.3
+      typescript: 4.9.5
       unist-util-visit: 2.0.3
     transitivePeerDependencies:
       - supports-color
@@ -19626,13 +19629,16 @@ packages:
       rechoir: 0.6.2
     dev: false
 
-  /shiki-twoslash@3.1.0:
-    resolution: {integrity: sha512-uDqrTutOIZzyHbo103GsK7Vvc10saK1XCCivnOQ1NHJzgp3FBilEpftGeVzVSMOJs+JyhI7whkvhXV7kXQ5zCg==}
+  /shiki-twoslash@3.1.2(typescript@4.9.5):
+    resolution: {integrity: sha512-JBcRIIizi+exIA/OUhYkV6jtyeZco0ykCkIRd5sgwIt1Pm4pz+maoaRZpm6SkhPwvif4fCA7xOtJOykhpIV64Q==}
+    peerDependencies:
+      typescript: '>3'
     dependencies:
       '@typescript/twoslash': 3.1.0
       '@typescript/vfs': 1.3.4
+      fenceparser: 1.1.1
       shiki: 0.10.1
-      typescript: 5.1.3
+      typescript: 4.9.5
     transitivePeerDependencies:
       - supports-color
     dev: false

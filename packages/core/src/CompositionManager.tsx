@@ -22,7 +22,7 @@ import {SequenceManagerProvider} from './SequenceManager.js';
 
 export type TComposition<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown> | undefined
+	Props extends Record<string, unknown>
 > = {
 	width: number;
 	height: number;
@@ -41,12 +41,12 @@ export type TComposition<
 
 export type AnyComposition = TComposition<
 	AnyZodObject,
-	Record<string, unknown> | undefined
+	Record<string, unknown>
 >;
 
 export type TCompMetadataWithCalcFunction<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown> | undefined
+	Props extends Record<string, unknown>
 > = Pick<
 	TComposition<Schema, Props>,
 	| 'id'
@@ -60,7 +60,7 @@ export type TCompMetadataWithCalcFunction<
 
 export type TCompMetadata<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown> | undefined
+	Props extends Record<string, unknown>
 > = Pick<
 	TComposition<Schema, Props>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
@@ -68,22 +68,17 @@ export type TCompMetadata<
 
 export type AnyCompMetadata = TCompMetadata<
 	AnyZodObject,
-	Record<string, unknown> | undefined
+	Record<string, unknown>
 >;
 
 export type SmallTCompMetadata<
 	T extends AnyZodObject,
-	Props extends Record<string, unknown> | undefined
+	Props extends Record<string, unknown>
 > = Pick<
 	TComposition<T, Props>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
 > &
 	Partial<Pick<TComposition<T, Props>, 'defaultProps'>>;
-
-export type AnySmallCompMetadata = SmallTCompMetadata<
-	AnyZodObject,
-	Record<string, unknown> | undefined
->;
 
 type EnhancedTSequenceData =
 	| {
@@ -142,7 +137,7 @@ export type TAsset = {
 export const compositionsRef = React.createRef<{
 	getCompositions: () => TCompMetadataWithCalcFunction<
 		AnyZodObject,
-		Record<string, unknown> | undefined
+		Record<string, unknown>
 	>[];
 }>();
 
@@ -177,10 +172,7 @@ export const CompositionManagerProvider: React.FC<{
 	);
 
 	const registerComposition = useCallback(
-		<
-			Schema extends AnyZodObject,
-			Props extends Record<string, unknown> | undefined
-		>(
+		<Schema extends AnyZodObject, Props extends Record<string, unknown>>(
 			comp: TComposition<Schema, Props>
 		) => {
 			updateCompositions((comps) => {

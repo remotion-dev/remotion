@@ -1,9 +1,6 @@
 import type { DetailedHTMLProps } from "react";
 import React, { useCallback, useState } from "react";
 
-const LIGHT_BLUE = "#42e9f5";
-const DARK_BLUE = "#4290f5";
-
 const inputStyle: React.CSSProperties = {
   padding: 16,
   border: "none",
@@ -11,6 +8,7 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 4,
   minWidth: 35,
   fontSize: 16,
+  background: "var(--background)",
 };
 
 const backgroundStyle = (
@@ -18,14 +16,15 @@ const backgroundStyle = (
   fullWidth: boolean
 ): React.CSSProperties => {
   return {
-    padding: 3,
+    padding: 2,
     background: focused
-      ? `linear-gradient(to right, ${LIGHT_BLUE}, ${DARK_BLUE})`
-      : "rgba(0, 0, 0, 0.1)",
+      ? "var(--ifm-color-primary)"
+      : "var(--ifm-font-color-base)",
     display: fullWidth ? "block" : "inline-block",
-    transition: "1s background-color",
+    transition: "0.2s background-color",
     borderRadius: 7,
     overflow: "hidden",
+    width: "100%",
   };
 };
 

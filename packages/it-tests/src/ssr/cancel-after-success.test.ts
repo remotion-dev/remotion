@@ -9,13 +9,15 @@ test("Cancelling after success should not throw error", async () => {
   await renderMedia({
     codec: "h264",
     serveUrl:
-      "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/",
+      "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/",
     composition: {
       durationInFrames: 4,
       fps: 30,
       height: 720,
       id: "react-svg",
       width: 1280,
+      defaultProps: {},
+      props: {},
     },
     concurrency: 1,
     outputLocation,
