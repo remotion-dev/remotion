@@ -74,4 +74,9 @@ export const handleCommonError = async (err: Error) => {
 			'   or if the component was renamed and the import statement not properly adjusted.'
 		);
 	}
+
+	if (err.message.includes('EBADF')) {
+		Log.info('💡 This error might be fixed by changing your Node version:');
+		Log.info('   https://github.com/remotion-dev/remotion/issues/2452');
+	}
 };
