@@ -62,6 +62,11 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
+### `4.0.0-alpha21`
+
+- calculateMetadata() behaves correctly on Lambda
+- Fixed known crashes with OffthreadVideo
+
 ### `4.0.0-alpha19`
 
 - Nicer logging
