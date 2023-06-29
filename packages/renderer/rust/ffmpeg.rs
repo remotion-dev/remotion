@@ -1,4 +1,5 @@
 use crate::errors::ErrorWithBacktrace;
+use crate::global_printer::_print_debug;
 use crate::opened_stream::calc_position;
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::OpenVideoStats;
@@ -51,16 +52,22 @@ pub fn extract_frame(
         1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64),
         vid.time_base,
     );
+    _print_debug(&format!("WANT {} {}", position, time));
 
-    let cache_item = vid.get_cache_item_id(transparent, position, );
+    let cache_item = vid.get_cache_item_id(transparent, position, false);
 
     match cache_item {
-        Ok(Some(item)) => return Ok(vid.get_cache_item_from_id(transparent, item)?),
+        Ok(Some(item)) => {
+            let (id, resolved_pts, resolved_dts) = item;
+            _print_debug(&format!("GOT (cache)  {} {}", resolved_pts, resolved_dts));
+            return Ok(vid.get_cache_item_from_id(transparent, id)?);
+        }
         Ok(None) => {}
         Err(err) => {
             return Err(err);
         }
     }
+
     let open_stream_count = vid.opened_streams.len();
     let mut suitable_open_stream: Option<usize> = None;
 
@@ -101,13 +108,14 @@ pub fn extract_frame(
 
     let mut first_opened_stream = opened_stream.lock()?;
 
-    let frame_id = first_opened_stream.get_frame(
+    let (frame_id, resolved_pts, resolved_dts) = first_opened_stream.get_frame(
         time,
         &vid.get_frame_cache(transparent),
         position,
         vid.time_base,
         one_frame_in_time_base,
     )?;
+    _print_debug(&format!("GOT {} {}", resolved_pts, resolved_dts));
 
     let from_cache = vid
         .get_frame_cache(transparent)
