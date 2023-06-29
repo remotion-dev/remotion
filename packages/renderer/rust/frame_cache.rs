@@ -2,7 +2,12 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::{errors::ErrorWithBacktrace, opened_stream::get_time, scalable_frame::ScalableFrame, global_printer::_print_verbose};
+use crate::{
+    errors::ErrorWithBacktrace,
+    global_printer::{_print_debug, _print_verbose},
+    opened_stream::get_time,
+    scalable_frame::ScalableFrame,
+};
 
 pub fn get_frame_cache_id() -> usize {
     static COUNTER: AtomicUsize = AtomicUsize::new(1);
@@ -145,9 +150,34 @@ impl FrameCache {
     pub fn get_item_id(
         &mut self,
         time: i64,
-    ) -> Result<Option<usize>, ErrorWithBacktrace> {
+        exact: bool,
+    ) -> Result<Option<(usize, i64, i64)>, ErrorWithBacktrace> {
         let mut best_item: Option<usize> = None;
         let mut best_distance = std::i64::MAX;
+
+        _print_debug(&format!("items {}", self.items.len()));
+        for i in 0..self.items.len() {
+            // Is last frame or beyond
+            match self.last_frame {
+                Some(last_frame_id) => {
+                    _print_debug(&format!(
+                        "last frame {} {}",
+                        self.items[i].resolved_pts, time
+                    ));
+                    if self.items[i].id == last_frame_id && self.items[i].resolved_pts < time {
+                        self.items[i].frame.ensure_data()?;
+                        _print_debug("last frame2");
+
+                        return Ok(Some((
+                            self.items[i].id,
+                            self.items[i].resolved_pts,
+                            self.items[i].resolved_dts,
+                        )));
+                    }
+                }
+                None => {}
+            }
+        }
 
         let has_pts_before = self.items.iter().any(|item| item.resolved_pts <= time);
         let has_pts_after = self.items.iter().any(|item| item.resolved_pts >= time);
@@ -156,28 +186,19 @@ impl FrameCache {
             return Ok(None);
         }
 
-        _print_verbose(&format!("get item time {}", time));
-
         for i in 0..self.items.len() {
-            // Is last frame or beyond
-            match self.last_frame {
-                Some(last_frame_id) => {
-                    if self.items[i].id == last_frame_id && self.items[i].resolved_pts < time {
-                        self.items[i].frame.ensure_data()?;
-                        return Ok(Some(self.items[i].id));
-                    }
-                }
-                None => {}
-            }
-
             // Exact same time as requested
             if self.items[i].resolved_pts == time {
                 self.items[i].frame.ensure_data()?;
-
-                return Ok(Some(self.items[i].id));
+                _print_debug(&format!("sending {}", self.items[i].resolved_pts));
+                return Ok(Some((
+                    self.items[i].id,
+                    self.items[i].resolved_pts,
+                    self.items[i].resolved_dts,
+                )));
             }
             let distance = (self.items[i].resolved_pts - time as i64).abs();
-            // LTE: IF multiple items have the same distance, we take the last one.
+            // LTE: IF multiple items have the same distance, we take the one with the last timestamp.
             // This is because the last frame is more likely to have been decoded
             if distance <= best_distance as i64 {
                 best_distance = distance;
@@ -185,14 +206,22 @@ impl FrameCache {
             }
         }
 
-
+        if exact {
+            return Ok(None);
+        }
 
         match best_item {
             Some(best_item) => {
-                _print_verbose(&format!("best item {} {}", self.items[best_item].resolved_pts, self.items[best_item].resolved_pts));
-
+                _print_verbose(&format!(
+                    "best item {} {}",
+                    self.items[best_item].resolved_pts, self.items[best_item].resolved_pts
+                ));
                 self.items[best_item].frame.ensure_data()?;
-                Ok(Some(self.items[best_item].id))
+                Ok(Some((
+                    self.items[best_item].id,
+                    self.items[best_item].resolved_pts,
+                    self.items[best_item].resolved_dts,
+                )))
             }
             None => Ok(None),
         }
