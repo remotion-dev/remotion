@@ -156,10 +156,11 @@ impl OpenedStream {
         }
 
         let mut last_frame_received: Option<usize> = None;
-        let mut break_on_next = false;
+        let mut break_on_next_keyframe = false;
+        let mut last_was_keyframe = false;
 
         loop {
-            if break_on_next {
+            if break_on_next_keyframe && last_was_keyframe {
                 break;
             }
             if last_frame_received.is_some() {
@@ -167,7 +168,7 @@ impl OpenedStream {
                 if matching.is_some() {
                     // Often times there is another package coming with a lower DTS,
                     // so we receive one more packet
-                    break_on_next = true;
+                    break_on_next_keyframe = true;
                 }
             }
 
@@ -191,16 +192,17 @@ impl OpenedStream {
                 Ok(packet) => packet,
                 Err(err) => Err(std::io::Error::new(ErrorKind::Other, err.to_string()))?,
             };
+
+            if stream.parameters().medium() != Type::Video {
+                continue;
+            }
             _print_verbose(&format!(
                 "Got packet dts = {} pts ={} key = {}",
                 packet.pts().unwrap(),
                 packet.pts().unwrap(),
                 packet.is_key()
             ))?;
-
-            if stream.parameters().medium() != Type::Video {
-                continue;
-            }
+            last_was_keyframe = packet.is_key();
             if freshly_seeked {
                 if packet.is_key() {
                     freshly_seeked = false
@@ -281,7 +283,6 @@ impl OpenedStream {
             }
         }
 
-        _print_debug("getting last frame");
         let final_frame = frame_cache.lock().unwrap().get_item_id(position, false)?;
 
         if final_frame.is_none() {
