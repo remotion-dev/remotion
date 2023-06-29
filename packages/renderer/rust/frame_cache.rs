@@ -2,7 +2,10 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::{errors::ErrorWithBacktrace, opened_stream::get_time, scalable_frame::ScalableFrame};
+use crate::{
+    errors::ErrorWithBacktrace, global_printer::_print_debug, opened_stream::get_time,
+    scalable_frame::ScalableFrame,
+};
 
 pub fn get_frame_cache_id() -> usize {
     static COUNTER: AtomicUsize = AtomicUsize::new(1);
@@ -141,13 +144,13 @@ impl FrameCache {
     pub fn get_item_id(
         &mut self,
         time: i64,
-        exact: bool,
+        threshold: i64,
     ) -> Result<Option<usize>, ErrorWithBacktrace> {
         let mut best_item: Option<usize> = None;
         let mut best_distance = std::i64::MAX;
 
+        // Is last frame or beyond
         for i in 0..self.items.len() {
-            // Is last frame or beyond
             match self.last_frame {
                 Some(last_frame_id) => {
                     if self.items[i].id == last_frame_id && self.items[i].resolved_pts < time {
@@ -160,19 +163,15 @@ impl FrameCache {
             }
         }
 
-        let has_pts_before = self.items.iter().any(|item| item.resolved_pts <= time);
-        let has_pts_after = self.items.iter().any(|item| item.resolved_pts >= time);
-
-        if !has_pts_after || !has_pts_before {
-            return Ok(None);
-        }
-
+        // Exact same time as requested
         for i in 0..self.items.len() {
-            // Exact same time as requested
             if self.items[i].resolved_pts == time {
                 self.items[i].frame.ensure_data()?;
                 return Ok(Some(self.items[i].id));
             }
+        }
+
+        for i in 0..self.items.len() {
             let distance = (self.items[i].resolved_pts - time as i64).abs();
             // LTE: IF multiple items have the same distance, we take the one with the last timestamp.
             // This is because the last frame is more likely to have been decoded
@@ -182,7 +181,10 @@ impl FrameCache {
             }
         }
 
-        if exact {
+        let has_pts_before = self.items.iter().any(|item| item.resolved_pts <= time);
+        let has_pts_after = self.items.iter().any(|item| item.resolved_pts >= time);
+
+        if best_distance > threshold && (!has_pts_after || !has_pts_before) {
             return Ok(None);
         }
 
