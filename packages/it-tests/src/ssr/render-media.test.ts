@@ -7,7 +7,7 @@ import { expect, test } from "vitest";
 test("Render video with browser instance open", async () => {
   const puppeteerInstance = await openBrowser("chrome");
   const compositions = await getCompositions(
-    "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/",
+    "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/",
     {
       puppeteerInstance,
     }
@@ -27,18 +27,18 @@ test("Render video with browser instance open", async () => {
     outputLocation: outPath,
     codec: "h264",
     serveUrl:
-      "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/",
+      "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/",
     composition: reactSvg,
     frameRange: [0, 2],
     puppeteerInstance,
   });
-  await puppeteerInstance.close(false);
+  await puppeteerInstance.close(false, "info", false);
   expect(existsSync(outPath)).toBe(true);
 });
 
 test("Render video with browser instance not open", async () => {
   const compositions = await getCompositions(
-    "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/"
+    "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/"
   );
 
   const reactSvg = compositions.find((c) => c.id === "react-svg");
@@ -55,7 +55,7 @@ test("Render video with browser instance not open", async () => {
     outputLocation: outPath,
     codec: "h264",
     serveUrl:
-      "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/",
+      "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/",
     composition: reactSvg,
     frameRange: [0, 2],
   });
@@ -73,7 +73,7 @@ test("should fail on invalid CRF", async () => {
       outputLocation: outPath,
       codec: "h264",
       serveUrl:
-        "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/",
+        "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/",
       // @ts-expect-error
       crf: "wrong",
       config: {
@@ -93,12 +93,12 @@ test("should fail on invalid CRF", async () => {
     );
   }
 
-  await browserInstance.close(false);
+  await browserInstance.close(false, "info", false);
 });
 
 test("Render video to a buffer", async () => {
   const compositions = await getCompositions(
-    "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/"
+    "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/"
   );
 
   const reactSvg = compositions.find((c) => c.id === "react-svg");
@@ -110,7 +110,7 @@ test("Render video to a buffer", async () => {
   const { buffer } = await renderMedia({
     codec: "h264",
     serveUrl:
-      "https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/",
+      "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/",
     composition: reactSvg,
     frameRange: [0, 2],
   });

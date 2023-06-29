@@ -5,8 +5,9 @@ import { useMobileLayout } from "../helpers/mobile-layout";
 const commonStyle: React.CSSProperties = {
   height: 40,
   borderRadius: 20,
-  backgroundColor: "var(--blue-underlay)",
-  color: "var(--blue-button-color)",
+  backgroundColor: "white",
+  border: "2px solid black",
+  color: "var(--text-color)",
   fontWeight: "bold",
   justifyContent: "center",
   alignItems: "center",
@@ -20,8 +21,8 @@ const commonStyle: React.CSSProperties = {
 const rightStyle: React.CSSProperties = {
   ...commonStyle,
   right: 0,
-  border: "none",
   textDecoration: "none",
+  color: "black",
 };
 
 const icon: React.CSSProperties = {

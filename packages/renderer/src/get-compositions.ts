@@ -1,4 +1,4 @@
-import type {AnyCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -62,7 +62,7 @@ const innerGetCompositions = async ({
 	proxyPort,
 	serveUrl,
 	timeoutInMilliseconds,
-}: InnerGetCompositionsParams): Promise<AnyCompMetadata[]> => {
+}: InnerGetCompositionsParams): Promise<VideoConfig[]> => {
 	if (onBrowserLog) {
 		page.on('console', (log) => {
 			onBrowserLog({
@@ -109,7 +109,7 @@ const innerGetCompositions = async ({
 		args: [],
 	});
 
-	return result as AnyCompMetadata[];
+	return result as VideoConfig[];
 };
 
 type CleanupFn = () => void;
@@ -140,7 +140,7 @@ export const internalGetCompositions = async ({
 
 	const cleanup: CleanupFn[] = [cleanupPage];
 
-	return new Promise<AnyCompMetadata[]>((resolve, reject) => {
+	return new Promise<VideoConfig[]>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 
 		cleanup.push(
@@ -203,7 +203,7 @@ export const internalGetCompositions = async ({
 export const getCompositions = (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsOptions
-): Promise<AnyCompMetadata[]> => {
+): Promise<VideoConfig[]> => {
 	const {
 		browserExecutable,
 		chromiumOptions,

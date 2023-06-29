@@ -223,10 +223,7 @@ type RenderModalProps = {
 const RenderModal: React.FC<
 	Omit<RenderModalProps, 'compositionId'> & {
 		onClose: () => void;
-		resolvedComposition: TCompMetadata<
-			AnyZodObject,
-			Record<string, unknown> | undefined
-		>;
+		resolvedComposition: TCompMetadata<AnyZodObject, Record<string, unknown>>;
 		unresolvedComposition: AnyComposition;
 	}
 > = ({

@@ -37,7 +37,7 @@ test('Should make a transparent video', async () => {
 		{
 			type: LambdaRoutines.start,
 			serveUrl:
-				'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
+				'https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/',
 			chromiumOptions: {},
 			codec: 'vp8',
 			composition: 'ten-frame-tester',
