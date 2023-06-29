@@ -14,4 +14,5 @@ export const exampleVideos = {
 	corrupted: path.join(examplePackage, 'public', 'corrupted.mp4'),
 	customDar: path.join(examplePackage, 'public', 'custom-dar.mp4'),
 	screenrecording: path.join(examplePackage, 'public', 'quick.mov'),
+	nofps: path.join(examplePackage, 'public', 'nofps.webm'),
 };
