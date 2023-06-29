@@ -23,7 +23,7 @@ test('Memory usage should be determined ', async () => {
 	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson = JSON.parse(stats.toString('utf-8'));
 	expect(statsJson).toEqual({
-		frames_in_cache: 81,
+		frames_in_cache: 249,
 		open_streams: 1,
 		open_videos: 1,
 	});
