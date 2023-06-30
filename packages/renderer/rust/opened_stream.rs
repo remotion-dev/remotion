@@ -437,7 +437,7 @@ pub fn open_stream(
         duration_or_zero,
         reached_eof: false,
         transparent,
-        rotation: rotate.into(),
+        rotation: rotate,
     };
 
     Ok((opened_stream, fps, time_base))
