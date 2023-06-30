@@ -6,6 +6,14 @@ use ffmpeg_next::{
 
 use crate::{errors::ErrorWithBacktrace, image::get_png_data};
 
+#[derive(Clone, Copy)]
+pub enum Rotate {
+    Rotate0,
+    Rotate90,
+    Rotate180,
+    Rotate270,
+}
+
 pub struct NotRgbFrame {
     pub planes: Vec<Vec<u8>>,
     pub linesizes: [i32; 8],
@@ -14,6 +22,7 @@ pub struct NotRgbFrame {
     pub original_height: u32,
     pub scaled_width: u32,
     pub scaled_height: u32,
+    pub rotate: Rotate,
 }
 
 pub struct RgbFrame {
@@ -65,14 +74,16 @@ impl ScalableFrame {
     }
 }
 
-fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
-    let width = rgb_frame.width() as u32;
-    let height = rgb_frame.height() as u32;
+fn create_bmp_image_from_frame(
+    rgb_frame: &[u8],
+    width: u32,
+    height: u32,
+    stride: usize,
+) -> Vec<u8> {
     let row_size = (width * 3 + 3) & !3;
     let row_padding = row_size - width * 3;
     let image_size = row_size * height;
     let header_size = 54;
-    let stride = rgb_frame.stride(0);
 
     let mut bmp_data = Vec::with_capacity(header_size as usize + image_size as usize);
 
@@ -97,7 +108,7 @@ fn create_bmp_image_from_frame(rgb_frame: &mut Video) -> Vec<u8> {
     for y in (0..height).rev() {
         let row_start = (y as usize) * stride;
         let row_end = row_start + (width * 3) as usize;
-        bmp_data.extend_from_slice(&rgb_frame.data(0)[row_start..row_end]);
+        bmp_data.extend_from_slice(&rgb_frame[row_start..row_end]);
         for _ in 0..row_padding {
             bmp_data.push(0);
         }
@@ -149,13 +160,85 @@ pub fn scale_and_make_bitmap(
         std::mem::drop(inner);
     }
 
-    if transparent {
-        return get_png_data(
+    let (rotated, rotated_width, rotated_height) = match native_frame.rotate {
+        Rotate::Rotate90 => rotate_90(
             scaled.data(0),
             native_frame.scaled_width,
             native_frame.scaled_height,
-        );
+        ),
+        Rotate::Rotate180 => rotate_180(
+            scaled.data(0),
+            native_frame.scaled_width,
+            native_frame.scaled_height,
+        ),
+        Rotate::Rotate270 => rotate_270(
+            scaled.data(0),
+            native_frame.scaled_width,
+            native_frame.scaled_height,
+        ),
+        Rotate::Rotate0 => (
+            scaled.data(0).to_vec(),
+            native_frame.scaled_width,
+            native_frame.scaled_height,
+        ),
+    };
+
+    if transparent {
+        return get_png_data(&rotated, rotated_width, rotated_height);
     }
 
-    Ok(create_bmp_image_from_frame(&mut scaled))
+    Ok(create_bmp_image_from_frame(
+        &rotated,
+        rotated_width,
+        rotated_height,
+        (rotated_width * 3) as usize,
+    ))
+}
+
+pub fn rotate_270(data: &[u8], width: u32, height: u32) -> (Vec<u8>, u32, u32) {
+    let mut new_data: Vec<u8> = vec![0; data.len()];
+
+    for y in 0..height {
+        for x in 0..width {
+            let new_x = y;
+            let new_y = width - x - 1;
+            let new_index = (new_y * height + new_x) as usize * 3;
+            let old_index = (y * width + x) as usize * 3;
+            new_data[new_index..new_index + 3].copy_from_slice(&data[old_index..old_index + 3]);
+        }
+    }
+
+    (new_data, height, width)
+}
+
+pub fn rotate_180(data: &[u8], width: u32, height: u32) -> (Vec<u8>, u32, u32) {
+    let mut new_data: Vec<u8> = vec![0; data.len()];
+
+    for y in 0..height {
+        for x in 0..width {
+            let new_x = width - x - 1;
+            let new_y = height - y - 1;
+            let new_index = (new_y * width + new_x) as usize * 3;
+            let old_index = (y * width + x) as usize * 3;
+            new_data[new_index..new_index + 3].copy_from_slice(&data[old_index..old_index + 3]);
+        }
+    }
+
+    (new_data, width, height)
+}
+
+pub fn rotate_90(data: &[u8], width: u32, height: u32) -> (Vec<u8>, u32, u32) {
+    let mut new_data: Vec<u8> = vec![0; data.len()];
+
+    for y in 0..height {
+        for x in 0..width {
+            let new_x = height - y - 1;
+            let new_y = x;
+            let new_index = (new_y * height + new_x) as usize * 3;
+            let old_index = (y * width + x) as usize * 3;
+            new_data[new_index..new_index + 3].copy_from_slice(&data[old_index..old_index + 3]);
+        }
+    }
+
+    (new_data, height, width)
 }
