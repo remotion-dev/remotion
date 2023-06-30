@@ -1,29 +1,16 @@
-const localStorageKey = (comp: string, durationInFrames: number) =>
-	`remotion.editor.marks.${comp}.${durationInFrames}`;
+import type {TimelineInOutContextValue} from './in-out';
 
-export const persistMarks = (
-	comp: string,
-	durationInFrames: number,
-	marks: [number | null, number | null]
-) => {
-	localStorage.setItem(
-		localStorageKey(comp, durationInFrames),
-		JSON.stringify(marks)
-	);
+const localStorageKey = () => `remotion.editor.marksv2`;
+
+export const persistMarks = (marks: TimelineInOutContextValue) => {
+	localStorage.setItem(localStorageKey(), JSON.stringify(marks));
 };
 
-export const loadMarks = (
-	comp: string,
-	durationInFrames: number | undefined
-): [number | null, number | null] => {
-	if (durationInFrames === undefined) {
-		return [null, null];
-	}
-
-	const item = localStorage.getItem(localStorageKey(comp, durationInFrames));
+export const loadMarks = (): TimelineInOutContextValue => {
+	const item = localStorage.getItem(localStorageKey());
 
 	if (item === null) {
-		return [null, null];
+		return {};
 	}
 
 	return JSON.parse(item);

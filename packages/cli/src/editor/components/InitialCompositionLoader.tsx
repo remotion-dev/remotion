@@ -4,17 +4,14 @@ import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {FolderContext} from '../state/folders';
-import {loadMarks} from '../state/marks';
 import {getKeysToExpand} from './CompositionSelector';
 import {getCurrentCompositionFromUrl} from './FramePersistor';
-import {inOutHandles} from './TimelineInOutToggle';
 
 export const useSelectComposition = () => {
 	const {setFoldersExpanded} = useContext(FolderContext);
 	const {setCurrentComposition} = useContext(Internals.CompositionManager);
 
 	return (c: AnyComposition, push: boolean) => {
-		inOutHandles.current?.setMarks(loadMarks(c.id, c.durationInFrames));
 		if (push) {
 			window.history.pushState({}, 'Studio', `/${c.id}`);
 		}
