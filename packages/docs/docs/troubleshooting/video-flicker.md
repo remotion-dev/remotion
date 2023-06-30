@@ -62,7 +62,7 @@ As the most aggressive strategy, you can pre-mount a video to already trigger de
 
 ```tsx twoslash title="Premount.tsx"
 import React, { useContext, useMemo } from "react";
-import { Internals, TimelineContextValue } from "remotion";
+import { Internals, TimelineContextValue, useVideoConfig } from "remotion";
 
 type PremountProps = {
   for: number;
@@ -74,6 +74,7 @@ export const Premount: React.FC<PremountProps> = ({
   children,
 }) => {
   const sequenceContext = useContext(Internals.SequenceContext);
+  const { id } = useVideoConfig();
   if (typeof premountFor === "undefined") {
     throw new Error(
       `The <Premount /> component requires a 'for' prop, but none was passed.`
@@ -114,7 +115,10 @@ export const Premount: React.FC<PremountProps> = ({
             ? false
             : context.imperativePlaying.current,
       },
-      frame: Math.max(0, currentFrame - premountFor) + contextOffset,
+      // Remotion v4
+      frame: { [id]: Math.max(0, currentFrame - premountFor) + contextOffset },
+      // Remotion v3
+      // frame: Math.max(0, currentFrame - premountFor) + contextOffset,
     };
   }, [context, premountFor, sequenceContext]);
 
@@ -130,7 +134,7 @@ The following usage would make the video mount 60 frames before it appears in th
 
 ```tsx twoslash title="MyComponent.tsx"
 import React, { useContext, useMemo } from "react";
-import { Internals, TimelineContextValue } from "remotion";
+import { Internals, TimelineContextValue, useVideoConfig } from "remotion";
 
 type PremountProps = {
   for: number;
@@ -141,6 +145,7 @@ export const Premount: React.FC<PremountProps> = ({
   for: premountFor,
   children,
 }) => {
+  const { id } = useVideoConfig();
   const sequenceContext = useContext(Internals.SequenceContext);
   if (typeof premountFor === "undefined") {
     throw new Error(
@@ -182,7 +187,10 @@ export const Premount: React.FC<PremountProps> = ({
             ? false
             : context.imperativePlaying.current,
       },
-      frame: Math.max(0, currentFrame - premountFor) + contextOffset,
+      // Remotion v4
+      frame: { [id]: Math.max(0, currentFrame - premountFor) + contextOffset },
+      // Remotion v3
+      // frame: Math.max(0, currentFrame - premountFor) + contextOffset,
     };
   }, [context, premountFor, sequenceContext]);
 
