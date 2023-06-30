@@ -16,4 +16,5 @@ export const exampleVideos = {
 	screenrecording: path.join(examplePackage, 'public', 'quick.mov'),
 	nofps: path.join(examplePackage, 'public', 'nofps.webm'),
 	webcam: path.join(examplePackage, 'public', 'webcam.webm'),
+	iphonevideo: path.join(examplePackage, 'public', 'iphonevideo.mov'),
 };
