@@ -873,7 +873,7 @@ const RenderModal: React.FC<
 	}, [onClickStill, onClickVideo, renderDisabled, renderMode]);
 
 	useEffect(() => {
-		registerKeybinding({
+		const enter = registerKeybinding({
 			callback() {
 				trigger();
 			},
@@ -881,8 +881,11 @@ const RenderModal: React.FC<
 			key: 'Enter',
 			event: 'keydown',
 			preventDefault: true,
-			triggerIfInputFieldFocused: false,
+			triggerIfInputFieldFocused: true,
 		});
+		return () => {
+			enter.unregister();
+		};
 	}, [registerKeybinding, trigger]);
 
 	return (
