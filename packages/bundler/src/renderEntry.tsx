@@ -315,7 +315,7 @@ if (typeof window !== 'undefined') {
 		return prom;
 	};
 
-	window.siteVersion = '6';
+	window.siteVersion = '7';
 	window.remotion_version = VERSION;
 	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }

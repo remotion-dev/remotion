@@ -332,12 +332,14 @@ const innerRenderFrames = async ({
 		reject,
 		width,
 		height,
+		compId,
 	}: {
 		frame: number;
 		index: number;
 		reject: (err: Error) => void;
 		width: number;
 		height: number;
+		compId: string;
 	}) => {
 		const pool = await poolPromise;
 		const freePage = await pool.acquire();
@@ -358,7 +360,7 @@ const innerRenderFrames = async ({
 			frame,
 		});
 		freePage.on('error', errorCallbackOnFrame);
-		await seekToFrame({frame, page: freePage});
+		await seekToFrame({frame, page: freePage, composition: compId});
 
 		if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {
 			throw new Error(
@@ -439,6 +441,7 @@ const innerRenderFrames = async ({
 				reject,
 				width: composition.width,
 				height: composition.height,
+				compId: composition.id,
 			})
 				.then(() => {
 					resolve();
@@ -586,8 +589,7 @@ export const internalRenderFrames = ({
 		'in the `config` object of `renderFrames()`',
 		false
 	);
-	Internals.validateDurationInFrames({
-		durationInFrames: composition.durationInFrames,
+	Internals.validateDurationInFrames(composition.durationInFrames, {
 		component: 'in the `config` object passed to `renderFrames()`',
 		allowFloats: false,
 	});

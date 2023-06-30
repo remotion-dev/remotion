@@ -33,6 +33,8 @@ const waitForWindowToBeReady = () => {
 	});
 };
 
+const ID = 'markup';
+
 export const getAssetsForMarkup = async (
 	Markup: React.FC,
 	config: {
@@ -76,7 +78,7 @@ export const getAssetsForMarkup = async (
 				compositions: [
 					{
 						...config,
-						id: 'markup',
+						id: ID,
 						component: React.lazy(() =>
 							Promise.resolve({
 								default: Markup as ComponentType<unknown>,
@@ -124,7 +126,7 @@ export const getAssetsForMarkup = async (
 		currentFrame++
 	) {
 		act(() => {
-			window.remotion_setFrame(currentFrame);
+			window.remotion_setFrame(currentFrame, ID);
 		});
 		await waitForWindowToBeReady();
 		collectedAssets.push(collectAssets());

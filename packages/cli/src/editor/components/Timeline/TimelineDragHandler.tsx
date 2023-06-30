@@ -15,7 +15,6 @@ import {
 	useTimelineSetInOutFramePosition,
 } from '../../state/in-out';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
-import {persistCurrentFrame} from '../FramePersistor';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 import {
@@ -35,6 +34,7 @@ import {
 } from './TimelineInOutPointerHandle';
 import {redrawTimelineSliderFast} from './TimelineSlider';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {defaultInOutValue} from '../TimelineInOutToggle';
 
 const inner: React.CSSProperties = {
 	overflowY: 'auto',
@@ -73,11 +73,11 @@ export const TimelineDragHandler: React.FC = () => {
 
 const Inner: React.FC = () => {
 	const videoConfig = useVideoConfig();
-
 	const size = PlayerInternals.useElementSize(scrollableRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
+	const setFrame = Internals.useTimelineSetFrame();
 
 	const [inOutDragging, setInOutDragging] = useState<
 		| {
@@ -374,13 +374,14 @@ const Inner: React.FC = () => {
 				extrapolate: 'clamp',
 			});
 
-			persistCurrentFrame(frame);
+			Internals.persistCurrentFrame(frame, videoConfig.id);
+			setFrame((c) => ({...c, [videoConfig.id]: frame}));
 
 			if (dragging.wasPlaying) {
 				play();
 			}
 		},
-		[dragging, left, play, videoConfig, width]
+		[dragging, left, play, videoConfig, setFrame, width]
 	);
 
 	const onPointerUpInOut = useCallback(
@@ -407,27 +408,39 @@ const Inner: React.FC = () => {
 				if (frame < 1) {
 					return setInAndOutFrames((prev) => ({
 						...prev,
-						inFrame: null,
+						[videoConfig.id]: {
+							...(prev[videoConfig.id] ?? defaultInOutValue),
+							inFrame: null,
+						},
 					}));
 				}
 
 				const maxFrame = outFrame === null ? Infinity : outFrame - 1;
 				setInAndOutFrames((prev) => ({
 					...prev,
-					inFrame: Math.min(maxFrame, frame),
+					[videoConfig.id]: {
+						...(prev[videoConfig.id] ?? defaultInOutValue),
+						inFrame: Math.min(maxFrame, frame),
+					},
 				}));
 			} else {
 				if (frame > videoConfig.durationInFrames - 2) {
 					return setInAndOutFrames((prev) => ({
 						...prev,
-						outFrame: null,
+						[videoConfig.id]: {
+							...(prev[videoConfig.id] ?? defaultInOutValue),
+							outFrame: null,
+						},
 					}));
 				}
 
 				const minFrame = inFrame === null ? -Infinity : inFrame + 1;
 				setInAndOutFrames((prev) => ({
 					...prev,
-					outFrame: Math.max(minFrame, frame),
+					[videoConfig.id]: {
+						...(prev[videoConfig.id] ?? defaultInOutValue),
+						outFrame: Math.max(minFrame, frame),
+					},
 				}));
 			}
 		},

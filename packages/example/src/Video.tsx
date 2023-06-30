@@ -123,8 +123,8 @@ export const Index: React.FC = () => {
 
 		ws.add(foo2);
 
-		console.log('Hello World WeakMap', wm3);
-		console.log('Hello World WeakSet', ws);
+		shouldLog('Hello World WeakMap', wm3);
+		shouldLog('Hello World WeakSet', ws);
 
 		await new Promise((r) => {
 			setTimeout(r, 1000);

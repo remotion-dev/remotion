@@ -1,6 +1,6 @@
-import type {AnyCompMetadata} from 'remotion';
 import {Log} from './log';
 import {quietFlagProvided} from './parse-command-line';
+import type {VideoConfig} from 'remotion';
 
 const max = (arr: number[]) => {
 	if (arr.length === 0) {
@@ -18,7 +18,7 @@ const max = (arr: number[]) => {
 	return biggest;
 };
 
-export const printCompositions = (compositions: AnyCompMetadata[]) => {
+export const printCompositions = (compositions: VideoConfig[]) => {
 	if (!quietFlagProvided()) {
 		Log.info();
 		Log.info('The following compositions are available:');
