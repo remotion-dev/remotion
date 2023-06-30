@@ -369,7 +369,7 @@ test('Should get from video with no fps', async () => {
 test('Should get from broken webcam video', async () => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
-		'verbose',
+		'info',
 		false
 	);
 
@@ -380,6 +380,25 @@ test('Should get from broken webcam video', async () => {
 	});
 
 	expect(data.length).toBe(921654);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
+test('Should get from iPhone video', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.iphonevideo,
+		time: 3,
+		transparent: false,
+	});
+
+	expect(data.length).toBe(24883254);
 
 	compositor.finishCommands();
 	await compositor.waitForDone();

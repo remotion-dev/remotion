@@ -13,7 +13,8 @@ use crate::{
     errors::ErrorWithBacktrace,
     frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
     global_printer::_print_verbose,
-    scalable_frame::{NotRgbFrame, ScalableFrame},
+    rotation,
+    scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
 };
 
 pub struct OpenedStream {
@@ -30,6 +31,7 @@ pub struct OpenedStream {
     pub duration_or_zero: i64,
     pub reached_eof: bool,
     pub transparent: bool,
+    pub rotation: Rotate,
 }
 
 pub fn calc_position(time: f64, time_base: Rational) -> i64 {
@@ -98,6 +100,7 @@ impl OpenedStream {
                         original_height: self.original_height,
                         scaled_height: self.scaled_height,
                         scaled_width: self.scaled_width,
+                        rotate: self.rotation,
                     };
 
                     offset = offset + one_frame_in_time_base;
@@ -198,6 +201,7 @@ impl OpenedStream {
             if stream.parameters().medium() != Type::Video {
                 continue;
             }
+
             _print_verbose(&format!(
                 "Got packet dts = {} pts ={} key = {}",
                 packet.dts().unwrap(),
@@ -251,6 +255,7 @@ impl OpenedStream {
                             original_width: self.original_width,
                             scaled_height: self.scaled_height,
                             scaled_width: self.scaled_width,
+                            rotate: self.rotation,
                         };
 
                         self.last_position = video.pts().expect("expected pts");
@@ -345,6 +350,31 @@ pub fn open_stream(
 
     let time_base = mut_stream.time_base();
     let parameters = mut_stream.parameters();
+    let side_data = mut_stream.side_data();
+
+    let mut rotate = Rotate::Rotate0;
+
+    for data in side_data {
+        if data.kind() == remotionffmpeg::codec::packet::side_data::Type::DisplayMatrix {
+            let value = data.data();
+            let rotate_value = rotation::get_from_side_data(value)?;
+            if rotate_value != 0.0 {
+                _print_verbose(&format!("Detected rotation in {}: {}", src, rotate_value))?;
+                if rotate_value == 90.0 {
+                    rotate = Rotate::Rotate90;
+                } else if rotate_value == 180.0 {
+                    rotate = Rotate::Rotate180;
+                } else if rotate_value == 270.0 || rotate_value == -90.0 {
+                    rotate = Rotate::Rotate270;
+                } else {
+                    return Err(ErrorWithBacktrace::from(format!(
+                        "Unsupported rotation value {}",
+                        rotate_value
+                    )));
+                }
+            }
+        }
+    }
 
     let mut parameters_cloned = parameters.clone();
     let is_vp8_or_vp9_and_transparent = match transparent {
@@ -407,6 +437,7 @@ pub fn open_stream(
         duration_or_zero,
         reached_eof: false,
         transparent,
+        rotation: rotate.into(),
     };
 
     Ok((opened_stream, fps, time_base))
