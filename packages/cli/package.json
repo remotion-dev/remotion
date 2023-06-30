@@ -45,7 +45,7 @@
 		"open": "^8.4.2",
 		"prompts": "2.4.1",
 		"remotion": "workspace:*",
-		"semver": "7.3.5",
+		"semver": "7.5.3",
 		"source-map": "0.6.1"
 	},
 	"peerDependencies": {
@@ -65,7 +65,7 @@
 		"@remotion/tailwind": "workspace:*",
 		"eslint": "8.42.0",
 		"eslint-plugin-10x": "1.5.2",
-		"eslint-plugin-react": "7.29.4",
+		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",

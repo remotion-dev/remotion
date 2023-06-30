@@ -73,7 +73,7 @@
 	"devDependencies": {
 		"eslint": "8.42.0",
 		"eslint-plugin-10x": "1.5.2",
-		"eslint-plugin-react": "7.29.4",
+		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0"
 	},
 	"publishConfig": {
