@@ -8,7 +8,7 @@ This snippet is useful if you have designed your video with a different frame ra
 
 ```tsx twoslash title="FpsConverter.tsx"
 import React, { useContext, useMemo } from "react";
-import { Internals, TimelineContextValue } from "remotion";
+import { Internals, TimelineContextValue, useVideoConfig } from "remotion";
 
 export const FpsConverter: React.FC<{
   originalFps: number;
@@ -17,6 +17,7 @@ export const FpsConverter: React.FC<{
 }> = ({ originalFps, newFps, children }) => {
   const context = useContext(Internals.Timeline.TimelineContext);
   const ratio = originalFps / newFps;
+  const { id } = useVideoConfig();
 
   const value: TimelineContextValue = useMemo(() => {
     return {
