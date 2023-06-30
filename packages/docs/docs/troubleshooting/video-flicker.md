@@ -105,7 +105,10 @@ export const Premount: React.FC<PremountProps> = ({
       ? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
       : 0;
 
-    const currentFrame = context.frame - contextOffset;
+    // v3
+    // const currentFrame = context.frame - contextOffset;
+    // v4
+    const currentFrame = (context.frame[id] ?? 0) - contextOffset;
     return {
       ...context,
       playing: currentFrame < premountFor ? false : context.playing,
@@ -177,7 +180,10 @@ export const Premount: React.FC<PremountProps> = ({
       ? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
       : 0;
 
-    const currentFrame = context.frame - contextOffset;
+    // v3
+    // const currentFrame = context.frame - contextOffset;
+    // v4
+    const currentFrame = (context.frame[id] ?? 0) - contextOffset;
     return {
       ...context,
       playing: currentFrame < premountFor ? false : context.playing,
