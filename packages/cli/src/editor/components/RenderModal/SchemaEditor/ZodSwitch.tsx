@@ -63,8 +63,6 @@ export const ZodSwitch: React.FC<{
 
 	const zodTypes = useZodTypesIfPossible();
 
-	// TODO: (Maybe?) enable saving of inserted input props by cmd+s /ctrl + s (also for JSON view)
-
 	if (typeName === z.ZodFirstPartyTypeKind.ZodObject) {
 		return (
 			<ZodObjectEditor

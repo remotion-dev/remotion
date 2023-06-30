@@ -6,10 +6,7 @@ sidebar_label: Defining a schema
 crumb: "How To"
 ---
 
-As an alternative to [using TypeScript types](/docs/parametrized-rendering) to define the shape of the props your component accepts, you may use [Zod](https://zod.dev/) to define a schema for your props. You may do so if you want to:
-
-<Step>1</Step> Validate the props during rendering. [TODO] <br/>
-<Step>2</Step> Edit the props visually in the Remotion Studio.
+As an alternative to [using TypeScript types](/docs/parametrized-rendering) to define the shape of the props your component accepts, you may use [Zod](https://zod.dev/) to define a schema for your props. You may do so if you want to edit the props visually in the Remotion Studio.
 
 ## Prerequisites
 

@@ -320,7 +320,6 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 						params,
 					},
 				};
-				// TODO: Should have a way to error out a single task
 				child.stdin.write(JSON.stringify(composed) + '\n');
 				waiters.set(nonce, {
 					resolve: _resolve,
