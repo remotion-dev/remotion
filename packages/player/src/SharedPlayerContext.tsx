@@ -11,6 +11,8 @@ import type {
 import {Internals} from 'remotion';
 import {getPreferredVolume, persistVolume} from './volume-persistance.js';
 
+export const PLAYER_COMP_ID = 'player-comp';
+
 export const SharedPlayerContexts: React.FC<{
 	children: React.ReactNode;
 	timelineContext: TimelineContextValue;
@@ -45,7 +47,7 @@ export const SharedPlayerContexts: React.FC<{
 					height: compositionHeight,
 					width: compositionWidth,
 					fps,
-					id: 'player-comp',
+					id: PLAYER_COMP_ID,
 					props: inputProps as unknown,
 					nonce: 777,
 					scale: 1,

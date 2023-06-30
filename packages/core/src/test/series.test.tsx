@@ -37,7 +37,9 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 			<TimelineContext.Provider
 				value={{
 					rootId: '',
-					frame,
+					frame: {
+						'my-comp': frame,
+					},
 					playing: false,
 					imperativePlaying: {
 						current: false,

@@ -5,12 +5,10 @@ import {noop} from '../helpers/noop';
 import {TimelineZoomContext} from '../state/timeline-zoom';
 import {HigherZIndex} from '../state/z-index';
 import {EditorContent} from './EditorContent';
-import {FramePersistor} from './FramePersistor';
 import {GlobalKeybindings} from './GlobalKeybindings';
 import {Modals} from './Modals';
 import {NoRegisterRoot} from './NoRegisterRoot';
 import {NotificationCenter} from './Notifications/NotificationCenter';
-import {ZoomPersistor} from './ZoomPersistor';
 
 const background: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
@@ -51,8 +49,6 @@ export const Editor: React.FC = () => {
 				<div style={background}>
 					{Root === null ? null : <Root />}
 					<Internals.CanUseRemotionHooksProvider>
-						<FramePersistor />
-						<ZoomPersistor />
 						{Root === null ? <NoRegisterRoot /> : <EditorContent />}
 						<GlobalKeybindings />
 					</Internals.CanUseRemotionHooksProvider>

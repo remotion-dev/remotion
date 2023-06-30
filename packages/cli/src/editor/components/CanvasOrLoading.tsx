@@ -6,11 +6,11 @@ import {Canvas} from './Canvas';
 import {Spacing} from './layout';
 import {inlineCodeSnippet} from './Menu/styles';
 import {Spinner} from './Spinner';
-import {getFrameForComposition} from './FramePersistor';
-import {getZoomForComposition} from './ZoomPersistor';
-import {setCurrentFrame} from './Timeline/imperative-state';
+import {FramePersistor} from './FramePersistor';
+import {ZoomPersistor} from './ZoomPersistor';
 import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
 import {TimelineZoomCtx} from '../state/timeline-zoom';
+import {getCurrentFrame} from './Timeline/imperative-state';
 
 const container: React.CSSProperties = {
 	color: 'white',
@@ -43,15 +43,10 @@ export const CanvasOrLoading: React.FC = () => {
 
 		const c = resolved.result;
 
-		const frame = getFrameForComposition(c.id);
-		const zoom = getZoomForComposition(c.id);
-		const frameInBounds = Math.min(c.durationInFrames - 1, frame);
-		setCurrentFrame(frameInBounds);
-		setZoom(() => zoom);
 		setTimeout(() => {
 			ensureFrameIsInViewport({
 				direction: 'center',
-				frame,
+				frame: getCurrentFrame(),
 				durationInFrames: c.durationInFrames,
 			});
 		});
@@ -85,7 +80,13 @@ export const CanvasOrLoading: React.FC = () => {
 		return <ErrorLoading error={resolved.error} />;
 	}
 
-	return <Canvas />;
+	return (
+		<>
+			<FramePersistor />
+			<ZoomPersistor />
+			<Canvas />
+		</>
+	);
 };
 
 const loaderLabel: React.CSSProperties = {
