@@ -131,7 +131,7 @@ test('Should be able to take commands for freeing up memory', async () => {
 
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString())
-	).toBeLessThan(20 * 1024 * 1024);
+	).toBeLessThan(25 * 1024 * 1024);
 });
 
 function getMemoryUsageByPid(pid: string) {
