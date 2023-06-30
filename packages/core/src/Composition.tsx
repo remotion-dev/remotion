@@ -21,9 +21,6 @@ import {useLazyComponent} from './use-lazy-component.js';
 import {useVideo} from './use-video.js';
 import {validateCompositionId} from './validation/validate-composition-id.js';
 import {validateDefaultAndInputProps} from './validation/validate-default-props.js';
-import {validateDimension} from './validation/validate-dimensions.js';
-import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
-import {validateFps} from './validation/validate-fps.js';
 
 type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
 
@@ -50,25 +47,61 @@ export type CalculateMetadataFunction<T extends Record<string, unknown>> =
 		abortSignal: AbortSignal;
 	}) => Promise<CalcMetadataReturnType<T>> | CalcMetadataReturnType<T>;
 
-export type StillProps<
+type OptionalDimensions<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>
+> = {
+	width?: number;
+	height?: number;
+	calculateMetadata: CalculateMetadataFunction<InferProps<Schema, Props>>;
+};
+
+type MandatoryDimensions<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>
 > = {
 	width: number;
 	height: number;
-	id: string;
 	calculateMetadata?: CalculateMetadataFunction<InferProps<Schema, Props>>;
+};
+
+type StillCalculateMetadataOrExplicit<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>
+> = OptionalDimensions<Schema, Props> | MandatoryDimensions<Schema, Props>;
+
+type CompositionCalculateMetadataOrExplicit<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>
+> =
+	| (OptionalDimensions<Schema, Props> & {
+			fps?: number;
+			durationInFrames?: number;
+	  })
+	| (MandatoryDimensions<Schema, Props> & {
+			fps: number;
+			durationInFrames: number;
+	  });
+
+export type StillProps<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>
+> = {
+	id: string;
 	schema?: Schema;
-} & CompProps<Props> &
+} & StillCalculateMetadataOrExplicit<Schema, Props> &
+	CompProps<Props> &
 	PropsIfHasProps<Schema, Props>;
 
 export type CompositionProps<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>
-> = StillProps<Schema, Props> & {
-	fps: number;
-	durationInFrames: number;
-};
+> = {
+	id: string;
+	schema?: Schema;
+} & CompositionCalculateMetadataOrExplicit<Schema, Props> &
+	CompProps<Props> &
+	PropsIfHasProps<Schema, Props>;
 
 const Fallback: React.FC = () => {
 	useEffect(() => {
@@ -129,21 +162,12 @@ export const Composition = <
 		}
 
 		validateCompositionId(id);
-		validateDimension(width, 'width', 'of the <Composition/> component');
-		validateDimension(height, 'height', 'of the <Composition/> component');
-		validateDurationInFrames({
-			durationInFrames,
-			component: 'of the <Composition/> component',
-			allowFloats: false,
-		});
-
-		validateFps(fps, 'as a prop of the <Composition/> component', false);
 		validateDefaultAndInputProps(defaultProps, 'defaultProps', id);
 		registerComposition<Schema, Props>({
-			durationInFrames,
-			fps,
-			height,
-			width,
+			durationInFrames: durationInFrames ?? undefined,
+			fps: fps ?? undefined,
+			height: height ?? undefined,
+			width: width ?? undefined,
 			id,
 			folderName,
 			component: lazy,

@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {ErrorLoader} from '../../preview-server/error-overlay/remotion-overlay/ErrorLoader';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
@@ -6,6 +6,11 @@ import {Canvas} from './Canvas';
 import {Spacing} from './layout';
 import {inlineCodeSnippet} from './Menu/styles';
 import {Spinner} from './Spinner';
+import {getFrameForComposition} from './FramePersistor';
+import {getZoomForComposition} from './ZoomPersistor';
+import {setCurrentFrame} from './Timeline/imperative-state';
+import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
+import {TimelineZoomCtx} from '../state/timeline-zoom';
 
 const container: React.CSSProperties = {
 	color: 'white',
@@ -20,6 +25,8 @@ const container: React.CSSProperties = {
 export const CanvasOrLoading: React.FC = () => {
 	const resolved = Internals.useResolvedVideoConfig(null);
 	const [takesALongTime, setTakesALongTime] = useState(false);
+	const {setCurrentComposition} = useContext(Internals.CompositionManager);
+	const {setZoom} = useContext(TimelineZoomCtx);
 
 	useEffect(() => {
 		const timeout = setTimeout(() => {
@@ -29,6 +36,28 @@ export const CanvasOrLoading: React.FC = () => {
 			clearTimeout(timeout);
 		};
 	}, []);
+
+	useEffect(() => {
+		if (resolved?.type !== 'success') {
+			return;
+		}
+
+		const c = resolved.result;
+
+		const frame = getFrameForComposition(c.id);
+		const zoom = getZoomForComposition(c.id);
+		const frameInBounds = Math.min(c.durationInFrames - 1, frame);
+		setCurrentFrame(frameInBounds);
+		setCurrentComposition(c.id);
+		setZoom(() => zoom);
+		setTimeout(() => {
+			ensureFrameIsInViewport({
+				direction: 'center',
+				frame,
+				durationInFrames: c.durationInFrames,
+			});
+		});
+	}, [resolved, setCurrentComposition, setZoom]);
 
 	const style = useMemo(() => {
 		return {

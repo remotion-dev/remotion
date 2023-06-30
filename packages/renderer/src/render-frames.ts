@@ -586,8 +586,7 @@ export const internalRenderFrames = ({
 		'in the `config` object of `renderFrames()`',
 		false
 	);
-	Internals.validateDurationInFrames({
-		durationInFrames: composition.durationInFrames,
+	Internals.validateDurationInFrames(composition.durationInFrames, {
 		component: 'in the `config` object passed to `renderFrames()`',
 		allowFloats: false,
 	});

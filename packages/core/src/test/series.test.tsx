@@ -183,7 +183,7 @@ test('Should throw if invalid or no duration provided', () => {
 			</Series>
 		);
 	}).toThrow(
-		/The "durationInFrames" prop of a <Series.Sequence \/> component must be a number, but you passed a value of type undefined/
+		/The "durationInFrames" prop of a <Series.Sequence \/> component is missing./
 	);
 });
 test('Should allow whitespace', () => {
