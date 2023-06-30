@@ -7,7 +7,7 @@ import { expect, test } from "vitest";
 test("Render video with browser instance open", async () => {
   const puppeteerInstance = await openBrowser("chrome");
   const compositions = await getCompositions(
-    "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/",
+    "https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/",
     {
       puppeteerInstance,
     }
@@ -27,7 +27,7 @@ test("Render video with browser instance open", async () => {
     outputLocation: outPath,
     codec: "h264",
     serveUrl:
-      "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/",
+      "https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/",
     composition: reactSvg,
     frameRange: [0, 2],
     puppeteerInstance,
@@ -38,7 +38,7 @@ test("Render video with browser instance open", async () => {
 
 test("Render video with browser instance not open", async () => {
   const compositions = await getCompositions(
-    "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/"
+    "https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/"
   );
 
   const reactSvg = compositions.find((c) => c.id === "react-svg");
@@ -55,7 +55,7 @@ test("Render video with browser instance not open", async () => {
     outputLocation: outPath,
     codec: "h264",
     serveUrl:
-      "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/",
+      "https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/",
     composition: reactSvg,
     frameRange: [0, 2],
   });
@@ -73,7 +73,7 @@ test("should fail on invalid CRF", async () => {
       outputLocation: outPath,
       codec: "h264",
       serveUrl:
-        "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/",
+        "https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/",
       // @ts-expect-error
       crf: "wrong",
       config: {
@@ -98,7 +98,7 @@ test("should fail on invalid CRF", async () => {
 
 test("Render video to a buffer", async () => {
   const compositions = await getCompositions(
-    "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/"
+    "https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/"
   );
 
   const reactSvg = compositions.find((c) => c.id === "react-svg");
@@ -110,7 +110,7 @@ test("Render video to a buffer", async () => {
   const { buffer } = await renderMedia({
     codec: "h264",
     serveUrl:
-      "https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/",
+      "https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/",
     composition: reactSvg,
     frameRange: [0, 2],
   });
