@@ -21,7 +21,10 @@ export const FpsConverter: React.FC<{
   const value: TimelineContextValue = useMemo(() => {
     return {
       ...context,
-      frame: context.frame * ratio,
+      // Remotion 4.0
+      frame: { [id]: context.frame * ratio },
+      // Remotion 3.0
+      // frame: context.frame * ratio,
     };
   }, [context, ratio]);
 
