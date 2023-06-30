@@ -11,11 +11,15 @@ import {inOutHandles} from './TimelineInOutToggle';
 
 export const useSelectComposition = () => {
 	const {setFoldersExpanded} = useContext(FolderContext);
+	const {setCurrentComposition} = useContext(Internals.CompositionManager);
+
 	return (c: AnyComposition, push: boolean) => {
 		inOutHandles.current?.setMarks(loadMarks(c.id, c.durationInFrames));
 		if (push) {
 			window.history.pushState({}, 'Studio', `/${c.id}`);
 		}
+
+		setCurrentComposition(c.id);
 
 		const {folderName, parentFolderName} = c;
 

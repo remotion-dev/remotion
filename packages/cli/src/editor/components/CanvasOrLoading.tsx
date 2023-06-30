@@ -25,7 +25,6 @@ const container: React.CSSProperties = {
 export const CanvasOrLoading: React.FC = () => {
 	const resolved = Internals.useResolvedVideoConfig(null);
 	const [takesALongTime, setTakesALongTime] = useState(false);
-	const {setCurrentComposition} = useContext(Internals.CompositionManager);
 	const {setZoom} = useContext(TimelineZoomCtx);
 
 	useEffect(() => {
@@ -48,7 +47,6 @@ export const CanvasOrLoading: React.FC = () => {
 		const zoom = getZoomForComposition(c.id);
 		const frameInBounds = Math.min(c.durationInFrames - 1, frame);
 		setCurrentFrame(frameInBounds);
-		setCurrentComposition(c.id);
 		setZoom(() => zoom);
 		setTimeout(() => {
 			ensureFrameIsInViewport({
@@ -57,7 +55,7 @@ export const CanvasOrLoading: React.FC = () => {
 				durationInFrames: c.durationInFrames,
 			});
 		});
-	}, [resolved, setCurrentComposition, setZoom]);
+	}, [resolved, setZoom]);
 
 	const style = useMemo(() => {
 		return {
