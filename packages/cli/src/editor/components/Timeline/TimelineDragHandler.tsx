@@ -407,27 +407,39 @@ const Inner: React.FC = () => {
 				if (frame < 1) {
 					return setInAndOutFrames((prev) => ({
 						...prev,
-						inFrame: null,
+						[videoConfig.id]: {
+							...prev[videoConfig.id],
+							inFrame: null,
+						},
 					}));
 				}
 
 				const maxFrame = outFrame === null ? Infinity : outFrame - 1;
 				setInAndOutFrames((prev) => ({
 					...prev,
-					inFrame: Math.min(maxFrame, frame),
+					[videoConfig.id]: {
+						...prev[videoConfig.id],
+						inFrame: Math.min(maxFrame, frame),
+					},
 				}));
 			} else {
 				if (frame > videoConfig.durationInFrames - 2) {
 					return setInAndOutFrames((prev) => ({
 						...prev,
-						outFrame: null,
+						[videoConfig.id]: {
+							...prev[videoConfig.id],
+							outFrame: null,
+						},
 					}));
 				}
 
 				const minFrame = inFrame === null ? -Infinity : inFrame + 1;
 				setInAndOutFrames((prev) => ({
 					...prev,
-					outFrame: Math.max(minFrame, frame),
+					[videoConfig.id]: {
+						...prev[videoConfig.id],
+						outFrame: Math.max(minFrame, frame),
+					},
 				}));
 			}
 		},
