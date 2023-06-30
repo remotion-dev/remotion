@@ -43,7 +43,7 @@ export const inOutHandles = createRef<{
 	clearMarks: () => void;
 }>();
 
-const defaultInOutValue: InOutValue = {inFrame: null, outFrame: null};
+export const defaultInOutValue: InOutValue = {inFrame: null, outFrame: null};
 
 export const TimelineInOutPointToggle: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
@@ -80,7 +80,7 @@ export const TimelineInOutPointToggle: React.FC = () => {
 					return {
 						...prev,
 						[videoConfig.id]: {
-							...prev[videoConfig.id],
+							...(prev[videoConfig.id] ?? defaultInOutValue),
 							inFrame: null,
 						},
 					};
