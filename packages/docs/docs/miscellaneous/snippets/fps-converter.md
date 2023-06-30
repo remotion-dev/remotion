@@ -23,7 +23,7 @@ export const FpsConverter: React.FC<{
     return {
       ...context,
       // Remotion 4.0
-      frame: { [id]: context.frame * ratio },
+      frame: { [id]: (context.frame[id] ?? 0) * ratio },
       // Remotion 3.0
       // frame: context.frame * ratio,
     };
@@ -60,7 +60,7 @@ export const FpsConverter: React.FC<{
     return {
       ...context,
       // Remotion 4.0
-      frame: { [id]: context.frame * ratio },
+      frame: { [id]: (context.frame[id] ?? 0) * ratio },
       // Remotion 3.0
       // frame: context.frame * ratio,
     };
