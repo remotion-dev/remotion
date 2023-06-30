@@ -34,6 +34,7 @@ import {
 } from './TimelineInOutPointerHandle';
 import {redrawTimelineSliderFast} from './TimelineSlider';
 import {TimelineWidthContext} from './TimelineWidthProvider';
+import {defaultInOutValue} from '../TimelineInOutToggle';
 
 const inner: React.CSSProperties = {
 	overflowY: 'auto',
@@ -408,7 +409,7 @@ const Inner: React.FC = () => {
 					return setInAndOutFrames((prev) => ({
 						...prev,
 						[videoConfig.id]: {
-							...prev[videoConfig.id],
+							...(prev[videoConfig.id] ?? defaultInOutValue),
 							inFrame: null,
 						},
 					}));
@@ -418,7 +419,7 @@ const Inner: React.FC = () => {
 				setInAndOutFrames((prev) => ({
 					...prev,
 					[videoConfig.id]: {
-						...prev[videoConfig.id],
+						...(prev[videoConfig.id] ?? defaultInOutValue),
 						inFrame: Math.min(maxFrame, frame),
 					},
 				}));
@@ -427,7 +428,7 @@ const Inner: React.FC = () => {
 					return setInAndOutFrames((prev) => ({
 						...prev,
 						[videoConfig.id]: {
-							...prev[videoConfig.id],
+							...(prev[videoConfig.id] ?? defaultInOutValue),
 							outFrame: null,
 						},
 					}));
@@ -437,7 +438,7 @@ const Inner: React.FC = () => {
 				setInAndOutFrames((prev) => ({
 					...prev,
 					[videoConfig.id]: {
-						...prev[videoConfig.id],
+						...(prev[videoConfig.id] ?? defaultInOutValue),
 						outFrame: Math.max(minFrame, frame),
 					},
 				}));
