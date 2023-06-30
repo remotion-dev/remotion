@@ -16,7 +16,7 @@ test('Need to pass valid metadata', async () => {
 			frame: 0,
 			output: '/file/output.png',
 			serveUrl:
-				'https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/',
+				'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
 			verbose: false,
 		})
 	).rejects.toThrow(/not be NaN, but is NaN/);
@@ -35,7 +35,7 @@ test('Returns buffer in promise result', async () => {
 		},
 		frame: 0,
 		serveUrl:
-			'https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/',
+			'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
 		verbose: false,
 	});
 	expect(buffer?.length).toBeGreaterThan(1000);
@@ -56,7 +56,7 @@ test('Need to pass valid metadata', async () => {
 			frame: 200,
 			output: '/file/output.png',
 			serveUrl:
-				'https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/',
+				'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
 			verbose: false,
 		})
 	).rejects.toThrow(
@@ -81,7 +81,7 @@ test('Catches invalid image format', () => {
 			frame: 200,
 			output: '/file/output.png',
 			serveUrl:
-				'https://649c2591dc13fa0aa817f746--helpful-frangollo-8c4f55.netlify.app/',
+				'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
 		})
 	).rejects.toThrow(
 		/Image format should be one of: "png", "jpeg", "pdf", "webp"/
