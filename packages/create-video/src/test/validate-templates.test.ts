@@ -31,7 +31,7 @@ describe('Templates should be valid', () => {
 					expect(body.scripts.build).not.toContain('index');
 				}
 
-				// TODO: Enable this for v4
+				// TODO: Enable this after v4
 				// expect(body.dependencies.remotion).toMatch(/^\^?4/);
 				// expect(body.dependencies['@remotion/cli']).toMatch(/^\^?4/);
 				expect(body.dependencies.react).toMatch(/^\^?18/);

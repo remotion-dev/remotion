@@ -314,7 +314,6 @@ const getRules = (typescript: boolean) => {
       "always",
       {
         // Workaround to allow class fields to not have lines between them.
-        // TODO: Get ESLint to add an option to ignore class fields.
         exceptAfterSingleLine: true,
       },
     ],
@@ -394,7 +393,6 @@ const getRules = (typescript: boolean) => {
       {
         // `array` is disabled because it forces destructuring on
         // stupid stuff like `foo.bar = process.argv[2];`
-        // TODO: Open ESLint issue about this
         VariableDeclarator: {
           array: false,
           object: true,
