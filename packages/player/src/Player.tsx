@@ -188,8 +188,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		'compositionWidth',
 		'of the <Player /> component'
 	);
-	Internals.validateDurationInFrames({
-		durationInFrames,
+	Internals.validateDurationInFrames(durationInFrames, {
 		component: 'of the <Player/> component',
 		allowFloats: false,
 	});

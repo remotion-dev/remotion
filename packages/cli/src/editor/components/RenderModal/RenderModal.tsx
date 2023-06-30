@@ -17,7 +17,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {AnyComposition, TCompMetadata} from 'remotion';
+import type {AnyComposition, VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {ShortcutHint} from '../../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
@@ -38,7 +38,6 @@ import {PicIcon} from '../../icons/frame';
 import {GearIcon} from '../../icons/gear';
 import {GifIcon} from '../../icons/gif';
 
-import type {AnyZodObject} from 'zod';
 import {BLUE, BLUE_DISABLED, LIGHT_TEXT} from '../../helpers/colors';
 import {ModalsContext} from '../../state/modals';
 import {SidebarContext} from '../../state/sidebar';
@@ -223,7 +222,7 @@ type RenderModalProps = {
 const RenderModal: React.FC<
 	Omit<RenderModalProps, 'compositionId'> & {
 		onClose: () => void;
-		resolvedComposition: TCompMetadata<AnyZodObject, Record<string, unknown>>;
+		resolvedComposition: VideoConfig;
 		unresolvedComposition: AnyComposition;
 	}
 > = ({

@@ -82,8 +82,7 @@ const Series: FC<{
 				i !== flattenedChildren.length - 1 ||
 				durationInFramesProp !== Infinity
 			) {
-				validateDurationInFrames({
-					durationInFrames: durationInFramesProp,
+				validateDurationInFrames(durationInFramesProp, {
 					component: `of a <Series.Sequence /> component`,
 					allowFloats: true,
 				});

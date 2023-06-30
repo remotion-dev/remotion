@@ -14,8 +14,12 @@ export const persistMarks = (
 
 export const loadMarks = (
 	comp: string,
-	durationInFrames: number
+	durationInFrames: number | undefined
 ): [number | null, number | null] => {
+	if (durationInFrames === undefined) {
+		return [null, null];
+	}
+
 	const item = localStorage.getItem(localStorageKey(comp, durationInFrames));
 
 	if (item === null) {

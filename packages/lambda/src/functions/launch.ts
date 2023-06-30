@@ -188,8 +188,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		logLevel: params.logLevel,
 		server: undefined,
 	});
-	Internals.validateDurationInFrames({
-		durationInFrames: comp.durationInFrames,
+	Internals.validateDurationInFrames(comp.durationInFrames, {
 		component: 'passed to a Lambda render',
 		allowFloats: false,
 	});
