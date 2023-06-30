@@ -2,6 +2,7 @@ import React, {useContext, useMemo} from 'react';
 import {SequenceContext} from './SequenceContext.js';
 import type {TimelineContextValue} from './timeline-position-state.js';
 import {TimelineContext} from './timeline-position-state.js';
+import {useVideoConfig} from './use-video-config.js';
 
 type FreezeProps = {
 	frame: number;
@@ -13,6 +14,7 @@ type FreezeProps = {
  * @see [Documentation](https://www.remotion.dev/docs/freeze)
  */
 export const Freeze: React.FC<FreezeProps> = ({frame, children}) => {
+	const videoConfig = useVideoConfig();
 	if (typeof frame === 'undefined') {
 		throw new Error(
 			`The <Freeze /> component requires a 'frame' prop, but none was passed.`
@@ -45,9 +47,11 @@ export const Freeze: React.FC<FreezeProps> = ({frame, children}) => {
 			imperativePlaying: {
 				current: false,
 			},
-			frame,
+			frame: {
+				[videoConfig.id]: frame,
+			},
 		};
-	}, [context, frame]);
+	}, [context, frame, videoConfig.id]);
 
 	return (
 		<TimelineContext.Provider value={value}>

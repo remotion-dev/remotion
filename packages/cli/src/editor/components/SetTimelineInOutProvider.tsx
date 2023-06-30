@@ -1,18 +1,16 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import type {
 	SetTimelineInOutContextValue,
 	TimelineInOutContextValue,
 } from '../state/in-out';
 import {SetTimelineInOutContext, TimelineInOutContext} from '../state/in-out';
+import {loadMarks, persistMarks} from '../state/marks';
 
 export const SetTimelineInOutProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [inAndOutFrames, setInAndOutFrames] =
-		useState<TimelineInOutContextValue>({
-			inFrame: null,
-			outFrame: null,
-		});
+		useState<TimelineInOutContextValue>(() => loadMarks());
 
 	const setTimelineInOutContextValue =
 		useMemo((): SetTimelineInOutContextValue => {
@@ -20,6 +18,10 @@ export const SetTimelineInOutProvider: React.FC<{
 				setInAndOutFrames,
 			};
 		}, []);
+
+	useEffect(() => {
+		persistMarks(inAndOutFrames);
+	}, [inAndOutFrames]);
 
 	return (
 		<TimelineInOutContext.Provider value={inAndOutFrames}>

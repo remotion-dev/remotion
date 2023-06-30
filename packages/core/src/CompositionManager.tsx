@@ -24,10 +24,10 @@ export type TComposition<
 	Schema extends AnyZodObject,
 	Props extends Record<string, unknown>
 > = {
-	width: number;
-	height: number;
-	fps: number;
-	durationInFrames: number;
+	width: number | undefined;
+	height: number | undefined;
+	fps: number | undefined;
+	durationInFrames: number | undefined;
 	id: string;
 	folderName: string | null;
 	parentFolderName: string | null;

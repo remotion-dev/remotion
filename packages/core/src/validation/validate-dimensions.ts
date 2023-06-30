@@ -1,8 +1,8 @@
-export const validateDimension = (
-	amount: number,
+export function validateDimension(
+	amount: unknown,
 	nameOfProp: string,
 	location: string
-) => {
+): asserts amount is number {
 	if (typeof amount !== 'number') {
 		throw new Error(
 			`The "${nameOfProp}" prop ${location} must be a number, but you passed a value of type ${typeof amount}`
@@ -32,4 +32,4 @@ export const validateDimension = (
 			`The "${nameOfProp}" prop ${location} must be positive, but got ${amount}.`
 		);
 	}
-};
+}

@@ -172,6 +172,7 @@ export const ResolveCompositionConfig: React.FC<
 	useEffect(() => {
 		if (selectedComposition && needsResolution(selectedComposition)) {
 			const controller = doResolution(selectedComposition, selectedEditorProps);
+
 			return () => {
 				controller.abort();
 			};
@@ -257,7 +258,11 @@ export const useResolvedVideoConfig = (
 			return {
 				type: 'success',
 				result: {
-					...composition,
+					width: composition.width as number,
+					height: composition.height as number,
+					fps: composition.fps as number,
+					id: composition.id,
+					durationInFrames: composition.durationInFrames as number,
 					defaultProps: composition.defaultProps ?? {},
 					props: {
 						...(composition.defaultProps ?? {}),
