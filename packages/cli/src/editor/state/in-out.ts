@@ -33,7 +33,25 @@ export const useTimelineInOutFramePosition = (): InOutValue => {
 		return {inFrame: null, outFrame: null};
 	}
 
-	return state[videoConfig.id] ?? {inFrame: null, outFrame: null};
+	const maxFrame = videoConfig.durationInFrames - 1;
+
+	const actualInFrame = state[videoConfig.id]?.inFrame ?? null;
+	const actualOutFrame = state[videoConfig.id]?.outFrame ?? null;
+
+	return {
+		inFrame:
+			actualInFrame === null
+				? null
+				: actualInFrame >= maxFrame
+				? null
+				: actualInFrame,
+		outFrame:
+			actualOutFrame === null
+				? null
+				: actualOutFrame >= maxFrame
+				? null
+				: actualOutFrame,
+	};
 };
 
 export const useTimelineSetInOutFramePosition =

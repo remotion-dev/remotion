@@ -49,8 +49,6 @@ export const TimelineInOutPointToggle: React.FC = () => {
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
 
-	console.log({inFrame, outFrame});
-
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 	const isStill = useIsStill();
 	const videoConfig = Internals.useUnsafeVideoConfig();
@@ -280,35 +278,6 @@ export const TimelineInOutPointToggle: React.FC = () => {
 			xKey.unregister();
 		};
 	}, [confId, keybindings, onInMark, onInOutClear, onOutMark]);
-
-	// If duration changes and it goes out of range, we reset
-	useEffect(() => {
-		if (outFrame === null) {
-			return;
-		}
-
-		if (!videoConfig) {
-			return;
-		}
-
-		if (outFrame >= videoConfig.durationInFrames - 1) {
-			onInOutClear(videoConfig.id);
-		}
-	}, [onInOutClear, outFrame, videoConfig]);
-
-	useEffect(() => {
-		if (inFrame === null) {
-			return;
-		}
-
-		if (!videoConfig) {
-			return;
-		}
-
-		if (inFrame >= videoConfig.durationInFrames - 1) {
-			onInOutClear(videoConfig.id);
-		}
-	}, [onInOutClear, inFrame, videoConfig]);
 
 	useImperativeHandle(
 		inOutHandles,
