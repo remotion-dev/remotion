@@ -62,6 +62,13 @@ See how to migrate: [Migration guide](/docs/4-0-migration)
 
 ## Changelog
 
+### `4.0.0-alpha22`
+
+Release candidate!
+
+- Fix rotated videos with OffthreadVideo
+- `height`, `width` etc. is optional when passing `calculateMetadata()`
+
 ### `4.0.0-alpha21`
 
 - calculateMetadata() behaves correctly on Lambda
