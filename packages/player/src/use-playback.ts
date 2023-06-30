@@ -17,8 +17,8 @@ export const usePlayback = ({
 	inFrame: number | null;
 	outFrame: number | null;
 }) => {
-	const frame = Internals.Timeline.useTimelinePosition();
 	const config = Internals.useUnsafeVideoConfig();
+	const frame = Internals.Timeline.useTimelinePosition();
 	const {playing, pause, emitter} = usePlayer();
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 
@@ -91,7 +91,7 @@ export const usePlayback = ({
 				nextFrame !== frameRef.current &&
 				(!hasEnded || moveToBeginningWhenEnded)
 			) {
-				setFrame(nextFrame);
+				setFrame((c) => ({...c, [config.id]: nextFrame}));
 			}
 
 			if (hasEnded) {

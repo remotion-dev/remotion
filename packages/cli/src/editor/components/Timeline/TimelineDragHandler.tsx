@@ -15,7 +15,6 @@ import {
 	useTimelineSetInOutFramePosition,
 } from '../../state/in-out';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
-import {persistCurrentFrame} from '../FramePersistor';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 import {
@@ -73,11 +72,11 @@ export const TimelineDragHandler: React.FC = () => {
 
 const Inner: React.FC = () => {
 	const videoConfig = useVideoConfig();
-
 	const size = PlayerInternals.useElementSize(scrollableRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
+	const setFrame = Internals.useTimelineSetFrame();
 
 	const [inOutDragging, setInOutDragging] = useState<
 		| {
@@ -374,13 +373,14 @@ const Inner: React.FC = () => {
 				extrapolate: 'clamp',
 			});
 
-			persistCurrentFrame(frame);
+			Internals.persistCurrentFrame(frame, videoConfig.id);
+			setFrame((c) => ({...c, [videoConfig.id]: frame}));
 
 			if (dragging.wasPlaying) {
 				play();
 			}
 		},
-		[dragging, left, play, videoConfig, width]
+		[dragging, left, play, videoConfig, setFrame, width]
 	);
 
 	const onPointerUpInOut = useCallback(

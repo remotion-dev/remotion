@@ -32,7 +32,9 @@ describe('Prop validation', () => {
 
 const timelineCtxValue = (frame: number): TimelineContextValue => ({
 	rootId: '',
-	frame,
+	frame: {
+		'my-comp': frame,
+	},
 	playing: false,
 	imperativePlaying: {
 		current: false,
