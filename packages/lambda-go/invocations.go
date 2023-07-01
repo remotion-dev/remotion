@@ -117,9 +117,9 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgressResponse, e
 }
 
 func SantitiseProgressResponse(response RawInvokeResponse) (*RenderProgressResponse, error) {
-	var renderBody RenderProgress
+	var renderProgressBody RenderProgress
 
-	responseMarshallingError := json.Unmarshal([]byte(response.Body), &renderBody)
+	responseMarshallingError := json.Unmarshal([]byte(response.Body), &renderProgressBody)
 	if responseMarshallingError != nil {
 		print(responseMarshallingError.Error())
 		return nil, responseMarshallingError
@@ -128,6 +128,6 @@ func SantitiseProgressResponse(response RawInvokeResponse) (*RenderProgressRespo
 	return &RenderProgressResponse{
 		StatusCode: response.StatusCode,
 		Headers:    response.Headers,
-		Body:       renderBody,
+		Body:       renderProgressBody,
 	}, nil
 }
