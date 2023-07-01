@@ -81,8 +81,8 @@ export const handleCommonError = async (err: Error, logLevel: LogLevel) => {
 		Log.info(
 			'💡 Get help for this issue: https://github.com/remotion-dev/remotion/issues/2439'
 		);
-  }
-  
+	}
+
 	if (err.message.includes('EBADF')) {
 		Log.info('💡 This error might be fixed by changing your Node version:');
 		Log.info('   https://github.com/remotion-dev/remotion/issues/2452');
