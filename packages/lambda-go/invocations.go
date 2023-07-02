@@ -44,13 +44,30 @@ func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error
 	}
 
 	// Unmarshal response from Lambda function
-	var renderResponseOutput RemotionRenderResponse
+	var renderResponseOutput RawInvokeResponse
+
 	responseMarshallingError := json.Unmarshal(invocationResult.Payload, &renderResponseOutput)
+
 	if responseMarshallingError != nil {
 		return nil, responseMarshallingError
 	}
 
-	return &renderResponseOutput, nil
+	return SantitiseRenderResponse(renderResponseOutput)
+}
+
+func SantitiseRenderResponse(response RawInvokeResponse) (*RemotionRenderResponse, error) {
+	var renderBody RemotionBodyResponse
+
+	responseMarshallingError := json.Unmarshal([]byte(response.Body), &renderBody)
+	if responseMarshallingError != nil {
+		return nil, responseMarshallingError
+	}
+
+	return &RemotionRenderResponse{
+		StatusCode: response.StatusCode,
+		Headers:    response.Headers,
+		Body:       renderBody,
+	}, nil
 }
 
 func invokeRenderProgressLambda(config RenderConfig) (*RenderProgressResponse, error) {
@@ -89,11 +106,28 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgressResponse, e
 	}
 
 	// Unmarshal response from Lambda function
-	var renderProgressOutput RenderProgressResponse
+	var renderProgressOutput RawInvokeResponse
+
 	resultUnmarshallError := json.Unmarshal(invokeResult.Payload, &renderProgressOutput)
 	if resultUnmarshallError != nil {
 		return nil, resultUnmarshallError
 	}
 
-	return &renderProgressOutput, nil
+	return SantitiseProgressResponse(renderProgressOutput)
+}
+
+func SantitiseProgressResponse(response RawInvokeResponse) (*RenderProgressResponse, error) {
+	var renderProgressBody RenderProgress
+
+	responseMarshallingError := json.Unmarshal([]byte(response.Body), &renderProgressBody)
+	if responseMarshallingError != nil {
+		print(responseMarshallingError.Error())
+		return nil, responseMarshallingError
+	}
+
+	return &RenderProgressResponse{
+		StatusCode: response.StatusCode,
+		Headers:    response.Headers,
+		Body:       renderProgressBody,
+	}, nil
 }
