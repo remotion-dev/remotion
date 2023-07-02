@@ -1105,12 +1105,6 @@ importers:
         specifier: workspace:*
         version: link:../core
 
-  packages/lambda-php-example/vendor/remotion/lambda:
-    specifiers:
-      remotion: workspace:*
-    devDependencies:
-      remotion: link:../../../../core
-
   packages/lottie:
     dependencies:
       lottie-web:
