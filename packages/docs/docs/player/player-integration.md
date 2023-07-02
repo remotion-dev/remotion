@@ -126,9 +126,9 @@ registerRoot(MyVideo);
 Don't move these statements together into one file, as you might break hot reloading.
 :::
 
-## Using Remotion Studion
+## Using the Remotion Studio
 
-You can open the Remotion Studion using the `npx remotion studio` command:
+You can open the Remotion Studio using the `npx remotion studio` command:
 
 ```bash
 npx remotion studio src/remotion/index.ts
