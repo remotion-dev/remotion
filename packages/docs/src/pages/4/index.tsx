@@ -5,7 +5,6 @@ import Layout from "@theme/Layout";
 import React, { useCallback, useMemo, useState } from "react";
 import { Spacer } from "../../../components/layout/Spacer";
 import { CoolInput } from "../../../components/TextInput";
-import { DoMoreHero } from "../../components/DoMoreHero/DoMoreHero";
 import { Seo } from "../../components/Seo";
 import { V4Countdown } from "../../components/V4Countdown";
 import styles from "./v4.module.css";
@@ -86,7 +85,6 @@ const V4: React.FC = () => {
         {Seo.renderTitle("Do more with React | Remotion 4.0")}
         {Seo.renderImage("/img/remotion4.png", context.siteConfig.url)}
       </Head>
-      <DoMoreHero />
       <style>
         {`
         div[class^='announcementBar'] {
@@ -99,11 +97,20 @@ const V4: React.FC = () => {
           <h1 className={styles.pagetitle}>Do more with React</h1>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <p className={styles.title}>
-              Learn about the new possibilities of Remotion 4.0 and celebrate
-              the launch with us.{" "}
+              Watch the Remotion Keynote July 3rd at 7pm CEST
             </p>
           </div>
           <br />
+          <iframe
+            style={{
+              width: "100%",
+              aspectRatio: "16 / 9",
+            }}
+            src="https://www.youtube.com/embed/S3C9wlPNhkQ"
+            title="YouTube video player"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
           <br />
           <div style={{ textAlign: "center" }}>
             <div>
