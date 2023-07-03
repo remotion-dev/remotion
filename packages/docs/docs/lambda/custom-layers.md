@@ -30,9 +30,7 @@ Lambda binaries might change in minor Remotion versions, it is your responsibili
 
 Go to the [`remotion-dev/lambda-binaries`](https://github.com/remotion-dev/lambda-binaries) repository and clone it.
 
-The folders `chromium`, `ffmpeg` and `fonts` contain the binaries for the ARM version.  
-The folders `chromium-x64`, `ffmpeg-x64` and `fonts-x64` contain the binaries for the x86_64 version of Lambda.
-The default and recommended version is the ARM one.
+The folders `chromium` and `fonts` contain the binaries for the ARM version. The x64 version has been discontinued.
 
 Put the files that you want in the corresponding folders - for example, add the Apple Emoji Font `AppleColorEmoji.ttf` into the `fonts/.fonts/NotoSans/` folder.
 

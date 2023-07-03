@@ -71,7 +71,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		envVariables: params.envVariables,
 		pixelFormat: params.pixelFormat,
 		proResProfile: params.proResProfile,
-		quality: params.quality,
+		jpegQuality: params.jpegQuality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
 		logLevel: params.logLevel ?? 'info',
@@ -93,7 +93,6 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		forceWidth: params.forceWidth,
 		rendererFunctionName: params.rendererFunctionName,
 		audioCodec: params.audioCodec,
-		dumpBrowserLogs: params.dumpBrowserLogs,
 	};
 
 	await getLambdaClient(getCurrentRegionInFunction()).send(

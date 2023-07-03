@@ -2,7 +2,7 @@ import type {Instruction} from './helpers/types';
 
 /**
  * @description Takes an array of Instruction's and serializes it into an SVG path string.
- * @param {Array} instruction 
+ * @param {Array} instruction
  * @returns a serialized SVG path string
  * @see [Documentation](https://www.remotion.dev/docs/paths/serialize-instructions)
  */

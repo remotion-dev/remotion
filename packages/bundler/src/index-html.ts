@@ -1,5 +1,38 @@
-import path from 'path';
+import path from 'node:path';
 import type {StaticFile} from 'remotion';
+import {Internals} from 'remotion';
+
+export type RenderDefaults = {
+	jpegQuality: number;
+	scale: number;
+	logLevel: string;
+	codec: string;
+	concurrency: number;
+	minConcurrency: number;
+	muted: boolean;
+	maxConcurrency: number;
+	stillImageFormat: 'png' | 'jpeg' | 'webp' | 'pdf';
+	videoImageFormat: 'png' | 'jpeg' | 'none';
+	audioCodec: string | null;
+	enforceAudioTrack: boolean;
+	proResProfile: string;
+	pixelFormat: string;
+	audioBitrate: string | null;
+	videoBitrate: string | null;
+	everyNthFrame: number;
+	numberOfGifLoops: number | null;
+	delayRenderTimeout: number;
+	disableWebSecurity: boolean;
+	openGlRenderer: string | null;
+	ignoreCertificateErrors: boolean;
+	headless: boolean;
+};
+
+declare global {
+	interface Window {
+		remotion_renderDefaults: RenderDefaults | undefined;
+	}
+}
 
 export const indexHtml = ({
 	baseDir,
@@ -8,11 +41,13 @@ export const indexHtml = ({
 	envVariables,
 	staticHash,
 	remotionRoot,
-	previewServerCommand,
+	studioServerCommand,
+	renderQueue,
 	numberOfAudioTags,
 	publicFiles,
 	includeFavicon,
 	title,
+	renderDefaults,
 }: {
 	staticHash: string;
 	baseDir: string;
@@ -20,11 +55,13 @@ export const indexHtml = ({
 	inputProps: object | null;
 	envVariables?: Record<string, string>;
 	remotionRoot: string;
-	previewServerCommand: string | null;
+	studioServerCommand: string | null;
+	renderQueue: unknown | null;
 	numberOfAudioTags: number;
 	publicFiles: StaticFile[];
 	includeFavicon: boolean;
 	title: string;
+	renderDefaults: RenderDefaults | undefined;
 }) =>
 	`
 <!DOCTYPE html>
@@ -53,14 +90,25 @@ ${
 		<script>window.remotion_projectName = ${JSON.stringify(
 			path.basename(remotionRoot)
 		)};</script>
+		<script>window.remotion_renderDefaults = ${JSON.stringify(
+			renderDefaults
+		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
-		<script>window.remotion_previewServerCommand = ${
-			previewServerCommand ? JSON.stringify(previewServerCommand) : 'null'
+		<script>window.remotion_studioServerCommand = ${
+			studioServerCommand ? JSON.stringify(studioServerCommand) : 'null'
 		};</script>
 		${
 			inputProps
 				? `<script>window.remotion_inputProps = ${JSON.stringify(
 						JSON.stringify(inputProps)
+				  )};</script>
+			`
+				: ''
+		}
+		${
+			renderQueue
+				? `<script>window.remotion_initialRenderQueue = ${JSON.stringify(
+						renderQueue
 				  )};</script>
 			`
 				: ''
@@ -75,7 +123,7 @@ ${
 		}
 		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
 		
-		<div id="container"></div>
+		<div id="${Internals.REMOTION_STUDIO_CONTAINER_ELEMENT}"></div>
 		<div id="menuportal-0"></div>
 		<div id="menuportal-1"></div>
 		<div id="menuportal-2"></div>

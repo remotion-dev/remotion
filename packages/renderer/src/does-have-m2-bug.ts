@@ -1,4 +1,4 @@
-import {cpus} from 'os';
+import {cpus} from 'node:os';
 import type {Codec} from './codec';
 import type {PixelFormat} from './pixel-format';
 

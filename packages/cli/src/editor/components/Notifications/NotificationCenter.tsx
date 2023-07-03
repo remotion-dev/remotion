@@ -31,6 +31,15 @@ type TNotificationCenter = {
 
 export const notificationCenter = createRef<TNotificationCenter>();
 
+export const sendErrorNotification = (content: React.ReactNode) => {
+	notificationCenter.current?.addNotification({
+		content,
+		duration: 2000,
+		created: Date.now(),
+		id: String(Math.random()).replace('0.', ''),
+	});
+};
+
 export const NotificationCenter: React.FC = () => {
 	const [notifications, setNotifications] = useState<TNotification[]>([]);
 

@@ -33,7 +33,6 @@ type RemotionOptions struct {
 	ForceWidth            interface{}            `json:"forceWidth"`
 	BucketName            interface{}            `json:"bucketName"`
 	AudioCodec            interface{}            `json:"audioCodec"`
-	DumpBrowserLogs       bool                   `json:"dumpBrowserLogs"`
 	ForceBucketName       string                 `json:"forceBucketName"`
 	Gl                    string                 `json:"gl"`
 }
@@ -72,7 +71,6 @@ type renderInternalOptions struct {
 	ForceWidth            interface{}            `json:"forceWidth"`
 	BucketName            interface{}            `json:"bucketName"`
 	AudioCodec            interface{}            `json:"audioCodec"`
-	DumpBrowserLogs       bool                   `json:"dumpBrowserLogs"`
 
 	ForceBucketName string  `json:"forceBucketName,omitempty"`
 	Gl              *string `json:"gl,omitempty"`

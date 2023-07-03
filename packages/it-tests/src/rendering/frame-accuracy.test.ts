@@ -31,7 +31,7 @@ const getMissedFramesforCodec = async (
       outputPath,
       "--image-format",
       "jpeg",
-      "--quality",
+      "--jpeg-quality",
       "100",
       "--sequence",
     ],

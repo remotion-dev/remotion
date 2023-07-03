@@ -1,5 +1,6 @@
-import {CliInternals, ConfigInternals} from '@remotion/cli';
-import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
+import {RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../api/download-media';
 import {renderStillOnLambda} from '../../api/render-still-on-lambda';
 import {
@@ -33,36 +34,63 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		quit(1);
 	}
 
-	const region = getAwsRegion();
-	let composition = args[1];
-	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
-
-		validateServeUrl(serveUrl);
-		const comps = await getCompositions(serveUrl);
-		const {compositionId} = await CliInternals.selectComposition(comps);
-		composition = compositionId;
-	}
-
-	const downloadName = args[2] ?? null;
-	const outName = parsedLambdaCli['out-name'];
-
 	const {
 		chromiumOptions,
 		envVariables,
 		inputProps,
 		logLevel,
 		puppeteerTimeout,
-		quality,
+		jpegQuality,
 		stillFrame,
 		scale,
 		height,
 		width,
+		browserExecutable,
+		port,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
 		remotionRoot,
 	});
+
+	const region = getAwsRegion();
+	let composition = args[1];
+	if (!composition) {
+		Log.info('No compositions passed. Fetching compositions...');
+
+		validateServeUrl(serveUrl);
+		const server = RenderInternals.prepareServer({
+			concurrency: 1,
+			indent: false,
+			port,
+			remotionRoot,
+			logLevel,
+			webpackConfigOrServeUrl: serveUrl,
+		});
+
+		const {compositionId} =
+			await CliInternals.getCompositionWithDimensionOverride({
+				args,
+				compositionIdFromUi: null,
+				indent: false,
+				serveUrlOrWebpackUrl: serveUrl,
+				logLevel,
+				browserExecutable,
+				chromiumOptions,
+				envVariables,
+				inputProps,
+				port,
+				puppeteerInstance: undefined,
+				timeoutInMilliseconds: puppeteerTimeout,
+				height,
+				width,
+				server: await server,
+			});
+		composition = compositionId;
+	}
+
+	const downloadName = args[2] ?? null;
+	const outName = parsedLambdaCli['out-name'];
 
 	const functionName = await findFunctionName();
 
@@ -73,12 +101,14 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 	validatePrivacy(privacy, true);
 
 	const {format: imageFormat, source: imageFormatReason} =
-		CliInternals.determineFinalImageFormat({
+		CliInternals.determineFinalStillImageFormat({
 			downloadName,
 			outName: outName ?? null,
-			configImageFormat: ConfigInternals.getUserPreferredImageFormat() ?? null,
 			cliFlag: CliInternals.parsedCli['image-format'] ?? null,
 			isLambda: true,
+			fromUi: null,
+			configImageFormat:
+				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		});
 
 	try {
@@ -99,7 +129,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			maxRetries,
 			envVariables,
 			frame: stillFrame,
-			quality,
+			jpegQuality,
 			logLevel,
 			outName,
 			chromiumOptions,
@@ -141,7 +171,10 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			stack: (err as Error).stack,
 			stackFrame: frames,
 		});
-		await CliInternals.handleCommonError(errorWithStackFrame);
+		await CliInternals.handleCommonError(
+			errorWithStackFrame,
+			RenderInternals.getLogLevel()
+		);
 		quit(1);
 	}
 };

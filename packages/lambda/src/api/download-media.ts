@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import path from 'path';
+import path from 'node:path';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
 import {getRenderMetadata} from '../functions/helpers/get-render-metadata';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
@@ -71,8 +71,3 @@ export const downloadMedia = async (
 		sizeInBytes,
 	};
 };
-
-/**
- * @deprecated Renamed to downloadMedia()
- */
-export const downloadVideo = downloadMedia;

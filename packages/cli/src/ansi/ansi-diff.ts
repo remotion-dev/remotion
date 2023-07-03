@@ -13,6 +13,7 @@ export class AnsiDiff {
 	_buffer: string | null;
 	_out: Buffer[];
 	_lines: Line[];
+	finished: boolean;
 
 	constructor(opts?: Options) {
 		this.x = 0;
@@ -23,33 +24,31 @@ export class AnsiDiff {
 		this._buffer = null;
 		this._out = [];
 		this._lines = [];
+		this.finished = false;
 	}
-
-	resize = (opts: Options) => {
-		if (!opts) opts = {};
-
-		if (opts.width) this.width = opts.width;
-		if (opts.height) this.height = opts.height;
-
-		if (this._buffer) this.update(this._buffer);
-
-		const last = top(this._lines);
-
-		// eslint-disable-next-line no-negated-condition
-		if (!last) {
-			this.x = 0;
-			this.y = 0;
-		} else {
-			this.x = last.remainder;
-			this.y = last.y + last.height;
-		}
-	};
 
 	toString() {
 		return this._buffer;
 	}
 
+	finish() {
+		this.finished = true;
+		if (this._out.length === 0) {
+			return Buffer.from('');
+		}
+
+		if (!this._out[this._out.length - 1].toString().endsWith('\n')) {
+			return NEWLINE;
+		}
+
+		return Buffer.from('');
+	}
+
 	update(buffer: string | Buffer, opts?: {moveTo?: [number, number]}) {
+		if (this.finished) {
+			return Buffer.from('');
+		}
+
 		this._buffer = Buffer.isBuffer(buffer) ? buffer.toString() : buffer;
 
 		const other = this._buffer;

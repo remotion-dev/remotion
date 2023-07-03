@@ -1,5 +1,6 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
+import {cancelRender} from '../cancel-render.js';
 import {useRemotionEnvironment} from '../get-environment.js';
 import {Loop} from '../loop/index.js';
 import {Sequence} from '../Sequence.js';
@@ -35,8 +36,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
 		(e) => {
 			console.log(e.currentTarget.error);
-			throw new Error(
-				`Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`
+			cancelRender(
+				new Error(
+					`Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`
+				)
 			);
 		},
 		[otherProps.src]

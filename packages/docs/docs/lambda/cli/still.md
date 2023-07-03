@@ -79,9 +79,13 @@ How many times a single chunk is being retried if it fails to render. Default `1
 
 The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.png`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
 
-### `--quality`
+### `--jpeg-quality`
 
-[Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when rendering an image format other than JPEG.
+
+### ~~`--quality`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `--ignore-certificate-errors`
 

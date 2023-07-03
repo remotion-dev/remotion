@@ -10,19 +10,27 @@ import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {
+	getNeedsToUpload,
+	serializeInputProps,
+	serializeOrThrow,
+} from '../shared/serialize-props';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
 	composition: string;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	imageFormat: StillImageFormat;
 	privacy: Privacy;
 	maxRetries?: number;
 	envVariables?: Record<string, string>;
-	quality?: number;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	frame?: number;
 	logLevel?: LogLevel;
 	outName?: OutNameInput;
@@ -33,6 +41,9 @@ export type RenderStillOnLambdaInput = {
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	forceBucketName?: string;
+	/**
+	 * @deprecated Renamed to `dumpBrowserLogs`
+	 */
 	dumpBrowserLogs?: boolean;
 };
 
@@ -54,12 +65,11 @@ export type RenderStillOnLambdaOutput = {
  * @param params.inputProps The input props that should be passed to the composition.
  * @param params.imageFormat In which image format the frames should be rendered.
  * @param params.envVariables Object containing environment variables to be inserted into the video environment
- * @param params.quality JPEG quality if JPEG was selected as the image format.
+ * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
  * @param params.region The AWS region in which the video should be rendered.
  * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
  * @param params.frame Which frame should be used for the still image. Default 0.
  * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
- * @param params.dumpBrowserLogs Whether to print browser logs to CloudWatch.
  * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
  */
 
@@ -70,6 +80,7 @@ export const renderStillOnLambda = async ({
 	imageFormat,
 	envVariables,
 	quality,
+	jpegQuality,
 	region,
 	maxRetries,
 	composition,
@@ -86,11 +97,20 @@ export const renderStillOnLambda = async ({
 	forceBucketName,
 	dumpBrowserLogs,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
+	if (quality) {
+		throw new Error(
+			'The `quality` option is deprecated. Use `jpegQuality` instead.'
+		);
+	}
+
+	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
+
 	const serializedInputProps = await serializeInputProps({
-		inputProps,
+		stringifiedInputProps,
 		region,
-		type: 'still',
+		needsToUpload: getNeedsToUpload('still', stringifiedInputProps),
 		userSpecifiedBucketName: forceBucketName ?? null,
+		propsType: 'input-props',
 	});
 
 	try {
@@ -103,12 +123,12 @@ export const renderStillOnLambda = async ({
 				inputProps: serializedInputProps,
 				imageFormat,
 				envVariables,
-				quality,
+				jpegQuality,
 				maxRetries: maxRetries ?? DEFAULT_MAX_RETRIES,
 				frame: frame ?? 0,
 				privacy,
 				attempt: 1,
-				logLevel: logLevel ?? 'info',
+				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 				outName: outName ?? null,
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				chromiumOptions: chromiumOptions ?? {},
@@ -118,7 +138,6 @@ export const renderStillOnLambda = async ({
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
 				bucketName: forceBucketName ?? null,
-				dumpBrowserLogs: dumpBrowserLogs ?? false,
 			},
 			region,
 		});

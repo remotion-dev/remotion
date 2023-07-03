@@ -54,7 +54,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		loop: boolean;
 		autoPlay: boolean;
 		allowFullscreen: boolean;
-		inputProps: unknown;
+		inputProps: Record<string, unknown>;
 		showVolumeControls: boolean;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
@@ -483,8 +483,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
 							<VideoComponent
-								{...((video?.defaultProps as unknown as {}) ?? {})}
-								{...((inputProps as unknown as {}) ?? {})}
+								{...(video?.props ?? {})}
+								{...(inputProps ?? {})}
 							/>
 						</ErrorBoundary>
 					) : null}

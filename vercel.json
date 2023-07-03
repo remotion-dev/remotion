@@ -163,6 +163,11 @@
       "permanent": false
     },
     {
+      "source": "/docs/cli/preview",
+      "destination": "/docs/cli/studio",
+      "permanent": false
+    },
+    {
       "source": "/links",
       "destination": "https://linktr.ee/remotion",
       "permanent": false
@@ -180,6 +185,11 @@
     {
       "source": "/rive",
       "destination": "https://www.remotion.dev/docs/rive",
+      "permanent": false
+    },
+    {
+      "source": "/zod-types",
+      "destination": "https://www.remotion.dev/docs/zod-types",
       "permanent": false
     },
     {

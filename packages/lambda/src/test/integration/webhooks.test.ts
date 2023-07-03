@@ -69,7 +69,8 @@ describe('Webhooks', () => {
 		const res = await handler(
 			{
 				type: LambdaRoutines.start,
-				serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
+				serveUrl:
+					'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -88,7 +89,7 @@ describe('Webhooks', () => {
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
 				proResProfile: undefined,
-				quality: undefined,
+				jpegQuality: undefined,
 				scale: 1,
 				timeoutInMilliseconds: 40000,
 				numberOfGifLoops: null,
@@ -111,7 +112,6 @@ describe('Webhooks', () => {
 				rendererFunctionName: null,
 				bucketName: null,
 				audioCodec: null,
-				dumpBrowserLogs: false,
 			},
 			extraContext
 		);
@@ -155,7 +155,8 @@ describe('Webhooks', () => {
 		await handler(
 			{
 				type: LambdaRoutines.launch,
-				serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
+				serveUrl:
+					'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -174,7 +175,7 @@ describe('Webhooks', () => {
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
 				proResProfile: undefined,
-				quality: undefined,
+				jpegQuality: undefined,
 				scale: 1,
 				timeoutInMilliseconds: 3000,
 				numberOfGifLoops: null,
@@ -194,7 +195,6 @@ describe('Webhooks', () => {
 				forceWidth: null,
 				rendererFunctionName: null,
 				audioCodec: null,
-				dumpBrowserLogs: false,
 			},
 			{
 				...extraContext,

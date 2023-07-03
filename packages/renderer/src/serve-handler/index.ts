@@ -1,9 +1,9 @@
 // Native
-import type {Stats} from 'fs';
-import {createReadStream, promises} from 'fs';
-import type {IncomingMessage, ServerResponse} from 'http';
-import path from 'path';
-import url from 'url';
+import type {Stats} from 'node:fs';
+import {createReadStream, promises} from 'node:fs';
+import type {IncomingMessage, ServerResponse} from 'node:http';
+import path from 'node:path';
+import url from 'node:url';
 import {mimeContentType} from '../mime-types';
 // Packages
 import {isPathInside} from './is-path-inside';
@@ -82,12 +82,12 @@ const sendError = (
 ) => {
 	const {message, statusCode} = spec;
 
-	response.statusCode = statusCode;
-
 	const headers = getHeaders(absolutePath, null);
 
-	response.writeHead(statusCode, headers);
-	response.setHeader('content-type', 'application/json');
+	response.writeHead(statusCode, {
+		...headers,
+		'Content-Type': 'application/json',
+	});
 	response.end(JSON.stringify({statusCode, message}));
 };
 
@@ -167,7 +167,8 @@ export const serveHandler = async (
 			const related = await findRelated(current, relativePath);
 
 			if (related) {
-				({stats, absolutePath} = related);
+				stats = related.stats;
+				absolutePath = related.absolutePath;
 			}
 		} catch (err) {
 			if (

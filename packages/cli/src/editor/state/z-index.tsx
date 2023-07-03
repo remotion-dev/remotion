@@ -13,9 +13,13 @@ type ZIndex = {
 	currentIndex: number;
 };
 
-export const ZIndexContext = createContext<ZIndex>({
+const ZIndexContext = createContext<ZIndex>({
 	currentIndex: 0,
 });
+
+const margin: React.CSSProperties = {
+	margin: 'auto',
+};
 
 const EscapeHook: React.FC<{
 	onEscape: () => void;
@@ -29,6 +33,8 @@ const EscapeHook: React.FC<{
 			callback: onEscape,
 			commandCtrlKey: false,
 			preventDefault: true,
+			// To dismiss the Quick Switcher menu if input is focused
+			triggerIfInputFieldFocused: true,
 		});
 
 		return () => {
@@ -82,8 +88,13 @@ export const HigherZIndex: React.FC<{
 			window.addEventListener('pointerup', onUp, {once: true});
 		};
 
-		window.addEventListener('pointerdown', listener);
+		// If a menu is opened, then this component will also still receive the pointerdown event.
+		// However we may not interpret it as a outside click, so we need to wait for the next tick
+		requestAnimationFrame(() => {
+			window.addEventListener('pointerdown', listener);
+		});
 		return () => {
+			onUp = null;
 			if (onUp) {
 				// @ts-expect-error
 				window.removeEventListener('pointerup', onUp, {once: true});
@@ -102,7 +113,9 @@ export const HigherZIndex: React.FC<{
 	return (
 		<ZIndexContext.Provider value={value}>
 			<EscapeHook onEscape={onEscape} />
-			<div ref={containerRef}>{children}</div>
+			<div ref={containerRef} style={margin}>
+				{children}
+			</div>
 		</ZIndexContext.Provider>
 	);
 };

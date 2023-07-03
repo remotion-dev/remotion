@@ -11,7 +11,7 @@ Gets an array containing all files in the `public/` folder. You can reference th
 
 :::note
 This feature does not work in the Remotion Player and returns an empty array.  
-On Linux, watching for changes in subdirectories is only supported from Node.js v19.1.0. If you use a version earlier than that, you need to refresh the Remotion Preview browser tab manually.
+On Linux, watching for changes in subdirectories is only supported from Node.js v19.1.0. If you use a version earlier than that, you need to refresh the Remotion Studio browser tab manually.
 :::
 
 ```tsx twoslash title="example.ts"
@@ -59,7 +59,7 @@ Takes no arguments and returns an array of object, each of which have three entr
   Contains forward slashes `/` even on Windows.
   :::note
 
-- `src`: The path with a prefix. The prefix changes whenever the preview server reloads.
+- `src`: The path with a prefix. The prefix changes whenever the Studio server restarts.
 - `sizeInBytes`: The file size. If it is a symbolic link, the file size of the original is reported.
 - `lastModified`: Last modified date in Unix timestamp in milliseconds.
 

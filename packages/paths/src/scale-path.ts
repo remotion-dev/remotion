@@ -8,9 +8,9 @@ import {translateSegments} from './translate-path';
 /**
  * @description Allows you to grow or shrink the size of a path.
  * @param {string} path A valid SVG path
- * @param {string} d 
- * @param {Number} scaleX 
- * @param {Number} scaleY 
+ * @param {string} d
+ * @param {Number} scaleX
+ * @param {Number} scaleY
  * @returns a new path with respect to the scale values provided
  * @see [Documentation](https://www.remotion.dev/docs/paths/scale-path)
  */

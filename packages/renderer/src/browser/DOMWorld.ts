@@ -15,7 +15,7 @@
  */
 
 import {assert} from './assert';
-import type {Browser} from './Browser';
+import type {HeadlessBrowser} from './Browser';
 import {BrowserEmittedEvents} from './Browser';
 import {TimeoutError} from './Errors';
 import type {
@@ -121,7 +121,7 @@ export class DOMWorld {
 	}
 
 	waitForFunction(
-		browser: Browser,
+		browser: HeadlessBrowser,
 		pageFunction: Function | string,
 		...args: SerializableOrJSHandle[]
 	): Promise<JSHandle> {
@@ -150,7 +150,7 @@ interface WaitTaskOptions {
 	predicateBody: Function | string;
 	title: string;
 	timeout: number;
-	browser: Browser;
+	browser: HeadlessBrowser;
 	args: SerializableOrJSHandle[];
 }
 
@@ -166,7 +166,7 @@ class WaitTask {
 	#reject: (x: Error) => void = noop;
 	#timeoutTimer?: NodeJS.Timeout;
 	#terminated = false;
-	#browser: Browser;
+	#browser: HeadlessBrowser;
 
 	promise: Promise<JSHandle>;
 

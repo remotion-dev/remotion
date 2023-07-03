@@ -15,6 +15,7 @@ import type {
 	TimelineContextValue,
 } from 'remotion';
 import {Composition, Internals} from 'remotion';
+import type {AnyZodObject} from 'zod';
 import {PlayerEventEmitterContext} from './emitter-context.js';
 import {PlayerEmitter} from './event-emitter.js';
 import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
@@ -25,7 +26,7 @@ import type {
 } from './PlayerControls.js';
 import type {RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
-import {SharedPlayerContexts} from './SharedPlayerContext.js';
+import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 import {validateInOutFrames} from './utils/validate-in-out-frame.js';
 import {validateInitialFrame} from './utils/validate-initial-frame.js';
@@ -33,7 +34,7 @@ import {validatePlaybackRate} from './utils/validate-playbackrate.js';
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
-export type PlayerProps<T> = {
+export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	durationInFrames: number;
 	compositionWidth: number;
 	compositionHeight: number;
@@ -64,22 +65,23 @@ export type PlayerProps<T> = {
 	renderPlayPauseButton?: RenderPlayPauseButton;
 	renderFullscreenButton?: RenderFullscreenButton;
 	alwaysShowControls?: boolean;
+	schema?: Schema;
 	initiallyMuted?: boolean;
 	showPlaybackRateControl?: boolean | number[];
-} & PropsIfHasProps<T> &
-	CompProps<T>;
+} & CompProps<Props> &
+	PropsIfHasProps<Schema, Props>;
 
-export const componentOrNullIfLazy = <T,>(
-	props: CompProps<T>
-): ComponentType<T> | null => {
+export const componentOrNullIfLazy = <Props,>(
+	props: CompProps<Props>
+): ComponentType<Props> | null => {
 	if ('component' in props) {
-		return props.component as ComponentType<T>;
+		return props.component as ComponentType<Props>;
 	}
 
 	return null;
 };
 
-const PlayerFn = <T,>(
+const PlayerFn = <Schema extends AnyZodObject, Props>(
 	{
 		durationInFrames,
 		compositionHeight,
@@ -115,7 +117,7 @@ const PlayerFn = <T,>(
 		initiallyMuted = false,
 		showPlaybackRateControl = false,
 		...componentProps
-	}: PlayerProps<T>,
+	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>
 ) => {
 	if (typeof window !== 'undefined') {
@@ -155,7 +157,9 @@ const PlayerFn = <T,>(
 
 	validateInitialFrame({initialFrame, durationInFrames});
 
-	const [frame, setFrame] = useState(() => initialFrame ?? 0);
+	const [frame, setFrame] = useState<Record<string, number>>(() => ({
+		[PLAYER_COMP_ID]: initialFrame ?? 0,
+	}));
 	const [playing, setPlaying] = useState<boolean>(false);
 	const [rootId] = useState<string>('player-comp');
 	const [emitter] = useState(() => new PlayerEmitter());
@@ -186,12 +190,12 @@ const PlayerFn = <T,>(
 		'compositionWidth',
 		'of the <Player /> component'
 	);
-	Internals.validateDurationInFrames({
-		durationInFrames,
+	Internals.validateDurationInFrames(durationInFrames, {
 		component: 'of the <Player/> component',
 		allowFloats: false,
 	});
 	Internals.validateFps(fps, 'as a prop of the <Player/> component', false);
+	Internals.validateDefaultAndInputProps(inputProps, 'inputProps', null);
 
 	validateInOutFrames({
 		durationInFrames,
@@ -321,6 +325,8 @@ const PlayerFn = <T,>(
 		}, []);
 	}
 
+	const actualInputProps = useMemo(() => inputProps ?? {}, [inputProps]);
+
 	return (
 		<Internals.IsPlayerContextProvider>
 			<SharedPlayerContexts
@@ -330,7 +336,7 @@ const PlayerFn = <T,>(
 				compositionWidth={compositionWidth}
 				durationInFrames={durationInFrames}
 				fps={fps}
-				inputProps={inputProps}
+				inputProps={actualInputProps}
 				numberOfSharedAudioTags={numberOfSharedAudioTags}
 				initiallyMuted={initiallyMuted}
 			>

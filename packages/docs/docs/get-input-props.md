@@ -7,7 +7,7 @@ crumb: "API"
 
 _Available from v2.0_.
 
-Using this method, you can retrieve inputs that you pass in from the command line using [`--props`](/docs/cli), or the [`inputProps`](/docs/ssr#render-a-video-programmatically) parameter if you are using the Node.JS API.
+Using this method, you can retrieve inputs that you pass in from the command line using [`--props`](/docs/cli), or the [`inputProps`](/docs/ssr) parameter if you are using the Node.JS API.
 
 You should whenever possible prefer to retrieve props directly in your composition, like you would read props from a component if you were to code a React application, but this method is useful if you want to retrieve the input props outside of a composition.
 
@@ -17,16 +17,16 @@ This method is not available when inside a Remotion Player. Instead, get the pro
 
 ## API
 
-Pass in a [parseable](/docs/cli) JSON representation using the `--props` flag to either `remotion preview` or `remotion render`:
+Pass in a [parseable](/docs/cli) JSON representation using the `--props` flag to either `remotion studio` or `remotion render`:
 
 ```bash
 npx remotion render --props='{"hello": "world"}'
 ```
 
-To simulate how it behaves, you can also pass props when previewing:
+To simulate how it behaves, you can also pass props when using the Remotion Studio:
 
 ```bash
-npx remotion preview --props='{"hello": "world"}'
+npx remotion studio --props='{"hello": "world"}'
 ```
 
 You may also specify a file containing JSON and Remotion will parse the file for you:

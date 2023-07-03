@@ -4,8 +4,9 @@ import {
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
-import path from 'path';
+import path from 'node:path';
 import {webpackOverride} from './webpack-override';
+import {VideoConfig} from 'remotion';
 
 const start = async () => {
 	const bundled = await bundle({
@@ -24,7 +25,7 @@ const start = async () => {
 	for (let i = 0; i < dur / framesPerLambda; i++) {
 		await renderMedia({
 			codec: 'h264',
-			composition: comps.find((c) => c.id === 'remote-video')!,
+			composition: comps.find((c) => c.id === 'remote-video') as VideoConfig,
 			outputLocation: path.join(filelistDir, 'out/there' + i + '.mkv'),
 			serveUrl: bundled,
 			frameRange: [i * framesPerLambda, (i + 1) * framesPerLambda - 1],
@@ -47,8 +48,6 @@ const start = async () => {
 		onProgress: () => console.log('progress'),
 		output: 'out/combined.mp4',
 		numberOfGifLoops: null,
-		ffmpegExecutable: null,
-		remotionRoot: process.cwd(),
 		audioCodec: 'aac',
 	});
 

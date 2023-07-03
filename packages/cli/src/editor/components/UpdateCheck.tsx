@@ -1,7 +1,9 @@
 import React, {useCallback, useContext, useEffect, useState} from 'react';
 import type {PackageManager} from '../../preview-server/get-package-manager';
+import {BLUE} from '../helpers/colors';
 import {ModalsContext} from '../state/modals';
 import {useZIndex} from '../state/z-index';
+import {updateAvailable} from './RenderQueue/actions';
 
 export type UpdateInfo = {
 	currentVersion: string;
@@ -13,7 +15,7 @@ export type UpdateInfo = {
 
 const buttonStyle: React.CSSProperties = {
 	appearance: 'none',
-	color: 'var(--blue)',
+	color: BLUE,
 	border: 'none',
 	fontWeight: 'bold',
 	backgroundColor: 'transparent',
@@ -29,10 +31,7 @@ export const UpdateCheck = () => {
 	const checkForUpdates = useCallback(() => {
 		const controller = new AbortController();
 
-		fetch('/api/update', {
-			signal: controller.signal,
-		})
-			.then((res) => res.json())
+		updateAvailable(controller.signal)
 			.then((d) => {
 				setInfo(d);
 			})

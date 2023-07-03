@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
+import {Internals} from 'remotion';
+import {Log} from '../logger';
+import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
+import {truthy} from '../truthy';
 import {assert} from './assert';
-import type {Browser} from './Browser';
+import type {HeadlessBrowser} from './Browser';
 import type {CDPSession} from './Connection';
 import type {ConsoleMessageType} from './ConsoleMessage';
 import {ConsoleMessage} from './ConsoleMessage';
@@ -52,6 +56,8 @@ import {
 	releaseObject,
 	valueFromRemoteObject,
 } from './util';
+import type {LogLevel} from '../log-level';
+import {formatRemoteObject} from '../format-logs';
 
 interface WaitForOptions {
 	timeout?: number;
@@ -71,13 +77,31 @@ interface PageEventObject {
 
 export class Page extends EventEmitter {
 	id: string;
-	static async _create(
-		client: CDPSession,
-		target: Target,
-		defaultViewport: Viewport,
-		browser: Browser
-	): Promise<Page> {
-		const page = new Page(client, target, browser);
+	static async _create({
+		client,
+		target,
+		defaultViewport,
+		browser,
+		sourcemapContext,
+		logLevel,
+		indent,
+	}: {
+		client: CDPSession;
+		target: Target;
+		defaultViewport: Viewport;
+		browser: HeadlessBrowser;
+		sourcemapContext: AnySourceMapConsumer | null;
+		logLevel: LogLevel;
+		indent: boolean;
+	}): Promise<Page> {
+		const page = new Page({
+			client,
+			target,
+			browser,
+			sourcemapContext,
+			logLevel,
+			indent,
+		});
 		await page.#initialize();
 		await page.setViewport(defaultViewport);
 
@@ -90,10 +114,26 @@ export class Page extends EventEmitter {
 	#timeoutSettings = new TimeoutSettings();
 	#frameManager: FrameManager;
 	#pageBindings = new Map<string, Function>();
-	browser: Browser;
+	browser: HeadlessBrowser;
 	screenshotTaskQueue: TaskQueue;
+	sourcemapContext: AnySourceMapConsumer | null;
+	logLevel: LogLevel;
 
-	constructor(client: CDPSession, target: Target, browser: Browser) {
+	constructor({
+		client,
+		target,
+		browser,
+		sourcemapContext,
+		logLevel,
+		indent,
+	}: {
+		client: CDPSession;
+		target: Target;
+		browser: HeadlessBrowser;
+		sourcemapContext: AnySourceMapConsumer | null;
+		logLevel: LogLevel;
+		indent: boolean;
+	}) {
 		super();
 		this.#client = client;
 		this.#target = target;
@@ -101,6 +141,8 @@ export class Page extends EventEmitter {
 		this.screenshotTaskQueue = new TaskQueue();
 		this.browser = browser;
 		this.id = String(Math.random());
+		this.sourcemapContext = sourcemapContext;
+		this.logLevel = logLevel;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
 			switch (event.targetInfo.type) {
@@ -134,6 +176,41 @@ export class Page extends EventEmitter {
 		});
 		client.on('Log.entryAdded', (event) => {
 			return this.#onLogEntryAdded(event);
+		});
+
+		this.on('console', (log) => {
+			const {url, columnNumber, lineNumber} = log.location();
+			if (
+				url?.endsWith(Internals.bundleName) &&
+				lineNumber &&
+				this.sourcemapContext
+			) {
+				const origPosition = this.sourcemapContext?.originalPositionFor({
+					column: columnNumber ?? 0,
+					line: lineNumber,
+				});
+				const file = [
+					origPosition?.source,
+					origPosition?.line,
+					origPosition?.column,
+				]
+					.filter(truthy)
+					.join(':');
+
+				Log.verboseAdvanced(
+					{
+						logLevel,
+						tag: [origPosition.name, file].filter(truthy).join('@'),
+						indent,
+					},
+					log.previewString
+				);
+			} else {
+				Log.verboseAdvanced(
+					{logLevel, tag: `console.${log.type}`, indent},
+					log.text
+				);
+			}
 		});
 	}
 
@@ -202,10 +279,24 @@ export class Page extends EventEmitter {
 			});
 		}
 
+		const previewString = args
+			? args
+					.map((arg) => {
+						return formatRemoteObject(arg);
+					})
+					.join(', ')
+			: '';
+
 		if (source !== 'worker') {
 			this.emit(
 				PageEmittedEvents.Console,
-				new ConsoleMessage(level, text, [], [{url, lineNumber}])
+				new ConsoleMessage({
+					type: level,
+					text,
+					args: [],
+					stackTraceLocations: [{url, lineNumber}],
+					previewString,
+				})
 			);
 		}
 	}
@@ -219,17 +310,21 @@ export class Page extends EventEmitter {
 		return this.#frameManager.mainFrame();
 	}
 
-	setViewport(viewport: Viewport): Promise<void> {
-		return this.#client.send('Emulation.setDeviceMetricsOverride', {
-			mobile: false,
-			width: viewport.width,
-			height: viewport.height,
-			deviceScaleFactor: viewport.deviceScaleFactor,
-			screenOrientation: {
-				angle: 0,
-				type: 'portraitPrimary',
-			},
-		});
+	async setViewport(viewport: Viewport): Promise<void> {
+		const {value} = await this.#client.send(
+			'Emulation.setDeviceMetricsOverride',
+			{
+				mobile: false,
+				width: viewport.width,
+				height: viewport.height,
+				deviceScaleFactor: viewport.deviceScaleFactor,
+				screenOrientation: {
+					angle: 0,
+					type: 'portraitPrimary',
+				},
+			}
+		);
+		return value;
 	}
 
 	setDefaultNavigationTimeout(timeout: number): void {
@@ -336,12 +431,18 @@ export class Page extends EventEmitter {
 			}
 		}
 
-		const message = new ConsoleMessage(
-			eventType,
-			textTokens.join(' '),
+		const previewString = args
+			.map((a) => formatRemoteObject(a._remoteObject))
+			.filter(Boolean)
+			.join(' ');
+
+		const message = new ConsoleMessage({
+			type: eventType,
+			text: textTokens.join(' '),
 			args,
-			stackTraceLocations
-		);
+			stackTraceLocations,
+			previewString,
+		});
 		this.emit(PageEmittedEvents.Console, message);
 	}
 
@@ -394,5 +495,9 @@ export class Page extends EventEmitter {
 			});
 			await this.#target._isClosedPromise;
 		}
+	}
+
+	setBrowserSourceMapContext(context: AnySourceMapConsumer | null) {
+		this.sourcemapContext = context;
 	}
 }

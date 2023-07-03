@@ -12,7 +12,7 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 		return 18; // FFMPEG default 23
 	}
 
-	if (codec === 'h265' || codec === 'gif') {
+	if (codec === 'h265') {
 		return 23; // FFMPEG default 28
 	}
 
@@ -28,6 +28,10 @@ export const getDefaultCrfForCodec = (codec: Codec): number => {
 		return 0;
 	}
 
+	if (codec === 'gif') {
+		return 0;
+	}
+
 	throw new TypeError(`Got unexpected codec "${codec}"`);
 };
 
@@ -40,11 +44,15 @@ export const getValidCrfRanges = (codec: Codec): [number, number] => {
 		return [0, 0];
 	}
 
+	if (codec === 'gif') {
+		return [0, 0];
+	}
+
 	if (codec === 'h264' || codec === 'h264-mkv') {
 		return [1, 51];
 	}
 
-	if (codec === 'h265' || codec === 'gif') {
+	if (codec === 'h265') {
 		return [0, 51];
 	}
 

@@ -5,13 +5,16 @@ test("Should be able to cancel render", async () => {
   try {
     const { cancel, cancelSignal } = makeCancelSignal();
     const val = renderFrames({
-      serveUrl: "https://gleaming-wisp-de5d2a.netlify.app/",
+      serveUrl:
+        "https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/",
       composition: {
         durationInFrames: 1000000,
         fps: 30,
         height: 720,
         id: "react-svg",
         width: 1280,
+        defaultProps: {},
+        props: {},
       },
       cancelSignal,
       imageFormat: "jpeg",

@@ -1,7 +1,7 @@
 import {BundlerInternals} from '@remotion/bundler';
-import fs from 'fs';
-import path from 'path';
-import {isMainThread} from 'worker_threads';
+import fs from 'node:fs';
+import path from 'node:path';
+import {isMainThread} from 'node:worker_threads';
 import {Log} from './log';
 
 export const loadConfigFile = async (
@@ -23,7 +23,7 @@ export const loadConfigFile = async (
 	const virtualOutfile = 'bundle.js';
 	const result = await BundlerInternals.esbuild.build({
 		platform: 'node',
-		target: 'node14',
+		target: 'node16',
 		bundle: true,
 		entryPoints: [resolved],
 		tsconfig: isJavascript ? undefined : tsconfigJson,

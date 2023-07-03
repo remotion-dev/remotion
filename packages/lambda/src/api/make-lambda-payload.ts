@@ -1,7 +1,11 @@
 import {VERSION} from 'remotion/version';
 import type {LambdaStartPayload, LambdaStatusPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {
+	getNeedsToUpload,
+	serializeInputProps,
+	serializeOrThrow,
+} from '../shared/serialize-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
@@ -24,7 +28,6 @@ export const makeLambdaRenderMediaPayload = async ({
 	envVariables,
 	pixelFormat,
 	proResProfile,
-	quality,
 	maxRetries,
 	privacy,
 	logLevel,
@@ -45,7 +48,15 @@ export const makeLambdaRenderMediaPayload = async ({
 	muted,
 	overwrite,
 	dumpBrowserLogs,
+	jpegQuality,
+	quality,
 }: RenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
+	if (quality) {
+		throw new Error(
+			'quality has been renamed to jpegQuality. Please rename the option.'
+		);
+	}
+
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda({
@@ -54,28 +65,34 @@ export const makeLambdaRenderMediaPayload = async ({
 	});
 	validateDownloadBehavior(downloadBehavior);
 
-	const serializedInputProps = await serializeInputProps({
-		inputProps,
+	const stringifiedInputProps = serializeOrThrow(
+		inputProps ?? {},
+		'input-props'
+	);
+
+	const serialized = await serializeInputProps({
+		stringifiedInputProps,
 		region,
-		type: 'video-or-audio',
+		needsToUpload: getNeedsToUpload('video-or-audio', stringifiedInputProps),
 		userSpecifiedBucketName: bucketName ?? null,
+		propsType: 'input-props',
 	});
 	return {
 		rendererFunctionName: rendererFunctionName ?? null,
 		framesPerLambda: framesPerLambda ?? null,
 		composition,
 		serveUrl,
-		inputProps: serializedInputProps,
+		inputProps: serialized,
 		codec: actualCodec,
 		imageFormat: imageFormat ?? 'jpeg',
 		crf,
 		envVariables,
 		pixelFormat,
 		proResProfile,
-		quality,
+		jpegQuality,
 		maxRetries: maxRetries ?? 1,
 		privacy: privacy ?? 'public',
-		logLevel: logLevel ?? 'info',
+		logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 		frameRange: frameRange ?? null,
 		outName: outName ?? null,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
@@ -95,7 +112,6 @@ export const makeLambdaRenderMediaPayload = async ({
 		forceWidth: forceWidth ?? null,
 		bucketName: bucketName ?? null,
 		audioCodec: audioCodec ?? null,
-		dumpBrowserLogs: dumpBrowserLogs ?? false,
 		type: LambdaRoutines.start,
 	};
 };

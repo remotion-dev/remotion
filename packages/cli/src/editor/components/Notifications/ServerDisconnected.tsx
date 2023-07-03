@@ -1,4 +1,5 @@
-import React, {createRef, useImperativeHandle, useState} from 'react';
+import React, {useContext} from 'react';
+import {StudioServerConnectionCtx} from '../../helpers/client-id';
 
 const container: React.CSSProperties = {
 	position: 'fixed',
@@ -31,35 +32,15 @@ const inlineCode: React.CSSProperties = {
 	fontFamily: 'monospace',
 };
 
-export const serverDisconnectedRef = createRef<{
-	setServerDisconnected: () => void;
-	setServerConnected: () => void;
-}>();
-
 let pageIsGoingToReload = false;
 window.addEventListener('beforeunload', () => {
 	pageIsGoingToReload = true;
 });
 
 export const ServerDisconnected: React.FC = () => {
-	const [serverDisconnected, setServerDisconnected] = useState(false);
+	const ctx = useContext(StudioServerConnectionCtx);
 
-	useImperativeHandle(
-		serverDisconnectedRef,
-		() => {
-			return {
-				setServerDisconnected: () => {
-					setServerDisconnected(true);
-				},
-				setServerConnected: () => {
-					setServerDisconnected(false);
-				},
-			};
-		},
-		[]
-	);
-
-	if (!serverDisconnected) {
+	if (ctx.type !== 'disconnected') {
 		return null;
 	}
 
@@ -70,12 +51,12 @@ export const ServerDisconnected: React.FC = () => {
 	return (
 		<div style={container} className="css-reset">
 			<div style={message}>
-				The preview server has disconnected. <br />
-				{window.remotion_previewServerCommand ? (
+				The studio server has disconnected. <br />
+				{window.remotion_studioServerCommand ? (
 					<span>
 						Run{' '}
 						<code style={inlineCode}>
-							{window.remotion_previewServerCommand}
+							{window.remotion_studioServerCommand}
 						</code>{' '}
 						to run it again.
 					</span>

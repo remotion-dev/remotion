@@ -11,10 +11,12 @@ import type {
 import {Internals} from 'remotion';
 import {getPreferredVolume, persistVolume} from './volume-persistance.js';
 
+export const PLAYER_COMP_ID = 'player-comp';
+
 export const SharedPlayerContexts: React.FC<{
 	children: React.ReactNode;
 	timelineContext: TimelineContextValue;
-	inputProps?: unknown;
+	inputProps?: Record<string, unknown>;
 	fps: number;
 	compositionWidth: number;
 	compositionHeight: number;
@@ -45,13 +47,15 @@ export const SharedPlayerContexts: React.FC<{
 					height: compositionHeight,
 					width: compositionWidth,
 					fps,
-					id: 'player-comp',
+					id: PLAYER_COMP_ID,
 					props: inputProps as unknown,
 					nonce: 777,
 					scale: 1,
 					folderName: null,
 					defaultProps: undefined,
 					parentFolderName: null,
+					schema: null,
+					calculateMetadata: null,
 				},
 			],
 			folders: [],
@@ -70,6 +74,7 @@ export const SharedPlayerContexts: React.FC<{
 			setCurrentCompositionMetadata: () => undefined,
 			assets: [],
 			setClipRegion: () => undefined,
+			resolved: null,
 		};
 	}, [
 		component,
@@ -110,24 +115,26 @@ export const SharedPlayerContexts: React.FC<{
 				<Internals.CompositionManager.Provider
 					value={compositionManagerContext}
 				>
-					<Internals.PrefetchProvider>
-						<Internals.DurationsContextProvider>
-							<Internals.MediaVolumeContext.Provider
-								value={mediaVolumeContextValue}
-							>
-								<Internals.SetMediaVolumeContext.Provider
-									value={setMediaVolumeContextValue}
+					<Internals.ResolveCompositionConfig>
+						<Internals.PrefetchProvider>
+							<Internals.DurationsContextProvider>
+								<Internals.MediaVolumeContext.Provider
+									value={mediaVolumeContextValue}
 								>
-									<Internals.SharedAudioContextProvider
-										numberOfAudioTags={numberOfSharedAudioTags}
-										component={component}
+									<Internals.SetMediaVolumeContext.Provider
+										value={setMediaVolumeContextValue}
 									>
-										{children}
-									</Internals.SharedAudioContextProvider>
-								</Internals.SetMediaVolumeContext.Provider>
-							</Internals.MediaVolumeContext.Provider>
-						</Internals.DurationsContextProvider>
-					</Internals.PrefetchProvider>
+										<Internals.SharedAudioContextProvider
+											numberOfAudioTags={numberOfSharedAudioTags}
+											component={component}
+										>
+											{children}
+										</Internals.SharedAudioContextProvider>
+									</Internals.SetMediaVolumeContext.Provider>
+								</Internals.MediaVolumeContext.Provider>
+							</Internals.DurationsContextProvider>
+						</Internals.PrefetchProvider>
+					</Internals.ResolveCompositionConfig>
 				</Internals.CompositionManager.Provider>
 			</Internals.Timeline.TimelineContext.Provider>
 		</Internals.CanUseRemotionHooksProvider>

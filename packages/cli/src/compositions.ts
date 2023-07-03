@@ -1,8 +1,8 @@
-import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {registerCleanupJob} from './cleanup-before-quit';
+import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
-import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
 import {printCompositions} from './print-compositions';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
@@ -24,17 +24,12 @@ export const listCompositionsCommand = async (
 		process.exit(1);
 	}
 
+	const logLevel = ConfigInternals.Logging.getLogLevel();
+
 	Log.verbose('Entry point:', file, 'reason:', reason);
-
-	const downloadMap = RenderInternals.makeDownloadMap();
-	registerCleanupJob(() => RenderInternals.cleanDownloadMap(downloadMap));
-
-	await loadConfig(remotionRoot);
 
 	const {
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		chromiumOptions,
 		envVariables,
 		inputProps,
@@ -51,25 +46,34 @@ export const listCompositionsCommand = async (
 		await bundleOnCliOrTakeServeUrl({
 			remotionRoot,
 			fullPath: file,
-			steps: ['bundling'],
 			publicDir,
+			onProgress: () => undefined,
+			indentOutput: false,
+			logLevel,
+			bundlingStep: 0,
+			steps: 1,
+			onDirectoryCreated: (dir) => {
+				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
+			},
+			quietProgress: false,
 		});
 
 	registerCleanupJob(() => cleanupBundle());
 
-	const compositions = await getCompositions(bundled, {
+	const compositions = await RenderInternals.internalGetCompositions({
+		serveUrlOrWebpackUrl: bundled,
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		chromiumOptions,
 		envVariables,
 		inputProps,
 		timeoutInMilliseconds: puppeteerTimeout,
 		port,
-		downloadMap,
+		indent: false,
+		onBrowserLog: null,
+		puppeteerInstance: undefined,
+		logLevel,
+		server: undefined,
 	});
 
 	printCompositions(compositions);
-
-	Log.verbose('Cleaned up', downloadMap.assetDir);
 };

@@ -1,8 +1,8 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {StillImageFormat} from '@remotion/renderer';
-import {RenderInternals, renderStill} from '@remotion/renderer';
-import fs from 'fs';
-import path from 'path';
+import {RenderInternals} from '@remotion/renderer';
+import fs from 'node:fs';
+import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
@@ -19,7 +19,6 @@ import {
 	renderMetadataKey,
 } from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
@@ -32,7 +31,6 @@ import {
 import {formatCostsInfo} from './helpers/format-costs-info';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {executablePath} from './helpers/get-chromium-executable-path';
-import {getCurrentArchitecture} from './helpers/get-current-architecture';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
@@ -41,6 +39,7 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
+import {deserializeInputProps} from '../shared/serialize-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -79,7 +78,8 @@ const innerStillHandler = async (
 				region: getCurrentRegionInFunction(),
 			}).then((b) => b.bucketName),
 		getBrowserInstance(
-			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
+			lambdaParams.logLevel,
+			false,
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);
@@ -88,14 +88,13 @@ const innerStillHandler = async (
 
 	const outputPath = path.join(outputDir, 'output');
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
 	const region = getCurrentRegionInFunction();
 	const inputProps = await deserializeInputProps({
 		bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region,
 		serialized: lambdaParams.inputProps,
+		propsType: 'input-props',
 	});
 
 	const serveUrl = convertToServeUrl({
@@ -104,20 +103,28 @@ const innerStillHandler = async (
 		bucketName,
 	});
 
+	const server = await RenderInternals.prepareServer({
+		concurrency: 1,
+		indent: false,
+		port: null,
+		remotionRoot: process.cwd(),
+		logLevel: lambdaParams.logLevel,
+		webpackConfigOrServeUrl: serveUrl,
+	});
+
 	const composition = await validateComposition({
 		serveUrl,
 		browserInstance,
 		composition: lambdaParams.composition,
 		inputProps,
-		envVariables: lambdaParams.envVariables,
-		ffmpegExecutable: null,
-		ffprobeExecutable: null,
+		envVariables: lambdaParams.envVariables ?? {},
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		port: null,
-		downloadMap,
 		forceHeight: lambdaParams.forceHeight,
 		forceWidth: lambdaParams.forceWidth,
+		logLevel: lambdaParams.logLevel,
+		server,
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -154,15 +161,11 @@ const innerStillHandler = async (
 		downloadBehavior: null,
 		customCredentials: null,
 	});
-
-	await renderStill({
+	await RenderInternals.internalRenderStill({
 		composition,
 		output: outputPath,
 		serveUrl,
-		dumpBrowserLogs:
-			lambdaParams.dumpBrowserLogs ??
-			RenderInternals.isEqualOrBelowLogLevel(lambdaParams.logLevel, 'verbose'),
-		envVariables: lambdaParams.envVariables,
+		envVariables: lambdaParams.envVariables ?? {},
 		frame: RenderInternals.convertToPositiveFrameIndex({
 			frame: lambdaParams.frame,
 			durationInFrames: composition.durationInFrames,
@@ -171,12 +174,19 @@ const innerStillHandler = async (
 		inputProps,
 		overwrite: false,
 		puppeteerInstance: browserInstance,
-		quality: lambdaParams.quality,
+		jpegQuality:
+			lambdaParams.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		scale: lambdaParams.scale,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
-		downloadMap,
 		browserExecutable: executablePath(),
+		cancelSignal: null,
+		indent: false,
+		onBrowserLog: null,
+		onDownload: null,
+		port: null,
+		server,
+		logLevel: lambdaParams.logLevel,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -205,6 +215,7 @@ const innerStillHandler = async (
 			region: getCurrentRegionInFunction(),
 			serialized: lambdaParams.inputProps,
 		}),
+		server.closeServer(true),
 	]);
 
 	const estimatedPrice = estimatePrice({
@@ -212,13 +223,10 @@ const innerStillHandler = async (
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
 		lambdasInvoked: 1,
-		architecture: getCurrentArchitecture(),
 		// We cannot determine the ephemeral storage size, so we
 		// overestimate the price, but will only have a miniscule effect (~0.2%)
 		diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
 	});
-
-	RenderInternals.cleanDownloadMap(downloadMap);
 
 	return {
 		output: getOutputUrlFromMetadata(

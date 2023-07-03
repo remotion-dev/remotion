@@ -491,7 +491,7 @@ const ControlsOnly: React.FC<{
 const PlayerOnly: React.FC<
 	{
 		playerRef: React.RefObject<PlayerRef>;
-		inputProps: object;
+		inputProps: Record<string, unknown>;
 		clickToPlay: boolean;
 		loop: boolean;
 		durationInFrames: number;

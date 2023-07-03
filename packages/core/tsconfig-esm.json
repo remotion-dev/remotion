@@ -1,7 +1,6 @@
 {
 	"extends": "../tsconfig-esm.settings.json",
 	"compilerOptions": {
-		"composite": true,
 		"rootDir": "./src",
 		"outDir": "./dist/esm",
 		"skipLibCheck": true,

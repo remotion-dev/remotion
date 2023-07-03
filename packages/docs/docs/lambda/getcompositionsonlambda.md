@@ -114,11 +114,11 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
 
-If the `logLevel` is set to `verbose`, the `dumpBrowserLogs` flag will also be enabled.
+### ~~`dumpBrowserLogs?`~~
 
-### `dumpBrowserLogs?`<AvailableFrom v="3.3.83" />
+_optional - default `false`, deprecated in v4.0_
 
-If set to true, all `console` statements from the headless browser will be forwarded to the CloudWatch logs.
+Deprecated in favor of [`logLevel`](#loglevel).
 
 ## Return value
 

@@ -14,6 +14,20 @@ export const articles = [
     crumb: "Version Upgrade",
   },
   {
+    id: "4-0-alpha",
+    title: "v4.0 Alpha",
+    relativePath: "docs/4-0-alpha.md",
+    compId: "articles-docs-4-0-alpha",
+    crumb: "Version Upgrade",
+  },
+  {
+    id: "4-0-migration",
+    title: "v4.0 Migration",
+    relativePath: "docs/4-0-migration.md",
+    compId: "articles-docs-4-0-migration",
+    crumb: "Version Upgrade",
+  },
+  {
     id: "absolute-fill",
     title: "<AbsoluteFill>",
     relativePath: "docs/absolute-fill.md",
@@ -98,6 +112,13 @@ export const articles = [
     crumb: null,
   },
   {
+    id: "calculate-metadata",
+    title: "calculateMetadata()",
+    relativePath: "docs/calculate-metadata.md",
+    compId: "articles-docs-calculate-metadata",
+    crumb: "API",
+  },
+  {
     id: "cancel-render",
     title: "cancelRender()",
     relativePath: "docs/cancel-render.md",
@@ -133,6 +154,20 @@ export const articles = [
     crumb: "CLI Reference",
   },
   {
+    id: "ffmpeg",
+    title: "npx remotion ffmpeg",
+    relativePath: "docs/cli/ffmpeg.md",
+    compId: "articles-docs-cli-ffmpeg",
+    crumb: "@remotion/cli",
+  },
+  {
+    id: "ffprobe",
+    title: "npx remotion ffprobe",
+    relativePath: "docs/cli/ffprobe.md",
+    compId: "articles-docs-cli-ffprobe",
+    crumb: "@remotion/cli",
+  },
+  {
     id: "cli/help",
     title: "npx remotion help",
     relativePath: "docs/cli/help.md",
@@ -147,13 +182,6 @@ export const articles = [
     crumb: "CLI Reference",
   },
   {
-    id: "cli/preview",
-    title: "npx remotion preview",
-    relativePath: "docs/cli/preview.md",
-    compId: "articles-docs-cli-preview",
-    crumb: "CLI Reference",
-  },
-  {
     id: "cli/render",
     title: "npx remotion render",
     relativePath: "docs/cli/render.md",
@@ -165,6 +193,13 @@ export const articles = [
     title: "npx remotion still",
     relativePath: "docs/cli/still.md",
     compId: "articles-docs-cli-still",
+    crumb: "CLI Reference",
+  },
+  {
+    id: "cli/studio",
+    title: "npx remotion studio",
+    relativePath: "docs/cli/studio.md",
+    compId: "articles-docs-cli-studio",
     crumb: "CLI Reference",
   },
   {
@@ -252,6 +287,13 @@ export const articles = [
     crumb: "Contributing",
   },
   {
+    id: "contributing/rust",
+    title: "Contributing Rust code",
+    relativePath: "docs/contributing/rust.md",
+    compId: "articles-docs-contributing-rust",
+    crumb: "Contributing",
+  },
+  {
     id: "data-fetching",
     title: "Data fetching",
     relativePath: "docs/data-fetching.md",
@@ -288,7 +330,7 @@ export const articles = [
   },
   {
     id: "dynamic-metadata",
-    title: "Dynamic duration, FPS & dimensions",
+    title: "Variable metadata",
     relativePath: "docs/dynamic-metadata.md",
     compId: "articles-docs-dynamic-metadata",
     crumb: "How To",
@@ -407,7 +449,7 @@ export const articles = [
   },
   {
     id: "getting-started",
-    title: "Setup and Installation",
+    title: "Creating a new project",
     relativePath: "docs/getting-started.md",
     compId: "articles-docs-getting-started",
     crumb: "Let's begin!",
@@ -474,6 +516,13 @@ export const articles = [
     relativePath: "docs/gpu.md",
     compId: "articles-docs-gpu",
     crumb: "Need for Speed",
+  },
+  {
+    id: "props-resolution",
+    title: "How props get resolved",
+    relativePath: "docs/how-props-flow.md",
+    compId: "articles-docs-how-props-flow",
+    crumb: "Parametrized videos",
   },
   {
     id: "iframe",
@@ -1298,9 +1347,16 @@ export const articles = [
   },
   {
     id: "parametrized-rendering",
-    title: "Parametrized rendering",
+    title: "Parametrized videos",
     relativePath: "docs/parametrized-rendering.md",
     compId: "articles-docs-parametrized-rendering",
+    crumb: "How To",
+  },
+  {
+    id: "passing-props",
+    title: "Passing props to a composition",
+    relativePath: "docs/passing-props.md",
+    compId: "articles-docs-passing-props",
     crumb: "How To",
   },
   {
@@ -1591,6 +1647,13 @@ export const articles = [
     crumb: "The new and shiny",
   },
   {
+    id: "react-native",
+    title: "React Native",
+    relativePath: "docs/react-native.md",
+    compId: "articles-docs-react-native",
+    crumb: null,
+  },
+  {
     id: "register-root",
     title: "registerRoot()",
     relativePath: "docs/register-root.md",
@@ -1689,6 +1752,13 @@ export const articles = [
     crumb: "@remotion/renderer",
   },
   {
+    id: "select-composition",
+    title: "selectComposition()",
+    relativePath: "docs/renderer/select-composition.md",
+    compId: "articles-docs-renderer-select-composition",
+    crumb: "@remotion/renderer",
+  },
+  {
     id: "stitch-frames-to-video",
     title: "stitchFramesToVideo()",
     relativePath: "docs/renderer/stitch-frames-to-video.md",
@@ -1731,6 +1801,13 @@ export const articles = [
     crumb: "How To",
   },
   {
+    id: "schemas",
+    title: "Defining a schema for your props",
+    relativePath: "docs/schemas.md",
+    compId: "articles-docs-schemas",
+    crumb: "How To",
+  },
+  {
     id: "sequence",
     title: "<Sequence>",
     relativePath: "docs/sequence.md",
@@ -1739,7 +1816,7 @@ export const articles = [
   },
   {
     id: "reusability",
-    title: "Reuse components using Sequences",
+    title: "Making components reusable",
     relativePath: "docs/sequences.md",
     compId: "articles-docs-sequences",
     crumb: "The power of React",
@@ -2186,6 +2263,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "visual-editing",
+    title: "Edit props visually",
+    relativePath: "docs/visual-editing.md",
+    compId: "articles-docs-visual-editing",
+    crumb: "How To",
+  },
+  {
     id: "visualize-audio",
     title: "visualizeAudio()",
     relativePath: "docs/visualize-audio.md",
@@ -2198,5 +2282,19 @@ export const articles = [
     relativePath: "docs/wrong-composition-mount.md",
     compId: "articles-docs-wrong-composition-mount",
     crumb: "Troubleshooting",
+  },
+  {
+    id: "zod-types/index",
+    title: "@remotion/zod-types",
+    relativePath: "docs/zod-types/index.md",
+    compId: "articles-docs-zod-types-index",
+    crumb: "Schema",
+  },
+  {
+    id: "zod-types/z-color",
+    title: "zColor()",
+    relativePath: "docs/zod-types/z-color.md",
+    compId: "articles-docs-zod-types-z-color",
+    crumb: null,
   },
 ];
