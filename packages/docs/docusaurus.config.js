@@ -37,7 +37,7 @@ const config = (mode) => ({
     announcementBar: {
       id: "support_us",
       content:
-        '<a id="launch4" rel="noopener noreferrer" href="/4">Remotion 4.0 launches today! Catch the keynote</a>',
+        '<a id="launch4" rel="noopener noreferrer" href="/blog/4-0" >Remotion 4.0 is out now! See the announcement</a>',
       backgroundColor: "#fafbfc",
       textColor: "#091E42",
       isCloseable: false,
