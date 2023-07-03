@@ -6,8 +6,9 @@ import React, { useCallback, useMemo, useState } from "react";
 import { Spacer } from "../../../components/layout/Spacer";
 import { CoolInput } from "../../../components/TextInput";
 import { Seo } from "../../components/Seo";
-import { V4Countdown } from "../../components/V4Countdown";
 import styles from "./v4.module.css";
+import { DoMoreHero } from "../../components/DoMoreHero/DoMoreHero";
+import { PlainButton } from "../../../components/layout/Button";
 
 const spacer: React.CSSProperties = {
   height: "10px",
@@ -25,7 +26,6 @@ const V4: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [subscribed, setSubscribed] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [showCountdown, setShowCountdown] = useState<boolean>(true);
   const buttonLabel = useMemo(() => {
     if (subscribed) {
       return "You're signed up!";
@@ -85,6 +85,8 @@ const V4: React.FC = () => {
         {Seo.renderTitle("Do more with React | Remotion 4.0")}
         {Seo.renderImage("/img/remotion4.png", context.siteConfig.url)}
       </Head>
+      <DoMoreHero />
+
       <style>
         {`
         div[class^='announcementBar'] {
@@ -97,69 +99,54 @@ const V4: React.FC = () => {
           <h1 className={styles.pagetitle}>Do more with React</h1>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <p className={styles.title}>
-              Watch the Remotion Keynote July 3rd at 7pm CEST
+              Discover the new capabilities of Remotion 4.0 from July 3 – July 7
             </p>
           </div>
           <br />
-          <iframe
+          <div
             style={{
-              width: "100%",
-              aspectRatio: "16 / 9",
+              textAlign: "center",
+              display: "flex",
+              justifyContent: "center",
             }}
-            src="https://www.youtube.com/embed/S3C9wlPNhkQ"
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-          <br />
-          {showCountdown ? (
-            <div style={{ textAlign: "center" }}>
-              <div>
-                <V4Countdown setShowCountdown={setShowCountdown} />
-              </div>
-              <div>
-                <a
-                  href="/documents/RemotionV4Launch.ics"
-                  download="RemotionV4Launch.ics"
-                >
-                  <div
-                    className={[styles.button, styles.calendarbutton].join(" ")}
-                  >
-                    Add to Calendar
-                  </div>
-                </a>
-              </div>
-            </div>
-          ) : null}
+          >
+            <a
+              style={{
+                textDecoration: "none",
+              }}
+              className={styles.a}
+              href="/blog/4-0"
+            >
+              <PlainButton size="sm" loading={false} fullWidth={false}>
+                View announcement blog post
+              </PlainButton>
+            </a>
+          </div>
 
-          <div style={{ height: "60px" }} />
+          <br />
           <div className={styles.grid}>
             <EventComp
               description="Celebrate the launch of Remotion 4.0 and experience the new possibilities of media creation with React."
               date="July 3rd"
               title="Keynote"
-              locked={false}
+              youtubeId="S3C9wlPNhkQ"
             />
             <EventComp
-              locked
               date="July 4th"
               title="Visual editing"
               description="Expose parameters to the user interface, edit them, see the result in real-time and save them back to code."
             />
             <EventComp
-              locked
               date="July 5th"
               title="Render button"
               description="Configure, queue and track renders with the newest way to render using Remotion."
             />
             <EventComp
-              locked
               description="Leverage the new system for data fetching and dynamically calculating the duration and dimensions of your video."
               date="July 6th"
               title="Data-driven videos"
             />
             <EventComp
-              locked
               description="A rundown of the remaining improvements coming with Remotion 4.0."
               date="July 7th"
               title="Last but not least"
@@ -203,8 +190,8 @@ export const EventComp: React.FC<{
   date: string;
   title: string;
   description: string;
-  locked: boolean;
-}> = ({ date, title, description, locked }) => {
+  youtubeId?: string;
+}> = ({ date, title, description, youtubeId }) => {
   return (
     <div
       style={{
@@ -215,32 +202,43 @@ export const EventComp: React.FC<{
       }}
     >
       <p className={styles.date}>{date}</p>
-      {locked ? (
+      <p className={styles.eventtitle}>{title}</p>
+      <p>{description}</p>
+      {youtubeId ? (
+        <iframe
+          style={{
+            width: "100%",
+            aspectRatio: "16 / 9",
+          }}
+          src={`https://www.youtube.com/embed/${youtubeId}`}
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      ) : (
         <div
           style={{
+            width: "100%",
+            aspectRatio: "16 / 9",
+            backgroundColor: "var(--ifm-out-of-focus)",
+            borderRadius: 5,
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            width: "100%",
-            height: "100%",
           }}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            height="1em"
-            viewBox="0 0 448 512"
+          <div
+            style={{
+              color: "var(--ifm-subtitle)",
+              justifyContent: "center",
+              alignItems: "center",
+              fontWeight: "bold",
+            }}
           >
-            <path
-              fill="var(--subtitle)"
-              d="M144 128v64H304V128c0-44.2-35.8-80-80-80s-80 35.8-80 80zM96 192V128C96 57.3 153.3 0 224 0s128 57.3 128 128v64h32c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V256c0-35.3 28.7-64 64-64H96zM48 256V448c0 8.8 7.2 16 16 16H384c8.8 0 16-7.2 16-16V256c0-8.8-7.2-16-16-16H64c-8.8 0-16 7.2-16 16z"
-            />
-          </svg>
+            Check back {date}
+          </div>
         </div>
-      ) : (
-        <>
-          <p className={styles.eventtitle}>{title}</p>
-          <p>{description}</p>
-        </>
       )}
     </div>
   );
