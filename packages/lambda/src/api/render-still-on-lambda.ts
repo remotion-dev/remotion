@@ -10,7 +10,11 @@ import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {
+	getNeedsToUpload,
+	serializeInputProps,
+	serializeOrThrow,
+} from '../shared/serialize-props';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -37,6 +41,9 @@ export type RenderStillOnLambdaInput = {
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	forceBucketName?: string;
+	/**
+	 * @deprecated Renamed to `dumpBrowserLogs`
+	 */
 	dumpBrowserLogs?: boolean;
 };
 
@@ -63,7 +70,6 @@ export type RenderStillOnLambdaOutput = {
  * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
  * @param params.frame Which frame should be used for the still image. Default 0.
  * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
- * @param params.dumpBrowserLogs Whether to print browser logs to CloudWatch.
  * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
  */
 
@@ -97,11 +103,14 @@ export const renderStillOnLambda = async ({
 		);
 	}
 
+	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
+
 	const serializedInputProps = await serializeInputProps({
-		inputProps,
+		stringifiedInputProps,
 		region,
-		type: 'still',
+		needsToUpload: getNeedsToUpload('still', stringifiedInputProps),
 		userSpecifiedBucketName: forceBucketName ?? null,
+		propsType: 'input-props',
 	});
 
 	try {
@@ -119,7 +128,7 @@ export const renderStillOnLambda = async ({
 				frame: frame ?? 0,
 				privacy,
 				attempt: 1,
-				logLevel: logLevel ?? 'info',
+				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 				outName: outName ?? null,
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				chromiumOptions: chromiumOptions ?? {},
@@ -129,7 +138,6 @@ export const renderStillOnLambda = async ({
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
 				bucketName: forceBucketName ?? null,
-				dumpBrowserLogs: dumpBrowserLogs ?? false,
 			},
 			region,
 		});

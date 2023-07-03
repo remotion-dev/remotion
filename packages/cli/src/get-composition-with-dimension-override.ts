@@ -2,9 +2,10 @@ import type {
 	BrowserExecutable,
 	ChromiumOptions,
 	HeadlessBrowser,
+	LogLevel,
 	RemotionServer,
 } from '@remotion/renderer';
-import type {AnyCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import {getCompositionId} from './get-composition-id';
 
 export const getCompositionWithDimensionOverride = async ({
@@ -21,7 +22,7 @@ export const getCompositionWithDimensionOverride = async ({
 	serveUrlOrWebpackUrl,
 	indent,
 	inputProps,
-	verbose,
+	logLevel,
 	server,
 }: {
 	height: number | null;
@@ -36,13 +37,13 @@ export const getCompositionWithDimensionOverride = async ({
 	browserExecutable: BrowserExecutable | null;
 	serveUrlOrWebpackUrl: string;
 	indent: boolean;
-	verbose: boolean;
+	logLevel: LogLevel;
 	inputProps: Record<string, unknown>;
 	server: RemotionServer;
 }): Promise<{
 	compositionId: string;
 	reason: string;
-	config: AnyCompMetadata;
+	config: VideoConfig;
 	argsAfterComposition: string[];
 }> => {
 	const returnValue = await getCompositionId({
@@ -50,7 +51,7 @@ export const getCompositionWithDimensionOverride = async ({
 		compositionIdFromUi,
 		indent,
 		serveUrlOrWebpackUrl,
-		verbose,
+		logLevel,
 		browserExecutable,
 		chromiumOptions,
 		envVariables,

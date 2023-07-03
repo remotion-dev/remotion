@@ -126,6 +126,7 @@ export const sitesCreateSubcommand = async (
 			},
 			enableCaching: ConfigInternals.getWebpackCaching(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
+			bypassBucketNameValidation: Boolean(parsedLambdaCli['force-bucket-name']),
 		},
 		region: getAwsRegion(),
 		privacy: parsedLambdaCli.privacy as Exclude<Privacy, 'private'> | undefined,

@@ -42,6 +42,7 @@ import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
+import type {LogLevel} from './log-level';
 
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
 
@@ -66,7 +67,7 @@ type InternalStitchFramesToVideoOptions = {
 	onProgress?: null | ((progress: number) => void);
 	onDownload: undefined | RenderMediaOnDownload;
 	proResProfile: undefined | ProResProfile;
-	verbose: boolean;
+	logLevel: LogLevel;
 	dir: string;
 	cancelSignal: CancelSignal | null;
 	preEncodedFileLocation: string | null;
@@ -112,7 +113,7 @@ const getAssetsData = async ({
 	onDownload,
 	fps,
 	expectedFrames,
-	verbose,
+	logLevel,
 	onProgress,
 	downloadMap,
 	remotionRoot,
@@ -122,7 +123,7 @@ const getAssetsData = async ({
 	onDownload: RenderMediaOnDownload | undefined;
 	fps: number;
 	expectedFrames: number;
-	verbose: boolean;
+	logLevel: LogLevel;
 	onProgress: (progress: number) => void;
 	downloadMap: DownloadMap;
 	remotionRoot: string;
@@ -138,7 +139,7 @@ const getAssetsData = async ({
 	const assetPositions: Assets = calculateAssetPositions(fileUrlAssets);
 
 	Log.verboseAdvanced(
-		{indent, logLevel: verbose ? 'verbose' : 'info', tag: 'audio'},
+		{indent, logLevel, tag: 'audio'},
 		'asset positions',
 		JSON.stringify(assetPositions)
 	);
@@ -211,7 +212,7 @@ const innerStitchFramesToVideo = async (
 		preEncodedFileLocation,
 		preferLossless,
 		proResProfile,
-		verbose,
+		logLevel,
 		videoBitrate,
 		width,
 		numberOfGifLoops,
@@ -278,16 +279,7 @@ const innerStitchFramesToVideo = async (
 	Log.verboseAdvanced(
 		{
 			indent,
-			logLevel: verbose ? 'verbose' : 'info',
-			tag: 'stitchFramesToVideo()',
-		},
-		'encoder',
-		encoderName
-	);
-	Log.verboseAdvanced(
-		{
-			indent,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'stitchFramesToVideo()',
 		},
 		'audioCodec',
@@ -296,7 +288,7 @@ const innerStitchFramesToVideo = async (
 	Log.verboseAdvanced(
 		{
 			indent,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'stitchFramesToVideo()',
 		},
 		'pixelFormat',
@@ -305,7 +297,7 @@ const innerStitchFramesToVideo = async (
 	Log.verboseAdvanced(
 		{
 			indent,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'stitchFramesToVideo()',
 		},
 		'codec',
@@ -314,7 +306,7 @@ const innerStitchFramesToVideo = async (
 	Log.verboseAdvanced(
 		{
 			indent,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'stitchFramesToVideo()',
 		},
 		'shouldRenderAudio',
@@ -323,20 +315,11 @@ const innerStitchFramesToVideo = async (
 	Log.verboseAdvanced(
 		{
 			indent,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'stitchFramesToVideo()',
 		},
 		'shouldRenderVideo',
 		shouldRenderVideo
-	);
-	Log.verboseAdvanced(
-		{
-			indent,
-			logLevel: verbose ? 'verbose' : 'info',
-			tag: 'stitchFramesToVideo()',
-		},
-		'proResProfileName',
-		proResProfileName
 	);
 
 	validateQualitySettings({
@@ -360,7 +343,7 @@ const innerStitchFramesToVideo = async (
 				onDownload,
 				fps,
 				expectedFrames,
-				verbose,
+				logLevel,
 				onProgress: (prog) => updateProgress(prog, 0),
 				downloadMap: assetsInfo.downloadMap,
 				remotionRoot,
@@ -478,7 +461,7 @@ const innerStitchFramesToVideo = async (
 	Log.verboseAdvanced(
 		{
 			indent: indent ?? false,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'stitchFramesToVideo()',
 		},
 		'Generated final FFMPEG command:'
@@ -486,7 +469,7 @@ const innerStitchFramesToVideo = async (
 	Log.verboseAdvanced(
 		{
 			indent,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'stitchFramesToVideo()',
 		},
 		finalFfmpegString.join(' ')
@@ -616,7 +599,7 @@ export const stitchFramesToVideo = ({
 		outputLocation: outputLocation ?? null,
 		pixelFormat: pixelFormat ?? DEFAULT_PIXEL_FORMAT,
 		proResProfile,
-		verbose: verbose ?? false,
+		logLevel: verbose ? 'verbose' : 'info',
 		videoBitrate: videoBitrate ?? null,
 		width,
 		preEncodedFileLocation: null,

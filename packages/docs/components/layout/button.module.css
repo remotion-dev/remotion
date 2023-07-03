@@ -2,7 +2,8 @@
   border-radius: 8px;
   font-weight: bold;
   appearance: none;
-  border: none;
+  border: 2px solid black;
+  border-bottom: 4px solid black;
   font: inherit;
   font-weight: bold;
   display: flex;
@@ -11,6 +12,7 @@
   justify-content: center;
   transition: background-color 0.1s;
 }
+
 .buttoncontainer:not([disabled]):hover {
   background-color: var(--hover-color) !important;
 }

@@ -13,6 +13,7 @@ import {serveStatic} from './serve-static';
 import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {getSourceMapFromLocalFile} from './symbolicate-stacktrace';
 import {waitForSymbolicationToBeDone} from './wait-for-symbolication-error-to-be-done';
+import type {LogLevel} from './log-level';
 
 export type RemotionServer = {
 	serveUrl: string;
@@ -29,7 +30,7 @@ type PrepareServerOptions = {
 	port: number | null;
 	remotionRoot: string;
 	concurrency: number;
-	verbose: boolean;
+	logLevel: LogLevel;
 	indent: boolean;
 };
 
@@ -38,12 +39,12 @@ export const prepareServer = async ({
 	port,
 	remotionRoot,
 	concurrency,
-	verbose,
+	logLevel,
 	indent,
 }: PrepareServerOptions): Promise<RemotionServer> => {
 	const downloadMap = makeDownloadMap();
 	Log.verboseAdvanced(
-		{indent, logLevel: verbose ? 'verbose' : 'info'},
+		{indent, logLevel},
 		'Created directory for temporary files',
 		downloadMap.assetDir
 	);
@@ -59,7 +60,7 @@ export const prepareServer = async ({
 			downloadMap,
 			remotionRoot,
 			concurrency,
-			verbose,
+			logLevel,
 			indent,
 		});
 
@@ -100,7 +101,7 @@ export const prepareServer = async ({
 		downloadMap,
 		remotionRoot,
 		concurrency,
-		verbose,
+		logLevel,
 		indent,
 	});
 

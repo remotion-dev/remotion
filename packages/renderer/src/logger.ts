@@ -13,15 +13,14 @@ type LogOptions = {
 
 type VerboseLogOptions = LogOptions & {
 	tag?: string;
-	secondTag?: string;
 };
 
 export const verboseTag = (str: string) => {
-	return isColorSupported ? chalk.bgBlack(` ${str} `) : `[${str}]`;
+	return isColorSupported() ? chalk.bgBlack(` ${str} `) : `[${str}]`;
 };
 
 export const secondverboseTag = (str: string) => {
-	return isColorSupported ? chalk.bgWhite(` ${str} `) : `[${str}]`;
+	return isColorSupported() ? chalk.bgWhite(` ${str} `) : `[${str}]`;
 };
 
 export const Log = {
@@ -36,12 +35,7 @@ export const Log = {
 			return console.log(
 				...[
 					options.indent ? INDENT_TOKEN : null,
-					[
-						options.tag ? verboseTag(options.tag) : null,
-						options.secondTag ? secondverboseTag(options.secondTag) : null,
-					]
-						.filter(truthy)
-						.join(''),
+					options.tag ? verboseTag(options.tag) : null,
 					...args.map((a) => chalk.gray(a)),
 				].filter(truthy)
 			);
@@ -54,14 +48,14 @@ export const Log = {
 		options: LogOptions,
 		...args: Parameters<typeof console.log>
 	) => {
-		if (isEqualOrBelowLogLevel(options.logLevel, 'info')) {
-			return console.log(
-				...[options.indent ? INDENT_TOKEN : null, ...args].filter(truthy)
-			);
-		}
+		return console.log(
+			...[options.indent ? INDENT_TOKEN : null, ...args].filter(truthy)
+		);
 	},
 	warn: (...args: Parameters<typeof console.log>) => {
-		Log.warnAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
+		if (isEqualOrBelowLogLevel(getLogLevel(), 'warn')) {
+			Log.warnAdvanced({indent: false, logLevel: getLogLevel()}, ...args);
+		}
 	},
 	warnAdvanced: (
 		options: LogOptions,

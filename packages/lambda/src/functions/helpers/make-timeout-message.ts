@@ -44,6 +44,8 @@ export const makeTimeoutMessage = ({
 		makeChunkMissingMessage({missingChunks, renderMetadata}),
 		`You can use the "--timeout" parameter when deploying a function via CLI, or the "timeoutInSeconds" parameter when using the deployFunction() API.`,
 		`${DOCS_URL}/docs/lambda/cli/functions#deploy`,
+		'Get help on debugging this error:',
+		`${DOCS_URL}/docs/lambda/troubleshooting/debug`,
 	].join('\n');
 
 	return message;

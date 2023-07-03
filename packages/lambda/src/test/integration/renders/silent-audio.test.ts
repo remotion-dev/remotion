@@ -34,7 +34,7 @@ test('Should add silent audio if there is no audio', async () => {
 		{
 			type: LambdaRoutines.start,
 			serveUrl:
-				'https://64804c64f424474c4b192d49--sage-sable-226d60.netlify.app/',
+				'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
 			chromiumOptions: {},
 			codec: 'h264',
 			composition: 'react-svg',
@@ -73,7 +73,6 @@ test('Should add silent audio if there is no audio', async () => {
 			rendererFunctionName: null,
 			bucketName: null,
 			audioCodec: null,
-			dumpBrowserLogs: false,
 		},
 		extraContext
 	)) as StreamedResponse;

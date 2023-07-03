@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
-import type {AnySmallCompMetadata, TAsset} from 'remotion';
+import type {TAsset, VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -48,6 +48,8 @@ import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
+import {type LogLevel} from './log-level';
+import {getLogLevel} from './logger';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
@@ -67,7 +69,6 @@ export type InternalRenderFramesOptions = {
 	jpegQuality: number;
 	frameRange: FrameRange | null;
 	everyNthFrame: number;
-	dumpBrowserLogs: boolean;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	browserExecutable: BrowserExecutable | null;
 	onBrowserLog: null | ((log: BrowserLog) => void);
@@ -78,13 +79,13 @@ export type InternalRenderFramesOptions = {
 	scale: number;
 	port: number | null;
 	cancelSignal: CancelSignal | undefined;
-	composition: AnySmallCompMetadata;
+	composition: VideoConfig;
 	indent: boolean;
 	server: RemotionServer | undefined;
 	muted: boolean;
 	concurrency: number | string | null;
 	webpackBundleOrServeUrl: string;
-	verbose: boolean;
+	logLevel: LogLevel;
 };
 
 type InnerRenderFramesOptions = {
@@ -109,7 +110,7 @@ type InnerRenderFramesOptions = {
 	timeoutInMilliseconds: number;
 	scale: number;
 	cancelSignal: CancelSignal | undefined;
-	composition: AnySmallCompMetadata;
+	composition: VideoConfig;
 	muted: boolean;
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -121,6 +122,8 @@ type InnerRenderFramesOptions = {
 	compositor: Compositor;
 	sourcemapContext: AnySourceMapConsumer | null;
 	serveUrl: string;
+	logLevel: LogLevel;
+	indent: boolean;
 };
 
 export type RenderFramesOptions = {
@@ -141,7 +144,15 @@ export type RenderFramesOptions = {
 	jpegQuality?: number;
 	frameRange?: FrameRange | null;
 	everyNthFrame?: number;
+	/**
+	 * @deprecated Use "logLevel": "verbose" instead
+	 */
 	dumpBrowserLogs?: boolean;
+	/**
+	 * @deprecated Use "logLevel" instead
+	 */
+	verbose?: boolean;
+	logLevel?: LogLevel;
 	puppeteerInstance?: HeadlessBrowser;
 	browserExecutable?: BrowserExecutable;
 	onBrowserLog?: (log: BrowserLog) => void;
@@ -152,11 +163,10 @@ export type RenderFramesOptions = {
 	scale?: number;
 	port?: number | null;
 	cancelSignal?: CancelSignal;
-	composition: AnySmallCompMetadata;
+	composition: VideoConfig;
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
-	verbose?: boolean;
 };
 
 const innerRenderFrames = async ({
@@ -187,6 +197,8 @@ const innerRenderFrames = async ({
 	browserReplacer,
 	compositor,
 	sourcemapContext,
+	logLevel,
+	indent,
 }: InnerRenderFramesOptions): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -207,7 +219,9 @@ const innerRenderFrames = async ({
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
 	const makePage = async (context: AnySourceMapConsumer | null) => {
-		const page = await browserReplacer.getBrowser().newPage(context);
+		const page = await browserReplacer
+			.getBrowser()
+			.newPage(context, logLevel, indent);
 		pagesArray.push(page);
 		await page.setViewport({
 			width: composition.width,
@@ -246,7 +260,7 @@ const innerRenderFrames = async ({
 			// eslint-disable-next-line max-params
 			pageFunction: (
 				id: string,
-				defaultProps: Record<string, unknown>,
+				props: Record<string, unknown>,
 				durationInFrames: number,
 				fps: number,
 				height: number,
@@ -255,7 +269,7 @@ const innerRenderFrames = async ({
 				window.remotion_setBundleMode({
 					type: 'composition',
 					compositionName: id,
-					compositionDefaultProps: defaultProps,
+					props,
 					compositionDurationInFrames: durationInFrames,
 					compositionFps: fps,
 					compositionHeight: height,
@@ -264,7 +278,7 @@ const innerRenderFrames = async ({
 			},
 			args: [
 				composition.id,
-				composition.defaultProps,
+				composition.props,
 				composition.durationInFrames,
 				composition.fps,
 				composition.height,
@@ -318,12 +332,14 @@ const innerRenderFrames = async ({
 		reject,
 		width,
 		height,
+		compId,
 	}: {
 		frame: number;
 		index: number;
 		reject: (err: Error) => void;
 		width: number;
 		height: number;
+		compId: string;
 	}) => {
 		const pool = await poolPromise;
 		const freePage = await pool.acquire();
@@ -344,7 +360,7 @@ const innerRenderFrames = async ({
 			frame,
 		});
 		freePage.on('error', errorCallbackOnFrame);
-		await seekToFrame({frame, page: freePage});
+		await seekToFrame({frame, page: freePage, composition: compId});
 
 		if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {
 			throw new Error(
@@ -425,6 +441,7 @@ const innerRenderFrames = async ({
 				reject,
 				width: composition.width,
 				height: composition.height,
+				compId: composition.id,
 			})
 				.then(() => {
 					resolve();
@@ -535,7 +552,6 @@ export const internalRenderFrames = ({
 	chromiumOptions,
 	composition,
 	concurrency,
-	dumpBrowserLogs,
 	envVariables,
 	everyNthFrame,
 	frameRange,
@@ -555,7 +571,7 @@ export const internalRenderFrames = ({
 	scale,
 	server,
 	timeoutInMilliseconds,
-	verbose,
+	logLevel,
 	webpackBundleOrServeUrl,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
@@ -573,8 +589,7 @@ export const internalRenderFrames = ({
 		'in the `config` object of `renderFrames()`',
 		false
 	);
-	Internals.validateDurationInFrames({
-		durationInFrames: composition.durationInFrames,
+	Internals.validateDurationInFrames(composition.durationInFrames, {
 		component: 'in the `config` object passed to `renderFrames()`',
 		allowFloats: false,
 	});
@@ -585,12 +600,12 @@ export const internalRenderFrames = ({
 	const makeBrowser = () =>
 		internalOpenBrowser({
 			browser: DEFAULT_BROWSER,
-			shouldDumpIo: dumpBrowserLogs,
 			browserExecutable,
 			chromiumOptions,
 			forceDeviceScaleFactor: scale,
 			indent,
 			viewport: null,
+			logLevel,
 		});
 
 	const browserInstance = puppeteerInstance ?? makeBrowser();
@@ -620,7 +635,7 @@ export const internalRenderFrames = ({
 						port,
 						remotionRoot: findRemotionRoot(),
 						concurrency: actualConcurrency,
-						verbose,
+						logLevel,
 						indent,
 					},
 					{
@@ -643,10 +658,19 @@ export const internalRenderFrames = ({
 					},
 					pInstance,
 				]) => {
-					const browserReplacer = handleBrowserCrash(pInstance);
+					const browserReplacer = handleBrowserCrash(
+						pInstance,
+						logLevel,
+						indent
+					);
 
 					cleanup.push(
-						cycleBrowserTabs(browserReplacer, actualConcurrency).stopCycling
+						cycleBrowserTabs(
+							browserReplacer,
+							actualConcurrency,
+							logLevel,
+							indent
+						).stopCycling
 					);
 					cleanup.push(() => cleanupServer(false));
 
@@ -678,6 +702,8 @@ export const internalRenderFrames = ({
 						outputDir,
 						scale,
 						timeoutInMilliseconds,
+						logLevel,
+						indent,
 					});
 				}
 			),
@@ -702,7 +728,7 @@ export const internalRenderFrames = ({
 				} else {
 					Promise.resolve(browserInstance)
 						.then((instance) => {
-							return instance.close(true);
+							return instance.close(true, logLevel, indent);
 						})
 						.catch((err) => {
 							if (
@@ -755,6 +781,7 @@ export const renderFrames = (
 		timeoutInMilliseconds,
 		verbose,
 		quality,
+		logLevel,
 	} = options;
 
 	if (!composition) {
@@ -781,7 +808,6 @@ export const renderFrames = (
 		chromiumOptions: chromiumOptions ?? {},
 		composition,
 		concurrency: concurrency ?? null,
-		dumpBrowserLogs: dumpBrowserLogs ?? false,
 		envVariables: envVariables ?? {},
 		everyNthFrame: everyNthFrame ?? 1,
 		frameRange: frameRange ?? null,
@@ -799,7 +825,8 @@ export const renderFrames = (
 		outputDir,
 		port: port ?? null,
 		scale: scale ?? 1,
-		verbose: verbose ?? false,
+		logLevel:
+			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,

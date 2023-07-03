@@ -46,6 +46,10 @@ import {
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
+import {
+	persistCurrentFrame,
+	useTimelineSetFrame,
+} from './timeline-position-state.js';
 import type {
 	SetTimelineContextValue,
 	TimelineContextValue,
@@ -136,7 +140,9 @@ export const Internals = {
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 	AssetManager,
 	bundleName: 'bundle.js',
-};
+	persistCurrentFrame,
+	useTimelineSetFrame,
+} as const;
 
 export type {
 	TComposition,

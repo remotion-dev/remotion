@@ -4,9 +4,9 @@ import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {LambdaPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
+import {deserializeInputProps} from '../shared/serialize-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -33,10 +33,6 @@ export const compositionsHandler = async (
 	}
 
 	const region = getCurrentRegionInFunction();
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		lambdaParams.logLevel,
-		'verbose'
-	);
 
 	const [bucketName, browserInstance] = await Promise.all([
 		lambdaParams.bucketName ??
@@ -44,7 +40,8 @@ export const compositionsHandler = async (
 				region,
 			}).then((b) => b.bucketName),
 		getBrowserInstance(
-			lambdaParams.dumpBrowserLogs ?? verbose,
+			lambdaParams.logLevel,
+			false,
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);
@@ -54,6 +51,7 @@ export const compositionsHandler = async (
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: lambdaParams.inputProps,
+		propsType: 'input-props',
 	});
 
 	const realServeUrl = convertToServeUrl({
@@ -71,7 +69,7 @@ export const compositionsHandler = async (
 		chromiumOptions: lambdaParams.chromiumOptions,
 		port: null,
 		server: undefined,
-		verbose,
+		logLevel: lambdaParams.logLevel,
 		indent: false,
 		browserExecutable: null,
 		onBrowserLog: null,

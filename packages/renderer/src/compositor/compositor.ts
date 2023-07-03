@@ -3,7 +3,7 @@ import {chmodSync} from 'node:fs';
 import os from 'node:os';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getActualConcurrency} from '../get-concurrency';
-import {getLogLevel, Log} from '../logger';
+import {Log} from '../logger';
 import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
 import {makeNonce} from './make-nonce';
@@ -12,6 +12,8 @@ import type {
 	CompositorCommandSerialized,
 	ErrorPayload,
 } from './payloads';
+import type {LogLevel} from '../log-level';
+import {isEqualOrBelowLogLevel} from '../log-level';
 
 export type Compositor = {
 	finishCommands: () => void;
@@ -34,14 +36,14 @@ export const getIdealMaximumFrameCacheItems = () => {
 	// Assuming only half the available memory should be used
 	const max = Math.floor(freeMemory / (1024 * 1024 * 6));
 
-	// Never store more than 1000 frames
-	// But 100 is needed even if it's going to swap
-	return Math.max(100, Math.min(max, 1000));
+	// Never store more than 2000 frames
+	// But 500 is needed even if it's going to swap
+	return Math.max(500, Math.min(max, 2000));
 };
 
 export const startLongRunningCompositor = (
 	maximumFrameCacheItems: number,
-	verbose: boolean,
+	logLevel: LogLevel,
 	indent: boolean
 ) => {
 	return startCompositor(
@@ -49,8 +51,9 @@ export const startLongRunningCompositor = (
 		{
 			concurrency: getActualConcurrency(null),
 			maximum_frame_cache_items: maximumFrameCacheItems,
-			verbose,
+			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
+		logLevel,
 		indent
 	);
 };
@@ -70,6 +73,7 @@ type RunningStatus =
 export const startCompositor = <T extends keyof CompositorCommand>(
 	type: T,
 	payload: CompositorCommand[T],
+	logLevel: LogLevel,
 	indent: boolean
 ): Compositor => {
 	const bin = getExecutablePath('compositor');
@@ -101,7 +105,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	) => {
 		if (nonce === '0') {
 			Log.verboseAdvanced(
-				{indent, logLevel: getLogLevel(), tag: 'compositor'},
+				{indent, logLevel, tag: 'compositor'},
 				data.toString('utf8')
 			);
 		}
@@ -316,7 +320,6 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 						params,
 					},
 				};
-				// TODO: Should have a way to error out a single task
 				child.stdin.write(JSON.stringify(composed) + '\n');
 				waiters.set(nonce, {
 					resolve: _resolve,

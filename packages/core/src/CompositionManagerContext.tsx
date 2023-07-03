@@ -1,22 +1,19 @@
 import {createContext} from 'react';
 import type {AnyZodObject} from 'zod';
-import type {
-	AnyCompMetadata,
-	AnyComposition,
-	TComposition,
-} from './CompositionManager.js';
+import type {AnyComposition, TComposition} from './CompositionManager.js';
 import type {TFolder} from './Folder.js';
+import type {VideoConfig} from './video-config.js';
 
 export type BaseMetadata = Pick<
-	AnyCompMetadata,
-	'durationInFrames' | 'fps' | 'defaultProps' | 'height' | 'width'
+	VideoConfig,
+	'durationInFrames' | 'fps' | 'props' | 'height' | 'width'
 >;
 
 export type CompositionManagerContext = {
 	compositions: AnyComposition[];
 	registerComposition: <
 		Schema extends AnyZodObject,
-		Props extends Record<string, unknown> | undefined
+		Props extends Record<string, unknown>
 	>(
 		comp: TComposition<Schema, Props>
 	) => void;

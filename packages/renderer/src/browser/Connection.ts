@@ -22,10 +22,11 @@ import {EventEmitter} from './EventEmitter';
 import type {NodeWebSocketTransport} from './NodeWebSocketTransport';
 
 interface ConnectionCallback {
-	resolve: Function;
+	resolve: (value: {value: any; size: number}) => void;
 	reject: Function;
 	error: ProtocolError;
 	method: string;
+	returnSize: boolean;
 }
 
 const ConnectionEmittedEvents = {
@@ -58,7 +59,7 @@ export class Connection extends EventEmitter {
 	send<T extends keyof Commands>(
 		method: T,
 		...paramArgs: Commands[T]['paramsType']
-	): Promise<Commands[T]['returnType']> {
+	): Promise<{value: Commands[T]['returnType']; size: number}> {
 		// There is only ever 1 param arg passed, but the Protocol defines it as an
 		// array of 0 or 1 items See this comment:
 		// https://github.com/ChromeDevTools/devtools-protocol/pull/113#issuecomment-412603285
@@ -67,14 +68,17 @@ export class Connection extends EventEmitter {
 		// So now we check if there are any params or not and deal with them accordingly.
 		const params = paramArgs.length ? paramArgs[0] : undefined;
 		const id = this._rawSend({method, params});
-		return new Promise((resolve, reject) => {
-			this.#callbacks.set(id, {
-				resolve,
-				reject,
-				error: new ProtocolError(),
-				method,
-			});
-		});
+		return new Promise<{value: Commands[T]['returnType']; size: number}>(
+			(resolve, reject) => {
+				this.#callbacks.set(id, {
+					resolve,
+					reject,
+					error: new ProtocolError(),
+					method,
+					returnSize: true,
+				});
+			}
+		);
 	}
 
 	_rawSend(message: Record<string, unknown>): number {
@@ -115,7 +119,7 @@ export class Connection extends EventEmitter {
 		if (object.sessionId) {
 			const session = this.#sessions.get(object.sessionId);
 			if (session) {
-				session._onMessage(object);
+				session._onMessage(object, message.length);
 			}
 		} else if (object.id) {
 			const callback = this.#callbacks.get(object.id);
@@ -126,6 +130,8 @@ export class Connection extends EventEmitter {
 					callback.reject(
 						createProtocolError(callback.error, callback.method, object)
 					);
+				} else if (callback.returnSize) {
+					callback.resolve({value: object.result, size: message.length});
 				} else {
 					callback.resolve(object.result);
 				}
@@ -170,7 +176,9 @@ export class Connection extends EventEmitter {
 	 * @returns The CDP session that is created
 	 */
 	async createSession(targetInfo: TargetInfo): Promise<CDPSession> {
-		const {sessionId} = await this.send('Target.attachToTarget', {
+		const {
+			value: {sessionId},
+		} = await this.send('Target.attachToTarget', {
 			targetId: targetInfo.targetId,
 			flatten: true,
 		});
@@ -215,7 +223,7 @@ export class CDPSession extends EventEmitter {
 	send<T extends keyof Commands>(
 		method: T,
 		...paramArgs: Commands[T]['paramsType']
-	): Promise<Commands[T]['returnType']> {
+	): Promise<{value: Commands[T]['returnType']; size: number}> {
 		if (!this.#connection) {
 			return Promise.reject(
 				new Error(
@@ -235,17 +243,20 @@ export class CDPSession extends EventEmitter {
 			params,
 		});
 
-		return new Promise((resolve, reject) => {
-			this.#callbacks.set(id, {
-				resolve,
-				reject,
-				error: new ProtocolError(),
-				method,
-			});
-		});
+		return new Promise<{value: Commands[T]['returnType']; size: number}>(
+			(resolve, reject) => {
+				this.#callbacks.set(id, {
+					resolve,
+					reject,
+					error: new ProtocolError(),
+					method,
+					returnSize: true,
+				});
+			}
+		);
 	}
 
-	_onMessage(object: CDPSessionOnMessageObject): void {
+	_onMessage(object: CDPSessionOnMessageObject, size: number): void {
 		const callback = object.id ? this.#callbacks.get(object.id) : undefined;
 		if (object.id && callback) {
 			this.#callbacks.delete(object.id);
@@ -253,6 +264,8 @@ export class CDPSession extends EventEmitter {
 				callback.reject(
 					createProtocolError(callback.error, callback.method, object)
 				);
+			} else if (callback.returnSize) {
+				callback.resolve({value: object.result, size});
 			} else {
 				callback.resolve(object.result);
 			}

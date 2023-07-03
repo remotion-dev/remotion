@@ -49,6 +49,7 @@ export const RenderSvg = ({
 			style={actualStyle}
 		>
 			<path
+				// eslint-disable-next-line react/no-unknown-property
 				transform-origin={transformOrigin}
 				d={path}
 				style={actualPathStyle}
@@ -81,7 +82,8 @@ export const RenderSvg = ({
 							const prevX = prevInstruction.x;
 							const prevY = prevInstruction.y;
 							return (
-								<>
+								// eslint-disable-next-line react/no-array-index-key
+								<React.Fragment key={index}>
 									<path
 										d={`M ${prevX} ${prevY} ${i.cp1x} ${i.cp1y}`}
 										strokeWidth={2}
@@ -108,7 +110,7 @@ export const RenderSvg = ({
 										fill="white"
 										stroke="black"
 									/>
-								</>
+								</React.Fragment>
 							);
 						}
 

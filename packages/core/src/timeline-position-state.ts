@@ -8,7 +8,7 @@ export type PlayableMediaTag = {
 };
 
 export type TimelineContextValue = {
-	frame: number;
+	frame: Record<string, number>;
 	playing: boolean;
 	rootId: string;
 	playbackRate: number;
@@ -18,12 +18,12 @@ export type TimelineContextValue = {
 };
 
 export type SetTimelineContextValue = {
-	setFrame: (u: React.SetStateAction<number>) => void;
+	setFrame: (u: React.SetStateAction<Record<string, number>>) => void;
 	setPlaying: (u: React.SetStateAction<boolean>) => void;
 };
 
 export const TimelineContext = createContext<TimelineContextValue>({
-	frame: 0,
+	frame: {},
 	playing: false,
 	playbackRate: 1,
 	rootId: '',
@@ -45,22 +45,43 @@ export const SetTimelineContext = createContext<SetTimelineContextValue>({
 	},
 });
 
+const makeKey = (composition: string) => {
+	return `remotion.time.${composition}`;
+};
+
+export const persistCurrentFrame = (frame: number, composition: string) => {
+	localStorage.setItem(makeKey(composition), String(frame));
+};
+
+export const getFrameForComposition = (composition: string) => {
+	const frame = localStorage.getItem(makeKey(composition));
+	return frame
+		? Number(frame)
+		: (typeof window === 'undefined' ? 0 : window.remotion_initialFrame ?? 0) ??
+				0;
+};
+
 export const useTimelinePosition = (): number => {
 	const videoConfig = useVideo();
 	const state = useContext(TimelineContext);
 
-	// A dynamically calculated duration using calculateMetadata()
-	// may lead to the frame being bigger than the duration.
-	// If we have the config, we clamp the frame to the duration.
 	if (!videoConfig) {
-		return state.frame;
+		return typeof window === 'undefined'
+			? 0
+			: window.remotion_initialFrame ?? 0;
 	}
 
-	return Math.min(videoConfig.durationInFrames - 1, state.frame);
+	const unclamped =
+		state.frame[videoConfig.id] ??
+		(typeof window !== 'undefined' && window.remotion_isPlayer
+			? 0
+			: getFrameForComposition(videoConfig.id));
+
+	return Math.min(videoConfig.durationInFrames - 1, unclamped);
 };
 
 export const useTimelineSetFrame = (): ((
-	u: React.SetStateAction<number>
+	u: React.SetStateAction<Record<string, number>>
 ) => void) => {
 	const {setFrame} = useContext(SetTimelineContext);
 	return setFrame;

@@ -148,7 +148,9 @@ export class FrameManager extends EventEmitter {
 					  }),
 			]);
 
-			const {frameTree} = result[1];
+			const {
+				value: {frameTree},
+			} = result[1];
 			this.#handleFrameTree(client, frameTree);
 			await Promise.all([
 				client.send('Page.setLifecycleEventsEnabled', {enabled: true}),
@@ -215,7 +217,7 @@ export class FrameManager extends EventEmitter {
 			frameId: string
 		): Promise<Error | null> {
 			try {
-				const response = await client.send('Page.navigate', {
+				const {value: response} = await client.send('Page.navigate', {
 					url: _url,
 					referrer,
 					frameId,
