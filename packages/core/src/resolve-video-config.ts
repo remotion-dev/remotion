@@ -6,6 +6,7 @@ import {getRemotionEnvironment} from './get-environment.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import type {VideoConfig} from './video-config.js';
+import {validateFps} from './validation/validate-fps.js';
 
 export const resolveVideoConfig = ({
 	composition,
@@ -14,7 +15,7 @@ export const resolveVideoConfig = ({
 }: {
 	composition: TCompMetadataWithCalcFunction<
 		AnyZodObject,
-		Record<string, unknown> | undefined
+		Record<string, unknown>
 	>;
 	editorProps: object;
 	signal: AbortSignal;
@@ -51,7 +52,8 @@ export const resolveVideoConfig = ({
 				fps,
 				durationInFrames,
 				id: composition.id,
-				defaultProps: c.props ?? composition.defaultProps ?? {},
+				defaultProps: composition.defaultProps ?? {},
+				props: c.props ?? composition.defaultProps ?? {},
 			};
 		});
 	}
@@ -64,14 +66,16 @@ export const resolveVideoConfig = ({
 		return {
 			...data,
 			id: composition.id,
-			defaultProps: composition?.defaultProps ?? {},
+			defaultProps: composition.defaultProps ?? {},
+			props: composition.defaultProps ?? {},
 		};
 	}
 
 	return {
 		...data,
 		id: composition.id,
-		defaultProps: calculatedProm?.props ?? composition.defaultProps ?? {},
+		defaultProps: composition.defaultProps ?? {},
+		props: calculatedProm.props ?? composition.defaultProps ?? {},
 	};
 };
 
@@ -81,51 +85,43 @@ const validateCalculated = ({
 }: {
 	composition: TCompMetadataWithCalcFunction<
 		AnyZodObject,
-		Record<string, unknown> | undefined
+		Record<string, unknown>
 	>;
-	calculated: CalcMetadataReturnType<
-		Record<string, unknown> | undefined
-	> | null;
+	calculated: CalcMetadataReturnType<Record<string, unknown>> | null;
 }) => {
-	const potentialErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
+	const calculateMetadataErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
+	const defaultErrorLocation = `of the "<Composition />" component with the id "${composition.id}"`;
 
-	const width = calculated?.width ?? composition.width ?? null;
-	if (!width) {
-		throw new TypeError(
-			'Composition width was neither specified via the `width` prop nor the `calculateMetadata()` function.'
-		);
-	}
+	const width = calculated?.width ?? composition.width ?? undefined;
 
-	validateDimension(width, 'width', potentialErrorLocation);
+	validateDimension(
+		width,
+		'width',
+		calculated?.width ? calculateMetadataErrorLocation : defaultErrorLocation
+	);
 
-	const height = calculated?.height ?? composition.height ?? null;
-	if (!height) {
-		throw new TypeError(
-			'Composition height was neither specified via the `height` prop nor the `calculateMetadata()` function.'
-		);
-	}
+	const height = calculated?.height ?? composition.height ?? undefined;
 
-	validateDimension(width, 'height', potentialErrorLocation);
+	validateDimension(
+		height,
+		'height',
+		calculated?.height ? calculateMetadataErrorLocation : defaultErrorLocation
+	);
 
 	const fps = calculated?.fps ?? composition.fps ?? null;
-	if (!fps) {
-		throw new TypeError(
-			'Composition fps was neither specified via the `fps` prop nor the `calculateMetadata()` function.'
-		);
-	}
+
+	validateFps(
+		fps,
+		calculated?.fps ? calculateMetadataErrorLocation : defaultErrorLocation,
+		false
+	);
 
 	const durationInFrames =
 		calculated?.durationInFrames ?? composition.durationInFrames ?? null;
-	if (!durationInFrames) {
-		throw new TypeError(
-			'Composition durationInFrames was neither specified via the `durationInFrames` prop nor the `calculateMetadata()` function.'
-		);
-	}
 
-	validateDurationInFrames({
-		durationInFrames,
-		component: potentialErrorLocation,
+	validateDurationInFrames(durationInFrames, {
 		allowFloats: false,
+		component: `of the "<Composition />" component with the id "${composition.id}"`,
 	});
 
 	return {width, height, fps, durationInFrames};

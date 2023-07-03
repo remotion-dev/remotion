@@ -13,7 +13,6 @@ import {
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -26,6 +25,7 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
+import {deserializeInputProps} from '../shared/serialize-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -52,10 +52,28 @@ const renderHandler = async (
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: params.inputProps,
+		propsType: 'input-props',
+	});
+
+	const resolvedPropsPromise = deserializeInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.resolvedProps,
+		propsType: 'resolved-props',
+	});
+
+	const defaultPropsPromise = deserializeInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.defaultProps,
+		propsType: 'default-props',
 	});
 
 	const browserInstance = await getBrowserInstance(
-		RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+		params.logLevel,
+		false,
 		params.chromiumOptions ?? {}
 	);
 
@@ -101,6 +119,9 @@ const renderHandler = async (
 	const downloads: Record<string, number> = {};
 
 	const inputProps = await inputPropsPromise;
+	const resolvedProps = await resolvedPropsPromise;
+	const defaultProps = await defaultPropsPromise;
+
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
 			composition: {
@@ -109,6 +130,8 @@ const renderHandler = async (
 				fps: params.fps,
 				height: params.height,
 				width: params.width,
+				props: resolvedProps,
+				defaultProps,
 			},
 			imageFormat: params.imageFormat,
 			inputProps,
@@ -157,13 +180,7 @@ const renderHandler = async (
 			serveUrl: params.serveUrl,
 			jpegQuality: params.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 			envVariables: params.envVariables ?? {},
-			dumpBrowserLogs:
-				params.dumpBrowserLogs ??
-				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
-			verbose: RenderInternals.isEqualOrBelowLogLevel(
-				params.logLevel,
-				'verbose'
-			),
+			logLevel: params.logLevel,
 			onBrowserLog: (log) => {
 				logs.push(log);
 			},
@@ -227,10 +244,9 @@ const renderHandler = async (
 			server: undefined,
 		})
 			.then(({slowestFrames}) => {
-				console.log();
 				console.log(`Slowest frames:`);
 				slowestFrames.forEach(({frame, time}) => {
-					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
+					console.log(`  Frame ${frame} (${time.toFixed(3)}ms)`);
 				});
 				resolve();
 			})

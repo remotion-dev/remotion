@@ -64,6 +64,14 @@ test('Should be able to set duration for spring when in reverse', () => {
 			reverse: true,
 		})
 	).toBeCloseTo(0);
+	expect(
+		spring({
+			fps: 30,
+			frame: 0,
+			durationInFrames: 5,
+			reverse: true,
+		})
+	).toBeCloseTo(1);
 });
 
 test('Should be able to set duration for spring when in reverse', () => {
@@ -163,4 +171,32 @@ test('Should apply delay in the right order', () => {
 			durationInFrames: 10,
 		})
 	);
+});
+
+test('weird case', () => {
+	const val = spring({
+		fps: 30,
+		frame: 12 * 30,
+		config: {
+			damping: 200,
+		},
+		delay: 12 * 30,
+		durationInFrames: 60,
+		reverse: true,
+	});
+
+	expect(val).toBeCloseTo(1);
+
+	const val2 = spring({
+		fps: 30,
+		frame: 12 * 30 + 60,
+		config: {
+			damping: 200,
+		},
+		delay: 12 * 30,
+		durationInFrames: 60,
+		reverse: true,
+	});
+
+	expect(val2).toBeCloseTo(0);
 });

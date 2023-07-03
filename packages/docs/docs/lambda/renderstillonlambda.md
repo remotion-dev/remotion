@@ -204,13 +204,11 @@ _optional_
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
 
-If the `logLevel` is set to `verbose`, the `dumpBrowserLogs` flag will also be enabled.
+### ~~`dumpBrowserLogs?`~~
 
-### `dumpBrowserLogs?`
+_optional - default `false`, deprecated in v4.0_
 
-_optional, available since v3.3.83_
-
-If set to true, all `console` statements from the headless browser will be forwarded to the CloudWatch logs.
+Deprecated in favor of [`logLevel`](#loglevel).
 
 ## Return value
 

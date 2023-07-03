@@ -68,6 +68,7 @@ export const webpackConfig = ({
 	remotionRoot: string;
 	poll: number | null;
 }): [string, WebpackConfiguration] => {
+	let lastProgress = 0;
 	const conf: WebpackConfiguration = webpackOverride({
 		optimization: {
 			minimize: false,
@@ -116,7 +117,10 @@ export const webpackConfig = ({
 				: [
 						new ProgressPlugin((p) => {
 							if (onProgress) {
-								onProgress(Number((p * 100).toFixed(2)));
+								if (p === 1 || p - lastProgress > 0.05) {
+									lastProgress = p;
+									onProgress(Number((p * 100).toFixed(2)));
+								}
 							}
 						}),
 						new AllowOptionalDependenciesPlugin(),

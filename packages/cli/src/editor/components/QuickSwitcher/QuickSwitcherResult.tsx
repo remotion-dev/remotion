@@ -152,18 +152,18 @@ export const QuickSwitcherResult: React.FC<{
 				{result.type === 'search-result' ? (
 					<>
 						<div
-							style={labelStyle}
 							// eslint-disable-next-line react/no-danger
 							dangerouslySetInnerHTML={{
 								__html: result.titleLine,
 							}}
+							style={labelStyle}
 						/>
 						<div
-							style={labelStyle}
 							// eslint-disable-next-line react/no-danger
 							dangerouslySetInnerHTML={{
 								__html: result.subtitleLine,
 							}}
+							style={labelStyle}
 						/>
 					</>
 				) : (

@@ -6,7 +6,7 @@ sidebar_label: Bucket naming
 crumb: "@remotion/lambda"
 ---
 
-A Remotion Lambda bucket names (for example `remotionlambda-apsouth1-3ysk0nyazp`) has two special attributes:
+A Remotion Lambda bucket name (for example `remotionlambda-apsouth1-3ysk0nyazp`) has two special attributes:
 
 <Step>1</Step> It is prefixed with <code>remotionlambda-</code><br/>
 <Step>2</Step> It contains the region in their name <br/><br/>
@@ -16,7 +16,7 @@ It is not recommended to use a custom bucket name because it requires changing y
 ## Using a different bucket name
 
 :::note
-By using a custom bucket name, . Ensure you are passing the bucket name explicitly to all APIs, especially to those for which the bucket name is optional. Also ensure that you the Lambda and S3 buckets ar
+By using a custom bucket name, you are opting out of Remotion's intuitive defaults. Ensure you are passing the bucket name explicitly to all APIs, especially to those for which the bucket name is optional. Also ensure that you the Lambda and S3 buckets are accessible with the role permission that you use.
 :::
 
 To use a custom bucket name, you need to:

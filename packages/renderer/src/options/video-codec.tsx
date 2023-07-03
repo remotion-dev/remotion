@@ -5,7 +5,7 @@ export const videoCodecOption: RemotionOption = {
 	cliFlag: '--codec',
 	description: (
 		<>
-			H264 works well in most cases, sometimes it&apos;s worth going for a
+			H264 works well in most cases, but sometimes it&apos;s worth going for a
 			different codec. WebM achieves higher compression but is slower to render.
 			WebM and ProRes support transparency.
 		</>

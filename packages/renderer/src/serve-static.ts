@@ -6,6 +6,7 @@ import {getDesiredPort} from './get-port';
 import type {OffthreadVideoServerEmitter} from './offthread-video-server';
 import {startOffthreadVideoServer} from './offthread-video-server';
 import {serveHandler} from './serve-handler';
+import type {LogLevel} from './log-level';
 
 export const serveStatic = async (
 	path: string | null,
@@ -14,7 +15,7 @@ export const serveStatic = async (
 		downloadMap: DownloadMap;
 		remotionRoot: string;
 		concurrency: number;
-		verbose: boolean;
+		logLevel: LogLevel;
 		indent: boolean;
 	}
 ): Promise<{
@@ -31,7 +32,7 @@ export const serveStatic = async (
 	} = startOffthreadVideoServer({
 		downloadMap: options.downloadMap,
 		concurrency: options.concurrency,
-		verbose: options.verbose,
+		logLevel: options.logLevel,
 		indent: options.indent,
 	});
 

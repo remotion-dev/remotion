@@ -12,7 +12,7 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor(
 			getIdealMaximumFrameCacheItems(),
-			false,
+			'info',
 			false
 		);
 
@@ -43,7 +43,7 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor(
 			getIdealMaximumFrameCacheItems(),
-			false,
+			'info',
 			false
 		);
 
@@ -76,13 +76,13 @@ test(
 test('Should be able to start two compositors', async () => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
-		false,
+		'info',
 		false
 	);
 
 	const compositor2 = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
-		false,
+		'info',
 		false
 	);
 
@@ -101,7 +101,7 @@ test('Should be able to start two compositors', async () => {
 test('Should be able to seek backwards', async () => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
-		false,
+		'info',
 		false
 	);
 
@@ -127,7 +127,7 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor(
 			getIdealMaximumFrameCacheItems(),
-			false,
+			'info',
 			false
 		);
 
@@ -149,7 +149,7 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor(
 			getIdealMaximumFrameCacheItems(),
-			false,
+			'info',
 			false
 		);
 
@@ -180,7 +180,7 @@ test(
 	async () => {
 		const compositor = startLongRunningCompositor(
 			getIdealMaximumFrameCacheItems(),
-			false,
+			'info',
 			false
 		);
 
@@ -205,7 +205,7 @@ test(
 test('Should be able to extract a frame with abnormal DAR', async () => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
-		false,
+		'info',
 		false
 	);
 
@@ -230,7 +230,7 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 test('Should be able to extract the frames in reverse order', async () => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
-		false,
+		'info',
 		false
 	);
 
@@ -273,7 +273,7 @@ test('Should be able to extract the frames in reverse order', async () => {
 test('Last frame should be fast', async () => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
-		false,
+		'info',
 		false
 	);
 
@@ -328,8 +328,84 @@ test('Last frame should be fast', async () => {
 	await compositor.waitForDone();
 });
 
+test('Should get from a screen recording', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.screenrecording,
+		time: 0.5,
+		transparent: false,
+	});
+
+	expect(data.length).toBe(15230038);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
+test('Should get from video with no fps', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.nofps,
+		time: 0.5,
+		transparent: false,
+	});
+
+	expect(data.length).toBe(3044334);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
+test('Should get from broken webcam video', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.webcam,
+		time: 0,
+		transparent: false,
+	});
+
+	expect(data.length).toBe(921654);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
+test('Should get from iPhone video', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.iphonevideo,
+		time: 3,
+		transparent: false,
+	});
+
+	expect(data.length).toBe(24883254);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
 test('Two different starting times should not result in big seeking', async () => {
-	const compositor = startLongRunningCompositor(300, false, false);
+	const compositor = startLongRunningCompositor(300, 'info', false);
 
 	const expected = [];
 

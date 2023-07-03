@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import type {LogLevel} from '../log-level';
 import type {BrowserConnectOptions} from './BrowserConnector';
 import type {Product} from './Product';
 
@@ -29,6 +30,7 @@ export interface LaunchOptions {
 	executablePath?: string;
 	timeout?: number;
 	dumpio?: boolean;
+	logLevel: LogLevel;
 	env?: Record<string, string | undefined>;
 	product?: Product;
 	indent: boolean;

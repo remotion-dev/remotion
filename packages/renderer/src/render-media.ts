@@ -2,7 +2,7 @@ import type {ExecaChildProcess} from 'execa';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import type {AnySmallCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {AudioCodec} from './audio-codec';
@@ -32,7 +32,7 @@ import {
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import {Log} from './logger';
+import {Log, getLogLevel} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -59,6 +59,7 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
+import {type LogLevel} from './log-level';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -78,7 +79,7 @@ export type RenderMediaOnProgress = (progress: {
 export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
 	codec: Codec;
-	composition: AnySmallCompMetadata;
+	composition: VideoConfig;
 	inputProps: Record<string, unknown>;
 	crf: number | null;
 	imageFormat: VideoImageFormat;
@@ -93,7 +94,6 @@ export type InternalRenderMediaOptions = {
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
 	proResProfile: ProResProfile | undefined;
-	dumpBrowserLogs: boolean;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	timeoutInMilliseconds: number;
@@ -102,7 +102,7 @@ export type InternalRenderMediaOptions = {
 	port: number | null;
 	cancelSignal: CancelSignal | undefined;
 	browserExecutable: BrowserExecutable | null;
-	verbose: boolean;
+	logLevel: LogLevel;
 	onCtrlCExit: (fn: () => void) => void;
 	indent: boolean;
 	server: RemotionServer | undefined;
@@ -121,7 +121,7 @@ export type InternalRenderMediaOptions = {
 export type RenderMediaOptions = {
 	outputLocation?: string | null;
 	codec: Codec;
-	composition: AnySmallCompMetadata;
+	composition: VideoConfig;
 	inputProps?: Record<string, unknown>;
 	crf?: number | null;
 	imageFormat?: VideoImageFormat;
@@ -140,6 +140,9 @@ export type RenderMediaOptions = {
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
+	/**
+	 * @deprecated Use "logLevel": "verbose" instead
+	 */
 	dumpBrowserLogs?: boolean;
 	onBrowserLog?: ((log: BrowserLog) => void) | undefined;
 	onStart?: (data: OnStartData) => void;
@@ -149,6 +152,9 @@ export type RenderMediaOptions = {
 	port?: number | null;
 	cancelSignal?: CancelSignal;
 	browserExecutable?: BrowserExecutable;
+	/**
+	 * @deprecated Use "logLevel" instead
+	 */
 	verbose?: boolean;
 	preferLossless?: boolean;
 	muted?: boolean;
@@ -160,6 +166,7 @@ export type RenderMediaOptions = {
 	audioCodec?: AudioCodec | null;
 	serveUrl: string;
 	concurrency?: number | string | null;
+	logLevel?: LogLevel;
 };
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -183,7 +190,6 @@ export const internalRenderMedia = ({
 	onProgress,
 	overwrite,
 	onDownload,
-	dumpBrowserLogs,
 	onBrowserLog,
 	onStart,
 	timeoutInMilliseconds,
@@ -209,7 +215,7 @@ export const internalRenderMedia = ({
 	preferLossless,
 	serveUrl,
 	server: reusedServer,
-	verbose,
+	logLevel,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	validateJpegQuality(jpegQuality);
 	validateQualitySettings({crf, codec, videoBitrate});
@@ -265,7 +271,7 @@ export const internalRenderMedia = ({
 	Log.verboseAdvanced(
 		{
 			indent,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'renderMedia()',
 		},
 		'Free memory:',
@@ -276,7 +282,7 @@ export const internalRenderMedia = ({
 	Log.verboseAdvanced(
 		{
 			indent,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'renderMedia()',
 		},
 		'Codec supports parallel rendering:',
@@ -285,7 +291,7 @@ export const internalRenderMedia = ({
 	Log.verboseAdvanced(
 		{
 			indent,
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 			tag: 'renderMedia()',
 		},
 		'User disallowed parallel encoding:',
@@ -295,7 +301,7 @@ export const internalRenderMedia = ({
 		Log.verboseAdvanced(
 			{
 				indent,
-				logLevel: verbose ? 'verbose' : 'info',
+				logLevel,
 				tag: 'renderMedia()',
 			},
 			'Parallel encoding is enabled.'
@@ -304,7 +310,7 @@ export const internalRenderMedia = ({
 		Log.verboseAdvanced(
 			{
 				indent,
-				logLevel: verbose ? 'verbose' : 'info',
+				logLevel,
 				tag: 'renderMedia()',
 			},
 			'Parallel encoding is disabled.'
@@ -392,7 +398,7 @@ export const internalRenderMedia = ({
 					encodedFrames = frame;
 					callUpdate();
 				},
-				verbose,
+				logLevel,
 				imageFormat,
 				signal: cancelPrestitcher.cancelSignal,
 				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
@@ -461,7 +467,7 @@ export const internalRenderMedia = ({
 						indent,
 						port,
 						remotionRoot: findRemotionRoot(),
-						verbose,
+						logLevel,
 						webpackConfigOrServeUrl: serveUrl,
 					},
 					{
@@ -527,7 +533,6 @@ export const internalRenderMedia = ({
 						  }
 						: null,
 					webpackBundleOrServeUrl: serveUrl,
-					dumpBrowserLogs,
 					onBrowserLog,
 					onDownload,
 					timeoutInMilliseconds,
@@ -537,7 +542,7 @@ export const internalRenderMedia = ({
 					port,
 					cancelSignal: cancelRenderFrames.cancelSignal,
 					muted: disableAudio,
-					verbose,
+					logLevel,
 					indent,
 					server,
 				});
@@ -581,7 +586,7 @@ export const internalRenderMedia = ({
 						},
 						onDownload,
 						numberOfGifLoops,
-						verbose,
+						logLevel,
 						dir: workingDir,
 						cancelSignal: cancelStitcher.cancelSignal,
 						muted: disableAudio,
@@ -675,7 +680,6 @@ export const renderMedia = ({
 	onProgress,
 	overwrite,
 	onDownload,
-	dumpBrowserLogs,
 	onBrowserLog,
 	onStart,
 	timeoutInMilliseconds,
@@ -697,9 +701,11 @@ export const renderMedia = ({
 	everyNthFrame,
 	imageFormat,
 	numberOfGifLoops,
+	dumpBrowserLogs,
 	preferLossless,
 	verbose,
 	quality,
+	logLevel,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -720,7 +726,6 @@ export const renderMedia = ({
 		concurrency: concurrency ?? null,
 		crf: crf ?? null,
 		disallowParallelEncoding: disallowParallelEncoding ?? false,
-		dumpBrowserLogs: dumpBrowserLogs ?? false,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		envVariables: envVariables ?? {},
 		everyNthFrame: everyNthFrame ?? 1,
@@ -743,7 +748,8 @@ export const renderMedia = ({
 		scale: scale ?? 1,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		videoBitrate: videoBitrate ?? null,
-		verbose: verbose ?? false,
+		logLevel:
+			verbose || dumpBrowserLogs ? 'verbose' : logLevel ?? getLogLevel(),
 		preferLossless: preferLossless ?? false,
 		indent: false,
 		onCtrlCExit: () => undefined,

@@ -1,4 +1,4 @@
-import type {AnyCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -15,6 +15,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {type LogLevel} from './log-level';
 
 type InternalSelectCompositionsConfig = {
 	inputProps: Record<string, unknown>;
@@ -27,7 +28,7 @@ type InternalSelectCompositionsConfig = {
 	port: number | null;
 	indent: boolean;
 	server: RemotionServer | undefined;
-	verbose: boolean;
+	logLevel: LogLevel;
 	serveUrl: string;
 	id: string;
 };
@@ -66,8 +67,8 @@ const innerSelectComposition = async ({
 	port,
 	id,
 	indent,
-	verbose,
-}: InnerSelectCompositionConfig): Promise<AnyCompMetadata> => {
+	logLevel,
+}: InnerSelectCompositionConfig): Promise<InternalReturnType> => {
 	if (onBrowserLog) {
 		page.on('console', (log) => {
 			onBrowserLog({
@@ -110,12 +111,12 @@ const innerSelectComposition = async ({
 		{
 			indent,
 			tag: 'selectComposition()',
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 		},
 		'Running calculateMetadata()...'
 	);
 	const time = Date.now();
-	const result = await puppeteerEvaluateWithCatch({
+	const {value: result, size} = await puppeteerEvaluateWithCatch({
 		pageFunction: (_id: string) => {
 			return window.remotion_calculateComposition(_id);
 		},
@@ -127,24 +128,26 @@ const innerSelectComposition = async ({
 		{
 			indent,
 			tag: 'selectComposition()',
-			logLevel: verbose ? 'verbose' : 'info',
+			logLevel,
 		},
 		`calculateMetadata() took ${Date.now() - time}ms`
 	);
 
-	return result as AnyCompMetadata;
+	return {metadata: result as VideoConfig, propsSize: size};
 };
+
+type InternalReturnType = {metadata: VideoConfig; propsSize: number};
 
 export const internalSelectComposition = async (
 	options: InternalSelectCompositionsConfig
-): Promise<AnyCompMetadata> => {
+): Promise<InternalReturnType> => {
 	const cleanup: CleanupFn[] = [];
 	const {
 		puppeteerInstance,
 		browserExecutable,
 		chromiumOptions,
 		serveUrl: serveUrlOrWebpackUrl,
-		verbose,
+		logLevel,
 		indent,
 		port,
 		envVariables,
@@ -162,11 +165,11 @@ export const internalSelectComposition = async (
 		context: null,
 		forceDeviceScaleFactor: undefined,
 		indent,
-		shouldDumpIo: verbose,
+		logLevel,
 	});
 	cleanup.push(() => cleanupPage());
 
-	return new Promise<AnyCompMetadata>((resolve, reject) => {
+	return new Promise<InternalReturnType>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 
 		cleanup.push(
@@ -184,7 +187,7 @@ export const internalSelectComposition = async (
 				port,
 				remotionRoot: findRemotionRoot(),
 				concurrency: 1,
-				verbose,
+				logLevel,
 				indent,
 			},
 			{
@@ -207,15 +210,15 @@ export const internalSelectComposition = async (
 					inputProps,
 					onBrowserLog,
 					timeoutInMilliseconds,
-					verbose,
+					logLevel,
 					indent,
 					puppeteerInstance,
 					server,
 				});
 			})
 
-			.then((comp) => {
-				return resolve(comp);
+			.then((data) => {
+				return resolve(data);
 			})
 			.catch((err) => {
 				reject(err);
@@ -232,9 +235,9 @@ export const internalSelectComposition = async (
  * @description Gets a composition defined in a Remotion project based on a Webpack bundle.
  * @see [Documentation](https://www.remotion.dev/docs/renderer/select-composition)
  */
-export const selectComposition = (
+export const selectComposition = async (
 	options: SelectCompositionOptions
-): Promise<AnyCompMetadata> => {
+): Promise<VideoConfig> => {
 	const {
 		id,
 		serveUrl,
@@ -248,7 +251,7 @@ export const selectComposition = (
 		timeoutInMilliseconds,
 		verbose,
 	} = options;
-	return internalSelectComposition({
+	const data = await internalSelectComposition({
 		id,
 		serveUrl,
 		browserExecutable: browserExecutable ?? null,
@@ -259,8 +262,9 @@ export const selectComposition = (
 		port: port ?? null,
 		puppeteerInstance,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		verbose: verbose ?? false,
+		logLevel: verbose ? 'verbose' : 'info',
 		indent: false,
 		server: undefined,
 	});
+	return data.metadata;
 };

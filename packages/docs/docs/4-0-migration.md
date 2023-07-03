@@ -9,7 +9,7 @@ When upgrading from Remotion 3 to Remotion 4, note the following changes and app
 
 ## How to upgrade
 
-See the [changelog](https://remotion.dev/docs/changelog) to find the latest version.
+See the [changelog](https://remotion.dev/changelog) to find the latest version.
 Upgrade `remotion` and all packages starting with `@remotion` to the latest version, e.g. `4.0.0`:
 
 ```diff
@@ -28,6 +28,14 @@ Upgrade `remotion` and all packages starting with `@remotion` to the latest vers
 ```
 
 Run `npm i `, `yarn` or `pnpm i` respectively afterwards.
+
+## System requirements
+
+The minimum Node version is now 16.0.0.
+
+Only the following platforms are supported: Windows (x64 only), macOS, Linux.
+
+Linux distros with glibc need to have at least version 2.34. [See here](https://github.com/remotion-dev/remotion/issues/2439) for more information.
 
 ## Config file changes
 
@@ -65,6 +73,12 @@ Previously, the `imageFormat` option would be used for both stills and videos. W
 - The Node.JS API name is still `imageFormat`.
 - The TypeScript type `ImageFormat` has been separated into `StillImageFormat` and `VideoImageFormat`.
 - `StillImageFormat` now also supports `webp` and `pdf`!
+
+## Streamlined logging
+
+For [`getCompositions()`](/docs/renderer/render-media), [`renderMedia()`](/docs/renderer/render-media), [`renderStill()`](/docs/renderer/render-still), [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda), [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) and [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda):
+
+[`verbose`](/docs/renderer/render-media#verbose) and [`dumpBrowserLogs`](/docs/renderer/render-media#dumpbrowserlogs) have been deprecated in favor of [`"logLevel": "verbose"`](/docs/renderer/render-media#loglevel). This makes the options equivalent to the CLI options.
 
 ## Dropped support for Lambda `architecture`
 
@@ -329,12 +343,14 @@ If you register a composition with a component that requires some props, you now
 - **@remotion/renderer**: Removed [`ensureFfmpeg()`](/docs/renderer/ensure-ffmpeg) and [`ensureFfprobe()`](/docs/renderer/ensure-ffprobe)
 - **@remotion/renderer**: [`<OffthreadVideo>`](/docs/offthreadvideo) now uses a Rust-based frame extractor
 - **@remotion/renderer**: Noisy Chrome messages are filtered out.
-- **@remotion/renderer**: `console.log` statements in your React app now get printed in a tidy format and contain location.
+- **@remotion/renderer**: `console.log` statements in your React app now get printed in a tidy format, contain location, use colors and object previews are printed out.
 - **@remotion/zod-types**: [New package](/docs/zod-types)!
 - Only the following platforms are supported by Remotion now: macOS (x64 and arm64), Windows (x64), Linux (x64 and ARM, GNU Libc and MUSL)
 - All packages: The minimum Node version is now 16.0.0
 - All packages: ESLint has been upgraded to `8.42.0`
 - All packages: TypeScript ESLint has been upgraded to `5.59.9`
+- All packages: ESBuild has been updated to `0.18.6`
 - For contributors: Updated `pnpm` to `8.5.1`
+- For contributors: Doc snippets failing typechecks now show the failing code in CI
 - [New Google TTS template!](/templates/google-tts)
 - [Recommended Docker file](/docs/docker) does not install `ffmpeg` anymore

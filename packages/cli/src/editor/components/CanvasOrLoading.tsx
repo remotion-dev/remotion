@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {ErrorLoader} from '../../preview-server/error-overlay/remotion-overlay/ErrorLoader';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
@@ -6,6 +6,11 @@ import {Canvas} from './Canvas';
 import {Spacing} from './layout';
 import {inlineCodeSnippet} from './Menu/styles';
 import {Spinner} from './Spinner';
+import {FramePersistor} from './FramePersistor';
+import {ZoomPersistor} from './ZoomPersistor';
+import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
+import {TimelineZoomCtx} from '../state/timeline-zoom';
+import {getCurrentFrame} from './Timeline/imperative-state';
 
 const container: React.CSSProperties = {
 	color: 'white',
@@ -20,6 +25,7 @@ const container: React.CSSProperties = {
 export const CanvasOrLoading: React.FC = () => {
 	const resolved = Internals.useResolvedVideoConfig(null);
 	const [takesALongTime, setTakesALongTime] = useState(false);
+	const {setZoom} = useContext(TimelineZoomCtx);
 
 	useEffect(() => {
 		const timeout = setTimeout(() => {
@@ -29,6 +35,22 @@ export const CanvasOrLoading: React.FC = () => {
 			clearTimeout(timeout);
 		};
 	}, []);
+
+	useEffect(() => {
+		if (resolved?.type !== 'success') {
+			return;
+		}
+
+		const c = resolved.result;
+
+		setTimeout(() => {
+			ensureFrameIsInViewport({
+				direction: 'center',
+				frame: getCurrentFrame(),
+				durationInFrames: c.durationInFrames,
+			});
+		});
+	}, [resolved, setZoom]);
 
 	const style = useMemo(() => {
 		return {
@@ -58,7 +80,13 @@ export const CanvasOrLoading: React.FC = () => {
 		return <ErrorLoading error={resolved.error} />;
 	}
 
-	return <Canvas />;
+	return (
+		<>
+			<FramePersistor />
+			<ZoomPersistor />
+			<Canvas />
+		</>
+	);
 };
 
 const loaderLabel: React.CSSProperties = {

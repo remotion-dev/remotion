@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import type {LogLevel} from '../log-level';
 import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import type {BrowserContext, HeadlessBrowser} from './Browser';
 import {Page} from './BrowserPage';
@@ -93,7 +94,9 @@ export class Target {
 	 * If the target is not of type `"page"` or `"background_page"`, returns `null`.
 	 */
 	async page(
-		sourcemapContext: AnySourceMapConsumer | null
+		sourcemapContext: AnySourceMapConsumer | null,
+		logLevel: LogLevel,
+		indent: boolean
 	): Promise<Page | null> {
 		if (isPagetTarget(this.#targetInfo) && !this.#pagePromise) {
 			this.#pagePromise = this.#sessionFactory().then((client) => {
@@ -103,6 +106,8 @@ export class Target {
 					defaultViewport: this.#defaultViewport ?? null,
 					browser: this.browser(),
 					sourcemapContext,
+					logLevel,
+					indent,
 				});
 			});
 		}

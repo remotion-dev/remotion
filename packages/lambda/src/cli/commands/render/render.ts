@@ -81,7 +81,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			indent: false,
 			port,
 			remotionRoot,
-			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
 		});
 
@@ -99,7 +99,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
 				timeoutInMilliseconds: puppeteerTimeout,
-				verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+				logLevel,
 				width,
 				server: await server,
 			});

@@ -10,7 +10,7 @@ pub fn get_frame_cache_id() -> usize {
 }
 
 pub struct FrameCacheItem {
-    pub resolved_dts: i64,
+    pub resolved_pts: i64,
     pub asked_time: i64,
     pub frame: ScalableFrame,
     pub id: usize,
@@ -33,7 +33,7 @@ pub struct FrameCacheReference {
 #[derive(Clone, Copy)]
 struct LastFrameFoundSoFar {
     pub id: usize,
-    pub dts: i64,
+    pub pts: i64,
 }
 
 impl FrameCache {
@@ -81,17 +81,17 @@ impl FrameCache {
         for i in 0..self.items.len() {
             match last_frame_found {
                 Some(exists) => {
-                    if self.items[i].resolved_dts > exists.dts {
+                    if self.items[i].resolved_pts > exists.pts {
                         last_frame_found = Some(LastFrameFoundSoFar {
                             id: self.items[i].id,
-                            dts: self.items[i].resolved_dts,
+                            pts: self.items[i].resolved_pts,
                         });
                     }
                 }
                 None => {
                     last_frame_found = Some(LastFrameFoundSoFar {
                         id: self.items[i].id,
-                        dts: self.items[i].resolved_dts,
+                        pts: self.items[i].resolved_pts,
                     });
                 }
             }
@@ -146,26 +146,31 @@ impl FrameCache {
         let mut best_item: Option<usize> = None;
         let mut best_distance = std::i64::MAX;
 
+        // Is last frame or beyond
         for i in 0..self.items.len() {
-            // Is last frame or beyond
             match self.last_frame {
                 Some(last_frame_id) => {
-                    if self.items[i].id == last_frame_id && self.items[i].resolved_dts < time {
+                    if self.items[i].id == last_frame_id && self.items[i].resolved_pts < time {
                         self.items[i].frame.ensure_data()?;
+
                         return Ok(Some(self.items[i].id));
                     }
                 }
                 None => {}
             }
+        }
 
-            // Exact same time as requested
-            if self.items[i].resolved_dts == time {
+        // Exact same time as requested
+        for i in 0..self.items.len() {
+            if self.items[i].resolved_pts == time {
                 self.items[i].frame.ensure_data()?;
-
                 return Ok(Some(self.items[i].id));
             }
-            let distance = (self.items[i].resolved_dts - time as i64).abs();
-            // LTE: IF multiple items have the same distance, we take the last one.
+        }
+
+        for i in 0..self.items.len() {
+            let distance = (self.items[i].resolved_pts - time as i64).abs();
+            // LTE: IF multiple items have the same distance, we take the one with the last timestamp.
             // This is because the last frame is more likely to have been decoded
             if distance <= best_distance as i64 {
                 best_distance = distance;
@@ -173,9 +178,13 @@ impl FrameCache {
             }
         }
 
-        if best_distance > threshold {
+        let has_pts_before = self.items.iter().any(|item| item.resolved_pts <= time);
+        let has_pts_after = self.items.iter().any(|item| item.resolved_pts >= time);
+
+        if best_distance > threshold && (!has_pts_after || !has_pts_before) {
             return Ok(None);
         }
+
         match best_item {
             Some(best_item) => {
                 self.items[best_item].frame.ensure_data()?;

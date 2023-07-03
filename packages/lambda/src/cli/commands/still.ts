@@ -64,7 +64,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			indent: false,
 			port,
 			remotionRoot,
-			verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
 		});
 
@@ -74,7 +74,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				compositionIdFromUi: null,
 				indent: false,
 				serveUrlOrWebpackUrl: serveUrl,
-				verbose: RenderInternals.isEqualOrBelowLogLevel(logLevel, 'verbose'),
+				logLevel,
 				browserExecutable,
 				chromiumOptions,
 				envVariables,

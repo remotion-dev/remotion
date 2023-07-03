@@ -24,10 +24,7 @@ export const listCompositionsCommand = async (
 		process.exit(1);
 	}
 
-	const verbose = RenderInternals.isEqualOrBelowLogLevel(
-		ConfigInternals.Logging.getLogLevel(),
-		'verbose'
-	);
+	const logLevel = ConfigInternals.Logging.getLogLevel();
 
 	Log.verbose('Entry point:', file, 'reason:', reason);
 
@@ -52,7 +49,7 @@ export const listCompositionsCommand = async (
 			publicDir,
 			onProgress: () => undefined,
 			indentOutput: false,
-			logLevel: ConfigInternals.Logging.getLogLevel(),
+			logLevel,
 			bundlingStep: 0,
 			steps: 1,
 			onDirectoryCreated: (dir) => {
@@ -74,7 +71,7 @@ export const listCompositionsCommand = async (
 		indent: false,
 		onBrowserLog: null,
 		puppeteerInstance: undefined,
-		verbose,
+		logLevel,
 		server: undefined,
 	});
 

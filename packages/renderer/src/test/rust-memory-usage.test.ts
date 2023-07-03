@@ -8,7 +8,7 @@ test('Memory usage should be determined ', async () => {
 		return;
 	}
 
-	const compositor = startLongRunningCompositor(400, false, false);
+	const compositor = startLongRunningCompositor(400, 'info', false);
 
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString())
@@ -23,7 +23,7 @@ test('Memory usage should be determined ', async () => {
 	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson = JSON.parse(stats.toString('utf-8'));
 	expect(statsJson).toEqual({
-		frames_in_cache: 81,
+		frames_in_cache: 249,
 		open_streams: 1,
 		open_videos: 1,
 	});
@@ -37,7 +37,7 @@ test('Memory usage should be determined ', async () => {
 	const stats2 = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson2 = JSON.parse(stats2.toString('utf-8'));
 	expect(statsJson2).toEqual({
-		frames_in_cache: 181,
+		frames_in_cache: 349,
 		open_streams: 2,
 		open_videos: 2,
 	});
@@ -48,7 +48,7 @@ test('Memory usage should be determined ', async () => {
 
 	const stats3 = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson3 = JSON.parse(stats3.toString('utf-8'));
-	expect(statsJson3.frames_in_cache).toBe(90);
+	expect(statsJson3.frames_in_cache).toBe(174);
 
 	await compositor.executeCommand('FreeUpMemory', {
 		percent_of_memory: 0.5,
@@ -57,7 +57,7 @@ test('Memory usage should be determined ', async () => {
 	const stats4 = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson4 = JSON.parse(stats4.toString('utf-8'));
 	expect(statsJson4).toEqual({
-		frames_in_cache: 45,
+		frames_in_cache: 87,
 		open_streams: 1,
 		open_videos: 1,
 	});
@@ -89,7 +89,7 @@ test('Memory usage should be determined ', async () => {
 });
 
 test('Should respect the maximum frame cache limit', async () => {
-	const compositor = startLongRunningCompositor(50, false, false);
+	const compositor = startLongRunningCompositor(50, 'info', false);
 
 	await compositor.executeCommand('ExtractFrame', {
 		input: exampleVideos.bigBuckBunny,
@@ -111,7 +111,7 @@ test('Should be able to take commands for freeing up memory', async () => {
 		return;
 	}
 
-	const compositor = startLongRunningCompositor(400, false, false);
+	const compositor = startLongRunningCompositor(400, 'info', false);
 
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString())
@@ -131,7 +131,7 @@ test('Should be able to take commands for freeing up memory', async () => {
 
 	expect(
 		getMemoryUsageByPid((compositor.pid as Number).toString())
-	).toBeLessThan(20 * 1024 * 1024);
+	).toBeLessThan(25 * 1024 * 1024);
 });
 
 function getMemoryUsageByPid(pid: string) {

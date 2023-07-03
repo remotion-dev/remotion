@@ -41,7 +41,13 @@ export const useLocalState = <T,>({
 	const [resetRevision, setResetRevision] = useState(0);
 	const [localValue, setLocalValue] = useState<Record<number, LocalState<T>>>(
 		() => {
-			return {};
+			return {
+				[parentRevision]: {
+					value,
+					keyStabilityRevision: 0,
+					zodValidation: schema.safeParse(value),
+				},
+			};
 		}
 	);
 
@@ -50,10 +56,10 @@ export const useLocalState = <T,>({
 			localValue[parentRevision] ?? {
 				value: defaultValue,
 				keyStabilityRevision: 0,
-				zodValidation: schema.safeParse(value),
+				zodValidation: schema.safeParse(defaultValue),
 			}
 		);
-	}, [defaultValue, localValue, parentRevision, schema, value]);
+	}, [defaultValue, localValue, parentRevision, schema]);
 
 	const stateRef = useRef(currentLocalValue);
 	stateRef.current = currentLocalValue;

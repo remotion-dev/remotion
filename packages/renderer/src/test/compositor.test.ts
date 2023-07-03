@@ -18,6 +18,7 @@ test('Should handle the overlay', async () => {
 				maximum_frame_cache_items: 100,
 				verbose: false,
 			},
+			'info',
 			false
 		);
 
@@ -60,6 +61,7 @@ test('Should handle valid', async () => {
 			maximum_frame_cache_items: 100,
 			verbose: false,
 		},
+		'info',
 		false
 	);
 

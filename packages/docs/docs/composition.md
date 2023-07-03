@@ -87,7 +87,7 @@ See: [`calculateMetadata()`](/docs/calculate-metadata)
 
 ### `schema`
 
-TODO
+Pass a Zod schema which your default props must satisfy. By doing so, you enable [visual editing](/docs/visual-editing). See: [Define a schema](/docs/schemas)
 
 ## Example using `component`
 

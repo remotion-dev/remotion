@@ -35,8 +35,7 @@ const errorContainer: React.CSSProperties = {
 
 const openDocs = () => {
 	window.open(
-		// TODO: Make sure to update this link when we release v4
-		'https://v4.remotion.dev/docs/parametrized-rendering#define-a-schema-'
+		'https://www.remotion.dev/docs/parametrized-rendering#define-a-schema-'
 	);
 };
 

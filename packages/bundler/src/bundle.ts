@@ -235,6 +235,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 			onSymlinkDetected: showSymlinkWarning,
 			onProgress: (prog) => options.onPublicDirCopyProgress?.(prog),
 			copied: 0,
+			lastReportedProgress: 0,
 		});
 	}
 

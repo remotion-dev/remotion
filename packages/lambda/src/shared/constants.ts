@@ -9,7 +9,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
-import type {AnyCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
 import type {EnhancedErrorInfo} from '../functions/helpers/write-lambda-error';
 import type {AwsRegion} from '../pricing/aws-regions';
@@ -179,8 +179,16 @@ export const postRenderDataKey = (renderId: string) => {
 	return `${rendersPrefix(renderId)}/post-render-metadata.json`;
 };
 
+export const defaultPropsKey = (hash: string) => {
+	return `default-props/${hash}.json`;
+};
+
 export const inputPropsKey = (hash: string) => {
 	return `input-props/${hash}.json`;
+};
+
+export const resolvedPropsKey = (hash: string) => {
+	return `resolved-props/${hash}.json`;
 };
 
 export const RENDERER_PATH_TOKEN = 'remotion-bucket';
@@ -210,7 +218,7 @@ export type SerializedInputProps =
 	  }
 	| {
 			type: 'payload';
-			payload: unknown;
+			payload: string;
 	  };
 
 export type LambdaStartPayload = {
@@ -249,7 +257,6 @@ export type LambdaStartPayload = {
 	forceHeight: number | null;
 	forceWidth: number | null;
 	bucketName: string | null;
-	dumpBrowserLogs: boolean;
 };
 
 export type LambdaStatusPayload = {
@@ -301,7 +308,6 @@ export type LambdaPayloads = {
 		webhook: WebhookOption;
 		forceHeight: number | null;
 		forceWidth: number | null;
-		dumpBrowserLogs: boolean;
 	};
 	status: LambdaStatusPayload;
 	renderer: {
@@ -331,6 +337,8 @@ export type LambdaPayloads = {
 		logLevel: LogLevel;
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
+		resolvedProps: SerializedInputProps;
+		defaultProps: SerializedInputProps;
 		scale: number;
 		everyNthFrame: number;
 		muted: boolean;
@@ -339,7 +347,6 @@ export type LambdaPayloads = {
 		launchFunctionConfig: {
 			version: string;
 		};
-		dumpBrowserLogs: boolean;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -363,7 +370,6 @@ export type LambdaPayloads = {
 		forceHeight: number | null;
 		forceWidth: number | null;
 		bucketName: string | null;
-		dumpBrowserLogs: boolean;
 	};
 	compositions: {
 		type: LambdaRoutines.compositions;
@@ -375,7 +381,6 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		serveUrl: string;
 		bucketName: string | null;
-		dumpBrowserLogs: boolean;
 	};
 };
 
@@ -397,7 +402,7 @@ type Discriminated =
 
 export type RenderMetadata = Discriminated & {
 	siteId: string;
-	videoConfig: AnyCompMetadata;
+	videoConfig: VideoConfig;
 	startedDate: number;
 	totalChunks: number;
 	estimatedTotalLambdaInvokations: number;

@@ -2,7 +2,6 @@
 import type {Page} from './browser/BrowserPage';
 import type {
 	CallArgument,
-	CallFunctionOnResponse,
 	DevtoolsRemoteObject,
 } from './browser/devtools-types';
 import {JSHandle} from './browser/JSHandle';
@@ -50,7 +49,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 	pageFunction: Function | string;
 	frame: number | null;
 	args: unknown[];
-}): Promise<ReturnType> {
+}): Promise<{value: ReturnType; size: number}> {
 	const contextId = (await page.mainFrame().executionContext())._contextId;
 	const client = page._client();
 
@@ -62,14 +61,16 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			? expression
 			: expression + '\n' + suffix;
 
-		const {exceptionDetails: exceptDetails, result: remotObject} =
-			(await client.send('Runtime.evaluate', {
-				expression: expressionWithSourceUrl,
-				contextId,
-				returnByValue: true,
-				awaitPromise: true,
-				userGesture: true,
-			})) as CallFunctionOnResponse;
+		const {
+			value: {exceptionDetails: exceptDetails, result: remotObject},
+			size,
+		} = await client.send('Runtime.evaluate', {
+			expression: expressionWithSourceUrl,
+			contextId,
+			returnByValue: true,
+			awaitPromise: true,
+			userGesture: true,
+		});
 
 		if (exceptDetails?.exception) {
 			const err = new SymbolicateableError({
@@ -86,7 +87,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			throw err;
 		}
 
-		return valueFromRemoteObject(remotObject);
+		return {value: valueFromRemoteObject(remotObject), size};
 	}
 
 	if (typeof pageFunction !== 'function')
@@ -134,8 +135,10 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 	}
 
 	try {
-		const {exceptionDetails, result: remoteObject} =
-			await callFunctionOnPromise;
+		const {
+			value: {exceptionDetails, result: remoteObject},
+			size,
+		} = await callFunctionOnPromise;
 
 		if (exceptionDetails) {
 			const err = new SymbolicateableError({
@@ -152,7 +155,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			throw err;
 		}
 
-		return valueFromRemoteObject(remoteObject);
+		return {size, value: valueFromRemoteObject(remoteObject)};
 	} catch (error) {
 		if (
 			(error as {originalMessage: string})?.originalMessage?.startsWith(

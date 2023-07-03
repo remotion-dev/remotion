@@ -1,4 +1,4 @@
-import type {AnyCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -14,6 +14,8 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {type LogLevel} from './log-level';
+import {getLogLevel} from './logger';
 
 type InternalGetCompositionsOptions = {
 	inputProps: Record<string, unknown>;
@@ -26,7 +28,7 @@ type InternalGetCompositionsOptions = {
 	port: number | null;
 	server: RemotionServer | undefined;
 	indent: boolean;
-	verbose: boolean;
+	logLevel: LogLevel;
 	serveUrlOrWebpackUrl: string;
 };
 
@@ -39,7 +41,7 @@ export type GetCompositionsOptions = {
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
-	verbose?: boolean;
+	logLevel?: LogLevel;
 };
 
 type InnerGetCompositionsParams = {
@@ -60,7 +62,7 @@ const innerGetCompositions = async ({
 	proxyPort,
 	serveUrl,
 	timeoutInMilliseconds,
-}: InnerGetCompositionsParams): Promise<AnyCompMetadata[]> => {
+}: InnerGetCompositionsParams): Promise<VideoConfig[]> => {
 	if (onBrowserLog) {
 		page.on('console', (log) => {
 			onBrowserLog({
@@ -98,7 +100,7 @@ const innerGetCompositions = async ({
 	});
 
 	await waitForReady(page);
-	const result = await puppeteerEvaluateWithCatch({
+	const {value: result} = await puppeteerEvaluateWithCatch({
 		pageFunction: () => {
 			return window.getStaticCompositions();
 		},
@@ -107,7 +109,7 @@ const innerGetCompositions = async ({
 		args: [],
 	});
 
-	return result as AnyCompMetadata[];
+	return result as VideoConfig[];
 };
 
 type CleanupFn = () => void;
@@ -124,7 +126,7 @@ export const internalGetCompositions = async ({
 	serveUrlOrWebpackUrl,
 	server,
 	timeoutInMilliseconds,
-	verbose,
+	logLevel,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -133,12 +135,12 @@ export const internalGetCompositions = async ({
 		context: null,
 		forceDeviceScaleFactor: undefined,
 		indent,
-		shouldDumpIo: verbose,
+		logLevel,
 	});
 
 	const cleanup: CleanupFn[] = [cleanupPage];
 
-	return new Promise<AnyCompMetadata[]>((resolve, reject) => {
+	return new Promise<VideoConfig[]>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
 
 		cleanup.push(
@@ -156,7 +158,7 @@ export const internalGetCompositions = async ({
 				port,
 				remotionRoot: findRemotionRoot(),
 				concurrency: 1,
-				verbose,
+				logLevel,
 				indent,
 			},
 			{
@@ -201,7 +203,7 @@ export const internalGetCompositions = async ({
 export const getCompositions = (
 	serveUrlOrWebpackUrl: string,
 	config?: GetCompositionsOptions
-): Promise<AnyCompMetadata[]> => {
+): Promise<VideoConfig[]> => {
 	const {
 		browserExecutable,
 		chromiumOptions,
@@ -211,7 +213,7 @@ export const getCompositions = (
 		port,
 		puppeteerInstance,
 		timeoutInMilliseconds,
-		verbose,
+		logLevel,
 	} = config ?? {};
 	return internalGetCompositions({
 		browserExecutable: browserExecutable ?? null,
@@ -225,6 +227,6 @@ export const getCompositions = (
 		serveUrlOrWebpackUrl,
 		server: undefined,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
-		verbose: verbose ?? false,
+		logLevel: logLevel ?? getLogLevel(),
 	});
 };

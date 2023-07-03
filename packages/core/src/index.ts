@@ -1,6 +1,6 @@
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
-import type {AnyCompMetadata, TAsset} from './CompositionManager.js';
+import type {TAsset} from './CompositionManager.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
@@ -13,7 +13,7 @@ declare global {
 		remotion_renderReady: boolean;
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
-		getStaticCompositions: () => Promise<AnyCompMetadata[]>;
+		getStaticCompositions: () => Promise<VideoConfig[]>;
 		remotion_calculateComposition: (compId: string) => Promise<VideoConfig>;
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
@@ -23,7 +23,7 @@ declare global {
 		remotion_projectName: string;
 		remotion_cwd: string;
 		remotion_studioServerCommand: string;
-		remotion_setFrame: (frame: number) => void;
+		remotion_setFrame: (frame: number, composition: string) => void;
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
 		remotion_audioEnabled: boolean;
@@ -36,7 +36,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '5';
+		siteVersion: '7';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 	}
@@ -52,7 +52,7 @@ export type BundleState =
 	| {
 			type: 'composition';
 			compositionName: string;
-			compositionDefaultProps: Record<string, unknown>;
+			props: Record<string, unknown>;
 			compositionHeight: number;
 			compositionDurationInFrames: number;
 			compositionWidth: number;
@@ -73,7 +73,6 @@ export {
 export {
 	AnyCompMetadata,
 	AnyComposition,
-	AnySmallCompMetadata,
 	SmallTCompMetadata,
 	TAsset,
 	TCompMetadata,
@@ -150,7 +149,7 @@ export const Config = new Proxy(proxyObj, {
 			console.warn('import {Config} from "@remotion/cli/config";');
 			console.warn();
 			console.warn(
-				'For more information, see https://v4.remotion.dev/docs/4-0-migration.'
+				'For more information, see https://www.remotion.dev/docs/4-0-migration.'
 			);
 
 			process.exit(1);

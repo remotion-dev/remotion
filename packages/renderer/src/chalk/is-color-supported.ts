@@ -1,18 +1,27 @@
 import * as tty from 'tty';
 
-const argv = process.argv || [];
-const env = process.env || {};
+export const isColorSupported = () => {
+	const env = process.env || {};
 
-const isDisabled = 'NO_COLOR' in env || argv.includes('--no-color');
-const isForced = 'FORCE_COLOR' in env || argv.includes('--color');
-const isWindows = process.platform === 'win32';
+	const isForceDisabled = 'NO_COLOR' in env;
 
-const isCompatibleTerminal =
-	tty?.isatty?.(1) && env.TERM && env.TERM !== 'dumb';
+	if (isForceDisabled) {
+		return false;
+	}
 
-const isCI =
-	'CI' in env &&
-	('GITHUB_ACTIONS' in env || 'GITLAB_CI' in env || 'CIRCLECI' in env);
+	const isForced = 'FORCE_COLOR' in env;
+	if (isForced) {
+		return true;
+	}
 
-export const isColorSupported =
-	!isDisabled && (isForced || isWindows || isCompatibleTerminal || isCI);
+	const isWindows = process.platform === 'win32';
+
+	const isCompatibleTerminal =
+		tty?.isatty?.(1) && env.TERM && env.TERM !== 'dumb';
+
+	const isCI =
+		'CI' in env &&
+		('GITHUB_ACTIONS' in env || 'GITLAB_CI' in env || 'CIRCLECI' in env);
+
+	return isWindows || isCompatibleTerminal || isCI;
+};

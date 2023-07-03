@@ -15,7 +15,7 @@
  */
 
 import {Internals} from 'remotion';
-import {getLogLevel, Log} from '../logger';
+import {Log} from '../logger';
 import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import {truthy} from '../truthy';
 import {assert} from './assert';
@@ -56,6 +56,8 @@ import {
 	releaseObject,
 	valueFromRemoteObject,
 } from './util';
+import type {LogLevel} from '../log-level';
+import {formatRemoteObject} from '../format-logs';
 
 interface WaitForOptions {
 	timeout?: number;
@@ -81,14 +83,25 @@ export class Page extends EventEmitter {
 		defaultViewport,
 		browser,
 		sourcemapContext,
+		logLevel,
+		indent,
 	}: {
 		client: CDPSession;
 		target: Target;
 		defaultViewport: Viewport;
 		browser: HeadlessBrowser;
 		sourcemapContext: AnySourceMapConsumer | null;
+		logLevel: LogLevel;
+		indent: boolean;
 	}): Promise<Page> {
-		const page = new Page(client, target, browser, sourcemapContext);
+		const page = new Page({
+			client,
+			target,
+			browser,
+			sourcemapContext,
+			logLevel,
+			indent,
+		});
 		await page.#initialize();
 		await page.setViewport(defaultViewport);
 
@@ -104,13 +117,23 @@ export class Page extends EventEmitter {
 	browser: HeadlessBrowser;
 	screenshotTaskQueue: TaskQueue;
 	sourcemapContext: AnySourceMapConsumer | null;
+	logLevel: LogLevel;
 
-	constructor(
-		client: CDPSession,
-		target: Target,
-		browser: HeadlessBrowser,
-		sourcemapContext: AnySourceMapConsumer | null
-	) {
+	constructor({
+		client,
+		target,
+		browser,
+		sourcemapContext,
+		logLevel,
+		indent,
+	}: {
+		client: CDPSession;
+		target: Target;
+		browser: HeadlessBrowser;
+		sourcemapContext: AnySourceMapConsumer | null;
+		logLevel: LogLevel;
+		indent: boolean;
+	}) {
 		super();
 		this.#client = client;
 		this.#target = target;
@@ -119,6 +142,7 @@ export class Page extends EventEmitter {
 		this.browser = browser;
 		this.id = String(Math.random());
 		this.sourcemapContext = sourcemapContext;
+		this.logLevel = logLevel;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
 			switch (event.targetInfo.type) {
@@ -175,16 +199,15 @@ export class Page extends EventEmitter {
 
 				Log.verboseAdvanced(
 					{
-						logLevel: getLogLevel(),
-						tag: `console.${log.type}()`,
-						secondTag: [origPosition.name, file].filter(truthy).join('@'),
-						indent: false,
+						logLevel,
+						tag: [origPosition.name, file].filter(truthy).join('@'),
+						indent,
 					},
-					log.text
+					log.previewString
 				);
 			} else {
 				Log.verboseAdvanced(
-					{logLevel: getLogLevel(), tag: `console.${log.type}`, indent: false},
+					{logLevel, tag: `console.${log.type}`, indent},
 					log.text
 				);
 			}
@@ -256,10 +279,24 @@ export class Page extends EventEmitter {
 			});
 		}
 
+		const previewString = args
+			? args
+					.map((arg) => {
+						return formatRemoteObject(arg);
+					})
+					.join(', ')
+			: '';
+
 		if (source !== 'worker') {
 			this.emit(
 				PageEmittedEvents.Console,
-				new ConsoleMessage(level, text, [], [{url, lineNumber}])
+				new ConsoleMessage({
+					type: level,
+					text,
+					args: [],
+					stackTraceLocations: [{url, lineNumber}],
+					previewString,
+				})
 			);
 		}
 	}
@@ -273,17 +310,21 @@ export class Page extends EventEmitter {
 		return this.#frameManager.mainFrame();
 	}
 
-	setViewport(viewport: Viewport): Promise<void> {
-		return this.#client.send('Emulation.setDeviceMetricsOverride', {
-			mobile: false,
-			width: viewport.width,
-			height: viewport.height,
-			deviceScaleFactor: viewport.deviceScaleFactor,
-			screenOrientation: {
-				angle: 0,
-				type: 'portraitPrimary',
-			},
-		});
+	async setViewport(viewport: Viewport): Promise<void> {
+		const {value} = await this.#client.send(
+			'Emulation.setDeviceMetricsOverride',
+			{
+				mobile: false,
+				width: viewport.width,
+				height: viewport.height,
+				deviceScaleFactor: viewport.deviceScaleFactor,
+				screenOrientation: {
+					angle: 0,
+					type: 'portraitPrimary',
+				},
+			}
+		);
+		return value;
 	}
 
 	setDefaultNavigationTimeout(timeout: number): void {
@@ -390,12 +431,18 @@ export class Page extends EventEmitter {
 			}
 		}
 
-		const message = new ConsoleMessage(
-			eventType,
-			textTokens.join(' '),
+		const previewString = args
+			.map((a) => formatRemoteObject(a._remoteObject))
+			.filter(Boolean)
+			.join(' ');
+
+		const message = new ConsoleMessage({
+			type: eventType,
+			text: textTokens.join(' '),
 			args,
-			stackTraceLocations
-		);
+			stackTraceLocations,
+			previewString,
+		});
 		this.emit(PageEmittedEvents.Console, message);
 	}
 

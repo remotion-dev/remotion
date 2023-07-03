@@ -111,6 +111,7 @@ const composition = {
   height: 1080,
   id: "my-video",
   defaultProps: {},
+  props: {},
 };
 const serveUrl = "/path/to/bundle";
 const outputLocation = "/path/to/frames";

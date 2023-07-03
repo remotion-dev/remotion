@@ -18,15 +18,15 @@ import {ThumbnailEmitterContext} from './emitter-context.js';
 import {ThumbnailEmitter} from './event-emitter.js';
 import type {ThumbnailMethods} from './player-methods.js';
 import type {ErrorFallback, RenderLoading} from './PlayerUI.js';
-import {SharedPlayerContexts} from './SharedPlayerContext.js';
+import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import ThumbnailUI from './ThumbnailUI.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
-type ThumbnailProps<Schema extends AnyZodObject, Props> = PropsIfHasProps<
-	Schema,
-	Props
-> &
-	CompProps<Schema> & {
+type ThumbnailProps<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>
+> = PropsIfHasProps<Schema, Props> &
+	CompProps<Props> & {
 		frameToDisplay: number;
 		style?: CSSProperties;
 		durationInFrames: number;
@@ -38,7 +38,10 @@ type ThumbnailProps<Schema extends AnyZodObject, Props> = PropsIfHasProps<
 		className?: string;
 	};
 
-export const ThumbnailFn = <Schema extends AnyZodObject, Props>(
+export const ThumbnailFn = <
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>
+>(
 	{
 		frameToDisplay,
 		style,
@@ -60,7 +63,9 @@ export const ThumbnailFn = <Schema extends AnyZodObject, Props>(
 	const timelineState: TimelineContextValue = useMemo(() => {
 		return {
 			playing: false,
-			frame: frameToDisplay,
+			frame: {
+				[PLAYER_COMP_ID]: frameToDisplay,
+			},
 			rootId: thumbnailId,
 			imperativePlaying: {
 				current: false,

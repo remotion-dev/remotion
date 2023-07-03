@@ -26,7 +26,7 @@ import type {
 } from './PlayerControls.js';
 import type {RenderLoading, RenderPoster} from './PlayerUI.js';
 import PlayerUI from './PlayerUI.js';
-import {SharedPlayerContexts} from './SharedPlayerContext.js';
+import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 import {validateInOutFrames} from './utils/validate-in-out-frame.js';
 import {validateInitialFrame} from './utils/validate-initial-frame.js';
@@ -157,7 +157,9 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 
 	validateInitialFrame({initialFrame, durationInFrames});
 
-	const [frame, setFrame] = useState(() => initialFrame ?? 0);
+	const [frame, setFrame] = useState<Record<string, number>>(() => ({
+		[PLAYER_COMP_ID]: initialFrame ?? 0,
+	}));
 	const [playing, setPlaying] = useState<boolean>(false);
 	const [rootId] = useState<string>('player-comp');
 	const [emitter] = useState(() => new PlayerEmitter());
@@ -188,8 +190,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		'compositionWidth',
 		'of the <Player /> component'
 	);
-	Internals.validateDurationInFrames({
-		durationInFrames,
+	Internals.validateDurationInFrames(durationInFrames, {
 		component: 'of the <Player/> component',
 		allowFloats: false,
 	});
