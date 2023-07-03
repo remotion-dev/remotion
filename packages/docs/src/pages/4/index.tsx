@@ -25,7 +25,7 @@ const V4: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [subscribed, setSubscribed] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
+  const [showCountdown, setShowCountdown] = useState<boolean>(true);
   const buttonLabel = useMemo(() => {
     if (subscribed) {
       return "You're signed up!";

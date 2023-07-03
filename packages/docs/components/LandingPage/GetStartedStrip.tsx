@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useMobileLayout } from "../../src/helpers/mobile-layout";
 import { PlainButton } from "../layout/Button";
 import styles from "./get-started.module.css";
-import { GithubButton } from "./GithubButton";
 
 export const GetStarted: React.FC = () => {
   const [clicked, setClicked] = useState<number | null>(null);
