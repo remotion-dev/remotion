@@ -11,7 +11,7 @@ Adding a new option to a feature is a great way to contribute to Remotion and en
 There are multiple ways to specify an option:
 
 - APIs that can be called via Node.JS can directly accept a parameter.
-- Options influencing a render can be added to the render dialog in the [Remotion Preview](/docs/terminology#remotion-preview).
+- Options influencing a render can be added to the render dialog in the [Remotion Studio](/docs/terminology#remotion-studio).
 - If the action is available as a [CLI](/docs/cli) command, the option should also be added as a CLI flag.
 - The [config](/docs/config) file can be also be used to specify multiple options. <br/>
   :::note
@@ -23,7 +23,7 @@ There are multiple ways to specify an option:
 The option should be resolved in the following order:
 
 <Step>1</Step> Directly passed to the Node.JS API<br/>
-<Step>2</Step> Specified via the render UI in the <a href="/docs/terminology#remotion-preview">Remotion Preview</a><br/>
+<Step>2</Step> Specified via the render UI in the <a href="/docs/terminology#remotion-studio">Remotion Studio</a><br/>
 <Step>3</Step> Specified via <a href="/docs/cli">CLI flag</a><br/>
 <Step>4</Step> Specified via <a href="/docs/config">config file</a><br/>
 <Step>5</Step> Fallback to a default value

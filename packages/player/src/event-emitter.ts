@@ -32,7 +32,7 @@ type FullscreenChangeEventPayload = {
 
 type MuteChangeEventPayload = {
 	isMuted: boolean;
-}
+};
 
 type PlayerStateEventMap = {
 	seeked: SeekPayload;
@@ -166,7 +166,7 @@ export class PlayerEmitter {
 	}
 
 	dispatchMuteChange(event: MuteChangeEventPayload) {
-		this.dispatchEvent('mutechange', event)
+		this.dispatchEvent('mutechange', event);
 	}
 }
 

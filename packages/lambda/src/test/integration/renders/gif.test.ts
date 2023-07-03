@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import {createWriteStream} from 'fs';
+import {createWriteStream} from 'node:fs';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
@@ -34,7 +34,8 @@ test('Should make a distributed GIF', async () => {
 	const res = (await handler(
 		{
 			type: LambdaRoutines.start,
-			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
+			serveUrl:
+				'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
 			chromiumOptions: {},
 			codec: 'gif',
 			composition: 'framer',
@@ -54,7 +55,7 @@ test('Should make a distributed GIF', async () => {
 			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,
-			quality: undefined,
+			jpegQuality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
 			numberOfGifLoops: null,
@@ -72,7 +73,6 @@ test('Should make a distributed GIF', async () => {
 			rendererFunctionName: null,
 			bucketName: null,
 			audioCodec: null,
-			dumpBrowserLogs: false,
 		},
 		extraContext
 	)) as StreamedResponse;
@@ -104,9 +104,6 @@ test('Should make a distributed GIF', async () => {
 	await new Promise<void>((resolve) => {
 		file.pipe(createWriteStream('gif.gif')).on('close', () => resolve());
 	});
-	const probe = await RenderInternals.execa(
-		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
-		['gif.gif']
-	);
+	const probe = await RenderInternals.callFf('ffprobe', ['gif.gif']);
 	expect(probe.stderr).toMatch(/Video: gif, bgra, 1080x1080/);
 }, 90000);

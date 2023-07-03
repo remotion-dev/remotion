@@ -2,7 +2,7 @@ import React, {createContext, useCallback, useMemo, useRef} from 'react';
 
 export type KeyEventType = 'keydown' | 'keyup' | 'keypress';
 
-export type KeyListenerCallback = (e: KeyboardEvent) => void;
+type KeyListenerCallback = (e: KeyboardEvent) => void;
 
 export type RegisteredKeybinding = {
 	registeredFromPane: string;

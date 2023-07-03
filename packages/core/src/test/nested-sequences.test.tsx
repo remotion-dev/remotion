@@ -37,7 +37,9 @@ test('It should calculate the correct offset in nested sequences', () => {
 			<TimelineContext.Provider
 				value={{
 					rootId: 'hi',
-					frame: 40,
+					frame: {
+						'my-comp': 40,
+					},
 					playing: false,
 					imperativePlaying: {
 						current: false,
@@ -70,7 +72,9 @@ test('Negative offset test', () => {
 		<WrapSequenceContext>
 			<TimelineContext.Provider
 				value={{
-					frame: 40,
+					frame: {
+						'my-comp': 40,
+					},
 					playing: false,
 					rootId: 'hi',
 					imperativePlaying: {
@@ -121,7 +125,9 @@ test('Nested negative offset test', () => {
 			<WrapSequenceContext>
 				<TimelineContext.Provider
 					value={{
-						frame,
+						frame: {
+							'my-comp': frame,
+						},
 						playing: false,
 						rootId: 'hi',
 						imperativePlaying: {
@@ -175,7 +181,9 @@ test.skip('Negative offset edge case', () => {
 			<CanUseRemotionHooksProvider>
 				<TimelineContext.Provider
 					value={{
-						frame,
+						frame: {
+							'my-comp': frame,
+						},
 						playing: false,
 						rootId: 'hi',
 						imperativePlaying: {

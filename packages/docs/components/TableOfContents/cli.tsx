@@ -6,9 +6,9 @@ export const TableOfContents: React.FC = () => {
   return (
     <div>
       <Grid>
-        <TOCItem link="/docs/cli/preview">
-          <strong>preview</strong>
-          <div>Start the Remotion Preview Server</div>
+        <TOCItem link="/docs/cli/studio">
+          <strong>studio</strong>
+          <div>Start the Remotion Studio</div>
         </TOCItem>
         <TOCItem link="/docs/cli/render">
           <strong>render</strong>

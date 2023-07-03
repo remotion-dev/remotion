@@ -5,6 +5,7 @@ import React, {
 	useLayoutEffect,
 	useRef,
 } from 'react';
+import {cancelRender} from './cancel-render.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {usePreload} from './prefetch.js';
 
@@ -14,15 +15,23 @@ function exponentialBackoff(errorCount: number): number {
 
 const ImgRefForwarding: React.ForwardRefRenderFunction<
 	HTMLImageElement,
-	React.DetailedHTMLProps<
-		React.ImgHTMLAttributes<HTMLImageElement>,
-		HTMLImageElement
+	Omit<
+		React.DetailedHTMLProps<
+			React.ImgHTMLAttributes<HTMLImageElement>,
+			HTMLImageElement
+		>,
+		'src'
 	> & {
 		maxRetries?: number;
+		src: string;
 	}
 > = ({onError, maxRetries = 2, src, ...props}, ref) => {
 	const imageRef = useRef<HTMLImageElement>(null);
 	const errors = useRef<Record<string, number>>({});
+
+	if (!src) {
+		throw new Error('No "src" prop was passed to <Img>.');
+	}
 
 	useImperativeHandle(
 		ref,
@@ -89,11 +98,8 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			console.error(
-				'Error loading image with src:',
-				imageRef.current?.src,
-				e,
-				'Handle the event using the onError() prop to make this message disappear.'
+			cancelRender(
+				'Error loading image with src: ' + (imageRef.current?.src as string)
 			);
 		},
 		[maxRetries, onError, retryIn]

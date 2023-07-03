@@ -1,5 +1,6 @@
-import {CliInternals, ConfigInternals} from '@remotion/cli';
-import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
+import {RenderInternals} from '@remotion/renderer';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
@@ -41,24 +42,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const region = getAwsRegion();
 
-	let composition: string = args[1];
-	if (!composition) {
-		Log.info('No compositions passed. Fetching compositions...');
-
-		validateServeUrl(serveUrl);
-		const comps = await getCompositions(serveUrl);
-		const {compositionId} = await CliInternals.selectComposition(comps);
-		composition = compositionId;
-	}
-
-	const outName = parsedLambdaCli['out-name'];
-	const downloadName = args[2] ?? null;
-
-	const {codec, reason} = CliInternals.getFinalCodec({
-		downloadName,
-		outName: outName ?? null,
-	});
-
 	const {
 		chromiumOptions,
 		crf,
@@ -69,7 +52,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		pixelFormat,
 		proResProfile,
 		puppeteerTimeout,
-		quality,
+		jpegQuality,
 		scale,
 		everyNthFrame,
 		numberOfGifLoops,
@@ -79,13 +62,65 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		videoBitrate,
 		height,
 		width,
+		browserExecutable,
+		port,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
 		remotionRoot,
 	});
 
-	const imageFormat = CliInternals.getImageFormat(codec);
+	let composition: string = args[1];
+	if (!composition) {
+		Log.info('No compositions passed. Fetching compositions...');
+
+		validateServeUrl(serveUrl);
+
+		const server = RenderInternals.prepareServer({
+			concurrency: 1,
+			indent: false,
+			port,
+			remotionRoot,
+			logLevel,
+			webpackConfigOrServeUrl: serveUrl,
+		});
+
+		const {compositionId} =
+			await CliInternals.getCompositionWithDimensionOverride({
+				args,
+				compositionIdFromUi: null,
+				browserExecutable,
+				chromiumOptions,
+				envVariables,
+				height,
+				indent: false,
+				inputProps,
+				port,
+				puppeteerInstance: undefined,
+				serveUrlOrWebpackUrl: serveUrl,
+				timeoutInMilliseconds: puppeteerTimeout,
+				logLevel,
+				width,
+				server: await server,
+			});
+		composition = compositionId;
+	}
+
+	const outName = parsedLambdaCli['out-name'];
+	const downloadName = args[2] ?? null;
+
+	const {codec, reason} = CliInternals.getFinalOutputCodec({
+		cliFlag: CliInternals.parsedCli.codec,
+		downloadName,
+		outName: outName ?? null,
+		configFile: ConfigInternals.getOutputCodecOrUndefined() ?? null,
+		uiCodec: null,
+	});
+
+	const imageFormat = CliInternals.getVideoImageFormat({
+		codec,
+		uiImageFormat: null,
+	});
 
 	const functionName = await findFunctionName();
 
@@ -107,7 +142,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		envVariables,
 		pixelFormat,
 		proResProfile,
-		quality,
+		jpegQuality,
 		region,
 		maxRetries,
 		composition,
@@ -141,9 +176,13 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 	const totalSteps = downloadName ? 6 : 5;
 
-	const progressBar = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
+	const progressBar = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+		// No browser logs in Lambda
+		updatesDontOverwrite: false,
+		indent: false,
+	});
 
 	Log.info(
 		CliInternals.chalk.gray(
@@ -178,7 +217,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			verbose,
 			totalFrames: getTotalFrames(status),
 			timeToEncode: status.timeToEncode,
-		})
+		}),
+		false
 	);
 
 	// eslint-disable-next-line no-constant-condition
@@ -200,7 +240,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				verbose,
 				timeToEncode: newStatus.timeToEncode,
 				totalFrames: getTotalFrames(newStatus),
-			})
+			}),
+			false
 		);
 
 		if (newStatus.done) {
@@ -213,7 +254,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					verbose,
 					timeToEncode: newStatus.timeToEncode,
 					totalFrames: getTotalFrames(newStatus),
-				})
+				}),
+				false
 			);
 			if (downloadName) {
 				const downloadStart = Date.now();
@@ -236,7 +278,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 								verbose,
 								timeToEncode: newStatus.timeToEncode,
 								totalFrames: getTotalFrames(newStatus),
-							})
+							}),
+							false
 						);
 					},
 				});
@@ -253,7 +296,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 						verbose,
 						timeToEncode: newStatus.timeToEncode,
 						totalFrames: getTotalFrames(newStatus),
-					})
+					}),
+					false
 				);
 				Log.info();
 				Log.info();
@@ -313,7 +357,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					stack: err.stack,
 					stackFrame: frames,
 				});
-				await CliInternals.handleCommonError(errorWithStackFrame);
+				await CliInternals.handleCommonError(errorWithStackFrame, logLevel);
 			}
 
 			quit(1);

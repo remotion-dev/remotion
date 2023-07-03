@@ -243,8 +243,9 @@ export const experts: Expert[] = [
         <a target={"_blank"} href="https://www.romrif.com/">
           Romrif.com
         </a>
-        ! <br />
-        I build Websites & Videos with Remotion. I&apos;m alway interested in the latest Tech and love building stuff. Feel free to contact me - I&apos;m available for hire.
+        ! <br />I build Websites & Videos with Remotion. I&apos;m alway
+        interested in the latest Tech and love building stuff. Feel free to
+        contact me - I&apos;m available for hire.
       </div>
     ),
   },
@@ -263,15 +264,18 @@ export const experts: Expert[] = [
         I made:{" "}
         <a target={"_blank"} href="https://www.dataflics.com/">
           DataFlics
-        </a> and{" "}
+        </a>{" "}
+        and{" "}
         <a target={"_blank"} href="https://nerdy.finance/">
           Nerdy Finance
         </a>
-        ! This is my personal website: <a target={"_blank"} href="https://www.lorenzobertolini.com/">
+        ! This is my personal website:{" "}
+        <a target={"_blank"} href="https://www.lorenzobertolini.com/">
           Lorenzo Bertolini
         </a>
         <br />
-        Reach out to me for data-driven video generation, data visualization, and web app prototyping with React.js and d3.js.
+        Reach out to me for data-driven video generation, data visualization,
+        and web app prototyping with React.js and d3.js.
       </div>
     ),
   },
@@ -286,16 +290,23 @@ export const experts: Expert[] = [
     email: "antoine395.caron+remotion@gmail.com",
     since: new Date("2023-03-17").getTime(),
     description: (
-        <div>
-            <p>
-                I made:{" "}
-                <a target={"_blank"} href="https://social-video-generator.vercel.app/">
-                    Social Video Generator
-                </a>
-                , with Mickaël Alves
-            </p>
-            <p><a href="https://blog.slashgear.dev/" target={"_blank"}>Personal website</a></p>
-        </div>
+      <div>
+        <p>
+          I made:{" "}
+          <a
+            target={"_blank"}
+            href="https://social-video-generator.vercel.app/"
+          >
+            Social Video Generator
+          </a>
+          , with Mickaël Alves
+        </p>
+        <p>
+          <a href="https://blog.slashgear.dev/" target={"_blank"}>
+            Personal website
+          </a>
+        </p>
+      </div>
     ),
   },
   {
@@ -309,16 +320,23 @@ export const experts: Expert[] = [
     email: "alves.mckl@gmail.com",
     since: new Date("2023-03-17").getTime(),
     description: (
-        <div>
-            <p>
-                I made:{" "}
-            <a target={"_blank"} href="https://social-video-generator.vercel.app/">
-                Social Video Generator
-            </a>
-            , with Antoine Caron
-            </p>
-            <p><a href="https://cruuzazul.dev/" target={"_blank"}>Personal website</a></p>
-        </div>
+      <div>
+        <p>
+          I made:{" "}
+          <a
+            target={"_blank"}
+            href="https://social-video-generator.vercel.app/"
+          >
+            Social Video Generator
+          </a>
+          , with Antoine Caron
+        </p>
+        <p>
+          <a href="https://cruuzazul.dev/" target={"_blank"}>
+            Personal website
+          </a>
+        </p>
+      </div>
     ),
   },
 ];

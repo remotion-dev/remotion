@@ -41,6 +41,7 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 				id: 'react-svg',
 				width: 1080,
 				defaultProps: {},
+				props: {},
 			},
 			outName: 'out.mp4',
 			privacy: 'public',
@@ -53,7 +54,6 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			lastModified: Date.now() - 2000,
 			size: 1000000,
 		},
-		architecture: 'x86_64',
 		diskSizeInMb: 512,
 		lambdasInvoked: 1,
 	});

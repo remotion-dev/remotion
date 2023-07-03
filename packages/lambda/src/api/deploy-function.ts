@@ -6,14 +6,9 @@ import {
 	DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 	RENDER_FN_PREFIX,
 } from '../shared/constants';
-import {
-	FUNCTION_ZIP_ARM64,
-	FUNCTION_ZIP_X86_64,
-} from '../shared/function-zip-path';
+import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
 import {getAccountId} from '../shared/get-account-id';
 import {LAMBDA_VERSION_STRING} from '../shared/lambda-version-string';
-import type {LambdaArchitecture} from '../shared/validate-architecture';
-import {validateArchitecture} from '../shared/validate-architecture';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateCustomRoleArn} from '../shared/validate-custom-role-arn';
 import {validateDiskSizeInMb} from '../shared/validate-disk-size-in-mb';
@@ -28,7 +23,6 @@ export type DeployFunctionInput = {
 	region: AwsRegion;
 	timeoutInSeconds: number;
 	memorySizeInMb: number;
-	architecture: LambdaArchitecture;
 	diskSizeInMb?: number;
 	customRoleArn?: string;
 };
@@ -59,7 +53,6 @@ export const deployFunction = async (
 	validateTimeout(params.timeoutInSeconds);
 	validateAwsRegion(params.region);
 	validateCloudWatchRetentionPeriod(params.cloudWatchLogRetentionPeriodInDays);
-	validateArchitecture(params.architecture);
 	validateDiskSizeInMb(diskSizeInMb);
 	validateCustomRoleArn(params.customRoleArn);
 
@@ -87,10 +80,7 @@ export const deployFunction = async (
 	const created = await createFunction({
 		createCloudWatchLogGroup: params.createCloudWatchLogGroup,
 		region: params.region,
-		zipFile:
-			params.architecture === 'arm64'
-				? FUNCTION_ZIP_ARM64
-				: FUNCTION_ZIP_X86_64,
+		zipFile: FUNCTION_ZIP_ARM64,
 		functionName: fnNameRender,
 		accountId,
 		memorySizeInMb: params.memorySizeInMb,
@@ -99,7 +89,6 @@ export const deployFunction = async (
 			params.cloudWatchLogRetentionPeriodInDays ??
 			DEFAULT_CLOUDWATCH_RETENTION_PERIOD,
 		alreadyCreated: Boolean(alreadyDeployed),
-		architecture: params.architecture,
 		ephemerealStorageInMb: diskSizeInMb,
 		customRoleArn: params.customRoleArn as string,
 	});

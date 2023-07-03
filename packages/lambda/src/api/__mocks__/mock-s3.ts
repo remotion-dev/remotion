@@ -1,4 +1,4 @@
-import type {ReadStream} from 'fs';
+import type {ReadStream} from 'node:fs';
 import type {Privacy} from '../../defaults';
 import type {AwsRegion} from '../../pricing/aws-regions';
 

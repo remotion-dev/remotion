@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import {expect, test} from 'vitest';
 
 // Test for https://github.com/remotion-dev/remotion/issues/1243

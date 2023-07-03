@@ -33,13 +33,41 @@ export type Layer =
 
 export type CompositorImageFormat = 'Png' | 'Jpeg';
 
-export type CliInput = {
-	v: number;
-	output: string;
-	width: number;
-	height: number;
-	layers: Layer[];
-	output_format: CompositorImageFormat;
+export type CompositorCommand = {
+	Compose: {
+		output: string;
+		width: number;
+		height: number;
+		layers: Layer[];
+		output_format: CompositorImageFormat;
+	};
+	ExtractFrame: {
+		input: string;
+		time: number;
+		transparent: boolean;
+	};
+	Echo: {
+		message: string;
+	};
+	StartLongRunningProcess: {
+		concurrency: number;
+		maximum_frame_cache_items: number;
+		verbose: boolean;
+	};
+	GetOpenVideoStats: {};
+	DeliberatePanic: {};
+	CloseAllVideos: {};
+	FreeUpMemory: {
+		percent_of_memory: number;
+	};
+};
+
+export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {
+	nonce: string;
+	payload: {
+		type: T;
+		params: CompositorCommand[T];
+	};
 };
 
 export type ErrorPayload = {

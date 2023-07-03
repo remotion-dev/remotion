@@ -5,8 +5,8 @@
  */
 
 import type {webpack} from '@remotion/bundler';
-import type {IncomingMessage, ServerResponse} from 'http';
-import {parse} from 'url';
+import type {IncomingMessage, ServerResponse} from 'node:http';
+import {parse} from 'node:url';
 import {Log} from '../../log';
 import type {HotMiddlewareMessage, ModuleMap, WebpackStats} from './types';
 import {hotMiddlewareOptions} from './types';

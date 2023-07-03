@@ -17,7 +17,6 @@ import {CurrentComposition} from './CurrentComposition';
 import {useSelectComposition} from './InitialCompositionLoader';
 
 const container: React.CSSProperties = {
-	borderRight: '1px solid black',
 	position: 'absolute',
 	height: '100%',
 	width: '100%',
@@ -26,8 +25,7 @@ const container: React.CSSProperties = {
 };
 
 const list: React.CSSProperties = {
-	padding: 5,
-	height: 'calc(100% - 100px)',
+	height: 'calc(100% - 80px)',
 	overflowY: 'auto',
 };
 
@@ -79,7 +77,7 @@ export const CompositionSelector: React.FC = () => {
 	return (
 		<div style={container}>
 			<CurrentComposition />
-			<div style={list}>
+			<div className="__remotion-vertical-scrollbar" style={list}>
 				{items.map((c) => {
 					return (
 						<CompositionSelectorItem

@@ -12,7 +12,7 @@ A component which can be rendered in a regular React App (for example: [Create R
 ```tsx twoslash title="MyApp.tsx"
 // @allowUmdGlobalAccess
 // @filename: ./remotion/MyVideo.tsx
-export const MyVideo = ({ title }) => <>{title}</>;
+export const MyVideo: React.FC<{ title: string }> = ({ title }) => <>{title}</>;
 
 // @filename: index.tsx
 // ---cut---

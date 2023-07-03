@@ -119,12 +119,12 @@ registerRoot(RemotionRoot);
 
 The file that calls [`registerRoot()`](/docs/register-root) is now your Remotion **entrypoint**.
 
-## Starting the preview
+## Starting the Studio
 
-Start the preview server using the following command:
+Start the Remotion Studio using the following command:
 
 ```
-npx remotion preview remotion/index.ts
+npx remotion studio remotion/index.ts
 ```
 
 Replace `remotion/index.ts` with your entrypoint if necessary.

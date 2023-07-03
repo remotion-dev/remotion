@@ -26,7 +26,7 @@ export const handler = streamifyResponse(
 		process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
 		const timeoutInMilliseconds = context.getRemainingTimeInMillis();
 
-		if (!context || !context.invokedFunctionArn) {
+		if (!context?.invokedFunctionArn) {
 			throw new Error(
 				'Lambda function unexpectedly does not have context.invokedFunctionArn'
 			);
@@ -98,7 +98,7 @@ export const handler = streamifyResponse(
 				dumpLogs: String(
 					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
 				),
-				inputProps: JSON.stringify(params.inputProps),
+				resolvedProps: JSON.stringify(params.resolvedProps),
 				isWarm,
 			});
 			await rendererHandler(params, {

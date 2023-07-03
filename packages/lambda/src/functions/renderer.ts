@@ -1,8 +1,8 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {BrowserLog, Codec} from '@remotion/renderer';
-import {RenderInternals, renderMedia} from '@remotion/renderer';
-import fs from 'fs';
-import path from 'path';
+import {RenderInternals} from '@remotion/renderer';
+import fs from 'node:fs';
+import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import {writeLambdaInitializedFile} from '../shared/chunk-progress';
@@ -13,7 +13,6 @@ import {
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -26,6 +25,7 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
+import {deserializeInputProps} from '../shared/serialize-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -52,10 +52,28 @@ const renderHandler = async (
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: params.inputProps,
+		propsType: 'input-props',
+	});
+
+	const resolvedPropsPromise = deserializeInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.resolvedProps,
+		propsType: 'resolved-props',
+	});
+
+	const defaultPropsPromise = deserializeInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.defaultProps,
+		propsType: 'default-props',
 	});
 
 	const browserInstance = await getBrowserInstance(
-		RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+		params.logLevel,
+		false,
 		params.chromiumOptions ?? {}
 	);
 
@@ -98,19 +116,22 @@ const renderHandler = async (
 		)}`
 	);
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
 	const downloads: Record<string, number> = {};
 
 	const inputProps = await inputPropsPromise;
+	const resolvedProps = await resolvedPropsPromise;
+	const defaultProps = await defaultPropsPromise;
+
 	await new Promise<void>((resolve, reject) => {
-		renderMedia({
+		RenderInternals.internalRenderMedia({
 			composition: {
 				id: params.composition,
 				durationInFrames: params.durationInFrames,
 				fps: params.fps,
 				height: params.height,
 				width: params.width,
+				props: resolvedProps,
+				defaultProps,
 			},
 			imageFormat: params.imageFormat,
 			inputProps,
@@ -157,22 +178,16 @@ const renderHandler = async (
 			},
 			puppeteerInstance: browserInstance,
 			serveUrl: params.serveUrl,
-			quality: params.quality,
-			envVariables: params.envVariables,
-			dumpBrowserLogs:
-				params.dumpBrowserLogs ??
-				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
-			verbose: RenderInternals.isEqualOrBelowLogLevel(
-				params.logLevel,
-				'verbose'
-			),
+			jpegQuality: params.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
+			envVariables: params.envVariables ?? {},
+			logLevel: params.logLevel,
 			onBrowserLog: (log) => {
 				logs.push(log);
 			},
 			outputLocation,
 			codec: chunkCodec,
-			crf: params.crf ?? undefined,
-			pixelFormat: params.pixelFormat,
+			crf: params.crf ?? null,
+			pixelFormat: params.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
 			proResProfile: params.proResProfile,
 			onDownload: (src: string) => {
 				console.log('Downloading', src);
@@ -211,28 +226,30 @@ const renderHandler = async (
 			port: null,
 			everyNthFrame: params.everyNthFrame,
 			numberOfGifLoops: null,
-			internal: {
-				downloadMap,
-			},
 			muted: params.muted,
 			enforceAudioTrack: true,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
-			onSlowestFrames: (slowestFrames) => {
-				console.log();
-				console.log(`Slowest frames:`);
-				slowestFrames.forEach(({frame, time}) => {
-					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
-				});
-			},
 			// Lossless flag takes priority over audio codec
 			// https://github.com/remotion-dev/remotion/issues/1647
 			// Special flag only in Lambda renderer which improves the audio quality
 			audioCodec: null,
 			preferLossless: true,
 			browserExecutable: executablePath(),
+			cancelSignal: undefined,
+			disallowParallelEncoding: false,
+			ffmpegOverride: ({args}) => args,
+			indent: false,
+			onCtrlCExit: () => undefined,
+			server: undefined,
 		})
-			.then(() => resolve())
+			.then(({slowestFrames}) => {
+				console.log(`Slowest frames:`);
+				slowestFrames.forEach(({frame, time}) => {
+					console.log(`  Frame ${frame} (${time.toFixed(3)}ms)`);
+				});
+				resolve();
+			})
 			.catch((err) => reject(err));
 	});
 
@@ -274,7 +291,6 @@ const renderHandler = async (
 			downloadBehavior: null,
 			customCredentials: null,
 		}),
-		RenderInternals.cleanDownloadMap(downloadMap),
 	]);
 };
 

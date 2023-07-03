@@ -31,6 +31,7 @@ const testRenderMetadata: RenderMetadata = {
 		height: 1080,
 		id: 'react-svg',
 		width: 1080,
+		props: {},
 	},
 	privacy: 'public',
 	everyNthFrame: 1,
@@ -65,6 +66,7 @@ test('For stills', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		type: 'still',
+		imageFormat: 'png',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
 		customCredentials: null,
@@ -77,6 +79,7 @@ test('Just a custom name', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		type: 'still',
+		imageFormat: 'jpeg',
 		codec: null,
 		outName: 'justaname.jpeg',
 	};
@@ -91,6 +94,7 @@ test('Should throw on invalid names', () => {
 	const newRenderMetadata: RenderMetadata = {
 		...testRenderMetadata,
 		type: 'still',
+		imageFormat: 'png',
 		codec: null,
 		outName: '👺.jpeg',
 	};
@@ -105,6 +109,7 @@ test('Should allow outName an outname with a slash', () => {
 		codec: null,
 		audioCodec: null,
 		type: 'still',
+		imageFormat: 'jpeg',
 		outName: 'justa/name.jpeg',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({
@@ -119,7 +124,8 @@ test('Should allow outName an outname with colon', () => {
 		...testRenderMetadata,
 		codec: null,
 		audioCodec: null,
-		type: 'still',
+		type: 'still' as const,
+		imageFormat: 'jpeg',
 		outName: 'ap-east-1:xxxxxx/video/XXXXX-0b9ba84XXXX.mp4',
 	};
 	expect(getExpectedOutName(newRenderMetadata, bucketName, null)).toEqual({

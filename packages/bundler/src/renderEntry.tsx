@@ -5,7 +5,7 @@ import type {render, unmountComponentAtNode} from 'react-dom';
 // We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
-import type {BundleState, TCompMetadata, TComposition} from 'remotion';
+import type {AnyComposition, BundleState, VideoConfig} from 'remotion';
 import {continueRender, delayRender, Internals, VERSION} from 'remotion';
 import {getBundleMode, setBundleMode} from './bundle-mode';
 import {Homepage} from './homepage/homepage';
@@ -47,7 +47,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		if (!video && compositions.compositions.length > 0) {
 			const foundComposition = compositions.compositions.find(
 				(c) => c.id === state.compositionName
-			) as TComposition;
+			) as AnyComposition;
 			if (!foundComposition) {
 				throw new Error(
 					`Found no composition with the name ${
@@ -62,7 +62,7 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 
 			compositions.setCurrentComposition(foundComposition?.id ?? null);
 			compositions.setCurrentCompositionMetadata({
-				defaultProps: state.compositionDefaultProps,
+				props: state.props,
 				durationInFrames: state.compositionDurationInFrames,
 				fps: state.compositionFps,
 				height: state.compositionHeight,
@@ -226,7 +226,7 @@ export const setBundleModeAndUpdate = (state: BundleState) => {
 };
 
 if (typeof window !== 'undefined') {
-	window.getStaticCompositions = (): TCompMetadata[] => {
+	const getUnevaluatedComps = () => {
 		if (!Internals.getRoot()) {
 			throw new Error(
 				'registerRoot() was never called. 1. Make sure you specified the correct entrypoint for your bundle. 2. If your registerRoot() call is deferred, use the delayRender/continueRender pattern to tell Remotion to wait.'
@@ -261,19 +261,61 @@ if (typeof window !== 'undefined') {
 			);
 		}
 
-		return compositions.map((c): TCompMetadata => {
-			return {
-				defaultProps: c.defaultProps,
-				durationInFrames: c.durationInFrames,
-				fps: c.fps,
-				height: c.height,
-				id: c.id,
-				width: c.width,
-			};
-		});
+		return compositions;
 	};
 
-	window.siteVersion = '4';
+	window.getStaticCompositions = (): Promise<VideoConfig[]> => {
+		const compositions = getUnevaluatedComps();
+
+		return Promise.all(
+			compositions.map(async (c): Promise<VideoConfig> => {
+				const handle = delayRender(
+					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`
+				);
+				const comp = Internals.resolveVideoConfig({
+					composition: c,
+					editorProps: {},
+					signal: new AbortController().signal,
+				});
+
+				const resolved = await Promise.resolve(comp);
+				continueRender(handle);
+				return resolved;
+			})
+		);
+	};
+
+	window.remotion_getCompositionNames = () => {
+		return getUnevaluatedComps().map((c) => c.id);
+	};
+
+	window.remotion_calculateComposition = async (
+		compId: string
+	): Promise<VideoConfig> => {
+		const compositions = getUnevaluatedComps();
+		const selectedComp = compositions.find((c) => c.id === compId);
+		if (!selectedComp) {
+			throw new Error(`Could not find composition with ID ${compId}`);
+		}
+
+		const abortController = new AbortController();
+		const handle = delayRender(
+			`Running the calculateMetadata() function for composition ${compId}`
+		);
+
+		const prom = await Promise.resolve(
+			Internals.resolveVideoConfig({
+				composition: selectedComp,
+				editorProps: {},
+				signal: abortController.signal,
+			})
+		);
+		continueRender(handle);
+
+		return prom;
+	};
+
+	window.siteVersion = '7';
 	window.remotion_version = VERSION;
-	window.setBundleMode = setBundleModeAndUpdate;
+	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }

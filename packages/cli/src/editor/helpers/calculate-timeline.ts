@@ -12,11 +12,6 @@ import type {
 } from './get-timeline-sequence-sort-key';
 import {getTimelineSequenceSequenceSortKey} from './get-timeline-sequence-sort-key';
 
-export type SequenceWithOverlap = {
-	sequence: TSequence;
-	overlaps: TSequence[];
-};
-
 const isTrackWithinParentBounds = (track: TrackWithHashAndOriginalTimings) => {
 	return [
 		track.cascadedStart + track.cascadedDuration >= track.sequence.from,

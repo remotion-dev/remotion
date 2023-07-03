@@ -1,4 +1,4 @@
-import os from 'os';
+import os from 'node:os';
 import {expect, test} from 'vitest';
 import {getActualConcurrency} from '../get-concurrency';
 

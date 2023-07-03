@@ -13,13 +13,11 @@ serde = {version =  "1.0.151", features = ["derive"]}
 serde_json = "1.0.89"
 jpeg-decoder = "0.3"
 jpeg-encoder = "0.5.1"
+lazy_static = "1.4"
+rayon = "1.7.0"
+ffmpeg-next = {git = "https://github.com/remotion-dev/rust-ffmpeg", rev ="95874c2bfa6f5829fdbb0eaa23006ea54c864ad8"}
 
 [[bin]]
 name = "compositor"
 path = "renderer/rust/main.rs"
-
-[profile.release]
-strip="debuginfo"
-lto = "fat"
-opt-level = 'z'
 

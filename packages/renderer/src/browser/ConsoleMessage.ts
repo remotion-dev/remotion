@@ -47,17 +47,26 @@ export class ConsoleMessage {
 	type: ConsoleMessageType;
 	text: string;
 	args: JSHandle[];
+	previewString: string;
 	#stackTraceLocations: ConsoleMessageLocation[];
 
-	constructor(
-		type: ConsoleMessageType,
-		text: string,
-		args: JSHandle[],
-		stackTraceLocations: ConsoleMessageLocation[]
-	) {
+	constructor({
+		type,
+		text,
+		args,
+		stackTraceLocations,
+		previewString,
+	}: {
+		type: ConsoleMessageType;
+		text: string;
+		args: JSHandle[];
+		stackTraceLocations: ConsoleMessageLocation[];
+		previewString: string;
+	}) {
 		this.type = type;
 		this.text = text;
 		this.args = args;
+		this.previewString = previewString;
 		this.#stackTraceLocations = stackTraceLocations;
 	}
 

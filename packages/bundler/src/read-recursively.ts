@@ -1,5 +1,5 @@
-import fs, {statSync} from 'fs';
-import path from 'path';
+import fs, {statSync} from 'node:fs';
+import path from 'node:path';
 import type {StaticFile} from 'remotion';
 
 export const readRecursively = ({
@@ -46,7 +46,7 @@ export const readRecursively = ({
 				name: path.join(folder, file),
 				lastModified: Math.floor(stat.mtimeMs),
 				sizeInBytes: stat.size,
-				src: staticHash + '/' + path.join(folder, file),
+				src: staticHash + '/' + encodeURIComponent(path.join(folder, file)),
 			});
 		} else if (stat.isSymbolicLink()) {
 			const realpath = fs.realpathSync(path.join(folder, file));
@@ -56,7 +56,7 @@ export const readRecursively = ({
 					name: realpath,
 					lastModified: Math.floor(realStat.mtimeMs),
 					sizeInBytes: realStat.size,
-					src: staticHash + '/' + realpath,
+					src: staticHash + '/' + encodeURIComponent(realpath),
 				});
 			}
 		}

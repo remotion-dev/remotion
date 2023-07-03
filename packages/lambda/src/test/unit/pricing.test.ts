@@ -7,27 +7,24 @@ test('Should calculate costs accurately', () => {
 			region: 'us-east-1',
 			durationInMiliseconds: 20000000,
 			memorySizeInMb: 2048,
-			architecture: 'x86_64',
 			diskSizeInMb: 512,
 			lambdasInvoked: 1,
 		})
-	).toEqual(0.66667);
+	).toEqual(0.53334);
 	expect(
 		estimatePrice({
 			region: 'us-east-1',
 			durationInMiliseconds: 20000000,
 			memorySizeInMb: 2048,
-			architecture: 'x86_64',
 			diskSizeInMb: 10240,
 			lambdasInvoked: 1,
 		})
-	).toEqual(0.67254);
+	).toEqual(0.53921);
 	expect(
 		estimatePrice({
 			region: 'us-east-1',
 			durationInMiliseconds: 20000000,
 			memorySizeInMb: 2048,
-			architecture: 'arm64',
 			diskSizeInMb: 10240,
 			lambdasInvoked: 1,
 		})

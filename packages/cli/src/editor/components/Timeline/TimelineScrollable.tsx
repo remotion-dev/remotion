@@ -1,5 +1,6 @@
 import React, {useMemo} from 'react';
 import {TIMELINE_BACKGROUND} from '../../helpers/colors';
+import {HORIZONTAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
 import {scrollableRef} from './timeline-refs';
 
 const outer: React.CSSProperties = {
@@ -22,7 +23,11 @@ export const TimelineScrollable: React.FC<{
 	}, []);
 
 	return (
-		<div ref={scrollableRef} style={outer}>
+		<div
+			ref={scrollableRef}
+			style={outer}
+			className={HORIZONTAL_SCROLLBAR_CLASSNAME}
+		>
 			<div style={containerStyle}>{children}</div>
 		</div>
 	);

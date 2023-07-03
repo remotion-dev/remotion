@@ -1,5 +1,5 @@
-import http from 'http';
 import https from 'https';
+import http from 'node:http';
 import {redirectStatusCodes} from '../redirect-status-codes';
 
 const getClient = (url: string) => {
@@ -11,7 +11,9 @@ const getClient = (url: string) => {
 		return http.get;
 	}
 
-	throw new Error('Can only download URLs starting with http:// or https://');
+	throw new Error(
+		`Can only download URLs starting with http:// or https://, got "${url}"`
+	);
 };
 
 const readFileWithoutRedirect = (

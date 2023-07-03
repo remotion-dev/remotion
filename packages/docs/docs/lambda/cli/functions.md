@@ -11,7 +11,6 @@ import {DefaultMemorySize} from '../../../components/lambda/default-memory-size'
 import {DefaultEphemerealStorageInMb} from '../../../components/lambda/default-disk-size';
 import {DefaultTimeout} from '../../../components/lambda/default-timeout';
 import {DefaultLogRetention} from '../../../components/lambda/default-log-retention';
-import {DefaultArchitecture} from '../../../components/lambda/default-architecture';
 
 The `npx remotion lambda functions` command allows you to deploy, view and delete AWS lambda functions that can render videos.
 
@@ -70,10 +69,6 @@ Timeout of the Lambda function. Default: <DefaultTimeout /> seconds.
 :::info
 Not to be confused with the [`--timeout` flag when rendering which defines the timeout for `delayRender()`](/docs/cli/render#--timeout).
 :::
-
-### `--architecture`
-
-Architecture to be used for the Lambda. One of `arm64` and `x86_64`. Default: <DefaultArchitecture />.
 
 ### `--disable-cloudwatch`
 

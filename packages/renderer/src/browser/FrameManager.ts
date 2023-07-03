@@ -39,6 +39,7 @@ import type {
 import {EventEmitter} from './EventEmitter';
 import {EVALUATION_SCRIPT_URL, ExecutionContext} from './ExecutionContext';
 import type {HTTPResponse} from './HTTPResponse';
+import {isTargetClosedErr} from './is-target-closed-err';
 import type {JSHandle} from './JSHandle';
 import type {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import {LifecycleWatcher} from './LifecycleWatcher';
@@ -147,7 +148,9 @@ export class FrameManager extends EventEmitter {
 					  }),
 			]);
 
-			const {frameTree} = result[1];
+			const {
+				value: {frameTree},
+			} = result[1];
 			this.#handleFrameTree(client, frameTree);
 			await Promise.all([
 				client.send('Page.setLifecycleEventsEnabled', {enabled: true}),
@@ -160,11 +163,7 @@ export class FrameManager extends EventEmitter {
 			]);
 		} catch (error) {
 			// The target might have been closed before the initialization finished.
-			if (
-				isErrorLike(error) &&
-				(error.message.includes('Target closed') ||
-					error.message.includes('Session closed'))
-			) {
+			if (isErrorLike(error) && isTargetClosedErr(error)) {
 				return;
 			}
 
@@ -218,7 +217,7 @@ export class FrameManager extends EventEmitter {
 			frameId: string
 		): Promise<Error | null> {
 			try {
-				const response = await client.send('Page.navigate', {
+				const {value: response} = await client.send('Page.navigate', {
 					url: _url,
 					referrer,
 					frameId,

@@ -85,13 +85,17 @@ _optional - default `"png"`_
 
 See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat).
 
-### `quality?`
+### `jpegQuality?`
 
 _optional_
 
 Sets the quality of the generated JPEG images. Must be an integer between 0 and 100. Default is to leave it up to the browser, [current default is 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 Only applies if `imageFormat` is `"jpeg"`, otherwise this option is invalid.
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `maxRetries?`
 
@@ -200,13 +204,11 @@ _optional_
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
 
-If the `logLevel` is set to `verbose`, the `dumpBrowserLogs` flag will also be enabled.
+### ~~`dumpBrowserLogs?`~~
 
-### `dumpBrowserLogs?`
+_optional - default `false`, deprecated in v4.0_
 
-_optional, available since v3.3.83_
-
-If set to true, all `console` statements from the headless browser will be forwarded to the CloudWatch logs.
+Deprecated in favor of [`logLevel`](#loglevel).
 
 ## Return value
 

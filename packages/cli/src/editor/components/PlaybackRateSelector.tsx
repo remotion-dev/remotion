@@ -6,11 +6,11 @@ import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 
-export const commonPlaybackRates: number[] = [
+const commonPlaybackRates: number[] = [
 	-4, -2, -1, -0.5, -0.25, 0.25, 0.5, 1, 2, 4,
 ];
 
-export const getPlaybackRateLabel = (playbackRate: number) => {
+const getPlaybackRateLabel = (playbackRate: number) => {
 	return `${playbackRate}x`;
 };
 

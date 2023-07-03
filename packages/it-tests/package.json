@@ -4,7 +4,7 @@
   "license": "SEE LICENSE IN LICENSE.md",
   "scripts": {
     "test": "vitest src/monorepo --run && vitest src/rendering --run",
-    "testssr": "node --max_old_space_size=4096 node_modules/vitest/vitest.mjs src/ssr --run",
+    "testssr": "node --max_old_space_size=8192 node_modules/vitest/vitest.mjs src/ssr --run",
     "testlambda": "vitest src/lambda --run"
   },
   "private": true,
@@ -18,8 +18,8 @@
     "execa": "5.1.1",
     "remotion": "workspace:*",
     "sharp": "0.30.6",
-    "typescript": "^4.7.0",
+    "typescript": "4.9.5",
     "vite": "^4.0.4",
-    "vitest": "^0.27.2"
+    "vitest": "0.31.1"
   }
 }
