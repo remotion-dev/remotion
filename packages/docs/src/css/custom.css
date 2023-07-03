@@ -97,7 +97,7 @@ h6 {
   --subtitle: #8d8d8d;
   --border-color: rgb(42, 42, 42);
   --box-shadow: 0 1px 8px rgba(255, 255, 255, 0.2);
-  --ifm-out-of-focus: #eaeaea;
+  --ifm-out-of-focus: #505050;
 }
 
 [data-theme="light"] .docusaurus-highlight-code-line {
