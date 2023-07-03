@@ -1,3 +1,4 @@
+import type { SetStateAction } from "react";
 import React, { useEffect, useState } from "react";
 
 const style: React.CSSProperties = {
@@ -32,7 +33,9 @@ const timeLabel: React.CSSProperties = {
   marginBottom: 0,
 };
 
-export const V4Countdown: React.FC = () => {
+export const V4Countdown: React.FC<{
+  setShowCountdown: React.Dispatch<SetStateAction<boolean>>;
+}> = ({ setShowCountdown }) => {
   const [countdown, setCountdown] = useState<[string, string, string, string]>([
     "00",
     "00",
@@ -73,6 +76,10 @@ export const V4Countdown: React.FC = () => {
 
     return [strDays, strHours, strMinutes, strSeconds];
   };
+
+  if (Math.floor(Date.now() / 1000) > targetUnixTimeStamp) {
+    setShowCountdown(false);
+  }
 
   return (
     <div style={style}>
