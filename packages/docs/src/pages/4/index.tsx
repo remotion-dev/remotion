@@ -7,6 +7,7 @@ import { Spacer } from "../../../components/layout/Spacer";
 import { CoolInput } from "../../../components/TextInput";
 import { Seo } from "../../components/Seo";
 import styles from "./v4.module.css";
+import { DoMoreHero } from "../../components/DoMoreHero/DoMoreHero";
 
 const spacer: React.CSSProperties = {
   height: "10px",
@@ -84,6 +85,8 @@ const V4: React.FC = () => {
         {Seo.renderTitle("Do more with React | Remotion 4.0")}
         {Seo.renderImage("/img/remotion4.png", context.siteConfig.url)}
       </Head>
+      <DoMoreHero />
+
       <style>
         {`
         div[class^='announcementBar'] {
@@ -96,12 +99,11 @@ const V4: React.FC = () => {
           <h1 className={styles.pagetitle}>Do more with React</h1>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <p className={styles.title}>
-              Watch the Remotion Keynote July 3rd at 7pm CEST
+              Discover the new capabilities of Remotion 4.0 from July 3 – July 7
             </p>
           </div>
           <br />
           <br />
-          <div style={{ height: "60px" }} />
           <div className={styles.grid}>
             <EventComp
               description="Celebrate the launch of Remotion 4.0 and experience the new possibilities of media creation with React."
@@ -194,7 +196,30 @@ export const EventComp: React.FC<{
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           allowFullScreen
         />
-      ) : null}
+      ) : (
+        <div
+          style={{
+            width: "100%",
+            aspectRatio: "16 / 9",
+            backgroundColor: "var(--ifm-out-of-focus)",
+            borderRadius: 5,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              color: "var(--ifm-subtitle)",
+              justifyContent: "center",
+              alignItems: "center",
+              fontWeight: "bold",
+            }}
+          >
+            Check back {date}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
