@@ -6,7 +6,7 @@ import styles from "./writeinreact.module.css";
 export const WriteInReact: React.FC = () => {
   return (
     <div>
-      <h1 className={styles.writeincsstitle}>Make videos programmatically</h1>
+      <h1 className={styles.writeincsstitle}>Make videos programmatically.</h1>
       <br />
       <p
         style={{
@@ -16,9 +16,8 @@ export const WriteInReact: React.FC = () => {
         }}
         className={styles.text}
       >
-        and much more using React.
-        <br />
-        Catch the Remotion 4.0 release today live.
+        Create real MP4 videos using React. <br /> Scale your video production
+        using server-side rendering and parametrization.
       </p>
       <br />
       <div className={styles.writeincss}>
