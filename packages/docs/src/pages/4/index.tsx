@@ -25,13 +25,13 @@ const V4: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [subscribed, setSubscribed] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
+  const [showCountdown, setShowCountdown] = useState<boolean>(true);
   const buttonLabel = useMemo(() => {
     if (subscribed) {
-      return "You're set!";
+      return "You're signed up!";
     }
 
-    return loading ? "Submitting..." : "Remind";
+    return loading ? "Signing up..." : "Sign up";
   }, [loading, subscribed]);
   const isValidEmail = (inputMail: string) =>
     /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(inputMail);
@@ -53,7 +53,7 @@ const V4: React.FC = () => {
         if (isValidEmail(email)) {
           setLoading(true);
           const res = await fetch(
-            "https://companies.remotion.dev/api/launch-4",
+            "https://companies.remotion.dev/api/newsletter",
             {
               method: "POST",
               body: JSON.stringify({ email }),
@@ -112,23 +112,25 @@ const V4: React.FC = () => {
             allowFullScreen
           />
           <br />
-          <div style={{ textAlign: "center" }}>
-            <div>
-              <V4Countdown />
-            </div>
-            <div>
-              <a
-                href="/documents/RemotionV4Launch.ics"
-                download="RemotionV4Launch.ics"
-              >
-                <div
-                  className={[styles.button, styles.calendarbutton].join(" ")}
+          {showCountdown ? (
+            <div style={{ textAlign: "center" }}>
+              <div>
+                <V4Countdown setShowCountdown={setShowCountdown} />
+              </div>
+              <div>
+                <a
+                  href="/documents/RemotionV4Launch.ics"
+                  download="RemotionV4Launch.ics"
                 >
-                  Add to Calendar
-                </div>
-              </a>
+                  <div
+                    className={[styles.button, styles.calendarbutton].join(" ")}
+                  >
+                    Add to Calendar
+                  </div>
+                </a>
+              </div>
             </div>
-          </div>
+          ) : null}
 
           <div style={{ height: "60px" }} />
           <div className={styles.grid}>
@@ -164,7 +166,7 @@ const V4: React.FC = () => {
             />
             <div className={styles.panel}>
               <div style={{ marginBottom: 10 }}>
-                Get a reminder on July 3rd:
+                Sign up for our newsletter to stay up to date:
               </div>
               <form style={{ width: "100%" }} onSubmit={onSubmit}>
                 <CoolInput
