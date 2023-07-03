@@ -109,7 +109,7 @@ export const staticFile = (path: string) => {
 	const includesHex = includesHexOfUnsafeChar(path);
 	if (includesHex.containsHex) {
 		warnOnce(
-			`WARNING: You seem to pass an already encoded path (path contains ${includesHex.hexCode}). The encoding gets automatically handled by staticFile()  `
+			`WARNING: You seem to pass an already encoded path (path contains ${includesHex.hexCode}). Since Remotion 4.0, the encoding is done by staticFile() itself. You may want to remove a encodeURIComponent() wrapping.`
 		);
 	}
 
