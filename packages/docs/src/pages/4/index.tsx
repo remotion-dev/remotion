@@ -6,7 +6,6 @@ import React, { useCallback, useMemo, useState } from "react";
 import { Spacer } from "../../../components/layout/Spacer";
 import { CoolInput } from "../../../components/TextInput";
 import { Seo } from "../../components/Seo";
-import { V4Countdown } from "../../components/V4Countdown";
 import styles from "./v4.module.css";
 
 const spacer: React.CSSProperties = {
@@ -101,41 +100,14 @@ const V4: React.FC = () => {
             </p>
           </div>
           <br />
-          <iframe
-            style={{
-              width: "100%",
-              aspectRatio: "16 / 9",
-            }}
-            src="https://www.youtube.com/embed/S3C9wlPNhkQ"
-            title="YouTube video player"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
           <br />
-          <div style={{ textAlign: "center" }}>
-            <div>
-              <V4Countdown />
-            </div>
-            <div>
-              <a
-                href="/documents/RemotionV4Launch.ics"
-                download="RemotionV4Launch.ics"
-              >
-                <div
-                  className={[styles.button, styles.calendarbutton].join(" ")}
-                >
-                  Add to Calendar
-                </div>
-              </a>
-            </div>
-          </div>
-
           <div style={{ height: "60px" }} />
           <div className={styles.grid}>
             <EventComp
               description="Celebrate the launch of Remotion 4.0 and experience the new possibilities of media creation with React."
               date="July 3rd"
               title="Keynote"
+              youtubeId="S3C9wlPNhkQ"
             />
             <EventComp
               date="July 4th"
@@ -196,7 +168,8 @@ export const EventComp: React.FC<{
   date: string;
   title: string;
   description: string;
-}> = ({ date, title, description }) => {
+  youtubeId?: string;
+}> = ({ date, title, description, youtubeId }) => {
   return (
     <div
       style={{
@@ -209,6 +182,19 @@ export const EventComp: React.FC<{
       <p className={styles.date}>{date}</p>
       <p className={styles.eventtitle}>{title}</p>
       <p>{description}</p>
+      {youtubeId ? (
+        <iframe
+          style={{
+            width: "100%",
+            aspectRatio: "16 / 9",
+          }}
+          src={`https://www.youtube.com/embed/${youtubeId}`}
+          title="YouTube video player"
+          frameBorder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowFullScreen
+        />
+      ) : null}
     </div>
   );
 };
