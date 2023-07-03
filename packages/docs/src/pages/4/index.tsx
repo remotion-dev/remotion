@@ -163,7 +163,9 @@ const V4: React.FC = () => {
               title="Last but not least"
             />
             <div className={styles.panel}>
-              <div style={{ marginBottom: 10 }}>Sign up for newsletter:</div>
+              <div style={{ marginBottom: 10 }}>
+                Sign up for our newsletter to stay up to date:
+              </div>
               <form style={{ width: "100%" }} onSubmit={onSubmit}>
                 <CoolInput
                   type="email"
