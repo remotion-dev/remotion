@@ -25,7 +25,7 @@ const V4: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [subscribed, setSubscribed] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-
+  const [showCountdown, setShowCountdown] = useState<boolean>(true);
   const buttonLabel = useMemo(() => {
     if (subscribed) {
       return "You're set!";
@@ -112,23 +112,25 @@ const V4: React.FC = () => {
             allowFullScreen
           />
           <br />
-          <div style={{ textAlign: "center" }}>
-            <div>
-              <V4Countdown />
-            </div>
-            <div>
-              <a
-                href="/documents/RemotionV4Launch.ics"
-                download="RemotionV4Launch.ics"
-              >
-                <div
-                  className={[styles.button, styles.calendarbutton].join(" ")}
+          {showCountdown ? (
+            <div style={{ textAlign: "center" }}>
+              <div>
+                <V4Countdown setShowCountdown={setShowCountdown} />
+              </div>
+              <div>
+                <a
+                  href="/documents/RemotionV4Launch.ics"
+                  download="RemotionV4Launch.ics"
                 >
-                  Add to Calendar
-                </div>
-              </a>
+                  <div
+                    className={[styles.button, styles.calendarbutton].join(" ")}
+                  >
+                    Add to Calendar
+                  </div>
+                </a>
+              </div>
             </div>
-          </div>
+          ) : null}
 
           <div style={{ height: "60px" }} />
           <div className={styles.grid}>
