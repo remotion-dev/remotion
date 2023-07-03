@@ -36,7 +36,7 @@ describe('Templates should be valid', () => {
 				expect(body.dependencies.react).toMatch(/^\^?18/);
 				expect(body.dependencies['react-dom']).toMatch(/^\^?18/);
 
-				expect(body.devDependencies.prettier).toMatch(/^\^?2.8.1/);
+				expect(body.devDependencies.prettier).toMatch(/^\^?2.8.8/);
 				expect(body.devDependencies.eslint).toMatch(/^\^?8.30/);
 				// eslint-disable-next-line @typescript-eslint/no-unused-vars
 				const eitherPluginOrConfig =
