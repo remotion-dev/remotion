@@ -9,7 +9,7 @@ When upgrading from Remotion 3 to Remotion 4, note the following changes and app
 
 ## How to upgrade
 
-See the [changelog](https://remotion.dev/docs/changelog) to find the latest version.
+See the [changelog](https://remotion.dev/changelog) to find the latest version.
 Upgrade `remotion` and all packages starting with `@remotion` to the latest version, e.g. `4.0.0`:
 
 ```diff

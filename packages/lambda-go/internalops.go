@@ -140,6 +140,7 @@ func constructGetProgressInternals(options *RenderConfig) (*renderProgressIntern
 		RenderId:   options.RenderId,
 		BucketName: options.BucketName,
 		Type:       "status",
+		Version:    VERSION,
 	}
 
 	return &internalParams, nil

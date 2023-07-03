@@ -21,8 +21,8 @@ github.com/leodido/go-urn v1.2.3/go.mod h1:7ZrI8mTSeBSHl/UaRyKQW1qZeMgak41ANeCNa
 github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/remotion-dev/lambda_go_sdk v0.0.0-20230628071719-4ab50ca3b467 h1:EbFN/H7I6+HhJ32tNR3Q37bZqvt9Md5pFbnsX60x1bM=
-github.com/remotion-dev/lambda_go_sdk v0.0.0-20230628071719-4ab50ca3b467/go.mod h1:vvKOHA/hIGbx3mjE4Dh6go7YPIP+W58FJwHGB/KRPHo=
+github.com/remotion-dev/lambda_go_sdk v0.0.0-20230630201601-b44c1a8d5a75 h1:vJ/cX/QnCjf6aHLKz0LJ3hZsZ8SWpPyhoO3pQF1nKEo=
+github.com/remotion-dev/lambda_go_sdk v0.0.0-20230630201601-b44c1a8d5a75/go.mod h1:vvKOHA/hIGbx3mjE4Dh6go7YPIP+W58FJwHGB/KRPHo=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
 github.com/stretchr/objx v0.5.0/go.mod h1:Yh+to48EsGEfYuaHDzXPcE3xhTkx73EhmCGUpEOglKo=
