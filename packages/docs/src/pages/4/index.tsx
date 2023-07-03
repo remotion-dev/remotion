@@ -8,6 +8,7 @@ import { CoolInput } from "../../../components/TextInput";
 import { Seo } from "../../components/Seo";
 import styles from "./v4.module.css";
 import { DoMoreHero } from "../../components/DoMoreHero/DoMoreHero";
+import { PlainButton } from "../../../components/layout/Button";
 
 const spacer: React.CSSProperties = {
   height: "10px",
@@ -102,6 +103,26 @@ const V4: React.FC = () => {
             </p>
           </div>
           <br />
+          <div
+            style={{
+              textAlign: "center",
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            <a
+              style={{
+                textDecoration: "none",
+              }}
+              className={styles.a}
+              href="/blog/4-0"
+            >
+              <PlainButton size="sm" loading={false} fullWidth={false}>
+                View announcement blog post
+              </PlainButton>
+            </a>
+          </div>
+
           <br />
           <div className={styles.grid}>
             <EventComp
