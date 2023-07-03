@@ -37,16 +37,15 @@ describe('Templates should be valid', () => {
 				expect(body.dependencies['react-dom']).toMatch(/^\^?18/);
 
 				expect(body.devDependencies.prettier).toMatch(/^\^?2.8.8/);
-				expect(body.devDependencies.eslint).toMatch(/^\^?8.43/);
-				// eslint-disable-next-line @typescript-eslint/no-unused-vars
-				const eitherPluginOrConfig =
-					body.devDependencies['@remotion/eslint-config']?.match(/^\^?3/) ||
-					body.devDependencies['@remotion/eslint-plugin']?.match(/^\^?3/);
-
-				expect(eitherPluginOrConfig).toBeTruthy();
 
 				if (!template.shortName.includes('JavaScript')) {
+					expect(body.devDependencies.eslint).toMatch(/^\^?8.43/);
 					expect(body.devDependencies.typescript).toMatch(/^\^?4/);
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+					const eitherPluginOrConfig =
+						body.devDependencies['@remotion/eslint-config']?.match(/^\^?4/) ||
+						body.devDependencies['@remotion/eslint-plugin']?.match(/^\^?4/);
+					expect(eitherPluginOrConfig).toBeTruthy();
 				}
 			},
 			12000
