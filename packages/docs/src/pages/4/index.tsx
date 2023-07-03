@@ -28,10 +28,10 @@ const V4: React.FC = () => {
 
   const buttonLabel = useMemo(() => {
     if (subscribed) {
-      return "You're set!";
+      return "You're signed up!";
     }
 
-    return loading ? "Submitting..." : "Remind";
+    return loading ? "Signing up..." : "Sign up";
   }, [loading, subscribed]);
   const isValidEmail = (inputMail: string) =>
     /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(inputMail);
@@ -53,7 +53,7 @@ const V4: React.FC = () => {
         if (isValidEmail(email)) {
           setLoading(true);
           const res = await fetch(
-            "https://companies.remotion.dev/api/launch-4",
+            "https://companies.remotion.dev/api/newsletter",
             {
               method: "POST",
               body: JSON.stringify({ email }),
@@ -164,7 +164,7 @@ const V4: React.FC = () => {
             />
             <div className={styles.panel}>
               <div style={{ marginBottom: 10 }}>
-                Get a reminder on July 3rd:
+                Sign up for our newsletter to stay up to date:
               </div>
               <form style={{ width: "100%" }} onSubmit={onSubmit}>
                 <CoolInput
