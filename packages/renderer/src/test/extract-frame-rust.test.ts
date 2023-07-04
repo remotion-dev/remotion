@@ -480,3 +480,37 @@ test('Two different starting times should not result in big seeking', async () =
 	compositor.finishCommands();
 	await compositor.waitForDone();
 });
+
+test('Should not duplicate frames for iphoneVideo', async () => {
+	const frame29 = 29 / 30;
+	const frame30 = 30 / 30;
+
+	const compositor = startLongRunningCompositor(300, 'info', false);
+
+	const firstFrame = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.iphonevideo,
+		time: frame29,
+		transparent: false,
+	});
+
+	const secondFrame = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.iphonevideo,
+		time: frame30,
+		transparent: false,
+	});
+
+	const hundredRandomPixels = new Array(100).fill(true).map(() => {
+		return Math.round(Math.random() * firstFrame.length);
+	});
+
+	// Should not be the same
+	let isSame = true;
+	for (const pixel of hundredRandomPixels) {
+		if (firstFrame[pixel] !== secondFrame[pixel]) {
+			isSame = false;
+			break;
+		}
+	}
+
+	expect(isSame).toBe(false);
+});
