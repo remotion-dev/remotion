@@ -1,4 +1,4 @@
-import {spawn} from 'node:child_process';
+import {exec, spawn} from 'node:child_process';
 import {platform} from 'node:os';
 import path from 'node:path';
 import {truthy} from '../../truthy';
@@ -14,12 +14,19 @@ export const openDirectoryInFinder = (
 		throw new Error(`Not allowed to open ${relativeToProcessCwd}`);
 	}
 
-	const command =
-		platform() === 'darwin'
-			? 'open'
-			: platform() === 'linux'
-			? 'xdg-open'
-			: 'start';
+	if (platform() === 'win32') {
+		return new Promise<void>((resolve, reject) => {
+			exec(`start ${dirToOpen}`, (error) => {
+				if (error) {
+					reject(error);
+				}
+
+				resolve();
+			});
+		});
+	}
+
+	const command = platform() === 'darwin' ? 'open' : 'xdg-open';
 
 	const p = spawn(
 		command,
