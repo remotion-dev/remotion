@@ -20,3 +20,13 @@ test('staticFile() should encode all problematic characters except slashes', () 
 	const nameWithSlashes = '/test/#example/$word';
 	expect(staticFile(nameWithSlashes)).toBe('/test/%23example/%24word');
 });
+
+test('if no leading slash exists, one should be added', () => {
+	const nameWithSlashes = 'test/example';
+	expect(staticFile(nameWithSlashes)).toBe('/test/example');
+});
+
+test('problematic character at the beginning should be encoded correctly', () => {
+	const problematicStart = '#test/example';
+	expect(staticFile(problematicStart)).toBe('/%23test/example');
+});
