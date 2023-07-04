@@ -26,6 +26,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 					},
 					editorProps: {},
 					signal: new AbortController().signal,
+					inputProps: {},
 				}),
 
 			/The "width" prop of the "<Composition \/>" component with the id "id" must be a number, but you passed a value of type undefined/
@@ -45,6 +46,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							width: 100,
 							defaultProps: {},
 						},
+						inputProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
 					}),
@@ -64,6 +66,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							id: 'id',
 							width: 100,
 						},
+						inputProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
 					}),
@@ -103,6 +106,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							width: 100,
 							defaultProps: {},
 						},
+						inputProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
 					}),
@@ -124,6 +128,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							width: -100,
 							defaultProps: {},
 						},
+						inputProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
 					}),
@@ -143,6 +148,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							width: 0,
 							defaultProps: {},
 						},
+						inputProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
 					}),
@@ -184,6 +190,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							width: 100,
 							defaultProps: {},
 						},
+						inputProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
 					}),
@@ -203,6 +210,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							width: 100,
 							defaultProps: {},
 						},
+						inputProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
 					}),
@@ -222,6 +230,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							width: 100,
 							defaultProps: {},
 						},
+						inputProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
 					}),
@@ -263,6 +272,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							width: 100,
 							defaultProps: {},
 						},
+						inputProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
 					}),
@@ -282,6 +292,7 @@ describe('Composition-validation render should throw with invalid props', () => 
 							width: 100,
 							defaultProps: {},
 						},
+						inputProps: {},
 						editorProps: {},
 						signal: new AbortController().signal,
 					}),
@@ -418,5 +429,30 @@ describe('Composition-validation render should NOT throw with valid props', () =
 				),
 			/"defaultProps" must be an object, an array was passed for composition "id"/
 		);
+	});
+});
+
+test('should resolve props correctly with no calculateMetadata()', async () => {
+	const resolved = await resolveVideoConfig({
+		composition: {
+			calculateMetadata: null,
+			durationInFrames: 100,
+			fps: 30,
+			height: 1080,
+			id: 'test',
+			width: 1920,
+			defaultProps: {
+				a: 'b',
+			},
+		},
+		editorProps: {},
+		inputProps: {
+			c: 'd',
+		},
+		signal: new AbortController().signal,
+	});
+	expect(resolved.props).toEqual({
+		a: 'b',
+		c: 'd',
 	});
 });
