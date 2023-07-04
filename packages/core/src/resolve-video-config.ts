@@ -1,8 +1,6 @@
 import type {AnyZodObject} from 'zod';
 import type {CalcMetadataReturnType} from './Composition.js';
 import type {TCompMetadataWithCalcFunction} from './CompositionManager.js';
-import {getInputProps} from './config/input-props.js';
-import {getRemotionEnvironment} from './get-environment.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import type {VideoConfig} from './video-config.js';
@@ -12,6 +10,7 @@ export const resolveVideoConfig = ({
 	composition,
 	editorProps: editorPropsOrUndefined,
 	signal,
+	inputProps,
 }: {
 	composition: TCompMetadataWithCalcFunction<
 		AnyZodObject,
@@ -19,21 +18,15 @@ export const resolveVideoConfig = ({
 	>;
 	editorProps: object;
 	signal: AbortSignal;
+	inputProps: Record<string, unknown>;
 }): VideoConfig | Promise<VideoConfig> => {
-	const guardedInputProps =
-		typeof window === 'undefined' ||
-		getRemotionEnvironment() === 'player-development' ||
-		getRemotionEnvironment() === 'player-production'
-			? {}
-			: getInputProps() ?? {};
-
 	const calculatedProm = composition.calculateMetadata
 		? composition.calculateMetadata({
 				defaultProps: composition.defaultProps ?? {},
 				props: {
 					...(composition.defaultProps ?? {}),
 					...(editorPropsOrUndefined ?? {}),
-					...guardedInputProps,
+					...inputProps,
 				},
 				abortSignal: signal,
 		  })
@@ -71,7 +64,10 @@ export const resolveVideoConfig = ({
 			...data,
 			id: composition.id,
 			defaultProps: composition.defaultProps ?? {},
-			props: composition.defaultProps ?? {},
+			props: {
+				...(composition.defaultProps ?? {}),
+				...(inputProps ?? {}),
+			},
 		};
 	}
 
