@@ -83,9 +83,21 @@ export const ResolveCompositionConfig: React.FC<
 				return controller;
 			}
 
+			const inputProps =
+				typeof window === 'undefined' ||
+				getRemotionEnvironment() === 'player-development' ||
+				getRemotionEnvironment() === 'player-production'
+					? {}
+					: getInputProps() ?? {};
+
 			const {signal} = controller;
 
-			const promOrNot = resolveVideoConfig({composition, editorProps, signal});
+			const promOrNot = resolveVideoConfig({
+				composition,
+				editorProps,
+				inputProps,
+				signal,
+			});
 
 			if (typeof promOrNot === 'object' && 'then' in promOrNot) {
 				setResolvedConfigs((r) => ({
