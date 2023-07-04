@@ -10,8 +10,11 @@ const svgStyle: React.CSSProperties = {
 
 const buttonStyle: React.CSSProperties = {
 	border: 'none',
-	width: '25px',
-	height: '25px',
+	width: '20px',
+	height: '20px',
+	display: 'flex',
+	justifyContent: 'center',
+	alignItems: 'center',
 };
 export const OpenEditorButton: React.FC<{}> = () => {
 	const [hovered, setHovered] = useState<boolean>(false);
