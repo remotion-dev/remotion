@@ -192,6 +192,7 @@
       "destination": "https://www.remotion.dev/docs/zod-types",
       "permanent": false
     },
+
     {
       "source": "/get-help",
       "destination": "https://www.remotion.dev/docs/get-help",
@@ -200,6 +201,11 @@
     {
       "source": "/native",
       "destination": "https://remotion.dev/docs/react-native",
+      "permanent": false
+    },
+    {
+      "source": "/docs/parametrized-rendering",
+      "destination": "https://www.remotion.dev/docs/parameterized-rendering",
       "permanent": false
     }
   ]
