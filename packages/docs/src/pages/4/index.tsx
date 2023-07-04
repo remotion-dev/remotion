@@ -135,6 +135,7 @@ const V4: React.FC = () => {
               date="July 4th"
               title="Visual editing"
               description="Expose parameters to the user interface, edit them, see the result in real-time and save them back to code."
+              youtubeId="NX9YTOsLGpQ"
             />
             <EventComp
               date="July 5th"
