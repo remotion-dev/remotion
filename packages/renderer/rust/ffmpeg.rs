@@ -1,5 +1,4 @@
 use crate::errors::ErrorWithBacktrace;
-use crate::global_printer::_print_debug;
 use crate::opened_stream::calc_position;
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::OpenVideoStats;
