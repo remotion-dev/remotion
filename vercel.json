@@ -207,6 +207,11 @@
       "source": "/docs/parametrized-rendering",
       "destination": "https://www.remotion.dev/docs/parameterized-rendering",
       "permanent": false
+    },
+    {
+      "source": "/business",
+      "destination": "https://github.com/orgs/remotion-dev/projects/10",
+      "permanent": false
     }
   ]
 }
