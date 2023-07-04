@@ -20,17 +20,20 @@ export const resolveVideoConfig = ({
 	editorProps: object;
 	signal: AbortSignal;
 }): VideoConfig | Promise<VideoConfig> => {
+	const guardedInputProps =
+		typeof window === 'undefined' ||
+		getRemotionEnvironment() === 'player-development' ||
+		getRemotionEnvironment() === 'player-production'
+			? {}
+			: getInputProps() ?? {};
+
 	const calculatedProm = composition.calculateMetadata
 		? composition.calculateMetadata({
 				defaultProps: composition.defaultProps ?? {},
 				props: {
 					...(composition.defaultProps ?? {}),
 					...(editorPropsOrUndefined ?? {}),
-					...(typeof window === 'undefined' ||
-					getRemotionEnvironment() === 'player-development' ||
-					getRemotionEnvironment() === 'player-production'
-						? {}
-						: getInputProps() ?? {}),
+					...guardedInputProps,
 				},
 				abortSignal: signal,
 		  })
@@ -62,6 +65,7 @@ export const resolveVideoConfig = ({
 		calculated: calculatedProm,
 		composition,
 	});
+
 	if (calculatedProm === null) {
 		return {
 			...data,
