@@ -57,7 +57,7 @@ The [AWS region](/docs/lambda/region-selection) to select. Both project and func
 
 ### `--props`
 
-[React Props to pass to the root component of your video.](/docs/parametrized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).
+[React Props to pass to the root component of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).
 
 ### `--scale`
 

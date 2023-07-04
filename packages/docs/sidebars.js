@@ -380,10 +380,10 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Parametrized videos",
+      label: "Parameterized videos",
       link: {
         type: "doc",
-        id: "parametrized-rendering",
+        id: "parameterized-rendering",
       },
       items: [
         "passing-props",

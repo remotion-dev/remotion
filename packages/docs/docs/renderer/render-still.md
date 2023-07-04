@@ -73,7 +73,7 @@ An absolute path to where the frame should be rendered to.
 
 _optional_
 
-[Custom props which will be passed to the component.](/docs/parametrized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
+[Custom props which will be passed to the component.](/docs/parameterized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
 
 ### `frame?`
 
