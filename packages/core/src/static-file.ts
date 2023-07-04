@@ -67,6 +67,16 @@ const inner = (path: string): string => {
 	return `/${trimLeadingSlash(path)}`;
 };
 
+const encodeBySplitting = (path: string): string => {
+	const splitBySlash = path.split('/');
+
+	const encodedArray = splitBySlash.map((element) => {
+		return encodeURIComponent(element);
+	});
+	const merged = encodedArray.join('/');
+	return merged;
+};
+
 /**
  * @description Reference a file from the public/ folder. If the file does not appear in the autocomplete, type the path manually.
  * @see [Documentation](https://www.remotion.dev/docs/staticfile)
@@ -113,7 +123,8 @@ export const staticFile = (path: string) => {
 		);
 	}
 
-	const preparsed = inner(encodeURIComponent(path));
+	const preprocessed = encodeBySplitting(path);
+	const preparsed = inner(preprocessed);
 
 	if (!preparsed.startsWith('/')) {
 		return `/${preparsed}`;
