@@ -1,3 +1,5 @@
+use std::usize;
+
 use ffmpeg_next::{
     format::Pixel,
     frame::Video,
@@ -160,7 +162,7 @@ pub fn scale_and_make_bitmap(
         std::mem::drop(inner);
     }
 
-    let (rotated, rotated_width, rotated_height) = match native_frame.rotate {
+    let (rotated, rotated_width, rotated_height, stride) = match native_frame.rotate {
         Rotate::Rotate90 => rotate_90(
             scaled.data(0),
             native_frame.scaled_width,
@@ -180,6 +182,7 @@ pub fn scale_and_make_bitmap(
             scaled.data(0).to_vec(),
             native_frame.scaled_width,
             native_frame.scaled_height,
+            scaled.stride(0),
         ),
     };
 
@@ -191,11 +194,11 @@ pub fn scale_and_make_bitmap(
         &rotated,
         rotated_width,
         rotated_height,
-        (rotated_width * 3) as usize,
+        stride,
     ))
 }
 
-pub fn rotate_270(data: &[u8], width: u32, height: u32) -> (Vec<u8>, u32, u32) {
+pub fn rotate_270(data: &[u8], width: u32, height: u32) -> (Vec<u8>, u32, u32, usize) {
     let mut new_data: Vec<u8> = vec![0; data.len()];
 
     for y in 0..height {
@@ -208,10 +211,10 @@ pub fn rotate_270(data: &[u8], width: u32, height: u32) -> (Vec<u8>, u32, u32) {
         }
     }
 
-    (new_data, height, width)
+    (new_data, height, width, height as usize * 3)
 }
 
-pub fn rotate_180(data: &[u8], width: u32, height: u32) -> (Vec<u8>, u32, u32) {
+pub fn rotate_180(data: &[u8], width: u32, height: u32) -> (Vec<u8>, u32, u32, usize) {
     let mut new_data: Vec<u8> = vec![0; data.len()];
 
     for y in 0..height {
@@ -224,10 +227,10 @@ pub fn rotate_180(data: &[u8], width: u32, height: u32) -> (Vec<u8>, u32, u32) {
         }
     }
 
-    (new_data, width, height)
+    (new_data, width, height, width as usize * 3)
 }
 
-pub fn rotate_90(data: &[u8], width: u32, height: u32) -> (Vec<u8>, u32, u32) {
+pub fn rotate_90(data: &[u8], width: u32, height: u32) -> (Vec<u8>, u32, u32, usize) {
     let mut new_data: Vec<u8> = vec![0; data.len()];
 
     for y in 0..height {
@@ -240,5 +243,5 @@ pub fn rotate_90(data: &[u8], width: u32, height: u32) -> (Vec<u8>, u32, u32) {
         }
     }
 
-    (new_data, height, width)
+    (new_data, height, width, height as usize * 3)
 }
