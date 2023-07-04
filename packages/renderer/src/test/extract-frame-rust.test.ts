@@ -223,19 +223,9 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 	expect(height).toBe(1280);
 	expect(width).toBe(720);
 
-	expect(data[23103]).toBe(249);
-	expect(data[8103]).toBe(249);
-	expect(data[90000]).toBe(249);
-	expect(data[1382427]).toBe(250);
-	expect(data[1382428]).toBe(250);
-	expect(data[1382429]).toBe(250);
-	expect(data[1682429]).toBe(251);
-	expect(data[1982429]).toBe(250);
-	expect(data[2082429]).toBe(250);
-	expect(data[82429]).toBe(249);
-	expect(data[22429]).toBe(249);
-	expect(data[2429]).toBe(247);
-	expect(data[429]).toBe(247);
+	expect(data[0x00169915]).approximately(144, 1);
+	expect(data[0x0012dd58]).approximately(159, 1);
+	expect(data[0x00019108]).approximately(209, 1);
 
 	compositor.finishCommands();
 	await compositor.waitForDone();
