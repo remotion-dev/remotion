@@ -81,7 +81,7 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 _object - optional_
 
-An object of arbitrary shape that will be passed as [props to your composition](/docs/parametrized-rendering) and that can be retrieved using [`getInputProps()`](/docs/get-input-props).
+An object of arbitrary shape that will be passed as [props to your composition](/docs/parameterized-rendering) and that can be retrieved using [`getInputProps()`](/docs/get-input-props).
 
 ### `concurrency?`
 
