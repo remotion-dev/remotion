@@ -153,7 +153,7 @@ under `.github/workflows/render-video.yml`. All you have to do is to adjust the 
 
 Note that running the workflow may incur costs. However, the workflow will only run if you actively trigger it.
 
-[See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
+[See also: Passing props in GitHub Actions](/docs/parameterized-rendering#passing-props-in-github-actions)
 
 ## Rendering a video using serverless
 
