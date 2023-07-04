@@ -174,11 +174,13 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		propsType: 'input-props',
 	});
 
+	const inputProps = await inputPropsPromise;
+	RenderInternals.Log.info('Validating composition, input props:', inputProps);
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance,
-		inputProps: await inputPropsPromise,
+		inputProps,
 		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
@@ -188,6 +190,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		logLevel: params.logLevel,
 		server: undefined,
 	});
+	RenderInternals.Log.info('Composition validated, resolved props', comp.props);
+
 	Internals.validateDurationInFrames(comp.durationInFrames, {
 		component: 'passed to a Lambda render',
 		allowFloats: false,
