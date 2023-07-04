@@ -522,7 +522,7 @@ export const articles = [
     title: "How props get resolved",
     relativePath: "docs/how-props-flow.md",
     compId: "articles-docs-how-props-flow",
-    crumb: "Parametrized videos",
+    crumb: "Parameterized videos",
   },
   {
     id: "iframe",
@@ -1346,10 +1346,10 @@ export const articles = [
     crumb: "How To",
   },
   {
-    id: "parametrized-rendering",
-    title: "Parametrized videos",
-    relativePath: "docs/parametrized-rendering.md",
-    compId: "articles-docs-parametrized-rendering",
+    id: "parameterized-rendering",
+    title: "Parameterized videos",
+    relativePath: "docs/parameterized-rendering.md",
+    compId: "articles-docs-parameterized-rendering",
     crumb: "How To",
   },
   {

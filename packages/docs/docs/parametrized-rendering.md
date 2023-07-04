@@ -1,6 +1,6 @@
 ---
-id: parametrized-rendering
-title: Parametrized videos
+id: parameterized-rendering
+title: Parameterized videos
 sidebar_label: Passing props
 crumb: "How To"
 ---
