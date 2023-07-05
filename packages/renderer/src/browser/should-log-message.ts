@@ -25,14 +25,14 @@ export const shouldLogBrowserMessage = (message: string) => {
 
 	if (
 		message.includes(
-			'CreatePlatformSocket() failed: Address family not supported by protocol (97)'
+			'CreatePlatformSocket() failed: Address family not supported by protocol'
 		)
 	) {
 		return false;
 	}
 
 	if (
-		message.includes('[chrome] Fontconfig error: No writable cache directories')
+		message.includes('Fontconfig error: No writable cache directories')
 	) {
 		return false;
 	}
