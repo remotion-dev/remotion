@@ -2,6 +2,7 @@ import React from 'react';
 
 const iconStyle: React.CSSProperties = {
 	width: 10,
+	display: 'inline',
 };
 
 export const ShiftIcon: React.FC = () => {
