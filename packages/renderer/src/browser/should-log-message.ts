@@ -23,14 +23,6 @@ export const shouldLogBrowserMessage = (message: string) => {
 		return false;
 	}
 
-	// Lambda function accessing resources from localhost
-	if (
-		message.includes('Mixed Content:') &&
-		message.includes('http://localhost:')
-	) {
-		return false;
-	}
-
 	if (
 		message.includes(
 			'CreatePlatformSocket() failed: Address family not supported by protocol (97)'
