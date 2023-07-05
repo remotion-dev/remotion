@@ -189,6 +189,7 @@ const innerStillHandler = async (
 		port: null,
 		server,
 		logLevel: lambdaParams.logLevel,
+		serializedResolvedPropsWithCustomSchema: JSON.stringify(composition.props),
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(

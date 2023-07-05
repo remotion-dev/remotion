@@ -2,11 +2,11 @@ import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
 import type {SerializedInputProps} from './constants';
-import {defaultPropsKey, inputPropsKey, resolvedPropsKey} from './constants';
+import {inputPropsKey, resolvedPropsKey} from './constants';
 import {randomHash} from './random-hash';
 import {streamToString} from './stream-to-string';
 
-type PropsType = 'input-props' | 'resolved-props' | 'default-props';
+type PropsType = 'input-props' | 'resolved-props';
 
 export const serializeOrThrow = (
 	inputProps: Record<string, unknown>,
@@ -129,10 +129,6 @@ export const decompressInputProps = async ({
 const makeKey = (type: PropsType, hash: string): string => {
 	if (type === 'input-props') {
 		return inputPropsKey(hash);
-	}
-
-	if (type === 'default-props') {
-		return defaultPropsKey(hash);
 	}
 
 	return resolvedPropsKey(hash);

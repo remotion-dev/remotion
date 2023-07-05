@@ -330,6 +330,9 @@ export const benchmarkCommand = async (
 					onStart: () => undefined,
 					preferLossless: false,
 					server: undefined,
+					serializedResolvedPropsWithCustomSchema: JSON.stringify(
+						composition.props
+					),
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

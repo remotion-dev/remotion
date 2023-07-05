@@ -394,6 +394,7 @@ export const renderVideoFlow = async ({
 			onBrowserLog: null,
 			onFrameBuffer: null,
 			logLevel,
+			serializedResolvedPropsWithCustomSchema: JSON.stringify(config.props),
 		});
 
 		updateRenderProgress(true);
@@ -464,6 +465,7 @@ export const renderVideoFlow = async ({
 		disallowParallelEncoding,
 		onBrowserLog: null,
 		onStart: () => undefined,
+		serializedResolvedPropsWithCustomSchema: JSON.stringify(config.props),
 	});
 
 	updateRenderProgress(true);

@@ -78,7 +78,7 @@ export type InternalRenderFramesOptions = {
 	scale: number;
 	port: number | null;
 	cancelSignal: CancelSignal | undefined;
-	composition: VideoConfig;
+	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
 	indent: boolean;
 	server: RemotionServer | undefined;
 	muted: boolean;
@@ -86,6 +86,7 @@ export type InternalRenderFramesOptions = {
 	webpackBundleOrServeUrl: string;
 	logLevel: LogLevel;
 	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
 };
 
 type InnerRenderFramesOptions = {
@@ -109,7 +110,7 @@ type InnerRenderFramesOptions = {
 	timeoutInMilliseconds: number;
 	scale: number;
 	cancelSignal: CancelSignal | undefined;
-	composition: VideoConfig;
+	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
 	muted: boolean;
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -124,6 +125,7 @@ type InnerRenderFramesOptions = {
 	logLevel: LogLevel;
 	indent: boolean;
 	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
 };
 
 export type RenderFramesOptions = {
@@ -174,6 +176,7 @@ const innerRenderFrames = async ({
 	outputDir,
 	onStart,
 	serializedInputPropsWithCustomSchema,
+	serializedResolvedPropsWithCustomSchema,
 	jpegQuality,
 	imageFormat,
 	frameRange,
@@ -260,7 +263,7 @@ const innerRenderFrames = async ({
 			// eslint-disable-next-line max-params
 			pageFunction: (
 				id: string,
-				props: Record<string, unknown>,
+				props: string,
 				durationInFrames: number,
 				fps: number,
 				height: number,
@@ -269,7 +272,7 @@ const innerRenderFrames = async ({
 				window.remotion_setBundleMode({
 					type: 'composition',
 					compositionName: id,
-					props,
+					serializedResolvedPropsWithSchema: props,
 					compositionDurationInFrames: durationInFrames,
 					compositionFps: fps,
 					compositionHeight: height,
@@ -278,7 +281,7 @@ const innerRenderFrames = async ({
 			},
 			args: [
 				composition.id,
-				composition.props,
+				serializedResolvedPropsWithCustomSchema,
 				composition.durationInFrames,
 				composition.fps,
 				composition.height,
@@ -581,6 +584,7 @@ export const internalRenderFrames = ({
 	logLevel,
 	webpackBundleOrServeUrl,
 	serializedInputPropsWithCustomSchema,
+	serializedResolvedPropsWithCustomSchema,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		composition.height,
@@ -712,6 +716,7 @@ export const internalRenderFrames = ({
 						logLevel,
 						indent,
 						serializedInputPropsWithCustomSchema,
+						serializedResolvedPropsWithCustomSchema,
 					});
 				}
 			),
@@ -824,6 +829,7 @@ export const renderFrames = (
 		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,
 		onDownload: onDownload ?? null,
 		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps ?? {}),
+		serializedResolvedPropsWithCustomSchema: JSON.stringify(composition.props),
 		puppeteerInstance,
 		muted: muted ?? false,
 		onBrowserLog: onBrowserLog ?? null,

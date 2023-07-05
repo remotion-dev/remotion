@@ -79,8 +79,9 @@ export type RenderMediaOnProgress = (progress: {
 export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
 	codec: Codec;
-	composition: VideoConfig;
+	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
 	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
 	crf: number | null;
 	imageFormat: VideoImageFormat;
 	pixelFormat: PixelFormat;
@@ -216,6 +217,7 @@ export const internalRenderMedia = ({
 	serveUrl,
 	server: reusedServer,
 	logLevel,
+	serializedResolvedPropsWithCustomSchema,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	validateJpegQuality(jpegQuality);
 	validateQualitySettings({crf, codec, videoBitrate});
@@ -547,6 +549,7 @@ export const internalRenderMedia = ({
 					logLevel,
 					indent,
 					server,
+					serializedResolvedPropsWithCustomSchema,
 				});
 
 				return renderFramesProc;
@@ -756,5 +759,7 @@ export const renderMedia = ({
 		indent: false,
 		onCtrlCExit: () => undefined,
 		server: undefined,
+		// TODO Serialize props
+		serializedResolvedPropsWithCustomSchema: JSON.stringify(composition.props),
 	});
 };
