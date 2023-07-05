@@ -52,7 +52,8 @@ pub fn extract_frame(
         vid.time_base,
     );
 
-    let cache_item = vid.get_cache_item_id(transparent, position, one_frame_in_time_base);
+    // Don't allow previous frame, but allow for some flexibility
+    let cache_item = vid.get_cache_item_id(transparent, position, one_frame_in_time_base - 1);
 
     match cache_item {
         Ok(Some(item)) => {
