@@ -1,3 +1,5 @@
+import {staticFile} from './static-file.js';
+
 export type SerializedJSONWithCustomFields = {
 	serializedString: string;
 	customDateUsed: boolean;
@@ -59,6 +61,10 @@ export const deserializeJSONWithCustomFields = (data: string) => {
 	return JSON.parse(data, (_, value) => {
 		if (typeof value === 'string' && value.startsWith(DATE_TOKEN)) {
 			return new Date(value.replace(DATE_TOKEN, ''));
+		}
+
+		if (typeof value === 'string' && value.startsWith(FILE_TOKEN)) {
+			return staticFile(value.replace(FILE_TOKEN, ''));
 		}
 
 		return value;
