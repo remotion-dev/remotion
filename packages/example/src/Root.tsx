@@ -130,6 +130,18 @@ export const Index: React.FC = () => {
 			setTimeout(r, 1000);
 		});
 
+		console.log('aaaaa', {
+			hi: 'there',
+			p: 'a',
+			x: 'd',
+			w: 'x',
+			l: 'd',
+			k: 'd',
+			a: 'q',
+			m: 'o',
+			abc: '/public/subtitles.srt',
+		});
+
 		return {
 			durationInFrames: props.duration,
 			fps: 30,
