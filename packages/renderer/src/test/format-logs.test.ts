@@ -84,3 +84,19 @@ test("No '…' at the end of the log if overflow = false ", () => {
 
 	expect(result).toBe('{ hi: "there", p: "a", x: "d", w: "x", l: "d" }');
 });
+
+test("Array overflow should end in '…]' ", () => {
+	const result = formatObjectPreview({
+		type: 'object',
+		subtype: 'array',
+		description: 'Array(1000)',
+		overflow: true,
+		properties: [
+			{name: '0', type: 'boolean', value: 'true'},
+			{name: '1', type: 'boolean', value: 'true'},
+			{name: '2', type: 'boolean', value: 'true'},
+		],
+	});
+
+	expect(result).toBe('[ true, true, true, …]');
+});

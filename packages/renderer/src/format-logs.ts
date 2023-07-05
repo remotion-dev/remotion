@@ -66,6 +66,12 @@ export const formatObjectPreview = (preview: ObjectPreview) => {
 		});
 
 		if (preview.subtype === 'array') {
+			if (preview.overflow) {
+				return chalk.reset(
+					`[ ${preview.properties.map((p) => formatProperty(p)).join(', ')}, …]`
+				);
+			}
+
 			return chalk.reset(
 				`[ ${preview.properties.map((p) => formatProperty(p)).join(', ')} ]`
 			);
