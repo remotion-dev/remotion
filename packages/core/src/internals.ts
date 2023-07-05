@@ -29,6 +29,12 @@ import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
+import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
+import {
+	deserializeJSONWithCustomFields,
+	FILE_TOKEN,
+	serializeJSONWithDate,
+} from './input-props-serialization.js';
 import {processColor} from './interpolate-colors.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
 import {NonceContext} from './nonce.js';
@@ -142,6 +148,9 @@ export const Internals = {
 	bundleName: 'bundle.js',
 	persistCurrentFrame,
 	useTimelineSetFrame,
+	serializeJSONWithDate,
+	deserializeJSONWithCustomFields,
+	FILE_TOKEN,
 } as const;
 
 export type {
@@ -157,4 +166,5 @@ export type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	RemotionEnvironment,
+	SerializedJSONWithCustomFields,
 };

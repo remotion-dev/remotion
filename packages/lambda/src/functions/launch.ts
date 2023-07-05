@@ -256,32 +256,16 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const reqSend = timer('sending off requests');
 
 	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
-	const serializedDefault = serializeOrThrow(
-		comp.defaultProps,
-		'default-props'
-	);
 
-	const needsToUpload = getNeedsToUpload(
-		'video-or-audio',
-		serializedResolved + serializedDefault
-	);
+	const needsToUpload = getNeedsToUpload('video-or-audio', serializedResolved);
 
-	const [serializedResolvedProps, serializedDefaultProps] = await Promise.all([
-		compressInputProps({
-			propsType: 'resolved-props',
-			region: getCurrentRegionInFunction(),
-			stringifiedInputProps: serializedResolved,
-			userSpecifiedBucketName: params.bucketName,
-			needsToUpload,
-		}),
-		compressInputProps({
-			propsType: 'default-props',
-			region: getCurrentRegionInFunction(),
-			stringifiedInputProps: serializedDefault,
-			userSpecifiedBucketName: params.bucketName,
-			needsToUpload,
-		}),
-	]);
+	const serializedResolvedProps = await compressInputProps({
+		propsType: 'resolved-props',
+		region: getCurrentRegionInFunction(),
+		stringifiedInputProps: serializedResolved,
+		userSpecifiedBucketName: params.bucketName,
+		needsToUpload,
+	});
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
@@ -320,7 +304,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 				version: VERSION,
 			},
 			resolvedProps: serializedResolvedProps,
-			defaultProps: serializedDefaultProps,
 		};
 		return payload;
 	});

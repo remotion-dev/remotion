@@ -298,6 +298,7 @@ export const renderStillFlow = async ({
 		indent: indentOutput,
 		onBrowserLog: null,
 		logLevel,
+		serializedResolvedPropsWithCustomSchema: JSON.stringify(config.props),
 	});
 
 	aggregate.rendering = {

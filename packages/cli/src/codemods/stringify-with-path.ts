@@ -1,5 +1,5 @@
+import {Internals} from 'remotion';
 import type {EnumPath} from '../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
-import {FILE_TOKEN} from '../editor/components/RenderModal/SchemaEditor/input-props-serialization';
 
 const doesMatchPath = (path1: EnumPath, enumPaths: EnumPath[]) => {
 	return enumPaths.some((p) =>
@@ -36,9 +36,9 @@ export const stringifyDefaultProps = ({
 				return `${item}__ADD_AS_CONST__`;
 			}
 
-			if (typeof item === 'string' && item.startsWith(FILE_TOKEN)) {
+			if (typeof item === 'string' && item.startsWith(Internals.FILE_TOKEN)) {
 				return `__REMOVEQUOTE____WRAP_IN_STATIC_FILE_START__${decodeURIComponent(
-					item.replace(FILE_TOKEN, '')
+					item.replace(Internals.FILE_TOKEN, '')
 				)}__WRAP_IN_STATIC_FILE_END____REMOVEQUOTE__`;
 			}
 

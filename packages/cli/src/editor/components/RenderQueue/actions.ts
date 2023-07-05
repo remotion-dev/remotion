@@ -13,7 +13,7 @@ import type {
 } from '../../../preview-server/render-queue/job';
 import type {RequiredChromiumOptions} from '../../../required-chromium-options';
 import type {EnumPath} from '../RenderModal/SchemaEditor/extract-enum-json-paths';
-import {serializeJSONWithDate} from '../RenderModal/SchemaEditor/input-props-serialization';
+import {Internals} from 'remotion';
 
 const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
@@ -86,7 +86,7 @@ export const addStillRenderJob = ({
 		chromiumOptions,
 		delayRenderTimeout,
 		envVariables,
-		serializedInputPropsWithCustomSchema: serializeJSONWithDate({
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
 			data: inputProps,
 			staticBase: window.remotion_staticBase,
 			indent: undefined,
@@ -173,7 +173,7 @@ export const addVideoRenderJob = ({
 		disallowParallelEncoding,
 		chromiumOptions,
 		envVariables,
-		serializedInputPropsWithCustomSchema: serializeJSONWithDate({
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
 			data: inputProps,
 			staticBase: window.remotion_staticBase,
 			indent: undefined,
@@ -235,7 +235,7 @@ export const updateDefaultProps = (
 ) => {
 	return callApi('/api/update-default-props', {
 		compositionId,
-		defaultProps: serializeJSONWithDate({
+		defaultProps: Internals.serializeJSONWithDate({
 			data: defaultProps,
 			indent: undefined,
 			staticBase: window.remotion_staticBase,

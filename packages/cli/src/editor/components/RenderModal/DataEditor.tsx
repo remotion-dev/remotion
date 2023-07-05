@@ -5,7 +5,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import type {AnyComposition} from 'remotion';
+import type {AnyComposition, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
 import type {z} from 'zod';
 import {subscribeToEvent} from '../../../event-source';
@@ -28,8 +28,6 @@ import {
 } from './get-render-modal-warnings';
 import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
 import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
-import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
-import {serializeJSONWithDate} from './SchemaEditor/input-props-serialization';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -140,7 +138,7 @@ export const DataEditor: React.FC<{
 		}
 
 		const value = inputProps;
-		return serializeJSONWithDate({
+		return Internals.serializeJSONWithDate({
 			data: value,
 			indent: 2,
 			staticBase: window.remotion_staticBase,

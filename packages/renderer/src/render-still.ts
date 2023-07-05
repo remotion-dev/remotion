@@ -43,6 +43,7 @@ type InternalRenderStillOptions = {
 	output: string | null;
 	frame: number;
 	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
 	imageFormat: StillImageFormat;
 	jpegQuality: number;
 	puppeteerInstance: HeadlessBrowser | null;
@@ -122,6 +123,7 @@ const innerRenderStill = async ({
 	downloadMap,
 	logLevel,
 	indent,
+	serializedResolvedPropsWithCustomSchema,
 }: InternalRenderStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
@@ -266,7 +268,7 @@ const innerRenderStill = async ({
 		// eslint-disable-next-line max-params
 		pageFunction: (
 			id: string,
-			props: Record<string, unknown>,
+			props: string,
 			durationInFrames: number,
 			fps: number,
 			height: number,
@@ -275,7 +277,7 @@ const innerRenderStill = async ({
 			window.remotion_setBundleMode({
 				type: 'composition',
 				compositionName: id,
-				props,
+				serializedResolvedPropsWithSchema: props,
 				compositionDurationInFrames: durationInFrames,
 				compositionFps: fps,
 				compositionHeight: height,
@@ -284,7 +286,7 @@ const innerRenderStill = async ({
 		},
 		args: [
 			composition.id,
-			composition.props,
+			serializedResolvedPropsWithCustomSchema,
 			composition.durationInFrames,
 			composition.fps,
 			composition.height,
@@ -438,5 +440,9 @@ export const renderStill = (
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel: verbose || dumpBrowserLogs ? 'verbose' : getLogLevel(),
+		// TODO Serialize date
+		serializedResolvedPropsWithCustomSchema: JSON.stringify(
+			composition.props ?? {}
+		),
 	});
 };

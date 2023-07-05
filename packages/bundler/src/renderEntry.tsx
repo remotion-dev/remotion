@@ -68,7 +68,9 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 
 			compositions.setCurrentComposition(foundComposition?.id ?? null);
 			compositions.setCurrentCompositionMetadata({
-				props: state.props,
+				props: Internals.deserializeJSONWithCustomFields(
+					state.serializedResolvedPropsWithSchema
+				),
 				durationInFrames: state.compositionDurationInFrames,
 				fps: state.compositionFps,
 				height: state.compositionHeight,

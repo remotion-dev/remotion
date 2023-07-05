@@ -63,14 +63,6 @@ const renderHandler = async (
 		propsType: 'resolved-props',
 	});
 
-	const defaultPropsPromise = decompressInputProps({
-		bucketName: params.bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-		serialized: params.defaultProps,
-		propsType: 'default-props',
-	});
-
 	const browserInstance = await getBrowserInstance(
 		params.logLevel,
 		false,
@@ -118,9 +110,8 @@ const renderHandler = async (
 
 	const downloads: Record<string, number> = {};
 
-	const inputProps = await inputPropsPromise;
 	const resolvedProps = await resolvedPropsPromise;
-	const defaultProps = await defaultPropsPromise;
+	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
 
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
@@ -130,11 +121,9 @@ const renderHandler = async (
 				fps: params.fps,
 				height: params.height,
 				width: params.width,
-				props: resolvedProps,
-				defaultProps,
 			},
 			imageFormat: params.imageFormat,
-			serializedInputPropsWithCustomSchema: inputProps,
+			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (
@@ -242,6 +231,7 @@ const renderHandler = async (
 			indent: false,
 			onCtrlCExit: () => undefined,
 			server: undefined,
+			serializedResolvedPropsWithCustomSchema: resolvedProps,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);
