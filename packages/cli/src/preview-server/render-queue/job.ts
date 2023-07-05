@@ -82,7 +82,7 @@ export type RenderJob = {
 	cancelToken: ReturnType<typeof makeCancelSignal>;
 	chromiumOptions: RequiredChromiumOptions;
 	envVariables: Record<string, string>;
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 } & RenderJobDynamicFields;
 
 export type RenderJobWithCleanup = RenderJob & {
@@ -132,7 +132,7 @@ export type AddRenderRequest = {
 	chromiumOptions: RequiredChromiumOptions;
 	delayRenderTimeout: number;
 	envVariables: Record<string, string>;
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 } & AddRenderRequestDynamicFields;
 
 export type RemoveRenderRequest = {

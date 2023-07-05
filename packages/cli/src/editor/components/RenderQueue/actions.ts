@@ -86,7 +86,11 @@ export const addStillRenderJob = ({
 		chromiumOptions,
 		delayRenderTimeout,
 		envVariables,
-		inputProps,
+		serializedInputPropsWithCustomSchema: serializeJSONWithDate({
+			data: inputProps,
+			staticBase: window.remotion_staticBase,
+			indent: undefined,
+		}).serializedString,
 	});
 };
 
@@ -169,7 +173,11 @@ export const addVideoRenderJob = ({
 		disallowParallelEncoding,
 		chromiumOptions,
 		envVariables,
-		inputProps,
+		serializedInputPropsWithCustomSchema: serializeJSONWithDate({
+			data: inputProps,
+			staticBase: window.remotion_staticBase,
+			indent: undefined,
+		}).serializedString,
 	});
 };
 

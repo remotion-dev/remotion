@@ -13,7 +13,7 @@ type ValidateCompositionOptions = {
 	serveUrl: string;
 	composition: string;
 	browserInstance: Await<ReturnType<typeof openBrowser>>;
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
 	timeoutInMilliseconds: number;
 	chromiumOptions: ChromiumOptions;
@@ -28,7 +28,7 @@ export const validateComposition = async ({
 	serveUrl,
 	composition,
 	browserInstance,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	envVariables,
 	timeoutInMilliseconds,
 	chromiumOptions,
@@ -41,7 +41,7 @@ export const validateComposition = async ({
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
 		puppeteerInstance: browserInstance,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		envVariables,
 		timeoutInMilliseconds,
 		chromiumOptions,

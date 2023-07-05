@@ -65,7 +65,7 @@ export const listCompositionsCommand = async (
 		browserExecutable,
 		chromiumOptions,
 		envVariables,
-		inputProps,
+		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
 		timeoutInMilliseconds: puppeteerTimeout,
 		port,
 		indent: false,

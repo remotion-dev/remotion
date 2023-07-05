@@ -38,7 +38,7 @@ const getCompName = ({
 export const getCompositionId = async ({
 	args,
 	compositionIdFromUi,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	puppeteerInstance,
 	envVariables,
 	timeoutInMilliseconds,
@@ -52,7 +52,7 @@ export const getCompositionId = async ({
 }: {
 	args: string[];
 	compositionIdFromUi: string | null;
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	envVariables: Record<string, string>;
 	timeoutInMilliseconds: number;
@@ -81,7 +81,7 @@ export const getCompositionId = async ({
 		const {metadata: config, propsSize} =
 			await RenderInternals.internalSelectComposition({
 				id: compName,
-				inputProps,
+				serializedInputPropsWithCustomSchema,
 				puppeteerInstance,
 				envVariables,
 				timeoutInMilliseconds,
@@ -117,7 +117,6 @@ export const getCompositionId = async ({
 
 	if (!process.env.CI) {
 		const comps = await RenderInternals.internalGetCompositions({
-			inputProps,
 			puppeteerInstance,
 			envVariables,
 			timeoutInMilliseconds,
@@ -129,6 +128,7 @@ export const getCompositionId = async ({
 			server,
 			serveUrlOrWebpackUrl,
 			onBrowserLog: null,
+			serializedInputPropsWithCustomSchema,
 		});
 		const {compositionId, reason} = await showSingleCompositionsPicker(comps);
 		if (compositionId && typeof compositionId === 'string') {

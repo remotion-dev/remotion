@@ -63,7 +63,6 @@ export type InternalRenderFramesOptions = {
 				timeToRenderInMilliseconds: number
 		  ) => void);
 	outputDir: string | null;
-	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string>;
 	imageFormat: VideoImageFormat;
 	jpegQuality: number;
@@ -86,6 +85,7 @@ export type InternalRenderFramesOptions = {
 	concurrency: number | string | null;
 	webpackBundleOrServeUrl: string;
 	logLevel: LogLevel;
+	serializedInputPropsWithCustomSchema: string;
 };
 
 type InnerRenderFramesOptions = {
@@ -98,7 +98,6 @@ type InnerRenderFramesOptions = {
 				timeToRenderInMilliseconds: number
 		  ) => void);
 	outputDir: string | null;
-	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string>;
 	imageFormat: VideoImageFormat;
 	jpegQuality: number;
@@ -124,6 +123,7 @@ type InnerRenderFramesOptions = {
 	serveUrl: string;
 	logLevel: LogLevel;
 	indent: boolean;
+	serializedInputPropsWithCustomSchema: string;
 };
 
 export type RenderFramesOptions = {
@@ -134,7 +134,7 @@ export type RenderFramesOptions = {
 		timeToRenderInMilliseconds: number
 	) => void;
 	outputDir: string | null;
-	inputProps: Record<string, unknown>;
+	inputProps?: Record<string, unknown>;
 	envVariables?: Record<string, string>;
 	imageFormat?: VideoImageFormat;
 	/**
@@ -173,7 +173,7 @@ const innerRenderFrames = async ({
 	onFrameUpdate,
 	outputDir,
 	onStart,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	jpegQuality,
 	imageFormat,
 	frameRange,
@@ -244,7 +244,7 @@ const innerRenderFrames = async ({
 		const initialFrame = realFrameRange[0];
 
 		await setPropsAndEnv({
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			envVariables,
 			page,
 			serveUrl,
@@ -565,7 +565,6 @@ export const internalRenderFrames = ({
 	frameRange,
 	imageFormat,
 	indent,
-	inputProps,
 	jpegQuality,
 	muted,
 	onBrowserLog,
@@ -581,6 +580,7 @@ export const internalRenderFrames = ({
 	timeoutInMilliseconds,
 	logLevel,
 	webpackBundleOrServeUrl,
+	serializedInputPropsWithCustomSchema,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		composition.height,
@@ -700,7 +700,6 @@ export const internalRenderFrames = ({
 						everyNthFrame,
 						frameRange,
 						imageFormat,
-						inputProps,
 						jpegQuality,
 						muted,
 						onBrowserLog,
@@ -712,6 +711,7 @@ export const internalRenderFrames = ({
 						timeoutInMilliseconds,
 						logLevel,
 						indent,
+						serializedInputPropsWithCustomSchema,
 					});
 				}
 			),
@@ -823,7 +823,7 @@ export const renderFrames = (
 		indent: false,
 		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,
 		onDownload: onDownload ?? null,
-		inputProps,
+		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps ?? {}),
 		puppeteerInstance,
 		muted: muted ?? false,
 		onBrowserLog: onBrowserLog ?? null,

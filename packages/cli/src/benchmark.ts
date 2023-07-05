@@ -213,7 +213,7 @@ export const benchmarkCommand = async (
 
 	const comps = await RenderInternals.internalGetCompositions({
 		serveUrlOrWebpackUrl: bundleLocation,
-		inputProps,
+		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
 		envVariables,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
@@ -298,7 +298,7 @@ export const benchmarkCommand = async (
 						codec,
 						uiImageFormat: null,
 					}),
-					inputProps,
+					serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
 					overwrite,
 					pixelFormat,
 					proResProfile,

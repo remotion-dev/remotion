@@ -18,7 +18,7 @@ import {type LogLevel} from './log-level';
 import {getLogLevel} from './logger';
 
 type InternalGetCompositionsOptions = {
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	onBrowserLog: null | ((log: BrowserLog) => void);
@@ -45,7 +45,7 @@ export type GetCompositionsOptions = {
 };
 
 type InnerGetCompositionsParams = {
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
 	onBrowserLog: null | ((log: BrowserLog) => void);
 	timeoutInMilliseconds: number;
@@ -56,7 +56,7 @@ type InnerGetCompositionsParams = {
 
 const innerGetCompositions = async ({
 	envVariables,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	onBrowserLog,
 	page,
 	proxyPort,
@@ -76,7 +76,7 @@ const innerGetCompositions = async ({
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	await setPropsAndEnv({
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		envVariables,
 		page,
 		serveUrl,
@@ -119,7 +119,7 @@ export const internalGetCompositions = async ({
 	chromiumOptions,
 	envVariables,
 	indent,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	onBrowserLog,
 	port,
 	puppeteerInstance,
@@ -173,7 +173,7 @@ export const internalGetCompositions = async ({
 
 				return innerGetCompositions({
 					envVariables,
-					inputProps,
+					serializedInputPropsWithCustomSchema,
 					onBrowserLog,
 					page,
 					proxyPort: offthreadPort,
@@ -219,7 +219,7 @@ export const getCompositions = (
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
-		inputProps: inputProps ?? {},
+		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps ?? {}),
 		indent: false,
 		onBrowserLog: onBrowserLog ?? null,
 		port: port ?? null,

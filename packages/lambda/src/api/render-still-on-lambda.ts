@@ -12,9 +12,9 @@ import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
 import {
 	getNeedsToUpload,
-	serializeInputProps,
+	compressInputProps,
 	serializeOrThrow,
-} from '../shared/serialize-props';
+} from '../shared/compress-props';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -105,7 +105,7 @@ export const renderStillOnLambda = async ({
 
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
-	const serializedInputProps = await serializeInputProps({
+	const serializedInputProps = await compressInputProps({
 		stringifiedInputProps,
 		region,
 		needsToUpload: getNeedsToUpload('still', stringifiedInputProps),

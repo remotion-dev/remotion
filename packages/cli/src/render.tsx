@@ -81,7 +81,7 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		shouldOutputImageSequence,
 		publicDir,
 		envVariables,
-		inputProps,
+		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
 		puppeteerTimeout,
 		port,
 		height,

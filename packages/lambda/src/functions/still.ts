@@ -39,7 +39,7 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
-import {deserializeInputProps} from '../shared/serialize-props';
+import {decompressInputProps} from '../shared/compress-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -89,7 +89,7 @@ const innerStillHandler = async (
 	const outputPath = path.join(outputDir, 'output');
 
 	const region = getCurrentRegionInFunction();
-	const inputProps = await deserializeInputProps({
+	const inputProps = await decompressInputProps({
 		bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region,
@@ -116,7 +116,7 @@ const innerStillHandler = async (
 		serveUrl,
 		browserInstance,
 		composition: lambdaParams.composition,
-		inputProps,
+		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
 		envVariables: lambdaParams.envVariables ?? {},
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
@@ -171,7 +171,9 @@ const innerStillHandler = async (
 			durationInFrames: composition.durationInFrames,
 		}),
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
-		inputProps,
+		serializedInputPropsWithCustomSchema: JSON.stringify(
+			lambdaParams.inputProps
+		),
 		overwrite: false,
 		puppeteerInstance: browserInstance,
 		jpegQuality:

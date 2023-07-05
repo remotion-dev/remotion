@@ -8,7 +8,7 @@ import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {Log} from './logger';
 
 type SetPropsAndEnv = {
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string> | undefined;
 	page: Page;
 	serveUrl: string;
@@ -21,7 +21,7 @@ type SetPropsAndEnv = {
 };
 
 const innerSetPropsAndEnv = async ({
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	envVariables,
 	page,
 	serveUrl,
@@ -43,15 +43,9 @@ const innerSetPropsAndEnv = async ({
 		window.remotion_puppeteerTimeout = timeout;
 	}, actualTimeout);
 
-	if (typeof inputProps === 'string') {
-		throw new Error('Input props should be an object, not a string.');
-	}
-
-	if (inputProps) {
-		await page.evaluateOnNewDocument((input: string) => {
-			window.remotion_inputProps = input;
-		}, JSON.stringify(inputProps));
-	}
+	await page.evaluateOnNewDocument((input: string) => {
+		window.remotion_inputProps = input;
+	}, serializedInputPropsWithCustomSchema);
 
 	if (envVariables) {
 		await page.evaluateOnNewDocument((input: string) => {
@@ -95,7 +89,7 @@ const innerSetPropsAndEnv = async ({
 		return innerSetPropsAndEnv({
 			envVariables,
 			initialFrame,
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			page,
 			proxyPort,
 			retriesRemaining: retriesRemaining - 1,
