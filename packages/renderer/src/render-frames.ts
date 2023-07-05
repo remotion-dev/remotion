@@ -49,7 +49,7 @@ import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
 import {type LogLevel} from './log-level';
-import {getLogLevel} from './logger';
+import {Log, getLogLevel} from './logger';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
@@ -360,7 +360,15 @@ const innerRenderFrames = async ({
 			frame,
 		});
 		freePage.on('error', errorCallbackOnFrame);
+
+		const startSeeking = Date.now();
+
 		await seekToFrame({frame, page: freePage, composition: compId});
+
+		const timeToSeek = Date.now() - startSeeking;
+		if (timeToSeek > 1000) {
+			Log.verbose(`Seeking to frame ${frame} took ${timeToSeek}ms`);
+		}
 
 		if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {
 			throw new Error(
