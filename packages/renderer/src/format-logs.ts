@@ -50,8 +50,6 @@ export const formatRemoteObject = (remoteObject: DevtoolsRemoteObject) => {
 };
 
 export const formatObjectPreview = (preview: ObjectPreview) => {
-	console.log(preview);
-
 	if (typeof preview === 'undefined') {
 		return '';
 	}
@@ -156,7 +154,6 @@ export const formatObjectPreview = (preview: ObjectPreview) => {
 };
 
 const formatProperty = (property: PropertyPreview | DevtoolsRemoteObject) => {
-	console.log('FORMAT PROPERTY: ', property);
 	if (property.type === 'string') {
 		return chalk.green(`"${property.value}"`);
 	}
