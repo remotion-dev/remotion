@@ -45,11 +45,11 @@ import {
 } from './helpers/write-lambda-error';
 import {writePostRenderData} from './helpers/write-post-render-data';
 import {
-	deserializeInputProps,
+	decompressInputProps,
 	getNeedsToUpload,
-	serializeInputProps,
+	compressInputProps,
 	serializeOrThrow,
-} from '../shared/serialize-props';
+} from '../shared/compress-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -166,7 +166,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		params.chromiumOptions
 	);
 
-	const inputPropsPromise = deserializeInputProps({
+	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -180,7 +180,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance,
-		inputProps,
+		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
 		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
@@ -264,14 +264,14 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	);
 
 	const [serializedResolvedProps, serializedDefaultProps] = await Promise.all([
-		serializeInputProps({
+		compressInputProps({
 			propsType: 'resolved-props',
 			region: getCurrentRegionInFunction(),
 			stringifiedInputProps: serializedResolved,
 			userSpecifiedBucketName: params.bucketName,
 			needsToUpload,
 		}),
-		serializeInputProps({
+		compressInputProps({
 			propsType: 'default-props',
 			region: getCurrentRegionInFunction(),
 			stringifiedInputProps: serializedDefault,

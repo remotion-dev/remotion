@@ -63,7 +63,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		chromiumOptions,
 		envVariables,
 		height,
-		inputProps,
+		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
 		overwrite,
 		port,
 		publicDir,

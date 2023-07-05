@@ -94,7 +94,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				envVariables,
 				height,
 				indent: false,
-				inputProps,
+				serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
 				port,
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,

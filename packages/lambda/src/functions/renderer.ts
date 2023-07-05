@@ -25,7 +25,7 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
-import {deserializeInputProps} from '../shared/serialize-props';
+import {decompressInputProps} from '../shared/compress-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -47,7 +47,7 @@ const renderHandler = async (
 		);
 	}
 
-	const inputPropsPromise = deserializeInputProps({
+	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -55,7 +55,7 @@ const renderHandler = async (
 		propsType: 'input-props',
 	});
 
-	const resolvedPropsPromise = deserializeInputProps({
+	const resolvedPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -63,7 +63,7 @@ const renderHandler = async (
 		propsType: 'resolved-props',
 	});
 
-	const defaultPropsPromise = deserializeInputProps({
+	const defaultPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -134,7 +134,7 @@ const renderHandler = async (
 				defaultProps,
 			},
 			imageFormat: params.imageFormat,
-			inputProps,
+			serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (

@@ -50,7 +50,7 @@ export const renderStillFlow = async ({
 	chromiumOptions,
 	envVariables,
 	height,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	overwrite,
 	port,
 	publicDir,
@@ -72,7 +72,7 @@ export const renderStillFlow = async ({
 	fullEntryPoint: string;
 	entryPointReason: string;
 	remainingArgs: string[];
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
 	jpegQuality: number;
 	browser: Browser;
@@ -189,7 +189,7 @@ export const renderStillFlow = async ({
 			chromiumOptions,
 			envVariables,
 			indent: indentOutput,
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			port,
 			puppeteerInstance,
 			serveUrlOrWebpackUrl: urlOrBundle,
@@ -284,7 +284,7 @@ export const renderStillFlow = async ({
 		jpegQuality,
 		envVariables,
 		imageFormat,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
 		scale,

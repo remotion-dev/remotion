@@ -42,7 +42,7 @@ type InternalRenderStillOptions = {
 	composition: VideoConfig;
 	output: string | null;
 	frame: number;
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	imageFormat: StillImageFormat;
 	jpegQuality: number;
 	puppeteerInstance: HeadlessBrowser | null;
@@ -104,7 +104,7 @@ const innerRenderStill = async ({
 	serveUrl,
 	puppeteerInstance,
 	onError,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	envVariables,
 	output,
 	frame = 0,
@@ -250,7 +250,7 @@ const innerRenderStill = async ({
 	}
 
 	await setPropsAndEnv({
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		envVariables,
 		page,
 		serveUrl,
@@ -425,7 +425,7 @@ export const renderStill = (
 		frame: frame ?? 0,
 		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,
 		indent: false,
-		inputProps: inputProps ?? {},
+		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps ?? {}),
 		jpegQuality: jpegQuality ?? quality ?? DEFAULT_JPEG_QUALITY,
 		onBrowserLog: onBrowserLog ?? null,
 		onDownload: onDownload ?? null,

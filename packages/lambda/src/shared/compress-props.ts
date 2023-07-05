@@ -41,7 +41,7 @@ export const getNeedsToUpload = (
 	return false;
 };
 
-export const serializeInputProps = async ({
+export const compressInputProps = async ({
 	stringifiedInputProps,
 	region,
 	userSpecifiedBucketName,
@@ -88,7 +88,7 @@ export const serializeInputProps = async ({
 	};
 };
 
-export const deserializeInputProps = async ({
+export const decompressInputProps = async ({
 	serialized,
 	region,
 	bucketName,

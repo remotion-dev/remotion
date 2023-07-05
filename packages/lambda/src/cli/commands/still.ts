@@ -78,7 +78,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				browserExecutable,
 				chromiumOptions,
 				envVariables,
-				inputProps,
+				serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
 				port,
 				puppeteerInstance: undefined,
 				timeoutInMilliseconds: puppeteerTimeout,

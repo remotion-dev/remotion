@@ -80,7 +80,7 @@ export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
 	codec: Codec;
 	composition: VideoConfig;
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	crf: number | null;
 	imageFormat: VideoImageFormat;
 	pixelFormat: PixelFormat;
@@ -180,7 +180,7 @@ export const internalRenderMedia = ({
 	proResProfile,
 	crf,
 	composition,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	pixelFormat,
 	codec,
 	envVariables,
@@ -498,7 +498,7 @@ export const internalRenderMedia = ({
 						callUpdate();
 						onStart?.(data);
 					},
-					inputProps,
+					serializedInputPropsWithCustomSchema,
 					envVariables,
 					imageFormat,
 					jpegQuality,
@@ -734,7 +734,7 @@ export const renderMedia = ({
 		ffmpegOverride: ffmpegOverride ?? undefined,
 		frameRange: frameRange ?? null,
 		imageFormat: imageFormat ?? DEFAULT_VIDEO_IMAGE_FORMAT,
-		inputProps: inputProps ?? {},
+		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps ?? {}),
 		jpegQuality: jpegQuality ?? quality ?? DEFAULT_JPEG_QUALITY,
 		muted: muted ?? false,
 		numberOfGifLoops: numberOfGifLoops ?? null,
