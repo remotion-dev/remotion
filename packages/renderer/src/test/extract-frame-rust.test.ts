@@ -4,6 +4,7 @@ import {
 	startLongRunningCompositor,
 } from '../compositor/compositor';
 import {exampleVideos} from './example-videos';
+import {interpolate} from 'remotion';
 
 const BMP_HEADER_SIZE = 54;
 
@@ -481,21 +482,47 @@ test('Two different starting times should not result in big seeking', async () =
 	await compositor.waitForDone();
 });
 
-test('Should not duplicate frames for iphoneVideo', async () => {
-	const frame29 = 29 / 30;
-	const frame30 = 30 / 30;
+const getExpectedMediaFrameUncorrected = ({
+	frame,
+	playbackRate,
+	startFrom,
+}: {
+	frame: number;
+	playbackRate: number;
+	startFrom: number;
+}) => {
+	return interpolate(
+		frame,
+		[-1, startFrom, startFrom + 1],
+		[-1, startFrom, startFrom + playbackRate]
+	);
+};
 
-	const compositor = startLongRunningCompositor(300, 'info', false);
+test('Should not duplicate frames for iphoneVideo', async () => {
+	const frame30 =
+		getExpectedMediaFrameUncorrected({
+			frame: 30,
+			playbackRate: 1,
+			startFrom: 0,
+		}) / 30;
+	const frame31 =
+		getExpectedMediaFrameUncorrected({
+			frame: 31,
+			playbackRate: 1,
+			startFrom: 0,
+		}) / 30;
+
+	const compositor = startLongRunningCompositor(500, 'info', false);
 
 	const firstFrame = await compositor.executeCommand('ExtractFrame', {
 		input: exampleVideos.iphonevideo,
-		time: frame29,
+		time: frame30,
 		transparent: false,
 	});
 
 	const secondFrame = await compositor.executeCommand('ExtractFrame', {
 		input: exampleVideos.iphonevideo,
-		time: frame30,
+		time: frame31,
 		transparent: false,
 	});
 
@@ -503,7 +530,6 @@ test('Should not duplicate frames for iphoneVideo', async () => {
 		return Math.round(Math.random() * firstFrame.length);
 	});
 
-	// Should not be the same
 	let isSame = true;
 	for (const pixel of hundredRandomPixels) {
 		if (firstFrame[pixel] !== secondFrame[pixel]) {
