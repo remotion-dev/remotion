@@ -47,8 +47,7 @@
 		"react": "18.0.0",
 		"react-dom": "18.0.0",
 		"remotion": "workspace:*",
-		"rollup": "^2.70.1",
-		"typescript": "4.9.5"
+		"rollup": "^2.70.1"
 	},
 	"keywords": [
 		"remotion",
