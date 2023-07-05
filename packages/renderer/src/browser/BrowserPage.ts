@@ -63,8 +63,8 @@ interface WaitForOptions {
 	timeout?: number;
 }
 
-// Mixed Content warnings caused by localhost should not be displayed
-const filteredOut = (log: ConsoleMessage) => {
+const shouldHideWarning = (log: ConsoleMessage) => {
+	// Mixed Content warnings caused by localhost should not be displayed
 	if (
 		log.text.includes('Mixed Content:') &&
 		log.text.includes('http://localhost:')
@@ -193,7 +193,7 @@ export class Page extends EventEmitter {
 		this.on('console', (log) => {
 			const {url, columnNumber, lineNumber} = log.location();
 
-			if (filteredOut(log)) {
+			if (shouldHideWarning(log)) {
 				return;
 			}
 
