@@ -63,6 +63,18 @@ interface WaitForOptions {
 	timeout?: number;
 }
 
+// Mixed Content warnings caused by localhost should not be displayed
+const filteredOut = (log: ConsoleMessage) => {
+	if (
+		log.text.includes('Mixed Content:') &&
+		log.text.includes('http://localhost:')
+	) {
+		return true;
+	}
+
+	return false;
+};
+
 export const enum PageEmittedEvents {
 	Console = 'console',
 	Error = 'error',
@@ -180,6 +192,11 @@ export class Page extends EventEmitter {
 
 		this.on('console', (log) => {
 			const {url, columnNumber, lineNumber} = log.location();
+
+			if (filteredOut(log)) {
+				return;
+			}
+
 			if (
 				url?.endsWith(Internals.bundleName) &&
 				lineNumber &&
