@@ -144,7 +144,7 @@ export const formatObjectPreview = (preview: ObjectPreview) => {
 		}
 
 		if (preview.overflow) {
-			return chalk.reset(`{ ${properties.join(', ')}, ...}`);
+			return chalk.reset(`{ ${properties.join(', ')}, …}`);
 		}
 
 		return chalk.reset(`{ ${properties.join(', ')} }`);

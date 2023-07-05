@@ -65,10 +65,10 @@ test('Format large object', () => {
 		],
 	});
 
-	expect(result).toBe('{ hi: "there", p: "a", x: "d", w: "x", l: "d", ...}');
+	expect(result).toBe('{ hi: "there", p: "a", x: "d", w: "x", l: "d", …}');
 });
 
-test("No '...' at the end of the log if overflow = false ", () => {
+test("No '…' at the end of the log if overflow = false ", () => {
 	const result = formatObjectPreview({
 		type: 'object',
 		description: 'Object',
