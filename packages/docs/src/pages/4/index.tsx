@@ -141,6 +141,7 @@ const V4: React.FC = () => {
               date="July 5th"
               title="Render button"
               description="Configure, queue and track renders with the newest way to render using Remotion."
+              youtubeId="ywRZvG94SPI"
             />
             <EventComp
               description="Leverage the new system for data fetching and dynamically calculating the duration and dimensions of your video."
