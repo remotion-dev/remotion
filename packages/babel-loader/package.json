@@ -38,8 +38,7 @@
 		"eslint": "8.42.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",
-		"remotion": "workspace:*",
-		"typescript": "4.9.5"
+		"remotion": "workspace:*"
 	},
 	"peerDependencies": {
 		"@remotion/bundler": "workspace:*"

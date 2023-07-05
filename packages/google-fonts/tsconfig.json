@@ -1,7 +1,6 @@
 {
   "extends": "../tsconfig.settings.json",
   "compilerOptions": {
-    "noEmit": true,
     "rootDir": "./src",
     "skipLibCheck": true,
     "noUnusedLocals": true,

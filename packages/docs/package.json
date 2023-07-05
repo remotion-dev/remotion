@@ -82,7 +82,6 @@
     "lodash.sortby": "^4.7.0",
     "prettier": "^2.7.1",
     "prettier-plugin-organize-imports": "^2.3.4",
-    "typescript": "4.9.5",
     "url-loader": "^4.1.1"
   }
 }
