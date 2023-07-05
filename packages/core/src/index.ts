@@ -36,7 +36,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '7';
+		siteVersion: '8';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 	}
