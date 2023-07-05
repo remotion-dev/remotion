@@ -340,7 +340,7 @@ if (typeof window !== 'undefined') {
 		return prom;
 	};
 
-	window.siteVersion = '7';
+	window.siteVersion = '8';
 	window.remotion_version = VERSION;
 	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }
