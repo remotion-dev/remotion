@@ -31,9 +31,7 @@ export const shouldLogBrowserMessage = (message: string) => {
 		return false;
 	}
 
-	if (
-		message.includes('Fontconfig error: No writable cache directories')
-	) {
+	if (message.includes('Fontconfig error: No writable cache directories')) {
 		return false;
 	}
 
