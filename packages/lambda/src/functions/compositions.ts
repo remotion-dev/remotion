@@ -46,7 +46,7 @@ export const compositionsHandler = async (
 		),
 	]);
 
-	const inputProps = await decompressInputProps({
+	const serializedInputPropsWithCustomSchema = await decompressInputProps({
 		bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -63,7 +63,7 @@ export const compositionsHandler = async (
 	const compositions = await RenderInternals.internalGetCompositions({
 		serveUrlOrWebpackUrl: realServeUrl,
 		puppeteerInstance: browserInstance,
-		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
+		serializedInputPropsWithCustomSchema,
 		envVariables: lambdaParams.envVariables ?? {},
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		chromiumOptions: lambdaParams.chromiumOptions,
