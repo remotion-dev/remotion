@@ -134,7 +134,7 @@ const renderHandler = async (
 				defaultProps,
 			},
 			imageFormat: params.imageFormat,
-			serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
+			serializedInputPropsWithCustomSchema: inputProps,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (

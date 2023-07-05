@@ -100,9 +100,9 @@ export const decompressInputProps = async ({
 	bucketName: string;
 	expectedBucketOwner: string;
 	propsType: PropsType;
-}): Promise<Record<string, unknown>> => {
+}): Promise<string> => {
 	if (serialized.type === 'payload') {
-		return JSON.parse(serialized.payload);
+		return serialized.payload;
 	}
 
 	try {

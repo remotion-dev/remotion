@@ -174,13 +174,16 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		propsType: 'input-props',
 	});
 
-	const inputProps = await inputPropsPromise;
-	RenderInternals.Log.info('Validating composition, input props:', inputProps);
+	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
+	RenderInternals.Log.info(
+		'Validating composition, input props:',
+		serializedInputPropsWithCustomSchema
+	);
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance,
-		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
+		serializedInputPropsWithCustomSchema,
 		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,

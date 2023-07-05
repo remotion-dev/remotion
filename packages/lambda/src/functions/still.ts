@@ -89,7 +89,7 @@ const innerStillHandler = async (
 	const outputPath = path.join(outputDir, 'output');
 
 	const region = getCurrentRegionInFunction();
-	const inputProps = await decompressInputProps({
+	const serializedInputPropsWithCustomSchema = await decompressInputProps({
 		bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region,
@@ -116,7 +116,7 @@ const innerStillHandler = async (
 		serveUrl,
 		browserInstance,
 		composition: lambdaParams.composition,
-		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
+		serializedInputPropsWithCustomSchema,
 		envVariables: lambdaParams.envVariables ?? {},
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
