@@ -9,6 +9,7 @@ import {
 } from './compositor/compositor';
 import type {LogLevel} from './log-level';
 import {isEqualOrBelowLogLevel} from './log-level';
+import {Log} from './logger';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
 	const parsed = new URL(url, 'http://localhost');
@@ -104,8 +105,10 @@ export const startOffthreadVideoServer = ({
 				return;
 			}
 
+			let extractStart = Date.now();
 			downloadAsset({src, emitter: events, downloadMap})
 				.then((to) => {
+					extractStart = Date.now();
 					return compositor.executeCommand('ExtractFrame', {
 						input: to,
 						time,
@@ -113,6 +116,15 @@ export const startOffthreadVideoServer = ({
 					});
 				})
 				.then((readable) => {
+					const extractEnd = Date.now();
+					const timeToExtract = extractEnd - extractStart;
+
+					if (timeToExtract > 1000) {
+						Log.verbose(
+							`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`
+						);
+					}
+
 					if (!readable) {
 						throw new Error('no readable from ffmpeg');
 					}
