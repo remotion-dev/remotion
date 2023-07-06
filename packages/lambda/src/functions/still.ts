@@ -40,6 +40,7 @@ import {
 	writeLambdaError,
 } from './helpers/write-lambda-error';
 import {decompressInputProps} from '../shared/compress-props';
+import {Internals} from 'remotion';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -171,9 +172,11 @@ const innerStillHandler = async (
 			durationInFrames: composition.durationInFrames,
 		}),
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
-		serializedInputPropsWithCustomSchema: JSON.stringify(
-			lambdaParams.inputProps
-		),
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: lambdaParams.inputProps,
+			indent: undefined,
+			staticBase: null,
+		}).serializedString,
 		overwrite: false,
 		puppeteerInstance: browserInstance,
 		jpegQuality:
@@ -189,7 +192,11 @@ const innerStillHandler = async (
 		port: null,
 		server,
 		logLevel: lambdaParams.logLevel,
-		serializedResolvedPropsWithCustomSchema: JSON.stringify(composition.props),
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: composition.props,
+		}).serializedString,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
