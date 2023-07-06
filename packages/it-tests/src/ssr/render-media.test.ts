@@ -76,12 +76,13 @@ test("should fail on invalid CRF", async () => {
         "https://64a69dbd950469119e886993--dreamy-shortbread-14601f.netlify.app/",
       // @ts-expect-error
       crf: "wrong",
-      config: {
+      composition: {
         durationInFrames: 10,
         fps: 30,
         height: 1080,
         id: "hitehre",
         width: 1080,
+        props: {},
       },
       frameRange: [0, 2],
       puppeteerInstance: browserInstance,
