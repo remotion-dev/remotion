@@ -197,9 +197,9 @@ export const Index: React.FC = () => {
 					calculateMetadata={() => {
 						return {
 							props: {
-								str: 'potato'.repeat(10000000),
+								str: 'potato'.repeat(1000000),
 								date: new Date('2020-01-01'),
-								file: staticFile('giphy.gif'),
+								file: staticFile('mp4.png'),
 							},
 						};
 					}}
