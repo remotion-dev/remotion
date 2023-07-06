@@ -63,7 +63,6 @@ export type InternalRenderFramesOptions = {
 				timeToRenderInMilliseconds: number
 		  ) => void);
 	outputDir: string | null;
-	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string>;
 	imageFormat: VideoImageFormat;
 	jpegQuality: number;
@@ -79,13 +78,15 @@ export type InternalRenderFramesOptions = {
 	scale: number;
 	port: number | null;
 	cancelSignal: CancelSignal | undefined;
-	composition: VideoConfig;
+	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
 	indent: boolean;
 	server: RemotionServer | undefined;
 	muted: boolean;
 	concurrency: number | string | null;
 	webpackBundleOrServeUrl: string;
 	logLevel: LogLevel;
+	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
 };
 
 type InnerRenderFramesOptions = {
@@ -98,7 +99,6 @@ type InnerRenderFramesOptions = {
 				timeToRenderInMilliseconds: number
 		  ) => void);
 	outputDir: string | null;
-	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string>;
 	imageFormat: VideoImageFormat;
 	jpegQuality: number;
@@ -110,7 +110,7 @@ type InnerRenderFramesOptions = {
 	timeoutInMilliseconds: number;
 	scale: number;
 	cancelSignal: CancelSignal | undefined;
-	composition: VideoConfig;
+	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
 	muted: boolean;
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -124,6 +124,8 @@ type InnerRenderFramesOptions = {
 	serveUrl: string;
 	logLevel: LogLevel;
 	indent: boolean;
+	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
 };
 
 export type RenderFramesOptions = {
@@ -173,7 +175,8 @@ const innerRenderFrames = async ({
 	onFrameUpdate,
 	outputDir,
 	onStart,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
+	serializedResolvedPropsWithCustomSchema,
 	jpegQuality,
 	imageFormat,
 	frameRange,
@@ -244,7 +247,7 @@ const innerRenderFrames = async ({
 		const initialFrame = realFrameRange[0];
 
 		await setPropsAndEnv({
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			envVariables,
 			page,
 			serveUrl,
@@ -260,7 +263,7 @@ const innerRenderFrames = async ({
 			// eslint-disable-next-line max-params
 			pageFunction: (
 				id: string,
-				props: Record<string, unknown>,
+				props: string,
 				durationInFrames: number,
 				fps: number,
 				height: number,
@@ -269,7 +272,7 @@ const innerRenderFrames = async ({
 				window.remotion_setBundleMode({
 					type: 'composition',
 					compositionName: id,
-					props,
+					serializedResolvedPropsWithSchema: props,
 					compositionDurationInFrames: durationInFrames,
 					compositionFps: fps,
 					compositionHeight: height,
@@ -278,7 +281,7 @@ const innerRenderFrames = async ({
 			},
 			args: [
 				composition.id,
-				composition.props,
+				serializedResolvedPropsWithCustomSchema,
 				composition.durationInFrames,
 				composition.fps,
 				composition.height,
@@ -565,7 +568,6 @@ export const internalRenderFrames = ({
 	frameRange,
 	imageFormat,
 	indent,
-	inputProps,
 	jpegQuality,
 	muted,
 	onBrowserLog,
@@ -581,6 +583,8 @@ export const internalRenderFrames = ({
 	timeoutInMilliseconds,
 	logLevel,
 	webpackBundleOrServeUrl,
+	serializedInputPropsWithCustomSchema,
+	serializedResolvedPropsWithCustomSchema,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		composition.height,
@@ -700,7 +704,6 @@ export const internalRenderFrames = ({
 						everyNthFrame,
 						frameRange,
 						imageFormat,
-						inputProps,
 						jpegQuality,
 						muted,
 						onBrowserLog,
@@ -712,6 +715,8 @@ export const internalRenderFrames = ({
 						timeoutInMilliseconds,
 						logLevel,
 						indent,
+						serializedInputPropsWithCustomSchema,
+						serializedResolvedPropsWithCustomSchema,
 					});
 				}
 			),
@@ -823,7 +828,16 @@ export const renderFrames = (
 		indent: false,
 		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,
 		onDownload: onDownload ?? null,
-		inputProps,
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: inputProps ?? {},
+		}).serializedString,
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: composition.props,
+		}).serializedString,
 		puppeteerInstance,
 		muted: muted ?? false,
 		onBrowserLog: onBrowserLog ?? null,

@@ -37,7 +37,8 @@ export const processVideoJob = async ({
 		envVariables: job.envVariables,
 		height: null,
 		fullEntryPoint,
-		inputProps: job.inputProps,
+		serializedInputPropsWithCustomSchema:
+			job.serializedInputPropsWithCustomSchema,
 		overwrite: true,
 		port,
 		publicDir,

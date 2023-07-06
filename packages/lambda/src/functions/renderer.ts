@@ -25,7 +25,7 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
-import {deserializeInputProps} from '../shared/serialize-props';
+import {decompressInputProps} from '../shared/compress-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -47,7 +47,7 @@ const renderHandler = async (
 		);
 	}
 
-	const inputPropsPromise = deserializeInputProps({
+	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -55,20 +55,12 @@ const renderHandler = async (
 		propsType: 'input-props',
 	});
 
-	const resolvedPropsPromise = deserializeInputProps({
+	const resolvedPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: params.resolvedProps,
 		propsType: 'resolved-props',
-	});
-
-	const defaultPropsPromise = deserializeInputProps({
-		bucketName: params.bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-		serialized: params.defaultProps,
-		propsType: 'default-props',
 	});
 
 	const browserInstance = await getBrowserInstance(
@@ -118,9 +110,8 @@ const renderHandler = async (
 
 	const downloads: Record<string, number> = {};
 
-	const inputProps = await inputPropsPromise;
 	const resolvedProps = await resolvedPropsPromise;
-	const defaultProps = await defaultPropsPromise;
+	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
 
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
@@ -130,11 +121,9 @@ const renderHandler = async (
 				fps: params.fps,
 				height: params.height,
 				width: params.width,
-				props: resolvedProps,
-				defaultProps,
 			},
 			imageFormat: params.imageFormat,
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (
@@ -242,6 +231,7 @@ const renderHandler = async (
 			indent: false,
 			onCtrlCExit: () => undefined,
 			server: undefined,
+			serializedResolvedPropsWithCustomSchema: resolvedProps,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);

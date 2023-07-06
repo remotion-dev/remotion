@@ -338,7 +338,6 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		resolvedProps: SerializedInputProps;
-		defaultProps: SerializedInputProps;
 		scale: number;
 		everyNthFrame: number;
 		muted: boolean;

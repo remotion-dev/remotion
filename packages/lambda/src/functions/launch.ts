@@ -45,11 +45,11 @@ import {
 } from './helpers/write-lambda-error';
 import {writePostRenderData} from './helpers/write-post-render-data';
 import {
-	deserializeInputProps,
+	decompressInputProps,
 	getNeedsToUpload,
-	serializeInputProps,
+	compressInputProps,
 	serializeOrThrow,
-} from '../shared/serialize-props';
+} from '../shared/compress-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -166,7 +166,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		params.chromiumOptions
 	);
 
-	const inputPropsPromise = deserializeInputProps({
+	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -174,13 +174,16 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		propsType: 'input-props',
 	});
 
-	const inputProps = await inputPropsPromise;
-	RenderInternals.Log.info('Validating composition, input props:', inputProps);
+	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
+	RenderInternals.Log.info(
+		'Validating composition, input props:',
+		serializedInputPropsWithCustomSchema
+	);
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
@@ -253,32 +256,19 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const reqSend = timer('sending off requests');
 
 	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
-	const serializedDefault = serializeOrThrow(
-		comp.defaultProps,
-		'default-props'
-	);
 
 	const needsToUpload = getNeedsToUpload(
 		'video-or-audio',
-		serializedResolved + serializedDefault
+		serializedResolved + params.inputProps
 	);
 
-	const [serializedResolvedProps, serializedDefaultProps] = await Promise.all([
-		serializeInputProps({
-			propsType: 'resolved-props',
-			region: getCurrentRegionInFunction(),
-			stringifiedInputProps: serializedResolved,
-			userSpecifiedBucketName: params.bucketName,
-			needsToUpload,
-		}),
-		serializeInputProps({
-			propsType: 'default-props',
-			region: getCurrentRegionInFunction(),
-			stringifiedInputProps: serializedDefault,
-			userSpecifiedBucketName: params.bucketName,
-			needsToUpload,
-		}),
-	]);
+	const serializedResolvedProps = await compressInputProps({
+		propsType: 'resolved-props',
+		region: getCurrentRegionInFunction(),
+		stringifiedInputProps: serializedResolved,
+		userSpecifiedBucketName: params.bucketName,
+		needsToUpload,
+	});
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
@@ -317,7 +307,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 				version: VERSION,
 			},
 			resolvedProps: serializedResolvedProps,
-			defaultProps: serializedDefaultProps,
 		};
 		return payload;
 	});
