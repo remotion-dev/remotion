@@ -147,6 +147,7 @@ const V4: React.FC = () => {
               description="Leverage the new system for data fetching and dynamically calculating the duration and dimensions of your video."
               date="July 6th"
               title="Data-driven videos"
+              youtubeId="JrxL3mYY22c"
             />
             <EventComp
               description="A rundown of the remaining improvements coming with Remotion 4.0."
