@@ -306,9 +306,7 @@ if (typeof window !== 'undefined') {
 		return getUnevaluatedComps().map((c) => c.id);
 	};
 
-	window.remotion_calculateComposition = async (
-		compId: string
-	): Promise<VideoConfig> => {
+	window.remotion_calculateComposition = async (compId: string) => {
 		const compositions = getUnevaluatedComps();
 		const selectedComp = compositions.find((c) => c.id === compId);
 		if (!selectedComp) {
@@ -337,7 +335,20 @@ if (typeof window !== 'undefined') {
 		);
 		continueRender(handle);
 
-		return prom;
+		const {props, defaultProps, ...data} = prom;
+		return {
+			...data,
+			serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+				data: props,
+				indent: undefined,
+				staticBase: null,
+			}).serializedString,
+			serializedDefaultPropsWithCustomSchema: Internals.serializeJSONWithDate({
+				data: defaultProps,
+				indent: undefined,
+				staticBase: null,
+			}).serializedString,
+		};
 	};
 
 	window.siteVersion = '8';

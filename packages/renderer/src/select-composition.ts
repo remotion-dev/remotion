@@ -133,10 +133,33 @@ const innerSelectComposition = async ({
 		`calculateMetadata() took ${Date.now() - time}ms`
 	);
 
-	return {metadata: result as VideoConfig, propsSize: size};
+	const res = result as Awaited<
+		ReturnType<typeof window.remotion_calculateComposition>
+	>;
+
+	const {width, durationInFrames, fps, height} = res;
+	return {
+		metadata: {
+			id,
+			width,
+			height,
+			fps,
+			durationInFrames,
+			props: Internals.deserializeJSONWithCustomFields(
+				res.serializedResolvedPropsWithCustomSchema
+			),
+			defaultProps: Internals.deserializeJSONWithCustomFields(
+				res.serializedDefaultPropsWithCustomSchema
+			),
+		},
+		propsSize: size,
+	};
 };
 
-type InternalReturnType = {metadata: VideoConfig; propsSize: number};
+type InternalReturnType = {
+	metadata: VideoConfig;
+	propsSize: number;
+};
 
 export const internalSelectComposition = async (
 	options: InternalSelectCompositionsConfig
@@ -237,7 +260,7 @@ export const internalSelectComposition = async (
  */
 export const selectComposition = async (
 	options: SelectCompositionOptions
-): Promise<VideoConfig> => {
+): Promise<Omit<VideoConfig, 'defaultProps'>> => {
 	const {
 		id,
 		serveUrl,
