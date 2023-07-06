@@ -1,5 +1,4 @@
 import {Img, useVideoConfig} from 'remotion';
-import {useVideo} from 'remotion/src/use-video';
 import {z} from 'zod';
 
 export const hugePayloadSchema = z.object({
