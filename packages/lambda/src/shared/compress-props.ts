@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
@@ -13,8 +14,12 @@ export const serializeOrThrow = (
 	propsType: PropsType
 ) => {
 	try {
-		const payload = JSON.stringify(inputProps);
-		return payload;
+		const payload = Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: inputProps,
+		});
+		return payload.serializedString;
 	} catch (err) {
 		throw new Error(
 			`Error serializing ${propsType}. Check it has no circular references or reduce the size if the object is big.`
@@ -114,7 +119,7 @@ export const decompressInputProps = async ({
 		});
 
 		const body = await streamToString(response);
-		const payload = JSON.parse(body);
+		const payload = body;
 
 		return payload;
 	} catch (err) {
