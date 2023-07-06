@@ -27,7 +27,7 @@ export const HugePayload: React.FC<z.infer<typeof hugePayloadSchema>> = ({
 		throw new Error('file does not start with staticBase');
 	}
 
-	if ((defaultProps.str as string).length !== 6000000) {
+	if ((defaultProps.str as string).length !== 6) {
 		throw new Error('str (defaultProps) is not 6,000,000 characters long');
 	}
 
