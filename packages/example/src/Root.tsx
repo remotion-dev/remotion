@@ -199,7 +199,7 @@ export const Index: React.FC = () => {
 							props: {
 								str: 'potato'.repeat(1000000),
 								date: new Date('2020-01-01'),
-								file: staticFile('mp4.png'),
+								file: staticFile('nested/mp4.png'),
 							},
 						};
 					}}
