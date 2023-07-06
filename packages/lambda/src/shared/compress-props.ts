@@ -1,4 +1,3 @@
-import {Internals} from 'remotion';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {AwsRegion} from '../client';
 import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
@@ -6,6 +5,7 @@ import type {SerializedInputProps} from './constants';
 import {inputPropsKey, resolvedPropsKey} from './constants';
 import {randomHash} from './random-hash';
 import {streamToString} from './stream-to-string';
+import {serializeJSONWithDate} from './serialize-props';
 
 type PropsType = 'input-props' | 'resolved-props';
 
@@ -14,7 +14,7 @@ export const serializeOrThrow = (
 	propsType: PropsType
 ) => {
 	try {
-		const payload = Internals.serializeJSONWithDate({
+		const payload = serializeJSONWithDate({
 			indent: undefined,
 			staticBase: null,
 			data: inputProps,
