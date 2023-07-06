@@ -1,8 +1,6 @@
-// Must keep this file in sync with the one in packages/lambda/src/shared/serialize-props.ts!
+// Must keep this file in sync with the one in packages/core/src/input-props-serialization.ts!
 
-import {staticFile} from './static-file.js';
-
-export type SerializedJSONWithCustomFields = {
+type SerializedJSONWithCustomFields = {
 	serializedString: string;
 	customDateUsed: boolean;
 	customFileUsed: boolean;
@@ -61,20 +59,4 @@ export const serializeJSONWithDate = ({
 	);
 
 	return {serializedString, customDateUsed, customFileUsed, mapUsed, setUsed};
-};
-
-export const deserializeJSONWithCustomFields = (
-	data: string
-): Record<string, unknown> => {
-	return JSON.parse(data, (_, value) => {
-		if (typeof value === 'string' && value.startsWith(DATE_TOKEN)) {
-			return new Date(value.replace(DATE_TOKEN, ''));
-		}
-
-		if (typeof value === 'string' && value.startsWith(FILE_TOKEN)) {
-			return staticFile(value.replace(FILE_TOKEN, ''));
-		}
-
-		return value;
-	});
 };
