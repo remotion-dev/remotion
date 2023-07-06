@@ -81,6 +81,10 @@ Type your components using the `React.FC<{}>` type and the `defaultProps` prop w
 Passing huge objects to `defaultProps` can be slow. [Learn how to avoid it.](/docs/troubleshooting/defaultprops-too-big)
 :::
 
+:::note
+Use a `type`, not an `interface` to type your `defaultProps`. [Learn why](/docs/4-0-migration#cannot-use-an-interface-for-props)
+:::
+
 ### `calculateMetadata`
 
 See: [`calculateMetadata()`](/docs/calculate-metadata)
