@@ -2,12 +2,10 @@ import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {CustomCredentials} from '../../shared/aws-clients';
-import {getProgressOfChunk} from '../../shared/chunk-progress';
 import type {RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
 	encodingProgressKey,
-	lambdaChunkInitializedPrefix,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 	rendersPrefix,
@@ -195,14 +193,7 @@ export const getProgress = async ({
 				renderId,
 		  })
 		: 0;
-	console.log(
-		'etags',
-		contents
-			.filter((c) => c.Key?.startsWith(lambdaChunkInitializedPrefix(renderId)))
-			.map((c) => {
-				return getProgressOfChunk(c.ETag as string);
-			})
-	);
+
 	const allChunks = chunks.length === (renderMetadata?.totalChunks ?? Infinity);
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)
