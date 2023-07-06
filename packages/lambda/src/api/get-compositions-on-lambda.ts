@@ -6,9 +6,9 @@ import {LambdaRoutines} from '../defaults';
 import {callLambda} from '../shared/call-lambda';
 import {
 	getNeedsToUpload,
-	serializeInputProps,
+	compressInputProps,
 	serializeOrThrow,
-} from '../shared/serialize-props';
+} from '../shared/compress-props';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
@@ -55,7 +55,7 @@ export const getCompositionsOnLambda = async ({
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
-	const serializedInputProps = await serializeInputProps({
+	const serializedInputProps = await compressInputProps({
 		stringifiedInputProps,
 		region,
 		userSpecifiedBucketName: bucketName ?? null,

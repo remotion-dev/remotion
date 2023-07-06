@@ -193,16 +193,22 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={100}
+					durationInFrames={2}
 					calculateMetadata={() => {
 						return {
 							props: {
-								str: 'potato'.repeat(10000000),
+								str: 'potato'.repeat(1000000),
+								date: new Date('2020-01-01'),
+								file: staticFile('nested/mp4.png'),
 							},
 						};
 					}}
 					schema={hugePayloadSchema}
-					defaultProps={{str: 'st'}}
+					defaultProps={{
+						str: 'potate',
+						file: staticFile('giphy.gif'),
+						date: new Date('2020-01-01'),
+					}}
 				/>
 				<Composition
 					id="sync-dynamic-length"
@@ -560,7 +566,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					// Change the duration of the video dynamically by passing
 					// `--props='{"duration": 100}'`
-					durationInFrames={inputProps?.duration ?? 20}
+					durationInFrames={(inputProps?.duration as number) ?? 20}
 					defaultProps={{
 						codec: 'mp4' as const,
 						offthread: false,

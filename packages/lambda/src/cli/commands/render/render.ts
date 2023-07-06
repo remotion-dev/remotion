@@ -23,6 +23,7 @@ import {findFunctionName} from '../../helpers/find-function-name';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {makeMultiProgressFromStatus, makeProgressString} from './progress';
+import {Internals} from 'remotion';
 
 export const RENDER_COMMAND = 'render';
 
@@ -94,7 +95,11 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				envVariables,
 				height,
 				indent: false,
-				inputProps,
+				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+					indent: undefined,
+					staticBase: null,
+					data: inputProps,
+				}).serializedString,
 				port,
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
