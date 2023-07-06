@@ -566,7 +566,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					// Change the duration of the video dynamically by passing
 					// `--props='{"duration": 100}'`
-					durationInFrames={inputProps?.duration ?? 20}
+					durationInFrames={(inputProps?.duration as number) ?? 20}
 					defaultProps={{
 						codec: 'mp4' as const,
 						offthread: false,
