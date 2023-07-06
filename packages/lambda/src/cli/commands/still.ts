@@ -16,6 +16,7 @@ import {getAwsRegion} from '../get-aws-region';
 import {findFunctionName} from '../helpers/find-function-name';
 import {quit} from '../helpers/quit';
 import {Log} from '../log';
+import {Internals} from 'remotion';
 
 export const STILL_COMMAND = 'still';
 
@@ -78,7 +79,11 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				browserExecutable,
 				chromiumOptions,
 				envVariables,
-				inputProps,
+				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+					indent: undefined,
+					staticBase: null,
+					data: inputProps,
+				}).serializedString,
 				port,
 				puppeteerInstance: undefined,
 				timeoutInMilliseconds: puppeteerTimeout,

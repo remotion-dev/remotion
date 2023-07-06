@@ -6,7 +6,7 @@ import {LambdaRoutines} from '../defaults';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {deserializeInputProps} from '../shared/serialize-props';
+import {decompressInputProps} from '../shared/compress-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -46,7 +46,7 @@ export const compositionsHandler = async (
 		),
 	]);
 
-	const inputProps = await deserializeInputProps({
+	const serializedInputPropsWithCustomSchema = await decompressInputProps({
 		bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -63,7 +63,7 @@ export const compositionsHandler = async (
 	const compositions = await RenderInternals.internalGetCompositions({
 		serveUrlOrWebpackUrl: realServeUrl,
 		puppeteerInstance: browserInstance,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		envVariables: lambdaParams.envVariables ?? {},
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		chromiumOptions: lambdaParams.chromiumOptions,

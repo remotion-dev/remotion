@@ -16,6 +16,7 @@ import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {showMultiCompositionsPicker} from './show-compositions-picker';
 import {truthy} from './truthy';
+import {Internals} from 'remotion';
 
 const DEFAULT_RUNS = 3;
 
@@ -211,9 +212,15 @@ export const benchmarkCommand = async (
 
 	const puppeteerInstance = await browserInstance;
 
+	const serializedInputPropsWithCustomSchema = Internals.serializeJSONWithDate({
+		data: inputProps ?? {},
+		indent: undefined,
+		staticBase: null,
+	}).serializedString;
+
 	const comps = await RenderInternals.internalGetCompositions({
 		serveUrlOrWebpackUrl: bundleLocation,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		envVariables,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
@@ -298,7 +305,7 @@ export const benchmarkCommand = async (
 						codec,
 						uiImageFormat: null,
 					}),
-					inputProps,
+					serializedInputPropsWithCustomSchema,
 					overwrite,
 					pixelFormat,
 					proResProfile,
@@ -330,6 +337,12 @@ export const benchmarkCommand = async (
 					onStart: () => undefined,
 					preferLossless: false,
 					server: undefined,
+					serializedResolvedPropsWithCustomSchema:
+						Internals.serializeJSONWithDate({
+							data: composition.props,
+							indent: undefined,
+							staticBase: null,
+						}).serializedString,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(

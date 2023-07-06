@@ -3,9 +3,9 @@ import type {LambdaStartPayload, LambdaStatusPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
 import {
 	getNeedsToUpload,
-	serializeInputProps,
+	compressInputProps,
 	serializeOrThrow,
-} from '../shared/serialize-props';
+} from '../shared/compress-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
@@ -70,7 +70,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		'input-props'
 	);
 
-	const serialized = await serializeInputProps({
+	const serialized = await compressInputProps({
 		stringifiedInputProps,
 		region,
 		needsToUpload: getNeedsToUpload('video-or-audio', stringifiedInputProps),

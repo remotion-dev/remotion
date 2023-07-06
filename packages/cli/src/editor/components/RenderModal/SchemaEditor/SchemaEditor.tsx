@@ -21,7 +21,9 @@ export const SchemaEditor: React.FC<{
 	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
 	defaultProps: Record<string, unknown>;
-	onSave: (updater: (oldState: unknown) => unknown) => void;
+	onSave: (
+		updater: (oldState: Record<string, unknown>) => Record<string, unknown>
+	) => void;
 	showSaveButton: boolean;
 	saving: boolean;
 	saveDisabledByParent: boolean;
