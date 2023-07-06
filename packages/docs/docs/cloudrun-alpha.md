@@ -45,8 +45,11 @@ Make sure the versions don't have a `^` character in front of it.
 
 ## Changelog
 
-### `unreleased`
+### `4.1.0-alpha6`
+#### Known issues
+- any internal errors created by Remotion from within the service are not currently sent back in the error response to the renderMediaOnCloudrun and renderStillOnCloudrun APIs (these APIs are also used within the CLI). For these errors, users will need to check the logs for now.
 
+#### Improvements
 - Artifact registry, used to store versioned images for deploying services, now has two folders - production and development.
 - Provide helpful response when Cloud Run crashes during render.
     - CLI alerts user there was a crash, fetches logs, determines if cause was likely memory or timeout issue.
