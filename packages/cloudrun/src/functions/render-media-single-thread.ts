@@ -67,7 +67,7 @@ export const renderMediaSingleThread = async (
 		browserExecutable: null,
 		timeoutInMilliseconds: body.delayRenderTimeoutInMilliseconds,
 		cancelSignal: undefined,
-		concurrency: body.concurrency,
+		concurrency: body.concurrency ?? '100%',
 		disallowParallelEncoding: false,
 		enforceAudioTrack: body.enforceAudioTrack,
 		ffmpegOverride: undefined,

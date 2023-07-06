@@ -30,7 +30,7 @@ export const constructServiceTemplate = ({
 		},
 		containers: [
 			{
-				image: `us-docker.pkg.dev/remotion-dev/cloud-run/render:${VERSION}`,
+				image: `us-docker.pkg.dev/remotion-dev/production/render:${VERSION}`,
 				resources: {
 					limits: {
 						memory: memoryLimit,

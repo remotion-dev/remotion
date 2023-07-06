@@ -5,7 +5,7 @@
       "entrypoint": "bash",
       "args": [
         "-c",
-        "docker pull us-docker.pkg.dev/remotion-dev/cloud-run/render:cachebase || exit 0"
+        "docker pull us-docker.pkg.dev/remotion-dev/development/render:cachebase || exit 0"
       ]
     },
     {
@@ -13,14 +13,14 @@
       "args": [
         "build",
         "-t",
-        "us-docker.pkg.dev/remotion-dev/cloud-run/render:3.3.101",
+        "us-docker.pkg.dev/remotion-dev/development/render:4.1.0-alpha6",
         "--cache-from",
-        "us-docker.pkg.dev/remotion-dev/cloud-run/render:cachebase",
+        "us-docker.pkg.dev/remotion-dev/development/render:cachebase",
         "."
       ]
     }
   ],
   "images": [
-    "us-docker.pkg.dev/remotion-dev/cloud-run/render:3.3.101"
+    "us-docker.pkg.dev/remotion-dev/development/render:4.1.0-alpha6"
   ]
 }

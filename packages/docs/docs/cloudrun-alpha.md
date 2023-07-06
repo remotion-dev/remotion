@@ -45,6 +45,15 @@ Make sure the versions don't have a `^` character in front of it.
 
 ## Changelog
 
+### `unreleased`
+
+- Artifact registry, used to store versioned images for deploying services, now has two folders - production and development.
+- Provide helpful response when Cloud Run crashes during render.
+    - CLI alerts user there was a crash, fetches logs, determines if cause was likely memory or timeout issue.
+    - API can receive a success or crash response
+    - New response documented
+- Default concurrency for rendering media is now 100%. This will set the concurrency equal to the number of cores the deployed service has.
+
 ### `4.1.0-alpha5`
 
 - Fix input props not working for dynamic metadata

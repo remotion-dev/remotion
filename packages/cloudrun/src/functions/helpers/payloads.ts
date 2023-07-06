@@ -78,23 +78,34 @@ const renderFailResponsePayload = z.object({
 });
 
 const renderStillOnCloudrunResponsePayload = z.object({
+	status: z.literal('success'),
 	publicUrl: z.string().optional().nullable(),
 	cloudStorageUri: z.string(),
 	size: z.number(),
 	bucketName: z.string(),
 	renderId: z.string(),
-	status: z.literal('success'),
 	privacy: z.enum(['public-read', 'project-private']),
 });
 
 const renderMediaOnCloudrunResponsePayload = z.object({
+	status: z.literal('success'),
 	publicUrl: z.string().optional().nullable(),
 	cloudStorageUri: z.string(),
 	size: z.number(),
 	bucketName: z.string(),
 	renderId: z.string(),
-	status: z.literal('success'),
 	privacy: z.enum(['public-read', 'project-private']),
+});
+
+const cloudRunCrashResponse = z.object({
+	status: z.literal('crash'),
+	cloudRunEndpoint: z.string(),
+	message: z.literal(
+		'Service crashed without sending a response. Check the logs in GCP console.'
+	),
+	requestStartTime: z.string().datetime(),
+	requestCrashTime: z.string().datetime(),
+	requestElapsedTimeInSeconds: z.number(),
 });
 
 export type CloudRunPayloadType = z.infer<typeof CloudRunPayload>;
@@ -107,3 +118,5 @@ export type RenderMediaOnCloudrunOutput = z.infer<
 >;
 
 export type ErrorResponsePayload = z.infer<typeof renderFailResponsePayload>;
+
+export type CloudRunCrashResponse = z.infer<typeof cloudRunCrashResponse>;
