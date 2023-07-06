@@ -10,7 +10,8 @@ export const getCompositionFromBody = async (body: CloudRunPayloadType) => {
 			envVariables: body.envVariables ?? {},
 			id: body.composition,
 			indent: false,
-			inputProps: body.inputProps ?? {},
+			serializedInputPropsWithCustomSchema:
+				body.serializedInputPropsWithCustomSchema,
 			logLevel: body.logLevel,
 			onBrowserLog: () => null,
 			port: null,
