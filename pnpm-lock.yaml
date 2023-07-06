@@ -317,6 +317,9 @@ importers:
       '@google-cloud/functions-framework':
         specifier: ^3.1.3
         version: 3.1.3
+      '@google-cloud/logging':
+        specifier: ^10.5.0
+        version: 10.5.0
       '@google-cloud/resource-manager':
         specifier: ^4.3.0
         version: 4.3.0
@@ -3665,7 +3668,7 @@ packages:
     resolution: {integrity: sha512-QwrtdNvUNsPCj2lfNQacsGSQvGX8ee1ttrBrcozUP2Sv/jylewBP/8QFe6ZkBsC8T/GYWonNAWJV4aRR9AL2DA==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.17.0
+      '@babel/types': 7.21.0
     dev: false
 
   /@babel/helper-annotate-as-pure@7.18.6:
@@ -3864,7 +3867,7 @@ packages:
     resolution: {integrity: sha512-cokOMkxC/BTyNP1AlY25HuBWM32iCEsLPI4BHDpJCHHm1FU2E7dKWWIXJgQgSFiu4lp8q3bL1BIKwqkSUviqtA==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.17.0
+      '@babel/types': 7.21.0
     dev: false
 
   /@babel/helper-member-expression-to-functions@7.18.9:
@@ -3911,10 +3914,10 @@ packages:
       '@babel/helper-module-imports': 7.18.6
       '@babel/helper-simple-access': 7.18.6
       '@babel/helper-split-export-declaration': 7.18.6
-      '@babel/helper-validator-identifier': 7.18.6
+      '@babel/helper-validator-identifier': 7.19.1
       '@babel/template': 7.18.10
       '@babel/traverse': 7.19.1(supports-color@5.5.0)
-      '@babel/types': 7.19.0
+      '@babel/types': 7.21.0
     transitivePeerDependencies:
       - supports-color
 
@@ -3922,7 +3925,7 @@ packages:
     resolution: {integrity: sha512-E/z9rfbAOt1vDW1DR7k4SzhzotVV5+qMciWV6LaG1g4jeFrkDlJedjtV4h0i4Q/ITnUu+Pk08M7fczsB9GXBDw==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.17.0
+      '@babel/types': 7.21.0
     dev: false
 
   /@babel/helper-optimise-call-expression@7.18.6:
@@ -3951,7 +3954,7 @@ packages:
     dependencies:
       '@babel/helper-annotate-as-pure': 7.15.4
       '@babel/helper-wrap-function': 7.15.4
-      '@babel/types': 7.15.6
+      '@babel/types': 7.21.0
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -3978,7 +3981,7 @@ packages:
       '@babel/helper-member-expression-to-functions': 7.15.4
       '@babel/helper-optimise-call-expression': 7.15.4
       '@babel/traverse': 7.19.1(supports-color@5.5.0)
-      '@babel/types': 7.17.0
+      '@babel/types': 7.21.0
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -4013,7 +4016,7 @@ packages:
     resolution: {integrity: sha512-BMRLsdh+D1/aap19TycS4eD1qELGrCBJwzaY9IE8LrpJtJb+H7rQkPIdsfgnMtLBA6DJls7X9z93Z4U8h7xw0A==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.15.6
+      '@babel/types': 7.21.0
     dev: false
 
   /@babel/helper-skip-transparent-expression-wrappers@7.18.9:
@@ -4027,7 +4030,7 @@ packages:
     resolution: {integrity: sha512-HsFqhLDZ08DxCpBdEVtKmywj6PQbwnF6HHybur0MAnkAKnlS6uHkwnmRIkElB2Owpfb4xL4NwDmDLFubueDXsw==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/types': 7.17.0
+      '@babel/types': 7.21.0
     dev: false
 
   /@babel/helper-split-export-declaration@7.18.6:
@@ -4107,7 +4110,7 @@ packages:
     dependencies:
       '@babel/template': 7.18.10
       '@babel/traverse': 7.19.1(supports-color@5.5.0)
-      '@babel/types': 7.19.0
+      '@babel/types': 7.21.0
     transitivePeerDependencies:
       - supports-color
 
@@ -6175,8 +6178,8 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/code-frame': 7.18.6
-      '@babel/parser': 7.19.1
-      '@babel/types': 7.19.0
+      '@babel/parser': 7.21.1
+      '@babel/types': 7.21.0
 
   /@babel/traverse@7.15.4:
     resolution: {integrity: sha512-W6lQD8l4rUbQR/vYgSuCAE75ADyyQvOpFVsvPPdkhf6lATXAsQIG9YdtOcu8BB1dZ0LKu+Zo3c1wEcbKeuhdlA==}
@@ -6187,8 +6190,8 @@ packages:
       '@babel/helper-function-name': 7.15.4
       '@babel/helper-hoist-variables': 7.15.4
       '@babel/helper-split-export-declaration': 7.15.4
-      '@babel/parser': 7.15.7
-      '@babel/types': 7.15.6
+      '@babel/parser': 7.21.1
+      '@babel/types': 7.21.0
       debug: 4.3.4(supports-color@5.5.0)
       globals: 11.12.0
     transitivePeerDependencies:
@@ -7812,6 +7815,24 @@ packages:
       - supports-color
     dev: false
 
+  /@google-cloud/common@4.0.3:
+    resolution: {integrity: sha512-fUoMo5b8iAKbrYpneIRV3z95AlxVJPrjpevxs4SKoclngWZvTXBSGpNisF5+x5m+oNGve7jfB1e6vNBZBUs7Fw==}
+    engines: {node: '>=12.0.0'}
+    dependencies:
+      '@google-cloud/projectify': 3.0.0
+      '@google-cloud/promisify': 3.0.1
+      arrify: 2.0.1
+      duplexify: 4.1.2
+      ent: 2.2.0
+      extend: 3.0.2
+      google-auth-library: 8.7.0
+      retry-request: 5.0.2
+      teeny-request: 8.0.3
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
   /@google-cloud/functions-framework@3.1.3:
     resolution: {integrity: sha512-gNKEkbud/+QkS5+vn+UEvBX6L522OpyTOjM83/cR1JRhSsBTNn3kPe4L17ZQMjJHFvO9xIxF3FaPDTfOx1Umpw==}
     engines: {node: '>=10.0.0'}
@@ -7829,9 +7850,41 @@ packages:
       - supports-color
     dev: false
 
+  /@google-cloud/logging@10.5.0:
+    resolution: {integrity: sha512-XmlNs6B8lDZvFwFB5M55g9ch873AA2rXSuFOczQ3FOAzuyd/qksf18suFJfcrLMu8lYSr3SQhTE45FlXz4p9pg==}
+    engines: {node: '>=12.0.0'}
+    dependencies:
+      '@google-cloud/common': 4.0.3
+      '@google-cloud/paginator': 4.0.1
+      '@google-cloud/projectify': 3.0.0
+      '@google-cloud/promisify': 3.0.1
+      arrify: 2.0.1
+      dot-prop: 6.0.1
+      eventid: 2.0.1
+      extend: 3.0.2
+      gcp-metadata: 4.3.1
+      google-auth-library: 8.7.0
+      google-gax: 3.6.0
+      on-finished: 2.3.0
+      pumpify: 2.0.1
+      stream-events: 1.0.5
+      uuid: 9.0.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
   /@google-cloud/paginator@3.0.7:
     resolution: {integrity: sha512-jJNutk0arIQhmpUUQJPJErsojqo834KcyB6X7a1mxuic8i1tKXxde8E69IZxNZawRIlZdIK2QY4WALvlK5MzYQ==}
     engines: {node: '>=10'}
+    dependencies:
+      arrify: 2.0.1
+      extend: 3.0.2
+    dev: false
+
+  /@google-cloud/paginator@4.0.1:
+    resolution: {integrity: sha512-6G1ui6bWhNyHjmbYwavdN7mpVPRBtyDg/bfqBTAlwr413On2TnFNfDxc9UhTJctkgoCDgQXEKiRPLPR9USlkbQ==}
+    engines: {node: '>=12.0.0'}
     dependencies:
       arrify: 2.0.1
       extend: 3.0.2
@@ -8981,8 +9034,8 @@ packages:
   /@types/babel__template@7.4.1:
     resolution: {integrity: sha512-azBFKemX6kMg5Io+/rdGT0dkGreboUVR0Cdm3fz9QJWpaQGJRQXl7C+6hOTCZcMll7KFyEQpgbYI2lHdsS4U7g==}
     dependencies:
-      '@babel/parser': 7.15.7
-      '@babel/types': 7.15.6
+      '@babel/parser': 7.21.1
+      '@babel/types': 7.21.0
     dev: false
 
   /@types/babel__traverse@7.14.2:
@@ -12644,6 +12697,13 @@ packages:
       is-obj: 2.0.0
     dev: false
 
+  /dot-prop@6.0.1:
+    resolution: {integrity: sha512-tE7ztYzXHIeyvc7N+hR3oi7FIbf/NIjVP9hmAt3yMXzrQ072/fpjGLx2GxNxGxUl5V73MEqYzioOMoVhGMJ5cA==}
+    engines: {node: '>=10'}
+    dependencies:
+      is-obj: 2.0.0
+    dev: false
+
   /dotenv@9.0.2:
     resolution: {integrity: sha512-I9OvvrHp4pIARv4+x9iuewrWycX6CcZtoAu1XrzPxc5UygMJXJZYmBsynku8IkrJwgypE5DGNjDPmPRhDCptUg==}
     engines: {node: '>=10'}
@@ -13548,6 +13608,13 @@ packages:
     resolution: {integrity: sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==}
     dev: false
 
+  /eventid@2.0.1:
+    resolution: {integrity: sha512-sPNTqiMokAvV048P2c9+foqVJzk49o6d4e0D/sq5jog3pw+4kBgyR0gaM1FM7Mx6Kzd9dztesh9oYz1LWWOpzw==}
+    engines: {node: '>=10'}
+    dependencies:
+      uuid: 8.3.2
+    dev: false
+
   /events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
     engines: {node: '>=0.8.x'}
@@ -14111,6 +14178,20 @@ packages:
       wide-align: 1.1.3
     dev: true
 
+  /gaxios@4.3.3:
+    resolution: {integrity: sha512-gSaYYIO1Y3wUtdfHmjDUZ8LWaxJQpiavzbF5Kq53akSzvmVg0RfyOcFDbO1KJ/KCGRFz2qG+lS81F0nkr7cRJA==}
+    engines: {node: '>=10'}
+    dependencies:
+      abort-controller: 3.0.0
+      extend: 3.0.2
+      https-proxy-agent: 5.0.1
+      is-stream: 2.0.1
+      node-fetch: 2.6.7
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
   /gaxios@5.1.0:
     resolution: {integrity: sha512-aezGIjb+/VfsJtIcHGcBSerNEDdfdHeMros+RbYbGpmonKWQCOVOes0LVZhn1lDtIgq55qq0HaxymIoae3Fl/A==}
     engines: {node: '>=12'}
@@ -14119,6 +14200,17 @@ packages:
       https-proxy-agent: 5.0.1
       is-stream: 2.0.1
       node-fetch: 2.6.7
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
+  /gcp-metadata@4.3.1:
+    resolution: {integrity: sha512-x850LS5N7V1F3UcV7PoupzGsyD6iVwTVvsh3tbXfkctZnBnjW5yu5z1/3k3SehF7TyoTIe78rJs02GMMy+LF+A==}
+    engines: {node: '>=10'}
+    dependencies:
+      gaxios: 4.3.3
+      json-bigint: 1.0.0
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -19121,6 +19213,14 @@ packages:
     dependencies:
       end-of-stream: 1.4.4
       once: 1.4.0
+
+  /pumpify@2.0.1:
+    resolution: {integrity: sha512-m7KOje7jZxrmutanlkS1daj1dS6z6BgslzOXmcSEpIlCxM3VJH7lG5QLeck/6hgF6F4crFf01UtQmNsJfweTAw==}
+    dependencies:
+      duplexify: 4.1.2
+      inherits: 2.0.4
+      pump: 3.0.0
+    dev: false
 
   /punycode@1.4.1:
     resolution: {integrity: sha512-jmYNElW7yvO7TV33CjSmvSiE2yco3bV2czu/OzDKdMNVZQWfxCblURLhf+47syQRBntjfLdd/H0egrzIG+oaFQ==}

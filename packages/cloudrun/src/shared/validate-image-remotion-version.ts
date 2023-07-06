@@ -11,7 +11,7 @@ export const validateImageRemotionVersion = async () => {
 	});
 	const listedTags = await client.listTags({
 		parent:
-			'projects/remotion-dev/locations/us/repositories/cloud-run/packages/render',
+			'projects/remotion-dev/locations/us/repositories/production/packages/render',
 	});
 
 	for (const tag of listedTags[0]) {

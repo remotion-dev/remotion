@@ -26,9 +26,10 @@ const result = await renderMediaOnCloudrun({
     "https://storage.googleapis.com/remotioncloudrun-123asd321/sites/abcdefgh",
   codec: "h264",
 });
-
-console.log(result.bucketName);
-console.log(result.renderId);
+if (result.status === 'success') {
+  console.log(result.bucketName);
+  console.log(result.renderId);
+}
 ```
 
 ## Arguments
@@ -266,7 +267,25 @@ Uses a lossless audio codec, if one is available for the codec. If you set audio
 
 ## Return value
 
-Returns a promise resolving to an object containing the following:
+Returns a promise resolving to an object.
+### `status`
+
+ Use this to determine the structure of the response. It can either be:
+
+- 'success' - render has been performed successfully.
+- 'crash - Cloud Run service has crashed.
+
+## Return when status === 'success'
+
+The resulting object contains the following:
+### `status`
+
+'success' - render has been performed successfully.
+### `publicUrl?`
+
+_optional_
+
+The publicly accessible URL of the rendered file. Only available when the request had the [`privacy`](/docs/cloudrun/rendermediaoncloudrun#privacy) property set to 'public'.
 
 ### `renderId`
 
@@ -294,6 +313,34 @@ Google Storage path, beginning with `gs://{bucket-name}`. Can be used with the [
 ### `size`
 
 Size of the rendered media in KB.
+
+## Return when status === 'crash'
+
+The resulting object contains the following:
+### `status`
+
+'crash' - Cloud Run service has crashed without a response.
+
+### `cloudRunEndpoint`
+
+Endpoint that was called when executing the render. Used by the CLI to parse the service name to determine timeout and memory limit of the service. This can then be used when analysing the logs, to provide a hint as to the reason of the crash.
+
+### `message`
+
+'Service crashed without sending a response. Check the logs in GCP console.' This is used by the CLI for displaying an error message.
+
+### `requestStartTime`
+
+datetime of when the request was made, in UTC format - "2020-01-01T00:00:00+02:00". Can be useful for filtering the logs of the service.
+
+### `requestCrashTime`
+
+datetime of when the crash was detected, in UTC format - "2020-01-01T00:00:00+02:00". Can be useful for filtering the logs of the service.
+
+### `requestElapsedTimeInSeconds`
+
+Seconds elapsed between the request start and crash time. Can be checked against the timeout limit to understand if this was the likely cause of the crash.
+
 
 ## See also
 

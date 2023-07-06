@@ -1,6 +1,7 @@
 import type {ChromiumOptions, FrameRange, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {
+	CloudRunCrashResponse,
 	CloudRunPayloadType,
 	ErrorResponsePayload,
 	RenderMediaOnCloudrunOutput,
@@ -24,7 +25,7 @@ export type RenderMediaOnCloudrunInput = {
 	privacy?: 'public' | 'private';
 	forceBucketName?: string;
 	outName?: string;
-	updateRenderProgress?: (progress: number) => void;
+	updateRenderProgress?: (progress: number, error?: boolean) => void;
 	codec: CloudrunCodec;
 	audioCodec?: 'mp3' | 'aac' | 'pcm-16' | 'opus';
 	jpegQuality?: number;
@@ -98,7 +99,7 @@ export type RenderMediaOnCloudrunInput = {
  * @param params.forceHeight Overrides default composition height.
  * @param params.logLevel Level of logging that Cloud Run service should perform. Default "info".
  * @param params.delayRenderTimeoutInMilliseconds A number describing how long the render may take to resolve all delayRender() calls before it times out.
- * @param params.concurrency By default, each Cloud Run service renders with concurrency 1 (one open browser tab). You may use the option to customize this value.
+ * @param params.concurrency By default, each Cloud Run service renders with concurrency 100% (equal to number of available cores). You may use the option to customize this value.
  * @param params.enforceAudioTrack Render a silent audio track if there wouldn't be any otherwise.
  * @param params.preferLossless Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.
  * @returns {Promise<RenderMediaOnCloudrunOutput>} See documentation for detailed structure
@@ -138,7 +139,9 @@ export const renderMediaOnCloudrun = async ({
 	concurrency,
 	enforceAudioTrack,
 	preferLossless,
-}: RenderMediaOnCloudrunInput): Promise<RenderMediaOnCloudrunOutput> => {
+}: RenderMediaOnCloudrunInput): Promise<
+	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
+> => {
 	const actualCodec = validateCloudrunCodec(codec);
 	validateServeUrl(serveUrl);
 	if (privacy) validatePrivacy(privacy);
@@ -195,35 +198,56 @@ export const renderMediaOnCloudrun = async ({
 		responseType: 'stream',
 	});
 
-	const renderResponse = await new Promise<RenderMediaOnCloudrunOutput>(
-		(resolve, reject) => {
-			// TODO: Add any sort of type safety
-			let response: RenderMediaOnCloudrunOutput | ErrorResponsePayload;
+	const renderResponse = await new Promise<
+		RenderMediaOnCloudrunOutput | CloudRunCrashResponse
+	>((resolve, reject) => {
+		// TODO: Add any sort of type safety
+		let response:
+			| RenderMediaOnCloudrunOutput
+			| ErrorResponsePayload
+			| CloudRunCrashResponse;
 
-			const stream: any = postResponse.data;
+		const startTime = Date.now();
+		const formattedStartTime = new Date().toISOString();
 
-			stream.on('data', (chunk: Buffer) => {
-				const chunkResponse = JSON.parse(chunk.toString());
-				if (chunkResponse.response) {
-					response = chunkResponse.response;
-				} else if (chunkResponse.onProgress) {
-					updateRenderProgress?.(chunkResponse.onProgress);
-				}
-			});
+		const stream: any = postResponse.data;
 
-			stream.on('end', () => {
-				if (response.status !== 'success') {
-					throw new Error(response.stack);
-				}
+		stream.on('data', (chunk: Buffer) => {
+			const chunkResponse = JSON.parse(chunk.toString());
+			if (chunkResponse.response) {
+				response = chunkResponse.response;
+			} else if (chunkResponse.onProgress) {
+				updateRenderProgress?.(chunkResponse.onProgress);
+			}
+		});
 
-				resolve(response);
-			});
+		stream.on('end', () => {
+			if (!response) {
+				const crashTime = Date.now();
+				const formattedCrashTime = new Date().toISOString();
 
-			stream.on('error', (error: Error) => {
-				reject(error);
-			});
-		}
-	);
+				updateRenderProgress?.(0, true);
+
+				resolve({
+					status: 'crash',
+					cloudRunEndpoint,
+					message:
+						'Service crashed without sending a response. Check the logs in GCP console.',
+					requestStartTime: formattedStartTime,
+					requestCrashTime: formattedCrashTime,
+					requestElapsedTimeInSeconds: (crashTime - startTime) / 1000,
+				});
+			} else if (response.status !== 'success' && response.status !== 'crash') {
+				throw new Error(response.stack);
+			}
+
+			resolve(response);
+		});
+
+		stream.on('error', (error: Error) => {
+			reject(error);
+		});
+	});
 
 	return renderResponse;
 };

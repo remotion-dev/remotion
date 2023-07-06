@@ -55,6 +55,10 @@
         {
             "name": "storage.objects.list",
             "reason": ""
+        },
+        {
+            "name": "logging.logEntries.list",
+            "reason": "Used by the CLI to fetch recent logs if the Cloud Run service crashes, to assist in debugging the root cause."
         }
     ]
 }
