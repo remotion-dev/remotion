@@ -440,9 +440,10 @@ export const renderStill = (
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel: verbose || dumpBrowserLogs ? 'verbose' : getLogLevel(),
-		// TODO Serialize date
-		serializedResolvedPropsWithCustomSchema: JSON.stringify(
-			composition.props ?? {}
-		),
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: composition.props ?? {},
+		}).serializedString,
 	});
 };

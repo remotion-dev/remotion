@@ -136,7 +136,7 @@ export type RenderFramesOptions = {
 		timeToRenderInMilliseconds: number
 	) => void;
 	outputDir: string | null;
-	inputProps?: Record<string, unknown>;
+	inputProps: Record<string, unknown>;
 	envVariables?: Record<string, string>;
 	imageFormat?: VideoImageFormat;
 	/**

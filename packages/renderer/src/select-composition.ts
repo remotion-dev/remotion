@@ -1,4 +1,4 @@
-import type {VideoConfig} from 'remotion';
+import {Internals, type VideoConfig} from 'remotion';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -257,7 +257,11 @@ export const selectComposition = async (
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
-		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps ?? {}),
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: inputProps ?? {},
+		}).serializedString,
 		onBrowserLog: onBrowserLog ?? null,
 		port: port ?? null,
 		puppeteerInstance,
