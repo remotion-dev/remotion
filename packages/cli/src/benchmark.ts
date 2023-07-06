@@ -212,13 +212,15 @@ export const benchmarkCommand = async (
 
 	const puppeteerInstance = await browserInstance;
 
+	const serializedInputPropsWithCustomSchema = Internals.serializeJSONWithDate({
+		data: inputProps ?? {},
+		indent: undefined,
+		staticBase: null,
+	}).serializedString;
+
 	const comps = await RenderInternals.internalGetCompositions({
 		serveUrlOrWebpackUrl: bundleLocation,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			data: inputProps ?? {},
-			indent: undefined,
-			staticBase: null,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema,
 		envVariables,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
@@ -303,7 +305,7 @@ export const benchmarkCommand = async (
 						codec,
 						uiImageFormat: null,
 					}),
-					serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
+					serializedInputPropsWithCustomSchema,
 					overwrite,
 					pixelFormat,
 					proResProfile,
