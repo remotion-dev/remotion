@@ -16,6 +16,7 @@ import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {showMultiCompositionsPicker} from './show-compositions-picker';
 import {truthy} from './truthy';
+import {Internals} from 'remotion';
 
 const DEFAULT_RUNS = 3;
 
@@ -213,7 +214,11 @@ export const benchmarkCommand = async (
 
 	const comps = await RenderInternals.internalGetCompositions({
 		serveUrlOrWebpackUrl: bundleLocation,
-		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: inputProps ?? {},
+			indent: undefined,
+			staticBase: null,
+		}).serializedString,
 		envVariables,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
