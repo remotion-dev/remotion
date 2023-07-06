@@ -36,8 +36,9 @@ export const Log = {
 				...[
 					options.indent ? INDENT_TOKEN : null,
 					options.tag ? verboseTag(options.tag) : null,
-					...args.map((a) => chalk.gray(a)),
-				].filter(truthy)
+				]
+					.filter(truthy)
+					.concat(args.map((a) => chalk.gray(a)))
 			);
 		}
 	},
@@ -49,7 +50,7 @@ export const Log = {
 		...args: Parameters<typeof console.log>
 	) => {
 		return console.log(
-			...[options.indent ? INDENT_TOKEN : null, ...args].filter(truthy)
+			...[options.indent ? INDENT_TOKEN : null].filter(truthy).concat(args)
 		);
 	},
 	warn: (...args: Parameters<typeof console.log>) => {
@@ -63,10 +64,9 @@ export const Log = {
 	) => {
 		if (isEqualOrBelowLogLevel(options.logLevel, 'warn')) {
 			return console.warn(
-				...[
-					options.indent ? chalk.yellow(INDENT_TOKEN) : null,
-					...args.map((a) => chalk.yellow(a)),
-				].filter(truthy)
+				...[options.indent ? chalk.yellow(INDENT_TOKEN) : null]
+					.filter(truthy)
+					.concat(args.map((a) => chalk.yellow(a)))
 			);
 		}
 	},

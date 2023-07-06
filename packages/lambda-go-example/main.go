@@ -72,25 +72,29 @@ func main() {
 
 	}
 
-	// Get bucket information
-	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.BucketName, renderResponse.RenderId)
+	if renderResponse.StatusCode == 200 {
 
-	// Render Progress request
-	renderProgressInputRequest := lambda_go_sdk.RenderConfig{
-		FunctionName: functionName,
-		Region:       region,
-		RenderId:     renderResponse.RenderId,
-		BucketName:   renderResponse.BucketName,
+		fmt.Print(renderResponse.Body.RenderId)
+		/// Get bucket information
+		fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.Body.RenderId, renderResponse.Body.RenderId)
+
+		// Render Progress request
+		renderProgressInputRequest := lambda_go_sdk.RenderConfig{
+			FunctionName: functionName,
+			Region:       region,
+			RenderId:     renderResponse.Body.RenderId,
+			BucketName:   renderResponse.Body.BucketName,
+		}
+		// Execute getting the render progress
+		renderProgressResponse, renderProgressError := lambda_go_sdk.GetRenderProgress(renderProgressInputRequest)
+
+		// Check if we have error
+		if renderProgressError != nil {
+			log.Fatal("%s %s", "Invalid render progress response", renderProgressError)
+		}
+
+		// Get the overall render progress
+		fmt.Printf("overallprogress: %f ", renderProgressResponse.Body.OverallProgress)
 	}
-	// Execute getting the render progress
-	renderProgressResponse, renderProgressError := lambda_go_sdk.GetRenderProgress(renderProgressInputRequest)
-
-	// Check if we have error
-	if renderProgressError != nil {
-		log.Fatal("%s %s", "Invalid render progress response", renderProgressError)
-	}
-
-	// Get the overall render progress
-	fmt.Printf("overallprogress: %f ", renderProgressResponse.OverallProgress)
 
 }

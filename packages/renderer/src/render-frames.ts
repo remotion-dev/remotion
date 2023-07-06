@@ -49,7 +49,7 @@ import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
 import {type LogLevel} from './log-level';
-import {getLogLevel} from './logger';
+import {Log, getLogLevel} from './logger';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
@@ -332,12 +332,14 @@ const innerRenderFrames = async ({
 		reject,
 		width,
 		height,
+		compId,
 	}: {
 		frame: number;
 		index: number;
 		reject: (err: Error) => void;
 		width: number;
 		height: number;
+		compId: string;
 	}) => {
 		const pool = await poolPromise;
 		const freePage = await pool.acquire();
@@ -358,7 +360,15 @@ const innerRenderFrames = async ({
 			frame,
 		});
 		freePage.on('error', errorCallbackOnFrame);
-		await seekToFrame({frame, page: freePage});
+
+		const startSeeking = Date.now();
+
+		await seekToFrame({frame, page: freePage, composition: compId});
+
+		const timeToSeek = Date.now() - startSeeking;
+		if (timeToSeek > 1000) {
+			Log.verbose(`Seeking to frame ${frame} took ${timeToSeek}ms`);
+		}
 
 		if (!outputDir && !onFrameBuffer && imageFormat !== 'none') {
 			throw new Error(
@@ -439,6 +449,7 @@ const innerRenderFrames = async ({
 				reject,
 				width: composition.width,
 				height: composition.height,
+				compId: composition.id,
 			})
 				.then(() => {
 					resolve();
@@ -586,8 +597,7 @@ export const internalRenderFrames = ({
 		'in the `config` object of `renderFrames()`',
 		false
 	);
-	Internals.validateDurationInFrames({
-		durationInFrames: composition.durationInFrames,
+	Internals.validateDurationInFrames(composition.durationInFrames, {
 		component: 'in the `config` object passed to `renderFrames()`',
 		allowFloats: false,
 	});

@@ -15,7 +15,8 @@ test('Need to pass valid metadata', async () => {
 			},
 			frame: 0,
 			output: '/file/output.png',
-			serveUrl: 'https://shimmering-youtiao-218c24.netlify.app/',
+			serveUrl:
+				'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
 			verbose: false,
 		})
 	).rejects.toThrow(/not be NaN, but is NaN/);
@@ -33,7 +34,8 @@ test('Returns buffer in promise result', async () => {
 			props: {},
 		},
 		frame: 0,
-		serveUrl: 'https://shimmering-youtiao-218c24.netlify.app/',
+		serveUrl:
+			'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
 		verbose: false,
 	});
 	expect(buffer?.length).toBeGreaterThan(1000);
@@ -53,7 +55,8 @@ test('Need to pass valid metadata', async () => {
 			},
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl: 'https://shimmering-youtiao-218c24.netlify.app/',
+			serveUrl:
+				'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
 			verbose: false,
 		})
 	).rejects.toThrow(
@@ -77,7 +80,8 @@ test('Catches invalid image format', () => {
 			imageFormat: 'jjj',
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl: 'https://shimmering-youtiao-218c24.netlify.app/',
+			serveUrl:
+				'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
 		})
 	).rejects.toThrow(
 		/Image format should be one of: "png", "jpeg", "pdf", "webp"/

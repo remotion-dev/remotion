@@ -59,16 +59,18 @@ export const waitForReady = (page: Page) => {
 export const seekToFrame = async ({
 	frame,
 	page,
+	composition,
 }: {
 	frame: number;
+	composition: string;
 	page: Page;
 }) => {
 	await waitForReady(page);
 	await puppeteerEvaluateWithCatch({
-		pageFunction: (f: number) => {
-			window.remotion_setFrame(f);
+		pageFunction: (f: number, c: string) => {
+			window.remotion_setFrame(f, c);
 		},
-		args: [frame],
+		args: [frame, composition],
 		frame,
 		page,
 	});

@@ -130,11 +130,17 @@ export default () => {
               {expert.name}
             </h2>
             <div style={flexer} />
-            <a className="only-desktop" href={`mailto:${expert.email}`}>
+            <a
+              className="only-desktop"
+              href={`mailto:${expert.email}`}
+              style={{
+                textDecoration: "none",
+              }}
+            >
               <Button
                 background="white"
                 hoverColor="white"
-                color={DARK_BLUE}
+                color={"black"}
                 fullWidth={false}
                 loading={false}
                 size="sm"

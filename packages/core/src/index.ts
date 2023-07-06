@@ -23,7 +23,7 @@ declare global {
 		remotion_projectName: string;
 		remotion_cwd: string;
 		remotion_studioServerCommand: string;
-		remotion_setFrame: (frame: number) => void;
+		remotion_setFrame: (frame: number, composition: string) => void;
 		remotion_initialFrame: number;
 		remotion_proxyPort: number;
 		remotion_audioEnabled: boolean;
@@ -36,7 +36,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '6';
+		siteVersion: '7';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 	}
@@ -149,7 +149,7 @@ export const Config = new Proxy(proxyObj, {
 			console.warn('import {Config} from "@remotion/cli/config";');
 			console.warn();
 			console.warn(
-				'For more information, see https://v4.remotion.dev/docs/4-0-migration.'
+				'For more information, see https://www.remotion.dev/docs/4-0-migration.'
 			);
 
 			process.exit(1);

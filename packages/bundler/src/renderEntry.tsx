@@ -6,7 +6,13 @@ import type {render, unmountComponentAtNode} from 'react-dom';
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
 import type {AnyComposition, BundleState, VideoConfig} from 'remotion';
-import {continueRender, delayRender, Internals, VERSION} from 'remotion';
+import {
+	continueRender,
+	delayRender,
+	getInputProps,
+	Internals,
+	VERSION,
+} from 'remotion';
 import {getBundleMode, setBundleMode} from './bundle-mode';
 import {Homepage} from './homepage/homepage';
 
@@ -267,15 +273,24 @@ if (typeof window !== 'undefined') {
 	window.getStaticCompositions = (): Promise<VideoConfig[]> => {
 		const compositions = getUnevaluatedComps();
 
+		const inputProps =
+			typeof window === 'undefined' ||
+			Internals.getRemotionEnvironment() === 'player-development' ||
+			Internals.getRemotionEnvironment() === 'player-production'
+				? {}
+				: getInputProps() ?? {};
+
 		return Promise.all(
 			compositions.map(async (c): Promise<VideoConfig> => {
 				const handle = delayRender(
 					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`
 				);
+
 				const comp = Internals.resolveVideoConfig({
 					composition: c,
 					editorProps: {},
 					signal: new AbortController().signal,
+					inputProps,
 				});
 
 				const resolved = await Promise.resolve(comp);
@@ -303,11 +318,19 @@ if (typeof window !== 'undefined') {
 			`Running the calculateMetadata() function for composition ${compId}`
 		);
 
+		const inputProps =
+			typeof window === 'undefined' ||
+			Internals.getRemotionEnvironment() === 'player-development' ||
+			Internals.getRemotionEnvironment() === 'player-production'
+				? {}
+				: getInputProps() ?? {};
+
 		const prom = await Promise.resolve(
 			Internals.resolveVideoConfig({
 				composition: selectedComp,
 				editorProps: {},
 				signal: abortController.signal,
+				inputProps,
 			})
 		);
 		continueRender(handle);
@@ -315,7 +338,7 @@ if (typeof window !== 'undefined') {
 		return prom;
 	};
 
-	window.siteVersion = '6';
+	window.siteVersion = '7';
 	window.remotion_version = VERSION;
 	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }

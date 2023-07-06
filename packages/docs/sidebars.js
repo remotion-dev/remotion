@@ -396,7 +396,6 @@ module.exports = {
     },
   ],
   mainSidebar: [
-    "4-0-alpha",
     "cloudrun-alpha",
     {
       type: "category",
@@ -426,10 +425,10 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Parametrized videos",
+      label: "Parameterized videos",
       link: {
         type: "doc",
-        id: "parametrized-rendering",
+        id: "parameterized-rendering",
       },
       items: [
         "passing-props",

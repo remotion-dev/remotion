@@ -35,7 +35,7 @@ export const RemotionRoot: React.FC<{
 	numberOfAudioTags: number;
 }> = ({children, numberOfAudioTags}) => {
 	const [remotionRootId] = useState(() => String(random(null)));
-	const [frame, setFrame] = useState<number>(window.remotion_initialFrame ?? 0);
+	const [frame, setFrame] = useState<Record<string, number>>({});
 	const [playing, setPlaying] = useState<boolean>(false);
 	const imperativePlaying = useRef<boolean>(false);
 	const [fastRefreshes, setFastRefreshes] = useState(0);
@@ -45,9 +45,12 @@ export const RemotionRoot: React.FC<{
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
-			window.remotion_setFrame = (f: number) => {
+			window.remotion_setFrame = (f: number, composition: string) => {
 				const id = delayRender(`Setting the current frame to ${f}`);
-				setFrame(f);
+				setFrame((s) => ({
+					...s,
+					[composition]: f,
+				}));
 				requestAnimationFrame(() => continueRender(id));
 			};
 

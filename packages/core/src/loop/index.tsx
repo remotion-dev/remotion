@@ -29,8 +29,7 @@ export const Loop: React.FC<LoopProps> = ({
 	const currentFrame = useCurrentFrame();
 	const {durationInFrames: compDuration} = useVideoConfig();
 
-	validateDurationInFrames({
-		durationInFrames,
+	validateDurationInFrames(durationInFrames, {
 		component: 'of the <Loop /> component',
 		allowFloats: true,
 	});

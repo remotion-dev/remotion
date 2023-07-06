@@ -1,16 +1,16 @@
 import type {AnyZodObject} from 'zod';
 import type {CalcMetadataReturnType} from './Composition.js';
 import type {TCompMetadataWithCalcFunction} from './CompositionManager.js';
-import {getInputProps} from './config/input-props.js';
-import {getRemotionEnvironment} from './get-environment.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
 import type {VideoConfig} from './video-config.js';
+import {validateFps} from './validation/validate-fps.js';
 
 export const resolveVideoConfig = ({
 	composition,
 	editorProps: editorPropsOrUndefined,
 	signal,
+	inputProps,
 }: {
 	composition: TCompMetadataWithCalcFunction<
 		AnyZodObject,
@@ -18,6 +18,7 @@ export const resolveVideoConfig = ({
 	>;
 	editorProps: object;
 	signal: AbortSignal;
+	inputProps: Record<string, unknown>;
 }): VideoConfig | Promise<VideoConfig> => {
 	const calculatedProm = composition.calculateMetadata
 		? composition.calculateMetadata({
@@ -25,11 +26,7 @@ export const resolveVideoConfig = ({
 				props: {
 					...(composition.defaultProps ?? {}),
 					...(editorPropsOrUndefined ?? {}),
-					...(typeof window === 'undefined' ||
-					getRemotionEnvironment() === 'player-development' ||
-					getRemotionEnvironment() === 'player-production'
-						? {}
-						: getInputProps() ?? {}),
+					...inputProps,
 				},
 				abortSignal: signal,
 		  })
@@ -61,12 +58,16 @@ export const resolveVideoConfig = ({
 		calculated: calculatedProm,
 		composition,
 	});
+
 	if (calculatedProm === null) {
 		return {
 			...data,
 			id: composition.id,
 			defaultProps: composition.defaultProps ?? {},
-			props: composition.defaultProps ?? {},
+			props: {
+				...(composition.defaultProps ?? {}),
+				...(inputProps ?? {}),
+			},
 		};
 	}
 
@@ -88,45 +89,39 @@ const validateCalculated = ({
 	>;
 	calculated: CalcMetadataReturnType<Record<string, unknown>> | null;
 }) => {
-	const potentialErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
+	const calculateMetadataErrorLocation = `calculated by calculateMetadata() for the composition "${composition.id}"`;
+	const defaultErrorLocation = `of the "<Composition />" component with the id "${composition.id}"`;
 
-	const width = calculated?.width ?? composition.width ?? null;
-	if (!width) {
-		throw new TypeError(
-			'Composition width was neither specified via the `width` prop nor the `calculateMetadata()` function.'
-		);
-	}
+	const width = calculated?.width ?? composition.width ?? undefined;
 
-	validateDimension(width, 'width', potentialErrorLocation);
+	validateDimension(
+		width,
+		'width',
+		calculated?.width ? calculateMetadataErrorLocation : defaultErrorLocation
+	);
 
-	const height = calculated?.height ?? composition.height ?? null;
-	if (!height) {
-		throw new TypeError(
-			'Composition height was neither specified via the `height` prop nor the `calculateMetadata()` function.'
-		);
-	}
+	const height = calculated?.height ?? composition.height ?? undefined;
 
-	validateDimension(width, 'height', potentialErrorLocation);
+	validateDimension(
+		height,
+		'height',
+		calculated?.height ? calculateMetadataErrorLocation : defaultErrorLocation
+	);
 
 	const fps = calculated?.fps ?? composition.fps ?? null;
-	if (!fps) {
-		throw new TypeError(
-			'Composition fps was neither specified via the `fps` prop nor the `calculateMetadata()` function.'
-		);
-	}
+
+	validateFps(
+		fps,
+		calculated?.fps ? calculateMetadataErrorLocation : defaultErrorLocation,
+		false
+	);
 
 	const durationInFrames =
 		calculated?.durationInFrames ?? composition.durationInFrames ?? null;
-	if (!durationInFrames) {
-		throw new TypeError(
-			'Composition durationInFrames was neither specified via the `durationInFrames` prop nor the `calculateMetadata()` function.'
-		);
-	}
 
-	validateDurationInFrames({
-		durationInFrames,
-		component: potentialErrorLocation,
+	validateDurationInFrames(durationInFrames, {
 		allowFloats: false,
+		component: `of the "<Composition />" component with the id "${composition.id}"`,
 	});
 
 	return {width, height, fps, durationInFrames};

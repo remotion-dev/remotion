@@ -5,6 +5,7 @@ import {normalizeServeUrl} from './normalize-serve-url';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {redirectStatusCodes} from './redirect-status-codes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
+import {Log} from './logger';
 
 type SetPropsAndEnv = {
 	inputProps: Record<string, unknown>;
@@ -147,7 +148,7 @@ const innerSetPropsAndEnv = async ({
 		page,
 	});
 
-	const requiredVersion: typeof window.siteVersion = '6';
+	const requiredVersion: typeof window.siteVersion = '7';
 
 	if (siteVersion !== requiredVersion) {
 		throw new Error(
@@ -157,11 +158,11 @@ const innerSetPropsAndEnv = async ({
 
 	if (remotionVersion !== VERSION && process.env.NODE_ENV !== 'test') {
 		if (remotionVersion) {
-			console.warn(
+			Log.warn(
 				`The site was bundled with version ${remotionVersion} of @remotion/bundler, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
 			);
 		} else {
-			console.warn(
+			Log.warn(
 				`The site was bundled with an old version of Remotion, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
 			);
 		}

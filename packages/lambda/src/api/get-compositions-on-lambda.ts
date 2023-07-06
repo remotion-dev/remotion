@@ -1,5 +1,5 @@
 import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
-import type {AnyCompMetadata} from 'remotion';
+import type {VideoConfig} from 'remotion';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
 import {LambdaRoutines} from '../defaults';
@@ -26,7 +26,7 @@ export type GetCompositionsOnLambdaInput = {
 	dumpBrowserLogs?: boolean;
 };
 
-export type GetCompositionsOnLambdaOutput = AnyCompMetadata[];
+export type GetCompositionsOnLambdaOutput = VideoConfig[];
 
 /**
  * @description Returns the compositions from a serveUrl
