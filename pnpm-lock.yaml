@@ -1,5 +1,9 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
 importers:
 
   .:
@@ -85,7 +89,7 @@ importers:
         version: 0.9.0
       webpack:
         specifier: 5.83.1
-        version: 5.83.1(@swc/core@1.3.27)
+        version: 5.83.1
     devDependencies:
       '@jonny/eslint-config':
         specifier: 3.0.266
@@ -381,7 +385,7 @@ importers:
         version: 0.31.1(jsdom@21.1.0)
       webpack:
         specifier: 5.83.1
-        version: 5.83.1(@swc/core@1.3.27)
+        version: 5.83.1
       zod:
         specifier: 3.21.4
         version: 3.21.4
@@ -1357,7 +1361,7 @@ importers:
         version: 0.31.1(jsdom@20.0.1)
       webpack:
         specifier: 5.83.1
-        version: 5.83.1(@swc/core@1.3.27)
+        version: 5.83.1
       zod:
         specifier: ^3.21.4
         version: 3.21.4
@@ -9922,7 +9926,7 @@ packages:
       react-error-overlay: 7.0.0-next.117
       react-refresh: 0.9.0
       sockjs-client: 1.5.2
-      webpack: 5.83.1(@swc/core@1.3.27)
+      webpack: 5.83.1
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -10402,7 +10406,7 @@ packages:
       loader-utils: 1.4.0
       make-dir: 3.1.0
       schema-utils: 2.7.1
-      webpack: 5.83.1(@swc/core@1.3.27)
+      webpack: 5.83.1
     dev: false
 
   /babel-loader@8.2.5(@babel/core@7.18.6)(webpack@5.83.1):
@@ -13374,7 +13378,7 @@ packages:
       semver: 5.7.1
       tapable: 1.1.3
       typescript: 4.9.5
-      webpack: 5.83.1(@swc/core@1.3.27)
+      webpack: 5.83.1
       worker-rpc: 0.1.1
     transitivePeerDependencies:
       - supports-color
@@ -17165,7 +17169,7 @@ packages:
       klona: 2.0.6
       postcss: 8.4.21
       semver: 7.5.3
-      webpack: 5.83.1(@swc/core@1.3.27)
+      webpack: 5.83.1
     dev: false
 
   /postcss-logical@6.2.0(postcss@8.4.21):
@@ -18296,7 +18300,7 @@ packages:
       strip-ansi: 6.0.0
       text-table: 0.2.0
       typescript: 4.9.5
-      webpack: 5.83.1(@swc/core@1.3.27)
+      webpack: 5.83.1
     transitivePeerDependencies:
       - eslint
       - supports-color
@@ -20224,6 +20228,29 @@ packages:
       terser: 5.17.5
       webpack: 5.83.1(esbuild@0.18.6)
 
+  /terser-webpack-plugin@5.3.9(webpack@5.83.1):
+    resolution: {integrity: sha512-ZuXsqE07EcggTWQjXUj+Aot/OMcD0bMKGgF63f7UxYcu5/AJF53aIpK1YoP5xR9l6s/Hy2b+t1AM0bLNPRuhwA==}
+    engines: {node: '>= 10.13.0'}
+    peerDependencies:
+      '@swc/core': '*'
+      esbuild: '*'
+      uglify-js: '*'
+      webpack: ^5.1.0
+    peerDependenciesMeta:
+      '@swc/core':
+        optional: true
+      esbuild:
+        optional: true
+      uglify-js:
+        optional: true
+    dependencies:
+      '@jridgewell/trace-mapping': 0.3.18
+      jest-worker: 27.5.1
+      schema-utils: 3.1.2
+      serialize-javascript: 6.0.1
+      terser: 5.17.5
+      webpack: 5.83.1
+
   /terser@5.17.5:
     resolution: {integrity: sha512-NqFkzBX34WExkCbk3K5urmNCpEWqMPZnwGI1pMHwqvJ/zDlXC75u3NI7BrzoR8/pryy8Abx2e1i8ChrWkhH1Hg==}
     engines: {node: '>=10'}
@@ -21747,6 +21774,45 @@ packages:
     resolution: {integrity: sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==}
     engines: {node: '>=10.13.0'}
 
+  /webpack@5.83.1:
+    resolution: {integrity: sha512-TNsG9jDScbNuB+Lb/3+vYolPplCS3bbEaJf+Bj0Gw4DhP3ioAflBb1flcRt9zsWITyvOhM96wMQNRWlSX52DgA==}
+    engines: {node: '>=10.13.0'}
+    hasBin: true
+    peerDependencies:
+      webpack-cli: '*'
+    peerDependenciesMeta:
+      webpack-cli:
+        optional: true
+    dependencies:
+      '@types/eslint-scope': 3.7.3
+      '@types/estree': 1.0.0
+      '@webassemblyjs/ast': 1.11.6
+      '@webassemblyjs/wasm-edit': 1.11.6
+      '@webassemblyjs/wasm-parser': 1.11.6
+      acorn: 8.8.2
+      acorn-import-assertions: 1.8.0(acorn@8.8.2)
+      browserslist: 4.21.5
+      chrome-trace-event: 1.0.3
+      enhanced-resolve: 5.14.0
+      es-module-lexer: 1.2.1
+      eslint-scope: 5.1.1
+      events: 3.3.0
+      glob-to-regexp: 0.4.1
+      graceful-fs: 4.2.10
+      json-parse-even-better-errors: 2.3.1
+      loader-runner: 4.2.0
+      mime-types: 2.1.34
+      neo-async: 2.6.2
+      schema-utils: 3.1.2
+      tapable: 2.2.1
+      terser-webpack-plugin: 5.3.9(webpack@5.83.1)
+      watchpack: 2.4.0
+      webpack-sources: 3.2.3
+    transitivePeerDependencies:
+      - '@swc/core'
+      - esbuild
+      - uglify-js
+
   /webpack@5.83.1(@swc/core@1.3.27):
     resolution: {integrity: sha512-TNsG9jDScbNuB+Lb/3+vYolPplCS3bbEaJf+Bj0Gw4DhP3ioAflBb1flcRt9zsWITyvOhM96wMQNRWlSX52DgA==}
     engines: {node: '>=10.13.0'}
@@ -22179,7 +22245,3 @@ packages:
   /zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
     dev: false
-
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
