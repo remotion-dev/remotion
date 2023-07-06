@@ -205,7 +205,7 @@ export const Index: React.FC = () => {
 					}}
 					schema={hugePayloadSchema}
 					defaultProps={{
-						str: 'st',
+						str: 'potate',
 						file: staticFile('giphy.gif'),
 						date: new Date('2020-01-01'),
 					}}
