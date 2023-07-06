@@ -5,14 +5,9 @@ const latestRelease = await fetch(
 const json = await latestRelease.json();
 
 const markdown = [
-  `${json[0].tag_name} has been released!`,
+  `#${json[0].tag_name}`,
   `<:merge:909914451447259177> ${json[0].html_url}`,
-  ...json[0].body.split("\n").map((s) => {
-    if (s.startsWith("## ")) {
-      return s.replace("## ", "**<:love:989990489824559104> ") + "**";
-    }
-    return s;
-  }),
+  `${json[0].body}`
 ]
   .filter(Boolean)
   .join("\n");
