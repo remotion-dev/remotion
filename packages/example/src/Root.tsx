@@ -193,16 +193,22 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={100}
+					durationInFrames={2}
 					calculateMetadata={() => {
 						return {
 							props: {
 								str: 'potato'.repeat(10000000),
+								date: new Date('2020-01-01'),
+								file: staticFile('giphy.gif'),
 							},
 						};
 					}}
 					schema={hugePayloadSchema}
-					defaultProps={{str: 'st'}}
+					defaultProps={{
+						str: 'st',
+						file: staticFile('giphy.gif'),
+						date: new Date('2020-01-01'),
+					}}
 				/>
 				<Composition
 					id="sync-dynamic-length"

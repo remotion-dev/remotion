@@ -28,7 +28,7 @@ export const serializeJSONWithDate = ({
 	const serializedString = JSON.stringify(
 		data,
 		function (key, value) {
-			const item = this[key];
+			const item = (this as Record<string, unknown>)[key];
 			if (item instanceof Date) {
 				customDateUsed = true;
 				return `${DATE_TOKEN}${item.toISOString()}`;
@@ -61,7 +61,9 @@ export const serializeJSONWithDate = ({
 	return {serializedString, customDateUsed, customFileUsed, mapUsed, setUsed};
 };
 
-export const deserializeJSONWithCustomFields = (data: string) => {
+export const deserializeJSONWithCustomFields = (
+	data: string
+): Record<string, unknown> => {
 	return JSON.parse(data, (_, value) => {
 		if (typeof value === 'string' && value.startsWith(DATE_TOKEN)) {
 			return new Date(value.replace(DATE_TOKEN, ''));
