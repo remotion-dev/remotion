@@ -1,3 +1,4 @@
+import {Img} from 'remotion';
 import {z} from 'zod';
 
 export const hugePayloadSchema = z.object({
@@ -11,8 +12,8 @@ export const HugePayload: React.FC<z.infer<typeof hugePayloadSchema>> = ({
 	date,
 	file,
 }) => {
-	if (str.length !== 60000000) {
-		throw new Error('str is not 60,000,000 characters long');
+	if (str.length !== 6000000) {
+		throw new Error('str is not 6,000,000 characters long');
 	}
 
 	if (date instanceof Date === false) {
@@ -31,6 +32,7 @@ export const HugePayload: React.FC<z.infer<typeof hugePayloadSchema>> = ({
 			}}
 		>
 			Wow this payload is huge! {str.length} {file} {date.getTime()}
+			<Img src={file} />
 		</div>
 	);
 };
