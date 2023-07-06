@@ -4,6 +4,7 @@ import {
 	startLongRunningCompositor,
 } from '../compositor/compositor';
 import {exampleVideos} from './example-videos';
+import {interpolate} from 'remotion';
 
 const BMP_HEADER_SIZE = 54;
 
@@ -223,6 +224,10 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 	expect(height).toBe(1280);
 	expect(width).toBe(720);
 
+	expect(data[0x00169915]).approximately(144, 2);
+	expect(data[0x0012dd58]).approximately(159, 2);
+	expect(data[0x00019108]).approximately(209, 2);
+
 	compositor.finishCommands();
 	await compositor.waitForDone();
 });
@@ -328,6 +333,82 @@ test('Last frame should be fast', async () => {
 	await compositor.waitForDone();
 });
 
+test('Should get from a screen recording', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.screenrecording,
+		time: 0.5,
+		transparent: false,
+	});
+
+	expect(data.length).toBe(15230038);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
+test('Should get from video with no fps', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.nofps,
+		time: 0.5,
+		transparent: false,
+	});
+
+	expect(data.length).toBe(3044334);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
+test('Should get from broken webcam video', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.webcam,
+		time: 0,
+		transparent: false,
+	});
+
+	expect(data.length).toBe(921654);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
+test('Should get from iPhone video', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.iphonevideo,
+		time: 3,
+		transparent: false,
+	});
+
+	expect(data.length).toBe(24883254);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
 test('Two different starting times should not result in big seeking', async () => {
 	const compositor = startLongRunningCompositor(300, 'info', false);
 
@@ -399,4 +480,63 @@ test('Two different starting times should not result in big seeking', async () =
 
 	compositor.finishCommands();
 	await compositor.waitForDone();
+});
+
+const getExpectedMediaFrameUncorrected = ({
+	frame,
+	playbackRate,
+	startFrom,
+}: {
+	frame: number;
+	playbackRate: number;
+	startFrom: number;
+}) => {
+	return interpolate(
+		frame,
+		[-1, startFrom, startFrom + 1],
+		[-1, startFrom, startFrom + playbackRate]
+	);
+};
+
+test('Should not duplicate frames for iphoneVideo', async () => {
+	const frame30 =
+		getExpectedMediaFrameUncorrected({
+			frame: 30,
+			playbackRate: 1,
+			startFrom: 0,
+		}) / 30;
+	const frame31 =
+		getExpectedMediaFrameUncorrected({
+			frame: 31,
+			playbackRate: 1,
+			startFrom: 0,
+		}) / 30;
+
+	const compositor = startLongRunningCompositor(500, 'info', false);
+
+	const firstFrame = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.iphonevideo,
+		time: frame30,
+		transparent: false,
+	});
+
+	const secondFrame = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.iphonevideo,
+		time: frame31,
+		transparent: false,
+	});
+
+	const hundredRandomPixels = new Array(100).fill(true).map(() => {
+		return Math.round(Math.random() * firstFrame.length);
+	});
+
+	let isSame = true;
+	for (const pixel of hundredRandomPixels) {
+		if (firstFrame[pixel] !== secondFrame[pixel]) {
+			isSame = false;
+			break;
+		}
+	}
+
+	expect(isSame).toBe(false);
 });

@@ -79,7 +79,7 @@ export function spring({
 	const frame =
 		(reverse
 			? (passedDurationInFrames ?? naturalDurationGetter.get()) - passedFrame
-			: passedFrame) - delay;
+			: passedFrame) - (reverse ? -delay : delay);
 
 	const spr = springCalculation({
 		fps,

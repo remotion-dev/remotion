@@ -18,7 +18,7 @@ import {ThumbnailEmitterContext} from './emitter-context.js';
 import {ThumbnailEmitter} from './event-emitter.js';
 import type {ThumbnailMethods} from './player-methods.js';
 import type {ErrorFallback, RenderLoading} from './PlayerUI.js';
-import {SharedPlayerContexts} from './SharedPlayerContext.js';
+import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
 import ThumbnailUI from './ThumbnailUI.js';
 import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
@@ -63,7 +63,9 @@ export const ThumbnailFn = <
 	const timelineState: TimelineContextValue = useMemo(() => {
 		return {
 			playing: false,
-			frame: frameToDisplay,
+			frame: {
+				[PLAYER_COMP_ID]: frameToDisplay,
+			},
 			rootId: thumbnailId,
 			imperativePlaying: {
 				current: false,

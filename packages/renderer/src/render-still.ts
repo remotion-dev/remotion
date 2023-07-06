@@ -145,8 +145,7 @@ const innerRenderStill = async ({
 		'in the `config` object of `renderStill()`',
 		false
 	);
-	Internals.validateDurationInFrames({
-		durationInFrames: composition.durationInFrames,
+	Internals.validateDurationInFrames(composition.durationInFrames, {
 		component: 'in the `config` object passed to `renderStill()`',
 		allowFloats: false,
 	});
@@ -294,7 +293,7 @@ const innerRenderStill = async ({
 		frame: null,
 		page,
 	});
-	await seekToFrame({frame: stillFrame, page});
+	await seekToFrame({frame: stillFrame, page, composition: composition.id});
 
 	const {buffer} = await takeFrameAndCompose({
 		frame: stillFrame,

@@ -69,7 +69,7 @@ A `string` specifying the directory (absolute path) to which frames should be sa
 
 ### `inputProps`
 
-[Custom props which will be passed to the component.](/docs/parametrized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
+[Custom props which will be passed to the component.](/docs/parameterized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
 
 ### `serveUrl`
 

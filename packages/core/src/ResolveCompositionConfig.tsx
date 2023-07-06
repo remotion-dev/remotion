@@ -83,9 +83,21 @@ export const ResolveCompositionConfig: React.FC<
 				return controller;
 			}
 
+			const inputProps =
+				typeof window === 'undefined' ||
+				getRemotionEnvironment() === 'player-development' ||
+				getRemotionEnvironment() === 'player-production'
+					? {}
+					: getInputProps() ?? {};
+
 			const {signal} = controller;
 
-			const promOrNot = resolveVideoConfig({composition, editorProps, signal});
+			const promOrNot = resolveVideoConfig({
+				composition,
+				editorProps,
+				inputProps,
+				signal,
+			});
 
 			if (typeof promOrNot === 'object' && 'then' in promOrNot) {
 				setResolvedConfigs((r) => ({
@@ -172,6 +184,7 @@ export const ResolveCompositionConfig: React.FC<
 	useEffect(() => {
 		if (selectedComposition && needsResolution(selectedComposition)) {
 			const controller = doResolution(selectedComposition, selectedEditorProps);
+
 			return () => {
 				controller.abort();
 			};
@@ -257,7 +270,11 @@ export const useResolvedVideoConfig = (
 			return {
 				type: 'success',
 				result: {
-					...composition,
+					width: composition.width as number,
+					height: composition.height as number,
+					fps: composition.fps as number,
+					id: composition.id,
+					durationInFrames: composition.durationInFrames as number,
 					defaultProps: composition.defaultProps ?? {},
 					props: {
 						...(composition.defaultProps ?? {}),

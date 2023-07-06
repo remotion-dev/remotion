@@ -32,7 +32,8 @@ export const MyComponent: React.FC<MyComponentProps> = ({ text }) => {
 
 // @filename: Vid.tsx
 // ---cut---
-import { CalculateMetadataFunction } from "remotion";
+import React from "react";
+import { CalculateMetadataFunction, Composition } from "remotion";
 import { MyComponent, MyComponentProps } from "./MyComp";
 
 const calculateMetadata: CalculateMetadataFunction<MyComponentProps> = ({
@@ -46,6 +47,24 @@ const calculateMetadata: CalculateMetadataFunction<MyComponentProps> = ({
     // or transform some props
     props,
   };
+};
+
+export const Root: React.FC = () => {
+  return (
+    <Composition
+      id="MyComp"
+      component={MyComponent}
+      durationInFrames={300}
+      fps={30}
+      width={1920}
+      height={1080}
+      defaultProps={{
+        text: "Hello World",
+        duration: 1,
+      }}
+      calculateMetadata={calculateMetadata}
+    />
+  );
 };
 ```
 

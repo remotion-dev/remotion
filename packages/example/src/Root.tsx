@@ -19,7 +19,10 @@ import {Framer} from './Framer';
 import {FreezeExample} from './Freeze/FreezeExample';
 import {ManyAudio} from './ManyAudio';
 import {MissingImg} from './MissingImg';
-import {OffthreadRemoteVideo} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
+import {
+	OffthreadLocalVideo,
+	OffthreadRemoteVideo,
+} from './OffthreadRemoteVideo/OffthreadRemoteVideo';
 import {OrbScene} from './Orb';
 import InfinityVideo from './ReallyLongVideo';
 import RemoteVideo from './RemoteVideo';
@@ -123,8 +126,8 @@ export const Index: React.FC = () => {
 
 		ws.add(foo2);
 
-		console.log('Hello World WeakMap', wm3);
-		console.log('Hello World WeakSet', ws);
+		shouldLog('Hello World WeakMap', wm3);
+		shouldLog('Hello World WeakSet', ws);
 
 		await new Promise((r) => {
 			setTimeout(r, 1000);
@@ -426,6 +429,14 @@ export const Index: React.FC = () => {
 						offthread: true,
 						codec: 'mp4' as const,
 					}}
+				/>
+				<Composition
+					id="OffthreadLocalVideo"
+					component={OffthreadLocalVideo}
+					width={1080}
+					height={1920}
+					fps={30}
+					durationInFrames={100}
 				/>
 				<Composition
 					id="OffthreadRemoteVideo"

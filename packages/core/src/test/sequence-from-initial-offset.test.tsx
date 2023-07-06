@@ -21,7 +21,9 @@ const Inner: React.FC = () => {
 
 const context: TimelineContextValue = {
 	audioAndVideoTags: {current: []},
-	frame: 100000,
+	frame: {
+		'my-comp': 100000,
+	},
 	imperativePlaying: {
 		current: false,
 	},

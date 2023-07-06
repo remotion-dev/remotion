@@ -47,10 +47,13 @@ export const usePlayer = (): UsePlayerMethods => {
 
 	const seek = useCallback(
 		(newFrame: number) => {
-			setTimelinePosition(newFrame);
+			if (video?.id) {
+				setTimelinePosition((c) => ({...c, [video.id]: newFrame}));
+			}
+
 			emitter.dispatchSeek(newFrame);
 		},
-		[emitter, setTimelinePosition]
+		[emitter, setTimelinePosition, video?.id]
 	);
 
 	const play = useCallback(
@@ -106,18 +109,22 @@ export const usePlayer = (): UsePlayerMethods => {
 	const pauseAndReturnToPlayStart = useCallback(() => {
 		if (imperativePlaying.current) {
 			imperativePlaying.current = false;
-
-			setTimelinePosition(playStart.current as number);
-			setPlaying(false);
-			emitter.dispatchPause();
+			if (config) {
+				setTimelinePosition((c) => ({
+					...c,
+					[config.id]: playStart.current as number,
+				}));
+				setPlaying(false);
+				emitter.dispatchPause();
+			}
 		}
-	}, [emitter, imperativePlaying, setPlaying, setTimelinePosition]);
+	}, [config, emitter, imperativePlaying, setPlaying, setTimelinePosition]);
 
-	const hasVideo = Boolean(video);
+	const videoId = video?.id;
 
 	const frameBack = useCallback(
 		(frames: number) => {
-			if (!hasVideo) {
+			if (!videoId) {
 				return null;
 			}
 
@@ -125,16 +132,20 @@ export const usePlayer = (): UsePlayerMethods => {
 				return;
 			}
 
-			setFrame((f) => {
-				return Math.max(0, f - frames);
+			setFrame((c) => {
+				const prev = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				return {
+					...c,
+					[videoId]: Math.max(0, prev - frames),
+				};
 			});
 		},
-		[hasVideo, imperativePlaying, setFrame]
+		[imperativePlaying, setFrame, videoId]
 	);
 
 	const frameForward = useCallback(
 		(frames: number) => {
-			if (!hasVideo) {
+			if (!videoId) {
 				return null;
 			}
 
@@ -142,9 +153,15 @@ export const usePlayer = (): UsePlayerMethods => {
 				return;
 			}
 
-			setFrame((f) => Math.min(lastFrame, f + frames));
+			setFrame((c) => {
+				const prev = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				return {
+					...c,
+					[videoId]: Math.min(lastFrame, prev + frames),
+				};
+			});
 		},
-		[hasVideo, imperativePlaying, lastFrame, setFrame]
+		[videoId, imperativePlaying, lastFrame, setFrame]
 	);
 
 	const returnValue: UsePlayerMethods = useMemo(() => {

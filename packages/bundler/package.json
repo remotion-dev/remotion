@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/bundler",
-	"version": "3.3.102",
+	"version": "4.0.1",
 	"description": "Bundler for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -42,7 +42,7 @@
 		"@types/react-dom": "18.0.10",
 		"eslint": "8.42.0",
 		"eslint-plugin-10x": "1.5.2",
-		"eslint-plugin-react": "7.29.4",
+		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",
 		"prettier": "^2.7.1",
 		"prettier-plugin-organize-imports": "^2.3.4",

@@ -288,15 +288,17 @@ export const internalRenderMedia = ({
 		'Codec supports parallel rendering:',
 		canUseParallelEncoding(codec)
 	);
-	Log.verboseAdvanced(
-		{
-			indent,
-			logLevel,
-			tag: 'renderMedia()',
-		},
-		'User disallowed parallel encoding:',
-		Boolean(disallowParallelEncoding)
-	);
+	if (disallowParallelEncoding) {
+		Log.verboseAdvanced(
+			{
+				indent,
+				logLevel,
+				tag: 'renderMedia()',
+			},
+			'User disallowed parallel encoding.'
+		);
+	}
+
 	if (parallelEncoding) {
 		Log.verboseAdvanced(
 			{

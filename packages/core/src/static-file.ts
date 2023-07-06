@@ -67,6 +67,16 @@ const inner = (path: string): string => {
 	return `/${trimLeadingSlash(path)}`;
 };
 
+const encodeBySplitting = (path: string): string => {
+	const splitBySlash = path.split('/');
+
+	const encodedArray = splitBySlash.map((element) => {
+		return encodeURIComponent(element);
+	});
+	const merged = encodedArray.join('/');
+	return merged;
+};
+
 /**
  * @description Reference a file from the public/ folder. If the file does not appear in the autocomplete, type the path manually.
  * @see [Documentation](https://www.remotion.dev/docs/staticfile)
@@ -109,11 +119,12 @@ export const staticFile = (path: string) => {
 	const includesHex = includesHexOfUnsafeChar(path);
 	if (includesHex.containsHex) {
 		warnOnce(
-			`WARNING: You seem to pass an already encoded path (path contains ${includesHex.hexCode}). The encoding gets automatically handled by staticFile()  `
+			`WARNING: You seem to pass an already encoded path (path contains ${includesHex.hexCode}). Since Remotion 4.0, the encoding is done by staticFile() itself. You may want to remove a encodeURIComponent() wrapping.`
 		);
 	}
 
-	const preparsed = inner(encodeURIComponent(path));
+	const preprocessed = encodeBySplitting(path);
+	const preparsed = inner(preprocessed);
 
 	if (!preparsed.startsWith('/')) {
 		return `/${preparsed}`;
