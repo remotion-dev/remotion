@@ -1,5 +1,6 @@
 import type {ChromiumOptions, FrameRange, LogLevel} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import type {
 	CloudRunCrashResponse,
 	CloudRunPayloadType,
@@ -159,7 +160,11 @@ export const renderMediaOnCloudrun = async ({
 		composition,
 		serveUrl,
 		codec: actualCodec,
-		inputProps: inputProps ?? {},
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: inputProps ?? {},
+		}).serializedString,
 		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		audioCodec: audioCodec ?? null,
 		audioBitrate: audioBitrate ?? null,

@@ -2,6 +2,7 @@ import type * as ff from '@google-cloud/functions-framework';
 import {Storage} from '@google-cloud/storage';
 import type {ChromiumOptions, RenderMediaOnProgress} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import {randomHash} from '../shared/random-hash';
 import {getCompositionFromBody} from './helpers/get-composition-from-body';
 import type {
@@ -46,7 +47,13 @@ export const renderMediaSingleThread = async (
 		serveUrl: body.serveUrl,
 		codec: body.codec,
 		outputLocation: tempFilePath,
-		inputProps: body.inputProps,
+		serializedInputPropsWithCustomSchema:
+			body.serializedInputPropsWithCustomSchema,
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: composition.props,
+			indent: undefined,
+			staticBase: null,
+		}).serializedString,
 		jpegQuality: body.jpegQuality,
 		audioCodec: body.audioCodec,
 		audioBitrate: body.audioBitrate,

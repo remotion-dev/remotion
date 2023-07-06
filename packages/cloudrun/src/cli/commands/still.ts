@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import {downloadFile} from '../../api/download-file';
 import {renderStillOnCloudrun} from '../../api/render-still-on-cloudrun';
 import {validateServeUrl} from '../../shared/validate-serveurl';
@@ -63,7 +64,11 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				browserExecutable,
 				chromiumOptions,
 				envVariables,
-				inputProps,
+				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+					data: inputProps,
+					indent: undefined,
+					staticBase: null,
+				}).serializedString,
 				port,
 				puppeteerInstance: undefined,
 				timeoutInMilliseconds: puppeteerTimeout,

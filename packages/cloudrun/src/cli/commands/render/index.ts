@@ -4,6 +4,7 @@ import type {CloudrunCodec} from '../../../shared/validate-gcp-codec';
 // import {validateMaxRetries} from '../../../shared/validate-retries';
 import {ConfigInternals} from '@remotion/cli/config';
 import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import {downloadFile} from '../../../api/download-file';
 import {extractMemoryFromURL} from '../../../api/helpers/extract-mem-from-url';
 import {extractTimeoutFromURL} from '../../../api/helpers/extract-time-from-url';
@@ -91,7 +92,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				envVariables,
 				height,
 				indent: false,
-				inputProps,
 				port,
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
@@ -99,6 +99,11 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				logLevel,
 				width,
 				server: await server,
+				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+					data: inputProps,
+					indent: undefined,
+					staticBase: null,
+				}).serializedString,
 			});
 		composition = compositionId;
 	}

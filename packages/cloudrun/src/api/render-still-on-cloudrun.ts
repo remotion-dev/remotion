@@ -4,6 +4,7 @@ import type {
 	StillImageFormat,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import type {
 	CloudRunPayloadType,
 	RenderStillOnCloudrunOutput,
@@ -98,7 +99,11 @@ export const renderStillOnCloudrun = async ({
 	const data: CloudRunPayloadType = {
 		composition,
 		serveUrl,
-		inputProps: inputProps ?? {},
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: inputProps ?? {},
+		}).serializedString,
 		outputBucket,
 		outName,
 		privacy: privacy ?? 'public',
