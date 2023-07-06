@@ -45,6 +45,7 @@ import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger'
 import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
+import {Internals} from 'remotion';
 
 export const renderVideoFlow = async ({
 	remotionRoot,
@@ -394,7 +395,11 @@ export const renderVideoFlow = async ({
 			onBrowserLog: null,
 			onFrameBuffer: null,
 			logLevel,
-			serializedResolvedPropsWithCustomSchema: JSON.stringify(config.props),
+			serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: config.props,
+			}).serializedString,
 		});
 
 		updateRenderProgress(true);
@@ -465,7 +470,11 @@ export const renderVideoFlow = async ({
 		disallowParallelEncoding,
 		onBrowserLog: null,
 		onStart: () => undefined,
-		serializedResolvedPropsWithCustomSchema: JSON.stringify(config.props),
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: config.props,
+			indent: undefined,
+			staticBase: null,
+		}).serializedString,
 	});
 
 	updateRenderProgress(true);

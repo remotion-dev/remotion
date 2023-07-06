@@ -39,6 +39,7 @@ import {
 	getOutputLocation,
 	getUserPassedOutputLocation,
 } from '../user-passed-output-location';
+import {Internals} from 'remotion';
 
 export const renderStillFlow = async ({
 	remotionRoot,
@@ -298,7 +299,11 @@ export const renderStillFlow = async ({
 		indent: indentOutput,
 		onBrowserLog: null,
 		logLevel,
-		serializedResolvedPropsWithCustomSchema: JSON.stringify(config.props),
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: config.props,
+		}).serializedString,
 	});
 
 	aggregate.rendering = {
