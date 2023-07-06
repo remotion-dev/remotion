@@ -1,4 +1,5 @@
-import {Img} from 'remotion';
+import {Img, useVideoConfig} from 'remotion';
+import {useVideo} from 'remotion/src/use-video';
 import {z} from 'zod';
 
 export const hugePayloadSchema = z.object({
@@ -12,6 +13,8 @@ export const HugePayload: React.FC<z.infer<typeof hugePayloadSchema>> = ({
 	date,
 	file,
 }) => {
+	const {defaultProps} = useVideoConfig();
+
 	if (str.length !== 6000000) {
 		throw new Error('str is not 6,000,000 characters long');
 	}
@@ -22,6 +25,18 @@ export const HugePayload: React.FC<z.infer<typeof hugePayloadSchema>> = ({
 
 	if (!file.startsWith(window.remotion_staticBase)) {
 		throw new Error('file does not start with staticBase');
+	}
+
+	if ((defaultProps.str as string).length !== 6000000) {
+		throw new Error('str (defaultProps) is not 6,000,000 characters long');
+	}
+
+	if (defaultProps.date instanceof Date === false) {
+		throw new Error('date (defaultProps) is not a Date');
+	}
+
+	if (!(defaultProps.file as string).startsWith(window.remotion_staticBase)) {
+		throw new Error('file (defaultProps) does not start with staticBase');
 	}
 
 	return (
