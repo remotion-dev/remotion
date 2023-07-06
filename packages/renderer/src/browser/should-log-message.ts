@@ -23,6 +23,18 @@ export const shouldLogBrowserMessage = (message: string) => {
 		return false;
 	}
 
+	if (
+		message.includes(
+			'CreatePlatformSocket() failed: Address family not supported by protocol'
+		)
+	) {
+		return false;
+	}
+
+	if (message.includes('Fontconfig error: No writable cache directories')) {
+		return false;
+	}
+
 	return true;
 };
 
