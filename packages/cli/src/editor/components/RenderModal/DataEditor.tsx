@@ -300,7 +300,9 @@ export const DataEditor: React.FC<{
 	}, [fastRefreshes]);
 
 	const onSave = useCallback(
-		(updater: (oldState: unknown) => unknown) => {
+		(
+			updater: (oldState: Record<string, unknown>) => Record<string, unknown>
+		) => {
 			if (schema === 'no-zod' || schema === 'no-schema' || z === null) {
 				sendErrorNotification('Cannot update default props: No Zod schema');
 				return;
@@ -309,7 +311,7 @@ export const DataEditor: React.FC<{
 			setSaving(true);
 			updateDefaultProps(
 				unresolvedComposition.id,
-				updater(unresolvedComposition.defaultProps),
+				updater(unresolvedComposition.defaultProps ?? {}),
 				extractEnumJsonPaths(schema, z, [])
 			)
 				.then((response) => {

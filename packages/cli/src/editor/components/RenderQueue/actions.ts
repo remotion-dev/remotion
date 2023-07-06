@@ -230,7 +230,7 @@ export const updateAvailable = (signal: AbortSignal) => {
 
 export const updateDefaultProps = (
 	compositionId: string,
-	defaultProps: unknown,
+	defaultProps: Record<string, unknown>,
 	enumPaths: EnumPath[]
 ) => {
 	return callApi('/api/update-default-props', {

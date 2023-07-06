@@ -16,9 +16,9 @@ export const serializeJSONWithDate = ({
 	indent,
 	staticBase,
 }: {
-	data: unknown;
+	data: Record<string, unknown>;
 	indent: number | undefined;
-	staticBase: string;
+	staticBase: string | null;
 }): SerializedJSONWithCustomFields => {
 	let customDateUsed = false;
 	let customFileUsed = false;
@@ -44,7 +44,11 @@ export const serializeJSONWithDate = ({
 				return value;
 			}
 
-			if (typeof item === 'string' && item.startsWith(staticBase)) {
+			if (
+				typeof item === 'string' &&
+				staticBase !== null &&
+				item.startsWith(staticBase)
+			) {
 				customFileUsed = true;
 				return `${FILE_TOKEN}${item.replace(staticBase + '/', '')}`;
 			}
