@@ -96,7 +96,11 @@ export const getCompositionId = async ({
 			});
 
 		if (propsSize > 10_000_000) {
-			Log.warn(
+			Log.warnAdvanced(
+				{
+					indent,
+					logLevel,
+				},
 				`The props of your composition are large (${formatBytes(
 					propsSize
 				)}). This may cause slowdown.`
