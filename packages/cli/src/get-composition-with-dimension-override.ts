@@ -21,7 +21,7 @@ export const getCompositionWithDimensionOverride = async ({
 	browserExecutable,
 	serveUrlOrWebpackUrl,
 	indent,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	logLevel,
 	server,
 }: {
@@ -38,7 +38,7 @@ export const getCompositionWithDimensionOverride = async ({
 	serveUrlOrWebpackUrl: string;
 	indent: boolean;
 	logLevel: LogLevel;
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	server: RemotionServer;
 }): Promise<{
 	compositionId: string;
@@ -55,7 +55,7 @@ export const getCompositionWithDimensionOverride = async ({
 		browserExecutable,
 		chromiumOptions,
 		envVariables,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		port,
 		puppeteerInstance,
 		timeoutInMilliseconds,

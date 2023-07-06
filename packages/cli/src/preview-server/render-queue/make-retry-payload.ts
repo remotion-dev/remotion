@@ -7,6 +7,7 @@ import type {
 import type {RenderModalState} from '../../editor/state/modals';
 import {getDefaultCodecs} from './get-default-video-contexts';
 import type {RenderJob} from './job';
+import {Internals} from 'remotion';
 
 export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 	const defaults = window.remotion_renderDefaults;
@@ -52,7 +53,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: job.inputProps,
+			defaultProps: Internals.deserializeJSONWithCustomFields(
+				job.serializedInputPropsWithCustomSchema
+			),
 			inFrameMark: null,
 			outFrameMark: null,
 		};
@@ -97,7 +100,9 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialHeadless: job.chromiumOptions.headless,
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
-			defaultProps: job.inputProps,
+			defaultProps: Internals.deserializeJSONWithCustomFields(
+				job.serializedInputPropsWithCustomSchema
+			),
 			inFrameMark: job.startFrame,
 			outFrameMark: job.endFrame,
 		};

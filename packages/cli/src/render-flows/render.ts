@@ -45,6 +45,7 @@ import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger'
 import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
+import {Internals} from 'remotion';
 
 export const renderVideoFlow = async ({
 	remotionRoot,
@@ -57,7 +58,6 @@ export const renderVideoFlow = async ({
 	scale,
 	shouldOutputImageSequence,
 	publicDir,
-	inputProps,
 	envVariables,
 	puppeteerTimeout,
 	port,
@@ -88,6 +88,7 @@ export const renderVideoFlow = async ({
 	videoBitrate,
 	numberOfGifLoops,
 	audioCodec,
+	serializedInputPropsWithCustomSchema,
 	disallowParallelEncoding,
 }: {
 	remotionRoot: string;
@@ -101,7 +102,7 @@ export const renderVideoFlow = async ({
 	indent: boolean;
 	shouldOutputImageSequence: boolean;
 	publicDir: string | null;
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
 	puppeteerTimeout: number;
 	port: number | null;
@@ -267,7 +268,7 @@ export const renderVideoFlow = async ({
 			chromiumOptions,
 			envVariables,
 			indent,
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			port,
 			puppeteerInstance,
 			serveUrlOrWebpackUrl: urlOrBundle,
@@ -366,7 +367,7 @@ export const renderVideoFlow = async ({
 
 		await RenderInternals.internalRenderFrames({
 			imageFormat,
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			onFrameUpdate: (rendered) => {
 				(renderingProgress as RenderingProgressInput).frames = rendered;
 				updateRenderProgress(false);
@@ -394,6 +395,11 @@ export const renderVideoFlow = async ({
 			onBrowserLog: null,
 			onFrameBuffer: null,
 			logLevel,
+			serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+				indent: undefined,
+				staticBase: null,
+				data: config.props,
+			}).serializedString,
 		});
 
 		updateRenderProgress(true);
@@ -419,7 +425,7 @@ export const renderVideoFlow = async ({
 		crf: crf ?? null,
 		envVariables,
 		frameRange,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		overwrite,
 		pixelFormat,
 		proResProfile,
@@ -464,6 +470,11 @@ export const renderVideoFlow = async ({
 		disallowParallelEncoding,
 		onBrowserLog: null,
 		onStart: () => undefined,
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: config.props,
+			indent: undefined,
+			staticBase: null,
+		}).serializedString,
 	});
 
 	updateRenderProgress(true);

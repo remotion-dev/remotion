@@ -1,7 +1,7 @@
 {
   "name": "@remotion/lambda-go",
   "private": true,
-  "version": "4.0.1",
+  "version": "4.0.3",
   "scripts": {
     "lint": "node build.mjs",
     "publish": "node publish.mjs"

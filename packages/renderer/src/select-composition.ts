@@ -1,4 +1,4 @@
-import type {VideoConfig} from 'remotion';
+import {Internals, type VideoConfig} from 'remotion';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -18,7 +18,7 @@ import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {type LogLevel} from './log-level';
 
 type InternalSelectCompositionsConfig = {
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	onBrowserLog: null | ((log: BrowserLog) => void);
@@ -60,7 +60,7 @@ type InnerSelectCompositionConfig = Omit<
 const innerSelectComposition = async ({
 	page,
 	onBrowserLog,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	envVariables,
 	serveUrl,
 	timeoutInMilliseconds,
@@ -82,7 +82,7 @@ const innerSelectComposition = async ({
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	await setPropsAndEnv({
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		envVariables,
 		page,
 		serveUrl,
@@ -133,10 +133,33 @@ const innerSelectComposition = async ({
 		`calculateMetadata() took ${Date.now() - time}ms`
 	);
 
-	return {metadata: result as VideoConfig, propsSize: size};
+	const res = result as Awaited<
+		ReturnType<typeof window.remotion_calculateComposition>
+	>;
+
+	const {width, durationInFrames, fps, height} = res;
+	return {
+		metadata: {
+			id,
+			width,
+			height,
+			fps,
+			durationInFrames,
+			props: Internals.deserializeJSONWithCustomFields(
+				res.serializedResolvedPropsWithCustomSchema
+			),
+			defaultProps: Internals.deserializeJSONWithCustomFields(
+				res.serializedDefaultPropsWithCustomSchema
+			),
+		},
+		propsSize: size,
+	};
 };
 
-type InternalReturnType = {metadata: VideoConfig; propsSize: number};
+type InternalReturnType = {
+	metadata: VideoConfig;
+	propsSize: number;
+};
 
 export const internalSelectComposition = async (
 	options: InternalSelectCompositionsConfig
@@ -152,7 +175,7 @@ export const internalSelectComposition = async (
 		port,
 		envVariables,
 		id,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		onBrowserLog,
 		server,
 		timeoutInMilliseconds,
@@ -207,7 +230,7 @@ export const internalSelectComposition = async (
 					chromiumOptions,
 					envVariables,
 					id,
-					inputProps,
+					serializedInputPropsWithCustomSchema,
 					onBrowserLog,
 					timeoutInMilliseconds,
 					logLevel,
@@ -237,7 +260,7 @@ export const internalSelectComposition = async (
  */
 export const selectComposition = async (
 	options: SelectCompositionOptions
-): Promise<VideoConfig> => {
+): Promise<Omit<VideoConfig, 'defaultProps'>> => {
 	const {
 		id,
 		serveUrl,
@@ -257,7 +280,11 @@ export const selectComposition = async (
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
-		inputProps: inputProps ?? {},
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: inputProps ?? {},
+		}).serializedString,
 		onBrowserLog: onBrowserLog ?? null,
 		port: port ?? null,
 		puppeteerInstance,

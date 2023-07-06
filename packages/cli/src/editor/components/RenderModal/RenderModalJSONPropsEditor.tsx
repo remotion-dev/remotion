@@ -7,9 +7,9 @@ import {Flex, Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {State} from './DataEditor';
-import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
-import {deserializeJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
 import {ZodErrorMessages} from './SchemaEditor/ZodErrorMessages';
+import type {SerializedJSONWithCustomFields} from 'remotion';
+import {Internals} from 'remotion';
 
 const style: React.CSSProperties = {
 	fontFamily: 'monospace',
@@ -25,7 +25,7 @@ const scrollable: React.CSSProperties = {
 
 const parseJSON = (str: string, schema: z.ZodTypeAny): State => {
 	try {
-		const value = deserializeJSONWithCustomFields(str);
+		const value = Internals.deserializeJSONWithCustomFields(str);
 		const zodValidation = schema.safeParse(value);
 		return {str, value, validJSON: true, zodValidation};
 	} catch (e) {

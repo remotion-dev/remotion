@@ -337,7 +337,7 @@ Deprecated in favor of [`logLevel`](#loglevel).
 
 ## Return value
 
-Returns a promise resolving to an object containing two properties: `renderId`, `bucketName`, `cloudWatchLogs`. Those are useful for passing to `getRenderProgress()`
+Returns a promise resolving to an object containing four properties. Of these, `renderId`, `bucketName` are useful for passing to `getRenderProgress()`.
 
 ### `renderId`
 

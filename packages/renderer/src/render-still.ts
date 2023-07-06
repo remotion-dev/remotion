@@ -42,7 +42,8 @@ type InternalRenderStillOptions = {
 	composition: VideoConfig;
 	output: string | null;
 	frame: number;
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
 	imageFormat: StillImageFormat;
 	jpegQuality: number;
 	puppeteerInstance: HeadlessBrowser | null;
@@ -104,7 +105,7 @@ const innerRenderStill = async ({
 	serveUrl,
 	puppeteerInstance,
 	onError,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	envVariables,
 	output,
 	frame = 0,
@@ -122,6 +123,7 @@ const innerRenderStill = async ({
 	downloadMap,
 	logLevel,
 	indent,
+	serializedResolvedPropsWithCustomSchema,
 }: InternalRenderStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
@@ -250,7 +252,7 @@ const innerRenderStill = async ({
 	}
 
 	await setPropsAndEnv({
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		envVariables,
 		page,
 		serveUrl,
@@ -266,7 +268,7 @@ const innerRenderStill = async ({
 		// eslint-disable-next-line max-params
 		pageFunction: (
 			id: string,
-			props: Record<string, unknown>,
+			props: string,
 			durationInFrames: number,
 			fps: number,
 			height: number,
@@ -275,7 +277,7 @@ const innerRenderStill = async ({
 			window.remotion_setBundleMode({
 				type: 'composition',
 				compositionName: id,
-				props,
+				serializedResolvedPropsWithSchema: props,
 				compositionDurationInFrames: durationInFrames,
 				compositionFps: fps,
 				compositionHeight: height,
@@ -284,7 +286,7 @@ const innerRenderStill = async ({
 		},
 		args: [
 			composition.id,
-			composition.props,
+			serializedResolvedPropsWithCustomSchema,
 			composition.durationInFrames,
 			composition.fps,
 			composition.height,
@@ -425,7 +427,11 @@ export const renderStill = (
 		frame: frame ?? 0,
 		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,
 		indent: false,
-		inputProps: inputProps ?? {},
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			staticBase: null,
+			indent: undefined,
+			data: inputProps ?? {},
+		}).serializedString,
 		jpegQuality: jpegQuality ?? quality ?? DEFAULT_JPEG_QUALITY,
 		onBrowserLog: onBrowserLog ?? null,
 		onDownload: onDownload ?? null,
@@ -438,5 +444,10 @@ export const renderStill = (
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel: verbose || dumpBrowserLogs ? 'verbose' : getLogLevel(),
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: composition.props ?? {},
+		}).serializedString,
 	});
 };
