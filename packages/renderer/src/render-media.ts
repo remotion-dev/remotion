@@ -759,7 +759,10 @@ export const renderMedia = ({
 		indent: false,
 		onCtrlCExit: () => undefined,
 		server: undefined,
-		// TODO Serialize props
-		serializedResolvedPropsWithCustomSchema: JSON.stringify(composition.props),
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: composition.props,
+		}).serializedString,
 	});
 };

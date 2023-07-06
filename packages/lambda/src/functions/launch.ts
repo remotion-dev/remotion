@@ -257,7 +257,10 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
 
-	const needsToUpload = getNeedsToUpload('video-or-audio', serializedResolved);
+	const needsToUpload = getNeedsToUpload(
+		'video-or-audio',
+		serializedResolved + params.inputProps
+	);
 
 	const serializedResolvedProps = await compressInputProps({
 		propsType: 'resolved-props',
