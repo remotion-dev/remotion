@@ -737,7 +737,11 @@ export const renderMedia = ({
 		ffmpegOverride: ffmpegOverride ?? undefined,
 		frameRange: frameRange ?? null,
 		imageFormat: imageFormat ?? DEFAULT_VIDEO_IMAGE_FORMAT,
-		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps ?? {}),
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: inputProps ?? {},
+		}).serializedString,
 		jpegQuality: jpegQuality ?? quality ?? DEFAULT_JPEG_QUALITY,
 		muted: muted ?? false,
 		numberOfGifLoops: numberOfGifLoops ?? null,

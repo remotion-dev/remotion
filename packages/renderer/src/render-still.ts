@@ -427,7 +427,11 @@ export const renderStill = (
 		frame: frame ?? 0,
 		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,
 		indent: false,
-		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps ?? {}),
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			staticBase: null,
+			indent: undefined,
+			data: inputProps ?? {},
+		}).serializedString,
 		jpegQuality: jpegQuality ?? quality ?? DEFAULT_JPEG_QUALITY,
 		onBrowserLog: onBrowserLog ?? null,
 		onDownload: onDownload ?? null,

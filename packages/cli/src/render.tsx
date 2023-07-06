@@ -1,4 +1,5 @@
 // eslint-disable-next-line no-restricted-imports
+import {Internals} from 'remotion';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
@@ -81,7 +82,11 @@ export const render = async (remotionRoot: string, args: string[]) => {
 		shouldOutputImageSequence,
 		publicDir,
 		envVariables,
-		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: inputProps,
+		}).serializedString,
 		puppeteerTimeout,
 		port,
 		height,

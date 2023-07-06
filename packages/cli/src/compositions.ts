@@ -6,6 +6,7 @@ import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {printCompositions} from './print-compositions';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
+import {Internals} from 'remotion';
 
 export const listCompositionsCommand = async (
 	remotionRoot: string,
@@ -65,7 +66,11 @@ export const listCompositionsCommand = async (
 		browserExecutable,
 		chromiumOptions,
 		envVariables,
-		serializedInputPropsWithCustomSchema: JSON.stringify(inputProps),
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: inputProps,
+			staticBase: null,
+			indent: undefined,
+		}).serializedString,
 		timeoutInMilliseconds: puppeteerTimeout,
 		port,
 		indent: false,
