@@ -1109,7 +1109,7 @@ importers:
     dependencies:
       lottie-web:
         specifier: ^5
-        version: 5.9.6
+        version: 5.12.2
       remotion:
         specifier: workspace:*
         version: link:../core
@@ -15192,10 +15192,6 @@ packages:
 
   /lottie-web@5.12.2:
     resolution: {integrity: sha512-uvhvYPC8kGPjXT3MyKMrL3JitEAmDMp30lVkuq/590Mw9ok6pWcFCwXJveo0t5uqYw1UREQHofD+jVpdjBv8wg==}
-    dev: false
-
-  /lottie-web@5.9.6:
-    resolution: {integrity: sha512-JFs7KsHwflugH5qIXBpB4905yC1Sub2MZWtl/elvO/QC6qj1ApqbUZJyjzJseJUtVpgiDaXQLjBlIJGS7UUUXA==}
     dev: false
 
   /loupe@2.3.4:
