@@ -113,7 +113,7 @@ const innerSetPropsAndEnv = async ({
 		);
 	}
 
-	const isRemotionFn = await puppeteerEvaluateWithCatch<
+	const {value: isRemotionFn} = await puppeteerEvaluateWithCatch<
 		typeof window['getStaticCompositions']
 	>({
 		pageFunction: () => {
@@ -123,7 +123,7 @@ const innerSetPropsAndEnv = async ({
 		frame: null,
 		page,
 	});
-	if (isRemotionFn === undefined) {
+	if (typeof isRemotionFn === 'undefined') {
 		throw new Error(
 			`Error while getting compositions: Tried to go to ${urlToVisit} and verify that it is a Remotion project by checking if window.getStaticCompositions is defined. However, the function was undefined, which indicates that this is not a valid Remotion project. Please check the URL you passed.`
 		);
