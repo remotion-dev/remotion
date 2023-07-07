@@ -168,7 +168,7 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
     } else {
         return Err(std::io::Error::new(
             ErrorKind::Other,
-            "The codec is not a video codec".to_string(),
+            "The codec is not a video codec",
         ))?;
     }
 }
