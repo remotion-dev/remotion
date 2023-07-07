@@ -576,8 +576,8 @@ importers:
         specifier: ^0.14.17
         version: 0.14.17
       lottie-web:
-        specifier: ^5.9.6
-        version: 5.9.6
+        specifier: ^5.12.2
+        version: 5.12.2
       mux-embed:
         specifier: ^4.16.0
         version: 4.16.0
