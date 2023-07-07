@@ -53,3 +53,33 @@ test('Should return an error due to non existing file', async () => {
 		);
 	}
 });
+
+test('Should return an error due to using a audio file', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const audioFile = path.join(
+		__dirname,
+		'..',
+		'..',
+		'..',
+		'example',
+		'src',
+		'resources',
+		'sound1.mp3'
+	);
+	expect(existsSync(audioFile)).toEqual(true);
+
+	try {
+		await compositor.executeCommand('GetVideoMetadata', {
+			src: audioFile,
+		});
+	} catch (err) {
+		expect((err as Error).message).toContain(
+			'Compositor error: No video stream found'
+		);
+	}
+});
