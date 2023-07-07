@@ -76,6 +76,7 @@ import {
 	registerErrorSymbolicationLock,
 	unlockErrorSymbolicationLock,
 } from './wait-for-symbolication-error-to-be-done';
+import {getVideoMetadata} from './get-video-metadata';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
@@ -204,6 +205,7 @@ export const RenderInternals = {
 	internalGetCompositions,
 	internalRenderFrames,
 	internalRenderMedia,
+	getVideoMetadata,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
