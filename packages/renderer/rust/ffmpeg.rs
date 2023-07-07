@@ -1,7 +1,7 @@
 use crate::errors::ErrorWithBacktrace;
 use crate::opened_stream::calc_position;
 use crate::opened_video_manager::OpenedVideoManager;
-use crate::payloads::payloads::OpenVideoStats;
+use crate::payloads::payloads::{OpenVideoStats, VideoMetadata};
 use std::io::ErrorKind;
 extern crate ffmpeg_next as remotionffmpeg;
 
@@ -126,5 +126,49 @@ pub fn extract_frame(
             "Frame evicted from cache",
         ))?,
         Err(err) => Err(err),
+    }
+}
+
+// https://docs.rs/ffmpeg-next/6.0.0/src/metadata/metadata.rs.html#35
+pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBacktrace> {
+    // Initialize the FFmpeg library
+    remotionffmpeg::init().map_err(|e| e.to_string())?;
+
+    // Open the input file
+    let input = remotionffmpeg::format::input(&file_path)?;
+
+    // Find the video stream
+    let stream = match input.streams().best(remotionffmpeg::media::Type::Video) {
+        Some(video_stream) => video_stream,
+        None => Err(std::io::Error::new(
+            ErrorKind::Other,
+            "No video stream found",
+        ))?,
+    };
+
+    // Get the frame rate
+    let fps: i32 = stream.avg_frame_rate().numerator();
+
+    // Get the codec
+    let codec = remotionffmpeg::codec::context::Context::from_parameters(stream.parameters())
+        .map_err(|e| e.to_string())?;
+
+    // Get the duration
+    let duration = input.duration() as f64 / remotionffmpeg::ffi::AV_TIME_BASE as f64;
+
+    if let Ok(video) = codec.decoder().video() {
+        // Return the video metadata
+        let metadata = VideoMetadata {
+            fps,
+            width: video.width(),
+            height: video.height(),
+            duration,
+        };
+        Ok(metadata)
+    } else {
+        return Err(std::io::Error::new(
+            ErrorKind::Other,
+            "The codec is not a video codec".to_string(),
+        ))?;
     }
 }
