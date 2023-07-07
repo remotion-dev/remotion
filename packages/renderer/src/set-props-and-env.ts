@@ -123,10 +123,28 @@ const innerSetPropsAndEnv = async ({
 		frame: null,
 		page,
 	});
+
 	if (typeof isRemotionFn === 'undefined') {
-		throw new Error(
-			`Error while getting compositions: Tried to go to ${urlToVisit} and verify that it is a Remotion project by checking if window.getStaticCompositions is defined. However, the function was undefined, which indicates that this is not a valid Remotion project. Please check the URL you passed.`
-		);
+		const {value: body} = await puppeteerEvaluateWithCatch<
+			typeof document.body.innerHTML
+		>({
+			pageFunction: () => {
+				return document.body.innerHTML;
+			},
+			args: [],
+			frame: null,
+			page,
+		});
+
+		const errorMessage = [
+			`Error while getting compositions: Tried to go to ${urlToVisit} and verify that it is a Remotion project by checking if window.getStaticCompositions is defined.`,
+			'However, the function was undefined, which indicates that this is not a valid Remotion project. Please check the URL you passed.',
+			'The page loaded contained the following markup:',
+			body.substring(0, 500) + (body.length > 500 ? '...' : ''),
+			'Does this look like a foreign page? If so, try to stop this server.',
+		].join('\n');
+
+		throw new Error(errorMessage);
 	}
 
 	const {value: siteVersion} = await puppeteerEvaluateWithCatch<
