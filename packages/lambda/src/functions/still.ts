@@ -239,6 +239,7 @@ const innerStillHandler = async (
 	});
 
 	return {
+		type: 'success' as const,
 		output: getOutputUrlFromMetadata(
 			renderMetadata,
 			bucketName,
@@ -262,7 +263,7 @@ export const stillHandler = async (
 	const renderId = randomHash({randomInTests: true});
 
 	try {
-		return innerStillHandler(params, renderId, options);
+		return await innerStillHandler(params, renderId, options);
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur

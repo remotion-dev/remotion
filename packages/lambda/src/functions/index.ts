@@ -42,11 +42,23 @@ export const handler = streamifyResponse(
 				inputProps: JSON.stringify(params.inputProps),
 				isWarm,
 			});
-			const response = await stillHandler(params, {
-				expectedBucketOwner: currentUserId,
-			});
-			responseStream.write(JSON.stringify(response));
-			responseStream.end();
+			try {
+				const response = await stillHandler(params, {
+					expectedBucketOwner: currentUserId,
+				});
+				responseStream.write(JSON.stringify(response));
+				responseStream.end();
+			} catch (err) {
+				responseStream.write(
+					JSON.stringify({
+						type: 'error',
+						message: (err as Error).message,
+						stack: (err as Error).stack,
+					})
+				);
+				responseStream.end();
+			}
+
 			return;
 		}
 

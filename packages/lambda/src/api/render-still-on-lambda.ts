@@ -141,6 +141,10 @@ export const renderStillOnLambda = async ({
 			},
 			region,
 		});
+		if (res.type === 'error') {
+			throw new Error(res.stack);
+		}
+
 		return {
 			estimatedPrice: res.estimatedPrice,
 			url: res.output,
