@@ -6,6 +6,7 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {redirectStatusCodes} from './redirect-status-codes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {Log} from './logger';
+import type {LogLevel} from './log-level';
 
 type SetPropsAndEnv = {
 	serializedInputPropsWithCustomSchema: string;
@@ -18,6 +19,8 @@ type SetPropsAndEnv = {
 	retriesRemaining: number;
 	audioEnabled: boolean;
 	videoEnabled: boolean;
+	indent: boolean;
+	logLevel: LogLevel;
 };
 
 const innerSetPropsAndEnv = async ({
@@ -31,6 +34,8 @@ const innerSetPropsAndEnv = async ({
 	retriesRemaining,
 	audioEnabled,
 	videoEnabled,
+	indent,
+	logLevel,
 }: SetPropsAndEnv): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
@@ -97,6 +102,8 @@ const innerSetPropsAndEnv = async ({
 			timeoutInMilliseconds,
 			audioEnabled,
 			videoEnabled,
+			indent,
+			logLevel,
 		});
 	}
 
@@ -152,11 +159,19 @@ const innerSetPropsAndEnv = async ({
 
 	if (remotionVersion !== VERSION && process.env.NODE_ENV !== 'test') {
 		if (remotionVersion) {
-			Log.warn(
+			Log.warnAdvanced(
+				{
+					indent,
+					logLevel,
+				},
 				`The site was bundled with version ${remotionVersion} of @remotion/bundler, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
 			);
 		} else {
-			Log.warn(
+			Log.warnAdvanced(
+				{
+					indent,
+					logLevel,
+				},
 				`The site was bundled with an old version of Remotion, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
 			);
 		}

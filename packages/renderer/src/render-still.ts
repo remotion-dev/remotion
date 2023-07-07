@@ -262,6 +262,8 @@ const innerRenderStill = async ({
 		retriesRemaining: 2,
 		audioEnabled: false,
 		videoEnabled: true,
+		indent,
+		logLevel,
 	});
 
 	await puppeteerEvaluateWithCatch({
