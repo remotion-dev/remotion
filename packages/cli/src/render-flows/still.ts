@@ -162,7 +162,7 @@ export const renderStillFlow = async ({
 		}
 	);
 
-	const server = RenderInternals.prepareServer({
+	const server = await RenderInternals.prepareServer({
 		concurrency: 1,
 		indent: indentOutput,
 		port,
@@ -171,7 +171,7 @@ export const renderStillFlow = async ({
 		webpackConfigOrServeUrl: urlOrBundle,
 	});
 
-	addCleanupCallback(() => server.then((s) => s.closeServer(false)));
+	addCleanupCallback(() => server.closeServer(false));
 
 	addCleanupCallback(() => cleanupBundle());
 
@@ -196,7 +196,7 @@ export const renderStillFlow = async ({
 			serveUrlOrWebpackUrl: urlOrBundle,
 			timeoutInMilliseconds: puppeteerTimeout,
 			logLevel,
-			server: await server,
+			server,
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
