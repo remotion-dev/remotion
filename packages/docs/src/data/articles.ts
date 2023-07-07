@@ -1348,8 +1348,8 @@ export const articles = [
   {
     id: "parameterized-rendering",
     title: "Parameterized videos",
-    relativePath: "docs/parameterized-rendering.md",
-    compId: "articles-docs-parameterized-rendering",
+    relativePath: "docs/parametrized-rendering.md",
+    compId: "articles-docs-parametrized-rendering",
     crumb: "How To",
   },
   {
@@ -1714,6 +1714,13 @@ export const articles = [
     title: "getCompositions()",
     relativePath: "docs/renderer/get-compositions.md",
     compId: "articles-docs-renderer-get-compositions",
+    crumb: "@remotion/renderer",
+  },
+  {
+    id: "get-video-metadata",
+    title: "getVideoMetadata()",
+    relativePath: "docs/renderer/get-video-metadata.md",
+    compId: "articles-docs-renderer-get-video-metadata",
     crumb: "@remotion/renderer",
   },
   {
