@@ -153,6 +153,7 @@ const V4: React.FC = () => {
               description="A rundown of the remaining improvements coming with Remotion 4.0."
               date="July 7th"
               title="Last but not least"
+              youtubeId="UCJn8uiWNxQ"
             />
             <div className={styles.panel}>
               <div style={{ marginBottom: 10 }}>
