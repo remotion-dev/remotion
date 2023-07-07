@@ -92,6 +92,8 @@ const innerSelectComposition = async ({
 		retriesRemaining: 2,
 		audioEnabled: false,
 		videoEnabled: false,
+		indent,
+		logLevel,
 	});
 
 	await puppeteerEvaluateWithCatch({
