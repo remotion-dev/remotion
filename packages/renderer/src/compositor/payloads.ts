@@ -60,6 +60,13 @@ export type CompositorCommand = {
 	FreeUpMemory: {
 		percent_of_memory: number;
 	};
+	GetVideoMetadata: {src: string};
+	VideoMetadata: {
+		fps: number;
+		width: number;
+		height: number;
+		duration: number;
+	};
 };
 
 export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {
