@@ -1,6 +1,6 @@
 import path from "node:path";
 import { expect, test } from "vitest";
-import { RenderInternals } from "@remotion/renderer";
+import { getVideoMetadata } from "@remotion/renderer";
 
 import { existsSync } from "node:fs";
 
@@ -17,7 +17,7 @@ test("Should return video metadata", async () => {
   );
   expect(existsSync(videoFile)).toEqual(true);
 
-  const metadataResponse = await RenderInternals.getVideoMetadata(videoFile);
+  const metadataResponse = await getVideoMetadata(videoFile);
 
   expect(metadataResponse).toEqual({
     fps: 24,
@@ -29,7 +29,7 @@ test("Should return video metadata", async () => {
 
 test("Should return an error due to non existing file", async () => {
   try {
-    await RenderInternals.getVideoMetadata("invalid");
+    await getVideoMetadata("invalid");
   } catch (err) {
     expect((err as Error).message).toContain(
       "Compositor error: No such file or directory"

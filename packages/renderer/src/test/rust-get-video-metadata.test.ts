@@ -24,24 +24,16 @@ test('Should return video metadata', async () => {
 		'framer-24fps.mp4'
 	);
 	expect(existsSync(videoFile)).toEqual(true);
-
-	try {
-		const metadataResponse = await compositor.executeCommand(
-			'GetVideoMetadata',
-			{
-				src: videoFile,
-			}
-		);
-		const metadataJson = JSON.parse(metadataResponse.toString('utf-8'));
-		expect(metadataJson).toEqual({
-			fps: 24,
-			width: 1080,
-			height: 1080,
-			duration: 4.166667,
-		});
-	} catch (err) {
-		console.log(err);
-	}
+	const metadataResponse = await compositor.executeCommand('GetVideoMetadata', {
+		src: videoFile,
+	});
+	const metadataJson = JSON.parse(metadataResponse.toString('utf-8'));
+	expect(metadataJson).toEqual({
+		fps: 24,
+		width: 1080,
+		height: 1080,
+		duration: 4.166667,
+	});
 });
 
 test('Should return an error due to non existing file', async () => {
