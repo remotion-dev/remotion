@@ -257,6 +257,8 @@ const innerRenderFrames = async ({
 			retriesRemaining: 2,
 			audioEnabled: !muted,
 			videoEnabled: imageFormat !== 'none',
+			indent,
+			logLevel,
 		});
 
 		await puppeteerEvaluateWithCatch({

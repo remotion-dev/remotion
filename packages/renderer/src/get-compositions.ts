@@ -52,6 +52,8 @@ type InnerGetCompositionsParams = {
 	serveUrl: string;
 	page: Page;
 	proxyPort: number;
+	indent: boolean;
+	logLevel: LogLevel;
 };
 
 const innerGetCompositions = async ({
@@ -62,6 +64,8 @@ const innerGetCompositions = async ({
 	proxyPort,
 	serveUrl,
 	timeoutInMilliseconds,
+	indent,
+	logLevel,
 }: InnerGetCompositionsParams): Promise<VideoConfig[]> => {
 	if (onBrowserLog) {
 		page.on('console', (log) => {
@@ -86,6 +90,8 @@ const innerGetCompositions = async ({
 		retriesRemaining: 2,
 		audioEnabled: false,
 		videoEnabled: false,
+		indent,
+		logLevel,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -179,6 +185,8 @@ export const internalGetCompositions = async ({
 					proxyPort: offthreadPort,
 					serveUrl,
 					timeoutInMilliseconds,
+					indent,
+					logLevel,
 				});
 			})
 
