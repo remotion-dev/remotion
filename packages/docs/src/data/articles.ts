@@ -1348,8 +1348,8 @@ export const articles = [
   {
     id: "parameterized-rendering",
     title: "Parameterized videos",
-    relativePath: "docs/parametrized-rendering.md",
-    compId: "articles-docs-parametrized-rendering",
+    relativePath: "docs/parameterized-rendering.md",
+    compId: "articles-docs-parameterized-rendering",
     crumb: "How To",
   },
   {
