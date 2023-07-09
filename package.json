@@ -9,8 +9,8 @@
     "build": "turbo run build",
     "ci": "turbo run build test --concurrency=50%",
     "watch": "pnpm run --recursive --stream --parallel watch",
-    "release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publish",
-    "release": "pnpm recursive publish && pnpm recursive run --sequential publish && git push --tags && git push",
+    "release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks",
+    "release": "pnpm recursive publish && git push --tags && git push",
     "clean": "rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf packages/**/.rollup.cache"
   },
   "engines": {
