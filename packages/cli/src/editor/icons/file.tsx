@@ -1,6 +1,6 @@
 import type {SVGProps} from 'react';
 
-export const FileIcon: React.FC<SVGProps<SVGSVGElement> & {color: string}> = ({
+export const FileIcon: React.FC<SVGProps<SVGSVGElement> & {color?: string}> = ({
 	color,
 	...props
 }) => (
