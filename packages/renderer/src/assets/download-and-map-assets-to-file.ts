@@ -5,7 +5,6 @@ import {random} from 'remotion';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import {getExt} from '../mime-types';
-import type {OffthreadVideoServerEmitter} from '../offthread-video-server';
 import {downloadFile} from './download-file';
 import type {DownloadMap} from './download-map';
 import {sanitizeFilePath} from './sanitize-filepath';
@@ -354,10 +353,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	onDownload: RenderMediaOnDownload | null;
 	downloadMap: DownloadMap;
 }): Promise<TAsset> => {
-	const cleanup = attachDownloadListenerToEmitter(
-		downloadMap.emitter,
-		onDownload
-	);
+	const cleanup = attachDownloadListenerToEmitter(downloadMap, onDownload);
 	const newSrc = await downloadAsset({
 		src: asset.src,
 		downloadMap,
@@ -371,7 +367,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 };
 
 export const attachDownloadListenerToEmitter = (
-	emitter: OffthreadVideoServerEmitter,
+	downloadMap: DownloadMap,
 	onDownload: RenderMediaOnDownload | null
 ) => {
 	const cleanup: CleanupFn[] = [];
@@ -379,11 +375,11 @@ export const attachDownloadListenerToEmitter = (
 		return () => undefined;
 	}
 
-	const a = emitter.addEventListener(
+	const a = downloadMap.emitter.addEventListener(
 		'download',
 		({detail: {src: initialSrc}}) => {
 			const progress = onDownload(initialSrc);
-			const b = emitter.addEventListener(
+			const b = downloadMap.emitter.addEventListener(
 				'progress',
 				({detail: {downloaded, percent, src: progressSrc, totalSize}}) => {
 					if (initialSrc === progressSrc) {
