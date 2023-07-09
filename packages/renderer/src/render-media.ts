@@ -552,16 +552,15 @@ export const internalRenderMedia = ({
 					serializedResolvedPropsWithCustomSchema,
 				});
 
-				return [renderFramesProc, server] as const;
+				return renderFramesProc;
 			})
-			.then(([renderFramesReturn, server]) => {
+			.then((renderFramesReturn) => {
 				return Promise.all([
 					renderFramesReturn,
-					server,
 					waitForPrestitcherIfNecessary(),
 				] as const);
 			})
-			.then(([{assetsInfo}, server]) => {
+			.then(([{assetsInfo}]) => {
 				renderedDoneIn = Date.now() - renderStart;
 				callUpdate();
 
@@ -601,7 +600,6 @@ export const internalRenderMedia = ({
 						audioBitrate,
 						videoBitrate,
 						audioCodec,
-						emitter: server.events,
 					}),
 					stitchStart,
 				]);

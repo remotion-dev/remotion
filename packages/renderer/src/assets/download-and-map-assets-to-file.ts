@@ -151,10 +151,8 @@ function validateBufferEncoding(
 export const downloadAsset = async ({
 	src,
 	downloadMap,
-	emitter,
 }: {
 	src: string;
-	emitter: OffthreadVideoServerEmitter;
 	downloadMap: DownloadMap;
 }): Promise<string> => {
 	if (isAssetCompressed(src)) {
@@ -200,7 +198,7 @@ export const downloadAsset = async ({
 		console.log('Actually downloading asset', src);
 	}
 
-	emitter.dispatchDownload(src);
+	downloadMap.emitter.dispatchDownload(src);
 
 	if (src.startsWith('data:')) {
 		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
@@ -236,7 +234,7 @@ export const downloadAsset = async ({
 	const {to} = await downloadFile({
 		url: src,
 		onProgress: (progress) => {
-			emitter.dispatchDownloadProgress(
+			downloadMap.emitter.dispatchDownloadProgress(
 				src,
 				progress.percent,
 				progress.downloaded,
@@ -351,17 +349,17 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	asset,
 	onDownload,
 	downloadMap,
-	emitter,
 }: {
 	asset: TAsset;
 	onDownload: RenderMediaOnDownload | null;
 	downloadMap: DownloadMap;
-	emitter: OffthreadVideoServerEmitter;
 }): Promise<TAsset> => {
-	const cleanup = attachDownloadListenerToEmitter(emitter, onDownload);
+	const cleanup = attachDownloadListenerToEmitter(
+		downloadMap.emitter,
+		onDownload
+	);
 	const newSrc = await downloadAsset({
 		src: asset.src,
-		emitter,
 		downloadMap,
 	});
 	cleanup();

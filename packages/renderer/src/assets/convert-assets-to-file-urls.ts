@@ -2,7 +2,6 @@ import type {TAsset} from 'remotion';
 import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './download-and-map-assets-to-file';
 import type {DownloadMap} from './download-map';
-import type {OffthreadVideoServerEmitter} from '../offthread-video-server';
 
 const chunk = <T>(input: T[], size: number) => {
 	return input.reduce<T[][]>((arr, item, idx) => {
@@ -16,12 +15,10 @@ export const convertAssetsToFileUrls = async ({
 	assets,
 	onDownload,
 	downloadMap,
-	emitter,
 }: {
 	assets: TAsset[][];
 	onDownload: RenderMediaOnDownload;
 	downloadMap: DownloadMap;
-	emitter: OffthreadVideoServerEmitter;
 }): Promise<TAsset[][]> => {
 	const chunks = chunk(assets, 1000);
 	const results: TAsset[][][] = [];
@@ -35,7 +32,6 @@ export const convertAssetsToFileUrls = async ({
 							asset: a,
 							onDownload,
 							downloadMap,
-							emitter,
 						});
 					})
 				);
