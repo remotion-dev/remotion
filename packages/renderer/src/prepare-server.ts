@@ -8,7 +8,6 @@ import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
 import {isServeUrl} from './is-serve-url';
 import {Log} from './logger';
-import type {OffthreadVideoServerEmitter} from './offthread-video-server';
 import {serveStatic} from './serve-static';
 import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {getSourceMapFromLocalFile} from './symbolicate-stacktrace';
@@ -21,7 +20,6 @@ export type RemotionServer = {
 	offthreadPort: number;
 	compositor: Compositor;
 	sourceMap: AnySourceMapConsumer | null;
-	events: OffthreadVideoServerEmitter;
 	downloadMap: DownloadMap;
 };
 
@@ -54,7 +52,6 @@ export const prepareServer = async ({
 			port: offthreadPort,
 			close: closeProxy,
 			compositor: comp,
-			events,
 		} = await serveStatic(null, {
 			port,
 			downloadMap,
@@ -73,7 +70,6 @@ export const prepareServer = async ({
 			offthreadPort,
 			compositor: comp,
 			sourceMap: null,
-			events,
 			downloadMap,
 		});
 	}
@@ -95,7 +91,6 @@ export const prepareServer = async ({
 		port: serverPort,
 		close,
 		compositor,
-		events: newEvents,
 	} = await serveStatic(webpackConfigOrServeUrl, {
 		port,
 		downloadMap,
@@ -119,7 +114,6 @@ export const prepareServer = async ({
 		offthreadPort: serverPort,
 		compositor,
 		sourceMap: await sourceMap,
-		events: newEvents,
 		downloadMap,
 	});
 };
@@ -140,11 +134,11 @@ export const makeOrReuseServer = async (
 }> => {
 	if (server) {
 		const cleanupOnDownload = attachDownloadListenerToEmitter(
-			server.events,
+			server.downloadMap.emitter,
 			onDownload
 		);
 
-		const cleanupError = server.events.addEventListener(
+		const cleanupError = server.downloadMap.emitter.addEventListener(
 			'error',
 			({detail: {error}}) => {
 				onError(error);
@@ -164,11 +158,11 @@ export const makeOrReuseServer = async (
 	const newServer = await prepareServer(config);
 
 	const cleanupOnDownloadNew = attachDownloadListenerToEmitter(
-		newServer.events,
+		newServer.downloadMap.emitter,
 		onDownload
 	);
 
-	const cleanupErrorNew = newServer.events.addEventListener(
+	const cleanupErrorNew = newServer.downloadMap.emitter.addEventListener(
 		'error',
 		({detail: {error}}) => {
 			onError(error);

@@ -3,6 +3,7 @@ import path from 'node:path';
 import type {TAsset} from 'remotion';
 import {deleteDirectory} from '../delete-directory';
 import {tmpDir} from '../tmp-dir';
+import {OffthreadVideoServerEmitter} from '../offthread-video-server';
 
 export type AudioChannelsAndDurationResultCache = {
 	channels: number;
@@ -11,6 +12,7 @@ export type AudioChannelsAndDurationResultCache = {
 
 export type DownloadMap = {
 	id: string;
+	emitter: OffthreadVideoServerEmitter;
 	isDownloadingMap: {
 		[src: string]:
 			| {
@@ -79,6 +81,7 @@ export const makeDownloadMap = (): DownloadMap => {
 		stitchFrames: makeAndReturn(dir, 'remotion-stitch-temp-dir'),
 		compositingDir: makeAndReturn(dir, 'remotion-compositing-temp-dir'),
 		compositorCache: {},
+		emitter: new OffthreadVideoServerEmitter(),
 	};
 };
 

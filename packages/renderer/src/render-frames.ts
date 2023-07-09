@@ -126,7 +126,6 @@ type InnerRenderFramesOptions = {
 	indent: boolean;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
-	server: RemotionServer;
 };
 
 export type RenderFramesOptions = {
@@ -203,7 +202,6 @@ const innerRenderFrames = async ({
 	sourcemapContext,
 	logLevel,
 	indent,
-	server,
 }: InnerRenderFramesOptions): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -435,7 +433,6 @@ const innerRenderFrames = async ({
 				asset,
 				onDownload,
 				downloadMap,
-				emitter: server.events,
 			}).catch((err) => {
 				onError(
 					new Error(`Error while downloading asset: ${(err as Error).stack}`)
@@ -704,7 +701,6 @@ export const internalRenderFrames = ({
 					indent,
 					serializedInputPropsWithCustomSchema,
 					serializedResolvedPropsWithCustomSchema,
-					server: openedServer,
 				});
 			}),
 		])
