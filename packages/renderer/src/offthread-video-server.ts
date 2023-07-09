@@ -54,9 +54,7 @@ export const startOffthreadVideoServer = ({
 	listener: RequestListener;
 	close: () => Promise<void>;
 	compositor: Compositor;
-	events: OffthreadVideoServerEmitter;
 } => {
-	const events = new OffthreadVideoServerEmitter();
 	const compositor = startCompositor(
 		'StartLongRunningProcess',
 		{
@@ -106,7 +104,7 @@ export const startOffthreadVideoServer = ({
 			}
 
 			let extractStart = Date.now();
-			downloadAsset({src, emitter: events, downloadMap})
+			downloadAsset({src, downloadMap})
 				.then((to) => {
 					extractStart = Date.now();
 					return compositor.executeCommand('ExtractFrame', {
@@ -136,12 +134,11 @@ export const startOffthreadVideoServer = ({
 				.catch((err) => {
 					res.writeHead(500);
 					res.end();
-					events.dispatchError(err);
+					downloadMap.emitter.dispatchError(err);
 					console.log('Error occurred', err);
 				});
 		},
 		compositor,
-		events,
 	};
 };
 
