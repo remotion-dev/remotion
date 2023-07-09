@@ -919,7 +919,7 @@ const RenderModal: React.FC<
 							onClick={() => setTab('general')}
 						>
 							<div style={iconContainer}>
-								<FileIcon color="currentColor" style={icon} />
+								<FileIcon style={icon} />
 							</div>
 							General
 						</VerticalTab>
