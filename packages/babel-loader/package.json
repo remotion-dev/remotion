@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/babel-loader",
-	"version": "4.0.3",
+	"version": "4.0.4",
 	"description": "babel-loader polyfill for Remotion",
 	"main": "dist/index.js",
 	"scripts": {

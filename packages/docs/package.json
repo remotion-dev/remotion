@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "4.0.3",
+  "version": "4.0.4",
   "private": true,
   "scripts": {
     "formatting": "prettier src --check",
@@ -59,7 +59,7 @@
     "create-video": "workspace:*",
     "got": "^11",
     "hls.js": "^0.14.17",
-    "lottie-web": "^5.9.6",
+    "lottie-web": "^5.12.2",
     "mux-embed": "^4.16.0",
     "plyr": "^3.7.3",
     "polished": "4.1.2",
