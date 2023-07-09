@@ -60,7 +60,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		Log.info('No compositions passed. Fetching compositions...');
 
 		validateServeUrl(serveUrl);
-		const server = RenderInternals.prepareServer({
+		const server = await RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
 			port,
@@ -89,7 +89,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				timeoutInMilliseconds: puppeteerTimeout,
 				height,
 				width,
-				server: await server,
+				server,
 			});
 		composition = compositionId;
 	}

@@ -77,7 +77,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 		validateServeUrl(serveUrl);
 
-		const server = RenderInternals.prepareServer({
+		const server = await RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
 			port,
@@ -106,7 +106,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				timeoutInMilliseconds: puppeteerTimeout,
 				logLevel,
 				width,
-				server: await server,
+				server,
 			});
 		composition = compositionId;
 	}
