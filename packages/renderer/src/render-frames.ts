@@ -658,70 +658,51 @@ export const internalRenderFrames = ({
 					}
 				),
 				browserInstance,
-			]).then(
-				([
-					{
-						server: {
-							serveUrl,
-							offthreadPort,
-							compositor,
-							sourceMap,
-							downloadMap,
-						},
-						cleanupServer,
-					},
-					pInstance,
-				]) => {
-					const browserReplacer = handleBrowserCrash(
-						pInstance,
-						logLevel,
-						indent
-					);
+			]).then(([{server: openedServer, cleanupServer}, pInstance]) => {
+				const {serveUrl, offthreadPort, compositor, sourceMap, downloadMap} =
+					openedServer;
 
-					cleanup.push(
-						cycleBrowserTabs(
-							browserReplacer,
-							actualConcurrency,
-							logLevel,
-							indent
-						).stopCycling
-					);
-					cleanup.push(() => cleanupServer(false));
+				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
 
-					return innerRenderFrames({
-						onError,
-						pagesArray: openedPages,
-						serveUrl,
-						composition,
-						actualConcurrency,
-						onDownload,
-						proxyPort: offthreadPort,
-						makeBrowser,
-						browserReplacer,
-						compositor,
-						sourcemapContext: sourceMap,
-						downloadMap,
-						cancelSignal,
-						envVariables,
-						everyNthFrame,
-						frameRange,
-						imageFormat,
-						jpegQuality,
-						muted,
-						onBrowserLog,
-						onFrameBuffer,
-						onFrameUpdate,
-						onStart,
-						outputDir,
-						scale,
-						timeoutInMilliseconds,
-						logLevel,
-						indent,
-						serializedInputPropsWithCustomSchema,
-						serializedResolvedPropsWithCustomSchema,
-					});
-				}
-			),
+				cleanup.push(
+					cycleBrowserTabs(browserReplacer, actualConcurrency, logLevel, indent)
+						.stopCycling
+				);
+				cleanup.push(() => cleanupServer(false));
+
+				return innerRenderFrames({
+					onError,
+					pagesArray: openedPages,
+					serveUrl,
+					composition,
+					actualConcurrency,
+					onDownload,
+					proxyPort: offthreadPort,
+					makeBrowser,
+					browserReplacer,
+					compositor,
+					sourcemapContext: sourceMap,
+					downloadMap,
+					cancelSignal,
+					envVariables,
+					everyNthFrame,
+					frameRange,
+					imageFormat,
+					jpegQuality,
+					muted,
+					onBrowserLog,
+					onFrameBuffer,
+					onFrameUpdate,
+					onStart,
+					outputDir,
+					scale,
+					timeoutInMilliseconds,
+					logLevel,
+					indent,
+					serializedInputPropsWithCustomSchema,
+					serializedResolvedPropsWithCustomSchema,
+				});
+			}),
 		])
 			.then((res) => {
 				return resolve(res);
