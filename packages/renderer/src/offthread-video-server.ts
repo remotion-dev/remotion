@@ -73,7 +73,7 @@ export const startOffthreadVideoServer = ({
 			compositor.finishCommands();
 			return compositor.waitForDone();
 		},
-		listener: (req, res) => {
+		listener: async (req, res) => {
 			if (!req.url) {
 				throw new Error('Request came in without URL');
 			}
@@ -84,61 +84,64 @@ export const startOffthreadVideoServer = ({
 				return;
 			}
 
-			const {src, time, transparent} = extractUrlAndSourceFromUrl(req.url);
-			res.setHeader('access-control-allow-origin', '*');
-			if (transparent) {
-				res.setHeader('content-type', `image/png`);
-			} else {
-				res.setHeader('content-type', `image/bmp`);
-			}
+			try {
+				const {src, time, transparent} = extractUrlAndSourceFromUrl(req.url);
+				res.setHeader('access-control-allow-origin', '*');
+				if (transparent) {
+					res.setHeader('content-type', `image/png`);
+				} else {
+					res.setHeader('content-type', `image/bmp`);
+				}
 
-			// Handling this case on Lambda:
-			// https://support.google.com/chrome/a/answer/7679408?hl=en
-			// Chrome sends Private Network Access preflights for subresources
-			if (req.method === 'OPTIONS') {
-				res.statusCode = 200;
-				if (req.headers['access-control-request-private-network']) {
-					res.setHeader('Access-Control-Allow-Private-Network', 'true');
+				// Handling this case on Lambda:
+				// https://support.google.com/chrome/a/answer/7679408?hl=en
+				// Chrome sends Private Network Access preflights for subresources
+				if (req.method === 'OPTIONS') {
+					res.statusCode = 200;
+					if (req.headers['access-control-request-private-network']) {
+						res.setHeader('Access-Control-Allow-Private-Network', 'true');
+					}
+
+					res.end();
+					return;
+				}
+
+				let extractStart = Date.now();
+				const to = await downloadAsset({src, emitter: events, downloadMap});
+				extractStart = Date.now();
+				const readable = await compositor.executeCommand('ExtractFrame', {
+					input: to,
+					time,
+					transparent,
+				});
+				const extractEnd = Date.now();
+				const timeToExtract = extractEnd - extractStart;
+
+				if (timeToExtract > 1000) {
+					Log.verbose(
+						`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`
+					);
+				}
+
+				if (!readable) {
+					throw new Error('no readable from ffmpeg');
+				}
+
+				res.writeHead(200);
+				res.write(readable);
+				res.end();
+			} catch (err) {
+				if (!res.headersSent) {
+					res.setHeader('content-type', 'application/json');
+					res.writeHead(500);
+					res.write(JSON.stringify({error: (err as Error).message}));
+					return;
 				}
 
 				res.end();
-				return;
+				events.dispatchError(err as Error);
+				console.log('Error occurred', err);
 			}
-
-			let extractStart = Date.now();
-			downloadAsset({src, emitter: events, downloadMap})
-				.then((to) => {
-					extractStart = Date.now();
-					return compositor.executeCommand('ExtractFrame', {
-						input: to,
-						time,
-						transparent,
-					});
-				})
-				.then((readable) => {
-					const extractEnd = Date.now();
-					const timeToExtract = extractEnd - extractStart;
-
-					if (timeToExtract > 1000) {
-						Log.verbose(
-							`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`
-						);
-					}
-
-					if (!readable) {
-						throw new Error('no readable from ffmpeg');
-					}
-
-					res.writeHead(200);
-					res.write(readable);
-					res.end();
-				})
-				.catch((err) => {
-					res.writeHead(500);
-					res.end();
-					events.dispatchError(err);
-					console.log('Error occurred', err);
-				});
 		},
 		compositor,
 		events,
