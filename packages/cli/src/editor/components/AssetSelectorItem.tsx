@@ -10,7 +10,7 @@ import {InlineAction} from './InlineAction';
 import {openInFileExplorer} from './RenderQueue/actions';
 import {sendErrorNotification} from './Notifications/NotificationCenter';
 
-const COMPOSITION_ITEM_HEIGHT = 32;
+const ASSET_ITEM_HEIGHT = 32;
 
 const itemStyle: React.CSSProperties = {
 	paddingRight: 10,
@@ -27,7 +27,7 @@ const itemStyle: React.CSSProperties = {
 	width: '100%',
 	textAlign: 'left',
 	backgroundColor: BACKGROUND,
-	height: COMPOSITION_ITEM_HEIGHT,
+	height: ASSET_ITEM_HEIGHT,
 };
 
 const labelStyle: React.CSSProperties = {
