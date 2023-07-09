@@ -375,6 +375,17 @@ export const attachDownloadListenerToEmitter = (
 		return () => undefined;
 	}
 
+	if (downloadMap.downloadListeners.includes(onDownload)) {
+		return () => undefined;
+	}
+
+	downloadMap.downloadListeners.push(onDownload);
+	cleanup.push(() => {
+		downloadMap.downloadListeners = downloadMap.downloadListeners.filter(
+			(l) => l !== onDownload
+		);
+	});
+
 	const a = downloadMap.emitter.addEventListener(
 		'download',
 		({detail: {src: initialSrc}}) => {
