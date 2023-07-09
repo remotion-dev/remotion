@@ -558,7 +558,7 @@ export const internalRenderMedia = ({
 				return Promise.all([
 					renderFramesReturn,
 					waitForPrestitcherIfNecessary(),
-				] as const);
+				]);
 			})
 			.then(([{assetsInfo}]) => {
 				renderedDoneIn = Date.now() - renderStart;
