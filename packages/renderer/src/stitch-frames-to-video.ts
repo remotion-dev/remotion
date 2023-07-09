@@ -1,6 +1,6 @@
 import fs, {promises} from 'node:fs';
 import path from 'node:path';
-import type {TAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
@@ -119,7 +119,7 @@ const getAssetsData = async ({
 	remotionRoot,
 	indent,
 }: {
-	assets: TAsset[][];
+	assets: TRenderAsset[][];
 	onDownload: RenderMediaOnDownload | undefined;
 	fps: number;
 	expectedFrames: number;

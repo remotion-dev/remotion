@@ -1,6 +1,6 @@
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
-import type {TAsset} from './CompositionManager.js';
+import type {TRenderAsset} from './CompositionManager.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
@@ -36,7 +36,7 @@ declare global {
 		remotion_puppeteerTimeout: number;
 		remotion_inputProps: string;
 		remotion_envVariables: string;
-		remotion_collectAssets: () => TAsset[];
+		remotion_collectAssets: () => TRenderAsset[];
 		remotion_getClipRegion: () => ClipRegion | null;
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
@@ -79,7 +79,7 @@ export {
 	AnyCompMetadata,
 	AnyComposition,
 	SmallTCompMetadata,
-	TAsset,
+	TRenderAsset,
 	TCompMetadata,
 } from './CompositionManager.js';
 export {getInputProps} from './config/input-props.js';

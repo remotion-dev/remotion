@@ -59,11 +59,11 @@ const PropsEditor: React.FC<{
 	);
 };
 
-type SidebarPanel = 'input-props' | 'renders';
+type OptionsSidebarPanel = 'input-props' | 'renders';
 
 const localStorageKey = 'remotion.sidebarPanel';
 
-const getSelectedPanel = (): SidebarPanel => {
+const getSelectedPanel = (): OptionsSidebarPanel => {
 	const panel = localStorage.getItem(localStorageKey);
 	if (panel === 'renders') {
 		return 'renders';
@@ -76,33 +76,37 @@ const tabsContainer: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
-export const persistSelectedPanel = (panel: SidebarPanel) => {
+export const persistSelectedOptionsSidebarPanel = (
+	panel: OptionsSidebarPanel
+) => {
 	localStorage.setItem(localStorageKey, panel);
 };
 
-export const rightSidebarTabs = createRef<{
+export const optionsSidebarTabs = createRef<{
 	selectRendersPanel: () => void;
 }>();
 
-export const RightPanel: React.FC<{}> = () => {
-	const [panel, setPanel] = useState<SidebarPanel>(() => getSelectedPanel());
-	const onCompositionsSelected = useCallback(() => {
+export const OptionsPanel: React.FC<{}> = () => {
+	const [panel, setPanel] = useState<OptionsSidebarPanel>(() =>
+		getSelectedPanel()
+	);
+	const onPropsSelected = useCallback(() => {
 		setPanel('input-props');
-		persistSelectedPanel('input-props');
+		persistSelectedOptionsSidebarPanel('input-props');
 	}, []);
 
 	const onRendersSelected = useCallback(() => {
 		setPanel('renders');
-		persistSelectedPanel('renders');
+		persistSelectedOptionsSidebarPanel('renders');
 	}, []);
 
 	useImperativeHandle(
-		rightSidebarTabs,
+		optionsSidebarTabs,
 		() => {
 			return {
 				selectRendersPanel: () => {
 					setPanel('renders');
-					persistSelectedPanel('renders');
+					persistSelectedOptionsSidebarPanel('renders');
 				},
 			};
 		},
@@ -131,10 +135,7 @@ export const RightPanel: React.FC<{}> = () => {
 		<div style={container} className="css-reset">
 			<div style={tabsContainer}>
 				<Tabs>
-					<Tab
-						selected={panel === 'input-props'}
-						onClick={onCompositionsSelected}
-					>
+					<Tab selected={panel === 'input-props'} onClick={onPropsSelected}>
 						Props
 					</Tab>
 					<RendersTab

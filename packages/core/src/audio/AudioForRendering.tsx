@@ -9,7 +9,7 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {AssetManager} from '../AssetManager.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
 import {continueRender, delayRender} from '../delay-render.js';
 import {useRemotionEnvironment} from '../get-environment.js';
 import {random} from '../random.js';
@@ -34,7 +34,8 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const volumePropFrame = useFrameForVolumeProp();
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
-	const {registerAsset, unregisterAsset} = useContext(AssetManager);
+	const {registerRenderAsset, unregisterRenderAsset} =
+		useContext(RenderAssetManager);
 	const environment = useRemotionEnvironment();
 
 	// Generate a string that's as unique as possible for this asset
@@ -87,7 +88,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		registerAsset({
+		registerRenderAsset({
 			type: 'audio',
 			src: getAbsoluteSrc(props.src),
 			id,
@@ -97,14 +98,14 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 			playbackRate: props.playbackRate ?? 1,
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
-		return () => unregisterAsset(id);
+		return () => unregisterRenderAsset(id);
 	}, [
 		props.muted,
 		props.src,
-		registerAsset,
+		registerRenderAsset,
 		absoluteFrame,
 		id,
-		unregisterAsset,
+		unregisterRenderAsset,
 		volume,
 		volumePropFrame,
 		frame,
