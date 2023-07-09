@@ -134,7 +134,7 @@ export const makeOrReuseServer = async (
 }> => {
 	if (server) {
 		const cleanupOnDownload = attachDownloadListenerToEmitter(
-			server.downloadMap.emitter,
+			server.downloadMap,
 			onDownload
 		);
 
@@ -158,7 +158,7 @@ export const makeOrReuseServer = async (
 	const newServer = await prepareServer(config);
 
 	const cleanupOnDownloadNew = attachDownloadListenerToEmitter(
-		newServer.downloadMap.emitter,
+		newServer.downloadMap,
 		onDownload
 	);
 
