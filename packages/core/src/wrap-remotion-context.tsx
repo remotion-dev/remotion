@@ -3,7 +3,7 @@
 // for them to be useable
 
 import React, {useMemo} from 'react';
-import {AssetManager} from './AssetManager.js';
+import {RenderAssetManager} from './RenderAssetManager.js';
 import {CanUseRemotionHooks} from './CanUseRemotionHooks.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {NativeLayersContext} from './NativeLayers.js';
@@ -27,7 +27,7 @@ export function useRemotionContexts() {
 	const nativeLayersContext = React.useContext(NativeLayersContext);
 	const preloadContext = React.useContext(PreloadContext);
 	const resolveCompositionContext = React.useContext(ResolveCompositionContext);
-	const assetManagerContext = React.useContext(AssetManager);
+	const renderAssetManagerContext = React.useContext(RenderAssetManager);
 	const sequenceManagerContext = React.useContext(SequenceManager);
 
 	return useMemo(
@@ -41,7 +41,7 @@ export function useRemotionContexts() {
 			nativeLayersContext,
 			preloadContext,
 			resolveCompositionContext,
-			assetManagerContext,
+			renderAssetManagerContext,
 			sequenceManagerContext,
 		}),
 		[
@@ -54,7 +54,7 @@ export function useRemotionContexts() {
 			nativeLayersContext,
 			preloadContext,
 			resolveCompositionContext,
-			assetManagerContext,
+			renderAssetManagerContext,
 			sequenceManagerContext,
 		]
 	);
@@ -76,7 +76,9 @@ export const RemotionContextProvider = (
 					<PreloadContext.Provider value={contexts.preloadContext}>
 						<CompositionManager.Provider value={contexts.compositionManagerCtx}>
 							<SequenceManager.Provider value={contexts.sequenceManagerContext}>
-								<AssetManager.Provider value={contexts.assetManagerContext}>
+								<RenderAssetManager.Provider
+									value={contexts.renderAssetManagerContext}
+								>
 									<ResolveCompositionContext.Provider
 										value={contexts.resolveCompositionContext}
 									>
@@ -92,7 +94,7 @@ export const RemotionContextProvider = (
 											</SetTimelineContext.Provider>
 										</TimelineContext.Provider>
 									</ResolveCompositionContext.Provider>
-								</AssetManager.Provider>
+								</RenderAssetManager.Provider>
 							</SequenceManager.Provider>
 						</CompositionManager.Provider>
 					</PreloadContext.Provider>

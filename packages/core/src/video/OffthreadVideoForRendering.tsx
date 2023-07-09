@@ -1,6 +1,6 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {AssetManager} from '../AssetManager.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
@@ -35,7 +35,10 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 
-	const {registerAsset, unregisterAsset} = useContext(AssetManager);
+	const {
+		registerRenderAsset,
+		unregisterRenderAsset,
+	} = useContext(RenderAssetManager);
 
 	if (!src) {
 		throw new TypeError('No `src` was passed to <OffthreadVideo>.');
@@ -84,7 +87,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			return;
 		}
 
-		registerAsset({
+		registerRenderAsset({
 			type: 'video',
 			src: getAbsoluteSrc(src),
 			id,
@@ -95,13 +98,13 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 
-		return () => unregisterAsset(id);
+		return () => unregisterRenderAsset(id);
 	}, [
 		muted,
 		src,
-		registerAsset,
+		registerRenderAsset,
 		id,
-		unregisterAsset,
+		unregisterRenderAsset,
 		volume,
 		frame,
 		absoluteFrame,

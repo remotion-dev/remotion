@@ -51,7 +51,10 @@ import {
 } from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
 import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
-import {persistSelectedPanel, rightSidebarTabs} from '../RightPanel';
+import {
+	persistSelectedOptionsSidebarPanel,
+	optionsSidebarTabs,
+} from '../OptionsPanel';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {Spinner} from '../Spinner';
@@ -124,7 +127,7 @@ const container: React.CSSProperties = {
 	borderBottom: '1px solid black',
 };
 
-const rightPanel: React.CSSProperties = {
+const optionsPanel: React.CSSProperties = {
 	display: 'flex',
 	width: '100%',
 };
@@ -587,8 +590,8 @@ const RenderModal: React.FC<
 
 	const onClickStill = useCallback(() => {
 		setSidebarCollapsedState({left: null, right: 'expanded'});
-		persistSelectedPanel('renders');
-		rightSidebarTabs.current?.selectRendersPanel();
+		persistSelectedOptionsSidebarPanel('renders');
+		optionsSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addStillRenderJob({
 			compositionId: resolvedComposition.id,
@@ -643,8 +646,8 @@ const RenderModal: React.FC<
 
 	const onClickVideo = useCallback(() => {
 		setSidebarCollapsedState({left: null, right: 'expanded'});
-		persistSelectedPanel('renders');
-		rightSidebarTabs.current?.selectRendersPanel();
+		persistSelectedOptionsSidebarPanel('renders');
+		optionsSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addVideoRenderJob({
 			compositionId: resolvedComposition.id,
@@ -916,7 +919,7 @@ const RenderModal: React.FC<
 							onClick={() => setTab('general')}
 						>
 							<div style={iconContainer}>
-								<FileIcon style={icon} />
+								<FileIcon color="currentColor" style={icon} />
 							</div>
 							General
 						</VerticalTab>
@@ -982,7 +985,7 @@ const RenderModal: React.FC<
 						</VerticalTab>
 					) : null}
 				</div>
-				<div style={rightPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+				<div style={optionsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					{tab === 'general' ? (
 						<RenderModalBasic
 							codec={codec}

@@ -1,4 +1,4 @@
-import {AssetManager} from './AssetManager.js';
+import {RenderAssetManager} from './RenderAssetManager.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -9,11 +9,11 @@ import {
 } from './CanUseRemotionHooks.js';
 import type {CompProps} from './Composition.js';
 import type {
-	TAsset,
 	TCompMetadata,
 	TComposition,
 	TSequence,
 } from './CompositionManager.js';
+import type {TRenderAsset} from './CompositionManager.js';
 import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
@@ -144,7 +144,7 @@ export const Internals = {
 	resolveCompositionsRef,
 	ResolveCompositionConfig,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
-	AssetManager,
+	RenderAssetManager,
 	bundleName: 'bundle.js',
 	persistCurrentFrame,
 	useTimelineSetFrame,
@@ -158,7 +158,7 @@ export type {
 	Timeline,
 	TCompMetadata,
 	TSequence,
-	TAsset,
+	TRenderAsset as TAsset,
 	TimelineContextValue,
 	SetTimelineContextValue,
 	CompProps,

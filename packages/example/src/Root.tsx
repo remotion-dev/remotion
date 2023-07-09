@@ -981,7 +981,12 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 					schema={schemaTestSchema}
-					defaultProps={{title: 'sdasdsd', delay: 5.2, color: '#df822a'}}
+					defaultProps={{
+						title: 'sdasdsd',
+						delay: 5.2,
+						color: '#df822a',
+						list: ['Sample Item'],
+					}}
 				/>
 				{/**
 				 // @ts-expect-error */}
@@ -995,7 +1000,7 @@ export const Index: React.FC = () => {
 					schema={schemaTestSchema}
 				/>
 				<Composition
-					id="array-schem"
+					id="array-schema"
 					component={ArrayTest}
 					width={1200}
 					height={630}

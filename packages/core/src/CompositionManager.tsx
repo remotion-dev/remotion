@@ -7,7 +7,7 @@ import React, {
 	useState,
 } from 'react';
 import type {AnyZodObject} from 'zod';
-import {AssetManagerProvider} from './AssetManager.js';
+import {RenderAssetManagerProvider} from './RenderAssetManager.js';
 import {SharedAudioContextProvider} from './audio/shared-audio-tags.js';
 import type {CalculateMetadataFunction} from './Composition.js';
 import type {
@@ -123,7 +123,7 @@ export type TSequence = {
 	loopDisplay: LoopDisplay | undefined;
 } & EnhancedTSequenceData;
 
-export type TAsset = {
+export type TRenderAsset = {
 	type: 'audio' | 'video';
 	src: string;
 	id: string;
@@ -260,7 +260,7 @@ export const CompositionManagerProvider: React.FC<{
 	return (
 		<CompositionManager.Provider value={contextValue}>
 			<SequenceManagerProvider>
-				<AssetManagerProvider>
+				<RenderAssetManagerProvider>
 					<ResolveCompositionConfig>
 						<SharedAudioContextProvider
 							numberOfAudioTags={numberOfAudioTags}
@@ -269,7 +269,7 @@ export const CompositionManagerProvider: React.FC<{
 							{children}
 						</SharedAudioContextProvider>
 					</ResolveCompositionConfig>
-				</AssetManagerProvider>
+				</RenderAssetManagerProvider>
 			</SequenceManagerProvider>
 		</CompositionManager.Provider>
 	);
