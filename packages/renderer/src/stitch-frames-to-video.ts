@@ -43,6 +43,7 @@ import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
 import type {LogLevel} from './log-level';
+import {OffthreadVideoServerEmitter} from './offthread-video-server';
 
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
 
@@ -76,6 +77,7 @@ type InternalStitchFramesToVideoOptions = {
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	ffmpegOverride: null | FfmpegOverrideFn;
+	emitter: OffthreadVideoServerEmitter;
 };
 
 export type StitchFramesToVideoOptions = {
@@ -116,6 +118,7 @@ const getAssetsData = async ({
 	logLevel,
 	onProgress,
 	downloadMap,
+	emitter,
 	remotionRoot,
 	indent,
 }: {
@@ -126,6 +129,7 @@ const getAssetsData = async ({
 	logLevel: LogLevel;
 	onProgress: (progress: number) => void;
 	downloadMap: DownloadMap;
+	emitter: OffthreadVideoServerEmitter;
 	remotionRoot: string;
 	indent: boolean;
 }): Promise<string> => {
@@ -133,6 +137,7 @@ const getAssetsData = async ({
 		assets,
 		onDownload: onDownload ?? (() => () => undefined),
 		downloadMap,
+		emitter,
 	});
 
 	markAllAssetsAsDownloaded(downloadMap);
@@ -217,6 +222,7 @@ const innerStitchFramesToVideo = async (
 		width,
 		numberOfGifLoops,
 		onProgress,
+		emitter,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string
 ): Promise<ReturnType> => {
@@ -348,6 +354,7 @@ const innerStitchFramesToVideo = async (
 				downloadMap: assetsInfo.downloadMap,
 				remotionRoot,
 				indent,
+				emitter,
 		  })
 		: null;
 
@@ -604,5 +611,6 @@ export const stitchFramesToVideo = ({
 		width,
 		preEncodedFileLocation: null,
 		preferLossless: false,
+		emitter: new OffthreadVideoServerEmitter(),
 	});
 };
