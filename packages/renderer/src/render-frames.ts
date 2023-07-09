@@ -126,6 +126,7 @@ type InnerRenderFramesOptions = {
 	indent: boolean;
 	serializedInputPropsWithCustomSchema: string;
 	serializedResolvedPropsWithCustomSchema: string;
+	server: RemotionServer;
 };
 
 export type RenderFramesOptions = {
@@ -202,6 +203,7 @@ const innerRenderFrames = async ({
 	sourcemapContext,
 	logLevel,
 	indent,
+	server,
 }: InnerRenderFramesOptions): Promise<RenderFramesOutput> => {
 	if (outputDir) {
 		if (!fs.existsSync(outputDir)) {
@@ -433,6 +435,7 @@ const innerRenderFrames = async ({
 				asset,
 				onDownload,
 				downloadMap,
+				emitter: server.events,
 			}).catch((err) => {
 				onError(
 					new Error(`Error while downloading asset: ${(err as Error).stack}`)
@@ -658,70 +661,52 @@ export const internalRenderFrames = ({
 					}
 				),
 				browserInstance,
-			]).then(
-				([
-					{
-						server: {
-							serveUrl,
-							offthreadPort,
-							compositor,
-							sourceMap,
-							downloadMap,
-						},
-						cleanupServer,
-					},
-					pInstance,
-				]) => {
-					const browserReplacer = handleBrowserCrash(
-						pInstance,
-						logLevel,
-						indent
-					);
+			]).then(([{server: openedServer, cleanupServer}, pInstance]) => {
+				const {serveUrl, offthreadPort, compositor, sourceMap, downloadMap} =
+					openedServer;
 
-					cleanup.push(
-						cycleBrowserTabs(
-							browserReplacer,
-							actualConcurrency,
-							logLevel,
-							indent
-						).stopCycling
-					);
-					cleanup.push(() => cleanupServer(false));
+				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
 
-					return innerRenderFrames({
-						onError,
-						pagesArray: openedPages,
-						serveUrl,
-						composition,
-						actualConcurrency,
-						onDownload,
-						proxyPort: offthreadPort,
-						makeBrowser,
-						browserReplacer,
-						compositor,
-						sourcemapContext: sourceMap,
-						downloadMap,
-						cancelSignal,
-						envVariables,
-						everyNthFrame,
-						frameRange,
-						imageFormat,
-						jpegQuality,
-						muted,
-						onBrowserLog,
-						onFrameBuffer,
-						onFrameUpdate,
-						onStart,
-						outputDir,
-						scale,
-						timeoutInMilliseconds,
-						logLevel,
-						indent,
-						serializedInputPropsWithCustomSchema,
-						serializedResolvedPropsWithCustomSchema,
-					});
-				}
-			),
+				cleanup.push(
+					cycleBrowserTabs(browserReplacer, actualConcurrency, logLevel, indent)
+						.stopCycling
+				);
+				cleanup.push(() => cleanupServer(false));
+
+				return innerRenderFrames({
+					onError,
+					pagesArray: openedPages,
+					serveUrl,
+					composition,
+					actualConcurrency,
+					onDownload,
+					proxyPort: offthreadPort,
+					makeBrowser,
+					browserReplacer,
+					compositor,
+					sourcemapContext: sourceMap,
+					downloadMap,
+					cancelSignal,
+					envVariables,
+					everyNthFrame,
+					frameRange,
+					imageFormat,
+					jpegQuality,
+					muted,
+					onBrowserLog,
+					onFrameBuffer,
+					onFrameUpdate,
+					onStart,
+					outputDir,
+					scale,
+					timeoutInMilliseconds,
+					logLevel,
+					indent,
+					serializedInputPropsWithCustomSchema,
+					serializedResolvedPropsWithCustomSchema,
+					server: openedServer,
+				});
+			}),
 		])
 			.then((res) => {
 				return resolve(res);

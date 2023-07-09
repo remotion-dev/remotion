@@ -5,7 +5,7 @@ import {random} from 'remotion';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import {getExt} from '../mime-types';
-import {OffthreadVideoServerEmitter} from '../offthread-video-server';
+import type {OffthreadVideoServerEmitter} from '../offthread-video-server';
 import {downloadFile} from './download-file';
 import type {DownloadMap} from './download-map';
 import {sanitizeFilePath} from './sanitize-filepath';
@@ -351,12 +351,13 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	asset,
 	onDownload,
 	downloadMap,
+	emitter,
 }: {
 	asset: TAsset;
 	onDownload: RenderMediaOnDownload | null;
 	downloadMap: DownloadMap;
+	emitter: OffthreadVideoServerEmitter;
 }): Promise<TAsset> => {
-	const emitter = new OffthreadVideoServerEmitter();
 	const cleanup = attachDownloadListenerToEmitter(emitter, onDownload);
 	const newSrc = await downloadAsset({
 		src: asset.src,
