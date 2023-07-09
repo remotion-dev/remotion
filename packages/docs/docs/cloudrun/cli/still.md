@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-cloudrun-cli-still.png
 id: still
-sidebar_label: render
+sidebar_label: still
 title: "npx remotion cloudrun still"
 slug: /cloudrun/cli/still
 crumb: "Cloud Run CLI Reference"

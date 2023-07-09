@@ -363,7 +363,7 @@ const serviceName = "string";
 const updateRenderProgress = (progress: number) => {};
 // ---cut---
 
-const { renderId, bucketName } = await renderMediaOnCloudrun({
+const result = await renderMediaOnCloudrun({
   serviceName,
   region: "us-east1",
   serveUrl: url,
@@ -372,6 +372,11 @@ const { renderId, bucketName } = await renderMediaOnCloudrun({
   codec: "h264",
   updateRenderProgress,
 });
+
+if (result.status === 'success') {
+  console.log(result.bucketName);
+  console.log(result.renderId);
+}
 ```
 
 The render will now run and after a while the video will be available in your cloud storage bucket. You can keep track of the render progress by passing a function to the [updateRenderProgress](/docs/cloudrun/rendermediaoncloudrun#updaterenderprogress) attribute, to receive progress as a number.
