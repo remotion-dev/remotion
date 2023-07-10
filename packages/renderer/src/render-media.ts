@@ -766,7 +766,7 @@ export const renderMedia = ({
 		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
 			indent: undefined,
 			staticBase: null,
-			data: composition.props,
+			data: composition.props ?? {},
 		}).serializedString,
 	});
 };
