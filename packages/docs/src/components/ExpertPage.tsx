@@ -38,6 +38,7 @@ const flexer: React.CSSProperties = {
 
 const img: React.CSSProperties = {
   height: 100,
+  borderRadius: 5,
 };
 
 const title: React.CSSProperties = {
