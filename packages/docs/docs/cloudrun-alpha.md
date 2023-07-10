@@ -45,7 +45,7 @@ Make sure the versions don't have a `^` character in front of it.
 
 ## Changelog
 
-### `4.1.0-alpha6`
+### `4.1.0-alpha9`
 #### Known issues
 - any internal errors created by Remotion from within the service are not currently sent back in the error response to the renderMediaOnCloudrun and renderStillOnCloudrun APIs (these APIs are also used within the CLI). For these errors, users will need to check the logs for now.
 
