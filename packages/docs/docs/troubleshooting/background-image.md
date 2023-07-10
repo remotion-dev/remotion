@@ -55,3 +55,4 @@ const myMarkup = (
 
 - [`<Img>`](/docs/img)
 - [Flickering](/docs/flickering)
+- [Flickering with Next.js' Image tag](/docs/troubleshooting/nextjs-image)
