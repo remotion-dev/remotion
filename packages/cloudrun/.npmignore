@@ -7,3 +7,4 @@ dist/gcpInstaller
 container
 .eslintrc
 .prettierrc.js
+tsconfig.tsbuildinfo
