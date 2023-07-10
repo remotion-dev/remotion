@@ -8,8 +8,8 @@ type ContinueRenderFnBinded = () => void;
  * @see [Documentation](https://remotion.dev/docs/use-delay-render)
  */
 export const useDelayRender = (label?: string): ContinueRenderFnBinded => {
-  const [handle] = useState(() => delayRender(label));
-  return useCallback(() => {
+	const [handle] = useState(() => delayRender(label));
+	return useCallback(() => {
 		continueRender(handle);
 	}, [handle]);
 };
