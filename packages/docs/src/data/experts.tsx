@@ -352,7 +352,7 @@ export const experts: Expert[] = [
     description: (
       <div>
         I&apos;ve built{" "}
-        <a target={"_blank"} href="https://pranava.dev/">
+        <a target={"_blank"} href="https://swiftube.vercel.app/">
           Swiftube
         </a>{" "}
         - an AI-based Video Making tool.
