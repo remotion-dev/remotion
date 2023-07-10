@@ -1,13 +1,8 @@
-import type {
-	InputHTMLAttributes,
-	MouseEventHandler,
-	PointerEventHandler,
-} from 'react';
+import type {InputHTMLAttributes, MouseEventHandler} from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
-import {interpolate} from 'remotion';
 import {BLUE} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
-import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
+import {getClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
 import type {RemInputStatus} from './RemInput';
 import {inputBaseStyle, RemotionInput} from './RemInput';
@@ -51,7 +46,6 @@ export const InputDragger: React.FC<Props> = ({
 			borderBottom: '1px dotted ' + BLUE,
 			paddingBottom: 1,
 			color: BLUE,
-			cursor: 'ew-resize',
 			userSelect: 'none',
 			fontSize: 13,
 			fontVariantNumeric: 'tabular-nums',
@@ -103,54 +97,6 @@ export const InputDragger: React.FC<Props> = ({
 		[]
 	);
 
-	const roundToStep = (val: number, stepSize: number) => {
-		const factor = 1 / stepSize;
-		return Math.ceil(val * factor) / factor;
-	};
-
-	const onPointerDown: PointerEventHandler = useCallback(
-		(e) => {
-			const {pageX, pageY} = e;
-			const moveListener = (ev: MouseEvent) => {
-				const xDistance = ev.pageX - pageX;
-				const distanceFromStart = Math.sqrt(
-					xDistance ** 2 + (ev.pageY - pageY) ** 2
-				);
-				const step = Number(_step ?? 1);
-				const min = Number(_min ?? 0);
-				const max = Number(_max ?? Infinity);
-
-				if (distanceFromStart > 4) {
-					setClickLock(true);
-				}
-
-				const diff = interpolate(
-					xDistance,
-					[-5, -4, 0, 4, 5],
-					[-step, 0, 0, 0, step]
-				);
-				const newValue = Math.min(max, Math.max(min, Number(value) + diff));
-				const roundedToStep = roundToStep(newValue, step);
-				onValueChange(roundedToStep);
-			};
-
-			window.addEventListener('mousemove', moveListener);
-			window.addEventListener(
-				'pointerup',
-				() => {
-					window.removeEventListener('mousemove', moveListener);
-					setTimeout(() => {
-						setClickLock(false);
-					}, 2);
-				},
-				{
-					once: true,
-				}
-			);
-		},
-		[_step, _min, _max, value, onValueChange]
-	);
-
 	useEffect(() => {
 		if (inputFallback) {
 			fallbackRef.current?.select();
@@ -191,12 +137,7 @@ export const InputDragger: React.FC<Props> = ({
 	}
 
 	return (
-		<button
-			type="button"
-			style={style}
-			onClick={onClick}
-			onPointerDown={onPointerDown}
-		>
+		<button type="button" style={style} onClick={onClick}>
 			<span style={span}>{formatter(value as string | number)}</span>
 		</button>
 	);

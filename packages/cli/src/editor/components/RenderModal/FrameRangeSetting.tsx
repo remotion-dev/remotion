@@ -2,6 +2,7 @@ import React, {useCallback} from 'react';
 import {InputDragger} from '../NewComposition/InputDragger';
 import {RightAlignInput} from '../NewComposition/RemInput';
 import {label, optionRow, rightRow} from './layout';
+import {MultiRangeSlider} from './MultiRangeSlider';
 
 export const FrameRangeSetting: React.FC<{
 	startFrame: number;
@@ -84,6 +85,15 @@ export const FrameRangeSetting: React.FC<{
 						rightAlign
 					/>
 				</RightAlignInput>
+				<MultiRangeSlider
+					min={minStartFrame}
+					max={maxEndFrame}
+					start={startFrame}
+					end={endFrame}
+					step={1}
+					onLeftThumbDrag={onStartFrameChangedDirectly}
+					onRightThumbDrag={onEndFrameChangedDirectly}
+				/>
 				<RightAlignInput>
 					<InputDragger
 						value={endFrame}
