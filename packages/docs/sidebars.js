@@ -61,6 +61,7 @@ module.exports = {
         "composition",
         "calculate-metadata",
         "interpolate",
+        "use-delay-render",
         "continue-render",
         "delay-render",
         "cancel-render",

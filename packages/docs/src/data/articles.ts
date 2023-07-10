@@ -2193,6 +2193,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "use-delay-render",
+    title: "useDelayRender()",
+    relativePath: "docs/use-delay-render.md",
+    compId: "articles-docs-use-delay-render",
+    crumb: "API",
+  },
+  {
     id: "use-img-and-iframe",
     title: "<Img> and <IFrame> tags",
     relativePath: "docs/use-img-and-iframe.md",
