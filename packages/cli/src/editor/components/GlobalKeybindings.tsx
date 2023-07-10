@@ -44,7 +44,7 @@ export const GlobalKeybindings: React.FC = () => {
 			callback: () => {
 				setCheckerboard((c) => !c);
 			},
-			commandCtrlKey: true,
+			commandCtrlKey: false,
 			preventDefault: true,
 			triggerIfInputFieldFocused: false,
 		});
