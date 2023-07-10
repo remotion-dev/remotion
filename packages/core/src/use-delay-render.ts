@@ -1,5 +1,5 @@
 import {useCallback, useState} from 'react';
-import { delayRender, continueRender } from './delay-render.js';
+import {delayRender, continueRender} from './delay-render.js';
 
 type ContinueRenderFnBinded = () => void;
 
