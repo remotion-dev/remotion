@@ -262,7 +262,7 @@ export const internalSelectComposition = async (
  */
 export const selectComposition = async (
 	options: SelectCompositionOptions
-): Promise<Omit<VideoConfig, 'defaultProps'>> => {
+): Promise<VideoConfig> => {
 	const {
 		id,
 		serveUrl,
@@ -276,6 +276,7 @@ export const selectComposition = async (
 		timeoutInMilliseconds,
 		verbose,
 	} = options;
+
 	const data = await internalSelectComposition({
 		id,
 		serveUrl,
