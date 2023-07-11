@@ -5,7 +5,11 @@ title: getVideoMetadata()
 crumb: "@remotion/renderer"
 ---
 
-_Available from v4.0 - Part of the `@remotion/renderer` package._
+# getVideoMetadata()<AvailableFrom v="4.0.6" />
+
+:::note
+This function is meant to be used **in Node.js applications**. For browsers, use [`getVideoMetadata()`](/docs/get-video-metadata) from `@remotion/media-utils` instead.
+:::
 
 Extract the video file metadata, this function is useful for Node.js applications that renders video compositions, which need to adapt the video's `width`, `height`, `fps`, and `duration`. Instead of manually providing this data to the composition for each video, it can be dynamically pre-computed and supplied. A use case is when processing videos with different sizes for watermarking, which every video file has a different sizes.
 
