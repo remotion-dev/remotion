@@ -154,7 +154,8 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
         .map_err(|e| e.to_string())?;
 
     // Get the duration
-    let duration = input.duration() as f64 / remotionffmpeg::ffi::AV_TIME_BASE as f64;
+    #[allow(non_snake_case)]
+    let durationInSeconds = input.duration() as f64 / remotionffmpeg::ffi::AV_TIME_BASE as f64;
 
     if let Ok(video) = codec.decoder().video() {
         // Return the video metadata
@@ -162,7 +163,7 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
             fps,
             width: video.width(),
             height: video.height(),
-            duration,
+            durationInSeconds,
         };
         Ok(metadata)
     } else {

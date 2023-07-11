@@ -37,7 +37,7 @@ export type VideoMetadata = {
 	fps: number;
 	width: number;
 	height: number;
-	duration: number;
+	durationInSeconds: number;
 };
 export type CompositorCommand = {
 	Compose: {
