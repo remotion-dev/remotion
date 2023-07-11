@@ -254,13 +254,12 @@ const innerStillHandler = async (
 
 export const stillHandler = async (
 	params: LambdaPayload,
+	renderId: string,
 	options: Options
 ): Promise<ReturnType<typeof innerStillHandler>> => {
 	if (params.type !== LambdaRoutines.still) {
 		throw new Error('Params must be renderer');
 	}
-
-	const renderId = randomHash({randomInTests: true});
 
 	try {
 		return await innerStillHandler(params, renderId, options);
