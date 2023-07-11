@@ -14,6 +14,7 @@ import {rendererHandler} from './renderer';
 import {startHandler} from './start';
 import {stillHandler} from './still';
 import {randomHash} from '../shared/random-hash';
+import {Log} from '../cli/log';
 
 export const handler = streamifyResponse(
 	async (
@@ -53,6 +54,7 @@ export const handler = streamifyResponse(
 				responseStream.write(JSON.stringify(response));
 				responseStream.end();
 			} catch (err) {
+				Log.error(err);
 				responseStream.write(
 					JSON.stringify({
 						type: 'error',
