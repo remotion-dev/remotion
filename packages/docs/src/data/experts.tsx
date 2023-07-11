@@ -339,4 +339,27 @@ export const experts: Expert[] = [
       </div>
     ),
   },
+  {
+    slug: "pranav-kulkarni",
+    name: "Pranav Kulkarni",
+    image: "/img/freelancers/pranav.jpg",
+    website: "https://pranava.dev/",
+    twitter: "thecmdrunner",
+    github: "thecmdrunner",
+    linkedin: "in/pranavk7/",
+    email: "hey@pranava.dev",
+    since: new Date("2023-07-03").getTime(),
+    description: (
+      <div>
+        I&apos;ve built{" "}
+        <a target={"_blank"} href="https://swiftube.vercel.app/">
+          Swiftube
+        </a>{" "}
+        - an AI-based Video Making tool.
+        <br />
+        Looking at leveraging the power of Remotion for your projects?
+        Let&apos;s join forces!
+      </div>
+    ),
+  },
 ];
