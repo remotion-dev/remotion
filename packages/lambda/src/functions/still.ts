@@ -171,11 +171,7 @@ const innerStillHandler = async (
 			durationInFrames: composition.durationInFrames,
 		}),
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
-		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
-			data: lambdaParams.inputProps,
-			indent: undefined,
-			staticBase: null,
-		}).serializedString,
+		serializedInputPropsWithCustomSchema,
 		overwrite: false,
 		puppeteerInstance: browserInstance,
 		jpegQuality:
