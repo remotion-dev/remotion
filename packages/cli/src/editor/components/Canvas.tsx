@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useContext, useEffect, useRef} from 'react';
+import React, {useCallback, useContext, useEffect} from 'react';
 import {
 	MAX_ZOOM,
 	MIN_ZOOM,
@@ -18,6 +18,7 @@ import {PreviewSizeContext} from '../state/preview-size';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
+import {canvasRef as ref} from '../state/canvas-ref';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -37,7 +38,6 @@ const ZOOM_PX_FACTOR = 0.003;
 
 export const Canvas: React.FC = () => {
 	const dimensions = useDimensions();
-	const ref = useRef<HTMLDivElement>(null);
 	const {setSize, size: previewSize} = useContext(PreviewSizeContext);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();
