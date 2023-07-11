@@ -26,6 +26,8 @@ Unlike Google Chrome, the Chromium Browser does not include proprietary codecs. 
 
 **Workaround**: Convert videos to WebM, [use Chrome instead of Chromium](/docs/config#setbrowserexecutable), or use [`<OffthreadVideo>`](/docs/offthreadvideo).
 
+> Note: Chromium browser included in Remotion Lambda already supports the H.264 codec.
+
 ## Invalid source
 
 Make sure you are trying to load a video that is either available locally or publicly on the internet. Open the DevTools, go to the Network tab, track the asset being loaded, and open it in a new tab. Does it actually start playing?
