@@ -11,7 +11,7 @@ crumb: "@remotion/renderer"
 This function is meant to be used **in Node.js applications**. For browsers, use [`getVideoMetadata()`](/docs/get-video-metadata) from `@remotion/media-utils` instead.
 :::
 
-Get a videos `width`, `height`, `fps`, and `duration` in Node.js. Useful for calculating metadata on a server.
+Get a videos `width`, `height`, `fps`, and `durationInSeconds` in Node.js. Useful for calculating metadata on a server.
 
 ## Example
 
@@ -31,7 +31,7 @@ import path from "path";
 // Local video file
 const videoSourcePath = "./bunny.mp4";
 
-const { width, height, fps, duration } = await getVideoMetadata(
+const { width, height, fps, durationInSeconds } = await getVideoMetadata(
   videoSourcePath
 );
 
@@ -54,7 +54,7 @@ const composition = await selectComposition({
     width,
     height,
     fps,
-    duration,
+    durationInSeconds,
   },
 });
 
@@ -79,7 +79,9 @@ const videoMetadata = getInputProps();
 <Composition
   id="main"
   component={MyComponent}
-  durationInFrames={(videoMetadata.duration ?? 10) * (videoMetadata.fps ?? 30)}
+  durationInFrames={
+    (videoMetadata.durationInSeconds ?? 10) * (videoMetadata.fps ?? 30)
+  }
   fps={videoMetadata.fps ?? 30}
   width={videoMetadata.width ?? 1080}
   height={videoMetadata.height ?? 1080}
@@ -102,7 +104,7 @@ The return value is an object with the following properties:
 - `fps`: The frame rate of the video in seconds.
 - `width`: The width of the video in pixel.
 - `height`: The height of the video in pixel.
-- `duration`: The time length of the video in seconds.
+- `durationInSeconds`: The time length of the video in seconds.
 
 ## See also
 
