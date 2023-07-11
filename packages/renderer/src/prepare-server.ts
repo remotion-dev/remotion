@@ -12,11 +12,11 @@ import {serveStatic} from './serve-static';
 import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {
 	getSourceMapFromLocalFile,
-	getSourceMapFromRemoteFile,
+	getSourceMapFromRemoteUrl,
 } from './symbolicate-stacktrace';
 import {waitForSymbolicationToBeDone} from './wait-for-symbolication-error-to-be-done';
 import type {LogLevel} from './log-level';
-import {getBundleUrlFromServeUrl} from './get-bundle-url-from-serve-url';
+import {getBundleMapUrlFromServeUrl} from './get-bundle-url-from-serve-url';
 
 export type RemotionServer = {
 	serveUrl: string;
@@ -73,8 +73,8 @@ export const prepareServer = async ({
 			},
 			offthreadPort,
 			compositor: comp,
-			sourceMap: await getSourceMapFromRemoteFile(
-				getBundleUrlFromServeUrl(webpackConfigOrServeUrl)
+			sourceMap: await getSourceMapFromRemoteUrl(
+				getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl)
 			),
 			downloadMap,
 		});
