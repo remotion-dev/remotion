@@ -104,6 +104,7 @@ export const getProgress = async ({
 			mostExpensiveFrameRanges: postRenderData.mostExpensiveFrameRanges ?? null,
 			timeToEncode: postRenderData.timeToEncode,
 			outputSizeInBytes: postRenderData.outputSize,
+			type: 'success',
 		};
 	}
 
@@ -293,5 +294,6 @@ export const getProgress = async ({
 		mostExpensiveFrameRanges: null,
 		timeToEncode: null,
 		outputSizeInBytes: outputFile?.size ?? null,
+		type: 'success',
 	};
 };

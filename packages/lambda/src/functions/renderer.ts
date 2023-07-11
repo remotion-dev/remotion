@@ -286,7 +286,9 @@ const renderHandler = async (
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options
-) => {
+): Promise<{
+	type: 'success';
+}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -295,6 +297,9 @@ export const rendererHandler = async (
 
 	try {
 		await renderHandler(params, options, logs);
+		return {
+			type: 'success',
+		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			console.log({err});
@@ -339,12 +344,16 @@ export const rendererHandler = async (
 				retriesLeft: params.retriesLeft - 1,
 				attempt: params.attempt + 1,
 			};
-			await callLambda({
+			const res = await callLambda({
 				functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 				payload: retryPayload,
 				type: LambdaRoutines.renderer,
 				region: getCurrentRegionInFunction(),
 			});
+
+			return res;
 		}
+
+		throw err;
 	}
 };

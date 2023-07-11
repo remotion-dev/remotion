@@ -77,5 +77,6 @@ export const compositionsHandler = async (
 
 	return Promise.resolve({
 		compositions,
+		type: 'success' as const,
 	});
 };

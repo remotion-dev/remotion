@@ -103,6 +103,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 	await initialFile;
 
 	return {
+		type: 'success' as const,
 		bucketName,
 		renderId,
 	};
