@@ -23,7 +23,7 @@ test("Should return video metadata", async () => {
     fps: 24,
     width: 1080,
     height: 1080,
-    duration: 4.166667,
+    durationInSeconds: 4.166667,
   });
 });
 
