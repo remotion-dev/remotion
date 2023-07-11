@@ -7,21 +7,13 @@ import type {startHandler} from '../functions/start';
 import type {stillHandler} from '../functions/still';
 import type {LambdaRoutines} from './constants';
 
-type OrError<T> =
-	| T
-	| {
-			type: 'error';
-			message: string;
-			stack: string;
-	  };
-
 export interface LambdaReturnValues {
 	[LambdaRoutines.start]: ReturnType<typeof startHandler>;
 	[LambdaRoutines.launch]: ReturnType<typeof launchHandler>;
 	[LambdaRoutines.renderer]: ReturnType<typeof rendererHandler>;
 	[LambdaRoutines.status]: ReturnType<typeof progressHandler>;
 	[LambdaRoutines.info]: ReturnType<typeof infoHandler>;
-	[LambdaRoutines.still]: OrError<ReturnType<typeof stillHandler>>;
+	[LambdaRoutines.still]: ReturnType<typeof stillHandler>;
 	[LambdaRoutines.compositions]: ReturnType<typeof compositionsHandler>;
 }
 

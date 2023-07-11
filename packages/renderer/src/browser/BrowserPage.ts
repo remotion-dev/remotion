@@ -214,13 +214,31 @@ export class Page extends EventEmitter {
 					.filter(truthy)
 					.join(':');
 
-				Log.verboseAdvanced(
-					{
-						logLevel,
-						tag: [origPosition.name, file].filter(truthy).join('@'),
-						indent,
-					},
-					log.previewString
+				const tag = [origPosition?.name, file].filter(truthy).join('@');
+
+				if (log.type === 'error') {
+					Log.errorAdvanced(
+						{
+							logLevel,
+							tag,
+							indent,
+						},
+						log.previewString
+					);
+				} else {
+					Log.verboseAdvanced(
+						{
+							logLevel,
+							tag,
+							indent,
+						},
+						log.previewString
+					);
+				}
+			} else if (log.type === 'error') {
+				Log.errorAdvanced(
+					{logLevel, tag: `console.${log.type}`, indent},
+					log.text
 				);
 			} else {
 				Log.verboseAdvanced(
