@@ -16,6 +16,7 @@ import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
+import {FullScreenToggle} from './FullscreenToggle';
 
 const container: React.CSSProperties = {
 	display: 'flex',
@@ -50,6 +51,8 @@ export const PreviewToolbar: React.FC = () => {
 
 	const [loop, setLoop] = useState(loadLoopOption());
 
+	const [fullscreen, setFullscreen] = useState(false);
+
 	return (
 		<div style={container} className="css-reset">
 			<div style={sideContainer}>
@@ -69,6 +72,12 @@ export const PreviewToolbar: React.FC = () => {
 			<CheckboardToggle />
 			<TimelineInOutPointToggle />
 			<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
+			{document.fullscreenEnabled && (
+				<FullScreenToggle
+					fullscreen={fullscreen}
+					setFullscreen={setFullscreen}
+				/>
+			)}
 			<Spacing x={2} />
 			<Flex />
 			<div style={sideContainer}>
