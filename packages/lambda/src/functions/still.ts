@@ -20,7 +20,6 @@ import {
 } from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {getServeUrlHash} from '../shared/make-s3-url';
-import {randomHash} from '../shared/random-hash';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
