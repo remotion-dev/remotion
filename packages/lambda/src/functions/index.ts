@@ -13,6 +13,7 @@ import {progressHandler} from './progress';
 import {rendererHandler} from './renderer';
 import {startHandler} from './start';
 import {stillHandler} from './still';
+import {randomHash} from '../shared/random-hash';
 
 export const handler = streamifyResponse(
 	async (
@@ -38,12 +39,15 @@ export const handler = streamifyResponse(
 
 		const currentUserId = context.invokedFunctionArn.split(':')[4];
 		if (params.type === LambdaRoutines.still) {
+			const renderId = randomHash({randomInTests: true});
+
 			printCloudwatchHelper(LambdaRoutines.still, {
+				renderId,
 				inputProps: JSON.stringify(params.inputProps),
 				isWarm,
 			});
 			try {
-				const response = await stillHandler(params, {
+				const response = await stillHandler(params, renderId, {
 					expectedBucketOwner: currentUserId,
 				});
 				responseStream.write(JSON.stringify(response));
