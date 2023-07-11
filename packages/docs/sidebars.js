@@ -523,6 +523,7 @@ module.exports = {
         "staticfile-relative-paths",
         "staticfile-remote-urls",
         "troubleshooting/background-image",
+        "troubleshooting/nextjs-image",
         "troubleshooting/rosetta",
         "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",

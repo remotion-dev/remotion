@@ -34,18 +34,45 @@ If your error message reads that the main Lambda function has timed out, it mean
 
 ## Inspecting the logs
 
-Add `--log=verbose` to the Lambda render while rendering via the CLI. This will print a CloudWatch link to the console.  
-When using [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) add `logLevel: "verbose"` as an option. You will get a `cloudWatchLogs` field in the return value.
+<Step>1</Step> Get the Log URL:
 
-Open this link and log into AWS if needed. A log stream filtered after `"method=renderer,renderId=[render-id]"` will open.
+- If you use the CLI, add `--log=verbose` to the command. This will print a CloudWatch link to the console.
+- When using [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) add `logLevel: "verbose"` as an option. You will get a `cloudWatchLogs` field in the return value.
+
+Open this link and log into AWS if needed. A log stream will open.
 
 <img src="/img/cloudwatch.png" /> <br/><br/>
 
-Tweak the query to find the logs of a specific chunk: `method=renderer,renderId=[render-id],chunk=12` will for example find the logstream of chunk 12. If your viewport is big enough, you will also see the chunk numbers in the summary view straight away.
+By default, the filter is set to:
 
-Click the blue link in the `Log stream name` column to open the logstream. If you don't see any blue links, click "Display", then select "View in columns with details".
+```
+"method=renderer,renderId=[render-id]"
+```
+
+### Find the logs of a specific chunk
+
+Tweak the query to find the logs of a specific chunk:
+
+```
+method=renderer,renderId=[render-id],chunk=12
+```
+
+will for example find the log stream of chunk 12. If your viewport is big enough, you will also see the chunk numbers in the summary view straight away.
+
+Click the blue link in the `Log stream name` column to open the log stream. If you don't see any blue links, click "Display", then select "View in columns with details".
 
 In the logstream, you will see debug logging from Remotion as well as any `console.log` statements from your React code.
+
+### Find the logs of the main function
+
+Tweakt the query to find the logs of the main function:
+
+```
+method=launch,renderId=[render-id]
+```
+
+You should get one result.
+Click the blue link in the `Log stream name` column to open the log stream. If you don't see any blue links, click "Display", then select "View in columns with details".
 
 ## Finding the chunk that failed
 
