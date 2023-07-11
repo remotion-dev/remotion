@@ -33,12 +33,27 @@ const bundleLambda = async () => {
 			'./ffmpeg/remotion/bin/ffprobe.exe',
 			'./ffmpeg/remotion/bin/ffmpeg',
 			'./ffmpeg/remotion/bin/ffmpeg.exe',
+			'./mappings.wasm',
 		],
 	});
 
 	const compositorFile = `${outdir}/compositor`;
 	fs.copyFileSync(binaryPath, compositorFile);
 	fs.cpSync(ffmpegCwd, `${outdir}/ffmpeg`, {recursive: true});
+	fs.cpSync(
+		path.join(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'renderer',
+			'node_modules',
+			'source-map',
+			'lib',
+			'mappings.wasm'
+		),
+		`${outdir}/mappings.wasm`
+	);
 
 	await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
 
