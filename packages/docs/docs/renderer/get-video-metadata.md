@@ -11,11 +11,11 @@ crumb: "@remotion/renderer"
 This function is meant to be used **in Node.js applications**. For browsers, use [`getVideoMetadata()`](/docs/get-video-metadata) from `@remotion/media-utils` instead.
 :::
 
-Extract the video file metadata, this function is useful for Node.js applications that renders video compositions, which need to adapt the video's `width`, `height`, `fps`, and `duration`. Instead of manually providing this data to the composition for each video, it can be dynamically pre-computed and supplied. A use case is when processing videos with different sizes for watermarking, which every video file has a different sizes.
+Get a videos `width`, `height`, `fps`, and `duration` in Node.js. Useful for calculating metadata on a server.
 
 ## Example
 
-The response of `getVideoMetadata` will be provided to the composition's `inputProps`.
+Pass a videos metadata to `inputProps` before rendering, without having to load the video in the browser.
 
 ```ts twoslash
 // @module: ESNext
@@ -23,7 +23,7 @@ The response of `getVideoMetadata` will be provided to the composition's `inputP
 import { bundle } from "@remotion/bundler";
 import {
   getVideoMetadata,
-  getCompositions,
+  selectComposition,
   renderMedia,
 } from "@remotion/renderer";
 import path from "path";
@@ -42,9 +42,14 @@ const bundleLocation = await bundle(path.resolve(entry), () => undefined, {
   // If you have a Webpack override, make sure to add it here
   webpackOverride: (config) => config,
 });
-// Provide the metadata to the composition
 
-const comps = await getCompositions(bundleLocation, {
+// The ID of the composition to render
+const compositionId = "main";
+
+// Provide the metadata to the composition
+const composition = await selectComposition({
+  serveUrl: bundleLocation,
+  id: compositionId,
   inputProps: {
     width,
     height,
@@ -52,15 +57,6 @@ const comps = await getCompositions(bundleLocation, {
     duration,
   },
 });
-
-// Select the composition you want to render.
-const compositionId = "main";
-const composition = comps.find((c) => c.id === compositionId);
-
-// Ensure the composition exists
-if (!composition) {
-  throw new Error(`No composition with the ID ${compositionId} found`);
-}
 
 // Local path to save the rendered video.
 const outputLocation = `out/sample.mp4`;
@@ -75,7 +71,7 @@ await renderMedia({
 
 The parameters provided in the `inputProps` is accessible from `getInputProps()` on the composition root.
 
-```ts
+```tsx
 import { getInputProps, Composition } from "remotion";
 
 const videoMetadata = getInputProps();
