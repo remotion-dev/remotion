@@ -44,7 +44,7 @@ export const callLambda = async <T extends LambdaRoutines>({
 		if (event.InvokeComplete) {
 			if (event.InvokeComplete.ErrorCode) {
 				throw new Error(
-					`Lambda function ${functionName} failed with error code ${event.InvokeComplete.ErrorCode}: ${event.InvokeComplete.ErrorDetails}}`
+					`Lambda function ${functionName} failed with error code ${event.InvokeComplete.ErrorCode}: ${event.InvokeComplete.ErrorDetails}`
 				);
 			}
 		}
