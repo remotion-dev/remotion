@@ -9,6 +9,7 @@ import React, {
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
+import type {AllCompStates} from './RenderModal/DataEditor';
 import {DataEditor} from './RenderModal/DataEditor';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
@@ -20,6 +21,12 @@ const container: React.CSSProperties = {
 	position: 'absolute',
 	display: 'flex',
 	flexDirection: 'column',
+};
+
+const circle: React.CSSProperties = {
+	width: 8,
+	height: 8,
+	borderRadius: 4,
 };
 
 const PropsEditor: React.FC<{
@@ -112,6 +119,12 @@ export const RightPanel: React.FC<{}> = () => {
 	const {compositions, currentComposition} = useContext(
 		Internals.CompositionManager
 	);
+	const circleStyle = useMemo(() => {
+		return {
+			...circle,
+			backgroundColor: panel === 'input-props' ? 'white' : 'grey',
+		};
+	}, [panel]);
 
 	const composition = useMemo((): AnyComposition | null => {
 		for (const comp of compositions) {
@@ -134,8 +147,10 @@ export const RightPanel: React.FC<{}> = () => {
 					<Tab
 						selected={panel === 'input-props'}
 						onClick={onCompositionsSelected}
+						style={{justifyContent: 'space-between'}}
 					>
 						Props
+						{showSaveButton ? <div style={circleStyle} /> : null}
 					</Tab>
 					<RendersTab
 						onClick={onRendersSelected}
