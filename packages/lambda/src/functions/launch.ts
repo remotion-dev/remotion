@@ -655,13 +655,18 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 export const launchHandler = async (
 	params: LambdaPayload,
 	options: Options
-) => {
+): Promise<{
+	type: 'success';
+}> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
 
 	try {
 		await innerLaunchHandler(params, options);
+		return {
+			type: 'success',
+		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			throw err;
@@ -730,5 +735,7 @@ export const launchHandler = async (
 				console.log(error);
 			}
 		}
+
+		throw err;
 	}
 };

@@ -146,6 +146,7 @@ export const Internals = {
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 	AssetManager,
 	bundleName: 'bundle.js',
+	bundleMapName: 'bundle.js.map',
 	persistCurrentFrame,
 	useTimelineSetFrame,
 	serializeJSONWithDate,

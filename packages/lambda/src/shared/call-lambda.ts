@@ -3,7 +3,7 @@ import {InvokeWithResponseStreamCommand} from '@aws-sdk/client-lambda';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaPayloads, LambdaRoutines} from './constants';
-import type {LambdaReturnValues} from './return-values';
+import type {LambdaReturnValues, OrError} from './return-values';
 
 export const callLambda = async <T extends LambdaRoutines>({
 	functionName,
@@ -53,7 +53,7 @@ export const callLambda = async <T extends LambdaRoutines>({
 	const string = Buffer.from(responsePayload).toString();
 
 	const json = JSON.parse(string) as
-		| LambdaReturnValues[T]
+		| OrError<LambdaReturnValues[T]>
 		| {
 				errorType: string;
 				errorMessage: string;
@@ -80,9 +80,19 @@ export const callLambda = async <T extends LambdaRoutines>({
 			);
 		}
 
-		return JSON.parse(json.body) as LambdaReturnValues[T];
+		const parsed = JSON.parse(json.body) as OrError<
+			Awaited<LambdaReturnValues[T]>
+		>;
+
+		if (parsed.type === 'error') {
+			const err = new Error(parsed.message);
+			err.stack = parsed.stack;
+			throw err;
+		}
+
+		return parsed;
 	}
 
 	// Non-streaming: 3.3.95 and below
-	return json;
+	return json as LambdaReturnValues[T];
 };
