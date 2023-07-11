@@ -2165,6 +2165,13 @@ export const articles = [
     crumb: "Troubleshooting",
   },
   {
+    id: "troubleshooting/nextjs-image",
+    title: "Flickering when using Next.js <Image> tag",
+    relativePath: "docs/troubleshooting/nextjs-image.md",
+    compId: "articles-docs-troubleshooting-nextjs-image",
+    crumb: "Common mistakes",
+  },
+  {
     id: "rosetta",
     title: "Apple Silicon under Rosetta",
     relativePath: "docs/troubleshooting/rosetta.md",

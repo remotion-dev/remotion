@@ -5,7 +5,6 @@ import {random} from 'remotion';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import {getExt} from '../mime-types';
-import {OffthreadVideoServerEmitter} from '../offthread-video-server';
 import {downloadFile} from './download-file';
 import type {DownloadMap} from './download-map';
 import {sanitizeFilePath} from './sanitize-filepath';
@@ -151,10 +150,8 @@ function validateBufferEncoding(
 export const downloadAsset = async ({
 	src,
 	downloadMap,
-	emitter,
 }: {
 	src: string;
-	emitter: OffthreadVideoServerEmitter;
 	downloadMap: DownloadMap;
 }): Promise<string> => {
 	if (isAssetCompressed(src)) {
@@ -200,7 +197,7 @@ export const downloadAsset = async ({
 		console.log('Actually downloading asset', src);
 	}
 
-	emitter.dispatchDownload(src);
+	downloadMap.emitter.dispatchDownload(src);
 
 	if (src.startsWith('data:')) {
 		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
@@ -236,7 +233,7 @@ export const downloadAsset = async ({
 	const {to} = await downloadFile({
 		url: src,
 		onProgress: (progress) => {
-			emitter.dispatchDownloadProgress(
+			downloadMap.emitter.dispatchDownloadProgress(
 				src,
 				progress.percent,
 				progress.downloaded,
@@ -356,11 +353,9 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	onDownload: RenderMediaOnDownload | null;
 	downloadMap: DownloadMap;
 }): Promise<TAsset> => {
-	const emitter = new OffthreadVideoServerEmitter();
-	const cleanup = attachDownloadListenerToEmitter(emitter, onDownload);
+	const cleanup = attachDownloadListenerToEmitter(downloadMap, onDownload);
 	const newSrc = await downloadAsset({
 		src: asset.src,
-		emitter,
 		downloadMap,
 	});
 	cleanup();
@@ -372,7 +367,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 };
 
 export const attachDownloadListenerToEmitter = (
-	emitter: OffthreadVideoServerEmitter,
+	downloadMap: DownloadMap,
 	onDownload: RenderMediaOnDownload | null
 ) => {
 	const cleanup: CleanupFn[] = [];
@@ -380,11 +375,22 @@ export const attachDownloadListenerToEmitter = (
 		return () => undefined;
 	}
 
-	const a = emitter.addEventListener(
+	if (downloadMap.downloadListeners.includes(onDownload)) {
+		return () => undefined;
+	}
+
+	downloadMap.downloadListeners.push(onDownload);
+	cleanup.push(() => {
+		downloadMap.downloadListeners = downloadMap.downloadListeners.filter(
+			(l) => l !== onDownload
+		);
+	});
+
+	const a = downloadMap.emitter.addEventListener(
 		'download',
 		({detail: {src: initialSrc}}) => {
 			const progress = onDownload(initialSrc);
-			const b = emitter.addEventListener(
+			const b = downloadMap.emitter.addEventListener(
 				'progress',
 				({detail: {downloaded, percent, src: progressSrc, totalSize}}) => {
 					if (initialSrc === progressSrc) {
