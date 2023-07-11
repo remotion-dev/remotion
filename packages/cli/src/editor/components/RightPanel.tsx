@@ -9,11 +9,11 @@ import React, {
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
-import type {AllCompStates} from './RenderModal/DataEditor';
 import {DataEditor} from './RenderModal/DataEditor';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
+import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 
 const container: React.CSSProperties = {
 	height: '100%',
@@ -31,7 +31,8 @@ const circle: React.CSSProperties = {
 
 const PropsEditor: React.FC<{
 	composition: AnyComposition;
-}> = ({composition}) => {
+	setChangesNotSaved: React.Dispatch<React.SetStateAction<boolean>>;
+}> = ({composition, setChangesNotSaved}) => {
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
 
 	const setInputProps = useCallback(
@@ -53,6 +54,12 @@ const PropsEditor: React.FC<{
 		() => props[composition.id] ?? composition.defaultProps ?? {},
 		[composition.defaultProps, composition.id, props]
 	);
+
+	if (deepEqual(composition.defaultProps, actualProps)) {
+		setChangesNotSaved(false);
+	} else {
+		setChangesNotSaved(true);
+	}
 
 	return (
 		<DataEditor
@@ -93,6 +100,7 @@ export const rightSidebarTabs = createRef<{
 
 export const RightPanel: React.FC<{}> = () => {
 	const [panel, setPanel] = useState<SidebarPanel>(() => getSelectedPanel());
+	const [changesNotSaved, setChangesNotSaved] = useState<boolean>(false);
 	const onCompositionsSelected = useCallback(() => {
 		setPanel('input-props');
 		persistSelectedPanel('input-props');
@@ -150,7 +158,7 @@ export const RightPanel: React.FC<{}> = () => {
 						style={{justifyContent: 'space-between'}}
 					>
 						Props
-						{showSaveButton ? <div style={circleStyle} /> : null}
+						{changesNotSaved ? <div style={circleStyle} /> : null}
 					</Tab>
 					<RendersTab
 						onClick={onRendersSelected}
@@ -161,7 +169,10 @@ export const RightPanel: React.FC<{}> = () => {
 			{panel === 'renders' ? (
 				<RenderQueue />
 			) : (
-				<PropsEditor composition={composition} />
+				<PropsEditor
+					composition={composition}
+					setChangesNotSaved={setChangesNotSaved}
+				/>
 			)}
 		</div>
 	);
