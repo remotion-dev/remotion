@@ -1,12 +1,14 @@
-import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import fs, {existsSync, mkdirSync, rmSync} from 'node:fs';
 import {join} from 'node:path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
-import {getLambdaClient} from '../shared/aws-clients';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
-import type {LambdaPayload, RenderMetadata} from '../shared/constants';
+import type {
+	LambdaPayload,
+	LambdaPayloads,
+	RenderMetadata,
+} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
 	encodingProgressKey,
@@ -50,6 +52,7 @@ import {
 	compressInputProps,
 	serializeOrThrow,
 } from '../shared/compress-props';
+import {callLambda} from '../shared/call-lambda';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -61,20 +64,17 @@ const callFunctionWithRetry = async ({
 	retries,
 	functionName,
 }: {
-	payload: unknown;
+	payload: LambdaPayloads[LambdaRoutines.renderer];
 	retries: number;
 	functionName: string;
 }): Promise<unknown> => {
 	try {
-		await getLambdaClient(getCurrentRegionInFunction()).send(
-			new InvokeCommand({
-				FunctionName: functionName,
-				// @ts-expect-error
-				Payload: JSON.stringify(payload),
-				InvocationType: 'Event',
-			}),
-			{}
-		);
+		await callLambda({
+			functionName,
+			payload,
+			region: getCurrentRegionInFunction(),
+			type: LambdaRoutines.renderer,
+		});
 	} catch (err) {
 		if ((err as Error).name === 'ResourceConflictException') {
 			if (retries > 10) {

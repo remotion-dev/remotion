@@ -1,13 +1,12 @@
-import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {VERSION} from 'remotion/version';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
-import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
 import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {randomHash} from '../shared/random-hash';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {callLambda} from '../shared/call-lambda';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -95,15 +94,14 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		audioCodec: params.audioCodec,
 	};
 
-	await getLambdaClient(getCurrentRegionInFunction()).send(
-		new InvokeCommand({
-			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-			// @ts-expect-error
-			Payload: JSON.stringify(payload),
-			InvocationType: 'Event',
-		})
-	);
+	await callLambda({
+		payload,
+		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+		region: getCurrentRegionInFunction(),
+		type: LambdaRoutines.launch,
+	});
 	await initialFile;
+
 	return {
 		bucketName,
 		renderId,

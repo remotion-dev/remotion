@@ -1,10 +1,8 @@
-import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {BrowserLog, Codec} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {getLambdaClient} from '../shared/aws-clients';
 import {writeLambdaInitializedFile} from '../shared/chunk-progress';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
@@ -26,6 +24,7 @@ import {
 	writeLambdaError,
 } from './helpers/write-lambda-error';
 import {decompressInputProps} from '../shared/compress-props';
+import {callLambda} from '../shared/call-lambda';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -340,14 +339,12 @@ export const rendererHandler = async (
 				retriesLeft: params.retriesLeft - 1,
 				attempt: params.attempt + 1,
 			};
-			await getLambdaClient(getCurrentRegionInFunction()).send(
-				new InvokeCommand({
-					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-					// @ts-expect-error
-					Payload: JSON.stringify(retryPayload),
-					InvocationType: 'Event',
-				})
-			);
+			await callLambda({
+				functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+				payload: retryPayload,
+				type: LambdaRoutines.renderer,
+				region: getCurrentRegionInFunction(),
+			});
 		}
 	}
 };
