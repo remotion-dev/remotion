@@ -33,6 +33,12 @@ export type Layer =
 
 export type CompositorImageFormat = 'Png' | 'Jpeg';
 
+export type VideoMetadata = {
+	fps: number;
+	width: number;
+	height: number;
+	durationInSeconds: number;
+};
 export type CompositorCommand = {
 	Compose: {
 		output: string;
@@ -60,6 +66,8 @@ export type CompositorCommand = {
 	FreeUpMemory: {
 		percent_of_memory: number;
 	};
+	GetVideoMetadata: {src: string};
+	VideoMetadata: VideoMetadata;
 };
 
 export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {
