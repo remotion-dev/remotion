@@ -129,10 +129,11 @@ export const RightPanel: React.FC<{}> = () => {
 	}, [composition, props]);
 
 	const unsavedChangesExist = useMemo(() => {
-		if (composition === null) {
+		if (composition === null || composition.defaultProps === undefined) {
 			return false;
 		}
 
+		console.log(composition.defaultProps);
 		return !deepEqual(composition.defaultProps, actualProps);
 	}, [actualProps, composition]);
 
