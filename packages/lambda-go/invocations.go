@@ -56,21 +56,17 @@ func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error
 }
 
 func SantitiseRenderResponse(response RawInvokeResponse) (*RemotionRenderResponse, error) {
-	var renderBody RemotionBodyResponse
+	var renderBody RemotionRenderResponse
 
 	responseMarshallingError := json.Unmarshal([]byte(response.Body), &renderBody)
 	if responseMarshallingError != nil {
 		return nil, responseMarshallingError
 	}
 
-	return &RemotionRenderResponse{
-		StatusCode: response.StatusCode,
-		Headers:    response.Headers,
-		Body:       renderBody,
-	}, nil
+	return &renderBody, nil
 }
 
-func invokeRenderProgressLambda(config RenderConfig) (*RenderProgressResponse, error) {
+func invokeRenderProgressLambda(config RenderConfig) (*RenderProgress, error) {
 
 	// Create a new AWS session
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
@@ -116,7 +112,7 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgressResponse, e
 	return SantitiseProgressResponse(renderProgressOutput)
 }
 
-func SantitiseProgressResponse(response RawInvokeResponse) (*RenderProgressResponse, error) {
+func SantitiseProgressResponse(response RawInvokeResponse) (*RenderProgress, error) {
 	var renderProgressBody RenderProgress
 
 	responseMarshallingError := json.Unmarshal([]byte(response.Body), &renderProgressBody)
@@ -125,9 +121,5 @@ func SantitiseProgressResponse(response RawInvokeResponse) (*RenderProgressRespo
 		return nil, responseMarshallingError
 	}
 
-	return &RenderProgressResponse{
-		StatusCode: response.StatusCode,
-		Headers:    response.Headers,
-		Body:       renderProgressBody,
-	}, nil
+	return &renderProgressBody, nil;
 }
