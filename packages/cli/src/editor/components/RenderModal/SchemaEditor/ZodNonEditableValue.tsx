@@ -1,8 +1,8 @@
 import React, {useCallback} from 'react';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
+import {Fieldset} from './Fieldset';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
-import {Fieldset} from './Fieldset';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',

@@ -1,15 +1,15 @@
 import React, {useCallback, useEffect, useMemo} from 'react';
+import type {SerializedJSONWithCustomFields} from 'remotion';
+import {Internals} from 'remotion';
 import type {z} from 'zod';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
-import {FAIL_COLOR} from '../../helpers/colors';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {Flex, Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
+import {FAIL_COLOR} from '../../helpers/colors';
 import type {State} from './DataEditor';
 import {ZodErrorMessages} from './SchemaEditor/ZodErrorMessages';
-import type {SerializedJSONWithCustomFields} from 'remotion';
-import {Internals} from 'remotion';
 import {deepEqual} from './SchemaEditor/deep-equal';
 
 const style: React.CSSProperties = {
