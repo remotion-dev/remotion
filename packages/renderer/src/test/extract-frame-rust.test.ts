@@ -409,6 +409,25 @@ test('Should get from iPhone video', async () => {
 	await compositor.waitForDone();
 });
 
+test('Should get from AV1 video', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		input: exampleVideos.av1,
+		time: 0.5,
+		transparent: false,
+	});
+
+	expect(data.length).toBe(6220854);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
 test('Two different starting times should not result in big seeking', async () => {
 	const compositor = startLongRunningCompositor(300, 'info', false);
 
