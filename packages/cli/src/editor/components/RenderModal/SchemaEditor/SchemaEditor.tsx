@@ -1,3 +1,5 @@
+import {useEffect} from 'react';
+import {useMemo} from 'react';
 import React, {useCallback} from 'react';
 import type {AnyZodObject, z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
@@ -8,6 +10,8 @@ import {
 	TopLevelZodValue,
 } from './SchemaErrorMessages';
 import {ZodObjectEditor} from './ZodObjectEditor';
+import {deepEqual} from './deep-equal';
+import {useKeybinding} from '../../../helpers/use-keybinding';
 
 const scrollable: React.CSSProperties = {
 	display: 'flex',
@@ -17,7 +21,7 @@ const scrollable: React.CSSProperties = {
 
 export const SchemaEditor: React.FC<{
 	schema: AnyZodObject;
-	value: unknown;
+	value: Record<string, unknown>;
 	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
 	defaultProps: Record<string, unknown>;
@@ -38,10 +42,39 @@ export const SchemaEditor: React.FC<{
 	saving,
 	saveDisabledByParent,
 }) => {
+	const keybindings = useKeybinding();
+
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
 	}
+
+	const hasChanged = useMemo(() => {
+		return !deepEqual(defaultProps, value);
+	}, [defaultProps, value]);
+
+	const onQuickSave = useCallback(() => {
+		if (hasChanged && showSaveButton) {
+			onSave(() => {
+				return value;
+			});
+		}
+	}, [hasChanged, onSave, showSaveButton, value]);
+
+	useEffect(() => {
+		const save = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 's',
+			commandCtrlKey: true,
+			callback: onQuickSave,
+			preventDefault: true,
+			triggerIfInputFieldFocused: true,
+		});
+
+		return () => {
+			save.unregister();
+		};
+	}, [keybindings, onQuickSave, onSave]);
 
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
