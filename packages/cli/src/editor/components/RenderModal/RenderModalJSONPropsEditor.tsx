@@ -59,7 +59,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	}
 
 	const keybindings = useKeybinding();
-
+	console.log(showSaveButton);
 	const [localValue, setLocalValue] = React.useState<State>(() => {
 		return parseJSON(serializedJSON.serializedString, schema);
 	});
@@ -183,17 +183,18 @@ export const RenderModalJSONPropsEditor: React.FC<{
 					Format
 				</Button>
 				<Spacing x={1} />
-				<Button
-					onClick={onSave}
-					disabled={
-						!(localValue.validJSON && localValue.zodValidation.success) ||
-						!localValue.validJSON ||
-						!hasChanged ||
-						!showSaveButton
-					}
-				>
-					Save
-				</Button>
+				{showSaveButton ? (
+					<Button
+						onClick={onSave}
+						disabled={
+							!(localValue.validJSON && localValue.zodValidation.success) ||
+							!localValue.validJSON ||
+							!hasChanged
+						}
+					>
+						Save
+					</Button>
+				) : null}
 			</Row>
 		</div>
 	);
