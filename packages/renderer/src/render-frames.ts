@@ -120,7 +120,7 @@ type InnerRenderFramesOptions = {
 	makeBrowser: () => Promise<HeadlessBrowser>;
 	browserReplacer: BrowserReplacer;
 	compositor: Compositor;
-	sourcemapContext: AnySourceMapConsumer | null;
+	sourcemapContext: Promise<AnySourceMapConsumer | null>;
 	serveUrl: string;
 	logLevel: LogLevel;
 	indent: boolean;
@@ -221,7 +221,7 @@ const innerRenderFrames = async ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async (context: AnySourceMapConsumer | null) => {
+	const makePage = async (context: Promise<AnySourceMapConsumer | null>) => {
 		const page = await browserReplacer
 			.getBrowser()
 			.newPage(context, logLevel, indent);
@@ -298,7 +298,7 @@ const innerRenderFrames = async ({
 		return page;
 	};
 
-	const getPool = async (context: AnySourceMapConsumer | null) => {
+	const getPool = async (context: Promise<AnySourceMapConsumer | null>) => {
 		const pages = new Array(actualConcurrency)
 			.fill(true)
 			.map(() => makePage(context));

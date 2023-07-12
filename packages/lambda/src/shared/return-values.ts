@@ -7,6 +7,14 @@ import type {startHandler} from '../functions/start';
 import type {stillHandler} from '../functions/still';
 import type {LambdaRoutines} from './constants';
 
+export type OrError<T> =
+	| T
+	| {
+			type: 'error';
+			message: string;
+			stack: string;
+	  };
+
 export interface LambdaReturnValues {
 	[LambdaRoutines.start]: ReturnType<typeof startHandler>;
 	[LambdaRoutines.launch]: ReturnType<typeof launchHandler>;
@@ -16,9 +24,3 @@ export interface LambdaReturnValues {
 	[LambdaRoutines.still]: ReturnType<typeof stillHandler>;
 	[LambdaRoutines.compositions]: ReturnType<typeof compositionsHandler>;
 }
-
-export type StreamedResponse = {
-	statusCode: number;
-	headers: Record<string, string>;
-	body: string;
-};
