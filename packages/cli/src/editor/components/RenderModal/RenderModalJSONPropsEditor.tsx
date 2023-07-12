@@ -10,6 +10,7 @@ import type {State} from './DataEditor';
 import {ZodErrorMessages} from './SchemaEditor/ZodErrorMessages';
 import type {SerializedJSONWithCustomFields} from 'remotion';
 import {Internals} from 'remotion';
+import {deepEqual} from './SchemaEditor/deep-equal';
 
 const style: React.CSSProperties = {
 	fontFamily: 'monospace',
@@ -100,8 +101,8 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	);
 
 	const hasChanged = useMemo(() => {
-		return value && JSON.stringify(value) !== JSON.stringify(valBeforeSafe);
-	}, [valBeforeSafe, value]);
+		return !deepEqual(value, defaultProps);
+	}, [defaultProps, value]);
 
 	const onQuickSave = useCallback(() => {
 		if (hasChanged) {
@@ -130,9 +131,9 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	}, [keybindings, onQuickSave, onSave]);
 
 	const reset = useCallback(() => {
-		setLocalValue(parseJSON(serializedJSON.serializedString, schema));
 		setValue(defaultProps);
-	}, [defaultProps, schema, serializedJSON.serializedString, setValue]);
+		setLocalValue(parseJSON(JSON.stringify(defaultProps, null, 2), schema));
+	}, [defaultProps, schema, setValue]);
 
 	const textAreaStyle: React.CSSProperties = useMemo(() => {
 		const fail = !localValue.validJSON || !localValue.zodValidation.success;
@@ -170,11 +171,9 @@ export const RenderModalJSONPropsEditor: React.FC<{
 			<Spacing y={1} />
 			<Row>
 				<Button
-					disabled={
-						!localValue.validJSON ||
-						!(localValue.validJSON && !localValue.zodValidation.success)
-					}
+					disabled={!(hasChanged || !localValue.validJSON)}
 					onClick={reset}
+					style={{color: 'red'}}
 				>
 					Reset
 				</Button>
