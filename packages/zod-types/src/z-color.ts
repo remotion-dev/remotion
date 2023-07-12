@@ -1,5 +1,5 @@
-import {z} from 'zod';
 import {Internals} from 'remotion';
+import {z} from 'zod';
 
 export const REMOTION_COLOR_BRAND = '__remotion-color';
 

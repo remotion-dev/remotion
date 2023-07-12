@@ -1,6 +1,7 @@
 import type {Codec, ProResProfile} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
+import type {VideoConfig} from 'remotion';
 import {labelProResProfile} from '../../helpers/prores-labels';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkmark} from '../../icons/Checkmark';
@@ -18,7 +19,6 @@ import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainer} from './OptionExplainer';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalInput} from './RenderModalInput';
-import type {VideoConfig} from 'remotion';
 
 const container: React.CSSProperties = {
 	flex: 1,
