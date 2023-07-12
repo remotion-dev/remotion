@@ -1,6 +1,6 @@
+import path from 'path';
 import {Internals} from 'remotion';
 import {isServeUrl} from './is-serve-url';
-import path from 'path';
 
 const map = (webpackBundleOrServeUrl: string, suffix: string) => {
 	if (isServeUrl(webpackBundleOrServeUrl)) {
