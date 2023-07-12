@@ -78,6 +78,7 @@ export const getCompositionsOnLambda = async ({
 				bucketName: bucketName ?? null,
 			},
 			region,
+			receivedStreamingPayload: () => undefined,
 		});
 		return res.compositions;
 	} catch (err) {

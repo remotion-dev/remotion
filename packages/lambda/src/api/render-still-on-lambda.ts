@@ -45,6 +45,7 @@ export type RenderStillOnLambdaInput = {
 	 * @deprecated Renamed to `dumpBrowserLogs`
 	 */
 	dumpBrowserLogs?: boolean;
+	onInit?: (data: {renderId: string; cloudWatchLogs: string}) => void;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -96,6 +97,7 @@ export const renderStillOnLambda = async ({
 	forceWidth,
 	forceBucketName,
 	dumpBrowserLogs,
+	onInit,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	if (quality) {
 		throw new Error(
@@ -140,6 +142,20 @@ export const renderStillOnLambda = async ({
 				bucketName: forceBucketName ?? null,
 			},
 			region,
+			receivedStreamingPayload: (payload) => {
+				if (payload.type === 'render-id-determined') {
+					onInit?.({
+						renderId: payload.renderId,
+						cloudWatchLogs: getCloudwatchStreamUrl({
+							functionName,
+							method: LambdaRoutines.still,
+							region,
+							rendererFunctionName: null,
+							renderId: payload.renderId,
+						}),
+					});
+				}
+			},
 		});
 
 		return {
