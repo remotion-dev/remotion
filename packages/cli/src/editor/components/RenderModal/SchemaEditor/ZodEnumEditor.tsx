@@ -4,12 +4,12 @@ import {Checkmark} from '../../../icons/Checkmark';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
+import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
-import type {UpdaterFunction} from './ZodSwitch';
-import {Fieldset} from './Fieldset';
 import {ZodFieldValidation} from './ZodFieldValidation';
+import type {UpdaterFunction} from './ZodSwitch';
 
 const container: React.CSSProperties = {
 	width: '100%',
