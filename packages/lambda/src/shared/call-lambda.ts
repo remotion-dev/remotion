@@ -64,20 +64,46 @@ export const callLambda = async <T extends LambdaRoutines>({
 	}
 
 	const string = Buffer.from(responsePayload).toString();
+	const json = parseJson<T>(string);
 
-	const json = JSON.parse(string) as
+	return json;
+};
+
+const parseJson = <T extends LambdaRoutines>(input: string) => {
+	let json = JSON.parse(input) as
 		| OrError<Awaited<LambdaReturnValues[T]>>
 		| {
 				errorType: string;
 				errorMessage: string;
 				trace: string[];
+		  }
+		| {
+				statusCode: string;
+				body: string;
 		  };
+
+	if ('statusCode' in json) {
+		json = JSON.parse(json.body) as
+			| OrError<Awaited<LambdaReturnValues[T]>>
+			| {
+					errorType: string;
+					errorMessage: string;
+					trace: string[];
+			  };
+	}
 
 	if ('errorMessage' in json) {
 		const err = new Error(json.errorMessage);
 		err.name = json.errorType;
 		err.stack = (json.trace ?? []).join('\n');
 		throw err;
+	}
+
+	// This will not happen, it is for narrowing purposes
+	if ('statusCode' in json) {
+		throw new Error(
+			`Lambda function failed with status code ${json.statusCode}`
+		);
 	}
 
 	if (json.type === 'error') {
