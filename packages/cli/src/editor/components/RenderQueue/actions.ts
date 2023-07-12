@@ -6,6 +6,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import {Internals} from 'remotion';
 import type {ApiRoutes} from '../../../preview-server/api-types';
 import type {
 	OpenInFileExplorerRequest,
@@ -13,7 +14,6 @@ import type {
 } from '../../../preview-server/render-queue/job';
 import type {RequiredChromiumOptions} from '../../../required-chromium-options';
 import type {EnumPath} from '../RenderModal/SchemaEditor/extract-enum-json-paths';
-import {Internals} from 'remotion';
 
 const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,

@@ -1,12 +1,12 @@
 import React from 'react';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
+import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
 import type {JSONPath} from './zod-types';
+import {ZodFieldValidation} from './ZodFieldValidation';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
-import {Fieldset} from './Fieldset';
-import {ZodFieldValidation} from './ZodFieldValidation';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',

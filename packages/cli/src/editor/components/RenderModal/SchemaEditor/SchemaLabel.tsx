@@ -1,12 +1,11 @@
 import React, {useMemo} from 'react';
-import {LIGHT_TEXT} from '../../../helpers/colors';
+import {FAIL_COLOR, LIGHT_TEXT} from '../../../helpers/colors';
 import {Flex} from '../../layout';
 import {InlineRemoveButton} from '../InlineRemoveButton';
 import {getSchemaLabel} from './get-schema-label';
 import {SchemaResetButton} from './SchemaResetButton';
 import {SchemaSaveButton} from './SchemaSaveButton';
 import type {JSONPath} from './zod-types';
-import {FAIL_COLOR} from '../../../helpers/colors';
 
 const compactStyles: React.CSSProperties = {
 	fontSize: 15,
