@@ -279,7 +279,6 @@ export const stillHandler = async (
 			);
 		const willRetry = isBrowserError || params.maxRetries > 0;
 
-		console.log({willRetry});
 		if (!willRetry) {
 			throw err;
 		}
