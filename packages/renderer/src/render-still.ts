@@ -130,7 +130,7 @@ const innerRenderStill = async ({
 	onError: (err: Error) => void;
 	proxyPort: number;
 	compositor: Compositor;
-	sourceMapContext: AnySourceMapConsumer | null;
+	sourceMapContext: Promise<AnySourceMapConsumer | null>;
 }): Promise<RenderStillReturnValue> => {
 	Internals.validateDimension(
 		composition.height,
@@ -201,7 +201,7 @@ const innerRenderStill = async ({
 			logLevel,
 		}));
 	const page = await browserInstance.newPage(
-		sourceMapContext,
+		Promise.resolve(sourceMapContext),
 		logLevel,
 		indent
 	);
