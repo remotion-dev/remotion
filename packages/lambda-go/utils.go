@@ -24,7 +24,7 @@ func serializeInputProps(inputProps interface{}, region string, inputType string
 		return nil, fmt.Errorf("warning: inputProps are over %dKB (%dKB) in size. This is not currently supported", maxInlinePayloadSize/1000, len(payload)/1024)
 	}
 
-	if &payload != nil && &inputProps == nil {
+	if payload != nil && inputProps == nil {
 		return &PayloadData{
 			Payload: string(payload),
 			Type:    "payload",
