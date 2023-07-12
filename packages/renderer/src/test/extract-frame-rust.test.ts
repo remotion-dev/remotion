@@ -1,10 +1,10 @@
+import {interpolate} from 'remotion';
 import {expect, test} from 'vitest';
 import {
 	getIdealMaximumFrameCacheItems,
 	startLongRunningCompositor,
 } from '../compositor/compositor';
 import {exampleVideos} from './example-videos';
-import {interpolate} from 'remotion';
 
 const BMP_HEADER_SIZE = 54;
 

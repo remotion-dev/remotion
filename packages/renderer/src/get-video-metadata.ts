@@ -1,6 +1,6 @@
 import {
-	startLongRunningCompositor,
 	getIdealMaximumFrameCacheItems,
+	startLongRunningCompositor,
 } from './compositor/compositor';
 import type {VideoMetadata} from './compositor/payloads';
 
