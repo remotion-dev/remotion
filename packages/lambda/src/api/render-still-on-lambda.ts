@@ -156,6 +156,7 @@ export const renderStillOnLambda = async ({
 					});
 				}
 			},
+			timeoutInTest: 120000,
 		});
 
 		return {

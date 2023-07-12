@@ -13,14 +13,16 @@ export const callLambda = async <T extends LambdaRoutines>({
 	payload,
 	region,
 	receivedStreamingPayload,
+	timeoutInTest,
 }: {
 	functionName: string;
 	type: T;
 	payload: Omit<LambdaPayloads[T], 'type'>;
 	region: AwsRegion;
 	receivedStreamingPayload: (streamPayload: StreamingPayloads) => void;
+	timeoutInTest: number;
 }): Promise<LambdaReturnValues[T]> => {
-	const res = await getLambdaClient(region).send(
+	const res = await getLambdaClient(region, timeoutInTest).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
 			// @ts-expect-error
