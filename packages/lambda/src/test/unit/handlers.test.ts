@@ -13,7 +13,7 @@ test('Info handler should return version', async () => {
 	);
 
 	const res = response;
-	const parsed = JSON.parse(res.body) as Await<
+	const parsed = JSON.parse(res) as Await<
 		LambdaReturnValues[LambdaRoutines.info]
 	>;
 
