@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
+import {cmdOrCtrlCharacter} from '../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {DataEditor} from './RenderModal/DataEditor';
 import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
@@ -84,10 +85,11 @@ export const RightPanel: React.FC<{}> = () => {
 	const {compositions, currentComposition} = useContext(
 		Internals.CompositionManager
 	);
-	const circleStyle = useMemo(() => {
+	const circleStyle = useMemo((): React.CSSProperties => {
 		return {
 			...circle,
 			backgroundColor: panel === 'input-props' ? 'white' : LIGHT_TEXT,
+			cursor: 'help',
 		};
 	}, [panel]);
 
@@ -150,7 +152,12 @@ export const RightPanel: React.FC<{}> = () => {
 						style={{justifyContent: 'space-between'}}
 					>
 						Props
-						{unsavedChangesExist ? <div style={circleStyle} /> : null}
+						{unsavedChangesExist ? (
+							<div
+								title={`Save by using ${cmdOrCtrlCharacter}+S`}
+								style={circleStyle}
+							/>
+						) : null}
 					</Tab>
 					<RendersTab
 						onClick={onRendersSelected}
