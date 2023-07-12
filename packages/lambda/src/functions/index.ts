@@ -84,10 +84,11 @@ const innerHandler = async (
 			inputProps: JSON.stringify(params.inputProps),
 			isWarm,
 		});
-		await launchHandler(params, {
+		const response = await launchHandler(params, {
 			expectedBucketOwner: currentUserId,
 			getRemainingTimeInMillis: context.getRemainingTimeInMillis,
 		});
+		responseStream.write(JSON.stringify(response));
 		responseStream.end();
 		return;
 	}
@@ -116,10 +117,12 @@ const innerHandler = async (
 			resolvedProps: JSON.stringify(params.resolvedProps),
 			isWarm,
 		});
-		await rendererHandler(params, {
+		const response = await rendererHandler(params, {
 			expectedBucketOwner: currentUserId,
 			isWarm,
 		});
+
+		responseStream.write(JSON.stringify(response));
 		responseStream.end();
 		return;
 	}

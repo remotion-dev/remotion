@@ -79,6 +79,7 @@ export const getCompositionsOnLambda = async ({
 			},
 			region,
 			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
 		});
 		return res.compositions;
 	} catch (err) {

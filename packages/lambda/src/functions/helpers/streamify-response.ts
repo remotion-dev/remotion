@@ -61,9 +61,18 @@ export function streamifyResponse(handler: Function): Function {
 		async apply(target, _, argList) {
 			const responseStream: ResponseStream = patchArgs(argList);
 			await target(...argList);
-			return responseStream._isBase64Encoded
-				? responseStream.getBufferedData().toString('base64')
-				: responseStream.getBufferedData().toString();
+			return {
+				EventStream: [
+					{
+						PayloadChunk: {
+							Payload: responseStream._isBase64Encoded
+								? responseStream.getBufferedData()
+								: responseStream.getBufferedData(),
+						},
+						InvokeComplete: true,
+					},
+				],
+			};
 		},
 	});
 }

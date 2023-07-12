@@ -296,6 +296,7 @@ export const stillHandler = async (
 			region: getCurrentRegionInFunction(),
 			type: LambdaRoutines.still,
 			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
 		});
 		const bucketName =
 			params.bucketName ??

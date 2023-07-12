@@ -32,6 +32,7 @@ export const getRenderProgress = async (
 		payload: getRenderProgressPayload(input),
 		region: input.region,
 		receivedStreamingPayload: () => undefined,
+		timeoutInTest: 120000,
 	});
 	return result;
 };

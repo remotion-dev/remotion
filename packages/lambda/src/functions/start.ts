@@ -100,6 +100,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		type: LambdaRoutines.launch,
 		receivedStreamingPayload: () => undefined,
+		timeoutInTest: 120000,
 	});
 	await initialFile;
 

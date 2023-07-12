@@ -2,20 +2,12 @@ import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
-import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
-import type {LambdaReturnValues} from '../../../shared/return-values';
-import {enableLogs} from '../../disable-logs';
-
-const extraContext = {
-	invokedFunctionArn: 'arn:fake',
-	getRemainingTimeInMillis: () => 12000,
-};
-
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
+import {disableLogs, enableLogs} from '../../disable-logs';
+import {callLambda} from '../../../shared/call-lambda';
 
 beforeAll(() => {
-	// disableLogs();
+	disableLogs();
 });
 
 afterAll(async () => {
@@ -27,9 +19,8 @@ afterAll(async () => {
 test('Should add silent audio if there is no audio', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-	const res = await handler(
-		{
-			type: LambdaRoutines.start,
+	const res = await callLambda({
+		payload: {
 			serveUrl:
 				'https://64a69dbd950469119e886993--dreamy-shortbread-14601f.netlify.app/',
 			chromiumOptions: {},
@@ -71,29 +62,29 @@ test('Should add silent audio if there is no audio', async () => {
 			bucketName: null,
 			audioCodec: null,
 		},
-		extraContext
-	);
-	const startRes = JSON.parse(res) as Await<
-		LambdaReturnValues[LambdaRoutines.start]
-	>;
+		functionName: 'remotion-dev-render',
+		receivedStreamingPayload: () => undefined,
+		region: 'eu-central-1',
+		type: LambdaRoutines.start,
+		timeoutInTest: 120000,
+	});
 
-	const progress = await handler(
-		{
-			type: LambdaRoutines.status,
-			bucketName: startRes.bucketName,
-			renderId: startRes.renderId,
+	const progress = await callLambda({
+		payload: {
+			bucketName: res.bucketName,
+			renderId: res.renderId,
 			version: VERSION,
 		},
-		extraContext
-	);
-
-	const parsed = JSON.parse(progress) as Await<
-		LambdaReturnValues[LambdaRoutines.status]
-	>;
+		functionName: 'remotion-dev-render',
+		receivedStreamingPayload: () => undefined,
+		region: 'eu-central-1',
+		type: LambdaRoutines.status,
+		timeoutInTest: 120000,
+	});
 
 	const file = await lambdaReadFile({
-		bucketName: parsed.outBucket as string,
-		key: parsed.outKey as string,
+		bucketName: progress.outBucket as string,
+		key: progress.outKey as string,
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});

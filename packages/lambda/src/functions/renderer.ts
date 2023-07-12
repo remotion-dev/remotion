@@ -35,7 +35,7 @@ const renderHandler = async (
 	params: LambdaPayload,
 	options: Options,
 	logs: BrowserLog[]
-) => {
+): Promise<{}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -281,6 +281,7 @@ const renderHandler = async (
 			customCredentials: null,
 		}),
 	]);
+	return {};
 };
 
 export const rendererHandler = async (
@@ -350,6 +351,7 @@ export const rendererHandler = async (
 				type: LambdaRoutines.renderer,
 				region: getCurrentRegionInFunction(),
 				receivedStreamingPayload: () => undefined,
+				timeoutInTest: 120000,
 			});
 
 			return res;

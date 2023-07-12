@@ -1,16 +1,17 @@
 import {VERSION} from 'remotion/version';
 import {expect, test} from 'vitest';
 import {LambdaRoutines} from '../../defaults';
-import {handler} from '../../functions/index';
+import {callLambda} from '../../shared/call-lambda';
 
 test('Call function locally', async () => {
 	expect(
-		await handler(
-			{type: LambdaRoutines.info},
-			{
-				invokedFunctionArn: 'arn',
-				getRemainingTimeInMillis: () => 1000,
-			}
-		)
-	).toEqual(JSON.stringify({version: VERSION}));
+		await callLambda({
+			payload: {},
+			type: LambdaRoutines.info,
+			functionName: 'remotion-dev-lambda',
+			region: 'us-east-1',
+			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
+		})
+	).toEqual({type: 'success', version: VERSION});
 });
