@@ -1,0 +1,12 @@
+{
+  "name": "@remotion/lambda-python",
+  "private": true,
+  "version": "4.0.4",
+  "scripts": {
+    "lint": "node build.mjs",
+    "publish": "node publish.mjs"
+  },
+  "devDependencies": {
+    "remotion": "workspace:*"
+  }
+}
