@@ -2,8 +2,8 @@ import {VERSION} from 'remotion/version';
 import type {LambdaStartPayload, LambdaStatusPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
 import {
-	getNeedsToUpload,
 	compressInputProps,
+	getNeedsToUpload,
 	serializeOrThrow,
 } from '../shared/compress-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';

@@ -1,11 +1,11 @@
 import type {InvokeWithResponseStreamResponseEvent} from '@aws-sdk/client-lambda';
 import {InvokeWithResponseStreamCommand} from '@aws-sdk/client-lambda';
+import type {StreamingPayloads} from '../functions/helpers/streaming-payloads';
+import {isStreamingPayload} from '../functions/helpers/streaming-payloads';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaPayloads, LambdaRoutines} from './constants';
 import type {LambdaReturnValues, OrError} from './return-values';
-import type {StreamingPayloads} from '../functions/helpers/streaming-payloads';
-import {isStreamingPayload} from '../functions/helpers/streaming-payloads';
 
 export const callLambda = async <T extends LambdaRoutines>({
 	functionName,

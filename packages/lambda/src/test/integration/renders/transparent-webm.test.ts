@@ -7,8 +7,8 @@ import {afterAll, beforeAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
 import {LambdaRoutines, rendersPrefix} from '../../../defaults';
 import {lambdaLs, lambdaReadFile} from '../../../functions/helpers/io';
-import {disableLogs, enableLogs} from '../../disable-logs';
 import {callLambda} from '../../../shared/call-lambda';
+import {disableLogs, enableLogs} from '../../disable-logs';
 
 beforeAll(() => {
 	disableLogs();

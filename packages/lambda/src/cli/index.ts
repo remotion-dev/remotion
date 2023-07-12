@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
 import {RenderInternals} from '@remotion/renderer';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
@@ -22,7 +23,6 @@ import {printHelp} from './help';
 import {quit} from './helpers/quit';
 import {setIsCli} from './is-cli';
 import {Log} from './log';
-import {ConfigInternals} from '@remotion/cli/config';
 
 const requiresCredentials = (args: string[]) => {
 	if (args[0] === POLICIES_COMMAND) {

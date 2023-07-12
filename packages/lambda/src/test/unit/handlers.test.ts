@@ -1,6 +1,6 @@
 import {expect, test} from 'vitest';
-import {LambdaRoutines} from '../../shared/constants';
 import {callLambda} from '../../shared/call-lambda';
+import {LambdaRoutines} from '../../shared/constants';
 
 test('Info handler should return version', async () => {
 	const response = await callLambda({

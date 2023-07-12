@@ -2,10 +2,13 @@ import type {StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
+import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
+import {callLambda} from '../shared/call-lambda';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
+import {decompressInputProps} from '../shared/compress-props';
 import type {
 	CostsInfo,
 	LambdaPayload,
@@ -37,9 +40,6 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
-import {decompressInputProps} from '../shared/compress-props';
-import {Internals} from 'remotion';
-import {callLambda} from '../shared/call-lambda';
 
 type Options = {
 	params: LambdaPayload;
