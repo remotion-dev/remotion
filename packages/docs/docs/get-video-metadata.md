@@ -7,6 +7,10 @@ crumb: "@remotion/media-utils"
 
 _Part of the `@remotion/media-utils` package of helper functions._
 
+:::note
+This function is meant to be used **in the browser**. For Node.js, use [`getVideoMetadata()`](/docs/renderer/get-video-metadata) from `@remotion/renderer` instead.
+:::
+
 Takes a `src` to a video, loads it and returns metadata for the specified source.
 
 ## Arguments

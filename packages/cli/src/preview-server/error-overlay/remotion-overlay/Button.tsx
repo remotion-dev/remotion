@@ -3,7 +3,6 @@ import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
 } from '../../../editor/helpers/colors';
-
 const button: React.CSSProperties = {
 	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
 	borderRadius: 4,
