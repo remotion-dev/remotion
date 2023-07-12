@@ -1,10 +1,10 @@
+import {existsSync} from 'node:fs';
 import path from 'node:path';
 import {expect, test} from 'vitest';
 import {
 	getIdealMaximumFrameCacheItems,
 	startLongRunningCompositor,
 } from '../compositor/compositor';
-import {existsSync} from 'node:fs';
 
 test('Should return video metadata', async () => {
 	const compositor = startLongRunningCompositor(
