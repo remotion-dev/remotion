@@ -133,7 +133,6 @@ export const RightPanel: React.FC<{}> = () => {
 			return false;
 		}
 
-		console.log(composition.defaultProps);
 		return !deepEqual(composition.defaultProps, actualProps);
 	}, [actualProps, composition]);
 
