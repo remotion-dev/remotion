@@ -76,6 +76,7 @@ import {
 	registerErrorSymbolicationLock,
 	unlockErrorSymbolicationLock,
 } from './wait-for-symbolication-error-to-be-done';
+export {getVideoMetadata} from './get-video-metadata';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';

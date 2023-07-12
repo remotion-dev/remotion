@@ -87,13 +87,6 @@ const V4: React.FC = () => {
       </Head>
       <DoMoreHero />
 
-      <style>
-        {`
-        div[class^='announcementBar'] {
-          display: none;
-        }
-          `}
-      </style>
       <div className={styles.container}>
         <div className={styles.wrapper}>
           <h1 className={styles.pagetitle}>Do more with React</h1>
