@@ -8,12 +8,12 @@ import React, {
 } from 'react';
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
-import {BACKGROUND} from '../helpers/colors';
+import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {DataEditor} from './RenderModal/DataEditor';
+import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
-import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 
 const container: React.CSSProperties = {
 	height: '100%',
@@ -87,7 +87,7 @@ export const RightPanel: React.FC<{}> = () => {
 	const circleStyle = useMemo(() => {
 		return {
 			...circle,
-			backgroundColor: panel === 'input-props' ? 'white' : 'grey',
+			backgroundColor: panel === 'input-props' ? 'white' : LIGHT_TEXT,
 		};
 	}, [panel]);
 
