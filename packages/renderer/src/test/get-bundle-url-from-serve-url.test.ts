@@ -1,9 +1,9 @@
+import path from 'path';
 import {expect, test} from 'vitest';
 import {
 	getBundleMapUrlFromServeUrl,
 	getBundleUrlFromServeUrl,
 } from '../get-bundle-url-from-serve-url';
-import path from 'path';
 
 test('get bundle url from serve url', () => {
 	const expected = getBundleUrlFromServeUrl(
@@ -48,12 +48,12 @@ test('get bundle url from local path', () => {
 		`${path.sep}var${path.sep}bundle`
 	);
 
-	expect(expected).toBe('/var/bundle.js.map');
+	expect(expected).toBe(`${path.sep}var${path.sep}bundle.js.map`);
 });
 test('get bundle url from local path index.html', () => {
 	const expected = getBundleMapUrlFromServeUrl(
 		path.join('var', 'bundle', 'index.html')
 	);
 
-	expect(expected).toBe('var/bundle/bundle.js.map');
+	expect(expected).toBe(`var${path.sep}bundle${path.sep}bundle.js.map`);
 });
