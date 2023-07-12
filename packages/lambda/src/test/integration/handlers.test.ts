@@ -12,11 +12,5 @@ test('Call function locally', async () => {
 				getRemainingTimeInMillis: () => 1000,
 			}
 		)
-	).toEqual({
-		body: JSON.stringify({version: VERSION}),
-		headers: {
-			'content-type': 'application/json',
-		},
-		statusCode: 200,
-	});
+	).toEqual(JSON.stringify({version: VERSION}));
 });

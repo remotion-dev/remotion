@@ -4,10 +4,7 @@ import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
-import type {
-	LambdaReturnValues,
-	StreamedResponse,
-} from '../../../shared/return-values';
+import type {LambdaReturnValues} from '../../../shared/return-values';
 import {disableLogs, enableLogs} from '../../disable-logs';
 
 const extraContext = {
@@ -30,7 +27,7 @@ afterAll(async () => {
 test('Should be able to render to another bucket', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-	const res = (await handler(
+	const res = await handler(
 		{
 			type: LambdaRoutines.start,
 			serveUrl:
@@ -78,12 +75,12 @@ test('Should be able to render to another bucket', async () => {
 			audioCodec: null,
 		},
 		extraContext
-	)) as StreamedResponse;
-	const startRes = JSON.parse(res.body) as Await<
+	);
+	const startRes = JSON.parse(res) as Await<
 		LambdaReturnValues[LambdaRoutines.start]
 	>;
 
-	const progress = (await handler(
+	const progress = await handler(
 		{
 			type: LambdaRoutines.status,
 			bucketName: startRes.bucketName,
@@ -91,7 +88,7 @@ test('Should be able to render to another bucket', async () => {
 			version: VERSION,
 		},
 		extraContext
-	)) as StreamedResponse;
+	);
 
 	const parsed = JSON.parse(progress.body) as Await<
 		LambdaReturnValues[LambdaRoutines.status]

@@ -24,9 +24,3 @@ export interface LambdaReturnValues {
 	[LambdaRoutines.still]: ReturnType<typeof stillHandler>;
 	[LambdaRoutines.compositions]: ReturnType<typeof compositionsHandler>;
 }
-
-export type StreamedResponse = {
-	statusCode: number;
-	headers: Record<string, string>;
-	body: string;
-};
