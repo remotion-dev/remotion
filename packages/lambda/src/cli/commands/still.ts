@@ -116,70 +116,49 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				ConfigInternals.getUserPreferredStillImageFormat() ?? null,
 		});
 
-	try {
-		Log.info(
-			CliInternals.chalk.gray(
-				`functionName = ${functionName}, imageFormat = ${imageFormat} (${imageFormatReason})`
-			)
-		);
+	Log.info(
+		CliInternals.chalk.gray(
+			`functionName = ${functionName}, imageFormat = ${imageFormat} (${imageFormatReason})`
+		)
+	);
 
-		const res = await renderStillOnLambda({
-			functionName,
-			serveUrl,
-			inputProps,
-			imageFormat,
-			composition,
-			privacy,
+	const res = await renderStillOnLambda({
+		functionName,
+		serveUrl,
+		inputProps,
+		imageFormat,
+		composition,
+		privacy,
+		region,
+		maxRetries,
+		envVariables,
+		frame: stillFrame,
+		jpegQuality,
+		logLevel,
+		outName,
+		chromiumOptions,
+		timeoutInMilliseconds: puppeteerTimeout,
+		scale,
+		forceHeight: height,
+		forceWidth: width,
+		onInit: ({cloudWatchLogs, renderId}) => {
+			Log.info(CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`));
+			Log.verbose(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
+		},
+	});
+
+	if (downloadName) {
+		Log.info('Finished rendering. Downloading...');
+		const {outputPath, sizeInBytes} = await downloadMedia({
+			bucketName: res.bucketName,
+			outPath: downloadName,
 			region,
-			maxRetries,
-			envVariables,
-			frame: stillFrame,
-			jpegQuality,
-			logLevel,
-			outName,
-			chromiumOptions,
-			timeoutInMilliseconds: puppeteerTimeout,
-			scale,
-			forceHeight: height,
-			forceWidth: width,
-			onInit: ({cloudWatchLogs, renderId}) => {
-				Log.info(
-					CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`)
-				);
-				Log.verbose(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
-			},
+			renderId: res.renderId,
 		});
-
-		if (downloadName) {
-			Log.info('Finished rendering. Downloading...');
-			const {outputPath, sizeInBytes} = await downloadMedia({
-				bucketName: res.bucketName,
-				outPath: downloadName,
-				region,
-				renderId: res.renderId,
-			});
-			Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
-		} else {
-			Log.info(`Finished still!`);
-			Log.info();
-			Log.info(res.url);
-		}
-	} catch (err) {
-		const frames = RenderInternals.parseStack(
-			((err as Error).stack ?? '').split('\n')
-		);
-
-		const errorWithStackFrame = new RenderInternals.SymbolicateableError({
-			message: (err as Error).message,
-			frame: null,
-			name: (err as Error).name,
-			stack: (err as Error).stack,
-			stackFrame: frames,
-		});
-		await CliInternals.handleCommonError(
-			errorWithStackFrame,
-			RenderInternals.getLogLevel()
-		);
-		quit(1);
+		Log.info('Done!', outputPath, CliInternals.formatBytes(sizeInBytes));
+	} else {
+		Log.info(`Finished still!`);
+		Log.info();
+		Log.info(res.url);
 	}
 };
