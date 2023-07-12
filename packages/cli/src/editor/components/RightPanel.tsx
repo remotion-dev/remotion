@@ -29,50 +29,6 @@ const circle: React.CSSProperties = {
 	borderRadius: 4,
 };
 
-const PropsEditor: React.FC<{
-	composition: AnyComposition;
-	setChangesNotSaved: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({composition, setChangesNotSaved}) => {
-	const {props, updateProps} = useContext(Internals.EditorPropsContext);
-
-	const setInputProps = useCallback(
-		(
-			newProps:
-				| Record<string, unknown>
-				| ((oldProps: Record<string, unknown>) => Record<string, unknown>)
-		) => {
-			updateProps({
-				id: composition.id,
-				defaultProps: composition.defaultProps as Record<string, unknown>,
-				newProps,
-			});
-		},
-		[composition.defaultProps, composition.id, updateProps]
-	);
-
-	const actualProps = useMemo(
-		() => props[composition.id] ?? composition.defaultProps ?? {},
-		[composition.defaultProps, composition.id, props]
-	);
-
-	if (deepEqual(composition.defaultProps, actualProps)) {
-		setChangesNotSaved(false);
-	} else {
-		setChangesNotSaved(true);
-	}
-
-	return (
-		<DataEditor
-			key={composition.id}
-			unresolvedComposition={composition}
-			inputProps={actualProps}
-			setInputProps={setInputProps}
-			mayShowSaveButton
-			propsEditType="default-props"
-		/>
-	);
-};
-
 type SidebarPanel = 'input-props' | 'renders';
 
 const localStorageKey = 'remotion.sidebarPanel';
@@ -99,8 +55,9 @@ export const rightSidebarTabs = createRef<{
 }>();
 
 export const RightPanel: React.FC<{}> = () => {
+	const {props, updateProps} = useContext(Internals.EditorPropsContext);
+
 	const [panel, setPanel] = useState<SidebarPanel>(() => getSelectedPanel());
-	const [changesNotSaved, setChangesNotSaved] = useState<boolean>(false);
 	const onCompositionsSelected = useCallback(() => {
 		setPanel('input-props');
 		persistSelectedPanel('input-props');
@@ -144,6 +101,41 @@ export const RightPanel: React.FC<{}> = () => {
 		return null;
 	}, [compositions, currentComposition]);
 
+	const setInputProps = useCallback(
+		(
+			newProps:
+				| Record<string, unknown>
+				| ((oldProps: Record<string, unknown>) => Record<string, unknown>)
+		) => {
+			if (composition === null) {
+				return;
+			}
+
+			updateProps({
+				id: composition.id,
+				defaultProps: composition.defaultProps as Record<string, unknown>,
+				newProps,
+			});
+		},
+		[composition, updateProps]
+	);
+
+	const actualProps = useMemo(() => {
+		if (composition === null) {
+			return {};
+		}
+
+		return props[composition.id] ?? composition.defaultProps ?? {};
+	}, [composition, props]);
+
+	const unsavedChangesExist = useMemo(() => {
+		if (composition === null) {
+			return false;
+		}
+
+		return !deepEqual(composition.defaultProps, actualProps);
+	}, [actualProps, composition]);
+
 	if (composition === null) {
 		return null;
 	}
@@ -158,7 +150,7 @@ export const RightPanel: React.FC<{}> = () => {
 						style={{justifyContent: 'space-between'}}
 					>
 						Props
-						{changesNotSaved ? <div style={circleStyle} /> : null}
+						{unsavedChangesExist ? <div style={circleStyle} /> : null}
 					</Tab>
 					<RendersTab
 						onClick={onRendersSelected}
@@ -169,9 +161,13 @@ export const RightPanel: React.FC<{}> = () => {
 			{panel === 'renders' ? (
 				<RenderQueue />
 			) : (
-				<PropsEditor
-					composition={composition}
-					setChangesNotSaved={setChangesNotSaved}
+				<DataEditor
+					key={composition.id}
+					unresolvedComposition={composition}
+					inputProps={actualProps}
+					setInputProps={setInputProps}
+					mayShowSaveButton
+					propsEditType="default-props"
 				/>
 			)}
 		</div>
