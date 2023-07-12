@@ -23,7 +23,7 @@ export type RemotionServer = {
 	closeServer: (force: boolean) => Promise<unknown>;
 	offthreadPort: number;
 	compositor: Compositor;
-	sourceMap: AnySourceMapConsumer | null;
+	sourceMap: Promise<AnySourceMapConsumer | null>;
 	downloadMap: DownloadMap;
 };
 
@@ -73,7 +73,7 @@ export const prepareServer = async ({
 			},
 			offthreadPort,
 			compositor: comp,
-			sourceMap: await getSourceMapFromRemoteUrl(
+			sourceMap: getSourceMapFromRemoteUrl(
 				getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl)
 			),
 			downloadMap,
@@ -119,7 +119,7 @@ export const prepareServer = async ({
 		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,
 		compositor,
-		sourceMap: await sourceMap,
+		sourceMap,
 		downloadMap,
 	});
 };

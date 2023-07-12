@@ -102,7 +102,7 @@ export class Page extends EventEmitter {
 		target: Target;
 		defaultViewport: Viewport;
 		browser: HeadlessBrowser;
-		sourcemapContext: AnySourceMapConsumer | null;
+		sourcemapContext: Promise<AnySourceMapConsumer | null>;
 		logLevel: LogLevel;
 		indent: boolean;
 	}): Promise<Page> {
@@ -128,7 +128,7 @@ export class Page extends EventEmitter {
 	#pageBindings = new Map<string, Function>();
 	browser: HeadlessBrowser;
 	screenshotTaskQueue: TaskQueue;
-	sourcemapContext: AnySourceMapConsumer | null;
+	sourcemapContext: AnySourceMapConsumer | null = null;
 	logLevel: LogLevel;
 
 	constructor({
@@ -142,7 +142,7 @@ export class Page extends EventEmitter {
 		client: CDPSession;
 		target: Target;
 		browser: HeadlessBrowser;
-		sourcemapContext: AnySourceMapConsumer | null;
+		sourcemapContext: Promise<AnySourceMapConsumer | null>;
 		logLevel: LogLevel;
 		indent: boolean;
 	}) {
@@ -153,7 +153,9 @@ export class Page extends EventEmitter {
 		this.screenshotTaskQueue = new TaskQueue();
 		this.browser = browser;
 		this.id = String(Math.random());
-		this.sourcemapContext = sourcemapContext;
+		sourcemapContext.then((context) => {
+			this.sourcemapContext = context;
+		});
 		this.logLevel = logLevel;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
@@ -532,7 +534,9 @@ export class Page extends EventEmitter {
 		}
 	}
 
-	setBrowserSourceMapContext(context: AnySourceMapConsumer | null) {
-		this.sourcemapContext = context;
+	setBrowserSourceMapContext(context: Promise<AnySourceMapConsumer | null>) {
+		context.then((ctx) => {
+			this.sourcemapContext = ctx;
+		});
 	}
 }
