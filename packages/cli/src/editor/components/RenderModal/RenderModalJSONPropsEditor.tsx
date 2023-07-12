@@ -170,7 +170,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 				<Button
 					disabled={!(hasChanged || !localValue.validJSON)}
 					onClick={reset}
-					style={{color: 'red'}}
 				>
 					Reset
 				</Button>
