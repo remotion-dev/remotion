@@ -15,7 +15,8 @@ import {startHandler} from './start';
 import {stillHandler} from './still';
 import {randomHash} from '../shared/random-hash';
 import type {OrError} from '../shared/return-values';
-import {sendProgressEvent, type StreamingPayloads} from './helpers/streaming-payloads';
+import type {StreamingPayloads} from './helpers/streaming-payloads';
+import {sendProgressEvent} from './helpers/streaming-payloads';
 
 const innerHandler = async (
 	params: LambdaPayload,
@@ -51,7 +52,7 @@ const innerHandler = async (
 			type: 'render-id-determined',
 			renderId,
 		};
-		sendProgressEvent(responseStream, renderIdDetermined)
+		sendProgressEvent(responseStream, renderIdDetermined);
 
 		const response = await stillHandler({
 			expectedBucketOwner: currentUserId,
