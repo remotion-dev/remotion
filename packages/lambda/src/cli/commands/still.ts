@@ -142,7 +142,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			scale,
 			forceHeight: height,
 			forceWidth: width,
-			onInit({cloudWatchLogs, renderId}) {
+			onInit: ({cloudWatchLogs, renderId}) => {
 				Log.info(
 					CliInternals.chalk.gray(`Render invoked with ID = ${renderId}`)
 				);

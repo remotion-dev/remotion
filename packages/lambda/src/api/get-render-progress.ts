@@ -5,7 +5,7 @@ import type {RenderProgress} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import {getRenderProgressPayload} from './make-lambda-payload';
 
-export type GetRenderInput = {
+export type GetRenderProgressInput = {
 	functionName: string;
 	bucketName: string;
 	renderId: string;
@@ -24,7 +24,7 @@ export type GetRenderInput = {
  * @returns {Promise<RenderProgress>} See documentation for this function to see all properties on the return object.
  */
 export const getRenderProgress = async (
-	input: GetRenderInput
+	input: GetRenderProgressInput
 ): Promise<RenderProgress> => {
 	const result = await callLambda({
 		functionName: input.functionName,
