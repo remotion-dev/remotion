@@ -89,6 +89,8 @@ See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat).
 
 A callback function that gets called when the render starts. It receives an object with the following properties:
 
+This is useful to obtain the link to the logs even if the render fails.
+
 - `cloudWatchLogs`: A link to the CloudWatch logs of the Lambda function, if you did not disable it.
 - `renderId`: The ID of the render.
 
