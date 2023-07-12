@@ -15,6 +15,8 @@
  */
 
 import {Internals} from 'remotion';
+import {formatRemoteObject} from '../format-logs';
+import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import {truthy} from '../truthy';
@@ -56,8 +58,6 @@ import {
 	releaseObject,
 	valueFromRemoteObject,
 } from './util';
-import type {LogLevel} from '../log-level';
-import {formatRemoteObject} from '../format-logs';
 
 interface WaitForOptions {
 	timeout?: number;

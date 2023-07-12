@@ -3,6 +3,8 @@ import {chmodSync} from 'node:fs';
 import os from 'node:os';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getActualConcurrency} from '../get-concurrency';
+import type {LogLevel} from '../log-level';
+import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
 import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
@@ -12,8 +14,6 @@ import type {
 	CompositorCommandSerialized,
 	ErrorPayload,
 } from './payloads';
-import type {LogLevel} from '../log-level';
-import {isEqualOrBelowLogLevel} from '../log-level';
 
 export type Compositor = {
 	finishCommands: () => void;

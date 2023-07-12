@@ -7,12 +7,12 @@ import { NextIcon } from "./icons/next";
 import { OverlayIcon } from "./icons/overlay";
 import { RemixIcon } from "./icons/remix";
 import { SkiaIcon } from "./icons/skia";
+import { Stargazer } from "./icons/stargazer";
 import { StillIcon } from "./icons/still";
 import { Tailwind } from "./icons/tailwind";
 import { TypeScriptIcon } from "./icons/ts";
 import { TTSIcon } from "./icons/tts";
 import { Waveform } from "./icons/waveform";
-import { Stargazer } from "./icons/stargazer";
 
 export const IconForTemplate: React.FC<{
   template: Template;
