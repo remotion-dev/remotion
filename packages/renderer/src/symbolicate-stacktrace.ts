@@ -29,14 +29,25 @@ function extractSourceMapUrl(fileContents: string): string | null {
 	return match[1].toString();
 }
 
-const getSourceMap = async (
+export const getSourceMapFromRemoteUrl = async (url: string) => {
+	if (!url.endsWith('.js.map')) {
+		throw new Error(
+			`The URL ${url} does not seem to be a valid source map URL.`
+		);
+	}
+
+	const obj = await fetchUrl(url);
+	return new SourceMapConsumer(obj);
+};
+
+const getSourceMap = (
 	filePath: string,
 	fileContents: string,
 	type: 'local' | 'remote'
-) => {
+): Promise<AnySourceMapConsumer | null> => {
 	const sm = extractSourceMapUrl(fileContents);
 	if (sm === null) {
-		return null;
+		return Promise.resolve(null);
 	}
 
 	if (sm.indexOf('data:') === 0) {
@@ -49,20 +60,22 @@ const getSourceMap = async (
 		}
 
 		const converted = window.atob(sm.substring(match2[0].length));
-		return new SourceMapConsumer(JSON.parse(converted) as RawSourceMap);
+		return Promise.resolve(
+			new SourceMapConsumer(JSON.parse(converted) as RawSourceMap)
+		);
 	}
 
 	if (type === 'local') {
 		// Find adjacent file: bundle.js -> bundle.js.map
 		const newFilePath = path.join(path.dirname(filePath), sm);
-		return new SourceMapConsumer(readFileSync(newFilePath, 'utf8'));
+		return Promise.resolve(
+			new SourceMapConsumer(readFileSync(newFilePath, 'utf8'))
+		);
 	}
 
 	const index = filePath.lastIndexOf('/');
 	const url = filePath.substring(0, index + 1) + sm;
-
-	const obj = await fetchUrl(url);
-	return new SourceMapConsumer(obj);
+	return getSourceMapFromRemoteUrl(url);
 };
 
 const fetchUrl = async (url: string) => {
