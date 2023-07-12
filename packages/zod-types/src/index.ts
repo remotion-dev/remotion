@@ -1,4 +1,4 @@
-import {REMOTION_COLOR_BRAND, parseColor} from './z-color.js';
+import {parseColor, REMOTION_COLOR_BRAND} from './z-color.js';
 
 export {zColor} from './z-color.js';
 

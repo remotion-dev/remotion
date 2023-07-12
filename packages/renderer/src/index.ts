@@ -76,7 +76,6 @@ import {
 	registerErrorSymbolicationLock,
 	unlockErrorSymbolicationLock,
 } from './wait-for-symbolication-error-to-be-done';
-export {getVideoMetadata} from './get-video-metadata';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
@@ -90,6 +89,7 @@ export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
 export {getCompositions, GetCompositionsOptions} from './get-compositions';
+export {getVideoMetadata} from './get-video-metadata';
 export {
 	ImageFormat,
 	StillImageFormat,
