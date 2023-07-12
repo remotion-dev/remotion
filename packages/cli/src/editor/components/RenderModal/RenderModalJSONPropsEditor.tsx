@@ -40,7 +40,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	onSave: () => void;
-	valBeforeSafe: unknown;
 	showSaveButton: boolean;
 	serializedJSON: SerializedJSONWithCustomFields | null;
 	defaultProps: Record<string, unknown>;
@@ -50,7 +49,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	value,
 	defaultProps,
 	onSave,
-	valBeforeSafe,
 	showSaveButton,
 	serializedJSON,
 	schema,
@@ -60,7 +58,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	}
 
 	const keybindings = useKeybinding();
-	console.log(showSaveButton);
 	const [localValue, setLocalValue] = React.useState<State>(() => {
 		return parseJSON(serializedJSON.serializedString, schema);
 	});
