@@ -90,7 +90,7 @@ test('Should be able to render to another bucket', async () => {
 		extraContext
 	);
 
-	const parsed = JSON.parse(progress.body) as Await<
+	const parsed = JSON.parse(progress) as Await<
 		LambdaReturnValues[LambdaRoutines.status]
 	>;
 

@@ -88,7 +88,7 @@ test('Should make a distributed GIF', async () => {
 		extraContext
 	);
 
-	const parsed = JSON.parse(progress.body) as Await<
+	const parsed = JSON.parse(progress) as Await<
 		LambdaReturnValues[LambdaRoutines.status]
 	>;
 

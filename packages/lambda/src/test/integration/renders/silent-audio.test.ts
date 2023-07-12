@@ -87,7 +87,7 @@ test('Should add silent audio if there is no audio', async () => {
 		extraContext
 	);
 
-	const parsed = JSON.parse(progress.body) as Await<
+	const parsed = JSON.parse(progress) as Await<
 		LambdaReturnValues[LambdaRoutines.status]
 	>;
 
