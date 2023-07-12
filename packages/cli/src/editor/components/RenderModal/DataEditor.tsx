@@ -125,7 +125,6 @@ export const DataEditor: React.FC<{
 	propsEditType,
 }) => {
 	const [mode, setMode] = useState<Mode>('schema');
-	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
 	const [saving, setSaving] = useState(false);
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState()
@@ -281,7 +280,6 @@ export const DataEditor: React.FC<{
 			return;
 		}
 
-		setValBeforeSafe(inputProps);
 		updateDefaultProps(
 			unresolvedComposition.id,
 			inputProps,
@@ -440,7 +438,6 @@ export const DataEditor: React.FC<{
 					value={inputProps ?? {}}
 					setValue={setInputProps}
 					onSave={onUpdate}
-					valBeforeSafe={valBeforeSafe}
 					showSaveButton={showSaveButton}
 					serializedJSON={serializedJSON}
 					defaultProps={unresolvedComposition.defaultProps}
