@@ -7,6 +7,7 @@ import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import type {
+	CostsInfo,
 	LambdaPayload,
 	LambdaPayloads,
 	RenderMetadata,
@@ -246,11 +247,20 @@ const innerStillHandler = async (
 	};
 };
 
+type RenderStillLambdaResponsePayload = {
+	type: 'success';
+	output: string;
+	size: number;
+	bucketName: string;
+	estimatedPrice: CostsInfo;
+	renderId: string;
+};
+
 export const stillHandler = async (
 	params: LambdaPayload,
 	renderId: string,
 	options: Options
-): Promise<ReturnType<typeof innerStillHandler>> => {
+): Promise<RenderStillLambdaResponsePayload> => {
 	if (params.type !== LambdaRoutines.still) {
 		throw new Error('Params must be renderer');
 	}
