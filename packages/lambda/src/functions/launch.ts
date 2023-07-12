@@ -3,7 +3,14 @@ import fs, {existsSync, mkdirSync, rmSync} from 'node:fs';
 import {join} from 'node:path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
+import {callLambda} from '../shared/call-lambda';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
+import {
+	compressInputProps,
+	decompressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../shared/compress-props';
 import type {
 	LambdaPayload,
 	LambdaPayloads,
@@ -46,13 +53,6 @@ import {
 	writeLambdaError,
 } from './helpers/write-lambda-error';
 import {writePostRenderData} from './helpers/write-post-render-data';
-import {
-	decompressInputProps,
-	getNeedsToUpload,
-	compressInputProps,
-	serializeOrThrow,
-} from '../shared/compress-props';
-import {callLambda} from '../shared/call-lambda';
 
 type Options = {
 	expectedBucketOwner: string;

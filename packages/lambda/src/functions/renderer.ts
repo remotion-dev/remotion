@@ -3,7 +3,9 @@ import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
+import {callLambda} from '../shared/call-lambda';
 import {writeLambdaInitializedFile} from '../shared/chunk-progress';
+import {decompressInputProps} from '../shared/compress-props';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
@@ -23,8 +25,6 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
-import {decompressInputProps} from '../shared/compress-props';
-import {callLambda} from '../shared/call-lambda';
 
 type Options = {
 	expectedBucketOwner: string;

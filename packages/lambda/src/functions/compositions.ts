@@ -3,10 +3,10 @@ import {VERSION} from 'remotion/version';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {LambdaPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
+import {decompressInputProps} from '../shared/compress-props';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
-import {decompressInputProps} from '../shared/compress-props';
 
 type Options = {
 	expectedBucketOwner: string;

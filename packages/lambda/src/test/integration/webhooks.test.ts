@@ -11,9 +11,9 @@ import {
 	vi,
 } from 'vitest';
 import {LambdaRoutines} from '../../defaults';
+import {callLambda} from '../../shared/call-lambda';
 import {mockableHttpClients} from '../../shared/invoke-webhook';
 import {disableLogs, enableLogs} from '../disable-logs';
-import {callLambda} from '../../shared/call-lambda';
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {

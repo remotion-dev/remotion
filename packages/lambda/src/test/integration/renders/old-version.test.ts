@@ -2,8 +2,8 @@ import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
-import {disableLogs, enableLogs} from '../../disable-logs';
 import {callLambda} from '../../../shared/call-lambda';
+import {disableLogs, enableLogs} from '../../disable-logs';
 
 beforeAll(() => {
 	disableLogs();
