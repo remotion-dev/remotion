@@ -90,7 +90,7 @@ test('Should make a transparent video', async () => {
 		extraContext
 	);
 
-	const parsed = JSON.parse(progress.body) as Await<
+	const parsed = JSON.parse(progress) as Await<
 		LambdaReturnValues[LambdaRoutines.status]
 	>;
 
