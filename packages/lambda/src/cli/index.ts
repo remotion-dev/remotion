@@ -22,6 +22,7 @@ import {printHelp} from './help';
 import {quit} from './helpers/quit';
 import {setIsCli} from './is-cli';
 import {Log} from './log';
+import {ConfigInternals} from '@remotion/cli/config';
 
 const requiresCredentials = (args: string[]) => {
 	if (args[0] === POLICIES_COMMAND) {
@@ -179,7 +180,27 @@ AWS returned an error message "The security token included in the request is inv
 			);
 		}
 
-		Log.error(error.stack);
+		if (error instanceof RenderInternals.SymbolicateableError) {
+			await CliInternals.handleCommonError(
+				error,
+				ConfigInternals.Logging.getLogLevel()
+			);
+		} else {
+			const frames = RenderInternals.parseStack(error.stack?.split('\n') ?? []);
+
+			const errorWithStackFrame = new RenderInternals.SymbolicateableError({
+				message: error.message,
+				frame: null,
+				name: error.name,
+				stack: error.stack,
+				stackFrame: frames,
+			});
+			await CliInternals.handleCommonError(
+				errorWithStackFrame,
+				ConfigInternals.Logging.getLogLevel()
+			);
+		}
+
 		quit(1);
 	}
 };
