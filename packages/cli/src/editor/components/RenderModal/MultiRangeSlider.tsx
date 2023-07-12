@@ -1,30 +1,32 @@
-import React, {ChangeEvent, FC, useCallback, useEffect, useRef} from 'react';
-import {INPUT_BACKGROUND} from '../../helpers/colors';
+import type {ChangeEvent, FC} from 'react';
+import React, {useCallback, useEffect, useRef} from 'react';
+import {BLUE} from '../../helpers/colors';
+
+const DARKEND_BLUE = '#0a4279';
 
 const container: React.CSSProperties = {
-	borderWidth: 1,
 	borderColor: 'black',
 	borderStyle: 'solid',
 	height: 39,
-	width: 210,
+	width: 220,
 	position: 'relative',
-	backgroundColor: INPUT_BACKGROUND,
-	marginLeft: 16,
+	backgroundColor: DARKEND_BLUE,
+	marginLeft: 8,
 	marginRight: 8,
 };
 
 const slider: React.CSSProperties = {
 	position: 'relative',
-	width: 200,
+	width: 210,
 	height: 38,
-	left: 10,
+	marginLeft: 10,
 };
 
 const sliderRange: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
-	backgroundColor: 'black',
-	height: 38,
+	backgroundColor: BLUE,
+	height: 39,
 };
 
 interface MultiRangeSliderProps {
@@ -82,10 +84,10 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 					value={start}
 					step={step}
 					onChange={(event: ChangeEvent<HTMLInputElement>) => {
-						const value = Math.min(+event.target.value, end - 1);
+						const value = Math.min(Number(event.target.value), end - 1);
 						onLeftThumbDrag(value);
 					}}
-					className="thumb thumbLeft"
+					className="__remotion_thumb __remotion_thumbLeft"
 				/>
 
 				<input
@@ -95,10 +97,10 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 					value={end}
 					step={step}
 					onChange={(event: ChangeEvent<HTMLInputElement>) => {
-						const value = Math.max(+event.target.value, start + 1);
+						const value = Math.max(Number(event.target.value), start + 1);
 						onRightThumbDrag(value);
 					}}
-					className="thumb"
+					className="__remotion_thumb"
 				/>
 				<div ref={range} style={sliderRange} />
 			</div>
