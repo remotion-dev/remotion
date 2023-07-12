@@ -99,6 +99,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
 		region: getCurrentRegionInFunction(),
 		type: LambdaRoutines.launch,
+		receivedStreamingPayload: () => undefined,
 	});
 	await initialFile;
 

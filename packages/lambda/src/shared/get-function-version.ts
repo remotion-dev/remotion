@@ -17,6 +17,7 @@ export const getFunctionVersion = async ({
 			},
 			region,
 			type: LambdaRoutines.info,
+			receivedStreamingPayload: () => undefined,
 		});
 		return result.version;
 	} catch (err) {

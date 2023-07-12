@@ -42,14 +42,16 @@ import {Internals} from 'remotion';
 import {callLambda} from '../shared/call-lambda';
 
 type Options = {
+	params: LambdaPayload;
+	renderId: string;
 	expectedBucketOwner: string;
 };
 
-const innerStillHandler = async (
-	lambdaParams: LambdaPayload,
-	renderId: string,
-	options: Options
-) => {
+const innerStillHandler = async ({
+	params: lambdaParams,
+	expectedBucketOwner,
+	renderId,
+}: Options) => {
 	if (lambdaParams.type !== LambdaRoutines.still) {
 		throw new TypeError('Expected still type');
 	}
@@ -91,7 +93,7 @@ const innerStillHandler = async (
 	const region = getCurrentRegionInFunction();
 	const serializedInputPropsWithCustomSchema = await decompressInputProps({
 		bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
+		expectedBucketOwner,
 		region,
 		serialized: lambdaParams.inputProps,
 		propsType: 'input-props',
@@ -157,7 +159,7 @@ const innerStillHandler = async (
 		body: JSON.stringify(renderMetadata),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
-		expectedBucketOwner: options.expectedBucketOwner,
+		expectedBucketOwner,
 		downloadBehavior: null,
 		customCredentials: null,
 	});
@@ -207,7 +209,7 @@ const innerStillHandler = async (
 		key,
 		privacy: lambdaParams.privacy,
 		body: fs.createReadStream(outputPath),
-		expectedBucketOwner: options.expectedBucketOwner,
+		expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		downloadBehavior: lambdaParams.downloadBehavior,
 		customCredentials,
@@ -257,16 +259,16 @@ type RenderStillLambdaResponsePayload = {
 };
 
 export const stillHandler = async (
-	params: LambdaPayload,
-	renderId: string,
 	options: Options
 ): Promise<RenderStillLambdaResponsePayload> => {
+	const {params} = options;
+
 	if (params.type !== LambdaRoutines.still) {
 		throw new Error('Params must be renderer');
 	}
 
 	try {
-		return await innerStillHandler(params, renderId, options);
+		return await innerStillHandler(options);
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
@@ -293,6 +295,7 @@ export const stillHandler = async (
 			payload: retryPayload,
 			region: getCurrentRegionInFunction(),
 			type: LambdaRoutines.still,
+			receivedStreamingPayload: () => undefined,
 		});
 		const bucketName =
 			params.bucketName ??
@@ -320,7 +323,7 @@ export const stillHandler = async (
 				willRetry,
 			},
 			expectedBucketOwner: options.expectedBucketOwner,
-			renderId,
+			renderId: options.renderId,
 		});
 
 		return res;

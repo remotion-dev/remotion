@@ -4,17 +4,21 @@ import type {AwsRegion} from '../pricing/aws-regions';
 import {getLambdaClient} from './aws-clients';
 import type {LambdaPayloads, LambdaRoutines} from './constants';
 import type {LambdaReturnValues, OrError} from './return-values';
+import type {StreamingPayloads} from '../functions/helpers/streaming-payloads';
+import {isStreamingPayload} from '../functions/helpers/streaming-payloads';
 
 export const callLambda = async <T extends LambdaRoutines>({
 	functionName,
 	type,
 	payload,
 	region,
+	receivedStreamingPayload,
 }: {
 	functionName: string;
 	type: T;
 	payload: Omit<LambdaPayloads[T], 'type'>;
 	region: AwsRegion;
+	receivedStreamingPayload: (streamPayload: StreamingPayloads) => void;
 }): Promise<LambdaReturnValues[T]> => {
 	const res = await getLambdaClient(region).send(
 		new InvokeWithResponseStreamCommand({
@@ -38,6 +42,13 @@ export const callLambda = async <T extends LambdaRoutines>({
 			const decoded = new TextDecoder('utf-8').decode(
 				event.PayloadChunk.Payload
 			);
+			const streamPayload = isStreamingPayload(decoded);
+
+			if (streamPayload) {
+				receivedStreamingPayload(streamPayload);
+				continue;
+			}
+
 			responsePayload = Buffer.concat([responsePayload, Buffer.from(decoded)]);
 		}
 
@@ -53,16 +64,11 @@ export const callLambda = async <T extends LambdaRoutines>({
 	const string = Buffer.from(responsePayload).toString();
 
 	const json = JSON.parse(string) as
-		| OrError<LambdaReturnValues[T]>
+		| OrError<Awaited<LambdaReturnValues[T]>>
 		| {
 				errorType: string;
 				errorMessage: string;
 				trace: string[];
-		  }
-		| {
-				statusCode: number;
-				headers: Record<string, string>;
-				body: string;
 		  };
 
 	if ('errorMessage' in json) {
@@ -72,27 +78,11 @@ export const callLambda = async <T extends LambdaRoutines>({
 		throw err;
 	}
 
-	// Streaming: 3.3.96+
-	if ('statusCode' in json) {
-		if (json.statusCode !== 200) {
-			throw new Error(
-				`Lambda function ${functionName} failed with status code ${json.statusCode}: ${json.body}`
-			);
-		}
-
-		const parsed = JSON.parse(json.body) as OrError<
-			Awaited<LambdaReturnValues[T]>
-		>;
-
-		if (parsed.type === 'error') {
-			const err = new Error(parsed.message);
-			err.stack = parsed.stack;
-			throw err;
-		}
-
-		return parsed;
+	if (json.type === 'error') {
+		const err = new Error(json.message);
+		err.stack = json.stack;
+		throw err;
 	}
 
-	// Non-streaming: 3.3.95 and below
-	return json as LambdaReturnValues[T];
+	return json;
 };

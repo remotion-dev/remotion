@@ -74,6 +74,7 @@ const callFunctionWithRetry = async ({
 			payload,
 			region: getCurrentRegionInFunction(),
 			type: LambdaRoutines.renderer,
+			receivedStreamingPayload: () => undefined,
 		});
 	} catch (err) {
 		if ((err as Error).name === 'ResourceConflictException') {
