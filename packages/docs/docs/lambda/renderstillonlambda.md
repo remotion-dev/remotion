@@ -87,9 +87,9 @@ See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat).
 
 ### `onInit?`<AvailableFrom v="4.0.6" />
 
-A callback function that gets called when the render starts. It receives an object with the following properties:
+A callback function that gets called when the render starts, useful to obtain the link to the logs even if the render fails.
 
-This is useful to obtain the link to the logs even if the render fails.
+It receives an object with the following properties:
 
 - `cloudWatchLogs`: A link to the CloudWatch logs of the Lambda function, if you did not disable it.
 - `renderId`: The ID of the render.
