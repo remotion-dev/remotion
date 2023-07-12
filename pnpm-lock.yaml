@@ -1090,6 +1090,9 @@ importers:
       zip-lib:
         specifier: ^0.7.2
         version: 0.7.2
+      zod:
+        specifier: 3.21.4
+        version: 3.21.4
 
   packages/lambda-go:
     devDependencies:

@@ -484,6 +484,7 @@ export type RenderProgress = {
 	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
 	framesRendered: number;
 	outputSizeInBytes: number | null;
+	type: 'success';
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';

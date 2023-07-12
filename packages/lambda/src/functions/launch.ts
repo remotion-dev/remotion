@@ -1,12 +1,21 @@
-import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import fs, {existsSync, mkdirSync, rmSync} from 'node:fs';
 import {join} from 'node:path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
-import {getLambdaClient} from '../shared/aws-clients';
+import {callLambda} from '../shared/call-lambda';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
-import type {LambdaPayload, RenderMetadata} from '../shared/constants';
+import {
+	compressInputProps,
+	decompressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../shared/compress-props';
+import type {
+	LambdaPayload,
+	LambdaPayloads,
+	RenderMetadata,
+} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
 	encodingProgressKey,
@@ -44,12 +53,6 @@ import {
 	writeLambdaError,
 } from './helpers/write-lambda-error';
 import {writePostRenderData} from './helpers/write-post-render-data';
-import {
-	decompressInputProps,
-	getNeedsToUpload,
-	compressInputProps,
-	serializeOrThrow,
-} from '../shared/compress-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -61,20 +64,19 @@ const callFunctionWithRetry = async ({
 	retries,
 	functionName,
 }: {
-	payload: unknown;
+	payload: LambdaPayloads[LambdaRoutines.renderer];
 	retries: number;
 	functionName: string;
 }): Promise<unknown> => {
 	try {
-		await getLambdaClient(getCurrentRegionInFunction()).send(
-			new InvokeCommand({
-				FunctionName: functionName,
-				// @ts-expect-error
-				Payload: JSON.stringify(payload),
-				InvocationType: 'Event',
-			}),
-			{}
-		);
+		await callLambda({
+			functionName,
+			payload,
+			region: getCurrentRegionInFunction(),
+			type: LambdaRoutines.renderer,
+			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
+		});
 	} catch (err) {
 		if ((err as Error).name === 'ResourceConflictException') {
 			if (retries > 10) {
@@ -655,13 +657,18 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 export const launchHandler = async (
 	params: LambdaPayload,
 	options: Options
-) => {
+): Promise<{
+	type: 'success';
+}> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
 
 	try {
 		await innerLaunchHandler(params, options);
+		return {
+			type: 'success',
+		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			throw err;
@@ -730,5 +737,7 @@ export const launchHandler = async (
 				console.log(error);
 			}
 		}
+
+		throw err;
 	}
 };
