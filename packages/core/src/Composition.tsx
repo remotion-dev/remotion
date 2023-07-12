@@ -246,7 +246,7 @@ export const Composition = <
 	return null;
 };
 
-const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
+export const ClipComposition: React.FC<PropsWithChildren> = ({children}) => {
 	const {clipRegion} = useContext(NativeLayersContext);
 	const style: React.CSSProperties = useMemo(() => {
 		return {
