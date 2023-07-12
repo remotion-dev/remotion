@@ -5,8 +5,8 @@ import {render} from '@testing-library/react';
 import React from 'react';
 import {describe, expect, test} from 'vitest';
 import {Composition} from '../Composition.js';
-import {expectToThrow} from './expect-to-throw.js';
 import {resolveVideoConfig} from '../resolve-video-config.js';
+import {expectToThrow} from './expect-to-throw.js';
 
 const AnyComp: React.FC = () => null;
 

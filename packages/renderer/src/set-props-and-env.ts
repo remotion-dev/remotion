@@ -1,12 +1,12 @@
 import {VERSION} from 'remotion/version';
 import type {Page} from './browser/BrowserPage';
 import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {redirectStatusCodes} from './redirect-status-codes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
-import {Log} from './logger';
-import type {LogLevel} from './log-level';
 
 type SetPropsAndEnv = {
 	serializedInputPropsWithCustomSchema: string;

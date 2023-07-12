@@ -52,15 +52,15 @@ import {
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
-import {
-	persistCurrentFrame,
-	useTimelineSetFrame,
-} from './timeline-position-state.js';
 import type {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from './timeline-position-state.js';
 import * as TimelinePosition from './timeline-position-state.js';
+import {
+	persistCurrentFrame,
+	useTimelineSetFrame,
+} from './timeline-position-state.js';
 import {truthy} from './truthy.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
