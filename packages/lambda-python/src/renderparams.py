@@ -9,8 +9,8 @@ class RenderParams:
     bucketName: Optional[str] = None
     region: Optional[str] = None
     outName: Optional[str] = None
-    composition: Optional[str] = 'main'
-    serverUrl: Optional[str] = None
+    composition: str = ""
+    serveUrl: str = ""
     framesPerLambda: Optional[int] = None
     inputProps: Optional[Dict] = None
     codec: str = 'h264'
@@ -48,7 +48,7 @@ class RenderParams:
             'rendererFunctionName': self.rendererFunctionName,
             'framesPerLambda': self.framesPerLambda,
             'composition': self.composition,
-            'serveUrl': self.serverUrl,
+            'serveUrl': self.serveUrl,
             'inputProps': self.inputProps,
             'codec': self.codec,
             'imageFormat': self.imageFormat,
