@@ -51,7 +51,8 @@ export const PreviewToolbar: React.FC = () => {
 
 	const [loop, setLoop] = useState(loadLoopOption());
 
-	const [fullscreen, setFullscreen] = useState(false);
+	const isFullscreenSupported =
+		document.fullscreenEnabled || document.webkitFullscreenEnabled;
 
 	return (
 		<div style={container} className="css-reset">
@@ -72,12 +73,7 @@ export const PreviewToolbar: React.FC = () => {
 			<CheckboardToggle />
 			<TimelineInOutPointToggle />
 			<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
-			{document.fullscreenEnabled && (
-				<FullScreenToggle
-					fullscreen={fullscreen}
-					setFullscreen={setFullscreen}
-				/>
-			)}
+			{isFullscreenSupported && <FullScreenToggle />}
 			<Spacing x={2} />
 			<Flex />
 			<div style={sideContainer}>

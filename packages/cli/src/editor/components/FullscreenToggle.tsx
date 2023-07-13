@@ -1,25 +1,27 @@
-import {useCallback} from 'react';
+import {useCallback, useContext} from 'react';
 import {ControlButton} from './ControlButton';
 import {canvasRef} from '../state/canvas-ref';
+import {PreviewSizeContext} from '../state/preview-size';
 
-export const FullScreenToggle: React.FC<{
-	fullscreen: boolean;
-	setFullscreen: React.Dispatch<React.SetStateAction<boolean>>;
-}> = ({fullscreen, setFullscreen}) => {
+export const FullScreenToggle: React.FC<{}> = () => {
+	const {setSize} = useContext(PreviewSizeContext);
+
 	const onClick = useCallback(() => {
-		setFullscreen((m) => {
-			canvasRef.current?.requestFullscreen();
-			return !m;
-		});
-	}, [setFullscreen]);
-	const accessibilityLabel = fullscreen
-		? 'Exit fullscreen'
-		: 'Enter fullscreen';
+		canvasRef.current?.requestFullscreen();
+
+		setSize(() => ({
+			size: 'auto',
+			translation: {
+				x: 0,
+				y: 0,
+			},
+		}));
+	}, [setSize]);
 
 	return (
 		<ControlButton
-			title={accessibilityLabel}
-			aria-label={accessibilityLabel}
+			title="Enter fullscreen"
+			aria-label="Enter fullscreen"
 			onClick={onClick}
 		>
 			<svg style={{width: 18, height: 18}} viewBox="0 0 448 512" fill="#fff">
