@@ -107,3 +107,63 @@ class RenderProgressParams:
     bucketName: str
     functionName: str
     region: str
+
+    def serializeParams(self) -> Dict:
+        parameters = {
+            'renderId': self.renderId,
+            'bucketName': self.bucketName,
+            'type': 'status',
+            "version": VERSION,
+            "s3OutputProvider": None
+        }
+        return parameters
+
+
+class RenderProgress:
+    def __init__(self):
+        self.overallProgress = float()
+        self.chunks = int()
+        self.done = bool()
+        self.encodingStatus = None
+        self.costs = None
+        self.renderId = str()
+        self.renderMetadata = None
+        self.outputFile = None
+        self.outKey = None
+        self.timeToFinish = None
+        self.errors = []
+        self.fatalErrorEncountered = bool()
+        self.currentTime = int()
+        self.renderSize = int()
+        self.outputSizeInBytes = None
+        self.lambdasInvoked = int()
+        self.framesRendered = None
+        self.mostExpensiveFrameRanges = []
+
+
+class EncodingStatus:
+    def __init__(self):
+        self.property1 = None
+        self.property2 = None
+        # Add additional properties as needed
+
+
+class Costs:
+    def __init__(self):
+        self.property1 = None
+        self.property2 = None
+        # Add additional properties as needed
+
+
+class RenderMetadata:
+    def __init__(self):
+        self.property1 = None
+        self.property2 = None
+        # Add additional properties as needed
+
+
+class FrameRange:
+    def __init__(self):
+        self.property1 = None
+        self.property2 = None
+        # Add additional properties as needed
