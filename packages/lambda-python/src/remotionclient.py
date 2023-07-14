@@ -1,7 +1,7 @@
 from math import ceil
 import boto3
 import json
-from models import RenderParams, RenderResponse, RenderProgressParams
+from models import RenderParams, RenderProgress, RenderResponse, RenderProgressParams
 
 
 class RemotionClient:
@@ -64,8 +64,7 @@ class RemotionClient:
                 )
             body_object = json.loads(decoded_result['body'])
 
-            renderResponse = RenderResponse(**body_object)
-            return renderResponse
+            return body_object
 
         except Exception as e:
             print(f"Failed to invoke Lambda function: {str(e)}")
@@ -81,14 +80,23 @@ class RemotionClient:
             userSpecifiedBucketName=None)
         return json.dumps(render_params.serializeParams())
 
-    def contruct_render_progress_request(self, progress_params: RenderProgressParams):
-        progress_params.serveUrl = self.serve_url
-        progress_params.region = self.region
-        progress_params.function_name = self.function_name
-
+    def contruct_render_progress_request(self, render_id, bucket_name):
+        progress_params = RenderProgressParams(renderId=render_id, bucketName=bucket_name,
+                                               functionName=self.function_name, region=self.region)
         return json.dumps(progress_params.serializeParams())
 
     def render_media_on_lambda(self, render_params: RenderParams):
-        params = json.dumps(render_params.serializeParams())
-        return self.invoke_lambda(function_name=self.function_name,
-                                  payload=params)
+        params = self.contruct_render_request(render_params)
+        body_object = self.invoke_lambda(function_name=self.function_name,
+                                         payload=params)
+        return RenderResponse(**body_object)
+
+    def get_render_progress(self,   render_id, bucket_name):
+        params = self.contruct_render_progress_request(
+            render_id, bucket_name=bucket_name)
+        progress_response = self.invoke_lambda(function_name=self.function_name,
+                                               payload=params)
+
+        render_progress = RenderProgress()
+        render_progress.__dict__.update(progress_response)
+        return render_progress
