@@ -1,5 +1,5 @@
 
-from renderparams import RenderParams
+from models import RenderParams
 from remotionclient import RemotionClient
 import os
 from dotenv import load_dotenv
@@ -31,6 +31,6 @@ render_params = RenderParams(
     },
 )  # Instantiate a RenderParams object
 # Pass the object to renderMediaOnLambda
-print(client.contruct_render_request(render_params))
 print("\n")
-client.render_media_on_lambda(render_params)
+render_response = client.render_media_on_lambda(render_params)
+print(render_response.bucketName)

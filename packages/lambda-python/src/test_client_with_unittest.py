@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from renderparams import RenderParams
+from models import RenderParams
 from remotionclient import RemotionClient
 
 # python -m pip install boto3

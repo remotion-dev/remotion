@@ -93,3 +93,17 @@ class RenderParams:
             parameters['quality'] = self.quality
 
         return parameters
+
+
+class RenderResponse(object):
+    def __init__(self, bucketName, renderId):
+        self.bucketName = bucketName
+        self.renderId = renderId
+
+
+@dataclass
+class RenderProgressParams:
+    renderId: str
+    bucketName: str
+    functionName: str
+    region: str
