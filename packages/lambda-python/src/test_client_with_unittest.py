@@ -25,7 +25,7 @@ class TestRemotionClient(TestCase):
             },
         )  # Instantiate a RenderParams object
         # Pass the object to renderMediaOnLambda
-        print(client.contruct_request(render_params))
+        print(client.contruct_render_request(render_params))
         self.assertEqual(client.region, "us-east-1")
         self.assertIsNotNone(render_params)
         self.assertIsNotNone(render_params.data)
