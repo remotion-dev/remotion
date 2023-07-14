@@ -59,6 +59,13 @@ class RemotionClient:
             result = response['Payload'].read().decode('utf-8')
             print("Lambda function invoked successfully.")
             print("Response:", result)
+
+            if result['statusCode'] != 200:
+                raise Exception(
+                    'Failed to invoke Lambda function'
+                )
+            return result['body']
+
         except Exception as e:
             print(f"Failed to invoke Lambda function: {str(e)}")
 
