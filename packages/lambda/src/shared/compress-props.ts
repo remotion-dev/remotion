@@ -4,8 +4,8 @@ import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
 import type {SerializedInputProps} from './constants';
 import {inputPropsKey, resolvedPropsKey} from './constants';
 import {randomHash} from './random-hash';
-import {streamToString} from './stream-to-string';
 import {serializeJSONWithDate} from './serialize-props';
+import {streamToString} from './stream-to-string';
 
 type PropsType = 'input-props' | 'resolved-props';
 

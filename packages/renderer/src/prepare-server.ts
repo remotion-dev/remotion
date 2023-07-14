@@ -6,22 +6,24 @@ import {attachDownloadListenerToEmitter} from './assets/download-and-map-assets-
 import type {DownloadMap} from './assets/download-map';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
+import {getBundleMapUrlFromServeUrl} from './get-bundle-url-from-serve-url';
 import {isServeUrl} from './is-serve-url';
+import type {LogLevel} from './log-level';
 import {Log} from './logger';
-import type {OffthreadVideoServerEmitter} from './offthread-video-server';
 import {serveStatic} from './serve-static';
 import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
-import {getSourceMapFromLocalFile} from './symbolicate-stacktrace';
+import {
+	getSourceMapFromLocalFile,
+	getSourceMapFromRemoteUrl,
+} from './symbolicate-stacktrace';
 import {waitForSymbolicationToBeDone} from './wait-for-symbolication-error-to-be-done';
-import type {LogLevel} from './log-level';
 
 export type RemotionServer = {
 	serveUrl: string;
 	closeServer: (force: boolean) => Promise<unknown>;
 	offthreadPort: number;
 	compositor: Compositor;
-	sourceMap: AnySourceMapConsumer | null;
-	events: OffthreadVideoServerEmitter;
+	sourceMap: Promise<AnySourceMapConsumer | null>;
 	downloadMap: DownloadMap;
 };
 
@@ -54,7 +56,6 @@ export const prepareServer = async ({
 			port: offthreadPort,
 			close: closeProxy,
 			compositor: comp,
-			events,
 		} = await serveStatic(null, {
 			port,
 			downloadMap,
@@ -72,8 +73,9 @@ export const prepareServer = async ({
 			},
 			offthreadPort,
 			compositor: comp,
-			sourceMap: null,
-			events,
+			sourceMap: getSourceMapFromRemoteUrl(
+				getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl)
+			),
 			downloadMap,
 		});
 	}
@@ -95,7 +97,6 @@ export const prepareServer = async ({
 		port: serverPort,
 		close,
 		compositor,
-		events: newEvents,
 	} = await serveStatic(webpackConfigOrServeUrl, {
 		port,
 		downloadMap,
@@ -118,8 +119,7 @@ export const prepareServer = async ({
 		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,
 		compositor,
-		sourceMap: await sourceMap,
-		events: newEvents,
+		sourceMap,
 		downloadMap,
 	});
 };
@@ -140,11 +140,11 @@ export const makeOrReuseServer = async (
 }> => {
 	if (server) {
 		const cleanupOnDownload = attachDownloadListenerToEmitter(
-			server.events,
+			server.downloadMap,
 			onDownload
 		);
 
-		const cleanupError = server.events.addEventListener(
+		const cleanupError = server.downloadMap.emitter.addEventListener(
 			'error',
 			({detail: {error}}) => {
 				onError(error);
@@ -164,11 +164,11 @@ export const makeOrReuseServer = async (
 	const newServer = await prepareServer(config);
 
 	const cleanupOnDownloadNew = attachDownloadListenerToEmitter(
-		newServer.events,
+		newServer.downloadMap,
 		onDownload
 	);
 
-	const cleanupErrorNew = newServer.events.addEventListener(
+	const cleanupErrorNew = newServer.downloadMap.emitter.addEventListener(
 		'error',
 		({detail: {error}}) => {
 			onError(error);

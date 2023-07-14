@@ -89,6 +89,7 @@ export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
 export {getCompositions, GetCompositionsOptions} from './get-compositions';
+export {getVideoMetadata} from './get-video-metadata';
 export {
 	ImageFormat,
 	StillImageFormat,

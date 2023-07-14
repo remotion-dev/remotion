@@ -85,6 +85,15 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
+    #[allow(non_snake_case)]
+    pub struct VideoMetadata {
+        pub fps: i32,
+        pub width: u32,
+        pub height: u32,
+        pub durationInSeconds: f64,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct FreeUpMemory {
         pub percent_of_memory: f64,
     }
@@ -92,6 +101,11 @@ pub mod payloads {
     #[derive(Serialize, Deserialize, Debug)]
     pub struct EchoPayload {
         pub message: String,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
+    pub struct GetVideoMetadata {
+        pub src: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
@@ -105,6 +119,7 @@ pub mod payloads {
         GetOpenVideoStats(GetOpenVideoStats),
         FreeUpMemory(FreeUpMemory),
         Echo(EchoPayload),
+        GetVideoMetadata(GetVideoMetadata),
     }
 
     #[derive(Serialize, Deserialize, Debug)]
