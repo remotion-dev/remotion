@@ -7,7 +7,11 @@
       "outputMode": "new-only"
     },
     "docs": {
-      "outputs": ["build/**", ".docusaurus"]
+      "outputs": [
+        "build/**",
+        ".docusaurus",
+        "../../node_modules/.cache/twoslash"
+      ]
     },
     "test": {
       "dependsOn": ["^build", "build"],

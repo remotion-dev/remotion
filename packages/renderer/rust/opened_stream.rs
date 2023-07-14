@@ -179,11 +179,9 @@ impl OpenedStream {
 
             let (stream, packet) = match self.input.get_next_packet() {
                 Err(remotionffmpeg::Error::Eof) => {
-                    _print_verbose("Got EOF")?;
                     let data = self.handle_eof(position, frame_cache, one_frame_in_time_base)?;
                     if data.is_some() {
                         last_frame_received = data;
-                        _print_verbose("last frame received ABC")?;
 
                         frame_cache
                             .lock()?

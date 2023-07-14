@@ -7,6 +7,7 @@ import {
 	Video,
 	staticFile,
 	Sequence,
+	Experimental,
 } from 'remotion';
 
 type Props = {
@@ -56,6 +57,7 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 				top: 0,
 			}}
 		>
+			<Experimental.Clipper height={100} width={100} x={0} y={0} />
 			<h1
 				style={{
 					fontSize: '5em',

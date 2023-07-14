@@ -21,6 +21,8 @@ import {
 	validateStillImageFormat,
 } from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
+import type {LogLevel} from './log-level';
+import {getLogLevel} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -35,8 +37,6 @@ import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
-import type {LogLevel} from './log-level';
-import {getLogLevel} from './logger';
 
 type InternalRenderStillOptions = {
 	composition: VideoConfig;
@@ -130,7 +130,7 @@ const innerRenderStill = async ({
 	onError: (err: Error) => void;
 	proxyPort: number;
 	compositor: Compositor;
-	sourceMapContext: AnySourceMapConsumer | null;
+	sourceMapContext: Promise<AnySourceMapConsumer | null>;
 }): Promise<RenderStillReturnValue> => {
 	Internals.validateDimension(
 		composition.height,
@@ -201,7 +201,7 @@ const innerRenderStill = async ({
 			logLevel,
 		}));
 	const page = await browserInstance.newPage(
-		sourceMapContext,
+		Promise.resolve(sourceMapContext),
 		logLevel,
 		indent
 	);

@@ -98,7 +98,7 @@ yarn create video --tailwind
   <TabItem value="pnpm">
 
 ```bash
-pnpm create video -- --tailwind
+pnpm create video --tailwind
 ```
 
   </TabItem>

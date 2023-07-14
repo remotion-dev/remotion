@@ -123,7 +123,7 @@ export const Premount: React.FC<PremountProps> = ({
       // Remotion v3
       // frame: Math.max(0, currentFrame - premountFor) + contextOffset,
     };
-  }, [context, premountFor, sequenceContext]);
+  }, [context, premountFor, sequenceContext, id]);
 
   return (
     <Internals.Timeline.TimelineContext.Provider value={value}>
