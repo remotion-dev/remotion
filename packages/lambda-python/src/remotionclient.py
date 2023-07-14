@@ -1,7 +1,7 @@
 from math import ceil
 import boto3
 import json
-from renderparams import RenderParams
+from models import RenderParams, RenderResponse, RenderProgressParams
 
 
 class RemotionClient:
@@ -57,14 +57,15 @@ class RemotionClient:
             response = self.client.invoke(
                 FunctionName=function_name, Payload=payload)
             result = response['Payload'].read().decode('utf-8')
-            print("Lambda function invoked successfully.")
-            print("Response:", result)
-
-            if result['statusCode'] != 200:
+            decoded_result = json.loads(result)
+            if decoded_result['statusCode'] != 200:
                 raise Exception(
                     'Failed to invoke Lambda function'
                 )
-            return result['body']
+            body_object = json.loads(decoded_result['body'])
+
+            renderResponse = RenderResponse(**body_object)
+            return renderResponse
 
         except Exception as e:
             print(f"Failed to invoke Lambda function: {str(e)}")
@@ -80,8 +81,14 @@ class RemotionClient:
             userSpecifiedBucketName=None)
         return json.dumps(render_params.serializeParams())
 
+    def contruct_render_progress_request(self, progress_params: RenderProgressParams):
+        progress_params.serveUrl = self.serve_url
+        progress_params.region = self.region
+        progress_params.function_name = self.function_name
+
+        return json.dumps(progress_params.serializeParams())
+
     def render_media_on_lambda(self, render_params: RenderParams):
         params = json.dumps(render_params.serializeParams())
-        self.invoke_lambda(function_name=self.function_name,
-                           payload=params)
-        # print(render_params.serializeParams())
+        return self.invoke_lambda(function_name=self.function_name,
+                                  payload=params)
