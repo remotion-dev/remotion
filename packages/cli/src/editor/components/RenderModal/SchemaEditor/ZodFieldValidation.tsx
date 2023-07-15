@@ -1,5 +1,5 @@
-import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {Spacing} from '../../layout';
+import {ValidationMessage} from '../../NewComposition/ValidationMessage';
 import {InfoBubble} from '../InfoBubble';
 import type {LocalState} from './local-state';
 import type {JSONPath} from './zod-types';

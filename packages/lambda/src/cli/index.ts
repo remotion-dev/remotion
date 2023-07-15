@@ -1,4 +1,5 @@
 import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
 import {RenderInternals} from '@remotion/renderer';
 import {ROLE_NAME} from '../api/iam-validation/suggested-policy';
 import {BINARY_NAME} from '../defaults';
@@ -179,7 +180,27 @@ AWS returned an error message "The security token included in the request is inv
 			);
 		}
 
-		Log.error(error.stack);
+		if (error instanceof RenderInternals.SymbolicateableError) {
+			await CliInternals.handleCommonError(
+				error,
+				ConfigInternals.Logging.getLogLevel()
+			);
+		} else {
+			const frames = RenderInternals.parseStack(error.stack?.split('\n') ?? []);
+
+			const errorWithStackFrame = new RenderInternals.SymbolicateableError({
+				message: error.message,
+				frame: null,
+				name: error.name,
+				stack: error.stack,
+				stackFrame: frames,
+			});
+			await CliInternals.handleCommonError(
+				errorWithStackFrame,
+				ConfigInternals.Logging.getLogLevel()
+			);
+		}
+
 		quit(1);
 	}
 };

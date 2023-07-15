@@ -94,7 +94,7 @@ export class Target {
 	 * If the target is not of type `"page"` or `"background_page"`, returns `null`.
 	 */
 	async page(
-		sourcemapContext: AnySourceMapConsumer | null,
+		sourcemapContext: Promise<AnySourceMapConsumer | null>,
 		logLevel: LogLevel,
 		indent: boolean
 	): Promise<Page | null> {

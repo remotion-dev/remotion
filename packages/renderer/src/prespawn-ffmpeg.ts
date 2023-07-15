@@ -7,6 +7,7 @@ import type {FfmpegOverrideFn} from './ffmpeg-override';
 import {getCodecName} from './get-codec-name';
 import {getProResProfileName} from './get-prores-profile-name';
 import type {VideoImageFormat} from './image-format';
+import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
@@ -17,7 +18,6 @@ import {
 } from './pixel-format';
 import type {ProResProfile} from './prores-profile';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
-import type {LogLevel} from './log-level';
 
 type RunningStatus =
 	| {

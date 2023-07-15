@@ -2,13 +2,8 @@ import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
-import {handler} from '../../../functions';
+import {callLambda} from '../../../shared/call-lambda';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-const extraContext = {
-	invokedFunctionArn: 'arn:fake',
-	getRemainingTimeInMillis: () => 12000,
-};
 
 beforeAll(() => {
 	disableLogs();
@@ -24,9 +19,9 @@ test('Should fail when using an incompatible version', () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
 	expect(() =>
-		handler(
-			{
-				type: LambdaRoutines.start,
+		callLambda({
+			type: LambdaRoutines.start,
+			payload: {
 				serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
@@ -67,7 +62,10 @@ test('Should fail when using an incompatible version', () => {
 				bucketName: null,
 				audioCodec: null,
 			},
-			extraContext
-		)
+			functionName: 'remotion-dev-render',
+			receivedStreamingPayload: () => undefined,
+			region: 'us-east-1',
+			timeoutInTest: 120000,
+		})
 	).rejects.toThrow(/Incompatible site: When visiting/);
 });
