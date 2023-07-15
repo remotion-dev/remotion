@@ -1,6 +1,6 @@
 
-from models import RenderParams, RenderProgressParams
-from remotionclient import RemotionClient
+from remotion_lambda_sdk import RenderParams, RenderProgressParams
+from remotion_lambda_sdk import RemotionClient
 import os
 from dotenv import load_dotenv
 
@@ -28,6 +28,7 @@ render_params = RenderParams(
 )
 
 print("\n")
+# Execute render request
 render_response = client.render_media_on_lambda(render_params)
 print(render_response.renderId)
 print(render_response.bucketName)
@@ -35,8 +36,9 @@ print(render_response.bucketName)
 print("\n")
 
 if render_response:
+    # Execute progress request
     progress_response = client.get_render_progress(
         render_id=render_response.renderId, bucket_name=render_response.bucketName)
-    print(str.format("Overall progress"))
+    print("Overall progress")
     print(progress_response.overallProgress)
 print("\n")

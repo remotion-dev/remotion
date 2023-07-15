@@ -1,7 +1,7 @@
 from math import ceil
 import boto3
 import json
-from models import RenderParams, RenderProgress, RenderResponse, RenderProgressParams
+from .models import RenderParams, RenderProgress, RenderResponse, RenderProgressParams
 
 
 class RemotionClient:

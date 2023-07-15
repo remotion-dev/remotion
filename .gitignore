@@ -18,3 +18,5 @@ packages/example/public/pts-framermp4withoutfileextension.mp4
 packages/it-tests/packages/example/out/element-2.png
 packages/lambda-python/src/lambda-python/__pycache__
 packages/lambda-python/src/__pycache__
+packages/lambda-python/remotion_lambda_sdk/__pycache__
+packages/lambda-python/tests/__pycache__
