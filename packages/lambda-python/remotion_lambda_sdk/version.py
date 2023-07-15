@@ -1,2 +1,1 @@
-VERSION = "4.0.0"
-# pylint: disable-all
+VERSION = "4.0.6";

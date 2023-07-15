@@ -20,7 +20,7 @@ class RenderParams:
     envVariables: Optional[List] = None
     quality: Optional[int] = None
     maxRetries: int = 1
-    privacy: str = 'private'
+    privacy: str = 'public'
     logLevel: str = 'info'
     frameRange: Optional[str] = None
     timeoutInMilliseconds: Optional[int] = 30000
