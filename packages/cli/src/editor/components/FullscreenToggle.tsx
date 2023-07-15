@@ -9,19 +9,20 @@ export const FullScreenToggle: React.FC<{}> = () => {
 	const onClick = useCallback(() => {
 		canvasRef.current?.requestFullscreen();
 
-		setSize(() => ({
-			size: 'auto',
-			translation: {
-				x: 0,
-				y: 0,
-			},
-		}));
+		if (document.fullscreenElement)
+			setSize(() => ({
+				size: 'auto',
+				translation: {
+					x: 0,
+					y: 0,
+				},
+			}));
 	}, [setSize]);
 
 	return (
 		<ControlButton
-			title="Enter fullscreen"
-			aria-label="Enter fullscreen"
+			title="Enter fullscreen preview"
+			aria-label="Enter fullscreen preview"
 			onClick={onClick}
 		>
 			<svg style={{width: 18, height: 18}} viewBox="0 0 448 512" fill="#fff">
