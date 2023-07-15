@@ -12,5 +12,8 @@
     "editor.defaultFormatter": "ms-python.autopep8"
   },
   "python.formatting.provider": "none",
-  "python.analysis.extraPaths": ["./packages/lambda-python/src"]
+  "python.analysis.extraPaths": [
+    "./packages/lambda-python/src",
+    "./packages/lambda-python/remotion_lambda_sdk"
+  ]
 }
