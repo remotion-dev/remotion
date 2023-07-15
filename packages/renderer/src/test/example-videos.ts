@@ -17,4 +17,5 @@ export const exampleVideos = {
 	nofps: path.join(examplePackage, 'public', 'nofps.webm'),
 	webcam: path.join(examplePackage, 'public', 'webcam.webm'),
 	iphonevideo: path.join(examplePackage, 'public', 'iphonevideo.mov'),
+	av1: path.join(examplePackage, 'public', 'av1.webm'),
 };

@@ -163,7 +163,7 @@ export class HeadlessBrowser extends EventEmitter {
 	}
 
 	newPage(
-		context: AnySourceMapConsumer | null,
+		context: Promise<AnySourceMapConsumer | null>,
 		logLevel: LogLevel,
 		indent: boolean
 	): Promise<Page> {
@@ -171,7 +171,7 @@ export class HeadlessBrowser extends EventEmitter {
 	}
 
 	async _createPageInContext(
-		context: AnySourceMapConsumer | null,
+		context: Promise<AnySourceMapConsumer | null>,
 		logLevel: LogLevel,
 		indent: boolean
 	): Promise<Page> {
@@ -297,7 +297,7 @@ export class BrowserContext extends EventEmitter {
 		const pages = await Promise.all(
 			this.targets()
 				.filter((target) => target.type() === 'page')
-				.map((target) => target.page(null, logLevel, indent))
+				.map((target) => target.page(Promise.resolve(null), logLevel, indent))
 		);
 		return pages.filter((page): page is Page => {
 			return Boolean(page);
@@ -305,7 +305,7 @@ export class BrowserContext extends EventEmitter {
 	}
 
 	newPage(
-		context: AnySourceMapConsumer | null,
+		context: Promise<AnySourceMapConsumer | null>,
 		logLevel: LogLevel,
 		indent: boolean
 	): Promise<Page> {

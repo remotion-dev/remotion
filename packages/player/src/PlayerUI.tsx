@@ -482,10 +482,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
-							<VideoComponent
-								{...(video?.props ?? {})}
-								{...(inputProps ?? {})}
-							/>
+							<Internals.ClipComposition>
+								<VideoComponent
+									{...(video?.props ?? {})}
+									{...(inputProps ?? {})}
+								/>
+							</Internals.ClipComposition>
 						</ErrorBoundary>
 					) : null}
 				</div>
