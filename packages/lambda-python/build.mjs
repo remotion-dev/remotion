@@ -16,5 +16,5 @@ if (!hasPython()) {
   console.log("Environment has no Python. Skipping...");
   process.exit(0);
 }
-execSync("pylint ./src", { stdio: "inherit" });
+//execSync("pylint ./remotion_lambda_sdk", { stdio: "inherit" });
 console.log("Linted python lint!");

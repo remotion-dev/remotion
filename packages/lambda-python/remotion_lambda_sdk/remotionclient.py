@@ -17,7 +17,7 @@ class RemotionClient:
 
     def serializeInputProps(self, inputProps, region, type, userSpecifiedBucketName):
         try:
-            payload = json.dumps(inputProps)
+            payload = json.dumps(inputProps, separators=(',', ':'))
             MAX_INLINE_PAYLOAD_SIZE = 5000000 if type == 'still' else 200000
 
             if len(payload) > MAX_INLINE_PAYLOAD_SIZE:

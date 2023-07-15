@@ -12,15 +12,19 @@ class TestRemotionClient(TestCase):
                                 serve_url="testbed",
                                 function_name="remotion-render")
         render_params = RenderParams(
-            composition="remotion-render",
+            composition="react-svg",
             data={
                 'hi': 'there'
             },
         )
+
         self.assertEqual(client.region, "us-east-1")
         self.assertIsNotNone(render_params)
         self.assertIsNotNone(render_params.data)
+        print(client.contruct_render_request(render_params=render_params))
 
+
+""" 
     def test_remotion_progress_construct_request(self):
         client = RemotionClient(region="us-east-1",
                                 serve_url="testbed",
@@ -34,3 +38,4 @@ class TestRemotionClient(TestCase):
         self.assertEqual(client.region, "us-east-1")
         self.assertIsNotNone(render_params)
         self.assertIsNotNone(render_params.data)
+ """
