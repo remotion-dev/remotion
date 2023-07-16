@@ -57,16 +57,17 @@ test("Python package should create the same renderMedia payload as normal Lambda
     })
   ).toEqual(removeUndefined(nativeVersion));
 });
-/* 
-test("PHP package should create the same progress payload as normal Lambda package", async () => {
-  execSync("php composer.phar install", {
-    cwd: path.join(process.cwd(), "..", "lambda-python"),
-  });
-  const phpOutput = execSync("phpunit ./src/PHPRenderProgressTest.php", {
-    cwd: path.join(process.cwd(), "..", "lambda-python"),
-  });
-  const output = phpOutput.toString().split("\n");
-  const toParse = output[4];
+
+test("Python package should create the same progress payload as normal Lambda package", async () => {
+  const pythonOutput = execSync(
+    "pytest -rP  ./tests/test_get_render_progress_client.py",
+    {
+      cwd: path.join(process.cwd(), "..", "lambda-python"),
+    }
+  );
+  const output = pythonOutput.toString().split("\n");
+  console.log(output);
+  const toParse = output[10];
   const nativeVersion = LambdaInternals.getRenderProgressPayload({
     region: "us-east-1",
     functionName: "remotion-render",
@@ -77,7 +78,7 @@ test("PHP package should create the same progress payload as normal Lambda packa
   const parsedJson = JSON.parse(jsonOutput);
   expect(parsedJson).toEqual({ ...nativeVersion, s3OutputProvider: null });
 });
- */
+
 const removeUndefined = (data: unknown) => {
   return JSON.parse(JSON.stringify(data));
 };
