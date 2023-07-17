@@ -7,7 +7,7 @@ import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
-import type {CompProps} from './Composition.js';
+import {ClipComposition, type CompProps} from './Composition.js';
 import type {
 	TAsset,
 	TCompMetadata,
@@ -37,6 +37,7 @@ import {
 } from './input-props-serialization.js';
 import {processColor} from './interpolate-colors.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
+import {NativeLayersProvider} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
@@ -146,11 +147,14 @@ export const Internals = {
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 	AssetManager,
 	bundleName: 'bundle.js',
+	bundleMapName: 'bundle.js.map',
 	persistCurrentFrame,
 	useTimelineSetFrame,
 	serializeJSONWithDate,
 	deserializeJSONWithCustomFields,
 	FILE_TOKEN,
+	NativeLayersProvider,
+	ClipComposition,
 } as const;
 
 export type {

@@ -103,6 +103,8 @@ export const renderMediaOnLambda = async (
 			type: LambdaRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
+			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
 		});
 		return {
 			renderId: res.renderId,
