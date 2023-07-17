@@ -1,6 +1,7 @@
+import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {VERSION} from 'remotion/version';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
-import {callLambda} from '../shared/call-lambda';
+import {getLambdaClient} from '../shared/aws-clients';
 import type {LambdaPayload} from '../shared/constants';
 import {initalizedMetadataKey, LambdaRoutines} from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
@@ -94,14 +95,15 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		audioCodec: params.audioCodec,
 	};
 
-	await callLambda({
-		payload,
-		functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
-		region: getCurrentRegionInFunction(),
-		type: LambdaRoutines.launch,
-		receivedStreamingPayload: () => undefined,
-		timeoutInTest: 120000,
-	});
+	// Don't replace with callLambda(), we want to return before the render is snone
+	await getLambdaClient(getCurrentRegionInFunction()).send(
+		new InvokeCommand({
+			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+			// @ts-expect-error
+			Payload: JSON.stringify(payload),
+			InvocationType: 'Event',
+		})
+	);
 	await initialFile;
 
 	return {
