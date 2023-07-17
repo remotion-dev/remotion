@@ -8,16 +8,21 @@ import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 
 export const printError = async (err: Error, logLevel: LogLevel) => {
 	if (err instanceof RenderInternals.SymbolicateableError) {
+		const updatesDoOverwrite = !shouldUseNonOverlayingLogger({logLevel});
 		const output = createOverwriteableCliOutput({
 			quiet: false,
 			cancelSignal: null,
-			updatesDontOverwrite: shouldUseNonOverlayingLogger({logLevel}),
+			updatesDontOverwrite: !updatesDoOverwrite,
 			indent: false,
 		});
-		output.update(
-			chalk.red('Symbolicating minified error message...\n' + err.message),
-			false
-		);
+
+		if (updatesDoOverwrite) {
+			output.update(
+				chalk.red('Symbolicating minified error message...\n' + err.message),
+				false
+			);
+		}
+
 		try {
 			const symbolicated = await RenderInternals.symbolicateError(err);
 			if (symbolicated.frame === null) {
@@ -31,12 +36,7 @@ export const printError = async (err: Error, logLevel: LogLevel) => {
 
 			printCodeFrameAndStack(symbolicated);
 		} catch (e) {
-			output.update(
-				chalk.red(
-					'(Error occurred symbolicating stack trace - printing minified stack trace)'
-				),
-				true
-			);
+			output.update(chalk.red(''), true);
 			Log.error();
 			Log.error(err.stack || err);
 		}

@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
@@ -23,7 +24,6 @@ import {findFunctionName} from '../../helpers/find-function-name';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {makeMultiProgressFromStatus, makeProgressString} from './progress';
-import {Internals} from 'remotion';
 
 export const RENDER_COMMAND = 'render';
 

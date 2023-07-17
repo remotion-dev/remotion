@@ -6,12 +6,16 @@ import {attachDownloadListenerToEmitter} from './assets/download-and-map-assets-
 import type {DownloadMap} from './assets/download-map';
 import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
+import {getBundleMapUrlFromServeUrl} from './get-bundle-url-from-serve-url';
 import {isServeUrl} from './is-serve-url';
 import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import {serveStatic} from './serve-static';
 import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
-import {getSourceMapFromLocalFile} from './symbolicate-stacktrace';
+import {
+	getSourceMapFromLocalFile,
+	getSourceMapFromRemoteUrl,
+} from './symbolicate-stacktrace';
 import {waitForSymbolicationToBeDone} from './wait-for-symbolication-error-to-be-done';
 
 export type RemotionServer = {
@@ -19,7 +23,7 @@ export type RemotionServer = {
 	closeServer: (force: boolean) => Promise<unknown>;
 	offthreadPort: number;
 	compositor: Compositor;
-	sourceMap: AnySourceMapConsumer | null;
+	sourceMap: Promise<AnySourceMapConsumer | null>;
 	downloadMap: DownloadMap;
 };
 
@@ -69,7 +73,9 @@ export const prepareServer = async ({
 			},
 			offthreadPort,
 			compositor: comp,
-			sourceMap: null,
+			sourceMap: getSourceMapFromRemoteUrl(
+				getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl)
+			),
 			downloadMap,
 		});
 	}
@@ -113,7 +119,7 @@ export const prepareServer = async ({
 		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,
 		compositor,
-		sourceMap: await sourceMap,
+		sourceMap,
 		downloadMap,
 	});
 };

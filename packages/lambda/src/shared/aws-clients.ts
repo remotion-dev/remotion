@@ -245,7 +245,11 @@ export const getS3Client = (
 	return getServiceClient({region, service: 's3', customCredentials});
 };
 
-export const getLambdaClient = (region: AwsRegion): LambdaClient => {
+export const getLambdaClient = (
+	region: AwsRegion,
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	_timeoutInTest?: number
+): LambdaClient => {
 	return getServiceClient({
 		region,
 		service: 'lambda',
