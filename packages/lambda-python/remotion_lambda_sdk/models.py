@@ -5,89 +5,95 @@ from .version import VERSION
 
 @dataclass
 class RenderParams:
+    """
+    Parameters for video rendering.
+    """
     data: Optional[List] = None
-    bucketName: Optional[str] = None
+    bucket_name: Optional[str] = None
     region: Optional[str] = None
-    outName: Optional[str] = None
+    out_name: Optional[str] = None
     composition: str = ""
-    serveUrl: str = ""
-    framesPerLambda: Optional[int] = None
-    inputProps: Optional[Dict] = None
+    serve_url: str = ""
+    frames_per_lambda: Optional[int] = None
+    input_props: Optional[Dict] = None
     codec: str = 'h264'
     version: str = ""
-    imageFormat: str = 'jpeg'
+    image_format: str = 'jpeg'
     crf: Optional[int] = None
-    envVariables: Optional[List] = None
+    env_variables: Optional[List] = None
     quality: Optional[int] = None
-    maxRetries: int = 1
+    max_retries: int = 1
     privacy: str = 'public'
-    logLevel: str = 'info'
-    frameRange: Optional[str] = None
-    timeoutInMilliseconds: Optional[int] = 30000
-    chromiumOptions: Optional[Dict] = None
+    log_level: str = 'info'
+    frame_range: Optional[str] = None
+    timeout_in_milliseconds: Optional[int] = 30000
+    chromium_options: Optional[Dict] = None
     scale: Optional[int] = 1
-    everyNthFrame: Optional[int] = 1
-    numberOfGifLoops: Optional[int] = 0
-    concurrencyPerLambda: Optional[int] = 1
-    downloadBehavior: Dict = field(default_factory=lambda: {
-                                   'type': 'play-in-browser'})
+    every_nth_frame: Optional[int] = 1
+    number_of_gif_loops: Optional[int] = 0
+    concurrency_per_lambda: Optional[int] = 1
+    download_behavior: Dict = field(default_factory=lambda: {
+                                    'type': 'play-in-browser'})
     muted: bool = False
     overwrite: bool = False
-    audioBitrate: Optional[int] = None
-    videoBitrate: Optional[int] = None
+    audio_bitrate: Optional[int] = None
+    video_bitrate: Optional[int] = None
     webhook: Optional[str] = None
-    forceHeight: Optional[int] = None
-    forceWidth: Optional[int] = None
-    audioCodec: Optional[str] = None
-    rendererFunctionName: Optional[str] = None
-    proResProfile: Optional[str] = None
-    pixelFormat: Optional[str] = None
+    force_height: Optional[int] = None
+    force_width: Optional[int] = None
+    audio_codec: Optional[str] = None
+    renderer_function_name: Optional[str] = None
+    pro_res_profile: Optional[str] = None
+    pixel_format: Optional[str] = None
 
-    def serializeParams(self) -> Dict:
+    def serialize_params(self) -> Dict:
+        """
+        Convert instance attributes to a dictionary for serialization.
+        """
         parameters = {
-            'rendererFunctionName': self.rendererFunctionName,
-            'framesPerLambda': self.framesPerLambda,
+            'rendererFunctionName': self.renderer_function_name,
+            'framesPerLambda': self.frames_per_lambda,
             'composition': self.composition,
-            'serveUrl': self.serveUrl,
-            'inputProps': self.inputProps,
+            'serveUrl': self.serve_url,
+            'inputProps': self.input_props,
             'codec': self.codec,
-            'imageFormat': self.imageFormat,
-            'maxRetries': self.maxRetries,
+            'imageFormat': self.image_format,
+            'maxRetries': self.max_retries,
             'privacy': self.privacy,
-            'logLevel': self.logLevel,
-            'frameRange': self.frameRange,
-            'outName': self.outName,
-            'timeoutInMilliseconds': self.timeoutInMilliseconds,
-            'chromiumOptions': self.chromiumOptions if self.chromiumOptions is not None else {},
+            'logLevel': self.log_level,
+            'frameRange': self.frame_range,
+            'outName': self.out_name,
+            'timeoutInMilliseconds': self.timeout_in_milliseconds,
+            'chromiumOptions': self.chromium_options if self.chromium_options is not None else {},
             'scale': self.scale,
-            'everyNthFrame': self.everyNthFrame,
-            'numberOfGifLoops': self.numberOfGifLoops,
-            'concurrencyPerLambda': self.concurrencyPerLambda,
-            'downloadBehavior': self.downloadBehavior,
+            'everyNthFrame': self.every_nth_frame,
+            'numberOfGifLoops': self.number_of_gif_loops,
+            'concurrencyPerLambda': self.concurrency_per_lambda,
+            'downloadBehavior': self.download_behavior,
             'muted': self.muted,
             'version': VERSION,
             'overwrite': self.overwrite,
-            'audioBitrate': self.audioBitrate,
-            'videoBitrate': self.videoBitrate,
+            'audioBitrate': self.audio_bitrate,
+            'videoBitrate': self.video_bitrate,
             'webhook': self.webhook,
-            'forceHeight': self.forceHeight,
-            'forceWidth': self.forceWidth,
-            'bucketName': self.bucketName,
-            'audioCodec': self.audioCodec,
+            'forceHeight': self.force_height,
+            'forceWidth': self.force_width,
+            'bucketName': self.bucket_name,
+            'audioCodec': self.audio_codec,
             'type': 'start'
         }
 
         if self.crf is not None:
             parameters['crf'] = self.crf
 
-        if self.envVariables is not None:
-            parameters['envVariables'] = self.envVariables
+        if self.env_variables is not None:
+            parameters['envVariables'] = self.env_variables
 
-        if self.pixelFormat is not None:
-            parameters['pixelFormat'] = self.pixelFormat
+        if self.pixel_format is not None:
+            parameters['pixelFormat'] = self.pixel_format
 
-        if self.proResProfile is not None:
-            parameters['proResProfile'] = self.proResProfile
+        if self.pro_res_profile is not None:
+            parameters['proResProfile'] = self.pro_res_profile
 
         if self.quality is not None:
             parameters['quality'] = self.quality
@@ -95,23 +101,34 @@ class RenderParams:
         return parameters
 
 
-class RenderResponse(object):
-    def __init__(self, bucketName, renderId):
-        self.bucketName = bucketName
-        self.renderId = renderId
+class RenderResponse:
+    """
+    Response data after rendering.
+    """
+
+    def __init__(self, bucket_name, render_id):
+        self.bucket_name = bucket_name
+        self.render_id = render_id
 
 
 @dataclass
 class RenderProgressParams:
-    renderId: str
-    bucketName: str
-    functionName: str
+    """
+    Parameters for checking the progress of video rendering.
+    """
+
+    render_id: str
+    bucket_name: str
+    function_name: str
     region: str
 
-    def serializeParams(self) -> Dict:
+    def serialize_params(self) -> Dict:
+        """
+        Convert instance attributes to a dictionary for serialization.
+        """
         parameters = {
-            'renderId': self.renderId,
-            'bucketName': self.bucketName,
+            'renderId': self.render_id,
+            'bucketName': self.bucket_name,
             'type': 'status',
             "version": VERSION,
             "s3OutputProvider": None
@@ -120,50 +137,25 @@ class RenderProgressParams:
 
 
 class RenderProgress:
+    """
+    Progress of video rendering.
+    """
+
     def __init__(self):
-        self.overallProgress = float()
+        self.overall_progress = float()
         self.chunks = int()
         self.done = bool()
-        self.encodingStatus = None
+        self.encoding_status = None
         self.costs = None
-        self.renderId = str()
-        self.renderMetadata = None
-        self.outputFile = None
-        self.outKey = None
-        self.timeToFinish = None
+        self.render_id = str()
+        self.render_metadata = None
+        self.output_file = None
+        self.out_key = None
+        self.time_to_finish = None
         self.errors = []
-        self.fatalErrorEncountered = bool()
-        self.currentTime = int()
-        self.renderSize = int()
-        self.outputSizeInBytes = None
-        self.lambdasInvoked = int()
-        self.framesRendered = None
-        self.mostExpensiveFrameRanges = []
-
-
-class EncodingStatus:
-    def __init__(self):
-        self.property1 = None
-        self.property2 = None
-        # Add additional properties as needed
-
-
-class Costs:
-    def __init__(self):
-        self.property1 = None
-        self.property2 = None
-        # Add additional properties as needed
-
-
-class RenderMetadata:
-    def __init__(self):
-        self.property1 = None
-        self.property2 = None
-        # Add additional properties as needed
-
-
-class FrameRange:
-    def __init__(self):
-        self.property1 = None
-        self.property2 = None
-        # Add additional properties as needed
+        self.fatal_error_encountered = bool()
+        self.current_time = int()
+        self.render_size = int()
+        self.output_size_in_bytes = None
+        self.lambdas_invoked = int()
+        self.frames_rendered = None
