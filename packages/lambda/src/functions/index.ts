@@ -42,12 +42,13 @@ const innerHandler = async (
 	const currentUserId = context.invokedFunctionArn.split(':')[4];
 	if (params.type === LambdaRoutines.still) {
 		const renderId = randomHash({randomInTests: true});
-
 		printCloudwatchHelper(LambdaRoutines.still, {
 			renderId,
 			inputProps: JSON.stringify(params.inputProps),
 			isWarm,
 		});
+		RenderInternals.setLogLevel(params.logLevel);
+
 		const renderIdDetermined: StreamingPayloads = {
 			type: 'render-id-determined',
 			renderId,
@@ -70,6 +71,8 @@ const innerHandler = async (
 			inputProps: JSON.stringify(params.inputProps),
 			isWarm,
 		});
+		RenderInternals.setLogLevel(params.logLevel);
+
 		const response = await startHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
@@ -84,6 +87,8 @@ const innerHandler = async (
 			inputProps: JSON.stringify(params.inputProps),
 			isWarm,
 		});
+		RenderInternals.setLogLevel(params.logLevel);
+
 		const response = await launchHandler(params, {
 			expectedBucketOwner: currentUserId,
 			getRemainingTimeInMillis: context.getRemainingTimeInMillis,
@@ -117,6 +122,8 @@ const innerHandler = async (
 			resolvedProps: JSON.stringify(params.resolvedProps),
 			isWarm,
 		});
+		RenderInternals.setLogLevel(params.logLevel);
+
 		const response = await rendererHandler(params, {
 			expectedBucketOwner: currentUserId,
 			isWarm,
