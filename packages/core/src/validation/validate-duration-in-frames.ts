@@ -1,12 +1,15 @@
-export const validateDurationInFrames = ({
-	allowFloats,
-	component,
-	durationInFrames,
-}: {
-	durationInFrames: number;
-	component: string;
-	allowFloats: boolean;
-}) => {
+export function validateDurationInFrames(
+	durationInFrames: unknown,
+	options: {
+		component: string;
+		allowFloats: boolean;
+	}
+): asserts durationInFrames is number {
+	const {allowFloats, component} = options;
+	if (typeof durationInFrames === 'undefined') {
+		throw new Error(`The "durationInFrames" prop ${component} is missing.`);
+	}
+
 	if (typeof durationInFrames !== 'number') {
 		throw new Error(
 			`The "durationInFrames" prop ${component} must be a number, but you passed a value of type ${typeof durationInFrames}`
@@ -30,4 +33,4 @@ export const validateDurationInFrames = ({
 			`The "durationInFrames" prop ${component} must be finite, but got ${durationInFrames}.`
 		);
 	}
-};
+}

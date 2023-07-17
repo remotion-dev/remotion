@@ -18,7 +18,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/folder">
           <strong>{"<Folder>"}</strong>
-          <div>Organize compositions in the preview sidebar</div>
+          <div>Organize compositions in the Studio sidebar</div>
         </TOCItem>
         <TOCItem link="/docs/register-root">
           <strong>{"registerRoot()"}</strong>
@@ -124,6 +124,10 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/continue-render">
           <strong>continueRender()</strong>
           <div>Unblock a render</div>
+        </TOCItem>
+        <TOCItem link="/docs/cancel-render">
+          <strong>cancelRender()</strong>
+          <div>Abort an error</div>
         </TOCItem>
       </Grid>
       <h2>Dynamic data</h2>

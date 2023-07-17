@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-import * as childProcess from 'child_process';
-import * as fs from 'fs';
+import * as childProcess from 'node:child_process';
+import * as fs from 'node:fs';
 import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
+import {Log} from '../logger';
 import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
 import type {LaunchOptions} from './LaunchOptions';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
+import {
+	formatChromeMessage,
+	shouldLogBrowserMessage,
+} from './should-log-message';
 import type {PuppeteerEventListener} from './util';
 import {
 	addEventListener,
@@ -62,19 +67,10 @@ export class BrowserRunner {
 	}
 
 	start(options: LaunchOptions): void {
-		const {dumpio, env, pipe} = options;
-		let stdio: Array<'ignore' | 'pipe'>;
-		if (pipe) {
-			if (dumpio) {
-				stdio = ['ignore', 'pipe', 'pipe', 'pipe', 'pipe'];
-			} else {
-				stdio = ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'];
-			}
-		} else if (dumpio) {
-			stdio = ['pipe', 'pipe', 'pipe'];
-		} else {
-			stdio = ['pipe', 'ignore', 'pipe'];
-		}
+		const {dumpio, env} = options;
+		const stdio: ('ignore' | 'pipe')[] = dumpio
+			? ['ignore', 'pipe', 'pipe']
+			: ['pipe', 'ignore', 'pipe'];
 
 		assert(!this.proc, 'This process has previously been started.');
 		this.proc = childProcess.spawn(
@@ -91,8 +87,36 @@ export class BrowserRunner {
 			}
 		);
 		if (dumpio) {
-			this.proc.stderr?.pipe(process.stderr);
-			this.proc.stdout?.pipe(process.stdout);
+			this.proc.stdout?.on('data', (d) => {
+				const message = d.toString('utf8').trim();
+				if (shouldLogBrowserMessage(message)) {
+					const formatted = formatChromeMessage(message);
+					if (!formatted) {
+						return;
+					}
+
+					const {output, tag} = formatted;
+					Log.verboseAdvanced(
+						{indent: options.indent, logLevel: options.logLevel, tag},
+						output
+					);
+				}
+			});
+			this.proc.stderr?.on('data', (d) => {
+				const message = d.toString('utf8').trim();
+				if (shouldLogBrowserMessage(message)) {
+					const formatted = formatChromeMessage(message);
+					if (!formatted) {
+						return;
+					}
+
+					const {output, tag} = formatted;
+					Log.verboseAdvanced(
+						{indent: options.indent, logLevel: options.logLevel, tag},
+						output
+					);
+				}
+			});
 		}
 
 		this.#closed = false;

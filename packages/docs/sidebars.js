@@ -10,7 +10,7 @@ module.exports = {
       },
       collapsed: true,
       items: [
-        "cli/preview",
+        "cli/studio",
         "cli/render",
         "cli/still",
         "cli/compositions",
@@ -36,6 +36,8 @@ module.exports = {
         "cli/install",
         "cli/versions",
         "cli/upgrade",
+        "cli/ffmpeg",
+        "cli/ffprobe",
         "cli/help",
       ],
     },
@@ -57,6 +59,7 @@ module.exports = {
         "use-current-frame",
         "use-video-config",
         "composition",
+        "calculate-metadata",
         "interpolate",
         "continue-render",
         "delay-render",
@@ -105,6 +108,7 @@ module.exports = {
       label: "@remotion/renderer",
       items: [
         "renderer/get-compositions",
+        "renderer/select-composition",
         "renderer/render-media",
         "renderer/render-frames",
         "renderer/render-still",
@@ -114,6 +118,7 @@ module.exports = {
         "renderer/ensure-ffmpeg",
         "renderer/ensure-ffprobe",
         "renderer/get-can-extract-frames-fast",
+        "renderer/get-video-metadata",
       ],
     },
     {
@@ -197,6 +202,15 @@ module.exports = {
         "lambda/speculatefunctionname",
         "lambda/validatewebhooksignature",
       ],
+    },
+    {
+      type: "category",
+      label: "@remotion/tailwind",
+      link: {
+        type: "doc",
+        id: "tailwind/tailwind",
+      },
+      items: ["tailwind/enable-tailwind"],
     },
     {
       type: "category",
@@ -328,6 +342,15 @@ module.exports = {
       },
       items: ["rive/index", "rive/remotionrivecanvas"],
     },
+    {
+      type: "category",
+      label: "@remotion/zod-types",
+      link: {
+        type: "doc",
+        id: "zod-types/index",
+      },
+      items: ["zod-types/z-color"],
+    },
   ],
   mainSidebar: [
     {
@@ -336,7 +359,6 @@ module.exports = {
       items: [
         "getting-started",
         "the-fundamentals",
-        "transforms",
         "animating-properties",
         "reusability",
         "timeline",
@@ -345,21 +367,40 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Techniques",
+      label: "Designing videos",
       items: [
+        "transforms",
         "assets",
+        "use-img-and-iframe",
         "using-audio",
         "fonts",
         "using-randomness",
         "audio-visualization",
         "noise-visualization",
-        "use-img-and-iframe",
-        "javascript",
+      ],
+    },
+    {
+      type: "category",
+      label: "Parameterized videos",
+      link: {
+        type: "doc",
+        id: "parameterized-rendering",
+      },
+      items: [
+        "passing-props",
+        "schemas",
+        "visual-editing",
         "data-fetching",
+        "dynamic-metadata",
+        "props-resolution",
+      ],
+    },
+    {
+      type: "category",
+      label: "How To",
+      items: [
         "encoding",
         "transparent-videos",
-        "parametrized-rendering",
-        "dynamic-metadata",
         "ssr",
         "webpack",
         "tailwind",
@@ -371,8 +412,10 @@ module.exports = {
         "render-as-gif",
         "overlay",
         "docker",
+        "javascript",
       ],
     },
+
     {
       type: "category",
       link: {
@@ -481,6 +524,7 @@ module.exports = {
         "staticfile-relative-paths",
         "staticfile-remote-urls",
         "troubleshooting/background-image",
+        "troubleshooting/nextjs-image",
         "troubleshooting/rosetta",
         "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",
@@ -525,7 +569,7 @@ module.exports = {
     {
       type: "category",
       label: "Migration guides",
-      items: ["3-0-migration", "2-0-migration"],
+      items: ["4-0-migration", "3-0-migration", "2-0-migration"],
     },
     {
       type: "category",
@@ -559,6 +603,7 @@ module.exports = {
         "contributing/option",
         "contributing/docs",
         "contributing/bounty",
+        "contributing/rust",
       ],
     },
     "license",

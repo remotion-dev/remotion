@@ -1,6 +1,5 @@
 export {OffthreadVideo} from './OffthreadVideo.js';
 export {
-	OffthreadVideoImageFormat,
 	OffthreadVideoProps as RemotionOffthreadVideoProps,
 	RemotionMainVideoProps,
 	RemotionVideoProps,

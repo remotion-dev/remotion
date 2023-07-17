@@ -33,7 +33,7 @@ Inline JSON string isn't supported on Windows because it removes the `"` charact
 
 Specify a location for the Remotion config file.
 
-### `--env-file` <AvailableFrom v="2.2.0" />
+### `--env-file`<AvailableFrom v="2.2.0" />
 
 Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)
 
@@ -53,17 +53,9 @@ If you don't feel like passing command line flags every time, consider creating 
 
 [Set a custom HTTP server port to host the Webpack bundle](/docs/config#setPort). If not defined, Remotion will try to find a free port.
 
-### `--public-dir` <AvailableFrom v="3.2.13" />
+### `--public-dir`<AvailableFrom v="3.2.13" />
 
 [Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
-
-### `--ffmpeg-executable`
-
-[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
-
-### `--ffprobe-executable`
-
-[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
 
 ### `--timeout`
 
@@ -87,13 +79,25 @@ This will most notably disable CORS in Chrome among other security features.
 
 Opens an actual browser to observe the composition fetching.
 
-### `--user-agent` <AvailableFrom v="3.3.83"/>
+### `--user-agent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
 ### `--quiet`, `--q`
 
 Only prints the composition IDs, separated by a space.
+
+### ~~`--ffmpeg-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+
+### ~~`--ffprobe-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
 
 ## See also
 

@@ -52,17 +52,17 @@ const getAllFunctions = async ({
 /**
  * @description Lists Remotion Lambda render functions deployed to AWS Lambda.
  * @see [Documentation](https://remotion.dev/docs/lambda/getfunctions)
- * @param options.region The region of which the functions should be listed.
- * @param options.compatibleOnly Whether only functions compatible with the installed version of Remotion Lambda should be returned.
+ * @param params.region The region of which the functions should be listed.
+ * @param params.compatibleOnly Whether only functions compatible with the installed version of Remotion Lambda should be returned.
  * @returns {Promise<FunctionInfo[]>} An array with the objects containing information about the deployed functions.
  */
 export const getFunctions = async (
-	options: GetFunctionsInput
+	params: GetFunctionsInput
 ): Promise<FunctionInfo[]> => {
 	const lambdas = await getAllFunctions({
 		existing: [],
 		nextMarker: null,
-		region: options.region,
+		region: params.region,
 	});
 
 	const remotionLambdas = lambdas.filter((f) => {
@@ -74,7 +74,7 @@ export const getFunctions = async (
 			try {
 				const version = await getFunctionVersion({
 					functionName: fn.FunctionName as string,
-					region: options.region,
+					region: params.region,
 				});
 				return version;
 			} catch (err) {
@@ -93,12 +93,12 @@ export const getFunctions = async (
 				lambda.EphemeralStorage?.Size ?? DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		};
 	});
-	if (!options.compatibleOnly) {
+	if (!params.compatibleOnly) {
 		return list;
 	}
 
 	return list.filter((l) => {
-		if (!options.compatibleOnly) {
+		if (!params.compatibleOnly) {
 			return true;
 		}
 

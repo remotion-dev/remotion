@@ -12,6 +12,8 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					height: 1000,
 					width: 1000,
 					id: 'hithere',
+					defaultProps: {},
+					props: {},
 				},
 			})
 		).to.throw(
@@ -28,6 +30,8 @@ describe('Should validate invalid data passed to renderFrames', () => {
 					height: 1000,
 					width: 1000,
 					id: 'hithere',
+					defaultProps: {},
+					props: {},
 				},
 			})
 		).toThrow(
@@ -38,12 +42,14 @@ describe('Should validate invalid data passed to renderFrames', () => {
 		return expect(() =>
 			// @ts-expect-error
 			renderFrames({
-				config: {
+				composition: {
 					durationInFrames: 1,
 					fps: 30,
 					height: 1000.5,
 					width: 1000,
 					id: 'hithere',
+					defaultProps: {},
+					props: {},
 				},
 			})
 		).toThrow(
@@ -54,12 +60,14 @@ describe('Should validate invalid data passed to renderFrames', () => {
 		return expect(() =>
 			// @ts-expect-error
 			renderFrames({
-				config: {
+				composition: {
 					durationInFrames: 1,
 					fps: 30,
 					width: 1000.5,
 					height: 1000,
 					id: 'hithere',
+					defaultProps: {},
+					props: {},
 				},
 			})
 		).toThrow(

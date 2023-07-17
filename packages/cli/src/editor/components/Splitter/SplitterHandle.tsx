@@ -2,7 +2,7 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {SplitterContext} from './SplitterContext';
 
-export const SPLITTER_HANDLE_SIZE = 3;
+const SPLITTER_HANDLE_SIZE = 3;
 
 const containerRow: React.CSSProperties = {
 	height: SPLITTER_HANDLE_SIZE,
@@ -15,7 +15,7 @@ const containerColumn: React.CSSProperties = {
 };
 
 export const SplitterHandle: React.FC<{
-	allowToCollapse: boolean;
+	allowToCollapse: 'right' | 'left' | 'none';
 	onCollapse: () => void;
 }> = ({allowToCollapse, onCollapse}) => {
 	const context = useContext(SplitterContext);
@@ -98,9 +98,18 @@ export const SplitterHandle: React.FC<{
 			if (context.isDragging.current) {
 				const val = getNewValue(e, true);
 				context.setFlexValue(val);
-				if (allowToCollapse) {
+				if (allowToCollapse === 'left') {
 					const unclamped = getNewValue(e, false);
 					if (unclamped < context.minFlex / 2) {
+						cleanup();
+						onCollapse();
+						setLastPointerUp(Date.now());
+					}
+				}
+
+				if (allowToCollapse === 'right') {
+					const unclamped = 1 - getNewValue(e, false);
+					if (unclamped < (1 - context.maxFlex) / 2) {
 						cleanup();
 						onCollapse();
 						setLastPointerUp(Date.now());

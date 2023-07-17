@@ -1,4 +1,4 @@
-package remotionlambda
+package lambda_go_sdk
 
 type RemotionOptions struct {
 	ServeUrl              string                 `json:"serveUrl" validate:"required"`
@@ -33,7 +33,6 @@ type RemotionOptions struct {
 	ForceWidth            interface{}            `json:"forceWidth"`
 	BucketName            interface{}            `json:"bucketName"`
 	AudioCodec            interface{}            `json:"audioCodec"`
-	DumpBrowserLogs       bool                   `json:"dumpBrowserLogs"`
 	ForceBucketName       string                 `json:"forceBucketName"`
 	Gl                    string                 `json:"gl"`
 }
@@ -72,18 +71,25 @@ type renderInternalOptions struct {
 	ForceWidth            interface{}            `json:"forceWidth"`
 	BucketName            interface{}            `json:"bucketName"`
 	AudioCodec            interface{}            `json:"audioCodec"`
-	DumpBrowserLogs       bool                   `json:"dumpBrowserLogs"`
 
 	ForceBucketName string  `json:"forceBucketName,omitempty"`
 	Gl              *string `json:"gl,omitempty"`
 }
 
-type RemotionRenderResponse struct {
-	RenderId          string `json:"renderId"`
-	BucketName        string `json:"bucketName"`
-	CloudWatchLogs    string `json:"cloudWatchLogs"`
-	FolderInS3Console string `json:"folderInS3Console"`
+type RawInvokeResponse struct {
+	StatusCode int `json:"statusCode"`
+	Headers    struct {
+		ContentType string `json:"content-type"`
+	} `json:"headers"`
+	Body string `json:"body"`
 }
+
+type RemotionRenderResponse struct {
+	BucketName string `json:"bucketName"`
+	RenderId   string `json:"renderId"`
+}
+
+
 
 type RenderConfig struct {
 	RenderId     string `json:"renderId" validate:"required"`
@@ -92,7 +98,15 @@ type RenderConfig struct {
 	Region       string `json:"region" validate:"required"`
 }
 
-type RenderProgressResponse struct {
+type renderProgressInternalConfig struct {
+	RenderId   string `json:"renderId" validate:"required"`
+	BucketName string `json:"bucketName" validate:"required"`
+	Type       string `json:"type" validate:"required"`
+	Version    string `json:"version" validate:"required"`
+}
+
+
+type RenderProgress struct {
 	OverallProgress          float64         `json:"overallProgress"`
 	Chunks                   int             `json:"chunks"`
 	Done                     bool            `json:"done"`

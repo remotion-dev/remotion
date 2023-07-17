@@ -121,7 +121,7 @@ export const MyComposition = () => {
 };
 ```
 
-### `playbackRate` <AvailableFrom v="2.2.0" />
+### `playbackRate`<AvailableFrom v="2.2.0" />
 
 You can use the `playbackRate` prop to control the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
 
@@ -159,7 +159,7 @@ export const MyComposition = () => {
 };
 ```
 
-### `loop` <AvailableFrom v="3.2.29" />
+### `loop`<AvailableFrom v="3.2.29" />
 
 You can use the `loop` prop to loop a video.
 
@@ -178,11 +178,11 @@ export const MyComposition = () => {
 };
 ```
 
-### `acceptableTimeShiftInSeconds` <AvailableFrom v="3.2.42" />
+### `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42" />
 
-During [Preview](/docs/terminology#remotion-preview) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
+In the [Studio](/docs/terminology#remotion-studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
-### `allowAmplificationDuringRender` <AvailableFrom v="3.3.17" />
+### `allowAmplificationDuringRender`<AvailableFrom v="3.3.17" />
 
 Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
 During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.

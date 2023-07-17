@@ -1,21 +1,23 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 
 export async function copyDir({
 	src,
 	dest,
 	onSymlinkDetected,
 	onProgress,
+	copied = 0,
+	lastReportedProgress = 0,
 }: {
 	src: string;
 	dest: string;
 	onSymlinkDetected: (entry: fs.Dirent, dir: string) => void;
 	onProgress: (bytes: number) => void;
+	copied: number;
+	lastReportedProgress: number;
 }) {
 	await fs.promises.mkdir(dest, {recursive: true});
 	const entries = await fs.promises.readdir(src, {withFileTypes: true});
-
-	let copied = 0;
 
 	for (const entry of entries) {
 		const srcPath = path.join(src, entry.name);
@@ -27,6 +29,8 @@ export async function copyDir({
 				dest: destPath,
 				onSymlinkDetected,
 				onProgress,
+				copied,
+				lastReportedProgress,
 			});
 		} else if (entry.isSymbolicLink()) {
 			const realpath = await fs.promises.realpath(srcPath);
@@ -38,7 +42,10 @@ export async function copyDir({
 				fs.promises.stat(srcPath),
 			]);
 			copied += size;
-			onProgress(copied);
+			if (copied - lastReportedProgress > 1024 * 1024 * 10) {
+				onProgress(copied);
+				lastReportedProgress = copied;
+			}
 		}
 	}
 }

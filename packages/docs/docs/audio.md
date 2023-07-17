@@ -73,7 +73,7 @@ export const MyVideo = () => {
 };
 ```
 
-### `playbackRate` <AvailableFrom v="2.2.0"/>
+### `playbackRate`<AvailableFrom v="2.2.0"/>
 
 You can use the `playbackRate` prop to control the speed of the audio. `1` is the default and means regular speed, `0.5` slows down the audio so it's twice as long and `2` speeds up the audio so it's twice as fast.
 
@@ -91,7 +91,7 @@ export const MyVideo = () => {
 };
 ```
 
-### `muted` <AvailableFrom v="2.0.0"/>
+### `muted`<AvailableFrom v="2.0.0"/>
 
 The `muted` prop will be respected. It will lead to no audio being played while still keeping the audio tag mounted. It's value may change over time, for example to only mute a certain section of the audio.
 
@@ -108,7 +108,7 @@ export const MyVideo = () => {
 };
 ```
 
-### `loop` <AvailableFrom v="3.2.29"/>
+### `loop`<AvailableFrom v="3.2.29"/>
 
 You can use the `loop` prop to loop audio.
 
@@ -125,14 +125,14 @@ export const MyVideo = () => {
 };
 ```
 
-## `acceptableTimeShiftInSeconds` <AvailableFrom v="3.2.42"/>
+## `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42"/>
 
-During [Preview](/docs/terminology#remotion-preview) or in the [Remotion Player](/docs/player), Remotion will seek the audio if it gets too much out of sync with Remotion's internal time - be it due to the audio loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
+In the [Remotion Studio](/docs/terminology#remotion-studio) or in the [Remotion Player](/docs/player), Remotion will seek the audio if it gets too much out of sync with Remotion's internal time - be it due to the audio loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
-## `allowAmplificationDuringRender` <AvailableFrom v="3.3.17"/>
+## `allowAmplificationDuringRender`<AvailableFrom v="3.3.17"/>
 
 Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
-During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+In the Remotion Studio, the volume will be limited to `1`, since the browser cannot amplify audio.
 
 ## See also
 

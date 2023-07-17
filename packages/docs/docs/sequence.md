@@ -67,7 +67,7 @@ For how many frames the sequence should be displayed. Children are unmounted if 
 
 _optional_
 
-You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion preview. This property is purely for helping you keep track of sequences in the timeline.
+You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of sequences in the timeline.
 
 ### `layout`
 
@@ -75,13 +75,13 @@ _optional_
 
 Either `"absolute-fill"` _(default)_ or `"none"` By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
 
-### `style` <AvailableFrom v="3.0.27"/>
+### `style`<AvailableFrom v="3.0.27"/>
 
 _optional_
 
 CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
-### `className` <AvailableFrom v="3.3.45"/>
+### `className`<AvailableFrom v="3.3.45"/>
 
 _optional_
 
@@ -172,7 +172,7 @@ See the [`<Series />`](/docs/series) helper component, which helps you calculate
 
 ## Adding a ref
 
-You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to an `<Sequence>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to an `<Sequence>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
 
 ```tsx twoslash
 import { useRef } from "react";
@@ -192,7 +192,7 @@ const MyComp = () => {
 
 ## Note for `@remotion/three`
 
-A `<Sequence>` by default will return a `<div>` component which is not allows inside a [`<ThreeCanvas>`](/docs/three-canvas). To avoid an error, pass `layout="none"` to `<Sequence>`.
+A `<Sequence>` by default will return a `<div>` component which is not allowed inside a [`<ThreeCanvas>`](/docs/three-canvas). Avoid an error by passing `layout="none"` to `<Sequence>`. Example: `<Sequence layout="none">`.
 
 ## See also
 

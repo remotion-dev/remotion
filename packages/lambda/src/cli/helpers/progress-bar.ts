@@ -18,25 +18,17 @@ export const makeBundleProgress = ({progress, doneIn}: BundleProgress) => {
 };
 
 export type BucketCreationProgress = {
-	bucketCreated: boolean;
 	doneIn: number | null;
 };
 
-export const makeBucketProgress = ({
-	bucketCreated,
-	doneIn,
-}: BucketCreationProgress) => {
-	const states = [bucketCreated];
-	const statesFinished = states.filter(Boolean).map((p) => p).length;
-	const progress = statesFinished / states.length;
+export const makeBucketProgress = ({doneIn}: BucketCreationProgress) => {
+	const progress = doneIn === null ? 0 : 1;
 
 	return [
 		`(2/3)`,
 		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Creating' : 'Created'} bucket`,
-		doneIn === null
-			? `${statesFinished} / ${states.length}`
-			: CliInternals.chalk.gray(`${doneIn}ms`),
+		doneIn === null ? `0/1` : CliInternals.chalk.gray(`${doneIn}ms`),
 	].join(' ');
 };
 

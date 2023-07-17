@@ -62,4 +62,4 @@ Consider one of these solutions:
 
 - Serve the media from a webhost that supports the `Range` header and returns a `Content-Length` and `Content-Range` header.
 - Download the media and import it locally using an `import` or `require()` statement.
-- Use the [`<OffthreadVideo>`](/docs/offthreadvideo) component which will render the video fine. You may still see problems during playback in the preview or the [`<Player>`](/docs/player).
+- Use the [`<OffthreadVideo>`](/docs/offthreadvideo) component which will render the video fine. You may still see problems during playback in the Remotion Studio or the [`<Player>`](/docs/player).

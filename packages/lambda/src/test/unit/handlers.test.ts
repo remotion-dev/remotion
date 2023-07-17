@@ -1,19 +1,16 @@
 import {expect, test} from 'vitest';
-import {handler} from '../../functions/index';
-import type {Await} from '../../shared/await';
+import {callLambda} from '../../shared/call-lambda';
 import {LambdaRoutines} from '../../shared/constants';
-import type {LambdaReturnValues} from '../../shared/return-values';
 
 test('Info handler should return version', async () => {
-	const response = await handler(
-		{
-			type: LambdaRoutines.info,
-		},
-		{invokedFunctionArn: '::::::', getRemainingTimeInMillis: () => 1000}
-	);
+	const response = await callLambda({
+		type: LambdaRoutines.info,
+		payload: {},
+		functionName: 'remotion-dev-lambda',
+		receivedStreamingPayload: () => undefined,
+		region: 'us-east-1',
+		timeoutInTest: 120000,
+	});
 
-	expect(
-		typeof (response as Await<LambdaReturnValues[LambdaRoutines.info]>)
-			.version === 'string'
-	).toBe(true);
+	expect(typeof response.version === 'string').toBe(true);
 });

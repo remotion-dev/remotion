@@ -1,4 +1,4 @@
-package remotionlambda
+package lambda_go_sdk
 
 import (
 	"encoding/json"
@@ -6,7 +6,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
-	"github.com/go-playground/validator/v10"
 )
 
 func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error) {
@@ -45,16 +44,29 @@ func invokeRenderLambda(options RemotionOptions) (*RemotionRenderResponse, error
 	}
 
 	// Unmarshal response from Lambda function
-	var renderResponseOutput RemotionRenderResponse
+	var renderResponseOutput RawInvokeResponse
+
 	responseMarshallingError := json.Unmarshal(invocationResult.Payload, &renderResponseOutput)
+
 	if responseMarshallingError != nil {
 		return nil, responseMarshallingError
 	}
 
-	return &renderResponseOutput, nil
+	return SantitiseRenderResponse(renderResponseOutput)
 }
 
-func invokeRenderProgressLambda(config RenderConfig) (*RenderProgressResponse, error) {
+func SantitiseRenderResponse(response RawInvokeResponse) (*RemotionRenderResponse, error) {
+	var renderBody RemotionRenderResponse
+
+	responseMarshallingError := json.Unmarshal([]byte(response.Body), &renderBody)
+	if responseMarshallingError != nil {
+		return nil, responseMarshallingError
+	}
+
+	return &renderBody, nil
+}
+
+func invokeRenderProgressLambda(config RenderConfig) (*RenderProgress, error) {
 
 	// Create a new AWS session
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
@@ -65,14 +77,13 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgressResponse, e
 	// Create a new Lambda client
 	svc := lambda.New(sess)
 
-	validate := validator.New()
-	validationErrors := validate.Struct(config)
+	internalParams, validateError := constructGetProgressInternals(&config)
 
-	if validationErrors != nil {
-		return nil, validationErrors
+	if validateError != nil {
+		return nil, validateError
 	}
 
-	internalParamsJSON, marshallingError := json.Marshal(config)
+	internalParamsJSON, marshallingError := json.Marshal(internalParams)
 	if marshallingError != nil {
 
 		return nil, marshallingError
@@ -91,11 +102,24 @@ func invokeRenderProgressLambda(config RenderConfig) (*RenderProgressResponse, e
 	}
 
 	// Unmarshal response from Lambda function
-	var renderProgressOutput RenderProgressResponse
+	var renderProgressOutput RawInvokeResponse
+
 	resultUnmarshallError := json.Unmarshal(invokeResult.Payload, &renderProgressOutput)
 	if resultUnmarshallError != nil {
 		return nil, resultUnmarshallError
 	}
 
-	return &renderProgressOutput, nil
+	return SantitiseProgressResponse(renderProgressOutput)
+}
+
+func SantitiseProgressResponse(response RawInvokeResponse) (*RenderProgress, error) {
+	var renderProgressBody RenderProgress
+
+	responseMarshallingError := json.Unmarshal([]byte(response.Body), &renderProgressBody)
+	if responseMarshallingError != nil {
+		print(responseMarshallingError.Error())
+		return nil, responseMarshallingError
+	}
+
+	return &renderProgressBody, nil;
 }

@@ -7,15 +7,16 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import {Internals} from 'remotion';
-import {useGetXPositionOfItemInTimeline} from '../../helpers/get-left-of-timeline-slider';
+import {Internals, useVideoConfig} from 'remotion';
+import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {TIMELINE_PADDING} from '../../helpers/timeline-layout';
 import {
 	useTimelineInOutFramePosition,
 	useTimelineSetInOutFramePosition,
 } from '../../state/in-out';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
-import {persistCurrentFrame} from '../FramePersistor';
+import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {defaultInOutValue} from '../TimelineInOutToggle';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 import {
 	canScrollTimelineIntoDirection,
@@ -33,6 +34,7 @@ import {
 	TimelineInOutPointerHandle,
 } from './TimelineInOutPointerHandle';
 import {redrawTimelineSliderFast} from './TimelineSlider';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const inner: React.CSSProperties = {
 	overflowY: 'auto',
@@ -51,10 +53,32 @@ const getClientXWithScroll = (x: number) => {
 };
 
 export const TimelineDragHandler: React.FC = () => {
+	const video = Internals.useUnsafeVideoConfig();
+
+	const {zoom} = useContext(TimelineZoomCtx);
+
+	const containerStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...container,
+			width: 100 * zoom + '%',
+		};
+	}, [zoom]);
+
+	return (
+		<div ref={sliderAreaRef} style={containerStyle}>
+			{video ? <Inner /> : null}
+		</div>
+	);
+};
+
+const Inner: React.FC = () => {
+	const videoConfig = useVideoConfig();
 	const size = PlayerInternals.useElementSize(scrollableRef, {
 		triggerOnWindowResize: true,
 		shouldApplyCssTransforms: true,
 	});
+	const setFrame = Internals.useTimelineSetFrame();
+
 	const [inOutDragging, setInOutDragging] = useState<
 		| {
 				dragging: false;
@@ -67,6 +91,24 @@ export const TimelineDragHandler: React.FC = () => {
 	>({
 		dragging: false,
 	});
+
+	const timelineWidth = useContext(TimelineWidthContext);
+
+	const get = useCallback(
+		(frame: number) => {
+			if (timelineWidth === null) {
+				throw new Error('timeline width is not yet determined');
+			}
+
+			return getXPositionOfItemInTimelineImperatively(
+				frame,
+				videoConfig.durationInFrames,
+				timelineWidth
+			);
+		},
+		[timelineWidth, videoConfig.durationInFrames]
+	);
+
 	const width = scrollableRef.current?.scrollWidth ?? 0;
 	const left = size?.left ?? 0;
 
@@ -74,7 +116,6 @@ export const TimelineDragHandler: React.FC = () => {
 
 	const {setInAndOutFrames} = useTimelineSetInOutFramePosition();
 
-	const {get} = useGetXPositionOfItemInTimeline();
 	const [dragging, setDragging] = useState<
 		| {
 				dragging: false;
@@ -87,7 +128,6 @@ export const TimelineDragHandler: React.FC = () => {
 		dragging: false,
 	});
 	const {playing, play, pause, seek} = PlayerInternals.usePlayer();
-	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	const scroller = useRef<NodeJS.Timeout | null>(null);
 
@@ -334,13 +374,14 @@ export const TimelineDragHandler: React.FC = () => {
 				extrapolate: 'clamp',
 			});
 
-			persistCurrentFrame(frame);
+			Internals.persistCurrentFrame(frame, videoConfig.id);
+			setFrame((c) => ({...c, [videoConfig.id]: frame}));
 
 			if (dragging.wasPlaying) {
 				play();
 			}
 		},
-		[dragging, left, play, videoConfig, width]
+		[dragging, left, play, videoConfig, setFrame, width]
 	);
 
 	const onPointerUpInOut = useCallback(
@@ -367,27 +408,39 @@ export const TimelineDragHandler: React.FC = () => {
 				if (frame < 1) {
 					return setInAndOutFrames((prev) => ({
 						...prev,
-						inFrame: null,
+						[videoConfig.id]: {
+							...(prev[videoConfig.id] ?? defaultInOutValue),
+							inFrame: null,
+						},
 					}));
 				}
 
 				const maxFrame = outFrame === null ? Infinity : outFrame - 1;
 				setInAndOutFrames((prev) => ({
 					...prev,
-					inFrame: Math.min(maxFrame, frame),
+					[videoConfig.id]: {
+						...(prev[videoConfig.id] ?? defaultInOutValue),
+						inFrame: Math.min(maxFrame, frame),
+					},
 				}));
 			} else {
 				if (frame > videoConfig.durationInFrames - 2) {
 					return setInAndOutFrames((prev) => ({
 						...prev,
-						outFrame: null,
+						[videoConfig.id]: {
+							...(prev[videoConfig.id] ?? defaultInOutValue),
+							outFrame: null,
+						},
 					}));
 				}
 
 				const minFrame = inFrame === null ? -Infinity : inFrame + 1;
 				setInAndOutFrames((prev) => ({
 					...prev,
-					outFrame: Math.max(minFrame, frame),
+					[videoConfig.id]: {
+						...(prev[videoConfig.id] ?? defaultInOutValue),
+						outFrame: Math.max(minFrame, frame),
+					},
 				}));
 			}
 		},
@@ -428,22 +481,15 @@ export const TimelineDragHandler: React.FC = () => {
 		};
 	}, [inOutDragging.dragging, onPointerMoveInOut, onPointerUpInOut]);
 
-	const {zoom} = useContext(TimelineZoomCtx);
-
-	const containerStyle: React.CSSProperties = useMemo(() => {
-		return {
-			...container,
-			width: 100 * zoom + '%',
-		};
-	}, [zoom]);
-
 	return (
 		<div
-			ref={sliderAreaRef}
-			style={containerStyle}
+			style={{
+				width: '100%',
+				height: '100%',
+			}}
 			onPointerDown={onPointerDown}
 		>
-			<div style={inner} />
+			<div style={inner} className={VERTICAL_SCROLLBAR_CLASSNAME} />
 			{inFrame !== null && (
 				<TimelineInOutPointerHandle
 					type="in"

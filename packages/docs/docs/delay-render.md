@@ -56,7 +56,7 @@ A delayRender() was called but not cleared after 28000ms. See https://remotion.d
 
 See the [Timeout](/docs/timeout) page to troubleshoot timeouts.
 
-## Adding a label <AvailableFrom v="2.6.13"/>
+## Adding a label<AvailableFrom v="2.6.13"/>
 
 If you encounter a timeout and don't know where it came from, you can add a label as a parameter:
 
@@ -122,7 +122,7 @@ const MyComp: React.FC = () => {
 };
 ```
 
-## Failing with an error <AvailableFrom v="3.3.44" />
+## Failing with an error<AvailableFrom v="3.3.44" />
 
 If your code fails to do an asynchronous operation and you want to cancel the render, you can call `cancelRender()` with an error message. This will automatically cancel all `delayRender()` calls to not further delay the render.
 

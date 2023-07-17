@@ -15,7 +15,7 @@ Two ways of preloading are supported:
 ## Preloading videos using `@remotion/preload`
 
 By preloading, a `<link type='preload'>` tag is placed on the page, signaling to the browser that it may start loading the media.  
-For videos, use [`preloadVideo()`](/docs/preload/preload-video) API, for audio use [`preloadAudio()`](/docs/preload/preload-audio), for images use [`preloadImage()`](/docs/preload/preload-image). Perform the preload outside a component or inside an [`useEffect()`](https://reactjs.org/docs/hooks-effect.html).
+For videos, use [`preloadVideo()`](/docs/preload/preload-video) API, for audio use [`preloadAudio()`](/docs/preload/preload-audio), for images use [`preloadImage()`](/docs/preload/preload-image). Perform the preload outside a component or inside an [`useEffect()`](https://react.dev/reference/react/useEffect).
 
 ```tsx twoslash
 import { preloadAudio, preloadVideo } from "@remotion/preload";

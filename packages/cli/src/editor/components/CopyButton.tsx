@@ -7,7 +7,11 @@ const iconStyle: React.CSSProperties = {
 	width: 16,
 	height: 16,
 	color: 'white',
-	verticalAlign: 'sub',
+};
+
+const buttonContainerStyle: React.CSSProperties = {
+	display: 'flex',
+	minWidth: '114px',
 };
 
 const copyIcon = (
@@ -55,7 +59,11 @@ export const CopyButton: React.FC<{
 	}, [copied]);
 
 	return (
-		<Button onClick={onClick}>
+		<Button
+			onClick={onClick}
+			style={{}}
+			buttonContainerStyle={buttonContainerStyle}
+		>
 			{copyIcon}
 			<Spacing x={1.5} />{' '}
 			<span style={labelStyle}>{copied ? labelWhenCopied : label}</span>

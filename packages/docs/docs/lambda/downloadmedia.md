@@ -6,7 +6,7 @@ slug: /lambda/downloadmedia
 crumb: "Lambda API"
 ---
 
-Downloads a rendered video, audio or still to the disk of the machine the API is called from.
+Downloads a rendered video, audio or still to the disk of the machine this API is called from.
 
 If you want to let the user download a result to their machine, use [`renderMediaOnLambda()` -> `downloadBehavior`](/docs/lambda/rendermediaonlambda#downloadbehavior) instead.
 

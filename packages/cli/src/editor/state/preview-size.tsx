@@ -19,7 +19,7 @@ export const persistPreviewSizeOption = (option: PreviewSize) => {
 	localStorage.setItem(key, JSON.stringify(option));
 };
 
-export const loadPreviewSizeOption = (): PreviewSize => {
+const loadPreviewSizeOption = (): PreviewSize => {
 	const item = localStorage.getItem(key);
 	if (item === null) {
 		return {

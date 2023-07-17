@@ -1,5 +1,6 @@
 import esbuild from 'esbuild';
-import fs from 'fs';
+import {execSync} from 'node:child_process';
+import fs from 'node:fs';
 
 const tmp = 'bundled-worker.js';
 
@@ -9,6 +10,7 @@ esbuild.buildSync({
 	bundle: true,
 	outfile: tmp,
 	minify: true,
+	target: 'es2018',
 });
 
 const content = fs.readFileSync(tmp, 'utf8');
@@ -22,5 +24,7 @@ export const src =
   ${JSON.stringify(content)};
 `.trim()
 );
+
+execSync('pnpm exec prettier --write src/worker/source.ts');
 
 fs.unlinkSync(tmp);

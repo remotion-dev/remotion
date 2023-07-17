@@ -32,7 +32,7 @@ This is a design tradeoff of Remotion, but can be fought with different levels o
 
 <strong><Step>1</Step>Option 1: Ignore</strong><br/>
 
-It should be mentioned that this effect is only happening in the Remotion Preview and the Remotion Player, and will not appear in the rendered video. If you are only looking for a frame-perfect rendered video, you do not need to take additional steps.
+It should be mentioned that this effect is only happening in the Remotion Studio and the Remotion Player, and will not appear in the rendered video. If you are only looking for a frame-perfect rendered video, you do not need to take additional steps.
 
 <strong><Step>2</Step>Option 2: Pause the <code>{"<Player/>"}</code> when media is buffering</strong><br/>
 
@@ -62,7 +62,7 @@ As the most aggressive strategy, you can pre-mount a video to already trigger de
 
 ```tsx twoslash title="Premount.tsx"
 import React, { useContext, useMemo } from "react";
-import { Internals, TimelineContextValue } from "remotion";
+import { Internals, TimelineContextValue, useVideoConfig } from "remotion";
 
 type PremountProps = {
   for: number;
@@ -74,6 +74,7 @@ export const Premount: React.FC<PremountProps> = ({
   children,
 }) => {
   const sequenceContext = useContext(Internals.SequenceContext);
+  const { id } = useVideoConfig();
   if (typeof premountFor === "undefined") {
     throw new Error(
       `The <Premount /> component requires a 'for' prop, but none was passed.`
@@ -104,7 +105,10 @@ export const Premount: React.FC<PremountProps> = ({
       ? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
       : 0;
 
-    const currentFrame = context.frame - contextOffset;
+    // v3
+    // const currentFrame = context.frame - contextOffset;
+    // v4
+    const currentFrame = (context.frame[id] ?? 0) - contextOffset;
     return {
       ...context,
       playing: currentFrame < premountFor ? false : context.playing,
@@ -114,9 +118,12 @@ export const Premount: React.FC<PremountProps> = ({
             ? false
             : context.imperativePlaying.current,
       },
-      frame: Math.max(0, currentFrame - premountFor) + contextOffset,
+      // Remotion v4
+      frame: { [id]: Math.max(0, currentFrame - premountFor) + contextOffset },
+      // Remotion v3
+      // frame: Math.max(0, currentFrame - premountFor) + contextOffset,
     };
-  }, [context, premountFor, sequenceContext]);
+  }, [context, premountFor, sequenceContext, id]);
 
   return (
     <Internals.Timeline.TimelineContext.Provider value={value}>
@@ -130,7 +137,7 @@ The following usage would make the video mount 60 frames before it appears in th
 
 ```tsx twoslash title="MyComponent.tsx"
 import React, { useContext, useMemo } from "react";
-import { Internals, TimelineContextValue } from "remotion";
+import { Internals, TimelineContextValue, useVideoConfig } from "remotion";
 
 type PremountProps = {
   for: number;
@@ -141,6 +148,7 @@ export const Premount: React.FC<PremountProps> = ({
   for: premountFor,
   children,
 }) => {
+  const { id } = useVideoConfig();
   const sequenceContext = useContext(Internals.SequenceContext);
   if (typeof premountFor === "undefined") {
     throw new Error(
@@ -172,7 +180,10 @@ export const Premount: React.FC<PremountProps> = ({
       ? sequenceContext.cumulatedFrom + sequenceContext.relativeFrom
       : 0;
 
-    const currentFrame = context.frame - contextOffset;
+    // v3
+    // const currentFrame = context.frame - contextOffset;
+    // v4
+    const currentFrame = (context.frame[id] ?? 0) - contextOffset;
     return {
       ...context,
       playing: currentFrame < premountFor ? false : context.playing,
@@ -182,7 +193,10 @@ export const Premount: React.FC<PremountProps> = ({
             ? false
             : context.imperativePlaying.current,
       },
-      frame: Math.max(0, currentFrame - premountFor) + contextOffset,
+      // Remotion v4
+      frame: { [id]: Math.max(0, currentFrame - premountFor) + contextOffset },
+      // Remotion v3
+      // frame: Math.max(0, currentFrame - premountFor) + contextOffset,
     };
   }, [context, premountFor, sequenceContext]);
 

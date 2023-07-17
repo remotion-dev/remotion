@@ -9,8 +9,8 @@ const width: React.CSSProperties = {
 };
 
 const icon: React.CSSProperties = {
-	height: 12,
-	width: 12,
+	height: 14,
+	width: 14,
 };
 
 const Icon: React.FC = () => (
@@ -34,16 +34,16 @@ const Icon: React.FC = () => (
 
 const topLine: React.CSSProperties = {
 	top: 0,
-	height: 10,
+	height: 5,
 	width: 1,
-	background: 'linear-gradient(to top, transparent, rgba(255, 255, 255, 0.7))',
+	background: 'white',
 };
 
 const bottomLine: React.CSSProperties = {
 	top: 0,
-	height: 10,
+	height: 5,
 	width: 1,
-	background: 'linear-gradient(to top, rgba(255, 255, 255, 0.7), transparent)',
+	background: 'white',
 };
 
 const topContainer: React.CSSProperties = {

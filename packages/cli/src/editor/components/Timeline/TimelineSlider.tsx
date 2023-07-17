@@ -1,18 +1,17 @@
 import React, {
 	createRef,
+	useContext,
 	useEffect,
 	useImperativeHandle,
 	useMemo,
 	useRef,
 } from 'react';
-import {Internals} from 'remotion';
-import {
-	getXPositionOfItemInTimelineImperatively,
-	useGetXPositionOfItemInTimeline,
-} from '../../helpers/get-left-of-timeline-slider';
+import {Internals, useVideoConfig} from 'remotion';
+import {getXPositionOfItemInTimelineImperatively} from '../../helpers/get-left-of-timeline-slider';
 import {getCurrentDuration} from './imperative-state';
 import {sliderAreaRef, timelineVerticalScroll} from './timeline-refs';
 import {TimelineSliderHandle} from './TimelineSliderHandle';
+import {TimelineWidthContext} from './TimelineWidthProvider';
 
 const container: React.CSSProperties = {
 	position: 'absolute',
@@ -33,17 +32,36 @@ export const redrawTimelineSliderFast = createRef<{
 }>();
 
 export const TimelineSlider: React.FC = () => {
+	const videoConfig = Internals.useUnsafeVideoConfig();
+	const timelineWidth = useContext(TimelineWidthContext);
+	if (videoConfig === null || timelineWidth === null) {
+		return null;
+	}
+
+	return <Inner />;
+};
+
+const Inner: React.FC = () => {
+	const videoConfig = useVideoConfig();
 	const timelinePosition = Internals.Timeline.useTimelinePosition();
-	const {get} = useGetXPositionOfItemInTimeline();
 	const ref = useRef<HTMLDivElement>(null);
+	const timelineWidth = useContext(TimelineWidthContext);
+
+	if (timelineWidth === null) {
+		throw new Error('Unexpectedly did not have timeline width');
+	}
 
 	const style: React.CSSProperties = useMemo(() => {
-		const left = get(timelinePosition);
+		const left = getXPositionOfItemInTimelineImperatively(
+			timelinePosition,
+			videoConfig.durationInFrames,
+			timelineWidth
+		);
 		return {
 			...container,
 			transform: `translateX(${left}px)`,
 		};
-	}, [timelinePosition, get]);
+	}, [timelinePosition, videoConfig.durationInFrames, timelineWidth]);
 
 	useImperativeHandle(
 		redrawTimelineSliderFast,

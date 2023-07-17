@@ -4,12 +4,14 @@ import {Internals} from 'remotion';
 import {formatTime} from './format-time.js';
 import {FullscreenIcon, PauseIcon, PlayIcon} from './icons.js';
 import {MediaVolumeSlider} from './MediaVolumeSlider.js';
+import {PlaybackrateControl, playerButtonStyle} from './PlaybackrateControl.js';
 import {PlayerSeekBar} from './PlayerSeekBar.js';
 import type {usePlayer} from './use-player.js';
 import {
 	useVideoControlsResize,
 	X_PADDING,
 } from './use-video-controls-resize.js';
+import type {Size} from './utils/use-element-size.js';
 
 export type RenderPlayPauseButton = (props: {playing: boolean}) => ReactNode;
 export type RenderFullscreenButton = (props: {
@@ -50,21 +52,6 @@ const containerStyle: React.CSSProperties = {
 	transition: 'opacity 0.3s',
 };
 
-const buttonStyle: React.CSSProperties = {
-	appearance: 'none',
-	backgroundColor: 'transparent',
-	border: 'none',
-	cursor: 'pointer',
-	paddingLeft: 0,
-	paddingRight: 0,
-	paddingTop: 6,
-	paddingBottom: 6,
-	height: 37,
-	display: 'inline',
-	marginBottom: 0,
-	marginTop: 0,
-};
-
 const controlsRow: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
@@ -82,7 +69,7 @@ const leftPartStyle: React.CSSProperties = {
 };
 
 const xSpacer: React.CSSProperties = {
-	width: 10,
+	width: 12,
 };
 
 const ySpacer: React.CSSProperties = {
@@ -125,10 +112,11 @@ export const Controls: React.FC<{
 	inFrame: number | null;
 	outFrame: number | null;
 	initiallyShowControls: number | boolean;
-	playerWidth: number;
+	canvasSize: Size | null;
 	renderPlayPauseButton: RenderPlayPauseButton | null;
 	renderFullscreenButton: RenderFullscreenButton | null;
 	alwaysShowControls: boolean;
+	showPlaybackRateControl: boolean | number[];
 }> = ({
 	durationInFrames,
 	hovered,
@@ -145,17 +133,21 @@ export const Controls: React.FC<{
 	inFrame,
 	outFrame,
 	initiallyShowControls,
-	playerWidth,
+	canvasSize,
 	renderPlayPauseButton,
 	renderFullscreenButton,
 	alwaysShowControls,
+	showPlaybackRateControl,
 }) => {
 	const playButtonRef = useRef<HTMLButtonElement | null>(null);
 	const frame = Internals.Timeline.useTimelinePosition();
 	const [supportsFullscreen, setSupportsFullscreen] = useState(false);
 
 	const {maxTimeLabelWidth, displayVerticalVolumeSlider} =
-		useVideoControlsResize({allowFullscreen, playerWidth});
+		useVideoControlsResize({
+			allowFullscreen,
+			playerWidth: canvasSize?.width ?? 0,
+		});
 	const [shouldShowInitially, setInitiallyShowControls] = useState<
 		boolean | number
 	>(() => {
@@ -242,6 +234,32 @@ export const Controls: React.FC<{
 		};
 	}, [maxTimeLabelWidth]);
 
+	const playbackRates = useMemo(() => {
+		if (showPlaybackRateControl === true) {
+			return [0.5, 0.8, 1, 1.2, 1.5, 1.8, 2, 2.5, 3];
+		}
+
+		if (Array.isArray(showPlaybackRateControl)) {
+			for (const rate of showPlaybackRateControl) {
+				if (typeof rate !== 'number') {
+					throw new Error(
+						'Every item in showPlaybackRateControl must be a number'
+					);
+				}
+
+				if (rate <= 0) {
+					throw new Error(
+						'Every item in showPlaybackRateControl must be positive'
+					);
+				}
+			}
+
+			return showPlaybackRateControl;
+		}
+
+		return null;
+	}, [showPlaybackRateControl]);
+
 	return (
 		<div style={containerCss}>
 			<div style={controlsRow}>
@@ -249,7 +267,7 @@ export const Controls: React.FC<{
 					<button
 						ref={playButtonRef}
 						type="button"
-						style={buttonStyle}
+						style={playerButtonStyle}
 						onClick={player.playing ? player.pause : player.play}
 						aria-label={player.playing ? 'Pause video' : 'Play video'}
 						title={player.playing ? 'Pause video' : 'Play video'}
@@ -275,13 +293,22 @@ export const Controls: React.FC<{
 					<div style={xSpacer} />
 				</div>
 				<div style={flex1} />
+				{playbackRates && canvasSize && (
+					<PlaybackrateControl
+						canvasSize={canvasSize}
+						playbackRates={playbackRates}
+					/>
+				)}
+				{playbackRates && supportsFullscreen && allowFullscreen ? (
+					<div style={xSpacer} />
+				) : null}
 				<div style={fullscreen}>
 					{supportsFullscreen && allowFullscreen ? (
 						<button
 							type="button"
 							aria-label={isFullscreen ? 'Exit fullscreen' : 'Enter Fullscreen'}
 							title={isFullscreen ? 'Exit fullscreen' : 'Enter Fullscreen'}
-							style={buttonStyle}
+							style={playerButtonStyle}
 							onClick={
 								isFullscreen
 									? onExitFullscreenButtonClick

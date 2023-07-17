@@ -1,38 +1,32 @@
 import {RenderInternals} from '@remotion/renderer';
-import fs, {createWriteStream} from 'fs';
-import os from 'os';
-import path from 'path';
+import fs, {createWriteStream} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {deleteRender} from '../../../api/delete-render';
 import {LambdaRoutines, rendersPrefix} from '../../../defaults';
-import {handler} from '../../../functions';
 import {lambdaLs, lambdaReadFile} from '../../../functions/helpers/io';
-import type {LambdaReturnValues} from '../../../shared/return-values';
-
-const extraContext = {
-	invokedFunctionArn: 'arn:fake',
-	getRemainingTimeInMillis: () => 12000,
-};
-
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
+import {callLambda} from '../../../shared/call-lambda';
+import {disableLogs, enableLogs} from '../../disable-logs';
 
 beforeAll(() => {
-	// disableLogs();
+	disableLogs();
 });
 
 afterAll(async () => {
-	// enableLogs();
+	enableLogs();
 	await RenderInternals.killAllBrowsers();
 });
 
 test('Should make a transparent video', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-	const res = await handler(
-		{
-			type: LambdaRoutines.start,
-			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
+	const res = await callLambda({
+		type: LambdaRoutines.start,
+		payload: {
+			serveUrl:
+				'https://64a69dbd950469119e886993--dreamy-shortbread-14601f.netlify.app/',
 			chromiumOptions: {},
 			codec: 'vp8',
 			composition: 'ten-frame-tester',
@@ -51,7 +45,7 @@ test('Should make a transparent video', async () => {
 			pixelFormat: 'yuva420p',
 			privacy: 'public',
 			proResProfile: undefined,
-			quality: undefined,
+			jpegQuality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
 			numberOfGifLoops: null,
@@ -71,26 +65,28 @@ test('Should make a transparent video', async () => {
 			rendererFunctionName: null,
 			bucketName: null,
 			audioCodec: null,
-			dumpBrowserLogs: false,
 		},
-		extraContext
-	);
-	console.log('invoked!');
-	const startRes = res as Await<LambdaReturnValues[LambdaRoutines.start]>;
+		functionName: 'remotion-dev-render',
+		receivedStreamingPayload: () => undefined,
+		region: 'eu-central-1',
+		timeoutInTest: 120000,
+	});
 
-	const progress = (await handler(
-		{
-			type: LambdaRoutines.status,
-			bucketName: startRes.bucketName,
-			renderId: startRes.renderId,
+	const progress = await callLambda({
+		type: LambdaRoutines.status,
+		payload: {
+			bucketName: res.bucketName,
+			renderId: res.renderId,
 			version: VERSION,
 		},
-		extraContext
-	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
-	console.log('got progress', progress);
+		functionName: 'remotion-dev-render',
+		receivedStreamingPayload: () => undefined,
+		region: 'eu-central-1',
+		timeoutInTest: 120000,
+	});
 
 	const file = await lambdaReadFile({
-		bucketName: startRes.bucketName,
+		bucketName: res.bucketName,
 		key: progress.outKey as string,
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
@@ -104,10 +100,7 @@ test('Should make a transparent video', async () => {
 	await new Promise<void>((resolve) => {
 		file.on('close', () => resolve());
 	});
-	const probe = await RenderInternals.execa(
-		await RenderInternals.getExecutableBinary(null, process.cwd(), 'ffprobe'),
-		[out]
-	);
+	const probe = await RenderInternals.callFf('ffprobe', [out]);
 	expect(probe.stderr).toMatch(/ALPHA_MODE(\s+): 1/);
 	expect(probe.stderr).toMatch(/Video: vp8, yuv420p/);
 	expect(probe.stderr).toMatch(/Audio: opus, 48000 Hz/);
@@ -117,7 +110,7 @@ test('Should make a transparent video', async () => {
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		expectedBucketOwner: 'abc',
-		prefix: rendersPrefix(startRes.renderId),
+		prefix: rendersPrefix(res.renderId),
 	});
 
 	expect(files.length).toBe(4);
@@ -125,14 +118,14 @@ test('Should make a transparent video', async () => {
 	await deleteRender({
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
-		renderId: startRes.renderId,
+		renderId: res.renderId,
 	});
 
 	const expectFiles = await lambdaLs({
 		bucketName: progress.outBucket as string,
 		region: 'eu-central-1',
 		expectedBucketOwner: 'abc',
-		prefix: rendersPrefix(startRes.renderId),
+		prefix: rendersPrefix(res.renderId),
 	});
 
 	RenderInternals.deleteDirectory(tmpdir);

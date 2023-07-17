@@ -1,12 +1,15 @@
-import type {RequestListener} from 'http';
-import type {OffthreadVideoImageFormat} from 'remotion';
-import {Internals} from 'remotion';
-import {URLSearchParams} from 'url';
-import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import type {RequestListener} from 'node:http';
+import {URLSearchParams} from 'node:url';
 import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
-import {extractFrameFromVideo} from './extract-frame-from-video';
-import type {FfmpegExecutable} from './ffmpeg-executable';
+import type {Compositor} from './compositor/compositor';
+import {
+	getIdealMaximumFrameCacheItems,
+	startCompositor,
+} from './compositor/compositor';
+import type {LogLevel} from './log-level';
+import {isEqualOrBelowLogLevel} from './log-level';
+import {Log} from './logger';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
 	const parsed = new URL(url, 'http://localhost');
@@ -28,93 +31,209 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 		throw new Error('Did not get `time` parameter');
 	}
 
-	const imageFormat = params.get('imageFormat');
-
-	if (!imageFormat) {
-		throw new TypeError('Did not get `imageFormat` parameter');
-	}
-
-	Internals.validateOffthreadVideoImageFormat(imageFormat);
+	const transparent = params.get('transparent');
 
 	return {
 		src,
 		time: parseFloat(time),
-		imageFormat: imageFormat as OffthreadVideoImageFormat,
+		transparent: transparent === 'true',
 	};
 };
 
 export const startOffthreadVideoServer = ({
-	ffmpegExecutable,
-	ffprobeExecutable,
-	onDownload,
-	onError,
 	downloadMap,
-	remotionRoot,
+	concurrency,
+	logLevel,
+	indent,
 }: {
-	ffmpegExecutable: FfmpegExecutable;
-	ffprobeExecutable: FfmpegExecutable;
-	onDownload: RenderMediaOnDownload;
-	onError: (err: Error) => void;
 	downloadMap: DownloadMap;
-	remotionRoot: string;
-}): RequestListener => {
-	return (req, res) => {
-		if (!req.url) {
-			throw new Error('Request came in without URL');
-		}
+	concurrency: number;
+	logLevel: LogLevel;
+	indent: boolean;
+}): {
+	listener: RequestListener;
+	close: () => Promise<void>;
+	compositor: Compositor;
+} => {
+	const compositor = startCompositor(
+		'StartLongRunningProcess',
+		{
+			concurrency,
+			maximum_frame_cache_items: getIdealMaximumFrameCacheItems(),
+			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
+		},
+		logLevel,
+		indent
+	);
 
-		if (!req.url.startsWith('/proxy')) {
-			res.writeHead(404);
-			res.end();
-			return;
-		}
-
-		const {src, time, imageFormat} = extractUrlAndSourceFromUrl(req.url);
-		res.setHeader('access-control-allow-origin', '*');
-		res.setHeader(
-			'content-type',
-			`image/${imageFormat === 'jpeg' ? 'jpg' : 'png'}`
-		);
-
-		// Handling this case on Lambda:
-		// https://support.google.com/chrome/a/answer/7679408?hl=en
-		// Chrome sends Private Network Access preflights for subresources
-		if (req.method === 'OPTIONS') {
-			res.statusCode = 200;
-			if (req.headers['access-control-request-private-network']) {
-				res.setHeader('Access-Control-Allow-Private-Network', 'true');
+	return {
+		close: () => {
+			compositor.finishCommands();
+			return compositor.waitForDone();
+		},
+		listener: (req, res) => {
+			if (!req.url) {
+				throw new Error('Request came in without URL');
 			}
 
-			res.end();
-			return;
-		}
+			if (!req.url.startsWith('/proxy')) {
+				res.writeHead(404);
+				res.end();
+				return;
+			}
 
-		downloadAsset({src, onDownload, downloadMap})
-			.then((to) => {
-				return extractFrameFromVideo({
-					time,
-					src: to,
-					ffmpegExecutable,
-					ffprobeExecutable,
-					imageFormat,
-					downloadMap,
-					remotionRoot,
-				});
-			})
-			.then((readable) => {
-				if (!readable) {
-					throw new Error('no readable from ffmpeg');
+			const {src, time, transparent} = extractUrlAndSourceFromUrl(req.url);
+			res.setHeader('access-control-allow-origin', '*');
+			if (transparent) {
+				res.setHeader('content-type', `image/png`);
+			} else {
+				res.setHeader('content-type', `image/bmp`);
+			}
+
+			// Handling this case on Lambda:
+			// https://support.google.com/chrome/a/answer/7679408?hl=en
+			// Chrome sends Private Network Access preflights for subresources
+			if (req.method === 'OPTIONS') {
+				res.statusCode = 200;
+				if (req.headers['access-control-request-private-network']) {
+					res.setHeader('Access-Control-Allow-Private-Network', 'true');
 				}
 
-				res.writeHead(200);
-				res.write(readable);
 				res.end();
-			})
-			.catch((err) => {
-				res.writeHead(500);
-				res.end();
-				onError(err);
-				console.log('Error occurred', err);
-			});
+				return;
+			}
+
+			let extractStart = Date.now();
+			downloadAsset({src, downloadMap})
+				.then((to) => {
+					extractStart = Date.now();
+					return compositor.executeCommand('ExtractFrame', {
+						input: to,
+						time,
+						transparent,
+					});
+				})
+				.then((readable) => {
+					const extractEnd = Date.now();
+					const timeToExtract = extractEnd - extractStart;
+
+					if (timeToExtract > 1000) {
+						Log.verbose(
+							`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`
+						);
+					}
+
+					if (!readable) {
+						throw new Error('no readable from ffmpeg');
+					}
+
+					res.writeHead(200);
+					res.write(readable);
+					res.end();
+				})
+				.catch((err) => {
+					res.writeHead(500);
+					res.end();
+					downloadMap.emitter.dispatchError(err);
+					console.log('Error occurred', err);
+				});
+		},
+		compositor,
 	};
 };
+
+type DownloadEventPayload = {
+	src: string;
+};
+
+type ProgressEventPayload = {
+	percent: number | null;
+	downloaded: number;
+	totalSize: number | null;
+	src: string;
+};
+
+type ErrorEventPayload = {
+	error: Error;
+};
+
+type EventMap = {
+	progress: ProgressEventPayload;
+	error: ErrorEventPayload;
+	download: DownloadEventPayload;
+};
+
+export type EventTypes = keyof EventMap;
+
+export type CallbackListener<T extends EventTypes> = (data: {
+	detail: EventMap[T];
+}) => void;
+
+type Listeners = {
+	[EventType in EventTypes]: CallbackListener<EventType>[];
+};
+
+export class OffthreadVideoServerEmitter {
+	listeners: Listeners = {
+		error: [],
+		progress: [],
+		download: [],
+	};
+
+	addEventListener<Q extends EventTypes>(
+		name: Q,
+		callback: CallbackListener<Q>
+	) {
+		(this.listeners[name] as CallbackListener<Q>[]).push(callback);
+
+		return () => {
+			this.removeEventListener(name, callback);
+		};
+	}
+
+	removeEventListener<Q extends EventTypes>(
+		name: Q,
+		callback: CallbackListener<Q>
+	) {
+		this.listeners[name] = this.listeners[name].filter(
+			(l) => l !== callback
+		) as Listeners[Q];
+	}
+
+	private dispatchEvent<T extends EventTypes>(
+		dispatchName: T,
+		context: EventMap[T]
+	) {
+		(this.listeners[dispatchName] as CallbackListener<T>[]).forEach(
+			(callback) => {
+				callback({detail: context});
+			}
+		);
+	}
+
+	dispatchError(error: Error) {
+		this.dispatchEvent('error', {
+			error,
+		});
+	}
+
+	dispatchDownloadProgress(
+		src: string,
+		percent: number | null,
+		downloaded: number,
+		totalSize: number | null
+	) {
+		this.dispatchEvent('progress', {
+			downloaded,
+			percent,
+			totalSize,
+			src,
+		});
+	}
+
+	dispatchDownload(src: string) {
+		this.dispatchEvent('download', {
+			src,
+		});
+	}
+}

@@ -4,29 +4,31 @@ import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
 import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
 import {listCompositionsCommand} from './compositions';
-import {overrideRemotion} from './config/index';
-import {determineFinalImageFormat} from './determine-image-format';
+import {ConfigInternals} from './config';
+import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
 import {findEntryPoint} from './entry-point';
+import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {formatBytes} from './format-bytes';
-import {getCliOptions, getFinalCodec} from './get-cli-options';
+import {getCliOptions} from './get-cli-options';
+import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
+import {getFinalOutputCodec} from './get-final-output-codec';
 import {handleCommonError} from './handle-common-errors';
-import {getImageFormat} from './image-formats';
+import {getVideoImageFormat} from './image-formats';
 import {initializeCli} from './initialize-cli';
-import {installCommand, INSTALL_COMMAND} from './install';
 import {lambdaCommand} from './lambda-command';
 import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
 import {BooleanFlags, parsedCli, quietFlagProvided} from './parse-command-line';
-import {previewCommand} from './preview';
 import {printCompositions} from './print-compositions';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
-import {selectComposition} from './select-composition';
+import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
+import {studioCommand} from './studio';
 import {upgrade} from './upgrade';
 import {
 	validateVersionsBeforeCommand,
@@ -35,7 +37,6 @@ import {
 } from './versions';
 
 export const cli = async () => {
-	overrideRemotion();
 	const [command, ...args] = parsedCli._;
 
 	if (parsedCli.help) {
@@ -48,8 +49,11 @@ export const cli = async () => {
 		await validateVersionsBeforeCommand(remotionRoot);
 	}
 
-	const errorSymbolicationLock =
-		RenderInternals.registerErrorSymbolicationLock();
+	const isStudio = command === 'studio' || command === 'preview';
+
+	const errorSymbolicationLock = isStudio
+		? 0
+		: RenderInternals.registerErrorSymbolicationLock();
 
 	handleCtrlC();
 
@@ -58,20 +62,22 @@ export const cli = async () => {
 	try {
 		if (command === 'compositions') {
 			await listCompositionsCommand(remotionRoot, args);
-		} else if (command === 'preview') {
-			await previewCommand(remotionRoot, args);
+		} else if (isStudio) {
+			await studioCommand(remotionRoot, args);
 		} else if (command === 'lambda') {
 			await lambdaCommand(remotionRoot, args);
 		} else if (command === 'render') {
 			await render(remotionRoot, args);
 		} else if (command === 'still') {
 			await still(remotionRoot, args);
+		} else if (command === 'ffmpeg') {
+			ffmpegCommand(remotionRoot, process.argv.slice(3));
+		} else if (command === 'ffprobe') {
+			ffprobeCommand(remotionRoot, process.argv.slice(3));
 		} else if (command === 'upgrade') {
 			await upgrade(remotionRoot, parsedCli['package-manager']);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
-		} else if (command === INSTALL_COMMAND) {
-			await installCommand(remotionRoot, args);
 		} else if (command === 'benchmark') {
 			await benchmarkCommand(remotionRoot, args);
 		} else if (command === 'help') {
@@ -87,7 +93,10 @@ export const cli = async () => {
 		}
 	} catch (err) {
 		Log.info();
-		await handleCommonError(err as Error);
+		await handleCommonError(
+			err as Error,
+			ConfigInternals.Logging.getLogLevel()
+		);
 		cleanupBeforeQuit();
 		process.exit(1);
 	} finally {
@@ -96,7 +105,6 @@ export const cli = async () => {
 	}
 };
 
-export {ConfigInternals, overrideRemotion} from './config/index';
 export * from './render';
 
 export const CliInternals = {
@@ -113,12 +121,13 @@ export const CliInternals = {
 	handleCommonError,
 	formatBytes,
 	getFileSizeDownloadBar,
-	getFinalCodec,
-	determineFinalImageFormat,
+	determineFinalStillImageFormat,
 	minimist,
-	selectComposition,
 	findEntryPoint,
-	getImageFormat,
+	getVideoImageFormat,
 	printCompositions,
+	getFinalOutputCodec,
 	listOfRemotionPackages,
+	shouldUseNonOverlayingLogger,
+	getCompositionWithDimensionOverride,
 };

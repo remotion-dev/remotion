@@ -1,12 +1,22 @@
 import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
-import fs, {existsSync, mkdirSync, rmdirSync, rmSync} from 'fs';
-import {join} from 'path';
+import fs, {existsSync, mkdirSync, rmSync} from 'node:fs';
+import {join} from 'node:path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
-import type {LambdaPayload, RenderMetadata} from '../shared/constants';
+import {
+	compressInputProps,
+	decompressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../shared/compress-props';
+import type {
+	LambdaPayload,
+	LambdaPayloads,
+	RenderMetadata,
+} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
 	encodingProgressKey,
@@ -17,7 +27,6 @@ import {
 	renderMetadataKey,
 	rendersPrefix,
 } from '../shared/constants';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
 import {getServeUrlHash} from '../shared/make-s3-url';
@@ -56,19 +65,17 @@ const callFunctionWithRetry = async ({
 	retries,
 	functionName,
 }: {
-	payload: unknown;
+	payload: LambdaPayloads[LambdaRoutines.renderer];
 	retries: number;
 	functionName: string;
 }): Promise<unknown> => {
 	try {
 		await getLambdaClient(getCurrentRegionInFunction()).send(
 			new InvokeCommand({
-				FunctionName: functionName,
-				// @ts-expect-error
+				FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 				Payload: JSON.stringify(payload),
 				InvocationType: 'Event',
-			}),
-			{}
+			})
 		);
 	} catch (err) {
 		if ((err as Error).name === 'ResourceConflictException') {
@@ -156,36 +163,41 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	}, Math.max(options.getRemainingTimeInMillis() - 1000, 1000));
 
 	const browserInstance = await getBrowserInstance(
-		verbose,
+		params.logLevel,
+		false,
 		params.chromiumOptions
 	);
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
-	const inputPropsPromise = deserializeInputProps({
+	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: params.inputProps,
+		propsType: 'input-props',
 	});
 
+	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
+	RenderInternals.Log.info(
+		'Validating composition, input props:',
+		serializedInputPropsWithCustomSchema
+	);
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance,
-		inputProps: await inputPropsPromise,
-		envVariables: params.envVariables,
-		ffmpegExecutable: null,
-		ffprobeExecutable: null,
+		serializedInputPropsWithCustomSchema,
+		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
 		port: null,
-		downloadMap,
 		forceHeight: params.forceHeight,
 		forceWidth: params.forceWidth,
+		logLevel: params.logLevel,
+		server: undefined,
 	});
-	Internals.validateDurationInFrames({
-		durationInFrames: comp.durationInFrames,
+	RenderInternals.Log.info('Composition validated, resolved props', comp.props);
+
+	Internals.validateDurationInFrames(comp.durationInFrames, {
 		component: 'passed to a Lambda render',
 		allowFloats: false,
 	});
@@ -232,7 +244,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	}
 
 	validateOutname(params.outName, params.codec, params.audioCodec);
-	validatePrivacy(params.privacy);
+	validatePrivacy(params.privacy, true);
 	RenderInternals.validatePuppeteerTimeout(params.timeoutInMilliseconds);
 
 	const {chunks} = planFrameRanges({
@@ -242,9 +254,24 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	});
 
 	const sortedChunks = chunks.slice().sort((a, b) => a[0] - b[0]);
-	const invokers = Math.round(Math.sqrt(chunks.length));
 
 	const reqSend = timer('sending off requests');
+
+	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
+
+	const needsToUpload = getNeedsToUpload(
+		'video-or-audio',
+		serializedResolved + params.inputProps
+	);
+
+	const serializedResolvedProps = await compressInputProps({
+		propsType: 'resolved-props',
+		region: getCurrentRegionInFunction(),
+		stringifiedInputProps: serializedResolved,
+		userSpecifiedBucketName: params.bucketName,
+		needsToUpload,
+	});
+
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
 			type: LambdaRoutines.renderer,
@@ -266,7 +293,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			envVariables: params.envVariables,
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
-			quality: params.quality,
+			jpegQuality: params.jpegQuality,
 			privacy: params.privacy,
 			logLevel: params.logLevel ?? 'info',
 			attempt: 1,
@@ -281,7 +308,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			launchFunctionConfig: {
 				version: VERSION,
 			},
-			dumpBrowserLogs: params.dumpBrowserLogs,
+			resolvedProps: serializedResolvedProps,
 		};
 		return payload;
 	});
@@ -298,9 +325,8 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		estimatedTotalLambdaInvokations: [
 			// Direct invokations
 			chunks.length,
-			// Parent invokers
-			invokers,
 			// This function
+			1,
 		].reduce((a, b) => a + b, 0),
 		estimatedRenderLambdaInvokations: chunks.length,
 		compositionId: comp.id,
@@ -454,7 +480,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const outdir = join(RenderInternals.tmpDir(CONCAT_FOLDER_TOKEN), 'bucket');
 	if (existsSync(outdir)) {
-		(rmSync ?? rmdirSync)(outdir, {
+		rmSync(outdir, {
 			recursive: true,
 		});
 	}
@@ -476,8 +502,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		codec: params.codec,
 		fps,
 		numberOfGifLoops: params.numberOfGifLoops,
-		ffmpegExecutable: null,
-		remotionRoot: process.cwd(),
 		files,
 		outdir,
 		audioCodec: params.audioCodec,
@@ -579,7 +603,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		customCredentials: null,
 	});
-	RenderInternals.cleanDownloadMap(downloadMap);
 
 	await Promise.all([cleanupChunksProm, fs.promises.rm(outfile)]);
 
@@ -634,13 +657,18 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 export const launchHandler = async (
 	params: LambdaPayload,
 	options: Options
-) => {
+): Promise<{
+	type: 'success';
+}> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
 
 	try {
 		await innerLaunchHandler(params, options);
+		return {
+			type: 'success',
+		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			throw err;
@@ -709,5 +737,7 @@ export const launchHandler = async (
 				console.log(error);
 			}
 		}
+
+		throw err;
 	}
 };

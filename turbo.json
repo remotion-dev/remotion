@@ -6,11 +6,21 @@
       "outputs": ["dist/**", ".rollup.cache"],
       "outputMode": "new-only"
     },
+    "docs": {
+      "outputs": [
+        "build/**",
+        ".docusaurus",
+        "../../node_modules/.cache/twoslash"
+      ]
+    },
     "test": {
       "dependsOn": ["^build", "build"],
       "outputs": []
     },
     "lint": {
+      "outputs": []
+    },
+    "formatting": {
       "outputs": []
     },
     "@remotion/example#lint": {

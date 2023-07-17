@@ -19,9 +19,8 @@ test('Should be able to make a rect path', () => {
 	});
 });
 
-
 test('Should handle rectangle path with radius', () => {
-	const rect = makeRect({width: 100, height: 100, cornerRadius: 20})
+	const rect = makeRect({width: 100, height: 100, cornerRadius: 20});
 
 	expect(rect).toEqual({
 		height: 100,

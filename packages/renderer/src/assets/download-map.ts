@@ -1,31 +1,10 @@
-import fs, {mkdirSync} from 'fs';
-import path from 'path';
+import fs, {mkdirSync} from 'node:fs';
+import path from 'node:path';
 import type {TAsset} from 'remotion';
 import {deleteDirectory} from '../delete-directory';
+import {OffthreadVideoServerEmitter} from '../offthread-video-server';
 import {tmpDir} from '../tmp-dir';
-
-type EncodingStatus =
-	| {
-			type: 'encoding';
-	  }
-	| {
-			type: 'done';
-			src: string;
-	  }
-	| undefined;
-
-export type SpecialVCodecForTransparency = 'vp9' | 'vp8' | 'none';
-
-export type NeedsResize = [number, number] | null;
-
-export type Vp9Result = {
-	specialVcodecForTransparency: SpecialVCodecForTransparency;
-	needsResize: NeedsResize;
-};
-export type VideoDurationResult = {
-	duration: number | null;
-	fps: number | null;
-};
+import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 
 export type AudioChannelsAndDurationResultCache = {
 	channels: number;
@@ -34,6 +13,8 @@ export type AudioChannelsAndDurationResultCache = {
 
 export type DownloadMap = {
 	id: string;
+	emitter: OffthreadVideoServerEmitter;
+	downloadListeners: RenderMediaOnDownload[];
 	isDownloadingMap: {
 		[src: string]:
 			| {
@@ -49,11 +30,6 @@ export type DownloadMap = {
 			| undefined;
 	};
 	listeners: {[key: string]: {[downloadDir: string]: (() => void)[]}};
-	lastFrameMap: Record<string, {lastAccessed: number; data: Buffer}>;
-	isBeyondLastFrameMap: Record<string, number>;
-	isVp9VideoCache: Record<string, Vp9Result>;
-	ensureFileHasPresentationTimestamp: Record<string, EncodingStatus>;
-	videoDurationResultCache: Record<string, VideoDurationResult>;
 	durationOfAssetCache: Record<string, AudioChannelsAndDurationResultCache>;
 	downloadDir: string;
 	preEncode: string;
@@ -96,14 +72,10 @@ export const makeDownloadMap = (): DownloadMap => {
 		isDownloadingMap: {},
 		hasBeenDownloadedMap: {},
 		listeners: {},
-		lastFrameMap: {},
-		isBeyondLastFrameMap: {},
-		ensureFileHasPresentationTimestamp: {},
-		isVp9VideoCache: {},
-		videoDurationResultCache: {},
 		durationOfAssetCache: {},
 		id: String(Math.random()),
 		assetDir: dir,
+		downloadListeners: [],
 		downloadDir: makeAndReturn(dir, 'remotion-assets-dir'),
 		complexFilter: makeAndReturn(dir, 'remotion-complex-filter'),
 		preEncode: makeAndReturn(dir, 'pre-encode'),
@@ -112,6 +84,7 @@ export const makeDownloadMap = (): DownloadMap => {
 		stitchFrames: makeAndReturn(dir, 'remotion-stitch-temp-dir'),
 		compositingDir: makeAndReturn(dir, 'remotion-compositing-temp-dir'),
 		compositorCache: {},
+		emitter: new OffthreadVideoServerEmitter(),
 	};
 };
 

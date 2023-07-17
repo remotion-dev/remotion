@@ -180,3 +180,7 @@ While this was previously the main way of importing files, we now recommend agai
 - Dynamic imports such as `require('img' + frame + '.png')` are [funky](/docs/webpack-dynamic-imports).
 
 Prefer importing using [`staticFile()`](/docs/staticfile) if possible.
+
+## Dynamic duration based on assets
+
+To make your videos duration dependent based on your assets, see: [Dynamic duration, FPS & dimensions](/docs/dynamic-metadata)

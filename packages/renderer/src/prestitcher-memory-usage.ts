@@ -1,6 +1,6 @@
-import os from 'os';
+import os from 'node:os';
 
-export const estimateMemoryUsageForPrestitcher = ({
+const estimateMemoryUsageForPrestitcher = ({
 	width,
 	height,
 }: {

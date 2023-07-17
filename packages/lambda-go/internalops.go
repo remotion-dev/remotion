@@ -1,4 +1,4 @@
-package remotionlambda
+package lambda_go_sdk
 
 import (
 	"log"
@@ -36,6 +36,7 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		AudioCodec:           options.AudioCodec,
 		ForceBucketName:      options.ForceBucketName,
 		RendererFunctionName: &options.RendererFunctionName,
+		Type:                 "start",
 	}
 
 	internalParams.Muted = options.Muted
@@ -122,6 +123,25 @@ func constructRenderInternals(options *RemotionOptions) (*renderInternalOptions,
 		internalParams.ChromiumOptions = options.ChromiumOptions
 	}
 	internalParams.EnvVariables = options.EnvVariables
+
+	return &internalParams, nil
+}
+
+func constructGetProgressInternals(options *RenderConfig) (*renderProgressInternalConfig, error) {
+
+	validate := validator.New()
+	validationErrors := validate.Struct(options)
+	if validationErrors != nil {
+
+		return nil, validationErrors
+	}
+
+	internalParams := renderProgressInternalConfig{
+		RenderId:   options.RenderId,
+		BucketName: options.BucketName,
+		Type:       "status",
+		Version:    VERSION,
+	}
 
 	return &internalParams, nil
 }

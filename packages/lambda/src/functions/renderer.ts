@@ -1,11 +1,11 @@
-import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {BrowserLog, Codec} from '@remotion/renderer';
-import {RenderInternals, renderMedia} from '@remotion/renderer';
-import fs from 'fs';
-import path from 'path';
+import {RenderInternals} from '@remotion/renderer';
+import fs from 'node:fs';
+import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {getLambdaClient} from '../shared/aws-clients';
+import {callLambda} from '../shared/call-lambda';
 import {writeLambdaInitializedFile} from '../shared/chunk-progress';
+import {decompressInputProps} from '../shared/compress-props';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
@@ -13,7 +13,6 @@ import {
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -36,7 +35,7 @@ const renderHandler = async (
 	params: LambdaPayload,
 	options: Options,
 	logs: BrowserLog[]
-) => {
+): Promise<{}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -47,15 +46,25 @@ const renderHandler = async (
 		);
 	}
 
-	const inputPropsPromise = deserializeInputProps({
+	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: params.inputProps,
+		propsType: 'input-props',
+	});
+
+	const resolvedPropsPromise = decompressInputProps({
+		bucketName: params.bucketName,
+		expectedBucketOwner: options.expectedBucketOwner,
+		region: getCurrentRegionInFunction(),
+		serialized: params.resolvedProps,
+		propsType: 'resolved-props',
 	});
 
 	const browserInstance = await getBrowserInstance(
-		RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
+		params.logLevel,
+		false,
 		params.chromiumOptions ?? {}
 	);
 
@@ -98,13 +107,13 @@ const renderHandler = async (
 		)}`
 	);
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
 	const downloads: Record<string, number> = {};
 
-	const inputProps = await inputPropsPromise;
+	const resolvedProps = await resolvedPropsPromise;
+	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
+
 	await new Promise<void>((resolve, reject) => {
-		renderMedia({
+		RenderInternals.internalRenderMedia({
 			composition: {
 				id: params.composition,
 				durationInFrames: params.durationInFrames,
@@ -113,7 +122,7 @@ const renderHandler = async (
 				width: params.width,
 			},
 			imageFormat: params.imageFormat,
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (
@@ -130,7 +139,10 @@ const renderHandler = async (
 						expectedBucketOwner: options.expectedBucketOwner,
 						framesRendered: renderedFrames,
 						renderId: params.renderId,
-					}).catch((err) => reject(err));
+					}).catch((err) => {
+						console.log(err);
+						return reject(err);
+					});
 				}
 
 				const allFrames = RenderInternals.getFramesToRender(
@@ -157,22 +169,16 @@ const renderHandler = async (
 			},
 			puppeteerInstance: browserInstance,
 			serveUrl: params.serveUrl,
-			quality: params.quality,
-			envVariables: params.envVariables,
-			dumpBrowserLogs:
-				params.dumpBrowserLogs ??
-				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
-			verbose: RenderInternals.isEqualOrBelowLogLevel(
-				params.logLevel,
-				'verbose'
-			),
+			jpegQuality: params.jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
+			envVariables: params.envVariables ?? {},
+			logLevel: params.logLevel,
 			onBrowserLog: (log) => {
 				logs.push(log);
 			},
 			outputLocation,
 			codec: chunkCodec,
-			crf: params.crf ?? undefined,
-			pixelFormat: params.pixelFormat,
+			crf: params.crf ?? null,
+			pixelFormat: params.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
 			proResProfile: params.proResProfile,
 			onDownload: (src: string) => {
 				console.log('Downloading', src);
@@ -211,28 +217,31 @@ const renderHandler = async (
 			port: null,
 			everyNthFrame: params.everyNthFrame,
 			numberOfGifLoops: null,
-			internal: {
-				downloadMap,
-			},
 			muted: params.muted,
 			enforceAudioTrack: true,
 			audioBitrate: params.audioBitrate,
 			videoBitrate: params.videoBitrate,
-			onSlowestFrames: (slowestFrames) => {
-				console.log();
-				console.log(`Slowest frames:`);
-				slowestFrames.forEach(({frame, time}) => {
-					console.log(`Frame ${frame} (${time.toFixed(3)}ms)`);
-				});
-			},
 			// Lossless flag takes priority over audio codec
 			// https://github.com/remotion-dev/remotion/issues/1647
 			// Special flag only in Lambda renderer which improves the audio quality
 			audioCodec: null,
 			preferLossless: true,
 			browserExecutable: executablePath(),
+			cancelSignal: undefined,
+			disallowParallelEncoding: false,
+			ffmpegOverride: ({args}) => args,
+			indent: false,
+			onCtrlCExit: () => undefined,
+			server: undefined,
+			serializedResolvedPropsWithCustomSchema: resolvedProps,
 		})
-			.then(() => resolve())
+			.then(({slowestFrames}) => {
+				console.log(`Slowest frames:`);
+				slowestFrames.forEach(({frame, time}) => {
+					console.log(`  Frame ${frame} (${time.toFixed(3)}ms)`);
+				});
+				resolve();
+			})
 			.catch((err) => reject(err));
 	});
 
@@ -243,6 +252,8 @@ const renderHandler = async (
 		timings: Object.values(chunkTimingData.timings),
 	};
 
+	RenderInternals.Log.verbose('Writing chunk to S3');
+	const writeStart = Date.now();
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: chunkKeyForIndex({
@@ -256,6 +267,10 @@ const renderHandler = async (
 		downloadBehavior: null,
 		customCredentials: null,
 	});
+	RenderInternals.Log.verbose('Wrote chunk to S3', {
+		time: Date.now() - writeStart,
+	});
+	RenderInternals.Log.verbose('Cleaning up and writing timings');
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
 		fs.promises.rm(outputPath, {recursive: true}),
@@ -274,14 +289,16 @@ const renderHandler = async (
 			downloadBehavior: null,
 			customCredentials: null,
 		}),
-		RenderInternals.cleanDownloadMap(downloadMap),
 	]);
+	return {};
 };
 
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options
-) => {
+): Promise<{
+	type: 'success';
+}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -290,6 +307,9 @@ export const rendererHandler = async (
 
 	try {
 		await renderHandler(params, options, logs);
+		return {
+			type: 'success',
+		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			console.log({err});
@@ -334,14 +354,18 @@ export const rendererHandler = async (
 				retriesLeft: params.retriesLeft - 1,
 				attempt: params.attempt + 1,
 			};
-			await getLambdaClient(getCurrentRegionInFunction()).send(
-				new InvokeCommand({
-					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-					// @ts-expect-error
-					Payload: JSON.stringify(retryPayload),
-					InvocationType: 'Event',
-				})
-			);
+			const res = await callLambda({
+				functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+				payload: retryPayload,
+				type: LambdaRoutines.renderer,
+				region: getCurrentRegionInFunction(),
+				receivedStreamingPayload: () => undefined,
+				timeoutInTest: 120000,
+			});
+
+			return res;
 		}
+
+		throw err;
 	}
 };

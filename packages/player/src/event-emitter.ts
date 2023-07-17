@@ -30,6 +30,10 @@ type FullscreenChangeEventPayload = {
 	isFullscreen: boolean;
 };
 
+type MuteChangeEventPayload = {
+	isMuted: boolean;
+};
+
 type PlayerStateEventMap = {
 	seeked: SeekPayload;
 	pause: undefined;
@@ -42,6 +46,7 @@ type PlayerStateEventMap = {
 	timeupdate: TimeUpdateEventPayload;
 	frameupdate: FrameUpdateEventPayload;
 	fullscreenchange: FullscreenChangeEventPayload;
+	mutechange: MuteChangeEventPayload;
 };
 
 type ThumbnailStateEventMap = {
@@ -76,6 +81,7 @@ export class PlayerEmitter {
 		frameupdate: [],
 		fullscreenchange: [],
 		volumechange: [],
+		mutechange: [],
 	};
 
 	addEventListener<Q extends PlayerEventTypes>(
@@ -157,6 +163,10 @@ export class PlayerEmitter {
 
 	dispatchFullscreenChange(event: FullscreenChangeEventPayload) {
 		this.dispatchEvent('fullscreenchange', event);
+	}
+
+	dispatchMuteChange(event: MuteChangeEventPayload) {
+		this.dispatchEvent('mutechange', event);
 	}
 }
 

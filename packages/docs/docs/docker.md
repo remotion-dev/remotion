@@ -8,20 +8,17 @@ crumb: "Building video apps"
 We recommend the following structure for your Dockerfile. Read below about the individual steps and whether you need to adjust them.
 
 ```docker title="Dockerfile"
-FROM debian:bookworm-20230411
+FROM debian:bookworm
 
 RUN apt-get update
-RUN apt show chromium
-RUN apt-get install -y nodejs npm ffmpeg chromium
+RUN apt-get install -y nodejs npm chromium
 
 # Copy everything from your project to the Docker image. Adjust if needed.
 COPY package.json package*.json yarn.lock* pnpm-lock.yaml* tsconfig.json* remotion.config.* ./
 COPY src ./src
+
 # If you have a public folder:
 COPY public ./public
-
-# Specify the location of the Chromium browser
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Install the right package manager and dependencies - see below for Yarn/PNPM
 RUN npm i
@@ -46,7 +43,7 @@ This Dockerfile is unable to render WebGL content. Suggestions on how to improve
 </p>
 
 ```docker
-FROM debian:bookworm-20230411
+FROM debian:bookworm
 ```
 
 <p>
@@ -58,11 +55,11 @@ RUN apt-get update
 ```
 
 <p>
-<Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM), FFmpeg and Chromium. 
+<Step>3</Step> Download Remotion's dependencies: Node.JS (with NPM) and Chromium. 
 </p>
 
 ```docker
-RUN apt-get install -y nodejs npm ffmpeg chromium
+RUN apt-get install -y nodejs npm chromium
 ```
 
 <p>
@@ -77,19 +74,7 @@ COPY public ./public
 ```
 
 <p>
-<Step>5</Step> Tell Remotion where the Chromium executable is located.
-</p>
-
-```docker
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-```
-
-:::note
-If you are on Remotion `v3.3.81` or higher, you don't need this line.
-:::
-
-<p>
-<Step>6</Step> Install the right package manager and dependencies. 
+<Step>5</Step> Install the right package manager and dependencies. 
 </p>
 
 - If you use NPM, put the following in your Dockerfile:
@@ -111,7 +96,7 @@ If you are on Remotion `v3.3.81` or higher, you don't need this line.
   ```
 
 <p>
-<Step>7</Step> Run your code. It can be a CLI command or a Node.JS app.
+<Step>6</Step> Run your code. It can be a CLI command or a Node.JS app.
 </p>
 
 ```docker
@@ -121,9 +106,13 @@ CMD ["node", "render.mjs"]
 
 ## Example render script
 
-```js title="render.mjs"
+Assuming you want to render the composition `MyComp`:
+
+```tsx twoslash title="render.mjs"
+// @module: ESNext
+// @target: ESNext
 import { bundle } from "@remotion/bundler";
-import { getCompositions, renderMedia } from "@remotion/renderer";
+import { renderMedia, selectComposition } from "@remotion/renderer";
 import { createRequire } from "node:module";
 
 const require = createRequire(import.meta.url);
@@ -134,10 +123,12 @@ const bundled = await bundle({
   webpackOverride: (config) => config,
 });
 
-const compositions = await getCompositions(bundled);
-const composition = compositions[0];
+const composition = await selectComposition({
+  serveUrl: bundled,
+  id: "MyComp",
+});
 
-console.log("Starting to render composition", composition.id);
+console.log("Starting to render composition");
 
 await renderMedia({
   codec: "h264",
@@ -145,6 +136,7 @@ await renderMedia({
   serveUrl: bundled,
   outputLocation: `out/${composition.id}.mp4`,
 });
+
 console.log(`Rendered composition ${composition.id}.`);
 ```
 
@@ -163,11 +155,50 @@ Use the following command to run the image:
 docker run remotion-app
 ```
 
+## Emojis
+
+No emojis are installed by default. If you want to use emojis, install an emoji font:
+
+```docker
+RUN apt-get install fonts-noto-color-emoji
+```
+
+## Japanese, Chinese, Korean, etc.
+
+Those fonts may have limited Character support enabled by default. If you need full support, install the following fonts:
+
+```docker
+RUN apt-get install fonts-noto-cjk
+```
+
 ## Why are the packages not pinned?
 
 In Debian (and also Alpine), old packages are removed from the repositories once new versions are released. This means that pinning the versions will actually cause the Dockerfiles to break in the future. We choose Debian as the distribution because the packages get well tested before they get released into the repository.
 
+## Notes for older versions
+
+- If you are on a lower version than `v4.0.0`, add `ffmpeg` to the list of packages to install:
+
+  ```docker
+  RUN apt-get install -y nodejs ffmpeg npm chromium
+  ```
+
+- If you are on Remotion `v3.3.80` or lower, tell Remotion where Chrome is installed:
+
+  ```docker
+  ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+  ```
+
+## Recommendation: Don't use Alpine Linux
+
+Alpine Linux is a lightweight distribution often used in Docker. There are two known issues with it when used in conjunction with Remotion:
+
+- The launch of the Rust parts of Remotion may be very slow (>10sec slowdown per render)
+- If a new version of Chrome gets released in the registry, you might be unable to downgrade because old versions are not kept and breaking changes can not be ruled out.
+
 ## Changelog
+
+**May 30th, 2023**: Update document for Remotion 4.0.
 
 **April 15th, 2023**: Unpinning the versions in Debian since it would cause breakage.
 

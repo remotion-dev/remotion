@@ -1,11 +1,3 @@
-import type {LogLevel} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 
-let logLevel: LogLevel = 'info';
-
-export const getLogLevel = () => {
-	return logLevel;
-};
-
-export const setLogLevel = (newLogLevel: LogLevel) => {
-	logLevel = newLogLevel;
-};
+export const {getLogLevel, setLogLevel} = RenderInternals;

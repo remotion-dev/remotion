@@ -71,7 +71,7 @@ One of:
 - `"private"`: The rendered still is not publicly available, but signed links can be created using [presignUrl()](/docs/lambda/presignurl).
 - `"no-acl"` (_available from v.3.1.7_): The ACL option is not being set at all, this option is useful if you are writing to another bucket that does not support ACL using [`outName`](#outname).
 
-### `frame`
+### `frame?`
 
 _optional - default `0`_
 
@@ -83,15 +83,61 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 _optional - default `"png"`_
 
-The image format that you want - either `"png"` or `"jpeg"`.
+See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat).
 
-### `quality?`
+### `onInit?`<AvailableFrom v="4.0.6" />
+
+A callback function that gets called when the render starts, useful to obtain the link to the logs even if the render fails.
+
+It receives an object with the following properties:
+
+- `cloudWatchLogs`: A link to the CloudWatch logs of the Lambda function, if you did not disable it.
+- `renderId`: The ID of the render.
+
+Example usage:
+
+```tsx twoslash
+// @module: esnext
+// @target: es2022
+
+import {
+  renderStillOnLambda,
+  RenderStillOnLambdaInput,
+} from "@remotion/lambda/client";
+
+const otherParameters: RenderStillOnLambdaInput = {
+  region: "us-east-1",
+  functionName: "remotion-render-bds9aab",
+  serveUrl:
+    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+  composition: "MyVideo",
+  inputProps: {},
+  imageFormat: "png",
+  maxRetries: 1,
+  privacy: "public",
+  envVariables: {},
+  frame: 10,
+};
+await renderStillOnLambda({
+  ...otherParameters,
+  onInit: ({ cloudWatchLogs, renderId }) => {
+    console.log(console.log(`Render invoked with ID = ${renderId}`));
+    console.log(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
+  },
+});
+```
+
+### `jpegQuality?`
 
 _optional_
 
 Sets the quality of the generated JPEG images. Must be an integer between 0 and 100. Default is to leave it up to the browser, [current default is 80](https://github.com/chromium/chromium/blob/99314be8152e688bafbbf9a615536bdbb289ea87/headless/lib/browser/protocol/headless_handler.cc#L32).
 
 Only applies if `imageFormat` is `"jpeg"`, otherwise this option is invalid.
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
 
 ### `maxRetries?`
 
@@ -103,27 +149,27 @@ How often a frame render may be retried until it fails.
 
 _optional - default `{}`_
 
-See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
+See [`renderStill() -> envVariables`](/docs/renderer/render-still#envvariables).
 
-### `forceHeight`
+### `forceHeight?`
 
 _optional, available from v3.2.40_
 
 Overrides the default composition height.
 
-### `forceWidth`
+### `forceWidth?`
 
 _optional, available from v3.2.40_
 
 Overrides the default composition width.
 
-### `scale`
+### `scale?`
 
 _optional_
 
 Scales the output dimensions by a factor. See [Scaling](/docs/scaling) to learn more about this feature.
 
-### `outName`
+### `outName?`
 
 _optional_
 
@@ -135,9 +181,11 @@ It can either be:
 
 ### `timeoutInMilliseconds?`
 
+_optional_
+
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
-### `downloadBehavior`
+### `downloadBehavior?`
 
 _optional, available since v3.1.5_
 
@@ -148,6 +196,8 @@ Either:
 - `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
 
 ### `chromiumOptions?`
+
+_optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
@@ -180,7 +230,7 @@ Accepted values:
 The default for Lambda is `"swangle"`, but `null` elsewhere.
 :::
 
-#### `userAgent` <AvailableFrom v="3.3.83"/>
+#### `userAgent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
@@ -192,13 +242,15 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 ### `logLevel?`
 
+_optional_
+
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
 
-If the `logLevel` is set to `verbose`, the `dumpBrowserLogs` flag will also be enabled.
+### ~~`dumpBrowserLogs?`~~
 
-### `dumpBrowserLogs?` <AvailableFrom v="3.3.83" />
+_optional - default `false`, deprecated in v4.0_
 
-If set to true, all `console` statements from the headless browser will be forwarded to the CloudWatch logs.
+Deprecated in favor of [`logLevel`](#loglevel).
 
 ## Return value
 

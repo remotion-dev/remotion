@@ -21,11 +21,19 @@ export const normalizeInstructions = (
 
 	let x = 0;
 	let y = 0;
-	const initialX = 0;
-	const initialY = 0;
+	let moveX = 0;
+	let moveY = 0;
 
 	for (let i = 0; i < instructions.length; i++) {
 		const instruction = instructions[i];
+		if (instruction.type === 'M') {
+			moveX = instruction.x;
+			moveY = instruction.y;
+		} else if (instruction.type === 'm') {
+			moveX += instruction.dx;
+			moveY += instruction.dy;
+		}
+
 		if (
 			instruction.type === 'A' ||
 			instruction.type === 'C' ||
@@ -50,6 +58,8 @@ export const normalizeInstructions = (
 			instruction.type === 's' ||
 			instruction.type === 't'
 		) {
+			const currentX = x;
+			const currentY = y;
 			x += instruction.dx;
 			y += instruction.dy;
 			if (instruction.type === 'a') {
@@ -69,10 +79,10 @@ export const normalizeInstructions = (
 			if (instruction.type === 'c') {
 				normalized.push({
 					type: 'C',
-					cp1x: instruction.cp1dx + x,
-					cp1y: instruction.cp1dy + y,
-					cp2x: instruction.cp2dx + x,
-					cp2y: instruction.cp2dy + y,
+					cp1x: instruction.cp1dx + currentX,
+					cp1y: instruction.cp1dy + currentY,
+					cp2x: instruction.cp2dx + currentX,
+					cp2y: instruction.cp2dy + currentY,
 					x,
 					y,
 				});
@@ -100,8 +110,8 @@ export const normalizeInstructions = (
 			if (instruction.type === 'q') {
 				normalized.push({
 					type: 'Q',
-					cpx: instruction.cpdx + x,
-					cpy: instruction.cpdy + y,
+					cpx: instruction.cpdx + currentX,
+					cpy: instruction.cpdy + currentY,
 					x,
 					y,
 				});
@@ -111,8 +121,8 @@ export const normalizeInstructions = (
 			if (instruction.type === 's') {
 				normalized.push({
 					type: 'S',
-					cpx: instruction.cpdx + x,
-					cpy: instruction.cpdy + y,
+					cpx: instruction.cpdx + currentX,
+					cpy: instruction.cpdy + currentY,
 					x,
 					y,
 				});
@@ -143,8 +153,8 @@ export const normalizeInstructions = (
 
 		if (instruction.type === 'Z') {
 			normalized.push(instruction);
-			x = initialX;
-			y = initialY;
+			x = moveX;
+			y = moveY;
 			continue;
 		}
 

@@ -8,7 +8,7 @@ const AGOLIA_SEARCH_URL =
 
 type Levels = 'lvl0' | 'lvl1' | 'lvl2' | 'lvl3' | 'lvl4' | 'lvl5' | 'lvl6';
 
-export type Match = {value: string; matchLevel: 'none' | 'partial' | 'full'};
+type Match = {value: string; matchLevel: 'none' | 'partial' | 'full'};
 
 type DynamicHit =
 	| {
@@ -44,7 +44,7 @@ export const algoliaSearch = async (
 
 	url.searchParams.set(
 		'x-algolia-agen',
-		encodeURIComponent('Remotion Preview DocSearch')
+		encodeURIComponent('Remotion Studio DocSearch')
 	);
 	url.searchParams.set('x-algolia-api-key', ALGOLIA_API_KEY);
 	url.searchParams.set('x-algolia-application-id', ALGOLIA_APPLICATION_ID);
@@ -94,7 +94,7 @@ export const algoliaSearch = async (
 		.filter(truthy);
 };
 
-export const splitMatchIntoTitleAndSubtitle = (match: Hit) => {
+const splitMatchIntoTitleAndSubtitle = (match: Hit) => {
 	const main =
 		match.type === 'content'
 			? match._highlightResult.content

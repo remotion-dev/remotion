@@ -2,34 +2,38 @@ import type {
 	AudioCodec,
 	ChromiumOptions,
 	FrameRange,
-	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
+	VideoImageFormat,
 } from '@remotion/renderer';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {getCloudwatchStreamUrl, getS3RenderUrl} from '../shared/get-aws-urls';
+import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
-import {makeLambdaPayload} from './make-lambda-payload';
+import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 
 export type RenderMediaOnLambdaInput = {
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
 	composition: string;
-	inputProps?: unknown;
+	inputProps?: Record<string, unknown>;
 	codec: LambdaCodec;
-	imageFormat?: ImageFormat;
+	imageFormat?: VideoImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
 	privacy?: Privacy;
-	quality?: number;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	maxRetries?: number;
 	framesPerLambda?: number;
 	logLevel?: LogLevel;
@@ -55,6 +59,9 @@ export type RenderMediaOnLambdaInput = {
 	rendererFunctionName?: string | null;
 	forceBucketName?: string;
 	audioCodec?: AudioCodec | null;
+	/**
+	 * @deprecated in favor of `logLevel`: true
+	 */
 	dumpBrowserLogs?: boolean;
 };
 
@@ -77,12 +84,11 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.crf The constant rate factor to be used during encoding.
  * @param params.envVariables Object containing environment variables to be inserted into the video environment
  * @param params.proResProfile The ProRes profile if rendering a ProRes video
- * @param params.quality JPEG quality if JPEG was selected as the image format.
+ * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
  * @param params.region The AWS region in which the media should be rendered.
  * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
  * @param params.webhook Configuration for webhook called upon completion or timeout of the render.
- * @param params.dumpBrowserLogs Whether to print browser logs to CloudWatch
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 
@@ -95,18 +101,20 @@ export const renderMediaOnLambda = async (
 		const res = await callLambda({
 			functionName,
 			type: LambdaRoutines.start,
-			payload: await makeLambdaPayload(input),
+			payload: await makeLambdaRenderMediaPayload(input),
 			region,
+			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
 		});
 		return {
 			renderId: res.renderId,
 			bucketName: res.bucketName,
-			cloudWatchLogs: getCloudwatchStreamUrl({
+			cloudWatchLogs: getCloudwatchRendererUrl({
 				functionName,
-				method: LambdaRoutines.renderer,
 				region,
 				renderId: res.renderId,
 				rendererFunctionName: rendererFunctionName ?? null,
+				chunk: null,
 			}),
 			folderInS3Console: getS3RenderUrl({
 				bucketName: res.bucketName,

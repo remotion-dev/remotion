@@ -43,6 +43,12 @@ export const GifForRendering = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 			delayRender(`Rendering <Gif/> with src="${resolvedSrc}"`)
 		);
 
+		useEffect(() => {
+			return () => {
+				continueRender(id);
+			};
+		}, [id]);
+
 		const index = useCurrentGifIndex(state.delays, loopBehavior);
 		const currentOnLoad = useRef(onLoad);
 		const currentOnError = useRef(onError);

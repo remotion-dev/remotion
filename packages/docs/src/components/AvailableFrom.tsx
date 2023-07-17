@@ -3,6 +3,7 @@ import React from "react";
 const link: React.CSSProperties = {
   textDecoration: "none",
   fontSize: 16,
+  marginLeft: 8,
 };
 
 const label: React.CSSProperties = {
@@ -22,6 +23,10 @@ export const AvailableFrom: React.FC<{
 }> = ({ v }) => {
   if (!v) {
     throw new Error("v is required");
+  }
+
+  if (v.startsWith("v")) {
+    throw new Error("do not include v");
   }
 
   return (

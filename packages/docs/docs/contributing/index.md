@@ -7,7 +7,7 @@ crumb: How to be awesome
 
 Issues and pull requests of all sorts are welcome!
 
-For bigger projects, please coordinate with Jonny Burger (<a href="mailto:jonny@remotion.dev">jonny@remotion.dev</a>, <a href="https://remotion.dev/discord">Discord</a>: <code>Jonny Burger#1111</code>) to make sure your changes get merged.
+For bigger projects, please coordinate with Jonny Burger (<a href="mailto:jonny@remotion.dev">jonny@remotion.dev</a>, <a href="https://remotion.dev/discord">Discord</a>: <code>@jonnyburger</code>) to make sure your changes get merged.
 
 Please note that since we charge for Remotion when companies are using it, this is a **commercial project**.  
 By sending pull requests, you agree that we can use your code changes in a commercial context.
@@ -27,7 +27,7 @@ corepack enable
 If you don't have `corepack`, install pnpm manually:
 
 ```sh
-npm i -g pnpm@7.7.1
+npm i -g pnpm@8.5.1
 ```
 
 Prefix with `sudo` if necessary.
@@ -102,6 +102,18 @@ cd packages/docs
 pnpm start
 ```
 
+## Running the CLI
+
+You can test changes to the CLI by moving to `packages/examples` directory and using `pnpm exec` to execute the CLI:
+
+```sh
+cd packages/examples
+# Example - Get available compositions
+pnpm exec remotion compositions
+# Example - Render command
+pnpm exec remotion render ten-frame-tester --output ../../out/video.mp4
+```
+
 ## Troubleshooting
 
 If your `pnpm build` throws errors, oftentimes it is because of caching issues. You can resolve many of these errors by running
@@ -111,7 +123,6 @@ pnpm run clean
 ```
 
 in the root directory. Make sure to beforehand kill any `pnpm watch` commands, as those might regenerate files as you clean them!
-
 
 ## Developing Rust parts
 

@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import {expect, test} from 'vitest';
 import {findClosestPackageJson} from '../find-closest-package-json';
 

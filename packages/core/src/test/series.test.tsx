@@ -37,7 +37,9 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 			<TimelineContext.Provider
 				value={{
 					rootId: '',
-					frame,
+					frame: {
+						'my-comp': frame,
+					},
 					playing: false,
 					imperativePlaying: {
 						current: false,
@@ -183,7 +185,7 @@ test('Should throw if invalid or no duration provided', () => {
 			</Series>
 		);
 	}).toThrow(
-		/The "durationInFrames" prop of a <Series.Sequence \/> component must be a number, but you passed a value of type undefined/
+		/The "durationInFrames" prop of a <Series.Sequence \/> component is missing./
 	);
 });
 test('Should allow whitespace', () => {
