@@ -16,5 +16,9 @@ setuptools.setup(
     classifiers=[
 
     ],
+    packages=setuptools.find_packages(),
     python_requires='>=3.6',
+    # Name of the python package
+    py_modules=["remotion_lambda_sdk"],
+
 )
