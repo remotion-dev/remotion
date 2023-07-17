@@ -31,21 +31,21 @@ describe('Templates should be valid', () => {
 					expect(body.scripts.build).not.toContain('index');
 				}
 
-				expect(body.dependencies.remotion).toMatch(/^\^?3/);
-				expect(body.dependencies['@remotion/cli']).toMatch(/^\^?3/);
+				expect(body.dependencies.remotion).toMatch(/^\^?4/);
+				expect(body.dependencies['@remotion/cli']).toMatch(/^\^?4/);
 				expect(body.dependencies.react).toMatch(/^\^?18/);
 				expect(body.dependencies['react-dom']).toMatch(/^\^?18/);
 
-				expect(body.devDependencies.prettier).toMatch(/^\^?2.8.1/);
-				expect(body.devDependencies.eslint).toMatch(/^\^?8.30/);
-				const eitherPluginOrConfig =
-					body.devDependencies['@remotion/eslint-config']?.match(/^\^?3/) ||
-					body.devDependencies['@remotion/eslint-plugin']?.match(/^\^?3/);
-
-				expect(eitherPluginOrConfig).toBeTruthy();
+				expect(body.devDependencies.prettier).toMatch(/^\^?2.8.8/);
 
 				if (!template.shortName.includes('JavaScript')) {
+					expect(body.devDependencies.eslint).toMatch(/^\^?8.43/);
 					expect(body.devDependencies.typescript).toMatch(/^\^?4/);
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+					const eitherPluginOrConfig =
+						body.devDependencies['@remotion/eslint-config']?.match(/^\^?4/) ||
+						body.devDependencies['@remotion/eslint-plugin']?.match(/^\^?4/);
+					expect(eitherPluginOrConfig).toBeTruthy();
 				}
 			},
 			12000

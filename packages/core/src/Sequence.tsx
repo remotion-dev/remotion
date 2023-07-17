@@ -6,12 +6,13 @@ import React, {
 	useState,
 } from 'react';
 import {AbsoluteFill} from './AbsoluteFill.js';
-import {CompositionManager} from './CompositionManager.js';
+import type {LoopDisplay} from './CompositionManager.js';
 import {useRemotionEnvironment} from './get-environment.js';
 import {getTimelineClipName} from './get-timeline-clip-name.js';
 import {useNonce} from './nonce.js';
 import type {SequenceContextType} from './SequenceContext.js';
 import {SequenceContext} from './SequenceContext.js';
+import {SequenceManager} from './SequenceManager.js';
 import {
 	TimelineContext,
 	useTimelinePosition,
@@ -34,7 +35,7 @@ export type SequenceProps = {
 	durationInFrames?: number;
 	name?: string;
 	showInTimeline?: boolean;
-	showLoopTimesInTimeline?: number;
+	loopDisplay?: LoopDisplay;
 } & LayoutAndStyle;
 
 const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
@@ -47,7 +48,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		children,
 		name,
 		showInTimeline = true,
-		showLoopTimesInTimeline,
+		loopDisplay,
 		...other
 	},
 	ref
@@ -107,7 +108,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		0,
 		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration)
 	);
-	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
+	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
@@ -144,7 +145,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 			rootId,
 			showInTimeline,
 			nonce,
-			showLoopTimesInTimeline,
+			loopDisplay,
 		});
 		return () => {
 			unregisterSequence(id);
@@ -162,7 +163,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		from,
 		showInTimeline,
 		nonce,
-		showLoopTimesInTimeline,
+		loopDisplay,
 		environment,
 	]);
 

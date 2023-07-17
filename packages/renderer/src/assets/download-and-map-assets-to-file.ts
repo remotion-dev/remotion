@@ -1,5 +1,5 @@
-import fs from 'fs';
-import path, {extname} from 'path';
+import fs from 'node:fs';
+import path, {extname} from 'node:path';
 import type {TAsset} from 'remotion';
 import {random} from 'remotion';
 import {isAssetCompressed} from '../compress-assets';
@@ -50,7 +50,7 @@ const waitForAssetToBeDownloaded = ({
 	return new Promise<string>((resolve) => {
 		downloadMap.listeners[src][downloadDir].push(() => {
 			const srcMap = downloadMap.hasBeenDownloadedMap[src];
-			if (!srcMap || !srcMap[downloadDir]) {
+			if (!srcMap?.[downloadDir]) {
 				throw new Error(
 					'Expected file for ' + src + 'to be available in ' + downloadDir
 				);
@@ -149,11 +149,9 @@ function validateBufferEncoding(
 
 export const downloadAsset = async ({
 	src,
-	onDownload,
 	downloadMap,
 }: {
 	src: string;
-	onDownload: RenderMediaOnDownload;
 	downloadMap: DownloadMap;
 }): Promise<string> => {
 	if (isAssetCompressed(src)) {
@@ -199,7 +197,7 @@ export const downloadAsset = async ({
 		console.log('Actually downloading asset', src);
 	}
 
-	const onProgress = onDownload(src);
+	downloadMap.emitter.dispatchDownload(src);
 
 	if (src.startsWith('data:')) {
 		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
@@ -235,7 +233,12 @@ export const downloadAsset = async ({
 	const {to} = await downloadFile({
 		url: src,
 		onProgress: (progress) => {
-			onProgress?.(progress);
+			downloadMap.emitter.dispatchDownloadProgress(
+				src,
+				progress.percent,
+				progress.downloaded,
+				progress.totalSize
+			);
 		},
 		to: (contentDisposition, contentType) =>
 			getSanitizedFilenameForAssetUrl({
@@ -347,17 +350,62 @@ export const downloadAndMapAssetsToFileUrl = async ({
 	downloadMap,
 }: {
 	asset: TAsset;
-	onDownload: RenderMediaOnDownload;
+	onDownload: RenderMediaOnDownload | null;
 	downloadMap: DownloadMap;
 }): Promise<TAsset> => {
+	const cleanup = attachDownloadListenerToEmitter(downloadMap, onDownload);
 	const newSrc = await downloadAsset({
 		src: asset.src,
-		onDownload,
 		downloadMap,
 	});
+	cleanup();
 
 	return {
 		...asset,
 		src: newSrc,
 	};
 };
+
+export const attachDownloadListenerToEmitter = (
+	downloadMap: DownloadMap,
+	onDownload: RenderMediaOnDownload | null
+) => {
+	const cleanup: CleanupFn[] = [];
+	if (!onDownload) {
+		return () => undefined;
+	}
+
+	if (downloadMap.downloadListeners.includes(onDownload)) {
+		return () => undefined;
+	}
+
+	downloadMap.downloadListeners.push(onDownload);
+	cleanup.push(() => {
+		downloadMap.downloadListeners = downloadMap.downloadListeners.filter(
+			(l) => l !== onDownload
+		);
+	});
+
+	const a = downloadMap.emitter.addEventListener(
+		'download',
+		({detail: {src: initialSrc}}) => {
+			const progress = onDownload(initialSrc);
+			const b = downloadMap.emitter.addEventListener(
+				'progress',
+				({detail: {downloaded, percent, src: progressSrc, totalSize}}) => {
+					if (initialSrc === progressSrc) {
+						progress?.({downloaded, percent, totalSize});
+					}
+				}
+			);
+			cleanup.push(b);
+		}
+	);
+	cleanup.push(() => a());
+
+	return () => {
+		cleanup.forEach((c) => c());
+	};
+};
+
+type CleanupFn = () => void;

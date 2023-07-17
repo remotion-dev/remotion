@@ -33,7 +33,7 @@ const doesReactVersionSupportSuspense = parseInt(reactVersion, 10) >= 18;
 const ThumbnailUI: React.ForwardRefRenderFunction<
 	ThumbnailMethods,
 	{
-		inputProps: unknown;
+		inputProps: Record<string, unknown>;
 		style?: React.CSSProperties;
 		errorFallback: ErrorFallback;
 		renderLoading: RenderLoading | undefined;
@@ -124,10 +124,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 			<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 				{VideoComponent ? (
 					<ErrorBoundary onError={onError} errorFallback={errorFallback}>
-						<VideoComponent
-							{...((video?.defaultProps as unknown as {}) ?? {})}
-							{...((inputProps as unknown as {}) ?? {})}
-						/>
+						<VideoComponent {...(video?.props ?? {})} {...(inputProps ?? {})} />
 					</ErrorBoundary>
 				) : null}
 			</div>

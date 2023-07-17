@@ -17,6 +17,7 @@ type DynamicTemplate =
 				height: number;
 			};
 	  };
+
 export type Template = {
 	shortName: string;
 	description: string;
@@ -33,10 +34,12 @@ export type Template = {
 		| 'three'
 		| 'still'
 		| 'tts'
+		| 'google-tts'
 		| 'audiogram'
 		| 'skia'
 		| 'tailwind'
-		| 'overlay';
+		| 'overlay'
+		| 'stargazer';
 	defaultBranch: string;
 } & DynamicTemplate;
 
@@ -59,7 +62,6 @@ const nextTemplate: Template = {
 	promoBanner: {
 		width: 1280,
 		height: 720,
-		// TODO: Update this image
 		src: '/img/remix-template.png',
 	},
 	cliId: 'next',
@@ -173,8 +175,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		defaultBranch: 'main',
 	},
 	{
-		homePageLabel: 'Text-To-Speech',
-		shortName: 'Text To Speech',
+		homePageLabel: 'Text-To-Speech (Azure)',
+		shortName: 'TTS (Azure)',
 		org: 'FelippeChemello',
 		repoName: 'Remotion-TTS-Example',
 		description: 'Turns text into speech and makes a video',
@@ -186,6 +188,23 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 1080,
 		},
 		cliId: 'tts' as const,
+		type: 'video' as const,
+		defaultBranch: 'master',
+	},
+	{
+		homePageLabel: 'Text-To-Speech (Google)',
+		shortName: 'TTS (Google)',
+		org: 'thecmdrunner',
+		repoName: 'remotion-gtts-template',
+		description: 'Turns text into speech and makes a video',
+		longerDescription:
+			'A template that turns text into a spoken video. Integrates with Firebase for Storage, and Google Cloud for Speech synthesis.',
+		promoVideo: {
+			muxId: '82dzhGhv3bl3p8LW009cFGd8oltqt6UvxTWdP27202BAY',
+			width: 1920,
+			height: 1080,
+		},
+		cliId: 'google-tts' as const,
 		type: 'video' as const,
 		defaultBranch: 'master',
 	},
@@ -259,6 +278,23 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1280,
 		},
 		cliId: 'overlay' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+	},
+	{
+		homePageLabel: 'Stargazer',
+		shortName: 'Stargazer',
+		org: 'pomber',
+		repoName: 'stargazer',
+		description: 'Celebrate your repo stars with a video',
+		longerDescription:
+			'Your repo reached a stars milestone? Celebrate with a video of your stargazers!',
+		promoVideo: {
+			muxId: 'y9rC1DoQ7rCzzI9TGeUywyTliOVU8xhHTHHZZ2BhM014',
+			height: 540,
+			width: 960,
+		},
+		cliId: 'stargazer' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
 	},

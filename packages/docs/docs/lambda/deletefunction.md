@@ -6,7 +6,7 @@ slug: /lambda/deletefunction
 crumb: "Lambda API"
 ---
 
-Deletes a deployed Lambda function based on it's name.
+Deletes a deployed Lambda function based on its name.
 
 To retrieve a list of functions, call [`getFunctions()`](/docs/lambda/getfunctions) first.
 

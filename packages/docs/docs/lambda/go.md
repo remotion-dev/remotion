@@ -6,6 +6,10 @@ sidebar_label: Rendering from Go
 crumb: "@remotion/lambda"
 ---
 
+<ExperimentalBadge>
+This feature is new. Please report any issues you encounter.
+</ExperimentalBadge>
+
 To trigger a Lambda render using Go, you can use the Remotion Lambda Go client. Note the following:
 
 - You first need to [complete the Lambda setup](/docs/lambda/setup).
@@ -22,8 +26,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
-	// Match the version with the version of your deployed functions
-	"github.com/remotion-dev/remotion/packages/lambda-go/v3.3.89"
+	"github.com/remotion-dev/lambda_go_sdk"
 )
 
 type ValidationError struct {
@@ -56,7 +59,7 @@ func main() {
 	region := os.Getenv("REMOTION_APP_REGION")
 
 	// Set parameters for render
-	renderInputRequest := remotionlambda.RemotionOptions{
+	renderInputRequest := lambda_go_sdk.RemotionOptions{
 		ServeUrl:     serveUrl,
 		FunctionName: functionName,
 		Region:       region,
@@ -64,11 +67,12 @@ func main() {
 		InputProps: map[string]interface{}{
 			"data": "Let's play",
 		},
-		Composition: "main",   // The composition to use
+		Composition: "main", // The composition to use
+
 	}
 
 	// Execute the render process
-	renderResponse, renderError := remotionlambda.RenderMediaOnLambda(renderInputRequest)
+	renderResponse, renderError := lambda_go_sdk.RenderMediaOnLambda(renderInputRequest)
 
 	// Check if there are validation errors
 	if renderError != nil {
@@ -87,28 +91,33 @@ func main() {
 
 	}
 
-	// Get bucket information
-	fmt.Printf("Bucket name: %s, Render ID: %s\n", renderResponse.BucketName, renderResponse.RenderId)
+	fmt.Print(renderResponse.RenderId)
+	/// Get bucket information
+	fmt.Printf("bucketName: %s\nRenderId: %s\n", renderResponse.RenderId, renderResponse.RenderId)
 
 	// Render Progress request
-	renderProgressInputRequest := remotionlambda.RenderConfig{
+	renderProgressInputRequest := lambda_go_sdk.RenderConfig{
 		FunctionName: functionName,
 		Region:       region,
 		RenderId:     renderResponse.RenderId,
 		BucketName:   renderResponse.BucketName,
 	}
 	// Execute getting the render progress
-	renderProgressResponse, renderProgressError := remotionlambda.GetRenderProgress(renderProgressInputRequest)
+	renderProgressResponse, renderProgressError := lambda_go_sdk.GetRenderProgress(renderProgressInputRequest)
 
 	// Check if we have error
 	if renderProgressError != nil {
-		log.Fatal("%s %s", "Invalid render progress response", renderProgressError)
+		log.Fatalf("%s %s", "Invalid render progress response", renderProgressError)
 	}
 
 	// Get the overall render progress
-	fmt.Printf("Progress: %f", renderProgressResponse.OverallProgress)
+	fmt.Printf("overallprogress: %f ", renderProgressResponse.OverallProgress)
 }
 ```
+
+## Changelog
+
+`v4.0.6`: The response payload structure has changed. See the history of this page to see the previous structure.
 
 ## See also
 

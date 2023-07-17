@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-react-native.png
 id: react-native
 title: React Native
 ---

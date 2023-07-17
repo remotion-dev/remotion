@@ -1,5 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
-import path from 'path';
+import path from 'node:path';
 import {getExpectedOutName} from '../functions/helpers/expected-out-name';
 import {getRenderMetadata} from '../functions/helpers/get-render-metadata';
 import type {LambdaReadFileProgress} from '../functions/helpers/read-with-progress';
@@ -23,7 +23,7 @@ export type DownloadMediaOutput = {
 };
 
 /**
- * @description Triggers a render on a lambda given a composition and a lambda function.
+ * @description Downloads a rendered video, audio or still to the disk of the machine this API is called from.
  * @see [Documentation](https://remotion.dev/docs/lambda/downloadmedia)
  * @param params.region The AWS region in which the media resides.
  * @param params.bucketName The `bucketName` that was specified during the render.
@@ -71,8 +71,3 @@ export const downloadMedia = async (
 		sizeInBytes,
 	};
 };
-
-/**
- * @deprecated Renamed to downloadMedia()
- */
-export const downloadVideo = downloadMedia;

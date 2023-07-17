@@ -1,13 +1,13 @@
-import fs, {promises} from 'fs';
-import os from 'os';
-import path from 'path';
-import type {WebpackOverrideFn} from 'remotion';
-import {promisify} from 'util';
+import fs, {promises} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {promisify} from 'node:util';
+import {isMainThread} from 'node:worker_threads';
 import webpack from 'webpack';
-import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
 import {readRecursively} from './read-recursively';
+import type {WebpackOverrideFn} from './webpack-config';
 import {webpackConfig} from './webpack-config';
 
 const promisified = promisify(webpack);
@@ -73,9 +73,7 @@ export const getConfig = ({
 		webpackOverride: options?.webpackOverride ?? ((f) => f),
 		onProgress,
 		enableCaching: options?.enableCaching ?? true,
-		maxTimelineTracks: 15,
-		// For production, the variables are set dynamically
-		envVariables: {},
+		maxTimelineTracks: 90,
 		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: false,
@@ -87,6 +85,7 @@ export type BundleOptions = {
 	entryPoint: string;
 	onProgress?: (progress: number) => void;
 	ignoreRegisterRootWarning?: boolean;
+	onDirectoryCreated?: (dir: string) => void;
 } & LegacyBundleOptions;
 
 type Arguments =
@@ -166,6 +165,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 	}
 
 	const outDir = await prepareOutDir(actualArgs?.outDir ?? null);
+	actualArgs.onDirectoryCreated?.(outDir);
 
 	// The config might use an override which might use
 	// `process.cwd()`. The context should always be the Remotion root.
@@ -234,6 +234,8 @@ export async function bundle(...args: Arguments): Promise<string> {
 			dest: to,
 			onSymlinkDetected: showSymlinkWarning,
 			onProgress: (prog) => options.onPublicDirCopyProgress?.(prog),
+			copied: 0,
+			lastReportedProgress: 0,
 		});
 	}
 
@@ -243,7 +245,8 @@ export async function bundle(...args: Arguments): Promise<string> {
 		editorName: null,
 		inputProps: null,
 		remotionRoot: resolvedRemotionRoot,
-		previewServerCommand: null,
+		studioServerCommand: null,
+		renderQueue: null,
 		numberOfAudioTags: 0,
 		publicFiles: readRecursively({
 			folder: '.',
@@ -253,7 +256,9 @@ export async function bundle(...args: Arguments): Promise<string> {
 		}),
 		includeFavicon: false,
 		title: 'Remotion Bundle',
+		renderDefaults: undefined,
 	});
+
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
 	return outDir;

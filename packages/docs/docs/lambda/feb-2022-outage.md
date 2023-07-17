@@ -27,7 +27,7 @@ Via Node.JS:
 
 ## Example
 
-```ts twoslash
+```ts
 // @module: esnext
 // @target: es2017
 

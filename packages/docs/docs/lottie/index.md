@@ -7,6 +7,7 @@ title: "@remotion/lottie"
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import {TableOfContents} from "../../components/TableOfContents/lottie"
 
 This package provides a component for displaying [Lottie](http://airbnb.io/lottie/) animations in Remotion.
 
@@ -61,11 +62,16 @@ You can now start using the [`<Lottie>`](/docs/lottie/lottie) component in your 
 
 - Rendering on other renderers as `svg`
 - `setSubFrame()`, `setLocationHref()`
+- Limited expression support: Remotion uses the `.goToAndStop()` method from `lottie-web` to seek through the Lottie file. Depending on the expression, the frame might not render deterministally, leading to [flickering](/docs/flickering) in the Remotion output. Remotion cannot fix this without a change in `lottie-web` upstream. You need to evaluate on a case-by-case basis whether the expression you are using is supported by Remotion.
 
 :::note
 [Open an issue](https://remotion.dev/issue) if you want to request a currently unsupported feature.
 :::
 
-## APIs
+## Table of contents
 
-- [`<Lottie>`](/docs/lottie/lottie)
+<TableOfContents />
+
+## License
+
+[Remotion License](https://remotion.dev/license)

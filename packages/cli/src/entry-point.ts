@@ -1,6 +1,6 @@
 import {RenderInternals} from '@remotion/renderer';
-import {existsSync, lstatSync} from 'fs';
-import path from 'path';
+import {existsSync, lstatSync} from 'node:fs';
+import path from 'node:path';
 import {ConfigInternals} from './config';
 import {Log} from './log';
 

@@ -38,13 +38,15 @@ export const stopPerfMeasure = (id: number) => {
 	delete map[id];
 };
 
-export const logPerf = () => {
-	console.log('Render performance:');
-	(Object.keys(perf) as PerfId[]).forEach((p) => {
-		console.log(
-			`  ${p} => ${perf[p].reduce((a, b) => a + b, 0) / perf[p].length} (n = ${
-				perf[p].length
-			})`
-		);
-	});
+export const getPerf = () => {
+	return [
+		'Render performance:',
+		...(Object.keys(perf) as PerfId[])
+			.filter((p) => perf[p].length)
+			.map((p) => {
+				return `  ${p} => ${
+					perf[p].reduce((a, b) => a + b, 0) / perf[p].length
+				}ms (n = ${perf[p].length})`;
+			}),
+	];
 };

@@ -1,17 +1,5 @@
+import type {supportedAudioCodecs} from './audio-codec';
 import type {Codec} from './codec';
-
-export const supportedAudioCodecs = {
-	h264: ['aac', 'pcm-16'] as const,
-	'h264-mkv': ['pcm-16'] as const,
-	aac: ['aac', 'pcm-16'] as const,
-	gif: [] as const,
-	h265: ['aac', 'pcm-16'] as const,
-	mp3: ['mp3', 'pcm-16'] as const,
-	prores: ['pcm-16', 'aac'] as const,
-	vp8: ['opus', 'pcm-16'] as const,
-	vp9: ['opus', 'pcm-16'] as const,
-	wav: ['pcm-16'] as const,
-} as const;
 
 export type FileExtension =
 	| 'aac'

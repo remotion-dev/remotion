@@ -21,7 +21,7 @@ eu-central-1 eu-west-1 eu-west-2 eu-west-3 eu-south-1 eu-north-1 us-east-1 us-ea
 
 ## Flags
 
-### `--default-only` <AvailableFrom v="3.3.11" />
+### `--default-only`<AvailableFrom v="3.3.11" />
 
 Only [return the regions which are enabled by default](https://docs.aws.amazon.com/general/latest/gr/rande-manage.html) in a new AWS account.
 

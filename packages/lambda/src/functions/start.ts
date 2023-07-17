@@ -71,7 +71,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		envVariables: params.envVariables,
 		pixelFormat: params.pixelFormat,
 		proResProfile: params.proResProfile,
-		quality: params.quality,
+		jpegQuality: params.jpegQuality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,
 		logLevel: params.logLevel ?? 'info',
@@ -93,19 +93,20 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		forceWidth: params.forceWidth,
 		rendererFunctionName: params.rendererFunctionName,
 		audioCodec: params.audioCodec,
-		dumpBrowserLogs: params.dumpBrowserLogs,
 	};
 
+	// Don't replace with callLambda(), we want to return before the render is snone
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-			// @ts-expect-error
 			Payload: JSON.stringify(payload),
 			InvocationType: 'Event',
 		})
 	);
 	await initialFile;
+
 	return {
+		type: 'success' as const,
 		bucketName,
 		renderId,
 	};

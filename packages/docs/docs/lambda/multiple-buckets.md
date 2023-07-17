@@ -6,7 +6,7 @@ sidebar_label: Multiple buckets
 crumb: "@remotion/lambda"
 ---
 
-The ideal setup is if you use **1 bucket per region and account** that your use Remotion Lambda in.
+The ideal setup is if you use **1 bucket per region and account** that you use Remotion Lambda in.
 
 While it is discouraged, it is possible to use multiple buckets from version v3.3.42 on.
 
@@ -38,8 +38,8 @@ In order to avoid this error, you need to additionally explicitly pass the `forc
 Also you must pass a `--force-bucket-name=your-bucket-name` option to the following CLI commands:
 
 - [`npx remotion lambda render`](/docs/lambda/cli/render)
-- [`npx remotion lambda still`](/docs/lambda/cli/render)
-- [`npx remotion lambda compositions`](/docs/lambda/cli/render)
+- [`npx remotion lambda still`](/docs/lambda/cli/still)
+- [`npx remotion lambda compositions`](/docs/lambda/cli/compositions)
 - [`npx remotion lambda sites create`](/docs/lambda/cli/sites#create)
 - [`npx remotion lambda sites rm`](/docs/lambda/cli/sites#rm)
 - [`npx remotion lambda sites rmall`](/docs/lambda/cli/sites#rmall)

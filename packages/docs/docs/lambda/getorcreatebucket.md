@@ -28,23 +28,23 @@ An object with the following property:
 
 The [AWS region](/docs/lambda/region-selection) which you want to create a bucket in.
 
-### `onBucketEnsured?`
+### ~~`onBucketEnsured?`~~
 
-_optional_
+_removed in v4.0, optional_
 
-Allows to pass a callback after the bucket was created and before the S3 website option was enabled. This option exists so the CLI can better visualize the progress.
+Allows to pass a callback after the bucket was created and before the S3 website option was enabled. This option exists so the CLI can better visualize the progress.  
+Removed in v4.0 since we don't use the website option anymore.
 
 ## Return value
 
-A promise resolving to an object with the following property:
+A promise resolving to an object with the following properties:
 
 ### `bucketName`
 
 The name of your bucket that was found or created.
 
-### `alreadyExisted`
+### `alreadyExisted`<AvailableFrom v="3.3.78" />
 
-<AvailableFrom v="v3.3.78" />
 A boolean indicating whether the bucket already existed or was newly created.
 
 ## See also

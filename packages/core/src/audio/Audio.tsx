@@ -1,4 +1,6 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
+import {getAbsoluteSrc} from '../absolute-src.js';
+import {cancelRender} from '../cancel-render.js';
 import {useRemotionEnvironment} from '../get-environment.js';
 import {Loop} from '../loop/index.js';
 import {Sequence} from '../Sequence.js';
@@ -34,8 +36,10 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
 		(e) => {
 			console.log(e.currentTarget.error);
-			throw new Error(
-				`Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`
+			cancelRender(
+				new Error(
+					`Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`
+				)
 			);
 		},
 		[otherProps.src]
@@ -48,8 +52,8 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 		[setDurations]
 	);
 
-	if (loop && props.src && durations[props.src as string] !== undefined) {
-		const duration = Math.floor(durations[props.src as string] * fps);
+	if (loop && props.src && durations[getAbsoluteSrc(props.src)] !== undefined) {
+		const duration = Math.floor(durations[getAbsoluteSrc(props.src)] * fps);
 		const playbackRate = props.playbackRate ?? 1;
 		const actualDuration = duration / playbackRate;
 

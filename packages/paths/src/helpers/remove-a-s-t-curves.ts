@@ -132,14 +132,9 @@ function arcToCircle({
 export const removeATSHVInstructions = (
 	segments: AbsoluteInstruction[]
 ): ReducedInstruction[] => {
-	let prevControlX = 0;
-	let prevControlY = 0;
-	let curControlX = 0;
-	let curControlY = 0;
-
 	return iterateOverSegments<ReducedInstruction>({
 		segments,
-		iterate: ({segment, prevSegment, x, y}) => {
+		iterate: ({segment, prevSegment, x, y, cpX, cpY}) => {
 			if (segment.type === 'H') {
 				return [{type: 'L', x: segment.x, y}];
 			}
@@ -190,22 +185,31 @@ export const removeATSHVInstructions = (
 			}
 
 			if (segment.type === 'T') {
-				if (prevSegment && prevSegment.type === 'Q') {
-					prevControlX = prevSegment.cpx;
-					prevControlY = prevSegment.cpy;
+				let prevControlX = 0;
+				let prevControlY = 0;
+				if (
+					prevSegment &&
+					(prevSegment.type === 'Q' || prevSegment.type === 'T')
+				) {
+					prevControlX = cpX as number;
+					prevControlY = cpY as number;
 				} else {
-					prevControlX = 0;
-					prevControlY = 0;
+					prevControlX = x;
+					prevControlY = y;
 				}
 
-				curControlX = -prevControlX;
-				curControlY = -prevControlY;
+				// New first control point is reflection of previous second control point
+				const vectorX = prevControlX - x;
+				const vectorY = prevControlY - y;
+
+				const newControlX = x - vectorX;
+				const newControlY = y - vectorY;
 
 				return [
 					{
 						type: 'Q',
-						cpx: curControlX,
-						cpy: curControlY,
+						cpx: newControlX,
+						cpy: newControlY,
 						x: segment.x,
 						y: segment.y,
 					},
@@ -213,22 +217,31 @@ export const removeATSHVInstructions = (
 			}
 
 			if (segment.type === 'S') {
+				let prevControlX = 0;
+				let prevControlY = 0;
 				if (prevSegment && prevSegment.type === 'C') {
 					prevControlX = prevSegment.cp2x;
 					prevControlY = prevSegment.cp2y;
+				} else if (prevSegment && prevSegment.type === 'S') {
+					prevControlX = prevSegment.cpx;
+					prevControlY = prevSegment.cpy;
 				} else {
-					prevControlX = 0;
-					prevControlY = 0;
+					prevControlX = x;
+					prevControlY = y;
 				}
 
-				curControlX = -prevControlX;
-				curControlY = -prevControlY;
+				// New first control point is reflection of previous second control point
+				const vectorX = prevControlX - x;
+				const vectorY = prevControlY - y;
+
+				const newControlX = x - vectorX;
+				const newControlY = y - vectorY;
 
 				return [
 					{
 						type: 'C',
-						cp1x: curControlX,
-						cp1y: curControlY,
+						cp1x: newControlX,
+						cp1y: newControlY,
 						cp2x: segment.cpx,
 						cp2y: segment.cpy,
 						x: segment.x,

@@ -10,9 +10,9 @@ export type SpeculateFunctionNameInput = {
 /**
  * @description Speculate the name of a lambda function that will be created when you call `deployFunction`, based on the function configuration.
  * @see [Documentation](https://www.remotion.dev/docs/lambda/speculatefunctionname)
- * @param options.memorySizeInMb How much memory is allocated to the Lambda function.
- * @param options.diskSizeInMb The amount of storage the function is allocated.
- * @param options.timeoutInSeconds Time in seconds until the function times out.
+ * @param params.memorySizeInMb How much memory is allocated to the Lambda function.
+ * @param params.diskSizeInMb The amount of storage the function is allocated.
+ * @param params.timeoutInSeconds Time in seconds until the function times out.
  * @returns {string} The speculated lambda function name
  */
 export const speculateFunctionName = ({

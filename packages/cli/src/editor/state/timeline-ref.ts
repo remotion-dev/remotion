@@ -1,6 +1,6 @@
 import {createRef} from 'react';
 
-export type TimelineRef = {
+type TimelineRef = {
 	collapseAll: () => void;
 	expandAll: () => void;
 };

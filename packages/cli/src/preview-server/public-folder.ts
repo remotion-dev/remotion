@@ -1,6 +1,6 @@
 import {BundlerInternals} from '@remotion/bundler';
-import {existsSync, watch} from 'fs';
-import path from 'path';
+import {existsSync, watch} from 'node:fs';
+import path from 'node:path';
 import type {StaticFile} from 'remotion';
 import {envSupportsFsRecursive} from './env-supports-fs-recursive';
 
@@ -40,7 +40,7 @@ export const fetchFolder = ({
 	});
 };
 
-export const watchPublicFolder = ({
+const watchPublicFolder = ({
 	publicDir,
 	onUpdate,
 	staticHash,

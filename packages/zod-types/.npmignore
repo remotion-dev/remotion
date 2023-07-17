@@ -1,0 +1,12 @@
+dist/test/**
+src
+.eslintrc
+tsconfig.tsbuildinfo
+vitest.config.ts
+*.tgz
+.turbo
+tsconfig.json
+.prettierrc.js
+dist/tsconfig-esm.tsbuildinfo
+.rollup.cache
+tsconfig-esm.json

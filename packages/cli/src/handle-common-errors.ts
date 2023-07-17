@@ -1,10 +1,11 @@
+import type {LogLevel} from '@remotion/renderer';
 import {chalk} from './chalk';
 import {Log} from './log';
 import {printError} from './print-error';
 import {truthy} from './truthy';
 
-export const handleCommonError = async (err: Error) => {
-	await printError(err);
+export const handleCommonError = async (err: Error, logLevel: LogLevel) => {
+	await printError(err, logLevel);
 	if (err.message.includes('Could not play video with')) {
 		Log.info();
 		Log.info(
@@ -73,5 +74,17 @@ export const handleCommonError = async (err: Error) => {
 		Log.info(
 			'   or if the component was renamed and the import statement not properly adjusted.'
 		);
+	}
+
+	if (err.message.includes('GLIBC_')) {
+		Log.info('💡 Remotion requires at least Libc 2.35.');
+		Log.info(
+			'💡 Get help for this issue: https://github.com/remotion-dev/remotion/issues/2439'
+		);
+	}
+
+	if (err.message.includes('EBADF')) {
+		Log.info('💡 This error might be fixed by changing your Node version:');
+		Log.info('   https://github.com/remotion-dev/remotion/issues/2452');
 	}
 };

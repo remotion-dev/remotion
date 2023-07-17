@@ -243,8 +243,9 @@ export const experts: Expert[] = [
         <a target={"_blank"} href="https://www.romrif.com/">
           Romrif.com
         </a>
-        ! <br />
-        I build Websites & Videos with Remotion. I&apos;m alway interested in the latest Tech and love building stuff. Feel free to contact me - I&apos;m available for hire.
+        ! <br />I build Websites & Videos with Remotion. I&apos;m alway
+        interested in the latest Tech and love building stuff. Feel free to
+        contact me - I&apos;m available for hire.
       </div>
     ),
   },
@@ -263,15 +264,18 @@ export const experts: Expert[] = [
         I made:{" "}
         <a target={"_blank"} href="https://www.dataflics.com/">
           DataFlics
-        </a> and{" "}
+        </a>{" "}
+        and{" "}
         <a target={"_blank"} href="https://nerdy.finance/">
           Nerdy Finance
         </a>
-        ! This is my personal website: <a target={"_blank"} href="https://www.lorenzobertolini.com/">
+        ! This is my personal website:{" "}
+        <a target={"_blank"} href="https://www.lorenzobertolini.com/">
           Lorenzo Bertolini
         </a>
         <br />
-        Reach out to me for data-driven video generation, data visualization, and web app prototyping with React.js and d3.js.
+        Reach out to me for data-driven video generation, data visualization,
+        and web app prototyping with React.js and d3.js.
       </div>
     ),
   },
@@ -286,16 +290,23 @@ export const experts: Expert[] = [
     email: "antoine395.caron+remotion@gmail.com",
     since: new Date("2023-03-17").getTime(),
     description: (
-        <div>
-            <p>
-                I made:{" "}
-                <a target={"_blank"} href="https://social-video-generator.vercel.app/">
-                    Social Video Generator
-                </a>
-                , with Mickaël Alves
-            </p>
-            <p><a href="https://blog.slashgear.dev/" target={"_blank"}>Personal website</a></p>
-        </div>
+      <div>
+        <p>
+          I made:{" "}
+          <a
+            target={"_blank"}
+            href="https://social-video-generator.vercel.app/"
+          >
+            Social Video Generator
+          </a>
+          , with Mickaël Alves
+        </p>
+        <p>
+          <a href="https://blog.slashgear.dev/" target={"_blank"}>
+            Personal website
+          </a>
+        </p>
+      </div>
     ),
   },
   {
@@ -309,16 +320,46 @@ export const experts: Expert[] = [
     email: "alves.mckl@gmail.com",
     since: new Date("2023-03-17").getTime(),
     description: (
-        <div>
-            <p>
-                I made:{" "}
-            <a target={"_blank"} href="https://social-video-generator.vercel.app/">
-                Social Video Generator
-            </a>
-            , with Antoine Caron
-            </p>
-            <p><a href="https://cruuzazul.dev/" target={"_blank"}>Personal website</a></p>
-        </div>
+      <div>
+        <p>
+          I made:{" "}
+          <a
+            target={"_blank"}
+            href="https://social-video-generator.vercel.app/"
+          >
+            Social Video Generator
+          </a>
+          , with Antoine Caron
+        </p>
+        <p>
+          <a href="https://cruuzazul.dev/" target={"_blank"}>
+            Personal website
+          </a>
+        </p>
+      </div>
+    ),
+  },
+  {
+    slug: "pranav-kulkarni",
+    name: "Pranav Kulkarni",
+    image: "/img/freelancers/pranav.jpg",
+    website: "https://pranava.dev/",
+    twitter: "thecmdrunner",
+    github: "thecmdrunner",
+    linkedin: "in/pranavk7/",
+    email: "hey@pranava.dev",
+    since: new Date("2023-07-03").getTime(),
+    description: (
+      <div>
+        I&apos;ve built{" "}
+        <a target={"_blank"} href="https://swiftube.vercel.app/">
+          Swiftube
+        </a>{" "}
+        - an AI-based Video Making tool.
+        <br />
+        Looking at leveraging the power of Remotion for your projects?
+        Let&apos;s join forces!
+      </div>
     ),
   },
 ];

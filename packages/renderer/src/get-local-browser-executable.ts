@@ -1,4 +1,5 @@
-import fs from 'fs';
+import fs from 'node:fs';
+import os from 'node:os';
 import type {Browser} from './browser';
 import type {BrowserExecutable} from './browser-executable';
 import {getRevisionInfo} from './browser/BrowserFetcher';
@@ -24,6 +25,20 @@ const getSearchPathsForProduct = (product: Product) => {
 				: null,
 			process.platform === 'win32'
 				? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+				: null,
+			process.platform === 'win32'
+				? os.homedir() +
+				  '\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe'
+				: null,
+			process.platform === 'win32'
+				? 'C:\\Program Files\\Google\\Chrome SxS\\Application\\chrome.exe'
+				: null,
+			process.platform === 'win32'
+				? 'C:\\Program Files (x86)\\Google\\Chrome SxS\\Application\\chrome.exe'
+				: null,
+			process.platform === 'win32'
+				? os.homedir() +
+				  '\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe'
 				: null,
 		].filter(Boolean) as string[];
 	}

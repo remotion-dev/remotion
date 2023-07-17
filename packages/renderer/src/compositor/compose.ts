@@ -1,10 +1,15 @@
-import {spawn} from 'child_process';
-import {createHash} from 'crypto';
-import {copyFile} from 'fs/promises';
+import {spawn} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {chmodSync} from 'node:fs';
+import {copyFile} from 'node:fs/promises';
 import type {DownloadMap} from '../assets/download-map';
+import {dynamicLibraryPathOptions} from '../call-ffmpeg';
+import type {Compositor} from './compositor';
 import {getExecutablePath} from './get-executable-path';
+import {makeNonce} from './make-nonce';
 import type {
-	CliInput,
+	CompositorCommand,
+	CompositorCommandSerialized,
 	CompositorImageFormat,
 	ErrorPayload,
 	Layer,
@@ -17,8 +22,46 @@ type CompositorInput = {
 	imageFormat: CompositorImageFormat;
 };
 
+type ComposeInput = CompositorInput & {
+	output: string;
+	compositor: Compositor;
+};
+
 const getCompositorHash = ({...input}: CompositorInput): string => {
 	return createHash('sha256').update(JSON.stringify(input)).digest('base64');
+};
+
+export const serializeCommand = <Type extends keyof CompositorCommand>(
+	command: Type,
+	params: CompositorCommand[Type]
+): CompositorCommandSerialized<Type> => {
+	return {
+		nonce: makeNonce(),
+		payload: {
+			type: command,
+			params,
+		},
+	};
+};
+
+export const composeWithoutCache = async ({
+	height,
+	width,
+	layers,
+	output,
+	imageFormat,
+	compositor,
+}: CompositorInput & {
+	output: string;
+	compositor: Compositor;
+}) => {
+	await compositor.executeCommand('Compose', {
+		height,
+		width,
+		layers,
+		output,
+		output_format: imageFormat,
+	});
 };
 
 export const compose = async ({
@@ -28,11 +71,10 @@ export const compose = async ({
 	output,
 	downloadMap,
 	imageFormat,
-}: CompositorInput & {
+	compositor,
+}: ComposeInput & {
 	downloadMap: DownloadMap;
-	output: string;
 }) => {
-	const bin = getExecutablePath();
 	const hash = getCompositorHash({height, width, layers, imageFormat});
 
 	if (downloadMap.compositorCache[hash]) {
@@ -40,19 +82,26 @@ export const compose = async ({
 		return;
 	}
 
-	const payload: CliInput = {
-		v: 1,
+	await composeWithoutCache({
+		compositor,
 		height,
-		width,
+		imageFormat,
 		layers,
 		output,
-		output_format: imageFormat,
-	};
+		width,
+	});
 
-	await new Promise<void>((resolve, reject) => {
-		const child = spawn(bin);
-		child.stdin.write(JSON.stringify(payload));
-		child.stdin.end();
+	downloadMap.compositorCache[hash] = output;
+};
+
+export const callCompositor = (payload: string) => {
+	return new Promise<void>((resolve, reject) => {
+		const execPath = getExecutablePath('compositor');
+		if (!process.env.READ_ONLY_FS) {
+			chmodSync(execPath, 0o755);
+		}
+
+		const child = spawn(execPath, [payload], dynamicLibraryPathOptions());
 
 		const stderrChunks: Buffer[] = [];
 		child.stderr.on('data', (d) => stderrChunks.push(d));
@@ -63,15 +112,30 @@ export const compose = async ({
 			} else {
 				const message = Buffer.concat(stderrChunks).toString('utf-8');
 
-				const parsed = JSON.parse(message) as ErrorPayload;
+				try {
+					// Try to see if the error is a JSON
+					const parsed = JSON.parse(message) as ErrorPayload;
+					const msg = `Compositor error: ${parsed.error}`;
+					const err = new Error(`${msg}\n${parsed.backtrace}`);
 
-				const err = new Error(parsed.error);
-				err.stack = parsed.error + '\n' + parsed.backtrace;
-
-				reject(err);
+					reject(err);
+				} catch (err) {
+					reject(new Error(`Compositor panicked: ${message}`));
+				}
 			}
 		});
-	});
 
-	downloadMap.compositorCache[hash] = output;
+		if (child.stdin.closed) {
+			reject(
+				new Error(
+					'Compositor stdin closed unexpectedly,' +
+						Buffer.concat(stderrChunks).toString('utf-8')
+				)
+			);
+			return;
+		}
+
+		child.stdin.write(payload);
+		child.stdin.end();
+	});
 };

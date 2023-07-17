@@ -50,6 +50,12 @@ An object with the following properties:
 
 The [AWS region](/docs/lambda/region-selection) which you want to query.
 
+### `forceBucketName?`<AvailableFrom v="3.3.102"/>
+
+_optional_
+
+Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
+
 ## Return value
 
 A promise resolving to an object with the following properties:
@@ -85,7 +91,7 @@ URL of the deployed site. You can pass it into [`renderMediaOnLambda()`](/docs/l
 An array of all buckets in the selected region in your account that start with `remotionlambda-`.
 
 :::info
-You should only have [1 bucket](/docs/lambda/multiple-buckets) for all your Remotion projects. Nonetheless `buckets` is an array, since we cannot prevent you from manually creating additional buckets with the `remotionlambda-` prefix.
+You should only have [1 bucket](/docs/lambda/multiple-buckets) per region for all your Remotion projects. Nonetheless `buckets` is an array, since we cannot prevent you from manually creating additional buckets with the `remotionlambda-` prefix.
 :::
 
 Each item contains the following properties:

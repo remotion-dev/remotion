@@ -1,5 +1,5 @@
 import type {WebpackOverrideFn} from '@remotion/bundler';
-import fs from 'fs';
+import fs from 'node:fs';
 import {lambdaDeleteFile, lambdaLs} from '../functions/helpers/io';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {bundleSite} from '../shared/bundle-site';
@@ -10,6 +10,7 @@ import {makeS3ServeUrl} from '../shared/make-s3-url';
 import {randomHash} from '../shared/random-hash';
 import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateBucketName} from '../shared/validate-bucketname';
+import {validatePrivacy} from '../shared/validate-privacy';
 import {validateSiteName} from '../shared/validate-site-name';
 import {bucketExistsInRegion} from './bucket-exists';
 import type {UploadDirProgress} from './upload-dir';
@@ -30,6 +31,7 @@ export type DeploySiteInput = {
 		rootDir?: string;
 		bypassBucketNameValidation?: boolean;
 	};
+	privacy?: 'public' | 'no-acl';
 };
 
 export type DeploySiteOutput = Promise<{
@@ -57,6 +59,7 @@ export const deploySite = async ({
 	siteName,
 	options,
 	region,
+	privacy: passedPrivacy,
 }: DeploySiteInput): DeploySiteOutput => {
 	validateAwsRegion(region);
 	validateBucketName(bucketName, {
@@ -65,6 +68,8 @@ export const deploySite = async ({
 
 	const siteId = siteName ?? randomHash();
 	validateSiteName(siteId);
+	const privacy = passedPrivacy ?? 'public';
+	validatePrivacy(privacy, false);
 
 	const accountId = await getAccountId({region});
 
@@ -84,7 +89,8 @@ export const deploySite = async ({
 			bucketName,
 			expectedBucketOwner: accountId,
 			region,
-			prefix: subFolder,
+			// The `/` is important to not accidentially delete sites with the same name but containing a suffix.
+			prefix: `${subFolder}/`,
 		}),
 		bundleSite({
 			publicPath: `/${subFolder}/`,
@@ -111,7 +117,7 @@ export const deploySite = async ({
 			localDir: bundled,
 			onProgress: options?.onUploadProgress ?? (() => undefined),
 			keyPrefix: subFolder,
-			privacy: 'public',
+			privacy: privacy ?? 'public',
 			toUpload,
 		}),
 		Promise.all(
@@ -127,13 +133,9 @@ export const deploySite = async ({
 	]);
 
 	if (!process.env.VITEST) {
-		if (fs.rmSync) {
-			fs.rmSync(bundled, {
-				recursive: true,
-			});
-		} else {
-			fs.rmdirSync(bundled, {recursive: true});
-		}
+		fs.rmSync(bundled, {
+			recursive: true,
+		});
 	}
 
 	return {

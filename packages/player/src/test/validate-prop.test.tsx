@@ -127,6 +127,7 @@ test('Invalid playbackRate should give error', () => {
 				controls
 				showVolumeControls
 				playbackRate={-5}
+				inputProps={{}}
 			/>
 		);
 	} catch (e) {

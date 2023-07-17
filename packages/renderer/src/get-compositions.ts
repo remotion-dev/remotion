@@ -1,48 +1,75 @@
-import type {TCompMetadata} from 'remotion';
-import type {DownloadMap} from './assets/download-map';
-import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import {Internals, type VideoConfig} from 'remotion';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
-import type {Browser} from './browser/Browser';
+import type {HeadlessBrowser} from './browser/Browser';
 import type {Page} from './browser/BrowserPage';
+import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
-import type {FfmpegExecutable} from './ffmpeg-executable';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
+import {type LogLevel} from './log-level';
+import {getLogLevel} from './logger';
 import type {ChromiumOptions} from './open-browser';
-import {prepareServer} from './prepare-server';
+import type {RemotionServer} from './prepare-server';
+import {makeOrReuseServer} from './prepare-server';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
-import {validateFfmpeg} from './validate-ffmpeg';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
-type GetCompositionsConfig = {
-	inputProps?: object | null;
+type InternalGetCompositionsOptions = {
+	serializedInputPropsWithCustomSchema: string;
+	envVariables: Record<string, string>;
+	puppeteerInstance: HeadlessBrowser | undefined;
+	onBrowserLog: null | ((log: BrowserLog) => void);
+	browserExecutable: BrowserExecutable | null;
+	timeoutInMilliseconds: number;
+	chromiumOptions: ChromiumOptions;
+	port: number | null;
+	server: RemotionServer | undefined;
+	indent: boolean;
+	logLevel: LogLevel;
+	serveUrlOrWebpackUrl: string;
+};
+
+export type GetCompositionsOptions = {
+	inputProps?: Record<string, unknown> | null;
 	envVariables?: Record<string, string>;
-	puppeteerInstance?: Browser;
+	puppeteerInstance?: HeadlessBrowser;
 	onBrowserLog?: (log: BrowserLog) => void;
 	browserExecutable?: BrowserExecutable;
 	timeoutInMilliseconds?: number;
 	chromiumOptions?: ChromiumOptions;
-	ffmpegExecutable?: FfmpegExecutable;
-	ffprobeExecutable?: FfmpegExecutable;
 	port?: number | null;
-	/**
-	 * @deprecated Only for Remotion internal usage
-	 */
-	downloadMap?: DownloadMap;
+	logLevel?: LogLevel;
 };
 
-const innerGetCompositions = async (
-	serveUrl: string,
-	page: Page,
-	config: GetCompositionsConfig,
-	proxyPort: number
-): Promise<TCompMetadata[]> => {
-	if (config?.onBrowserLog) {
+type InnerGetCompositionsParams = {
+	serializedInputPropsWithCustomSchema: string;
+	envVariables: Record<string, string>;
+	onBrowserLog: null | ((log: BrowserLog) => void);
+	timeoutInMilliseconds: number;
+	serveUrl: string;
+	page: Page;
+	proxyPort: number;
+	indent: boolean;
+	logLevel: LogLevel;
+};
+
+const innerGetCompositions = async ({
+	envVariables,
+	serializedInputPropsWithCustomSchema,
+	onBrowserLog,
+	page,
+	proxyPort,
+	serveUrl,
+	timeoutInMilliseconds,
+	indent,
+	logLevel,
+}: InnerGetCompositionsParams): Promise<VideoConfig[]> => {
+	if (onBrowserLog) {
 		page.on('console', (log) => {
-			config.onBrowserLog?.({
+			onBrowserLog({
 				stackTrace: log.stackTrace(),
 				text: log.text,
 				type: log.type,
@@ -50,25 +77,27 @@ const innerGetCompositions = async (
 		});
 	}
 
-	validatePuppeteerTimeout(config?.timeoutInMilliseconds);
+	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	await setPropsAndEnv({
-		inputProps: config?.inputProps,
-		envVariables: config?.envVariables,
+		serializedInputPropsWithCustomSchema,
+		envVariables,
 		page,
 		serveUrl,
 		initialFrame: 0,
-		timeoutInMilliseconds: config?.timeoutInMilliseconds,
+		timeoutInMilliseconds,
 		proxyPort,
 		retriesRemaining: 2,
 		audioEnabled: false,
 		videoEnabled: false,
+		indent,
+		logLevel,
 	});
 
 	await puppeteerEvaluateWithCatch({
 		page,
 		pageFunction: () => {
-			window.setBundleMode({
+			window.remotion_setBundleMode({
 				type: 'evaluation',
 			});
 		},
@@ -77,7 +106,7 @@ const innerGetCompositions = async (
 	});
 
 	await waitForReady(page);
-	const result = await puppeteerEvaluateWithCatch({
+	const {value: result} = await puppeteerEvaluateWithCatch({
 		pageFunction: () => {
 			return window.getStaticCompositions();
 		},
@@ -86,86 +115,130 @@ const innerGetCompositions = async (
 		args: [],
 	});
 
-	return result as TCompMetadata[];
+	return result as VideoConfig[];
 };
 
-/**
- * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
- * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
- */
-export const getCompositions = async (
-	serveUrlOrWebpackUrl: string,
-	config?: GetCompositionsConfig
-) => {
-	await validateFfmpeg(
-		config?.ffmpegExecutable ?? null,
-		findRemotionRoot(),
-		'ffmpeg'
-	);
-	await validateFfmpeg(
-		config?.ffprobeExecutable ?? null,
-		findRemotionRoot(),
-		'ffprobe'
-	);
+type CleanupFn = () => void;
 
-	const downloadMap = config?.downloadMap ?? makeDownloadMap();
-
-	const {page, cleanup} = await getPageAndCleanupFn({
-		passedInInstance: config?.puppeteerInstance,
-		browserExecutable: config?.browserExecutable ?? null,
-		chromiumOptions: config?.chromiumOptions ?? {},
+export const internalGetCompositions = async ({
+	browserExecutable,
+	chromiumOptions,
+	envVariables,
+	indent,
+	serializedInputPropsWithCustomSchema,
+	onBrowserLog,
+	port,
+	puppeteerInstance,
+	serveUrlOrWebpackUrl,
+	server,
+	timeoutInMilliseconds,
+	logLevel,
+}: InternalGetCompositionsOptions) => {
+	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
+		passedInInstance: puppeteerInstance,
+		browserExecutable,
+		chromiumOptions,
+		context: null,
+		forceDeviceScaleFactor: undefined,
+		indent,
+		logLevel,
 	});
 
-	return new Promise<TCompMetadata[]>((resolve, reject) => {
+	const cleanup: CleanupFn[] = [cleanupPage];
+
+	return new Promise<VideoConfig[]>((resolve, reject) => {
 		const onError = (err: Error) => reject(err);
-		const cleanupPageError = handleJavascriptException({
-			page,
-			frame: null,
-			onError,
-		});
 
-		let close: ((force: boolean) => Promise<unknown>) | null = null;
+		cleanup.push(
+			handleJavascriptException({
+				page,
+				frame: null,
+				onError,
+			})
+		);
 
-		prepareServer({
-			webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
-			onDownload: () => undefined,
-			onError,
-			ffmpegExecutable: config?.ffmpegExecutable ?? null,
-			ffprobeExecutable: config?.ffprobeExecutable ?? null,
-			port: config?.port ?? null,
-			downloadMap,
-			remotionRoot: findRemotionRoot(),
-		})
-			.then(({serveUrl, closeServer, offthreadPort}) => {
-				close = closeServer;
-				return innerGetCompositions(
-					serveUrl,
+		makeOrReuseServer(
+			server,
+			{
+				webpackConfigOrServeUrl: serveUrlOrWebpackUrl,
+				port,
+				remotionRoot: findRemotionRoot(),
+				concurrency: 1,
+				logLevel,
+				indent,
+			},
+			{
+				onDownload: () => undefined,
+				onError,
+			}
+		)
+			.then(({server: {serveUrl, offthreadPort, sourceMap}, cleanupServer}) => {
+				page.setBrowserSourceMapContext(sourceMap);
+
+				cleanup.push(() => cleanupServer(true));
+
+				return innerGetCompositions({
+					envVariables,
+					serializedInputPropsWithCustomSchema,
+					onBrowserLog,
 					page,
-					config ?? {},
-					offthreadPort
-				);
+					proxyPort: offthreadPort,
+					serveUrl,
+					timeoutInMilliseconds,
+					indent,
+					logLevel,
+				});
 			})
 
-			.then((comp): Promise<[TCompMetadata[], unknown]> => {
-				if (close) {
-					return Promise.all([comp, close(true)]);
-				}
-
-				return Promise.resolve([comp, null]);
-			})
-			.then(([comp]) => {
+			.then((comp) => {
 				return resolve(comp);
 			})
 			.catch((err) => {
 				reject(err);
 			})
 			.finally(() => {
-				cleanup();
-				cleanupPageError();
-				// Clean download map if it was not passed in
-				if (!config?.downloadMap) {
-					cleanDownloadMap(downloadMap);
-				}
+				cleanup.forEach((c) => {
+					c();
+				});
 			});
+	});
+};
+
+/**
+ * @description Gets the compositions defined in a Remotion project based on a Webpack bundle.
+ * @see [Documentation](https://www.remotion.dev/docs/renderer/get-compositions)
+ */
+export const getCompositions = (
+	serveUrlOrWebpackUrl: string,
+	config?: GetCompositionsOptions
+): Promise<VideoConfig[]> => {
+	const {
+		browserExecutable,
+		chromiumOptions,
+		envVariables,
+		inputProps,
+		onBrowserLog,
+		port,
+		puppeteerInstance,
+		timeoutInMilliseconds,
+		logLevel,
+	} = config ?? {};
+	return internalGetCompositions({
+		browserExecutable: browserExecutable ?? null,
+		chromiumOptions: chromiumOptions ?? {},
+		envVariables: envVariables ?? {},
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: inputProps ?? {},
+			indent: undefined,
+			staticBase: null,
+		}).serializedString,
+		indent: false,
+		onBrowserLog: onBrowserLog ?? null,
+		port: port ?? null,
+		puppeteerInstance: puppeteerInstance ?? undefined,
+		serveUrlOrWebpackUrl,
+		server: undefined,
+		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
+		logLevel: logLevel ?? getLogLevel(),
 	});
 };

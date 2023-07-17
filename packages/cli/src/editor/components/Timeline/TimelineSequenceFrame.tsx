@@ -19,6 +19,8 @@ export const TimelineSequenceFrame: React.FC<{
 	const {fps} = useVideoConfig();
 	const relativeFrame = frame - from;
 
+	const roundedFrame = Math.round(relativeFrame * 100) / 100;
+
 	const isInRange = relativeFrame >= 0 && relativeFrame < duration;
 
 	if (!isInRange) {
@@ -36,7 +38,7 @@ Call \`const {durationInFrames} = useVideoConfig()\` to get the duration of the 
 `.trim()}
 			style={relativeFrameStyle}
 		>
-			{renderFrame(relativeFrame, fps)} ({relativeFrame})
+			{renderFrame(relativeFrame, fps)} ({roundedFrame})
 		</div>
 	);
 };

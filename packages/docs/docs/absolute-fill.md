@@ -7,7 +7,7 @@ crumb: "API"
 
 A helper component - it is an absolutely positioned `<div>` with the following styles:
 
-```ts twoslash
+```ts twoslash title="Styles of AbsoluteFill"
 import React from "react";
 // ---cut---
 const style: React.CSSProperties = {
@@ -22,9 +22,30 @@ const style: React.CSSProperties = {
 };
 ```
 
+This component is useful for layering content on top of each other. For example, you can use it to create a full-screen video background:
+
+```tsx twoslash title="Layer example"
+import { AbsoluteFill, OffthreadVideo } from "remotion";
+
+const MyComp = () => {
+  return (
+    <AbsoluteFill>
+      <AbsoluteFill>
+        <OffthreadVideo src="https://example.com/video.mp4" />
+      </AbsoluteFill>
+      <AbsoluteFill>
+        <h1>This text is written on top!</h1>
+      </AbsoluteFill>
+    </AbsoluteFill>
+  );
+};
+```
+
+The layers that get rendered last appear on top - this is because of how HTML works.
+
 ## Adding a ref
 
-You can add a [React ref](https://reactjs.org/docs/refs-and-the-dom.html) to an `<AbsoluteFill>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to an `<AbsoluteFill>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
 
 ```tsx twoslash
 import { useRef } from "react";

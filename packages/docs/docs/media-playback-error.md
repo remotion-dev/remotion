@@ -26,6 +26,10 @@ Unlike Google Chrome, the Chromium Browser does not include proprietary codecs. 
 
 **Workaround**: Convert videos to WebM, [use Chrome instead of Chromium](/docs/config#setbrowserexecutable), or use [`<OffthreadVideo>`](/docs/offthreadvideo).
 
+:::note
+> The Chromium browser included in Remotion Lambda and Cloud Run already supports the H.264 codec.
+:::
+
 ## Invalid source
 
 Make sure you are trying to load a video that is either available locally or publicly on the internet. Open the DevTools, go to the Network tab, track the asset being loaded, and open it in a new tab. Does it actually start playing?
@@ -48,7 +52,34 @@ Open the DevTools and go to the network tab to validate that this is the case.
 
 You might be importing a video that is not compatible with Chrome at all, e.g. FLV.
 
-## Recover from this error <AvailableFrom v="3.3.89" />
+## Too many video tags
+
+The error message might contain `error creating media player`, appearing if too many video tags are created.  
+First check that you are not accidentially creating an infite render loop. For example, changing the `key` frequently will re-create the video tag on every frame:
+
+```tsx twoslash
+const uuidv4 = () => "";
+
+// ---cut---
+import { Video } from "remotion";
+
+export default function SBSVideo() {
+  return (
+    <>
+      {[
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      ].map((video, i) => {
+        return <Video key={uuidv4()} src={video} />;
+      })}
+    </>
+  );
+}
+```
+
+If you ruled out this possibility, use [`<OffthreadVideo>`](/docs/offthreadvideo) instead as it does not rely on a `<video>` tag.
+
+## Recover from this error<AvailableFrom v="3.3.89" />
 
 You can handle this error and replace it with a different video by passing the `onError()` prop to the `<Video>` or `<OffthreadVideo>` component.
 

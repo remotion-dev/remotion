@@ -1,7 +1,7 @@
-import type {AudioCodec, FfmpegExecutable} from '@remotion/renderer';
+import type {AudioCodec} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import fs, {createWriteStream, promises} from 'fs';
-import path, {join} from 'path';
+import fs, {createWriteStream, promises} from 'node:fs';
+import path, {join} from 'node:path';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,
@@ -177,8 +177,6 @@ export const concatVideosS3 = async ({
 	codec,
 	fps,
 	numberOfGifLoops,
-	ffmpegExecutable,
-	remotionRoot,
 	files,
 	outdir,
 	audioCodec,
@@ -188,8 +186,6 @@ export const concatVideosS3 = async ({
 	codec: LambdaCodec;
 	fps: number;
 	numberOfGifLoops: number | null;
-	ffmpegExecutable: FfmpegExecutable;
-	remotionRoot: string;
 	files: string[];
 	outdir: string;
 	audioCodec: AudioCodec | null;
@@ -210,13 +206,11 @@ export const concatVideosS3 = async ({
 		codec,
 		fps,
 		numberOfGifLoops,
-		ffmpegExecutable,
-		remotionRoot,
 		audioCodec,
 	});
 	combine.end();
 
-	const cleanupChunksProm = (fs.promises.rm ?? fs.promises.rmdir)(outdir, {
+	const cleanupChunksProm = fs.promises.rm(outdir, {
 		recursive: true,
 	});
 	return {outfile, cleanupChunksProm};

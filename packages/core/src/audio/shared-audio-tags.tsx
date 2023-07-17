@@ -95,7 +95,7 @@ export const SharedAudioContext = createContext<SharedContext | null>(null);
 export const SharedAudioContextProvider: React.FC<{
 	numberOfAudioTags: number;
 	children: React.ReactNode;
-	component: LazyExoticComponent<ComponentType<unknown>> | null;
+	component: LazyExoticComponent<ComponentType<Record<string, unknown>>> | null;
 }> = ({children, numberOfAudioTags, component}) => {
 	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);

@@ -149,5 +149,11 @@ export const useElementSize = (
 		};
 	}, [updateSize]);
 
-	return size ? {...size, refresh: updateSize} : null;
+	return useMemo(() => {
+		if (!size) {
+			return null;
+		}
+
+		return {...size, refresh: updateSize};
+	}, [size, updateSize]);
 };

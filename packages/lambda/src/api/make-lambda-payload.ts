@@ -1,12 +1,19 @@
 import {VERSION} from 'remotion/version';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import type {LambdaStartPayload, LambdaStatusPayload} from '../defaults';
+import {LambdaRoutines} from '../defaults';
+import {
+	compressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../shared/compress-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
+import type {GetRenderProgressInput} from './get-render-progress';
 import type {RenderMediaOnLambdaInput} from './render-media-on-lambda';
 
-export const makeLambdaPayload = async ({
+export const makeLambdaRenderMediaPayload = async ({
 	rendererFunctionName,
 	frameRange,
 	framesPerLambda,
@@ -21,7 +28,6 @@ export const makeLambdaPayload = async ({
 	envVariables,
 	pixelFormat,
 	proResProfile,
-	quality,
 	maxRetries,
 	privacy,
 	logLevel,
@@ -42,7 +48,15 @@ export const makeLambdaPayload = async ({
 	muted,
 	overwrite,
 	dumpBrowserLogs,
-}: RenderMediaOnLambdaInput) => {
+	jpegQuality,
+	quality,
+}: RenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
+	if (quality) {
+		throw new Error(
+			'quality has been renamed to jpegQuality. Please rename the option.'
+		);
+	}
+
 	const actualCodec = validateLambdaCodec(codec);
 	validateServeUrl(serveUrl);
 	validateFramesPerLambda({
@@ -51,28 +65,34 @@ export const makeLambdaPayload = async ({
 	});
 	validateDownloadBehavior(downloadBehavior);
 
-	const serializedInputProps = await serializeInputProps({
-		inputProps,
+	const stringifiedInputProps = serializeOrThrow(
+		inputProps ?? {},
+		'input-props'
+	);
+
+	const serialized = await compressInputProps({
+		stringifiedInputProps,
 		region,
-		type: 'video-or-audio',
+		needsToUpload: getNeedsToUpload('video-or-audio', stringifiedInputProps),
 		userSpecifiedBucketName: bucketName ?? null,
+		propsType: 'input-props',
 	});
 	return {
 		rendererFunctionName: rendererFunctionName ?? null,
 		framesPerLambda: framesPerLambda ?? null,
 		composition,
 		serveUrl,
-		inputProps: serializedInputProps,
+		inputProps: serialized,
 		codec: actualCodec,
 		imageFormat: imageFormat ?? 'jpeg',
 		crf,
 		envVariables,
 		pixelFormat,
 		proResProfile,
-		quality,
+		jpegQuality,
 		maxRetries: maxRetries ?? 1,
 		privacy: privacy ?? 'public',
-		logLevel: logLevel ?? 'info',
+		logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 		frameRange: frameRange ?? null,
 		outName: outName ?? null,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
@@ -92,6 +112,20 @@ export const makeLambdaPayload = async ({
 		forceWidth: forceWidth ?? null,
 		bucketName: bucketName ?? null,
 		audioCodec: audioCodec ?? null,
-		dumpBrowserLogs: dumpBrowserLogs ?? false,
+		type: LambdaRoutines.start,
+	};
+};
+
+export const getRenderProgressPayload = ({
+	bucketName,
+	renderId,
+	s3OutputProvider,
+}: GetRenderProgressInput): LambdaStatusPayload => {
+	return {
+		type: LambdaRoutines.status,
+		bucketName,
+		renderId,
+		version: VERSION,
+		s3OutputProvider,
 	};
 };

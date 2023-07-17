@@ -1,4 +1,4 @@
-import os from 'os';
+import os from 'node:os';
 const MEMORY_USAGE_PER_THREAD = 400_000_000; // 400MB
 const RESERVED_MEMORY = 2_000_000_000;
 

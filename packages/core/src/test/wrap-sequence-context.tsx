@@ -1,7 +1,8 @@
 import React from 'react';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
-import type {CompositionManagerContext} from '../CompositionManager.js';
-import {CompositionManager} from '../CompositionManager.js';
+import type {CompositionManagerContext} from '../CompositionManagerContext.js';
+import {CompositionManager} from '../CompositionManagerContext.js';
+import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 
 const Comp: React.FC = () => null;
 
@@ -10,7 +11,7 @@ export const mockCompositionContext: CompositionManagerContext = {
 	compositions: [
 		{
 			id: 'my-comp',
-			durationInFrames: 100,
+			durationInFrames: 1000000,
 			// @ts-expect-error
 			component: Comp,
 			defaultProps: {},
@@ -20,6 +21,7 @@ export const mockCompositionContext: CompositionManagerContext = {
 			width: 1080,
 			parentFolderName: null,
 			nonce: 0,
+			calculateMetadata: null,
 		},
 	],
 	currentComposition: 'my-comp',
@@ -27,13 +29,10 @@ export const mockCompositionContext: CompositionManagerContext = {
 	registerAsset: () => undefined,
 	registerComposition: () => undefined,
 	registerFolder: () => undefined,
-	registerSequence: () => undefined,
-	sequences: [],
 	setCurrentComposition: () => undefined,
 	unregisterAsset: () => undefined,
 	unregisterComposition: () => undefined,
 	unregisterFolder: () => undefined,
-	unregisterSequence: () => undefined,
 };
 
 export const WrapSequenceContext: React.FC<{
@@ -42,7 +41,7 @@ export const WrapSequenceContext: React.FC<{
 	return (
 		<CanUseRemotionHooksProvider>
 			<CompositionManager.Provider value={mockCompositionContext}>
-				{children}
+				<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
 			</CompositionManager.Provider>
 		</CanUseRemotionHooksProvider>
 	);

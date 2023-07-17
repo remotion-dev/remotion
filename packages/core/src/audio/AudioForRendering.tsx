@@ -9,7 +9,7 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {CompositionManager} from '../CompositionManager.js';
+import {AssetManager} from '../AssetManager.js';
 import {continueRender, delayRender} from '../delay-render.js';
 import {useRemotionEnvironment} from '../get-environment.js';
 import {random} from '../random.js';
@@ -34,7 +34,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	const volumePropFrame = useFrameForVolumeProp();
 	const frame = useCurrentFrame();
 	const sequenceContext = useContext(SequenceContext);
-	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+	const {registerAsset, unregisterAsset} = useContext(AssetManager);
 	const environment = useRemotionEnvironment();
 
 	// Generate a string that's as unique as possible for this asset
@@ -128,14 +128,14 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 
 			const didLoad = () => {
 				if (current?.duration) {
-					onDuration(src as string, current.duration);
+					onDuration(current.src as string, current.duration);
 				}
 
 				continueRender(newHandle);
 			};
 
 			if (current?.duration) {
-				onDuration(src as string, current.duration);
+				onDuration(current.src as string, current.duration);
 				continueRender(newHandle);
 			} else {
 				current?.addEventListener('loadedmetadata', didLoad, {once: true});

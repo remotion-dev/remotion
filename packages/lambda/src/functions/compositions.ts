@@ -1,10 +1,10 @@
-import {getCompositions, RenderInternals} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
 import type {LambdaPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
+import {decompressInputProps} from '../shared/compress-props';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
-import {deserializeInputProps} from '../shared/deserialize-input-props';
 import {getBrowserInstance} from './helpers/get-browser-instance';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 
@@ -40,20 +40,18 @@ export const compositionsHandler = async (
 				region,
 			}).then((b) => b.bucketName),
 		getBrowserInstance(
-			lambdaParams.dumpBrowserLogs ??
-				RenderInternals.isEqualOrBelowLogLevel(
-					lambdaParams.logLevel,
-					'verbose'
-				),
+			lambdaParams.logLevel,
+			false,
 			lambdaParams.chromiumOptions ?? {}
 		),
 	]);
 
-	const inputProps = await deserializeInputProps({
+	const serializedInputPropsWithCustomSchema = await decompressInputProps({
 		bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: lambdaParams.inputProps,
+		propsType: 'input-props',
 	});
 
 	const realServeUrl = convertToServeUrl({
@@ -62,23 +60,23 @@ export const compositionsHandler = async (
 		bucketName,
 	});
 
-	const downloadMap = RenderInternals.makeDownloadMap();
-
-	const compositions = await getCompositions(realServeUrl, {
+	const compositions = await RenderInternals.internalGetCompositions({
+		serveUrlOrWebpackUrl: realServeUrl,
 		puppeteerInstance: browserInstance,
-		inputProps,
-		envVariables: lambdaParams.envVariables,
-		ffmpegExecutable: null,
-		ffprobeExecutable: null,
+		serializedInputPropsWithCustomSchema,
+		envVariables: lambdaParams.envVariables ?? {},
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
 		chromiumOptions: lambdaParams.chromiumOptions,
 		port: null,
-		downloadMap,
+		server: undefined,
+		logLevel: lambdaParams.logLevel,
+		indent: false,
+		browserExecutable: null,
+		onBrowserLog: null,
 	});
-
-	RenderInternals.cleanDownloadMap(downloadMap);
 
 	return Promise.resolve({
 		compositions,
+		type: 'success' as const,
 	});
 };
