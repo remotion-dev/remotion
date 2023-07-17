@@ -19,10 +19,10 @@ export const makeTimeoutError = ({
 
 	const missingChunks = new Array(renderMetadata.totalChunks)
 		.fill(true)
-		.filter((_, i) => {
-			return !availableChunks.find((c) => c.chunk === i);
-		})
-		.map((_, i) => i);
+		.map((_, i) => i)
+		.filter((index) => {
+			return !availableChunks.find((c) => c.chunk === index);
+		});
 
 	const message = makeTimeoutMessage({
 		missingChunks,
