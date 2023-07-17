@@ -103,35 +103,40 @@ const Experts: React.FC = () => {
                   }}
                 >
                   {e.twitter ? (
-                    <>
-                      <div style={flex}>
-                        <a
-                          style={docsButton}
-                          target={"_blank"}
-                          href={`https://twitter.com/${e.twitter}`}
-                        >
-                          <BlueButton loading={false} fullWidth size="sm">
-                            <TwitterLogo /> Twitter
-                          </BlueButton>
-                        </a>
-                      </div>
-                      <Spacer />
-                      <Spacer />
-                    </>
-                  ) : null}
-
-                  {e.github ? (
                     <div style={flex}>
                       <a
                         style={docsButton}
                         target={"_blank"}
-                        href={`https://github.com/${e.github}`}
+                        href={`https://twitter.com/${e.twitter}`}
                       >
                         <BlueButton loading={false} fullWidth size="sm">
-                          <GitHubLogo /> GitHub
+                          <TwitterLogo /> Twitter
                         </BlueButton>
                       </a>
                     </div>
+                  ) : null}
+
+                  {e.github ? (
+                    <>
+                      {e.twitter ? (
+                        <>
+                          <Spacer />
+                          <Spacer />
+                        </>
+                      ) : null}
+
+                      <div style={flex}>
+                        <a
+                          style={docsButton}
+                          target={"_blank"}
+                          href={`https://github.com/${e.github}`}
+                        >
+                          <BlueButton loading={false} fullWidth size="sm">
+                            <GitHubLogo /> GitHub
+                          </BlueButton>
+                        </a>
+                      </div>
+                    </>
                   ) : null}
                 </div>
                 <Spacer />
@@ -175,20 +180,23 @@ const Experts: React.FC = () => {
                       </a>
                     </div>
                   ) : null}
-                  <Spacer />
-                  <Spacer />
+
                   {e.videocall ? (
-                    <div style={flex}>
-                      <a
-                        style={docsButton}
-                        target={"_blank"}
-                        href={`https://cal.com/${e.videocall}`}
-                      >
-                        <BlueButton loading={false} fullWidth size="sm">
-                          <VideoCallLogo /> Video call
-                        </BlueButton>
-                      </a>
-                    </div>
+                    <>
+                      <Spacer />
+                      <Spacer />
+                      <div style={flex}>
+                        <a
+                          style={docsButton}
+                          target={"_blank"}
+                          href={`https://cal.com/${e.videocall}`}
+                        >
+                          <BlueButton loading={false} fullWidth size="sm">
+                            <VideoCallLogo /> Video call
+                          </BlueButton>
+                        </a>
+                      </div>
+                    </>
                   ) : null}
                 </div>
               </div>
