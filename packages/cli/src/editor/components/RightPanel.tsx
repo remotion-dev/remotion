@@ -57,7 +57,7 @@ export const rightSidebarTabs = createRef<{
 
 export const RightPanel: React.FC<{}> = () => {
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
-
+	const [saving, setSaving] = useState(false);
 	const [panel, setPanel] = useState<SidebarPanel>(() => getSelectedPanel());
 	const onCompositionsSelected = useCallback(() => {
 		setPanel('input-props');
@@ -86,12 +86,14 @@ export const RightPanel: React.FC<{}> = () => {
 		Internals.CompositionManager
 	);
 	const circleStyle = useMemo((): React.CSSProperties => {
+		const onTabColor = saving ? LIGHT_TEXT : 'white';
+
 		return {
 			...circle,
-			backgroundColor: panel === 'input-props' ? 'white' : LIGHT_TEXT,
+			backgroundColor: panel === 'input-props' ? onTabColor : LIGHT_TEXT,
 			cursor: 'help',
 		};
-	}, [panel]);
+	}, [panel, saving]);
 
 	const composition = useMemo((): AnyComposition | null => {
 		for (const comp of compositions) {
@@ -175,6 +177,8 @@ export const RightPanel: React.FC<{}> = () => {
 					setInputProps={setInputProps}
 					mayShowSaveButton
 					propsEditType="default-props"
+					saving={saving}
+					setSaving={setSaving}
 				/>
 			)}
 		</div>

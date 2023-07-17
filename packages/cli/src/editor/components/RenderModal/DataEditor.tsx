@@ -117,15 +117,18 @@ export const DataEditor: React.FC<{
 	setInputProps: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	mayShowSaveButton: boolean;
 	propsEditType: PropsEditType;
+	saving: boolean;
+	setSaving: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	unresolvedComposition,
 	inputProps,
 	setInputProps,
 	mayShowSaveButton,
 	propsEditType,
+	saving,
+	setSaving,
 }) => {
 	const [mode, setMode] = useState<Mode>('schema');
-	const [saving, setSaving] = useState(false);
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState()
 	);
