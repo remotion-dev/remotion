@@ -3,7 +3,6 @@ import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {Log} from '../cli/log';
 import {callLambda} from '../shared/call-lambda';
 import {writeLambdaInitializedFile} from '../shared/chunk-progress';
 import {decompressInputProps} from '../shared/compress-props';
@@ -140,7 +139,10 @@ const renderHandler = async (
 						expectedBucketOwner: options.expectedBucketOwner,
 						framesRendered: renderedFrames,
 						renderId: params.renderId,
-					}).catch((err) => reject(err));
+					}).catch((err) => {
+						console.log(err);
+						return reject(err);
+					});
 				}
 
 				const allFrames = RenderInternals.getFramesToRender(
@@ -250,7 +252,7 @@ const renderHandler = async (
 		timings: Object.values(chunkTimingData.timings),
 	};
 
-	Log.verbose('Writing chunk to S3');
+	RenderInternals.Log.verbose('Writing chunk to S3');
 	const writeStart = Date.now();
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
@@ -265,8 +267,10 @@ const renderHandler = async (
 		downloadBehavior: null,
 		customCredentials: null,
 	});
-	Log.verbose('Wrote chunk to S3', {time: Date.now() - writeStart});
-	Log.verbose('Cleaning up and writing timings');
+	RenderInternals.Log.verbose('Wrote chunk to S3', {
+		time: Date.now() - writeStart,
+	});
+	RenderInternals.Log.verbose('Cleaning up and writing timings');
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
 		fs.promises.rm(outputPath, {recursive: true}),
