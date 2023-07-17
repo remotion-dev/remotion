@@ -16,6 +16,7 @@ setuptools.setup(
     classifiers=[
 
     ],
+    long_description="",
     packages=setuptools.find_packages(),
     python_requires='>=3.6',
     # Name of the python package
