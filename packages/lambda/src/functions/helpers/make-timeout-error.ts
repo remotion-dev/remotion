@@ -36,7 +36,7 @@ export const makeTimeoutError = ({
 	return {
 		attempt: 1,
 		chunk: null,
-		explanation: message,
+		explanation: null,
 		frame: null,
 		isFatal: true,
 		s3Location: '',
