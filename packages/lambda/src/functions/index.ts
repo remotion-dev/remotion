@@ -173,6 +173,10 @@ const routine = async (
 
 		responseStream.write(JSON.stringify(res));
 		responseStream.end();
+	} finally {
+		responseStream.on('close', () => {
+			process.exit(0);
+		});
 	}
 };
 
