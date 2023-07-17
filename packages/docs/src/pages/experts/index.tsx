@@ -11,6 +11,7 @@ import {
   GitHubLogo,
   LinkedInLogo,
   TwitterLogo,
+  VideoCallLogo,
 } from "../../components/icons";
 import { Seo } from "../../components/Seo";
 import { experts } from "../../data/experts";
@@ -170,6 +171,21 @@ const Experts: React.FC = () => {
                       >
                         <BlueButton loading={false} fullWidth size="sm">
                           <EmailLogo /> Email
+                        </BlueButton>
+                      </a>
+                    </div>
+                  ) : null}
+                  <Spacer />
+                  <Spacer />
+                  {e.videocall ? (
+                    <div style={flex}>
+                      <a
+                        style={docsButton}
+                        target={"_blank"}
+                        href={`https://cal.com/${e.videocall}`}
+                      >
+                        <BlueButton loading={false} fullWidth size="sm">
+                          <VideoCallLogo /> Video call
                         </BlueButton>
                       </a>
                     </div>
