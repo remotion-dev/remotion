@@ -28,6 +28,11 @@
       "permanent": false
     },
     {
+      "source": "/booking",
+      "destination": "https://cal.com/remotion",
+      "permanent": false
+    },
+    {
       "source": "/coc",
       "destination": "https://github.com/remotion-dev/remotion/blob/main/CODE-OF-CONDUCT.md",
       "permanent": false
