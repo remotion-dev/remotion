@@ -153,12 +153,12 @@ export const PlayPause: React.FC<{
 	}, [frameForward]);
 
 	const jumpToStart = useCallback(() => {
-		seek(0);
-	}, [seek]);
+		seek(inFrame ?? 0);
+	}, [seek, inFrame]);
 
 	const jumpToEnd = useCallback(() => {
-		seek(getCurrentDuration() - 1);
-	}, [seek]);
+		seek(outFrame ?? getCurrentDuration() - 1);
+	}, [seek, outFrame]);
 
 	const keybindings = useKeybinding();
 
