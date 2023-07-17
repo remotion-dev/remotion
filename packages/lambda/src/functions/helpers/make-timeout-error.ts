@@ -8,10 +8,12 @@ export const makeTimeoutError = ({
 	timeoutInMilliseconds,
 	chunks,
 	renderMetadata,
+	renderId,
 }: {
 	timeoutInMilliseconds: number;
 	chunks: _Object[];
 	renderMetadata: RenderMetadata;
+	renderId: string;
 }): EnhancedErrorInfo => {
 	const availableChunks = chunks.map((c) =>
 		parseLambdaChunkKey(c.Key as string)
@@ -28,6 +30,7 @@ export const makeTimeoutError = ({
 		missingChunks,
 		renderMetadata,
 		timeoutInMilliseconds,
+		renderId,
 	});
 
 	return {
