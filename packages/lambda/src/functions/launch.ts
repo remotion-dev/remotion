@@ -73,7 +73,6 @@ const callFunctionWithRetry = async ({
 		await getLambdaClient(getCurrentRegionInFunction()).send(
 			new InvokeCommand({
 				FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-				// @ts-expect-error
 				Payload: JSON.stringify(payload),
 				InvocationType: 'Event',
 			})

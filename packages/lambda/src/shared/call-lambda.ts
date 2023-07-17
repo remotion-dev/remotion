@@ -25,7 +25,6 @@ export const callLambda = async <T extends LambdaRoutines>({
 	const res = await getLambdaClient(region, timeoutInTest).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
-			// @ts-expect-error
 			Payload: JSON.stringify({type, ...payload}),
 		})
 	);
