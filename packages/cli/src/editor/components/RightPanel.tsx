@@ -105,6 +105,12 @@ export const RightPanel: React.FC<{}> = () => {
 		return null;
 	}, [compositions, currentComposition]);
 
+	const saveToolTip = useMemo(() => {
+		return process.env.KEYBOARD_SHORTCUTS_ENABLED
+			? `Save by using ${cmdOrCtrlCharacter}+S`
+			: undefined;
+	}, []);
+
 	const setInputProps = useCallback(
 		(
 			newProps:
@@ -155,10 +161,7 @@ export const RightPanel: React.FC<{}> = () => {
 					>
 						Props
 						{unsavedChangesExist ? (
-							<div
-								title={`Save by using ${cmdOrCtrlCharacter}+S`}
-								style={circleStyle}
-							/>
+							<div title={saveToolTip} style={circleStyle} />
 						) : null}
 					</Tab>
 					<RendersTab
