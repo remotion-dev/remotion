@@ -182,7 +182,9 @@ const routine = async (
 		responseStream.end();
 	} finally {
 		responseStream.on('close', () => {
-			process.exit(0);
+			if (!process.env.VITEST) {
+				process.exit(0);
+			}
 		});
 	}
 };
