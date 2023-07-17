@@ -14,7 +14,10 @@ import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
-import {sendErrorNotification} from '../Notifications/NotificationCenter';
+import {
+	notificationCenter,
+	sendErrorNotification,
+} from '../Notifications/NotificationCenter';
 import {
 	canUpdateDefaultProps,
 	updateDefaultProps,
@@ -316,7 +319,14 @@ export const DataEditor: React.FC<{
 				extractEnumJsonPaths(schema, z, [])
 			)
 				.then((response) => {
-					if (!response.success) {
+					if (response.success) {
+						notificationCenter.current?.addNotification({
+							content: 'Default props saved',
+							duration: 2000,
+							created: Date.now(),
+							id: String(Math.random()).replace('0.', ''),
+						});
+					} else {
 						console.log(response.stack);
 						sendErrorNotification(
 							`Cannot update default props: ${response.reason}. See console for more information.`
