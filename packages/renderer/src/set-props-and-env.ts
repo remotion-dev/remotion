@@ -171,7 +171,12 @@ const innerSetPropsAndEnv = async ({
 
 	if (siteVersion !== requiredVersion) {
 		throw new Error(
-			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. Found version: ${siteVersion} - Required version: ${requiredVersion}. To resolve this error, please bundle and deploy again.`
+			[
+				`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. Found version: ${siteVersion} - Required version: ${requiredVersion}. To resolve this error:`,
+				'▸ Use `npx remotion lambda sites create` to redeploy the site with the latest version.',
+				'  ℹ Use --site-name with the same name as before to overwrite your site.',
+				'▸ Use `deploySite()` if you are using the Node.JS APIs.',
+			].join('\n')
 		);
 	}
 
@@ -182,7 +187,13 @@ const innerSetPropsAndEnv = async ({
 					indent,
 					logLevel,
 				},
-				`The site was bundled with version ${remotionVersion} of @remotion/bundler, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
+				[
+					`The site was bundled with version ${remotionVersion} of @remotion/bundler, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features.`,
+					`To resolve this warning:`,
+					'▸ Use `npx remotion lambda sites create` to redeploy the site with the latest version.',
+					'  ℹ Use --site-name with the same name as before to overwrite your site.',
+					'▸ Use `deploySite()` if you are using the Node.JS APIs.',
+				].join('\n')
 			);
 		} else {
 			Log.warnAdvanced(
