@@ -577,8 +577,8 @@ export class Frame {
 
 	goto(
 		url: string,
-		timeout: number
-,		options: {
+		timeout: number,
+		options: {
 			referer?: string;
 			waitUntil?: PuppeteerLifeCycleEvent;
 		} = {}
