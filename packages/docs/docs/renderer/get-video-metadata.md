@@ -11,82 +11,18 @@ crumb: "@remotion/renderer"
 This function is meant to be used **in Node.js applications**. For browsers, use [`getVideoMetadata()`](/docs/get-video-metadata) from `@remotion/media-utils` instead.
 :::
 
-Get a videos `width`, `height`, `fps`, and `durationInSeconds` in Node.js. Useful for calculating metadata on a server.
+Gets metadata about a video file in Node.js. Useful for calculating metadata on a server.
 
 ## Example
-
-Pass a videos metadata to `inputProps` before rendering, without having to load the video in the browser.
 
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { bundle } from "@remotion/bundler";
-import {
-  getVideoMetadata,
-  selectComposition,
-  renderMedia,
-} from "@remotion/renderer";
-import path from "path";
-
-// Local video file
-const videoSourcePath = "./bunny.mp4";
+import { getVideoMetadata } from "@remotion/renderer";
 
 const { width, height, fps, durationInSeconds } = await getVideoMetadata(
-  videoSourcePath
+  "./bunny.mp4"
 );
-
-// The Remotion root.
-const entry = "src/index.ts";
-
-const bundleLocation = await bundle(path.resolve(entry), () => undefined, {
-  // If you have a Webpack override, make sure to add it here
-  webpackOverride: (config) => config,
-});
-
-// The ID of the composition to render
-const compositionId = "main";
-
-// Provide the metadata to the composition
-const composition = await selectComposition({
-  serveUrl: bundleLocation,
-  id: compositionId,
-  inputProps: {
-    width,
-    height,
-    fps,
-    durationInSeconds,
-  },
-});
-
-// Local path to save the rendered video.
-const outputLocation = `out/sample.mp4`;
-console.log("Attempting to render:", outputLocation);
-
-await renderMedia({
-  composition,
-  serveUrl: bundleLocation,
-  codec: "h264",
-});
-```
-
-The parameters provided in the `inputProps` is accessible from `getInputProps()` on the composition root.
-
-```tsx
-import { getInputProps, Composition } from "remotion";
-
-const videoMetadata = getInputProps();
-
-<Composition
-  id="main"
-  component={MyComponent}
-  durationInFrames={
-    (videoMetadata.durationInSeconds ?? 10) * (videoMetadata.fps ?? 30)
-  }
-  fps={videoMetadata.fps ?? 30}
-  width={videoMetadata.width ?? 1080}
-  height={videoMetadata.height ?? 1080}
-  defaultProps={{}}
-/>;
 ```
 
 ## Arguments
@@ -101,10 +37,52 @@ A local video file path.
 
 The return value is an object with the following properties:
 
-- `fps`: The frame rate of the video in seconds.
-- `width`: The width of the video in pixel.
-- `height`: The height of the video in pixel.
-- `durationInSeconds`: The time length of the video in seconds.
+### `fps`
+
+_number_
+
+The amount of frames per seconds the video has (framerate)
+
+### `width`
+
+_number_
+
+The width of the video in px.
+
+### `height`
+
+_number_
+
+The height of the video in px.
+
+### `durationInSeconds`
+
+_number_
+
+The time length of the video in seconds.
+
+### `codec`<AvailableFrom v="4.0.8" />
+
+_string_
+
+One of `'h264' | 'h265' | 'vp8' | 'vp9' | 'av1' | 'prores'` or ` 'unknown'` if the codec is not officially supported by Remotion.
+
+### `supportsSeeking`<AvailableFrom v="4.0.8" />
+
+_boolean_
+
+A prediction whether the video will be seekable in the browser. The algorithm is:
+
+1. If the codec is `unknown`, then the video is not seekable (`false`).
+2. If the video is shorter than 5 seconds, then it is seekable (`true`).
+3. If the codec is not `h264`, then it is seekable (`true`).
+4. The codec is now `h264`. If it supports Faststart (the `moov` atom is in front of the `mdat` atom), then it is seekable (`true`)
+5. Otherwise, it is not seekable (`false`).
+
+If a video is not seekable, you might run into the ["Non-seekable media"](/docs/non-seekable-media) error.  
+This means that the video might fail to render if embedded in a `<Video>` tag and be slow if embedded in a `<OffthreadVideo>` tag.
+
+You may consider re-encoding the video using FFmpeg to make it seekable.
 
 ## See also
 

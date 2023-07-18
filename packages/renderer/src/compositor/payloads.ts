@@ -38,7 +38,11 @@ export type VideoMetadata = {
 	width: number;
 	height: number;
 	durationInSeconds: number;
+	codec: 'h264' | 'h265' | 'vp8' | 'vp9' | 'av1' | 'prores' | 'unknown';
+	canPlayInVideoTag: boolean;
+	supportsSeeking: boolean;
 };
+
 export type CompositorCommand = {
 	Compose: {
 		output: string;
