@@ -554,7 +554,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 								quickSwitcherLabel: 'Go Fullscreen',
 						  }
 						: null,
-				],
+				].filter(Internals.truthy),
 			},
 			'EyeDropper' in window
 				? {
