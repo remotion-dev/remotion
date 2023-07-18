@@ -42,3 +42,56 @@ input[type='color'].__remotion_color_picker::-webkit-color-swatch-wrapper {
 input[type='color'].__remotion_color_picker::-webkit-color-swatch {
 	border: none;
 }
+
+.__remotion_thumb,
+.__remotion_thumb::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.__remotion_thumb {
+	pointer-events: none;
+	position: absolute;
+	height: 0;
+	outline: none;
+	top: 51%;
+	width: 100%;
+	z-index: 2;
+}
+
+/* For Firefox browsers */
+.__remotion_thumb::-moz-range-thumb {
+	border: none;
+	border-radius: 0;
+	cursor: pointer;
+	height: 40px;
+	width: 10px;
+	pointer-events: all;
+	border-color: black;
+	background-color: white;
+	position: relative;
+}
+
+.__remotion_thumb::-moz-range-thumb {
+	border-width: 1px;
+	border-style: solid;
+}
+
+/* For Chrome browsers */
+.__remotion_thumb::-webkit-slider-thumb {
+	border: 1px solid black;
+	border-radius: 2px;
+	cursor: pointer;
+	height: 40px;
+	width: 10px;
+	pointer-events: all;
+	border-color: black;
+	background-color: white;
+	position: relative;
+}
+
+.__remotion_thumb::-webkit-slider-thumb {
+	border-width: 1px;
+	border-style: solid;
+	border-color: black;
+}
