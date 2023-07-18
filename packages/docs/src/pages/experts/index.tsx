@@ -104,9 +104,8 @@ const Experts: React.FC = () => {
                   }}
                 >
                   {e.twitter ? (
-                    <div style={flex}>
+                    <div style={flex} className={styles.docsButton}>
                       <a
-                        style={docsButton}
                         target={"_blank"}
                         href={`https://twitter.com/${e.twitter}`}
                       >
@@ -126,7 +125,7 @@ const Experts: React.FC = () => {
                         </>
                       ) : null}
 
-                      <div style={flex}>
+                      <div style={flex} className={styles.docsButton}>
                         <a
                           style={docsButton}
                           target={"_blank"}
@@ -150,7 +149,7 @@ const Experts: React.FC = () => {
                   }}
                 >
                   {e.linkedin ? (
-                    <div style={flex}>
+                    <div style={flex} className={styles.docsButton}>
                       <a
                         style={docsButton}
                         target={"_blank"}
@@ -169,7 +168,7 @@ const Experts: React.FC = () => {
                     </>
                   ) : null}
                   {e.email ? (
-                    <div style={flex}>
+                    <div style={flex} className={styles.docsButton}>
                       <a
                         style={docsButton}
                         target={"_blank"}
@@ -186,7 +185,7 @@ const Experts: React.FC = () => {
                     <>
                       <Spacer />
                       <Spacer />
-                      <div style={flex}>
+                      <div style={flex} className={styles.docsButton}>
                         <a
                           style={docsButton}
                           target={"_blank"}
