@@ -44,7 +44,6 @@ import type {JSHandle} from './JSHandle';
 import type {PuppeteerLifeCycleEvent} from './LifecycleWatcher';
 import {LifecycleWatcher} from './LifecycleWatcher';
 import {NetworkManager} from './NetworkManager';
-import type {TimeoutSettings} from './TimeoutSettings';
 import {isErrorLike} from './util';
 
 const UTILITY_WORLD_NAME = '__puppeteer_utility_world__';
@@ -64,31 +63,21 @@ export const FrameManagerEmittedEvents = {
 export class FrameManager extends EventEmitter {
 	#page: Page;
 	#networkManager: NetworkManager;
-	#timeoutSettings: TimeoutSettings;
 	#frames = new Map<string, Frame>();
 	#contextIdToContext = new Map<string, ExecutionContext>();
 	#isolatedWorlds = new Set<string>();
 	#mainFrame?: Frame;
 	#client: CDPSession;
 
-	get _timeoutSettings(): TimeoutSettings {
-		return this.#timeoutSettings;
-	}
-
 	get _client(): CDPSession {
 		return this.#client;
 	}
 
-	constructor(
-		client: CDPSession,
-		page: Page,
-		timeoutSettings: TimeoutSettings
-	) {
+	constructor(client: CDPSession, page: Page) {
 		super();
 		this.#client = client;
 		this.#page = page;
 		this.#networkManager = new NetworkManager(client, this);
-		this.#timeoutSettings = timeoutSettings;
 		this.setupEventListeners(this.#client);
 	}
 
@@ -178,17 +167,14 @@ export class FrameManager extends EventEmitter {
 	async navigateFrame(
 		frame: Frame,
 		url: string,
+		timeout: number,
 		options: {
 			referer?: string;
 			timeout?: number;
 			waitUntil?: PuppeteerLifeCycleEvent;
 		} = {}
 	): Promise<HTTPResponse | null> {
-		const {
-			referer = undefined,
-			waitUntil = 'load',
-			timeout = this.#timeoutSettings.navigationTimeout(),
-		} = options;
+		const {referer = undefined, waitUntil = 'load'} = options;
 
 		const watcher = new LifecycleWatcher(this, frame, waitUntil, timeout);
 		let error = await Promise.race([
@@ -581,11 +567,8 @@ export class Frame {
 
 	_updateClient(client: CDPSession): void {
 		this.#client = client;
-		this._mainWorld = new DOMWorld(this, this._frameManager._timeoutSettings);
-		this._secondaryWorld = new DOMWorld(
-			this,
-			this._frameManager._timeoutSettings
-		);
+		this._mainWorld = new DOMWorld(this);
+		this._secondaryWorld = new DOMWorld(this);
 	}
 
 	isOOPFrame(): boolean {
@@ -594,13 +577,13 @@ export class Frame {
 
 	goto(
 		url: string,
-		options: {
+		timeout: number
+,		options: {
 			referer?: string;
-			timeout?: number;
 			waitUntil?: PuppeteerLifeCycleEvent;
 		} = {}
 	): Promise<HTTPResponse | null> {
-		return this._frameManager.navigateFrame(this, url, options);
+		return this._frameManager.navigateFrame(this, url, timeout, options);
 	}
 
 	_client(): CDPSession {

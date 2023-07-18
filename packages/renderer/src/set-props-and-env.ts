@@ -74,7 +74,7 @@ const innerSetPropsAndEnv = async ({
 		window.remotion_videoEnabled = enabled;
 	}, videoEnabled);
 
-	const pageRes = await page.goto(urlToVisit);
+	const pageRes = await page.goto({url: urlToVisit, timeout: actualTimeout});
 
 	if (pageRes === null) {
 		throw new Error(`Visited "${urlToVisit}" but got no response.`);
