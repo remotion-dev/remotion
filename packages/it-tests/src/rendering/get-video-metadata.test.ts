@@ -14,6 +14,8 @@ test("Should return video metadata", async () => {
     height: 1080,
     durationInSeconds: 4.166667,
     codec: "h264",
+    canPlayInVideoTag: true,
+    supportsSeeking: true,
   });
 });
 
@@ -29,7 +31,7 @@ test("Should return AV1 video data", async () => {
 
 test("Should return HEVC video codec", async () => {
   const metadataResponse = await getVideoMetadata(exampleVideos.iphonevideo);
-  expect(metadataResponse.codec).toEqual("hevc");
+  expect(metadataResponse.codec).toEqual("h265");
 });
 
 test("Should return an error due to non existing file", async () => {
