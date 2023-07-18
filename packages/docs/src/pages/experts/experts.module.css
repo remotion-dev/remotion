@@ -36,8 +36,6 @@
   box-shadow: 0 4px 8px 0 rgb(84, 84, 84);
 }
 
-/* Add to your styles.css or CSS module file */
-
 .docsButton {
   text-decoration: none;
   transition: all 0.3s ease;
@@ -45,7 +43,6 @@
 
 .docsButton:hover {
   transform: scale(0.987);
-  box-shadow: #db0c0c;
 }
 
 .profile {
