@@ -155,6 +155,13 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
         _ => "unknown",
     };
 
+    #[allow(non_snake_case)]
+    let canPlayInVideoTag = codec_name == "h264"
+        || codec_name == "h265"
+        || codec_name == "vp8"
+        || codec_name == "vp9"
+        || codec_name == "av1";
+
     // Get the frame rate
     let fps: i32 = stream.avg_frame_rate().numerator();
 
@@ -174,6 +181,7 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
             height: video.height(),
             durationInSeconds,
             codec: codec_name.to_string(),
+            canPlayInVideoTag,
         };
         Ok(metadata)
     } else {
