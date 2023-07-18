@@ -13,12 +13,12 @@ import {
 } from '../helpers/get-effective-translation';
 import {useDimensions} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {canvasRef as ref} from '../state/canvas-ref';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {PreviewSizeContext} from '../state/preview-size';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
 import {ResetZoomButton} from './ResetZoomButton';
-import {canvasRef as ref} from '../state/canvas-ref';
 
 const container: React.CSSProperties = {
 	flex: 1,
