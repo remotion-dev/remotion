@@ -1,8 +1,9 @@
 use crate::errors::ErrorWithBacktrace;
 use crate::opened_stream::calc_position;
 use crate::opened_video_manager::OpenedVideoManager;
-use crate::payloads::payloads::{OpenVideoStats, VideoMetadata};
-use std::io::ErrorKind;
+use crate::payloads::payloads::{KnownCodecs, OpenVideoStats, VideoMetadata};
+use std::fs::File;
+use std::io::{BufReader, ErrorKind};
 extern crate ffmpeg_next as remotionffmpeg;
 
 pub fn get_open_video_stats() -> Result<OpenVideoStats, ErrorWithBacktrace> {
@@ -147,20 +148,24 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
     };
     let codec_id = unsafe { (*(*(stream).as_ptr()).codecpar).codec_id };
     let codec_name = match codec_id {
-        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_H264 => "h264",
-        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_HEVC => "h265",
-        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_VP8 => "vp8",
-        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_VP9 => "vp9",
-        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_AV1 => "av1",
-        _ => "unknown",
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_H264 => KnownCodecs::H264,
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_HEVC => KnownCodecs::H265,
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_VP8 => KnownCodecs::Vp8,
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_VP9 => KnownCodecs::Vp9,
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_AV1 => KnownCodecs::Av1,
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_PRORES => KnownCodecs::ProRes,
+        _ => KnownCodecs::Unknown,
     };
 
     #[allow(non_snake_case)]
-    let canPlayInVideoTag = codec_name == "h264"
-        || codec_name == "h265"
-        || codec_name == "vp8"
-        || codec_name == "vp9"
-        || codec_name == "av1";
+    let canPlayInVideoTag = match codec_name {
+        KnownCodecs::H264 => true,
+        KnownCodecs::H265 => true,
+        KnownCodecs::Vp8 => true,
+        KnownCodecs::Vp9 => true,
+        KnownCodecs::Av1 => true,
+        _ => false,
+    };
 
     // Get the frame rate
     let fps: i32 = stream.avg_frame_rate().numerator();
@@ -168,6 +173,28 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
     // Get the codec
     let codec = remotionffmpeg::codec::context::Context::from_parameters(stream.parameters())
         .map_err(|e| e.to_string())?;
+
+    #[allow(non_snake_case)]
+    let supportsSeeking = match codec_name {
+        KnownCodecs::H264 => {
+            let f = File::open(file_path).unwrap();
+            let size = f.metadata()?.len();
+            let reader = BufReader::new(f);
+
+            let mp4 = mp4::Mp4Reader::read_header(reader, size);
+            let supports_fast_start = match mp4 {
+                Ok(mp4) => mp4.supports_fast_start,
+                Err(_) => false,
+            };
+            supports_fast_start
+        }
+        KnownCodecs::H265 => true,
+        KnownCodecs::Vp8 => true,
+        KnownCodecs::Vp9 => true,
+        KnownCodecs::Av1 => true,
+        KnownCodecs::ProRes => false,
+        KnownCodecs::Unknown => false,
+    };
 
     // Get the duration
     #[allow(non_snake_case)]
@@ -180,8 +207,9 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
             width: video.width(),
             height: video.height(),
             durationInSeconds,
-            codec: codec_name.to_string(),
+            codec: codec_name,
             canPlayInVideoTag,
+            supportsSeeking,
         };
         Ok(metadata)
     } else {
