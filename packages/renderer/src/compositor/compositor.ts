@@ -259,7 +259,9 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			const errorMessage = Buffer.concat(stderrChunks).toString('utf-8');
 			runningStatus = {type: 'quit-with-error', error: errorMessage};
 
-			const error = new Error(`Compositor panicked: ${errorMessage}`);
+			const error = new Error(
+				`Compositor panicked with code ${code}: ${errorMessage}`
+			);
 			for (const waiter of waitersToKill) {
 				waiter.reject(error);
 			}

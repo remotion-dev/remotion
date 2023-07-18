@@ -20,48 +20,50 @@ setTimeout(() => {
 const NewLanding: React.FC = () => {
   return (
     <Layout>
-      <Head>
-        <title>Remotion | Make videos programmatically</title>
-        <meta
-          name="description"
-          content="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more
+      <div>
+        <Head>
+          <title>Remotion | Make videos programmatically</title>
+          <meta
+            name="description"
+            content="Create MP4 motion graphics in React. Leverage CSS, SVG, WebGL and more
           technologies to render videos programmatically!"
-        />
-      </Head>
-      <BackgroundAnimation />
-      <br />
-      <br />
-      <br />
-      <br />
+          />
+        </Head>
+        <BackgroundAnimation />
+        <br />
+        <br />
+        <br />
+        <br />
 
-      <div className={styles.content}>
-        <WriteInReact />
-        <br />
-        <br />
-        <IfYouKnowReact />
-        <br />
-        <br />
-        <br />
-        <br />
-        <br />
-        <RealMP4Videos />
-        <br />
-        <br />
-        <br />
-        <br />
-        <LightningFastEditor />
-        <br />
-        <br />
-        <br />
-        <br />
-        <Parametrize />
-        <br />
-        <br />
-        <VideoAppsTitle />
-        <VideoApps active="remotion" />
-        <br />
-        <br />
-        <FreePricing />
+        <div className={styles.content}>
+          <WriteInReact />
+          <br />
+          <br />
+          <IfYouKnowReact />
+          <br />
+          <br />
+          <br />
+          <br />
+          <br />
+          <RealMP4Videos />
+          <br />
+          <br />
+          <br />
+          <br />
+          <LightningFastEditor />
+          <br />
+          <br />
+          <br />
+          <br />
+          <Parametrize />
+          <br />
+          <br />
+          <VideoAppsTitle />
+          <VideoApps active="remotion" />
+          <br />
+          <br />
+          <FreePricing />
+        </div>
       </div>
     </Layout>
   );

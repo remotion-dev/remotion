@@ -1,5 +1,4 @@
 import {RenderInternals} from '@remotion/renderer';
-import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
 import {callLambda} from '../../../shared/call-lambda';
@@ -15,12 +14,12 @@ afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
 });
 
-test('Should fail when using an incompatible version', () => {
+test('Should fail when using an incompatible version', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-	expect(() =>
-		callLambda({
-			type: LambdaRoutines.start,
+	try {
+		const aha = await callLambda({
+			type: LambdaRoutines.launch,
 			payload: {
 				serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
 				chromiumOptions: {},
@@ -51,7 +50,6 @@ test('Should fail when using an incompatible version', () => {
 					type: 'play-in-browser',
 				},
 				muted: false,
-				version: VERSION,
 				overwrite: true,
 				webhook: null,
 				audioBitrate: null,
@@ -59,13 +57,20 @@ test('Should fail when using an incompatible version', () => {
 				forceHeight: null,
 				forceWidth: null,
 				rendererFunctionName: null,
-				bucketName: null,
+				bucketName: 'remotion-dev-render',
 				audioCodec: null,
+				renderId: 'test',
 			},
 			functionName: 'remotion-dev-render',
 			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
-		})
-	).rejects.toThrow(/Incompatible site: When visiting/);
+		});
+		console.log(aha);
+		throw new Error('Should not reach this');
+	} catch (err) {
+		expect((err as Error).message).toContain(
+			'Incompatible site: When visiting'
+		);
+	}
 });
