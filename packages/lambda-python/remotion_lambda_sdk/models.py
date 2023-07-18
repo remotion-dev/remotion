@@ -1,8 +1,11 @@
+# pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught
+
 from typing import Optional, List, Dict
 from dataclasses import dataclass, field
 from .version import VERSION
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class RenderParams:
     """
@@ -101,6 +104,7 @@ class RenderParams:
         return parameters
 
 
+# pylint: disable=too-many-instance-attributes
 class RenderResponse:
     """
     Response data after rendering.

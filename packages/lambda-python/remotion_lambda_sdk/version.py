@@ -1,5 +1,2 @@
-"""
-Contains the version information for the Remotion Lambda SDK.
-"""
-
-VERSION = "4.0.6"
+# pylint: disable=missing-module-docstring
+VERSION = "4.0.1"

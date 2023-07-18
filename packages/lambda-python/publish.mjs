@@ -1,15 +1,31 @@
-import { VERSION } from "remotion/version";
 import { execSync } from "node:child_process";
-import {
-  copyFileSync,
-  mkdirSync,
-  cpSync,
-  existsSync,
-  rmSync,
-  writeFileSync,
-  readdirSync,
-} from "node:fs";
-import { tmpdir } from "node:os";
-import path from "node:path";
 
-const tmpDir = tmpdir();
+execSync(`python setup.py sdist bdist_wheel`, {
+  stdio: "inherit",
+});
+
+execSync(
+  `cat <<EOF > ~/.pypirc
+[testpypi]
+username = $PYPI_USERNAME
+password = $PYPI_PASSWORD
+EOF`,
+  {
+    stdio: "inherit",
+  }
+);
+execSync(`python -m twine upload --repository testpypi dist/* `, {
+  stdio: "inherit",
+});
+
+/**
+ * Clean up after upload
+ */
+const rmComm = [
+  `rm -rf build`,
+  `rm -rf dist`,
+  `rm -rf remotion_lambda_sdk.egg-info`,
+];
+execSync(rmComm.join(" && "), {
+  stdio: "inherit",
+});

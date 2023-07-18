@@ -21,7 +21,7 @@ class TestRemotionClient(TestCase):
         self.assertEqual(client.region, "us-east-1")
         self.assertIsNotNone(render_params)
         self.assertIsNotNone(render_params.data)
-        print(client.contruct_render_request(render_params=render_params))
+        print(client.construct_render_request(render_params=render_params))
 
 
 """ 
