@@ -107,7 +107,7 @@ const innerSelectComposition = async ({
 		args: [],
 	});
 
-	await waitForReady(page);
+	await waitForReady({page, timeoutInMilliseconds, frame: null});
 
 	Log.verboseAdvanced(
 		{
