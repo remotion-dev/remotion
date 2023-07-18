@@ -19,6 +19,12 @@ test("Should return video metadata", async () => {
   });
 });
 
+test("Should return video metadata", async () => {
+  const metadataResponse = await getVideoMetadata(exampleVideos.customDar);
+
+  expect(metadataResponse.supportsSeeking).toEqual(true);
+});
+
 test("Should return AV1 video data", async () => {
   const metadataResponse = await getVideoMetadata(exampleVideos.av1);
   expect(metadataResponse.codec).toEqual("av1");
@@ -32,6 +38,7 @@ test("Should return AV1 video data", async () => {
 test("Should return HEVC video codec", async () => {
   const metadataResponse = await getVideoMetadata(exampleVideos.iphonevideo);
   expect(metadataResponse.codec).toEqual("h265");
+  expect(metadataResponse.canPlayInVideoTag).toEqual(true);
 });
 
 test("Should return an error due to non existing file", async () => {
