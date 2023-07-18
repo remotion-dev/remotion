@@ -145,6 +145,15 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
             "No video stream found",
         ))?,
     };
+    let codec_id = unsafe { (*(*(stream).as_ptr()).codecpar).codec_id };
+    let codec_name = match codec_id {
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_H264 => "h264",
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_HEVC => "h265",
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_VP8 => "vp8",
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_VP9 => "vp9",
+        remotionffmpeg::ffi::AVCodecID::AV_CODEC_ID_AV1 => "av1",
+        _ => "unknown",
+    };
 
     // Get the frame rate
     let fps: i32 = stream.avg_frame_rate().numerator();
@@ -164,6 +173,7 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
             width: video.width(),
             height: video.height(),
             durationInSeconds,
+            codec: codec_name.to_string(),
         };
         Ok(metadata)
     } else {

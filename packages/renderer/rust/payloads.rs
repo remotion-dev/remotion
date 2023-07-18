@@ -91,6 +91,7 @@ pub mod payloads {
         pub width: u32,
         pub height: u32,
         pub durationInSeconds: f64,
+        pub codec: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
