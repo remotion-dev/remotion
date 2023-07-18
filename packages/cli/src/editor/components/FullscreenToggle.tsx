@@ -1,7 +1,7 @@
 import {useCallback, useContext} from 'react';
-import {ControlButton} from './ControlButton';
 import {canvasRef} from '../state/canvas-ref';
 import {PreviewSizeContext} from '../state/preview-size';
+import {ControlButton} from './ControlButton';
 
 export const FullScreenToggle: React.FC<{}> = () => {
 	const {setSize} = useContext(PreviewSizeContext);
