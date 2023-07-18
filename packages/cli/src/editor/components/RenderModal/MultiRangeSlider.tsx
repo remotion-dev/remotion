@@ -1,8 +1,6 @@
 import type {ChangeEvent, FC} from 'react';
-import React, {useCallback, useEffect, useRef} from 'react';
-import {BLUE} from '../../helpers/colors';
-
-const DARKEND_BLUE = '#0a4279';
+import React, {useCallback, useMemo} from 'react';
+import {BLUE, INPUT_BACKGROUND} from '../../helpers/colors';
 
 const container: React.CSSProperties = {
 	borderColor: 'black',
@@ -10,16 +8,16 @@ const container: React.CSSProperties = {
 	height: 39,
 	width: 220,
 	position: 'relative',
-	backgroundColor: DARKEND_BLUE,
+	backgroundColor: INPUT_BACKGROUND,
 	marginLeft: 8,
 	marginRight: 8,
+	borderRadius: 2,
 };
 
 const slider: React.CSSProperties = {
 	position: 'relative',
-	width: 210,
 	height: 38,
-	marginLeft: 10,
+	width: 220,
 };
 
 const sliderRange: React.CSSProperties = {
@@ -48,31 +46,37 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 	onLeftThumbDrag,
 	onRightThumbDrag,
 }) => {
-	const range = useRef<HTMLDivElement>(null);
-
 	const getPercent = useCallback(
 		(value: number) => Math.round(((value - min) / (max - min)) * 100),
 		[min, max]
 	);
 
-	useEffect(() => {
+	const rangeStyle = useMemo((): React.CSSProperties => {
 		const minPercent = getPercent(start);
 		const maxPercent = getPercent(end);
 
-		if (range.current) {
-			range.current.style.left = `${minPercent - 5}%`;
-			range.current.style.width = `${maxPercent - minPercent + 5}%`;
-		}
-	}, [start, getPercent]);
+		return {
+			...sliderRange,
+			left: `${minPercent}%`,
+			width: `${maxPercent - minPercent}%`,
+		};
+	}, [end, getPercent, start]);
 
-	useEffect(() => {
-		const minPercent = getPercent(start);
-		const maxPercent = getPercent(end);
+	const onChangeLeft = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) => {
+			const value = Math.min(Number(event.target.value), end - 1);
+			onLeftThumbDrag(value);
+		},
+		[end, onLeftThumbDrag]
+	);
 
-		if (range.current) {
-			range.current.style.width = `${maxPercent - minPercent + 5}%`;
-		}
-	}, [end, getPercent]);
+	const onChangeRight = useCallback(
+		(event: ChangeEvent<HTMLInputElement>) => {
+			const value = Math.max(Number(event.target.value), start + 1);
+			onRightThumbDrag(value);
+		},
+		[onRightThumbDrag, start]
+	);
 
 	return (
 		<div style={container}>
@@ -83,11 +87,8 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 					max={max}
 					value={start}
 					step={step}
-					onChange={(event: ChangeEvent<HTMLInputElement>) => {
-						const value = Math.min(Number(event.target.value), end - 1);
-						onLeftThumbDrag(value);
-					}}
-					className="__remotion_thumb __remotion_thumbLeft"
+					onChange={onChangeLeft}
+					className="__remotion_thumb"
 				/>
 
 				<input
@@ -96,13 +97,10 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 					max={max}
 					value={end}
 					step={step}
-					onChange={(event: ChangeEvent<HTMLInputElement>) => {
-						const value = Math.max(Number(event.target.value), start + 1);
-						onRightThumbDrag(value);
-					}}
+					onChange={onChangeRight}
 					className="__remotion_thumb"
 				/>
-				<div ref={range} style={sliderRange} />
+				<div style={rangeStyle} />
 			</div>
 		</div>
 	);
