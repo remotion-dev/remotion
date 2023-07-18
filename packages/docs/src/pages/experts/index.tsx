@@ -56,7 +56,7 @@ const Experts: React.FC = () => {
   return (
     <Layout>
       <Head>
-        {Seo.renderTitle("Remotion experts | Hire Remotion freelancers")}
+        {Seo.renderTitle("Remotion Experts | Hire Remotion freelancers")}
         {Seo.renderDescription(
           "Find Remotion freelancers and hire them to create, progress or unblock your Remotion project."
         )}
@@ -67,14 +67,15 @@ const Experts: React.FC = () => {
       </Head>
       <div className={styles.container}>
         <div className={styles.wrapper}>
-          <h1 className={styles.pagetitle}>Find a Remotion expert</h1>
+          <h1 className={styles.pagetitle}>Find a Remotion Expert</h1>
           <p className={styles.tagline}>
-            Get help realizing your Remotion project. <br /> These people have
-            indicated that they are available to work on Remotion projects. They
-            appear in random order.{" "}
+            Get help by booking a call or hiring these freelancers to work on
+            your Remotion project.
+            <br />
+            They appear in random order.{" "}
           </p>
           <p className={styles.tagline}>
-            <a href="mailto:hi@remotion.dev?subject=Remotion+experts+directory">
+            <a href="mailto:hi@remotion.dev?subject=Remotion+Experts+directory">
               <strong>Are you available for hire? Let us know!</strong>
             </a>
           </p>
