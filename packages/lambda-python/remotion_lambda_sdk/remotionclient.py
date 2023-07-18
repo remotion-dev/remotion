@@ -1,101 +1,160 @@
+# pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught
+import json
 from math import ceil
 import boto3
-import json
 from .models import RenderParams, RenderProgress, RenderResponse, RenderProgressParams
 
 
 class RemotionClient:
+    """A client for interacting with the Remotion service."""
 
-    def __init__(self,  region, serve_url, function_name, access_key=None, secret_key=None, session=None, ):
+    # pylint: disable=too-many-arguments
+    def __init__(self, region, serve_url, function_name, access_key=None, secret_key=None):
+        """
+        Initialize the RemotionClient.
+
+        Args:
+            region (str): AWS region.
+            serve_url (str): URL for the Remotion service.
+            function_name (str): Name of the AWS Lambda function.
+            access_key (str): AWS access key (optional).
+            secret_key (str): AWS secret key (optional).
+        """
         self.access_key = access_key
         self.secret_key = secret_key
         self.region = region
         self.serve_url = serve_url
         self.function_name = function_name
-        self.session = session
-        self.client = self.create_lambda_client()
+        self.client = self._create_lambda_client()
 
-    def serializeInputProps(self, inputProps, region, type, userSpecifiedBucketName):
+    def _serialize_input_props(self, input_props, render_type):
+        """
+        Serialize inputProps to a format compatible with Lambda.
+
+        Args:
+            input_props (dict): Input properties to be serialized.
+            type (str): Type of the render (e.g., 'still' or 'video-or-audio').
+
+        Raises:
+            ValueError: If the inputProps are too large or cannot be serialized.
+
+        Returns:
+            dict: Serialized inputProps.
+        """
         try:
-            payload = json.dumps(inputProps, separators=(',', ':'))
-            MAX_INLINE_PAYLOAD_SIZE = 5000000 if type == 'still' else 200000
+            payload = json.dumps(input_props, separators=(',', ':'))
+            max_inline_payload_size = 5000000 if render_type == 'still' else 200000
 
-            if len(payload) > MAX_INLINE_PAYLOAD_SIZE:
-                raise Exception(
-                    "Warning: inputProps are over {}KB ({}KB) in size.\nThis is not currently supported.".format(
-                        round(MAX_INLINE_PAYLOAD_SIZE / 1000),
-                        ceil(len(payload) / 1024)
+            if len(payload) > max_inline_payload_size:
+                raise ValueError(
+                    (
+                        f"InputProps are over {round(max_inline_payload_size / 1000)}KB "
+                        f"({ceil(len(payload) / 1024)}KB) in size. This is not currently supported."
                     )
                 )
 
             return {
                 'type': 'payload',
-                'payload': payload if payload is not None and payload != '' and payload != "null" else json.dumps({})
+                'payload': payload if payload not in ('', 'null') else json.dumps({})
             }
-        except Exception as e:
-            raise Exception(
-                'Error serializing inputProps. Check it has no circular references or reduce the size if the object is big.'
-            )
+        except ValueError as error:
+            raise ValueError(
+                'Error serializing InputProps. Check for circular ' +
+                'references or reduce the object size.'
+            ) from error
 
-    def create_lambda_client(self):
-        if self.session:
-            return self.session.client('lambda', region_name=self.region)
-        elif self.access_key and self.secret_key and self.region:
+    def _create_lambda_client(self):
+        if self.access_key and self.secret_key and self.region:
             return boto3.client('lambda',
                                 aws_access_key_id=self.access_key,
                                 aws_secret_access_key=self.secret_key,
                                 region_name=self.region)
-        elif self.access_key and self.secret_key:
-            return boto3.client('lambda',
-                                aws_access_key_id=self.access_key,
-                                aws_secret_access_key=self.secret_key)
-        else:
-            return boto3.client('lambda')
 
-    def invoke_lambda(self, function_name, payload):
+        return boto3.client('lambda')
+
+    def _invoke_lambda(self, function_name, payload):
         try:
             response = self.client.invoke(
                 FunctionName=function_name, Payload=payload)
             result = response['Payload'].read().decode('utf-8')
             decoded_result = json.loads(result)
             if decoded_result['statusCode'] != 200:
-                raise Exception(
-                    'Failed to invoke Lambda function'
-                )
-            body_object = json.loads(decoded_result['body'])
+                raise ValueError('Failed to invoke Lambda function')
 
+            body_object = json.loads(decoded_result['body'])
             return body_object
 
-        except Exception as e:
-            print(f"Failed to invoke Lambda function: {str(e)}")
+        except Exception as error:
+            print(f"Failed to invoke Lambda function: {str(error)}")
+            return None  # or you can return a default value if appropriate
 
-    def contruct_render_request(self, render_params: RenderParams):
-        render_params.serveUrl = self.serve_url
+    def construct_render_request(self, render_params: RenderParams) -> str:
+        """
+        Construct a render request in JSON format.
+
+        Args:
+            render_params (RenderParams): Render parameters.
+
+        Returns:
+            str: JSON representation of the render request.
+        """
+        render_params.serve_url = self.serve_url
         render_params.region = self.region
         render_params.function_name = self.function_name
-        render_params.inputProps = self.serializeInputProps(
-            inputProps=render_params.data,
-            region=self.region,
-            type="video-or-audio",
-            userSpecifiedBucketName=None)
-        return json.dumps(render_params.serializeParams())
+        render_params.input_props = self._serialize_input_props(
+            input_props=render_params.data,
+            render_type="video-or-audio"
+        )
+        return json.dumps(render_params.serialize_params())
 
-    def contruct_render_progress_request(self, render_id, bucket_name):
-        progress_params = RenderProgressParams(renderId=render_id, bucketName=bucket_name,
-                                               functionName=self.function_name, region=self.region)
-        return json.dumps(progress_params.serializeParams())
+    def construct_render_progress_request(self, render_id: str, bucket_name: str) -> str:
+        """
+        Construct a render progress request in JSON format.
 
-    def render_media_on_lambda(self, render_params: RenderParams):
-        params = self.contruct_render_request(render_params)
-        body_object = self.invoke_lambda(function_name=self.function_name,
-                                         payload=params)
+        Args:
+            render_id (str): ID of the render.
+            bucket_name (str): Name of the bucket.
+
+        Returns:
+            str: JSON representation of the render progress request.
+        """
+        progress_params = RenderProgressParams(
+            render_id=render_id,
+            bucket_name=bucket_name,
+            function_name=self.function_name,
+            region=self.region
+        )
+        return json.dumps(progress_params.serialize_params())
+
+    def render_media_on_lambda(self, render_params: RenderParams) -> RenderResponse:
+        """
+        Render media using AWS Lambda.
+
+        Args:
+            render_params (RenderParams): Render parameters.
+
+        Returns:
+            RenderResponse: Response from the render operation.
+        """
+        params = self.construct_render_request(render_params)
+        body_object = self._invoke_lambda(
+            function_name=self.function_name, payload=params)
         return RenderResponse(**body_object)
 
-    def get_render_progress(self,   render_id, bucket_name):
-        params = self.contruct_render_progress_request(
-            render_id, bucket_name=bucket_name)
-        progress_response = self.invoke_lambda(function_name=self.function_name,
-                                               payload=params)
+    def get_render_progress(self, render_id: str, bucket_name: str) -> RenderProgress:
+        """
+        Get the progress of a render.
+
+        Args:
+            render_id (str): ID of the render.
+            bucket_name (str): Name of the bucket.
+
+        Returns:
+            RenderProgress: Progress of the render.
+        """
+        params = self.construct_render_progress_request(render_id, bucket_name)
+        progress_response = self._invoke_lambda(
+            function_name=self.function_name, payload=params)
 
         render_progress = RenderProgress()
         render_progress.__dict__.update(progress_response)

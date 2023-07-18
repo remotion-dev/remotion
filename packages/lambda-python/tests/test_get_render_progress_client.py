@@ -11,5 +11,5 @@ class TestRemotionClient(TestCase):
                                 serve_url="testbed",
                                 function_name="remotion-render")
 
-        print(client.contruct_render_progress_request(
+        print(client.construct_render_progress_request(
             render_id="abcdef",  bucket_name="remotion-render"))
