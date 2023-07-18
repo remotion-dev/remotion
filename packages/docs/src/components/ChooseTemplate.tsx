@@ -26,12 +26,13 @@ export const ChooseTemplate: React.FC = () => {
             backgroundColor: "var(--background)",
             display: "inline-flex",
             flexDirection: "row",
-            justifyContent: "center",
+            justifyContent: "space-around",
             boxShadow: "0 0 4px 0px var(--ifm-color-emphasis-200)",
             borderRadius: 50,
             alignItems: "center",
             padding: 8,
             width: "100%",
+            maxWidth: "550px",
           }}
         >
           {CreateVideoInternals.FEATURED_TEMPLATES.slice(0, 4).map(
