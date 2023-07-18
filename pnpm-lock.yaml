@@ -1050,6 +1050,9 @@ importers:
       remotion:
         specifier: workspace:*
         version: link:../core
+      zod:
+        specifier: 3.21.4
+        version: 3.21.4
     devDependencies:
       '@jonny/eslint-config':
         specifier: 3.0.266
@@ -1090,9 +1093,6 @@ importers:
       zip-lib:
         specifier: ^0.7.2
         version: 0.7.2
-      zod:
-        specifier: 3.21.4
-        version: 3.21.4
 
   packages/lambda-go:
     devDependencies:
