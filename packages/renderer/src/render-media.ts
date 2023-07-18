@@ -32,7 +32,8 @@ import {
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import {Log, getLogLevel} from './logger';
+import {type LogLevel} from './log-level';
+import {getLogLevel, Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -59,7 +60,6 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
-import {type LogLevel} from './log-level';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -79,8 +79,9 @@ export type RenderMediaOnProgress = (progress: {
 export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
 	codec: Codec;
-	composition: VideoConfig;
-	inputProps: Record<string, unknown>;
+	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
+	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
 	crf: number | null;
 	imageFormat: VideoImageFormat;
 	pixelFormat: PixelFormat;
@@ -180,7 +181,7 @@ export const internalRenderMedia = ({
 	proResProfile,
 	crf,
 	composition,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	pixelFormat,
 	codec,
 	envVariables,
@@ -216,6 +217,7 @@ export const internalRenderMedia = ({
 	serveUrl,
 	server: reusedServer,
 	logLevel,
+	serializedResolvedPropsWithCustomSchema,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	validateJpegQuality(jpegQuality);
 	validateQualitySettings({crf, codec, videoBitrate});
@@ -498,7 +500,7 @@ export const internalRenderMedia = ({
 						callUpdate();
 						onStart?.(data);
 					},
-					inputProps,
+					serializedInputPropsWithCustomSchema,
 					envVariables,
 					imageFormat,
 					jpegQuality,
@@ -547,6 +549,7 @@ export const internalRenderMedia = ({
 					logLevel,
 					indent,
 					server,
+					serializedResolvedPropsWithCustomSchema,
 				});
 
 				return renderFramesProc;
@@ -734,7 +737,11 @@ export const renderMedia = ({
 		ffmpegOverride: ffmpegOverride ?? undefined,
 		frameRange: frameRange ?? null,
 		imageFormat: imageFormat ?? DEFAULT_VIDEO_IMAGE_FORMAT,
-		inputProps: inputProps ?? {},
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: inputProps ?? {},
+		}).serializedString,
 		jpegQuality: jpegQuality ?? quality ?? DEFAULT_JPEG_QUALITY,
 		muted: muted ?? false,
 		numberOfGifLoops: numberOfGifLoops ?? null,
@@ -756,5 +763,10 @@ export const renderMedia = ({
 		indent: false,
 		onCtrlCExit: () => undefined,
 		server: undefined,
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: composition.props ?? {},
+		}).serializedString,
 	});
 };

@@ -1,139 +1,62 @@
-import {getOrCreateBucket} from '../api/get-or-create-bucket';
-import type {AwsRegion} from '../client';
-import {lambdaReadFile, lambdaWriteFile} from '../functions/helpers/io';
-import type {SerializedInputProps} from './constants';
-import {defaultPropsKey, inputPropsKey, resolvedPropsKey} from './constants';
-import {randomHash} from './random-hash';
-import {streamToString} from './stream-to-string';
+// Must keep this file in sync with the one in packages/core/src/input-props-serialization.ts!
 
-type PropsType = 'input-props' | 'resolved-props' | 'default-props';
-
-export const serializeOrThrow = (
-	inputProps: Record<string, unknown>,
-	propsType: PropsType
-) => {
-	try {
-		const payload = JSON.stringify(inputProps);
-		return payload;
-	} catch (err) {
-		throw new Error(
-			`Error serializing ${propsType}. Check it has no circular references or reduce the size if the object is big.`
-		);
-	}
+type SerializedJSONWithCustomFields = {
+	serializedString: string;
+	customDateUsed: boolean;
+	customFileUsed: boolean;
+	mapUsed: boolean;
+	setUsed: boolean;
 };
 
-export const getNeedsToUpload = (
-	type: 'still' | 'video-or-audio',
-	stringifiedInputProps: string
-) => {
-	const MAX_INLINE_PAYLOAD_SIZE = type === 'still' ? 5000000 : 200000;
-	if (stringifiedInputProps.length > MAX_INLINE_PAYLOAD_SIZE) {
-		console.warn(
-			`Warning: The props are over ${Math.round(
-				MAX_INLINE_PAYLOAD_SIZE / 1000
-			)}KB (${Math.ceil(
-				stringifiedInputProps.length / 1024
-			)}KB) in size. Uploading them to S3 to circumvent AWS Lambda payload size, which may lead to slowdown.`
-		);
-		return true;
-	}
+const DATE_TOKEN = 'remotion-date:';
+export const FILE_TOKEN = 'remotion-file:';
 
-	return false;
-};
-
-export const serializeInputProps = async ({
-	stringifiedInputProps,
-	region,
-	userSpecifiedBucketName,
-	propsType,
-	needsToUpload,
+export const serializeJSONWithDate = ({
+	data,
+	indent,
+	staticBase,
 }: {
-	stringifiedInputProps: string;
-	region: AwsRegion;
-	userSpecifiedBucketName: string | null;
-	propsType: PropsType;
-	needsToUpload: boolean;
-}): Promise<SerializedInputProps> => {
-	const hash = randomHash();
+	data: Record<string, unknown>;
+	indent: number | undefined;
+	staticBase: string | null;
+}): SerializedJSONWithCustomFields => {
+	let customDateUsed = false;
+	let customFileUsed = false;
+	let mapUsed = false;
+	let setUsed = false;
 
-	if (needsToUpload) {
-		const bucketName =
-			userSpecifiedBucketName ??
-			(
-				await getOrCreateBucket({
-					region,
-				})
-			).bucketName;
+	const serializedString = JSON.stringify(
+		data,
+		function (key, value) {
+			const item = (this as Record<string, unknown>)[key];
+			if (item instanceof Date) {
+				customDateUsed = true;
+				return `${DATE_TOKEN}${item.toISOString()}`;
+			}
 
-		await lambdaWriteFile({
-			body: stringifiedInputProps,
-			bucketName,
-			region,
-			customCredentials: null,
-			downloadBehavior: null,
-			expectedBucketOwner: null,
-			key: makeKey(propsType, hash),
-			privacy: 'public',
-		});
+			if (item instanceof Map) {
+				mapUsed = true;
+				return value;
+			}
 
-		return {
-			type: 'bucket-url',
-			hash,
-		};
-	}
+			if (item instanceof Set) {
+				setUsed = true;
+				return value;
+			}
 
-	return {
-		type: 'payload',
-		payload: stringifiedInputProps,
-	};
-};
+			if (
+				typeof item === 'string' &&
+				staticBase !== null &&
+				item.startsWith(staticBase)
+			) {
+				customFileUsed = true;
+				return `${FILE_TOKEN}${item.replace(staticBase + '/', '')}`;
+			}
 
-export const deserializeInputProps = async ({
-	serialized,
-	region,
-	bucketName,
-	expectedBucketOwner,
-	propsType,
-}: {
-	serialized: SerializedInputProps;
-	region: AwsRegion;
-	bucketName: string;
-	expectedBucketOwner: string;
-	propsType: PropsType;
-}): Promise<Record<string, unknown>> => {
-	if (serialized.type === 'payload') {
-		return JSON.parse(serialized.payload);
-	}
+			return value;
+		},
+		indent
+	);
 
-	try {
-		const response = await lambdaReadFile({
-			bucketName,
-			expectedBucketOwner,
-			key: makeKey(propsType, serialized.hash),
-			region,
-		});
-
-		const body = await streamToString(response);
-		const payload = JSON.parse(body);
-
-		return payload;
-	} catch (err) {
-		throw new Error(
-			`Failed to parse input props that were serialized: ${
-				(err as Error).stack
-			}`
-		);
-	}
-};
-
-const makeKey = (type: PropsType, hash: string): string => {
-	if (type === 'input-props') {
-		return inputPropsKey(hash);
-	}
-
-	if (type === 'default-props') {
-		return defaultPropsKey(hash);
-	}
-
-	return resolvedPropsKey(hash);
+	return {serializedString, customDateUsed, customFileUsed, mapUsed, setUsed};
 };

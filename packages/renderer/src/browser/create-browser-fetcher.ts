@@ -44,51 +44,45 @@ export async function downloadBrowser(product: Product): Promise<void> {
 	const revision = getRevision(product);
 	const revisionInfo = getRevisionInfo(revision, product);
 
-	try {
-		await download({
-			revision: revisionInfo.revision,
-			progressCallback: (downloadedBytes, totalBytes) => {
-				console.log(
-					'Downloading',
-					supportedProducts[product],
-					toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytes)
-				);
-			},
-			product,
-			platform: getPlatform(product),
-			downloadHost: getDownloadHost(product),
-			downloadsFolder: getDownloadsFolder(product),
-		});
-		const _localRevisions = await localRevisions(
-			getDownloadsFolder(product),
-			product,
-			getPlatform(product)
-		);
+	await download({
+		revision: revisionInfo.revision,
+		progressCallback: (downloadedBytes, totalBytes) => {
+			console.log(
+				'Downloading',
+				supportedProducts[product],
+				toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytes)
+			);
+		},
+		product,
+		platform: getPlatform(product),
+		downloadHost: getDownloadHost(product),
+		downloadsFolder: getDownloadsFolder(product),
+	});
+	const _localRevisions = await localRevisions(
+		getDownloadsFolder(product),
+		product,
+		getPlatform(product)
+	);
 
-		console.log(
-			`${supportedProducts[product]} (${revisionInfo.revision}) downloaded to ${revisionInfo.folderPath}`
-		);
-		await Promise.all(
-			_localRevisions
-				.filter((__revision) => {
-					return __revision !== revisionInfo.revision;
-				})
-				.map((__revision) => {
-					return removeBrowser(
-						__revision,
-						getFolderPath(
-							revision,
-							getDownloadsFolder(product),
-							getPlatform(product)
-						)
-					);
-				})
-		);
-	} catch (err) {
-		throw new Error(
-			`Failed to set up ${supportedProducts[product]} r${revision}! Set "PUPPETEER_SKIP_DOWNLOAD" env variable to skip download.`
-		);
-	}
+	console.log(
+		`${supportedProducts[product]} (${revisionInfo.revision}) downloaded to ${revisionInfo.folderPath}`
+	);
+	await Promise.all(
+		_localRevisions
+			.filter((__revision) => {
+				return __revision !== revisionInfo.revision;
+			})
+			.map((__revision) => {
+				return removeBrowser(
+					__revision,
+					getFolderPath(
+						revision,
+						getDownloadsFolder(product),
+						getPlatform(product)
+					)
+				);
+			})
+	);
 }
 
 function toMegabytes(bytes: number) {

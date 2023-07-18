@@ -2,7 +2,7 @@ import {expect, test} from 'vitest';
 import {
 	deserializeJSONWithCustomFields,
 	serializeJSONWithDate,
-} from '../editor/components/RenderModal/SchemaEditor/input-props-serialization';
+} from '../input-props-serialization.js';
 
 test('date serialization', () => {
 	const date = {data: new Date(), hi: 'there'};

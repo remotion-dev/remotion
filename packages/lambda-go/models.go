@@ -85,20 +85,11 @@ type RawInvokeResponse struct {
 }
 
 type RemotionRenderResponse struct {
-	StatusCode int `json:"statusCode"`
-	Headers    struct {
-		ContentType string `json:"content-type"`
-	} `json:"headers"`
-	Body struct {
-		BucketName string `json:"bucketName"`
-		RenderId   string `json:"renderId"`
-	} `json:"body"`
-}
-
-type RemotionBodyResponse struct {
 	BucketName string `json:"bucketName"`
 	RenderId   string `json:"renderId"`
 }
+
+
 
 type RenderConfig struct {
 	RenderId     string `json:"renderId" validate:"required"`
@@ -114,13 +105,6 @@ type renderProgressInternalConfig struct {
 	Version    string `json:"version" validate:"required"`
 }
 
-type RenderProgressResponse struct {
-	StatusCode int `json:"statusCode"`
-	Headers    struct {
-		ContentType string `json:"content-type"`
-	} `json:"headers"`
-	Body RenderProgress `json:"body"`
-}
 
 type RenderProgress struct {
 	OverallProgress          float64         `json:"overallProgress"`

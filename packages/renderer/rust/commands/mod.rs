@@ -40,6 +40,12 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
         CliInputCommandPayload::Echo(_command) => {
             Ok(format!("Echo {}", _command.message).as_bytes().to_vec())
         }
+        CliInputCommandPayload::GetVideoMetadata(_command) => {
+            let res = ffmpeg::get_video_metadata(&_command.src)?;
+            let str = serde_json::to_string(&res)?;
+            Ok(str.as_bytes().to_vec())
+        }
+
         CliInputCommandPayload::Compose(compose_command) => {
             let len: usize = (compose_command.width * compose_command.height).try_into()?;
             let mut data: Vec<u8> = vec![0; len * 4];

@@ -6,7 +6,17 @@ import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
-import type {LambdaPayload, RenderMetadata} from '../shared/constants';
+import {
+	compressInputProps,
+	decompressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../shared/compress-props';
+import type {
+	LambdaPayload,
+	LambdaPayloads,
+	RenderMetadata,
+} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
 	encodingProgressKey,
@@ -44,12 +54,6 @@ import {
 	writeLambdaError,
 } from './helpers/write-lambda-error';
 import {writePostRenderData} from './helpers/write-post-render-data';
-import {
-	deserializeInputProps,
-	getNeedsToUpload,
-	serializeInputProps,
-	serializeOrThrow,
-} from '../shared/serialize-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -61,19 +65,17 @@ const callFunctionWithRetry = async ({
 	retries,
 	functionName,
 }: {
-	payload: unknown;
+	payload: LambdaPayloads[LambdaRoutines.renderer];
 	retries: number;
 	functionName: string;
 }): Promise<unknown> => {
 	try {
 		await getLambdaClient(getCurrentRegionInFunction()).send(
 			new InvokeCommand({
-				FunctionName: functionName,
-				// @ts-expect-error
+				FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 				Payload: JSON.stringify(payload),
 				InvocationType: 'Event',
-			}),
-			{}
+			})
 		);
 	} catch (err) {
 		if ((err as Error).name === 'ResourceConflictException') {
@@ -166,7 +168,7 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		params.chromiumOptions
 	);
 
-	const inputPropsPromise = deserializeInputProps({
+	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -174,13 +176,16 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		propsType: 'input-props',
 	});
 
-	const inputProps = await inputPropsPromise;
-	RenderInternals.Log.info('Validating composition, input props:', inputProps);
+	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
+	RenderInternals.Log.info(
+		'Validating composition, input props:',
+		serializedInputPropsWithCustomSchema
+	);
 	const comp = await validateComposition({
 		serveUrl: params.serveUrl,
 		composition: params.composition,
 		browserInstance,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		envVariables: params.envVariables ?? {},
 		timeoutInMilliseconds: params.timeoutInMilliseconds,
 		chromiumOptions: params.chromiumOptions,
@@ -253,32 +258,19 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 	const reqSend = timer('sending off requests');
 
 	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
-	const serializedDefault = serializeOrThrow(
-		comp.defaultProps,
-		'default-props'
-	);
 
 	const needsToUpload = getNeedsToUpload(
 		'video-or-audio',
-		serializedResolved + serializedDefault
+		serializedResolved + params.inputProps
 	);
 
-	const [serializedResolvedProps, serializedDefaultProps] = await Promise.all([
-		serializeInputProps({
-			propsType: 'resolved-props',
-			region: getCurrentRegionInFunction(),
-			stringifiedInputProps: serializedResolved,
-			userSpecifiedBucketName: params.bucketName,
-			needsToUpload,
-		}),
-		serializeInputProps({
-			propsType: 'default-props',
-			region: getCurrentRegionInFunction(),
-			stringifiedInputProps: serializedDefault,
-			userSpecifiedBucketName: params.bucketName,
-			needsToUpload,
-		}),
-	]);
+	const serializedResolvedProps = await compressInputProps({
+		propsType: 'resolved-props',
+		region: getCurrentRegionInFunction(),
+		stringifiedInputProps: serializedResolved,
+		userSpecifiedBucketName: params.bucketName,
+		needsToUpload,
+	});
 
 	const lambdaPayloads = chunks.map((chunkPayload) => {
 		const payload: LambdaPayload = {
@@ -317,7 +309,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 				version: VERSION,
 			},
 			resolvedProps: serializedResolvedProps,
-			defaultProps: serializedDefaultProps,
 		};
 		return payload;
 	});
@@ -666,13 +657,18 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 export const launchHandler = async (
 	params: LambdaPayload,
 	options: Options
-) => {
+): Promise<{
+	type: 'success';
+}> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
 
 	try {
 		await innerLaunchHandler(params, options);
+		return {
+			type: 'success',
+		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			throw err;
@@ -741,5 +737,7 @@ export const launchHandler = async (
 				console.log(error);
 			}
 		}
+
+		throw err;
 	}
 };

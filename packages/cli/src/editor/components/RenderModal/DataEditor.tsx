@@ -5,7 +5,7 @@ import React, {
 	useMemo,
 	useState,
 } from 'react';
-import type {AnyComposition} from 'remotion';
+import type {AnyComposition, SerializedJSONWithCustomFields} from 'remotion';
 import {getInputProps, Internals} from 'remotion';
 import type {z} from 'zod';
 import {subscribeToEvent} from '../../../event-source';
@@ -28,8 +28,6 @@ import {
 } from './get-render-modal-warnings';
 import {RenderModalJSONPropsEditor} from './RenderModalJSONPropsEditor';
 import {extractEnumJsonPaths} from './SchemaEditor/extract-enum-json-paths';
-import type {SerializedJSONWithCustomFields} from './SchemaEditor/input-props-serialization';
-import {serializeJSONWithDate} from './SchemaEditor/input-props-serialization';
 import {SchemaEditor} from './SchemaEditor/SchemaEditor';
 import {
 	NoDefaultProps,
@@ -127,7 +125,6 @@ export const DataEditor: React.FC<{
 	propsEditType,
 }) => {
 	const [mode, setMode] = useState<Mode>('schema');
-	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
 	const [saving, setSaving] = useState(false);
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState()
@@ -140,7 +137,7 @@ export const DataEditor: React.FC<{
 		}
 
 		const value = inputProps;
-		return serializeJSONWithDate({
+		return Internals.serializeJSONWithDate({
 			data: value,
 			indent: 2,
 			staticBase: window.remotion_staticBase,
@@ -283,7 +280,6 @@ export const DataEditor: React.FC<{
 			return;
 		}
 
-		setValBeforeSafe(inputProps);
 		updateDefaultProps(
 			unresolvedComposition.id,
 			inputProps,
@@ -302,7 +298,9 @@ export const DataEditor: React.FC<{
 	}, [fastRefreshes]);
 
 	const onSave = useCallback(
-		(updater: (oldState: unknown) => unknown) => {
+		(
+			updater: (oldState: Record<string, unknown>) => Record<string, unknown>
+		) => {
 			if (schema === 'no-zod' || schema === 'no-schema' || z === null) {
 				sendErrorNotification('Cannot update default props: No Zod schema');
 				return;
@@ -311,7 +309,7 @@ export const DataEditor: React.FC<{
 			setSaving(true);
 			updateDefaultProps(
 				unresolvedComposition.id,
-				updater(unresolvedComposition.defaultProps),
+				updater(unresolvedComposition.defaultProps ?? {}),
 				extractEnumJsonPaths(schema, z, [])
 			)
 				.then((response) => {
@@ -440,7 +438,6 @@ export const DataEditor: React.FC<{
 					value={inputProps ?? {}}
 					setValue={setInputProps}
 					onSave={onUpdate}
-					valBeforeSafe={valBeforeSafe}
 					showSaveButton={showSaveButton}
 					serializedJSON={serializedJSON}
 					defaultProps={unresolvedComposition.defaultProps}

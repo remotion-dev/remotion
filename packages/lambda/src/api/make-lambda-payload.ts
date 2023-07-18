@@ -2,15 +2,15 @@ import {VERSION} from 'remotion/version';
 import type {LambdaStartPayload, LambdaStatusPayload} from '../defaults';
 import {LambdaRoutines} from '../defaults';
 import {
+	compressInputProps,
 	getNeedsToUpload,
-	serializeInputProps,
 	serializeOrThrow,
-} from '../shared/serialize-props';
+} from '../shared/compress-props';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateLambdaCodec} from '../shared/validate-lambda-codec';
 import {validateServeUrl} from '../shared/validate-serveurl';
-import type {GetRenderInput} from './get-render-progress';
+import type {GetRenderProgressInput} from './get-render-progress';
 import type {RenderMediaOnLambdaInput} from './render-media-on-lambda';
 
 export const makeLambdaRenderMediaPayload = async ({
@@ -70,7 +70,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		'input-props'
 	);
 
-	const serialized = await serializeInputProps({
+	const serialized = await compressInputProps({
 		stringifiedInputProps,
 		region,
 		needsToUpload: getNeedsToUpload('video-or-audio', stringifiedInputProps),
@@ -120,7 +120,7 @@ export const getRenderProgressPayload = ({
 	bucketName,
 	renderId,
 	s3OutputProvider,
-}: GetRenderInput): LambdaStatusPayload => {
+}: GetRenderProgressInput): LambdaStatusPayload => {
 	return {
 		type: LambdaRoutines.status,
 		bucketName,

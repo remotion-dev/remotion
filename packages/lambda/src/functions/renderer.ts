@@ -1,11 +1,11 @@
-import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {BrowserLog, Codec} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
 import {VERSION} from 'remotion/version';
-import {getLambdaClient} from '../shared/aws-clients';
+import {callLambda} from '../shared/call-lambda';
 import {writeLambdaInitializedFile} from '../shared/chunk-progress';
+import {decompressInputProps} from '../shared/compress-props';
 import type {LambdaPayload, LambdaPayloads} from '../shared/constants';
 import {
 	chunkKeyForIndex,
@@ -25,7 +25,6 @@ import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
-import {deserializeInputProps} from '../shared/serialize-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -36,7 +35,7 @@ const renderHandler = async (
 	params: LambdaPayload,
 	options: Options,
 	logs: BrowserLog[]
-) => {
+): Promise<{}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -47,7 +46,7 @@ const renderHandler = async (
 		);
 	}
 
-	const inputPropsPromise = deserializeInputProps({
+	const inputPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
@@ -55,20 +54,12 @@ const renderHandler = async (
 		propsType: 'input-props',
 	});
 
-	const resolvedPropsPromise = deserializeInputProps({
+	const resolvedPropsPromise = decompressInputProps({
 		bucketName: params.bucketName,
 		expectedBucketOwner: options.expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		serialized: params.resolvedProps,
 		propsType: 'resolved-props',
-	});
-
-	const defaultPropsPromise = deserializeInputProps({
-		bucketName: params.bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
-		region: getCurrentRegionInFunction(),
-		serialized: params.defaultProps,
-		propsType: 'default-props',
 	});
 
 	const browserInstance = await getBrowserInstance(
@@ -118,9 +109,8 @@ const renderHandler = async (
 
 	const downloads: Record<string, number> = {};
 
-	const inputProps = await inputPropsPromise;
 	const resolvedProps = await resolvedPropsPromise;
-	const defaultProps = await defaultPropsPromise;
+	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
 
 	await new Promise<void>((resolve, reject) => {
 		RenderInternals.internalRenderMedia({
@@ -130,11 +120,9 @@ const renderHandler = async (
 				fps: params.fps,
 				height: params.height,
 				width: params.width,
-				props: resolvedProps,
-				defaultProps,
 			},
 			imageFormat: params.imageFormat,
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (
@@ -151,7 +139,10 @@ const renderHandler = async (
 						expectedBucketOwner: options.expectedBucketOwner,
 						framesRendered: renderedFrames,
 						renderId: params.renderId,
-					}).catch((err) => reject(err));
+					}).catch((err) => {
+						console.log(err);
+						return reject(err);
+					});
 				}
 
 				const allFrames = RenderInternals.getFramesToRender(
@@ -242,6 +233,7 @@ const renderHandler = async (
 			indent: false,
 			onCtrlCExit: () => undefined,
 			server: undefined,
+			serializedResolvedPropsWithCustomSchema: resolvedProps,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);
@@ -260,6 +252,8 @@ const renderHandler = async (
 		timings: Object.values(chunkTimingData.timings),
 	};
 
+	RenderInternals.Log.verbose('Writing chunk to S3');
+	const writeStart = Date.now();
 	await lambdaWriteFile({
 		bucketName: params.bucketName,
 		key: chunkKeyForIndex({
@@ -273,6 +267,10 @@ const renderHandler = async (
 		downloadBehavior: null,
 		customCredentials: null,
 	});
+	RenderInternals.Log.verbose('Wrote chunk to S3', {
+		time: Date.now() - writeStart,
+	});
+	RenderInternals.Log.verbose('Cleaning up and writing timings');
 	await Promise.all([
 		fs.promises.rm(outputLocation, {recursive: true}),
 		fs.promises.rm(outputPath, {recursive: true}),
@@ -292,12 +290,15 @@ const renderHandler = async (
 			customCredentials: null,
 		}),
 	]);
+	return {};
 };
 
 export const rendererHandler = async (
 	params: LambdaPayload,
 	options: Options
-) => {
+): Promise<{
+	type: 'success';
+}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
 	}
@@ -306,6 +307,9 @@ export const rendererHandler = async (
 
 	try {
 		await renderHandler(params, options, logs);
+		return {
+			type: 'success',
+		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			console.log({err});
@@ -350,14 +354,18 @@ export const rendererHandler = async (
 				retriesLeft: params.retriesLeft - 1,
 				attempt: params.attempt + 1,
 			};
-			await getLambdaClient(getCurrentRegionInFunction()).send(
-				new InvokeCommand({
-					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-					// @ts-expect-error
-					Payload: JSON.stringify(retryPayload),
-					InvocationType: 'Event',
-				})
-			);
+			const res = await callLambda({
+				functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+				payload: retryPayload,
+				type: LambdaRoutines.renderer,
+				region: getCurrentRegionInFunction(),
+				receivedStreamingPayload: () => undefined,
+				timeoutInTest: 120000,
+			});
+
+			return res;
 		}
+
+		throw err;
 	}
 };

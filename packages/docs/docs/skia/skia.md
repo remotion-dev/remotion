@@ -130,7 +130,7 @@ yarn create video --skia
   <TabItem value="pnpm">
 
 ```bash
-pnpm create video -- --skia
+pnpm create video --skia
 ```
 
   </TabItem>

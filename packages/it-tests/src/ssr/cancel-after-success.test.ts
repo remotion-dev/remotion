@@ -9,7 +9,7 @@ test("Cancelling after success should not throw error", async () => {
   await renderMedia({
     codec: "h264",
     serveUrl:
-      "https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/",
+      "https://64a69dbd950469119e886993--dreamy-shortbread-14601f.netlify.app/",
     composition: {
       durationInFrames: 4,
       fps: 30,

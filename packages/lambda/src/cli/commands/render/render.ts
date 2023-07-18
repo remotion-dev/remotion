@@ -1,6 +1,7 @@
 import {CliInternals} from '@remotion/cli';
 import {ConfigInternals} from '@remotion/cli/config';
 import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import {downloadMedia} from '../../../api/download-media';
 import {getRenderProgress} from '../../../api/get-render-progress';
 import {renderMediaOnLambda} from '../../../api/render-media-on-lambda';
@@ -76,7 +77,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 		validateServeUrl(serveUrl);
 
-		const server = RenderInternals.prepareServer({
+		const server = await RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
 			port,
@@ -94,14 +95,18 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				envVariables,
 				height,
 				indent: false,
-				inputProps,
+				serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+					indent: undefined,
+					staticBase: null,
+					data: inputProps,
+				}).serializedString,
 				port,
 				puppeteerInstance: undefined,
 				serveUrlOrWebpackUrl: serveUrl,
 				timeoutInMilliseconds: puppeteerTimeout,
 				logLevel,
 				width,
-				server: await server,
+				server,
 			});
 		composition = compositionId;
 	}

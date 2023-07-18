@@ -120,7 +120,9 @@ export const callCompositor = (payload: string) => {
 
 					reject(err);
 				} catch (err) {
-					reject(new Error(`Compositor panicked: ${message}`));
+					reject(
+						new Error(`Compositor panicked with code ${code}: ${message}`)
+					);
 				}
 			}
 		});

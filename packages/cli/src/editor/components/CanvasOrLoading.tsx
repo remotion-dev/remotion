@@ -2,15 +2,15 @@ import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
 import {ErrorLoader} from '../../preview-server/error-overlay/remotion-overlay/ErrorLoader';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
+import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {Canvas} from './Canvas';
+import {FramePersistor} from './FramePersistor';
 import {Spacing} from './layout';
 import {inlineCodeSnippet} from './Menu/styles';
 import {Spinner} from './Spinner';
-import {FramePersistor} from './FramePersistor';
-import {ZoomPersistor} from './ZoomPersistor';
-import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
-import {TimelineZoomCtx} from '../state/timeline-zoom';
 import {getCurrentFrame} from './Timeline/imperative-state';
+import {ensureFrameIsInViewport} from './Timeline/timeline-scroll-logic';
+import {ZoomPersistor} from './ZoomPersistor';
 
 const container: React.CSSProperties = {
 	color: 'white',
