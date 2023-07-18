@@ -149,7 +149,7 @@ export class Page extends EventEmitter {
 		super();
 		this.#client = client;
 		this.#target = target;
-		this.#frameManager = new FrameManager(client, this, this.#timeoutSettings);
+		this.#frameManager = new FrameManager(client, this);
 		this.screenshotTaskQueue = new TaskQueue();
 		this.browser = browser;
 		this.id = String(Math.random());
@@ -487,11 +487,16 @@ export class Page extends EventEmitter {
 		return this.mainFrame().url();
 	}
 
-	goto(
-		url: string,
-		options: WaitForOptions & {referer?: string} = {}
-	): Promise<HTTPResponse | null> {
-		return this.#frameManager.mainFrame().goto(url, options);
+	goto({
+		url,
+		timeout,
+		options = {},
+	}: {
+		url: string;
+		timeout: number;
+		options?: WaitForOptions & {referer?: string};
+	}): Promise<HTTPResponse | null> {
+		return this.#frameManager.mainFrame().goto(url, timeout, options);
 	}
 
 	async bringToFront(): Promise<void> {

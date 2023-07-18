@@ -1,9 +1,10 @@
+import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import fs, {existsSync, mkdirSync, rmSync} from 'node:fs';
 import {join} from 'node:path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
-import {callLambda} from '../shared/call-lambda';
+import {getLambdaClient} from '../shared/aws-clients';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
 import {
 	compressInputProps,
@@ -69,14 +70,13 @@ const callFunctionWithRetry = async ({
 	functionName: string;
 }): Promise<unknown> => {
 	try {
-		await callLambda({
-			functionName,
-			payload,
-			region: getCurrentRegionInFunction(),
-			type: LambdaRoutines.renderer,
-			receivedStreamingPayload: () => undefined,
-			timeoutInTest: 120000,
-		});
+		await getLambdaClient(getCurrentRegionInFunction()).send(
+			new InvokeCommand({
+				FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
+				Payload: JSON.stringify(payload),
+				InvocationType: 'Event',
+			})
+		);
 	} catch (err) {
 		if ((err as Error).name === 'ResourceConflictException') {
 			if (retries > 10) {

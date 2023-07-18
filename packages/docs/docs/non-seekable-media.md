@@ -58,8 +58,16 @@ The cause for this is that when requesting the media file, either:
 
 You can verify that this is the problem by opening the video or audio in a new tab and observe that you cannot seek the media.
 
+You can determine if a video supports seeking, you can use the [`getVideoMetadata()`](/docs/renderer/get-video-metadata) function.
+
+## Solutions
+
 Consider one of these solutions:
 
 - Serve the media from a webhost that supports the `Range` header and returns a `Content-Length` and `Content-Range` header.
 - Download the media and import it locally using an `import` or `require()` statement.
 - Use the [`<OffthreadVideo>`](/docs/offthreadvideo) component which will render the video fine. You may still see problems during playback in the Remotion Studio or the [`<Player>`](/docs/player).
+
+## See also
+
+- [getVideoMetadata()](/docs/renderer/get-video-metadata)
