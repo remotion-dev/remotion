@@ -92,6 +92,7 @@ pub mod payloads {
         pub height: u32,
         pub durationInSeconds: f64,
         pub codec: String,
+        pub canPlayInVideoTag: bool,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
