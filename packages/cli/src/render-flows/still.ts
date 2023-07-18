@@ -12,6 +12,7 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import {existsSync, mkdirSync} from 'node:fs';
 import path from 'node:path';
+import {Internals} from 'remotion';
 import {chalk} from '../chalk';
 import {registerCleanupJob} from '../cleanup-before-quit';
 import {ConfigInternals} from '../config';
@@ -50,7 +51,7 @@ export const renderStillFlow = async ({
 	chromiumOptions,
 	envVariables,
 	height,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	overwrite,
 	port,
 	publicDir,
@@ -72,7 +73,7 @@ export const renderStillFlow = async ({
 	fullEntryPoint: string;
 	entryPointReason: string;
 	remainingArgs: string[];
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
 	jpegQuality: number;
 	browser: Browser;
@@ -161,7 +162,7 @@ export const renderStillFlow = async ({
 		}
 	);
 
-	const server = RenderInternals.prepareServer({
+	const server = await RenderInternals.prepareServer({
 		concurrency: 1,
 		indent: indentOutput,
 		port,
@@ -170,7 +171,7 @@ export const renderStillFlow = async ({
 		webpackConfigOrServeUrl: urlOrBundle,
 	});
 
-	addCleanupCallback(() => server.then((s) => s.closeServer(false)));
+	addCleanupCallback(() => server.closeServer(false));
 
 	addCleanupCallback(() => cleanupBundle());
 
@@ -189,13 +190,13 @@ export const renderStillFlow = async ({
 			chromiumOptions,
 			envVariables,
 			indent: indentOutput,
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			port,
 			puppeteerInstance,
 			serveUrlOrWebpackUrl: urlOrBundle,
 			timeoutInMilliseconds: puppeteerTimeout,
 			logLevel,
-			server: await server,
+			server,
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
@@ -284,7 +285,7 @@ export const renderStillFlow = async ({
 		jpegQuality,
 		envVariables,
 		imageFormat,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
 		scale,
@@ -298,6 +299,11 @@ export const renderStillFlow = async ({
 		indent: indentOutput,
 		onBrowserLog: null,
 		logLevel,
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: config.props,
+		}).serializedString,
 	});
 
 	aggregate.rendering = {

@@ -1717,6 +1717,13 @@ export const articles = [
     crumb: "@remotion/renderer",
   },
   {
+    id: "get-video-metadata",
+    title: "getVideoMetadata()",
+    relativePath: "docs/renderer/get-video-metadata.md",
+    compId: "articles-docs-renderer-get-video-metadata",
+    crumb: "@remotion/renderer",
+  },
+  {
     id: "make-cancel-signal",
     title: "makeCancelSignal()",
     relativePath: "docs/renderer/make-cancel-signal.md",
@@ -2156,6 +2163,13 @@ export const articles = [
     relativePath: "docs/troubleshooting/loading-root-component.md",
     compId: "articles-docs-troubleshooting-loading-root-component",
     crumb: "Troubleshooting",
+  },
+  {
+    id: "troubleshooting/nextjs-image",
+    title: "Flickering when using Next.js <Image> tag",
+    relativePath: "docs/troubleshooting/nextjs-image.md",
+    compId: "articles-docs-troubleshooting-nextjs-image",
+    crumb: "Common mistakes",
   },
   {
     id: "rosetta",

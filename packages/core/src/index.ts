@@ -14,7 +14,12 @@ declare global {
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
 		getStaticCompositions: () => Promise<VideoConfig[]>;
-		remotion_calculateComposition: (compId: string) => Promise<VideoConfig>;
+		remotion_calculateComposition: (compId: string) => Promise<
+			Omit<VideoConfig, 'defaultProps' | 'props'> & {
+				serializedDefaultPropsWithCustomSchema: string;
+				serializedResolvedPropsWithCustomSchema: string;
+			}
+		>;
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
@@ -36,7 +41,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '7';
+		siteVersion: '8';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 	}
@@ -52,7 +57,7 @@ export type BundleState =
 	| {
 			type: 'composition';
 			compositionName: string;
-			props: Record<string, unknown>;
+			serializedResolvedPropsWithSchema: string;
 			compositionHeight: number;
 			compositionDurationInFrames: number;
 			compositionWidth: number;

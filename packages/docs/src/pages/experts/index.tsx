@@ -11,6 +11,7 @@ import {
   GitHubLogo,
   LinkedInLogo,
   TwitterLogo,
+  VideoCallLogo,
 } from "../../components/icons";
 import { Seo } from "../../components/Seo";
 import { experts } from "../../data/experts";
@@ -55,7 +56,7 @@ const Experts: React.FC = () => {
   return (
     <Layout>
       <Head>
-        {Seo.renderTitle("Remotion experts | Hire Remotion freelancers")}
+        {Seo.renderTitle("Remotion Experts | Hire Remotion freelancers")}
         {Seo.renderDescription(
           "Find Remotion freelancers and hire them to create, progress or unblock your Remotion project."
         )}
@@ -66,14 +67,15 @@ const Experts: React.FC = () => {
       </Head>
       <div className={styles.container}>
         <div className={styles.wrapper}>
-          <h1 className={styles.pagetitle}>Find a Remotion expert</h1>
+          <h1 className={styles.pagetitle}>Find a Remotion Expert</h1>
           <p className={styles.tagline}>
-            Get help realizing your Remotion project. <br /> These people have
-            indicated that they are available to work on Remotion projects. They
-            appear in random order.{" "}
+            Get help by booking a call or hiring these freelancers to work on
+            your Remotion project.
+            <br />
+            They appear in random order.{" "}
           </p>
           <p className={styles.tagline}>
-            <a href="mailto:hi@remotion.dev?subject=Remotion+experts+directory">
+            <a href="mailto:hi@remotion.dev?subject=Remotion+Experts+directory">
               <strong>Are you available for hire? Let us know!</strong>
             </a>
           </p>
@@ -102,35 +104,40 @@ const Experts: React.FC = () => {
                   }}
                 >
                   {e.twitter ? (
-                    <>
-                      <div style={flex}>
-                        <a
-                          style={docsButton}
-                          target={"_blank"}
-                          href={`https://twitter.com/${e.twitter}`}
-                        >
-                          <BlueButton loading={false} fullWidth size="sm">
-                            <TwitterLogo /> Twitter
-                          </BlueButton>
-                        </a>
-                      </div>
-                      <Spacer />
-                      <Spacer />
-                    </>
-                  ) : null}
-
-                  {e.github ? (
                     <div style={flex}>
                       <a
                         style={docsButton}
                         target={"_blank"}
-                        href={`https://github.com/${e.github}`}
+                        href={`https://twitter.com/${e.twitter}`}
                       >
                         <BlueButton loading={false} fullWidth size="sm">
-                          <GitHubLogo /> GitHub
+                          <TwitterLogo /> Twitter
                         </BlueButton>
                       </a>
                     </div>
+                  ) : null}
+
+                  {e.github ? (
+                    <>
+                      {e.twitter ? (
+                        <>
+                          <Spacer />
+                          <Spacer />
+                        </>
+                      ) : null}
+
+                      <div style={flex}>
+                        <a
+                          style={docsButton}
+                          target={"_blank"}
+                          href={`https://github.com/${e.github}`}
+                        >
+                          <BlueButton loading={false} fullWidth size="sm">
+                            <GitHubLogo /> GitHub
+                          </BlueButton>
+                        </a>
+                      </div>
+                    </>
                   ) : null}
                 </div>
                 <Spacer />
@@ -173,6 +180,24 @@ const Experts: React.FC = () => {
                         </BlueButton>
                       </a>
                     </div>
+                  ) : null}
+
+                  {e.videocall ? (
+                    <>
+                      <Spacer />
+                      <Spacer />
+                      <div style={flex}>
+                        <a
+                          style={docsButton}
+                          target={"_blank"}
+                          href={`https://cal.com/${e.videocall}`}
+                        >
+                          <BlueButton loading={false} fullWidth size="sm">
+                            <VideoCallLogo /> Video call
+                          </BlueButton>
+                        </a>
+                      </div>
+                    </>
                   ) : null}
                 </div>
               </div>

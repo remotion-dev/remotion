@@ -1,3 +1,7 @@
+// Must keep this file in sync with the one in packages/lambda/src/shared/serialize-props.ts!
+
+import {staticFile} from './static-file.js';
+
 export type SerializedJSONWithCustomFields = {
 	serializedString: string;
 	customDateUsed: boolean;
@@ -14,9 +18,9 @@ export const serializeJSONWithDate = ({
 	indent,
 	staticBase,
 }: {
-	data: unknown;
+	data: Record<string, unknown>;
 	indent: number | undefined;
-	staticBase: string;
+	staticBase: string | null;
 }): SerializedJSONWithCustomFields => {
 	let customDateUsed = false;
 	let customFileUsed = false;
@@ -26,7 +30,7 @@ export const serializeJSONWithDate = ({
 	const serializedString = JSON.stringify(
 		data,
 		function (key, value) {
-			const item = this[key];
+			const item = (this as Record<string, unknown>)[key];
 			if (item instanceof Date) {
 				customDateUsed = true;
 				return `${DATE_TOKEN}${item.toISOString()}`;
@@ -42,7 +46,11 @@ export const serializeJSONWithDate = ({
 				return value;
 			}
 
-			if (typeof item === 'string' && item.startsWith(staticBase)) {
+			if (
+				typeof item === 'string' &&
+				staticBase !== null &&
+				item.startsWith(staticBase)
+			) {
 				customFileUsed = true;
 				return `${FILE_TOKEN}${item.replace(staticBase + '/', '')}`;
 			}
@@ -51,13 +59,20 @@ export const serializeJSONWithDate = ({
 		},
 		indent
 	);
+
 	return {serializedString, customDateUsed, customFileUsed, mapUsed, setUsed};
 };
 
-export const deserializeJSONWithCustomFields = (data: string) => {
+export const deserializeJSONWithCustomFields = (
+	data: string
+): Record<string, unknown> => {
 	return JSON.parse(data, (_, value) => {
 		if (typeof value === 'string' && value.startsWith(DATE_TOKEN)) {
 			return new Date(value.replace(DATE_TOKEN, ''));
+		}
+
+		if (typeof value === 'string' && value.startsWith(FILE_TOKEN)) {
+			return staticFile(value.replace(FILE_TOKEN, ''));
 		}
 
 		return value;

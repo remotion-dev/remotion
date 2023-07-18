@@ -6,15 +6,15 @@ import type {
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
+import {
+	compressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../shared/compress-props';
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
-import {
-	getNeedsToUpload,
-	serializeInputProps,
-	serializeOrThrow,
-} from '../shared/serialize-props';
+import {getCloudwatchMethodUrl} from '../shared/get-aws-urls';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -45,6 +45,7 @@ export type RenderStillOnLambdaInput = {
 	 * @deprecated Renamed to `dumpBrowserLogs`
 	 */
 	dumpBrowserLogs?: boolean;
+	onInit?: (data: {renderId: string; cloudWatchLogs: string}) => void;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -96,6 +97,7 @@ export const renderStillOnLambda = async ({
 	forceWidth,
 	forceBucketName,
 	dumpBrowserLogs,
+	onInit,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	if (quality) {
 		throw new Error(
@@ -105,7 +107,7 @@ export const renderStillOnLambda = async ({
 
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
-	const serializedInputProps = await serializeInputProps({
+	const serializedInputProps = await compressInputProps({
 		stringifiedInputProps,
 		region,
 		needsToUpload: getNeedsToUpload('still', stringifiedInputProps),
@@ -140,14 +142,30 @@ export const renderStillOnLambda = async ({
 				bucketName: forceBucketName ?? null,
 			},
 			region,
+			receivedStreamingPayload: (payload) => {
+				if (payload.type === 'render-id-determined') {
+					onInit?.({
+						renderId: payload.renderId,
+						cloudWatchLogs: getCloudwatchMethodUrl({
+							functionName,
+							method: LambdaRoutines.still,
+							region,
+							rendererFunctionName: null,
+							renderId: payload.renderId,
+						}),
+					});
+				}
+			},
+			timeoutInTest: 120000,
 		});
+
 		return {
 			estimatedPrice: res.estimatedPrice,
 			url: res.output,
 			sizeInBytes: res.size,
 			bucketName: res.bucketName,
 			renderId: res.renderId,
-			cloudWatchLogs: getCloudwatchStreamUrl({
+			cloudWatchLogs: getCloudwatchMethodUrl({
 				functionName,
 				method: LambdaRoutines.still,
 				region,

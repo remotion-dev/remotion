@@ -3,12 +3,12 @@ import type {z} from 'zod';
 import {VERY_LIGHT_TEXT} from '../../../helpers/colors';
 import {Spacing} from '../../layout';
 import {RemotionInput} from '../../NewComposition/RemInput';
+import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
-import type {UpdaterFunction} from './ZodSwitch';
-import {Fieldset} from './Fieldset';
 import {ZodFieldValidation} from './ZodFieldValidation';
+import type {UpdaterFunction} from './ZodSwitch';
 
 const fullWidth: React.CSSProperties = {
 	width: '100%',

@@ -3,20 +3,9 @@ import {createWriteStream} from 'node:fs';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
-import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
-import type {
-	LambdaReturnValues,
-	StreamedResponse,
-} from '../../../shared/return-values';
+import {callLambda} from '../../../shared/call-lambda';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-const extraContext = {
-	invokedFunctionArn: 'arn:fake',
-	getRemainingTimeInMillis: () => 12000,
-};
-
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 beforeAll(() => {
 	disableLogs();
@@ -31,11 +20,11 @@ afterAll(async () => {
 test('Should make a distributed GIF', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-	const res = (await handler(
-		{
-			type: LambdaRoutines.start,
+	const res = await callLambda({
+		type: LambdaRoutines.start,
+		payload: {
 			serveUrl:
-				'https://649ea0770f2b6b55f2a5425c--effulgent-pixie-5f5cfb.netlify.app/',
+				'https://64a69dbd950469119e886993--dreamy-shortbread-14601f.netlify.app/',
 			chromiumOptions: {},
 			codec: 'gif',
 			composition: 'framer',
@@ -74,30 +63,28 @@ test('Should make a distributed GIF', async () => {
 			bucketName: null,
 			audioCodec: null,
 		},
-		extraContext
-	)) as StreamedResponse;
+		functionName: 'remotion-dev-lambda',
+		receivedStreamingPayload: () => undefined,
+		region: 'eu-central-1',
+		timeoutInTest: 120000,
+	});
 
-	const startRes = JSON.parse(res.body) as Await<
-		LambdaReturnValues[LambdaRoutines.start]
-	>;
-
-	const progress = (await handler(
-		{
-			type: LambdaRoutines.status,
-			bucketName: startRes.bucketName,
-			renderId: startRes.renderId,
+	const progress = await callLambda({
+		type: LambdaRoutines.status,
+		payload: {
+			bucketName: res.bucketName,
+			renderId: res.renderId,
 			version: VERSION,
 		},
-		extraContext
-	)) as StreamedResponse;
-
-	const parsed = JSON.parse(progress.body) as Await<
-		LambdaReturnValues[LambdaRoutines.status]
-	>;
+		functionName: 'remotion-dev-lambda',
+		receivedStreamingPayload: () => undefined,
+		region: 'eu-central-1',
+		timeoutInTest: 120000,
+	});
 
 	const file = await lambdaReadFile({
-		bucketName: parsed.outBucket as string,
-		key: parsed.outKey as string,
+		bucketName: progress.outBucket as string,
+		key: progress.outKey as string,
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});

@@ -1,6 +1,6 @@
 {
   "name": "docs",
-  "version": "4.0.2",
+  "version": "4.0.7",
   "private": true,
   "scripts": {
     "formatting": "prettier src --check",
@@ -58,7 +58,7 @@
     "create-video": "workspace:*",
     "got": "^11",
     "hls.js": "^0.14.17",
-    "lottie-web": "^5.9.6",
+    "lottie-web": "^5.12.2",
     "mux-embed": "^4.16.0",
     "plyr": "^3.7.3",
     "polished": "4.1.2",
@@ -81,7 +81,7 @@
     "eslint": "8.42.0",
     "lodash.sortby": "^4.7.0",
     "prettier": "^2.7.1",
-    "prettier-plugin-organize-imports": "^2.3.4",
+    "prettier-plugin-organize-imports": "^3.2.2",
     "typescript": "4.9.5",
     "url-loader": "^4.1.1"
   }

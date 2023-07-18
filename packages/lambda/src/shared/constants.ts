@@ -338,7 +338,6 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		chromiumOptions: ChromiumOptions;
 		resolvedProps: SerializedInputProps;
-		defaultProps: SerializedInputProps;
 		scale: number;
 		everyNthFrame: number;
 		muted: boolean;
@@ -485,6 +484,7 @@ export type RenderProgress = {
 	mostExpensiveFrameRanges: ExpensiveChunk[] | null;
 	framesRendered: number;
 	outputSizeInBytes: number | null;
+	type: 'success';
 };
 
 export type Privacy = 'public' | 'private' | 'no-acl';
