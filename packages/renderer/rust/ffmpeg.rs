@@ -174,19 +174,27 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
     let codec = remotionffmpeg::codec::context::Context::from_parameters(stream.parameters())
         .map_err(|e| e.to_string())?;
 
+    // Get the duration
+    #[allow(non_snake_case)]
+    let durationInSeconds = input.duration() as f64 / remotionffmpeg::ffi::AV_TIME_BASE as f64;
+
     #[allow(non_snake_case)]
     let supportsSeeking = match codec_name {
         KnownCodecs::H264 => {
-            let f = File::open(file_path).unwrap();
-            let size = f.metadata()?.len();
-            let reader = BufReader::new(f);
+            if durationInSeconds < 5.0 {
+                true
+            } else {
+                let f = File::open(file_path).unwrap();
+                let size = f.metadata()?.len();
+                let reader = BufReader::new(f);
 
-            let mp4 = mp4::Mp4Reader::read_header(reader, size);
-            let supports_fast_start = match mp4 {
-                Ok(mp4) => mp4.supports_fast_start,
-                Err(_) => false,
-            };
-            supports_fast_start
+                let mp4 = mp4::Mp4Reader::read_header(reader, size);
+                let supports_fast_start = match mp4 {
+                    Ok(mp4) => mp4.supports_fast_start,
+                    Err(_) => false,
+                };
+                supports_fast_start
+            }
         }
         KnownCodecs::H265 => true,
         KnownCodecs::Vp8 => true,
@@ -195,10 +203,6 @@ pub fn get_video_metadata(file_path: &str) -> Result<VideoMetadata, ErrorWithBac
         KnownCodecs::ProRes => false,
         KnownCodecs::Unknown => false,
     };
-
-    // Get the duration
-    #[allow(non_snake_case)]
-    let durationInSeconds = input.duration() as f64 / remotionffmpeg::ffi::AV_TIME_BASE as f64;
 
     if let Ok(video) = codec.decoder().video() {
         // Return the video metadata
