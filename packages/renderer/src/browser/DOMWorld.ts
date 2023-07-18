@@ -28,12 +28,10 @@ import type {
 import type {ExecutionContext} from './ExecutionContext';
 import type {Frame} from './FrameManager';
 import type {JSHandle} from './JSHandle';
-import type {TimeoutSettings} from './TimeoutSettings';
 import {isString} from './util';
 
 export class DOMWorld {
 	#frame: Frame;
-	#timeoutSettings: TimeoutSettings;
 	#contextPromise: Promise<ExecutionContext> | null = null;
 	#contextResolveCallback: ((x: ExecutionContext) => void) | null = null;
 	#detached = false;
@@ -44,11 +42,10 @@ export class DOMWorld {
 		return this.#waitTasks;
 	}
 
-	constructor(frame: Frame, timeoutSettings: TimeoutSettings) {
+	constructor(frame: Frame) {
 		// Keep own reference to client because it might differ from the FrameManager's
 		// client for OOP iframes.
 		this.#frame = frame;
-		this.#timeoutSettings = timeoutSettings;
 		this._setContext(null);
 	}
 
@@ -120,22 +117,25 @@ export class DOMWorld {
 		);
 	}
 
-	waitForFunction(
-		browser: HeadlessBrowser,
-		pageFunction: Function | string,
-		...args: SerializableOrJSHandle[]
-	): Promise<JSHandle> {
-		const timeout = this.#timeoutSettings.timeout();
-		const waitTaskOptions: WaitTaskOptions = {
+	waitForFunction({
+		browser,
+		timeout,
+		pageFunction,
+		title,
+	}: {
+		browser: HeadlessBrowser;
+		timeout: number;
+		pageFunction: Function | string;
+		title: string;
+	}): Promise<JSHandle> {
+		return new WaitTask({
 			domWorld: this,
 			predicateBody: pageFunction,
-			title: 'function',
+			title,
 			timeout,
-			args,
+			args: [],
 			browser,
-		};
-		const waitTask = new WaitTask(waitTaskOptions);
-		return waitTask.promise;
+		}).promise;
 	}
 
 	title(): Promise<string> {

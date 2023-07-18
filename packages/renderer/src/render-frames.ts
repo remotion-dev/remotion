@@ -368,7 +368,12 @@ const innerRenderFrames = async ({
 
 		const startSeeking = Date.now();
 
-		await seekToFrame({frame, page: freePage, composition: compId});
+		await seekToFrame({
+			frame,
+			page: freePage,
+			composition: compId,
+			timeoutInMilliseconds,
+		});
 
 		const timeToSeek = Date.now() - startSeeking;
 		if (timeToSeek > 1000) {
