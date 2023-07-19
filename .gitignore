@@ -25,3 +25,4 @@ packages/lambda-python/remotion_lambda_sdk.egg-info
 packages/lambda-python/remotion_lambda_sdk/remotion_lambda_sdk.egg-info
 .pypirc
 file3.txt
+packages/lambda-python/remotion-env

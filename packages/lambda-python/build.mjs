@@ -16,5 +16,10 @@ if (!hasPython()) {
   console.log("Environment has no Python. Skipping...");
   process.exit(0);
 }
+
+// python -m venv remotion-env
+// source remotion-env/bin/activate
+// pip install pylint
+//
 execSync("pylint ./remotion_lambda_sdk", { stdio: "inherit" });
 console.log("Linted python lint!");

@@ -77,6 +77,7 @@ class RemotionClient:
             response = self.client.invoke(
                 FunctionName=function_name, Payload=payload)
             result = response['Payload'].read().decode('utf-8')
+
             decoded_result = json.loads(result)
             if decoded_result['statusCode'] != 200:
                 raise ValueError('Failed to invoke Lambda function')
@@ -155,7 +156,7 @@ class RemotionClient:
         params = self.construct_render_progress_request(render_id, bucket_name)
         progress_response = self._invoke_lambda(
             function_name=self.function_name, payload=params)
-
+        # print(progress_response)
         render_progress = RenderProgress()
         render_progress.__dict__.update(progress_response)
         return render_progress
