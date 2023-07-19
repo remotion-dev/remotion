@@ -1,6 +1,6 @@
 
-from remotion_lambda_sdk import RenderParams, RenderProgressParams
-from remotion_lambda_sdk import RemotionClient
+from remotion_lambda import RenderParams, RenderProgressParams
+from remotion_lambda import RemotionClient
 import os
 from dotenv import load_dotenv
 

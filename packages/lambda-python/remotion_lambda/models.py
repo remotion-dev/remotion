@@ -110,9 +110,9 @@ class RenderResponse:
     Response data after rendering.
     """
 
-    def __init__(self, bucket_name, render_id):
-        self.bucket_name = bucket_name
-        self.render_id = render_id
+    def __init__(self, bucketName, renderId):
+        self.bucketName = bucketName
+        self.renderId = renderId
 
 
 @dataclass
@@ -146,20 +146,20 @@ class RenderProgress:
     """
 
     def __init__(self):
-        self.overall_progress = float()
+        self.overallProgress = float()
         self.chunks = int()
         self.done = bool()
-        self.encoding_status = None
+        self.encodingStatus = None
         self.costs = None
-        self.render_id = str()
-        self.render_metadata = None
-        self.output_file = None
-        self.out_key = None
-        self.time_to_finish = None
+        self.renderId = str()
+        self.renderMetadata = None
+        self.outputFile = None
+        self.outKey = None
+        self.timeToFinish = None
         self.errors = []
-        self.fatal_error_encountered = bool()
-        self.current_time = int()
-        self.render_size = int()
-        self.output_size_in_bytes = None
-        self.lambdas_invoked = int()
-        self.frames_rendered = None
+        self.fatalErrorEncountered = bool()
+        self.currentTime = int()
+        self.renderSize = int()
+        self.outputSizeInBytes = None
+        self.lambdasInvoked = int()
+        self.framesRendered = None

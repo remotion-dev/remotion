@@ -1,8 +1,6 @@
 from unittest import TestCase
 
-from remotion_lambda_sdk.remotionclient import RemotionClient
-
-# python -m pip install boto3
+from remotion_lambda.remotionclient import RemotionClient
 
 
 class TestRemotionClient(TestCase):
