@@ -73,7 +73,9 @@ export const makeLambdaRenderMediaPayload = async ({
 	const serialized = await compressInputProps({
 		stringifiedInputProps,
 		region,
-		needsToUpload: getNeedsToUpload('video-or-audio', stringifiedInputProps),
+		needsToUpload: getNeedsToUpload('video-or-audio', [
+			stringifiedInputProps.length,
+		]),
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
 	});
