@@ -110,7 +110,7 @@ export const renderStillOnLambda = async ({
 	const serializedInputProps = await compressInputProps({
 		stringifiedInputProps,
 		region,
-		needsToUpload: getNeedsToUpload('still', stringifiedInputProps),
+		needsToUpload: getNeedsToUpload('still', [stringifiedInputProps.length]),
 		userSpecifiedBucketName: forceBucketName ?? null,
 		propsType: 'input-props',
 	});
