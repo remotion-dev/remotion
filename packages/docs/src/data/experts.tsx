@@ -243,7 +243,7 @@ export const experts: Expert[] = [
     image: "/img/freelancers/ray.jpeg",
     website: null,
     twitter: "romrif",
-    github: null,
+    github: "rayBlock",
     linkedin: "in/raymond-lotmar/",
     email: "ray@blocklab.ch",
     videocall: "remotion-expert-ray-lotmar",
