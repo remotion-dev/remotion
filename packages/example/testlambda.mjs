@@ -32,3 +32,15 @@ execSync(
 		stdio: 'inherit',
 	}
 );
+execSync(
+	`pnpm exec remotion lambda still testbed-v6 140kb-payload --props="${JSON.stringify(
+		{
+			str: 'a'.repeat(140 * 1000),
+			date: 'remotion-date:' + new Date('2020-01-01').toISOString(),
+			file: 'nested/mp4.png',
+		}
+	)}" --log=verbose`,
+	{
+		stdio: 'inherit',
+	}
+);
