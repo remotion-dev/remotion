@@ -20,7 +20,7 @@ test("Set the right version for pytest", () => {
       process.cwd(),
       "..",
       "lambda-python",
-      "remotion_lambda_sdk",
+      "remotion_lambda",
       "version.py"
     ),
     VERSION
