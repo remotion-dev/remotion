@@ -1,4 +1,4 @@
-# pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught
+# pylint: disable=too-few-public-methods, missing-module-docstring, broad-exception-caught,invalid-name
 
 from typing import Optional, List, Dict
 from dataclasses import dataclass, field

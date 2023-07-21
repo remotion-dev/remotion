@@ -1,12 +1,12 @@
 import os
 import setuptools
-from remotion_lambda_sdk.version import VERSION
+from remotion_lambda.version import VERSION
 
 with open(os.path.join(os.path.dirname(__file__), "README.md")) as readme:
     README = readme.read()
 
 setuptools.setup(
-    name="remotion_lambda_sdk",
+    name="remotion_lambda",
     version=VERSION,
     author="Johny Burger",
     author_email="jonny@remotion.dev",

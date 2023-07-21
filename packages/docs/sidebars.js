@@ -491,6 +491,7 @@ module.exports = {
         },
         "lambda/php",
         "lambda/go",
+        "lambda/python",
         "lambda/serverless-framework-integration",
         "lambda/sqs",
         "lambda/multiple-buckets",

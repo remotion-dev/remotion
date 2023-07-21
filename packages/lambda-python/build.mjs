@@ -17,9 +17,17 @@ if (!hasPython()) {
   process.exit(0);
 }
 
-// python -m venv remotion-env
-// source remotion-env/bin/activate
-// pip install pylint
-//
-execSync("pylint ./remotion_lambda_sdk", { stdio: "inherit" });
+const commands = [
+  "python -m venv remotion-env-lint",
+  "source remotion-env-lint/bin/activate",
+  "pip install boto3 pylint",
+  "pylint ./remotion_lambda",
+  "deactivate",
+  "rm -rf remotion-env-lint",
+];
+
+execSync(commands.join(" && "), {
+  stdio: "inherit",
+});
+
 console.log("Linted python lint!");
