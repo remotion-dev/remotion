@@ -1,8 +1,8 @@
 import React from 'react';
 import {getStaticFiles} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
-import {AssetSelectorItem} from './AssetSelectorItem';
 import {useZIndex} from '../state/z-index';
+import {AssetSelectorItem} from './AssetSelectorItem';
 
 const container: React.CSSProperties = {
 	display: 'flex',

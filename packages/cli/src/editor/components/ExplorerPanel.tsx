@@ -1,17 +1,17 @@
 import {
 	createRef,
-	useState,
 	useCallback,
-	useImperativeHandle,
 	useContext,
+	useImperativeHandle,
 	useMemo,
+	useState,
 } from 'react';
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
 import {BACKGROUND} from '../helpers/colors';
-import {Tabs, Tab} from './Tabs';
-import {CompositionSelector} from './CompositionSelector';
 import {AssetSelector} from './AssetSelector';
+import {CompositionSelector} from './CompositionSelector';
+import {Tab, Tabs} from './Tabs';
 
 const container: React.CSSProperties = {
 	height: '100%',

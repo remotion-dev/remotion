@@ -1,4 +1,3 @@
-import {RenderAssetManager} from './RenderAssetManager.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -11,9 +10,9 @@ import {ClipComposition, type CompProps} from './Composition.js';
 import type {
 	TCompMetadata,
 	TComposition,
+	TRenderAsset,
 	TSequence,
 } from './CompositionManager.js';
-import type {TRenderAsset} from './CompositionManager.js';
 import {compositionsRef} from './CompositionManager.js';
 import type {CompositionManagerContext} from './CompositionManagerContext.js';
 import {CompositionManager} from './CompositionManagerContext.js';
@@ -44,6 +43,7 @@ import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
+import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
 	ResolveCompositionConfig,

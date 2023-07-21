@@ -1,6 +1,5 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {RenderAssetManager} from '../RenderAssetManager.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
@@ -8,6 +7,7 @@ import {
 import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
 import {Img} from '../Img.js';
 import {random} from '../random.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {truthy} from '../truthy.js';
@@ -35,10 +35,8 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 
-	const {
-		registerRenderAsset,
-		unregisterRenderAsset,
-	} = useContext(RenderAssetManager);
+	const {registerRenderAsset, unregisterRenderAsset} =
+		useContext(RenderAssetManager);
 
 	if (!src) {
 		throw new TypeError('No `src` was passed to <OffthreadVideo>.');
