@@ -16,15 +16,4 @@ packages/renderer/target
 packages/example/sa-key.json
 packages/example/public/pts-framermp4withoutfileextension.mp4
 packages/it-tests/packages/example/out/element-2.png
-packages/lambda-python/src/lambda-python/__pycache__
-packages/lambda-python/src/__pycache__
-packages/lambda-python/remotion_lambda_sdk/__pycache__
-packages/lambda-python/tests/__pycache__
-packages/lambda-python/build
-packages/lambda-python/remotion_lambda_sdk.egg-info
-packages/lambda-python/remotion_lambda_sdk/remotion_lambda_sdk.egg-info
-.pypirc
-file3.txt
-packages/lambda-python/remotion-env
-packages/lambda-python/remotion_lambda_test.egg-info
-packages/lambda-python/remotion_lambda/__pycache__
+packages/lambda-python/*/__pycache__
