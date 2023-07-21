@@ -33,6 +33,9 @@ test('Should return video metadata', async () => {
 		width: 1080,
 		height: 1080,
 		durationInSeconds: 4.166667,
+		canPlayInVideoTag: true,
+		codec: 'h264',
+		supportsSeeking: true,
 	});
 });
 

@@ -14,7 +14,7 @@ import {
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
+import {getCloudwatchMethodUrl} from '../shared/get-aws-urls';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
@@ -110,7 +110,7 @@ export const renderStillOnLambda = async ({
 	const serializedInputProps = await compressInputProps({
 		stringifiedInputProps,
 		region,
-		needsToUpload: getNeedsToUpload('still', stringifiedInputProps),
+		needsToUpload: getNeedsToUpload('still', [stringifiedInputProps.length]),
 		userSpecifiedBucketName: forceBucketName ?? null,
 		propsType: 'input-props',
 	});
@@ -146,7 +146,7 @@ export const renderStillOnLambda = async ({
 				if (payload.type === 'render-id-determined') {
 					onInit?.({
 						renderId: payload.renderId,
-						cloudWatchLogs: getCloudwatchStreamUrl({
+						cloudWatchLogs: getCloudwatchMethodUrl({
 							functionName,
 							method: LambdaRoutines.still,
 							region,
@@ -165,7 +165,7 @@ export const renderStillOnLambda = async ({
 			sizeInBytes: res.size,
 			bucketName: res.bucketName,
 			renderId: res.renderId,
-			cloudWatchLogs: getCloudwatchStreamUrl({
+			cloudWatchLogs: getCloudwatchMethodUrl({
 				functionName,
 				method: LambdaRoutines.still,
 				region,
