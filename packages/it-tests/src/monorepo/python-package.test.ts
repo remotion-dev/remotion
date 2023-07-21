@@ -32,68 +32,59 @@ test("Set the right version for pytest", () => {
 test("Python package should create the same renderMedia payload as normal Lambda package", async () => {
   const cwd = path.join(process.cwd(), "..", "lambda-python");
   console.log("cwd", cwd);
-  try {
-    const pythonOutput = execSync("pytest -rP  tests/test_render_client.py", {
-      cwd,
-    });
-    const output = pythonOutput.toString().split("\n");
-    console.log(output);
-    const toParse = output[10];
-    const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
-      region: "us-east-1",
-      composition: "react-svg",
-      functionName: "remotion-render",
-      serveUrl: "testbed",
-      codec: "h264",
-      inputProps: {
-        hi: "there",
-      },
-    });
-    console.log("nativeVersion");
-    console.log(nativeVersion);
-    const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
-    console.log(jsonOutput);
-    const parsedJson = JSON.parse(jsonOutput);
+  const pythonOutput = execSync("pytest -rP  tests/test_render_client.py", {
+    cwd,
+    stdio: "inherit",
+  });
+  const output = pythonOutput.toString().split("\n");
+  console.log(output);
+  const toParse = output[10];
+  const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
+    region: "us-east-1",
+    composition: "react-svg",
+    functionName: "remotion-render",
+    serveUrl: "testbed",
+    codec: "h264",
+    inputProps: {
+      hi: "there",
+    },
+  });
+  console.log("nativeVersion");
+  console.log(nativeVersion);
+  const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
+  console.log(jsonOutput);
+  const parsedJson = JSON.parse(jsonOutput);
 
-    expect(
-      removeUndefined({
-        ...parsedJson,
-        type: "start",
-      })
-    ).toEqual(removeUndefined(nativeVersion));
-  } catch (error) {
-    console.error(error);
-    console.log(error.stderr.toString());
-  }
+  expect(
+    removeUndefined({
+      ...parsedJson,
+      type: "start",
+    })
+  ).toEqual(removeUndefined(nativeVersion));
 });
 
 test("Python package should create the same progress payload as normal Lambda package", async () => {
   const cwd = path.join(process.cwd(), "..", "lambda-python");
   console.log("cwd", cwd);
 
-  try {
-    const pythonOutput = execSync(
-      "pytest -rP  tests/test_get_render_progress_client.py",
-      {
-        cwd,
-      }
-    );
-    const output = pythonOutput.toString().split("\n");
-    console.log(output);
-    const toParse = output[10];
-    const nativeVersion = LambdaInternals.getRenderProgressPayload({
-      region: "us-east-1",
-      functionName: "remotion-render",
-      bucketName: "remotion-render",
-      renderId: "abcdef",
-    });
-    const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
-    const parsedJson = JSON.parse(jsonOutput);
-    expect(parsedJson).toEqual({ ...nativeVersion, s3OutputProvider: null });
-  } catch (err) {
-    console.error(err);
-    console.log(err.stderr.toString());
-  }
+  const pythonOutput = execSync(
+    "pytest -rP  tests/test_get_render_progress_client.py",
+    {
+      cwd,
+    }
+  );
+  const output = pythonOutput.toString().split("\n");
+  console.log(output);
+  const toParse = output[10];
+  const nativeVersion = LambdaInternals.getRenderProgressPayload({
+    region: "us-east-1",
+    functionName: "remotion-render",
+    bucketName: "remotion-render",
+    renderId: "abcdef",
+  });
+  const jsonOutput = toParse.substring(0, toParse.lastIndexOf("}") + 1);
+  const parsedJson = JSON.parse(jsonOutput);
+  expect(parsedJson).toEqual({ ...nativeVersion, s3OutputProvider: null });
 });
 
 const removeUndefined = (data: unknown) => {
