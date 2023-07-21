@@ -85,6 +85,48 @@ _optional - default `"png"`_
 
 See [`renderStill() -> imageFormat`](/docs/renderer/render-still#imageformat).
 
+### `onInit?`<AvailableFrom v="4.0.6" />
+
+A callback function that gets called when the render starts, useful to obtain the link to the logs even if the render fails.
+
+It receives an object with the following properties:
+
+- `cloudWatchLogs`: A link to the CloudWatch logs of the Lambda function, if you did not disable it.
+- `renderId`: The ID of the render.
+
+Example usage:
+
+```tsx twoslash
+// @module: esnext
+// @target: es2022
+
+import {
+  renderStillOnLambda,
+  RenderStillOnLambdaInput,
+} from "@remotion/lambda/client";
+
+const otherParameters: RenderStillOnLambdaInput = {
+  region: "us-east-1",
+  functionName: "remotion-render-bds9aab",
+  serveUrl:
+    "https://remotionlambda-qg35eyp1s1.s3.eu-central-1.amazonaws.com/sites/bf2jrbfkw",
+  composition: "MyVideo",
+  inputProps: {},
+  imageFormat: "png",
+  maxRetries: 1,
+  privacy: "public",
+  envVariables: {},
+  frame: 10,
+};
+await renderStillOnLambda({
+  ...otherParameters,
+  onInit: ({ cloudWatchLogs, renderId }) => {
+    console.log(console.log(`Render invoked with ID = ${renderId}`));
+    console.log(`CloudWatch logs (if enabled): ${cloudWatchLogs}`);
+  },
+});
+```
+
 ### `jpegQuality?`
 
 _optional_
@@ -218,7 +260,7 @@ Returns a promise resolving to an object with the following properties:
 
 The S3 bucket in which the video was saved.
 
-### `output`
+### `url`
 
 An AWS S3 URL where the output is available.
 

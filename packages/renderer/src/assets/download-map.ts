@@ -2,7 +2,9 @@ import fs, {mkdirSync} from 'node:fs';
 import path from 'node:path';
 import type {TRenderAsset} from 'remotion';
 import {deleteDirectory} from '../delete-directory';
+import {OffthreadVideoServerEmitter} from '../offthread-video-server';
 import {tmpDir} from '../tmp-dir';
+import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 
 export type AudioChannelsAndDurationResultCache = {
 	channels: number;
@@ -11,6 +13,8 @@ export type AudioChannelsAndDurationResultCache = {
 
 export type DownloadMap = {
 	id: string;
+	emitter: OffthreadVideoServerEmitter;
+	downloadListeners: RenderMediaOnDownload[];
 	isDownloadingMap: {
 		[src: string]:
 			| {
@@ -71,6 +75,7 @@ export const makeDownloadMap = (): DownloadMap => {
 		durationOfAssetCache: {},
 		id: String(Math.random()),
 		assetDir: dir,
+		downloadListeners: [],
 		downloadDir: makeAndReturn(dir, 'remotion-assets-dir'),
 		complexFilter: makeAndReturn(dir, 'remotion-complex-filter'),
 		preEncode: makeAndReturn(dir, 'pre-encode'),
@@ -79,6 +84,7 @@ export const makeDownloadMap = (): DownloadMap => {
 		stitchFrames: makeAndReturn(dir, 'remotion-stitch-temp-dir'),
 		compositingDir: makeAndReturn(dir, 'remotion-compositing-temp-dir'),
 		compositorCache: {},
+		emitter: new OffthreadVideoServerEmitter(),
 	};
 };
 

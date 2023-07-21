@@ -32,7 +32,8 @@ import {
 } from './image-format';
 import {isAudioCodec} from './is-audio-codec';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
-import {Log, getLogLevel} from './logger';
+import {type LogLevel} from './log-level';
+import {getLogLevel, Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -59,7 +60,6 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
-import {type LogLevel} from './log-level';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -766,7 +766,7 @@ export const renderMedia = ({
 		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
 			indent: undefined,
 			staticBase: null,
-			data: composition.props,
+			data: composition.props ?? {},
 		}).serializedString,
 	});
 };

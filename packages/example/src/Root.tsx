@@ -211,6 +211,33 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<Composition
+					// Sending 140KB payload will not require the Lambda function to compress the props,
+					// but once spawning the renderer function, then the input props as well as the resolved
+					// combined together will take more than 256KB of space.
+					// In that case, we need to compress one of them.
+					id="140kb-payload"
+					component={HugePayload}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={2}
+					calculateMetadata={() => {
+						return {
+							props: {
+								str: 'a'.repeat(140 * 1000),
+								date: new Date('2020-01-01'),
+								file: staticFile('nested/mp4.png'),
+							},
+						};
+					}}
+					schema={hugePayloadSchema}
+					defaultProps={{
+						str: 'potato',
+						file: staticFile('giphy.gif'),
+						date: new Date('2020-01-01'),
+					}}
+				/>
+				<Composition
 					id="sync-dynamic-length"
 					component={DynamicDuration}
 					width={1080}

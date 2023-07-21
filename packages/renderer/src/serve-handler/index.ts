@@ -222,7 +222,7 @@ export const serveHandler = async (
 		return sendError(absolutePath, response, {
 			statusCode: 404,
 			code: 'not_found',
-			message: 'The requested path could not be found',
+			message: 'The requested path (' + absolutePath + ') could not be found',
 		});
 	}
 
