@@ -4,8 +4,8 @@
 import type {RefObject} from 'react';
 import React, {useMemo} from 'react';
 import {afterAll, beforeAll, expect, test, vitest} from 'vitest';
-import {RenderAssetManagerProvider} from '../RenderAssetManager.js';
 import {CompositionManager} from '../CompositionManagerContext.js';
+import {RenderAssetManagerProvider} from '../RenderAssetManager.js';
 import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import type {SequenceManagerContext} from '../SequenceManager.js';
 import {SequenceManager} from '../SequenceManager.js';

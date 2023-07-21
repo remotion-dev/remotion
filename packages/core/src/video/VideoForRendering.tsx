@@ -9,7 +9,6 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {RenderAssetManager} from '../RenderAssetManager.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
@@ -18,6 +17,7 @@ import {continueRender, delayRender} from '../delay-render.js';
 import {useRemotionEnvironment} from '../get-environment.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {random} from '../random.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';

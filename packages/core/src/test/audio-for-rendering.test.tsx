@@ -4,10 +4,10 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {beforeEach, describe, expect, test, vitest} from 'vitest';
-import {RenderAssetManager} from '../RenderAssetManager.js';
 import {AudioForRendering} from '../audio/AudioForRendering.js';
 import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
 import {CompositionManager} from '../CompositionManagerContext.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
 import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
 import {expectToThrow} from './expect-to-throw.js';
 import {mockCompositionContext} from './wrap-sequence-context.js';

@@ -79,8 +79,8 @@ export {
 	AnyCompMetadata,
 	AnyComposition,
 	SmallTCompMetadata,
-	TRenderAsset,
 	TCompMetadata,
+	TRenderAsset,
 } from './CompositionManager.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
