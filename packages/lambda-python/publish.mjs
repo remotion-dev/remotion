@@ -21,7 +21,7 @@ EOF`,
 
 const commands = [
   "python -m venv remotion-env",
-  "source remotion-env/bin/activate",
+  ". ./remotion-env/bin/activate",
   "pip install boto3 twine wheel",
   "python setup.py sdist bdist_wheel",
   `python -m twine upload --repository ${pypiRepo} dist/*`,

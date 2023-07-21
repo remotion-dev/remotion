@@ -19,7 +19,7 @@ if (!hasPython()) {
 
 const commands = [
   "python -m venv remotion-env-lint",
-  "source remotion-env-lint/bin/activate",
+  ". ./remotion-env-lint/bin/activate",
   "pip install boto3 pylint",
   "pylint ./remotion_lambda",
   "deactivate",
