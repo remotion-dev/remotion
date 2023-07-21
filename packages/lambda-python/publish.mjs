@@ -4,6 +4,10 @@ import dotenv from "dotenv";
 dotenv.config();
 const isTest = true;
 const pypiRepo = isTest ? "testpypi" : "pypi";
+
+/**
+ * creates an environment file that is referenced by twine
+ */
 execSync(
   `cat <<EOF > ~/.pypirc
 [${pypiRepo}]
