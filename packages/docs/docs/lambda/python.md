@@ -17,7 +17,7 @@ To trigger a Lambda render using Python, install the `remotion/lambda` package u
 Below is a snippet showing how to initiate a render request and get its status. Note the following before continuing:
 
 - You first need to [complete the Lambda setup](/docs/lambda/setup).
-- Sending large input props (>200KB) is not supported with PHP at the moment.
+- Sending large input props (>200KB) is not supported with Python at the moment.
 
 ```python title="testclient.py"
 
