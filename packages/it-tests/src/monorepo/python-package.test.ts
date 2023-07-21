@@ -15,7 +15,7 @@ test("Set the right version for pytest", () => {
   expect(typeof version).toBe("string");
 
   const VERSION =
-    `# pylint: disable=missing-module-docstring, missing-final-newline \n` +
+    `# pylint: disable=missing-module-docstring, missing-final-newline\n` +
     `VERSION = "${version}"`;
   writeFileSync(
     path.join(
