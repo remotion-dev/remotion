@@ -50,11 +50,11 @@ import {
 	ModalContainer,
 } from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
 import {
-	persistSelectedOptionsSidebarPanel,
 	optionsSidebarTabs,
+	persistSelectedOptionsSidebarPanel,
 } from '../OptionsPanel';
+import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {Spinner} from '../Spinner';

@@ -1,10 +1,10 @@
 import React, {useCallback, useMemo} from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
+import {ExpandedFolderIconSolid} from '../../icons/folder';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
 import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {openInFileExplorer} from './actions';
-import {ExpandedFolderIconSolid} from '../../icons/folder';
 
 export const RenderQueueOpenInFinderItem: React.FC<{job: RenderJob}> = ({
 	job,

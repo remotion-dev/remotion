@@ -2,14 +2,14 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasOrLoading} from './CanvasOrLoading';
-import {ExplorerPanel} from './ExplorerPanel';
-import {OptionsPanel} from './OptionsPanel';
 import {
 	CurrentCompositionKeybindings,
 	TitleUpdater,
 } from './CurrentCompositionSideEffects';
+import {ExplorerPanel} from './ExplorerPanel';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
+import {OptionsPanel} from './OptionsPanel';
 import {PreviewToolbar} from './PreviewToolbar';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';

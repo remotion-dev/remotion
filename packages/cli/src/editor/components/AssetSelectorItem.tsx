@@ -1,14 +1,14 @@
 import type {MouseEventHandler} from 'react';
-import React, {useState, useCallback, useMemo} from 'react';
-import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
-import {Row, Spacing} from './layout';
+import React, {useCallback, useMemo, useState} from 'react';
 import type {StaticFile} from 'remotion';
+import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
 import {FileIcon} from '../icons/file';
 import {ExpandedFolderIconSolid} from '../icons/folder';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
-import {openInFileExplorer} from './RenderQueue/actions';
+import {Row, Spacing} from './layout';
 import {sendErrorNotification} from './Notifications/NotificationCenter';
+import {openInFileExplorer} from './RenderQueue/actions';
 
 const ASSET_ITEM_HEIGHT = 32;
 
