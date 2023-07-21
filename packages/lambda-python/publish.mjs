@@ -39,4 +39,4 @@ execSync(rmComm.join(" && "), {
   stdio: "inherit",
 });
 
-console.log("Remotion lambda publish.");
+console.log("Remotion lambda published.");
