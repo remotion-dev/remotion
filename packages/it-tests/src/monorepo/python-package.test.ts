@@ -14,7 +14,9 @@ const version = referenceVersionJson.version;
 test("Set the right version for pytest", () => {
   expect(typeof version).toBe("string");
 
-  const VERSION = `VERSION = "${version}";`;
+  const VERSION =
+    `# pylint: disable=missing-module-docstring, missing-final-newline \n` +
+    `VERSION = "${version}"`;
   writeFileSync(
     path.join(
       process.cwd(),
