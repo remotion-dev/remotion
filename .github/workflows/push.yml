@@ -155,7 +155,7 @@ jobs:
         with:
           python-version: "3.9"
           cache: "pip" # caching pip dependencies
-      - run: pip install setuptools wheel twine
+      - run: pip install pylint boto3
       - run: |
           corepack enable
       - name: Get pnpm store directory
