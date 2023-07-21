@@ -3,8 +3,6 @@ from unittest import TestCase
 from remotion_lambda.models import RenderParams
 from remotion_lambda.remotionclient import RemotionClient
 
-# python -m pip install boto3
-
 
 class TestRemotionClient(TestCase):
     def test_remotion_construct_request(self):
