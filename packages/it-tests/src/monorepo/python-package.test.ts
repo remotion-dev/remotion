@@ -63,6 +63,7 @@ test("Python package should create the same renderMedia payload as normal Lambda
     ).toEqual(removeUndefined(nativeVersion));
   } catch (error) {
     console.error(error);
+    console.log(error.stderr.toString());
   }
 });
 
@@ -91,6 +92,7 @@ test("Python package should create the same progress payload as normal Lambda pa
     expect(parsedJson).toEqual({ ...nativeVersion, s3OutputProvider: null });
   } catch (err) {
     console.error(err);
+    console.log(err.stderr.toString());
   }
 });
 
