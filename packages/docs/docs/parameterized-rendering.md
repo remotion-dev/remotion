@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-parameterized-rendering.png
 id: parameterized-rendering
 title: Parameterized videos
 sidebar_label: Passing props

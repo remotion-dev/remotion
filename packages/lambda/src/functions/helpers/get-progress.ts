@@ -104,6 +104,7 @@ export const getProgress = async ({
 			mostExpensiveFrameRanges: postRenderData.mostExpensiveFrameRanges ?? null,
 			timeToEncode: postRenderData.timeToEncode,
 			outputSizeInBytes: postRenderData.outputSize,
+			type: 'success',
 		};
 	}
 
@@ -238,7 +239,12 @@ export const getProgress = async ({
 
 	const allErrors: EnhancedErrorInfo[] = [
 		isBeyondTimeout
-			? makeTimeoutError({timeoutInMilliseconds, renderMetadata, chunks})
+			? makeTimeoutError({
+					timeoutInMilliseconds,
+					renderMetadata,
+					chunks,
+					renderId,
+			  })
 			: null,
 		...errorExplanations,
 	].filter(Internals.truthy);
@@ -293,5 +299,6 @@ export const getProgress = async ({
 		mostExpensiveFrameRanges: null,
 		timeToEncode: null,
 		outputSizeInBytes: outputFile?.size ?? null,
+		type: 'success',
 	};
 };

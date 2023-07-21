@@ -501,7 +501,9 @@ const RenderModal: React.FC<
 			if (
 				passedAudioCodec !== null &&
 				(
-					BrowserSafeApis.supportedAudioCodecs[passedVideoCodec] as AudioCodec[]
+					BrowserSafeApis.supportedAudioCodecs[
+						passedVideoCodec
+					] as readonly AudioCodec[]
 				).includes(passedAudioCodec)
 			) {
 				return passedAudioCodec;

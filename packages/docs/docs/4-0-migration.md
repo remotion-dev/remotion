@@ -35,7 +35,7 @@ The minimum Node version is now 16.0.0.
 
 Only the following platforms are supported: Windows (x64 only), macOS, Linux.
 
-Linux distros with glibc need to have at least version 2.34. [See here](https://github.com/remotion-dev/remotion/issues/2439) for more information.
+Linux distros with glibc need to have at least version 2.35. [See here](https://github.com/remotion-dev/remotion/issues/2439) for more information.
 
 ## Config file changes
 

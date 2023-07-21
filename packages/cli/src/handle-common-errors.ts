@@ -77,7 +77,7 @@ export const handleCommonError = async (err: Error, logLevel: LogLevel) => {
 	}
 
 	if (err.message.includes('GLIBC_')) {
-		Log.info('💡 Remotion requires at least Libc 2.34.');
+		Log.info('💡 Remotion requires at least Libc 2.35.');
 		Log.info(
 			'💡 Get help for this issue: https://github.com/remotion-dev/remotion/issues/2439'
 		);
