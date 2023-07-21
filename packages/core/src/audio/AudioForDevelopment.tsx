@@ -163,7 +163,7 @@ const AudioForDevelopmentForwardRefFunction: React.ForwardRefRenderFunction<
 		return null;
 	}
 
-	return <audio ref={audioRef} {...propsToPass} />;
+	return <audio ref={audioRef} preload="metadata" {...propsToPass} />;
 };
 
 export const AudioForDevelopment = forwardRef(

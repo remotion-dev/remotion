@@ -239,7 +239,12 @@ export const getProgress = async ({
 
 	const allErrors: EnhancedErrorInfo[] = [
 		isBeyondTimeout
-			? makeTimeoutError({timeoutInMilliseconds, renderMetadata, chunks})
+			? makeTimeoutError({
+					timeoutInMilliseconds,
+					renderMetadata,
+					chunks,
+					renderId,
+			  })
 			: null,
 		...errorExplanations,
 	].filter(Internals.truthy);

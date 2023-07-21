@@ -28,6 +28,21 @@
   flex-direction: column;
   align-items: center;
   background-color: var(--ifm-navbar-background-color);
+  transition: all 0.3s ease-in-out;
+}
+
+.card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 8px 0 rgb(84, 84, 84);
+}
+
+.docsButton {
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.docsButton:hover {
+  transform: scale(0.987);
 }
 
 .profile {

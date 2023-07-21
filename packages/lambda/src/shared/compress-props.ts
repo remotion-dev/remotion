@@ -29,15 +29,20 @@ export const serializeOrThrow = (
 
 export const getNeedsToUpload = (
 	type: 'still' | 'video-or-audio',
-	stringifiedInputProps: string
+	sizes: number[]
 ) => {
-	const MAX_INLINE_PAYLOAD_SIZE = type === 'still' ? 5000000 : 200000;
-	if (stringifiedInputProps.length > MAX_INLINE_PAYLOAD_SIZE) {
+	const MARGIN = 5_000;
+	const MAX_INLINE_PAYLOAD_SIZE =
+		(type === 'still' ? 5_000_000 : 200_000) - MARGIN;
+
+	const sizesAlreadyUsed = sizes.reduce((a, b) => a + b);
+
+	if (sizesAlreadyUsed > MAX_INLINE_PAYLOAD_SIZE) {
 		console.warn(
 			`Warning: The props are over ${Math.round(
 				MAX_INLINE_PAYLOAD_SIZE / 1000
 			)}KB (${Math.ceil(
-				stringifiedInputProps.length / 1024
+				sizesAlreadyUsed / 1024
 			)}KB) in size. Uploading them to S3 to circumvent AWS Lambda payload size, which may lead to slowdown.`
 		);
 		return true;

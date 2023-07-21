@@ -75,7 +75,14 @@ export const prepareServer = async ({
 			compositor: comp,
 			sourceMap: getSourceMapFromRemoteUrl(
 				getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl)
-			),
+			).catch((err) => {
+				Log.verbose(
+					'Could not fetch sourcemap for ',
+					webpackConfigOrServeUrl,
+					err
+				);
+				return null;
+			}),
 			downloadMap,
 		});
 	}

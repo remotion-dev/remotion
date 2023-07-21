@@ -260,7 +260,7 @@ Returns a promise resolving to an object with the following properties:
 
 The S3 bucket in which the video was saved.
 
-### `output`
+### `url`
 
 An AWS S3 URL where the output is available.
 
