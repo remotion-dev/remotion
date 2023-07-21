@@ -8,5 +8,8 @@
   },
   "devDependencies": {
     "remotion": "workspace:*"
+  },
+  "dependencies": {
+    "dotenv": "9.0.2"
   }
 }

@@ -1,31 +1,38 @@
 import { execSync } from "node:child_process";
+import dotenv from "dotenv";
 
-execSync(`python setup.py sdist bdist_wheel`, {
-  stdio: "inherit",
-});
-
+dotenv.config();
+const isTest = true;
+const pypiRepo = isTest ? "testpypi" : "pypi";
 execSync(
   `cat <<EOF > ~/.pypirc
-[testpypi]
-username = $PYPI_USERNAME
-password = $PYPI_PASSWORD
+[${pypiRepo}]
+username = ${process.env.PYPI_USERNAME}
+password = ${process.env.PYPI_PASSWORD}
 EOF`,
   {
     stdio: "inherit",
   }
 );
-execSync(`python -m twine upload --repository testpypi dist/* `, {
+
+const commands = [
+  "python -m venv remotion-env",
+  "source remotion-env/bin/activate",
+  "pip install boto3 twine wheel",
+  "python setup.py sdist bdist_wheel",
+  `python -m twine upload --repository ${pypiRepo} dist/*`,
+  "deactivate",
+  "rm -rf remotion-env",
+];
+
+execSync(commands.join(" && "), {
   stdio: "inherit",
 });
 
-/**
- * Clean up after upload
- */
-const rmComm = [
-  `rm -rf build`,
-  `rm -rf dist`,
-  `rm -rf remotion_lambda_sdk.egg-info`,
-];
+// clean up used folder
+const rmComm = [`rm -rf build`, `rm -rf dist`, `rm -rf remotion_lambda.*`];
 execSync(rmComm.join(" && "), {
   stdio: "inherit",
 });
+
+console.log("Remotion lambda publish.");
