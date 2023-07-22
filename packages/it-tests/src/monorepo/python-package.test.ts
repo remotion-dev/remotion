@@ -34,8 +34,8 @@ test("Python package should create the same renderMedia payload as normal Lambda
   console.log("cwd", cwd);
   const pythonOutput = execSync("pytest -rP  tests/test_render_client.py", {
     cwd,
-    stdio: "inherit",
   });
+
   const output = pythonOutput.toString().split("\n");
   console.log(output);
   const toParse = output[10];
