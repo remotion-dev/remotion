@@ -25,7 +25,6 @@ class RemotionClient:
         self.region = region
         self.serve_url = serve_url
         self.function_name = function_name
-        self.client = self._create_lambda_client()
 
     def _serialize_input_props(self, input_props, render_type):
         """
@@ -70,11 +69,12 @@ class RemotionClient:
                                 aws_secret_access_key=self.secret_key,
                                 region_name=self.region)
 
-        return boto3.client('lambda')
+        return boto3.client('lambda',  region_name=self.region)
 
     def _invoke_lambda(self, function_name, payload):
         try:
-            response = self.client.invoke(
+            client = self._create_lambda_client()
+            response = client.invoke(
                 FunctionName=function_name, Payload=payload)
             result = response['Payload'].read().decode('utf-8')
 

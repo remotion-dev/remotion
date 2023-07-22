@@ -17,3 +17,4 @@ packages/example/sa-key.json
 packages/example/public/pts-framermp4withoutfileextension.mp4
 packages/it-tests/packages/example/out/element-2.png
 packages/lambda-python/*/__pycache__
+packages/lambda-python/remotion-env-lint
