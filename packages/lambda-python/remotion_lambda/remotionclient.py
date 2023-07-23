@@ -142,8 +142,8 @@ class RemotionClient:
             function_name=self.function_name, payload=params)
         if body_object:
             return RenderResponse(**body_object)
-        else:
-            return None
+
+        return None
 
     def get_render_progress(self, render_id: str, bucket_name: str) -> RenderProgress:
         """
@@ -163,5 +163,4 @@ class RemotionClient:
             render_progress = RenderProgress()
             render_progress.__dict__.update(progress_response)
             return render_progress
-        else:
-            return None
+        return None
