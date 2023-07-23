@@ -28,17 +28,19 @@ render_params = RenderParams(
 )
 
 print("\n")
-# Execute render request
 render_response = client.render_media_on_lambda(render_params)
-print(render_response.renderId)
-print(render_response.bucketName)
-
-print("\n")
-
 if render_response:
+    # Execute render request
+
+    print(render_response.renderId)
+    print(render_response.bucketName)
+
+    print("\n")
+
     # Execute progress request
     progress_response = client.get_render_progress(
         render_id=render_response.renderId, bucket_name=render_response.bucketName)
-    print("Overall progress")
-    print(progress_response.overallProgress)
+    if progress_response:
+        print("Overall progress")
+        print(progress_response.overallProgress)
 print("\n")

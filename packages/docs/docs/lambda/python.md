@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-lambda-python.png
 title: Triggering renders from Python
-slug: /lambda/php
+slug: /lambda/python
 sidebar_label: Rendering from Python
 crumb: "@remotion/lambda"
 ---
@@ -20,7 +20,6 @@ Below is a snippet showing how to initiate a render request and get its status. 
 - Sending large input props (>200KB) is not supported with Python at the moment.
 
 ```python title="testclient.py"
-
 
 from remotion_lambda import RenderParams, RenderProgressParams
 from remotion_lambda import RemotionClient
@@ -51,19 +50,21 @@ render_params = RenderParams(
 )
 
 print("\n")
-# Execute render request
 render_response = client.render_media_on_lambda(render_params)
-print(render_response.renderId)
-print(render_response.bucketName)
-
-print("\n")
-
 if render_response:
+    # Execute render request
+
+    print(render_response.renderId)
+    print(render_response.bucketName)
+
+    print("\n")
+
     # Execute progress request
     progress_response = client.get_render_progress(
         render_id=render_response.renderId, bucket_name=render_response.bucketName)
-    print("Overall progress")
-    print(progress_response.overallProgress)
+    if progress_response:
+        print("Overall progress")
+        print(progress_response.overallProgress)
 print("\n")
 
 
