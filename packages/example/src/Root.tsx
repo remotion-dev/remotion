@@ -56,6 +56,7 @@ import {WarpDemo2} from './WarpText/demo2';
 import {Tailwind} from './Tailwind';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
+import {Timeout} from './Timeout';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -360,6 +361,14 @@ export const Index: React.FC = () => {
 					durationInFrames={30}
 				/>
 				<Composition
+					id="Timeout"
+					component={Timeout}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={100}
+				/>
+				<Composition
 					id="error-on-frame-10"
 					component={ErrorOnFrame10}
 					width={1280}
@@ -474,10 +483,10 @@ export const Index: React.FC = () => {
 				<Composition
 					id="OffthreadRemoteVideo"
 					component={OffthreadRemoteVideo}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={100}
+					width={1920 * 2}
+					height={1080 * 2}
+					fps={60}
+					durationInFrames={20000}
 				/>
 				<Composition
 					id="video-testing-webm"
