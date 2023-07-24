@@ -473,8 +473,15 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			console.log('No webhook specified');
 		}
 
+		const firstError = errors[0];
+		if (firstError.chunk !== null) {
+			throw new Error(
+				`Stopping Lambda function because error occurred while rendering chunk ${firstError.chunk}: ${errors[0].stack}`
+			);
+		}
+
 		throw new Error(
-			'Stopping Lambda function because error occurred: ' + errors[0].stack
+			`Stopping Lambda function because error occurred: ${errors[0].stack}`
 		);
 	};
 

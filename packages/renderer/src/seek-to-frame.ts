@@ -25,20 +25,15 @@ export const waitForReady = ({
 				reject(new Error('Target closed'));
 			});
 		}),
-		page
-			.mainFrame()
-			._mainWorld.waitForFunction({
-				browser: page.browser,
-				timeout: timeoutInMilliseconds,
-				pageFunction: 'window.remotion_renderReady === true',
-				title:
-					frame === null
-						? 'the page to render the React component'
-						: `the page to render the React component at frame ${frame}`,
-			})
-			.catch((err) => {
-				throw err;
-			}),
+		page.mainFrame()._mainWorld.waitForFunction({
+			browser: page.browser,
+			timeout: timeoutInMilliseconds,
+			pageFunction: 'window.remotion_renderReady === true',
+			title:
+				frame === null
+					? 'the page to render the React component'
+					: `the page to render the React component at frame ${frame}`,
+		}),
 		page
 			.mainFrame()
 			._mainWorld.waitForFunction({
