@@ -11,6 +11,9 @@ import type {VideoConfig} from './video-config.js';
 declare global {
 	interface Window {
 		remotion_renderReady: boolean;
+		remotion_delayRenderTimeouts: {
+			[key: string]: {label: string | null; timeout: number | NodeJS.Timeout};
+		};
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
 		getStaticCompositions: () => Promise<VideoConfig[]>;
