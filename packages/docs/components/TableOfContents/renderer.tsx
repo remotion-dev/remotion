@@ -38,6 +38,10 @@ export const TableOfContents: React.FC = () => {
           <strong>makeCancelSignal()</strong>
           <div>Create token to later cancel a render</div>
         </TOCItem>
+        <TOCItem link="/docs/renderer/get-video-metadata">
+          <strong>getVideoMetadata()</strong>
+          <div>Get metadata from a video file in Node.js</div>
+        </TOCItem>
       </Grid>
     </div>
   );
