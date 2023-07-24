@@ -60,7 +60,9 @@ export const getCompositionsOnLambda = async ({
 		region,
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
-		needsToUpload: getNeedsToUpload('video-or-audio', stringifiedInputProps),
+		needsToUpload: getNeedsToUpload('video-or-audio', [
+			stringifiedInputProps.length,
+		]),
 	});
 
 	try {

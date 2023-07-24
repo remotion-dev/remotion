@@ -5,8 +5,16 @@ import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {parseStack} from './parse-browser-error-stack';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 
-export const waitForReady = (page: Page) => {
-	return Promise.race([
+export const waitForReady = ({
+	page,
+	timeoutInMilliseconds,
+	frame,
+}: {
+	page: Page;
+	timeoutInMilliseconds: number;
+	frame: number | null;
+}) =>
+	Promise.race([
 		new Promise((_, reject) => {
 			page.on(PageEmittedEvents.Disposed, () => {
 				reject(new Error('Target closed (page disposed)'));
@@ -19,19 +27,26 @@ export const waitForReady = (page: Page) => {
 		}),
 		page
 			.mainFrame()
-			._mainWorld.waitForFunction(
-				page.browser,
-				'window.remotion_renderReady === true'
-			)
+			._mainWorld.waitForFunction({
+				browser: page.browser,
+				timeout: timeoutInMilliseconds,
+				pageFunction: 'window.remotion_renderReady === true',
+				title:
+					frame === null
+						? 'the page to render the React component'
+						: `the page to render the React component at frame ${frame}`,
+			})
 			.catch((err) => {
 				throw err;
 			}),
 		page
 			.mainFrame()
-			._mainWorld.waitForFunction(
-				page.browser,
-				'window.remotion_cancelledError !== undefined'
-			)
+			._mainWorld.waitForFunction({
+				browser: page.browser,
+				timeout: timeoutInMilliseconds,
+				pageFunction: 'window.remotion_cancelledError !== undefined',
+				title: 'remotion_cancelledError variable to appear on the page',
+			})
 			.then(() => {
 				return puppeteerEvaluateWithCatch({
 					pageFunction: () => window.remotion_cancelledError,
@@ -54,18 +69,19 @@ export const waitForReady = (page: Page) => {
 				});
 			}),
 	]);
-};
 
 export const seekToFrame = async ({
 	frame,
 	page,
 	composition,
+	timeoutInMilliseconds,
 }: {
 	frame: number;
 	composition: string;
 	page: Page;
+	timeoutInMilliseconds: number;
 }) => {
-	await waitForReady(page);
+	await waitForReady({page, timeoutInMilliseconds, frame: null});
 	await puppeteerEvaluateWithCatch({
 		pageFunction: (f: number, c: string) => {
 			window.remotion_setFrame(f, c);
@@ -74,6 +90,6 @@ export const seekToFrame = async ({
 		frame,
 		page,
 	});
-	await waitForReady(page);
+	await waitForReady({page, timeoutInMilliseconds, frame});
 	await page.evaluateHandle('document.fonts.ready');
 };

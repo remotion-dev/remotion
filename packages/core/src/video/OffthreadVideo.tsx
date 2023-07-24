@@ -58,11 +58,13 @@ export const OffthreadVideo: React.FC<
 		return <OffthreadVideoForRendering {...otherProps} />;
 	}
 
+	const {transparent, ...withoutTransparent} = otherProps;
+
 	return (
 		<VideoForDevelopment
 			onDuration={onDuration}
 			onlyWarnForMediaSeekingError
-			{...otherProps}
+			{...withoutTransparent}
 		/>
 	);
 };

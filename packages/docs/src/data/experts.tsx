@@ -9,6 +9,7 @@ export type Expert = {
   github: React.ReactNode;
   linkedin: React.ReactNode;
   email: React.ReactNode;
+  videocall: React.ReactNode;
   slug: string;
   since: number;
 };
@@ -22,6 +23,7 @@ export const experts: Expert[] = [
     github: "marcusstenbeck",
     linkedin: "in/mstenbeck/",
     email: "marcus.stenbeck+remotionexpert@gmail.com",
+    videocall: null,
     since: new Date("2022-08-15").getTime(),
     description: (
       <div>
@@ -52,6 +54,7 @@ export const experts: Expert[] = [
     github: "florentpergoud",
     linkedin: "in/florent-pergoud/",
     email: "florentpergoud@gmail.com",
+    videocall: null,
     since: new Date("2022-08-15").getTime(),
     description: (
       <div>
@@ -76,6 +79,7 @@ export const experts: Expert[] = [
     github: null,
     linkedin: "in/sterv/",
     email: "stephen@middy.com",
+    videocall: null,
     since: new Date("2022-08-15").getTime(),
     description: (
       <div>
@@ -96,6 +100,7 @@ export const experts: Expert[] = [
     github: "Just-Moh-it",
     linkedin: "in/just-moh-it/",
     email: "yo@mohitya.dev",
+    videocall: null,
     since: new Date("2022-08-15").getTime(),
     description: (
       <div>
@@ -120,6 +125,7 @@ export const experts: Expert[] = [
     github: "satelllte",
     linkedin: "in/satelllte/",
     email: "lunaerxs@gmail.com",
+    videocall: null,
     since: new Date("2022-09-16").getTime(),
 
     description: (
@@ -151,6 +157,7 @@ export const experts: Expert[] = [
     github: "BenjaminJameson",
     linkedin: null,
     email: "ben@captok.ai",
+    videocall: null,
     since: new Date("2022-11-03").getTime(),
     description: (
       <div>
@@ -174,6 +181,7 @@ export const experts: Expert[] = [
     linkedin: "in/karelnagel/",
     since: new Date("2022-08-22").getTime(),
     email: "karel@asius.ee",
+    videocall: null,
     description: (
       <div>
         I made:{" "}
@@ -193,6 +201,7 @@ export const experts: Expert[] = [
     github: "alexfernandez803",
     linkedin: "in/alex-f-17a5bb56/",
     email: "alex.frndz@gmail.com",
+    videocall: "remotion-expert-alex-fernandez",
     since: new Date("2022-12-02").getTime(),
     description: (
       <div>
@@ -210,6 +219,7 @@ export const experts: Expert[] = [
     github: "UmungoBungo",
     linkedin: "in/matthew-mcgillivray-68295a55",
     email: "m.mcgillivray@outlook.com",
+    videocall: "remotion-expert-matt-mcgillivray",
     since: new Date("2023-01-30").getTime(),
     description: (
       <div>
@@ -233,9 +243,10 @@ export const experts: Expert[] = [
     image: "/img/freelancers/ray.jpeg",
     website: null,
     twitter: "romrif",
-    github: null,
+    github: "rayBlock",
     linkedin: "in/raymond-lotmar/",
     email: "ray@blocklab.ch",
+    videocall: "remotion-expert-ray-lotmar",
     since: new Date("2023-01-30").getTime(),
     description: (
       <div>
@@ -258,6 +269,7 @@ export const experts: Expert[] = [
     github: "encho",
     linkedin: "in/lorenzobertolini/",
     email: "ciao@lorenzobertolini.com",
+    videocall: null,
     since: new Date("2023-03-14").getTime(),
     description: (
       <div>
@@ -288,6 +300,7 @@ export const experts: Expert[] = [
     github: "Slashgear",
     linkedin: "in/antoine-caron-slash/",
     email: "antoine395.caron+remotion@gmail.com",
+    videocall: null,
     since: new Date("2023-03-17").getTime(),
     description: (
       <div>
@@ -318,6 +331,7 @@ export const experts: Expert[] = [
     github: "CruuzAzul",
     linkedin: "in/mickaelalves/",
     email: "alves.mckl@gmail.com",
+    videocall: null,
     since: new Date("2023-03-17").getTime(),
     description: (
       <div>
@@ -348,6 +362,7 @@ export const experts: Expert[] = [
     github: "thecmdrunner",
     linkedin: "in/pranavk7/",
     email: "hey@pranava.dev",
+    videocall: null,
     since: new Date("2023-07-03").getTime(),
     description: (
       <div>
