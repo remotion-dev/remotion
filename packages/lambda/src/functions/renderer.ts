@@ -125,11 +125,8 @@ const renderHandler = async (
 			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
-				if (
-					renderedFrames % 5 === 0 &&
-					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
-				) {
-					console.log(
+				if (renderedFrames % 5 === 0) {
+					RenderInternals.Log.info(
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
 					);
 					writeLambdaInitializedFile({
@@ -140,9 +137,13 @@ const renderHandler = async (
 						framesRendered: renderedFrames,
 						renderId: params.renderId,
 					}).catch((err) => {
-						console.log(err);
+						console.log('Could not write progress', err);
 						return reject(err);
 					});
+				} else {
+					RenderInternals.Log.verbose(
+						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
+					);
 				}
 
 				const allFrames = RenderInternals.getFramesToRender(
@@ -325,8 +326,8 @@ export const rendererHandler = async (
 			);
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
-		const willRetry =
-			(isBrowserError || params.retriesLeft > 0) && !shouldNotRetry;
+		const isFatal = !isBrowserError;
+		const willRetry = !isFatal && params.retriesLeft > 0 && !shouldNotRetry;
 
 		console.log('Error occurred');
 		console.log(err);
@@ -339,7 +340,7 @@ export const rendererHandler = async (
 				chunk: params.chunk,
 				frame: null,
 				type: 'renderer',
-				isFatal: !isBrowserError,
+				isFatal,
 				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
 				attempt: params.attempt,
 				totalAttempts: params.retriesLeft + params.attempt,
