@@ -40,6 +40,8 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 	};
 };
 
+const REQUEST_CLOSED_TOKEN = 'Request closed';
+
 export const startOffthreadVideoServer = ({
 	downloadMap,
 	concurrency,
@@ -103,9 +105,19 @@ export const startOffthreadVideoServer = ({
 				return;
 			}
 
+			let closed = false;
+
+			req.on('close', () => {
+				closed = true;
+			});
+
 			let extractStart = Date.now();
 			downloadAsset({src, downloadMap})
 				.then((to) => {
+					if (closed) {
+						throw new Error(REQUEST_CLOSED_TOKEN);
+					}
+
 					extractStart = Date.now();
 					return compositor.executeCommand('ExtractFrame', {
 						input: to,
@@ -123,6 +135,10 @@ export const startOffthreadVideoServer = ({
 						);
 					}
 
+					if (closed) {
+						throw new Error(REQUEST_CLOSED_TOKEN);
+					}
+
 					if (!readable) {
 						throw new Error('no readable from ffmpeg');
 					}
@@ -135,7 +151,11 @@ export const startOffthreadVideoServer = ({
 					res.writeHead(500);
 					res.end();
 					downloadMap.emitter.dispatchError(err);
-					console.log('Error occurred', err);
+
+					// Any errors occurred due to the render being aborted don't need to be logged.
+					if (err.message !== REQUEST_CLOSED_TOKEN) {
+						console.log('Error occurred', err);
+					}
 				});
 		},
 		compositor,
