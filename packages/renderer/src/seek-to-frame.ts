@@ -21,7 +21,8 @@ export const waitForReady = ({
 			.mainFrame()
 			._mainWorld.waitForFunction({
 				browser: page.browser,
-				timeout: timeoutInMilliseconds,
+				// Increase timeout so the delayRender() timeout fires earlier
+				timeout: timeoutInMilliseconds + 3000,
 				pageFunction: 'window.remotion_renderReady === true',
 				title:
 					frame === null
@@ -55,7 +56,7 @@ export const waitForReady = ({
 						.then((res) => {
 							reject(
 								new Error(
-									`Timeout exceeded mounting the React component${
+									`Timeout exceeded rendering the component${
 										frame ? ' at frame ' + frame : ''
 									}. Open delayRender() handles: ${res.value}`
 								)
@@ -80,7 +81,7 @@ export const waitForReady = ({
 			.mainFrame()
 			._mainWorld.waitForFunction({
 				browser: page.browser,
-				timeout: timeoutInMilliseconds,
+				timeout: null,
 				pageFunction: 'window.remotion_cancelledError !== undefined',
 				title: 'remotion_cancelledError variable to appear on the page',
 				shouldClosePage: false,
