@@ -228,6 +228,7 @@ export const Index: React.FC = () => {
 								str: 'a'.repeat(140 * 1000),
 								date: new Date('2020-01-01'),
 								file: staticFile('nested/mp4.png'),
+								dontCareAboutSize: true,
 							},
 						};
 					}}
