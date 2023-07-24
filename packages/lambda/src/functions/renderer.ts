@@ -326,8 +326,8 @@ export const rendererHandler = async (
 			);
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
-		const willRetry =
-			(isBrowserError || params.retriesLeft > 0) && !shouldNotRetry;
+		const isFatal = !isBrowserError;
+		const willRetry = !isFatal && params.retriesLeft > 0 && !shouldNotRetry;
 
 		console.log('Error occurred');
 		console.log(err);
@@ -340,7 +340,7 @@ export const rendererHandler = async (
 				chunk: params.chunk,
 				frame: null,
 				type: 'renderer',
-				isFatal: !isBrowserError,
+				isFatal,
 				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
 				attempt: params.attempt,
 				totalAttempts: params.retriesLeft + params.attempt,
