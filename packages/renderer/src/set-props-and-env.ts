@@ -167,7 +167,7 @@ const innerSetPropsAndEnv = async ({
 		page,
 	});
 
-	const requiredVersion: typeof window.siteVersion = '8';
+	const requiredVersion: typeof window.siteVersion = '9';
 
 	if (siteVersion !== requiredVersion) {
 		throw new Error(
