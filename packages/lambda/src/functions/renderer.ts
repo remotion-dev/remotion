@@ -125,11 +125,8 @@ const renderHandler = async (
 			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
-				if (
-					renderedFrames % 5 === 0 &&
-					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
-				) {
-					console.log(
+				if (renderedFrames % 5 === 0) {
+					RenderInternals.Log.info(
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
 					);
 					writeLambdaInitializedFile({
@@ -140,9 +137,13 @@ const renderHandler = async (
 						framesRendered: renderedFrames,
 						renderId: params.renderId,
 					}).catch((err) => {
-						console.log(err);
+						console.log('Could not write progress', err);
 						return reject(err);
 					});
+				} else {
+					RenderInternals.Log.verbose(
+						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
+					);
 				}
 
 				const allFrames = RenderInternals.getFramesToRender(
