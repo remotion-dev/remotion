@@ -8,6 +8,7 @@ crumb: "Lambda CLI Reference"
 ---
 
 import { MinimumFramesPerLambda } from "../../../components/lambda/default-frames-per-lambda";
+import {AngleChangelog} from '../../../components/AngleChangelog';
 
 Using the `npx remotion lambda render` command, you can render a video in the cloud.
 
