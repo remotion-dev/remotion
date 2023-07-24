@@ -476,7 +476,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		const firstError = errors[0];
 		if (firstError.chunk !== null) {
 			throw new Error(
-				`Stopping Lambda function because error occurred while rendering chunk ${firstError.chunk}: ${errors[0].stack}`
+				`Stopping Lambda function because error occurred while rendering chunk ${
+					firstError.chunk
+				}:\n${errors[0].stack
+					.split('\n')
+					.map((s) => `   ${s}`)
+					.join('\n')}`
 			);
 		}
 
