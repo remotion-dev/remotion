@@ -125,7 +125,7 @@ export class DOMWorld {
 		shouldClosePage,
 	}: {
 		browser: HeadlessBrowser;
-		timeout: number;
+		timeout: number | null;
 		pageFunction: Function | string;
 		title: string;
 		shouldClosePage: boolean;
@@ -152,7 +152,7 @@ interface WaitTaskOptions {
 	domWorld: DOMWorld;
 	predicateBody: Function | string;
 	title: string;
-	timeout: number;
+	timeout: number | null;
 	browser: HeadlessBrowser;
 	args: SerializableOrJSHandle[];
 	shouldClosePage: boolean;
@@ -162,7 +162,7 @@ const noop = (): void => undefined;
 
 class WaitTask {
 	#domWorld: DOMWorld;
-	#timeout: number;
+	#timeout: number | null;
 	#predicateBody: string;
 	#args: SerializableOrJSHandle[];
 	#runCount = 0;
