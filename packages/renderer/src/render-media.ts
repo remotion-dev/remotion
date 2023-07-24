@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type {VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
-import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {type RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {AudioCodec} from './audio-codec';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -253,6 +253,7 @@ export const internalRenderMedia = ({
 	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
 	let preStitcher: Await<ReturnType<typeof prespawnFfmpeg>> | null = null;
 	let encodedFrames = 0;
+	let muxedFrames = 0;
 	let renderedFrames = 0;
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
@@ -355,15 +356,14 @@ export const internalRenderMedia = ({
 	const callUpdate = () => {
 		onProgress?.({
 			encodedDoneIn,
-			encodedFrames,
+			encodedFrames: Math.round(0.5 * encodedFrames + 0.5 * muxedFrames),
 			renderedDoneIn,
 			renderedFrames,
 			stitchStage,
 			progress:
 				Math.round(
-					((0.7 * renderedFrames + 0.3 * encodedFrames) /
-						composition.durationInFrames) *
-						100
+					(70 * renderedFrames + 15 * encodedFrames + 15 * muxedFrames) /
+						composition.durationInFrames
 				) / 100,
 		});
 	};
@@ -586,7 +586,12 @@ export const internalRenderMedia = ({
 						assetsInfo,
 						onProgress: (frame: number) => {
 							stitchStage = 'muxing';
-							encodedFrames = frame;
+							if (preEncodedFileLocation) {
+								muxedFrames = frame;
+							} else {
+								encodedFrames = frame;
+							}
+
 							callUpdate();
 						},
 						onDownload,
