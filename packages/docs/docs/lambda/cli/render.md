@@ -228,6 +228,22 @@ Results in invalid SSL certificates in Chrome, such as self-signed ones, being i
 
 This will most notably disable CORS in Chrome among other security features.
 
+### `--gl`
+
+<AngleChangelog />
+
+Select the OpenGL renderer backend for Chromium.
+Accepted values:
+
+- `"angle"`,
+- `"egl"`,
+- `"swiftshader"`
+- `"swangle"`
+- `null` - Chromium's default
+
+**Default for local rendering**: `null`.  
+**Default for Lambda rendering**: `"swangle"`.
+
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
