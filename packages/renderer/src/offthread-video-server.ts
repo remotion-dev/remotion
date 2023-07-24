@@ -73,35 +73,35 @@ export const startOffthreadVideoServer = ({
 			compositor.finishCommands();
 			return compositor.waitForDone();
 		},
-		listener: (req, res) => {
+		listener: (req, response) => {
 			if (!req.url) {
 				throw new Error('Request came in without URL');
 			}
 
 			if (!req.url.startsWith('/proxy')) {
-				res.writeHead(404);
-				res.end();
+				response.writeHead(404);
+				response.end();
 				return;
 			}
 
 			const {src, time, transparent} = extractUrlAndSourceFromUrl(req.url);
-			res.setHeader('access-control-allow-origin', '*');
+			response.setHeader('access-control-allow-origin', '*');
 			if (transparent) {
-				res.setHeader('content-type', `image/png`);
+				response.setHeader('content-type', `image/png`);
 			} else {
-				res.setHeader('content-type', `image/bmp`);
+				response.setHeader('content-type', `image/bmp`);
 			}
 
 			// Handling this case on Lambda:
 			// https://support.google.com/chrome/a/answer/7679408?hl=en
 			// Chrome sends Private Network Access preflights for subresources
 			if (req.method === 'OPTIONS') {
-				res.statusCode = 200;
+				response.statusCode = 200;
 				if (req.headers['access-control-request-private-network']) {
-					res.setHeader('Access-Control-Allow-Private-Network', 'true');
+					response.setHeader('Access-Control-Allow-Private-Network', 'true');
 				}
 
-				res.end();
+				response.end();
 				return;
 			}
 
@@ -126,30 +126,40 @@ export const startOffthreadVideoServer = ({
 					});
 				})
 				.then((readable) => {
-					const extractEnd = Date.now();
-					const timeToExtract = extractEnd - extractStart;
+					return new Promise<void>((resolve, reject) => {
+						if (closed) {
+							reject(Error(REQUEST_CLOSED_TOKEN));
+							return;
+						}
 
-					if (timeToExtract > 1000) {
-						Log.verbose(
-							`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`
-						);
-					}
+						if (!readable) {
+							reject(new Error('no readable from compositor'));
+							return;
+						}
 
-					if (closed) {
-						throw new Error(REQUEST_CLOSED_TOKEN);
-					}
+						const extractEnd = Date.now();
+						const timeToExtract = extractEnd - extractStart;
 
-					if (!readable) {
-						throw new Error('no readable from ffmpeg');
-					}
+						if (timeToExtract > 1000) {
+							Log.verbose(
+								`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`
+							);
+						}
 
-					res.writeHead(200);
-					res.write(readable);
-					res.end();
+						response.writeHead(200);
+						response.write(readable, (err) => {
+							response.end();
+							if (err) {
+								reject(err);
+							} else {
+								resolve();
+							}
+						});
+					});
 				})
 				.catch((err) => {
-					res.writeHead(500);
-					res.end();
+					response.writeHead(500);
+					response.end();
 					downloadMap.emitter.dispatchError(err);
 
 					// Any errors occurred due to the render being aborted don't need to be logged.
