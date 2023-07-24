@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import type {VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
-import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {type RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import type {AudioCodec} from './audio-codec';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
@@ -360,11 +360,11 @@ export const internalRenderMedia = ({
 			renderedDoneIn,
 			renderedFrames,
 			stitchStage,
-			progress: Math.round(
-				(70 * renderedFrames + 15 * encodedFrames + 15 * muxedFrames) /
-					100 /
-					composition.durationInFrames
-			),
+			progress:
+				Math.round(
+					(70 * renderedFrames + 15 * encodedFrames + 15 * muxedFrames) /
+						composition.durationInFrames
+				) / 100,
 		});
 	};
 
