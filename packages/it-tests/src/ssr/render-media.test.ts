@@ -118,3 +118,27 @@ test("Render video to a buffer", async () => {
 
   expect(buffer?.length).toBeGreaterThan(2000);
 });
+
+test("Should fail invalid serve URL", async () => {
+  try {
+    await renderMedia({
+      codec: "h264",
+      serveUrl:
+        "https://remotionlambda-gc1w0xbfzl.s3.eu-central-1.amazonaws.com/sites/Ignition-SessionResultStoryVideo/index.html",
+      composition: {
+        defaultProps: {},
+        durationInFrames: 10,
+        fps: 30,
+        height: 1080,
+        id: "hitehre",
+        width: 1080,
+        props: {},
+      },
+    });
+  } catch (err) {
+    expect((err as Error).message).toMatch(/Error while getting compositions/);
+    return;
+  }
+
+  throw new Error("should have failed");
+});

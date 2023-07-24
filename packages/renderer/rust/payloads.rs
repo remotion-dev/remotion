@@ -85,12 +85,33 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
+    pub enum KnownCodecs {
+        #[serde(rename = "h264")]
+        H264,
+        #[serde(rename = "h265")]
+        H265,
+        #[serde(rename = "vp8")]
+        Vp8,
+        #[serde(rename = "vp9")]
+        Vp9,
+        #[serde(rename = "av1")]
+        Av1,
+        #[serde(rename = "prores")]
+        ProRes,
+        #[serde(rename = "unknown")]
+        Unknown,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
     #[allow(non_snake_case)]
     pub struct VideoMetadata {
         pub fps: i32,
         pub width: u32,
         pub height: u32,
         pub durationInSeconds: f64,
+        pub codec: KnownCodecs,
+        pub canPlayInVideoTag: bool,
+        pub supportsSeeking: bool,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

@@ -297,7 +297,12 @@ const innerRenderStill = async ({
 		frame: null,
 		page,
 	});
-	await seekToFrame({frame: stillFrame, page, composition: composition.id});
+	await seekToFrame({
+		frame: stillFrame,
+		page,
+		composition: composition.id,
+		timeoutInMilliseconds,
+	});
 
 	const {buffer} = await takeFrameAndCompose({
 		frame: stillFrame,

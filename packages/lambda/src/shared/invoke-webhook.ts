@@ -1,3 +1,4 @@
+import {RenderInternals} from '@remotion/renderer';
 import https from 'https';
 import * as Crypto from 'node:crypto';
 import http from 'node:http';
@@ -65,16 +66,19 @@ export const mockableHttpClients = {
 	https: https.request,
 };
 
-export function invokeWebhook({
-	payload,
-	secret,
-	url,
-}: {
+type InvokeWebhookOptions = {
 	payload: WebhookPayload;
 	url: string;
 	secret: string | null;
-}) {
+};
+
+function invokeWebhookRaw({
+	payload,
+	secret,
+	url,
+}: InvokeWebhookOptions): Promise<void> {
 	const jsonPayload = JSON.stringify(payload);
+
 	return new Promise<void>((resolve, reject) => {
 		const req = getWebhookClient(url)(
 			url,
@@ -112,3 +116,33 @@ export function invokeWebhook({
 		req.end();
 	});
 }
+
+function exponentialBackoff(errorCount: number): number {
+	return 1000 * 2 ** (errorCount - 1);
+}
+
+export const invokeWebhook = async (
+	options: InvokeWebhookOptions,
+	retries = 2,
+	errors = 0
+): Promise<void> => {
+	try {
+		await invokeWebhookRaw(options);
+	} catch (err) {
+		if (retries === 0) {
+			throw err;
+		}
+
+		RenderInternals.Log.error('Could not send webhook due to error:');
+		RenderInternals.Log.error((err as Error).stack);
+		RenderInternals.Log.error(`Retrying in ${exponentialBackoff(errors)}ms.`);
+
+		await new Promise<void>((resolve) => {
+			setTimeout(() => {
+				resolve();
+			}, exponentialBackoff(errors));
+		});
+
+		return invokeWebhook(options, retries - 1, errors + 1);
+	}
+};
