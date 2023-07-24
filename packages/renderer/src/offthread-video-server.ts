@@ -114,15 +114,20 @@ export const startOffthreadVideoServer = ({
 			let extractStart = Date.now();
 			downloadAsset({src, downloadMap})
 				.then((to) => {
-					if (closed) {
-						throw new Error(REQUEST_CLOSED_TOKEN);
-					}
+					return new Promise<Buffer>((resolve, reject) => {
+						if (closed) {
+							reject(Error(REQUEST_CLOSED_TOKEN));
+							return;
+						}
 
-					extractStart = Date.now();
-					return compositor.executeCommand('ExtractFrame', {
-						input: to,
-						time,
-						transparent,
+						extractStart = Date.now();
+						resolve(
+							compositor.executeCommand('ExtractFrame', {
+								input: to,
+								time,
+								transparent,
+							})
+						);
 					});
 				})
 				.then((readable) => {
@@ -160,10 +165,10 @@ export const startOffthreadVideoServer = ({
 				.catch((err) => {
 					response.writeHead(500);
 					response.end();
-					downloadMap.emitter.dispatchError(err);
 
 					// Any errors occurred due to the render being aborted don't need to be logged.
 					if (err.message !== REQUEST_CLOSED_TOKEN) {
+						downloadMap.emitter.dispatchError(err);
 						console.log('Error occurred', err);
 					}
 				});
