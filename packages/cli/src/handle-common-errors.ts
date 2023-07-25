@@ -37,9 +37,11 @@ export const handleCommonError = async (err: Error, logLevel: LogLevel) => {
 
 	if (err.message.includes('Error creating WebGL context')) {
 		Log.info();
-		Log.warn('💡 You might need to set the OpenGL renderer to "angle"');
 		Log.warn(
-			'💡 Get help for this issue at https://www.remotion.dev/docs/three'
+			'💡 You might need to set the OpenGL renderer to "angle" (or "swangle" if rendering on lambda). Learn why at https://www.remotion.dev/docs/three'
+		);
+		Log.warn(
+			"💡 Check how it's done at https://www.remotion.dev/docs/chromium-flags#--gl"
 		);
 	}
 
