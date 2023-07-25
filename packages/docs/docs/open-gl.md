@@ -18,7 +18,8 @@ Renderer backends supported in Remotion:
 
 ## Default renderers
 
-For local renders, the default renderer is set to <code>null</code>, for renders in Lambda, the default is set to <code>"swangle"</code>
+For local renders, the default renderer is set to <code>null</code>,
+for renders in Lambda, the default is set to <code>"swangle"</code>
 
 ## Selecting the renderer backend
 
@@ -39,7 +40,7 @@ import { Config } from "@remotion/cli/config";
 
 // ---cut---
 
-Config.setChromiumOpenGlRenderer("swiftshader");
+Config.setChromiumOpenGlRenderer("angle");
 ```
 
 :::note
@@ -50,10 +51,11 @@ The renderer backend can be set in the <code>remotion.config.ts</code>, via CLI 
 
 ## Using the GPU
 
-In cases where a GPU could be beneficial for rendering, it makes oftentimes sense to use the "angle" renderer. An in-depth explenation is given in this article: [Using the GPU](/docs/gpu)
+In cases where a GPU could be beneficial for rendering, it can often make sense to use the "angle" renderer. An in-depth explenation is given in this article: [Using the GPU](/docs/gpu). Note that we recommend to split the render up in multiple parts when rendering large videos while using "angle", since sometimes renders can fail due to memory leaks.
+It's also worth mentioning, that currently github acctions will fail when "angle" is used, since actions don't have a GPU. Unfortunately, there is currently no work around.
+
+##
 
 ## The "angle" alternative if there is no GPU available
 
 If you are rendering in an environment which has no GPU, the "angle" renderer can't be used and "swangle" should be utilized instead.
-
-##
