@@ -112,7 +112,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				return;
 			}
 
-			const newHandle = delayRender('Loading <Img> with src=' + src);
+			const newHandle = delayRender('Loading <Img> with src=' + actualSrc);
 			const {current} = imageRef;
 
 			const onComplete = () => {
@@ -143,7 +143,7 @@ const ImgRefForwarding: React.ForwardRefRenderFunction<
 				current?.removeEventListener('load', didLoad);
 				continueRender(newHandle);
 			};
-		}, [src]);
+		}, [actualSrc]);
 	}
 
 	return (

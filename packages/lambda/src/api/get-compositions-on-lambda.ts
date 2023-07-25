@@ -5,8 +5,8 @@ import type {AwsRegion} from '../client';
 import {LambdaRoutines} from '../defaults';
 import {callLambda} from '../shared/call-lambda';
 import {
-	getNeedsToUpload,
 	compressInputProps,
+	getNeedsToUpload,
 	serializeOrThrow,
 } from '../shared/compress-props';
 
@@ -60,7 +60,9 @@ export const getCompositionsOnLambda = async ({
 		region,
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
-		needsToUpload: getNeedsToUpload('video-or-audio', stringifiedInputProps),
+		needsToUpload: getNeedsToUpload('video-or-audio', [
+			stringifiedInputProps.length,
+		]),
 	});
 
 	try {
@@ -78,6 +80,8 @@ export const getCompositionsOnLambda = async ({
 				bucketName: bucketName ?? null,
 			},
 			region,
+			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
 		});
 		return res.compositions;
 	} catch (err) {

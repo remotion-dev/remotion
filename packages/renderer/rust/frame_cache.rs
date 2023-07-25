@@ -27,6 +27,7 @@ pub struct FrameCacheReference {
     pub id: usize,
     pub last_used: u128,
     pub src: String,
+    pub original_src: String,
     pub transparent: bool,
 }
 
@@ -47,6 +48,7 @@ impl FrameCache {
     pub fn get_references(
         &self,
         src: String,
+        original_src: String,
         transparent: bool,
     ) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
         let mut references: Vec<FrameCacheReference> = Vec::new();
@@ -55,6 +57,7 @@ impl FrameCache {
                 id: item.id,
                 last_used: item.last_used,
                 src: src.clone(),
+                original_src: original_src.clone(),
                 transparent,
             });
         }
@@ -178,10 +181,7 @@ impl FrameCache {
             }
         }
 
-        let has_pts_before = self.items.iter().any(|item| item.resolved_pts <= time);
-        let has_pts_after = self.items.iter().any(|item| item.resolved_pts >= time);
-
-        if best_distance > threshold && (!has_pts_after || !has_pts_before) {
+        if best_distance > threshold {
             return Ok(None);
         }
 

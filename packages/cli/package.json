@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/cli",
-	"version": "4.0.4",
+	"version": "4.0.10",
 	"description": "CLI for Remotion",
 	"main": "dist/index.js",
 	"sideEffects": false,
@@ -68,7 +68,7 @@
 		"eslint-plugin-react": "7.32.2",
 		"eslint-plugin-react-hooks": "4.4.0",
 		"prettier": "^2.7.1",
-		"prettier-plugin-organize-imports": "^2.3.4",
+		"prettier-plugin-organize-imports": "^3.2.2",
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
 		"typescript": "4.9.5",

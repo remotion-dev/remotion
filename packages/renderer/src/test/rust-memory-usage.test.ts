@@ -15,7 +15,8 @@ test('Memory usage should be determined ', async () => {
 	).toBeLessThan(10 * 1024 * 1024);
 
 	await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
+		original_src: exampleVideos.bigBuckBunny,
 		time: 3.333,
 		transparent: false,
 	});
@@ -23,13 +24,14 @@ test('Memory usage should be determined ', async () => {
 	const stats = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson = JSON.parse(stats.toString('utf-8'));
 	expect(statsJson).toEqual({
-		frames_in_cache: 249,
+		frames_in_cache: 84,
 		open_streams: 1,
 		open_videos: 1,
 	});
 
 	await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.framerWithoutFileExtension,
+		src: exampleVideos.framerWithoutFileExtension,
+		original_src: exampleVideos.framerWithoutFileExtension,
 		time: 3.333,
 		transparent: false,
 	});
@@ -37,7 +39,7 @@ test('Memory usage should be determined ', async () => {
 	const stats2 = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson2 = JSON.parse(stats2.toString('utf-8'));
 	expect(statsJson2).toEqual({
-		frames_in_cache: 349,
+		frames_in_cache: 184,
 		open_streams: 2,
 		open_videos: 2,
 	});
@@ -48,7 +50,7 @@ test('Memory usage should be determined ', async () => {
 
 	const stats3 = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson3 = JSON.parse(stats3.toString('utf-8'));
-	expect(statsJson3.frames_in_cache).toBe(174);
+	expect(statsJson3.frames_in_cache).toBe(92);
 
 	await compositor.executeCommand('FreeUpMemory', {
 		percent_of_memory: 0.5,
@@ -57,7 +59,7 @@ test('Memory usage should be determined ', async () => {
 	const stats4 = await compositor.executeCommand('GetOpenVideoStats', {});
 	const statsJson4 = JSON.parse(stats4.toString('utf-8'));
 	expect(statsJson4).toEqual({
-		frames_in_cache: 87,
+		frames_in_cache: 46,
 		open_streams: 1,
 		open_videos: 1,
 	});
@@ -82,7 +84,8 @@ test('Memory usage should be determined ', async () => {
 	).toBeLessThan(40 * 1024 * 1024);
 
 	await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.framerWithoutFileExtension,
+		src: exampleVideos.framerWithoutFileExtension,
+		original_src: exampleVideos.framerWithoutFileExtension,
 		time: 3.333,
 		transparent: false,
 	});
@@ -92,7 +95,8 @@ test('Should respect the maximum frame cache limit', async () => {
 	const compositor = startLongRunningCompositor(50, 'info', false);
 
 	await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
+		original_src: exampleVideos.bigBuckBunny,
 		time: 3.333,
 		transparent: false,
 	});
@@ -118,7 +122,8 @@ test('Should be able to take commands for freeing up memory', async () => {
 	).toBeLessThan(10 * 1024 * 1024);
 
 	await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
+		original_src: exampleVideos.bigBuckBunny,
 		time: 3.333,
 		transparent: false,
 	});

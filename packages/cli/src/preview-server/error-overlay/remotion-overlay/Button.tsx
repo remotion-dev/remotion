@@ -3,7 +3,6 @@ import {
 	INPUT_BACKGROUND,
 	INPUT_BORDER_COLOR_UNHOVERED,
 } from '../../../editor/helpers/colors';
-
 const button: React.CSSProperties = {
 	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
 	borderRadius: 4,
@@ -13,7 +12,6 @@ const button: React.CSSProperties = {
 	fontSize: 14,
 	color: 'white',
 	flexDirection: 'row',
-	display: 'flex',
 };
 
 const ButtonRefForwardFunction: React.ForwardRefRenderFunction<

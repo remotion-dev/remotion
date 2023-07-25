@@ -134,6 +134,7 @@ module.exports = {
         "renderer/ensure-ffmpeg",
         "renderer/ensure-ffprobe",
         "renderer/get-can-extract-frames-fast",
+        "renderer/get-video-metadata",
       ],
     },
     {
@@ -589,6 +590,7 @@ module.exports = {
         "staticfile-relative-paths",
         "staticfile-remote-urls",
         "troubleshooting/background-image",
+        "troubleshooting/nextjs-image",
         "troubleshooting/rosetta",
         "troubleshooting/loading-root-component",
         "troubleshooting/defaultprops-too-big",

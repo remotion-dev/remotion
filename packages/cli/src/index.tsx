@@ -50,8 +50,11 @@ export const cli = async () => {
 		await validateVersionsBeforeCommand(remotionRoot);
 	}
 
-	const errorSymbolicationLock =
-		RenderInternals.registerErrorSymbolicationLock();
+	const isStudio = command === 'studio' || command === 'preview';
+
+	const errorSymbolicationLock = isStudio
+		? 0
+		: RenderInternals.registerErrorSymbolicationLock();
 
 	handleCtrlC();
 
@@ -60,7 +63,7 @@ export const cli = async () => {
 	try {
 		if (command === 'compositions') {
 			await listCompositionsCommand(remotionRoot, args);
-		} else if (command === 'preview' || command === 'studio') {
+		} else if (isStudio) {
 			await studioCommand(remotionRoot, args);
 		} else if (command === 'lambda') {
 			await lambdaCommand(remotionRoot, args);

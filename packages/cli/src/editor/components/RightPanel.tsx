@@ -8,8 +8,10 @@ import React, {
 } from 'react';
 import type {AnyComposition} from 'remotion';
 import {Internals} from 'remotion';
-import {BACKGROUND} from '../helpers/colors';
+import {cmdOrCtrlCharacter} from '../../preview-server/error-overlay/remotion-overlay/ShortcutHint';
+import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {DataEditor} from './RenderModal/DataEditor';
+import {deepEqual} from './RenderModal/SchemaEditor/deep-equal';
 import {RenderQueue} from './RenderQueue';
 import {RendersTab} from './RendersTab';
 import {Tab, Tabs} from './Tabs';
@@ -22,41 +24,10 @@ const container: React.CSSProperties = {
 	flexDirection: 'column',
 };
 
-const PropsEditor: React.FC<{
-	composition: AnyComposition;
-}> = ({composition}) => {
-	const {props, updateProps} = useContext(Internals.EditorPropsContext);
-
-	const setInputProps = useCallback(
-		(
-			newProps:
-				| Record<string, unknown>
-				| ((oldProps: Record<string, unknown>) => Record<string, unknown>)
-		) => {
-			updateProps({
-				id: composition.id,
-				defaultProps: composition.defaultProps as Record<string, unknown>,
-				newProps,
-			});
-		},
-		[composition.defaultProps, composition.id, updateProps]
-	);
-
-	const actualProps = useMemo(
-		() => props[composition.id] ?? composition.defaultProps ?? {},
-		[composition.defaultProps, composition.id, props]
-	);
-
-	return (
-		<DataEditor
-			key={composition.id}
-			unresolvedComposition={composition}
-			inputProps={actualProps}
-			setInputProps={setInputProps}
-			mayShowSaveButton
-			propsEditType="default-props"
-		/>
-	);
+const circle: React.CSSProperties = {
+	width: 8,
+	height: 8,
+	borderRadius: 4,
 };
 
 type SidebarPanel = 'input-props' | 'renders';
@@ -85,6 +56,8 @@ export const rightSidebarTabs = createRef<{
 }>();
 
 export const RightPanel: React.FC<{}> = () => {
+	const {props, updateProps} = useContext(Internals.EditorPropsContext);
+	const [saving, setSaving] = useState(false);
 	const [panel, setPanel] = useState<SidebarPanel>(() => getSelectedPanel());
 	const onCompositionsSelected = useCallback(() => {
 		setPanel('input-props');
@@ -112,6 +85,15 @@ export const RightPanel: React.FC<{}> = () => {
 	const {compositions, currentComposition} = useContext(
 		Internals.CompositionManager
 	);
+	const circleStyle = useMemo((): React.CSSProperties => {
+		const onTabColor = saving ? LIGHT_TEXT : 'white';
+
+		return {
+			...circle,
+			backgroundColor: panel === 'input-props' ? onTabColor : LIGHT_TEXT,
+			cursor: 'help',
+		};
+	}, [panel, saving]);
 
 	const composition = useMemo((): AnyComposition | null => {
 		for (const comp of compositions) {
@@ -122,6 +104,47 @@ export const RightPanel: React.FC<{}> = () => {
 
 		return null;
 	}, [compositions, currentComposition]);
+
+	const saveToolTip = useMemo(() => {
+		return process.env.KEYBOARD_SHORTCUTS_ENABLED
+			? `Save using ${cmdOrCtrlCharacter}+S`
+			: 'There are unsaved changes';
+	}, []);
+
+	const setInputProps = useCallback(
+		(
+			newProps:
+				| Record<string, unknown>
+				| ((oldProps: Record<string, unknown>) => Record<string, unknown>)
+		) => {
+			if (composition === null) {
+				return;
+			}
+
+			updateProps({
+				id: composition.id,
+				defaultProps: composition.defaultProps as Record<string, unknown>,
+				newProps,
+			});
+		},
+		[composition, updateProps]
+	);
+
+	const actualProps = useMemo(() => {
+		if (composition === null) {
+			return {};
+		}
+
+		return props[composition.id] ?? composition.defaultProps ?? {};
+	}, [composition, props]);
+
+	const unsavedChangesExist = useMemo(() => {
+		if (composition === null || composition.defaultProps === undefined) {
+			return false;
+		}
+
+		return !deepEqual(composition.defaultProps, actualProps);
+	}, [actualProps, composition]);
 
 	if (composition === null) {
 		return null;
@@ -134,8 +157,12 @@ export const RightPanel: React.FC<{}> = () => {
 					<Tab
 						selected={panel === 'input-props'}
 						onClick={onCompositionsSelected}
+						style={{justifyContent: 'space-between'}}
 					>
 						Props
+						{unsavedChangesExist ? (
+							<div title={saveToolTip} style={circleStyle} />
+						) : null}
 					</Tab>
 					<RendersTab
 						onClick={onRendersSelected}
@@ -146,7 +173,16 @@ export const RightPanel: React.FC<{}> = () => {
 			{panel === 'renders' ? (
 				<RenderQueue />
 			) : (
-				<PropsEditor composition={composition} />
+				<DataEditor
+					key={composition.id}
+					unresolvedComposition={composition}
+					inputProps={actualProps}
+					setInputProps={setInputProps}
+					mayShowSaveButton
+					propsEditType="default-props"
+					saving={saving}
+					setSaving={setSaving}
+				/>
 			)}
 		</div>
 	);

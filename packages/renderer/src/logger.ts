@@ -75,6 +75,21 @@ export const Log = {
 			return console.error(...args.map((a) => chalk.red(a)));
 		}
 	},
+	errorAdvanced: (
+		options: VerboseLogOptions,
+		...args: Parameters<typeof console.log>
+	) => {
+		if (isEqualOrBelowLogLevel(getLogLevel(), 'error')) {
+			return console.log(
+				...[
+					options.indent ? INDENT_TOKEN : null,
+					options.tag ? verboseTag(options.tag) : null,
+				]
+					.filter(truthy)
+					.concat(args.map((a) => chalk.red(a)))
+			);
+		}
+	},
 };
 
 let logLevel: LogLevel = 'info';

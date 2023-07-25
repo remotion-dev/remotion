@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
@@ -6,7 +7,6 @@ import {getCliOptions} from './get-cli-options';
 import {Log} from './log';
 import {printCompositions} from './print-compositions';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
-import {Internals} from 'remotion';
 
 export const listCompositionsCommand = async (
 	remotionRoot: string,
