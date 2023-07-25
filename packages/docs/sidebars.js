@@ -592,6 +592,7 @@ module.exports = {
         "miscellaneous/vercel-functions",
         "miscellaneous/render-on-edge",
         "compare/motion-canvas",
+        "gl-options",
       ],
     },
     {
