@@ -14,10 +14,7 @@ import {BACKGROUND, BORDER_COLOR, LIGHT_TEXT} from '../../helpers/colors';
 import {useZodIfPossible} from '../get-zod-if-possible';
 import {Flex, Spacing} from '../layout';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
-import {
-	notificationCenter,
-	sendErrorNotification,
-} from '../Notifications/NotificationCenter';
+import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import {
 	canUpdateDefaultProps,
 	updateDefaultProps,
@@ -301,7 +298,7 @@ export const DataEditor: React.FC<{
 
 	useEffect(() => {
 		setSaving(false);
-	}, [fastRefreshes]);
+	}, [fastRefreshes, setSaving]);
 
 	const onSave = useCallback(
 		(
@@ -319,14 +316,7 @@ export const DataEditor: React.FC<{
 				extractEnumJsonPaths(schema, z, [])
 			)
 				.then((response) => {
-					if (response.success) {
-						notificationCenter.current?.addNotification({
-							content: 'Default props saved',
-							duration: 2000,
-							created: Date.now(),
-							id: String(Math.random()).replace('0.', ''),
-						});
-					} else {
+					if (!response.success) {
 						console.log(response.stack);
 						sendErrorNotification(
 							`Cannot update default props: ${response.reason}. See console for more information.`
@@ -338,7 +328,13 @@ export const DataEditor: React.FC<{
 					setSaving(false);
 				});
 		},
-		[unresolvedComposition.defaultProps, unresolvedComposition.id, schema, z]
+		[
+			schema,
+			z,
+			setSaving,
+			unresolvedComposition.id,
+			unresolvedComposition.defaultProps,
+		]
 	);
 
 	const connectionStatus = useContext(StudioServerConnectionCtx).type;
