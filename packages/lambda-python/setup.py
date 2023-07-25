@@ -16,10 +16,10 @@ setuptools.setup(
     classifiers=[
 
     ],
-    long_description="",
+    long_description="Remotion is a framework for creating videos programmatically using React.",
     packages=setuptools.find_packages(),
     python_requires='>=3.6',
     # Name of the python package
-    py_modules=["remotion-lambda-sdk"],
+    py_modules=["remotion-lambda"],
 
 )
