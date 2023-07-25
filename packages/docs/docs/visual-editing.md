@@ -6,6 +6,15 @@ sidebar_label: Visual editing
 crumb: "How To"
 ---
 
+import { YouTube } from "../components/YouTube";
+
+<YouTube
+  minutes={6}
+  href="https://www.youtube.com/watch?v=NX9YTOsLGpQ"
+  thumb="https://i.ytimg.com/vi/NX9YTOsLGpQ/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG\u0026rs=AOn4CLAncEPlNi-cMtDwSB6Q7-Ui8Oh7Ow"
+  title="Visual editing"
+/>
+
 To edit props visually, first register a [`schema`](/docs/composition#schema) with your [`<Composition>`](/docs/composition).
 
 ## Opening the props editor
