@@ -3,3 +3,4 @@ import {webpackOverride} from './src/webpack-override';
 
 Config.setOverwriteOutput(true);
 Config.overrideWebpackConfig(webpackOverride);
+Config.setChromiumOpenGlRenderer('angle');
