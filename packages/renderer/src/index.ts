@@ -68,8 +68,8 @@ import {
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {
 	DEFAULT_OPENGL_RENDERER,
-	validOpenGlRenderers,
 	validateOpenGlRenderer,
+	validOpenGlRenderers,
 } from './validate-opengl-renderer';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
