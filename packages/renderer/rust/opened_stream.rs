@@ -139,14 +139,17 @@ impl OpenedStream {
         threshold: i64,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
-        let mut last_seek_position = self.duration_or_zero.min(position);
+        let mut last_seek_position = match self.duration_or_zero {
+            0 => position,
+            _ => self.duration_or_zero.min(position),
+        };
         _print_verbose(&format!(
             "last seek {} position {}",
             last_seek_position, position
         ))?;
 
         if position < self.last_position
-            || self.last_position < calc_position(time - 1.0, time_base)
+            || self.last_position < calc_position(time - 3.0, time_base)
         {
             _print_verbose(&format!(
                 "Seeking to {} from dts = {}, duration = {}",
@@ -160,9 +163,13 @@ impl OpenedStream {
         let mut last_frame_received: Option<usize> = None;
         let mut break_on_next_keyframe = false;
         let mut last_was_keyframe = false;
+        let mut found_but_forward_seek: Option<u8> = None;
 
         loop {
             if break_on_next_keyframe && last_was_keyframe {
+                break;
+            }
+            if found_but_forward_seek.is_some() && found_but_forward_seek.unwrap() == 0 {
                 break;
             }
             if last_frame_received.is_some() {
@@ -172,8 +179,11 @@ impl OpenedStream {
                     .get_item_id(position, threshold)?;
                 if matching.is_some() {
                     // Often times there is another package coming with a lower DTS,
-                    // so we receive one more packet
+                    // so we receive up to 4 more packets
                     break_on_next_keyframe = true;
+                    if found_but_forward_seek.is_none() {
+                        found_but_forward_seek = Some(4);
+                    }
                 }
             }
 
@@ -198,6 +208,10 @@ impl OpenedStream {
 
             if stream.parameters().medium() != Type::Video {
                 continue;
+            }
+
+            if found_but_forward_seek.is_some() {
+                found_but_forward_seek = Some(found_but_forward_seek.unwrap() - 1);
             }
 
             _print_verbose(&format!(
