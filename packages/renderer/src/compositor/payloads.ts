@@ -52,7 +52,8 @@ export type CompositorCommand = {
 		output_format: CompositorImageFormat;
 	};
 	ExtractFrame: {
-		input: string;
+		src: string;
+		original_src: string;
 		time: number;
 		transparent: boolean;
 	};

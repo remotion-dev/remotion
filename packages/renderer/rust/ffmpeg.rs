@@ -37,11 +37,12 @@ pub fn keep_only_latest_frames(frames: usize) -> Result<(), ErrorWithBacktrace> 
 
 pub fn extract_frame(
     src: String,
+    original_src: String,
     time: f64,
     transparent: bool,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
-    let video_locked = manager.get_video(&src, transparent)?;
+    let video_locked = manager.get_video(&src, &original_src, transparent)?;
     let mut vid = video_locked.lock()?;
 
     // The requested position in the video.
