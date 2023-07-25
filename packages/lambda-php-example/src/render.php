@@ -1,4 +1,5 @@
 <?php
+use Aws\Credentials\CredentialProvider;
 
 // We'll assume you use Composer, which will add autoload.php
 require_once dirname(__DIR__) . '/vendor/autoload.php';
@@ -8,7 +9,8 @@ use Remotion\LambdaPhp\PHPClient;
 use Remotion\LambdaPhp\RenderParams;
 
 // Load environment variables
-$dotenv = Dotenv::createImmutable(__DIR__);
+// Use "unsafe" because AWS reads environment variables from getenv(), not $_ENV
+$dotenv = Dotenv::createUnsafeImmutable(__DIR__);
 $dotenv->load();
 
 // Specify the region you deployed to, for example "us-east-1"
@@ -18,8 +20,11 @@ $functionName = $_ENV['REMOTION_APP_FUNCTION_NAME'];
 // Specify the URL to your Webpack bundle
 $serveUrl = $_ENV['REMOTION_APP_SERVE_URL'];
 
+
+$provider = CredentialProvider::defaultProvider();
+
 // Instantiate the client
-$client = new PHPClient($region, $serveUrl, $functionName, null);
+$client = new PHPClient($region, $serveUrl, $functionName, $provider);
 
 // Initiate the param object and customize as needed
 $params = new RenderParams();
