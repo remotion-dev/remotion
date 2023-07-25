@@ -630,7 +630,7 @@ class RenderParams
      *
      * @return  self
      */
-    public function setServerUrl($serverUrl)
+    public function setServeUrl($serverUrl)
     {
         $this->serverUrl = $serverUrl;
 
