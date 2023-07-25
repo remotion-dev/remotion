@@ -1,12 +1,12 @@
 <?php
 namespace Remotion\LambdaPhp;
 
+use Aws\Credentials\CredentialProvider;
 use Aws\Lambda\LambdaClient;
 use Exception;
 use stdClass;
 
 require_once __DIR__ . '/Version.php';
-use VERSION;
 
 class PHPClient
 {
@@ -15,10 +15,10 @@ class PHPClient
     private $serveUrl;
     private $functionName;
 
-    public function __construct(string $region, string $serveUrl, string $functionName,  ? array $credential)
+    public function __construct(string $region, string $serveUrl, string $functionName,  ? callable $credential)
     {
-        $this->client = LambdaClient::factory([
-            'version' => 'latest',
+        $this->client = new LambdaClient([
+            'version' => '2015-03-31',
             'region' => $region,
             'credentials' => $credential,
         ]);
