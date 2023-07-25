@@ -319,17 +319,22 @@ export const rendererHandler = async (
 
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isBrowserError =
+		const isRetryableError =
 			(err as Error).message.includes('FATAL:zygote_communication_linux.cc') ||
 			(err as Error).message.includes(
 				'error while loading shared libraries: libnss3.so'
+			) ||
+			(err as Error).message.includes('but the server sent no data') ||
+			(err as Error).message.includes(
+				'Timed out while setting up the headless browser'
 			);
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
-		const isFatal = !isBrowserError;
-		const willRetry = !isFatal && params.retriesLeft > 0 && !shouldNotRetry;
+		const isFatal = !isRetryableError;
+		const willRetry =
+			isRetryableError && params.retriesLeft > 0 && !shouldNotRetry;
 
-		console.log('Error occurred');
+		console.log(`Error occurred (will retry = ${String(willRetry)})`);
 		console.log(err);
 		await writeLambdaError({
 			bucketName: params.bucketName,
