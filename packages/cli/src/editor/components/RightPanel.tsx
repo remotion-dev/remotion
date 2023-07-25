@@ -107,7 +107,7 @@ export const RightPanel: React.FC<{}> = () => {
 
 	const saveToolTip = useMemo(() => {
 		return process.env.KEYBOARD_SHORTCUTS_ENABLED
-			? `Save by using ${cmdOrCtrlCharacter}+S`
+			? `Save using ${cmdOrCtrlCharacter}+S`
 			: 'There are unsaved changes';
 	}, []);
 
