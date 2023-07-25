@@ -10,7 +10,7 @@ export type SerializedJSONWithCustomFields = {
 	setUsed: boolean;
 };
 
-const DATE_TOKEN = 'remotion-date:';
+export const DATE_TOKEN = 'remotion-date:';
 export const FILE_TOKEN = 'remotion-file:';
 
 export const serializeJSONWithDate = ({

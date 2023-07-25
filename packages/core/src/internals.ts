@@ -31,6 +31,7 @@ import {
 } from './get-preview-dom-element.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {
+	DATE_TOKEN,
 	deserializeJSONWithCustomFields,
 	FILE_TOKEN,
 	serializeJSONWithDate,
@@ -153,6 +154,7 @@ export const Internals = {
 	serializeJSONWithDate,
 	deserializeJSONWithCustomFields,
 	FILE_TOKEN,
+	DATE_TOKEN,
 	NativeLayersProvider,
 	ClipComposition,
 } as const;
