@@ -26,6 +26,7 @@ pub struct OpenedStream {
     pub format: Pixel,
     pub video: remotionffmpeg::codec::decoder::Video,
     pub src: String,
+    pub original_src: String,
     pub input: remotionffmpeg::format::context::Input,
     pub last_position: i64,
     pub duration_or_zero: i64,
@@ -306,8 +307,8 @@ impl OpenedStream {
             return Err(std::io::Error::new(
                 ErrorKind::Other,
                 format!(
-                    "No frame found at position {} for source {}",
-                    position, self.src
+                    "No frame found at position {} for source {} (original source = {})",
+                    position, self.src, self.original_src
                 ),
             ))?;
         }
@@ -338,6 +339,7 @@ pub fn get_display_aspect_ratio(mut_stream: &StreamMut) -> Rational {
 
 pub fn open_stream(
     src: &str,
+    original_src: &str,
     transparent: bool,
 ) -> Result<(OpenedStream, Rational, Rational), ErrorWithBacktrace> {
     let mut dictionary = Dictionary::new();
@@ -450,6 +452,7 @@ pub fn open_stream(
         reached_eof: false,
         transparent,
         rotation: rotate,
+        original_src: original_src.to_string(),
     };
 
     Ok((opened_stream, fps, time_base))

@@ -27,6 +27,7 @@ pub struct FrameCacheReference {
     pub id: usize,
     pub last_used: u128,
     pub src: String,
+    pub original_src: String,
     pub transparent: bool,
 }
 
@@ -47,6 +48,7 @@ impl FrameCache {
     pub fn get_references(
         &self,
         src: String,
+        original_src: String,
         transparent: bool,
     ) -> Result<Vec<FrameCacheReference>, ErrorWithBacktrace> {
         let mut references: Vec<FrameCacheReference> = Vec::new();
@@ -55,6 +57,7 @@ impl FrameCache {
                 id: item.id,
                 last_used: item.last_used,
                 src: src.clone(),
+                original_src: original_src.clone(),
                 transparent,
             });
         }
