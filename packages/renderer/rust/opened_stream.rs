@@ -179,10 +179,10 @@ impl OpenedStream {
                     .get_item_id(position, threshold)?;
                 if matching.is_some() {
                     // Often times there is another package coming with a lower DTS,
-                    // so we receive up to 3 more packets
+                    // so we receive up to 4 more packets
                     break_on_next_keyframe = true;
                     if found_but_forward_seek.is_none() {
-                        found_but_forward_seek = Some(3);
+                        found_but_forward_seek = Some(4);
                     }
                 }
             }
