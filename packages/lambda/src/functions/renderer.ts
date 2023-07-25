@@ -125,11 +125,8 @@ const renderHandler = async (
 			serializedInputPropsWithCustomSchema,
 			frameRange: params.frameRange,
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
-				if (
-					renderedFrames % 5 === 0 &&
-					RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
-				) {
-					console.log(
+				if (renderedFrames % 5 === 0) {
+					RenderInternals.Log.info(
 						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
 					);
 					writeLambdaInitializedFile({
@@ -140,9 +137,13 @@ const renderHandler = async (
 						framesRendered: renderedFrames,
 						renderId: params.renderId,
 					}).catch((err) => {
-						console.log(err);
+						console.log('Could not write progress', err);
 						return reject(err);
 					});
+				} else {
+					RenderInternals.Log.verbose(
+						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
+					);
 				}
 
 				const allFrames = RenderInternals.getFramesToRender(
@@ -318,17 +319,22 @@ export const rendererHandler = async (
 
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isBrowserError =
+		const isRetryableError =
 			(err as Error).message.includes('FATAL:zygote_communication_linux.cc') ||
 			(err as Error).message.includes(
 				'error while loading shared libraries: libnss3.so'
+			) ||
+			(err as Error).message.includes('but the server sent no data') ||
+			(err as Error).message.includes(
+				'Timed out while setting up the headless browser'
 			);
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
+		const isFatal = !isRetryableError;
 		const willRetry =
-			(isBrowserError || params.retriesLeft > 0) && !shouldNotRetry;
+			isRetryableError && params.retriesLeft > 0 && !shouldNotRetry;
 
-		console.log('Error occurred');
+		console.log(`Error occurred (will retry = ${String(willRetry)})`);
 		console.log(err);
 		await writeLambdaError({
 			bucketName: params.bucketName,
@@ -339,7 +345,7 @@ export const rendererHandler = async (
 				chunk: params.chunk,
 				frame: null,
 				type: 'renderer',
-				isFatal: !isBrowserError,
+				isFatal,
 				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
 				attempt: params.attempt,
 				totalAttempts: params.retriesLeft + params.attempt,

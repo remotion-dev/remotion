@@ -3,6 +3,7 @@ import { Grid } from "./Grid";
 import { TOCItem } from "./TOCItem";
 
 export const TableOfContents: React.FC = () => {
+  const offthreadComponent = "<OffthreadVideo>";
   return (
     <div>
       <Grid>
@@ -37,6 +38,28 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/renderer/make-cancel-signal">
           <strong>makeCancelSignal()</strong>
           <div>Create token to later cancel a render</div>
+        </TOCItem>
+        <TOCItem link="/docs/renderer/get-video-metadata">
+          <strong>getVideoMetadata()</strong>
+          <div>Get metadata from a video file in Node.js</div>
+        </TOCItem>
+        <TOCItem link="/docs/renderer/ensure-ffmpeg">
+          <strong style={{ textDecoration: "line-through" }}>
+            ensureFfmpeg()
+          </strong>
+          <div>Check for ffmpeg binary and install if not existing</div>
+        </TOCItem>
+        <TOCItem link="/docs/renderer/ensure-ffprobe">
+          <strong style={{ textDecoration: "line-through" }}>
+            ensureFfprobe()
+          </strong>
+          <div>Check for ffprobe binary and install if not existing</div>
+        </TOCItem>
+        <TOCItem link="/docs/renderer/get-can-extract-frames-fast">
+          <strong style={{ textDecoration: "line-through" }}>
+            getCanExtractFramesFast()
+          </strong>
+          <div>Probes for fast extraction for {offthreadComponent}</div>
         </TOCItem>
       </Grid>
     </div>

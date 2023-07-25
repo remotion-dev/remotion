@@ -432,7 +432,7 @@ export const renderVideoFlow = async ({
 		proResProfile,
 		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions,
-		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: puppeteerTimeout,
 		scale,
 		port,
 		numberOfGifLoops,
