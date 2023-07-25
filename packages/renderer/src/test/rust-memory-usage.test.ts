@@ -15,7 +15,8 @@ test('Memory usage should be determined ', async () => {
 	).toBeLessThan(10 * 1024 * 1024);
 
 	await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
+		original_src: exampleVideos.bigBuckBunny,
 		time: 3.333,
 		transparent: false,
 	});
@@ -29,7 +30,8 @@ test('Memory usage should be determined ', async () => {
 	});
 
 	await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.framerWithoutFileExtension,
+		src: exampleVideos.framerWithoutFileExtension,
+		original_src: exampleVideos.framerWithoutFileExtension,
 		time: 3.333,
 		transparent: false,
 	});
@@ -82,7 +84,8 @@ test('Memory usage should be determined ', async () => {
 	).toBeLessThan(40 * 1024 * 1024);
 
 	await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.framerWithoutFileExtension,
+		src: exampleVideos.framerWithoutFileExtension,
+		original_src: exampleVideos.framerWithoutFileExtension,
 		time: 3.333,
 		transparent: false,
 	});
@@ -92,7 +95,8 @@ test('Should respect the maximum frame cache limit', async () => {
 	const compositor = startLongRunningCompositor(50, 'info', false);
 
 	await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
+		original_src: exampleVideos.bigBuckBunny,
 		time: 3.333,
 		transparent: false,
 	});
@@ -118,7 +122,8 @@ test('Should be able to take commands for freeing up memory', async () => {
 	).toBeLessThan(10 * 1024 * 1024);
 
 	await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
+		original_src: exampleVideos.bigBuckBunny,
 		time: 3.333,
 		transparent: false,
 	});

@@ -49,8 +49,11 @@ impl OpenedVideoManager {
                 let video_locked = video.lock()?;
                 let frame_cache = video_locked.get_frame_cache(transparent);
                 let frame_cache_locked = frame_cache.lock()?;
-                let references =
-                    frame_cache_locked.get_references(video_locked.src.clone(), transparent)?;
+                let references = frame_cache_locked.get_references(
+                    video_locked.src.clone(),
+                    video_locked.original_src.clone(),
+                    transparent,
+                )?;
                 for reference in references {
                     vec.push(reference);
                 }
@@ -85,7 +88,8 @@ impl OpenedVideoManager {
             to_remove.push(sorted[i].clone());
         }
         for removal in to_remove {
-            let video_locked = self.get_video(&removal.src, removal.transparent)?;
+            let video_locked =
+                self.get_video(&removal.src, &removal.original_src, removal.transparent)?;
             let mut video = video_locked.lock()?;
             video
                 .get_frame_cache(removal.transparent)
@@ -128,6 +132,7 @@ impl OpenedVideoManager {
     pub fn get_video(
         &self,
         src: &str,
+        original_src: &str,
         transparent: bool,
     ) -> Result<Arc<Mutex<OpenedVideo>>, ErrorWithBacktrace> {
         // Adding a block scope because of the RwLock,
@@ -143,7 +148,7 @@ impl OpenedVideoManager {
             }
         }
 
-        let video = open_video(src, transparent)?;
+        let video = open_video(src, original_src, transparent)?;
         let videos_write = self.videos.write();
 
         videos_write?.insert(src.to_string(), Arc::new(Mutex::new(video)));
