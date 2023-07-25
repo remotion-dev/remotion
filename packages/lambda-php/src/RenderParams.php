@@ -122,7 +122,7 @@ class RenderParams
             'rendererFunctionName' => $this->getRendererFunctionName(),
             'framesPerLambda' => $this->getFramesPerLambda(),
             'composition' => $this->getComposition(),
-            'serveUrl' => $this->getServerUrl(),
+            'serveUrl' => $this->getServeUrl(),
             'inputProps' => $this->getInputProps(),
             'codec' => $this->getCodec(),
             'imageFormat' => $this->getImageFormat(),
@@ -620,7 +620,7 @@ class RenderParams
     /**
      * Get the value of serverUrl
      */
-    public function getServerUrl()
+    public function getServeUrl()
     {
         return $this->serverUrl;
     }
