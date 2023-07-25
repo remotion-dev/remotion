@@ -90,7 +90,13 @@ export const serveStatic = async (
 
 			const close = async () => {
 				await Promise.all([
-					closeCompositor(),
+					new Promise<void>((resolve) => {
+						// compositor may have already quit before,
+						// this is okay as we are in cleanup phase
+						closeCompositor().finally(() => {
+							resolve();
+						});
+					}),
 					new Promise<void>((resolve, reject) => {
 						destroyConnections();
 						server.close((err) => {
