@@ -5,6 +5,8 @@ title: Configuration file
 crumb: "remotion.config.ts"
 ---
 
+import {AngleChangelog} from '../components/AngleChangelog';
+
 To configure Remotion, create a `remotion.config.ts` file in the root of your Remotion project.
 
 These options will apply to CLI commands such as `npx remotion studio` and `npx remotion render`.
@@ -261,6 +263,32 @@ Config.setChromiumHeadlessMode(false);
 ```
 
 The [command line flag](/docs/cli/render#--disable-headless) `--disable-headless` will take precedence over this option.
+
+## setChromiumOpenGlRenderer
+
+Select the OpenGL renderer backend for Chromium.
+
+```tsx twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+
+// ---cut---
+
+Config.setChromiumOpenGlRenderer("angle");
+```
+
+<AngleChangelog/>
+Accepted values:
+
+- `"angle"`,
+- `"egl"`,
+- `"swiftshader"`
+- `"swangle"`
+- `null` - Chromium's default
+
+**Default for local rendering**: `null`.  
+**Default for Lambda rendering**: `"swangle"`.
+
+The [command line flag](/docs/cli/render#--gl) `--gl` will take precedence over this option.
 
 ## setConcurrency()
 

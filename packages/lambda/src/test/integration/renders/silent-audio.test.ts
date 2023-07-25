@@ -22,7 +22,7 @@ test('Should add silent audio if there is no audio', async () => {
 	const res = await callLambda({
 		payload: {
 			serveUrl:
-				'https://64a69dbd950469119e886993--dreamy-shortbread-14601f.netlify.app/',
+				'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
 			chromiumOptions: {},
 			codec: 'h264',
 			composition: 'react-svg',
