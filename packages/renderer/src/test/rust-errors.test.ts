@@ -15,7 +15,8 @@ test('Should get Rust errors in a good way', async () => {
 
 	try {
 		await compositor.executeCommand('ExtractFrame', {
-			input: 'invlaid',
+			src: 'invlaid',
+			original_src: 'invlaid',
 			time: 1,
 			transparent: false,
 		});
@@ -81,7 +82,8 @@ test('Non-long running task panics should be handled', async () => {
 
 test('Long running task failures should be handled', async () => {
 	const command = serializeCommand('ExtractFrame', {
-		input: 'fsdfds',
+		src: 'fsdfds',
+		original_src: 'fsdfds',
 		time: 1,
 		transparent: false,
 	});
@@ -101,7 +103,8 @@ test('Long running task failures should be handled', async () => {
 test('Invalid payloads will be handled', async () => {
 	// @ts-expect-error
 	const command = serializeCommand('ExtractFrame', {
-		input: 'fsdfds',
+		src: 'fsdfds',
+		original_src: 'fsdfds',
 	});
 	try {
 		await callCompositor(JSON.stringify(command));

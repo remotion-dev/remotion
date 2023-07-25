@@ -16,10 +16,16 @@ pub struct OpenedVideo {
     pub fps: Rational,
     pub time_base: Rational,
     pub src: String,
+    pub original_src: String,
 }
 
-pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, ErrorWithBacktrace> {
-    let (opened_stream, fps, time_base) = opened_stream::open_stream(src, transparent)?;
+pub fn open_video(
+    src: &str,
+    original_src: &str,
+    transparent: bool,
+) -> Result<OpenedVideo, ErrorWithBacktrace> {
+    let (opened_stream, fps, time_base) =
+        opened_stream::open_stream(src, original_src, transparent)?;
 
     let opened_video = OpenedVideo {
         opened_streams: vec![(Arc::new(Mutex::new(opened_stream)))],
@@ -28,6 +34,7 @@ pub fn open_video(src: &str, transparent: bool) -> Result<OpenedVideo, ErrorWith
         fps,
         time_base,
         src: src.to_string(),
+        original_src: original_src.to_string(),
     };
 
     _print_verbose(&format!(
@@ -45,7 +52,8 @@ impl OpenedVideo {
         Ok(())
     }
     pub fn open_new_stream(&mut self, transparent: bool) -> Result<usize, ErrorWithBacktrace> {
-        let (opened_stream, _, _) = opened_stream::open_stream(&self.src, transparent)?;
+        let (opened_stream, _, _) =
+            opened_stream::open_stream(&self.src, &self.original_src, transparent)?;
         let arc_mutex = Arc::new(Mutex::new(opened_stream));
         self.opened_streams.push(arc_mutex);
         return Ok(self.opened_streams.len() - 1);
