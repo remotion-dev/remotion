@@ -56,6 +56,7 @@ import {WarpDemo2} from './WarpText/demo2';
 import {Tailwind} from './Tailwind';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
+import {Timeout} from './Timeout';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -211,6 +212,34 @@ export const Index: React.FC = () => {
 					}}
 				/>
 				<Composition
+					// Sending 140KB payload will not require the Lambda function to compress the props,
+					// but once spawning the renderer function, then the input props as well as the resolved
+					// combined together will take more than 256KB of space.
+					// In that case, we need to compress one of them.
+					id="140kb-payload"
+					component={HugePayload}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={2}
+					calculateMetadata={() => {
+						return {
+							props: {
+								str: 'a'.repeat(140 * 1000),
+								date: new Date('2020-01-01'),
+								file: staticFile('nested/mp4.png'),
+								dontCareAboutSize: true,
+							},
+						};
+					}}
+					schema={hugePayloadSchema}
+					defaultProps={{
+						str: 'potato',
+						file: staticFile('giphy.gif'),
+						date: new Date('2020-01-01'),
+					}}
+				/>
+				<Composition
 					id="sync-dynamic-length"
 					component={DynamicDuration}
 					width={1080}
@@ -333,6 +362,14 @@ export const Index: React.FC = () => {
 					durationInFrames={30}
 				/>
 				<Composition
+					id="Timeout"
+					component={Timeout}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={100}
+				/>
+				<Composition
 					id="error-on-frame-10"
 					component={ErrorOnFrame10}
 					width={1280}
@@ -447,10 +484,10 @@ export const Index: React.FC = () => {
 				<Composition
 					id="OffthreadRemoteVideo"
 					component={OffthreadRemoteVideo}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={100}
+					width={1920 * 2}
+					height={1080 * 2}
+					fps={60}
+					durationInFrames={20000}
 				/>
 				<Composition
 					id="video-testing-webm"

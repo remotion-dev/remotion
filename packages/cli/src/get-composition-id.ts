@@ -7,9 +7,9 @@ import type {
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {VideoConfig} from 'remotion';
+import {formatBytes} from './format-bytes';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';
-import {formatBytes} from './format-bytes';
 
 const getCompName = ({
 	cliArgs,

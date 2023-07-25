@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/noise",
-	"version": "4.0.4",
+	"version": "4.0.10",
 	"description": "Noise effect for Remotion",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -45,7 +45,7 @@
 		"@types/node": "18.14.6",
 		"eslint": "8.42.0",
 		"prettier": "^2.7.1",
-		"prettier-plugin-organize-imports": "^2.3.4",
+		"prettier-plugin-organize-imports": "^3.2.2",
 		"rollup": "^2.70.1",
 		"typescript": "4.9.5",
 		"vitest": "0.31.1"

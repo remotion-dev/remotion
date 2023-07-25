@@ -26,6 +26,7 @@ pub struct OpenedStream {
     pub format: Pixel,
     pub video: remotionffmpeg::codec::decoder::Video,
     pub src: String,
+    pub original_src: String,
     pub input: remotionffmpeg::format::context::Input,
     pub last_position: i64,
     pub duration_or_zero: i64,
@@ -139,14 +140,17 @@ impl OpenedStream {
         threshold: i64,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
-        let mut last_seek_position = self.duration_or_zero.min(position);
+        let mut last_seek_position = match self.duration_or_zero {
+            0 => position,
+            _ => self.duration_or_zero.min(position),
+        };
         _print_verbose(&format!(
             "last seek {} position {}",
             last_seek_position, position
         ))?;
 
         if position < self.last_position
-            || self.last_position < calc_position(time - 1.0, time_base)
+            || self.last_position < calc_position(time - 3.0, time_base)
         {
             _print_verbose(&format!(
                 "Seeking to {} from dts = {}, duration = {}",
@@ -160,9 +164,13 @@ impl OpenedStream {
         let mut last_frame_received: Option<usize> = None;
         let mut break_on_next_keyframe = false;
         let mut last_was_keyframe = false;
+        let mut found_but_forward_seek: Option<u8> = None;
 
         loop {
             if break_on_next_keyframe && last_was_keyframe {
+                break;
+            }
+            if found_but_forward_seek.is_some() && found_but_forward_seek.unwrap() == 0 {
                 break;
             }
             if last_frame_received.is_some() {
@@ -172,8 +180,11 @@ impl OpenedStream {
                     .get_item_id(position, threshold)?;
                 if matching.is_some() {
                     // Often times there is another package coming with a lower DTS,
-                    // so we receive one more packet
+                    // so we receive up to 4 more packets
                     break_on_next_keyframe = true;
+                    if found_but_forward_seek.is_none() {
+                        found_but_forward_seek = Some(4);
+                    }
                 }
             }
 
@@ -198,6 +209,10 @@ impl OpenedStream {
 
             if stream.parameters().medium() != Type::Video {
                 continue;
+            }
+
+            if found_but_forward_seek.is_some() {
+                found_but_forward_seek = Some(found_but_forward_seek.unwrap() - 1);
             }
 
             _print_verbose(&format!(
@@ -292,8 +307,8 @@ impl OpenedStream {
             return Err(std::io::Error::new(
                 ErrorKind::Other,
                 format!(
-                    "No frame found at position {} for source {}",
-                    position, self.src
+                    "No frame found at position {} for source {} (original source = {})",
+                    position, self.src, self.original_src
                 ),
             ))?;
         }
@@ -324,6 +339,7 @@ pub fn get_display_aspect_ratio(mut_stream: &StreamMut) -> Rational {
 
 pub fn open_stream(
     src: &str,
+    original_src: &str,
     transparent: bool,
 ) -> Result<(OpenedStream, Rational, Rational), ErrorWithBacktrace> {
     let mut dictionary = Dictionary::new();
@@ -436,6 +452,7 @@ pub fn open_stream(
         reached_eof: false,
         transparent,
         rotation: rotate,
+        original_src: original_src.to_string(),
     };
 
     Ok((opened_stream, fps, time_base))

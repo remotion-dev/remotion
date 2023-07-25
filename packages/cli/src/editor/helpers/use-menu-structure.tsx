@@ -10,6 +10,7 @@ import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitch
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {inOutHandles} from '../components/TimelineInOutToggle';
 import {Checkmark} from '../icons/Checkmark';
+import {canvasRef} from '../state/canvas-ref';
 import {CheckerboardContext} from '../state/checkerboard';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
@@ -49,6 +50,9 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		sidebarCollapsedStateRight,
 	} = useContext(SidebarContext);
 	const sizes = getUniqueSizes(size);
+
+	const isFullscreenSupported =
+		document.fullscreenEnabled || document.webkitFullscreenEnabled;
 
 	const structure = useMemo((): Structure => {
 		const struct: Structure = [
@@ -530,7 +534,27 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						value: 'clear-marks',
 						quickSwitcherLabel: 'Timeline: Clear In and Out Mark',
 					},
-				],
+					{
+						id: 'fullscreen-divider',
+						type: 'divider' as const,
+					},
+					isFullscreenSupported
+						? {
+								id: 'fullscreen',
+								keyHint: null,
+								label: 'Fullscreen',
+								leftItem: null,
+								onClick: () => {
+									closeMenu();
+									canvasRef.current?.requestFullscreen();
+								},
+								subMenu: null,
+								type: 'item' as const,
+								value: 'fullscreen',
+								quickSwitcherLabel: 'Go Fullscreen',
+						  }
+						: null,
+				].filter(Internals.truthy),
 			},
 			'EyeDropper' in window
 				? {
@@ -699,6 +723,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 		sidebarCollapsedStateLeft,
 		sidebarCollapsedStateRight,
 		checkerboard,
+		isFullscreenSupported,
 		closeMenu,
 		setSelectedModal,
 		type,

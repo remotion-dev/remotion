@@ -265,7 +265,7 @@ const RenderModal: React.FC<
 
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const [unclampedFrame, setFrame] = useState(() => initialFrame);
-
+	const [saving, setSaving] = useState<boolean>(false);
 	const [stillImageFormat, setStillImageFormat] = useState<StillImageFormat>(
 		() => initialStillImageFormat
 	);
@@ -498,7 +498,9 @@ const RenderModal: React.FC<
 			if (
 				passedAudioCodec !== null &&
 				(
-					BrowserSafeApis.supportedAudioCodecs[passedVideoCodec] as AudioCodec[]
+					BrowserSafeApis.supportedAudioCodecs[
+						passedVideoCodec
+					] as readonly AudioCodec[]
 				).includes(passedAudioCodec)
 			) {
 				return passedAudioCodec;
@@ -1065,6 +1067,8 @@ const RenderModal: React.FC<
 							unresolvedComposition={unresolvedComposition}
 							mayShowSaveButton={false}
 							propsEditType="input-props"
+							saving={saving}
+							setSaving={setSaving}
 						/>
 					) : (
 						<RenderModalAdvanced

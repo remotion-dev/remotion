@@ -3,6 +3,8 @@ import {chmodSync} from 'node:fs';
 import os from 'node:os';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getActualConcurrency} from '../get-concurrency';
+import type {LogLevel} from '../log-level';
+import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
 import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
@@ -12,8 +14,6 @@ import type {
 	CompositorCommandSerialized,
 	ErrorPayload,
 } from './payloads';
-import type {LogLevel} from '../log-level';
-import {isEqualOrBelowLogLevel} from '../log-level';
 
 export type Compositor = {
 	finishCommands: () => void;
@@ -37,8 +37,8 @@ export const getIdealMaximumFrameCacheItems = () => {
 	const max = Math.floor(freeMemory / (1024 * 1024 * 6));
 
 	// Never store more than 2000 frames
-	// But 500 is needed even if it's going to swap
-	return Math.max(500, Math.min(max, 2000));
+	// But 60 is needed even if it's going to swap
+	return Math.max(60, Math.min(max, 2000));
 };
 
 export const startLongRunningCompositor = (
@@ -259,7 +259,9 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			const errorMessage = Buffer.concat(stderrChunks).toString('utf-8');
 			runningStatus = {type: 'quit-with-error', error: errorMessage};
 
-			const error = new Error(`Compositor panicked: ${errorMessage}`);
+			const error = new Error(
+				`Compositor panicked with code ${code}: ${errorMessage}`
+			);
 			for (const waiter of waitersToKill) {
 				waiter.reject(error);
 			}
