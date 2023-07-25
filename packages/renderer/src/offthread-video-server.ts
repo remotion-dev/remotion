@@ -123,7 +123,8 @@ export const startOffthreadVideoServer = ({
 						extractStart = Date.now();
 						resolve(
 							compositor.executeCommand('ExtractFrame', {
-								input: to,
+								src: to,
+								original_src: src,
 								time,
 								transparent,
 							})
