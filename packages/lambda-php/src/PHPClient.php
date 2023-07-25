@@ -41,7 +41,7 @@ class PHPClient
         );
 
         $render->setInputProps($input);
-        $render->setServerUrl($this->getServeUrl());
+        $render->setServeUrl($this->getServeUrl());
         $render->setRegion($this->getRegion());
 
         return $render->serializeParams();
