@@ -20,7 +20,11 @@ export const renderMediaSingleThread = async (
 
 	const composition = await getCompositionFromBody(body);
 
-	const tempFilePath = '/tmp/output.mp4';
+	const defaultOutName = `out.${RenderInternals.getFileExtensionFromCodec(
+		body.codec,
+		body.audioCodec
+	)}`;
+	const tempFilePath = `/tmp/${defaultOutName}`;
 	const renderId = randomHash({randomInTests: true});
 	let previousProgress = 2;
 	const onProgress: RenderMediaOnProgress = ({progress}) => {
@@ -97,7 +101,7 @@ export const renderMediaSingleThread = async (
 	const uploadedResponse = await storage
 		.bucket(body.outputBucket)
 		.upload(tempFilePath, {
-			destination: `renders/${renderId}/${body.outName ?? 'out.mp4'}`,
+			destination: `renders/${renderId}/${body.outName ?? defaultOutName}`,
 			predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
 		});
 
