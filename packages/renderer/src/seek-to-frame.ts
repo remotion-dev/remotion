@@ -58,7 +58,9 @@ export const waitForReady = ({
 								new Error(
 									`Timeout exceeded rendering the component${
 										frame ? ' at frame ' + frame : ''
-									}. Open delayRender() handles: ${res.value}`
+									}. ${
+										res.value ? `Open delayRender() handles: ${res.value}` : ''
+									}`
 								)
 							);
 						})
