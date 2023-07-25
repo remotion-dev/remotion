@@ -40,7 +40,6 @@ export const SchemaLabel: React.FC<{
 	suffix,
 }) => {
 	const disableSave = saving || !valid || saveDisabledByParent;
-
 	const labelStyle: React.CSSProperties = useMemo(() => {
 		return {
 			fontFamily: 'monospace',
