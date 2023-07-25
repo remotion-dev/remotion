@@ -139,14 +139,17 @@ impl OpenedStream {
         threshold: i64,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
-        let mut last_seek_position = self.duration_or_zero.min(position);
+        let mut last_seek_position = match self.duration_or_zero {
+            0 => position,
+            _ => self.duration_or_zero.min(position),
+        };
         _print_verbose(&format!(
             "last seek {} position {}",
             last_seek_position, position
         ))?;
 
         if position < self.last_position
-            || self.last_position < calc_position(time - 1.0, time_base)
+            || self.last_position < calc_position(time - 3.0, time_base)
         {
             _print_verbose(&format!(
                 "Seeking to {} from dts = {}, duration = {}",
