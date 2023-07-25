@@ -236,7 +236,7 @@ This will most notably disable CORS in Chrome among other security features.
 Select the OpenGL renderer backend for Chromium.
 Accepted values:
 
-- `"angle"`,
+- ~~`"angle"`~~ - not supported in lambda
 - `"egl"`,
 - `"swiftshader"`
 - `"swangle"`
