@@ -1,5 +1,4 @@
 import {readFileSync, writeFileSync} from 'node:fs';
-import {Internals} from 'remotion';
 import {updateDefaultProps} from '../../codemods/update-default-props';
 import type {ApiHandler} from '../api-types';
 import {getProjectInfo} from '../project-info';
@@ -24,7 +23,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 		const updated = await updateDefaultProps({
 			compositionId,
 			input: readFileSync(projectInfo.videoFile, 'utf-8'),
-			newDefaultProps: Internals.deserializeJSONWithCustomFields(defaultProps),
+			newDefaultProps: JSON.parse(defaultProps),
 			enumPaths,
 		});
 
