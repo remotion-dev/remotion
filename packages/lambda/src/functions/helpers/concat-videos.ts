@@ -121,7 +121,9 @@ export const getAllFilesS3 = ({
 				if (areAllFilesDownloaded) {
 					console.log('All files are downloaded!');
 					resolve(
-						filesInBucket.map((file) =>
+						// Need to use downloaded variable, not filesInBucket
+						// as it may be out of date
+						Object.keys(downloaded).map((file) =>
 							getChunkDownloadOutputLocation({outdir, file})
 						)
 					);
