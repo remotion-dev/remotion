@@ -45,16 +45,23 @@ Make sure the versions don't have a `^` character in front of it.
 
 ## Changelog
 
+### `4.1.0-alpha11`
+
+Includes bugfixes from `v4.0.12`.
+
 ### `4.1.0-alpha9`
+
 #### Known issues
+
 - any internal errors created by Remotion from within the service are not currently sent back in the error response to the renderMediaOnCloudrun and renderStillOnCloudrun APIs (these APIs are also used within the CLI). For these errors, users will need to check the logs for now.
 
 #### Improvements
+
 - Artifact registry, used to store versioned images for deploying services, now has two folders - production and development.
 - Provide helpful response when Cloud Run crashes during render.
-    - CLI alerts user there was a crash, fetches logs, determines if cause was likely memory or timeout issue.
-    - API can receive a success or crash response
-    - New response documented
+  - CLI alerts user there was a crash, fetches logs, determines if cause was likely memory or timeout issue.
+  - API can receive a success or crash response
+  - New response documented
 - Default concurrency for rendering media is now 100%. This will set the concurrency equal to the number of cores the deployed service has.
 
 ### `4.1.0-alpha5`
