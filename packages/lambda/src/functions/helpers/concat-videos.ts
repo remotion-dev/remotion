@@ -51,7 +51,7 @@ const downloadS3File = async ({
 	}
 
 	return new Promise<void>((resolve, reject) => {
-		Body.pipe(createWriteStream(outpath).on('error', (err) => reject(err)))
+		Body.pipe(createWriteStream(outpath))
 			.on('error', (err) => reject(err))
 			.on('close', () => resolve());
 	});
