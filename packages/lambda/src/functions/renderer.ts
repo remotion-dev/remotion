@@ -321,19 +321,16 @@ export const rendererHandler = async (
 			throw err;
 		}
 
+		const {message} = err as Error;
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
 		const isRetryableError =
-			(err as Error).message.includes('FATAL:zygote_communication_linux.cc') ||
-			(err as Error).message.includes(
-				'error while loading shared libraries: libnss3.so'
-			) ||
-			(err as Error).message.includes('but the server sent no data') ||
-			(err as Error).message.includes('Compositor panicked') ||
-			(err as Error).message.includes('Compositor exited') ||
-			(err as Error).message.includes(
-				'Timed out while setting up the headless browser'
-			);
+			message.includes('FATAL:zygote_communication_linux.cc') ||
+			message.includes('error while loading shared libraries: libnss3.so') ||
+			message.includes('but the server sent no data') ||
+			message.includes('Compositor panicked') ||
+			(message.includes('Compositor exited') && !message.includes('SIGSEGV')) ||
+			message.includes('Timed out while setting up the headless browser');
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
 		const isFatal = !isRetryableError;
