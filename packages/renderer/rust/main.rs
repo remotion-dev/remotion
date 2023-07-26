@@ -14,7 +14,7 @@ mod rotation;
 mod scalable_frame;
 use commands::execute_command;
 use errors::{error_to_json, ErrorWithBacktrace};
-use global_printer::set_verbose_logging;
+use global_printer::{_print_verbose, set_verbose_logging};
 use std::env;
 
 use payloads::payloads::{parse_cli, CliInputCommand, CliInputCommandPayload};
@@ -36,6 +36,10 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
 
     match opts.payload {
         CliInputCommandPayload::StartLongRunningProcess(payload) => {
+            _print_verbose(&format!(
+                "Starting Rust process. Max video cache items: {}, max concurrency = {}",
+                payload.maximum_frame_cache_items, payload.concurrency
+            ))?;
             start_long_running_process(
                 payload.concurrency,
                 payload.maximum_frame_cache_items,
