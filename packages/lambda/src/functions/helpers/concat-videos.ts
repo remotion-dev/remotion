@@ -1,6 +1,6 @@
 import type {AudioCodec} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import fs, {createWriteStream, lstatSync, promises} from 'node:fs';
+import fs, {createWriteStream, promises} from 'node:fs';
 import path, {join} from 'node:path';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {
@@ -38,7 +38,7 @@ const downloadS3File = async ({
 	outdir: string;
 	region: AwsRegion;
 	expectedBucketOwner: string;
-}): Promise<number> => {
+}): Promise<void> => {
 	const Body = await lambdaReadFile({
 		bucketName: bucket,
 		key,
@@ -47,23 +47,15 @@ const downloadS3File = async ({
 	});
 	const outpath = getChunkDownloadOutputLocation({outdir, file: key});
 	if (Buffer.isBuffer(Body)) {
-		RenderInternals.Log.verbose('is buffer');
-		await promises.writeFile(outpath, Body);
-		const {size} = lstatSync(outpath);
-		return size;
+		return promises.writeFile(outpath, Body);
 	}
 
-	RenderInternals.Log.verbose('is body');
-	return new Promise<number>((resolve, reject) => {
-		Body.pipe(
-			createWriteStream(outpath)
-				.on('close', () => {
-					const {size} = lstatSync(outpath);
-
-					return resolve(size);
-				})
-				.on('error', (err) => reject(err))
-		).on('error', (err) => reject(err));
+	return new Promise((resolve, reject) => {
+		Body.pipe(createWriteStream(outpath).on('error', (err) => reject(err)))
+			.on('error', (err) => reject(err))
+			.on('close', () => {
+				return resolve();
+			});
 	});
 };
 
