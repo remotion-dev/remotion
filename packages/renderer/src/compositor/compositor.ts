@@ -244,7 +244,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	let resolve: ((value: void | PromiseLike<void>) => void) | null = null;
 	let reject: ((reason: Error) => void) | null = null;
 
-	child.on('close', (code) => {
+	child.on('close', (code, signal) => {
 		const waitersToKill = Array.from(waiters.values());
 		if (code === 0) {
 			runningStatus = {type: 'quit-without-error'};
@@ -256,12 +256,15 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 
 			waiters.clear();
 		} else {
-			const errorMessage = Buffer.concat(stderrChunks).toString('utf-8');
+			const errorMessage =
+				Buffer.concat(stderrChunks).toString('utf-8') +
+				outputBuffer.toString('utf-8');
 			runningStatus = {type: 'quit-with-error', error: errorMessage};
 
-			const error = new Error(
-				`Compositor panicked with code ${code}: ${errorMessage}`
-			);
+			const error =
+				code === null
+					? new Error(`Compositor exited with signal ${signal}`)
+					: new Error(`Compositor panicked with code ${code}: ${errorMessage}`);
 			for (const waiter of waitersToKill) {
 				waiter.reject(error);
 			}

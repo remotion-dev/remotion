@@ -1,6 +1,6 @@
 import type {AudioCodec} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import fs, {createWriteStream, promises} from 'node:fs';
+import fs, {createWriteStream, lstatSync, promises} from 'node:fs';
 import path, {join} from 'node:path';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {
@@ -38,7 +38,7 @@ const downloadS3File = async ({
 	outdir: string;
 	region: AwsRegion;
 	expectedBucketOwner: string;
-}) => {
+}): Promise<number> => {
 	const Body = await lambdaReadFile({
 		bucketName: bucket,
 		key,
@@ -47,13 +47,21 @@ const downloadS3File = async ({
 	});
 	const outpath = getChunkDownloadOutputLocation({outdir, file: key});
 	if (Buffer.isBuffer(Body)) {
-		return promises.writeFile(outpath, Body);
+		RenderInternals.Log.verbose('is buffer');
+		await promises.writeFile(outpath, Body);
+		const {size} = lstatSync(outpath);
+		return size;
 	}
 
-	return new Promise<void>((resolve, reject) => {
+	RenderInternals.Log.verbose('is body');
+	return new Promise<number>((resolve, reject) => {
 		Body.pipe(createWriteStream(outpath))
 			.on('error', (err) => reject(err))
-			.on('close', () => resolve());
+			.on('close', () => {
+				const {size} = lstatSync(outpath);
+
+				return resolve(size);
+			});
 	});
 };
 
@@ -142,14 +150,19 @@ export const getAllFilesS3 = ({
 				alreadyDownloading[key] = true;
 				try {
 					const downloadTimer = timer('Downloading ' + key);
-					await downloadS3File({
+					const size = await downloadS3File({
 						bucket,
 						key,
 						outdir,
 						region,
 						expectedBucketOwner,
 					});
-					console.log('Successfully downloaded', key);
+					RenderInternals.Log.info(
+						'Successfully downloaded',
+						key,
+						size,
+						'bytes'
+					);
 					downloadTimer.end();
 					downloaded[key] = true;
 					checkFinish();
