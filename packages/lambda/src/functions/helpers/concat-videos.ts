@@ -123,9 +123,9 @@ export const getAllFilesS3 = ({
 					resolve(
 						// Need to use downloaded variable, not filesInBucket
 						// as it may be out of date
-						Object.keys(downloaded).map((file) =>
-							getChunkDownloadOutputLocation({outdir, file})
-						)
+						Object.keys(downloaded)
+							.sort()
+							.map((file) => getChunkDownloadOutputLocation({outdir, file}))
 					);
 				}
 			};
