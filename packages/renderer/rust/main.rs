@@ -36,15 +36,12 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
 
     match opts.payload {
         CliInputCommandPayload::StartLongRunningProcess(payload) => {
+            set_verbose_logging(payload.verbose);
             _print_verbose(&format!(
                 "Starting Rust process. Max video cache items: {}, max concurrency = {}",
                 payload.maximum_frame_cache_items, payload.concurrency
             ))?;
-            start_long_running_process(
-                payload.concurrency,
-                payload.maximum_frame_cache_items,
-                payload.verbose,
-            )?;
+            start_long_running_process(payload.concurrency, payload.maximum_frame_cache_items)?;
         }
         _ => {
             let data = execute_command(opts.payload)?;
@@ -64,10 +61,7 @@ pub fn parse_init_command(json: &str) -> Result<CliInputCommand, ErrorWithBacktr
 fn start_long_running_process(
     threads: usize,
     frames_to_keep: usize,
-    verbose: bool,
 ) -> Result<(), ErrorWithBacktrace> {
-    set_verbose_logging(verbose);
-
     let pool = rayon::ThreadPoolBuilder::new()
         .num_threads(threads)
         .build()?;
