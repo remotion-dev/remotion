@@ -256,7 +256,9 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 
 			waiters.clear();
 		} else {
-			const errorMessage = Buffer.concat(stderrChunks).toString('utf-8');
+			const errorMessage =
+				Buffer.concat(stderrChunks).toString('utf-8') +
+				outputBuffer.toString('utf-8');
 			runningStatus = {type: 'quit-with-error', error: errorMessage};
 
 			const error = new Error(
