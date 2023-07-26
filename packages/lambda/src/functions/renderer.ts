@@ -78,6 +78,10 @@ const renderHandler = async (
 		throw new Error('must pass framerange');
 	}
 
+	RenderInternals.Log.verbose(
+		`Gonna render frames ${params.frameRange[0]}-${params.frameRange[1]}`
+	);
+
 	const start = Date.now();
 	const chunkTimingData: ObjectChunkTimingData = {
 		timings: {},
