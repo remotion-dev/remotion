@@ -57,6 +57,7 @@ import {Tailwind} from './Tailwind';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Timeout} from './Timeout';
+import {ProresTest} from './prores-test/prores-chunks';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -260,6 +261,16 @@ export const Index: React.FC = () => {
 					height={1080}
 					width={1080}
 				/>
+
+				<Composition
+					id="prores-test"
+					durationInFrames={600}
+					component={ProresTest}
+					fps={30}
+					height={1080}
+					width={1080}
+				/>
+
 				<Composition
 					fps={30}
 					id="cancel-render"
