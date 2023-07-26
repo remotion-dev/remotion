@@ -32,9 +32,10 @@ type Waiter = {
 
 export const getIdealMaximumFrameCacheItems = () => {
 	const freeMemory = os.freemem();
-	// Assuming 1 frame is approximately 6MB
+	// Assuming 1 frame is approximately 24MB
+	// (4K video)
 	// Assuming only half the available memory should be used
-	const max = Math.floor(freeMemory / (1024 * 1024 * 6));
+	const max = Math.floor(freeMemory / (1024 * 1024 * 24));
 
 	// Never store more than 2000 frames
 	// But 60 is needed even if it's going to swap
