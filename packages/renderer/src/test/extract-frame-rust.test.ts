@@ -419,7 +419,7 @@ test('Should get from iPhone video', async () => {
 	const data = await compositor.executeCommand('ExtractFrame', {
 		src: exampleVideos.iphonevideo,
 		original_src: exampleVideos.iphonevideo,
-		time: 3,
+		time: 1,
 		transparent: false,
 	});
 
