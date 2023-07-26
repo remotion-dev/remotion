@@ -144,10 +144,6 @@ impl OpenedStream {
             0 => position,
             _ => self.duration_or_zero.min(position),
         };
-        _print_verbose(&format!(
-            "last seek {} position {}",
-            last_seek_position, position
-        ))?;
 
         if position < self.last_position
             || self.last_position < calc_position(time - 3.0, time_base)
