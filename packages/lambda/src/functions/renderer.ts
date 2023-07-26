@@ -330,6 +330,7 @@ export const rendererHandler = async (
 			) ||
 			(err as Error).message.includes('but the server sent no data') ||
 			(err as Error).message.includes('Compositor panicked') ||
+			(err as Error).message.includes('Compositor exited') ||
 			(err as Error).message.includes(
 				'Timed out while setting up the headless browser'
 			);
