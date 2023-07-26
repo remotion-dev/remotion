@@ -7,22 +7,26 @@ export const symbolicateError = async (
 	symbolicateableError: SymbolicateableError
 ): Promise<ErrorWithStackFrame> => {
 	const {delayRenderCall, stackFrame} = symbolicateableError;
-	const [mainErrorFrames, delayRenderFrames] = await Promise.all(
-		[
-			stackFrame ? symbolicateStackTraceFromRemoteFrames(stackFrame) : null,
-			delayRenderCall
-				? symbolicateStackTraceFromRemoteFrames(delayRenderCall)
-				: null,
-		].filter(truthy)
-	);
+	try {
+		const [mainErrorFrames, delayRenderFrames] = await Promise.all(
+			[
+				stackFrame ? symbolicateStackTraceFromRemoteFrames(stackFrame) : null,
+				delayRenderCall
+					? symbolicateStackTraceFromRemoteFrames(delayRenderCall)
+					: null,
+			].filter(truthy)
+		);
 
-	const symbolicatedErr = new ErrorWithStackFrame({
-		message: symbolicateableError.message,
-		symbolicatedStackFrames: mainErrorFrames,
-		frame: symbolicateableError.frame,
-		name: symbolicateableError.name,
-		delayRenderCall: delayRenderFrames,
-	});
+		const symbolicatedErr = new ErrorWithStackFrame({
+			message: symbolicateableError.message,
+			symbolicatedStackFrames: mainErrorFrames,
+			frame: symbolicateableError.frame,
+			name: symbolicateableError.name,
+			delayRenderCall: delayRenderFrames,
+		});
 
-	return symbolicatedErr;
+		return symbolicatedErr;
+	} catch (err) {
+		return Promise.reject(err);
+	}
 };
