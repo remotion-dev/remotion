@@ -93,9 +93,11 @@ export const serveStatic = async (
 					new Promise<void>((resolve) => {
 						// compositor may have already quit before,
 						// this is okay as we are in cleanup phase
-						closeCompositor().finally(() => {
-							resolve();
-						});
+						closeCompositor()
+							.catch(() => undefined)
+							.finally(() => {
+								resolve();
+							});
 					}),
 					new Promise<void>((resolve, reject) => {
 						destroyConnections();
