@@ -510,7 +510,6 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		onErrors,
 	});
 	const encodingStart = Date.now();
-	RenderInternals.Log.verbose('FILES', JSON.stringify(files));
 	const {outfile, cleanupChunksProm} = await concatVideosS3({
 		onProgress,
 		numberOfFrames: frameCount.length,
