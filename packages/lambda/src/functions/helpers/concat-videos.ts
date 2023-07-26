@@ -55,13 +55,15 @@ const downloadS3File = async ({
 
 	RenderInternals.Log.verbose('is body');
 	return new Promise<number>((resolve, reject) => {
-		Body.pipe(createWriteStream(outpath))
-			.on('error', (err) => reject(err))
-			.on('close', () => {
-				const {size} = lstatSync(outpath);
+		Body.pipe(
+			createWriteStream(outpath)
+				.on('close', () => {
+					const {size} = lstatSync(outpath);
 
-				return resolve(size);
-			});
+					return resolve(size);
+				})
+				.on('error', (err) => reject(err))
+		).on('error', (err) => reject(err));
 	});
 };
 
