@@ -10,16 +10,20 @@ This page tries to give an overview on the different GL render backends and when
 
 Renderer backends supported in Remotion:
 
-- <code>"angle" </code>
-- <code>"egl"</code>
-- <code>"swiftshader"</code>
-- <code>"swangle" </code>
-- <code>null</code>
+- <code>angle </code>
+- <code>egl</code>
+- <code>swiftshader</code>
+- <code>swangle </code> - lambda default
+- <code>null</code> - local default
 
-## Default renderers
+## Using the GPU
 
-For local renders, the default renderer is set to <code>null</code>,
-for renders in Lambda, the default is set to <code>"swangle"</code>.
+In cases where a GPU could be beneficial for rendering, it can often make sense to use the <code>angle</code> renderer. An in-depth explenation when and how to use it is given in [this article](/docs/gpu). Note that we recommend to split the render up in multiple parts when rendering large videos while using <code>angle</code>, since sometimes renders can fail due to memory leaks.
+It's also worth mentioning, that currently GitHub Actions will fail when using <code>angle</code>, since actions don't have a GPU. Unfortunately, there is currently no work around.
+
+## The <code>angle</code> alternative if there is no GPU available
+
+If you are rendering in an environment which has no GPU, the <code>angle</code> renderer can't be used and <code>swangle</code> should be utilized instead.
 
 ## Selecting the renderer backend
 
@@ -51,11 +55,10 @@ Pass [`--gl=swiftshader`](/docs/cli) in one of the following commands: [`remotio
 If a CLI flag gets passed, the settings defined in the <code>remotion.config.ts</code> will be overwritten.
 :::
 
-## Using the GPU
+## Recommended renderers
 
-In cases where a GPU could be beneficial for rendering, it can often make sense to use the "angle" renderer. An in-depth explenation when and how to use it is given in [this article](/docs/gpu). Note that we recommend to split the render up in multiple parts when rendering large videos while using "angle", since sometimes renders can fail due to memory leaks.
-It's also worth mentioning, that currently GitHub Actions will fail when using <code>angle</code>, since actions don't have a GPU. Unfortunately, there is currently no work around.
+Generaly speaking, in most cases the default renderer (<code>null</code> on local, <code>swangle</code> on lambda) are the best choice.
 
-## The "angle" alternative if there is no GPU available
+If you use ThreeJS, <code>angle</code> (<code>swangle</code> on lambda) has to be used.
 
-If you are rendering in an environment which has no GPU, the "angle" renderer can't be used and "swangle" should be utilized instead.
+Based on our research online, it seems that <code>swiftshader</code> is replaced by <code>swangle</code> in many places. Therefore, if you thought about using <code>swiftshader</code>, we recommend to use the <code>swangle</code> instead.
