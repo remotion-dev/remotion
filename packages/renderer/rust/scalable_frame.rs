@@ -142,7 +142,6 @@ pub fn scale_and_make_bitmap(
 
     for inner in native_frame.planes.clone() {
         let ptr: *const u8 = inner.as_ptr();
-        std::mem::forget(inner);
         data.push(ptr);
     }
 
