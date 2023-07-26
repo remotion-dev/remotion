@@ -7,6 +7,7 @@ export const symbolicateError = async (
 	symbolicateableError: SymbolicateableError
 ): Promise<ErrorWithStackFrame> => {
 	const {delayRenderCall, stackFrame} = symbolicateableError;
+
 	const [mainErrorFrames, delayRenderFrames] = await Promise.all(
 		[
 			stackFrame ? symbolicateStackTraceFromRemoteFrames(stackFrame) : null,
