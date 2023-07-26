@@ -79,7 +79,7 @@ const renderHandler = async (
 	}
 
 	RenderInternals.Log.verbose(
-		`Gonna render frames ${params.frameRange[0]}-${params.frameRange[1]}`
+		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} in this Lambda function`
 	);
 
 	const start = Date.now();
