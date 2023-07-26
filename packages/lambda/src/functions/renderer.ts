@@ -325,6 +325,7 @@ export const rendererHandler = async (
 				'error while loading shared libraries: libnss3.so'
 			) ||
 			(err as Error).message.includes('but the server sent no data') ||
+			(err as Error).message.includes('Compositor panicked') ||
 			(err as Error).message.includes(
 				'Timed out while setting up the headless browser'
 			);
