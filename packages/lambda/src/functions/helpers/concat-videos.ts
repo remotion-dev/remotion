@@ -38,7 +38,7 @@ const downloadS3File = async ({
 	outdir: string;
 	region: AwsRegion;
 	expectedBucketOwner: string;
-}): Promise<void> => {
+}) => {
 	const Body = await lambdaReadFile({
 		bucketName: bucket,
 		key,
@@ -50,12 +50,10 @@ const downloadS3File = async ({
 		return promises.writeFile(outpath, Body);
 	}
 
-	return new Promise((resolve, reject) => {
+	return new Promise<void>((resolve, reject) => {
 		Body.pipe(createWriteStream(outpath).on('error', (err) => reject(err)))
 			.on('error', (err) => reject(err))
-			.on('close', () => {
-				return resolve();
-			});
+			.on('close', () => resolve());
 	});
 };
 
@@ -146,19 +144,14 @@ export const getAllFilesS3 = ({
 				alreadyDownloading[key] = true;
 				try {
 					const downloadTimer = timer('Downloading ' + key);
-					const size = await downloadS3File({
+					await downloadS3File({
 						bucket,
 						key,
 						outdir,
 						region,
 						expectedBucketOwner,
 					});
-					RenderInternals.Log.info(
-						'Successfully downloaded',
-						key,
-						size,
-						'bytes'
-					);
+					RenderInternals.Log.info('Successfully downloaded', key);
 					downloadTimer.end();
 					downloaded[key] = true;
 					checkFinish();
