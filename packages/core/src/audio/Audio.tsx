@@ -36,13 +36,18 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const onError: React.ReactEventHandler<HTMLAudioElement> = useCallback(
 		(e) => {
 			console.log(e.currentTarget.error);
-			cancelRender(
-				new Error(
-					`Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`
-				)
-			);
+
+			// If there is no `loop` property, we don't need to get the duration
+			// and thsi does not need to be a fatal error
+			const errMessage = `Could not play audio with src ${otherProps.src}: ${e.currentTarget.error}. See https://remotion.dev/docs/media-playback-error for help.`;
+
+			if (loop) {
+				cancelRender(new Error(errMessage));
+			} else {
+				console.warn(errMessage);
+			}
 		},
-		[otherProps.src]
+		[loop, otherProps.src]
 	);
 
 	const onDuration = useCallback(
