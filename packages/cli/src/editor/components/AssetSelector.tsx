@@ -1,4 +1,5 @@
 import React, {useEffect} from 'react';
+import type {StaticFile} from 'remotion';
 import {getStaticFiles} from 'remotion';
 import {subscribeToEvent} from '../../event-source';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
@@ -34,14 +35,29 @@ const list: React.CSSProperties = {
 	overflowY: 'auto',
 };
 
+type State = {
+	staticFiles: StaticFile[];
+	publicFolderExists: boolean;
+};
+
 export const AssetSelector: React.FC = () => {
 	const {tabIndex} = useZIndex();
 
-	const [staticFiles, setStaticFiles] = React.useState(() => getStaticFiles());
+	const [{publicFolderExists, staticFiles}, setState] = React.useState<State>(
+		() => {
+			return {
+				staticFiles: getStaticFiles(),
+				publicFolderExists: window.remotion_publicFolderExists,
+			};
+		}
+	);
 
 	useEffect(() => {
 		const onUpdate = () => {
-			setStaticFiles(getStaticFiles());
+			setState({
+				staticFiles: getStaticFiles(),
+				publicFolderExists: window.remotion_publicFolderExists,
+			});
 		};
 
 		const unsub = subscribeToEvent('new-public-folder', onUpdate);
@@ -53,13 +69,23 @@ export const AssetSelector: React.FC = () => {
 	return (
 		<div style={container}>
 			{staticFiles.length === 0 ? (
-				<div style={emptyState}>
-					<div style={label}>
-						To add assets, create a folder called{' '}
-						<code style={inlineCodeSnippet}>public</code> in the root of your
-						project and place a file in it.
+				publicFolderExists ? (
+					<div style={emptyState}>
+						<div style={label}>
+							To add assets, place a file in the{' '}
+							<code style={inlineCodeSnippet}>public</code> folder of your
+							project.
+						</div>
 					</div>
-				</div>
+				) : (
+					<div style={emptyState}>
+						<div style={label}>
+							To add assets, create a folder called{' '}
+							<code style={inlineCodeSnippet}>public</code> in the root of your
+							project and place a file in it.
+						</div>
+					</div>
+				)
 			) : (
 				<div className="__remotion-vertical-scrollbar" style={list}>
 					{staticFiles.map((file) => {
