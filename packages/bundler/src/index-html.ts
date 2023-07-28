@@ -48,6 +48,7 @@ export const indexHtml = ({
 	includeFavicon,
 	title,
 	renderDefaults,
+	publicFolderExists,
 }: {
 	staticHash: string;
 	baseDir: string;
@@ -59,6 +60,7 @@ export const indexHtml = ({
 	renderQueue: unknown | null;
 	numberOfAudioTags: number;
 	publicFiles: StaticFile[];
+	publicFolderExists: string | null;
 	includeFavicon: boolean;
 	title: string;
 	renderDefaults: RenderDefaults | undefined;
@@ -122,6 +124,9 @@ ${
 				: ''
 		}
 		<script>window.remotion_staticFiles = ${JSON.stringify(publicFiles)}</script>
+		<script>window.remotion_publicFolderExists = ${
+			publicFolderExists ? `"${publicFolderExists}"` : 'null'
+		};</script>
 		
 		<div id="${Internals.REMOTION_STUDIO_CONTAINER_ELEMENT}"></div>
 		<div id="menuportal-0"></div>
