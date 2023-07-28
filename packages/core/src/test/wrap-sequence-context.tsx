@@ -26,7 +26,7 @@ export const mockCompositionContext: CompositionManagerContext = {
 	],
 	currentComposition: 'my-comp',
 	folders: [],
-	registerAsset: () => undefined,
+	registerRenderAsset: () => undefined,
 	registerComposition: () => undefined,
 	registerFolder: () => undefined,
 	setCurrentComposition: () => undefined,

@@ -68,7 +68,7 @@ export const SharedPlayerContexts: React.FC<{
 			setCurrentComposition: () => undefined,
 			unregisterComposition: () => undefined,
 			unregisterSequence: () => undefined,
-			registerAsset: () => undefined,
+			registerRenderAsset: () => undefined,
 			unregisterAsset: () => undefined,
 			currentCompositionMetadata: null,
 			setCurrentCompositionMetadata: () => undefined,
