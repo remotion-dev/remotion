@@ -2,12 +2,17 @@ import type {MouseEventHandler} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {StaticFile} from 'remotion';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
+import {copyText} from '../helpers/copy-text';
+import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
 import {ExpandedFolderIconSolid} from '../icons/folder';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {Row, Spacing} from './layout';
-import {sendErrorNotification} from './Notifications/NotificationCenter';
+import {
+	notificationCenter,
+	sendErrorNotification,
+} from './Notifications/NotificationCenter';
 import {openInFileExplorer} from './RenderQueue/actions';
 
 const ASSET_ITEM_HEIGHT = 32;
@@ -83,8 +88,12 @@ export const AssetSelectorItem: React.FC<{
 		console.log('Clicked', item);
 	}, [item]);
 
-	const renderAction: RenderInlineAction = useCallback((color) => {
+	const renderFileExplorerAction: RenderInlineAction = useCallback((color) => {
 		return <ExpandedFolderIconSolid style={revealIconStyle} color={color} />;
+	}, []);
+
+	const renderCopyAction: RenderInlineAction = useCallback((color) => {
+		return <ClipboardIcon style={revealIconStyle} color={color} />;
 	}, []);
 
 	const revealInExplorer = React.useCallback(() => {
@@ -95,15 +104,29 @@ export const AssetSelectorItem: React.FC<{
 		});
 	}, [item.name]);
 
+	const copyToClipboard = useCallback(() => {
+		copyText(`staticFile("${item.name}")`)
+			.then(() => {
+				notificationCenter.current?.addNotification({
+					content: `Copied 'staticFile("${item.name}")' to clipboard`,
+					created: Date.now(),
+					duration: 1000,
+					id: String(Math.random()),
+				});
+			})
+			.catch((err) => {
+				sendErrorNotification(`Could not copy: ${err.message}`);
+			});
+	}, [item.name]);
+
 	return (
 		<Row align="center">
-			<button
+			<div
 				style={style}
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
 				tabIndex={tabIndex}
 				onClick={onClick}
-				type="button"
 				title={item.name}
 			>
 				<FileIcon style={iconStyle} color={LIGHT_TEXT} />
@@ -113,12 +136,19 @@ export const AssetSelectorItem: React.FC<{
 					<>
 						<Spacing x={0.5} />
 						<InlineAction
-							renderAction={renderAction}
+							title="Copy staticFile() name"
+							renderAction={renderCopyAction}
+							onClick={copyToClipboard}
+						/>
+						<Spacing x={0.5} />
+						<InlineAction
+							title="Open in Explorer"
+							renderAction={renderFileExplorerAction}
 							onClick={revealInExplorer}
 						/>
 					</>
 				) : null}
-			</button>
+			</div>
 		</Row>
 	);
 };
