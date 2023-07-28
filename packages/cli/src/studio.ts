@@ -120,7 +120,12 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 				listener.sendEventToClient({
 					type: 'new-public-folder',
 					files,
-					folderExists: files.length > 0 ? true : existsSync(publicDir),
+					folderExists:
+						files.length > 0
+							? publicDir
+							: existsSync(publicDir)
+							? publicDir
+							: null,
 				});
 			});
 		},

@@ -257,7 +257,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 		includeFavicon: false,
 		title: 'Remotion Bundle',
 		renderDefaults: undefined,
-		publicFolderExists: true
+		publicFolderExists: baseDir + '/public',
 	});
 
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
