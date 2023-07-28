@@ -60,9 +60,14 @@ const getSourceMap = (
 		}
 
 		const converted = window.atob(sm.substring(match2[0].length));
-		return Promise.resolve(
-			new SourceMapConsumer(JSON.parse(converted) as RawSourceMap)
-		);
+		try {
+			const sourceMapConsumer = new SourceMapConsumer(
+				JSON.parse(converted) as RawSourceMap
+			);
+			return Promise.resolve(sourceMapConsumer);
+		} catch {
+			return Promise.resolve(null);
+		}
 	}
 
 	if (type === 'local') {

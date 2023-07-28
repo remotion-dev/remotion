@@ -10,6 +10,7 @@ import {
 import {callFf} from './call-ffmpeg';
 import type {Codec} from './codec';
 import {isAudioCodec} from './is-audio-codec';
+import {Log} from './logger';
 import {parseFfmpegProgress} from './parse-ffmpeg-progress';
 import {truthy} from './truthy';
 
@@ -81,7 +82,9 @@ export const combineVideos = async (options: Options) => {
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {
 				const parsed = parseFfmpegProgress(data.toString('utf8'));
-				if (parsed !== undefined) {
+				if (parsed === undefined) {
+					Log.verbose(data.toString('utf8'));
+				} else {
 					onProgress(parsed);
 				}
 			}

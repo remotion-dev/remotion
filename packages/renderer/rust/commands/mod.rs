@@ -9,7 +9,12 @@ use std::io::ErrorKind;
 pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWithBacktrace> {
     match opts {
         CliInputCommandPayload::ExtractFrame(command) => {
-            let res = ffmpeg::extract_frame(command.input, command.time, command.transparent)?;
+            let res = ffmpeg::extract_frame(
+                command.src,
+                command.original_src,
+                command.time,
+                command.transparent,
+            )?;
             Ok(res)
         }
         CliInputCommandPayload::GetOpenVideoStats(_) => {

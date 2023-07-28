@@ -9,13 +9,11 @@ test('Should stringify default props correctly', () => {
 	const result = stringifyDefaultProps({
 		props: {
 			abc: 'def',
-			newDate: new Date('2022-01-02'),
+			newDate: 'remotion-date:2022-01-02',
 		},
 		enumPaths: [],
 	});
-	expect(result).toBe(
-		`{"abc":"def","newDate":new Date('2022-01-02T00:00:00.000Z')}`
-	);
+	expect(result).toBe(`{"abc":"def","newDate":new Date("2022-01-02")}`);
 });
 
 test('Should stringify default props correctly', () => {
