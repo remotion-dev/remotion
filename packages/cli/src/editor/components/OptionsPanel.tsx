@@ -158,7 +158,11 @@ export const OptionsPanel: React.FC<{}> = () => {
 		<div style={container} className="css-reset">
 			<div style={tabsContainer}>
 				<Tabs>
-					<Tab selected={panel === 'input-props'} onClick={onPropsSelected}>
+					<Tab
+						selected={panel === 'input-props'}
+						onClick={onPropsSelected}
+						style={{justifyContent: 'space-between'}}
+					>
 						Props
 						{unsavedChangesExist ? (
 							<div title={saveToolTip} style={circleStyle} />

@@ -33,6 +33,8 @@ const label: React.CSSProperties = {
 
 const list: React.CSSProperties = {
 	overflowY: 'auto',
+	paddingTop: 4,
+	paddingBottom: 4,
 };
 
 type State = {

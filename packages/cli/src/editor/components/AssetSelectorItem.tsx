@@ -1,4 +1,3 @@
-import type {MouseEventHandler} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {StaticFile} from 'remotion';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
@@ -84,10 +83,6 @@ export const AssetSelectorItem: React.FC<{
 		};
 	}, []);
 
-	const onClick: MouseEventHandler = useCallback(() => {
-		console.log('Clicked', item);
-	}, [item]);
-
 	const renderFileExplorerAction: RenderInlineAction = useCallback((color) => {
 		return <ExpandedFolderIconSolid style={revealIconStyle} color={color} />;
 	}, []);
@@ -126,7 +121,6 @@ export const AssetSelectorItem: React.FC<{
 				onPointerEnter={onPointerEnter}
 				onPointerLeave={onPointerLeave}
 				tabIndex={tabIndex}
-				onClick={onClick}
 				title={item.name}
 			>
 				<FileIcon style={iconStyle} color={LIGHT_TEXT} />
