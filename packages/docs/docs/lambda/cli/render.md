@@ -8,6 +8,7 @@ crumb: "Lambda CLI Reference"
 ---
 
 import { MinimumFramesPerLambda } from "../../../components/lambda/default-frames-per-lambda";
+import {AngleChangelog} from '../../../components/AngleChangelog';
 
 Using the `npx remotion lambda render` command, you can render a video in the cloud.
 
@@ -227,6 +228,22 @@ Results in invalid SSL certificates in Chrome, such as self-signed ones, being i
 ### `--disable-web-security`
 
 This will most notably disable CORS in Chrome among other security features.
+
+### `--gl`
+
+<AngleChangelog />
+
+Select the OpenGL renderer backend for Chromium.
+Accepted values:
+
+- `"angle"`,
+- `"egl"`,
+- `"swiftshader"`
+- `"swangle"`
+- `null` - Chromium's default
+
+**Default for local rendering**: `null`.  
+**Default for Lambda rendering**: `"swangle"`.
 
 ### `--user-agent`<AvailableFrom v="3.3.83"/>
 

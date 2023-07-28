@@ -97,7 +97,6 @@ export class ChromeLauncher implements ProductLauncher {
 		try {
 			const connection = await runner.setupConnection({
 				timeout,
-				preferredRevision: this._preferredRevision,
 			});
 			browser = await HeadlessBrowser._create({
 				connection,
@@ -143,7 +142,7 @@ function resolveExecutablePath(launcher: ChromeLauncher): {
 	const revisionInfo = getRevisionInfo(_preferredRevision, 'chrome');
 
 	const firefoxHelp = `Run \`PUPPETEER_PRODUCT=firefox npm install\` to download a supported Firefox browser binary.`;
-	const chromeHelp = `Run \`npm install\` to download the correct Chromium revision (${launcher._preferredRevision}).`;
+	const chromeHelp = `Run \`npm install\` to download the correct Chromium revision.`;
 	const missingText = revisionInfo.local
 		? undefined
 		: `Could not find expected browser (${product}) locally. ${

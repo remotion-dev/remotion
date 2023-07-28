@@ -351,7 +351,7 @@ if (typeof window !== 'undefined') {
 		};
 	};
 
-	window.siteVersion = '8';
+	window.siteVersion = '9';
 	window.remotion_version = VERSION;
 	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }

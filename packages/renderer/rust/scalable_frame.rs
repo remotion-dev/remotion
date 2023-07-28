@@ -140,9 +140,8 @@ pub fn scale_and_make_bitmap(
 
     let mut data: Vec<*const u8> = Vec::with_capacity(native_frame.planes.len());
 
-    for inner in native_frame.planes.clone() {
-        let ptr: *const u8 = inner.as_ptr();
-        std::mem::forget(inner);
+    for i in 0..native_frame.planes.len() {
+        let ptr: *const u8 = native_frame.planes[i].as_ptr();
         data.push(ptr);
     }
 
@@ -157,10 +156,6 @@ pub fn scale_and_make_bitmap(
         native_frame.linesizes.as_ptr(),
         &mut scaled,
     )?;
-
-    for inner in native_frame.planes.clone() {
-        std::mem::drop(inner);
-    }
 
     let (rotated, rotated_width, rotated_height, stride) = match native_frame.rotate {
         Rotate::Rotate90 => rotate_90(

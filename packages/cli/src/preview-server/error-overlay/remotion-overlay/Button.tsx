@@ -12,7 +12,6 @@ const button: React.CSSProperties = {
 	fontSize: 14,
 	color: 'white',
 	flexDirection: 'row',
-	display: 'flex',
 };
 
 const ButtonRefForwardFunction: React.ForwardRefRenderFunction<

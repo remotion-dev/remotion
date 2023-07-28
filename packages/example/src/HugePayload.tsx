@@ -7,14 +7,14 @@ export const hugePayloadSchema = z.object({
 	file: z.string(),
 });
 
-export const HugePayload: React.FC<z.infer<typeof hugePayloadSchema>> = ({
-	str,
-	date,
-	file,
-}) => {
+export const HugePayload: React.FC<
+	z.infer<typeof hugePayloadSchema> & {
+		dontCareAboutSize?: boolean;
+	}
+> = ({str, date, file, dontCareAboutSize}) => {
 	const {defaultProps} = useVideoConfig();
 
-	if (str.length !== 6000000) {
+	if (str.length !== 6000000 && !dontCareAboutSize) {
 		throw new Error('str is not 6,000,000 characters long');
 	}
 

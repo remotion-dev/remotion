@@ -4,6 +4,7 @@ import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
+import {cancelRender} from '../cancel-render.js';
 import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
 import {Img} from '../Img.js';
 import {random} from '../random.js';
@@ -133,9 +134,13 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
 		useCallback(
 			(e) => {
-				onError?.(e);
+				if (onError) {
+					onError?.(e);
+				} else {
+					cancelRender('Failed to load image with src ' + actualSrc);
+				}
 			},
-			[onError]
+			[actualSrc, onError]
 		);
 
 	const className = useMemo(() => {
