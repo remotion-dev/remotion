@@ -127,7 +127,7 @@ const handleFallback = async ({
 				ignoreCertificateErrors,
 				openGlRenderer,
 			},
-			publicFolderExists: existsSync(publicDir),
+			publicFolderExists: existsSync(publicDir) ? publicDir : null,
 		})
 	);
 };

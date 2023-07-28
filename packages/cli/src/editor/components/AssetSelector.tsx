@@ -39,7 +39,7 @@ const list: React.CSSProperties = {
 
 type State = {
 	staticFiles: StaticFile[];
-	publicFolderExists: boolean;
+	publicFolderExists: string | null;
 };
 
 export const AssetSelector: React.FC = () => {

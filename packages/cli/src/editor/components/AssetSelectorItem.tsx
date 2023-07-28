@@ -93,7 +93,7 @@ export const AssetSelectorItem: React.FC<{
 
 	const revealInExplorer = React.useCallback(() => {
 		openInFileExplorer({
-			directory: 'public/' + item.name,
+			directory: window.remotion_publicFolderExists + '/' + item.name,
 		}).catch((err) => {
 			sendErrorNotification(`Could not open file: ${err.message}`);
 		});
