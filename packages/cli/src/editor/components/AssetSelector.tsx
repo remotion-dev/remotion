@@ -57,7 +57,7 @@ export const AssetSelector: React.FC = () => {
 					<div style={label}>
 						To add assets, create a folder called{' '}
 						<code style={inlineCodeSnippet}>public</code> in the root of your
-						project.
+						project and place a file in it.
 					</div>
 				</div>
 			) : (
