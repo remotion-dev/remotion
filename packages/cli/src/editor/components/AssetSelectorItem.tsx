@@ -1,7 +1,7 @@
 import type {MouseEventHandler} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import type {StaticFile} from 'remotion';
-import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
+import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {FileIcon} from '../icons/file';
 import {ExpandedFolderIconSolid} from '../icons/folder';
 import type {RenderInlineAction} from './InlineAction';
@@ -67,18 +67,17 @@ export const AssetSelectorItem: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			backgroundColor: hovered ? CLEAR_HOVER : 'transparent',
 			paddingLeft: 12,
-			color: hovered ? 'white' : LIGHT_TEXT,
+			color: LIGHT_TEXT,
 		};
-	}, [hovered]);
+	}, []);
 
 	const label = useMemo(() => {
 		return {
 			...labelStyle,
-			color: hovered ? 'white' : LIGHT_TEXT,
+			color: LIGHT_TEXT,
 		};
-	}, [hovered]);
+	}, []);
 
 	const onClick: MouseEventHandler = useCallback(() => {
 		console.log('Clicked', item);
@@ -107,11 +106,18 @@ export const AssetSelectorItem: React.FC<{
 				type="button"
 				title={item.name}
 			>
-				<FileIcon style={iconStyle} color={hovered ? 'white' : LIGHT_TEXT} />
+				<FileIcon style={iconStyle} color={LIGHT_TEXT} />
 				<Spacing x={1} />
 				<div style={label}>{item.name}</div>
-				<Spacing x={0.5} />
-				<InlineAction renderAction={renderAction} onClick={revealInExplorer} />
+				{hovered ? (
+					<>
+						<Spacing x={0.5} />
+						<InlineAction
+							renderAction={renderAction}
+							onClick={revealInExplorer}
+						/>
+					</>
+				) : null}
 			</button>
 		</Row>
 	);
