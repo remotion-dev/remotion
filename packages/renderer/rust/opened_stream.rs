@@ -12,7 +12,7 @@ use std::time::UNIX_EPOCH;
 use crate::{
     errors::ErrorWithBacktrace,
     frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
-    global_printer::_print_verbose,
+    global_printer::{_print_debug, _print_verbose},
     rotation,
     scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
 };
@@ -138,6 +138,7 @@ impl OpenedStream {
         time_base: Rational,
         one_frame_in_time_base: i64,
         threshold: i64,
+        is_variable_fps: bool,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = match self.duration_or_zero {
@@ -176,10 +177,14 @@ impl OpenedStream {
                     .get_item_id(position, threshold)?;
                 if matching.is_some() {
                     // Often times there is another package coming with a lower DTS,
-                    // so we receive up to 4 more packets
+                    // so we receive up to 4 more packets, and 30 if it is a variable FPS video
                     break_on_next_keyframe = true;
                     if found_but_forward_seek.is_none() {
-                        found_but_forward_seek = Some(4);
+                        if is_variable_fps {
+                            found_but_forward_seek = Some(30);
+                        } else {
+                            found_but_forward_seek = Some(4);
+                        }
                     }
                 }
             }

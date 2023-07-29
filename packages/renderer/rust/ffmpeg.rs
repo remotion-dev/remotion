@@ -48,16 +48,16 @@ pub fn extract_frame(
     // The requested position in the video.
     let position = calc_position(time, vid.time_base);
 
-    let has_no_fps = vid.fps.denominator() == 0 || vid.fps.numerator() == 0;
+    let is_variable_fps = vid.fps.denominator() == 0 || vid.fps.numerator() == 0;
     let time_of_one_frame_in_seconds =
         1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64);
 
     // How much the distance between 1 frame is in the videos internal time format.
     let one_frame_in_time_base = calc_position(time_of_one_frame_in_seconds, vid.time_base);
 
-    // If a video has no FPS, take a high threshold, like 1.5fps
-    let threshold = match has_no_fps {
-        true => calc_position(1.0, vid.time_base),
+    // If a video has no FPS, take a high threshold, like 10fps
+    let threshold = match is_variable_fps {
+        true => calc_position(1.0 / 10.0, vid.time_base),
         false => one_frame_in_time_base,
     };
 
@@ -121,6 +121,7 @@ pub fn extract_frame(
         vid.time_base,
         one_frame_in_time_base,
         threshold,
+        is_variable_fps,
     )?;
 
     let from_cache = vid
