@@ -57,7 +57,7 @@ pub fn extract_frame(
 
     // If a video has no FPS, take a high threshold, like 10fps
     let threshold = match is_variable_fps {
-        true => calc_position(1.0 / 10.0, vid.time_base),
+        true => calc_position(1.0, vid.time_base),
         false => one_frame_in_time_base,
     };
 

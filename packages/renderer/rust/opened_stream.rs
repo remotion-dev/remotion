@@ -12,7 +12,7 @@ use std::time::UNIX_EPOCH;
 use crate::{
     errors::ErrorWithBacktrace,
     frame_cache::{get_frame_cache_id, FrameCache, FrameCacheItem},
-    global_printer::{_print_debug, _print_verbose},
+    global_printer::_print_verbose,
     rotation,
     scalable_frame::{NotRgbFrame, Rotate, ScalableFrame},
 };
@@ -164,7 +164,7 @@ impl OpenedStream {
         let mut found_but_forward_seek: Option<u8> = None;
 
         loop {
-            if break_on_next_keyframe && last_was_keyframe {
+            if break_on_next_keyframe && last_was_keyframe && !is_variable_fps {
                 break;
             }
             if found_but_forward_seek.is_some() && found_but_forward_seek.unwrap() == 0 {
