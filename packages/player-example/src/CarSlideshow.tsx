@@ -8,6 +8,7 @@ import {
 	staticFile,
 	Sequence,
 	Experimental,
+	AbsoluteFill,
 } from 'remotion';
 
 type Props = {
@@ -20,10 +21,10 @@ export const playerExampleComp = createRef<{
 	triggerError: () => void;
 }>();
 
+const show = true;
+
 const CarSlideshow = ({title, bgColor, color}: Props) => {
-	const frame = useCurrentFrame();
 	const {width, height, durationInFrames} = useVideoConfig();
-	const left = interpolate(frame, [0, durationInFrames], [width, width * -1]);
 
 	const [shouldThrowError, setThrowError] = useState(false);
 
@@ -57,35 +58,23 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 				top: 0,
 			}}
 		>
-			<Experimental.Clipper height={100} width={100} x={0} y={0} />
-			<h1
+			<AbsoluteFill
 				style={{
-					fontSize: '5em',
-					fontWeight: 'bold',
-					position: 'absolute',
-					top: height / 2 - 100,
-					left,
-					color,
-					whiteSpace: 'nowrap',
+					width: '50%',
 				}}
 			>
-				{title} {dummyText()}
-			</h1>
-			<Img
-				src={staticFile('/logo.png')}
-				style={{
-					height: 40,
-					width: 40,
-				}}
-			/>
-			<Sequence from={10}>
-				<Video
+				<Video src="https://media.repliq.co/images/5PfG7Oj6LgaWgYiPCT6kiOxXMwa2/69012e32/69012e32_myScreen.mp4" />
+			</AbsoluteFill>
+			{show ? (
+				<AbsoluteFill
 					style={{
-						height: 200,
+						left: '50%',
+						width: '50%',
 					}}
-					src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
-				/>
-			</Sequence>
+				>
+					<Video src="https://app.repliq.co/videos/videoExample1_20.mp4" />
+				</AbsoluteFill>
+			) : null}
 		</div>
 	);
 };

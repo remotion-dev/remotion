@@ -19,7 +19,7 @@ const Car = () =>
 
 function Index() {
 	return (
-		<React.StrictMode>
+		<>
 			<FontPicker />
 			<h2>Player</h2>
 			<div
@@ -30,7 +30,6 @@ function Index() {
 				}}
 			>
 				<App component={CarSlideshow} durationInFrames={500} />
-				<App component={VideoautoplayDemo} durationInFrames={2700} />
 			</div>
 			<h2>Thumbnail</h2>
 			<Thumbnail
@@ -50,7 +49,7 @@ function Index() {
 				}}
 			/>
 			<ThumbnailDemo />
-		</React.StrictMode>
+		</>
 	);
 }
 
