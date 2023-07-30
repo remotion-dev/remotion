@@ -56,9 +56,12 @@ export const useMediaPlayback = ({
 			);
 		}
 
-		mediaRef.current.playbackRate = Math.max(0, playbackRate);
+		const playbackRateToSet = Math.max(0, playbackRate);
+		if (mediaRef.current.playbackRate !== playbackRateToSet) {
+			mediaRef.current.playbackRate = playbackRateToSet;
+		}
 
-		const shouldBeTime = getMediaTime({
+		const _shouldBeTime = getMediaTime({
 			fps,
 			frame,
 			src,
@@ -66,12 +69,24 @@ export const useMediaPlayback = ({
 			startFrom: -mediaStartsAt,
 			mediaType,
 		});
+		const {duration} = mediaRef.current;
+		const shouldBeTime =
+			!Number.isNaN(duration) && Number.isFinite(duration)
+				? Math.min(duration, _shouldBeTime)
+				: _shouldBeTime;
 
 		const isTime = mediaRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
-		if (timeShift > acceptableTimeshift && !mediaRef.current.ended) {
+		if (timeShift > acceptableTimeshift) {
 			// If scrubbing around, adjust timing
-			// or if time shift is bigger than 0.2sec
+			// or if time shift is bigger than 0.45sec
+
+			console.log(
+				'seekingA',
+				timeShift,
+				mediaRef.current.currentTime,
+				shouldBeTime
+			);
 			mediaRef.current.currentTime = shouldBeTime;
 			if (!onlyWarnForMediaSeekingError) {
 				warnAboutNonSeekableMedia(
@@ -91,12 +106,14 @@ export const useMediaPlayback = ({
 
 		if (!playing || absoluteFrame === 0) {
 			if (makesSenseToSeek) {
+				console.log('seekingB');
 				mediaRef.current.currentTime = shouldBeTime;
 			}
 		}
 
 		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
 			if (makesSenseToSeek) {
+				console.log('seekingC');
 				mediaRef.current.currentTime = shouldBeTime;
 			}
 
