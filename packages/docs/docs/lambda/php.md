@@ -94,7 +94,8 @@ print_r("Render is done!\n");
 
 ## Changelog
 
-`v4.0.6`: The response payload structure has changed. See the history of this page to see the previous structure.
+- `v4.0.15`: The fields are now typed. `->setInputProps()` now works as intended, serializing the input props to JSON for you.
+- `v4.0.6`: The response payload structure has changed. See the history of this page to see the previous structure.
 
 ## See also
 
