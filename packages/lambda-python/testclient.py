@@ -9,10 +9,16 @@ load_dotenv()
 
 # Load env variables
 REMOTION_APP_REGION = os.getenv('REMOTION_APP_REGION')
-REMOTION_APP_BUCKET = os.getenv('REMOTION_APP_BUCKET')
-REMOTION_APP_FUNCTION_NAME = os.getenv('REMOTION_APP_FUNCTION_NAME')
-REMOTION_APP_SERVE_URL = os.getenv('REMOTION_APP_SERVE_URL')
+if not REMOTION_APP_REGION:
+    raise Exception("REMOTION_APP_REGION is not set")
 
+REMOTION_APP_FUNCTION_NAME = os.getenv('REMOTION_APP_FUNCTION_NAME')
+if not REMOTION_APP_FUNCTION_NAME:
+    raise Exception("REMOTION_APP_FUNCTION_NAME is not set")
+
+REMOTION_APP_SERVE_URL = os.getenv('REMOTION_APP_SERVE_URL')
+if not REMOTION_APP_SERVE_URL:
+    raise Exception("REMOTION_APP_SERVE_URL is not set")
 
 # Construct client
 client = RemotionClient(region=REMOTION_APP_REGION,
