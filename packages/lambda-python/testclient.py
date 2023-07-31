@@ -27,26 +27,27 @@ client = RemotionClient(region=REMOTION_APP_REGION,
 
 # Set render request
 render_params = RenderParams(
-    composition="main",
+    composition="react-svg",
     data={
         'hi': 'there'
     },
 )
 
-print("\n")
 render_response = client.render_media_on_lambda(render_params)
 if render_response:
     # Execute render request
 
-    print(render_response.renderId)
-    print(render_response.bucketName)
+    print("Render ID:", render_response.renderId)
+    print("Bucket name:", render_response.bucketName)
 
-    print("\n")
 
     # Execute progress request
     progress_response = client.get_render_progress(
         render_id=render_response.renderId, bucket_name=render_response.bucketName)
-    if progress_response:
+   
+    while progress_response and not progress_response.done:
         print("Overall progress")
-        print(progress_response.overallProgress)
-print("\n")
+        print(str(progress_response.overallProgress * 100) + "%")
+        progress_response = client.get_render_progress(
+            render_id=render_response.renderId, bucket_name=render_response.bucketName)
+    print("Render done!", progress_response.outputFile)
