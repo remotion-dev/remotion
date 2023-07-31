@@ -1,7 +1,7 @@
 ---
 image: /generated/articles-docs-open-gl.png
 id: gl-options
-title: GL Options
+title: --gl flag
 crumb: Flags
 ---
 
