@@ -42,7 +42,7 @@ export const upgrade = async (
 		packageJson.optionalDependencies ?? {}
 	);
 	const peerDependencies = Object.keys(packageJson.peerDependencies ?? {});
-	const latestRemotionVersion = await getLatestRemotionVersion();
+	const versionToUpgrade = version ? version :  await getLatestRemotionVersion();
 	Log.info('Newest Remotion version is', latestRemotionVersion);
 	const manager = getPackageManager(remotionRoot, packageManager);
 
