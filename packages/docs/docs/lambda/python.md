@@ -12,7 +12,7 @@ _available from v4.0.15_
 This feature is new. Please report any issues you encounter.
 </ExperimentalBadge>
 
-To trigger a Lambda render using Python, install the `remotion/lambda` package using `pip`, by executing `pip install remotion_lambda` from your python project. Use the same version as the `remotion` version you are using from NPM.
+To trigger a Lambda render using Python, install the `remotion_lambda` package using `pip`, by executing `pip install remotion_lambda` from your python project. Use the same version as the `remotion` version you are using from NPM.
 
 Below is a snippet showing how to initiate a render request and get its status. Note the following before continuing:
 
