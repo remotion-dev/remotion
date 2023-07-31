@@ -83,11 +83,10 @@ class RemotionClient:
         
         if 'type' in decoded_result and decoded_result['type'] == 'error':
             raise ValueError(decoded_result['message'])
-        if decoded_result['statusCode'] != 200:
-            raise ValueError('Failed to invoke Lambda function')
-        
-        body_object = json.loads(decoded_result['body'])
-        return body_object
+        if not 'type' in decoded_result or decoded_result['type'] != 'success':
+            raise ValueError(result)   
+             
+        return decoded_result
 
     def construct_render_request(self, render_params: RenderParams) -> str:
         """
@@ -141,7 +140,7 @@ class RemotionClient:
         body_object = self._invoke_lambda(
             function_name=self.function_name, payload=params)
         if body_object:
-            return RenderResponse(**body_object)
+            return RenderResponse(body_object['bucketName'], body_object['renderId'])
 
         return None
 
