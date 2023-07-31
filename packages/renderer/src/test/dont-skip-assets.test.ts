@@ -1,4 +1,4 @@
-import type {TAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion';
 import {expect, test} from 'vitest';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 
@@ -36,7 +36,7 @@ test('Dont skip assets', () => {
 	]);
 });
 
-const mock: TAsset[][] = new Array(2934)
+const mock: TRenderAsset[][] = new Array(2934)
 	.fill(true)
 	.map((_, i) => i)
 	.map((k) => {

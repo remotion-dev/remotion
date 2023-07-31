@@ -37,24 +37,32 @@ pub fn keep_only_latest_frames(frames: usize) -> Result<(), ErrorWithBacktrace> 
 
 pub fn extract_frame(
     src: String,
+    original_src: String,
     time: f64,
     transparent: bool,
 ) -> Result<Vec<u8>, ErrorWithBacktrace> {
     let manager = OpenedVideoManager::get_instance();
-    let video_locked = manager.get_video(&src, transparent)?;
+    let video_locked = manager.get_video(&src, &original_src, transparent)?;
     let mut vid = video_locked.lock()?;
 
     // The requested position in the video.
     let position = calc_position(time, vid.time_base);
 
+    let is_variable_fps = vid.fps.denominator() == 0 || vid.fps.numerator() == 0;
+    let time_of_one_frame_in_seconds =
+        1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64);
+
     // How much the distance between 1 frame is in the videos internal time format.
-    let one_frame_in_time_base = calc_position(
-        1.0 / (vid.fps.numerator() as f64 / vid.fps.denominator() as f64),
-        vid.time_base,
-    );
+    let one_frame_in_time_base = calc_position(time_of_one_frame_in_seconds, vid.time_base);
+
+    // If a video has no FPS, take a high threshold, like 10fps
+    let threshold = match is_variable_fps {
+        true => calc_position(1.0, vid.time_base),
+        false => one_frame_in_time_base,
+    };
 
     // Don't allow previous frame, but allow for some flexibility
-    let cache_item = vid.get_cache_item_id(transparent, position, one_frame_in_time_base - 1);
+    let cache_item = vid.get_cache_item_id(transparent, position, threshold - 1);
 
     match cache_item {
         Ok(Some(item)) => {
@@ -112,7 +120,8 @@ pub fn extract_frame(
         position,
         vid.time_base,
         one_frame_in_time_base,
-        one_frame_in_time_base,
+        threshold,
+        is_variable_fps,
     )?;
 
     let from_cache = vid

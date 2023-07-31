@@ -1,4 +1,3 @@
-import {AssetManager} from './AssetManager.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -9,9 +8,9 @@ import {
 } from './CanUseRemotionHooks.js';
 import {ClipComposition, type CompProps} from './Composition.js';
 import type {
-	TAsset,
 	TCompMetadata,
 	TComposition,
+	TRenderAsset,
 	TSequence,
 } from './CompositionManager.js';
 import {compositionsRef} from './CompositionManager.js';
@@ -31,6 +30,7 @@ import {
 } from './get-preview-dom-element.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {
+	DATE_TOKEN,
 	deserializeJSONWithCustomFields,
 	FILE_TOKEN,
 	serializeJSONWithDate,
@@ -44,6 +44,7 @@ import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
+import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
 	ResolveCompositionConfig,
@@ -145,7 +146,7 @@ export const Internals = {
 	resolveCompositionsRef,
 	ResolveCompositionConfig,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
-	AssetManager,
+	RenderAssetManager,
 	bundleName: 'bundle.js',
 	bundleMapName: 'bundle.js.map',
 	persistCurrentFrame,
@@ -153,6 +154,7 @@ export const Internals = {
 	serializeJSONWithDate,
 	deserializeJSONWithCustomFields,
 	FILE_TOKEN,
+	DATE_TOKEN,
 	NativeLayersProvider,
 	ClipComposition,
 } as const;
@@ -162,7 +164,7 @@ export type {
 	Timeline,
 	TCompMetadata,
 	TSequence,
-	TAsset,
+	TRenderAsset as TAsset,
 	TimelineContextValue,
 	SetTimelineContextValue,
 	CompProps,
