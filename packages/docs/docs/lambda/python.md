@@ -6,7 +6,7 @@ sidebar_label: Rendering from Python
 crumb: "@remotion/lambda"
 ---
 
-_available from v4.0.6_
+_available from v4.0.15_
 
 <ExperimentalBadge>
 This feature is new. Please report any issues you encounter.
@@ -20,7 +20,6 @@ Below is a snippet showing how to initiate a render request and get its status. 
 - Sending large input props (>200KB) is not supported with Python at the moment.
 
 ```python title="testclient.py"
-
 from remotion_lambda import RenderParams, RenderProgressParams
 from remotion_lambda import RemotionClient
 import os
@@ -31,10 +30,16 @@ load_dotenv()
 
 # Load env variables
 REMOTION_APP_REGION = os.getenv('REMOTION_APP_REGION')
-REMOTION_APP_BUCKET = os.getenv('REMOTION_APP_BUCKET')
-REMOTION_APP_FUNCTION_NAME = os.getenv('REMOTION_APP_FUNCTION_NAME')
-REMOTION_APP_SERVE_URL = os.getenv('REMOTION_APP_SERVE_URL')
+if not REMOTION_APP_REGION:
+    raise Exception("REMOTION_APP_REGION is not set")
 
+REMOTION_APP_FUNCTION_NAME = os.getenv('REMOTION_APP_FUNCTION_NAME')
+if not REMOTION_APP_FUNCTION_NAME:
+    raise Exception("REMOTION_APP_FUNCTION_NAME is not set")
+
+REMOTION_APP_SERVE_URL = os.getenv('REMOTION_APP_SERVE_URL')
+if not REMOTION_APP_SERVE_URL:
+    raise Exception("REMOTION_APP_SERVE_URL is not set")
 
 # Construct client
 client = RemotionClient(region=REMOTION_APP_REGION,
@@ -43,31 +48,30 @@ client = RemotionClient(region=REMOTION_APP_REGION,
 
 # Set render request
 render_params = RenderParams(
-    composition="main",
+    composition="react-svg",
     data={
         'hi': 'there'
     },
 )
 
-print("\n")
 render_response = client.render_media_on_lambda(render_params)
 if render_response:
     # Execute render request
 
-    print(render_response.renderId)
-    print(render_response.bucketName)
+    print("Render ID:", render_response.renderId)
+    print("Bucket name:", render_response.bucketName)
 
-    print("\n")
 
     # Execute progress request
     progress_response = client.get_render_progress(
         render_id=render_response.renderId, bucket_name=render_response.bucketName)
-    if progress_response:
+
+    while progress_response and not progress_response.done:
         print("Overall progress")
-        print(progress_response.overallProgress)
-print("\n")
-
-
+        print(str(progress_response.overallProgress * 100) + "%")
+        progress_response = client.get_render_progress(
+            render_id=render_response.renderId, bucket_name=render_response.bucketName)
+    print("Render done!", progress_response.outputFile)
 ```
 
 ## See also
