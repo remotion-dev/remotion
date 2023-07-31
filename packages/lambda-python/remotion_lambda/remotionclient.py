@@ -79,13 +79,12 @@ class RemotionClient:
         decoded_result = json.loads(result)
         if 'errorMessage' in decoded_result:
             raise ValueError(decoded_result['errorMessage'])
-        
-        
+
         if 'type' in decoded_result and decoded_result['type'] == 'error':
             raise ValueError(decoded_result['message'])
         if not 'type' in decoded_result or decoded_result['type'] != 'success':
-            raise ValueError(result)   
-             
+            raise ValueError(result)
+
         return decoded_result
 
     def construct_render_request(self, render_params: RenderParams) -> str:
