@@ -540,6 +540,7 @@ module.exports = {
         "miscellaneous/snippets/accelerated-video",
         "miscellaneous/snippets/player-in-iframe",
         "miscellaneous/snippets/fps-converter",
+        "miscellaneous/snippets/use-delay-render",
         "miscellaneous/snippets/adding-animations",
         "miscellaneous/snippets/offthread-video-while-rendering",
       ],
