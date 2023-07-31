@@ -73,11 +73,6 @@ input[type='color'].__remotion_color_picker::-webkit-color-swatch {
 	position: relative;
 }
 
-.__remotion_thumb::-moz-range-thumb {
-	border-width: 1px;
-	border-style: solid;
-}
-
 /* For Chrome browsers */
 .__remotion_thumb::-webkit-slider-thumb {
 	border: 1px solid black;
@@ -89,10 +84,4 @@ input[type='color'].__remotion_color_picker::-webkit-color-swatch {
 	border-color: black;
 	background-color: white;
 	position: relative;
-}
-
-.__remotion_thumb::-webkit-slider-thumb {
-	border-width: 1px;
-	border-style: solid;
-	border-color: black;
 }
