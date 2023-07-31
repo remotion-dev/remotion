@@ -1,25 +1,27 @@
 ---
-image: /generated/articles-docs-cli-render.png
+image: /generated/articles-docs-open-gl.png
 id: gl-options
 title: GL Options
-crumb: CLI Reference
+crumb: Flags
 ---
 
-When rendering a video in Remotion, different GL renderer backends can be selected.
-This page tries to give an overview on the different GL render backends and when to choose which one.
+When rendering a video in Remotion, different [GL](https://en.wikipedia.org/wiki/OpenGL) renderer backends can be selected.
 
-Renderer backends supported in Remotion:
+The following renderer backends are supported in Remotion:
 
-- <code>angle </code>
+- <code>null</code> - default
+- <code>angle</code>
 - <code>egl</code>
 - <code>swiftshader</code>
-- <code>swangle </code> - lambda default
-- <code>null</code> - local default
+- <code>swangle</code> - default on Lambda
 
 ## Using the GPU
 
-In cases where a GPU could be beneficial for rendering, it can often make sense to use the <code>angle</code> renderer. An in-depth explenation when and how to use it is given in [this article](/docs/gpu). Note that we recommend to split the render up in multiple parts when rendering large videos while using <code>angle</code>, since sometimes renders can fail due to memory leaks.
-It's also worth mentioning, that currently GitHub Actions will fail when using <code>angle</code>, since actions don't have a GPU. Unfortunately, there is currently no work around.
+In cases where a GPU could be beneficial for rendering, it can often make sense to use the <code>angle</code> renderer. An in-depth explanation when and how to use it is given in [this article](/docs/gpu).
+
+Memory leaks are a known problem with <code>angle</code>. We recommend to split up long renders into multiple parts when rendering large videos, since sometimes renders can fail due to memory leaks.
+
+It's also worth mentioning, that currently GitHub Actions will fail when using <code>angle</code>, since actions don't have a GPU.
 
 ## The <code>angle</code> alternative if there is no GPU available
 
@@ -27,7 +29,7 @@ If you are rendering in an environment which has no GPU, the <code>angle</code> 
 
 ## Selecting the renderer backend
 
-The renderer backend can be set in different ways.
+The renderer backend can be set in different ways:
 
 ### Via Node.JS APIs
 
@@ -57,8 +59,13 @@ If a CLI flag gets passed, the settings defined in the <code>remotion.config.ts<
 
 ## Recommended renderers
 
-Generaly speaking, in most cases the default renderer (<code>null</code> on local, <code>swangle</code> on lambda) are the best choice.
+Generaly speaking, in most cases the default renderer (<code>null</code> on local, <code>swangle</code> on Lambda) are the best choice.
 
-If you use ThreeJS, <code>angle</code> (<code>swangle</code> on lambda) has to be used.
+If you use ThreeJS, <code>angle</code> (<code>swangle</code> on Lambda) has to be used.
 
-Based on our research online, it seems that <code>swiftshader</code> is replaced by <code>swangle</code> in many places. Therefore, if you thought about using <code>swiftshader</code>, we recommend to use the <code>swangle</code> instead.
+Based on our research online, it seems that <code>swiftshader</code> is an old mode and <code>swangle</code> is the successor.  
+Therefore, if you thought about using <code>swiftshader</code>, we recommend to use the <code>swangle</code> instead.
+
+## See also
+
+- [Using the GPU](/docs/gpu)
