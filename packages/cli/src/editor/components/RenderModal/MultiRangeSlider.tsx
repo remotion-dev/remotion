@@ -14,17 +14,12 @@ const container: React.CSSProperties = {
 	borderRadius: 2,
 };
 
-const slider: React.CSSProperties = {
-	position: 'relative',
-	height: 38,
-	width: 220,
-};
-
+// blue slider
 const sliderRange: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	backgroundColor: BLUE,
-	height: 39,
+	height: 36,
 };
 
 interface MultiRangeSliderProps {
@@ -80,28 +75,26 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 
 	return (
 		<div style={container}>
-			<div style={slider}>
-				<input
-					type="range"
-					min={min}
-					max={max}
-					value={start}
-					step={step}
-					onChange={onChangeLeft}
-					className="__remotion_thumb"
-				/>
+			<input
+				type="range"
+				min={min}
+				max={max}
+				value={start}
+				step={step}
+				onChange={onChangeLeft}
+				className="__remotion_thumb"
+			/>
 
-				<input
-					type="range"
-					min={min}
-					max={max}
-					value={end}
-					step={step}
-					onChange={onChangeRight}
-					className="__remotion_thumb"
-				/>
-				<div style={rangeStyle} />
-			</div>
+			<input
+				type="range"
+				min={min}
+				max={max}
+				value={end}
+				step={step}
+				onChange={onChangeRight}
+				className="__remotion_thumb"
+			/>
+			<div style={rangeStyle} />
 		</div>
 	);
 };

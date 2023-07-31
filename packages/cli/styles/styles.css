@@ -54,8 +54,9 @@ input[type='color'].__remotion_color_picker::-webkit-color-swatch {
 	position: absolute;
 	height: 0;
 	outline: none;
-	top: 51%;
-	width: 100%;
+	top: 16px;
+	width: 221px;
+	margin-left: -2px;
 	z-index: 2;
 }
 
