@@ -1,10 +1,10 @@
-import type {TAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion';
 import {expect, test} from 'vitest';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 import {compressAsset} from '../compress-assets';
 
 test('Should compress and uncompress assets', () => {
-	const uncompressed: TAsset[] = [
+	const uncompressed: TRenderAsset[] = [
 		[
 			{
 				frame: 0,

@@ -64,13 +64,6 @@ impl FrameCache {
         Ok(references)
     }
 
-    pub fn remove_from_frame_reference(
-        &mut self,
-        frame_cache_reference: FrameCacheReference,
-    ) -> Result<(), ErrorWithBacktrace> {
-        self.remove_item_by_id(frame_cache_reference.id)
-    }
-
     pub fn add_item(&mut self, item: FrameCacheItem) {
         self.items.push(item);
     }
@@ -181,7 +174,9 @@ impl FrameCache {
             }
         }
 
-        if best_distance > threshold {
+        let has_pts_after = self.items.iter().any(|item| item.resolved_pts >= time);
+
+        if best_distance > threshold || !has_pts_after {
             return Ok(None);
         }
 

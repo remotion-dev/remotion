@@ -75,8 +75,16 @@ export const callLambda = async <T extends LambdaRoutines>({
 	return json;
 };
 
+const parseJsonWithErrorSurfacing = (input: string) => {
+	try {
+		return JSON.parse(input);
+	} catch {
+		throw new Error(`Cannot parse Lambda response as JSON. Response: ${input}`);
+	}
+};
+
 const parseJson = <T extends LambdaRoutines>(input: string) => {
-	let json = JSON.parse(input) as
+	let json = parseJsonWithErrorSurfacing(input) as
 		| OrError<Awaited<LambdaReturnValues[T]>>
 		| {
 				errorType: string;
@@ -89,7 +97,7 @@ const parseJson = <T extends LambdaRoutines>(input: string) => {
 		  };
 
 	if ('statusCode' in json) {
-		json = JSON.parse(json.body) as
+		json = parseJsonWithErrorSurfacing(json.body) as
 			| OrError<Awaited<LambdaReturnValues[T]>>
 			| {
 					errorType: string;

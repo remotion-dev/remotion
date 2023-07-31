@@ -52,6 +52,7 @@ export const openEventSource = () => {
 
 		if (newEvent.type === 'new-public-folder') {
 			window.remotion_staticFiles = newEvent.files;
+			window.remotion_publicFolderExists = newEvent.folderExists;
 		}
 
 		listeners.forEach((l) => {

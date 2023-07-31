@@ -25,7 +25,6 @@ import type {
 	RenderPlayPauseButton,
 } from './PlayerControls.js';
 import {Controls} from './PlayerControls.js';
-import {useHoverState} from './use-hover-state.js';
 import {usePlayback} from './use-playback.js';
 import {usePlayer} from './use-player.js';
 import {IS_NODE} from './utils/is-node.js';
@@ -111,7 +110,6 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
-	const hovered = useHoverState(container);
 	const canvasSize = useElementSize(container, {
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: false,
@@ -507,8 +505,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				<Controls
 					fps={config.fps}
 					durationInFrames={config.durationInFrames}
-					hovered={hovered}
 					player={player}
+					containerRef={container}
 					onFullscreenButtonClick={onFullscreenButtonClick}
 					isFullscreen={isFullscreen}
 					allowFullscreen={allowFullscreen}

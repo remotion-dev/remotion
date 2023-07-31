@@ -8,7 +8,8 @@ export const InlineAction: React.FC<{
 	onClick: React.MouseEventHandler<HTMLAnchorElement>;
 	disabled?: boolean;
 	renderAction: RenderInlineAction;
-}> = ({renderAction, onClick, disabled}) => {
+	title?: string;
+}> = ({renderAction, onClick, disabled, title}) => {
 	const {tabIndex} = useZIndex();
 
 	const [hovered, setHovered] = useState(false);
@@ -45,6 +46,7 @@ export const InlineAction: React.FC<{
 			onClick={onClick}
 			style={style}
 			tabIndex={tabIndex}
+			title={title}
 		>
 			{renderAction(hovered ? 'white' : LIGHT_TEXT)}
 		</a>
