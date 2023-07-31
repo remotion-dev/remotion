@@ -109,6 +109,14 @@ export const Lottie = ({
 			'image'
 		) as NodeListOf<SVGImageElement>;
 		images.forEach((img) => {
+			const currentHref = img.getAttributeNS(
+				'http://www.w3.org/1999/xlink',
+				'href'
+			);
+			if (currentHref && currentHref === img.href.baseVal) {
+				return;
+			}
+
 			const imgHandle = delayRender(
 				`Waiting for lottie image with src="${img.href.baseVal}" to load`
 			);

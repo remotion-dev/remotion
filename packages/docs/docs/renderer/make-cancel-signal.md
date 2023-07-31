@@ -15,8 +15,8 @@ This function returns a signal and a cancel function that allows to you cancel a
 ```tsx twoslash
 // @module: ESNext
 // @target: ESNext
-import { TCompMetadata } from "remotion";
-const composition = {
+import { VideoConfig } from "remotion";
+const composition: VideoConfig = {
   durationInFrames: 1000000,
   fps: 30,
   height: 720,

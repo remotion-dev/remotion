@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
-import type {TAsset, VideoConfig} from 'remotion';
+import type {TRenderAsset, VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -30,6 +30,8 @@ import {
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
+import {type LogLevel} from './log-level';
+import {getLogLevel, Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -48,8 +50,6 @@ import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
-import {type LogLevel} from './log-level';
-import {Log, getLogLevel} from './logger';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
@@ -120,7 +120,7 @@ type InnerRenderFramesOptions = {
 	makeBrowser: () => Promise<HeadlessBrowser>;
 	browserReplacer: BrowserReplacer;
 	compositor: Compositor;
-	sourcemapContext: AnySourceMapConsumer | null;
+	sourcemapContext: Promise<AnySourceMapConsumer | null>;
 	serveUrl: string;
 	logLevel: LogLevel;
 	indent: boolean;
@@ -221,7 +221,7 @@ const innerRenderFrames = async ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async (context: AnySourceMapConsumer | null) => {
+	const makePage = async (context: Promise<AnySourceMapConsumer | null>) => {
 		const page = await browserReplacer
 			.getBrowser()
 			.newPage(context, logLevel, indent);
@@ -298,7 +298,7 @@ const innerRenderFrames = async ({
 		return page;
 	};
 
-	const getPool = async (context: AnySourceMapConsumer | null) => {
+	const getPool = async (context: Promise<AnySourceMapConsumer | null>) => {
 		const pages = new Array(actualConcurrency)
 			.fill(true)
 			.map(() => makePage(context));
@@ -325,7 +325,9 @@ const innerRenderFrames = async ({
 		frameCount: framesToRender.length,
 	});
 
-	const assets: TAsset[][] = new Array(framesToRender.length).fill(undefined);
+	const assets: TRenderAsset[][] = new Array(framesToRender.length).fill(
+		undefined
+	);
 	let stopped = false;
 	cancelSignal?.(() => {
 		stopped = true;
@@ -368,7 +370,12 @@ const innerRenderFrames = async ({
 
 		const startSeeking = Date.now();
 
-		await seekToFrame({frame, page: freePage, composition: compId});
+		await seekToFrame({
+			frame,
+			page: freePage,
+			composition: compId,
+			timeoutInMilliseconds,
+		});
 
 		const timeToSeek = Date.now() - startSeeking;
 		if (timeToSeek > 1000) {
@@ -428,9 +435,9 @@ const innerRenderFrames = async ({
 			compressAsset(assets.filter(truthy).flat(1), asset)
 		);
 		assets[index] = compressedAssets;
-		compressedAssets.forEach((asset) => {
+		compressedAssets.forEach((renderAsset) => {
 			downloadAndMapAssetsToFileUrl({
-				asset,
+				renderAsset,
 				onDownload,
 				downloadMap,
 			}).catch((err) => {

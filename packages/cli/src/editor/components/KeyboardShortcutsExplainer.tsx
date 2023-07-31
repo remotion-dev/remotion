@@ -262,6 +262,16 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 							<kbd style={key}>0</kbd>
 						</div>
 						<div style={right}>Reset zoom</div>
+					</Row>{' '}
+					<br />
+					<div style={title}>Props Editor</div>
+					<Row align="center">
+						<div style={left}>
+							<kbd style={key}>{cmdOrCtrlCharacter}</kbd>
+							<Spacing x={0.3} />
+							<kbd style={key}>S</kbd>
+						</div>
+						<div style={right}>Save</div>
 					</Row>
 				</Column>
 			</Row>

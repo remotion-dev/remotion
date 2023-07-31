@@ -2,15 +2,15 @@ import React, {useCallback, useContext, useMemo} from 'react';
 import {useBreakpoint} from '../helpers/use-breakpoint';
 import {SidebarContext} from '../state/sidebar';
 import {CanvasOrLoading} from './CanvasOrLoading';
-import {CompositionSelector} from './CompositionSelector';
 import {
 	CurrentCompositionKeybindings,
 	TitleUpdater,
 } from './CurrentCompositionSideEffects';
+import {ExplorerPanel} from './ExplorerPanel';
 import {InitialCompositionLoader} from './InitialCompositionLoader';
 import {MenuToolbar} from './MenuToolbar';
+import {OptionsPanel} from './OptionsPanel';
 import {PreviewToolbar} from './PreviewToolbar';
-import {RightPanel} from './RightPanel';
 import {SplitterContainer} from './Splitter/SplitterContainer';
 import {SplitterElement} from './Splitter/SplitterElement';
 import {SplitterHandle} from './Splitter/SplitterHandle';
@@ -27,17 +27,12 @@ const row: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	flex: 1,
+	minHeight: 0,
 };
 
 const canvasContainer: React.CSSProperties = {
 	flex: 1,
 	display: 'flex',
-};
-
-const leftContainer: React.CSSProperties = {
-	flex: 1,
-	display: 'flex',
-	maxWidth: '100%',
 };
 
 export const useResponsiveSidebarStatus = (): 'collapsed' | 'expanded' => {
@@ -95,9 +90,7 @@ export const TopPanel: React.FC = () => {
 				>
 					{actualStateLeft === 'expanded' ? (
 						<SplitterElement type="flexer">
-							<div style={leftContainer} className="css-reset">
-								<CompositionSelector />
-							</div>
+							<ExplorerPanel />
 						</SplitterElement>
 					) : null}
 					{actualStateLeft === 'expanded' ? (
@@ -127,7 +120,7 @@ export const TopPanel: React.FC = () => {
 							) : null}
 							{actualStateRight === 'expanded' ? (
 								<SplitterElement type="anti-flexer">
-									<RightPanel />
+									<OptionsPanel />
 								</SplitterElement>
 							) : null}
 						</SplitterContainer>

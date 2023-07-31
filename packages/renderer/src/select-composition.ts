@@ -7,6 +7,7 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
+import {type LogLevel} from './log-level';
 import {Log} from './logger';
 import type {ChromiumOptions} from './open-browser';
 import type {RemotionServer} from './prepare-server';
@@ -15,7 +16,6 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
-import {type LogLevel} from './log-level';
 
 type InternalSelectCompositionsConfig = {
 	serializedInputPropsWithCustomSchema: string;
@@ -107,7 +107,7 @@ const innerSelectComposition = async ({
 		args: [],
 	});
 
-	await waitForReady(page);
+	await waitForReady({page, timeoutInMilliseconds, frame: null});
 
 	Log.verboseAdvanced(
 		{

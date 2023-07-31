@@ -1,6 +1,6 @@
 import fs, {promises} from 'node:fs';
 import path from 'node:path';
-import type {TAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion';
 import {Internals} from 'remotion';
 import {calculateAssetPositions} from './assets/calculate-asset-positions';
 import {convertAssetsToFileUrls} from './assets/convert-assets-to-file-urls';
@@ -26,6 +26,7 @@ import {findRemotionRoot} from './find-closest-package-json';
 import {getCodecName} from './get-codec-name';
 import {getFileExtensionFromCodec} from './get-extension-from-codec';
 import {getProResProfileName} from './get-prores-profile-name';
+import type {LogLevel} from './log-level';
 import {Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
@@ -42,7 +43,6 @@ import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
-import type {LogLevel} from './log-level';
 
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
 
@@ -119,7 +119,7 @@ const getAssetsData = async ({
 	remotionRoot,
 	indent,
 }: {
-	assets: TAsset[][];
+	assets: TRenderAsset[][];
 	onDownload: RenderMediaOnDownload | undefined;
 	fps: number;
 	expectedFrames: number;

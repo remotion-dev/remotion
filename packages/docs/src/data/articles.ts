@@ -1717,6 +1717,13 @@ export const articles = [
     crumb: "@remotion/renderer",
   },
   {
+    id: "get-video-metadata",
+    title: "getVideoMetadata()",
+    relativePath: "docs/renderer/get-video-metadata.md",
+    compId: "articles-docs-renderer-get-video-metadata",
+    crumb: "@remotion/renderer",
+  },
+  {
     id: "make-cancel-signal",
     title: "makeCancelSignal()",
     relativePath: "docs/renderer/make-cancel-signal.md",

@@ -7,7 +7,7 @@ import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 
 const commonPlaybackRates: number[] = [
-	-4, -2, -1, -0.5, -0.25, 0.25, 0.5, 1, 2, 4,
+	-4, -2, -1, -0.5, -0.25, 0.25, 0.5, 1, 1.5, 2, 4,
 ];
 
 const getPlaybackRateLabel = (playbackRate: number) => {

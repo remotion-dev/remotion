@@ -3,12 +3,12 @@ import Head from "@docusaurus/Head";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import React, { useCallback, useMemo, useState } from "react";
+import { PlainButton } from "../../../components/layout/Button";
 import { Spacer } from "../../../components/layout/Spacer";
 import { CoolInput } from "../../../components/TextInput";
+import { DoMoreHero } from "../../components/DoMoreHero/DoMoreHero";
 import { Seo } from "../../components/Seo";
 import styles from "./v4.module.css";
-import { DoMoreHero } from "../../components/DoMoreHero/DoMoreHero";
-import { PlainButton } from "../../../components/layout/Button";
 
 const spacer: React.CSSProperties = {
   height: "10px",
@@ -87,13 +87,6 @@ const V4: React.FC = () => {
       </Head>
       <DoMoreHero />
 
-      <style>
-        {`
-        div[class^='announcementBar'] {
-          display: none;
-        }
-          `}
-      </style>
       <div className={styles.container}>
         <div className={styles.wrapper}>
           <h1 className={styles.pagetitle}>Do more with React</h1>

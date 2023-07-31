@@ -1,13 +1,14 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {AssetManager} from '../AssetManager.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
+import {cancelRender} from '../cancel-render.js';
 import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
 import {Img} from '../Img.js';
 import {random} from '../random.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {truthy} from '../truthy.js';
@@ -35,7 +36,8 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 
-	const {registerAsset, unregisterAsset} = useContext(AssetManager);
+	const {registerRenderAsset, unregisterRenderAsset} =
+		useContext(RenderAssetManager);
 
 	if (!src) {
 		throw new TypeError('No `src` was passed to <OffthreadVideo>.');
@@ -84,7 +86,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			return;
 		}
 
-		registerAsset({
+		registerRenderAsset({
 			type: 'video',
 			src: getAbsoluteSrc(src),
 			id,
@@ -95,13 +97,13 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 
-		return () => unregisterAsset(id);
+		return () => unregisterRenderAsset(id);
 	}, [
 		muted,
 		src,
-		registerAsset,
+		registerRenderAsset,
 		id,
-		unregisterAsset,
+		unregisterRenderAsset,
 		volume,
 		frame,
 		absoluteFrame,
@@ -132,9 +134,13 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
 		useCallback(
 			(e) => {
-				onError?.(e);
+				if (onError) {
+					onError?.(e);
+				} else {
+					cancelRender('Failed to load image with src ' + actualSrc);
+				}
 			},
-			[onError]
+			[actualSrc, onError]
 		);
 
 	const className = useMemo(() => {

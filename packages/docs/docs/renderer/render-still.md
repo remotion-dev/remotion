@@ -59,7 +59,10 @@ Takes an object with the following properties:
 
 ### `composition`
 
-A video composition object, consisting of `id`, `height`, `width`, `durationInFrames` and `fps`. Use [`getCompositions()`](/docs/renderer/get-compositions) to get a list of available video configs.
+_VideoConfig_
+
+An object describing a composition using `id`, `width`, `height`, `fps` and `durationInFrames`, `defaultProps` and `props`.  
+Call [`selectComposition()`](/docs/renderer/select-composition) or [`getCompositions()`](/docs/renderer/get-compositions) to get an array of possible configs.
 
 ### `serveUrl`
 
