@@ -81,7 +81,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		imageFormatFromUi: null,
 		logLevel,
 		onProgress: () => undefined,
-		indentOutput: false,
+		indent: false,
 		addCleanupCallback: (c) => {
 			registerCleanupJob(c);
 		},
