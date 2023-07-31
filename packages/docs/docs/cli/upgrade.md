@@ -13,13 +13,17 @@ npx remotion upgrade
 
 ## Flags
 
-### `--package-manager`
+### `--package-manager`<AvailableFrom v="3.2.33"/>
 
-_optional since v3.2.33_
+_optional_
 
 Forces a specific package manager to be used. This is useful if you are using Remotion in a monorepo and you want to upgrade all packages at once. By default, Remotion will auto-detect the package manager.
 
 Acceptable values are `npm`, `yarn` and `pnpm`
+
+### `--version`<AvailableFrom v="4.0.15"/>
+
+Install a specific version. Also enables downgrading to an older version.
 
 ## Package manager support
 
