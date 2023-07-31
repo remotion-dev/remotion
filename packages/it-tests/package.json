@@ -19,7 +19,7 @@
     "remotion": "workspace:*",
     "sharp": "0.30.6",
     "typescript": "4.9.5",
-    "vite": "^4.0.4",
+    "vite": "^4.0.5",
     "vitest": "0.31.1"
   }
 }
