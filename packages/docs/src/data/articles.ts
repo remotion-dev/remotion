@@ -1227,6 +1227,13 @@ export const articles = [
     crumb: "Snippets",
   },
   {
+    id: "miscellaneous/snippets/use-delay-render",
+    title: "useDelayRender()",
+    relativePath: "docs/miscellaneous/snippets/use-delay-render.md",
+    compId: "articles-docs-miscellaneous-snippets-use-delay-render",
+    crumb: "Snippets",
+  },
+  {
     id: "typescript-aliases",
     title: "TypeScript aliases",
     relativePath: "docs/miscellaneous/ts-aliases.md",
@@ -2197,13 +2204,6 @@ export const articles = [
     title: "useCurrentFrame()",
     relativePath: "docs/use-current-frame.md",
     compId: "articles-docs-use-current-frame",
-    crumb: "API",
-  },
-  {
-    id: "use-delay-render",
-    title: "useDelayRender()",
-    relativePath: "docs/use-delay-render.md",
-    compId: "articles-docs-use-delay-render",
     crumb: "API",
   },
   {
