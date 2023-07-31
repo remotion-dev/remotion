@@ -22,6 +22,7 @@ import {Internals} from 'remotion';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
 import type {Loop} from '../config/number-of-gif-loops';
+import {formatBytes} from '../format-bytes';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
@@ -180,7 +181,13 @@ export const renderVideoFlow = async ({
 		doneIn: null,
 	};
 
-	const updateRenderProgress = (newline: boolean) => {
+	const updateRenderProgress = ({
+		newline,
+		printToConsole,
+	}: {
+		newline: boolean;
+		printToConsole: boolean;
+	}) => {
 		const aggregateRenderProgress: AggregateRenderProgress = {
 			rendering: renderingProgress,
 			stitching: shouldOutputImageSequence ? null : stitchingProgress,
@@ -196,10 +203,9 @@ export const renderVideoFlow = async ({
 		});
 		onProgress({message, value: progress, ...aggregateRenderProgress});
 
-		return renderProgress.update(
-			updatesDontOverwrite ? message : output,
-			newline
-		);
+		if (printToConsole) {
+			renderProgress.update(updatesDontOverwrite ? message : output, newline);
+		}
 	};
 
 	const {urlOrBundle, cleanup: cleanupBundle} = await bundleOnCliOrTakeServeUrl(
@@ -210,7 +216,7 @@ export const renderVideoFlow = async ({
 			onProgress: ({bundling, copying}) => {
 				bundlingProgress = bundling;
 				copyingState = copying;
-				updateRenderProgress(false);
+				updateRenderProgress({newline: false, printToConsole: true});
 			},
 			indentOutput: indent,
 			logLevel,
@@ -234,13 +240,38 @@ export const renderVideoFlow = async ({
 			downloaded: 0,
 			totalBytes: null,
 		};
+		const nextDownloadIndex = downloads.length;
 		downloads.push(download);
-		updateRenderProgress(false);
+		Log.verboseAdvanced(
+			{indent, logLevel},
+			`Starting download [${nextDownloadIndex}]:`,
+			src
+		);
+
+		updateRenderProgress({
+			newline: false,
+			printToConsole: !updatesDontOverwrite,
+		});
+		let lastUpdate = Date.now();
 		return ({percent, downloaded, totalSize}) => {
 			download.progress = percent;
 			download.totalBytes = totalSize;
 			download.downloaded = downloaded;
-			updateRenderProgress(false);
+			if (lastUpdate + 1000 > Date.now() && updatesDontOverwrite) {
+				return;
+			}
+
+			lastUpdate = Date.now();
+
+			Log.verboseAdvanced(
+				{indent, logLevel},
+				`Download [${nextDownloadIndex}]:`,
+				percent ? `${(percent * 100).toFixed(1)}%` : formatBytes(downloaded)
+			);
+			updateRenderProgress({
+				newline: false,
+				printToConsole: !updatesDontOverwrite,
+			});
 		};
 	};
 
@@ -371,7 +402,7 @@ export const renderVideoFlow = async ({
 			serializedInputPropsWithCustomSchema,
 			onFrameUpdate: (rendered) => {
 				(renderingProgress as RenderingProgressInput).frames = rendered;
-				updateRenderProgress(false);
+				updateRenderProgress({newline: false, printToConsole: true});
 			},
 			onStart: () => undefined,
 			onDownload,
@@ -403,7 +434,7 @@ export const renderVideoFlow = async ({
 			}).serializedString,
 		});
 
-		updateRenderProgress(true);
+		updateRenderProgress({newline: true, printToConsole: true});
 		Log.infoAdvanced({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
 		return;
 	}
@@ -457,7 +488,7 @@ export const renderVideoFlow = async ({
 				update.renderedDoneIn;
 			(renderingProgress as RenderingProgressInput).frames =
 				update.renderedFrames;
-			updateRenderProgress(false);
+			updateRenderProgress({newline: false, printToConsole: true});
 		},
 		puppeteerInstance,
 		onDownload,
@@ -478,7 +509,7 @@ export const renderVideoFlow = async ({
 		}).serializedString,
 	});
 
-	updateRenderProgress(true);
+	updateRenderProgress({newline: true, printToConsole: true});
 	Log.infoAdvanced(
 		{indent, logLevel},
 		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`)
