@@ -19,10 +19,6 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
-	"files": [
-		"dist",
-		"README.md"
-	],
 	"author": "Arthur Denner <arthurdenner7@gmail.com>",
 	"maintainers": [
 		"Jonny Burger <jonny@remotion.dev>",

@@ -9,3 +9,4 @@ tsconfig.json
 .rollup.cache
 dist/tsconfig-esm.tsbuildinfo
 tsconfig-esm.json
+rollup.config.js
