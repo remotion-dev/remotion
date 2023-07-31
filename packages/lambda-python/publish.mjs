@@ -12,7 +12,7 @@ try {
   execSync(
     `cat <<EOF > ~/.pypirc
 [${pypiRepo}]
-username = ${process.env.PYPI_USERNAME}
+username = __token__
 password = ${process.env.PYPI_PASSWORD}
 EOF`,
     {
