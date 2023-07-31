@@ -997,8 +997,8 @@ importers:
         specifier: 4.9.5
         version: 4.9.5
       vite:
-        specifier: ^4.0.4
-        version: 4.0.4(@types/node@18.14.6)
+        specifier: ^4.0.5
+        version: 4.0.5(@types/node@18.14.6)
       vitest:
         specifier: 0.31.1
         version: 0.31.1(jsdom@20.0.1)
@@ -18006,6 +18006,7 @@ packages:
       nanoid: 3.3.4
       picocolors: 1.0.0
       source-map-js: 1.0.2
+    dev: false
 
   /postcss@8.4.23:
     resolution: {integrity: sha512-bQ3qMcpF6A/YjR55xtoTr0jGOlnPOKAIMdOWiv0EIT6HVPEaJiJB4NLljSbiHoC2RX7DN5Uvjtpbg1NPdwv1oA==}
@@ -19088,6 +19089,7 @@ packages:
       is-core-module: 2.12.1
       path-parse: 1.0.7
       supports-preserve-symlinks-flag: 1.0.0
+    dev: true
 
   /resolve@1.22.2:
     resolution: {integrity: sha512-Sb+mjNHOULsBv818T40qSPeRiuWLyaGMa5ewydRLFimneixmVy2zdivRl+AF6jaYPC8ERxGDmFSiqui6SfPd+g==}
@@ -21403,8 +21405,8 @@ packages:
       fsevents: 2.3.2
     dev: true
 
-  /vite@4.0.4(@types/node@18.14.6):
-    resolution: {integrity: sha512-xevPU7M8FU0i/80DMR+YhgrzR5KS2ORy1B4xcX/cXLsvnUWvfHuqMmVU6N0YiJ4JWGRJJsLCgjEzKjG9/GKoSw==}
+  /vite@4.0.5(@types/node@18.14.6):
+    resolution: {integrity: sha512-7m87RC+caiAxG+8j3jObveRLqaWA/neAdCat6JAZwMkSWqFHOvg8MYe5fAQxVBRAuKAQ1S6XDh3CBQuLNbY33w==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
     peerDependencies:
@@ -21430,8 +21432,8 @@ packages:
     dependencies:
       '@types/node': 18.14.6
       esbuild: 0.16.17
-      postcss: 8.4.21
-      resolve: 1.22.1
+      postcss: 8.4.23
+      resolve: 1.22.2
       rollup: 3.10.0
     optionalDependencies:
       fsevents: 2.3.2
@@ -21465,7 +21467,7 @@ packages:
       '@types/node': 18.14.6
       esbuild: 0.16.17
       postcss: 8.4.23
-      resolve: 1.22.1
+      resolve: 1.22.2
       rollup: 3.10.0
     optionalDependencies:
       fsevents: 2.3.2
