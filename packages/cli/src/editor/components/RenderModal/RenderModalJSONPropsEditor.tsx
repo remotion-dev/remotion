@@ -1,4 +1,6 @@
 import React, {useCallback, useEffect, useMemo} from 'react';
+import type {SerializedJSONWithCustomFields} from 'remotion';
+import {Internals} from 'remotion';
 import type {z} from 'zod';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {FAIL_COLOR} from '../../helpers/colors';
@@ -7,9 +9,8 @@ import {Flex, Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
 import {ValidationMessage} from '../NewComposition/ValidationMessage';
 import type {State} from './DataEditor';
+import {deepEqual} from './SchemaEditor/deep-equal';
 import {ZodErrorMessages} from './SchemaEditor/ZodErrorMessages';
-import type {SerializedJSONWithCustomFields} from 'remotion';
-import {Internals} from 'remotion';
 
 const style: React.CSSProperties = {
 	fontFamily: 'monospace',
@@ -39,7 +40,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	value: unknown;
 	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	onSave: () => void;
-	valBeforeSafe: unknown;
 	showSaveButton: boolean;
 	serializedJSON: SerializedJSONWithCustomFields | null;
 	defaultProps: Record<string, unknown>;
@@ -49,7 +49,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	value,
 	defaultProps,
 	onSave,
-	valBeforeSafe,
 	showSaveButton,
 	serializedJSON,
 	schema,
@@ -59,7 +58,6 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	}
 
 	const keybindings = useKeybinding();
-
 	const [localValue, setLocalValue] = React.useState<State>(() => {
 		return parseJSON(serializedJSON.serializedString, schema);
 	});
@@ -100,8 +98,8 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	);
 
 	const hasChanged = useMemo(() => {
-		return value && JSON.stringify(value) !== JSON.stringify(valBeforeSafe);
-	}, [valBeforeSafe, value]);
+		return !deepEqual(value, defaultProps);
+	}, [defaultProps, value]);
 
 	const onQuickSave = useCallback(() => {
 		if (hasChanged) {
@@ -130,9 +128,9 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	}, [keybindings, onQuickSave, onSave]);
 
 	const reset = useCallback(() => {
-		setLocalValue(parseJSON(serializedJSON.serializedString, schema));
 		setValue(defaultProps);
-	}, [defaultProps, schema, serializedJSON.serializedString, setValue]);
+		setLocalValue(parseJSON(JSON.stringify(defaultProps, null, 2), schema));
+	}, [defaultProps, schema, setValue]);
 
 	const textAreaStyle: React.CSSProperties = useMemo(() => {
 		const fail = !localValue.validJSON || !localValue.zodValidation.success;
@@ -170,10 +168,7 @@ export const RenderModalJSONPropsEditor: React.FC<{
 			<Spacing y={1} />
 			<Row>
 				<Button
-					disabled={
-						!localValue.validJSON ||
-						!(localValue.validJSON && !localValue.zodValidation.success)
-					}
+					disabled={!(hasChanged || !localValue.validJSON)}
 					onClick={reset}
 				>
 					Reset
@@ -183,17 +178,18 @@ export const RenderModalJSONPropsEditor: React.FC<{
 					Format
 				</Button>
 				<Spacing x={1} />
-				<Button
-					onClick={onSave}
-					disabled={
-						!(localValue.validJSON && localValue.zodValidation.success) ||
-						!localValue.validJSON ||
-						!hasChanged ||
-						!showSaveButton
-					}
-				>
-					Save
-				</Button>
+				{showSaveButton ? (
+					<Button
+						onClick={onSave}
+						disabled={
+							!(localValue.validJSON && localValue.zodValidation.success) ||
+							!localValue.validJSON ||
+							!hasChanged
+						}
+					>
+						Save
+					</Button>
+				) : null}
 			</Row>
 		</div>
 	);

@@ -1,10 +1,10 @@
+import {interpolate} from 'remotion';
 import {expect, test} from 'vitest';
 import {
 	getIdealMaximumFrameCacheItems,
 	startLongRunningCompositor,
 } from '../compositor/compositor';
 import {exampleVideos} from './example-videos';
-import {interpolate} from 'remotion';
 
 const BMP_HEADER_SIZE = 54;
 
@@ -18,14 +18,16 @@ test(
 		);
 
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input: exampleVideos.bigBuckBunny,
+			src: exampleVideos.bigBuckBunny,
+			original_src: exampleVideos.bigBuckBunny,
 			time: 40,
 			transparent: false,
 		});
 		expect(data.length).toBe(1280 * 720 * 3 + BMP_HEADER_SIZE);
 
 		const data2 = await compositor.executeCommand('ExtractFrame', {
-			input: exampleVideos.bigBuckBunny,
+			src: exampleVideos.bigBuckBunny,
+			original_src: exampleVideos.bigBuckBunny,
 			time: 40.4,
 			transparent: false,
 		});
@@ -49,7 +51,8 @@ test(
 		);
 
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input: exampleVideos.transparentWebm,
+			src: exampleVideos.transparentWebm,
+			original_src: exampleVideos.transparentWebm,
 			time: 1,
 			transparent: true,
 		});
@@ -88,12 +91,14 @@ test('Should be able to start two compositors', async () => {
 	);
 
 	await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
+		original_src: exampleVideos.bigBuckBunny,
 		time: 40,
 		transparent: false,
 	});
 	await compositor2.executeCommand('ExtractFrame', {
-		input: exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
+		original_src: exampleVideos.bigBuckBunny,
 		time: 40,
 		transparent: false,
 	});
@@ -107,13 +112,15 @@ test('Should be able to seek backwards', async () => {
 	);
 
 	const data = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
+		original_src: exampleVideos.bigBuckBunny,
 		time: 40,
 		transparent: false,
 	});
 	expect(data.length).toBe(2764854);
 	const data2 = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.bigBuckBunny,
+		src: exampleVideos.bigBuckBunny,
+		original_src: exampleVideos.bigBuckBunny,
 		time: 35,
 		transparent: false,
 	});
@@ -133,7 +140,8 @@ test(
 		);
 
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input: exampleVideos.framerWithoutFileExtension,
+			src: exampleVideos.framerWithoutFileExtension,
+			original_src: exampleVideos.framerWithoutFileExtension,
 			time: 0.04,
 			transparent: false,
 		});
@@ -155,7 +163,8 @@ test(
 		);
 
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input: exampleVideos.framerWithoutFileExtension,
+			src: exampleVideos.framerWithoutFileExtension,
+			original_src: exampleVideos.framerWithoutFileExtension,
 			time: 3.33,
 			transparent: false,
 		});
@@ -186,7 +195,8 @@ test(
 		);
 
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input: exampleVideos.corrupted,
+			src: exampleVideos.corrupted,
+			original_src: exampleVideos.corrupted,
 			time: 100,
 			transparent: false,
 		});
@@ -211,7 +221,8 @@ test('Should be able to extract a frame with abnormal DAR', async () => {
 	);
 
 	const data = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.customDar,
+		src: exampleVideos.customDar,
+		original_src: exampleVideos.customDar,
 		time: 3.33,
 		transparent: false,
 	});
@@ -243,7 +254,8 @@ test('Should be able to extract the frames in reverse order', async () => {
 
 	for (let i = 30; i > 0; i -= 2) {
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input: exampleVideos.bigBuckBunny,
+			src: exampleVideos.bigBuckBunny,
+			original_src: exampleVideos.bigBuckBunny,
 			time: i,
 			transparent: false,
 		});
@@ -285,7 +297,8 @@ test('Last frame should be fast', async () => {
 	const time = Date.now();
 
 	const data = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.framerWithoutFileExtension,
+		src: exampleVideos.framerWithoutFileExtension,
+		original_src: exampleVideos.framerWithoutFileExtension,
 		time: 3.333,
 		transparent: false,
 	});
@@ -295,7 +308,8 @@ test('Last frame should be fast', async () => {
 
 	const time2 = Date.now();
 	const data2 = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.framerWithoutFileExtension,
+		src: exampleVideos.framerWithoutFileExtension,
+		original_src: exampleVideos.framerWithoutFileExtension,
 		time: 3.333,
 		transparent: false,
 	});
@@ -307,7 +321,8 @@ test('Last frame should be fast', async () => {
 
 	const time3 = Date.now();
 	const data3 = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.framerWithoutFileExtension,
+		src: exampleVideos.framerWithoutFileExtension,
+		original_src: exampleVideos.framerWithoutFileExtension,
 		time: 100,
 		transparent: false,
 	});
@@ -320,7 +335,8 @@ test('Last frame should be fast', async () => {
 	// Transparent frame should be different, so it should take a lot more time
 	const time4 = Date.now();
 	const data4 = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.framerWithoutFileExtension,
+		src: exampleVideos.framerWithoutFileExtension,
+		original_src: exampleVideos.framerWithoutFileExtension,
 		time: 100,
 		transparent: true,
 	});
@@ -341,7 +357,8 @@ test('Should get from a screen recording', async () => {
 	);
 
 	const data = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.screenrecording,
+		src: exampleVideos.screenrecording,
+		original_src: exampleVideos.screenrecording,
 		time: 0.5,
 		transparent: false,
 	});
@@ -360,7 +377,8 @@ test('Should get from video with no fps', async () => {
 	);
 
 	const data = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.nofps,
+		src: exampleVideos.nofps,
+		original_src: exampleVideos.nofps,
 		time: 0.5,
 		transparent: false,
 	});
@@ -379,7 +397,8 @@ test('Should get from broken webcam video', async () => {
 	);
 
 	const data = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.webcam,
+		src: exampleVideos.webcam,
+		original_src: exampleVideos.webcam,
 		time: 0,
 		transparent: false,
 	});
@@ -398,12 +417,33 @@ test('Should get from iPhone video', async () => {
 	);
 
 	const data = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.iphonevideo,
-		time: 3,
+		src: exampleVideos.iphonevideo,
+		original_src: exampleVideos.iphonevideo,
+		time: 1,
 		transparent: false,
 	});
 
 	expect(data.length).toBe(24883254);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
+test('Should get from AV1 video', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		src: exampleVideos.av1,
+		original_src: exampleVideos.av1,
+		time: 0.5,
+		transparent: false,
+	});
+
+	expect(data.length).toBe(6220854);
 
 	compositor.finishCommands();
 	await compositor.waitForDone();
@@ -417,7 +457,8 @@ test('Two different starting times should not result in big seeking', async () =
 	for (let i = 0; i < 10; i++) {
 		const time = i + (i % 2 === 0 ? 60 : 0);
 		const data = await compositor.executeCommand('ExtractFrame', {
-			input: exampleVideos.bigBuckBunny,
+			src: exampleVideos.bigBuckBunny,
+			original_src: exampleVideos.bigBuckBunny,
 			time,
 			transparent: false,
 		});
@@ -515,13 +556,15 @@ test('Should not duplicate frames for iphoneVideo', async () => {
 	const compositor = startLongRunningCompositor(500, 'info', false);
 
 	const firstFrame = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.iphonevideo,
+		src: exampleVideos.iphonevideo,
+		original_src: exampleVideos.iphonevideo,
 		time: frame30,
 		transparent: false,
 	});
 
 	const secondFrame = await compositor.executeCommand('ExtractFrame', {
-		input: exampleVideos.iphonevideo,
+		src: exampleVideos.iphonevideo,
+		original_src: exampleVideos.iphonevideo,
 		time: frame31,
 		transparent: false,
 	});

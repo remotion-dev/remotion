@@ -35,7 +35,7 @@ import type {
 } from './api/get-or-create-bucket';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRegions} from './api/get-regions';
-import type {GetRenderInput} from './api/get-render-progress';
+import type {GetRenderProgressInput} from './api/get-render-progress';
 import {getRenderProgress} from './api/get-render-progress';
 import type {GetSitesInput, GetSitesOutput} from './api/get-sites';
 import {getSites as deprecatedGetSites} from './api/get-sites';
@@ -142,7 +142,7 @@ export type {
 	DownloadMediaOutput,
 	GetOrCreateBucketInput,
 	GetOrCreateBucketOutput,
-	GetRenderInput,
+	GetRenderProgressInput,
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
 	RenderStillOnLambdaInput,

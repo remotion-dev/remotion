@@ -15,6 +15,8 @@
  */
 
 import {Internals} from 'remotion';
+import {formatRemoteObject} from '../format-logs';
+import type {LogLevel} from '../log-level';
 import {Log} from '../logger';
 import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
 import {truthy} from '../truthy';
@@ -56,8 +58,6 @@ import {
 	releaseObject,
 	valueFromRemoteObject,
 } from './util';
-import type {LogLevel} from '../log-level';
-import {formatRemoteObject} from '../format-logs';
 
 interface WaitForOptions {
 	timeout?: number;
@@ -102,7 +102,7 @@ export class Page extends EventEmitter {
 		target: Target;
 		defaultViewport: Viewport;
 		browser: HeadlessBrowser;
-		sourcemapContext: AnySourceMapConsumer | null;
+		sourcemapContext: Promise<AnySourceMapConsumer | null>;
 		logLevel: LogLevel;
 		indent: boolean;
 	}): Promise<Page> {
@@ -128,7 +128,7 @@ export class Page extends EventEmitter {
 	#pageBindings = new Map<string, Function>();
 	browser: HeadlessBrowser;
 	screenshotTaskQueue: TaskQueue;
-	sourcemapContext: AnySourceMapConsumer | null;
+	sourcemapContext: AnySourceMapConsumer | null = null;
 	logLevel: LogLevel;
 
 	constructor({
@@ -142,18 +142,20 @@ export class Page extends EventEmitter {
 		client: CDPSession;
 		target: Target;
 		browser: HeadlessBrowser;
-		sourcemapContext: AnySourceMapConsumer | null;
+		sourcemapContext: Promise<AnySourceMapConsumer | null>;
 		logLevel: LogLevel;
 		indent: boolean;
 	}) {
 		super();
 		this.#client = client;
 		this.#target = target;
-		this.#frameManager = new FrameManager(client, this, this.#timeoutSettings);
+		this.#frameManager = new FrameManager(client, this);
 		this.screenshotTaskQueue = new TaskQueue();
 		this.browser = browser;
 		this.id = String(Math.random());
-		this.sourcemapContext = sourcemapContext;
+		sourcemapContext.then((context) => {
+			this.sourcemapContext = context;
+		});
 		this.logLevel = logLevel;
 
 		client.on('Target.attachedToTarget', (event: AttachedToTargetEvent) => {
@@ -214,13 +216,31 @@ export class Page extends EventEmitter {
 					.filter(truthy)
 					.join(':');
 
-				Log.verboseAdvanced(
-					{
-						logLevel,
-						tag: [origPosition.name, file].filter(truthy).join('@'),
-						indent,
-					},
-					log.previewString
+				const tag = [origPosition?.name, file].filter(truthy).join('@');
+
+				if (log.type === 'error') {
+					Log.errorAdvanced(
+						{
+							logLevel,
+							tag,
+							indent,
+						},
+						log.previewString
+					);
+				} else {
+					Log.verboseAdvanced(
+						{
+							logLevel,
+							tag,
+							indent,
+						},
+						log.previewString
+					);
+				}
+			} else if (log.type === 'error') {
+				Log.errorAdvanced(
+					{logLevel, tag: `console.${log.type}`, indent},
+					log.text
 				);
 			} else {
 				Log.verboseAdvanced(
@@ -467,11 +487,16 @@ export class Page extends EventEmitter {
 		return this.mainFrame().url();
 	}
 
-	goto(
-		url: string,
-		options: WaitForOptions & {referer?: string} = {}
-	): Promise<HTTPResponse | null> {
-		return this.#frameManager.mainFrame().goto(url, options);
+	goto({
+		url,
+		timeout,
+		options = {},
+	}: {
+		url: string;
+		timeout: number;
+		options?: WaitForOptions & {referer?: string};
+	}): Promise<HTTPResponse | null> {
+		return this.#frameManager.mainFrame().goto(url, timeout, options);
 	}
 
 	async bringToFront(): Promise<void> {
@@ -514,7 +539,9 @@ export class Page extends EventEmitter {
 		}
 	}
 
-	setBrowserSourceMapContext(context: AnySourceMapConsumer | null) {
-		this.sourcemapContext = context;
+	setBrowserSourceMapContext(context: Promise<AnySourceMapConsumer | null>) {
+		context.then((ctx) => {
+			this.sourcemapContext = ctx;
+		});
 	}
 }

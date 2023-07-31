@@ -3,6 +3,8 @@ import {chmodSync} from 'node:fs';
 import os from 'node:os';
 import {dynamicLibraryPathOptions} from '../call-ffmpeg';
 import {getActualConcurrency} from '../get-concurrency';
+import type {LogLevel} from '../log-level';
+import {isEqualOrBelowLogLevel} from '../log-level';
 import {Log} from '../logger';
 import {serializeCommand} from './compose';
 import {getExecutablePath} from './get-executable-path';
@@ -12,8 +14,6 @@ import type {
 	CompositorCommandSerialized,
 	ErrorPayload,
 } from './payloads';
-import type {LogLevel} from '../log-level';
-import {isEqualOrBelowLogLevel} from '../log-level';
 
 export type Compositor = {
 	finishCommands: () => void;
@@ -32,13 +32,14 @@ type Waiter = {
 
 export const getIdealMaximumFrameCacheItems = () => {
 	const freeMemory = os.freemem();
-	// Assuming 1 frame is approximately 6MB
+	// Assuming 1 frame is approximately 24MB
+	// (4K video)
 	// Assuming only half the available memory should be used
-	const max = Math.floor(freeMemory / (1024 * 1024 * 6));
+	const max = Math.floor(freeMemory / (1024 * 1024 * 24));
 
 	// Never store more than 2000 frames
-	// But 500 is needed even if it's going to swap
-	return Math.max(500, Math.min(max, 2000));
+	// But 60 is needed even if it's going to swap
+	return Math.max(60, Math.min(max, 2000));
 };
 
 export const startLongRunningCompositor = (
@@ -244,7 +245,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	let resolve: ((value: void | PromiseLike<void>) => void) | null = null;
 	let reject: ((reason: Error) => void) | null = null;
 
-	child.on('close', (code) => {
+	child.on('close', (code, signal) => {
 		const waitersToKill = Array.from(waiters.values());
 		if (code === 0) {
 			runningStatus = {type: 'quit-without-error'};
@@ -256,10 +257,15 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 
 			waiters.clear();
 		} else {
-			const errorMessage = Buffer.concat(stderrChunks).toString('utf-8');
+			const errorMessage =
+				Buffer.concat(stderrChunks).toString('utf-8') +
+				outputBuffer.toString('utf-8');
 			runningStatus = {type: 'quit-with-error', error: errorMessage};
 
-			const error = new Error(`Compositor panicked: ${errorMessage}`);
+			const error =
+				code === null
+					? new Error(`Compositor exited with signal ${signal}`)
+					: new Error(`Compositor panicked with code ${code}: ${errorMessage}`);
 			for (const waiter of waitersToKill) {
 				waiter.reject(error);
 			}

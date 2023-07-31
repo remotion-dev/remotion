@@ -95,16 +95,18 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		audioCodec: params.audioCodec,
 	};
 
+	// Don't replace with callLambda(), we want to return before the render is snone
 	await getLambdaClient(getCurrentRegionInFunction()).send(
 		new InvokeCommand({
 			FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-			// @ts-expect-error
 			Payload: JSON.stringify(payload),
 			InvocationType: 'Event',
 		})
 	);
 	await initialFile;
+
 	return {
+		type: 'success' as const,
 		bucketName,
 		renderId,
 	};

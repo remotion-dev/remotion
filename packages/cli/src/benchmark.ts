@@ -1,5 +1,6 @@
 import type {InternalRenderMediaOptions} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import {chalk} from './chalk';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
@@ -16,7 +17,6 @@ import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {showMultiCompositionsPicker} from './show-compositions-picker';
 import {truthy} from './truthy';
-import {Internals} from 'remotion';
 
 const DEFAULT_RUNS = 3;
 

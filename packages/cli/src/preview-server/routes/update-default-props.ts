@@ -7,7 +7,6 @@ import type {
 	UpdateDefaultPropsResponse,
 } from '../render-queue/job';
 import {checkIfTypeScriptFile} from './can-update-default-props';
-import {Internals} from 'remotion';
 
 export const updateDefaultPropsHandler: ApiHandler<
 	UpdateDefaultPropsRequest,
@@ -24,7 +23,7 @@ export const updateDefaultPropsHandler: ApiHandler<
 		const updated = await updateDefaultProps({
 			compositionId,
 			input: readFileSync(projectInfo.videoFile, 'utf-8'),
-			newDefaultProps: Internals.deserializeJSONWithCustomFields(defaultProps),
+			newDefaultProps: JSON.parse(defaultProps),
 			enumPaths,
 		});
 

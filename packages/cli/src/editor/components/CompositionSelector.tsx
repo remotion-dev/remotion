@@ -17,10 +17,10 @@ import {CurrentComposition} from './CurrentComposition';
 import {useSelectComposition} from './InitialCompositionLoader';
 
 const container: React.CSSProperties = {
-	position: 'absolute',
-	height: '100%',
-	width: '100%',
+	display: 'flex',
+	flexDirection: 'column',
 	flex: 1,
+	overflow: 'hidden',
 	backgroundColor: BACKGROUND,
 };
 

@@ -1,7 +1,7 @@
 {
 	"name": "@remotion/example",
 	"private": true,
-	"version": "4.0.4",
+	"version": "4.0.14",
 	"description": "",
 	"license": "SEE LICENSE IN LICENSE.md",
 	"author": "Jonny Burger",
@@ -27,7 +27,8 @@
 		"@babel/preset-env": "7.12.13",
 		"@babel/preset-react": "7.12.13",
 		"@mdx-js/react": "^1.6.21",
-		"@react-three/drei": "^9.37.0",
+		"@react-three/drei": "9.79.4",
+		"@react-three/fiber": "8.13.5",
 		"@remotion/babel-loader": "workspace:*",
 		"@remotion/bundler": "workspace:*",
 		"@remotion/cli": "workspace:*",

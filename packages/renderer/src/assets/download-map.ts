@@ -1,9 +1,9 @@
 import fs, {mkdirSync} from 'node:fs';
 import path from 'node:path';
-import type {TAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion';
 import {deleteDirectory} from '../delete-directory';
-import {tmpDir} from '../tmp-dir';
 import {OffthreadVideoServerEmitter} from '../offthread-video-server';
+import {tmpDir} from '../tmp-dir';
 import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 
 export type AudioChannelsAndDurationResultCache = {
@@ -43,7 +43,7 @@ export type DownloadMap = {
 };
 
 export type RenderAssetInfo = {
-	assets: TAsset[][];
+	assets: TRenderAsset[][];
 	imageSequenceName: string;
 	firstFrameIndex: number;
 	downloadMap: DownloadMap;
