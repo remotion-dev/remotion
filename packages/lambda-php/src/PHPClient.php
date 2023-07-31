@@ -27,7 +27,7 @@ class PHPClient
         $this->setFunctionName($functionName);
     }
 
-    protected function constructInternals(RenderParams $render)
+    public function constructInternals(RenderParams $render)
     {
         if (empty($render->getComposition())) {
             throw new ValidationException("'composition' is required.");
