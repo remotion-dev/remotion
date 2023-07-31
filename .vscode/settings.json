@@ -15,5 +15,8 @@
   "python.analysis.extraPaths": [
     "./packages/lambda-python/src",
     "./packages/lambda-python/remotion_lambda_sdk"
-  ]
+  ],
+  "[php]": {
+    "editor.defaultFormatter": "DEVSENSE.phptools-vscode"
+  }
 }

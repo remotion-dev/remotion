@@ -1234,6 +1234,13 @@ export const articles = [
     crumb: "Snippets",
   },
   {
+    id: "miscellaneous/snippets/use-delay-render",
+    title: "useDelayRender()",
+    relativePath: "docs/miscellaneous/snippets/use-delay-render.md",
+    compId: "articles-docs-miscellaneous-snippets-use-delay-render",
+    crumb: "Snippets",
+  },
+  {
     id: "typescript-aliases",
     title: "TypeScript aliases",
     relativePath: "docs/miscellaneous/ts-aliases.md",
