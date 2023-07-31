@@ -42,8 +42,16 @@ export const upgrade = async (
 		packageJson.optionalDependencies ?? {}
 	);
 	const peerDependencies = Object.keys(packageJson.peerDependencies ?? {});
-	const versionToUpgrade = version ? version :  await getLatestRemotionVersion();
-	Log.info('Newest Remotion version is', latestRemotionVersion);
+
+	let targetVersion: string;
+	if (version) {
+		targetVersion = version;
+		Log.info('Upgrading to specified version: ' + version);
+	} else {
+		targetVersion = await getLatestRemotionVersion();
+		Log.info('Newest Remotion version is', targetVersion);
+	}
+
 	const manager = getPackageManager(remotionRoot, packageManager);
 
 	if (manager === 'unknown') {
@@ -52,10 +60,6 @@ export const upgrade = async (
 				.map((p) => p.path)
 				.join(', ')}). Install dependencies using your favorite manager!`
 		);
-	}
-
-	if (version) {
-		Log.info('Upgrading to specified version: ' + version);
 	}
 
 	const toUpgrade = listOfRemotionPackages.filter(
@@ -71,7 +75,7 @@ export const upgrade = async (
 		getUpgradeCommand({
 			manager: manager.manager,
 			packages: toUpgrade,
-			version: version ? version : latestRemotionVersion,
+			version: targetVersion,
 		}),
 		{
 			stdio: 'inherit',
