@@ -6,7 +6,17 @@ import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
-import type {LambdaPayload, RenderMetadata} from '../shared/constants';
+import {
+	compressInputProps,
+	decompressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../shared/compress-props';
+import type {
+	LambdaPayload,
+	LambdaPayloads,
+	RenderMetadata,
+} from '../shared/constants';
 import {
 	CONCAT_FOLDER_TOKEN,
 	encodingProgressKey,
@@ -44,12 +54,6 @@ import {
 	writeLambdaError,
 } from './helpers/write-lambda-error';
 import {writePostRenderData} from './helpers/write-post-render-data';
-import {
-	decompressInputProps,
-	getNeedsToUpload,
-	compressInputProps,
-	serializeOrThrow,
-} from '../shared/compress-props';
 
 type Options = {
 	expectedBucketOwner: string;
@@ -61,19 +65,17 @@ const callFunctionWithRetry = async ({
 	retries,
 	functionName,
 }: {
-	payload: unknown;
+	payload: LambdaPayloads[LambdaRoutines.renderer];
 	retries: number;
 	functionName: string;
 }): Promise<unknown> => {
 	try {
 		await getLambdaClient(getCurrentRegionInFunction()).send(
 			new InvokeCommand({
-				FunctionName: functionName,
-				// @ts-expect-error
+				FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
 				Payload: JSON.stringify(payload),
 				InvocationType: 'Event',
-			}),
-			{}
+			})
 		);
 	} catch (err) {
 		if ((err as Error).name === 'ResourceConflictException') {
@@ -257,10 +259,12 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 
 	const serializedResolved = serializeOrThrow(comp.props, 'resolved-props');
 
-	const needsToUpload = getNeedsToUpload(
-		'video-or-audio',
-		serializedResolved + params.inputProps
-	);
+	const needsToUpload = getNeedsToUpload('video-or-audio', [
+		serializedResolved.length,
+		params.inputProps.type === 'bucket-url'
+			? params.inputProps.hash.length
+			: params.inputProps.payload.length,
+	]);
 
 	const serializedResolvedProps = await compressInputProps({
 		propsType: 'resolved-props',
@@ -469,8 +473,20 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 			console.log('No webhook specified');
 		}
 
+		const firstError = errors[0];
+		if (firstError.chunk !== null) {
+			throw new Error(
+				`Stopping Lambda function because error occurred while rendering chunk ${
+					firstError.chunk
+				}:\n${errors[0].stack
+					.split('\n')
+					.map((s) => `   ${s}`)
+					.join('\n')}`
+			);
+		}
+
 		throw new Error(
-			'Stopping Lambda function because error occurred: ' + errors[0].stack
+			`Stopping Lambda function because error occurred: ${errors[0].stack}`
 		);
 	};
 
@@ -655,13 +671,18 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 export const launchHandler = async (
 	params: LambdaPayload,
 	options: Options
-) => {
+): Promise<{
+	type: 'success';
+}> => {
 	if (params.type !== LambdaRoutines.launch) {
 		throw new Error('Expected launch type');
 	}
 
 	try {
 		await innerLaunchHandler(params, options);
+		return {
+			type: 'success',
+		};
 	} catch (err) {
 		if (process.env.NODE_ENV === 'test') {
 			throw err;
@@ -730,5 +751,7 @@ export const launchHandler = async (
 				console.log(error);
 			}
 		}
+
+		throw err;
 	}
 };

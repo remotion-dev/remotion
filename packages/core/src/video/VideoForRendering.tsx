@@ -9,7 +9,6 @@ import React, {
 	useRef,
 } from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
-import {AssetManager} from '../AssetManager.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
@@ -18,6 +17,7 @@ import {continueRender, delayRender} from '../delay-render.js';
 import {useRemotionEnvironment} from '../get-environment.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {random} from '../random.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
 import {SequenceContext} from '../SequenceContext.js';
 import {useTimelinePosition} from '../timeline-position-state.js';
 import {useCurrentFrame} from '../use-current-frame.js';
@@ -55,7 +55,8 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const mediaStartsAt = useMediaStartsAt();
 	const environment = useRemotionEnvironment();
 
-	const {registerAsset, unregisterAsset} = useContext(AssetManager);
+	const {registerRenderAsset, unregisterRenderAsset} =
+		useContext(RenderAssetManager);
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
@@ -100,7 +101,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		registerAsset({
+		registerRenderAsset({
 			type: 'video',
 			src: getAbsoluteSrc(props.src),
 			id,
@@ -111,13 +112,13 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 
-		return () => unregisterAsset(id);
+		return () => unregisterRenderAsset(id);
 	}, [
 		props.muted,
 		props.src,
-		registerAsset,
+		registerRenderAsset,
 		id,
-		unregisterAsset,
+		unregisterRenderAsset,
 		volume,
 		frame,
 		absoluteFrame,

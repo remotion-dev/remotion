@@ -6,7 +6,10 @@ if (typeof window !== 'undefined') {
 }
 
 let handles: number[] = [];
-const timeouts: {[key: string]: number | NodeJS.Timeout} = {};
+if (typeof window !== 'undefined') {
+	window.remotion_delayRenderTimeouts = {};
+}
+
 export const DELAY_RENDER_CALLSTACK_TOKEN = 'The delayRender was called:';
 
 const defaultTimeout = 30000;
@@ -34,19 +37,25 @@ export const delayRender = (label?: string): number => {
 			typeof window === 'undefined'
 				? defaultTimeout
 				: (window.remotion_puppeteerTimeout ?? defaultTimeout) - 2000;
-		timeouts[handle] = setTimeout(() => {
-			const message = [
-				`A delayRender()`,
-				label ? `"${label}"` : null,
-				`was called but not cleared after ${timeoutToUse}ms. See https://remotion.dev/docs/timeout for help.`,
-				DELAY_RENDER_CALLSTACK_TOKEN,
-				called,
-			]
-				.filter(truthy)
-				.join(' ');
 
-			throw new Error(message);
-		}, timeoutToUse);
+		if (typeof window !== 'undefined') {
+			window.remotion_delayRenderTimeouts[handle] = {
+				label: label ?? null,
+				timeout: setTimeout(() => {
+					const message = [
+						`A delayRender()`,
+						label ? `"${label}"` : null,
+						`was called but not cleared after ${timeoutToUse}ms. See https://remotion.dev/docs/timeout for help.`,
+						DELAY_RENDER_CALLSTACK_TOKEN,
+						called,
+					]
+						.filter(truthy)
+						.join(' ');
+
+					throw new Error(message);
+				}, timeoutToUse),
+			};
+		}
 	}
 
 	if (typeof window !== 'undefined') {
@@ -78,7 +87,8 @@ export const continueRender = (handle: number): void => {
 	handles = handles.filter((h) => {
 		if (h === handle) {
 			if (getRemotionEnvironment() === 'rendering') {
-				clearTimeout(timeouts[handle] as number);
+				clearTimeout(window.remotion_delayRenderTimeouts[handle].timeout);
+				delete window.remotion_delayRenderTimeouts[handle];
 			}
 
 			return false;
