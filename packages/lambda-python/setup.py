@@ -8,7 +8,7 @@ with open(os.path.join(os.path.dirname(__file__), "README.md")) as readme:
 setuptools.setup(
     name="remotion_lambda",
     version=VERSION,
-    author="Johny Burger",
+    author="Jonny Burger",
     author_email="jonny@remotion.dev",
     description="Remotion Lambda client",
     long_description_content_type="text/markdown",
