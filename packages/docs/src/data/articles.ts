@@ -896,6 +896,13 @@ export const articles = [
     crumb: "Lambda API",
   },
   {
+    id: "lambda/python",
+    title: "Triggering renders from Python",
+    relativePath: "docs/lambda/python.md",
+    compId: "articles-docs-lambda-python",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "region-selection",
     title: "Region selection",
     relativePath: "docs/lambda/region-selection.md",

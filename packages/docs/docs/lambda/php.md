@@ -42,11 +42,11 @@ $dotenv = Dotenv::createUnsafeImmutable(__DIR__);
 $dotenv->load();
 
 // Specify the region you deployed to, for example "us-east-1"
-$region = $_ENV['REMOTION_APP_REGION'];
+$region = getenv('REMOTION_APP_REGION');
 // Specify the function you would like to call
-$functionName = $_ENV['REMOTION_APP_FUNCTION_NAME'];
+$functionName = getenv('REMOTION_APP_FUNCTION_NAME');
 // Specify the URL to your Webpack bundle
-$serveUrl = $_ENV['REMOTION_APP_SERVE_URL'];
+$serveUrl = getenv('REMOTION_APP_SERVE_URL');
 
 
 $provider = CredentialProvider::defaultProvider();

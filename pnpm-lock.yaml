@@ -1111,6 +1111,16 @@ importers:
         specifier: workspace:*
         version: link:../core
 
+  packages/lambda-python:
+    dependencies:
+      dotenv:
+        specifier: 9.0.2
+        version: 9.0.2
+    devDependencies:
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+
   packages/lottie:
     dependencies:
       lottie-web:
