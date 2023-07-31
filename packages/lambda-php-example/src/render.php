@@ -32,7 +32,7 @@ $params = new RenderParams();
 $params->setComposition('react-svg');
 
 // Set input props
-$params->setData(['message' => 'yo whats up']);
+$params->setInputProps(['message' => 'yo whats up']);
 
 // Execute the render and get the response
 
