@@ -20,7 +20,6 @@ const getUpgradeCommand = ({
 	version: string;
 }): string[] => {
 	const pkgList = packages.map((p) => `${p}@${version}`);
-
 	const commands: {[key in PackageManager]: string[]} = {
 		npm: ['i', '--save-exact', ...pkgList],
 		pnpm: ['i', '--save-exact', ...pkgList],
@@ -32,10 +31,10 @@ const getUpgradeCommand = ({
 
 export const upgrade = async (
 	remotionRoot: string,
-	packageManager: string | undefined
+	packageManager: string | undefined,
+	version: string | undefined
 ) => {
 	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
-
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
 	const devDependencies = Object.keys(packageJson.devDependencies ?? {});
@@ -45,7 +44,6 @@ export const upgrade = async (
 	const peerDependencies = Object.keys(packageJson.peerDependencies ?? {});
 	const latestRemotionVersion = await getLatestRemotionVersion();
 	Log.info('Newest Remotion version is', latestRemotionVersion);
-
 	const manager = getPackageManager(remotionRoot, packageManager);
 
 	if (manager === 'unknown') {
@@ -54,6 +52,10 @@ export const upgrade = async (
 				.map((p) => p.path)
 				.join(', ')}). Install dependencies using your favorite manager!`
 		);
+	}
+
+	if (version) {
+		Log.info('Upgrading to specified version: ' + version);
 	}
 
 	const toUpgrade = listOfRemotionPackages.filter(
@@ -69,7 +71,7 @@ export const upgrade = async (
 		getUpgradeCommand({
 			manager: manager.manager,
 			packages: toUpgrade,
-			version: latestRemotionVersion,
+			version: version ? version : latestRemotionVersion,
 		}),
 		{
 			stdio: 'inherit',
