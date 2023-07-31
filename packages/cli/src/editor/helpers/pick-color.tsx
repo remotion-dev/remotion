@@ -1,6 +1,9 @@
 import {Spacing} from '../components/layout';
 import {ColorDot} from '../components/Notifications/ColorDot';
-import {notificationCenter} from '../components/Notifications/NotificationCenter';
+import {
+	notificationCenter,
+	sendErrorNotification,
+} from '../components/Notifications/NotificationCenter';
 import {copyText} from './copy-text';
 
 export const pickColor = () => {
@@ -12,18 +15,23 @@ export const pickColor = () => {
 		}>
 	)
 		.then((color) => {
-			copyText(color.sRGBHex);
-			notificationCenter.current?.addNotification({
-				content: (
-					<>
-						<ColorDot color={color.sRGBHex} /> <Spacing x={1} /> Copied{' '}
-						{color.sRGBHex}
-					</>
-				),
-				created: Date.now(),
-				duration: 2000,
-				id: String(Math.random()),
-			});
+			copyText(color.sRGBHex)
+				.then(() => {
+					notificationCenter.current?.addNotification({
+						content: (
+							<>
+								<ColorDot color={color.sRGBHex} /> <Spacing x={1} /> Copied{' '}
+								{color.sRGBHex}
+							</>
+						),
+						created: Date.now(),
+						duration: 2000,
+						id: String(Math.random()),
+					});
+				})
+				.catch((err) => {
+					sendErrorNotification(`Could not copy: ${err.message}`);
+				});
 		})
 		.catch((err: Error) => {
 			if (err.message.includes('canceled')) {

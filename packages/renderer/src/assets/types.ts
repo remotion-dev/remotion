@@ -1,10 +1,10 @@
-import type {TAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion';
 
 // An unsafe asset is an asset with looser types, which occurs
 // during construction of the asset list. Prefer the MediaAsset
 // type instead.
 export type UnsafeAsset = Omit<
-	TAsset,
+	TRenderAsset,
 	'frame' | 'id' | 'volume' | 'mediaFrame'
 > & {
 	startInVideo: number;
@@ -26,9 +26,9 @@ export type MediaAsset = Omit<UnsafeAsset, 'duration' | 'volume'> & {
 };
 
 export const uncompressMediaAsset = (
-	allAssets: TAsset[],
-	assetToUncompress: TAsset
-): TAsset => {
+	allRenderAssets: TRenderAsset[],
+	assetToUncompress: TRenderAsset
+): TRenderAsset => {
 	const isCompressed = assetToUncompress.src.match(/same-as-(.*)-([0-9]+)$/);
 	if (!isCompressed) {
 		return assetToUncompress;
@@ -36,12 +36,12 @@ export const uncompressMediaAsset = (
 
 	const [, id, frame] = isCompressed;
 
-	const assetToFill = allAssets.find(
+	const assetToFill = allRenderAssets.find(
 		(a) => a.id === id && String(a.frame) === frame
 	);
 	if (!assetToFill) {
 		console.log('List of assets:');
-		console.log(allAssets);
+		console.log(allRenderAssets);
 		throw new TypeError(
 			`Cannot uncompress asset, asset list seems corrupt. Please file a bug in the Remotion repo with the debug information above.`
 		);
