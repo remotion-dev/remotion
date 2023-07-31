@@ -6,14 +6,14 @@ export async function copyDir({
 	dest,
 	onSymlinkDetected,
 	onProgress,
-	copiedBytes = 0,
+	copied = 0,
 	lastReportedProgress = 0,
 }: {
 	src: string;
 	dest: string;
 	onSymlinkDetected: (entry: fs.Dirent, dir: string) => void;
 	onProgress: (bytes: number) => void;
-	copiedBytes: number;
+	copied: number;
 	lastReportedProgress: number;
 }) {
 	await fs.promises.mkdir(dest, {recursive: true});
@@ -24,12 +24,12 @@ export async function copyDir({
 		const destPath = path.join(dest, entry.name);
 
 		if (entry.isDirectory()) {
-			copiedBytes = await copyDir({
+			await copyDir({
 				src: srcPath,
 				dest: destPath,
 				onSymlinkDetected,
 				onProgress,
-				copiedBytes,
+				copied,
 				lastReportedProgress,
 			});
 		} else if (entry.isSymbolicLink()) {
@@ -41,15 +41,11 @@ export async function copyDir({
 				fs.promises.copyFile(srcPath, destPath),
 				fs.promises.stat(srcPath),
 			]);
-
-			copiedBytes += size;
-
-			if (copiedBytes - lastReportedProgress > 1024 * 1024 * 10) {
-				onProgress(copiedBytes);
-				lastReportedProgress = copiedBytes;
+			copied += size;
+			if (copied - lastReportedProgress > 1024 * 1024 * 10) {
+				onProgress(copied);
+				lastReportedProgress = copied;
 			}
 		}
 	}
-
-	return copiedBytes;
 }
