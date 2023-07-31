@@ -40,7 +40,7 @@ class PHPClient
             null
         );
 
-        $render->setInputProps($input);
+        $render->internal_setSerializedInputProps($input);
         $render->setServeUrl($this->getServeUrl());
         $render->setRegion($this->getRegion());
 

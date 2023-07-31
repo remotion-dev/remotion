@@ -194,7 +194,7 @@ class RenderParams
      *
      * @return  self
      */
-    public function setInputProps($inputProps)
+    public function internal_setSerializedInputProps($inputProps)
     {
         $this->inputProps = $inputProps;
 
@@ -250,11 +250,23 @@ class RenderParams
     }
 
     /**
+     * Backwards compatible version of setInputProps()
      * Set the value of data
      *
      * @return  self
      */
     public function setData($data)
+    {
+        $this->data = $data;
+
+        return $this;
+    }
+
+    /**
+     * Set the value of inputProps
+     * @return
+     */
+    public function setInputProps($data)
     {
         $this->data = $data;
 
