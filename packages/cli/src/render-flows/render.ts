@@ -22,13 +22,13 @@ import {Internals} from 'remotion';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
 import type {Loop} from '../config/number-of-gif-loops';
-import {formatBytes} from '../format-bytes';
 import {getAndValidateAbsoluteOutputFile} from '../get-cli-options';
 import {getCompositionWithDimensionOverride} from '../get-composition-with-dimension-override';
 import {getOutputFilename} from '../get-filename';
 import {getFinalOutputCodec} from '../get-final-output-codec';
 import {getVideoImageFormat} from '../image-formats';
 import {Log} from '../log';
+import {makeOnDownload} from '../make-on-download';
 import {parsedCli} from '../parse-command-line';
 import type {JobProgressCallback} from '../preview-server/render-queue/job';
 import type {BundlingState, CopyingState} from '../progress-bar';
@@ -231,49 +231,13 @@ export const renderVideoFlow = async ({
 
 	addCleanupCallback(() => cleanupBundle());
 
-	const onDownload: RenderMediaOnDownload = (src) => {
-		const id = Math.random();
-		const download: DownloadProgress = {
-			id,
-			name: src,
-			progress: 0,
-			downloaded: 0,
-			totalBytes: null,
-		};
-		const nextDownloadIndex = downloads.length;
-		downloads.push(download);
-		Log.verboseAdvanced(
-			{indent, logLevel},
-			`Starting download [${nextDownloadIndex}]:`,
-			src
-		);
-
-		updateRenderProgress({
-			newline: false,
-			printToConsole: !updatesDontOverwrite,
-		});
-		let lastUpdate = Date.now();
-		return ({percent, downloaded, totalSize}) => {
-			download.progress = percent;
-			download.totalBytes = totalSize;
-			download.downloaded = downloaded;
-			if (lastUpdate + 1000 > Date.now() && updatesDontOverwrite) {
-				return;
-			}
-
-			lastUpdate = Date.now();
-
-			Log.verboseAdvanced(
-				{indent, logLevel},
-				`Download [${nextDownloadIndex}]:`,
-				percent ? `${(percent * 100).toFixed(1)}%` : formatBytes(downloaded)
-			);
-			updateRenderProgress({
-				newline: false,
-				printToConsole: !updatesDontOverwrite,
-			});
-		};
-	};
+	const onDownload: RenderMediaOnDownload = makeOnDownload({
+		downloads,
+		indent,
+		logLevel,
+		updateRenderProgress,
+		updatesDontOverwrite,
+	});
 
 	const puppeteerInstance = await browserInstance;
 	addCleanupCallback(() => puppeteerInstance.close(false, logLevel, indent));
