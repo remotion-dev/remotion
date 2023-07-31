@@ -5,6 +5,7 @@ import {BLUE, INPUT_BACKGROUND} from '../../helpers/colors';
 const container: React.CSSProperties = {
 	borderColor: 'black',
 	borderStyle: 'solid',
+	borderWidth: '2px',
 	height: 39,
 	width: 220,
 	position: 'relative',
@@ -19,7 +20,7 @@ const sliderRange: React.CSSProperties = {
 	position: 'absolute',
 	top: 0,
 	backgroundColor: BLUE,
-	height: 36,
+	height: 35,
 };
 
 interface MultiRangeSliderProps {
