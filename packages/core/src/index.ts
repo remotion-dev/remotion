@@ -88,7 +88,6 @@ export {
 } from './CompositionManager.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';
-export {useDelayRender} from './use-delay-render.js';
 export * from './easing.js';
 export * from './Folder.js';
 export * from './freeze.js';
