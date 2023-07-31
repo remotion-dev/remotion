@@ -1339,6 +1339,13 @@ export const articles = [
     crumb: "API",
   },
   {
+    id: "gl-options",
+    title: "GL Options",
+    relativePath: "docs/open-gl.md",
+    compId: "articles-docs-open-gl",
+    crumb: "Flags",
+  },
+  {
     id: "overlay",
     title: "Creating overlays",
     relativePath: "docs/overlay.md",
