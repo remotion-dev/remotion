@@ -11,20 +11,9 @@ import {
 	vi,
 } from 'vitest';
 import {LambdaRoutines} from '../../defaults';
-import {handler} from '../../functions';
+import {callLambda} from '../../shared/call-lambda';
 import {mockableHttpClients} from '../../shared/invoke-webhook';
-import type {
-	LambdaReturnValues,
-	StreamedResponse,
-} from '../../shared/return-values';
 import {disableLogs, enableLogs} from '../disable-logs';
-
-const extraContext = {
-	invokedFunctionArn: 'arn:fake',
-	getRemainingTimeInMillis: () => 120000,
-};
-
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
@@ -66,11 +55,11 @@ describe('Webhooks', () => {
 	test('Should call webhook upon completion', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-		const res = await handler(
-			{
-				type: LambdaRoutines.start,
+		const res = await callLambda({
+			type: LambdaRoutines.start,
+			payload: {
 				serveUrl:
-					'https://64a69dbd950469119e886993--dreamy-shortbread-14601f.netlify.app/',
+					'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -113,23 +102,25 @@ describe('Webhooks', () => {
 				bucketName: null,
 				audioCodec: null,
 			},
-			extraContext
-		);
-		const startRes = res as StreamedResponse;
+			functionName: 'remotion-dev-lambda',
+			receivedStreamingPayload: () => undefined,
+			region: 'us-east-1',
+			timeoutInTest: 120000,
+		});
+		const parsed = res;
 
-		const parsed = JSON.parse(startRes.body) as Await<
-			LambdaReturnValues[LambdaRoutines.start]
-		>;
-
-		await handler(
-			{
-				type: LambdaRoutines.status,
+		await callLambda({
+			type: LambdaRoutines.status,
+			payload: {
 				bucketName: parsed.bucketName,
 				renderId: parsed.renderId,
 				version: VERSION,
 			},
-			extraContext
-		);
+			functionName: 'remotion-dev-lambda',
+			receivedStreamingPayload: () => undefined,
+			region: 'us-east-1',
+			timeoutInTest: 120000,
+		});
 
 		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
 		expect(mockableHttpClients.http).toHaveBeenCalledWith(
@@ -152,11 +143,14 @@ describe('Webhooks', () => {
 	test('Should call webhook upon timeout', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-		await handler(
-			{
-				type: LambdaRoutines.launch,
+		await callLambda({
+			functionName: 'remotion-dev-lambda',
+			receivedStreamingPayload: () => undefined,
+			region: 'us-east-1',
+			type: LambdaRoutines.launch,
+			payload: {
 				serveUrl:
-					'https://64a69dbd950469119e886993--dreamy-shortbread-14601f.netlify.app/',
+					'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -196,11 +190,8 @@ describe('Webhooks', () => {
 				rendererFunctionName: null,
 				audioCodec: null,
 			},
-			{
-				...extraContext,
-				getRemainingTimeInMillis: () => 1000,
-			}
-		);
+			timeoutInTest: 1000,
+		});
 
 		await new Promise((resolve) => {
 			setTimeout(resolve, 2000);

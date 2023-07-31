@@ -3,8 +3,8 @@ import type {CalcMetadataReturnType} from './Composition.js';
 import type {TCompMetadataWithCalcFunction} from './CompositionManager.js';
 import {validateDimension} from './validation/validate-dimensions.js';
 import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
-import type {VideoConfig} from './video-config.js';
 import {validateFps} from './validation/validate-fps.js';
+import type {VideoConfig} from './video-config.js';
 
 export const resolveVideoConfig = ({
 	composition,

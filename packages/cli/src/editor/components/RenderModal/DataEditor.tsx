@@ -117,16 +117,18 @@ export const DataEditor: React.FC<{
 	setInputProps: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	mayShowSaveButton: boolean;
 	propsEditType: PropsEditType;
+	saving: boolean;
+	setSaving: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	unresolvedComposition,
 	inputProps,
 	setInputProps,
 	mayShowSaveButton,
 	propsEditType,
+	saving,
+	setSaving,
 }) => {
 	const [mode, setMode] = useState<Mode>('schema');
-	const [valBeforeSafe, setValBeforeSafe] = useState<unknown>(inputProps);
-	const [saving, setSaving] = useState(false);
 	const [showWarning, setShowWarningWithoutPersistance] = useState<boolean>(
 		() => getPersistedShowWarningState()
 	);
@@ -281,7 +283,6 @@ export const DataEditor: React.FC<{
 			return;
 		}
 
-		setValBeforeSafe(inputProps);
 		updateDefaultProps(
 			unresolvedComposition.id,
 			inputProps,
@@ -297,7 +298,7 @@ export const DataEditor: React.FC<{
 
 	useEffect(() => {
 		setSaving(false);
-	}, [fastRefreshes]);
+	}, [fastRefreshes, setSaving]);
 
 	const onSave = useCallback(
 		(
@@ -327,7 +328,13 @@ export const DataEditor: React.FC<{
 					setSaving(false);
 				});
 		},
-		[unresolvedComposition.defaultProps, unresolvedComposition.id, schema, z]
+		[
+			schema,
+			z,
+			setSaving,
+			unresolvedComposition.id,
+			unresolvedComposition.defaultProps,
+		]
 	);
 
 	const connectionStatus = useContext(StudioServerConnectionCtx).type;
@@ -440,7 +447,6 @@ export const DataEditor: React.FC<{
 					value={inputProps ?? {}}
 					setValue={setInputProps}
 					onSave={onUpdate}
-					valBeforeSafe={valBeforeSafe}
 					showSaveButton={showSaveButton}
 					serializedJSON={serializedJSON}
 					defaultProps={unresolvedComposition.defaultProps}

@@ -214,18 +214,11 @@ export class BrowserRunner {
 		removeEventListeners(this.#listeners);
 	}
 
-	async setupConnection(options: {
-		timeout: number;
-		preferredRevision: string;
-	}): Promise<Connection> {
+	async setupConnection(options: {timeout: number}): Promise<Connection> {
 		assert(this.proc, 'BrowserRunner not started.');
 
-		const {timeout, preferredRevision} = options;
-		const browserWSEndpoint = await waitForWSEndpoint(
-			this.proc,
-			timeout,
-			preferredRevision
-		);
+		const {timeout} = options;
+		const browserWSEndpoint = await waitForWSEndpoint(this.proc, timeout);
 		const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
 		this.connection = new Connection(transport);
 
@@ -235,8 +228,7 @@ export class BrowserRunner {
 
 function waitForWSEndpoint(
 	browserProcess: childProcess.ChildProcess,
-	timeout: number,
-	preferredRevision: string
+	timeout: number
 ): Promise<string> {
 	assert(browserProcess.stderr, '`browserProcess` does not have stderr.');
 	const rl = readline.createInterface(browserProcess.stderr);
@@ -277,7 +269,7 @@ function waitForWSEndpoint(
 			cleanup();
 			reject(
 				new TimeoutError(
-					`Timed out after ${timeout} ms while trying to connect to the browser! Only Chrome at revision r${preferredRevision} is guaranteed to work.`
+					`Timed out after ${timeout} ms while trying to connect to the browser!`
 				)
 			);
 		}

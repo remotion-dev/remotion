@@ -18,6 +18,7 @@ import {RenderInternals} from '@remotion/renderer';
 import fs, {existsSync} from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import {Internals} from 'remotion';
 import {chalk} from '../chalk';
 import {ConfigInternals} from '../config';
 import type {Loop} from '../config/number-of-gif-loops';
@@ -45,7 +46,6 @@ import {shouldUseNonOverlayingLogger} from '../should-use-non-overlaying-logger'
 import type {RenderStep} from '../step';
 import {truthy} from '../truthy';
 import {getUserPassedOutputLocation} from '../user-passed-output-location';
-import {Internals} from 'remotion';
 
 export const renderVideoFlow = async ({
 	remotionRoot,
@@ -432,7 +432,7 @@ export const renderVideoFlow = async ({
 		proResProfile,
 		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions,
-		timeoutInMilliseconds: ConfigInternals.getCurrentPuppeteerTimeout(),
+		timeoutInMilliseconds: puppeteerTimeout,
 		scale,
 		port,
 		numberOfGifLoops,

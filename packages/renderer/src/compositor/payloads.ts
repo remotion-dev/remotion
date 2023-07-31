@@ -33,6 +33,16 @@ export type Layer =
 
 export type CompositorImageFormat = 'Png' | 'Jpeg';
 
+export type VideoMetadata = {
+	fps: number;
+	width: number;
+	height: number;
+	durationInSeconds: number;
+	codec: 'h264' | 'h265' | 'vp8' | 'vp9' | 'av1' | 'prores' | 'unknown';
+	canPlayInVideoTag: boolean;
+	supportsSeeking: boolean;
+};
+
 export type CompositorCommand = {
 	Compose: {
 		output: string;
@@ -42,7 +52,8 @@ export type CompositorCommand = {
 		output_format: CompositorImageFormat;
 	};
 	ExtractFrame: {
-		input: string;
+		src: string;
+		original_src: string;
 		time: number;
 		transparent: boolean;
 	};
@@ -60,6 +71,8 @@ export type CompositorCommand = {
 	FreeUpMemory: {
 		percent_of_memory: number;
 	};
+	GetVideoMetadata: {src: string};
+	VideoMetadata: VideoMetadata;
 };
 
 export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {

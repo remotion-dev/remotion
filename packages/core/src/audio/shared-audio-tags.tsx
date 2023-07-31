@@ -279,7 +279,12 @@ export const SharedAudioContextProvider: React.FC<{
 	return (
 		<SharedAudioContext.Provider value={value}>
 			{refs.map(({id, ref}) => {
-				return <audio key={id} ref={ref} src={EMPTY_AUDIO} />;
+				return (
+					// Without preload="metadata", iOS will seek the time internally
+					// but not actually with sound. Adding `preload="metadata"` helps here.
+					// https://discord.com/channels/809501355504959528/817306414069710848/1130519583367888906
+					<audio key={id} ref={ref} preload="metadata" src={EMPTY_AUDIO} />
+				);
 			})}
 			{children}
 		</SharedAudioContext.Provider>
