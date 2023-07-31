@@ -20,7 +20,6 @@ const getUpgradeCommand = ({
 	version: string;
 }): string[] => {
 	const pkgList = packages.map((p) => `${p}@${version}`);
-
 	const commands: {[key in PackageManager]: string[]} = {
 		npm: ['i', '--save-exact', ...pkgList],
 		pnpm: ['i', '--save-exact', ...pkgList],
@@ -32,10 +31,10 @@ const getUpgradeCommand = ({
 
 export const upgrade = async (
 	remotionRoot: string,
-	packageManager: string | undefined
+	packageManager: string | undefined,
+	version: string | undefined
 ) => {
 	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
-
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
 	const devDependencies = Object.keys(packageJson.devDependencies ?? {});
@@ -43,8 +42,15 @@ export const upgrade = async (
 		packageJson.optionalDependencies ?? {}
 	);
 	const peerDependencies = Object.keys(packageJson.peerDependencies ?? {});
-	const latestRemotionVersion = await getLatestRemotionVersion();
-	Log.info('Newest Remotion version is', latestRemotionVersion);
+
+	let targetVersion: string;
+	if (version) {
+		targetVersion = version;
+		Log.info('Upgrading to specified version: ' + version);
+	} else {
+		targetVersion = await getLatestRemotionVersion();
+		Log.info('Newest Remotion version is', targetVersion);
+	}
 
 	const manager = getPackageManager(remotionRoot, packageManager);
 
@@ -69,7 +75,7 @@ export const upgrade = async (
 		getUpgradeCommand({
 			manager: manager.manager,
 			packages: toUpgrade,
-			version: latestRemotionVersion,
+			version: targetVersion,
 		}),
 		{
 			stdio: 'inherit',
