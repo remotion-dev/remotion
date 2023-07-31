@@ -72,22 +72,22 @@ class RemotionClient:
         return boto3.client('lambda',  region_name=self.region)
 
     def _invoke_lambda(self, function_name, payload):
-        try:
-            client = self._create_lambda_client()
-            response = client.invoke(
-                FunctionName=function_name, Payload=payload)
-            result = response['Payload'].read().decode('utf-8')
-            decoded_result = json.loads(result)
-            if 'errorMessage' in decoded_result:
-                raise ValueError(decoded_result['errorMessage'])
-            if decoded_result['statusCode'] != 200:
-                raise ValueError('Failed to invoke Lambda function')
-            body_object = json.loads(decoded_result['body'])
-            return body_object
-
-        except Exception as error:
-            print(f"Failed to invoke Lambda function: {str(error)}")
-            return None  # or you can return a default value if appropriate
+        client = self._create_lambda_client()
+        response = client.invoke(
+            FunctionName=function_name, Payload=payload)
+        result = response['Payload'].read().decode('utf-8')
+        decoded_result = json.loads(result)
+        if 'errorMessage' in decoded_result:
+            raise ValueError(decoded_result['errorMessage'])
+        
+        
+        if 'type' in decoded_result and decoded_result['type'] == 'error':
+            raise ValueError(decoded_result['message'])
+        if decoded_result['statusCode'] != 200:
+            raise ValueError('Failed to invoke Lambda function')
+        
+        body_object = json.loads(decoded_result['body'])
+        return body_object
 
     def construct_render_request(self, render_params: RenderParams) -> str:
         """
