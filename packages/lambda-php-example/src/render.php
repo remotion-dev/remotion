@@ -31,6 +31,9 @@ $params = new RenderParams();
 
 $params->setComposition('react-svg');
 
+// Set input props
+$params->setData(['message' => 'yo whats up']);
+
 // Execute the render and get the response
 
 $renderResponse = $client->renderMediaOnLambda($params);
@@ -38,23 +41,24 @@ $renderResponse = $client->renderMediaOnLambda($params);
 // Output render response
 print_r($renderResponse);
 
-/****
-stdClass Object
-
-{"bucketName":"remotionlambda-apsoutheast2-qv16gcf02l","renderId":"zjllgavb07"}
- **/
 
 // Get render progress
 $renderId = $renderResponse->renderId;
 $bucketName = $renderResponse->bucketName;
 
+
 $renderProgressResponse = $client->getRenderProgress($renderId, $bucketName);
 
-// Output render progress response
-print_r($renderProgressResponse);
+while (!$renderProgressResponse->done) {
+  // Render is not done
+  // Get the render progress
+  $renderProgress = $renderProgressResponse->overallProgress;
+  // Output render progress
+  print_r("progress: " . ($renderProgress * 100) . "%\n");
+  // Wait 1 second
+  sleep(1);
+  // Get render progress again
+  $renderProgressResponse = $client->getRenderProgress($renderId, $bucketName);
+}
 
-/**
- * Response
- * 
-{"framesRendered":0,"chunks":0,"done":false,"encodingStatus":null,"costs":{"accruedSoFar":0,"displayCost":"<$0.001","currency":"USD","disclaimer":"Estimated cost only. Does not include charges for other AWS services."},"renderId":"61j7un13i1","renderMetadata":null,"bucket":"remotionlambda-apsoutheast2-xxxx","outputFile":null,"timeToFinish":null,"errors":[],"fatalErrorEncountered":false,"currentTime":1685605900279,"renderSize":22,"lambdasInvoked":0,"cleanup":null,"timeToFinishChunks":null,"overallProgress":0,"retriesInfo":[],"outKey":null,"outBucket":null,"mostExpensiveFrameRanges":null,"timeToEncode":null,"outputSizeInBytes":null}
- */
+print_r("Render is done!\n");
