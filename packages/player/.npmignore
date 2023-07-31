@@ -8,3 +8,9 @@ vitest.config.ts
 .turbo
 dist/tsconfig-cjs.tsbuildinfo
 dist/tsconfig.tsbuildinfo
+dist/tsconfig-esm.tsbuildinfo
+tsconfig-esm.json
+tsconfig.json
+ensure-correct-version.js
+.prettierrc.js
+rollup.config.js

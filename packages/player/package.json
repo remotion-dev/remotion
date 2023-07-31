@@ -28,10 +28,6 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
-	"files": [
-		"dist",
-		"README.md"
-	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
 		"Jonny Burger <jonny@remotion.dev>",
