@@ -10,6 +10,7 @@ import {ZodBooleanEditor} from './ZodBooleanEditor';
 import {ZodColorEditor} from './ZodColorEditor';
 import {ZodDateEditor} from './ZodDateEditor';
 import {ZodDefaultEditor} from './ZodDefaultEditor';
+import {ZodDiscriminatedUnionEditor} from './ZodDiscriminatedUnionEditor';
 import {ZodEffectEditor} from './ZodEffectEditor';
 import {ZodEnumEditor} from './ZodEnumEditor';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
@@ -17,8 +18,6 @@ import {ZodNullableEditor} from './ZodNullableEditor';
 import {ZodNumberEditor} from './ZodNumberEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
 import {ZodOptionalEditor} from './ZodOptionalEditor';
-import {ZodStaticFileEditor} from './ZodStaticFileEditor';
-import {ZodStringEditor} from './ZodStringEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
 
 export type UpdaterFunction<T> = (
@@ -81,38 +80,20 @@ export const ZodSwitch: React.FC<{
 		);
 	}
 
-	if (typeName === z.ZodFirstPartyTypeKind.ZodString) {
-		if ((value as string).startsWith(window.remotion_staticBase)) {
-			return (
-				<ZodStaticFileEditor
-					setValue={setValue as UpdaterFunction<string>}
-					value={value as string}
-					jsonPath={jsonPath}
-					schema={schema}
-					defaultValue={defaultValue as string}
-					onSave={onSave as (newValue: (oldVal: string) => string) => void}
-					showSaveButton={showSaveButton}
-					onRemove={onRemove}
-					saving={saving}
-					saveDisabledByParent={saveDisabledByParent}
-					mayPad={mayPad}
-				/>
-			);
-		}
-
+	if (typeName === z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion) {
 		return (
-			<ZodStringEditor
-				value={value as string}
-				setValue={setValue as UpdaterFunction<string>}
-				jsonPath={jsonPath}
+			<ZodDiscriminatedUnionEditor
+				defaultValue={defaultValue as Record<string, unknown>}
+				mayPad={mayPad}
 				schema={schema}
-				onSave={onSave as UpdaterFunction<string>}
-				defaultValue={defaultValue as string}
-				showSaveButton={showSaveButton}
+				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
+				value={value as Record<string, unknown>}
+				jsonPath={jsonPath}
 				onRemove={onRemove}
+				onSave={onSave as UpdaterFunction<unknown>}
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
-				mayPad={mayPad}
+				showSaveButton={showSaveButton}
 			/>
 		);
 	}
