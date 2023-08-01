@@ -105,35 +105,6 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
-			<SchemaLabel
-				isDefaultValue={localValue.value === defaultValue}
-				jsonPath={jsonPath}
-				onRemove={onRemove}
-				onReset={reset}
-				onSave={save}
-				saveDisabledByParent={saveDisabledByParent}
-				saving={saving}
-				showSaveButton={showSaveButton}
-				suffix={null}
-				valid={localValue.zodValidation.success}
-			/>
-			<SchemaLabel
-				isDefaultValue={localValue.value === defaultValue}
-				jsonPath={[...jsonPath, typedSchema.discriminator]}
-				onRemove={onRemove}
-				onReset={reset}
-				onSave={save}
-				saveDisabledByParent={saveDisabledByParent}
-				saving={saving}
-				showSaveButton={showSaveButton}
-				suffix={null}
-				valid={localValue.zodValidation.success}
-			/>
-			<Combobox
-				title="Select type"
-				values={comboBoxValues}
-				selectedId={localValue.value[typedSchema.discriminator] as string}
-			/>
 			<ZodObjectEditor
 				jsonPath={jsonPath}
 				mayPad={mayPad}
@@ -150,6 +121,32 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 				setValue={setValue}
 				showSaveButton={showSaveButton}
 				value={value}
+				discriminatedUnionReplacement={{
+					discriminator: typedSchema.discriminator,
+					markup: (
+						<Fieldset shouldPad={mayPad} success>
+							<SchemaLabel
+								isDefaultValue={localValue.value === defaultValue}
+								jsonPath={[...jsonPath, typedSchema.discriminator]}
+								onRemove={onRemove}
+								onReset={reset}
+								onSave={save}
+								saveDisabledByParent={saveDisabledByParent}
+								saving={saving}
+								showSaveButton={showSaveButton}
+								suffix={null}
+								valid={localValue.zodValidation.success}
+							/>
+							<Combobox
+								title="Select type"
+								values={comboBoxValues}
+								selectedId={
+									localValue.value[typedSchema.discriminator] as string
+								}
+							/>
+						</Fieldset>
+					),
+				}}
 			/>
 		</Fieldset>
 	);

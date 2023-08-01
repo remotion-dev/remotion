@@ -12,6 +12,11 @@ import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
 
+type ObjectDiscrimatedUnionReplacement = {
+	discriminator: string;
+	markup: React.ReactNode;
+};
+
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
 	jsonPath: JSONPath;
@@ -24,6 +29,7 @@ export const ZodObjectEditor: React.FC<{
 	saving: boolean;
 	saveDisabledByParent: boolean;
 	mayPad: boolean;
+	discriminatedUnionReplacement: ObjectDiscrimatedUnionReplacement | null;
 }> = ({
 	schema,
 	jsonPath,
@@ -36,6 +42,7 @@ export const ZodObjectEditor: React.FC<{
 	saving,
 	saveDisabledByParent,
 	mayPad,
+	discriminatedUnionReplacement,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -95,6 +102,13 @@ export const ZodObjectEditor: React.FC<{
 			<RevisionContextProvider>
 				<SchemaVerticalGuide isRoot={isRoot}>
 					{keys.map((key, i) => {
+						if (
+							discriminatedUnionReplacement &&
+							key === discriminatedUnionReplacement.discriminator
+						) {
+							return discriminatedUnionReplacement.markup;
+						}
+
 						return (
 							<React.Fragment key={key}>
 								<ZodSwitch

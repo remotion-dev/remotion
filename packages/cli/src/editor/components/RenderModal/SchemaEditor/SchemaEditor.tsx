@@ -101,6 +101,7 @@ export const SchemaEditor: React.FC<{
 	return (
 		<div style={scrollable} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<ZodObjectEditor
+				discriminatedUnionReplacement={null}
 				value={value as Record<string, unknown>}
 				setValue={setValue}
 				jsonPath={[]}
