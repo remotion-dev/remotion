@@ -1,13 +1,18 @@
 import {useCallback, useMemo} from 'react';
-import type {z} from 'zod';
+import type {z, ZodDiscriminatedUnionOption} from 'zod';
 import {Checkmark} from '../../../icons/Checkmark';
-import {useZodIfPossible} from '../../get-zod-if-possible';
+import {
+	useZodIfPossible,
+	useZodTypesIfPossible,
+} from '../../get-zod-if-possible';
 import type {ComboboxValue} from '../../NewComposition/ComboBox';
 import {Combobox} from '../../NewComposition/ComboBox';
+import {createZodValues} from './create-zod-values';
 import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import {ZodObjectEditor} from './ZodObjectEditor';
 import type {UpdaterFunction} from './ZodSwitch';
 
 export const ZodDiscriminatedUnionEditor: React.FC<{
@@ -40,6 +45,8 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 		throw new Error('expected zod');
 	}
 
+	const zodTypes = useZodTypesIfPossible();
+
 	const typedSchema = schema._def as z.ZodDiscriminatedUnionDef<string>;
 	const options = useMemo(
 		() => [...typedSchema.optionsMap.keys()],
@@ -67,13 +74,30 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 				keyHint: null,
 				leftItem:
 					option === value[typedSchema.discriminator] ? <Checkmark /> : null,
-				onClick: () => {},
+				onClick: () => {
+					const val = createZodValues(
+						typedSchema.optionsMap.get(
+							option
+						) as ZodDiscriminatedUnionOption<never>,
+						z,
+						zodTypes
+					) as Record<string, unknown>;
+					setLocalValue(() => val, false, false);
+				},
 				quickSwitcherLabel: null,
 				subMenu: null,
 				type: 'item',
 			};
 		});
-	}, [options, typedSchema.discriminator, value]);
+	}, [
+		options,
+		setLocalValue,
+		typedSchema.discriminator,
+		typedSchema.optionsMap,
+		value,
+		z,
+		zodTypes,
+	]);
 
 	const save = useCallback(() => {
 		onSave(() => value, false, false);
@@ -109,6 +133,23 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 				title="Select type"
 				values={comboBoxValues}
 				selectedId={localValue.value[typedSchema.discriminator] as string}
+			/>
+			<ZodObjectEditor
+				jsonPath={jsonPath}
+				mayPad={mayPad}
+				defaultValue={defaultValue}
+				onRemove={onRemove}
+				onSave={onSave as UpdaterFunction<Record<string, unknown>>}
+				saveDisabledByParent={saveDisabledByParent}
+				saving={saving}
+				schema={
+					typedSchema.optionsMap.get(
+						localValue.value[typedSchema.discriminator] as string
+					) as ZodDiscriminatedUnionOption<never>
+				}
+				setValue={setValue}
+				showSaveButton={showSaveButton}
+				value={value}
 			/>
 		</Fieldset>
 	);
