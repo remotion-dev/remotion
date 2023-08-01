@@ -78,6 +78,7 @@ export const ZodSwitch: React.FC<{
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
+				discriminatedUnionReplacement={null}
 			/>
 		);
 	}
