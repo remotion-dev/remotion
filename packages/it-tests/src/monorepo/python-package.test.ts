@@ -31,9 +31,12 @@ test("Set the right version for pytest", () => {
 
 test("Python package should create the same renderMedia payload as normal Lambda package", async () => {
   const cwd = path.join(process.cwd(), "..", "lambda-python");
-  const pythonOutput = execSync("pytest -rP  tests/test_render_client.py", {
-    cwd,
-  });
+  const pythonOutput = execSync(
+    "python -m pytest -rP  tests/test_render_client.py",
+    {
+      cwd,
+    }
+  );
   const output = pythonOutput.toString().split("\n");
   const toParse = output[10];
   const nativeVersion = await LambdaInternals.makeLambdaRenderMediaPayload({
@@ -60,7 +63,7 @@ test("Python package should create the same renderMedia payload as normal Lambda
 test("Python package should create the same progress payload as normal Lambda package", async () => {
   const cwd = path.join(process.cwd(), "..", "lambda-python");
   const pythonOutput = execSync(
-    "pytest -rP  tests/test_get_render_progress_client.py",
+    "python -m pytest -rP  tests/test_get_render_progress_client.py",
     {
       cwd,
     }
