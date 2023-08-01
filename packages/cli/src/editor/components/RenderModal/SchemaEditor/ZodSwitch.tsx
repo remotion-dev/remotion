@@ -63,6 +63,25 @@ export const ZodSwitch: React.FC<{
 	}
 
 	const zodTypes = useZodTypesIfPossible();
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodObject) {
+		return (
+			<ZodObjectEditor
+				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
+				value={value as Record<string, unknown>}
+				defaultValue={defaultValue as Record<string, unknown>}
+				jsonPath={jsonPath}
+				schema={schema}
+				onSave={onSave as UpdaterFunction<Record<string, unknown>>}
+				showSaveButton={showSaveButton}
+				onRemove={onRemove}
+				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
+				mayPad={mayPad}
+			/>
+		);
+	}
+
 	if (typeName === z.ZodFirstPartyTypeKind.ZodString) {
 		if ((value as string).startsWith(window.remotion_staticBase)) {
 			return (
@@ -87,50 +106,14 @@ export const ZodSwitch: React.FC<{
 				value={value as string}
 				setValue={setValue as UpdaterFunction<string>}
 				jsonPath={jsonPath}
-				defaultValue={defaultValue as string}
-				mayPad={mayPad}
 				schema={schema}
 				onSave={onSave as UpdaterFunction<string>}
-				showSaveButton={showSaveButton}
-				onRemove={onRemove}
-				saveDisabledByParent={saveDisabledByParent}
-				saving={saving}
-			/>
-		);
-	}
-
-	if (typeName === z.ZodFirstPartyTypeKind.ZodObject) {
-		return (
-			<ZodObjectEditor
-				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
-				value={value as Record<string, unknown>}
-				defaultValue={defaultValue as Record<string, unknown>}
-				jsonPath={jsonPath}
-				schema={schema}
-				onSave={onSave as UpdaterFunction<Record<string, unknown>>}
+				defaultValue={defaultValue as string}
 				showSaveButton={showSaveButton}
 				onRemove={onRemove}
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
-			/>
-		);
-	}
-
-	if (typeName === z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion) {
-		return (
-			<ZodDiscriminatedUnionEditor
-				defaultValue={defaultValue as Record<string, unknown>}
-				mayPad={mayPad}
-				schema={schema}
-				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
-				value={value as Record<string, unknown>}
-				jsonPath={jsonPath}
-				onRemove={onRemove}
-				onSave={onSave as UpdaterFunction<unknown>}
-				saving={saving}
-				saveDisabledByParent={saveDisabledByParent}
-				showSaveButton={showSaveButton}
 			/>
 		);
 	}
@@ -390,6 +373,24 @@ export const ZodSwitch: React.FC<{
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion) {
+		return (
+			<ZodDiscriminatedUnionEditor
+				defaultValue={defaultValue as Record<string, unknown>}
+				mayPad={mayPad}
+				schema={schema}
+				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
+				value={value as Record<string, unknown>}
+				jsonPath={jsonPath}
+				onRemove={onRemove}
+				onSave={onSave as UpdaterFunction<unknown>}
+				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
+				showSaveButton={showSaveButton}
 			/>
 		);
 	}
