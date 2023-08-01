@@ -12,6 +12,17 @@ const statOrNull = (p: string) => {
 	}
 };
 
+const encodeBySplitting = (p: string): string => {
+	// Intentional: split by path.sep, then join by /
+	const splitBySlash = p.split(path.sep);
+
+	const encodedArray = splitBySlash.map((element) => {
+		return encodeURIComponent(element);
+	});
+	const merged = encodedArray.join('/');
+	return merged;
+};
+
 export const readRecursively = ({
 	folder,
 	output = [],
@@ -60,7 +71,7 @@ export const readRecursively = ({
 				name: path.join(folder, file),
 				lastModified: Math.floor(stat.mtimeMs),
 				sizeInBytes: stat.size,
-				src: staticHash + '/' + encodeURIComponent(path.join(folder, file)),
+				src: staticHash + '/' + encodeBySplitting(path.join(folder, file)),
 			});
 		} else if (stat.isSymbolicLink()) {
 			const realpath = fs.realpathSync(path.join(folder, file));
@@ -74,7 +85,7 @@ export const readRecursively = ({
 					name: realpath,
 					lastModified: Math.floor(realStat.mtimeMs),
 					sizeInBytes: realStat.size,
-					src: staticHash + '/' + encodeURIComponent(realpath),
+					src: staticHash + '/' + encodeBySplitting(realpath),
 				});
 			}
 		}
