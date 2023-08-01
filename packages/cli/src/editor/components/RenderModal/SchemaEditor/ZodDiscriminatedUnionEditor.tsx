@@ -119,7 +119,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 						value[typedSchema.discriminator] as string
 					) as ZodDiscriminatedUnionOption<never>
 				}
-				setValue={setValue}
+				setValue={setLocalValue}
 				showSaveButton={showSaveButton}
 				value={value}
 				discriminatedUnionReplacement={{
@@ -127,7 +127,10 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 					markup: (
 						<Fieldset shouldPad={mayPad} success>
 							<SchemaLabel
-								isDefaultValue={localValue.value === defaultValue}
+								isDefaultValue={
+									localValue.value[typedSchema.discriminator] ===
+									defaultValue[typedSchema.discriminator]
+								}
 								jsonPath={[...jsonPath, typedSchema.discriminator]}
 								onRemove={onRemove}
 								onReset={reset}
@@ -141,9 +144,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 							<Combobox
 								title="Select type"
 								values={comboBoxValues}
-								selectedId={
-									localValue.value[typedSchema.discriminator] as string
-								}
+								selectedId={value[typedSchema.discriminator] as string}
 							/>
 						</Fieldset>
 					),
