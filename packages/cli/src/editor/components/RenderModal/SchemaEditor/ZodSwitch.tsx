@@ -18,6 +18,8 @@ import {ZodNullableEditor} from './ZodNullableEditor';
 import {ZodNumberEditor} from './ZodNumberEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
 import {ZodOptionalEditor} from './ZodOptionalEditor';
+import {ZodStaticFileEditor} from './ZodStaticFileEditor';
+import {ZodStringEditor} from './ZodStringEditor';
 import {ZodUnionEditor} from './ZodUnionEditor';
 
 export type UpdaterFunction<T> = (
@@ -61,6 +63,41 @@ export const ZodSwitch: React.FC<{
 	}
 
 	const zodTypes = useZodTypesIfPossible();
+	if (typeName === z.ZodFirstPartyTypeKind.ZodString) {
+		if ((value as string).startsWith(window.remotion_staticBase)) {
+			return (
+				<ZodStaticFileEditor
+					setValue={setValue as UpdaterFunction<string>}
+					value={value as string}
+					jsonPath={jsonPath}
+					schema={schema}
+					defaultValue={defaultValue as string}
+					onSave={onSave as (newValue: (oldVal: string) => string) => void}
+					showSaveButton={showSaveButton}
+					onRemove={onRemove}
+					saving={saving}
+					saveDisabledByParent={saveDisabledByParent}
+					mayPad={mayPad}
+				/>
+			);
+		}
+
+		return (
+			<ZodStringEditor
+				value={value as string}
+				setValue={setValue as UpdaterFunction<string>}
+				jsonPath={jsonPath}
+				defaultValue={defaultValue as string}
+				mayPad={mayPad}
+				schema={schema}
+				onSave={onSave as UpdaterFunction<string>}
+				showSaveButton={showSaveButton}
+				onRemove={onRemove}
+				saveDisabledByParent={saveDisabledByParent}
+				saving={saving}
+			/>
+		);
+	}
 
 	if (typeName === z.ZodFirstPartyTypeKind.ZodObject) {
 		return (
