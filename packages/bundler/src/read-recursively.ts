@@ -2,6 +2,16 @@ import fs, {statSync} from 'node:fs';
 import path from 'node:path';
 import type {StaticFile} from 'remotion';
 
+// There can be symbolic links that point to files that don't exist.
+// https://github.com/remotion-dev/remotion/issues/2587
+const statOrNull = (p: string) => {
+	try {
+		return statSync(p);
+	} catch (err) {
+		return null;
+	}
+};
+
 export const readRecursively = ({
 	folder,
 	output = [],
@@ -32,7 +42,11 @@ export const readRecursively = ({
 			continue;
 		}
 
-		const stat = statSync(path.join(absFolder, file));
+		const stat = statOrNull(path.join(absFolder, file));
+		if (!stat) {
+			continue;
+		}
+
 		if (stat.isDirectory()) {
 			readRecursively({
 				startPath,
@@ -50,7 +64,11 @@ export const readRecursively = ({
 			});
 		} else if (stat.isSymbolicLink()) {
 			const realpath = fs.realpathSync(path.join(folder, file));
-			const realStat = fs.statSync(realpath);
+			const realStat = statOrNull(realpath);
+			if (!realStat) {
+				continue;
+			}
+
 			if (realStat.isFile()) {
 				output.push({
 					name: realpath,
