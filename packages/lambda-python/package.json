@@ -1,7 +1,7 @@
 {
   "name": "@remotion/lambda-python",
   "private": true,
-  "version": "4.0.14",
+  "version": "4.0.15",
   "scripts": {
     "lint": "node build.mjs",
     "publish": "node publish.mjs"
