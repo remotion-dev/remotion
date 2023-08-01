@@ -4,7 +4,7 @@
   "version": "4.0.15",
   "scripts": {
     "lint": "node build.mjs",
-    "publish": "node publish.mjs"
+    "publishprivate": "node publish.mjs"
   },
   "devDependencies": {
     "remotion": "workspace:*"
