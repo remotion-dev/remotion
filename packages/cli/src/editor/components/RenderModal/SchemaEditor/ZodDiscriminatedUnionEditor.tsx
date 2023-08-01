@@ -12,6 +12,7 @@ import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
+import type {ObjectDiscrimatedUnionReplacement} from './ZodObjectEditor';
 import {ZodObjectEditor} from './ZodObjectEditor';
 import type {UpdaterFunction} from './ZodSwitch';
 
@@ -102,54 +103,72 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 		onSave(() => value, false, false);
 	}, [onSave, value]);
 
+	const discriminatedUnionReplacement: ObjectDiscrimatedUnionReplacement =
+		useMemo(() => {
+			return {
+				discriminator: typedSchema.discriminator,
+				markup: (
+					<Fieldset shouldPad={mayPad} success>
+						<SchemaLabel
+							isDefaultValue={
+								localValue.value[typedSchema.discriminator] ===
+								defaultValue[typedSchema.discriminator]
+							}
+							jsonPath={[...jsonPath, typedSchema.discriminator]}
+							onRemove={onRemove}
+							onReset={reset}
+							onSave={save}
+							saveDisabledByParent={saveDisabledByParent}
+							saving={saving}
+							showSaveButton={showSaveButton}
+							suffix={null}
+							valid={localValue.zodValidation.success}
+						/>
+						<Combobox
+							title="Select type"
+							values={comboBoxValues}
+							selectedId={value[typedSchema.discriminator] as string}
+						/>
+					</Fieldset>
+				),
+			};
+		}, [
+			comboBoxValues,
+			defaultValue,
+			jsonPath,
+			localValue.value,
+			localValue.zodValidation.success,
+			mayPad,
+			onRemove,
+			reset,
+			save,
+			saveDisabledByParent,
+			saving,
+			showSaveButton,
+			typedSchema.discriminator,
+			value,
+		]);
+
 	return (
-		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
-			<ZodObjectEditor
-				// Re-render the object editor when the discriminator changes
-				key={value[typedSchema.discriminator] as string}
-				jsonPath={jsonPath}
-				mayPad={mayPad}
-				defaultValue={defaultValue}
-				onRemove={onRemove}
-				onSave={onSave as UpdaterFunction<Record<string, unknown>>}
-				saveDisabledByParent={saveDisabledByParent}
-				saving={saving}
-				schema={
-					typedSchema.optionsMap.get(
-						value[typedSchema.discriminator] as string
-					) as ZodDiscriminatedUnionOption<never>
-				}
-				setValue={setLocalValue}
-				showSaveButton={showSaveButton}
-				value={value}
-				discriminatedUnionReplacement={{
-					discriminator: typedSchema.discriminator,
-					markup: (
-						<Fieldset shouldPad={mayPad} success>
-							<SchemaLabel
-								isDefaultValue={
-									localValue.value[typedSchema.discriminator] ===
-									defaultValue[typedSchema.discriminator]
-								}
-								jsonPath={[...jsonPath, typedSchema.discriminator]}
-								onRemove={onRemove}
-								onReset={reset}
-								onSave={save}
-								saveDisabledByParent={saveDisabledByParent}
-								saving={saving}
-								showSaveButton={showSaveButton}
-								suffix={null}
-								valid={localValue.zodValidation.success}
-							/>
-							<Combobox
-								title="Select type"
-								values={comboBoxValues}
-								selectedId={value[typedSchema.discriminator] as string}
-							/>
-						</Fieldset>
-					),
-				}}
-			/>
-		</Fieldset>
+		<ZodObjectEditor
+			// Re-render the object editor when the discriminator changes
+			key={value[typedSchema.discriminator] as string}
+			jsonPath={jsonPath}
+			mayPad={mayPad}
+			defaultValue={defaultValue}
+			onRemove={onRemove}
+			onSave={onSave as UpdaterFunction<Record<string, unknown>>}
+			saveDisabledByParent={saveDisabledByParent}
+			saving={saving}
+			schema={
+				typedSchema.optionsMap.get(
+					value[typedSchema.discriminator] as string
+				) as ZodDiscriminatedUnionOption<never>
+			}
+			setValue={setLocalValue}
+			showSaveButton={showSaveButton}
+			value={value}
+			discriminatedUnionReplacement={discriminatedUnionReplacement}
+		/>
 	);
 };

@@ -12,7 +12,7 @@ import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
 
-type ObjectDiscrimatedUnionReplacement = {
+export type ObjectDiscrimatedUnionReplacement = {
 	discriminator: string;
 	markup: React.ReactNode;
 };

@@ -967,6 +967,16 @@ export const Index: React.FC = () => {
 							'y',
 							'z',
 						]),
+						union: z.discriminatedUnion('type', [
+							z.object({
+								type: z.literal('car'),
+								color: z.string(),
+							}),
+							z.object({
+								type: z.literal('boat'),
+								depth: z.number(),
+							}),
+						]),
 					})}
 					defaultProps={{
 						vehicle: 'car',
@@ -997,6 +1007,7 @@ export const Index: React.FC = () => {
 						nullable: null,
 						optional: '',
 						filePath: staticFile('nested/logö.png'),
+						union: {type: 'car', color: 'red'},
 					}}
 					durationInFrames={150}
 					calculateMetadata={({defaultProps}) => {
