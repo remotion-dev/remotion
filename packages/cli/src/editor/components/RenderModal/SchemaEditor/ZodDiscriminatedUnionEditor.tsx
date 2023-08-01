@@ -52,7 +52,6 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 		() => [...typedSchema.optionsMap.keys()],
 		[typedSchema.optionsMap]
 	) as string[];
-	console.log(options);
 
 	const {
 		localValue,
@@ -106,6 +105,8 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 	return (
 		<Fieldset shouldPad={mayPad} success={localValue.zodValidation.success}>
 			<ZodObjectEditor
+				// Re-render the object editor when the discriminator changes
+				key={value[typedSchema.discriminator] as string}
 				jsonPath={jsonPath}
 				mayPad={mayPad}
 				defaultValue={defaultValue}
@@ -115,7 +116,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 				saving={saving}
 				schema={
 					typedSchema.optionsMap.get(
-						localValue.value[typedSchema.discriminator] as string
+						value[typedSchema.discriminator] as string
 					) as ZodDiscriminatedUnionOption<never>
 				}
 				setValue={setValue}
