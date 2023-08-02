@@ -60,8 +60,9 @@ const innerHandler = async (
 			params,
 			renderId,
 		});
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 
 		return;
 	}
@@ -76,8 +77,9 @@ const innerHandler = async (
 		const response = await startHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 		return;
 	}
 
@@ -93,8 +95,9 @@ const innerHandler = async (
 			expectedBucketOwner: currentUserId,
 			getRemainingTimeInMillis: context.getRemainingTimeInMillis,
 		});
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 		return;
 	}
 
@@ -107,8 +110,9 @@ const innerHandler = async (
 			expectedBucketOwner: currentUserId,
 			timeoutInMilliseconds,
 		});
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 		return;
 	}
 
@@ -129,8 +133,9 @@ const innerHandler = async (
 			isWarm,
 		});
 
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 		return;
 	}
 
@@ -140,8 +145,9 @@ const innerHandler = async (
 		});
 
 		const response = await infoHandler(params);
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 		return;
 	}
 
@@ -153,8 +159,9 @@ const innerHandler = async (
 		const response = await compositionsHandler(params, {
 			expectedBucketOwner: currentUserId,
 		});
-		responseStream.write(JSON.stringify(response));
-		responseStream.end();
+		responseStream.write(JSON.stringify(response), () => {
+			responseStream.end();
+		});
 		return;
 	}
 
