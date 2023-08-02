@@ -113,7 +113,7 @@ export const ZodOrNullishEditor: React.FC<{
 					setValue={setLocalValue}
 					jsonPath={jsonPath}
 					schema={innerSchema}
-					defaultValue={value}
+					defaultValue={defaultValue}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}

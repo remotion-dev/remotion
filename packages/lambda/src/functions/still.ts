@@ -35,6 +35,7 @@ import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
+import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import {validateComposition} from './helpers/validate-composition';
 import {
 	getTmpDirStateIfENoSp,
@@ -185,7 +186,7 @@ const innerStillHandler = async ({
 		cancelSignal: null,
 		indent: false,
 		onBrowserLog: null,
-		onDownload: null,
+		onDownload: onDownloadsHelper(),
 		port: null,
 		server,
 		logLevel: lambdaParams.logLevel,

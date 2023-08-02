@@ -17,7 +17,7 @@ export const OffthreadLocalVideo: React.FC = () => {
 			volume={(f) =>
 				interpolate(f, [0, 500], [1, 0], {extrapolateRight: 'clamp'})
 			}
-			src={staticFile('iphonevideo.mov')}
+			src={staticFile('variablefps.webm')}
 		/>
 	);
 };

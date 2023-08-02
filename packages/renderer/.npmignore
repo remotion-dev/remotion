@@ -12,6 +12,6 @@ install_platforms.sh
 build.mjs
 .prettierrc.js
 tsconfig.json
-install-toolchains.mjs
+install-toolchain.mjs
 toolchains
 toolchains.mjs
