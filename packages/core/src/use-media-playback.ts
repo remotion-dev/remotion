@@ -89,12 +89,6 @@ export const useMediaPlayback = ({
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.45sec
 
-			console.log(
-				'seekingA',
-				timeShift,
-				mediaRef.current.currentTime,
-				shouldBeTime
-			);
 			mediaRef.current.currentTime = shouldBeTime;
 			if (!onlyWarnForMediaSeekingError) {
 				warnAboutNonSeekableMedia(
@@ -114,14 +108,12 @@ export const useMediaPlayback = ({
 
 		if (!playing || absoluteFrame === 0) {
 			if (makesSenseToSeek) {
-				console.log('seekingB');
 				mediaRef.current.currentTime = shouldBeTime;
 			}
 		}
 
 		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
 			if (makesSenseToSeek) {
-				console.log('seekingC');
 				mediaRef.current.currentTime = shouldBeTime;
 			}
 
