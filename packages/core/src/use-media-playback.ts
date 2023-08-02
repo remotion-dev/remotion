@@ -61,6 +61,14 @@ export const useMediaPlayback = ({
 			mediaRef.current.playbackRate = playbackRateToSet;
 		}
 
+		// Let's throttle the seeking to only every 10 frames when a video is playing to avoid bottlenecking
+		// the video tag.
+		if (playing) {
+			if (absoluteFrame % 10 !== 0) {
+				return;
+			}
+		}
+
 		const _shouldBeTime = getMediaTime({
 			fps,
 			frame,
