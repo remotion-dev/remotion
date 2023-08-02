@@ -449,6 +449,29 @@ test('Should get from AV1 video', async () => {
 	await compositor.waitForDone();
 });
 
+test('Should handle getting a frame from a WebM when it is not transparent', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		src: exampleVideos.variablefps,
+		original_src: exampleVideos.variablefps,
+		time: 0,
+		transparent: true,
+	});
+
+	const header = data.slice(0, 8).toString('utf8');
+	expect(header).toContain('PNG');
+
+	expect(data.length).toBe(1028855);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
 test('Two different starting times should not result in big seeking', async () => {
 	const compositor = startLongRunningCompositor(300, 'info', false);
 

@@ -392,20 +392,37 @@ pub fn open_stream(
     }
 
     let mut parameters_cloned = parameters.clone();
+
+    match transparent {
+        true => unsafe {
+            let format = (*(*(mut_stream).as_ptr()).codecpar).format;
+
+            // Format for transaprent WebM
+            let is_yuva_420p = format
+                == remotionffmpeg::util::format::pixel::to_av_pixel_format(Pixel::YUVA420P) as i32;
+
+            // Most common ProRes 4444 format
+            let is_yuva_444_p10_le = format
+                == remotionffmpeg::util::format::pixel::to_av_pixel_format(Pixel::YUVA444P10LE)
+                    as i32;
+
+            let supports_transparency = is_yuva_420p || is_yuva_444_p10_le;
+
+            if supports_transparency {
+                (*parameters_cloned.as_mut_ptr()).format = format
+            }
+            Some(supports_transparency)
+        },
+        false => Some(false),
+    };
+
     let is_vp8_or_vp9_and_transparent = match transparent {
         true => unsafe {
             let codec_id = (*(*(mut_stream).as_ptr()).codecpar).codec_id;
-            let is_vp8 = codec_id == remotionffmpeg::codec::id::get_av_codec_id(Id::VP8);
-            let is_vp9 = codec_id == remotionffmpeg::codec::id::get_av_codec_id(Id::VP9);
 
-            if is_vp8 || is_vp9 {
-                (*parameters_cloned.as_mut_ptr()).format =
-                    remotionffmpeg::util::format::pixel::to_av_pixel_format(Pixel::YUVA420P) as i32;
-            }
-
-            if is_vp8 {
+            if codec_id == remotionffmpeg::codec::id::get_av_codec_id(Id::VP8) {
                 Some("vp8")
-            } else if is_vp9 {
+            } else if codec_id == remotionffmpeg::codec::id::get_av_codec_id(Id::VP9) {
                 Some("vp9")
             } else {
                 None
