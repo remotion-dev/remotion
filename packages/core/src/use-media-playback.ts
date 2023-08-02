@@ -69,7 +69,7 @@ export const useMediaPlayback = ({
 			}
 		}
 
-		const _shouldBeTime = getMediaTime({
+		const desiredUnclampedTime = getMediaTime({
 			fps,
 			frame,
 			src,
@@ -80,8 +80,8 @@ export const useMediaPlayback = ({
 		const {duration} = mediaRef.current;
 		const shouldBeTime =
 			!Number.isNaN(duration) && Number.isFinite(duration)
-				? Math.min(duration, _shouldBeTime)
-				: _shouldBeTime;
+				? Math.min(duration, desiredUnclampedTime)
+				: desiredUnclampedTime;
 
 		const isTime = mediaRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
