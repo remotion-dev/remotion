@@ -85,6 +85,7 @@ export const useMediaPlayback = ({
 
 		const isTime = mediaRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
+
 		if (timeShift > acceptableTimeshift) {
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.45sec
@@ -96,6 +97,8 @@ export const useMediaPlayback = ({
 					onlyWarnForMediaSeekingError ? 'console-warning' : 'console-error'
 				);
 			}
+
+			return;
 		}
 
 		// Only perform a seek if the time is not already the same.
@@ -106,17 +109,17 @@ export const useMediaPlayback = ({
 		const makesSenseToSeek =
 			Math.abs(mediaRef.current.currentTime - shouldBeTime) > 0.00001;
 
+		if (!makesSenseToSeek) {
+			return;
+		}
+
 		if (!playing || absoluteFrame === 0) {
-			if (makesSenseToSeek) {
-				mediaRef.current.currentTime = shouldBeTime;
-			}
+			mediaRef.current.currentTime = shouldBeTime;
+			return;
 		}
 
 		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
-			if (makesSenseToSeek) {
-				mediaRef.current.currentTime = shouldBeTime;
-			}
-
+			mediaRef.current.currentTime = shouldBeTime;
 			playAndHandleNotAllowedError(mediaRef, mediaType);
 		}
 	}, [
