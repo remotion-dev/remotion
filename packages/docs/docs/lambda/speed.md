@@ -31,6 +31,10 @@ If you have a Remotion version before December 2022, then your bucket name might
 
 [See this article for more information](/docs/lambda/bucket-naming#aws-region-in-the-name). Consider renaming your bucket or re-setting up Remotion Lambda to gain speed. This especially applies if you are having many Remotion buckets across regions.
 
+## Use MP3 as an audio codec<AvailableFrom v="4.0.16">
+
+By default, a video renders with the `h264` codec and the `aac` audio codec. Setting the [`audioCodec`](/docs/encoding/#audio-codec) to `mp3` will make "Combining videos" stage a lot faster, as the MP3 codec is much faster to encode than AAC. However, **the audio will not play in QuickTime Player and the file size is minimally higher**.
+
 ## Optimizing render performance
 
 See the [general performance tips](/docs/performance) which also apply to Lambda.

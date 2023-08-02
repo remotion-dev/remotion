@@ -46,39 +46,40 @@ export const combineVideos = async (options: Options) => {
 	const resolvedAudioCodec =
 		audioCodec ?? getDefaultAudioCodec({codec, preferLossless: false});
 
+	const command = [
+		isAudioCodec(codec) ? null : '-r',
+		isAudioCodec(codec) ? null : String(fps),
+		'-f',
+		'concat',
+		'-safe',
+		'0',
+		'-i',
+		fileListTxt,
+		numberOfGifLoops === null ? null : '-loop',
+		numberOfGifLoops === null
+			? null
+			: typeof numberOfGifLoops === 'number'
+			? String(numberOfGifLoops)
+			: '-1',
+		isAudioCodec(codec) ? null : '-c:v',
+		isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
+		resolvedAudioCodec ? '-c:a' : null,
+		resolvedAudioCodec
+			? mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)
+			: null,
+		// Set max bitrate up to 512kbps, will choose lower if that's too much
+		'-b:a',
+		'512K',
+		codec === 'h264' ? '-movflags' : null,
+		codec === 'h264' ? 'faststart' : null,
+		'-y',
+		output,
+	].filter(truthy);
+
+	Log.verbose('Combining command: ', command);
+
 	try {
-		const task = callFf(
-			'ffmpeg',
-			[
-				isAudioCodec(codec) ? null : '-r',
-				isAudioCodec(codec) ? null : String(fps),
-				'-f',
-				'concat',
-				'-safe',
-				'0',
-				'-i',
-				fileListTxt,
-				numberOfGifLoops === null ? null : '-loop',
-				numberOfGifLoops === null
-					? null
-					: typeof numberOfGifLoops === 'number'
-					? String(numberOfGifLoops)
-					: '-1',
-				isAudioCodec(codec) ? null : '-c:v',
-				isAudioCodec(codec) ? null : codec === 'gif' ? 'gif' : 'copy',
-				resolvedAudioCodec ? '-c:a' : null,
-				resolvedAudioCodec
-					? mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)
-					: null,
-				// Set max bitrate up to 512kbps, will choose lower if that's too much
-				'-b:a',
-				'512K',
-				codec === 'h264' ? '-movflags' : null,
-				codec === 'h264' ? 'faststart' : null,
-				'-y',
-				output,
-			].filter(truthy)
-		);
+		const task = callFf('ffmpeg', command);
 		task.stderr?.on('data', (data: Buffer) => {
 			if (onProgress) {
 				const parsed = parseFfmpegProgress(data.toString('utf8'));
