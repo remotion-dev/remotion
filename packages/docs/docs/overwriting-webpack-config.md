@@ -122,14 +122,14 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
+npm i @mdx-js/loader @mdx-js/react
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
+pnpm i @mdx-js/loader @mdx-js/react
 ```
 
   </TabItem>
@@ -137,7 +137,7 @@ pnpm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
   <TabItem value="yarn">
 
 ```bash
-yarn add mdx-loader babel-loader @babel/preset-env @babel/preset-react
+yarn add @mdx-js/loader @mdx-js/react
 ```
 
   </TabItem>
@@ -161,20 +161,9 @@ export const enableMdx: WebpackOverrideFn = (currentConfiguration) => {
           test: /\.mdx?$/,
           use: [
             {
-              loader: "babel-loader",
-              options: {
-                presets: [
-                  "@babel/preset-env",
-                  [
-                    "@babel/preset-react",
-                    {
-                      runtime: "automatic",
-                    },
-                  ],
-                ],
-              },
+              loader: "@mdx-js/loader",
+              options: {},
             },
-            "mdx-loader",
           ],
         },
       ],
