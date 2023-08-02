@@ -31,7 +31,7 @@ export const callLambda = async <T extends LambdaRoutines>({
 
 	const events =
 		res.EventStream as AsyncIterable<InvokeWithResponseStreamResponseEvent>;
-	let responsePayload: Uint8Array = new Uint8Array();
+	let responsePayload = '';
 
 	for await (const event of events) {
 		// There are two types of events you can get on a stream.
@@ -50,7 +50,7 @@ export const callLambda = async <T extends LambdaRoutines>({
 				continue;
 			}
 
-			responsePayload = Buffer.concat([responsePayload, Buffer.from(decoded)]);
+			responsePayload += decoded;
 		}
 
 		if (event.InvokeComplete) {
@@ -69,8 +69,7 @@ export const callLambda = async <T extends LambdaRoutines>({
 		}
 	}
 
-	const string = Buffer.from(responsePayload).toString();
-	const json = parseJson<T>(string);
+	const json = parseJson<T>(responsePayload.trim());
 
 	return json;
 };
