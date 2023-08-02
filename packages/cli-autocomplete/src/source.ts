@@ -898,6 +898,13 @@ const completionSpec: Fig.Spec = {
             suggestions: [{ name: "npm" }, { name: "yarn" }, { name: "pnpm" }],
           },
         },
+        {
+          name: "--version",
+          description: "Upgrade to a specific version",
+          args: {
+            name: "version",
+          },
+        },
       ],
     },
     {

@@ -174,7 +174,9 @@ impl FrameCache {
             }
         }
 
-        if best_distance > threshold {
+        let has_pts_after = self.items.iter().any(|item| item.resolved_pts >= time);
+
+        if best_distance > threshold || !has_pts_after {
             return Ok(None);
         }
 

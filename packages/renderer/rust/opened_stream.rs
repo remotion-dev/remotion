@@ -138,6 +138,7 @@ impl OpenedStream {
         time_base: Rational,
         one_frame_in_time_base: i64,
         threshold: i64,
+        is_variable_fps: bool,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = match self.duration_or_zero {
@@ -163,7 +164,7 @@ impl OpenedStream {
         let mut found_but_forward_seek: Option<u8> = None;
 
         loop {
-            if break_on_next_keyframe && last_was_keyframe {
+            if break_on_next_keyframe && last_was_keyframe && !is_variable_fps {
                 break;
             }
             if found_but_forward_seek.is_some() && found_but_forward_seek.unwrap() == 0 {
@@ -176,10 +177,14 @@ impl OpenedStream {
                     .get_item_id(position, threshold)?;
                 if matching.is_some() {
                     // Often times there is another package coming with a lower DTS,
-                    // so we receive up to 4 more packets
+                    // so we receive up to 4 more packets, and 30 if it is a variable FPS video
                     break_on_next_keyframe = true;
                     if found_but_forward_seek.is_none() {
-                        found_but_forward_seek = Some(4);
+                        if is_variable_fps {
+                            found_but_forward_seek = Some(30);
+                        } else {
+                            found_but_forward_seek = Some(4);
+                        }
                     }
                 }
             }

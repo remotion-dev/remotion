@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/player",
-	"version": "4.0.12",
+	"version": "4.0.15",
 	"description": "Remotion Player",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -28,10 +28,6 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
-	"files": [
-		"dist",
-		"README.md"
-	],
 	"author": "Jonny Burger <jonny@remotion.dev>",
 	"maintainers": [
 		"Jonny Burger <jonny@remotion.dev>",

@@ -5,6 +5,30 @@ require_once __DIR__ . '/Version.php';
 use stdClass;
 use VERSION;
 
+class RenderMediaOnLambdaResponse
+{
+    public string $type;
+    public string $bucketName;
+    public string $renderId;
+}
+
+class GetRenderProgressResponse
+{
+    public int $chunks;
+    public bool $done;
+    public float $overallProgress;
+    public string $type;
+    public ?string $outputFile;
+    public int $lambdasInvoked;
+    public int $renderSize;
+    public int $currentTime;
+    public bool $fatalErrorEncountered;
+    public ?int $timeToFinish;
+    public ?string $outBucket;
+    public ?string $outKey;
+    public ?string $bucket;
+}
+
 class RenderParams
 {
 
@@ -48,39 +72,22 @@ class RenderParams
     private $pixelFormat = null;
 
     public function __construct(
-        ? array $data = null,
-        ? string $composition = 'main',
+        ?array $data = null,
+        ?string $composition = 'main',
         string $codec = 'h264',
-        ? string $version = null,
+        ?string $version = null,
         string $imageFormat = 'jpeg',
-        ? int $crf = null,
-        ? array $envVariables = null,
-        ? int $quality = null,
+        ?int $crf = null,
+        ?array $envVariables = null,
+        ?int $quality = null,
         int $maxRetries = 1,
         string $privacy = 'public',
         string $logLevel = 'info',
-        ? string $frameRange = null,
-        ? string $outName = null,
-        ? int $timeoutInMilliseconds = 30000,
-        ? object $chromiumOptions = new stdClass(),
-        ? int $scale = 1,
-        ? int $everyNthFrame = 1,
-        ? int $numberOfGifLoops = 0,
-        ? int $concurrencyPerLambda = 1,
-        ? array $downloadBehavior = null,
-        ? bool $muted = false,
-        ? bool $overwrite = false,
-        ? int $audioBitrate = null,
-        ? int $videoBitrate = null,
-        ? string $webhook = null,
-        ? int $forceHeight = null,
-        ? int $forceWidth = null,
-        ? string $audioCodec = null,
-        ? int $framesPerLambda = null,
-        ? string $rendererFunctionName = null,
-        ? string $proResProfile = null,
-        ? string $pixelFormat = null
-    ) {
+        ?string $frameRange = null,
+        ?string $outName = null,
+        ?int $timeoutInMilliseconds = 30000,
+        ?object $chromiumOptions = new stdClass(), ?int $scale = 1, ?int $everyNthFrame = 1, ?int $numberOfGifLoops = 0, ?int $concurrencyPerLambda = 1, ?array $downloadBehavior = null, ?bool $muted = false, ?bool $overwrite = false, ?int $audioBitrate = null, ?int $videoBitrate = null, ?string $webhook = null, ?int $forceHeight = null, ?int $forceWidth = null, ?string $audioCodec = null, ?int $framesPerLambda = null, ?string $rendererFunctionName = null, ?string $proResProfile = null, ?string $pixelFormat = null)
+    {
         $this->data = $data;
         $this->composition = $composition;
         $this->codec = $codec;
@@ -122,7 +129,7 @@ class RenderParams
             'rendererFunctionName' => $this->getRendererFunctionName(),
             'framesPerLambda' => $this->getFramesPerLambda(),
             'composition' => $this->getComposition(),
-            'serveUrl' => $this->getServerUrl(),
+            'serveUrl' => $this->getServeUrl(),
             'inputProps' => $this->getInputProps(),
             'codec' => $this->getCodec(),
             'imageFormat' => $this->getImageFormat(),
@@ -187,7 +194,7 @@ class RenderParams
      *
      * @return  self
      */
-    public function setInputProps($inputProps)
+    public function internal_setSerializedInputProps($inputProps)
     {
         $this->inputProps = $inputProps;
 
@@ -243,11 +250,23 @@ class RenderParams
     }
 
     /**
+     * Backwards compatible version of setInputProps()
      * Set the value of data
      *
      * @return  self
      */
     public function setData($data)
+    {
+        $this->data = $data;
+
+        return $this;
+    }
+
+    /**
+     * Set the value of inputProps
+     * @return
+     */
+    public function setInputProps($data)
     {
         $this->data = $data;
 
@@ -620,7 +639,7 @@ class RenderParams
     /**
      * Get the value of serverUrl
      */
-    public function getServerUrl()
+    public function getServeUrl()
     {
         return $this->serverUrl;
     }
@@ -630,7 +649,7 @@ class RenderParams
      *
      * @return  self
      */
-    public function setServerUrl($serverUrl)
+    public function setServeUrl($serverUrl)
     {
         $this->serverUrl = $serverUrl;
 
