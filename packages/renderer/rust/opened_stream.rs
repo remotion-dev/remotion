@@ -5,7 +5,7 @@ use std::{
 };
 
 use ffmpeg_next::Rational;
-use remotionffmpeg::{codec::Id, format::Pixel, frame::Video, media::Type, Dictionary, StreamMut};
+use remotionffmpeg::{codec::Id, frame::Video, media::Type, Dictionary, StreamMut};
 extern crate ffmpeg_next as remotionffmpeg;
 use std::time::UNIX_EPOCH;
 
@@ -23,7 +23,6 @@ pub struct OpenedStream {
     pub original_height: u32,
     pub scaled_width: u32,
     pub scaled_height: u32,
-    pub format: Pixel,
     pub video: remotionffmpeg::codec::decoder::Video,
     pub src: String,
     pub original_src: String,
@@ -96,12 +95,13 @@ impl OpenedStream {
                     let frame = NotRgbFrame {
                         linesizes: linesize,
                         planes,
-                        format: self.format,
+                        format: video.format(),
                         original_width: self.original_width,
                         original_height: self.original_height,
                         scaled_height: self.scaled_height,
                         scaled_width: self.scaled_width,
                         rotate: self.rotation,
+                        original_src: self.original_src.clone(),
                     };
 
                     offset = offset + one_frame_in_time_base;
@@ -264,12 +264,13 @@ impl OpenedStream {
                         let frame = NotRgbFrame {
                             linesizes: linesize,
                             planes,
-                            format: self.format,
+                            format: video.format(),
                             original_height: self.original_height,
                             original_width: self.original_width,
                             scaled_height: self.scaled_height,
                             scaled_width: self.scaled_width,
                             rotate: self.rotation,
+                            original_src: self.original_src.clone(),
                         };
 
                         self.last_position = video.pts().expect("expected pts");
@@ -391,32 +392,7 @@ pub fn open_stream(
         }
     }
 
-    let mut parameters_cloned = parameters.clone();
-
-    match transparent {
-        true => unsafe {
-            let format = (*(*(mut_stream).as_ptr()).codecpar).format;
-
-            // Format for transaprent WebM
-            let is_yuva_420p = format
-                == remotionffmpeg::util::format::pixel::to_av_pixel_format(Pixel::YUVA420P) as i32;
-
-            // Most common ProRes 4444 format
-            let is_yuva_444_p10_le = format
-                == remotionffmpeg::util::format::pixel::to_av_pixel_format(Pixel::YUVA444P10LE)
-                    as i32;
-
-            let supports_transparency = is_yuva_420p || is_yuva_444_p10_le;
-
-            if supports_transparency {
-                (*parameters_cloned.as_mut_ptr()).format = format
-            }
-            Some(supports_transparency)
-        },
-        false => Some(false),
-    };
-
-    let is_vp8_or_vp9_and_transparent = match transparent {
+    let is_vp8_or_vp9 = match transparent {
         true => unsafe {
             let codec_id = (*(*(mut_stream).as_ptr()).codecpar).codec_id;
 
@@ -431,16 +407,14 @@ pub fn open_stream(
         false => None,
     };
 
-    let video = remotionffmpeg::codec::context::Context::from_parameters(parameters_cloned)?;
+    let video = remotionffmpeg::codec::context::Context::from_parameters(parameters.clone())?;
 
-    let decoder = match is_vp8_or_vp9_and_transparent {
+    let decoder = match is_vp8_or_vp9 {
         Some("vp8") => video.decoder().video_with_codec("libvpx")?,
         Some("vp9") => video.decoder().video_with_codec("libvpx-vp9")?,
         Some(_) => unreachable!(),
         None => video.decoder().video()?,
     };
-
-    let format = decoder.format();
 
     let original_width = decoder.width();
     let original_height = decoder.height();
@@ -461,7 +435,6 @@ pub fn open_stream(
         original_width,
         scaled_height,
         scaled_width,
-        format,
         video: decoder,
         src: src.to_string(),
         input,

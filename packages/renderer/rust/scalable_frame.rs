@@ -6,7 +6,7 @@ use ffmpeg_next::{
     software::scaling::{Context, Flags},
 };
 
-use crate::{errors::ErrorWithBacktrace, image::get_png_data};
+use crate::{errors::ErrorWithBacktrace, global_printer::_print_verbose, image::get_png_data};
 
 #[derive(Clone, Copy)]
 pub enum Rotate {
@@ -25,6 +25,7 @@ pub struct NotRgbFrame {
     pub scaled_width: u32,
     pub scaled_height: u32,
     pub rotate: Rotate,
+    pub original_src: String,
 }
 
 pub struct RgbFrame {
@@ -182,7 +183,22 @@ pub fn scale_and_make_bitmap(
     };
 
     if transparent {
-        return get_png_data(&rotated, rotated_width, rotated_height);
+        if native_frame.format == Pixel::YUVA420P {
+            return get_png_data(&rotated, rotated_width, rotated_height);
+        } else if native_frame.format == Pixel::YUVA444P10LE {
+            return get_png_data(&rotated, rotated_width, rotated_height);
+        } else {
+            _print_verbose(&format!(
+                "Requested transparent image, but the video {} is not transparent. Returning BMP.",
+                native_frame.original_src
+            ))?;
+            return Ok(create_bmp_image_from_frame(
+                &rotated,
+                rotated_width,
+                rotated_height,
+                stride,
+            ));
+        }
     }
 
     Ok(create_bmp_image_from_frame(
