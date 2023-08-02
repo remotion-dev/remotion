@@ -29,14 +29,14 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
+npm i babel-loader @babel/preset-env @babel/preset-react
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
+pnpm i babel-loader @babel/preset-env @babel/preset-react
 ```
 
   </TabItem>
@@ -44,7 +44,7 @@ pnpm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
   <TabItem value="yarn">
 
 ```bash
-yarn add mdx-loader babel-loader @babel/preset-env @babel/preset-react
+yarn add babel-loader @babel/preset-env @babel/preset-react
 ```
 
   </TabItem>

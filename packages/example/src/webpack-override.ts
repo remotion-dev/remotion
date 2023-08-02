@@ -31,20 +31,9 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 					test: /\.mdx?$/,
 					use: [
 						{
-							loader: 'babel-loader',
-							options: {
-								presets: [
-									'@babel/preset-env',
-									[
-										'@babel/preset-react',
-										{
-											runtime: 'automatic',
-										},
-									],
-								],
-							},
+							loader: '@mdx-js/loader',
+							options: {},
 						},
-						'mdx-loader',
 					],
 				},
 			],
