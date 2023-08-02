@@ -137,6 +137,7 @@ export const webpackConfig = ({
 			alias: {
 				// Only one version of react
 				'react/jsx-runtime': require.resolve('react/jsx-runtime'),
+				'react/jsx-dev-runtime': require.resolve('react/jsx-dev-runtime'),
 				react: require.resolve('react'),
 				'react-dom/client': shouldUseReactDomClient
 					? require.resolve('react-dom/client')
