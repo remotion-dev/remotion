@@ -66,6 +66,8 @@ export type CompositorCommand = {
 	};
 	GetSilences: {
 		src: string;
+		noiseThresholdInDecibel: number;
+		minDuration: number;
 	};
 	Echo: {
 		message: string;
