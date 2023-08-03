@@ -5,7 +5,10 @@ use std::path::Path;
 
 use ffmpeg::{codec, filter, format, frame, media};
 
-use crate::{errors::ErrorWithBacktrace, logger::log_callback};
+use crate::{
+    errors::ErrorWithBacktrace,
+    logger::{log_callback, silence_detection_log_callback},
+};
 
 fn filter(
     spec: &str,
@@ -209,7 +212,7 @@ pub fn get_silences(
     filter: String,
 ) -> Result<(), ErrorWithBacktrace> {
     ffmpeg::init()?;
-    ffmpeg::log::set_callback(Some(log_callback));
+    ffmpeg::log::set_callback(Some(silence_detection_log_callback));
 
     let mut ictx = format::input(&input).unwrap();
     let mut octx = format::output(&output).unwrap();
