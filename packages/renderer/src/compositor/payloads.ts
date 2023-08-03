@@ -57,6 +57,10 @@ export type CompositorCommand = {
 		time: number;
 		transparent: boolean;
 	};
+	GetSilences: {
+		src: string;
+		original_src: string;
+	};
 	Echo: {
 		message: string;
 	};
