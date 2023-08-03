@@ -63,6 +63,12 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
+    pub struct GetSilences {
+        pub src: String,
+        pub original_src: String,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct StartPayLoad {
         pub concurrency: usize,
         pub maximum_frame_cache_items: usize,
@@ -142,6 +148,7 @@ pub mod payloads {
         FreeUpMemory(FreeUpMemory),
         Echo(EchoPayload),
         GetVideoMetadata(GetVideoMetadata),
+        GetSilences(GetSilences),
     }
 
     #[derive(Serialize, Deserialize, Debug)]
