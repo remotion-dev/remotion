@@ -43,6 +43,13 @@ export type VideoMetadata = {
 	supportsSeeking: boolean;
 };
 
+type SilentPart = {
+	start: number;
+	end: number;
+};
+
+export type SilentParts = SilentPart[];
+
 export type CompositorCommand = {
 	Compose: {
 		output: string;
@@ -59,7 +66,6 @@ export type CompositorCommand = {
 	};
 	GetSilences: {
 		src: string;
-		original_src: string;
 	};
 	Echo: {
 		message: string;

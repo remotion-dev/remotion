@@ -65,7 +65,6 @@ pub mod payloads {
     #[derive(Serialize, Deserialize, Debug)]
     pub struct GetSilences {
         pub src: String,
-        pub original_src: String,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
@@ -119,6 +118,13 @@ pub mod payloads {
         pub codec: KnownCodecs,
         pub canPlayInVideoTag: bool,
         pub supportsSeeking: bool,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
+    #[allow(non_snake_case)]
+    pub struct SilentParts {
+        pub start: f64,
+        pub end: f64,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

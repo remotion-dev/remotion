@@ -1,13 +1,15 @@
 extern crate ffmpeg_next as ffmpeg;
 
-use std::io::ErrorKind;
 use std::path::Path;
+use std::{io::ErrorKind, sync::Mutex};
 
 use ffmpeg::{codec, filter, format, frame, media};
+use lazy_static::lazy_static;
 
+use crate::payloads::payloads::SilentParts;
 use crate::{
     errors::ErrorWithBacktrace,
-    logger::{log_callback, silence_detection_log_callback},
+    logger::{silence_detection_log_callback, FFMPEG_SILENCES},
 };
 
 fn filter(
@@ -195,23 +197,28 @@ impl Transcoder {
     }
 }
 
-// Transcode the `best` audio stream of the input file into a the output file while applying a
-// given filter. If no filter was specified the stream gets copied (`anull` filter).
-//
-// Example 1: Transcode *.mp3 file to *.wmv while speeding it up
-// transcode-audio in.mp3 out.wmv "atempo=1.2"
-//
-// Example 2: Overlay an audio file
-// transcode-audio in.mp3 out.mp3 "amovie=overlay.mp3 [ov]; [in][ov] amerge [out]"
-//
-// Example 3: Seek to a specified position (in seconds)
-// transcode-audio in.mp3 out.mp3 anull 30
+lazy_static! {
+    static ref LOCK: Mutex<()> = Mutex::new(());
+}
+
+#[derive(PartialEq)]
+enum LastOccurrence {
+    Start,
+    End,
+    None,
+}
+
 pub fn get_silences(
     input: String,
     output: String,
     filter: String,
-) -> Result<(), ErrorWithBacktrace> {
+) -> Result<Vec<SilentParts>, ErrorWithBacktrace> {
+    // This function is not thread-safe, the FFmpeg messages are stored in a global array.
+    let _guard = LOCK.lock().unwrap();
+    let mut silent_parts: Vec<SilentParts> = Vec::new();
+
     ffmpeg::init()?;
+    FFMPEG_SILENCES.lock().unwrap().clear();
     ffmpeg::log::set_callback(Some(silence_detection_log_callback));
 
     let mut ictx = format::input(&input).unwrap();
@@ -248,5 +255,41 @@ pub fn get_silences(
 
     octx.write_trailer().unwrap();
 
-    Ok(())
+    let silences = FFMPEG_SILENCES.lock().unwrap().clone();
+    const SILENCE_START: &str = "silence_start: ";
+    const SILENCE_END: &str = "silence_end: ";
+
+    let mut last_occurrence = LastOccurrence::None;
+    let mut start = 0.0;
+
+    for silence in &silences {
+        if silence.starts_with(SILENCE_START) {
+            start = silence
+                .trim_start_matches(SILENCE_START)
+                .trim()
+                .parse::<f64>()
+                .unwrap();
+            last_occurrence = LastOccurrence::Start;
+        }
+        if silence.starts_with(SILENCE_END) {
+            let end_str = silence.trim_start_matches(SILENCE_END);
+
+            let end = end_str
+                .split('|')
+                .nth(0)
+                .unwrap()
+                .trim()
+                .parse::<f64>()
+                .unwrap();
+
+            if last_occurrence == LastOccurrence::Start {
+                silent_parts.push(SilentParts { end, start });
+            }
+
+            last_occurrence = LastOccurrence::End;
+        }
+    }
+
+    FFMPEG_SILENCES.lock().unwrap().clear();
+    Ok(silent_parts)
 }
