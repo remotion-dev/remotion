@@ -1,5 +1,6 @@
 use crate::compositor::draw_layer;
 use crate::errors::ErrorWithBacktrace;
+use crate::global_printer::_print_verbose;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::CliInputCommandPayload;
@@ -51,10 +52,14 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             Ok(str.as_bytes().to_vec())
         }
         CliInputCommandPayload::GetSilences(_command) => {
+            let filter = format!(
+                "silencedetect=n={}dB:d={}",
+                _command.noiseThresholdInDecibel, _command.minDuration
+            );
             let res = get_silences::get_silences(
                 _command.src,
                 "out.mp3".to_string(),
-                "silencedetect=n=-20dB:d=1".to_string(),
+                filter.to_string(),
             )?;
             let str = serde_json::to_string(&res)?;
             Ok(str.as_bytes().to_vec())
