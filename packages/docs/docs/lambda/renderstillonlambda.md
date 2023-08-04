@@ -145,6 +145,10 @@ _optional - default `1`_
 
 How often a frame render may be retried until it fails.
 
+:::note
+A retry only gets executed if a the error is in the [list of flaky errors](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/shared/is-flaky-error.ts).
+:::
+
 ### `envVariables?`
 
 _optional - default `{}`_
