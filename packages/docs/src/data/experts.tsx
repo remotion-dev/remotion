@@ -377,4 +377,28 @@ export const experts: Expert[] = [
       </div>
     ),
   },
+  {
+    slug: "rahul-bansal",
+    name: "Rahul Bansal",
+    image: "/img/freelancers/rahul.png",
+    website: "https://bansalrahul.com/",
+    twitter: "BansalRahul14",
+    github: "rahulbansal16",
+    linkedin: "in/rahulbansalrb/",
+    email: "bansalrahul14@gmail.com",
+    videocall: "remotion-expert-rahul-bansal",
+    since: new Date("2023-08-04").getTime(),
+    description: (
+      <div>
+        I can help you with building products using Remotion, Firebase, Antd,
+        and Typescripts. I have made{" "}
+        <a target={"_blank"} href="https://app.blinkcuts.com/">
+          Blinkcuts
+        </a>{" "}
+        an AI video editor for short talking head videos. I have worked in
+        companies like Microsoft and early-stage startups like Directi. I can
+        build products super fast from scratch. Looking forward to helping you.
+      </div>
+    ),
+  },
 ];
