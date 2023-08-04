@@ -195,7 +195,7 @@ impl FrameCache {
 
                 let asked_time_difference =
                     (self.items[best_item.unwrap()].asked_time - time).abs();
-                if has_asked_time_before {
+                if has_asked_time_before && self.items[best_item.unwrap()].asked_time <= time {
                     _print_debug(&format!(
                         "Found timestamp with too much threshold, but will let it pass because no closer frames found {} {}",
                         asked_time_difference, threshold
