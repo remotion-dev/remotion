@@ -65,3 +65,8 @@ const getProgressInBrackets = (
 			: `[${progInPercent}% ${currentRender.compositionId}]`;
 	return progressInBrackets;
 };
+
+document.addEventListener('visibilitychange', () => {
+	tabInactive = document.visibilityState === 'hidden';
+	updateTitle();
+});

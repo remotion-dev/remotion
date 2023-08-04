@@ -16,7 +16,6 @@ export const TitleUpdater: React.FC = () => {
 		setCurrentVideoId(video?.id ?? null);
 		setRenderJobs(jobs);
 	}, [jobs, video]);
-
 	return null;
 };
 
