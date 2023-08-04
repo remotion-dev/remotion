@@ -35,7 +35,8 @@ export const getInputProps = (
 		return JSON.parse(parsedCli.props);
 	} catch (err) {
 		Log.error(
-			'You passed --props but it was neither valid JSON nor a file path to a valid JSON file.'
+			'You passed --props but it was neither valid JSON nor a file path to a valid JSON file. Provided value: ' +
+				parsedCli.props
 		);
 		Log.info('Got the following value:', parsedCli.props);
 		Log.error(
