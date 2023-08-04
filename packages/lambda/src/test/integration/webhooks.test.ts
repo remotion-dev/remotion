@@ -106,6 +106,7 @@ describe('Webhooks', () => {
 			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 		const parsed = res;
 
@@ -120,6 +121,7 @@ describe('Webhooks', () => {
 			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 
 		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
@@ -191,6 +193,7 @@ describe('Webhooks', () => {
 				audioCodec: null,
 			},
 			timeoutInTest: 1000,
+			retriesRemaining: 0,
 		});
 
 		await new Promise((resolve) => {

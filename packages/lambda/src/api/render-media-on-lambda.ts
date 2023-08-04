@@ -105,6 +105,7 @@ export const renderMediaOnLambda = async (
 			region,
 			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 		return {
 			renderId: res.renderId,
