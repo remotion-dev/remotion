@@ -252,6 +252,8 @@ impl OpenedStream {
                     match packet.pts() {
                         Some(pts) => {
                             last_seek_position = pts - 1;
+                            break_on_next_keyframe = false;
+                            found_but_forward_seek = None;
 
                             self.input.seek(
                                 self.stream_index as i32,
