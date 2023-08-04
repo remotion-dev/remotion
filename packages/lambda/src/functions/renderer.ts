@@ -13,6 +13,7 @@ import {
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
+import {isFlakyError} from '../shared/is-flaky-error';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -291,16 +292,10 @@ export const rendererHandler = async (
 			throw err;
 		}
 
-		const {message} = err as Error;
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isRetryableError =
-			message.includes('FATAL:zygote_communication_linux.cc') ||
-			message.includes('error while loading shared libraries: libnss3.so') ||
-			message.includes('but the server sent no data') ||
-			message.includes('Compositor panicked') ||
-			(message.includes('Compositor exited') && !message.includes('SIGSEGV')) ||
-			message.includes('Timed out while setting up the headless browser');
+		const isRetryableError = isFlakyError(err as Error);
+
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
 		const isFatal = !isRetryableError;
@@ -340,6 +335,7 @@ export const rendererHandler = async (
 				region: getCurrentRegionInFunction(),
 				receivedStreamingPayload: () => undefined,
 				timeoutInTest: 120000,
+				retriesRemaining: 0,
 			});
 
 			return res;

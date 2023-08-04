@@ -157,6 +157,7 @@ export const renderStillOnLambda = async ({
 				}
 			},
 			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 
 		return {

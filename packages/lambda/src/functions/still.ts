@@ -21,6 +21,7 @@ import {
 	renderMetadataKey,
 } from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
+import {isFlakyError} from '../shared/is-flaky-error';
 import {getServeUrlHash} from '../shared/make-s3-url';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateOutname} from '../shared/validate-outname';
@@ -273,11 +274,7 @@ export const stillHandler = async (
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isBrowserError =
-			(err as Error).message.includes('FATAL:zygote_communication_linux.cc') ||
-			(err as Error).message.includes(
-				'error while loading shared libraries: libnss3.so'
-			);
+		const isBrowserError = isFlakyError(err as Error);
 		const willRetry = isBrowserError || params.maxRetries > 0;
 
 		if (!willRetry) {
@@ -297,6 +294,7 @@ export const stillHandler = async (
 			type: LambdaRoutines.still,
 			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 		const bucketName =
 			params.bucketName ??
