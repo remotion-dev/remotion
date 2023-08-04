@@ -16,7 +16,6 @@ Is based on the native HTML5 `<video>` element and therefore behaves similar to 
 
 ✅ &nbsp; You can attach a ref and [draw the video to a canvas](/docs/video-manipulation).  
 ✅ &nbsp; Can be rendered without having to be downloaded fully.  
-✅ &nbsp; Is usually faster to render.  
 ✅ &nbsp; [Renders embedded transparent videos quickly](/docs/transparent-videos).
 
 **Cons**
@@ -37,7 +36,8 @@ A more sophisticated way of embedding a video, which:
 
 ✅ &nbsp; More videos can be displayed simulatenously as Chrome will not apply throttling  
 ✅ &nbsp; No flickers or duplicate frames in the output video can occur.  
-✅ &nbsp; Supports more codecs such as ProRes (only during render-time)
+✅ &nbsp; Supports more codecs such as ProRes (only during render-time)  
+✅ &nbsp; Is usually faster to render.
 
 **Cons**
 
