@@ -196,8 +196,8 @@ impl OpenedStream {
                             }
                         }
                     } else if last_frame.pts > position {
-                        // Video from WF (JMA) customer: Video has no frames for the first two seconds.
-                        // In that case we return the closest frame
+                        // zero-timestamp.mp4 test video: Video has no frames for the first two seconds.
+                        // In that case we return the closest frame. This
                         break_on_next_keyframe = true;
                         if found_but_forward_seek.is_none() {
                             if is_variable_fps {
