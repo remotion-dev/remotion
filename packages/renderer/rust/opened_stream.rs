@@ -146,7 +146,6 @@ impl OpenedStream {
         time_base: Rational,
         one_frame_in_time_base: i64,
         threshold: i64,
-        is_variable_fps: bool,
     ) -> Result<usize, ErrorWithBacktrace> {
         let mut freshly_seeked = false;
         let mut last_seek_position = match self.duration_or_zero {
@@ -176,11 +175,7 @@ impl OpenedStream {
             match last_frame_received {
                 Some(_) => {
                     if stop_after_n_diverging_pts.is_none() {
-                        if is_variable_fps {
-                            stop_after_n_diverging_pts = Some(30);
-                        } else {
-                            stop_after_n_diverging_pts = Some(4);
-                        }
+                        stop_after_n_diverging_pts = Some(3);
                     }
                 }
                 None => {}
