@@ -1,9 +1,22 @@
-import {useCallback, useContext} from 'react';
+import {useCallback, useContext, useEffect} from 'react';
+import {truthy} from '../../truthy';
+import {
+	areKeyboardShortcutsDisabled,
+	useKeybinding,
+} from '../helpers/use-keybinding';
 import {canvasRef} from '../state/canvas-ref';
 import {PreviewSizeContext} from '../state/preview-size';
 import {ControlButton} from './ControlButton';
 
+const accessibilityLabel = [
+	'Enter fullscreen preview',
+	areKeyboardShortcutsDisabled() ? null : '(F)',
+]
+	.filter(truthy)
+	.join(' ');
+
 export const FullScreenToggle: React.FC<{}> = () => {
+	const keybindings = useKeybinding();
 	const {setSize} = useContext(PreviewSizeContext);
 
 	const onClick = useCallback(() => {
@@ -19,10 +32,24 @@ export const FullScreenToggle: React.FC<{}> = () => {
 			}));
 	}, [setSize]);
 
+	useEffect(() => {
+		const f = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 'f',
+			callback: onClick,
+			commandCtrlKey: false,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+		});
+		return () => {
+			f.unregister();
+		};
+	}, [keybindings, onClick]);
+
 	return (
 		<ControlButton
-			title="Enter fullscreen preview"
-			aria-label="Enter fullscreen preview"
+			title={accessibilityLabel}
+			aria-label={accessibilityLabel}
 			onClick={onClick}
 		>
 			<svg style={{width: 18, height: 18}} viewBox="0 0 448 512" fill="#fff">
