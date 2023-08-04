@@ -2,20 +2,20 @@ import type React from 'react';
 import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {setCurrentVideoId, setRenderJobs} from '../helpers/docuement-title';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {sendErrorNotification} from './Notifications/NotificationCenter';
+import {RenderQueueContext} from './RenderQueue/context';
 
 export const TitleUpdater: React.FC = () => {
 	const video = Internals.useVideo();
+	const renderQueue = useContext(RenderQueueContext);
+	const {jobs} = renderQueue;
 
 	useEffect(() => {
-		if (!video) {
-			document.title = 'Remotion Studio';
-			return;
-		}
-
-		document.title = `${video.id} / ${window.remotion_projectName} - Remotion Studio`;
-	}, [video]);
+		setCurrentVideoId(video?.id ?? null);
+		setRenderJobs(jobs);
+	}, [jobs, video]);
 
 	return null;
 };
