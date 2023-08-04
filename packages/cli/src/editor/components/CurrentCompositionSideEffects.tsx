@@ -14,8 +14,12 @@ export const TitleUpdater: React.FC = () => {
 
 	useEffect(() => {
 		setCurrentVideoId(video?.id ?? null);
+	}, [video]);
+
+	useEffect(() => {
 		setRenderJobs(jobs);
-	}, [jobs, video]);
+	}, [jobs]);
+
 	return null;
 };
 
