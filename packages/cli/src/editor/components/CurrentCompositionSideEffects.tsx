@@ -2,6 +2,7 @@ import type React from 'react';
 import {useCallback, useContext, useEffect} from 'react';
 import {Internals} from 'remotion';
 import {StudioServerConnectionCtx} from '../helpers/client-id';
+import {setCurrentVideoId} from '../helpers/docuement-title';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {sendErrorNotification} from './Notifications/NotificationCenter';
 
@@ -9,12 +10,7 @@ export const TitleUpdater: React.FC = () => {
 	const video = Internals.useVideo();
 
 	useEffect(() => {
-		if (!video) {
-			document.title = 'Remotion Studio';
-			return;
-		}
-
-		document.title = `${video.id} / ${window.remotion_projectName} - Remotion Studio`;
+		setCurrentVideoId(video?.id ?? null);
 	}, [video]);
 
 	return null;
