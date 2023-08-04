@@ -34,6 +34,11 @@ pub struct OpenedStream {
     pub rotation: Rotate,
 }
 
+pub struct LastFrameInfo {
+    index: usize,
+    pts: i64,
+}
+
 pub fn calc_position(time: f64, time_base: Rational) -> i64 {
     (time * time_base.1 as f64 / time_base.0 as f64) as i64
 }
@@ -71,10 +76,10 @@ impl OpenedStream {
         position: i64,
         frame_cache: &Arc<Mutex<FrameCache>>,
         one_frame_in_time_base: i64,
-    ) -> Result<Option<usize>, ErrorWithBacktrace> {
+    ) -> Result<Option<LastFrameInfo>, ErrorWithBacktrace> {
         self.video.send_eof()?;
 
-        let mut latest_frame: Option<usize> = None;
+        let mut latest_frame: Option<LastFrameInfo> = None;
         let mut offset = 0;
 
         loop {
@@ -115,7 +120,10 @@ impl OpenedStream {
                     };
 
                     frame_cache.lock()?.add_item(item);
-                    latest_frame = Some(frame_cache_id);
+                    latest_frame = Some(LastFrameInfo {
+                        index: frame_cache_id,
+                        pts: video.pts().expect("pts"),
+                    });
                 },
                 Ok(None) => {
                     if self.reached_eof {
@@ -158,7 +166,7 @@ impl OpenedStream {
             freshly_seeked = true
         }
 
-        let mut last_frame_received: Option<usize> = None;
+        let mut last_frame_received: Option<LastFrameInfo> = None;
         let mut break_on_next_keyframe = false;
         let mut last_was_keyframe = false;
         let mut found_but_forward_seek: Option<u8> = None;
@@ -170,23 +178,37 @@ impl OpenedStream {
             if found_but_forward_seek.is_some() && found_but_forward_seek.unwrap() == 0 {
                 break;
             }
-            if last_frame_received.is_some() {
-                let matching = frame_cache
-                    .lock()
-                    .unwrap()
-                    .get_item_id(position, threshold)?;
-                if matching.is_some() {
-                    // Often times there is another package coming with a lower DTS,
-                    // so we receive up to 4 more packets, and 30 if it is a variable FPS video
-                    break_on_next_keyframe = true;
-                    if found_but_forward_seek.is_none() {
-                        if is_variable_fps {
-                            found_but_forward_seek = Some(30);
-                        } else {
-                            found_but_forward_seek = Some(4);
+            match last_frame_received {
+                Some(ref last_frame) => {
+                    let matching = frame_cache
+                        .lock()
+                        .unwrap()
+                        .get_item_id(position, threshold)?;
+                    if matching.is_some() {
+                        // Often times there is another package coming with a lower DTS,
+                        // so we receive up to 4 more packets, and 30 if it is a variable FPS video
+                        break_on_next_keyframe = true;
+                        if found_but_forward_seek.is_none() {
+                            if is_variable_fps {
+                                found_but_forward_seek = Some(30);
+                            } else {
+                                found_but_forward_seek = Some(4);
+                            }
+                        }
+                    } else if last_frame.pts > position {
+                        // Video from WF (JMA) customer: Video has no frames for the first two seconds.
+                        // In that case we return the closest frame
+                        break_on_next_keyframe = true;
+                        if found_but_forward_seek.is_none() {
+                            if is_variable_fps {
+                                found_but_forward_seek = Some(30);
+                            } else {
+                                found_but_forward_seek = Some(4);
+                            }
                         }
                     }
                 }
+                None => {}
             }
 
             let (stream, packet) = match self.input.get_next_packet() {
@@ -197,7 +219,7 @@ impl OpenedStream {
 
                         frame_cache
                             .lock()?
-                            .set_last_frame(last_frame_received.unwrap());
+                            .set_last_frame(last_frame_received.unwrap().index);
                     } else {
                         frame_cache.lock()?.set_biggest_frame_as_last_frame();
                     }
@@ -217,7 +239,7 @@ impl OpenedStream {
             }
 
             _print_verbose(&format!(
-                "Got packet dts = {} pts ={} key = {}",
+                "Got packet dts = {} pts = {} key = {}",
                 packet.dts().unwrap(),
                 packet.pts().unwrap(),
                 packet.is_key()
@@ -231,7 +253,6 @@ impl OpenedStream {
                         Some(pts) => {
                             last_seek_position = pts - 1;
 
-                            _print_verbose("seeking back")?;
                             self.input.seek(
                                 self.stream_index as i32,
                                 0,
@@ -286,7 +307,10 @@ impl OpenedStream {
                         frame_cache.lock().unwrap().add_item(item);
 
                         _print_verbose(&format!("received frame {}", video.pts().expect("pts"),))?;
-                        last_frame_received = Some(frame_cache_id);
+                        last_frame_received = Some(LastFrameInfo {
+                            index: frame_cache_id,
+                            pts: video.pts().expect("pts"),
+                        });
 
                         break;
                     },
