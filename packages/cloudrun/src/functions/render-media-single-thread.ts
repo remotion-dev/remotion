@@ -29,7 +29,7 @@ export const renderMediaSingleThread = async (
 	let previousProgress = 2;
 	const onProgress: RenderMediaOnProgress = ({progress}) => {
 		if (previousProgress !== progress) {
-			res.write(JSON.stringify({onProgress: progress}));
+			res.write(JSON.stringify({onProgress: progress}) + '\n');
 			previousProgress = progress;
 		}
 	};

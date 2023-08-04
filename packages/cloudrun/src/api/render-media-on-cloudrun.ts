@@ -218,7 +218,7 @@ export const renderMediaOnCloudrun = async ({
 		const stream: any = postResponse.data;
 
 		stream.on('data', (chunk: Buffer) => {
-			const chunkResponse = JSON.parse(chunk.toString());
+			const chunkResponse = JSON.parse(chunk.toString().trim());
 			if (chunkResponse.response) {
 				response = chunkResponse.response;
 			} else if (chunkResponse.onProgress) {
