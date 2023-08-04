@@ -167,44 +167,19 @@ impl OpenedStream {
         }
 
         let mut last_frame_received: Option<LastFrameInfo> = None;
-        let mut break_on_next_keyframe = false;
-        let mut last_was_keyframe = false;
-        let mut found_but_forward_seek: Option<u8> = None;
+        let mut stop_after_n_diverging_pts: Option<u8> = None;
 
         loop {
-            if break_on_next_keyframe && last_was_keyframe && !is_variable_fps {
-                break;
-            }
-            if found_but_forward_seek.is_some() && found_but_forward_seek.unwrap() == 0 {
+            if stop_after_n_diverging_pts.is_some() && stop_after_n_diverging_pts.unwrap() == 0 {
                 break;
             }
             match last_frame_received {
-                Some(ref last_frame) => {
-                    let matching = frame_cache
-                        .lock()
-                        .unwrap()
-                        .get_item_id(position, threshold)?;
-                    if matching.is_some() {
-                        // Often times there is another package coming with a lower DTS,
-                        // so we receive up to 4 more packets, and 30 if it is a variable FPS video
-                        break_on_next_keyframe = true;
-                        if found_but_forward_seek.is_none() {
-                            if is_variable_fps {
-                                found_but_forward_seek = Some(30);
-                            } else {
-                                found_but_forward_seek = Some(4);
-                            }
-                        }
-                    } else if last_frame.pts > position {
-                        // zero-timestamp.mp4 test video: Video has no frames for the first two seconds.
-                        // In that case we return the closest frame. This
-                        break_on_next_keyframe = true;
-                        if found_but_forward_seek.is_none() {
-                            if is_variable_fps {
-                                found_but_forward_seek = Some(30);
-                            } else {
-                                found_but_forward_seek = Some(4);
-                            }
+                Some(_) => {
+                    if stop_after_n_diverging_pts.is_none() {
+                        if is_variable_fps {
+                            stop_after_n_diverging_pts = Some(30);
+                        } else {
+                            stop_after_n_diverging_pts = Some(4);
                         }
                     }
                 }
@@ -234,17 +209,12 @@ impl OpenedStream {
                 continue;
             }
 
-            if found_but_forward_seek.is_some() {
-                found_but_forward_seek = Some(found_but_forward_seek.unwrap() - 1);
-            }
-
             _print_verbose(&format!(
                 "Got packet dts = {} pts = {} key = {}",
                 packet.dts().unwrap(),
                 packet.pts().unwrap(),
                 packet.is_key()
             ))?;
-            last_was_keyframe = packet.is_key();
             if freshly_seeked {
                 if packet.is_key() {
                     freshly_seeked = false
@@ -252,8 +222,7 @@ impl OpenedStream {
                     match packet.pts() {
                         Some(pts) => {
                             last_seek_position = pts - 1;
-                            break_on_next_keyframe = false;
-                            found_but_forward_seek = None;
+                            stop_after_n_diverging_pts = None;
 
                             self.input.seek(
                                 self.stream_index as i32,
@@ -309,6 +278,23 @@ impl OpenedStream {
                         frame_cache.lock().unwrap().add_item(item);
 
                         _print_verbose(&format!("received frame {}", video.pts().expect("pts"),))?;
+
+                        match stop_after_n_diverging_pts {
+                            Some(stop) => match last_frame_received {
+                                Some(last_frame) => {
+                                    let prev_difference = (last_frame.pts - position).abs();
+                                    let new_difference =
+                                        (video.pts().expect("pts") - position).abs();
+
+                                    if new_difference > prev_difference {
+                                        stop_after_n_diverging_pts = Some(stop - 1);
+                                    }
+                                }
+                                None => {}
+                            },
+                            None => {}
+                        }
+
                         last_frame_received = Some(LastFrameInfo {
                             index: frame_cache_id,
                             pts: video.pts().expect("pts"),
