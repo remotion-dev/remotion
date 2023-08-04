@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useMemo} from 'react';
 import type {AnyZodObject, z} from 'zod';
+import {setUnsavedProps} from '../../../helpers/document-title';
 import {useKeybinding} from '../../../helpers/use-keybinding';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
@@ -50,6 +51,10 @@ export const SchemaEditor: React.FC<{
 	const hasChanged = useMemo(() => {
 		return !deepEqual(defaultProps, value);
 	}, [defaultProps, value]);
+
+	useEffect(() => {
+		setUnsavedProps(hasChanged);
+	}, [hasChanged]);
 
 	const onQuickSave = useCallback(() => {
 		if (hasChanged && showSaveButton) {
