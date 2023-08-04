@@ -46,4 +46,4 @@ A more sophisticated way of embedding a video, which:
 ⛔ &nbsp; The video cannot be drawn to a canvas.  
 ⛔ &nbsp; Supports embedded transparent videos only if [`transparent`](/docs/offthreadvideo#transparent-) is set which leads to a performance penalty.
 
-Prefere [`<OffthreadVideo />`](/docs/offthreadvideo) whenever possible.
+Prefer [`<OffthreadVideo />`](/docs/offthreadvideo) whenever possible.
