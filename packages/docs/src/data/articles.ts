@@ -1347,7 +1347,7 @@ export const articles = [
   },
   {
     id: "gl-options",
-    title: "GL Options",
+    title: "--gl flag",
     relativePath: "docs/open-gl.md",
     compId: "articles-docs-open-gl",
     crumb: "Flags",
