@@ -200,7 +200,6 @@ export const KeyboardShortcutsExplainer: React.FC = () => {
 						</div>
 						<div style={right}>Exit fullscreen</div>
 					</Row>
-					<br />
 				</Column>
 				<Spacing x={8} />
 				<Column>
