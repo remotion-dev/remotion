@@ -37,7 +37,7 @@ const updateTitle = () => {
 	const currentCompTitle = `${currentVideoId} / ${window.remotion_projectName}`;
 
 	document.title = [
-		getProgressInBrackets(renderJobs),
+		getProgressInBrackets(currentVideoId, renderJobs),
 		unsavedProps && tabInactive ? '✏️' : null,
 		`${currentCompTitle} ${suffix}`,
 	]
@@ -45,7 +45,10 @@ const updateTitle = () => {
 		.join(' ');
 };
 
-const getProgressInBrackets = (jobs: RenderJob[]): string | null => {
+const getProgressInBrackets = (
+	selectedCompositionId: string,
+	jobs: RenderJob[]
+): string | null => {
 	const currentRender = jobs.find((job) => job.status === 'running');
 	if (!currentRender) {
 		return null;
@@ -56,5 +59,9 @@ const getProgressInBrackets = (jobs: RenderJob[]): string | null => {
 	}
 
 	const progInPercent = Math.ceil(currentRender.progress.value * 100);
-	return `[${progInPercent}% ${currentRender.compositionId}]`;
+	const progressInBrackets =
+		currentRender.compositionId === selectedCompositionId
+			? `[${progInPercent}%]`
+			: `[${progInPercent}% ${currentRender.compositionId}]`;
+	return progressInBrackets;
 };
