@@ -3,7 +3,7 @@ export const isFlakyError = (err: Error): boolean => {
 
 	// storage.googleapis.com sometimes returns 500s, and Video does not have retry on its own
 	if (
-		message.includes('Format error') &&
+		(message.includes('Format error') || message.includes('audio metadata')) &&
 		message.includes('storage.googleapis.com')
 	) {
 		return true;
