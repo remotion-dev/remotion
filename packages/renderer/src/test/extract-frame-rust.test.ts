@@ -474,6 +474,30 @@ test('Should handle getting a frame from a WebM when it is not transparent', asy
 	await compositor.waitForDone();
 });
 
+test('Should handle a video with no frames at the beginning', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		src: exampleVideos.zerotimestamp,
+		original_src: exampleVideos.zerotimestamp,
+		time: 1.5,
+		transparent: false,
+	});
+
+	// Should resort back to BMP because it is faster
+	const header = data.slice(0, 8).toString('utf8');
+	expect(header).toContain('BM6');
+
+	expect(data.length).toBe(6220854);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
 test('Two different starting times should not result in big seeking', async () => {
 	const compositor = startLongRunningCompositor(300, 'info', false);
 
