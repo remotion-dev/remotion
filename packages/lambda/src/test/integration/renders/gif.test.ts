@@ -67,6 +67,7 @@ test('Should make a distributed GIF', async () => {
 		receivedStreamingPayload: () => undefined,
 		region: 'eu-central-1',
 		timeoutInTest: 120000,
+		retriesRemaining: 0,
 	});
 
 	const progress = await callLambda({
@@ -80,6 +81,7 @@ test('Should make a distributed GIF', async () => {
 		receivedStreamingPayload: () => undefined,
 		region: 'eu-central-1',
 		timeoutInTest: 120000,
+		retriesRemaining: 0,
 	});
 
 	const file = await lambdaReadFile({

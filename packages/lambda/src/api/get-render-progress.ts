@@ -33,6 +33,7 @@ export const getRenderProgress = async (
 		region: input.region,
 		receivedStreamingPayload: () => undefined,
 		timeoutInTest: 120000,
+		retriesRemaining: 2,
 	});
 	return result;
 };

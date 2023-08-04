@@ -65,6 +65,7 @@ test('Should fail when using an incompatible version', async () => {
 			receivedStreamingPayload: () => undefined,
 			region: 'us-east-1',
 			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 		console.log(aha);
 		throw new Error('Should not reach this');
