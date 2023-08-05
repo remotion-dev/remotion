@@ -1,7 +1,4 @@
-use std::{
-    os::raw::{c_char, c_int, c_void},
-    sync::Mutex,
-};
+use std::os::raw::{c_char, c_int, c_void};
 
 use ffmpeg_next::log::VaListLoggerArg;
 
@@ -45,31 +42,6 @@ pub unsafe extern "C" fn log_callback(
     list: VaListLoggerArg,
 ) {
     let message = ffmpeg_next::log::make_log_message(fmt, list).unwrap();
-
-    print_message(level, &message)
-}
-
-lazy_static::lazy_static! {
-    pub static ref FFMPEG_SILENCES: Mutex<Vec<String>> = Mutex::new(Vec::new());
-}
-
-pub unsafe extern "C" fn silence_detection_log_callback(
-    _arg1: *mut c_void,
-    level: c_int,
-    fmt: *const c_char,
-    list: VaListLoggerArg,
-) {
-    let message = ffmpeg_next::log::make_log_message(fmt, list).unwrap();
-
-    if message.starts_with("silence_start") {
-        FFMPEG_SILENCES.lock().unwrap().push(message.clone());
-        return;
-    }
-
-    if message.starts_with("silence_end") {
-        FFMPEG_SILENCES.lock().unwrap().push(message.clone());
-        return;
-    }
 
     print_message(level, &message)
 }

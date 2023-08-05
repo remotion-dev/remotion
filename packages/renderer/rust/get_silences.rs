@@ -1,16 +1,19 @@
 extern crate ffmpeg_next as ffmpeg;
 
+use std::os::raw::{c_char, c_int, c_void};
 use std::path::Path;
+use std::sync::Arc;
+use std::time;
 use std::{io::ErrorKind, sync::Mutex};
 
+use ffmpeg::log::VaListLoggerArg;
 use ffmpeg::{codec, filter, format, frame, media};
 use lazy_static::lazy_static;
 
+use crate::errors::ErrorWithBacktrace;
+use crate::global_printer::_print_verbose;
+use crate::logger::print_message;
 use crate::payloads::payloads::SilentParts;
-use crate::{
-    errors::ErrorWithBacktrace,
-    logger::{silence_detection_log_callback, FFMPEG_SILENCES},
-};
 
 fn filter(
     spec: &str,
@@ -199,6 +202,7 @@ impl Transcoder {
 
 lazy_static! {
     static ref LOCK: Mutex<()> = Mutex::new(());
+    pub static ref FFMPEG_SILENCES: Arc<Mutex<Vec<String>>> = Arc::new(Mutex::new(Vec::new()));
 }
 
 #[derive(PartialEq)]
@@ -208,6 +212,9 @@ enum LastOccurrence {
     None,
 }
 
+const SILENCE_START: &str = "silence_start: ";
+const SILENCE_END: &str = "silence_end: ";
+
 pub fn get_silences(
     input: String,
     output: String,
@@ -215,7 +222,6 @@ pub fn get_silences(
 ) -> Result<Vec<SilentParts>, ErrorWithBacktrace> {
     // This function is not thread-safe, the FFmpeg messages are stored in a global array.
     let _guard = LOCK.lock().unwrap();
-    let mut silent_parts: Vec<SilentParts> = Vec::new();
 
     ffmpeg::init()?;
     FFMPEG_SILENCES.lock().unwrap().clear();
@@ -255,9 +261,27 @@ pub fn get_silences(
 
     octx.write_trailer().unwrap();
 
-    let silences = FFMPEG_SILENCES.lock().unwrap().clone();
-    const SILENCE_START: &str = "silence_start: ";
-    const SILENCE_END: &str = "silence_end: ";
+    // Wait for last message to be silence end
+
+    std::thread::spawn(|| loop {
+        std::thread::sleep(time::Duration::from_millis(100));
+        _print_verbose("sleep");
+        let last = FFMPEG_SILENCES.lock().unwrap().last().cloned();
+
+        match last {
+            None => {}
+            Some(msg) => {
+                if msg.contains(SILENCE_END) {
+                    break;
+                }
+            }
+        }
+    })
+    .join()?;
+
+    let mut silent_parts: Vec<SilentParts> = Vec::new();
+
+    let silences: Vec<String> = Vec::new();
 
     let mut last_occurrence = LastOccurrence::None;
     let mut start = 0.0;
@@ -290,6 +314,29 @@ pub fn get_silences(
         }
     }
 
-    FFMPEG_SILENCES.lock().unwrap().clear();
     Ok(silent_parts)
+}
+
+lazy_static::lazy_static! {}
+
+pub unsafe extern "C" fn silence_detection_log_callback(
+    _arg1: *mut c_void,
+    level: c_int,
+    fmt: *const c_char,
+    list: VaListLoggerArg,
+) {
+    let message = ffmpeg_next::log::make_log_message(fmt, list).unwrap();
+    print_message(level, &message);
+
+    if message.starts_with(SILENCE_START) {
+        FFMPEG_SILENCES.lock().unwrap().push(message.clone());
+        return;
+    }
+
+    if message.starts_with(SILENCE_END) {
+        FFMPEG_SILENCES.lock().unwrap().push(message.clone());
+        return;
+    }
+
+    print_message(level, &message)
 }
