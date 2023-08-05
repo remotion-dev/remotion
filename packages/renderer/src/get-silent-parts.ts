@@ -53,7 +53,7 @@ export const getSilentParts = async ({
 		minDuration,
 		noiseThresholdInDecibel,
 	});
-	console.log(res);
+
 	const response = JSON.parse(res.toString('utf-8')) as SilentParts;
 
 	compositor.finishCommands();

@@ -3,7 +3,6 @@ extern crate ffmpeg_next as ffmpeg;
 use std::os::raw::{c_char, c_int, c_void};
 use std::path::Path;
 use std::sync::Arc;
-use std::time;
 use std::{io::ErrorKind, sync::Mutex};
 
 use ffmpeg::log::VaListLoggerArg;
@@ -11,7 +10,6 @@ use ffmpeg::{codec, filter, format, frame, media};
 use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
-use crate::global_printer::_print_verbose;
 use crate::logger::print_message;
 use crate::payloads::payloads::SilentParts;
 
@@ -228,6 +226,7 @@ pub fn get_silences(
     ffmpeg::log::set_callback(Some(silence_detection_log_callback));
 
     let mut ictx = format::input(&input).unwrap();
+    let duration = ictx.duration() as f64 / ffmpeg::ffi::AV_TIME_BASE as f64;
     let mut octx = format::output(&output).unwrap();
     let mut transcoder = transcoder(&mut ictx, &mut octx, &output, &filter).unwrap();
 
@@ -263,30 +262,12 @@ pub fn get_silences(
 
     // Wait for last message to be silence end
 
-    std::thread::spawn(|| loop {
-        std::thread::sleep(time::Duration::from_millis(100));
-        _print_verbose("sleep");
-        let last = FFMPEG_SILENCES.lock().unwrap().last().cloned();
-
-        match last {
-            None => {}
-            Some(msg) => {
-                if msg.contains(SILENCE_END) {
-                    break;
-                }
-            }
-        }
-    })
-    .join()?;
-
     let mut silent_parts: Vec<SilentParts> = Vec::new();
-
-    let silences: Vec<String> = Vec::new();
 
     let mut last_occurrence = LastOccurrence::None;
     let mut start = 0.0;
 
-    for silence in &silences {
+    for silence in &FFMPEG_SILENCES.lock().unwrap().to_vec() {
         if silence.starts_with(SILENCE_START) {
             start = silence
                 .trim_start_matches(SILENCE_START)
@@ -314,6 +295,13 @@ pub fn get_silences(
         }
     }
 
+    if last_occurrence == LastOccurrence::Start {
+        silent_parts.push(SilentParts {
+            end: duration,
+            start,
+        });
+    }
+
     Ok(silent_parts)
 }
 
@@ -326,7 +314,6 @@ pub unsafe extern "C" fn silence_detection_log_callback(
     list: VaListLoggerArg,
 ) {
     let message = ffmpeg_next::log::make_log_message(fmt, list).unwrap();
-    print_message(level, &message);
 
     if message.starts_with(SILENCE_START) {
         FFMPEG_SILENCES.lock().unwrap().push(message.clone());
