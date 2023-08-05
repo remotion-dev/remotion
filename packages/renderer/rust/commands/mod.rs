@@ -1,6 +1,5 @@
 use crate::compositor::draw_layer;
 use crate::errors::ErrorWithBacktrace;
-use crate::global_printer::_print_verbose;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::opened_video_manager::OpenedVideoManager;
 use crate::payloads::payloads::CliInputCommandPayload;
