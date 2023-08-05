@@ -55,11 +55,7 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
                 "silencedetect=n={}dB:d={}",
                 _command.noiseThresholdInDecibel, _command.minDuration
             );
-            let res = get_silences::get_silences(
-                _command.src,
-                "out.mp3".to_string(),
-                filter.to_string(),
-            )?;
+            let res = get_silences::get_silences(_command.src, filter.to_string())?;
             let str = serde_json::to_string(&res)?;
             Ok(str.as_bytes().to_vec())
         }
