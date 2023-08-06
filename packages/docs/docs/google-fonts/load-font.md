@@ -35,7 +35,12 @@ export const GoogleFontsExample: React.FC = () => {
 };
 ```
 
-Pass a specific style (e.g. `normal`, `italic`) and optionally weights and subsets to narrow down what gets loaded.  
+Pass a specific style (e.g. `normal`, `italic`) and optionally weights and subsets to narrow down what gets loaded.
+
+:::info
+A large font file paired with a limited bandwith can potentially lead to a render timeout. By specifing the exact style, weights and subsets you need, the filesize can be reduced and possibly prevent the render from timing out. If the if the problem persists, [increasing the timeout](/docs/timeout#increase-timeout) will help further.
+:::
+
 If you want to load multiple styles, use multiple `loadFont()` statements.
 
 ```tsx title="Load a specific style, weight and subset"

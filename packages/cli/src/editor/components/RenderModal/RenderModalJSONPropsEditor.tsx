@@ -4,6 +4,7 @@ import {Internals} from 'remotion';
 import type {z} from 'zod';
 import {Button} from '../../../preview-server/error-overlay/remotion-overlay/Button';
 import {FAIL_COLOR} from '../../helpers/colors';
+import {setUnsavedProps} from '../../helpers/document-title';
 import {useKeybinding} from '../../helpers/use-keybinding';
 import {Flex, Row, Spacing} from '../layout';
 import {RemTextarea} from '../NewComposition/RemTextarea';
@@ -100,6 +101,10 @@ export const RenderModalJSONPropsEditor: React.FC<{
 	const hasChanged = useMemo(() => {
 		return !deepEqual(value, defaultProps);
 	}, [defaultProps, value]);
+
+	useEffect(() => {
+		setUnsavedProps(hasChanged);
+	}, [hasChanged]);
 
 	const onQuickSave = useCallback(() => {
 		if (hasChanged) {

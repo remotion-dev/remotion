@@ -5,7 +5,10 @@ import {join} from 'node:path';
 import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
-import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
+import {
+	cleanupSerializedInputProps,
+	cleanupSerializedResolvedProps,
+} from '../shared/cleanup-serialized-input-props';
 import {
 	compressInputProps,
 	decompressInputProps,
@@ -579,6 +582,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		region: getCurrentRegionInFunction(),
 		serialized: params.inputProps,
 	});
+	const cleanupResolvedInputPropsProm = cleanupSerializedResolvedProps({
+		bucketName: params.bucketName,
+		region: getCurrentRegionInFunction(),
+		serialized: serializedResolvedProps,
+	});
 
 	const outputUrl = getOutputUrlFromMetadata(
 		renderMetadata,
@@ -595,7 +603,11 @@ const innerLaunchHandler = async (params: LambdaPayload, options: Options) => {
 		errorExplanations: await errorExplanationsProm,
 		timeToEncode: encodingStop - encodingStart,
 		timeToDelete: (
-			await Promise.all([deletProm, cleanupSerializedInputPropsProm])
+			await Promise.all([
+				deletProm,
+				cleanupSerializedInputPropsProm,
+				cleanupResolvedInputPropsProm,
+			])
 		).reduce((a, b) => a + b, 0),
 		outputFile: {
 			lastModified: Date.now(),

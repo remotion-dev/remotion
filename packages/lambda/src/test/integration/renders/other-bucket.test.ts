@@ -70,6 +70,7 @@ test('Should be able to render to another bucket', async () => {
 		receivedStreamingPayload: () => undefined,
 		region: 'eu-central-1',
 		timeoutInTest: 120000,
+		retriesRemaining: 0,
 	});
 
 	const progress = await callLambda({
@@ -83,6 +84,7 @@ test('Should be able to render to another bucket', async () => {
 		receivedStreamingPayload: () => undefined,
 		region: 'eu-central-1',
 		timeoutInTest: 120000,
+		retriesRemaining: 0,
 	});
 
 	const file = await lambdaReadFile({
