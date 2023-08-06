@@ -50,9 +50,13 @@ type SilentPart = {
 
 export type SilentParts = SilentPart[];
 
-export type GetSilentPartsResponse = {
+export type GetSilentPartsResponseRust = {
 	silentParts: SilentParts;
 	durationInSeconds: number;
+};
+
+export type GetSilentPartsResponse = GetSilentPartsResponseRust & {
+	audibleParts: SilentParts;
 };
 
 export type CompositorCommand = {

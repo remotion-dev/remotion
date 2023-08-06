@@ -4,17 +4,21 @@ import {getSilentParts} from '../get-silent-parts';
 import {exampleVideos} from './example-videos';
 
 test('Should be able to get the silences from a video', async () => {
-	const {silentParts} = await getSilentParts({
+	const {silentParts, audibleParts} = await getSilentParts({
 		src: exampleVideos.webcam,
 		logLevel: 'info',
 	});
 	expect(silentParts.length).toEqual(1);
 	expect(silentParts[0].startInSeconds).toBe(0);
 	expect(silentParts[0].endInSeconds).toBe(1.0149);
+
+	expect(audibleParts.length).toEqual(1);
+	expect(audibleParts[0].startInSeconds).toEqual(1.0149);
+	expect(audibleParts[0].endInSeconds).toEqual(2.789);
 });
 
 test('Sensitive settings', async () => {
-	const {silentParts, durationInSeconds} = await getSilentParts({
+	const {silentParts, audibleParts, durationInSeconds} = await getSilentParts({
 		src: exampleVideos.webcam,
 		noiseThresholdInDecibels: 0,
 		minDuration: 0.1,
@@ -24,14 +28,19 @@ test('Sensitive settings', async () => {
 	expect(silentParts[0].startInSeconds).toBe(0);
 	expect(silentParts[0].endInSeconds).toBe(2.789);
 	expect(durationInSeconds).toBe(durationInSeconds);
+	expect(audibleParts.length).toEqual(0);
 });
 
 test('Long duration', async () => {
-	const {silentParts} = await getSilentParts({
+	const {silentParts, audibleParts} = await getSilentParts({
 		src: exampleVideos.webcam,
 		minDuration: 10,
 	});
 	expect(silentParts.length).toEqual(0);
+	expect(audibleParts.length).toEqual(1);
+	expect(audibleParts.length).toEqual(1);
+	expect(audibleParts[0].startInSeconds).toEqual(0);
+	expect(audibleParts[0].endInSeconds).toEqual(2.789);
 });
 
 test('Wrong file', async () => {
