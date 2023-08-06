@@ -44,12 +44,19 @@ struct Transcoder {
 
 fn transcoder(
     ictx: &mut format::context::Input,
+    src: &str,
     filter_spec: &str,
-) -> Result<Transcoder, ffmpeg::Error> {
-    let input = ictx
-        .streams()
-        .best(media::Type::Audio)
-        .expect("could not find best audio stream");
+) -> Result<Transcoder, ErrorWithBacktrace> {
+    let input = match ictx.streams().best(media::Type::Audio) {
+        Some(stream) => stream,
+        None => {
+            return Err(ErrorWithBacktrace::from(std::io::Error::new(
+                ErrorKind::Other,
+                format!("Could not find audio stream in {}", src),
+            )));
+        }
+    };
+
     let context = ffmpeg::codec::context::Context::from_parameters(input.parameters())?;
     let mut decoder = context.decoder().audio()?;
 
@@ -108,8 +115,8 @@ impl Transcoder {
         {}
     }
 
-    fn send_packet_to_decoder(&mut self, packet: &ffmpeg::Packet) {
-        self.decoder.send_packet(packet).unwrap();
+    fn send_packet_to_decoder(&mut self, packet: &ffmpeg::Packet) -> Result<(), ffmpeg::Error> {
+        self.decoder.send_packet(packet)
     }
 
     fn send_eof_to_decoder(&mut self) {
@@ -154,17 +161,17 @@ pub fn get_silent_parts(
     FFMPEG_SILENCES.lock().unwrap().clear();
     ffmpeg::log::set_callback(Some(silence_detection_log_callback));
 
-    let mut ictx = format::input(&input).unwrap();
+    let mut ictx = format::input(&input)?;
     let duration = ictx.duration() as f64 / ffmpeg::ffi::AV_TIME_BASE as f64;
 
-    let mut transcoder = transcoder(&mut ictx, &filter).unwrap();
+    let mut transcoder = transcoder(&mut ictx, &input, &filter)?;
 
     loop {
         match ictx.get_next_packet() {
             Ok((stream, mut packet)) => {
                 if stream.index() == transcoder.stream {
                     packet.rescale_ts(stream.time_base(), transcoder.in_time_base);
-                    transcoder.send_packet_to_decoder(&packet);
+                    transcoder.send_packet_to_decoder(&packet)?;
                     transcoder.receive_and_process_decoded_frames()?;
                 }
             }
@@ -200,14 +207,11 @@ pub fn get_silent_parts(
         if silence.starts_with(SILENCE_END) {
             let end_str = silence.trim_start_matches(SILENCE_END);
 
-            let end = end_str
-                .split('|')
-                .nth(0)
-                .unwrap()
-                .trim()
-                .parse::<f64>()
-                .unwrap();
-
+            let first_pipe = end_str.split('|').nth(0).expect("Expected pipe");
+            if first_pipe.trim().is_empty() {
+                continue;
+            }
+            let end = first_pipe.trim().parse::<f64>().expect("Expected float");
             if last_occurrence == LastOccurrence::Start {
                 silent_parts.push(SilentParts { end, start });
             }
@@ -225,8 +229,6 @@ pub fn get_silent_parts(
 
     Ok(silent_parts)
 }
-
-lazy_static::lazy_static! {}
 
 pub unsafe extern "C" fn silence_detection_log_callback(
     _arg1: *mut c_void,
