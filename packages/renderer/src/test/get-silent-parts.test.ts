@@ -14,15 +14,16 @@ test('Should be able to get the silences from a video', async () => {
 });
 
 test('Sensitive settings', async () => {
-	const {silentParts} = await getSilentParts({
+	const {silentParts, durationInSeconds} = await getSilentParts({
 		src: exampleVideos.webcam,
-		noiseThresholdInDecibel: 0,
+		noiseThresholdInDecibels: 0,
 		minDuration: 0.1,
 		logLevel: 'info',
 	});
 	expect(silentParts.length).toEqual(1);
 	expect(silentParts[0].startInSeconds).toBe(0);
 	expect(silentParts[0].endInSeconds).toBe(2.789);
+	expect(durationInSeconds).toBe(durationInSeconds);
 });
 
 test('Long duration', async () => {

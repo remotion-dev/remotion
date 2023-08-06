@@ -66,7 +66,7 @@ pub mod payloads {
     #[allow(non_snake_case)]
     pub struct GetSilences {
         pub src: String,
-        pub noiseThresholdInDecibel: f64,
+        pub noiseThresholdInDecibels: f64,
         pub minDuration: f64,
     }
 
