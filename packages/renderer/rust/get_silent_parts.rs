@@ -23,8 +23,11 @@ fn filter(spec: &str, decoder: &codec::decoder::Audio) -> Result<filter::Graph, 
         decoder.channel_layout().bits()
     );
 
-    filter.add(&filter::find("abuffer").unwrap(), "in", &args)?;
-    filter.add(&filter::find("abuffersink").unwrap(), "out", "")?;
+    let abuffer_filter = filter::find("abuffer").expect("Expected abuffer filter");
+    let abuffer_sink_filter = filter::find("abuffersink").expect("Expected abuffersink filter");
+
+    filter.add(&abuffer_filter, "in", &args)?;
+    filter.add(&abuffer_sink_filter, "out", "")?;
 
     filter.output("in", 0)?.input("out", 0)?.parse(spec)?;
     filter.validate()?;
@@ -65,12 +68,32 @@ fn transcoder(
 }
 
 impl Transcoder {
-    fn add_frame_to_filter(&mut self, frame: &ffmpeg::Frame) {
-        self.filter.get("in").unwrap().source().add(frame).unwrap();
+    fn add_frame_to_filter(&mut self, frame: &ffmpeg::Frame) -> Result<(), ErrorWithBacktrace> {
+        let in_filter = self.filter.get("in");
+        match in_filter {
+            Some(mut f) => {
+                f.source().add(frame)?;
+                Ok(())
+            }
+            None => Err(ErrorWithBacktrace::from(std::io::Error::new(
+                ErrorKind::Other,
+                "Could not get in filter".to_string(),
+            ))),
+        }
     }
 
-    fn flush_filter(&mut self) {
-        self.filter.get("in").unwrap().source().flush().unwrap();
+    fn flush_filter(&mut self) -> Result<(), ErrorWithBacktrace> {
+        let in_filter = self.filter.get("in");
+        match in_filter {
+            Some(mut f) => {
+                f.source().flush()?;
+                Ok(())
+            }
+            None => Err(ErrorWithBacktrace::from(std::io::Error::new(
+                ErrorKind::Other,
+                "Could not get in filter".to_string(),
+            ))),
+        }
     }
 
     fn get_and_process_filtered_frames(&mut self) {
@@ -93,14 +116,15 @@ impl Transcoder {
         self.decoder.send_eof().unwrap();
     }
 
-    fn receive_and_process_decoded_frames(&mut self) {
+    fn receive_and_process_decoded_frames(&mut self) -> Result<(), ErrorWithBacktrace> {
         let mut decoded = frame::Audio::empty();
         while self.decoder.receive_frame(&mut decoded).is_ok() {
             let timestamp = decoded.timestamp();
             decoded.set_pts(timestamp);
-            self.add_frame_to_filter(&decoded);
+            self.add_frame_to_filter(&decoded)?;
             self.get_and_process_filtered_frames();
         }
+        Ok(())
     }
 }
 
@@ -119,7 +143,10 @@ enum LastOccurrence {
 const SILENCE_START: &str = "silence_start: ";
 const SILENCE_END: &str = "silence_end: ";
 
-pub fn get_silences(input: String, filter: String) -> Result<Vec<SilentParts>, ErrorWithBacktrace> {
+pub fn get_silent_parts(
+    input: String,
+    filter: String,
+) -> Result<Vec<SilentParts>, ErrorWithBacktrace> {
     // This function is not thread-safe, the FFmpeg messages are stored in a global array.
     let _guard = LOCK.lock().unwrap();
 
@@ -138,7 +165,7 @@ pub fn get_silences(input: String, filter: String) -> Result<Vec<SilentParts>, E
                 if stream.index() == transcoder.stream {
                     packet.rescale_ts(stream.time_base(), transcoder.in_time_base);
                     transcoder.send_packet_to_decoder(&packet);
-                    transcoder.receive_and_process_decoded_frames();
+                    transcoder.receive_and_process_decoded_frames()?;
                 }
             }
             Err(ffmpeg::Error::Eof) => {
@@ -149,9 +176,9 @@ pub fn get_silences(input: String, filter: String) -> Result<Vec<SilentParts>, E
     }
 
     transcoder.send_eof_to_decoder();
-    transcoder.receive_and_process_decoded_frames();
+    transcoder.receive_and_process_decoded_frames()?;
 
-    transcoder.flush_filter();
+    transcoder.flush_filter()?;
     transcoder.get_and_process_filtered_frames();
 
     // Wait for last message to be silence end
