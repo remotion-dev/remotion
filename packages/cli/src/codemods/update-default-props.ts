@@ -48,6 +48,12 @@ const findEndPosition = (input: string, currentPosition: number) => {
 		return nextEnd - 1;
 	}
 
+	// When updating e.g. `defaultProps={{union: {type: 'car' as const, color: ''}}}`
+	const nextTriple = input.indexOf('}}}', currentPosition + 1);
+	if (nextTriple !== -1) {
+		return nextTriple + 1;
+	}
+
 	const next = input.indexOf('}}', currentPosition + 1);
 	if (next !== -1) {
 		return next;

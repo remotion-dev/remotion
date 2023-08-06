@@ -67,6 +67,7 @@ test('Should add silent audio if there is no audio', async () => {
 		region: 'eu-central-1',
 		type: LambdaRoutines.start,
 		timeoutInTest: 120000,
+		retriesRemaining: 0,
 	});
 
 	const progress = await callLambda({
@@ -80,6 +81,7 @@ test('Should add silent audio if there is no audio', async () => {
 		region: 'eu-central-1',
 		type: LambdaRoutines.status,
 		timeoutInTest: 120000,
+		retriesRemaining: 0,
 	});
 
 	const file = await lambdaReadFile({

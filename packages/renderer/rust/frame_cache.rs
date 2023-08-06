@@ -2,7 +2,10 @@ extern crate ffmpeg_next as remotionffmpeg;
 
 use std::sync::atomic::{AtomicUsize, Ordering};
 
-use crate::{errors::ErrorWithBacktrace, opened_stream::get_time, scalable_frame::ScalableFrame};
+use crate::{
+    errors::ErrorWithBacktrace, global_printer::_print_debug, opened_stream::get_time,
+    scalable_frame::ScalableFrame,
+};
 
 pub fn get_frame_cache_id() -> usize {
     static COUNTER: AtomicUsize = AtomicUsize::new(1);
@@ -174,8 +177,36 @@ impl FrameCache {
             }
         }
 
-        if best_distance > threshold {
+        let has_pts_after = self.items.iter().any(|item| item.resolved_pts >= time);
+
+        // If this happens, then `last_frame` has not worked correctly. Do not match
+        if !has_pts_after {
             return Ok(None);
+        }
+
+        if best_distance > threshold {
+            let has_no_items_before = self.items.iter().all(|item| item.resolved_pts > time);
+            if has_no_items_before {
+                let has_asked_time_before = self
+                    .items
+                    .iter()
+                    .find(|item| item.asked_time <= time)
+                    .is_some();
+
+                let asked_time_difference =
+                    (self.items[best_item.unwrap()].asked_time - time).abs();
+                if has_asked_time_before && self.items[best_item.unwrap()].asked_time <= time {
+                    _print_debug(&format!(
+                        "Found timestamp with too much threshold, but will let it pass because no closer frames found. difference = {}, threshold = {}",
+                        asked_time_difference, threshold
+                    ))?;
+                    // Fall through to success case
+                } else {
+                    return Ok(None);
+                }
+            } else {
+                return Ok(None);
+            }
         }
 
         match best_item {

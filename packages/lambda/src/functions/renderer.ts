@@ -13,6 +13,7 @@ import {
 	lambdaTimingsKey,
 	RENDERER_PATH_TOKEN,
 } from '../shared/constants';
+import {isFlakyError} from '../shared/is-flaky-error';
 import type {
 	ChunkTimingData,
 	ObjectChunkTimingData,
@@ -21,6 +22,7 @@ import {getBrowserInstance} from './helpers/get-browser-instance';
 import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {lambdaWriteFile} from './helpers/io';
+import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
@@ -111,8 +113,6 @@ const renderHandler = async (
 		)}`
 	);
 
-	const downloads: Record<string, number> = {};
-
 	const resolvedProps = await resolvedPropsPromise;
 	const serializedInputPropsWithCustomSchema = await inputPropsPromise;
 
@@ -185,36 +185,7 @@ const renderHandler = async (
 			crf: params.crf ?? null,
 			pixelFormat: params.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
 			proResProfile: params.proResProfile,
-			onDownload: (src: string) => {
-				console.log('Downloading', src);
-				downloads[src] = 0;
-				return ({percent, downloaded}) => {
-					if (percent === null) {
-						console.log(
-							`Download progress (${src}): ${downloaded} bytes. Don't know final size of download, no Content-Length header.`
-						);
-						return;
-					}
-
-					if (
-						// Only report every 10% change
-						downloads[src] > percent - 0.1 &&
-						percent !== 1
-					) {
-						return;
-					}
-
-					downloads[src] = percent;
-					console.log(
-						`Download progress (${src}): ${downloaded} bytes, ${(
-							percent * 100
-						).toFixed(1)}%`
-					);
-					if (percent === 1) {
-						console.log(`Download complete: ${src}`);
-					}
-				};
-			},
+			onDownload: onDownloadsHelper(),
 			overwrite: false,
 			chromiumOptions: params.chromiumOptions,
 			scale: params.scale,
@@ -321,16 +292,10 @@ export const rendererHandler = async (
 			throw err;
 		}
 
-		const {message} = err as Error;
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isRetryableError =
-			message.includes('FATAL:zygote_communication_linux.cc') ||
-			message.includes('error while loading shared libraries: libnss3.so') ||
-			message.includes('but the server sent no data') ||
-			message.includes('Compositor panicked') ||
-			(message.includes('Compositor exited') && !message.includes('SIGSEGV')) ||
-			message.includes('Timed out while setting up the headless browser');
+		const isRetryableError = isFlakyError(err as Error);
+
 		const shouldNotRetry = (err as Error).name === 'CancelledError';
 
 		const isFatal = !isRetryableError;
@@ -370,6 +335,7 @@ export const rendererHandler = async (
 				region: getCurrentRegionInFunction(),
 				receivedStreamingPayload: () => undefined,
 				timeoutInTest: 120000,
+				retriesRemaining: 0,
 			});
 
 			return res;

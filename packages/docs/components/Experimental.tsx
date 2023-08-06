@@ -10,7 +10,6 @@ export const ExperimentalBadge: React.FC<{
         borderRadius: 8,
         padding: "12px 12px",
         marginBottom: 24,
-        paddingBottom: 1,
       }}
     >
       <div

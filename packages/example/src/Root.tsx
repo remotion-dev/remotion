@@ -593,6 +593,10 @@ export const Index: React.FC = () => {
 					component={StaticDemo}
 					width={1000}
 					height={1000}
+					defaultProps={{flag: false}}
+					calculateMetadata={async () => {
+						return {};
+					}}
 				/>
 				<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
 				<Composition
@@ -967,6 +971,16 @@ export const Index: React.FC = () => {
 							'y',
 							'z',
 						]),
+						union: z.discriminatedUnion('type', [
+							z.object({
+								type: z.literal('car'),
+								color: z.string(),
+							}),
+							z.object({
+								type: z.literal('boat'),
+								depth: z.number(),
+							}),
+						]),
 					})}
 					defaultProps={{
 						vehicle: 'car',
@@ -997,6 +1011,7 @@ export const Index: React.FC = () => {
 						nullable: null,
 						optional: '',
 						filePath: staticFile('nested/logö.png'),
+						union: {type: 'car', color: 'red'},
 					}}
 					durationInFrames={150}
 					calculateMetadata={({defaultProps}) => {
@@ -1018,7 +1033,12 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 					schema={schemaTestSchema}
-					defaultProps={{title: 'sdasdsd', delay: 5.2, color: '#df822a'}}
+					defaultProps={{
+						title: 'sdasdsd',
+						delay: 5.2,
+						color: '#df822a',
+						list: ['Sample Item'],
+					}}
 				/>
 				{/**
 				 // @ts-expect-error */}
@@ -1032,7 +1052,7 @@ export const Index: React.FC = () => {
 					schema={schemaTestSchema}
 				/>
 				<Composition
-					id="array-schem"
+					id="array-schema"
 					component={ArrayTest}
 					width={1200}
 					height={630}

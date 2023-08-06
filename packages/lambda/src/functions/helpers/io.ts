@@ -150,13 +150,18 @@ export const lambdaWriteFile = async (
 			throw err;
 		}
 
+		const backoff = 2 ** (2 - remainingRetries) * 2000;
+		await new Promise((resolve) => {
+			setTimeout(resolve, backoff);
+		});
+
 		console.warn('Failed to write file to Lambda:');
 		console.warn(err);
 		console.warn(`Retrying (${remainingRetries} retries remaining)...`);
 
 		return lambdaWriteFile({
 			...params,
-			retries: (remainingRetries ?? 0) - 1,
+			retries: remainingRetries - 1,
 		});
 	}
 };

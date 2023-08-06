@@ -117,7 +117,7 @@ import { Audio } from "remotion";
 
 export const MyComp: React.FC = () => {
   return (
-    <Audio src="https://file-examples.com/wp-content/uploads/2017/11/file_example_MP3_700KB.mp3" />
+    <Audio src="https://file-examples.com/storage/fe48a63c5264cbd519788b3/2017/11/file_example_MP3_700KB.mp3" />
   );
 };
 ```
