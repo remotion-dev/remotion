@@ -7,21 +7,53 @@ import {getLambdaClient} from './aws-clients';
 import type {LambdaPayloads, LambdaRoutines} from './constants';
 import type {LambdaReturnValues, OrError} from './return-values';
 
-export const callLambda = async <T extends LambdaRoutines>({
-	functionName,
-	type,
-	payload,
-	region,
-	receivedStreamingPayload,
-	timeoutInTest,
-}: {
+const INVALID_JSON_MESSAGE = 'Cannot parse Lambda response as JSON';
+
+type Options<T extends LambdaRoutines> = {
 	functionName: string;
 	type: T;
 	payload: Omit<LambdaPayloads[T], 'type'>;
 	region: AwsRegion;
 	receivedStreamingPayload: (streamPayload: StreamingPayloads) => void;
 	timeoutInTest: number;
-}): Promise<LambdaReturnValues[T]> => {
+};
+
+export const callLambda = async <T extends LambdaRoutines>(
+	options: Options<T> & {
+		retriesRemaining: number;
+	}
+): Promise<LambdaReturnValues[T]> => {
+	// As of August 2023, Lambda streaming sometimes misses parts of the JSON response.
+	// Handling this for now by applying a retry mechanism.
+
+	try {
+		// Do not remove this await
+		const res = await callLambdaWithoutRetry<T>(options);
+		return res;
+	} catch (err) {
+		if (options.retriesRemaining === 0) {
+			throw err;
+		}
+
+		if (!(err as Error).message.includes(INVALID_JSON_MESSAGE)) {
+			throw err;
+		}
+
+		return callLambda({
+			...options,
+			retriesRemaining: options.retriesRemaining - 1,
+		});
+	}
+};
+
+const callLambdaWithoutRetry = async <T extends LambdaRoutines>({
+	functionName,
+	type,
+	payload,
+	region,
+	receivedStreamingPayload,
+	timeoutInTest,
+}: Options<T>): Promise<LambdaReturnValues[T]> => {
 	const res = await getLambdaClient(region, timeoutInTest).send(
 		new InvokeWithResponseStreamCommand({
 			FunctionName: functionName,
@@ -78,7 +110,7 @@ const parseJsonWithErrorSurfacing = (input: string) => {
 	try {
 		return JSON.parse(input);
 	} catch {
-		throw new Error(`Cannot parse Lambda response as JSON. Response: ${input}`);
+		throw new Error(`${INVALID_JSON_MESSAGE}. Response: ${input}`);
 	}
 };
 

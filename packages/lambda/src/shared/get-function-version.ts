@@ -19,6 +19,7 @@ export const getFunctionVersion = async ({
 			type: LambdaRoutines.info,
 			receivedStreamingPayload: () => undefined,
 			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 		return result.version;
 	} catch (err) {

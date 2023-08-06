@@ -121,7 +121,6 @@ pub fn extract_frame(
         vid.time_base,
         one_frame_in_time_base,
         threshold,
-        is_variable_fps,
     )?;
 
     let from_cache = vid

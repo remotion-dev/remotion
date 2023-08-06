@@ -32,6 +32,11 @@ export const resolveVideoConfig = ({
 		  })
 		: null;
 
+	const fallbackProps = {
+		...(composition.defaultProps ?? {}),
+		...(inputProps ?? {}),
+	};
+
 	if (
 		calculatedProm !== null &&
 		typeof calculatedProm === 'object' &&
@@ -49,7 +54,7 @@ export const resolveVideoConfig = ({
 				durationInFrames,
 				id: composition.id,
 				defaultProps: composition.defaultProps ?? {},
-				props: c.props ?? composition.defaultProps ?? {},
+				props: c.props ?? fallbackProps,
 			};
 		});
 	}
@@ -64,10 +69,7 @@ export const resolveVideoConfig = ({
 			...data,
 			id: composition.id,
 			defaultProps: composition.defaultProps ?? {},
-			props: {
-				...(composition.defaultProps ?? {}),
-				...(inputProps ?? {}),
-			},
+			props: fallbackProps,
 		};
 	}
 
