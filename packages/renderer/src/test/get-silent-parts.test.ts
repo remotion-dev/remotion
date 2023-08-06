@@ -31,3 +31,11 @@ test('Long duration', async () => {
 	});
 	expect(expected.length).toEqual(0);
 });
+
+test('Not a video', async () => {
+	const expected = await getSilentParts({
+		src: exampleVideos.notavideo,
+		minDuration: 10,
+	});
+	expect(expected.length).toEqual(0);
+});
