@@ -3,6 +3,7 @@ mod compositor;
 mod errors;
 mod ffmpeg;
 mod frame_cache;
+mod get_silent_parts;
 mod global_printer;
 mod image;
 mod logger;

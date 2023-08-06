@@ -43,6 +43,22 @@ export type VideoMetadata = {
 	supportsSeeking: boolean;
 };
 
+type SilentPart = {
+	startInSeconds: number;
+	endInSeconds: number;
+};
+
+export type SilentParts = SilentPart[];
+
+export type GetSilentPartsResponseRust = {
+	silentParts: SilentParts;
+	durationInSeconds: number;
+};
+
+export type GetSilentPartsResponse = GetSilentPartsResponseRust & {
+	audibleParts: SilentParts;
+};
+
 export type CompositorCommand = {
 	Compose: {
 		output: string;
@@ -56,6 +72,11 @@ export type CompositorCommand = {
 		original_src: string;
 		time: number;
 		transparent: boolean;
+	};
+	GetSilences: {
+		src: string;
+		noiseThresholdInDecibels: number;
+		minDuration: number;
 	};
 	Echo: {
 		message: string;
