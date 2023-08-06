@@ -76,6 +76,10 @@ test('folder', async () => {
 		});
 		throw new Error('Should not be able to get silent parts from a non-video');
 	} catch (err) {
-		expect((err as Error).message).toContain('Is a directory');
+		if (process.platform === 'win32') {
+			expect((err as Error).message).toContain('Permission denied');
+		} else {
+			expect((err as Error).message).toContain('Is a directory');
+		}
 	}
 });
