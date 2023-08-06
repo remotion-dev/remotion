@@ -10,7 +10,7 @@ use lazy_static::lazy_static;
 
 use crate::errors::ErrorWithBacktrace;
 use crate::logger::print_message;
-use crate::payloads::payloads::SilentParts;
+use crate::payloads::payloads::{GetSilentPartsResponse, SilentParts};
 
 fn filter(spec: &str, decoder: &codec::decoder::Audio) -> Result<filter::Graph, ffmpeg::Error> {
     let mut filter = filter::Graph::new();
@@ -153,7 +153,7 @@ const SILENCE_END: &str = "silence_end: ";
 pub fn get_silent_parts(
     input: String,
     filter: String,
-) -> Result<Vec<SilentParts>, ErrorWithBacktrace> {
+) -> Result<GetSilentPartsResponse, ErrorWithBacktrace> {
     // This function is not thread-safe, the FFmpeg messages are stored in a global array.
     let _guard = LOCK.lock().unwrap();
 
@@ -213,7 +213,10 @@ pub fn get_silent_parts(
             }
             let end = first_pipe.trim().parse::<f64>().expect("Expected float");
             if last_occurrence == LastOccurrence::Start {
-                silent_parts.push(SilentParts { end, start });
+                silent_parts.push(SilentParts {
+                    endInSeconds: end,
+                    startInSeconds: start,
+                });
             }
 
             last_occurrence = LastOccurrence::End;
@@ -222,12 +225,15 @@ pub fn get_silent_parts(
 
     if last_occurrence == LastOccurrence::Start {
         silent_parts.push(SilentParts {
-            end: duration,
-            start,
+            endInSeconds: duration,
+            startInSeconds: start,
         });
     }
 
-    Ok(silent_parts)
+    Ok(GetSilentPartsResponse {
+        durationInSeconds: duration,
+        silentParts: silent_parts,
+    })
 }
 
 pub unsafe extern "C" fn silence_detection_log_callback(

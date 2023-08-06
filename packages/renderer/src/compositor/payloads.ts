@@ -44,11 +44,16 @@ export type VideoMetadata = {
 };
 
 type SilentPart = {
-	start: number;
-	end: number;
+	startInSeconds: number;
+	endInSeconds: number;
 };
 
 export type SilentParts = SilentPart[];
+
+export type GetSilentPartsResponse = {
+	silentParts: SilentParts;
+	duration: number;
+};
 
 export type CompositorCommand = {
 	Compose: {

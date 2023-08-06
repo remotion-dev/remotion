@@ -2,7 +2,7 @@ import {
 	getIdealMaximumFrameCacheItems,
 	startLongRunningCompositor,
 } from './compositor/compositor';
-import type {SilentParts} from './compositor/payloads';
+import type {GetSilentPartsResponse} from './compositor/payloads';
 import type {LogLevel} from './log-level';
 
 export const getSilentParts = async ({
@@ -15,7 +15,7 @@ export const getSilentParts = async ({
 	minDuration?: number;
 	logLevel?: LogLevel;
 	noiseThresholdInDecibel?: number;
-}): Promise<SilentParts> => {
+}): Promise<GetSilentPartsResponse> => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
 		logLevel ?? 'info',
@@ -54,7 +54,7 @@ export const getSilentParts = async ({
 		noiseThresholdInDecibel,
 	});
 
-	const response = JSON.parse(res.toString('utf-8')) as SilentParts;
+	const response = JSON.parse(res.toString('utf-8')) as GetSilentPartsResponse;
 
 	compositor.finishCommands();
 	await compositor.waitForDone();
