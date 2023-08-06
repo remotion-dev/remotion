@@ -22,4 +22,5 @@ export const exampleVideos = {
 	framer24fps: path.join(examplePackage, 'public', 'framer-24fps.mp4'),
 	music: path.join(examplePackage, 'public', 'music.mp3'),
 	notavideo: path.join(examplePackage, 'public', 'giphy.gif'),
+	notafile: path.join(examplePackage, 'public', 'doesnotexist'),
 };
