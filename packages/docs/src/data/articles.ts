@@ -1738,6 +1738,13 @@ export const articles = [
     crumb: "@remotion/renderer",
   },
   {
+    id: "get-silent-parts",
+    title: "getSilentParts()",
+    relativePath: "docs/renderer/get-silent-parts.md",
+    compId: "articles-docs-renderer-get-silent-parts",
+    crumb: "@remotion/renderer",
+  },
+  {
     id: "get-video-metadata",
     title: "getVideoMetadata()",
     relativePath: "docs/renderer/get-video-metadata.md",

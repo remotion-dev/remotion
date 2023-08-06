@@ -63,6 +63,14 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
+    #[allow(non_snake_case)]
+    pub struct GetSilences {
+        pub src: String,
+        pub noiseThresholdInDecibels: f64,
+        pub minDuration: f64,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct StartPayLoad {
         pub concurrency: usize,
         pub maximum_frame_cache_items: usize,
@@ -116,6 +124,20 @@ pub mod payloads {
     }
 
     #[derive(Serialize, Deserialize, Debug)]
+    #[allow(non_snake_case)]
+    pub struct SilentParts {
+        pub startInSeconds: f64,
+        pub endInSeconds: f64,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
+    #[allow(non_snake_case)]
+    pub struct GetSilentPartsResponse {
+        pub silentParts: Vec<SilentParts>,
+        pub durationInSeconds: f64,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
     pub struct FreeUpMemory {
         pub percent_of_memory: f64,
     }
@@ -142,6 +164,7 @@ pub mod payloads {
         FreeUpMemory(FreeUpMemory),
         Echo(EchoPayload),
         GetVideoMetadata(GetVideoMetadata),
+        GetSilences(GetSilences),
     }
 
     #[derive(Serialize, Deserialize, Debug)]
