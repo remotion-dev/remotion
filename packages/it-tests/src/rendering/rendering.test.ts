@@ -299,11 +299,19 @@ test("Should succeed to render an audio file that doesn't have any audio inputs"
   fs.unlinkSync(out);
 });
 
-test("Should render a still that uses the staticFile() API", async () => {
+test("Should render a still that uses the staticFile() API and should apply props", async () => {
   const out = outputPath.replace(".mp4", ".png");
   const task = await execa(
     "pnpm",
-    ["exec", "remotion", "still", "static-demo", out, "--log=verbose"],
+    [
+      "exec",
+      "remotion",
+      "still",
+      "static-demo",
+      out,
+      "--log=verbose",
+      `--props={\"flag\": true}`,
+    ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
       reject: false,

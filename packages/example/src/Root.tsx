@@ -593,6 +593,10 @@ export const Index: React.FC = () => {
 					component={StaticDemo}
 					width={1000}
 					height={1000}
+					defaultProps={{flag: false}}
+					calculateMetadata={async () => {
+						return {};
+					}}
 				/>
 				<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
 				<Composition
