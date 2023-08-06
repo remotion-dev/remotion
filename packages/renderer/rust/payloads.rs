@@ -126,8 +126,15 @@ pub mod payloads {
     #[derive(Serialize, Deserialize, Debug)]
     #[allow(non_snake_case)]
     pub struct SilentParts {
-        pub start: f64,
-        pub end: f64,
+        pub startInSeconds: f64,
+        pub endInSeconds: f64,
+    }
+
+    #[derive(Serialize, Deserialize, Debug)]
+    #[allow(non_snake_case)]
+    pub struct GetSilentPartsResponse {
+        pub silentParts: Vec<SilentParts>,
+        pub durationInSeconds: f64,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
