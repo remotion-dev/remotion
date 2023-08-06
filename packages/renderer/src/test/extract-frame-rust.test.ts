@@ -297,32 +297,32 @@ test('Last frame should be fast', async () => {
 	const time = Date.now();
 
 	const data = await compositor.executeCommand('ExtractFrame', {
-		src: exampleVideos.framerWithoutFileExtension,
-		original_src: exampleVideos.framerWithoutFileExtension,
-		time: 3.333,
+		src: exampleVideos.transparentWebm,
+		original_src: exampleVideos.transparentWebm,
+		time: 5.0,
 		transparent: false,
 	});
 
 	const time_end = Date.now();
-	expect(data.length).toBe(3499254);
+	expect(data.length).toBe(6220854);
 
 	const time2 = Date.now();
 	const data2 = await compositor.executeCommand('ExtractFrame', {
-		src: exampleVideos.framerWithoutFileExtension,
-		original_src: exampleVideos.framerWithoutFileExtension,
-		time: 3.333,
+		src: exampleVideos.transparentWebm,
+		original_src: exampleVideos.transparentWebm,
+		time: 5.0,
 		transparent: false,
 	});
 
 	// Time should be way less now
 	const time2_end = Date.now();
 	expect(time2_end - time2).toBeLessThan(time_end - time);
-	expect(data2.length).toBe(3499254);
+	expect(data2.length).toBe(6220854);
 
 	const time3 = Date.now();
 	const data3 = await compositor.executeCommand('ExtractFrame', {
-		src: exampleVideos.framerWithoutFileExtension,
-		original_src: exampleVideos.framerWithoutFileExtension,
+		src: exampleVideos.transparentWebm,
+		original_src: exampleVideos.transparentWebm,
 		time: 100,
 		transparent: false,
 	});
@@ -330,20 +330,21 @@ test('Last frame should be fast', async () => {
 	// Time should be way less now
 	const time3_end = Date.now();
 	expect(time3_end - time3).toBeLessThan(time_end - time);
-	expect(data3.length).toBe(3499254);
+	expect(data3.length).toBe(6220854);
 
 	// Transparent frame should be different, so it should take a lot more time
+	// Improve me: This file is corrupt and cannot seek to the last frame.. get a better example
 	const time4 = Date.now();
 	const data4 = await compositor.executeCommand('ExtractFrame', {
-		src: exampleVideos.framerWithoutFileExtension,
-		original_src: exampleVideos.framerWithoutFileExtension,
-		time: 100,
+		src: exampleVideos.transparentWebm,
+		original_src: exampleVideos.transparentWebm,
+		time: 1,
 		transparent: true,
 	});
 
 	const time4_end = Date.now();
 	expect(time4_end - time4).toBeGreaterThan((time3_end - time3) * 2);
-	expect(data4.length).not.toBe(3499254);
+	expect(data4.length).not.toBe(6220854);
 
 	compositor.finishCommands();
 	await compositor.waitForDone();
@@ -442,6 +443,54 @@ test('Should get from AV1 video', async () => {
 		time: 0.5,
 		transparent: false,
 	});
+
+	expect(data.length).toBe(6220854);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
+test('Should handle getting a frame from a WebM when it is not transparent', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		src: exampleVideos.variablefps,
+		original_src: exampleVideos.variablefps,
+		time: 0,
+		transparent: true,
+	});
+
+	// Should resort back to BMP because it is faster
+	const header = data.slice(0, 8).toString('utf8');
+	expect(header).toContain('BM60');
+
+	expect(data.length).toBe(2764854);
+
+	compositor.finishCommands();
+	await compositor.waitForDone();
+});
+
+test('Should handle a video with no frames at the beginning', async () => {
+	const compositor = startLongRunningCompositor(
+		getIdealMaximumFrameCacheItems(),
+		'info',
+		false
+	);
+
+	const data = await compositor.executeCommand('ExtractFrame', {
+		src: exampleVideos.zerotimestamp,
+		original_src: exampleVideos.zerotimestamp,
+		time: 1.5,
+		transparent: false,
+	});
+
+	// Should resort back to BMP because it is faster
+	const header = data.slice(0, 8).toString('utf8');
+	expect(header).toContain('BM6');
 
 	expect(data.length).toBe(6220854);
 

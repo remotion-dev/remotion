@@ -41,3 +41,5 @@ execSync(
 		stdio: 'inherit',
 	}
 );
+
+import './testlambdaintegrations.mjs';

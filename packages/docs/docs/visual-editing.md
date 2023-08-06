@@ -11,7 +11,7 @@ import { YouTube } from "../components/YouTube";
 <YouTube
   minutes={6}
   href="https://www.youtube.com/watch?v=NX9YTOsLGpQ"
-  thumb="https://i.ytimg.com/vi/NX9YTOsLGpQ/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG\u0026rs=AOn4CLAncEPlNi-cMtDwSB6Q7-Ui8Oh7Ow"
+  thumb="https://i.ytimg.com/vi/NX9YTOsLGpQ/hq720.jpg"
   title="Visual editing"
 />
 

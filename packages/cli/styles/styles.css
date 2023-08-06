@@ -54,27 +54,23 @@ input[type='color'].__remotion_color_picker::-webkit-color-swatch {
 	position: absolute;
 	height: 0;
 	outline: none;
-	top: 51%;
-	width: 100%;
+	top: 15.5px;
+	width: 221px;
+	margin-left: -2px;
 	z-index: 2;
 }
 
 /* For Firefox browsers */
 .__remotion_thumb::-moz-range-thumb {
-	border: none;
-	border-radius: 0;
+	border: 1px solid black;
+	border-radius: 2px;
 	cursor: pointer;
-	height: 40px;
+	height: 37px;
 	width: 10px;
 	pointer-events: all;
 	border-color: black;
 	background-color: white;
 	position: relative;
-}
-
-.__remotion_thumb::-moz-range-thumb {
-	border-width: 1px;
-	border-style: solid;
 }
 
 /* For Chrome browsers */
@@ -82,16 +78,10 @@ input[type='color'].__remotion_color_picker::-webkit-color-swatch {
 	border: 1px solid black;
 	border-radius: 2px;
 	cursor: pointer;
-	height: 40px;
+	height: 39px;
 	width: 10px;
 	pointer-events: all;
 	border-color: black;
 	background-color: white;
 	position: relative;
-}
-
-.__remotion_thumb::-webkit-slider-thumb {
-	border-width: 1px;
-	border-style: solid;
-	border-color: black;
 }

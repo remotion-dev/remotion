@@ -37,4 +37,5 @@ export type EventSourceEvent =
 	| {
 			type: 'new-public-folder';
 			files: StaticFile[];
+			folderExists: string | null;
 	  };

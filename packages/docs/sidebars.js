@@ -536,6 +536,7 @@ module.exports = {
         },
         "lambda/php",
         "lambda/go",
+        "lambda/python",
         "lambda/serverless-framework-integration",
         "lambda/sqs",
         "lambda/multiple-buckets",
@@ -606,6 +607,7 @@ module.exports = {
         "miscellaneous/snippets/accelerated-video",
         "miscellaneous/snippets/player-in-iframe",
         "miscellaneous/snippets/fps-converter",
+        "miscellaneous/snippets/use-delay-render",
         "miscellaneous/snippets/adding-animations",
         "miscellaneous/snippets/offthread-video-while-rendering",
       ],
@@ -658,6 +660,7 @@ module.exports = {
         "miscellaneous/vercel-functions",
         "miscellaneous/render-on-edge",
         "compare/motion-canvas",
+        "gl-options",
       ],
     },
     {

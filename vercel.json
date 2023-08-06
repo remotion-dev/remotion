@@ -217,6 +217,11 @@
       "source": "/business",
       "destination": "https://github.com/orgs/remotion-dev/projects/10",
       "permanent": false
+    },
+    {
+      "source": "/youtube",
+      "destination": "https://youtube.com/@remotion_dev",
+      "permanent": false
     }
   ]
 }

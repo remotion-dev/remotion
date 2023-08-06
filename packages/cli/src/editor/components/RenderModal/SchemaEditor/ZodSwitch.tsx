@@ -10,6 +10,7 @@ import {ZodBooleanEditor} from './ZodBooleanEditor';
 import {ZodColorEditor} from './ZodColorEditor';
 import {ZodDateEditor} from './ZodDateEditor';
 import {ZodDefaultEditor} from './ZodDefaultEditor';
+import {ZodDiscriminatedUnionEditor} from './ZodDiscriminatedUnionEditor';
 import {ZodEffectEditor} from './ZodEffectEditor';
 import {ZodEnumEditor} from './ZodEnumEditor';
 import {ZonNonEditableValue} from './ZodNonEditableValue';
@@ -77,6 +78,7 @@ export const ZodSwitch: React.FC<{
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
+				discriminatedUnionReplacement={null}
 			/>
 		);
 	}
@@ -372,6 +374,24 @@ export const ZodSwitch: React.FC<{
 				saving={saving}
 				saveDisabledByParent={saveDisabledByParent}
 				mayPad={mayPad}
+			/>
+		);
+	}
+
+	if (typeName === z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion) {
+		return (
+			<ZodDiscriminatedUnionEditor
+				defaultValue={defaultValue as Record<string, unknown>}
+				mayPad={mayPad}
+				schema={schema}
+				setValue={setValue as UpdaterFunction<Record<string, unknown>>}
+				value={value as Record<string, unknown>}
+				jsonPath={jsonPath}
+				onRemove={onRemove}
+				onSave={onSave as UpdaterFunction<unknown>}
+				saving={saving}
+				saveDisabledByParent={saveDisabledByParent}
+				showSaveButton={showSaveButton}
 			/>
 		);
 	}

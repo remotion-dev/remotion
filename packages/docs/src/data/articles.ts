@@ -896,6 +896,13 @@ export const articles = [
     crumb: "Lambda API",
   },
   {
+    id: "lambda/python",
+    title: "Triggering renders from Python",
+    relativePath: "docs/lambda/python.md",
+    compId: "articles-docs-lambda-python",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "region-selection",
     title: "Region selection",
     relativePath: "docs/lambda/region-selection.md",
@@ -1227,6 +1234,13 @@ export const articles = [
     crumb: "Snippets",
   },
   {
+    id: "miscellaneous/snippets/use-delay-render",
+    title: "useDelayRender()",
+    relativePath: "docs/miscellaneous/snippets/use-delay-render.md",
+    compId: "articles-docs-miscellaneous-snippets-use-delay-render",
+    crumb: "Snippets",
+  },
+  {
     id: "typescript-aliases",
     title: "TypeScript aliases",
     relativePath: "docs/miscellaneous/ts-aliases.md",
@@ -1330,6 +1344,13 @@ export const articles = [
     relativePath: "docs/offthreadvideo.md",
     compId: "articles-docs-offthreadvideo",
     crumb: "API",
+  },
+  {
+    id: "gl-options",
+    title: "--gl flag",
+    relativePath: "docs/open-gl.md",
+    compId: "articles-docs-open-gl",
+    crumb: "Flags",
   },
   {
     id: "overlay",

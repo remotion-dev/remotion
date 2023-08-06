@@ -36,3 +36,7 @@ AWS Lambda instances have no GPU, so it is not possible to use it.
 ## What are your experiences?
 
 We'd love to learn and document more findings about the GPU. Let us know and we will amend this document!
+
+## See also
+
+- [OpenGL renderer backends](/docs/gl-options)

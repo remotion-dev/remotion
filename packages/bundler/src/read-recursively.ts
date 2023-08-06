@@ -2,6 +2,27 @@ import fs, {statSync} from 'node:fs';
 import path from 'node:path';
 import type {StaticFile} from 'remotion';
 
+// There can be symbolic links that point to files that don't exist.
+// https://github.com/remotion-dev/remotion/issues/2587
+const statOrNull = (p: string) => {
+	try {
+		return statSync(p);
+	} catch (err) {
+		return null;
+	}
+};
+
+const encodeBySplitting = (p: string): string => {
+	// Intentional: split by path.sep, then join by /
+	const splitBySlash = p.split(path.sep);
+
+	const encodedArray = splitBySlash.map((element) => {
+		return encodeURIComponent(element);
+	});
+	const merged = encodedArray.join('/');
+	return merged;
+};
+
 export const readRecursively = ({
 	folder,
 	output = [],
@@ -32,7 +53,11 @@ export const readRecursively = ({
 			continue;
 		}
 
-		const stat = statSync(path.join(absFolder, file));
+		const stat = statOrNull(path.join(absFolder, file));
+		if (!stat) {
+			continue;
+		}
+
 		if (stat.isDirectory()) {
 			readRecursively({
 				startPath,
@@ -46,17 +71,21 @@ export const readRecursively = ({
 				name: path.join(folder, file),
 				lastModified: Math.floor(stat.mtimeMs),
 				sizeInBytes: stat.size,
-				src: staticHash + '/' + encodeURIComponent(path.join(folder, file)),
+				src: staticHash + '/' + encodeBySplitting(path.join(folder, file)),
 			});
 		} else if (stat.isSymbolicLink()) {
 			const realpath = fs.realpathSync(path.join(folder, file));
-			const realStat = fs.statSync(realpath);
+			const realStat = statOrNull(realpath);
+			if (!realStat) {
+				continue;
+			}
+
 			if (realStat.isFile()) {
 				output.push({
 					name: realpath,
 					lastModified: Math.floor(realStat.mtimeMs),
 					sizeInBytes: realStat.size,
-					src: staticHash + '/' + encodeURIComponent(realpath),
+					src: staticHash + '/' + encodeBySplitting(realpath),
 				});
 			}
 		}
