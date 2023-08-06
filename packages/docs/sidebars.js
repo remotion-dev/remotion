@@ -119,6 +119,7 @@ module.exports = {
         "renderer/ensure-ffprobe",
         "renderer/get-can-extract-frames-fast",
         "renderer/get-video-metadata",
+        "renderer/get-silent-parts",
       ],
     },
     {

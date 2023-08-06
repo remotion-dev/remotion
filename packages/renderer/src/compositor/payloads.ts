@@ -52,7 +52,7 @@ export type SilentParts = SilentPart[];
 
 export type GetSilentPartsResponse = {
 	silentParts: SilentParts;
-	duration: number;
+	durationInSeconds: number;
 };
 
 export type CompositorCommand = {
@@ -71,7 +71,7 @@ export type CompositorCommand = {
 	};
 	GetSilences: {
 		src: string;
-		noiseThresholdInDecibel: number;
+		noiseThresholdInDecibels: number;
 		minDuration: number;
 	};
 	Echo: {

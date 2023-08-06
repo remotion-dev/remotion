@@ -1347,7 +1347,7 @@ export const articles = [
   },
   {
     id: "gl-options",
-    title: "GL Options",
+    title: "--gl flag",
     relativePath: "docs/open-gl.md",
     compId: "articles-docs-open-gl",
     crumb: "Flags",
@@ -1735,6 +1735,13 @@ export const articles = [
     title: "getCompositions()",
     relativePath: "docs/renderer/get-compositions.md",
     compId: "articles-docs-renderer-get-compositions",
+    crumb: "@remotion/renderer",
+  },
+  {
+    id: "get-silent-parts",
+    title: "getSilentParts()",
+    relativePath: "docs/renderer/get-silent-parts.md",
+    compId: "articles-docs-renderer-get-silent-parts",
     crumb: "@remotion/renderer",
   },
   {

@@ -7,14 +7,14 @@ import type {LogLevel} from './log-level';
 
 export const getSilentParts = async ({
 	src,
-	noiseThresholdInDecibel: passednoiseThresholdInDecibel,
+	noiseThresholdInDecibels: passednoiseThresholdInDecibels,
 	minDuration: passedMinDuration,
 	logLevel,
 }: {
 	src: string;
 	minDuration?: number;
 	logLevel?: LogLevel;
-	noiseThresholdInDecibel?: number;
+	noiseThresholdInDecibels?: number;
 }): Promise<GetSilentPartsResponse> => {
 	const compositor = startLongRunningCompositor(
 		getIdealMaximumFrameCacheItems(),
@@ -34,24 +34,24 @@ export const getSilentParts = async ({
 		);
 	}
 
-	const noiseThresholdInDecibel = passednoiseThresholdInDecibel ?? -20;
+	const noiseThresholdInDecibels = passednoiseThresholdInDecibels ?? -20;
 
-	if (typeof noiseThresholdInDecibel !== 'number') {
+	if (typeof noiseThresholdInDecibels !== 'number') {
 		throw new Error(
-			`noiseThresholdInDecibel must be a number, but was ${noiseThresholdInDecibel}`
+			`noiseThresholdInDecibels must be a number, but was ${noiseThresholdInDecibels}`
 		);
 	}
 
-	if (noiseThresholdInDecibel >= 30) {
+	if (noiseThresholdInDecibels >= 30) {
 		throw new Error(
-			`noiseThresholdInDecibel must be less than 0, but was ${noiseThresholdInDecibel}`
+			`noiseThresholdInDecibels must be less than 30, but was ${noiseThresholdInDecibels}`
 		);
 	}
 
 	const res = await compositor.executeCommand('GetSilences', {
 		src,
 		minDuration,
-		noiseThresholdInDecibel,
+		noiseThresholdInDecibels,
 	});
 
 	const response = JSON.parse(res.toString('utf-8')) as GetSilentPartsResponse;
