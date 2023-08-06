@@ -43,6 +43,10 @@ export const TableOfContents: React.FC = () => {
           <strong>getVideoMetadata()</strong>
           <div>Get metadata from a video file in Node.js</div>
         </TOCItem>
+        <TOCItem link="/docs/renderer/get-silent-parts">
+          <strong>getSilentParts()</strong>
+          <div>Obtain silent portions of a video or audio</div>
+        </TOCItem>
         <TOCItem link="/docs/renderer/ensure-ffmpeg">
           <strong style={{ textDecoration: "line-through" }}>
             ensureFfmpeg()
