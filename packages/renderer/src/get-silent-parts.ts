@@ -2,12 +2,16 @@ import {
 	getIdealMaximumFrameCacheItems,
 	startLongRunningCompositor,
 } from './compositor/compositor';
-import type {GetSilentPartsResponse} from './compositor/payloads';
+import type {
+	GetSilentPartsResponse,
+	GetSilentPartsResponseRust,
+	SilentParts,
+} from './compositor/payloads';
 import type {LogLevel} from './log-level';
 
 export const getSilentParts = async ({
 	src,
-	noiseThresholdInDecibels: passednoiseThresholdInDecibels,
+	noiseThresholdInDecibels: passedNoiseThresholdInDecibels,
 	minDuration: passedMinDuration,
 	logLevel,
 }: {
@@ -34,7 +38,7 @@ export const getSilentParts = async ({
 		);
 	}
 
-	const noiseThresholdInDecibels = passednoiseThresholdInDecibels ?? -20;
+	const noiseThresholdInDecibels = passedNoiseThresholdInDecibels ?? -20;
 
 	if (typeof noiseThresholdInDecibels !== 'number') {
 		throw new Error(
@@ -54,9 +58,48 @@ export const getSilentParts = async ({
 		noiseThresholdInDecibels,
 	});
 
-	const response = JSON.parse(res.toString('utf-8')) as GetSilentPartsResponse;
+	const response = JSON.parse(
+		res.toString('utf-8')
+	) as GetSilentPartsResponseRust;
 
 	compositor.finishCommands();
 	await compositor.waitForDone();
-	return response;
+
+	const {silentParts, durationInSeconds} = response;
+
+	return {
+		silentParts,
+		audibleParts: getAudibleParts({silentParts, durationInSeconds}),
+		durationInSeconds,
+	};
+};
+
+const getAudibleParts = ({
+	silentParts,
+	durationInSeconds,
+}: {
+	silentParts: SilentParts;
+	durationInSeconds: number;
+}) => {
+	const audibleParts: SilentParts = [];
+	let lastEnd = 0;
+	for (const silentPart of silentParts) {
+		if (silentPart.startInSeconds - lastEnd > 0) {
+			audibleParts.push({
+				startInSeconds: lastEnd,
+				endInSeconds: silentPart.startInSeconds,
+			});
+		}
+
+		lastEnd = silentPart.endInSeconds;
+	}
+
+	if (durationInSeconds - lastEnd > 0) {
+		audibleParts.push({
+			startInSeconds: lastEnd,
+			endInSeconds: durationInSeconds,
+		});
+	}
+
+	return audibleParts;
 };

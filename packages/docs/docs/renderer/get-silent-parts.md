@@ -68,6 +68,14 @@ An array of objects with the following properties:
 - `startInSeconds`: The start time of the silent part in seconds.
 - `endInSeconds`: The end time of the silent part in seconds.
 
+### `audibleParts`
+
+The inverse of the `silentParts` array.  
+An array of objects with the following properties:
+
+- `startInSeconds`: The start time of the audible part in seconds.
+- `endInSeconds`: The end time of the audible part in seconds.
+
 ### `durationInSeconds`
 
 The time length of the media in seconds.
