@@ -685,16 +685,19 @@ import { Config } from "@remotion/cli/config";
 Config.overrideFfmpegCommand(({ args }) => {
   // Define the custom FFmpeg options as an array of strings
   const customFfmpegOptions = [
-    '-c:v', 'libx264',
-    '-profile:v', 'main',
-    '-video_track_timescale', '90000',
-    '-pix_fmt', 'yuv420p',
-    '-color_primaries', 'bt709',
-    '-color_trc', 'bt709',
-    '-strict', 'experimental'
+    "-profile:v",
+    "main",
+    "-video_track_timescale",
+    "90000",
+    "-color_primaries",
+    "bt709",
+    "-color_trc",
+    "bt709",
+    "-strict",
+    "experimental",
   ];
   // The customFfmpegOptions are inserted before the last element to ensure
-  // they appear before the ffmpeg's output file name
+  // they appear before the ffmpeg's output path
   args.splice(args.length - 1, 0, ...customFfmpegOptions);
   return args;
 });
@@ -711,7 +714,8 @@ Your function must return a modified array of strings.
 Using this feature is discouraged. Before using it, we want to make you aware of some caveats:
 
 - The render command can change with any new Remotion version, even when it is a patch upgrade. This might break your usage of this feature.
-- Depending on the selected codec, available CPU and RAM, Remotion may or may not use "parallel encoding" which will result in multiple FFMPEG commands being executed. Your function must be able to handle being called multiple times.
+- Depending on the selected codec, available CPU and RAM, Remotion may or may not use "parallel encoding" which will result in multiple FFmpeg commands being executed. Your function must be able to handle being called multiple times.
+- The FFmpeg binary provided by Remotion supports only a small subset of FFmpeg commands, therefore not every passed option will be applied.
 - This feature is not available when using Remotion Lambda.
 
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
