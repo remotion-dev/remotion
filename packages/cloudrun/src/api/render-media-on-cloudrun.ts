@@ -69,7 +69,7 @@ export type RenderMediaOnCloudrunInput = {
 
 /**
  * @description Triggers a render on a GCP Cloud Run service given a composition and a Cloud Run URL.
- * @see [Documentation](https://remotion.dev/docs/lambda/renderMediaOnGcp)
+ * @see [Documentation](https://remotion.dev/docs/cloudrun/renderMediaOnGcp)
  * @param params.cloudRunUrl The URL of the Cloud Run service that should be used. Use either this or serviceName.
  * @param params.serviceName The name of the Cloud Run service that should be used. Use either this or cloudRunUrl.
  * @param params.region The region that the Cloud Run service is deployed in.
