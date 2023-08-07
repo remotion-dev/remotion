@@ -75,21 +75,21 @@ export const internalOpenBrowser = async ({
 	viewport,
 	logLevel,
 }: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
+	// @ts-expect-error Firefox
 	if (browser === 'firefox') {
 		throw new TypeError(
 			'Firefox supported is not yet turned on. Stay tuned for the future.'
 		);
 	}
 
-	await ensureLocalBrowser(browser, browserExecutable);
+	await ensureLocalBrowser(browserExecutable);
 
-	const executablePath = getLocalBrowserExecutable(browser, browserExecutable);
+	const executablePath = getLocalBrowserExecutable(browserExecutable);
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
 
 	const browserInstance = await puppeteer.launch({
 		executablePath,
-		product: browser,
 		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		logLevel,
 		indent,

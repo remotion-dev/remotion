@@ -659,6 +659,7 @@ module.exports = {
         "miscellaneous/video-formats",
         "miscellaneous/vercel-functions",
         "miscellaneous/render-on-edge",
+        "miscellaneous/thorium-browser",
         "compare/motion-canvas",
         "gl-options",
       ],

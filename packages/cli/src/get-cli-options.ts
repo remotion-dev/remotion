@@ -73,7 +73,7 @@ const getProResProfile = () => {
 const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 	const browser = getBrowser();
 	try {
-		await RenderInternals.ensureLocalBrowser(browser, browserExecutable);
+		await RenderInternals.ensureLocalBrowser(browserExecutable);
 	} catch (err) {
 		Log.error('Could not download a browser for rendering frames.');
 		Log.error(err);

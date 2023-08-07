@@ -16,7 +16,6 @@
 
 import type {LogLevel} from '../log-level';
 import type {BrowserConnectOptions} from './BrowserConnector';
-import type {Product} from './Product';
 
 export interface BrowserLaunchArgumentOptions {
 	headless?: boolean | 'chrome';
@@ -32,7 +31,6 @@ export interface LaunchOptions {
 	dumpio?: boolean;
 	logLevel: LogLevel;
 	env?: Record<string, string | undefined>;
-	product?: Product;
 	indent: boolean;
 }
 
