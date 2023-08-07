@@ -20,7 +20,7 @@ We are looking for feedback on the experience of setting up a GCP Project for Re
 - Deploy a Remotion project to GCP Cloud Storage (in Lambda, the storage solution is S3).
 - Render a composition stored in Cloud Storage on a Cloud Run service.
 
-We are welcoming any bug reports. See a list of [features of Cloud Run here](/blog/cloudrun).
+We are welcoming any [bug reports](https://remotion.dev/issue).
 
 ## 1. Install `@remotion/cloudrun`
 
