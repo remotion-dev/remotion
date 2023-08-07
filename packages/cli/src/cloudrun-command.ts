@@ -16,7 +16,7 @@ export const cloudrunCommand = async (remotionRoot: string, args: string[]) => {
 		const installCommand =
 			manager === 'unknown' ? 'npm i' : manager.installCommand;
 		Log.error(err);
-		Log.error('Remotion CloudRun is not installed.');
+		Log.error('Remotion Cloud Run is not installed.');
 		Log.info('');
 		Log.info('You can install it using:');
 		Log.info(`${installCommand} @remotion/cloudrun@${getRemotionVersion()}`);
