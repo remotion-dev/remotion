@@ -56,6 +56,7 @@ import {WarpDemo2} from './WarpText/demo2';
 import {Tailwind} from './Tailwind';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
+import {Timeout} from './Timeout';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -193,16 +194,50 @@ export const Index: React.FC = () => {
 					width={1080}
 					height={1080}
 					fps={30}
-					durationInFrames={100}
+					durationInFrames={2}
 					calculateMetadata={() => {
 						return {
 							props: {
-								str: 'potato'.repeat(10000000),
+								str: 'potato'.repeat(1000000),
+								date: new Date('2020-01-01'),
+								file: staticFile('nested/mp4.png'),
 							},
 						};
 					}}
 					schema={hugePayloadSchema}
-					defaultProps={{str: 'st'}}
+					defaultProps={{
+						str: 'potate',
+						file: staticFile('giphy.gif'),
+						date: new Date('2020-01-01'),
+					}}
+				/>
+				<Composition
+					// Sending 140KB payload will not require the Lambda function to compress the props,
+					// but once spawning the renderer function, then the input props as well as the resolved
+					// combined together will take more than 256KB of space.
+					// In that case, we need to compress one of them.
+					id="140kb-payload"
+					component={HugePayload}
+					width={1080}
+					height={1080}
+					fps={30}
+					durationInFrames={2}
+					calculateMetadata={() => {
+						return {
+							props: {
+								str: 'a'.repeat(140 * 1000),
+								date: new Date('2020-01-01'),
+								file: staticFile('nested/mp4.png'),
+								dontCareAboutSize: true,
+							},
+						};
+					}}
+					schema={hugePayloadSchema}
+					defaultProps={{
+						str: 'potato',
+						file: staticFile('giphy.gif'),
+						date: new Date('2020-01-01'),
+					}}
 				/>
 				<Composition
 					id="sync-dynamic-length"
@@ -327,6 +362,14 @@ export const Index: React.FC = () => {
 					durationInFrames={30}
 				/>
 				<Composition
+					id="Timeout"
+					component={Timeout}
+					width={1280}
+					height={720}
+					fps={30}
+					durationInFrames={100}
+				/>
+				<Composition
 					id="error-on-frame-10"
 					component={ErrorOnFrame10}
 					width={1280}
@@ -441,10 +484,10 @@ export const Index: React.FC = () => {
 				<Composition
 					id="OffthreadRemoteVideo"
 					component={OffthreadRemoteVideo}
-					width={1080}
-					height={1080}
-					fps={30}
-					durationInFrames={100}
+					width={1920 * 2}
+					height={1080 * 2}
+					fps={60}
+					durationInFrames={20000}
 				/>
 				<Composition
 					id="video-testing-webm"
@@ -550,6 +593,10 @@ export const Index: React.FC = () => {
 					component={StaticDemo}
 					width={1000}
 					height={1000}
+					defaultProps={{flag: false}}
+					calculateMetadata={async () => {
+						return {};
+					}}
 				/>
 				<Still id="font-demo" component={FontDemo} width={1000} height={1000} />
 				<Composition
@@ -560,7 +607,7 @@ export const Index: React.FC = () => {
 					fps={30}
 					// Change the duration of the video dynamically by passing
 					// `--props='{"duration": 100}'`
-					durationInFrames={inputProps?.duration ?? 20}
+					durationInFrames={(inputProps?.duration as number) ?? 20}
 					defaultProps={{
 						codec: 'mp4' as const,
 						offthread: false,
@@ -924,6 +971,16 @@ export const Index: React.FC = () => {
 							'y',
 							'z',
 						]),
+						union: z.discriminatedUnion('type', [
+							z.object({
+								type: z.literal('car'),
+								color: z.string(),
+							}),
+							z.object({
+								type: z.literal('boat'),
+								depth: z.number(),
+							}),
+						]),
 					})}
 					defaultProps={{
 						vehicle: 'car',
@@ -954,6 +1011,7 @@ export const Index: React.FC = () => {
 						nullable: null,
 						optional: '',
 						filePath: staticFile('nested/logö.png'),
+						union: {type: 'car', color: 'red'},
 					}}
 					durationInFrames={150}
 					calculateMetadata={({defaultProps}) => {
@@ -975,7 +1033,12 @@ export const Index: React.FC = () => {
 					fps={30}
 					durationInFrames={150}
 					schema={schemaTestSchema}
-					defaultProps={{title: 'sdasdsd', delay: 5.2, color: '#df822a'}}
+					defaultProps={{
+						title: 'sdasdsd',
+						delay: 5.2,
+						color: '#df822a',
+						list: ['Sample Item'],
+					}}
 				/>
 				{/**
 				 // @ts-expect-error */}
@@ -989,7 +1052,7 @@ export const Index: React.FC = () => {
 					schema={schemaTestSchema}
 				/>
 				<Composition
-					id="array-schem"
+					id="array-schema"
 					component={ArrayTest}
 					width={1200}
 					height={630}

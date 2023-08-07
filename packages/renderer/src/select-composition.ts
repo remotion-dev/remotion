@@ -1,4 +1,4 @@
-import type {VideoConfig} from 'remotion';
+import {Internals, type VideoConfig} from 'remotion';
 import type {BrowserExecutable} from './browser-executable';
 import type {BrowserLog} from './browser-log';
 import type {HeadlessBrowser} from './browser/Browser';
@@ -7,6 +7,7 @@ import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
 import {handleJavascriptException} from './error-handling/handle-javascript-exception';
 import {findRemotionRoot} from './find-closest-package-json';
 import {getPageAndCleanupFn} from './get-browser-instance';
+import {type LogLevel} from './log-level';
 import {Log} from './logger';
 import type {ChromiumOptions} from './open-browser';
 import type {RemotionServer} from './prepare-server';
@@ -15,10 +16,9 @@ import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
 import {waitForReady} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
-import {type LogLevel} from './log-level';
 
 type InternalSelectCompositionsConfig = {
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string>;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	onBrowserLog: null | ((log: BrowserLog) => void);
@@ -60,7 +60,7 @@ type InnerSelectCompositionConfig = Omit<
 const innerSelectComposition = async ({
 	page,
 	onBrowserLog,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	envVariables,
 	serveUrl,
 	timeoutInMilliseconds,
@@ -82,7 +82,7 @@ const innerSelectComposition = async ({
 	validatePuppeteerTimeout(timeoutInMilliseconds);
 
 	await setPropsAndEnv({
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		envVariables,
 		page,
 		serveUrl,
@@ -92,6 +92,8 @@ const innerSelectComposition = async ({
 		retriesRemaining: 2,
 		audioEnabled: false,
 		videoEnabled: false,
+		indent,
+		logLevel,
 	});
 
 	await puppeteerEvaluateWithCatch({
@@ -105,7 +107,7 @@ const innerSelectComposition = async ({
 		args: [],
 	});
 
-	await waitForReady(page);
+	await waitForReady({page, timeoutInMilliseconds, frame: null});
 
 	Log.verboseAdvanced(
 		{
@@ -133,10 +135,33 @@ const innerSelectComposition = async ({
 		`calculateMetadata() took ${Date.now() - time}ms`
 	);
 
-	return {metadata: result as VideoConfig, propsSize: size};
+	const res = result as Awaited<
+		ReturnType<typeof window.remotion_calculateComposition>
+	>;
+
+	const {width, durationInFrames, fps, height} = res;
+	return {
+		metadata: {
+			id,
+			width,
+			height,
+			fps,
+			durationInFrames,
+			props: Internals.deserializeJSONWithCustomFields(
+				res.serializedResolvedPropsWithCustomSchema
+			),
+			defaultProps: Internals.deserializeJSONWithCustomFields(
+				res.serializedDefaultPropsWithCustomSchema
+			),
+		},
+		propsSize: size,
+	};
 };
 
-type InternalReturnType = {metadata: VideoConfig; propsSize: number};
+type InternalReturnType = {
+	metadata: VideoConfig;
+	propsSize: number;
+};
 
 export const internalSelectComposition = async (
 	options: InternalSelectCompositionsConfig
@@ -152,7 +177,7 @@ export const internalSelectComposition = async (
 		port,
 		envVariables,
 		id,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		onBrowserLog,
 		server,
 		timeoutInMilliseconds,
@@ -207,7 +232,7 @@ export const internalSelectComposition = async (
 					chromiumOptions,
 					envVariables,
 					id,
-					inputProps,
+					serializedInputPropsWithCustomSchema,
 					onBrowserLog,
 					timeoutInMilliseconds,
 					logLevel,
@@ -251,13 +276,18 @@ export const selectComposition = async (
 		timeoutInMilliseconds,
 		verbose,
 	} = options;
+
 	const data = await internalSelectComposition({
 		id,
 		serveUrl,
 		browserExecutable: browserExecutable ?? null,
 		chromiumOptions: chromiumOptions ?? {},
 		envVariables: envVariables ?? {},
-		inputProps: inputProps ?? {},
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: inputProps ?? {},
+		}).serializedString,
 		onBrowserLog: onBrowserLog ?? null,
 		port: port ?? null,
 		puppeteerInstance,

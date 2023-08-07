@@ -151,3 +151,4 @@ export const MyComp: React.FC = () => {
 - [Data fetching](/docs/data-fetching)
 - [continueRender()](/docs/continue-render)
 - [cancelRender()](/docs/cancel-render)
+- [useDelayRender()](/docs/miscellaneous/snippets/use-delay-render)

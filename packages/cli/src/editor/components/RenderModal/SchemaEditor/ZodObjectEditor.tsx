@@ -1,17 +1,21 @@
-import {useMemo} from 'react';
-import React from 'react';
+import React, {useMemo} from 'react';
 import type {z} from 'zod';
 import {useZodIfPossible} from '../../get-zod-if-possible';
+import {fieldsetLabel} from '../layout';
+import {deepEqual} from './deep-equal';
+import {Fieldset} from './Fieldset';
 import {useLocalState} from './local-state';
+import {SchemaLabel} from './SchemaLabel';
+import {SchemaSeparationLine} from './SchemaSeparationLine';
+import {SchemaVerticalGuide} from './SchemaVerticalGuide';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
-import {Fieldset} from './Fieldset';
-import {SchemaSeparationLine} from './SchemaSeparationLine';
-import {fieldsetLabel} from '../layout';
-import {SchemaVerticalGuide} from './SchemaVerticalGuide';
-import {SchemaLabel} from './SchemaLabel';
-import {deepEqual} from './deep-equal';
+
+export type ObjectDiscrimatedUnionReplacement = {
+	discriminator: string;
+	markup: React.ReactNode;
+};
 
 export const ZodObjectEditor: React.FC<{
 	schema: z.ZodTypeAny;
@@ -25,6 +29,7 @@ export const ZodObjectEditor: React.FC<{
 	saving: boolean;
 	saveDisabledByParent: boolean;
 	mayPad: boolean;
+	discriminatedUnionReplacement: ObjectDiscrimatedUnionReplacement | null;
 }> = ({
 	schema,
 	jsonPath,
@@ -37,6 +42,7 @@ export const ZodObjectEditor: React.FC<{
 	saving,
 	saveDisabledByParent,
 	mayPad,
+	discriminatedUnionReplacement,
 }) => {
 	const z = useZodIfPossible();
 	if (!z) {
@@ -96,6 +102,13 @@ export const ZodObjectEditor: React.FC<{
 			<RevisionContextProvider>
 				<SchemaVerticalGuide isRoot={isRoot}>
 					{keys.map((key, i) => {
+						if (
+							discriminatedUnionReplacement &&
+							key === discriminatedUnionReplacement.discriminator
+						) {
+							return discriminatedUnionReplacement.markup;
+						}
+
 						return (
 							<React.Fragment key={key}>
 								<ZodSwitch

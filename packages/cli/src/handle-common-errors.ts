@@ -37,9 +37,11 @@ export const handleCommonError = async (err: Error, logLevel: LogLevel) => {
 
 	if (err.message.includes('Error creating WebGL context')) {
 		Log.info();
-		Log.info('💡 You might need to set the OpenGL renderer to "angle"');
-		Log.info(
-			'💡 Get help for this issue at https://www.remotion.dev/docs/three'
+		Log.warn(
+			'💡 You might need to set the OpenGL renderer to "angle" (or "swangle" if rendering on lambda). Learn why at https://www.remotion.dev/docs/three'
+		);
+		Log.warn(
+			"💡 Check how it's done at https://www.remotion.dev/docs/chromium-flags#--gl"
 		);
 	}
 
@@ -77,7 +79,7 @@ export const handleCommonError = async (err: Error, logLevel: LogLevel) => {
 	}
 
 	if (err.message.includes('GLIBC_')) {
-		Log.info('💡 Remotion requires at least Libc 2.34.');
+		Log.info('💡 Remotion requires at least Libc 2.35.');
 		Log.info(
 			'💡 Get help for this issue: https://github.com/remotion-dev/remotion/issues/2439'
 		);

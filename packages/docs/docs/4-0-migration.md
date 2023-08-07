@@ -35,7 +35,7 @@ The minimum Node version is now 16.0.0.
 
 Only the following platforms are supported: Windows (x64 only), macOS, Linux.
 
-Linux distros with glibc need to have at least version 2.34. [See here](https://github.com/remotion-dev/remotion/issues/2439) for more information.
+Linux distros with glibc need to have at least version 2.35. [See here](https://github.com/remotion-dev/remotion/issues/2439) for more information.
 
 ## Config file changes
 
@@ -279,6 +279,39 @@ You can now remove your re-encoding logic!
 ## Input props must be an object
 
 Since the input props are passed to a React component, they must not explicitly be objects (`{}`). You can still use other data structures such as arrays, but they must be wrapped in an object.
+
+## Cannot use an `interface` for props
+
+The following code now gives a type error:
+
+```tsx
+interface MyProps {
+  title: string;
+}
+
+const Hi = (props: MyProps) => {
+  return <div>{props.title}</div>;
+};
+
+<Still
+  component={Hi}
+  id="interface-props"
+  defaultProps={{ title: "hi" }}
+  height={1080}
+  width={1080}
+/>;
+```
+
+This is because props must now be an object and satisfy the shape `Record<string, unknown>`.  
+`interface`'s do not satisfy this shape, so you must use a `type` instead:
+
+```tsx
+type MyProps = {
+  title: string;
+};
+```
+
+See also: [Input props must be an object](/docs/4-0-migration#input-props-must-be-an-object)
 
 ## `defaultProps` is required if the component has props
 

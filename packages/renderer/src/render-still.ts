@@ -21,6 +21,8 @@ import {
 	validateStillImageFormat,
 } from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
+import type {LogLevel} from './log-level';
+import {getLogLevel} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -35,14 +37,13 @@ import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
-import type {LogLevel} from './log-level';
-import {getLogLevel} from './logger';
 
 type InternalRenderStillOptions = {
 	composition: VideoConfig;
 	output: string | null;
 	frame: number;
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
 	imageFormat: StillImageFormat;
 	jpegQuality: number;
 	puppeteerInstance: HeadlessBrowser | null;
@@ -104,7 +105,7 @@ const innerRenderStill = async ({
 	serveUrl,
 	puppeteerInstance,
 	onError,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	envVariables,
 	output,
 	frame = 0,
@@ -122,13 +123,14 @@ const innerRenderStill = async ({
 	downloadMap,
 	logLevel,
 	indent,
+	serializedResolvedPropsWithCustomSchema,
 }: InternalRenderStillOptions & {
 	downloadMap: DownloadMap;
 	serveUrl: string;
 	onError: (err: Error) => void;
 	proxyPort: number;
 	compositor: Compositor;
-	sourceMapContext: AnySourceMapConsumer | null;
+	sourceMapContext: Promise<AnySourceMapConsumer | null>;
 }): Promise<RenderStillReturnValue> => {
 	Internals.validateDimension(
 		composition.height,
@@ -199,7 +201,7 @@ const innerRenderStill = async ({
 			logLevel,
 		}));
 	const page = await browserInstance.newPage(
-		sourceMapContext,
+		Promise.resolve(sourceMapContext),
 		logLevel,
 		indent
 	);
@@ -250,7 +252,7 @@ const innerRenderStill = async ({
 	}
 
 	await setPropsAndEnv({
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		envVariables,
 		page,
 		serveUrl,
@@ -260,13 +262,15 @@ const innerRenderStill = async ({
 		retriesRemaining: 2,
 		audioEnabled: false,
 		videoEnabled: true,
+		indent,
+		logLevel,
 	});
 
 	await puppeteerEvaluateWithCatch({
 		// eslint-disable-next-line max-params
 		pageFunction: (
 			id: string,
-			props: Record<string, unknown>,
+			props: string,
 			durationInFrames: number,
 			fps: number,
 			height: number,
@@ -275,7 +279,7 @@ const innerRenderStill = async ({
 			window.remotion_setBundleMode({
 				type: 'composition',
 				compositionName: id,
-				props,
+				serializedResolvedPropsWithSchema: props,
 				compositionDurationInFrames: durationInFrames,
 				compositionFps: fps,
 				compositionHeight: height,
@@ -284,7 +288,7 @@ const innerRenderStill = async ({
 		},
 		args: [
 			composition.id,
-			composition.props,
+			serializedResolvedPropsWithCustomSchema,
 			composition.durationInFrames,
 			composition.fps,
 			composition.height,
@@ -293,7 +297,12 @@ const innerRenderStill = async ({
 		frame: null,
 		page,
 	});
-	await seekToFrame({frame: stillFrame, page, composition: composition.id});
+	await seekToFrame({
+		frame: stillFrame,
+		page,
+		composition: composition.id,
+		timeoutInMilliseconds,
+	});
 
 	const {buffer} = await takeFrameAndCompose({
 		frame: stillFrame,
@@ -425,7 +434,11 @@ export const renderStill = (
 		frame: frame ?? 0,
 		imageFormat: imageFormat ?? DEFAULT_STILL_IMAGE_FORMAT,
 		indent: false,
-		inputProps: inputProps ?? {},
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			staticBase: null,
+			indent: undefined,
+			data: inputProps ?? {},
+		}).serializedString,
 		jpegQuality: jpegQuality ?? quality ?? DEFAULT_JPEG_QUALITY,
 		onBrowserLog: onBrowserLog ?? null,
 		onDownload: onDownload ?? null,
@@ -438,5 +451,10 @@ export const renderStill = (
 		serveUrl,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel: verbose || dumpBrowserLogs ? 'verbose' : getLogLevel(),
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: composition.props ?? {},
+		}).serializedString,
 	});
 };

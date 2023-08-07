@@ -38,7 +38,6 @@ import {
 
 export const cli = async () => {
 	const [command, ...args] = parsedCli._;
-
 	if (parsedCli.help) {
 		printHelp();
 		process.exit(0);
@@ -49,17 +48,19 @@ export const cli = async () => {
 		await validateVersionsBeforeCommand(remotionRoot);
 	}
 
-	const errorSymbolicationLock =
-		RenderInternals.registerErrorSymbolicationLock();
+	const isStudio = command === 'studio' || command === 'preview';
+
+	const errorSymbolicationLock = isStudio
+		? 0
+		: RenderInternals.registerErrorSymbolicationLock();
 
 	handleCtrlC();
 
 	await initializeCli(remotionRoot);
-
 	try {
 		if (command === 'compositions') {
 			await listCompositionsCommand(remotionRoot, args);
-		} else if (command === 'preview' || command === 'studio') {
+		} else if (isStudio) {
 			await studioCommand(remotionRoot, args);
 		} else if (command === 'lambda') {
 			await lambdaCommand(remotionRoot, args);
@@ -72,7 +73,11 @@ export const cli = async () => {
 		} else if (command === 'ffprobe') {
 			ffprobeCommand(remotionRoot, process.argv.slice(3));
 		} else if (command === 'upgrade') {
-			await upgrade(remotionRoot, parsedCli['package-manager']);
+			await upgrade(
+				remotionRoot,
+				parsedCli['package-manager'],
+				parsedCli.version
+			);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
 		} else if (command === 'benchmark') {

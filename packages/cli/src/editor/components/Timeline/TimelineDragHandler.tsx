@@ -16,6 +16,7 @@ import {
 } from '../../state/in-out';
 import {TimelineZoomCtx} from '../../state/timeline-zoom';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../Menu/is-menu-item';
+import {defaultInOutValue} from '../TimelineInOutToggle';
 import {scrollableRef, sliderAreaRef} from './timeline-refs';
 import {
 	canScrollTimelineIntoDirection,
@@ -34,7 +35,6 @@ import {
 } from './TimelineInOutPointerHandle';
 import {redrawTimelineSliderFast} from './TimelineSlider';
 import {TimelineWidthContext} from './TimelineWidthProvider';
-import {defaultInOutValue} from '../TimelineInOutToggle';
 
 const inner: React.CSSProperties = {
 	overflowY: 'auto',

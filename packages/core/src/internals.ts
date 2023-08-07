@@ -1,4 +1,3 @@
-import {AssetManager} from './AssetManager.js';
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
@@ -7,11 +6,11 @@ import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
 } from './CanUseRemotionHooks.js';
-import type {CompProps} from './Composition.js';
+import {ClipComposition, type CompProps} from './Composition.js';
 import type {
-	TAsset,
 	TCompMetadata,
 	TComposition,
+	TRenderAsset,
 	TSequence,
 } from './CompositionManager.js';
 import {compositionsRef} from './CompositionManager.js';
@@ -29,14 +28,23 @@ import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
+import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
+import {
+	DATE_TOKEN,
+	deserializeJSONWithCustomFields,
+	FILE_TOKEN,
+	serializeJSONWithDate,
+} from './input-props-serialization.js';
 import {processColor} from './interpolate-colors.js';
 import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
+import {NativeLayersProvider} from './NativeLayers.js';
 import {NonceContext} from './nonce.js';
 import {portalNode} from './portal-node.js';
 import {PrefetchProvider} from './prefetch-state.js';
 import {usePreload} from './prefetch.js';
 import {getRoot, waitForRoot} from './register-root.js';
 import {RemotionRoot} from './RemotionRoot.js';
+import {RenderAssetManager} from './RenderAssetManager.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import {
 	ResolveCompositionConfig,
@@ -46,15 +54,15 @@ import {
 import {SequenceContext} from './SequenceContext.js';
 import {SequenceManager} from './SequenceManager.js';
 import {setupEnvVariables} from './setup-env-variables.js';
-import {
-	persistCurrentFrame,
-	useTimelineSetFrame,
-} from './timeline-position-state.js';
 import type {
 	SetTimelineContextValue,
 	TimelineContextValue,
 } from './timeline-position-state.js';
 import * as TimelinePosition from './timeline-position-state.js';
+import {
+	persistCurrentFrame,
+	useTimelineSetFrame,
+} from './timeline-position-state.js';
 import {truthy} from './truthy.js';
 import {useLazyComponent} from './use-lazy-component.js';
 import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
@@ -138,10 +146,17 @@ export const Internals = {
 	resolveCompositionsRef,
 	ResolveCompositionConfig,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
-	AssetManager,
+	RenderAssetManager,
 	bundleName: 'bundle.js',
+	bundleMapName: 'bundle.js.map',
 	persistCurrentFrame,
 	useTimelineSetFrame,
+	serializeJSONWithDate,
+	deserializeJSONWithCustomFields,
+	FILE_TOKEN,
+	DATE_TOKEN,
+	NativeLayersProvider,
+	ClipComposition,
 } as const;
 
 export type {
@@ -149,7 +164,7 @@ export type {
 	Timeline,
 	TCompMetadata,
 	TSequence,
-	TAsset,
+	TRenderAsset as TAsset,
 	TimelineContextValue,
 	SetTimelineContextValue,
 	CompProps,
@@ -157,4 +172,5 @@ export type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	RemotionEnvironment,
+	SerializedJSONWithCustomFields,
 };

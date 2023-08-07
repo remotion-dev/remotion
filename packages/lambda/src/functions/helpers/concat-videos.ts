@@ -111,9 +111,11 @@ export const getAllFilesS3 = ({
 				if (areAllFilesDownloaded) {
 					console.log('All files are downloaded!');
 					resolve(
-						filesInBucket.map((file) =>
-							getChunkDownloadOutputLocation({outdir, file})
-						)
+						// Need to use downloaded variable, not filesInBucket
+						// as it may be out of date
+						Object.keys(downloaded)
+							.sort()
+							.map((file) => getChunkDownloadOutputLocation({outdir, file}))
 					);
 				}
 			};
@@ -149,7 +151,7 @@ export const getAllFilesS3 = ({
 						region,
 						expectedBucketOwner,
 					});
-					console.log('Successfully downloaded', key);
+					RenderInternals.Log.info('Successfully downloaded', key);
 					downloadTimer.end();
 					downloaded[key] = true;
 					checkFinish();

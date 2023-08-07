@@ -1,14 +1,16 @@
-import {InvokeCommand} from '@aws-sdk/client-lambda';
 import type {StillImageFormat} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs from 'node:fs';
 import path from 'node:path';
+import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {estimatePrice} from '../api/estimate-price';
 import {getOrCreateBucket} from '../api/get-or-create-bucket';
-import {getLambdaClient} from '../shared/aws-clients';
+import {callLambda} from '../shared/call-lambda';
 import {cleanupSerializedInputProps} from '../shared/cleanup-serialized-input-props';
+import {decompressInputProps} from '../shared/compress-props';
 import type {
+	CostsInfo,
 	LambdaPayload,
 	LambdaPayloads,
 	RenderMetadata,
@@ -19,8 +21,8 @@ import {
 	renderMetadataKey,
 } from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
+import {isFlakyError} from '../shared/is-flaky-error';
 import {getServeUrlHash} from '../shared/make-s3-url';
-import {randomHash} from '../shared/random-hash';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
@@ -34,22 +36,24 @@ import {executablePath} from './helpers/get-chromium-executable-path';
 import {getCurrentRegionInFunction} from './helpers/get-current-region';
 import {getOutputUrlFromMetadata} from './helpers/get-output-url-from-metadata';
 import {lambdaWriteFile} from './helpers/io';
+import {onDownloadsHelper} from './helpers/on-downloads-logger';
 import {validateComposition} from './helpers/validate-composition';
 import {
 	getTmpDirStateIfENoSp,
 	writeLambdaError,
 } from './helpers/write-lambda-error';
-import {deserializeInputProps} from '../shared/serialize-props';
 
 type Options = {
+	params: LambdaPayload;
+	renderId: string;
 	expectedBucketOwner: string;
 };
 
-const innerStillHandler = async (
-	lambdaParams: LambdaPayload,
-	renderId: string,
-	options: Options
-) => {
+const innerStillHandler = async ({
+	params: lambdaParams,
+	expectedBucketOwner,
+	renderId,
+}: Options) => {
 	if (lambdaParams.type !== LambdaRoutines.still) {
 		throw new TypeError('Expected still type');
 	}
@@ -89,9 +93,9 @@ const innerStillHandler = async (
 	const outputPath = path.join(outputDir, 'output');
 
 	const region = getCurrentRegionInFunction();
-	const inputProps = await deserializeInputProps({
+	const serializedInputPropsWithCustomSchema = await decompressInputProps({
 		bucketName,
-		expectedBucketOwner: options.expectedBucketOwner,
+		expectedBucketOwner,
 		region,
 		serialized: lambdaParams.inputProps,
 		propsType: 'input-props',
@@ -116,7 +120,7 @@ const innerStillHandler = async (
 		serveUrl,
 		browserInstance,
 		composition: lambdaParams.composition,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		envVariables: lambdaParams.envVariables ?? {},
 		chromiumOptions: lambdaParams.chromiumOptions,
 		timeoutInMilliseconds: lambdaParams.timeoutInMilliseconds,
@@ -157,7 +161,7 @@ const innerStillHandler = async (
 		body: JSON.stringify(renderMetadata),
 		region: getCurrentRegionInFunction(),
 		privacy: 'private',
-		expectedBucketOwner: options.expectedBucketOwner,
+		expectedBucketOwner,
 		downloadBehavior: null,
 		customCredentials: null,
 	});
@@ -171,7 +175,7 @@ const innerStillHandler = async (
 			durationInFrames: composition.durationInFrames,
 		}),
 		imageFormat: lambdaParams.imageFormat as StillImageFormat,
-		inputProps,
+		serializedInputPropsWithCustomSchema,
 		overwrite: false,
 		puppeteerInstance: browserInstance,
 		jpegQuality:
@@ -183,10 +187,15 @@ const innerStillHandler = async (
 		cancelSignal: null,
 		indent: false,
 		onBrowserLog: null,
-		onDownload: null,
+		onDownload: onDownloadsHelper(),
 		port: null,
 		server,
 		logLevel: lambdaParams.logLevel,
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: composition.props,
+		}).serializedString,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
@@ -202,7 +211,7 @@ const innerStillHandler = async (
 		key,
 		privacy: lambdaParams.privacy,
 		body: fs.createReadStream(outputPath),
-		expectedBucketOwner: options.expectedBucketOwner,
+		expectedBucketOwner,
 		region: getCurrentRegionInFunction(),
 		downloadBehavior: lambdaParams.downloadBehavior,
 		customCredentials,
@@ -229,6 +238,7 @@ const innerStillHandler = async (
 	});
 
 	return {
+		type: 'success' as const,
 		output: getOutputUrlFromMetadata(
 			renderMetadata,
 			bucketName,
@@ -241,75 +251,80 @@ const innerStillHandler = async (
 	};
 };
 
+type RenderStillLambdaResponsePayload = {
+	type: 'success';
+	output: string;
+	size: number;
+	bucketName: string;
+	estimatedPrice: CostsInfo;
+	renderId: string;
+};
+
 export const stillHandler = async (
-	params: LambdaPayload,
 	options: Options
-): Promise<ReturnType<typeof innerStillHandler>> => {
+): Promise<RenderStillLambdaResponsePayload> => {
+	const {params} = options;
+
 	if (params.type !== LambdaRoutines.still) {
 		throw new Error('Params must be renderer');
 	}
 
-	const renderId = randomHash({randomInTests: true});
-
 	try {
-		return innerStillHandler(params, renderId, options);
+		return await innerStillHandler(options);
 	} catch (err) {
 		// If this error is encountered, we can just retry as it
 		// is a very rare error to occur
-		const isBrowserError =
-			(err as Error).message.includes('FATAL:zygote_communication_linux.cc') ||
-			(err as Error).message.includes(
-				'error while loading shared libraries: libnss3.so'
-			);
+		const isBrowserError = isFlakyError(err as Error);
 		const willRetry = isBrowserError || params.maxRetries > 0;
-		if (willRetry) {
-			const retryPayload: LambdaPayloads[LambdaRoutines.still] = {
-				...params,
-				maxRetries: params.maxRetries - 1,
-				attempt: params.attempt + 1,
-			};
-			const res = await getLambdaClient(getCurrentRegionInFunction()).send(
-				new InvokeCommand({
-					FunctionName: process.env.AWS_LAMBDA_FUNCTION_NAME,
-					// @ts-expect-error
-					Payload: JSON.stringify(retryPayload),
-				})
-			);
-			const bucketName =
-				params.bucketName ??
-				(
-					await getOrCreateBucket({
-						region: getCurrentRegionInFunction(),
-					})
-				).bucketName;
 
-			// `await` elided on purpose here; using `void` to mark it as intentional
-			// eslint-disable-next-line no-void
-			void writeLambdaError({
-				bucketName,
-				errorInfo: {
-					chunk: null,
-					frame: null,
-					isFatal: false,
-					name: (err as Error).name,
-					message: (err as Error).message,
-					stack: (err as Error).stack as string,
-					type: 'browser',
-					tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
-					attempt: params.attempt,
-					totalAttempts: params.attempt + params.maxRetries,
-					willRetry,
-				},
-				expectedBucketOwner: options.expectedBucketOwner,
-				renderId,
-			});
-			const str = JSON.parse(
-				Buffer.from(res.Payload as Uint8Array).toString()
-			) as ReturnType<typeof innerStillHandler>;
-
-			return str;
+		if (!willRetry) {
+			throw err;
 		}
 
-		throw err;
+		const retryPayload: LambdaPayloads[LambdaRoutines.still] = {
+			...params,
+			maxRetries: params.maxRetries - 1,
+			attempt: params.attempt + 1,
+		};
+
+		const res = await callLambda({
+			functionName: process.env.AWS_LAMBDA_FUNCTION_NAME as string,
+			payload: retryPayload,
+			region: getCurrentRegionInFunction(),
+			type: LambdaRoutines.still,
+			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
+			retriesRemaining: 0,
+		});
+		const bucketName =
+			params.bucketName ??
+			(
+				await getOrCreateBucket({
+					region: getCurrentRegionInFunction(),
+				})
+			).bucketName;
+
+		// `await` elided on purpose here; using `void` to mark it as intentional
+		// eslint-disable-next-line no-void
+		void writeLambdaError({
+			bucketName,
+			errorInfo: {
+				chunk: null,
+				frame: null,
+				isFatal: false,
+				name: (err as Error).name,
+				message: (err as Error).message,
+				stack: (err as Error).stack as string,
+				type: 'browser',
+				tmpDir: getTmpDirStateIfENoSp((err as Error).stack as string),
+				attempt: params.attempt,
+				totalAttempts: params.attempt + params.maxRetries,
+				willRetry,
+			},
+			expectedBucketOwner: options.expectedBucketOwner,
+			renderId: options.renderId,
+		});
+
+		return res;
 	}
 };

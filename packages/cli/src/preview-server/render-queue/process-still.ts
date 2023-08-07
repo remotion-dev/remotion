@@ -38,7 +38,8 @@ export const processStill = async ({
 		envVariables: job.envVariables,
 		height: null,
 		fullEntryPoint,
-		inputProps: job.inputProps,
+		serializedInputPropsWithCustomSchema:
+			job.serializedInputPropsWithCustomSchema,
 		overwrite: true,
 		port,
 		publicDir,
@@ -52,7 +53,7 @@ export const processStill = async ({
 		imageFormatFromUi: job.imageFormat,
 		logLevel: job.verbose ? 'verbose' : 'info',
 		onProgress,
-		indentOutput: true,
+		indent: true,
 		addCleanupCallback,
 		cancelSignal: job.cancelToken.cancelSignal,
 		outputLocationFromUi: job.outName,

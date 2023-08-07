@@ -40,6 +40,8 @@ export const extractUrlAndSourceFromUrl = (url: string) => {
 	};
 };
 
+const REQUEST_CLOSED_TOKEN = 'Request closed';
+
 export const startOffthreadVideoServer = ({
 	downloadMap,
 	concurrency,
@@ -54,9 +56,7 @@ export const startOffthreadVideoServer = ({
 	listener: RequestListener;
 	close: () => Promise<void>;
 	compositor: Compositor;
-	events: OffthreadVideoServerEmitter;
 } => {
-	const events = new OffthreadVideoServerEmitter();
 	const compositor = startCompositor(
 		'StartLongRunningProcess',
 		{
@@ -70,78 +70,119 @@ export const startOffthreadVideoServer = ({
 
 	return {
 		close: () => {
-			compositor.finishCommands();
-			return compositor.waitForDone();
+			// Note: This is being used as a promise:
+			//     .close().then()
+			// but if finishCommands() fails, it acts like a sync function,
+			// therefore we have to catch an error and put a promise rejection
+			try {
+				compositor.finishCommands();
+				return compositor.waitForDone();
+			} catch (err) {
+				return Promise.reject(err);
+			}
 		},
-		listener: (req, res) => {
+		listener: (req, response) => {
 			if (!req.url) {
 				throw new Error('Request came in without URL');
 			}
 
 			if (!req.url.startsWith('/proxy')) {
-				res.writeHead(404);
-				res.end();
+				response.writeHead(404);
+				response.end();
 				return;
 			}
 
 			const {src, time, transparent} = extractUrlAndSourceFromUrl(req.url);
-			res.setHeader('access-control-allow-origin', '*');
+			response.setHeader('access-control-allow-origin', '*');
 			if (transparent) {
-				res.setHeader('content-type', `image/png`);
+				response.setHeader('content-type', `image/png`);
 			} else {
-				res.setHeader('content-type', `image/bmp`);
+				response.setHeader('content-type', `image/bmp`);
 			}
 
 			// Handling this case on Lambda:
 			// https://support.google.com/chrome/a/answer/7679408?hl=en
 			// Chrome sends Private Network Access preflights for subresources
 			if (req.method === 'OPTIONS') {
-				res.statusCode = 200;
+				response.statusCode = 200;
 				if (req.headers['access-control-request-private-network']) {
-					res.setHeader('Access-Control-Allow-Private-Network', 'true');
+					response.setHeader('Access-Control-Allow-Private-Network', 'true');
 				}
 
-				res.end();
+				response.end();
 				return;
 			}
 
+			let closed = false;
+
+			req.on('close', () => {
+				closed = true;
+			});
+
 			let extractStart = Date.now();
-			downloadAsset({src, emitter: events, downloadMap})
+			downloadAsset({src, downloadMap})
 				.then((to) => {
-					extractStart = Date.now();
-					return compositor.executeCommand('ExtractFrame', {
-						input: to,
-						time,
-						transparent,
+					return new Promise<Buffer>((resolve, reject) => {
+						if (closed) {
+							reject(Error(REQUEST_CLOSED_TOKEN));
+							return;
+						}
+
+						extractStart = Date.now();
+						resolve(
+							compositor.executeCommand('ExtractFrame', {
+								src: to,
+								original_src: src,
+								time,
+								transparent,
+							})
+						);
 					});
 				})
 				.then((readable) => {
-					const extractEnd = Date.now();
-					const timeToExtract = extractEnd - extractStart;
+					return new Promise<void>((resolve, reject) => {
+						if (closed) {
+							reject(Error(REQUEST_CLOSED_TOKEN));
+							return;
+						}
 
-					if (timeToExtract > 1000) {
-						Log.verbose(
-							`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`
-						);
-					}
+						if (!readable) {
+							reject(new Error('no readable from compositor'));
+							return;
+						}
 
-					if (!readable) {
-						throw new Error('no readable from ffmpeg');
-					}
+						const extractEnd = Date.now();
+						const timeToExtract = extractEnd - extractStart;
 
-					res.writeHead(200);
-					res.write(readable);
-					res.end();
+						if (timeToExtract > 1000) {
+							Log.verbose(
+								`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`
+							);
+						}
+
+						response.writeHead(200);
+						response.write(readable, (err) => {
+							response.end();
+							if (err) {
+								reject(err);
+							} else {
+								resolve();
+							}
+						});
+					});
 				})
 				.catch((err) => {
-					res.writeHead(500);
-					res.end();
-					events.dispatchError(err);
-					console.log('Error occurred', err);
+					response.writeHead(500);
+					response.end();
+
+					// Any errors occurred due to the render being aborted don't need to be logged.
+					if (err.message !== REQUEST_CLOSED_TOKEN) {
+						downloadMap.emitter.dispatchError(err);
+						console.log('Error occurred', err);
+					}
 				});
 		},
 		compositor,
-		events,
 	};
 };
 

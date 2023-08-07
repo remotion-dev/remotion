@@ -5,6 +5,7 @@ import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
+import {FullScreenToggle} from './FullscreenToggle';
 import {Flex, Spacing} from './layout';
 import {LoopToggle} from './LoopToggle';
 import {MuteToggle} from './MuteToggle';
@@ -50,6 +51,9 @@ export const PreviewToolbar: React.FC = () => {
 
 	const [loop, setLoop] = useState(loadLoopOption());
 
+	const isFullscreenSupported =
+		document.fullscreenEnabled || document.webkitFullscreenEnabled;
+
 	return (
 		<div style={container} className="css-reset">
 			<div style={sideContainer}>
@@ -69,6 +73,7 @@ export const PreviewToolbar: React.FC = () => {
 			<CheckboardToggle />
 			<TimelineInOutPointToggle />
 			<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
+			{isFullscreenSupported && <FullScreenToggle />}
 			<Spacing x={2} />
 			<Flex />
 			<div style={sideContainer}>

@@ -1,6 +1,6 @@
 {
   "name": "@remotion/rive",
-  "version": "4.0.1",
+  "version": "4.0.17",
   "description": "Remotion Rive",
   "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.ts",
@@ -20,10 +20,6 @@
   "keywords": [],
   "author": "Caleb Ojo, Jonny Burger",
   "license": "See LICENSE.md",
-  "files": [
-    "dist",
-    "README.md"
-  ],
   "dependencies": {
     "@rive-app/canvas-advanced": "1.0.98",
     "remotion": "workspace:*"

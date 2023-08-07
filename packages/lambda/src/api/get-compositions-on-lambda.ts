@@ -5,10 +5,10 @@ import type {AwsRegion} from '../client';
 import {LambdaRoutines} from '../defaults';
 import {callLambda} from '../shared/call-lambda';
 import {
+	compressInputProps,
 	getNeedsToUpload,
-	serializeInputProps,
 	serializeOrThrow,
-} from '../shared/serialize-props';
+} from '../shared/compress-props';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
@@ -55,12 +55,14 @@ export const getCompositionsOnLambda = async ({
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
-	const serializedInputProps = await serializeInputProps({
+	const serializedInputProps = await compressInputProps({
 		stringifiedInputProps,
 		region,
 		userSpecifiedBucketName: bucketName ?? null,
 		propsType: 'input-props',
-		needsToUpload: getNeedsToUpload('video-or-audio', stringifiedInputProps),
+		needsToUpload: getNeedsToUpload('video-or-audio', [
+			stringifiedInputProps.length,
+		]),
 	});
 
 	try {
@@ -78,6 +80,9 @@ export const getCompositionsOnLambda = async ({
 				bucketName: bucketName ?? null,
 			},
 			region,
+			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 		return res.compositions;
 	} catch (err) {

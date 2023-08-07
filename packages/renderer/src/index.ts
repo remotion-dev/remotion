@@ -27,6 +27,7 @@ import {validateFrameRange} from './frame-range';
 import {internalGetCompositions} from './get-compositions';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
+
 import {
 	defaultCodecsForFileExtension,
 	getFileExtensionFromCodec,
@@ -89,6 +90,8 @@ export type {FfmpegOverrideFn} from './ffmpeg-override';
 export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
 export {getCompositions, GetCompositionsOptions} from './get-compositions';
+export {getSilentParts} from './get-silent-parts';
+export {getVideoMetadata} from './get-video-metadata';
 export {
 	ImageFormat,
 	StillImageFormat,

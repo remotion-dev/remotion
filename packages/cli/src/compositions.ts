@@ -1,4 +1,5 @@
 import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
@@ -65,7 +66,11 @@ export const listCompositionsCommand = async (
 		browserExecutable,
 		chromiumOptions,
 		envVariables,
-		inputProps,
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: inputProps,
+			staticBase: null,
+			indent: undefined,
+		}).serializedString,
 		timeoutInMilliseconds: puppeteerTimeout,
 		port,
 		indent: false,

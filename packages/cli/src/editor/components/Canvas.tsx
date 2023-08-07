@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useContext, useEffect, useRef} from 'react';
+import React, {useCallback, useContext, useEffect} from 'react';
 import {
 	MAX_ZOOM,
 	MIN_ZOOM,
@@ -13,6 +13,7 @@ import {
 } from '../helpers/get-effective-translation';
 import {useDimensions} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {canvasRef as ref} from '../state/canvas-ref';
 import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {PreviewSizeContext} from '../state/preview-size';
 import {SPACING_UNIT} from './layout';
@@ -37,7 +38,6 @@ const ZOOM_PX_FACTOR = 0.003;
 
 export const Canvas: React.FC = () => {
 	const dimensions = useDimensions();
-	const ref = useRef<HTMLDivElement>(null);
 	const {setSize, size: previewSize} = useContext(PreviewSizeContext);
 	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();

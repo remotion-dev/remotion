@@ -299,11 +299,19 @@ test("Should succeed to render an audio file that doesn't have any audio inputs"
   fs.unlinkSync(out);
 });
 
-test("Should render a still that uses the staticFile() API", async () => {
+test("Should render a still that uses the staticFile() API and should apply props", async () => {
   const out = outputPath.replace(".mp4", ".png");
   const task = await execa(
     "pnpm",
-    ["exec", "remotion", "still", "static-demo", out, "--log=verbose"],
+    [
+      "exec",
+      "remotion",
+      "still",
+      "static-demo",
+      out,
+      "--log=verbose",
+      `--props={\"flag\": true}`,
+    ],
     {
       cwd: path.join(process.cwd(), "..", "example"),
       reject: false,
@@ -388,4 +396,38 @@ test("Should be able to render if remotion.config.ts is not provided", async () 
 
   expect(task.exitCode).toBe(0);
   fs.unlinkSync(outputPath);
+});
+
+test("Should be able to render a huge payload that gets serialized", async () => {
+  const task = await execa(
+    "pnpm",
+    [
+      "exec",
+      "remotion",
+      "still",
+      "huge-payload",
+      outputPath.replace(".mp4", ".png"),
+    ],
+    {
+      cwd: path.join(process.cwd(), "..", "example"),
+      reject: false,
+    }
+  );
+
+  expect(task.exitCode).toBe(0);
+  fs.unlinkSync(outputPath.replace(".mp4", ".png"));
+});
+
+test("If timeout, the error should be shown", async () => {
+  const task = await execa(
+    "pnpm",
+    ["exec", "remotion", "render", "Timeout", outputPath, "--timeout=7000"],
+    {
+      cwd: path.join(process.cwd(), "..", "example"),
+      reject: false,
+    }
+  );
+
+  expect(task.exitCode).toBe(1);
+  expect(task.stderr).toContain("This error should appear");
 });

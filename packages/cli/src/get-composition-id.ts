@@ -7,9 +7,9 @@ import type {
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import type {VideoConfig} from 'remotion';
+import {formatBytes} from './format-bytes';
 import {Log} from './log';
 import {showSingleCompositionsPicker} from './show-compositions-picker';
-import {formatBytes} from './format-bytes';
 
 const getCompName = ({
 	cliArgs,
@@ -38,7 +38,7 @@ const getCompName = ({
 export const getCompositionId = async ({
 	args,
 	compositionIdFromUi,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
 	puppeteerInstance,
 	envVariables,
 	timeoutInMilliseconds,
@@ -52,7 +52,7 @@ export const getCompositionId = async ({
 }: {
 	args: string[];
 	compositionIdFromUi: string | null;
-	inputProps: Record<string, unknown>;
+	serializedInputPropsWithCustomSchema: string;
 	puppeteerInstance: HeadlessBrowser | undefined;
 	envVariables: Record<string, string>;
 	timeoutInMilliseconds: number;
@@ -81,7 +81,7 @@ export const getCompositionId = async ({
 		const {metadata: config, propsSize} =
 			await RenderInternals.internalSelectComposition({
 				id: compName,
-				inputProps,
+				serializedInputPropsWithCustomSchema,
 				puppeteerInstance,
 				envVariables,
 				timeoutInMilliseconds,
@@ -96,7 +96,11 @@ export const getCompositionId = async ({
 			});
 
 		if (propsSize > 10_000_000) {
-			Log.warn(
+			Log.warnAdvanced(
+				{
+					indent,
+					logLevel,
+				},
 				`The props of your composition are large (${formatBytes(
 					propsSize
 				)}). This may cause slowdown.`
@@ -117,7 +121,6 @@ export const getCompositionId = async ({
 
 	if (!process.env.CI) {
 		const comps = await RenderInternals.internalGetCompositions({
-			inputProps,
 			puppeteerInstance,
 			envVariables,
 			timeoutInMilliseconds,
@@ -129,6 +132,7 @@ export const getCompositionId = async ({
 			server,
 			serveUrlOrWebpackUrl,
 			onBrowserLog: null,
+			serializedInputPropsWithCustomSchema,
 		});
 		const {compositionId, reason} = await showSingleCompositionsPicker(comps);
 		if (compositionId && typeof compositionId === 'string') {

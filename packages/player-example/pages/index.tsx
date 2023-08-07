@@ -17,7 +17,7 @@ const Car = () =>
 		);
 	});
 
-export default function () {
+function Index() {
 	return (
 		<React.StrictMode>
 			<FontPicker />
@@ -53,3 +53,5 @@ export default function () {
 		</React.StrictMode>
 	);
 }
+
+export default Index;
