@@ -45,6 +45,11 @@ Make sure the versions don't have a `^` character in front of it.
 
 ## Changelog
 
+### `4.1.0-alpha12`
+
+Includes features and bugfixes from `v4.0.17`.
+Includes a fix for streaming progress sometimes throwing an exception.
+
 ### `4.1.0-alpha11`
 
 Includes bugfixes from `v4.0.12`.
