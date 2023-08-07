@@ -5,7 +5,6 @@ import type {BrowserExecutable} from './browser-executable';
 import {getRevisionInfo} from './browser/BrowserFetcher';
 import {downloadBrowser} from './browser/create-browser-fetcher';
 import type {Product} from './browser/Product';
-import {PUPPETEER_REVISIONS} from './browser/revisions';
 
 const getSearchPathsForProduct = (product: Product) => {
 	if (product === 'chrome') {
@@ -41,10 +40,6 @@ const getSearchPathsForProduct = (product: Product) => {
 				  '\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe'
 				: null,
 		].filter(Boolean) as string[];
-	}
-
-	if (product === 'firefox') {
-		return [].filter(Boolean) as string[];
 	}
 
 	throw new TypeError(`Unknown browser product: ${product}`);
@@ -98,7 +93,7 @@ const getBrowserStatus = (
 		return {path: localBrowser, type: 'local-browser'};
 	}
 
-	const revision = getRevisionInfo(PUPPETEER_REVISIONS.chromium, product);
+	const revision = getRevisionInfo(product);
 	if (revision.local && fs.existsSync(revision.executablePath)) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}

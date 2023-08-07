@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-export type Product = 'chrome' | 'firefox';
+export type Product = 'chrome';
