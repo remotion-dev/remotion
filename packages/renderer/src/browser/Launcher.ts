@@ -133,7 +133,7 @@ function resolveExecutablePath(launcher: ChromeLauncher): {
 } {
 	const {product} = launcher;
 
-	const revisionInfo = getRevisionInfo('chrome');
+	const revisionInfo = getRevisionInfo();
 
 	const firefoxHelp = `Run \`PUPPETEER_PRODUCT=firefox npm install\` to download a supported Firefox browser binary.`;
 	const chromeHelp = `Run \`npm install\` to download the correct Chromium revision.`;

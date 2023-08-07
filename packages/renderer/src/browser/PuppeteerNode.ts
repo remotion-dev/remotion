@@ -34,21 +34,13 @@ interface PuppeteerLaunchOptions
 
 export class PuppeteerNode {
 	#lazyLauncher?: ProductLauncher;
-	#productName?: Product;
 
-	constructor(settings: {productName?: Product}) {
-		const {productName} = settings;
-		this.#productName = productName;
-
+	constructor() {
 		this.launch = this.launch.bind(this);
 		this.executablePath = this.executablePath.bind(this);
 	}
 
 	launch(options: PuppeteerLaunchOptions): Promise<HeadlessBrowser> {
-		if (options.product) {
-			this.#productName = options.product;
-		}
-
 		return this._launcher.launch(options);
 	}
 
@@ -57,10 +49,7 @@ export class PuppeteerNode {
 	}
 
 	get _launcher(): ProductLauncher {
-		if (
-			!this.#lazyLauncher ||
-			this.#lazyLauncher.product !== this.#productName
-		) {
+		if (!this.#lazyLauncher) {
 			this.#lazyLauncher = new ChromeLauncher();
 		}
 

@@ -26,8 +26,8 @@ import extractZip from 'extract-zip';
 import * as URL from 'node:url';
 import {promisify} from 'node:util';
 import {assert} from './assert';
-import type {Product} from './Product';
 
+import {Log} from '../logger';
 import {getDownloadsCacheDir} from './get-download-destination';
 
 const downloadURLs: Record<Platform, string> = {
@@ -68,20 +68,13 @@ interface BrowserFetcherRevisionInfo {
 	executablePath: string;
 	url: string;
 	local: boolean;
-	product: string;
 }
 
-export const getPlatform = (product: Product): Platform => {
+export const getPlatform = (): Platform => {
 	const platform = os.platform();
 	switch (platform) {
 		case 'darwin':
-			switch (product) {
-				case 'chrome':
-					return os.arch() === 'arm64' ? 'mac_arm' : 'mac';
-				default:
-					throw new Error('unknown browser');
-			}
-
+			return os.arch() === 'arm64' ? 'mac_arm' : 'mac';
 		case 'linux':
 			return 'linux';
 		case 'win32':
@@ -93,29 +86,22 @@ export const getPlatform = (product: Product): Platform => {
 
 const destination = '.chromium';
 
-export const getDownloadsFolder = () => {
+const getDownloadsFolder = () => {
 	return path.join(getDownloadsCacheDir(), destination);
 };
 
-export const download = async ({
-	progressCallback,
-	product,
-	platform,
-	downloadsFolder,
-	downloadURL,
-}: {
-	progressCallback: (x: number, y: number) => void;
-	product: Product;
-	platform: Platform;
-	downloadsFolder: string;
-	downloadURL: string;
-}): Promise<BrowserFetcherRevisionInfo | undefined> => {
+export const downloadBrowser = async (): Promise<
+	BrowserFetcherRevisionInfo | undefined
+> => {
+	const platform = getPlatform();
+	const downloadURL = getThoriumDownloadUrl(platform);
 	const fileName = downloadURL.split('/').pop();
 	assert(fileName, `A malformed download URL was found: ${downloadURL}.`);
+	const downloadsFolder = getDownloadsFolder();
 	const archivePath = path.join(downloadsFolder, fileName);
 	const outputPath = getFolderPath(downloadsFolder, platform);
 	if (await existsAsync(outputPath)) {
-		return getRevisionInfo(product);
+		return getRevisionInfo();
 	}
 
 	if (!(await existsAsync(downloadsFolder))) {
@@ -126,12 +112,16 @@ export const download = async ({
 
 	// Use system Chromium builds on Linux ARM devices
 	if (os.platform() !== 'darwin' && os.arch() === 'arm64') {
-		handleArm64();
-		return;
+		throw new Error(
+			'The chromium binary is not available for arm64.' +
+				'\nIf you are on Ubuntu, you can install with: ' +
+				'\n\n sudo apt install chromium\n' +
+				'\n\n sudo apt install chromium-browser\n'
+		);
 	}
 
 	try {
-		await _downloadFile(downloadURL, archivePath, progressCallback);
+		await _downloadThorium(downloadURL, archivePath);
 		await install(archivePath, outputPath);
 	} finally {
 		if (await existsAsync(archivePath)) {
@@ -139,7 +129,7 @@ export const download = async ({
 		}
 	}
 
-	const revisionInfo = getRevisionInfo(product);
+	const revisionInfo = getRevisionInfo();
 	if (revisionInfo) {
 		await chmodAsync(revisionInfo.executablePath, 0o755);
 	}
@@ -154,41 +144,37 @@ export const getFolderPath = (
 	return path.resolve(downloadsFolder, `${platform}`);
 };
 
-const getExecutablePath = (product: Product) => {
+const getExecutablePath = () => {
 	const downloadsFolder = getDownloadsFolder();
-	const platform = getPlatform(product);
+	const platform = getPlatform();
 	const folderPath = getFolderPath(downloadsFolder, platform);
 
-	if (product === 'chrome') {
-		if (platform === 'mac' || platform === 'mac_arm') {
-			return path.join(
-				folderPath,
-				archiveName(platform),
-				'Chromium.app',
-				'Contents',
-				'MacOS',
-				'Chromium'
-			);
-		}
-
-		if (platform === 'linux') {
-			return path.join(folderPath, archiveName(platform), 'thorium');
-		}
-
-		if (platform === 'win64') {
-			return path.join(folderPath, archiveName(platform), 'thorium.exe');
-		}
+	if (platform === 'mac' || platform === 'mac_arm') {
+		return path.join(
+			folderPath,
+			archiveName(platform),
+			'Chromium.app',
+			'Contents',
+			'MacOS',
+			'Chromium'
+		);
 	}
 
-	throw new Error('Unsupported product: ' + product);
+	if (platform === 'linux') {
+		return path.join(folderPath, archiveName(platform), 'thorium');
+	}
+
+	if (platform === 'win64') {
+		return path.join(folderPath, archiveName(platform), 'thorium.exe');
+	}
+
+	throw new Error('Can not download browser for platform: ' + platform);
 };
 
-export const getRevisionInfo = (
-	product: Product
-): BrowserFetcherRevisionInfo => {
-	const executablePath = getExecutablePath(product);
+export const getRevisionInfo = (): BrowserFetcherRevisionInfo => {
+	const executablePath = getExecutablePath();
 	const downloadsFolder = getDownloadsFolder();
-	const platform = getPlatform(product);
+	const platform = getPlatform();
 	const folderPath = getFolderPath(downloadsFolder, platform);
 
 	const url = getThoriumDownloadUrl(platform);
@@ -198,14 +184,12 @@ export const getRevisionInfo = (
 		folderPath,
 		local,
 		url,
-		product,
 	};
 };
 
-function _downloadFile(
+function _downloadThorium(
 	url: string,
-	destinationPath: string,
-	progressCallback: (x: number, y: number) => void
+	destinationPath: string
 ): Promise<number> {
 	let fulfill: (value: number | PromiseLike<number>) => void;
 	let reject: (err: Error) => void;
@@ -222,7 +206,10 @@ function _downloadFile(
 	function onData(chunk: string): void {
 		downloadedBytes += chunk.length;
 		if (Date.now() - lastProgress > 1000) {
-			progressCallback(downloadedBytes, totalBytes);
+			Log.info(
+				'Downloading Thorium',
+				toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytes)
+			);
 			lastProgress = Date.now();
 		}
 	}
@@ -372,22 +359,7 @@ function httpRequest(
 	return request;
 }
 
-function handleArm64(): void {
-	let exists = fs.existsSync('/usr/bin/chromium-browser');
-	if (exists) {
-		return;
-	}
-
-	exists = fs.existsSync('/usr/bin/chromium');
-	if (exists) {
-		return;
-	}
-
-	console.error(
-		'The chromium binary is not available for arm64.' +
-			'\nIf you are on Ubuntu, you can install with: ' +
-			'\n\n sudo apt install chromium\n' +
-			'\n\n sudo apt install chromium-browser\n'
-	);
-	throw new Error();
+function toMegabytes(bytes: number) {
+	const mb = bytes / 1024 / 1024;
+	return `${Math.round(mb * 10) / 10} Mb`;
 }

@@ -82,9 +82,9 @@ export const internalOpenBrowser = async ({
 		);
 	}
 
-	await ensureLocalBrowser(browser, browserExecutable);
+	await ensureLocalBrowser(browserExecutable);
 
-	const executablePath = getLocalBrowserExecutable(browser, browserExecutable);
+	const executablePath = getLocalBrowserExecutable(browserExecutable);
 
 	const customGlRenderer = getOpenGlRenderer(chromiumOptions.gl ?? null);
 
