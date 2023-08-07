@@ -84,7 +84,7 @@ export const getPlatform = (): Platform => {
 	}
 };
 
-const destination = '.chromium';
+const destination = '.thorium';
 
 const getDownloadsFolder = () => {
 	return path.join(getDownloadsCacheDir(), destination);
@@ -153,10 +153,10 @@ const getExecutablePath = () => {
 		return path.join(
 			folderPath,
 			archiveName(platform),
-			'Chromium.app',
+			'Thorium.app',
 			'Contents',
 			'MacOS',
-			'Chromium'
+			'Thorium'
 		);
 	}
 
