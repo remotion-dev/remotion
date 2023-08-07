@@ -24,6 +24,9 @@
       "path": "./packages/bundler"
     },
     {
+      "path": "./packages/cloudrun"
+    },
+    {
       "path": "./packages/cli"
     },
     {
