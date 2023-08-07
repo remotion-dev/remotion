@@ -610,7 +610,6 @@ module.exports = {
         "miscellaneous/snippets/use-delay-render",
         "miscellaneous/snippets/adding-animations",
         "miscellaneous/snippets/offthread-video-while-rendering",
-        "miscellaneous/snippets/thorium-browser",
       ],
     },
     {
@@ -660,6 +659,7 @@ module.exports = {
         "miscellaneous/video-formats",
         "miscellaneous/vercel-functions",
         "miscellaneous/render-on-edge",
+        "miscellaneous/thorium-browser",
         "compare/motion-canvas",
         "gl-options",
       ],
