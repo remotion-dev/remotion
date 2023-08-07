@@ -197,7 +197,11 @@
       "destination": "https://www.remotion.dev/docs/zod-types",
       "permanent": false
     },
-
+    {
+      "source": "/cloudrun",
+      "destination": "https://www.remotion.dev/docs/cloudrun",
+      "permanent": false
+    },
     {
       "source": "/get-help",
       "destination": "https://www.remotion.dev/docs/get-help",

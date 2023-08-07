@@ -30,6 +30,7 @@
     "@remotion/babel-loader": "workspace:*",
     "@remotion/bundler": "workspace:*",
     "@remotion/cli": "workspace:*",
+    "@remotion/cloudrun": "workspace:*",
     "@remotion/gif": "workspace:*",
     "@remotion/google-fonts": "workspace:*",
     "@remotion/lambda": "workspace:*",
@@ -82,7 +83,6 @@
     "lodash.sortby": "^4.7.0",
     "prettier": "^2.7.1",
     "prettier-plugin-organize-imports": "^3.2.2",
-    "typescript": "4.9.5",
     "url-loader": "^4.1.1"
   }
 }

@@ -8,3 +8,10 @@ crumb: "FAQ"
 It is currently not possible to render videos or stills on Vercel Serverless functions due to the 50MB maximum function size. Since Chromium is a dependency of Remotion, it alone almost entirely fills the quota available.
 
 However, you can trigger a Remotion Lambda render through a Vercel Serverless function – our preferred choice for building applications. See our [Next template](https://github.com/remotion-dev/template-next) or [GitHub Unwrapped project](https://github.com/remotion-dev/github-unwrapped-2022) for an example of how to do so.
+
+## Can I render videos in Next.js?
+
+If you don't deploy to Vercel, it is possible to render videos in API routes using the [server-side rendering](/docs/ssr) primitives.  
+Check if your provider has enough disk space for Chromium and Remotion and has sufficient CPU and RAM to render videos.
+
+If you plan to deploy to Vercel, we recommend to trigger Remotion Lambda renders from Vercel Serverless functions. See our [Next template](https://github.com/remotion-dev/template-next) or [GitHub Unwrapped project](https://github.com/remotion-dev/github-unwrapped-2022) for an example of how to do so.
