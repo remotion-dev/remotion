@@ -61,9 +61,8 @@ export const checkIfServiceExists = async ({
 					`
 				)
 			);
-			throw e;
-		} else {
-			throw e;
 		}
+
+		throw e;
 	}
 };
