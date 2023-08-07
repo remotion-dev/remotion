@@ -685,16 +685,11 @@ import { Config } from "@remotion/cli/config";
 Config.overrideFfmpegCommand(({ args }) => {
   // Define the custom FFmpeg options as an array of strings
   const customFfmpegOptions = [
-    "-profile:v",
-    "main",
-    "-video_track_timescale",
-    "90000",
-    "-color_primaries",
-    "bt709",
-    "-color_trc",
-    "bt709",
-    "-strict",
-    "experimental",
+    "-profile:v","main",
+    "-video_track_timescale","90000",
+    "-color_primaries","bt709",
+    "-color_trc","bt709",
+    "-strict","experimental",
   ];
   // The customFfmpegOptions are inserted before the last element to ensure
   // they appear before the ffmpeg's output path
