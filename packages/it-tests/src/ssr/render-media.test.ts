@@ -82,6 +82,7 @@ test("should fail on invalid CRF", async () => {
         height: 1080,
         id: "hitehre",
         width: 1080,
+        defaultProps: {},
         props: {},
       },
       frameRange: [0, 2],

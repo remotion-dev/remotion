@@ -8,7 +8,7 @@
     "stylecheck": "turbo run lint formatting",
     "build": "turbo run build",
     "ci": "turbo run build test --concurrency=50%",
-    "watch": "tsc -b --verbose",
+    "watch": "tsc -b --verbose -w",
     "release-alpha": "pnpm recursive publish --tag=alpha --no-git-checks && pnpm recursive run --sequential publishprivate",
     "release": "pnpm recursive publish && pnpm recursive run --sequential publishprivate && git push --tags && git push",
     "clean": "rm -rf packages/**/dist && rm -rf packages/**/node_modules && rm -rf node_modules && rm -rf .cache && rm -rf packages/**/tsconfig.tsbuildinfo && rm -f packages/tsconfig.tsbuildinfo && rm -rf packages/**/.turbo && rm -rf packages/**/.rollup.cache"
