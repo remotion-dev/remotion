@@ -610,6 +610,7 @@ module.exports = {
         "miscellaneous/snippets/use-delay-render",
         "miscellaneous/snippets/adding-animations",
         "miscellaneous/snippets/offthread-video-while-rendering",
+        "miscellaneous/snippets/thorium-browser",
       ],
     },
     {

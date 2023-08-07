@@ -1472,6 +1472,13 @@ export const articles = [
     crumb: "Snippets",
   },
   {
+    id: "miscellaneous/thorium-browser",
+    title: "Thorium browser",
+    relativePath: "docs/miscellaneous/thorium-browser.md",
+    compId: "articles-docs-miscellaneous-thorium-browser",
+    crumb: "FAQ",
+  },
+  {
     id: "typescript-aliases",
     title: "TypeScript aliases",
     relativePath: "docs/miscellaneous/ts-aliases.md",
