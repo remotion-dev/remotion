@@ -74,11 +74,13 @@ Your package.json should look like the following:
 
 From `v4.0.18`, Cloud run is distributed together with the main release of Remotion. Before that, you had to install the alpha release (see below).
 
-## Changelog
+## Changelog (moved)
+
+From `4.0.18` on, see changes [here](https://remotion.dev/changelog).
 
 ### `4.0.18`
 
-Remotion Cloud Run is now distributed together with the main release of Remotion. You no longer need to switch to the alpha release, although Remotion Cloud Run is still alpha software.
+Remotion Cloud Run is now distributed together with the main release of Remotion. You no longer need to switch to the alpha release, although Remotion Cloud Run is still alpha software. **The changelog is [now part of the main changelog](https://remotion.dev/changelog)**.
 
 ### `4.1.0-alpha12`
 
