@@ -1,12 +1,11 @@
 import {bundle} from '@remotion/bundler';
 import {
-	getCompositions,
 	RenderInternals,
 	renderMedia,
+	selectComposition,
 } from '@remotion/renderer';
 import path from 'node:path';
-import {webpackOverride} from './webpack-override.mjs';
-import {VideoConfig} from 'remotion';
+import {webpackOverride} from './src/webpack-override.mjs';
 
 const start = async () => {
 	const bundled = await bundle({
@@ -14,7 +13,10 @@ const start = async () => {
 		webpackOverride,
 	});
 
-	const comps = await getCompositions(bundled);
+	const composition = await selectComposition({
+		serveUrl: bundled,
+		id: 'remote-video',
+	});
 
 	const filelistDir = RenderInternals.tmpDir('remotion-file-lists');
 
@@ -25,7 +27,7 @@ const start = async () => {
 	for (let i = 0; i < dur / framesPerLambda; i++) {
 		await renderMedia({
 			codec: 'h264',
-			composition: comps.find((c) => c.id === 'remote-video') as VideoConfig,
+			composition,
 			outputLocation: path.join(filelistDir, 'out/there' + i + '.mkv'),
 			serveUrl: bundled,
 			frameRange: [i * framesPerLambda, (i + 1) * framesPerLambda - 1],
