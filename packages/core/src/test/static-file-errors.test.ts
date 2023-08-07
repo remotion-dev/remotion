@@ -2,6 +2,7 @@ import {expect, test} from 'vitest';
 import {staticFile} from '../static-file.js';
 
 test('duplicate staticFile() should throw a warning', () => {
+	// @ts-expect-error
 	global.window = {
 		remotion_staticBase: '/static-abcdef',
 	};
