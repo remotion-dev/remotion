@@ -1,9 +1,8 @@
 ---
-image: /generated/articles-docs-cloudrun-region-selection.png
 id: region-selection
 title: Region selection
 slug: /cloudrun/region-selection
-crumb: "Cloudrun"
+crumb: "Cloud Run"
 ---
 
 import {GcpRegionList} from '../../components/cloudrun/regions.tsx';

@@ -1,12 +1,11 @@
 ---
-image: /generated/articles-docs-cloudrun-cli-regions.png
 id: regions
 sidebar_label: regions
 title: "npx remotion cloudrun regions"
-crumb: "Cloudrun CLI Reference"
+crumb: "Cloud Run CLI Reference"
 ---
 
-Prints the GCP regions supported by the current version of Remotion Cloudrun. Useful for bash scripts.
+Prints the GCP regions supported by the current version of Remotion Cloud run. Useful for bash scripts.
 
 ```
 npx remotion cloudrun regions

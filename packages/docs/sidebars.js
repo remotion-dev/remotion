@@ -553,7 +553,7 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Cloudrun",
+      label: "Cloud Run",
       link: {
         type: "doc",
         id: "cloudrun",

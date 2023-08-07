@@ -3,7 +3,7 @@ image: /generated/articles-docs-cloudrun-setup.png
 id: setup
 title: Setup
 slug: /cloudrun/setup
-crumb: "Cloudrun"
+crumb: "Cloud Run"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -279,7 +279,6 @@ npx remotion cloudrun render <serve-url | site-name> <composition-id> --service-
 
 Progress will be printed until the video finished rendering. Congrats! You rendered your first video using Remotion Cloudrun 🚀
 
-
 </TabItem>
 <TabItem value="still">
 
@@ -318,10 +317,8 @@ npx remotion cloudrun still <serve-url | site-name> <still-id> --service-name=<s
 
 Congrats! You rendered your first still using Remotion Cloudrun 🚀
 
-
 </TabItem>
 </Tabs>
-
 
 </TabItem>
 <TabItem value="node">
@@ -373,7 +370,7 @@ const result = await renderMediaOnCloudrun({
   updateRenderProgress,
 });
 
-if (result.status === 'success') {
+if (result.status === "success") {
   console.log(result.bucketName);
   console.log(result.renderId);
 }

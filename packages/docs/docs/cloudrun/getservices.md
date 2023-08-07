@@ -1,9 +1,8 @@
 ---
-image: /generated/articles-docs-cloudrun-getservices.png
 title: getServices()
 id: getservices
 slug: /cloudrun/getservices
-crumb: "Cloudrun API"
+crumb: "Cloud Run API"
 ---
 
 Retrieves a list of Remotion services deployed to GCP Cloud Run.
@@ -76,7 +75,7 @@ for (const service of info) {
 
 ### `compatibleOnly`
 
-If `true`, only services that match the version of the current Remotion Cloudrun package are returned. If `false`, all Remotion services are returned.
+If `true`, only services that match the version of the current Remotion Cloud run package are returned. If `false`, all Remotion services are returned.
 
 ## Return value
 

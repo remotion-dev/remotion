@@ -2,10 +2,10 @@
 image: /generated/articles-docs-cloudrun-getregions.png
 id: getregions
 title: getRegions()
-crumb: "Cloudrun API"
+crumb: "Cloud Run API"
 ---
 
-Gets an array of all supported GCP regions of this release of Remotion Cloudrun.
+Gets an array of all supported GCP regions of this release of Remotion Cloud Run.
 
 ## Example
 
@@ -22,7 +22,7 @@ const regions = getRegions();
 
 ## Return value
 
-An array of supported regions by this release of Remotion Cloudrun.
+An array of supported regions by this release of Remotion Cloud Run.
 
 ## See also
 
