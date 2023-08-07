@@ -896,6 +896,13 @@ export const articles = [
     crumb: "Lambda API",
   },
   {
+    id: "lambda/python",
+    title: "Triggering renders from Python",
+    relativePath: "docs/lambda/python.md",
+    compId: "articles-docs-lambda-python",
+    crumb: "@remotion/lambda",
+  },
+  {
     id: "region-selection",
     title: "Region selection",
     relativePath: "docs/lambda/region-selection.md",
@@ -1227,6 +1234,13 @@ export const articles = [
     crumb: "Snippets",
   },
   {
+    id: "miscellaneous/snippets/use-delay-render",
+    title: "useDelayRender()",
+    relativePath: "docs/miscellaneous/snippets/use-delay-render.md",
+    compId: "articles-docs-miscellaneous-snippets-use-delay-render",
+    crumb: "Snippets",
+  },
+  {
     id: "typescript-aliases",
     title: "TypeScript aliases",
     relativePath: "docs/miscellaneous/ts-aliases.md",
@@ -1330,6 +1344,13 @@ export const articles = [
     relativePath: "docs/offthreadvideo.md",
     compId: "articles-docs-offthreadvideo",
     crumb: "API",
+  },
+  {
+    id: "gl-options",
+    title: "--gl flag",
+    relativePath: "docs/open-gl.md",
+    compId: "articles-docs-open-gl",
+    crumb: "Flags",
   },
   {
     id: "overlay",
@@ -1714,6 +1735,20 @@ export const articles = [
     title: "getCompositions()",
     relativePath: "docs/renderer/get-compositions.md",
     compId: "articles-docs-renderer-get-compositions",
+    crumb: "@remotion/renderer",
+  },
+  {
+    id: "get-silent-parts",
+    title: "getSilentParts()",
+    relativePath: "docs/renderer/get-silent-parts.md",
+    compId: "articles-docs-renderer-get-silent-parts",
+    crumb: "@remotion/renderer",
+  },
+  {
+    id: "get-video-metadata",
+    title: "getVideoMetadata()",
+    relativePath: "docs/renderer/get-video-metadata.md",
+    compId: "articles-docs-renderer-get-video-metadata",
     crumb: "@remotion/renderer",
   },
   {
@@ -2156,6 +2191,13 @@ export const articles = [
     relativePath: "docs/troubleshooting/loading-root-component.md",
     compId: "articles-docs-troubleshooting-loading-root-component",
     crumb: "Troubleshooting",
+  },
+  {
+    id: "troubleshooting/nextjs-image",
+    title: "Flickering when using Next.js <Image> tag",
+    relativePath: "docs/troubleshooting/nextjs-image.md",
+    compId: "articles-docs-troubleshooting-nextjs-image",
+    crumb: "Common mistakes",
   },
   {
     id: "rosetta",

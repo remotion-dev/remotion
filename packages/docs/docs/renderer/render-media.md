@@ -33,9 +33,10 @@ If not specified or set to `null`, the file will be returned in-memory as a buff
 
 ### `composition`
 
-_TCompMetadata_
+_VideoConfig_
 
-An object describing a composition using `id`, `width`, `height`, `fps` and `durationInFrames`. Call [`getCompositions()`](/docs/renderer/get-compositions) to get an array of possible configs.
+An object describing a composition using `id`, `width`, `height`, `fps` and `durationInFrames`, `defaultProps` and `props`.  
+Call [`selectComposition()`](/docs/renderer/select-composition) or [`getCompositions()`](/docs/renderer/get-compositions) to get an array of possible configs.
 
 ### `codec`
 

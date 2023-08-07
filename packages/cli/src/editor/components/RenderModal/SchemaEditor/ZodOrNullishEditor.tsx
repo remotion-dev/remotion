@@ -8,12 +8,12 @@ import {
 } from '../../get-zod-if-possible';
 import {Spacing} from '../../layout';
 import {createZodValues} from './create-zod-values';
+import {Fieldset} from './Fieldset';
+import {useLocalState} from './local-state';
 import {SchemaLabel} from './SchemaLabel';
 import type {JSONPath} from './zod-types';
 import type {UpdaterFunction} from './ZodSwitch';
 import {ZodSwitch} from './ZodSwitch';
-import {Fieldset} from './Fieldset';
-import {useLocalState} from './local-state';
 
 const labelStyle: React.CSSProperties = {
 	fontFamily: 'sans-serif',
@@ -113,7 +113,7 @@ export const ZodOrNullishEditor: React.FC<{
 					setValue={setLocalValue}
 					jsonPath={jsonPath}
 					schema={innerSchema}
-					defaultValue={value}
+					defaultValue={defaultValue}
 					onSave={onSave}
 					showSaveButton={showSaveButton}
 					onRemove={onRemove}

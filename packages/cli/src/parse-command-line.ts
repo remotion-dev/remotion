@@ -26,6 +26,7 @@ type CommandLineOptions = {
 	['every-nth-frame']: number;
 	['number-of-gif-loops']: number;
 	['number-of-shared-audio-tags']: number;
+	version: string;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;

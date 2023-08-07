@@ -1,5 +1,5 @@
+import {Internals} from 'remotion';
 import type {EnumPath} from '../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
-import {FILE_TOKEN} from '../editor/components/RenderModal/SchemaEditor/input-props-serialization';
 
 const doesMatchPath = (path1: EnumPath, enumPaths: EnumPath[]) => {
 	return enumPaths.some((p) =>
@@ -23,23 +23,27 @@ export const stringifyDefaultProps = ({
 }: {
 	props: unknown;
 	enumPaths: EnumPath[];
-}) =>
-	JSON.stringify(
+}) => {
+	return JSON.stringify(
 		props,
 		replacerWithPath(function (key, value, path) {
-			/* Don't replace with arrow function */ const item = this[key];
-			if (item instanceof Date) {
-				return `__REMOVEQUOTE__new Date('${item.toISOString()}')__REMOVEQUOTE__`;
-			}
+			/* Don't replace with arrow function! This function uses `this` */
+			const item = this[key];
 
 			if (typeof item === 'string' && doesMatchPath(path, enumPaths)) {
 				return `${item}__ADD_AS_CONST__`;
 			}
 
-			if (typeof item === 'string' && item.startsWith(FILE_TOKEN)) {
+			if (typeof item === 'string' && item.startsWith(Internals.FILE_TOKEN)) {
 				return `__REMOVEQUOTE____WRAP_IN_STATIC_FILE_START__${decodeURIComponent(
-					item.replace(FILE_TOKEN, '')
+					item.replace(Internals.FILE_TOKEN, '')
 				)}__WRAP_IN_STATIC_FILE_END____REMOVEQUOTE__`;
+			}
+
+			if (typeof item === 'string' && item.startsWith(Internals.DATE_TOKEN)) {
+				return `__REMOVEQUOTE____WRAP_IN_DATE_START__${decodeURIComponent(
+					item.replace(Internals.DATE_TOKEN, '')
+				)}__WRAP_IN_DATE_END____REMOVEQUOTE__`;
 			}
 
 			return value;
@@ -49,7 +53,10 @@ export const stringifyDefaultProps = ({
 		.replace(/__REMOVEQUOTE__"/g, '')
 		.replace(/__ADD_AS_CONST__"/g, '" as const')
 		.replace(/__WRAP_IN_STATIC_FILE_START__/g, 'staticFile("')
-		.replace(/__WRAP_IN_STATIC_FILE_END__/g, '")');
+		.replace(/__WRAP_IN_STATIC_FILE_END__/g, '")')
+		.replace(/__WRAP_IN_DATE_START__/g, 'new Date("')
+		.replace(/__WRAP_IN_DATE_END__/g, '")');
+};
 
 function replacerWithPath(
 	replacer: (

@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {performance} from 'perf_hooks';
-import type {TAsset, VideoConfig} from 'remotion';
+import type {TRenderAsset, VideoConfig} from 'remotion';
 import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './assets/download-and-map-assets-to-file';
@@ -30,6 +30,8 @@ import {
 import {getRealFrameRange} from './get-frame-to-render';
 import type {VideoImageFormat} from './image-format';
 import {DEFAULT_JPEG_QUALITY, validateJpegQuality} from './jpeg-quality';
+import {type LogLevel} from './log-level';
+import {getLogLevel, Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, isUserCancelledRender} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
@@ -48,8 +50,6 @@ import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
-import {type LogLevel} from './log-level';
-import {Log, getLogLevel} from './logger';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
@@ -63,7 +63,6 @@ export type InternalRenderFramesOptions = {
 				timeToRenderInMilliseconds: number
 		  ) => void);
 	outputDir: string | null;
-	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string>;
 	imageFormat: VideoImageFormat;
 	jpegQuality: number;
@@ -79,13 +78,15 @@ export type InternalRenderFramesOptions = {
 	scale: number;
 	port: number | null;
 	cancelSignal: CancelSignal | undefined;
-	composition: VideoConfig;
+	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
 	indent: boolean;
 	server: RemotionServer | undefined;
 	muted: boolean;
 	concurrency: number | string | null;
 	webpackBundleOrServeUrl: string;
 	logLevel: LogLevel;
+	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
 };
 
 type InnerRenderFramesOptions = {
@@ -98,7 +99,6 @@ type InnerRenderFramesOptions = {
 				timeToRenderInMilliseconds: number
 		  ) => void);
 	outputDir: string | null;
-	inputProps: Record<string, unknown>;
 	envVariables: Record<string, string>;
 	imageFormat: VideoImageFormat;
 	jpegQuality: number;
@@ -110,7 +110,7 @@ type InnerRenderFramesOptions = {
 	timeoutInMilliseconds: number;
 	scale: number;
 	cancelSignal: CancelSignal | undefined;
-	composition: VideoConfig;
+	composition: Omit<VideoConfig, 'props' | 'defaultProps'>;
 	muted: boolean;
 	onError: (err: Error) => void;
 	pagesArray: Page[];
@@ -120,10 +120,12 @@ type InnerRenderFramesOptions = {
 	makeBrowser: () => Promise<HeadlessBrowser>;
 	browserReplacer: BrowserReplacer;
 	compositor: Compositor;
-	sourcemapContext: AnySourceMapConsumer | null;
+	sourcemapContext: Promise<AnySourceMapConsumer | null>;
 	serveUrl: string;
 	logLevel: LogLevel;
 	indent: boolean;
+	serializedInputPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
 };
 
 export type RenderFramesOptions = {
@@ -173,7 +175,8 @@ const innerRenderFrames = async ({
 	onFrameUpdate,
 	outputDir,
 	onStart,
-	inputProps,
+	serializedInputPropsWithCustomSchema,
+	serializedResolvedPropsWithCustomSchema,
 	jpegQuality,
 	imageFormat,
 	frameRange,
@@ -218,7 +221,7 @@ const innerRenderFrames = async ({
 	const framesToRender = getFramesToRender(realFrameRange, everyNthFrame);
 	const lastFrame = framesToRender[framesToRender.length - 1];
 
-	const makePage = async (context: AnySourceMapConsumer | null) => {
+	const makePage = async (context: Promise<AnySourceMapConsumer | null>) => {
 		const page = await browserReplacer
 			.getBrowser()
 			.newPage(context, logLevel, indent);
@@ -244,7 +247,7 @@ const innerRenderFrames = async ({
 		const initialFrame = realFrameRange[0];
 
 		await setPropsAndEnv({
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			envVariables,
 			page,
 			serveUrl,
@@ -254,13 +257,15 @@ const innerRenderFrames = async ({
 			retriesRemaining: 2,
 			audioEnabled: !muted,
 			videoEnabled: imageFormat !== 'none',
+			indent,
+			logLevel,
 		});
 
 		await puppeteerEvaluateWithCatch({
 			// eslint-disable-next-line max-params
 			pageFunction: (
 				id: string,
-				props: Record<string, unknown>,
+				props: string,
 				durationInFrames: number,
 				fps: number,
 				height: number,
@@ -269,7 +274,7 @@ const innerRenderFrames = async ({
 				window.remotion_setBundleMode({
 					type: 'composition',
 					compositionName: id,
-					props,
+					serializedResolvedPropsWithSchema: props,
 					compositionDurationInFrames: durationInFrames,
 					compositionFps: fps,
 					compositionHeight: height,
@@ -278,7 +283,7 @@ const innerRenderFrames = async ({
 			},
 			args: [
 				composition.id,
-				composition.props,
+				serializedResolvedPropsWithCustomSchema,
 				composition.durationInFrames,
 				composition.fps,
 				composition.height,
@@ -293,7 +298,7 @@ const innerRenderFrames = async ({
 		return page;
 	};
 
-	const getPool = async (context: AnySourceMapConsumer | null) => {
+	const getPool = async (context: Promise<AnySourceMapConsumer | null>) => {
 		const pages = new Array(actualConcurrency)
 			.fill(true)
 			.map(() => makePage(context));
@@ -320,7 +325,9 @@ const innerRenderFrames = async ({
 		frameCount: framesToRender.length,
 	});
 
-	const assets: TAsset[][] = new Array(framesToRender.length).fill(undefined);
+	const assets: TRenderAsset[][] = new Array(framesToRender.length).fill(
+		undefined
+	);
 	let stopped = false;
 	cancelSignal?.(() => {
 		stopped = true;
@@ -363,7 +370,12 @@ const innerRenderFrames = async ({
 
 		const startSeeking = Date.now();
 
-		await seekToFrame({frame, page: freePage, composition: compId});
+		await seekToFrame({
+			frame,
+			page: freePage,
+			composition: compId,
+			timeoutInMilliseconds,
+		});
 
 		const timeToSeek = Date.now() - startSeeking;
 		if (timeToSeek > 1000) {
@@ -423,9 +435,9 @@ const innerRenderFrames = async ({
 			compressAsset(assets.filter(truthy).flat(1), asset)
 		);
 		assets[index] = compressedAssets;
-		compressedAssets.forEach((asset) => {
+		compressedAssets.forEach((renderAsset) => {
 			downloadAndMapAssetsToFileUrl({
-				asset,
+				renderAsset,
 				onDownload,
 				downloadMap,
 			}).catch((err) => {
@@ -565,7 +577,6 @@ export const internalRenderFrames = ({
 	frameRange,
 	imageFormat,
 	indent,
-	inputProps,
 	jpegQuality,
 	muted,
 	onBrowserLog,
@@ -581,6 +592,8 @@ export const internalRenderFrames = ({
 	timeoutInMilliseconds,
 	logLevel,
 	webpackBundleOrServeUrl,
+	serializedInputPropsWithCustomSchema,
+	serializedResolvedPropsWithCustomSchema,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		composition.height,
@@ -652,69 +665,51 @@ export const internalRenderFrames = ({
 					}
 				),
 				browserInstance,
-			]).then(
-				([
-					{
-						server: {
-							serveUrl,
-							offthreadPort,
-							compositor,
-							sourceMap,
-							downloadMap,
-						},
-						cleanupServer,
-					},
-					pInstance,
-				]) => {
-					const browserReplacer = handleBrowserCrash(
-						pInstance,
-						logLevel,
-						indent
-					);
+			]).then(([{server: openedServer, cleanupServer}, pInstance]) => {
+				const {serveUrl, offthreadPort, compositor, sourceMap, downloadMap} =
+					openedServer;
 
-					cleanup.push(
-						cycleBrowserTabs(
-							browserReplacer,
-							actualConcurrency,
-							logLevel,
-							indent
-						).stopCycling
-					);
-					cleanup.push(() => cleanupServer(false));
+				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
 
-					return innerRenderFrames({
-						onError,
-						pagesArray: openedPages,
-						serveUrl,
-						composition,
-						actualConcurrency,
-						onDownload,
-						proxyPort: offthreadPort,
-						makeBrowser,
-						browserReplacer,
-						compositor,
-						sourcemapContext: sourceMap,
-						downloadMap,
-						cancelSignal,
-						envVariables,
-						everyNthFrame,
-						frameRange,
-						imageFormat,
-						inputProps,
-						jpegQuality,
-						muted,
-						onBrowserLog,
-						onFrameBuffer,
-						onFrameUpdate,
-						onStart,
-						outputDir,
-						scale,
-						timeoutInMilliseconds,
-						logLevel,
-						indent,
-					});
-				}
-			),
+				cleanup.push(
+					cycleBrowserTabs(browserReplacer, actualConcurrency, logLevel, indent)
+						.stopCycling
+				);
+				cleanup.push(() => cleanupServer(false));
+
+				return innerRenderFrames({
+					onError,
+					pagesArray: openedPages,
+					serveUrl,
+					composition,
+					actualConcurrency,
+					onDownload,
+					proxyPort: offthreadPort,
+					makeBrowser,
+					browserReplacer,
+					compositor,
+					sourcemapContext: sourceMap,
+					downloadMap,
+					cancelSignal,
+					envVariables,
+					everyNthFrame,
+					frameRange,
+					imageFormat,
+					jpegQuality,
+					muted,
+					onBrowserLog,
+					onFrameBuffer,
+					onFrameUpdate,
+					onStart,
+					outputDir,
+					scale,
+					timeoutInMilliseconds,
+					logLevel,
+					indent,
+					serializedInputPropsWithCustomSchema,
+					serializedResolvedPropsWithCustomSchema,
+				});
+			}),
 		])
 			.then((res) => {
 				return resolve(res);
@@ -823,7 +818,16 @@ export const renderFrames = (
 		indent: false,
 		jpegQuality: jpegQuality ?? DEFAULT_JPEG_QUALITY,
 		onDownload: onDownload ?? null,
-		inputProps,
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: inputProps ?? {},
+		}).serializedString,
+		serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			indent: undefined,
+			staticBase: null,
+			data: composition.props,
+		}).serializedString,
 		puppeteerInstance,
 		muted: muted ?? false,
 		onBrowserLog: onBrowserLog ?? null,

@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/babel-loader",
-	"version": "4.0.1",
+	"version": "4.0.17",
 	"description": "babel-loader polyfill for Remotion",
 	"main": "dist/index.js",
 	"scripts": {
@@ -37,7 +37,7 @@
 		"@types/node": "18.14.6",
 		"eslint": "8.42.0",
 		"prettier": "^2.7.1",
-		"prettier-plugin-organize-imports": "^2.3.4",
+		"prettier-plugin-organize-imports": "^3.2.2",
 		"remotion": "workspace:*"
 	},
 	"peerDependencies": {

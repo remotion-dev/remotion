@@ -6,6 +6,7 @@ import type {
 	StillImageFormat,
 	VideoImageFormat,
 } from '@remotion/renderer';
+import {Internals} from 'remotion';
 import type {ApiRoutes} from '../../../preview-server/api-types';
 import type {
 	OpenInFileExplorerRequest,
@@ -13,7 +14,6 @@ import type {
 } from '../../../preview-server/render-queue/job';
 import type {RequiredChromiumOptions} from '../../../required-chromium-options';
 import type {EnumPath} from '../RenderModal/SchemaEditor/extract-enum-json-paths';
-import {serializeJSONWithDate} from '../RenderModal/SchemaEditor/input-props-serialization';
 
 const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
@@ -86,7 +86,11 @@ export const addStillRenderJob = ({
 		chromiumOptions,
 		delayRenderTimeout,
 		envVariables,
-		inputProps,
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: inputProps,
+			staticBase: window.remotion_staticBase,
+			indent: undefined,
+		}).serializedString,
 	});
 };
 
@@ -169,7 +173,11 @@ export const addVideoRenderJob = ({
 		disallowParallelEncoding,
 		chromiumOptions,
 		envVariables,
-		inputProps,
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: inputProps,
+			staticBase: window.remotion_staticBase,
+			indent: undefined,
+		}).serializedString,
 	});
 };
 
@@ -222,12 +230,12 @@ export const updateAvailable = (signal: AbortSignal) => {
 
 export const updateDefaultProps = (
 	compositionId: string,
-	defaultProps: unknown,
+	defaultProps: Record<string, unknown>,
 	enumPaths: EnumPath[]
 ) => {
 	return callApi('/api/update-default-props', {
 		compositionId,
-		defaultProps: serializeJSONWithDate({
+		defaultProps: Internals.serializeJSONWithDate({
 			data: defaultProps,
 			indent: undefined,
 			staticBase: window.remotion_staticBase,

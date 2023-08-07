@@ -50,8 +50,11 @@ import {
 	ModalContainer,
 } from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
+import {
+	optionsSidebarTabs,
+	persistSelectedOptionsSidebarPanel,
+} from '../OptionsPanel';
 import {addStillRenderJob, addVideoRenderJob} from '../RenderQueue/actions';
-import {persistSelectedPanel, rightSidebarTabs} from '../RightPanel';
 import type {SegmentedControlItem} from '../SegmentedControl';
 import {SegmentedControl} from '../SegmentedControl';
 import {Spinner} from '../Spinner';
@@ -124,7 +127,7 @@ const container: React.CSSProperties = {
 	borderBottom: '1px solid black',
 };
 
-const rightPanel: React.CSSProperties = {
+const optionsPanel: React.CSSProperties = {
 	display: 'flex',
 	width: '100%',
 };
@@ -265,7 +268,7 @@ const RenderModal: React.FC<
 
 	const [state, dispatch] = useReducer(reducer, initialState);
 	const [unclampedFrame, setFrame] = useState(() => initialFrame);
-
+	const [saving, setSaving] = useState<boolean>(false);
 	const [stillImageFormat, setStillImageFormat] = useState<StillImageFormat>(
 		() => initialStillImageFormat
 	);
@@ -498,7 +501,9 @@ const RenderModal: React.FC<
 			if (
 				passedAudioCodec !== null &&
 				(
-					BrowserSafeApis.supportedAudioCodecs[passedVideoCodec] as AudioCodec[]
+					BrowserSafeApis.supportedAudioCodecs[
+						passedVideoCodec
+					] as readonly AudioCodec[]
 				).includes(passedAudioCodec)
 			) {
 				return passedAudioCodec;
@@ -587,8 +592,8 @@ const RenderModal: React.FC<
 
 	const onClickStill = useCallback(() => {
 		setSidebarCollapsedState({left: null, right: 'expanded'});
-		persistSelectedPanel('renders');
-		rightSidebarTabs.current?.selectRendersPanel();
+		persistSelectedOptionsSidebarPanel('renders');
+		optionsSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addStillRenderJob({
 			compositionId: resolvedComposition.id,
@@ -643,8 +648,8 @@ const RenderModal: React.FC<
 
 	const onClickVideo = useCallback(() => {
 		setSidebarCollapsedState({left: null, right: 'expanded'});
-		persistSelectedPanel('renders');
-		rightSidebarTabs.current?.selectRendersPanel();
+		persistSelectedOptionsSidebarPanel('renders');
+		optionsSidebarTabs.current?.selectRendersPanel();
 		dispatchIfMounted({type: 'start'});
 		addVideoRenderJob({
 			compositionId: resolvedComposition.id,
@@ -982,7 +987,7 @@ const RenderModal: React.FC<
 						</VerticalTab>
 					) : null}
 				</div>
-				<div style={rightPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
+				<div style={optionsPanel} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 					{tab === 'general' ? (
 						<RenderModalBasic
 							codec={codec}
@@ -1065,6 +1070,8 @@ const RenderModal: React.FC<
 							unresolvedComposition={unresolvedComposition}
 							mayShowSaveButton={false}
 							propsEditType="input-props"
+							saving={saving}
+							setSaving={setSaving}
 						/>
 					) : (
 						<RenderModalAdvanced

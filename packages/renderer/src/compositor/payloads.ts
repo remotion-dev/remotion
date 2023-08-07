@@ -33,6 +33,32 @@ export type Layer =
 
 export type CompositorImageFormat = 'Png' | 'Jpeg';
 
+export type VideoMetadata = {
+	fps: number;
+	width: number;
+	height: number;
+	durationInSeconds: number;
+	codec: 'h264' | 'h265' | 'vp8' | 'vp9' | 'av1' | 'prores' | 'unknown';
+	canPlayInVideoTag: boolean;
+	supportsSeeking: boolean;
+};
+
+type SilentPart = {
+	startInSeconds: number;
+	endInSeconds: number;
+};
+
+export type SilentParts = SilentPart[];
+
+export type GetSilentPartsResponseRust = {
+	silentParts: SilentParts;
+	durationInSeconds: number;
+};
+
+export type GetSilentPartsResponse = GetSilentPartsResponseRust & {
+	audibleParts: SilentParts;
+};
+
 export type CompositorCommand = {
 	Compose: {
 		output: string;
@@ -42,9 +68,15 @@ export type CompositorCommand = {
 		output_format: CompositorImageFormat;
 	};
 	ExtractFrame: {
-		input: string;
+		src: string;
+		original_src: string;
 		time: number;
 		transparent: boolean;
+	};
+	GetSilences: {
+		src: string;
+		noiseThresholdInDecibels: number;
+		minDurationInSeconds: number;
 	};
 	Echo: {
 		message: string;
@@ -60,6 +92,8 @@ export type CompositorCommand = {
 	FreeUpMemory: {
 		percent_of_memory: number;
 	};
+	GetVideoMetadata: {src: string};
+	VideoMetadata: VideoMetadata;
 };
 
 export type CompositorCommandSerialized<T extends keyof CompositorCommand> = {

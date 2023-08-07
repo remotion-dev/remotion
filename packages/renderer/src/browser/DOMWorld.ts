@@ -28,12 +28,10 @@ import type {
 import type {ExecutionContext} from './ExecutionContext';
 import type {Frame} from './FrameManager';
 import type {JSHandle} from './JSHandle';
-import type {TimeoutSettings} from './TimeoutSettings';
 import {isString} from './util';
 
 export class DOMWorld {
 	#frame: Frame;
-	#timeoutSettings: TimeoutSettings;
 	#contextPromise: Promise<ExecutionContext> | null = null;
 	#contextResolveCallback: ((x: ExecutionContext) => void) | null = null;
 	#detached = false;
@@ -44,11 +42,10 @@ export class DOMWorld {
 		return this.#waitTasks;
 	}
 
-	constructor(frame: Frame, timeoutSettings: TimeoutSettings) {
+	constructor(frame: Frame) {
 		// Keep own reference to client because it might differ from the FrameManager's
 		// client for OOP iframes.
 		this.#frame = frame;
-		this.#timeoutSettings = timeoutSettings;
 		this._setContext(null);
 	}
 
@@ -120,22 +117,28 @@ export class DOMWorld {
 		);
 	}
 
-	waitForFunction(
-		browser: HeadlessBrowser,
-		pageFunction: Function | string,
-		...args: SerializableOrJSHandle[]
-	): Promise<JSHandle> {
-		const timeout = this.#timeoutSettings.timeout();
-		const waitTaskOptions: WaitTaskOptions = {
+	waitForFunction({
+		browser,
+		timeout,
+		pageFunction,
+		title,
+		shouldClosePage,
+	}: {
+		browser: HeadlessBrowser;
+		timeout: number | null;
+		pageFunction: Function | string;
+		title: string;
+		shouldClosePage: boolean;
+	}): Promise<JSHandle> {
+		return new WaitTask({
 			domWorld: this,
 			predicateBody: pageFunction,
-			title: 'function',
+			title,
 			timeout,
-			args,
+			args: [],
 			browser,
-		};
-		const waitTask = new WaitTask(waitTaskOptions);
-		return waitTask.promise;
+			shouldClosePage,
+		}).promise;
 	}
 
 	title(): Promise<string> {
@@ -149,16 +152,17 @@ interface WaitTaskOptions {
 	domWorld: DOMWorld;
 	predicateBody: Function | string;
 	title: string;
-	timeout: number;
+	timeout: number | null;
 	browser: HeadlessBrowser;
 	args: SerializableOrJSHandle[];
+	shouldClosePage: boolean;
 }
 
 const noop = (): void => undefined;
 
 class WaitTask {
 	#domWorld: DOMWorld;
-	#timeout: number;
+	#timeout: number | null;
 	#predicateBody: string;
 	#args: SerializableOrJSHandle[];
 	#runCount = 0;
@@ -167,6 +171,7 @@ class WaitTask {
 	#timeoutTimer?: NodeJS.Timeout;
 	#terminated = false;
 	#browser: HeadlessBrowser;
+	#shouldClosePage: boolean;
 
 	promise: Promise<JSHandle>;
 
@@ -184,6 +189,7 @@ class WaitTask {
 		this.#predicateBody = getPredicateBody(options.predicateBody);
 		this.#args = options.args;
 		this.#runCount = 0;
+		this.#shouldClosePage = options.shouldClosePage;
 		this.#domWorld._waitTasks.add(this);
 
 		this.promise = new Promise<JSHandle>((resolve, reject) => {
@@ -197,7 +203,11 @@ class WaitTask {
 				`waiting for ${options.title} failed: timeout ${options.timeout}ms exceeded`
 			);
 			this.#timeoutTimer = setTimeout(() => {
-				return this.terminate(timeoutError);
+				if (this.#shouldClosePage) {
+					return this.terminate(timeoutError);
+				}
+
+				return this.#reject(timeoutError);
 			}, options.timeout);
 		}
 

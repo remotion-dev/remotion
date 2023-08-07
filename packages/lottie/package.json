@@ -1,6 +1,6 @@
 {
 	"name": "@remotion/lottie",
-	"version": "4.0.1",
+	"version": "4.0.17",
 	"description": "Remotion Lottie",
 	"main": "dist/cjs/index.js",
 	"types": "dist/cjs/index.d.ts",
@@ -19,10 +19,6 @@
 	"bugs": {
 		"url": "https://github.com/remotion-dev/remotion/issues"
 	},
-	"files": [
-		"dist",
-		"README.md"
-	],
 	"author": "Arthur Denner <arthurdenner7@gmail.com>",
 	"maintainers": [
 		"Jonny Burger <jonny@remotion.dev>",
@@ -54,7 +50,7 @@
 		"@types/react-dom": "18.0.10",
 		"eslint": "8.42.0",
 		"prettier": "^2.7.1",
-		"prettier-plugin-organize-imports": "^2.3.4",
+		"prettier-plugin-organize-imports": "^3.2.2",
 		"react": "^18.0.0",
 		"react-dom": "^18.0.0",
 		"rollup": "^2.70.1",

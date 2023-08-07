@@ -22,6 +22,8 @@ import {
   WebhookPayload,
   presignUrl,
   PresignUrlInput,
+  getSites,
+  speculateFunctionName,
 } from "@remotion/lambda/client";
 ```
 

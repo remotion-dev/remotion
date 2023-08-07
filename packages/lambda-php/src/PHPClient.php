@@ -1,12 +1,12 @@
 <?php
 namespace Remotion\LambdaPhp;
 
+use Aws\Credentials\CredentialProvider;
 use Aws\Lambda\LambdaClient;
 use Exception;
 use stdClass;
 
 require_once __DIR__ . '/Version.php';
-use VERSION;
 
 class PHPClient
 {
@@ -15,10 +15,10 @@ class PHPClient
     private $serveUrl;
     private $functionName;
 
-    public function __construct(string $region, string $serveUrl, string $functionName,  ? array $credential)
+    public function __construct(string $region, string $serveUrl, string $functionName, ?callable $credential)
     {
-        $this->client = LambdaClient::factory([
-            'version' => 'latest',
+        $this->client = new LambdaClient([
+            'version' => '2015-03-31',
             'region' => $region,
             'credentials' => $credential,
         ]);
@@ -40,19 +40,19 @@ class PHPClient
             null
         );
 
-        $render->setInputProps($input);
-        $render->setServerUrl($this->getServeUrl());
+        $render->internal_setSerializedInputProps($input);
+        $render->setServeUrl($this->getServeUrl());
         $render->setRegion($this->getRegion());
 
         return $render->serializeParams();
     }
 
-    public function renderMediaOnLambda(RenderParams $render) :  ? stdClass
+    public function renderMediaOnLambda(RenderParams $render): RenderMediaOnLambdaResponse
     {
         $params = $this->constructInternals($render);
 
         $result = $this->invokeLambdaFunction(json_encode($params));
-        return $this->handleLambdaResponse($result);
+        return $this->handleLambdaResponseRender($result);
     }
 
     public function makeRenderProgressPayload(string $renderId, string $bucketName)
@@ -68,11 +68,11 @@ class PHPClient
         return $result;
     }
 
-    public function getRenderProgress(string $renderId, string $bucketName) :  ? stdClass
+    public function getRenderProgress(string $renderId, string $bucketName): GetRenderProgressResponse
     {
         $payload = $this->makeRenderProgressPayload($renderId, $bucketName);
         $result = $this->invokeLambdaFunction($payload);
-        return $this->handleLambdaResponse($result);
+        return $this->handleLambdaResponseProgress($result);
     }
 
     private function invokeLambdaFunction(string $payload)
@@ -90,18 +90,47 @@ class PHPClient
         return $result['Payload']->getContents();
     }
 
-    private function handleLambdaResponse(string $response) :  ? stdClass
+    private function handleLambdaResponseRender(string $response): RenderMediaOnLambdaResponse
     {
-        $response = json_decode($response);
+        $response = json_decode($response, true);
 
         if (isset($response->errorMessage)) {
             throw new Exception($response->errorMessage);
         }
 
-        return $response;
+        $classResponse = new RenderMediaOnLambdaResponse();
+        $classResponse->type = $response['type'];
+        $classResponse->renderId = $response['renderId'];
+        $classResponse->bucketName = $response['bucketName'];
+        return $classResponse;
     }
 
-    private function serializeInputProps($inputProps, string $region, string $type,  ? string $userSpecifiedBucketName) : array
+    private function handleLambdaResponseProgress(string $response): GetRenderProgressResponse
+    {
+        $response = json_decode($response, true);
+
+        if (isset($response->errorMessage)) {
+            throw new Exception($response->errorMessage);
+        }
+
+        $classResponse = new GetRenderProgressResponse();
+        $classResponse->bucket = $response['bucket'];
+        $classResponse->chunks = $response['chunks'];
+        $classResponse->currentTime = $response['currentTime'];
+        $classResponse->done = $response['done'];
+        $classResponse->fatalErrorEncountered = $response['fatalErrorEncountered'];
+        $classResponse->lambdasInvoked = $response['lambdasInvoked'];
+        $classResponse->outBucket = $response['outBucket'];
+        $classResponse->outKey = $response['outKey'];
+        $classResponse->outputFile = $response['outputFile'];
+        $classResponse->overallProgress = $response['overallProgress'];
+        $classResponse->renderSize = $response['renderSize'];
+        $classResponse->timeToFinish = $response['timeToFinish'];
+        $classResponse->type = $response['type'];
+        return $classResponse;
+    }
+
+    private function serializeInputProps($inputProps, string $region, string $type, ?string $userSpecifiedBucketName): array
     {
         try {
             $payload = json_encode($inputProps);
@@ -129,7 +158,7 @@ class PHPClient
         }
     }
 
-    public function getRegion() : string
+    public function getRegion(): string
     {
         return $this->region;
     }

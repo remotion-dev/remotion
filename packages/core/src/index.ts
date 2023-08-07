@@ -1,6 +1,6 @@
 import './asset-types.js';
 import {Clipper} from './Clipper.js';
-import type {TAsset} from './CompositionManager.js';
+import type {TRenderAsset} from './CompositionManager.js';
 import type {StaticFile} from './get-static-files.js';
 import {useIsPlayer} from './is-player.js';
 import {checkMultipleRemotionVersions} from './multiple-versions-warning.js';
@@ -11,13 +11,22 @@ import type {VideoConfig} from './video-config.js';
 declare global {
 	interface Window {
 		remotion_renderReady: boolean;
+		remotion_delayRenderTimeouts: {
+			[key: string]: {label: string | null; timeout: number | NodeJS.Timeout};
+		};
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
 		getStaticCompositions: () => Promise<VideoConfig[]>;
-		remotion_calculateComposition: (compId: string) => Promise<VideoConfig>;
+		remotion_calculateComposition: (compId: string) => Promise<
+			Omit<VideoConfig, 'defaultProps' | 'props'> & {
+				serializedDefaultPropsWithCustomSchema: string;
+				serializedResolvedPropsWithCustomSchema: string;
+			}
+		>;
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
+		remotion_publicFolderExists: string | null;
 		remotion_editorName: string | null;
 		remotion_numberOfAudioTags: number;
 		remotion_projectName: string;
@@ -31,12 +40,12 @@ declare global {
 		remotion_puppeteerTimeout: number;
 		remotion_inputProps: string;
 		remotion_envVariables: string;
-		remotion_collectAssets: () => TAsset[];
+		remotion_collectAssets: () => TRenderAsset[];
 		remotion_getClipRegion: () => ClipRegion | null;
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '7';
+		siteVersion: '9';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 	}
@@ -52,7 +61,7 @@ export type BundleState =
 	| {
 			type: 'composition';
 			compositionName: string;
-			props: Record<string, unknown>;
+			serializedResolvedPropsWithSchema: string;
 			compositionHeight: number;
 			compositionDurationInFrames: number;
 			compositionWidth: number;
@@ -74,8 +83,8 @@ export {
 	AnyCompMetadata,
 	AnyComposition,
 	SmallTCompMetadata,
-	TAsset,
 	TCompMetadata,
+	TRenderAsset,
 } from './CompositionManager.js';
 export {getInputProps} from './config/input-props.js';
 export {continueRender, delayRender} from './delay-render.js';

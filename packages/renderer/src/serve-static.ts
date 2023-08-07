@@ -3,10 +3,9 @@ import http from 'node:http';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
 import {getDesiredPort} from './get-port';
-import type {OffthreadVideoServerEmitter} from './offthread-video-server';
+import type {LogLevel} from './log-level';
 import {startOffthreadVideoServer} from './offthread-video-server';
 import {serveHandler} from './serve-handler';
-import type {LogLevel} from './log-level';
 
 export const serveStatic = async (
 	path: string | null,
@@ -22,13 +21,11 @@ export const serveStatic = async (
 	port: number;
 	close: () => Promise<void>;
 	compositor: Compositor;
-	events: OffthreadVideoServerEmitter;
 }> => {
 	const {
 		listener: offthreadRequest,
 		close: closeCompositor,
 		compositor,
-		events,
 	} = startOffthreadVideoServer({
 		downloadMap: options.downloadMap,
 		concurrency: options.concurrency,
@@ -93,7 +90,13 @@ export const serveStatic = async (
 
 			const close = async () => {
 				await Promise.all([
-					closeCompositor(),
+					new Promise<void>((resolve) => {
+						// compositor may have already quit before,
+						// this is okay as we are in cleanup phase
+						closeCompositor().finally(() => {
+							resolve();
+						});
+					}),
 					new Promise<void>((resolve, reject) => {
 						destroyConnections();
 						server.close((err) => {
@@ -114,7 +117,7 @@ export const serveStatic = async (
 				]);
 			};
 
-			return {port: selectedPort, close, compositor, events};
+			return {port: selectedPort, close, compositor};
 		} catch (err) {
 			if (!(err instanceof Error)) {
 				throw err;

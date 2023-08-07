@@ -1,7 +1,10 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 import type {AnyZodObject, z} from 'zod';
+import {setUnsavedProps} from '../../../helpers/document-title';
+import {useKeybinding} from '../../../helpers/use-keybinding';
 import {useZodIfPossible} from '../../get-zod-if-possible';
 import {VERTICAL_SCROLLBAR_CLASSNAME} from '../../Menu/is-menu-item';
+import {deepEqual} from './deep-equal';
 import {
 	InvalidDefaultProps,
 	InvalidSchema,
@@ -17,11 +20,13 @@ const scrollable: React.CSSProperties = {
 
 export const SchemaEditor: React.FC<{
 	schema: AnyZodObject;
-	value: unknown;
+	value: Record<string, unknown>;
 	setValue: React.Dispatch<React.SetStateAction<Record<string, unknown>>>;
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
 	defaultProps: Record<string, unknown>;
-	onSave: (updater: (oldState: unknown) => unknown) => void;
+	onSave: (
+		updater: (oldState: Record<string, unknown>) => Record<string, unknown>
+	) => void;
 	showSaveButton: boolean;
 	saving: boolean;
 	saveDisabledByParent: boolean;
@@ -36,10 +41,43 @@ export const SchemaEditor: React.FC<{
 	saving,
 	saveDisabledByParent,
 }) => {
+	const keybindings = useKeybinding();
+
 	const z = useZodIfPossible();
 	if (!z) {
 		throw new Error('expected zod');
 	}
+
+	const hasChanged = useMemo(() => {
+		return !deepEqual(defaultProps, value);
+	}, [defaultProps, value]);
+
+	useEffect(() => {
+		setUnsavedProps(hasChanged);
+	}, [hasChanged]);
+
+	const onQuickSave = useCallback(() => {
+		if (hasChanged && showSaveButton) {
+			onSave(() => {
+				return value;
+			});
+		}
+	}, [hasChanged, onSave, showSaveButton, value]);
+
+	useEffect(() => {
+		const save = keybindings.registerKeybinding({
+			event: 'keydown',
+			key: 's',
+			commandCtrlKey: true,
+			callback: onQuickSave,
+			preventDefault: true,
+			triggerIfInputFieldFocused: true,
+		});
+
+		return () => {
+			save.unregister();
+		};
+	}, [keybindings, onQuickSave, onSave]);
 
 	const def: z.ZodTypeDef = schema._def;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -68,6 +106,7 @@ export const SchemaEditor: React.FC<{
 	return (
 		<div style={scrollable} className={VERTICAL_SCROLLBAR_CLASSNAME}>
 			<ZodObjectEditor
+				discriminatedUnionReplacement={null}
 				value={value as Record<string, unknown>}
 				setValue={setValue}
 				jsonPath={[]}

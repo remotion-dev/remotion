@@ -68,7 +68,7 @@ export const SharedPlayerContexts: React.FC<{
 			setCurrentComposition: () => undefined,
 			unregisterComposition: () => undefined,
 			unregisterSequence: () => undefined,
-			registerAsset: () => undefined,
+			registerRenderAsset: () => undefined,
 			unregisterAsset: () => undefined,
 			currentCompositionMetadata: null,
 			setCurrentCompositionMetadata: () => undefined,
@@ -121,16 +121,18 @@ export const SharedPlayerContexts: React.FC<{
 								<Internals.MediaVolumeContext.Provider
 									value={mediaVolumeContextValue}
 								>
-									<Internals.SetMediaVolumeContext.Provider
-										value={setMediaVolumeContextValue}
-									>
-										<Internals.SharedAudioContextProvider
-											numberOfAudioTags={numberOfSharedAudioTags}
-											component={component}
+									<Internals.NativeLayersProvider>
+										<Internals.SetMediaVolumeContext.Provider
+											value={setMediaVolumeContextValue}
 										>
-											{children}
-										</Internals.SharedAudioContextProvider>
-									</Internals.SetMediaVolumeContext.Provider>
+											<Internals.SharedAudioContextProvider
+												numberOfAudioTags={numberOfSharedAudioTags}
+												component={component}
+											>
+												{children}
+											</Internals.SharedAudioContextProvider>
+										</Internals.SetMediaVolumeContext.Provider>
+									</Internals.NativeLayersProvider>
 								</Internals.MediaVolumeContext.Provider>
 							</Internals.DurationsContextProvider>
 						</Internals.PrefetchProvider>

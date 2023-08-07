@@ -9,6 +9,7 @@ export const infoHandler = (lambdaParams: LambdaPayload) => {
 
 	const returnValue = {
 		version: VERSION,
+		type: 'success' as const,
 	};
 
 	return Promise.resolve(returnValue);

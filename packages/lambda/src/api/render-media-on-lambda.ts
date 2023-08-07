@@ -12,7 +12,7 @@ import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {getCloudwatchStreamUrl, getS3RenderUrl} from '../shared/get-aws-urls';
+import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 
@@ -103,16 +103,19 @@ export const renderMediaOnLambda = async (
 			type: LambdaRoutines.start,
 			payload: await makeLambdaRenderMediaPayload(input),
 			region,
+			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 		return {
 			renderId: res.renderId,
 			bucketName: res.bucketName,
-			cloudWatchLogs: getCloudwatchStreamUrl({
+			cloudWatchLogs: getCloudwatchRendererUrl({
 				functionName,
-				method: LambdaRoutines.renderer,
 				region,
 				renderId: res.renderId,
 				rendererFunctionName: rendererFunctionName ?? null,
+				chunk: null,
 			}),
 			folderInS3Console: getS3RenderUrl({
 				bucketName: res.bucketName,

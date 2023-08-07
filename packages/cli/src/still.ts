@@ -1,3 +1,4 @@
+import {Internals} from 'remotion';
 import {registerCleanupJob} from './cleanup-before-quit';
 import {convertEntryPointToServeUrl} from './convert-entry-point-to-serve-url';
 import {findEntryPoint} from './entry-point';
@@ -63,7 +64,11 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		chromiumOptions,
 		envVariables,
 		height,
-		inputProps,
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: inputProps,
+			indent: undefined,
+			staticBase: null,
+		}).serializedString,
 		overwrite,
 		port,
 		publicDir,
@@ -76,7 +81,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		imageFormatFromUi: null,
 		logLevel,
 		onProgress: () => undefined,
-		indentOutput: false,
+		indent: false,
 		addCleanupCallback: (c) => {
 			registerCleanupJob(c);
 		},

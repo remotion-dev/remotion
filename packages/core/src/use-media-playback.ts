@@ -56,9 +56,20 @@ export const useMediaPlayback = ({
 			);
 		}
 
-		mediaRef.current.playbackRate = Math.max(0, playbackRate);
+		const playbackRateToSet = Math.max(0, playbackRate);
+		if (mediaRef.current.playbackRate !== playbackRateToSet) {
+			mediaRef.current.playbackRate = playbackRateToSet;
+		}
 
-		const shouldBeTime = getMediaTime({
+		// Let's throttle the seeking to only every 10 frames when a video is playing to avoid bottlenecking
+		// the video tag.
+		if (playing) {
+			if (absoluteFrame % 10 !== 0) {
+				return;
+			}
+		}
+
+		const desiredUnclampedTime = getMediaTime({
 			fps,
 			frame,
 			src,
@@ -66,12 +77,19 @@ export const useMediaPlayback = ({
 			startFrom: -mediaStartsAt,
 			mediaType,
 		});
+		const {duration} = mediaRef.current;
+		const shouldBeTime =
+			!Number.isNaN(duration) && Number.isFinite(duration)
+				? Math.min(duration, desiredUnclampedTime)
+				: desiredUnclampedTime;
 
 		const isTime = mediaRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
-		if (timeShift > acceptableTimeshift && !mediaRef.current.ended) {
+
+		if (timeShift > acceptableTimeshift) {
 			// If scrubbing around, adjust timing
-			// or if time shift is bigger than 0.2sec
+			// or if time shift is bigger than 0.45sec
+
 			mediaRef.current.currentTime = shouldBeTime;
 			if (!onlyWarnForMediaSeekingError) {
 				warnAboutNonSeekableMedia(
@@ -79,6 +97,8 @@ export const useMediaPlayback = ({
 					onlyWarnForMediaSeekingError ? 'console-warning' : 'console-error'
 				);
 			}
+
+			return;
 		}
 
 		// Only perform a seek if the time is not already the same.
@@ -89,17 +109,17 @@ export const useMediaPlayback = ({
 		const makesSenseToSeek =
 			Math.abs(mediaRef.current.currentTime - shouldBeTime) > 0.00001;
 
+		if (!makesSenseToSeek) {
+			return;
+		}
+
 		if (!playing || absoluteFrame === 0) {
-			if (makesSenseToSeek) {
-				mediaRef.current.currentTime = shouldBeTime;
-			}
+			mediaRef.current.currentTime = shouldBeTime;
+			return;
 		}
 
 		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
-			if (makesSenseToSeek) {
-				mediaRef.current.currentTime = shouldBeTime;
-			}
-
+			mediaRef.current.currentTime = shouldBeTime;
 			playAndHandleNotAllowedError(mediaRef, mediaType);
 		}
 	}, [
