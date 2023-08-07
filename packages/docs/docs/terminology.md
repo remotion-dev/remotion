@@ -90,8 +90,8 @@ In the [Remotion Player](#remotion-player), there are no default props, but you 
 
 ## Cloud Run Url
 
-For rendering on Cloud Run, this url is the address you use to access the service that performs the render. It is possible to make use of a custom domain, by visiting the console in GCP and navigating to Cloud Run.
+For rendering on [Cloud Run](/docs/cloudrun), this url is the address you use to access the service that performs the render. It is possible to make use of a custom domain, by visiting the console in GCP and navigating to Cloud Run.
 
 ## Service Name
 
-For rendering on Cloud Run, this is the name of the deployed service. It can be used as an alternative to the full Cloud Run url.
+For rendering on [Cloud Run](/docs/cloudrun), this is the name of the deployed service. It can be used as an alternative to the full Cloud Run url.
