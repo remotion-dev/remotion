@@ -382,7 +382,7 @@ if (result.status === "success") {
 
 The render will now run and after a while the video will be available in your cloud storage bucket. You can keep track of the render progress by passing a function to the [updateRenderProgress](/docs/cloudrun/rendermediaoncloudrun#updaterenderprogress) attribute, to receive progress as a number.
 
-Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/storage/browser) - you just rendered your first video using Remotion CloudRun 🚀
+Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/storage/browser) - you just rendered your first video using Remotion Cloud Run 🚀
 </TabItem>
 <TabItem value="still">
 
@@ -424,7 +424,7 @@ const { renderId, bucketName } = await renderStillOnCloudrun({
 
 The render will now run and after a while the image will be available in your cloud storage bucket.
 
-Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/storage/browser) - you just rendered your first still using Remotion CloudRun 🚀
+Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/storage/browser) - you just rendered your first still using Remotion Cloud Run 🚀
 
 </TabItem>
 </Tabs>
