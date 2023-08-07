@@ -494,7 +494,7 @@ In version 1.x, the default behavior was inverse - Remotion would not override b
 
 ## setPixelFormat()
 
-Controls the pixel format in FFMPEG. [Read more about it here.](https://trac.ffmpeg.org/wiki/Chroma%20Subsampling) Acceptable values: `yuv420p`, `yuv422p`, `yuv444p`, `yuv420p10le`, `yuv422p10le`, `yuv444p10le`. Since v1.4, `yuva420p` is also supported for transparent WebM videos. Since v2.1.7, `yuva444p10le` is also supported for transparent ProRes videos
+Controls the pixel format in FFmpeg. [Read more about it here.](https://trac.ffmpeg.org/wiki/Chroma%20Subsampling) Acceptable values: `yuv420p`, `yuv422p`, `yuv444p`, `yuv420p10le`, `yuv422p10le`, `yuv444p10le`. Since v1.4, `yuva420p` is also supported for transparent WebM videos. Since v2.1.7, `yuva444p10le` is also supported for transparent ProRes videos
 Default value: `yuv420p`
 
 ```ts twoslash title="remotion.config.ts"
@@ -620,7 +620,7 @@ The [command line flag](/docs/cli) `--quality` will take precedence over this op
 
 ## setCrf()<AvailableFrom v="1.4.0" />
 
-The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFMPEG how to trade off size and quality.](/docs/encoding#controlling-quality-using-the-crf-setting)
+The "Constant Rate Factor" (CRF) of the output. [Use this setting to tell FFmpeg how to trade off size and quality.](/docs/encoding#controlling-quality-using-the-crf-setting)
 
 Ranges for CRF scale, by codec:
 
@@ -647,7 +647,7 @@ The [command line flag](/docs/cli/render#--crf) `--crf` will take precedence ove
 
 Specify the target bitrate for the generated video.  
 The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+FFmpeg may encode the video in a way that will not result in the exact video bitrate specified.  
 This option cannot be set if `--crf` is set.
 Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
@@ -663,7 +663,7 @@ The [command line flag](/docs/cli/render#--video-bitrate) `--video-bitrate` will
 
 Specify the target bitrate for the generated audio.  
 The syntax for FFMPEGs `-b:a` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.
+FFmpeg may encode the video in a way that will not result in the exact audio bitrate specified.
 Example values: `128K` for 128 kbps, `1M` for 1 Mbps.  
 Default: `320k`
 
@@ -677,7 +677,7 @@ The [command line flag](/docs/cli/render#--audio-bitrate) `--audio-bitrate` will
 
 ## overrideFfmpegCommand<AvailableFrom v="3.2.22" />
 
-Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
+Modifies the FFmpeg command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
 ```tsx twoslash title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
@@ -706,7 +706,7 @@ Config.overrideFfmpegCommand(({ args }) => {
 The function you pass must accept an object as it's only parameter which contains the following properties:
 
 - `type`: Either `"stitcher"` or `"pre-stitcher"`. If enough memory and CPU is available, Remotion may use parallel rendering and encoding, which means that a pre-stitcher process gets spawned before all frames are rendered. You can tell whether parallel encoding is enabled by adding `--log=verbose` to your render command.
-- `args`: An array of strings that is passed as arguments to the FFMPEG command.
+- `args`: An array of strings that is passed as arguments to the FFmpeg command.
 
 Your function must return a modified array of strings.
 
@@ -725,7 +725,7 @@ Before you use this hack, reach out to the Remotion team on [Discord](https://re
 
 _removed in v4.0_
 
-Allows you to use a custom FFMPEG binary. Must be an absolute path. By default, this is null and the FFMPEG in `PATH` will be used.
+Allows you to use a custom FFmpeg binary. Must be an absolute path. By default, this is null and the FFmpeg in `PATH` will be used.
 
 ```ts title="remotion.config.ts"
 import { Config } from "@remotion/cli/config";
