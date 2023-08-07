@@ -67,7 +67,7 @@ pub mod payloads {
     pub struct GetSilences {
         pub src: String,
         pub noiseThresholdInDecibels: f64,
-        pub minDuration: f64,
+        pub minDurationInSeconds: f64,
     }
 
     #[derive(Serialize, Deserialize, Debug)]
