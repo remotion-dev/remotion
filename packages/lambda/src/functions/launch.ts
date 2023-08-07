@@ -273,7 +273,7 @@ const innerLaunchHandler = async (
 		return payload;
 	});
 
-	console.log(
+	RenderInternals.Log.info(
 		'Render plan: ',
 		chunks.map((c, i) => `Chunk ${i} (Frames ${c[0]} - ${c[1]})`).join(', ')
 	);
@@ -407,8 +407,8 @@ const innerLaunchHandler = async (
 		});
 	};
 
-	const onErrors = async (errors: EnhancedErrorInfo[]) => {
-		console.log('Found Errors', errors);
+	const onErrors = (errors: EnhancedErrorInfo[]) => {
+		RenderInternals.Log.error('Found Errors', errors);
 
 		const firstError = errors[0];
 		if (firstError.chunk !== null) {
@@ -616,13 +616,13 @@ export const launchHandler = async (
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
 				});
-				console.log('Failed to invoke webhook:');
-				console.log(err);
+				RenderInternals.Log.error('Failed to invoke webhook:');
+				RenderInternals.Log.error(err);
 			}
 		}
 	}, Math.max(options.getRemainingTimeInMillis() - 1000, 1000));
 
-	console.log(
+	RenderInternals.Log.info(
 		`Function has ${Math.max(
 			options.getRemainingTimeInMillis() - 1000,
 			1000
@@ -673,8 +673,8 @@ export const launchHandler = async (
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
 				});
-				console.log('Failed to invoke webhook:');
-				console.log(err);
+				RenderInternals.Log.error('Failed to invoke webhook:');
+				RenderInternals.Log.error(err);
 			}
 		}
 
@@ -686,7 +686,7 @@ export const launchHandler = async (
 			throw err;
 		}
 
-		console.log('Error occurred', err);
+		RenderInternals.Log.error('Error occurred', err);
 		await writeLambdaError({
 			bucketName: params.bucketName,
 			errorInfo: {
@@ -747,8 +747,8 @@ export const launchHandler = async (
 					renderId: params.renderId,
 					expectedBucketOwner: options.expectedBucketOwner,
 				});
-				console.log('Failed to invoke webhook:');
-				console.log(error);
+				RenderInternals.Log.error('Failed to invoke webhook:');
+				RenderInternals.Log.error(error);
 			}
 		}
 
