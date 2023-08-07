@@ -39,7 +39,7 @@ export type DeploySiteOutput = Promise<{
 
 /**
  * @description Deploys a Remotion project to a GCP storage bucket to prepare it for rendering on Cloud Run.
- * @link https://remotion.dev/docs/lambda/deploysite
+ * @link https://remotion.dev/docs/cloudrun/deploysite
  * @param {string} params.entryPoint An absolute path to the entry file of your Remotion project.
  * @param {string} params.bucketName The name of the bucket to deploy your project into.
  * @param {string} params.siteName The name of the folder in which the project gets deployed to.
