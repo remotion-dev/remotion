@@ -683,7 +683,20 @@ Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-
 import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.overrideFfmpegCommand(({ args }) => {
-  return [...args, "-vf", "eq=brightness=0:saturation=1"];
+  // Define the custom FFmpeg options as an array of strings
+  const customFfmpegOptions = [
+    '-c:v', 'libx264',
+    '-profile:v', 'main',
+    '-video_track_timescale', '90000',
+    '-pix_fmt', 'yuv420p',
+    '-color_primaries', 'bt709',
+    '-color_trc', 'bt709',
+    '-strict', 'experimental'
+  ];
+  // The customFfmpegOptions are inserted before the last element to ensure
+  // they appear before the ffmpeg's output file name
+  args.splice(args.length - 1, 0, ...customFfmpegOptions);
+  return args;
 });
 ```
 
