@@ -253,6 +253,11 @@ export async function bundle(...args: Arguments): Promise<string> {
 			startPath: from,
 			staticHash,
 			limit: 1000,
+		}).map((f) => {
+			return {
+				...f,
+				name: f.name.split(path.sep).join('/'),
+			};
 		}),
 		includeFavicon: false,
 		title: 'Remotion Bundle',
