@@ -1,4 +1,12 @@
-import type {ChromiumOptions, FrameRange, LogLevel} from '@remotion/renderer';
+import type {
+	AudioCodec,
+	ChromiumOptions,
+	FrameRange,
+	LogLevel,
+	PixelFormat,
+	ProResProfile,
+	VideoImageFormat,
+} from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {
@@ -28,29 +36,14 @@ export type RenderMediaOnCloudrunInput = {
 	outName?: string;
 	updateRenderProgress?: (progress: number, error?: boolean) => void;
 	codec: CloudrunCodec;
-	audioCodec?: 'mp3' | 'aac' | 'pcm-16' | 'opus';
+	audioCodec?: AudioCodec;
 	jpegQuality?: number;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	proResProfile?:
-		| '4444-xq'
-		| '4444'
-		| 'hq'
-		| 'standard'
-		| 'light'
-		| 'proxy'
-		| undefined;
+	proResProfile?: ProResProfile;
 	crf?: number | undefined;
-	pixelFormat?:
-		| 'yuv420p'
-		| 'yuva420p'
-		| 'yuv422p'
-		| 'yuv444p'
-		| 'yuv420p10le'
-		| 'yuv422p10le'
-		| 'yuv444p10le'
-		| 'yuva444p10le';
-	imageFormat?: 'png' | 'jpeg' | 'none';
+	pixelFormat?: PixelFormat;
+	imageFormat?: VideoImageFormat;
 	scale?: number;
 	everyNthFrame?: number;
 	numberOfGifLoops?: number | null;
