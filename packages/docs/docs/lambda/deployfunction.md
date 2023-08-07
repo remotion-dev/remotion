@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-deployfunction.png
 id: deployfunction
 title: deployFunction()
 slug: /lambda/deployfunction
+crumb: "Lambda API"
 ---
 
 Creates an [AWS Lambda](https://aws.amazon.com/lambda/) function in your AWS account that will be able to render a video in the cloud.
@@ -19,10 +21,9 @@ import { deployFunction } from "@remotion/lambda";
 const { functionName } = await deployFunction({
   region: "us-east-1",
   timeoutInSeconds: 120,
-  memorySizeInMb: 1024,
+  memorySizeInMb: 2048,
   createCloudWatchLogGroup: true,
-  architecture: "arm64",
-  diskSizeInMb: 512,
+  diskSizeInMb: 2048,
 });
 console.log(functionName);
 ```
@@ -44,12 +45,6 @@ We recommend a timeout of 120 seconds or lower - remember, Remotion Lambda is th
 
 How many megabytes of RAM the Lambda function should have. By default we recommend a value of 2048MB. You may increase or decrease it depending on how memory-consuming your video is. The minimum allowed number is `512`, the maximum allowed number is `10240`. Since the costs of Remotion Lambda is directly proportional to the amount of RAM, we recommend to keep this amount as low as possible.
 
-### `architecture`
-
-_string_
-
-Either `x86_64` or `arm64`. Default: `arm64`
-
 ### `createCloudWatchLogGroup`
 
 _boolean_
@@ -66,7 +61,7 @@ Retention period for the CloudWatch Logs. Default: 14 days.
 
 _optional_
 
-Sets the amount of disk storage that is available in the Lambda function. Must be between 512MB and 10240MB (10GB). Set this higher if you want to render longer videos. See also: [Disk size](/docs/lambda/disk-size)
+Sets the amount of disk storage that is available in the Lambda function. Must be between 512MB and 10240MB (10GB). Default: 2048MB. Set this higher if you want to render longer videos. See also: [Disk size](/docs/lambda/disk-size)
 
 ### `customRoleArn`
 
@@ -84,5 +79,6 @@ An object with the following values:
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/api/deploy-function.ts)
+- [CLI equivalent: npx remotion lambda functions deploy](/docs/lambda/cli/functions#deploy)
 - [deleteFunction()](/docs/lambda/deletefunction)
 - [getFunctions()](/docs/lambda/getfunctions)

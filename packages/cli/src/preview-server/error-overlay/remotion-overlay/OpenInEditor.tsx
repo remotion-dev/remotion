@@ -6,8 +6,11 @@ import React, {
 	useReducer,
 	useRef,
 } from 'react';
+import {openInEditor} from '../../../editor/helpers/open-in-editor';
+import {useKeybinding} from '../../../editor/helpers/use-keybinding';
 import type {SymbolicatedStackFrame} from '../react-overlay/utils/stack-frame';
 import {Button} from './Button';
+import {ShortcutHint} from './ShortcutHint';
 
 type State =
 	| {
@@ -69,10 +72,11 @@ const reducer = (state: State, action: Action): State => {
 
 export const OpenInEditor: React.FC<{
 	stack: SymbolicatedStackFrame;
-}> = ({stack}) => {
+	canHaveKeyboardShortcuts: boolean;
+}> = ({stack, canHaveKeyboardShortcuts}) => {
 	const isMounted = useRef(true);
 	const [state, dispatch] = useReducer(reducer, initialState);
-
+	const {registerKeybinding} = useKeybinding();
 	const dispatchIfMounted: typeof dispatch = useCallback((payload) => {
 		if (isMounted.current === false) return;
 		dispatch(payload);
@@ -80,15 +84,7 @@ export const OpenInEditor: React.FC<{
 
 	const openInBrowser = useCallback(() => {
 		dispatch({type: 'start'});
-		fetch(`/api/open-in-editor`, {
-			method: 'post',
-			headers: {
-				'content-type': 'application/json',
-			},
-			body: JSON.stringify({
-				stack,
-			}),
-		})
+		openInEditor(stack)
 			.then((res) => res.json())
 			.then((data: {success: boolean}) => {
 				if (data.success) {
@@ -114,6 +110,25 @@ export const OpenInEditor: React.FC<{
 		};
 	}, []);
 
+	useEffect(() => {
+		if (!canHaveKeyboardShortcuts) {
+			return;
+		}
+
+		const onEditor = () => {
+			openInBrowser();
+		};
+
+		const {unregister} = registerKeybinding({
+			event: 'keydown',
+			key: 'o',
+			callback: onEditor,
+			commandCtrlKey: true,
+			preventDefault: true,
+			triggerIfInputFieldFocused: false,
+		});
+		return () => unregister();
+	}, [canHaveKeyboardShortcuts, openInBrowser, registerKeybinding]);
 	const label = useMemo(() => {
 		switch (state.type) {
 			case 'error':
@@ -132,6 +147,9 @@ export const OpenInEditor: React.FC<{
 	return (
 		<Button onClick={openInBrowser} disabled={state.type !== 'idle'}>
 			{label}
+			{canHaveKeyboardShortcuts ? (
+				<ShortcutHint keyToPress="o" cmdOrCtrl />
+			) : null}
 		</Button>
 	);
 };

@@ -1,6 +1,7 @@
 import type {webpack} from '@remotion/bundler';
+import {RenderInternals} from '@remotion/renderer';
 import {Log} from '../../log';
-import {isColorSupported} from './is-color-supported';
+import {truthy} from '../../truthy';
 import type {DevMiddlewareContext} from './types';
 
 export function setupHooks(context: DevMiddlewareContext) {
@@ -25,16 +26,28 @@ export function setupHooks(context: DevMiddlewareContext) {
 
 			logger.log('Compilation finished');
 
-			const statsOptions = {
-				preset: 'normal',
-				colors: isColorSupported,
+			const statsOptions: webpack.Configuration['stats'] = {
+				preset: 'errors-warnings',
+				colors: RenderInternals.isColorSupported(),
 			};
 
 			const printedStats = stats.toString(statsOptions);
 
-			// Avoid extra empty line when `stats: 'none'`
-			if (printedStats) {
-				Log.info(printedStats);
+			const lines = printedStats
+				.split('\n')
+				.map((a) => a.trimEnd())
+				.filter(truthy)
+				.map((a) => {
+					if (a.startsWith('webpack compiled')) {
+						return `Built in ${stats.endTime - stats.startTime}ms`;
+					}
+
+					return a;
+				})
+				.join('\n');
+
+			if (lines) {
+				Log.info(lines);
 			}
 
 			context.callbacks = [];

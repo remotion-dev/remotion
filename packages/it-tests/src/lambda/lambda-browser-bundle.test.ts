@@ -1,13 +1,14 @@
-import path from "path";
-import { tmpdir } from "os";
-import fs from "fs";
 import { BundlerInternals } from "@remotion/bundler";
+import fs from "fs";
+import { tmpdir } from "os";
+import path from "path";
+import { describe, expect, test } from "vitest";
 
 test("Should not be able to bundle @remotion/lambda directly", async () => {
   expect(() =>
     BundlerInternals.esbuild.build({
       platform: "node",
-      target: "node14",
+      target: "node16",
       bundle: true,
       entryPoints: [require.resolve("@remotion/lambda")],
       logLevel: "silent",
@@ -19,15 +20,19 @@ describe("Should be able to bundle @remotion/lambda/client with ESBuild", () => 
   const outfile = path.join(tmpdir(), "esbuild-test.js");
 
   test("Should build without errors", async () => {
-    const { errors } = await BundlerInternals.esbuild.build({
+    const { errors, warnings } = await BundlerInternals.esbuild.build({
       platform: "node",
-      target: "node14",
+      target: "node16",
       bundle: true,
-      logLevel: "silent",
       outfile,
       entryPoints: [require.resolve("@remotion/lambda/client")],
     });
     expect(errors.length).toBe(0);
+    expect(warnings.length).toBe(0);
+
+    // Should not include remotion or react
+    const contents = fs.readFileSync(outfile, "utf-8");
+    expect(contents.includes("jsx-runtime")).toBe(false);
   });
 
   test("Bundle should be below 6MB", async () => {

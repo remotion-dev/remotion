@@ -10,5 +10,5 @@ export const isErrInsufficientResourcesErr = (err: string) => {
 };
 
 export const isBrowserCrashedError = (err: string) => {
-	return err.includes('Target closed.');
+	return err.includes('Target closed.') || err.includes('Session closed');
 };

@@ -1,11 +1,13 @@
 ---
+image: /generated/articles-docs-use-audio-data.png
 title: useAudioData()
 id: use-audio-data
+crumb: "@remotion/media-utils"
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._
 
-This convienience function wraps the [`getAudioData()`](/docs/get-audio-data) function into a hook and does 3 things:
+This convenience function wraps the [`getAudioData()`](/docs/get-audio-data) function into a hook and does 3 things:
 
 - Keeps the audio data in a state
 - Wraps the function in a [`delayRender()` / `continueRender()`](/docs/data-fetching) pattern.

@@ -1,55 +1,53 @@
+import type {WebpackOverrideFn} from '@remotion/bundler';
 import {BundlerInternals, webpack} from '@remotion/bundler';
 import {RenderInternals} from '@remotion/renderer';
-import crypto from 'crypto';
-import fs from 'fs';
-import http from 'http';
-import os from 'os';
-import path from 'path';
-import type {WebpackOverrideFn} from 'remotion';
-import {Internals} from 'remotion';
+import http from 'node:http';
+import {ConfigInternals} from '../config';
+import {DEFAULT_TIMELINE_TRACKS} from '../editor/components/Timeline/MaxTimelineTracks';
+import {Log} from '../log';
 import {wdm} from './dev-middleware';
 import {webpackHotMiddleware} from './hot-middleware';
 import type {LiveEventsServer} from './live-events';
 import {makeLiveEventsRouter} from './live-events';
 import {handleRoutes} from './routes';
 
-export const startServer = async (
-	entry: string,
-	userDefinedComponent: string,
-	options: {
-		webpackOverride?: WebpackOverrideFn;
-		getCurrentInputProps: () => object;
-		envVariables?: Record<string, string>;
-		port: number | null;
-		maxTimelineTracks?: number;
-	}
-): Promise<{
+export const startServer = async (options: {
+	entry: string;
+	userDefinedComponent: string;
+	webpackOverride: WebpackOverrideFn;
+	getCurrentInputProps: () => object;
+	getEnvVariables: () => Record<string, string>;
+	port: number | null;
+	maxTimelineTracks?: number;
+	remotionRoot: string;
+	keyboardShortcutsEnabled: boolean;
+	publicDir: string;
+	userPassedPublicDir: string | null;
+	poll: number | null;
+	hash: string;
+	hashPrefix: string;
+}): Promise<{
 	port: number;
 	liveEventsServer: LiveEventsServer;
 }> => {
-	const tmpDir = await fs.promises.mkdtemp(
-		path.join(os.tmpdir(), 'react-motion-graphics')
-	);
-
-	const config = BundlerInternals.webpackConfig({
-		entry,
-		userDefinedComponent,
-		outDir: tmpDir,
+	const [, config] = BundlerInternals.webpackConfig({
+		entry: options.entry,
+		userDefinedComponent: options.userDefinedComponent,
+		outDir: null,
 		environment: 'development',
 		webpackOverride:
-			options?.webpackOverride ?? Internals.getWebpackOverrideFn(),
-		envVariables: options?.envVariables ?? {},
-		maxTimelineTracks: options?.maxTimelineTracks ?? 15,
+			options?.webpackOverride ?? ConfigInternals.getWebpackOverrideFn(),
+		maxTimelineTracks: options?.maxTimelineTracks ?? DEFAULT_TIMELINE_TRACKS,
 		entryPoints: [
 			require.resolve('./hot-middleware/client'),
 			require.resolve('./error-overlay/entry-basic.js'),
 		],
+		remotionRoot: options.remotionRoot,
+		keyboardShortcutsEnabled: options.keyboardShortcutsEnabled,
+		poll: options.poll,
 	});
 
 	const compiler = webpack(config);
-
-	const hashPrefix = '/static-';
-	const hash = `${hashPrefix}${crypto.randomBytes(6).toString('hex')}`;
 
 	const wdmMiddleware = wdm(compiler);
 	const whm = webpackHotMiddleware(compiler);
@@ -71,29 +69,71 @@ export const startServer = async (
 			})
 			.then(() => {
 				handleRoutes({
-					hash,
-					hashPrefix,
+					hash: options.hash,
+					hashPrefix: options.hashPrefix,
 					request,
 					response,
 					liveEventsServer,
 					getCurrentInputProps: options.getCurrentInputProps,
+					getEnvVariables: options.getEnvVariables,
+					remotionRoot: options.remotionRoot,
+					entryPoint: options.userDefinedComponent,
+					publicDir: options.publicDir,
 				});
 			})
 			.catch((err) => {
-				response.setHeader('content-type', 'application/json');
-				response.writeHead(500);
-				response.end(
-					JSON.stringify({
-						err: (err as Error).message,
-					})
-				);
+				Log.error(`Error while calling ${request.url}`, err);
+				if (!response.headersSent) {
+					response.setHeader('content-type', 'application/json');
+					response.writeHead(500);
+				}
+
+				if (!response.writableEnded) {
+					response.end(
+						JSON.stringify({
+							err: (err as Error).message,
+						})
+					);
+				}
 			});
 	});
 
 	const desiredPort = options?.port ?? undefined;
 
-	const port = await RenderInternals.getDesiredPort(desiredPort, 3000, 3100);
+	const maxTries = 5;
+	for (let i = 0; i < maxTries; i++) {
+		try {
+			const selectedPort = await new Promise<number>((resolve, reject) => {
+				RenderInternals.getDesiredPort(desiredPort, 3000, 3100)
+					.then(({port, didUsePort}) => {
+						server.listen(port);
+						server.on('listening', () => {
+							resolve(port);
+							return didUsePort();
+						});
+						server.on('error', (err) => {
+							reject(err);
+						});
+					})
+					.catch((err) => reject(err));
+			});
+			return {port: selectedPort as number, liveEventsServer};
+		} catch (err) {
+			if (!(err instanceof Error)) {
+				throw err;
+			}
 
-	server.listen(port);
-	return {port, liveEventsServer};
+			const codedError = err as Error & {code: string; port: number};
+
+			if (codedError.code === 'EADDRINUSE') {
+				Log.error(
+					`Port ${codedError.port} is already in use. Trying another port...`
+				);
+			} else {
+				throw err;
+			}
+		}
+	}
+
+	throw new Error(`Tried ${maxTries} times to find a free port. Giving up.`);
 };

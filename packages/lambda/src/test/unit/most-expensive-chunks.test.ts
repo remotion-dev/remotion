@@ -1,3 +1,5 @@
+import {expect, test} from 'vitest';
+
 import {getMostExpensiveChunks} from '../../shared/get-most-expensive-chunks';
 
 test('Should calculate most expensive chunks', () => {
@@ -46,7 +48,8 @@ test('Should calculate most expensive chunks', () => {
 				renderId: 'abc',
 			},
 		],
-		10
+		10,
+		99
 	);
 
 	expect(most).toEqual([

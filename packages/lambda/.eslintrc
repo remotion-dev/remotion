@@ -2,13 +2,25 @@
 	"extends": "@jonny",
 	"rules": {
 		"no-console": "off",
-		"arrow-body-style": "off"
+		"arrow-body-style": "off",
+		"no-restricted-imports": [
+			"error",
+			{
+				"patterns": ["@remotion/cli", "@remotion/*/src/*"]
+			}
+		]
 	},
 	"overrides": [
 		{
 			"files": "./src/cli/**",
 			"rules": {
-				"no-console": "error"
+				"no-console": "error",
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": ["@remotion/*/src/*"]
+					}
+				]
 			}
 		}
 	]

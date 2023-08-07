@@ -1,0 +1,9 @@
+build.mjs
+dist/tsconfig-esm.tsbuildinfo
+dist/tsconfig.tsbuildinfo
+src
+tsconfig-esm.json
+tsconfig.json
+rollup.config.js
+.eslintrc
+.prettierrc.js

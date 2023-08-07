@@ -1,10 +1,10 @@
 {
   "name": "@remotion/eslint-plugin",
-  "version": "3.0.27",
+  "version": "4.0.17",
   "description": "A set of rules helping you avoid common pitfalls in Remotion.",
   "scripts": {
     "build": "tsc -d",
-    "test": "jest",
+    "test": "vitest --run",
     "watch": "tsc -w"
   },
   "main": "dist/index.js",
@@ -16,11 +16,17 @@
   "dependencies": {
     "@typescript-eslint/utils": "5.19.0"
   },
+  "keywords": [
+    "eslint",
+    "eslintplugin"
+  ],
+  "peerDependencies": {
+    "eslint": ">=7.0.0"
+  },
   "devDependencies": {
-    "eslint": "8.13.0",
-    "jest": "^27.2.4",
-    "ts-jest": "^27.0.5",
-    "typescript": "^4.7.0"
+    "eslint": "8.42.0",
+    "typescript": "4.9.5",
+    "vitest": "0.31.1"
   },
   "private": false
 }

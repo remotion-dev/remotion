@@ -1,8 +1,9 @@
 import {BundlerInternals} from '@remotion/bundler';
-import fs from 'fs';
-import path from 'path';
+import {binaryPath, ffmpegCwd} from '@remotion/compositor-linux-arm64-gnu';
+import fs from 'node:fs';
+import path from 'node:path';
 import {quit} from '../cli/helpers/quit';
-import {FUNCTION_ZIP} from '../shared/function-zip-path';
+import {FUNCTION_ZIP_ARM64} from '../shared/function-zip-path';
 import zl = require('zip-lib');
 
 const bundleLambda = async () => {
@@ -12,7 +13,7 @@ const bundleLambda = async () => {
 	});
 	const outfile = path.join(outdir, 'index.js');
 
-	(fs.rmSync ?? fs.rmdirSync)(outdir, {recursive: true});
+	fs.rmSync(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
 	const template = require.resolve(
 		path.join(__dirname, '..', 'functions', 'index')
@@ -20,19 +21,48 @@ const bundleLambda = async () => {
 
 	await BundlerInternals.esbuild.build({
 		platform: 'node',
-		target: 'node14',
+		target: 'node16',
 		bundle: true,
 		outfile,
 		entryPoints: [template],
+		treeShaking: true,
+		external: [
+			'./compositor',
+			'./compositor.exe',
+			'./ffmpeg/remotion/bin/ffprobe',
+			'./ffmpeg/remotion/bin/ffprobe.exe',
+			'./ffmpeg/remotion/bin/ffmpeg',
+			'./ffmpeg/remotion/bin/ffmpeg.exe',
+			'./mappings.wasm',
+		],
 	});
 
-	await zl.archiveFolder(outdir, FUNCTION_ZIP);
-	fs.unlinkSync(outfile);
+	const compositorFile = `${outdir}/compositor`;
+	fs.copyFileSync(binaryPath, compositorFile);
+	fs.cpSync(ffmpegCwd, `${outdir}/ffmpeg`, {recursive: true});
+	fs.cpSync(
+		path.join(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'renderer',
+			'node_modules',
+			'source-map',
+			'lib',
+			'mappings.wasm'
+		),
+		`${outdir}/mappings.wasm`
+	);
+
+	await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);
+
+	fs.rmSync(outdir, {recursive: true});
 };
 
 bundleLambda()
 	.then(() => {
-		console.log('Lambda bundled');
+		console.log('Bundled Lambda');
 	})
 	.catch((err) => {
 		console.log(err);

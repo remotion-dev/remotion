@@ -1,28 +1,34 @@
 import {RenderInternals} from '@remotion/renderer';
+import minimist from 'minimist';
+import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
-import {checkNodeVersion} from './check-version';
+import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
 import {listCompositionsCommand} from './compositions';
+import {ConfigInternals} from './config';
+import {determineFinalStillImageFormat} from './determine-image-format';
 import {getFileSizeDownloadBar} from './download-progress';
+import {findEntryPoint} from './entry-point';
+import {ffmpegCommand, ffprobeCommand} from './ffmpeg';
 import {formatBytes} from './format-bytes';
 import {getCliOptions} from './get-cli-options';
+import {getCompositionWithDimensionOverride} from './get-composition-with-dimension-override';
 import {loadConfig} from './get-config-file-name';
+import {getFinalOutputCodec} from './get-final-output-codec';
 import {handleCommonError} from './handle-common-errors';
-import {initializeRenderCli} from './initialize-render-cli';
+import {getVideoImageFormat} from './image-formats';
+import {initializeCli} from './initialize-cli';
 import {lambdaCommand} from './lambda-command';
-import {loadConfigFile} from './load-config';
+import {listOfRemotionPackages} from './list-of-remotion-packages';
 import {Log} from './log';
 import {makeProgressBar} from './make-progress-bar';
-import {
-	BooleanFlags,
-	parseCommandLine,
-	parsedCli,
-	quietFlagProvided,
-} from './parse-command-line';
-import {previewCommand} from './preview';
+import {BooleanFlags, parsedCli, quietFlagProvided} from './parse-command-line';
+import {printCompositions} from './print-compositions';
 import {printHelp} from './print-help';
 import {createOverwriteableCliOutput} from './progress-bar';
 import {render} from './render';
+import {shouldUseNonOverlayingLogger} from './should-use-non-overlaying-logger';
 import {still} from './still';
+import {studioCommand} from './studio';
 import {upgrade} from './upgrade';
 import {
 	validateVersionsBeforeCommand,
@@ -31,52 +37,73 @@ import {
 } from './versions';
 
 export const cli = async () => {
-	const args = process.argv;
-	const command = args[2];
-
+	const [command, ...args] = parsedCli._;
 	if (parsedCli.help) {
 		printHelp();
 		process.exit(0);
 	}
 
-	// To check node version and to warn if node version is <12.10.0
-	checkNodeVersion();
+	const remotionRoot = RenderInternals.findRemotionRoot();
 	if (command !== VERSIONS_COMMAND) {
-		await validateVersionsBeforeCommand();
+		await validateVersionsBeforeCommand(remotionRoot);
 	}
 
-	const errorSymbolicationLock =
-		RenderInternals.registerErrorSymbolicationLock();
+	const isStudio = command === 'studio' || command === 'preview';
 
+	const errorSymbolicationLock = isStudio
+		? 0
+		: RenderInternals.registerErrorSymbolicationLock();
+
+	handleCtrlC();
+
+	await initializeCli(remotionRoot);
 	try {
 		if (command === 'compositions') {
-			await listCompositionsCommand();
-		} else if (command === 'preview') {
-			await previewCommand();
+			await listCompositionsCommand(remotionRoot, args);
+		} else if (isStudio) {
+			await studioCommand(remotionRoot, args);
 		} else if (command === 'lambda') {
-			await lambdaCommand();
+			await lambdaCommand(remotionRoot, args);
 		} else if (command === 'render') {
-			await render();
+			await render(remotionRoot, args);
 		} else if (command === 'still') {
-			await still();
+			await still(remotionRoot, args);
+		} else if (command === 'ffmpeg') {
+			ffmpegCommand(remotionRoot, process.argv.slice(3));
+		} else if (command === 'ffprobe') {
+			ffprobeCommand(remotionRoot, process.argv.slice(3));
 		} else if (command === 'upgrade') {
-			await upgrade();
+			await upgrade(
+				remotionRoot,
+				parsedCli['package-manager'],
+				parsedCli.version
+			);
 		} else if (command === VERSIONS_COMMAND) {
-			await versionsCommand();
+			await versionsCommand(remotionRoot);
+		} else if (command === 'benchmark') {
+			await benchmarkCommand(remotionRoot, args);
 		} else if (command === 'help') {
 			printHelp();
 			process.exit(0);
 		} else {
-			Log.error(`Command ${command} not found.`);
+			if (command) {
+				Log.error(`Command ${command} not found.`);
+			}
+
 			printHelp();
 			process.exit(1);
 		}
 	} catch (err) {
 		Log.info();
-		await handleCommonError(err as Error);
+		await handleCommonError(
+			err as Error,
+			ConfigInternals.Logging.getLogLevel()
+		);
+		cleanupBeforeQuit();
 		process.exit(1);
 	} finally {
 		RenderInternals.unlockErrorSymbolicationLock(errorSymbolicationLock);
+		cleanupBeforeQuit();
 	}
 };
 
@@ -87,15 +114,22 @@ export const CliInternals = {
 	chalk,
 	makeProgressBar,
 	Log,
-	loadConfigFile,
 	getCliOptions,
-	parseCommandLine,
 	loadConfig,
-	initializeRenderCli,
+	initializeCli,
 	BooleanFlags,
 	quietFlagProvided,
 	parsedCli,
 	handleCommonError,
 	formatBytes,
 	getFileSizeDownloadBar,
+	determineFinalStillImageFormat,
+	minimist,
+	findEntryPoint,
+	getVideoImageFormat,
+	printCompositions,
+	getFinalOutputCodec,
+	listOfRemotionPackages,
+	shouldUseNonOverlayingLogger,
+	getCompositionWithDimensionOverride,
 };

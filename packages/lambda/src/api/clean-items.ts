@@ -5,7 +5,7 @@ import {pLimit} from '../shared/p-limit';
 
 const limit = pLimit(10);
 
-export const cleanItems = async ({
+export const cleanItems = ({
 	bucket,
 	onAfterItemDeleted,
 	onBeforeItemDeleted,
@@ -25,7 +25,7 @@ export const cleanItems = async ({
 					bucketName: bucket,
 					itemName: object,
 				});
-				await getS3Client(region).send(
+				await getS3Client(region, null).send(
 					new DeleteObjectCommand({
 						Bucket: bucket,
 						Key: object,

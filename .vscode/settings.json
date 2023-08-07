@@ -3,5 +3,20 @@
   "editor.codeActionsOnSave": {
     "source.organizeImports": false,
     "source.fixAll": true
-  }
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer"
+  },
+  "python.analysis.extraPaths": [
+    "./packages/lambda-python/src",
+    "./packages/lambda-python/remotion_lambda_sdk"
+  ],
+  "[php]": {
+    "editor.defaultFormatter": "DEVSENSE.phptools-vscode"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
+  },
+  "python.formatting.provider": "none"
 }

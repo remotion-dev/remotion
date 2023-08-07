@@ -1,55 +1,58 @@
 import React, {
-	createContext,
+	forwardRef,
 	useContext,
 	useEffect,
 	useMemo,
 	useState,
 } from 'react';
-import {AbsoluteFill} from './AbsoluteFill';
-import {CompositionManager} from './CompositionManager';
-import {getTimelineClipName} from './get-timeline-clip-name';
-import {useNonce} from './nonce';
-import {TimelineContext} from './timeline-position-state';
-import {useAbsoluteCurrentFrame} from './use-current-frame';
-import {useUnsafeVideoConfig} from './use-unsafe-video-config';
+import {AbsoluteFill} from './AbsoluteFill.js';
+import type {LoopDisplay} from './CompositionManager.js';
+import {useRemotionEnvironment} from './get-environment.js';
+import {getTimelineClipName} from './get-timeline-clip-name.js';
+import {useNonce} from './nonce.js';
+import type {SequenceContextType} from './SequenceContext.js';
+import {SequenceContext} from './SequenceContext.js';
+import {SequenceManager} from './SequenceManager.js';
+import {
+	TimelineContext,
+	useTimelinePosition,
+} from './timeline-position-state.js';
+import {useVideoConfig} from './use-video-config.js';
 
-export type SequenceContextType = {
-	cumulatedFrom: number;
-	relativeFrom: number;
-	parentFrom: number;
-	durationInFrames: number;
-	id: string;
-};
-
-export const SequenceContext = createContext<SequenceContextType | null>(null);
-
-type LayoutAndStyle =
+export type LayoutAndStyle =
 	| {
 			layout: 'none';
 	  }
 	| {
 			layout?: 'absolute-fill';
 			style?: React.CSSProperties;
+			className?: string;
 	  };
 
 export type SequenceProps = {
 	children: React.ReactNode;
-	from: number;
+	from?: number;
 	durationInFrames?: number;
 	name?: string;
 	showInTimeline?: boolean;
-	showLoopTimesInTimeline?: number;
+	loopDisplay?: LoopDisplay;
 } & LayoutAndStyle;
 
-export const Sequence: React.FC<SequenceProps> = ({
-	from,
-	durationInFrames = Infinity,
-	children,
-	name,
-	showInTimeline = true,
-	showLoopTimesInTimeline,
-	...other
-}) => {
+const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	SequenceProps
+> = (
+	{
+		from = 0,
+		durationInFrames = Infinity,
+		children,
+		name,
+		showInTimeline = true,
+		loopDisplay,
+		...other
+	},
+	ref
+) => {
 	const {layout = 'absolute-fill'} = other;
 	const [id] = useState(() => String(Math.random()));
 	const parentSequence = useContext(SequenceContext);
@@ -57,8 +60,8 @@ export const Sequence: React.FC<SequenceProps> = ({
 	const cumulatedFrom = parentSequence
 		? parentSequence.cumulatedFrom + parentSequence.relativeFrom
 		: 0;
-	const actualFrom = cumulatedFrom + from;
 	const nonce = useNonce();
+	const environment = useRemotionEnvironment();
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
@@ -83,42 +86,29 @@ export const Sequence: React.FC<SequenceProps> = ({
 		);
 	}
 
-	// Infinity is non-integer but allowed!
-	if (durationInFrames % 1 !== 0 && Number.isFinite(durationInFrames)) {
-		throw new TypeError(
-			`The "durationInFrames" of a sequence must be an integer, but got ${durationInFrames}.`
-		);
-	}
-
 	if (typeof from !== 'number') {
 		throw new TypeError(
 			`You passed to the "from" props of your <Sequence> an argument of type ${typeof from}, but it must be a number.`
 		);
 	}
 
-	if (from % 1 !== 0) {
+	if (!Number.isFinite(from)) {
 		throw new TypeError(
-			`The "from" prop of a sequence must be an integer, but got ${from}.`
+			`The "from" prop of a sequence must be finite, but got ${from}.`
 		);
 	}
 
-	const absoluteFrame = useAbsoluteCurrentFrame();
-	const unsafeVideoConfig = useUnsafeVideoConfig();
-	const compositionDuration = unsafeVideoConfig
-		? unsafeVideoConfig.durationInFrames
-		: 0;
-	const actualDurationInFrames = Math.min(
-		compositionDuration - from,
-		parentSequence
-			? Math.min(
-					parentSequence.durationInFrames +
-						(parentSequence.cumulatedFrom + parentSequence.relativeFrom) -
-						actualFrom,
-					durationInFrames
-			  )
-			: durationInFrames
+	const absoluteFrame = useTimelinePosition();
+	const videoConfig = useVideoConfig();
+
+	const parentSequenceDuration = parentSequence
+		? Math.min(parentSequence.durationInFrames - from, durationInFrames)
+		: durationInFrames;
+	const actualDurationInFrames = Math.max(
+		0,
+		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration)
 	);
-	const {registerSequence, unregisterSequence} = useContext(CompositionManager);
+	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 
 	const contextValue = useMemo((): SequenceContextType => {
 		return {
@@ -141,6 +131,10 @@ export const Sequence: React.FC<SequenceProps> = ({
 	}, [children, name]);
 
 	useEffect(() => {
+		if (environment !== 'preview') {
+			return;
+		}
+
 		registerSequence({
 			from,
 			duration: actualDurationInFrames,
@@ -151,14 +145,13 @@ export const Sequence: React.FC<SequenceProps> = ({
 			rootId,
 			showInTimeline,
 			nonce,
-			showLoopTimesInTimeline,
+			loopDisplay,
 		});
 		return () => {
 			unregisterSequence(id);
 		};
 	}, [
 		durationInFrames,
-		actualFrom,
 		id,
 		name,
 		registerSequence,
@@ -170,15 +163,13 @@ export const Sequence: React.FC<SequenceProps> = ({
 		from,
 		showInTimeline,
 		nonce,
-		showLoopTimesInTimeline,
+		loopDisplay,
+		environment,
 	]);
 
-	const endThreshold = (() => {
-		return actualFrom + durationInFrames - 1;
-	})();
-
+	const endThreshold = cumulatedFrom + from + durationInFrames - 1;
 	const content =
-		absoluteFrame < actualFrom
+		absoluteFrame < cumulatedFrom + from
 			? null
 			: absoluteFrame > endThreshold
 			? null
@@ -193,13 +184,31 @@ export const Sequence: React.FC<SequenceProps> = ({
 		};
 	}, [styleIfThere]);
 
+	if (ref !== null && layout === 'none') {
+		throw new TypeError(
+			'It is not supported to pass both a `ref` and `layout="none"` to <Sequence />.'
+		);
+	}
+
 	return (
 		<SequenceContext.Provider value={contextValue}>
-			{content === null ? null : layout === 'absolute-fill' ? (
-				<AbsoluteFill style={defaultStyle}>{content}</AbsoluteFill>
-			) : (
+			{content === null ? null : other.layout === 'none' ? (
 				content
+			) : (
+				<AbsoluteFill
+					ref={ref}
+					style={defaultStyle}
+					className={other.className}
+				>
+					{content}
+				</AbsoluteFill>
 			)}
 		</SequenceContext.Provider>
 	);
 };
+
+/**
+ * @description A component that time-shifts its children and wraps them in an absolutely positioned <div>.
+ * @see [Documentation](https://www.remotion.dev/docs/sequence]
+ */
+export const Sequence = forwardRef(SequenceRefForwardingFunction);

@@ -1,6 +1,6 @@
 // Calculate the `.currentTime` of a video or audio element
 
-import {interpolate} from '../interpolate';
+import {interpolate} from '../interpolate.js';
 
 export const getExpectedMediaFrameUncorrected = ({
 	frame,
@@ -24,12 +24,14 @@ export const getMediaTime = ({
 	src,
 	playbackRate,
 	startFrom,
+	mediaType,
 }: {
 	fps: number;
 	frame: number;
 	src: string;
 	playbackRate: number;
 	startFrom: number;
+	mediaType: 'video' | 'audio';
 }) => {
 	const expectedFrame = getExpectedMediaFrameUncorrected({
 		frame,
@@ -37,20 +39,23 @@ export const getMediaTime = ({
 		startFrom,
 	});
 
-	if (src.endsWith('mp4')) {
+	const isChrome =
+		typeof window !== 'undefined' &&
+		window.navigator.userAgent.match(/Chrome\/([0-9]+)/);
+	if (
+		isChrome &&
+		Number(isChrome[1]) < 112 &&
+		mediaType === 'video' &&
+		src.endsWith('.mp4')
+	) {
 		// In Chrome, for MP4s, if 30fps, the first frame is still displayed at 0.033333
 		// even though after that it increases by 0.033333333 each.
 		// So frame = 0 in Remotion is like frame = 1 for the browser
 		return (expectedFrame + 1) / fps;
 	}
 
-	if (src.endsWith('webm')) {
-		// For WebM videos, we need to add a little bit of shift to get the right frame.
-		const msPerFrame = 1000 / fps;
-		const msShift = msPerFrame / 2;
-		return (expectedFrame * msPerFrame + msShift) / 1000;
-	}
-
-	// For audio, we don't do any shift correction
-	return expectedFrame / fps;
+	// For WebM videos, we need to add a little bit of shift to get the right frame.
+	const msPerFrame = 1000 / fps;
+	const msShift = msPerFrame / 2;
+	return (expectedFrame * msPerFrame + msShift) / 1000;
 };

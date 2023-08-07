@@ -1,12 +1,12 @@
-import React from "react";
+import Head from "@docusaurus/Head";
 import Layout from "@theme/Layout";
+import React from "react";
+import { BuildApps } from "../../../components/LambdaSplash/BuildApps";
+import { Disclaimers } from "../../../components/LambdaSplash/Disclaimers";
+import { LambdaEasy } from "../../../components/LambdaSplash/Easy";
+import { LambdaFast } from "../../../components/LambdaSplash/Fast";
 import { LambdaHeader } from "../../../components/LambdaSplash/LambdaHeader";
 import { RenderTimes } from "../../../components/LambdaSplash/RenderTimes";
-import { Disclaimers } from "../../../components/LambdaSplash/Disclaimers";
-import Head from "@docusaurus/Head";
-import { LambdaFast } from "../../../components/LambdaSplash/Fast";
-import { LambdaEasy } from "../../../components/LambdaSplash/Easy";
-import { BuildApps } from "../../../components/LambdaSplash/BuildApps";
 
 const container: React.CSSProperties = {
   maxWidth: 1000,

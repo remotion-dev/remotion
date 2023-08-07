@@ -1,5 +1,5 @@
 import type {iam} from 'aws-policies';
-import { lambda, logs, s3} from 'aws-policies';
+import {lambda, logs, s3} from 'aws-policies';
 import {
 	LOG_GROUP_PREFIX,
 	REMOTION_BUCKET_PREFIX,

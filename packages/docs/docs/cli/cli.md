@@ -1,10 +1,12 @@
 ---
+image: /generated/articles-docs-cli-cli.png
 title: Command line reference
 sidebar_label: CLI reference
 id: cli
 ---
 
 import {AngleChangelog} from '../../components/AngleChangelog';
+import {TableOfContents} from '../../components/TableOfContents/cli';
 
 ## How to use
 
@@ -15,18 +17,12 @@ import {AngleChangelog} from '../../components/AngleChangelog';
 
 The following commands are available - you can always run them using `npx remotion` or even without the `npx` prefix if you put the command inside an npm script.
 
-- [`npx remotion preview`](/docs/cli/preview)
-- [`npx remotion render`](/docs/cli/render)
-- [`npx remotion still`](/docs/cli/still)
-- [`npx remotion compositions`](/docs/cli/compositions)
-- [`npx remotion upgrade`](/docs/cli/upgrade)
-- [`npx remotion versions`](/docs/cli/versions)
-- [`npx remotion lambda`](/docs/lambda/cli)
+<TableOfContents />
 
 ## Example command
 
 ```
-npx remotion render --codec=vp8 src/index.tsx HelloWorld out/video.webm
+npx remotion render --codec=vp8 HelloWorld out/video.webm
 ```
 
 ## Fig.io autocompletion

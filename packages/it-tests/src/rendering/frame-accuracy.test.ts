@@ -4,6 +4,8 @@ import os from "os";
 import path from "path";
 import sharp from "sharp";
 import { random } from "remotion";
+import { expect, test } from "vitest";
+import { RenderInternals } from "@remotion/renderer";
 
 function selectColor(color: string, frame: number) {
   return Math.floor((random(`${color}-${frame}`) * 255) % 255);
@@ -25,12 +27,11 @@ const getMissedFramesforCodec = async (
       "exec",
       "remotion",
       "render",
-      "src/index.tsx",
       `video-testing-${codec}${offthread ? "-offthread" : ""}`,
       outputPath,
       "--image-format",
       "jpeg",
-      "--quality",
+      "--jpeg-quality",
       "100",
       "--sequence",
     ],
@@ -81,24 +82,51 @@ const getMissedFramesforCodec = async (
       missedFrames++;
     }
   }
+  RenderInternals.deleteDirectory(outputPath);
+
   return missedFrames;
 };
 
-test("should render correct frames from embedded videos - WebM onthread", async () => {
-  const missedFrames = await getMissedFramesforCodec("webm", false);
-  expect(missedFrames).toBeLessThanOrEqual(1);
-});
-test("should render correct frames from embedded videos - WebM offthread", async () => {
-  const missedFrames = await getMissedFramesforCodec("webm", true);
-  expect(missedFrames).toBe(0);
-});
+test(
+  "should render correct frames from embedded videos - WebM onthread",
+  async () => {
+    const missedFrames = await getMissedFramesforCodec("webm", false);
+    expect(missedFrames).toBeLessThanOrEqual(1);
+  },
+  {
+    retry: 2,
+  }
+);
 
-test("should render correct frames from embedded videos - MP4 onthread", async () => {
-  const missedFrames = await getMissedFramesforCodec("mp4", false);
-  expect(missedFrames).toBeLessThanOrEqual(1);
-});
+test(
+  "should render correct frames from embedded videos - WebM offthread",
+  async () => {
+    const missedFrames = await getMissedFramesforCodec("webm", true);
+    expect(missedFrames).toBe(0);
+  },
+  {
+    retry: 2,
+  }
+);
 
-test("should render correct frames from embedded videos - MP4 offthread", async () => {
-  const missedFrames = await getMissedFramesforCodec("mp4", true);
-  expect(missedFrames).toBe(0);
-});
+test(
+  "should render correct frames from embedded videos - MP4 onthread",
+  async () => {
+    const missedFrames = await getMissedFramesforCodec("mp4", false);
+    expect(missedFrames).toBeLessThanOrEqual(1);
+  },
+  {
+    retry: 2,
+  }
+);
+
+test(
+  "should render correct frames from embedded videos - MP4 offthread",
+  async () => {
+    const missedFrames = await getMissedFramesforCodec("mp4", true);
+    expect(missedFrames).toBe(0);
+  },
+  {
+    retry: 2,
+  }
+);

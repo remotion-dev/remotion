@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {calculateTimeline} from '../editor/helpers/calculate-timeline';
 
 test('Should calculate timeline with no sequences', () => {
@@ -25,7 +26,7 @@ test('Should calculate timeline with no sequences', () => {
 	]);
 });
 
-test('Should calculate a basic timline', () => {
+test('Should calculate a basic timeline', () => {
 	const calculated = calculateTimeline({
 		sequences: [
 			{
@@ -38,7 +39,7 @@ test('Should calculate a basic timline', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: 0,
-				showLoopTimesInTimeline: undefined,
+				loopDisplay: undefined,
 			},
 		],
 		sequenceDuration: 100,
@@ -76,7 +77,7 @@ test('Should follow order of nesting', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: 0,
-				showLoopTimesInTimeline: undefined,
+				loopDisplay: undefined,
 			},
 			{
 				displayName: 'Audio',
@@ -88,7 +89,7 @@ test('Should follow order of nesting', () => {
 				showInTimeline: true,
 				type: 'sequence',
 				nonce: 0,
-				showLoopTimesInTimeline: undefined,
+				loopDisplay: undefined,
 			},
 		],
 		sequenceDuration: 100,

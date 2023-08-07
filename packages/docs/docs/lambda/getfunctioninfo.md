@@ -1,10 +1,12 @@
 ---
+image: /generated/articles-docs-lambda-getfunctioninfo.png
 id: getfunctioninfo
 title: getFunctionInfo()
 slug: /lambda/getfunctioninfo
+crumb: "Lambda API"
 ---
 
-Gets information about a function given it's name and region.
+Gets information about a function given its name and region.
 
 To get a list of deployed functions, use [`getFunctions()`](/docs/lambda/getfunctions).
 
@@ -24,7 +26,7 @@ const info = await getFunctionInfo({
 });
 console.log(info.functionName); // remotion-render-d7nd2a9f
 console.log(info.memorySizeInMb); // 1500
-console.log(info.diskSizeInMb); // 512
+console.log(info.diskSizeInMb); // 2048
 console.log(info.version); // '2021-07-14'
 console.log(info.timeoutInSeconds); // 120
 ```
@@ -43,7 +45,8 @@ The name of the function.
 
 ## Return value
 
-A promise resolving to an object with the following properties:
+If the function does not exist, an error is thrown by the AWS SDK.
+If the function exists, promise resolving to an object with the following properties is returned:
 
 ### `memorySizeInMb`
 

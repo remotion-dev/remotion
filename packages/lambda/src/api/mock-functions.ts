@@ -1,17 +1,16 @@
 import type {AwsRegion} from '../pricing/aws-regions';
-import type {LambdaVersions} from '../shared/constants';
 import type {FunctionInfo} from './get-function-info';
 
 export let mockFunctionsStore: (FunctionInfo & {
 	region: AwsRegion;
-	version: LambdaVersions;
+	version: string;
 })[] = [];
 
 export const addFunction = (fn: FunctionInfo, region: AwsRegion) => {
 	mockFunctionsStore.push({
 		...fn,
 		region,
-		version: fn.version as LambdaVersions,
+		version: fn.version as string,
 	});
 };
 
@@ -27,10 +26,7 @@ export const findFunction = (name: string, region: string) => {
 	);
 };
 
-export const getAllMockFunctions = (
-	region: string,
-	version: LambdaVersions | null
-) => {
+export const getAllMockFunctions = (region: string, version: string | null) => {
 	return mockFunctionsStore.filter(
 		(f) => f.region === region && (version ? f.version === version : true)
 	);

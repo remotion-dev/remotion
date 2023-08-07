@@ -1,7 +1,7 @@
 import {
 	chunkKeyForIndex,
 	encodingProgressKey,
-	lambdaInitializedPrefix,
+	lambdaChunkInitializedPrefix,
 	lambdaTimingsPrefixForChunk,
 } from '../../shared/constants';
 
@@ -28,7 +28,7 @@ export const getFilesToDelete = ({
 		.map((_x, i) => lambdaTimingsPrefixForChunk(renderId, i));
 	return [
 		{
-			name: lambdaInitializedPrefix(renderId),
+			name: lambdaChunkInitializedPrefix(renderId),
 			type: 'prefix' as const,
 		},
 		...chunks.map((i) => {

@@ -14,6 +14,8 @@ export const SplitterElement: React.FC<{
 				(type === 'flexer' ? context.flexValue : 1 - context.flexValue) * 1000,
 			display: 'flex',
 			position: 'relative',
+			overflow: 'hidden',
+			flexDirection: 'column',
 		};
 	}, [context.flexValue, type]);
 

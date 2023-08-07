@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-license.png
 id: license
 title: License & Pricing
 ---

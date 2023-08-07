@@ -1,5 +1,5 @@
 import type {AwsRegion} from '../pricing/aws-regions';
-import { AWS_REGIONS} from '../pricing/aws-regions';
+import {AWS_REGIONS} from '../pricing/aws-regions';
 
 export function validateAwsRegion(
 	region: unknown

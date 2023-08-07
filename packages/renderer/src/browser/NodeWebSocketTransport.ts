@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {promises as dns} from 'dns';
-import {URL} from 'url';
+import {promises as dns} from 'node:dns';
+import {URL} from 'node:url';
 import type {WS} from '../ws/ws-types';
 import {ws as NodeWebSocket} from '../ws/ws-types';
 
@@ -44,7 +44,7 @@ export class NodeWebSocketTransport implements ConnectionTransport {
 			const ws = new NodeWebSocket(url, [], {
 				followRedirects: true,
 				perMessageDeflate: false,
-				maxPayload: 256 * 1024 * 1024, // 256Mb
+				maxPayload: 1024 * 1024 * 1024, // 1024Mb
 				headers: {
 					'User-Agent': `Remotion CLI`,
 				},

@@ -1,26 +1,25 @@
 ---
+image: /generated/articles-docs-overwriting-webpack-config.png
 id: webpack
 title: Custom Webpack config
+crumb: "How To"
 ---
 
 import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
 
-You can customize the Webpack configuration if you have at least Version 1.1 of Remotion.
+Remotion ships with [it's own Webpack configuration](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts).
 
-Create a config file called `remotion.config.ts` in the root of your project. As a confirmation, you should get a console message `Applied configuration from [configuration-file]`.
+You can override it reducer-style by creating a function that takes the previous Webpack configuration and returns the the new one.
 
-## Overriding the webpack config
+## When rendering using the command line
 
-Get familiar with the default Webpack configuration which can be [found here](https://github.com/remotion-dev/remotion/blob/main/packages/bundler/src/webpack-config.ts).
+In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackConfig()` from `remotion`.
 
-In your `remotion.config.ts` file, you can call `Config.Bundler.overrideWebpackConfig` from `remotion`.
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
 
-Overriding the Webpack config uses the reducer pattern - pass in a function that takes as it's argument a Webpack configuration and return a new Webpack configuration.
-
-```ts twoslash
-import { Config } from "remotion";
-
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -38,59 +37,77 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
 Using the reducer pattern will help with type safety, give you auto-complete, ensure forwards-compatibility and keep it completely flexible - you can override just one property or pass in a completely new Webpack configuration.
 :::
 
-## Snippets
+## When using `bundle()` and `deploySite()`
 
-### Enabling MDX support
+When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite()`](/docs/lambda/deploysite) for Lambda, you also need to provide the Webpack override, since the Node.JS APIs do not read from the config file. We recommend you put the webpack override in a separate file so you can read it from both the command line and your Node.JS script.
 
-The following `remotion.config.ts` file shows how to enable support for MDX. Installation of `mdx-loader babel-loader @babel/preset-env @babel/preset-react` is required.
+```ts twoslash title="src/webpack-override.ts"
+import { WebpackOverrideFn } from "@remotion/bundler";
 
-```ts twoslash
-import { Config } from "remotion";
-// ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
-    module: {
-      ...currentConfiguration.module,
-      rules: [
-        ...(currentConfiguration.module?.rules
-          ? currentConfiguration.module.rules
-          : []),
-        {
-          test: /\.mdx?$/,
-          use: [
-            {
-              loader: "babel-loader",
-              options: {
-                presets: [
-                  "@babel/preset-env",
-                  [
-                    "@babel/preset-react",
-                    {
-                      runtime: "automatic",
-                    },
-                  ],
-                ],
-              },
-            },
-            "mdx-loader",
-          ],
-        },
-      ],
-    },
+    // Your override here
   };
+};
+```
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/webpack-override.ts
+import { WebpackOverrideFn } from "@remotion/bundler";
+export const webpackOverride: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "@remotion/cli/config";
+import { webpackOverride } from "./src/webpack-override";
+
+Config.overrideWebpackConfig(webpackOverride);
+```
+
+With `bundle`:
+
+```ts twoslash title="my-script.js"
+// @filename: ./src/webpack-override.ts
+import { WebpackOverrideFn } from "@remotion/bundler";
+export const webpackOverride: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// @target: esnext
+// ---cut---
+import { bundle } from "@remotion/bundler";
+import { webpackOverride } from "./src/webpack-override";
+
+await bundle({
+  entryPoint: require.resolve("./src/index.ts"),
+  webpackOverride,
 });
 ```
 
-:::info
-Create a file which contains `declare module '*.mdx';` in your project to fix a TypeScript error showing up.
-:::
+Or while using with `deploySite`:
 
-### Enable TailwindCSS support
+```ts twoslash title="my-script.js"
+// @filename: ./src/webpack-override.ts
+import { WebpackOverrideFn } from "@remotion/bundler";
+export const webpackOverride: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// @target: esnext
+// ---cut---
+import { deploySite } from "@remotion/lambda";
+import { webpackOverride } from "./src/webpack-override";
 
-:::info
-This documentation concerns TailwindCSS v2. [Help us update it to v3!](https://github.com/remotion-dev/remotion/issues/737)
-:::
+await deploySite({
+  entryPoint: require.resolve("./src/index.ts"),
+  region: "us-east-1",
+  bucketName: "remotionlambda-c7fsl3d",
+  options: {
+    webpackOverride,
+  },
+  // ...other parameters
+});
+```
+
+## Snippets
+
+### Enabling MDX support
 
 1. Install the following dependencies:
 
@@ -105,7 +122,14 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
+npm i @mdx-js/loader @mdx-js/react
+```
+
+  </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i @mdx-js/loader @mdx-js/react
 ```
 
   </TabItem>
@@ -113,25 +137,18 @@ npm i postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
   <TabItem value="yarn">
 
 ```bash
-yarn add postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
-```
-
-  </TabItem>
-  <TabItem value="pnpm">
-
-```bash
-pnpm i postcss-loader postcss postcss-preset-env tailwindcss@2 autoprefixer
+yarn add @mdx-js/loader @mdx-js/react
 ```
 
   </TabItem>
 </Tabs>
 
-2. Add the following to your [`remotion.config.ts`](/docs/config) file:
+2. Create a file with the Webpack override:
 
-```ts twoslash
-import { Config } from "remotion";
+```ts twoslash title="enable-mdx.ts"
+import { WebpackOverrideFn } from "@remotion/bundler";
 // ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+export const enableMdx: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -139,62 +156,44 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
       rules: [
         ...(currentConfiguration.module?.rules
           ? currentConfiguration.module.rules
-          : []
-        ).filter((rule) => {
-          if (rule === "...") {
-            return false;
-          }
-          if (rule.test?.toString().includes(".css")) {
-            return false;
-          }
-          return true;
-        }),
+          : []),
         {
-          test: /\.css$/i,
+          test: /\.mdx?$/,
           use: [
-            "style-loader",
-            "css-loader",
             {
-              loader: "postcss-loader",
-              options: {
-                postcssOptions: {
-                  plugins: [
-                    "postcss-preset-env",
-                    "tailwindcss",
-                    "autoprefixer",
-                  ],
-                },
-              },
+              loader: "@mdx-js/loader",
+              options: {},
             },
           ],
         },
       ],
     },
   };
-});
+};
 ```
 
-3. Create a file `src/style.css` with the following content:
+3. Add it to the config file:
 
-```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-mdx.ts
+import { WebpackOverrideFn } from "@remotion/bundler";
+export const enableMdx: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "@remotion/cli/config";
+import { enableMdx } from "./src/enable-mdx";
+
+Config.overrideWebpackConfig(enableMdx);
 ```
 
-4. Import the stylesheet in your `src/Video.tsx` file. Add to the top of the file:
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
 
-```js
-import "./style.css";
-```
+5. Create a file which contains `declare module '*.mdx';` in your project to fix a TypeScript error showing up.
 
-5.  Start using TailwindCSS! You can verify that it's working by adding `className="bg-red-900"` to any element.
+### Enable TailwindCSS support
 
-6.  _Optional_: Add a `tailwind.config.js` file to the root of your project. Add `/* eslint-env node */` to the top of the file to get rid of an ESLint rule complaining that `module` is not defined.
-
-:::warning
-Due to a caching bug, the config file might not be picked up until you remove the `node_modules/.cache` folder - watch this issue: https://github.com/remotion-dev/remotion/issues/315
-:::
+- [TailwindCSS V3](/docs/tailwind)
+- [TailwindCSS V2 (Legacy)](/docs/tailwind-legacy)
 
 ### Enable SASS/SCSS support
 
@@ -215,6 +214,13 @@ npm i sass sass-loader
 ```
 
   </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i sass sass-loader
+```
+
+  </TabItem>
 
   <TabItem value="yarn">
 
@@ -223,21 +229,14 @@ yarn add sass sass-loader
 ```
 
   </TabItem>
-  <TabItem value="pnpm">
-
-```bash
-pnpm i sass sass-loader
-```
-
-  </TabItem>
 </Tabs>
 
-2. Add the following to your [`remotion.config.ts`](/docs/config) file:
+2. Declare an override function:
 
-```ts twoslash
-import { Config } from "remotion";
-// ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+```ts twoslash title="src/enable-sass.ts"
+import { WebpackOverrideFn } from "@remotion/bundler";
+
+const enableSass: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -257,10 +256,26 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
       ],
     },
   };
-});
+};
 ```
 
-3. Restart the preview server.
+3. Add the override function to your [`remotion.config.ts`](/docs/config) file:
+
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-sass.ts
+import { WebpackOverrideFn } from "@remotion/bundler";
+export const enableSass: WebpackOverrideFn = (c) => c;
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "@remotion/cli/config";
+import { enableSass } from "./src/enable-sass";
+
+Config.overrideWebpackConfig(enableSass);
+```
+
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+
+5. Restart the Remotion Studio.
 
 ### Enable support for GLSL imports
 
@@ -277,7 +292,7 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i glsl-shader-loader glslify glslify-import-loader raw-roader
+npm i glsl-shader-loader glslify glslify-import-loader raw-loader
 ```
 
   </TabItem>
@@ -285,25 +300,25 @@ npm i glsl-shader-loader glslify glslify-import-loader raw-roader
   <TabItem value="yarn">
 
 ```bash
-yarn add glsl-shader-loader glslify glslify-import-loader raw-roader
+yarn add glsl-shader-loader glslify glslify-import-loader raw-loader
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i glsl-shader-loader glslify glslify-import-loader raw-roader
+pnpm i glsl-shader-loader glslify glslify-import-loader raw-loader
 ```
 
   </TabItem>
 </Tabs>
 
-2. Add the following to your [`remotion.config.ts`](/docs/config) file:
+2. Declare a webpack override:
 
-```ts twoslash
-import { Config } from "remotion";
-// ---cut---
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+```ts twoslash title="src/enable.glsl.ts"
+import { WebpackOverrideFn } from "@remotion/bundler";
+
+export const enableGlsl: WebpackOverrideFn = (currentConfiguration) => {
   return {
     ...currentConfiguration,
     module: {
@@ -320,10 +335,23 @@ Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
       ],
     },
   };
-});
+};
 ```
 
-3. Add the following to your entry file (e.g. `src/index.tsx`):
+```ts twoslash title="remotion.config.ts"
+// @filename: ./src/enable-glsl.ts
+import { WebpackOverrideFn } from "@remotion/bundler";
+export const enableGlsl: WebpackOverrideFn = (c) => c;
+
+// @filename: remotion.config.ts
+// ---cut---
+import { Config } from "@remotion/cli/config";
+import { enableGlsl } from "./src/enable-glsl";
+
+Config.overrideWebpackConfig(enableGlsl);
+```
+
+3. Add the following to your [entry point](/docs/terminology#entry-point) (e.g. `src/index.ts`):
 
 ```ts
 declare module "*.glsl" {
@@ -332,17 +360,19 @@ declare module "*.glsl" {
 }
 ```
 
-4. Reset the webpack cache by deleting the `node_modules/.cache` folder.
-5. Restart the preview server.
+4. Add it to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
+
+5. Reset the webpack cache by deleting the `node_modules/.cache` folder.
+6. Restart the Remotion Studio.
 
 ### Enable WebAssembly
 
 There are two WebAssembly modes: asynchronous and synchronous. We recommend testing both and seeing which one works for the WASM library you are trying to use.
 
 ```ts twoslash title="remotion.config.ts - synchronous"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
-Config.Bundling.overrideWebpackConfig((conf) => {
+Config.overrideWebpackConfig((conf) => {
   return {
     ...conf,
     experiments: {
@@ -357,9 +387,9 @@ Since Webpack does not allow synchronous WebAssembly code in the main chunk, you
 :::
 
 ```ts twoslash title="remotion.config.ts - asynchronous"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
-Config.Bundling.overrideWebpackConfig((conf) => {
+Config.overrideWebpackConfig((conf) => {
   return {
     ...conf,
     experiments: {
@@ -376,6 +406,8 @@ rm -rf node_modules/.cache
 ```
 
 After restarting, you can import `.wasm` files using an import statement.
+
+Add the Webpack override to your [Node.JS API calls as well if necessary](#when-using-bundle-and-deploysite).
 
 ### Use legacy babel loader
 

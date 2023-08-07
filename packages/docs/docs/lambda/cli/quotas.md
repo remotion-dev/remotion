@@ -1,8 +1,10 @@
 ---
+image: /generated/articles-docs-lambda-cli-quotas.png
 id: quotas
 sidebar_label: quotas
 title: "npx remotion lambda quotas"
 slug: /lambda/cli/quotas
+crumb: "Lambda CLI Reference"
 ---
 
 Displays the AWS Lambda concurrency and burst limits currently being applied to your account and region. You can use the `increase` command to send a request to AWS asking them to increase their quotas.
@@ -48,6 +50,10 @@ Creates an AWS support request to increase the concurrency limit on your account
 npx remotion lambda quotas increase
 ```
 
+:::note
+This only works for AWS Root accounts, not the children of an organization. You can still request an increase via the console.
+:::
+
 ### `--region`
 
 For which region the quotas should be increased.
@@ -55,6 +61,10 @@ For which region the quotas should be increased.
 ### `--yes`
 
 Skips asking for confirmation.
+
+### `--force`
+
+Asks for an increase even if it is the second one. Without a message you specify, it is more unlikely you will get approved, prefer using console for further increases.
 
 ## See also
 

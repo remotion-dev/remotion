@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda.png
 id: lambda
 sidebar_label: Overview
 title: "@remotion/lambda"
@@ -14,7 +15,7 @@ import {LambdaRegionList} from '../components/lambda/regions.tsx';
 - Your videos are less than 2 hours long. <sub>([AWS Lambda storage constraint](/docs/lambda/disk-size))</sub>
 - You are fine with using Amazon Web Services in one of the [supported regions](/docs/lambda/region-selection).
 
-If one of those those constraints is a dealbreaker for you, resort to normal [server-side rendering](/docs/ssr).
+If one of those constraints is a dealbreaker for you, resort to normal [server-side rendering](/docs/ssr).
 
 ## How it works
 
@@ -27,7 +28,7 @@ If one of those those constraints is a dealbreaker for you, resort to normal [se
 
 ## Architecture
 
-- **Lambda function**: Requires a layer with Chromium and FFMPEG, currently hosted by Remotion. Only one Lambda function is required, but it can execute different actions.
+- **Lambda function**: Requires a layer with Chromium, currently hosted by Remotion. Only one Lambda function is required, but it can execute different actions.
 - **S3 bucket**: Stores the projects, the renders, and render metadata.
 - **CLI**: Allows to control the overall architecture from the command line. Is installed by adding `@remotion/lambda` to a project.
 - **Node.JS API**: Has the same features as the CLI but is easier to use programmatically
@@ -68,7 +69,7 @@ You can control Remotion Lambda using the `npx remotion lambda` command.
 
 ## Node.JS API
 
-Everything you can do using the CLI, you can also control using Node.JS APIs. Refer to the left sidebar to see the list of available APIs.
+Everything you can do using the CLI, you can also control using Node.JS APIs. See the reference [here](/docs/lambda/api).
 
 ## License
 

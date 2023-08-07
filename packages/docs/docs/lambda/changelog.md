@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-changelog.png
 id: changelog
 title: Prerelease Changelog
 slug: /lambda/changelog

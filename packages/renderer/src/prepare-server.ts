@@ -1,48 +1,89 @@
-import {existsSync} from 'fs';
-import path from 'path';
-import type {FfmpegExecutable} from 'remotion';
+import {existsSync} from 'node:fs';
+import path from 'node:path';
+import {Internals} from 'remotion';
 import type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
+import {attachDownloadListenerToEmitter} from './assets/download-and-map-assets-to-file';
+import type {DownloadMap} from './assets/download-map';
+import {cleanDownloadMap, makeDownloadMap} from './assets/download-map';
+import type {Compositor} from './compositor/compositor';
+import {getBundleMapUrlFromServeUrl} from './get-bundle-url-from-serve-url';
 import {isServeUrl} from './is-serve-url';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import {serveStatic} from './serve-static';
+import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
+import {
+	getSourceMapFromLocalFile,
+	getSourceMapFromRemoteUrl,
+} from './symbolicate-stacktrace';
 import {waitForSymbolicationToBeDone} from './wait-for-symbolication-error-to-be-done';
 
+export type RemotionServer = {
+	serveUrl: string;
+	closeServer: (force: boolean) => Promise<unknown>;
+	offthreadPort: number;
+	compositor: Compositor;
+	sourceMap: Promise<AnySourceMapConsumer | null>;
+	downloadMap: DownloadMap;
+};
+
+type PrepareServerOptions = {
+	webpackConfigOrServeUrl: string;
+	port: number | null;
+	remotionRoot: string;
+	concurrency: number;
+	logLevel: LogLevel;
+	indent: boolean;
+};
+
 export const prepareServer = async ({
-	downloadDir,
-	ffmpegExecutable,
-	ffprobeExecutable,
-	onDownload,
-	onError,
 	webpackConfigOrServeUrl,
 	port,
-}: {
-	webpackConfigOrServeUrl: string;
-	downloadDir: string;
-	onDownload: RenderMediaOnDownload;
-	onError: (err: Error) => void;
-	ffmpegExecutable: FfmpegExecutable;
-	ffprobeExecutable: FfmpegExecutable;
-	port: number | null;
-}): Promise<{
-	serveUrl: string;
-	closeServer: () => Promise<unknown>;
-	offthreadPort: number;
-}> => {
+	remotionRoot,
+	concurrency,
+	logLevel,
+	indent,
+}: PrepareServerOptions): Promise<RemotionServer> => {
+	const downloadMap = makeDownloadMap();
+	Log.verboseAdvanced(
+		{indent, logLevel},
+		'Created directory for temporary files',
+		downloadMap.assetDir
+	);
+
 	if (isServeUrl(webpackConfigOrServeUrl)) {
-		const {port: offthreadPort, close: closeProxy} = await serveStatic(null, {
-			downloadDir,
-			onDownload,
-			onError,
-			ffmpegExecutable,
-			ffprobeExecutable,
+		const {
+			port: offthreadPort,
+			close: closeProxy,
+			compositor: comp,
+		} = await serveStatic(null, {
 			port,
+			downloadMap,
+			remotionRoot,
+			concurrency,
+			logLevel,
+			indent,
 		});
 
 		return Promise.resolve({
 			serveUrl: webpackConfigOrServeUrl,
 			closeServer: () => {
+				cleanDownloadMap(downloadMap);
 				return closeProxy();
 			},
 			offthreadPort,
+			compositor: comp,
+			sourceMap: getSourceMapFromRemoteUrl(
+				getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl)
+			).catch((err) => {
+				Log.verbose(
+					'Could not fetch sourcemap for ',
+					webpackConfigOrServeUrl,
+					err
+				);
+				return null;
+			}),
+			downloadMap,
 		});
 	}
 
@@ -55,19 +96,99 @@ export const prepareServer = async ({
 		);
 	}
 
-	const {port: serverPort, close} = await serveStatic(webpackConfigOrServeUrl, {
-		downloadDir,
-		onDownload,
-		onError,
-		ffmpegExecutable,
-		ffprobeExecutable,
+	const sourceMap = getSourceMapFromLocalFile(
+		path.join(webpackConfigOrServeUrl, Internals.bundleName)
+	);
+
+	const {
+		port: serverPort,
+		close,
+		compositor,
+	} = await serveStatic(webpackConfigOrServeUrl, {
 		port,
+		downloadMap,
+		remotionRoot,
+		concurrency,
+		logLevel,
+		indent,
 	});
+
 	return Promise.resolve({
-		closeServer: () => {
-			return waitForSymbolicationToBeDone().then(() => close());
+		closeServer: async (force: boolean) => {
+			sourceMap.then((s) => s?.destroy());
+			cleanDownloadMap(downloadMap);
+			if (!force) {
+				await waitForSymbolicationToBeDone();
+			}
+
+			return close();
 		},
 		serveUrl: `http://localhost:${serverPort}`,
 		offthreadPort: serverPort,
+		compositor,
+		sourceMap,
+		downloadMap,
 	});
+};
+
+export const makeOrReuseServer = async (
+	server: RemotionServer | undefined,
+	config: PrepareServerOptions,
+	{
+		onDownload,
+		onError,
+	}: {
+		onError: (err: Error) => void;
+		onDownload: RenderMediaOnDownload | null;
+	}
+): Promise<{
+	server: RemotionServer;
+	cleanupServer: (force: boolean) => Promise<unknown>;
+}> => {
+	if (server) {
+		const cleanupOnDownload = attachDownloadListenerToEmitter(
+			server.downloadMap,
+			onDownload
+		);
+
+		const cleanupError = server.downloadMap.emitter.addEventListener(
+			'error',
+			({detail: {error}}) => {
+				onError(error);
+			}
+		);
+
+		return {
+			server,
+			cleanupServer: () => {
+				cleanupOnDownload();
+				cleanupError();
+				return Promise.resolve();
+			},
+		};
+	}
+
+	const newServer = await prepareServer(config);
+
+	const cleanupOnDownloadNew = attachDownloadListenerToEmitter(
+		newServer.downloadMap,
+		onDownload
+	);
+
+	const cleanupErrorNew = newServer.downloadMap.emitter.addEventListener(
+		'error',
+		({detail: {error}}) => {
+			onError(error);
+		}
+	);
+
+	return {
+		server: newServer,
+		cleanupServer: (force: boolean) => {
+			newServer.closeServer(force);
+			cleanupOnDownloadNew();
+			cleanupErrorNew();
+			return Promise.resolve();
+		},
+	};
 };

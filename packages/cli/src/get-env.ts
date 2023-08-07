@@ -1,7 +1,10 @@
+import {RenderInternals} from '@remotion/renderer';
 import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
-import {Internals} from 'remotion';
+import fs from 'node:fs';
+import path from 'node:path';
+import {chalk} from './chalk';
+import {ConfigInternals} from './config';
+import {installFileWatcher} from './file-watcher';
 import {Log} from './log';
 import {parsedCli} from './parse-command-line';
 
@@ -19,12 +22,57 @@ function getProcessEnv(): Record<string, string> {
 	return env;
 }
 
+const watchEnvFile = ({
+	processEnv,
+	envFile,
+	onUpdate,
+}: {
+	processEnv: ReturnType<typeof getProcessEnv>;
+	envFile: string;
+	onUpdate: (newProps: Record<string, string>) => void;
+}): (() => void) => {
+	const updateFile = async () => {
+		const file = await fs.promises.readFile(envFile, 'utf-8');
+		onUpdate({
+			...processEnv,
+			...dotenv.parse(file),
+		});
+	};
+
+	const {unwatch} = installFileWatcher({
+		file: envFile,
+		onChange: async (type) => {
+			try {
+				if (type === 'deleted') {
+					Log.warn(`${envFile} was deleted.`);
+				} else if (type === 'changed') {
+					await updateFile();
+					Log.info(chalk.blueBright(`Updated env file ${envFile}`));
+				} else if (type === 'created') {
+					await updateFile();
+					Log.info(chalk.blueBright(`Created env file ${envFile}`));
+				}
+			} catch (err) {
+				Log.error(
+					`${envFile} update failed with error ${(err as Error).stack}`
+				);
+			}
+		},
+	});
+	return unwatch;
+};
+
 const getEnvForEnvFile = async (
 	processEnv: ReturnType<typeof getProcessEnv>,
-	envFile: string
+	envFile: string,
+	onUpdate: null | ((newProps: Record<string, string>) => void)
 ) => {
 	try {
 		const envFileData = await fs.promises.readFile(envFile);
+		if (onUpdate) {
+			watchEnvFile({processEnv, envFile, onUpdate});
+		}
+
 		return {
 			...processEnv,
 			...dotenv.parse(envFileData),
@@ -36,7 +84,9 @@ const getEnvForEnvFile = async (
 	}
 };
 
-export const getEnvironmentVariables = (): Promise<Record<string, string>> => {
+export const getEnvironmentVariables = (
+	onUpdate: null | ((newProps: Record<string, string>) => void)
+): Promise<Record<string, string>> => {
 	const processEnv = getProcessEnv();
 
 	if (parsedCli['env-file']) {
@@ -48,28 +98,38 @@ export const getEnvironmentVariables = (): Promise<Record<string, string>> => {
 			process.exit(1);
 		}
 
-		return getEnvForEnvFile(processEnv, envFile);
+		return getEnvForEnvFile(processEnv, envFile, onUpdate);
 	}
 
-	const configFileSetting = Internals.getDotEnvLocation();
+	const remotionRoot = RenderInternals.findRemotionRoot();
+
+	const configFileSetting = ConfigInternals.getDotEnvLocation();
 	if (configFileSetting) {
-		const envFile = path.resolve(process.cwd(), configFileSetting);
+		const envFile = path.resolve(remotionRoot, configFileSetting);
 		if (!fs.existsSync(envFile)) {
 			Log.error(
-				'You specifed a custom .env file using `Config.Rendering.setDotEnvLocation()` in the config file but it could not be found'
+				'You specified a custom .env file using `Config.setDotEnvLocation()` in the config file but it could not be found'
 			);
 			Log.error('We looked for the file at:', envFile);
 			Log.error('Check that your path is correct and try again.');
 			process.exit(1);
 		}
 
-		return getEnvForEnvFile(processEnv, envFile);
+		return getEnvForEnvFile(processEnv, envFile, onUpdate);
 	}
 
-	const defaultEnvFile = path.resolve(process.cwd(), '.env');
+	const defaultEnvFile = path.resolve(remotionRoot, '.env');
 	if (!fs.existsSync(defaultEnvFile)) {
+		if (onUpdate) {
+			watchEnvFile({
+				processEnv,
+				envFile: defaultEnvFile,
+				onUpdate,
+			});
+		}
+
 		return Promise.resolve(processEnv);
 	}
 
-	return getEnvForEnvFile(processEnv, defaultEnvFile);
+	return getEnvForEnvFile(processEnv, defaultEnvFile, onUpdate);
 };

@@ -4,30 +4,29 @@ This website is built using [Docusaurus 2](https://v2.docusaurus.io/), a modern 
 
 ## Installation
 
+Go to the root directory of the repository (`cd ../..` if you are in the `docs` directory) and run
+
 ```console
-yarn install
+pnpm i
+pnpm build
 ```
 
 ## Local Development
 
+In this directory (`packages/docs`), run:
+
 ```console
-yarn start
+pnpm start
 ```
 
 This command starts a local development server and open up a browser window. Most changes are reflected live without having to restart the server.
 
-## Build
+## Generate top fonts
 
-```console
-yarn build
+To update `font-picker.md` (https://www.remotion.dev/docs/font-picker) with the up to date font list, run:
+
+```
+node make-top-google-fonts.mjs 250
 ```
 
-This command generates static content into the `build` directory and can be served using any static contents hosting service.
-
-## Deployment
-
-```console
-GIT_USER=<Your GitHub username> USE_SSH=true yarn deploy
-```
-
-If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.
+and paste it into the Markdown file. Repeat it with `100` and `25`.

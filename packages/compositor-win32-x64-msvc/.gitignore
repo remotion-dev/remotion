@@ -1,0 +1,4 @@
+bindings.rs
+ffmpeg/remotion/include
+ffmpeg/remotion/lib/pkgconfig
+ffmpeg/remotion/lib/*.dll.a

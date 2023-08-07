@@ -1,4 +1,5 @@
 import {Internals} from 'remotion';
+import {afterEach, beforeEach} from 'vitest';
 import {cleanFnStore} from '../../api/mock-functions';
 
 let stdoutOutput: string[] = [];
@@ -6,13 +7,6 @@ let stderrOutput: string[] = [];
 
 export const getProcessWriteOutput = () => {
 	return stdoutOutput
-		.filter(Internals.truthy)
-		.map((c) => c.toString())
-		.join('\n');
-};
-
-export const getProcessStdErrOutput = () => {
-	return stderrOutput
 		.filter(Internals.truthy)
 		.map((c) => c.toString())
 		.join('\n');

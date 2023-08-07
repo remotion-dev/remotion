@@ -1,11 +1,13 @@
 ---
+image: /generated/articles-docs-renderer-open-browser.png
 title: openBrowser()
 id: open-browser
+crumb: "@remotion/renderer"
 ---
 
 _Available since v3.0 - Part of the `@remotion/renderer` package._
 
-Opens a Chrome or Chromium browser instance. By reusing an instance across [`renderFrames()`](/docs/renderer/render-frames), [`renderStill()`](/docs/renderer/render-still), [`renderMedia()`](/docs/renderer/render-media) and [`getCompositions()`](/docs/get-compositions) calls, you can save time by not opening and closing browsers for each call.
+Opens a Chrome or Chromium browser instance. By reusing an instance across [`renderFrames()`](/docs/renderer/render-frames), [`renderStill()`](/docs/renderer/render-still), [`renderMedia()`](/docs/renderer/render-media) and [`getCompositions()`](/docs/renderer/get-compositions) calls, you can save time by not opening and closing browsers for each call.
 
 ```ts
 const openBrowser: (
@@ -51,6 +53,10 @@ Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](
 :::note
 Chromium flags need to be set at browser launch. If you pass an instance to SSR APIs like [`renderMedia()`](/docs/renderer/render-media), the `chromiumOptions` option of that API will not apply, but rather the flags that have been passed to `openBrowser()`.
 :::
+
+#### `forceDeviceScaleFactor?`
+
+Set a [scale](/docs/scaling). If you plan to use scaling, you already need to set it when opening the browser.
 
 ## See also
 

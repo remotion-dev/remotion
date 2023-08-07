@@ -1,6 +1,6 @@
-import {Internals} from 'remotion';
 import {getIsCli} from '../cli/is-cli';
 import {DOCS_URL} from './docs-url';
+import {truthy} from './truthy';
 
 const messageForVariable = (variable: string) => {
 	return [
@@ -11,11 +11,15 @@ const messageForVariable = (variable: string) => {
 		`- Please refer to the Remotion Lambda docs (${DOCS_URL}/docs/lambda/setup) to see how to generate the credentials for your AWS account and then set the environment variables.`,
 		`- For more reasons see the troubleshooting page: ${DOCS_URL}/docs/lambda/troubleshooting/permissions`,
 	]
-		.filter(Internals.truthy)
+		.filter(truthy)
 		.join('\n');
 };
 
 export const checkCredentials = () => {
+	if (process.env.REMOTION_AWS_PROFILE || process.env.AWS_PROFILE) {
+		return;
+	}
+
 	if (
 		!process.env.AWS_ACCESS_KEY_ID &&
 		!process.env.REMOTION_AWS_ACCESS_KEY_ID

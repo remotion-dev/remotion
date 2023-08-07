@@ -1,16 +1,151 @@
-import type {TCompMetadata} from 'remotion';
+import type {
+	BrowserExecutable,
+	ChromiumOptions,
+	HeadlessBrowser,
+	LogLevel,
+	RemotionServer,
+} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import type {VideoConfig} from 'remotion';
+import {formatBytes} from './format-bytes';
 import {Log} from './log';
-import {parsedCli} from './parse-command-line';
+import {showSingleCompositionsPicker} from './show-compositions-picker';
 
-export const getCompositionId = (comps: TCompMetadata[]) => {
-	if (!parsedCli._[2]) {
-		Log.error('Composition ID not passed.');
-		Log.error(
-			'Pass an extra argument <composition-id>. The following video names are available:'
-		);
-		Log.error(`${comps.map((c) => c.id).join(', ')}`);
-		process.exit(1);
+const getCompName = ({
+	cliArgs,
+	compositionIdFromUi,
+}: {
+	cliArgs: string[];
+	compositionIdFromUi: string | null;
+}): {
+	compName: string;
+	remainingArgs: string[];
+	reason: string;
+} => {
+	if (compositionIdFromUi) {
+		return {
+			compName: compositionIdFromUi,
+			remainingArgs: [],
+			reason: 'via UI',
+		};
 	}
 
-	return parsedCli._[2];
+	const [compName, ...remainingArgs] = cliArgs;
+
+	return {compName, remainingArgs, reason: 'Passed as argument'};
+};
+
+export const getCompositionId = async ({
+	args,
+	compositionIdFromUi,
+	serializedInputPropsWithCustomSchema,
+	puppeteerInstance,
+	envVariables,
+	timeoutInMilliseconds,
+	chromiumOptions,
+	port,
+	browserExecutable,
+	serveUrlOrWebpackUrl,
+	logLevel,
+	indent,
+	server,
+}: {
+	args: string[];
+	compositionIdFromUi: string | null;
+	serializedInputPropsWithCustomSchema: string;
+	puppeteerInstance: HeadlessBrowser | undefined;
+	envVariables: Record<string, string>;
+	timeoutInMilliseconds: number;
+	chromiumOptions: ChromiumOptions;
+	port: number | null;
+	browserExecutable: BrowserExecutable;
+	serveUrlOrWebpackUrl: string;
+	logLevel: LogLevel;
+	indent: boolean;
+	server: RemotionServer;
+}): Promise<{
+	compositionId: string;
+	reason: string;
+	config: VideoConfig;
+	argsAfterComposition: string[];
+}> => {
+	const {
+		compName,
+		remainingArgs,
+		reason: compReason,
+	} = getCompName({
+		cliArgs: args,
+		compositionIdFromUi,
+	});
+	if (compName) {
+		const {metadata: config, propsSize} =
+			await RenderInternals.internalSelectComposition({
+				id: compName,
+				serializedInputPropsWithCustomSchema,
+				puppeteerInstance,
+				envVariables,
+				timeoutInMilliseconds,
+				serveUrl: serveUrlOrWebpackUrl,
+				browserExecutable,
+				chromiumOptions,
+				port,
+				logLevel,
+				server,
+				indent,
+				onBrowserLog: null,
+			});
+
+		if (propsSize > 10_000_000) {
+			Log.warnAdvanced(
+				{
+					indent,
+					logLevel,
+				},
+				`The props of your composition are large (${formatBytes(
+					propsSize
+				)}). This may cause slowdown.`
+			);
+		}
+
+		if (!config) {
+			throw new Error(`Cannot find composition with ID "${compName}"`);
+		}
+
+		return {
+			compositionId: compName,
+			reason: compReason,
+			config,
+			argsAfterComposition: remainingArgs,
+		};
+	}
+
+	if (!process.env.CI) {
+		const comps = await RenderInternals.internalGetCompositions({
+			puppeteerInstance,
+			envVariables,
+			timeoutInMilliseconds,
+			chromiumOptions,
+			port,
+			browserExecutable,
+			logLevel,
+			indent,
+			server,
+			serveUrlOrWebpackUrl,
+			onBrowserLog: null,
+			serializedInputPropsWithCustomSchema,
+		});
+		const {compositionId, reason} = await showSingleCompositionsPicker(comps);
+		if (compositionId && typeof compositionId === 'string') {
+			return {
+				compositionId,
+				reason,
+				config: comps.find((c) => c.id === compositionId) as VideoConfig,
+				argsAfterComposition: args,
+			};
+		}
+	}
+
+	Log.error('Composition ID not passed.');
+	Log.error('Pass an extra argument <composition-id>.');
+	process.exit(1);
 };

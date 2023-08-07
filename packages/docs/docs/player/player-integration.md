@@ -1,11 +1,14 @@
 ---
+image: /generated/articles-docs-player-player-integration.png
 id: integration
 title: "Code sharing"
+crumb: "@remotion/player"
 ---
 
 import Tabs from "@theme/Tabs";
+import TabItem from '@theme/TabItem';
 
-If you are using the player, a common desire is to share the code with your Remotion Preview and/or server-side rendering. With the correct setup, you can write the component once and use it for previewing, displaying and rendering.
+If you are using the player, a common desire is to share the code with your Remotion Studio and/or server-side rendering. With the correct setup, you can write the component once and use it for previewing, displaying and rendering.
 
 :::note
 Remotion and your React app use a different Webpack config. Therefore, if you want to override your [Webpack configuration](/docs/webpack), you need to override both the Remotion one and the React app one.
@@ -13,7 +16,15 @@ Remotion and your React app use a different Webpack config. Therefore, if you wa
 
 ## Setup
 
-Set up a React project with your preferred setup, such as [Create React App](https://reactjs.org/docs/create-a-new-react-app.html) or [Next.JS](https://nextjs.org/learn/basics/create-nextjs-app/setup).
+Set up a React project with your preferred setup from the [Official React docs](https://react.dev/learn/start-a-new-react-project). Popular choices are:
+
+- [Next.js](https://nextjs.org/learn/basics/create-nextjs-app/setup)
+- [Remix](https://remix.run/docs/en/main/tutorials/blog)
+- [Vite](https://vitejs.dev/guide/)
+
+:::note
+While you can still use [Create React App](https://create-react-app.dev), it is not being actively recommended by the React team anymore.
+:::
 
 When your project is setup, add the necessary Remotion dependencies:
 
@@ -33,13 +44,6 @@ npm i remotion @remotion/cli @remotion/player
 
   </TabItem>
 
-  <TabItem value="yarn">
-
-```bash
-yarn add remotion @remotion/cli @remotion/player
-```
-
-  </TabItem>
   <TabItem value="pnpm">
 
 ```bash
@@ -47,16 +51,23 @@ pnpm i remotion @remotion/cli @remotion/player
 ```
 
   </TabItem>
+  <TabItem value="yarn">
+
+```bash
+yarn add remotion @remotion/cli @remotion/player
+```
+
+  </TabItem>
 </Tabs>
 
-Afterwards, create a subfolder for Remotion within your project and add three files: An index file, a `Video.tsx` file for your list of compositions, and a file with your composition. It could look like this:
+Afterwards, create a subfolder for Remotion within your project and add three files: An index file, a `Root.tsx` file for your list of compositions, and a file with your composition. It could look like this:
 
 ```diff
  └── src/
 +  ├── remotion/
-+  │   ├── index.tsx
++  │   ├── index.ts
 +  │   ├── MyComp.tsx
-+  │   └── Video.tsx
++  │   └── Root.tsx
    └── app/
        └── App.tsx
 ```
@@ -69,7 +80,7 @@ export const MyComp: React.FC<{ text: string }> = ({ text }) => {
 };
 ```
 
-Your list of videos (`remotion/Video.tsx` in the example) could look like this:
+Your list of videos (`remotion/Root.tsx` in the example) could look like this:
 
 ```tsx twoslash
 // @allowUmdGlobalAccess
@@ -78,7 +89,6 @@ export const MyComp = () => <></>;
 
 // @filename: index.tsx
 // ---cut---
-import React from "react";
 import { Composition } from "remotion";
 import { MyComp } from "./MyComp";
 
@@ -99,10 +109,10 @@ export const MyVideo = () => {
 };
 ```
 
-Your index file (`remotion/index.tsx` in the example) could look like this:
+Your index file (`remotion/index.ts` in the example) could look like this:
 
 ```tsx twoslash
-// @filename: ./Video.tsx
+// @filename: ./Root.tsx
 export const MyVideo: React.FC<{ text: string }> = () => <></>;
 
 // ---cut---
@@ -113,22 +123,26 @@ registerRoot(MyVideo);
 ```
 
 :::tip
-Don't move these statements together into one file, as you might break Fast Refresh.
+Don't move these statements together into one file, as you might break hot reloading.
 :::
 
-## Using Remotion Preview
+## Using the Remotion Studio
 
-You can open the Remotion Preview using the `npx remotion preview command`:
+You can open the Remotion Studio using the `npx remotion studio` command:
 
 ```bash
-npx remotion preview src/remotion/index.tsx
+npx remotion studio src/remotion/index.ts
 ```
+
+:::note
+Before v4.0, the command was `npx remotion preview`.
+:::
 
 We recommend adding a new script into your package.json for easy access:
 
 ```diff
   "scripts": {
-+    "video": "remotion preview src/remotion/index.tsx"
++    "video": "remotion studio src/remotion/index.ts"
   }
 ```
 
@@ -183,7 +197,7 @@ import path from "path";
 import { bundle } from "@remotion/bundler";
 
 const bundled = await bundle(
-  path.join(process.cwd(), "src", "remotion", "index.tsx")
+  path.join(process.cwd(), "src", "remotion", "index.ts")
 );
 ```
 

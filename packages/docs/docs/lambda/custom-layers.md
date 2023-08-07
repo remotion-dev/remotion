@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-lambda-custom-layers.png
 title: Custom Layers
 slug: custom-layers
+crumb: "Lambda"
 ---
 
 import Tabs from '@theme/Tabs';
@@ -15,6 +17,10 @@ In some advanced use cases, you want to replace certain parts of the stack:
 
 Before you create a custom stack, feel free to contact us to see if Remotion can provide the changes upstream.
 
+Also consider that the AWS Lambda layers may not exceed 250MB extracted, so you need to sacrifice an equal amount of other files.
+
+If you just want to add fonts, we recommend to use [Web fonts](/docs/fonts) instead.
+
 ## Ensure Remotion version
 
 Customizing Remotion Lambda Layers is possible from v3.0.17.  
@@ -24,9 +30,7 @@ Lambda binaries might change in minor Remotion versions, it is your responsibili
 
 Go to the [`remotion-dev/lambda-binaries`](https://github.com/remotion-dev/lambda-binaries) repository and clone it.
 
-The folders `chromium`, `ffmpeg` and `fonts` contain the binaries for the ARM version.  
-The folders `chromium-x64`, `ffmpeg-x64` and `fonts-x64` contain the binaries for the x86_64 version of Lambda.
-The default and recommended version is the ARM one.
+The folders `chromium` and `fonts` contain the binaries for the ARM version. The x64 version has been discontinued.
 
 Put the files that you want in the corresponding folders - for example, add the Apple Emoji Font `AppleColorEmoji.ttf` into the `fonts/.fonts/NotoSans/` folder.
 
@@ -118,7 +122,7 @@ import { AwsRegion, getAwsClient } from "@remotion/lambda";
 
 // Customize these parameters
 const REGION: AwsRegion = "us-east-1";
-const FUNCTION_NAME = "remotion-render-2022-06-02-mem3000mb-disk512mb-120sec";
+const FUNCTION_NAME = "remotion-render-2022-06-02-mem3000mb-disk2048mb-120sec";
 const LAYER_TO_REMOVE = /fonts/;
 const LAYER_TO_ADD = "arn:aws:lambda:us-east-1:1234567891:layer:apple-emoji:1";
 

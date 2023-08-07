@@ -1,24 +1,31 @@
 import type {SyntheticEvent} from 'react';
-import { useCallback, useContext, useMemo, useRef} from 'react';
+import {useCallback, useContext, useMemo, useRef, useState} from 'react';
 import {Internals} from 'remotion';
-import {PlayerEventEmitterContext} from './emitter-context';
-import type {PlayerEmitter} from './event-emitter';
+import {PlayerEventEmitterContext} from './emitter-context.js';
+import type {PlayerEmitter} from './event-emitter.js';
 
-export const usePlayer = (): {
+type UsePlayerMethods = {
 	frameBack: (frames: number) => void;
 	frameForward: (frames: number) => void;
 	isLastFrame: boolean;
+	isFirstFrame: boolean;
 	emitter: PlayerEmitter;
 	playing: boolean;
 	play: (e?: SyntheticEvent) => void;
 	pause: () => void;
+	pauseAndReturnToPlayStart: () => void;
 	seek: (newFrame: number) => void;
 	getCurrentFrame: () => number;
 	isPlaying: () => boolean;
-} => {
+	hasPlayed: boolean;
+};
+
+export const usePlayer = (): UsePlayerMethods => {
 	const [playing, setPlaying, imperativePlaying] =
 		Internals.Timeline.usePlayingState();
+	const [hasPlayed, setHasPlayed] = useState(false);
 	const frame = Internals.Timeline.useTimelinePosition();
+	const playStart = useRef(frame);
 	const setFrame = Internals.Timeline.useTimelineSetFrame();
 	const setTimelinePosition = Internals.Timeline.useTimelineSetFrame();
 	const audioContext = useContext(Internals.SharedAudioContext);
@@ -32,6 +39,7 @@ export const usePlayer = (): {
 
 	const lastFrame = (config?.durationInFrames ?? 1) - 1;
 	const isLastFrame = frame === lastFrame;
+	const isFirstFrame = frame === 0;
 
 	if (!emitter) {
 		throw new TypeError('Expected Player event emitter context');
@@ -39,10 +47,13 @@ export const usePlayer = (): {
 
 	const seek = useCallback(
 		(newFrame: number) => {
-			setTimelinePosition(newFrame);
+			if (video?.id) {
+				setTimelinePosition((c) => ({...c, [video.id]: newFrame}));
+			}
+
 			emitter.dispatchSeek(newFrame);
 		},
-		[emitter, setTimelinePosition]
+		[emitter, setTimelinePosition, video?.id]
 	);
 
 	const play = useCallback(
@@ -50,6 +61,8 @@ export const usePlayer = (): {
 			if (imperativePlaying.current) {
 				return;
 			}
+
+			setHasPlayed(true);
 
 			if (isLastFrame) {
 				seek(0);
@@ -70,6 +83,7 @@ export const usePlayer = (): {
 
 			imperativePlaying.current = true;
 			setPlaying(true);
+			playStart.current = frameRef.current as number;
 			emitter.dispatchPlay();
 		},
 		[
@@ -92,11 +106,25 @@ export const usePlayer = (): {
 		}
 	}, [emitter, imperativePlaying, setPlaying]);
 
-	const hasVideo = Boolean(video);
+	const pauseAndReturnToPlayStart = useCallback(() => {
+		if (imperativePlaying.current) {
+			imperativePlaying.current = false;
+			if (config) {
+				setTimelinePosition((c) => ({
+					...c,
+					[config.id]: playStart.current as number,
+				}));
+				setPlaying(false);
+				emitter.dispatchPause();
+			}
+		}
+	}, [config, emitter, imperativePlaying, setPlaying, setTimelinePosition]);
+
+	const videoId = video?.id;
 
 	const frameBack = useCallback(
 		(frames: number) => {
-			if (!hasVideo) {
+			if (!videoId) {
 				return null;
 			}
 
@@ -104,16 +132,20 @@ export const usePlayer = (): {
 				return;
 			}
 
-			setFrame((f) => {
-				return Math.max(0, f - frames);
+			setFrame((c) => {
+				const prev = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				return {
+					...c,
+					[videoId]: Math.max(0, prev - frames),
+				};
 			});
 		},
-		[hasVideo, imperativePlaying, setFrame]
+		[imperativePlaying, setFrame, videoId]
 	);
 
 	const frameForward = useCallback(
 		(frames: number) => {
-			if (!hasVideo) {
+			if (!videoId) {
 				return null;
 			}
 
@@ -121,12 +153,18 @@ export const usePlayer = (): {
 				return;
 			}
 
-			setFrame((f) => Math.min(lastFrame, f + frames));
+			setFrame((c) => {
+				const prev = c[videoId] ?? window.remotion_initialFrame ?? 0;
+				return {
+					...c,
+					[videoId]: Math.min(lastFrame, prev + frames),
+				};
+			});
 		},
-		[hasVideo, imperativePlaying, lastFrame, setFrame]
+		[videoId, imperativePlaying, lastFrame, setFrame]
 	);
 
-	const returnValue = useMemo(() => {
+	const returnValue: UsePlayerMethods = useMemo(() => {
 		return {
 			frameBack,
 			frameForward,
@@ -136,19 +174,25 @@ export const usePlayer = (): {
 			play,
 			pause,
 			seek,
+			isFirstFrame,
 			getCurrentFrame: () => frameRef.current as number,
 			isPlaying: () => imperativePlaying.current as boolean,
+			pauseAndReturnToPlayStart,
+			hasPlayed,
 		};
 	}, [
-		emitter,
 		frameBack,
 		frameForward,
-		imperativePlaying,
 		isLastFrame,
-		pause,
-		play,
+		emitter,
 		playing,
+		play,
+		pause,
 		seek,
+		isFirstFrame,
+		pauseAndReturnToPlayStart,
+		imperativePlaying,
+		hasPlayed,
 	]);
 
 	return returnValue;

@@ -1,6 +1,7 @@
 import fs from "fs";
 import execa from "execa";
 import path from "path";
+import { afterEach, beforeEach, test, expect } from "vitest";
 
 const outputPath = path.join(process.cwd(), "packages/example/out.png");
 
@@ -19,14 +20,7 @@ afterEach(() => {
 test("Should be able to render video that was wrapped in context", async () => {
   await execa(
     "pnpm",
-    [
-      "exec",
-      "remotion",
-      "still",
-      "src/index.tsx",
-      "wrapped-in-context",
-      outputPath,
-    ],
+    ["exec", "remotion", "still", "wrapped-in-context", outputPath],
     {
       cwd: path.join(process.cwd(), "..", "example"),
     }

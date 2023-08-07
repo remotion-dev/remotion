@@ -5,12 +5,32 @@ import type {render, unmountComponentAtNode} from 'react-dom';
 // We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
-import type {BundleState, TCompMetadata, TComposition} from 'remotion';
-import {continueRender, delayRender, Internals} from 'remotion';
+import type {AnyComposition, BundleState, VideoConfig} from 'remotion';
+import {
+	continueRender,
+	delayRender,
+	getInputProps,
+	Internals,
+	VERSION,
+} from 'remotion';
 import {getBundleMode, setBundleMode} from './bundle-mode';
 import {Homepage} from './homepage/homepage';
 
 Internals.CSSUtils.injectCSS(Internals.CSSUtils.makeDefaultCSS(null, '#fff'));
+
+const getCanSerializeDefaultProps = (object: unknown) => {
+	try {
+		const str = JSON.stringify(object);
+		// 256MB is the theoretical limit, making it throw if over 90% of that is reached.
+		return str.length < 256 * 1024 * 1024 * 0.9;
+	} catch (err) {
+		if ((err as Error).message.includes('Invalid string length')) {
+			return false;
+		}
+
+		throw err;
+	}
+};
 
 const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 	const video = Internals.useVideo();
@@ -33,14 +53,29 @@ const GetVideo: React.FC<{state: BundleState}> = ({state}) => {
 		if (!video && compositions.compositions.length > 0) {
 			const foundComposition = compositions.compositions.find(
 				(c) => c.id === state.compositionName
-			) as TComposition;
+			) as AnyComposition;
 			if (!foundComposition) {
 				throw new Error(
-					'Found no composition with the name ' + state.compositionName
+					`Found no composition with the name ${
+						state.compositionName
+					}. The following compositions were found instead: ${compositions.compositions
+						.map((c) => c.id)
+						.join(
+							', '
+						)}. All compositions must have their ID calculated deterministically and must be mounted at the same time.`
 				);
 			}
 
 			compositions.setCurrentComposition(foundComposition?.id ?? null);
+			compositions.setCurrentCompositionMetadata({
+				props: Internals.deserializeJSONWithCustomFields(
+					state.serializedResolvedPropsWithSchema
+				),
+				durationInFrames: state.compositionDurationInFrames,
+				fps: state.compositionFps,
+				height: state.compositionHeight,
+				width: state.compositionWidth,
+			});
 		}
 	}, [compositions, compositions.compositions, state, video]);
 
@@ -102,7 +137,9 @@ let cleanupExplainerContainer = () => {
 	explainerContainer.innerHTML = '';
 };
 
-const waitForRootHandle = delayRender('Loading root component');
+const waitForRootHandle = delayRender(
+	'Loading root component - See https://remotion.dev/docs/troubleshooting/loading-root-component if you experience a timeout'
+);
 
 const WaitForRoot: React.FC = () => {
 	const [Root, setRoot] = useState<React.FC | null>(() => Internals.getRoot());
@@ -132,7 +169,7 @@ const renderContent = () => {
 
 	if (bundleMode.type === 'composition' || bundleMode.type === 'evaluation') {
 		const markup = (
-			<Internals.RemotionRoot>
+			<Internals.RemotionRoot numberOfAudioTags={0}>
 				<WaitForRoot />
 				<GetVideo state={bundleMode} />
 			</Internals.RemotionRoot>
@@ -197,7 +234,7 @@ export const setBundleModeAndUpdate = (state: BundleState) => {
 };
 
 if (typeof window !== 'undefined') {
-	window.getStaticCompositions = (): TCompMetadata[] => {
+	const getUnevaluatedComps = () => {
 		if (!Internals.getRoot()) {
 			throw new Error(
 				'registerRoot() was never called. 1. Make sure you specified the correct entrypoint for your bundle. 2. If your registerRoot() call is deferred, use the delayRender/continueRender pattern to tell Remotion to wait.'
@@ -208,20 +245,113 @@ if (typeof window !== 'undefined') {
 			throw new Error('Unexpectedly did not have a CompositionManager');
 		}
 
-		return Internals.compositionsRef.current
-			.getCompositions()
-			.map((c): TCompMetadata => {
-				return {
-					defaultProps: c.defaultProps,
-					durationInFrames: c.durationInFrames,
-					fps: c.fps,
-					height: c.height,
-					id: c.id,
-					width: c.width,
-				};
-			});
+		const compositions = Internals.compositionsRef.current.getCompositions();
+
+		const canSerializeDefaultProps = getCanSerializeDefaultProps(compositions);
+		if (!canSerializeDefaultProps) {
+			console.warn(
+				'defaultProps are too big to serialize - trying to find the problematic composition...'
+			);
+			for (const comp of compositions) {
+				if (!getCanSerializeDefaultProps(comp)) {
+					throw new Error(
+						`defaultProps too big - could not serialize - the defaultProps of composition with ID ${comp.id} - the object that was passed to defaultProps was too big. Learn how to mitigate this error by visiting https://remotion.dev/docs/troubleshooting/serialize-defaultprops`
+					);
+				}
+			}
+
+			console.warn(
+				'Could not single out a problematic composition -  The composition list as a whole is too big to serialize.'
+			);
+
+			throw new Error(
+				'defaultProps too big - Could not serialize - an object that was passed to defaultProps was too big. Learn how to mitigate this error by visiting https://remotion.dev/docs/troubleshooting/serialize-defaultprops'
+			);
+		}
+
+		return compositions;
 	};
 
-	window.siteVersion = '3';
-	window.setBundleMode = setBundleModeAndUpdate;
+	window.getStaticCompositions = (): Promise<VideoConfig[]> => {
+		const compositions = getUnevaluatedComps();
+
+		const inputProps =
+			typeof window === 'undefined' ||
+			Internals.getRemotionEnvironment() === 'player-development' ||
+			Internals.getRemotionEnvironment() === 'player-production'
+				? {}
+				: getInputProps() ?? {};
+
+		return Promise.all(
+			compositions.map(async (c): Promise<VideoConfig> => {
+				const handle = delayRender(
+					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`
+				);
+
+				const comp = Internals.resolveVideoConfig({
+					composition: c,
+					editorProps: {},
+					signal: new AbortController().signal,
+					inputProps,
+				});
+
+				const resolved = await Promise.resolve(comp);
+				continueRender(handle);
+				return resolved;
+			})
+		);
+	};
+
+	window.remotion_getCompositionNames = () => {
+		return getUnevaluatedComps().map((c) => c.id);
+	};
+
+	window.remotion_calculateComposition = async (compId: string) => {
+		const compositions = getUnevaluatedComps();
+		const selectedComp = compositions.find((c) => c.id === compId);
+		if (!selectedComp) {
+			throw new Error(`Could not find composition with ID ${compId}`);
+		}
+
+		const abortController = new AbortController();
+		const handle = delayRender(
+			`Running the calculateMetadata() function for composition ${compId}`
+		);
+
+		const inputProps =
+			typeof window === 'undefined' ||
+			Internals.getRemotionEnvironment() === 'player-development' ||
+			Internals.getRemotionEnvironment() === 'player-production'
+				? {}
+				: getInputProps() ?? {};
+
+		const prom = await Promise.resolve(
+			Internals.resolveVideoConfig({
+				composition: selectedComp,
+				editorProps: {},
+				signal: abortController.signal,
+				inputProps,
+			})
+		);
+		continueRender(handle);
+
+		const {props, defaultProps, ...data} = prom;
+		return {
+			...data,
+			serializedResolvedPropsWithCustomSchema: Internals.serializeJSONWithDate({
+				data: props,
+				indent: undefined,
+				staticBase: null,
+			}).serializedString,
+			serializedDefaultPropsWithCustomSchema: Internals.serializeJSONWithDate({
+				data: defaultProps,
+				indent: undefined,
+				staticBase: null,
+			}).serializedString,
+		};
+	};
+
+	window.siteVersion = '9';
+	window.remotion_version = VERSION;
+	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }

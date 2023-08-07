@@ -1,13 +1,15 @@
 ---
+image: /generated/articles-docs-lambda-checklist.png
 id: checklist
 sidebar_label: Production Checklist
 title: Production Checklist
 slug: /lambda/checklist
+crumb: "Lambda"
 ---
 
 import {DefaultTimeout} from '../../components/lambda/default-timeout';
 
-You have implemented your solution with Remotion Lambda are are ready to launch your project into the world. Congrats!
+You have implemented your solution with Remotion Lambda and are ready to launch your project into the world. Congrats!
 Before you go live, go through this checklist to make sure Lambda is running stable.
 
 ### Optimizing for memory
@@ -16,7 +18,7 @@ Adding too much memory to your Lambda functions can make rendering more costly. 
 
 ### Maximum file size
 
-Lambda is constrained to a maximum output file size of approximately [half the disk space](/docs/lambda/disk-size). Adjust the disk space parameter of Lambda to accomodate for the maximum video length that you would like to support. Test the file sizes of your outputs and make sure they don't run at risk of exceeding the limit.
+Lambda is constrained to a maximum output file size of approximately [half the disk space](/docs/lambda/disk-size). Adjust the disk space parameter of Lambda to accommodate for the maximum video length that you would like to support. Test the file sizes of your outputs and make sure they don't run at risk of exceeding the limit.
 If your video is based on user input, prevent your users from rendering very long videos that would exceed the space available in Remotion Lambda.
 
 ### Permissions
@@ -26,10 +28,6 @@ Make sure your AWS user only has as many permissions as needed and store your cr
 ### AWS burst limit
 
 Familiarize yourself with the [AWS burst limit](https://docs.aws.amazon.com/lambda/latest/dg/invocation-scaling.html). Essentially, you need to avoid a quick spike in video renders that will cause the burst limit to take effect. If you need to scale beyond the burst limit, consider scaling across multiple regions as the burst limit only applies for a certain region. Another strategy to consider is creating multiple sub-accounts in your AWS organization as the burst limit only affects a single account.
-
-### AWS payload limit
-
-The maximum payload for invoking a Lambda function is 256KB. Ensure that in your application, the `inputProps` payload does not exceed this amount and introduce validation and error handling if necessary.
 
 ### Selecting the right concurrency
 

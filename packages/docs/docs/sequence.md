@@ -1,7 +1,8 @@
 ---
+image: /generated/articles-docs-sequence.png
 id: sequence
-title: <Sequence />
-sidebar_label: <Sequence />
+title: <Sequence>
+crumb: "API"
 ---
 
 import { SequenceForwardExample } from "../components/SequenceExamples/SequenceForward";
@@ -25,7 +26,7 @@ export const Outro = () => <></>;
 const MyTrailer = () => {
   return (
     <>
-      <Sequence from={0} durationInFrames={10}>
+      <Sequence durationInFrames={10}>
         <Intro />
       </Sequence>
       <Sequence from={10}>
@@ -41,7 +42,7 @@ const MyTrailer = () => {
 
 All child components inside a `<Sequence>` will have their value of [`useCurrentFrame()`](/docs/use-current-frame) shifted by the `from` value.
 
-Using the `durationInFrames` prop, you can define for how long the children of a `<Sequence>` should be mounted....
+Using the `durationInFrames` prop, you can define for how long the children of a `<Sequence>` should be mounted.
 
 By default, the children of a `<Sequence>` are wrapped in an [`<AbsoluteFill>`](/docs/absolute-fill) component. If you don't want this behavior, add `layout="none"` as a prop.
 
@@ -51,9 +52,10 @@ The Sequence component is a high order component and accepts, besides children, 
 
 ### `from`
 
-_required_
+_optional_ (From v3.2.36, _required_ in previous versions)
 
 At which frame it's children should assume the video starts. When the sequence is at `frame`, it's children are at frame `0`.
+From v3.2.36 onwards, this prop will be optional; by default, it will be 0.
 
 ### `durationInFrames`
 
@@ -65,7 +67,7 @@ For how many frames the sequence should be displayed. Children are unmounted if 
 
 _optional_
 
-You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion preview. This property is purely for helping you keep track of sequences in the timeline.
+You can give your sequence a name and it will be shown as the label of the sequence in the timeline of the Remotion Studio. This property is purely for helping you keep track of sequences in the timeline.
 
 ### `layout`
 
@@ -73,11 +75,17 @@ _optional_
 
 Either `"absolute-fill"` _(default)_ or `"none"` By default, your sequences will be absolutely positioned, so they will overlay each other. If you would like to opt out of it and handle layouting yourself, pass `layout="none"`. Available since v1.4.
 
-### `style`
+### `style`<AvailableFrom v="3.0.27"/>
 
 _optional_
 
 CSS styles to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
+
+### `className`<AvailableFrom v="3.3.45"/>
+
+_optional_
+
+A class name to be applied to the container. If `layout` is set to `none`, there is no container and setting this style is not allowed.
 
 ## Cascading
 
@@ -123,7 +131,7 @@ const MyVideo = () => {
 ### Trim end
 
 We can clip some content so it only stays visible for a certain time by specifying a non-finite `durationInFrames` number.
-In this example, we wrap the square in `<Sequence from={0} durationInFrames={45}>` and as you can see, it disappears after 45 frames.
+In this example, we wrap the square in `<Sequence durationInFrames={45}>` and as you can see, it disappears after 45 frames.
 
 <SequenceForwardExample type="clip" />
 <br />
@@ -161,6 +169,30 @@ const TrimAndDelayExample: React.FC = () => {
 ## Play Sequences sequentially
 
 See the [`<Series />`](/docs/series) helper component, which helps you calculate markup that makes sequences play after each other.
+
+## Adding a ref
+
+You can add a [React ref](https://react.dev/learn/manipulating-the-dom-with-refs) to an `<Sequence>` from version `v3.2.13` on. If you use TypeScript, you need to type it with `HTMLDivElement`:
+
+```tsx twoslash
+import { useRef } from "react";
+import { Sequence } from "remotion";
+
+const content = <div>Hello, World</div>;
+// ---cut---
+const MyComp = () => {
+  const ref = useRef<HTMLDivElement>(null);
+  return (
+    <Sequence from={10} ref={ref}>
+      {content}
+    </Sequence>
+  );
+};
+```
+
+## Note for `@remotion/three`
+
+A `<Sequence>` by default will return a `<div>` component which is not allowed inside a [`<ThreeCanvas>`](/docs/three-canvas). Avoid an error by passing `layout="none"` to `<Sequence>`. Example: `<Sequence layout="none">`.
 
 ## See also
 

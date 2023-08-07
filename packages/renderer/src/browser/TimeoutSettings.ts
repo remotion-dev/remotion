@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-const DEFAULT_TIMEOUT = 30000;
+export const DEFAULT_TIMEOUT = 30000;
 
 export class TimeoutSettings {
 	#defaultTimeout: number | null;

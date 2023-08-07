@@ -1,17 +1,8 @@
 import {RenderInternals} from '@remotion/renderer';
+import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
-import {handler} from '../../../functions';
-import type {LambdaReturnValues} from '../../../shared/return-values';
+import {callLambda} from '../../../shared/call-lambda';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-jest.setTimeout(90000);
-
-const extraContext = {
-	invokedFunctionArn: 'arn:fake',
-	getRemainingTimeInMillis: () => 12000,
-};
-
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 beforeAll(() => {
 	disableLogs();
@@ -23,45 +14,64 @@ afterAll(async () => {
 	await RenderInternals.killAllBrowsers();
 });
 
-test('Should be able to render to another bucket', async () => {
+test('Should fail when using an incompatible version', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-	const res = await handler(
-		{
-			type: LambdaRoutines.start,
-			serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
-			chromiumOptions: {},
-			codec: 'h264',
-			composition: 'react-svg',
-			crf: 9,
-			envVariables: {},
-			frameRange: [0, 12],
-			framesPerLambda: 8,
-			imageFormat: 'png',
-			inputProps: {},
-			logLevel: 'warn',
-			maxRetries: 3,
-			outName: null,
-			pixelFormat: 'yuv420p',
-			privacy: 'public',
-			proResProfile: undefined,
-			quality: undefined,
-			scale: 1,
-			timeoutInMilliseconds: 12000,
-		},
-		extraContext
-	);
-	const startRes = res as Await<LambdaReturnValues[LambdaRoutines.start]>;
-
-	const progress = (await handler(
-		{
-			type: LambdaRoutines.status,
-			bucketName: startRes.bucketName,
-			renderId: startRes.renderId,
-		},
-		extraContext
-	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
-	expect(progress.errors[0].stack).toContain(
-		'Incompatible site: When visiting'
-	);
+	try {
+		const aha = await callLambda({
+			type: LambdaRoutines.launch,
+			payload: {
+				serveUrl: 'https://competent-mccarthy-56f7c9.netlify.app/',
+				chromiumOptions: {},
+				codec: 'h264',
+				composition: 'react-svg',
+				crf: 9,
+				envVariables: {},
+				frameRange: [0, 12],
+				framesPerLambda: 8,
+				imageFormat: 'png',
+				inputProps: {
+					type: 'payload',
+					payload: '{}',
+				},
+				logLevel: 'warn',
+				maxRetries: 3,
+				outName: null,
+				pixelFormat: 'yuv420p',
+				privacy: 'public',
+				proResProfile: undefined,
+				jpegQuality: undefined,
+				scale: 1,
+				timeoutInMilliseconds: 12000,
+				numberOfGifLoops: null,
+				everyNthFrame: 1,
+				concurrencyPerLambda: 1,
+				downloadBehavior: {
+					type: 'play-in-browser',
+				},
+				muted: false,
+				overwrite: true,
+				webhook: null,
+				audioBitrate: null,
+				videoBitrate: null,
+				forceHeight: null,
+				forceWidth: null,
+				rendererFunctionName: null,
+				bucketName: 'remotion-dev-render',
+				audioCodec: null,
+				renderId: 'test',
+			},
+			functionName: 'remotion-dev-render',
+			receivedStreamingPayload: () => undefined,
+			region: 'us-east-1',
+			timeoutInTest: 120000,
+			retriesRemaining: 0,
+		});
+		console.log(aha);
+		throw new Error('Should not reach this');
+	} catch (err) {
+		expect((err as Error).message).toContain(
+			'Incompatible site: When visiting'
+		);
+	}
 });

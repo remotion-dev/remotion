@@ -1,33 +1,38 @@
 ---
+image: /generated/articles-docs-the-fundamentals.png
 id: the-fundamentals
 title: The fundamentals
+crumb: "Getting started"
 ---
 
-```twoslash include example
-import { useCurrentFrame } from "remotion";
+## React components
 
-export const MyVideo = () => {
+```twoslash include example
+import { AbsoluteFill, useCurrentFrame } from "remotion";
+
+export const MyComposition = () => {
   const frame = useCurrentFrame();
 
   return (
-    <div
+    <AbsoluteFill
       style={{
-        flex: 1,
-        textAlign: "center",
-        fontSize: "7em",
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 100,
+        backgroundColor: "white",
       }}
     >
       The current frame is {frame}.
-    </div>
+    </AbsoluteFill>
   );
 };
-// - MyVideo
+// - MyComposition
 ```
 
-The basic idea behind Remotion is that we'll give you a frame number and a blank canvas, and the freedom to render anything you want using **[React.js](https://reactjs.org)**.
+The idea of Remotion is to give you a frame number and a blank canvas, to which you can render anything you want using [React](https://react.dev). This is an example React component that renders the current frame as text:
 
-```tsx twoslash
-// @include: example-MyVideo
+```tsx twoslash title="MyComposition.tsx"
+// @include: example-MyComposition
 ```
 
 A video is a function of images over time. If you change content every frame, you'll end up with an animation.
@@ -36,61 +41,64 @@ A video is a function of images over time. If you change content every frame, yo
 
 A video has 4 properties:
 
-- `width` and `height` in pixels.
-- `durationInFrames`: The number of frames which the video is long.
-- `fps`: The amount of frames per second. The duration in frames divided by FPS results in the duration in seconds.
+- `width` in pixels.
+- `height` in pixels.
+- `durationInFrames`: the number of frames which the video is long.
+- `fps`: framerate of the video.
 
-These properties are variable and you can reuse a component multiple times with different properties. This is why you better not hard-code these properties, but instead derive them from the [`useVideoConfig()`](/docs/use-video-config) hook:
+You can obtain these values from the [`useVideoConfig()`](/docs/use-video-config) hook:
 
 ```tsx twoslash
-import { useVideoConfig } from "remotion";
+import { AbsoluteFill, useVideoConfig } from "remotion";
 
-export const MyVideo = () => {
+export const MyComposition = () => {
   const { fps, durationInFrames, width, height } = useVideoConfig();
 
   return (
-    <div
+    <AbsoluteFill
       style={{
-        flex: 1,
-        textAlign: "center",
-        fontSize: "7em",
-       }}
-      >
-      This {width}px x {height}px video is {durationInFrames / fps} seconds long.
-    </div>
+        justifyContent: "center",
+        alignItems: "center",
+        fontSize: 60,
+        backgroundColor: "white",
+      }}
+    >
+      This {width}x{height}px video is {durationInFrames / fps} seconds long.
+    </AbsoluteFill>
   );
 };
 ```
 
-A video's first frame is `0` and it's last frame is `durationInFrames - 1`.
+:::note
+A video's first frame is `0` and its last frame is `durationInFrames - 1`.
+:::
 
-## Defining compositions
+## Compositions
 
-Compositions are components with the above mentioned metadata. You can define compositions in `src/Video.tsx` to make them show up in the left sidebar.
+A composition is the combination of a React component and video metadata.
 
-```tsx twoslash
+By rendering a [`<Composition>`](/docs/composition) component in `src/Root.tsx`, you can register a renderable video and make it visible in the Remotion sidebar.
+
+```tsx twoslash title="src/Root.tsx"
 import { Composition } from "remotion";
-// @include: example-MyVideo
+// @include: example-MyComposition
 // ---cut---
 
-export const RemotionVideo: React.FC = () => {
+export const RemotionRoot: React.FC = () => {
   return (
-    <>
-      <Composition
-        id="MyVideo"
-        component={MyVideo}
-        durationInFrames={150}
-        fps={30}
-        width={1920}
-        height={1080}
-        // Optionally, you can define props that get passed to the component
-        defaultProps={{ hello: "world" }}
-      />
-    </>
+    <Composition
+      id="MyComposition"
+      durationInFrames={150}
+      fps={30}
+      width={1920}
+      height={1080}
+      component={MyComposition}
+    />
   );
 };
 ```
 
-Remember that if you like, you can register multiple compositions that rely on the same component. For example, if you like to make a square video for social media feeds, and a portrait video for Stories, you can reuse the component and try to make it 'responsive'.
-
-Besides the [`<Composition />`](/docs/composition) component, you can also use a [`<Still />`](/docs/still) component and define a still image rather than a video.
+:::note
+You can register multiple compositions in `src/Root.tsx` by wrapping them in a React Fragment:  
+`<><Composition/><Composition/></>`
+:::

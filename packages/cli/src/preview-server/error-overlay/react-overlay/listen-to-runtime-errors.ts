@@ -55,7 +55,21 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 		error.message.startsWith('Rendered fewer hooks') ||
 		error.message.startsWith('Rendered more hooks');
 
-	if (didHookOrderChange) {
+	const key = 'remotion.lastCrashBecauseOfHooks';
+	const previousCrashWasBecauseOfHooks = window.localStorage.getItem(key);
+
+	// When rendering conditional hooks, refreshing does not help.
+	// So we only refresh once.
+	const justRefreshedBecauseOfHooks = previousCrashWasBecauseOfHooks
+		? Date.now() - Number(previousCrashWasBecauseOfHooks) < 5000
+		: false;
+
+	window.localStorage.setItem(
+		'remotion.lastCrashBecauseOfHooks',
+		String(Date.now())
+	);
+
+	if (didHookOrderChange && !justRefreshedBecauseOfHooks) {
 		// eslint-disable-next-line no-console
 		console.log('Hook order changed. Reloading app...');
 		window.location.reload();

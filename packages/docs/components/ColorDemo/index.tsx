@@ -38,6 +38,7 @@ export const ColorDemo: React.FC<{
 			</AbsoluteFill>
 		);
 	}
+
 	return (
 		<AbsoluteFill>
 			<Sequence from={0} durationInFrames={120}>

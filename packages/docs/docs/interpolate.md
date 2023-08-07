@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-interpolate.png
 title: interpolate()
 id: interpolate
+crumb: "API"
 ---
 
 import { YouTube } from "../components/YouTube";
@@ -176,6 +178,17 @@ interpolate(frame, [0, 10, 40, 100], [0, 0.2, 0.6, 1], {
   extrapolateLeft: "clamp",
   extrapolateRight: "clamp",
 });
+```
+
+## Types
+
+Since `v3.3.77`, types for the options are exported from Remotion.
+
+```tsx twoslash
+import { ExtrapolateType, InterpolateOptions } from "remotion";
+
+const extrapolate: ExtrapolateType = "clamp";
+const option: InterpolateOptions = { extrapolateLeft: extrapolate };
 ```
 
 ## See also

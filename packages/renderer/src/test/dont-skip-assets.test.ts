@@ -1,4 +1,5 @@
-import type {TAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion';
+import {expect, test} from 'vitest';
 import {calculateAssetPositions} from '../assets/calculate-asset-positions';
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T; // from lodash
@@ -19,6 +20,7 @@ test('Dont skip assets', () => {
 			trimLeft: 0,
 			volume: 1,
 			playbackRate: 1,
+			allowAmplificationDuringRender: false,
 		},
 		{
 			src: 'http://localhost:3000/e15ac5e3d531199ebb1828ca6a99100d.webm',
@@ -29,11 +31,12 @@ test('Dont skip assets', () => {
 			trimLeft: 0,
 			volume: 1,
 			playbackRate: 1,
+			allowAmplificationDuringRender: false,
 		},
 	]);
 });
 
-const mock: TAsset[][] = new Array(2934)
+const mock: TRenderAsset[][] = new Array(2934)
 	.fill(true)
 	.map((_, i) => i)
 	.map((k) => {
@@ -47,6 +50,7 @@ const mock: TAsset[][] = new Array(2934)
 						volume: 1,
 						playbackRate: 1,
 						mediaFrame: 0,
+						allowAmplificationDuringRender: false,
 				  }
 				: null,
 			{
@@ -57,6 +61,7 @@ const mock: TAsset[][] = new Array(2934)
 				volume: 1,
 				playbackRate: 1,
 				mediaFrame: k,
+				allowAmplificationDuringRender: false,
 			},
 		].filter(truthy);
 	});

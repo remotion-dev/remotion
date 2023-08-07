@@ -1,7 +1,11 @@
+/**
+ * @vitest-environment jsdom
+ */
 import type {ComponentType} from 'react';
 import {Composition} from 'remotion';
-import {Player} from '../index';
-import {HelloWorld, render} from './test-utils';
+import {expect, test} from 'vitest';
+import {Player} from '../index.js';
+import {HelloWorld, render} from './test-utils.js';
 
 test('no compositionWidth should give errors', () => {
 	try {
@@ -106,7 +110,7 @@ test('No durationInFrames should give errors', () => {
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			/The "durationInFrames" prop of the <Player\/> component must be a number, but you passed a value of type undefined/
+			/durationInFrames` must be a number, but is undefined/
 		);
 	}
 });
@@ -123,6 +127,7 @@ test('Invalid playbackRate should give error', () => {
 				controls
 				showVolumeControls
 				playbackRate={-5}
+				inputProps={{}}
 			/>
 		);
 	} catch (e) {

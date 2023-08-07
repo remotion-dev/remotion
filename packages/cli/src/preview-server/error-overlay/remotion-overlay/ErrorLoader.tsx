@@ -1,9 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import type {
-	ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
-import {
-	getErrorRecord,
-} from '../react-overlay/listen-to-runtime-errors';
+import type {ErrorRecord} from '../react-overlay/listen-to-runtime-errors';
+import {getErrorRecord} from '../react-overlay/listen-to-runtime-errors';
+import type {OnRetry} from './ErrorDisplay';
 import {ErrorDisplay} from './ErrorDisplay';
 import {ErrorTitle} from './ErrorTitle';
 
@@ -42,7 +40,17 @@ type State =
 
 export const ErrorLoader: React.FC<{
 	error: Error;
-}> = ({error}) => {
+	keyboardShortcuts: boolean;
+	onRetry: OnRetry;
+	canHaveDismissButton: boolean;
+	calculateMetadata: boolean;
+}> = ({
+	error,
+	keyboardShortcuts,
+	onRetry,
+	canHaveDismissButton,
+	calculateMetadata,
+}) => {
 	const [state, setState] = useState<State>({
 		type: 'loading',
 	});
@@ -72,7 +80,12 @@ export const ErrorLoader: React.FC<{
 	if (state.type === 'loading') {
 		return (
 			<div style={container}>
-				<ErrorTitle symbolicating name={error.name} message={error.message} />
+				<ErrorTitle
+					symbolicating
+					name={error.name}
+					message={error.message}
+					canHaveDismissButton={canHaveDismissButton}
+				/>
 			</div>
 		);
 	}
@@ -84,6 +97,7 @@ export const ErrorLoader: React.FC<{
 					symbolicating={false}
 					name={error.name}
 					message={error.message}
+					canHaveDismissButton={canHaveDismissButton}
 				/>
 				<div style={errorWhileErrorStyle}>Error while getting stack trace:</div>
 				<div style={errorWhileErrorStyle}>{state.err.stack}</div>
@@ -101,6 +115,7 @@ export const ErrorLoader: React.FC<{
 					symbolicating={false}
 					name={error.name}
 					message={error.message}
+					canHaveDismissButton={canHaveDismissButton}
 				/>
 				<div style={errorWhileErrorStyle}>
 					Check the Terminal and browser console for error messages.
@@ -111,7 +126,13 @@ export const ErrorLoader: React.FC<{
 
 	return (
 		<div style={container}>
-			<ErrorDisplay display={state.record} />
+			<ErrorDisplay
+				keyboardShortcuts={keyboardShortcuts}
+				display={state.record}
+				onRetry={onRetry}
+				canHaveDismissButton={canHaveDismissButton}
+				calculateMetadata={calculateMetadata}
+			/>
 		</div>
 	);
 };

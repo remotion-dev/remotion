@@ -8,15 +8,9 @@ import {getTimelineNestedLevel} from './get-timeline-nestedness';
 import {getTimelineSequenceHash} from './get-timeline-sequence-hash';
 import type {
 	TrackWithHash,
-	TrackWithHashAndOriginalTimings} from './get-timeline-sequence-sort-key';
-import {
-	getTimelineSequenceSequenceSortKey
+	TrackWithHashAndOriginalTimings,
 } from './get-timeline-sequence-sort-key';
-
-export type SequenceWithOverlap = {
-	sequence: TSequence;
-	overlaps: TSequence[];
-};
+import {getTimelineSequenceSequenceSortKey} from './get-timeline-sequence-sort-key';
 
 const isTrackWithinParentBounds = (track: TrackWithHashAndOriginalTimings) => {
 	return [
@@ -51,7 +45,7 @@ export const calculateTimeline = ({
 					rootId: '-',
 					showInTimeline: true,
 					nonce: 0,
-					showLoopTimesInTimeline: undefined,
+					loopDisplay: undefined,
 				},
 				depth: 0,
 				hash: '-',

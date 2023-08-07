@@ -1,5 +1,6 @@
 import { opacify } from "polished";
-import React, { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
+import type { ButtonHTMLAttributes, DetailedHTMLProps } from "react";
+import React from "react";
 import styles from "./button.module.css";
 import { RED, UNDERLAY_RED } from "./colors";
 
@@ -7,7 +8,7 @@ type ExtraProps = {
   size: Size;
   fullWidth: boolean;
   background: string;
-  hoverColor: string;
+  hoverColor?: string;
   color: string;
   loading: boolean;
 };
@@ -44,7 +45,7 @@ export const Button: React.FC<Props> = (props) => {
         cursor: props.disabled ? "default" : "pointer",
         backgroundColor: props.background,
         // @ts-expect-error
-        "--hover-color": props.hoverColor,
+        "--hover-color": props.hoverColor ?? props.background,
         ...(props.fullWidth ? { width: "100%" } : {}),
         opacity: props.disabled ? 0.7 : 1,
       }}
@@ -55,12 +56,15 @@ export const Button: React.FC<Props> = (props) => {
 };
 
 export const BlueButton: React.FC<PrestyledProps> = (props) => {
+  return <Button {...props} background="var(--blue-underlay)" color="white" />;
+};
+
+export const PlainButton: React.FC<PrestyledProps> = (props) => {
   return (
     <Button
       {...props}
-      background="var(--blue-underlay)"
-      hoverColor="var(--blue-underlay-hover)"
-      color="var(--blue-button-color)"
+      background="var(--plain-button)"
+      color="var(--text-color)"
     />
   );
 };

@@ -1,4 +1,4 @@
-import { getRolePolicy } from "@remotion/lambda/dist/api/iam-validation/suggested-policy";
+import { getRolePolicy } from "@remotion/lambda/policies";
 import React from "react";
 
 export const RolePolicy: React.FC = () => {

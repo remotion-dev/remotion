@@ -1,3 +1,4 @@
+import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {
 	createContext,
 	createRef,
@@ -8,7 +9,7 @@ import React, {
 	useRef,
 	useState,
 } from 'react';
-import type {RemotionAudioProps} from './props';
+import type {RemotionAudioProps} from './props.js';
 
 /**
  * This functionality of Remotion will keep a certain amount
@@ -26,17 +27,67 @@ type AudioElem = {
 	id: number;
 	props: RemotionAudioProps;
 	el: React.RefObject<HTMLAudioElement>;
+	audioId: string;
 };
 
 const EMPTY_AUDIO =
 	'data:audio/mp3;base64,/+MYxAAJcAV8AAgAABn//////+/gQ5BAMA+D4Pg+BAQBAEAwD4Pg+D4EBAEAQDAPg++hYBH///hUFQVBUFREDQNHmf///////+MYxBUGkAGIMAAAAP/29Xt6lUxBTUUzLjEwMFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV/+MYxDUAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV';
 
 type SharedContext = {
-	registerAudio: (aud: RemotionAudioProps) => AudioElem;
+	registerAudio: (aud: RemotionAudioProps, audioId: string) => AudioElem;
 	unregisterAudio: (id: number) => void;
-	updateAudio: (id: number, aud: RemotionAudioProps) => void;
+	updateAudio: (options: {
+		id: number;
+		aud: RemotionAudioProps;
+		audioId: string;
+	}) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
+};
+
+const compareProps = (
+	obj1: Record<string, unknown>,
+	obj2: Record<string, unknown>
+) => {
+	const keysA = Object.keys(obj1).sort();
+	const keysB = Object.keys(obj2).sort();
+	if (keysA.length !== keysB.length) {
+		return false;
+	}
+
+	for (let i = 0; i < keysA.length; i++) {
+		// Not the same keys
+		if (keysA[i] !== keysB[i]) {
+			return false;
+		}
+
+		// Not the same values
+		if (obj1[keysA[i]] !== obj2[keysB[i]]) {
+			return false;
+		}
+	}
+
+	return true;
+};
+
+const didPropChange = (key: string, newProp: unknown, prevProp: unknown) => {
+	// /music.mp3 and http://localhost:3000/music.mp3 are the same
+	if (
+		key === 'src' &&
+		!(prevProp as string).startsWith('data:') &&
+		!(newProp as string).startsWith('data:')
+	) {
+		return (
+			new URL(prevProp as string, window.location.origin).toString() !==
+			new URL(newProp as string, window.location.origin).toString()
+		);
+	}
+
+	if (prevProp === newProp) {
+		return false;
+	}
+
+	return true;
 };
 
 export const SharedAudioContext = createContext<SharedContext | null>(null);
@@ -44,8 +95,9 @@ export const SharedAudioContext = createContext<SharedContext | null>(null);
 export const SharedAudioContextProvider: React.FC<{
 	numberOfAudioTags: number;
 	children: React.ReactNode;
-}> = ({children, numberOfAudioTags}) => {
-	const [audios, setAudios] = useState<AudioElem[]>([]);
+	component: LazyExoticComponent<ComponentType<Record<string, unknown>>> | null;
+}> = ({children, numberOfAudioTags, component}) => {
+	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
 	if (numberOfAudioTags !== initialNumberOfAudioTags) {
@@ -64,8 +116,42 @@ export const SharedAudioContextProvider: React.FC<{
 		new Array(numberOfAudioTags).fill(false)
 	);
 
+	const rerenderAudios = useCallback(() => {
+		refs.forEach(({ref, id}) => {
+			const data = audios.current?.find((a) => a.id === id);
+			const {current} = ref;
+			if (!current) {
+				// Whole player has been unmounted, the refs don't exist anymore.
+				// It is not an error anymore though
+				return;
+			}
+
+			if (data === undefined) {
+				current.src = EMPTY_AUDIO;
+				return;
+			}
+
+			if (!data) {
+				throw new TypeError('Expected audio data to be there');
+			}
+
+			Object.keys(data.props).forEach((key) => {
+				// @ts-expect-error
+				if (didPropChange(key, data.props[key], current[key])) {
+					// @ts-expect-error
+					current[key] = data.props[key];
+				}
+			});
+		});
+	}, [refs]);
+
 	const registerAudio = useCallback(
-		(aud: RemotionAudioProps) => {
+		(aud: RemotionAudioProps, audioId: string) => {
+			const found = audios.current?.find((a) => a.audioId === audioId);
+			if (found) {
+				return found;
+			}
+
 			const firstFreeAudio = takenAudios.current.findIndex((a) => a === false);
 			if (firstFreeAudio === -1) {
 				throw new Error(
@@ -84,17 +170,13 @@ export const SharedAudioContextProvider: React.FC<{
 				props: aud,
 				id,
 				el: ref,
+				audioId,
 			};
-			// We need a timeout because this state setting is triggered by another state being set, causing React to throw an error.
-			// By setting a timeout, we are bypassing the error and allowing the state
-			// to be updated in the next tick.
-			// This can lead to a tiny delay of audio playback, improvement ideas are welcome.
-			setTimeout(() => {
-				setAudios((prevAudios) => [...prevAudios, newElem]);
-			}, 4);
+			audios.current?.push(newElem);
+			rerenderAudios();
 			return newElem;
 		},
-		[numberOfAudioTags, refs]
+		[numberOfAudioTags, refs, rerenderAudios]
 	);
 
 	const unregisterAudio = useCallback(
@@ -108,27 +190,49 @@ export const SharedAudioContextProvider: React.FC<{
 			cloned[index] = false;
 
 			takenAudios.current = cloned;
-			setAudios((prevAudios) => {
-				return prevAudios.filter((a) => a.id !== id);
-			});
+			audios.current = audios.current?.filter((a) => a.id !== id);
+
+			rerenderAudios();
 		},
-		[refs]
+		[refs, rerenderAudios]
 	);
 
-	const updateAudio = useCallback((id: number, aud: RemotionAudioProps) => {
-		setAudios((prevAudios) => {
-			return prevAudios.map((prevA): AudioElem => {
+	const updateAudio = useCallback(
+		({
+			aud,
+			audioId,
+			id,
+		}: {
+			id: number;
+			aud: RemotionAudioProps;
+			audioId: string;
+		}) => {
+			let changed = false;
+
+			audios.current = audios.current?.map((prevA): AudioElem => {
 				if (prevA.id === id) {
+					const isTheSame = compareProps(aud, prevA.props);
+					if (isTheSame) {
+						return prevA;
+					}
+
+					changed = true;
 					return {
 						...prevA,
 						props: aud,
+						audioId,
 					};
 				}
 
 				return prevA;
 			});
-		});
-	}, []);
+
+			if (changed) {
+				rerenderAudios();
+			}
+		},
+		[rerenderAudios]
+	);
 
 	const playAllAudios = useCallback(() => {
 		refs.forEach((ref) => {
@@ -152,53 +256,84 @@ export const SharedAudioContextProvider: React.FC<{
 		updateAudio,
 	]);
 
+	// Fixing a bug: In React, if a component is unmounted using useInsertionEffect, then
+	// the cleanup function does sometimes not work properly. That is why when we
+	// are changing the composition, we reset the audio state.
+
+	// TODO: Possibly this does not save the problem completely, since the
+	// if an audio tag that is inside a sequence will also not be removed
+	// from the shared audios.
+
+	const resetAudio = useCallback(() => {
+		takenAudios.current = new Array(numberOfAudioTags).fill(false);
+		audios.current = [];
+		rerenderAudios();
+	}, [numberOfAudioTags, rerenderAudios]);
+
+	useEffect(() => {
+		return () => {
+			resetAudio();
+		};
+	}, [component, resetAudio]);
+
 	return (
 		<SharedAudioContext.Provider value={value}>
 			{refs.map(({id, ref}) => {
-				const data = audios.find((a) => a.id === id);
-				if (data === undefined) {
-					return <audio key={id} ref={ref} src={EMPTY_AUDIO} />;
-				}
-
-				if (!data) {
-					throw new TypeError('Expected audio data to be there');
-				}
-
-				return <audio key={id} ref={ref} {...data.props} />;
+				return (
+					// Without preload="metadata", iOS will seek the time internally
+					// but not actually with sound. Adding `preload="metadata"` helps here.
+					// https://discord.com/channels/809501355504959528/817306414069710848/1130519583367888906
+					<audio key={id} ref={ref} preload="metadata" src={EMPTY_AUDIO} />
+				);
 			})}
 			{children}
 		</SharedAudioContext.Provider>
 	);
 };
 
-export const useSharedAudio = (aud: RemotionAudioProps) => {
+export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	const ctx = useContext(SharedAudioContext);
 
+	/**
+	 * We work around this in React 18 so an audio tag will only register itself once
+	 */
 	const [elem] = useState((): AudioElem => {
 		if (ctx && ctx.numberOfAudioTags > 0) {
-			return ctx.registerAudio(aud);
+			return ctx.registerAudio(aud, audioId);
 		}
 
 		return {
 			el: React.createRef<HTMLAudioElement>(),
 			id: Math.random(),
 			props: aud,
+			audioId,
 		};
 	});
 
-	useEffect(() => {
-		return () => {
-			if (ctx && ctx.numberOfAudioTags > 0) {
-				ctx.unregisterAudio(elem.id);
-			}
-		};
-	}, [ctx, elem.id]);
+	/**
+	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.
+	 * - useInsertionEffect only fires once. If it's available we are in React 18.
+	 * - useLayoutEffect only fires once in React 17.
+	 *
+	 * Need to import it from React to fix React 17 ESM support.
+	 */
+	const effectToUse = React.useInsertionEffect ?? React.useLayoutEffect;
 
-	useEffect(() => {
-		if (ctx && ctx.numberOfAudioTags > 0) {
-			ctx.updateAudio(elem.id, aud);
-		}
-	}, [aud, ctx, elem.id]);
+	if (typeof document !== 'undefined') {
+		effectToUse(() => {
+			if (ctx && ctx.numberOfAudioTags > 0) {
+				ctx.updateAudio({id: elem.id, aud, audioId});
+			}
+		}, [aud, ctx, elem.id, audioId]);
+
+		effectToUse(() => {
+			return () => {
+				if (ctx && ctx.numberOfAudioTags > 0) {
+					ctx.unregisterAudio(elem.id);
+				}
+			};
+		}, [ctx, elem.id]);
+	}
 
 	return elem;
 };

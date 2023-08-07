@@ -29,7 +29,7 @@ export const LightningFastEditor: React.FC = () => {
     observer.observe(current);
 
     return () => observer.unobserve(current);
-  }, []);
+  }, [callback]);
   return (
     <div ref={ref} className={styles.row}>
       <div>

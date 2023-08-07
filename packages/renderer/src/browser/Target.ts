@@ -14,10 +14,12 @@
  * limitations under the License.
  */
 
-import type {Browser, BrowserContext} from './Browser';
+import type {LogLevel} from '../log-level';
+import type {AnySourceMapConsumer} from '../symbolicate-stacktrace';
+import type {BrowserContext, HeadlessBrowser} from './Browser';
+import {Page} from './BrowserPage';
 import type {CDPSession} from './Connection';
 import type {TargetInfo} from './devtools-types';
-import {Page} from './Page';
 import type {Viewport} from './PuppeteerViewport';
 
 const isPagetTarget = (target: TargetInfo): boolean => {
@@ -91,15 +93,22 @@ export class Target {
 	/**
 	 * If the target is not of type `"page"` or `"background_page"`, returns `null`.
 	 */
-	async page(): Promise<Page | null> {
+	async page(
+		sourcemapContext: Promise<AnySourceMapConsumer | null>,
+		logLevel: LogLevel,
+		indent: boolean
+	): Promise<Page | null> {
 		if (isPagetTarget(this.#targetInfo) && !this.#pagePromise) {
 			this.#pagePromise = this.#sessionFactory().then((client) => {
-				return Page._create(
+				return Page._create({
 					client,
-					this,
-					this.#defaultViewport ?? null,
-					this.browser()
-				);
+					target: this,
+					defaultViewport: this.#defaultViewport ?? null,
+					browser: this.browser(),
+					sourcemapContext,
+					logLevel,
+					indent,
+				});
 			});
 		}
 
@@ -143,7 +152,7 @@ export class Target {
 	/**
 	 * Get the browser the target belongs to.
 	 */
-	browser(): Browser {
+	browser(): HeadlessBrowser {
 		return this.#browserContext.browser();
 	}
 

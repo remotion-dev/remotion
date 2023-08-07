@@ -1,41 +1,48 @@
-import minimist from 'minimist';
-import {resolve} from 'path';
 import type {
+	AudioCodec,
 	BrowserExecutable,
 	Codec,
-	FfmpegExecutable,
-	ImageFormat,
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
-	ProResProfile} from 'remotion';
-import {
-	Config,
-	Internals
-} from 'remotion';
+	ProResProfile,
+	StillImageFormat,
+	VideoImageFormat,
+} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import minimist from 'minimist';
+import {Config, ConfigInternals} from './config';
 import {Log} from './log';
 
-export type CommandLineOptions = {
+type CommandLineOptions = {
 	['browser-executable']: BrowserExecutable;
-	['ffmpeg-executable']: FfmpegExecutable;
-	['ffprobe-executable']: FfmpegExecutable;
 	['pixel-format']: PixelFormat;
-	['image-format']: ImageFormat;
+	['image-format']: VideoImageFormat | StillImageFormat;
 	['prores-profile']: ProResProfile;
 	['bundle-cache']: string;
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
 	['disable-web-security']: string;
+	['every-nth-frame']: number;
+	['number-of-gif-loops']: number;
+	['number-of-shared-audio-tags']: number;
+	version: string;
 	codec: Codec;
 	concurrency: number;
 	timeout: number;
 	config: string;
+	['public-dir']: string;
+	['audio-bitrate']: string;
+	['video-bitrate']: string;
+	['audio-codec']: AudioCodec;
 	crf: number;
 	force: boolean;
+	output: string;
 	overwrite: boolean;
 	png: boolean;
 	props: string;
 	quality: number;
+	['jpeg-quality']: number;
 	frames: string | number;
 	scale: number;
 	sequence: boolean;
@@ -46,7 +53,20 @@ export type CommandLineOptions = {
 	port: number;
 	frame: string | number;
 	['disable-headless']: boolean;
+	['disable-keyboard-shortcuts']: boolean;
+	muted: boolean;
+	height: number;
+	width: number;
+	runs: number;
+	concurrencies: string;
+	['enforce-audio-track']: boolean;
 	gl: OpenGlRenderer;
+	['package-manager']: string;
+	['webpack-poll']: number;
+	['no-open']: boolean;
+	['browser']: string;
+	['browser-args']: string;
+	['user-agent']: string;
 };
 
 export const BooleanFlags = [
@@ -56,6 +76,8 @@ export const BooleanFlags = [
 	'help',
 	'quiet',
 	'q',
+	'muted',
+	'enforce-audio-track',
 	// Lambda flags
 	'force',
 	'disable-chunk-optimization',
@@ -66,143 +88,165 @@ export const BooleanFlags = [
 	'disable-web-security',
 	'ignore-certificate-errors',
 	'disable-headless',
+	'disable-keyboard-shortcuts',
+	'default-only',
+	'no-open',
 ];
 
 export const parsedCli = minimist<CommandLineOptions>(process.argv.slice(2), {
 	boolean: BooleanFlags,
-});
+}) as CommandLineOptions & {
+	_: string[];
+};
 
-export const parseCommandLine = (
-	type: 'still' | 'sequence' | 'lambda' | 'preview' | 'versions'
-) => {
+export const parseCommandLine = () => {
 	if (parsedCli['pixel-format']) {
-		Config.Output.setPixelFormat(parsedCli['pixel-format']);
-	}
-
-	if (parsedCli['image-format']) {
-		Config.Rendering.setImageFormat(parsedCli['image-format']);
+		Config.setPixelFormat(parsedCli['pixel-format']);
 	}
 
 	if (parsedCli['browser-executable']) {
-		Config.Puppeteer.setBrowserExecutable(parsedCli['browser-executable']);
+		Config.setBrowserExecutable(parsedCli['browser-executable']);
 	}
 
-	if (parsedCli['ffmpeg-executable']) {
-		Config.Rendering.setFfmpegExecutable(
-			resolve(parsedCli['ffmpeg-executable'])
-		);
-	}
-
-	if (parsedCli['ffprobe-executable']) {
-		Config.Rendering.setFfprobeExecutable(
-			resolve(parsedCli['ffprobe-executable'])
-		);
+	if (parsedCli['number-of-gif-loops']) {
+		Config.setNumberOfGifLoops(parsedCli['number-of-gif-loops']);
 	}
 
 	if (typeof parsedCli['bundle-cache'] !== 'undefined') {
-		Config.Bundling.setCachingEnabled(parsedCli['bundle-cache'] !== 'false');
+		Config.setCachingEnabled(parsedCli['bundle-cache'] !== 'false');
 	}
 
 	if (parsedCli['disable-web-security']) {
-		Config.Puppeteer.setChromiumDisableWebSecurity(true);
+		Config.setChromiumDisableWebSecurity(true);
 	}
 
 	if (parsedCli['ignore-certificate-errors']) {
-		Config.Puppeteer.setChromiumIgnoreCertificateErrors(true);
+		Config.setChromiumIgnoreCertificateErrors(true);
 	}
 
 	if (parsedCli['disable-headless']) {
-		Config.Puppeteer.setChromiumHeadlessMode(false);
+		Config.setChromiumHeadlessMode(false);
 	}
 
-	if (parsedCli.gl) {
-		Config.Puppeteer.setChromiumOpenGlRenderer(parsedCli.gl);
+	if (parsedCli['user-agent']) {
+		Config.setChromiumUserAgent(parsedCli['user-agent']);
 	}
 
 	if (parsedCli.log) {
-		if (!Internals.Logging.isValidLogLevel(parsedCli.log)) {
+		if (!RenderInternals.isValidLogLevel(parsedCli.log)) {
 			Log.error('Invalid `--log` value passed.');
 			Log.error(
-				`Accepted values: ${Internals.Logging.logLevels
+				`Accepted values: ${RenderInternals.logLevels
 					.map((l) => `'${l}'`)
 					.join(', ')}.`
 			);
 			process.exit(1);
 		}
 
-		Internals.Logging.setLogLevel(parsedCli.log as LogLevel);
+		ConfigInternals.Logging.setLogLevel(parsedCli.log as LogLevel);
 	}
 
 	if (parsedCli.concurrency) {
-		Config.Rendering.setConcurrency(parsedCli.concurrency);
+		Config.setConcurrency(parsedCli.concurrency);
 	}
 
 	if (parsedCli.timeout) {
-		Config.Puppeteer.setTimeoutInMilliseconds(parsedCli.timeout);
+		Config.setTimeoutInMilliseconds(parsedCli.timeout);
+	}
+
+	if (parsedCli.height) {
+		Config.overrideHeight(parsedCli.height);
+	}
+
+	if (parsedCli.width) {
+		Config.overrideWidth(parsedCli.width);
 	}
 
 	if (parsedCli.frames) {
-		if (type === 'still') {
-			Log.error(
-				'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/'
-			);
-			process.exit(1);
-		}
-
-		Internals.setFrameRangeFromCli(parsedCli.frames);
+		ConfigInternals.setFrameRangeFromCli(parsedCli.frames);
 	}
 
 	if (parsedCli.frame) {
-		if (type === 'sequence') {
-			Log.error(
-				'--frame flag was passed to the `render` command. This flag only works with the `still` command. Did you mean `--frames`? See reference: https://www.remotion.dev/docs/cli/'
-			);
-			process.exit(1);
-		}
-
-		Internals.setStillFrame(Number(parsedCli.frame));
+		ConfigInternals.setStillFrame(Number(parsedCli.frame));
 	}
 
 	if (parsedCli.png) {
-		Log.warn(
-			'The --png flag has been deprecrated. Use --sequence --image-format=png from now on.'
+		throw new Error(
+			'The --png flag has been removed. Use --sequence --image-format=png from now on.'
 		);
-		Config.Output.setImageSequence(true);
-		Config.Rendering.setImageFormat('png');
 	}
 
 	if (parsedCli.sequence) {
-		Config.Output.setImageSequence(true);
+		Config.setImageSequence(true);
 	}
 
 	if (typeof parsedCli.crf !== 'undefined') {
-		Config.Output.setCrf(parsedCli.crf);
+		Config.setCrf(parsedCli.crf);
 	}
 
-	if (parsedCli.codec) {
-		Config.Output.setCodec(parsedCli.codec);
+	if (parsedCli['every-nth-frame']) {
+		Config.setEveryNthFrame(parsedCli['every-nth-frame']);
+	}
+
+	if (parsedCli.gl) {
+		Config.setChromiumOpenGlRenderer(parsedCli.gl);
 	}
 
 	if (parsedCli['prores-profile']) {
-		Config.Output.setProResProfile(
+		Config.setProResProfile(
 			String(parsedCli['prores-profile']) as ProResProfile
 		);
 	}
 
 	if (parsedCli.overwrite) {
-		Config.Output.setOverwriteOutput(parsedCli.overwrite);
+		Config.setOverwriteOutput(parsedCli.overwrite);
 	}
 
 	if (typeof parsedCli.quality !== 'undefined') {
-		Config.Rendering.setQuality(parsedCli.quality);
+		Log.warn('The --quality flag has been renamed to --jpeg-quality instead.');
+		Config.setJpegQuality(parsedCli.quality);
+	}
+
+	if (typeof parsedCli['jpeg-quality'] !== 'undefined') {
+		Config.setJpegQuality(parsedCli['jpeg-quality']);
 	}
 
 	if (typeof parsedCli.scale !== 'undefined') {
-		Config.Rendering.setScale(parsedCli.scale);
+		Config.setScale(parsedCli.scale);
 	}
 
 	if (typeof parsedCli.port !== 'undefined') {
-		Config.Bundling.setPort(parsedCli.port);
+		Config.setPort(parsedCli.port);
+	}
+
+	if (typeof parsedCli.muted !== 'undefined') {
+		Config.setMuted(parsedCli.muted);
+	}
+
+	if (typeof parsedCli['disable-keyboard-shortcuts'] !== 'undefined') {
+		Config.setKeyboardShortcutsEnabled(
+			!parsedCli['disable-keyboard-shortcuts']
+		);
+	}
+
+	if (typeof parsedCli['enforce-audio-track'] !== 'undefined') {
+		Config.setEnforceAudioTrack(parsedCli['enforce-audio-track']);
+	}
+
+	if (typeof parsedCli['public-dir'] !== 'undefined') {
+		Config.setPublicDir(parsedCli['public-dir']);
+	}
+
+	if (typeof parsedCli['webpack-poll'] !== 'undefined') {
+		Config.setWebpackPollingInMilliseconds(parsedCli['webpack-poll']);
+	}
+
+	if (typeof parsedCli['audio-bitrate'] !== 'undefined') {
+		Config.setAudioBitrate(parsedCli['audio-bitrate']);
+	}
+
+	if (typeof parsedCli['video-bitrate'] !== 'undefined') {
+		Config.setVideoBitrate(parsedCli['video-bitrate']);
 	}
 };
 

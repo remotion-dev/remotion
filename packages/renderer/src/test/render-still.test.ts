@@ -1,7 +1,8 @@
+import {expect, test} from 'vitest';
 import {renderStill} from '../render-still';
 
-test('Need to pass valid metadata', () => {
-	return expect(() =>
+test('Need to pass valid metadata', async () => {
+	await expect(() =>
 		renderStill({
 			composition: {
 				width: NaN,
@@ -9,17 +10,39 @@ test('Need to pass valid metadata', () => {
 				fps: 30,
 				durationInFrames: 30,
 				id: 'hithere',
-				defaultProps: undefined,
+				defaultProps: {},
+				props: {},
 			},
 			frame: 0,
 			output: '/file/output.png',
-			serveUrl: 'https://silly-crostata-c4c336.netlify.app/',
+			serveUrl:
+				'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
+			verbose: false,
 		})
 	).rejects.toThrow(/not be NaN, but is NaN/);
 });
 
-test('Need to pass valid metadata', () => {
-	return expect(() =>
+test('Returns buffer in promise result', async () => {
+	const {buffer} = await renderStill({
+		composition: {
+			width: 1000,
+			height: 1000,
+			fps: 30,
+			durationInFrames: 30,
+			id: 'react-svg',
+			defaultProps: {},
+			props: {},
+		},
+		frame: 0,
+		serveUrl:
+			'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
+		verbose: false,
+	});
+	expect(buffer?.length).toBeGreaterThan(1000);
+});
+
+test('Need to pass valid metadata', async () => {
+	await expect(() =>
 		renderStill({
 			composition: {
 				width: 1000,
@@ -27,11 +50,14 @@ test('Need to pass valid metadata', () => {
 				fps: 30,
 				durationInFrames: 30,
 				id: 'hithere',
-				defaultProps: undefined,
+				defaultProps: {},
+				props: {},
 			},
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl: 'https://silly-crostata-c4c336.netlify.app/',
+			serveUrl:
+				'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
+			verbose: false,
 		})
 	).rejects.toThrow(
 		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/
@@ -47,13 +73,17 @@ test('Catches invalid image format', () => {
 				fps: 30,
 				durationInFrames: 30,
 				id: 'hithere',
-				defaultProps: undefined,
+				defaultProps: {},
+				props: {},
 			},
 			// @ts-expect-error
 			imageFormat: 'jjj',
 			frame: 200,
 			output: '/file/output.png',
-			serveUrl: 'https://silly-crostata-c4c336.netlify.app/',
+			serveUrl:
+				'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
 		})
-	).rejects.toThrow(/Image format should be either "png" or "jpeg"/);
+	).rejects.toThrow(
+		/Image format should be one of: "png", "jpeg", "pdf", "webp"/
+	);
 });

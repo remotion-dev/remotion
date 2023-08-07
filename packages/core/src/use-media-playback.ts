@@ -1,12 +1,18 @@
 import type {RefObject} from 'react';
 import {useContext, useEffect} from 'react';
-import {useMediaStartsAt} from './audio/use-audio-frame';
-import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error';
-import {TimelineContext, usePlayingState} from './timeline-position-state';
-import {useAbsoluteCurrentFrame, useCurrentFrame} from './use-current-frame';
-import {useVideoConfig} from './use-video-config';
-import {getMediaTime} from './video/get-current-time';
-import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media';
+import {useMediaStartsAt} from './audio/use-audio-frame.js';
+import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
+import {
+	TimelineContext,
+	usePlayingState,
+	useTimelinePosition,
+} from './timeline-position-state.js';
+import {useCurrentFrame} from './use-current-frame.js';
+import {useVideoConfig} from './use-video-config.js';
+import {getMediaTime} from './video/get-current-time.js';
+import {warnAboutNonSeekableMedia} from './warn-about-non-seekable-media.js';
+
+export const DEFAULT_ACCEPTABLE_TIMESHIFT = 0.45;
 
 export const useMediaPlayback = ({
 	mediaRef,
@@ -14,16 +20,18 @@ export const useMediaPlayback = ({
 	mediaType,
 	playbackRate: localPlaybackRate,
 	onlyWarnForMediaSeekingError,
+	acceptableTimeshift,
 }: {
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>;
 	src: string | undefined;
 	mediaType: 'audio' | 'video';
 	playbackRate: number;
 	onlyWarnForMediaSeekingError: boolean;
+	acceptableTimeshift: number;
 }) => {
 	const {playbackRate: globalPlaybackRate} = useContext(TimelineContext);
 	const frame = useCurrentFrame();
-	const absoluteFrame = useAbsoluteCurrentFrame();
+	const absoluteFrame = useTimelinePosition();
 	const [playing] = usePlayingState();
 	const {fps} = useVideoConfig();
 	const mediaStartsAt = useMediaStartsAt();
@@ -48,21 +56,40 @@ export const useMediaPlayback = ({
 			);
 		}
 
-		mediaRef.current.playbackRate = Math.max(0, playbackRate);
+		const playbackRateToSet = Math.max(0, playbackRate);
+		if (mediaRef.current.playbackRate !== playbackRateToSet) {
+			mediaRef.current.playbackRate = playbackRateToSet;
+		}
 
-		const shouldBeTime = getMediaTime({
+		// Let's throttle the seeking to only every 10 frames when a video is playing to avoid bottlenecking
+		// the video tag.
+		if (playing) {
+			if (absoluteFrame % 10 !== 0) {
+				return;
+			}
+		}
+
+		const desiredUnclampedTime = getMediaTime({
 			fps,
 			frame,
 			src,
 			playbackRate: localPlaybackRate,
 			startFrom: -mediaStartsAt,
+			mediaType,
 		});
+		const {duration} = mediaRef.current;
+		const shouldBeTime =
+			!Number.isNaN(duration) && Number.isFinite(duration)
+				? Math.min(duration, desiredUnclampedTime)
+				: desiredUnclampedTime;
 
 		const isTime = mediaRef.current.currentTime;
 		const timeShift = Math.abs(shouldBeTime - isTime);
-		if (timeShift > 0.45 && !mediaRef.current.ended) {
+
+		if (timeShift > acceptableTimeshift) {
 			// If scrubbing around, adjust timing
-			// or if time shift is bigger than 0.2sec
+			// or if time shift is bigger than 0.45sec
+
 			mediaRef.current.currentTime = shouldBeTime;
 			if (!onlyWarnForMediaSeekingError) {
 				warnAboutNonSeekableMedia(
@@ -70,15 +97,29 @@ export const useMediaPlayback = ({
 					onlyWarnForMediaSeekingError ? 'console-warning' : 'console-error'
 				);
 			}
+
+			return;
+		}
+
+		// Only perform a seek if the time is not already the same.
+		// Chrome rounds to 6 digits, so 0.033333333 -> 0.033333,
+		// therefore a threshold is allowed.
+		// Refer to the https://github.com/remotion-dev/video-buffering-example
+		// which is fixed by only seeking conditionally.
+		const makesSenseToSeek =
+			Math.abs(mediaRef.current.currentTime - shouldBeTime) > 0.00001;
+
+		if (!makesSenseToSeek) {
+			return;
 		}
 
 		if (!playing || absoluteFrame === 0) {
 			mediaRef.current.currentTime = shouldBeTime;
+			return;
 		}
 
 		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
-			const {current} = mediaRef;
-			current.currentTime = shouldBeTime;
+			mediaRef.current.currentTime = shouldBeTime;
 			playAndHandleNotAllowedError(mediaRef, mediaType);
 		}
 	}, [
@@ -93,5 +134,6 @@ export const useMediaPlayback = ({
 		mediaStartsAt,
 		localPlaybackRate,
 		onlyWarnForMediaSeekingError,
+		acceptableTimeshift,
 	]);
 };
