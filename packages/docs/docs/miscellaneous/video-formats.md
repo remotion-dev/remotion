@@ -13,4 +13,8 @@ Remotion supports a variety of video codecs.
 During rendering this means that the Chrome codecs are supported. In the [Remotion Studio](/docs/terminology#remotion-studio) and in the [Player](/docs/terminology#remotion-player), the codec support from the browser in which the webpage is hosted in applies.  
 Codec support varies between browsers and changes from time to time. Refer to this [MDN article](https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Video_codecs) for browser support.
 
+:::note
+Prior to v4.0.18, if you did not have a local copy of Chrome, Remotion would download a copy of [Chromium]() which [would not support the proprietary H.264 and H.265 codecs](/docs/miscellaneous/thorium-browser).
+:::
+
 **Codecs supported for [`<OffthreadVideo>`](/docs/offthreadvideo)**: The same support that applies to `<Video>` applies to `<OffthreadVideo>` as well, however, more codecs can be supported during rendering since FFmpeg is used under the hood to read the video file. We however don't maintain an exact list of supported video codecs.
