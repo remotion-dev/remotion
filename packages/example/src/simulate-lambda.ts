@@ -5,7 +5,7 @@ import {
 	renderMedia,
 } from '@remotion/renderer';
 import path from 'node:path';
-import {webpackOverride} from './webpack-override';
+import {webpackOverride} from './webpack-override.mjs';
 import {VideoConfig} from 'remotion';
 
 const start = async () => {
