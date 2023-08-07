@@ -23,7 +23,7 @@ import { getSilentParts } from "@remotion/renderer";
 const { silentParts, durationInSeconds } = await getSilentParts({
   src: "./bunny.mp4",
   noiseThresholdInDecibels: -20,
-  minDuration: 1,
+  minDurationInSeconds: 1,
 });
 
 console.log(silentParts); // [{startInSeconds: 0, endInSeconds: 1.5}]
@@ -45,7 +45,7 @@ _number, optional_
 
 The threshold in decibels. If the audio is below this threshold, it is considered silent. The default is `-20`. Must be less than `30`.
 
-### `minDuration`
+### `minDurationInSeconds`
 
 _number, optional_
 

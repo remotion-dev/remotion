@@ -12,11 +12,11 @@ import type {LogLevel} from './log-level';
 export const getSilentParts = async ({
 	src,
 	noiseThresholdInDecibels: passedNoiseThresholdInDecibels,
-	minDuration: passedMinDuration,
+	minDurationInSeconds: passedMinDuration,
 	logLevel,
 }: {
 	src: string;
-	minDuration?: number;
+	minDurationInSeconds?: number;
 	logLevel?: LogLevel;
 	noiseThresholdInDecibels?: number;
 }): Promise<GetSilentPartsResponse> => {
@@ -26,15 +26,17 @@ export const getSilentParts = async ({
 		false
 	);
 
-	const minDuration = passedMinDuration ?? 1;
+	const minDurationInSeconds = passedMinDuration ?? 1;
 
-	if (typeof minDuration !== 'number') {
-		throw new Error(`minDuration must be a number, but was ${minDuration}`);
+	if (typeof minDurationInSeconds !== 'number') {
+		throw new Error(
+			`minDurationInSeconds must be a number, but was ${minDurationInSeconds}`
+		);
 	}
 
-	if (minDuration <= 0) {
+	if (minDurationInSeconds <= 0) {
 		throw new Error(
-			`minDuration must be greater than 0, but was ${minDuration}`
+			`minDurationInSeconds must be greater than 0, but was ${minDurationInSeconds}`
 		);
 	}
 
@@ -54,7 +56,7 @@ export const getSilentParts = async ({
 
 	const res = await compositor.executeCommand('GetSilences', {
 		src,
-		minDuration,
+		minDurationInSeconds,
 		noiseThresholdInDecibels,
 	});
 

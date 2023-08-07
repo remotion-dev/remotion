@@ -1,5 +1,5 @@
 {
-  "extends": "@tsconfig/docusaurus/tsconfig.json",
+  "extends": "../tsconfig.settings.json",
   "baseUrl": ".",
   "compilerOptions": {
     "types": ["node"],
@@ -8,13 +8,26 @@
     "noUnusedParameters": true,
     "jsx": "react",
     "target": "ES2019",
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strict": false,
+    "noEmit": true
   },
+  "paths": {
+    "@site/*": ["./*"]
+  },
+  "types": [
+    "node",
+    "@docusaurus/module-type-aliases",
+    "@docusaurus/theme-classic"
+  ],
   "references": [
     { "path": "../player" },
     { "path": "../core" },
     { "path": "../media-utils" },
     { "path": "../babel-loader" },
+    { "path": "../cloudrun" },
     { "path": "../lottie" },
     { "path": "../noise" },
     { "path": "../paths" },

@@ -1,15 +1,17 @@
-import {WebpackOverrideFn} from '@remotion/bundler';
 import path from 'node:path';
 import {enableTailwind} from '@remotion/tailwind';
-type Bundler = 'webpack' | 'esbuild';
 
-const WEBPACK_OR_ESBUILD = 'esbuild' as Bundler;
+const WEBPACK_OR_ESBUILD = 'esbuild';
 
-export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
+/**
+ * @typedef {import('@remotion/bundler').WebpackOverrideFn} WebpackOverrideFn
+ */
+export const webpackOverride = (currentConfiguration) => {
 	const replaced = (() => {
 		if (WEBPACK_OR_ESBUILD === 'webpack') {
 			const {replaceLoadersWithBabel} = require(path.join(
-				__dirname,
+				// eslint-disable-next-line no-undef
+				process.cwd(),
 				'..',
 				'..',
 				'example',
@@ -42,6 +44,7 @@ export const webpackOverride: WebpackOverrideFn = (currentConfiguration) => {
 			...replaced.resolve,
 			alias: {
 				...replaced.resolve.alias,
+				// eslint-disable-next-line no-undef
 				lib: path.join(process.cwd(), 'src', 'lib'),
 			},
 		},

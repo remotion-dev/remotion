@@ -21,7 +21,7 @@ test('Sensitive settings', async () => {
 	const {silentParts, audibleParts, durationInSeconds} = await getSilentParts({
 		src: exampleVideos.webcam,
 		noiseThresholdInDecibels: 0,
-		minDuration: 0.1,
+		minDurationInSeconds: 0.1,
 		logLevel: 'info',
 	});
 	expect(silentParts.length).toEqual(1);
@@ -34,7 +34,7 @@ test('Sensitive settings', async () => {
 test('Long duration', async () => {
 	const {silentParts, audibleParts} = await getSilentParts({
 		src: exampleVideos.webcam,
-		minDuration: 10,
+		minDurationInSeconds: 10,
 	});
 	expect(silentParts.length).toEqual(0);
 	expect(audibleParts.length).toEqual(1);
@@ -47,7 +47,7 @@ test('Wrong file', async () => {
 	try {
 		await getSilentParts({
 			src: exampleVideos.notavideo,
-			minDuration: 10,
+			minDurationInSeconds: 10,
 		});
 		throw new Error('Should not be able to get silent parts from a non-video');
 	} catch (err) {
@@ -60,7 +60,7 @@ test('Inexistent file', async () => {
 	try {
 		await getSilentParts({
 			src: exampleVideos.notafile,
-			minDuration: 10,
+			minDurationInSeconds: 10,
 		});
 		throw new Error('Should not be able to get silent parts from a non-video');
 	} catch (err) {
@@ -72,7 +72,7 @@ test('folder', async () => {
 	try {
 		await getSilentParts({
 			src: path.dirname(exampleVideos.notafile),
-			minDuration: 10,
+			minDurationInSeconds: 10,
 		});
 		throw new Error('Should not be able to get silent parts from a non-video');
 	} catch (err) {

@@ -72,7 +72,7 @@ export const getAllFilesS3 = ({
 	renderId: string;
 	region: AwsRegion;
 	expectedBucketOwner: string;
-	onErrors: (errors: EnhancedErrorInfo[]) => Promise<void>;
+	onErrors: (errors: EnhancedErrorInfo[]) => void;
 }): Promise<string[]> => {
 	const alreadyDownloading: {[key: string]: true} = {};
 	const downloaded: {[key: string]: true} = {};
@@ -132,7 +132,7 @@ export const getAllFilesS3 = ({
 			).filter((e) => e.isFatal);
 
 			if (errors.length > 0) {
-				await onErrors(errors);
+				onErrors(errors);
 				// Will die here
 			}
 
