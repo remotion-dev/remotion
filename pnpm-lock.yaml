@@ -1383,6 +1383,9 @@ importers:
       '@remotion/preload':
         specifier: workspace:*
         version: link:../preload
+      '@remotion/three':
+        specifier: workspace:^
+        version: link:../three
       '@types/react':
         specifier: 18.0.26
         version: 18.0.26

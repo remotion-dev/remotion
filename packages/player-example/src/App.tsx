@@ -19,6 +19,7 @@ import {AbsoluteFill} from 'remotion';
 import {playerExampleComp} from './CarSlideshow';
 import {Loading} from './Loading';
 import {TimeDisplay} from './TimeDisplay';
+import {ThreeDebug} from './ThreeDebug';
 
 const fps = 30;
 
@@ -566,7 +567,7 @@ const PlayerOnly: React.FC<
 			compositionWidth={500}
 			compositionHeight={432}
 			fps={fps}
-			{...props}
+			component={ThreeDebug}
 			durationInFrames={durationInFrames}
 			doubleClickToFullscreen={doubleClickToFullscreen}
 			loop={loop}
@@ -581,7 +582,6 @@ const PlayerOnly: React.FC<
 			initialFrame={30}
 			showPosterWhenUnplayed={showPosterWhenUnplayed}
 			showPosterWhenEnded={showPosterWhenEnded}
-			showPosterWhenPaused={showPosterWhenPaused}
 			inFrame={inFrame}
 			outFrame={outFrame}
 			alwaysShowControls={alwaysShowControls}
