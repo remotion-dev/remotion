@@ -397,7 +397,6 @@ module.exports = {
     },
   ],
   mainSidebar: [
-    "cloudrun-alpha",
     {
       type: "category",
       label: "Getting started",
@@ -553,12 +552,13 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Cloud Run",
+      label: "Cloud Run (Alpha)",
       link: {
         type: "doc",
-        id: "cloudrun",
+        id: "cloudrun-alpha",
       },
       items: [
+        "cloudrun",
         "cloudrun/setup",
         "cloudrun/permissions",
         "cloudrun/generate-env",

@@ -5,6 +5,10 @@ title: Upgrading Cloud Run
 slug: /cloudrun/upgrading
 ---
 
+<ExperimentalBadge>
+<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+</ExperimentalBadge>
+
 import {Prerelease} from "../../components/PrereleaseVersion"
 
 - Determine the newest version from the [Releases page](https://github.com/remotion-dev/remotion/releases).

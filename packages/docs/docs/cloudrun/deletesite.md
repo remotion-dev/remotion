@@ -6,6 +6,10 @@ slug: /cloudrun/deletesite
 crumb: "Cloud Run API"
 ---
 
+<ExperimentalBadge>
+<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+</ExperimentalBadge>
+
 Removes a Remotion project from your Cloud Storage bucket.
 
 Each project is located in the `sites/` subdirectory of your Cloud Storage bucket. Calling this function is equivalent of deleting all files inside a subfolder of your `sites/` subdirectory.

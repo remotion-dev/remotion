@@ -1,10 +1,14 @@
 ---
-image: /generated/articles-docs-cloudrun-getserviceinfo.png
+image: /generated/articles-docs-cloudrun-getServiceinfo.png
 id: getserviceinfo
 title: getServiceInfo()
 slug: /cloudrun/getserviceinfo
 crumb: "Cloud Run API"
 ---
+
+<ExperimentalBadge>
+<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+</ExperimentalBadge>
 
 Gets information about a service given it's name and region.
 

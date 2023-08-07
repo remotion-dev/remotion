@@ -5,6 +5,9 @@ title: Cloud Run Alpha
 crumb: "Version Upgrade"
 ---
 
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
 Help us shape Remotion Cloud Run!
 
 [Cloud Run](/docs/cloudrun) is an alternative option to [Remotion Lambda](/docs/lambda). Where Lambda offers a cloud-based rendering solution on AWS (Amazon Web Services), Cloud Run makes use of GCP (Google Cloud Platform).
@@ -19,31 +22,63 @@ We are looking for feedback on the experience of setting up a GCP Project for Re
 
 We are welcoming any bug reports. See a list of [features of Cloud Run here](/blog/cloudrun).
 
-## How to get started
+## 1. Install `@remotion/cloudrun`
 
-You will need to use a V4.0 Remotion project, follow the [migration steps](/docs/4-0-migration.md) first if you are currently on V3.
+<Tabs
+defaultValue="npm"
+values={[
+{ label: 'npm', value: 'npm', },
+{ label: 'yarn', value: 'yarn', },
+{ label: 'pnpm', value: 'pnpm', },
+]
+}>
+<TabItem value="npm">
 
-See the [changelog](#changelog) to find the latest version.
-Upgrade `remotion` and all packages starting with `@remotion` to the latest version, e.g. `4.0.0`:
-
-```diff title="package.json"
-- "remotion": "^3.3.87"
-- "@remotion/bundler": "^3.3.87"
-- "@remotion/eslint-config": "^3.3.87"
-- "@remotion/eslint-plugin": "^3.3.87"
-- "@remotion/cli": "^3.3.87"
-- "@remotion/renderer": "^3.3.87"
-+ "remotion": "4.1.0-alpha2"
-+ "@remotion/bundler": "4.1.0-alpha2"
-+ "@remotion/eslint-config": "4.1.0-alpha2"
-+ "@remotion/eslint-plugin": "4.1.0-alpha2"
-+ "@remotion/cli": "4.1.0-alpha2"
-+ "@remotion/renderer": "4.1.0-alpha2"
+```bash
+npm i @remotion/cloudrun
 ```
 
-Make sure the versions don't have a `^` character in front of it.
+  </TabItem>
+
+  <TabItem value="pnpm">
+
+```bash
+pnpm i @remotion/cloudrun
+```
+
+  </TabItem>
+  <TabItem value="yarn">
+
+```bash
+yarn add @remotion/cloudrun
+```
+
+  </TabItem>
+
+</Tabs>
+
+Also update **all the other Remotion packages** to have the same version: `remotion`, `@remotion/cli` and others.
+
+:::note
+Make sure no package version number has a `^` character in front of it as it can lead to a version conflict.
+:::
+
+Your package.json should look like the following:
+
+```json
+  "@remotion/cli": "4.0.0", // Replace 4.0.0 with the current version
+  "@remotion/cloudrun": "4.0.0", // Remove any `^` character
+  // ...
+  "remotion": "4.0.0",
+```
+
+From `v4.0.18`, Cloud run is distributed together with the main release of Remotion. Before that, you had to install the alpha release (see below).
 
 ## Changelog
+
+### `4.0.18`
+
+Remotion Cloud Run is now distributed together with the main release of Remotion. You no longer need to switch to the alpha release, although Remotion Cloud Run is still alpha software.
 
 ### `4.1.0-alpha12`
 
