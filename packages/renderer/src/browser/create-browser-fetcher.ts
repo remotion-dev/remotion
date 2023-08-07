@@ -14,74 +14,38 @@
  * limitations under the License.
  */
 
+import {Log} from '../logger';
 import {
 	download,
-	getDownloadHost,
 	getDownloadsFolder,
-	getFolderPath,
 	getPlatform,
 	getRevisionInfo,
-	localRevisions,
-	removeBrowser,
+	getThoriumDownloadUrl,
 } from './BrowserFetcher';
 import type {Product} from './Product';
-import {PUPPETEER_REVISIONS} from './revisions';
 
 const supportedProducts = {
 	chrome: 'Chromium',
-	firefox: 'Firefox Nightly',
 } as const;
 
-function getRevision(product: Product): string {
-	if (product === 'chrome') {
-		return PUPPETEER_REVISIONS.chromium;
-	}
-
-	throw new Error(`Unsupported product ${product}`);
-}
-
 export async function downloadBrowser(product: Product): Promise<void> {
-	const revision = getRevision(product);
-	const revisionInfo = getRevisionInfo(revision, product);
+	const revisionInfo = getRevisionInfo(product);
 
 	await download({
-		revision: revisionInfo.revision,
 		progressCallback: (downloadedBytes, totalBytes) => {
-			console.log(
-				'Downloading',
-				supportedProducts[product],
+			Log.info(
+				'Downloading Thorium',
 				toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytes)
 			);
 		},
 		product,
 		platform: getPlatform(product),
-		downloadHost: getDownloadHost(product),
-		downloadsFolder: getDownloadsFolder(product),
+		downloadsFolder: getDownloadsFolder(),
+		downloadURL: getThoriumDownloadUrl(getPlatform(product)),
 	});
-	const _localRevisions = await localRevisions(
-		getDownloadsFolder(product),
-		product,
-		getPlatform(product)
-	);
 
-	console.log(
-		`${supportedProducts[product]} (${revisionInfo.revision}) downloaded to ${revisionInfo.folderPath}`
-	);
-	await Promise.all(
-		_localRevisions
-			.filter((__revision) => {
-				return __revision !== revisionInfo.revision;
-			})
-			.map((__revision) => {
-				return removeBrowser(
-					__revision,
-					getFolderPath(
-						revision,
-						getDownloadsFolder(product),
-						getPlatform(product)
-					)
-				);
-			})
+	Log.info(
+		`${supportedProducts[product]} (${revisionInfo.url}) downloaded to ${revisionInfo.folderPath}`
 	);
 }
 

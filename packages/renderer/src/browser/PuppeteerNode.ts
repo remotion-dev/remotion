@@ -23,7 +23,6 @@ import type {
 	LaunchOptions,
 } from './LaunchOptions';
 import type {Product} from './Product';
-import {PUPPETEER_REVISIONS} from './revisions';
 
 interface PuppeteerLaunchOptions
 	extends LaunchOptions,
@@ -37,12 +36,9 @@ export class PuppeteerNode {
 	#lazyLauncher?: ProductLauncher;
 	#productName?: Product;
 
-	_preferredRevision: string;
-
-	constructor(settings: {preferredRevision: string; productName?: Product}) {
-		const {preferredRevision, productName} = settings;
+	constructor(settings: {productName?: Product}) {
+		const {productName} = settings;
 		this.#productName = productName;
-		this._preferredRevision = preferredRevision;
 
 		this.launch = this.launch.bind(this);
 		this.executablePath = this.executablePath.bind(this);
@@ -65,13 +61,7 @@ export class PuppeteerNode {
 			!this.#lazyLauncher ||
 			this.#lazyLauncher.product !== this.#productName
 		) {
-			switch (this.#productName) {
-				case 'chrome':
-				default:
-					this._preferredRevision = PUPPETEER_REVISIONS.chromium;
-			}
-
-			this.#lazyLauncher = new ChromeLauncher(this._preferredRevision);
+			this.#lazyLauncher = new ChromeLauncher();
 		}
 
 		return this.#lazyLauncher;

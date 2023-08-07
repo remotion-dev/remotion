@@ -36,12 +36,6 @@ export interface ProductLauncher {
 }
 
 export class ChromeLauncher implements ProductLauncher {
-	_preferredRevision: string;
-
-	constructor(preferredRevision: string) {
-		this._preferredRevision = preferredRevision;
-	}
-
 	async launch(options: PuppeteerNodeLaunchOptions): Promise<HeadlessBrowser> {
 		const {
 			args = [],
@@ -137,9 +131,9 @@ function resolveExecutablePath(launcher: ChromeLauncher): {
 	executablePath: string;
 	missingText?: string;
 } {
-	const {product, _preferredRevision} = launcher;
+	const {product} = launcher;
 
-	const revisionInfo = getRevisionInfo(_preferredRevision, 'chrome');
+	const revisionInfo = getRevisionInfo('chrome');
 
 	const firefoxHelp = `Run \`PUPPETEER_PRODUCT=firefox npm install\` to download a supported Firefox browser binary.`;
 	const chromeHelp = `Run \`npm install\` to download the correct Chromium revision.`;

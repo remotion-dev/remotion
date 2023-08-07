@@ -75,6 +75,7 @@ export const internalOpenBrowser = async ({
 	viewport,
 	logLevel,
 }: InternalOpenBrowserOptions): Promise<HeadlessBrowser> => {
+	// @ts-expect-error Firefox
 	if (browser === 'firefox') {
 		throw new TypeError(
 			'Firefox supported is not yet turned on. Stay tuned for the future.'
