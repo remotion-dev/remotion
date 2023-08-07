@@ -3,6 +3,7 @@ slug: cloudrun
 title: Remotion Cloud Run
 author: Matt McGillivray
 author_title: Freelance fullstack developer
+draft: true
 author_url: https://github.com/umungobungo
 author_image_url: https://avatars2.githubusercontent.com/u/22192773?s=460&u=12eb94da6070d00fc924761ce06e3a428d01b7e9&v=4
 ---
@@ -27,11 +28,11 @@ When using AWS Lambda, you may have the situation of allowing multiple users to 
 
 At the time of writing, here are the quota differences in GCP and AWS, and what that could mean for your product:
 
-|Constraint|AWS Limit|GCP Limit|Outcome|
-|---|---|---|---|
-|Disk Size|10 GB|32 GB|In GCP, you can render videos with a larger file size. File size increases as a combination of quality and video length. Lambda is further limited here due to distributed rendering requiring (generally speaking) a cop of all the chunks before they are stitched together. [This brings Lambda's output down to 5gb](/docs/lambda#limitations). |
-|Minimum Instances|   |   |   |
-|Maximum Timeout|15 minutes|60 minutes|This is tricky to compare due to the nature of distributed rendering on Lambda vs. Cloud Run. As Cloud Run is performing all the rendering in one instance, this allows up to 60 minutes for the entire rendering process. For Lambda, each chunk has a maximum timeout of 15 minutes, but also the function that is performing the concatenation needs to be completed within 15 minutes. |
+| Constraint        | AWS Limit  | GCP Limit  | Outcome                                                                                                                                                                                                                                                                                                                                                                                    |
+| ----------------- | ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Disk Size         | 10 GB      | 32 GB      | In GCP, you can render videos with a larger file size. File size increases as a combination of quality and video length. Lambda is further limited here due to distributed rendering requiring (generally speaking) a cop of all the chunks before they are stitched together. [This brings Lambda's output down to 5gb](/docs/lambda#limitations).                                        |
+| Minimum Instances |            |            |                                                                                                                                                                                                                                                                                                                                                                                            |
+| Maximum Timeout   | 15 minutes | 60 minutes | This is tricky to compare due to the nature of distributed rendering on Lambda vs. Cloud Run. As Cloud Run is performing all the rendering in one instance, this allows up to 60 minutes for the entire rendering process. For Lambda, each chunk has a maximum timeout of 15 minutes, but also the function that is performing the concatenation needs to be completed within 15 minutes. |
 
 ## Node API and CLI
 
@@ -43,4 +44,4 @@ Where possible
 
 ## New documentation
 
-- Cloudrun documentation
+- Cloud Run documentation
