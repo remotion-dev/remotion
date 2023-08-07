@@ -1,5 +1,3 @@
 import {PuppeteerNode} from './PuppeteerNode';
 
-export const puppeteer = new PuppeteerNode({
-	productName: undefined,
-});
+export const puppeteer = new PuppeteerNode();

@@ -1,9 +1,9 @@
-import {downloadBrowser} from '../browser/create-browser-fetcher';
+import {downloadBrowser} from '../browser/BrowserFetcher';
 
-downloadBrowser('chrome')
+downloadBrowser()
 	.then((c) => {
 		console.log(c);
 	})
 	.catch((err) => {
-		console.log(err);
+		console.log(err.stack);
 	});
