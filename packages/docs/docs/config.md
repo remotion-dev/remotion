@@ -683,7 +683,9 @@ Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-
 import { Config } from "@remotion/cli/config";
 // ---cut---
 Config.overrideFfmpegCommand(({ args }) => {
-  return [...args, "-vf", "eq=brightness=0:saturation=1"];
+  const commandArgs = args.slice(2);
+  const remainingArgs = args.slice(-2); // comment and output path
+  return [...commandArgs, "-metadata", "title=My Title", ...remainingArgs];
 });
 ```
 
@@ -699,6 +701,7 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 
 - The render command can change with any new Remotion version, even when it is a patch upgrade. This might break your usage of this feature.
 - Depending on the selected codec, available CPU and RAM, Remotion may or may not use "parallel encoding" which will result in multiple FFMPEG commands being executed. Your function must be able to handle being called multiple times.
+- The FFMPEG binary provided by Remotion supports only a small subset of FFMPEG commands, therefore not every passed option will be applied.
 - This feature is not available when using Remotion Lambda.
 
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
