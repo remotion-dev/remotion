@@ -1,6 +1,11 @@
-const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
+export const validOpenGlRenderers = [
+	'swangle',
+	'angle',
+	'egl',
+	'swiftshader',
+] as const;
 
-export type OpenGlRenderer = typeof validRenderers[number];
+export type OpenGlRenderer = typeof validOpenGlRenderers[number];
 
 export const DEFAULT_OPENGL_RENDERER: OpenGlRenderer | null = null;
 
@@ -11,9 +16,9 @@ export const validateOpenGlRenderer = (
 		return null;
 	}
 
-	if (!validRenderers.includes(option)) {
+	if (!validOpenGlRenderers.includes(option)) {
 		throw new TypeError(
-			`${option} is not a valid GL backend. Accepted values: ${validRenderers.join(
+			`${option} is not a valid GL backend. Accepted values: ${validOpenGlRenderers.join(
 				', '
 			)}`
 		);

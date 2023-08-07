@@ -70,6 +70,7 @@ import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-c
 import {
 	DEFAULT_OPENGL_RENDERER,
 	validateOpenGlRenderer,
+	validOpenGlRenderers,
 } from './validate-opengl-renderer';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateBitrate} from './validate-videobitrate';
@@ -207,6 +208,7 @@ export const RenderInternals = {
 	internalGetCompositions,
 	internalRenderFrames,
 	internalRenderMedia,
+	validOpenGlRenderers,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
