@@ -214,5 +214,4 @@ Skips confirmation.
 
 ## See also
 
-- [Do I need to deploy a service for each render?](/docs/cloudrun/faq#do-i-need-to-deploy-a-service-for-each-render)
 - [Setup guide](/docs/cloudrun/setup)

@@ -438,4 +438,3 @@ Congrats! [Check your Cloud Storage Bucket](https://console.cloud.google.com/sto
 - Familiarize yourself with the CLI and the Node.JS APIs (list in sidebar).
 - Learn how to [upgrade Remotion Cloud Run](/docs/cloudrun/upgrading).
 - Before going live, go through the [Production checklist](/docs/cloudrun/checklist).
-- If you have any questions, go through the [FAQ](/docs/cloudrun/faq) or ask in our [Discord channel](https://remotion.dev/discord)
