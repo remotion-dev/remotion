@@ -78,7 +78,7 @@ By default, each Cloud Run service renders with concurrency 1 (one open browser 
 
 ### `--env-file`
 
-Specify a location for a dotenv file. Default `.env`. This is not for invoking the cloud run service, but for passing environment variables that you would want to read inside the render.
+Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)
 
 ### `--out-name`
 
