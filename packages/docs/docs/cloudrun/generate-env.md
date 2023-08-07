@@ -2,7 +2,7 @@
 image: /generated/articles-docs-cloudrun-generateEnvFile.png
 id: generate-env
 title: Generate .env File
-crumb: "Cloudrun"
+crumb: "Cloud Run"
 ---
 
 As GCP Cloud Shell has access to the project, a script can be run to generate a .env file with the required Service Account keys and Project ID. As Cloud Shell makes use of the logged-in user's credentials for permissions in the project, it is assumed you have the owner role on the project. If you were the one that created the project, you will be an owner.

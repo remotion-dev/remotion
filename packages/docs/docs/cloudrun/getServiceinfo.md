@@ -3,7 +3,7 @@ image: /generated/articles-docs-cloudrun-getserviceinfo.png
 id: getserviceinfo
 title: getServiceInfo()
 slug: /cloudrun/getserviceinfo
-crumb: "Cloudrun API"
+crumb: "Cloud Run API"
 ---
 
 Gets information about a service given it's name and region.

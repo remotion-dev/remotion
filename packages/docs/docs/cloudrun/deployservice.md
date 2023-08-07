@@ -3,7 +3,7 @@ image: /generated/articles-docs-cloudrun-deployservice.png
 id: deployservice
 title: deployService()
 slug: /cloudrun/deployservice
-crumb: "Cloudrun API"
+crumb: "Cloud Run API"
 ---
 
 Creates a [GCP Cloud Run](https://cloud.google.com/run) service in your GCP project that will be able to render a video in the cloud.

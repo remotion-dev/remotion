@@ -6,7 +6,7 @@ title: "@remotion/cloudrun - CLI"
 slug: /cloudrun/cli
 ---
 
-To use the Remotion Cloudrun CLI, you first need to [install it](/docs/cloudrun/setup).
+To use the Remotion Cloud Run CLI, you first need to [install it](/docs/cloudrun/setup).
 
 ## Commands
 
