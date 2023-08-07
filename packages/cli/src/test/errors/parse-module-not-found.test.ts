@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {getLocationFromBuildError} from '../../preview-server/error-overlay/react-overlay/effects/map-error-to-react-stack';
 
 const message = "Cannot find module 'does not exist'";

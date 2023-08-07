@@ -97,6 +97,123 @@ export interface DevtoolsRemoteObject {
 	 * Unique object identifier (for non-primitive values).
 	 */
 	objectId?: RemoteObjectId;
+	preview?: ObjectPreview;
+}
+
+export interface ObjectPreview {
+	/**
+	 * Object type. (ObjectPreviewType enum)
+	 */
+	type:
+		| 'object'
+		| 'function'
+		| 'undefined'
+		| 'string'
+		| 'number'
+		| 'boolean'
+		| 'symbol'
+		| 'bigint';
+	/**
+	 * Object subtype hint. Specified for `object` type values only. (ObjectPreviewSubtype enum)
+	 */
+	subtype?:
+		| 'array'
+		| 'null'
+		| 'node'
+		| 'regexp'
+		| 'date'
+		| 'map'
+		| 'set'
+		| 'weakmap'
+		| 'weakset'
+		| 'iterator'
+		| 'generator'
+		| 'error'
+		| 'proxy'
+		| 'promise'
+		| 'typedarray'
+		| 'arraybuffer'
+		| 'dataview'
+		| 'webassemblymemory'
+		| 'wasmvalue';
+	/**
+	 * String representation of the object.
+	 */
+	description?: string;
+	/**
+	 * True iff some of the properties or entries of the original object did not fit.
+	 */
+	overflow: boolean;
+	/**
+	 * List of the properties.
+	 */
+	properties: PropertyPreview[];
+	/**
+	 * List of the entries. Specified for `map` and `set` subtype values only.
+	 */
+	entries?: EntryPreview[];
+}
+
+export interface EntryPreview {
+	/**
+	 * Preview of the key. Specified for map-like collection entries.
+	 */
+	key?: ObjectPreview;
+	/**
+	 * Preview of the value.
+	 */
+	value: ObjectPreview;
+}
+
+export interface PropertyPreview {
+	/**
+	 * Property name.
+	 */
+	name: string;
+	/**
+	 * Object type. Accessor means that the property itself is an accessor property. (PropertyPreviewType enum)
+	 */
+	type:
+		| 'object'
+		| 'function'
+		| 'undefined'
+		| 'string'
+		| 'number'
+		| 'boolean'
+		| 'symbol'
+		| 'accessor'
+		| 'bigint';
+	/**
+	 * User-friendly property value string.
+	 */
+	value?: string;
+	/**
+	 * Nested value preview.
+	 */
+	valuePreview?: ObjectPreview;
+	/**
+	 * Object subtype hint. Specified for `object` type values only. (PropertyPreviewSubtype enum)
+	 */
+	subtype?:
+		| 'array'
+		| 'null'
+		| 'node'
+		| 'regexp'
+		| 'date'
+		| 'map'
+		| 'set'
+		| 'weakmap'
+		| 'weakset'
+		| 'iterator'
+		| 'generator'
+		| 'error'
+		| 'proxy'
+		| 'promise'
+		| 'typedarray'
+		| 'arraybuffer'
+		| 'dataview'
+		| 'webassemblymemory'
+		| 'wasmvalue';
 }
 
 type TargetID = string;
@@ -612,11 +729,95 @@ export interface CaptureScreenshotRequest {
 	 * Capture the screenshot beyond the viewport. Defaults to false.
 	 */
 	captureBeyondViewport?: boolean;
+	/**
+	 * Optimize image encoding for speed, not for resulting size (defaults to false) EXPERIMENTAL
+	 */
+	optimizeForSpeed?: boolean;
 }
 
 export interface CaptureScreenshotResponse {
 	/**
 	 * Base64-encoded image data. (Encoded as a base64 string when passed over JSON)
+	 */
+	data: string;
+}
+
+export interface PrintPDFRequest {
+	/**
+	 * Paper orientation. Defaults to false.
+	 */
+	landscape?: boolean;
+	/**
+	 * Display header and footer. Defaults to false.
+	 */
+	displayHeaderFooter?: boolean;
+	/**
+	 * Print background graphics. Defaults to false.
+	 */
+	printBackground?: boolean;
+	/**
+	 * Scale of the webpage rendering. Defaults to 1.
+	 */
+	scale?: number;
+	/**
+	 * Paper width in inches. Defaults to 8.5 inches.
+	 */
+	paperWidth?: number;
+	/**
+	 * Paper height in inches. Defaults to 11 inches.
+	 */
+	paperHeight?: number;
+	/**
+	 * Top margin in inches. Defaults to 1cm (~0.4 inches).
+	 */
+	marginTop?: number;
+	/**
+	 * Bottom margin in inches. Defaults to 1cm (~0.4 inches).
+	 */
+	marginBottom?: number;
+	/**
+	 * Left margin in inches. Defaults to 1cm (~0.4 inches).
+	 */
+	marginLeft?: number;
+	/**
+	 * Right margin in inches. Defaults to 1cm (~0.4 inches).
+	 */
+	marginRight?: number;
+	/**
+	 * Paper ranges to print, one based, e.g., '1-5, 8, 11-13'.
+	 * Pages are printed in the document order, not in the order specified,
+	 * and no more than once. Defaults to empty string,
+	 * which implies the entire document is printed.
+	 * The page numbers are quietly capped to actual page count of the document,
+	 * and ranges beyond the end of the document are ignored.
+	 * If this results in no pages to print, an error is reported.
+	 * It is an error to specify a range with start greater than end.
+	 */
+	pageRanges?: string;
+	/**
+	 * HTML template for the print header.
+	 * Should be valid HTML markup with following classes used to inject printing values into them:
+	 * date: formatted print date
+	 * title: document title
+	 * url: document location
+	 * pageNumber: current page number
+	 * totalPages: total pages in the document
+	 * For example, <span class=title></span> would generate span containing the title.
+	 */
+	headerTemplate?: string;
+	/**
+	 * HTML template for the print footer. Should use the same format as the headerTemplate.
+	 */
+	footerTemplate?: string;
+	/**
+	 * Whether or not to prefer page size as defined by css. Defaults to false, in which case the content will be scaled to fit the paper size.
+	 */
+	preferCSSPageSize?: boolean;
+}
+
+export interface PrintPDFResponse {
+	/**
+	 * Base64-encoded pdf data. Empty if |returnAsStream| is specified. (Encoded as a base64 string when passed over JSON)
 	 */
 	data: string;
 }

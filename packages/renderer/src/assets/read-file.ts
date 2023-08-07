@@ -1,5 +1,6 @@
-import http from 'http';
 import https from 'https';
+import http from 'node:http';
+import {redirectStatusCodes} from '../redirect-status-codes';
 
 const getClient = (url: string) => {
 	if (url.startsWith('https://')) {
@@ -10,7 +11,9 @@ const getClient = (url: string) => {
 		return http.get;
 	}
 
-	throw new Error('Can only download URLs starting with http:// or https://');
+	throw new Error(
+		`Can only download URLs starting with http:// or https://, got "${url}"`
+	);
 };
 
 const readFileWithoutRedirect = (
@@ -34,12 +37,7 @@ export const readFile = async (
 	}
 
 	const file = await readFileWithoutRedirect(url);
-	if (
-		file.statusCode === 302 ||
-		file.statusCode === 301 ||
-		file.statusCode === 307 ||
-		file.statusCode === 308
-	) {
+	if (redirectStatusCodes.includes(file.statusCode as number)) {
 		if (!file.headers.location) {
 			throw new Error(
 				`Received a status code ${file.statusCode} but no "Location" header while calling ${file.headers.location}`

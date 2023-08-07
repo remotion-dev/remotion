@@ -1,0 +1,211 @@
+import Head from "@docusaurus/Head";
+import Link from "@docusaurus/Link";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
+import Layout from "@theme/Layout";
+import React, { useMemo } from "react";
+import { random } from "remotion";
+import { BlueButton } from "../../../components/layout/Button";
+import { Spacer } from "../../../components/layout/Spacer";
+import {
+  EmailLogo,
+  GitHubLogo,
+  LinkedInLogo,
+  TwitterLogo,
+  VideoCallLogo,
+} from "../../components/icons";
+import { Seo } from "../../components/Seo";
+import { experts } from "../../data/experts";
+import styles from "./experts.module.css";
+
+const dateString = (date: Date) =>
+  date.getDate() + "-" + date.getMonth() + "-" + date.getFullYear();
+
+const todayHash = dateString(new Date());
+
+const docsButton: React.CSSProperties = {
+  textDecoration: "none",
+};
+
+const flex: React.CSSProperties = {
+  flex: 1,
+};
+
+const link: React.CSSProperties = {
+  textDecoration: "none",
+  color: "inherit",
+  width: "100%",
+  display: "flex",
+  flexDirection: "row",
+  paddingTop: 8,
+};
+
+const Experts: React.FC = () => {
+  const expertsInRandomOrder = useMemo(() => {
+    if (typeof window === "undefined") {
+      return [];
+    }
+
+    // Have a different order every day.
+    return experts.sort(
+      (a, b) => random(a.name + todayHash) - random(b.name + todayHash)
+    );
+  }, []);
+
+  const context = useDocusaurusContext();
+
+  return (
+    <Layout>
+      <Head>
+        {Seo.renderTitle("Remotion Experts | Hire Remotion freelancers")}
+        {Seo.renderDescription(
+          "Find Remotion freelancers and hire them to create, progress or unblock your Remotion project."
+        )}
+        {Seo.renderImage(
+          "/img/remotion-experts-og-image.png",
+          context.siteConfig.url
+        )}
+      </Head>
+      <div className={styles.container}>
+        <div className={styles.wrapper}>
+          <h1 className={styles.pagetitle}>Find a Remotion Expert</h1>
+          <p className={styles.tagline}>
+            Get help by booking a call or hiring these freelancers to work on
+            your Remotion project.
+            <br />
+            They appear in random order.{" "}
+          </p>
+          <p className={styles.tagline}>
+            <a href="mailto:hi@remotion.dev?subject=Remotion+Experts+directory">
+              <strong>Are you available for hire? Let us know!</strong>
+            </a>
+          </p>
+          <br />
+          <br />
+          {expertsInRandomOrder.map((e) => {
+            return (
+              <div key={e.name} className={styles.card}>
+                <Link style={link} href={`/experts/${e.slug}`}>
+                  <img className={styles.profile} src={e.image} />
+                  <div className={styles.spacer} />
+                  <div className={styles.right}>
+                    <div className={styles.title}>{e.name}</div>
+                    <p>{e.description}</p>
+                  </div>
+                </Link>
+                <Spacer />
+                <Spacer />
+                <Spacer />
+                <Spacer />
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    width: "100%",
+                  }}
+                >
+                  {e.twitter ? (
+                    <div style={flex} className={styles.docsButton}>
+                      <a
+                        target={"_blank"}
+                        href={`https://twitter.com/${e.twitter}`}
+                      >
+                        <BlueButton loading={false} fullWidth size="sm">
+                          <TwitterLogo /> Twitter
+                        </BlueButton>
+                      </a>
+                    </div>
+                  ) : null}
+
+                  {e.github ? (
+                    <>
+                      {e.twitter ? (
+                        <>
+                          <Spacer />
+                          <Spacer />
+                        </>
+                      ) : null}
+
+                      <div style={flex} className={styles.docsButton}>
+                        <a
+                          style={docsButton}
+                          target={"_blank"}
+                          href={`https://github.com/${e.github}`}
+                        >
+                          <BlueButton loading={false} fullWidth size="sm">
+                            <GitHubLogo /> GitHub
+                          </BlueButton>
+                        </a>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+                <Spacer />
+                <Spacer />
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    width: "100%",
+                  }}
+                >
+                  {e.linkedin ? (
+                    <div style={flex} className={styles.docsButton}>
+                      <a
+                        style={docsButton}
+                        target={"_blank"}
+                        href={`https://www.linkedin.com/${e.linkedin}`}
+                      >
+                        <BlueButton loading={false} fullWidth size="sm">
+                          <LinkedInLogo /> LinkedIn
+                        </BlueButton>
+                      </a>
+                    </div>
+                  ) : null}
+                  {e.linkedin && e.email ? (
+                    <>
+                      <Spacer />
+                      <Spacer />
+                    </>
+                  ) : null}
+                  {e.email ? (
+                    <div style={flex} className={styles.docsButton}>
+                      <a
+                        style={docsButton}
+                        target={"_blank"}
+                        href={`mailto:${e.email}`}
+                      >
+                        <BlueButton loading={false} fullWidth size="sm">
+                          <EmailLogo /> Email
+                        </BlueButton>
+                      </a>
+                    </div>
+                  ) : null}
+
+                  {e.videocall ? (
+                    <>
+                      <Spacer />
+                      <Spacer />
+                      <div style={flex} className={styles.docsButton}>
+                        <a
+                          style={docsButton}
+                          target={"_blank"}
+                          href={`https://cal.com/${e.videocall}`}
+                        >
+                          <BlueButton loading={false} fullWidth size="sm">
+                            <VideoCallLogo /> Video call
+                          </BlueButton>
+                        </a>
+                      </div>
+                    </>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </Layout>
+  );
+};
+
+export default Experts;

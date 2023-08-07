@@ -1,11 +1,11 @@
 import React, {useCallback, useContext, useMemo, useState} from 'react';
 import {Internals} from 'remotion';
+import {BACKGROUND} from '../helpers/colors';
 import {
 	createFolderTree,
 	splitParentIntoNameAndParent,
 } from '../helpers/create-folder-tree';
-import type {
-	ExpandedFoldersState} from '../helpers/persist-open-folders';
+import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
 import {
 	loadExpandedFolders,
 	openFolderKey,
@@ -17,16 +17,15 @@ import {CurrentComposition} from './CurrentComposition';
 import {useSelectComposition} from './InitialCompositionLoader';
 
 const container: React.CSSProperties = {
-	borderRight: '1px solid black',
-	position: 'absolute',
-	height: '100%',
-	width: '100%',
+	display: 'flex',
+	flexDirection: 'column',
 	flex: 1,
+	overflow: 'hidden',
+	backgroundColor: BACKGROUND,
 };
 
 const list: React.CSSProperties = {
-	padding: 5,
-	height: 'calc(100% - 100px)',
+	height: 'calc(100% - 80px)',
 	overflowY: 'auto',
 };
 
@@ -78,7 +77,7 @@ export const CompositionSelector: React.FC = () => {
 	return (
 		<div style={container}>
 			<CurrentComposition />
-			<div style={list}>
+			<div className="__remotion-vertical-scrollbar" style={list}>
 				{items.map((c) => {
 					return (
 						<CompositionSelectorItem

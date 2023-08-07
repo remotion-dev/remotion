@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-cli-upgrade.png
 title: npx remotion upgrade
 sidebar_label: upgrade
+crumb: CLI Reference
 ---
 
 Upgrades all Remotion-related packages.
@@ -8,6 +10,20 @@ Upgrades all Remotion-related packages.
 ```
 npx remotion upgrade
 ```
+
+## Flags
+
+### `--package-manager`<AvailableFrom v="3.2.33"/>
+
+_optional_
+
+Forces a specific package manager to be used. This is useful if you are using Remotion in a monorepo and you want to upgrade all packages at once. By default, Remotion will auto-detect the package manager.
+
+Acceptable values are `npm`, `yarn` and `pnpm`
+
+### `--version`<AvailableFrom v="4.0.15"/>
+
+Install a specific version. Also enables downgrading to an older version.
 
 ## Package manager support
 

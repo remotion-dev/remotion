@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-render-frames.png
 id: render-frames
 title: renderFrames()
+crumb: "@remotion/renderer"
 ---
 
 import {AngleChangelog} from '../../components/AngleChangelog';
@@ -15,32 +17,6 @@ If you want to render only a still image, use [renderStill()](/docs/renderer/ren
 In Remotion 3.0, we added the [`renderMedia()`](/docs/renderer/render-media) API which combines `renderFrames()` and `stitchFramesToVideo()` into one simplified step and performs the render faster. Prefer `renderMedia()` if you can.
 :::
 
-```ts
-const renderFrames: (options: {
-  composition: VideoConfig;
-  onFrameUpdate: (frame: number) => void;
-  onStart: (data: {
-    frameCount: number;
-  }) => void;
-  outputDir: string | null;
-  inputProps: unknown;
-  serveUrl: string;
-  imageFormat: "png" | "jpeg" | "none";
-  envVariables?: Record<string, string>;
-  parallelism?: number | null;
-  quality?: number;
-  frameRange?: number | [number, number] | null;
-  dumpBrowserLogs?: boolean;
-  puppeteerInstance?: puppeteer.Browser;
-  onFrameBuffer?: (buffer: Buffer, frame: number) => Promise<void>
-  onBrowserLog?: (log: BrowserLog) => void;
-  scale?: number;
-  ffmpegExecutable?: FfmpegExecutable;
-  browserExecutable?: BrowserExecutable;
-  cancelSignal?: CancelSignal;
-}): Promise<RenderFramesOutput>;
-```
-
 :::info
 Configuration in `remotion.config.ts` and CLI flags do not apply to this function. You must pass all options explicitly.
 :::
@@ -51,7 +27,10 @@ Takes an object with the following keys:
 
 ### `composition`
 
-A video config, consisting out of `id`, `width`, `height`, `durationInFrames` and `fps`, where `id` is the composition ID. You can obtain an array of available compositions using [`getCompositions()`](/docs/renderer/get-compositions).
+_VideoConfig_
+
+An object describing a composition using `id`, `width`, `height`, `fps` and `durationInFrames`, `defaultProps` and `props`.  
+Call [`selectComposition()`](/docs/renderer/select-composition) or [`getCompositions()`](/docs/renderer/get-compositions) to get an array of possible configs.
 
 ### `onStart`
 
@@ -65,11 +44,25 @@ const onStart = () => {
 
 ### `onFrameUpdate`
 
-A callback function that gets called whenever a frame finished rendering. An argument is passed containing how many frames have been rendered (not the frame number of the rendered frame). Example value
+A callback function that gets called whenever a frame finished rendering. An argument is passed containing how many frames have been rendered (not the frame number of the rendered frame).
+
+In `v3.0.0`, a second argument was added: `frame`, returning the frame number that was just rendered.
+
+In `v3.2.30`, a third argument was rendered: `timeToRenderInMilliseconds`, describing the time it took to render that frame in milliseconds.
 
 ```ts twoslash
-const onFrameUpdate = (frame: number) => {
-  console.log(`${frame} frames rendered.`);
+const onFrameUpdate = (
+  framesRendered: number,
+  frame: number,
+  timeToRenderInMilliseconds: number
+) => {
+  console.log(`${framesRendered} frames rendered.`);
+
+  // From v3.0.0
+  console.log(`${frame} was just rendered.`);
+
+  // From v3.2.30
+  console.log(`It took ${timeToRenderInMilliseconds}ms to render that frame.`);
 };
 ```
 
@@ -79,7 +72,7 @@ A `string` specifying the directory (absolute path) to which frames should be sa
 
 ### `inputProps`
 
-[Custom props which will be passed to the component.](/docs/parametrized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
+[Custom props which will be passed to the component.](/docs/parameterized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
 
 ### `serveUrl`
 
@@ -87,25 +80,25 @@ Either a Webpack bundle or a URL pointing to a bundled Remotion project. Call [`
 
 ### `imageFormat`
 
-A `string` which must be either `png`, `jpeg` or `none`.
+_optional since v4.0 - default "jpeg"_
 
 - Choose `jpeg` by default because it is the fastest.
 - Choose `png` if you want your image sequence to have an alpha channel (for transparency).
 - Choose `none` if you only want to render audio.
 
-### `parallelism?`
+### `concurrency?`
 
 _optional_
 
-A `number` specifying how many frames should be rendered in parallel or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
+A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
 
-### `scale?`
+### `scale?`<AvailableFrom v="2.6.7" />
 
-_number - default: 1 - available from v2.6.7_
+_number - default: 1_
 
 [Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
 
-### `quality?`
+### `jpegQuality?`
 
 _optional_
 
@@ -119,27 +112,32 @@ _optional_
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
-### `dumpBrowserLogs?`
+### `muted`<AvailableFrom v="3.2.1" />
 
 _optional_
 
-Passes the `dumpio` flag to Puppeteer which will log all browser logs to the console. Useful for debugging. `boolean` flag, default is `false`.
+Disables audio output. This option may only be set in combination with a video codec and should also be passed to [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video).
+
+### `logLevel?`<AvailableFrom v="4.0.0"/>
+
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
+`verbose` will also log `console.log`'s from the browser.
 
 ### `puppeteerInstance?`
 
 _optional_
 
-An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
-### `envVariables?`
+### `envVariables?`<AvailableFrom v="2.2.0" />
 
-_optional - Available since v2.2.0_
+_optional_
 
 An object containing key-value pairs of environment variables which will be injected into your Remotion projected and which can be accessed by reading the global `process.env` object.
 
-### `onBrowserLog?`
+### `onBrowserLog?`<AvailableFrom v="3.0.0" />
 
-_optional - Available since v3.0.0_
+_optional_
 
 Gets called when your project calls `console.log` or another method from console. A browser log has three properties:
 
@@ -151,7 +149,6 @@ Gets called when your project calls `console.log` or another method from console
 - `type`: The console method - one of `log`, `debug`, `info`, `error`, `warning`, `dir`, `dirxml`, `table`, `trace`, `clear`, `startGroup`, `startGroupCollapsed`, `endGroup`, `assert`, `profile`, `profileEnd`, `count`, `timeEnd`, `verbose`
 
 ```tsx twoslash
-import { renderFrames as rf } from "@remotion/renderer";
 interface ConsoleMessageLocation {
   /**
    * URL of the resource if known or `undefined` otherwise.
@@ -210,51 +207,39 @@ renderFrames({
 });
 ```
 
-### `browserExecutable?`
+### `browserExecutable?`<AvailableFrom v="3.0.11" />
 
-_optional, available from v2.3.1_
-
-A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
-
-### `ffmpegExecutable?`
-
-_optional, available from v3.0.11_
-
-An absolute path overriding the `ffmpeg` executable to use.
-
-#### `ffprobeExecutable?`
-
-_optional, available from v3.0.17_
-
-An absolute path overriding the `ffprobe` executable to use.
-
-#### `browserExecutable?`
-
-_optional, available from v3.0.11_
+_optional_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
-### `cancelSignal?`
+### `cancelSignal?`<AvailableFrom v="3.0.15" />
 
-_optional, available from v3.0.15_
+_optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
-### `onFrameBuffer?`
+### `onFrameBuffer?`<AvailableFrom v="3.0.0" />
 
-_optional, available from 3.0_
+_optional_
 
 If you passed `null` to `outputDir`, this method will be called passing a buffer of the current frame. This is mostly used internally by Remotion to implement [`renderMedia()`](/docs/renderer/render-media) and might have limited usefulness for end users.
 
-### `timeoutInMilliseconds?`
+### `timeoutInMilliseconds?`<AvailableFrom v="2.6.3" />
 
-_optional, available from v2.6.3_
+_optional_
 
-A number describing how long one frame may take to resolve all `delayRender()` calls before the render times out and fails. Default: `30000`
+A number describing how long one frame may take to resolve all [`delayRender()`](/docs/delay-render) calls before the [render times out and fails(/docs/timeout). Default: `30000`
 
-### `chromiumOptions?`
+### `everyNthFrame`<AvailableFrom v="3.1.0" />
 
-_optional, available from v2.6.5_
+_optional_
+
+Renders only every nth frame. For example only every second frame, every third frame and so on. Only meant for rendering GIFs. [See here for more details.](/docs/render-as-gif)
+
+### `chromiumOptions?`<AvailableFrom v="2.6.5" />
+
+_optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
@@ -297,6 +282,37 @@ Accepted values:
 
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
+
+#### `userAgent`<AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
+
+### ~~`dumpBrowserLogs?`~~
+
+_optional - default `false`, deprecated in v4.0_
+
+Deprecated in favor of [`logLevel`](#loglevel).
+
+### ~~`parallelism?`~~
+
+Renamed to `concurrency` in v3.2.17.
+Removed in `v4.0.0`.
+
+### ~~`ffmpegExecutable`~~
+
+_removed in v4.0, optional_
+
+An absolute path overriding the `ffmpeg` executable to use.
+
+### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
+
+_removed in v4.0, optional_
+
+An absolute path overriding the `ffprobe` executable to use.
 
 ## Return value
 

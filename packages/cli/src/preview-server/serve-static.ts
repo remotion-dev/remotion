@@ -7,9 +7,9 @@
  */
 
 import {RenderInternals} from '@remotion/renderer';
-import {createReadStream, existsSync, promises} from 'fs';
-import type {IncomingMessage, ServerResponse} from 'http';
-import {join} from 'path';
+import {createReadStream, existsSync, promises} from 'node:fs';
+import type {IncomingMessage, ServerResponse} from 'node:http';
+import {join} from 'node:path';
 import {getValueContentRangeHeader} from './dev-middleware/middleware';
 import {parseRange} from './dev-middleware/range-parser';
 
@@ -28,13 +28,11 @@ export const serveStatic = async function (
 		return;
 	}
 
-	const path = join(
-		root,
-		new URL(req.url as string, 'http://localhost').pathname.replace(
-			new RegExp(`^${hash}`),
-			''
-		)
-	);
+	const filename = new URL(
+		req.url as string,
+		'http://localhost'
+	).pathname.replace(new RegExp(`^${hash}`), '');
+	const path = join(root, decodeURIComponent(filename));
 
 	if (!RenderInternals.isPathInside(path, root)) {
 		res.writeHead(500);

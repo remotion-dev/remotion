@@ -1,0 +1,39 @@
+.bganimcontainer {
+  width: 100%;
+  max-width: 1200px;
+  min-width: 700px;
+  margin: auto;
+  position: relative;
+}
+
+@media screen and (max-width: 700px) {
+  .bganimcontainer {
+    position: absolute;
+    width: 100vw;
+    height: 100vw;
+    left: 50%;
+    margin-left: -50%;
+    min-width: 0;
+  }
+}
+
+.svg {
+  transform: translateY(-50%);
+}
+
+@media screen and (max-width: 900px) {
+  .svg {
+    transform: translateY(-30%);
+  }
+}
+
+.p {
+  stroke-width: 0.035;
+}
+
+@media screen and (max-width: 900px) {
+  .p {
+    stroke-width: 0.04;
+  }
+  
+}

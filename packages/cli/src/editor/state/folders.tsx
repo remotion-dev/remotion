@@ -1,9 +1,6 @@
 import React, {createContext, useMemo, useState} from 'react';
-import type {
-	ExpandedFoldersState} from '../helpers/persist-open-folders';
-import {
-	loadExpandedFolders,
-} from '../helpers/persist-open-folders';
+import type {ExpandedFoldersState} from '../helpers/persist-open-folders';
+import {loadExpandedFolders} from '../helpers/persist-open-folders';
 
 type TFolderContext = {
 	foldersExpanded: ExpandedFoldersState;

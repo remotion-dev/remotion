@@ -1,4 +1,4 @@
-import {Internals} from 'remotion';
+import {truthy} from '../../../../truthy';
 
 export type ErrorLocation = {
 	fileName: string;
@@ -57,6 +57,6 @@ export const getLocationFromBuildError = (err: Error): ErrorLocation | null => {
 					fileName: filename.trim(),
 				};
 			})
-			.filter(Internals.truthy)[0] ?? null
+			.filter(truthy)[0] ?? null
 	);
 };

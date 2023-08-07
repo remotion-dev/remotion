@@ -1,40 +1,26 @@
+import type {_Object} from '@aws-sdk/client-s3';
 import type {EncodingProgress} from '../../defaults';
-import { encodingProgressKey} from '../../defaults';
-import type {AwsRegion} from '../../pricing/aws-regions';
-import {streamToString} from '../../shared/stream-to-string';
-import {lambdaReadFile} from './io';
+import {ENCODING_PROGRESS_STEP_SIZE} from '../../defaults';
+import {getProgressOfChunk} from '../../shared/chunk-progress';
 
-export const getEncodingMetadata = async ({
+export const getEncodingMetadata = ({
 	exists,
-	bucketName,
-	renderId,
-	region,
-	expectedBucketOwner,
+	frameCount,
 }: {
-	exists: boolean;
-	bucketName: string;
-	renderId: string;
-	region: AwsRegion;
-	expectedBucketOwner: string;
-}): Promise<EncodingProgress | null> => {
+	exists: _Object | undefined;
+	frameCount: number;
+}): EncodingProgress | null => {
 	if (!exists) {
 		return null;
 	}
 
-	try {
-		const Body = await lambdaReadFile({
-			bucketName,
-			key: encodingProgressKey(renderId),
-			region,
-			expectedBucketOwner,
-		});
-		const encodingProgress = JSON.parse(
-			await streamToString(Body)
-		) as EncodingProgress;
+	const framesEncoded = getProgressOfChunk(exists.ETag as string);
 
-		return encodingProgress;
-	} catch (err) {
-		// The file may not yet have been fully written or already have been cleaned up again
-		return null;
-	}
+	// We only report every 100 frames encoded so that we are able to report up to 2000 * 100 ETags => 200000 frames
+	return {
+		framesEncoded: Math.min(
+			frameCount,
+			framesEncoded * ENCODING_PROGRESS_STEP_SIZE
+		),
+	};
 };

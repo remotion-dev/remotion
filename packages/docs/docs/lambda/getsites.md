@@ -1,12 +1,14 @@
 ---
+image: /generated/articles-docs-lambda-getsites.png
 id: getsites
 title: getSites()
 slug: /lambda/getsites
+crumb: "Lambda API"
 ---
 
 Gets an array of Remotion projects in your S3 account.
 
-The projects are located in the `sites/` subdirectory of your S3 bucket. Remember - you should only have one bucket for Remotion Lambba per region, therefore you do not need to specify the name of the bucket for this function.
+The projects are located in the `sites/` subdirectory of your S3 bucket. Remember - you should only have one bucket for Remotion Lambda per region, therefore you do not need to specify the name of the bucket for this function.
 
 ## Example
 
@@ -15,7 +17,7 @@ Gets all sites and logs information about them.
 ```ts twoslash
 // @module: ESNext
 // @target: ESNext
-import { getSites } from "@remotion/lambda";
+import { getSites } from "@remotion/lambda/client";
 
 const { sites, buckets } = await getSites({
   region: "eu-central-1",
@@ -36,6 +38,10 @@ for (const bucket of buckets) {
 }
 ```
 
+:::note
+Preferrably import this function from `@remotion/lambda/client` (available from v3.3.42) to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
+
 ## Arguments
 
 An object with the following properties:
@@ -43,6 +49,12 @@ An object with the following properties:
 ### `region`
 
 The [AWS region](/docs/lambda/region-selection) which you want to query.
+
+### `forceBucketName?`<AvailableFrom v="3.3.102"/>
+
+_optional_
+
+Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
 
 ## Return value
 
@@ -79,7 +91,7 @@ URL of the deployed site. You can pass it into [`renderMediaOnLambda()`](/docs/l
 An array of all buckets in the selected region in your account that start with `remotionlambda-`.
 
 :::info
-You should only have 1 bucket for all your Remotion projects. Nonetheless `buckets` is an array, since we cannot prevent you from manually creating additional buckets with the `remotionlambda-` prefix.
+You should only have [1 bucket](/docs/lambda/multiple-buckets) per region for all your Remotion projects. Nonetheless `buckets` is an array, since we cannot prevent you from manually creating additional buckets with the `remotionlambda-` prefix.
 :::
 
 Each item contains the following properties:

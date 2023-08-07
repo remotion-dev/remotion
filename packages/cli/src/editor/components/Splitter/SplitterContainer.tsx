@@ -3,10 +3,9 @@ import {useTimelineFlex} from '../../state/timeline';
 import type {
 	SplitterDragState,
 	SplitterOrientation,
-	TSplitterContext} from './SplitterContext';
-import {
-	SplitterContext
+	TSplitterContext,
 } from './SplitterContext';
+import {SplitterContext} from './SplitterContext';
 
 const containerRow: React.CSSProperties = {
 	display: 'flex',
@@ -19,6 +18,7 @@ const containerColumn: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'column',
 	flex: 1,
+	height: '100%',
 };
 
 export const SplitterContainer: React.FC<{

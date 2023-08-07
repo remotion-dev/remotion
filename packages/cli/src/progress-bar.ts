@@ -1,68 +1,183 @@
-import type {StitchingState} from '@remotion/renderer';
-import {Internals} from 'remotion';
+import type {CancelSignal} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
 import {AnsiDiff} from './ansi/ansi-diff';
 import {chalk} from './chalk';
-import {makeMultiDownloadProgress} from './download-progress';
+import {
+	getFileSizeDownloadBar,
+	makeMultiDownloadProgress,
+} from './download-progress';
+import {formatBytes} from './format-bytes';
 import {makeProgressBar} from './make-progress-bar';
-import type {RenderStep} from './step';
+import type {
+	AggregateRenderProgress,
+	RenderingProgressInput,
+	StitchingProgressInput,
+} from './progress-types';
+import {truthy} from './truthy';
 
-export const createProgressBar = (
-	quiet: boolean
-): {
-	update: (str: string) => boolean;
-} => {
-	if (
-		!Internals.Logging.isEqualOrBelowLogLevel(
-			Internals.Logging.getLogLevel(),
-			'info'
-		)
-	) {
-		return {update: () => false};
-	}
-
-	return createOverwriteableCliOutput(quiet);
+export type OverwriteableCliOutput = {
+	update: (up: string, newline: boolean) => boolean;
 };
 
-export const createOverwriteableCliOutput = (quiet: boolean) => {
-	if (quiet) {
+export const createOverwriteableCliOutput = (options: {
+	quiet: boolean;
+	cancelSignal: CancelSignal | null;
+	updatesDontOverwrite: boolean;
+	indent: boolean;
+}): OverwriteableCliOutput => {
+	if (options.quiet) {
 		return {
 			update: () => false,
 		};
 	}
 
+	if (options.updatesDontOverwrite) {
+		return {
+			update: (up: string) => {
+				if (options.indent) {
+					process.stdout.write(
+						up
+							.split('\n')
+							.filter((a) => a.trim())
+
+							.map((l) => {
+								return `${RenderInternals.INDENT_TOKEN} ${l}`;
+							})
+							.join('\n') + '\n'
+					);
+				} else {
+					process.stdout.write(up + '\n');
+				}
+
+				return true;
+			},
+		};
+	}
+
 	const diff = new AnsiDiff();
+
+	options.cancelSignal?.(() => {
+		process.stdout.write(diff.finish());
+	});
+
 	return {
-		update: (up: string): boolean => process.stdout.write(diff.update(up)),
+		update: (up: string, newline: boolean): boolean => {
+			if (options.indent) {
+				return process.stdout.write(
+					diff.update(
+						up
+							.split('\n')
+							.filter((a) => a.trim())
+							.map((l) => `${RenderInternals.INDENT_TOKEN} ${l}`)
+							.join('\n') + (newline ? '\n' : '')
+					)
+				);
+			}
+
+			return process.stdout.write(diff.update(up + (newline ? '\n' : '')));
+		},
 	};
 };
 
-export const makeBundlingProgress = ({
-	progress,
+const makeBundlingProgress = ({
+	bundlingState,
+	bundlingStep,
 	steps,
-	doneIn,
 }: {
-	progress: number;
-	steps: RenderStep[];
-	doneIn: number | null;
-}) =>
-	[
-		`(${steps.indexOf('bundling') + 1}/${steps.length})`,
+	bundlingState: BundlingState;
+	bundlingStep: number;
+	steps: number;
+}) => {
+	const {doneIn, progress} = bundlingState;
+
+	return [
+		`(${bundlingStep + 1}/${steps})`,
 		makeProgressBar(progress),
 		`${doneIn ? 'Bundled' : 'Bundling'} code`,
 		doneIn === null
 			? (progress * 100).toFixed(0) + '%'
 			: chalk.gray(`${doneIn}ms`),
-	].join(' ');
+	]
+		.filter(truthy)
+		.join(' ');
+};
 
-type RenderingProgressInput = {
-	frames: number;
-	totalFrames: number;
-	steps: RenderStep[];
-	concurrency: number;
+const makeCopyingProgress = (options: CopyingState) => {
+	// Don't show copy progress lower than 200MB
+	if (options.bytes < 1000 * 1000 * 200) {
+		return null;
+	}
+
+	return [
+		'    +',
+		options.doneIn ? makeProgressBar(1) : getFileSizeDownloadBar(options.bytes),
+		'Copying public dir',
+		options.doneIn === null ? null : chalk.gray(`${options.doneIn}ms`),
+	]
+		.filter(truthy)
+		.join(' ');
+};
+
+const makeSymlinkProgress = (options: SymbolicLinksState) => {
+	if (options.symlinks.length === 0) {
+		return null;
+	}
+
+	if (options.symlinks.length === 1) {
+		return [
+			chalk.gray(`      Found a symbolic link in the public folder:`),
+			chalk.gray('      ' + options.symlinks[0]),
+			chalk.gray('      The symlink will be forwarded in to the bundle.'),
+		].join('\n');
+	}
+
+	return [
+		chalk.gray(
+			`      Found ${options.symlinks.length} symbolic links in the public folder.`
+		),
+		chalk.gray('      The symlinks will be forwarded in to the bundle.'),
+	].join('\n');
+};
+
+export type CopyingState = {
+	bytes: number;
 	doneIn: number | null;
 };
 
-export const makeRenderingProgress = ({
+export type BundlingState = {
+	progress: number;
+	doneIn: number | null;
+};
+
+export type SymbolicLinksState = {symlinks: string[]};
+
+export const makeBundlingAndCopyProgress = (
+	{
+		bundling,
+		copying,
+		symLinks,
+	}: {
+		bundling: BundlingState;
+		copying: CopyingState;
+		symLinks: SymbolicLinksState;
+	},
+	bundlingStep: number,
+	steps: number
+) => {
+	return [
+		makeBundlingProgress({
+			bundlingState: bundling,
+			bundlingStep,
+			steps,
+		}),
+		makeCopyingProgress(copying),
+		makeSymlinkProgress(symLinks),
+	]
+		.filter(truthy)
+		.join('\n');
+};
+
+const makeRenderingProgress = ({
 	frames,
 	totalFrames,
 	steps,
@@ -74,60 +189,104 @@ export const makeRenderingProgress = ({
 		`(${steps.indexOf('rendering') + 1}/${steps.length})`,
 		makeProgressBar(progress),
 		[doneIn ? 'Rendered' : 'Rendering', `frames (${concurrency}x)`]
-			.filter(Internals.truthy)
+			.filter(truthy)
 			.join(' '),
 		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
-	].join(' ');
+	]
+		.filter(truthy)
+		.join(' ');
 };
 
-type StitchingProgressInput = {
-	frames: number;
-	totalFrames: number;
-	steps: RenderStep[];
-	doneIn: number | null;
-	stage: StitchingState;
-};
-
-export const makeStitchingProgress = ({
-	frames,
-	totalFrames,
+const makeStitchingProgress = ({
+	stitchingProgress,
 	steps,
-	doneIn,
-	stage,
-}: StitchingProgressInput) => {
+	stitchingStep,
+}: {
+	stitchingProgress: StitchingProgressInput;
+	steps: number;
+	stitchingStep: number;
+}) => {
+	const {frames, totalFrames, doneIn, stage, codec} = stitchingProgress;
 	const progress = frames / totalFrames;
-	return [
-		`(${steps.indexOf('stitching') + 1}/${steps.length})`,
-		makeProgressBar(progress),
-		stage === 'muxing'
-			? `${doneIn ? 'Muxed' : 'Muxing'} audio`
-			: `${doneIn ? 'Encoded' : 'Encoding'} video`,
-		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
-	].join(' ');
-};
+	const mediaType =
+		codec === 'gif'
+			? 'GIF'
+			: RenderInternals.isAudioCodec(codec)
+			? 'audio'
+			: 'video';
 
-export type DownloadProgress = {
-	name: string;
-	id: number;
-	progress: number | null;
-	totalBytes: number | null;
-	downloaded: number;
+	return [
+		`(${stitchingStep + 1}/${steps})`,
+		makeProgressBar(progress),
+		stage === 'muxing' && RenderInternals.canUseParallelEncoding(codec)
+			? `${doneIn ? 'Muxed' : 'Muxing'} ${mediaType}`
+			: `${doneIn ? 'Encoded' : 'Encoding'} ${mediaType}`,
+		doneIn === null ? `${frames}/${totalFrames}` : chalk.gray(`${doneIn}ms`),
+	]
+		.filter(truthy)
+		.join(' ');
 };
 
 export const makeRenderingAndStitchingProgress = ({
-	rendering,
-	stitching,
-	downloads,
+	prog,
+	steps,
+	stitchingStep,
 }: {
-	rendering: RenderingProgressInput;
-	stitching: StitchingProgressInput | null;
-	downloads: DownloadProgress[];
-}) => {
-	return [
-		makeRenderingProgress(rendering),
+	prog: AggregateRenderProgress;
+	steps: number;
+	stitchingStep: number;
+}): {
+	output: string;
+	progress: number;
+	message: string;
+} => {
+	const {rendering, stitching, downloads, bundling} = prog;
+	const output = [
+		rendering ? makeRenderingProgress(rendering) : null,
 		makeMultiDownloadProgress(downloads),
-		stitching === null ? null : makeStitchingProgress(stitching),
+		stitching === null
+			? null
+			: makeStitchingProgress({
+					stitchingProgress: stitching,
+					steps,
+					stitchingStep,
+			  }),
 	]
-		.filter(Internals.truthy)
+		.filter(truthy)
 		.join('\n');
+	const renderProgress = rendering
+		? rendering.frames / rendering.totalFrames
+		: 0;
+	const stitchingProgress = stitching
+		? stitching.frames / stitching.totalFrames
+		: 0;
+
+	const progress =
+		bundling.progress * 0.3 + renderProgress * 0.6 + stitchingProgress * 0.1;
+
+	return {output, progress, message: getGuiProgressSubtitle(prog)};
+};
+
+const getGuiProgressSubtitle = (progress: AggregateRenderProgress): string => {
+	// Handle floating point inaccuracies
+	if (progress.bundling.progress < 0.99999) {
+		return `Bundling ${Math.round(progress.bundling.progress * 100)}%`;
+	}
+
+	if (progress.copyingState.doneIn === null) {
+		return `Copying public dir ${formatBytes(progress.copyingState.bytes)}`;
+	}
+
+	if (!progress.rendering) {
+		return `Getting compositions`;
+	}
+
+	const allRendered =
+		progress.rendering.frames === progress.rendering.totalFrames;
+
+	if (!allRendered || !progress.stitching || progress.stitching.frames === 0) {
+		return `Rendering ${progress.rendering.frames}/${progress.rendering.totalFrames}`;
+	}
+
+	return `Stitching ${progress.stitching.frames}/${progress.stitching.totalFrames}`;
 };

@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-make-cancel-signal.png
 id: make-cancel-signal
 title: makeCancelSignal()
+crumb: "@remotion/renderer"
 ---
 
 _Available from v3.0.15_
@@ -13,13 +15,15 @@ This function returns a signal and a cancel function that allows to you cancel a
 ```tsx twoslash
 // @module: ESNext
 // @target: ESNext
-import { SmallTCompMetadata } from "remotion";
-const composition: SmallTCompMetadata = {
+import { VideoConfig } from "remotion";
+const composition: VideoConfig = {
   durationInFrames: 1000000,
   fps: 30,
   height: 720,
   id: "react-svg",
   width: 1280,
+  defaultProps: {},
+  props: {},
 };
 // ---cut---
 import { makeCancelSignal, renderMedia } from "@remotion/renderer";

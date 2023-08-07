@@ -1,13 +1,19 @@
-export const copyCmd = (cmd: string) => {
+export const copyText = (cmd: string) => {
 	const permissionName = 'clipboard-write' as PermissionName;
-	navigator.permissions
-		.query({name: permissionName})
-		.then((result) => {
-			if (result.state === 'granted' || result.state === 'prompt') {
-				navigator.clipboard.writeText(cmd);
-			}
-		})
-		.catch((err) => {
-			console.log('Could not copy command', err);
-		});
+
+	return new Promise<void>((resolve, reject) => {
+		navigator.permissions
+			.query({name: permissionName})
+			.then((result) => {
+				if (result.state === 'granted' || result.state === 'prompt') {
+					navigator.clipboard.writeText(cmd);
+					resolve();
+				} else {
+					reject(new Error('Permission to copy not granted'));
+				}
+			})
+			.catch((err) => {
+				reject(err);
+			});
+	});
 };

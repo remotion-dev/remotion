@@ -1,15 +1,15 @@
 if (
-	/^AWS_Lambda_nodejs(?:10|12|14)[.]x$/.test(
-		process.env.AWS_EXECUTION_ENV ?? ''
-	) === true
+	/^AWS_Lambda_nodejs(?:18)[.]x$/.test(process.env.AWS_EXECUTION_ENV ?? '') ===
+	true
 ) {
-	if (process.env.FONTCONFIG_PATH === undefined) {
-		process.env.FONTCONFIG_PATH = '/opt';
-	}
+	process.env.FONTCONFIG_PATH = '/opt';
+	process.env.FONTCONFIG_FILE = '/opt/fonts.conf';
 
-	process.env.LD_LIBRARY_PATH = '/opt/lib:/opt/bin';
+	process.env.READ_ONLY_FS = '1';
+	process.env.COMPOSITOR_PATH = './compositor';
+	process.env.NO_COLOR = '1';
 }
 
-export const executablePath = async (): Promise<string | undefined> => {
+export const executablePath = (): string => {
 	return '/opt/bin/chromium';
 };

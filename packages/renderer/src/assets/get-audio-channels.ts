@@ -1,24 +1,13 @@
-import execa from 'execa';
-import type {FfmpegExecutable} from 'remotion';
+import {callFf} from '../call-ffmpeg';
 import {pLimit} from '../p-limit';
-
-type Result = {
-	channels: number;
-	duration: number | null;
-};
-
-const durationOfAssetCache: Record<string, Result> = {};
+import type {
+	AudioChannelsAndDurationResultCache,
+	DownloadMap,
+} from './download-map';
 
 const limit = pLimit(1);
 
-async function getAudioChannelsAndDurationUnlimited(
-	src: string,
-	ffprobeExecutable: FfmpegExecutable
-): Promise<Result> {
-	if (durationOfAssetCache[src]) {
-		return durationOfAssetCache[src];
-	}
-
+export const getAudioChannelsAndDurationWithoutCache = async (src: string) => {
 	const args = [
 		['-v', 'error'],
 		['-show_entries', 'stream=channels:format=duration'],
@@ -28,26 +17,36 @@ async function getAudioChannelsAndDurationUnlimited(
 		.reduce<(string | null)[]>((acc, val) => acc.concat(val), [])
 		.filter(Boolean) as string[];
 
-	const task = await execa(ffprobeExecutable ?? 'ffprobe', args);
+	const task = await callFf('ffprobe', args);
 
 	const channels = task.stdout.match(/channels=([0-9]+)/);
 	const duration = task.stdout.match(/duration=([0-9.]+)/);
 
-	const result: Result = {
+	const result: AudioChannelsAndDurationResultCache = {
 		channels: channels ? parseInt(channels[1], 10) : 0,
 		duration: duration ? parseFloat(duration[1]) : null,
 	};
+	return result;
+};
 
-	durationOfAssetCache[src] = result;
+async function getAudioChannelsAndDurationUnlimited(
+	downloadMap: DownloadMap,
+	src: string
+): Promise<AudioChannelsAndDurationResultCache> {
+	if (downloadMap.durationOfAssetCache[src]) {
+		return downloadMap.durationOfAssetCache[src];
+	}
+
+	const result = await getAudioChannelsAndDurationWithoutCache(src);
+
+	downloadMap.durationOfAssetCache[src] = result;
 
 	return result;
 }
 
 export const getAudioChannelsAndDuration = (
-	src: string,
-	ffprobeExecutable: FfmpegExecutable
-): Promise<Result> => {
-	return limit(() =>
-		getAudioChannelsAndDurationUnlimited(src, ffprobeExecutable)
-	);
+	downloadMap: DownloadMap,
+	src: string
+): Promise<AudioChannelsAndDurationResultCache> => {
+	return limit(() => getAudioChannelsAndDurationUnlimited(downloadMap, src));
 };

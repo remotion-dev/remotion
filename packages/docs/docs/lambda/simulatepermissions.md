@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-simulatepermissions.png
 id: simulatepermissions
 title: simulatePermissions()
 slug: /lambda/simulatepermissions
+crumb: "Lambda API"
 ---
 
 Runs tests through the AWS Simulator ensuring that all the necessary permissions are set for the authenticated user.
@@ -26,7 +28,7 @@ const { results } = await simulatePermissions({
 
 for (const result of results) {
   console.log(result.decision); // "allowed"
-  console.log(result.name); // "iam:GetUser"
+  console.log(result.name); // "iam:SimulatePrincipalPolicy"
 }
 ```
 
@@ -54,7 +56,7 @@ const { results } = await simulatePermissions({
   region: "us-east-1",
   onSimulation: (result) => {
     console.log(result.decision); // "allowed"
-    console.log(result.name); // "iam:GetUser"
+    console.log(result.name); // "iam:SimulatePrincipalPolicy"
   },
 });
 ```

@@ -1,4 +1,3 @@
-import React from 'react';
 import {Composition} from 'remotion';
 import {Framer} from './FramerJs';
 

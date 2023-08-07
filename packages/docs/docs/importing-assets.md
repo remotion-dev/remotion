@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-importing-assets.png
 id: assets
 title: Importing assets
+crumb: "How To"
 ---
 
 To import assets in Remotion, create a `public/` folder in your project and use [`staticFile()`](/docs/staticfile) to import it.
@@ -12,8 +14,8 @@ my-video/
 │  ├─ logo.png
 ├─ src/
 │  ├─ MyComp.tsx
-│  ├─ Video.tsx
-│  ├─ index.tsx
+│  ├─ Root.tsx
+│  ├─ index.ts
 ├─ package.json
 ```
 
@@ -61,12 +63,12 @@ my-video/
 ```
 
 ```tsx twoslash
-import { Img, useCurrentFrame, staticFile } from "remotion";
+import { Img, staticFile, useCurrentFrame } from "remotion";
 
 const MyComp: React.FC = () => {
   const frame = useCurrentFrame();
 
-  return <Img src={staticFile(`/${frame}.png`)} />;
+  return <Img src={staticFile(`/frame${frame}.png`)} />;
 };
 ```
 
@@ -115,7 +117,7 @@ import { Audio } from "remotion";
 
 export const MyComp: React.FC = () => {
   return (
-    <Audio src="https://file-examples.com/wp-content/uploads/2017/11/file_example_MP3_700KB.mp3" />
+    <Audio src="https://file-examples.com/storage/fe48a63c5264cbd519788b3/2017/11/file_example_MP3_700KB.mp3" />
   );
 };
 ```
@@ -132,8 +134,8 @@ my-video/
 ├─ src/
 │  ├─ style.css
 │  ├─ MyComp.tsx
-│  ├─ Video.tsx
-│  ├─ index.tsx
+│  ├─ Root.tsx
+│  ├─ index.ts
 ├─ package.json
 ```
 
@@ -155,8 +157,8 @@ As an alternative way to import files, Remotion allows you to `import` or `requi
 
 - Images (`.png`, `.svg`, `.jpg`, `.jpeg`, `.webp`, `.gif`, `.bmp`)
 - Videos (`.webm`, `.mov`, `.mp4`)
-- Audio (`.mp3`, `.wav`, `.aac`, `m4a`)
-- Fonts (`.woff`, `.woff2`, `otf`, `ttf`, `eot`)
+- Audio (`.mp3`, `.wav`, `.aac`, `.m4a`)
+- Fonts (`.woff`, `.woff2`, `.otf`, `.ttf`, `.eot`)
 
 For example:
 
@@ -177,4 +179,8 @@ While this was previously the main way of importing files, we now recommend agai
 - The maximum file size is 2GB.
 - Dynamic imports such as `require('img' + frame + '.png')` are [funky](/docs/webpack-dynamic-imports).
 
-Prefer importing using [`staticFile()`](/docs/staticfile) is possible.
+Prefer importing using [`staticFile()`](/docs/staticfile) if possible.
+
+## Dynamic duration based on assets
+
+To make your videos duration dependent based on your assets, see: [Dynamic duration, FPS & dimensions](/docs/dynamic-metadata)

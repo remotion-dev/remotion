@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-ssr-legacy.png
 id: ssr-legacy
 title: Server-Side Rendering (v1 and v2)
+crumb: "Legacy docs"
 ---
 
 :::info
@@ -11,24 +13,24 @@ Remotion's rendering engine is built upon Node.JS, which makes it exceptionally 
 
 Since Remotion is built with tech (_Node.JS, FFMPEG, Puppeteer_) that works well cross-platform, you can without much hassle run it on a Linux-based system or even dockerize your video.
 
-On this page, we demonstrate the server-rendering capabilities or Remotion using examples [built into the template](/docs#installation)!
+On this page, we demonstrate the server-rendering capabilities on Remotion using examples [built into the template](/docs#installation)!
 
 ## Render a video programmatically
 
-The NPM package `@remotion/renderer` provides you with an API for rendering the videos programmatically. You can make a video in three steps: creating a Webpack bundle, rendering the frames, and stitching them together to an MP4. This gives you more independence and allows you to for example skip the stitching process, if you just want a PNG sequence.
+The NPM package `@remotion/renderer` provides you with an API for rendering the videos programmatically. You can make a video in three steps: creating a Webpack bundle, rendering the frames, and stitching them together to a MP4. This gives you more independence and allows you for example to skip the stitching process, if you just want a PNG sequence.
 
 Follow this commented example to see how to render a video:
 
 ```tsx
-import fs from "fs";
-import os from "os";
-import path from "path";
 import { bundle } from "@remotion/bundler";
 import {
   getCompositions,
   renderFrames,
   stitchFramesToVideo,
 } from "@remotion/renderer";
+import fs from "fs";
+import os from "os";
+import path from "path";
 
 const start = async () => {
   // The composition you want to render
@@ -151,7 +153,7 @@ under `.github/workflows/render-video.yml`. All you have to do is to adjust the 
 
 Note that running the workflow may incur costs. However, the workflow will only run if you actively trigger it.
 
-[See also: Passing props in GitHub Actions](/docs/parametrized-rendering#passing-props-in-github-actions)
+[See also: Passing props in GitHub Actions](/docs/parameterized-rendering#passing-props-in-github-actions)
 
 ## Rendering a video using serverless
 

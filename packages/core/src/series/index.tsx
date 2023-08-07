@@ -1,22 +1,34 @@
-import type { FC, PropsWithChildren} from 'react';
-import {Children, useMemo} from 'react';
-import type { SequenceProps} from '../Sequence';
-import {Sequence} from '../Sequence';
-import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
-import {flattenChildren} from './flatten-children';
+import type {FC, PropsWithChildren} from 'react';
+import {Children, forwardRef, useMemo} from 'react';
+import type {LayoutAndStyle, SequenceProps} from '../Sequence.js';
+import {Sequence} from '../Sequence.js';
+import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
+import {flattenChildren} from './flatten-children.js';
 
 type SeriesSequenceProps = PropsWithChildren<
 	{
 		durationInFrames: number;
 		offset?: number;
-	} & Pick<SequenceProps, 'layout' | 'name'>
+	} & Pick<SequenceProps, 'layout' | 'name'> &
+		LayoutAndStyle
 >;
 
-const SeriesSequence = ({children}: SeriesSequenceProps) => {
+const SeriesSequenceRefForwardingFunction: React.ForwardRefRenderFunction<
+	HTMLDivElement,
+	SeriesSequenceProps
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+> = ({children}, _ref) => {
+	// Discard ref
 	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return <>{children}</>;
 };
 
+const SeriesSequence = forwardRef(SeriesSequenceRefForwardingFunction);
+
+/**
+ * @description with this component, you can easily stitch together scenes that should play sequentially after another.
+ * @see [Documentation](https://www.remotion.dev/docs/series)
+ */
 const Series: FC<{
 	children: React.ReactNode;
 }> & {
@@ -24,11 +36,13 @@ const Series: FC<{
 } = ({children}) => {
 	const childrenValue = useMemo(() => {
 		let startFrame = 0;
-		return Children.map(flattenChildren(children), (child, i) => {
+		const flattenedChildren = flattenChildren(children);
+		return Children.map(flattenedChildren, (child, i) => {
 			const castedChild = child as unknown as
 				| {
 						props: SeriesSequenceProps;
 						type: typeof SeriesSequence;
+						ref: React.MutableRefObject<HTMLDivElement>;
 				  }
 				| string;
 			if (typeof castedChild === 'string') {
@@ -50,7 +64,7 @@ const Series: FC<{
 
 			const debugInfo = `index = ${i}, duration = ${castedChild.props.durationInFrames}`;
 
-			if (!castedChild || !castedChild.props.children) {
+			if (!castedChild?.props.children) {
 				throw new TypeError(
 					`A <Series.Sequence /> component (${debugInfo}) was detected to not have any children. Delete it to fix this error.`
 				);
@@ -60,12 +74,20 @@ const Series: FC<{
 			const {
 				durationInFrames,
 				children: _children,
+				from,
 				...passedProps
-			} = castedChild.props;
-			validateDurationInFrames(
-				durationInFramesProp,
-				`of a <Series.Sequence /> component`
-			);
+			} = castedChild.props as SeriesSequenceProps & {from: never}; // `from` is not accepted and must be filtered out if used in JS
+
+			if (
+				i !== flattenedChildren.length - 1 ||
+				durationInFramesProp !== Infinity
+			) {
+				validateDurationInFrames(durationInFramesProp, {
+					component: `of a <Series.Sequence /> component`,
+					allowFloats: true,
+				});
+			}
+
 			const offset = castedChild.props.offset ?? 0;
 			if (Number.isNaN(offset)) {
 				throw new TypeError(
@@ -92,6 +114,7 @@ const Series: FC<{
 					from={currentStartFrame}
 					durationInFrames={durationInFramesProp}
 					{...passedProps}
+					ref={castedChild.ref}
 				>
 					{child}
 				</Sequence>

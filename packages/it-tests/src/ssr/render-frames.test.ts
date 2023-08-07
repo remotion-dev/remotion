@@ -7,12 +7,13 @@ import {
   renderFrames,
   stitchFramesToVideo,
 } from "@remotion/renderer";
-import execa from "execa";
+import { expect, test } from "vitest";
+import { RenderInternals } from "@remotion/renderer";
 
-test("Legacy SSR way or rendering videos should still work", async () => {
+test("Legacy SSR way of rendering videos should still work", async () => {
   const puppeteerInstance = await openBrowser("chrome");
   const compositions = await getCompositions(
-    "https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/",
+    "https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/",
     {
       puppeteerInstance,
     }
@@ -34,13 +35,13 @@ test("Legacy SSR way or rendering videos should still work", async () => {
   const outPath = path.join(tmpDir, "out.mp4");
 
   const { assetsInfo } = await renderFrames({
-    config: reactSvg,
+    composition: reactSvg,
     imageFormat: "jpeg",
     inputProps: {},
     onFrameUpdate: () => undefined,
-    webpackBundle:
-      "https://6297949544e290044cecb257--cute-kitsune-214ea5.netlify.app/",
-    parallelism: null,
+    serveUrl:
+      "https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/",
+    concurrency: null,
     frameRange: [0, 10],
     outputDir: framesDir,
     onStart: () => undefined,
@@ -57,7 +58,9 @@ test("Legacy SSR way or rendering videos should still work", async () => {
     codec: "h264",
   });
   expect(fs.existsSync(outPath)).toBe(true);
-  const probe = await execa("ffprobe", [outPath]);
+  const probe = await RenderInternals.callFf("ffprobe", [outPath]);
   expect(probe.stderr).toMatch(/Video: h264/);
-  await puppeteerInstance.close();
+
+  RenderInternals.deleteDirectory(framesDir);
+  await puppeteerInstance.close(false, "info", false);
 });

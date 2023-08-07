@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-stills.png
 id: stills
 title: Still images
+crumb: "How to generate"
 ---
 
 _Available from v2.3_
@@ -18,10 +20,10 @@ Use the [`<Still />`](/docs/still) component instead of the [`<Composition />`](
 You can use the [`npx remotion still`](/docs/cli/#npx-remotion-still) command to render a still image. Example command:
 
 ```bash
-npx remotion still --props='{"custom": "data"}' src/index.tsx my-comp out.png
+npx remotion still --props='{"custom": "data"}' my-comp out.png
 ```
 
-You can use the `--image-format` flag to determine the output format. The default format is `png`, with `jpeg` being the other option.
+You can use the `--image-format` flag to determine the output format. The default format is `png`, with `jpeg`, `webp` and `pdf` being the other options.
 
 By default the frame with number of a composition is being rendered, you can control it using the `--frame` flag.
 

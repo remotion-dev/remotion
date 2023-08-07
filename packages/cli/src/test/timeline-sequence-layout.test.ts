@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {getTimelineSequenceLayout} from '../editor/helpers/get-timeline-sequence-layout';
 
 test('Should test timeline sequence layout without max media duration', () => {
@@ -13,8 +14,8 @@ test('Should test timeline sequence layout without max media duration', () => {
 				height: 1080,
 				width: 1920,
 				id: 'main',
+				// @ts-expect-error
 				component: {
-					// @ts-expect-error
 					_payload: {
 						_status: 1,
 					},
@@ -42,8 +43,8 @@ test('Should test timeline sequence layout with max media duration', () => {
 				height: 1080,
 				width: 1920,
 				id: 'main',
+				// @ts-expect-error
 				component: {
-					// @ts-expect-error
 					_payload: {
 						_status: 1,
 					},

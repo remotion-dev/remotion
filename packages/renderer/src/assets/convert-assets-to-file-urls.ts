@@ -1,6 +1,7 @@
-import type {TAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion';
 import type {RenderMediaOnDownload} from './download-and-map-assets-to-file';
 import {downloadAndMapAssetsToFileUrl} from './download-and-map-assets-to-file';
+import type {DownloadMap} from './download-map';
 
 const chunk = <T>(input: T[], size: number) => {
 	return input.reduce<T[][]>((arr, item, idx) => {
@@ -12,15 +13,15 @@ const chunk = <T>(input: T[], size: number) => {
 
 export const convertAssetsToFileUrls = async ({
 	assets,
-	downloadDir,
 	onDownload,
+	downloadMap,
 }: {
-	assets: TAsset[][];
-	downloadDir: string;
+	assets: TRenderAsset[][];
 	onDownload: RenderMediaOnDownload;
-}): Promise<TAsset[][]> => {
+	downloadMap: DownloadMap;
+}): Promise<TRenderAsset[][]> => {
 	const chunks = chunk(assets, 1000);
-	const results: TAsset[][][] = [];
+	const results: TRenderAsset[][][] = [];
 
 	for (const ch of chunks) {
 		const result = await Promise.all(
@@ -28,9 +29,9 @@ export const convertAssetsToFileUrls = async ({
 				return Promise.all(
 					assetsForFrame.map((a) => {
 						return downloadAndMapAssetsToFileUrl({
-							asset: a,
-							downloadDir,
+							renderAsset: a,
 							onDownload,
+							downloadMap,
 						});
 					})
 				);

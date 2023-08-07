@@ -40,7 +40,7 @@ interface CDPSession extends EventEmitter {
 	send<T extends keyof Commands>(
 		method: T,
 		...paramArgs: Commands[T]['paramsType']
-	): Promise<Commands[T]['returnType']>;
+	): Promise<{value: Commands[T]['returnType']; size: number}>;
 }
 
 interface FrameManager {
@@ -218,17 +218,7 @@ export class NetworkManager extends EventEmitter {
 			return;
 		}
 
-		const extraInfos = this.#networkEventManager.responseExtraInfo(
-			responseReceived.requestId
-		);
-		if (extraInfos.length) {
-			console.log(
-				new Error(
-					'Unexpected extraInfo events for request ' +
-						responseReceived.requestId
-				)
-			);
-		}
+		this.#networkEventManager.responseExtraInfo(responseReceived.requestId);
 
 		const response = new HTTPResponse(responseReceived.response, extraInfo);
 		request._response = response;

@@ -1,11 +1,12 @@
 import React, {useCallback, useContext} from 'react';
 import {SELECTED_BACKGROUND} from '../../helpers/colors';
-import {copyCmd} from '../../helpers/copy-text';
+import {copyText} from '../../helpers/copy-text';
 import {ModalsContext} from '../../state/modals';
 import {CopyButton} from '../CopyButton';
 import {Flex, Row, Spacing} from '../layout';
 import {ModalContainer} from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
+import {sendErrorNotification} from '../Notifications/NotificationCenter';
 import type {UpdateInfo} from '../UpdateCheck';
 
 const container: React.CSSProperties = {
@@ -54,7 +55,14 @@ export const UpdateModal: React.FC<{
 				</p>
 				<Row align="center">
 					<Flex>
-						<pre onClick={() => copyCmd(command)} style={code}>
+						<pre
+							onClick={() =>
+								copyText(command).catch((err) => {
+									sendErrorNotification(`Could not copy: ${err.message}`);
+								})
+							}
+							style={code}
+						>
 							{command}
 						</pre>
 					</Flex>

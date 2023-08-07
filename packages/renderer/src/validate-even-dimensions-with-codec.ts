@@ -1,5 +1,5 @@
-import type {Codec} from 'remotion';
-import {Internals} from 'remotion';
+import type {Codec} from './codec';
+import {truthy} from './truthy';
 
 export const validateEvenDimensionsWithCodec = ({
 	width,
@@ -29,7 +29,7 @@ export const validateEvenDimensionsWithCodec = ({
 				? `Change the width to ${Math.floor(width - 1)}px to fix this issue.`
 				: `You have used the "scale" option which might be the reason for the problem: The original width is ${width} and the scale is ${scale}x, which was multiplied to get the actual width.`,
 		]
-			.filter(Internals.truthy)
+			.filter(truthy)
 			.join(' ');
 		throw new Error(message);
 	}

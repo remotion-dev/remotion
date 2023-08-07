@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-getrolepolicy.png
 id: getrolepolicy
 title: getRolePolicy()
 slug: /lambda/getrolepolicy
+crumb: "Lambda API"
 ---
 
 Returns an inline JSON policy to be assigned to the 'remotion-lambda-role' role that needs to be created in your AWS account.

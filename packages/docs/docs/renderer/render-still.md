@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-renderer-render-still.png
 id: render-still
 title: renderStill()
+crumb: "@remotion/renderer"
 ---
 
 import {AngleChangelog} from '../../components/AngleChangelog';
@@ -13,7 +15,7 @@ If you want to render a video, use [renderMedia()](/docs/renderer/render-media) 
 
 ## Example usage
 
-You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr/#render-a-video-programmatically) for an example how to come up with the `bundleLocation` and `composition` variables.
+You first need to bundle the project and fetch the compositions. Read [the code snippet on the site for server-side rendering](/docs/ssr) for an example how to come up with the `bundleLocation` and `composition` variables.
 
 ```ts twoslash
 // @module: ESNext
@@ -24,7 +26,9 @@ import { getCompositions, renderStill } from "@remotion/renderer";
 // The composition you want to render
 const compositionId = "HelloWorld";
 
-const bundleLocation = await bundle(require.resolve("./src/index"));
+const bundleLocation = await bundle({
+  entryPoint: require.resolve("./src/index"),
+});
 
 const comps = await getCompositions(bundleLocation, {
   inputProps: {
@@ -55,7 +59,10 @@ Takes an object with the following properties:
 
 ### `composition`
 
-A video composition object, consisting of `id`, `height`, `width`, `durationInFrames` and `fps`. Use [`getCompositions()`](/docs/renderer/get-compositions) to get a list of available video configs.
+_VideoConfig_
+
+An object describing a composition using `id`, `width`, `height`, `fps` and `durationInFrames`, `defaultProps` and `props`.  
+Call [`selectComposition()`](/docs/renderer/select-composition) or [`getCompositions()`](/docs/renderer/get-compositions) to get an array of possible configs.
 
 ### `serveUrl`
 
@@ -69,27 +76,29 @@ An absolute path to where the frame should be rendered to.
 
 _optional_
 
-[Custom props which will be passed to the component.](/docs/parametrized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
+[Custom props which will be passed to the component.](/docs/parameterized-rendering) Useful for rendering videos with dynamic content. Can be an object of any shape.
 
 ### `frame?`
 
 _optional - default: 0_
 
-Which frame should be rendered based on its number.
+Which frame should be rendered based on its number. Frames are zero-indexed.
+
+From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 ### `imageFormat?`
 
 _optional - default: "png"_
 
-Which output format the image should have, either `png` or `jpeg`.
+Which output format the image should have, either `png`, `jpeg`, `webp` or `pdf`.
 
 ### `scale?`
 
-_number - default: 1 - available from v2.6.7_
+_optional_
 
-[Scales the output frames by the factor you pass in.](/docs/scaling) For example, a 1280x720px frame will become a 1920x1080px frame with a scale factor of `1.5`. Vector elements like fonts and HTML markups will be rendered with extra details.
+Scales the output dimensions by a factor. See [Scaling](/docs/scaling) to learn more about this feature.
 
-### `quality?`
+### `jpegQuality?`
 
 _optional - default: `undefined`_
 
@@ -99,7 +108,7 @@ Sets the JPEG quality - must be an integer between 0 and 100 and can only be pas
 
 _optional - default `null`_
 
-An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
 ### `envVariables?`
 
@@ -107,11 +116,10 @@ _optional - default `{}`_
 
 An object containing key-value pairs of environment variables which will be injected into your Remotion project and which can be accessed by reading the global `process.env` object.
 
-### `dumpBrowserLogs?`
+### `logLevel?`<AvailableFrom v="4.0.0"/>
 
-_optional - default `false`_
-
-A boolean value deciding whether Puppeteer logs should be printed to the console, useful for debugging only.
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
+`verbose` will also log `console.log`'s from the browser.
 
 ### `overwrite?`
 
@@ -119,27 +127,33 @@ _optional - default `true`_
 
 Whether the file should be overwritten if the output already exists.
 
-### `browserExecutable?`
+### `browserExecutable?`<AvailableFrom v="2.3.1" />
 
-_optional, available from v2.3.1_
+_optional_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available.
 
-### `timeoutInMilliseconds?`
+### `onBrowserLog?`<AvailableFrom v="3.3.93" />
 
-_optional, available from v2.6.3_
+_optional_
 
-A number describing how long the render may take to resolve all `delayRender()` calls before it times out. Default: `30000`
+Gets called when your project calls `console.log` or another method from console. See the documentation for [`renderFrames`](/docs/renderer/render-frames#onbrowserlog) for more information.
 
-### `cancelSignal?`
+### `timeoutInMilliseconds?`<AvailableFrom v="2.6.3" />
 
-_optional, available from v3.0.15_
+_optional_
+
+A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
+
+### `cancelSignal?`<AvailableFrom v="3.0.15" />
+
+_optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
-### `chromiumOptions?`
+### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 
-_optional, available from v2.6.5_
+_optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
@@ -183,9 +197,27 @@ Accepted values:
 Default: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
 
-## Return value
+#### `userAgent`<AvailableFrom v="3.3.83"/>
 
-A promise with no value. If the render succeeded, the still has been saved to `output`. If the render failed, the promise rejects.
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### ~~`dumpBrowserLogs?`~~
+
+_optional - default `false`, deprecated in v4.0_
+
+Deprecated in favor of [`logLevel`](#loglevel).
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
+
+## Return Value
+
+The return value is a promise that resolves to an object with the following keys:
+
+- `buffer`: (_available from v3.3.9_) A `Buffer` that only exists if no `output` option was provided. Otherwise null.
+
+## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/renderer/src/render-still.ts)
 - [bundle()](/docs/bundle)

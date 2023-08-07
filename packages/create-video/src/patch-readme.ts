@@ -1,16 +1,18 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
 import type {PackageManager} from './pkg-managers';
 import {
+	getDevCommand,
 	getInstallCommand,
 	getRenderCommand,
-	getStartCommand,
-	getUpgradeCommand,
+	getRunCommand,
 } from './pkg-managers';
+import type {Template} from './templates';
 
 export const patchReadmeMd = (
 	projectRoot: string,
-	packageManager: PackageManager
+	packageManager: PackageManager,
+	template: Template
 ) => {
 	const fileName = path.join(projectRoot, 'README.md');
 
@@ -23,15 +25,15 @@ export const patchReadmeMd = (
 			}
 
 			if (c.startsWith('npm start')) {
-				return getStartCommand(packageManager);
+				return getDevCommand(packageManager, template);
 			}
 
 			if (c.startsWith('npm run build')) {
 				return getRenderCommand(packageManager);
 			}
 
-			if (c.startsWith('npm run upgrade')) {
-				return getUpgradeCommand(packageManager);
+			if (c.startsWith('npm run ')) {
+				return getRunCommand(packageManager) + c.replace('npm run', '');
 			}
 
 			return c;

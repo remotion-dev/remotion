@@ -1,9 +1,10 @@
 import {CliInternals} from '@remotion/cli';
-import {existsSync, lstatSync} from 'fs';
-import path from 'path';
+import {ConfigInternals} from '@remotion/cli/config';
+
 import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
+import type {Privacy} from '../../../shared/constants';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
@@ -11,7 +12,8 @@ import {getAwsRegion} from '../../get-aws-region';
 import type {
 	BucketCreationProgress,
 	BundleProgress,
-	DeployToS3Progress} from '../../helpers/progress-bar';
+	DeployToS3Progress,
+} from '../../helpers/progress-bar';
 import {
 	makeBucketProgress,
 	makeBundleProgress,
@@ -22,9 +24,12 @@ import {Log} from '../../log';
 
 export const SITES_CREATE_SUBCOMMAND = 'create';
 
-export const sitesCreateSubcommand = async (args: string[]) => {
-	const fileName = args[0];
-	if (!fileName) {
+export const sitesCreateSubcommand = async (
+	args: string[],
+	remotionRoot: string
+) => {
+	const {file, reason} = CliInternals.findEntryPoint(args, remotionRoot);
+	if (!file) {
 		Log.error('No entry file passed.');
 		Log.info(
 			'Pass an additional argument specifying the entry file of your Remotion project:'
@@ -32,31 +37,23 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 		Log.info();
 		Log.info(`${BINARY_NAME} deploy <entry-file.ts>`);
 		quit(1);
+		return;
 	}
 
-	const absoluteFile = path.join(process.cwd(), fileName);
-	if (!existsSync(absoluteFile)) {
-		Log.error(
-			`No file exists at ${absoluteFile}. Make sure the path exists and try again.`
-		);
-		quit(1);
-	}
-
-	if (lstatSync(absoluteFile).isDirectory()) {
-		Log.error(
-			`You passed a path ${absoluteFile} but it is a directory. Pass a file instead.`
-		);
-		quit(1);
-	}
+	Log.verbose('Entry point:', file, 'Reason:', reason);
 
 	const desiredSiteName = parsedLambdaCli['site-name'] ?? undefined;
 	if (desiredSiteName !== undefined) {
 		validateSiteName(desiredSiteName);
 	}
 
-	const progressBar = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
+	const progressBar = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+		// No browser logs
+		updatesDontOverwrite: false,
+		indent: false,
+	});
 
 	const multiProgress: {
 		bundleProgress: BundleProgress;
@@ -68,14 +65,13 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 			progress: 0,
 		},
 		bucketProgress: {
-			bucketCreated: false,
 			doneIn: null,
-			websiteEnabled: false,
 		},
 		deployProgress: {
 			doneIn: null,
 			totalSize: null,
 			sizeUploaded: 0,
+			stats: null,
 		},
 	};
 
@@ -85,32 +81,33 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
-			].join('\n')
+			].join('\n'),
+			false
 		);
 	};
 
 	const bucketStart = Date.now();
 
-	const {bucketName} = await getOrCreateBucket({
-		region: getAwsRegion(),
-		onBucketEnsured: () => {
-			multiProgress.bucketProgress.bucketCreated = true;
-			updateProgress();
-		},
-	});
+	const cliBucketName = parsedLambdaCli['force-bucket-name'] ?? null;
 
-	multiProgress.bucketProgress.websiteEnabled = true;
+	const bucketName =
+		cliBucketName ??
+		(
+			await getOrCreateBucket({
+				region: getAwsRegion(),
+			})
+		).bucketName;
+
 	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
 	updateProgress();
 
 	const bundleStart = Date.now();
 	const uploadStart = Date.now();
 
-	const {serveUrl, siteName} = await deploySite({
-		entryPoint: absoluteFile,
+	const {serveUrl, siteName, stats} = await deploySite({
+		entryPoint: file,
 		siteName: desiredSiteName,
 		bucketName,
-
 		options: {
 			onBundleProgress: (progress: number) => {
 				multiProgress.bundleProgress = {
@@ -123,20 +120,27 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 					sizeUploaded: p.sizeUploaded,
 					totalSize: p.totalSize,
 					doneIn: null,
+					stats: null,
 				};
 				updateProgress();
 			},
-			enableCaching: Internals.getWebpackCaching(),
-			webpackOverride:
-				Internals.getWebpackOverrideFn() ?? Internals.defaultOverrideFunction,
+			enableCaching: ConfigInternals.getWebpackCaching(),
+			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
+			bypassBucketNameValidation: Boolean(parsedLambdaCli['force-bucket-name']),
 		},
 		region: getAwsRegion(),
+		privacy: parsedLambdaCli.privacy as Exclude<Privacy, 'private'> | undefined,
 	});
 	const uploadDuration = Date.now() - uploadStart;
 	multiProgress.deployProgress = {
 		sizeUploaded: 1,
 		totalSize: 1,
 		doneIn: uploadDuration,
+		stats: {
+			addedFiles: stats.uploadedFiles,
+			removedFiles: stats.deletedFiles,
+			untouchedFiles: stats.untouchedFiles,
+		},
 	};
 	updateProgress();
 
@@ -146,4 +150,18 @@ export const sitesCreateSubcommand = async (args: string[]) => {
 
 	Log.info(`Serve URL: ${serveUrl}`);
 	Log.info(`Site Name: ${siteName}`);
+
+	Log.info();
+	Log.info(
+		CliInternals.chalk.blueBright(
+			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:'
+		)
+	);
+	Log.info(
+		CliInternals.chalk.blueBright(
+			['npx remotion lambda sites create', args[0], `--site-name=${siteName}`]
+				.filter(Internals.truthy)
+				.join(' ')
+		)
+	);
 };

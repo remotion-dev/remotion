@@ -7,7 +7,14 @@ import {
 import {REMOTION_HOSTED_LAYER_ARN} from '../../shared/hosted-layers';
 
 export const requiredPermissions: {
-	actions: (s3 | iam | lambda | logs | servicequotas)[];
+	actions: (
+		| s3
+		| iam
+		| lambda
+		| 'lambda:PutRuntimeManagementConfig'
+		| logs
+		| servicequotas
+	)[];
 	resource: string[];
 	id: string;
 }[] = [
@@ -20,12 +27,6 @@ export const requiredPermissions: {
 			servicequotas.ListRequestedServiceQuotaChangeHistoryByQuota,
 		],
 		resource: ['*'],
-	},
-	{
-		id: 'Identity',
-		actions: [iam.GetUser],
-		// eslint-disable-next-line no-template-curly-in-string
-		resource: ['arn:aws:iam::*:user/${aws:username}'],
 	},
 	{
 		id: 'PermissionValidation',
@@ -49,8 +50,8 @@ export const requiredPermissions: {
 			s3.GetBucketLocation,
 			s3.PutBucketAcl,
 			s3.DeleteBucket,
-			s3.PutBucketWebsite,
-			s3.DeleteBucketWebsite,
+			s3.PutBucketOwnershipControls,
+			s3.PutBucketPublicAccessBlock,
 		],
 		resource: [`arn:aws:s3:::${REMOTION_BUCKET_PREFIX}*`],
 	},
@@ -72,6 +73,7 @@ export const requiredPermissions: {
 			lambda.CreateFunction,
 			lambda.DeleteFunction,
 			lambda.PutFunctionEventInvokeConfig,
+			'lambda:PutRuntimeManagementConfig',
 		],
 		resource: [`arn:aws:lambda:*:*:function:${RENDER_FN_PREFIX}*`],
 	},

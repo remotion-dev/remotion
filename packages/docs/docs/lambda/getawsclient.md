@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-lambda-getawsclient.png
 id: getawsclient
 title: getAwsClient()
+crumb: "Lambda API"
 ---
 
 This API exposes full access to the AWS SDK that Remotion uses under the hood. You can use it to interact with your AWS infrastructure in ways that Remotion doesn't provide a function for.
@@ -72,7 +74,21 @@ One of the [supported regions](/docs/lambda/region-selection) of Remotion Lambda
 
 ### `service`
 
-One of `lambda`, `cloudwatch`, `iam`, `servicequotas` and `s3`.
+One of `lambda`, `cloudwatch`, `iam`, `servicequotas`, `s3` or `sts`.
+
+### `customCredentials`
+
+_available from v3.2.23_
+
+Allows you to connect to another cloud provider, useful if you [render your output to a different cloud](/docs/lambda/custom-destination). The value must satisfy the following type:
+
+```ts
+type CustomCredentials = {
+  endpoint: string;
+  accessKeyId: string | null;
+  secretAccessKey: string | null;
+};
+```
 
 ## Return value
 

@@ -8,7 +8,10 @@ const limit = pLimit(3);
 
 const fetchWithCorsCatch = async (src: string) => {
 	try {
-		const response = await fetch(src);
+		const response = await fetch(src, {
+			mode: 'cors',
+			referrerPolicy: 'no-referrer-when-downgrade',
+		});
 		return response;
 	} catch (err) {
 		const error = err as Error;
@@ -63,6 +66,10 @@ const fn = async (src: string): Promise<AudioData> => {
 	return metadata;
 };
 
+/**
+ * @description Takes an audio src, loads it and returns data and metadata for the specified source.
+ * @see [Documentation](https://www.remotion.dev/docs/get-audio-data)
+ */
 export const getAudioData = (src: string) => {
 	return limit(fn, src);
 };

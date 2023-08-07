@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import type {Browser} from './Browser';
+import type {HeadlessBrowser} from './Browser';
 import type {BrowserConnectOptions} from './BrowserConnector';
-import type {BrowserFetcherOptions} from './BrowserFetcher';
-import {BrowserFetcher} from './BrowserFetcher';
 import type {ProductLauncher} from './Launcher';
-import Launcher from './Launcher';
+import {ChromeLauncher} from './Launcher';
 import type {
 	BrowserLaunchArgumentOptions,
 	LaunchOptions,
@@ -48,10 +46,9 @@ export class PuppeteerNode {
 
 		this.launch = this.launch.bind(this);
 		this.executablePath = this.executablePath.bind(this);
-		this.createBrowserFetcher = this.createBrowserFetcher.bind(this);
 	}
 
-	launch(options: PuppeteerLaunchOptions): Promise<Browser> {
+	launch(options: PuppeteerLaunchOptions): Promise<HeadlessBrowser> {
 		if (options.product) {
 			this.#productName = options.product;
 		}
@@ -69,16 +66,12 @@ export class PuppeteerNode {
 			this.#lazyLauncher.product !== this.#productName
 		) {
 			switch (this.#productName) {
-				case 'firefox':
-					this._preferredRevision = PUPPETEER_REVISIONS.firefox;
-					break;
 				case 'chrome':
 				default:
 					this._preferredRevision = PUPPETEER_REVISIONS.chromium;
 			}
 
-			// eslint-disable-next-line new-cap
-			this.#lazyLauncher = Launcher(this._preferredRevision, this.#productName);
+			this.#lazyLauncher = new ChromeLauncher(this._preferredRevision);
 		}
 
 		return this.#lazyLauncher;
@@ -86,9 +79,5 @@ export class PuppeteerNode {
 
 	get product(): string {
 		return this._launcher.product;
-	}
-
-	createBrowserFetcher(options: BrowserFetcherOptions): BrowserFetcher {
-		return new BrowserFetcher(options);
 	}
 }

@@ -1,13 +1,15 @@
 ---
+image: /generated/articles-docs-brownfield-installation.png
 id: brownfield
 title: Installing Remotion in an existing project
 sidebar_label: Installation in existing project
+crumb: "Brownfield integration"
 ---
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-Remotion can be installed into any Node.JS based project, such as Create React App, Next.JS apps as well as server-only projects such as an Express API. Get started by adding the following packages:
+Remotion can be installed into existing projects, such as [Next.JS](https://nextjs.org/), [Remix](https://remix.run/), [Vite](https://vitejs.dev/guide/) or [Create React App](https://create-react-app.dev/), as well as server-only projects that run on Node.JS. Get started by adding the following packages:
 
 <Tabs
 defaultValue="npm"
@@ -24,6 +26,13 @@ npm i @remotion/cli remotion
 ```
 
   </TabItem>
+  <TabItem value="pnpm">
+
+```bash
+pnpm i @remotion/cli remotion
+```
+
+  </TabItem>
 
   <TabItem value="yarn">
 
@@ -33,13 +42,6 @@ yarn add @remotion/cli remotion
 
   </TabItem>
 
-  <TabItem value="pnpm">
-
-```bash
-pnpm i @remotion/cli remotion
-```
-
-  </TabItem>
 </Tabs>
 
 - If you'd like to embed a Remotion video in your existing React app, install [`@remotion/player`](/docs/player/installation) as well.
@@ -56,18 +58,18 @@ export const MyComposition = () => {
 };
 ```
 
-```tsx twoslash title="remotion/Video.tsx"
+```tsx twoslash title="remotion/Root.tsx"
 // @filename: Composition.tsx
 export const MyComposition: React.FC = () => {
   return null;
 };
-// @filename: Video.tsx
+// @filename: Root.tsx
 // ---cut---
 import React from "react";
 import { Composition } from "remotion";
 import { MyComposition } from "./Composition";
 
-export const RemotionVideo: React.FC = () => {
+export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
@@ -88,12 +90,12 @@ export const RemotionVideo: React.FC = () => {
 export const MyComposition: React.FC = () => {
   return null;
 };
-// @filename: Video.tsx
+// @filename: Root.tsx
 import React from "react";
 import { Composition } from "remotion";
 import { MyComposition } from "./Composition";
 
-export const RemotionVideo: React.FC = () => {
+export const RemotionRoot: React.FC = () => {
   return (
     <>
       <Composition
@@ -110,19 +112,19 @@ export const RemotionVideo: React.FC = () => {
 // @filename: index.ts
 // ---cut---
 import { registerRoot } from "remotion";
-import { RemotionVideo } from "./Video";
+import { RemotionRoot } from "./Root";
 
-registerRoot(RemotionVideo);
+registerRoot(RemotionRoot);
 ```
 
 The file that calls [`registerRoot()`](/docs/register-root) is now your Remotion **entrypoint**.
 
-## Starting the preview
+## Starting the Studio
 
-Start the preview server using the following command:
+Start the Remotion Studio using the following command:
 
 ```
-npx remotion preview remotion/index.ts
+npx remotion studio remotion/index.ts
 ```
 
 Replace `remotion/index.ts` with your entrypoint if necessary.
@@ -178,6 +180,7 @@ This snippet will enable the recommended rules only for the Remotion files:
 
 ```json title=".eslintrc"
 {
+  "plugins": ["@remotion"],
   "overrides": [
     {
       "files": ["remotion/*.{ts,tsx}"],

@@ -1,15 +1,19 @@
 ---
+image: /generated/articles-docs-preload-preload-video.png
 id: preload-video
 slug: preload-video
 sidebar_label: preloadVideo()
 title: "preloadVideo()"
+crumb: "@remotion/player"
 ---
 
 _This function is part of the [`@remotion/preload`](/docs/preload) package._
 
 This function preloads a video in the DOM so that when a video tag is mounted, it can play immediately.
 
-While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the preview.
+While preload is not necessary for rendering, it can help with seamless playback in the [`<Player />`](/docs/player) and in the Studio.
+
+An alternative to `preloadVideo()` is the [`prefetch()`](/docs/prefetch) API. See [`@remotion/preload` vs `prefetch()`](/docs/player/preloading#remotionpreload-vs-prefetch) to decide which one is better for your usecase.
 
 ## Usage
 
@@ -40,8 +44,8 @@ If the resource does not support CORS, `resolveRedirect()` will fail. If the res
 This snippet tries to preload a video on a best-effort basis. If the redirect cannot be resolved, it tries to preload the original URL.
 
 ```tsx twoslash
+import { preloadVideo, resolveRedirect } from "@remotion/preload";
 import { Video } from "remotion";
-import { resolveRedirect, preloadVideo } from "@remotion/preload";
 
 // This code gets executed immediately once the page loads
 let urlToLoad =
@@ -53,7 +57,7 @@ resolveRedirect(urlToLoad)
     urlToLoad = resolved;
   })
   .catch((err) => {
-    // Was unable to resolve redirect e.g. due to no CORS supoprt
+    // Was unable to resolve redirect e.g. due to no CORS support
     console.log("Could not resolve redirect", err);
   })
   .finally(() => {

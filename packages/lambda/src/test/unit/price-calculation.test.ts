@@ -1,8 +1,9 @@
+import {expect, test} from 'vitest';
 import {estimatePriceFromBucket} from '../../functions/helpers/calculate-price-from-bucket';
 
 test('Should not throw while calculating prices when time shifts occur', () => {
 	const aDate = Date.now();
-	process.env.REMOTION_LAMBDA = 'true';
+	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
 	process.env.AWS_REGION = 'us-east-1';
 
 	const price = estimatePriceFromBucket({
@@ -21,7 +22,10 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			estimatedTotalLambdaInvokations: 10,
 			framesPerLambda: 10,
 			imageFormat: 'jpeg',
-			inputProps: {},
+			inputProps: {
+				type: 'payload',
+				payload: '{}',
+			},
 			lambdaVersion: '2021-11-29',
 			memorySizeInMb: 1024,
 			region: 'eu-central-1',
@@ -30,7 +34,6 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 			startedDate: aDate + 1000,
 			totalChunks: 20,
 			type: 'video',
-			usesOptimizationProfile: true,
 			videoConfig: {
 				durationInFrames: 100,
 				fps: 30,
@@ -38,15 +41,19 @@ test('Should not throw while calculating prices when time shifts occur', () => {
 				id: 'react-svg',
 				width: 1080,
 				defaultProps: {},
+				props: {},
 			},
 			outName: 'out.mp4',
+			privacy: 'public',
+			everyNthFrame: 1,
+			frameRange: [0, 99],
+			audioCodec: null,
 		},
 		outputFileMetadata: {
 			url: 'out.mp4',
 			lastModified: Date.now() - 2000,
 			size: 1000000,
 		},
-		architecture: 'x86_64',
 		diskSizeInMb: 512,
 		lambdasInvoked: 1,
 	});

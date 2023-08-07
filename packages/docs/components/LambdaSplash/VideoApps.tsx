@@ -1,5 +1,5 @@
 import { useColorMode } from "@docusaurus/theme-common";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BlueButton } from "../layout/Button";
 import { Spacer } from "../layout/Spacer";
 import videoapps from "./videoapps.module.css";
@@ -43,7 +43,6 @@ const list: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   alignItems: "center",
-  fontWeight: 500,
 };
 
 const hr: React.CSSProperties = {
@@ -68,13 +67,28 @@ const docsButton: React.CSSProperties = {
 export const VideoApps: React.FC<{
   active: "remotion" | "player" | "lambda";
 }> = ({ active }) => {
-  const { colorMode } = useColorMode();
+  const { isDarkTheme } = useColorMode();
+
+  const [src, setSrc] = useState("/img/player-example.png");
+  const [src2, setSrc2] = useState("/img/player-example-dark.png");
+
+  useEffect(() => {
+    if (isDarkTheme) {
+      setSrc("/img/player-example-dark.png");
+    } else {
+      setSrc("/img/player-example.png");
+    }
+  }, [isDarkTheme]);
+  useEffect(() => {
+    setSrc2(isDarkTheme ? "/img/cluster-dark.png" : "/img/cluster.png");
+  }, [isDarkTheme]);
+
   return (
     <div className={videoapps.row}>
       <div style={step}>
         {active === "remotion" ? <YouAreHere /> : null}
         <h2 style={stepTitle}>Remotion</h2>
-        <strong style={center}>Write videos in React</strong>
+        <strong style={center}>Make videos programmatically</strong>
         <br />
         <div
           style={{
@@ -133,13 +147,7 @@ export const VideoApps: React.FC<{
             flex: 1,
           }}
         >
-          <img
-            src={
-              colorMode === "dark"
-                ? "/img/player-example-dark.png"
-                : "/img/player-example.png"
-            }
-          />
+          <img src={src} />
         </div>
         <ul style={list}>
           <li>Preview videos in the browser</li>
@@ -187,13 +195,7 @@ export const VideoApps: React.FC<{
             flex: 1,
           }}
         >
-          <img
-            src={
-              colorMode === "dark"
-                ? "/img/cluster-dark.png"
-                : "/img/cluster.png"
-            }
-          />
+          <img src={src2} />
         </div>
 
         <ul style={list}>

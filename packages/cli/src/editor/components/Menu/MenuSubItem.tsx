@@ -2,13 +2,15 @@ import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
+import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
-import {Flex, Row, Spacing} from '../layout';
+import {Row, Spacing} from '../layout';
 import type {SubMenu} from '../NewComposition/ComboBox';
+import {MENU_ITEM_CLASSNAME} from './is-menu-item';
 import {getPortal} from './portals';
 import {
-	menuContainer,
+	menuContainerTowardsBottom,
 	MENU_VERTICAL_PADDING,
 	SUBMENU_LEFT_INSET,
 } from './styles';
@@ -21,10 +23,13 @@ const container: React.CSSProperties = {
 	paddingRight: 8,
 	cursor: 'default',
 };
-export const MENU_SUBMENU_BUTTON_CLASS_NAME = 'remotion-submenu-button';
 
 const labelStyle: React.CSSProperties = {
 	fontSize: 13,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+	flex: 1,
 };
 
 const keyHintCss: React.CSSProperties = {
@@ -86,7 +91,7 @@ export const MenuSubItem: React.FC<{
 		};
 	}, [selected]);
 
-	const onClick = useCallback(() => {
+	const onItemTriggered = useCallback(() => {
 		onActionChosen(id);
 	}, [id, onActionChosen]);
 
@@ -109,7 +114,7 @@ export const MenuSubItem: React.FC<{
 		}
 
 		return {
-			...menuContainer,
+			...menuContainerTowardsBottom,
 			left: size.left + size.width + SUBMENU_LEFT_INSET,
 			top: size.top - MENU_VERTICAL_PADDING,
 		};
@@ -126,25 +131,43 @@ export const MenuSubItem: React.FC<{
 		return () => clearTimeout(hi);
 	}, [hovered, selected, setSubMenuActivated, subMenu]);
 
+	useEffect(() => {
+		if (selected) {
+			ref.current?.scrollIntoView({
+				// block is vertical alignment, inline is horizontal alignment. So we use "block"
+				block: 'nearest',
+			});
+		}
+	}, [selected]);
+
 	return (
 		<div
 			ref={ref}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={style}
-			onClick={onClick}
+			onPointerUp={onItemTriggered}
+			role="button"
+			className={MENU_ITEM_CLASSNAME}
 		>
-			<Row>
+			<Row align="center">
 				{leaveLeftSpace ? (
 					<>
 						<div style={leftSpace}>{leftItem}</div>
 						<Spacing x={1} />
 					</>
 				) : null}
-				<div style={labelStyle}>{label}</div> <Flex />
+				<div
+					style={labelStyle}
+					{...{title: typeof label === 'string' ? label : undefined}}
+				>
+					{label}
+				</div>{' '}
 				<Spacing x={2} />
 				{subMenu ? <CaretRight /> : null}
-				{keyHint ? <span style={keyHintCss}>{keyHint}</span> : null}
+				{keyHint && !areKeyboardShortcutsDisabled() ? (
+					<span style={keyHintCss}>{keyHint}</span>
+				) : null}
 				{portalStyle && subMenu
 					? ReactDOM.createPortal(
 							<SubMenuComponent

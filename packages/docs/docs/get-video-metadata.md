@@ -1,9 +1,15 @@
 ---
+image: /generated/articles-docs-get-video-metadata.png
 title: getVideoMetadata()
 id: get-video-metadata
+crumb: "@remotion/media-utils"
 ---
 
 _Part of the `@remotion/media-utils` package of helper functions._
+
+:::note
+This function is meant to be used **in the browser**. For Node.js, use [`getVideoMetadata()`](/docs/renderer/get-video-metadata) from `@remotion/renderer` instead.
+:::
 
 Takes a `src` to a video, loads it and returns metadata for the specified source.
 
@@ -28,12 +34,11 @@ A string pointing to an asset.
 ```tsx twoslash
 // @module: ESNext
 // @target: ESNext
-import { Audio } from "remotion";
+import { staticFile } from "remotion";
 // ---cut---
 import { getVideoMetadata } from "@remotion/media-utils";
-import video from "../video.mp4";
 
-await getVideoMetadata(video); /* {
+await getVideoMetadata(staticFile("video.mp4")); /* {
   durationInSeconds: 100.00,
   width: 1280,
   height: 720,

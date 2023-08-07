@@ -1,26 +1,30 @@
-import fs from 'fs';
-import path from 'path';
+import type {DownloadMap} from './assets/download-map';
 import {createFfmpegMergeFilter} from './create-ffmpeg-merge-filter';
-import {makeFfmpegFilterFile} from './ffmpeg-filter-file';
-import {tmpDir} from './tmp-dir';
+import {makeFfmpegFilterFileStr} from './ffmpeg-filter-file';
+import type {PreprocessedAudioTrack} from './preprocess-audio-track';
 
-export const createFfmpegComplexFilter = async (
-	filters: number
-): Promise<{
+export const createFfmpegComplexFilter = async ({
+	filters,
+	downloadMap,
+}: {
+	filters: PreprocessedAudioTrack[];
+	downloadMap: DownloadMap;
+}): Promise<{
 	complexFilterFlag: [string, string] | null;
 	cleanup: () => void;
 }> => {
-	if (filters === 0) {
+	if (filters.length === 0) {
 		return {complexFilterFlag: null, cleanup: () => undefined};
 	}
 
-	const complexFilter = createFfmpegMergeFilter(filters);
+	const complexFilter = createFfmpegMergeFilter({
+		inputs: filters,
+	});
 
-	const {file, cleanup} = await makeFfmpegFilterFile(complexFilter);
-
-	const tempPath = tmpDir('remotion-complex-filter-script');
-	const filterFile = path.join(tempPath, 'complex-filter.txt');
-	await fs.promises.writeFile(filterFile, complexFilter);
+	const {file, cleanup} = await makeFfmpegFilterFileStr(
+		complexFilter,
+		downloadMap
+	);
 
 	return {
 		complexFilterFlag: ['-filter_complex_script', file],

@@ -83,4 +83,4 @@ The most important props accepted:
 | compositionWidth  | The width of the composition in pixels   |
 | fps               | The frame rate of the video              |
 
-For a complete reference of the available props, refer to [@remotion/player API](https://www.remotion.dev/docs/player/api).
+For a complete reference of the available props, refer to [@remotion/player API](https://www.remotion.dev/docs/player/player).

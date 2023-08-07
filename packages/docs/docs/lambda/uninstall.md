@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-lambda-uninstall.png
 id: uninstall
 title: Uninstall Lambda
 slug: /lambda/uninstall
@@ -28,7 +29,7 @@ npx remotion lambda sites rmall -y
 
 ## Delete renders and artifacts
 
-Delete all S3 buckets starting with `remotionlambda-` from your S3 bucket.
+Delete all S3 buckets starting with `remotionlambda-` from your AWS account.
 
 ---
 

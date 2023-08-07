@@ -4,10 +4,10 @@
  * https://github.com/webpack-contrib/webpack-hot-middleware#readme
  * and rewritten in TypeScript. This file is MIT licensed
  */
+import {stripAnsi} from '../../ansi/ansi-split';
 import {processUpdate} from './process-update';
-import {stripAnsi} from './strip-ansi';
 import type {HotMiddlewareMessage} from './types';
-import { hotMiddlewareOptions} from './types';
+import {hotMiddlewareOptions} from './types';
 
 if (typeof window === 'undefined') {
 	// do nothing

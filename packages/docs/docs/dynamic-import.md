@@ -1,6 +1,8 @@
 ---
+image: /generated/articles-docs-dynamic-import.png
 title: Webpack dynamic imports
 id: webpack-dynamic-imports
+crumb: "Knowledge Base"
 ---
 
 A common need in Remotion is to import assets from dynamic paths. This means that sometimes you don't know the exact path of an asset that should be imported upfront and you want to calculate it during runtime.
@@ -36,7 +38,7 @@ We recommend that you put the asset inside the `public/` folder and use `staticF
 
 ## Write dynamic expressions correctly
 
-While the example at the top did not work, Webpck is smart enough to do so if you place your expression inside the `require()` or `import()` statement. In this case, Webpack will automatically bundle all `.png` files in the `assets/image` folder even if the asset is never used.
+While the example at the top did not work, Webpack is smart enough to do so if you place your expression inside the `require()` or `import()` statement. In this case, Webpack will automatically bundle all `.png` files in the `assets/image` folder even if the asset is never used.
 
 The following **does** work:
 
@@ -60,7 +62,7 @@ import { getInputProps, Img } from "remotion";
 
 const DynamicAsset: React.FC = () => {
   const inputProps = getInputProps(); // {"imageSrc": "./assets/img0.png"}
-  return <Img src={require(inputProps.imageSrc)} />;
+  return <Img src={require(inputProps.imageSrc as string)} />;
 };
 ```
 
@@ -73,7 +75,7 @@ import { getInputProps, Img } from "remotion";
 const DynamicAsset: React.FC = () => {
   const inputProps = getInputProps(); // {"imageSrc": "img0.png"}
   // Works!
-  return <Img src={require("./assets/" + inputProps.imageSrc)} />;
+  return <Img src={require(("./assets/" + inputProps.imageSrc) as string)} />;
 };
 ```
 

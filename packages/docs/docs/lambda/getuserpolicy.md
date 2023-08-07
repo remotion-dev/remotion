@@ -1,7 +1,9 @@
 ---
+image: /generated/articles-docs-lambda-getuserpolicy.png
 id: getuserpolicy
 title: getUserPolicy()
 slug: /lambda/getuserpolicy
+crumb: "Lambda API"
 ---
 
 Returns an inline JSON policy to be assigned to the AWS user whose credentials are being used for excuting CLI commands or calling Node.JS functions.

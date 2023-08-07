@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-import * as childProcess from 'child_process';
-import * as fs from 'fs';
-import * as http from 'http';
 import * as https from 'https';
-import * as os from 'os';
-import * as path from 'path';
+import * as childProcess from 'node:child_process';
+import * as fs from 'node:fs';
+import * as http from 'node:http';
+import * as os from 'node:os';
+import * as path from 'node:path';
+import util from 'node:util';
 
 import extractZip from 'extract-zip';
 
-import * as URL from 'url';
-import {promisify} from 'util';
+import * as URL from 'node:url';
+import {promisify} from 'node:util';
 import {assert} from './assert';
 import type {Product} from './Product';
 
@@ -84,7 +85,7 @@ function archiveName(
 				case 'win64':
 					// Windows archive name changed at r591479.
 					return parseInt(revision, 10) > 591479
-						? 'chrome-win'
+						? 'Thorium_107.0.5271.0\\BIN'
 						: 'chrome-win32';
 				default:
 					throw new Error('unknown browser');
@@ -97,9 +98,22 @@ function archiveName(
 	}
 }
 
-function _downloadURL(product: Product, platform: Platform): string {
-	const url = downloadURLs[product][platform] as string;
-	return url;
+function _downloadURL(
+	product: Product,
+	platform: Platform,
+	host: string,
+	revision: string
+): string {
+	if (platform === 'win64' || platform === 'win32') {
+		return 'https://remotionchromium-binaries.s3.eu-central-1.amazonaws.com/thorium-107.zip';
+	}
+
+	return util.format(
+		downloadURLs[product][platform],
+		host,
+		revision,
+		archiveName(product, platform, revision)
+	);
 }
 
 const readdirAsync = fs.promises.readdir;
@@ -115,12 +129,6 @@ function existsAsync(filePath: string): Promise<boolean> {
 	});
 }
 
-export interface BrowserFetcherOptions {
-	platform: Platform | null;
-	product: Product;
-	path: string | null;
-}
-
 interface BrowserFetcherRevisionInfo {
 	folderPath: string;
 	executablePath: string;
@@ -130,268 +138,223 @@ interface BrowserFetcherRevisionInfo {
 	product: string;
 }
 
-export class BrowserFetcher {
-	#product: Product;
-	#downloadsFolder: string;
-	#downloadHost: string;
-	#platform: Platform;
-
-	constructor(options: BrowserFetcherOptions) {
-		this.#product = options.product.toLowerCase() as Product;
-		assert(
-			this.#product === 'chrome' || this.#product === 'firefox',
-			`Unknown product: "${options.product}"`
-		);
-
-		this.#downloadsFolder =
-			options.path ||
-			path.join(
-				getDownloadsCacheDir(),
-				browserConfig[this.#product].destination
-			);
-		this.#downloadHost = browserConfig[this.#product].host;
-
-		if (options.platform) {
-			this.#platform = options.platform;
-		} else {
-			const platform = os.platform();
-			switch (platform) {
-				case 'darwin':
-					switch (this.#product) {
-						case 'chrome':
-							this.#platform = os.arch() === 'arm64' ? 'mac_arm' : 'mac';
-							break;
-						case 'firefox':
-							this.#platform = 'mac';
-							break;
-						default:
-							throw new Error('unknown browser');
-					}
-
-					break;
-				case 'linux':
-					this.#platform = os.arch() === 'arm64' ? 'linux_arm' : 'linux';
-					break;
-				case 'win32':
-					this.#platform = os.arch() === 'x64' ? 'win64' : 'win32';
-					return;
+export const getPlatform = (product: Product): Platform => {
+	const platform = os.platform();
+	switch (platform) {
+		case 'darwin':
+			switch (product) {
+				case 'chrome':
+					return os.arch() === 'arm64' &&
+						PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM
+						? 'mac_arm'
+						: 'mac';
+				case 'firefox':
+					return 'mac';
 				default:
-					assert(false, 'Unsupported platform: ' + platform);
+					throw new Error('unknown browser');
 			}
-		}
 
-		assert(
-			downloadURLs[this.#product][this.#platform],
-			'Unsupported platform: ' + this.#platform
-		);
+		case 'linux':
+			return 'linux';
+		case 'win32':
+			return os.arch() === 'x64' ? 'win64' : 'win32';
+		default:
+			assert(false, 'Unsupported platform: ' + platform);
+	}
+};
+
+export const getDownloadsFolder = (product: Product) => {
+	return path.join(getDownloadsCacheDir(), browserConfig[product].destination);
+};
+
+export const getDownloadHost = (product: Product) => {
+	return browserConfig[product].host;
+};
+
+export const download = async ({
+	revision,
+	progressCallback,
+	product,
+	platform,
+	downloadHost,
+	downloadsFolder,
+}: {
+	revision: string;
+	progressCallback: (x: number, y: number) => void;
+	product: Product;
+	platform: Platform;
+	downloadHost: string;
+	downloadsFolder: string;
+}): Promise<BrowserFetcherRevisionInfo | undefined> => {
+	const url = _downloadURL(product, platform, downloadHost, revision);
+	const fileName = url.split('/').pop();
+	assert(fileName, `A malformed download URL was found: ${url}.`);
+	const archivePath = path.join(downloadsFolder, fileName);
+	const outputPath = getFolderPath(revision, downloadsFolder, platform);
+	if (await existsAsync(outputPath)) {
+		return getRevisionInfo(revision, product);
 	}
 
-	/**
-	 * @returns Returns the current `Platform`, which is one of `mac`, `linux`,
-	 * `win32` or `win64`.
-	 */
-	platform(): Platform {
-		return this.#platform;
-	}
-
-	/**
-	 * @returns Returns the current `Product`, which is one of `chrome` or
-	 * `firefox`.
-	 */
-	product(): Product {
-		return this.#product;
-	}
-
-	/**
-	 * @returns The download host being used.
-	 */
-	host(): string {
-		return this.#downloadHost;
-	}
-
-	/**
-	 * Initiates a HEAD request to check if the revision is available.
-	 * @remarks
-	 * This method is affected by the current `product`.
-	 * @param revision - The revision to check availability for.
-	 * @returns A promise that resolves to `true` if the revision could be downloaded
-	 * from the host.
-	 */
-	canDownload(): Promise<boolean> {
-		const url = _downloadURL(this.#product, this.#platform);
-		return new Promise((resolve) => {
-			const request = httpRequest(
-				url,
-				'HEAD',
-				(response) => {
-					resolve(response.statusCode === 200);
-				},
-				false
-			);
-			request.on('error', (error) => {
-				console.error(error);
-				resolve(false);
-			});
+	if (!(await existsAsync(downloadsFolder))) {
+		await mkdirAsync(downloadsFolder, {
+			recursive: true,
 		});
 	}
 
-	/**
-	 * Initiates a GET request to download the revision from the host.
-	 * @remarks
-	 * This method is affected by the current `product`.
-	 * @param revision - The revision to download.
-	 * @param progressCallback - A function that will be called with two arguments:
-	 * How many bytes have been downloaded and the total number of bytes of the download.
-	 * @returns A promise with revision information when the revision is downloaded
-	 * and extracted.
-	 */
-	async download(
-		revision: string,
-		progressCallback: (x: number, y: number) => void = (): void => undefined
-	): Promise<BrowserFetcherRevisionInfo | undefined> {
-		const url = _downloadURL(this.#product, this.#platform);
-		const fileName = url.split('/').pop();
-		assert(fileName, `A malformed download URL was found: ${url}.`);
-		const archivePath = path.join(this.#downloadsFolder, fileName);
-		const outputPath = this.#getFolderPath(revision);
-		if (await existsAsync(outputPath)) {
-			return this.revisionInfo(revision);
-		}
+	// Use system Chromium builds on Linux ARM devices
+	if (os.platform() !== 'darwin' && os.arch() === 'arm64') {
+		handleArm64();
+		return;
+	}
 
-		if (!(await existsAsync(this.#downloadsFolder))) {
-			await mkdirAsync(this.#downloadsFolder, {
-				recursive: true,
-			});
+	try {
+		await _downloadFile(url, archivePath, progressCallback);
+		await install(archivePath, outputPath);
+	} finally {
+		if (await existsAsync(archivePath)) {
+			await unlinkAsync(archivePath);
 		}
+	}
 
-		try {
-			await _downloadFile(url, archivePath, progressCallback);
-			await install(archivePath, outputPath);
-		} finally {
-			if (await existsAsync(archivePath)) {
-				await unlinkAsync(archivePath);
+	const revisionInfo = getRevisionInfo(revision, product);
+	if (revisionInfo) {
+		await chmodAsync(revisionInfo.executablePath, 0o755);
+	}
+
+	return revisionInfo;
+};
+
+export const localRevisions = async (
+	downloadsFolder: string,
+	product: Product,
+	platform: Platform
+): Promise<string[]> => {
+	if (!(await existsAsync(downloadsFolder))) {
+		return [];
+	}
+
+	const fileNames = await readdirAsync(downloadsFolder);
+	return fileNames
+		.map((fileName) => {
+			return parseFolderPath(product, fileName);
+		})
+		.filter(
+			(
+				entry
+			): entry is {product: string; platform: string; revision: string} => {
+				return (entry && entry.platform === platform) ?? false;
 			}
+		)
+		.map((entry) => {
+			return entry.revision;
+		});
+};
+
+export const removeBrowser = async (
+	revision: string,
+	folderPath: string
+): Promise<void> => {
+	assert(
+		await existsAsync(folderPath),
+		`Failed to remove: revision ${revision} is not downloaded`
+	);
+	deleteDirectory(folderPath);
+};
+
+export const getFolderPath = (
+	revision: string,
+	downloadsFolder: string,
+	platform: Platform
+): string => {
+	return path.resolve(downloadsFolder, `${platform}-${revision}`);
+};
+
+const getExecutablePath = (product: Product, revision: string) => {
+	const downloadsFolder = getDownloadsFolder(product);
+	const platform = getPlatform(product);
+	const folderPath = getFolderPath(revision, downloadsFolder, platform);
+
+	if (product === 'chrome') {
+		if (platform === 'mac' || platform === 'mac_arm') {
+			return path.join(
+				folderPath,
+				archiveName(product, platform, revision),
+				'Chromium.app',
+				'Contents',
+				'MacOS',
+				'Chromium'
+			);
 		}
 
-		const revisionInfo = this.revisionInfo(revision);
-		if (revisionInfo) {
-			await chmodAsync(revisionInfo.executablePath, 0o755);
+		if (platform === 'linux') {
+			return path.join(
+				folderPath,
+				archiveName(product, platform, revision),
+				'chrome'
+			);
 		}
 
-		return revisionInfo;
-	}
-
-	/**
-	 * @remarks
-	 * This method is affected by the current `product`.
-	 * @returns A promise with a list of all revision strings (for the current `product`)
-	 * available locally on disk.
-	 */
-	async localRevisions(): Promise<string[]> {
-		if (!(await existsAsync(this.#downloadsFolder))) {
-			return [];
+		if (platform === 'win32' || platform === 'win64') {
+			return path.join(
+				folderPath,
+				archiveName(product, platform, revision),
+				'thorium.exe'
+			);
 		}
 
-		const fileNames = await readdirAsync(this.#downloadsFolder);
-		return fileNames
-			.map((fileName) => {
-				return parseFolderPath(this.#product, fileName);
-			})
-			.filter(
-				(
-					entry
-				): entry is {product: string; platform: string; revision: string} => {
-					return (entry && entry.platform === this.#platform) ?? false;
-				}
-			)
-			.map((entry) => {
-				return entry.revision;
-			});
+		throw new Error('Unsupported platform: ' + platform);
 	}
 
-	/**
-	 * @remarks
-	 * This method is affected by the current `product`.
-	 * @param revision - A revision to remove for the current `product`.
-	 * @returns A promise that resolves when the revision has been removes or
-	 * throws if the revision has not been downloaded.
-	 */
-	async remove(revision: string): Promise<void> {
-		const folderPath = this.#getFolderPath(revision);
-		assert(
-			await existsAsync(folderPath),
-			`Failed to remove: revision ${revision} is not downloaded`
-		);
-		await deleteDirectory(folderPath);
-	}
-
-	/**
-	 * @param revision - The revision to get info for.
-	 * @returns The revision info for the given revision.
-	 */
-	revisionInfo(revision: string): BrowserFetcherRevisionInfo {
-		const folderPath = this.#getFolderPath(revision);
-		let executablePath = '';
-		if (this.#product === 'chrome') {
-			if (this.#platform === 'mac' || this.#platform === 'mac_arm') {
-				executablePath = path.join(
-					folderPath,
-					'Thorium.app',
-					'Contents',
-					'MacOS',
-					'Thorium'
-				);
-			} else if (this.#platform === 'linux' || this.#platform === 'linux_arm') {
-				executablePath = path.join(
-					folderPath,
-					archiveName(this.#product, this.#platform, revision),
-					'chrome'
-				);
-			} else if (this.#platform === 'win32' || this.#platform === 'win64') {
-				executablePath = path.join(
-					folderPath,
-					archiveName(this.#product, this.#platform, revision),
-					'chrome.exe'
-				);
-			} else {
-				throw new Error('Unsupported platform: ' + this.#platform);
-			}
-		} else if (this.#product === 'firefox') {
-			if (this.#platform === 'mac' || this.#platform === 'mac_arm') {
-				executablePath = path.join(
-					folderPath,
-					'Firefox Nightly.app',
-					'Contents',
-					'MacOS',
-					'firefox'
-				);
-			} else if (this.#platform === 'linux' || this.#platform === 'linux_arm') {
-				executablePath = path.join(folderPath, 'firefox', 'firefox');
-			} else if (this.#platform === 'win32' || this.#platform === 'win64') {
-				executablePath = path.join(folderPath, 'firefox', 'firefox.exe');
-			} else {
-				throw new Error('Unsupported platform: ' + this.#platform);
-			}
-		} else {
-			throw new Error('Unsupported product: ' + this.#product);
+	if (product === 'firefox') {
+		if (platform === 'mac' || platform === 'mac_arm') {
+			return path.join(
+				folderPath,
+				'Firefox Nightly.app',
+				'Contents',
+				'MacOS',
+				'firefox'
+			);
 		}
 
-		const url = _downloadURL(this.#product, this.#platform);
-		const local = fs.existsSync(folderPath);
-		return {
-			revision,
-			executablePath,
-			folderPath,
-			local,
-			url,
-			product: this.#product,
-		};
+		if (platform === 'linux') {
+			return path.join(folderPath, 'firefox', 'firefox');
+		}
+
+		if (platform === 'win32' || platform === 'win64') {
+			return path.join(folderPath, 'firefox', 'firefox.exe');
+		}
+
+		throw new Error('Unsupported platform: ' + platform);
 	}
 
-	#getFolderPath(revision: string): string {
-		return path.resolve(this.#downloadsFolder, `${this.#platform}-${revision}`);
-	}
-}
+	throw new Error('Unsupported product: ' + product);
+};
+
+export const getRevisionInfo = (
+	revision: string,
+	product: Product
+): BrowserFetcherRevisionInfo => {
+	const executablePath = getExecutablePath(product, revision);
+	const downloadsFolder = getDownloadsFolder(product);
+	const platform = getPlatform(product);
+	const folderPath = getFolderPath(revision, downloadsFolder, platform);
+
+	const url = _downloadURL(
+		product,
+		platform,
+		getDownloadHost(product),
+		revision
+	);
+	const local = fs.existsSync(folderPath);
+	return {
+		revision,
+		executablePath,
+		folderPath,
+		local,
+		url,
+		product,
+	};
+};
 
 function parseFolderPath(
 	product: Product,
@@ -415,10 +378,10 @@ function _downloadFile(
 	url: string,
 	destinationPath: string,
 	progressCallback: (x: number, y: number) => void
-): Promise<void> {
-	let fulfill: (value: void | PromiseLike<void>) => void;
+): Promise<number> {
+	let fulfill: (value: number | PromiseLike<number>) => void;
 	let reject: (err: Error) => void;
-	const promise = new Promise<void>((x, y) => {
+	const promise = new Promise<number>((x, y) => {
 		fulfill = x;
 		reject = y;
 	});
@@ -427,6 +390,14 @@ function _downloadFile(
 	let totalBytes = 0;
 
 	let lastProgress = Date.now();
+
+	function onData(chunk: string): void {
+		downloadedBytes += chunk.length;
+		if (Date.now() - lastProgress > 1000) {
+			progressCallback(downloadedBytes, totalBytes);
+			lastProgress = Date.now();
+		}
+	}
 
 	const request = httpRequest(url, 'GET', (response) => {
 		if (response.statusCode !== 200) {
@@ -440,8 +411,8 @@ function _downloadFile(
 		}
 
 		const file = fs.createWriteStream(destinationPath);
-		file.on('finish', () => {
-			return fulfill();
+		file.on('close', () => {
+			return fulfill(totalBytes);
 		});
 		file.on('error', (error) => {
 			return reject(error);
@@ -454,14 +425,6 @@ function _downloadFile(
 		return reject(error);
 	});
 	return promise;
-
-	function onData(chunk: string): void {
-		downloadedBytes += chunk.length;
-		if (Date.now() - lastProgress > 1000) {
-			progressCallback(downloadedBytes, totalBytes);
-			lastProgress = Date.now();
-		}
-	}
 }
 
 function install(archivePath: string, folderPath: string): Promise<unknown> {

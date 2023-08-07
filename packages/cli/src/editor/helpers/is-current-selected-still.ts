@@ -1,19 +1,28 @@
-import {useContext, useMemo} from 'react';
+import {useMemo} from 'react';
 import {Internals} from 'remotion';
 import {isCompositionStill} from './is-composition-still';
 
 export const useIsStill = () => {
-	const {compositions, currentComposition} = useContext(
-		Internals.CompositionManager
-	);
+	const resolved = Internals.useResolvedVideoConfig(null);
 
-	const selected = useMemo(
-		() => compositions.find((c) => c.id === currentComposition),
-		[compositions, currentComposition]
-	);
-	if (!selected) {
+	if (!resolved || resolved.type !== 'success') {
 		return false;
 	}
 
-	return isCompositionStill(selected);
+	return isCompositionStill(resolved.result);
+};
+
+export const useDimensions = () => {
+	const config = Internals.useUnsafeVideoConfig();
+
+	return useMemo(() => {
+		if (!config) {
+			return null;
+		}
+
+		return {
+			width: config.width,
+			height: config.height,
+		};
+	}, [config]);
 };

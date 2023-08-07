@@ -82,17 +82,20 @@ export const ffmpegVolumeExpression = ({
 	volume,
 	fps,
 	trimLeft,
+	allowAmplificationDuringRender,
 }: {
 	volume: AssetVolume;
 	trimLeft: number;
 	fps: number;
+	allowAmplificationDuringRender: boolean;
 }): FfmpegVolumeExpression => {
+	const maxVolume = allowAmplificationDuringRender ? Infinity : 1;
 	// If it's a static volume, we return it and tell
 	// FFMPEG it only has to evaluate it once
 	if (typeof volume === 'number') {
 		return {
 			eval: 'once',
-			value: String(Math.min(1, volume)),
+			value: String(Math.min(maxVolume, volume)),
 		};
 	}
 
@@ -101,6 +104,7 @@ export const ffmpegVolumeExpression = ({
 			volume: volume[0],
 			fps,
 			trimLeft,
+			allowAmplificationDuringRender,
 		});
 	}
 
@@ -118,7 +122,7 @@ export const ffmpegVolumeExpression = ({
 	paddedVolume.forEach((baseVolume, frame) => {
 		// Adjust volume based on how many other tracks have not yet finished
 		const actualVolume = roundVolumeToAvoidStackOverflow(
-			Math.min(1, baseVolume)
+			Math.min(maxVolume, baseVolume)
 		);
 		if (!volumeMap[actualVolume]) {
 			volumeMap[actualVolume] = [];

@@ -1,10 +1,16 @@
 import deterministicRandomness from "./rules/deterministic-randomness";
 import evenDimensions from "./rules/even-dimensions";
+import noBackgroundImage from "./rules/no-background-image";
+import durationInFrames from "./rules/no-duration-frames-infinity";
+import noFrom0 from "./rules/no-from-0";
 import nomp4Import from "./rules/no-mp4-import";
 import noStringAssets from "./rules/no-string-assets";
-import warnNativeMediaTag from "./rules/warn-native-media-tag";
-import durationInFrames from "./rules/no-duration-frames-infinity";
+import staticFileNoRelative from "./rules/staticfile-no-relative";
+import staticFileNoRemote from "./rules/staticfile-no-remote";
+import useGifComponent from "./rules/use-gif-component";
 import volumeCallback from "./rules/volume-callback";
+import warnNativeMediaTag from "./rules/warn-native-media-tag";
+import v4Import from "./rules/v4-import";
 
 const rules = {
   "no-mp4-import": nomp4Import,
@@ -13,7 +19,13 @@ const rules = {
   "no-string-assets": noStringAssets,
   "even-dimensions": evenDimensions,
   "duration-in-frames": durationInFrames,
+  "from-0": noFrom0,
   "volume-callback": volumeCallback,
+  "use-gif-component": useGifComponent,
+  "staticfile-no-relative": staticFileNoRelative,
+  "staticfile-no-remote": staticFileNoRemote,
+  "no-background-image": noBackgroundImage,
+  "v4-config-import": v4Import,
 };
 
 export = {
@@ -27,7 +39,13 @@ export = {
         "@remotion/no-string-assets": "error",
         "@remotion/even-dimensions": "error",
         "@remotion/duration-in-frames": "error",
+        "@remotion/from-0": "error",
         "@remotion/volume-callback": "error",
+        "@remotion/use-gif-component": "error",
+        "@remotion/staticfile-no-relative": "error",
+        "@remotion/staticfile-no-remote": "error",
+        "@remotion/no-background-image": "error",
+        "@remotion/v4-config-import": "error",
       },
     },
   },

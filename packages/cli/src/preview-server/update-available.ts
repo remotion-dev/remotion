@@ -1,19 +1,17 @@
 import semver from 'semver';
 import {getLatestRemotionVersion} from '../get-latest-remotion-version';
-import type { PackageManager} from './get-package-manager';
 import {getPackageManager} from './get-package-manager';
+import type {UpdateAvailableResponse} from './render-queue/job';
 
-type Info = {
+const isUpdateAvailable = async ({
+	remotionRoot,
+	currentVersion,
+}: {
+	remotionRoot: string;
 	currentVersion: string;
-	latestVersion: string;
-	updateAvailable: boolean;
-	timedOut: boolean;
-	packageManager: PackageManager | 'unknown';
-};
-
-const isUpdateAvailable = async (currentVersion: string): Promise<Info> => {
+}): Promise<UpdateAvailableResponse> => {
 	const latest = await getLatestRemotionVersion();
-	const pkgManager = getPackageManager();
+	const pkgManager = getPackageManager(remotionRoot, undefined);
 
 	return {
 		updateAvailable: semver.lt(currentVersion, latest),
@@ -33,10 +31,10 @@ export const getRemotionVersion = () => {
 	return version;
 };
 
-export const isUpdateAvailableWithTimeout = () => {
+export const isUpdateAvailableWithTimeout = (remotionRoot: string) => {
 	const version = getRemotionVersion();
-	const threeSecTimeout = new Promise<Info>((resolve) => {
-		const pkgManager = getPackageManager();
+	const threeSecTimeout = new Promise<UpdateAvailableResponse>((resolve) => {
+		const pkgManager = getPackageManager(remotionRoot, undefined);
 		setTimeout(() => {
 			resolve({
 				currentVersion: version,
@@ -48,5 +46,8 @@ export const isUpdateAvailableWithTimeout = () => {
 			});
 		}, 3000);
 	});
-	return Promise.race([threeSecTimeout, isUpdateAvailable(version)]);
+	return Promise.race([
+		threeSecTimeout,
+		isUpdateAvailable({remotionRoot, currentVersion: version}),
+	]);
 };

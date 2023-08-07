@@ -1,6 +1,6 @@
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {RenderMetadata} from '../../shared/constants';
-import { renderMetadataKey} from '../../shared/constants';
+import {renderMetadataKey} from '../../shared/constants';
 import {streamToString} from '../../shared/stream-to-string';
 import {lambdaReadFile} from './io';
 

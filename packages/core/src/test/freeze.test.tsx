@@ -1,27 +1,41 @@
+/**
+ * @vitest-environment jsdom
+ */
 import {render} from '@testing-library/react';
 import React from 'react';
-import {Freeze} from '../freeze';
-import {Sequence} from '../index';
-import type {
-	TimelineContextValue} from '../timeline-position-state';
-import {
-	TimelineContext
-} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-current-frame';
-import {expectToThrow} from './expect-to-throw';
+import {describe, expect, test} from 'vitest';
+import {Freeze} from '../freeze.js';
+import {Sequence} from '../Sequence.js';
+import type {TimelineContextValue} from '../timeline-position-state.js';
+import {TimelineContext} from '../timeline-position-state.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import {expectToThrow} from './expect-to-throw.js';
+import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 describe('Prop validation', () => {
 	test('It should throw if Freeze has string as frame prop value', () => {
 		expectToThrow(
-			// @ts-expect-error
-			() => render(<Freeze frame={'0'} />),
+			() =>
+				render(
+					<WrapSequenceContext>
+						{/**
+							// @ts-expect-error */}
+						<Freeze frame={'0'} />
+					</WrapSequenceContext>
+				),
 			/The 'frame' prop of <Freeze \/> must be a number, but is of type string/
 		);
 	});
 	test('It should throw if Freeze has undefined as frame prop value', () => {
 		expectToThrow(
-			// @ts-expect-error
-			() => render(<Freeze />),
+			() =>
+				render(
+					<WrapSequenceContext>
+						{/**
+							// @ts-expect-error */}
+						<Freeze />
+					</WrapSequenceContext>
+				),
 			/The <Freeze \/> component requires a 'frame' prop, but none was passed./
 		);
 	});
@@ -29,7 +43,9 @@ describe('Prop validation', () => {
 
 const timelineCtxValue = (frame: number): TimelineContextValue => ({
 	rootId: '',
-	frame,
+	frame: {
+		'my-comp': frame,
+	},
 	playing: false,
 	imperativePlaying: {
 		current: false,
@@ -43,9 +59,11 @@ const timelineCtxValue = (frame: number): TimelineContextValue => ({
 
 const renderForFrame = (frame: number, markup: React.ReactNode) => {
 	return render(
-		<TimelineContext.Provider value={timelineCtxValue(frame)}>
-			{markup}
-		</TimelineContext.Provider>
+		<WrapSequenceContext>
+			<TimelineContext.Provider value={timelineCtxValue(frame)}>
+				{markup}
+			</TimelineContext.Provider>
+		</WrapSequenceContext>
 	);
 };
 
@@ -61,11 +79,13 @@ const WithSequence: React.FC = () => {
 	const SequenceFrom = 200;
 	const FreezeFrame = 100;
 	return (
-		<Sequence from={SequenceFrom} layout="none">
-			<Freeze frame={FreezeFrame}>
-				<TestComponent />
-			</Freeze>
-		</Sequence>
+		<WrapSequenceContext>
+			<Sequence from={SequenceFrom} layout="none">
+				<Freeze frame={FreezeFrame}>
+					<TestComponent />
+				</Freeze>
+			</Sequence>
+		</WrapSequenceContext>
 	);
 };
 

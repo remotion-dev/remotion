@@ -7,19 +7,15 @@ const json = await latestRelease.json();
 const markdown = [
   `${json[0].tag_name} has been released!`,
   `<:merge:909914451447259177> ${json[0].html_url}`,
-  "",
-  json[0].body
-    .split("\n")
-    .map((s) => {
-      if (s.startsWith("## ")) {
-        return s.replace("## ", "**<:love:989990489824559104> ") + "**";
-      }
-      return s;
-    })
-    .join("\n"),
-].join("\n");
-
-const formatBody = () => {};
+  ...json[0].body.split("\n").map((s) => {
+    if (s.startsWith("## ")) {
+      return s.replace("## ", "**<:love:989990489824559104> ") + "**";
+    }
+    return s;
+  }),
+]
+  .filter(Boolean)
+  .join("\n");
 
 const res = await fetch(
   `https://discord.com/api/channels/994527481598070815/messages`,
@@ -38,6 +34,7 @@ const res = await fetch(
 );
 
 if (res.status !== 200) {
+  console.log(await res.text());
   process.exit(1);
 }
 

@@ -1,11 +1,13 @@
 import React, {useCallback, useMemo} from 'react';
 import type {TSequence} from 'remotion';
+import {LIGHT_COLOR} from '../../helpers/colors';
 import {
 	TIMELINE_BORDER,
 	TIMELINE_LAYER_HEIGHT,
 	TIMELINE_PADDING,
 } from '../../helpers/timeline-layout';
 import {useZIndex} from '../../state/z-index';
+import {Spacing} from '../layout';
 import type {TimelineActionState} from './timeline-state-reducer';
 import {TimelineCollapseToggle} from './TimelineCollapseToggle';
 import {TimelineSequenceFrame} from './TimelineSequenceFrame';
@@ -14,8 +16,18 @@ const HOOK_WIDTH = 7;
 const BORDER_BOTTOM_LEFT_RADIUS = 2;
 const SPACING = 5;
 
+const TIMELINE_LAYER_PADDING = HOOK_WIDTH + SPACING * 1.5;
+const TIMELINE_COLLAPSER_WIDTH = 8;
+const TIMELINE_COLLAPSER_MARGIN_RIGHT = 10;
+
+export const TOTAL_TIMELINE_LAYER_LEFT_PADDING =
+	TIMELINE_COLLAPSER_WIDTH + TIMELINE_COLLAPSER_MARGIN_RIGHT + TIMELINE_PADDING;
+
 const textStyle: React.CSSProperties = {
 	fontSize: 13,
+	whiteSpace: 'nowrap',
+	textOverflow: 'ellipsis',
+	overflow: 'hidden',
 };
 
 const outer: React.CSSProperties = {
@@ -27,6 +39,7 @@ const outer: React.CSSProperties = {
 	alignItems: 'center',
 	paddingLeft: TIMELINE_PADDING,
 	wordBreak: 'break-all',
+	textAlign: 'left',
 };
 
 const hookContainer: React.CSSProperties = {
@@ -46,16 +59,20 @@ const hook: React.CSSProperties = {
 
 const space: React.CSSProperties = {
 	width: SPACING,
+	flexShrink: 0,
 };
 
 const smallSpace: React.CSSProperties = {
 	width: SPACING * 0.5,
+
+	flexShrink: 0,
 };
 
 const collapser: React.CSSProperties = {
-	width: 8,
+	width: TIMELINE_COLLAPSER_WIDTH,
 	userSelect: 'none',
-	marginRight: 10,
+	marginRight: TIMELINE_COLLAPSER_MARGIN_RIGHT,
+	flexShrink: 0,
 };
 
 const collapserButton: React.CSSProperties = {
@@ -82,7 +99,7 @@ export const TimelineListItem: React.FC<{
 	canCollapse,
 }) => {
 	const {tabIndex} = useZIndex();
-	const leftOffset = HOOK_WIDTH + SPACING * 1.5;
+	const leftOffset = TIMELINE_LAYER_PADDING;
 	const hookStyle = useMemo(() => {
 		return {
 			...hook,
@@ -96,6 +113,7 @@ export const TimelineListItem: React.FC<{
 	const padder = useMemo((): React.CSSProperties => {
 		return {
 			width: leftOffset * nestedDepth,
+			flexShrink: 0,
 		};
 	}, [leftOffset, nestedDepth]);
 
@@ -127,7 +145,7 @@ export const TimelineListItem: React.FC<{
 					style={collapserButton}
 					onClick={toggleCollapse}
 				>
-					<TimelineCollapseToggle collapsed={collapsed} />
+					<TimelineCollapseToggle color={LIGHT_COLOR} collapsed={collapsed} />
 				</button>
 			) : (
 				<div style={collapser} />
@@ -141,13 +159,14 @@ export const TimelineListItem: React.FC<{
 					<div style={space} />
 				</>
 			) : null}
-			<div style={textStyle}>
+			<div title={text || 'Untitled'} style={textStyle}>
 				{text || 'Untitled'}
 				<TimelineSequenceFrame
 					duration={sequence.duration}
 					from={sequence.from}
 				/>
 			</div>
+			<Spacing x={1} />
 		</div>
 	);
 };

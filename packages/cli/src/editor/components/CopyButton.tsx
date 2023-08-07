@@ -1,15 +1,18 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {
-	INPUT_BACKGROUND,
-	INPUT_BORDER_COLOR_UNHOVERED,
-} from '../helpers/colors';
-import {copyCmd} from '../helpers/copy-text';
-import {Row, Spacing} from './layout';
+import {Button} from '../../preview-server/error-overlay/remotion-overlay/Button';
+import {copyText} from '../helpers/copy-text';
+import {Spacing} from './layout';
+import {sendErrorNotification} from './Notifications/NotificationCenter';
 
 const iconStyle: React.CSSProperties = {
 	width: 16,
 	height: 16,
 	color: 'white',
+};
+
+const buttonContainerStyle: React.CSSProperties = {
+	display: 'flex',
+	minWidth: '114px',
 };
 
 const copyIcon = (
@@ -31,22 +34,6 @@ const copyIcon = (
 	</svg>
 );
 
-const container: React.CSSProperties = {
-	padding: 10,
-	cursor: 'pointer',
-	fontSize: 14,
-};
-
-const button: React.CSSProperties = {
-	border: `1px solid ${INPUT_BORDER_COLOR_UNHOVERED}`,
-	borderRadius: 4,
-	backgroundColor: INPUT_BACKGROUND,
-	appearance: 'none',
-	fontFamily: 'inherit',
-	fontSize: 14,
-	color: 'white',
-};
-
 const labelStyle: React.CSSProperties = {
 	fontSize: 14,
 };
@@ -59,8 +46,13 @@ export const CopyButton: React.FC<{
 	const [copied, setCopied] = useState<false | number>(false);
 
 	const onClick = useCallback(() => {
-		copyCmd(textToCopy);
-		setCopied(Date.now());
+		copyText(textToCopy)
+			.then(() => {
+				setCopied(Date.now());
+			})
+			.catch((err) => {
+				sendErrorNotification(`Could not copy: ${err.message}`);
+			});
 	}, [textToCopy]);
 
 	useEffect(() => {
@@ -73,12 +65,14 @@ export const CopyButton: React.FC<{
 	}, [copied]);
 
 	return (
-		<button onClick={onClick} style={button} type="button">
-			<Row style={container}>
-				{copyIcon}
-				<Spacing x={1.5} />{' '}
-				<span style={labelStyle}>{copied ? labelWhenCopied : label}</span>
-			</Row>
-		</button>
+		<Button
+			onClick={onClick}
+			style={{}}
+			buttonContainerStyle={buttonContainerStyle}
+		>
+			{copyIcon}
+			<Spacing x={1.5} />{' '}
+			<span style={labelStyle}>{copied ? labelWhenCopied : label}</span>
+		</Button>
 	);
 };

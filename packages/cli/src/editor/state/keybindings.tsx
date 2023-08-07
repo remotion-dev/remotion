@@ -2,7 +2,7 @@ import React, {createContext, useCallback, useMemo, useRef} from 'react';
 
 export type KeyEventType = 'keydown' | 'keyup' | 'keypress';
 
-export type KeyListenerCallback = (e: KeyboardEvent) => void;
+type KeyListenerCallback = (e: KeyboardEvent) => void;
 
 export type RegisteredKeybinding = {
 	registeredFromPane: string;
@@ -19,7 +19,9 @@ export type KeybindingContextType = {
 };
 
 export const KeybindingContext = createContext<KeybindingContextType>({
-	registerKeybinding: () => undefined,
+	registerKeybinding: () => {
+		throw new Error('Has no keybinding context');
+	},
 	unregisterKeybinding: () => undefined,
 	unregisterPane: () => undefined,
 });

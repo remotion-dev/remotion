@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import type {LogLevel} from '../log-level';
 import type {BrowserConnectOptions} from './BrowserConnector';
 import type {Product} from './Product';
 
@@ -27,15 +28,12 @@ export interface BrowserLaunchArgumentOptions {
 
 export interface LaunchOptions {
 	executablePath?: string;
-	handleSIGINT?: boolean;
-	handleSIGTERM?: boolean;
-	handleSIGHUP?: boolean;
 	timeout?: number;
 	dumpio?: boolean;
+	logLevel: LogLevel;
 	env?: Record<string, string | undefined>;
-	pipe?: boolean;
 	product?: Product;
-	extraPrefsFirefox?: Record<string, unknown>;
+	indent: boolean;
 }
 
 export type PuppeteerNodeLaunchOptions = BrowserLaunchArgumentOptions &

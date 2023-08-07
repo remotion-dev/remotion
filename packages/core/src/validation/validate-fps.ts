@@ -1,4 +1,8 @@
-export const validateFps = (fps: number, location: string) => {
+export function validateFps(
+	fps: unknown,
+	location: string,
+	isGif: boolean
+): asserts fps is number {
 	if (typeof fps !== 'number') {
 		throw new Error(
 			`"fps" must be a number, but you passed a value of type ${typeof fps} ${location}`
@@ -18,4 +22,10 @@ export const validateFps = (fps: number, location: string) => {
 	if (fps <= 0) {
 		throw new TypeError(`"fps" must be positive, but got ${fps} ${location}`);
 	}
-};
+
+	if (isGif && fps > 50) {
+		throw new TypeError(
+			`The FPS for a GIF cannot be higher than 50. Use the --every-nth-frame option to lower the FPS: https://remotion.dev/docs/render-as-gif`
+		);
+	}
+}

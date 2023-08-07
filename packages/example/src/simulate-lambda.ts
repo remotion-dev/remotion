@@ -1,15 +1,16 @@
 import {bundle} from '@remotion/bundler';
 import {
-	combineVideos,
 	getCompositions,
 	RenderInternals,
 	renderMedia,
 } from '@remotion/renderer';
-import path from 'path';
+import path from 'node:path';
 import {webpackOverride} from './webpack-override';
+import {VideoConfig} from 'remotion';
 
 const start = async () => {
-	const bundled = await bundle('./src/index.tsx', () => undefined, {
+	const bundled = await bundle({
+		entryPoint: './src/index.ts',
 		webpackOverride,
 	});
 
@@ -23,17 +24,20 @@ const start = async () => {
 	console.log(filelistDir);
 	for (let i = 0; i < dur / framesPerLambda; i++) {
 		await renderMedia({
-			codec: 'h264-mkv',
-			composition: comps.find((c) => c.id === 'remote-video')!,
+			codec: 'h264',
+			composition: comps.find((c) => c.id === 'remote-video') as VideoConfig,
 			outputLocation: path.join(filelistDir, 'out/there' + i + '.mkv'),
 			serveUrl: bundled,
 			frameRange: [i * framesPerLambda, (i + 1) * framesPerLambda - 1],
-			parallelism: 1,
+			concurrency: 1,
+			numberOfGifLoops: null,
+			everyNthFrame: 1,
+			verbose: false,
 		});
 		console.log({i});
 	}
 
-	await combineVideos({
+	await RenderInternals.combineVideos({
 		codec: 'h264',
 		filelistDir,
 		files: new Array(dur / framesPerLambda).fill(true).map((_, i) => {
@@ -43,7 +47,11 @@ const start = async () => {
 		numberOfFrames: dur,
 		onProgress: () => console.log('progress'),
 		output: 'out/combined.mp4',
+		numberOfGifLoops: null,
+		audioCodec: 'aac',
 	});
+
+	RenderInternals.deleteDirectory(bundled);
 };
 
 start();

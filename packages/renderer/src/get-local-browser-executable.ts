@@ -1,7 +1,9 @@
-import fs from 'fs';
-import type {Browser, BrowserExecutable} from 'remotion';
+import fs from 'node:fs';
+import os from 'node:os';
+import type {Browser} from './browser';
+import type {BrowserExecutable} from './browser-executable';
+import {getRevisionInfo} from './browser/BrowserFetcher';
 import {downloadBrowser} from './browser/create-browser-fetcher';
-import {puppeteer} from './browser/node';
 import type {Product} from './browser/Product';
 import {PUPPETEER_REVISIONS} from './browser/revisions';
 
@@ -14,6 +16,7 @@ const getSearchPathsForProduct = (product: Product) => {
 				: null,
 			process.platform === 'linux' ? '/usr/bin/google-chrome' : null,
 			process.platform === 'linux' ? '/usr/bin/chromium-browser' : null,
+			process.platform === 'linux' ? '/usr/bin/chromium' : null, // Debian
 			process.platform === 'linux'
 				? '/app/.apt/usr/bin/google-chrome-stable'
 				: null,
@@ -22,6 +25,20 @@ const getSearchPathsForProduct = (product: Product) => {
 				: null,
 			process.platform === 'win32'
 				? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+				: null,
+			process.platform === 'win32'
+				? os.homedir() +
+				  '\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe'
+				: null,
+			process.platform === 'win32'
+				? 'C:\\Program Files\\Google\\Chrome SxS\\Application\\chrome.exe'
+				: null,
+			process.platform === 'win32'
+				? 'C:\\Program Files (x86)\\Google\\Chrome SxS\\Application\\chrome.exe'
+				: null,
+			process.platform === 'win32'
+				? os.homedir() +
+				  '\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe'
 				: null,
 		].filter(Boolean) as string[];
 	}
@@ -43,21 +60,6 @@ const getLocalBrowser = (product: Product) => {
 	}
 
 	return null;
-};
-
-const getBrowserRevision = (product: Product) => {
-	const browserFetcher = puppeteer.createBrowserFetcher({
-		product,
-		path: null,
-		platform: null,
-	});
-	const revisionInfo = browserFetcher.revisionInfo(
-		product === 'firefox'
-			? PUPPETEER_REVISIONS.firefox
-			: PUPPETEER_REVISIONS.chromium
-	);
-
-	return revisionInfo;
 };
 
 type BrowserStatus =
@@ -96,8 +98,8 @@ const getBrowserStatus = (
 		return {path: localBrowser, type: 'local-browser'};
 	}
 
-	const revision = getBrowserRevision(product);
-	if (revision.local !== null && fs.existsSync(revision.executablePath)) {
+	const revision = getRevisionInfo(PUPPETEER_REVISIONS.chromium, product);
+	if (revision.local && fs.existsSync(revision.executablePath)) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
 

@@ -1,20 +1,15 @@
-import {Internals} from 'remotion';
-import type {Page} from './browser/Page';
+import {VERSION} from 'remotion/version';
+import type {Page} from './browser/BrowserPage';
+import {DEFAULT_TIMEOUT} from './browser/TimeoutSettings';
+import type {LogLevel} from './log-level';
+import {Log} from './logger';
 import {normalizeServeUrl} from './normalize-serve-url';
 import {puppeteerEvaluateWithCatch} from './puppeteer-evaluate';
+import {redirectStatusCodes} from './redirect-status-codes';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 
-export const setPropsAndEnv = async ({
-	inputProps,
-	envVariables,
-	page,
-	serveUrl,
-	initialFrame,
-	timeoutInMilliseconds,
-	proxyPort,
-	retriesRemaining,
-}: {
-	inputProps: unknown;
+type SetPropsAndEnv = {
+	serializedInputPropsWithCustomSchema: string;
 	envVariables: Record<string, string> | undefined;
 	page: Page;
 	serveUrl: string;
@@ -22,55 +17,64 @@ export const setPropsAndEnv = async ({
 	timeoutInMilliseconds: number | undefined;
 	proxyPort: number;
 	retriesRemaining: number;
-}): Promise<void> => {
+	audioEnabled: boolean;
+	videoEnabled: boolean;
+	indent: boolean;
+	logLevel: LogLevel;
+};
+
+const innerSetPropsAndEnv = async ({
+	serializedInputPropsWithCustomSchema,
+	envVariables,
+	page,
+	serveUrl,
+	initialFrame,
+	timeoutInMilliseconds,
+	proxyPort,
+	retriesRemaining,
+	audioEnabled,
+	videoEnabled,
+	indent,
+	logLevel,
+}: SetPropsAndEnv): Promise<void> => {
 	validatePuppeteerTimeout(timeoutInMilliseconds);
-	const actualTimeout =
-		timeoutInMilliseconds ?? Internals.DEFAULT_PUPPETEER_TIMEOUT;
+	const actualTimeout = timeoutInMilliseconds ?? DEFAULT_TIMEOUT;
 	page.setDefaultTimeout(actualTimeout);
 	page.setDefaultNavigationTimeout(actualTimeout);
 
 	const urlToVisit = normalizeServeUrl(serveUrl);
 
-	await page.evaluateOnNewDocument(
-		(timeout: number) => {
-			window.remotion_puppeteerTimeout = timeout;
-		},
-		[actualTimeout]
-	);
+	await page.evaluateOnNewDocument((timeout: number) => {
+		window.remotion_puppeteerTimeout = timeout;
+	}, actualTimeout);
 
-	if (inputProps) {
-		await page.evaluateOnNewDocument(
-			(input: string) => {
-				window.remotion_inputProps = input;
-			},
-			[JSON.stringify(inputProps)]
-		);
-	}
+	await page.evaluateOnNewDocument((input: string) => {
+		window.remotion_inputProps = input;
+	}, serializedInputPropsWithCustomSchema);
 
 	if (envVariables) {
-		await page.evaluateOnNewDocument(
-			(input: string) => {
-				window.remotion_envVariables = input;
-			},
-			[JSON.stringify(envVariables)]
-		);
+		await page.evaluateOnNewDocument((input: string) => {
+			window.remotion_envVariables = input;
+		}, JSON.stringify(envVariables));
 	}
 
-	await page.evaluateOnNewDocument(
-		(key: number) => {
-			window.remotion_initialFrame = key;
-		},
-		[initialFrame]
-	);
+	await page.evaluateOnNewDocument((key: number) => {
+		window.remotion_initialFrame = key;
+	}, initialFrame);
 
-	await page.evaluateOnNewDocument(
-		(port: number) => {
-			window.remotion_proxyPort = port;
-		},
-		[proxyPort]
-	);
+	await page.evaluateOnNewDocument((port: number) => {
+		window.remotion_proxyPort = port;
+	}, proxyPort);
 
-	const pageRes = await page.goto(urlToVisit);
+	await page.evaluateOnNewDocument((enabled: boolean) => {
+		window.remotion_audioEnabled = enabled;
+	}, audioEnabled);
+
+	await page.evaluateOnNewDocument((enabled: boolean) => {
+		window.remotion_videoEnabled = enabled;
+	}, videoEnabled);
+
+	const pageRes = await page.goto({url: urlToVisit, timeout: actualTimeout});
 
 	if (pageRes === null) {
 		throw new Error(`Visited "${urlToVisit}" but got no response.`);
@@ -87,33 +91,29 @@ export const setPropsAndEnv = async ({
 			}, 2000);
 		});
 
-		return setPropsAndEnv({
+		return innerSetPropsAndEnv({
 			envVariables,
 			initialFrame,
-			inputProps,
+			serializedInputPropsWithCustomSchema,
 			page,
 			proxyPort,
 			retriesRemaining: retriesRemaining - 1,
 			serveUrl,
 			timeoutInMilliseconds,
+			audioEnabled,
+			videoEnabled,
+			indent,
+			logLevel,
 		});
 	}
 
-	if (
-		status !== 200 &&
-		status !== 301 &&
-		status !== 302 &&
-		status !== 303 &&
-		status !== 304 &&
-		status !== 307 &&
-		status !== 308
-	) {
+	if (!redirectStatusCodes.every((code) => code !== status)) {
 		throw new Error(
 			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was ${status} instead of 200. Does the site you specified exist?`
 		);
 	}
 
-	const isRemotionFn = await puppeteerEvaluateWithCatch<
+	const {value: isRemotionFn} = await puppeteerEvaluateWithCatch<
 		typeof window['getStaticCompositions']
 	>({
 		pageFunction: () => {
@@ -123,13 +123,33 @@ export const setPropsAndEnv = async ({
 		frame: null,
 		page,
 	});
-	if (isRemotionFn === undefined) {
-		throw new Error(
-			`Error while getting compositions: Tried to go to ${urlToVisit} and verify that it is a Remotion project by checking if window.getStaticCompositions is defined. However, the function was undefined, which indicates that this is not a valid Remotion project. Please check the URL you passed.`
-		);
+
+	if (typeof isRemotionFn === 'undefined') {
+		const {value: body} = await puppeteerEvaluateWithCatch<
+			typeof document.body.innerHTML
+		>({
+			pageFunction: () => {
+				return document.body.innerHTML;
+			},
+			args: [],
+			frame: null,
+			page,
+		});
+
+		const errorMessage = [
+			`Error while getting compositions: Tried to go to ${urlToVisit} and verify that it is a Remotion project by checking if window.getStaticCompositions is defined.`,
+			'However, the function was undefined, which indicates that this is not a valid Remotion project. Please check the URL you passed.',
+			'The page loaded contained the following markup:',
+			body.substring(0, 500) + (body.length > 500 ? '...' : ''),
+			'Does this look like a foreign page? If so, try to stop this server.',
+		].join('\n');
+
+		throw new Error(errorMessage);
 	}
 
-	const siteVersion = await puppeteerEvaluateWithCatch<'3'>({
+	const {value: siteVersion} = await puppeteerEvaluateWithCatch<
+		typeof window.siteVersion
+	>({
 		pageFunction: () => {
 			return window.siteVersion;
 		},
@@ -138,9 +158,66 @@ export const setPropsAndEnv = async ({
 		page,
 	});
 
-	if (siteVersion !== '3') {
+	const {value: remotionVersion} = await puppeteerEvaluateWithCatch<string>({
+		pageFunction: () => {
+			return window.remotion_version;
+		},
+		args: [],
+		frame: null,
+		page,
+	});
+
+	const requiredVersion: typeof window.siteVersion = '9';
+
+	if (siteVersion !== requiredVersion) {
 		throw new Error(
-			`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. The bundle format changed in version 3.0.11. To resolve this error, please bundle and deploy again.`
+			[
+				`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. Found version: ${siteVersion} - Required version: ${requiredVersion}. To resolve this error:`,
+				'▸ Use `npx remotion lambda sites create` to redeploy the site with the latest version.',
+				'  ℹ Use --site-name with the same name as before to overwrite your site.',
+				'▸ Use `deploySite()` if you are using the Node.JS APIs.',
+			].join('\n')
 		);
 	}
+
+	if (remotionVersion !== VERSION && process.env.NODE_ENV !== 'test') {
+		if (remotionVersion) {
+			Log.warnAdvanced(
+				{
+					indent,
+					logLevel,
+				},
+				[
+					`The site was bundled with version ${remotionVersion} of @remotion/bundler, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features.`,
+					`To resolve this warning:`,
+					'▸ Use `npx remotion lambda sites create` to redeploy the site with the latest version.',
+					'  ℹ Use --site-name with the same name as before to overwrite your site.',
+					'▸ Use `deploySite()` if you are using the Node.JS APIs.',
+				].join('\n')
+			);
+		} else {
+			Log.warnAdvanced(
+				{
+					indent,
+					logLevel,
+				},
+				`The site was bundled with an old version of Remotion, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
+			);
+		}
+	}
+};
+
+export const setPropsAndEnv = (params: SetPropsAndEnv) => {
+	return Promise.race([
+		innerSetPropsAndEnv(params),
+		new Promise((_, reject) => {
+			setTimeout(() => {
+				reject(
+					new Error(
+						`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser. This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding. Optimize the site or increase the browser timeout.`
+					)
+				);
+			}, params.timeoutInMilliseconds);
+		}),
+	]);
 };

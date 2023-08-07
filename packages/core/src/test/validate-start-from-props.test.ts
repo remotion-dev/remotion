@@ -1,5 +1,6 @@
-import {validateStartFromProps} from '../validate-start-from-props';
-import {expectToThrow} from './expect-to-throw';
+import {describe, test} from 'vitest';
+import {validateStartFromProps} from '../validate-start-from-props.js';
+import {expectToThrow} from './expect-to-throw.js';
 
 describe('ValidateStartFrom props should throw', () => {
 	describe('Throw with invalid startFrom prop', () => {

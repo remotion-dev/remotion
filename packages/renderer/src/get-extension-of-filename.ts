@@ -1,5 +1,13 @@
-export const getExtensionOfFilename = (filename: string) => {
-	const filenameArr = filename.split('.');
+import path from 'node:path';
+
+export const getExtensionOfFilename = (
+	filename: string | null
+): string | null => {
+	if (filename === null) {
+		return null;
+	}
+
+	const filenameArr = path.normalize(filename).split('.');
 
 	const hasExtension = filenameArr.length >= 2;
 	const filenameArrLength = filenameArr.length;

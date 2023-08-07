@@ -1,4 +1,4 @@
-import type {FrameRange} from 'remotion';
+import type {FrameRange} from './frame-range';
 
 export const getRealFrameRange = (
 	durationInFrames: number,
@@ -22,7 +22,7 @@ export const getRealFrameRange = (
 
 	if (frameRange[1] >= durationInFrames || frameRange[0] < 0) {
 		throw new Error(
-			`Frame range ${frameRange.join('-')} is not in between 0-${
+			`Frame range ${frameRange.join('-')} is not inbetween 0-${
 				durationInFrames - 1
 			}`
 		);

@@ -1,3 +1,4 @@
+import {expect, test} from 'vitest';
 import {normalizeServeUrl} from '../normalize-serve-url';
 
 test('normalizeServeUrl', () => {

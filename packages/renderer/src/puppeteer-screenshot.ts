@@ -1,94 +1,46 @@
-import * as assert from 'assert';
-import type {StillImageFormat} from 'remotion';
-import type {Page} from './browser/Page';
-import type {ScreenshotOptions} from './browser/ScreenshotOptions';
-import {_screenshotTask} from './screenshot-task';
+import * as assert from 'node:assert';
+import type {ClipRegion} from 'remotion';
+import type {Page} from './browser/BrowserPage';
+import type {StillImageFormat} from './image-format';
+import {screenshotTask} from './screenshot-task';
 
-export const screenshot = (
-	page: Page,
-	options: ScreenshotOptions
-): Promise<Buffer | string | void> => {
-	let screenshotType: 'png' | 'jpeg' | null = null;
-	// options.type takes precedence over inferring the type from options.path
-	// because it may be a 0-length file with no extension created beforehand
-	// (i.e. as a temp file).
-	if (options.type) {
+export const screenshot = (options: {
+	page: Page;
+	type: StillImageFormat;
+	path?: string;
+	jpegQuality?: number;
+	omitBackground: boolean;
+	width: number;
+	height: number;
+	clipRegion: ClipRegion | null;
+}): Promise<Buffer | string> => {
+	if (options.jpegQuality) {
 		assert.ok(
-			options.type === 'png' || options.type === 'jpeg',
-			'Unknown options.type value: ' + options.type
-		);
-		screenshotType = options.type;
-	} else if (options.path) {
-		const filePath = options.path;
-		const extension = filePath
-			.slice(filePath.lastIndexOf('.') + 1)
-			.toLowerCase();
-		if (extension === 'png') screenshotType = 'png';
-		else if (extension === 'jpg' || extension === 'jpeg')
-			screenshotType = 'jpeg';
-		assert.ok(
-			screenshotType,
-			`Unsupported screenshot type for extension \`.${extension}\``
-		);
-	}
-
-	if (!screenshotType) screenshotType = 'png';
-
-	if (options.quality) {
-		assert.ok(
-			screenshotType === 'jpeg',
-			'options.quality is unsupported for the ' +
-				screenshotType +
-				' screenshots'
-		);
-		assert.ok(
-			typeof options.quality === 'number',
+			typeof options.jpegQuality === 'number',
 			'Expected options.quality to be a number but found ' +
-				typeof options.quality
+				typeof options.jpegQuality
 		);
 		assert.ok(
-			Number.isInteger(options.quality),
+			Number.isInteger(options.jpegQuality),
 			'Expected options.quality to be an integer'
 		);
 		assert.ok(
-			options.quality >= 0 && options.quality <= 100,
+			options.jpegQuality >= 0 && options.jpegQuality <= 100,
 			'Expected options.quality to be between 0 and 100 (inclusive), got ' +
-				options.quality
+				options.jpegQuality
 		);
 	}
 
-	if (options.clip) {
-		assert.ok(
-			typeof options.clip.x === 'number',
-			'Expected options.clip.x to be a number but found ' +
-				typeof options.clip.x
-		);
-		assert.ok(
-			typeof options.clip.y === 'number',
-			'Expected options.clip.y to be a number but found ' +
-				typeof options.clip.y
-		);
-		assert.ok(
-			typeof options.clip.width === 'number',
-			'Expected options.clip.width to be a number but found ' +
-				typeof options.clip.width
-		);
-		assert.ok(
-			typeof options.clip.height === 'number',
-			'Expected options.clip.height to be a number but found ' +
-				typeof options.clip.height
-		);
-		assert.ok(
-			options.clip.width !== 0,
-			'Expected options.clip.width not to be 0.'
-		);
-		assert.ok(
-			options.clip.height !== 0,
-			'Expected options.clip.height not to be 0.'
-		);
-	}
-
-	return page.screenshotTaskQueue.postTask(() =>
-		_screenshotTask(page, screenshotType as StillImageFormat, options)
+	return options.page.screenshotTaskQueue.postTask(() =>
+		screenshotTask({
+			page: options.page,
+			format: options.type,
+			height: options.height,
+			width: options.width,
+			omitBackground: options.omitBackground,
+			path: options.path,
+			jpegQuality: options.type === 'jpeg' ? options.jpegQuality : undefined,
+			clipRegion: options.clipRegion,
+		})
 	);
 };

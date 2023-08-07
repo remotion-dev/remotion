@@ -1,8 +1,8 @@
 import type {RefObject} from 'react';
-import { useEffect} from 'react';
-import {isApproximatelyTheSame} from './is-approximately-the-same';
-import type { VolumeProp} from './volume-prop';
-import {evaluateVolume} from './volume-prop';
+import {useEffect} from 'react';
+import {isApproximatelyTheSame} from './is-approximately-the-same.js';
+import type {VolumeProp} from './volume-prop.js';
+import {evaluateVolume} from './volume-prop.js';
 
 export type UseSyncVolumeWithMediaTagOptions = {
 	volumePropFrame: number;
@@ -24,6 +24,7 @@ export const useSyncVolumeWithMediaTag = ({
 			frame: volumePropFrame,
 			volume,
 			mediaVolume,
+			allowAmplificationDuringRender: false,
 		});
 		if (
 			!isApproximatelyTheSame(userPreferredVolume, actualVolume) &&
