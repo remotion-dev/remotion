@@ -3,6 +3,7 @@ import minimist from 'minimist';
 import {benchmarkCommand} from './benchmark';
 import {chalk} from './chalk';
 import {cleanupBeforeQuit, handleCtrlC} from './cleanup-before-quit';
+import {cloudrunCommand} from './cloudrun-command';
 import {listCompositionsCommand} from './compositions';
 import {ConfigInternals} from './config';
 import {determineFinalStillImageFormat} from './determine-image-format';
@@ -64,6 +65,8 @@ export const cli = async () => {
 			await studioCommand(remotionRoot, args);
 		} else if (command === 'lambda') {
 			await lambdaCommand(remotionRoot, args);
+		} else if (command === 'cloudrun') {
+			await cloudrunCommand(remotionRoot, args);
 		} else if (command === 'render') {
 			await render(remotionRoot, args);
 		} else if (command === 'still') {
