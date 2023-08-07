@@ -40,14 +40,6 @@ const downloadURLs: Record<Platform, string> = {
 
 type Platform = 'linux' | 'mac' | 'mac_arm' | 'win64';
 
-function archiveName(platform: Platform): string {
-	if (platform === 'mac' || platform === 'mac_arm') {
-		return 'Thorium.app';
-	}
-
-	return platform;
-}
-
 function getThoriumDownloadUrl(platform: Platform): string {
 	return downloadURLs[platform];
 }
@@ -169,11 +161,11 @@ const getExecutablePath = () => {
 	}
 
 	if (platform === 'linux') {
-		return path.join(folderPath, archiveName(platform), 'thorium');
+		return path.join(folderPath, 'thorium');
 	}
 
 	if (platform === 'win64') {
-		return path.join(folderPath, archiveName(platform), 'thorium.exe');
+		return path.join(folderPath, 'BIN', 'thorium.exe');
 	}
 
 	throw new Error('Can not download browser for platform: ' + platform);
