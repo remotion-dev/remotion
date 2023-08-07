@@ -45,7 +45,7 @@ function archiveName(platform: Platform): string {
 		return 'Thorium.app';
 	}
 
-	return downloadURLs[platform].split('/').pop() as string;
+	return platform;
 }
 
 function getThoriumDownloadUrl(platform: Platform): string {
@@ -142,7 +142,7 @@ export const downloadBrowser = async (): Promise<
 				}
 			},
 		});
-		await install(archivePath, outputPath);
+		await install({archivePath, folderPath: outputPath});
 	} finally {
 		if (await existsAsync(archivePath)) {
 			await unlinkAsync(archivePath);
@@ -156,7 +156,7 @@ export const downloadBrowser = async (): Promise<
 };
 
 const getFolderPath = (downloadsFolder: string, platform: Platform): string => {
-	return path.resolve(downloadsFolder, `${platform}`);
+	return path.resolve(downloadsFolder, platform);
 };
 
 const getExecutablePath = () => {
@@ -165,14 +165,7 @@ const getExecutablePath = () => {
 	const folderPath = getFolderPath(downloadsFolder, platform);
 
 	if (platform === 'mac' || platform === 'mac_arm') {
-		return path.join(
-			folderPath,
-			archiveName(platform),
-			'Thorium.app',
-			'Contents',
-			'MacOS',
-			'Thorium'
-		);
+		return path.join(folderPath, 'Thorium.app', 'Contents', 'MacOS', 'Thorium');
 	}
 
 	if (platform === 'linux') {
@@ -202,10 +195,13 @@ export const getRevisionInfo = (): BrowserFetcherRevisionInfo => {
 	};
 };
 
-async function install(
-	archivePath: string,
-	folderPath: string
-): Promise<unknown> {
+async function install({
+	archivePath,
+	folderPath,
+}: {
+	archivePath: string;
+	folderPath: string;
+}): Promise<unknown> {
 	if (archivePath.endsWith('.zip')) {
 		return extractZip(archivePath, {dir: folderPath});
 	}
