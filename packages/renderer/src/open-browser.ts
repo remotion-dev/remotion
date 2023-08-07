@@ -90,7 +90,6 @@ export const internalOpenBrowser = async ({
 
 	const browserInstance = await puppeteer.launch({
 		executablePath,
-		product: browser,
 		dumpio: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		logLevel,
 		indent,
