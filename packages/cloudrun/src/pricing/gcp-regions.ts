@@ -74,4 +74,4 @@ export const GCP_REGION_SHORTHAND: {[key in GcpRegion]: string} = {
 	'us-west3': 'wm.a',
 };
 
-export type GcpRegion = typeof GCP_REGIONS[number];
+export type GcpRegion = (typeof GCP_REGIONS)[number];
