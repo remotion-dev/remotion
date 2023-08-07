@@ -173,9 +173,12 @@ const innerSetPropsAndEnv = async ({
 		throw new Error(
 			[
 				`Incompatible site: When visiting ${urlToVisit}, a bundle was found, but one that is not compatible with this version of Remotion. Found version: ${siteVersion} - Required version: ${requiredVersion}. To resolve this error:`,
-				'▸ Use `npx remotion lambda sites create` to redeploy the site with the latest version.',
-				'  ℹ Use --site-name with the same name as before to overwrite your site.',
-				'▸ Use `deploySite()` if you are using the Node.JS APIs.',
+				'When using server-side rendering:',
+				` ▸ Use 'bundle()' with '@remotion/bundler' of version ${VERSION} to create a compatible bundle.`,
+				'When using the Remotion Lambda:',
+				' ▸ Use `npx remotion lambda sites create` to redeploy the site with the latest version.',
+				' ℹ Use --site-name with the same name as before to overwrite your site.',
+				' ▸ Use `deploySite()` if you are using the Node.JS APIs.',
 			].join('\n')
 		);
 	}
