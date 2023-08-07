@@ -41,6 +41,10 @@ const downloadURLs: Record<Platform, string> = {
 type Platform = 'linux' | 'mac' | 'mac_arm' | 'win64';
 
 function archiveName(platform: Platform): string {
+	if (platform === 'mac' || platform === 'mac_arm') {
+		return 'Thorium.app';
+	}
+
 	return downloadURLs[platform].split('/').pop() as string;
 }
 
@@ -119,15 +123,23 @@ export const downloadBrowser = async (): Promise<
 	}
 
 	try {
+		Log.info(
+			'Downloading Thorium browser https://www.remotion.dev/docs/thorium-browser'
+		);
+		let lastProgress = 0;
 		await downloadFile({
 			url: downloadURL,
 			to: () => archivePath,
 			onProgress: (progress) => {
-				Log.info(
-					`Downloading Thorium - ${toMegabytes(
-						progress.downloaded
-					)}/${toMegabytes(progress.totalSize as number)}`
-				);
+				if (progress.downloaded > lastProgress + 10_000_000) {
+					lastProgress = progress.downloaded;
+
+					Log.info(
+						`Downloading Thorium - ${toMegabytes(
+							progress.downloaded
+						)}/${toMegabytes(progress.totalSize as number)}`
+					);
+				}
 			},
 		});
 		await install(archivePath, outputPath);
@@ -190,19 +202,17 @@ export const getRevisionInfo = (): BrowserFetcherRevisionInfo => {
 	};
 };
 
-function install(archivePath: string, folderPath: string): Promise<unknown> {
+async function install(
+	archivePath: string,
+	folderPath: string
+): Promise<unknown> {
 	if (archivePath.endsWith('.zip')) {
 		return extractZip(archivePath, {dir: folderPath});
 	}
 
-	if (archivePath.endsWith('.tar.bz2')) {
-		throw new Error('bz2 currently not implemented');
-	}
-
 	if (archivePath.endsWith('.dmg')) {
-		return mkdirAsync(folderPath).then(() => {
-			return _installDMG(archivePath, folderPath);
-		});
+		await mkdirAsync(folderPath);
+		return _installDMG(archivePath, folderPath);
 	}
 
 	throw new Error(`Unsupported archive format: ${archivePath}`);
