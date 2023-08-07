@@ -6,6 +6,10 @@ slug: /cloudrun/getsites
 crumb: "Cloud Run API"
 ---
 
+<ExperimentalBadge>
+<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+</ExperimentalBadge>
+
 Gets an array of Remotion projects in Cloud Storage, in your GCP project.
 
 The projects are located in the `sites/` subdirectory of your Cloud Storage bucket. Remember - you should only have one bucket for Remotion Cloud Run per region, therefore you do not need to specify the name of the bucket for this function.

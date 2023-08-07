@@ -1,9 +1,13 @@
 ---
-image: /generated/articles-docs-cloudRun-uninstall.png
+image: /generated/articles-docs-cloudrun-uninstall.png
 id: uninstall
 title: Uninstall Cloud Run
 slug: /cloudRun/uninstall
 ---
+
+<ExperimentalBadge>
+<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+</ExperimentalBadge>
 
 Of course we are bummed if you decided not to use Remotion Cloud Run anymore. We are very receptive to feedback if you'd like to share it with us.
 

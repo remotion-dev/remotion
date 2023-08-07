@@ -7,6 +7,10 @@ slug: /cloudrun/instancecount
 crumb: "Cloud Run"
 ---
 
+<ExperimentalBadge>
+<p>Cloud Run is in <a href="/docs/cloudrun-alpha">Alpha</a>, which means APIs may change in any version and documentation is not yet finished. See the <a href="https://remotion.dev/changelog">changelog to stay up to date with breaking changes</a>.</p>
+</ExperimentalBadge>
+
 Remotion Cloud Run will scale up and down as required to account for the number of requests being made to the service. By default, there is no concurrency in the Remotion services. This means that only one render will occur on an instance. When another request is made, GCP will spin up another Cloud Run instance to perform that render.
 
 ### Minimum instance count
