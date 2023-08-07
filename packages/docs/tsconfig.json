@@ -27,6 +27,7 @@
     { "path": "../core" },
     { "path": "../media-utils" },
     { "path": "../babel-loader" },
+    { "path": "../cloudrun" },
     { "path": "../lottie" },
     { "path": "../noise" },
     { "path": "../paths" },
