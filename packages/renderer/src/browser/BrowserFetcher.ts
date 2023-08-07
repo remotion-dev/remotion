@@ -44,7 +44,7 @@ function archiveName(platform: Platform): string {
 	return downloadURLs[platform].split('/').pop() as string;
 }
 
-export function getThoriumDownloadUrl(platform: Platform): string {
+function getThoriumDownloadUrl(platform: Platform): string {
 	return downloadURLs[platform];
 }
 
@@ -68,7 +68,7 @@ interface BrowserFetcherRevisionInfo {
 	local: boolean;
 }
 
-export const getPlatform = (): Platform => {
+const getPlatform = (): Platform => {
 	const platform = os.platform();
 	switch (platform) {
 		case 'darwin':
@@ -143,10 +143,7 @@ export const downloadBrowser = async (): Promise<
 	return revisionInfo;
 };
 
-export const getFolderPath = (
-	downloadsFolder: string,
-	platform: Platform
-): string => {
+const getFolderPath = (downloadsFolder: string, platform: Platform): string => {
 	return path.resolve(downloadsFolder, `${platform}`);
 };
 
