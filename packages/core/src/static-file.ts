@@ -61,6 +61,10 @@ const trimLeadingSlash = (path: string): string => {
 
 const inner = (path: string): string => {
 	if (typeof window !== 'undefined' && window.remotion_staticBase) {
+		if (path.includes(window.remotion_staticBase)) {
+			throw new Error("You can't nest staticFile() inside of staticFile()");
+		}
+
 		return `${window.remotion_staticBase}/${trimLeadingSlash(path)}`;
 	}
 
