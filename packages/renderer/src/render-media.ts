@@ -255,6 +255,7 @@ export const internalRenderMedia = ({
 	let encodedFrames = 0;
 	let muxedFrames = 0;
 	let renderedFrames = 0;
+	let totalFramesToRender = 0;
 	let renderedDoneIn: number | null = null;
 	let encodedDoneIn: number | null = null;
 	let cancelled = false;
@@ -353,6 +354,11 @@ export const internalRenderMedia = ({
 		width: composition.width,
 	});
 
+	const realFrameRange = getRealFrameRange(
+		composition.durationInFrames,
+		frameRange
+	);
+
 	const callUpdate = () => {
 		onProgress?.({
 			encodedDoneIn,
@@ -363,15 +369,10 @@ export const internalRenderMedia = ({
 			progress:
 				Math.round(
 					(70 * renderedFrames + 15 * encodedFrames + 15 * muxedFrames) /
-						composition.durationInFrames
+						totalFramesToRender
 				) / 100,
 		});
 	};
-
-	const realFrameRange = getRealFrameRange(
-		composition.durationInFrames,
-		frameRange
-	);
 
 	const cancelRenderFrames = makeCancelSignal();
 	const cancelPrestitcher = makeCancelSignal();
@@ -497,6 +498,7 @@ export const internalRenderMedia = ({
 					outputDir: parallelEncoding ? null : workingDir,
 					onStart: (data) => {
 						renderedFrames = 0;
+						totalFramesToRender = data.frameCount;
 						callUpdate();
 						onStart?.(data);
 					},
@@ -589,6 +591,7 @@ export const internalRenderMedia = ({
 							if (preEncodedFileLocation) {
 								muxedFrames = frame;
 							} else {
+								muxedFrames = frame;
 								encodedFrames = frame;
 							}
 
