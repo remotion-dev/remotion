@@ -115,9 +115,6 @@ export const downloadBrowser = async (): Promise<
 	}
 
 	try {
-		Log.info(
-			'Downloading Thorium browser https://www.remotion.dev/docs/thorium-browser'
-		);
 		let lastProgress = 0;
 		await downloadFile({
 			url: downloadURL,
