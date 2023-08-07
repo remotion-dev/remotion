@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-import * as https from 'https';
 import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
-import * as http from 'node:http';
 import * as os from 'node:os';
 import * as path from 'node:path';
 
 import extractZip from 'extract-zip';
 
-import * as URL from 'node:url';
 import {promisify} from 'node:util';
 import {assert} from './assert';
 
+import {downloadFile} from '../assets/download-file';
 import {Log} from '../logger';
 import {getDownloadsCacheDir} from './get-download-destination';
 
@@ -121,7 +119,17 @@ export const downloadBrowser = async (): Promise<
 	}
 
 	try {
-		await _downloadThorium(downloadURL, archivePath);
+		await downloadFile({
+			url: downloadURL,
+			to: () => archivePath,
+			onProgress: (progress) => {
+				Log.info(
+					`Downloading Thorium - ${toMegabytes(
+						progress.downloaded
+					)}/${toMegabytes(progress.totalSize as number)}`
+				);
+			},
+		});
 		await install(archivePath, outputPath);
 	} finally {
 		if (await existsAsync(archivePath)) {
@@ -130,9 +138,7 @@ export const downloadBrowser = async (): Promise<
 	}
 
 	const revisionInfo = getRevisionInfo();
-	if (revisionInfo) {
-		await chmodAsync(revisionInfo.executablePath, 0o755);
-	}
+	await chmodAsync(revisionInfo.executablePath, 0o755);
 
 	return revisionInfo;
 };
@@ -186,61 +192,6 @@ export const getRevisionInfo = (): BrowserFetcherRevisionInfo => {
 		url,
 	};
 };
-
-function _downloadThorium(
-	url: string,
-	destinationPath: string
-): Promise<number> {
-	let fulfill: (value: number | PromiseLike<number>) => void;
-	let reject: (err: Error) => void;
-	const promise = new Promise<number>((x, y) => {
-		fulfill = x;
-		reject = y;
-	});
-
-	let downloadedBytes = 0;
-	let totalBytes = 0;
-
-	let lastProgress = Date.now();
-
-	function onData(chunk: string): void {
-		downloadedBytes += chunk.length;
-		if (Date.now() - lastProgress > 1000) {
-			Log.info(
-				'Downloading Thorium',
-				toMegabytes(downloadedBytes) + '/' + toMegabytes(totalBytes)
-			);
-			lastProgress = Date.now();
-		}
-	}
-
-	const request = httpRequest(url, 'GET', (response) => {
-		if (response.statusCode !== 200) {
-			const error = new Error(
-				`Download failed: server returned code ${response.statusCode}. URL: ${url}`
-			);
-			// consume response data to free up memory
-			response.resume();
-			reject(error);
-			return;
-		}
-
-		const file = fs.createWriteStream(destinationPath);
-		file.on('close', () => {
-			return fulfill(totalBytes);
-		});
-		file.on('error', (error) => {
-			return reject(error);
-		});
-		response.pipe(file);
-		totalBytes = parseInt(response.headers['content-length'] as string, 10);
-		response.on('data', onData);
-	});
-	request.on('error', (error) => {
-		return reject(error);
-	});
-	return promise;
-}
 
 function install(archivePath: string, folderPath: string): Promise<unknown> {
 	if (archivePath.endsWith('.zip')) {
@@ -312,51 +263,6 @@ function _installDMG(dmgPath: string, folderPath: string): Promise<void> {
 				}
 			});
 		});
-}
-
-function httpRequest(
-	url: string,
-	method: string,
-	response: (x: http.IncomingMessage) => void,
-	keepAlive = true
-): http.ClientRequest {
-	const urlParsed = URL.parse(url);
-
-	type Options = Partial<URL.UrlWithStringQuery> & {
-		method?: string;
-		rejectUnauthorized?: boolean;
-		headers?: http.OutgoingHttpHeaders | undefined;
-	};
-
-	const options: Options = {
-		...urlParsed,
-		method,
-		headers: keepAlive
-			? {
-					Connection: 'keep-alive',
-			  }
-			: undefined,
-	};
-
-	const requestCallback = (res: http.IncomingMessage): void => {
-		if (
-			res.statusCode &&
-			res.statusCode >= 300 &&
-			res.statusCode < 400 &&
-			res.headers.location
-		) {
-			httpRequest(res.headers.location, method, response);
-		} else {
-			response(res);
-		}
-	};
-
-	const request =
-		options.protocol === 'https:'
-			? https.request(options, requestCallback)
-			: http.request(options, requestCallback);
-	request.end();
-	return request;
 }
 
 function toMegabytes(bytes: number) {
