@@ -53,7 +53,7 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
         CliInputCommandPayload::GetSilences(_command) => {
             let filter = format!(
                 "silencedetect=n={}dB:d={}",
-                _command.noiseThresholdInDecibels, _command.minDuration
+                _command.noiseThresholdInDecibels, _command.minDurationInSeconds
             );
             let res = get_silent_parts::get_silent_parts(_command.src, filter.to_string())?;
             let str = serde_json::to_string(&res)?;
