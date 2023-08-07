@@ -18,7 +18,7 @@ The `npx remotion cloudrun services` command allows you to deploy, view and dele
 - [`rm`](#rm)
 - [`rmall`](#rmall)
 
-You only need one service per GCP region and Remotion version. Suggested reading: [Do I need to deploy a service for each render?](/docs/cloudrun/faq#do-i-need-to-deploy-a-service-for-each-render)
+You only need one service per GCP region and Remotion version.
 
 ## deploy
 
