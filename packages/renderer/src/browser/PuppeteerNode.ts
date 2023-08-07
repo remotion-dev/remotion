@@ -22,13 +22,11 @@ import type {
 	BrowserLaunchArgumentOptions,
 	LaunchOptions,
 } from './LaunchOptions';
-import type {Product} from './Product';
 
 interface PuppeteerLaunchOptions
 	extends LaunchOptions,
 		BrowserLaunchArgumentOptions,
 		BrowserConnectOptions {
-	product?: Product;
 	extraPrefsFirefox?: Record<string, unknown>;
 }
 
@@ -54,9 +52,5 @@ export class PuppeteerNode {
 		}
 
 		return this.#lazyLauncher;
-	}
-
-	get product(): string {
-		return this._launcher.product;
 	}
 }
