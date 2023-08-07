@@ -9,15 +9,6 @@ export type getCloudrunEndpointInput = {
 	region?: string;
 };
 
-/**
- * @description If the Cloud Run URL is passed, it will be validated and returned. If the service name is passed, the service will be looked up and the endpoint will be returned.
- * @see [Documentation](https://remotion.dev/docs/lambda/renderMediaOnGcp)
- * @param params.cloudRunUrl The url of the Cloud Run service
- * @param params.serviceName The name of the Cloud Run service
- * @param params.region The region of the service - required if the serviceName is passed.
- * @returns {Promise<string>} Returns the endpoint of the Cloud Run service
- */
-
 export const getCloudrunEndpoint = async ({
 	cloudRunUrl,
 	serviceName,
