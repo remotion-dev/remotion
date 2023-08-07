@@ -10,7 +10,7 @@ import {tmpdir} from 'node:os';
 import path from 'node:path';
 import {VideoConfig} from 'remotion';
 import {expect, test} from 'vitest';
-import {webpackOverride} from '../webpack-override';
+import {webpackOverride} from '../webpack-override.mjs';
 
 test(
 	'Can render a still png using Node.JS APIs',

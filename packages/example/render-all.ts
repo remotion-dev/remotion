@@ -1,6 +1,6 @@
 import {bundle} from '@remotion/bundler';
 import {getCompositions, renderMedia} from '@remotion/renderer';
-import {webpackOverride} from './src/webpack-override';
+import {webpackOverride} from './src/webpack-override.mjs';
 
 const start = async () => {
 	const bundled = await bundle({
