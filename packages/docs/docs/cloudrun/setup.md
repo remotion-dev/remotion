@@ -88,10 +88,9 @@ In order to enable the Cloud Run API, billing must be enabled in this project. N
    <img src="/img/cloudrun/selectCloudShell.jpg" width="200" />
 
 2. Within the Cloud Shell, type the following command and follow the prompts.
-   // TODO: Switch to remotion-dev repo
 
    ```bash
-   curl -L https://github.com/UmungoBungo/remotion/raw/gcp-lambda-alternative/packages/cloudrun/src/gcpInstaller/gcpInstaller.tar | tar -x -C . && node install.mjs
+   curl -L https://github.com/remotion-dev/remotion/raw/main/packages/cloudrun/src/gcpInstaller/gcpInstaller.tar | tar -x -C . && node install.mjs
    ```
 
 - Select <Step>1</Step>to setup this project for Remotion Cloud Run, or to run the setup again for an update.
