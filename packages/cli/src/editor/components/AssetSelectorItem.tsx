@@ -1,8 +1,9 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {StaticFile} from 'remotion';
+import {truthy} from '../../truthy';
 import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
-import type {AssetFolder} from '../helpers/create-folder-tree';
+import type {AssetFolder, Structure} from '../helpers/create-folder-tree';
 import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
 import {CollapsedFolderIcon, ExpandedFolderIconSolid} from '../icons/folder';
@@ -92,9 +93,7 @@ export const AssetFolderItem: React.FC<{
 	}, []);
 
 	const Icon = expanded ? ExpandedFolderIconSolid : CollapsedFolderIcon;
-	const combinedParents = useMemo(() => {
-		return parentFolder + '/' + item.name;
-	}, [item.name, parentFolder]);
+
 	return (
 		<>
 			<div
@@ -113,32 +112,55 @@ export const AssetFolderItem: React.FC<{
 			</div>
 
 			{expanded ? (
-				<div>
-					{item.items.folders.map((folder) => {
-						return (
-							<AssetFolderItem
-								key={`${folder.name}`}
-								item={folder}
-								tabIndex={tabIndex}
-								level={level + 1}
-								parentFolder={combinedParents}
-							/>
-						);
-					})}
-					{item.items.files.map((file) => {
-						return (
-							<AssetSelectorItem
-								key={`${file.src}`}
-								item={file}
-								tabIndex={tabIndex}
-								level={level + 1}
-								parentFolder={combinedParents}
-							/>
-						);
-					})}
-				</div>
+				<FolderTree
+					key={item.name}
+					item={item.items}
+					name={item.name}
+					level={level}
+					parentFolder={parentFolder}
+					tabIndex={tabIndex}
+				/>
 			) : null}
 		</>
+	);
+};
+
+export const FolderTree: React.FC<{
+	item: Structure;
+	name: string | null;
+	parentFolder: string | null;
+	level: number;
+	tabIndex: number;
+}> = ({item, level, name, parentFolder, tabIndex}) => {
+	const combinedParents = useMemo(() => {
+		return [parentFolder, name].filter(truthy).join('/');
+	}, [name, parentFolder]);
+
+	return (
+		<div>
+			{item.folders.map((folder) => {
+				return (
+					<AssetFolderItem
+						key={folder.name}
+						item={folder}
+						tabIndex={tabIndex}
+						level={level + 1}
+						parentFolder={combinedParents}
+					/>
+				);
+			})}
+			{item.files.map((file) => {
+				return (
+					<AssetSelectorItem
+						key={file.src}
+						item={file}
+						tabIndex={tabIndex}
+						level={level + 1}
+						parentFolder={combinedParents}
+					/>
+				);
+			})}
+		</div>
 	);
 };
 

@@ -5,7 +5,7 @@ import {subscribeToEvent} from '../../event-source';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
 import {useZIndex} from '../state/z-index';
-import {AssetFolderItem, AssetSelectorItem} from './AssetSelectorItem';
+import {FolderTree} from './AssetSelectorItem';
 import {inlineCodeSnippet} from './Menu/styles';
 
 const container: React.CSSProperties = {
@@ -92,28 +92,13 @@ export const AssetSelector: React.FC = () => {
 				)
 			) : (
 				<div className="__remotion-vertical-scrollbar" style={list}>
-					{assetTree.folders.map((folder) => {
-						return (
-							<AssetFolderItem
-								key={folder.name}
-								item={folder}
-								level={0}
-								tabIndex={tabIndex}
-								parentFolder=""
-							/>
-						);
-					})}
-					{assetTree.files.map((file) => {
-						return (
-							<AssetSelectorItem
-								key={file.name}
-								item={file}
-								level={0}
-								tabIndex={tabIndex}
-								parentFolder=""
-							/>
-						);
-					})}
+					<FolderTree
+						item={assetTree}
+						level={0}
+						parentFolder={null}
+						name={null}
+						tabIndex={tabIndex}
+					/>
 				</div>
 			)}
 		</div>
