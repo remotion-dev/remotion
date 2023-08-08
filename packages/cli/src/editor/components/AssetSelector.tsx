@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useMemo} from 'react';
 import type {StaticFile} from 'remotion';
 import {getStaticFiles} from 'remotion';
 import {subscribeToEvent} from '../../event-source';
@@ -53,7 +53,9 @@ export const AssetSelector: React.FC = () => {
 			};
 		}
 	);
-	const assetTree = buildAssetFolderStructure(staticFiles);
+	const assetTree = useMemo(() => {
+		return buildAssetFolderStructure(staticFiles);
+	}, [staticFiles]);
 
 	useEffect(() => {
 		const onUpdate = () => {
