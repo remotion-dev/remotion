@@ -21,7 +21,7 @@ This list tries to compile all templates, libraries, building blocks and example
 
 ## SaaS starter Kits
 
-- [Remix template](https://github.com/florentpergoud/remotion-remix-template)
+- [Remix template](https://github.com/remotion-dev/remotion-remix-template)
 - [Next.js template](https://github.com/remotion-dev/template-next)
 
 ## Integrations

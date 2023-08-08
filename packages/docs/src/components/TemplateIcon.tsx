@@ -18,6 +18,7 @@ const outer: React.CSSProperties = {
   color: "var(--ifm-font-color-base)",
   cursor: "pointer",
   filter: "drop-shadow(0px 0px 4px var(--background))",
+  textDecoration: "none",
 };
 
 const labelStyle: React.CSSProperties = {
@@ -31,9 +32,9 @@ export const TemplateIcon: React.FC<{
   const mobileLayout = useMobileLayout();
 
   return (
-    <a style={outer}>
+    <span style={outer}>
       <div style={icon}>{children}</div>
       {mobileLayout ? null : <div style={labelStyle}>{label}</div>}
-    </a>
+    </span>
   );
 };
