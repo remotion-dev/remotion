@@ -99,6 +99,7 @@ export const AssetSelector: React.FC = () => {
 								item={folder}
 								level={0}
 								tabIndex={tabIndex}
+								parentFolder=""
 							/>
 						);
 					})}
@@ -109,6 +110,7 @@ export const AssetSelector: React.FC = () => {
 								item={file}
 								level={0}
 								tabIndex={tabIndex}
+								parentFolder=""
 							/>
 						);
 					})}

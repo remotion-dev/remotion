@@ -60,7 +60,8 @@ export const AssetFolderItem: React.FC<{
 	item: AssetFolder;
 	tabIndex: number;
 	level: number;
-}> = ({tabIndex, item, level}) => {
+	parentFolder: string;
+}> = ({tabIndex, item, level, parentFolder}) => {
 	const [hovered, setHovered] = useState(false);
 	const [expanded, setExpanded] = useState(false);
 
@@ -91,7 +92,9 @@ export const AssetFolderItem: React.FC<{
 	}, []);
 
 	const Icon = expanded ? ExpandedFolderIconSolid : CollapsedFolderIcon;
-
+	const combinedParents = useMemo(() => {
+		return parentFolder + '/' + item.name;
+	}, [item.name, parentFolder]);
 	return (
 		<>
 			<div
@@ -118,6 +121,7 @@ export const AssetFolderItem: React.FC<{
 								item={folder}
 								tabIndex={tabIndex}
 								level={level + 1}
+								parentFolder={combinedParents}
 							/>
 						);
 					})}
@@ -128,6 +132,7 @@ export const AssetFolderItem: React.FC<{
 								item={file}
 								tabIndex={tabIndex}
 								level={level + 1}
+								parentFolder={combinedParents}
 							/>
 						);
 					})}
@@ -141,7 +146,8 @@ export const AssetSelectorItem: React.FC<{
 	item: StaticFile | AssetFolder;
 	tabIndex: number;
 	level: number;
-}> = ({item, tabIndex, level}) => {
+	parentFolder: string;
+}> = ({item, tabIndex, level, parentFolder}) => {
 	const [hovered, setHovered] = useState(false);
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -177,11 +183,16 @@ export const AssetSelectorItem: React.FC<{
 
 	const revealInExplorer = React.useCallback(() => {
 		openInFileExplorer({
-			directory: window.remotion_publicFolderExists + '/' + item.name,
+			directory:
+				window.remotion_publicFolderExists +
+				'/' +
+				parentFolder +
+				'/' +
+				item.name,
 		}).catch((err) => {
 			sendErrorNotification(`Could not open file: ${err.message}`);
 		});
-	}, [item.name]);
+	}, [item.name, parentFolder]);
 
 	const copyToClipboard = useCallback(() => {
 		copyText(`staticFile("${item.name}")`)
@@ -197,7 +208,7 @@ export const AssetSelectorItem: React.FC<{
 				sendErrorNotification(`Could not copy: ${err.message}`);
 			});
 	}, [item.name]);
-
+	console.log('name: ', item.name, 'parentFolder: ', parentFolder);
 	return (
 		<Row align="center">
 			<div
