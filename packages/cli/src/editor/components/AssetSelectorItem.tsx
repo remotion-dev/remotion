@@ -229,7 +229,6 @@ export const AssetSelectorItem: React.FC<{
 				sendErrorNotification(`Could not copy: ${err.message}`);
 			});
 	}, [item.name]);
-	console.log('name: ', item.name, 'parentFolder: ', parentFolder);
 	return (
 		<Row align="center">
 			<div

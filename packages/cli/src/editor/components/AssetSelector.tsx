@@ -33,7 +33,7 @@ const label: React.CSSProperties = {
 };
 
 const list: React.CSSProperties = {
-	height: 'calc(100%)',
+	height: '100%',
 	overflowY: 'auto',
 };
 
@@ -54,7 +54,6 @@ export const AssetSelector: React.FC = () => {
 		}
 	);
 	const assetTree = buildAssetFolderStructure(staticFiles);
-	console.log(assetTree);
 
 	useEffect(() => {
 		const onUpdate = () => {
