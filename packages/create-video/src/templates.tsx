@@ -49,24 +49,6 @@ function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
-const nextTemplate: Template = {
-	homePageLabel: 'Next.js',
-	shortName: 'Next.js',
-	org: 'remotion-dev',
-	repoName: 'template-next',
-	description: 'SaaS template for video generation apps',
-	longerDescription:
-		'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build a video generation app.',
-	promoVideo: {
-		width: 1280,
-		height: 720,
-		muxId: 'RufnZIJZh6L1MAaeG02jnXuM9pK96tNuHRxmXHbWqCBI',
-	},
-	cliId: 'next',
-	type: 'video',
-	defaultBranch: 'main',
-};
-
 // Note that this page is statically analyzed by extract-articles.mjs
 export const FEATURED_TEMPLATES: Template[] = [
 	{
@@ -86,7 +68,23 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 	},
-	nextTemplate,
+	{
+		homePageLabel: 'Next.js',
+		shortName: 'Next.js',
+		org: 'remotion-dev',
+		repoName: 'template-next',
+		description: 'SaaS template for video generation apps',
+		longerDescription:
+			'A SaaS starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build an app that can generate videos.',
+		promoVideo: {
+			width: 1280,
+			height: 720,
+			muxId: 'RufnZIJZh6L1MAaeG02jnXuM9pK96tNuHRxmXHbWqCBI',
+		},
+		cliId: 'next' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+	},
 	{
 		homePageLabel: 'Blank',
 		shortName: 'Blank',
