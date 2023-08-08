@@ -101,17 +101,17 @@ export const useMediaPlayback = ({
 		const makesSenseToSeek =
 			Math.abs(mediaRef.current.currentTime - shouldBeTime) > 0.00001;
 
-		if (!makesSenseToSeek) {
-			return;
-		}
-
 		if (!playing || absoluteFrame === 0) {
-			mediaRef.current.currentTime = shouldBeTime;
-			return;
+			if (makesSenseToSeek) {
+				mediaRef.current.currentTime = shouldBeTime;
+			}
 		}
 
 		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
-			mediaRef.current.currentTime = shouldBeTime;
+			if (makesSenseToSeek) {
+				mediaRef.current.currentTime = shouldBeTime;
+			}
+
 			playAndHandleNotAllowedError(mediaRef, mediaType);
 		}
 	}, [
