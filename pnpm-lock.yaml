@@ -1033,9 +1033,6 @@ importers:
 
   packages/lambda:
     dependencies:
-      '@aws-sdk/abort-controller':
-        specifier: 3.374.0
-        version: 3.374.0
       '@aws-sdk/client-cloudwatch-logs':
         specifier: 3.382.0
         version: 3.382.0
@@ -1072,6 +1069,9 @@ importers:
       '@remotion/renderer':
         specifier: workspace:*
         version: link:../renderer
+      '@smithy/abort-controller':
+        specifier: 2.0.1
+        version: 2.0.1
       aws-policies:
         specifier: ^1.0.1
         version: 1.0.1
@@ -2073,15 +2073,6 @@ packages:
       '@aws-sdk/types': 3.378.0
       '@aws-sdk/util-utf8-browser': 3.188.0
       tslib: 1.14.1
-    dev: false
-
-  /@aws-sdk/abort-controller@3.374.0:
-    resolution: {integrity: sha512-pO1pqFBdIF28ZvnJmg58Erj35RLzXsTrjvHghdc/xgtSvodFFCNrUsPg6AP3On8eiw9elpHoS4P8jMx1pHDXEw==}
-    engines: {node: '>=14.0.0'}
-    deprecated: This package has moved to @smithy/abort-controller
-    dependencies:
-      '@smithy/abort-controller': 1.0.2
-      tslib: 2.5.0
     dev: false
 
   /@aws-sdk/client-cloudwatch-logs@3.382.0:
@@ -8037,14 +8028,6 @@ packages:
       webpack-sources: 3.2.3
     dev: false
 
-  /@smithy/abort-controller@1.0.2:
-    resolution: {integrity: sha512-tb2h0b+JvMee+eAxTmhnyqyNk51UXIK949HnE14lFeezKsVJTB30maan+CO2IMwnig2wVYQH84B5qk6ylmKCuA==}
-    engines: {node: '>=14.0.0'}
-    dependencies:
-      '@smithy/types': 1.1.1
-      tslib: 2.5.0
-    dev: false
-
   /@smithy/abort-controller@2.0.1:
     resolution: {integrity: sha512-0s7XjIbsTwZyUW9OwXQ8J6x1UiA1TNCh60Vaw56nHahL7kUZsLhmTlWiaxfLkFtO2Utkj8YewcpHTYpxaTzO+w==}
     engines: {node: '>=14.0.0'}
@@ -8327,13 +8310,6 @@ packages:
       '@smithy/middleware-stack': 2.0.0
       '@smithy/types': 2.0.2
       '@smithy/util-stream': 2.0.1
-      tslib: 2.5.0
-    dev: false
-
-  /@smithy/types@1.1.1:
-    resolution: {integrity: sha512-tMpkreknl2gRrniHeBtdgQwaOlo39df8RxSrwsHVNIGXULy5XP6KqgScUw2m12D15wnJCKWxVhCX+wbrBW/y7g==}
-    engines: {node: '>=14.0.0'}
-    dependencies:
       tslib: 2.5.0
     dev: false
 
