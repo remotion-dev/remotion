@@ -190,6 +190,10 @@ export const QuickSwitcherContent: React.FC<{
 					onSelected: () => {
 						selectComposition(c, true);
 						setSelectedModal(null);
+						document
+							.querySelector(`.__remotion-composition[data-compname=${c.id}`)
+
+							?.scrollIntoView({block: 'center'});
 					},
 					compositionType: isCompositionStill(c) ? 'still' : 'composition',
 				};
