@@ -74,29 +74,29 @@ const MyComp: React.FC = () => {
 
 ## Using videos
 
-Use the [`<Video />`](/docs/video) component to keep the timeline and your video in sync.
+Use the [`<OffthreadVideo />`](/docs/offthreadvideo) or [`<Video />`](/docs/video) component to keep the timeline and your video in sync.
 
 ```tsx twoslash
-import { staticFile, Video } from "remotion";
+import { OffthreadVideo, staticFile } from "remotion";
 
 export const MyComp: React.FC = () => {
-  return <Video src={staticFile("vid.webm")} />;
+  return <OffthreadVideo src={staticFile("vid.webm")} />;
 };
 ```
 
 Loading videos via URL is also possible:
 
 ```tsx twoslash
-import { Video } from "remotion";
+import { OffthreadVideo } from "remotion";
 
 export const MyComp: React.FC = () => {
   return (
-    <Video src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
+    <OffthreadVideo src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" />
   );
 };
 ```
 
-Be aware that if you are rendering using Chromium (as opposed to Chrome), the codec for MP4 videos is not included. Read the section on the [`<Video/ >`](/docs/video#codec-support) page for more information.
+See also: [Which video formats does Remotion support?](/docs/miscellaneous/video-formats)
 
 ## Using Audio
 

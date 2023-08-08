@@ -215,7 +215,7 @@ pub fn get_silent_parts(
             if last_occurrence == LastOccurrence::Start {
                 silent_parts.push(SilentParts {
                     endInSeconds: end,
-                    startInSeconds: start,
+                    startInSeconds: start.max(0.0),
                 });
             }
 
@@ -226,7 +226,7 @@ pub fn get_silent_parts(
     if last_occurrence == LastOccurrence::Start {
         silent_parts.push(SilentParts {
             endInSeconds: duration,
-            startInSeconds: start,
+            startInSeconds: start.max(0.0),
         });
     }
 

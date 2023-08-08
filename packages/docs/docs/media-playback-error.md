@@ -24,10 +24,12 @@ This error happens when you are trying to embed a `<Video/>` or `<Audio/>` tag i
 
 Unlike Google Chrome, the Chromium Browser does not include proprietary codecs. This means you cannot play MP4/H.264 videos and some audio codecs (more codecs may not be supported).
 
-**Workaround**: Convert videos to WebM, [use Chrome instead of Chromium](/docs/config#setbrowserexecutable), or use [`<OffthreadVideo>`](/docs/offthreadvideo).
+**Workaround 1**: Use Chrome, not Chromium.
+
+**Workaround 2**: Convert videos to WebM, [use Chrome instead of Chromium](/docs/config#setbrowserexecutable), or use [`<OffthreadVideo>`](/docs/offthreadvideo).
 
 :::note
-> The Chromium browser included in Remotion Lambda and Cloud Run already supports the H.264 codec.
+Until `v4.0.17`, Remotion would download Chromium if no local browser was found. Starting from `v4.0.18`, Remotion will download [Thorium](https://thorium.rocks/) instead, which includes the codecs needed to render videos.
 :::
 
 ## Invalid source

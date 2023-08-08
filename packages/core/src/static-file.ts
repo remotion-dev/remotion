@@ -61,6 +61,12 @@ const trimLeadingSlash = (path: string): string => {
 
 const inner = (path: string): string => {
 	if (typeof window !== 'undefined' && window.remotion_staticBase) {
+		if (path.startsWith(window.remotion_staticBase)) {
+			throw new Error(
+				`The value "${path}" is already prefixed with the static base ${window.remotion_staticBase}. You don't need to call staticFile() on it.`
+			);
+		}
+
 		return `${window.remotion_staticBase}/${trimLeadingSlash(path)}`;
 	}
 

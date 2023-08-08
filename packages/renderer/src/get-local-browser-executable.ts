@@ -1,59 +1,46 @@
 import fs from 'node:fs';
 import os from 'node:os';
-import type {Browser} from './browser';
 import type {BrowserExecutable} from './browser-executable';
-import {getRevisionInfo} from './browser/BrowserFetcher';
-import {downloadBrowser} from './browser/create-browser-fetcher';
-import type {Product} from './browser/Product';
-import {PUPPETEER_REVISIONS} from './browser/revisions';
+import {downloadBrowser, getRevisionInfo} from './browser/BrowserFetcher';
+import {Log} from './logger';
 
-const getSearchPathsForProduct = (product: Product) => {
-	if (product === 'chrome') {
-		return [
-			process.env.PUPPETEER_EXECUTABLE_PATH ?? null,
-			process.platform === 'darwin'
-				? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-				: null,
-			process.platform === 'linux' ? '/usr/bin/google-chrome' : null,
-			process.platform === 'linux' ? '/usr/bin/chromium-browser' : null,
-			process.platform === 'linux' ? '/usr/bin/chromium' : null, // Debian
-			process.platform === 'linux'
-				? '/app/.apt/usr/bin/google-chrome-stable'
-				: null,
-			process.platform === 'win32'
-				? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
-				: null,
-			process.platform === 'win32'
-				? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
-				: null,
-			process.platform === 'win32'
-				? os.homedir() +
-				  '\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe'
-				: null,
-			process.platform === 'win32'
-				? 'C:\\Program Files\\Google\\Chrome SxS\\Application\\chrome.exe'
-				: null,
-			process.platform === 'win32'
-				? 'C:\\Program Files (x86)\\Google\\Chrome SxS\\Application\\chrome.exe'
-				: null,
-			process.platform === 'win32'
-				? os.homedir() +
-				  '\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe'
-				: null,
-		].filter(Boolean) as string[];
-	}
-
-	if (product === 'firefox') {
-		return [].filter(Boolean) as string[];
-	}
-
-	throw new TypeError(`Unknown browser product: ${product}`);
+const getSearchPathsForProduct = () => {
+	return [
+		process.env.PUPPETEER_EXECUTABLE_PATH ?? null,
+		process.platform === 'darwin'
+			? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+			: null,
+		process.platform === 'linux' ? '/usr/bin/google-chrome' : null,
+		process.platform === 'linux' ? '/usr/bin/chromium-browser' : null,
+		process.platform === 'linux' ? '/usr/bin/chromium' : null, // Debian
+		process.platform === 'linux'
+			? '/app/.apt/usr/bin/google-chrome-stable'
+			: null,
+		process.platform === 'win32'
+			? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
+			: null,
+		process.platform === 'win32'
+			? 'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+			: null,
+		process.platform === 'win32'
+			? os.homedir() +
+			  '\\AppData\\Local\\Google\\Chrome\\Application\\chrome.exe'
+			: null,
+		process.platform === 'win32'
+			? 'C:\\Program Files\\Google\\Chrome SxS\\Application\\chrome.exe'
+			: null,
+		process.platform === 'win32'
+			? 'C:\\Program Files (x86)\\Google\\Chrome SxS\\Application\\chrome.exe'
+			: null,
+		process.platform === 'win32'
+			? os.homedir() +
+			  '\\AppData\\Local\\Google\\Chrome SxS\\Application\\chrome.exe'
+			: null,
+	].filter(Boolean) as string[];
 };
 
-const mapBrowserToProduct = (browser: Browser): Product => browser;
-
-const getLocalBrowser = (product: Product) => {
-	for (const p of getSearchPathsForProduct(product)) {
+const getLocalBrowser = () => {
+	for (const p of getSearchPathsForProduct()) {
 		if (fs.existsSync(p)) {
 			return p;
 		}
@@ -80,7 +67,6 @@ type BrowserStatus =
 	  };
 
 const getBrowserStatus = (
-	product: Product,
 	browserExecutablePath: BrowserExecutable
 ): BrowserStatus => {
 	if (browserExecutablePath) {
@@ -93,12 +79,12 @@ const getBrowserStatus = (
 		return {path: browserExecutablePath, type: 'user-defined-path'};
 	}
 
-	const localBrowser = getLocalBrowser(product);
+	const localBrowser = getLocalBrowser();
 	if (localBrowser !== null) {
 		return {path: localBrowser, type: 'local-browser'};
 	}
 
-	const revision = getRevisionInfo(PUPPETEER_REVISIONS.chromium, product);
+	const revision = getRevisionInfo();
 	if (revision.local && fs.existsSync(revision.executablePath)) {
 		return {path: revision.executablePath, type: 'local-puppeteer-browser'};
 	}
@@ -107,29 +93,21 @@ const getBrowserStatus = (
 };
 
 export const ensureLocalBrowser = async (
-	browser: Browser,
 	preferredBrowserExecutable: BrowserExecutable
 ) => {
-	const status = getBrowserStatus(
-		mapBrowserToProduct(browser),
-		preferredBrowserExecutable
-	);
+	const status = getBrowserStatus(preferredBrowserExecutable);
 	if (status.type === 'no-browser') {
-		console.log(
-			'No local browser could be found. Downloading one from the internet...'
+		Log.info(
+			'No local browser could be found. Downloading Thorium https://www.remotion.dev/docs/thorium-browser'
 		);
-		await downloadBrowser(browser);
+		await downloadBrowser();
 	}
 };
 
 export const getLocalBrowserExecutable = (
-	browser: Browser,
 	preferredBrowserExecutable: BrowserExecutable
 ): string => {
-	const status = getBrowserStatus(
-		mapBrowserToProduct(browser),
-		preferredBrowserExecutable
-	);
+	const status = getBrowserStatus(preferredBrowserExecutable);
 	if (status.type === 'no-browser') {
 		throw new TypeError(
 			'No browser found for rendering frames! Please open a GitHub issue and describe ' +
