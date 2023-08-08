@@ -22,7 +22,6 @@ import {
 } from '../shared/constants';
 import {convertToServeUrl} from '../shared/convert-to-serve-url';
 import {isFlakyError} from '../shared/is-flaky-error';
-import {getServeUrlHash} from '../shared/make-s3-url';
 import {validateDownloadBehavior} from '../shared/validate-download-behavior';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
@@ -138,7 +137,7 @@ const innerStillHandler = async ({
 		compositionId: lambdaParams.composition,
 		estimatedTotalLambdaInvokations: 1,
 		estimatedRenderLambdaInvokations: 1,
-		siteId: getServeUrlHash(serveUrl),
+		siteId: serveUrl,
 		totalChunks: 1,
 		type: 'still',
 		imageFormat: lambdaParams.imageFormat,
