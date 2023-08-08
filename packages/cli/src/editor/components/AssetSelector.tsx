@@ -3,10 +3,9 @@ import type {StaticFile} from 'remotion';
 import {getStaticFiles} from 'remotion';
 import {subscribeToEvent} from '../../event-source';
 import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
-import type {AssetFolder} from '../helpers/create-folder-tree';
 import {buildAssetFolderStructure} from '../helpers/create-folder-tree';
 import {useZIndex} from '../state/z-index';
-import {AssetFolderItem} from './AssetSelectorItem';
+import {AssetFolderItem, AssetSelectorItem} from './AssetSelectorItem';
 import {inlineCodeSnippet} from './Menu/styles';
 
 const container: React.CSSProperties = {
@@ -56,10 +55,7 @@ export const AssetSelector: React.FC = () => {
 	);
 	const assetTree = buildAssetFolderStructure(staticFiles);
 	console.log(assetTree);
-	const publicFolder: AssetFolder = {
-		name: 'public',
-		items: assetTree,
-	};
+
 	useEffect(() => {
 		const onUpdate = () => {
 			setState({
@@ -96,7 +92,26 @@ export const AssetSelector: React.FC = () => {
 				)
 			) : (
 				<div className="__remotion-vertical-scrollbar" style={list}>
-					<AssetFolderItem item={publicFolder} tabIndex={tabIndex} level={0} />
+					{assetTree.folders.map((folder) => {
+						return (
+							<AssetFolderItem
+								key={folder.name}
+								item={folder}
+								level={0}
+								tabIndex={tabIndex}
+							/>
+						);
+					})}
+					{assetTree.files.map((file) => {
+						return (
+							<AssetSelectorItem
+								key={file.name}
+								item={file}
+								level={0}
+								tabIndex={tabIndex}
+							/>
+						);
+					})}
 				</div>
 			)}
 		</div>

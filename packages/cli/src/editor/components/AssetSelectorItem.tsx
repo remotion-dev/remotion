@@ -74,9 +74,8 @@ export const AssetFolderItem: React.FC<{
 
 	const folderStyle: React.CSSProperties = useMemo(() => {
 		return {
-			display: 'flex',
+			...itemStyle,
 			paddingLeft: 12 + level * 8,
-			color: LIGHT_TEXT,
 			backgroundColor: hovered ? CLEAR_HOVER : 'transparent',
 		};
 	}, [hovered, level]);
@@ -94,7 +93,7 @@ export const AssetFolderItem: React.FC<{
 	const Icon = expanded ? ExpandedFolderIconSolid : CollapsedFolderIcon;
 
 	return (
-		<div>
+		<>
 			<div
 				style={folderStyle}
 				onPointerEnter={onPointerEnter}
@@ -134,7 +133,7 @@ export const AssetFolderItem: React.FC<{
 					})}
 				</div>
 			) : null}
-		</div>
+		</>
 	);
 };
 
