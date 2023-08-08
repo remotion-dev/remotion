@@ -1,10 +1,12 @@
 import React, {useCallback, useMemo, useState} from 'react';
 import type {StaticFile} from 'remotion';
-import {BACKGROUND, LIGHT_TEXT} from '../helpers/colors';
+import {truthy} from '../../truthy';
+import {BACKGROUND, CLEAR_HOVER, LIGHT_TEXT} from '../helpers/colors';
 import {copyText} from '../helpers/copy-text';
+import type {AssetFolder, Structure} from '../helpers/create-folder-tree';
 import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
-import {ExpandedFolderIconSolid} from '../icons/folder';
+import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {Row, Spacing} from './layout';
@@ -15,6 +17,12 @@ import {
 import {openInFileExplorer} from './RenderQueue/actions';
 
 const ASSET_ITEM_HEIGHT = 32;
+
+const iconStyle: React.CSSProperties = {
+	width: 18,
+	height: 18,
+	flexShrink: 0,
+};
 
 const itemStyle: React.CSSProperties = {
 	paddingRight: 10,
@@ -44,21 +52,123 @@ const labelStyle: React.CSSProperties = {
 	textOverflow: 'ellipsis',
 };
 
-const iconStyle: React.CSSProperties = {
-	width: 18,
-	height: 18,
-	flexShrink: 0,
-};
-
 const revealIconStyle: React.CSSProperties = {
 	height: 12,
 	color: 'currentColor',
 };
 
-export const AssetSelectorItem: React.FC<{
-	item: StaticFile;
+export const AssetFolderItem: React.FC<{
+	item: AssetFolder;
 	tabIndex: number;
-}> = ({item, tabIndex}) => {
+	level: number;
+	parentFolder: string;
+}> = ({tabIndex, item, level, parentFolder}) => {
+	const [hovered, setHovered] = useState(false);
+	const [expanded, setExpanded] = useState(false);
+
+	const onPointerEnter = useCallback(() => {
+		setHovered(true);
+	}, []);
+
+	const onPointerLeave = useCallback(() => {
+		setHovered(false);
+	}, []);
+
+	const folderStyle: React.CSSProperties = useMemo(() => {
+		return {
+			...itemStyle,
+			paddingLeft: 4 + level * 8,
+			backgroundColor: hovered ? CLEAR_HOVER : 'transparent',
+		};
+	}, [hovered, level]);
+	const label = useMemo(() => {
+		return {
+			...labelStyle,
+			color: LIGHT_TEXT,
+		};
+	}, []);
+
+	const onClick = useCallback(() => {
+		setExpanded((e) => !e);
+	}, []);
+
+	const Icon = expanded ? ExpandedFolderIcon : CollapsedFolderIcon;
+
+	return (
+		<>
+			<div
+				style={folderStyle}
+				onPointerEnter={onPointerEnter}
+				onPointerLeave={onPointerLeave}
+				tabIndex={tabIndex}
+				title={item.name}
+				onClick={onClick}
+			>
+				<Row>
+					<Icon style={iconStyle} color={LIGHT_TEXT} />
+					<Spacing x={1} />
+					<div style={label}>{item.name}</div>
+				</Row>
+			</div>
+
+			{expanded ? (
+				<FolderTree
+					key={item.name}
+					item={item.items}
+					name={item.name}
+					level={level}
+					parentFolder={parentFolder}
+					tabIndex={tabIndex}
+				/>
+			) : null}
+		</>
+	);
+};
+
+export const FolderTree: React.FC<{
+	item: Structure;
+	name: string | null;
+	parentFolder: string | null;
+	level: number;
+	tabIndex: number;
+}> = ({item, level, name, parentFolder, tabIndex}) => {
+	const combinedParents = useMemo(() => {
+		return [parentFolder, name].filter(truthy).join('/');
+	}, [name, parentFolder]);
+	return (
+		<div>
+			{item.folders.map((folder) => {
+				return (
+					<AssetFolderItem
+						key={folder.name}
+						item={folder}
+						tabIndex={tabIndex}
+						level={level + 1}
+						parentFolder={combinedParents}
+					/>
+				);
+			})}
+			{item.files.map((file) => {
+				return (
+					<AssetSelectorItem
+						key={file.src}
+						item={file}
+						tabIndex={tabIndex}
+						level={level + 1}
+						parentFolder={combinedParents}
+					/>
+				);
+			})}
+		</div>
+	);
+};
+
+export const AssetSelectorItem: React.FC<{
+	item: StaticFile | AssetFolder;
+	tabIndex: number;
+	level: number;
+	parentFolder: string;
+}> = ({item, tabIndex, level, parentFolder}) => {
 	const [hovered, setHovered] = useState(false);
 	const onPointerEnter = useCallback(() => {
 		setHovered(true);
@@ -71,10 +181,11 @@ export const AssetSelectorItem: React.FC<{
 	const style: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			paddingLeft: 12,
 			color: LIGHT_TEXT,
+			backgroundColor: hovered ? CLEAR_HOVER : 'transparent',
+			paddingLeft: 12 + level * 8,
 		};
-	}, []);
+	}, [hovered, level]);
 
 	const label = useMemo(() => {
 		return {
@@ -84,7 +195,7 @@ export const AssetSelectorItem: React.FC<{
 	}, []);
 
 	const renderFileExplorerAction: RenderInlineAction = useCallback((color) => {
-		return <ExpandedFolderIconSolid style={revealIconStyle} color={color} />;
+		return <ExpandedFolderIcon style={revealIconStyle} color={color} />;
 	}, []);
 
 	const renderCopyAction: RenderInlineAction = useCallback((color) => {
@@ -93,11 +204,16 @@ export const AssetSelectorItem: React.FC<{
 
 	const revealInExplorer = React.useCallback(() => {
 		openInFileExplorer({
-			directory: window.remotion_publicFolderExists + '/' + item.name,
+			directory:
+				window.remotion_publicFolderExists +
+				'/' +
+				parentFolder +
+				'/' +
+				item.name,
 		}).catch((err) => {
 			sendErrorNotification(`Could not open file: ${err.message}`);
 		});
-	}, [item.name]);
+	}, [item.name, parentFolder]);
 
 	const copyToClipboard = useCallback(() => {
 		copyText(`staticFile("${item.name}")`)
@@ -113,7 +229,6 @@ export const AssetSelectorItem: React.FC<{
 				sendErrorNotification(`Could not copy: ${err.message}`);
 			});
 	}, [item.name]);
-
 	return (
 		<Row align="center">
 			<div
