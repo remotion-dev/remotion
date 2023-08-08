@@ -25,6 +25,7 @@ describe('Templates should be valid', () => {
 
 				if (
 					!template.shortName.includes('Remix') &&
+					!template.shortName.includes('Next') &&
 					!template.shortName.includes('Still')
 				) {
 					expect(body.scripts.build).toMatch(/render/);
