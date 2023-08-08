@@ -49,8 +49,6 @@ function truthy<T>(value: T): value is Truthy<T> {
 	return Boolean(value);
 }
 
-const ENABLE_NEXT = false;
-
 const nextTemplate: Template = {
 	homePageLabel: 'Next.js',
 	shortName: 'Next.js',
@@ -59,13 +57,13 @@ const nextTemplate: Template = {
 	description: 'SaaS template for video generation apps',
 	longerDescription:
 		'A software-as-a-service starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build a video generation app.',
-	promoBanner: {
+	promoVideo: {
 		width: 1280,
 		height: 720,
-		src: '/img/remix-template.png',
+		muxId: 'RufnZIJZh6L1MAaeG02jnXuM9pK96tNuHRxmXHbWqCBI',
 	},
 	cliId: 'next',
-	type: 'image',
+	type: 'video',
 	defaultBranch: 'main',
 };
 
@@ -88,7 +86,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		type: 'video' as const,
 		defaultBranch: 'main',
 	},
-	ENABLE_NEXT ? nextTemplate : null,
+	nextTemplate,
 	{
 		homePageLabel: 'Blank',
 		shortName: 'Blank',
