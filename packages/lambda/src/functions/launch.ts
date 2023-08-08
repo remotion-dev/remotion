@@ -33,7 +33,6 @@ import {
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
-import {getServeUrlHash} from '../shared/make-s3-url';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
@@ -290,7 +289,7 @@ const innerLaunchHandler = async (
 		].reduce((a, b) => a + b, 0),
 		estimatedRenderLambdaInvokations: chunks.length,
 		compositionId: comp.id,
-		siteId: getServeUrlHash(params.serveUrl),
+		siteId: params.serveUrl,
 		codec: params.codec,
 		type: 'video',
 		imageFormat: params.imageFormat,
