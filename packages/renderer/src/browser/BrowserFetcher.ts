@@ -14,125 +14,38 @@
  * limitations under the License.
  */
 
-import * as https from 'https';
 import * as childProcess from 'node:child_process';
 import * as fs from 'node:fs';
-import * as http from 'node:http';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import util from 'node:util';
 
 import extractZip from 'extract-zip';
 
-import * as URL from 'node:url';
 import {promisify} from 'node:util';
 import {assert} from './assert';
-import type {Product} from './Product';
 
-import {deleteDirectory} from '../delete-directory';
+import {downloadFile} from '../assets/download-file';
+import {Log} from '../logger';
 import {getDownloadsCacheDir} from './get-download-destination';
 
-const {PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM} = process.env;
-
-const downloadURLs: Record<Product, Partial<Record<Platform, string>>> = {
-	chrome: {
-		linux: '%s/chromium-browser-snapshots/Linux_x64/%d/%s.zip',
-		mac: '%s/chromium-browser-snapshots/Mac/%d/%s.zip',
-		mac_arm: '%s/chromium-browser-snapshots/Mac_Arm/%d/%s.zip',
-		win32: '%s/chromium-browser-snapshots/Win/%d/%s.zip',
-		win64: '%s/chromium-browser-snapshots/Win_x64/%d/%s.zip',
-	},
-	firefox: {
-		linux: '%s/firefox-%s.en-US.%s-x86_64.tar.bz2',
-		mac: '%s/firefox-%s.en-US.%s.dmg',
-		win32: '%s/firefox-%s.en-US.%s.zip',
-		win64: '%s/firefox-%s.en-US.%s.zip',
-	},
+const downloadURLs: Record<Platform, string> = {
+	linux:
+		'https://github.com/Alex313031/thorium/releases/download/M114.0.5735.205/thorium-browser_114.0.5735.205_amd64.zip',
+	mac: 'https://github.com/Alex313031/Thorium-Special/releases/download/M114.0.5735.205-1/Thorium_MacOS_X64.dmg',
+	mac_arm:
+		'https://github.com/Alex313031/Thorium-Special/releases/download/M114.0.5735.205-1/Thorium_MacOS_ARM.dmg',
+	win64:
+		'https://github.com/Alex313031/Thorium-Win/releases/download/M114.0.5735.205/Thorium_114.0.5735.205.zip',
 };
 
-const browserConfig = {
-	chrome: {
-		host: 'https://storage.googleapis.com',
-		destination: '.chromium',
-	},
-	firefox: {
-		host: 'https://archive.mozilla.org/pub/firefox/nightly/latest-mozilla-central',
-		destination: '.firefox',
-	},
-} as const;
+type Platform = 'linux' | 'mac' | 'mac_arm' | 'win64';
 
-type Platform = 'linux' | 'mac' | 'mac_arm' | 'win32' | 'win64';
-
-function archiveName(
-	product: Product,
-	platform: Platform,
-	revision: string
-): string {
-	switch (product) {
-		case 'chrome':
-			switch (platform) {
-				case 'linux':
-					return 'chrome-linux';
-				case 'mac_arm':
-				case 'mac':
-					return 'chrome-mac';
-				case 'win32':
-				case 'win64':
-					// Windows archive name changed at r591479.
-					return parseInt(revision, 10) > 591479
-						? 'Thorium_107.0.5271.0\\BIN'
-						: 'chrome-win32';
-				default:
-					throw new Error('unknown browser');
-			}
-
-		case 'firefox':
-			return platform;
-		default:
-			throw new Error('unknown browser');
-	}
+function getThoriumDownloadUrl(platform: Platform): string {
+	return downloadURLs[platform];
 }
 
-function _downloadURL(
-	product: Product,
-	platform: Platform,
-	host: string,
-	revision: string
-): string {
-	if (platform === 'win64' || platform === 'win32') {
-		return 'https://remotionchromium-binaries.s3.eu-central-1.amazonaws.com/thorium-107.zip';
-	}
-
-	return util.format(
-		downloadURLs[product][platform],
-		host,
-		revision,
-		archiveName(product, platform, revision)
-	);
-}
-
-function handleArm64(): void {
-	let exists = fs.existsSync('/usr/bin/chromium-browser');
-	if (exists) {
-		return;
-	}
-
-	exists = fs.existsSync('/usr/bin/chromium');
-	if (exists) {
-		return;
-	}
-
-	console.error(
-		'The chromium binary is not available for arm64.' +
-			'\nIf you are on Ubuntu, you can install with: ' +
-			'\n\n sudo apt install chromium\n' +
-			'\n\n sudo apt install chromium-browser\n'
-	);
-	throw new Error();
-}
-
-const readdirAsync = promisify(fs.readdir.bind(fs));
-const mkdirAsync = promisify(fs.mkdir.bind(fs));
+const readdirAsync = fs.promises.readdir;
+const mkdirAsync = fs.promises.mkdir;
 const unlinkAsync = promisify(fs.unlink.bind(fs));
 const chmodAsync = promisify(fs.chmod.bind(fs));
 
@@ -149,65 +62,40 @@ interface BrowserFetcherRevisionInfo {
 	executablePath: string;
 	url: string;
 	local: boolean;
-	revision: string;
-	product: string;
 }
 
-export const getPlatform = (product: Product): Platform => {
+const getPlatform = (): Platform => {
 	const platform = os.platform();
 	switch (platform) {
 		case 'darwin':
-			switch (product) {
-				case 'chrome':
-					return os.arch() === 'arm64' &&
-						PUPPETEER_EXPERIMENTAL_CHROMIUM_MAC_ARM
-						? 'mac_arm'
-						: 'mac';
-				case 'firefox':
-					return 'mac';
-				default:
-					throw new Error('unknown browser');
-			}
-
+			return os.arch() === 'arm64' ? 'mac_arm' : 'mac';
 		case 'linux':
 			return 'linux';
 		case 'win32':
-			return os.arch() === 'x64' ? 'win64' : 'win32';
+			return 'win64';
 		default:
 			assert(false, 'Unsupported platform: ' + platform);
 	}
 };
 
-export const getDownloadsFolder = (product: Product) => {
-	return path.join(getDownloadsCacheDir(), browserConfig[product].destination);
+const destination = '.thorium';
+
+const getDownloadsFolder = () => {
+	return path.join(getDownloadsCacheDir(), destination);
 };
 
-export const getDownloadHost = (product: Product) => {
-	return browserConfig[product].host;
-};
-
-export const download = async ({
-	revision,
-	progressCallback,
-	product,
-	platform,
-	downloadHost,
-	downloadsFolder,
-}: {
-	revision: string;
-	progressCallback: (x: number, y: number) => void;
-	product: Product;
-	platform: Platform;
-	downloadHost: string;
-	downloadsFolder: string;
-}): Promise<BrowserFetcherRevisionInfo | undefined> => {
-	const url = _downloadURL(product, platform, downloadHost, revision);
-	const fileName = url.split('/').pop();
-	assert(fileName, `A malformed download URL was found: ${url}.`);
+export const downloadBrowser = async (): Promise<
+	BrowserFetcherRevisionInfo | undefined
+> => {
+	const platform = getPlatform();
+	const downloadURL = getThoriumDownloadUrl(platform);
+	const fileName = downloadURL.split('/').pop();
+	assert(fileName, `A malformed download URL was found: ${downloadURL}.`);
+	const downloadsFolder = getDownloadsFolder();
 	const archivePath = path.join(downloadsFolder, fileName);
-	const outputPath = getFolderPath(revision, downloadsFolder, platform);
+	const outputPath = getFolderPath(downloadsFolder, platform);
 	if (await existsAsync(outputPath)) {
-		return getRevisionInfo(revision, product);
+		return getRevisionInfo();
 	}
 
 	if (!(await existsAsync(downloadsFolder))) {
@@ -218,243 +106,98 @@ export const download = async ({
 
 	// Use system Chromium builds on Linux ARM devices
 	if (os.platform() !== 'darwin' && os.arch() === 'arm64') {
-		handleArm64();
-		return;
+		throw new Error(
+			'The chromium binary is not available for arm64.' +
+				'\nIf you are on Ubuntu, you can install with: ' +
+				'\n\n sudo apt install chromium\n' +
+				'\n\n sudo apt install chromium-browser\n'
+		);
 	}
 
 	try {
-		await _downloadFile(url, archivePath, progressCallback);
-		await install(archivePath, outputPath);
+		let lastProgress = 0;
+		await downloadFile({
+			url: downloadURL,
+			to: () => archivePath,
+			onProgress: (progress) => {
+				if (progress.downloaded > lastProgress + 10_000_000) {
+					lastProgress = progress.downloaded;
+
+					Log.info(
+						`Downloading Thorium - ${toMegabytes(
+							progress.downloaded
+						)}/${toMegabytes(progress.totalSize as number)}`
+					);
+				}
+			},
+		});
+		await install({archivePath, folderPath: outputPath});
 	} finally {
 		if (await existsAsync(archivePath)) {
 			await unlinkAsync(archivePath);
 		}
 	}
 
-	const revisionInfo = getRevisionInfo(revision, product);
-	if (revisionInfo) {
-		await chmodAsync(revisionInfo.executablePath, 0o755);
-	}
+	const revisionInfo = getRevisionInfo();
+	await chmodAsync(revisionInfo.executablePath, 0o755);
 
 	return revisionInfo;
 };
 
-export const localRevisions = async (
-	downloadsFolder: string,
-	product: Product,
-	platform: Platform
-): Promise<string[]> => {
-	if (!(await existsAsync(downloadsFolder))) {
-		return [];
+const getFolderPath = (downloadsFolder: string, platform: Platform): string => {
+	return path.resolve(downloadsFolder, platform);
+};
+
+const getExecutablePath = () => {
+	const downloadsFolder = getDownloadsFolder();
+	const platform = getPlatform();
+	const folderPath = getFolderPath(downloadsFolder, platform);
+
+	if (platform === 'mac' || platform === 'mac_arm') {
+		return path.join(folderPath, 'Thorium.app', 'Contents', 'MacOS', 'Thorium');
 	}
 
-	const fileNames = await readdirAsync(downloadsFolder);
-	return fileNames
-		.map((fileName) => {
-			return parseFolderPath(product, fileName);
-		})
-		.filter(
-			(
-				entry
-			): entry is {product: string; platform: string; revision: string} => {
-				return (entry && entry.platform === platform) ?? false;
-			}
-		)
-		.map((entry) => {
-			return entry.revision;
-		});
-};
-
-export const removeBrowser = async (
-	revision: string,
-	folderPath: string
-): Promise<void> => {
-	assert(
-		await existsAsync(folderPath),
-		`Failed to remove: revision ${revision} is not downloaded`
-	);
-	deleteDirectory(folderPath);
-};
-
-export const getFolderPath = (
-	revision: string,
-	downloadsFolder: string,
-	platform: Platform
-): string => {
-	return path.resolve(downloadsFolder, `${platform}-${revision}`);
-};
-
-const getExecutablePath = (product: Product, revision: string) => {
-	const downloadsFolder = getDownloadsFolder(product);
-	const platform = getPlatform(product);
-	const folderPath = getFolderPath(revision, downloadsFolder, platform);
-
-	if (product === 'chrome') {
-		if (platform === 'mac' || platform === 'mac_arm') {
-			return path.join(
-				folderPath,
-				archiveName(product, platform, revision),
-				'Chromium.app',
-				'Contents',
-				'MacOS',
-				'Chromium'
-			);
-		}
-
-		if (platform === 'linux') {
-			return path.join(
-				folderPath,
-				archiveName(product, platform, revision),
-				'chrome'
-			);
-		}
-
-		if (platform === 'win32' || platform === 'win64') {
-			return path.join(
-				folderPath,
-				archiveName(product, platform, revision),
-				'thorium.exe'
-			);
-		}
-
-		throw new Error('Unsupported platform: ' + platform);
+	if (platform === 'linux') {
+		return path.join(folderPath, 'thorium');
 	}
 
-	if (product === 'firefox') {
-		if (platform === 'mac' || platform === 'mac_arm') {
-			return path.join(
-				folderPath,
-				'Firefox Nightly.app',
-				'Contents',
-				'MacOS',
-				'firefox'
-			);
-		}
-
-		if (platform === 'linux') {
-			return path.join(folderPath, 'firefox', 'firefox');
-		}
-
-		if (platform === 'win32' || platform === 'win64') {
-			return path.join(folderPath, 'firefox', 'firefox.exe');
-		}
-
-		throw new Error('Unsupported platform: ' + platform);
+	if (platform === 'win64') {
+		return path.join(folderPath, 'BIN', 'thorium.exe');
 	}
 
-	throw new Error('Unsupported product: ' + product);
+	throw new Error('Can not download browser for platform: ' + platform);
 };
 
-export const getRevisionInfo = (
-	revision: string,
-	product: Product
-): BrowserFetcherRevisionInfo => {
-	const executablePath = getExecutablePath(product, revision);
-	const downloadsFolder = getDownloadsFolder(product);
-	const platform = getPlatform(product);
-	const folderPath = getFolderPath(revision, downloadsFolder, platform);
+export const getRevisionInfo = (): BrowserFetcherRevisionInfo => {
+	const executablePath = getExecutablePath();
+	const downloadsFolder = getDownloadsFolder();
+	const platform = getPlatform();
+	const folderPath = getFolderPath(downloadsFolder, platform);
 
-	const url = _downloadURL(
-		product,
-		platform,
-		getDownloadHost(product),
-		revision
-	);
+	const url = getThoriumDownloadUrl(platform);
 	const local = fs.existsSync(folderPath);
 	return {
-		revision,
 		executablePath,
 		folderPath,
 		local,
 		url,
-		product,
 	};
 };
 
-function parseFolderPath(
-	product: Product,
-	folderPath: string
-): {product: string; platform: string; revision: string} | undefined {
-	const name = path.basename(folderPath);
-	const splits = name.split('-');
-	if (splits.length !== 2) {
-		return;
-	}
-
-	const [platform, revision] = splits;
-	if (!revision || !platform || !(platform in downloadURLs[product])) {
-		return;
-	}
-
-	return {product, platform, revision};
-}
-
-function _downloadFile(
-	url: string,
-	destinationPath: string,
-	progressCallback: (x: number, y: number) => void
-): Promise<number> {
-	let fulfill: (value: number | PromiseLike<number>) => void;
-	let reject: (err: Error) => void;
-	const promise = new Promise<number>((x, y) => {
-		fulfill = x;
-		reject = y;
-	});
-
-	let downloadedBytes = 0;
-	let totalBytes = 0;
-
-	let lastProgress = Date.now();
-
-	function onData(chunk: string): void {
-		downloadedBytes += chunk.length;
-		if (Date.now() - lastProgress > 1000) {
-			progressCallback(downloadedBytes, totalBytes);
-			lastProgress = Date.now();
-		}
-	}
-
-	const request = httpRequest(url, 'GET', (response) => {
-		if (response.statusCode !== 200) {
-			const error = new Error(
-				`Download failed: server returned code ${response.statusCode}. URL: ${url}`
-			);
-			// consume response data to free up memory
-			response.resume();
-			reject(error);
-			return;
-		}
-
-		const file = fs.createWriteStream(destinationPath);
-		file.on('close', () => {
-			return fulfill(totalBytes);
-		});
-		file.on('error', (error) => {
-			return reject(error);
-		});
-		response.pipe(file);
-		totalBytes = parseInt(response.headers['content-length'] as string, 10);
-		response.on('data', onData);
-	});
-	request.on('error', (error) => {
-		return reject(error);
-	});
-	return promise;
-}
-
-function install(archivePath: string, folderPath: string): Promise<unknown> {
+async function install({
+	archivePath,
+	folderPath,
+}: {
+	archivePath: string;
+	folderPath: string;
+}): Promise<unknown> {
 	if (archivePath.endsWith('.zip')) {
 		return extractZip(archivePath, {dir: folderPath});
 	}
 
-	if (archivePath.endsWith('.tar.bz2')) {
-		throw new Error('bz2 currently not implemented');
-	}
-
 	if (archivePath.endsWith('.dmg')) {
-		return mkdirAsync(folderPath).then(() => {
-			return _installDMG(archivePath, folderPath);
-		});
+		await mkdirAsync(folderPath);
+		return _installDMG(archivePath, folderPath);
 	}
 
 	throw new Error(`Unsupported archive format: ${archivePath}`);
@@ -514,47 +257,7 @@ function _installDMG(dmgPath: string, folderPath: string): Promise<void> {
 		});
 }
 
-function httpRequest(
-	url: string,
-	method: string,
-	response: (x: http.IncomingMessage) => void,
-	keepAlive = true
-): http.ClientRequest {
-	const urlParsed = URL.parse(url);
-
-	type Options = Partial<URL.UrlWithStringQuery> & {
-		method?: string;
-		rejectUnauthorized?: boolean;
-		headers?: http.OutgoingHttpHeaders | undefined;
-	};
-
-	const options: Options = {
-		...urlParsed,
-		method,
-		headers: keepAlive
-			? {
-					Connection: 'keep-alive',
-			  }
-			: undefined,
-	};
-
-	const requestCallback = (res: http.IncomingMessage): void => {
-		if (
-			res.statusCode &&
-			res.statusCode >= 300 &&
-			res.statusCode < 400 &&
-			res.headers.location
-		) {
-			httpRequest(res.headers.location, method, response);
-		} else {
-			response(res);
-		}
-	};
-
-	const request =
-		options.protocol === 'https:'
-			? https.request(options, requestCallback)
-			: http.request(options, requestCallback);
-	request.end();
-	return request;
+function toMegabytes(bytes: number) {
+	const mb = bytes / 1024 / 1024;
+	return `${Math.round(mb * 10) / 10} Mb`;
 }
