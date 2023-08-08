@@ -139,23 +139,19 @@ describe('Templates should be valid', () => {
 			12000
 		);
 
-		it(
-			template.shortName + 'should use the new config file format',
-			async () => {
-				const {contents, entryPoint} = await findFile([
-					getFileForTemplate(template, 'remotion.config.ts'),
-					getFileForTemplate(template, 'remotion.config.js'),
-				]);
-				expect(entryPoint).toBeTruthy();
-				expect(contents).not.toContain('Config.Rendering');
-				expect(contents).not.toContain('Config.Bundling');
-				expect(contents).not.toContain('Config.Log');
-				expect(contents).not.toContain('Config.Puppeteer');
-				expect(contents).not.toContain('Config.Output');
-				expect(contents).not.toContain('Config.Preview');
-			},
-			12000
-		);
+		it(`${template.shortName} should use the new config file format`, async () => {
+			const {contents, entryPoint} = await findFile([
+				getFileForTemplate(template, 'remotion.config.ts'),
+				getFileForTemplate(template, 'remotion.config.js'),
+			]);
+			expect(entryPoint).toBeTruthy();
+			expect(contents).not.toContain('Config.Rendering');
+			expect(contents).not.toContain('Config.Bundling');
+			expect(contents).not.toContain('Config.Log');
+			expect(contents).not.toContain('Config.Puppeteer');
+			expect(contents).not.toContain('Config.Output');
+			expect(contents).not.toContain('Config.Preview');
+		}, 12000);
 		it(
 			template.shortName + ' should use noUnusedLocals',
 			async () => {
