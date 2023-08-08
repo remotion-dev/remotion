@@ -6,7 +6,7 @@ import {copyText} from '../helpers/copy-text';
 import type {AssetFolder, Structure} from '../helpers/create-folder-tree';
 import {ClipboardIcon} from '../icons/clipboard';
 import {FileIcon} from '../icons/file';
-import {CollapsedFolderIcon, ExpandedFolderIconSolid} from '../icons/folder';
+import {CollapsedFolderIcon, ExpandedFolderIcon} from '../icons/folder';
 import type {RenderInlineAction} from './InlineAction';
 import {InlineAction} from './InlineAction';
 import {Row, Spacing} from './layout';
@@ -77,7 +77,7 @@ export const AssetFolderItem: React.FC<{
 	const folderStyle: React.CSSProperties = useMemo(() => {
 		return {
 			...itemStyle,
-			paddingLeft: 12 + level * 8,
+			paddingLeft: 4 + level * 8,
 			backgroundColor: hovered ? CLEAR_HOVER : 'transparent',
 		};
 	}, [hovered, level]);
@@ -92,7 +92,7 @@ export const AssetFolderItem: React.FC<{
 		setExpanded((e) => !e);
 	}, []);
 
-	const Icon = expanded ? ExpandedFolderIconSolid : CollapsedFolderIcon;
+	const Icon = expanded ? ExpandedFolderIcon : CollapsedFolderIcon;
 
 	return (
 		<>
@@ -135,7 +135,6 @@ export const FolderTree: React.FC<{
 	const combinedParents = useMemo(() => {
 		return [parentFolder, name].filter(truthy).join('/');
 	}, [name, parentFolder]);
-
 	return (
 		<div>
 			{item.folders.map((folder) => {
@@ -196,7 +195,7 @@ export const AssetSelectorItem: React.FC<{
 	}, []);
 
 	const renderFileExplorerAction: RenderInlineAction = useCallback((color) => {
-		return <ExpandedFolderIconSolid style={revealIconStyle} color={color} />;
+		return <ExpandedFolderIcon style={revealIconStyle} color={color} />;
 	}, []);
 
 	const renderCopyAction: RenderInlineAction = useCallback((color) => {
