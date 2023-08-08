@@ -2,8 +2,8 @@ import Link from "@docusaurus/Link";
 import { CreateVideoInternals } from "create-video";
 import React from "react";
 
-import { MoreTemplatesButton } from "./ArrowRight";
 import { IconForTemplate } from "./IconForTemplate";
+import { MoreTemplatesButton } from "./MoreTemplatesButton";
 import { TemplateIcon } from "./TemplateIcon";
 
 export const ChooseTemplate: React.FC = () => {
@@ -38,7 +38,11 @@ export const ChooseTemplate: React.FC = () => {
           {CreateVideoInternals.FEATURED_TEMPLATES.slice(0, 4).map(
             (template) => {
               return (
-                <Link key={template.cliId} to={`/templates/${template.cliId}`}>
+                <Link
+                  key={template.cliId}
+                  style={{ textDecoration: "none" }}
+                  to={`/templates/${template.cliId}`}
+                >
                   <TemplateIcon label={template.homePageLabel}>
                     <IconForTemplate scale={0.7} template={template} />
                   </TemplateIcon>
