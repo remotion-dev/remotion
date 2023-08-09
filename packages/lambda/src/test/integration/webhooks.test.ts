@@ -58,8 +58,7 @@ describe('Webhooks', () => {
 		const res = await callLambda({
 			type: LambdaRoutines.start,
 			payload: {
-				serveUrl:
-					'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
+				serveUrl: 'https://loquacious-rabanadas-a2bd81.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -151,8 +150,7 @@ describe('Webhooks', () => {
 			region: 'us-east-1',
 			type: LambdaRoutines.launch,
 			payload: {
-				serveUrl:
-					'https://64bea5e14e10611ab1d786f5--vocal-fudge-fd27aa.netlify.app/',
+				serveUrl: 'https://loquacious-rabanadas-a2bd81.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
