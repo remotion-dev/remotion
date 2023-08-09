@@ -16,7 +16,12 @@ declare global {
 		};
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
-		getStaticCompositions: () => Promise<VideoConfig[]>;
+		getStaticCompositions: () => Promise<
+			(Omit<VideoConfig, 'defaultProps' | 'props'> & {
+				serializedDefaultPropsWithCustomSchema: string;
+				serializedResolvedPropsWithCustomSchema: string;
+			})[]
+		>;
 		remotion_calculateComposition: (compId: string) => Promise<
 			Omit<VideoConfig, 'defaultProps' | 'props'> & {
 				serializedDefaultPropsWithCustomSchema: string;
@@ -45,7 +50,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '9';
+		siteVersion: '10';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 	}
