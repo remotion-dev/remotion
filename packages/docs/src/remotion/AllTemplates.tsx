@@ -61,21 +61,33 @@ export const AllTemplates: React.FC = () => {
                   gridTemplateColumns: "repeat(6, 1fr)",
                 }}
               >
-                {CreateVideoInternals.FEATURED_TEMPLATES.map((template) => (
-                  <div
-                    key={template.cliId}
-                    style={{
-                      height: 80,
-                      width: 80,
-                      margin: 20,
-                      justifyContent: "center",
-                      alignItems: "center",
-                      display: "flex",
-                    }}
-                  >
-                    <IconForTemplate scale={1.6} template={template} />
-                  </div>
-                ))}
+                {CreateVideoInternals.FEATURED_TEMPLATES.map((template) => {
+                  if (template.cliId === "next") {
+                    // Delete duplicate
+                    return null;
+                  }
+
+                  if (template.cliId === "google-tts") {
+                    // Delete duplicate
+                    return null;
+                  }
+
+                  return (
+                    <div
+                      key={template.cliId}
+                      style={{
+                        height: 80,
+                        width: 80,
+                        margin: 20,
+                        justifyContent: "center",
+                        alignItems: "center",
+                        display: "flex",
+                      }}
+                    >
+                      <IconForTemplate scale={1.6} template={template} />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
