@@ -6,7 +6,7 @@ const serveUrl = await bundle({
 	entryPoint: 'src/index.ts',
 	webpackOverride,
 });
-console.log('Bundled');
+console.log('Bundled', serveUrl);
 
 const composition = await selectComposition({
 	id: 'react-svg',
