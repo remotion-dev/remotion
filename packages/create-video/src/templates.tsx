@@ -30,6 +30,7 @@ export type Template = {
 		| 'javascript'
 		| 'blank'
 		| 'next'
+		| 'next-pages-dir'
 		| 'remix'
 		| 'three'
 		| 'still'
@@ -41,6 +42,7 @@ export type Template = {
 		| 'overlay'
 		| 'stargazer';
 	defaultBranch: string;
+	featuredOnHomePage: string | null;
 } & DynamicTemplate;
 
 type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
@@ -67,12 +69,31 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'hello-world' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: 'Hello World',
 	},
 	{
-		homePageLabel: 'Next.js',
-		shortName: 'Next.js',
+		homePageLabel: 'Next.js (Pages dir)',
+		shortName: 'Next.js (Pages dir)',
 		org: 'remotion-dev',
-		repoName: 'template-next',
+		repoName: 'template-next-pages-dir',
+		description: 'SaaS template for video generation apps',
+		longerDescription:
+			'A SaaS starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build an app that can generate videos.',
+		promoVideo: {
+			width: 1280,
+			height: 720,
+			muxId: 'RufnZIJZh6L1MAaeG02jnXuM9pK96tNuHRxmXHbWqCBI',
+		},
+		cliId: 'next-pages-dir' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+	},
+	{
+		homePageLabel: 'Next.js (App dir)',
+		shortName: 'Next.js (App dir)',
+		org: 'remotion-dev',
+		repoName: 'template-next-app-dir',
 		description: 'SaaS template for video generation apps',
 		longerDescription:
 			'A SaaS starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build an app that can generate videos.',
@@ -84,6 +105,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'next' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: 'Next.js',
 	},
 	{
 		homePageLabel: 'Blank',
@@ -101,6 +123,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'blank' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: 'Blank',
 	},
 	{
 		homePageLabel: 'JavaScript',
@@ -118,6 +141,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'javascript' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: 'JavaScript',
 	},
 	{
 		homePageLabel: 'Remix',
@@ -135,6 +159,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'remix' as const,
 		type: 'image' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: '3D',
@@ -152,6 +177,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'three' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Stills',
@@ -169,6 +195,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'still' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Azure)',
@@ -186,6 +213,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'tts' as const,
 		type: 'video' as const,
 		defaultBranch: 'master',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Text-To-Speech (Google)',
@@ -203,6 +231,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'google-tts' as const,
 		type: 'video' as const,
 		defaultBranch: 'master',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Audiogram',
@@ -220,6 +249,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'audiogram' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Skia',
@@ -236,6 +266,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'skia' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Tailwind',
@@ -253,8 +284,8 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'tailwind' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
-
 	{
 		homePageLabel: 'Overlay',
 		shortName: 'Overlay',
@@ -276,6 +307,7 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'overlay' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Stargazer',
@@ -293,5 +325,6 @@ export const FEATURED_TEMPLATES: Template[] = [
 		cliId: 'stargazer' as const,
 		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 ].filter(truthy);
