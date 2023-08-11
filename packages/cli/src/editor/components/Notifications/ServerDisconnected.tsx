@@ -1,4 +1,5 @@
 import React, {useContext} from 'react';
+import favicon1 from '../../../../web/favicon1.png';
 import {StudioServerConnectionCtx} from '../../helpers/client-id';
 
 const container: React.CSSProperties = {
@@ -47,6 +48,24 @@ export const ServerDisconnected: React.FC = () => {
 	if (pageIsGoingToReload) {
 		return null;
 	}
+
+	console.log('imported favicon1: ', favicon1);
+	const fav = document.getElementById('favicon') as HTMLLinkElement;
+	const canvas = document.createElement('canvas');
+	const context = canvas.getContext('2d');
+	const img = document.createElement('img');
+	img.src = favicon1;
+	img.onload = () => {
+		context?.drawImage(img, 0, 0);
+	};
+
+	console.log('image: ', img);
+	if (fav) {
+		fav.href = canvas.toDataURL('image/png');
+	}
+
+	console.log('fav', fav);
+	// fav?.setAttribute('href', favicon1);
 
 	return (
 		<div style={container} className="css-reset">
