@@ -74,10 +74,10 @@ export const indexHtml = ({
 		<link rel="preconnect" href="https://fonts.gstatic.com" />
 ${
 	includeFavicon
-		? `		<link rel="icon" type="image/png" href="/remotion.png" />\n`
+		? `		<link id="favicon" rel="icon" type="image/png" href="/remotion.png" />\n`
 		: ''
 }
-		<title>${title}</title>
+		<title>${title} </title>
 	</head>
 	<body>
     <script>window.remotion_numberOfAudioTags = ${numberOfAudioTags};</script>
