@@ -170,12 +170,6 @@ const config = (mode) => ({
               "data-splitbee-event-target": "Twitter",
             },
             {
-              label: "Instagram",
-              href: "https://instagram.com/remotion",
-              "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "Instagram",
-            },
-            {
               label: "YouTube",
               href: "https://youtube.com/@remotion_dev",
             },
@@ -184,6 +178,12 @@ const config = (mode) => ({
               href: "https://www.linkedin.com/company/remotion-dev/",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "LinkedIn",
+            },
+            {
+              label: "Instagram",
+              href: "https://instagram.com/remotion",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "Instagram",
             },
             {
               label: "TikTok",
