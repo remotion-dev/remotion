@@ -70,6 +70,12 @@ Minimum value: <MinimumFramesPerLambda />
 The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
 :::
 
+### `frameRange?`
+
+_optional_
+
+[Render a subset of a video](/docs/config#setframerange). Example: --frames=0-9 to select the first 10 frames. To render a still, use the still command.
+
 ### `serveUrl`
 
 A URL pointing to a Remotion project. Use [`deploySite()`](/docs/lambda/deploysite) to deploy a Remotion project.
