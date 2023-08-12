@@ -1381,28 +1381,28 @@ export const showcaseVideos: ShowcaseVideo[] = [
     },
   },
   {
-	title: "The Quiz Universe - Film Quiz",
-	type: "mux_video",
-	muxId: "8ho7TdmkzCVz5cbwU9dg2bZ00sDIAFgDNt8XF01IoDGo00",
-	description: "This film quiz presents the scene of the movies to guess before answering with additional film information including cast, crew, and production companies.",
-	height: 720,
-	width: 1280,
-	submittedOn: new Date("08-12-2023"),
-	links: [
-		{
-			type: "video",
-			url: "https://youtu.be/VIsThQDOEkU",
-		},
-		{
-			type: "website",
-			url: "www.TheQuizUniverse.com",
-		}
-	],
-	author: {
-		"url": "https://www.instagram.com/saint.reaux/",
-		"name": "Redando Ford"
-	}
-},
+    title: "The Quiz Universe - Film Quiz",
+    type: "mux_video",
+    muxId: "8ho7TdmkzCVz5cbwU9dg2bZ00sDIAFgDNt8XF01IoDGo00",
+    description: "This film quiz presents the scene of the movies to guess before answering with additional film information including cast, crew, and production companies.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-12-2023"),
+    links: [
+      {
+        type: "video",
+        url: "https://youtu.be/VIsThQDOEkU",
+      },
+      {
+        type: "website",
+        url: "www.TheQuizUniverse.com",
+      },
+    ],
+    author: {
+      "url": "https://www.instagram.com/saint.reaux/",
+      "name": "Redando Ford"
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
