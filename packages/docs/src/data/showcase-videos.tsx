@@ -1384,7 +1384,7 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "The Quiz Universe - Film Quiz",
     type: "mux_video",
     muxId: "8ho7TdmkzCVz5cbwU9dg2bZ00sDIAFgDNt8XF01IoDGo00",
-    description: "This film quiz presents the scene of the movies to guess before answering with additional film information including cast, crew, and production companies.",
+    description: "This film quiz presents the scenes of movies and highlights the cast and crew.",
     height: 720,
     width: 1280,
     submittedOn: new Date("08-12-2023"),
