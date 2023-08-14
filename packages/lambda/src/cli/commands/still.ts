@@ -63,7 +63,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 
 		if (!serveUrl.startsWith('https://')) {
 			throw Error(
-				'Passing the short-hand serveURL without composition name is currently not supported.\n Make sure to pass a composition name after the short-hand serveURL or pass the complete serveURL without composition name to get to choose between all compositions.'
+				'Passing the shorthand serveURL without composition name is currently not supported.\n Make sure to pass a composition name after the short-hand serveURL or pass the complete serveURL without composition name to get to choose between all compositions.'
 			);
 		}
 
