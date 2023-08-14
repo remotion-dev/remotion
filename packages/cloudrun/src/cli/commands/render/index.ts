@@ -67,7 +67,6 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	});
 
 	let composition: string = args[1];
-
 	if (!composition) {
 		Log.info('No compositions passed. Fetching compositions...');
 
@@ -84,7 +83,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 		const {compositionId} =
 			await CliInternals.getCompositionWithDimensionOverride({
-				args,
+				args: args.slice(1),
 				compositionIdFromUi: null,
 				browserExecutable,
 				chromiumOptions,
