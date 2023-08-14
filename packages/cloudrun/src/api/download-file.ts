@@ -1,4 +1,5 @@
-import fs from 'fs';
+import {RenderInternals} from '@remotion/renderer';
+import path from 'node:path';
 import {getCloudStorageClient} from './helpers/get-cloud-storage-client';
 
 /**
@@ -21,16 +22,12 @@ export const downloadFile = async ({
 
 	const fileName = gsutilURI.replace(`gs://${bucketName}/`, '');
 
-	// check if out folder exists, if not, create it
-	if (!fs.existsSync('out')) {
-		fs.mkdirSync('out');
-	}
-
-	const destination = `out/${downloadName}`;
+	const outputPath = path.resolve(process.cwd(), downloadName);
+	RenderInternals.ensureOutputDirectory(outputPath);
 
 	await cloudStorageClient.bucket(bucketName).file(fileName).download({
-		destination,
+		destination: outputPath,
 	});
 
-	return destination;
+	return {outputPath};
 };
