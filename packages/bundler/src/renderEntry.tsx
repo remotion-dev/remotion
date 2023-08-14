@@ -5,7 +5,11 @@ import type {render, unmountComponentAtNode} from 'react-dom';
 // We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
-import type {AnyComposition, BundleState} from 'remotion';
+import type {
+	AnyComposition,
+	BundleState,
+	VideoConfigWithSerializedProps,
+} from 'remotion';
 import {
 	continueRender,
 	delayRender,
@@ -272,7 +276,9 @@ if (typeof window !== 'undefined') {
 		return compositions;
 	};
 
-	window.getStaticCompositions = () => {
+	window.getStaticCompositions = (): Promise<
+		VideoConfigWithSerializedProps[]
+	> => {
 		const compositions = getUnevaluatedComps();
 
 		const inputProps =
@@ -283,7 +289,7 @@ if (typeof window !== 'undefined') {
 				: getInputProps() ?? {};
 
 		return Promise.all(
-			compositions.map(async (c) => {
+			compositions.map(async (c): Promise<VideoConfigWithSerializedProps> => {
 				const handle = delayRender(
 					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`
 				);
