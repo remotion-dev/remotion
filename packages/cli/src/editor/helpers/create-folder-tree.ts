@@ -1,6 +1,46 @@
-import type {AnyComposition, TFolder} from 'remotion';
+import type {AnyComposition, StaticFile, TFolder} from 'remotion';
 import type {CompositionSelectorItemType} from '../components/CompositionSelectorItem';
 import {openFolderKey} from './persist-open-folders';
+
+export type AssetFolder = {name: string; items: Structure};
+
+export type Structure = {
+	files: StaticFile[];
+	folders: AssetFolder[];
+};
+
+export const buildAssetFolderStructure = (files: StaticFile[]): Structure => {
+	const notInFolder = files.filter((f) => !f.name.includes('/'));
+	const inFolder = files.filter((f) => f.name.includes('/'));
+	const groupedByFolder: {[key: string]: StaticFile[]} = {};
+	for (const item of inFolder) {
+		const folderName = item.name.split('/')[0];
+		if (!groupedByFolder[folderName]) {
+			groupedByFolder[folderName] = [];
+		}
+
+		groupedByFolder[folderName].push(item);
+	}
+
+	return {
+		files: notInFolder,
+		folders: Object.keys(groupedByFolder).map((folderName) => {
+			const filesInFolder = groupedByFolder[folderName];
+			const filesWithoutFolderName = filesInFolder.map((f): StaticFile => {
+				return {
+					...f,
+					name: f.name.substring(folderName.length + 1),
+				};
+			});
+
+			return {
+				name: folderName,
+				items: buildAssetFolderStructure(filesWithoutFolderName),
+				expanded: false,
+			};
+		}),
+	};
+};
 
 export const splitParentIntoNameAndParent = (
 	name: string | null

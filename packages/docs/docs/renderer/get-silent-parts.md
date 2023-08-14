@@ -5,6 +5,15 @@ title: getSilentParts()
 crumb: "@remotion/renderer"
 ---
 
+import { YouTube } from "../../components/YouTube";
+
+<YouTube
+  minutes={2}
+  href="https://www.youtube.com/watch?v=OHrvTMgiXWc"
+  thumb="https://i.ytimg.com/vi/OHrvTMgiXWc/hqdefault.jpg?sqp=-oaymwEcCNACELwBSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLC35vhR28KkxA7Bxr5XRqbIsMxe3g"
+  title="Remove silence from videos programmatically"
+/>
+
 # getSilentParts()<AvailableFrom v="4.0.18" />
 
 :::note
