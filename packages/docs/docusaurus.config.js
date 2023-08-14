@@ -85,11 +85,11 @@ const config = (mode) => ({
           ],
         },
         {
-          href: "https://twitter.com/remotion",
-          label: "Twitter",
+          href: "https://github.com/remotion-dev/remotion",
+          label: "GitHub",
           position: "right",
           "data-splitbee-event": "External Link",
-          "data-splitbee-event-target": "Twitter",
+          "data-splitbee-event-target": "GitHub",
         },
         {
           href: "https://remotion.dev/discord",
@@ -99,11 +99,11 @@ const config = (mode) => ({
           "data-splitbee-event-target": "Discord",
         },
         {
-          href: "https://github.com/remotion-dev/remotion",
-          label: "GitHub",
+          href: "https://x.com/remotion",
+          label: "X",
           position: "right",
           "data-splitbee-event": "External Link",
-          "data-splitbee-event-target": "GitHub",
+          "data-splitbee-event-target": "X",
         },
       ].filter(Boolean),
     },
@@ -164,16 +164,10 @@ const config = (mode) => ({
               "data-splitbee-event-target": "Discord",
             },
             {
-              label: "Twitter",
-              href: "https://twitter.com/remotion",
+              label: "X",
+              href: "https://x.com/remotion",
               "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "Twitter",
-            },
-            {
-              label: "Instagram",
-              href: "https://instagram.com/remotion",
-              "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "Instagram",
+              "data-splitbee-event-target": "X",
             },
             {
               label: "YouTube",
@@ -184,6 +178,12 @@ const config = (mode) => ({
               href: "https://www.linkedin.com/company/remotion-dev/",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "LinkedIn",
+            },
+            {
+              label: "Instagram",
+              href: "https://instagram.com/remotion",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "Instagram",
             },
             {
               label: "TikTok",
