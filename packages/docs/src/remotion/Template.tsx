@@ -67,13 +67,19 @@ export const TemplateComp: React.FC<{
               alignItems: "center",
             }}
           >
-            <IconForTemplate scale={1.6} template={template} />{" "}
-            <div
-              style={{
-                width: 25,
-                display: "inline-block",
-              }}
-            />
+            {template.cliId === "next" ||
+            template.cliId === "next-pages-dir" ? null : (
+              <>
+                <IconForTemplate scale={1.6} template={template} />{" "}
+                <div
+                  style={{
+                    width: 25,
+                    display: "inline-block",
+                  }}
+                />
+              </>
+            )}
+
             {template.shortName}
           </div>
         </div>
