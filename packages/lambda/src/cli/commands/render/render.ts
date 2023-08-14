@@ -82,6 +82,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.'
 			);
 		}
+
 		const server = await RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
