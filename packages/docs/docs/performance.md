@@ -20,9 +20,13 @@ The following elements use the GPU:
 
 - WebGL content (Three.JS, Skia, P5.js, Mapbox etc.)
 - 2D Canvas graphics
-- GPU-accelerated CSS properties such as `box-shadow`, `filter: blur()` and `filter: drop-shadow`
+- GPU-accelerated CSS properties such as `box-shadow`, `text-shadow`, `background-image: linear-gradient()`, `background-image: radial-gradient()`, `filter: blur()`, `filter: drop-shadow()`
 
-If your content is part of that, read the [considerations about using the GPU](/docs/gpu).
+Compute instances in the cloud do not have a GPU and may take a long time to render these effects, leading to bottlenecks.
+
+Consider replacing those effects with a precomputed image for the best performance.
+
+Read the [considerations about using the GPU](/docs/gpu).
 
 ## Videos
 

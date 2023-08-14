@@ -10,7 +10,7 @@ Some types of content in Remotion can benefit from a GPU being available on the 
 
 - WebGL content (Three.JS, Skia, P5.js, Mapbox etc.)
 - 2D Canvas graphics
-- GPU-accelerated CSS properties such as `box-shadow`, `filter: blur()` and `filter: drop-shadow`
+- GPU-accelerated CSS properties such as `box-shadow`, `text-shadow`, `background-image: linear-gradient()`, `background-image: radial-gradient()`, `filter: blur()`, `filter: drop-shadow()`
 
 If a GPU is available, it should be enabled by default while in the Remotion Studio or Remotion Player. However, in headless mode, Chromium disables the GPU, leading to a significant
 slowdown in rendering time.

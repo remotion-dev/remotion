@@ -35,21 +35,21 @@ export const ChooseTemplate: React.FC = () => {
             maxWidth: "550px",
           }}
         >
-          {CreateVideoInternals.FEATURED_TEMPLATES.slice(0, 4).map(
-            (template) => {
-              return (
-                <Link
-                  key={template.cliId}
-                  style={{ textDecoration: "none" }}
-                  to={`/templates/${template.cliId}`}
-                >
-                  <TemplateIcon label={template.homePageLabel}>
-                    <IconForTemplate scale={0.7} template={template} />
-                  </TemplateIcon>
-                </Link>
-              );
-            }
-          )}
+          {CreateVideoInternals.FEATURED_TEMPLATES.filter(
+            (f) => f.featuredOnHomePage
+          ).map((template) => {
+            return (
+              <Link
+                key={template.cliId}
+                style={{ textDecoration: "none" }}
+                to={`/templates/${template.cliId}`}
+              >
+                <TemplateIcon label={template.featuredOnHomePage}>
+                  <IconForTemplate scale={0.7} template={template} />
+                </TemplateIcon>
+              </Link>
+            );
+          })}
           <MoreTemplatesButton />
         </div>
       </div>
