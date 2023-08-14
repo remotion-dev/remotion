@@ -33,6 +33,10 @@ Rendering using the serve URL shorthand:
 npx remotion lambda still testbed my-comp
 ```
 
+:::info
+If you are using the shorthand serve URL, you have to pass a composition ID. Available compositions can only be fetched if a complete serve URL is passed.
+:::
+
 Rendering the 10th frame of a composition:
 
 ```
