@@ -74,7 +74,7 @@ export const indexHtml = ({
 		<link rel="preconnect" href="https://fonts.gstatic.com" />
 ${
 	includeFavicon
-		? `		<link rel="icon" type="image/png" href="/remotion.png" />\n`
+		? `		<link id="__remotion_favicon" rel="icon" type="image/png" href="/remotion.png" />\n`
 		: ''
 }
 		<title>${title}</title>
