@@ -77,6 +77,11 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 		validateServeUrl(serveUrl);
 
+		if (!serveUrl.startsWith('https://')) {
+			throw Error(
+				'Passing the short-hand serveURL without composition name is currently not supported.\n Make sure to pass a composition name after the short-hand serveURL or pass the complete serveURL without composition name to get to choose between all compositions.'
+			);
+		}
 		const server = await RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
