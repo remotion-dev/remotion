@@ -49,24 +49,10 @@ export const ServerDisconnected: React.FC = () => {
 		return null;
 	}
 
-	console.log('imported favicon1: ', favicon1);
 	const fav = document.getElementById('favicon') as HTMLLinkElement;
-	const canvas = document.createElement('canvas');
-	const context = canvas.getContext('2d');
-	const img = document.createElement('img');
-	img.src = favicon1;
-	img.onload = () => {
-		context?.drawImage(img, 0, 0);
-	};
 
-	console.log('image: ', img);
-	if (fav) {
-		fav.href = canvas.toDataURL('image/png');
-	}
-
-	console.log('fav', fav);
-	// fav?.setAttribute('href', favicon1);
-
+	fav?.setAttribute('href', favicon1);
+	console.log('new link: ', fav);
 	return (
 		<div style={container} className="css-reset">
 			<div style={message}>
