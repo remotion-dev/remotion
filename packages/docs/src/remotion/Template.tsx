@@ -110,7 +110,7 @@ export const TemplateComp: React.FC<{
           >
             <div>
               <div style={{ opacity: 0.7 }}>Install this template</div>
-              <div>npx create-video --template {template.cliId}</div>
+              <div>npx create-video@latest --template {template.cliId}</div>
             </div>
           </div>
           <div
