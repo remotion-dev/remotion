@@ -42,4 +42,4 @@ execSync(
 	}
 );
 
-import './testlambdaintegrations.mjs';
+await import('./testlambdaintegrations.mjs');

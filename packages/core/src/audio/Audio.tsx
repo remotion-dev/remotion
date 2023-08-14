@@ -64,7 +64,11 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		return (
 			<Loop layout="none" durationInFrames={Math.floor(actualDuration)}>
-				<Audio {...propsOtherThanLoop} ref={ref} />
+				<Audio
+					_remotionInternalNeedsDurationCalculation
+					{...propsOtherThanLoop}
+					ref={ref}
+				/>
 			</Loop>
 		);
 	}
