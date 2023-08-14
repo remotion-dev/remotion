@@ -5,7 +5,11 @@ import type {render, unmountComponentAtNode} from 'react-dom';
 // We support both, but Webpack chooses both of them and normalizes them to "react-dom/client",
 // hence why we import the right thing all the time but need to differentiate here
 import ReactDOM from 'react-dom/client';
-import type {AnyComposition, BundleState, VideoConfig} from 'remotion';
+import type {
+	AnyComposition,
+	BundleState,
+	VideoConfigWithSerializedProps,
+} from 'remotion';
 import {
 	continueRender,
 	delayRender,
@@ -272,7 +276,9 @@ if (typeof window !== 'undefined') {
 		return compositions;
 	};
 
-	window.getStaticCompositions = (): Promise<VideoConfig[]> => {
+	window.getStaticCompositions = (): Promise<
+		VideoConfigWithSerializedProps[]
+	> => {
 		const compositions = getUnevaluatedComps();
 
 		const inputProps =
@@ -283,7 +289,7 @@ if (typeof window !== 'undefined') {
 				: getInputProps() ?? {};
 
 		return Promise.all(
-			compositions.map(async (c): Promise<VideoConfig> => {
+			compositions.map(async (c): Promise<VideoConfigWithSerializedProps> => {
 				const handle = delayRender(
 					`Running calculateMetadata() for composition ${c.id}. If you didn't want to evaluate this composition, use "selectComposition()" instead of "getCompositions()"`
 				);
@@ -297,7 +303,23 @@ if (typeof window !== 'undefined') {
 
 				const resolved = await Promise.resolve(comp);
 				continueRender(handle);
-				return resolved;
+				const {props, defaultProps, ...data} = resolved;
+
+				return {
+					...data,
+					serializedResolvedPropsWithCustomSchema:
+						Internals.serializeJSONWithDate({
+							data: props,
+							indent: undefined,
+							staticBase: null,
+						}).serializedString,
+					serializedDefaultPropsWithCustomSchema:
+						Internals.serializeJSONWithDate({
+							data: defaultProps,
+							indent: undefined,
+							staticBase: null,
+						}).serializedString,
+				};
 			})
 		);
 	};
@@ -351,7 +373,7 @@ if (typeof window !== 'undefined') {
 		};
 	};
 
-	window.siteVersion = '9';
+	window.siteVersion = '10';
 	window.remotion_version = VERSION;
 	window.remotion_setBundleMode = setBundleModeAndUpdate;
 }
