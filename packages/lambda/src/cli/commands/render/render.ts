@@ -89,6 +89,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		const {compositionId} =
 			await CliInternals.getCompositionWithDimensionOverride({
 				args,
+				args: args.slice(1),
 				compositionIdFromUi: null,
 				browserExecutable,
 				chromiumOptions,
