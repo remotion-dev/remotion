@@ -1384,7 +1384,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
     title: "The Quiz Universe - Film Quiz",
     type: "mux_video",
     muxId: "8ho7TdmkzCVz5cbwU9dg2bZ00sDIAFgDNt8XF01IoDGo00",
-    description: "This film quiz presents the scenes of movies and highlights the cast and crew.",
+    description:
+      "This film quiz presents the scenes of movies and highlights the cast and crew.",
     height: 720,
     width: 1280,
     submittedOn: new Date("08-12-2023"),
@@ -1399,8 +1400,8 @@ export const showcaseVideos: ShowcaseVideo[] = [
       },
     ],
     author: {
-      "url": "https://www.instagram.com/saint.reaux/",
-      "name": "Redando Ford"
+      url: "https://www.instagram.com/saint.reaux/",
+      name: "Redando Ford",
     },
   },
 ];
