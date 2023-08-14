@@ -169,7 +169,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		Log.info('');
 		Log.info('downloading file...');
 
-		const destination = await downloadFile({
+		const {outputPath: destination} = await downloadFile({
 			bucketName: res.bucketName,
 			gsutilURI: res.cloudStorageUri,
 			downloadName,
