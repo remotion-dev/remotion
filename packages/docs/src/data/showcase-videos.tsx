@@ -1380,6 +1380,30 @@ export const showcaseVideos: ShowcaseVideo[] = [
       name: "TVFoodMaps",
     },
   },
+  {
+    title: "The Quiz Universe - Film Quiz",
+    type: "mux_video",
+    muxId: "8ho7TdmkzCVz5cbwU9dg2bZ00sDIAFgDNt8XF01IoDGo00",
+    description:
+      "This film quiz presents the scenes of movies and highlights the cast and crew.",
+    height: 720,
+    width: 1280,
+    submittedOn: new Date("08-12-2023"),
+    links: [
+      {
+        type: "video",
+        url: "https://youtu.be/VIsThQDOEkU",
+      },
+      {
+        type: "website",
+        url: "www.TheQuizUniverse.com",
+      },
+    ],
+    author: {
+      url: "https://www.instagram.com/saint.reaux/",
+      name: "Redando Ford",
+    },
+  },
 ];
 
 const dateString = (date: Date) =>
