@@ -5,7 +5,7 @@ id: select-composition
 crumb: "@remotion/renderer"
 ---
 
-# selectComposition<AvailableFrom v="4.0.0"/>
+# selectComposition()<AvailableFrom v="4.0.0"/>
 
 Evaluates the list of compositions from a [Remotion Bundle](/docs/terminology#bundle) by evaluating the [Remotion Root](/docs/terminology#remotion-root) and evaluating `calculateMetadata()` on the specified [composition](/docs/terminology#composition).
 
