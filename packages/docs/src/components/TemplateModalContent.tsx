@@ -156,7 +156,7 @@ export const TemplateModalContent: React.FC<{
     setShowPackageManagers((s) => !s);
   }, []);
 
-  const npmCommand = `npx create-video --${template.cliId}`;
+  const npmCommand = `npx create-video@latest --${template.cliId}`;
   const yarnCommand = `yarn create video --${template.cliId}`;
   const pnpmCommand = `pnpm create video --${template.cliId}`;
 
