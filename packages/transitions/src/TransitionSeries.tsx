@@ -203,8 +203,8 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 			}
 
 			if (next && prev && nextProgress !== null && prevProgress !== null) {
-				const nextPresentation = next.props.presentation ?? makeSlidePresentation()
-				const prevPresentation = prev.props.presentation ?? makeSlidePresentation()
+				const nextPresentation = next.props.presentation ?? slide()
+				const prevPresentation = prev.props.presentation ?? slide()
 
 				const UppercaseNextPresentation = nextPresentation.component;
 				const UppercasePrevPresentation = prevPresentation.component;
@@ -230,7 +230,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 			}
 
 			if (prevProgress !== null && prev) {
-				const prevPresentation = prev.props.presentation ?? makeSlidePresentation()
+				const prevPresentation = prev.props.presentation ?? slide()
 
 				const UppercasePrevPresentation = prevPresentation.component;
 
@@ -247,7 +247,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 			}
 
 			if (nextProgress !== null && next) {
-				const nextPresentation = next.props.presentation ?? makeSlidePresentation()
+				const nextPresentation = next.props.presentation ?? slide()
 
 				const UppercaseNextPresentation = nextPresentation.component;
 
@@ -291,7 +291,7 @@ TransitionSeries.Transition = TransitionSeriesTransition;
 export {TransitionSeries};
 
 import React from 'react';
-import { makeSlidePresentation } from './presentations/Slide.js';
+import { slide } from './presentations/Slide.js';
 
 type ReactChildArray = ReturnType<typeof React.Children.toArray>;
 

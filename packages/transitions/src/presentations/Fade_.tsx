@@ -27,7 +27,7 @@ const FadePresentation: React.FC<
 	);
 };
 
-export const makeFadePresentation = (
+export const fade = (
 	props: FadeProps
 ): TransitionPresentation<FadeProps> => {
 	return {

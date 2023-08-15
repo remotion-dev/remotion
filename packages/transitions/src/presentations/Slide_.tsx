@@ -82,7 +82,7 @@ const SlidePresentation: React.FC<
 	);
 };
 
-export const makeSlidePresentation = (
+export const slide = (
 	props?: SlideProps
 ): TransitionPresentation<SlideProps> => {
 	return {
