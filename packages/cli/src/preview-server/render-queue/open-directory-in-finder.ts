@@ -8,7 +8,6 @@ export const openDirectoryInFinder = (
 	allowedDirectory: string
 ) => {
 	const resolved = path.resolve(allowedDirectory, dirToOpen);
-	console.log('dirToOpen: ', dirToOpen);
 	const relativeToProcessCwd = path.relative(allowedDirectory, resolved);
 	if (relativeToProcessCwd.startsWith('..')) {
 		throw new Error(`Not allowed to open ${relativeToProcessCwd}`);
