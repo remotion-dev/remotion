@@ -1,9 +1,9 @@
 // Presentations
-export {makeFadePresentation} from './presentations/Fade';
-export {makeSlidePresentation} from './presentations/Slide';
-export {makeWipePresentation} from './presentations/Wipe';
+export {makeFadePresentation} from './presentations/Fade.js';
+export {makeSlidePresentation} from './presentations/Slide.js';
+export {makeWipePresentation} from './presentations/Wipe.js';
 // Timings
-export {makeLinearTiming} from './timings/linear';
-export {makeSpringTiming} from './timings/spring';
+export {makeLinearTiming} from './timings/linear.js';
+export {makeSpringTiming} from './timings/spring.js';
 // Component
-export {TransitionSeries} from './TransitionSeries';
+export {TransitionSeries} from './TransitionSeries.js';

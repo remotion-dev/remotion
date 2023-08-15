@@ -3,7 +3,7 @@ import {AbsoluteFill} from 'remotion';
 import type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
-} from '../types';
+} from '../types.js';
 
 // No options: https://www.totaltypescript.com/the-empty-object-type-in-typescript
 type FadeProps = Record<string, never>;

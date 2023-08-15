@@ -3,7 +3,7 @@ import {AbsoluteFill, random} from 'remotion';
 import type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
-} from '../types';
+} from '../types.js';
 
 const makePathIn = (progress: number, origin: WipeDirection) => {
 	switch (origin) {
