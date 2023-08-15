@@ -1,5 +1,5 @@
 import {
-	makeEasingTiming,
+	makeLinearTiming,
 	makeSpringTiming,
 	SlideTransition,
 	TransitionSeries,
@@ -26,7 +26,7 @@ export const BasicTransition: React.FC = () => {
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={WipePresentation}
-				timing={makeEasingTiming({
+				timing={makeLinearTiming({
 					durationInFrames: 30,
 					easing: Easing.bounce,
 				})}
