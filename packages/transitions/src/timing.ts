@@ -1,7 +1,7 @@
-import type {ExtrapolateType, SpringConfig} from 'remotion';
+import type {SpringConfig} from 'remotion';
 import {interpolate, measureSpring, spring} from 'remotion';
 
-export type NewTransitionTiming = {
+export type TransitionTiming = {
 	getDurationInFrames: (options: {fps: number}) => number;
 	getProgress: (options: {frame: number; fps: number}) => number;
 };
@@ -10,7 +10,7 @@ export const makeSpringTiming = (options: {
 	config: Partial<SpringConfig>;
 	durationInFrames?: number;
 	durationRestThreshold?: number;
-}): NewTransitionTiming => {
+}): TransitionTiming => {
 	return {
 		getDurationInFrames: ({fps}) => {
 			if (options.durationInFrames) {
@@ -23,70 +23,37 @@ export const makeSpringTiming = (options: {
 				fps,
 			});
 		},
-		getProgress: ({fps, frame}) =>
-			spring({
-				config: options.config,
-				durationRestThreshold: options.durationInFrames,
+		getProgress: ({fps, frame}) => {
+			return springWithRoundUpIfThreshold({
 				fps,
 				frame,
-			}),
+				config: options.config,
+				durationInFrames: options.durationInFrames,
+				durationRestThreshold: options.durationRestThreshold,
+			});
+		},
 	};
 };
 
 export const makeEasingTiming = (options: {
 	durationInFrames: number;
 	easing?: ((input: number) => number) | undefined;
-	extrapolateLeft?: ExtrapolateType | undefined;
-	extrapolateRight?: ExtrapolateType | undefined;
-}): NewTransitionTiming => {
+}): TransitionTiming => {
 	return {
 		getDurationInFrames: () => {
-			return 1;
+			return options.durationInFrames;
 		},
 		getProgress: ({frame}) => {
 			return interpolate(frame, [0, options.durationInFrames], [0, 1], {
 				easing: options.easing,
-				extrapolateLeft: options.extrapolateLeft,
-				extrapolateRight: options.extrapolateRight,
+				extrapolateLeft: 'clamp',
+				extrapolateRight: 'clamp',
 			});
 		},
 	};
 };
 
 const SPRING_THRESHOLD = 0.001;
-
-export type TransitionTiming =
-	| {
-			type: 'spring';
-			config: Partial<SpringConfig>;
-	  }
-	| {
-			type: 'timing';
-			duration: number;
-			easing?: ((input: number) => number) | undefined;
-	  };
-
-export const getTransitionDuration = ({
-	timing,
-	fps,
-}: {
-	timing: TransitionTiming;
-	fps: number;
-}): number => {
-	if (timing.type === 'spring') {
-		return measureSpring({
-			fps,
-			config: timing.config,
-			threshold: SPRING_THRESHOLD,
-		});
-	}
-
-	if (timing.type === 'timing') {
-		return timing.duration;
-	}
-
-	throw new TypeError('Unsupported transition type: ' + JSON.stringify(timing));
-};
 
 export const springWithRoundUpIfThreshold: typeof spring = (args) => {
 	if (args.to || args.from) {
@@ -113,20 +80,5 @@ export const getProgress = ({
 	fps: number;
 	timing: TransitionTiming;
 }): number => {
-	if (timing.type === 'spring') {
-		return springWithRoundUpIfThreshold({
-			fps,
-			frame,
-			config: timing.config,
-		});
-	}
-
-	if (timing.type === 'timing') {
-		return interpolate(frame, [0, timing.duration - 1], [0, 1], {
-			// TODO: Easing.bounce kind of weird?
-			easing: timing.easing ?? undefined,
-		});
-	}
-
-	throw new Error('timing not implemented');
+	return timing.getProgress({frame, fps});
 };
