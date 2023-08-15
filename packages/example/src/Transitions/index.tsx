@@ -40,7 +40,7 @@ export const BasicTransition: React.FC = () => {
 				timing={makeSpringTiming({config: {}})}
 			/>
 			<TransitionSeries.Sequence durationInFrames={60}>
-				<Letter color="pink"> ?</Letter>
+				<Letter color="pink">B</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={makeWipePresentation({origin: 'from-bottom-left'})}
@@ -50,7 +50,7 @@ export const BasicTransition: React.FC = () => {
 				})}
 			/>
 			<TransitionSeries.Sequence durationInFrames={60}>
-				<Letter color="green">B</Letter>
+				<Letter color="green">C</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={makeFadePresentation({})}
@@ -59,7 +59,7 @@ export const BasicTransition: React.FC = () => {
 				})}
 			/>
 			<TransitionSeries.Sequence durationInFrames={60}>
-				<Letter color="green">Fade</Letter>
+				<Letter color="green">D</Letter>
 			</TransitionSeries.Sequence>
 			{new Array(10).fill(true).map((_, i) => (
 				<>
@@ -76,7 +76,7 @@ export const BasicTransition: React.FC = () => {
 						<Letter
 							color={interpolateColors(random(i), [0, 1], ['red', 'blue'])}
 						>
-							{'ABCDEFHIJKLMNO'[i]}
+							{'EFHIJKLMNO'[i]}
 						</Letter>
 					</TransitionSeries.Sequence>
 				</>
