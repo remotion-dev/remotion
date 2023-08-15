@@ -1,5 +1,59 @@
-import type {SpringConfig} from 'remotion';
+import type {ExtrapolateType, SpringConfig} from 'remotion';
 import {interpolate, measureSpring, spring} from 'remotion';
+
+export type NewTransitionTiming = {
+	getDurationInFrames: (options: {fps: number}) => number;
+	getProgress: (options: {frame: number; fps: number}) => number;
+};
+
+export const makeSpringTiming = (options: {
+	config: Partial<SpringConfig>;
+	durationInFrames?: number;
+	durationRestThreshold?: number;
+}): NewTransitionTiming => {
+	return {
+		getDurationInFrames: ({fps}) => {
+			if (options.durationInFrames) {
+				return options.durationInFrames;
+			}
+
+			return measureSpring({
+				config: options.config,
+				threshold: options.durationRestThreshold,
+				fps,
+			});
+		},
+		getProgress: ({fps, frame}) =>
+			spring({
+				config: options.config,
+				durationRestThreshold: options.durationInFrames,
+				fps,
+				frame,
+			}),
+	};
+};
+
+export const makeEasingTiming = (options: {
+	durationInFrames: number;
+	easing?: ((input: number) => number) | undefined;
+	extrapolateLeft?: ExtrapolateType | undefined;
+	extrapolateRight?: ExtrapolateType | undefined;
+}): NewTransitionTiming => {
+	return {
+		getDurationInFrames: () => {
+			return 1;
+		},
+		getProgress: ({frame}) => {
+			return interpolate(frame, [0, options.durationInFrames], [0, 1], {
+				easing: options.easing,
+				extrapolateLeft: options.extrapolateLeft,
+				extrapolateRight: options.extrapolateRight,
+			});
+		},
+	};
+};
+
+const SPRING_THRESHOLD = 0.001;
 
 export type TransitionTiming =
 	| {
@@ -11,8 +65,6 @@ export type TransitionTiming =
 			duration: number;
 			easing?: ((input: number) => number) | undefined;
 	  };
-
-const SPRING_THRESHOLD = 0.001;
 
 export const getTransitionDuration = ({
 	timing,
