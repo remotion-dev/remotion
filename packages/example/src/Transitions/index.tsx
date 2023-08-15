@@ -23,7 +23,7 @@ export const BasicTransition: React.FC = () => {
 				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				preset={{
+				presentation={{
 					type: 'triangle',
 				}}
 				timing={makeEasingTiming({
@@ -46,7 +46,7 @@ export const BasicTransition: React.FC = () => {
 				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				preset={{
+				presentation={{
 					type: 'slide',
 				}}
 				timing={makeSpringTiming({

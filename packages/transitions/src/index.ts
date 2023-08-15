@@ -1,2 +1,2 @@
+export * from './presentations/Triangle';
 export * from './TransitionSeries';
-export * from './Triangle';
