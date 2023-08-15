@@ -1,9 +1,9 @@
 import React from 'react';
-import {SlideTransition} from './Slide';
+import {SlideTransition} from './presentations/Slide';
+import {TriangleTransition} from './presentations/Triangle';
 import type {TransitionDirection} from './transition-direction';
-import {TriangleTransition} from './Triangle';
 
-export type TransitionPreset =
+export type TransitionPresentation =
 	| {
 			type: 'triangle';
 	  }
@@ -15,7 +15,7 @@ export const GenericTransition: React.FC<{
 	progress: number;
 	children: React.ReactNode;
 	direction: TransitionDirection;
-	preset: TransitionPreset;
+	preset: TransitionPresentation;
 }> = ({progress, children, direction, preset}) => {
 	if (preset.type === 'triangle') {
 		return (

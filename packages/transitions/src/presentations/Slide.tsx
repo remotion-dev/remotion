@@ -1,6 +1,6 @@
 import React, {useRef, useState} from 'react';
 import {AbsoluteFill, random} from 'remotion';
-import type {TransitionDirection} from './transition-direction';
+import type {TransitionDirection} from '../transition-direction';
 
 export const SlideTransition: React.FC<{
 	progress: number;
