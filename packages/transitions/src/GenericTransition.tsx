@@ -1,6 +1,6 @@
 import React from 'react';
 import {SlideTransition} from './Slide';
-import {TransitionDirection} from './transition-direction';
+import type {TransitionDirection} from './transition-direction';
 import {TriangleTransition} from './Triangle';
 
 export type TransitionPreset =

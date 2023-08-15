@@ -58,6 +58,7 @@ import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Timeout} from './Timeout';
 import {PageTransition} from './Transitions/PageTransition';
+import {BasicTransition} from './Transitions';
 
 if (alias !== 'alias') {
 	throw new Error('should support TS aliases');
@@ -1028,7 +1029,7 @@ export const Index: React.FC = () => {
 			<Folder name="Transitions">
 				<Composition
 					id="transition"
-					component={PageTransition}
+					component={BasicTransition}
 					fps={30}
 					height={1080}
 					durationInFrames={300}

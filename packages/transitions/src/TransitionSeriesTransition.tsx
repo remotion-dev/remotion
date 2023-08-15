@@ -1,6 +1,6 @@
-import React from 'react';
-import {TransitionPreset} from './GenericTransition';
-import {TransitionTiming} from './timing';
+import type React from 'react';
+import type {TransitionPreset} from './GenericTransition';
+import type {TransitionTiming} from './timing';
 
 export type TransitionSeriesTransitionProps = {
 	timing: TransitionTiming;

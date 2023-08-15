@@ -1,18 +1,12 @@
-import {Children, FC, PropsWithChildren, useMemo} from 'react';
-import {
-	Internals,
-	Sequence,
-	SequenceProps,
-	useCurrentFrame,
-	useVideoConfig,
-} from 'remotion';
+import type {FC, PropsWithChildren} from 'react';
+import {Children, useMemo} from 'react';
+import type {SequenceProps} from 'remotion';
+import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {flattenChildren} from './flatten-children';
 import {GenericTransition} from './GenericTransition';
 import {getProgress, getTransitionDuration} from './timing';
-import {
-	TransitionSeriesTransition,
-	TransitionSeriesTransitionProps,
-} from './TransitionSeriesTransition';
+import type {TransitionSeriesTransitionProps} from './TransitionSeriesTransition';
+import {TransitionSeriesTransition} from './TransitionSeriesTransition';
 
 type SeriesSequenceProps = PropsWithChildren<
 	{
