@@ -1,15 +1,7 @@
 import React from 'react';
 import {SlideTransition} from './presentations/Slide';
 import {TriangleTransition} from './presentations/Triangle';
-import type {TransitionDirection} from './transition-direction';
-
-export type TransitionPresentation =
-	| {
-			type: 'triangle';
-	  }
-	| {
-			type: 'slide';
-	  };
+import type {TransitionDirection, TransitionPresentation} from './types';
 
 export const GenericTransition: React.FC<{
 	progress: number;

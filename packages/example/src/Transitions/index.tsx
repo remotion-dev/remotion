@@ -1,5 +1,8 @@
-import {makeSpringTiming, TransitionSeries} from '@remotion/transitions';
-import {makeEasingTiming} from '@remotion/transitions/src/timing';
+import {
+	makeEasingTiming,
+	makeSpringTiming,
+	TransitionSeries,
+} from '@remotion/transitions';
 import {AbsoluteFill, Easing} from 'remotion';
 
 export const BasicTransition: React.FC = () => {

@@ -4,8 +4,8 @@ import type {SequenceProps} from 'remotion';
 import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {flattenChildren} from './flatten-children';
 import {GenericTransition} from './GenericTransition';
-import type {TransitionSeriesTransitionProps} from './TransitionSeriesTransition';
 import {TransitionSeriesTransition} from './TransitionSeriesTransition';
+import type {TransitionSeriesTransitionProps} from './types';
 
 type SeriesSequenceProps = PropsWithChildren<
 	{

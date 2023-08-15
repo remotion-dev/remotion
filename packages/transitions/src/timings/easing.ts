@@ -1,9 +1,5 @@
 import {interpolate} from 'remotion';
-
-export type TransitionTiming = {
-	getDurationInFrames: (options: {fps: number}) => number;
-	getProgress: (options: {frame: number; fps: number}) => number;
-};
+import type {TransitionTiming} from '../types';
 
 export const makeEasingTiming = (options: {
 	durationInFrames: number;

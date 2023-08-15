@@ -1,6 +1,6 @@
 import type {SpringConfig} from 'remotion';
 import {measureSpring, spring} from 'remotion';
-import type {TransitionTiming} from '../timing';
+import type {TransitionTiming} from '../types';
 
 export const makeSpringTiming = (options: {
 	config: Partial<SpringConfig>;
