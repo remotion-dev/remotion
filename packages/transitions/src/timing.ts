@@ -1,4 +1,5 @@
-import {interpolate, measureSpring, spring, SpringConfig} from 'remotion';
+import type {SpringConfig} from 'remotion';
+import {interpolate, measureSpring, spring} from 'remotion';
 
 export type TransitionTiming =
 	| {
