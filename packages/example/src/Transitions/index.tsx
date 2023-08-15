@@ -1,13 +1,13 @@
 import {
-	makeFadePresentation,
 	makeLinearTiming,
-	makeSlidePresentation,
 	makeSpringTiming,
-	makeWipePresentation,
 	TransitionSeries,
 } from '@remotion/transitions';
 import React from 'react';
 import {AbsoluteFill, Easing, interpolateColors, random} from 'remotion';
+import {makeSlidePresentation} from '@remotion/transitions/Slide';
+import {makeWipePresentation} from '@remotion/transitions/Wipe';
+import {makeFadePresentation} from '@remotion/transitions/Fade';
 
 const Letter: React.FC<{
 	children: React.ReactNode;
