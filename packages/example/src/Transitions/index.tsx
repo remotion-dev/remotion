@@ -5,9 +5,9 @@ import {
 } from '@remotion/transitions';
 import React from 'react';
 import {AbsoluteFill, Easing, interpolateColors, random} from 'remotion';
-import {slide} from '@remotion/transitions/Slide';
-import {wipe} from '@remotion/transitions/Wipe';
-import {fade} from '@remotion/transitions/Fade';
+import {slide} from '@remotion/transitions/slide';
+import {fade} from '@remotion/transitions/fade';
+import {wipe} from '@remotion/transitions/wipe';
 
 const Letter: React.FC<{
 	children: React.ReactNode;
