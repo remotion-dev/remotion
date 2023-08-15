@@ -107,12 +107,17 @@ export const CompositionSelector: React.FC = () => {
 						let currentParentName: string | null = parentFolderName;
 
 						while (currentFolder) {
+							if (currentParentName?.includes('/')) {
+								const splittedParentName = currentParentName.split('/');
+								currentParentName = splittedParentName.pop() ?? null;
+							}
+
 							const key = openFolderKey(currentFolder, currentParentName);
 							foldersExpandedState[key] = true;
 
-							const parentFolder = folders.find(
-								(f) => f.name === currentParentName && currentParentName
-							);
+							const parentFolder = folders.find((f) => {
+								return f.name === currentParentName && currentParentName;
+							});
 							currentFolder = parentFolder?.name ?? null;
 							currentParentName = parentFolder?.parent ?? null;
 						}
