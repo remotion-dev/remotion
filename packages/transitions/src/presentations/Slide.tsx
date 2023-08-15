@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useState} from 'react';
 import {AbsoluteFill, random} from 'remotion';
 import type {TransitionDirection} from '../types';
 
@@ -7,7 +7,6 @@ export const SlideTransition: React.FC<{
 	children: React.ReactNode;
 	direction: TransitionDirection;
 }> = ({children, progress, direction}) => {
-	const ref = useRef<SVGSVGElement>(null);
 	const width = 1;
 	const height = 1;
 	const [clipId] = useState(() => String(random(null)));
@@ -46,7 +45,6 @@ export const SlideTransition: React.FC<{
 			</AbsoluteFill>
 			<AbsoluteFill>
 				<svg
-					ref={ref}
 					viewBox={`0 0 ${width} ${height}`}
 					style={{
 						width: '100%',

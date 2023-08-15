@@ -1,4 +1,4 @@
-import {useRef, useState} from 'react';
+import {useState} from 'react';
 import {AbsoluteFill, random} from 'remotion';
 import type {TransitionPresentation} from '../types';
 
@@ -7,7 +7,6 @@ export const TriangleTransition: TransitionPresentation = ({
 	progress,
 	direction,
 }) => {
-	const ref = useRef<SVGSVGElement>(null);
 	const width = 1;
 	const height = 1;
 	const [clipId] = useState(() => String(random(null)));
@@ -44,7 +43,6 @@ export const TriangleTransition: TransitionPresentation = ({
 			</AbsoluteFill>
 			<AbsoluteFill>
 				<svg
-					ref={ref}
 					viewBox={`0 0 ${width} ${height}`}
 					style={{
 						width: '100%',
