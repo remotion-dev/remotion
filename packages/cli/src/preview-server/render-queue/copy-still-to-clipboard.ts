@@ -27,8 +27,14 @@ const deriveBinaryPath = (binary: string) => {
 const isWayland = () => process.env.XDG_SESSION_TYPE === 'wayland';
 
 const run = (cmd: string) => {
-	return new Promise<void>((resolve) => {
-		exec(cmd, (...args: any) => resolve(args)); // type this better before PR
+	return new Promise<void>((resolve, reject) => {
+		exec(cmd, (error) => {
+			if (error) {
+				reject(error);
+			} else {
+				resolve();
+			}
+		});
 	});
 };
 
