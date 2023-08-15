@@ -1,12 +1,9 @@
-('use-strict');
+import {exec} from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-require('./scripts/set-permissions');
-
-const recursionLimit = 5;
-
 const findClosestPackageJson = (): string | null => {
+	const recursionLimit = 5;
 	let currentDir = __dirname;
 	let possiblePackageJson = '';
 	for (let i = 0; i < recursionLimit; i++) {
@@ -21,8 +18,6 @@ const findClosestPackageJson = (): string | null => {
 
 	return null;
 };
-
-const {exec} = require('child_process');
 
 const deriveBinaryPath = (binary: string) => {
 	const closestPackageJson = findClosestPackageJson() as string;
@@ -47,6 +42,7 @@ const copyLinux = (file: string) =>
 
 const copyOsx = (file: string) => {
 	const binaryPath = deriveBinaryPath('osx-copy-image');
+	exec(`chmod +x "${binaryPath}"`);
 	return run(`${binaryPath} "${file}"`);
 };
 
