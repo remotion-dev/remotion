@@ -9,6 +9,7 @@ import type {
 import {Internals} from 'remotion';
 import type {ApiRoutes} from '../../../preview-server/api-types';
 import type {
+	CopyStillToClipboardRequest,
 	OpenInFileExplorerRequest,
 	RenderJob,
 } from '../../../preview-server/render-queue/job';
@@ -210,6 +211,13 @@ export const openInFileExplorer = ({directory}: {directory: string}) => {
 		directory,
 	};
 	return callApi('/api/open-in-file-explorer', body);
+};
+
+export const copyToClipboard = ({directory}: {directory: string}) => {
+	const body: CopyStillToClipboardRequest = {
+		directory,
+	};
+	return callApi('/api/copy-still-to-clipboard', body);
 };
 
 export const removeRenderJob = (job: RenderJob) => {

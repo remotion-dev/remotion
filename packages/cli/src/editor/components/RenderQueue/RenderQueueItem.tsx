@@ -1,6 +1,7 @@
 import React from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {Row, Spacing} from '../layout';
+import {RenderQueueCopyToClipboard} from './RenderQueueCopyToClipboard';
 import {RenderQueueError} from './RenderQueueError';
 import {RenderQueueCancelButton} from './RenderQueueItemCancelButton';
 import {RenderQueueItemStatus} from './RenderQueueItemStatus';
@@ -66,6 +67,7 @@ export const RenderQueueItem: React.FC<{
 				<RenderQueueRemoveItem job={job} />
 			)}
 			{job.status === 'done' ? <RenderQueueOpenInFinderItem job={job} /> : null}
+			{job.status === 'done' ? <RenderQueueCopyToClipboard job={job} /> : null}
 		</Row>
 	);
 };

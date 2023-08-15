@@ -143,6 +143,10 @@ export type OpenInFileExplorerRequest = {
 	directory: string;
 };
 
+export type CopyStillToClipboardRequest = {
+	directory: string;
+};
+
 export type SubscribeToFileExistenceRequest = {
 	file: string;
 	clientId: string;
