@@ -1,66 +1,96 @@
-import type {Configuration} from 'webpack';
-import {enableLegacyRemotionConfig} from './config';
-
 import {
 	SharedAudioContext,
 	SharedAudioContextProvider,
-} from './audio/shared-audio-tags';
+} from './audio/shared-audio-tags.js';
 import {
 	CanUseRemotionHooks,
 	CanUseRemotionHooksProvider,
-} from './CanUseRemotionHooks';
-import type {CompProps} from './Composition';
+} from './CanUseRemotionHooks.js';
+import {ClipComposition, type CompProps} from './Composition.js';
 import type {
-	CompositionManagerContext,
-	TAsset,
 	TCompMetadata,
 	TComposition,
+	TRenderAsset,
 	TSequence,
-} from './CompositionManager';
-import {CompositionManager, compositionsRef} from './CompositionManager';
-import * as CSSUtils from './default-css';
-import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render';
-import type {RemotionEnvironment} from './get-environment';
-import {getRemotionEnvironment} from './get-environment';
-import {getPreviewDomElement} from './get-preview-dom-element';
-import {portalNode} from './portal-node';
-import {PrefetchProvider} from './prefetch-state';
-import {getRoot, waitForRoot} from './register-root';
-import {RemotionRoot} from './RemotionRoot';
-import {SequenceContext} from './Sequence';
-import {ENV_VARIABLES_ENV_NAME, setupEnvVariables} from './setup-env-variables';
+} from './CompositionManager.js';
+import {compositionsRef} from './CompositionManager.js';
+import type {CompositionManagerContext} from './CompositionManagerContext.js';
+import {CompositionManager} from './CompositionManagerContext.js';
+import * as CSSUtils from './default-css.js';
+import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render.js';
+import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
+import type {RemotionEnvironment} from './get-environment.js';
+import {
+	getRemotionEnvironment,
+	useRemotionEnvironment,
+} from './get-environment.js';
+import {
+	getPreviewDomElement,
+	REMOTION_STUDIO_CONTAINER_ELEMENT,
+} from './get-preview-dom-element.js';
+import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
+import {
+	DATE_TOKEN,
+	deserializeJSONWithCustomFields,
+	FILE_TOKEN,
+	serializeJSONWithDate,
+} from './input-props-serialization.js';
+import {processColor} from './interpolate-colors.js';
+import {IsPlayerContextProvider, useIsPlayer} from './is-player.js';
+import {NativeLayersProvider} from './NativeLayers.js';
+import {NonceContext} from './nonce.js';
+import {portalNode} from './portal-node.js';
+import {PrefetchProvider} from './prefetch-state.js';
+import {usePreload} from './prefetch.js';
+import {getRoot, waitForRoot} from './register-root.js';
+import {RemotionRoot} from './RemotionRoot.js';
+import {RenderAssetManager} from './RenderAssetManager.js';
+import {resolveVideoConfig} from './resolve-video-config.js';
+import {
+	ResolveCompositionConfig,
+	resolveCompositionsRef,
+	useResolvedVideoConfig,
+} from './ResolveCompositionConfig.js';
+import {SequenceContext} from './SequenceContext.js';
+import {SequenceManager} from './SequenceManager.js';
+import {setupEnvVariables} from './setup-env-variables.js';
 import type {
 	SetTimelineContextValue,
 	TimelineContextValue,
-} from './timeline-position-state';
-import * as TimelinePosition from './timeline-position-state';
-import {truthy} from './truthy';
-import {useLazyComponent} from './use-lazy-component';
-import {useUnsafeVideoConfig} from './use-unsafe-video-config';
-import {useVideo} from './use-video';
+} from './timeline-position-state.js';
+import * as TimelinePosition from './timeline-position-state.js';
+import {
+	persistCurrentFrame,
+	useTimelineSetFrame,
+} from './timeline-position-state.js';
+import {truthy} from './truthy.js';
+import {useLazyComponent} from './use-lazy-component.js';
+import {useUnsafeVideoConfig} from './use-unsafe-video-config.js';
+import {useVideo} from './use-video.js';
+import {validateFrame} from './validate-frame.js';
 import {
 	invalidCompositionErrorMessage,
 	isCompositionIdValid,
-} from './validation/validate-composition-id';
-import {validateDimension} from './validation/validate-dimensions';
-import {validateDurationInFrames} from './validation/validate-duration-in-frames';
-import {validateFps} from './validation/validate-fps';
-import {validateOffthreadVideoImageFormat} from './validation/validate-offthreadvideo-image-format';
-import {DurationsContextProvider} from './video/duration-state';
+} from './validation/validate-composition-id.js';
+import {validateDefaultAndInputProps} from './validation/validate-default-props.js';
+import {validateDimension} from './validation/validate-dimensions.js';
+import {validateDurationInFrames} from './validation/validate-duration-in-frames.js';
+import {validateFps} from './validation/validate-fps.js';
+import {DurationsContextProvider} from './video/duration-state.js';
 import type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
-} from './volume-position-state';
+} from './volume-position-state.js';
 import {
 	MediaVolumeContext,
 	SetMediaVolumeContext,
 	useMediaMutedState,
 	useMediaVolumeState,
-} from './volume-position-state';
+} from './volume-position-state.js';
 import {
 	RemotionContextProvider,
 	useRemotionContexts,
-} from './wrap-remotion-context';
+} from './wrap-remotion-context.js';
 const Timeline = TimelinePosition;
 
 // Mark them as Internals so use don't assume this is public
@@ -69,6 +99,7 @@ export const Internals = {
 	useUnsafeVideoConfig,
 	Timeline,
 	CompositionManager,
+	SequenceManager,
 	RemotionRoot,
 	useVideo,
 	getRoot,
@@ -81,11 +112,11 @@ export const Internals = {
 	RemotionContextProvider,
 	CSSUtils,
 	setupEnvVariables,
-	ENV_VARIABLES_ENV_NAME,
 	MediaVolumeContext,
 	SetMediaVolumeContext,
 	validateDurationInFrames,
 	validateFps,
+	validateDefaultAndInputProps,
 	validateDimension,
 	getRemotionEnvironment,
 	SharedAudioContext,
@@ -97,28 +128,43 @@ export const Internals = {
 	DELAY_RENDER_CALLSTACK_TOKEN,
 	portalNode,
 	waitForRoot,
-	validateOffthreadVideoImageFormat,
 	CanUseRemotionHooksProvider,
 	CanUseRemotionHooks,
-	enableLegacyRemotionConfig,
 	PrefetchProvider,
 	DurationsContextProvider,
-};
-
-type WebpackConfiguration = Configuration;
-
-type WebpackOverrideFn = (
-	currentConfiguration: WebpackConfiguration
-) => WebpackConfiguration;
+	IsPlayerContextProvider,
+	useIsPlayer,
+	useRemotionEnvironment,
+	validateFrame,
+	EditorPropsProvider,
+	EditorPropsContext,
+	usePreload,
+	processColor,
+	NonceContext,
+	resolveVideoConfig,
+	useResolvedVideoConfig,
+	resolveCompositionsRef,
+	ResolveCompositionConfig,
+	REMOTION_STUDIO_CONTAINER_ELEMENT,
+	RenderAssetManager,
+	bundleName: 'bundle.js',
+	bundleMapName: 'bundle.js.map',
+	persistCurrentFrame,
+	useTimelineSetFrame,
+	serializeJSONWithDate,
+	deserializeJSONWithCustomFields,
+	FILE_TOKEN,
+	DATE_TOKEN,
+	NativeLayersProvider,
+	ClipComposition,
+} as const;
 
 export type {
 	TComposition,
 	Timeline,
 	TCompMetadata,
 	TSequence,
-	WebpackOverrideFn,
-	WebpackConfiguration,
-	TAsset,
+	TRenderAsset as TAsset,
 	TimelineContextValue,
 	SetTimelineContextValue,
 	CompProps,
@@ -126,4 +172,5 @@ export type {
 	MediaVolumeContextValue,
 	SetMediaVolumeContextValue,
 	RemotionEnvironment,
+	SerializedJSONWithCustomFields,
 };

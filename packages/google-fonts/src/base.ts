@@ -11,12 +11,21 @@ export type FontInfo = {
   fonts: Record<string, Record<string, Record<string, string>>>;
 };
 
+/**
+ * @description Load a Google Font for use in Remotion.
+ * @param meta
+ * @param {string} style The font style we want to load. While each font has a different set of styles, common options are: normal, italic etc.
+ * @param {Array} options
+ * @returns An object with the following properties: fontFamily, unicodeRanges, fonts
+ * @see [Documentation](https://www.remotion.dev/docs/google-fonts/load-font)
+ */
 export const loadFonts = (
   meta: FontInfo,
   style?: string,
   options?: {
     weights?: string[];
     subsets?: string[];
+    document?: Document;
   }
 ): {
   fontFamily: FontInfo["fontFamily"];
@@ -25,6 +34,11 @@ export const loadFonts = (
 } => {
   const styles = style ? [style] : Object.keys(meta.fonts);
   for (const style of styles) {
+    // Don't load fonts on server
+    if (typeof FontFace === "undefined") {
+      continue;
+    }
+
     if (!meta.fonts[style]) {
       throw new Error(
         `The font ${meta.fontFamily} does not have a style ${style}`
@@ -82,7 +96,7 @@ export const loadFonts = (
         fontFace
           .load()
           .then(() => {
-            document.fonts.add(fontFace);
+            (options?.document ?? document).fonts.add(fontFace);
             continueRender(handle);
           })
           .catch((err) => {

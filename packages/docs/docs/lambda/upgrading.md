@@ -10,7 +10,7 @@ import {Prerelease} from "../../components/PrereleaseVersion"
 - Determine the newest version from the [Releases page](https://github.com/remotion-dev/remotion/releases).
 - Upgrade all packages to the newest version (`@remotion/lambda`, but also `remotion`, `@remotion/cli` etc.)
 
-<Prerelease onlySnippet/>
+<Prerelease onlySnippet packageName="@remotion/lambda"/>
 
 - (Optional): Remove the old versions of the function:
 
@@ -31,7 +31,7 @@ npx remotion lambda functions deploy
 - Update the site:
 
 ```
-npx remotion sites create src/index.ts --site-name=my-name
+npx remotion lambda sites create src/index.ts --site-name=my-name
 ```
 
 :::info

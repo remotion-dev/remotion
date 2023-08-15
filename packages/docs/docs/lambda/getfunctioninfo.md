@@ -6,7 +6,7 @@ slug: /lambda/getfunctioninfo
 crumb: "Lambda API"
 ---
 
-Gets information about a function given it's name and region.
+Gets information about a function given its name and region.
 
 To get a list of deployed functions, use [`getFunctions()`](/docs/lambda/getfunctions).
 
@@ -45,7 +45,8 @@ The name of the function.
 
 ## Return value
 
-A promise resolving to an object with the following properties:
+If the function does not exist, an error is thrown by the AWS SDK.
+If the function exists, promise resolving to an object with the following properties is returned:
 
 ### `memorySizeInMb`
 

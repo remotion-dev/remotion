@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unknown-property */
 import { useThree } from "@react-three/fiber";
 import React, { useEffect, useMemo } from "react";
 import { interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";

@@ -1,10 +1,14 @@
 import {BundlerInternals} from '@remotion/bundler';
-import {createReadStream, statSync} from 'fs';
-import type {IncomingMessage, ServerResponse} from 'http';
-import path from 'path';
-import {URLSearchParams} from 'url';
+import {RenderInternals} from '@remotion/renderer';
+import {createReadStream, existsSync, statSync} from 'node:fs';
+import type {IncomingMessage, ServerResponse} from 'node:http';
+import path from 'node:path';
+import {URLSearchParams} from 'node:url';
+import {ConfigInternals} from '../config';
 import {getNumberOfSharedAudioTags} from '../config/number-of-shared-audio-tags';
 import {parsedCli} from '../parse-command-line';
+import {allApiRoutes} from './api-routes';
+import type {ApiHandler, ApiRoutes} from './api-types';
 import {getFileSource} from './error-overlay/react-overlay/utils/get-file-source';
 import {
 	getDisplayNameForEditor,
@@ -13,21 +17,13 @@ import {
 } from './error-overlay/react-overlay/utils/open-in-editor';
 import type {SymbolicatedStackFrame} from './error-overlay/react-overlay/utils/stack-frame';
 import {getPackageManager} from './get-package-manager';
+import {handleRequest} from './handler';
 import type {LiveEventsServer} from './live-events';
+import {parseRequestBody} from './parse-body';
 import {getProjectInfo} from './project-info';
+import {fetchFolder, getFiles} from './public-folder';
+import {getRenderQueue} from './render-queue/queue';
 import {serveStatic} from './serve-static';
-import {isUpdateAvailableWithTimeout} from './update-available';
-
-const handleUpdate = async (
-	remotionRoot: string,
-	_: IncomingMessage,
-	response: ServerResponse
-) => {
-	const data = await isUpdateAvailableWithTimeout(remotionRoot);
-	response.setHeader('content-type', 'application/json');
-	response.writeHead(200);
-	response.end(JSON.stringify(data));
-};
 
 const editorGuess = guessEditor();
 
@@ -44,19 +40,49 @@ const handleFallback = async ({
 	response,
 	getCurrentInputProps,
 	getEnvVariables,
+	publicDir,
 }: {
 	remotionRoot: string;
 	hash: string;
 	response: ServerResponse;
+	publicDir: string;
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 }) => {
 	const [edit] = await editorGuess;
 	const displayName = getDisplayNameForEditor(edit ? edit.command : null);
 
+	const defaultJpegQuality = ConfigInternals.getJpegQuality();
+	const defaultScale = ConfigInternals.getScale();
+	const logLevel = ConfigInternals.Logging.getLogLevel();
+	const defaultCodec = ConfigInternals.getOutputCodecOrUndefined();
+	const concurrency = RenderInternals.getActualConcurrency(
+		ConfigInternals.getConcurrency()
+	);
+	const muted = ConfigInternals.getMuted();
+	const enforceAudioTrack = ConfigInternals.getEnforceAudioTrack();
+	const pixelFormat = ConfigInternals.getPixelFormat();
+	const proResProfile = ConfigInternals.getProResProfile() ?? 'hq';
+	const audioBitrate = ConfigInternals.getAudioBitrate();
+	const videoBitrate = ConfigInternals.getVideoBitrate();
+	const everyNthFrame = ConfigInternals.getEveryNthFrame();
+	const numberOfGifLoops = ConfigInternals.getNumberOfGifLoops();
+	const delayRenderTimeout = ConfigInternals.getCurrentPuppeteerTimeout();
+	const audioCodec = ConfigInternals.getAudioCodec();
+	const stillImageFormat = ConfigInternals.getUserPreferredStillImageFormat();
+	const videoImageFormat = ConfigInternals.getUserPreferredVideoImageFormat();
+	const disableWebSecurity = ConfigInternals.getChromiumDisableWebSecurity();
+	const headless = ConfigInternals.getChromiumHeadlessMode();
+	const ignoreCertificateErrors = ConfigInternals.getIgnoreCertificateErrors();
+	const openGlRenderer = ConfigInternals.getChromiumOpenGlRenderer();
+
+	const maxConcurrency = RenderInternals.getMaxConcurrency();
+	const minConcurrency = RenderInternals.getMinConcurrency();
+
 	response.setHeader('content-type', 'text/html');
 	response.writeHead(200);
 	const packageManager = getPackageManager(remotionRoot, undefined);
+	fetchFolder({publicDir, staticHash: hash});
 	response.end(
 		BundlerInternals.indexHtml({
 			staticHash: hash,
@@ -65,13 +91,43 @@ const handleFallback = async ({
 			envVariables: getEnvVariables(),
 			inputProps: getCurrentInputProps(),
 			remotionRoot,
-			previewServerCommand:
+			studioServerCommand:
 				packageManager === 'unknown' ? null : packageManager.startCommand,
+			renderQueue: getRenderQueue(),
 			numberOfAudioTags:
 				parsedCli['number-of-shared-audio-tags'] ??
 				getNumberOfSharedAudioTags(),
+			publicFiles: getFiles(),
 			includeFavicon: true,
-			title: 'Remotion Preview',
+			title: 'Remotion Studio',
+			renderDefaults: {
+				jpegQuality: defaultJpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
+				scale: defaultScale ?? 1,
+				logLevel,
+				codec: defaultCodec ?? 'h264',
+				concurrency,
+				maxConcurrency,
+				minConcurrency,
+				stillImageFormat:
+					stillImageFormat ?? RenderInternals.DEFAULT_STILL_IMAGE_FORMAT,
+				videoImageFormat:
+					videoImageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
+				muted,
+				enforceAudioTrack,
+				proResProfile,
+				pixelFormat,
+				audioBitrate,
+				videoBitrate,
+				everyNthFrame,
+				numberOfGifLoops,
+				delayRenderTimeout,
+				audioCodec,
+				disableWebSecurity,
+				headless,
+				ignoreCertificateErrors,
+				openGlRenderer,
+			},
+			publicFolderExists: existsSync(publicDir) ? publicDir : null,
 		})
 	);
 };
@@ -128,19 +184,13 @@ const handleOpenInEditor = async (
 	if (req.method === 'OPTIONS') {
 		res.statusCode = 200;
 		res.end();
+		return;
 	}
 
 	try {
-		const b = await new Promise<string>((_resolve) => {
-			let data = '';
-			req.on('data', (chunk) => {
-				data += chunk;
-			});
-			req.on('end', () => {
-				_resolve(data.toString());
-			});
-		});
-		const body = JSON.parse(b) as {stack: SymbolicatedStackFrame};
+		const body = (await parseRequestBody(req)) as {
+			stack: SymbolicatedStackFrame;
+		};
 		if (!('stack' in body)) {
 			throw new TypeError('Need to pass stack');
 		}
@@ -196,7 +246,8 @@ export const handleRoutes = ({
 	getCurrentInputProps,
 	getEnvVariables,
 	remotionRoot,
-	userPassedPublicDir,
+	entryPoint,
+	publicDir,
 }: {
 	hash: string;
 	hashPrefix: string;
@@ -206,13 +257,10 @@ export const handleRoutes = ({
 	getCurrentInputProps: () => object;
 	getEnvVariables: () => Record<string, string>;
 	remotionRoot: string;
-	userPassedPublicDir: string | null;
+	entryPoint: string;
+	publicDir: string;
 }) => {
 	const url = new URL(request.url as string, 'http://localhost');
-
-	if (url.pathname === '/api/update') {
-		return handleUpdate(remotionRoot, request, response);
-	}
 
 	if (url.pathname === '/api/project-info') {
 		return handleProjectInfo(remotionRoot, request, response);
@@ -231,6 +279,21 @@ export const handleRoutes = ({
 		return handleOpenInEditor(remotionRoot, request, response);
 	}
 
+	for (const [key, value] of Object.entries(allApiRoutes)) {
+		if (url.pathname === key) {
+			return handleRequest({
+				remotionRoot,
+				entryPoint,
+				handler: value as ApiHandler<
+					ApiRoutes[keyof ApiRoutes]['Request'],
+					ApiRoutes[keyof ApiRoutes]['Response']
+				>,
+				request,
+				response,
+			});
+		}
+	}
+
 	if (url.pathname === '/remotion.png') {
 		return handleFavicon(request, response);
 	}
@@ -240,9 +303,6 @@ export const handleRoutes = ({
 	}
 
 	if (url.pathname.startsWith(hash)) {
-		const publicDir = userPassedPublicDir
-			? path.resolve(remotionRoot, userPassedPublicDir)
-			: path.join(remotionRoot, 'public');
 		return serveStatic(publicDir, hash, request, response);
 	}
 
@@ -256,5 +316,6 @@ export const handleRoutes = ({
 		response,
 		getCurrentInputProps,
 		getEnvVariables,
+		publicDir,
 	});
 };

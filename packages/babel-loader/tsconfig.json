@@ -1,10 +1,9 @@
 {
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
-		"composite": true,
 		"rootDir": "src",
 		"outDir": "dist"
 	},
 	"include": ["src"],
-	"references": [{"path": "../core"}]
+	"references": [{"path": "../core"}, {"path": "../bundler"}]
 }

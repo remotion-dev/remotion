@@ -1,4 +1,5 @@
-import {getRemotionEnvironment} from '../get-environment';
+import {getRemotionEnvironment} from '../get-environment.js';
+import {deserializeJSONWithCustomFields} from '../input-props-serialization.js';
 
 let didWarnSSRImport = false;
 
@@ -35,6 +36,6 @@ export const getInputProps = () => {
 		return {};
 	}
 
-	const parsed = JSON.parse(param);
+	const parsed = deserializeJSONWithCustomFields(param);
 	return parsed;
 };

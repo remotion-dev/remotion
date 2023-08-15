@@ -10,7 +10,13 @@ Retrieves a list of functions that Remotion deployed to AWS Lambda in a certain 
 
 The parameter `compatibleOnly` determines whether only functions that are compatible with the installed version of Remotion Lambda should be returned.
 
-To get information about only a single function, use [`getFunctionInfo()`](/docs/lambda/getfunctioninfo)
+:::note
+The Lambda function is versioned and the version of the function must match the version of the `@remotion/lambda` package. So if you upgrade Remotion, you should deploy a new function or otherwise you might get an empty array from this function.
+:::
+
+To get information about only a single function, use [`getFunctionInfo()`](/docs/lambda/getfunctioninfo).
+
+If you are sure that a function exists, you can also guess the name of it using [`speculateFunctionName()`](/docs/lambda/speculatefunctionname) and save an API call to Lambda.
 
 ## Example
 
@@ -18,7 +24,7 @@ To get information about only a single function, use [`getFunctionInfo()`](/docs
 // @module: esnext
 // @target: es2017
 
-import { getFunctions } from "@remotion/lambda";
+import { getFunctions } from "@remotion/lambda/client";
 
 const info = await getFunctions({
   region: "eu-central-1",
@@ -34,6 +40,10 @@ for (const fn of info) {
 }
 ```
 
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
+
 ## Argument
 
 An object containing the following properties:
@@ -44,7 +54,7 @@ The [AWS region](/docs/lambda/region-selection) that you would like to query.
 
 ### `compatibleOnly`
 
-If true, only functions compatible with the currently installed Remotion Lambda version are returned.
+If `true`, only functions that match the version of the current Remotion Lambda package are returned. If `false`, all functions are returned.
 
 ## Return value
 
@@ -61,10 +71,6 @@ The amount of memory allocated to the function.
 ### `diskSizeInMb`
 
 The amount of ephemereal disk storage allocated to the function.
-
-### `functionName`
-
-The name of the function.
 
 ### `version`
 

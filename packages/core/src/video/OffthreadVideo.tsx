@@ -1,19 +1,39 @@
 import React, {useCallback} from 'react';
-import {getRemotionEnvironment} from '../get-environment';
-import {Sequence} from '../Sequence';
-import {validateMediaProps} from '../validate-media-props';
-import {validateStartFromProps} from '../validate-start-from-props';
-import {validateOffthreadVideoImageFormat} from '../validation/validate-offthreadvideo-image-format';
-import {OffthreadVideoForRendering} from './OffthreadVideoForRendering';
-import type {OffthreadVideoProps, RemotionMainVideoProps} from './props';
-import {VideoForDevelopment} from './VideoForDevelopment';
+import {useRemotionEnvironment} from '../get-environment.js';
+import {Sequence} from '../Sequence.js';
+import {validateMediaProps} from '../validate-media-props.js';
+import {validateStartFromProps} from '../validate-start-from-props.js';
+import {OffthreadVideoForRendering} from './OffthreadVideoForRendering.js';
+import type {OffthreadVideoProps, RemotionMainVideoProps} from './props.js';
+import {VideoForDevelopment} from './VideoForDevelopment.js';
 
+/**
+ * @description This method imports and displays a video, similar to <Video />. During rendering, it extracts the exact frame from the video and displays it in an <img> tag
+ * @see [Documentation](https://www.remotion.dev/docs/offthreadvideo)
+ */
 export const OffthreadVideo: React.FC<
 	Omit<OffthreadVideoProps & RemotionMainVideoProps, 'loop'>
 > = (props) => {
+	// Should only destruct `startFrom` and `endAt` from props,
+	// rest gets drilled down
 	const {startFrom, endAt, ...otherProps} = props;
+	const environment = useRemotionEnvironment();
 
 	const onDuration = useCallback(() => undefined, []);
+
+	if (typeof props.src !== 'string') {
+		throw new TypeError(
+			`The \`<OffthreadVideo>\` tag requires a string for \`src\`, but got ${JSON.stringify(
+				props.src
+			)} instead.`
+		);
+	}
+
+	if (props.imageFormat) {
+		throw new TypeError(
+			`The \`<OffthreadVideo>\` tag does no longer accept \`imageFormat\`. Use the \`transparent\` prop if you want to render a transparent video.`
+		);
+	}
 
 	if (typeof startFrom !== 'undefined' || typeof endAt !== 'undefined') {
 		validateStartFromProps(startFrom, endAt);
@@ -33,17 +53,18 @@ export const OffthreadVideo: React.FC<
 	}
 
 	validateMediaProps(props, 'Video');
-	validateOffthreadVideoImageFormat(props.imageFormat);
 
-	if (getRemotionEnvironment() === 'rendering') {
+	if (environment === 'rendering') {
 		return <OffthreadVideoForRendering {...otherProps} />;
 	}
+
+	const {transparent, ...withoutTransparent} = otherProps;
 
 	return (
 		<VideoForDevelopment
 			onDuration={onDuration}
 			onlyWarnForMediaSeekingError
-			{...otherProps}
+			{...withoutTransparent}
 		/>
 	);
 };

@@ -7,10 +7,14 @@ crumb: "@remotion/player"
 
 The following algorithm is used for calculating the size of the Player:
 
-1. By default, the Player is as big as the composition height, defined by the `compositionHeight` and `compositionWidth` props.
-1. If `height` and `width` is defined using the `style` property, the player will assume the dimensions you have passed.
-1. If a `height` is passed using the `style` property, the player will assume that height, and calculate the width based on the aspect ratio of the video.
-1. If `width` is passed using the `style` property, the player will assume that width and calculate the height based on the aspect ration of the video.
+<Step>1</Step> By default, the Player is as big as the composition height, defined by the <code>compositionHeight</code> and <code>compositionWidth</code> props. <br/>
+<Step>2</Step> If <code>height</code> and <code>width</code> is defined using the <code>style</code> property, the player will assume the dimensions you have passed. <br/>
+<Step>3</Step> If a <code>height</code> is passed using the <code>style</code> property, the player will assume that height, and calculate the width based on the aspect ratio of the video. <br/>
+<Step>4</Step> If <code>width</code> is passed using the <code>style</code> property, the player will assume that width and calculate the height based on the aspect ration of the video. <br/><br/>
+
+:::note
+Before v3.3.43, if case <InlineStep>3</InlineStep> or <InlineStep>4</InlineStep> happened, a layout shift would occur during mounting because the element was measured. Using a newer version of Remotion will fix this, because it uses the `aspect-ratio` CSS property.
+:::
 
 ## Full width
 

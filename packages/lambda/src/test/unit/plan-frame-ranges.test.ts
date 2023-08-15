@@ -30,3 +30,13 @@ test('Should remove ranges that are not going to render', () => {
 		[22, 22],
 	]);
 });
+
+test('Should not have a bug that was reported', () => {
+	const planned = planFrameRanges({
+		framesPerLambda: 138,
+		everyNthFrame: 1,
+		frameRange: [15000, 35559],
+	});
+	const last = planned.chunks[planned.chunks.length - 1];
+	expect(last[1]).toBe(35559);
+});

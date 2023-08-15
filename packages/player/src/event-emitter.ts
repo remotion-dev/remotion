@@ -18,8 +18,20 @@ type RateChangeEventPayload = {
 	playbackRate: number;
 };
 
+type ScaleChangeEventPayload = {
+	scale: number;
+};
+
+type VolumeChangeEventPayload = {
+	volume: number;
+};
+
 type FullscreenChangeEventPayload = {
 	isFullscreen: boolean;
+};
+
+type MuteChangeEventPayload = {
+	isMuted: boolean;
 };
 
 type PlayerStateEventMap = {
@@ -27,11 +39,14 @@ type PlayerStateEventMap = {
 	pause: undefined;
 	play: undefined;
 	ratechange: RateChangeEventPayload;
+	scalechange: ScaleChangeEventPayload;
+	volumechange: VolumeChangeEventPayload;
 	ended: undefined;
 	error: ErrorPayload;
 	timeupdate: TimeUpdateEventPayload;
 	frameupdate: FrameUpdateEventPayload;
 	fullscreenchange: FullscreenChangeEventPayload;
+	mutechange: MuteChangeEventPayload;
 };
 
 type ThumbnailStateEventMap = {
@@ -60,10 +75,13 @@ export class PlayerEmitter {
 		pause: [],
 		play: [],
 		ratechange: [],
+		scalechange: [],
 		seeked: [],
 		timeupdate: [],
 		frameupdate: [],
 		fullscreenchange: [],
+		volumechange: [],
+		mutechange: [],
 	};
 
 	addEventListener<Q extends PlayerEventTypes>(
@@ -77,9 +95,9 @@ export class PlayerEmitter {
 		name: Q,
 		callback: CallbackListener<Q>
 	) {
-		this.listeners[name] = (
-			this.listeners[name] as CallbackListener<PlayerEventTypes>[]
-		).filter((l) => l !== callback);
+		this.listeners[name] = this.listeners[name].filter(
+			(l) => l !== callback
+		) as PlayerListeners[Q];
 	}
 
 	private dispatchEvent<T extends PlayerEventTypes>(
@@ -99,6 +117,12 @@ export class PlayerEmitter {
 		});
 	}
 
+	dispatchVolumeChange(volume: number) {
+		this.dispatchEvent('volumechange', {
+			volume,
+		});
+	}
+
 	dispatchPause() {
 		this.dispatchEvent('pause', undefined);
 	}
@@ -111,9 +135,15 @@ export class PlayerEmitter {
 		this.dispatchEvent('ended', undefined);
 	}
 
-	dispatchRatechange(playbackRate: number) {
+	dispatchRateChange(playbackRate: number) {
 		this.dispatchEvent('ratechange', {
 			playbackRate,
+		});
+	}
+
+	dispatchScaleChange(scale: number) {
+		this.dispatchEvent('scalechange', {
+			scale,
 		});
 	}
 
@@ -131,8 +161,12 @@ export class PlayerEmitter {
 		this.dispatchEvent('frameupdate', event);
 	}
 
-	dispatchFullscreenChangeUpdate(event: FullscreenChangeEventPayload) {
+	dispatchFullscreenChange(event: FullscreenChangeEventPayload) {
 		this.dispatchEvent('fullscreenchange', event);
+	}
+
+	dispatchMuteChange(event: MuteChangeEventPayload) {
+		this.dispatchEvent('mutechange', event);
 	}
 }
 

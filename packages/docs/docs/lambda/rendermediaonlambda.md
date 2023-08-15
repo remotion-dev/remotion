@@ -7,15 +7,18 @@ crumb: "Lambda API"
 
 import { MinimumFramesPerLambda } from "../../components/lambda/default-frames-per-lambda";
 
-Triggers a render on a lambda given a composition and a lambda function.
+Kicks off a render process on Remotion Lambda. The progress can be tracked using [getRenderProgress()](/docs/lambda/getrenderprogress).
+
+Requires a [function](/docs/lambda/deployfunction) to already be deployed to execute the render.  
+A [site](/docs/lambda/deploysite) or a [Serve URL](/docs/terminology#serve-url) needs to be specified to determine what will be rendered.
 
 ## Example
 
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { renderMediaOnLambda } from "@remotion/lambda";
 // ---cut---
+import { renderMediaOnLambda } from "@remotion/lambda/client";
 
 const { bucketName, renderId } = await renderMediaOnLambda({
   region: "us-east-1",
@@ -26,6 +29,10 @@ const { bucketName, renderId } = await renderMediaOnLambda({
   codec: "h264",
 });
 ```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
 
 ## Arguments
 
@@ -50,7 +57,7 @@ One of:
 The name of the deployed Lambda function.
 Use [`deployFunction()`](/docs/lambda/deployfunction) to create a new function and [`getFunctions()`](/docs/lambda/getfunctions) to obtain currently deployed Lambdas.
 
-### `framesPerLambda`
+### `framesPerLambda?`
 
 _optional_
 
@@ -62,6 +69,12 @@ Minimum value: <MinimumFramesPerLambda />
 :::note
 The `framesPerLambda` parameter cannot result in more than 200 functions being spawned. See: [Concurrency](/docs/lambda/concurrency)
 :::
+
+### `frameRange?`
+
+_optional_
+
+Render a subset of a video. Example: `[0, 9]` to select the first 10 frames. To render a still, use [`renderStillOnLambda()`](/docs/lambda/renderstillonlambda).
 
 ### `serveUrl`
 
@@ -85,21 +98,40 @@ Video codecs `h264` and `vp8` are supported, `prores` is supported since `v3.2.0
 
 Audio codecs `mp3`, `aac` and `wav` are also supported.
 
+The option `h264-mkv` has been renamed to just `h264` since `v3.3.34`. Use `h264` to get the same behavior.
+
 See also [`renderMedia() -> codec`](/docs/renderer/render-media#codec).
 
-### `forceHeight`
+### `audioCodec?`
 
-_available from v3.2.40_
+_optional_
+_"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
+
+Choose the encoding of your audio.
+
+- Each Lambda chunk might actually choose an uncompressed codec and convert it in the final encoding stage to prevent audio artifacts.
+- The default is dependent on the chosen `codec`.
+- Choose `pcm-16` if you need uncompressed audio.
+- Not all video containers support all audio codecs.
+- This option takes precedence if the `codec` option also specifies an audio codec.
+
+Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
+
+### `forceHeight?`
+
+_optional, available from v3.2.40_
 
 Overrides default composition height.
 
-### `forceWidth`
+### `forceWidth?`
 
-_available from v3.2.40_
+_optional, available from v3.2.40_
 
 Overrides default composition width.
 
-### `muted`
+### `muted?`
+
+_optional_
 
 Disables audio output. See also [`renderMedia() -> muted`](/docs/renderer/render-media#muted).
 
@@ -109,31 +141,47 @@ _optional since v3.2.27_
 
 See [`renderMedia() -> imageFormat`](/docs/renderer/render-media#imageformat).
 
-### `crf`
+### `crf?`
+
+_optional_
 
 See [`renderMedia() -> crf`](/docs/renderer/render-media#crf).
 
-### `envVariables`
+### `envVariables?`
+
+_optional_
 
 See [`renderMedia() -> envVariables`](/docs/renderer/render-media#envvariables).
 
-### `pixelFormat`
+### `pixelFormat?`
+
+_optional_
 
 See [`renderMedia() -> pixelFormat`](/docs/renderer/render-media#pixelformat).
 
-### `proResProfile`
+### `proResProfile?`
+
+_optional_
 
 See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile).
 
-### `quality`
+### `jpegQuality`
 
-See [`renderMedia() -> quality`](/docs/renderer/render-media#quality).
+See [`renderMedia() -> jpegQuality`](/docs/renderer/render-media#jpegquality).
 
-### `audioBitrate`
+### ~~`quality`~~
+
+Renamed to `jpegQuality` in v4.0.0.
+
+### `audioBitrate?`
+
+_optional_
 
 See [`renderMedia() -> audioBitrate`](/docs/renderer/render-media#audiobitrate).
 
-### `videoBitrate`
+### `videoBitrate?`
+
+_optional_
 
 See [`renderMedia() -> videoBitrate`](/docs/renderer/render-media#videobitrate).
 
@@ -144,13 +192,17 @@ _optional since v3.2.27, default `1`_
 How often a chunk may be retried to render in case the render fails.
 If a rendering of a chunk is failed, the error will be reported in the [`getRenderProgress()`](/docs/lambda/getrenderprogress) object and retried up to as many times as you specify using this option.
 
-### `scale`
+:::note
+A retry only gets executed if a the error is in the [list of flaky errors](https://github.com/remotion-dev/remotion/blob/main/packages/lambda/src/shared/is-flaky-error.ts).
+:::
+
+### `scale?`
 
 _optional_
 
 Scales the output dimensions by a factor. See [Scaling](/docs/scaling) to learn more about this feature.
 
-### `outName`
+### `outName?`
 
 _optional_
 
@@ -167,12 +219,6 @@ It can either be:
 _optional_
 
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
-
-### `chromiumOptions?`
-
-_optional, available from v2.6.5_
-
-Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
 ### `concurrencyPerLambda?`
 
@@ -201,6 +247,10 @@ Either:
 
 - `{"type": "play-in-browser"}` - the default. The video will play in the browser.
 - `{"type": "download", fileName: null}` or `{"type": "download", fileName: "download.mp4"}` - a `Content-Disposition` header will be added which makes the browser download the file. You can optionally override the filename.
+
+### `chromiumOptions?`
+
+Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
 #### `disableWebSecurity`
 
@@ -231,7 +281,7 @@ Accepted values:
 The default for Lambda is `swangle`, but `null` elsewhere.
 :::
 
-### `overwrite`
+### `overwrite?`
 
 _available from v3.2.25_
 
@@ -239,7 +289,15 @@ If a custom out name is specified and a file already exists at this key in the S
 
 An existing file at the output S3 key will conflict with the render and must be deleted beforehand. If this setting is `false` and a conflict occurs, an error will be thrown.
 
-### `webhook`
+### `rendererFunctionName?`
+
+_optional, available from v3.3.38_
+
+If specified, this function will be used for rendering the individual chunks. This is useful if you want to use a function with higher or lower power for rendering the chunks than the main orchestration function.
+
+If you want to use this option, the function must be in the same region, the same account and have the same version as the main function.
+
+### `webhook?`
 
 _optional, available from v3.2.30_
 
@@ -267,9 +325,29 @@ const webhook: RenderMediaOnLambdaInput["webhook"] = {
 
 [See here for detailed instructions on how to set up your webhook](/docs/lambda/webhooks).
 
+### `forceBucketName?`
+
+_optional, available from v3.3.42_
+
+Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
+
+### `logLevel?`
+
+_optional_
+
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
+
+If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
+
+### ~~`dumpBrowserLogs?`~~
+
+_optional - default `false`, deprecated in v4.0_
+
+Deprecated in favor of [`logLevel`](#loglevel).
+
 ## Return value
 
-Returns a promise resolving to an object containing two properties: `renderId`, `bucketName`, `cloudWatchLogs`. Those are useful for passing to `getRenderProgress()`
+Returns a promise resolving to an object containing four properties. Of these, `renderId`, `bucketName` are useful for passing to `getRenderProgress()`.
 
 ### `renderId`
 

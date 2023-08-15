@@ -11,7 +11,7 @@ Since React Three Fiber is a custom renderer, normally the React contexts that s
 
 Instead of using React Three Fibers `useFrame` API, you can (and must) write your animations fully declaratively using Remotions `useCurrentFrame` API. This will ensure that you can scrub back and forth in the timeline and pause the animation.
 
-A browser bug [would normally cause the layout to be broken](https://github.com/pmndrs/react-three-fiber/issues/1394) because we apply a `scale` transform to the canvas in preview mode. To work around this problem, the `<ThreeCanvas />` requires the `width` and `height` props to be set.
+A browser bug [would normally cause the layout to be broken](https://github.com/pmndrs/react-three-fiber/issues/1394) because we apply a `scale` transform to the canvas in the Studio. To work around this problem, the `<ThreeCanvas />` requires the `width` and `height` props to be set.
 
 ## Example
 
@@ -57,6 +57,10 @@ const ThreeBasic: React.FC = () => {
 
 export default ThreeBasic;
 ```
+
+## Note on `<Sequence>`
+
+A [`<Sequence>`](/docs/sequence) by default will return a `<div>` component which is not allows inside a `<ThreeCanvas>`. To avoid an error, pass `layout="none"` to `<Sequence>`.
 
 ## See also
 

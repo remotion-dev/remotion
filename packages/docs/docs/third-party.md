@@ -10,10 +10,6 @@ All animations in Remotion must be driven by the value returned by the [`useCurr
 
 On this page, we maintain a list of integrations for popular ways of animating on the web, and provide status for popular requests.
 
-## CSS animations
-
-You can synchronize animations with Remotions time using the `animation-play-state` and `animation-delay` CSS properties. Check out [example code](https://github.com/ahgsql/remotion-animation/blob/main/src/index.js) or use the [remotion-animation](https://github.com/ahgsql/remotion-animation/blob/main/src/index.js) library directly (_unofficial library_).
-
 ## GIFs
 
 Use the [`@remotion/gif`](/docs/gif) package.
@@ -22,9 +18,17 @@ Use the [`@remotion/gif`](/docs/gif) package.
 
 At the moment, we don't have a Framer Motion integration, but are discussing the matter on [GitHub Issues](https://github.com/remotion-dev/remotion/issues/399).
 
+## Anime.JS
+
+See [this repository](https://github.com/remotion-dev/anime-example) for an example.
+
 ## Lottie
 
 Use the [`@remotion/lottie`](/docs/lottie) package.
+
+## Rive
+
+Use the [`@remotion/rive`](/docs/rive) package.
 
 ## After Effects
 
@@ -49,6 +53,14 @@ There is no integration available but Remotion shares some code with Reanimated,
 ## TailwindCSS
 
 See: [TailwindCSS](/docs/tailwind)
+
+## CSS animations
+
+You can synchronize animations with Remotions time using the `animation-play-state` and `animation-delay` CSS properties. Check out [example code](https://github.com/ahgsql/remotion-animation/blob/main/src/index.js) or use the [remotion-animation](https://github.com/ahgsql/remotion-animation/blob/main/src/index.js) library directly (Warning: Inofficial library, no TypeScript types).
+
+## GreenSock
+
+See: [How to integrate GreenSock with Remotion](https://enlear.academy/how-to-integrate-greensock-with-remotion-e4eee6f5a41f)
 
 ## Other libraries
 

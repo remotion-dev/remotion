@@ -1,15 +1,15 @@
+import type {ComponentType, LazyExoticComponent} from 'react';
 import React, {
 	createContext,
 	createRef,
 	useCallback,
 	useContext,
-	useInsertionEffect,
-	useLayoutEffect,
+	useEffect,
 	useMemo,
 	useRef,
 	useState,
 } from 'react';
-import type {RemotionAudioProps} from './props';
+import type {RemotionAudioProps} from './props.js';
 
 /**
  * This functionality of Remotion will keep a certain amount
@@ -36,7 +36,11 @@ const EMPTY_AUDIO =
 type SharedContext = {
 	registerAudio: (aud: RemotionAudioProps, audioId: string) => AudioElem;
 	unregisterAudio: (id: number) => void;
-	updateAudio: (id: number, aud: RemotionAudioProps) => void;
+	updateAudio: (options: {
+		id: number;
+		aud: RemotionAudioProps;
+		audioId: string;
+	}) => void;
 	playAllAudios: () => void;
 	numberOfAudioTags: number;
 };
@@ -91,7 +95,8 @@ export const SharedAudioContext = createContext<SharedContext | null>(null);
 export const SharedAudioContextProvider: React.FC<{
 	numberOfAudioTags: number;
 	children: React.ReactNode;
-}> = ({children, numberOfAudioTags}) => {
+	component: LazyExoticComponent<ComponentType<Record<string, unknown>>> | null;
+}> = ({children, numberOfAudioTags, component}) => {
 	const audios = useRef<AudioElem[]>([]);
 	const [initialNumberOfAudioTags] = useState(numberOfAudioTags);
 
@@ -193,7 +198,15 @@ export const SharedAudioContextProvider: React.FC<{
 	);
 
 	const updateAudio = useCallback(
-		(id: number, aud: RemotionAudioProps) => {
+		({
+			aud,
+			audioId,
+			id,
+		}: {
+			id: number;
+			aud: RemotionAudioProps;
+			audioId: string;
+		}) => {
 			let changed = false;
 
 			audios.current = audios.current?.map((prevA): AudioElem => {
@@ -207,6 +220,7 @@ export const SharedAudioContextProvider: React.FC<{
 					return {
 						...prevA,
 						props: aud,
+						audioId,
 					};
 				}
 
@@ -242,10 +256,35 @@ export const SharedAudioContextProvider: React.FC<{
 		updateAudio,
 	]);
 
+	// Fixing a bug: In React, if a component is unmounted using useInsertionEffect, then
+	// the cleanup function does sometimes not work properly. That is why when we
+	// are changing the composition, we reset the audio state.
+
+	// TODO: Possibly this does not save the problem completely, since the
+	// if an audio tag that is inside a sequence will also not be removed
+	// from the shared audios.
+
+	const resetAudio = useCallback(() => {
+		takenAudios.current = new Array(numberOfAudioTags).fill(false);
+		audios.current = [];
+		rerenderAudios();
+	}, [numberOfAudioTags, rerenderAudios]);
+
+	useEffect(() => {
+		return () => {
+			resetAudio();
+		};
+	}, [component, resetAudio]);
+
 	return (
 		<SharedAudioContext.Provider value={value}>
 			{refs.map(({id, ref}) => {
-				return <audio key={id} ref={ref} src={EMPTY_AUDIO} />;
+				return (
+					// Without preload="metadata", iOS will seek the time internally
+					// but not actually with sound. Adding `preload="metadata"` helps here.
+					// https://discord.com/channels/809501355504959528/817306414069710848/1130519583367888906
+					<audio key={id} ref={ref} preload="metadata" src={EMPTY_AUDIO} />
+				);
 			})}
 			{children}
 		</SharedAudioContext.Provider>
@@ -275,15 +314,17 @@ export const useSharedAudio = (aud: RemotionAudioProps, audioId: string) => {
 	 * Effects in React 18 fire twice, and we are looking for a way to only fire it once.
 	 * - useInsertionEffect only fires once. If it's available we are in React 18.
 	 * - useLayoutEffect only fires once in React 17.
+	 *
+	 * Need to import it from React to fix React 17 ESM support.
 	 */
-	const effectToUse = useInsertionEffect ?? useLayoutEffect;
+	const effectToUse = React.useInsertionEffect ?? React.useLayoutEffect;
 
 	if (typeof document !== 'undefined') {
 		effectToUse(() => {
 			if (ctx && ctx.numberOfAudioTags > 0) {
-				ctx.updateAudio(elem.id, aud);
+				ctx.updateAudio({id: elem.id, aud, audioId});
 			}
-		}, [aud, ctx, elem.id]);
+		}, [aud, ctx, elem.id, audioId]);
 
 		effectToUse(() => {
 			return () => {

@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import type {TSequence} from 'remotion';
 import {expect, test} from 'vitest';
 import {calculateTimeline} from '../editor/helpers/calculate-timeline';
@@ -132,7 +131,7 @@ const sequences: TSequence[] = [
 		rootId: '0.4858689834081513',
 		showInTimeline: true,
 		nonce: 11,
-		showLoopTimesInTimeline: undefined,
+		loopDisplay: undefined,
 	},
 	{
 		from: 0,
@@ -144,7 +143,7 @@ const sequences: TSequence[] = [
 		rootId: '0.4858689834081513',
 		showInTimeline: true,
 		nonce: 211,
-		showLoopTimesInTimeline: undefined,
+		loopDisplay: undefined,
 	},
 	{
 		type: 'video',
@@ -162,7 +161,7 @@ const sequences: TSequence[] = [
 		nonce: 212,
 		startMediaFrom: 0,
 		doesVolumeChange: false,
-		showLoopTimesInTimeline: undefined,
+		loopDisplay: undefined,
 	},
 	{
 		from: 12000,
@@ -174,7 +173,7 @@ const sequences: TSequence[] = [
 		rootId: '0.4858689834081513',
 		showInTimeline: true,
 		nonce: 213,
-		showLoopTimesInTimeline: undefined,
+		loopDisplay: undefined,
 	},
 	{
 		type: 'video',
@@ -192,7 +191,7 @@ const sequences: TSequence[] = [
 		nonce: 214,
 		startMediaFrom: 330,
 		doesVolumeChange: false,
-		showLoopTimesInTimeline: undefined,
+		loopDisplay: undefined,
 	},
 	{
 		from: -330,
@@ -204,7 +203,7 @@ const sequences: TSequence[] = [
 		rootId: '0.4858689834081513',
 		showInTimeline: true,
 		nonce: 215,
-		showLoopTimesInTimeline: undefined,
+		loopDisplay: undefined,
 	},
 	{
 		from: -22250,
@@ -216,6 +215,6 @@ const sequences: TSequence[] = [
 		rootId: '0.4858689834081513',
 		showInTimeline: true,
 		nonce: 216,
-		showLoopTimesInTimeline: undefined,
+		loopDisplay: undefined,
 	},
 ];

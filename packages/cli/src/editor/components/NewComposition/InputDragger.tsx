@@ -5,25 +5,39 @@ import type {
 } from 'react';
 import React, {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {interpolate} from 'remotion';
+import {BLUE} from '../../helpers/colors';
 import {noop} from '../../helpers/noop';
 import {getClickLock, setClickLock} from '../../state/input-dragger-click-lock';
 import {HigherZIndex} from '../../state/z-index';
+import type {RemInputStatus} from './RemInput';
 import {inputBaseStyle, RemotionInput} from './RemInput';
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
 	onValueChange: (newVal: number) => void;
+	onTextChange: (newVal: string) => void;
+	status: RemInputStatus;
+	formatter?: (str: number | string) => string;
+	rightAlign: boolean;
+};
+
+const isInt = (num: number) => {
+	return num % 1 === 0;
 };
 
 export const InputDragger: React.FC<Props> = ({
 	onValueChange,
 	min: _min,
+	max: _max,
 	step: _step,
 	value,
+	onTextChange,
+	formatter = (q) => String(q),
+	status,
+	rightAlign,
 	...props
 }) => {
 	const [inputFallback, setInputFallback] = useState(false);
 	const fallbackRef = useRef<HTMLInputElement>(null);
-
 	const style = useMemo(() => {
 		return {
 			...inputBaseStyle,
@@ -34,12 +48,13 @@ export const InputDragger: React.FC<Props> = ({
 
 	const span: React.CSSProperties = useMemo(
 		() => ({
-			borderBottom: '1px dotted var(--blue)',
+			borderBottom: '1px dotted ' + BLUE,
 			paddingBottom: 1,
-			color: 'var(--blue)',
+			color: BLUE,
 			cursor: 'ew-resize',
 			userSelect: 'none',
 			fontSize: 13,
+			fontVariantNumeric: 'tabular-nums',
 		}),
 		[]
 	);
@@ -56,18 +71,42 @@ export const InputDragger: React.FC<Props> = ({
 		setInputFallback(true);
 	}, []);
 
-	const onBlur = useCallback(() => {
+	const onEscape = useCallback(() => {
 		setInputFallback(false);
 	}, []);
+
+	const onBlur = useCallback(() => {
+		if (!fallbackRef.current) {
+			return;
+		}
+
+		const newValue = fallbackRef.current.value;
+		if (newValue.trim() === '') {
+			onEscape();
+			return;
+		}
+
+		if (fallbackRef.current.checkValidity()) {
+			onTextChange?.(newValue);
+			setInputFallback(false);
+		} else {
+			fallbackRef.current.reportValidity();
+		}
+	}, [onEscape, onTextChange]);
 
 	const onKeyPress: React.KeyboardEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			if (e.key === 'Enter') {
-				setInputFallback(false);
+				fallbackRef.current?.blur();
 			}
 		},
 		[]
 	);
+
+	const roundToStep = (val: number, stepSize: number) => {
+		const factor = 1 / stepSize;
+		return Math.ceil(val * factor) / factor;
+	};
 
 	const onPointerDown: PointerEventHandler = useCallback(
 		(e) => {
@@ -79,6 +118,8 @@ export const InputDragger: React.FC<Props> = ({
 				);
 				const step = Number(_step ?? 1);
 				const min = Number(_min ?? 0);
+				const max = Number(_max ?? Infinity);
+
 				if (distanceFromStart > 4) {
 					setClickLock(true);
 				}
@@ -88,9 +129,9 @@ export const InputDragger: React.FC<Props> = ({
 					[-5, -4, 0, 4, 5],
 					[-step, 0, 0, 0, step]
 				);
-				const newValue = Math.max(min, Math.floor(Number(value) + diff));
-				const roundToStep = Math.floor(newValue / step) * step;
-				onValueChange(roundToStep);
+				const newValue = Math.min(max, Math.max(min, Number(value) + diff));
+				const roundedToStep = roundToStep(newValue, step);
+				onValueChange(roundedToStep);
 			};
 
 			window.addEventListener('mousemove', moveListener);
@@ -107,7 +148,7 @@ export const InputDragger: React.FC<Props> = ({
 				}
 			);
 		},
-		[_step, _min, value, onValueChange]
+		[_step, _min, _max, value, onValueChange]
 	);
 
 	useEffect(() => {
@@ -116,17 +157,33 @@ export const InputDragger: React.FC<Props> = ({
 		}
 	}, [inputFallback]);
 
+	const deriveStep = useMemo(() => {
+		if (_step !== undefined) {
+			return _step;
+		}
+
+		if (typeof _min === 'number' && isInt(_min)) {
+			return 1;
+		}
+
+		return 0.0001;
+	}, [_min, _step]);
+
 	if (inputFallback) {
 		return (
-			<HigherZIndex onEscape={onBlur} onOutsideClick={noop}>
+			<HigherZIndex onEscape={onEscape} onOutsideClick={noop}>
 				<RemotionInput
 					ref={fallbackRef}
 					autoFocus
 					onKeyPress={onKeyPress}
 					onBlur={onBlur}
-					value={value}
 					min={_min}
-					step={_step}
+					max={_max}
+					step={deriveStep}
+					defaultValue={value}
+					status={status}
+					pattern={'[0-9]*[.]?[0-9]*'}
+					rightAlign={rightAlign}
 					{...props}
 				/>
 			</HigherZIndex>
@@ -140,7 +197,7 @@ export const InputDragger: React.FC<Props> = ({
 			onClick={onClick}
 			onPointerDown={onPointerDown}
 		>
-			<span style={span}>{value}</span>
+			<span style={span}>{formatter(value as string | number)}</span>
 		</button>
 	);
 };

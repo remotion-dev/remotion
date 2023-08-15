@@ -1,12 +1,13 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
-import type {WebpackOverrideFn} from 'remotion';
-import {promisify} from 'util';
+import fs, {promises} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {promisify} from 'node:util';
+import {isMainThread} from 'node:worker_threads';
 import webpack from 'webpack';
-import {isMainThread} from 'worker_threads';
 import {copyDir} from './copy-dir';
 import {indexHtml} from './index-html';
+import {readRecursively} from './read-recursively';
+import type {WebpackOverrideFn} from './webpack-config';
 import {webpackConfig} from './webpack-config';
 
 const promisified = promisify(webpack);
@@ -17,7 +18,9 @@ const prepareOutDir = async (specified: string | null) => {
 		return specified;
 	}
 
-	return fs.promises.mkdtemp(path.join(os.tmpdir(), 'react-motion-graphics'));
+	return fs.promises.mkdtemp(
+		path.join(os.tmpdir(), 'remotion-webpack-bundle-')
+	);
 };
 
 const trimLeadingSlash = (p: string): string => {
@@ -70,9 +73,7 @@ export const getConfig = ({
 		webpackOverride: options?.webpackOverride ?? ((f) => f),
 		onProgress,
 		enableCaching: options?.enableCaching ?? true,
-		maxTimelineTracks: 15,
-		// For production, the variables are set dynamically
-		envVariables: {},
+		maxTimelineTracks: 90,
 		entryPoints: [],
 		remotionRoot: resolvedRemotionRoot,
 		keyboardShortcutsEnabled: false,
@@ -83,6 +84,8 @@ export const getConfig = ({
 export type BundleOptions = {
 	entryPoint: string;
 	onProgress?: (progress: number) => void;
+	ignoreRegisterRootWarning?: boolean;
+	onDirectoryCreated?: (dir: string) => void;
 } & LegacyBundleOptions;
 
 type Arguments =
@@ -131,6 +134,24 @@ const findClosestPackageJsonFolder = (currentDir: string): string | null => {
 	return null;
 };
 
+const validateEntryPoint = async (entryPoint: string) => {
+	const contents = await promises.readFile(entryPoint, 'utf8');
+	if (!contents.includes('registerRoot')) {
+		throw new Error(
+			[
+				`You passed ${entryPoint} as your entry point, but this file does not contain "registerRoot".`,
+				'You should use the file that calls registerRoot() as the entry point.',
+				'To ignore this error, pass "ignoreRegisterRootWarning" to bundle().',
+				'This error cannot be ignored on the CLI.',
+			].join(' ')
+		);
+	}
+};
+
+/**
+ * @description The method bundles a Remotion project using Webpack and prepares it for rendering using renderMedia()
+ * @see [Documentation](https://www.remotion.dev/docs/bundle)
+ */
 export async function bundle(...args: Arguments): Promise<string> {
 	const actualArgs = convertArgumentsIntoOptions(args);
 	const entryPoint = path.resolve(process.cwd(), actualArgs.entryPoint);
@@ -139,7 +160,12 @@ export async function bundle(...args: Arguments): Promise<string> {
 		findClosestPackageJsonFolder(entryPoint) ??
 		process.cwd();
 
+	if (!actualArgs.ignoreRegisterRootWarning) {
+		await validateEntryPoint(entryPoint);
+	}
+
 	const outDir = await prepareOutDir(actualArgs?.outDir ?? null);
+	actualArgs.onDirectoryCreated?.(outDir);
 
 	// The config might use an override which might use
 	// `process.cwd()`. The context should always be the Remotion root.
@@ -208,6 +234,8 @@ export async function bundle(...args: Arguments): Promise<string> {
 			dest: to,
 			onSymlinkDetected: showSymlinkWarning,
 			onProgress: (prog) => options.onPublicDirCopyProgress?.(prog),
+			copiedBytes: 0,
+			lastReportedProgress: 0,
 		});
 	}
 
@@ -217,11 +245,26 @@ export async function bundle(...args: Arguments): Promise<string> {
 		editorName: null,
 		inputProps: null,
 		remotionRoot: resolvedRemotionRoot,
-		previewServerCommand: null,
+		studioServerCommand: null,
+		renderQueue: null,
 		numberOfAudioTags: 0,
+		publicFiles: readRecursively({
+			folder: '.',
+			startPath: from,
+			staticHash,
+			limit: 1000,
+		}).map((f) => {
+			return {
+				...f,
+				name: f.name.split(path.sep).join('/'),
+			};
+		}),
 		includeFavicon: false,
 		title: 'Remotion Bundle',
+		renderDefaults: undefined,
+		publicFolderExists: baseDir + '/public',
 	});
+
 	fs.writeFileSync(path.join(outDir, 'index.html'), html);
 
 	return outDir;

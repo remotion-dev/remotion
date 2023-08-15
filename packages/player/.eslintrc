@@ -1,3 +1,18 @@
 {
-	"extends": "@jonny"
+	"extends": ["@jonny", "plugin:require-extensions/recommended"],
+	"plugins": ["require-extensions"],
+	"rules": {
+		"@typescript-eslint/no-restricted-imports": [
+			"error",
+			{
+				"paths": [
+					{
+						"name": "zod",
+						"message": "Can only import zod as a type",
+						"allowTypeImports": true
+					}
+				]
+			}
+		]
+	}
 }

@@ -14,7 +14,7 @@ The function takes five arguments:
 
 ### `seed`
 
-Pass any _string_ or _number_. If the seed is the same, you will get the same result for same `x`, `y`, `z` and `w` values. Change the seed to to get different results for your `x`, `y`, `z`, `w` values.
+Pass any _string_ or _number_. If the seed is the same, you will get the same result for same `x`, `y`, `z` and `w` values. Change the seed to get different results for your `x`, `y`, `z`, `w` values.
 
 ### `x`
 

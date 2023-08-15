@@ -1,1 +1,1 @@
-module.exports = require('./dist/enable-skia');
+module.exports = require('./dist/cjs/enable');

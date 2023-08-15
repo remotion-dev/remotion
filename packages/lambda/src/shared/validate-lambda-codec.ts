@@ -1,7 +1,7 @@
 const lambdaCodecs = [
-	'h264-mkv',
 	'h264',
 	'vp8',
+	'vp9',
 	'mp3',
 	'aac',
 	'wav',
@@ -25,7 +25,7 @@ export const validateLambdaCodec = (codec: unknown): LambdaCodec => {
 		);
 	}
 
-	if ((codec as LambdaCodec) === 'h264-mkv') {
+	if ((codec as string) === 'h264-mkv') {
 		console.warn(
 			'The "h264-mkv" codec for renderMediaOnLambda() is deprecated - it\'s now just "h264".'
 		);

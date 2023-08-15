@@ -5,13 +5,13 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {describe, expect, test} from 'vitest';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import {Freeze} from '../freeze';
-import type {TimelineContextValue} from '../internals';
-import {Internals} from '../internals';
-import {Sequence} from '../Sequence';
-import {useVideoConfig} from '../use-video-config';
-import {WrapSequenceContext} from './wrap-sequence-context';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {Freeze} from '../freeze.js';
+import {Sequence} from '../Sequence.js';
+import type {TimelineContextValue} from '../timeline-position-state.js';
+import {TimelineContext} from '../timeline-position-state.js';
+import {useVideoConfig} from '../use-video-config.js';
+import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 const Inner: React.FC = () => {
 	const config = useVideoConfig();
@@ -21,7 +21,9 @@ const Inner: React.FC = () => {
 
 const context: TimelineContextValue = {
 	audioAndVideoTags: {current: []},
-	frame: 10000,
+	frame: {
+		'my-comp': 100000,
+	},
 	imperativePlaying: {
 		current: false,
 	},
@@ -36,17 +38,17 @@ describe('Composition-validation render should NOT throw with valid props', () =
 		const {queryByText} = render(
 			<CanUseRemotionHooksProvider>
 				<WrapSequenceContext>
-					<Internals.Timeline.TimelineContext.Provider value={context}>
+					<TimelineContext.Provider value={context}>
 						<Freeze frame={10000}>
 							<Sequence durationInFrames={2424} from={9265}>
 								<Inner />
 							</Sequence>
 						</Freeze>
-					</Internals.Timeline.TimelineContext.Provider>
+					</TimelineContext.Provider>
 				</WrapSequenceContext>
 			</CanUseRemotionHooksProvider>
 		);
 
-		expect(queryByText(/^0$/)).not.toBe(null);
+		expect(queryByText(/^2424$/)).not.toBe(null);
 	});
 });

@@ -1,12 +1,11 @@
 {
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
-		"composite": true,
 		"rootDir": "./src",
-		"outDir": "./dist",
+		"outDir": "./dist/cjs",
 		"skipLibCheck": true,
 		"jsx": "react-jsx"
 	},
-	"include": ["./src"],
-	"references": [{"path": "../core"}]
+	"references": [{"path": "../core"}],
+	"include": ["./src"]
 }

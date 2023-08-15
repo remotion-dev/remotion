@@ -13,29 +13,35 @@ import {
 } from 'react';
 import type {CompProps, TimelineContextValue} from 'remotion';
 import {Internals, random} from 'remotion';
-import {ThumbnailEmitterContext} from './emitter-context';
-import {ThumbnailEmitter} from './event-emitter';
-import type {ThumbnailMethods} from './player-methods';
-import type {ErrorFallback, RenderLoading} from './PlayerUI';
-import {SharedPlayerContexts} from './SharedPlayerContext';
-import ThumbnailUI from './ThumbnailUI';
-import type {PropsIfHasProps} from './utils/props-if-has-props';
+import type {AnyZodObject} from 'zod';
+import {ThumbnailEmitterContext} from './emitter-context.js';
+import {ThumbnailEmitter} from './event-emitter.js';
+import type {ThumbnailMethods} from './player-methods.js';
+import type {ErrorFallback, RenderLoading} from './PlayerUI.js';
+import {PLAYER_COMP_ID, SharedPlayerContexts} from './SharedPlayerContext.js';
+import ThumbnailUI from './ThumbnailUI.js';
+import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
-type ThumbnailProps<T> = PropsIfHasProps<T> &
-	CompProps<T> & {
+type ThumbnailProps<
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>
+> = PropsIfHasProps<Schema, Props> &
+	CompProps<Props> & {
 		frameToDisplay: number;
 		style?: CSSProperties;
 		durationInFrames: number;
 		compositionWidth: number;
 		compositionHeight: number;
-		inputProps?: unknown;
 		fps: number;
 		errorFallback?: ErrorFallback;
 		renderLoading?: RenderLoading;
 		className?: string;
 	};
 
-export const ThumbnailFn = <T,>(
+export const ThumbnailFn = <
+	Schema extends AnyZodObject,
+	Props extends Record<string, unknown>
+>(
 	{
 		frameToDisplay,
 		style,
@@ -48,7 +54,7 @@ export const ThumbnailFn = <T,>(
 		errorFallback = () => '⚠️',
 		renderLoading,
 		...componentProps
-	}: ThumbnailProps<T>,
+	}: ThumbnailProps<Schema, Props>,
 	ref: MutableRefObject<ThumbnailMethods>
 ) => {
 	const [thumbnailId] = useState(() => String(random(null)));
@@ -57,7 +63,9 @@ export const ThumbnailFn = <T,>(
 	const timelineState: TimelineContextValue = useMemo(() => {
 		return {
 			playing: false,
-			frame: frameToDisplay,
+			frame: {
+				[PLAYER_COMP_ID]: frameToDisplay,
+			},
 			rootId: thumbnailId,
 			imperativePlaying: {
 				current: false,
@@ -83,37 +91,42 @@ export const ThumbnailFn = <T,>(
 	}, [inputProps]);
 
 	return (
-		<SharedPlayerContexts
-			timelineContext={timelineState}
-			component={Component}
-			compositionHeight={compositionHeight}
-			compositionWidth={compositionWidth}
-			durationInFrames={durationInFrames}
-			fps={fps}
-			inputProps={inputProps}
-			numberOfSharedAudioTags={0}
-		>
-			<ThumbnailEmitterContext.Provider value={emitter}>
-				<ThumbnailUI
-					className={className}
-					errorFallback={errorFallback}
-					inputProps={passedInputProps}
-					renderLoading={renderLoading}
-					style={style}
-				/>
-			</ThumbnailEmitterContext.Provider>
-		</SharedPlayerContexts>
+		<Internals.IsPlayerContextProvider>
+			<SharedPlayerContexts
+				timelineContext={timelineState}
+				component={Component}
+				compositionHeight={compositionHeight}
+				compositionWidth={compositionWidth}
+				durationInFrames={durationInFrames}
+				fps={fps}
+				inputProps={passedInputProps}
+				numberOfSharedAudioTags={0}
+				initiallyMuted
+			>
+				<ThumbnailEmitterContext.Provider value={emitter}>
+					<ThumbnailUI
+						className={className}
+						errorFallback={errorFallback}
+						inputProps={passedInputProps}
+						renderLoading={renderLoading}
+						style={style}
+					/>
+				</ThumbnailEmitterContext.Provider>
+			</SharedPlayerContexts>
+		</Internals.IsPlayerContextProvider>
 	);
 };
 
-declare module 'react' {
-	// eslint-disable-next-line @typescript-eslint/no-shadow
-	function forwardRef<T, P = {}>(
-		render: (
-			props: P,
-			ref: React.MutableRefObject<T>
-		) => React.ReactElement | null
-	): (props: P & React.RefAttributes<T>) => React.ReactElement | null;
-}
+const forward = forwardRef as <T, P = {}>(
+	render: (
+		props: P,
+		ref: React.MutableRefObject<T>
+	) => React.ReactElement | null
+) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
-export const Thumbnail = forwardRef(ThumbnailFn);
+/**
+ * @description A component which can be rendered in a regular React App (for example: Create React App, Next.js) to display a single frame of a video.
+ * @see [Documentation](https://www.remotion.dev/docs/player/thumbnail)
+ */
+
+export const Thumbnail = forward(ThumbnailFn);

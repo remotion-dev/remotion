@@ -3,23 +3,25 @@
  * Since we track the `src` property for every frame, Node.JS can run out of memory easily. Instead of duplicating the src for every frame, we save memory by replacing the full base 64 encoded data with a string `same-as-[asset-id]-[frame]` referencing a previous asset with the same src.
  */
 
-import type {TAsset} from 'remotion';
+import type {TRenderAsset} from 'remotion';
 
 export const compressAsset = (
-	previousAssets: TAsset[],
-	newAsset: TAsset
-): TAsset => {
-	if (newAsset.src.length < 400) {
-		return newAsset;
+	previousRenderAssets: TRenderAsset[],
+	newRenderAsset: TRenderAsset
+): TRenderAsset => {
+	if (newRenderAsset.src.length < 400) {
+		return newRenderAsset;
 	}
 
-	const assetWithSameSrc = previousAssets.find((a) => a.src === newAsset.src);
+	const assetWithSameSrc = previousRenderAssets.find(
+		(a) => a.src === newRenderAsset.src
+	);
 	if (!assetWithSameSrc) {
-		return newAsset;
+		return newRenderAsset;
 	}
 
 	return {
-		...newAsset,
+		...newRenderAsset,
 		src: `same-as-${assetWithSameSrc.id}-${assetWithSameSrc.frame}`,
 	};
 };

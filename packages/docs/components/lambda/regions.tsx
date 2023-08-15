@@ -1,4 +1,4 @@
-import { AWS_REGIONS } from "@remotion/lambda/dist/regions";
+import { AWS_REGIONS } from "@remotion/lambda/regions";
 import React from "react";
 
 export const LambdaRegionList: React.FC = () => {

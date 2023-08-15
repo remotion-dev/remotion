@@ -21,6 +21,10 @@ const Scale = ({width, height}: {width: number; height: number}) => {
 	return null;
 };
 
+/**
+ * @description A wrapper for React Three Fiber's <Canvas /> which synchronizes with Remotions useCurrentFrame().
+ * @see [Documentation](https://www.remotion.dev/docs/three-canvas)
+ */
 export const ThreeCanvas = (props: ThreeCanvasProps) => {
 	const {children, width, height, style, onCreated, ...rest} = props;
 	const [waitForCreated] = useState(() =>

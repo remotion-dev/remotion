@@ -1,5 +1,5 @@
 import {CliInternals} from '@remotion/cli';
-import {Log} from '@remotion/cli/dist/log';
+import {RenderInternals} from '@remotion/renderer';
 import {getFunctions} from '../../../api/get-functions';
 import {getAwsRegion} from '../../get-aws-region';
 
@@ -13,10 +13,15 @@ export const FUNCTIONS_LS_SUBCOMMAND = 'ls';
 
 export const functionsLsCommand = async () => {
 	const region = getAwsRegion();
-	const fetchingOutput = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
-	fetchingOutput.update('Getting functions...');
+	const fetchingOutput = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+		updatesDontOverwrite: CliInternals.shouldUseNonOverlayingLogger({
+			logLevel: RenderInternals.getLogLevel(),
+		}),
+		indent: false,
+	});
+	fetchingOutput.update('Getting functions...', false);
 
 	const functions = await getFunctions({
 		region,
@@ -25,22 +30,23 @@ export const functionsLsCommand = async () => {
 
 	if (CliInternals.quietFlagProvided()) {
 		if (functions.length === 0) {
-			Log.info('()');
+			CliInternals.Log.info('()');
 			return;
 		}
 
-		Log.info(functions.map((f) => f.functionName).join(' '));
+		CliInternals.Log.info(functions.map((f) => f.functionName).join(' '));
 		return;
 	}
 
-	fetchingOutput.update('Getting function info...');
+	fetchingOutput.update('Getting function info...', false);
 
 	const pluralized = functions.length === 1 ? 'function' : 'functions';
 	fetchingOutput.update(
-		`${functions.length} ${pluralized} in the ${region} region`
+		`${functions.length} ${pluralized} in the ${region} region`,
+		true
 	);
-	Log.info();
-	Log.info(
+	CliInternals.Log.info();
+	CliInternals.Log.info(
 		CliInternals.chalk.gray(
 			[
 				'Name'.padEnd(NAME_COLS, ' '),
@@ -53,7 +59,7 @@ export const functionsLsCommand = async () => {
 	);
 
 	for (const datapoint of functions) {
-		Log.info(
+		CliInternals.Log.info(
 			[
 				datapoint.functionName.padEnd(NAME_COLS, ' '),
 				datapoint.version

@@ -1,7 +1,11 @@
-import {validateFps} from '../validation/validate-fps';
-import type {SpringConfig} from './spring-utils';
-import {springCalculation} from './spring-utils';
+import {validateFps} from '../validation/validate-fps.js';
+import type {SpringConfig} from './spring-utils.js';
+import {springCalculation} from './spring-utils.js';
 
+/**
+ * @description The function returns how long it takes for a spring animation to settle
+ * @see [Documentation](https://www.remotion.dev/docs/measure-spring)
+ */
 export function measureSpring({
 	fps,
 	config = {},

@@ -1,28 +1,36 @@
-import type {LogLevel} from '@remotion/renderer';
-import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
-import type {TCompMetadata} from 'remotion';
+import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import type {VideoConfig} from 'remotion';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
 import {LambdaRoutines} from '../defaults';
 import {callLambda} from '../shared/call-lambda';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {
+	compressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../shared/compress-props';
 
 export type GetCompositionsOnLambdaInput = {
 	chromiumOptions?: ChromiumOptions;
 	region: AwsRegion;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	functionName: string;
 	serveUrl: string;
 	envVariables?: Record<string, string>;
 	logLevel?: LogLevel;
 	timeoutInMilliseconds?: number;
+	forceBucketName?: string;
+	/**
+	 * @deprecated in favor of `logLevel`: true
+	 */
+	dumpBrowserLogs?: boolean;
 };
 
-export type GetCompositionsOnLambdaOutput = TCompMetadata[];
+export type GetCompositionsOnLambdaOutput = VideoConfig[];
 
 /**
  * @description Returns the compositions from a serveUrl
- * @link https://remotion.dev/docs/lambda/getcompositionsonlambda
+ * @see [Documentation](https://remotion.dev/docs/lambda/getcompositionsonlambda)
  * @param params.functionName The name of the Lambda function that should be used
  * @param params.serveUrl The URL of the deployed project
  * @param params.inputProps The input props that should be passed while the compositions are evaluated.
@@ -42,11 +50,19 @@ export const getCompositionsOnLambda = async ({
 	envVariables,
 	logLevel,
 	timeoutInMilliseconds,
+	forceBucketName: bucketName,
+	dumpBrowserLogs,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
-	const serializedInputProps = await serializeInputProps({
-		inputProps,
+	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
+
+	const serializedInputProps = await compressInputProps({
+		stringifiedInputProps,
 		region,
-		type: 'still',
+		userSpecifiedBucketName: bucketName ?? null,
+		propsType: 'input-props',
+		needsToUpload: getNeedsToUpload('video-or-audio', [
+			stringifiedInputProps.length,
+		]),
 	});
 
 	try {
@@ -58,11 +74,15 @@ export const getCompositionsOnLambda = async ({
 				serveUrl,
 				envVariables,
 				inputProps: serializedInputProps,
-				logLevel: logLevel ?? 'info',
+				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				version: VERSION,
+				bucketName: bucketName ?? null,
 			},
 			region,
+			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 		return res.compositions;
 	} catch (err) {

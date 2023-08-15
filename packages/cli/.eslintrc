@@ -2,20 +2,52 @@
 	"extends": "@jonny",
 	"rules": {
 		"no-console": "error",
-		"no-restricted-imports": ["error", "remotion"]
+		"no-restricted-imports": [
+			"error",
+			{
+				"patterns": ["@remotion/*/src/*"]
+			}
+		],
+		"@typescript-eslint/no-restricted-imports": [
+			"error",
+			{
+				"paths": [
+					{
+						"name": "zod",
+						"message": "Can only import zod as a type",
+						"allowTypeImports": true
+					},
+					{
+						"name": "@remotion/zod-types",
+						"message": "Can only import @remotion/zod-types as a type",
+						"allowTypeImports": true
+					}
+				]
+			}
+		]
 	},
 	"overrides": [
 		{
 			"files": "./src/editor/**",
 			"rules": {
 				"no-console": "off",
-				"no-restricted-imports": ["off"]
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": ["@remotion/*/src/*"]
+					}
+				]
 			}
 		},
 		{
 			"files": "./src/preview-server/error-overlay/**",
 			"rules": {
-				"no-restricted-imports": ["off"]
+				"no-restricted-imports": [
+					"error",
+					{
+						"patterns": ["@remotion/*/src/*"]
+					}
+				]
 			}
 		}
 	]

@@ -1,1 +1,1 @@
-export * from './dist/enable-skia';
+export * from './dist/cjs/enable';

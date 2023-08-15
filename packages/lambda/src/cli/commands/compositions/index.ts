@@ -2,6 +2,7 @@ import {CliInternals} from '@remotion/cli';
 import {getCompositionsOnLambda} from '../../..';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateServeUrl} from '../../../shared/validate-serveurl';
+import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
 import {quit} from '../../helpers/quit';
@@ -50,6 +51,7 @@ export const compositionsCommand = async (
 		envVariables,
 		logLevel,
 		timeoutInMilliseconds: puppeteerTimeout,
+		forceBucketName: parsedLambdaCli['force-bucket-name'],
 	});
 
 	CliInternals.printCompositions(comps);

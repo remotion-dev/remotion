@@ -1,5 +1,6 @@
 import {PlayerInternals} from '@remotion/player';
 import React, {useCallback, useEffect} from 'react';
+import {Internals} from 'remotion';
 import {useIsStill} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
 import {JumpToStart} from '../icons/jump-to-start';
@@ -26,6 +27,7 @@ export const PlayPause: React.FC<{
 	loop: boolean;
 }> = ({playbackRate, loop}) => {
 	const {inFrame, outFrame} = useTimelineInOutFramePosition();
+	const videoConfig = Internals.useUnsafeVideoConfig();
 
 	PlayerInternals.usePlayback({
 		loop,
@@ -133,7 +135,7 @@ export const PlayPause: React.FC<{
 				ensureFrameIsInViewport({
 					direction: 'fit-right',
 					durationInFrames: getCurrentDuration(),
-					frame: getCurrentFrame() + 1,
+					frame: Math.min(getCurrentDuration() - 1, getCurrentFrame() + 1),
 				});
 			}
 
@@ -151,12 +153,12 @@ export const PlayPause: React.FC<{
 	}, [frameForward]);
 
 	const jumpToStart = useCallback(() => {
-		seek(0);
-	}, [seek]);
+		seek(inFrame ?? 0);
+	}, [seek, inFrame]);
 
 	const jumpToEnd = useCallback(() => {
-		seek(getCurrentDuration() - 1);
-	}, [seek]);
+		seek(outFrame ?? getCurrentDuration() - 1);
+	}, [seek, outFrame]);
 
 	const keybindings = useKeybinding();
 
@@ -167,6 +169,7 @@ export const PlayPause: React.FC<{
 			callback: onArrowLeft,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const arrowRight = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -174,6 +177,7 @@ export const PlayPause: React.FC<{
 			callback: onArrowRight,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const space = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -181,6 +185,7 @@ export const PlayPause: React.FC<{
 			callback: onSpace,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const enter = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -188,6 +193,7 @@ export const PlayPause: React.FC<{
 			callback: onEnter,
 			commandCtrlKey: false,
 			preventDefault: false,
+			triggerIfInputFieldFocused: false,
 		});
 		const a = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -195,6 +201,7 @@ export const PlayPause: React.FC<{
 			callback: jumpToStart,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 		const e = keybindings.registerKeybinding({
 			event: 'keydown',
@@ -202,6 +209,7 @@ export const PlayPause: React.FC<{
 			callback: jumpToEnd,
 			commandCtrlKey: false,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 
 		return () => {
@@ -231,7 +239,7 @@ export const PlayPause: React.FC<{
 			<ControlButton
 				aria-label="Jump to beginning"
 				title="Jump to beginning"
-				disabled={isFirstFrame}
+				disabled={!videoConfig || isFirstFrame}
 				onClick={jumpToStart}
 			>
 				<JumpToStart style={forwardBackStyle} />
@@ -239,7 +247,7 @@ export const PlayPause: React.FC<{
 			<ControlButton
 				aria-label="Step back one frame"
 				title="Step back one frame"
-				disabled={isFirstFrame}
+				disabled={!videoConfig || isFirstFrame}
 				onClick={oneFrameBack}
 			>
 				<StepBack style={forwardBackStyle} />
@@ -249,6 +257,7 @@ export const PlayPause: React.FC<{
 				aria-label={playing ? 'Pause' : 'Play'}
 				title={playing ? 'Pause' : 'Play'}
 				onClick={playing ? pause : play}
+				disabled={!videoConfig}
 			>
 				{playing ? (
 					<Pause
@@ -272,7 +281,7 @@ export const PlayPause: React.FC<{
 			<ControlButton
 				aria-label="Step forward one frame"
 				title="Step forward one frame"
-				disabled={isLastFrame}
+				disabled={!videoConfig || isLastFrame}
 				onClick={oneFrameForward}
 			>
 				<StepForward style={forwardBackStyle} />

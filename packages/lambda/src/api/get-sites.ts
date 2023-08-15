@@ -16,6 +16,7 @@ type Site = {
 
 export type GetSitesInput = {
 	region: AwsRegion;
+	forceBucketName?: string;
 };
 
 export type GetSitesOutput = {
@@ -24,16 +25,18 @@ export type GetSitesOutput = {
 };
 
 /**
- *
  * @description Gets all the deployed sites for a certain AWS region.
- * @link https://remotion.dev/docs/lambda/getsites
+ * @see [Documentation](https://remotion.dev/docs/lambda/getsites)
  * @param {AwsRegion} params.region The AWS region that you want to query for.
  * @returns {Promise<GetSitesOutput>} A Promise containing an object with `sites` and `bucket` keys. Consult documentation for details.
  */
 export const getSites = async ({
 	region,
+	forceBucketName,
 }: GetSitesInput): Promise<GetSitesOutput> => {
-	const {remotionBuckets} = await getRemotionS3Buckets(region);
+	const {remotionBuckets} = forceBucketName
+		? await getRemotionS3Buckets(region, forceBucketName)
+		: await getRemotionS3Buckets(region);
 	const accountId = await getAccountId({region});
 
 	const sites: {[key: string]: Site} = {};

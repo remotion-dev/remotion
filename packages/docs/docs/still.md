@@ -5,11 +5,11 @@ title: <Still>
 crumb: "API"
 ---
 
-A `<Still />` is a [`<Composition />`](/docs/composition) that is only 1 frame long. It is a convenience component for defining a composition that is meant to be rendered an image rather than a video.
+A `<Still />` is a single-frame [`<Composition />`](/docs/composition). It is a convenient way to define a composition that renders an image rather than a video.
 
 ## Example
 
-The `<Still />` component has the same API as a [`<Composition />`](/docs/composition) except it's not necessary to pass `durationInFrames` and `fps`.
+The `<Still />` component has the same API as the [`<Composition />`](/docs/composition) component, except that it's not necessary to pass `durationInFrames` and `fps`.
 
 ```tsx twoslash
 // @allowUmdGlobalAccess

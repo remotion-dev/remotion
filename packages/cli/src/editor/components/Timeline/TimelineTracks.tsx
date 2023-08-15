@@ -25,10 +25,9 @@ const timelineContent: React.CSSProperties = {
 
 export const TimelineTracks: React.FC<{
 	timeline: TrackWithHash[];
-	fps: number;
 	viewState: TimelineViewState;
 	hasBeenCut: boolean;
-}> = ({timeline, fps, viewState, hasBeenCut}) => {
+}> = ({timeline, viewState, hasBeenCut}) => {
 	const inner: React.CSSProperties = useMemo(() => {
 		return {
 			height: TIMELINE_LAYER_HEIGHT + TIMELINE_BORDER * 2,
@@ -53,7 +52,7 @@ export const TimelineTracks: React.FC<{
 
 					return (
 						<div key={track.sequence.id} style={inner}>
-							<TimelineSequence fps={fps} s={track.sequence} />
+							<TimelineSequence s={track.sequence} />
 						</div>
 					);
 				})}

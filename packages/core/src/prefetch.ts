@@ -1,6 +1,6 @@
 import {useContext} from 'react';
-import {getRemotionEnvironment} from './get-environment';
-import {PreloadContext, setPreloads} from './prefetch-state';
+import {getRemotionEnvironment} from './get-environment.js';
+import {PreloadContext, setPreloads} from './prefetch-state.js';
 
 export const usePreload = (src: string): string => {
 	const preloads = useContext(PreloadContext);
@@ -30,6 +30,10 @@ const blobToBase64 = function (blob: Blob): Promise<string> {
 	});
 };
 
+/**
+ * @description When you call the preFetch() function, an asset will be fetched and kept in memory so it is ready when you want to play it in a <Player>.
+ * @see [Documentation](https://www.remotion.dev/docs/prefetch)
+ */
 export const prefetch = (
 	src: string,
 	options?: {

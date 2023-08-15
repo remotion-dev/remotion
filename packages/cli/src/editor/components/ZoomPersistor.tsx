@@ -8,7 +8,7 @@ const makeKey = (composition: string) => {
 	return `remotion.zoom.${composition}`;
 };
 
-export const persistCurrentZoom = (zoom: number) => {
+const persistCurrentZoom = (zoom: number) => {
 	const currentComposition = getCurrentCompositionFromUrl();
 	if (!currentComposition) {
 		return;

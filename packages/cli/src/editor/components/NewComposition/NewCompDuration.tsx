@@ -1,7 +1,6 @@
-import type {ChangeEventHandler} from 'react';
 import React, {useCallback} from 'react';
 import {validateCompositionDuration} from '../../helpers/validate-new-comp-data';
-import {Row} from '../layout';
+import {Row, Spacing} from '../layout';
 import {InputDragger} from './InputDragger';
 import {inputArea, leftLabel, rightLabel} from './new-comp-layout';
 import {ValidationMessage} from './ValidationMessage';
@@ -11,13 +10,12 @@ export const NewCompDuration: React.FC<{
 	fps: string;
 	setDurationInFrames: React.Dispatch<React.SetStateAction<string>>;
 }> = ({durationInFrames, setDurationInFrames, fps}) => {
-	const onDurationInFramesChanged: ChangeEventHandler<HTMLInputElement> =
-		useCallback(
-			(e) => {
-				setDurationInFrames(String(Number(e.target.value)));
-			},
-			[setDurationInFrames]
-		);
+	const onDurationInFramesChanged = useCallback(
+		(newValue: string) => {
+			setDurationInFrames(String(Number(newValue)));
+		},
+		[setDurationInFrames]
+	);
 
 	const onDurationChangedDirectly = useCallback(
 		(newVal: number) => {
@@ -37,16 +35,27 @@ export const NewCompDuration: React.FC<{
 						<InputDragger
 							type="number"
 							value={durationInFrames}
-							onChange={onDurationInFramesChanged}
+							onTextChange={onDurationInFramesChanged}
 							placeholder="Duration (frames)"
 							name="durationInFrames"
 							min={1}
 							step={1}
-							max={100000000}
+							required
+							status="ok"
+							// Hitting Promise.all() limit in Chrome
+							max={300_000}
 							onValueChange={onDurationChangedDirectly}
+							rightAlign={false}
 						/>
 						{compDurationErrMessage ? (
-							<ValidationMessage message={compDurationErrMessage} />
+							<>
+								<Spacing y={1} block />
+								<ValidationMessage
+									align="flex-start"
+									message={compDurationErrMessage}
+									type="error"
+								/>
+							</>
 						) : null}
 					</div>
 					<span style={rightLabel}>

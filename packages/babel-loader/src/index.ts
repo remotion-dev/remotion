@@ -1,4 +1,4 @@
-import type {WebpackConfiguration} from 'remotion';
+import type {WebpackConfiguration} from '@remotion/bundler';
 import type {RuleSetUseItem} from 'webpack';
 
 const envPreset = [
@@ -46,7 +46,6 @@ export const replaceLoadersWithBabel = (
 										[
 											require.resolve('@babel/preset-typescript'),
 											{
-												runtime: 'automatic',
 												isTSX: true,
 												allExtensions: true,
 											},

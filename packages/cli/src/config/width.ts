@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import {Internals} from 'remotion';
 
 let passedWidth: number | null = null;

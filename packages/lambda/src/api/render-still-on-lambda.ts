@@ -1,25 +1,36 @@
-import type {LogLevel, StillImageFormat} from '@remotion/renderer';
-import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
+import type {
+	ChromiumOptions,
+	LogLevel,
+	StillImageFormat,
+} from '@remotion/renderer';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
+import {
+	compressInputProps,
+	getNeedsToUpload,
+	serializeOrThrow,
+} from '../shared/compress-props';
 import type {CostsInfo, OutNameInput, Privacy} from '../shared/constants';
 import {DEFAULT_MAX_RETRIES, LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {getCloudwatchStreamUrl} from '../shared/get-aws-urls';
-import {serializeInputProps} from '../shared/serialize-input-props';
+import {getCloudwatchMethodUrl} from '../shared/get-aws-urls';
 
 export type RenderStillOnLambdaInput = {
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
 	composition: string;
-	inputProps: unknown;
+	inputProps: Record<string, unknown>;
 	imageFormat: StillImageFormat;
 	privacy: Privacy;
 	maxRetries?: number;
 	envVariables?: Record<string, string>;
-	quality?: number;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	frame?: number;
 	logLevel?: LogLevel;
 	outName?: OutNameInput;
@@ -29,6 +40,12 @@ export type RenderStillOnLambdaInput = {
 	downloadBehavior?: DownloadBehavior;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
+	forceBucketName?: string;
+	/**
+	 * @deprecated Renamed to `dumpBrowserLogs`
+	 */
+	dumpBrowserLogs?: boolean;
+	onInit?: (data: {renderId: string; cloudWatchLogs: string}) => void;
 };
 
 export type RenderStillOnLambdaOutput = {
@@ -49,7 +66,7 @@ export type RenderStillOnLambdaOutput = {
  * @param params.inputProps The input props that should be passed to the composition.
  * @param params.imageFormat In which image format the frames should be rendered.
  * @param params.envVariables Object containing environment variables to be inserted into the video environment
- * @param params.quality JPEG quality if JPEG was selected as the image format.
+ * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
  * @param params.region The AWS region in which the video should be rendered.
  * @param params.maxRetries How often rendering a chunk may fail before the video render gets aborted.
  * @param params.frame Which frame should be used for the still image. Default 0.
@@ -64,6 +81,7 @@ export const renderStillOnLambda = async ({
 	imageFormat,
 	envVariables,
 	quality,
+	jpegQuality,
 	region,
 	maxRetries,
 	composition,
@@ -77,11 +95,24 @@ export const renderStillOnLambda = async ({
 	downloadBehavior,
 	forceHeight,
 	forceWidth,
+	forceBucketName,
+	dumpBrowserLogs,
+	onInit,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
-	const serializedInputProps = await serializeInputProps({
-		inputProps,
+	if (quality) {
+		throw new Error(
+			'The `quality` option is deprecated. Use `jpegQuality` instead.'
+		);
+	}
+
+	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
+
+	const serializedInputProps = await compressInputProps({
+		stringifiedInputProps,
 		region,
-		type: 'still',
+		needsToUpload: getNeedsToUpload('still', [stringifiedInputProps.length]),
+		userSpecifiedBucketName: forceBucketName ?? null,
+		propsType: 'input-props',
 	});
 
 	try {
@@ -94,12 +125,12 @@ export const renderStillOnLambda = async ({
 				inputProps: serializedInputProps,
 				imageFormat,
 				envVariables,
-				quality,
+				jpegQuality,
 				maxRetries: maxRetries ?? DEFAULT_MAX_RETRIES,
 				frame: frame ?? 0,
 				privacy,
 				attempt: 1,
-				logLevel: logLevel ?? 'info',
+				logLevel: dumpBrowserLogs ? 'verbose' : logLevel ?? 'info',
 				outName: outName ?? null,
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				chromiumOptions: chromiumOptions ?? {},
@@ -108,20 +139,39 @@ export const renderStillOnLambda = async ({
 				version: VERSION,
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
+				bucketName: forceBucketName ?? null,
 			},
 			region,
+			receivedStreamingPayload: (payload) => {
+				if (payload.type === 'render-id-determined') {
+					onInit?.({
+						renderId: payload.renderId,
+						cloudWatchLogs: getCloudwatchMethodUrl({
+							functionName,
+							method: LambdaRoutines.still,
+							region,
+							rendererFunctionName: null,
+							renderId: payload.renderId,
+						}),
+					});
+				}
+			},
+			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
+
 		return {
 			estimatedPrice: res.estimatedPrice,
 			url: res.output,
 			sizeInBytes: res.size,
 			bucketName: res.bucketName,
 			renderId: res.renderId,
-			cloudWatchLogs: getCloudwatchStreamUrl({
+			cloudWatchLogs: getCloudwatchMethodUrl({
 				functionName,
 				method: LambdaRoutines.still,
 				region,
 				renderId: res.renderId,
+				rendererFunctionName: null,
 			}),
 		};
 	} catch (err) {

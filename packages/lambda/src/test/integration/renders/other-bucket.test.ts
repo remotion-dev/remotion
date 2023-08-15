@@ -1,19 +1,10 @@
 import {RenderInternals} from '@remotion/renderer';
-import {getExecutableBinary} from '@remotion/renderer/src/ffmpeg-flags';
 import {VERSION} from 'remotion/version';
 import {afterAll, beforeAll, expect, test} from 'vitest';
 import {LambdaRoutines} from '../../../defaults';
-import {handler} from '../../../functions';
 import {lambdaReadFile} from '../../../functions/helpers/io';
-import type {LambdaReturnValues} from '../../../shared/return-values';
+import {callLambda} from '../../../shared/call-lambda';
 import {disableLogs, enableLogs} from '../../disable-logs';
-
-const extraContext = {
-	invokedFunctionArn: 'arn:fake',
-	getRemainingTimeInMillis: () => 12000,
-};
-
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 beforeAll(() => {
 	disableLogs();
@@ -28,10 +19,11 @@ afterAll(async () => {
 test('Should be able to render to another bucket', async () => {
 	process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-	const res = await handler(
-		{
-			type: LambdaRoutines.start,
-			serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
+	const res = await callLambda({
+		type: LambdaRoutines.start,
+		payload: {
+			serveUrl:
+				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 			chromiumOptions: {},
 			codec: 'h264',
 			composition: 'react-svg',
@@ -53,7 +45,7 @@ test('Should be able to render to another bucket', async () => {
 			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,
-			quality: undefined,
+			jpegQuality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,
 			numberOfGifLoops: null,
@@ -70,20 +62,30 @@ test('Should be able to render to another bucket', async () => {
 			videoBitrate: null,
 			forceHeight: null,
 			forceWidth: null,
+			rendererFunctionName: null,
+			bucketName: null,
+			audioCodec: null,
 		},
-		extraContext
-	);
-	const startRes = res as Await<LambdaReturnValues[LambdaRoutines.start]>;
+		functionName: 'remotion-dev-render',
+		receivedStreamingPayload: () => undefined,
+		region: 'eu-central-1',
+		timeoutInTest: 120000,
+		retriesRemaining: 0,
+	});
 
-	const progress = (await handler(
-		{
-			type: LambdaRoutines.status,
-			bucketName: startRes.bucketName,
-			renderId: startRes.renderId,
+	const progress = await callLambda({
+		type: LambdaRoutines.status,
+		payload: {
+			bucketName: res.bucketName,
+			renderId: res.renderId,
 			version: VERSION,
 		},
-		extraContext
-	)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
+		functionName: 'remotion-dev-render',
+		receivedStreamingPayload: () => undefined,
+		region: 'eu-central-1',
+		timeoutInTest: 120000,
+		retriesRemaining: 0,
+	});
 
 	const file = await lambdaReadFile({
 		bucketName: progress.outBucket as string,
@@ -91,13 +93,9 @@ test('Should be able to render to another bucket', async () => {
 		expectedBucketOwner: 'abc',
 		region: 'eu-central-1',
 	});
-	const probe = await RenderInternals.execa(
-		await getExecutableBinary(null, process.cwd(), 'ffprobe'),
-		['-'],
-		{
-			stdin: file,
-		}
-	);
+	const probe = await RenderInternals.callFf('ffprobe', ['-'], {
+		stdin: file,
+	});
 	expect(probe.stderr).toMatch(/Stream #0:0/);
 	expect(probe.stderr).toMatch(/Video: h264/);
 	expect(probe.stderr).toMatch(/Stream #0:1/);

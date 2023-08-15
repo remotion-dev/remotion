@@ -22,7 +22,7 @@ If `composition-id` is also not passed, Remotion will let you select a compositi
 
 ### `--props`
 
-[React Props to pass to the selected composition of your video.](/docs/parametrized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`). Can also be read using [`getInputProps()`](/docs/get-input-props).
+[React Props to pass to the selected composition of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`). Can also be read using [`getInputProps()`](/docs/get-input-props).
 
 :::info
 Inline JSON string isn't supported on Windows because it removes the `"` character, use a temporary file instead.
@@ -30,7 +30,7 @@ Inline JSON string isn't supported on Windows because it removes the `"` charact
 
 ### `--image-format`
 
-[`jpeg` or `png` - JPEG is faster, but doesn't support transparency.](/docs/config#setimageformat) The default is `jpeg`.
+`jpeg`, `png`, `webp` or `pdf`. The default is `png`.
 
 ### `--config`
 
@@ -38,11 +38,19 @@ Specify a location for the Remotion config file.
 
 ### `--env-file`
 
-Specify a location for a dotenv file. Default `.env`.
+Specify a location for a dotenv file - Default `.env`. [Read about how environment variables work in Remotion.](/docs/env-variables)
 
-### `--quality`
+### `--jpeg-quality` <AvailableFrom v="4.0.0" />
 
-[Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when image format is `png`.
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when PNG frames are rendered.
+
+### ~~`--quality`~~ <AvailableFrom v="1.4.0" />
+
+Renamed to `--jpeg-quality` in v4.0.0
+
+### `--output` <AvailableFrom v="4.0.0" />
+
+Sets the output file path, as an alternative to the `output-location` positional argument.
 
 ### `--overwrite`
 
@@ -73,19 +81,9 @@ From v3.2.27, negative values are allowed, with `-1` being the last frame.
 
 [Set a custom HTTP server port to serve the Webpack bundle](/docs/config#setPort). If not defined, Remotion will try to find a free port.
 
-### `--public-dir`
-
-_Available from v3.2.13_
+### `--public-dir`<AvailableFrom v="3.2.13" />
 
 [Define the location of the `public/` directory.](/docs/config#setpublicdir). If not defined, Remotion will assume the location is the `public` folder in your Remotion root.
-
-### `--ffmpeg-executable`
-
-[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
-
-### `--ffprobe-executable`
-
-[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.
 
 ### `--timeout`
 
@@ -95,19 +93,15 @@ Define how long a single frame may take to resolve all [`delayRender()`](/docs/d
 Not to be confused with the [`--timeout` flag when deploying a Lambda function](/docs/lambda/cli/functions#--timeout).
 :::
 
-### `--ignore-certificate-errors`
+### `--ignore-certificate-errors`<AvailableFrom v="2.6.5" />
 
-Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored. Available since v2.6.5.
+Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored.
 
-### `--disable-web-security`
-
-_Available since v2.6.5_
+### `--disable-web-security`<AvailableFrom v="2.6.5" />
 
 This will most notably disable CORS in Chrome among other security features.
 
-### `--disable-headless`
-
-_Available since v2.6.5_
+### `--disable-headless`<AvailableFrom v="2.6.5" />
 
 Opens an actual browser during rendering to observe the render.
 
@@ -126,3 +120,19 @@ Accepted values:
 
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
+
+### `--user-agent`<AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### ~~`--ffmpeg-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffmpeg` executable](/docs/config#setFfmpegExecutable). If not defined, a `ffmpeg` executable will be searched in `PATH`.
+
+### ~~`--ffprobe-executable`~~
+
+_removed in v4.0_
+
+[Set a custom `ffprobe` executable](/docs/config#setFfprobeExecutable). If not defined, a `ffprobe` executable will be searched in `PATH`.

@@ -1,23 +1,22 @@
 import React, {useCallback, useContext, useEffect, useMemo} from 'react';
-import {getAbsoluteSrc} from '../absolute-src';
+import {getAbsoluteSrc} from '../absolute-src.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
-} from '../audio/use-audio-frame';
-import {CompositionManager} from '../CompositionManager';
-import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css';
-import {Img} from '../Img';
-import {Internals} from '../internals';
-import {random} from '../random';
-import {SequenceContext} from '../Sequence';
-import {useTimelinePosition} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-current-frame';
-import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
-import {evaluateVolume} from '../volume-prop';
-import {getExpectedMediaFrameUncorrected} from './get-current-time';
-import type {OffthreadVideoImageFormat, OffthreadVideoProps} from './props';
-
-const DEFAULT_IMAGE_FORMAT: OffthreadVideoImageFormat = 'jpeg';
+} from '../audio/use-audio-frame.js';
+import {cancelRender} from '../cancel-render.js';
+import {OFFTHREAD_VIDEO_CLASS_NAME} from '../default-css.js';
+import {Img} from '../Img.js';
+import {random} from '../random.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
+import {SequenceContext} from '../SequenceContext.js';
+import {useTimelinePosition} from '../timeline-position-state.js';
+import {truthy} from '../truthy.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
+import {evaluateVolume} from '../volume-prop.js';
+import {getExpectedMediaFrameUncorrected} from './get-current-time.js';
+import type {OffthreadVideoProps} from './props.js';
 
 export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	onError,
@@ -25,8 +24,8 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	playbackRate,
 	src,
 	muted,
-	imageFormat,
 	allowAmplificationDuringRender,
+	transparent = false,
 	...props
 }) => {
 	const absoluteFrame = useTimelinePosition();
@@ -37,7 +36,8 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
 
-	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+	const {registerRenderAsset, unregisterRenderAsset} =
+		useContext(RenderAssetManager);
 
 	if (!src) {
 		throw new TypeError('No `src` was passed to <OffthreadVideo>.');
@@ -74,7 +74,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			throw new Error('No src passed');
 		}
 
-		if (!window.remotion_videoEnabled) {
+		if (!window.remotion_audioEnabled) {
 			return;
 		}
 
@@ -86,7 +86,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			return;
 		}
 
-		registerAsset({
+		registerRenderAsset({
 			type: 'video',
 			src: getAbsoluteSrc(src),
 			id,
@@ -97,13 +97,13 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 
-		return () => unregisterAsset(id);
+		return () => unregisterRenderAsset(id);
 	}, [
 		muted,
 		src,
-		registerAsset,
+		registerRenderAsset,
 		id,
-		unregisterAsset,
+		unregisterRenderAsset,
 		volume,
 		frame,
 		absoluteFrame,
@@ -126,22 +126,26 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 			window.remotion_proxyPort
 		}/proxy?src=${encodeURIComponent(
 			getAbsoluteSrc(src)
-		)}&time=${encodeURIComponent(currentTime)}&imageFormat=${
-			imageFormat ?? DEFAULT_IMAGE_FORMAT
-		}`;
-	}, [currentTime, imageFormat, src]);
+		)}&time=${encodeURIComponent(currentTime)}&transparent=${String(
+			transparent
+		)}`;
+	}, [currentTime, src, transparent]);
 
 	const onErr: React.ReactEventHandler<HTMLVideoElement | HTMLImageElement> =
 		useCallback(
 			(e) => {
-				onError?.(e);
+				if (onError) {
+					onError?.(e);
+				} else {
+					cancelRender('Failed to load image with src ' + actualSrc);
+				}
 			},
-			[onError]
+			[actualSrc, onError]
 		);
 
 	const className = useMemo(() => {
 		return [OFFTHREAD_VIDEO_CLASS_NAME, props.className]
-			.filter(Internals.truthy)
+			.filter(truthy)
 			.join(' ');
 	}, [props.className]);
 

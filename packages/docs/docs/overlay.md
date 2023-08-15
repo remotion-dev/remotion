@@ -13,12 +13,12 @@ If you want to export a Remotion video to use it as an overlay or transition in 
 <InlineStep>2</InlineStep> To export the video as ProRes file, setup the <code>remotion.config.ts</code> file as follows: <br/><br/>
 
 ```tsx twoslash title="remotion.config.ts"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 
-Config.Rendering.setImageFormat("png");
-Config.Output.setPixelFormat("yuva444p10le");
-Config.Output.setCodec("prores");
-Config.Output.setProResProfile("4444");
+Config.setVideoImageFormat("png");
+Config.setPixelFormat("yuva444p10le");
+Config.setCodec("prores");
+Config.setProResProfile("4444");
 ```
 
 and trigger the render with

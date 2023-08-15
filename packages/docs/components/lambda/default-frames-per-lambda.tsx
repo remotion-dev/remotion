@@ -1,4 +1,4 @@
-import { MINIMUM_FRAMES_PER_LAMBDA } from "@remotion/lambda/dist/defaults";
+import { MINIMUM_FRAMES_PER_LAMBDA } from "@remotion/lambda/defaults";
 import React from "react";
 
 export const MinimumFramesPerLambda: React.FC = () => {

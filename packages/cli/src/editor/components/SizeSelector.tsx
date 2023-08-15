@@ -6,7 +6,7 @@ import {CONTROL_BUTTON_PADDING} from './ControlButton';
 import type {ComboboxValue} from './NewComposition/ComboBox';
 import {Combobox} from './NewComposition/ComboBox';
 
-export const commonPreviewSizes: PreviewSize[] = [
+const commonPreviewSizes: PreviewSize[] = [
 	{
 		size: 'auto',
 		translation: {
@@ -93,7 +93,7 @@ export const SizeSelector: React.FC = () => {
 				},
 				type: 'item',
 				value: newSize.size,
-				keyHint: newSize.size === 1 ? '0' : null,
+				keyHint: newSize.size === 'auto' ? '0' : null,
 				leftItem:
 					String(size.size) === String(newSize.size) ? <Checkmark /> : null,
 				subMenu: null,

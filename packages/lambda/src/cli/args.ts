@@ -2,7 +2,6 @@ import {CliInternals} from '@remotion/cli';
 
 import type {AwsRegion} from '../pricing/aws-regions';
 import type {Privacy} from '../shared/constants';
-import type {LambdaArchitecture} from '../shared/validate-architecture';
 
 type LambdaCommandLineOptions = {
 	help: boolean;
@@ -25,11 +24,13 @@ type LambdaCommandLineOptions = {
 	['frames-per-lambda']: number;
 	['concurrency-per-lambda']: number;
 	['out-name']: string | undefined;
-	['architecture']: LambdaArchitecture;
 	['custom-role-arn']: string | undefined;
 	privacy: Privacy;
 	webhook: string | undefined;
 	['webhook-secret']: string | undefined;
+	['renderer-function-name']: string | undefined;
+	['function-name']: string | undefined;
+	['force-bucket-name']: string | undefined;
 };
 
 export const parsedLambdaCli = CliInternals.minimist<LambdaCommandLineOptions>(

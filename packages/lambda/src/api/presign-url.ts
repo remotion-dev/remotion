@@ -5,17 +5,17 @@ import {getS3Client} from '../shared/aws-clients';
 import {validateBucketName} from '../shared/validate-bucketname';
 import {validatePresignExpiration} from '../shared/validate-presign-expiration';
 
-type PresignURLInput = {
+export type PresignUrlInput<CheckIfObjectExists extends boolean = boolean> = {
 	region: AwsRegion;
 	bucketName: string;
 	objectKey: string;
-	checkIfObjectExists?: boolean;
+	checkIfObjectExists?: CheckIfObjectExists;
 	expiresInSeconds: number;
 };
 
 /**
  * @description Returns a public url of an object stored in Remotion's S3 bucket.
- * @link https://remotion.dev/docs/lambda/presignurl
+ * @see [Documentation](https://remotion.dev/docs/lambda/presignurl)
  * @param {AwsRegion} params.region The region in which the S3 bucket resides in.
  * @param {string} params.bucketName The name of the bucket to fetch the object from.
  * @param {string} params.objectKey Key of the S3 object to get.
@@ -23,19 +23,21 @@ type PresignURLInput = {
  * @param {boolean} params.checkIfObjectExists Whether the function should check if the object exists in the bucket before generating the presigned url.
  * @returns {Promise<string | null>} The public url of an object or `null` if `checkIfObjectExists=true` & object does not exist.
  */
-export const presignUrl = async ({
+export const presignUrl = async <CheckIfObjectExists extends boolean = false>({
 	region,
 	bucketName,
 	objectKey,
-	checkIfObjectExists = false,
+	checkIfObjectExists,
 	expiresInSeconds,
-}: PresignURLInput): Promise<string | null> => {
+}: PresignUrlInput<CheckIfObjectExists>): Promise<
+	CheckIfObjectExists extends true ? string | null : string
+> => {
 	validateBucketName(bucketName, {mustStartWithRemotion: false});
 	validatePresignExpiration(expiresInSeconds);
 
 	const s3Client = getS3Client(region, null);
 
-	if (checkIfObjectExists) {
+	if (checkIfObjectExists === true) {
 		try {
 			await s3Client.send(
 				new HeadObjectCommand({
@@ -45,7 +47,7 @@ export const presignUrl = async ({
 			);
 		} catch (err) {
 			if ((err as {name: string}).name === 'NotFound') {
-				return null;
+				return null as unknown as string;
 			}
 
 			if (

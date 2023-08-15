@@ -33,6 +33,10 @@ Rendering using the serve URL shorthand:
 npx remotion lambda still testbed my-comp
 ```
 
+:::info
+If you are using the shorthand serve URL, you have to pass a composition ID. Available compositions can only be fetched if a complete serve URL is passed.
+:::
+
 Rendering the 10th frame of a composition:
 
 ```
@@ -57,7 +61,7 @@ The [AWS region](/docs/lambda/region-selection) to select. Both project and func
 
 ### `--props`
 
-[React Props to pass to the root component of your video.](/docs/parametrized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).
+[React Props to pass to the root component of your video.](/docs/parameterized-rendering#passing-input-props-in-the-cli) Must be a serialized JSON string (`--props='{"hello": "world"}'`) or a path to a JSON file (`./path/to/props.json`).
 
 ### `--scale`
 
@@ -79,6 +83,22 @@ How many times a single chunk is being retried if it fails to render. Default `1
 
 The file name of the media output as stored in the S3 bucket. By default, it is `out` plus the appropriate file extension, for example: `out.png`. Must match `/([0-9a-zA-Z-!_.*'()/]+)/g`.
 
-### `--quality`
+### `--jpeg-quality`
 
-[Value between 0 and 100 for JPEG rendering quality](/docs/config#setquality). Doesn't work when PNG frames are rendered.
+[Value between 0 and 100 for JPEG rendering quality](/docs/config#setjpegquality). Doesn't work when rendering an image format other than JPEG.
+
+### ~~`--quality`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
+
+### `--ignore-certificate-errors`
+
+Results in invalid SSL certificates in Chrome, such as self-signed ones, being ignored.
+
+### `--disable-web-security`
+
+This will most notably disable CORS in Chrome among other security features.
+
+### `--user-agent`<AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.

@@ -67,6 +67,8 @@ type Props = {
   onLoaded: () => void;
   onError: (error: ErrorEvent) => void;
   onSize: (dim: { width: number; height: number }) => void;
+  // eslint-disable-next-line react/require-default-props
+  autoPlay?: boolean;
 };
 
 type SizedEvent = {
@@ -79,103 +81,114 @@ type SizedEvent = {
 export const VideoPlayerWithControls = forwardRef<
   HTMLVideoElementWithPlyr,
   Props
->(({ playbackId, poster, currentTime, onLoaded, onError, onSize }, ref) => {
-  const videoRef = useRef<HTMLVideoElementWithPlyr>(null);
-  const metaRef = useCombinedRefs(ref, videoRef);
-  const playerRef = useRef<Plyr | null>(null);
-  const [playerInitTime] = useState(Date.now());
+>(
+  (
+    { playbackId, poster, currentTime, onLoaded, onError, onSize, autoPlay },
+    ref
+  ) => {
+    const videoRef = useRef<HTMLVideoElementWithPlyr>(null);
+    const metaRef = useCombinedRefs(ref, videoRef);
+    const playerRef = useRef<Plyr | null>(null);
+    const [playerInitTime] = useState(Date.now());
 
-  const videoError = useCallback(
-    (event: ErrorEvent) => onError(event),
-    [onError]
-  );
+    const videoError = useCallback(
+      (event: ErrorEvent) => onError(event),
+      [onError]
+    );
 
-  const onImageLoad = useCallback(
-    (event: SizedEvent) => {
-      const [w, h] = [event.target.width, event.target.height];
-      if (w && h) {
-        onSize({ width: w, height: h });
-        onLoaded();
-      } else {
-        onLoaded();
-        console.error("Error getting img dimensions", event); // eslint-disable-line no-console
-      }
-    },
-    [onLoaded, onSize]
-  );
+    const onImageLoad = useCallback(
+      (event: SizedEvent) => {
+        const [w, h] = [event.target.width, event.target.height];
+        if (w && h) {
+          onSize({ width: w, height: h });
+          onLoaded();
+        } else {
+          onLoaded();
+          console.error("Error getting img dimensions", event); // eslint-disable-line no-console
+        }
+      },
+      [onLoaded, onSize]
+    );
 
-  /*
-   * See comment above -- we're loading the poster image just so we can grab the dimensions
-   * which determines styles for the player
-   */
-  useEffect(() => {
-    const img = new Image();
-    img.onload = (evt) => onImageLoad(evt as unknown as SizedEvent);
-    img.src = poster;
-  }, [onImageLoad, poster]);
+    /*
+     * See comment above -- we're loading the poster image just so we can grab the dimensions
+     * which determines styles for the player
+     */
+    useEffect(() => {
+      const img = new Image();
+      img.onload = (evt) => onImageLoad(evt as unknown as SizedEvent);
+      img.src = poster;
+    }, [onImageLoad, poster]);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    const src = `https://stream.mux.com/${playbackId}.m3u8`;
-    let hls: Hls | null;
-    hls = null;
-    if (video) {
-      video.addEventListener("error", videoError);
-      const Plyr = require("plyr");
-      playerRef.current = new Plyr(video, {
-        previewThumbnails: {
-          enabled: true,
-          src: `https://image.mux.com/${playbackId}/storyboard.vtt`,
-        },
-        storage: { enabled: false },
-        fullscreen: {
-          iosNative: true,
-        },
-        captions: { active: true, language: "auto", update: true },
-      });
-
-      if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        // This will run in safari, where HLS is supported natively
-        video.src = src;
-      } else if (Hls.isSupported()) {
-        // This will run in all other modern browsers
-        hls = new Hls();
-        hls.loadSource(src);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.ERROR, (_event, data) => {
-          if (data.fatal) {
-            videoError(new ErrorEvent("HLS.js fatal error"));
-          }
-        });
-      } else {
-        console.error(
-          // eslint-disable-line no-console
-          "This is an old browser that does not support MSE https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
-        );
-      }
-    }
-
-    return () => {
+    useEffect(() => {
+      const video = videoRef.current;
+      const src = `https://stream.mux.com/${playbackId}.m3u8`;
+      let hls: Hls | null;
+      hls = null;
       if (video) {
-        video.removeEventListener("error", videoError);
+        video.addEventListener("error", videoError);
+        const Plyr = require("plyr");
+        playerRef.current = new Plyr(video, {
+          previewThumbnails: {
+            enabled: true,
+            src: `https://image.mux.com/${playbackId}/storyboard.vtt`,
+          },
+          storage: { enabled: false },
+          fullscreen: {
+            iosNative: true,
+          },
+          captions: { active: true, language: "auto", update: true },
+        });
+
+        if (video.canPlayType("application/vnd.apple.mpegurl")) {
+          // This will run in safari, where HLS is supported natively
+          video.src = src;
+        } else if (Hls.isSupported()) {
+          // This will run in all other modern browsers
+          hls = new Hls();
+          hls.loadSource(src);
+          hls.attachMedia(video);
+          hls.on(Hls.Events.ERROR, (_event, data) => {
+            if (data.fatal) {
+              videoError(new ErrorEvent("HLS.js fatal error"));
+            }
+          });
+        } else {
+          console.error(
+            // eslint-disable-line no-console
+            "This is an old browser that does not support MSE https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
+          );
+        }
       }
 
-      if (hls) {
-        hls.destroy();
+      return () => {
+        if (video) {
+          video.removeEventListener("error", videoError);
+        }
+
+        if (hls) {
+          hls.destroy();
+        }
+      };
+    }, [playbackId, playerInitTime, videoError, videoRef]);
+
+    useEffect(() => {
+      const video = videoRef.current;
+      if (currentTime && video) {
+        video.currentTime = currentTime;
       }
-    };
-  }, [playbackId, playerInitTime, videoError, videoRef]);
+    }, [currentTime]);
 
-  useEffect(() => {
-    const video = videoRef.current;
-    if (currentTime && video) {
-      video.currentTime = currentTime;
-    }
-  }, [currentTime]);
-
-  return (
-    <div className="video-container">
-      <video ref={metaRef} poster={poster} controls playsInline />
-    </div>
-  );
-});
+    return (
+      <div className="video-container">
+        <video
+          ref={metaRef}
+          autoPlay={autoPlay}
+          poster={poster}
+          controls
+          playsInline
+        />
+      </div>
+    );
+  }
+);

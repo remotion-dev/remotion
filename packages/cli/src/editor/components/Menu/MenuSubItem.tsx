@@ -5,8 +5,9 @@ import {CLEAR_HOVER, LIGHT_TEXT} from '../../helpers/colors';
 import {areKeyboardShortcutsDisabled} from '../../helpers/use-keybinding';
 import {CaretRight} from '../../icons/caret';
 import {useZIndex} from '../../state/z-index';
-import {Flex, Row, Spacing} from '../layout';
+import {Row, Spacing} from '../layout';
 import type {SubMenu} from '../NewComposition/ComboBox';
+import {MENU_ITEM_CLASSNAME} from './is-menu-item';
 import {getPortal} from './portals';
 import {
 	menuContainerTowardsBottom,
@@ -22,10 +23,13 @@ const container: React.CSSProperties = {
 	paddingRight: 8,
 	cursor: 'default',
 };
-export const MENU_SUBMENU_BUTTON_CLASS_NAME = 'remotion-submenu-button';
 
 const labelStyle: React.CSSProperties = {
 	fontSize: 13,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	whiteSpace: 'nowrap',
+	flex: 1,
 };
 
 const keyHintCss: React.CSSProperties = {
@@ -87,7 +91,7 @@ export const MenuSubItem: React.FC<{
 		};
 	}, [selected]);
 
-	const onClick = useCallback(() => {
+	const onItemTriggered = useCallback(() => {
 		onActionChosen(id);
 	}, [id, onActionChosen]);
 
@@ -127,22 +131,38 @@ export const MenuSubItem: React.FC<{
 		return () => clearTimeout(hi);
 	}, [hovered, selected, setSubMenuActivated, subMenu]);
 
+	useEffect(() => {
+		if (selected) {
+			ref.current?.scrollIntoView({
+				// block is vertical alignment, inline is horizontal alignment. So we use "block"
+				block: 'nearest',
+			});
+		}
+	}, [selected]);
+
 	return (
 		<div
 			ref={ref}
 			onPointerEnter={onPointerEnter}
 			onPointerLeave={onPointerLeave}
 			style={style}
-			onClick={onClick}
+			onPointerUp={onItemTriggered}
+			role="button"
+			className={MENU_ITEM_CLASSNAME}
 		>
-			<Row>
+			<Row align="center">
 				{leaveLeftSpace ? (
 					<>
 						<div style={leftSpace}>{leftItem}</div>
 						<Spacing x={1} />
 					</>
 				) : null}
-				<div style={labelStyle}>{label}</div> <Flex />
+				<div
+					style={labelStyle}
+					{...{title: typeof label === 'string' ? label : undefined}}
+				>
+					{label}
+				</div>{' '}
 				<Spacing x={2} />
 				{subMenu ? <CaretRight /> : null}
 				{keyHint && !areKeyboardShortcutsDisabled() ? (

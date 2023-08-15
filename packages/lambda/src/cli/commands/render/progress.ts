@@ -37,7 +37,6 @@ const makeInvokeProgress = (
 	const {lambdasInvoked, totalLambdas} = invokeProgress;
 	const progress = totalLambdas === null ? 0 : lambdasInvoked / totalLambdas;
 	return [
-		'⚡️',
 		`(1/${totalSteps})`,
 		CliInternals.makeProgressBar(progress),
 		`${progress === 0 ? 'Invoked' : 'Invoking'} lambdas`,
@@ -69,7 +68,6 @@ const makeRenderProgress = ({
 			: `(${chunkProgress.framesRendered}/${chunkProgress.totalFrames})`;
 
 	const first = [
-		'🧩',
 		`(2/${totalSteps})`,
 		CliInternals.makeProgressBar(renderProgress),
 		doneIn === null ? 'Rendering frames' : 'Rendered frames',
@@ -79,7 +77,6 @@ const makeRenderProgress = ({
 		.join(' ');
 
 	const second = [
-		'🏗️ ',
 		`(3/${totalSteps})`,
 		CliInternals.makeProgressBar(encodingProgress),
 		`${doneIn === null ? 'Encoding' : 'Encoded'} chunks`,
@@ -113,7 +110,6 @@ const makeEncodingProgress = ({
 	}
 
 	return [
-		'📽 ',
 		`(4/${totalSteps})`,
 		CliInternals.makeProgressBar(progress),
 		`${timeToEncode === null ? 'Combining' : 'Combined'} videos`,
@@ -134,7 +130,6 @@ const makeCleanupProgress = (
 
 	if (skipped) {
 		return [
-			'🪣 ',
 			`(5/${totalSteps})`,
 			CliInternals.chalk.blueBright(
 				`Not cleaning up because --log=verbose was set`
@@ -145,7 +140,6 @@ const makeCleanupProgress = (
 	const {doneIn, filesDeleted, minFilesToDelete} = cleanupInfo;
 	const progress = filesDeleted / minFilesToDelete;
 	return [
-		'🪣 ',
 		`(5/${totalSteps})`,
 		CliInternals.makeProgressBar(progress),
 		`${doneIn === null ? 'Cleaning up' : 'Cleaned up'} artifacts`,
@@ -160,7 +154,6 @@ const makeDownloadProgress = (
 	totalSteps: number
 ) => {
 	return [
-		'💾',
 		`(6/${totalSteps})`,
 		downloadInfo.totalSize === null
 			? CliInternals.getFileSizeDownloadBar(downloadInfo.downloaded)

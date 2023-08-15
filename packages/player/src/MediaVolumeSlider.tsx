@@ -1,7 +1,7 @@
-import React, {useCallback, useId, useMemo, useRef, useState} from 'react';
+import React, {useCallback, useMemo, useRef, useState} from 'react';
 import {Internals, random} from 'remotion';
-import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons';
-import {useHoverState} from './use-hover-state';
+import {ICON_SIZE, VolumeOffIcon, VolumeOnIcon} from './icons.js';
+import {useHoverState} from './use-hover-state.js';
 
 const BAR_HEIGHT = 5;
 const KNOB_SIZE = 12;
@@ -16,8 +16,10 @@ export const MediaVolumeSlider: React.FC<{
 	const parentDivRef = useRef<HTMLDivElement>(null);
 	const inputRef = useRef<HTMLInputElement>(null);
 	const hover = useHoverState(parentDivRef);
-	// eslint-disable-next-line react-hooks/rules-of-hooks
-	const randomId = typeof useId === 'undefined' ? 'volume-slider' : useId();
+	// Need to import it from React to fix React 17 ESM support.
+	const randomId =
+		// eslint-disable-next-line react-hooks/rules-of-hooks
+		typeof React.useId === 'undefined' ? 'volume-slider' : React.useId();
 	const [randomClass] = useState(() =>
 		`__remotion-volume-slider-${random(randomId)}`.replace('.', '')
 	);
@@ -52,7 +54,6 @@ export const MediaVolumeSlider: React.FC<{
 			display: 'inline-flex',
 			background: 'none',
 			border: 'none',
-			padding: '6px',
 			justifyContent: 'center',
 			alignItems: 'center',
 			touchAction: 'none',
@@ -81,6 +82,10 @@ export const MediaVolumeSlider: React.FC<{
 			cursor: 'pointer',
 			height: BAR_HEIGHT,
 			width: VOLUME_SLIDER_WIDTH,
+			backgroundImage: `linear-gradient(
+				to right,
+				white ${mediaVolume * 100}%, rgba(255, 255, 255, 0) ${mediaVolume * 100}%
+			)`,
 		};
 		if (displayVerticalVolumeSlider) {
 			return {
@@ -95,7 +100,7 @@ export const MediaVolumeSlider: React.FC<{
 			...commonStyle,
 			marginLeft: 5,
 		};
-	}, [displayVerticalVolumeSlider]);
+	}, [displayVerticalVolumeSlider, mediaVolume]);
 
 	const sliderStyle = `
 	.${randomClass}::-webkit-slider-thumb {
@@ -105,12 +110,6 @@ export const MediaVolumeSlider: React.FC<{
 		box-shadow: 0 0 2px black;
 		height: ${KNOB_SIZE}px;
 		width: ${KNOB_SIZE}px;
-	}
-	.${randomClass} {
-		background-image: linear-gradient(
-			to right,
-			white ${mediaVolume * 100}%, rgba(255, 255, 255, 0) ${mediaVolume * 100}%
-		);
 	}
 
 	.${randomClass}::-moz-range-thumb {

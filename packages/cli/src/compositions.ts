@@ -1,8 +1,9 @@
-import {getCompositions, RenderInternals} from '@remotion/renderer';
-import path from 'path';
+import {RenderInternals} from '@remotion/renderer';
+import {Internals} from 'remotion';
+import {registerCleanupJob} from './cleanup-before-quit';
+import {ConfigInternals} from './config';
 import {findEntryPoint} from './entry-point';
 import {getCliOptions} from './get-cli-options';
-import {loadConfig} from './get-config-file-name';
 import {Log} from './log';
 import {printCompositions} from './print-compositions';
 import {bundleOnCliOrTakeServeUrl} from './setup-cache';
@@ -24,18 +25,12 @@ export const listCompositionsCommand = async (
 		process.exit(1);
 	}
 
+	const logLevel = ConfigInternals.Logging.getLogLevel();
+
 	Log.verbose('Entry point:', file, 'reason:', reason);
-
-	const downloadMap = RenderInternals.makeDownloadMap();
-
-	const fullPath = path.join(process.cwd(), file);
-
-	await loadConfig(remotionRoot);
 
 	const {
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		chromiumOptions,
 		envVariables,
 		inputProps,
@@ -51,26 +46,39 @@ export const listCompositionsCommand = async (
 	const {urlOrBundle: bundled, cleanup: cleanupBundle} =
 		await bundleOnCliOrTakeServeUrl({
 			remotionRoot,
-			fullPath,
-			steps: ['bundling'],
+			fullPath: file,
 			publicDir,
+			onProgress: () => undefined,
+			indentOutput: false,
+			logLevel,
+			bundlingStep: 0,
+			steps: 1,
+			onDirectoryCreated: (dir) => {
+				registerCleanupJob(() => RenderInternals.deleteDirectory(dir));
+			},
+			quietProgress: false,
 		});
 
-	const compositions = await getCompositions(bundled, {
+	registerCleanupJob(() => cleanupBundle());
+
+	const compositions = await RenderInternals.internalGetCompositions({
+		serveUrlOrWebpackUrl: bundled,
 		browserExecutable,
-		ffmpegExecutable,
-		ffprobeExecutable,
 		chromiumOptions,
 		envVariables,
-		inputProps,
+		serializedInputPropsWithCustomSchema: Internals.serializeJSONWithDate({
+			data: inputProps,
+			staticBase: null,
+			indent: undefined,
+		}).serializedString,
 		timeoutInMilliseconds: puppeteerTimeout,
 		port,
-		downloadMap,
+		indent: false,
+		onBrowserLog: null,
+		puppeteerInstance: undefined,
+		logLevel,
+		server: undefined,
 	});
 
 	printCompositions(compositions);
-
-	await RenderInternals.cleanDownloadMap(downloadMap);
-	await cleanupBundle();
-	Log.verbose('Cleaned up', downloadMap.assetDir);
 };

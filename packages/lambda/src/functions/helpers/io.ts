@@ -6,8 +6,8 @@ import {
 	ListObjectsV2Command,
 	PutObjectCommand,
 } from '@aws-sdk/client-s3';
-import type {ReadStream} from 'fs';
 import mimeTypes from 'mime-types';
+import type {ReadStream} from 'node:fs';
 import type {Readable} from 'stream';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {CustomCredentials} from '../../shared/aws-clients';
@@ -96,16 +96,7 @@ export const lambdaDeleteFile = async ({
 	);
 };
 
-export const lambdaWriteFile = async ({
-	bucketName,
-	key,
-	body,
-	region,
-	privacy,
-	expectedBucketOwner,
-	downloadBehavior,
-	customCredentials,
-}: {
+type LambdaWriteFileInput = {
 	bucketName: string;
 	key: string;
 	body: ReadStream | string;
@@ -114,7 +105,18 @@ export const lambdaWriteFile = async ({
 	expectedBucketOwner: string | null;
 	downloadBehavior: DownloadBehavior | null;
 	customCredentials: CustomCredentials | null;
-}): Promise<void> => {
+};
+
+export const tryLambdaWriteFile = async ({
+	bucketName,
+	key,
+	body,
+	region,
+	privacy,
+	expectedBucketOwner,
+	downloadBehavior,
+	customCredentials,
+}: LambdaWriteFileInput): Promise<void> => {
 	await getS3Client(region, customCredentials).send(
 		new PutObjectCommand({
 			Bucket: bucketName,
@@ -133,6 +135,35 @@ export const lambdaWriteFile = async ({
 			ContentDisposition: getContentDispositionHeader(downloadBehavior),
 		})
 	);
+};
+
+export const lambdaWriteFile = async (
+	params: LambdaWriteFileInput & {
+		retries?: number;
+	}
+): Promise<void> => {
+	const remainingRetries = params.retries ?? 2;
+	try {
+		await tryLambdaWriteFile(params);
+	} catch (err) {
+		if (remainingRetries === 0) {
+			throw err;
+		}
+
+		const backoff = 2 ** (2 - remainingRetries) * 2000;
+		await new Promise((resolve) => {
+			setTimeout(resolve, backoff);
+		});
+
+		console.warn('Failed to write file to Lambda:');
+		console.warn(err);
+		console.warn(`Retrying (${remainingRetries} retries remaining)...`);
+
+		return lambdaWriteFile({
+			...params,
+			retries: remainingRetries - 1,
+		});
+	}
 };
 
 export const lambdaReadFile = async ({

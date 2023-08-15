@@ -4,8 +4,8 @@
 import type {RefObject} from 'react';
 import React from 'react';
 import {afterEach, beforeEach, describe, expect, test, vitest} from 'vitest';
-import {useMediaTagVolume} from '../use-media-tag-volume';
-import {renderHook} from './render-hook';
+import {useMediaTagVolume} from '../use-media-tag-volume.js';
+import {renderHook} from './render-hook.js';
 
 describe('Should update state when volume changes', () => {
 	const setState = vitest.fn();

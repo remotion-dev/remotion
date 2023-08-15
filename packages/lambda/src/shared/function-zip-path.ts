@@ -1,6 +1,6 @@
-import path from 'path';
+import path from 'node:path';
 
-export const FUNCTION_ZIP = path.join(
+export const FUNCTION_ZIP_ARM64 = path.join(
 	path.resolve(__dirname, '..', '..'),
-	`remotionlambda.zip`
+	`remotionlambda-arm64.zip`
 );

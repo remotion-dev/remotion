@@ -1,10 +1,10 @@
 {
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
-		"composite": true,
 		"rootDir": "src",
 		"outDir": "dist"
 	},
-	"references": [{"path": "../core"}, {"path": "../bundler"}],
-	"exclude": ["vitest.config.ts", "dist"]
+	"include": ["src"],
+	"references": [{"path": "../core"}],
+	"exclude": ["vitest.config.ts"]
 }

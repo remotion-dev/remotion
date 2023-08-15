@@ -6,44 +6,42 @@ import {getRemotionS3Buckets} from './get-buckets';
 
 export type GetOrCreateBucketInput = {
 	region: AwsRegion;
-	onBucketEnsured?: () => void;
 };
 
 export type GetOrCreateBucketOutput = {
 	bucketName: string;
+	alreadyExisted: boolean;
 };
 /**
  * @description Creates a bucket for Remotion Lambda in your S3 account. If one already exists, it will get returned instead.
- * @link https://remotion.dev/docs/lambda/getorcreatebucket
- * @param options.region The region in which you want your S3 bucket to reside in.
+ * @see [Documentation](https://remotion.dev/docs/lambda/getorcreatebucket)
+ * @param params.region The region in which you want your S3 bucket to reside in.
  * @returns {Promise<GetOrCreateBucketOutput>} An object containing the `bucketName`.
  */
 export const getOrCreateBucket = async (
-	options: GetOrCreateBucketInput
+	params: GetOrCreateBucketInput
 ): Promise<GetOrCreateBucketOutput> => {
-	const {remotionBuckets} = await getRemotionS3Buckets(options.region);
+	const {remotionBuckets} = await getRemotionS3Buckets(params.region);
 	if (remotionBuckets.length > 1) {
 		throw new Error(
 			`You have multiple buckets (${remotionBuckets.map(
 				(b) => b.name
 			)}) in your S3 region (${
-				options.region
-			}) starting with "${REMOTION_BUCKET_PREFIX}". This is an error, please delete buckets so that you have one maximum.`
+				params.region
+			}) starting with "${REMOTION_BUCKET_PREFIX}". Please see https://remotion.dev/docs/lambda/multiple-buckets.`
 		);
 	}
 
 	if (remotionBuckets.length === 1) {
-		options.onBucketEnsured?.();
-		return {bucketName: remotionBuckets[0].name};
+		return {bucketName: remotionBuckets[0].name, alreadyExisted: true};
 	}
 
-	const bucketName = makeBucketName(options.region);
+	const bucketName = makeBucketName(params.region);
 
 	await createBucket({
 		bucketName,
-		region: options.region,
+		region: params.region,
 	});
-	options.onBucketEnsured?.();
 
-	return {bucketName};
+	return {bucketName, alreadyExisted: false};
 };

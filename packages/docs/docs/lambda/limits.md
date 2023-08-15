@@ -45,7 +45,7 @@ You can get a list of Remotion Lambda functions using `npx remotion lambda funct
 
 > 2. The transactions per second are very low. [Provide a rough estimation]
 > 3. The duration is usually around 30 seconds to 1 minute.
-> 4. In development phase it will invoqued via the Remotion CLI, and in production via a NodeJS app.
+> 4. In development phase it will be invoked via the Remotion CLI, and in production via a NodeJS app.
 > 5. FFmpeg and Puppeteer. The npm package is called @remotion/lambda.
 > 6. The process has a rendering strategy of splitting the rendering in multiple threads, to speed up the result. That is the reason why the quota increase is needed, as explained here: https://www.remotion.dev/lambda
 

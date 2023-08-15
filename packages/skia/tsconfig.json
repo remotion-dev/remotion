@@ -1,9 +1,8 @@
 {
 	"extends": "../tsconfig.settings.json",
 	"compilerOptions": {
-		"composite": true,
-		"rootDir": "src",
-		"outDir": "dist",
+		"rootDir": "./src",
+		"outDir": "dist/cjs",
 		"skipLibCheck": true
 	},
 	"include": ["src"],

@@ -114,9 +114,9 @@ _optional_
 
 A boolean property defining whether you can play or pause a video using space key. If enabled, playing the video and subsequently pressing the space key pauses and resumes the video. Only works if `controls` is true. Default `true`.
 
-### `moveToBeginningWhenEnded`
+### `moveToBeginningWhenEnded`<AvailableFrom v="3.1.3" />
 
-_optional, available from v3.1.3_
+_optional_
 
 A boolean property defining whether the video position should go back to zero once the video has ended. Only works if `loop` is disabled. Default `true`.
 
@@ -132,21 +132,21 @@ _optional_
 
 A regular `style` prop for a HTMLDivElement. You can pass a different height and width if you would like different dimensions for the player than the original composition dimensions.
 
-### `className`
+### `className`<AvailableFrom v="3.1.3" />
 
-_optional - available since v3.1.3_
+_optional_
 
 A HTML class name to be applied to the container.
 
-### `initialFrame`
+### `initialFrame`<AvailableFrom v="3.1.14" />
 
-_optional - available since v3.1.14_
+_optional_
 
 Start the playback from a specific frame. Default `0`. Once the player is mounted, this property cannot be changed.
 
-### `numberOfSharedAudioTags`
+### `numberOfSharedAudioTags`<AvailableFrom v="2.3.1" />
 
-_optional - available since v.2.3.1_
+_optional_
 
 If you use an [`<Audio />`](/docs/audio) tag, it might not play in some browsers (specifically iOS Safari) due to browser autoplay policies. This is why the Remotion Player pre-mounts a set of audio tags with silent audio that get played upon user interaction. These audio tags can then be used to play real audio later and will not be subject to the autoplay policy of the browser.
 
@@ -216,9 +216,9 @@ const MyApp: React.FC = () => {
 A player needs to be loaded if it contains elements that use React Suspense, or if the `lazyComponent` prop is being used.
 :::
 
-### `renderPoster`
+### `renderPoster`<AvailableFrom v="3.2.14" />
 
-_optional, available from v3.2.14_
+_optional_
 
 A callback function that allows you to return a custom UI that gets overlayed over the player.
 
@@ -259,45 +259,51 @@ const MyApp: React.FC = () => {
 };
 ```
 
-### `showPosterWhenUnplayed`
+### `showPosterWhenUnplayed`<AvailableFrom v="3.2.14" />
 
-_optional, available from v3.2.14_
+_optional_
 
 Render the poster when the video is in its initial state and has not been played yet. Requires [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
-### `showPosterWhenPaused`
+### `showPosterWhenPaused`<AvailableFrom v="3.2.14" />
 
-_optional, available from v3.2.14_
+_optional_
 
 Render the poster when the video is paused. Although considered a paused state, the poster will not render while the user is scrubbing through the video. Requires [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
-### `showPosterWhenEnded`
+### `showPosterWhenEnded`<AvailableFrom v="3.2.14" />
 
-_optional, available from v3.2.14_
+_optional_
 
 Render the poster when the video has ended. Requires [`moveToBeginning`](#movetobeginningwhenended) to be set to `false`. [`renderPoster()`](#renderposter) to be set. Default: `false`.
 
-### `inFrame`
+### `inFrame`<AvailableFrom v="3.2.15" />
 
-_optional, available from v3.2.15_
+_optional_
 
 Limit playback to only play after a certain frame. The video will start from this frame and move to this position once it has ended. Must be an integer, not smaller than `0`, not bigger than [`outFrame`](#outframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the beginning of the video.
 
-### `outFrame`
+### `outFrame`<AvailableFrom v="3.2.15" />
 
-_optional, available from v3.2.15_
+_optional_
 
 Limit playback to only play before a certain frame. The video will end at this frame and move to the beginning once it has ended. Must be an integer, not smaller than `1`, not smaller than [`inFrame`](#inframe) and not bigger than `durationInFrames - 1`. Default `null`, which means the end of the video.
 
-### `initiallyShowControls`
+### `initiallyShowControls`<AvailableFrom v="3.2.24" />
 
-_optional, available from v3.2.24_
+_optional_
 
 If true, the controls flash when the player enters the scene. After 2 seconds without hover, the controls fade out. This is similar to how YouTube does it, and signals to the user that the player is in fact controllable. You can also pass a `number`, with which you can customize the duration in milliseconds. Default `true` since `v3.2.24`, before that unsupported.
 
-### `renderPlayPauseButton`
+### `initiallyMuted`<AvailableFrom v="3.3.81" />
 
-_optional, available from v3.2.32_
+_optional_
+
+If true, the player is muted in its initial state. This is useful if the video must autoplay regardless of the [autoplay](/docs/player/autoplay) policy of the browser.
+
+### `renderPlayPauseButton`<AvailableFrom v="3.2.32" />
+
+_optional_
 
 Allows you to customize the Play/Pause button of the controls, must be a callback function that returns a valid React element.
 
@@ -334,9 +340,9 @@ export const App: React.FC = () => {
 };
 ```
 
-### `renderFullscreenButton`
+### `renderFullscreenButton`<AvailableFrom v="3.2.32" />
 
-_optional, available from v3.2.32_
+_optional_
 
 Allows you to customise the fullscreen button of the player controls, must return a valid React element. If fullscreen is disabled or not available in a browser, it will not be rendered.
 
@@ -372,6 +378,22 @@ export const App: React.FC = () => {
   );
 };
 ```
+
+### `alwaysShowControls`<AvailableFrom v="3.3.55" />
+
+_optional_
+
+If true, displays the player controls at all times even if the mouse is outside the player area. Default `false`.
+
+### `showPlaybackRateControl`<AvailableFrom v="3.3.98" />
+
+_optional_
+
+If `true`, displays a gear icon allowing the user to change the playback rate.
+
+You may pass an array with the available playback rates for selection, however, updating the list dynamically is not supported. `true` is an alias for `[0.5, 0.8, 1, 1.2, 1.5, 1.8, 2, 2.5, 3]`.
+
+Default `false`.
 
 ## `PlayerRef`
 
@@ -418,9 +440,7 @@ The following methods are available on the player ref:
 
 Pause the video. Nothing happens if the video is already paused.
 
-### `pauseAndReturnToPlayStart()`
-
-_Availabe from v3.0.30_
+### `pauseAndReturnToPlayStart()`<AvailableFrom v="3.0.30" />
 
 If the video is playing, pause it and return to the playback position where the video has last been played.
 
@@ -440,15 +460,13 @@ If you play the video from a user gesture, pass the `SyntheticEvent` in as an ar
 
 Gets the current position expressed as the current frame. Divide by the `fps` you passed to get the time in seconds.
 
-### `isPlaying()`
+[Special considerations must be made](https://www.remotion.dev/docs/player/current-time) if you want to display a component that synchronizes with the time of the player.
 
-_Available from v2.5.7_
+### `isPlaying()`<AvailableFrom v="2.5.7" />
 
 Returns a boolean indicating whether the video is playing.
 
-### `getContainerNode()`
-
-_Available from v2.4.2_
+### `getContainerNode()`<AvailableFrom v="2.4.2" />
 
 Gets the container `HTMLDivElement` of the player. Useful if you'd like to manually attach listeners to the player element.
 
@@ -520,13 +538,13 @@ _To observe the fullscreen state and react to changes, listen to the [`fullscree
 
 Requests the video to go to fullscreen. This method throws if the `allowFullscreen` prop is false or the browser doesn't support allow the player to go into fullscreen.
 
+In Mobile Safari, Fullscreen is supported from iOS 17.
+
 ### `exitFullscreen()`
 
 Exit fullscreen mode.
 
-### `getScale()`
-
-_available since v3.2.24_
+### `getScale()`<AvailableFrom v="3.2.24" />
 
 Returns a number which says how much the content is scaled down compared to the natural composition size. For example, if the composition is `1920x1080`, but the player is 960px in width, this method would return `0.5`.
 
@@ -556,30 +574,78 @@ useEffect(() => {
   const onPlay: CallbackListener<"play"> = () => {
     console.log("play");
   };
-  playerRef.current.addEventListener("play", onPlay);
-  playerRef.current.addEventListener("ratechange", () => {
-    console.log("ratechange");
-  });
-  playerRef.current.addEventListener("pause", () => {
+  const onRateChange: CallbackListener<"ratechange"> = (e) => {
+    console.log("ratechange", e.detail.playbackRate);
+  };
+  const onVolumeChange: CallbackListener<"volumechange"> = (e) => {
+    console.log("new volume", e.detail.volume);
+  };
+
+  const onPause: CallbackListener<"pause"> = () => {
     console.log("pausing");
-  });
+  };
+
+  const onSeeked: CallbackListener<"seeked"> = (e) => {
+    console.log("seeked to " + e.detail.frame);
+  };
+
+  const onTimeupdate: CallbackListener<"timeupdate"> = (e) => {
+    console.log("time has updated to " + e.detail.frame);
+  };
+
+  const onEnded: CallbackListener<"ended"> = () => {
+    console.log("ended");
+  };
+
+  const onError: CallbackListener<"error"> = (e) => {
+    console.log("error", e.detail.error);
+  };
+
+  const onFullscreenChange: CallbackListener<"fullscreenchange"> = (e) => {
+    console.log("fullscreenchange", e.detail.isFullscreen);
+  };
+
+  const onScaleChange: CallbackListener<"scalechange"> = (e) => {
+    console.log("scalechange", e.detail.scale);
+  };
+
+  const onMuteChange: CallbackListener<"mutechange"> = (e) => {
+    console.log("mutechange", e.detail.isMuted);
+  };
+
+  playerRef.current.addEventListener("play", onPlay);
+  playerRef.current.addEventListener("ratechange", onRateChange);
+  playerRef.current.addEventListener("volumechange", onVolumeChange);
+  playerRef.current.addEventListener("pause", onPause);
+  playerRef.current.addEventListener("ended", onEnded);
+  playerRef.current.addEventListener("error", onError);
+  playerRef.current.addEventListener("fullscreenchange", onFullscreenChange);
+  playerRef.current.addEventListener("scalechange", onScaleChange);
+  playerRef.current.addEventListener("mutechange", onMuteChange);
 
   // See below for difference between `seeked` and `timeupdate`
-  playerRef.current.addEventListener("seeked", (e) => {
-    console.log("seeked to " + e.detail.frame);
-  });
-  playerRef.current.addEventListener("timeupdate", (e) => {
-    console.log("time has updated to " + e.detail.frame);
-  });
-  playerRef.current.addEventListener("ended", (e) => {
-    console.log("ended");
-  });
-  playerRef.current.addEventListener("error", (e) => {
-    console.log("error", e.detail.error);
-  });
-  playerRef.current.addEventListener("fullscreenchange", (e) => {
-    console.log("fullscreenchange", e.detail.isFullscreen);
-  });
+  playerRef.current.addEventListener("seeked", onSeeked);
+  playerRef.current.addEventListener("timeupdate", onTimeupdate);
+
+  return () => {
+    // Make sure to clean up event listeners
+    if (playerRef.current) {
+      playerRef.current.removeEventListener("play", onPlay);
+      playerRef.current.removeEventListener("ratechange", onRateChange);
+      playerRef.current.removeEventListener("volumechange", onVolumeChange);
+      playerRef.current.removeEventListener("pause", onPause);
+      playerRef.current.removeEventListener("ended", onEnded);
+      playerRef.current.removeEventListener("error", onError);
+      playerRef.current.removeEventListener(
+        "fullscreenchange",
+        onFullscreenChange
+      );
+      playerRef.current.removeEventListener("scalechange", onScaleChange);
+      playerRef.current.removeEventListener("mutechange", onMuteChange);
+      playerRef.current.removeEventListener("seeked", onSeeked);
+      playerRef.current.removeEventListener("timeupdate", onTimeupdate);
+    }
+  };
 }, []);
 ```
 
@@ -616,6 +682,14 @@ Fires when the video has started playing or has resumed from a pause.
 
 Fires when the [`playbackRate`](#playbackrate) has changed.
 
+### `scalechange`<AvailableFrom v="3.3.86" />
+
+Fires when the `scale` has changed. Also returned by [`getScale()`](#getscale).
+
+### `volumechange`<AvailableFrom v="3.3.86" />
+
+Fires when the volume has changed. Also returned by [`getVolume()`](#getvolume).
+
 ### `pause`
 
 Fires when the video has paused or ended.
@@ -641,9 +715,7 @@ Prefer the [`seeked`](#seeked) event if you only want to get time updates during
 
 Prefer the [`frameupdate`](#frameupdate) event if you need an update for every single frame.
 
-### `frameupdate`
-
-_Available from v3.2.27_
+### `frameupdate`<AvailableFrom v="3.2.27" />
 
 Fires whenever the current time has changed, during both playback and seeking.
 
@@ -664,9 +736,7 @@ Prefer the [`seeked`](#seeked) event if you only want to get time updates during
 
 Prefer the [`timeupdate`](#timeupdate) event if you only need periodical updates (at most every 250ms).
 
-### `fullscreenchange`
-
-_Available from v3.2.0_
+### `fullscreenchange`<AvailableFrom v="3.2.0" />
 
 Fires when the player enters or exits fullscreen. By reading `e.detail.isFullscreen` or calling `playerRef.isFullscreen()` you can determine if the player is currently in fullscreen or not.
 
@@ -680,6 +750,23 @@ if (!playerRef.current) {
 // ---cut---
 playerRef.current.addEventListener("fullscreenchange", (e) => {
   console.log("is fullscreen" + e.detail.isFullscreen); // is fullscreen true
+});
+```
+
+### `mutechange`<AvailableFrom v="3.3.98" />
+
+Fires when the player's audio is muted or not. Also returned by [`isMuted()`](#ismuted).
+
+```tsx twoslash
+import { PlayerRef } from "@remotion/player";
+import { useRef } from "react";
+const playerRef = useRef<PlayerRef>(null);
+if (!playerRef.current) {
+  throw new Error();
+}
+// ---cut---
+playerRef.current.addEventListener("mutechange", (e) => {
+  console.log("is mute" + e.detail.isMuted); // is mute true
 });
 ```
 
@@ -706,7 +793,7 @@ When a video throws an exception, you may handle the error using the [`error` ev
 The video will unmount and show an error UI, but the host application (The React app which is embedding the player) will not crash.
 It is up to you to handle the error and to re-mount the video (for example by changing the `key` prop in React).
 
-This feature is implemented using an [error boundary](https://reactjs.org/docs/error-boundaries.html), so only errors in the render function will be caught. Errors in event handlers and asynchronous code will not be reported and will not cause the video to unmount.
+This feature is implemented using an [error boundary](https://react.dev/reference/react/Component#catching-rendering-errors-with-an-error-boundary), so only errors in the render function will be caught. Errors in event handlers and asynchronous code will not be reported and will not cause the video to unmount.
 
 You can customize the error message that is shown if a video crashes:
 

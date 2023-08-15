@@ -1,10 +1,12 @@
+import type {SetStateAction} from 'react';
 import React, {useCallback, useMemo, useState} from 'react';
 import {BACKGROUND} from '../helpers/colors';
 import {useMenuStructure} from '../helpers/use-menu-structure';
-import {Row} from './layout';
+import {Row, Spacing} from './layout';
 import type {MenuId} from './Menu/MenuItem';
 import {MenuItem} from './Menu/MenuItem';
 import {MenuBuildIndicator} from './MenuBuildIndicator';
+import {SidebarCollapserControls} from './SidebarCollapserControls';
 import {UpdateCheck} from './UpdateCheck';
 
 const row: React.CSSProperties = {
@@ -19,15 +21,29 @@ const row: React.CSSProperties = {
 	backgroundColor: BACKGROUND,
 };
 
+const fixedWidthRight: React.CSSProperties = {
+	minWidth: '350px',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'flex-end',
+};
+
+const fixedWidthLeft: React.CSSProperties = {
+	minWidth: '350px',
+	display: 'flex',
+	alignItems: 'center',
+	justifyContent: 'flex-start',
+};
+
 const flex: React.CSSProperties = {
 	flex: 1,
 };
 
 export const MenuToolbar: React.FC = () => {
-	const [selected, setSelected] = useState<MenuId | null>(null);
+	const [selected, setSelected] = useState<string | null>(null);
 
 	const itemClicked = useCallback(
-		(itemId: MenuId) => {
+		(itemId: SetStateAction<string | null>) => {
 			setSelected(itemId);
 		},
 		[setSelected]
@@ -58,7 +74,7 @@ export const MenuToolbar: React.FC = () => {
 				return null;
 			}
 
-			return menus[(menus.indexOf(s) + 1) % menus.length];
+			return menus[(menus.indexOf(s as MenuId) + 1) % menus.length];
 		});
 	}, [menus]);
 
@@ -68,11 +84,11 @@ export const MenuToolbar: React.FC = () => {
 				return null;
 			}
 
-			if (menus.indexOf(s) === 0) {
+			if (menus.indexOf(s as MenuId) === 0) {
 				return menus[menus.length - 1];
 			}
 
-			return menus[(menus.indexOf(s) - 1) % menus.length];
+			return menus[(menus.indexOf(s as MenuId) - 1) % menus.length];
 		});
 	}, [menus]);
 
@@ -81,27 +97,34 @@ export const MenuToolbar: React.FC = () => {
 	}, [setSelected]);
 
 	return (
-		<Row align="center" className="css-reset" style={row}>
-			{structure.map((s) => {
-				return (
-					<MenuItem
-						key={s.id}
-						selected={selected === s.id}
-						onItemSelected={itemClicked}
-						onItemHovered={itemHovered}
-						id={s.id}
-						label={s.label}
-						onItemQuit={onItemQuit}
-						menu={s}
-						onPreviousMenu={onPreviousMenu}
-						onNextMenu={onNextMenu}
-						leaveLeftPadding={s.leaveLeftPadding}
-					/>
-				);
-			})}
-			<UpdateCheck />
+		<Row justify="center" align="center" className="css-reset" style={row}>
+			<div style={fixedWidthLeft}>
+				{structure.map((s) => {
+					return (
+						<MenuItem
+							key={s.id}
+							selected={selected === s.id}
+							onItemSelected={itemClicked}
+							onItemHovered={itemHovered}
+							id={s.id}
+							label={s.label}
+							onItemQuit={onItemQuit}
+							menu={s}
+							onPreviousMenu={onPreviousMenu}
+							onNextMenu={onNextMenu}
+							leaveLeftPadding={s.leaveLeftPadding}
+						/>
+					);
+				})}
+				<UpdateCheck />
+			</div>
 			<div style={flex} />
 			<MenuBuildIndicator />
+			<div style={flex} />
+			<div style={fixedWidthRight}>
+				<SidebarCollapserControls />
+			</div>
+			<Spacing x={1} />
 		</Row>
 	);
 };

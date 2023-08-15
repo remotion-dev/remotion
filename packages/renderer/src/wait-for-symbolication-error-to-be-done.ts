@@ -1,36 +1,9 @@
-let locks: number[] = [];
-type Waiter = () => void;
+import {createLock} from './locks';
 
-const waiters: Waiter[] = [];
+const {lock, unlock, waitForAllToBeDone} = createLock({timeout: 50000});
 
-export const registerErrorSymbolicationLock = () => {
-	const id = Math.random();
-	locks.push(id);
-	return id;
-};
+export const registerErrorSymbolicationLock = lock;
 
-export const unlockErrorSymbolicationLock = (id: number) => {
-	locks = locks.filter((l) => l !== id);
-	resolveWaiters();
-};
+export const unlockErrorSymbolicationLock = unlock;
 
-const resolveWaiters = () => {
-	if (locks.length === 0) {
-		waiters.forEach((w) => w());
-	}
-};
-
-export const waitForSymbolicationToBeDone = (): Promise<unknown> => {
-	const success = new Promise<void>((resolve) => {
-		waiters.push(() => {
-			resolve();
-		});
-	});
-	const timeout = new Promise<void>((resolve) => {
-		setTimeout(() => resolve(), 5000);
-	});
-
-	resolveWaiters();
-
-	return Promise.all([success, timeout]);
-};
+export const waitForSymbolicationToBeDone = waitForAllToBeDone;

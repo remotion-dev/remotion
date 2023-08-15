@@ -2,11 +2,12 @@ import {construct} from './helpers/construct';
 import {getPartAtLength} from './helpers/get-part-at-length';
 
 /**
- * Gets tangent values x and y of a point which is on an SVG path
+ * @description Gets tangent values x and y of a point which is on an SVG path
  * @param {string} path A valid SVG path
  * @param {number} length The length at which the tangent should be sampled
- * @link https://remotion.dev/docs/paths/get-tangent-at-length
+ * @see [Documentation](https://remotion.dev/docs/paths/get-tangent-at-length)
  */
+
 export const getTangentAtLength = (path: string, length: number) => {
 	const constructed = construct(path);
 

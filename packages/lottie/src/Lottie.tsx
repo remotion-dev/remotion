@@ -7,6 +7,10 @@ import {getNextFrame} from './utils';
 import {validateLoop} from './validate-loop';
 import {validatePlaybackRate} from './validate-playbackrate';
 
+/**
+ * @description	Part of the @remotion/lottie package.
+ * @see [Documentation](https://www.remotion.dev/docs/lottie/lottie)
+ */
 export const Lottie = ({
 	animationData,
 	className,
@@ -26,7 +30,7 @@ export const Lottie = ({
 	validateLoop(loop);
 
 	const animationRef = useRef<AnimationItem>();
-	const lastFrameRef = useRef<number | null>(null);
+	const currentFrameRef = useRef<number | null>(null);
 	const containerRef = useRef<HTMLDivElement>(null);
 
 	const onAnimationLoadedRef = useRef<LottieProps['onAnimationLoaded']>();
@@ -36,6 +40,7 @@ export const Lottie = ({
 		delayRender('Waiting for Lottie animation to load')
 	);
 	const frame = useCurrentFrame();
+	currentFrameRef.current = frame;
 
 	useEffect(() => {
 		if (!containerRef.current) {
@@ -48,12 +53,19 @@ export const Lottie = ({
 			animationData,
 		});
 
-		if (lastFrameRef.current) {
-			animationRef.current.goToAndStop(lastFrameRef.current, true);
-		}
-
 		const {current: animation} = animationRef;
 		const onComplete = () => {
+			// Seek frame twice to avoid Lottie initialization bug:
+			// See LottieInitializationBugfix composition in the example project for a repro.
+			// We can work around it by seeking twice, initially.
+			if (currentFrameRef.current) {
+				animationRef.current?.goToAndStop(
+					Math.max(0, currentFrameRef.current - 1),
+					true
+				);
+				animationRef.current?.goToAndStop(currentFrameRef.current, true);
+			}
+
 			continueRender(handle);
 		};
 
@@ -62,7 +74,6 @@ export const Lottie = ({
 		onAnimationLoadedRef.current?.(animation);
 
 		return () => {
-			lastFrameRef.current = animation.currentFrame;
 			animation.removeEventListener('DOMLoaded', onComplete);
 			animation.destroy();
 		};
@@ -98,6 +109,14 @@ export const Lottie = ({
 			'image'
 		) as NodeListOf<SVGImageElement>;
 		images.forEach((img) => {
+			const currentHref = img.getAttributeNS(
+				'http://www.w3.org/1999/xlink',
+				'href'
+			);
+			if (currentHref && currentHref === img.href.baseVal) {
+				return;
+			}
+
 			const imgHandle = delayRender(
 				`Waiting for lottie image with src="${img.href.baseVal}" to load`
 			);

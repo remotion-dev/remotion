@@ -50,7 +50,7 @@ yarn create video --blank
 
 ## Sample dataset
 
-JSON is the most convienient format to import in Remotion. If your dataset is in a different format, you can convert it using one of many available libraries on NPM.
+JSON is the most convenient format to import in Remotion. If your dataset is in a different format, you can convert it using one of many available libraries on NPM.
 
 ```ts title="my-data.ts"
 export const data = [
@@ -169,15 +169,23 @@ export const MyComposition: React.FC<Props> = ({ name, repo, logo }) => {
 ## Writing the script
 
 In order to render our videos, we'll first need to bundle our project using Webpack and prepare it for rendering.
-This can be done by using the [`bundle()`](/docs/bundle) function from the [`@remotion/bundler`](/docs/bundler) package.
+This can be done by using the [`bundle()`](/docs/bundle) function from the [`@remotion/bundler`](/docs/bundler) package. Make sure to include the webpack override in the bundle if you have one.
 
 ```ts twoslash
+// @filename: webpack-override.ts
+import type { WebpackOverrideFn } from "@remotion/bundler";
+export const webpackOverride: WebpackOverrideFn = (f) => f;
+// @filename: script.ts
 // @module: esnext
 // @target: es2022
+// ---cut---
 import { bundle } from "@remotion/bundler";
+import { webpackOverride } from "./webpack-override";
 
 const bundleLocation = await bundle({
   entryPoint: "./src/index.ts",
+  // If you have a webpack override, don't forget to add it
+  webpackOverride: webpackOverride,
 });
 ```
 
@@ -205,6 +213,10 @@ if (!composition) {
 ```
 
 By throwing an error if the composition does not exist, we tell TypeScript that we are sure that `composition` is not `undefined`.
+
+:::note
+If the duration or dimensions of your video are dependent on your data, pass the data to `getCompositions()` as well. [See here for an example](#change-duration-width-or-height-dynamically).
+:::
 
 ## Rendering videos
 
@@ -236,6 +248,8 @@ const composition = {
   fps: 30,
   durationInFrames: 30,
   id: "hi",
+  defaultProps: {},
+  props: {},
 };
 const bundleLocation = "xxx";
 // ---cut---
@@ -259,7 +273,7 @@ It is not recommended to render more than one video at once.
 
 ## Full script
 
-Currently, top level `await` is not well supported, so all asynchronous functions were wrapped in an async function and which is immediately called.
+Currently, top level `await` is not enable by default in Node, so all asynchronous functions were wrapped in an async function and which is immediately called.
 
 ```ts twoslash title="render.ts"
 // @filename: dataset.ts
@@ -276,9 +290,14 @@ export const data = [
   },
 ];
 
+// @filename: webpack-override.ts
+import type { WebpackOverrideFn } from "@remotion/bundler";
+export const webpackOverride: WebpackOverrideFn = (f) => f;
+
 // @filename: render.ts
 // ---cut---
 import { getCompositions, renderMedia } from "@remotion/renderer";
+import { webpackOverride } from "./webpack-override";
 import { bundle } from "@remotion/bundler";
 import { data } from "./dataset";
 
@@ -287,6 +306,8 @@ const compositionId = "MyComp";
 const start = async () => {
   const bundleLocation = await bundle({
     entryPoint: "./src/index.ts",
+    // If you have a webpack override, don't forget to add it
+    webpackOverride: webpackOverride,
   });
 
   const allCompositions = await getCompositions(bundleLocation);
@@ -365,7 +386,61 @@ Use a package like [`csv2json`](https://www.npmjs.com/package/csv2json) to conve
 
 ## Change duration, width or height dynamically
 
-Call [`getCompositions()`](/docs/renderer/get-compositions) with the [`inputProps`](/docs/renderer/get-compositions#inputprops) option and [change the metadata programmatically as described here](/docs/dynamic-metadata).
+To make the duration or the dimensions dependent on your data, call [`getCompositions()`](/docs/renderer/get-compositions) with the [`inputProps`](/docs/renderer/get-compositions#inputprops) option. For this you need to move `getCompositions()` into the `for` loop like this:
+
+```ts twoslash title="render.ts"
+// @filename: dataset.ts
+export const data = [
+  {
+    name: "React",
+    repo: "facebook/react",
+    logo: "https://upload.wikimedia.org/wikipedia/commons/a/a7/React-icon.svg",
+  },
+  {
+    name: "Remotion",
+    repo: "remotion-dev/remotion",
+    logo: "https://github.com/remotion-dev/logo/raw/main/withouttitle/element-0.png",
+  },
+];
+
+// @filename: webpack-override.ts
+import type { WebpackOverrideFn } from "@remotion/bundler";
+export const webpackOverride: WebpackOverrideFn = (f) => f;
+
+// @filename: render.ts
+// @target: es2022
+const bundleLocation = "/tmp/bundle.js";
+import { getCompositions, renderMedia } from "@remotion/renderer";
+import { webpackOverride } from "./webpack-override";
+import { bundle } from "@remotion/bundler";
+import { data } from "./dataset";
+
+const compositionId = "MyComp";
+
+// ---cut---
+for (const entry of data) {
+  const allCompositions = await getCompositions(bundleLocation, {
+    // Add input props to getCompositions() as well.
+    inputProps: entry,
+  });
+
+  const composition = allCompositions.find((c) => c.id === compositionId);
+
+  if (!composition) {
+    throw new Error(`No composition with the ID ${compositionId} found.`);
+  }
+
+  await renderMedia({
+    composition,
+    serveUrl: bundleLocation,
+    codec: "h264",
+    outputLocation: `out/${entry.name}.mp4`,
+    inputProps: entry,
+  });
+}
+```
+
+Learn how to [change the metadata based on the input props here](/docs/dynamic-metadata).
 
 ## Credits
 

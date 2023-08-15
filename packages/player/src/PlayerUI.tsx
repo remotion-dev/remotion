@@ -16,21 +16,20 @@ import {
 	calculateContainerStyle,
 	calculateOuter,
 	calculateOuterStyle,
-} from './calculate-scale';
-import {ErrorBoundary} from './error-boundary';
-import {PLAYER_CSS_CLASSNAME} from './player-css-classname';
-import type {PlayerMethods, PlayerRef} from './player-methods';
+} from './calculate-scale.js';
+import {ErrorBoundary} from './error-boundary.js';
+import {PLAYER_CSS_CLASSNAME} from './player-css-classname.js';
+import type {PlayerMethods, PlayerRef} from './player-methods.js';
 import type {
 	RenderFullscreenButton,
 	RenderPlayPauseButton,
-} from './PlayerControls';
-import {Controls} from './PlayerControls';
-import {useHoverState} from './use-hover-state';
-import {usePlayback} from './use-playback';
-import {usePlayer} from './use-player';
-import {IS_NODE} from './utils/is-node';
-import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click';
-import {useElementSize} from './utils/use-element-size';
+} from './PlayerControls.js';
+import {Controls} from './PlayerControls.js';
+import {usePlayback} from './use-playback.js';
+import {usePlayer} from './use-player.js';
+import {IS_NODE} from './utils/is-node.js';
+import {useClickPreventionOnDoubleClick} from './utils/use-click-prevention-on-double-click.js';
+import {useElementSize} from './utils/use-element-size.js';
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 export type RenderLoading = (canvas: {
@@ -54,7 +53,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		loop: boolean;
 		autoPlay: boolean;
 		allowFullscreen: boolean;
-		inputProps: unknown;
+		inputProps: Record<string, unknown>;
 		showVolumeControls: boolean;
 		style?: React.CSSProperties;
 		clickToPlay: boolean;
@@ -74,6 +73,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		initiallyShowControls: number | boolean;
 		renderPlayPauseButton: RenderPlayPauseButton | null;
 		renderFullscreen: RenderFullscreenButton | null;
+		alwaysShowControls: boolean;
+		showPlaybackRateControl: boolean | number[];
 	}
 > = (
 	{
@@ -101,13 +102,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		initiallyShowControls,
 		renderFullscreen: renderFullscreenButton,
 		renderPlayPauseButton,
+		alwaysShowControls,
+		showPlaybackRateControl,
 	},
 	ref
 ) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
 	const container = useRef<HTMLDivElement>(null);
-	const hovered = useHoverState(container);
 	const canvasSize = useElementSize(container, {
 		triggerOnWindowResize: false,
 		shouldApplyCssTransforms: false,
@@ -212,11 +214,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				document.webkitFullscreenElement ?? document.fullscreenElement;
 
 			if (element && element === container.current) {
-				player.emitter.dispatchFullscreenChangeUpdate({
+				player.emitter.dispatchFullscreenChange({
 					isFullscreen: true,
 				});
 			} else {
-				player.emitter.dispatchFullscreenChangeUpdate({
+				player.emitter.dispatchFullscreenChange({
 					isFullscreen: false,
 				});
 			}
@@ -245,12 +247,33 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			previewSize: 'auto',
 		});
 	}, [canvasSize, config]);
+
 	const scale = layout?.scale ?? 1;
+	const initialScaleIgnored = useRef(false);
+
+	useEffect(() => {
+		if (!initialScaleIgnored.current) {
+			initialScaleIgnored.current = true;
+			return;
+		}
+
+		player.emitter.dispatchScaleChange(scale);
+	}, [player.emitter, scale]);
 
 	const {setMediaVolume, setMediaMuted} = useContext(
 		Internals.SetMediaVolumeContext
 	);
 	const {mediaMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
+	useEffect(() => {
+		player.emitter.dispatchVolumeChange(mediaVolume);
+	}, [player.emitter, mediaVolume]);
+
+	const isMuted = mediaMuted || mediaVolume === 0;
+	useEffect(() => {
+		player.emitter.dispatchMuteChange({
+			isMuted,
+		});
+	}, [player.emitter, isMuted]);
 
 	useImperativeHandle(
 		ref,
@@ -308,7 +331,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 					setMediaVolume(vol);
 				},
-				isMuted: () => mediaMuted || mediaVolume === 0,
+				isMuted: () => isMuted,
 				mute: () => {
 					setMediaMuted(true);
 				},
@@ -325,6 +348,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			isFullscreen,
 			loop,
 			mediaMuted,
+			isMuted,
 			mediaVolume,
 			player,
 			requestFullscreen,
@@ -456,10 +480,12 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				<div style={containerStyle} className={PLAYER_CSS_CLASSNAME}>
 					{VideoComponent ? (
 						<ErrorBoundary onError={onError} errorFallback={errorFallback}>
-							<VideoComponent
-								{...((video?.defaultProps as unknown as {}) ?? {})}
-								{...((inputProps as unknown as {}) ?? {})}
-							/>
+							<Internals.ClipComposition>
+								<VideoComponent
+									{...(video?.props ?? {})}
+									{...(inputProps ?? {})}
+								/>
+							</Internals.ClipComposition>
 						</ErrorBoundary>
 					) : null}
 				</div>
@@ -479,8 +505,8 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				<Controls
 					fps={config.fps}
 					durationInFrames={config.durationInFrames}
-					hovered={hovered}
 					player={player}
+					containerRef={container}
 					onFullscreenButtonClick={onFullscreenButtonClick}
 					isFullscreen={isFullscreen}
 					allowFullscreen={allowFullscreen}
@@ -492,9 +518,11 @@ const PlayerUI: React.ForwardRefRenderFunction<
 					inFrame={inFrame}
 					outFrame={outFrame}
 					initiallyShowControls={initiallyShowControls}
-					playerWidth={canvasSize?.width ?? 0}
+					canvasSize={canvasSize}
 					renderFullscreenButton={renderFullscreenButton}
 					renderPlayPauseButton={renderPlayPauseButton}
+					alwaysShowControls={alwaysShowControls}
+					showPlaybackRateControl={showPlaybackRateControl}
 				/>
 			) : null}
 		</>
