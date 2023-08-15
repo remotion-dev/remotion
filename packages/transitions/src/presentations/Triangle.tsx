@@ -1,12 +1,12 @@
-import React, {useRef, useState} from 'react';
+import {useRef, useState} from 'react';
 import {AbsoluteFill, random} from 'remotion';
-import type {TransitionDirection} from '../types';
+import type {TransitionPresentation} from '../types';
 
-export const TriangleTransition: React.FC<{
-	progress: number;
-	children: React.ReactNode;
-	direction: TransitionDirection;
-}> = ({children, progress, direction}) => {
+export const TriangleTransition: TransitionPresentation = ({
+	children,
+	progress,
+	direction,
+}) => {
 	const ref = useRef<SVGSVGElement>(null);
 	const width = 1;
 	const height = 1;
@@ -53,7 +53,7 @@ export const TriangleTransition: React.FC<{
 				>
 					<defs>
 						<clipPath id={clipId} clipPathUnits="objectBoundingBox">
-							<path d={path} fill="red" />
+							<path d={path} fill="black" />
 						</clipPath>
 					</defs>
 				</svg>

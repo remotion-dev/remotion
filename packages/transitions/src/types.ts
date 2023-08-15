@@ -10,10 +10,8 @@ export type TransitionSeriesTransitionProps = {
 	presentation: TransitionPresentation;
 };
 
-export type TransitionPresentation =
-	| {
-			type: 'triangle';
-	  }
-	| {
-			type: 'slide';
-	  };
+export type TransitionPresentation = React.FC<{
+	progress: number;
+	children: React.ReactNode;
+	direction: TransitionDirection;
+}>;

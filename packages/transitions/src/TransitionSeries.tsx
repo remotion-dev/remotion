@@ -2,8 +2,6 @@ import type {FC, PropsWithChildren} from 'react';
 import {Children, useMemo} from 'react';
 import type {SequenceProps} from 'remotion';
 import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
-import {flattenChildren} from './flatten-children';
-import {GenericTransition} from './GenericTransition';
 import type {TransitionSeriesTransitionProps} from './types';
 
 const TransitionSeriesTransition: React.FC<
@@ -175,44 +173,35 @@ const TransitionSeries: FC<{
 				: null;
 
 			if (next && prev && nextProgress !== null && prevProgress !== null) {
+				const UppercaseNextPresentation = next.props.presentation;
+				const UppercasePrevPresentation = prev.props.presentation;
+
 				return (
-					<GenericTransition
-						preset={next.props.presentation}
-						direction="out"
-						progress={nextProgress}
-					>
-						<GenericTransition
-							preset={prev.props.presentation}
-							direction="in"
-							progress={prevProgress}
-						>
+					<UppercaseNextPresentation direction="out" progress={nextProgress}>
+						<UppercasePrevPresentation direction="in" progress={prevProgress}>
 							{inner}
-						</GenericTransition>
-					</GenericTransition>
+						</UppercasePrevPresentation>
+					</UppercaseNextPresentation>
 				);
 			}
 
 			if (prevProgress !== null && prev) {
+				const UppercasePrevPresentation = prev.props.presentation;
+
 				return (
-					<GenericTransition
-						preset={prev.props.presentation}
-						direction="in"
-						progress={prevProgress}
-					>
+					<UppercasePrevPresentation direction="in" progress={prevProgress}>
 						{inner}
-					</GenericTransition>
+					</UppercasePrevPresentation>
 				);
 			}
 
 			if (nextProgress !== null && next) {
+				const UppercaseNextPresentation = next.props.presentation;
+
 				return (
-					<GenericTransition
-						preset={next.props.presentation}
-						direction="out"
-						progress={nextProgress}
-					>
+					<UppercaseNextPresentation direction="out" progress={nextProgress}>
 						{inner}
-					</GenericTransition>
+					</UppercaseNextPresentation>
 				);
 			}
 
@@ -228,3 +217,24 @@ TransitionSeries.Sequence = SeriesSequence;
 TransitionSeries.Transition = TransitionSeriesTransition;
 
 export {TransitionSeries};
+
+import React from 'react';
+
+type ReactChildArray = ReturnType<typeof React.Children.toArray>;
+
+const flattenChildren = (children: React.ReactNode): ReactChildArray => {
+	const childrenArray = React.Children.toArray(children);
+	return childrenArray.reduce((flatChildren: ReactChildArray, child) => {
+		if ((child as React.ReactElement<unknown>).type === React.Fragment) {
+			return flatChildren.concat(
+				flattenChildren(
+					(child as React.ReactElement<PropsWithChildren<unknown>>).props
+						.children
+				)
+			);
+		}
+
+		flatChildren.push(child);
+		return flatChildren;
+	}, []);
+};
