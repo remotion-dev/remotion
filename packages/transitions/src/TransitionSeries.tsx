@@ -242,7 +242,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 	return <>{childrenValue}</>;
 };
 
-const TransitionSeries: FC<SequenceProps> & {
+const TransitionSeries: FC<Omit<SequenceProps, 'durationInFrames'>> & {
 	Sequence: typeof SeriesSequence;
 	Transition: typeof TransitionSeriesTransition;
 } = ({children, ...otherProps}) => {
