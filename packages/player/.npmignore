@@ -6,3 +6,11 @@ tsconfig.tsbuildinfo
 vitest.config.ts
 *.tgz
 .turbo
+dist/tsconfig-cjs.tsbuildinfo
+dist/tsconfig.tsbuildinfo
+dist/tsconfig-esm.tsbuildinfo
+tsconfig-esm.json
+tsconfig.json
+ensure-correct-version.js
+.prettierrc.js
+rollup.config.js

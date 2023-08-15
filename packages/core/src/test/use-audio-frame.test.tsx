@@ -3,15 +3,15 @@
  */
 import React from 'react';
 import {afterAll, beforeAll, describe, expect, test, vitest} from 'vitest';
-import * as useAudioFrameModule from '../audio/use-audio-frame';
+import * as useAudioFrameModule from '../audio/use-audio-frame.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
-} from '../audio/use-audio-frame';
-import type {SequenceContextType} from '../Sequence';
-import {SequenceContext} from '../Sequence';
-import * as useFrameModule from '../use-current-frame';
-import {renderHook} from './render-hook';
+} from '../audio/use-audio-frame.js';
+import type {SequenceContextType} from '../SequenceContext.js';
+import {SequenceContext} from '../SequenceContext.js';
+import * as useFrameModule from '../use-current-frame.js';
+import {renderHook} from './render-hook.js';
 
 test.skip('Media starts at 0 if it is outside a sequence', () => {
 	const wrapper: React.FC<{

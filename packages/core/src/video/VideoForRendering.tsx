@@ -8,24 +8,24 @@ import React, {
 	useMemo,
 	useRef,
 } from 'react';
-import {getAbsoluteSrc} from '../absolute-src';
+import {getAbsoluteSrc} from '../absolute-src.js';
 import {
 	useFrameForVolumeProp,
 	useMediaStartsAt,
-} from '../audio/use-audio-frame';
-import {CompositionManager} from '../CompositionManager';
-import {continueRender, delayRender} from '../delay-render';
-import {getRemotionEnvironment} from '../get-environment';
-import {isApproximatelyTheSame} from '../is-approximately-the-same';
-import {random} from '../random';
-import {SequenceContext} from '../Sequence';
-import {useTimelinePosition} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-current-frame';
-import {useUnsafeVideoConfig} from '../use-unsafe-video-config';
-import {evaluateVolume} from '../volume-prop';
-import {warnAboutNonSeekableMedia} from '../warn-about-non-seekable-media';
-import {getMediaTime} from './get-current-time';
-import type {RemotionVideoProps} from './props';
+} from '../audio/use-audio-frame.js';
+import {continueRender, delayRender} from '../delay-render.js';
+import {useRemotionEnvironment} from '../get-environment.js';
+import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
+import {random} from '../random.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
+import {SequenceContext} from '../SequenceContext.js';
+import {useTimelinePosition} from '../timeline-position-state.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import {useUnsafeVideoConfig} from '../use-unsafe-video-config.js';
+import {evaluateVolume} from '../volume-prop.js';
+import {warnAboutNonSeekableMedia} from '../warn-about-non-seekable-media.js';
+import {getMediaTime} from './get-current-time.js';
+import type {RemotionVideoProps} from './props.js';
 
 type VideoForRenderingProps = RemotionVideoProps & {
 	onDuration: (src: string, durationInSeconds: number) => void;
@@ -53,8 +53,10 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
+	const environment = useRemotionEnvironment();
 
-	const {registerAsset, unregisterAsset} = useContext(CompositionManager);
+	const {registerRenderAsset, unregisterRenderAsset} =
+		useContext(RenderAssetManager);
 
 	// Generate a string that's as unique as possible for this asset
 	// but at the same time the same on all threads
@@ -99,7 +101,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			return;
 		}
 
-		registerAsset({
+		registerRenderAsset({
 			type: 'video',
 			src: getAbsoluteSrc(props.src),
 			id,
@@ -110,13 +112,13 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			allowAmplificationDuringRender: allowAmplificationDuringRender ?? false,
 		});
 
-		return () => unregisterAsset(id);
+		return () => unregisterRenderAsset(id);
 	}, [
 		props.muted,
 		props.src,
-		registerAsset,
+		registerRenderAsset,
 		id,
-		unregisterAsset,
+		unregisterRenderAsset,
 		volume,
 		frame,
 		absoluteFrame,
@@ -203,8 +205,14 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		const errorHandler = () => {
 			if (current?.error) {
 				console.error('Error occurred in video', current?.error);
+
+				// If user is handling the error, we don't cause an unhandled exception
+				if (onError) {
+					return;
+				}
+
 				throw new Error(
-					`The browser threw an error while playing the video ${props.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+					`The browser threw an error while playing the video ${props.src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`
 				);
 			} else {
 				throw new Error('The browser threw an error');
@@ -227,12 +235,13 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 		videoConfig.fps,
 		frame,
 		mediaStartsAt,
+		onError,
 	]);
 
 	const {src} = props;
 
 	// If video source switches, make new handle
-	if (getRemotionEnvironment() === 'rendering') {
+	if (environment === 'rendering') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (process.env.NODE_ENV === 'test') {
@@ -243,7 +252,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 			const {current} = videoRef;
 
 			const didLoad = () => {
-				if (current) {
+				if (current?.duration) {
 					onDuration(src as string, current.duration);
 				}
 

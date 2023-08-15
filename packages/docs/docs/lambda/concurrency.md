@@ -30,7 +30,7 @@ The code for determining the `framesPerLambda` parameter is:
 ```tsx twoslash
 import { interpolate } from "remotion";
 
-export const bestFramesPerLambdaParam = (frameCount: number) => {
+const bestFramesPerLambdaParam = (frameCount: number) => {
   // Between 0 and 10 minutes (at 30fps), interpolate the concurrency from 75 to 150
   const concurrency = interpolate(frameCount, [0, 18000], [75, 150], {
     extrapolateRight: "clamp",
@@ -45,6 +45,10 @@ export const bestFramesPerLambdaParam = (frameCount: number) => {
   return Math.ceil(frameCount / lambdasNeeded);
 };
 ```
+
+import {ConcurrencyCalculator} from '../../components/Concurrency'
+
+<ConcurrencyCalculator/>
 
 ## Concurrency limits
 

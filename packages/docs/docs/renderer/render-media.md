@@ -11,7 +11,7 @@ Render a video or an audio programmatically.
 
 ## Example
 
-See an example of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) on the [server-side rendering page](/docs/ssr#render-a-video-using-nodejs-apis).
+See an example of `renderMedia()` together with [`bundle()`](/docs/bundle) and [`getCompositions()`](/docs/renderer/get-compositions) on the [server-side rendering page](/docs/ssr).
 
 ## Arguments
 
@@ -33,9 +33,10 @@ If not specified or set to `null`, the file will be returned in-memory as a buff
 
 ### `composition`
 
-_TCompMetadata_
+_VideoConfig_
 
-An object describing a composition using `id`, `width`, `height`, `fps` and `durationInFrames`. Call [`getCompositions()`](/docs/renderer/get-compositions) to get an array of possible configs.
+An object describing a composition using `id`, `width`, `height`, `fps` and `durationInFrames`, `defaultProps` and `props`.  
+Call [`selectComposition()`](/docs/renderer/select-composition) or [`getCompositions()`](/docs/renderer/get-compositions) to get an array of possible configs.
 
 ### `codec`
 
@@ -43,20 +44,33 @@ _"h264" (default) | "h265" | "vp8" | "vp9" | "mp3" | "aac" | "wav" | "prores" | 
 
 Choose a suitable codec for your output media. Refer to the [Encoding guide](/docs/encoding) to find the best codec for your use case.
 
-### `audioBitrate?`
+### `audioCodec?`
 
-_string - optional, available from v3.2.32_
+_"pcm-16" | "aac" | "mp3" | "opus", available from v3.3.41_
+
+Choose the encoding of your audio.
+
+- The default is dependent on the chosen `codec`.
+- Choose `pcm-16` if you need uncompressed audio.
+- Not all video containers support all audio codecs.
+- This option takes precedence if the `codec` option also specifies an audio codec.
+
+Refer to the [Encoding guide](/docs/encoding/#audio-codec) to see defaults and supported combinations.
+
+### `audioBitrate?`<AvailableFrom v="3.2.32" />
+
+_string - optional_
 
 Specify the target bitrate for the generated video.  
-The syntax for FFMPEGs `-b:v` parameter should be used.  
-FFMPEG may encode the video in a way that will not result in the exact video bitrate specified.  
+The syntax for FFMPEGs `-b:a` parameter should be used.  
+FFMPEG may encode the video in a way that will not result in the exact audio bitrate specified.  
 This option cannot be set if `--crf` is set.
 Example values: `512K` for 512 kbps, `1M` for 1 Mbps.  
 Default: `320k`
 
-### `videoBitrate?`
+### `videoBitrate?`<AvailableFrom v="3.2.32" />
 
-_string - optional, available from v3.2.32_
+_string - optional_
 
 Specify the target bitrate for the generated video.  
 The syntax for FFMPEGs `-b:v` parameter should be used.  
@@ -68,17 +82,13 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 _object - optional_
 
-An object of arbitrary shape that will be passed as [props to your composition](/docs/parametrized-rendering) and that can be retrieved using [`getInputProps()`](/docs/get-input-props).
+An object of arbitrary shape that will be passed as [props to your composition](/docs/parameterized-rendering) and that can be retrieved using [`getInputProps()`](/docs/get-input-props).
 
 ### `concurrency?`
 
 _optional_
 
-A `number` specifying how many render processes should be started in parallel or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
-
-### ~~`parallelism?`~~
-
-Renamed to `concurrency` in v3.2.17.
+A `number` specifying how many render processes should be started in parallel, a `string` specifying the percentage of the CPU threads to use, or `null` to let Remotion decide based on the CPU of the host machine. Default is half of the CPU threads available.
 
 ### `crf?`
 
@@ -96,33 +106,21 @@ In which image format the frames should be rendered.
 - `png` if you want to [render transparent videos](/docs/transparent-videos/)
 - `none` if you are rendering audio
 
-### `ffmpegExecutable?`
+### `browserExecutable?`<AvailableFrom v="3.0.11" />
 
-_string - optional_
-
-An absolute path overriding the `ffmpeg` executable to use.
-
-### `ffprobeExecutable?`
-
-_optional, available from v3.0.17_
-
-An absolute path overriding the `ffprobe` executable to use.
-
-### `browserExecutable?`
-
-_optional, available from v3.0.11_
+_optional_
 
 A string defining the absolute path on disk of the browser executable that should be used. By default Remotion will try to detect it automatically and download one if none is available. If `puppeteerInstance` is defined, it will take precedence over `browserExecutable`.
 
-### `everyNthFrame?`
+### `everyNthFrame?`<AvailableFrom v="3.1.0" />
 
-_optional, available from v3.1_
+_optional_
 
 Renders only every nth frame. For example only every second frame, every third frame and so on. Only works for rendering GIFs. [See here for more details.](/docs/render-as-gif)
 
-### `numberOfGifLoops?`
+### `numberOfGifLoops?`<AvailableFrom v="3.1.0" />
 
-_optional, available since v3.1_
+_optional_
 
 [Set the looping behavior.](/docs/config#setnumberofgifloops) This option may only be set when rendering GIFs. [See here for more details.](/docs/render-as-gif#changing-the-number-of-loops)
 
@@ -140,7 +138,7 @@ An object containing environment variables to be injected in your project.
 
 See: [Environment variables](/docs/env-variables/)
 
-### `quality?`
+### `jpegQuality?`
 
 _number - optional_
 
@@ -154,15 +152,15 @@ _number | [number, number] - optional_
 
 Specify a single frame (passing a `number`) or a range of frames (passing a tuple `[number, number]`) to be rendered. By passing `null` (default) all frames of a composition get rendered.
 
-### `muted?`
+### `muted?`<AvailableFrom v="3.2.1" />
 
-_boolean - optional - available since v3.2.1_
+_boolean - optional_
 
 If set to true, no audio is being rendered.
 
-### `enforceAudioTrack?`
+### `enforceAudioTrack?`<AvailableFrom v="3.2.1" />
 
-_boolean - optional - available since v3.2.1_
+_boolean - optional_
 
 Render a silent audio track if there wouldn't be any otherwise.
 
@@ -170,7 +168,7 @@ Render a silent audio track if there wouldn't be any otherwise.
 
 _puppeteer.Browser - optional_
 
-An already open Puppeteer [`Browser`](https://pptr.dev/#?product=Puppeteer&version=main&show=api-class-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
+An already open Puppeteer [`Browser`](/docs/renderer/open-browser) instance. Use [`openBrowser()`](/docs/renderer/open-browser) to create a new instance. Reusing a browser across multiple function calls can speed up the rendering process. You are responsible for opening and closing the browser yourself. If you don't specify this option, a new browser will be opened and closed at the end.
 
 ### `scale?`
 
@@ -277,11 +275,10 @@ _string - optional_
 
 Sets a ProRes profile. Only applies to videos rendered with `prores` codec. See [Encoding guide](/docs/encoding/#controlling-quality-using-prores-profile) for possible options.
 
-### `dumpBrowserLogs?`
+### `logLevel?`<AvailableFrom v="4.0.0"/>
 
-_boolean - optional_
-
-If true, will print browser console output to standard output.
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  
+`verbose` will also log `console.log`'s from the browser.
 
 ### `onBrowserLog?`
 
@@ -306,21 +303,15 @@ _optional_
 
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
-### `cancelSignal?`
+### `cancelSignal?`<AvailableFrom v="3.0.15" />
 
-_optional, available from v3.0.15_
+_optional_
 
 A token that allows the render to be cancelled. See: [`makeCancelSignal()`](/docs/renderer/make-cancel-signal)
 
-### `verbose?`
+### `chromiumOptions?`<AvailableFrom v="2.6.5" />
 
-_optional, available from v3.1.6_
-
-Prints debugging output if set to true.
-
-### `chromiumOptions?`
-
-_optional, available from v2.6.5_
+_optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
@@ -362,9 +353,13 @@ Accepted values:
 **Default for local rendering**: `null`.  
 **Default for Lambda rendering**: `"swangle"`.
 
-### `ffmpegOverride?`
+#### `userAgent`<AvailableFrom v="3.3.83"/>
 
-_function - optional - available from v3.2.22_
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `ffmpegOverride?`<AvailableFrom v="3.2.22" />
+
+_function - optional_
 
 Modifies the FFMPEG command that Remotion uses under the hood. It works reducer-style, meaning that you pass a function that takes a command as an argument and returns a new command.
 
@@ -394,33 +389,60 @@ Using this feature is discouraged. Before using it, we want to make you aware of
 Before you use this hack, reach out to the Remotion team on [Discord](https://remotion.dev/discord) and ask us if we are open to implement the feature you need in a clean way - we often do implement new features quickly based on users feedback.
 :::
 
-### `disallowParallelEncoding`
-
-_available from v3.2.29_
+### `disallowParallelEncoding`<AvailableFrom v="3.2.29" />
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
 
-### `onSlowestFrames?`
+### ~~`parallelism?`~~
 
-_available from v3.2.29_
+Renamed to `concurrency` in v3.2.17.
+Removed in `v4.0.0`.
+
+### ~~`quality?`~~
+
+Renamed to `jpegQuality` in `v4.0.0`.
+
+### ~~`dumpBrowserLogs?`~~
+
+_optional - default `false`, deprecated in v4.0_
+
+Deprecated in favor of [`logLevel`](#loglevel).
+
+### ~~`verbose?`~~
+
+_optional, deprecated in v4.0_
+
+Deprecated in favor of [`logLevel`](#loglevel).
+
+### ~~`onSlowestFrames?`~~
+
+Introduced in v3.2.29, removed from v4.0. `slowestFrames` has been moved to the return type.
 
 Callback function that gets called right before `renderMedia()` resolves.  
 The only argument `slowestFrames` is an array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
 
-```tsx twoslash
-import type { OnSlowestFrames } from "@remotion/renderer";
+### ~~`ffmpegExecutable`~~
 
-const onSlowestFrames: OnSlowestFrames = (slowestFrames) => {
-  console.log("The slowest 10 frames are:");
-  for (const slowFrame of slowestFrames) {
-    console.log(`Frame ${slowFrame.frame} (${slowFrame.time}ms)`);
-  }
-};
-```
+_removed in v4.0, string, optional_
+
+An absolute path overriding the `ffmpeg` executable to use.
+
+### ~~`ffprobeExecutable?`~~ <AvailableFrom v="3.0.17" />
+
+_removed in v4.0, optional_
+
+An absolute path overriding the `ffprobe` executable to use.
 
 ## Return Value
 
-_since v3.0.26_
+_**from v4.0.0:**_
+
+The return value is an object with the following properties:
+
+- `buffer`: If `outputLocation` is not specified or `null`, contains a buffer, otherwise `null`.
+- `slowestFrames`: An array of the 10 slowest frames in the shape of `{frame:<Frame number>, time:<Time to render frame ms>}`. You can use this information to optimise your render times.
+
+_**from v3.0.26**:_
 
 If `outputLocation` is not specified or `null`, the return value is a Promise that resolves a `Buffer`. If an output location is specified, the return value is a Promise that resolves no value.
 

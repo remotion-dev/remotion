@@ -1,5 +1,7 @@
 import chalk from 'chalk';
 import execa from 'execa';
+import path from 'node:path';
+import {createYarnYmlFile} from './add-yarn2-support';
 import {degit} from './degit';
 import {getLatestRemotionVersion} from './latest-remotion-version';
 import {Log} from './log';
@@ -14,20 +16,43 @@ import {
 } from './pkg-managers';
 import {resolveProjectRoot} from './resolve-project-root';
 import {selectTemplate} from './select-template';
+import {yesOrNo} from './yesno';
 
-const isGitExecutableAvailable = async () => {
+const gitExists = (commandToCheck: string, argsToCheck: string[]) => {
 	try {
-		await execa('git', ['--version']);
+		execa.sync(commandToCheck, argsToCheck);
 		return true;
-	} catch (e) {
-		if ((e as {errno: string}).errno === 'ENOENT') {
-			Log.warn('Unable to find `git` command. `git` not in PATH.');
-			return false;
-		}
+	} catch (err) {
+		return false;
 	}
 };
 
-const initGitRepoAsync = async (root: string): Promise<void> => {
+export const checkGitAvailability = async (
+	cwd: string,
+	commandToCheck: string,
+	argsToCheck: string[]
+): Promise<
+	| {type: 'no-git-repo'}
+	| {type: 'is-git-repo'; location: string}
+	| {type: 'git-not-installed'}
+> => {
+	if (!gitExists(commandToCheck, argsToCheck)) {
+		return {type: 'git-not-installed'};
+	}
+
+	try {
+		const result = await execa('git', ['rev-parse', '--show-toplevel'], {
+			cwd,
+		});
+		return {type: 'is-git-repo', location: result.stdout};
+	} catch (e) {
+		return {
+			type: 'no-git-repo',
+		};
+	}
+};
+
+const getGitStatus = async (root: string): Promise<void> => {
 	// not in git tree, so let's init
 	try {
 		await execa('git', ['init'], {cwd: root});
@@ -48,8 +73,31 @@ const initGitRepoAsync = async (root: string): Promise<void> => {
 };
 
 export const init = async () => {
+	const result = await checkGitAvailability(process.cwd(), 'git', [
+		'--version',
+	]);
+	if (result.type === 'git-not-installed') {
+		Log.error(
+			'Git is not installed or not in the path. Install Git to continue.'
+		);
+		process.exit(1);
+	}
+
+	if (result.type === 'is-git-repo') {
+		const should = await yesOrNo({
+			defaultValue: false,
+			question: `You are already inside a Git repo (${path.resolve(
+				result.location
+			)}).\nThis might lead to a Git Submodule being created. Do you want to continue? (y/N):`,
+		});
+		if (!should) {
+			Log.error('Aborting.');
+			process.exit(1);
+		}
+	}
+
 	const [projectRoot, folderName] = await resolveProjectRoot();
-	await isGitExecutableAvailable();
+
 	const latestRemotionVersionPromise = getLatestRemotionVersion();
 
 	const selectedTemplate = await selectTemplate();
@@ -63,7 +111,7 @@ export const init = async () => {
 			repoName: selectedTemplate.repoName,
 			dest: projectRoot,
 		});
-		patchReadmeMd(projectRoot, pkgManager);
+		patchReadmeMd(projectRoot, pkgManager, selectedTemplate);
 		const latestVersion = await latestRemotionVersionPromise;
 		patchPackageJson({
 			projectRoot,
@@ -84,6 +132,12 @@ export const init = async () => {
 			selectedTemplate.shortName
 		)} to ${chalk.blueBright(folderName)}. Installing dependencies...`
 	);
+
+	createYarnYmlFile({
+		pkgManager,
+		pkgManagerVersion,
+		projectRoot,
+	});
 
 	if (pkgManager === 'yarn') {
 		Log.info('> yarn');
@@ -117,7 +171,7 @@ export const init = async () => {
 		await promise;
 	}
 
-	await initGitRepoAsync(projectRoot);
+	await getGitStatus(projectRoot);
 
 	Log.info();
 	Log.info(`Welcome to ${chalk.blueBright('Remotion')}!`);

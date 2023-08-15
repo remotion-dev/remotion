@@ -1,5 +1,5 @@
 import type {SyntheticEvent} from 'react';
-import type {PlayerEmitter} from './event-emitter';
+import type {PlayerEmitter} from './event-emitter.js';
 
 export type ThumbnailMethods = {
 	getContainerNode: () => HTMLDivElement | null;
@@ -14,7 +14,7 @@ export type PlayerMethods = ThumbnailMethods & {
 	getCurrentFrame: () => number;
 	requestFullscreen: () => void;
 	exitFullscreen: () => void;
-	isFullscreen: () => void;
+	isFullscreen: () => boolean;
 	setVolume: (num: number) => void;
 	getVolume: () => number;
 	isMuted: () => boolean;

@@ -177,31 +177,11 @@ export const PricingTable: React.FC<{}> = () => {
           </div>
         </div>
       </div>
-      {Date.now() < DEV_SEAT_PRICE_INCREASE ? (
-        <p style={{ textAlign: "center", marginTop: 24 }}>
-          Subscribe before{" "}
-          {new Intl.DateTimeFormat("en-US", {
-            dateStyle: "full",
-          }).format(DEV_SEAT_PRICE_INCREASE)}{" "}
-          to lock in current prices -{" "}
-          <a href="https://companies.remotion.dev/price-increase">
-            <strong
-              style={{
-                color: "var(--blue-button-color)",
-                fontWeight: "bold",
-                textDecoration: "none",
-              }}
-            >
-              prices are increasing!
-            </strong>
-          </a>
-        </p>
-      ) : null}
       <p style={{ textAlign: "center", marginTop: 24 }}>
         Want a 15 minute call to evaluate if Remotion is right for you?{" "}
         <a
           style={{
-            color: "var(--blue-button-color)",
+            color: "var(--ifm-color-primary)",
             fontWeight: "bold",
             textDecoration: "none",
           }}
@@ -215,7 +195,7 @@ export const PricingTable: React.FC<{}> = () => {
         Looking for help realizing your project?{" "}
         <a
           style={{
-            color: "var(--blue-button-color)",
+            color: "var(--ifm-color-primary)",
             fontWeight: "bold",
             textDecoration: "none",
           }}

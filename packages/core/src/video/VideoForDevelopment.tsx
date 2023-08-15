@@ -6,23 +6,23 @@ import React, {
 	useImperativeHandle,
 	useRef,
 } from 'react';
-import {useFrameForVolumeProp} from '../audio/use-audio-frame';
-import {usePreload} from '../prefetch';
-import {SequenceContext} from '../Sequence';
-import {useMediaInTimeline} from '../use-media-in-timeline';
+import {useFrameForVolumeProp} from '../audio/use-audio-frame.js';
+import {usePreload} from '../prefetch.js';
+import {SequenceContext} from '../SequenceContext.js';
+import {useMediaInTimeline} from '../use-media-in-timeline.js';
 import {
 	DEFAULT_ACCEPTABLE_TIMESHIFT,
 	useMediaPlayback,
-} from '../use-media-playback';
-import {useMediaTagVolume} from '../use-media-tag-volume';
-import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag';
-import {useVideoConfig} from '../use-video-config';
+} from '../use-media-playback.js';
+import {useMediaTagVolume} from '../use-media-tag-volume.js';
+import {useSyncVolumeWithMediaTag} from '../use-sync-volume-with-media-tag.js';
+import {useVideoConfig} from '../use-video-config.js';
 import {
 	useMediaMutedState,
 	useMediaVolumeState,
-} from '../volume-position-state';
-import type {RemotionVideoProps} from './props';
-import {appendVideoFragment} from './video-fragment';
+} from '../volume-position-state.js';
+import type {RemotionVideoProps} from './props.js';
+import {useAppendVideoFragment} from './video-fragment.js';
 
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
@@ -96,7 +96,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		? Math.min(parentSequence.durationInFrames, durationInFrames)
 		: durationInFrames;
 
-	const actualSrc = appendVideoFragment({
+	const actualSrc = useAppendVideoFragment({
 		actualSrc: usePreload(src as string),
 		actualFrom,
 		duration,
@@ -120,8 +120,13 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		const errorHandler = () => {
 			if (current?.error) {
 				console.error('Error occurred in video', current?.error);
+				// If user is handling the error, we don't cause an unhandled exception
+				if (props.onError) {
+					return;
+				}
+
 				throw new Error(
-					`The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help`
+					`The browser threw an error while playing the video ${src}: Code ${current.error.code} - ${current?.error?.message}. See https://remotion.dev/docs/media-playback-error for help. Pass an onError() prop to handle the error.`
 				);
 			} else {
 				throw new Error('The browser threw an error');
@@ -132,7 +137,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 		return () => {
 			current.removeEventListener('error', errorHandler);
 		};
-	}, [src]);
+	}, [props.onError, src]);
 
 	const currentOnDurationCallback =
 		useRef<VideoForDevelopmentProps['onDuration']>();

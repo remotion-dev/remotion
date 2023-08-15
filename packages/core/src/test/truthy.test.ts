@@ -1,5 +1,5 @@
 import {expect, test} from 'vitest';
-import {truthy} from '../truthy';
+import {truthy} from '../truthy.js';
 
 test.each<[unknown, boolean]>([
 	['true', true],

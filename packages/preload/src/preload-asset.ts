@@ -8,7 +8,7 @@ export const preloadAsset = (
 ): (() => void) => {
 	const apiName = `preload${
 		elemType.charAt(0).toUpperCase() + elemType.slice(1)
-	}}`;
+	}`;
 
 	if (typeof document === 'undefined') {
 		console.warn(apiName + '() was called outside the browser. Doing nothing.');

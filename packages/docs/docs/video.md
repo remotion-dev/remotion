@@ -121,9 +121,7 @@ export const MyComposition = () => {
 };
 ```
 
-### `playbackRate`
-
-_Available from v2.2_
+### `playbackRate`<AvailableFrom v="2.2.0" />
 
 You can use the `playbackRate` prop to control the speed of the video. `1` is the default and means regular speed, `0.5` slows down the video so it's twice as long and `2` speeds up the video so it's twice as fast.
 
@@ -161,9 +159,7 @@ export const MyComposition = () => {
 };
 ```
 
-### `loop`
-
-_Available from v3.2.29_
+### `loop`<AvailableFrom v="3.2.29" />
 
 You can use the `loop` prop to loop a video.
 
@@ -182,18 +178,18 @@ export const MyComposition = () => {
 };
 ```
 
-## `acceptableTimeShiftInSeconds`
+### `acceptableTimeShiftInSeconds`<AvailableFrom v="3.2.42" />
 
-_Available from v3.2.42_
+In the [Studio](/docs/terminology#remotion-studio) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
 
-During [Preview](/docs/terminology#remotion-preview) or in the [Remotion Player](/docs/player), Remotion will seek the video if it gets too much out of sync with Remotion's internal time - be it due to the video loading or the page being too slow to keep up in real-time. By default, a seek is triggered if `0.45` seconds of time shift is encountered. Using this prop, you can customize the threshold.
-
-## `allowAmplificationDuringRender`
-
-_Available from v3.3.17_
+### `allowAmplificationDuringRender`<AvailableFrom v="3.3.17" />
 
 Make values for [`volume`](#volume) greater than `1` result in amplification during renders.  
 During Preview, the volume will be limited to `1`, since the browser cannot amplify audio.
+
+### `onError`
+
+Handle an error playing the video. From v3.3.89, if you pass an `onError` callback, then no exception will be thrown. Previously, the error could not be caught.
 
 ## Speed up renders for video with silent audio
 
@@ -201,14 +197,7 @@ Remotion will download the whole video during render in order to mix its audio. 
 
 ## Codec support
 
-Pay attention to the codec of the video that you are importing. During the render process, Chrome needs to support playing the video that you are embedding. If Remotion cannot find a preinstalled version of Chrome, it will download a Chromium executable which does not support the playback of H264 (common codec for MP4 videos). To work around this problem, you have multiple options:
-
-- Tell Remotion which path for Chrome to use by using the command line flag `--browser-executable` or [configure](/docs/config#setbrowserexecutable) `Config.Puppeteer.setBrowserExecutable()` in a config file.
-- Convert your videos to WebM before embedding them.
-
-Prior to Remotion 1.5, Remotion will always use an internal Puppeteer binary and MP4 videos are therefore not supported.
-
-If you would like Remotion to warn you when you import an MP4 video, you can turn on the `@remotion/no-mp4-import` ESLint rule.
+See: [Which video formats does Remotion support?](/docs/miscellaneous/video-formats)
 
 ## Alternative: `<OffthreadVideo>`
 

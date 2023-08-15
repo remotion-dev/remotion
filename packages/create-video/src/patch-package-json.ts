@@ -1,27 +1,7 @@
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import path from 'node:path';
+import {listOfRemotionPackages} from './list-of-remotion-packages';
 import type {PackageManager} from './pkg-managers';
-
-export const listOfRemotionPackages = [
-	'@remotion/bundler',
-	'@remotion/cli',
-	'@remotion/eslint-config',
-	'@remotion/renderer',
-	'@remotion/skia',
-	'@remotion/lottie',
-	'@remotion/media-utils',
-	'@remotion/motion-blur',
-	'@remotion/google-fonts',
-	'@remotion/noise',
-	'@remotion/paths',
-	'@remotion/babel-loader',
-	'@remotion/lambda',
-	'@remotion/player',
-	'@remotion/preload',
-	'@remotion/three',
-	'@remotion/gif',
-	'remotion',
-];
 
 export const patchPackageJson = (
 	{
@@ -46,25 +26,31 @@ export const patchPackageJson = (
 	const contents = getPackageJson(fileName);
 	const packageJson = JSON.parse(contents);
 
-	const {name, dependencies, ...others} = packageJson;
+	const {name, dependencies, devDependencies, ...others} = packageJson;
 
-	const newDependencies = Object.keys(dependencies)
-		.map((d) => {
-			if (listOfRemotionPackages.includes(d)) {
-				return [d, latestRemotionVersion];
-			}
+	const [newDependencies, newDevDependencies] = [
+		dependencies,
+		devDependencies ?? {},
+	].map((depsField) => {
+		return Object.keys(depsField)
+			.map((d) => {
+				if (listOfRemotionPackages.includes(d)) {
+					return [d, latestRemotionVersion];
+				}
 
-			return [d, dependencies[d]];
-		})
-		.reduce((a, b) => {
-			return {...a, [b[0]]: b[1]};
-		}, {});
+				return [d, depsField[d]];
+			})
+			.reduce((a, b) => {
+				return {...a, [b[0]]: b[1]};
+			}, {});
+	});
 
 	const newPackageJson = JSON.stringify(
 		{
 			name: projectName,
 			...others,
 			dependencies: newDependencies,
+			devDependencies: newDevDependencies,
 			...(packageManager ? {packageManager} : {}),
 		},
 		undefined,

@@ -1,6 +1,6 @@
 import {useContext, useMemo} from 'react';
-import {ThumbnailEmitterContext} from './emitter-context';
-import type {ThumbnailEmitter} from './event-emitter';
+import {ThumbnailEmitterContext} from './emitter-context.js';
+import type {ThumbnailEmitter} from './event-emitter.js';
 
 type UseThumbnailMethods = {
 	emitter: ThumbnailEmitter;

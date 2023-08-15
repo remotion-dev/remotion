@@ -14,7 +14,12 @@ Use the `LottieAnimationData` type to keep a state using React's `useState()` an
 ```tsx twoslash title="Animation.tsx"
 import { Lottie, LottieAnimationData } from "@remotion/lottie";
 import { useEffect, useState } from "react";
-import { continueRender, delayRender, staticFile } from "remotion";
+import {
+  cancelRender,
+  continueRender,
+  delayRender,
+  staticFile,
+} from "remotion";
 
 const Square = () => {
   const [handle] = useState(() => delayRender("Loading Lottie animation"));
@@ -30,7 +35,7 @@ const Square = () => {
         continueRender(handle);
       })
       .catch((err) => {
-        console.log("Animation failed to load", err);
+        cancelRender(err);
       });
   }, [handle]);
 

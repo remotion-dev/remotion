@@ -13,9 +13,8 @@ Gets the current status of a render originally triggered via [`renderMediaOnLamb
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { getRenderProgress } from "@remotion/lambda";
 
-// ---cut---
+import { getRenderProgress } from "@remotion/lambda/client";
 
 const progress = await getRenderProgress({
   renderId: "d7nlc2y",
@@ -24,6 +23,10 @@ const progress = await getRenderProgress({
   region: "us-east-1",
 });
 ```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
 
 ## API
 

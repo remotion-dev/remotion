@@ -1,8 +1,8 @@
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react';
 import {Internals, interpolate} from 'remotion';
-import {useHoverState} from './use-hover-state';
-import {usePlayer} from './use-player';
-import {useElementSize} from './utils/use-element-size';
+import {useHoverState} from './use-hover-state.js';
+import {usePlayer} from './use-player.js';
+import {useElementSize} from './utils/use-element-size.js';
 
 const getFrameFromX = (
 	clientX: number,

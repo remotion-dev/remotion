@@ -33,8 +33,11 @@ export class ErrorWithStackFrame extends Error {
 }
 
 const cleanUpErrorMessage = (exception: ExceptionThrownEvent) => {
-	let errorMessage = exception.exceptionDetails.exception
-		?.description as string;
+	let errorMessage = exception.exceptionDetails.exception?.description;
+	if (!errorMessage) {
+		return null;
+	}
+
 	const errorType = exception.exceptionDetails.exception?.className as string;
 	const prefix = `${errorType}: `;
 
@@ -79,9 +82,17 @@ export const handleJavascriptException = ({
 	const client = page._client();
 
 	const handler = (exception: ExceptionThrownEvent) => {
-		const rawErrorMessage = exception.exceptionDetails.exception
-			?.description as string;
+		const rawErrorMessage = exception.exceptionDetails.exception?.description;
 		const cleanErrorMessage = cleanUpErrorMessage(exception);
+
+		if (!cleanErrorMessage) {
+			console.error(exception);
+			const err = new Error(rawErrorMessage);
+			err.stack = rawErrorMessage;
+			onError(err);
+			return;
+		}
+
 		if (!exception.exceptionDetails.stackTrace) {
 			const err = new Error(removeDelayRenderStack(cleanErrorMessage));
 			err.stack = rawErrorMessage;

@@ -1,5 +1,6 @@
 import deterministicRandomness from "./rules/deterministic-randomness";
 import evenDimensions from "./rules/even-dimensions";
+import noBackgroundImage from "./rules/no-background-image";
 import durationInFrames from "./rules/no-duration-frames-infinity";
 import noFrom0 from "./rules/no-from-0";
 import nomp4Import from "./rules/no-mp4-import";
@@ -9,6 +10,7 @@ import staticFileNoRemote from "./rules/staticfile-no-remote";
 import useGifComponent from "./rules/use-gif-component";
 import volumeCallback from "./rules/volume-callback";
 import warnNativeMediaTag from "./rules/warn-native-media-tag";
+import v4Import from "./rules/v4-import";
 
 const rules = {
   "no-mp4-import": nomp4Import,
@@ -22,6 +24,8 @@ const rules = {
   "use-gif-component": useGifComponent,
   "staticfile-no-relative": staticFileNoRelative,
   "staticfile-no-remote": staticFileNoRemote,
+  "no-background-image": noBackgroundImage,
+  "v4-config-import": v4Import,
 };
 
 export = {
@@ -40,6 +44,8 @@ export = {
         "@remotion/use-gif-component": "error",
         "@remotion/staticfile-no-relative": "error",
         "@remotion/staticfile-no-remote": "error",
+        "@remotion/no-background-image": "error",
+        "@remotion/v4-config-import": "error",
       },
     },
   },

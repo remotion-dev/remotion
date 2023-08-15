@@ -3,7 +3,15 @@
   "pipeline": {
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**"]
+      "outputs": ["dist/**", ".rollup.cache"],
+      "outputMode": "new-only"
+    },
+    "docs": {
+      "outputs": [
+        "build/**",
+        ".docusaurus",
+        "../../node_modules/.cache/twoslash"
+      ]
     },
     "test": {
       "dependsOn": ["^build", "build"],
@@ -12,12 +20,21 @@
     "lint": {
       "outputs": []
     },
+    "formatting": {
+      "outputs": []
+    },
     "@remotion/example#lint": {
       "dependsOn": ["@remotion/eslint-config#build"]
     },
     "@remotion/google-fonts#build": {
-      "outputs": ["src", ".cache-css", "*.js", "*.d.ts"],
-      "dependsOn": ["^build"]
+      "outputs": ["src", ".cache-css", "dist/**", ".rollup.cache"],
+      "dependsOn": ["^build"],
+      "outputMode": "new-only"
+    },
+    "@remotion/renderer#build": {
+      "outputs": ["dist/**", "target/**"],
+      "dependsOn": ["^build"],
+      "outputMode": "new-only"
     },
     "@remotion/player-example#lint": {
       "dependsOn": ["@remotion/eslint-config#build"]

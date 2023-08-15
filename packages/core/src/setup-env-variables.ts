@@ -1,6 +1,4 @@
-import {getRemotionEnvironment} from './get-environment';
-
-export const ENV_VARIABLES_ENV_NAME = 'ENV_VARIABLES' as const;
+import {getRemotionEnvironment} from './get-environment.js';
 
 const getEnvVariables = (): Record<string, string> => {
 	if (getRemotionEnvironment() === 'rendering') {
@@ -13,11 +11,10 @@ const getEnvVariables = (): Record<string, string> => {
 	}
 
 	if (getRemotionEnvironment() === 'preview') {
-		// Webpack will convert this to an object at compile time.
-		// Don't convert this syntax to a computed property.
+		// For the Preview, we already set the environment variables in index-html.ts.
+		// We just add NODE_ENV here.
 		return {
-			...(process.env.ENV_VARIABLES as unknown as Record<string, string>),
-			NODE_ENV: process.env.NODE_ENV as string,
+			NODE_ENV: 'development',
 		};
 	}
 

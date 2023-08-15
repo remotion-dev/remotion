@@ -1,5 +1,5 @@
 import {PlayerInternals} from '@remotion/player';
-import React, {useCallback, useContext, useEffect, useRef} from 'react';
+import React, {useCallback, useContext, useEffect} from 'react';
 import {
 	MAX_ZOOM,
 	MIN_ZOOM,
@@ -13,6 +13,8 @@ import {
 } from '../helpers/get-effective-translation';
 import {useDimensions} from '../helpers/is-current-selected-still';
 import {useKeybinding} from '../helpers/use-keybinding';
+import {canvasRef as ref} from '../state/canvas-ref';
+import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import {PreviewSizeContext} from '../state/preview-size';
 import {SPACING_UNIT} from './layout';
 import {VideoPreview} from './Preview';
@@ -36,8 +38,8 @@ const ZOOM_PX_FACTOR = 0.003;
 
 export const Canvas: React.FC = () => {
 	const dimensions = useDimensions();
-	const ref = useRef<HTMLDivElement>(null);
 	const {setSize, size: previewSize} = useContext(PreviewSizeContext);
+	const {editorZoomGestures} = useContext(EditorZoomGesturesContext);
 	const keybindings = useKeybinding();
 
 	const size = PlayerInternals.useElementSize(ref, {
@@ -45,14 +47,14 @@ export const Canvas: React.FC = () => {
 		shouldApplyCssTransforms: true,
 	});
 
-	const isFit =
-		previewSize.size === 'auto' ||
-		(previewSize.size === 1 &&
-			previewSize.translation.x === 0 &&
-			previewSize.translation.y === 0);
+	const isFit = previewSize.size === 'auto';
 
 	const onWheel = useCallback(
 		(e: WheelEvent) => {
+			if (!editorZoomGestures) {
+				return;
+			}
+
 			if (!size) {
 				return;
 			}
@@ -145,7 +147,7 @@ export const Canvas: React.FC = () => {
 				};
 			});
 		},
-		[dimensions, isFit, setSize, size]
+		[editorZoomGestures, dimensions, isFit, setSize, size]
 	);
 
 	useEffect(() => {
@@ -234,6 +236,7 @@ export const Canvas: React.FC = () => {
 			commandCtrlKey: false,
 			callback: onReset,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 
 		const zoomIn = keybindings.registerKeybinding({
@@ -242,6 +245,7 @@ export const Canvas: React.FC = () => {
 			commandCtrlKey: false,
 			callback: onZoomIn,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 
 		const zoomOut = keybindings.registerKeybinding({
@@ -250,6 +254,7 @@ export const Canvas: React.FC = () => {
 			commandCtrlKey: false,
 			callback: onZoomOut,
 			preventDefault: true,
+			triggerIfInputFieldFocused: false,
 		});
 
 		return () => {
@@ -263,7 +268,7 @@ export const Canvas: React.FC = () => {
 		<div ref={ref} style={container}>
 			{size ? <VideoPreview canvasSize={size} /> : null}
 			{isFit ? null : (
-				<div style={resetZoom}>
+				<div style={resetZoom} className="css-reset">
 					<ResetZoomButton onClick={onReset} />
 				</div>
 			)}

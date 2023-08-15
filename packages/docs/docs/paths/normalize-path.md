@@ -13,8 +13,8 @@ Returns a string if the path is valid:
 ```tsx twoslash
 import { normalizePath } from "@remotion/paths";
 
-const reversedPath = normalizePath("M 50 50 L 150 50");
-console.log(reversedPath); // "M 50 50 L 150 50"
+const normalizedPath = normalizePath("M 50 50 l 100 0");
+console.log(normalizedPath); // "M 50 50 L 150 50"
 ```
 
 The function will throw if the path is invalid:
@@ -32,4 +32,5 @@ Source code stems mostly from [svg-path-reverse](https://www.npmjs.com/package/s
 ## See also
 
 - [`@remotion/paths`](/docs/paths)
+- [`reduceInstructions()`](/docs/paths/reduce-instructions)
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/paths/src/normalize-path.ts)

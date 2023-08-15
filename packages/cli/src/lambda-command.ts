@@ -19,7 +19,7 @@ export const lambdaCommand = async (remotionRoot: string, args: string[]) => {
 		Log.error('Remotion Lambda is not installed.');
 		Log.info('');
 		Log.info('You can install it using:');
-		Log.info(`${installCommand} i @remotion/lambda@${getRemotionVersion()}`);
+		Log.info(`${installCommand} @remotion/lambda@${getRemotionVersion()}`);
 		process.exit(1);
 	}
 };

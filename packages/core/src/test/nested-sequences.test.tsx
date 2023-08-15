@@ -4,11 +4,11 @@
 /* eslint-disable react/jsx-no-constructed-context-values */
 import {render} from '@testing-library/react';
 import {expect, test} from 'vitest';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import {Sequence} from '../Sequence';
-import {TimelineContext} from '../timeline-position-state';
-import {useCurrentFrame} from '../use-current-frame';
-import {WrapSequenceContext} from './wrap-sequence-context';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {Sequence} from '../Sequence.js';
+import {TimelineContext} from '../timeline-position-state.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import {WrapSequenceContext} from './wrap-sequence-context.js';
 
 test('It should calculate the correct offset in nested sequences', () => {
 	const NestedChild = () => {
@@ -37,7 +37,9 @@ test('It should calculate the correct offset in nested sequences', () => {
 			<TimelineContext.Provider
 				value={{
 					rootId: 'hi',
-					frame: 40,
+					frame: {
+						'my-comp': 40,
+					},
 					playing: false,
 					imperativePlaying: {
 						current: false,
@@ -70,7 +72,9 @@ test('Negative offset test', () => {
 		<WrapSequenceContext>
 			<TimelineContext.Provider
 				value={{
-					frame: 40,
+					frame: {
+						'my-comp': 40,
+					},
 					playing: false,
 					rootId: 'hi',
 					imperativePlaying: {
@@ -121,7 +125,9 @@ test('Nested negative offset test', () => {
 			<WrapSequenceContext>
 				<TimelineContext.Provider
 					value={{
-						frame,
+						frame: {
+							'my-comp': frame,
+						},
 						playing: false,
 						rootId: 'hi',
 						imperativePlaying: {
@@ -175,7 +181,9 @@ test.skip('Negative offset edge case', () => {
 			<CanUseRemotionHooksProvider>
 				<TimelineContext.Provider
 					value={{
-						frame,
+						frame: {
+							'my-comp': frame,
+						},
 						playing: false,
 						rootId: 'hi',
 						imperativePlaying: {

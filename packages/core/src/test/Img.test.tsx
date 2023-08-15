@@ -4,7 +4,7 @@
 import {render} from '@testing-library/react';
 import React from 'react';
 import {beforeEach, expect, test} from 'vitest';
-import {Img} from '../Img';
+import {Img} from '../Img.js';
 
 const ref = React.createRef<HTMLImageElement>();
 const testImgUrl = 'https://source.unsplash.com/random/50x50';

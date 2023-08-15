@@ -10,9 +10,12 @@ import {
 import {noop} from '../../helpers/noop';
 import {CaretDown} from '../../icons/caret';
 import {HigherZIndex, useZIndex} from '../../state/z-index';
-import {Flex, Spacing} from '../layout';
+import {Spacing} from '../layout';
+import {isMenuItem, MENU_INITIATOR_CLASSNAME} from '../Menu/is-menu-item';
 import {getPortal} from '../Menu/portals';
 import {
+	fullScreenOverlay,
+	MAX_MENU_WIDTH,
 	menuContainerTowardsBottom,
 	menuContainerTowardsTop,
 	outerPortal,
@@ -23,9 +26,17 @@ const container: React.CSSProperties = {
 	padding: '8px 10px',
 	display: 'inline-block',
 	backgroundColor: INPUT_BACKGROUND,
-	fontSize: 14,
 	borderWidth: 1,
 	borderStyle: 'solid',
+	maxWidth: '100%',
+};
+
+const label: React.CSSProperties = {
+	flex: 1,
+	overflow: 'hidden',
+	textOverflow: 'ellipsis',
+	fontSize: 14,
+	textAlign: 'left',
 };
 
 type DividerItem = {
@@ -68,6 +79,8 @@ export const Combobox: React.FC<{
 		shouldApplyCssTransforms: true,
 	});
 
+	const refresh = size?.refresh;
+
 	const onHide = useCallback(() => {
 		setOpened(false);
 	}, []);
@@ -80,48 +93,115 @@ export const Combobox: React.FC<{
 
 		const onMouseEnter = () => setIsHovered(true);
 		const onMouseLeave = () => setIsHovered(false);
-		const onClick = (e: MouseEvent) => {
+		const onPointerDown = () => {
+			return setOpened((o) => {
+				if (!o) {
+					refresh?.();
+				}
+
+				return !o;
+			});
+		};
+
+		const onClick = (e: MouseEvent | PointerEvent) => {
 			e.stopPropagation();
-			return setOpened((o) => !o);
+			const isKeyboardInitiated = e.detail === 0;
+			if (!isKeyboardInitiated) {
+				return;
+			}
+
+			return setOpened((o) => {
+				if (!o) {
+					refresh?.();
+
+					window.addEventListener(
+						'pointerup',
+						(evt) => {
+							if (!isMenuItem(evt.target as HTMLElement)) {
+								setOpened(false);
+							}
+						},
+						{
+							once: true,
+						}
+					);
+				}
+
+				return !o;
+			});
 		};
 
 		current.addEventListener('mouseenter', onMouseEnter);
 		current.addEventListener('mouseleave', onMouseLeave);
+		current.addEventListener('pointerdown', onPointerDown);
 		current.addEventListener('click', onClick);
 
 		return () => {
 			current.removeEventListener('mouseenter', onMouseEnter);
 			current.removeEventListener('mouseleave', onMouseLeave);
+			current.removeEventListener('pointerdown', onPointerDown);
 			current.removeEventListener('click', onClick);
 		};
-	}, []);
+	}, [refresh]);
+
+	const spaceToBottom = useMemo(() => {
+		const margin = 10;
+		if (size && opened) {
+			return size.windowSize.height - (size.top + size.height) - margin;
+		}
+
+		return 0;
+	}, [opened, size]);
+
+	const spaceToTop = useMemo(() => {
+		const margin = 10;
+		if (size && opened) {
+			return size.top - margin;
+		}
+
+		return 0;
+	}, [opened, size]);
+
+	const derivedMaxHeight = useMemo(() => {
+		return spaceToTop > spaceToBottom ? spaceToTop : spaceToBottom;
+	}, [spaceToBottom, spaceToTop]);
 
 	const portalStyle = useMemo((): React.CSSProperties | null => {
 		if (!opened || !size) {
 			return null;
 		}
 
-		const spaceToBottom = size.windowSize.height - (size.top + size.height);
-		const spaceToTop = size.top;
+		const spaceToRight = size.windowSize.width - (size.left + size.width);
 
-		const layout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
+		const minSpaceToRightRequired = MAX_MENU_WIDTH;
+
+		const verticalLayout = spaceToTop > spaceToBottom ? 'bottom' : 'top';
+		const horizontalLayout =
+			spaceToRight >= minSpaceToRightRequired ? 'left' : 'right';
 
 		return {
-			...(layout === 'top'
+			...(verticalLayout === 'top'
 				? {
 						...menuContainerTowardsBottom,
 						top: size.top + size.height,
 				  }
 				: {
 						...menuContainerTowardsTop,
-
 						bottom: size.windowSize.height - size.top,
 				  }),
-			left: size.left,
+			...(horizontalLayout === 'left'
+				? {
+						left: size.left,
+				  }
+				: {
+						right: size.windowSize.width - size.left - size.width,
+				  }),
 		};
-	}, [opened, size]);
+	}, [opened, size, spaceToBottom, spaceToTop]);
 
-	const selected = values.find((v) => v.id === selectedId) as SelectionItem;
+	const selected = values.find((v) => v.id === selectedId) as
+		| SelectionItem
+		| undefined;
 
 	const style = useMemo((): React.CSSProperties => {
 		return {
@@ -148,27 +228,41 @@ export const Combobox: React.FC<{
 				tabIndex={tabIndex}
 				type="button"
 				style={style}
+				className={MENU_INITIATOR_CLASSNAME}
 			>
-				{selected.label} <Flex /> <Spacing x={1} /> <CaretDown />
+				{selected ? (
+					<div
+						title={
+							typeof selected.label === 'string' ? selected.label : undefined
+						}
+						style={label}
+					>
+						{selected?.label}
+					</div>
+				) : null}
+				<Spacing x={1} /> <CaretDown />
 			</button>
 			{portalStyle
 				? ReactDOM.createPortal(
-						<div style={outerPortal} className="css-reset">
-							<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
-								<div style={portalStyle}>
-									<MenuContent
-										onNextMenu={noop}
-										onPreviousMenu={noop}
-										values={values}
-										onHide={onHide}
-										leaveLeftSpace
-										preselectIndex={values.findIndex(
-											(v) => v.id === selected.id
-										)}
-										topItemCanBeUnselected={false}
-									/>
-								</div>
-							</HigherZIndex>
+						<div style={fullScreenOverlay}>
+							<div style={outerPortal} className="css-reset">
+								<HigherZIndex onOutsideClick={onHide} onEscape={onHide}>
+									<div style={portalStyle}>
+										<MenuContent
+											onNextMenu={noop}
+											onPreviousMenu={noop}
+											values={values}
+											onHide={onHide}
+											leaveLeftSpace
+											preselectIndex={values.findIndex(
+												(v) => selected && v.id === selected.id
+											)}
+											topItemCanBeUnselected={false}
+											fixedHeight={derivedMaxHeight}
+										/>
+									</div>
+								</HigherZIndex>
+							</div>
 						</div>,
 						getPortal(currentZIndex)
 				  )

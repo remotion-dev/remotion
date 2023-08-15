@@ -1,4 +1,4 @@
-import path from 'path';
+import path from 'node:path';
 import {Log} from './log';
 import {
 	getDisplayNameForEditor,

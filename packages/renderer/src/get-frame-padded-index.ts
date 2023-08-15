@@ -3,6 +3,8 @@
 // - If `--every-nth-frame` is passed, only frames 0, 2, 4 are rendered
 // - If an image sequence is created, the filenames should correspond to the frame numbers: element-099.jpg, element-100.jpg
 
+import type {VideoImageFormat} from './image-format';
+
 export type CountType = 'from-zero' | 'actual-frames';
 
 const padIndex = ({
@@ -25,21 +27,23 @@ export const getFrameOutputFileName = ({
 }: {
 	index: number;
 	frame: number;
-	imageFormat: 'png' | 'jpeg';
+	imageFormat: VideoImageFormat;
 	countType: CountType;
 	lastFrame: number;
 	totalFrames: number;
 }) => {
 	const filePadLength = getFilePadLength({lastFrame, countType, totalFrames});
 
+	const prefix = 'element';
+
 	if (countType === 'actual-frames') {
 		const paddedIndex = padIndex({filePadLength, num: frame});
-		return `element-${paddedIndex}.${imageFormat}`;
+		return `${prefix}-${paddedIndex}.${imageFormat}`;
 	}
 
 	if (countType === 'from-zero') {
 		const paddedIndex = padIndex({filePadLength, num: index});
-		return `element-${paddedIndex}.${imageFormat}`;
+		return `${prefix}-${paddedIndex}.${imageFormat}`;
 	}
 
 	throw new TypeError('Unknown count type');

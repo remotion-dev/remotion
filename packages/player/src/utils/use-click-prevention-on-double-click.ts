@@ -1,8 +1,8 @@
 import type {SyntheticEvent} from 'react';
 import {useCallback, useMemo} from 'react';
-import {cancellablePromise} from './cancellable-promise';
-import {delay} from './delay';
-import {useCancellablePromises} from './use-cancellable-promises';
+import {cancellablePromise} from './cancellable-promise.js';
+import {delay} from './delay.js';
+import {useCancellablePromises} from './use-cancellable-promises.js';
 
 const useClickPreventionOnDoubleClick = (
 	onClick: (e: SyntheticEvent) => void,

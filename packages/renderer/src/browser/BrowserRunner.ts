@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-import * as childProcess from 'child_process';
-import * as fs from 'fs';
+import * as childProcess from 'node:child_process';
+import * as fs from 'node:fs';
 import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
+import {Log} from '../logger';
 import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
 import type {LaunchOptions} from './LaunchOptions';
 import {NodeWebSocketTransport} from './NodeWebSocketTransport';
+import {
+	formatChromeMessage,
+	shouldLogBrowserMessage,
+} from './should-log-message';
 import type {PuppeteerEventListener} from './util';
 import {
 	addEventListener,
@@ -62,19 +67,10 @@ export class BrowserRunner {
 	}
 
 	start(options: LaunchOptions): void {
-		const {dumpio, env, pipe} = options;
-		let stdio: Array<'ignore' | 'pipe'>;
-		if (pipe) {
-			if (dumpio) {
-				stdio = ['ignore', 'pipe', 'pipe', 'pipe', 'pipe'];
-			} else {
-				stdio = ['ignore', 'ignore', 'ignore', 'pipe', 'pipe'];
-			}
-		} else if (dumpio) {
-			stdio = ['pipe', 'pipe', 'pipe'];
-		} else {
-			stdio = ['pipe', 'ignore', 'pipe'];
-		}
+		const {dumpio, env} = options;
+		const stdio: ('ignore' | 'pipe')[] = dumpio
+			? ['ignore', 'pipe', 'pipe']
+			: ['pipe', 'ignore', 'pipe'];
 
 		assert(!this.proc, 'This process has previously been started.');
 		this.proc = childProcess.spawn(
@@ -91,18 +87,46 @@ export class BrowserRunner {
 			}
 		);
 		if (dumpio) {
-			this.proc.stderr?.pipe(process.stderr);
-			this.proc.stdout?.pipe(process.stdout);
+			this.proc.stdout?.on('data', (d) => {
+				const message = d.toString('utf8').trim();
+				if (shouldLogBrowserMessage(message)) {
+					const formatted = formatChromeMessage(message);
+					if (!formatted) {
+						return;
+					}
+
+					const {output, tag} = formatted;
+					Log.verboseAdvanced(
+						{indent: options.indent, logLevel: options.logLevel, tag},
+						output
+					);
+				}
+			});
+			this.proc.stderr?.on('data', (d) => {
+				const message = d.toString('utf8').trim();
+				if (shouldLogBrowserMessage(message)) {
+					const formatted = formatChromeMessage(message);
+					if (!formatted) {
+						return;
+					}
+
+					const {output, tag} = formatted;
+					Log.verboseAdvanced(
+						{indent: options.indent, logLevel: options.logLevel, tag},
+						output
+					);
+				}
+			});
 		}
 
 		this.#closed = false;
 		this.#processClosing = new Promise((fulfill, reject) => {
-			(this.proc as childProcess.ChildProcess).once('exit', async () => {
+			(this.proc as childProcess.ChildProcess).once('exit', () => {
 				this.#closed = true;
 				// Cleanup as processes exit.
 				try {
 					if (fs.existsSync(this.#userDataDir)) {
-						await deleteDirectory(this.#userDataDir);
+						deleteDirectory(this.#userDataDir);
 					}
 
 					fulfill();
@@ -190,18 +214,11 @@ export class BrowserRunner {
 		removeEventListeners(this.#listeners);
 	}
 
-	async setupConnection(options: {
-		timeout: number;
-		preferredRevision: string;
-	}): Promise<Connection> {
+	async setupConnection(options: {timeout: number}): Promise<Connection> {
 		assert(this.proc, 'BrowserRunner not started.');
 
-		const {timeout, preferredRevision} = options;
-		const browserWSEndpoint = await waitForWSEndpoint(
-			this.proc,
-			timeout,
-			preferredRevision
-		);
+		const {timeout} = options;
+		const browserWSEndpoint = await waitForWSEndpoint(this.proc, timeout);
 		const transport = await NodeWebSocketTransport.create(browserWSEndpoint);
 		this.connection = new Connection(transport);
 
@@ -211,8 +228,7 @@ export class BrowserRunner {
 
 function waitForWSEndpoint(
 	browserProcess: childProcess.ChildProcess,
-	timeout: number,
-	preferredRevision: string
+	timeout: number
 ): Promise<string> {
 	assert(browserProcess.stderr, '`browserProcess` does not have stderr.');
 	const rl = readline.createInterface(browserProcess.stderr);
@@ -253,7 +269,7 @@ function waitForWSEndpoint(
 			cleanup();
 			reject(
 				new TimeoutError(
-					`Timed out after ${timeout} ms while trying to connect to the browser! Only Chrome at revision r${preferredRevision} is guaranteed to work.`
+					`Timed out after ${timeout} ms while trying to connect to the browser!`
 				)
 			);
 		}

@@ -8,6 +8,10 @@ export type TrailProps = {
 	trailOpacity: number;
 };
 
+/**
+ * @description The <Trail> component duplicates it's children and adds a time offset to each layer in order to create a trail effect.
+ * @see [Documentation](https://www.remotion.dev/docs/motion-blur/trail)
+ */
 export const Trail: React.FC<TrailProps> = ({
 	children,
 	layers,

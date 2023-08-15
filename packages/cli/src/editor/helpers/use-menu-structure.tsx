@@ -5,19 +5,21 @@ import {truthy} from '../../truthy';
 import {Row} from '../components/layout';
 import type {Menu} from '../components/Menu/MenuItem';
 import type {SelectionItem} from '../components/NewComposition/ComboBox';
-import {notificationCenter} from '../components/Notifications/NotificationCenter';
+import {sendErrorNotification} from '../components/Notifications/NotificationCenter';
 import type {TQuickSwitcherResult} from '../components/QuickSwitcher/QuickSwitcherResult';
 import {getPreviewSizeLabel, getUniqueSizes} from '../components/SizeSelector';
 import {inOutHandles} from '../components/TimelineInOutToggle';
 import {Checkmark} from '../icons/Checkmark';
+import {canvasRef} from '../state/canvas-ref';
 import {CheckerboardContext} from '../state/checkerboard';
+import {EditorZoomGesturesContext} from '../state/editor-zoom-gestures';
 import type {ModalState} from '../state/modals';
 import {ModalsContext} from '../state/modals';
 import {PreviewSizeContext} from '../state/preview-size';
-import {RichTimelineContext} from '../state/rich-timeline';
 import type {SidebarCollapsedState} from '../state/sidebar';
 import {SidebarContext} from '../state/sidebar';
 import {timelineRef} from '../state/timeline-ref';
+import {StudioServerConnectionCtx} from './client-id';
 import {openInEditor} from './open-in-editor';
 import {pickColor} from './pick-color';
 import {areKeyboardShortcutsDisabled} from './use-keybinding';
@@ -36,12 +38,21 @@ const ICON_SIZE = 16;
 export const useMenuStructure = (closeMenu: () => void) => {
 	const {setSelectedModal} = useContext(ModalsContext);
 	const {checkerboard, setCheckerboard} = useContext(CheckerboardContext);
-	const {richTimeline, setRichTimeline} = useContext(RichTimelineContext);
+	const {editorZoomGestures, setEditorZoomGestures} = useContext(
+		EditorZoomGesturesContext
+	);
 	const {size, setSize} = useContext(PreviewSizeContext);
-	const {setSidebarCollapsedState, sidebarCollapsedState} =
-		useContext(SidebarContext);
+	const {type} = useContext(StudioServerConnectionCtx);
 
+	const {
+		setSidebarCollapsedState,
+		sidebarCollapsedStateLeft,
+		sidebarCollapsedStateRight,
+	} = useContext(SidebarContext);
 	const sizes = getUniqueSizes(size);
+
+	const isFullscreenSupported =
+		document.fullscreenEnabled || document.webkitFullscreenEnabled;
 
 	const structure = useMemo((): Structure => {
 		const struct: Structure = [
@@ -153,6 +164,39 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						subMenu: null,
 						quickSwitcherLabel: 'New still...',
 					},
+					{
+						type: 'divider' as const,
+						id: 'new-divider',
+					},
+					{
+						id: 'render',
+						value: 'render',
+						label: 'Render...',
+						onClick: () => {
+							closeMenu();
+							if (type !== 'connected') {
+								sendErrorNotification('Restart the studio to render');
+								return;
+							}
+
+							const renderButton = document.getElementById(
+								'render-modal-button'
+							) as HTMLDivElement;
+
+							renderButton.click();
+						},
+						type: 'item' as const,
+						keyHint: 'R',
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Render...',
+					},
+					window.remotion_editorName
+						? {
+								type: 'divider' as const,
+								id: 'open-in-editor-divider',
+						  }
+						: null,
 					window.remotion_editorName
 						? {
 								id: 'open-in-editor',
@@ -169,22 +213,16 @@ export const useMenuStructure = (closeMenu: () => void) => {
 										.then((res) => res.json())
 										.then(({success}) => {
 											if (!success) {
-												notificationCenter.current?.addNotification({
-													content: `Could not open ${window.remotion_editorName}`,
-													duration: 2000,
-													created: Date.now(),
-													id: String(Math.random()),
-												});
+												sendErrorNotification(
+													`Could not open ${window.remotion_editorName}`
+												);
 											}
 										})
 										.catch((err) => {
 											console.error(err);
-											notificationCenter.current?.addNotification({
-												content: `Could not open ${window.remotion_editorName}`,
-												duration: 2000,
-												created: Date.now(),
-												id: String(Math.random()),
-											});
+											sendErrorNotification(
+												`Could not open ${window.remotion_editorName}`
+											);
 										});
 								},
 								type: 'item' as const,
@@ -237,12 +275,28 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: null,
 					},
 					{
+						id: 'editor-zoom-gestures',
+						keyHint: null,
+						label: 'Zoom and Pan Gestures',
+						onClick: () => {
+							closeMenu();
+							setEditorZoomGestures((c) => !c);
+						},
+						type: 'item' as const,
+						value: 'editor-zoom-gestures',
+						leftItem: editorZoomGestures ? <Checkmark /> : null,
+						subMenu: null,
+						quickSwitcherLabel: editorZoomGestures
+							? 'Disable Zoom and Pan Gestures'
+							: 'Enable Zoom and Pan Gestures',
+					},
+					{
 						id: 'timeline-divider-1',
 						type: 'divider' as const,
 					},
 					{
 						id: 'left-sidebar',
-						label: 'Sidebar',
+						label: 'Left Sidebar',
 						keyHint: null,
 						type: 'item' as const,
 						value: 'preview-size',
@@ -253,15 +307,19 @@ export const useMenuStructure = (closeMenu: () => void) => {
 							preselectIndex: 0,
 							items: [
 								{
-									id: 'sidebar-responsive',
+									id: 'left-sidebar-responsive',
 									keyHint: null,
 									label: 'Responsive',
 									leftItem:
-										sidebarCollapsedState === 'responsive' ? (
+										sidebarCollapsedStateLeft === 'responsive' ? (
 											<Checkmark />
 										) : null,
 									onClick: () => {
-										setSidebarCollapsedState('responsive');
+										closeMenu();
+										setSidebarCollapsedState({
+											left: 'responsive',
+											right: null,
+										});
 									},
 									subMenu: null,
 									type: 'item' as const,
@@ -269,13 +327,16 @@ export const useMenuStructure = (closeMenu: () => void) => {
 									quickSwitcherLabel: null,
 								},
 								{
-									id: 'sidebar-expanded',
+									id: 'left-sidebar-expanded',
 									keyHint: null,
 									label: 'Expanded',
 									leftItem:
-										sidebarCollapsedState === 'expanded' ? <Checkmark /> : null,
+										sidebarCollapsedStateLeft === 'expanded' ? (
+											<Checkmark />
+										) : null,
 									onClick: () => {
-										setSidebarCollapsedState('expanded');
+										closeMenu();
+										setSidebarCollapsedState({left: 'expanded', right: null});
 									},
 									subMenu: null,
 									type: 'item' as const,
@@ -283,15 +344,66 @@ export const useMenuStructure = (closeMenu: () => void) => {
 									quickSwitcherLabel: 'Expand',
 								},
 								{
-									id: 'sidebar-collapsed',
+									id: 'left-sidebar-collapsed',
 									keyHint: null,
 									label: 'Collapsed',
 									leftItem:
-										sidebarCollapsedState === 'collapsed' ? (
+										sidebarCollapsedStateLeft === 'collapsed' ? (
 											<Checkmark />
 										) : null,
 									onClick: () => {
-										setSidebarCollapsedState('collapsed');
+										closeMenu();
+										setSidebarCollapsedState({left: 'collapsed', right: null});
+									},
+									subMenu: null,
+									type: 'item' as const,
+									value: 'collapsed' as SidebarCollapsedState,
+									quickSwitcherLabel: 'Collapse',
+								},
+							],
+						},
+						onClick: () => undefined,
+					},
+					{
+						id: 'right-sidebar',
+						label: 'Right Sidebar',
+						keyHint: null,
+						type: 'item' as const,
+						value: 'preview-size',
+						leftItem: null,
+						quickSwitcherLabel: null,
+						subMenu: {
+							leaveLeftSpace: true,
+							preselectIndex: 0,
+							items: [
+								{
+									id: 'sidebar-expanded',
+									keyHint: null,
+									label: 'Expanded',
+									leftItem:
+										sidebarCollapsedStateRight === 'expanded' ? (
+											<Checkmark />
+										) : null,
+									onClick: () => {
+										closeMenu();
+										setSidebarCollapsedState({left: null, right: 'expanded'});
+									},
+									subMenu: null,
+									type: 'item' as const,
+									value: 'expanded' as SidebarCollapsedState,
+									quickSwitcherLabel: 'Expand',
+								},
+								{
+									id: 'right-sidebar-collapsed',
+									keyHint: null,
+									label: 'Collapsed',
+									leftItem:
+										sidebarCollapsedStateRight === 'collapsed' ? (
+											<Checkmark />
+										) : null,
+									onClick: () => {
+										closeMenu();
+										setSidebarCollapsedState({left: null, right: 'collapsed'});
 									},
 									subMenu: null,
 									type: 'item' as const,
@@ -325,22 +437,6 @@ export const useMenuStructure = (closeMenu: () => void) => {
 					{
 						id: 'timeline-divider-3',
 						type: 'divider' as const,
-					},
-					{
-						id: 'rich-timeline',
-						keyHint: null,
-						label: 'Rich timeline',
-						onClick: () => {
-							closeMenu();
-							setRichTimeline((r) => !r);
-						},
-						type: 'item' as const,
-						value: 'rich-timeline',
-						leftItem: richTimeline ? <Checkmark /> : null,
-						subMenu: null,
-						quickSwitcherLabel: richTimeline
-							? 'Timeline: Disable Rich Timeline'
-							: 'Timeline: Enable Rich Timeline',
 					},
 					{
 						id: 'expand-all',
@@ -438,7 +534,27 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						value: 'clear-marks',
 						quickSwitcherLabel: 'Timeline: Clear In and Out Mark',
 					},
-				],
+					{
+						id: 'fullscreen-divider',
+						type: 'divider' as const,
+					},
+					isFullscreenSupported
+						? {
+								id: 'fullscreen',
+								keyHint: null,
+								label: 'Fullscreen',
+								leftItem: null,
+								onClick: () => {
+									closeMenu();
+									canvasRef.current?.requestFullscreen();
+								},
+								subMenu: null,
+								type: 'item' as const,
+								value: 'fullscreen',
+								quickSwitcherLabel: 'Go Fullscreen',
+						  }
+						: null,
+				].filter(Internals.truthy),
 			},
 			'EyeDropper' in window
 				? {
@@ -546,7 +662,7 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						label: 'Instagram',
 						onClick: () => {
 							closeMenu();
-							openExternal('https://instagram.com/remotion.dev');
+							openExternal('https://instagram.com/remotion');
 						},
 						type: 'item' as const,
 						keyHint: null,
@@ -569,12 +685,26 @@ export const useMenuStructure = (closeMenu: () => void) => {
 						quickSwitcherLabel: 'Follow Remotion on Twitter',
 					},
 					{
+						id: 'linkedin',
+						value: 'linkedin',
+						label: 'LinkedIn',
+						onClick: () => {
+							closeMenu();
+							openExternal('https://www.linkedin.com/company/remotion-dev/');
+						},
+						type: 'item' as const,
+						keyHint: null,
+						leftItem: null,
+						subMenu: null,
+						quickSwitcherLabel: 'Follow Remotion on LinkedIn',
+					},
+					{
 						id: 'tiktok',
 						value: 'tiktok',
 						label: 'TikTok',
 						onClick: () => {
 							closeMenu();
-							openExternal('https://www.tiktok.com/@remotion.dev');
+							openExternal('https://www.tiktok.com/@remotion');
 						},
 						type: 'item' as const,
 						keyHint: null,
@@ -588,17 +718,20 @@ export const useMenuStructure = (closeMenu: () => void) => {
 
 		return struct;
 	}, [
-		checkerboard,
-		closeMenu,
-		richTimeline,
-		setCheckerboard,
-		setRichTimeline,
-		setSelectedModal,
-		setSidebarCollapsedState,
-		setSize,
-		sidebarCollapsedState,
-		size.size,
 		sizes,
+		editorZoomGestures,
+		sidebarCollapsedStateLeft,
+		sidebarCollapsedStateRight,
+		checkerboard,
+		isFullscreenSupported,
+		closeMenu,
+		setSelectedModal,
+		type,
+		size.size,
+		setSize,
+		setEditorZoomGestures,
+		setSidebarCollapsedState,
+		setCheckerboard,
 	]);
 
 	return structure;

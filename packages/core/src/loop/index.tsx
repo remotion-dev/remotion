@@ -1,8 +1,10 @@
-import React from 'react';
-import type {LayoutAndStyle} from '../Sequence';
-import {Sequence} from '../Sequence';
-import {useVideoConfig} from '../use-video-config';
-import {validateDurationInFrames} from '../validation/validate-duration-in-frames';
+import React, {useMemo} from 'react';
+import type {LoopDisplay} from '../CompositionManager.js';
+import type {LayoutAndStyle} from '../Sequence.js';
+import {Sequence} from '../Sequence.js';
+import {useCurrentFrame} from '../use-current-frame.js';
+import {useVideoConfig} from '../use-video-config.js';
+import {validateDurationInFrames} from '../validation/validate-duration-in-frames.js';
 
 export type LoopProps = {
 	// The duration of the content to be looped
@@ -13,6 +15,10 @@ export type LoopProps = {
 	children: React.ReactNode;
 } & LayoutAndStyle;
 
+/**
+ * @description This component allows you to quickly lay out an animation so it repeats itself.
+ * @see [Documentation](https://www.remotion.dev/docs/loop)
+ */
 export const Loop: React.FC<LoopProps> = ({
 	durationInFrames,
 	times = Infinity,
@@ -20,8 +26,13 @@ export const Loop: React.FC<LoopProps> = ({
 	name,
 	...props
 }) => {
+	const currentFrame = useCurrentFrame();
 	const {durationInFrames: compDuration} = useVideoConfig();
-	validateDurationInFrames(durationInFrames, 'of the <Loop /> component');
+
+	validateDurationInFrames(durationInFrames, {
+		component: 'of the <Loop /> component',
+		allowFloats: true,
+	});
 
 	if (typeof times !== 'number') {
 		throw new TypeError(
@@ -44,26 +55,28 @@ export const Loop: React.FC<LoopProps> = ({
 	const maxTimes = Math.ceil(compDuration / durationInFrames);
 	const actualTimes = Math.min(maxTimes, times);
 	const style = props.layout === 'none' ? undefined : props.style;
+	const maxFrame = durationInFrames * (actualTimes - 1);
+	const start = Math.floor(currentFrame / durationInFrames) * durationInFrames;
+	const from = Math.min(start, maxFrame);
+
+	const loopDisplay: LoopDisplay = useMemo(() => {
+		return {
+			numberOfTimes: actualTimes,
+			startOffset: -from,
+			durationInFrames,
+		};
+	}, [actualTimes, durationInFrames, from]);
 
 	return (
-		<>
-			{new Array(actualTimes).fill(true).map((_, i) => {
-				return (
-					<Sequence
-						// eslint-disable-next-line react/no-array-index-key
-						key={`loop-${i}`}
-						durationInFrames={durationInFrames}
-						from={i * durationInFrames}
-						name={name}
-						showLoopTimesInTimeline={actualTimes}
-						showInTimeline={i === 0}
-						layout={props.layout}
-						style={style}
-					>
-						{children}
-					</Sequence>
-				);
-			})}
-		</>
+		<Sequence
+			durationInFrames={durationInFrames}
+			from={from}
+			name={name}
+			loopDisplay={loopDisplay}
+			layout={props.layout}
+			style={style}
+		>
+			{children}
+		</Sequence>
 	);
 };

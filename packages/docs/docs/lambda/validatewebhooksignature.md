@@ -20,7 +20,7 @@ The same webhook secret that was passed to [`renderMediaOnLambda()`](/docs/lambd
 
 ### `body`
 
-The body that was received by the endpoint.
+The body that was received by the endpoint - takes a parsed JSON object, not a `string`.
 
 ### `signatureHeader`
 
@@ -32,7 +32,7 @@ In the following Next.JS webhook endpoint, an error gets thrown if the signature
 
 ```tsx twoslash title="pages/api/webhook.ts"
 type NextApiRequest = {
-  body: string;
+  body: object;
   headers: Record<string, string>;
 };
 type NextApiResponse = {
@@ -55,7 +55,7 @@ export default async function handler(
   });
 
   // If code reaches this path, the webhook is authentic.
-  const payload = JSON.parse(req.body) as WebhookPayload;
+  const payload = req.body as WebhookPayload;
   if (payload.type === "success") {
     // ...
   } else if (payload.type === "timeout") {

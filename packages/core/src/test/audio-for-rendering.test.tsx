@@ -3,57 +3,52 @@
  */
 import {render} from '@testing-library/react';
 import React from 'react';
-import {
-	afterAll,
-	beforeAll,
-	beforeEach,
-	describe,
-	expect,
-	test,
-	vitest,
-} from 'vitest';
-import {AudioForRendering} from '../audio/AudioForRendering';
-import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks';
-import type {CompositionManagerContext} from '../CompositionManager';
-import {Internals} from '../internals';
-import {expectToThrow} from './expect-to-throw';
+import {beforeEach, describe, expect, test, vitest} from 'vitest';
+import {AudioForRendering} from '../audio/AudioForRendering.js';
+import {CanUseRemotionHooksProvider} from '../CanUseRemotionHooks.js';
+import {CompositionManager} from '../CompositionManagerContext.js';
+import {RenderAssetManager} from '../RenderAssetManager.js';
+import {ResolveCompositionConfig} from '../ResolveCompositionConfig.js';
+import {expectToThrow} from './expect-to-throw.js';
+import {mockCompositionContext} from './wrap-sequence-context.js';
 
 interface MockCompositionManagerContext {
 	MockProvider: Function;
-	registerAsset: Function;
-	unregisterAsset: Function;
+	registerRenderAsset: Function;
+	unregisterRenderAsset: Function;
 }
 let mockContext: MockCompositionManagerContext;
 
 describe('Register and unregister asset', () => {
 	function createMockContext(): MockCompositionManagerContext {
-		const registerAsset = vitest.fn();
-		const unregisterAsset = vitest.fn();
+		const registerRenderAsset = vitest.fn();
+		const unregisterRenderAsset = vitest.fn();
 		window.remotion_audioEnabled = true;
 		const MockProvider: React.FC<{
 			children: React.ReactNode;
 		}> = ({children}) => {
 			return (
 				<CanUseRemotionHooksProvider>
-					<Internals.CompositionManager.Provider
-						value={
+					<CompositionManager.Provider value={mockCompositionContext}>
+						<RenderAssetManager.Provider
 							// eslint-disable-next-line react/jsx-no-constructed-context-values
-							{
-								registerAsset,
-								unregisterAsset,
-							} as unknown as CompositionManagerContext
-						}
-					>
-						{children}
-					</Internals.CompositionManager.Provider>
+							value={{
+								registerRenderAsset,
+								unregisterRenderAsset,
+								renderAssets: [],
+							}}
+						>
+							<ResolveCompositionConfig>{children}</ResolveCompositionConfig>
+						</RenderAssetManager.Provider>
+					</CompositionManager.Provider>
 				</CanUseRemotionHooksProvider>
 			);
 		};
 
 		return {
 			MockProvider,
-			registerAsset,
-			unregisterAsset,
+			registerRenderAsset,
+			unregisterRenderAsset,
 		};
 	}
 
@@ -76,9 +71,9 @@ describe('Register and unregister asset', () => {
 			</CanUseRemotionHooksProvider>
 		);
 
-		expect(mockContext.registerAsset).toHaveBeenCalled();
+		expect(mockContext.registerRenderAsset).toHaveBeenCalled();
 		unmount();
-		expect(mockContext.unregisterAsset).toHaveBeenCalled();
+		expect(mockContext.unregisterRenderAsset).toHaveBeenCalled();
 	});
 
 	test('no src passed', () => {
@@ -97,35 +92,7 @@ describe('Register and unregister asset', () => {
 				</CanUseRemotionHooksProvider>
 			);
 		}, /No src passed/);
-		expect(mockContext.registerAsset).not.toHaveBeenCalled();
-		expect(mockContext.unregisterAsset).not.toHaveBeenCalled();
-	});
-});
-
-let mockUseEffect: Function;
-describe('useEffect tests', () => {
-	const useEffectSpy = vitest.spyOn(React, 'useEffect');
-	mockUseEffect = vitest.fn();
-	beforeAll(() => {
-		useEffectSpy.mockImplementation(() => {
-			mockUseEffect();
-		});
-	});
-	afterAll(() => {
-		useEffectSpy.mockRestore();
-	});
-	test.skip('has registered', () => {
-		const props = {
-			src: 'test',
-			muted: false,
-			volume: 50,
-			onDuration: vitest.fn(),
-		};
-		render(
-			<CanUseRemotionHooksProvider>
-				<AudioForRendering {...props} />{' '}
-			</CanUseRemotionHooksProvider>
-		);
-		expect(mockUseEffect).toHaveBeenCalled();
+		expect(mockContext.registerRenderAsset).not.toHaveBeenCalled();
+		expect(mockContext.unregisterRenderAsset).not.toHaveBeenCalled();
 	});
 });

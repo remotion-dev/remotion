@@ -14,9 +14,7 @@ This example shows how to create a floating dot grid "surface" using [`noise3D()
 - 1st and 2nd dimensions used for space domain.
 - 3rd dimension used for time domain.
 
-import { NoiseDemo } from "../components/NoiseDemo";
-
-<NoiseDemo/>
+<Demo type="noise"/>
 
 ```tsx twoslash
 import { noise3D } from "@remotion/noise";

@@ -18,7 +18,7 @@ import React, {
 import {AbsoluteFill} from 'remotion';
 import {playerExampleComp} from './CarSlideshow';
 import {Loading} from './Loading';
-import { TimeDisplay } from './TimeDisplay';
+import {TimeDisplay} from './TimeDisplay';
 
 const fps = 30;
 
@@ -61,7 +61,13 @@ const ControlsOnly: React.FC<{
 	setInFrame: React.Dispatch<React.SetStateAction<number | null>>;
 	outFrame: number | null;
 	setOutFrame: React.Dispatch<React.SetStateAction<number | null>>;
+	alwaysShowControls: boolean;
+	setAlwaysShowControls: React.Dispatch<React.SetStateAction<boolean>>;
+	showVolumeControls: boolean;
+	setShowVolumeControls: React.Dispatch<React.SetStateAction<boolean>>;
 	durationInFrames: number;
+	showPlaybackrateControl: boolean;
+	setShowPlaybackRateControl: React.Dispatch<React.SetStateAction<boolean>>;
 }> = ({
 	playerRef: ref,
 	color,
@@ -91,7 +97,13 @@ const ControlsOnly: React.FC<{
 	outFrame,
 	setInFrame,
 	setOutFrame,
+	alwaysShowControls,
+	setAlwaysShowControls,
 	durationInFrames,
+	setShowVolumeControls,
+	showVolumeControls,
+	showPlaybackrateControl: showPlaybackControl,
+	setShowPlaybackRateControl: setShowPlaybackControl,
 }) => {
 	const [logs, setLogs] = useState<string[]>(() => []);
 
@@ -131,12 +143,35 @@ const ControlsOnly: React.FC<{
 				'ratechange ' + e.detail.playbackRate + ' ' + Date.now(),
 			]);
 		};
+
+		const scalechangeCallbackListener: CallbackListener<'scalechange'> = (
+			e
+		) => {
+			setLogs((l) => [...l, 'scalechange ' + e.detail.scale]);
+		};
+
 		const fullscreenChangeCallbackListener: CallbackListener<
 			'fullscreenchange'
 		> = (e) => {
 			setLogs((l) => [
 				...l,
 				'fullscreenchange ' + e.detail.isFullscreen + ' ' + Date.now(),
+			]);
+		};
+
+		const volumechangeCallbackListener: CallbackListener<'volumechange'> = (
+			e
+		) => {
+			setLogs((l) => [
+				...l,
+				'volumechange ' + e.detail.volume + ' ' + Date.now(),
+			]);
+		};
+
+		const mutechangeCallbackListener: CallbackListener<'mutechange'> = (e) => {
+			setLogs((l) => [
+				...l,
+				'mutechange ' + e.detail.isMuted + ' ' + Date.now(),
 			]);
 		};
 
@@ -153,6 +188,9 @@ const ControlsOnly: React.FC<{
 		current.addEventListener('timeupdate', timeupdateCallbackListener);
 		current.addEventListener('frameupdate', frameupdateCallbackListener);
 		current.addEventListener('ratechange', ratechangeCallbackListener);
+		current.addEventListener('scalechange', scalechangeCallbackListener);
+		current.addEventListener('volumechange', volumechangeCallbackListener);
+		current.addEventListener('mutechange', mutechangeCallbackListener);
 		current.addEventListener(
 			'fullscreenchange',
 			fullscreenChangeCallbackListener
@@ -167,6 +205,9 @@ const ControlsOnly: React.FC<{
 			current.removeEventListener('timeupdate', timeupdateCallbackListener);
 			current.removeEventListener('frameupdate', frameupdateCallbackListener);
 			current.removeEventListener('ratechange', ratechangeCallbackListener);
+			current.removeEventListener('scalechange', scalechangeCallbackListener);
+			current.removeEventListener('volumechange', volumechangeCallbackListener);
+			current.removeEventListener('mutechange', mutechangeCallbackListener);
 			current.removeEventListener(
 				'fullscreenchange',
 				fullscreenChangeCallbackListener
@@ -289,6 +330,14 @@ const ControlsOnly: React.FC<{
 			>
 				-1x speed
 			</button>
+			<button
+				type="button"
+				onClick={() => {
+					setShowPlaybackControl(!showPlaybackControl);
+				}}
+			>
+				showPlaybackRateControl = {String(showPlaybackControl)}
+			</button>
 			<br />
 			<button type="button" onClick={() => ref.current?.mute()}>
 				🔇 Mute
@@ -341,6 +390,13 @@ const ControlsOnly: React.FC<{
 			>
 				moveToBeginningWhenEnded = {String(moveToBeginningWhenEnded)}
 			</button>
+			<button type="button" onClick={() => setShowVolumeControls((l) => !l)}>
+				showVolumeControls = {String(showVolumeControls)}
+			</button>
+			<button type="button" onClick={() => setAlwaysShowControls((l) => !l)}>
+				alwaysShowControls = {String(alwaysShowControls)}
+			</button>
+			<br />
 			<button
 				type="button"
 				onClick={() =>
@@ -425,8 +481,8 @@ const ControlsOnly: React.FC<{
 				.reverse()
 				.slice(0, 10)
 				.reverse()
-				.map((l) => {
-					return <div key={l}>{l}</div>;
+				.map((l, i) => {
+					return <div key={`${l}-${i}`}>{l}</div>;
 				})}
 		</div>
 	);
@@ -435,7 +491,7 @@ const ControlsOnly: React.FC<{
 const PlayerOnly: React.FC<
 	{
 		playerRef: React.RefObject<PlayerRef>;
-		inputProps: object;
+		inputProps: Record<string, unknown>;
 		clickToPlay: boolean;
 		loop: boolean;
 		durationInFrames: number;
@@ -448,6 +504,9 @@ const PlayerOnly: React.FC<
 		showPosterWhenUnplayed: boolean;
 		inFrame: number | null;
 		outFrame: number | null;
+		alwaysShowControls: boolean;
+		showVolumeControls: boolean;
+		showPlaybackRateControl: boolean | number[];
 	} & CompProps<any>
 > = ({
 	playerRef,
@@ -464,6 +523,9 @@ const PlayerOnly: React.FC<
 	showPosterWhenUnplayed,
 	inFrame,
 	outFrame,
+	alwaysShowControls,
+	showVolumeControls,
+	showPlaybackRateControl,
 	...props
 }) => {
 	const renderLoading: RenderLoading = useCallback(() => {
@@ -500,7 +562,7 @@ const PlayerOnly: React.FC<
 		<Player
 			ref={playerRef}
 			controls
-			showVolumeControls
+			showVolumeControls={showVolumeControls}
 			compositionWidth={500}
 			compositionHeight={432}
 			fps={fps}
@@ -522,6 +584,18 @@ const PlayerOnly: React.FC<
 			showPosterWhenPaused={showPosterWhenPaused}
 			inFrame={inFrame}
 			outFrame={outFrame}
+			alwaysShowControls={alwaysShowControls}
+			showPlaybackRateControl={showPlaybackRateControl}
+			style={{
+				height: '100%',
+				width: '100%',
+				resize: 'both',
+				maxWidth: 550,
+				maxHeight: 550,
+				minWidth: 300,
+				minHeight: 300,
+				display: 'block',
+			}}
 		/>
 	);
 };
@@ -547,6 +621,9 @@ export default ({
 	const [showPosterWhenPaused, setShowPosterWhenPaused] = useState(true);
 	const [inFrame, setInFrame] = useState<number | null>(null);
 	const [outFrame, setOutFrame] = useState<number | null>(null);
+	const [alwaysShowControls, setAlwaysShowControls] = useState(false);
+	const [showVolumeControls, setShowVolumeControls] = useState(true);
+	const [showPlaybackRateControl, setPlaybackRateControl] = useState(false);
 
 	const ref = useRef<PlayerRef>(null);
 
@@ -561,6 +638,7 @@ export default ({
 	return (
 		<div style={{margin: '2rem'}}>
 			<PlayerOnly
+				alwaysShowControls={alwaysShowControls}
 				clickToPlay={clickToPlay}
 				{...props}
 				doubleClickToFullscreen={doubleClickToFullscreen}
@@ -574,6 +652,8 @@ export default ({
 				showPosterWhenEnded={showPosterWhenEnded}
 				showPosterWhenPaused={showPosterWhenPaused}
 				showPosterWhenUnplayed={showPosterWhenUnplayed}
+				showVolumeControls={showVolumeControls}
+				showPlaybackRateControl={showPlaybackRateControl}
 				inFrame={inFrame}
 				outFrame={outFrame}
 			/>
@@ -599,14 +679,20 @@ export default ({
 				setshowPosterWhenUnplayed={setshowPosterWhenUnplayed}
 				setShowPosterWhenEnded={setShowPosterWhenEnded}
 				setShowPosterWhenPaused={setShowPosterWhenPaused}
+				setAlwaysShowControls={setAlwaysShowControls}
 				showPosterWhenUnplayed={showPosterWhenUnplayed}
 				showPosterWhenEnded={showPosterWhenEnded}
 				showPosterWhenPaused={showPosterWhenPaused}
+				alwaysShowControls={alwaysShowControls}
+				setShowVolumeControls={setShowVolumeControls}
+				showVolumeControls={showVolumeControls}
 				setInFrame={setInFrame}
 				setOutFrame={setOutFrame}
 				inFrame={inFrame}
 				outFrame={outFrame}
 				durationInFrames={durationInFrames}
+				showPlaybackrateControl={showPlaybackRateControl}
+				setShowPlaybackRateControl={setPlaybackRateControl}
 			/>
 		</div>
 	);

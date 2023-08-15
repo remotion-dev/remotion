@@ -1,4 +1,4 @@
-import { DEFAULT_CLOUDWATCH_RETENTION_PERIOD } from "@remotion/lambda/dist/defaults";
+import { DEFAULT_CLOUDWATCH_RETENTION_PERIOD } from "@remotion/lambda/defaults";
 import React from "react";
 
 export const DefaultLogRetention: React.FC = () => {

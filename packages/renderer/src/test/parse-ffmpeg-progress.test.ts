@@ -17,3 +17,11 @@ test('Should be able to parse 5 digits progress', () => {
 		)
 	).toBe(10234);
 });
+
+test('another failure', () => {
+	expect(
+		parseFfmpegProgress(
+			'frame= 3188 fps=104 q=-1.0 size=   11776kB time=00:01:46.19 bitrate= 908.4kbits/s speed=3.46x'
+		)
+	).toBe(3188);
+});

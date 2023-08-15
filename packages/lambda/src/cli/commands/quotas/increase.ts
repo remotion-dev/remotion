@@ -4,16 +4,28 @@ import {
 	ListRequestedServiceQuotaChangeHistoryByQuotaCommand,
 	RequestServiceQuotaIncreaseCommand,
 } from '@aws-sdk/client-service-quotas';
-import {Log} from '@remotion/cli/dist/log';
-import {exit} from 'process';
+import {exit} from 'node:process';
 import {QUOTAS_COMMAND} from '.';
+import type {AwsRegion} from '../../../client';
 import {BINARY_NAME, LAMBDA_CONCURRENCY_LIMIT_QUOTA} from '../../../defaults';
 import {getServiceQuotasClient} from '../../../shared/aws-clients';
+import {forceFlagProvided} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {confirmCli} from '../../helpers/confirm';
 import {quit} from '../../helpers/quit';
+import {Log} from '../../log';
 
 export const INCREASE_SUBCOMMAND = 'increase';
+
+const makeQuotaUrl = ({
+	region,
+	quotaId,
+}: {
+	region: AwsRegion;
+	quotaId: string;
+}) => {
+	return `https://${region}.console.aws.amazon.com/servicequotas/home/services/lambda/quotas/${quotaId}`;
+};
 
 export const quotasIncreaseCommand = async () => {
 	const region = getAwsRegion();
@@ -56,10 +68,15 @@ export const quotasIncreaseCommand = async () => {
 	const concurrencyCurrent = concurrencyLimit.Quota?.Value as number;
 	const defaultConcurrency = defaultConcurrencyLimit.Quota?.Value as number;
 	const increaseRecommended = concurrencyCurrent <= defaultConcurrency;
-	if (!increaseRecommended) {
-		Log.info(
-			`Current limit of ${concurrencyCurrent} is already increased over the default (${defaultConcurrency}). Increase it further via the AWS console.`
+	if (!increaseRecommended && !forceFlagProvided) {
+		Log.error(
+			`Current limit of ${concurrencyCurrent} is already increased over the default (${defaultConcurrency}).`
 		);
+		Log.info('You can force the increase with the --force flag.');
+		Log.info(
+			'You are more likely to get an increase if you attach a reason. Go so by going to the AWS console:'
+		);
+		Log.info(makeQuotaUrl({quotaId: LAMBDA_CONCURRENCY_LIMIT_QUOTA, region}));
 		quit(1);
 	}
 
@@ -71,13 +88,31 @@ export const quotasIncreaseCommand = async () => {
 		allowForceFlag: true,
 		delMessage: 'Send? (Y/n)',
 	});
-	await getServiceQuotasClient(region).send(
-		new RequestServiceQuotaIncreaseCommand({
-			QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
-			DesiredValue: newLimit,
-			ServiceCode: 'lambda',
-		})
-	);
+	try {
+		await getServiceQuotasClient(region).send(
+			new RequestServiceQuotaIncreaseCommand({
+				QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
+				DesiredValue: newLimit,
+				ServiceCode: 'lambda',
+			})
+		);
+	} catch (err) {
+		if ((err as Error).name === 'DependencyAccessDeniedException') {
+			Log.error(
+				'Could not request increase because this is a sub-account of another AWS account.'
+			);
+			Log.error(
+				`Please go to ${makeQuotaUrl({
+					quotaId: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
+					region,
+				})} to request the increase via the AWS console.`
+			);
+			return;
+		}
+
+		throw err;
+	}
+
 	Log.info(
 		`Requested increase successfully. Run "${BINARY_NAME} ${QUOTAS_COMMAND}" to check whether your request was approved.`
 	);

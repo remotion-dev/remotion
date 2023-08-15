@@ -1,4 +1,9 @@
-module.exports = {
+/**
+ *
+ * @param {"complete" | "new-doc"} mode
+ * @returns
+ */
+const config = (mode) => ({
   title: "Remotion | Make videos programmatically in React",
   tagline: "Make videos programmatically",
   url:
@@ -11,6 +16,23 @@ module.exports = {
   favicon: "img/favicon.png",
   organizationName: "remotion-dev", // Usually your GitHub org/user name.
   projectName: "remotion", // Usually your repo name.
+  webpack: {
+    jsLoader: (isServer) => ({
+      loader: require.resolve("swc-loader"),
+      options: {
+        jsc: {
+          parser: {
+            syntax: "typescript",
+            tsx: true,
+          },
+          target: "es2017",
+        },
+        module: {
+          type: isServer ? "commonjs" : "es6",
+        },
+      },
+    }),
+  },
   themeConfig: {
     algolia: {
       appId: "PLSDUOL1CA",
@@ -30,16 +52,19 @@ module.exports = {
           to: "/docs",
           label: "Docs",
           position: "left",
-          type: "docSidebar",
-          sidebarId: "mainSidebar",
+          type: mode === "complete" ? "docSidebar" : "doc",
+          docId: mode === "complete" ? undefined : "new-doc",
+          sidebarId: mode === "complete" ? "mainSidebar" : undefined,
         },
-        {
-          to: "/docs/api",
-          label: "API",
-          position: "left",
-          type: "docSidebar",
-          sidebarId: "apiSidebar",
-        },
+        mode === "complete"
+          ? {
+              to: "/docs/api",
+              label: "API",
+              position: "left",
+              type: "docSidebar",
+              sidebarId: "apiSidebar",
+            }
+          : null,
         { to: "/docs/license", label: "Pricing", position: "left" },
         {
           type: "dropdown",
@@ -60,11 +85,11 @@ module.exports = {
           ],
         },
         {
-          href: "https://twitter.com/remotion",
-          label: "Twitter",
+          href: "https://github.com/remotion-dev/remotion",
+          label: "GitHub",
           position: "right",
           "data-splitbee-event": "External Link",
-          "data-splitbee-event-target": "Twitter",
+          "data-splitbee-event-target": "GitHub",
         },
         {
           href: "https://remotion.dev/discord",
@@ -74,13 +99,13 @@ module.exports = {
           "data-splitbee-event-target": "Discord",
         },
         {
-          href: "https://github.com/remotion-dev/remotion",
-          label: "GitHub",
+          href: "https://x.com/remotion",
+          label: "X",
           position: "right",
           "data-splitbee-event": "External Link",
-          "data-splitbee-event-target": "GitHub",
+          "data-splitbee-event-target": "X",
         },
-      ],
+      ].filter(Boolean),
     },
     footer: {
       style: "light",
@@ -103,6 +128,10 @@ module.exports = {
             {
               label: "Lambda",
               to: "/lambda",
+            },
+            {
+              label: "Learn",
+              to: "/learn",
             },
             {
               label: "Changelog",
@@ -135,20 +164,30 @@ module.exports = {
               "data-splitbee-event-target": "Discord",
             },
             {
-              label: "Twitter",
-              href: "https://twitter.com/remotion",
+              label: "X",
+              href: "https://x.com/remotion",
               "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "Twitter",
+              "data-splitbee-event-target": "X",
+            },
+            {
+              label: "YouTube",
+              href: "https://youtube.com/@remotion_dev",
+            },
+            {
+              label: "LinkedIn",
+              href: "https://www.linkedin.com/company/remotion-dev/",
+              "data-splitbee-event": "External Link",
+              "data-splitbee-event-target": "LinkedIn",
             },
             {
               label: "Instagram",
-              href: "https://instagram.com/remotion.dev",
+              href: "https://instagram.com/remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "Instagram",
             },
             {
               label: "TikTok",
-              href: "https://www.tiktok.com/@remotion.dev",
+              href: "https://www.tiktok.com/@remotion",
               "data-splitbee-event": "External Link",
               "data-splitbee-event-target": "TikTok",
             },
@@ -161,10 +200,12 @@ module.exports = {
               label: "About us",
               to: "about",
             },
-            {
-              label: "Blog",
-              to: "blog",
-            },
+            mode === "complete"
+              ? {
+                  label: "Blog",
+                  to: "blog",
+                }
+              : null,
             {
               label: "Success Stories",
               to: "success-stories",
@@ -174,6 +215,10 @@ module.exports = {
               to: "/docs/support",
             },
             {
+              label: "License",
+              href: "https://remotion.dev/license",
+            },
+            {
               label: "For companies",
               href: "https://companies.remotion.dev",
             },
@@ -181,7 +226,7 @@ module.exports = {
               label: "Brand",
               href: "https://remotion.dev/brand",
             },
-          ],
+          ].filter(Boolean),
         },
       ],
     },
@@ -194,11 +239,15 @@ module.exports = {
       "@docusaurus/preset-classic",
       {
         docs: {
-          sidebarPath: require.resolve("./sidebars.js"),
+          path: mode === "complete" ? "docs" : "new-docs",
+          sidebarPath:
+            mode === "complete" ? require.resolve("./sidebars.js") : undefined,
           editUrl:
             "https://github.com/remotion-dev/remotion/edit/main/packages/docs/",
         },
         blog: {
+          path:
+            mode === "complete" ? undefined : "intentionally-not-existing-path",
           showReadingTime: true,
           // Please change this to your repo.
           editUrl:
@@ -220,45 +269,51 @@ module.exports = {
       },
     ],
   ],
-  plugins: [
-    [
-      "@docusaurus/plugin-content-blog",
-      {
-        /**
-         * Required for any multi-instance plugin
-         */
-        id: "success-stories",
-        /**
-         * URL route for the blog section of your site.
-         * *DO NOT* include a trailing slash.
-         */
-        routeBasePath: "success-stories",
-        /**
-         * Path to data on filesystem relative to site dir.
-         */
-        path: "./success-stories",
-        blogSidebarTitle: "Success stories",
-      },
-    ],
-    [
-      "@docusaurus/plugin-content-blog",
-      {
-        /**
-         * Required for any multi-instance plugin
-         */
-        id: "learn",
-        /**
-         * URL route for the blog section of your site.
-         * *DO NOT* include a trailing slash.
-         */
-        routeBasePath: "learn",
-        /**
-         * Path to data on filesystem relative to site dir.
-         */
-        path: "./learn",
-        blogSidebarTitle: "Learn",
-      },
-    ],
-    "./route-plugin",
-  ],
-};
+  plugins:
+    mode === "complete"
+      ? [
+          [
+            "@docusaurus/plugin-content-blog",
+            {
+              /**
+               * Required for any multi-instance plugin
+               */
+              id: "success-stories",
+              /**
+               * URL route for the blog section of your site.
+               * *DO NOT* include a trailing slash.
+               */
+              routeBasePath: "success-stories",
+              /**
+               * Path to data on filesystem relative to site dir.
+               */
+              path: "./success-stories",
+              blogSidebarTitle: "Success stories",
+            },
+          ],
+          [
+            "@docusaurus/plugin-content-blog",
+            {
+              /**
+               * Required for any multi-instance plugin
+               */
+              id: "learn",
+              /**
+               * URL route for the blog section of your site.
+               * *DO NOT* include a trailing slash.
+               */
+              routeBasePath: "learn",
+              /**
+               * Path to data on filesystem relative to site dir.
+               */
+              path: "./learn",
+              blogSidebarTitle: "Learn",
+            },
+          ],
+          "./route-plugin",
+        ]
+      : [],
+});
+
+module.exports = config("complete");
+module.exports.customFields = { config };

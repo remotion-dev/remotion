@@ -22,9 +22,9 @@ Remotion can support this higher resolution by setting the [`deviceScaleFactor`]
 - In the [config file](/docs/config), you can pass the scale using the following statement:
 
   ```ts twoslash
-  import { Config } from "remotion";
+  import { Config } from "@remotion/cli/config";
   // ---cut---
-  Config.Rendering.setScale(2);
+  Config.setScale(2);
   ```
 
 ## Allowed values

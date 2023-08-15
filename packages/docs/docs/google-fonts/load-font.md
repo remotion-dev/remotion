@@ -35,7 +35,12 @@ export const GoogleFontsExample: React.FC = () => {
 };
 ```
 
-Pass a specific style (e.g. `normal`, `italic`) and optionally weights and subsets to narrow down what gets loaded.  
+Pass a specific style (e.g. `normal`, `italic`) and optionally weights and subsets to narrow down what gets loaded.
+
+:::info
+A large font file paired with a limited bandwith can potentially lead to a render timeout. By specifing the exact style, weights and subsets you need, the filesize can be reduced and possibly prevent the render from timing out. If the if the problem persists, [increasing the timeout](/docs/timeout#increase-timeout) will help further.
+:::
+
 If you want to load multiple styles, use multiple `loadFont()` statements.
 
 ```tsx title="Load a specific style, weight and subset"
@@ -74,11 +79,21 @@ The font style we want to load. While each font has a different set of styles, c
 
 #### weights
 
+_optional_
+
 Array of weights that should be loaded. By default, all.
 
 #### subsets
 
+_optional_
+
 Array of font subsets that should be loaded. By default, all.
+
+#### document
+
+_optional_
+
+Allows you to specify a [`Document`](https://developer.mozilla.org/en-US/docs/Web/API/Document?retiredLocale=de). If you want to inject the fonts into an iframe, you want to give it a ref and pass `iframeRef.contentDocument` to this parameter. By default, the global `window.document` is used.
 
 ## Return value
 

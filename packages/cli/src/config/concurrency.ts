@@ -1,6 +1,6 @@
-export type Concurrency = number | null;
+export type Concurrency = number | string | null;
 
-let currentConcurrency: null | number = null;
+let currentConcurrency: null | number | string = null;
 
 export const setConcurrency = (newConcurrency: Concurrency) => {
 	currentConcurrency = newConcurrency;

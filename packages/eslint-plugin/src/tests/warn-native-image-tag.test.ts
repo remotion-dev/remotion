@@ -66,16 +66,5 @@ ruleTester.run("warn-native-media-tag", rule, {
         },
       ],
     },
-    // TODO: Enable this example
-    /*
-    {
-      code: "const hi = styled.audio<{type: string}>.attrs({})`color: blue;`",
-      errors: [
-        {
-          messageId: "NoNativeAudioTag",
-        },
-      ],
-    },
-    */
   ],
 });

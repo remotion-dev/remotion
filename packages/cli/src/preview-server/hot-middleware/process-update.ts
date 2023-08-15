@@ -13,9 +13,7 @@
 
 import type {HotMiddlewareOptions, ModuleMap} from './types';
 
-/* global  __webpack_hash__ */
-
-if (!module.hot) {
+if (!__webpack_module__.hot) {
 	throw new Error('[Fast refresh] Hot Module Replacement is disabled.');
 }
 
@@ -23,7 +21,7 @@ const hmrDocsUrl = 'https://webpack.js.org/concepts/hot-module-replacement/'; //
 
 let lastHash: string | undefined;
 const failureStatuses = {abort: 1, fail: 1};
-const applyOptions: __WebpackModuleApi.AcceptOptions = {
+const applyOptions: AcceptOptions = {
 	ignoreUnaccepted: true,
 	ignoreDeclined: true,
 	ignoreErrored: true,
@@ -61,15 +59,12 @@ export const processUpdate = function (
 	options: HotMiddlewareOptions
 ) {
 	const {reload} = options;
-	if (!upToDate(hash) && module.hot?.status() === 'idle') {
+	if (!upToDate(hash) && __webpack_module__.hot?.status() === 'idle') {
 		check();
 	}
 
 	async function check() {
-		const cb = function (
-			err: Error | null,
-			updatedModules: __WebpackModuleApi.ModuleId[]
-		) {
+		const cb = function (err: Error | null, updatedModules: ModuleId[] | null) {
 			if (err) return handleError(err);
 
 			if (!updatedModules) {
@@ -88,7 +83,7 @@ export const processUpdate = function (
 
 			const applyCallback = function (
 				applyErr: Error | null,
-				renewedModules: __WebpackModuleApi.ModuleId[]
+				renewedModules: ModuleId[]
 			) {
 				if (applyErr) return handleError(applyErr);
 
@@ -99,10 +94,10 @@ export const processUpdate = function (
 				logUpdates(updatedModules, renewedModules);
 			};
 
-			const applyResult = module.hot?.apply(applyOptions, applyCallback);
+			const applyResult = __webpack_module__.hot?.apply(applyOptions);
 			if ((applyResult as unknown as Promise<unknown>)?.then) {
 				// HotModuleReplacement.runtime.js refers to the result as `outdatedModules`
-				(applyResult as unknown as Promise<__WebpackModuleApi.ModuleId[]>)
+				(applyResult as unknown as Promise<ModuleId[]>)
 					.then((outdatedModules) => {
 						applyCallback(null, outdatedModules);
 					})
@@ -111,19 +106,14 @@ export const processUpdate = function (
 		};
 
 		try {
-			const result = await (module.hot?.check(false, cb) as unknown as Promise<
-				__WebpackModuleApi.ModuleId[]
-			>);
+			const result = await __webpack_module__.hot?.check(false);
 			cb(null, result);
 		} catch (err) {
 			cb(err as Error, []);
 		}
 	}
 
-	function logUpdates(
-		updatedModules: __WebpackModuleApi.ModuleId[],
-		renewedModules: __WebpackModuleApi.ModuleId[]
-	) {
+	function logUpdates(updatedModules: ModuleId[], renewedModules: ModuleId[]) {
 		const unacceptedModules =
 			updatedModules?.filter((moduleId) => {
 				return renewedModules && renewedModules.indexOf(moduleId) < 0;
@@ -163,7 +153,7 @@ export const processUpdate = function (
 	}
 
 	function handleError(err: Error) {
-		if ((module.hot?.status() ?? 'nope') in failureStatuses) {
+		if ((__webpack_module__.hot?.status() ?? 'nope') in failureStatuses) {
 			if (options.warn) {
 				console.warn(
 					'[Fast refresh] Cannot check for update (Full reload needed)'

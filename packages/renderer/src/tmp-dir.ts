@@ -1,6 +1,6 @@
-import fs, {mkdirSync} from 'fs';
-import os from 'os';
-import path from 'path';
+import fs, {mkdirSync} from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
 
 const alphabet = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -17,7 +17,7 @@ export const tmpDir = (str: string) => {
 	const newDir = path.join(os.tmpdir(), str + randomHash());
 
 	if (fs.existsSync(newDir)) {
-		(fs.rmSync ?? fs.rmdirSync)(newDir, {
+		fs.rmSync(newDir, {
 			recursive: true,
 			force: true,
 		});

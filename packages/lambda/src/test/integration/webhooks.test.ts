@@ -11,17 +11,9 @@ import {
 	vi,
 } from 'vitest';
 import {LambdaRoutines} from '../../defaults';
-import {handler} from '../../functions';
+import {callLambda} from '../../shared/call-lambda';
 import {mockableHttpClients} from '../../shared/invoke-webhook';
-import type {LambdaReturnValues} from '../../shared/return-values';
 import {disableLogs, enableLogs} from '../disable-logs';
-
-const extraContext = {
-	invokedFunctionArn: 'arn:fake',
-	getRemainingTimeInMillis: () => 120000,
-};
-
-type Await<T> = T extends PromiseLike<infer U> ? U : T;
 
 const originalFetch = mockableHttpClients.http;
 beforeEach(() => {
@@ -63,10 +55,11 @@ describe('Webhooks', () => {
 	test('Should call webhook upon completion', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-		const res = await handler(
-			{
-				type: LambdaRoutines.start,
-				serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
+		const res = await callLambda({
+			type: LambdaRoutines.start,
+			payload: {
+				serveUrl:
+					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -85,7 +78,7 @@ describe('Webhooks', () => {
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
 				proResProfile: undefined,
-				quality: undefined,
+				jpegQuality: undefined,
 				scale: 1,
 				timeoutInMilliseconds: 40000,
 				numberOfGifLoops: null,
@@ -105,20 +98,31 @@ describe('Webhooks', () => {
 				videoBitrate: null,
 				forceHeight: null,
 				forceWidth: null,
+				rendererFunctionName: null,
+				bucketName: null,
+				audioCodec: null,
 			},
-			extraContext
-		);
-		const startRes = res as Await<LambdaReturnValues[LambdaRoutines.start]>;
+			functionName: 'remotion-dev-lambda',
+			receivedStreamingPayload: () => undefined,
+			region: 'us-east-1',
+			timeoutInTest: 120000,
+			retriesRemaining: 0,
+		});
+		const parsed = res;
 
-		(await handler(
-			{
-				type: LambdaRoutines.status,
-				bucketName: startRes.bucketName,
-				renderId: startRes.renderId,
+		await callLambda({
+			type: LambdaRoutines.status,
+			payload: {
+				bucketName: parsed.bucketName,
+				renderId: parsed.renderId,
 				version: VERSION,
 			},
-			extraContext
-		)) as Await<LambdaReturnValues[LambdaRoutines.status]>;
+			functionName: 'remotion-dev-lambda',
+			receivedStreamingPayload: () => undefined,
+			region: 'us-east-1',
+			timeoutInTest: 120000,
+			retriesRemaining: 0,
+		});
 
 		expect(mockableHttpClients.http).toHaveBeenCalledTimes(1);
 		expect(mockableHttpClients.http).toHaveBeenCalledWith(
@@ -141,10 +145,14 @@ describe('Webhooks', () => {
 	test('Should call webhook upon timeout', async () => {
 		process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE = '2048';
 
-		await handler(
-			{
-				type: LambdaRoutines.launch,
-				serveUrl: 'https://gleaming-wisp-de5d2a.netlify.app/',
+		await callLambda({
+			functionName: 'remotion-dev-lambda',
+			receivedStreamingPayload: () => undefined,
+			region: 'us-east-1',
+			type: LambdaRoutines.launch,
+			payload: {
+				serveUrl:
+					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 				chromiumOptions: {},
 				codec: 'h264',
 				composition: 'react-svg',
@@ -163,7 +171,7 @@ describe('Webhooks', () => {
 				pixelFormat: 'yuv420p',
 				privacy: 'public',
 				proResProfile: undefined,
-				quality: undefined,
+				jpegQuality: undefined,
 				scale: 1,
 				timeoutInMilliseconds: 3000,
 				numberOfGifLoops: null,
@@ -181,12 +189,12 @@ describe('Webhooks', () => {
 				renderId: 'abc',
 				forceHeight: null,
 				forceWidth: null,
+				rendererFunctionName: null,
+				audioCodec: null,
 			},
-			{
-				...extraContext,
-				getRemainingTimeInMillis: () => 1000,
-			}
-		);
+			timeoutInTest: 1000,
+			retriesRemaining: 0,
+		});
 
 		await new Promise((resolve) => {
 			setTimeout(resolve, 2000);

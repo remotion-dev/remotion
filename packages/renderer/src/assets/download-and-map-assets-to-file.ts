@@ -1,6 +1,6 @@
-import fs from 'fs';
-import path, {extname} from 'path';
-import type {TAsset} from 'remotion';
+import fs from 'node:fs';
+import path, {extname} from 'node:path';
+import type {TRenderAsset} from 'remotion';
 import {random} from 'remotion';
 import {isAssetCompressed} from '../compress-assets';
 import {ensureOutputDirectory} from '../ensure-output-directory';
@@ -29,6 +29,10 @@ const waitForAssetToBeDownloaded = ({
 	downloadDir: string;
 	downloadMap: DownloadMap;
 }): Promise<string> => {
+	if (process.env.NODE_ENV === 'test') {
+		console.log('waiting for asset to be downloaded', src);
+	}
+
 	if (downloadMap.hasBeenDownloadedMap[src]?.[downloadDir]) {
 		return Promise.resolve(
 			downloadMap.hasBeenDownloadedMap[src]?.[downloadDir] as string
@@ -46,7 +50,7 @@ const waitForAssetToBeDownloaded = ({
 	return new Promise<string>((resolve) => {
 		downloadMap.listeners[src][downloadDir].push(() => {
 			const srcMap = downloadMap.hasBeenDownloadedMap[src];
-			if (!srcMap || !srcMap[downloadDir]) {
+			if (!srcMap?.[downloadDir]) {
 				throw new Error(
 					'Expected file for ' + src + 'to be available in ' + downloadDir
 				);
@@ -145,11 +149,9 @@ function validateBufferEncoding(
 
 export const downloadAsset = async ({
 	src,
-	onDownload,
 	downloadMap,
 }: {
 	src: string;
-	onDownload: RenderMediaOnDownload;
 	downloadMap: DownloadMap;
 }): Promise<string> => {
 	if (isAssetCompressed(src)) {
@@ -191,7 +193,11 @@ export const downloadAsset = async ({
 		}
 	)[downloadDir] = true;
 
-	const onProgress = onDownload(src);
+	if (process.env.NODE_ENV === 'test') {
+		console.log('Actually downloading asset', src);
+	}
+
+	downloadMap.emitter.dispatchDownload(src);
 
 	if (src.startsWith('data:')) {
 		const [assetDetails, assetData] = src.substring('data:'.length).split(',');
@@ -227,7 +233,12 @@ export const downloadAsset = async ({
 	const {to} = await downloadFile({
 		url: src,
 		onProgress: (progress) => {
-			onProgress?.(progress);
+			downloadMap.emitter.dispatchDownloadProgress(
+				src,
+				progress.percent,
+				progress.downloaded,
+				progress.totalSize
+			);
 		},
 		to: (contentDisposition, contentType) =>
 			getSanitizedFilenameForAssetUrl({
@@ -334,22 +345,67 @@ export const getSanitizedFilenameForAssetUrl = ({
 };
 
 export const downloadAndMapAssetsToFileUrl = async ({
-	asset,
+	renderAsset,
 	onDownload,
 	downloadMap,
 }: {
-	asset: TAsset;
-	onDownload: RenderMediaOnDownload;
+	renderAsset: TRenderAsset;
+	onDownload: RenderMediaOnDownload | null;
 	downloadMap: DownloadMap;
-}): Promise<TAsset> => {
+}): Promise<TRenderAsset> => {
+	const cleanup = attachDownloadListenerToEmitter(downloadMap, onDownload);
 	const newSrc = await downloadAsset({
-		src: asset.src,
-		onDownload,
+		src: renderAsset.src,
 		downloadMap,
 	});
+	cleanup();
 
 	return {
-		...asset,
+		...renderAsset,
 		src: newSrc,
 	};
 };
+
+export const attachDownloadListenerToEmitter = (
+	downloadMap: DownloadMap,
+	onDownload: RenderMediaOnDownload | null
+) => {
+	const cleanup: CleanupFn[] = [];
+	if (!onDownload) {
+		return () => undefined;
+	}
+
+	if (downloadMap.downloadListeners.includes(onDownload)) {
+		return () => undefined;
+	}
+
+	downloadMap.downloadListeners.push(onDownload);
+	cleanup.push(() => {
+		downloadMap.downloadListeners = downloadMap.downloadListeners.filter(
+			(l) => l !== onDownload
+		);
+	});
+
+	const a = downloadMap.emitter.addEventListener(
+		'download',
+		({detail: {src: initialSrc}}) => {
+			const progress = onDownload(initialSrc);
+			const b = downloadMap.emitter.addEventListener(
+				'progress',
+				({detail: {downloaded, percent, src: progressSrc, totalSize}}) => {
+					if (initialSrc === progressSrc) {
+						progress?.({downloaded, percent, totalSize});
+					}
+				}
+			);
+			cleanup.push(b);
+		}
+	);
+	cleanup.push(() => a());
+
+	return () => {
+		cleanup.forEach((c) => c());
+	};
+};
+
+type CleanupFn = () => void;

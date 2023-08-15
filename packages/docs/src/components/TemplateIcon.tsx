@@ -1,23 +1,24 @@
 import React from "react";
+import { useMobileLayout } from "../helpers/mobile-layout";
+
+const icon: React.CSSProperties = {
+  display: "flex",
+  width: 36,
+  height: 36,
+  justifyContent: "center",
+  alignItems: "center",
+  margin: 0,
+};
 
 const outer: React.CSSProperties = {
-  width: 90,
   textAlign: "center",
   display: "flex",
   alignItems: "center",
   flexDirection: "column",
-  color: "var(--light-text-color)",
+  color: "var(--ifm-font-color-base)",
   cursor: "pointer",
   filter: "drop-shadow(0px 0px 4px var(--background))",
-};
-
-const icon: React.CSSProperties = {
-  display: "flex",
-  width: 50,
-  height: 50,
-  justifyContent: "center",
-  alignItems: "center",
-  margin: 0,
+  textDecoration: "none",
 };
 
 const labelStyle: React.CSSProperties = {
@@ -27,12 +28,13 @@ const labelStyle: React.CSSProperties = {
 export const TemplateIcon: React.FC<{
   label: string;
   children: React.ReactNode;
-  onClick: () => void;
-}> = ({ children, label, onClick }) => {
+}> = ({ children, label }) => {
+  const mobileLayout = useMobileLayout();
+
   return (
-    <a style={outer} onClick={onClick}>
+    <span style={outer}>
       <div style={icon}>{children}</div>
-      <div style={labelStyle}>{label}</div>
-    </a>
+      {mobileLayout ? null : <div style={labelStyle}>{label}</div>}
+    </span>
   );
 };

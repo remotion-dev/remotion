@@ -1,5 +1,5 @@
 import {describe, expect, test} from 'vitest';
-import {getMediaTime} from '../video/get-current-time';
+import {getMediaTime} from '../video/get-current-time.js';
 
 describe('correctly calculate media time of video element', () => {
 	const mp4Precision = 0.04;

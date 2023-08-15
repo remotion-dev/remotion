@@ -1,39 +1,39 @@
 import type {
+	AudioCodec,
+	ChromiumOptions,
 	FrameRange,
-	ImageFormat,
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
+	VideoImageFormat,
 } from '@remotion/renderer';
-import type {ChromiumOptions} from '@remotion/renderer/src/open-browser';
-import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
 import type {OutNameInput, Privacy} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
-import {getCloudwatchStreamUrl, getS3RenderUrl} from '../shared/get-aws-urls';
-import {serializeInputProps} from '../shared/serialize-input-props';
-import {validateDownloadBehavior} from '../shared/validate-download-behavior';
-import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
+import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
-import {validateLambdaCodec} from '../shared/validate-lambda-codec';
-import {validateServeUrl} from '../shared/validate-serveurl';
+import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 
 export type RenderMediaOnLambdaInput = {
 	region: AwsRegion;
 	functionName: string;
 	serveUrl: string;
 	composition: string;
-	inputProps?: unknown;
+	inputProps?: Record<string, unknown>;
 	codec: LambdaCodec;
-	imageFormat?: ImageFormat;
+	imageFormat?: VideoImageFormat;
 	crf?: number | undefined;
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
 	privacy?: Privacy;
-	quality?: number;
+	/**
+	 * @deprecated Renamed to `jpegQuality`
+	 */
+	quality?: never;
+	jpegQuality?: number;
 	maxRetries?: number;
 	framesPerLambda?: number;
 	logLevel?: LogLevel;
@@ -56,6 +56,13 @@ export type RenderMediaOnLambdaInput = {
 	};
 	forceWidth?: number | null;
 	forceHeight?: number | null;
+	rendererFunctionName?: string | null;
+	forceBucketName?: string;
+	audioCodec?: AudioCodec | null;
+	/**
+	 * @deprecated in favor of `logLevel`: true
+	 */
+	dumpBrowserLogs?: boolean;
 };
 
 export type RenderMediaOnLambdaOutput = {
@@ -67,7 +74,7 @@ export type RenderMediaOnLambdaOutput = {
 
 /**
  * @description Triggers a render on a lambda given a composition and a lambda function.
- * @link https://remotion.dev/docs/lambda/rendermediaonlambda
+ * @see [Documentation](https://remotion.dev/docs/lambda/rendermediaonlambda)
  * @param params.functionName The name of the Lambda function that should be used
  * @param params.serveUrl The URL of the deployed project
  * @param params.composition The ID of the composition which should be rendered.
@@ -77,7 +84,7 @@ export type RenderMediaOnLambdaOutput = {
  * @param params.crf The constant rate factor to be used during encoding.
  * @param params.envVariables Object containing environment variables to be inserted into the video environment
  * @param params.proResProfile The ProRes profile if rendering a ProRes video
- * @param params.quality JPEG quality if JPEG was selected as the image format.
+ * @param params.jpegQuality JPEG quality if JPEG was selected as the image format.
  * @param params.region The AWS region in which the media should be rendered.
  * @param params.maxRetries How often rendering a chunk may fail before the media render gets aborted. Default "1"
  * @param params.logLevel Level of logging that Lambda function should perform. Default "info".
@@ -85,100 +92,30 @@ export type RenderMediaOnLambdaOutput = {
  * @returns {Promise<RenderMediaOnLambdaOutput>} See documentation for detailed structure
  */
 
-export const renderMediaOnLambda = async ({
-	functionName,
-	serveUrl,
-	inputProps,
-	codec,
-	imageFormat,
-	crf,
-	envVariables,
-	pixelFormat,
-	proResProfile,
-	quality,
-	region,
-	maxRetries,
-	composition,
-	framesPerLambda,
-	privacy,
-	logLevel,
-	frameRange,
-	outName,
-	timeoutInMilliseconds,
-	chromiumOptions,
-	scale,
-	numberOfGifLoops,
-	everyNthFrame,
-	concurrencyPerLambda,
-	downloadBehavior,
-	muted,
-	overwrite,
-	audioBitrate,
-	videoBitrate,
-	webhook,
-	forceHeight,
-	forceWidth,
-}: RenderMediaOnLambdaInput): Promise<RenderMediaOnLambdaOutput> => {
-	const actualCodec = validateLambdaCodec(codec);
-	validateServeUrl(serveUrl);
-	validateFramesPerLambda({
-		framesPerLambda: framesPerLambda ?? null,
-		durationInFrames: 1,
-	});
-	validateDownloadBehavior(downloadBehavior);
+export const renderMediaOnLambda = async (
+	input: RenderMediaOnLambdaInput
+): Promise<RenderMediaOnLambdaOutput> => {
+	const {functionName, region, rendererFunctionName} = input;
 
-	const serializedInputProps = await serializeInputProps({
-		inputProps,
-		region,
-		type: 'video-or-audio',
-	});
 	try {
 		const res = await callLambda({
 			functionName,
 			type: LambdaRoutines.start,
-			payload: {
-				framesPerLambda: framesPerLambda ?? null,
-				composition,
-				serveUrl,
-				inputProps: serializedInputProps,
-				codec: actualCodec,
-				imageFormat: imageFormat ?? 'jpeg',
-				crf,
-				envVariables,
-				pixelFormat,
-				proResProfile,
-				quality,
-				maxRetries: maxRetries ?? 1,
-				privacy: privacy ?? 'public',
-				logLevel: logLevel ?? 'info',
-				frameRange: frameRange ?? null,
-				outName: outName ?? null,
-				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
-				chromiumOptions: chromiumOptions ?? {},
-				scale: scale ?? 1,
-				everyNthFrame: everyNthFrame ?? 1,
-				numberOfGifLoops: numberOfGifLoops ?? 0,
-				concurrencyPerLambda: concurrencyPerLambda ?? 1,
-				downloadBehavior: downloadBehavior ?? {type: 'play-in-browser'},
-				muted: muted ?? false,
-				version: VERSION,
-				overwrite: overwrite ?? false,
-				audioBitrate: audioBitrate ?? null,
-				videoBitrate: videoBitrate ?? null,
-				webhook: webhook ?? null,
-				forceHeight: forceHeight ?? null,
-				forceWidth: forceWidth ?? null,
-			},
+			payload: await makeLambdaRenderMediaPayload(input),
 			region,
+			receivedStreamingPayload: () => undefined,
+			timeoutInTest: 120000,
+			retriesRemaining: 0,
 		});
 		return {
 			renderId: res.renderId,
 			bucketName: res.bucketName,
-			cloudWatchLogs: getCloudwatchStreamUrl({
+			cloudWatchLogs: getCloudwatchRendererUrl({
 				functionName,
-				method: LambdaRoutines.renderer,
 				region,
 				renderId: res.renderId,
+				rendererFunctionName: rendererFunctionName ?? null,
+				chunk: null,
 			}),
 			folderInS3Console: getS3RenderUrl({
 				bucketName: res.bucketName,

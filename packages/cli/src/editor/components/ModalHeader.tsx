@@ -7,9 +7,14 @@ const container: React.CSSProperties = {
 	display: 'flex',
 	flexDirection: 'row',
 	alignItems: 'center',
-	padding: 12,
+	padding: '12px 16px',
 	width: '100%',
 	borderBottom: '1px solid black',
+};
+
+const titleStyle: React.CSSProperties = {
+	fontSize: 14,
+	color: 'white',
 };
 
 const icon: React.CSSProperties = {
@@ -21,12 +26,14 @@ export const NewCompHeader: React.FC<{
 	title: string;
 }> = ({title}) => {
 	const {setSelectedModal} = useContext(ModalsContext);
+
 	const onPress = useCallback(() => {
 		setSelectedModal(null);
 	}, [setSelectedModal]);
+
 	return (
 		<div style={container}>
-			<div>{title}</div>
+			<div style={titleStyle}>{title}</div>
 			<Flex />
 			<CancelButton style={icon} onPress={onPress} />
 		</div>

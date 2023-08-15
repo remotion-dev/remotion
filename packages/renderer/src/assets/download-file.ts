@@ -1,14 +1,10 @@
-import {createWriteStream} from 'fs';
+import {createWriteStream} from 'node:fs';
 import {ensureOutputDirectory} from '../ensure-output-directory';
 import {readFile} from './read-file';
 
 type Response = {sizeInBytes: number; to: string};
 
-export const downloadFile = ({
-	onProgress,
-	url,
-	to: toFn,
-}: {
+type Options = {
 	url: string;
 	to: (contentDisposition: string | null, contentType: string | null) => string;
 	onProgress:
@@ -18,7 +14,11 @@ export const downloadFile = ({
 				totalSize: number | null;
 		  }) => void)
 		| undefined;
-}) => {
+};
+
+const incorrectContentLengthToken = 'Download finished with';
+
+const downloadFileWithoutRetries = ({onProgress, url, to: toFn}: Options) => {
 	return new Promise<Response>((resolve, reject) => {
 		let rejected = false;
 		let resolved = false;
@@ -108,7 +108,7 @@ export const downloadFile = ({
 					if (totalSize !== null && downloaded !== totalSize) {
 						rejectAndFlag(
 							new Error(
-								`Download finished with ${downloaded} bytes, but expected ${totalSize} bytes from 'Content-Length'.`
+								`${incorrectContentLengthToken} ${downloaded} bytes, but expected ${totalSize} bytes from 'Content-Length'.`
 							)
 						);
 					}
@@ -120,4 +120,34 @@ export const downloadFile = ({
 				rejectAndFlag(err);
 			});
 	});
+};
+
+export const downloadFile = async (
+	options: Options,
+	retries = 2,
+	attempt = 1
+): Promise<Response> => {
+	try {
+		const res = await downloadFileWithoutRetries(options);
+		return res;
+	} catch (err) {
+		const {message} = err as Error;
+		if (
+			message === 'aborted' ||
+			message.includes(incorrectContentLengthToken)
+		) {
+			if (retries === 0) {
+				throw err;
+			}
+
+			const backoffInSeconds = (attempt + 1) ** 2;
+			await new Promise<void>((resolve) => {
+				setTimeout(() => resolve(), backoffInSeconds * 1000);
+			});
+
+			return downloadFile(options, retries - 1, attempt + 1);
+		}
+
+		throw err;
+	}
 };

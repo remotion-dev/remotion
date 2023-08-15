@@ -15,7 +15,7 @@ import type {
 	DownloadMediaInput,
 	DownloadMediaOutput,
 } from './api/download-media';
-import {downloadMedia, downloadVideo} from './api/download-media';
+import {downloadMedia} from './api/download-media';
 import type {EstimatePriceInput} from './api/estimate-price';
 import {estimatePrice} from './api/estimate-price';
 import type {GetAwsClientInput, GetAwsClientOutput} from './api/get-aws-client';
@@ -35,10 +35,10 @@ import type {
 } from './api/get-or-create-bucket';
 import {getOrCreateBucket} from './api/get-or-create-bucket';
 import {getRegions} from './api/get-regions';
-import type {GetRenderInput} from './api/get-render-progress';
+import type {GetRenderProgressInput} from './api/get-render-progress';
 import {getRenderProgress} from './api/get-render-progress';
 import type {GetSitesInput, GetSitesOutput} from './api/get-sites';
-import {getSites} from './api/get-sites';
+import {getSites as deprecatedGetSites} from './api/get-sites';
 import type {
 	SimulatePermissionsInput,
 	SimulatePermissionsOutput,
@@ -48,20 +48,20 @@ import {
 	getRolePolicy,
 	getUserPolicy,
 } from './api/iam-validation/suggested-policy';
-import {presignUrl} from './api/presign-url';
+import {presignUrl as deprecatedPresignUrl} from './api/presign-url';
 import type {
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
 } from './api/render-media-on-lambda';
 import {
-	renderMediaOnLambda,
+	renderMediaOnLambda as deprecatedRenderMediaOnLambda,
 	renderVideoOnLambda,
 } from './api/render-media-on-lambda';
 import type {
 	RenderStillOnLambdaInput,
 	RenderStillOnLambdaOutput,
 } from './api/render-still-on-lambda';
-import {renderStillOnLambda} from './api/render-still-on-lambda';
+import {renderStillOnLambda as deprecatedRenderStillOnLambda} from './api/render-still-on-lambda';
 import {validateWebhookSignature} from './api/validate-webhook-signature';
 import type {LambdaLSInput, LambdaLsReturnType} from './functions/helpers/io';
 import type {
@@ -73,14 +73,32 @@ import type {AwsRegion} from './pricing/aws-regions';
 import type {CustomCredentials} from './shared/aws-clients';
 import type {RenderProgress} from './shared/constants';
 import type {WebhookPayload} from './shared/invoke-webhook';
-import type {LambdaArchitecture} from './shared/validate-architecture';
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const renderMediaOnLambda = deprecatedRenderMediaOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const renderStillOnLambda = deprecatedRenderStillOnLambda;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const presignUrl = deprecatedPresignUrl;
+
+/**
+ * @deprecated Import this from `@remotion/lambda/client` instead
+ */
+const getSites = deprecatedGetSites;
 
 export {
 	deleteSite,
 	deployFunction,
 	deploySite,
 	downloadMedia,
-	downloadVideo,
 	getFunctions,
 	getUserPolicy,
 	getRolePolicy,
@@ -124,7 +142,7 @@ export type {
 	DownloadMediaOutput,
 	GetOrCreateBucketInput,
 	GetOrCreateBucketOutput,
-	GetRenderInput,
+	GetRenderProgressInput,
 	RenderMediaOnLambdaInput,
 	RenderMediaOnLambdaOutput,
 	RenderStillOnLambdaInput,
@@ -133,7 +151,6 @@ export type {
 	SimulatePermissionsOutput,
 	GetAwsClientInput,
 	GetAwsClientOutput,
-	LambdaArchitecture,
 	CustomCredentials,
 	WebhookPayload,
 	LambdaErrorInfo,

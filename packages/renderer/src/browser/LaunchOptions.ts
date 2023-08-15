@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
+import type {LogLevel} from '../log-level';
 import type {BrowserConnectOptions} from './BrowserConnector';
-import type {Product} from './Product';
 
 export interface BrowserLaunchArgumentOptions {
 	headless?: boolean | 'chrome';
@@ -29,9 +29,9 @@ export interface LaunchOptions {
 	executablePath?: string;
 	timeout?: number;
 	dumpio?: boolean;
+	logLevel: LogLevel;
 	env?: Record<string, string | undefined>;
-	pipe?: boolean;
-	product?: Product;
+	indent: boolean;
 }
 
 export type PuppeteerNodeLaunchOptions = BrowserLaunchArgumentOptions &

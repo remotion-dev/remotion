@@ -2,7 +2,6 @@
 import type {Page} from './browser/BrowserPage';
 import type {
 	CallArgument,
-	CallFunctionOnResponse,
 	DevtoolsRemoteObject,
 } from './browser/devtools-types';
 import {JSHandle} from './browser/JSHandle';
@@ -50,7 +49,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 	pageFunction: Function | string;
 	frame: number | null;
 	args: unknown[];
-}): Promise<ReturnType> {
+}): Promise<{value: ReturnType; size: number}> {
 	const contextId = (await page.mainFrame().executionContext())._contextId;
 	const client = page._client();
 
@@ -62,14 +61,16 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			? expression
 			: expression + '\n' + suffix;
 
-		const {exceptionDetails: exceptDetails, result: remotObject} =
-			(await client.send('Runtime.evaluate', {
-				expression: expressionWithSourceUrl,
-				contextId,
-				returnByValue: true,
-				awaitPromise: true,
-				userGesture: true,
-			})) as CallFunctionOnResponse;
+		const {
+			value: {exceptionDetails: exceptDetails, result: remotObject},
+			size,
+		} = await client.send('Runtime.evaluate', {
+			expression: expressionWithSourceUrl,
+			contextId,
+			returnByValue: true,
+			awaitPromise: true,
+			userGesture: true,
+		});
 
 		if (exceptDetails?.exception) {
 			const err = new SymbolicateableError({
@@ -86,7 +87,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 			throw err;
 		}
 
-		return valueFromRemoteObject(remotObject);
+		return {value: valueFromRemoteObject(remotObject), size};
 	}
 
 	if (typeof pageFunction !== 'function')
@@ -133,23 +134,41 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 		throw error;
 	}
 
-	const {exceptionDetails, result: remoteObject} = await callFunctionOnPromise;
-	if (exceptionDetails) {
-		const err = new SymbolicateableError({
-			stack: exceptionDetails.exception?.description as string,
-			name: exceptionDetails.exception?.className as string,
-			message: exceptionDetails.exception?.description?.split(
-				'\n'
-			)[0] as string,
-			frame,
-			stackFrame: parseStack(
-				(exceptionDetails.exception?.description as string).split('\n')
-			),
-		});
-		throw err;
-	}
+	try {
+		const {
+			value: {exceptionDetails, result: remoteObject},
+			size,
+		} = await callFunctionOnPromise;
 
-	return valueFromRemoteObject(remoteObject);
+		if (exceptionDetails) {
+			const err = new SymbolicateableError({
+				stack: exceptionDetails.exception?.description as string,
+				name: exceptionDetails.exception?.className as string,
+				message: exceptionDetails.exception?.description?.split(
+					'\n'
+				)[0] as string,
+				frame,
+				stackFrame: parseStack(
+					(exceptionDetails.exception?.description as string).split('\n')
+				),
+			});
+			throw err;
+		}
+
+		return {size, value: valueFromRemoteObject(remoteObject)};
+	} catch (error) {
+		if (
+			(error as {originalMessage: string})?.originalMessage?.startsWith(
+				"Object couldn't be returned by value"
+			)
+		) {
+			throw new Error(
+				'Could not serialize the return value of the function. Did you pass non-serializable values to defaultProps?'
+			);
+		}
+
+		throw error;
+	}
 }
 
 /**

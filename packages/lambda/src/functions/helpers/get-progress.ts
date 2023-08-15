@@ -2,17 +2,14 @@ import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import type {CustomCredentials} from '../../shared/aws-clients';
-import {getProgressOfChunk} from '../../shared/chunk-progress';
 import type {RenderProgress} from '../../shared/constants';
 import {
 	chunkKey,
 	encodingProgressKey,
-	lambdaChunkInitializedPrefix,
 	MAX_EPHEMERAL_STORAGE_IN_MB,
 	renderMetadataKey,
 	rendersPrefix,
 } from '../../shared/constants';
-import {DOCS_URL} from '../../shared/docs-url';
 import {calculateChunkTimes} from './calculate-chunk-times';
 import {estimatePriceFromBucket} from './calculate-price-from-bucket';
 import {checkIfRenderExists} from './check-if-render-exists';
@@ -20,7 +17,6 @@ import {getExpectedOutName} from './expected-out-name';
 import {findOutputFileInBucket} from './find-output-file-in-bucket';
 import {formatCostsInfo} from './format-costs-info';
 import {getCleanupProgress} from './get-cleanup-progress';
-import {getCurrentArchitecture} from './get-current-architecture';
 import {getCurrentRegionInFunction} from './get-current-region';
 import {getEncodingMetadata} from './get-encoding-metadata';
 import {getFinalEncodingStatus} from './get-final-encoding-status';
@@ -33,6 +29,7 @@ import {getRetryStats} from './get-retry-stats';
 import {getTimeToFinish} from './get-time-to-finish';
 import {inspectErrors} from './inspect-errors';
 import {lambdaLs} from './io';
+import {makeTimeoutError} from './make-timeout-error';
 import type {EnhancedErrorInfo} from './write-lambda-error';
 
 export const getProgress = async ({
@@ -107,6 +104,7 @@ export const getProgress = async ({
 			mostExpensiveFrameRanges: postRenderData.mostExpensiveFrameRanges ?? null,
 			timeToEncode: postRenderData.timeToEncode,
 			outputSizeInBytes: postRenderData.outputSize,
+			type: 'success',
 		};
 	}
 
@@ -121,9 +119,6 @@ export const getProgress = async ({
 		contents.find((c) => c.Key === renderMetadataKey(renderId))
 	);
 
-	const encodingStatus = getEncodingMetadata({
-		exists: contents.find((c) => c.Key === encodingProgressKey(renderId)),
-	});
 	const [renderMetadata, errorExplanations] = await Promise.all([
 		renderMetadataExists
 			? getRenderMetadata({
@@ -170,7 +165,6 @@ export const getProgress = async ({
 			renderMetadata,
 			memorySizeInMb,
 			outputFileMetadata: outputFile,
-			architecture: getCurrentArchitecture(),
 			lambdasInvoked: renderMetadata?.estimatedRenderLambdaInvokations ?? 0,
 			// We cannot determine the ephemeral storage size, so we
 			// overestimate the price, but will only have a miniscule effect (~0.2%)
@@ -200,14 +194,7 @@ export const getProgress = async ({
 				renderId,
 		  })
 		: 0;
-	console.log(
-		'etags',
-		contents
-			.filter((c) => c.Key?.startsWith(lambdaChunkInitializedPrefix(renderId)))
-			.map((c) => {
-				return getProgressOfChunk(c.ETag as string);
-			})
-	);
+
 	const allChunks = chunks.length === (renderMetadata?.totalChunks ?? Infinity);
 	const renderSize = contents
 		.map((c) => c.Size ?? 0)
@@ -221,6 +208,18 @@ export const getProgress = async ({
 	const retriesInfo = getRetryStats({
 		contents,
 		renderId,
+	});
+
+	const frameCount = renderMetadata
+		? RenderInternals.getFramesToRender(
+				renderMetadata.frameRange,
+				renderMetadata.everyNthFrame
+		  ).length
+		: null;
+
+	const encodingStatus = getEncodingMetadata({
+		exists: contents.find((c) => c.Key === encodingProgressKey(renderId)),
+		frameCount: frameCount === null ? 0 : frameCount,
 	});
 
 	const finalEncodingStatus = getFinalEncodingStatus({
@@ -240,29 +239,15 @@ export const getProgress = async ({
 
 	const allErrors: EnhancedErrorInfo[] = [
 		isBeyondTimeout
-			? ({
-					attempt: 1,
-					chunk: null,
-					explanation: `The main function timed out after ${timeoutInMilliseconds}ms. Consider increasing the timeout of your function. You can use the "--timeout" parameter when deploying a function via CLI, or the "timeoutInSeconds" parameter when using the deployFunction API. ${DOCS_URL}/docs/lambda/cli/functions#deploy`,
-					frame: null,
-					isFatal: true,
-					s3Location: '',
-					stack: new Error().stack,
-					tmpDir: null,
-					totalAttempts: 1,
-					type: 'stitcher',
-					willRetry: false,
-			  } as EnhancedErrorInfo)
+			? makeTimeoutError({
+					timeoutInMilliseconds,
+					renderMetadata,
+					chunks,
+					renderId,
+			  })
 			: null,
 		...errorExplanations,
 	].filter(Internals.truthy);
-
-	const frameCount = renderMetadata
-		? RenderInternals.getFramesToRender(
-				renderMetadata.frameRange,
-				renderMetadata.everyNthFrame
-		  ).length
-		: null;
 
 	return {
 		framesRendered,
@@ -314,5 +299,6 @@ export const getProgress = async ({
 		mostExpensiveFrameRanges: null,
 		timeToEncode: null,
 		outputSizeInBytes: outputFile?.size ?? null,
+		type: 'success',
 	};
 };

@@ -24,7 +24,13 @@ This error happens when you are trying to embed a `<Video/>` or `<Audio/>` tag i
 
 Unlike Google Chrome, the Chromium Browser does not include proprietary codecs. This means you cannot play MP4/H.264 videos and some audio codecs (more codecs may not be supported).
 
-**Workaround**: Convert videos to WebM, [use Chrome instead of Chromium](/docs/config#setbrowserexecutable), or use [`<OffthreadVideo>`](/docs/offthreadvideo).
+**Workaround 1**: Use Chrome, not Chromium.
+
+**Workaround 2**: Convert videos to WebM, [use Chrome instead of Chromium](/docs/config#setbrowserexecutable), or use [`<OffthreadVideo>`](/docs/offthreadvideo).
+
+:::note
+Until `v4.0.17`, Remotion would download Chromium if no local browser was found. Starting from `v4.0.18`, Remotion will download [Thorium](https://thorium.rocks/) instead, which includes the codecs needed to render videos.
+:::
 
 ## Invalid source
 
@@ -47,6 +53,37 @@ Open the DevTools and go to the network tab to validate that this is the case.
 ## Other unsupported codecs
 
 You might be importing a video that is not compatible with Chrome at all, e.g. FLV.
+
+## Too many video tags
+
+The error message might contain `error creating media player`, appearing if too many video tags are created.  
+First check that you are not accidentially creating an infite render loop. For example, changing the `key` frequently will re-create the video tag on every frame:
+
+```tsx twoslash
+const uuidv4 = () => "";
+
+// ---cut---
+import { Video } from "remotion";
+
+export default function SBSVideo() {
+  return (
+    <>
+      {[
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+        "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+      ].map((video, i) => {
+        return <Video key={uuidv4()} src={video} />;
+      })}
+    </>
+  );
+}
+```
+
+If you ruled out this possibility, use [`<OffthreadVideo>`](/docs/offthreadvideo) instead as it does not rely on a `<video>` tag.
+
+## Recover from this error<AvailableFrom v="3.3.89" />
+
+You can handle this error and replace it with a different video by passing the `onError()` prop to the `<Video>` or `<OffthreadVideo>` component.
 
 ## See also
 

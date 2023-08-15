@@ -1,7 +1,7 @@
-import type {Codec, FfmpegExecutable} from '@remotion/renderer';
-import {combineVideos, RenderInternals} from '@remotion/renderer';
-import fs, {createWriteStream, promises} from 'fs';
-import path, {join} from 'path';
+import type {AudioCodec} from '@remotion/renderer';
+import {RenderInternals} from '@remotion/renderer';
+import fs, {createWriteStream, promises} from 'node:fs';
+import path, {join} from 'node:path';
 import type {AwsRegion} from '../../pricing/aws-regions';
 import {
 	chunkKey,
@@ -72,7 +72,7 @@ export const getAllFilesS3 = ({
 	renderId: string;
 	region: AwsRegion;
 	expectedBucketOwner: string;
-	onErrors: (errors: EnhancedErrorInfo[]) => Promise<void>;
+	onErrors: (errors: EnhancedErrorInfo[]) => void;
 }): Promise<string[]> => {
 	const alreadyDownloading: {[key: string]: true} = {};
 	const downloaded: {[key: string]: true} = {};
@@ -111,9 +111,11 @@ export const getAllFilesS3 = ({
 				if (areAllFilesDownloaded) {
 					console.log('All files are downloaded!');
 					resolve(
-						filesInBucket.map((file) =>
-							getChunkDownloadOutputLocation({outdir, file})
-						)
+						// Need to use downloaded variable, not filesInBucket
+						// as it may be out of date
+						Object.keys(downloaded)
+							.sort()
+							.map((file) => getChunkDownloadOutputLocation({outdir, file}))
 					);
 				}
 			};
@@ -130,7 +132,7 @@ export const getAllFilesS3 = ({
 			).filter((e) => e.isFatal);
 
 			if (errors.length > 0) {
-				await onErrors(errors);
+				onErrors(errors);
 				// Will die here
 			}
 
@@ -149,7 +151,7 @@ export const getAllFilesS3 = ({
 						region,
 						expectedBucketOwner,
 					});
-					console.log('Successfully downloaded', key);
+					RenderInternals.Log.info('Successfully downloaded', key);
 					downloadTimer.end();
 					downloaded[key] = true;
 					checkFinish();
@@ -177,44 +179,40 @@ export const concatVideosS3 = async ({
 	codec,
 	fps,
 	numberOfGifLoops,
-	ffmpegExecutable,
-	remotionRoot,
 	files,
 	outdir,
+	audioCodec,
 }: {
 	onProgress: (frames: number) => void;
 	numberOfFrames: number;
 	codec: LambdaCodec;
 	fps: number;
 	numberOfGifLoops: number | null;
-	ffmpegExecutable: FfmpegExecutable;
-	remotionRoot: string;
 	files: string[];
 	outdir: string;
+	audioCodec: AudioCodec | null;
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
-		'concat.' + RenderInternals.getFileExtensionFromCodec(codec, 'final')
+		'concat.' + RenderInternals.getFileExtensionFromCodec(codec, audioCodec)
 	);
 	const combine = timer('Combine videos');
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);
-	const codecForCombining: Codec = codec === 'h264-mkv' ? 'h264' : codec;
 
-	await combineVideos({
+	await RenderInternals.combineVideos({
 		files,
 		filelistDir,
 		output: outfile,
 		onProgress: (p) => onProgress(p),
 		numberOfFrames,
-		codec: codecForCombining,
+		codec,
 		fps,
 		numberOfGifLoops,
-		ffmpegExecutable,
-		remotionRoot,
+		audioCodec,
 	});
 	combine.end();
 
-	const cleanupChunksProm = (fs.promises.rm ?? fs.promises.rmdir)(outdir, {
+	const cleanupChunksProm = fs.promises.rm(outdir, {
 		recursive: true,
 	});
 	return {outfile, cleanupChunksProm};

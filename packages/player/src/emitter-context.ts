@@ -1,5 +1,5 @@
 import React from 'react';
-import type {PlayerEmitter, ThumbnailEmitter} from './event-emitter';
+import type {PlayerEmitter, ThumbnailEmitter} from './event-emitter.js';
 
 export const PlayerEventEmitterContext = React.createContext<
 	PlayerEmitter | undefined

@@ -1,9 +1,10 @@
-import {CliInternals, ConfigInternals} from '@remotion/cli';
-import {existsSync, lstatSync} from 'fs';
-import path from 'path';
+import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
+
 import {Internals} from 'remotion';
 import {deploySite} from '../../../api/deploy-site';
 import {getOrCreateBucket} from '../../../api/get-or-create-bucket';
+import type {Privacy} from '../../../shared/constants';
 import {BINARY_NAME} from '../../../shared/constants';
 import {validateSiteName} from '../../../shared/validate-site-name';
 import {parsedLambdaCli} from '../../args';
@@ -41,29 +42,18 @@ export const sitesCreateSubcommand = async (
 
 	Log.verbose('Entry point:', file, 'Reason:', reason);
 
-	const absoluteFile = path.join(process.cwd(), file);
-	if (!existsSync(absoluteFile)) {
-		Log.error(
-			`No file exists at ${absoluteFile}. Make sure the path exists and try again.`
-		);
-		quit(1);
-	}
-
-	if (lstatSync(absoluteFile).isDirectory()) {
-		Log.error(
-			`You passed a path ${absoluteFile} but it is a directory. Pass a file instead.`
-		);
-		quit(1);
-	}
-
 	const desiredSiteName = parsedLambdaCli['site-name'] ?? undefined;
 	if (desiredSiteName !== undefined) {
 		validateSiteName(desiredSiteName);
 	}
 
-	const progressBar = CliInternals.createOverwriteableCliOutput(
-		CliInternals.quietFlagProvided()
-	);
+	const progressBar = CliInternals.createOverwriteableCliOutput({
+		quiet: CliInternals.quietFlagProvided(),
+		cancelSignal: null,
+		// No browser logs
+		updatesDontOverwrite: false,
+		indent: false,
+	});
 
 	const multiProgress: {
 		bundleProgress: BundleProgress;
@@ -75,7 +65,6 @@ export const sitesCreateSubcommand = async (
 			progress: 0,
 		},
 		bucketProgress: {
-			bucketCreated: false,
 			doneIn: null,
 		},
 		deployProgress: {
@@ -92,28 +81,31 @@ export const sitesCreateSubcommand = async (
 				makeBundleProgress(multiProgress.bundleProgress),
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
-			].join('\n')
+			].join('\n'),
+			false
 		);
 	};
 
 	const bucketStart = Date.now();
 
-	const {bucketName} = await getOrCreateBucket({
-		region: getAwsRegion(),
-		onBucketEnsured: () => {
-			multiProgress.bucketProgress.bucketCreated = true;
-			updateProgress();
-		},
-	});
+	const cliBucketName = parsedLambdaCli['force-bucket-name'] ?? null;
+
+	const bucketName =
+		cliBucketName ??
+		(
+			await getOrCreateBucket({
+				region: getAwsRegion(),
+			})
+		).bucketName;
 
 	multiProgress.bucketProgress.doneIn = Date.now() - bucketStart;
 	updateProgress();
 
 	const bundleStart = Date.now();
-	const uploadStart = Date.now();
+	let uploadStart = Date.now();
 
 	const {serveUrl, siteName, stats} = await deploySite({
-		entryPoint: absoluteFile,
+		entryPoint: file,
 		siteName: desiredSiteName,
 		bucketName,
 		options: {
@@ -122,6 +114,9 @@ export const sitesCreateSubcommand = async (
 					progress,
 					doneIn: progress === 100 ? Date.now() - bundleStart : null,
 				};
+				if (progress === 100) {
+					uploadStart = Date.now();
+				}
 			},
 			onUploadProgress: (p) => {
 				multiProgress.deployProgress = {
@@ -134,8 +129,10 @@ export const sitesCreateSubcommand = async (
 			},
 			enableCaching: ConfigInternals.getWebpackCaching(),
 			webpackOverride: ConfigInternals.getWebpackOverrideFn() ?? ((f) => f),
+			bypassBucketNameValidation: Boolean(parsedLambdaCli['force-bucket-name']),
 		},
 		region: getAwsRegion(),
+		privacy: parsedLambdaCli.privacy as Exclude<Privacy, 'private'> | undefined,
 	});
 	const uploadDuration = Date.now() - uploadStart;
 	multiProgress.deployProgress = {

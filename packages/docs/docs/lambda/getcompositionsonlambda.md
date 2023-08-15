@@ -19,7 +19,7 @@ You should use `getCompositionsOnLambda()` if you cannot use [`getCompositions()
 ```tsx twoslash
 // @module: esnext
 // @target: es2017
-import { getCompositionsOnLambda } from "@remotion/lambda";
+import { getCompositionsOnLambda } from "@remotion/lambda/client";
 
 const compositions = await getCompositionsOnLambda({
   region: "us-east-1",
@@ -31,6 +31,10 @@ const compositions = await getCompositionsOnLambda({
 
 console.log(compositions); // See below for an example value
 ```
+
+:::note
+Preferrably import this function from `@remotion/lambda/client` to avoid problems [inside serverless functions](/docs/lambda/light-client).
+:::
 
 ## Arguments
 
@@ -95,6 +99,26 @@ Accepted values:
 :::note
 The default for Lambda is `"swangle"`, but `null` elsewhere.
 :::
+
+#### `userAgent`<AvailableFrom v="3.3.83"/>
+
+Lets you set a custom user agent that the headless Chrome browser assumes.
+
+### `forceBucketName?`
+
+_available from v3.3.42_
+
+Specify a specific bucket name to be used. [This is not recommended](/docs/lambda/multiple-buckets), instead let Remotion discover the right bucket automatically.
+
+### `logLevel?`
+
+One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged inside the Lambda function. Logs can be read through the CloudWatch URL that this function returns.
+
+### ~~`dumpBrowserLogs?`~~
+
+_optional - default `false`, deprecated in v4.0_
+
+Deprecated in favor of [`logLevel`](#loglevel).
 
 ## Return value
 

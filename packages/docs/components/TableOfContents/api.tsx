@@ -40,6 +40,10 @@ export const TableOfContents: React.FC = () => {
           <strong>@remotion/lambda</strong>
           <div>Render videos and stills on AWS Lambda</div>
         </TOCItem>
+        <TOCItem link="/docs/cloudrun">
+          <strong>@remotion/cloudrun</strong>
+          <div>Render videos and stills on GCP Cloud Run</div>
+        </TOCItem>
         <TOCItem link="/docs/gif">
           <strong>@remotion/gif</strong>
           <div>Include a GIF in your video</div>
@@ -47,6 +51,10 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/media-utils">
           <strong>@remotion/media-utils</strong>
           <div>Obtain info about video and audio</div>
+        </TOCItem>
+        <TOCItem link="/docs/tailwind/tailwind">
+          <strong>@remotion/tailwind</strong>
+          <div>Utilities for using TailwindCSS in Remotion</div>
         </TOCItem>
         <TOCItem link="/docs/three">
           <strong>@remotion/three</strong>
@@ -75,6 +83,10 @@ export const TableOfContents: React.FC = () => {
         <TOCItem link="/docs/noise">
           <strong>@remotion/noise</strong>
           <div>Generate noise effects</div>
+        </TOCItem>
+        <TOCItem link="/docs/shapes">
+          <strong>@remotion/shapes</strong>
+          <div>Generate SVG shapes</div>
         </TOCItem>
       </Grid>
     </div>

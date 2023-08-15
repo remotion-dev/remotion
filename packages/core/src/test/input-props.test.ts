@@ -2,7 +2,7 @@
  * @vitest-environment jsdom
  */
 import {afterAll, beforeEach, describe, expect, test, vitest} from 'vitest';
-import {getInputProps} from '../config/input-props';
+import {getInputProps} from '../config/input-props.js';
 
 describe('input props', () => {
 	const OLD_ENV = process.env;

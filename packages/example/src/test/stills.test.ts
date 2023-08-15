@@ -3,16 +3,18 @@ import {
 	getCompositions,
 	RenderInternals,
 	renderStill,
+	StillImageFormat,
 } from '@remotion/renderer';
-import {existsSync, unlinkSync} from 'fs';
-import {tmpdir} from 'os';
-import path from 'path';
-import {TCompMetadata} from 'remotion';
+import {existsSync, unlinkSync} from 'node:fs';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import {VideoConfig} from 'remotion';
 import {expect, test} from 'vitest';
-import {webpackOverride} from '../webpack-override';
+// @ts-expect-error it does work
+import {webpackOverride} from '../webpack-override.mjs';
 
 test(
-	'Can render a still using Node.JS APIs',
+	'Can render a still png using Node.JS APIs',
 	async () => {
 		const bundled = await bundle({
 			entryPoint: path.join(process.cwd(), 'src/index.ts'),
@@ -23,26 +25,33 @@ test(
 
 		const composition = compositions.find(
 			(c) => c.id === 'react-svg'
-		) as TCompMetadata;
+		) as VideoConfig;
 
-		const testOut = path.join(tmpdir(), 'path/to/still.png');
+		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
+		const testOut = path.join(folder, 'still.png');
 
-		const {port, close} = await RenderInternals.serveStatic(bundled, {
-			onDownload: () => undefined,
-			port: null,
-			onError: (err) => {
-				throw err;
+		const server = await RenderInternals.makeOrReuseServer(
+			undefined,
+			{
+				webpackConfigOrServeUrl: bundled,
+				port: null,
+				remotionRoot: process.cwd(),
+				concurrency: RenderInternals.getActualConcurrency(null),
+				logLevel: 'info',
+				indent: false,
 			},
-			ffmpegExecutable: null,
-			ffprobeExecutable: null,
-			downloadMap: RenderInternals.makeDownloadMap(),
-			remotionRoot: process.cwd(),
-		});
+			{
+				onDownload: () => undefined,
+				onError: (err) => {
+					throw err;
+				},
+			}
+		);
 
-		const serveUrl = `http://localhost:${port}`;
+		const serveUrl = `http://localhost:${server.server.offthreadPort}`;
 		const fileOSRoot = path.parse(__dirname).root;
 
-		expect(() =>
+		await expect(() =>
 			renderStill({
 				composition,
 				output: testOut,
@@ -53,7 +62,7 @@ test(
 			/Cannot use frame 500: Duration of composition is 300, therefore the highest frame that can be rendered is 299/
 		);
 
-		expect(() =>
+		await expect(() =>
 			renderStill({
 				composition,
 				output: process.platform === 'win32' ? fileOSRoot : '/var',
@@ -61,7 +70,7 @@ test(
 			})
 		).rejects.toThrow(/already exists, but is not a file/);
 
-		expect(() =>
+		await expect(() =>
 			renderStill({
 				composition,
 				output: 'src/index.ts',
@@ -81,8 +90,82 @@ test(
 
 		expect(existsSync(testOut)).toBe(true);
 		unlinkSync(testOut);
+		RenderInternals.deleteDirectory(bundled);
+		RenderInternals.deleteDirectory(folder);
 
-		await close();
+		await server.cleanupServer(true);
+	},
+	{
+		retry: 3,
+		timeout: 90000,
+	}
+);
+
+test(
+	'Can render a still pdf using Node.JS APIs',
+	async () => {
+		const imageFormat: StillImageFormat = 'pdf';
+		const bundled = await bundle({
+			entryPoint: path.join(process.cwd(), 'src/index.ts'),
+			webpackOverride,
+		});
+		const folder = path.join(tmpdir(), 'remotion-test', 'render-still');
+
+		const compositions = await getCompositions(bundled);
+
+		const server = await RenderInternals.makeOrReuseServer(
+			undefined,
+			{
+				webpackConfigOrServeUrl: bundled,
+				port: null,
+				remotionRoot: process.cwd(),
+				concurrency: RenderInternals.getActualConcurrency(null),
+				logLevel: 'info',
+				indent: false,
+			},
+			{
+				onDownload: () => undefined,
+				onError: (err) => {
+					throw err;
+				},
+			}
+		);
+
+		const serveUrl = `http://localhost:${server.server.offthreadPort}`;
+
+		const toRenderCompositions: [string, number][] = [
+			['tiles', 15],
+			['mdx-test', 0],
+			['halloween-pumpkin', 45],
+			['rect-test', 20],
+		];
+
+		for (const toRenderComposition of toRenderCompositions) {
+			const composition = compositions.find(
+				(c) => c.id === toRenderComposition[0]
+			) as VideoConfig;
+
+			const testOut = path.join(
+				folder,
+				`${toRenderComposition[0]}-${toRenderComposition[1]}.${imageFormat}`
+			);
+
+			await renderStill({
+				composition,
+				output: testOut,
+				serveUrl,
+				frame: toRenderComposition[1],
+				imageFormat,
+			});
+
+			expect(existsSync(testOut)).toBe(true);
+			unlinkSync(testOut);
+		}
+
+		RenderInternals.deleteDirectory(bundled);
+		RenderInternals.deleteDirectory(folder);
+
+		await server.cleanupServer(true);
 	},
 	{
 		retry: 3,

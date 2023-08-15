@@ -13,9 +13,13 @@ type ZIndex = {
 	currentIndex: number;
 };
 
-export const ZIndexContext = createContext<ZIndex>({
+const ZIndexContext = createContext<ZIndex>({
 	currentIndex: 0,
 });
+
+const margin: React.CSSProperties = {
+	margin: 'auto',
+};
 
 const EscapeHook: React.FC<{
 	onEscape: () => void;
@@ -29,6 +33,8 @@ const EscapeHook: React.FC<{
 			callback: onEscape,
 			commandCtrlKey: false,
 			preventDefault: true,
+			// To dismiss the Quick Switcher menu if input is focused
+			triggerIfInputFieldFocused: true,
 		});
 
 		return () => {
@@ -56,22 +62,46 @@ export const HigherZIndex: React.FC<{
 	}, [currentIndex, highestContext]);
 
 	useEffect(() => {
-		const listener = (e: MouseEvent) => {
-			const outsideClick = !containerRef.current?.contains(e.target as Node);
-			if (
-				outsideClick &&
-				highestContext.highestIndex === currentIndex &&
-				!getClickLock() &&
-				// Don't trigger if that click removed that node
-				document.contains(e.target as Node)
-			) {
-				e.stopPropagation();
-				onOutsideClick();
+		let onUp: ((upEvent: MouseEvent) => void) | null = null;
+
+		const listener = (downEvent: MouseEvent) => {
+			const outsideClick = !containerRef.current?.contains(
+				downEvent.target as Node
+			);
+			if (!outsideClick) {
+				return;
 			}
+
+			onUp = (upEvent: MouseEvent) => {
+				if (
+					outsideClick &&
+					highestContext.highestIndex === currentIndex &&
+					!getClickLock() &&
+					// Don't trigger if that click removed that node
+					document.contains(upEvent.target as Node)
+				) {
+					upEvent.stopPropagation();
+					onOutsideClick();
+				}
+			};
+
+			window.addEventListener('pointerup', onUp, {once: true});
 		};
 
-		window.addEventListener('click', listener);
-		return () => window.removeEventListener('click', listener);
+		// If a menu is opened, then this component will also still receive the pointerdown event.
+		// However we may not interpret it as a outside click, so we need to wait for the next tick
+		requestAnimationFrame(() => {
+			window.addEventListener('pointerdown', listener);
+		});
+		return () => {
+			onUp = null;
+			if (onUp) {
+				// @ts-expect-error
+				window.removeEventListener('pointerup', onUp, {once: true});
+			}
+
+			return window.removeEventListener('pointerdown', listener);
+		};
 	}, [currentIndex, highestContext.highestIndex, onOutsideClick]);
 
 	const value = useMemo((): ZIndex => {
@@ -83,7 +113,9 @@ export const HigherZIndex: React.FC<{
 	return (
 		<ZIndexContext.Provider value={value}>
 			<EscapeHook onEscape={onEscape} />
-			<div ref={containerRef}>{children}</div>
+			<div ref={containerRef} style={margin}>
+				{children}
+			</div>
 		</ZIndexContext.Provider>
 	);
 };

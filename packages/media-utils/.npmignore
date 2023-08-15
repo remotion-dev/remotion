@@ -2,6 +2,7 @@ dist/test/**
 src
 .eslintrc
 tsconfig.tsbuildinfo
-.prettierrc
 *.tgz
 .turbo
+tsconfig.json
+.prettierrc.js

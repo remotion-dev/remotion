@@ -1,15 +1,7 @@
 import semver from 'semver';
 import {getLatestRemotionVersion} from '../get-latest-remotion-version';
-import type {PackageManager} from './get-package-manager';
 import {getPackageManager} from './get-package-manager';
-
-type Info = {
-	currentVersion: string;
-	latestVersion: string;
-	updateAvailable: boolean;
-	timedOut: boolean;
-	packageManager: PackageManager | 'unknown';
-};
+import type {UpdateAvailableResponse} from './render-queue/job';
 
 const isUpdateAvailable = async ({
 	remotionRoot,
@@ -17,7 +9,7 @@ const isUpdateAvailable = async ({
 }: {
 	remotionRoot: string;
 	currentVersion: string;
-}): Promise<Info> => {
+}): Promise<UpdateAvailableResponse> => {
 	const latest = await getLatestRemotionVersion();
 	const pkgManager = getPackageManager(remotionRoot, undefined);
 
@@ -41,7 +33,7 @@ export const getRemotionVersion = () => {
 
 export const isUpdateAvailableWithTimeout = (remotionRoot: string) => {
 	const version = getRemotionVersion();
-	const threeSecTimeout = new Promise<Info>((resolve) => {
+	const threeSecTimeout = new Promise<UpdateAvailableResponse>((resolve) => {
 		const pkgManager = getPackageManager(remotionRoot, undefined);
 		setTimeout(() => {
 			resolve({

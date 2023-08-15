@@ -14,13 +14,14 @@ This list tries to compile all templates, libraries, building blocks and example
 - [React Three Fiber](https://github.com/remotion-dev/template-three)
 - [Stills](https://github.com/remotion-dev/template-still)
 - [TTS template](https://github.com/FelippeChemello/Remotion-TTS-Example)
-- [Audiogram](https://github.com/marcusstenbeck/template-audiogram)
-- [Skia](https://github.com/marcusstenbeck/template-skia)
-- [Tailwind](https://github.com/marcusstenbeck/template-tailwind)
+- [Audiogram](https://github.com/marcusstenbeck/remotion-template-audiogram)
+- [Skia](https://github.com/remotion-dev/template-skia)
+- [Tailwind](https://github.com/remotion-dev/template-tailwind)
+- [Hello World Template with pull request video previews](https://github.com/stoat-dev/example-remotion)
 
 ## SaaS starter Kits
 
-- [Remix template](https://github.com/florentpergoud/remotion-remix-template)
+- [Remix template](https://github.com/remotion-dev/remotion-remix-template)
 - [Next.js template](https://github.com/remotion-dev/template-next)
 
 ## Integrations
@@ -32,6 +33,7 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Lottie](/docs/lottie)
 - [spline.design](/docs/spline)
 - [After Effects](/docs/after-effects)
+- [Rive](/docs/rive)
 - [GIFs](/docs/gif)
 
 ## Effects
@@ -40,10 +42,11 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Noise](/docs/noise)
 - [Path animations](/docs/paths)
 
-## Animation Libraries
+## Animation helpers
 
 - [Remotion Animated](https://www.remotion-animated.dev/)
 - [remotion-transition-series](https://github.com/marcusstenbeck/remotion-transition-series)
+- [remotion-time](https://github.com/fwextensions/remotion-time) - use seconds instead of frame
 
 ## Full projects
 
@@ -54,7 +57,10 @@ This list tries to compile all templates, libraries, building blocks and example
 - [MapSnap](https://companies.remotion.dev) _(exclusive for Company License subscribers)_
 - [Mockoops](https://github.com/Just-Moh-it/Mockoops)
 - [Product Hunt Today](https://github.com/Kamigami55/product-hunt-today)
-- [Remotion Wether](https://github.com/florentpergoud/remotion-weather)
+- [Remotion Weather](https://github.com/florentpergoud/remotion-weather)
+- [Rewind Table](https://github.com/gregonarash/rewind-table) _(Airtable templates for Remotion)_
+- [Conference Speaker Announcement Cards](https://github.com/lyonjs/social-video-generator)
+- [Motionly.video](https://github.com/karelnagel/motionly)
 
 ## Examples
 
@@ -70,11 +76,16 @@ This list tries to compile all templates, libraries, building blocks and example
 - [Apple "Spring loaded" animation](https://github.com/JonnyBurger/spring-loaded)
 - [ThreeJS particles demo](https://github.com/JonnyBurger/three-particles)
 - [Text Morphing](https://github.com/JonnyBurger/morph-text)
+- [Text warping](https://github.com/remotion-dev/text-warping)
 - [Include GLTF models](https://github.com/JonnyBurger/remotion-three-gltf-example)
 - [OpenGL transitions](https://github.com/JonnyBurger/remotion-gl-transitions)
 - [Conference talk in React](https://github.com/pomber/record-talk-with-remotion)
 - [Conference talk in React #2](https://github.com/JonnyBurger/react-summit-talk)
 - [Twitch stinger example](https://github.com/JonnyBurger/ledevevent-stinger)
+- [DevContainer Template](https://github.com/openscript/remotion-devcontainer-template)
+- [Usage with Anime.JS](https://github.com/remotion-dev/anime-example)
+- [Displaying a spinner while content is loading](https://github.com/remotion-dev/video-buffering-example)
+- [Mapbox example](https://github.com/remotion-dev/mapbox-example)
 
 ## Videos
 
@@ -90,6 +101,20 @@ See the [Showcase](/showcase) for videos made with Remotion.
 - [Fireship: Remotion Tutorial](https://www.youtube.com/watch?v=deg8bOoziaE&t=3s)
 - [A soft introduction to Remotion](https://www.youtube.com/watch?v=szh2Qgo9SVE&t=847s)
 - [CRT effect](https://www.youtube.com/watch?v=-7MOoWN2_nk)
+- ["Create videos with Code" by Prismic](https://prismic.io/blog/create-videos-with-code-remotion-tutorial)
+- [Integrate GreenSock with Remotion](https://enlear.academy/how-to-integrate-greensock-with-remotion-e4eee6f5a41f)
+
+## Tooling
+
+- [VS Code extension](https://marketplace.visualstudio.com/items?itemName=KarelNagel.remotion-vscode)
+- [GIF Pull request previews](https://github.com/stoat-dev/example-remotion)
+- [Loading compositions remotely](https://github.com/musafiroon/remotion-remote-composition)
+
+## Hacks
+
+- [GitHub Actions Matrix renderer](https://github.com/yuvraj108c/Remotion-Matrix-Renderer)
+- [WebKit renderer](https://iosexample.com/using-wkwebview-as-a-faster-alternative-for-rendering-remotion-compositions/)
+- [Side-by-side editor](https://www.loom.com/share/7b2aa7fe14c04e858838f137ed19dfd8)
 
 ## Humans
 

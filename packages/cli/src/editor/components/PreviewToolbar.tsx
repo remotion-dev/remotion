@@ -5,6 +5,7 @@ import {TIMELINE_PADDING} from '../helpers/timeline-layout';
 import {loadLoopOption} from '../state/loop';
 import {CheckboardToggle} from './CheckboardToggle';
 import {FpsCounter} from './FpsCounter';
+import {FullScreenToggle} from './FullscreenToggle';
 import {Flex, Spacing} from './layout';
 import {LoopToggle} from './LoopToggle';
 import {MuteToggle} from './MuteToggle';
@@ -12,7 +13,7 @@ import {PlaybackKeyboardShortcutsManager} from './PlaybackKeyboardShortcutsManag
 import {PlaybackRatePersistor} from './PlaybackRatePersistor';
 import {PlaybackRateSelector} from './PlaybackRateSelector';
 import {PlayPause} from './PlayPause';
-import {RichTimelineToggle} from './RichTimelineToggle';
+import {RenderButton} from './RenderButton';
 import {SizeSelector} from './SizeSelector';
 import {TimelineZoomControls} from './Timeline/TimelineZoomControls';
 import {TimelineInOutPointToggle} from './TimelineInOutToggle';
@@ -50,6 +51,9 @@ export const PreviewToolbar: React.FC = () => {
 
 	const [loop, setLoop] = useState(loadLoopOption());
 
+	const isFullscreenSupported =
+		document.fullscreenEnabled || document.webkitFullscreenEnabled;
+
 	return (
 		<div style={container} className="css-reset">
 			<div style={sideContainer}>
@@ -67,14 +71,17 @@ export const PreviewToolbar: React.FC = () => {
 			<Spacing x={2} />
 			<LoopToggle loop={loop} setLoop={setLoop} />
 			<CheckboardToggle />
-			<RichTimelineToggle />
 			<TimelineInOutPointToggle />
 			<MuteToggle muted={mediaMuted} setMuted={setMediaMuted} />
+			{isFullscreenSupported && <FullScreenToggle />}
+			<Spacing x={2} />
 			<Flex />
 			<div style={sideContainer}>
 				<Flex />
 				<FpsCounter playbackSpeed={playbackRate} />
-				<div style={padding} />
+				<Spacing x={2} />
+				<RenderButton />
+				<Spacing x={1.5} />
 			</div>
 			<PlaybackKeyboardShortcutsManager setPlaybackRate={setPlaybackRate} />
 			<PlaybackRatePersistor />

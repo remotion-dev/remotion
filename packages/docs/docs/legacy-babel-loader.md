@@ -29,14 +29,14 @@ values={[
 <TabItem value="npm">
 
 ```bash
-npm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
+npm i babel-loader @babel/preset-env @babel/preset-react
 ```
 
   </TabItem>
   <TabItem value="pnpm">
 
 ```bash
-pnpm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
+pnpm i babel-loader @babel/preset-env @babel/preset-react
 ```
 
   </TabItem>
@@ -44,18 +44,18 @@ pnpm i mdx-loader babel-loader @babel/preset-env @babel/preset-react
   <TabItem value="yarn">
 
 ```bash
-yarn add mdx-loader babel-loader @babel/preset-env @babel/preset-react
+yarn add babel-loader @babel/preset-env @babel/preset-react
 ```
 
   </TabItem>
 </Tabs>
 
 ```ts twoslash title="remotion.config.ts"
-import { Config } from "remotion";
+import { Config } from "@remotion/cli/config";
 // ---cut---
 import { replaceLoadersWithBabel } from "@remotion/babel-loader";
 
-Config.Bundling.overrideWebpackConfig((currentConfiguration) => {
+Config.overrideWebpackConfig((currentConfiguration) => {
   return replaceLoadersWithBabel(currentConfiguration);
 });
 ```
@@ -66,7 +66,7 @@ When using the Node.JS APIs - [`bundle()`](/docs/bundle) for SSR or [`deploySite
 
 ```ts twoslash title="my-script.js"
 // @filename: ./src/webpack-override.ts
-import { WebpackOverrideFn } from "remotion";
+import { WebpackOverrideFn } from "@remotion/bundler";
 export const webpackOverride: WebpackOverrideFn = (c) => c;
 // @filename: remotion.config.ts
 // @target: esnext

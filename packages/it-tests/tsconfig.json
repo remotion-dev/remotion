@@ -7,11 +7,28 @@
     "sourceMap": true,
     "lib": ["es2018", "dom"],
     "jsx": "react-jsx",
-    "noEmit": false,
+    "noEmit": true,
     "strict": true,
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "incremental": true,
     "noUnusedLocals": true
-  }
+  },
+  "references": [
+    {
+      "path": "../bundler"
+    },
+    {
+      "path": "../core"
+    },
+    {
+      "path": "../lambda"
+    },
+    {
+      "path": "../renderer"
+    },
+    {
+      "path": "../cli"
+    }
+  ]
 }

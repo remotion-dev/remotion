@@ -29,24 +29,36 @@ export type Template = {
 		| 'hello-world'
 		| 'javascript'
 		| 'blank'
+		| 'next'
+		| 'next-pages-dir'
 		| 'remix'
 		| 'three'
 		| 'still'
 		| 'tts'
+		| 'google-tts'
 		| 'audiogram'
 		| 'skia'
 		| 'tailwind'
-		| 'overlay';
+		| 'overlay'
+		| 'stargazer';
 	defaultBranch: string;
+	featuredOnHomePage: string | null;
 } & DynamicTemplate;
 
+type Truthy<T> = T extends false | '' | 0 | null | undefined ? never : T;
+
+function truthy<T>(value: T): value is Truthy<T> {
+	return Boolean(value);
+}
+
+// Note that this page is statically analyzed by extract-articles.mjs
 export const FEATURED_TEMPLATES: Template[] = [
 	{
-		homePageLabel: 'TypeScript',
+		homePageLabel: 'Hello World',
 		shortName: 'Hello World',
 		org: 'remotion-dev',
 		repoName: 'template-helloworld',
-		description: 'The default starter template (recommended)',
+		description: 'A "Hello World" starter template',
 		longerDescription:
 			'A basic template with TypeScript, Prettier and ESLint preconfigured. Our recommended choice for beginners.',
 		promoVideo: {
@@ -54,9 +66,65 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 1080,
 			width: 1920,
 		},
-		cliId: 'hello-world',
-		type: 'video',
+		cliId: 'hello-world' as const,
+		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: 'Hello World',
+	},
+	{
+		homePageLabel: 'Next.js (App dir)',
+		shortName: 'Next.js (App dir)',
+		org: 'remotion-dev',
+		repoName: 'template-next-app-dir',
+		description: 'SaaS template for video generation apps',
+		longerDescription:
+			'A SaaS starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build an app that can generate videos.',
+		promoVideo: {
+			width: 1280,
+			height: 720,
+			muxId: 'RufnZIJZh6L1MAaeG02jnXuM9pK96tNuHRxmXHbWqCBI',
+		},
+		cliId: 'next' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: 'Next.js',
+	},
+	{
+		homePageLabel: 'Next.js (Pages dir)',
+		shortName: 'Next.js (Pages dir)',
+		org: 'remotion-dev',
+		repoName: 'template-next-pages-dir',
+		description: 'SaaS template for video generation apps',
+		longerDescription:
+			'A SaaS starter kit which has the Remotion Player and rendering via Remotion Lambda built-in. Our recommended choice for people who want to build an app that can generate videos.',
+		promoVideo: {
+			width: 1280,
+			height: 720,
+			muxId: 'RufnZIJZh6L1MAaeG02jnXuM9pK96tNuHRxmXHbWqCBI',
+		},
+		cliId: 'next-pages-dir' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+	},
+
+	{
+		homePageLabel: 'Blank',
+		shortName: 'Blank',
+		description: 'Nothing except an empty canvas',
+		org: 'remotion-dev',
+		repoName: 'template-empty',
+		longerDescription:
+			'A template containing nothing but an empty canvas. Recommended for people who already worked with Remotion.',
+		promoVideo: {
+			muxId: 'JD00x15y859GjqO7C9hpILkrSddGzd55K4lfj02dv8gU4',
+			width: 1280,
+			height: 720,
+		},
+		cliId: 'blank' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: 'Blank',
 	},
 	{
 		homePageLabel: 'JavaScript',
@@ -71,26 +139,10 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1920,
 			height: 1080,
 		},
-		cliId: 'javascript',
-		type: 'video',
+		cliId: 'javascript' as const,
+		type: 'video' as const,
 		defaultBranch: 'main',
-	},
-	{
-		homePageLabel: 'Blank',
-		shortName: 'Blank',
-		description: 'Nothing except an empty canvas',
-		org: 'remotion-dev',
-		repoName: 'template-empty',
-		longerDescription:
-			'A template containing nothing but an empty canvas. Recommended for people who already worked with Remotion.',
-		promoVideo: {
-			muxId: 'JD00x15y859GjqO7C9hpILkrSddGzd55K4lfj02dv8gU4',
-			width: 1280,
-			height: 720,
-		},
-		cliId: 'blank',
-		type: 'video',
-		defaultBranch: 'main',
+		featuredOnHomePage: 'JavaScript',
 	},
 	{
 		homePageLabel: 'Remix',
@@ -105,9 +157,10 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 720,
 			src: '/img/remix-template.png',
 		},
-		cliId: 'remix',
-		type: 'image',
+		cliId: 'remix' as const,
+		type: 'image' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: '3D',
@@ -122,9 +175,10 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1280,
 			height: 720,
 		},
-		cliId: 'three',
-		type: 'video',
+		cliId: 'three' as const,
+		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Stills',
@@ -139,13 +193,14 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 628,
 			width: 1200,
 		},
-		cliId: 'still',
-		type: 'video',
+		cliId: 'still' as const,
+		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
-		homePageLabel: 'TTS',
-		shortName: 'Text To Speech',
+		homePageLabel: 'Text-To-Speech (Azure)',
+		shortName: 'TTS (Azure)',
 		org: 'FelippeChemello',
 		repoName: 'Remotion-TTS-Example',
 		description: 'Turns text into speech and makes a video',
@@ -156,9 +211,28 @@ export const FEATURED_TEMPLATES: Template[] = [
 			width: 1920,
 			height: 1080,
 		},
-		cliId: 'tts',
-		type: 'video',
+		cliId: 'tts' as const,
+		type: 'video' as const,
 		defaultBranch: 'master',
+		featuredOnHomePage: null,
+	},
+	{
+		homePageLabel: 'Text-To-Speech (Google)',
+		shortName: 'TTS (Google)',
+		org: 'thecmdrunner',
+		repoName: 'remotion-gtts-template',
+		description: 'Turns text into speech and makes a video',
+		longerDescription:
+			'A template that turns text into a spoken video. Integrates with Firebase for Storage, and Google Cloud for Speech synthesis.',
+		promoVideo: {
+			muxId: '82dzhGhv3bl3p8LW009cFGd8oltqt6UvxTWdP27202BAY',
+			width: 1920,
+			height: 1080,
+		},
+		cliId: 'google-tts' as const,
+		type: 'video' as const,
+		defaultBranch: 'master',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Audiogram',
@@ -173,9 +247,10 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 1080,
 			width: 1080,
 		},
-		cliId: 'audiogram',
-		type: 'video',
+		cliId: 'audiogram' as const,
+		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Skia',
@@ -189,9 +264,10 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 1080,
 			width: 1920,
 		},
-		cliId: 'skia',
-		type: 'video',
+		cliId: 'skia' as const,
+		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
 	{
 		homePageLabel: 'Tailwind',
@@ -206,11 +282,11 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 720,
 			width: 1280,
 		},
-		cliId: 'tailwind',
-		type: 'video',
+		cliId: 'tailwind' as const,
+		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
-
 	{
 		homePageLabel: 'Overlay',
 		shortName: 'Overlay',
@@ -229,8 +305,27 @@ export const FEATURED_TEMPLATES: Template[] = [
 			height: 720,
 			width: 1280,
 		},
-		cliId: 'overlay',
-		type: 'video',
+		cliId: 'overlay' as const,
+		type: 'video' as const,
 		defaultBranch: 'main',
+		featuredOnHomePage: null,
 	},
-];
+	{
+		homePageLabel: 'Stargazer',
+		shortName: 'Stargazer',
+		org: 'pomber',
+		repoName: 'stargazer',
+		description: 'Celebrate your repo stars with a video',
+		longerDescription:
+			'Your repo reached a stars milestone? Celebrate with a video of your stargazers!',
+		promoVideo: {
+			muxId: 'y9rC1DoQ7rCzzI9TGeUywyTliOVU8xhHTHHZZ2BhM014',
+			height: 540,
+			width: 960,
+		},
+		cliId: 'stargazer' as const,
+		type: 'video' as const,
+		defaultBranch: 'main',
+		featuredOnHomePage: null,
+	},
+].filter(truthy);

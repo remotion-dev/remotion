@@ -15,6 +15,7 @@ export const SplitterElement: React.FC<{
 			display: 'flex',
 			position: 'relative',
 			overflow: 'hidden',
+			flexDirection: 'column',
 		};
 	}, [context.flexValue, type]);
 

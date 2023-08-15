@@ -6,3 +6,4 @@ tsconfig.tsbuildinfo
 vitest.config.ts
 *.tgz
 .turbo
+tsconfig.json

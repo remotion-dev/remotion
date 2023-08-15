@@ -8,6 +8,7 @@ import { Spacer } from "../../components/layout/Spacer";
 import { experts } from "../data/experts";
 
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
+import { BackButton } from "./BackButton";
 import { Seo } from "./Seo";
 
 const layout: React.CSSProperties = {
@@ -37,6 +38,7 @@ const flexer: React.CSSProperties = {
 
 const img: React.CSSProperties = {
   height: 100,
+  borderRadius: 5,
 };
 
 const title: React.CSSProperties = {
@@ -44,22 +46,6 @@ const title: React.CSSProperties = {
   paddingLeft: 20,
   paddingBottom: 0,
   marginBottom: 16,
-};
-
-const backLink: React.CSSProperties = {
-  color: "white",
-  fontFamily: "GTPlanar",
-  fontWeight: 500,
-  display: "inline-flex",
-  justifyContent: "center",
-  alignItems: "center",
-};
-
-const backIcon: React.CSSProperties = {
-  height: 20,
-  color: "white",
-  marginRight: 15,
-  display: "inline-block",
 };
 
 const emailButton: React.CSSProperties = {
@@ -138,30 +124,24 @@ export default () => {
       </Head>
       <div style={header}>
         <div style={layout}>
-          <a style={backLink} href="/experts">
-            <svg
-              style={backIcon}
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 448 512"
-            >
-              <path
-                fill="currentcolor"
-                d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"
-              />
-            </svg>{" "}
-            Back to Experts
-          </a>
+          <BackButton link="/experts" color="white" text="Back to Experts" />
           <div style={headerRow}>
             <img style={img} src={expert.image} />
             <h2 className="big-title-on-desktop" style={title}>
               {expert.name}
             </h2>
             <div style={flexer} />
-            <a className="only-desktop" href={`mailto:${expert.email}`}>
+            <a
+              className="only-desktop"
+              href={`mailto:${expert.email}`}
+              style={{
+                textDecoration: "none",
+              }}
+            >
               <Button
                 background="white"
                 hoverColor="white"
-                color={DARK_BLUE}
+                color={"black"}
                 fullWidth={false}
                 loading={false}
                 size="sm"
@@ -177,23 +157,6 @@ export default () => {
         <h3>About me</h3>
         <p style={description}>{expert.description}</p>
         <h3>Socials</h3>
-        <a style={socialLink} href={`mailto:${expert.email}`} target={"_blank"}>
-          <div style={socialRow}>
-            <div style={socialIconContainer}>
-              <svg
-                style={socialIcon}
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 512 512"
-              >
-                <path
-                  fill="currentcolor"
-                  d="M0 128C0 92.65 28.65 64 64 64H448C483.3 64 512 92.65 512 128V384C512 419.3 483.3 448 448 448H64C28.65 448 0 419.3 0 384V128zM48 128V150.1L220.5 291.7C241.1 308.7 270.9 308.7 291.5 291.7L464 150.1V127.1C464 119.2 456.8 111.1 448 111.1H64C55.16 111.1 48 119.2 48 127.1L48 128zM48 212.2V384C48 392.8 55.16 400 64 400H448C456.8 400 464 392.8 464 384V212.2L322 328.8C283.6 360.3 228.4 360.3 189.1 328.8L48 212.2z"
-                />
-              </svg>{" "}
-            </div>
-            {expert.email}
-          </div>
-        </a>
         {expert.github ? (
           <a
             style={socialLink}
@@ -258,6 +221,70 @@ export default () => {
                 </svg>
               </div>
               {expert.name}
+            </div>
+          </a>
+        ) : null}
+        <br />
+        <h3> Contact me </h3>
+        <a style={socialLink} href={`mailto:${expert.email}`} target={"_blank"}>
+          <div style={socialRow}>
+            <div style={socialIconContainer}>
+              <svg
+                style={socialIcon}
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  fill="currentcolor"
+                  d="M0 128C0 92.65 28.65 64 64 64H448C483.3 64 512 92.65 512 128V384C512 419.3 483.3 448 448 448H64C28.65 448 0 419.3 0 384V128zM48 128V150.1L220.5 291.7C241.1 308.7 270.9 308.7 291.5 291.7L464 150.1V127.1C464 119.2 456.8 111.1 448 111.1H64C55.16 111.1 48 119.2 48 127.1L48 128zM48 212.2V384C48 392.8 55.16 400 64 400H448C456.8 400 464 392.8 464 384V212.2L322 328.8C283.6 360.3 228.4 360.3 189.1 328.8L48 212.2z"
+                />
+              </svg>{" "}
+            </div>
+            {expert.email}
+          </div>
+        </a>
+        {expert.videocall ? (
+          <a
+            style={socialLink}
+            href={`https://cal.com/${expert.videocall}`}
+            target={"_blank"}
+          >
+            <div style={socialRow}>
+              <div style={socialIconContainer}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 1339 1339"
+                  fill="none"
+                  style={{
+                    width: 30,
+                    marginRight: 10,
+                  }}
+                >
+                  <g filter="url(#filter0_d_1118_90)">
+                    <path
+                      d="M229 483.994C229 450.86 255.86 424 288.994 424H708.949C792.654 424 860.511 491.857 860.511 575.563V855.006C860.511 888.14 833.651 915 800.518 915H380.563C296.857 915 229 847.143 229 763.437V483.994Z"
+                      fill="#0B84F3"
+                    />
+                    <path
+                      d="M288.994 431.105H708.949C788.731 431.105 853.407 495.781 853.407 575.563V855.006C853.407 884.216 829.727 907.896 800.518 907.896H380.563C300.781 907.896 236.105 843.219 236.105 763.437V483.994C236.105 454.784 259.784 431.105 288.994 431.105Z"
+                      stroke="#505050"
+                      strokeWidth="14.209"
+                    />
+                  </g>
+                  <g filter="url(#filter1_d_1118_90)">
+                    <path
+                      d="M898.402 597.835C898.402 577.414 907.19 557.98 922.522 544.492L1042.84 438.648C1068.34 416.217 1108.38 434.323 1108.38 468.283V871.921C1108.38 905.562 1068.99 923.782 1043.35 902L932.908 808.163C911.019 789.565 898.402 762.29 898.402 733.567V597.835Z"
+                      fill="#0B84F3"
+                    />
+                    <path
+                      d="M927.215 549.827L1047.53 443.982C1068.44 425.589 1101.28 440.436 1101.28 468.283V871.921C1101.28 899.506 1068.98 914.447 1047.95 896.586L937.508 802.748C917.207 785.5 905.507 760.206 905.507 733.567V597.835C905.507 579.456 913.415 561.966 927.215 549.827Z"
+                      stroke="#505050"
+                      strokeWidth="14.209"
+                    />
+                  </g>
+                </svg>
+              </div>
+              @{expert.name}
             </div>
           </a>
         ) : null}
