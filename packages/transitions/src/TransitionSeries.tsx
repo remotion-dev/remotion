@@ -48,6 +48,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 		let transitionOffsets = 0;
 		let startFrame = 0;
 		const flattedChildren = flattenChildren(children);
+		console.log({flattedChildren});
 		return Children.map(flattedChildren, (child, i) => {
 			const castedChild = child as unknown as TypeChild<
 				Record<string, unknown>
