@@ -24,7 +24,7 @@ export const BasicTransition: React.FC = () => {
 				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				presentation={makeWipePresentation({origin: 'from-left'})}
+				presentation={makeWipePresentation({origin: 'from-bottom-left'})}
 				timing={makeLinearTiming({
 					durationInFrames: 30,
 					easing: Easing.bounce,

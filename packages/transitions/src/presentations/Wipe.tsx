@@ -5,59 +5,156 @@ import type {
 	TransitionPresentationComponentProps,
 } from '../types';
 
-const width = 1;
-const height = 1;
-
-type WipeDirection = 'from-left' | 'from-top-left';
-type WipeProps = {
-	origin: WipeDirection;
-};
-
 const makePathIn = (progress: number, origin: WipeDirection) => {
-	if (origin === 'from-left') {
-		return `
+	switch (origin) {
+		case 'from-left':
+			return `
 M 0 0
 L ${progress} 0
 L ${progress} 1
 L 0 1
 Z`;
-	}
 
-	if (origin === 'from-top-left') {
-		return `
+		case 'from-top-left':
+			return `
 M 0 0
 L ${progress * 2} 0
-L 0 ${height * 2}
-Z`.trim();
-	}
+L 0 ${progress * 2}
+Z`;
 
-	throw new Error(`Unknown origin ${JSON.stringify(origin)}`);
+		case 'from-top':
+			return `
+M 0 0
+L 1 0
+L 1 ${progress}
+L 0 ${progress}
+Z`;
+
+		case 'from-top-right':
+			return `
+M 1 0
+L ${1 - progress * 2} 0
+L 1 ${progress * 2}
+Z`;
+
+		case 'from-right':
+			return `
+M 1 0
+L 1 1
+L ${1 - progress} 1
+L ${1 - progress} 0
+Z`;
+
+		case 'from-bottom-right':
+			return `
+M 1 1
+L ${1 - progress * 2} 1
+L 1 ${1 - progress * 2}
+Z`;
+
+		case 'from-bottom':
+			return `
+M 0 1
+L 1 1
+L 1 ${1 - progress}
+L 0 ${1 - progress}
+Z`;
+
+		case 'from-bottom-left':
+			return `
+M 0 1
+L 0 ${1 - progress * 2}
+L ${progress * 2} 1
+Z`;
+
+		default:
+			throw new Error(`Unknown origin ${JSON.stringify(origin)}`);
+	}
+};
+
+type WipeDirection =
+	| 'from-left'
+	| 'from-top-left'
+	| 'from-top'
+	| 'from-top-right'
+	| 'from-right'
+	| 'from-bottom-right'
+	| 'from-bottom'
+	| 'from-bottom-left'
+	| 'from-center';
+
+type WipeProps = {
+	origin: WipeDirection;
 };
 
 const makePathOut = (progress: number, origin: WipeDirection) => {
-	if (origin === 'from-left') {
-		return `
+	switch (origin) {
+		case 'from-left':
+			return `
 M 1 1
 L ${1 - progress} 1
 L ${1 - progress} 0
 L 1 0
-Z
-`;
-	}
+Z`;
 
-	if (origin === 'from-top-left') {
-		return `
+		case 'from-top-left':
+			return `
 M 1 1
 L ${1 - 2 * progress} 1
 L 1 ${1 - 2 * progress}
-Z
-`.trim();
-	}
+Z`;
 
-	throw new Error(`Unknown origin ${JSON.stringify(origin)}`);
+		case 'from-top':
+			return `
+M 1 1
+L 0 1
+L 0 ${1 - progress}
+L 1 ${1 - progress}
+Z`;
+
+		case 'from-top-right':
+			return `
+M 0 1
+L ${progress * 2} 1
+L 0 ${1 - progress * 2}
+Z`;
+
+		case 'from-right':
+			return `
+M 0 0
+L ${progress} 0
+L ${progress} 1
+L 0 1
+Z`;
+
+		case 'from-bottom-right':
+			return `
+M 0 0
+L ${progress * 2} 0
+L 0 ${progress * 2}
+Z`;
+
+		case 'from-bottom':
+			return `
+M 1 0
+L 0 0
+L 0 ${progress}
+L 1 ${progress}
+Z`;
+
+		case 'from-bottom-left':
+			return `
+M 1 0
+L ${1 - progress * 2} 0
+L 1 ${progress * 2}
+Z`;
+
+		default:
+			throw new Error(`Unknown origin ${JSON.stringify(origin)}`);
+	}
 };
 
-export const WipePresentation: React.FC<
+const WipePresentation: React.FC<
 	TransitionPresentationComponentProps<WipeProps>
 > = ({
 	children,
@@ -92,7 +189,7 @@ export const WipePresentation: React.FC<
 			</AbsoluteFill>
 			<AbsoluteFill>
 				<svg
-					viewBox={`0 0 ${width} ${height}`}
+					viewBox="0 0 1 1"
 					style={{
 						width: '100%',
 						height: '100%',
