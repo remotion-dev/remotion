@@ -6,7 +6,7 @@ export const makeSpringTiming = (options: {
 	config?: Partial<SpringConfig>;
 	durationInFrames?: number;
 	durationRestThreshold?: number;
-}): TransitionTiming => {
+} = {}): TransitionTiming => {
 	return {
 		getDurationInFrames: ({fps}) => {
 			if (options.durationInFrames) {
