@@ -48,7 +48,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 		let transitionOffsets = 0;
 		let startFrame = 0;
 		const flattedChildren = flattenChildren(children);
-		console.log({flattedChildren});
+
 		return Children.map(flattedChildren, (child, i) => {
 			const castedChild = child as unknown as TypeChild<
 				Record<string, unknown>
@@ -60,7 +60,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				}
 
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> components as its children, but you passed a string "${castedChild}"`
+					`The <TransitionSeries /> component only accepts a list of <TransitionSeries.Sequence /> components as its children, but you passed a string "${castedChild}"`
 				);
 			}
 
@@ -70,7 +70,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 			if (castedChild.type !== SeriesSequence) {
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> and <Series.Transition /> components as its children, but got ${castedChild} instead`
+					`The <TransitionSeries /> component only accepts a list of <TransitionSeries.Sequence /> and <TransitionSeries.Transition /> components as its children, but got ${castedChild} instead`
 				);
 			}
 
@@ -83,7 +83,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 			if (!castedChildAgain || !castedChildAgain.props.children) {
 				throw new TypeError(
-					`A <Series.Sequence /> component (${debugInfo}) was detected to not have any children. Delete it to fix this error.`
+					`A <TransitionSeries.Sequence /> component (${debugInfo}) was detected to not have any children. Delete it to fix this error.`
 				);
 			}
 
@@ -94,25 +94,25 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				...passedProps
 			} = castedChildAgain.props;
 			Internals.validateDurationInFrames(durationInFramesProp, {
-				component: `of a <Series.Sequence /> component`,
-				allowFloats: false,
+				component: `of a <TransitionSeries.Sequence /> component`,
+				allowFloats: true,
 			});
 			const offset = castedChildAgain.props.offset ?? 0;
 			if (Number.isNaN(offset)) {
 				throw new TypeError(
-					`The "offset" property of a <Series.Sequence /> must not be NaN, but got NaN (${debugInfo}).`
+					`The "offset" property of a <TransitionSeries.Sequence /> must not be NaN, but got NaN (${debugInfo}).`
 				);
 			}
 
 			if (!Number.isFinite(offset)) {
 				throw new TypeError(
-					`The "offset" property of a <Series.Sequence /> must be finite, but got ${offset} (${debugInfo}).`
+					`The "offset" property of a <TransitionSeries.Sequence /> must be finite, but got ${offset} (${debugInfo}).`
 				);
 			}
 
 			if (offset % 1 !== 0) {
 				throw new TypeError(
-					`The "offset" property of a <Series.Sequence /> must be finite, but got ${offset} (${debugInfo}).`
+					`The "offset" property of a <TransitionSeries.Sequence /> must be finite, but got ${offset} (${debugInfo}).`
 				);
 			}
 
@@ -180,6 +180,28 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 				  })
 				: null;
 
+			if (
+				next &&
+				durationInFramesProp < next.props.timing.getDurationInFrames({fps})
+			) {
+				throw new Error(
+					`The duration of a <TransitionSeries.Sequence /> must not be shorter than the duration of the next <TransitionSeries.Transition />. The transition is ${next.props.timing.getDurationInFrames(
+						{fps}
+					)} frames long, but the sequence is only ${durationInFramesProp} frames long (${debugInfo})`
+				);
+			}
+
+			if (
+				prev &&
+				durationInFramesProp < prev.props.timing.getDurationInFrames({fps})
+			) {
+				throw new Error(
+					`The duration of a <TransitionSeries.Sequence /> must not be shorter than the duration of the previous <TransitionSeries.Transition />. The transition is ${prev.props.timing.getDurationInFrames(
+						{fps}
+					)} frames long, but the sequence is only ${durationInFramesProp} frames long (${debugInfo})`
+				);
+			}
+
 			if (next && prev && nextProgress !== null && prevProgress !== null) {
 				const UppercaseNextPresentation = next.props.presentation.component;
 				const UppercasePrevPresentation = prev.props.presentation.component;
@@ -209,7 +231,6 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 				return (
 					// @ts-expect-error
-
 					<UppercasePrevPresentation
 						passedProps={prev.props.presentation.props ?? {}}
 						presentationDirection="in"
