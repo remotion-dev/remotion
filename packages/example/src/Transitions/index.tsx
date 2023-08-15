@@ -81,6 +81,18 @@ export const BasicTransition: React.FC = () => {
 					</TransitionSeries.Sequence>
 				</>
 			))}
+			<TransitionSeries.Transition
+				timing={makeLinearTiming({durationInFrames: 30})}
+			/>
+			<TransitionSeries.Sequence durationInFrames={90}>
+				<Letter color="black">P</Letter>
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Transition
+				timing={makeLinearTiming({durationInFrames: 30})}
+			/>
+			<TransitionSeries.Sequence durationInFrames={90}>
+				<Letter color="red">Q</Letter>
+			</TransitionSeries.Sequence>
 		</TransitionSeries>
 	);
 };

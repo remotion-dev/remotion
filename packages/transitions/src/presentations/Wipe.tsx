@@ -83,7 +83,7 @@ type WipeDirection =
 	| 'from-bottom-left';
 
 type WipeProps = {
-	direction: WipeDirection;
+	direction?: WipeDirection;
 };
 
 const makePathOut = (progress: number, direction: WipeDirection) => {
@@ -159,7 +159,7 @@ const WipePresentation: React.FC<
 	children,
 	presentationProgress,
 	presentationDirection,
-	passedProps: {direction: wipeDirection},
+	passedProps: {direction = 'from-left'},
 }) => {
 	const [clipId] = useState(() => String(random(null)));
 
@@ -170,8 +170,8 @@ const WipePresentation: React.FC<
 
 	const path =
 		presentationDirection === 'in'
-			? makePathIn(progressInDirection, wipeDirection)
-			: makePathOut(progressInDirection, wipeDirection);
+			? makePathIn(progressInDirection, direction)
+			: makePathOut(progressInDirection, direction);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -207,10 +207,10 @@ const WipePresentation: React.FC<
 };
 
 export const makeWipePresentation = (
-	props: WipeProps
+	props?: WipeProps
 ): TransitionPresentation<WipeProps> => {
 	return {
 		component: WipePresentation,
-		props,
+		props: props ?? {},
 	};
 };
