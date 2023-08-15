@@ -108,6 +108,9 @@
       "path": "./packages/three"
     },
     {
+      "path": "./packages/transitions"
+    },
+    {
       "path": "./packages/zod-types"
     }
   ]

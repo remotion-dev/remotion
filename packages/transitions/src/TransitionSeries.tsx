@@ -93,10 +93,10 @@ const TransitionSeries: FC<{
 				children: _children,
 				...passedProps
 			} = castedChildAgain.props;
-			Internals.validateDurationInFrames(
-				durationInFramesProp,
-				`of a <Series.Sequence /> component`
-			);
+			Internals.validateDurationInFrames(durationInFramesProp, {
+				component: `of a <Series.Sequence /> component`,
+				allowFloats: false,
+			});
 			const offset = castedChildAgain.props.offset ?? 0;
 			if (Number.isNaN(offset)) {
 				throw new TypeError(
