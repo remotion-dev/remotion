@@ -43,5 +43,14 @@
 	],
 	"publishConfig": {
 		"access": "public"
+	},
+	"exports": {
+		"./package.json": "./package.json",
+		".": {
+			"types": "./dist/cjs/index.d.ts",
+			"module": "./dist/esm/index.mjs",
+			"import": "./dist/esm/index.mjs",
+			"require": "./dist/cjs/index.js"
+		}
 	}
 }
