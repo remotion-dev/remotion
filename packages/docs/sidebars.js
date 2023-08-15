@@ -389,6 +389,15 @@ module.exports = {
     },
     {
       type: "category",
+      label: "@remotion/transitions",
+      link: {
+        type: "doc",
+        id: "transitions/index",
+      },
+      items: ["transitions/index", "transitions/transitionseries"],
+    },
+    {
+      type: "category",
       label: "@remotion/zod-types",
       link: {
         type: "doc",

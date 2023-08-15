@@ -597,6 +597,9 @@ importers:
       '@remotion/three':
         specifier: workspace:*
         version: link:../three
+      '@remotion/transitions':
+        specifier: workspace:*
+        version: link:../transitions
       '@shopify/react-native-skia':
         specifier: ^0.1.191
         version: 0.1.191(react@18.0.0)
