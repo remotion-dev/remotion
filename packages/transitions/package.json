@@ -50,30 +50,30 @@
 			"import": "./dist/index.js",
 			"types": "./dist/index.d.ts"
 		},
-		"./Fade": {
-			"import": "./dist/presentations/Fade.js",
-			"types": "./dist/presentations/Fade.d.ts"
+		"./fade": {
+			"import": "./dist/presentations/fade.js",
+			"types": "./dist/presentations/fade.d.ts"
 		},
-		"./Slide": {
-			"import": "./dist/presentations/Slide.js",
-			"types": "./dist/presentations/Slide.d.ts"
+		"./slide": {
+			"import": "./dist/presentations/slide.js",
+			"types": "./dist/presentations/slide.d.ts"
 		},
-		"./Wipe": {
-			"import": "./dist/presentations/Wipe.js",
-			"types": "./dist/presentations/Wipe.d.ts"
+		"./wipe": {
+			"import": "./dist/presentations/wipe.js",
+			"types": "./dist/presentations/wipe.d.ts"
 		},
 		"./package.json": "./package.json"
 	},
 	"typesVersions": {
 		">=1.0": {
-			"Wipe": [
-				"dist/presentations/Wipe.d.ts"
+			"wipe": [
+				"dist/presentations/wipe.d.ts"
 			],
-			"Slide": [
-				"dist/presentations/Slide.d.ts"
+			"slide": [
+				"dist/presentations/slide.d.ts"
 			],
-			"Fade": [
-				"dist/presentations/Fade.d.ts"
+			"fade": [
+				"dist/presentations/fade.d.ts"
 			]
 		}
 	}

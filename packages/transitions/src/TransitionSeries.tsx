@@ -291,7 +291,7 @@ TransitionSeries.Transition = TransitionSeriesTransition;
 export {TransitionSeries};
 
 import React from 'react';
-import { slide } from './presentations/Slide.js';
+import { slide } from './presentations/slide.js';
 
 type ReactChildArray = ReturnType<typeof React.Children.toArray>;
 
