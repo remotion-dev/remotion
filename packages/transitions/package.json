@@ -5,6 +5,7 @@
 	"main": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"sideEffects": false,
+	"type": "module",
 	"scripts": {
 		"lint": "eslint src --ext ts,tsx",
 		"watch": "tsc -w",
@@ -23,7 +24,7 @@
 		"remotion": "workspace:*"
 	},
 	"devDependencies": {
-		"@jonny/eslint-config": "3.0.266",
+		"@jonny/eslint-config": "3.0.273",
 		"eslint": "8.42.0",
 		"prettier": "^2.0.5",
 		"prettier-plugin-organize-imports": "^3.2.2",

@@ -3,7 +3,9 @@
 	"compilerOptions": {
 		"composite": true,
 		"rootDir": "src",
-		"outDir": "dist"
+		"outDir": "dist",
+		"module": "ESNext",
+		"moduleResolution": "Node"
 	},
 	"include": ["src"],
 	"references": [{"path": "../core"}]

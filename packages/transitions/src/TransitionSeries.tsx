@@ -2,7 +2,7 @@ import type {FC, PropsWithChildren} from 'react';
 import {Children, useMemo} from 'react';
 import type {SequenceProps} from 'remotion';
 import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
-import type {TransitionSeriesTransitionProps} from './types';
+import type {TransitionSeriesTransitionProps} from './types.js';
 
 // eslint-disable-next-line react/function-component-definition
 const TransitionSeriesTransition = function <

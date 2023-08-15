@@ -3,7 +3,7 @@ import {AbsoluteFill} from 'remotion';
 import type {
 	TransitionPresentation,
 	TransitionPresentationComponentProps,
-} from '../types';
+} from '../types.js';
 
 type WipeDirection = 'from-left' | 'from-top' | 'from-right' | 'from-bottom';
 

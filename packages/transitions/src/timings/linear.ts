@@ -1,5 +1,5 @@
 import {interpolate} from 'remotion';
-import type {TransitionTiming} from '../types';
+import type {TransitionTiming} from '../types.js';
 
 export const makeLinearTiming = (options: {
 	durationInFrames: number;
