@@ -1,6 +1,6 @@
 export {SlideTransition} from './presentations/Slide';
-export * from './presentations/Triangle';
-export {WipePresentation as TriangleTransition} from './presentations/Triangle';
-export {makeEasingTiming} from './timings/easing';
+export * from './presentations/Wipe';
+export {WipePresentation} from './presentations/Wipe';
+export {makeLinearTiming} from './timings/linear';
 export {makeSpringTiming} from './timings/spring';
 export {TransitionSeries} from './TransitionSeries';

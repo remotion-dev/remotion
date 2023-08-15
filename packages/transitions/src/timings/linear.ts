@@ -1,7 +1,7 @@
 import {interpolate} from 'remotion';
 import type {TransitionTiming} from '../types';
 
-export const makeEasingTiming = (options: {
+export const makeLinearTiming = (options: {
 	durationInFrames: number;
 	easing?: ((input: number) => number) | undefined;
 }): TransitionTiming => {

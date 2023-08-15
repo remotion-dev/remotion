@@ -1,12 +1,12 @@
-import React, {useState} from 'react';
+import {useState} from 'react';
 import {AbsoluteFill, random} from 'remotion';
-import type {TransitionDirection} from '../types';
+import type {TransitionPresentation} from '../types';
 
-export const SlideTransition: React.FC<{
-	progress: number;
-	children: React.ReactNode;
-	direction: TransitionDirection;
-}> = ({children, progress, direction}) => {
+export const SlideTransition: TransitionPresentation = ({
+	children,
+	progress,
+	direction,
+}) => {
 	const width = 1;
 	const height = 1;
 	const [clipId] = useState(() => String(random(null)));
