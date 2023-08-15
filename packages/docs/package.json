@@ -46,6 +46,7 @@
     "@remotion/shapes": "workspace:*",
     "@remotion/skia": "workspace:*",
     "@remotion/tailwind": "workspace:*",
+    "@remotion/transitions": "workspace:*",
     "@remotion/three": "workspace:*",
     "@shopify/react-native-skia": "^0.1.191",
     "@splitbee/web": "^0.2.4",

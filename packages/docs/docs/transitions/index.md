@@ -1,19 +1,19 @@
 ---
-image: /generated/articles-docs-rive-index.png
 sidebar_label: Overview
-title: "@remotion/rive"
-crumb: Integrations
+title: "@remotion/transitions"
 ---
+
+_available from v4.0.21_
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
-import {TableOfContents} from '../../components/TableOfContents/rive';
+import {TableOfContents} from '../../components/TableOfContents/transitions';
 
-This package provides a component for rendering [Rive](https://rive.app) animations in Remotion.
+This package provides the `<TransitionSeries>` component for transitioning between two scenes as well as timing presets.
 
 ## Installation
 
-Install `@remotion/rive`
+Install `@remotion/transitions`
 
 <Tabs defaultValue="npm" values={[
 { label: 'npm', value: 'npm', },
@@ -24,21 +24,21 @@ Install `@remotion/rive`
 <TabItem value="npm">
 
 ```bash
-npm i @remotion/rive
+npm i @remotion/transitions
 ```
 
 </TabItem>
 <TabItem value="yarn">
 
 ```bash
-yarn add @remotion/rive
+yarn add @remotion/transitions
 ```
 
 </TabItem>
 <TabItem value="pnpm">
 
 ```bash
-pnpm i @remotion/rive
+pnpm i @remotion/transitions
 ```
 
 </TabItem>

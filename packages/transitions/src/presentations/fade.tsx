@@ -28,10 +28,10 @@ const FadePresentation: React.FC<
 };
 
 export const fade = (
-	props: FadeProps
+	props?: FadeProps
 ): TransitionPresentation<FadeProps> => {
 	return {
 		component: FadePresentation,
-		props,
+		props: props ?? {},
 	};
 };
