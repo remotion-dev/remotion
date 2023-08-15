@@ -1,6 +1,21 @@
 import {exec} from 'child_process';
-import fs from 'fs';
-import path from 'path';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+
+const isWin = os.platform() === 'win32';
+const where = isWin ? 'where' : 'which';
+
+const doesBinaryExist = (binary: string) =>
+	new Promise<boolean>((resolve) => {
+		exec(`${where} "${binary}"`, (error) => {
+			if (error) {
+				resolve(false);
+			} else {
+				resolve(true);
+			}
+		});
+	});
 
 const findClosestPackageJson = (): string | null => {
 	const recursionLimit = 5;
@@ -38,10 +53,21 @@ const run = (cmd: string) => {
 	});
 };
 
-const copyX11 = (file: string) =>
-	run(`xclip -sel clip -t image/png -i "${file}"`);
+const copyX11 = async (file: string) => {
+	if (await doesBinaryExist('xclip')) {
+		return run(`xclip -sel clip -t image/png -i "${file}"`);
+	}
 
-const copyWayland = (file: string) => run(`wl-copy < "${file}"`);
+	throw Error('Copying failed. xclip not installed');
+};
+
+const copyWayland = async (file: string) => {
+	if (await doesBinaryExist('wl-clipboard')) {
+		return run(`wl-copy < "${file}"`);
+	}
+
+	throw Error('Copying failed. wl-clipboard not installed');
+};
 
 const copyLinux = (file: string) =>
 	isWayland() ? copyWayland(file) : copyX11(file);
