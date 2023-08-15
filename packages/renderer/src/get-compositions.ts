@@ -115,7 +115,27 @@ const innerGetCompositions = async ({
 		args: [],
 	});
 
-	return result as VideoConfig[];
+	const res = result as Awaited<
+		ReturnType<typeof window.getStaticCompositions>
+	>;
+
+	return res.map((r) => {
+		const {width, durationInFrames, fps, height, id} = r;
+
+		return {
+			id,
+			width,
+			height,
+			fps,
+			durationInFrames,
+			props: Internals.deserializeJSONWithCustomFields(
+				r.serializedResolvedPropsWithCustomSchema
+			),
+			defaultProps: Internals.deserializeJSONWithCustomFields(
+				r.serializedDefaultPropsWithCustomSchema
+			),
+		};
+	});
 };
 
 type CleanupFn = () => void;

@@ -317,6 +317,51 @@ See also: [Input props must be an object](/docs/4-0-migration#input-props-must-b
 
 If you register a composition with a component that requires some props, you now are required to provide a `defaultProps` object.
 
+## `inputProps` option of `renderMedia()` now works differently
+
+[`renderMedia()`](/docs/renderer/render-media) accepts a `VideoConfig` object for the `composition` option, which now has a `props` field:
+
+```tsx twoslash {5-7}
+// @module: esnext
+// @target: es2022
+
+import { renderMedia } from "@remotion/renderer";
+
+const options = {
+  codec: "h264",
+  serveUrl: "https://example.com",
+} as const;
+
+const composition = {
+  width: 1920,
+  height: 1080,
+  fps: 30,
+  durationInFrames: 30 * 5,
+  id: "comp-name",
+  defaultProps: {},
+} as const;
+
+// ---cut---
+await renderMedia({
+  ...options,
+  composition: {
+    ...composition,
+    props: {
+      title: "Hello world",
+    },
+  },
+  inputProps: {
+    title: "Hi there",
+  },
+});
+```
+
+The `composition.props` are now the effective props that get passed to the component, while `inputProps` are what can be retrieved using [`getInputProps()`](/docs/get-input-props).
+
+Previously, `inputProps` would override the default props and be passed to the component.
+
+The recommended way is to get the `composition` object using [`selectComposition()`](/docs/renderer/select-composition) or [`getCompositions()`](/docs/renderer/get-compositions). However, for the purpose of starting renders faster, the `composition` object may be constructed manually.
+
 ## Changelog
 
 - **remotion**: `defaultProps` of a [`<Composition>`](/docs/composition) is now mandatory if the component accepts props

@@ -45,6 +45,13 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		Log.info('No compositions passed. Fetching compositions...');
 
 		validateServeUrl(serveUrl);
+
+		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
+			throw Error(
+				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.'
+			);
+		}
+
 		const server = RenderInternals.prepareServer({
 			concurrency: 1,
 			indent: false,
@@ -56,7 +63,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 
 		const {compositionId} =
 			await CliInternals.getCompositionWithDimensionOverride({
-				args,
+				args: args.slice(1),
 				compositionIdFromUi: null,
 				indent: false,
 				serveUrlOrWebpackUrl: serveUrl,
@@ -169,7 +176,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		Log.info('');
 		Log.info('downloading file...');
 
-		const destination = await downloadFile({
+		const {outputPath: destination} = await downloadFile({
 			bucketName: res.bucketName,
 			gsutilURI: res.cloudStorageUri,
 			downloadName,
