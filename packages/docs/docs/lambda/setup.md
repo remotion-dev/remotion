@@ -119,7 +119,11 @@ REMOTION_AWS_SECRET_ACCESS_KEY=<Secret access key>
 
 ## 7. Optional: Validate the permission setup
 
-- Run `npx remotion lambda policies validate`
+Check all user permissions and validate them against the AWS Policy simulator by executing the following command:
+
+```bash
+npx remotion lambda policies validate
+```
 
 <hr/>
 
