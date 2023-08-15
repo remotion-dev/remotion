@@ -111,7 +111,7 @@ export {ClipRegion} from './NativeLayers.js';
 export {prefetch} from './prefetch.js';
 export {random, RandomSeed} from './random.js';
 export {registerRoot} from './register-root.js';
-export {Sequence} from './Sequence.js';
+export {Sequence, SequenceProps} from './Sequence.js';
 export {Series} from './series/index.js';
 export * from './spring/index.js';
 export {staticFile} from './static-file.js';
