@@ -32,14 +32,12 @@ const Letter: React.FC<{
 export const BasicTransition: React.FC = () => {
 	return (
 		<TransitionSeries from={30}>
-			<TransitionSeries.Sequence durationInFrames={30}>
+			<TransitionSeries.Sequence durationInFrames={40}>
 				<Letter color="orange"> A</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={makeSlidePresentation({direction: 'from-bottom'})}
-				timing={makeLinearTiming({
-					durationInFrames: 30,
-				})}
+				timing={makeSpringTiming({config: {}})}
 			/>
 			<TransitionSeries.Sequence durationInFrames={60}>
 				<Letter color="pink"> ?</Letter>
