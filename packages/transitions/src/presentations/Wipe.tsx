@@ -80,8 +80,7 @@ type WipeDirection =
 	| 'from-right'
 	| 'from-bottom-right'
 	| 'from-bottom'
-	| 'from-bottom-left'
-	| 'from-center';
+	| 'from-bottom-left';
 
 type WipeProps = {
 	origin: WipeDirection;

@@ -1,6 +1,7 @@
 import {
 	makeFadePresentation,
 	makeLinearTiming,
+	makeSlidePresentation,
 	makeSpringTiming,
 	makeWipePresentation,
 	TransitionSeries,
@@ -33,6 +34,15 @@ export const BasicTransition: React.FC = () => {
 		<TransitionSeries from={30}>
 			<TransitionSeries.Sequence durationInFrames={30}>
 				<Letter color="orange"> A</Letter>
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Transition
+				presentation={makeSlidePresentation({direction: 'from-bottom'})}
+				timing={makeLinearTiming({
+					durationInFrames: 30,
+				})}
+			/>
+			<TransitionSeries.Sequence durationInFrames={60}>
+				<Letter color="pink"> ?</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={makeWipePresentation({origin: 'from-bottom-left'})}
