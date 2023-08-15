@@ -2,31 +2,39 @@ import {useState} from 'react';
 import {AbsoluteFill, random} from 'remotion';
 import type {TransitionPresentation} from '../types';
 
-export const TriangleTransition: TransitionPresentation = ({
+const width = 1;
+const height = 1;
+
+const makePathIn = (progress: number) => {
+	return `
+M 0 0
+L ${progress * width * 2} 0
+L ${0} ${height * 2 * progress}
+Z`.trim();
+};
+
+const makePathOut = (progress: number) => {
+	return `
+M ${width} ${height}
+L ${width - 2 * progress * width} ${height}
+L ${width} ${height - 2 * progress * height}
+Z
+`.trim();
+};
+
+export const WipePresentation: TransitionPresentation = ({
 	children,
 	progress,
 	direction,
 }) => {
-	const width = 1;
-	const height = 1;
 	const [clipId] = useState(() => String(random(null)));
 
 	const progressInDirection = direction === 'in' ? progress : 1 - progress;
 
-	const pathIn = `
-	M 0 0
-	L ${progressInDirection * width * 2} 0
-	L ${0} ${height * 2 * progressInDirection}
-	Z`;
-
-	const pathOut = `
-	M ${width} ${height}
-	L ${width - 2 * progressInDirection * width} ${height}
-	L ${width} ${height - 2 * progressInDirection * height}
-	Z
-	`;
-
-	const path = direction === 'in' ? pathIn : pathOut;
+	const path =
+		direction === 'in'
+			? makePathIn(progressInDirection)
+			: makePathOut(progressInDirection);
 
 	return (
 		<AbsoluteFill>

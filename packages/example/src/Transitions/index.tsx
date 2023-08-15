@@ -3,7 +3,7 @@ import {
 	makeSpringTiming,
 	SlideTransition,
 	TransitionSeries,
-	TriangleTransition,
+	WipePresentation,
 } from '@remotion/transitions';
 import {AbsoluteFill, Easing} from 'remotion';
 
@@ -25,7 +25,7 @@ export const BasicTransition: React.FC = () => {
 				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				presentation={TriangleTransition}
+				presentation={WipePresentation}
 				timing={makeEasingTiming({
 					durationInFrames: 30,
 					easing: Easing.bounce,
