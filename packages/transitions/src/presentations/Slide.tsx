@@ -8,7 +8,7 @@ import type {
 type WipeDirection = 'from-left' | 'from-top' | 'from-right' | 'from-bottom';
 
 type SlideProps = {
-	direction: WipeDirection;
+	direction?: WipeDirection;
 };
 
 const SlidePresentation: React.FC<
@@ -17,11 +17,11 @@ const SlidePresentation: React.FC<
 	children,
 	presentationProgress,
 	presentationDirection,
-	passedProps: {direction: slideDirection},
+	passedProps: {direction = 'from-left'},
 }) => {
 	const directionStyle = useMemo((): React.CSSProperties => {
 		if (presentationDirection === 'out') {
-			switch (slideDirection) {
+			switch (direction) {
 				case 'from-left':
 					return {
 						transform: `translateX(${presentationProgress * 100}%)`,
@@ -39,11 +39,11 @@ const SlidePresentation: React.FC<
 						transform: `translateY(-${presentationProgress * 100}%)`,
 					};
 				default:
-					throw new Error(`Invalid direction: ${slideDirection}`);
+					throw new Error(`Invalid direction: ${direction}`);
 			}
 		}
 
-		switch (slideDirection) {
+		switch (direction) {
 			case 'from-left':
 				return {
 					transform: `translateX(${-100 + presentationProgress * 100}%)`,
@@ -61,9 +61,9 @@ const SlidePresentation: React.FC<
 					transform: `translateY(${100 - presentationProgress * 100}%)`,
 				};
 			default:
-				throw new Error(`Invalid direction: ${slideDirection}`);
+				throw new Error(`Invalid direction: ${direction}`);
 		}
-	}, [presentationDirection, presentationProgress, slideDirection]);
+	}, [presentationDirection, presentationProgress, direction]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {
@@ -83,10 +83,10 @@ const SlidePresentation: React.FC<
 };
 
 export const makeSlidePresentation = (
-	props: SlideProps
+	props?: SlideProps
 ): TransitionPresentation<SlideProps> => {
 	return {
 		component: SlidePresentation,
-		props,
+		props: props ?? {},
 	};
 };

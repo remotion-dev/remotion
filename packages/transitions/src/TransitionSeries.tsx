@@ -81,7 +81,7 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 
 			const debugInfo = `index = ${i}, duration = ${castedChildAgain.props.durationInFrames}`;
 
-			if (!castedChildAgain || !castedChildAgain.props.children) {
+			if (!castedChildAgain?.props.children) {
 				throw new TypeError(
 					`A <TransitionSeries.Sequence /> component (${debugInfo}) was detected to not have any children. Delete it to fix this error.`
 				);
@@ -203,20 +203,23 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 			}
 
 			if (next && prev && nextProgress !== null && prevProgress !== null) {
-				const UppercaseNextPresentation = next.props.presentation.component;
-				const UppercasePrevPresentation = prev.props.presentation.component;
+				const nextPresentation = next.props.presentation ?? makeSlidePresentation()
+				const prevPresentation = prev.props.presentation ?? makeSlidePresentation()
+
+				const UppercaseNextPresentation = nextPresentation.component;
+				const UppercasePrevPresentation = prevPresentation.component;
 
 				return (
 					// @ts-expect-error
 					<UppercaseNextPresentation
-						passedProps={next.props.presentation.props ?? {}}
+						passedProps={nextPresentation.props ?? {}}
 						presentationDirection="out"
 						presentationProgress={nextProgress}
 					>
 						{/**
 						// @ts-expect-error	*/}
 						<UppercasePrevPresentation
-							passedProps={prev.props.presentation.props ?? {}}
+							passedProps={prevPresentation.props ?? {}}
 							presentationDirection="in"
 							presentationProgress={prevProgress}
 						>
@@ -227,12 +230,14 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 			}
 
 			if (prevProgress !== null && prev) {
-				const UppercasePrevPresentation = prev.props.presentation.component;
+				const prevPresentation = prev.props.presentation ?? makeSlidePresentation()
+
+				const UppercasePrevPresentation = prevPresentation.component;
 
 				return (
 					// @ts-expect-error
 					<UppercasePrevPresentation
-						passedProps={prev.props.presentation.props ?? {}}
+						passedProps={prevPresentation.props ?? {}}
 						presentationDirection="in"
 						presentationProgress={prevProgress}
 					>
@@ -242,12 +247,14 @@ const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
 			}
 
 			if (nextProgress !== null && next) {
-				const UppercaseNextPresentation = next.props.presentation.component;
+				const nextPresentation = next.props.presentation ?? makeSlidePresentation()
+
+				const UppercaseNextPresentation = nextPresentation.component;
 
 				return (
 					// @ts-expect-error
 					<UppercaseNextPresentation
-						passedProps={next.props.presentation.props ?? {}}
+						passedProps={nextPresentation.props ?? {}}
 						presentationDirection="out"
 						presentationProgress={nextProgress}
 					>
@@ -284,6 +291,7 @@ TransitionSeries.Transition = TransitionSeriesTransition;
 export {TransitionSeries};
 
 import React from 'react';
+import { makeSlidePresentation } from './presentations/Slide.js';
 
 type ReactChildArray = ReturnType<typeof React.Children.toArray>;
 
@@ -303,3 +311,4 @@ const flattenChildren = (children: React.ReactNode): ReactChildArray => {
 		return flatChildren;
 	}, []);
 };
+
