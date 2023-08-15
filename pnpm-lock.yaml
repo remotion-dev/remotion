@@ -816,6 +816,9 @@ importers:
       '@remotion/three':
         specifier: workspace:*
         version: link:../three
+      '@remotion/transitions':
+        specifier: workspace:*
+        version: link:../transitions
       '@remotion/zod-types':
         specifier: workspace:*
         version: link:../zod-types

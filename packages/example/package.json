@@ -45,6 +45,7 @@
 		"@remotion/shapes": "workspace:*",
 		"@remotion/skia": "workspace:*",
 		"@remotion/three": "workspace:*",
+		"@remotion/transitions": "workspace:*",
 		"@remotion/zod-types": "workspace:*",
 		"@remotion/tailwind": "workspace:*",
 		"@types/express": "^4.17.11",
