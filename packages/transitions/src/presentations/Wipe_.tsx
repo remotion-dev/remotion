@@ -206,7 +206,7 @@ const WipePresentation: React.FC<
 	);
 };
 
-export const makeWipePresentation = (
+export const wipe = (
 	props?: WipeProps
 ): TransitionPresentation<WipeProps> => {
 	return {

@@ -1,5 +1,5 @@
 // Timings
-export {makeLinearTiming} from './timings/linear.js';
-export {makeSpringTiming} from './timings/spring.js';
+export {linearTiming} from './timings/linear.js';
+export {springTiming} from './timings/spring.js';
 // Component
 export {TransitionSeries} from './TransitionSeries.js';

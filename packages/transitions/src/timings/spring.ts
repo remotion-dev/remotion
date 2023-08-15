@@ -2,7 +2,7 @@ import type {SpringConfig} from 'remotion';
 import {measureSpring, spring} from 'remotion';
 import type {TransitionTiming} from '../types.js';
 
-export const makeSpringTiming = (options: {
+export const springTiming = (options: {
 	config?: Partial<SpringConfig>;
 	durationInFrames?: number;
 	durationRestThreshold?: number;

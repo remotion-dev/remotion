@@ -1,13 +1,13 @@
 import {
-	makeLinearTiming,
-	makeSpringTiming,
+	linearTiming,
+	springTiming,
 	TransitionSeries,
 } from '@remotion/transitions';
 import React from 'react';
 import {AbsoluteFill, Easing, interpolateColors, random} from 'remotion';
-import {makeSlidePresentation} from '@remotion/transitions/Slide';
-import {makeWipePresentation} from '@remotion/transitions/Wipe';
-import {makeFadePresentation} from '@remotion/transitions/Fade';
+import {slide} from '@remotion/transitions/Slide';
+import {wipe} from '@remotion/transitions/Wipe';
+import {fade} from '@remotion/transitions/Fade';
 
 const Letter: React.FC<{
 	children: React.ReactNode;
@@ -36,15 +36,15 @@ export const BasicTransition: React.FC = () => {
 				<Letter color="orange"> A</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				presentation={makeSlidePresentation({direction: 'from-bottom'})}
-				timing={makeSpringTiming()}
+				presentation={slide({direction: 'from-bottom'})}
+				timing={springTiming()}
 			/>
 			<TransitionSeries.Sequence durationInFrames={60}>
 				<Letter color="pink">B</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				presentation={makeWipePresentation({direction: 'from-bottom-left'})}
-				timing={makeLinearTiming({
+				presentation={wipe({direction: 'from-bottom-left'})}
+				timing={linearTiming({
 					durationInFrames: 30,
 					easing: Easing.bounce,
 				})}
@@ -53,8 +53,8 @@ export const BasicTransition: React.FC = () => {
 				<Letter color="green">C</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				presentation={makeFadePresentation({})}
-				timing={makeLinearTiming({
+				presentation={fade({})}
+				timing={linearTiming({
 					durationInFrames: 40,
 				})}
 			/>
@@ -64,8 +64,8 @@ export const BasicTransition: React.FC = () => {
 			{new Array(10).fill(true).map((_, i) => (
 				<>
 					<TransitionSeries.Transition
-						presentation={makeWipePresentation({direction: 'from-left'})}
-						timing={makeSpringTiming({
+						presentation={wipe({direction: 'from-left'})}
+						timing={springTiming({
 							config: {
 								damping: 200,
 							},
@@ -82,13 +82,13 @@ export const BasicTransition: React.FC = () => {
 				</>
 			))}
 			<TransitionSeries.Transition
-				timing={makeLinearTiming({durationInFrames: 30})}
+				timing={linearTiming({durationInFrames: 30})}
 			/>
 			<TransitionSeries.Sequence durationInFrames={90}>
 				<Letter color="black">P</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				timing={makeLinearTiming({durationInFrames: 30})}
+				timing={linearTiming({durationInFrames: 30})}
 			/>
 			<TransitionSeries.Sequence durationInFrames={90}>
 				<Letter color="red">Q</Letter>
