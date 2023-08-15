@@ -8,45 +8,53 @@ import type {
 const width = 1;
 const height = 1;
 
-type WipeDirection = 'left' | 'top-left';
+type WipeDirection = 'from-left' | 'from-top-left';
 type WipeProps = {
-	direction: WipeDirection;
+	origin: WipeDirection;
 };
 
-const makePathIn = (progress: number, direction: WipeDirection) => {
-	if (direction === 'left') {
+const makePathIn = (progress: number, origin: WipeDirection) => {
+	if (origin === 'from-left') {
 		return `
-	M 0 0
-	L ${progress * width} 0
-	L ${progress * width} ${height}
-	L ${0} ${height}
-	Z`;
-	}
-
-	return `
 M 0 0
-L ${progress * width * 2} 0
-L ${0} ${height * 2 * progress}
-Z`.trim();
-};
-
-const makePathOut = (progress: number, direction: WipeDirection) => {
-	if (direction === 'left') {
-		return `
-	M ${width} ${height}
-	L ${width - progress * width} ${height}
-	L ${width - progress * width} ${0}
-	L ${width} ${0}
-	Z
-	`;
+L ${progress} 0
+L ${progress} 1
+L 0 1
+Z`;
 	}
 
-	return `
-M ${width} ${height}
-L ${width - 2 * progress * width} ${height}
-L ${width} ${height - 2 * progress * height}
+	if (origin === 'from-top-left') {
+		return `
+M 0 0
+L ${progress * 2} 0
+L 0 ${height * 2}
+Z`.trim();
+	}
+
+	throw new Error(`Unknown origin ${JSON.stringify(origin)}`);
+};
+
+const makePathOut = (progress: number, origin: WipeDirection) => {
+	if (origin === 'from-left') {
+		return `
+M 1 1
+L ${1 - progress} 1
+L ${1 - progress} 0
+L 1 0
+Z
+`;
+	}
+
+	if (origin === 'from-top-left') {
+		return `
+M 1 1
+L ${1 - 2 * progress} 1
+L 1 ${1 - 2 * progress}
 Z
 `.trim();
+	}
+
+	throw new Error(`Unknown origin ${JSON.stringify(origin)}`);
 };
 
 export const WipePresentation: React.FC<
@@ -55,7 +63,7 @@ export const WipePresentation: React.FC<
 	children,
 	presentationProgress,
 	presentationDirection,
-	passedProps: {direction: wipeDirection},
+	passedProps: {origin: wipeDirection},
 }) => {
 	const [clipId] = useState(() => String(random(null)));
 
@@ -102,10 +110,10 @@ export const WipePresentation: React.FC<
 };
 
 export const makeWipePresentation = (
-	direction: WipeDirection
+	props: WipeProps
 ): TransitionPresentation<WipeProps> => {
 	return {
 		component: WipePresentation,
-		props: {direction},
+		props,
 	};
 };
