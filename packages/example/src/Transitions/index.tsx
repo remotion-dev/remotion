@@ -24,7 +24,7 @@ export const BasicTransition: React.FC = () => {
 				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				presentation={makeWipePresentation('left')}
+				presentation={makeWipePresentation({origin: 'from-left'})}
 				timing={makeLinearTiming({
 					durationInFrames: 30,
 					easing: Easing.bounce,
@@ -45,7 +45,7 @@ export const BasicTransition: React.FC = () => {
 				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				presentation={makeWipePresentation('top-left')}
+				presentation={makeWipePresentation({origin: 'from-left'})}
 				timing={makeSpringTiming({
 					config: {
 						damping: 200,
