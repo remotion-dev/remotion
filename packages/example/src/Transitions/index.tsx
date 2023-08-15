@@ -37,13 +37,13 @@ export const BasicTransition: React.FC = () => {
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={makeSlidePresentation({direction: 'from-bottom'})}
-				timing={makeSpringTiming({config: {}})}
+				timing={makeSpringTiming()}
 			/>
 			<TransitionSeries.Sequence durationInFrames={60}>
 				<Letter color="pink">B</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				presentation={makeWipePresentation({origin: 'from-bottom-left'})}
+				presentation={makeWipePresentation({direction: 'from-bottom-left'})}
 				timing={makeLinearTiming({
 					durationInFrames: 30,
 					easing: Easing.bounce,
@@ -64,7 +64,7 @@ export const BasicTransition: React.FC = () => {
 			{new Array(10).fill(true).map((_, i) => (
 				<>
 					<TransitionSeries.Transition
-						presentation={makeWipePresentation({origin: 'from-left'})}
+						presentation={makeWipePresentation({direction: 'from-left'})}
 						timing={makeSpringTiming({
 							config: {
 								damping: 200,

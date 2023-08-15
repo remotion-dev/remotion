@@ -5,8 +5,8 @@ import type {
 	TransitionPresentationComponentProps,
 } from '../types.js';
 
-const makePathIn = (progress: number, origin: WipeDirection) => {
-	switch (origin) {
+const makePathIn = (progress: number, direction: WipeDirection) => {
+	switch (direction) {
 		case 'from-left':
 			return `
 M 0 0
@@ -68,7 +68,7 @@ L ${progress * 2} 1
 Z`;
 
 		default:
-			throw new Error(`Unknown origin ${JSON.stringify(origin)}`);
+			throw new Error(`Unknown direction ${JSON.stringify(direction)}`);
 	}
 };
 
@@ -83,11 +83,11 @@ type WipeDirection =
 	| 'from-bottom-left';
 
 type WipeProps = {
-	origin: WipeDirection;
+	direction: WipeDirection;
 };
 
-const makePathOut = (progress: number, origin: WipeDirection) => {
-	switch (origin) {
+const makePathOut = (progress: number, direction: WipeDirection) => {
+	switch (direction) {
 		case 'from-left':
 			return `
 M 1 1
@@ -149,7 +149,7 @@ L 1 ${progress * 2}
 Z`;
 
 		default:
-			throw new Error(`Unknown origin ${JSON.stringify(origin)}`);
+			throw new Error(`Unknown direction ${JSON.stringify(direction)}`);
 	}
 };
 
@@ -159,7 +159,7 @@ const WipePresentation: React.FC<
 	children,
 	presentationProgress,
 	presentationDirection,
-	passedProps: {origin: wipeDirection},
+	passedProps: {direction: wipeDirection},
 }) => {
 	const [clipId] = useState(() => String(random(null)));
 
