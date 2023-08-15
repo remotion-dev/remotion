@@ -102,7 +102,7 @@ export const sitesCreateSubcommand = async (
 	updateProgress();
 
 	const bundleStart = Date.now();
-	const uploadStart = Date.now();
+	let uploadStart = Date.now();
 
 	const {serveUrl, siteName, stats} = await deploySite({
 		entryPoint: file,
@@ -114,6 +114,9 @@ export const sitesCreateSubcommand = async (
 					progress,
 					doneIn: progress === 100 ? Date.now() - bundleStart : null,
 				};
+				if (progress === 100) {
+					uploadStart = Date.now();
+				}
 			},
 			onUploadProgress: (p) => {
 				multiProgress.deployProgress = {

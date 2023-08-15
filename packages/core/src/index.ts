@@ -8,6 +8,14 @@ import type {ClipRegion} from './NativeLayers.js';
 import {Null} from './Null.js';
 import type {VideoConfig} from './video-config.js';
 
+export type VideoConfigWithSerializedProps = Omit<
+	VideoConfig,
+	'defaultProps' | 'props'
+> & {
+	serializedDefaultPropsWithCustomSchema: string;
+	serializedResolvedPropsWithCustomSchema: string;
+};
+
 declare global {
 	interface Window {
 		remotion_renderReady: boolean;
@@ -16,13 +24,10 @@ declare global {
 		};
 		remotion_cancelledError: string | undefined;
 		remotion_getCompositionNames: () => string[];
-		getStaticCompositions: () => Promise<VideoConfig[]>;
-		remotion_calculateComposition: (compId: string) => Promise<
-			Omit<VideoConfig, 'defaultProps' | 'props'> & {
-				serializedDefaultPropsWithCustomSchema: string;
-				serializedResolvedPropsWithCustomSchema: string;
-			}
-		>;
+		getStaticCompositions: () => Promise<VideoConfigWithSerializedProps[]>;
+		remotion_calculateComposition: (
+			compId: string
+		) => Promise<VideoConfigWithSerializedProps>;
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
 		remotion_staticFiles: StaticFile[];
@@ -45,7 +50,7 @@ declare global {
 		remotion_isPlayer: boolean;
 		remotion_isBuilding: undefined | (() => void);
 		remotion_finishedBuilding: undefined | (() => void);
-		siteVersion: '9';
+		siteVersion: '10';
 		remotion_version: string;
 		remotion_imported: string | boolean;
 	}

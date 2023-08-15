@@ -42,6 +42,10 @@ Using the shorthand serve URL:
 npx remotion lambda render testbed my-comp
 ```
 
+:::info
+If you are using the shorthand serve URL, you have to pass a composition ID. Available compositions can only be fetched if a complete serve URL is passed.
+:::
+
 Passing in input props:
 
 ```
