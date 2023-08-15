@@ -57,7 +57,6 @@ import {Tailwind} from './Tailwind';
 import {DynamicDuration, dynamicDurationSchema} from './DynamicDuration';
 import {HugePayload, hugePayloadSchema} from './HugePayload';
 import {Timeout} from './Timeout';
-import {PageTransition} from './Transitions/PageTransition';
 import {BasicTransition} from './Transitions';
 
 if (alias !== 'alias') {
