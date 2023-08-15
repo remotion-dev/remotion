@@ -4,7 +4,6 @@ import type {SequenceProps} from 'remotion';
 import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {flattenChildren} from './flatten-children';
 import {GenericTransition} from './GenericTransition';
-import {getProgress} from './timing';
 import type {TransitionSeriesTransitionProps} from './TransitionSeriesTransition';
 import {TransitionSeriesTransition} from './TransitionSeriesTransition';
 
@@ -153,22 +152,20 @@ const TransitionSeries: FC<{
 			);
 
 			const nextProgress = next
-				? getProgress({
+				? next.props.timing.getProgress({
 						frame:
 							frame -
 							actualStartFrame -
 							durationInFrames +
 							next.props.timing.getDurationInFrames({fps}),
 						fps,
-						timing: next.props.timing,
 				  })
 				: null;
 
 			const prevProgress = prev
-				? getProgress({
+				? prev.props.timing.getProgress({
 						frame: frame - actualStartFrame,
 						fps,
-						timing: prev.props.timing,
 				  })
 				: null;
 
