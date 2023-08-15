@@ -1,2 +1,3 @@
 export * from './presentations/Triangle';
-export * from './TransitionSeries';
+export {makeSpringTiming} from './timings/spring';
+export {TransitionSeries} from './TransitionSeries';
