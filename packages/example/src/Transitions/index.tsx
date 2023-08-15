@@ -4,12 +4,12 @@ import {
 	makeWipePresentation,
 	TransitionSeries,
 } from '@remotion/transitions';
-import {AbsoluteFill, Easing} from 'remotion';
+import {AbsoluteFill, Easing, interpolateColors, random} from 'remotion';
 
 export const BasicTransition: React.FC = () => {
 	return (
 		<TransitionSeries from={30}>
-			<TransitionSeries.Sequence durationInFrames={90}>
+			<TransitionSeries.Sequence durationInFrames={30}>
 				<AbsoluteFill
 					style={{
 						backgroundColor: 'orange',
@@ -30,7 +30,7 @@ export const BasicTransition: React.FC = () => {
 					easing: Easing.bounce,
 				})}
 			/>
-			<TransitionSeries.Sequence durationInFrames={90}>
+			<TransitionSeries.Sequence durationInFrames={60}>
 				<AbsoluteFill
 					style={{
 						backgroundColor: 'green',
@@ -44,28 +44,36 @@ export const BasicTransition: React.FC = () => {
 					B
 				</AbsoluteFill>
 			</TransitionSeries.Sequence>
-			<TransitionSeries.Transition
-				presentation={makeWipePresentation({origin: 'from-left'})}
-				timing={makeSpringTiming({
-					config: {
-						damping: 200,
-					},
-				})}
-			/>
-			<TransitionSeries.Sequence durationInFrames={90}>
-				<AbsoluteFill
-					style={{
-						backgroundColor: 'blue',
-						opacity: 0.5,
-						justifyContent: 'center',
-						alignItems: 'center',
-						fontSize: 200,
-						color: 'white',
-					}}
-				>
-					C
-				</AbsoluteFill>
-			</TransitionSeries.Sequence>
+			{new Array(10).fill(true).map((_, i) => (
+				<>
+					<TransitionSeries.Transition
+						presentation={makeWipePresentation({origin: 'from-left'})}
+						timing={makeSpringTiming({
+							config: {
+								damping: 200,
+							},
+							durationInFrames: 30,
+						})}
+					/>
+					<TransitionSeries.Sequence durationInFrames={35}>
+						<AbsoluteFill
+							style={{
+								backgroundColor: interpolateColors(
+									random(i),
+									[0, 1],
+									['red', 'blue']
+								),
+								justifyContent: 'center',
+								alignItems: 'center',
+								fontSize: 200,
+								color: 'white',
+							}}
+						>
+							{'ABCDEFHIJKLMNO'[i]}
+						</AbsoluteFill>
+					</TransitionSeries.Sequence>
+				</>
+			))}
 		</TransitionSeries>
 	);
 };

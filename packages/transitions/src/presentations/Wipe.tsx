@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {AbsoluteFill, random} from 'remotion';
 import type {
 	TransitionPresentation,
@@ -174,27 +174,28 @@ const WipePresentation: React.FC<
 			? makePathIn(progressInDirection, wipeDirection)
 			: makePathOut(progressInDirection, wipeDirection);
 
+	const style: React.CSSProperties = useMemo(() => {
+		return {
+			width: '100%',
+			height: '100%',
+			justifyContent: 'center',
+			alignItems: 'center',
+			clipPath: `url(#${clipId})`,
+		};
+	}, [clipId]);
+
+	const svgStyle: React.CSSProperties = useMemo(() => {
+		return {
+			width: '100%',
+			height: '100%',
+		};
+	}, []);
+
 	return (
 		<AbsoluteFill>
-			<AbsoluteFill
-				style={{
-					width: '100%',
-					height: '100%',
-					justifyContent: 'center',
-					alignItems: 'center',
-					clipPath: `url(#${clipId})`,
-				}}
-			>
-				{children}
-			</AbsoluteFill>
+			<AbsoluteFill style={style}>{children}</AbsoluteFill>
 			<AbsoluteFill>
-				<svg
-					viewBox="0 0 1 1"
-					style={{
-						width: '100%',
-						height: '100%',
-					}}
-				>
+				<svg viewBox="0 0 1 1" style={svgStyle}>
 					<defs>
 						<clipPath id={clipId} clipPathUnits="objectBoundingBox">
 							<path d={path} fill="black" />
