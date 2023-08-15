@@ -371,6 +371,14 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				await CliInternals.handleCommonError(errorWithStackFrame, logLevel);
 			}
 
+			Log.info(
+				'\n\nAccured costs until the error was thrown: ',
+				newStatus.costs.accruedSoFar.toString(),
+				'USD. '
+			);
+			Log.info(
+				'This is only an estimate and does not include charges for other AWS services! \n\n'
+			);
 			quit(1);
 		}
 	}
