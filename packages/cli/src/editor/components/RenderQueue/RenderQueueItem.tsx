@@ -58,6 +58,9 @@ export const RenderQueueItem: React.FC<{
 				</div>
 			</div>
 			<Spacing x={1} />
+			{job.status === 'done' && job.type === 'still' ? (
+				<RenderQueueCopyToClipboard job={job} />
+			) : null}
 			{job.status === 'done' || job.status === 'failed' ? (
 				<RenderQueueRepeatItem job={job} />
 			) : null}
@@ -67,7 +70,6 @@ export const RenderQueueItem: React.FC<{
 				<RenderQueueRemoveItem job={job} />
 			)}
 			{job.status === 'done' ? <RenderQueueOpenInFinderItem job={job} /> : null}
-			{job.status === 'done' ? <RenderQueueCopyToClipboard job={job} /> : null}
 		</Row>
 	);
 };
