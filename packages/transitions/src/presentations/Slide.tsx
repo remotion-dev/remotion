@@ -19,33 +19,51 @@ const SlidePresentation: React.FC<
 	presentationDirection,
 	passedProps: {direction: slideDirection},
 }) => {
-	const progressInDirection =
-		presentationDirection === 'in'
-			? presentationProgress
-			: 1 - presentationProgress;
-
 	const directionStyle = useMemo((): React.CSSProperties => {
+		if (presentationDirection === 'out') {
+			switch (slideDirection) {
+				case 'from-left':
+					return {
+						transform: `translateX(${presentationProgress * 100}%)`,
+					};
+				case 'from-right':
+					return {
+						transform: `translateX(-${presentationProgress * 100}%)`,
+					};
+				case 'from-top':
+					return {
+						transform: `translateY(${presentationProgress * 100}%)`,
+					};
+				case 'from-bottom':
+					return {
+						transform: `translateY(-${presentationProgress * 100}%)`,
+					};
+				default:
+					throw new Error(`Invalid direction: ${slideDirection}`);
+			}
+		}
+
 		switch (slideDirection) {
 			case 'from-left':
 				return {
-					transform: `translateX(${progressInDirection * 100}%)`,
+					transform: `translateX(${-100 + presentationProgress * 100}%)`,
 				};
 			case 'from-right':
 				return {
-					transform: `translateX(-${progressInDirection * 100}%)`,
+					transform: `translateX(${100 - presentationProgress * 100}%)`,
 				};
 			case 'from-top':
 				return {
-					transform: `translateY(${progressInDirection * 100}%)`,
+					transform: `translateY(${-100 + presentationProgress * 100}%)`,
 				};
 			case 'from-bottom':
 				return {
-					transform: `translateY(-${progressInDirection * 100}%)`,
+					transform: `translateY(${100 - presentationProgress * 100}%)`,
 				};
 			default:
 				throw new Error(`Invalid direction: ${slideDirection}`);
 		}
-	}, [progressInDirection, slideDirection]);
+	}, [presentationDirection, presentationProgress, slideDirection]);
 
 	const style: React.CSSProperties = useMemo(() => {
 		return {

@@ -3,7 +3,7 @@ import {measureSpring, spring} from 'remotion';
 import type {TransitionTiming} from '../types';
 
 export const makeSpringTiming = (options: {
-	config: Partial<SpringConfig>;
+	config?: Partial<SpringConfig>;
 	durationInFrames?: number;
 	durationRestThreshold?: number;
 }): TransitionTiming => {
@@ -20,7 +20,7 @@ export const makeSpringTiming = (options: {
 			});
 		},
 		getProgress: ({fps, frame}) => {
-			return springWithRoundUpIfThreshold({
+			return springWithInvalidArgumentRejection({
 				fps,
 				frame,
 				config: options.config,
@@ -31,20 +31,12 @@ export const makeSpringTiming = (options: {
 	};
 };
 
-const SPRING_THRESHOLD = 0.001;
-
-const springWithRoundUpIfThreshold: typeof spring = (args) => {
+const springWithInvalidArgumentRejection: typeof spring = (args) => {
 	if (args.to || args.from) {
 		throw new Error(
 			'to / from values are not supported by springWithRoundUpIfThreshold'
 		);
 	}
 
-	const spr = spring(args);
-
-	if (spr > 1 - SPRING_THRESHOLD) {
-		return 1;
-	}
-
-	return spr;
+	return spring(args);
 };
