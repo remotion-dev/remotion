@@ -4,9 +4,13 @@ import type {SequenceProps} from 'remotion';
 import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import type {TransitionSeriesTransitionProps} from './types';
 
-const TransitionSeriesTransition: React.FC<
-	TransitionSeriesTransitionProps
-> = () => {
+// eslint-disable-next-line react/function-component-definition
+const TransitionSeriesTransition = function <
+	PresentationProps extends Record<string, unknown>
+>(
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	_props: TransitionSeriesTransitionProps<PresentationProps>
+) {
 	return null;
 };
 
@@ -22,17 +26,17 @@ const SeriesSequence = ({children}: SeriesSequenceProps) => {
 	return <>{children}</>;
 };
 
-type TransitionType = {
-	props: TransitionSeriesTransitionProps;
+type TransitionType<PresentationProps extends Record<string, unknown>> = {
+	props: TransitionSeriesTransitionProps<PresentationProps>;
 	type: typeof TransitionSeriesTransition;
 };
 
-type TypeChild =
+type TypeChild<PresentationProps extends Record<string, unknown>> =
 	| {
 			props: SeriesSequenceProps;
 			type: typeof SeriesSequence;
 	  }
-	| TransitionType
+	| TransitionType<PresentationProps>
 	| string;
 
 const TransitionSeries: FC<{
@@ -48,7 +52,9 @@ const TransitionSeries: FC<{
 		let startFrame = 0;
 		const flattedChildren = flattenChildren(children);
 		return Children.map(flattedChildren, (child, i) => {
-			const castedChild = child as unknown as TypeChild;
+			const castedChild = child as unknown as TypeChild<
+				Record<string, unknown>
+			>;
 			if (typeof castedChild === 'string') {
 				// Don't throw if it's just some accidential whitespace
 				if (castedChild.trim() === '') {
@@ -112,21 +118,25 @@ const TransitionSeries: FC<{
 				);
 			}
 
-			const hasPrev = flattedChildren[i - 1] as TypeChild;
-			const nextPrev = flattedChildren[i + 1] as TypeChild;
+			const hasPrev = flattedChildren[i - 1] as TypeChild<
+				Record<string, unknown>
+			>;
+			const nextPrev = flattedChildren[i + 1] as TypeChild<
+				Record<string, unknown>
+			>;
 
-			const prev: TransitionType | null =
+			const prev: TransitionType<Record<string, unknown>> | null =
 				typeof hasPrev === 'string' || typeof hasPrev === 'undefined'
 					? null
 					: hasPrev.type === TransitionSeriesTransition
-					? (hasPrev as TransitionType)
+					? (hasPrev as TransitionType<Record<string, unknown>>)
 					: null;
 
-			const next: TransitionType | null =
+			const next: TransitionType<Record<string, unknown>> | null =
 				typeof nextPrev === 'string' || typeof nextPrev === 'undefined'
 					? null
 					: nextPrev.type === TransitionSeriesTransition
-					? (nextPrev as TransitionType)
+					? (nextPrev as TransitionType<Record<string, unknown>>)
 					: null;
 
 			const currentStartFrame = startFrame + offset;
@@ -173,12 +183,23 @@ const TransitionSeries: FC<{
 				: null;
 
 			if (next && prev && nextProgress !== null && prevProgress !== null) {
-				const UppercaseNextPresentation = next.props.presentation;
-				const UppercasePrevPresentation = prev.props.presentation;
+				const UppercaseNextPresentation = next.props.presentation.component;
+				const UppercasePrevPresentation = prev.props.presentation.component;
 
 				return (
-					<UppercaseNextPresentation direction="out" progress={nextProgress}>
-						<UppercasePrevPresentation direction="in" progress={prevProgress}>
+					// @ts-expect-error
+					<UppercaseNextPresentation
+						passedProps={next.props.presentation.props ?? {}}
+						presentationDirection="out"
+						presentationProgress={nextProgress}
+					>
+						{/**
+						// @ts-expect-error	*/}
+						<UppercasePrevPresentation
+							passedProps={prev.props.presentation.props ?? {}}
+							presentationDirection="in"
+							presentationProgress={prevProgress}
+						>
 							{inner}
 						</UppercasePrevPresentation>
 					</UppercaseNextPresentation>
@@ -186,20 +207,31 @@ const TransitionSeries: FC<{
 			}
 
 			if (prevProgress !== null && prev) {
-				const UppercasePrevPresentation = prev.props.presentation;
+				const UppercasePrevPresentation = prev.props.presentation.component;
 
 				return (
-					<UppercasePrevPresentation direction="in" progress={prevProgress}>
+					// @ts-expect-error
+
+					<UppercasePrevPresentation
+						passedProps={prev.props.presentation.props ?? {}}
+						presentationDirection="in"
+						presentationProgress={prevProgress}
+					>
 						{inner}
 					</UppercasePrevPresentation>
 				);
 			}
 
 			if (nextProgress !== null && next) {
-				const UppercaseNextPresentation = next.props.presentation;
+				const UppercaseNextPresentation = next.props.presentation.component;
 
 				return (
-					<UppercaseNextPresentation direction="out" progress={nextProgress}>
+					// @ts-expect-error
+					<UppercaseNextPresentation
+						passedProps={next.props.presentation.props ?? {}}
+						presentationDirection="out"
+						presentationProgress={nextProgress}
+					>
 						{inner}
 					</UppercaseNextPresentation>
 				);

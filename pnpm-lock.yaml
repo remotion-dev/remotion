@@ -1769,8 +1769,8 @@ importers:
         specifier: 18.0.26
         version: 18.0.26
       '@types/react-dom':
-        specifier: ^18.0.5
-        version: 18.0.11
+        specifier: 18.0.10
+        version: 18.0.10
       eslint:
         specifier: 8.42.0
         version: 8.42.0
@@ -9242,7 +9242,7 @@ packages:
   /@types/react-dom@18.0.10:
     resolution: {integrity: sha512-E42GW/JA4Qv15wQdqJq8DL4JhNpB3prJgjgapN3qJT9K2zO5IIAQh4VXvCEDupoqAwnz0cY4RlXeC/ajX5SFHg==}
     dependencies:
-      '@types/react': 18.0.26
+      '@types/react': 18.0.38
 
   /@types/react-dom@18.0.11:
     resolution: {integrity: sha512-O38bPbI2CWtgw/OoQoY+BRelw7uysmXbWvw3nLWO21H1HSh+GOlqPuXshJfjmpNlKiiSDG9cc1JZAaMmVdcTlw==}

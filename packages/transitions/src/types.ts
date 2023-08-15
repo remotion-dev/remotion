@@ -1,3 +1,5 @@
+import type {ComponentType} from 'react';
+
 export type TransitionDirection = 'in' | 'out';
 
 export type TransitionTiming = {
@@ -5,13 +7,29 @@ export type TransitionTiming = {
 	getProgress: (options: {frame: number; fps: number}) => number;
 };
 
-export type TransitionSeriesTransitionProps = {
+export type TransitionSeriesTransitionProps<
+	PresentationProps extends Record<string, unknown>
+> = {
 	timing: TransitionTiming;
-	presentation: TransitionPresentation;
+	presentation: TransitionPresentation<PresentationProps>;
 };
 
-export type TransitionPresentation = React.FC<{
-	progress: number;
+type LooseComponentType<T> = ComponentType<T> | ((props: T) => React.ReactNode);
+
+export type TransitionPresentation<
+	PresentationProps extends Record<string, unknown>
+> = {
+	component: LooseComponentType<
+		TransitionPresentationComponentProps<PresentationProps>
+	>;
+	props: PresentationProps;
+};
+
+export type TransitionPresentationComponentProps<
+	PresentationProps extends Record<string, unknown>
+> = {
+	presentationProgress: number;
 	children: React.ReactNode;
-	direction: TransitionDirection;
-}>;
+	presentationDirection: TransitionDirection;
+	passedProps: PresentationProps;
+};
