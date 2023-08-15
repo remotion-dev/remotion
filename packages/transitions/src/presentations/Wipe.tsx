@@ -1,11 +1,28 @@
-import {useState} from 'react';
+import React, {useState} from 'react';
 import {AbsoluteFill, random} from 'remotion';
-import type {TransitionPresentation} from '../types';
+import type {
+	TransitionPresentation,
+	TransitionPresentationComponentProps,
+} from '../types';
 
 const width = 1;
 const height = 1;
 
-const makePathIn = (progress: number) => {
+type WipeDirection = 'left' | 'top-left';
+type WipeProps = {
+	direction: WipeDirection;
+};
+
+const makePathIn = (progress: number, direction: WipeDirection) => {
+	if (direction === 'left') {
+		return `
+	M 0 0
+	L ${progress * width} 0
+	L ${progress * width} ${height}
+	L ${0} ${height}
+	Z`;
+	}
+
 	return `
 M 0 0
 L ${progress * width * 2} 0
@@ -13,7 +30,17 @@ L ${0} ${height * 2 * progress}
 Z`.trim();
 };
 
-const makePathOut = (progress: number) => {
+const makePathOut = (progress: number, direction: WipeDirection) => {
+	if (direction === 'left') {
+		return `
+	M ${width} ${height}
+	L ${width - progress * width} ${height}
+	L ${width - progress * width} ${0}
+	L ${width} ${0}
+	Z
+	`;
+	}
+
 	return `
 M ${width} ${height}
 L ${width - 2 * progress * width} ${height}
@@ -22,19 +49,25 @@ Z
 `.trim();
 };
 
-export const WipePresentation: TransitionPresentation = ({
+export const WipePresentation: React.FC<
+	TransitionPresentationComponentProps<WipeProps>
+> = ({
 	children,
-	progress,
-	direction,
+	presentationProgress,
+	presentationDirection,
+	passedProps: {direction: wipeDirection},
 }) => {
 	const [clipId] = useState(() => String(random(null)));
 
-	const progressInDirection = direction === 'in' ? progress : 1 - progress;
+	const progressInDirection =
+		presentationDirection === 'in'
+			? presentationProgress
+			: 1 - presentationProgress;
 
 	const path =
-		direction === 'in'
-			? makePathIn(progressInDirection)
-			: makePathOut(progressInDirection);
+		presentationDirection === 'in'
+			? makePathIn(progressInDirection, wipeDirection)
+			: makePathOut(progressInDirection, wipeDirection);
 
 	return (
 		<AbsoluteFill>
@@ -66,4 +99,13 @@ export const WipePresentation: TransitionPresentation = ({
 			</AbsoluteFill>
 		</AbsoluteFill>
 	);
+};
+
+export const makeWipePresentation = (
+	direction: WipeDirection
+): TransitionPresentation<WipeProps> => {
+	return {
+		component: WipePresentation,
+		props: {direction},
+	};
 };

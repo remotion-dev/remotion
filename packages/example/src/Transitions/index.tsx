@@ -1,9 +1,8 @@
 import {
 	makeLinearTiming,
 	makeSpringTiming,
-	SlideTransition,
+	makeWipePresentation,
 	TransitionSeries,
-	WipePresentation,
 } from '@remotion/transitions';
 import {AbsoluteFill, Easing} from 'remotion';
 
@@ -25,7 +24,7 @@ export const BasicTransition: React.FC = () => {
 				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				presentation={WipePresentation}
+				presentation={makeWipePresentation('left')}
 				timing={makeLinearTiming({
 					durationInFrames: 30,
 					easing: Easing.bounce,
@@ -46,7 +45,7 @@ export const BasicTransition: React.FC = () => {
 				</AbsoluteFill>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
-				presentation={SlideTransition}
+				presentation={makeWipePresentation('top-left')}
 				timing={makeSpringTiming({
 					config: {
 						damping: 200,
