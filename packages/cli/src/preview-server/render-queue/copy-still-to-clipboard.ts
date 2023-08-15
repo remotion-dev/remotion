@@ -5,6 +5,7 @@ import path from 'path';
 require('./scripts/set-permissions');
 
 const recursionLimit = 5;
+
 const findClosestPackageJson = (): string | null => {
 	let currentDir = __dirname;
 	let possiblePackageJson = '';
@@ -23,10 +24,14 @@ const findClosestPackageJson = (): string | null => {
 
 const {exec} = require('child_process');
 
+const deriveBinaryPath = (binary: string) => {
+	const closestPackageJson = findClosestPackageJson() as string;
+	return path.resolve(closestPackageJson, `../${binary}`);
+};
+
 const isWayland = () => process.env.XDG_SESSION_TYPE === 'wayland';
 
 const run = (cmd: string) => {
-	console.log('command: ', cmd);
 	return new Promise<void>((resolve) => {
 		exec(cmd, (...args: any) => resolve(args)); // type this better before PR
 	});
@@ -41,15 +46,16 @@ const copyLinux = (file: string) =>
 	isWayland() ? copyWayland(file) : copyX11(file);
 
 const copyOsx = (file: string) => {
-	const closestPackageJson = findClosestPackageJson() as string;
-	const binaryPath = path.resolve(closestPackageJson, '../osx-copy-image');
+	const binaryPath = deriveBinaryPath('osx-copy-image');
 	return run(`${binaryPath} "${file}"`);
 };
 
-const copyWindows = (file: string) =>
-	run(
-		`powershell.exe -ExecutionPolicy Bypass Start-Process -NoNewWindow -FilePath ./../../file2clip.exe -ArgumentList "${file}"`
+const copyWindows = (file: string) => {
+	const binaryPath = deriveBinaryPath('file2clip.exe');
+	return run(
+		`powershell.exe -ExecutionPolicy Bypass Start-Process -NoNewWindow -FilePath ${binaryPath} -ArgumentList "${file}"`
 	);
+};
 
 export const copyStillToClipBoard = (img: string): Promise<void> => {
 	const file = process.cwd() + '/' + img;
