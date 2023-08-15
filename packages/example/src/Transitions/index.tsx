@@ -1,27 +1,38 @@
 import {
+	makeFadePresentation,
 	makeLinearTiming,
 	makeSpringTiming,
 	makeWipePresentation,
 	TransitionSeries,
 } from '@remotion/transitions';
+import React from 'react';
 import {AbsoluteFill, Easing, interpolateColors, random} from 'remotion';
+
+const Letter: React.FC<{
+	children: React.ReactNode;
+	color: string;
+}> = ({children, color}) => {
+	return (
+		<AbsoluteFill
+			style={{
+				backgroundColor: color,
+				opacity: 0.9,
+				justifyContent: 'center',
+				alignItems: 'center',
+				fontSize: 200,
+				color: 'white',
+			}}
+		>
+			{children}
+		</AbsoluteFill>
+	);
+};
 
 export const BasicTransition: React.FC = () => {
 	return (
 		<TransitionSeries from={30}>
 			<TransitionSeries.Sequence durationInFrames={30}>
-				<AbsoluteFill
-					style={{
-						backgroundColor: 'orange',
-						opacity: 0.5,
-						justifyContent: 'center',
-						alignItems: 'center',
-						fontSize: 200,
-						color: 'white',
-					}}
-				>
-					A
-				</AbsoluteFill>
+				<Letter color="orange"> A</Letter>
 			</TransitionSeries.Sequence>
 			<TransitionSeries.Transition
 				presentation={makeWipePresentation({origin: 'from-bottom-left'})}
@@ -31,18 +42,16 @@ export const BasicTransition: React.FC = () => {
 				})}
 			/>
 			<TransitionSeries.Sequence durationInFrames={60}>
-				<AbsoluteFill
-					style={{
-						backgroundColor: 'green',
-						opacity: 0.5,
-						justifyContent: 'center',
-						alignItems: 'center',
-						fontSize: 200,
-						color: 'white',
-					}}
-				>
-					B
-				</AbsoluteFill>
+				<Letter color="green">B</Letter>
+			</TransitionSeries.Sequence>
+			<TransitionSeries.Transition
+				presentation={makeFadePresentation({})}
+				timing={makeLinearTiming({
+					durationInFrames: 40,
+				})}
+			/>
+			<TransitionSeries.Sequence durationInFrames={60}>
+				<Letter color="green">Fade</Letter>
 			</TransitionSeries.Sequence>
 			{new Array(10).fill(true).map((_, i) => (
 				<>
@@ -56,21 +65,11 @@ export const BasicTransition: React.FC = () => {
 						})}
 					/>
 					<TransitionSeries.Sequence durationInFrames={35}>
-						<AbsoluteFill
-							style={{
-								backgroundColor: interpolateColors(
-									random(i),
-									[0, 1],
-									['red', 'blue']
-								),
-								justifyContent: 'center',
-								alignItems: 'center',
-								fontSize: 200,
-								color: 'white',
-							}}
+						<Letter
+							color={interpolateColors(random(i), [0, 1], ['red', 'blue'])}
 						>
 							{'ABCDEFHIJKLMNO'[i]}
-						</AbsoluteFill>
+						</Letter>
 					</TransitionSeries.Sequence>
 				</>
 			))}
