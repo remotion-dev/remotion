@@ -39,12 +39,9 @@ type TypeChild<PresentationProps extends Record<string, unknown>> =
 	| TransitionType<PresentationProps>
 	| string;
 
-const TransitionSeries: FC<{
-	children: React.ReactNode;
-}> & {
-	Sequence: typeof SeriesSequence;
-	Transition: typeof TransitionSeriesTransition;
-} = ({children}) => {
+const TransitionSeriesChildren: FC<{children: React.ReactNode}> = ({
+	children,
+}) => {
 	const {fps} = useVideoConfig();
 	const frame = useCurrentFrame();
 	const childrenValue = useMemo(() => {
@@ -241,8 +238,22 @@ const TransitionSeries: FC<{
 		});
 	}, [children, fps, frame]);
 
-	/* eslint-disable react/jsx-no-useless-fragment */
+	// eslint-disable-next-line react/jsx-no-useless-fragment
 	return <>{childrenValue}</>;
+};
+
+const TransitionSeries: FC<SequenceProps> & {
+	Sequence: typeof SeriesSequence;
+	Transition: typeof TransitionSeriesTransition;
+} = ({children, ...otherProps}) => {
+	const frame = useCurrentFrame();
+	const showInTimeline = frame < (otherProps.from ?? 0);
+
+	return (
+		<Sequence showInTimeline={showInTimeline} {...otherProps}>
+			<TransitionSeriesChildren>{children}</TransitionSeriesChildren>
+		</Sequence>
+	);
 };
 
 TransitionSeries.Sequence = SeriesSequence;
