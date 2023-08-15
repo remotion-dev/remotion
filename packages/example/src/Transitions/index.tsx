@@ -1,5 +1,9 @@
 import {TransitionSeries} from '@remotion/transitions';
-import {AbsoluteFill} from 'remotion';
+import {
+	makeEasingTiming,
+	makeSpringTiming,
+} from '@remotion/transitions/src/timing';
+import {AbsoluteFill, Easing} from 'remotion';
 
 export const BasicTransition: React.FC = () => {
 	return (
@@ -22,10 +26,10 @@ export const BasicTransition: React.FC = () => {
 				preset={{
 					type: 'triangle',
 				}}
-				timing={{
-					type: 'timing',
-					duration: 30,
-				}}
+				timing={makeEasingTiming({
+					durationInFrames: 30,
+					easing: Easing.bounce,
+				})}
 			/>
 			<TransitionSeries.Sequence durationInFrames={90}>
 				<AbsoluteFill
@@ -45,10 +49,11 @@ export const BasicTransition: React.FC = () => {
 				preset={{
 					type: 'slide',
 				}}
-				timing={{
-					type: 'spring',
-					config: {},
-				}}
+				timing={makeSpringTiming({
+					config: {
+						damping: 200,
+					},
+				})}
 			/>
 			<TransitionSeries.Sequence durationInFrames={90}>
 				<AbsoluteFill

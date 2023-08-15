@@ -4,7 +4,7 @@ import type {SequenceProps} from 'remotion';
 import {Internals, Sequence, useCurrentFrame, useVideoConfig} from 'remotion';
 import {flattenChildren} from './flatten-children';
 import {GenericTransition} from './GenericTransition';
-import {getProgress, getTransitionDuration} from './timing';
+import {getProgress} from './timing';
 import type {TransitionSeriesTransitionProps} from './TransitionSeriesTransition';
 import {TransitionSeriesTransition} from './TransitionSeriesTransition';
 
@@ -54,7 +54,7 @@ const TransitionSeries: FC<{
 				}
 
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> components as it's children, but you passed a string "${castedChild}"`
+					`The <Series /> component only accepts a list of <Series.Sequence /> components as its children, but you passed a string "${castedChild}"`
 				);
 			}
 
@@ -64,7 +64,7 @@ const TransitionSeries: FC<{
 
 			if (castedChild.type !== SeriesSequence) {
 				throw new TypeError(
-					`The <Series /> component only accepts a list of <Series.Sequence /> and <Series.Transition /> components as it's children, but got ${castedChild} instead`
+					`The <Series /> component only accepts a list of <Series.Sequence /> and <Series.Transition /> components as its children, but got ${castedChild} instead`
 				);
 			}
 
@@ -132,8 +132,7 @@ const TransitionSeries: FC<{
 			let duration = 0;
 
 			if (prev) {
-				duration = getTransitionDuration({
-					timing: prev.props.timing,
+				duration = prev.props.timing.getDurationInFrames({
 					fps,
 				});
 				transitionOffsets -= duration;
@@ -159,7 +158,7 @@ const TransitionSeries: FC<{
 							frame -
 							actualStartFrame -
 							durationInFrames +
-							getTransitionDuration({timing: next.props.timing, fps}),
+							next.props.timing.getDurationInFrames({fps}),
 						fps,
 						timing: next.props.timing,
 				  })
