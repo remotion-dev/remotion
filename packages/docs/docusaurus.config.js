@@ -160,14 +160,10 @@ const config = (mode) => ({
             {
               label: "Discord",
               href: "https://remotion.dev/discord",
-              "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "Discord",
             },
             {
               label: "X",
               href: "https://x.com/remotion",
-              "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "X",
             },
             {
               label: "YouTube",
@@ -176,20 +172,14 @@ const config = (mode) => ({
             {
               label: "LinkedIn",
               href: "https://www.linkedin.com/company/remotion-dev/",
-              "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "LinkedIn",
             },
             {
               label: "Instagram",
               href: "https://instagram.com/remotion",
-              "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "Instagram",
             },
             {
               label: "TikTok",
               href: "https://www.tiktok.com/@remotion",
-              "data-splitbee-event": "External Link",
-              "data-splitbee-event-target": "TikTok",
             },
           ],
         },
