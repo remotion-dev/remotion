@@ -117,6 +117,7 @@ export const createPostRenderData = ({
 		mostExpensiveFrameRanges: getMostExpensiveChunks(
 			parsedTimings,
 			renderMetadata.framesPerLambda,
+			renderMetadata.frameRange[0],
 			renderMetadata.frameRange[1]
 		),
 	};
