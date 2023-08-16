@@ -1,6 +1,6 @@
 import type { FC, PropsWithChildren } from "react";
 import { Children, useMemo } from "react";
-import type { SequenceProps, SequencePropsWithoutDuration } from "remotion";
+import type { LayoutAndStyle, SequencePropsWithoutDuration } from "remotion";
 import { Internals, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
 import { slide } from "./presentations/slide.js";
 import type { TransitionSeriesTransitionProps } from "./types.js";
@@ -21,7 +21,8 @@ type SeriesSequenceProps = PropsWithChildren<
     durationInFrames: number;
     offset?: number;
     className?: number;
-  } & Pick<SequenceProps, "layout" | "name">
+  } & LayoutAndStyle &
+    Pick<SequencePropsWithoutDuration, "name">
 >;
 
 const SeriesSequence = ({ children }: SeriesSequenceProps) => {

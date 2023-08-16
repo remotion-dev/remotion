@@ -1,6 +1,16 @@
+import { fade } from "@remotion/transitions/fade";
+import { slide } from "@remotion/transitions/slide";
+import { wipe } from "@remotion/transitions/wipe";
 import React from "react";
+import { Preview } from "../transitions/previews";
 import { Grid } from "./Grid";
 import { TOCItem } from "./TOCItem";
+
+const row: React.CSSProperties = {
+  display: "flex",
+  flexDirection: "row",
+  justifyContent: "space-between",
+};
 
 export const TableOfContents: React.FC = () => {
   return (
@@ -42,28 +52,44 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
       </Grid>
       <h3>Presentations</h3>
+      Hover over an effect to see the preview.
       <Grid>
         <TOCItem link="/docs/transitions/presentations">
           <strong>{"Overview"}</strong>
           <div>List of available presentations</div>
         </TOCItem>
         <TOCItem link="/docs/transitions/presentations/fade">
-          <strong>
-            <code>{"fade()"}</code>
-          </strong>
-          <div>Animate the opacity of the scenes</div>
+          <div style={row}>
+            <Preview effect={fade()} />
+            <div style={{ flex: 1, marginLeft: 10 }}>
+              <strong>
+                <code>{"fade()"}</code>
+              </strong>
+              <div>Animate the opacity of the scenes</div>
+            </div>
+          </div>
         </TOCItem>
         <TOCItem link="/docs/transitions/presentations/slide">
-          <strong>
-            <code>{"slide()"}</code>
-          </strong>
-          <div>Slide in and push out the previous scene</div>
+          <div style={row}>
+            <Preview effect={slide()} />
+            <div style={{ flex: 1, marginLeft: 10 }}>
+              <strong>
+                <code>{"slide()"}</code>
+              </strong>
+              <div>Slide in and push out the previous scene</div>
+            </div>
+          </div>
         </TOCItem>
         <TOCItem link="/docs/transitions/presentations/wipe">
-          <strong>
-            <code>{"wipe()"}</code>
-          </strong>
-          <div>Slide over the previous scene</div>
+          <div style={row}>
+            <Preview effect={wipe()} />
+            <div style={{ flex: 1, marginLeft: 10 }}>
+              <strong>
+                <code>{"wipe()"}</code>
+              </strong>
+              <div>Slide over the previous scene</div>
+            </div>
+          </div>
         </TOCItem>
         <TOCItem link="/docs/transitions/presentations/custom">
           <strong>Custom presentations</strong>
