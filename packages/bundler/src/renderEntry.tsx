@@ -283,8 +283,7 @@ if (typeof window !== 'undefined') {
 
 		const inputProps =
 			typeof window === 'undefined' ||
-			Internals.getRemotionEnvironment() === 'player-development' ||
-			Internals.getRemotionEnvironment() === 'player-production'
+			Internals.getRemotionEnvironment().isPlayer
 				? {}
 				: getInputProps() ?? {};
 
@@ -342,8 +341,7 @@ if (typeof window !== 'undefined') {
 
 		const inputProps =
 			typeof window === 'undefined' ||
-			Internals.getRemotionEnvironment() === 'player-development' ||
-			Internals.getRemotionEnvironment() === 'player-production'
+			Internals.getRemotionEnvironment().isPlayer
 				? {}
 				: getInputProps() ?? {};
 

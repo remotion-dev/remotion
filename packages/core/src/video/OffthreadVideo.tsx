@@ -54,7 +54,7 @@ export const OffthreadVideo: React.FC<
 
 	validateMediaProps(props, 'Video');
 
-	if (environment === 'rendering') {
+	if (environment.isRendering) {
 		return <OffthreadVideoForRendering {...otherProps} />;
 	}
 

@@ -1,42 +1,78 @@
 import {useIsPlayer} from './is-player.js';
 
-export type RemotionEnvironment =
-	| 'preview'
-	| 'rendering'
-	| 'player-development'
-	| 'player-production';
+export type RemotionEnvironment = {
+	isStudio: boolean;
+	isRendering: boolean;
+	isPlayer: boolean;
+	isProduction: boolean;
+};
 
 export const getRemotionEnvironment = (): RemotionEnvironment => {
 	if (process.env.NODE_ENV === 'production') {
 		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
-			return 'player-production';
+			return {
+				isStudio: false,
+				isRendering: false,
+				isPlayer: true,
+				isProduction: true,
+			};
 		}
 
-		return 'rendering';
+		return {
+			isStudio: false,
+			isRendering: true,
+			isPlayer: false,
+			isProduction: true,
+		};
 	}
 
 	// The Vitest framework sets NODE_ENV as test.
 	// Right now we don't need to treat it in a special
 	// way which is good - defaulting to `rendering`.
 	if (process.env.NODE_ENV === 'test') {
-		return 'rendering';
+		return {
+			isStudio: false,
+			isRendering: true,
+			isPlayer: false,
+			isProduction: false,
+		};
 	}
 
 	if (typeof window !== 'undefined' && window.remotion_isPlayer) {
-		return 'player-development';
+		return {
+			isStudio: false,
+			isRendering: false,
+			isPlayer: true,
+			isProduction: false,
+		};
 	}
 
-	return 'preview';
+	return {
+		isStudio: true,
+		isRendering: false,
+		isPlayer: false,
+		isProduction: false,
+	};
 };
 
 export const useRemotionEnvironment = (): RemotionEnvironment => {
 	const isPlayer = useIsPlayer();
 	if (isPlayer) {
 		if (process.env.NODE_ENV === 'production') {
-			return 'player-production';
+			return {
+				isStudio: false,
+				isRendering: false,
+				isPlayer: true,
+				isProduction: true,
+			};
 		}
 
-		return 'player-development';
+		return {
+			isStudio: false,
+			isRendering: false,
+			isPlayer: true,
+			isProduction: false,
+		};
 	}
 
 	return getRemotionEnvironment();

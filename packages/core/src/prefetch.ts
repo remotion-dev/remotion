@@ -42,7 +42,7 @@ export const prefetch = (
 ): FetchAndPreload => {
 	const method = options?.method ?? 'blob-url';
 
-	if (getRemotionEnvironment() === 'rendering') {
+	if (getRemotionEnvironment().isRendering) {
 		return {
 			free: () => undefined,
 			waitUntilDone: () => Promise.resolve(src),

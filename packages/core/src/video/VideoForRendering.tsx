@@ -241,7 +241,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const {src} = props;
 
 	// If video source switches, make new handle
-	if (environment === 'rendering') {
+	if (environment.isRendering) {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (process.env.NODE_ENV === 'test') {

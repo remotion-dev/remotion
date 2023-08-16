@@ -84,9 +84,7 @@ export const ResolveCompositionConfig: React.FC<
 			}
 
 			const inputProps =
-				typeof window === 'undefined' ||
-				getRemotionEnvironment() === 'player-development' ||
-				getRemotionEnvironment() === 'player-production'
+				typeof window === 'undefined' || getRemotionEnvironment().isPlayer
 					? {}
 					: getInputProps() ?? {};
 
@@ -280,8 +278,7 @@ export const useResolvedVideoConfig = (
 						...(composition.defaultProps ?? {}),
 						...(selectedEditorProps ?? {}),
 						...(typeof window === 'undefined' ||
-						getRemotionEnvironment() === 'player-development' ||
-						getRemotionEnvironment() === 'player-production'
+						getRemotionEnvironment().isPlayer
 							? {}
 							: getInputProps() ?? {}),
 					},

@@ -11,7 +11,7 @@ import type {RemotionGifProps} from './props';
 export const Gif = forwardRef<HTMLCanvasElement, RemotionGifProps>(
 	(props, ref) => {
 		const env = Internals.useRemotionEnvironment();
-		if (env === 'rendering') {
+		if (env.isRendering) {
 			return <GifForRendering {...props} ref={ref} />;
 		}
 
