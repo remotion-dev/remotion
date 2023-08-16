@@ -1,7 +1,10 @@
-import { notificationCenter, sendErrorNotification } from './editor/components/Notifications/NotificationCenter';
-import { renderJobsRef } from './editor/components/RenderQueue/context';
-import { studioServerConnectionRef } from './editor/helpers/client-id';
-import type { EventSourceEvent } from './event-source-events';
+import {
+	notificationCenter,
+	sendErrorNotification,
+} from './editor/components/Notifications/NotificationCenter';
+import {renderJobsRef} from './editor/components/RenderQueue/context';
+import {studioServerConnectionRef} from './editor/helpers/client-id';
+import type {EventSourceEvent} from './event-source-events';
 
 let source: EventSource | null = null;
 
@@ -14,7 +17,7 @@ export const subscribeToEvent = (
 	type: EventSourceEvent['type'],
 	listener: (event: EventSourceEvent) => void
 ) => {
-	listeners.push({ type, listener });
+	listeners.push({type, listener});
 
 	return () => {
 		listeners = listeners.filter(
@@ -37,10 +40,9 @@ export const openEventSource = () => {
 					id: 'random',
 					content: 'Do not save hey',
 					created: new Date().getMilliseconds(),
-					duration: 1
-				})
-			}
-			else {
+					duration: 1,
+				});
+			} else {
 				window.location.reload();
 			}
 		}
@@ -76,7 +78,7 @@ export const openEventSource = () => {
 		(source as EventSource).addEventListener(
 			'error',
 			() => {
-				studioServerConnectionRef.current?.set({ type: 'disconnected' });
+				studioServerConnectionRef.current?.set({type: 'disconnected'});
 				// Display an error message that the studio server has disconnected.
 				source?.close();
 
@@ -85,7 +87,7 @@ export const openEventSource = () => {
 					openEventSource();
 				}, 1000);
 			},
-			{ once: true }
+			{once: true}
 		);
 	});
 };
