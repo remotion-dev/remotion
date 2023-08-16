@@ -394,7 +394,35 @@ module.exports = {
         type: "doc",
         id: "transitions/index",
       },
-      items: ["transitions/index", "transitions/transitionseries"],
+      items: [
+        "transitions/index",
+        {
+          type: "category",
+          label: "Timings",
+          link: {
+            type: "doc",
+            id: "transitions/timings/index",
+          },
+          items: [
+            "transitions/timings/springtiming",
+            "transitions/timings/lineartiming",
+          ],
+        },
+        {
+          type: "category",
+          label: "Presentations",
+          link: {
+            type: "doc",
+            id: "transitions/presentations/index",
+          },
+          items: [
+            "transitions/presentations/fade",
+            "transitions/presentations/slide",
+            "transitions/presentations/wipe",
+          ],
+        },
+        "transitions/transitionseries",
+      ],
     },
     {
       type: "category",
