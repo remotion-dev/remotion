@@ -34,7 +34,8 @@
     "vitest": "0.31.1",
     "@types/react": "18.0.26",
     "@types/react-dom": "18.0.10",
-    "@remotion/test-utils": "workspace:*"
+    "@remotion/test-utils": "workspace:*",
+    "@vitejs/plugin-react": "^2.0.0"
   },
   "peerDependencies": {
     "react": ">=16.8.0",
