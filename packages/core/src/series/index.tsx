@@ -9,6 +9,7 @@ type SeriesSequenceProps = PropsWithChildren<
 	{
 		durationInFrames: number;
 		offset?: number;
+		className?: string;
 	} & Pick<SequenceProps, 'layout' | 'name'> &
 		LayoutAndStyle
 >;
