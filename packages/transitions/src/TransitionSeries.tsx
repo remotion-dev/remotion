@@ -1,6 +1,6 @@
 import type { FC, PropsWithChildren } from "react";
 import { Children, useMemo } from "react";
-import type { SequenceProps } from "remotion";
+import type { SequenceProps, SequencePropsWithoutDuration } from "remotion";
 import { Internals, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
 import { slide } from "./presentations/slide.js";
 import type { TransitionSeriesTransitionProps } from "./types.js";
@@ -284,7 +284,7 @@ const TransitionSeriesChildren: FC<{ children: React.ReactNode }> = ({
   return <>{childrenValue}</>;
 };
 
-const TransitionSeries: FC<Omit<SequenceProps, "durationInFrames">> & {
+const TransitionSeries: FC<SequencePropsWithoutDuration> & {
   Sequence: typeof SeriesSequence;
   Transition: typeof TransitionSeriesTransition;
 } = ({ children, ...otherProps }) => {
