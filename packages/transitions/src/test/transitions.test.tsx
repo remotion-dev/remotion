@@ -1,10 +1,16 @@
+/**
+ * @vitest-environment jsdom
+ */
 import { test } from "vitest";
 import { renderToString } from "react-dom/server";
 import { TransitionSeries } from "../TransitionSeries.js";
 import { AbsoluteFill, Internals } from "remotion";
 import { fade } from "../presentations/fade.js";
 import { linearTiming } from "../timings/linear.js";
-import { makeMockCompositionManagerContext } from "@remotion/test-utils";
+import {
+  makeMockCompositionManagerContext,
+  makeTimelineContext,
+} from "@remotion/test-utils";
 
 const renderForFrame = (frame: number, markup: React.ReactNode) => {
   return renderToString(
@@ -13,21 +19,7 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
         value={makeMockCompositionManagerContext()}
       >
         <Internals.Timeline.TimelineContext.Provider
-          value={{
-            rootId: "",
-            frame: {
-              "my-comp": frame,
-            },
-            playing: false,
-            imperativePlaying: {
-              current: false,
-            },
-            playbackRate: 1,
-            setPlaybackRate: () => {
-              throw new Error("playback rate");
-            },
-            audioAndVideoTags: { current: [] },
-          }}
+          value={makeTimelineContext(frame)}
         >
           {markup}
         </Internals.Timeline.TimelineContext.Provider>
@@ -57,7 +49,7 @@ const Letter: React.FC<{
 };
 
 test("Transitions", () => {
-  renderForFrame(
+  const markup = renderForFrame(
     10,
     <TransitionSeries>
       <TransitionSeries.Sequence durationInFrames={60}>
@@ -77,4 +69,5 @@ test("Transitions", () => {
       />
     </TransitionSeries>
   );
+  console.log(markup);
 });
