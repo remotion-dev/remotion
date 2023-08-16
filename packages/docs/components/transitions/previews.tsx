@@ -17,14 +17,16 @@ export const Preview: React.FC<{
     }
 
     const callback = () => {
-      current.seekTo(0);
+      current?.seekTo(0);
       current?.play();
     };
 
-    current.getContainerNode().addEventListener("pointerenter", callback);
+    current?.getContainerNode()?.addEventListener("pointerenter", callback);
 
     return () => {
-      current.getContainerNode().removeEventListener("pointerenter", callback);
+      current
+        ?.getContainerNode()
+        ?.removeEventListener("pointerenter", callback);
     };
   }, []);
 

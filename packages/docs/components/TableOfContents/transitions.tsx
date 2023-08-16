@@ -32,6 +32,10 @@ export const TableOfContents: React.FC = () => {
           <strong>{"Overview"}</strong>
           <div>List of available timings</div>
         </TOCItem>
+        <TOCItem link="/docs/transitions/timings/custom">
+          <strong>Custom timings</strong>
+          <div>Implement your own timing</div>
+        </TOCItem>
         <TOCItem link="/docs/transitions/timings/springtiming">
           <strong>
             <code>{"springTiming()"}</code>
@@ -46,17 +50,17 @@ export const TableOfContents: React.FC = () => {
           </strong>
           <div>Transition linearly with optional Easing</div>
         </TOCItem>
-        <TOCItem link="/docs/transitions/timings/custom">
-          <strong>Custom timings</strong>
-          <div>Implement your own timing</div>
-        </TOCItem>
       </Grid>
       <h3>Presentations</h3>
-      Hover over an effect to see the preview.
+      <p>Hover over an effect to see the preview.</p>
       <Grid>
         <TOCItem link="/docs/transitions/presentations">
           <strong>{"Overview"}</strong>
           <div>List of available presentations</div>
+        </TOCItem>
+        <TOCItem link="/docs/transitions/presentations/custom">
+          <strong>Custom presentations</strong>
+          <div>Implement your own effect</div>
         </TOCItem>
         <TOCItem link="/docs/transitions/presentations/fade">
           <div style={row}>
@@ -90,10 +94,6 @@ export const TableOfContents: React.FC = () => {
               <div>Slide over the previous scene</div>
             </div>
           </div>
-        </TOCItem>
-        <TOCItem link="/docs/transitions/presentations/custom">
-          <strong>Custom presentations</strong>
-          <div>Implement your own effect</div>
         </TOCItem>
       </Grid>
     </div>
