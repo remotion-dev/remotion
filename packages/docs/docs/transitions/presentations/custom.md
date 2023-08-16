@@ -1,6 +1,4 @@
 ---
-title: Timings
 crumb: "@remotion/transitions"
+title: "Custom presentations"
 ---
-
-Timings

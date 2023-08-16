@@ -395,7 +395,6 @@ module.exports = {
         id: "transitions/index",
       },
       items: [
-        "transitions/index",
         {
           type: "category",
           label: "Timings",
@@ -406,6 +405,7 @@ module.exports = {
           items: [
             "transitions/timings/springtiming",
             "transitions/timings/lineartiming",
+            "transitions/timings/custom",
           ],
         },
         {
@@ -419,6 +419,7 @@ module.exports = {
             "transitions/presentations/fade",
             "transitions/presentations/slide",
             "transitions/presentations/wipe",
+            "transitions/presentations/custom",
           ],
         },
         "transitions/transitionseries",

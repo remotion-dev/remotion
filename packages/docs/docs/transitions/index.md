@@ -9,11 +9,9 @@ import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
 import {TableOfContents} from '../../components/TableOfContents/transitions';
 
-This package provides the `<TransitionSeries>` component for transitioning between two scenes as well as timing presets.
+This package provides the [`<TransitionSeries>`](/docs/transitions/transitionseries) component for transitioning between two scenes as well as timing presets.
 
 ## Installation
-
-Install `@remotion/transitions`
 
 <Tabs defaultValue="npm" values={[
 { label: 'npm', value: 'npm', },

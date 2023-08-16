@@ -82,7 +82,7 @@ Takes two props:
 - `presentation?`: A presentation of type `TransitionPresentation`. If not specified, the default value is `slide()`. See [Presentations](/docs/transitions/presentations) for more information.
 
 Must be a direct child of `<TransitionSeries>`.  
-Must be between two `<TransitionSeries.Sequence>` components or the first or the last component to create an entrance or exit transition.  
+At least one `<TransitionSeries.Sequence>` component must come before or after the `<TransitionSeries.Transition>` component.  
 It is not allowed for two `<TransitionSeries.Transition>` components to be next to each other.
 
 ## See also
