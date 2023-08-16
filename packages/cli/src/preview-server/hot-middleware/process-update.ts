@@ -11,8 +11,8 @@
  * Original copyright Tobias Koppers @sokra (MIT license)
  */
 
-import { notificationCenter } from '../../editor/components/Notifications/NotificationCenter';
-import type { HotMiddlewareOptions, ModuleMap } from './types';
+import {notificationCenter} from '../../editor/components/Notifications/NotificationCenter';
+import type {HotMiddlewareOptions, ModuleMap} from './types';
 
 if (!__webpack_module__.hot) {
 	throw new Error('[Fast refresh] Hot Module Replacement is disabled.');
@@ -21,7 +21,7 @@ if (!__webpack_module__.hot) {
 const hmrDocsUrl = 'https://webpack.js.org/concepts/hot-module-replacement/'; // eslint-disable-line max-len
 
 let lastHash: string | undefined;
-const failureStatuses = { abort: 1, fail: 1 };
+const failureStatuses = {abort: 1, fail: 1};
 const applyOptions: AcceptOptions = {
 	ignoreUnaccepted: true,
 	ignoreDeclined: true,
@@ -29,7 +29,7 @@ const applyOptions: AcceptOptions = {
 	onUnaccepted(data) {
 		console.warn(
 			'Ignored an update to unaccepted module ' +
-			(data.chain ?? []).join(' -> ')
+				(data.chain ?? []).join(' -> ')
 		);
 	},
 	onDeclined(data) {
@@ -41,10 +41,10 @@ const applyOptions: AcceptOptions = {
 		console.error(data.error);
 		console.warn(
 			'Ignored an error while updating module ' +
-			data.moduleId +
-			' (' +
-			data.type +
-			')'
+				data.moduleId +
+				' (' +
+				data.type +
+				')'
 		);
 	},
 };
@@ -59,7 +59,7 @@ export const processUpdate = function (
 	moduleMap: ModuleMap,
 	options: HotMiddlewareOptions
 ) {
-	const { reload } = options;
+	const {reload} = options;
 	if (!upToDate(hash) && __webpack_module__.hot?.status() === 'idle') {
 		check();
 	}
@@ -124,12 +124,12 @@ export const processUpdate = function (
 			if (options.warn) {
 				console.warn(
 					"[Fast refresh] The following modules couldn't be hot updated: " +
-					'(Full reload needed)\n' +
-					'This is usually because the modules which have changed ' +
-					'(and their parents) do not know how to hot reload themselves. ' +
-					'See ' +
-					hmrDocsUrl +
-					' for more details.'
+						'(Full reload needed)\n' +
+						'This is usually because the modules which have changed ' +
+						'(and their parents) do not know how to hot reload themselves. ' +
+						'See ' +
+						hmrDocsUrl +
+						' for more details.'
 				);
 				unacceptedModules.forEach((moduleId) => {
 					console.warn(
@@ -175,10 +175,9 @@ export const processUpdate = function (
 					id: 'random',
 					content: 'Do not save hey',
 					created: new Date().getMilliseconds(),
-					duration: 1
-				})
-			}
-			else {
+					duration: 1,
+				});
+			} else {
 				window.location.reload();
 			}
 		}
@@ -195,10 +194,9 @@ export const processUpdate = function (
 				id: 'random',
 				content: 'Do not save hey',
 				created: new Date().getMilliseconds(),
-				duration: 1
-			})
-		}
-		else {
+				duration: 1,
+			});
+		} else {
 			window.location.reload();
 		}
 	}
