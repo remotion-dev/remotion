@@ -1,10 +1,16 @@
-import type {RenderJob} from '../../preview-server/render-queue/job';
-import {truthy} from '../../truthy';
+import type { RenderJob } from '../../preview-server/render-queue/job';
+import { truthy } from '../../truthy';
 
 let currentVideoId: string | null = null;
 let unsavedProps = false;
 let tabInactive = false;
 let renderJobs: RenderJob[] = [];
+
+declare global {
+	interface Window {
+		unsavedProps: boolean;
+	}
+}
 
 export const setCurrentVideoId = (id: string | null) => {
 	currentVideoId = id;
@@ -12,6 +18,10 @@ export const setCurrentVideoId = (id: string | null) => {
 };
 
 export const setUnsavedProps = (unsaved: boolean) => {
+	if (typeof window !== 'undefined') {
+		window.unsavedProps = unsaved;
+	}
+
 	unsavedProps = unsaved;
 };
 
