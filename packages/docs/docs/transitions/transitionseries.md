@@ -6,6 +6,8 @@ title: "<TransitionSeries>"
 
 _available from v4.0.21_
 
+The `<TransitionSeries>` component behaves the same as the [`<Series>`](/docs/series) component, but allows for `<TransitionSeries.Transition>` components to be rendered between `<TransitionSeries.Sequence>` components.
+
 ```tsx twoslash title="MyComp.tsx"
 import { AbsoluteFill } from "remotion";
 const Fill = ({ color }: { color: string }) => (

@@ -1,80 +1,82 @@
 {
-	"name": "@remotion/transitions",
-	"version": "4.0.20",
-	"description": "Transition presets for Remotion",
-	"sideEffects": false,
-	"type": "module",
-	"main": "dist/index.js",
-	"types": "dist/index.d.ts",
-	"scripts": {
-		"lint": "eslint src --ext ts,tsx",
-		"watch": "tsc -w",
-		"build": "tsc -d"
-	},
-	"author": "Jonny Burger",
-	"contributors": [],
-	"license": "MIT",
-	"repository": {
-		"url": "https://github.com/remotion-dev/remotion"
-	},
-	"bugs": {
-		"url": "https://github.com/remotion-dev/remotion/issues"
-	},
-	"dependencies": {
-		"remotion": "workspace:*"
-	},
-	"devDependencies": {
-		"@jonny/eslint-config": "3.0.273",
-		"eslint": "8.42.0",
-		"prettier": "^2.0.5",
-		"prettier-plugin-organize-imports": "^3.2.2",
-		"remotion": "workspace:*",
-		"react": "18.0.0",
-		"react-dom": "18.0.0",
-		"@types/react": "18.0.26",
-		"@types/react-dom": "18.0.10"
-	},
-	"peerDependencies": {
-		"react": ">=16.8.0",
-		"react-dom": ">=16.8.0"
-	},
-	"keywords": [
-		"remotion",
-		"transitions"
-	],
-	"publishConfig": {
-		"access": "public"
-	},
-	"exports": {
-		".": {
-			"import": "./dist/index.js",
-			"types": "./dist/index.d.ts"
-		},
-		"./fade": {
-			"import": "./dist/presentations/fade.js",
-			"types": "./dist/presentations/fade.d.ts"
-		},
-		"./slide": {
-			"import": "./dist/presentations/slide.js",
-			"types": "./dist/presentations/slide.d.ts"
-		},
-		"./wipe": {
-			"import": "./dist/presentations/wipe.js",
-			"types": "./dist/presentations/wipe.d.ts"
-		},
-		"./package.json": "./package.json"
-	},
-	"typesVersions": {
-		">=1.0": {
-			"wipe": [
-				"dist/presentations/wipe.d.ts"
-			],
-			"slide": [
-				"dist/presentations/slide.d.ts"
-			],
-			"fade": [
-				"dist/presentations/fade.d.ts"
-			]
-		}
-	}
+  "name": "@remotion/transitions",
+  "version": "4.0.20",
+  "description": "Transition presets for Remotion",
+  "sideEffects": false,
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "lint": "eslint src --ext ts,tsx",
+    "watch": "tsc -w",
+    "build": "tsc -d"
+  },
+  "author": "Jonny Burger",
+  "contributors": [],
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/remotion-dev/remotion"
+  },
+  "bugs": {
+    "url": "https://github.com/remotion-dev/remotion/issues"
+  },
+  "dependencies": {
+    "remotion": "workspace:*"
+  },
+  "devDependencies": {
+    "@jonny/eslint-config": "3.0.273",
+    "eslint": "8.42.0",
+    "prettier": "^2.7.1",
+    "prettier-plugin-organize-imports": "^3.2.2",
+    "remotion": "workspace:*",
+    "react": "18.0.0",
+    "react-dom": "18.0.0",
+    "vitest": "0.31.1",
+    "@types/react": "18.0.26",
+    "@types/react-dom": "18.0.10",
+    "@remotion/test-utils": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "keywords": [
+    "remotion",
+    "transitions"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./fade": {
+      "import": "./dist/presentations/fade.js",
+      "types": "./dist/presentations/fade.d.ts"
+    },
+    "./slide": {
+      "import": "./dist/presentations/slide.js",
+      "types": "./dist/presentations/slide.d.ts"
+    },
+    "./wipe": {
+      "import": "./dist/presentations/wipe.js",
+      "types": "./dist/presentations/wipe.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "typesVersions": {
+    ">=1.0": {
+      "wipe": [
+        "dist/presentations/wipe.d.ts"
+      ],
+      "slide": [
+        "dist/presentations/slide.d.ts"
+      ],
+      "fade": [
+        "dist/presentations/fade.d.ts"
+      ]
+    }
+  }
 }
