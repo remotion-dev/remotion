@@ -8,6 +8,17 @@ _available from v4.0.21_
 
 The `<TransitionSeries>` component behaves the same as the [`<Series>`](/docs/series) component, but allows for `<TransitionSeries.Transition>` components to be rendered between `<TransitionSeries.Sequence>` components.
 
+Each transition consists of two parts:
+
+<Step>1</Step> <code>presentation</code>: The effect that is being used, for example <code>fade()</code> or <code>wipe()</code>.<br/>
+
+<Step>2</Step> <code>timing</code>: The duration and the progress curve, for example <code>springTiming()</code> or <code>linearTiming()</code>
+
+<br/>
+<br/>
+
+This package has some presentations and timings built-in, but custom ones can be created as well.
+
 ```tsx twoslash title="MyComp.tsx"
 import { AbsoluteFill } from "remotion";
 const Fill = ({ color }: { color: string }) => (
@@ -49,4 +60,34 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-The `<TransitionSeries>` component inherits the [`from`](/docs/sequence#from), [`name`](/docs/sequence#name), , [`style`](/docs/sequence#style) and [`layout`](/docs/sequence#layout)
+## API
+
+### `<TransitionSeries>`
+
+Inherits the [`from`](/docs/sequence#from), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), [`style`](/docs/sequence#style) and [`layout`](/docs/sequence#layout) props from [`<Sequence>`](/docs/sequence).
+
+The `<TransitionSeries>` component can only contain `<TransitionSeries.Sequence>` and `<TransitionSeries.Transition>` components.
+
+### `<TransitionSeries.Sequence>`
+
+Inherits the [`durationInFrames`](/docs/sequence#durationinframes), [`name`](/docs/sequence#name), [`className`](/docs/sequence#classname), [`style`](/docs/sequence#style) and [`layout`](/docs/sequence#layout) props from [`<Sequence>`](/docs/sequence).
+
+As children, put the contents of your scene.
+
+### `<TransitionSeries.Transition>`
+
+Takes two props:
+
+- `timing`: A timing of type `TransitionTiming`. See [Timings](/docs/transitions/timings) for more information.
+- `presentation?`: A presentation of type `TransitionPresentation`. If not specified, the default value is `slide()`. See [Presentations](/docs/transitions/presentations) for more information.
+
+Must be a direct child of `<TransitionSeries>`.  
+Must be between two `<TransitionSeries.Sequence>` components or the first or the last component to create an entrance or exit transition.  
+It is not allowed for two `<TransitionSeries.Transition>` components to be next to each other.
+
+## See also
+
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/transitions/src/TransitionSeries.tsx)
+- [Timings](/docs/transitions/timings)
+- [Presentations](/docs/transitions/presentations)
+- [`<Series>`](/docs/series)
