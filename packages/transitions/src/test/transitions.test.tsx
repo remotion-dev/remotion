@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { test } from "vitest";
+import { expect, test } from "vitest";
 import { renderToString } from "react-dom/server";
 import { TransitionSeries } from "../TransitionSeries.js";
 import { AbsoluteFill, Internals } from "remotion";
@@ -48,26 +48,29 @@ const Letter: React.FC<{
   );
 };
 
-test("Transitions", () => {
-  const markup = renderForFrame(
-    10,
-    <TransitionSeries>
-      <TransitionSeries.Sequence durationInFrames={60}>
-        <Letter color="green">C</Letter>
-      </TransitionSeries.Sequence>
-      <TransitionSeries.Transition
-        presentation={fade({})}
-        timing={linearTiming({
-          durationInFrames: 40,
-        })}
-      />
-      <TransitionSeries.Transition
-        presentation={fade({})}
-        timing={linearTiming({
-          durationInFrames: 40,
-        })}
-      />
-    </TransitionSeries>
+test("Should throw if two transitions in a row", () => {
+  expect(() => {
+    return renderForFrame(
+      10,
+      <TransitionSeries>
+        <TransitionSeries.Sequence durationInFrames={60}>
+          <Letter color="green">C</Letter>
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition
+          presentation={fade({})}
+          timing={linearTiming({
+            durationInFrames: 40,
+          })}
+        />
+        <TransitionSeries.Transition
+          presentation={fade({})}
+          timing={linearTiming({
+            durationInFrames: 40,
+          })}
+        />
+      </TransitionSeries>
+    );
+  }).toThrow(
+    "A <TransitionSeries.Transition /> component must not be followed by another <TransitionSeries.Transition /> component (nth children = 1 and 2)"
   );
-  console.log(markup);
 });
