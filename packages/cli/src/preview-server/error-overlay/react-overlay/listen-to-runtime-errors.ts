@@ -1,6 +1,6 @@
-import { notificationCenter } from '../../../editor/components/Notifications/NotificationCenter';
-import { setErrorsRef } from '../remotion-overlay/Overlay';
-import { massageWarning } from './effects/format-warning';
+import {notificationCenter} from '../../../editor/components/Notifications/NotificationCenter';
+import {setErrorsRef} from '../remotion-overlay/Overlay';
+import {massageWarning} from './effects/format-warning';
 import {
 	permanentRegister as permanentRegisterConsole,
 	registerReactStack,
@@ -24,8 +24,8 @@ import {
 	register as registerPromise,
 	unregister as unregisterPromise,
 } from './effects/unhandled-rejection';
-import { getStackFrames } from './utils/get-stack-frames';
-import type { SymbolicatedStackFrame } from './utils/stack-frame';
+import {getStackFrames} from './utils/get-stack-frames';
+import type {SymbolicatedStackFrame} from './utils/stack-frame';
 
 export type ErrorRecord = {
 	error: Error;
@@ -78,10 +78,9 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 				id: 'random',
 				content: 'Do not save hey',
 				created: new Date().getMilliseconds(),
-				duration: 1
-			})
-		}
-		else {
+				duration: 1,
+			});
+		} else {
 			window.location.reload();
 		}
 	} else {
@@ -108,7 +107,7 @@ export function listenToRuntimeErrors(crash: () => void) {
 	registerReactStack();
 	permanentRegisterConsole('error', (d) => {
 		if (d.type === 'webpack-error') {
-			const { message, frames } = d;
+			const {message, frames} = d;
 			const data = massageWarning(message, frames);
 
 			crashWithFramesRunTime({
