@@ -96,6 +96,7 @@ export {continueRender, delayRender} from './delay-render.js';
 export * from './easing.js';
 export * from './Folder.js';
 export * from './freeze.js';
+export {getRemotionEnvironment} from './get-environment.js';
 export {getStaticFiles, StaticFile} from './get-static-files.js';
 export * from './IFrame.js';
 export * from './Img.js';

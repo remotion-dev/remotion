@@ -104,6 +104,7 @@ module.exports = {
         "easing",
         "null",
         "clipper",
+        "get-remotion-environment",
       ],
     },
     {

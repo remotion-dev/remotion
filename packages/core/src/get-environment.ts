@@ -7,6 +7,10 @@ export type RemotionEnvironment = {
 	isProduction: boolean;
 };
 
+/**
+ * @description Provides information obout the Remotion Environment
+ * @see [Documentation](https://www.remotion.dev/docs/get-remotion-environment)
+ */
 export const getRemotionEnvironment = (): RemotionEnvironment => {
 	if (process.env.NODE_ENV === 'production') {
 		if (typeof window !== 'undefined' && window.remotion_isPlayer) {
