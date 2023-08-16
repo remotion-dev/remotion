@@ -364,8 +364,8 @@ importers:
         specifier: ^10.8.0
         version: 10.8.0(@types/node@18.14.6)(typescript@4.9.5)
       vitest:
-        specifier: 0.24.3
-        version: 0.24.3
+        specifier: 0.31.1
+        version: 0.31.1(jsdom@20.0.1)
 
   packages/cloudrun/container:
     dependencies:
@@ -1707,6 +1707,36 @@ importers:
         specifier: ^1.2.2
         version: 1.2.2
 
+  packages/test-utils:
+    devDependencies:
+      '@jonny/eslint-config':
+        specifier: 3.0.266
+        version: 3.0.266(eslint@8.42.0)(typescript@4.9.5)
+      '@types/node':
+        specifier: 18.14.6
+        version: 18.14.6
+      '@types/react':
+        specifier: 18.0.26
+        version: 18.0.26
+      eslint:
+        specifier: 8.42.0
+        version: 8.42.0
+      prettier:
+        specifier: ^2.7.1
+        version: 2.8.4
+      prettier-plugin-organize-imports:
+        specifier: ^3.2.2
+        version: 3.2.2(prettier@2.8.4)(typescript@4.9.5)
+      react:
+        specifier: 18.0.0
+        version: 18.0.0
+      react-dom:
+        specifier: 18.0.0
+        version: 18.0.0(react@18.0.0)
+      remotion:
+        specifier: workspace:*
+        version: link:../core
+
   packages/three:
     dependencies:
       remotion:
@@ -1768,6 +1798,9 @@ importers:
       '@jonny/eslint-config':
         specifier: 3.0.273
         version: 3.0.273(eslint@8.42.0)(typescript@4.9.5)
+      '@remotion/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       '@types/react':
         specifier: 18.0.26
         version: 18.0.26
@@ -1778,7 +1811,7 @@ importers:
         specifier: 8.42.0
         version: 8.42.0
       prettier:
-        specifier: ^2.0.5
+        specifier: ^2.7.1
         version: 2.8.4
       prettier-plugin-organize-imports:
         specifier: ^3.2.2
@@ -1789,6 +1822,9 @@ importers:
       react-dom:
         specifier: 18.0.0
         version: 18.0.0(react@18.0.0)
+      vitest:
+        specifier: 0.31.1
+        version: 0.31.1(jsdom@20.0.1)
 
   packages/zod-types:
     dependencies:
@@ -8778,7 +8814,7 @@ packages:
       chalk: 4.1.2
       dom-accessibility-api: 0.5.14
       lz-string: 1.4.4
-      pretty-format: 27.2.4
+      pretty-format: 27.5.1
     dev: true
 
   /@testing-library/react@13.1.1(react-dom@18.0.0)(react@18.0.0):
@@ -20667,12 +20703,6 @@ packages:
     resolution: {integrity: sha512-6fPc+R4ihwqP6N/aIv2f1gMH8lOVtWQHoqC4yK6oSDVVocumAsfCqjkXnqiYMhmMwS/mEHLp7Vehlt3ql6lEig==}
     engines: {node: '>=8'}
 
-  /strip-literal@0.4.2:
-    resolution: {integrity: sha512-pv48ybn4iE1O9RLgCAN0iU4Xv7RlBTiit6DKmMiErbs9x1wH6vXBs45tWc0H5wUIF6TLTrKweqkmYF/iraQKNw==}
-    dependencies:
-      acorn: 8.8.2
-    dev: true
-
   /strip-literal@1.0.1:
     resolution: {integrity: sha512-QZTsipNpa2Ppr6v1AmJHESqJ3Uz247MUS0OjrnnZjFAvEoWqxuyFuXn2xLgMtRnijJShAa1HL0gtJyUs7u7n3Q==}
     dependencies:
@@ -21095,19 +21125,9 @@ packages:
   /tinybench@2.5.0:
     resolution: {integrity: sha512-kRwSG8Zx4tjF9ZiyH4bhaebu+EDz1BOx9hOigYHlUW4xxI/wKIUQUqo018UlU4ar6ATPBsaMrdbKZ+tmPdohFA==}
 
-  /tinypool@0.3.0:
-    resolution: {integrity: sha512-NX5KeqHOBZU6Bc0xj9Vr5Szbb1j8tUHIeD18s41aDJaPeC5QTdEhK0SpdpUrZlj2nv5cctNcSjaKNanXlfcVEQ==}
-    engines: {node: '>=14.0.0'}
-    dev: true
-
   /tinypool@0.5.0:
     resolution: {integrity: sha512-paHQtnrlS1QZYKF/GnLoOM/DN9fqaGOFbCbxzAhwniySnzl9Ebk8w73/dd34DAhe/obUbPAOldTyYXQZxnPBPQ==}
     engines: {node: '>=14.0.0'}
-
-  /tinyspy@1.0.2:
-    resolution: {integrity: sha512-bSGlgwLBYf7PnUsQ6WOc6SJ3pGOcd+d8AA6EUnLDDM0kWEstC1JIlSZA3UNliDXhd9ABoS7hiRBDCu+XP/sf1Q==}
-    engines: {node: '>=14.0.0'}
-    dev: true
 
   /tinyspy@2.1.0:
     resolution: {integrity: sha512-7eORpyqImoOvkQJCSkL0d0mB4NHHIFAy4b1u8PHdDa7SjGS2njzl6/lyGoZLm+eyYEtlUmFGE0rFj66SWxZgQQ==}
@@ -22112,47 +22132,6 @@ packages:
     dependencies:
       vite: 4.1.3(@types/node@18.14.6)
     dev: false
-
-  /vitest@0.24.3:
-    resolution: {integrity: sha512-aM0auuPPgMSstWvr851hB74g/LKaKBzSxcG3da7ejfZbx08Y21JpZmbmDYrMTCGhVZKqTGwzcnLMwyfz2WzkhQ==}
-    engines: {node: '>=v14.16.0'}
-    hasBin: true
-    peerDependencies:
-      '@edge-runtime/vm': '*'
-      '@vitest/browser': '*'
-      '@vitest/ui': '*'
-      happy-dom: '*'
-      jsdom: '*'
-    peerDependenciesMeta:
-      '@edge-runtime/vm':
-        optional: true
-      '@vitest/browser':
-        optional: true
-      '@vitest/ui':
-        optional: true
-      happy-dom:
-        optional: true
-      jsdom:
-        optional: true
-    dependencies:
-      '@types/chai': 4.3.5
-      '@types/chai-subset': 1.3.3
-      '@types/node': 18.14.6
-      chai: 4.3.7
-      debug: 4.3.4(supports-color@5.5.0)
-      local-pkg: 0.4.3
-      strip-literal: 0.4.2
-      tinybench: 2.5.0
-      tinypool: 0.3.0
-      tinyspy: 1.0.2
-      vite: 3.0.0
-    transitivePeerDependencies:
-      - less
-      - sass
-      - stylus
-      - supports-color
-      - terser
-    dev: true
 
   /vitest@0.31.1(jsdom@20.0.1):
     resolution: {integrity: sha512-/dOoOgzoFk/5pTvg1E65WVaobknWREN15+HF+0ucudo3dDG/vCZoXTQrjIfEaWvQXmqScwkRodrTbM/ScMpRcQ==}
