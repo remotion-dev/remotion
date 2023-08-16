@@ -50,6 +50,7 @@ import {
 	ModalContainer,
 } from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
+import {notificationCenter} from '../Notifications/NotificationCenter';
 import {
 	optionsSidebarTabs,
 	persistSelectedOptionsSidebarPanel,
@@ -719,8 +720,21 @@ const RenderModal: React.FC<
 	]);
 
 	useEffect(() => {
+		const listenToChanges = () => {
+			if (window.unsavedProps) {
+				notificationCenter.current?.addNotification({
+					id: 'random',
+					content: 'Do not save hey',
+					created: new Date().getMilliseconds(),
+					duration: 1,
+				});
+			}
+		};
+
+		window.addEventListener('beforeunload', listenToChanges);
 		return () => {
 			isMounted.current = false;
+			window.removeEventListener('beforeunload', listenToChanges);
 		};
 	}, []);
 
