@@ -48,3 +48,5 @@ export const MyComp: React.FC = () => {
   );
 };
 ```
+
+The `<TransitionSeries>` component inherits the [`from`](/docs/sequence#from), [`name`](/docs/sequence#name), , [`style`](/docs/sequence#style) and [`layout`](/docs/sequence#layout)
