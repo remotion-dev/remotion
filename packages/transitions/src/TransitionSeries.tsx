@@ -20,6 +20,7 @@ type SeriesSequenceProps = PropsWithChildren<
   {
     durationInFrames: number;
     offset?: number;
+    className?: number;
   } & Pick<SequenceProps, "layout" | "name">
 >;
 
