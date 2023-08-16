@@ -1,5 +1,5 @@
-import type { RenderJob } from '../../preview-server/render-queue/job';
-import { truthy } from '../../truthy';
+import type {RenderJob} from '../../preview-server/render-queue/job';
+import {truthy} from '../../truthy';
 
 let currentVideoId: string | null = null;
 let unsavedProps = false;
