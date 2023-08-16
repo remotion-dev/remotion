@@ -139,10 +139,7 @@ export const Composition = <
 
 	const canUseComposition = useContext(CanUseRemotionHooks);
 	if (canUseComposition) {
-		if (
-			environment === 'player-development' ||
-			environment === 'player-production'
-		) {
+		if (environment.isPlayer) {
 			throw new Error(
 				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.'
 			);
@@ -199,7 +196,7 @@ export const Composition = <
 	]);
 	const resolved = useResolvedVideoConfig(id);
 
-	if (environment === 'preview' && video && video.component === lazy) {
+	if (environment.isStudio && video && video.component === lazy) {
 		const Comp = lazy;
 		if (resolved === null || resolved.type !== 'success') {
 			return null;
@@ -222,7 +219,7 @@ export const Composition = <
 		);
 	}
 
-	if (environment === 'rendering' && video && video.component === lazy) {
+	if (environment.isRendering && video && video.component === lazy) {
 		const Comp = lazy;
 		if (resolved === null || resolved.type !== 'success') {
 			return null;

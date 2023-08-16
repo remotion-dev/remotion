@@ -72,7 +72,7 @@ const VideoForwardingFunction: React.ForwardRefRenderFunction<
 
 	validateMediaProps(props, 'Video');
 
-	if (environment === 'rendering') {
+	if (environment.isRendering) {
 		return (
 			<VideoForRendering onDuration={onDuration} {...otherProps} ref={ref} />
 		);

@@ -22,7 +22,7 @@ export const getGifDurationInSeconds = async (src: string) => {
 		return calcDuration(inCache);
 	}
 
-	if (Internals.getRemotionEnvironment() === 'rendering') {
+	if (Internals.getRemotionEnvironment().isRendering) {
 		const renderingParsed = parseWithWorker(resolvedSrc);
 		const resolved = await renderingParsed.prom;
 		volatileGifCache.set(resolvedSrc, resolved);

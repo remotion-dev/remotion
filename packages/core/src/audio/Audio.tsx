@@ -92,7 +92,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	validateMediaProps(props, 'Audio');
 
-	if (environment === 'rendering') {
+	if (environment.isRendering) {
 		return (
 			<AudioForRendering
 				onDuration={onDuration}

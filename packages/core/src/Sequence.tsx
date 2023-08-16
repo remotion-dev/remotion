@@ -131,7 +131,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 	}, [children, name]);
 
 	useEffect(() => {
-		if (environment !== 'preview') {
+		if (!environment.isStudio) {
 			return;
 		}
 

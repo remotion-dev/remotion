@@ -22,10 +22,7 @@ export const getInputProps = () => {
 		return {};
 	}
 
-	if (
-		getRemotionEnvironment() === 'player-development' ||
-		getRemotionEnvironment() === 'player-production'
-	) {
+	if (getRemotionEnvironment().isPlayer) {
 		throw new Error(
 			'You cannot call `getInputProps()` from a <Player>. Instead, the props are available as React props from component that you passed as `component` prop.'
 		);

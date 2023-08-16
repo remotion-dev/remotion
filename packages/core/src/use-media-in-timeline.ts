@@ -94,7 +94,7 @@ export const useMediaInTimeline = ({
 			throw new Error('No src passed');
 		}
 
-		if (environment !== 'preview' && process.env.NODE_ENV !== 'test') {
+		if (!environment.isStudio && process.env.NODE_ENV !== 'test') {
 			return;
 		}
 
