@@ -84,10 +84,15 @@ export const quotasIncreaseCommand = async () => {
 	Log.info(
 		`Sending request to AWS to increase concurrency limit from ${concurrencyCurrent} to ${newLimit}.`
 	);
-	await confirmCli({
-		allowForceFlag: true,
-		delMessage: 'Send? (Y/n)',
-	});
+	if (
+		!(await confirmCli({
+			allowForceFlag: true,
+			delMessage: 'Send? (Y/n)',
+		}))
+	) {
+		quit(1);
+	}
+
 	try {
 		await getServiceQuotasClient(region).send(
 			new RequestServiceQuotaIncreaseCommand({
