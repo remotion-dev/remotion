@@ -4,3 +4,5 @@ title: "fade()"
 ---
 
 fade
+
+<Demo type="fade" />

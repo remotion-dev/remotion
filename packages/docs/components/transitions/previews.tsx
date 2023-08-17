@@ -2,10 +2,13 @@ import type { PlayerRef } from "@remotion/player";
 import { Player } from "@remotion/player";
 import type { TransitionPresentation } from "@remotion/transitions";
 import { springTiming, TransitionSeries } from "@remotion/transitions";
+import { fade } from "@remotion/transitions/fade";
+import { slide } from "@remotion/transitions/slide";
+import { wipe } from "@remotion/transitions/wipe";
 import React, { useEffect, useRef } from "react";
 import { AbsoluteFill } from "remotion";
 
-export const Preview: React.FC<{
+export const PresentationPreview: React.FC<{
   effect: TransitionPresentation<Record<string, unknown>>;
 }> = ({ effect }) => {
   const ref = useRef<PlayerRef>(null);
@@ -108,4 +111,16 @@ export const SampleTransition: React.FC<{
       </TransitionSeries.Sequence>
     </TransitionSeries>
   );
+};
+
+export const FadeDemo: React.FC = () => {
+  return <SampleTransition effect={fade()} />;
+};
+
+export const SlideDemo: React.FC = () => {
+  return <SampleTransition effect={slide()} />;
+};
+
+export const WipeDemo: React.FC = () => {
+  return <SampleTransition effect={wipe()} />;
 };

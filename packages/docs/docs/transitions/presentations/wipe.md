@@ -3,4 +3,4 @@ crumb: "@remotion/transitions - Presentations"
 title: "wipe()"
 ---
 
-wipe
+<Demo type="wipe" />
