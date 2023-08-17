@@ -331,8 +331,9 @@ const renderOptions: Fig.Option[] = [
     },
   },
   {
-    name: "--preset",
-    description: "Presets balance encoding speed and compression quality, with slower presets achieving better compression., need --codec=h264 to be set",
+    name: "--preset-profile",
+    description:
+      "Presets balance encoding speed and compression quality, with slower presets achieving better compression., need --codec=h264 to be set",
     args: {
       suggestions: [
         "ultrafast",
