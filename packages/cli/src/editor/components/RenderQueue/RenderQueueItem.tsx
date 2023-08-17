@@ -1,6 +1,10 @@
 import React from 'react';
 import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {Row, Spacing} from '../layout';
+import {
+	RenderQueueCopyToClipboard,
+	supportsCopyingToClipboard,
+} from './RenderQueueCopyToClipboard';
 import {RenderQueueError} from './RenderQueueError';
 import {RenderQueueCancelButton} from './RenderQueueItemCancelButton';
 import {RenderQueueItemStatus} from './RenderQueueItemStatus';
@@ -57,6 +61,9 @@ export const RenderQueueItem: React.FC<{
 				</div>
 			</div>
 			<Spacing x={1} />
+			{supportsCopyingToClipboard(job) ? (
+				<RenderQueueCopyToClipboard job={job} />
+			) : null}
 			{job.status === 'done' || job.status === 'failed' ? (
 				<RenderQueueRepeatItem job={job} />
 			) : null}
