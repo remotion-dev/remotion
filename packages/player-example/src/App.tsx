@@ -623,7 +623,7 @@ export default ({
 	const [outFrame, setOutFrame] = useState<number | null>(null);
 	const [alwaysShowControls, setAlwaysShowControls] = useState(false);
 	const [showVolumeControls, setShowVolumeControls] = useState(true);
-	const [showPlaybackRateControl, setPlaybackRateControl] = useState(false);
+	const [showPlaybackRateControl, setPlaybackRateControl] = useState(true);
 
 	const ref = useRef<PlayerRef>(null);
 

@@ -1,3 +1,6 @@
+import {staticFile, Video} from 'remotion';
+import {AbsoluteFill} from 'remotion';
+import {useVideoConfig} from 'remotion';
 import {Thumbnail} from '@remotion/player';
 import React, {ComponentType} from 'react';
 import App from '../src/App';
@@ -17,6 +20,33 @@ const Car = () =>
 		);
 	});
 
+interface Props {
+	videoUrl: string;
+}
+
+export const MyComposition: React.FC<Props> = (props) => {
+	const {width, height} = useVideoConfig();
+
+	return (
+		<div
+			style={{
+				width,
+				height,
+				position: 'absolute',
+				left: 0,
+				top: 0,
+			}}
+		>
+			<AbsoluteFill style={{height: '50%', top: 0}}>
+				<Video src={staticFile('face.mp4')} />
+			</AbsoluteFill>
+			<AbsoluteFill style={{height: '50%', top: '50%'}}>
+				<Video src={staticFile('screen.mp4')} />
+			</AbsoluteFill>
+		</div>
+	);
+};
+
 function Index() {
 	return (
 		<React.StrictMode>
@@ -29,27 +59,8 @@ function Index() {
 					justifyContent: 'center',
 				}}
 			>
-				<App component={CarSlideshow} durationInFrames={500} />
-				<App component={VideoautoplayDemo} durationInFrames={2700} />
+				<App component={MyComposition} durationInFrames={500} />
 			</div>
-			<h2>Thumbnail</h2>
-			<Thumbnail
-				component={CarSlideshow}
-				frameToDisplay={480}
-				compositionHeight={200}
-				compositionWidth={500}
-				durationInFrames={5000}
-				fps={30}
-				style={{
-					border: '4px solid red',
-				}}
-				inputProps={{
-					title: 'Hi there',
-					bgColor: 'black',
-					color: 'white',
-				}}
-			/>
-			<ThumbnailDemo />
 		</React.StrictMode>
 	);
 }

@@ -82,7 +82,8 @@ export const useMediaPlayback = ({
 			// If scrubbing around, adjust timing
 			// or if time shift is bigger than 0.45sec
 
-			mediaRef.current.currentTime = shouldBeTime;
+			console.log('would seek');
+			//	mediaRef.current.currentTime = shouldBeTime;
 			if (!onlyWarnForMediaSeekingError) {
 				warnAboutNonSeekableMedia(
 					mediaRef.current,
@@ -103,13 +104,13 @@ export const useMediaPlayback = ({
 
 		if (!playing || absoluteFrame === 0) {
 			if (makesSenseToSeek) {
-				mediaRef.current.currentTime = shouldBeTime;
+				// mediaRef.current.currentTime = shouldBeTime;
 			}
 		}
 
 		if (mediaRef.current.paused && !mediaRef.current.ended && playing) {
 			if (makesSenseToSeek) {
-				mediaRef.current.currentTime = shouldBeTime;
+				// mediaRef.current.currentTime = shouldBeTime;
 			}
 
 			playAndHandleNotAllowedError(mediaRef, mediaType);
