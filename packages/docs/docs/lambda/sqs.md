@@ -9,6 +9,10 @@ crumb: "@remotion/lambda"
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+:::note
+This process has a flaw: The queue continues as soon as the render is triggered, not as soon as the render has finished. This means the renders do not all execute serially. We are working on an improved version of a Lambda queueing strategy, in the meanwhile be aware of this behavior.
+:::
+
 This guide will show you how to use [Amazon SQS](https://aws.amazon.com/sqs/) (Simple Queue Service) and Remotion's [`renderMediaOnLambda()`](/docs/lambda/rendermediaonlambda) API.
 
 Queues are used to park requests to make way for the underlying resources to cope up demand. Since AWS Lambda is subject to a [concurrency limit](/docs/lambda/troubleshooting/rate-limit), you can use SQS to queue renders in the background and you notify the user when the render process is completed by sending them an email or using other means of notification.
