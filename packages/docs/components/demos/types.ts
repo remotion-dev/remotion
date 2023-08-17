@@ -1,3 +1,4 @@
+import { FadeDemo, SlideDemo, WipeDemo } from "../transitions/previews";
 import { CircleDemo } from "./Circle";
 import { EllipseDemo } from "./Ellipse";
 import { NoiseComp } from "./NoiseDemo";
@@ -468,4 +469,37 @@ export const noiseDemo: DemoType = {
       optional: "no",
     },
   ],
+};
+
+export const fadePresentationDemo: DemoType = {
+  comp: FadeDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "fade",
+  autoPlay: true,
+  options: [],
+};
+
+export const slidePresentationDemo: DemoType = {
+  comp: SlideDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "slide",
+  autoPlay: true,
+  options: [],
+};
+
+export const wipePresentationDemo: DemoType = {
+  comp: WipeDemo,
+  compHeight: 280,
+  compWidth: 540,
+  durationInFrames: 60,
+  fps: 30,
+  id: "wipe",
+  autoPlay: true,
+  options: [],
 };

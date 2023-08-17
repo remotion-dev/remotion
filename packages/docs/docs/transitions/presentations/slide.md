@@ -3,4 +3,4 @@ crumb: "@remotion/transitions - Presentations"
 title: "slide()"
 ---
 
-slide
+<Demo type="slide" />

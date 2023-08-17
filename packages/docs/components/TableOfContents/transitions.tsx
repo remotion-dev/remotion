@@ -2,7 +2,7 @@ import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
 import { wipe } from "@remotion/transitions/wipe";
 import React from "react";
-import { Preview } from "../transitions/previews";
+import { PresentationPreview } from "../transitions/previews";
 import { Grid } from "./Grid";
 import { TOCItem } from "./TOCItem";
 
@@ -64,7 +64,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/transitions/presentations/fade">
           <div style={row}>
-            <Preview effect={fade()} />
+            <PresentationPreview effect={fade()} />
             <div style={{ flex: 1, marginLeft: 10 }}>
               <strong>
                 <code>{"fade()"}</code>
@@ -75,7 +75,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/transitions/presentations/slide">
           <div style={row}>
-            <Preview effect={slide()} />
+            <PresentationPreview effect={slide()} />
             <div style={{ flex: 1, marginLeft: 10 }}>
               <strong>
                 <code>{"slide()"}</code>
@@ -86,7 +86,7 @@ export const TableOfContents: React.FC = () => {
         </TOCItem>
         <TOCItem link="/docs/transitions/presentations/wipe">
           <div style={row}>
-            <Preview effect={wipe()} />
+            <PresentationPreview effect={wipe()} />
             <div style={{ flex: 1, marginLeft: 10 }}>
               <strong>
                 <code>{"wipe()"}</code>

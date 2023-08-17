@@ -8,6 +8,7 @@ import type { DemoType } from "./types";
 import {
   circleDemo,
   ellipseDemo,
+  fadePresentationDemo,
   noiseDemo,
   opacityDemo,
   pieDemo,
@@ -15,9 +16,11 @@ import {
   rotateDemo,
   scaleDemo,
   skewDemo,
+  slidePresentationDemo,
   starDemo,
   translateDemo,
   triangleDemo,
+  wipePresentationDemo,
 } from "./types";
 
 const container: React.CSSProperties = {
@@ -41,6 +44,9 @@ const demos: DemoType[] = [
   rotateDemo,
   scaleDemo,
   opacityDemo,
+  fadePresentationDemo,
+  wipePresentationDemo,
+  slidePresentationDemo,
 ];
 
 export const Demo: React.FC<{
