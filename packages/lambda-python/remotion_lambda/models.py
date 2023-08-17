@@ -98,6 +98,9 @@ class RenderParams:
         if self.pro_res_profile is not None:
             parameters['proResProfile'] = self.pro_res_profile
 
+        if self.presets_profile is not None:
+            parameters['presetsProfile'] = self.presets_profile
+
         if self.quality is not None:
             parameters['quality'] = self.quality
 
