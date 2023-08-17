@@ -3,7 +3,10 @@ import type {RenderJob} from '../../../preview-server/render-queue/job';
 import {ClipboardIcon} from '../../icons/clipboard';
 import type {RenderInlineAction} from '../InlineAction';
 import {InlineAction} from '../InlineAction';
-import {sendErrorNotification} from '../Notifications/NotificationCenter';
+import {
+	notificationCenter,
+	sendErrorNotification,
+} from '../Notifications/NotificationCenter';
 import {copyToClipboard} from './actions';
 
 const revealIconStyle: React.CSSProperties = {
@@ -19,9 +22,18 @@ export const RenderQueueCopyToClipboard: React.FC<{job: RenderJob}> = ({
 	}, []);
 
 	const onClick = useCallback(() => {
-		copyToClipboard({outName: job.outName}).catch((err) => {
-			sendErrorNotification(`Could not copy to clipboard: ${err.message}`);
-		});
+		copyToClipboard({outName: job.outName})
+			.catch((err) => {
+				sendErrorNotification(`Could not copy to clipboard: ${err.message}`);
+			})
+			.then(() => {
+				notificationCenter.current?.addNotification({
+					content: 'Copied to clipboard',
+					created: Date.now(),
+					duration: 1000,
+					id: String(Math.random()),
+				});
+			});
 	}, [job.outName]);
 
 	return (
