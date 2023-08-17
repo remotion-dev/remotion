@@ -115,7 +115,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		renderPlayPauseButton,
 		alwaysShowControls = false,
 		initiallyMuted = false,
-		showPlaybackRateControl = false,
+		showPlaybackRateControl = true,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
 	ref: MutableRefObject<PlayerRef>
