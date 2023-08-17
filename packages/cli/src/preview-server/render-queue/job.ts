@@ -144,7 +144,7 @@ export type OpenInFileExplorerRequest = {
 };
 
 export type CopyStillToClipboardRequest = {
-	directory: string;
+	outName: string;
 };
 
 export type SubscribeToFileExistenceRequest = {

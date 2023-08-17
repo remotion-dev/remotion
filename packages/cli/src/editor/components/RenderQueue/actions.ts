@@ -213,9 +213,9 @@ export const openInFileExplorer = ({directory}: {directory: string}) => {
 	return callApi('/api/open-in-file-explorer', body);
 };
 
-export const copyToClipboard = ({directory}: {directory: string}) => {
+export const copyToClipboard = ({outName}: {outName: string}) => {
 	const body: CopyStillToClipboardRequest = {
-		directory,
+		outName,
 	};
 	return callApi('/api/copy-still-to-clipboard', body);
 };

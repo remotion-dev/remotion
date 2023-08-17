@@ -1,5 +1,6 @@
 mod commands;
 mod compositor;
+mod copy_clipboard;
 mod errors;
 mod ffmpeg;
 mod frame_cache;

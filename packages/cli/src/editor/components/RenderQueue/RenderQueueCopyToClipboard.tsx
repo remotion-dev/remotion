@@ -19,7 +19,7 @@ export const RenderQueueCopyToClipboard: React.FC<{job: RenderJob}> = ({
 	}, []);
 
 	const onClick = useCallback(() => {
-		copyToClipboard({directory: job.outName}).catch((err) => {
+		copyToClipboard({outName: job.outName}).catch((err) => {
 			sendErrorNotification(`Could not copy to clipboard: ${err.message}`);
 		});
 	}, [job.outName]);
