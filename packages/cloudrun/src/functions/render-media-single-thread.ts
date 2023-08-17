@@ -67,6 +67,7 @@ export const renderMediaSingleThread = async (
 		imageFormat: body.imageFormat,
 		scale: body.scale,
 		proResProfile: body.proResProfile ?? undefined,
+		presetsProfile: body.presetsProfile ?? undefined,
 		everyNthFrame: body.everyNthFrame,
 		numberOfGifLoops: body.numberOfGifLoops,
 		onProgress,

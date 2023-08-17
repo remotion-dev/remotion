@@ -107,6 +107,7 @@ export {RemotionOption} from './options/option';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
 export {ProResProfile} from './prores-profile';
+export {PresetsProfile} from './presets-profile';
 export {renderFrames, RenderFramesOptions} from './render-frames';
 export {
 	InternalRenderMediaOptions,

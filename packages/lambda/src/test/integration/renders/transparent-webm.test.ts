@@ -45,6 +45,7 @@ test('Should make a transparent video', async () => {
 			pixelFormat: 'yuva420p',
 			privacy: 'public',
 			proResProfile: undefined,
+			presetsProfile: undefined,
 			jpegQuality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,

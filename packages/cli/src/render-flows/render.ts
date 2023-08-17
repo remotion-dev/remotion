@@ -10,6 +10,7 @@ import type {
 	FrameRange,
 	LogLevel,
 	PixelFormat,
+	PresetsProfile,
 	ProResProfile,
 	RenderMediaOnDownload,
 	VideoImageFormat,
@@ -85,6 +86,7 @@ export const renderVideoFlow = async ({
 	muted,
 	enforceAudioTrack,
 	proResProfile,
+	presetsProfile,
 	pixelFormat,
 	videoBitrate,
 	numberOfGifLoops,
@@ -130,6 +132,7 @@ export const renderVideoFlow = async ({
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | undefined;
+	presetsProfile: PresetsProfile | undefined;
 	pixelFormat: PixelFormat;
 	numberOfGifLoops: Loop;
 	audioCodec: AudioCodec | null;
@@ -425,6 +428,7 @@ export const renderVideoFlow = async ({
 		overwrite,
 		pixelFormat,
 		proResProfile,
+		presetsProfile,
 		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,

@@ -29,6 +29,7 @@ import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
 import {getServerPort} from './preview-server';
 import {getProResProfile} from './prores-profile';
+import {getPresetProfile} from './presets-profile';
 import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
@@ -94,6 +95,7 @@ import {setOverwriteOutput} from './overwrite';
 import {setPixelFormat} from './pixel-format';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
+import {setPresetProfile} from './presets-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
 import {setScale} from './scale';
 import {setPuppeteerTimeout} from './timeout';
@@ -351,6 +353,21 @@ declare global {
 				| 'proxy'
 				| undefined
 		) => void;
+
+		readonly setPresetProfile: (
+			profile:
+				| 'ultrafast'
+				| 'superfast'
+				| 'veryfast'
+				| 'faster'
+				| 'fast'
+				| 'medium'
+				| 'slow'
+				| 'slower'
+				| 'veryslow'
+				| 'placebo'
+				| undefined
+		) => void;
 		/**
 		 * Override the arguments that Remotion passes to FFMPEG.
 		 * Consult https://remotion.dev/docs/renderer/render-media#ffmpegoverride before using this feature.
@@ -486,6 +503,7 @@ export const Config: FlatConfig = {
 	setCrf,
 	setImageSequence,
 	setProResProfile,
+	setPresetProfile,
 	setAudioBitrate,
 	setVideoBitrate,
 	overrideHeight,
@@ -502,6 +520,7 @@ export const ConfigInternals = {
 	getBrowser,
 	getPixelFormat,
 	getProResProfile,
+	getPresetProfile,
 	getShouldOverwrite,
 	getBrowserExecutable,
 	getScale,

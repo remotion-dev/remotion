@@ -37,6 +37,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				muted: input.muted,
 				enforceAudioTrack: input.enforceAudioTrack,
 				proResProfile: input.proResProfile,
+				presetsProfile: input.presetsProfile,
 				pixelFormat: input.pixelFormat,
 				audioBitrate: input.audioBitrate,
 				videoBitrate: input.videoBitrate,

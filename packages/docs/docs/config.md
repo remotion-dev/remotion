@@ -562,6 +562,20 @@ Config.setProResProfile("4444");
 
 The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` will take precedence over this option.
 
+## setPresetProfile()<AvailableFrom v="2.1.7" />
+
+Set the Preset profile. This option is only valid if the codec has been set to `h264`.
+Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
+Default: `medium`
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setPresetProfile("fast");
+```
+
+The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` will take precedence over this option.
+
 **See also**: [Encoding guide](/docs/encoding), [Transparent videos](/docs/transparent-videos)
 
 ## setImageSequence()<AvailableFrom v="1.4.0" />

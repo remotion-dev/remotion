@@ -1,4 +1,4 @@
-import type {Codec, ProResProfile} from '@remotion/renderer';
+import type {Codec, PresetsProfile, ProResProfile} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
 import type {VideoConfig} from 'remotion';
@@ -19,6 +19,7 @@ import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainer} from './OptionExplainer';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalInput} from './RenderModalInput';
+import { labelPresetsProfile } from '../../helpers/presets-labels';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -31,7 +32,9 @@ export const RenderModalBasic: React.FC<{
 	setVideoCodec: (newCodec: Codec) => void;
 	outName: string;
 	proResProfile: ProResProfile | null;
+	presetsProfile: PresetsProfile | null;
 	setProResProfile: React.Dispatch<React.SetStateAction<ProResProfile>>;
+	setPresetsProfile: React.Dispatch<React.SetStateAction<PresetsProfile>>;
 	frame: number;
 	setFrame: React.Dispatch<React.SetStateAction<number>>;
 	resolvedComposition: VideoConfig;
@@ -48,7 +51,9 @@ export const RenderModalBasic: React.FC<{
 	codec,
 	setVideoCodec: setCodec,
 	proResProfile,
+	presetsProfile,
 	setProResProfile,
+	setPresetsProfile,
 	frame,
 	setFrame,
 	resolvedComposition,
@@ -88,6 +93,24 @@ export const RenderModalBasic: React.FC<{
 				onClick: () => setProResProfile(option),
 				key: option,
 				selected: proResProfile === option,
+				type: 'item',
+				id: option,
+				keyHint: null,
+				leftItem: null,
+				quickSwitcherLabel: null,
+				subMenu: null,
+				value: option,
+			};
+		});
+	}, [proResProfile, setProResProfile]);
+	
+	const presetsProfileOptions = useMemo((): ComboboxValue[] => {
+		return BrowserSafeApis.presetsProfileOptions.map((option) => {
+			return {
+				label: labelPresetsProfile(option),
+				onClick: () => setPresetsProfile(option),
+				key: option,
+				selected: presetsProfile === option,
 				type: 'item',
 				id: option,
 				keyHint: null,
@@ -183,9 +206,21 @@ export const RenderModalBasic: React.FC<{
 					<div style={label}>ProRes profile</div>
 					<div style={rightRow}>
 						<Combobox
-							title={proResProfile as string}
+							title={'proResProfile' as string}
 							selectedId={proResProfile as string}
 							values={proResProfileOptions}
+						/>
+					</div>
+				</div>
+			) : null}
+			{renderMode === 'video' && codec === 'h264' ? (
+				<div style={optionRow}>
+					<div style={label}>Presets profile</div>
+					<div style={rightRow}>
+						<Combobox
+							title={presetsProfile as string}
+							selectedId={presetsProfile as string}
+							values={presetsProfileOptions}
 						/>
 					</div>
 				</div>

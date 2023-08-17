@@ -2,6 +2,7 @@ import type {
 	AudioCodec,
 	Codec,
 	PixelFormat,
+	PresetsProfile,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
@@ -109,6 +110,7 @@ export const addVideoRenderJob = ({
 	muted,
 	enforceAudioTrack,
 	proResProfile,
+	presetsProfile,
 	pixelFormat,
 	audioBitrate,
 	videoBitrate,
@@ -135,6 +137,7 @@ export const addVideoRenderJob = ({
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | null;
+	presetsProfile: PresetsProfile | null;
 	pixelFormat: PixelFormat;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
@@ -163,6 +166,7 @@ export const addVideoRenderJob = ({
 		muted,
 		enforceAudioTrack,
 		proResProfile,
+		presetsProfile,
 		pixelFormat,
 		audioBitrate,
 		videoBitrate,
