@@ -124,7 +124,7 @@ Example values: `512K` for 512 kbps, `1M` for 1 Mbps.
 
 [Set the ProRes profile](/docs/config#setproresprofile). This option is only valid if the [`codec`](#--codec) has been set to `prores`. Possible values: `4444-xq`, `4444`, `hq`, `standard`, `light`, `proxy`. See [here](https://video.stackexchange.com/a/14715) for explanation of possible values. Default: `hq`.
 
-### `--presets-profile`
+### `--preset-profile`
 [Set the Preset profile](/docs/config#setpresetprofile). 
 Sets a Preset profile. Only applies to videos rendered with `h264` codec. 
 Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
