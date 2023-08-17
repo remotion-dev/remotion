@@ -23,10 +23,7 @@ import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
 import {SymbolicateableError} from './error-handling/symbolicateable-error';
 import {defaultFileExtensionMap} from './file-extensions';
-import {
-	findClosestPackageJson,
-	findRemotionRoot,
-} from './find-closest-package-json';
+import {findRemotionRoot} from './find-closest-package-json';
 import {validateFrameRange} from './frame-range';
 import {internalGetCompositions} from './get-compositions';
 import {getActualConcurrency} from './get-concurrency';
@@ -213,7 +210,6 @@ export const RenderInternals = {
 	internalRenderFrames,
 	internalRenderMedia,
 	validOpenGlRenderers,
-	findClosestPackageJson,
 	copyImageToClipboard,
 };
 
