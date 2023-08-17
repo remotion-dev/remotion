@@ -1,4 +1,5 @@
 use crate::compositor::draw_layer;
+use crate::copy_clipboard::copy_to_clipboard;
 use crate::errors::ErrorWithBacktrace;
 use crate::image::{save_as_jpeg, save_as_png};
 use crate::opened_video_manager::OpenedVideoManager;
@@ -88,5 +89,6 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
 
             Ok("".as_bytes().to_vec())
         }
+        CliInputCommandPayload::CopyImageToClipboard(command) => copy_to_clipboard(command.src),
     }
 }
