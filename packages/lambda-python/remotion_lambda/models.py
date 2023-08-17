@@ -47,6 +47,7 @@ class RenderParams:
     audio_codec: Optional[str] = None
     renderer_function_name: Optional[str] = None
     pro_res_profile: Optional[str] = None
+    presets_profile: Optional[str] = None
     pixel_format: Optional[str] = None
 
     def serialize_params(self) -> Dict:
