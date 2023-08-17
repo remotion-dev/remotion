@@ -86,6 +86,9 @@ export type CompositorCommand = {
 		maximum_frame_cache_items: number;
 		verbose: boolean;
 	};
+	CopyImageToClipboard: {
+		src: string;
+	};
 	GetOpenVideoStats: {};
 	DeliberatePanic: {};
 	CloseAllVideos: {};

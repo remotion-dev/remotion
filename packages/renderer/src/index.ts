@@ -17,6 +17,7 @@ import {DEFAULT_CODEC, validCodecs} from './codec';
 import {combineVideos} from './combine-videos';
 import {getExecutablePath} from './compositor/get-executable-path';
 import {convertToPositiveFrameIndex} from './convert-to-positive-frame-index';
+import {copyImageToClipboard} from './copy-to-clipboard';
 import {deleteDirectory} from './delete-directory';
 import {ensureOutputDirectory} from './ensure-output-directory';
 import {symbolicateError} from './error-handling/symbolicate-error';
@@ -209,6 +210,7 @@ export const RenderInternals = {
 	internalRenderFrames,
 	internalRenderMedia,
 	validOpenGlRenderers,
+	copyImageToClipboard,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
