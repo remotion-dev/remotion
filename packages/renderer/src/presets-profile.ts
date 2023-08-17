@@ -17,7 +17,7 @@ export type PresetsProfile = typeof presetsProfileOptions[number];
 
 export const validateSelectedCodecAndPresetCombination = ({
 	codec,
-	presetsProfile: presetsProfile,
+	presetsProfile,
 }: {
 	codec: Codec;
 	presetsProfile: PresetsProfile | undefined;
