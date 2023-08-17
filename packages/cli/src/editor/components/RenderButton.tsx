@@ -4,8 +4,8 @@ import type {
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
+	PresetsProfile,
 	ProResProfile,
-	PresetsProfile
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {SVGProps} from 'react';

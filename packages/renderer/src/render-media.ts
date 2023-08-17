@@ -46,12 +46,12 @@ import {
 } from './pixel-format';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
+import type {PresetsProfile} from './presets-profile';
+import {validateSelectedCodecAndPresetCombination} from './presets-profile';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
-import type {PresetsProfile} from './presets-profile';
-import {validateSelectedCodecAndPresetCombination} from './presets-profile';
 import {internalRenderFrames} from './render-frames';
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
