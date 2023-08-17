@@ -2,6 +2,7 @@ import type {Codec, PresetsProfile, ProResProfile} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
 import type {VideoConfig} from 'remotion';
+import {labelPresetsProfile} from '../../helpers/presets-labels';
 import {labelProResProfile} from '../../helpers/prores-labels';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkmark} from '../../icons/Checkmark';
@@ -19,7 +20,6 @@ import {input, label, optionRow, rightRow} from './layout';
 import {OptionExplainer} from './OptionExplainer';
 import type {RenderType} from './RenderModalAdvanced';
 import {RenderModalInput} from './RenderModalInput';
-import { labelPresetsProfile } from '../../helpers/presets-labels';
 
 const container: React.CSSProperties = {
 	flex: 1,
@@ -103,7 +103,7 @@ export const RenderModalBasic: React.FC<{
 			};
 		});
 	}, [proResProfile, setProResProfile]);
-	
+
 	const presetsProfileOptions = useMemo((): ComboboxValue[] => {
 		return BrowserSafeApis.presetsProfileOptions.map((option) => {
 			return {

@@ -107,8 +107,8 @@ export type {ChromiumOptions} from './open-browser';
 export {RemotionOption} from './options/option';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
-export {ProResProfile} from './prores-profile';
 export {PresetsProfile} from './presets-profile';
+export {ProResProfile} from './prores-profile';
 export {renderFrames, RenderFramesOptions} from './render-frames';
 export {
 	InternalRenderMediaOptions,
