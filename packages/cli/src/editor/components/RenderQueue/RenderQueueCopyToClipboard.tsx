@@ -14,6 +14,22 @@ const revealIconStyle: React.CSSProperties = {
 	color: 'currentColor',
 };
 
+export const supportsCopyingToClipboard = (job: RenderJob) => {
+	if (job.status !== 'done') {
+		return false;
+	}
+
+	if (job.type !== 'still') {
+		return false;
+	}
+
+	if (job.imageFormat === 'png') {
+		return true;
+	}
+
+	return false;
+};
+
 export const RenderQueueCopyToClipboard: React.FC<{job: RenderJob}> = ({
 	job,
 }) => {
