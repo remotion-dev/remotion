@@ -58,7 +58,7 @@ export const RenderQueueCopyToClipboard: React.FC<{job: RenderJob}> = ({
 
 	return (
 		<InlineAction
-			title="Copy still"
+			title="Copy to clipboard"
 			renderAction={renderCopyAction}
 			onClick={onClick}
 		/>
