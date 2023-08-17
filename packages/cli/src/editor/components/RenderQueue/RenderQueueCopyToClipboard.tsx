@@ -27,6 +27,10 @@ export const supportsCopyingToClipboard = (job: RenderJob) => {
 		return true;
 	}
 
+	if (job.imageFormat === 'jpeg') {
+		return true;
+	}
+
 	return false;
 };
 
