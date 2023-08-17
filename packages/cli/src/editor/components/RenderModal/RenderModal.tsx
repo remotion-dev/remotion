@@ -3,6 +3,7 @@ import type {
 	Codec,
 	OpenGlRenderer,
 	PixelFormat,
+	PresetsProfile,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
@@ -206,6 +207,7 @@ type RenderModalProps = {
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
 	initialProResProfile: ProResProfile;
+	initialPresetsProfile: PresetsProfile;
 	initialPixelFormat: PixelFormat;
 	initialVideoBitrate: string | null;
 	initialAudioBitrate: string | null;
@@ -245,6 +247,7 @@ const RenderModal: React.FC<
 	initialMuted,
 	initialEnforceAudioTrack,
 	initialProResProfile,
+	initialPresetsProfile,
 	initialPixelFormat,
 	initialVideoBitrate,
 	initialAudioBitrate,
@@ -335,6 +338,9 @@ const RenderModal: React.FC<
 	);
 	const [proResProfileSetting, setProResProfile] = useState<ProResProfile>(
 		() => initialProResProfile
+	);
+	const [presetsProfileSetting, setPresetsProfile] = useState<PresetsProfile>(
+		() => initialPresetsProfile
 	);
 
 	const [pixelFormat, setPixelFormat] = useState<PixelFormat>(
@@ -459,6 +465,14 @@ const RenderModal: React.FC<
 
 		return null;
 	}, [codec, proResProfileSetting, renderMode]);
+
+	const presetsProfile = useMemo(() => {
+		if (renderMode === 'video' && codec === 'h264') {
+			return presetsProfileSetting;
+		}
+
+		return null;
+	}, [codec, presetsProfileSetting, renderMode]);
 
 	const [inputProps, setInputProps] = useState(() => defaultProps);
 
@@ -666,6 +680,7 @@ const RenderModal: React.FC<
 			muted,
 			enforceAudioTrack,
 			proResProfile,
+			presetsProfile,
 			pixelFormat,
 			audioBitrate,
 			videoBitrate,
@@ -704,6 +719,7 @@ const RenderModal: React.FC<
 		muted,
 		enforceAudioTrack,
 		proResProfile,
+		presetsProfile,
 		pixelFormat,
 		audioBitrate,
 		videoBitrate,
@@ -996,11 +1012,13 @@ const RenderModal: React.FC<
 							imageFormatOptions={imageFormatOptions}
 							outName={outName}
 							proResProfile={proResProfile}
+							presetsProfile={presetsProfile}
 							renderMode={renderMode}
 							setVideoCodec={setCodec}
 							setFrame={setFrame}
 							setOutName={setOutName}
 							setProResProfile={setProResProfile}
+							setPresetsProfile={setPresetsProfile}
 							endFrame={endFrame}
 							setEndFrame={setEndFrame}
 							setStartFrame={setStartFrame}

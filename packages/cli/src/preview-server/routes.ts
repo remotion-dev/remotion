@@ -63,6 +63,7 @@ const handleFallback = async ({
 	const enforceAudioTrack = ConfigInternals.getEnforceAudioTrack();
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = ConfigInternals.getProResProfile() ?? 'hq';
+	const presetsProfile = ConfigInternals.getPresetProfile() ?? 'medium';
 	const audioBitrate = ConfigInternals.getAudioBitrate();
 	const videoBitrate = ConfigInternals.getVideoBitrate();
 	const everyNthFrame = ConfigInternals.getEveryNthFrame();
@@ -115,6 +116,7 @@ const handleFallback = async ({
 				muted,
 				enforceAudioTrack,
 				proResProfile,
+				presetsProfile,
 				pixelFormat,
 				audioBitrate,
 				videoBitrate,

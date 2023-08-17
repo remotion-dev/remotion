@@ -70,6 +70,12 @@ const getProResProfile = () => {
 	return proResProfile;
 };
 
+const getPresetsProfile = () => {
+	const presetsProfile = ConfigInternals.getPresetProfile();
+
+	return presetsProfile;
+};
+
 const getAndValidateBrowser = async (browserExecutable: BrowserExecutable) => {
 	const browser = getBrowser();
 	try {
@@ -105,6 +111,7 @@ export const getCliOptions = async (options: {
 
 	const pixelFormat = ConfigInternals.getPixelFormat();
 	const proResProfile = getProResProfile();
+	const presetsProfile = getPresetsProfile();
 	const browserExecutable = ConfigInternals.getBrowserExecutable();
 	const scale = ConfigInternals.getScale();
 	const port = ConfigInternals.getServerPort();
@@ -140,6 +147,7 @@ export const getCliOptions = async (options: {
 		crf,
 		pixelFormat,
 		proResProfile,
+		presetsProfile,
 		everyNthFrame,
 		numberOfGifLoops,
 		stillFrame: ConfigInternals.getStillFrame(),

@@ -5,6 +5,7 @@ import type {
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
+	PresetsProfile,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
@@ -19,6 +20,7 @@ type CommandLineOptions = {
 	['pixel-format']: PixelFormat;
 	['image-format']: VideoImageFormat | StillImageFormat;
 	['prores-profile']: ProResProfile;
+	['preset-profile']: PresetsProfile;
 	['bundle-cache']: string;
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
@@ -195,6 +197,12 @@ export const parseCommandLine = () => {
 	if (parsedCli['prores-profile']) {
 		Config.setProResProfile(
 			String(parsedCli['prores-profile']) as ProResProfile
+		);
+	}
+
+	if (parsedCli['preset-profile']) {
+		Config.setPresetProfile(
+			String(parsedCli['preset-profile']) as PresetsProfile
 		);
 	}
 

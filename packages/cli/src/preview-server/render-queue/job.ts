@@ -3,6 +3,7 @@ import type {
 	Codec,
 	makeCancelSignal,
 	PixelFormat,
+	PresetsProfile,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
@@ -63,6 +64,7 @@ type RenderJobDynamicFields =
 			muted: boolean;
 			enforceAudioTrack: boolean;
 			proResProfile: ProResProfile | null;
+			presetsProfile: PresetsProfile | null;
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
 			videoBitrate: string | null;
@@ -113,6 +115,7 @@ type AddRenderRequestDynamicFields =
 			muted: boolean;
 			enforceAudioTrack: boolean;
 			proResProfile: ProResProfile | null;
+			presetsProfile: PresetsProfile | null;
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
 			videoBitrate: string | null;

@@ -8,6 +8,7 @@ const pixelFormat = z.enum(RenderInternals.validPixelFormats);
 const videoImageFormat = z.enum(RenderInternals.validVideoImageFormats);
 const stillImageFormat = z.enum(RenderInternals.validStillImageFormats);
 const proResProfile = z.enum(BrowserSafeApis.proResProfileOptions).nullable();
+const presetsProfile = z.enum(BrowserSafeApis.presetsProfileOptions).nullable();
 const chromiumOptions = z.object({
 	ignoreCertificateErrors: z.boolean().optional(),
 	disableWebSecurity: z.boolean().optional(),
@@ -35,6 +36,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		imageFormat: videoImageFormat,
 		scale: z.number(),
 		proResProfile,
+		presetsProfile,
 		everyNthFrame: z.number(),
 		numberOfGifLoops: z.number().nullable(),
 		frameRange: z.tuple([z.number(), z.number()]).or(z.number()).nullable(),

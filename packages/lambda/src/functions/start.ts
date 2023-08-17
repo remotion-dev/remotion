@@ -71,6 +71,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		envVariables: params.envVariables,
 		pixelFormat: params.pixelFormat,
 		proResProfile: params.proResProfile,
+		presetsProfile: params.presetsProfile,
 		jpegQuality: params.jpegQuality,
 		maxRetries: params.maxRetries,
 		privacy: params.privacy,

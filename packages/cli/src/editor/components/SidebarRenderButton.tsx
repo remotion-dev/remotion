@@ -4,6 +4,7 @@ import type {
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
+	PresetsProfile,
 	ProResProfile,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
@@ -82,6 +83,7 @@ export const SidebarRenderButton: React.FC<{
 				initialMuted: defaults.muted,
 				initialEnforceAudioTrack: defaults.enforceAudioTrack,
 				initialProResProfile: defaults.proResProfile as ProResProfile,
+				initialPresetsProfile: defaults.presetsProfile as PresetsProfile,
 				initialPixelFormat: defaults.pixelFormat as PixelFormat,
 				initialAudioBitrate: defaults.audioBitrate,
 				initialVideoBitrate: defaults.videoBitrate,

@@ -67,6 +67,7 @@ export const processVideoJob = async ({
 		muted: job.muted,
 		enforceAudioTrack: job.enforceAudioTrack,
 		proResProfile: job.proResProfile ?? undefined,
+		presetsProfile: job.presetsProfile ?? undefined,
 		pixelFormat: job.pixelFormat,
 		videoBitrate: job.videoBitrate,
 		numberOfGifLoops: job.numberOfGifLoops,

@@ -44,6 +44,7 @@ test('Should make a distributed GIF', async () => {
 			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,
+			presetsProfile: undefined,
 			jpegQuality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,

@@ -50,6 +50,8 @@ import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
+import type {PresetsProfile} from './presets-profile';
+import {validateSelectedCodecAndPresetCombination} from './presets-profile';
 import {internalRenderFrames} from './render-frames';
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
@@ -95,6 +97,7 @@ export type InternalRenderMediaOptions = {
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
 	proResProfile: ProResProfile | undefined;
+	presetsProfile: PresetsProfile | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	timeoutInMilliseconds: number;
@@ -141,6 +144,7 @@ export type RenderMediaOptions = {
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
+	presetsProfile?: PresetsProfile;
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
 	 */
@@ -179,6 +183,7 @@ type RenderMediaResult = {
 
 export const internalRenderMedia = ({
 	proResProfile,
+	presetsProfile,
 	crf,
 	composition,
 	serializedInputPropsWithCustomSchema,
@@ -228,6 +233,12 @@ export const internalRenderMedia = ({
 		codec,
 		proResProfile,
 	});
+
+	validateSelectedCodecAndPresetCombination({
+		codec,
+		presetsProfile,
+	});
+
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 	if (outputLocation) {
 		validateOutputFilename({
@@ -681,6 +692,7 @@ export const internalRenderMedia = ({
  */
 export const renderMedia = ({
 	proResProfile,
+	presetsProfile,
 	crf,
 	composition,
 	inputProps,
@@ -728,6 +740,7 @@ export const renderMedia = ({
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
+		presetsProfile,
 		codec,
 		composition,
 		serveUrl,

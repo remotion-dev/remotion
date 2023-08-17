@@ -4,6 +4,7 @@ import type {
 	FrameRange,
 	LogLevel,
 	PixelFormat,
+	PresetsProfile,
 	ProResProfile,
 	VideoImageFormat,
 } from '@remotion/renderer';
@@ -28,6 +29,7 @@ export type RenderMediaOnLambdaInput = {
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
+	presetsProfile?: PresetsProfile;
 	privacy?: Privacy;
 	/**
 	 * @deprecated Renamed to `jpegQuality`

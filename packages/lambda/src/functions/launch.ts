@@ -252,6 +252,7 @@ const innerLaunchHandler = async (
 			envVariables: params.envVariables,
 			pixelFormat: params.pixelFormat,
 			proResProfile: params.proResProfile,
+			presetsProfile: params.presetsProfile,
 			jpegQuality: params.jpegQuality,
 			privacy: params.privacy,
 			logLevel: params.logLevel ?? 'info',
