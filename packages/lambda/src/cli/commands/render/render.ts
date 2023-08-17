@@ -371,6 +371,13 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 				await CliInternals.handleCommonError(errorWithStackFrame, logLevel);
 			}
 
+			Log.info();
+			Log.verbose(
+				`Accrued costs until error was thrown: ${newStatus.costs.displayCost}.`
+			);
+			Log.info(
+				'This is an estimate and continuing Lambda functions may incur additional costs.'
+			);
 			quit(1);
 		}
 	}
