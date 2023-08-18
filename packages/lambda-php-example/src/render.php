@@ -53,6 +53,14 @@ while (!$renderProgressResponse->done) {
   // Render is not done
   // Get the render progress
   $renderProgress = $renderProgressResponse->overallProgress;
+  $fatalError = $renderProgressResponse->fatalErrorEncountered;
+
+  if ($fatalError) {
+    // Render failed
+    print_r("Render failed!\n");
+    // Exit
+    exit(1);
+  }
   // Output render progress
   print_r("progress: " . ($renderProgress * 100) . "%\n");
   // Wait 1 second
