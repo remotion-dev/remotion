@@ -6,6 +6,7 @@ import type {
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {
@@ -207,6 +208,7 @@ type RenderModalProps = {
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
 	initialProResProfile: ProResProfile;
+	initialx264Preset: X264Preset;
 	initialPixelFormat: PixelFormat;
 	initialVideoBitrate: string | null;
 	initialAudioBitrate: string | null;
@@ -246,6 +248,7 @@ const RenderModal: React.FC<
 	initialMuted,
 	initialEnforceAudioTrack,
 	initialProResProfile,
+	initialx264Preset,
 	initialPixelFormat,
 	initialVideoBitrate,
 	initialAudioBitrate,
@@ -336,6 +339,9 @@ const RenderModal: React.FC<
 	);
 	const [proResProfileSetting, setProResProfile] = useState<ProResProfile>(
 		() => initialProResProfile
+	);
+	const [x264PresetSetting, setx264Preset] = useState<X264Preset>(
+		() => initialx264Preset
 	);
 
 	const [pixelFormat, setPixelFormat] = useState<PixelFormat>(
@@ -460,6 +466,14 @@ const RenderModal: React.FC<
 
 		return null;
 	}, [codec, proResProfileSetting, renderMode]);
+
+	const x264Preset = useMemo(() => {
+		if (renderMode === 'video' && codec === 'h264') {
+			return x264PresetSetting;
+		}
+
+		return null;
+	}, [codec, x264PresetSetting, renderMode]);
 
 	const [inputProps, setInputProps] = useState(() => defaultProps);
 
@@ -667,6 +681,7 @@ const RenderModal: React.FC<
 			muted,
 			enforceAudioTrack,
 			proResProfile,
+			x264Preset,
 			pixelFormat,
 			audioBitrate,
 			videoBitrate,
@@ -705,6 +720,7 @@ const RenderModal: React.FC<
 		muted,
 		enforceAudioTrack,
 		proResProfile,
+		x264Preset,
 		pixelFormat,
 		audioBitrate,
 		videoBitrate,
@@ -1089,6 +1105,8 @@ const RenderModal: React.FC<
 						/>
 					) : (
 						<RenderModalAdvanced
+							x264Preset={x264Preset}
+							setx264Preset={setx264Preset}
 							concurrency={concurrency}
 							maxConcurrency={maxConcurrency}
 							minConcurrency={minConcurrency}
@@ -1110,6 +1128,7 @@ const RenderModal: React.FC<
 							setOpenGlOption={setOpenGlOption}
 							setEnvVariables={setEnvVariables}
 							envVariables={envVariables}
+							codec={codec}
 						/>
 					)}
 				</div>
