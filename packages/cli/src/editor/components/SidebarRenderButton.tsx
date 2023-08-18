@@ -5,7 +5,7 @@ import type {
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
-	x264Preset,
+	X264Preset,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {SVGProps} from 'react';
@@ -83,7 +83,7 @@ export const SidebarRenderButton: React.FC<{
 				initialMuted: defaults.muted,
 				initialEnforceAudioTrack: defaults.enforceAudioTrack,
 				initialProResProfile: defaults.proResProfile as ProResProfile,
-				initialx264Preset: defaults.x264Preset as x264Preset,
+				initialx264Preset: defaults.x264Preset as X264Preset,
 				initialPixelFormat: defaults.pixelFormat as PixelFormat,
 				initialAudioBitrate: defaults.audioBitrate,
 				initialVideoBitrate: defaults.videoBitrate,

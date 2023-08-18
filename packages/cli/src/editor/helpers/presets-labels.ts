@@ -1,6 +1,6 @@
-import type {x264Preset} from '@remotion/renderer';
+import type {X264Preset} from '@remotion/renderer';
 
-export const labelx264Preset = (profile: x264Preset) => {
+export const labelx264Preset = (profile: X264Preset) => {
 	if (profile === 'ultrafast') {
 		return 'ultrafast';
 	}
@@ -41,5 +41,5 @@ export const labelx264Preset = (profile: x264Preset) => {
 		return 'placebo';
 	}
 
-	throw new TypeError(`Unknown Presets profile: ${profile}`);
+	throw new TypeError(`Unknown x264 preset: ${profile}`);
 };

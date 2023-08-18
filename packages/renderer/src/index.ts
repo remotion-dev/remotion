@@ -130,7 +130,7 @@ export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
-export {X264Preset as x264Preset} from './x264-preset';
+export {X264Preset} from './x264-preset';
 
 export const RenderInternals = {
 	ensureLocalBrowser,
