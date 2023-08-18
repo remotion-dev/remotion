@@ -6,21 +6,13 @@ let unsavedProps = false;
 let tabInactive = false;
 let renderJobs: RenderJob[] = [];
 
-declare global {
-	interface Window {
-		unsavedProps: boolean;
-	}
-}
-
 export const setCurrentVideoId = (id: string | null) => {
 	currentVideoId = id;
 	updateTitle();
 };
 
 export const setUnsavedProps = (unsaved: boolean) => {
-	if (typeof window !== 'undefined') {
-		window.unsavedProps = unsaved;
-	}
+	window.remotion_unsavedProps = unsaved;
 
 	unsavedProps = unsaved;
 };

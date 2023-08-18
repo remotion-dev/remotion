@@ -73,7 +73,7 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 	if (didHookOrderChange && !justRefreshedBecauseOfHooks) {
 		// eslint-disable-next-line no-console
 		console.log('Hook order changed. Reloading app...');
-		if (window.unsavedProps) {
+		if (window.remotion_unsavedProps) {
 			notificationCenter.current?.addNotification({
 				id: 'random',
 				content: 'Do not save hey',

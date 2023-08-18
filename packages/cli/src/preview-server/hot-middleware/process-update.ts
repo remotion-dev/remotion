@@ -170,7 +170,7 @@ export const processUpdate = function (
 			console.warn(
 				'[Fast refresh] Update check failed: ' + (err.stack || err.message)
 			);
-			if (window.unsavedProps) {
+			if (window.remotion_unsavedProps) {
 				notificationCenter.current?.addNotification({
 					id: 'random',
 					content: 'Do not save hey',
@@ -189,7 +189,7 @@ export const processUpdate = function (
 		}
 
 		if (options.warn) console.warn('[Fast refresh] Reloading page');
-		if (window.unsavedProps) {
+		if (window.remotion_unsavedProps) {
 			notificationCenter.current?.addNotification({
 				id: 'random',
 				content: 'Do not save hey',
