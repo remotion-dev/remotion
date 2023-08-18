@@ -46,8 +46,6 @@ import {
 } from './pixel-format';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
-import type {PresetsProfile} from './presets-profile';
-import {validateSelectedCodecAndPresetCombination} from './presets-profile';
 import {prespawnFfmpeg} from './prespawn-ffmpeg';
 import {shouldUseParallelEncoding} from './prestitcher-memory-usage';
 import type {ProResProfile} from './prores-profile';
@@ -62,6 +60,8 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
+import type {X264Preset} from './x264-preset';
+import {validateSelectedCodecAndPresetCombination} from './x264-preset';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -97,7 +97,7 @@ export type InternalRenderMediaOptions = {
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
 	proResProfile: ProResProfile | undefined;
-	presetsProfile: PresetsProfile | undefined;
+	x264Preset: X264Preset | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	timeoutInMilliseconds: number;
@@ -144,7 +144,7 @@ export type RenderMediaOptions = {
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
-	presetsProfile?: PresetsProfile;
+	x264Preset?: X264Preset;
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
 	 */
@@ -183,7 +183,7 @@ type RenderMediaResult = {
 
 export const internalRenderMedia = ({
 	proResProfile,
-	presetsProfile,
+	x264Preset,
 	crf,
 	composition,
 	serializedInputPropsWithCustomSchema,
@@ -236,7 +236,7 @@ export const internalRenderMedia = ({
 
 	validateSelectedCodecAndPresetCombination({
 		codec,
-		presetsProfile,
+		x264Preset,
 	});
 
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
@@ -692,7 +692,7 @@ export const internalRenderMedia = ({
  */
 export const renderMedia = ({
 	proResProfile,
-	presetsProfile,
+	x264Preset,
 	crf,
 	composition,
 	inputProps,
@@ -740,7 +740,7 @@ export const renderMedia = ({
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
-		presetsProfile,
+		x264Preset,
 		codec,
 		composition,
 		serveUrl,

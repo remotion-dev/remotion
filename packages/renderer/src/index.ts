@@ -107,7 +107,6 @@ export type {ChromiumOptions} from './open-browser';
 export {RemotionOption} from './options/option';
 export {PixelFormat} from './pixel-format';
 export {RemotionServer} from './prepare-server';
-export {PresetsProfile} from './presets-profile';
 export {ProResProfile} from './prores-profile';
 export {renderFrames, RenderFramesOptions} from './render-frames';
 export {
@@ -131,6 +130,7 @@ export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
+export {X264Preset as x264Preset} from './x264-preset';
 
 export const RenderInternals = {
 	ensureLocalBrowser,

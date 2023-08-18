@@ -185,7 +185,7 @@ const renderHandler = async (
 			crf: params.crf ?? null,
 			pixelFormat: params.pixelFormat ?? RenderInternals.DEFAULT_PIXEL_FORMAT,
 			proResProfile: params.proResProfile,
-			presetsProfile: params.presetsProfile,
+			x264Preset: params.x264Preset,
 			onDownload: onDownloadsHelper(),
 			overwrite: false,
 			chromiumOptions: params.chromiumOptions,

@@ -1,8 +1,8 @@
-import type {Codec, PresetsProfile, ProResProfile} from '@remotion/renderer';
+import type {Codec, ProResProfile, x264Preset} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
 import type {VideoConfig} from 'remotion';
-import {labelPresetsProfile} from '../../helpers/presets-labels';
+import {labelx264Preset} from '../../helpers/presets-labels';
 import {labelProResProfile} from '../../helpers/prores-labels';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkmark} from '../../icons/Checkmark';
@@ -32,9 +32,9 @@ export const RenderModalBasic: React.FC<{
 	setVideoCodec: (newCodec: Codec) => void;
 	outName: string;
 	proResProfile: ProResProfile | null;
-	presetsProfile: PresetsProfile | null;
+	x264Preset: x264Preset | null;
 	setProResProfile: React.Dispatch<React.SetStateAction<ProResProfile>>;
-	setPresetsProfile: React.Dispatch<React.SetStateAction<PresetsProfile>>;
+	setx264Preset: React.Dispatch<React.SetStateAction<x264Preset>>;
 	frame: number;
 	setFrame: React.Dispatch<React.SetStateAction<number>>;
 	resolvedComposition: VideoConfig;
@@ -51,9 +51,9 @@ export const RenderModalBasic: React.FC<{
 	codec,
 	setVideoCodec: setCodec,
 	proResProfile,
-	presetsProfile,
+	x264Preset,
 	setProResProfile,
-	setPresetsProfile,
+	setx264Preset,
 	frame,
 	setFrame,
 	resolvedComposition,
@@ -104,13 +104,13 @@ export const RenderModalBasic: React.FC<{
 		});
 	}, [proResProfile, setProResProfile]);
 
-	const presetsProfileOptions = useMemo((): ComboboxValue[] => {
-		return BrowserSafeApis.presetsProfileOptions.map((option) => {
+	const x264PresetOptions = useMemo((): ComboboxValue[] => {
+		return BrowserSafeApis.x264PresetOptions.map((option) => {
 			return {
-				label: labelPresetsProfile(option),
-				onClick: () => setPresetsProfile(option),
+				label: labelx264Preset(option),
+				onClick: () => setx264Preset(option),
 				key: option,
-				selected: presetsProfile === option,
+				selected: x264Preset === option,
 				type: 'item',
 				id: option,
 				keyHint: null,
@@ -218,9 +218,9 @@ export const RenderModalBasic: React.FC<{
 					<div style={label}>Presets profile</div>
 					<div style={rightRow}>
 						<Combobox
-							title={presetsProfile as string}
-							selectedId={presetsProfile as string}
-							values={presetsProfileOptions}
+							title={x264Preset as string}
+							selectedId={x264Preset as string}
+							values={x264PresetOptions}
 						/>
 					</div>
 				</div>

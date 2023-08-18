@@ -3,10 +3,10 @@ import type {
 	Codec,
 	makeCancelSignal,
 	PixelFormat,
-	PresetsProfile,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	x264Preset,
 } from '@remotion/renderer';
 import type {EnumPath} from '../../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import type {AggregateRenderProgress} from '../../progress-types';
@@ -64,7 +64,7 @@ type RenderJobDynamicFields =
 			muted: boolean;
 			enforceAudioTrack: boolean;
 			proResProfile: ProResProfile | null;
-			presetsProfile: PresetsProfile | null;
+			x264Preset: x264Preset | null;
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
 			videoBitrate: string | null;
@@ -115,7 +115,7 @@ type AddRenderRequestDynamicFields =
 			muted: boolean;
 			enforceAudioTrack: boolean;
 			proResProfile: ProResProfile | null;
-			presetsProfile: PresetsProfile | null;
+			x264Preset: x264Preset | null;
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
 			videoBitrate: string | null;

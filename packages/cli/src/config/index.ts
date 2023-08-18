@@ -27,13 +27,13 @@ import {
 } from './override-webpack';
 import {getShouldOverwrite} from './overwrite';
 import {getPixelFormat} from './pixel-format';
-import {getPresetProfile} from './presets-profile';
 import {getServerPort} from './preview-server';
 import {getProResProfile} from './prores-profile';
 import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
+import {getX264Preset} from './x264-preset';
 
 import type {WebpackConfiguration} from '@remotion/bundler';
 import type {
@@ -93,7 +93,6 @@ import type {WebpackOverrideFn} from './override-webpack';
 import {overrideWebpackConfig} from './override-webpack';
 import {setOverwriteOutput} from './overwrite';
 import {setPixelFormat} from './pixel-format';
-import {setPresetProfile} from './presets-profile';
 import {setPort} from './preview-server';
 import {setProResProfile} from './prores-profile';
 import {getPublicDir, setPublicDir} from './public-dir';
@@ -106,6 +105,7 @@ import {
 	setWebpackPollingInMilliseconds,
 } from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
+import {setX264Preset} from './x264-preset';
 
 declare global {
 	interface RemotionBundlingOptions {
@@ -503,7 +503,7 @@ export const Config: FlatConfig = {
 	setCrf,
 	setImageSequence,
 	setProResProfile,
-	setPresetProfile,
+	setPresetProfile: setX264Preset,
 	setAudioBitrate,
 	setVideoBitrate,
 	overrideHeight,
@@ -520,7 +520,7 @@ export const ConfigInternals = {
 	getBrowser,
 	getPixelFormat,
 	getProResProfile,
-	getPresetProfile,
+	getPresetProfile: getX264Preset,
 	getShouldOverwrite,
 	getBrowserExecutable,
 	getScale,

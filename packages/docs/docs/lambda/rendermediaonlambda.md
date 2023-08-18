@@ -165,11 +165,11 @@ _optional_
 
 See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile).
 
-### `presetsProfile?`
+### `x264Preset?`
 
 _optional_
 
-See [`renderMedia() -> presetsProfile`](/docs/renderer/render-media#presetsprofile).
+See [`renderMedia() -> x264Preset`](/docs/renderer/render-media#x264Preset).
 
 ### `jpegQuality`
 

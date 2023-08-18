@@ -2,10 +2,10 @@ import type {
 	AudioCodec,
 	Codec,
 	PixelFormat,
-	PresetsProfile,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	x264Preset,
 } from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {ApiRoutes} from '../../../preview-server/api-types';
@@ -111,7 +111,7 @@ export const addVideoRenderJob = ({
 	muted,
 	enforceAudioTrack,
 	proResProfile,
-	presetsProfile,
+	x264Preset,
 	pixelFormat,
 	audioBitrate,
 	videoBitrate,
@@ -138,7 +138,7 @@ export const addVideoRenderJob = ({
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | null;
-	presetsProfile: PresetsProfile | null;
+	x264Preset: x264Preset | null;
 	pixelFormat: PixelFormat;
 	audioBitrate: string | null;
 	videoBitrate: string | null;
@@ -167,7 +167,7 @@ export const addVideoRenderJob = ({
 		muted,
 		enforceAudioTrack,
 		proResProfile,
-		presetsProfile,
+		x264Preset,
 		pixelFormat,
 		audioBitrate,
 		videoBitrate,

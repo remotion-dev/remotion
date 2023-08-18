@@ -24,9 +24,9 @@ import {scaleOption} from './options/scale';
 import {videoBitrate} from './options/video-bitrate';
 import {videoCodecOption} from './options/video-codec';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
-import {presetsProfileOptions} from './presets-profile';
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
+import {x264PresetOptions} from './x264-preset';
 
 export const BrowserSafeApis = {
 	getFileExtensionFromCodec,
@@ -36,7 +36,7 @@ export const BrowserSafeApis = {
 	getValidCrfRanges,
 	isAudioCodec,
 	proResProfileOptions,
-	presetsProfileOptions,
+	x264PresetOptions,
 	validPixelFormats,
 	DEFAULT_PIXEL_FORMAT,
 	supportedAudioCodecs,
