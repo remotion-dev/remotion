@@ -176,6 +176,7 @@ class RenderParams
             'forceWidth' => $this->getForceWidth(),
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
+            'x264Preset' => $this->getX264Preset(),
             'type' => 'start'
         ];
 

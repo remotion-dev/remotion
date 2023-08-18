@@ -84,6 +84,7 @@ class RenderParams:
             'forceWidth': self.force_width,
             'bucketName': self.bucket_name,
             'audioCodec': self.audio_codec,
+            'x264Preset': self.x264_preset,
             'type': 'start'
         }
 
