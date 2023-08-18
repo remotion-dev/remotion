@@ -562,7 +562,7 @@ Config.setProResProfile("4444");
 
 The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` will take precedence over this option.
 
-## setX264Preset()<AvailableFrom v="2.1.7" />
+## setX264Preset()<AvailableFrom v="4.2.2" />
 
 Set the Preset profile. This option is only valid if the codec has been set to `h264`.
 Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
