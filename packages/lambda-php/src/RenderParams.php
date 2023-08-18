@@ -787,7 +787,7 @@ class RenderParams
      */
     public function getX264Preset()
     {
-        return $this->getX264Preset;
+        return $this->x264Preset;
     }
 
      /**
