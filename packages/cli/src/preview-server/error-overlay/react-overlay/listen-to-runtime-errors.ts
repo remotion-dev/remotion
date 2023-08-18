@@ -75,7 +75,7 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 		console.log('Hook order changed. Reloading app...');
 		if (window.remotion_unsavedProps) {
 			notificationCenter.current?.addNotification({
-				id: 'random',
+				id: new Date().toString(),
 				content:
 					'There are unsaved changes to the props. Do you want to leave?',
 				created: new Date().getMilliseconds(),
