@@ -503,7 +503,7 @@ export const Config: FlatConfig = {
 	setCrf,
 	setImageSequence,
 	setProResProfile,
-	setX264Preset: setX264Preset,
+	setX264Preset,
 	setAudioBitrate,
 	setVideoBitrate,
 	overrideHeight,
