@@ -734,6 +734,12 @@ const RenderModal: React.FC<
 		onClose,
 	]);
 
+	useEffect(() => {
+		return () => {
+			isMounted.current = false;
+		};
+	}, []);
+
 	const imageFormatOptions = useMemo((): SegmentedControlItem[] => {
 		if (renderMode === 'still') {
 			return [
