@@ -35,7 +35,7 @@ type RemotionOptions struct {
 	AudioCodec            interface{}            `json:"audioCodec"`
 	ForceBucketName       string                 `json:"forceBucketName"`
 	Gl                    string                 `json:"gl"`
-	X264Preset						string 								 `json:"x264Preset"`
+	X264Preset						interface{} 					 `json:"x264Preset"`
 }
 
 type renderInternalOptions struct {
@@ -75,7 +75,7 @@ type renderInternalOptions struct {
 
 	ForceBucketName 			string  							 `json:"forceBucketName,omitempty"`
 	Gl              			*string 							 `json:"gl,omitempty"`
-	X264Preset						string 								 `json:"x264Preset"`
+	X264Preset						interface{} 								 `json:"x264Preset"`
 }
 
 type RawInvokeResponse struct {
