@@ -354,7 +354,7 @@ declare global {
 				| undefined
 		) => void;
 
-		readonly setPresetProfile: (
+		readonly setX264Preset: (
 			profile:
 				| 'ultrafast'
 				| 'superfast'
@@ -503,7 +503,7 @@ export const Config: FlatConfig = {
 	setCrf,
 	setImageSequence,
 	setProResProfile,
-	setPresetProfile: setX264Preset,
+	setX264Preset: setX264Preset,
 	setAudioBitrate,
 	setVideoBitrate,
 	overrideHeight,

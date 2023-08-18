@@ -201,7 +201,7 @@ export const parseCommandLine = () => {
 	}
 
 	if (parsedCli['x264-preset']) {
-		Config.setPresetProfile(String(parsedCli['x264-preset']) as x264Preset);
+		Config.setX264Preset(String(parsedCli['x264-preset']) as x264Preset);
 	}
 
 	if (parsedCli.overwrite) {
