@@ -1,6 +1,6 @@
 import type {Codec} from './codec';
 
-export const presetsProfileOptions = [
+export const x264PresetOptions = [
 	'ultrafast',
 	'superfast',
 	'veryfast',
@@ -13,27 +13,27 @@ export const presetsProfileOptions = [
 	'placebo',
 ] as const;
 
-export type PresetsProfile = typeof presetsProfileOptions[number];
+export type X264Preset = typeof x264PresetOptions[number];
 
 export const validateSelectedCodecAndPresetCombination = ({
 	codec,
-	presetsProfile,
+	x264Preset,
 }: {
 	codec: Codec;
-	presetsProfile: PresetsProfile | undefined;
+	x264Preset: X264Preset | undefined;
 }) => {
-	if (typeof presetsProfile !== 'undefined' && codec !== 'h264') {
+	if (typeof x264Preset !== 'undefined' && codec !== 'h264') {
 		throw new TypeError(
 			`You have set a Preset profile but the codec is "${codec}". Set the codec to "h264" or remove the Preset profile.`
 		);
 	}
 
 	if (
-		presetsProfile !== undefined &&
-		!presetsProfileOptions.includes(presetsProfile as PresetsProfile)
+		x264Preset !== undefined &&
+		!x264PresetOptions.includes(x264Preset as X264Preset)
 	) {
 		throw new TypeError(
-			`The Preset profile "${presetsProfile}" is not valid. Valid options are ${presetsProfileOptions
+			`The Preset profile "${x264Preset}" is not valid. Valid options are ${x264PresetOptions
 				.map((p) => `"${p}"`)
 				.join(', ')}`
 		);

@@ -45,7 +45,7 @@ test('Should be able to render to another bucket', async () => {
 			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,
-			presetsProfile: undefined,
+			x264Preset: undefined,
 			jpegQuality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,

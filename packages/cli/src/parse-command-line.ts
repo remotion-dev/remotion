@@ -5,10 +5,10 @@ import type {
 	LogLevel,
 	OpenGlRenderer,
 	PixelFormat,
-	PresetsProfile,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	x264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import minimist from 'minimist';
@@ -20,7 +20,7 @@ type CommandLineOptions = {
 	['pixel-format']: PixelFormat;
 	['image-format']: VideoImageFormat | StillImageFormat;
 	['prores-profile']: ProResProfile;
-	['preset-profile']: PresetsProfile;
+	['x264-preset']: x264Preset;
 	['bundle-cache']: string;
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
@@ -200,10 +200,8 @@ export const parseCommandLine = () => {
 		);
 	}
 
-	if (parsedCli['preset-profile']) {
-		Config.setPresetProfile(
-			String(parsedCli['preset-profile']) as PresetsProfile
-		);
+	if (parsedCli['x264-preset']) {
+		Config.setPresetProfile(String(parsedCli['x264-preset']) as x264Preset);
 	}
 
 	if (parsedCli.overwrite) {

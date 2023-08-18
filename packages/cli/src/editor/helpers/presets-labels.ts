@@ -1,6 +1,6 @@
-import type {PresetsProfile} from '@remotion/renderer';
+import type {x264Preset} from '@remotion/renderer';
 
-export const labelPresetsProfile = (profile: PresetsProfile) => {
+export const labelx264Preset = (profile: x264Preset) => {
 	if (profile === 'ultrafast') {
 		return 'ultrafast';
 	}

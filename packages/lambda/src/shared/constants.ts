@@ -5,10 +5,10 @@ import type {
 	FrameRange,
 	LogLevel,
 	PixelFormat,
-	PresetsProfile,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	x264Preset,
 } from '@remotion/renderer';
 import type {VideoConfig} from 'remotion';
 import type {ChunkRetry} from '../functions/helpers/get-retry-stats';
@@ -236,7 +236,7 @@ export type LambdaStartPayload = {
 	envVariables: Record<string, string> | undefined;
 	pixelFormat: PixelFormat | undefined;
 	proResProfile: ProResProfile | undefined;
-	presetsProfile: PresetsProfile | undefined;
+	x264Preset: x264Preset | undefined;
 	jpegQuality: number | undefined;
 	maxRetries: number;
 	privacy: Privacy;
@@ -290,7 +290,7 @@ export type LambdaPayloads = {
 		envVariables: Record<string, string> | undefined;
 		pixelFormat: PixelFormat | undefined;
 		proResProfile: ProResProfile | undefined;
-		presetsProfile: PresetsProfile | undefined;
+		x264Preset: x264Preset | undefined;
 		jpegQuality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
@@ -332,7 +332,7 @@ export type LambdaPayloads = {
 		codec: LambdaCodec;
 		crf: number | undefined;
 		proResProfile: ProResProfile | undefined;
-		presetsProfile: PresetsProfile | undefined;
+		x264Preset: x264Preset | undefined;
 		pixelFormat: PixelFormat | undefined;
 		jpegQuality: number | undefined;
 		envVariables: Record<string, string> | undefined;

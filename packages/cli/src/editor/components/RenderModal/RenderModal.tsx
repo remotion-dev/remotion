@@ -3,10 +3,10 @@ import type {
 	Codec,
 	OpenGlRenderer,
 	PixelFormat,
-	PresetsProfile,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	x264Preset,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {
@@ -207,7 +207,7 @@ type RenderModalProps = {
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
 	initialProResProfile: ProResProfile;
-	initialPresetsProfile: PresetsProfile;
+	initialx264Preset: x264Preset;
 	initialPixelFormat: PixelFormat;
 	initialVideoBitrate: string | null;
 	initialAudioBitrate: string | null;
@@ -247,7 +247,7 @@ const RenderModal: React.FC<
 	initialMuted,
 	initialEnforceAudioTrack,
 	initialProResProfile,
-	initialPresetsProfile,
+	initialx264Preset,
 	initialPixelFormat,
 	initialVideoBitrate,
 	initialAudioBitrate,
@@ -339,8 +339,8 @@ const RenderModal: React.FC<
 	const [proResProfileSetting, setProResProfile] = useState<ProResProfile>(
 		() => initialProResProfile
 	);
-	const [presetsProfileSetting, setPresetsProfile] = useState<PresetsProfile>(
-		() => initialPresetsProfile
+	const [x264PresetSetting, setx264Preset] = useState<x264Preset>(
+		() => initialx264Preset
 	);
 
 	const [pixelFormat, setPixelFormat] = useState<PixelFormat>(
@@ -466,13 +466,13 @@ const RenderModal: React.FC<
 		return null;
 	}, [codec, proResProfileSetting, renderMode]);
 
-	const presetsProfile = useMemo(() => {
+	const x264Preset = useMemo(() => {
 		if (renderMode === 'video' && codec === 'h264') {
-			return presetsProfileSetting;
+			return x264PresetSetting;
 		}
 
 		return null;
-	}, [codec, presetsProfileSetting, renderMode]);
+	}, [codec, x264PresetSetting, renderMode]);
 
 	const [inputProps, setInputProps] = useState(() => defaultProps);
 
@@ -680,7 +680,7 @@ const RenderModal: React.FC<
 			muted,
 			enforceAudioTrack,
 			proResProfile,
-			presetsProfile,
+			x264Preset,
 			pixelFormat,
 			audioBitrate,
 			videoBitrate,
@@ -719,7 +719,7 @@ const RenderModal: React.FC<
 		muted,
 		enforceAudioTrack,
 		proResProfile,
-		presetsProfile,
+		x264Preset,
 		pixelFormat,
 		audioBitrate,
 		videoBitrate,
@@ -1012,13 +1012,13 @@ const RenderModal: React.FC<
 							imageFormatOptions={imageFormatOptions}
 							outName={outName}
 							proResProfile={proResProfile}
-							presetsProfile={presetsProfile}
+							x264Preset={x264Preset}
 							renderMode={renderMode}
 							setVideoCodec={setCodec}
 							setFrame={setFrame}
 							setOutName={setOutName}
 							setProResProfile={setProResProfile}
-							setPresetsProfile={setPresetsProfile}
+							setx264Preset={setx264Preset}
 							endFrame={endFrame}
 							setEndFrame={setEndFrame}
 							setStartFrame={setStartFrame}

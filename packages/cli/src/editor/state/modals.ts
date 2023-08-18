@@ -3,10 +3,10 @@ import type {
 	Codec,
 	OpenGlRenderer,
 	PixelFormat,
-	PresetsProfile,
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	x264Preset,
 } from '@remotion/renderer';
 import type React from 'react';
 import {createContext} from 'react';
@@ -34,7 +34,7 @@ export type RenderModalState = {
 	initialMuted: boolean;
 	initialEnforceAudioTrack: boolean;
 	initialProResProfile: ProResProfile;
-	initialPresetsProfile: PresetsProfile;
+	initialx264Preset: x264Preset;
 	initialPixelFormat: PixelFormat;
 	initialVideoBitrate: string | null;
 	initialAudioBitrate: string | null;

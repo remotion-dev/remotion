@@ -41,7 +41,7 @@ test('Should add silent audio if there is no audio', async () => {
 			pixelFormat: 'yuv420p',
 			privacy: 'public',
 			proResProfile: undefined,
-			presetsProfile: undefined,
+			x264Preset: undefined,
 			jpegQuality: undefined,
 			scale: 1,
 			timeoutInMilliseconds: 12000,

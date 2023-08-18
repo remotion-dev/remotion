@@ -40,7 +40,7 @@ export const Modals: React.FC = () => {
 					initialMuted={modalContextType.initialMuted}
 					initialEnforceAudioTrack={modalContextType.initialEnforceAudioTrack}
 					initialProResProfile={modalContextType.initialProResProfile}
-					initialPresetsProfile={modalContextType.initialPresetsProfile}
+					initialx264Preset={modalContextType.initialx264Preset}
 					initialPixelFormat={modalContextType.initialPixelFormat}
 					initialAudioBitrate={modalContextType.initialAudioBitrate}
 					initialVideoBitrate={modalContextType.initialVideoBitrate}
