@@ -13,7 +13,7 @@ import type {
 	ProResProfile,
 	RenderMediaOnDownload,
 	VideoImageFormat,
-	x264Preset,
+	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs, {existsSync} from 'node:fs';
@@ -132,7 +132,7 @@ export const renderVideoFlow = async ({
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | undefined;
-	x264Preset: x264Preset | undefined;
+	x264Preset: X264Preset | undefined;
 	pixelFormat: PixelFormat;
 	numberOfGifLoops: Loop;
 	audioCodec: AudioCodec | null;

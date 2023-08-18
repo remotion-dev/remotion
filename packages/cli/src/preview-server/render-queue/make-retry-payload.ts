@@ -3,7 +3,7 @@ import type {
 	Codec,
 	PixelFormat,
 	ProResProfile,
-	x264Preset,
+	X264Preset,
 } from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {RenderModalState} from '../../editor/state/modals';
@@ -41,7 +41,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
 			initialProResProfile: defaults.proResProfile as ProResProfile,
-			initialx264Preset: defaults.x264Preset as x264Preset,
+			initialx264Preset: defaults.x264Preset as X264Preset,
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			initialAudioBitrate: defaults.audioBitrate,
 			initialVideoBitrate: defaults.videoBitrate,
@@ -89,7 +89,7 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialVideoCodecForVideoTab: initialVideoCodec,
 			initialProResProfile:
 				job.proResProfile ?? (defaults.proResProfile as ProResProfile),
-			initialx264Preset: job.x264Preset ?? (defaults.x264Preset as x264Preset),
+			initialx264Preset: job.x264Preset ?? (defaults.x264Preset as X264Preset),
 			initialPixelFormat: job.pixelFormat,
 			initialAudioBitrate: job.audioBitrate,
 			initialVideoBitrate: job.videoBitrate,

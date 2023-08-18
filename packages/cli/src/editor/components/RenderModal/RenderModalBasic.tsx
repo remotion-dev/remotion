@@ -1,8 +1,7 @@
-import type {Codec, ProResProfile, x264Preset} from '@remotion/renderer';
+import type {Codec, ProResProfile} from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import React, {useCallback, useMemo} from 'react';
 import type {VideoConfig} from 'remotion';
-import {labelx264Preset} from '../../helpers/presets-labels';
 import {labelProResProfile} from '../../helpers/prores-labels';
 import {useFileExistence} from '../../helpers/use-file-existence';
 import {Checkmark} from '../../icons/Checkmark';
@@ -32,9 +31,7 @@ export const RenderModalBasic: React.FC<{
 	setVideoCodec: (newCodec: Codec) => void;
 	outName: string;
 	proResProfile: ProResProfile | null;
-	x264Preset: x264Preset | null;
 	setProResProfile: React.Dispatch<React.SetStateAction<ProResProfile>>;
-	setx264Preset: React.Dispatch<React.SetStateAction<x264Preset>>;
 	frame: number;
 	setFrame: React.Dispatch<React.SetStateAction<number>>;
 	resolvedComposition: VideoConfig;
@@ -51,9 +48,7 @@ export const RenderModalBasic: React.FC<{
 	codec,
 	setVideoCodec: setCodec,
 	proResProfile,
-	x264Preset,
 	setProResProfile,
-	setx264Preset,
 	frame,
 	setFrame,
 	resolvedComposition,
@@ -93,24 +88,6 @@ export const RenderModalBasic: React.FC<{
 				onClick: () => setProResProfile(option),
 				key: option,
 				selected: proResProfile === option,
-				type: 'item',
-				id: option,
-				keyHint: null,
-				leftItem: null,
-				quickSwitcherLabel: null,
-				subMenu: null,
-				value: option,
-			};
-		});
-	}, [proResProfile, setProResProfile]);
-
-	const x264PresetOptions = useMemo((): ComboboxValue[] => {
-		return BrowserSafeApis.x264PresetOptions.map((option) => {
-			return {
-				label: labelx264Preset(option),
-				onClick: () => setx264Preset(option),
-				key: option,
-				selected: x264Preset === option,
 				type: 'item',
 				id: option,
 				keyHint: null,
@@ -213,18 +190,7 @@ export const RenderModalBasic: React.FC<{
 					</div>
 				</div>
 			) : null}
-			{renderMode === 'video' && codec === 'h264' ? (
-				<div style={optionRow}>
-					<div style={label}>Presets profile</div>
-					<div style={rightRow}>
-						<Combobox
-							title={x264Preset as string}
-							selectedId={x264Preset as string}
-							values={x264PresetOptions}
-						/>
-					</div>
-				</div>
-			) : null}
+
 			{renderMode === 'still' ? null : (
 				<FrameRangeSetting
 					durationInFrames={resolvedComposition.durationInFrames}

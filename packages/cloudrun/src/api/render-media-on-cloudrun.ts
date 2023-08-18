@@ -6,7 +6,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 	VideoImageFormat,
-	x264Preset,
+	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
@@ -42,7 +42,7 @@ export type RenderMediaOnCloudrunInput = {
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
 	proResProfile?: ProResProfile;
-	x264Preset?: x264Preset;
+	x264Preset?: X264Preset;
 	crf?: number | undefined;
 	pixelFormat?: PixelFormat;
 	imageFormat?: VideoImageFormat;

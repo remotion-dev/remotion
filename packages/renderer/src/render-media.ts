@@ -619,6 +619,7 @@ export const internalRenderMedia = ({
 						audioBitrate,
 						videoBitrate,
 						audioCodec,
+						x264Preset: x264Preset ?? null,
 					}),
 					stitchStart,
 				]);
