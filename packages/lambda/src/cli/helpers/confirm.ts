@@ -7,9 +7,9 @@ export const confirmCli = async ({
 }: {
 	delMessage: string;
 	allowForceFlag: boolean;
-}) => {
+}): Promise<boolean> => {
 	if (allowForceFlag && forceFlagProvided) {
-		return;
+		return true;
 	}
 
 	const result = await yesOrNo({question: delMessage, defaultValue: true});
