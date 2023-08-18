@@ -782,17 +782,11 @@ class RenderParams
         return $this;
     }
 
-         /**
-     * Get the value of pixelFormat
-     */
     public function getX264Preset()
     {
         return $this->x264Preset;
     }
 
-     /**
-     * Set the value of pixelFormat
-     */
     public function setX264Preset($x264Preset)
     {
          $this->x264Preset = $x264Preset;
