@@ -33,6 +33,7 @@ import {getScale} from './scale';
 import {getStillFrame, setStillFrame} from './still-frame';
 import {getCurrentPuppeteerTimeout} from './timeout';
 import {getWebpackCaching} from './webpack-caching';
+import {getX264Preset} from './x264-preset';
 
 import type {WebpackConfiguration} from '@remotion/bundler';
 import type {
@@ -104,6 +105,7 @@ import {
 	setWebpackPollingInMilliseconds,
 } from './webpack-poll';
 import {getWidth, overrideWidth} from './width';
+import {setX264Preset} from './x264-preset';
 
 declare global {
 	interface RemotionBundlingOptions {
@@ -351,6 +353,21 @@ declare global {
 				| 'proxy'
 				| undefined
 		) => void;
+
+		readonly setX264Preset: (
+			profile:
+				| 'ultrafast'
+				| 'superfast'
+				| 'veryfast'
+				| 'faster'
+				| 'fast'
+				| 'medium'
+				| 'slow'
+				| 'slower'
+				| 'veryslow'
+				| 'placebo'
+				| undefined
+		) => void;
 		/**
 		 * Override the arguments that Remotion passes to FFMPEG.
 		 * Consult https://remotion.dev/docs/renderer/render-media#ffmpegoverride before using this feature.
@@ -486,6 +503,7 @@ export const Config: FlatConfig = {
 	setCrf,
 	setImageSequence,
 	setProResProfile,
+	setX264Preset,
 	setAudioBitrate,
 	setVideoBitrate,
 	overrideHeight,
@@ -502,6 +520,7 @@ export const ConfigInternals = {
 	getBrowser,
 	getPixelFormat,
 	getProResProfile,
+	getPresetProfile: getX264Preset,
 	getShouldOverwrite,
 	getBrowserExecutable,
 	getScale,
