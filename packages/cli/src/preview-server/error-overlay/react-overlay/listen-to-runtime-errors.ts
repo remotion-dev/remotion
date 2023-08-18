@@ -76,7 +76,7 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 		if (window.remotion_unsavedProps) {
 			notificationCenter.current?.addNotification({
 				id: 'random',
-				content: 'Do not save hey',
+				content: 'There are unsaved changes to the props. Do you want to leave?',
 				created: new Date().getMilliseconds(),
 				duration: 1,
 			});
