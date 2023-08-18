@@ -236,7 +236,7 @@ export type LambdaStartPayload = {
 	envVariables: Record<string, string> | undefined;
 	pixelFormat: PixelFormat | undefined;
 	proResProfile: ProResProfile | undefined;
-	x264Preset: X264Preset | undefined;
+	x264Preset: X264Preset | null;
 	jpegQuality: number | undefined;
 	maxRetries: number;
 	privacy: Privacy;
@@ -290,7 +290,7 @@ export type LambdaPayloads = {
 		envVariables: Record<string, string> | undefined;
 		pixelFormat: PixelFormat | undefined;
 		proResProfile: ProResProfile | undefined;
-		x264Preset: X264Preset | undefined;
+		x264Preset: X264Preset | null;
 		jpegQuality: number | undefined;
 		maxRetries: number;
 		privacy: Privacy;
@@ -332,7 +332,7 @@ export type LambdaPayloads = {
 		codec: LambdaCodec;
 		crf: number | undefined;
 		proResProfile: ProResProfile | undefined;
-		x264Preset: X264Preset | undefined;
+		x264Preset: X264Preset | null;
 		pixelFormat: PixelFormat | undefined;
 		jpegQuality: number | undefined;
 		envVariables: Record<string, string> | undefined;

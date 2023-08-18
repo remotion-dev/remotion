@@ -92,7 +92,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		envVariables,
 		pixelFormat,
 		proResProfile,
-		x264Preset,
+		x264Preset: x264Preset ?? null,
 		jpegQuality,
 		maxRetries: maxRetries ?? 1,
 		privacy: privacy ?? 'public',
