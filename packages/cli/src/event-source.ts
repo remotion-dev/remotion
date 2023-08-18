@@ -1,7 +1,4 @@
-import {
-	notificationCenter,
-	sendErrorNotification,
-} from './editor/components/Notifications/NotificationCenter';
+import {sendErrorNotification} from './editor/components/Notifications/NotificationCenter';
 import {renderJobsRef} from './editor/components/RenderQueue/context';
 import {studioServerConnectionRef} from './editor/helpers/client-id';
 import type {EventSourceEvent} from './event-source-events';
@@ -35,17 +32,7 @@ export const openEventSource = () => {
 			newEvent.type === 'new-input-props' ||
 			newEvent.type === 'new-env-variables'
 		) {
-			if (window.remotion_unsavedProps) {
-				notificationCenter.current?.addNotification({
-					id: new Date().toString(),
-					content:
-						'There are unsaved changes to the props. Do you want to leave?',
-					created: new Date().getMilliseconds(),
-					duration: 1,
-				});
-			} else {
-				window.location.reload();
-			}
+			window.location.reload();
 		}
 
 		if (newEvent.type === 'init') {
