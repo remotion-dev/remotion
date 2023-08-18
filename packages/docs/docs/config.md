@@ -562,6 +562,20 @@ Config.setProResProfile("4444");
 
 The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` will take precedence over this option.
 
+## setX264Preset()<AvailableFrom v="4.2.2" />
+
+Set the Preset profile. This option is only valid if the codec has been set to `h264`.
+Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
+Default: `medium`
+
+```ts twoslash title="remotion.config.ts"
+import { Config } from "@remotion/cli/config";
+// ---cut---
+Config.setX264Preset("fast");
+```
+
+The [command line flag](/docs/cli/render#--prores-profile) `--prores-profile` will take precedence over this option.
+
 **See also**: [Encoding guide](/docs/encoding), [Transparent videos](/docs/transparent-videos)
 
 ## setImageSequence()<AvailableFrom v="1.4.0" />
@@ -685,11 +699,16 @@ import { Config } from "@remotion/cli/config";
 Config.overrideFfmpegCommand(({ args }) => {
   // Define the custom FFmpeg options as an array of strings
   const customFfmpegOptions = [
-    "-profile:v","main",
-    "-video_track_timescale","90000",
-    "-color_primaries","bt709",
-    "-color_trc","bt709",
-    "-strict","experimental",
+    "-profile:v",
+    "main",
+    "-video_track_timescale",
+    "90000",
+    "-color_primaries",
+    "bt709",
+    "-color_trc",
+    "bt709",
+    "-strict",
+    "experimental",
   ];
   // The customFfmpegOptions are inserted before the last element to ensure
   // they appear before the ffmpeg's output path

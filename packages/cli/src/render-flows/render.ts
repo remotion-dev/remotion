@@ -13,6 +13,7 @@ import type {
 	ProResProfile,
 	RenderMediaOnDownload,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import fs, {existsSync} from 'node:fs';
@@ -85,6 +86,7 @@ export const renderVideoFlow = async ({
 	muted,
 	enforceAudioTrack,
 	proResProfile,
+	x264Preset,
 	pixelFormat,
 	videoBitrate,
 	numberOfGifLoops,
@@ -130,6 +132,7 @@ export const renderVideoFlow = async ({
 	muted: boolean;
 	enforceAudioTrack: boolean;
 	proResProfile: ProResProfile | undefined;
+	x264Preset: X264Preset | undefined;
 	pixelFormat: PixelFormat;
 	numberOfGifLoops: Loop;
 	audioCodec: AudioCodec | null;
@@ -425,6 +428,7 @@ export const renderVideoFlow = async ({
 		overwrite,
 		pixelFormat,
 		proResProfile,
+		x264Preset,
 		jpegQuality: jpegQuality ?? RenderInternals.DEFAULT_JPEG_QUALITY,
 		chromiumOptions,
 		timeoutInMilliseconds: puppeteerTimeout,
