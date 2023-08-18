@@ -737,7 +737,7 @@ const RenderModal: React.FC<
 
 	useEffect(() => {
 		const listenToChanges = () => {
-			if (window.unsavedProps) {
+			if (window.remotion_unsavedProps) {
 				notificationCenter.current?.addNotification({
 					id: 'random',
 					content: 'Do not save hey',
