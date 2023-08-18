@@ -51,7 +51,6 @@ import {
 	ModalContainer,
 } from '../ModalContainer';
 import {NewCompHeader} from '../ModalHeader';
-import {notificationCenter} from '../Notifications/NotificationCenter';
 import {
 	optionsSidebarTabs,
 	persistSelectedOptionsSidebarPanel,
@@ -734,26 +733,6 @@ const RenderModal: React.FC<
 		inputProps,
 		onClose,
 	]);
-
-	useEffect(() => {
-		const listenToChanges = () => {
-			if (window.remotion_unsavedProps) {
-				notificationCenter.current?.addNotification({
-					id: new Date().toString(),
-					content:
-						'There are unsaved changes to the props. Do you want to leave?',
-					created: new Date().getMilliseconds(),
-					duration: 1,
-				});
-			}
-		};
-
-		window.addEventListener('beforeunload', listenToChanges);
-		return () => {
-			isMounted.current = false;
-			window.removeEventListener('beforeunload', listenToChanges);
-		};
-	}, []);
 
 	const imageFormatOptions = useMemo((): SegmentedControlItem[] => {
 		if (renderMode === 'still') {
