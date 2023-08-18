@@ -30,7 +30,7 @@ Using the following snippet, we can calculate the current color for any frame:
 ```tsx twoslash
 import { interpolateColors, useCurrentFrame } from "remotion";
 
-const frame = useCurrentFrame() / 10;
+const frame = useCurrentFrame() // 10;
 
 const color = interpolateColors(frame, [0, 20], ["red", "yellow"]); // rgba(255, 128, 0, 1)
 
