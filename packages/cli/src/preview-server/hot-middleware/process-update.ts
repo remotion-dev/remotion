@@ -170,15 +170,7 @@ export const processUpdate = function (
 			console.warn(
 				'[Fast refresh] Update check failed: ' + (err.stack || err.message)
 			);
-			if (window.remotion_unsavedProps) {
-				notificationCenter.current?.addNotification({
-					id: new Date().toString(),
-					content:
-						'There are unsaved changes to the props. Do you want to leave?',
-					created: new Date().getMilliseconds(),
-					duration: 1,
-				});
-			} else {
+			if (!window.remotion_unsavedProps) {
 				window.location.reload();
 			}
 		}
@@ -194,7 +186,7 @@ export const processUpdate = function (
 			notificationCenter.current?.addNotification({
 				id: 'random',
 				content:
-					'There are unsaved changes to the props. Do you want to leave?',
+					'Fast refresh needs to reload the page, but you have unsaved props. Save then reload the page to apply changes.',
 				created: new Date().getMilliseconds(),
 				duration: 1,
 			});
