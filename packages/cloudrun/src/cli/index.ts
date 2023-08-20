@@ -1,3 +1,6 @@
+import {CliInternals} from '@remotion/cli';
+import {ConfigInternals} from '@remotion/cli/config';
+import {RenderInternals} from '@remotion/renderer';
 import {parsedCloudrunCli} from './args';
 import {permissionsCommand, PERMISSIONS_COMMAND} from './commands/permissions';
 import {regionsCommand, REGIONS_COMMAND} from './commands/regions';
@@ -54,9 +57,27 @@ export const executeCommand = async (args: string[], remotionRoot: string) => {
 		await matchCommand(args, remotionRoot);
 	} catch (err) {
 		const error = err as Error;
-		// todo: catch errors and print a message. Check lambda cli for example
+		if (error instanceof RenderInternals.SymbolicateableError) {
+			await CliInternals.handleCommonError(
+				error,
+				ConfigInternals.Logging.getLogLevel()
+			);
+		} else {
+			const frames = RenderInternals.parseStack(error.stack?.split('\n') ?? []);
 
-		Log.error(error.stack);
+			const errorWithStackFrame = new RenderInternals.SymbolicateableError({
+				message: error.message,
+				frame: null,
+				name: error.name,
+				stack: error.stack,
+				stackFrame: frames,
+			});
+			await CliInternals.handleCommonError(
+				errorWithStackFrame,
+				ConfigInternals.Logging.getLogLevel()
+			);
+		}
+
 		quit(1);
 	}
 };

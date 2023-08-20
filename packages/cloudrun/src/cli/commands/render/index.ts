@@ -208,7 +208,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 		preferLossless: false,
 	});
 
-	if (res.status === 'crash') {
+	if (res.type === 'crash') {
 		let timeoutPreMsg = '';
 
 		const timeout = extractTimeoutFromURL(res.cloudRunEndpoint);
@@ -277,7 +277,7 @@ Full logs are available at https://console.cloud.google.com/run?project=${proces
 			Log.info(logResponse.textPayload);
 			Log.info();
 		}
-	} else if (res.status === 'success') {
+	} else if (res.type === 'success') {
 		renderProgress.doneIn = Date.now() - renderStart;
 		updateProgress();
 		Log.info(`

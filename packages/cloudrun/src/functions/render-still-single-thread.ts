@@ -90,7 +90,7 @@ export const renderStillSingleThread = async (
 		size: renderMetadata[0].size,
 		bucketName: body.outputBucket,
 		renderId,
-		status: 'success',
+		type: 'success',
 		privacy: publicUpload ? 'public-read' : 'project-private',
 	};
 

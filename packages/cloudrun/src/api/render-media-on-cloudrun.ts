@@ -217,6 +217,10 @@ export const renderMediaOnCloudrun = async ({
 			} else if (chunkResponse.onProgress) {
 				updateRenderProgress?.(chunkResponse.onProgress);
 			}
+
+			if (chunkResponse.type === 'error') {
+				reject(chunkResponse);
+			}
 		});
 
 		stream.on('end', () => {
@@ -227,7 +231,7 @@ export const renderMediaOnCloudrun = async ({
 				updateRenderProgress?.(0, true);
 
 				resolve({
-					status: 'crash',
+					type: 'crash',
 					cloudRunEndpoint,
 					message:
 						'Service crashed without sending a response. Check the logs in GCP console.',
@@ -235,8 +239,8 @@ export const renderMediaOnCloudrun = async ({
 					requestCrashTime: formattedCrashTime,
 					requestElapsedTimeInSeconds: (crashTime - startTime) / 1000,
 				});
-			} else if (response.status !== 'success' && response.status !== 'crash') {
-				throw new Error(response.stack);
+			} else if (response.type !== 'success' && response.type !== 'crash') {
+				throw response;
 			}
 
 			resolve(response);
