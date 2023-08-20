@@ -1,4 +1,3 @@
-import {notificationCenter} from '../../../editor/components/Notifications/NotificationCenter';
 import {setErrorsRef} from '../remotion-overlay/Overlay';
 import {massageWarning} from './effects/format-warning';
 import {
@@ -73,17 +72,9 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 	if (didHookOrderChange && !justRefreshedBecauseOfHooks) {
 		// eslint-disable-next-line no-console
 		console.log('Hook order changed. Reloading app...');
-		if (window.remotion_unsavedProps) {
-			notificationCenter.current?.addNotification({
-				id: new Date().toString(),
-				content:
-					'There are unsaved changes to the props. Do you want to leave?',
-				created: new Date().getMilliseconds(),
-				duration: 1,
-			});
-		} else {
-			window.location.reload();
-		}
+
+		window.remotion_unsavedProps = false;
+		window.location.reload();
 	} else {
 		setErrorsRef.current?.addError(error);
 
