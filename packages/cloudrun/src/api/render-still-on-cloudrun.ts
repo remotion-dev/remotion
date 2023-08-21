@@ -6,7 +6,9 @@ import type {
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
 import type {
+	CloudRunCrashResponse,
 	CloudRunPayloadType,
+	ErrorResponsePayload,
 	RenderStillOnCloudrunOutput,
 } from '../functions/helpers/payloads';
 import type {GcpRegion} from '../pricing/gcp-regions';
@@ -83,7 +85,9 @@ export const renderStillOnCloudrun = async ({
 	forceHeight,
 	logLevel,
 	delayRenderTimeoutInMilliseconds,
-}: RenderStillOnCloudrunInput): Promise<RenderStillOnCloudrunOutput> => {
+}: RenderStillOnCloudrunInput): Promise<
+	RenderStillOnCloudrunOutput | ErrorResponsePayload | CloudRunCrashResponse
+> => {
 	validateServeUrl(serveUrl);
 	if (privacy) validatePrivacy(privacy);
 
@@ -123,10 +127,75 @@ export const renderStillOnCloudrun = async ({
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
 
-	const renderResponse = await client.request({
+	const postResponse = await client.request({
 		url: cloudRunUrl,
 		method: 'POST',
 		data,
+		responseType: 'stream',
 	});
-	return renderResponse.data as RenderStillOnCloudrunOutput;
+
+	const renderResponse = await new Promise<
+		RenderStillOnCloudrunOutput | CloudRunCrashResponse
+	>((resolve, reject) => {
+		let response:
+			| RenderStillOnCloudrunOutput
+			| ErrorResponsePayload
+			| CloudRunCrashResponse;
+
+		const startTime = Date.now();
+		const formattedStartTime = new Date().toISOString();
+
+		const stream: any = postResponse.data;
+
+		let accumulatedChunks = ''; // A buffer to accumulate chunks.
+
+		stream.on('data', (chunk: Buffer) => {
+			accumulatedChunks += chunk.toString(); // Add the new chunk to the buffer.
+			let parsedData;
+
+			try {
+				parsedData = JSON.parse(accumulatedChunks.trim());
+				accumulatedChunks = ''; // Clear the buffer after successful parsing.
+			} catch (e) {
+				// If parsing fails, it means we don't have a complete JSON string yet.
+				// We'll wait for more chunks.
+				return;
+			}
+
+			if (parsedData.response) {
+				response = parsedData.response;
+			}
+
+			if (parsedData.type === 'error') {
+				reject(parsedData);
+			}
+		});
+
+		stream.on('end', () => {
+			if (!response) {
+				const crashTime = Date.now();
+				const formattedCrashTime = new Date().toISOString();
+
+				resolve({
+					type: 'crash',
+					cloudRunEndpoint,
+					message:
+						'Service crashed without sending a response. Check the logs in GCP console.',
+					requestStartTime: formattedStartTime,
+					requestCrashTime: formattedCrashTime,
+					requestElapsedTimeInSeconds: (crashTime - startTime) / 1000,
+				});
+			} else if (response.type !== 'success' && response.type !== 'crash') {
+				throw response;
+			}
+
+			resolve(response);
+		});
+
+		stream.on('error', (error: Error) => {
+			reject(error);
+		});
+	});
+
+	return renderResponse;
 };
