@@ -23,6 +23,7 @@ const seek = (
 		return;
 	}
 
+	// iOS seeking does not support multiple decimals
 	if (isIosSafari()) {
 		mediaRef.current.currentTime = Number(time.toFixed(1));
 		return;
