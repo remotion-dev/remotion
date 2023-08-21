@@ -275,6 +275,14 @@ _string - optional_
 
 Sets a ProRes profile. Only applies to videos rendered with `prores` codec. See [Encoding guide](/docs/encoding/#controlling-quality-using-prores-profile) for possible options.
 
+### `x264Preset?`
+
+_string - optional_
+
+Sets a Preset profile. Only applies to videos rendered with `h264` codec.
+Possible values: `superfast`, `veryfast`, `faster`, `fast`, `medium`, `slow`, `slower`, `veryslow`, `placebo`,
+Default: `medium`
+
 ### `logLevel?`<AvailableFrom v="4.0.0"/>
 
 One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged to the console.  

@@ -6,6 +6,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
@@ -41,6 +42,7 @@ export type RenderMediaOnCloudrunInput = {
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
 	proResProfile?: ProResProfile;
+	x264Preset?: X264Preset;
 	crf?: number | undefined;
 	pixelFormat?: PixelFormat;
 	imageFormat?: VideoImageFormat;
@@ -79,6 +81,7 @@ export type RenderMediaOnCloudrunInput = {
  * @param params.audioBitrate The target bitrate for the audio of the generated video.
  * @param params.videoBitrate The target bitrate of the generated video.
  * @param params.proResProfile Sets a ProRes profile. Only applies to videos rendered with prores codec.
+ * @param params.x264Preset Sets a Preset profile. Only applies to videos rendered with h.264 codec.
  * @param params.crf Constant Rate Factor, controlling the quality.
  * @param params.pixelFormat Custom pixel format to use. Usually used for special use cases like transparent videos.
  * @param params.imageFormat Which image format the frames should be rendered in.
@@ -116,6 +119,7 @@ export const renderMediaOnCloudrun = async ({
 	audioBitrate,
 	videoBitrate,
 	proResProfile,
+	x264Preset,
 	crf,
 	pixelFormat,
 	imageFormat,
@@ -167,6 +171,7 @@ export const renderMediaOnCloudrun = async ({
 		imageFormat: imageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
 		scale: scale ?? 1,
 		proResProfile: proResProfile ?? null,
+		x264Preset: x264Preset ?? null,
 		everyNthFrame: everyNthFrame ?? 1,
 		numberOfGifLoops: numberOfGifLoops ?? null,
 		frameRange: frameRange ?? null,

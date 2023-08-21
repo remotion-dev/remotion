@@ -12,6 +12,8 @@ export const setCurrentVideoId = (id: string | null) => {
 };
 
 export const setUnsavedProps = (unsaved: boolean) => {
+	window.remotion_unsavedProps = unsaved;
+
 	unsavedProps = unsaved;
 };
 
