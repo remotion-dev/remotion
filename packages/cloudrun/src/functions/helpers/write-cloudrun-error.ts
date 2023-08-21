@@ -26,7 +26,7 @@ export const writeCloudrunError = async ({
 	fs.writeFileSync(tempFilePath, JSON.stringify(errorInfo));
 
 	await storage.bucket(bucketName).upload(tempFilePath, {
-		destination: `renders/${renderId}/errors/error.txt`,
+		destination: `renders/${renderId}/error.txt`,
 		predefinedAcl: publicUpload ? 'publicRead' : 'projectPrivate',
 	});
 };
