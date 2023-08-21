@@ -74,6 +74,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 const renderFailResponsePayload = z.object({
 	type: z.literal('error'),
 	message: z.string(),
+	name: z.string(),
 	stack: z.string(),
 });
 

@@ -27,6 +27,7 @@ const renderOnCloudRun = async (req: ff.Request, res: ff.Response) => {
 		const response: ErrorResponsePayload = {
 			type: 'error',
 			message: (err as Error).message,
+			name: (err as Error).name,
 			stack: (err as Error).stack as string,
 		};
 		res.write(JSON.stringify(response));

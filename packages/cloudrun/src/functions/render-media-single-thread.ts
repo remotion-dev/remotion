@@ -9,7 +9,7 @@ import type {
 	CloudRunPayloadType,
 	RenderMediaOnCloudrunOutput,
 } from './helpers/payloads';
-import {writeCloudrunError} from './write-cloudrun-error';
+import {writeCloudrunError} from './helpers/write-cloudrun-error';
 
 export const renderMediaSingleThread = async (
 	body: CloudRunPayloadType,
