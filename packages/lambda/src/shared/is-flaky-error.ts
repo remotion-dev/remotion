@@ -1,5 +1,5 @@
 export const isFlakyError = (err: Error): boolean => {
-	const {message} = err;
+	const message = err.stack ?? '';
 
 	// storage.googleapis.com sometimes returns 500s, and Video does not have retry on its own
 	if (
@@ -30,6 +30,18 @@ export const isFlakyError = (err: Error): boolean => {
 	}
 
 	if (message.includes('Timed out while setting up the headless browser')) {
+		return true;
+	}
+
+	// https://github.com/remotion-dev/remotion/issues/2742
+	if (message.includes('while trying to connect to the browser')) {
+		return true;
+	}
+
+	// https://discord.com/channels/809501355504959528/1131234931863998665/1131998442219118622
+	if (
+		message.includes('RequestTimeout: Your socket connection to the server')
+	) {
 		return true;
 	}
 

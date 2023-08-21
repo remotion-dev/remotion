@@ -19,6 +19,7 @@ import * as fs from 'node:fs';
 import * as readline from 'readline';
 import {deleteDirectory} from '../delete-directory';
 import {Log} from '../logger';
+import {truthy} from '../truthy';
 import {assert} from './assert';
 import {Connection} from './Connection';
 import {TimeoutError} from './Errors';
@@ -249,32 +250,34 @@ function waitForWSEndpoint(
 		];
 		const timeoutId = timeout ? setTimeout(onTimeout, timeout) : 0;
 
-		function onClose(error?: Error): void {
+		function onClose(error?: Error) {
 			cleanup();
 			reject(
 				new Error(
 					[
-						'Failed to launch the browser process!' +
-							(error ? ' ' + error.message : ''),
+						'Failed to launch the browser process!',
+						error ? error.message : null,
 						stderr,
 						'',
 						'TROUBLESHOOTING: https://github.com/puppeteer/puppeteer/blob/main/docs/troubleshooting.md',
 						'',
-					].join('\n')
+					]
+						.filter(truthy)
+						.join('\n')
 				)
 			);
 		}
 
-		function onTimeout(): void {
+		function onTimeout() {
 			cleanup();
 			reject(
 				new TimeoutError(
-					`Timed out after ${timeout} ms while trying to connect to the browser!`
+					`Timed out after ${timeout} ms while trying to connect to the browser! Chrome logged the following: ${stderr}`
 				)
 			);
 		}
 
-		function onLine(line: string): void {
+		function onLine(line: string) {
 			stderr += line + '\n';
 			const match = line.match(/^DevTools listening on (ws:\/\/.*)$/);
 			if (!match) {

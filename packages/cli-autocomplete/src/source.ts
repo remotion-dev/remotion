@@ -331,6 +331,25 @@ const renderOptions: Fig.Option[] = [
     },
   },
   {
+    name: "--x264-preset",
+    description:
+      "Presets balance encoding speed and compression quality, with slower presets achieving better compression. Needs --codec=h264 to be set",
+    args: {
+      suggestions: [
+        "ultrafast",
+        "superfast",
+        "veryfast",
+        "faster",
+        "fast",
+        "medium",
+        "slow",
+        "slower",
+        "veryslow",
+        "placebo",
+      ],
+    },
+  },
+  {
     name: "--image-format",
     description: 'Format to render the frames in, "jpeg" or "png"',
     args: {

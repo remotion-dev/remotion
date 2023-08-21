@@ -6,6 +6,7 @@ import type {
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import type {EnumPath} from '../../editor/components/RenderModal/SchemaEditor/extract-enum-json-paths';
 import type {AggregateRenderProgress} from '../../progress-types';
@@ -63,6 +64,7 @@ type RenderJobDynamicFields =
 			muted: boolean;
 			enforceAudioTrack: boolean;
 			proResProfile: ProResProfile | null;
+			x264Preset: X264Preset | null;
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
 			videoBitrate: string | null;
@@ -113,6 +115,7 @@ type AddRenderRequestDynamicFields =
 			muted: boolean;
 			enforceAudioTrack: boolean;
 			proResProfile: ProResProfile | null;
+			x264Preset: X264Preset | null;
 			pixelFormat: PixelFormat;
 			audioBitrate: string | null;
 			videoBitrate: string | null;
@@ -141,6 +144,10 @@ export type RemoveRenderRequest = {
 
 export type OpenInFileExplorerRequest = {
 	directory: string;
+};
+
+export type CopyStillToClipboardRequest = {
+	outName: string;
 };
 
 export type SubscribeToFileExistenceRequest = {
