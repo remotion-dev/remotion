@@ -74,13 +74,14 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 ]);
 
 const renderFailResponsePayload = z.object({
-	status: z.literal('error'),
-	error: z.string(),
+	type: z.literal('error'),
+	message: z.string(),
+	name: z.string(),
 	stack: z.string(),
 });
 
 const renderStillOnCloudrunResponsePayload = z.object({
-	status: z.literal('success'),
+	type: z.literal('success'),
 	publicUrl: z.string().optional().nullable(),
 	cloudStorageUri: z.string(),
 	size: z.number(),
@@ -90,7 +91,7 @@ const renderStillOnCloudrunResponsePayload = z.object({
 });
 
 const renderMediaOnCloudrunResponsePayload = z.object({
-	status: z.literal('success'),
+	type: z.literal('success'),
 	publicUrl: z.string().optional().nullable(),
 	cloudStorageUri: z.string(),
 	size: z.number(),
@@ -100,7 +101,7 @@ const renderMediaOnCloudrunResponsePayload = z.object({
 });
 
 const cloudRunCrashResponse = z.object({
-	status: z.literal('crash'),
+	type: z.literal('crash'),
 	cloudRunEndpoint: z.string(),
 	message: z.literal(
 		'Service crashed without sending a response. Check the logs in GCP console.'
