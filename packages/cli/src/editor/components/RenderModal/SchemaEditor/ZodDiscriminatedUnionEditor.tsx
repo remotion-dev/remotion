@@ -108,7 +108,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			return {
 				discriminator: typedSchema.discriminator,
 				markup: (
-					<Fieldset shouldPad={mayPad} success>
+					<Fieldset key={'replacement'} shouldPad={mayPad} success>
 						<SchemaLabel
 							isDefaultValue={
 								localValue.value[typedSchema.discriminator] ===

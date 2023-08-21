@@ -6,6 +6,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import {Internals} from 'remotion';
@@ -41,6 +42,7 @@ export type RenderMediaOnCloudrunInput = {
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
 	proResProfile?: ProResProfile;
+	x264Preset?: X264Preset;
 	crf?: number | undefined;
 	pixelFormat?: PixelFormat;
 	imageFormat?: VideoImageFormat;
@@ -79,6 +81,7 @@ export type RenderMediaOnCloudrunInput = {
  * @param params.audioBitrate The target bitrate for the audio of the generated video.
  * @param params.videoBitrate The target bitrate of the generated video.
  * @param params.proResProfile Sets a ProRes profile. Only applies to videos rendered with prores codec.
+ * @param params.x264Preset Sets a Preset profile. Only applies to videos rendered with h.264 codec.
  * @param params.crf Constant Rate Factor, controlling the quality.
  * @param params.pixelFormat Custom pixel format to use. Usually used for special use cases like transparent videos.
  * @param params.imageFormat Which image format the frames should be rendered in.
@@ -116,6 +119,7 @@ export const renderMediaOnCloudrun = async ({
 	audioBitrate,
 	videoBitrate,
 	proResProfile,
+	x264Preset,
 	crf,
 	pixelFormat,
 	imageFormat,
@@ -167,6 +171,7 @@ export const renderMediaOnCloudrun = async ({
 		imageFormat: imageFormat ?? RenderInternals.DEFAULT_VIDEO_IMAGE_FORMAT,
 		scale: scale ?? 1,
 		proResProfile: proResProfile ?? null,
+		x264Preset: x264Preset ?? null,
 		everyNthFrame: everyNthFrame ?? 1,
 		numberOfGifLoops: numberOfGifLoops ?? null,
 		frameRange: frameRange ?? null,
@@ -210,12 +215,29 @@ export const renderMediaOnCloudrun = async ({
 
 		const stream: any = postResponse.data;
 
+		let accumulatedChunks = ''; // A buffer to accumulate chunks.
+
 		stream.on('data', (chunk: Buffer) => {
-			const chunkResponse = JSON.parse(chunk.toString().trim());
-			if (chunkResponse.response) {
-				response = chunkResponse.response;
-			} else if (chunkResponse.onProgress) {
-				updateRenderProgress?.(chunkResponse.onProgress);
+			accumulatedChunks += chunk.toString(); // Add the new chunk to the buffer.
+			let parsedData;
+
+			try {
+				parsedData = JSON.parse(accumulatedChunks.trim());
+				accumulatedChunks = ''; // Clear the buffer after successful parsing.
+			} catch (e) {
+				// If parsing fails, it means we don't have a complete JSON string yet.
+				// We'll wait for more chunks.
+				return;
+			}
+
+			if (parsedData.response) {
+				response = parsedData.response;
+			} else if (parsedData.onProgress) {
+				updateRenderProgress?.(parsedData.onProgress);
+			}
+
+			if (parsedData.type === 'error') {
+				reject(parsedData);
 			}
 		});
 
@@ -227,7 +249,7 @@ export const renderMediaOnCloudrun = async ({
 				updateRenderProgress?.(0, true);
 
 				resolve({
-					status: 'crash',
+					type: 'crash',
 					cloudRunEndpoint,
 					message:
 						'Service crashed without sending a response. Check the logs in GCP console.',
@@ -235,8 +257,8 @@ export const renderMediaOnCloudrun = async ({
 					requestCrashTime: formattedCrashTime,
 					requestElapsedTimeInSeconds: (crashTime - startTime) / 1000,
 				});
-			} else if (response.status !== 'success' && response.status !== 'crash') {
-				throw new Error(response.stack);
+			} else if (response.type !== 'success' && response.type !== 'crash') {
+				throw response;
 			}
 
 			resolve(response);

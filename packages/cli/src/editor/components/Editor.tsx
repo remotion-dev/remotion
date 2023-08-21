@@ -31,6 +31,20 @@ export const Editor: React.FC = () => {
 	});
 
 	useEffect(() => {
+		const listenToChanges = (e: BeforeUnloadEvent) => {
+			if (window.remotion_unsavedProps) {
+				e.returnValue = 'Are you sure you want to leave?';
+			}
+		};
+
+		window.addEventListener('beforeunload', listenToChanges);
+
+		return () => {
+			window.removeEventListener('beforeunload', listenToChanges);
+		};
+	}, []);
+
+	useEffect(() => {
 		if (Root) {
 			return;
 		}
@@ -40,7 +54,9 @@ export const Editor: React.FC = () => {
 			continueRender(waitForRoot);
 		});
 
-		return () => cleanup();
+		return () => {
+			cleanup();
+		};
 	}, [Root, waitForRoot]);
 
 	return (
