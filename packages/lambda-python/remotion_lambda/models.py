@@ -47,6 +47,7 @@ class RenderParams:
     audio_codec: Optional[str] = None
     renderer_function_name: Optional[str] = None
     pro_res_profile: Optional[str] = None
+    x264_preset: Optional[str] = None
     pixel_format: Optional[str] = None
 
     def serialize_params(self) -> Dict:
@@ -83,6 +84,7 @@ class RenderParams:
             'forceWidth': self.force_width,
             'bucketName': self.bucket_name,
             'audioCodec': self.audio_codec,
+            'x264Preset': self.x264_preset,
             'type': 'start'
         }
 
@@ -97,6 +99,9 @@ class RenderParams:
 
         if self.pro_res_profile is not None:
             parameters['proResProfile'] = self.pro_res_profile
+
+        if self.x264_preset is not None:
+            parameters['x264Preset'] = self.x264_preset
 
         if self.quality is not None:
             parameters['quality'] = self.quality

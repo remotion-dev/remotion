@@ -5,6 +5,7 @@ import type {
 	OpenGlRenderer,
 	PixelFormat,
 	ProResProfile,
+	X264Preset,
 } from '@remotion/renderer';
 import {BrowserSafeApis} from '@remotion/renderer/client';
 import type {SVGProps} from 'react';
@@ -104,6 +105,7 @@ export const RenderButton: React.FC = () => {
 			initialMuted: defaults.muted,
 			initialEnforceAudioTrack: defaults.enforceAudioTrack,
 			initialProResProfile: defaults.proResProfile as ProResProfile,
+			initialx264Preset: defaults.x264Preset as X264Preset,
 			initialPixelFormat: defaults.pixelFormat as PixelFormat,
 			initialAudioBitrate: defaults.audioBitrate,
 			initialVideoBitrate: defaults.videoBitrate,

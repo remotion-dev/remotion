@@ -43,6 +43,7 @@ import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {truthy} from './truthy';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
+import type {X264Preset} from './x264-preset';
 
 const packageJsonPath = path.join(__dirname, '..', 'package.json');
 
@@ -74,6 +75,7 @@ type InternalStitchFramesToVideoOptions = {
 	preferLossless: boolean;
 	indent: boolean;
 	muted: boolean;
+	x264Preset: X264Preset | null;
 	enforceAudioTrack: boolean;
 	ffmpegOverride: null | FfmpegOverrideFn;
 };
@@ -101,6 +103,7 @@ export type StitchFramesToVideoOptions = {
 	muted?: boolean;
 	enforceAudioTrack?: boolean;
 	ffmpegOverride?: FfmpegOverrideFn;
+	x264Preset?: X264Preset | null;
 };
 
 type ReturnType = {
@@ -217,6 +220,7 @@ const innerStitchFramesToVideo = async (
 		width,
 		numberOfGifLoops,
 		onProgress,
+		x264Preset,
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string
 ): Promise<ReturnType> => {
@@ -434,6 +438,7 @@ const innerStitchFramesToVideo = async (
 						codec,
 					}),
 			  ]),
+		x264Preset ? ['-preset', x264Preset] : null,
 		codec === 'h264' ? ['-movflags', 'faststart'] : null,
 		resolvedAudioCodec
 			? ['-c:a', mapAudioCodecToFfmpegAudioCodecName(resolvedAudioCodec)]
@@ -577,6 +582,7 @@ export const stitchFramesToVideo = ({
 	proResProfile,
 	verbose,
 	videoBitrate,
+	x264Preset,
 }: StitchFramesToVideoOptions): Promise<Buffer | null> => {
 	return internalStitchFramesToVideo({
 		assetsInfo,
@@ -604,5 +610,6 @@ export const stitchFramesToVideo = ({
 		width,
 		preEncodedFileLocation: null,
 		preferLossless: false,
+		x264Preset: x264Preset ?? null,
 	});
 };

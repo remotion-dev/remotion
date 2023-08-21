@@ -6,6 +6,7 @@ import type {
 	PixelFormat,
 	ProResProfile,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -28,6 +29,7 @@ export type RenderMediaOnLambdaInput = {
 	envVariables?: Record<string, string>;
 	pixelFormat?: PixelFormat;
 	proResProfile?: ProResProfile;
+	x264Preset?: X264Preset;
 	privacy?: Privacy;
 	/**
 	 * @deprecated Renamed to `jpegQuality`

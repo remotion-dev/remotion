@@ -184,6 +184,8 @@ export const CompositionSelectorItem: React.FC<{
 				onClick={onClick}
 				type="button"
 				title={item.composition.id}
+				className="__remotion-composition"
+				data-compname={item.composition.id}
 			>
 				{isCompositionStill(item.composition) ? (
 					<StillIcon

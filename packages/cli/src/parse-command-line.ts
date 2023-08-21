@@ -8,6 +8,7 @@ import type {
 	ProResProfile,
 	StillImageFormat,
 	VideoImageFormat,
+	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
 import minimist from 'minimist';
@@ -19,6 +20,7 @@ type CommandLineOptions = {
 	['pixel-format']: PixelFormat;
 	['image-format']: VideoImageFormat | StillImageFormat;
 	['prores-profile']: ProResProfile;
+	['x264-preset']: X264Preset;
 	['bundle-cache']: string;
 	['env-file']: string;
 	['ignore-certificate-errors']: string;
@@ -196,6 +198,10 @@ export const parseCommandLine = () => {
 		Config.setProResProfile(
 			String(parsedCli['prores-profile']) as ProResProfile
 		);
+	}
+
+	if (parsedCli['x264-preset']) {
+		Config.setX264Preset(String(parsedCli['x264-preset']) as X264Preset);
 	}
 
 	if (parsedCli.overwrite) {

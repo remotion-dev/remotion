@@ -60,6 +60,8 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
+import type {X264Preset} from './x264-preset';
+import {validateSelectedCodecAndPresetCombination} from './x264-preset';
 
 export type StitchingState = 'encoding' | 'muxing';
 
@@ -95,6 +97,7 @@ export type InternalRenderMediaOptions = {
 	onProgress: RenderMediaOnProgress;
 	onDownload: RenderMediaOnDownload;
 	proResProfile: ProResProfile | undefined;
+	x264Preset: X264Preset | undefined;
 	onBrowserLog: ((log: BrowserLog) => void) | null;
 	onStart: (data: OnStartData) => void;
 	timeoutInMilliseconds: number;
@@ -141,6 +144,7 @@ export type RenderMediaOptions = {
 	onProgress?: RenderMediaOnProgress;
 	onDownload?: RenderMediaOnDownload;
 	proResProfile?: ProResProfile;
+	x264Preset?: X264Preset;
 	/**
 	 * @deprecated Use "logLevel": "verbose" instead
 	 */
@@ -179,6 +183,7 @@ type RenderMediaResult = {
 
 export const internalRenderMedia = ({
 	proResProfile,
+	x264Preset,
 	crf,
 	composition,
 	serializedInputPropsWithCustomSchema,
@@ -228,6 +233,12 @@ export const internalRenderMedia = ({
 		codec,
 		proResProfile,
 	});
+
+	validateSelectedCodecAndPresetCombination({
+		codec,
+		x264Preset,
+	});
+
 	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
 	if (outputLocation) {
 		validateOutputFilename({
@@ -608,6 +619,7 @@ export const internalRenderMedia = ({
 						audioBitrate,
 						videoBitrate,
 						audioCodec,
+						x264Preset: x264Preset ?? null,
 					}),
 					stitchStart,
 				]);
@@ -681,6 +693,7 @@ export const internalRenderMedia = ({
  */
 export const renderMedia = ({
 	proResProfile,
+	x264Preset,
 	crf,
 	composition,
 	inputProps,
@@ -728,6 +741,7 @@ export const renderMedia = ({
 
 	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
+		x264Preset,
 		codec,
 		composition,
 		serveUrl,
