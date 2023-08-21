@@ -215,12 +215,29 @@ export const renderMediaOnCloudrun = async ({
 
 		const stream: any = postResponse.data;
 
+		let accumulatedChunks = ''; // A buffer to accumulate chunks.
+
 		stream.on('data', (chunk: Buffer) => {
-			const chunkResponse = JSON.parse(chunk.toString().trim());
-			if (chunkResponse.response) {
-				response = chunkResponse.response;
-			} else if (chunkResponse.onProgress) {
-				updateRenderProgress?.(chunkResponse.onProgress);
+			accumulatedChunks += chunk.toString(); // Add the new chunk to the buffer.
+			let parsedData;
+
+			try {
+				parsedData = JSON.parse(accumulatedChunks.trim());
+				accumulatedChunks = ''; // Clear the buffer after successful parsing.
+			} catch (e) {
+				// If parsing fails, it means we don't have a complete JSON string yet.
+				// We'll wait for more chunks.
+				return;
+			}
+
+			if (parsedData.response) {
+				response = parsedData.response;
+			} else if (parsedData.onProgress) {
+				updateRenderProgress?.(parsedData.onProgress);
+			}
+
+			if (parsedData.type === 'error') {
+				reject(parsedData);
 			}
 		});
 
@@ -232,7 +249,7 @@ export const renderMediaOnCloudrun = async ({
 				updateRenderProgress?.(0, true);
 
 				resolve({
-					status: 'crash',
+					type: 'crash',
 					cloudRunEndpoint,
 					message:
 						'Service crashed without sending a response. Check the logs in GCP console.',
@@ -240,8 +257,8 @@ export const renderMediaOnCloudrun = async ({
 					requestCrashTime: formattedCrashTime,
 					requestElapsedTimeInSeconds: (crashTime - startTime) / 1000,
 				});
-			} else if (response.status !== 'success' && response.status !== 'crash') {
-				throw new Error(response.stack);
+			} else if (response.type !== 'success' && response.type !== 'crash') {
+				throw response;
 			}
 
 			resolve(response);
