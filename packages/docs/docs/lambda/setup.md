@@ -13,7 +13,7 @@ import { YouTube } from "../../components/YouTube";
 <YouTube
   minutes={18}
   href="https://www.youtube.com/watch?v=kFVd3KnfwYY"
-  thumb="https://i9.ytimg.com/vi/kFVd3KnfwYY/mqdefault.jpg?v=64df9995&sqp=CJjigqcG&rs=AOn4CLBaSIfaEdZ_GJuydQmnhnrWMhFjVw"
+  thumb="https://i.ytimg.com/vi/kFVd3KnfwYY/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLCJOz2mu_A24NvjFQGm6GjUVssnUQ"
   title="How to set up Remotion Lambda"
 />
 
