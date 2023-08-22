@@ -55,7 +55,7 @@ export const estimatePriceFromBucket = ({
 	const accruedSoFar = Number(
 		estimatePrice({
 			region: getCurrentRegionInFunction(),
-			durationInMiliseconds:
+			durationInMilliseconds:
 				calculateChunkTimes({
 					contents,
 					renderId: renderMetadata.renderId,

@@ -293,7 +293,7 @@ Lambda version: '2021-12-16'
 
 Stability and ease of use improvements that we implemented from our learnings from https://githubwrapped.com!
 
-- Fixed an error `Parameter 'durationInMiliseconds' must be over 0 but is [negative number]`
+- Fixed an error `Parameter 'durationInMilliseconds' must be over 0 but is [negative number]`
 - The function name of a deployed function is not random anymore. Instead it has the format of `remotion-render-2021-12-16-2048mb-120sec`
 - More CLI commands support the `-q` (quiet) flag.
 - Calling `npx remotion lambda functions deploy` if a suitable function already exists will not throw an error anymore but log the existing function.

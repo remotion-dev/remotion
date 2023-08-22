@@ -7,7 +7,7 @@ import {validateMemorySize} from '../shared/validate-memory-size';
 
 export type EstimatePriceInput = {
 	region: AwsRegion;
-	durationInMiliseconds: number;
+	durationInMilliseconds: number;
 	memorySizeInMb: number;
 	diskSizeInMb: number;
 	lambdasInvoked: number;
@@ -20,7 +20,7 @@ export type EstimatePriceInput = {
  */
 export const estimatePrice = ({
 	region,
-	durationInMiliseconds,
+	durationInMilliseconds,
 	memorySizeInMb,
 	diskSizeInMb,
 	lambdasInvoked,
@@ -28,27 +28,27 @@ export const estimatePrice = ({
 	validateMemorySize(memorySizeInMb);
 	validateAwsRegion(region);
 	validateDiskSizeInMb(diskSizeInMb);
-	if (typeof durationInMiliseconds !== 'number') {
+	if (typeof durationInMilliseconds !== 'number') {
 		throw new TypeError(
-			`Parameter 'durationInMiliseconds' must be a number but got ${typeof durationInMiliseconds}`
+			`Parameter 'durationInMilliseconds' must be a number but got ${typeof durationInMilliseconds}`
 		);
 	}
 
-	if (Number.isNaN(durationInMiliseconds)) {
+	if (Number.isNaN(durationInMilliseconds)) {
 		throw new TypeError(
-			`Parameter 'durationInMiliseconds' must not be NaN but it is.`
+			`Parameter 'durationInMilliseconds' must not be NaN but it is.`
 		);
 	}
 
-	if (!Number.isFinite(durationInMiliseconds)) {
+	if (!Number.isFinite(durationInMilliseconds)) {
 		throw new TypeError(
-			`Parameter 'durationInMiliseconds' must be finite but it is ${durationInMiliseconds}`
+			`Parameter 'durationInMilliseconds' must be finite but it is ${durationInMilliseconds}`
 		);
 	}
 
-	if (durationInMiliseconds < 0) {
+	if (durationInMilliseconds < 0) {
 		throw new TypeError(
-			`Parameter 'durationInMiliseconds' must be over 0 but it is ${durationInMiliseconds}.`
+			`Parameter 'durationInMilliseconds' must be over 0 but it is ${durationInMilliseconds}.`
 		);
 	}
 
@@ -57,7 +57,7 @@ export const estimatePrice = ({
 	// In GB-second
 	const timeCostDollars =
 		Number(durationPrice) *
-		((memorySizeInMb * durationInMiliseconds) / 1000 / 1024);
+		((memorySizeInMb * durationInMilliseconds) / 1000 / 1024);
 
 	const diskSizePrice = pricing[region]['Lambda Storage-Duration-ARM'].price;
 
@@ -69,7 +69,7 @@ export const estimatePrice = ({
 	const diskSizeDollars =
 		chargedDiskSize *
 		Number(diskSizePrice) *
-		(durationInMiliseconds / 1000 / 1024);
+		(durationInMilliseconds / 1000 / 1024);
 
 	const invocationCost =
 		Number(pricing[region]['Lambda Requests'].price) * lambdasInvoked;
