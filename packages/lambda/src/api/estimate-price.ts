@@ -8,7 +8,7 @@ import {validateMemorySize} from '../shared/validate-memory-size';
 type Miliseconds =
 	| {
 			/**
-			 * @deprecated Typo in property name. Use `durationInMiliseconds` instead.
+			 * @deprecated Typo in property name. Use `durationInMilliseconds` instead.
 			 */
 			durationInMiliseconds: number;
 	  }
