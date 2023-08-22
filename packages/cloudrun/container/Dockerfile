@@ -4,6 +4,7 @@ RUN apt-get update
 RUN apt-get install -y nodejs npm chromium
 
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+RUN mkdir -p /var/run/dbus && dbus-daemon --config-file=/usr/share/dbus-1/system.conf --print-address
 
 WORKDIR /usr/app
 
