@@ -14,7 +14,7 @@ test('Should calculate costs accurately', () => {
 	expect(
 		estimatePrice({
 			region: 'us-east-1',
-			durationInMiliseconds: 20000000,
+			durationInMilliseconds: 20000000,
 			memorySizeInMb: 2048,
 			diskSizeInMb: 10240,
 			lambdasInvoked: 1,

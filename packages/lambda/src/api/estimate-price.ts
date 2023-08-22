@@ -5,17 +5,24 @@ import {validateAwsRegion} from '../shared/validate-aws-region';
 import {validateDiskSizeInMb} from '../shared/validate-disk-size-in-mb';
 import {validateMemorySize} from '../shared/validate-memory-size';
 
+type Miliseconds =
+	| {
+			/**
+			 * @deprecated Typo in property name. Use `durationInMiliseconds` instead.
+			 */
+			durationInMiliseconds: number;
+	  }
+	| {
+			durationInMilliseconds: number;
+	  };
+
 export type EstimatePriceInput = {
 	region: AwsRegion;
-	durationInMilliseconds: number;
-	/**
-	 * @deprecated Typo in property name. Use `durationInMiliseconds` instead.
-	 */
-	durationInMiliseconds: number;
 	memorySizeInMb: number;
 	diskSizeInMb: number;
 	lambdasInvoked: number;
-};
+} & Miliseconds;
+
 /**
  *
  * @description Calculates the AWS costs incurred for AWS Lambda given the region, execution duration and memory size.
@@ -24,18 +31,19 @@ export type EstimatePriceInput = {
  */
 export const estimatePrice = ({
 	region,
-	durationInMilliseconds: durationInMillisecondsFixed,
-	durationInMiliseconds: durationInMillisecondsTypo,
 	memorySizeInMb,
 	diskSizeInMb,
 	lambdasInvoked,
+	...other
 }: EstimatePriceInput): number => {
 	validateMemorySize(memorySizeInMb);
 	validateAwsRegion(region);
 	validateDiskSizeInMb(diskSizeInMb);
 
 	const durationInMilliseconds =
-		durationInMillisecondsFixed ?? durationInMillisecondsTypo;
+		'durationInMiliseconds' in other
+			? other.durationInMiliseconds
+			: other.durationInMilliseconds;
 
 	if (typeof durationInMilliseconds !== 'number') {
 		throw new TypeError(
