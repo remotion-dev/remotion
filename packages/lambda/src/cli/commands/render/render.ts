@@ -143,6 +143,11 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	validateFramesPerLambda({framesPerLambda, durationInFrames: 1});
 
+	// TODO: validate and parse webhook custom data elsewhere
+	const webhookCustomData = parsedLambdaCli['webhook-custom-data']
+		? JSON.parse(parsedLambdaCli['webhook-custom-data'])
+		: null;
+
 	const res = await renderMediaOnLambda({
 		functionName,
 		serveUrl,
@@ -178,6 +183,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			? {
 					url: parsedLambdaCli.webhook,
 					secret: parsedLambdaCli['webhook-secret'] ?? null,
+					customData: webhookCustomData,
 			  }
 			: undefined,
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,

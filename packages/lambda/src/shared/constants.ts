@@ -210,6 +210,7 @@ export enum LambdaRoutines {
 type WebhookOption = null | {
 	url: string;
 	secret: string | null;
+	customData?: Record<string, unknown>;
 };
 
 export type SerializedInputProps =

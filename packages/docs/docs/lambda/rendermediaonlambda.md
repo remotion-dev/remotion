@@ -315,6 +315,9 @@ import { RenderMediaOnLambdaInput } from "@remotion/lambda";
 const webhook: RenderMediaOnLambdaInput["webhook"] = {
   url: "https://mapsnap.app/api/webhook",
   secret: process.env.WEBHOOK_SECRET as string,
+  customData: {
+    id: 42,
+  },
 };
 ```
 
@@ -326,6 +329,9 @@ import { RenderMediaOnLambdaInput } from "@remotion/lambda";
 const webhook: RenderMediaOnLambdaInput["webhook"] = {
   url: "https://mapsnap.app/api/webhook",
   secret: null,
+  customData: {
+    id: 42,
+  },
 };
 ```
 

@@ -94,6 +94,9 @@ describe('Webhooks', () => {
 				webhook: {
 					url: TEST_URL,
 					secret: 'TEST_SECRET',
+					customData: {
+						customID: 123,
+					},
 				},
 				audioBitrate: null,
 				videoBitrate: null,
@@ -184,7 +187,11 @@ describe('Webhooks', () => {
 				},
 				muted: false,
 				overwrite: true,
-				webhook: {url: TEST_URL, secret: 'TEST_SECRET'},
+				webhook: {
+					url: TEST_URL,
+					secret: 'TEST_SECRET',
+					customData: {customID: 123},
+				},
 				audioBitrate: null,
 				videoBitrate: null,
 				bucketName: 'abc',
@@ -211,7 +218,7 @@ describe('Webhooks', () => {
 					'X-Remotion-Mode': 'production',
 					'X-Remotion-Signature': expect.stringContaining('sha512='),
 					'X-Remotion-Status': 'timeout',
-					'Content-Length': 54,
+					'Content-Length': 84,
 				},
 				timeout: 5000,
 			},
