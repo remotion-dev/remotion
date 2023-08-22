@@ -8,6 +8,10 @@ import {validateMemorySize} from '../shared/validate-memory-size';
 export type EstimatePriceInput = {
 	region: AwsRegion;
 	durationInMilliseconds: number;
+	/**
+	 * @deprecated Typo in property name. Use `durationInMiliseconds` instead.
+	 */
+	durationInMiliseconds: number;
 	memorySizeInMb: number;
 	diskSizeInMb: number;
 	lambdasInvoked: number;
@@ -20,7 +24,8 @@ export type EstimatePriceInput = {
  */
 export const estimatePrice = ({
 	region,
-	durationInMilliseconds,
+	durationInMilliseconds: durationInMillisecondsFixed,
+	durationInMiliseconds: durationInMillisecondsTypo,
 	memorySizeInMb,
 	diskSizeInMb,
 	lambdasInvoked,
@@ -28,6 +33,10 @@ export const estimatePrice = ({
 	validateMemorySize(memorySizeInMb);
 	validateAwsRegion(region);
 	validateDiskSizeInMb(diskSizeInMb);
+
+	const durationInMilliseconds =
+		durationInMillisecondsFixed ?? durationInMillisecondsTypo;
+
 	if (typeof durationInMilliseconds !== 'number') {
 		throw new TypeError(
 			`Parameter 'durationInMilliseconds' must be a number but got ${typeof durationInMilliseconds}`
