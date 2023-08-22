@@ -167,6 +167,10 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 	return (
 		<video
 			ref={videoRef}
+			// Without this, on iOS Safari, the video cannot be seeked.
+			// if a seek is triggered before `loadedmetadata` is fired,
+			// the video will not seek, even if `loadedmetadata` is fired afterwards.
+			preload="metadata"
 			muted={muted || mediaMuted}
 			playsInline
 			src={actualSrc}
