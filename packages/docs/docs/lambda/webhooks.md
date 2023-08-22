@@ -49,6 +49,7 @@ type WebhookPayload =
       renderId: string;
       expectedBucketOwner: string;
       bucketName: string;
+      customData: Record<string, unkown>;
     }
   | {
       type: "success";
@@ -59,6 +60,7 @@ type WebhookPayload =
       renderId: string;
       expectedBucketOwner: string;
       bucketName: string;
+      customData: Record<string, unkown>;
       // Available from v3.3.11
       costs: {
         estimatedCost: number;
@@ -72,10 +74,11 @@ type WebhookPayload =
       renderId: string;
       expectedBucketOwner: string;
       bucketName: string;
+      customData: Record<string, unkown>;
     };
 ```
 
-The fields [`renderId`](/docs/lambda/rendermediaonlambda#renderid), [`bucketName`](/docs/lambda/rendermediaonlambda#bucketname) will be returned [just like they are returned by `renderMediaOnLambda()` itself](/docs/lambda/rendermediaonlambda#return-value).
+The fields [`renderId`](/docs/lambda/rendermediaonlambda#renderid), [`bucketName`](/docs/lambda/rendermediaonlambda#bucketname) will be returned [just like they are returned by `renderMediaOnLambda()` itself](/docs/lambda/rendermediaonlambda#return-value). The field `customData` can be set to a JSON-serializable object and it's useful to pass on custom data to the webhook endpoint.
 
 If the render process times out, the reponse body will not contain any other fields.
 

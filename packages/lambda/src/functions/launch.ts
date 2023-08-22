@@ -590,6 +590,7 @@ export const launchHandler = async (
 						renderId: params.renderId,
 						expectedBucketOwner: options.expectedBucketOwner,
 						bucketName: params.bucketName,
+						customData: params.webhook.customData ?? null,
 					},
 				});
 				webhookInvoked = true;
@@ -642,6 +643,7 @@ export const launchHandler = async (
 						renderId: params.renderId,
 						expectedBucketOwner: options.expectedBucketOwner,
 						bucketName: params.bucketName,
+						customData: params.webhook.customData ?? null,
 						outputUrl: postRenderData.outputFile,
 						lambdaErrors: postRenderData.errors,
 						outputFile: postRenderData.outputFile,
@@ -716,6 +718,7 @@ export const launchHandler = async (
 						renderId: params.renderId,
 						expectedBucketOwner: options.expectedBucketOwner,
 						bucketName: params.bucketName,
+						customData: params.webhook.customData ?? null,
 						errors: [err as Error].map((e) => ({
 							message: e.message,
 							name: e.name as string,

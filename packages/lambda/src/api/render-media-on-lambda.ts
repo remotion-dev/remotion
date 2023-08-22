@@ -55,6 +55,7 @@ export type RenderMediaOnLambdaInput = {
 	webhook?: {
 		url: string;
 		secret: string | null;
+		customData?: Record<string, unknown>;
 	};
 	forceWidth?: number | null;
 	forceHeight?: number | null;
