@@ -11,7 +11,7 @@ import { YouTube } from "../../../components/YouTube";
 <YouTube
   minutes={11}
   href="https://youtu.be/pwVEzTQ6VYE"
-  thumb="https://i9.ytimg.com/vi_webp/pwVEzTQ6VYE/mqdefault.webp?v=64dfa1e7&sqp=CPDmgqcG&rs=AOn4CLAhQUS_GB01FWMe4ITdAR8eQ5brDg"
+  thumb="https://i.ytimg.com/vi/pwVEzTQ6VYE/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLDGudSHhI9u7kkShN_awBk3hbQ9mA"
   title="How to troubleshoot and debug for Remotion Lambda"
 />
 
