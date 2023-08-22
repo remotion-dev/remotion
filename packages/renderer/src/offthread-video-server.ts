@@ -100,6 +100,13 @@ export const startOffthreadVideoServer = ({
 				response.setHeader('content-type', `image/bmp`);
 			}
 
+			// Prevent caching of the response and excessive disk writes
+			// https://github.com/remotion-dev/remotion/issues/2760
+			response.setHeader(
+				'cache-control',
+				'no-cache, no-store, must-revalidate'
+			);
+
 			// Handling this case on Lambda:
 			// https://support.google.com/chrome/a/answer/7679408?hl=en
 			// Chrome sends Private Network Access preflights for subresources
