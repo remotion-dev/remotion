@@ -53,7 +53,7 @@ export const createPostRenderData = ({
 		.reduce((a, b) => a + b);
 
 	const cost = estimatePrice({
-		durationInMiliseconds: times,
+		durationInMilliseconds: times,
 		memorySizeInMb,
 		region,
 		lambdasInvoked: renderMetadata.estimatedTotalLambdaInvokations,
