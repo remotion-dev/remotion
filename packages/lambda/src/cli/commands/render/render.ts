@@ -372,7 +372,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			}
 
 			Log.info();
-			Log.verbose(
+			Log.info(
 				`Accrued costs until error was thrown: ${newStatus.costs.displayCost}.`
 			);
 			Log.info(
