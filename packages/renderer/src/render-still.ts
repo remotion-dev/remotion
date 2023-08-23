@@ -37,6 +37,7 @@ import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 type InternalRenderStillOptions = {
 	composition: VideoConfig;
@@ -425,7 +426,7 @@ export const renderStill = (
 		);
 	}
 
-	return internalRenderStill({
+	return wrapWithErrorHandling(internalRenderStill)({
 		composition,
 		browserExecutable: browserExecutable ?? null,
 		cancelSignal: cancelSignal ?? null,

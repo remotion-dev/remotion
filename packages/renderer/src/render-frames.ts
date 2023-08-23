@@ -50,6 +50,7 @@ import {takeFrameAndCompose} from './take-frame-and-compose';
 import {truthy} from './truthy';
 import type {OnStartData, RenderFramesOutput} from './types';
 import {validateScale} from './validate-scale';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 
 const MAX_RETRIES_PER_FRAME = 1;
 
@@ -805,7 +806,7 @@ export const renderFrames = (
 		);
 	}
 
-	return internalRenderFrames({
+	return wrapWithErrorHandling(internalRenderFrames)({
 		browserExecutable: browserExecutable ?? null,
 		cancelSignal,
 		chromiumOptions: chromiumOptions ?? {},

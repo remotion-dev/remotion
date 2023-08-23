@@ -60,6 +60,7 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 import type {X264Preset} from './x264-preset';
 import {validateSelectedCodecAndPresetCombination} from './x264-preset';
 
@@ -739,7 +740,7 @@ export const renderMedia = ({
 		);
 	}
 
-	return internalRenderMedia({
+	return wrapWithErrorHandling(internalRenderMedia)({
 		proResProfile: proResProfile ?? undefined,
 		x264Preset,
 		codec,

@@ -28,7 +28,6 @@ import {validateFrameRange} from './frame-range';
 import {internalGetCompositions} from './get-compositions';
 import {getActualConcurrency} from './get-concurrency';
 import {getFramesToRender} from './get-duration-from-frame-range';
-
 import {
 	defaultCodecsForFileExtension,
 	getFileExtensionFromCodec,
@@ -38,6 +37,7 @@ import {getExtensionOfFilename} from './get-extension-of-filename';
 import {getRealFrameRange} from './get-frame-to-render';
 import {ensureLocalBrowser} from './get-local-browser-executable';
 import {getDesiredPort} from './get-port';
+import {getUsefulErrorMessage} from './get-useful-error-message';
 import {
 	DEFAULT_STILL_IMAGE_FORMAT,
 	DEFAULT_VIDEO_IMAGE_FORMAT,
@@ -79,6 +79,7 @@ import {
 	registerErrorSymbolicationLock,
 	unlockErrorSymbolicationLock,
 } from './wait-for-symbolication-error-to-be-done';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 export type {RenderMediaOnDownload} from './assets/download-and-map-assets-to-file';
 export {AudioCodec} from './audio-codec';
 export {Browser} from './browser';
@@ -93,6 +94,7 @@ export {FileExtension} from './file-extensions';
 export {FrameRange} from './frame-range';
 export {getCompositions, GetCompositionsOptions} from './get-compositions';
 export {getSilentParts} from './get-silent-parts';
+export {getUsefulErrorMessage} from './get-useful-error-message';
 export {getVideoMetadata} from './get-video-metadata';
 export {
 	ImageFormat,
@@ -130,6 +132,7 @@ export {SymbolicatedStackFrame} from './symbolicate-stacktrace';
 export {OnStartData, RenderFramesOutput} from './types';
 export {OpenGlRenderer} from './validate-opengl-renderer';
 export {validateOutputFilename} from './validate-output-filename';
+export {wrapWithErrorHandling} from './wrap-with-error-handling';
 export {X264Preset} from './x264-preset';
 
 export const RenderInternals = {
@@ -212,6 +215,8 @@ export const RenderInternals = {
 	internalRenderMedia,
 	validOpenGlRenderers,
 	copyImageToClipboard,
+	getUsefulErrorMessage,
+	wrapWithErrorHandling,
 };
 
 // Warn of potential performance issues with Apple Silicon (M1 chip under Rosetta)
