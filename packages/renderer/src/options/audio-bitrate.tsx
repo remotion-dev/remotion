@@ -1,6 +1,7 @@
-import type {RemotionOption} from './option';
+import {AnyRemotionOption} from './option';
+import { z } from 'zod';
 
-export const audioBitrateOption: RemotionOption = {
+export const audioBitrateOption = {
 	name: 'Audio Bitrate',
 	cliFlag: '--audio-bitrate',
 	description: (
@@ -14,4 +15,5 @@ export const audioBitrateOption: RemotionOption = {
 	),
 	ssrName: 'audioBitrate',
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#audiobitrate-',
-};
+	type: z.string()
+} satisfies AnyRemotionOption;

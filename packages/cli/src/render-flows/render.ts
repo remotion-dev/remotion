@@ -93,6 +93,7 @@ export const renderVideoFlow = async ({
 	audioCodec,
 	serializedInputPropsWithCustomSchema,
 	disallowParallelEncoding,
+	offthreadVideoCacheSize,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -137,6 +138,7 @@ export const renderVideoFlow = async ({
 	numberOfGifLoops: Loop;
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
+	offthreadVideoCacheSize: number | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -253,6 +255,7 @@ export const renderVideoFlow = async ({
 		remotionRoot,
 		logLevel,
 		webpackConfigOrServeUrl: urlOrBundle,
+		offthreadVideoCacheSize,
 	});
 
 	addCleanupCallback(() => server.closeServer(false));
@@ -274,6 +277,7 @@ export const renderVideoFlow = async ({
 			timeoutInMilliseconds: puppeteerTimeout,
 			logLevel,
 			server,
+			offthreadVideoCacheSize,
 		});
 
 	const {codec, reason: codecReason} = getFinalOutputCodec({
@@ -399,6 +403,7 @@ export const renderVideoFlow = async ({
 				staticBase: null,
 				data: config.props,
 			}).serializedString,
+			offthreadVideoCacheSize,
 		});
 
 		updateRenderProgress({newline: true, printToConsole: true});
@@ -475,6 +480,7 @@ export const renderVideoFlow = async ({
 			indent: undefined,
 			staticBase: null,
 		}).serializedString,
+		offthreadVideoCacheSize,
 	});
 
 	updateRenderProgress({newline: true, printToConsole: true});

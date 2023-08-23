@@ -166,5 +166,6 @@ export const getCliOptions = async (options: {
 		height,
 		width,
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
+		offthreadVideoCacheSize: ConfigInternals.getOffthreadVideoCacheSize(),
 	};
 };

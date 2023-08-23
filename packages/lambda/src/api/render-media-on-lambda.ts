@@ -65,6 +65,7 @@ export type RenderMediaOnLambdaInput = {
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
+	offthreadVideoCacheSize?: number;
 };
 
 export type RenderMediaOnLambdaOutput = {

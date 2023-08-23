@@ -58,6 +58,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		browserExecutable,
 		port,
 		enforceAudioTrack,
+		offthreadVideoCacheSize,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -83,6 +84,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
+			offthreadVideoCacheSize: offthreadVideoCacheSize ?? null,
 		});
 
 		const {compositionId} =
@@ -106,6 +108,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					indent: undefined,
 					staticBase: null,
 				}).serializedString,
+				offthreadVideoCacheSize,
 			});
 		composition = compositionId;
 	}

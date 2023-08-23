@@ -211,6 +211,7 @@ const renderHandler = async (
 			onCtrlCExit: () => undefined,
 			server: undefined,
 			serializedResolvedPropsWithCustomSchema: resolvedProps,
+			offthreadVideoCacheSize: params.offthreadVideoCacheSize,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);

@@ -151,6 +151,7 @@ const innerLaunchHandler = async (
 		forceWidth: params.forceWidth,
 		logLevel: params.logLevel,
 		server: undefined,
+		offthreadVideoCacheSize: params.offthreadVideoCacheSize,
 	});
 	RenderInternals.Log.info('Composition validated, resolved props', comp.props);
 
@@ -269,6 +270,7 @@ const innerLaunchHandler = async (
 				version: VERSION,
 			},
 			resolvedProps: serializedResolvedProps,
+			offthreadVideoCacheSize: params.offthreadVideoCacheSize,
 		};
 		return payload;
 	});

@@ -66,6 +66,7 @@ test('Should make a transparent video', async () => {
 			rendererFunctionName: null,
 			bucketName: null,
 			audioCodec: null,
+			offthreadVideoCacheSize: null,
 		},
 		functionName: 'remotion-dev-render',
 		receivedStreamingPayload: () => undefined,

@@ -102,6 +102,7 @@ describe('Webhooks', () => {
 				rendererFunctionName: null,
 				bucketName: null,
 				audioCodec: null,
+				offthreadVideoCacheSize: null,
 			},
 			functionName: 'remotion-dev-lambda',
 			receivedStreamingPayload: () => undefined,
@@ -152,6 +153,7 @@ describe('Webhooks', () => {
 			region: 'us-east-1',
 			type: LambdaRoutines.launch,
 			payload: {
+				offthreadVideoCacheSize: null,
 				serveUrl:
 					'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 				chromiumOptions: {},

@@ -48,6 +48,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		stillFrame,
 		width,
 		logLevel,
+		offthreadVideoCacheSize,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
@@ -87,5 +88,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		},
 		cancelSignal: null,
 		outputLocationFromUi: null,
+		offthreadVideoCacheSize,
 	});
 };

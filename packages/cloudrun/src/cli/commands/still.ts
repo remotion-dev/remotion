@@ -35,6 +35,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		browserExecutable,
 		port,
 		logLevel,
+		offthreadVideoCacheSize,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
@@ -60,6 +61,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
+			offthreadVideoCacheSize,
 		});
 
 		const {compositionId} =
@@ -83,6 +85,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				height,
 				width,
 				server: await server,
+				offthreadVideoCacheSize,
 			});
 		composition = compositionId;
 	}

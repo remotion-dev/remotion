@@ -37,6 +37,7 @@ export const listCompositionsCommand = async (
 		puppeteerTimeout,
 		port,
 		publicDir,
+		offthreadVideoCacheSize,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
@@ -78,6 +79,7 @@ export const listCompositionsCommand = async (
 		puppeteerInstance: undefined,
 		logLevel,
 		server: undefined,
+		offthreadVideoCacheSize,
 	});
 
 	printCompositions(compositions);

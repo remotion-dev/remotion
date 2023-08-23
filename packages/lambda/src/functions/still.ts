@@ -113,6 +113,7 @@ const innerStillHandler = async ({
 		remotionRoot: process.cwd(),
 		logLevel: lambdaParams.logLevel,
 		webpackConfigOrServeUrl: serveUrl,
+		offthreadVideoCacheSize: lambdaParams.offthreadVideoCacheSize,
 	});
 
 	const composition = await validateComposition({
@@ -128,6 +129,7 @@ const innerStillHandler = async ({
 		forceWidth: lambdaParams.forceWidth,
 		logLevel: lambdaParams.logLevel,
 		server,
+		offthreadVideoCacheSize: lambdaParams.offthreadVideoCacheSize,
 	});
 
 	const renderMetadata: RenderMetadata = {
@@ -195,6 +197,7 @@ const innerStillHandler = async ({
 			staticBase: null,
 			data: composition.props,
 		}).serializedString,
+		offthreadVideoCacheSize: lambdaParams.offthreadVideoCacheSize,
 	});
 
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(

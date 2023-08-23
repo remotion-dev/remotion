@@ -31,6 +31,7 @@ type InternalSelectCompositionsConfig = {
 	logLevel: LogLevel;
 	serveUrl: string;
 	id: string;
+	offthreadVideoCacheSize: number | null;
 };
 
 export type SelectCompositionOptions = {
@@ -43,6 +44,7 @@ export type SelectCompositionOptions = {
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
 	verbose?: boolean;
+	offthreadVideoCacheSize?: number | null;
 	serveUrl: string;
 	id: string;
 };
@@ -181,6 +183,7 @@ export const internalSelectComposition = async (
 		onBrowserLog,
 		server,
 		timeoutInMilliseconds,
+		offthreadVideoCacheSize,
 	} = options;
 
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
@@ -214,6 +217,7 @@ export const internalSelectComposition = async (
 				concurrency: 1,
 				logLevel,
 				indent,
+				offthreadVideoCacheSize,
 			},
 			{
 				onDownload: () => undefined,
@@ -239,6 +243,7 @@ export const internalSelectComposition = async (
 					indent,
 					puppeteerInstance,
 					server,
+					offthreadVideoCacheSize,
 				});
 			})
 
@@ -295,6 +300,7 @@ export const selectComposition = async (
 		logLevel: verbose ? 'verbose' : 'info',
 		indent: false,
 		server: undefined,
+		offthreadVideoCacheSize: options.offthreadVideoCacheSize ?? null,
 	});
 	return data.metadata;
 };

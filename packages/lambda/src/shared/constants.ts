@@ -259,6 +259,7 @@ export type LambdaStartPayload = {
 	forceHeight: number | null;
 	forceWidth: number | null;
 	bucketName: string | null;
+	offthreadVideoCacheSize: number | null;
 };
 
 export type LambdaStatusPayload = {
@@ -311,6 +312,7 @@ export type LambdaPayloads = {
 		webhook: WebhookOption;
 		forceHeight: number | null;
 		forceWidth: number | null;
+		offthreadVideoCacheSize: number | null;
 	};
 	status: LambdaStatusPayload;
 	renderer: {
@@ -350,6 +352,7 @@ export type LambdaPayloads = {
 		launchFunctionConfig: {
 			version: string;
 		};
+		offthreadVideoCacheSize: number | null;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -373,6 +376,7 @@ export type LambdaPayloads = {
 		forceHeight: number | null;
 		forceWidth: number | null;
 		bucketName: string | null;
+		offthreadVideoCacheSize: number | null;
 	};
 	compositions: {
 		type: LambdaRoutines.compositions;
@@ -384,6 +388,7 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		serveUrl: string;
 		bucketName: string | null;
+		offthreadVideoCacheSize: number | null;
 	};
 };
 

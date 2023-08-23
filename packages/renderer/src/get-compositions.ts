@@ -30,6 +30,7 @@ type InternalGetCompositionsOptions = {
 	indent: boolean;
 	logLevel: LogLevel;
 	serveUrlOrWebpackUrl: string;
+	offthreadVideoCacheSize: number | null;
 };
 
 export type GetCompositionsOptions = {
@@ -42,6 +43,7 @@ export type GetCompositionsOptions = {
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
 	logLevel?: LogLevel;
+	offthreadVideoCacheSize?: number | null;
 };
 
 type InnerGetCompositionsParams = {
@@ -153,6 +155,7 @@ export const internalGetCompositions = async ({
 	server,
 	timeoutInMilliseconds,
 	logLevel,
+	offthreadVideoCacheSize,
 }: InternalGetCompositionsOptions) => {
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
 		passedInInstance: puppeteerInstance,
@@ -186,6 +189,7 @@ export const internalGetCompositions = async ({
 				concurrency: 1,
 				logLevel,
 				indent,
+				offthreadVideoCacheSize,
 			},
 			{
 				onDownload: () => undefined,
@@ -260,5 +264,6 @@ export const getCompositions = (
 		server: undefined,
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		logLevel: logLevel ?? getLogLevel(),
+		offthreadVideoCacheSize: config?.offthreadVideoCacheSize ?? null,
 	});
 };

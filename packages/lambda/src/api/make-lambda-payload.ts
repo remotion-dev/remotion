@@ -51,6 +51,7 @@ export const makeLambdaRenderMediaPayload = async ({
 	dumpBrowserLogs,
 	jpegQuality,
 	quality,
+	offthreadVideoCacheSize,
 }: RenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
 	if (quality) {
 		throw new Error(
@@ -117,6 +118,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		bucketName: bucketName ?? null,
 		audioCodec: audioCodec ?? null,
 		type: LambdaRoutines.start,
+		offthreadVideoCacheSize: offthreadVideoCacheSize ?? null,
 	};
 };
 

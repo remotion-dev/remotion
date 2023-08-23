@@ -73,6 +73,7 @@ export const compositionsHandler = async (
 		indent: false,
 		browserExecutable: null,
 		onBrowserLog: null,
+		offthreadVideoCacheSize: lambdaParams.offthreadVideoCacheSize,
 	});
 
 	return Promise.resolve({

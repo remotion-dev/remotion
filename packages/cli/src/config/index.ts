@@ -87,6 +87,7 @@ import {getMuted, setMuted} from './muted';
 import type {Loop} from './number-of-gif-loops';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
+import {getOffthreadVideoCacheSize} from './offthread-video-cache-size';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
@@ -564,4 +565,5 @@ export const ConfigInternals = {
 	getWebpackPolling,
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
+	getOffthreadVideoCacheSize,
 };

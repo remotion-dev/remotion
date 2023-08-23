@@ -63,6 +63,7 @@ export const addStillRenderJob = ({
 	delayRenderTimeout,
 	envVariables,
 	inputProps,
+	offthreadVideoCacheSize,
 }: {
 	compositionId: string;
 	outName: string;
@@ -75,6 +76,7 @@ export const addStillRenderJob = ({
 	delayRenderTimeout: number;
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
+	offthreadVideoCacheSize: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -93,6 +95,7 @@ export const addStillRenderJob = ({
 			staticBase: window.remotion_staticBase,
 			indent: undefined,
 		}).serializedString,
+		offthreadVideoCacheSize,
 	});
 };
 
@@ -123,6 +126,7 @@ export const addVideoRenderJob = ({
 	chromiumOptions,
 	envVariables,
 	inputProps,
+	offthreadVideoCacheSize,
 }: {
 	compositionId: string;
 	outName: string;
@@ -150,6 +154,7 @@ export const addVideoRenderJob = ({
 	chromiumOptions: RequiredChromiumOptions;
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
+	offthreadVideoCacheSize: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -183,6 +188,7 @@ export const addVideoRenderJob = ({
 			staticBase: window.remotion_staticBase,
 			indent: undefined,
 		}).serializedString,
+		offthreadVideoCacheSize,
 	});
 };
 

@@ -372,6 +372,9 @@ const RenderModal: React.FC<
 		() => initialDelayRenderTimeout
 	);
 
+	// TODO: Hardcoded
+	const [offthreadVideoCacheSize] = useState(200);
+
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
 			return videoCodecForAudioTab;
@@ -621,6 +624,7 @@ const RenderModal: React.FC<
 			delayRenderTimeout,
 			envVariables: envVariablesArrayToObject(envVariables),
 			inputProps,
+			offthreadVideoCacheSize,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});
@@ -692,6 +696,7 @@ const RenderModal: React.FC<
 			chromiumOptions,
 			envVariables: envVariablesArrayToObject(envVariables),
 			inputProps,
+			offthreadVideoCacheSize,
 		})
 			.then(() => {
 				dispatchIfMounted({type: 'succeed'});

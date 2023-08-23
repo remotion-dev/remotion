@@ -60,6 +60,7 @@ export type RenderMediaOnCloudrunInput = {
 	concurrency?: number | string | null;
 	enforceAudioTrack?: boolean;
 	preferLossless?: boolean;
+	offthreadVideoCacheSize?: number | null;
 };
 
 /**
@@ -137,6 +138,7 @@ export const renderMediaOnCloudrun = async ({
 	concurrency,
 	enforceAudioTrack,
 	preferLossless,
+	offthreadVideoCacheSize,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -190,6 +192,7 @@ export const renderMediaOnCloudrun = async ({
 		concurrency: concurrency ?? null,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		preferLossless: preferLossless ?? false,
+		offthreadVideoCacheSize: offthreadVideoCacheSize ?? null,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);
