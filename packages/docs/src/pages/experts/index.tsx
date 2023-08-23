@@ -10,6 +10,7 @@ import {
   EmailLogo,
   GitHubLogo,
   LinkedInLogo,
+  PersonalWebsite,
   TwitterLogo,
   VideoCallLogo,
 } from "../../components/icons";
@@ -103,17 +104,36 @@ const Experts: React.FC = () => {
                     width: "100%",
                   }}
                 >
-                  {e.twitter ? (
+                  {e.website ? (
                     <div style={flex} className={styles.docsButton}>
-                      <a
-                        target={"_blank"}
-                        href={`https://twitter.com/${e.twitter}`}
-                      >
+                      <a target={"_blank"} href={`${e.website}`}>
                         <BlueButton loading={false} fullWidth size="sm">
-                          <TwitterLogo /> Twitter
+                          <PersonalWebsite /> Website
                         </BlueButton>
                       </a>
                     </div>
+                  ) : null}
+
+                  {e.twitter ? (
+                    <>
+                      {e.website ? (
+                        <>
+                          <Spacer />
+                          <Spacer />
+                        </>
+                      ) : null}
+
+                      <div style={flex} className={styles.docsButton}>
+                        <a
+                          target={"_blank"}
+                          href={`https://twitter.com/${e.twitter}`}
+                        >
+                          <BlueButton loading={false} fullWidth size="sm">
+                            <TwitterLogo /> Twitter
+                          </BlueButton>
+                        </a>
+                      </div>
+                    </>
                   ) : null}
 
                   {e.github ? (
@@ -161,24 +181,27 @@ const Experts: React.FC = () => {
                       </a>
                     </div>
                   ) : null}
-                  {e.linkedin && e.email ? (
-                    <>
-                      <Spacer />
-                      <Spacer />
-                    </>
-                  ) : null}
+
                   {e.email ? (
-                    <div style={flex} className={styles.docsButton}>
-                      <a
-                        style={docsButton}
-                        target={"_blank"}
-                        href={`mailto:${e.email}`}
-                      >
-                        <BlueButton loading={false} fullWidth size="sm">
-                          <EmailLogo /> Email
-                        </BlueButton>
-                      </a>
-                    </div>
+                    <>
+                      {e.linkedin ? (
+                        <>
+                          <Spacer />
+                          <Spacer />
+                        </>
+                      ) : null}
+                      <div style={flex} className={styles.docsButton}>
+                        <a
+                          style={docsButton}
+                          target={"_blank"}
+                          href={`mailto:${e.email}`}
+                        >
+                          <BlueButton loading={false} fullWidth size="sm">
+                            <EmailLogo /> Email
+                          </BlueButton>
+                        </a>
+                      </div>
+                    </>
                   ) : null}
 
                   {e.videocall ? (
@@ -192,7 +215,7 @@ const Experts: React.FC = () => {
                           href={`https://cal.com/${e.videocall}`}
                         >
                           <BlueButton loading={false} fullWidth size="sm">
-                            <VideoCallLogo /> Video call
+                            <VideoCallLogo /> Call
                           </BlueButton>
                         </a>
                       </div>
