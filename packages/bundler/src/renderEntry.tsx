@@ -14,6 +14,7 @@ import {
 	continueRender,
 	delayRender,
 	getInputProps,
+	getRemotionEnvironment,
 	Internals,
 	VERSION,
 } from 'remotion';
@@ -282,8 +283,7 @@ if (typeof window !== 'undefined') {
 		const compositions = getUnevaluatedComps();
 
 		const inputProps =
-			typeof window === 'undefined' ||
-			Internals.getRemotionEnvironment().isPlayer
+			typeof window === 'undefined' || getRemotionEnvironment().isPlayer
 				? {}
 				: getInputProps() ?? {};
 
@@ -340,8 +340,7 @@ if (typeof window !== 'undefined') {
 		);
 
 		const inputProps =
-			typeof window === 'undefined' ||
-			Internals.getRemotionEnvironment().isPlayer
+			typeof window === 'undefined' || getRemotionEnvironment().isPlayer
 				? {}
 				: getInputProps() ?? {};
 
