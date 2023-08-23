@@ -100,6 +100,10 @@ Specify a specific bucket name to be used. [This is not recommended](/docs/lambd
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
+### `--offthreadvideo-cache-size`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size" />
+
 ## See also
 
 - [`getCompositionsOnLambda()`](/docs/lambda/getcompositionsonlambda)
