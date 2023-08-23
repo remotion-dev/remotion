@@ -103,6 +103,7 @@ const Experts: React.FC = () => {
                     flexDirection: "row",
                     width: "100%",
                   }}
+                  className={`${styles.buttonsInColumn}`}
                 >
                   {e.website ? (
                     <div style={flex} className={styles.docsButton}>
@@ -114,7 +115,7 @@ const Experts: React.FC = () => {
                     </div>
                   ) : null}
 
-                  {e.twitter ? (
+                  {e.x ? (
                     <>
                       {e.website ? (
                         <>
@@ -124,12 +125,9 @@ const Experts: React.FC = () => {
                       ) : null}
 
                       <div style={flex} className={styles.docsButton}>
-                        <a
-                          target={"_blank"}
-                          href={`https://twitter.com/${e.twitter}`}
-                        >
+                        <a target={"_blank"} href={`https://x.com/${e.x}`}>
                           <BlueButton loading={false} fullWidth size="sm">
-                            <TwitterLogo /> Twitter
+                            <TwitterLogo /> X
                           </BlueButton>
                         </a>
                       </div>
@@ -138,7 +136,7 @@ const Experts: React.FC = () => {
 
                   {e.github ? (
                     <>
-                      {e.twitter ? (
+                      {e.x ? (
                         <>
                           <Spacer />
                           <Spacer />
@@ -167,6 +165,7 @@ const Experts: React.FC = () => {
                     flexDirection: "row",
                     width: "100%",
                   }}
+                  className={`${styles.buttonsInColumn}`}
                 >
                   {e.linkedin ? (
                     <div style={flex} className={styles.docsButton}>

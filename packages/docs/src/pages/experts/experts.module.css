@@ -86,3 +86,9 @@
     text-align: left;
   }
 }
+
+@media (max-width: 600px) {
+  .card .buttonsInColumn {
+    flex-direction: column !important;
+  }
+}
