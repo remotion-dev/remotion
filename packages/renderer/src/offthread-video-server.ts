@@ -4,7 +4,7 @@ import {downloadAsset} from './assets/download-and-map-assets-to-file';
 import type {DownloadMap} from './assets/download-map';
 import type {Compositor} from './compositor/compositor';
 import {
-	getIdealMaximumFrameCacheItems,
+	getIdealMaximumFrameCacheSizeInBytes,
 	startCompositor,
 } from './compositor/compositor';
 import type {LogLevel} from './log-level';
@@ -65,12 +65,12 @@ export const startOffthreadVideoServer = ({
 		'StartLongRunningProcess',
 		{
 			concurrency,
-			maximum_frame_cache_items:
-				offthreadVideoCacheSize ?? getIdealMaximumFrameCacheItems(),
+			maximum_frame_cache_size_in_bytes:
+				offthreadVideoCacheSize ?? getIdealMaximumFrameCacheSizeInBytes(),
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
 		logLevel,
-		indent
+		indent,
 	);
 
 	return {
@@ -109,7 +109,7 @@ export const startOffthreadVideoServer = ({
 			// https://github.com/remotion-dev/remotion/issues/2760
 			response.setHeader(
 				'cache-control',
-				'no-cache, no-store, must-revalidate'
+				'no-cache, no-store, must-revalidate',
 			);
 
 			// Handling this case on Lambda:
@@ -147,7 +147,7 @@ export const startOffthreadVideoServer = ({
 								original_src: src,
 								time,
 								transparent,
-							})
+							}),
 						);
 					});
 				})
@@ -168,7 +168,7 @@ export const startOffthreadVideoServer = ({
 
 						if (timeToExtract > 1000) {
 							Log.verbose(
-								`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`
+								`Took ${timeToExtract}ms to extract frame from ${src} at ${time}`,
 							);
 						}
 
@@ -238,7 +238,7 @@ export class OffthreadVideoServerEmitter {
 
 	addEventListener<Q extends EventTypes>(
 		name: Q,
-		callback: CallbackListener<Q>
+		callback: CallbackListener<Q>,
 	) {
 		(this.listeners[name] as CallbackListener<Q>[]).push(callback);
 
@@ -249,21 +249,21 @@ export class OffthreadVideoServerEmitter {
 
 	removeEventListener<Q extends EventTypes>(
 		name: Q,
-		callback: CallbackListener<Q>
+		callback: CallbackListener<Q>,
 	) {
 		this.listeners[name] = this.listeners[name].filter(
-			(l) => l !== callback
+			(l) => l !== callback,
 		) as Listeners[Q];
 	}
 
 	private dispatchEvent<T extends EventTypes>(
 		dispatchName: T,
-		context: EventMap[T]
+		context: EventMap[T],
 	) {
 		(this.listeners[dispatchName] as CallbackListener<T>[]).forEach(
 			(callback) => {
 				callback({detail: context});
-			}
+			},
 		);
 	}
 
@@ -277,7 +277,7 @@ export class OffthreadVideoServerEmitter {
 		src: string,
 		percent: number | null,
 		downloaded: number,
-		totalSize: number | null
+		totalSize: number | null,
 	) {
 		this.dispatchEvent('progress', {
 			downloaded,
