@@ -29,8 +29,8 @@ type CommandLineOptions = {
 	['every-nth-frame']: number;
 	['number-of-gif-loops']: number;
 	['number-of-shared-audio-tags']: number;
-	[BrowserSafeApis.options.offthreadVideoCacheSizeOption
-		.cliFlag]: typeof BrowserSafeApis.options.offthreadVideoCacheSizeOption.type;
+	[BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption
+		.cliFlag]: typeof BrowserSafeApis.options.offthreadVideoCacheSizeInBytesOption.type;
 	version: string;
 	codec: Codec;
 	concurrency: number;
@@ -256,6 +256,12 @@ export const parseCommandLine = () => {
 
 	if (typeof parsedCli['video-bitrate'] !== 'undefined') {
 		Config.setVideoBitrate(parsedCli['video-bitrate']);
+	}
+
+	if (typeof parsedCli['offthreadvideo-cache-size-in-bytes'] !== 'undefined') {
+		Config.setOffthreadVideoCacheSizeInBytes(
+			parsedCli['offthreadvideo-cache-size-in-bytes'],
+		);
 	}
 };
 
