@@ -25,7 +25,7 @@ const generate = async () => {
   });
 
   //  Format output
-  output = prettier.format(output, {
+  output = await prettier.format(output, {
     parser: "typescript",
     singleQuote: true,
     quoteProps: "consistent",
