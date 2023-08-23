@@ -86,3 +86,24 @@
     text-align: left;
   }
 }
+
+@media screen and (max-width: 600px) {
+  .card .buttonsInColumn {
+    flex-direction: column !important;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .cardContent {
+    flex-direction: column !important;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .profile {
+    width: 150px;
+    height: auto;
+  }
+}
