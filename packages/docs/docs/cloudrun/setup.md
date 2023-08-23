@@ -373,7 +373,7 @@ const result = await renderMediaOnCloudrun({
   updateRenderProgress,
 });
 
-if (result.status === "success") {
+if (result.type === "success") {
   console.log(result.bucketName);
   console.log(result.renderId);
 }
@@ -411,7 +411,7 @@ const url = "string";
 const serviceName = "string";
 // ---cut---
 
-const { renderId, bucketName } = await renderStillOnCloudrun({
+const result = await renderStillOnCloudrun({
   serviceName,
   region: "us-east1",
   serveUrl: url,
@@ -419,6 +419,11 @@ const { renderId, bucketName } = await renderStillOnCloudrun({
   inputProps: {},
   imageFormat: "jpeg",
 });
+
+if (result.type === "success") {
+  console.log(result.bucketName);
+  console.log(result.renderId);
+}
 ```
 
 The render will now run and after a while the image will be available in your cloud storage bucket.
