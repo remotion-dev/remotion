@@ -34,6 +34,7 @@ type PrepareServerOptions = {
 	concurrency: number;
 	logLevel: LogLevel;
 	indent: boolean;
+	offthreadVideoCacheSize: number | null;
 };
 
 export const prepareServer = async ({
@@ -43,6 +44,7 @@ export const prepareServer = async ({
 	concurrency,
 	logLevel,
 	indent,
+	offthreadVideoCacheSize,
 }: PrepareServerOptions): Promise<RemotionServer> => {
 	const downloadMap = makeDownloadMap();
 	Log.verboseAdvanced(
@@ -63,6 +65,7 @@ export const prepareServer = async ({
 			concurrency,
 			logLevel,
 			indent,
+			offthreadVideoCacheSize,
 		});
 
 		return Promise.resolve({
@@ -111,6 +114,7 @@ export const prepareServer = async ({
 		concurrency,
 		logLevel,
 		indent,
+		offthreadVideoCacheSize,
 	});
 
 	return Promise.resolve({
