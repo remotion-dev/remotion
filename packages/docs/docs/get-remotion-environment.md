@@ -5,10 +5,10 @@ crumb: "API"
 ---
 
 With the `getRemotionEnvironment()` function , you can retrieve information about the current Remotion Environment.
-`getRemotionEnvironment()` returns an object with the following properties:
+It returns an object with the following properties:
 
 - `isStudio`: Indicates if you are currently in the studio.
-- `ìsRendering`: Tells if one is currently in a render.
+- `isRendering`: Tells if one is currently in a render.
 - `isPlayer`: Indicates if you are in the Player.
 
 This can be useful if you want components to compute some values differently based on the environment you are in.
@@ -20,7 +20,7 @@ import React from "react";
 import { getRemotionEnvironment } from "remotion";
 
 export const MyComp: React.FC = () => {
-  const { isStudio, isPlayer } = getRemotionEnvironment();
+  const { isStudio, isPlayer, isRendering } = getRemotionEnvironment();
 
   if (isStudio) {
     return <div>I'm in the Studio!</div>;
@@ -28,6 +28,10 @@ export const MyComp: React.FC = () => {
 
   if (isPlayer) {
     return <div>I'm in the Player!</div>;
+  }
+
+  if (isRendering) {
+    return <div>I'm Rendering</div>;
   }
 
   return <div>Hello World!</div>;
