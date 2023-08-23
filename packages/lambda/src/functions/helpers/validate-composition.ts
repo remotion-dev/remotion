@@ -22,7 +22,7 @@ type ValidateCompositionOptions = {
 	forceWidth: number | null;
 	logLevel: LogLevel;
 	server: RemotionServer | undefined;
-	offthreadVideoCacheSize: number | null;
+	offthreadVideoCacheSizeInBytes: number | null;
 };
 
 export const validateComposition = async ({
@@ -38,7 +38,7 @@ export const validateComposition = async ({
 	forceWidth,
 	logLevel,
 	server,
-	offthreadVideoCacheSize,
+	offthreadVideoCacheSizeInBytes,
 }: ValidateCompositionOptions): Promise<VideoConfig> => {
 	const {metadata: comp} = await RenderInternals.internalSelectComposition({
 		id: composition,
@@ -54,7 +54,7 @@ export const validateComposition = async ({
 		indent: false,
 		onBrowserLog: null,
 		server,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	});
 
 	return {

@@ -58,7 +58,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 		browserExecutable,
 		port,
 		enforceAudioTrack,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	} = await CliInternals.getCliOptions({
 		type: 'series',
 		isLambda: true,
@@ -73,7 +73,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 
 		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 			throw Error(
-				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.'
+				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
 			);
 		}
 
@@ -84,7 +84,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
-			offthreadVideoCacheSize: offthreadVideoCacheSize ?? null,
+			offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 		});
 
 		const {compositionId} =
@@ -108,7 +108,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 					indent: undefined,
 					staticBase: null,
 				}).serializedString,
-				offthreadVideoCacheSize,
+				offthreadVideoCacheSizeInBytes,
 			});
 		composition = compositionId;
 	}
@@ -126,8 +126,8 @@ Output Bucket = ${forceBucketName}
 Output File = ${outName ?? 'out.mp4'}
 Output File Privacy = ${privacy}
 ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
-			`.trim()
-		)
+			`.trim(),
+		),
 	);
 	Log.info();
 
@@ -156,7 +156,7 @@ ${downloadName ? `		Downloaded File = ${downloadName}` : ''}
 					? `${Math.round(renderProgress.progress * 100)}%`
 					: CliInternals.chalk.gray(`${renderProgress.doneIn}ms`),
 			].join(' '),
-			false
+			false,
 		);
 	};
 
@@ -227,8 +227,8 @@ Bucket Name = ${res.bucketName}
 Privacy = ${res.privacy}
 Render ID = ${res.renderId}
 Codec = ${codec} (${codecReason})
-      `.trim()
-			)
+      `.trim(),
+			),
 		);
 
 		if (downloadName) {
@@ -242,7 +242,7 @@ Codec = ${codec} (${codecReason})
 			});
 
 			Log.info(
-				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
+				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`),
 			);
 		}
 	}

@@ -61,7 +61,7 @@ test('Should fail when using an incompatible version', async () => {
 				bucketName: 'remotion-dev-render',
 				audioCodec: null,
 				renderId: 'test',
-				offthreadVideoCacheSize: null,
+				offthreadVideoCacheSizeInBytes: null,
 			},
 			functionName: 'remotion-dev-render',
 			receivedStreamingPayload: () => undefined,
@@ -73,7 +73,7 @@ test('Should fail when using an incompatible version', async () => {
 		throw new Error('Should not reach this');
 	} catch (err) {
 		expect((err as Error).message).toContain(
-			'Incompatible site: When visiting'
+			'Incompatible site: When visiting',
 		);
 	}
 });

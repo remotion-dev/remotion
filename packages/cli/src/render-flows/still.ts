@@ -66,7 +66,7 @@ export const renderStillFlow = async ({
 	addCleanupCallback,
 	cancelSignal,
 	outputLocationFromUi,
-	offthreadVideoCacheSize,
+	offthreadVideoCacheSizeInBytes,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -94,7 +94,7 @@ export const renderStillFlow = async ({
 	addCleanupCallback: (cb: () => void) => void;
 	cancelSignal: CancelSignal | null;
 	outputLocationFromUi: string | null;
-	offthreadVideoCacheSize: number | null;
+	offthreadVideoCacheSizeInBytes: number | null;
 }) => {
 	const aggregate: AggregateRenderProgress = initialAggregateRenderProgress();
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
@@ -134,7 +134,7 @@ export const renderStillFlow = async ({
 		Log.verboseAdvanced(
 			{indent, logLevel},
 			'Browser executable: ',
-			browserExecutable
+			browserExecutable,
 		);
 	}
 
@@ -168,7 +168,7 @@ export const renderStillFlow = async ({
 				});
 			},
 			quietProgress: updatesDontOverwrite,
-		}
+		},
 	);
 
 	const server = await RenderInternals.prepareServer({
@@ -178,7 +178,7 @@ export const renderStillFlow = async ({
 		remotionRoot,
 		logLevel,
 		webpackConfigOrServeUrl: urlOrBundle,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	});
 
 	addCleanupCallback(() => server.closeServer(false));
@@ -205,7 +205,7 @@ export const renderStillFlow = async ({
 			timeoutInMilliseconds: puppeteerTimeout,
 			logLevel,
 			server,
-			offthreadVideoCacheSize,
+			offthreadVideoCacheSizeInBytes,
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
@@ -215,7 +215,7 @@ export const renderStillFlow = async ({
 		downloadName: null,
 		outName: getUserPassedOutputLocation(
 			argsAfterComposition,
-			outputLocationFromUi
+			outputLocationFromUi,
 		),
 		isLambda: false,
 		fromUi: imageFormatFromUi,
@@ -231,7 +231,7 @@ export const renderStillFlow = async ({
 
 	const absoluteOutputLocation = getAndValidateAbsoluteOutputFile(
 		relativeOutputLocation,
-		overwrite
+		overwrite,
 	);
 	const exists = existsSync(absoluteOutputLocation);
 
@@ -241,13 +241,13 @@ export const renderStillFlow = async ({
 
 	Log.verboseAdvanced(
 		{indent, logLevel},
-		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`)
+		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
 	);
 	Log.infoAdvanced(
 		{indent, logLevel},
 		chalk.gray(
-			`Composition = ${compositionId} (${reason}), Format = ${imageFormat} (${source}), Output = ${relativeOutputLocation}`
-		)
+			`Composition = ${compositionId} (${reason}), Format = ${imageFormat} (${source}), Output = ${relativeOutputLocation}`,
+		),
 	);
 
 	const renderStart = Date.now();
@@ -297,7 +297,7 @@ export const renderStillFlow = async ({
 			staticBase: null,
 			data: config.props,
 		}).serializedString,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	});
 
 	aggregate.rendering = {
@@ -310,6 +310,6 @@ export const renderStillFlow = async ({
 	updateRenderProgress({newline: true, printToConsole: true});
 	Log.infoAdvanced(
 		{indent, logLevel},
-		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputLocation}`)
+		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputLocation}`),
 	);
 };

@@ -16,8 +16,8 @@ export const serveStatic = async (
 		concurrency: number;
 		logLevel: LogLevel;
 		indent: boolean;
-		offthreadVideoCacheSize: number | null;
-	}
+		offthreadVideoCacheSizeInBytes: number | null;
+	},
 ): Promise<{
 	port: number;
 	close: () => Promise<void>;
@@ -32,7 +32,7 @@ export const serveStatic = async (
 		concurrency: options.concurrency,
 		logLevel: options.logLevel,
 		indent: options.indent,
-		offthreadVideoCacheSize: options.offthreadVideoCacheSize,
+		offthreadVideoCacheSize: options.offthreadVideoCacheSizeInBytes,
 	});
 
 	const connections: Record<string, Socket> = {};

@@ -87,7 +87,7 @@ import {getMuted, setMuted} from './muted';
 import type {Loop} from './number-of-gif-loops';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
-import {getOffthreadVideoCacheSize} from './offthread-video-cache-size';
+import {getOffthreadVideoCacheSizeInBytes} from './offthread-video-cache-size';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
@@ -176,21 +176,21 @@ declare global {
 		 * Set this to 'verbose' to get browser logs and other IO.
 		 */
 		readonly setLevel: (
-			newLogLevel: 'verbose' | 'info' | 'warn' | 'error'
+			newLogLevel: 'verbose' | 'info' | 'warn' | 'error',
 		) => void;
 		/**
 		 * Specify executable path for the browser to use.
 		 * Default: null, which will make Remotion find or download a version of said browser.
 		 */
 		readonly setBrowserExecutable: (
-			newBrowserExecutablePath: BrowserExecutable
+			newBrowserExecutablePath: BrowserExecutable,
 		) => void;
 		/**
 		 * Set how many milliseconds a frame may take to render before it times out.
 		 * Default: `30000`
 		 */
 		readonly setDelayRenderTimeoutInMilliseconds: (
-			newPuppeteerTimeout: number
+			newPuppeteerTimeout: number,
 		) => void;
 		/**
 		 * @deprecated Renamed to `setDelayRenderTimeoutInMilliseconds`.
@@ -218,7 +218,7 @@ declare global {
 		 * Default: 'swangle' in Lambda, null elsewhere.
 		 */
 		readonly setChromiumOpenGlRenderer: (
-			renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader'
+			renderer: 'swangle' | 'angle' | 'egl' | 'swiftshader',
 		) => void;
 		/**
 		 * Set the user agent for Chrome. Only works during rendering.
@@ -313,7 +313,7 @@ declare global {
 				| 'yuv420p10le'
 				| 'yuv422p10le'
 				| 'yuv444p10le'
-				| 'yuva444p10le'
+				| 'yuva444p10le',
 		) => void;
 		/**
 		 * Specify the codec for stitching the frames into a video.
@@ -352,7 +352,7 @@ declare global {
 				| 'standard'
 				| 'light'
 				| 'proxy'
-				| undefined
+				| undefined,
 		) => void;
 
 		readonly setX264Preset: (
@@ -367,7 +367,7 @@ declare global {
 				| 'slower'
 				| 'veryslow'
 				| 'placebo'
-				| undefined
+				| undefined,
 		) => void;
 		/**
 		 * Override the arguments that Remotion passes to FFMPEG.
@@ -377,7 +377,7 @@ declare global {
 			command: (info: {
 				type: 'pre-stitcher' | 'stitcher';
 				args: string[];
-			}) => string[]
+			}) => string[],
 		) => void;
 
 		/**
@@ -429,32 +429,32 @@ type FlatConfig = RemotionConfigObject &
 export const Config: FlatConfig = {
 	get Bundling() {
 		throw new Error(
-			'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
+			'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.',
 		);
 	},
 	get Rendering() {
 		throw new Error(
-			'The config format has changed. Change `Config.Rendering.*()` calls to `Config.*()` in your config file.'
+			'The config format has changed. Change `Config.Rendering.*()` calls to `Config.*()` in your config file.',
 		);
 	},
 	get Output() {
 		throw new Error(
-			'The config format has changed. Change `Config.Output.*()` calls to `Config.*()` in your config file.'
+			'The config format has changed. Change `Config.Output.*()` calls to `Config.*()` in your config file.',
 		);
 	},
 	get Log() {
 		throw new Error(
-			'The config format has changed. Change `Config.Log.*()` calls to `Config.*()` in your config file.'
+			'The config format has changed. Change `Config.Log.*()` calls to `Config.*()` in your config file.',
 		);
 	},
 	get Preview() {
 		throw new Error(
-			'The config format has changed. Change `Config.Preview.*()` calls to `Config.*()` in your config file.'
+			'The config format has changed. Change `Config.Preview.*()` calls to `Config.*()` in your config file.',
 		);
 	},
 	get Puppeteer() {
 		throw new Error(
-			'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.'
+			'The config format has changed. Change `Config.Puppeteer.*()` calls to `Config.*()` in your config file.',
 		);
 	},
 	setMaxTimelineTracks,
@@ -480,12 +480,12 @@ export const Config: FlatConfig = {
 	setConcurrency,
 	setQuality: () => {
 		throw new Error(
-			'setQuality() has been renamed - use setJpegQuality() instead.'
+			'setQuality() has been renamed - use setJpegQuality() instead.',
 		);
 	},
 	setImageFormat: () => {
 		throw new Error(
-			'Config.setImageFormat() has been renamed - use Config.setVideoImageFormat() instead (default "jpeg"). For rendering stills, use Config.setStillImageFormat() (default "png")'
+			'Config.setImageFormat() has been renamed - use Config.setVideoImageFormat() instead (default "jpeg"). For rendering stills, use Config.setStillImageFormat() (default "png")',
 		);
 	},
 	setJpegQuality,
@@ -565,5 +565,5 @@ export const ConfigInternals = {
 	getWebpackPolling,
 	getShouldOpenBrowser,
 	getChromiumUserAgent,
-	getOffthreadVideoCacheSize,
+	getOffthreadVideoCacheSizeInBytes,
 };

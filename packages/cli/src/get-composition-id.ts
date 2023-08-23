@@ -49,7 +49,7 @@ export const getCompositionId = async ({
 	logLevel,
 	indent,
 	server,
-	offthreadVideoCacheSize,
+	offthreadVideoCacheSizeInBytes,
 }: {
 	args: string[];
 	compositionIdFromUi: string | null;
@@ -64,7 +64,7 @@ export const getCompositionId = async ({
 	logLevel: LogLevel;
 	indent: boolean;
 	server: RemotionServer;
-	offthreadVideoCacheSize: number | null;
+	offthreadVideoCacheSizeInBytes: number | null;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -95,7 +95,7 @@ export const getCompositionId = async ({
 				server,
 				indent,
 				onBrowserLog: null,
-				offthreadVideoCacheSize,
+				offthreadVideoCacheSizeInBytes,
 			});
 
 		if (propsSize > 10_000_000) {
@@ -105,8 +105,8 @@ export const getCompositionId = async ({
 					logLevel,
 				},
 				`The props of your composition are large (${formatBytes(
-					propsSize
-				)}). This may cause slowdown.`
+					propsSize,
+				)}). This may cause slowdown.`,
 			);
 		}
 
@@ -136,7 +136,7 @@ export const getCompositionId = async ({
 			serveUrlOrWebpackUrl,
 			onBrowserLog: null,
 			serializedInputPropsWithCustomSchema,
-			offthreadVideoCacheSize,
+			offthreadVideoCacheSizeInBytes,
 		});
 		const {compositionId, reason} = await showSingleCompositionsPicker(comps);
 		if (compositionId && typeof compositionId === 'string') {

@@ -45,7 +45,7 @@ export type SelectCompositionOptions = {
 	chromiumOptions?: ChromiumOptions;
 	port?: number | null;
 	verbose?: boolean;
-	offthreadVideoCacheSize?: number | null;
+	offthreadVideoCacheSizeInBytes?: number | null;
 	serveUrl: string;
 	id: string;
 };
@@ -184,7 +184,7 @@ export const internalSelectComposition = async (
 		onBrowserLog,
 		server,
 		timeoutInMilliseconds,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	} = options;
 
 	const {page, cleanup: cleanupPage} = await getPageAndCleanupFn({
@@ -218,7 +218,7 @@ export const internalSelectComposition = async (
 				concurrency: 1,
 				logLevel,
 				indent,
-				offthreadVideoCacheSize,
+				offthreadVideoCacheSizeInBytes,
 			},
 			{
 				onDownload: () => undefined,
@@ -244,7 +244,7 @@ export const internalSelectComposition = async (
 					indent,
 					puppeteerInstance,
 					server,
-					offthreadVideoCacheSize,
+					offthreadVideoCacheSizeInBytes,
 				});
 			})
 
@@ -301,7 +301,8 @@ export const selectComposition = async (
 		logLevel: verbose ? 'verbose' : 'info',
 		indent: false,
 		server: undefined,
-		offthreadVideoCacheSize: options.offthreadVideoCacheSize ?? null,
+		offthreadVideoCacheSizeInBytes:
+			options.offthreadVideoCacheSizeInBytes ?? null,
 	});
 	return data.metadata;
 };

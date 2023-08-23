@@ -171,7 +171,7 @@ export type RenderFramesOptions = {
 	muted?: boolean;
 	concurrency?: number | string | null;
 	serveUrl: string;
-	offthreadVideoCacheSize?: number | null;
+	offthreadVideoCacheSizeInBytes?: number | null;
 };
 
 const innerRenderFrames = async ({
@@ -597,7 +597,7 @@ export const internalRenderFrames = ({
 	webpackBundleOrServeUrl,
 	serializedInputPropsWithCustomSchema,
 	serializedResolvedPropsWithCustomSchema,
-	offthreadVideoCacheSize,
+	offthreadVideoCacheSizeInBytes,
 }: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
 	Internals.validateDimension(
 		composition.height,
@@ -662,7 +662,7 @@ export const internalRenderFrames = ({
 						concurrency: actualConcurrency,
 						logLevel,
 						indent,
-						offthreadVideoCacheSize,
+						offthreadVideoCacheSizeInBytes,
 					},
 					{
 						onDownload,
@@ -790,7 +790,7 @@ export const renderFrames = (
 		verbose,
 		quality,
 		logLevel,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	} = options;
 
 	if (!composition) {
@@ -848,6 +848,6 @@ export const renderFrames = (
 		timeoutInMilliseconds: timeoutInMilliseconds ?? DEFAULT_TIMEOUT,
 		webpackBundleOrServeUrl: serveUrl,
 		server: undefined,
-		offthreadVideoCacheSize: offthreadVideoCacheSize ?? null,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 	});
 };

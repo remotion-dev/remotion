@@ -18,7 +18,7 @@ export const offthreadVideoCacheSizeOption = {
 			Default: <code>null</code>
 		</>
 	),
-	ssrName: 'offthreadVideoCacheSize' as const,
+	ssrName: 'offthreadVideoCacheSizeInBytes' as const,
 	docLink: 'https://www.remotion.dev/docs/offthreadvideo',
 	type: 0 as number | null,
 } satisfies AnyRemotionOption;

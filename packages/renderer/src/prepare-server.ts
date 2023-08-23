@@ -34,7 +34,7 @@ type PrepareServerOptions = {
 	concurrency: number;
 	logLevel: LogLevel;
 	indent: boolean;
-	offthreadVideoCacheSize: number | null;
+	offthreadVideoCacheSizeInBytes: number | null;
 };
 
 export const prepareServer = async ({
@@ -44,13 +44,13 @@ export const prepareServer = async ({
 	concurrency,
 	logLevel,
 	indent,
-	offthreadVideoCacheSize,
+	offthreadVideoCacheSizeInBytes,
 }: PrepareServerOptions): Promise<RemotionServer> => {
 	const downloadMap = makeDownloadMap();
 	Log.verboseAdvanced(
 		{indent, logLevel},
 		'Created directory for temporary files',
-		downloadMap.assetDir
+		downloadMap.assetDir,
 	);
 
 	if (isServeUrl(webpackConfigOrServeUrl)) {
@@ -65,7 +65,7 @@ export const prepareServer = async ({
 			concurrency,
 			logLevel,
 			indent,
-			offthreadVideoCacheSize,
+			offthreadVideoCacheSizeInBytes,
 		});
 
 		return Promise.resolve({
@@ -77,12 +77,12 @@ export const prepareServer = async ({
 			offthreadPort,
 			compositor: comp,
 			sourceMap: getSourceMapFromRemoteUrl(
-				getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl)
+				getBundleMapUrlFromServeUrl(webpackConfigOrServeUrl),
 			).catch((err) => {
 				Log.verbose(
 					'Could not fetch sourcemap for ',
 					webpackConfigOrServeUrl,
-					err
+					err,
 				);
 				return null;
 			}),
@@ -95,12 +95,12 @@ export const prepareServer = async ({
 	const exists = existsSync(indexFile);
 	if (!exists) {
 		throw new Error(
-			`Tried to serve the Webpack bundle on a HTTP server, but the file ${indexFile} does not exist. Is this a valid path to a Webpack bundle?`
+			`Tried to serve the Webpack bundle on a HTTP server, but the file ${indexFile} does not exist. Is this a valid path to a Webpack bundle?`,
 		);
 	}
 
 	const sourceMap = getSourceMapFromLocalFile(
-		path.join(webpackConfigOrServeUrl, Internals.bundleName)
+		path.join(webpackConfigOrServeUrl, Internals.bundleName),
 	);
 
 	const {
@@ -114,7 +114,7 @@ export const prepareServer = async ({
 		concurrency,
 		logLevel,
 		indent,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	});
 
 	return Promise.resolve({
@@ -144,7 +144,7 @@ export const makeOrReuseServer = async (
 	}: {
 		onError: (err: Error) => void;
 		onDownload: RenderMediaOnDownload | null;
-	}
+	},
 ): Promise<{
 	server: RemotionServer;
 	cleanupServer: (force: boolean) => Promise<unknown>;
@@ -152,14 +152,14 @@ export const makeOrReuseServer = async (
 	if (server) {
 		const cleanupOnDownload = attachDownloadListenerToEmitter(
 			server.downloadMap,
-			onDownload
+			onDownload,
 		);
 
 		const cleanupError = server.downloadMap.emitter.addEventListener(
 			'error',
 			({detail: {error}}) => {
 				onError(error);
-			}
+			},
 		);
 
 		return {
@@ -176,14 +176,14 @@ export const makeOrReuseServer = async (
 
 	const cleanupOnDownloadNew = attachDownloadListenerToEmitter(
 		newServer.downloadMap,
-		onDownload
+		onDownload,
 	);
 
 	const cleanupErrorNew = newServer.downloadMap.emitter.addEventListener(
 		'error',
 		({detail: {error}}) => {
 			onError(error);
-		}
+		},
 	);
 
 	return {

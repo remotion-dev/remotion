@@ -100,7 +100,7 @@ export const renderStillOnLambda = async ({
 	forceBucketName,
 	dumpBrowserLogs,
 	onInit,
-	offthreadVideoCacheSize,
+	offthreadVideoCacheSizeInBytes,
 }: RenderStillOnLambdaInput): Promise<RenderStillOnLambdaOutput> => {
 	if (quality) {
 		throw new Error(
@@ -143,7 +143,7 @@ export const renderStillOnLambda = async ({
 				forceHeight: forceHeight ?? null,
 				forceWidth: forceWidth ?? null,
 				bucketName: forceBucketName ?? null,
-				offthreadVideoCacheSize: offthreadVideoCacheSize ?? null,
+				offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 			},
 			region,
 			receivedStreamingPayload: (payload) => {
