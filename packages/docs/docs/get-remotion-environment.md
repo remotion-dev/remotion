@@ -4,8 +4,8 @@ id: get-remotion-environment
 crumb: "API"
 ---
 
-With this `getRemotionEnvironment()`, you can retrieve information on the current Remotion Environment.
-`useRemotionEnvironment` returns an object with the following properties:
+With the `getRemotionEnvironment()` function , you can retrieve information about the current Remotion Environment.
+`getRemotionEnvironment()` returns an object with the following properties:
 
 - `isStudio`: Indicates if you are currently in the studio.
 - `ìsRendering`: Tells if one is currently in a render.
