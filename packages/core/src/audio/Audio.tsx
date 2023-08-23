@@ -1,7 +1,7 @@
 import React, {forwardRef, useCallback, useContext} from 'react';
 import {getAbsoluteSrc} from '../absolute-src.js';
 import {cancelRender} from '../cancel-render.js';
-import {useRemotionEnvironment} from '../get-environment.js';
+import {getRemotionEnvironment} from '../get-environment.js';
 import {Loop} from '../loop/index.js';
 import {Sequence} from '../Sequence.js';
 import {useVideoConfig} from '../use-video-config.js';
@@ -21,7 +21,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	const {startFrom, endAt, ...otherProps} = props;
 	const {loop, ...propsOtherThanLoop} = props;
 	const {fps} = useVideoConfig();
-	const environment = useRemotionEnvironment();
+	const environment = getRemotionEnvironment();
 
 	const {durations, setDurations} = useContext(DurationsContext);
 
