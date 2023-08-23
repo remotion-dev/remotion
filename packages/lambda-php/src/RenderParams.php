@@ -66,6 +66,7 @@ class RenderParams
     private $webhook = null;
     private $forceHeight = null;
     private $forceWidth = null;
+    private $offthreadVideoCacheSizeInBytes = null;
     private $audioCodec = null;
     private $rendererFunctionName = null;
     private $proResProfile = null;
@@ -100,6 +101,7 @@ class RenderParams
         ?string $webhook = null, 
         ?int $forceHeight = null, 
         ?int $forceWidth = null, 
+        ?int $offthreadVideoCacheSizeInBytes = null, 
         ?string $audioCodec = null, 
         ?int $framesPerLambda = null, 
         ?string $rendererFunctionName = null, 
@@ -135,6 +137,7 @@ class RenderParams
         $this->webhook = $webhook;
         $this->forceHeight = $forceHeight;
         $this->forceWidth = $forceWidth;
+        $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
         $this->audioCodec = $audioCodec;
         $this->framesPerLambda = $framesPerLambda;
         $this->rendererFunctionName = $rendererFunctionName;
@@ -174,6 +177,7 @@ class RenderParams
             'webhook' => $this->getWebhook(),
             'forceHeight' => $this->getForceHeight(),
             'forceWidth' => $this->getForceWidth(),
+            'offthreadVideoCacheSizeInBytes' => $this->getOffthreadVideoCacheSizeInBytes(),
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
             'x264Preset' => $this->getX264Preset(),
@@ -626,6 +630,11 @@ class RenderParams
         $this->forceWidth = $forceWidth;
     }
 
+    public function setOffthreadVideoCacheSizeInBytes($offthreadVideoCacheSizeInBytes)
+    {
+        $this->offthreadVideoCacheSizeInBytes = $offthreadVideoCacheSizeInBytes;
+    }
+
     // Getter methods
     public function getMuted()
     {
@@ -660,6 +669,10 @@ class RenderParams
     public function getForceWidth()
     {
         return $this->forceWidth;
+    }
+    public function getOffthreadVideoCacheSizeInBytes()
+    {
+        return $this->offthreadVideoCacheSizeInBytes;
     }
 
     /**
