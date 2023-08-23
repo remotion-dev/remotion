@@ -10,7 +10,6 @@ export const wrapWithErrorHandling = <A extends unknown[], R>(
 			return await fn(...args);
 		} catch (err) {
 			getUsefulErrorMessage(err as Error);
-			console.log(err);
 			throw err;
 		}
 	};
