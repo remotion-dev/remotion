@@ -4,15 +4,15 @@ id: get-remotion-environment
 crumb: "API"
 ---
 
-With this hook, you can retrieve information on the current Remotion Environment.
+With this `getRemotionEnvironment()`, you can retrieve information on the current Remotion Environment.
 `useRemotionEnvironment` returns an object with the following properties:
 
-- `isStudio`: Indicates if one is currently in the studio.
+- `isStudio`: Indicates if you are currently in the studio.
 - `ìsRendering`: Tells if one is currently in a render.
-- `isPlayer`: Tells if one is in the Player.
+- `isPlayer`: Indicates if you are in the Player.
 - `isProduction`: Based on your .env file, tells if you are in production or in development
 
-This can be useful if you want components to compute some value differently based on the environment you are in.
+This can be useful if you want components to compute some values differently based on the environment you are in.
 
 ### Example
 
@@ -21,19 +21,24 @@ import React from "react";
 import { getRemotionEnvironment } from "remotion";
 
 export const MyComp: React.FC = () => {
-  const { isStudio, isRendering, isPlayer, isProduction } =
-    getRemotionEnvironment();
-  console.log(isStudio); // false;
-  console.log(isRendering); // true
-  console.log(isPlayer); // false
-  console.log(isProduction); //true
+  const { isStudio, isPlayer } = getRemotionEnvironment();
+
+  if (isStudio) {
+    return <div>I'm in the Studio!</div>;
+  }
+
+  if (isPlayer) {
+    return <div>I'm in the Player!</div>;
+  }
 
   return <div>Hello World!</div>;
 };
 ```
 
+A more realistic use case: In the Remotion Studio you might want to debounce a request, but not during rendering. See [debouncing requests](/docs/data-fetching#debouncing-requests) for an indepth explanation.
+
 ## See also
 
 - [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/get-environment.ts)
 - [useVideoConfig()](/docs/use-video-config)
-- [`<Sequence />`](/docs/sequence)
+- [`<OffthreadVideo/> while rendering`](/docs/miscellaneous/snippets/offthread-video-while-rendering)
