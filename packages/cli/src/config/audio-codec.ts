@@ -12,8 +12,8 @@ export const setAudioCodec = (audioCodec: AudioCodec | null) => {
 	if (!RenderInternals.validAudioCodecs.includes(audioCodec)) {
 		throw new Error(
 			`Audio codec must be one of the following: ${RenderInternals.validAudioCodecs.join(
-				', '
-			)}, but got ${audioCodec}`
+				', ',
+			)}, but got ${audioCodec}`,
 		);
 	}
 

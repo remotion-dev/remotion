@@ -21,7 +21,7 @@ export function measureSpring({
 }): number {
 	if (typeof threshold !== 'number') {
 		throw new TypeError(
-			`threshold must be a number, got ${threshold} of type ${typeof threshold}`
+			`threshold must be a number, got ${threshold} of type ${typeof threshold}`,
 		);
 	}
 

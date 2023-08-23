@@ -31,7 +31,7 @@ export const RenderQueueRepeatItem: React.FC<{job: RenderJob}> = ({job}) => {
 				</svg>
 			);
 		},
-		[icon]
+		[icon],
 	);
 
 	return <InlineAction onClick={onClick} renderAction={renderAction} />;

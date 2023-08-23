@@ -55,7 +55,7 @@ export const serializeJSONWithDate = ({
 
 			return value;
 		},
-		indent
+		indent,
 	);
 
 	return {serializedString, customDateUsed, customFileUsed, mapUsed, setUsed};

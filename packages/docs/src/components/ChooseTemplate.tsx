@@ -36,7 +36,7 @@ export const ChooseTemplate: React.FC = () => {
           }}
         >
           {CreateVideoInternals.FEATURED_TEMPLATES.filter(
-            (f) => f.featuredOnHomePage
+            (f) => f.featuredOnHomePage,
           ).map((template) => {
             return (
               <Link

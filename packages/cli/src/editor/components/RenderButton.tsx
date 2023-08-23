@@ -88,7 +88,7 @@ export const RenderButton: React.FC = () => {
 				defaultExtension: isVideo
 					? BrowserSafeApis.getFileExtensionFromCodec(
 							initialVideoCodec,
-							defaults.audioCodec as AudioCodec
+							defaults.audioCodec as AudioCodec,
 					  )
 					: defaults.stillImageFormat,
 				type: 'asset',
@@ -118,6 +118,8 @@ export const RenderButton: React.FC = () => {
 			initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
 			initialHeadless: defaults.headless,
 			initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
+			initialOffthreadVideoCacheSizeInBytes:
+				defaults.offthreadVideoCacheSizeInBytes,
 			defaultProps: props[video.id] ?? video.defaultProps,
 			inFrameMark: inFrame,
 			outFrameMark: outFrame,

@@ -9,7 +9,7 @@ test('Should not have disableRemotePlayback props in the <VideoForDevelopment> c
 		'dist',
 		'esm',
 		'video',
-		'VideoForDevelopment.d.ts'
+		'VideoForDevelopment.d.ts',
 	);
 	const read = fs.readFileSync(file, 'utf-8');
 	expect(read).not.toContain('disableRemotePlayback');
@@ -22,7 +22,7 @@ test('Should not have disableRemotePlayback props in the <VideoForRendering> com
 		'dist',
 		'esm',
 		'video',
-		'VideoForRendering.d.ts'
+		'VideoForRendering.d.ts',
 	);
 	const read = fs.readFileSync(file, 'utf-8');
 	expect(read).not.toContain('disableRemotePlayback');
@@ -35,7 +35,7 @@ test('Should not have disableRemotePlayback props in the <AudioForDevelopment> c
 		'dist',
 		'esm',
 		'audio',
-		'AudioForDevelopment.d.ts'
+		'AudioForDevelopment.d.ts',
 	);
 	const read = fs.readFileSync(file, 'utf-8');
 	expect(read).not.toContain('aria-disabled');
@@ -48,7 +48,7 @@ test('Should not have disableRemotePlayback props in the <AudioForRendering> com
 		'dist',
 		'esm',
 		'audio',
-		'AudioForRendering.d.ts'
+		'AudioForRendering.d.ts',
 	);
 	const read = fs.readFileSync(file, 'utf-8');
 	expect(read).not.toContain('aria-disabled');

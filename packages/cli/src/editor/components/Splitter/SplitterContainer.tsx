@@ -31,11 +31,11 @@ export const SplitterContainer: React.FC<{
 }> = ({orientation, children, defaultFlex, maxFlex, minFlex, id}) => {
 	const [initialTimelineFlex, persistFlex] = useTimelineFlex(id);
 	const [flexValue, setFlexValue] = useState(
-		initialTimelineFlex ?? defaultFlex
+		initialTimelineFlex ?? defaultFlex,
 	);
 
 	const [domRect, setDomRect] = useState<DOMRect | DOMRectReadOnly | null>(
-		null
+		null,
 	);
 	const ref = useRef<HTMLDivElement>(null);
 	const isDragging = useRef<SplitterDragState>(false);

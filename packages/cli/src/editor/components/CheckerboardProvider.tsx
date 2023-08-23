@@ -9,7 +9,7 @@ export const CheckerboardProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [checkerboard, setCheckerboardState] = useState(() =>
-		loadCheckerboardOption()
+		loadCheckerboardOption(),
 	);
 
 	const setCheckerboard = useCallback(
@@ -20,7 +20,7 @@ export const CheckerboardProvider: React.FC<{
 				return newVal;
 			});
 		},
-		[]
+		[],
 	);
 
 	const checkerboardCtx = useMemo(() => {

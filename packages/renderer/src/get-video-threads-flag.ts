@@ -12,7 +12,7 @@ export const getIdealVideoThreadsFlag = () => {
 
 	const maxRecommended = Math.min(
 		maxRecommendedBasedOnCpus,
-		maxRecommendedBasedOnMemory
+		maxRecommendedBasedOnMemory,
 	);
 
 	return Math.max(1, Math.round(maxRecommended));

@@ -31,7 +31,7 @@ export const getAudioChannelsAndDurationWithoutCache = async (src: string) => {
 
 async function getAudioChannelsAndDurationUnlimited(
 	downloadMap: DownloadMap,
-	src: string
+	src: string,
 ): Promise<AudioChannelsAndDurationResultCache> {
 	if (downloadMap.durationOfAssetCache[src]) {
 		return downloadMap.durationOfAssetCache[src];
@@ -46,7 +46,7 @@ async function getAudioChannelsAndDurationUnlimited(
 
 export const getAudioChannelsAndDuration = (
 	downloadMap: DownloadMap,
-	src: string
+	src: string,
 ): Promise<AudioChannelsAndDurationResultCache> => {
 	return limit(() => getAudioChannelsAndDurationUnlimited(downloadMap, src));
 };

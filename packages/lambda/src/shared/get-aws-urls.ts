@@ -52,7 +52,7 @@ const cloudWatchUrlWithQuery = ({
 	query: string;
 }) => {
 	return `https://${region}.console.aws.amazon.com/cloudwatch/home?region=${region}#logsV2:log-groups/log-group/$252Faws$252Flambda$252F${functionNameToUse}/log-events$3FfilterPattern$3D${encodeAwsUrlParams(
-		query
+		query,
 	)}`;
 };
 

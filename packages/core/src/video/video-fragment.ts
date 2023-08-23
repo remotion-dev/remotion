@@ -8,7 +8,7 @@ const isSubsetOfDuration = (
 	prevStartFrom: number,
 	newStartFrom: number,
 	prevDuration: number,
-	newDuration: number
+	newDuration: number,
 ) => {
 	return (
 		prevStartFrom <= newStartFrom &&
@@ -86,8 +86,8 @@ export const appendVideoFragment = ({
 		new URL(
 			actualSrc,
 			(typeof window === 'undefined' ? null : window.location.href) ??
-				'http://localhost:3000'
-		).hash
+				'http://localhost:3000',
+		).hash,
 	);
 
 	if (existingHash) {

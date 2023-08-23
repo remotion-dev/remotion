@@ -9,7 +9,7 @@ describe('Pro Res Profile', () => {
 				proResProfile: '4444-xq',
 			});
 		}).toThrow(
-			/You have set a ProRes profile but the codec is "aac". Set the codec to "prores" or remove the ProRes profile./
+			/You have set a ProRes profile but the codec is "aac". Set the codec to "prores" or remove the ProRes profile./,
 		);
 	});
 
@@ -18,7 +18,7 @@ describe('Pro Res Profile', () => {
 			validateSelectedCodecAndProResCombination({
 				codec: 'prores',
 				proResProfile: '4444',
-			})
+			}),
 		).toBe(undefined);
 	});
 
@@ -28,9 +28,9 @@ describe('Pro Res Profile', () => {
 				codec: 'prores',
 				// @ts-expect-error
 				proResProfile: 'typoed',
-			})
+			}),
 		).toThrow(
-			/The ProRes profile "typoed" is not valid. Valid options are "4444-xq", "4444", "hq", "standard", "light", "proxy"/
+			/The ProRes profile "typoed" is not valid. Valid options are "4444-xq", "4444", "hq", "standard", "light", "proxy"/,
 		);
 	});
 });

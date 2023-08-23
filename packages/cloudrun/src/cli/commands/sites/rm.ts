@@ -14,10 +14,10 @@ export const SITES_RM_COMMAND = 'rm';
 export const sitesRmSubcommand = async (args: string[]) => {
 	if (args.length === 0) {
 		Log.error(
-			'No site name was passed. Run the command again and pass another argument <site-name>.'
+			'No site name was passed. Run the command again and pass another argument <site-name>.',
 		);
 		Log.error(
-			`To get a list of sites, run \`${BINARY_NAME} ${SITES_COMMAND} ${SITES_LS_SUBCOMMAND}\``
+			`To get a list of sites, run \`${BINARY_NAME} ${SITES_COMMAND} ${SITES_LS_SUBCOMMAND}\``,
 		);
 		quit(1);
 	}

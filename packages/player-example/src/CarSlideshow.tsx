@@ -43,7 +43,7 @@ const CarSlideshow = ({title, bgColor, color}: Props) => {
 				},
 			};
 		},
-		[]
+		[],
 	);
 
 	return (

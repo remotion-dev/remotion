@@ -56,7 +56,7 @@ export function useRemotionContexts() {
 			resolveCompositionContext,
 			renderAssetManagerContext,
 			sequenceManagerContext,
-		]
+		],
 	);
 }
 
@@ -66,7 +66,7 @@ export interface RemotionContextProviderProps {
 }
 
 export const RemotionContextProvider = (
-	props: RemotionContextProviderProps
+	props: RemotionContextProviderProps,
 ) => {
 	const {children, contexts} = props;
 	return (

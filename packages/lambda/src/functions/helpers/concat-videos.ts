@@ -91,8 +91,8 @@ export const getAllFilesS3 = ({
 			filesInBucket: contents
 				.filter((c) => c.Key?.startsWith(chunkKey(renderId)))
 				.map((_) => _.Key as string),
-			errorContents: contents.filter((c) =>
-				c.Key?.startsWith(getErrorKeyPrefix(renderId))
+			errorContents: contents.filter(
+				(c) => c.Key?.startsWith(getErrorKeyPrefix(renderId)),
 			),
 		};
 	};
@@ -106,7 +106,7 @@ export const getAllFilesS3 = ({
 				console.log(
 					'Checking for finish... ',
 					Object.keys(downloaded),
-					expectedFiles + ' files expected'
+					expectedFiles + ' files expected',
 				);
 				if (areAllFilesDownloaded) {
 					console.log('All files are downloaded!');
@@ -115,7 +115,7 @@ export const getAllFilesS3 = ({
 						// as it may be out of date
 						Object.keys(downloaded)
 							.sort()
-							.map((file) => getChunkDownloadOutputLocation({outdir, file}))
+							.map((file) => getChunkDownloadOutputLocation({outdir, file})),
 					);
 				}
 			};
@@ -194,7 +194,7 @@ export const concatVideosS3 = async ({
 }) => {
 	const outfile = join(
 		RenderInternals.tmpDir(REMOTION_CONCATED_TOKEN),
-		'concat.' + RenderInternals.getFileExtensionFromCodec(codec, audioCodec)
+		'concat.' + RenderInternals.getFileExtensionFromCodec(codec, audioCodec),
 	);
 	const combine = timer('Combine videos');
 	const filelistDir = RenderInternals.tmpDir(REMOTION_FILELIST_TOKEN);

@@ -18,7 +18,7 @@ const getPackageJsonForRemotion = (): Promise<string> => {
 				});
 
 				res.on('end', () => resolve(data));
-			}
+			},
 		);
 
 		req.on('error', (error) => {

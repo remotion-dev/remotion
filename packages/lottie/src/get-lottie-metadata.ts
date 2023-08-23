@@ -13,7 +13,7 @@ type LottieMetadata = {
  * @see [Documentation](https://www.remotion.dev/docs/lottie/getlottiemetadata)
  */
 export const getLottieMetadata = (
-	animationData: LottieAnimationData
+	animationData: LottieAnimationData,
 ): LottieMetadata | null => {
 	const width = animationData.w;
 	const height = animationData.h;

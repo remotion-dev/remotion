@@ -46,7 +46,7 @@ describe('Composition-validation render should NOT throw with valid props', () =
 						</Freeze>
 					</TimelineContext.Provider>
 				</WrapSequenceContext>
-			</CanUseRemotionHooksProvider>
+			</CanUseRemotionHooksProvider>,
 		);
 
 		expect(queryByText(/^2424$/)).not.toBe(null);

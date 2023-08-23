@@ -23,7 +23,7 @@ export const RenderQueueContextProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [jobs, setJobs] = useState<RenderJob[]>(
-		window.remotion_initialRenderQueue
+		window.remotion_initialRenderQueue,
 	);
 
 	const value: RenderQueueContextType = useMemo(() => {
@@ -41,7 +41,7 @@ export const RenderQueueContextProvider: React.FC<{
 				},
 			};
 		},
-		[]
+		[],
 	);
 
 	return (

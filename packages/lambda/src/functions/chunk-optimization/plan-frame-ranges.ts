@@ -11,7 +11,7 @@ export const planFrameRanges = ({
 }): {chunks: [number, number][]} => {
 	const framesToRender = RenderInternals.getFramesToRender(
 		frameRange,
-		everyNthFrame
+		everyNthFrame,
 	);
 	const chunkCount = Math.ceil(framesToRender.length / framesPerLambda);
 
@@ -21,7 +21,7 @@ export const planFrameRanges = ({
 			const start = i * framesPerLambda * everyNthFrame + firstFrame;
 			const end = Math.min(
 				framesToRender[framesToRender.length - 1],
-				(i + 1) * framesPerLambda * everyNthFrame - 1 + firstFrame
+				(i + 1) * framesPerLambda * everyNthFrame - 1 + firstFrame,
 			);
 
 			return [start, end];

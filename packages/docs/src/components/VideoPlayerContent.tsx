@@ -64,7 +64,7 @@ export const VideoPlayerContent: React.FC<{
   const [paused, setPaused] = useState(!userHasInteractedWithPage);
 
   const containerSize = useElementSize(
-    typeof document === "undefined" ? null : document.body
+    typeof document === "undefined" ? null : document.body,
   );
   const mobileLayout = useMobileLayout();
 

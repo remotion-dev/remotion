@@ -33,7 +33,7 @@ describe('Random should be uniform', () => {
 	let currentStep = 0;
 	while (currentStep < 0.999999) {
 		const items = mapped.filter(
-			(m) => m >= currentStep && m <= currentStep + stepInterval
+			(m) => m >= currentStep && m <= currentStep + stepInterval,
 		);
 		tenPercentSections.push(items);
 		currentStep += stepInterval;
@@ -45,12 +45,12 @@ describe('Random should be uniform', () => {
 			ITEM_COUNT * stepInterval
 		} entries`, () => {
 			expect(entries.length).toBeLessThan(
-				ITEM_COUNT * (stepInterval + ACCURACY)
+				ITEM_COUNT * (stepInterval + ACCURACY),
 			);
 			expect(entries.length).toBeGreaterThan(
-				ITEM_COUNT * (stepInterval - ACCURACY)
+				ITEM_COUNT * (stepInterval - ACCURACY),
 			);
-		})
+		}),
 	);
 
 	test('test for average distance', () => {

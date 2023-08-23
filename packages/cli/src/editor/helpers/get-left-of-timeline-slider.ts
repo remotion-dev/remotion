@@ -3,7 +3,7 @@ import {TIMELINE_PADDING} from './timeline-layout';
 export const getXPositionOfItemInTimelineImperatively = (
 	frame: number,
 	duration: number,
-	width: number
+	width: number,
 ) => {
 	const proportion = frame / (duration - 1);
 

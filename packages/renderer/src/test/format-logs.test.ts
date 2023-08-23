@@ -47,7 +47,7 @@ test('Format date', () => {
 	});
 
 	expect(result).toBe(
-		'Date { Fri Jun 23 2023 10:19:49 GMT+0200 (Central European Summer Time) }'
+		'Date { Fri Jun 23 2023 10:19:49 GMT+0200 (Central European Summer Time) }',
 	);
 });
 

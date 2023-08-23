@@ -79,7 +79,7 @@ export const cli = async () => {
 			await upgrade(
 				remotionRoot,
 				parsedCli['package-manager'],
-				parsedCli.version
+				parsedCli.version,
 			);
 		} else if (command === VERSIONS_COMMAND) {
 			await versionsCommand(remotionRoot);
@@ -100,7 +100,7 @@ export const cli = async () => {
 		Log.info();
 		await handleCommonError(
 			err as Error,
-			ConfigInternals.Logging.getLogLevel()
+			ConfigInternals.Logging.getLogLevel(),
 		);
 		cleanupBeforeQuit();
 		process.exit(1);

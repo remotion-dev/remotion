@@ -50,7 +50,7 @@ export type CalculateMetadataFunction<T extends Record<string, unknown>> =
 
 type OptionalDimensions<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = {
 	width?: number;
 	height?: number;
@@ -59,7 +59,7 @@ type OptionalDimensions<
 
 type MandatoryDimensions<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = {
 	width: number;
 	height: number;
@@ -68,12 +68,12 @@ type MandatoryDimensions<
 
 type StillCalculateMetadataOrExplicit<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = OptionalDimensions<Schema, Props> | MandatoryDimensions<Schema, Props>;
 
 type CompositionCalculateMetadataOrExplicit<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > =
 	| (OptionalDimensions<Schema, Props> & {
 			fps?: number;
@@ -86,7 +86,7 @@ type CompositionCalculateMetadataOrExplicit<
 
 export type StillProps<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = {
 	id: string;
 	schema?: Schema;
@@ -96,7 +96,7 @@ export type StillProps<
 
 export type CompositionProps<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = {
 	id: string;
 	schema?: Schema;
@@ -119,7 +119,7 @@ const Fallback: React.FC = () => {
 
 export const Composition = <
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 >({
 	width,
 	height,
@@ -143,12 +143,12 @@ export const Composition = <
 	if (canUseComposition) {
 		if (isPlayer) {
 			throw new Error(
-				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.'
+				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.',
 			);
 		}
 
 		throw new Error(
-			'<Composition> mounted inside another composition. See https://remotion.dev/docs/wrong-composition-mount for help.'
+			'<Composition> mounted inside another composition. See https://remotion.dev/docs/wrong-composition-mount for help.',
 		);
 	}
 
@@ -217,7 +217,7 @@ export const Composition = <
 					</Suspense>
 				</CanUseRemotionHooksProvider>
 			</ClipComposition>,
-			portalNode()
+			portalNode(),
 		);
 	}
 
@@ -238,7 +238,7 @@ export const Composition = <
 					/>
 				</Suspense>
 			</CanUseRemotionHooksProvider>,
-			portalNode()
+			portalNode(),
 		);
 	}
 

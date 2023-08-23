@@ -18,37 +18,37 @@ export const validateFramesPerLambda = ({
 	if (typeof framesPerLambda !== 'number') {
 		throw new TypeError(
 			`'framesPerLambda' needs to be a number, passed ${JSON.stringify(
-				framesPerLambda
-			)}`
+				framesPerLambda,
+			)}`,
 		);
 	}
 
 	if (!Number.isFinite(framesPerLambda)) {
 		throw new TypeError(
-			`'framesPerLambda' needs to be finite, passed ${framesPerLambda}`
+			`'framesPerLambda' needs to be finite, passed ${framesPerLambda}`,
 		);
 	}
 
 	if (Number.isNaN(framesPerLambda)) {
 		throw new TypeError(
-			`'framesPerLambda' needs to be NaN, passed ${framesPerLambda}`
+			`'framesPerLambda' needs to be NaN, passed ${framesPerLambda}`,
 		);
 	}
 
 	if (framesPerLambda % 1 !== 0) {
 		throw new TypeError(
-			`'framesPerLambda' needs to be an integer, passed ${framesPerLambda}`
+			`'framesPerLambda' needs to be an integer, passed ${framesPerLambda}`,
 		);
 	}
 
 	const effectiveMinimum = Math.min(
 		MINIMUM_FRAMES_PER_LAMBDA,
-		durationInFrames
+		durationInFrames,
 	);
 
 	if (framesPerLambda < effectiveMinimum) {
 		throw new TypeError(
-			`The framesPerLambda needs to be at least ${effectiveMinimum}, but is ${framesPerLambda}`
+			`The framesPerLambda needs to be at least ${effectiveMinimum}, but is ${framesPerLambda}`,
 		);
 	}
 };

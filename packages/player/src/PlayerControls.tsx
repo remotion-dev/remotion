@@ -160,7 +160,7 @@ export const Controls: React.FC<{
 		if (typeof initiallyShowControls === 'number') {
 			if (initiallyShowControls % 1 !== 0) {
 				throw new Error(
-					'initiallyShowControls must be an integer or a boolean'
+					'initiallyShowControls must be an integer or a boolean',
 				);
 			}
 
@@ -206,7 +206,7 @@ export const Controls: React.FC<{
 		setSupportsFullscreen(
 			(typeof document !== 'undefined' &&
 				(document.fullscreenEnabled || document.webkitFullscreenEnabled)) ??
-				false
+				false,
 		);
 	}, []);
 
@@ -245,13 +245,13 @@ export const Controls: React.FC<{
 			for (const rate of showPlaybackRateControl) {
 				if (typeof rate !== 'number') {
 					throw new Error(
-						'Every item in showPlaybackRateControl must be a number'
+						'Every item in showPlaybackRateControl must be a number',
 					);
 				}
 
 				if (rate <= 0) {
 					throw new Error(
-						'Every item in showPlaybackRateControl must be positive'
+						'Every item in showPlaybackRateControl must be positive',
 					);
 				}
 			}

@@ -5,13 +5,13 @@ export const validateFolderName = (name: string | null) => {
 
 	if (typeof name !== 'string') {
 		throw new TypeError(
-			`The "name" you pass into <Folder /> must be a string. Got: ${typeof name}`
+			`The "name" you pass into <Folder /> must be a string. Got: ${typeof name}`,
 		);
 	}
 
 	if (!isFolderNameValid(name)) {
 		throw new Error(
-			`Folder name can only contain a-z, A-Z, 0-9 and -. You passed ${name}`
+			`Folder name can only contain a-z, A-Z, 0-9 and -. You passed ${name}`,
 		);
 	}
 };
@@ -21,5 +21,5 @@ const getRegex = () => /^([a-zA-Z0-9-])+$/g;
 export const isFolderNameValid = (name: string) => name.match(getRegex());
 
 export const invalidFolderNameErrorMessage = `Folder name must match ${String(
-	getRegex()
+	getRegex(),
 )}`;

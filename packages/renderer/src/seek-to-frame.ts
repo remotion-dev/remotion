@@ -60,14 +60,14 @@ export const waitForReady = ({
 										frame ? ' at frame ' + frame : ''
 									}. ${
 										res.value ? `Open delayRender() handles: ${res.value}` : ''
-									}`
-								)
+									}`,
+								),
 							);
 						})
 						.catch((newErr) => {
 							RenderInternals.Log.warn(
 								'Tried to get delayRender() handles for timeout, but could not do so because of',
-								newErr
+								newErr,
 							);
 							// Ignore, use prev error
 							reject(err);
@@ -109,7 +109,7 @@ export const waitForReady = ({
 						name: 'CancelledError',
 						message: val.split('\n')[0],
 						stackFrame: parseStack(val.split('\n')),
-					})
+					}),
 				);
 			})
 			.catch((err) => {

@@ -7,7 +7,7 @@ import {resolveGifSource} from './resolve-gif-source';
  * @see [Documentation](https://www.remotion.dev/docs/gif/preload-gif)
  */
 export const preloadGif = (
-	src: string
+	src: string,
 ): {
 	waitUntilDone: () => Promise<void>;
 	free: () => void;

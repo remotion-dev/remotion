@@ -7,26 +7,26 @@ describe('ValidateStartFrom props should throw', () => {
 		test('It should throw if startFrom prop is negative', () => {
 			expectToThrow(
 				() => validateStartFromProps(-40, 1),
-				/startFrom must be greater than equal to 0 instead got -40./
+				/startFrom must be greater than equal to 0 instead got -40./,
 			);
 		});
 		test('It should throw if startFrom is not a number', () => {
 			expectToThrow(
 				// @ts-expect-error
 				() => validateStartFromProps('10', 20),
-				/type of startFrom prop must be a number, instead got type string./
+				/type of startFrom prop must be a number, instead got type string./,
 			);
 		});
 		test('It should throw if startFrom is NaN', () => {
 			expectToThrow(
 				() => validateStartFromProps(NaN, 20),
-				/startFrom prop can not be NaN or Infinity./
+				/startFrom prop can not be NaN or Infinity./,
 			);
 		});
 		test('It should throw if startFrom is Infinity', () => {
 			expectToThrow(
 				() => validateStartFromProps(Infinity, 20),
-				/startFrom prop can not be NaN or Infinity./
+				/startFrom prop can not be NaN or Infinity./,
 			);
 		});
 	});
@@ -35,14 +35,14 @@ describe('ValidateStartFrom props should throw', () => {
 		test('It should throw if endAt prop is negative', () => {
 			expectToThrow(
 				() => validateStartFromProps(0, -40),
-				/endAt must be a positive number, instead got -40./
+				/endAt must be a positive number, instead got -40./,
 			);
 		});
 
 		test('It should throw if endAt is less than startFrom', () => {
 			expectToThrow(
 				() => validateStartFromProps(10, 1),
-				/endAt prop must be greater than startFrom prop./
+				/endAt prop must be greater than startFrom prop./,
 			);
 		});
 
@@ -50,14 +50,14 @@ describe('ValidateStartFrom props should throw', () => {
 			expectToThrow(
 				// @ts-expect-error
 				() => validateStartFromProps(10, '20'),
-				/type of endAt prop must be a number, instead got type string./
+				/type of endAt prop must be a number, instead got type string./,
 			);
 		});
 
 		test('It should throw if endAt is NaN', () => {
 			expectToThrow(
 				() => validateStartFromProps(10, NaN),
-				/endAt prop can not be NaN./
+				/endAt prop can not be NaN./,
 			);
 		});
 	});

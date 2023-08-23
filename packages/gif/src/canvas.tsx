@@ -17,7 +17,7 @@ const calcArgs = (
 	canvasSize: {
 		width: number;
 		height: number;
-	}
+	},
 ): [number, number, number, number, number, number, number, number] => {
 	switch (fit) {
 		case 'fill': {
@@ -36,7 +36,7 @@ const calcArgs = (
 		case 'contain': {
 			const ratio = Math.min(
 				canvasSize.width / frameSize.width,
-				canvasSize.height / frameSize.height
+				canvasSize.height / frameSize.height,
 			);
 			const centerX = (canvasSize.width - frameSize.width * ratio) / 2;
 			const centerY = (canvasSize.height - frameSize.height * ratio) / 2;
@@ -55,7 +55,7 @@ const calcArgs = (
 		case 'cover': {
 			const ratio = Math.max(
 				canvasSize.width / frameSize.width,
-				canvasSize.height / frameSize.height
+				canvasSize.height / frameSize.height,
 			);
 			const centerX = (canvasSize.width - frameSize.width * ratio) / 2;
 			const centerY = (canvasSize.height - frameSize.height * ratio) / 2;
@@ -114,7 +114,7 @@ export const Canvas = forwardRef(
 			() => {
 				return canvasRef.current as HTMLCanvasElement;
 			},
-			[]
+			[],
 		);
 
 		useEffect(() => {
@@ -141,7 +141,7 @@ export const Canvas = forwardRef(
 				tempCtx.putImageData(imageData, 0, 0);
 				ctx.drawImage(
 					tempCtx.canvas,
-					...calcArgs(fit, imageData, {width: size.width, height: size.height})
+					...calcArgs(fit, imageData, {width: size.width, height: size.height}),
 				);
 			}
 		}, [index, frames, fit, tempCtx, size]);
@@ -155,5 +155,5 @@ export const Canvas = forwardRef(
 				height={height ?? size?.height}
 			/>
 		);
-	}
+	},
 );

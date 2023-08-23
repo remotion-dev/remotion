@@ -10,17 +10,17 @@ import {bundleOnCliOrTakeServeUrl} from './setup-cache';
 
 export const listCompositionsCommand = async (
 	remotionRoot: string,
-	args: string[]
+	args: string[],
 ) => {
 	const {file, reason} = findEntryPoint(args, remotionRoot);
 
 	if (!file) {
 		Log.error(
-			'The `compositions` command requires you to specify a entry point. For example'
+			'The `compositions` command requires you to specify a entry point. For example',
 		);
 		Log.error('  npx remotion compositions src/index.ts');
 		Log.error(
-			'See https://www.remotion.dev/docs/register-root for more information.'
+			'See https://www.remotion.dev/docs/register-root for more information.',
 		);
 		process.exit(1);
 	}
@@ -37,6 +37,7 @@ export const listCompositionsCommand = async (
 		puppeteerTimeout,
 		port,
 		publicDir,
+		offthreadVideoCacheSizeInBytes,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'get-compositions',
@@ -78,6 +79,7 @@ export const listCompositionsCommand = async (
 		puppeteerInstance: undefined,
 		logLevel,
 		server: undefined,
+		offthreadVideoCacheSizeInBytes,
 	});
 
 	printCompositions(compositions);

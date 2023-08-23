@@ -5,14 +5,14 @@ export type BrowserReplacer = {
 	getBrowser: () => HeadlessBrowser;
 	replaceBrowser: (
 		make: () => Promise<HeadlessBrowser>,
-		makeNewPages: () => Promise<void>
+		makeNewPages: () => Promise<void>,
 	) => Promise<HeadlessBrowser>;
 };
 
 export const handleBrowserCrash = (
 	instance: HeadlessBrowser,
 	logLevel: LogLevel,
-	indent: boolean
+	indent: boolean,
 ): BrowserReplacer => {
 	let _instance = instance;
 	const waiters: {

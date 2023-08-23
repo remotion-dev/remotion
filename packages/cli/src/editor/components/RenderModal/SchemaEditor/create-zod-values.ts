@@ -4,7 +4,7 @@ import type {ZodType, ZodTypesType} from '../../get-zod-if-possible';
 export const createZodValues = (
 	schema: Zod.ZodTypeAny,
 	zodRuntime: ZodType,
-	zodTypes: ZodTypesType | null
+	zodTypes: ZodTypesType | null,
 ): unknown => {
 	if (!schema) {
 		throw new Error('Invalid zod schema');
@@ -43,10 +43,13 @@ export const createZodValues = (
 		case zodRuntime.ZodFirstPartyTypeKind.ZodObject: {
 			const shape = (def as z.ZodObjectDef).shape();
 			const keys = Object.keys(shape);
-			const returnValue = keys.reduce((existing, key) => {
-				existing[key] = createZodValues(shape[key], zodRuntime, zodTypes);
-				return existing;
-			}, {} as Record<string, unknown>);
+			const returnValue = keys.reduce(
+				(existing, key) => {
+					existing[key] = createZodValues(shape[key], zodRuntime, zodTypes);
+					return existing;
+				},
+				{} as Record<string, unknown>,
+			);
 			return returnValue;
 		}
 
@@ -84,7 +87,7 @@ export const createZodValues = (
 			return createZodValues(
 				(def as z.ZodEffectsDef).schema,
 				zodRuntime,
-				zodTypes
+				zodTypes,
 			);
 		}
 
@@ -93,7 +96,7 @@ export const createZodValues = (
 			const leftValue = createZodValues(left, zodRuntime, zodTypes);
 			if (typeof leftValue !== 'object') {
 				throw new Error(
-					'Cannot create value for type z.intersection: Left side is not an object'
+					'Cannot create value for type z.intersection: Left side is not an object',
 				);
 			}
 
@@ -101,7 +104,7 @@ export const createZodValues = (
 
 			if (typeof rightValue !== 'object') {
 				throw new Error(
-					'Cannot create value for type z.intersection: Right side is not an object'
+					'Cannot create value for type z.intersection: Right side is not an object',
 				);
 			}
 
@@ -110,7 +113,7 @@ export const createZodValues = (
 
 		case zodRuntime.ZodFirstPartyTypeKind.ZodTuple: {
 			const items = (def as z.ZodTupleDef).items.map((item) =>
-				createZodValues(item, zodRuntime, zodTypes)
+				createZodValues(item, zodRuntime, zodTypes),
 			);
 			return items;
 		}
@@ -119,7 +122,7 @@ export const createZodValues = (
 			const values = createZodValues(
 				(def as z.ZodRecordDef).valueType,
 				zodRuntime,
-				zodTypes
+				zodTypes,
 			);
 			return {key: values};
 		}

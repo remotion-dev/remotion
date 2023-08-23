@@ -6,12 +6,12 @@ import {getCurrentRegionInFunction} from './get-current-region';
 export const getOutputUrlFromMetadata = (
 	renderMetadata: RenderMetadata,
 	bucketName: string,
-	customCredentials: CustomCredentials | null
+	customCredentials: CustomCredentials | null,
 ) => {
 	const outname = getExpectedOutName(
 		renderMetadata,
 		bucketName,
-		customCredentials
+		customCredentials,
 	);
 	return `https://s3.${getCurrentRegionInFunction()}.amazonaws.com/${
 		outname.renderBucketName

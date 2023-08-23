@@ -19,7 +19,7 @@ export const cubicDerivative = (xs: number[], ys: number[], t: number) => {
 	const derivative = quadraticPoint(
 		[3 * (xs[1] - xs[0]), 3 * (xs[2] - xs[1]), 3 * (xs[3] - xs[2])],
 		[3 * (ys[1] - ys[0]), 3 * (ys[2] - ys[1]), 3 * (ys[3] - ys[2])],
-		t
+		t,
 	);
 	return derivative;
 };
@@ -42,7 +42,7 @@ export const getCubicArcLength = (xs: number[], ys: number[], t: number) => {
 export const quadraticPoint = (
 	xs: number[],
 	ys: number[],
-	t: number
+	t: number,
 ): Point => {
 	const x = (1 - t) * (1 - t) * xs[0] + 2 * (1 - t) * t * xs[1] + t * t * xs[2];
 	const y = (1 - t) * (1 - t) * ys[0] + 2 * (1 - t) * t * ys[1] + t * t * ys[2];
@@ -52,7 +52,7 @@ export const quadraticPoint = (
 export const getQuadraticArcLength = (
 	xs: number[],
 	ys: number[],
-	t: number
+	t: number,
 ) => {
 	if (t === undefined) {
 		t = 1;
@@ -134,7 +134,7 @@ const getDerivative = (derivative: number, t: number, vs: number[]): number => {
 export const t2length = (
 	length: number,
 	totalLength: number,
-	func: (t: number) => number
+	func: (t: number) => number,
 ): number => {
 	let error = 1;
 	let t = length / totalLength;

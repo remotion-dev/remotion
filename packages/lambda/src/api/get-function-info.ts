@@ -35,7 +35,7 @@ export const getFunctionInfo = async ({
 		getLambdaClient(region).send(
 			new GetFunctionCommand({
 				FunctionName: functionName,
-			})
+			}),
 		),
 		getFunctionVersion({
 			functionName,

@@ -2,7 +2,7 @@ import type {TQuickSwitcherResult} from './QuickSwitcherResult';
 
 export function fuzzySearch(
 	query: string,
-	dataset: TQuickSwitcherResult[]
+	dataset: TQuickSwitcherResult[],
 ): TQuickSwitcherResult[] {
 	const q = query ? query.trim().toLowerCase() : '';
 

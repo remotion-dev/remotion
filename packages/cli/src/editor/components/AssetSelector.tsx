@@ -51,7 +51,7 @@ export const AssetSelector: React.FC = () => {
 				staticFiles: getStaticFiles(),
 				publicFolderExists: window.remotion_publicFolderExists,
 			};
-		}
+		},
 	);
 	const assetTree = useMemo(() => {
 		return buildAssetFolderStructure(staticFiles);

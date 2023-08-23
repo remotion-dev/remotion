@@ -22,7 +22,7 @@ export const simulateRule = async (options: {
 				ActionNames: options.actionNames,
 				PolicySourceArn: options.arn,
 				ResourceArns: options.resource,
-			})
+			}),
 		);
 
 		return (res.EvaluationResults ?? []).map((pol): SimulationResult => {

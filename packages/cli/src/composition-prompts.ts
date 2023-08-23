@@ -17,7 +17,7 @@ function prompt(questions: Question) {
 }
 
 export async function selectAsync(
-	question: NamelessQuestion
+	question: NamelessQuestion,
 ): Promise<string | string[]> {
 	const {value} = await prompt({
 		...question,

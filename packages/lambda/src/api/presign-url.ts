@@ -43,7 +43,7 @@ export const presignUrl = async <CheckIfObjectExists extends boolean = false>({
 				new HeadObjectCommand({
 					Bucket: bucketName,
 					Key: objectKey,
-				})
+				}),
 			);
 		} catch (err) {
 			if ((err as {name: string}).name === 'NotFound') {
@@ -56,7 +56,7 @@ export const presignUrl = async <CheckIfObjectExists extends boolean = false>({
 					.httpStatusCode === 403
 			) {
 				throw new Error(
-					`Unable to access item "${objectKey}" from bucket "${bucketName}". You must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`
+					`Unable to access item "${objectKey}" from bucket "${bucketName}". You must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`,
 				);
 			}
 

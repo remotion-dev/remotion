@@ -6,7 +6,7 @@ export const overrideHeight = (newHeight: number) => {
 	Internals.validateDimension(
 		newHeight,
 		'height',
-		'passed to `overrideHeight()`'
+		'passed to `overrideHeight()`',
 	);
 
 	specifiedHeight = newHeight;

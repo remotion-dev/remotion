@@ -22,6 +22,6 @@ export const validateImageRemotionVersion = async () => {
 	}
 
 	throw new Error(
-		`The tag for Remotion version ${VERSION} was not found in the Cloud run registry.`
+		`The tag for Remotion version ${VERSION} was not found in the Cloud run registry.`,
 	);
 };

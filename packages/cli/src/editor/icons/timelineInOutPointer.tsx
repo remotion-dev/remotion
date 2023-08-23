@@ -16,7 +16,7 @@ export const TimelineInPointer: React.FC<SVGProps<SVGSVGElement>> = (props) => {
 };
 
 export const TimelineOutPointer: React.FC<SVGProps<SVGSVGElement>> = (
-	props
+	props,
 ) => {
 	return (
 		<svg viewBox="0 0 256 256" fill="none" {...props}>

@@ -24,7 +24,7 @@ export const delayRender = (label?: string): number => {
 	if (typeof label !== 'string' && typeof label !== 'undefined') {
 		throw new Error(
 			'The label parameter of delayRender() must be a string or undefined, got: ' +
-				JSON.stringify(label)
+				JSON.stringify(label),
 		);
 	}
 
@@ -73,14 +73,14 @@ export const delayRender = (label?: string): number => {
 export const continueRender = (handle: number): void => {
 	if (typeof handle === 'undefined') {
 		throw new TypeError(
-			'The continueRender() method must be called with a parameter that is the return value of delayRender(). No value was passed.'
+			'The continueRender() method must be called with a parameter that is the return value of delayRender(). No value was passed.',
 		);
 	}
 
 	if (typeof handle !== 'number') {
 		throw new TypeError(
 			'The parameter passed into continueRender() must be the return value of delayRender() which is a number. Got: ' +
-				JSON.stringify(handle)
+				JSON.stringify(handle),
 		);
 	}
 

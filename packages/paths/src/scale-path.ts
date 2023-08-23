@@ -197,6 +197,6 @@ export const scalePath = (d: string, scaleX: number, scaleY: number) => {
 	});
 
 	return serializeInstructions(
-		translateSegments(mapped, bounded.x1, bounded.y1)
+		translateSegments(mapped, bounded.x1, bounded.y1),
 	);
 };

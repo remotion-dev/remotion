@@ -28,7 +28,7 @@ export const createYarnYmlFile = ({
 	}
 
 	Log.info(
-		'Remotion has no support for automatically installing the Yarn PnP modules yet.'
+		'Remotion has no support for automatically installing the Yarn PnP modules yet.',
 	);
 	Log.info('Creating .yarnrc.yml file to disable Yarn PnP.');
 

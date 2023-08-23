@@ -72,7 +72,7 @@ export const lambdaChunkInitializedKey = ({
 	chunk: number;
 }) =>
 	`${lambdaChunkInitializedPrefix(
-		renderId
+		renderId,
 	)}-chunk:${chunk}-attempt:${attempt}.txt`;
 export const lambdaTimingsPrefix = (renderId: string) =>
 	`${rendersPrefix(renderId)}/lambda-timings/chunk:`;
@@ -84,11 +84,11 @@ export const lambdaLogsPrefix = (
 	renderId: string,
 	chunk: number,
 	startFrame: number,
-	endFrame: number
+	endFrame: number,
 ) =>
 	`${rendersPrefix(renderId)}/logs/chunk:${String(chunk).padStart(
 		8,
-		'0'
+		'0',
 	)}:frames:${startFrame}-${endFrame}.json`;
 
 export const lambdaTimingsKey = ({
@@ -104,7 +104,7 @@ export const lambdaTimingsKey = ({
 }) =>
 	`${lambdaTimingsPrefixForChunk(
 		renderId,
-		chunk
+		chunk,
 	)}-start:${start}-rendered:${rendered}.txt`;
 export const chunkKey = (renderId: string) =>
 	`${rendersPrefix(renderId)}/chunks/chunk`;
@@ -159,7 +159,7 @@ export const outStillName = (renderId: string, imageFormat: StillImageFormat) =>
 export const customOutName = (
 	renderId: string,
 	bucketName: string,
-	name: OutNameInput
+	name: OutNameInput,
 ): OutNameOutput => {
 	if (typeof name === 'string') {
 		return {
@@ -259,6 +259,7 @@ export type LambdaStartPayload = {
 	forceHeight: number | null;
 	forceWidth: number | null;
 	bucketName: string | null;
+	offthreadVideoCacheSizeInBytes: number | null;
 };
 
 export type LambdaStatusPayload = {
@@ -311,6 +312,7 @@ export type LambdaPayloads = {
 		webhook: WebhookOption;
 		forceHeight: number | null;
 		forceWidth: number | null;
+		offthreadVideoCacheSizeInBytes: number | null;
 	};
 	status: LambdaStatusPayload;
 	renderer: {
@@ -350,6 +352,7 @@ export type LambdaPayloads = {
 		launchFunctionConfig: {
 			version: string;
 		};
+		offthreadVideoCacheSizeInBytes: number | null;
 	};
 	still: {
 		type: LambdaRoutines.still;
@@ -373,6 +376,7 @@ export type LambdaPayloads = {
 		forceHeight: number | null;
 		forceWidth: number | null;
 		bucketName: string | null;
+		offthreadVideoCacheSizeInBytes: number | null;
 	};
 	compositions: {
 		type: LambdaRoutines.compositions;
@@ -384,6 +388,7 @@ export type LambdaPayloads = {
 		timeoutInMilliseconds: number;
 		serveUrl: string;
 		bucketName: string | null;
+		offthreadVideoCacheSizeInBytes: number | null;
 	};
 };
 

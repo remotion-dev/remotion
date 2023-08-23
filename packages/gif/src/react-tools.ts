@@ -42,7 +42,7 @@ export const parseWithWorker = (src: string) => {
 			worker.postMessage({src, type: 'cancel'});
 			worker.removeEventListener(
 				'message',
-				handler as (e: MessageEvent) => void
+				handler as (e: MessageEvent) => void,
 			);
 			worker.terminate();
 		},

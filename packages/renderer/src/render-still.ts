@@ -27,6 +27,8 @@ import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
 import {internalOpenBrowser} from './open-browser';
+import type {ToOptions} from './options/option';
+import type {optionsMap} from './options/options-map';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import type {RemotionServer} from './prepare-server';
 import {makeOrReuseServer} from './prepare-server';
@@ -61,7 +63,8 @@ type InternalRenderStillOptions = {
 	logLevel: LogLevel;
 	serveUrl: string;
 	port: number | null;
-};
+	offthreadVideoCacheSizeInBytes: number | null;
+} & ToOptions<typeof optionsMap.renderStill>;
 
 export type RenderStillOptions = {
 	port?: number | null;
@@ -94,6 +97,7 @@ export type RenderStillOptions = {
 	 * @deprecated Renamed to `jpegQuality`
 	 */
 	quality?: never;
+	offthreadVideoCacheSizeInBytes?: number | null;
 };
 
 type CleanupFn = () => void;
@@ -135,17 +139,17 @@ const innerRenderStill = async ({
 	Internals.validateDimension(
 		composition.height,
 		'height',
-		'in the `config` object passed to `renderStill()`'
+		'in the `config` object passed to `renderStill()`',
 	);
 	Internals.validateDimension(
 		composition.width,
 		'width',
-		'in the `config` object passed to `renderStill()`'
+		'in the `config` object passed to `renderStill()`',
 	);
 	Internals.validateFps(
 		composition.fps,
 		'in the `config` object of `renderStill()`',
-		false
+		false,
 	);
 	Internals.validateDurationInFrames(composition.durationInFrames, {
 		component: 'in the `config` object passed to `renderStill()`',
@@ -173,7 +177,7 @@ const innerRenderStill = async ({
 		if (fs.existsSync(output)) {
 			if (!overwrite) {
 				throw new Error(
-					`Cannot render still - "overwrite" option was set to false, but the output destination ${output} already exists.`
+					`Cannot render still - "overwrite" option was set to false, but the output destination ${output} already exists.`,
 				);
 			}
 
@@ -181,7 +185,7 @@ const innerRenderStill = async ({
 
 			if (!stat.isFile()) {
 				throw new Error(
-					`The output location ${output} already exists, but is not a file, but something else (e.g. folder). Cannot save to it.`
+					`The output location ${output} already exists, but is not a file, but something else (e.g. folder). Cannot save to it.`,
 				);
 			}
 		}
@@ -203,7 +207,7 @@ const innerRenderStill = async ({
 	const page = await browserInstance.newPage(
 		Promise.resolve(sourceMapContext),
 		logLevel,
-		indent
+		indent,
 	);
 	await page.setViewport({
 		width: composition.width,
@@ -274,7 +278,7 @@ const innerRenderStill = async ({
 			durationInFrames: number,
 			fps: number,
 			height: number,
-			width: number
+			width: number,
 		) => {
 			window.remotion_setBundleMode({
 				type: 'composition',
@@ -324,7 +328,7 @@ const innerRenderStill = async ({
 };
 
 export const internalRenderStill = (
-	options: InternalRenderStillOptions
+	options: InternalRenderStillOptions,
 ): Promise<RenderStillReturnValue> => {
 	const cleanup: CleanupFn[] = [];
 
@@ -340,11 +344,12 @@ export const internalRenderStill = (
 				concurrency: 1,
 				logLevel: options.logLevel,
 				indent: options.indent,
+				offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
 			},
 			{
 				onDownload: options.onDownload,
 				onError,
-			}
+			},
 		)
 			.then(({server, cleanupServer}) => {
 				cleanup.push(() => cleanupServer(false));
@@ -387,7 +392,7 @@ export const internalRenderStill = (
  * @see [Documentation](https://www.remotion.dev/docs/renderer/render-still)
  */
 export const renderStill = (
-	options: RenderStillOptions
+	options: RenderStillOptions,
 ): Promise<RenderStillReturnValue> => {
 	const {
 		composition,
@@ -411,17 +416,18 @@ export const renderStill = (
 		timeoutInMilliseconds,
 		verbose,
 		quality,
+		offthreadVideoCacheSizeInBytes,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
 		throw new Error(
-			"You can only pass the `quality` option if `imageFormat` is 'jpeg'."
+			"You can only pass the `quality` option if `imageFormat` is 'jpeg'.",
 		);
 	}
 
 	if (quality) {
 		console.warn(
-			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.'
+			'Passing `quality()` to `renderStill` is deprecated. Use `jpegQuality` instead.',
 		);
 	}
 
@@ -456,5 +462,6 @@ export const renderStill = (
 			staticBase: null,
 			data: composition.props ?? {},
 		}).serializedString,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 	});
 };

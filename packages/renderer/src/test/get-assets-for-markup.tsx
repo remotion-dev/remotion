@@ -42,7 +42,7 @@ export const getAssetsForMarkup = async (
 		width: number;
 		height: number;
 		fps: number;
-	}
+	},
 ) => {
 	const collectedAssets: TRenderAsset[][] = [];
 	const Wrapped = () => {
@@ -82,7 +82,7 @@ export const getAssetsForMarkup = async (
 						component: React.lazy(() =>
 							Promise.resolve({
 								default: Markup as ComponentType<unknown>,
-							})
+							}),
 						),
 						nonce: 0,
 						defaultProps: undefined,

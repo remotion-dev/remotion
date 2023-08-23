@@ -22,7 +22,7 @@ import {SequenceManagerProvider} from './SequenceManager.js';
 
 export type TComposition<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = {
 	width: number | undefined;
 	height: number | undefined;
@@ -46,7 +46,7 @@ export type AnyComposition = TComposition<
 
 export type TCompMetadataWithCalcFunction<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = Pick<
 	TComposition<Schema, Props>,
 	| 'id'
@@ -60,7 +60,7 @@ export type TCompMetadataWithCalcFunction<
 
 export type TCompMetadata<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = Pick<
 	TComposition<Schema, Props>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames' | 'defaultProps'
@@ -73,7 +73,7 @@ export type AnyCompMetadata = TCompMetadata<
 
 export type SmallTCompMetadata<
 	T extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = Pick<
 	TComposition<T, Props>,
 	'id' | 'height' | 'width' | 'fps' | 'durationInFrames'
@@ -150,7 +150,7 @@ export const CompositionManagerProvider: React.FC<{
 	const [compositions, setCompositions] = useState<AnyComposition[]>([]);
 	const currentcompositionsRef = useRef<AnyComposition[]>(compositions);
 	const [currentComposition, setCurrentComposition] = useState<string | null>(
-		null
+		null,
 	);
 	const [folders, setFolders] = useState<TFolder[]>([]);
 
@@ -160,7 +160,7 @@ export const CompositionManagerProvider: React.FC<{
 	const updateCompositions = useCallback(
 		(
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			updateComps: (comp: AnyComposition[]) => AnyComposition[]
+			updateComps: (comp: AnyComposition[]) => AnyComposition[],
 		) => {
 			setCompositions((comps) => {
 				const updated = updateComps(comps);
@@ -168,17 +168,17 @@ export const CompositionManagerProvider: React.FC<{
 				return updated;
 			});
 		},
-		[]
+		[],
 	);
 
 	const registerComposition = useCallback(
 		<Schema extends AnyZodObject, Props extends Record<string, unknown>>(
-			comp: TComposition<Schema, Props>
+			comp: TComposition<Schema, Props>,
 		) => {
 			updateCompositions((comps) => {
 				if (comps.find((c) => c.id === comp.id)) {
 					throw new Error(
-						`Multiple composition with id ${comp.id} are registered.`
+						`Multiple composition with id ${comp.id} are registered.`,
 					);
 				}
 
@@ -189,7 +189,7 @@ export const CompositionManagerProvider: React.FC<{
 				return value;
 			});
 		},
-		[updateCompositions]
+		[updateCompositions],
 	);
 
 	const unregisterComposition = useCallback((id: string) => {
@@ -214,11 +214,11 @@ export const CompositionManagerProvider: React.FC<{
 		(name: string, parent: string | null) => {
 			setFolders((prevFolders) => {
 				return prevFolders.filter(
-					(p) => !(p.name === name && p.parent === parent)
+					(p) => !(p.name === name && p.parent === parent),
 				);
 			});
 		},
-		[]
+		[],
 	);
 
 	useImperativeHandle(
@@ -228,7 +228,7 @@ export const CompositionManagerProvider: React.FC<{
 				getCompositions: () => currentcompositionsRef.current,
 			};
 		},
-		[]
+		[],
 	);
 
 	const composition = compositions.find((c) => c.id === currentComposition);

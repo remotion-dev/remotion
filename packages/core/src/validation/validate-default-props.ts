@@ -1,7 +1,7 @@
 export const validateDefaultAndInputProps = (
 	defaultProps: unknown,
 	name: 'defaultProps' | 'inputProps',
-	compositionId: string | null
+	compositionId: string | null,
 ) => {
 	if (!defaultProps) {
 		return;
@@ -9,7 +9,7 @@ export const validateDefaultAndInputProps = (
 
 	if (typeof defaultProps !== 'object') {
 		throw new Error(
-			`"${name}" must be an object, but you passed a value of type ${typeof defaultProps}`
+			`"${name}" must be an object, but you passed a value of type ${typeof defaultProps}`,
 		);
 	}
 
@@ -17,7 +17,7 @@ export const validateDefaultAndInputProps = (
 		throw new Error(
 			`"${name}" must be an object, an array was passed ${
 				compositionId ? `for composition "${compositionId}"` : ''
-			}`
+			}`,
 		);
 	}
 };

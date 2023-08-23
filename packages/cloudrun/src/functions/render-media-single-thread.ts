@@ -13,7 +13,7 @@ import {writeCloudrunError} from './helpers/write-cloudrun-error';
 
 export const renderMediaSingleThread = async (
 	body: CloudRunPayloadType,
-	res: ff.Response
+	res: ff.Response,
 ) => {
 	if (body.type !== 'media') {
 		throw new Error('expected type media');
@@ -26,7 +26,7 @@ export const renderMediaSingleThread = async (
 
 		const defaultOutName = `out.${RenderInternals.getFileExtensionFromCodec(
 			body.codec,
-			body.audioCodec
+			body.audioCodec,
 		)}`;
 		const tempFilePath = `/tmp/${defaultOutName}`;
 		let previousProgress = 2;
@@ -96,6 +96,7 @@ export const renderMediaSingleThread = async (
 			preferLossless: body.preferLossless,
 			puppeteerInstance: undefined,
 			server: undefined,
+			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 		});
 
 		const storage = new Storage();

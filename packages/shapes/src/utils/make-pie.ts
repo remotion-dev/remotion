@@ -26,7 +26,7 @@ const getCoord = ({
 
 	const val =
 		Math[coord === 'x' ? 'cos' : 'sin'](
-			factor * actualProgress * Math.PI * 2 + Math.PI * 1.5 + rotation
+			factor * actualProgress * Math.PI * 2 + Math.PI * 1.5 + rotation,
 		) *
 			radius +
 		radius;

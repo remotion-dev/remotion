@@ -23,7 +23,7 @@ export const createFfmpegComplexFilter = async ({
 
 	const {file, cleanup} = await makeFfmpegFilterFileStr(
 		complexFilter,
-		downloadMap
+		downloadMap,
 	);
 
 	return {

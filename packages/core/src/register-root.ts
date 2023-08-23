@@ -12,8 +12,8 @@ export const registerRoot = (comp: React.FC) => {
 	if (!comp) {
 		throw new Error(
 			`You must pass a React component to registerRoot(), but ${JSON.stringify(
-				comp
-			)} was passed.`
+				comp,
+			)} was passed.`,
 		);
 	}
 

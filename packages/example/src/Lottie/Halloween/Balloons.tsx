@@ -18,7 +18,7 @@ const Balloons = () => {
 	const opacity = interpolate(
 		frame,
 		[0, 5, durationInFrames - 20, durationInFrames],
-		[0, 1, 1, 0]
+		[0, 1, 1, 0],
 	);
 
 	const [error, setError] = useState<Error | null>(null);

@@ -63,7 +63,7 @@ const LottieExplodingBird = () => {
 	const feathersFrom = explosionFrom + explosionDuration;
 	const feathersDuration = Math.floor(feathersNFrames / feathersSpeed);
 	const feathersStart = Math.ceil(
-		(birdNFrames + explosionNFrames) / feathersSpeed
+		(birdNFrames + explosionNFrames) / feathersSpeed,
 	);
 	const endFrom = feathersFrom + feathersDuration;
 

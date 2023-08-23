@@ -119,7 +119,7 @@ const TestCORS: React.FC = () => {
 		(e: React.ChangeEvent<HTMLInputElement>) => {
 			setServeUrl(e.target.value);
 		},
-		[]
+		[],
 	);
 
 	const isCORSWorking: React.FormEventHandler<HTMLFormElement> = useCallback(
@@ -132,16 +132,16 @@ const TestCORS: React.FC = () => {
 					setResult(`CORS is enabled on this URL: ${serveUrl}`);
 				} else {
 					setResult(
-						'URL does not support CORS - See DevTools console for more details'
+						'URL does not support CORS - See DevTools console for more details',
 					);
 				}
 			} catch (error) {
 				setResult(
-					'URL does not support CORS - See DevTools console for more details'
+					'URL does not support CORS - See DevTools console for more details',
 				);
 			}
 		},
-		[serveUrl]
+		[serveUrl],
 	);
 
 	return (

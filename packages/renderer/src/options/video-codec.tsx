@@ -1,6 +1,6 @@
-import type {RemotionOption} from './option';
+import {AnyRemotionOption} from './option';
 
-export const videoCodecOption: RemotionOption = {
+export const videoCodecOption = {
 	name: 'Codec',
 	cliFlag: '--codec',
 	description: (
@@ -12,4 +12,5 @@ export const videoCodecOption: RemotionOption = {
 	),
 	ssrName: 'codec',
 	docLink: 'https://www.remotion.dev/docs/encoding/#choosing-a-codec',
-};
+	type: '' as string,
+} satisfies AnyRemotionOption;

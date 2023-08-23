@@ -27,14 +27,14 @@ export type MockFile = {
 
 export const getDirFiles = (entry: string): MockFile[] => {
 	throw new TypeError(
-		'should only be executed in test ' + JSON.stringify(entry)
+		'should only be executed in test ' + JSON.stringify(entry),
 	);
 };
 
 async function getFiles(
 	directory: string,
 	originalDirectory: string,
-	toUpload: string[]
+	toUpload: string[],
 ): Promise<FileInfo[]> {
 	const dirents = await fs.readdir(directory, {withFileTypes: true});
 	const _files = await Promise.all(
@@ -65,7 +65,7 @@ async function getFiles(
 								size,
 							},
 					  ];
-			})
+			}),
 	);
 	return _files.flat(1);
 }
