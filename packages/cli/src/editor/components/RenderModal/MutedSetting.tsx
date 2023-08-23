@@ -17,7 +17,7 @@ export const MutedSetting: React.FC<{
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setMuted(e.target.checked);
 		},
-		[setMuted]
+		[setMuted],
 	);
 
 	return (

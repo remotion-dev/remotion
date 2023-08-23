@@ -57,14 +57,14 @@ export const serializeJSONWithDate = ({
 
 			return value;
 		},
-		indent
+		indent,
 	);
 
 	return {serializedString, customDateUsed, customFileUsed, mapUsed, setUsed};
 };
 
 export const deserializeJSONWithCustomFields = (
-	data: string
+	data: string,
 ): Record<string, unknown> => {
 	return JSON.parse(data, (_, value) => {
 		if (typeof value === 'string' && value.startsWith(DATE_TOKEN)) {

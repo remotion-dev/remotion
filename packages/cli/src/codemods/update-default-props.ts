@@ -66,7 +66,7 @@ const findEnder = (
 	input: string,
 	position: number,
 	maxPosition: number,
-	compositionId: string
+	compositionId: string,
 ) => {
 	let currentPosition = position;
 	while (currentPosition < maxPosition) {
@@ -83,7 +83,7 @@ const findEnder = (
 	}
 
 	throw new Error(
-		`No \`defaultProps\` prop found in the <Composition/> tag with the ID "${compositionId}".`
+		`No \`defaultProps\` prop found in the <Composition/> tag with the ID "${compositionId}".`,
 	);
 };
 
@@ -119,7 +119,7 @@ export const updateDefaultProps = async ({
 	const start = input.indexOf(START_TOKEN, starter);
 	if (start === -1) {
 		throw new Error(
-			`No \`defaultProps\` prop found in the <Composition/> tag with the ID "${compositionId}".`
+			`No \`defaultProps\` prop found in the <Composition/> tag with the ID "${compositionId}".`,
 		);
 	}
 
@@ -128,7 +128,7 @@ export const updateDefaultProps = async ({
 		input,
 		start + START_TOKEN.length,
 		maxEnd,
-		compositionId
+		compositionId,
 	);
 
 	// eslint-disable-next-line @typescript-eslint/consistent-type-imports
@@ -155,7 +155,7 @@ export const updateDefaultProps = async ({
 	const prettierConfig = await resolveConfig(configFilePath);
 	if (!prettierConfig) {
 		throw new Error(
-			`The Prettier config at ${configFilePath} could not be read`
+			`The Prettier config at ${configFilePath} could not be read`,
 		);
 	}
 

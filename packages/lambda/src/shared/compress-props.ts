@@ -11,7 +11,7 @@ type PropsType = 'input-props' | 'resolved-props';
 
 export const serializeOrThrow = (
 	inputProps: Record<string, unknown>,
-	propsType: PropsType
+	propsType: PropsType,
 ) => {
 	try {
 		const payload = serializeJSONWithDate({
@@ -22,14 +22,14 @@ export const serializeOrThrow = (
 		return payload.serializedString;
 	} catch (err) {
 		throw new Error(
-			`Error serializing ${propsType}. Check it has no circular references or reduce the size if the object is big.`
+			`Error serializing ${propsType}. Check it has no circular references or reduce the size if the object is big.`,
 		);
 	}
 };
 
 export const getNeedsToUpload = (
 	type: 'still' | 'video-or-audio',
-	sizes: number[]
+	sizes: number[],
 ) => {
 	const MARGIN = 5_000;
 	const MAX_INLINE_PAYLOAD_SIZE =
@@ -40,10 +40,10 @@ export const getNeedsToUpload = (
 	if (sizesAlreadyUsed > MAX_INLINE_PAYLOAD_SIZE) {
 		console.warn(
 			`Warning: The props are over ${Math.round(
-				MAX_INLINE_PAYLOAD_SIZE / 1000
+				MAX_INLINE_PAYLOAD_SIZE / 1000,
 			)}KB (${Math.ceil(
-				sizesAlreadyUsed / 1024
-			)}KB) in size. Uploading them to S3 to circumvent AWS Lambda payload size, which may lead to slowdown.`
+				sizesAlreadyUsed / 1024,
+			)}KB) in size. Uploading them to S3 to circumvent AWS Lambda payload size, which may lead to slowdown.`,
 		);
 		return true;
 	}
@@ -131,7 +131,7 @@ export const decompressInputProps = async ({
 		throw new Error(
 			`Failed to parse input props that were serialized: ${
 				(err as Error).stack
-			}`
+			}`,
 		);
 	}
 };

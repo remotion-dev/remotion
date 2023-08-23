@@ -29,7 +29,7 @@ export const useAudioData = (src: string): AudioData | null => {
 
 	const fetchMetadata = useCallback(async () => {
 		const handle = delayRender(
-			`Waiting for audio metadata with src="${src}" to be loaded`
+			`Waiting for audio metadata with src="${src}" to be loaded`,
 		);
 		const data = await getAudioData(src);
 		if (mountState.current.isMounted) {

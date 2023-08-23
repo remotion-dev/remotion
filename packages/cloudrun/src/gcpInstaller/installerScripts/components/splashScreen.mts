@@ -9,13 +9,13 @@ export function cloudRunSplashScreen() {
 		`echo "\n\n${colorCode.greenBackground}                                                "`,
 		{
 			stdio: 'inherit',
-		}
+		},
 	);
 	execSync('echo "    GCP project setup for Remotion Cloud Run    "', {
 		stdio: 'inherit',
 	});
 	execSync(
 		`echo "                                                \n\n${colorCode.resetText}"`,
-		{stdio: 'inherit'}
+		{stdio: 'inherit'},
 	);
 }

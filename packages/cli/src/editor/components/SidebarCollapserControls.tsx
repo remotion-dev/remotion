@@ -34,7 +34,7 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 				background: leftSidebarStatus === 'expanded' ? color : 'transparent',
 			};
 		},
-		[leftSidebarStatus]
+		[leftSidebarStatus],
 	);
 
 	const rightIcon = useCallback(
@@ -49,7 +49,7 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 					sidebarCollapsedStateRight === 'expanded' ? color : 'transparent',
 			};
 		},
-		[sidebarCollapsedStateRight]
+		[sidebarCollapsedStateRight],
 	);
 
 	const toggleLeft = useCallback(() => {
@@ -155,7 +155,7 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 				</div>
 			);
 		},
-		[colorStyle, leftIcon, toggleLeftTooltip]
+		[colorStyle, leftIcon, toggleLeftTooltip],
 	);
 
 	const toggleRightAction: RenderInlineAction = useCallback(
@@ -166,7 +166,7 @@ export const SidebarCollapserControls: React.FC<{}> = () => {
 				</div>
 			);
 		},
-		[colorStyle, rightIcon, toggleRightTooltip]
+		[colorStyle, rightIcon, toggleRightTooltip],
 	);
 
 	return (

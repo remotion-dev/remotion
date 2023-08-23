@@ -4,7 +4,7 @@ import Module = require('module');
 
 export const resolveFrom = (
 	fromDirectory: string,
-	moduleId: string
+	moduleId: string,
 ): string => {
 	try {
 		fromDirectory = fs.realpathSync(fromDirectory);

@@ -47,7 +47,7 @@ const Experts: React.FC = () => {
 
     // Have a different order every day.
     return experts.sort(
-      (a, b) => random(a.name + todayHash) - random(b.name + todayHash)
+      (a, b) => random(a.name + todayHash) - random(b.name + todayHash),
     );
   }, []);
 
@@ -58,11 +58,11 @@ const Experts: React.FC = () => {
       <Head>
         {Seo.renderTitle("Remotion Experts | Hire Remotion freelancers")}
         {Seo.renderDescription(
-          "Find Remotion freelancers and hire them to create, progress or unblock your Remotion project."
+          "Find Remotion freelancers and hire them to create, progress or unblock your Remotion project.",
         )}
         {Seo.renderImage(
           "/img/remotion-experts-og-image.png",
-          context.siteConfig.url
+          context.siteConfig.url,
         )}
       </Head>
       <div className={styles.container}>

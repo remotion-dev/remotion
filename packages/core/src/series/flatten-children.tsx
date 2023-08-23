@@ -10,8 +10,8 @@ export const flattenChildren = (children: React.ReactNode): ReactChildArray => {
 			return flatChildren.concat(
 				flattenChildren(
 					(child as React.ReactElement<PropsWithChildren<unknown>>).props
-						.children
-				)
+						.children,
+				),
 			);
 		}
 

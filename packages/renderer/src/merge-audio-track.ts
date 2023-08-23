@@ -53,7 +53,7 @@ const mergeAudioTrackUnlimited = async ({
 						remotionRoot,
 					});
 					return chunkOutname;
-				})
+				}),
 			);
 
 			await mergeAudioTrack({

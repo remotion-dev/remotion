@@ -109,12 +109,12 @@ const innerSetPropsAndEnv = async ({
 
 	if (!redirectStatusCodes.every((code) => code !== status)) {
 		throw new Error(
-			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was ${status} instead of 200. Does the site you specified exist?`
+			`Error while getting compositions: Tried to go to ${urlToVisit} but the status code was ${status} instead of 200. Does the site you specified exist?`,
 		);
 	}
 
 	const {value: isRemotionFn} = await puppeteerEvaluateWithCatch<
-		typeof window['getStaticCompositions']
+		(typeof window)['getStaticCompositions']
 	>({
 		pageFunction: () => {
 			return window.getStaticCompositions;
@@ -179,7 +179,7 @@ const innerSetPropsAndEnv = async ({
 				' ▸ Use `npx remotion lambda sites create` to redeploy the site with the latest version.',
 				' ℹ Use --site-name with the same name as before to overwrite your site.',
 				' ▸ Use `deploySite()` if you are using the Node.JS APIs.',
-			].join('\n')
+			].join('\n'),
 		);
 	}
 
@@ -196,7 +196,7 @@ const innerSetPropsAndEnv = async ({
 					'▸ Use `npx remotion lambda sites create` to redeploy the site with the latest version.',
 					'  ℹ Use --site-name with the same name as before to overwrite your site.',
 					'▸ Use `deploySite()` if you are using the Node.JS APIs.',
-				].join('\n')
+				].join('\n'),
 			);
 		} else {
 			Log.warnAdvanced(
@@ -204,7 +204,7 @@ const innerSetPropsAndEnv = async ({
 					indent,
 					logLevel,
 				},
-				`The site was bundled with an old version of Remotion, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`
+				`The site was bundled with an old version of Remotion, while @remotion/renderer is on version ${VERSION}. You may not have the newest bugfixes and features. Re-bundle the site to fix this issue.`,
 			);
 		}
 	}
@@ -217,8 +217,8 @@ export const setPropsAndEnv = (params: SetPropsAndEnv) => {
 			setTimeout(() => {
 				reject(
 					new Error(
-						`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser. This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding. Optimize the site or increase the browser timeout.`
-					)
+						`Timed out after ${params.timeoutInMilliseconds} while setting up the headless browser. This could be because the you specified takes a long time to load (or network resources that it includes like fonts) or because the browser is not responding. Optimize the site or increase the browser timeout.`,
+					),
 				);
 			}, params.timeoutInMilliseconds);
 		}),

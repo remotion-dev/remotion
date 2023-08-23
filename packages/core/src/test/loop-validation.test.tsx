@@ -17,9 +17,9 @@ describe('Loop-validation render should throw with invalid props', () => {
 						<WrapSequenceContext>
 							{/* @ts-expect-error */}
 							<Loop durationInFrames={'1'}>hi</Loop>
-						</WrapSequenceContext>
+						</WrapSequenceContext>,
 					),
-				/The "durationInFrames" prop of the <Loop \/> component must be a number, but you passed a value of type string/
+				/The "durationInFrames" prop of the <Loop \/> component must be a number, but you passed a value of type string/,
 			);
 		});
 		test('It should throw if Loop has non-integer durationInFrames', () => {
@@ -29,10 +29,10 @@ describe('Loop-validation render should throw with invalid props', () => {
 						<WrapSequenceContext>
 							<Loop durationInFrames={1.1}>hi</Loop>
 						</WrapSequenceContext>
-					</WrapSequenceContext>
-				)
+					</WrapSequenceContext>,
+				),
 			).toBe(
-				'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex">hi</div>'
+				'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex">hi</div>',
 			);
 		});
 		test('It should throw if Loop has a negative duration', () => {
@@ -41,9 +41,9 @@ describe('Loop-validation render should throw with invalid props', () => {
 					render(
 						<WrapSequenceContext>
 							<Loop durationInFrames={-1}>hi</Loop>
-						</WrapSequenceContext>
+						</WrapSequenceContext>,
 					),
-				/The "durationInFrames" prop of the <Loop \/> component must be positive, but got -1./
+				/The "durationInFrames" prop of the <Loop \/> component must be positive, but got -1./,
 			);
 		});
 	});
@@ -57,9 +57,9 @@ describe('Loop-validation render should throw with invalid props', () => {
 							<Loop durationInFrames={50} times="1">
 								hi
 							</Loop>
-						</WrapSequenceContext>
+						</WrapSequenceContext>,
 					),
-				/You passed to "times" an argument of type string, but it must be a number./
+				/You passed to "times" an argument of type string, but it must be a number./,
 			);
 		});
 		test('It should throw if Loop has non-integer times', () => {
@@ -70,9 +70,9 @@ describe('Loop-validation render should throw with invalid props', () => {
 							<Loop durationInFrames={50} times={1.1}>
 								hi
 							</Loop>
-						</WrapSequenceContext>
+						</WrapSequenceContext>,
 					),
-				/The "times" prop of a loop must be an integer, but got 1.1./
+				/The "times" prop of a loop must be an integer, but got 1.1./,
 			);
 		});
 	});
@@ -83,8 +83,8 @@ describe('Should NOT throw with valid props', () => {
 			render(
 				<WrapSequenceContext>
 					<Loop durationInFrames={50}>{null}</Loop>
-				</WrapSequenceContext>
-			)
+				</WrapSequenceContext>,
+			),
 		).not.toThrow();
 	});
 	test('It should allow undefined as children', () => {
@@ -92,8 +92,8 @@ describe('Should NOT throw with valid props', () => {
 			render(
 				<WrapSequenceContext>
 					<Loop durationInFrames={50}>{undefined}</Loop>
-				</WrapSequenceContext>
-			)
+				</WrapSequenceContext>,
+			),
 		).not.toThrow();
 	});
 });

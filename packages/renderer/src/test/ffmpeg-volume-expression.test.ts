@@ -9,7 +9,7 @@ test('Simple expression', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: false,
-		})
+		}),
 	).toEqual({
 		eval: 'once',
 		value: '0.5',
@@ -23,7 +23,7 @@ test('Simple expression with volume multiplier', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: false,
-		})
+		}),
 	).toEqual({
 		eval: 'once',
 		value: '0.5',
@@ -37,7 +37,7 @@ test('Complex expression with volume multiplier', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: false,
-		})
+		}),
 	).toEqual({
 		eval: 'frame',
 		value: "'if(between(t,-0.0167,0.0167),0,1)'",
@@ -51,7 +51,7 @@ test('Should respect trimLeft multiplier', () => {
 			fps: 30,
 			trimLeft: 0.5,
 			allowAmplificationDuringRender: false,
-		})
+		}),
 	).toEqual({
 		eval: 'frame',
 		value: "'if(between(t,0.4833,0.5167),0,1)'",
@@ -68,7 +68,7 @@ test('Really complex volume expression', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: false,
-		})
+		}),
 	).toEqual({
 		eval: 'frame',
 		value: expectedExpression,
@@ -82,7 +82,7 @@ test('Should use 0 as else statement', () => {
 			fps: 30,
 			allowAmplificationDuringRender: false,
 			trimLeft: 0,
-		})
+		}),
 	).toEqual({
 		eval: 'frame',
 		value: "'if(between(t,-0.0167,0.0833),0,1)'",
@@ -96,7 +96,7 @@ test('Simple expression - should not be higher than 1', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: false,
-		})
+		}),
 	).toEqual({
 		eval: 'once',
 		value: '1',
@@ -110,7 +110,7 @@ test('Complex expression - should  be higher than 1 if allowed', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: true,
-		})
+		}),
 	).toEqual({
 		eval: 'frame',
 		value: "'if(between(t,-0.0167,0.0167),0.505,2)'",
@@ -124,7 +124,7 @@ test('Should simplify an expression', () => {
 			fps: 30,
 			trimLeft: 0,
 			allowAmplificationDuringRender: false,
-		})
+		}),
 	).toEqual({
 		eval: 'frame',
 		value: "'if(between(t,-0.0167,0.0167)+between(t,0.1167,0.1500),0,1)'",

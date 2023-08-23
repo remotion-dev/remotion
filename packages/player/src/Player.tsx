@@ -72,7 +72,7 @@ export type PlayerProps<Schema extends AnyZodObject, Props> = {
 	PropsIfHasProps<Schema, Props>;
 
 export const componentOrNullIfLazy = <Props,>(
-	props: CompProps<Props>
+	props: CompProps<Props>,
 ): ComponentType<Props> | null => {
 	if ('component' in props) {
 		return props.component as ComponentType<Props>;
@@ -118,7 +118,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		showPlaybackRateControl = false,
 		...componentProps
 	}: PlayerProps<Schema, Props>,
-	ref: MutableRefObject<PlayerRef>
+	ref: MutableRefObject<PlayerRef>,
 ) => {
 	if (typeof window !== 'undefined') {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
@@ -130,29 +130,29 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 	// @ts-expect-error
 	if (componentProps.defaultProps !== undefined) {
 		throw new Error(
-			'The <Player /> component does not accept `defaultProps`, but some were passed. Use `inputProps` instead.'
+			'The <Player /> component does not accept `defaultProps`, but some were passed. Use `inputProps` instead.',
 		);
 	}
 
 	const componentForValidation = componentOrNullIfLazy(
-		componentProps
+		componentProps,
 	) as ComponentType<unknown> | null;
 
 	// @ts-expect-error
 	if (componentForValidation?.type === Composition) {
 		throw new TypeError(
-			`'component' should not be an instance of <Composition/>. Pass the React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`
+			`'component' should not be an instance of <Composition/>. Pass the React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`,
 		);
 	}
 
 	if (componentForValidation === Composition) {
 		throw new TypeError(
-			`'component' must not be the 'Composition' component. Pass your own React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`
+			`'component' must not be the 'Composition' component. Pass your own React component directly, and set the duration, fps and dimensions as separate props. See https://www.remotion.dev/docs/player/examples for an example.`,
 		);
 	}
 
 	const component = Internals.useLazyComponent(
-		componentProps
+		componentProps,
 	) as LazyExoticComponent<ComponentType<unknown>>;
 
 	validateInitialFrame({initialFrame, durationInFrames});
@@ -170,25 +170,25 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 
 	if (typeof compositionHeight !== 'number') {
 		throw new TypeError(
-			`'compositionHeight' must be a number but got '${typeof compositionHeight}' instead`
+			`'compositionHeight' must be a number but got '${typeof compositionHeight}' instead`,
 		);
 	}
 
 	if (typeof compositionWidth !== 'number') {
 		throw new TypeError(
-			`'compositionWidth' must be a number but got '${typeof compositionWidth}' instead`
+			`'compositionWidth' must be a number but got '${typeof compositionWidth}' instead`,
 		);
 	}
 
 	Internals.validateDimension(
 		compositionHeight,
 		'compositionHeight',
-		'of the <Player /> component'
+		'of the <Player /> component',
 	);
 	Internals.validateDimension(
 		compositionWidth,
 		'compositionWidth',
-		'of the <Player /> component'
+		'of the <Player /> component',
 	);
 	Internals.validateDurationInFrames(durationInFrames, {
 		component: 'of the <Player/> component',
@@ -205,19 +205,19 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 
 	if (typeof controls !== 'boolean' && typeof controls !== 'undefined') {
 		throw new TypeError(
-			`'controls' must be a boolean or undefined but got '${typeof controls}' instead`
+			`'controls' must be a boolean or undefined but got '${typeof controls}' instead`,
 		);
 	}
 
 	if (typeof autoPlay !== 'boolean' && typeof autoPlay !== 'undefined') {
 		throw new TypeError(
-			`'autoPlay' must be a boolean or undefined but got '${typeof autoPlay}' instead`
+			`'autoPlay' must be a boolean or undefined but got '${typeof autoPlay}' instead`,
 		);
 	}
 
 	if (typeof loop !== 'boolean' && typeof loop !== 'undefined') {
 		throw new TypeError(
-			`'loop' must be a boolean or undefined but got '${typeof loop}' instead`
+			`'loop' must be a boolean or undefined but got '${typeof loop}' instead`,
 		);
 	}
 
@@ -226,7 +226,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		typeof doubleClickToFullscreen !== 'undefined'
 	) {
 		throw new TypeError(
-			`'doubleClickToFullscreen' must be a boolean or undefined but got '${typeof doubleClickToFullscreen}' instead`
+			`'doubleClickToFullscreen' must be a boolean or undefined but got '${typeof doubleClickToFullscreen}' instead`,
 		);
 	}
 
@@ -235,7 +235,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		typeof showVolumeControls !== 'undefined'
 	) {
 		throw new TypeError(
-			`'showVolumeControls' must be a boolean or undefined but got '${typeof showVolumeControls}' instead`
+			`'showVolumeControls' must be a boolean or undefined but got '${typeof showVolumeControls}' instead`,
 		);
 	}
 
@@ -244,13 +244,13 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		typeof allowFullscreen !== 'undefined'
 	) {
 		throw new TypeError(
-			`'allowFullscreen' must be a boolean or undefined but got '${typeof allowFullscreen}' instead`
+			`'allowFullscreen' must be a boolean or undefined but got '${typeof allowFullscreen}' instead`,
 		);
 	}
 
 	if (typeof clickToPlay !== 'boolean' && typeof clickToPlay !== 'undefined') {
 		throw new TypeError(
-			`'clickToPlay' must be a boolean or undefined but got '${typeof clickToPlay}' instead`
+			`'clickToPlay' must be a boolean or undefined but got '${typeof clickToPlay}' instead`,
 		);
 	}
 
@@ -259,7 +259,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		typeof spaceKeyToPlayOrPause !== 'undefined'
 	) {
 		throw new TypeError(
-			`'spaceKeyToPlayOrPause' must be a boolean or undefined but got '${typeof spaceKeyToPlayOrPause}' instead`
+			`'spaceKeyToPlayOrPause' must be a boolean or undefined but got '${typeof spaceKeyToPlayOrPause}' instead`,
 		);
 	}
 
@@ -271,7 +271,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		numberOfSharedAudioTags < 0
 	) {
 		throw new TypeError(
-			`'numberOfSharedAudioTags' must be an integer but got '${numberOfSharedAudioTags}' instead`
+			`'numberOfSharedAudioTags' must be an integer but got '${numberOfSharedAudioTags}' instead`,
 		);
 	}
 
@@ -320,7 +320,7 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		useLayoutEffect(() => {
 			// Inject CSS only on client, and also only after the Player has hydrated
 			Internals.CSSUtils.injectCSS(
-				Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff')
+				Internals.CSSUtils.makeDefaultCSS(`.${PLAYER_CSS_CLASSNAME}`, '#fff'),
 			);
 		}, []);
 	}
@@ -387,8 +387,8 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 const forward = forwardRef as <T, P = {}>(
 	render: (
 		props: P,
-		ref: React.MutableRefObject<T>
-	) => React.ReactElement | null
+		ref: React.MutableRefObject<T>,
+	) => React.ReactElement | null,
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
 /**

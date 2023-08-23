@@ -7,7 +7,7 @@ export const validateFrameRange = (frameRange: FrameRange | null) => {
 	if (typeof frameRange === 'number') {
 		if (frameRange < 0) {
 			throw new TypeError(
-				'Frame must be a non-negative number, got ' + frameRange
+				'Frame must be a non-negative number, got ' + frameRange,
 			);
 		}
 
@@ -17,7 +17,7 @@ export const validateFrameRange = (frameRange: FrameRange | null) => {
 
 		if (!Number.isInteger(frameRange)) {
 			throw new Error(
-				`Frame must be an integer, but got a float (${frameRange})`
+				`Frame must be an integer, but got a float (${frameRange})`,
 			);
 		}
 
@@ -28,7 +28,7 @@ export const validateFrameRange = (frameRange: FrameRange | null) => {
 		if (frameRange.length !== 2) {
 			throw new TypeError(
 				'Frame range must be a tuple, got an array with length ' +
-					frameRange.length
+					frameRange.length,
 			);
 		}
 
@@ -36,26 +36,26 @@ export const validateFrameRange = (frameRange: FrameRange | null) => {
 			if (typeof value !== 'number') {
 				throw new Error(
 					`Each value of frame range must be a number, but got ${typeof value} (${JSON.stringify(
-						value
-					)})`
+						value,
+					)})`,
 				);
 			}
 
 			if (!Number.isFinite(value)) {
 				throw new TypeError(
-					'Each value of frame range must be finite, but got ' + value
+					'Each value of frame range must be finite, but got ' + value,
 				);
 			}
 
 			if (!Number.isInteger(value)) {
 				throw new Error(
-					`Each value of frame range must be an integer, but got a float (${value})`
+					`Each value of frame range must be an integer, but got a float (${value})`,
 				);
 			}
 
 			if (value < 0) {
 				throw new Error(
-					`Each value of frame range must be non-negative, but got ${value}`
+					`Each value of frame range must be non-negative, but got ${value}`,
 				);
 			}
 		}
@@ -64,7 +64,7 @@ export const validateFrameRange = (frameRange: FrameRange | null) => {
 		if (second < first) {
 			throw new Error(
 				'The second value of frame range must be not smaller than the first one, but got ' +
-					frameRange.join('-')
+					frameRange.join('-'),
 			);
 		}
 
@@ -73,6 +73,6 @@ export const validateFrameRange = (frameRange: FrameRange | null) => {
 
 	throw new TypeError(
 		'Frame range must be a number or a tuple of numbers, but got object of type ' +
-			typeof frameRange
+			typeof frameRange,
 	);
 };

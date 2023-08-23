@@ -40,7 +40,7 @@ export type RenderPoster = RenderLoading;
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {
 	throw new Error(
-		`Version ${reactVersion} of "react" is not supported by Remotion`
+		`Version ${reactVersion} of "react" is not supported by Remotion`,
 	);
 }
 
@@ -105,7 +105,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		alwaysShowControls,
 		showPlaybackRateControl,
 	},
-	ref
+	ref,
 ) => {
 	const config = Internals.useUnsafeVideoConfig();
 	const video = Internals.useVideo();
@@ -146,7 +146,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 		const onFullscreenChange = () => {
 			setIsFullscreen(
 				document.fullscreenElement === current ||
-					document.webkitFullscreenElement === current
+					document.webkitFullscreenElement === current,
 			);
 		};
 
@@ -156,7 +156,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			document.removeEventListener('fullscreenchange', onFullscreenChange);
 			document.removeEventListener(
 				'webkitfullscreenchange',
-				onFullscreenChange
+				onFullscreenChange,
 			);
 		};
 	}, []);
@@ -169,7 +169,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				player.play(e);
 			}
 		},
-		[player]
+		[player],
 	);
 
 	const requestFullscreen = useCallback(() => {
@@ -261,7 +261,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	}, [player.emitter, scale]);
 
 	const {setMediaVolume, setMediaMuted} = useContext(
-		Internals.SetMediaVolumeContext
+		Internals.SetMediaVolumeContext,
 	);
 	const {mediaMuted, mediaVolume} = useContext(Internals.MediaVolumeContext);
 	useEffect(() => {
@@ -313,19 +313,19 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				setVolume: (vol: number) => {
 					if (typeof vol !== 'number') {
 						throw new TypeError(
-							`setVolume() takes a number, got value of type ${typeof vol}`
+							`setVolume() takes a number, got value of type ${typeof vol}`,
 						);
 					}
 
 					if (isNaN(vol)) {
 						throw new TypeError(
-							`setVolume() got a number that is NaN. Volume must be between 0 and 1.`
+							`setVolume() got a number that is NaN. Volume must be between 0 and 1.`,
 						);
 					}
 
 					if (vol < 0 || vol > 1) {
 						throw new TypeError(
-							`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`
+							`setVolume() got a number that is out of range. Must be between 0 and 1, got ${typeof vol}`,
 						);
 					}
 
@@ -356,7 +356,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			setMediaVolume,
 			toggle,
 			scale,
-		]
+		],
 	);
 
 	const VideoComponent = video ? video.component : null;
@@ -379,7 +379,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 			// Pay attention to `this context`
 			player.emitter.dispatchError(error);
 		},
-		[player]
+		[player],
 	);
 
 	const onFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
@@ -388,7 +388,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				e.stopPropagation();
 				requestFullscreen();
 			},
-			[requestFullscreen]
+			[requestFullscreen],
 		);
 
 	const onExitFullscreenButtonClick: MouseEventHandler<HTMLButtonElement> =
@@ -397,14 +397,14 @@ const PlayerUI: React.ForwardRefRenderFunction<
 				e.stopPropagation();
 				exitFullscreen();
 			},
-			[exitFullscreen]
+			[exitFullscreen],
 		);
 
 	const onSingleClick = useCallback(
 		(e: SyntheticEvent) => {
 			toggle(e);
 		},
-		[toggle]
+		[toggle],
 	);
 
 	const onSeekStart = useCallback(() => {
@@ -426,7 +426,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 	const [handleClick, handleDoubleClick] = useClickPreventionOnDoubleClick(
 		onSingleClick,
 		onDoubleClick,
-		doubleClickToFullscreen
+		doubleClickToFullscreen,
 	);
 
 	useEffect(() => {
@@ -458,7 +458,7 @@ const PlayerUI: React.ForwardRefRenderFunction<
 
 	if (poster === undefined) {
 		throw new TypeError(
-			'renderPoster() must return a React element, but undefined was returned'
+			'renderPoster() must return a React element, but undefined was returned',
 		);
 	}
 

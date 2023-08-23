@@ -46,7 +46,7 @@ export const MenuToolbar: React.FC = () => {
 		(itemId: SetStateAction<string | null>) => {
 			setSelected(itemId);
 		},
-		[setSelected]
+		[setSelected],
 	);
 
 	const itemHovered = useCallback(
@@ -55,7 +55,7 @@ export const MenuToolbar: React.FC = () => {
 				setSelected(itemId);
 			}
 		},
-		[selected, setSelected]
+		[selected, setSelected],
 	);
 
 	const closeMenu = useCallback(() => {

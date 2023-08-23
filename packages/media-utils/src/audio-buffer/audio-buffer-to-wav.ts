@@ -6,7 +6,7 @@ export function audioBufferToWav(
 	buffer: AudioBuffer,
 	opt: {
 		float32: boolean;
-	}
+	},
 ) {
 	const numChannels = buffer.numberOfChannels;
 	const {sampleRate} = buffer;
@@ -109,7 +109,7 @@ function writeFloat32(output: DataView, offset: number, input: Float32Array) {
 function floatTo16BitPCM(
 	output: DataView,
 	offset: number,
-	input: Float32Array
+	input: Float32Array,
 ) {
 	for (let i = 0; i < input.length; i++, offset += 2) {
 		const s = Math.max(-1, Math.min(1, input[i]));

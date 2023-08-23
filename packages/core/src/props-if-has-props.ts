@@ -8,7 +8,7 @@ type And<A extends boolean, B extends boolean> = A extends true
 
 export type PropsIfHasProps<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = And<
 	AnyZodObject extends Schema ? true : false,
 	{} extends Props ? true : false
@@ -24,7 +24,7 @@ export type PropsIfHasProps<
 
 export type InferProps<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = AnyZodObject extends Schema
 	? {} extends Props
 		? // Neither props nor schema specified

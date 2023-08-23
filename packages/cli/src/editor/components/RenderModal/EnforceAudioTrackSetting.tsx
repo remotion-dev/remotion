@@ -17,7 +17,7 @@ export const EnforceAudioTrackSetting: React.FC<{
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setEnforceAudioTrack(e.target.checked);
 		},
-		[setEnforceAudioTrack]
+		[setEnforceAudioTrack],
 	);
 
 	return (

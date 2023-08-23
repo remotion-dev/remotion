@@ -5,13 +5,13 @@ export const validateBitrate = (bitrate: unknown, name: string) => {
 
 	if (typeof bitrate === 'number') {
 		throw new TypeError(
-			`"${name}" must be a string ending in "K" or "M". Got a number: ${bitrate}`
+			`"${name}" must be a string ending in "K" or "M". Got a number: ${bitrate}`,
 		);
 	}
 
 	if (typeof bitrate !== 'string') {
 		throw new TypeError(
-			`"${name}" must be a string or null, but got ${JSON.stringify(bitrate)}`
+			`"${name}" must be a string or null, but got ${JSON.stringify(bitrate)}`,
 		);
 	}
 
@@ -22,8 +22,8 @@ export const validateBitrate = (bitrate: unknown, name: string) => {
 	) {
 		throw new TypeError(
 			`"${name}" must end in "K", "k" or "M", but got ${JSON.stringify(
-				bitrate
-			)}`
+				bitrate,
+			)}`,
 		);
 	}
 };

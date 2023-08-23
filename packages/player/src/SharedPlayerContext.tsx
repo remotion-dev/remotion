@@ -87,7 +87,7 @@ export const SharedPlayerContexts: React.FC<{
 
 	const [mediaMuted, setMediaMuted] = useState<boolean>(() => initiallyMuted);
 	const [mediaVolume, setMediaVolume] = useState<number>(() =>
-		getPreferredVolume()
+		getPreferredVolume(),
 	);
 
 	const mediaVolumeContextValue = useMemo((): MediaVolumeContextValue => {

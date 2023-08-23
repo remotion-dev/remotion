@@ -41,8 +41,8 @@ Timeout = ${timeoutInSeconds}sec
 Version = ${VERSION}
 CloudWatch Logging Enabled = ${createCloudWatchLogGroup}
 CloudWatch Retention Period = ${cloudWatchLogRetentionPeriodInDays} days
-				`.trim()
-			)
+				`.trim(),
+			),
 		);
 	}
 

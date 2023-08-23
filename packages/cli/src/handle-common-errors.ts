@@ -9,7 +9,7 @@ export const handleCommonError = async (err: Error, logLevel: LogLevel) => {
 	if (err.message.includes('Could not play video with')) {
 		Log.info();
 		Log.info(
-			'💡 Get help for this issue at https://remotion.dev/docs/media-playback-error'
+			'💡 Get help for this issue at https://remotion.dev/docs/media-playback-error',
 		);
 	}
 
@@ -24,24 +24,24 @@ export const handleCommonError = async (err: Error, logLevel: LogLevel) => {
 	if (err.message.includes('Target closed')) {
 		Log.info();
 		Log.info(
-			'💡 Get help for this issue at https://remotion.dev/docs/target-closed'
+			'💡 Get help for this issue at https://remotion.dev/docs/target-closed',
 		);
 	}
 
 	if (err.message.includes('ENAMETOOLONG')) {
 		Log.info();
 		Log.info(
-			'💡 Get help for this issue at https://remotion.dev/docs/enametoolong'
+			'💡 Get help for this issue at https://remotion.dev/docs/enametoolong',
 		);
 	}
 
 	if (err.message.includes('Error creating WebGL context')) {
 		Log.info();
 		Log.warn(
-			'💡 You might need to set the OpenGL renderer to "angle" (or "swangle" if rendering on lambda). Learn why at https://www.remotion.dev/docs/three'
+			'💡 You might need to set the OpenGL renderer to "angle" (or "swangle" if rendering on lambda). Learn why at https://www.remotion.dev/docs/three',
 		);
 		Log.warn(
-			"💡 Check how it's done at https://www.remotion.dev/docs/chromium-flags#--gl"
+			"💡 Check how it's done at https://www.remotion.dev/docs/chromium-flags#--gl",
 		);
 	}
 
@@ -49,8 +49,8 @@ export const handleCommonError = async (err: Error, logLevel: LogLevel) => {
 		Log.info();
 		Log.info(
 			chalk.green(
-				'💡 Fix this issue https://remotion.dev/docs/lambda/troubleshooting/bucket-disallows-acl'
-			)
+				'💡 Fix this issue https://remotion.dev/docs/lambda/troubleshooting/bucket-disallows-acl',
+			),
 		);
 	}
 
@@ -63,25 +63,25 @@ export const handleCommonError = async (err: Error, logLevel: LogLevel) => {
 				'you are trying to render is not imported correctly.',
 			]
 				.filter(truthy)
-				.join(' ')
+				.join(' '),
 		);
 
 		Log.info();
 		Log.info(
-			'   Check the root file and ensure that the component is not undefined.'
+			'   Check the root file and ensure that the component is not undefined.',
 		);
 		Log.info(
-			'   Oftentimes, this happens if the component is missing the `export` keyword'
+			'   Oftentimes, this happens if the component is missing the `export` keyword',
 		);
 		Log.info(
-			'   or if the component was renamed and the import statement not properly adjusted.'
+			'   or if the component was renamed and the import statement not properly adjusted.',
 		);
 	}
 
 	if (err.message.includes('GLIBC_')) {
 		Log.info('💡 Remotion requires at least Libc 2.35.');
 		Log.info(
-			'💡 Get help for this issue: https://github.com/remotion-dev/remotion/issues/2439'
+			'💡 Get help for this issue: https://github.com/remotion-dev/remotion/issues/2439',
 		);
 	}
 

@@ -54,7 +54,7 @@ export const FrameManagerEmittedEvents = {
 	FrameSwapped: Symbol('FrameManager.FrameSwapped'),
 	LifecycleEvent: Symbol('FrameManager.LifecycleEvent'),
 	FrameNavigatedWithinDocument: Symbol(
-		'FrameManager.FrameNavigatedWithinDocument'
+		'FrameManager.FrameNavigatedWithinDocument',
 	),
 	ExecutionContextCreated: Symbol('FrameManager.ExecutionContextCreated'),
 	ExecutionContextDestroyed: Symbol('FrameManager.ExecutionContextDestroyed'),
@@ -94,7 +94,7 @@ export class FrameManager extends EventEmitter {
 		session.on('Page.frameDetached', (event: FrameDetachedEvent) => {
 			this.#onFrameDetached(
 				event.frameId,
-				event.reason as FrameDetachedEventReason
+				event.reason as FrameDetachedEventReason,
 			);
 		});
 		session.on('Page.frameStartedLoading', (event) => {
@@ -172,7 +172,7 @@ export class FrameManager extends EventEmitter {
 			referer?: string;
 			timeout?: number;
 			waitUntil?: PuppeteerLifeCycleEvent;
-		} = {}
+		} = {},
 	): Promise<HTTPResponse | null> {
 		const {referer = undefined, waitUntil = 'load'} = options;
 
@@ -200,7 +200,7 @@ export class FrameManager extends EventEmitter {
 			client: CDPSession,
 			_url: string,
 			referrer: string | undefined,
-			frameId: string
+			frameId: string,
 		): Promise<Error | null> {
 			try {
 				const {value: response} = await client.send('Page.navigate', {
@@ -286,7 +286,7 @@ export class FrameManager extends EventEmitter {
 			this.#onFrameAttached(
 				session,
 				frameTree.frame.id,
-				frameTree.frame.parentId
+				frameTree.frame.parentId,
 			);
 		}
 
@@ -320,7 +320,7 @@ export class FrameManager extends EventEmitter {
 	#onFrameAttached(
 		session: CDPSession,
 		frameId: string,
-		parentFrameId?: string
+		parentFrameId?: string,
 	): void {
 		if (this.#frames.has(frameId)) {
 			const _frame = this.#frames.get(frameId) as Frame;
@@ -348,7 +348,7 @@ export class FrameManager extends EventEmitter {
 			: this.#frames.get(framePayload.id);
 		assert(
 			isMainFrame || frame,
-			'We either navigate top level or have old version of the navigated frame'
+			'We either navigate top level or have old version of the navigated frame',
 		);
 
 		// Detach all child frames first.
@@ -406,7 +406,7 @@ export class FrameManager extends EventEmitter {
 							grantUniveralAccess: true,
 						})
 						.catch(() => undefined);
-				})
+				}),
 		);
 	}
 
@@ -437,7 +437,7 @@ export class FrameManager extends EventEmitter {
 
 	#onExecutionContextCreated(
 		contextPayload: ExecutionContextDescription,
-		session: CDPSession
+		session: CDPSession,
 	): void {
 		const auxData = contextPayload.auxData as {frameId?: string} | undefined;
 		const frameId = auxData?.frameId;
@@ -466,7 +466,7 @@ export class FrameManager extends EventEmitter {
 		const context = new ExecutionContext(
 			frame?._client() || this.#client,
 			contextPayload,
-			world as DOMWorld
+			world as DOMWorld,
 		);
 		if (world) {
 			world._setContext(context);
@@ -478,7 +478,7 @@ export class FrameManager extends EventEmitter {
 
 	#onExecutionContextDestroyed(
 		executionContextId: number,
-		session: CDPSession
+		session: CDPSession,
 	): void {
 		const key = `${session.id()}:${executionContextId}`;
 		const context = this.#contextIdToContext.get(key);
@@ -510,7 +510,7 @@ export class FrameManager extends EventEmitter {
 
 	executionContextById(
 		contextId: number,
-		session: CDPSession = this.#client
+		session: CDPSession = this.#client,
 	): ExecutionContext {
 		const key = `${session.id()}:${contextId}`;
 		const context = this.#contextIdToContext.get(key);
@@ -548,7 +548,7 @@ export class Frame {
 		frameManager: FrameManager,
 		parentFrame: Frame | null,
 		frameId: string,
-		client: CDPSession
+		client: CDPSession,
 	) {
 		this._frameManager = frameManager;
 		this.#parentFrame = parentFrame ?? null;
@@ -581,7 +581,7 @@ export class Frame {
 		options: {
 			referer?: string;
 			waitUntil?: PuppeteerLifeCycleEvent;
-		} = {}
+		} = {},
 	): Promise<HTTPResponse | null> {
 		return this._frameManager.navigateFrame(this, url, timeout, options);
 	}

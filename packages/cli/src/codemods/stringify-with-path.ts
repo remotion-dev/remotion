@@ -13,7 +13,7 @@ const doesMatchPath = (path1: EnumPath, enumPaths: EnumPath[]) => {
 			}
 
 			return item === p[index];
-		})
+		}),
 	);
 };
 
@@ -36,18 +36,18 @@ export const stringifyDefaultProps = ({
 
 			if (typeof item === 'string' && item.startsWith(Internals.FILE_TOKEN)) {
 				return `__REMOVEQUOTE____WRAP_IN_STATIC_FILE_START__${decodeURIComponent(
-					item.replace(Internals.FILE_TOKEN, '')
+					item.replace(Internals.FILE_TOKEN, ''),
 				)}__WRAP_IN_STATIC_FILE_END____REMOVEQUOTE__`;
 			}
 
 			if (typeof item === 'string' && item.startsWith(Internals.DATE_TOKEN)) {
 				return `__REMOVEQUOTE____WRAP_IN_DATE_START__${decodeURIComponent(
-					item.replace(Internals.DATE_TOKEN, '')
+					item.replace(Internals.DATE_TOKEN, ''),
 				)}__WRAP_IN_DATE_END____REMOVEQUOTE__`;
 			}
 
 			return value;
-		})
+		}),
 	)
 		.replace(/"__REMOVEQUOTE__/g, '')
 		.replace(/__REMOVEQUOTE__"/g, '')
@@ -63,15 +63,15 @@ function replacerWithPath(
 		this: Record<string, unknown>,
 		field: string,
 		value: unknown,
-		path: (string | number)[]
-	) => unknown
+		path: (string | number)[],
+	) => unknown,
 ) {
 	const m = new Map();
 
 	return function (
 		this: Record<string, unknown>,
 		field: string,
-		value: unknown
+		value: unknown,
 	) {
 		const path = [m.get(this), field].flat(1);
 		if (value === Object(value)) {
@@ -82,7 +82,7 @@ function replacerWithPath(
 			this,
 			field,
 			value,
-			path.filter((item) => typeof item !== 'undefined' && item !== '')
+			path.filter((item) => typeof item !== 'undefined' && item !== ''),
 		);
 	};
 }

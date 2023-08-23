@@ -14,7 +14,7 @@ export const getExpectedMediaFrameUncorrected = ({
 	return interpolate(
 		frame,
 		[-1, startFrom, startFrom + 1],
-		[-1, startFrom, startFrom + playbackRate]
+		[-1, startFrom, startFrom + playbackRate],
 	);
 };
 

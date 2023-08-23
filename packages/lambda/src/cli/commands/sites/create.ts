@@ -26,13 +26,13 @@ export const SITES_CREATE_SUBCOMMAND = 'create';
 
 export const sitesCreateSubcommand = async (
 	args: string[],
-	remotionRoot: string
+	remotionRoot: string,
 ) => {
 	const {file, reason} = CliInternals.findEntryPoint(args, remotionRoot);
 	if (!file) {
 		Log.error('No entry file passed.');
 		Log.info(
-			'Pass an additional argument specifying the entry file of your Remotion project:'
+			'Pass an additional argument specifying the entry file of your Remotion project:',
 		);
 		Log.info();
 		Log.info(`${BINARY_NAME} deploy <entry-file.ts>`);
@@ -82,7 +82,7 @@ export const sitesCreateSubcommand = async (
 				makeBucketProgress(multiProgress.bucketProgress),
 				makeDeployProgressBar(multiProgress.deployProgress),
 			].join('\n'),
-			false
+			false,
 		);
 	};
 
@@ -157,14 +157,14 @@ export const sitesCreateSubcommand = async (
 	Log.info();
 	Log.info(
 		CliInternals.chalk.blueBright(
-			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:'
-		)
+			'ℹ️ If you make changes to your code, you need to redeploy the site. You can overwrite the existing site by running:',
+		),
 	);
 	Log.info(
 		CliInternals.chalk.blueBright(
 			['npx remotion lambda sites create', args[0], `--site-name=${siteName}`]
 				.filter(Internals.truthy)
-				.join(' ')
-		)
+				.join(' '),
+		),
 	);
 };

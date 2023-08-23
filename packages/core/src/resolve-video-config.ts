@@ -99,7 +99,7 @@ const validateCalculated = ({
 	validateDimension(
 		width,
 		'width',
-		calculated?.width ? calculateMetadataErrorLocation : defaultErrorLocation
+		calculated?.width ? calculateMetadataErrorLocation : defaultErrorLocation,
 	);
 
 	const height = calculated?.height ?? composition.height ?? undefined;
@@ -107,7 +107,7 @@ const validateCalculated = ({
 	validateDimension(
 		height,
 		'height',
-		calculated?.height ? calculateMetadataErrorLocation : defaultErrorLocation
+		calculated?.height ? calculateMetadataErrorLocation : defaultErrorLocation,
 	);
 
 	const fps = calculated?.fps ?? composition.fps ?? null;
@@ -115,7 +115,7 @@ const validateCalculated = ({
 	validateFps(
 		fps,
 		calculated?.fps ? calculateMetadataErrorLocation : defaultErrorLocation,
-		false
+		false,
 	);
 
 	const durationInFrames =

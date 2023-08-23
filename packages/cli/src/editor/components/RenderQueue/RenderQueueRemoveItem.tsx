@@ -47,7 +47,7 @@ export const RenderQueueRemoveItem: React.FC<{job: RenderJob}> = ({job}) => {
 				</svg>
 			);
 		},
-		[icon]
+		[icon],
 	);
 
 	return <InlineAction renderAction={renderAction} onClick={onClick} />;

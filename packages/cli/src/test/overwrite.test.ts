@@ -16,7 +16,7 @@ test('setOverwriteOutput should throw if overwrite is not a boolean value', () =
 	expectToThrow(
 		// @ts-expect-error
 		() => setOverwriteOutput(invalidOverwrite),
-		/overwriteExisting must be a boolean but got number [(]555[)]/
+		/overwriteExisting must be a boolean but got number [(]555[)]/,
 	);
 });
 test('setOverwriteOutput should NOT throw if image format is a boolean value', () => {

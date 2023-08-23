@@ -13,9 +13,9 @@ export type CompositionManagerContext = {
 	compositions: AnyComposition[];
 	registerComposition: <
 		Schema extends AnyZodObject,
-		Props extends Record<string, unknown>
+		Props extends Record<string, unknown>,
 	>(
-		comp: TComposition<Schema, Props>
+		comp: TComposition<Schema, Props>,
 	) => void;
 	unregisterComposition: (name: string) => void;
 	registerFolder: (name: string, parent: string | null) => void;

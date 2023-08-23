@@ -84,7 +84,7 @@ export const VideoPlayerWithControls = forwardRef<
 >(
   (
     { playbackId, poster, currentTime, onLoaded, onError, onSize, autoPlay },
-    ref
+    ref,
   ) => {
     const videoRef = useRef<HTMLVideoElementWithPlyr>(null);
     const metaRef = useCombinedRefs(ref, videoRef);
@@ -93,7 +93,7 @@ export const VideoPlayerWithControls = forwardRef<
 
     const videoError = useCallback(
       (event: ErrorEvent) => onError(event),
-      [onError]
+      [onError],
     );
 
     const onImageLoad = useCallback(
@@ -107,7 +107,7 @@ export const VideoPlayerWithControls = forwardRef<
           console.error("Error getting img dimensions", event); // eslint-disable-line no-console
         }
       },
-      [onLoaded, onSize]
+      [onLoaded, onSize],
     );
 
     /*
@@ -156,7 +156,7 @@ export const VideoPlayerWithControls = forwardRef<
         } else {
           console.error(
             // eslint-disable-line no-console
-            "This is an old browser that does not support MSE https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API"
+            "This is an old browser that does not support MSE https://developer.mozilla.org/en-US/docs/Web/API/Media_Source_Extensions_API",
           );
         }
       }
@@ -190,5 +190,5 @@ export const VideoPlayerWithControls = forwardRef<
         />
       </div>
     );
-  }
+  },
 );

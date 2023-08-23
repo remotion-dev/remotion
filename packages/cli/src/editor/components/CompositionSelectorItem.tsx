@@ -126,7 +126,7 @@ export const CompositionSelectorItem: React.FC<{
 				toggleFolder(item.folderName, item.parentName);
 			}
 		},
-		[item, selectComposition, toggleFolder]
+		[item, selectComposition, toggleFolder],
 	);
 
 	if (item.type === 'folder') {

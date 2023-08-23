@@ -20,11 +20,11 @@ test('no compositionWidth should give errors', () => {
 				component={HelloWorld}
 				controls
 				showVolumeControls
-			/>
+			/>,
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			/'compositionWidth' must be a number but got 'object' instead/
+			/'compositionWidth' must be a number but got 'object' instead/,
 		);
 	}
 });
@@ -42,11 +42,11 @@ test('no compositionHeight should give errors', () => {
 				component={HelloWorld}
 				controls
 				showVolumeControls
-			/>
+			/>,
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			/'compositionHeight' must be a number but got 'undefined' instead/
+			/'compositionHeight' must be a number but got 'undefined' instead/,
 		);
 	}
 });
@@ -64,11 +64,11 @@ test('No fps should give errors', () => {
 				component={HelloWorld}
 				controls
 				showVolumeControls
-			/>
+			/>,
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			/"fps" must be a number, but you passed a value of type object/
+			/"fps" must be a number, but you passed a value of type object/,
 		);
 	}
 
@@ -84,11 +84,11 @@ test('No fps should give errors', () => {
 				component={HelloWorld}
 				controls
 				showVolumeControls
-			/>
+			/>,
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			/"fps" must be a number, but you passed a value of type undefined/
+			/"fps" must be a number, but you passed a value of type undefined/,
 		);
 	}
 });
@@ -106,11 +106,11 @@ test('No durationInFrames should give errors', () => {
 				component={HelloWorld}
 				controls
 				showVolumeControls
-			/>
+			/>,
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			/durationInFrames` must be a number, but is undefined/
+			/durationInFrames` must be a number, but is undefined/,
 		);
 	}
 });
@@ -128,11 +128,11 @@ test('Invalid playbackRate should give error', () => {
 				showVolumeControls
 				playbackRate={-5}
 				inputProps={{}}
-			/>
+			/>,
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			/The lowest possible playback rate is -4. You passed: -5/
+			/The lowest possible playback rate is -4. You passed: -5/,
 		);
 	}
 });
@@ -149,11 +149,11 @@ test('playbackRate of 0 should not be possible', () => {
 				controls
 				showVolumeControls
 				playbackRate={0}
-			/>
+			/>,
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			/A playback rate of 0 is not supported./
+			/A playback rate of 0 is not supported./,
 		);
 	}
 });
@@ -171,11 +171,11 @@ test('playbackRate of wrong type should not be possible', () => {
 				showVolumeControls
 				// @ts-expect-error
 				playbackRate={'hi'}
-			/>
+			/>,
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			/A playback rate of 0 is not supported./
+			/A playback rate of 0 is not supported./,
 		);
 	}
 });
@@ -190,7 +190,7 @@ test('playbackRate of undefined should be okay', () => {
 			component={HelloWorld}
 			controls
 			showVolumeControls
-		/>
+		/>,
 	);
 	expect(true).toBe(true);
 });
@@ -214,10 +214,10 @@ test('passing in <Composition /> instance should not be possible', () => {
 					durationInFrames: 500,
 					component: HelloWorld as ComponentType<unknown>,
 				}}
-			/>
+			/>,
 		);
 	}).toThrow(
-		/'component' must not be the 'Composition' component\. Pass your own React/
+		/'component' must not be the 'Composition' component\. Pass your own React/,
 	);
 });
 test('passing in <Composition /> instance should not be possible', () => {
@@ -249,10 +249,10 @@ test('passing in <Composition /> instance should not be possible', () => {
 					durationInFrames: 500,
 					component: HelloWorld,
 				}}
-			/>
+			/>,
 		);
 	}).toThrow(
-		/'component' should not be an instance of <Composition\/>\. Pass the React component dir/
+		/'component' should not be an instance of <Composition\/>\. Pass the React component dir/,
 	);
 });
 
@@ -277,11 +277,11 @@ test.each([
 				durationInFrames={100}
 				component={HelloWorld}
 				{...props}
-			/>
+			/>,
 		);
 	} catch (e) {
 		expect((e as Error).message).toMatch(
-			`'${a}' must be a boolean or undefined but got 'string' instead`
+			`'${a}' must be a boolean or undefined but got 'string' instead`,
 		);
 	}
 });

@@ -81,7 +81,7 @@ export const useTimelinePosition = (): number => {
 };
 
 export const useTimelineSetFrame = (): ((
-	u: React.SetStateAction<Record<string, number>>
+	u: React.SetStateAction<Record<string, number>>,
 ) => void) => {
 	const {setFrame} = useContext(SetTimelineContext);
 	return setFrame;
@@ -90,7 +90,7 @@ export const useTimelineSetFrame = (): ((
 type PlayingReturnType = readonly [
 	boolean,
 	(u: React.SetStateAction<boolean>) => void,
-	MutableRefObject<boolean>
+	MutableRefObject<boolean>,
 ];
 
 export const usePlayingState = (): PlayingReturnType => {
@@ -99,6 +99,6 @@ export const usePlayingState = (): PlayingReturnType => {
 
 	return useMemo(
 		() => [playing, setPlaying, imperativePlaying],
-		[imperativePlaying, playing, setPlaying]
+		[imperativePlaying, playing, setPlaying],
 	);
 };

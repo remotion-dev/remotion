@@ -144,14 +144,14 @@ const getAssetsData = async ({
 	Log.verboseAdvanced(
 		{indent, logLevel, tag: 'audio'},
 		'asset positions',
-		JSON.stringify(assetPositions)
+		JSON.stringify(assetPositions),
 	);
 
 	const preprocessProgress = new Array(assetPositions.length).fill(0);
 
 	const updateProgress = () => {
 		onProgress(
-			preprocessProgress.reduce((a, b) => a + b, 0) / assetPositions.length
+			preprocessProgress.reduce((a, b) => a + b, 0) / assetPositions.length,
 		);
 	};
 
@@ -169,7 +169,7 @@ const getAssetsData = async ({
 				preprocessProgress[index] = 1;
 				updateProgress();
 				return result;
-			})
+			}),
 		)
 	).filter(truthy);
 
@@ -222,17 +222,17 @@ const innerStitchFramesToVideo = async (
 		onProgress,
 		x264Preset,
 	}: InternalStitchFramesToVideoOptions,
-	remotionRoot: string
+	remotionRoot: string,
 ): Promise<ReturnType> => {
 	Internals.validateDimension(
 		height,
 		'height',
-		'passed to `stitchFramesToVideo()`'
+		'passed to `stitchFramesToVideo()`',
 	);
 	Internals.validateDimension(
 		width,
 		'width',
-		'passed to `stitchFramesToVideo()`'
+		'passed to `stitchFramesToVideo()`',
 	);
 	validateEvenDimensionsWithCodec({
 		width,
@@ -264,7 +264,7 @@ const innerStitchFramesToVideo = async (
 
 	if (!shouldRenderAudio && !shouldRenderVideo) {
 		throw new Error(
-			'The output format has neither audio nor video. This can happen if you are rendering an audio codec and the output file has no audio or the muted flag was passed.'
+			'The output format has neither audio nor video. This can happen if you are rendering an audio codec and the output file has no audio or the muted flag was passed.',
 		);
 	}
 
@@ -277,7 +277,7 @@ const innerStitchFramesToVideo = async (
 		? null
 		: path.join(
 				assetsInfo.downloadMap.stitchFrames,
-				`out.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`
+				`out.${getFileExtensionFromCodec(codec, resolvedAudioCodec)}`,
 		  );
 
 	Log.verboseAdvanced(
@@ -287,7 +287,7 @@ const innerStitchFramesToVideo = async (
 			tag: 'stitchFramesToVideo()',
 		},
 		'audioCodec',
-		resolvedAudioCodec
+		resolvedAudioCodec,
 	);
 	Log.verboseAdvanced(
 		{
@@ -296,7 +296,7 @@ const innerStitchFramesToVideo = async (
 			tag: 'stitchFramesToVideo()',
 		},
 		'pixelFormat',
-		pixelFormat
+		pixelFormat,
 	);
 	Log.verboseAdvanced(
 		{
@@ -305,7 +305,7 @@ const innerStitchFramesToVideo = async (
 			tag: 'stitchFramesToVideo()',
 		},
 		'codec',
-		codec
+		codec,
 	);
 	Log.verboseAdvanced(
 		{
@@ -314,7 +314,7 @@ const innerStitchFramesToVideo = async (
 			tag: 'stitchFramesToVideo()',
 		},
 		'shouldRenderAudio',
-		shouldRenderAudio
+		shouldRenderAudio,
 	);
 	Log.verboseAdvanced(
 		{
@@ -323,7 +323,7 @@ const innerStitchFramesToVideo = async (
 			tag: 'stitchFramesToVideo()',
 		},
 		'shouldRenderVideo',
-		shouldRenderVideo
+		shouldRenderVideo,
 	);
 
 	validateQualitySettings({
@@ -358,7 +358,7 @@ const innerStitchFramesToVideo = async (
 	if (mediaSupport.audio && !mediaSupport.video) {
 		if (!resolvedAudioCodec) {
 			throw new TypeError(
-				'exporting audio but has no audio codec name. Report this in the Remotion repo.'
+				'exporting audio but has no audio codec name. Report this in the Remotion repo.',
 			);
 		}
 
@@ -374,7 +374,7 @@ const innerStitchFramesToVideo = async (
 				audioBitrate ?? '320k',
 				force ? '-y' : null,
 				outputLocation ?? tempFile,
-			].filter(Internals.truthy)
+			].filter(Internals.truthy),
 		);
 
 		cancelSignal?.(() => {
@@ -451,7 +451,7 @@ const innerStitchFramesToVideo = async (
 			'-metadata',
 			`comment=` +
 				[`Made with Remotion`, packageJson ? packageJson.version : null].join(
-					' '
+					' ',
 				),
 		],
 		force ? '-y' : null,
@@ -469,7 +469,7 @@ const innerStitchFramesToVideo = async (
 			logLevel,
 			tag: 'stitchFramesToVideo()',
 		},
-		'Generated final FFMPEG command:'
+		'Generated final FFMPEG command:',
 	);
 	Log.verboseAdvanced(
 		{
@@ -477,7 +477,7 @@ const innerStitchFramesToVideo = async (
 			logLevel,
 			tag: 'stitchFramesToVideo()',
 		},
-		finalFfmpegString.join(' ')
+		finalFfmpegString.join(' '),
 	);
 
 	const task = callFf('ffmpeg', finalFfmpegString, {
@@ -535,7 +535,7 @@ const innerStitchFramesToVideo = async (
 };
 
 export const internalStitchFramesToVideo = async (
-	options: InternalStitchFramesToVideoOptions
+	options: InternalStitchFramesToVideoOptions,
 ): Promise<Buffer | null> => {
 	const remotionRoot = findRemotionRoot();
 	warnAboutM2Bug(options.codec, options.pixelFormat);

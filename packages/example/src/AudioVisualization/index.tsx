@@ -111,7 +111,7 @@ const AudioVisualization: React.FC = () => {
 	const rgbEffect = interpolate(
 		visualization[Math.floor(visualization.length / 3)],
 		[0, 0.5],
-		[0, 30]
+		[0, 30],
 	);
 
 	const dropStart = 1989;
@@ -180,8 +180,8 @@ const AudioVisualization: React.FC = () => {
 									[0, 1],
 									{
 										extrapolateLeft: 'clamp',
-									}
-								) * 600
+									},
+								) * 600,
 							) *
 								6) *
 						day;

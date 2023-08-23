@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react';
 
 export function useBreakpoint(breakpoint: number): boolean {
 	const [compactUI, setCompactUI] = useState<boolean>(
-		window.innerWidth < breakpoint
+		window.innerWidth < breakpoint,
 	);
 
 	useEffect(() => {

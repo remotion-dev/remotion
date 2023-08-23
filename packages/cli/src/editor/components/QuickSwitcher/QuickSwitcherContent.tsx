@@ -204,7 +204,7 @@ export const QuickSwitcherContent: React.FC<{
 					},
 					compositionType: isCompositionStill(c) ? 'still' : 'composition',
 				};
-			})
+			}),
 		);
 	}, [
 		mode,
@@ -305,12 +305,12 @@ export const QuickSwitcherContent: React.FC<{
 		(e) => {
 			setState({query: e.target.value, selectedIndex: 0});
 		},
-		[]
+		[],
 	);
 
 	const selectedIndexRounded = loopIndex(
 		state.selectedIndex,
-		resultsArray.length
+		resultsArray.length,
 	);
 
 	const onActionsSelected = useCallback(() => {

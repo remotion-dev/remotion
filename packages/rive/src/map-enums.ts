@@ -56,7 +56,7 @@ export type RemotionRiveCanvasAlignment =
 
 export const mapToAlignment = (
   alignment: RemotionRiveCanvasAlignment,
-  factory: AlignmentFactory
+  factory: AlignmentFactory,
 ): Alignment => {
   if (alignment === "center") {
     return factory.center;

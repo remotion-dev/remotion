@@ -2,7 +2,7 @@ const alreadyWarned: {[key: string]: boolean} = {};
 
 export const warnAboutNonSeekableMedia = (
 	ref: HTMLMediaElement | null,
-	type: 'console-warning' | 'console-error' | 'exception'
+	type: 'console-warning' | 'console-error' | 'exception',
 ) => {
 	// Media is not loaded yet, but this does not yet mean something is wrong with the media
 
@@ -31,7 +31,7 @@ export const warnAboutNonSeekableMedia = (
 			console.error(msg);
 		} else if (type === 'console-warning') {
 			console.warn(
-				`The media ${ref.src} does not support seeking. The video will render fine, but may not play correctly in the Remotion Studio and in the <Player>. See https://remotion.dev/docs/non-seekable-media for an explanation.`
+				`The media ${ref.src} does not support seeking. The video will render fine, but may not play correctly in the Remotion Studio and in the <Player>. See https://remotion.dev/docs/non-seekable-media for an explanation.`,
 			);
 		} else {
 			throw new Error(msg);

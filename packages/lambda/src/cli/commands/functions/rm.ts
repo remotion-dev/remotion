@@ -17,10 +17,10 @@ export const functionsRmCommand = async (args: string[]) => {
 	if (args.length === 0) {
 		Log.error('No function name passed.');
 		Log.error(
-			'Pass another argument which is the name of the function you would like to remove.'
+			'Pass another argument which is the name of the function you would like to remove.',
 		);
 		Log.info(
-			`You can run \`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND}\` to see a list of deployed Lambda functions.`
+			`You can run \`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND}\` to see a list of deployed Lambda functions.`,
 		);
 		quit(1);
 	}
@@ -53,7 +53,7 @@ export const functionsRmCommand = async (args: string[]) => {
 				'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + info.timeoutInSeconds + 'sec',
 				'Version: '.padEnd(LEFT_COL, ' ') + ' ' + info.version,
 			].join('\n'),
-			true
+			true,
 		);
 
 		if (

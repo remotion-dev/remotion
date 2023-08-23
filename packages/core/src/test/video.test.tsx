@@ -14,8 +14,8 @@ describe('Render correctly with props', () => {
 			render(
 				<WrapSequenceContext>
 					<Video src="test" />
-				</WrapSequenceContext>
-			)
+				</WrapSequenceContext>,
+			),
 		).not.toThrow();
 	});
 	test('It should render Video with startFrom props', () => {
@@ -23,8 +23,8 @@ describe('Render correctly with props', () => {
 			render(
 				<WrapSequenceContext>
 					<Video src="test" startFrom={10} />
-				</WrapSequenceContext>
-			)
+				</WrapSequenceContext>,
+			),
 		).not.toThrow();
 	});
 	test('It should render Video with endAt props', () => {
@@ -32,8 +32,8 @@ describe('Render correctly with props', () => {
 			render(
 				<WrapSequenceContext>
 					<Video src="test" endAt={10} />
-				</WrapSequenceContext>
-			)
+				</WrapSequenceContext>,
+			),
 		).not.toThrow();
 	});
 	test('It should render Video with startFrom and endAt props', () => {
@@ -41,8 +41,8 @@ describe('Render correctly with props', () => {
 			render(
 				<WrapSequenceContext>
 					<Video src="test" startFrom={10} endAt={15} />
-				</WrapSequenceContext>
-			)
+				</WrapSequenceContext>,
+			),
 		).not.toThrow();
 	});
 	test('It should throw if videoConfig/Wrapper is missing', () => {
@@ -51,9 +51,9 @@ describe('Render correctly with props', () => {
 				render(
 					<CanUseRemotionHooksProvider>
 						<Video startFrom={10} endAt={15} />
-					</CanUseRemotionHooksProvider>
+					</CanUseRemotionHooksProvider>,
 				),
-			/No video config found/
+			/No video config found/,
 		);
 	});
 });

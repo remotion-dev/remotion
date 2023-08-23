@@ -128,7 +128,7 @@ export const AudioWaveform: React.FC<{
 		}
 
 		const numberOfSamples = Math.floor(
-			visualizationWidth / (WAVEFORM_BAR_LENGTH + WAVEFORM_BAR_MARGIN)
+			visualizationWidth / (WAVEFORM_BAR_LENGTH + WAVEFORM_BAR_MARGIN),
 		);
 
 		return getWaveformPortion({

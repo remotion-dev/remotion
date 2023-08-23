@@ -45,7 +45,7 @@ const ffmpegIsOneOfFrames = ({
 			const before = (firstFrame - 0.5) / fps;
 			const after = (lastFrame + 0.5) / fps;
 			return `between(${FFMPEG_TIME_VARIABLE},${(before + trimLeft).toFixed(
-				4
+				4,
 			)},${(after + trimLeft).toFixed(4)})`;
 		})
 		.join('+');
@@ -54,7 +54,7 @@ const ffmpegIsOneOfFrames = ({
 const ffmpegBuildVolumeExpression = (
 	arr: VolumeArray,
 	delay: number,
-	fps: number
+	fps: number,
 ): string => {
 	if (arr.length === 0) {
 		throw new Error('Volume array expression should never have length 0');
@@ -69,7 +69,7 @@ const ffmpegBuildVolumeExpression = (
 	return ffmpegIfOrElse(
 		ffmpegIsOneOfFrames({frames, trimLeft: delay, fps}),
 		String(volume),
-		ffmpegBuildVolumeExpression(rest, delay, fps)
+		ffmpegBuildVolumeExpression(rest, delay, fps),
 	);
 };
 
@@ -122,7 +122,7 @@ export const ffmpegVolumeExpression = ({
 	paddedVolume.forEach((baseVolume, frame) => {
 		// Adjust volume based on how many other tracks have not yet finished
 		const actualVolume = roundVolumeToAvoidStackOverflow(
-			Math.min(maxVolume, baseVolume)
+			Math.min(maxVolume, baseVolume),
 		);
 		if (!volumeMap[actualVolume]) {
 			volumeMap[actualVolume] = [];

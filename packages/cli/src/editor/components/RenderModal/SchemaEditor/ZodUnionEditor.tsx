@@ -7,12 +7,12 @@ import {ZodOrNullishEditor} from './ZodOrNullishEditor';
 import type {UpdaterFunction} from './ZodSwitch';
 const findNull = (
 	value: readonly [z.ZodTypeAny, z.ZodTypeAny, ...z.ZodTypeAny[]],
-	zodType: ZodType
+	zodType: ZodType,
 ) => {
 	const nullIndex = value.findIndex(
 		(v) =>
 			v._def.typeName === zodType.ZodFirstPartyTypeKind.ZodNull ||
-			v._def.typeName === zodType.ZodFirstPartyTypeKind.ZodUndefined
+			v._def.typeName === zodType.ZodFirstPartyTypeKind.ZodUndefined,
 	);
 	if (nullIndex === -1) {
 		return null;

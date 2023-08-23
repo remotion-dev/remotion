@@ -48,7 +48,7 @@ export class Target {
 		targetInfo: TargetInfo,
 		browserContext: BrowserContext,
 		sessionFactory: () => Promise<CDPSession>,
-		defaultViewport: Viewport
+		defaultViewport: Viewport,
 	) {
 		this.#targetInfo = targetInfo;
 		this.#browserContext = browserContext;
@@ -96,7 +96,7 @@ export class Target {
 	async page(
 		sourcemapContext: Promise<AnySourceMapConsumer | null>,
 		logLevel: LogLevel,
-		indent: boolean
+		indent: boolean,
 	): Promise<Page | null> {
 		if (isPagetTarget(this.#targetInfo) && !this.#pagePromise) {
 			this.#pagePromise = this.#sessionFactory().then((client) => {

@@ -12,7 +12,7 @@ export const SITES_RM_COMMAND = 'rm';
 export const sitesRmSubcommand = async (args: string[]) => {
 	if (args.length === 0) {
 		Log.error(
-			'No site name was passed. Run the command again and pass another argument <site-name>.'
+			'No site name was passed. Run the command again and pass another argument <site-name>.',
 		);
 		quit(1);
 	}
@@ -36,7 +36,7 @@ export const sitesRmSubcommand = async (args: string[]) => {
 		const site = deployedSites.sites.find((s) => s.id === siteName.trim());
 		if (!site) {
 			Log.error(
-				`No site ${siteName.trim()} was found in your bucket ${bucketName}.`
+				`No site ${siteName.trim()} was found in your bucket ${bucketName}.`,
 			);
 			return quit(1);
 		}
@@ -63,8 +63,8 @@ export const sitesRmSubcommand = async (args: string[]) => {
 
 		Log.info(
 			`Deleted site ${siteName} and freed up ${CliInternals.formatBytes(
-				totalSize
-			)}.`
+				totalSize,
+			)}.`,
 		);
 	}
 };

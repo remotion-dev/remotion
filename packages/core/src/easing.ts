@@ -80,7 +80,7 @@ export class Easing {
 		x1: number,
 		y1: number,
 		x2: number,
-		y2: number
+		y2: number,
 	): (t: number) => number {
 		return bezier(x1, y1, x2, y2);
 	}

@@ -20,7 +20,7 @@ export type GetServicesInput = {
  */
 
 export const getServices = async (
-	params: GetServicesInput
+	params: GetServicesInput,
 ): Promise<ServiceInfo[]> => {
 	const cloudRunClient = getCloudRunClient();
 
@@ -35,7 +35,7 @@ export const getServices = async (
 	if (params.compatibleOnly) {
 		remotionServices = services.filter((s) => {
 			return s.name?.startsWith(
-				`${parent}/services/${RENDER_SERVICE_PREFIX}-${serviceVersionString()}-`
+				`${parent}/services/${RENDER_SERVICE_PREFIX}-${serviceVersionString()}-`,
 			);
 		});
 	} else {
@@ -47,7 +47,7 @@ export const getServices = async (
 	return remotionServices.map((service): ServiceInfo => {
 		const {consoleUrl, region, remotionVersion, serviceName} = parseServiceName(
 			service.name as string,
-			params.region
+			params.region,
 		);
 
 		return {

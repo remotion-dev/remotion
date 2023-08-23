@@ -12,8 +12,8 @@ describe('Render correctly with props', () => {
 			render(
 				<WrapSequenceContext>
 					<Audio src="test" volume={1} />
-				</WrapSequenceContext>
-			)
+				</WrapSequenceContext>,
+			),
 		).not.toThrow();
 	});
 
@@ -22,8 +22,8 @@ describe('Render correctly with props', () => {
 			render(
 				<WrapSequenceContext>
 					<Audio src="test" volume={1} startFrom={10} />
-				</WrapSequenceContext>
-			)
+				</WrapSequenceContext>,
+			),
 		).not.toThrow();
 	});
 
@@ -32,8 +32,8 @@ describe('Render correctly with props', () => {
 			render(
 				<WrapSequenceContext>
 					<Audio src="test" volume={1} endAt={10} />
-				</WrapSequenceContext>
-			)
+				</WrapSequenceContext>,
+			),
 		).not.toThrow();
 	});
 
@@ -42,8 +42,8 @@ describe('Render correctly with props', () => {
 			render(
 				<WrapSequenceContext>
 					<Audio src="test" volume={1} startFrom={10} endAt={20} />
-				</WrapSequenceContext>
-			)
+				</WrapSequenceContext>,
+			),
 		).not.toThrow();
 	});
 });
