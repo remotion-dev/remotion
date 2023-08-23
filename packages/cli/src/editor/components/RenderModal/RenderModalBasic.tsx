@@ -103,7 +103,7 @@ export const RenderModalBasic: React.FC<{
 		(newFrame: number) => {
 			setFrame(newFrame);
 		},
-		[setFrame]
+		[setFrame],
 	);
 
 	const onFrameChanged = useCallback(
@@ -117,14 +117,14 @@ export const RenderModalBasic: React.FC<{
 				return newFrame;
 			});
 		},
-		[setFrame]
+		[setFrame],
 	);
 
 	const onValueChange: React.ChangeEventHandler<HTMLInputElement> = useCallback(
 		(e) => {
 			setOutName(e.target.value);
 		},
-		[setOutName]
+		[setOutName],
 	);
 
 	return (

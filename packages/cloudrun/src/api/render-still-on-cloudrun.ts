@@ -2,8 +2,10 @@ import type {
 	ChromiumOptions,
 	LogLevel,
 	StillImageFormat,
+	ToOptions,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {Internals} from 'remotion';
 import type {
 	CloudRunCrashResponse,
@@ -38,7 +40,7 @@ export type RenderStillOnCloudrunInput = {
 	forceHeight?: number | null;
 	logLevel?: LogLevel;
 	delayRenderTimeoutInMilliseconds?: number;
-};
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 /**
  * @description Triggers a render on a GCP Cloud Run service given a composition and a Cloud Run URL.
@@ -85,6 +87,7 @@ export const renderStillOnCloudrun = async ({
 	forceHeight,
 	logLevel,
 	delayRenderTimeoutInMilliseconds,
+	offthreadVideoCacheSizeInBytes,
 }: RenderStillOnCloudrunInput): Promise<
 	RenderStillOnCloudrunOutput | ErrorResponsePayload | CloudRunCrashResponse
 > => {
@@ -123,6 +126,7 @@ export const renderStillOnCloudrun = async ({
 		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds:
 			delayRenderTimeoutInMilliseconds ?? RenderInternals.DEFAULT_TIMEOUT,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);

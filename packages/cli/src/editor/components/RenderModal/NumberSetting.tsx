@@ -1,4 +1,4 @@
-import type {RemotionOption} from '@remotion/renderer';
+import type {AnyRemotionOption} from '@remotion/renderer';
 import React, {useCallback} from 'react';
 import {Spacing} from '../layout';
 import {InputDragger} from '../NewComposition/InputDragger';
@@ -15,7 +15,7 @@ export const NumberSetting: React.FC<{
 	min: number;
 	step: number;
 	formatter?: (value: string | number) => string;
-	hint?: RemotionOption;
+	hint?: AnyRemotionOption;
 }> = ({name, value, step, hint, onValueChanged, max, min, formatter}) => {
 	const onTextChanged = useCallback(
 		(e: string) => {
@@ -28,14 +28,14 @@ export const NumberSetting: React.FC<{
 				return Math.min(max ?? Infinity, Math.max(newSetting, min));
 			});
 		},
-		[max, min, onValueChanged]
+		[max, min, onValueChanged],
 	);
 
 	const onValueChange = useCallback(
 		(newConcurrency: number) => {
 			onValueChanged(newConcurrency);
 		},
-		[onValueChanged]
+		[onValueChanged],
 	);
 
 	return (

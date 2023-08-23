@@ -35,10 +35,10 @@ export type SimulatePermissionsOutput = {
  * @returns {Promise<SimulatePermissionsOutput>} See documentation for detailed response structure.
  */
 export const simulatePermissions = async (
-	options: SimulatePermissionsInput
+	options: SimulatePermissionsInput,
 ): Promise<SimulatePermissionsOutput> => {
 	const callerIdentity = await getStsClient(options.region).send(
-		new GetCallerIdentityCommand({})
+		new GetCallerIdentityCommand({}),
 	);
 
 	if (!callerIdentity?.Arn) {
@@ -46,7 +46,7 @@ export const simulatePermissions = async (
 	}
 
 	const callerIdentityArnComponents = callerIdentity.Arn.match(
-		/arn:aws:([^:]+)::(\d+):([^/]+)(.*)/
+		/arn:aws:([^:]+)::(\d+):([^/]+)(.*)/,
 	);
 	if (!callerIdentityArnComponents) {
 		throw new Error('Unknown AWS Caller Identity ARN detected');
@@ -68,7 +68,7 @@ export const simulatePermissions = async (
 			callerIdentityArnComponents[4].match(/\/([^/]+)\/(.*)/);
 		if (!assumedRoleComponents) {
 			throw new Error(
-				'Unsupported AWS Caller Identity as Assumed-Role ARN detected'
+				'Unsupported AWS Caller Identity as Assumed-Role ARN detected',
 			);
 		}
 

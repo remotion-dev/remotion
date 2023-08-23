@@ -32,7 +32,7 @@ export const lockFilePaths: LockfilePath[] = [
 
 export const getPackageManager = (
 	remotionRoot: string,
-	packageManager: string | undefined
+	packageManager: string | undefined,
 ): LockfilePath | 'unknown' => {
 	if (packageManager) {
 		const manager = lockFilePaths.find((p) => p.manager === packageManager);
@@ -41,7 +41,7 @@ export const getPackageManager = (
 			throw new Error(
 				`The package manager ${packageManager} is not supported. Supported package managers are ${lockFilePaths
 					.map((p) => p.manager)
-					.join(', ')}`
+					.join(', ')}`,
 			);
 		}
 
@@ -49,7 +49,7 @@ export const getPackageManager = (
 	}
 
 	const existingPkgManagers = lockFilePaths.filter((p) =>
-		fs.existsSync(path.join(remotionRoot, p.path))
+		fs.existsSync(path.join(remotionRoot, p.path)),
 	);
 
 	if (existingPkgManagers.length === 0) {

@@ -13,18 +13,18 @@ export const displayCrashLogs = async (res: CloudRunCrashResponse) => {
 
 	if (timeout && res.requestElapsedTimeInSeconds + 10 > timeout) {
 		timeoutPreMsg = `Render call likely timed out. Service timeout is ${timeout} seconds, and render took at least ${res.requestElapsedTimeInSeconds.toFixed(
-			1
+			1,
 		)} seconds.\n`;
 	} else {
 		timeoutPreMsg = `Crash unlikely due to timeout. Render took ${res.requestElapsedTimeInSeconds.toFixed(
-			1
+			1,
 		)} seconds, below the timeout of ${timeout} seconds.\n`;
 	}
 
 	Log.error(
 		`Error rendering on Cloud Run. The Cloud Run service did not return a response.\n
 ${timeoutPreMsg}The crash may be due to the service exceeding its memory limit of ${memoryLimit}.
-Full logs are available at https://console.cloud.google.com/run?project=${process.env.REMOTION_GCP_PROJECT_ID}\n`
+Full logs are available at https://console.cloud.google.com/run?project=${process.env.REMOTION_GCP_PROJECT_ID}\n`,
 	);
 
 	const cloudLoggingClient = getCloudLoggingClient();
@@ -47,7 +47,7 @@ Full logs are available at https://console.cloud.google.com/run?project=${proces
 			const intervalId = setInterval(() => {
 				logCheckCountdown.update(
 					`GCP Cloud Logging takes time to ingest and index logs.\nFetching recent error/warning logs in ${timeLeft} seconds`,
-					false
+					false,
 				);
 				timeLeft--;
 				if (timeLeft < 0) {
@@ -60,12 +60,12 @@ Full logs are available at https://console.cloud.google.com/run?project=${proces
 	})();
 
 	const iterableLogListEntries = await cloudLoggingClient.listLogEntriesAsync(
-		listLogEntriesRequest
+		listLogEntriesRequest,
 	);
 	for await (const logResponse of iterableLogListEntries) {
 		const responseDate = new Date(
 			Number(logResponse.timestamp.seconds) * 1000 +
-				Number(logResponse.timestamp.nanos) / 1000000
+				Number(logResponse.timestamp.nanos) / 1000000,
 		);
 
 		const convertedDate = responseDate.toLocaleString();

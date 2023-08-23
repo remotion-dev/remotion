@@ -16,22 +16,22 @@ const printPoliciesHelp = () => {
 	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND} ${USER_SUBCOMMAND}`);
 	Log.info(
 		CliInternals.chalk.gray(
-			'Print the suggested policy to be applied to the user that is attached to the access token.'
-		)
+			'Print the suggested policy to be applied to the user that is attached to the access token.',
+		),
 	);
 	Log.info();
 	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND} ${ROLE_SUBCOMMAND}`);
 	Log.info(
 		CliInternals.chalk.gray(
-			'Print the suggested policy to be applied to the role that is attached to the lambda function.'
-		)
+			'Print the suggested policy to be applied to the role that is attached to the lambda function.',
+		),
 	);
 	Log.info();
 	Log.info(`${BINARY_NAME} ${POLICIES_COMMAND} ${VALIDATE_SUBCOMMAND}`);
 	Log.info(
 		CliInternals.chalk.gray(
-			'Validate the current policies setup is correct by running tests using the AWS policy simulator.'
-		)
+			'Validate the current policies setup is correct by running tests using the AWS policy simulator.',
+		),
 	);
 };
 

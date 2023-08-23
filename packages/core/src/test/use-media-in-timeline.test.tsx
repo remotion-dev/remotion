@@ -73,7 +73,7 @@ test('useMediaInTimeline registers and unregisters new sequence', () => {
 			}),
 		{
 			wrapper,
-		}
+		},
 	);
 	expect(registerSequence).toHaveBeenCalled();
 	unmount();

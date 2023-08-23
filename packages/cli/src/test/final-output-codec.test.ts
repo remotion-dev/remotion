@@ -22,11 +22,11 @@ describe('Codec tests valid codec input', () => {
 					configFile: null,
 					downloadName: null,
 					uiCodec: null,
-				})
+				}),
 			).toEqual({
 				codec: entry,
 				reason: 'from --codec flag',
-			}))
+			})),
 	);
 });
 
@@ -48,12 +48,12 @@ describe('Codec tests undefined codec input with known extension', () => {
 					downloadName: null,
 					outName: 'hi.' + entry[1],
 					uiCodec: null,
-				})
+				}),
 			).toEqual({
 				codec: entry[0],
 				reason: 'derived from out name',
 			});
-		})
+		}),
 	);
 });
 
@@ -65,7 +65,7 @@ test('Codec tests undefined codec input with unknown extension', () => {
 			configFile: null,
 			downloadName: null,
 			uiCodec: null,
-		})
+		}),
 	).toEqual({codec: 'h264', reason: 'default'});
 	expect(
 		getFinalOutputCodec({
@@ -74,6 +74,6 @@ test('Codec tests undefined codec input with unknown extension', () => {
 			configFile: null,
 			downloadName: null,
 			uiCodec: null,
-		})
+		}),
 	).toEqual({codec: 'h264', reason: 'default'});
 });

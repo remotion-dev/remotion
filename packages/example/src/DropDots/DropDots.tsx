@@ -47,7 +47,7 @@ const DropDots: React.FC<{
 				size: interpolate(
 					random(`size-${i}-${iteration}`),
 					[0, 0.9, 0.901, 1],
-					[40, 40, 160, 160]
+					[40, 40, 160, 160],
 				),
 
 				background:
@@ -57,7 +57,7 @@ const DropDots: React.FC<{
 				opacity: interpolate(
 					random(`opacity-${i}-${iteration}`),
 					[0, 1],
-					[0.83, 0.95]
+					[0.83, 0.95],
 				),
 				gradId: random(`gradient-${i}-${iteration}`),
 				hasShine: random(`shine-${i}`) > 0.6,
@@ -73,7 +73,7 @@ const DropDots: React.FC<{
 				const rotate = interpolate(
 					progress,
 					[0, 1],
-					[d.startRotation, d.endRotation]
+					[d.startRotation, d.endRotation],
 				);
 				return (
 					<div

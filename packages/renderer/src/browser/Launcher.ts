@@ -59,7 +59,7 @@ export class ChromeLauncher implements ProductLauncher {
 		// Check for the user data dir argument, which will always be set even
 		// with a custom directory specified via the userDataDir option.
 		const userDataDir = await fs.promises.mkdtemp(
-			path.join(tmpDir(), 'puppeteer_dev_chrome_profile-')
+			path.join(tmpDir(), 'puppeteer_dev_chrome_profile-'),
 		);
 		chromeArguments.push(`--user-data-dir=${userDataDir}`);
 
@@ -105,7 +105,7 @@ export class ChromeLauncher implements ProductLauncher {
 				(t) => {
 					return t.type() === 'page';
 				},
-				{timeout}
+				{timeout},
 			);
 		} catch (error) {
 			await browser.close(false, options.logLevel, options.indent);

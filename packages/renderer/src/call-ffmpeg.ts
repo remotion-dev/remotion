@@ -28,7 +28,7 @@ export const dynamicLibraryPathOptions = () => {
 export const callFf = (
 	bin: 'ffmpeg' | 'ffprobe',
 	args: (string | null)[],
-	options?: execa.Options<string>
+	options?: execa.Options<string>,
 ) => {
 	const executablePath = getExecutablePath(bin);
 	if (!process.env.READ_ONLY_FS) {

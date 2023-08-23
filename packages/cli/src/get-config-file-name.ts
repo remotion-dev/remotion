@@ -12,7 +12,7 @@ export const loadConfig = (remotionRoot: string): Promise<string | null> => {
 		const fullPath = path.resolve(process.cwd(), parsedCli.config);
 		if (!existsSync(fullPath)) {
 			Log.error(
-				`You specified a config file location of "${parsedCli.config}" but no file under ${fullPath} was found.`
+				`You specified a config file location of "${parsedCli.config}" but no file under ${fullPath} was found.`,
 			);
 			process.exit(1);
 		}
@@ -20,7 +20,7 @@ export const loadConfig = (remotionRoot: string): Promise<string | null> => {
 		return loadConfigFile(
 			remotionRoot,
 			parsedCli.config,
-			fullPath.endsWith('.js')
+			fullPath.endsWith('.js'),
 		);
 	}
 

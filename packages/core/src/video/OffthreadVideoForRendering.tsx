@@ -47,15 +47,15 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`offthreadvideo-${random(src ?? '')}-${sequenceContext?.cumulatedFrom}-${
-				sequenceContext?.relativeFrom
-			}-${sequenceContext?.durationInFrames}`,
+			`offthreadvideo-${random(
+				src ?? '',
+			)}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.relativeFrom}-${sequenceContext?.durationInFrames}`,
 		[
 			src,
 			sequenceContext?.cumulatedFrom,
 			sequenceContext?.relativeFrom,
 			sequenceContext?.durationInFrames,
-		]
+		],
 	);
 
 	if (!videoConfig) {
@@ -125,9 +125,9 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 		return `http://localhost:${
 			window.remotion_proxyPort
 		}/proxy?src=${encodeURIComponent(
-			getAbsoluteSrc(src)
+			getAbsoluteSrc(src),
 		)}&time=${encodeURIComponent(currentTime)}&transparent=${String(
-			transparent
+			transparent,
 		)}`;
 	}, [currentTime, src, transparent]);
 
@@ -140,7 +140,7 @@ export const OffthreadVideoForRendering: React.FC<OffthreadVideoProps> = ({
 					cancelRender('Failed to load image with src ' + actualSrc);
 				}
 			},
-			[actualSrc, onError]
+			[actualSrc, onError],
 		);
 
 	const className = useMemo(() => {

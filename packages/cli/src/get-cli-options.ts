@@ -16,7 +16,7 @@ const getAndValidateFrameRange = () => {
 	if (typeof frameRange === 'number') {
 		Log.warn('Selected a single frame. Assuming you want to output an image.');
 		Log.warn(
-			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`
+			`If you want to render a video, pass a range:  '--frames=${frameRange}-${frameRange}'.`,
 		);
 		Log.warn("To dismiss this message, add the '--sequence' flag explicitly.");
 	}
@@ -29,15 +29,15 @@ const getBrowser = () =>
 
 export const getAndValidateAbsoluteOutputFile = (
 	relativeOutputLocation: string,
-	overwrite: boolean
+	overwrite: boolean,
 ) => {
 	const absoluteOutputFile = path.resolve(
 		process.cwd(),
-		relativeOutputLocation
+		relativeOutputLocation,
 	);
 	if (fs.existsSync(absoluteOutputFile) && !overwrite) {
 		Log.error(
-			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`
+			`File at ${absoluteOutputFile} already exists. Use --overwrite to overwrite.`,
 		);
 		process.exit(1);
 	}
@@ -166,5 +166,7 @@ export const getCliOptions = async (options: {
 		height,
 		width,
 		configFileImageFormat: ConfigInternals.getUserPreferredVideoImageFormat(),
+		offthreadVideoCacheSizeInBytes:
+			ConfigInternals.getOffthreadVideoCacheSizeInBytes(),
 	};
 };

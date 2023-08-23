@@ -4,7 +4,7 @@ import {ErrorWithStackFrame} from './handle-javascript-exception';
 import type {SymbolicateableError} from './symbolicateable-error';
 
 export const symbolicateError = async (
-	symbolicateableError: SymbolicateableError
+	symbolicateableError: SymbolicateableError,
 ): Promise<ErrorWithStackFrame> => {
 	const {delayRenderCall, stackFrame} = symbolicateableError;
 
@@ -14,7 +14,7 @@ export const symbolicateError = async (
 			delayRenderCall
 				? symbolicateStackTraceFromRemoteFrames(delayRenderCall)
 				: null,
-		].filter(truthy)
+		].filter(truthy),
 	);
 
 	const symbolicatedErr = new ErrorWithStackFrame({

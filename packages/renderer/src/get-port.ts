@@ -46,7 +46,7 @@ const portLocks = createLock({timeout: 10000});
 export const getDesiredPort = async (
 	desiredPort: number | undefined,
 	from: number,
-	to: number
+	to: number,
 ) => {
 	await portLocks.waitForAllToBeDone();
 	const lockPortSelection = portLocks.lock();
@@ -63,7 +63,7 @@ export const getDesiredPort = async (
 	// If did specify a port but did not get that one, fail hard.
 	if (desiredPort && desiredPort !== actualPort) {
 		throw new Error(
-			`You specified port ${desiredPort} to be used for the HTTP server, but it is not available. Choose a different port or remove the setting to let Remotion automatically select a free port.`
+			`You specified port ${desiredPort} to be used for the HTTP server, but it is not available. Choose a different port or remove the setting to let Remotion automatically select a free port.`,
 		);
 	}
 

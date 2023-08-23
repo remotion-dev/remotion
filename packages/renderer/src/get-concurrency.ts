@@ -1,7 +1,7 @@
 import os from 'node:os';
 
 export const getActualConcurrency = (
-	userPreference: number | string | null
+	userPreference: number | string | null,
 ) => {
 	if (userPreference === null) {
 		return Math.round(Math.min(8, Math.max(1, os.cpus().length / 2)));
@@ -20,7 +20,7 @@ export const getActualConcurrency = (
 
 	if (rounded > max) {
 		throw new Error(
-			`Maximum for --concurrency is ${max} (number of cores on this system)`
+			`Maximum for --concurrency is ${max} (number of cores on this system)`,
 		);
 	}
 

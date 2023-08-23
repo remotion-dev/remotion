@@ -77,12 +77,20 @@ impl OpenedVideo {
         }
     }
 
-    pub fn get_cache_size(&self) -> Result<usize, ErrorWithBacktrace> {
+    pub fn get_cache_size_items(&self) -> Result<usize, ErrorWithBacktrace> {
         Ok(self
             .transparent_frame_cache
             .lock()?
             .get_cache_item_count()
             .saturating_add(self.opaque_frame_cache.lock()?.get_cache_item_count()))
+    }
+
+    pub fn get_cache_size_bytes(&self) -> Result<u128, ErrorWithBacktrace> {
+        Ok(self
+            .transparent_frame_cache
+            .lock()?
+            .get_size_in_bytes()
+            .saturating_add(self.opaque_frame_cache.lock()?.get_size_in_bytes()))
     }
 
     pub fn get_cache_item_from_id(

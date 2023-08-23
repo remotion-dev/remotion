@@ -229,7 +229,7 @@ export const getServiceClient = <T extends keyof ServiceMapping>({
 };
 
 export const getCloudWatchLogsClient = (
-	region: AwsRegion
+	region: AwsRegion,
 ): CloudWatchLogsClient => {
 	return getServiceClient({
 		region,
@@ -240,7 +240,7 @@ export const getCloudWatchLogsClient = (
 
 export const getS3Client = (
 	region: AwsRegion,
-	customCredentials: CustomCredentials | null
+	customCredentials: CustomCredentials | null,
 ): S3Client => {
 	return getServiceClient({region, service: 's3', customCredentials});
 };
@@ -248,7 +248,7 @@ export const getS3Client = (
 export const getLambdaClient = (
 	region: AwsRegion,
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	_timeoutInTest?: number
+	_timeoutInTest?: number,
 ): LambdaClient => {
 	return getServiceClient({
 		region,
@@ -262,7 +262,7 @@ export const getIamClient = (region: AwsRegion): IAMClient => {
 };
 
 export const getServiceQuotasClient = (
-	region: AwsRegion
+	region: AwsRegion,
 ): ServiceQuotasClient => {
 	return getServiceClient({
 		region,

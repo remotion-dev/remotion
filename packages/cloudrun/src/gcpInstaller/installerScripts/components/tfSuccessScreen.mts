@@ -9,13 +9,13 @@ export function tfSuccessScreen() {
 		`echo "\n\n${colorCode.blueBackground}                                                "`,
 		{
 			stdio: 'inherit',
-		}
+		},
 	);
 	execSync('echo "        Terraform completed successfully        "', {
 		stdio: 'inherit',
 	});
 	execSync(
 		`echo "                                                ${colorCode.resetText}\n\n"`,
-		{stdio: 'inherit'}
+		{stdio: 'inherit'},
 	);
 }

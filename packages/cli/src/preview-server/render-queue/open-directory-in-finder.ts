@@ -5,7 +5,7 @@ import {truthy} from '../../truthy';
 
 export const openDirectoryInFinder = (
 	dirToOpen: string,
-	allowedDirectory: string
+	allowedDirectory: string,
 ) => {
 	const resolved = path.resolve(allowedDirectory, dirToOpen);
 
@@ -30,7 +30,7 @@ export const openDirectoryInFinder = (
 
 	const p = spawn(
 		command,
-		[platform() === 'darwin' ? '-R' : null, dirToOpen].filter(truthy)
+		[platform() === 'darwin' ? '-R' : null, dirToOpen].filter(truthy),
 	);
 
 	const stderrChunks: Buffer[] = [];

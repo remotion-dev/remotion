@@ -46,7 +46,7 @@ export const EditorPropsProvider: React.FC<{
 				};
 			});
 		},
-		[]
+		[],
 	);
 
 	const ctx = useMemo((): EditorPropsContextType => {

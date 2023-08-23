@@ -9,7 +9,7 @@ test('Should calculate costs accurately', () => {
 			memorySizeInMb: 2048,
 			diskSizeInMb: 512,
 			lambdasInvoked: 1,
-		})
+		}),
 	).toEqual(0.53334);
 	expect(
 		estimatePrice({
@@ -18,7 +18,7 @@ test('Should calculate costs accurately', () => {
 			memorySizeInMb: 2048,
 			diskSizeInMb: 10240,
 			lambdasInvoked: 1,
-		})
+		}),
 	).toEqual(0.53921);
 	expect(
 		estimatePrice({
@@ -27,6 +27,6 @@ test('Should calculate costs accurately', () => {
 			memorySizeInMb: 2048,
 			diskSizeInMb: 10240,
 			lambdasInvoked: 1,
-		})
+		}),
 	).toEqual(0.53921);
 });

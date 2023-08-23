@@ -71,7 +71,7 @@ export function spring({
 		: {
 				get: () => {
 					throw new Error(
-						'did not calculate natural duration, this is an error with Remotion. Please report'
+						'did not calculate natural duration, this is an error with Remotion. Please report',
 					);
 				},
 		  };

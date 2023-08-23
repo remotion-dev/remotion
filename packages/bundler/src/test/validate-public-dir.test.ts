@@ -5,7 +5,7 @@ import {validatePublicDir} from '../validate-public-dir';
 describe('validatePublicDir()', () => {
 	test('Should not allow root directory as public dir.', () => {
 		expect(() => validatePublicDir(path.parse(process.cwd()).root)).toThrow(
-			/which is the root directory. This is not allowed./
+			/which is the root directory. This is not allowed./,
 		);
 	});
 
@@ -15,13 +15,13 @@ describe('validatePublicDir()', () => {
 		const expectedParent = process.platform === 'win32' ? 'C:\\foo' : '/foo';
 
 		expect(() => validatePublicDir(pathToPass)).toThrow(
-			`The public directory was specified as "${pathToPass}", but this folder does not exist and the parent directory "${expectedParent}" does also not exist.`
+			`The public directory was specified as "${pathToPass}", but this folder does not exist and the parent directory "${expectedParent}" does also not exist.`,
 		);
 	});
 
 	test('Should allow /foo as a path since that directory can be created', () => {
 		expect(() =>
-			validatePublicDir(process.platform === 'win32' ? 'C:\\foo' : '/foo')
+			validatePublicDir(process.platform === 'win32' ? 'C:\\foo' : '/foo'),
 		).not.toThrow();
 	});
 });

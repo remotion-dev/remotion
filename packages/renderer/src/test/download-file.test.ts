@@ -37,6 +37,6 @@ test('Should fail to download invalid files', async () => {
 			},
 			url: 'https://thisdomain.doesnotexist',
 			onProgress: () => undefined,
-		})
+		}),
 	).rejects.toThrow(/ENOTFOUND/);
 });

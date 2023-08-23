@@ -1,6 +1,6 @@
-import type {RemotionOption} from './option';
+import {AnyRemotionOption} from './option';
 
-export const jpegQualityOption: RemotionOption = {
+export const jpegQualityOption = {
 	name: 'JPEG Quality',
 	cliFlag: '--jpeg-quality',
 	description: (
@@ -11,4 +11,5 @@ export const jpegQualityOption: RemotionOption = {
 	),
 	ssrName: 'jpegQuality',
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#jpeg-quality',
-};
+	type: 0 as number,
+} satisfies AnyRemotionOption;

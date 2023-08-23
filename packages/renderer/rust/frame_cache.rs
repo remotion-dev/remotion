@@ -137,6 +137,14 @@ impl FrameCache {
         self.items.len()
     }
 
+    pub fn get_size_in_bytes(&self) -> u128 {
+        let mut size: u128 = 0;
+        for item in &self.items {
+            size += item.frame.get_size();
+        }
+        size
+    }
+
     pub fn get_item_id(
         &mut self,
         time: i64,

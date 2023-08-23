@@ -40,12 +40,12 @@ export const createPostRenderData = ({
 	errorExplanations: EnhancedErrorInfo[];
 	outputFile: OutputFileMetadata;
 }): PostRenderData => {
-	const initializedKeys = contents.filter((c) =>
-		c.Key?.startsWith(lambdaTimingsPrefix(renderId))
+	const initializedKeys = contents.filter(
+		(c) => c.Key?.startsWith(lambdaTimingsPrefix(renderId)),
 	);
 
 	const parsedTimings = initializedKeys.map(({Key}) =>
-		parseLambdaTimingsKey(Key as string)
+		parseLambdaTimingsKey(Key as string),
 	);
 
 	const times = parsedTimings
@@ -118,7 +118,7 @@ export const createPostRenderData = ({
 			parsedTimings,
 			renderMetadata.framesPerLambda,
 			renderMetadata.frameRange[0],
-			renderMetadata.frameRange[1]
+			renderMetadata.frameRange[1],
 		),
 	};
 };

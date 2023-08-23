@@ -30,7 +30,7 @@ export const getRenderedFramesProgress = ({
 	const sortedChunks = contents
 		.filter((c) => {
 			return (c.Key as string).startsWith(
-				lambdaChunkInitializedPrefix(renderId)
+				lambdaChunkInitializedPrefix(renderId),
 			);
 		})
 		.sort((a, b) => {
@@ -42,8 +42,8 @@ export const getRenderedFramesProgress = ({
 		chunkProgress[key.chunk] = getProgressOfChunk(chunk.ETag as string);
 	}
 
-	for (const chunk of contents.filter((c) =>
-		c.Key?.startsWith(chunkKey(renderId))
+	for (const chunk of contents.filter(
+		(c) => c.Key?.startsWith(chunkKey(renderId)),
 	)) {
 		const parsed = parseLambdaChunkKey(chunk.Key as string);
 		const frameRangeInChunk = chunks[parsed.chunk];
@@ -53,7 +53,7 @@ export const getRenderedFramesProgress = ({
 
 	const framesRendered = Object.values(chunkProgress).reduce(
 		(a, b) => a + b,
-		0
+		0,
 	);
 
 	return framesRendered;

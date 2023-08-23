@@ -36,7 +36,7 @@ type Options = {
 const renderHandler = async (
 	params: LambdaPayload,
 	options: Options,
-	logs: BrowserLog[]
+	logs: BrowserLog[],
 ): Promise<{}> => {
 	if (params.type !== LambdaRoutines.renderer) {
 		throw new Error('Params must be renderer');
@@ -44,7 +44,7 @@ const renderHandler = async (
 
 	if (params.launchFunctionConfig.version !== VERSION) {
 		throw new Error(
-			`The version of the function that was specified as "rendererFunctionName" is ${VERSION} but the version of the function that invoked the render is ${params.launchFunctionConfig.version}. Please make sure that the version of the function that is specified as "rendererFunctionName" is the same as the version of the function that is invoked.`
+			`The version of the function that was specified as "rendererFunctionName" is ${VERSION} but the version of the function that invoked the render is ${params.launchFunctionConfig.version}. Please make sure that the version of the function that is specified as "rendererFunctionName" is the same as the version of the function that is invoked.`,
 		);
 	}
 
@@ -67,7 +67,7 @@ const renderHandler = async (
 	const browserInstance = await getBrowserInstance(
 		params.logLevel,
 		false,
-		params.chromiumOptions ?? {}
+		params.chromiumOptions ?? {},
 	);
 
 	const outputPath = RenderInternals.tmpDir('remotion-render-');
@@ -81,7 +81,7 @@ const renderHandler = async (
 	}
 
 	RenderInternals.Log.verbose(
-		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} in this Lambda function`
+		`Rendering frames ${params.frameRange[0]}-${params.frameRange[1]} in this Lambda function`,
 	);
 
 	const start = Date.now();
@@ -103,14 +103,14 @@ const renderHandler = async (
 		outdir,
 		`localchunk-${String(params.chunk).padStart(
 			8,
-			'0'
+			'0',
 		)}.${RenderInternals.getFileExtensionFromCodec(
 			chunkCodec,
 			RenderInternals.getDefaultAudioCodec({
 				codec: params.codec,
 				preferLossless: true,
-			})
-		)}`
+			}),
+		)}`,
 	);
 
 	const resolvedProps = await resolvedPropsPromise;
@@ -131,7 +131,7 @@ const renderHandler = async (
 			onProgress: ({renderedFrames, encodedFrames, stitchStage}) => {
 				if (renderedFrames % 5 === 0) {
 					RenderInternals.Log.info(
-						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
+						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 					);
 					writeLambdaInitializedFile({
 						attempt: params.attempt,
@@ -146,13 +146,13 @@ const renderHandler = async (
 					});
 				} else {
 					RenderInternals.Log.verbose(
-						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`
+						`Rendered ${renderedFrames} frames, encoded ${encodedFrames} frames, stage = ${stitchStage}`,
 					);
 				}
 
 				const allFrames = RenderInternals.getFramesToRender(
 					params.frameRange,
-					params.everyNthFrame
+					params.everyNthFrame,
 				);
 
 				if (renderedFrames === allFrames.length) {
@@ -211,6 +211,7 @@ const renderHandler = async (
 			onCtrlCExit: () => undefined,
 			server: undefined,
 			serializedResolvedPropsWithCustomSchema: resolvedProps,
+			offthreadVideoCacheSizeInBytes: params.offthreadVideoCacheSizeInBytes,
 		})
 			.then(({slowestFrames}) => {
 				console.log(`Slowest frames:`);
@@ -272,7 +273,7 @@ const renderHandler = async (
 
 export const rendererHandler = async (
 	params: LambdaPayload,
-	options: Options
+	options: Options,
 ): Promise<{
 	type: 'success';
 }> => {

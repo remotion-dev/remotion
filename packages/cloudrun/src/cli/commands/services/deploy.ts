@@ -23,10 +23,10 @@ export const cloudRunDeploySubcommand = async () => {
 	const memoryLimit = String(parsedCloudrunCli.memoryLimit ?? '2Gi');
 	const cpuLimit = String(parsedCloudrunCli.cpuLimit ?? '1.0');
 	const minInstances = String(
-		parsedCloudrunCli.minInstances ?? DEFAULT_MIN_INSTANCES
+		parsedCloudrunCli.minInstances ?? DEFAULT_MIN_INSTANCES,
 	);
 	const maxInstances = String(
-		parsedCloudrunCli.maxInstances ?? DEFAULT_MAX_INSTANCES
+		parsedCloudrunCli.maxInstances ?? DEFAULT_MAX_INSTANCES,
 	);
 	const timeoutSeconds = parsedCloudrunCli.timeoutSeconds ?? DEFAULT_TIMEOUT;
 
@@ -47,8 +47,8 @@ ${[
 	'Project Name: '.padEnd(LEFT_COL, ' ') + ' ' + projectID,
 	'Region: '.padEnd(LEFT_COL, ' ') + ' ' + region,
 ].join('\n')}
-    `.trim()
-			)
+    `.trim(),
+			),
 		);
 		Log.info();
 	}
@@ -114,8 +114,8 @@ ${displayServiceInfo({
 	region,
 	consoleUrl,
 })}
-						`.trim()
-					)
+						`.trim(),
+					),
 				);
 			}
 		} else {
@@ -139,8 +139,8 @@ ${displayServiceInfo({
 	region,
 	consoleUrl,
 })}
-		`.trim()
-					)
+		`.trim(),
+					),
 				);
 			}
 		}
@@ -151,8 +151,8 @@ ${displayServiceInfo({
 					memoryLimit,
 					cpuLimit,
 					timeoutSeconds,
-				})}.`
-			)
+				})}.`,
+			),
 		);
 		throw e;
 	}

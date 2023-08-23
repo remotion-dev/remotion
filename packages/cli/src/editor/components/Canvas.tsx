@@ -147,7 +147,7 @@ export const Canvas: React.FC = () => {
 				};
 			});
 		},
-		[editorZoomGestures, dimensions, isFit, setSize, size]
+		[editorZoomGestures, dimensions, isFit, setSize, size],
 	);
 
 	useEffect(() => {

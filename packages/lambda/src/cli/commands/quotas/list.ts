@@ -25,30 +25,30 @@ export const quotasListCommand = async () => {
 				new GetServiceQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
-				})
+				}),
 			),
 			getServiceQuotasClient(region).send(
 				new GetAWSDefaultServiceQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
-				})
+				}),
 			),
 			getServiceQuotasClient(region).send(
 				new GetAWSDefaultServiceQuotaCommand({
 					QuotaCode: LAMBDA_BURST_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
-				})
+				}),
 			),
 			getServiceQuotasClient(region).send(
 				new ListRequestedServiceQuotaChangeHistoryByQuotaCommand({
 					QuotaCode: LAMBDA_CONCURRENCY_LIMIT_QUOTA,
 					ServiceCode: 'lambda',
-				})
+				}),
 			),
 		]);
 
 	const openCase = changes.RequestedQuotas?.find(
-		(r) => r.Status === 'CASE_OPENED'
+		(r) => r.Status === 'CASE_OPENED',
 	);
 
 	const concurrencyCurrent = concurrencyLimit.Quota?.Value as number;
@@ -64,7 +64,7 @@ export const quotasListCommand = async () => {
 				increaseRecommended
 					? CliInternals.chalk.greenBright('Increase recommended!')
 					: ''
-			}`
+			}`,
 		);
 	} else {
 		Log.info(`Concurrency limit: ${concurrencyCurrent}`);
@@ -72,22 +72,22 @@ export const quotasListCommand = async () => {
 
 	if (openCase) {
 		Log.warn(
-			`A request to increase it to ${openCase.DesiredValue} is pending:`
+			`A request to increase it to ${openCase.DesiredValue} is pending:`,
 		);
 		Log.warn(
-			`https://${region}.console.aws.amazon.com/support/home#/case/?displayId=${openCase.CaseId}`
+			`https://${region}.console.aws.amazon.com/support/home#/case/?displayId=${openCase.CaseId}`,
 		);
 	}
 
 	Log.info(
 		CliInternals.chalk.gray(
-			'The maximum amount of Lambda functions which can concurrently execute.'
-		)
+			'The maximum amount of Lambda functions which can concurrently execute.',
+		),
 	);
 	Log.info(
 		CliInternals.chalk.gray(
-			`Run \`npx ${BINARY_NAME} ${QUOTAS_COMMAND} ${INCREASE_SUBCOMMAND}\` to ask AWS to increase your limit.`
-		)
+			`Run \`npx ${BINARY_NAME} ${QUOTAS_COMMAND} ${INCREASE_SUBCOMMAND}\` to ask AWS to increase your limit.`,
+		),
 	);
 	Log.info();
 
@@ -95,13 +95,13 @@ export const quotasListCommand = async () => {
 		Log.info(`Burst concurrency: ${burstDefault}`);
 	} else {
 		Log.info(
-			`Burst concurrency: ${burstDefault}, but only ${effectiveBurstConcurrency} effective because of concurrency limit`
+			`Burst concurrency: ${burstDefault}, but only ${effectiveBurstConcurrency} effective because of concurrency limit`,
 		);
 	}
 
 	Log.info(
 		CliInternals.chalk.gray(
-			'The maximum amount of Lambda functions that can spawn in a short amount of time'
-		)
+			'The maximum amount of Lambda functions that can spawn in a short amount of time',
+		),
 	);
 };

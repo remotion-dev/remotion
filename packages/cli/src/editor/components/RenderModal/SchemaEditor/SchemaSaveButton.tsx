@@ -23,7 +23,7 @@ export const SchemaSaveButton: React.FC<{
 				</svg>
 			);
 		},
-		[disabled]
+		[disabled],
 	);
 
 	return (

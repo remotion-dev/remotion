@@ -19,21 +19,21 @@ export const validateConcurrency = (value: unknown, setting: string) => {
 		if (value < getMinConcurrency()) {
 			throw new Error(
 				`${setting} must be at least ${getMinConcurrency()}, but is ${JSON.stringify(
-					value
-				)}`
+					value,
+				)}`,
 			);
 		}
 
 		if (value > getMaxConcurrency()) {
 			throw new Error(
-				`${setting} is set higher than the amount of CPU cores available. Available CPU cores: ${getMaxConcurrency()}, value set: ${value}`
+				`${setting} is set higher than the amount of CPU cores available. Available CPU cores: ${getMaxConcurrency()}, value set: ${value}`,
 			);
 		}
 	} else if (!/^\d+(\.\d+)?%$/.test(value)) {
 		throw new Error(
 			`${setting} must be a number or percentage, but is ${JSON.stringify(
-				value
-			)}`
+				value,
+			)}`,
 		);
 	}
 };

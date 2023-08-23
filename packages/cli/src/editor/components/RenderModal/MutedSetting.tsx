@@ -1,4 +1,4 @@
-import type {RemotionOption} from '@remotion/renderer';
+import type {AnyRemotionOption} from '@remotion/renderer';
 import type {ChangeEvent} from 'react';
 import React, {useCallback} from 'react';
 import {Checkbox} from '../Checkbox';
@@ -11,13 +11,13 @@ export const MutedSetting: React.FC<{
 	muted: boolean;
 	setMuted: React.Dispatch<React.SetStateAction<boolean>>;
 	enforceAudioTrack: boolean;
-	hint: RemotionOption;
+	hint: AnyRemotionOption;
 }> = ({muted, setMuted, enforceAudioTrack, hint}) => {
 	const onMutedChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setMuted(e.target.checked);
 		},
-		[setMuted]
+		[setMuted],
 	);
 
 	return (

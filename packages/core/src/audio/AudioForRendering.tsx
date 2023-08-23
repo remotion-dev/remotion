@@ -40,10 +40,10 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 	// but at the same time the same on all threads
 	const id = useMemo(
 		() =>
-			`audio-${random(props.src ?? '')}-${sequenceContext?.relativeFrom}-${
-				sequenceContext?.cumulatedFrom
-			}-${sequenceContext?.durationInFrames}`,
-		[props.src, sequenceContext]
+			`audio-${random(
+				props.src ?? '',
+			)}-${sequenceContext?.relativeFrom}-${sequenceContext?.cumulatedFrom}-${sequenceContext?.durationInFrames}`,
+		[props.src, sequenceContext],
 	);
 
 	const {
@@ -67,7 +67,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 		() => {
 			return audioRef.current as HTMLVideoElement;
 		},
-		[]
+		[],
 	);
 
 	useEffect(() => {
@@ -163,7 +163,7 @@ const AudioForRenderingRefForwardingFunction: React.ForwardRefRenderFunction<
 };
 
 export const AudioForRendering = forwardRef(
-	AudioForRenderingRefForwardingFunction
+	AudioForRenderingRefForwardingFunction,
 ) as ForwardRefExoticComponent<
 	AudioForRenderingProps & RefAttributes<HTMLAudioElement>
 >;

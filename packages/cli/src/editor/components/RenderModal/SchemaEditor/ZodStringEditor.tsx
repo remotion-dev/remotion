@@ -58,7 +58,7 @@ export const ZodStringEditor: React.FC<{
 		(e) => {
 			setLocalValue(() => e.target.value, false, false);
 		},
-		[setLocalValue]
+		[setLocalValue],
 	);
 
 	const save = useCallback(() => {

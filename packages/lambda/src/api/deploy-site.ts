@@ -128,7 +128,7 @@ export const deploySite = async ({
 					key: d.Key as string,
 					region,
 				});
-			})
+			}),
 		),
 	]);
 

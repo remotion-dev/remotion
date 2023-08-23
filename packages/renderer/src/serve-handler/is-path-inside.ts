@@ -2,7 +2,7 @@ import path from 'node:path';
 
 export const isPathInside = function (
 	thePath: string,
-	potentialParent: string
+	potentialParent: string,
 ) {
 	// For inside-directory checking, we want to allow trailing slashes, so normalize.
 	thePath = stripTrailingSep(thePath);

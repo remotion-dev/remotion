@@ -2,7 +2,7 @@ import type {AnyZodObject, z} from 'zod';
 
 export type PropsIfHasProps<
 	Schema extends AnyZodObject,
-	Props
+	Props,
 > = AnyZodObject extends Schema
 	? {} extends Props
 		? {

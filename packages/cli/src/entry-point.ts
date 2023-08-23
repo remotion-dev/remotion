@@ -15,13 +15,13 @@ const candidates = [
 
 const findCommonPath = (remotionRoot: string) => {
 	return candidates.find((candidate) =>
-		existsSync(path.resolve(remotionRoot, candidate))
+		existsSync(path.resolve(remotionRoot, candidate)),
 	);
 };
 
 export const findEntryPoint = (
 	args: string[],
-	remotionRoot: string
+	remotionRoot: string,
 ): {
 	file: string | null;
 	remainingArgs: string[];
@@ -38,13 +38,13 @@ export const findEntryPoint = (
 
 	if (!existsSync(result.file)) {
 		throw new Error(
-			`${result.file} was chosen as the entry point (reason = ${result.reason}) but it does not exist.`
+			`${result.file} was chosen as the entry point (reason = ${result.reason}) but it does not exist.`,
 		);
 	}
 
 	if (lstatSync(result.file).isDirectory()) {
 		throw new Error(
-			`${result.file} was chosen as the entry point (reason = ${result.reason}) but it is a directory - it needs to be a file.`
+			`${result.file} was chosen as the entry point (reason = ${result.reason}) but it is a directory - it needs to be a file.`,
 		);
 	}
 
@@ -53,7 +53,7 @@ export const findEntryPoint = (
 
 const findEntryPointInner = (
 	args: string[],
-	remotionRoot: string
+	remotionRoot: string,
 ): {
 	file: string | null;
 	remainingArgs: string[];
@@ -108,7 +108,7 @@ const findEntryPointInner = (
 		Log.verbose(
 			'Selected',
 			absolutePath,
-			'as the entry point because file exists and is a common entry point and no entry point was explicitly selected'
+			'as the entry point because file exists and is a common entry point and no entry point was explicitly selected',
 		);
 		return {
 			file: absolutePath,

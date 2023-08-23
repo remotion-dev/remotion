@@ -177,7 +177,7 @@ export const MenuSubItem: React.FC<{
 								portalStyle={portalStyle}
 								subMenuActivated={subMenuActivated}
 							/>,
-							getPortal(currentZIndex)
+							getPortal(currentZIndex),
 					  )
 					: null}
 			</Row>

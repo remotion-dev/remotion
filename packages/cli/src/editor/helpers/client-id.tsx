@@ -37,7 +37,7 @@ export const PreviewServerConnection: React.FC<{
 				},
 			};
 		},
-		[]
+		[],
 	);
 
 	return (

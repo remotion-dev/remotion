@@ -24,14 +24,14 @@ const innerHandler = async (
 	context: {
 		invokedFunctionArn: string;
 		getRemainingTimeInMillis: () => number;
-	}
+	},
 ): Promise<void> => {
 	process.env.__RESERVED_IS_INSIDE_REMOTION_LAMBDA = 'true';
 	const timeoutInMilliseconds = context.getRemainingTimeInMillis();
 
 	if (!context?.invokedFunctionArn) {
 		throw new Error(
-			'Lambda function unexpectedly does not have context.invokedFunctionArn'
+			'Lambda function unexpectedly does not have context.invokedFunctionArn',
 		);
 	}
 
@@ -121,7 +121,7 @@ const innerHandler = async (
 			renderId: params.renderId,
 			chunk: String(params.chunk),
 			dumpLogs: String(
-				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose')
+				RenderInternals.isEqualOrBelowLogLevel(params.logLevel, 'verbose'),
 			),
 			resolvedProps: JSON.stringify(params.resolvedProps),
 			isWarm,
@@ -174,7 +174,7 @@ const routine = async (
 	context: {
 		invokedFunctionArn: string;
 		getRemainingTimeInMillis: () => number;
-	}
+	},
 ): Promise<void> => {
 	try {
 		await innerHandler(params, responseStream, context);

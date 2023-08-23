@@ -154,7 +154,7 @@ export const InfoBubble: React.FC<{
 								</div>
 							</HigherZIndex>
 						</div>,
-						getPortal(currentZIndex)
+						getPortal(currentZIndex),
 				  )
 				: null}
 		</>

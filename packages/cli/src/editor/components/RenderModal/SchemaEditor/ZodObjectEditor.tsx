@@ -90,7 +90,7 @@ export const ZodObjectEditor: React.FC<{
 								return localValue.value;
 							},
 							false,
-							false
+							false,
 						);
 					}}
 					saveDisabledByParent={saveDisabledByParent}
@@ -128,7 +128,7 @@ export const ZodObjectEditor: React.FC<{
 												};
 											},
 											forceApply,
-											false
+											false,
 										);
 									}}
 									onSave={(val, forceApply) => {
@@ -141,7 +141,7 @@ export const ZodObjectEditor: React.FC<{
 												};
 											},
 											forceApply,
-											false
+											false,
 										);
 									}}
 									onRemove={null}

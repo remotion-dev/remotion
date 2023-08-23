@@ -78,7 +78,7 @@ pub mod payloads {
     #[derive(Serialize, Deserialize, Debug)]
     pub struct StartPayLoad {
         pub concurrency: usize,
-        pub maximum_frame_cache_items: usize,
+        pub maximum_frame_cache_size_in_bytes: u128,
         pub verbose: bool,
     }
 
@@ -144,7 +144,7 @@ pub mod payloads {
 
     #[derive(Serialize, Deserialize, Debug)]
     pub struct FreeUpMemory {
-        pub percent_of_memory: f64,
+        pub remaining_bytes: u128,
     }
 
     #[derive(Serialize, Deserialize, Debug)]

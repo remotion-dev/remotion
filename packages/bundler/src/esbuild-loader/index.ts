@@ -16,7 +16,7 @@ const isTypescriptInstalled = () => {
 
 async function ESBuildLoader(
 	this: webpack.LoaderContext<LoaderOptions>,
-	source: string
+	source: string,
 ): Promise<void> {
 	const done = this.async();
 	this.getOptions();
@@ -28,8 +28,8 @@ async function ESBuildLoader(
 	if (implementation && typeof implementation.transform !== 'function') {
 		done(
 			new TypeError(
-				`esbuild-loader: options.implementation.transform must be an ESBuild transform function. Received ${typeof implementation.transform}`
-			)
+				`esbuild-loader: options.implementation.transform must be an ESBuild transform function. Received ${typeof implementation.transform}`,
+			),
 		);
 		return;
 	}
@@ -49,7 +49,7 @@ async function ESBuildLoader(
 		const typescript = require('typescript') as typeof import('typescript');
 		const tsConfig = typescript.readConfigFile(
 			tsConfigPath,
-			typescript.sys.readFile
+			typescript.sys.readFile,
 		);
 
 		transformOptions.tsconfigRaw = tsConfig.config;

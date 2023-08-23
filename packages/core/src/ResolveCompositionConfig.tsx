@@ -53,10 +53,10 @@ export const ResolveCompositionConfig: React.FC<
 	const {compositions, currentComposition, currentCompositionMetadata} =
 		useContext(CompositionManager);
 	const selectedComposition = compositions.find(
-		(c) => c.id === currentComposition
+		(c) => c.id === currentComposition,
 	);
 	const renderModalComposition = compositions.find(
-		(c) => c.id === currentRenderModalComposition
+		(c) => c.id === currentRenderModalComposition,
 	);
 	const {props: allEditorProps} = useContext(EditorPropsContext);
 
@@ -143,7 +143,7 @@ export const ResolveCompositionConfig: React.FC<
 
 			return controller;
 		},
-		[currentCompositionMetadata]
+		[currentCompositionMetadata],
 	);
 
 	useImperativeHandle(
@@ -159,12 +159,12 @@ export const ResolveCompositionConfig: React.FC<
 					}
 
 					const composition = compositions.find(
-						(c) => c.id === currentComposition
+						(c) => c.id === currentComposition,
 					);
 
 					if (!composition) {
 						throw new Error(
-							`Could not find composition with id ${currentComposition}`
+							`Could not find composition with id ${currentComposition}`,
 						);
 					}
 
@@ -174,7 +174,7 @@ export const ResolveCompositionConfig: React.FC<
 				},
 			};
 		},
-		[allEditorProps, compositions, currentComposition, doResolution]
+		[allEditorProps, compositions, currentComposition, doResolution],
 	);
 
 	const isTheSame = selectedComposition?.id === renderModalComposition?.id;
@@ -231,10 +231,10 @@ export const needsResolution = (composition: AnyComposition) => {
 };
 
 export const useResolvedVideoConfig = (
-	preferredCompositionId: string | null
+	preferredCompositionId: string | null,
 ): VideoConfigState | null => {
 	const context = useContext(
-		ResolveCompositionContext
+		ResolveCompositionContext,
 	) as ResolveCompositionConfigContect;
 	const {props: allEditorProps} = useContext(EditorPropsContext);
 

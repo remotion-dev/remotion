@@ -38,7 +38,7 @@ export const prefetch = (
 	src: string,
 	options?: {
 		method?: 'blob-url' | 'base64';
-	}
+	},
 ): FetchAndPreload => {
 	const method = options?.method ?? 'blob-url';
 

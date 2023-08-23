@@ -15,7 +15,7 @@ type ErrorCallback = (error: Error) => void;
 
 function rejectionHandler(
 	callback: ErrorCallback,
-	e: PromiseRejectionEvent
+	e: PromiseRejectionEvent,
 ): void {
 	if (!e?.reason) {
 		return callback(new Error('Unknown'));
@@ -33,7 +33,7 @@ function rejectionHandler(
 
 function registerUnhandledRejection(
 	target: EventTarget,
-	callback: ErrorCallback
+	callback: ErrorCallback,
 ) {
 	if (boundRejectionHandler !== null) {
 		return;
@@ -41,7 +41,7 @@ function registerUnhandledRejection(
 
 	boundRejectionHandler = rejectionHandler.bind(
 		undefined,
-		callback
+		callback,
 	) as unknown as EventListener;
 	target.addEventListener('unhandledrejection', boundRejectionHandler);
 }

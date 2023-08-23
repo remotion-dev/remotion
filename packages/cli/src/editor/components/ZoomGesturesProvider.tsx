@@ -9,7 +9,7 @@ export const ZoomGesturesProvider: React.FC<{
 	children: React.ReactNode;
 }> = ({children}) => {
 	const [editorZoomGestures, setEditorZoomGesturesState] = useState(() =>
-		loadEditorZoomGesturesOption()
+		loadEditorZoomGesturesOption(),
 	);
 	const setEditorZoomGestures = useCallback(
 		(newValue: (prevState: boolean) => boolean) => {
@@ -19,7 +19,7 @@ export const ZoomGesturesProvider: React.FC<{
 				return newVal;
 			});
 		},
-		[]
+		[],
 	);
 
 	const editorZoomGesturesCtx = useMemo(() => {

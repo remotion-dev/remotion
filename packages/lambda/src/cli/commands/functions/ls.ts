@@ -43,7 +43,7 @@ export const functionsLsCommand = async () => {
 	const pluralized = functions.length === 1 ? 'function' : 'functions';
 	fetchingOutput.update(
 		`${functions.length} ${pluralized} in the ${region} region`,
-		true
+		true,
 	);
 	CliInternals.Log.info();
 	CliInternals.Log.info(
@@ -54,8 +54,8 @@ export const functionsLsCommand = async () => {
 				'Disk (MB)'.padEnd(MEMORY_COLS, ' '),
 				'Memory (MB)'.padEnd(MEMORY_COLS, ' '),
 				'Timeout (sec)'.padEnd(TIMEOUT_COLS, ' '),
-			].join('')
-		)
+			].join(''),
+		),
 	);
 
 	for (const datapoint of functions) {
@@ -68,7 +68,7 @@ export const functionsLsCommand = async () => {
 				String(datapoint.diskSizeInMb).padEnd(DISK_COLS, ' '),
 				String(datapoint.memorySizeInMb).padEnd(MEMORY_COLS, ' '),
 				String(datapoint.timeoutInSeconds).padEnd(TIMEOUT_COLS, ' '),
-			].join('')
+			].join(''),
 		);
 	}
 };

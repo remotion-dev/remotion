@@ -85,7 +85,7 @@ export class BrowserRunner {
 				detached: process.platform !== 'win32',
 				env,
 				stdio,
-			}
+			},
 		);
 		if (dumpio) {
 			this.proc.stdout?.on('data', (d) => {
@@ -99,7 +99,7 @@ export class BrowserRunner {
 					const {output, tag} = formatted;
 					Log.verboseAdvanced(
 						{indent: options.indent, logLevel: options.logLevel, tag},
-						output
+						output,
 					);
 				}
 			});
@@ -114,7 +114,7 @@ export class BrowserRunner {
 					const {output, tag} = formatted;
 					Log.verboseAdvanced(
 						{indent: options.indent, logLevel: options.logLevel, tag},
-						output
+						output,
 					);
 				}
 			});
@@ -141,15 +141,15 @@ export class BrowserRunner {
 			addEventListener(process, 'SIGINT', () => {
 				this.kill();
 				process.exit(130);
-			})
+			}),
 		);
 
 		this.#listeners.push(
-			addEventListener(process, 'SIGTERM', this.close.bind(this))
+			addEventListener(process, 'SIGTERM', this.close.bind(this)),
 		);
 
 		this.#listeners.push(
-			addEventListener(process, 'SIGHUP', this.close.bind(this))
+			addEventListener(process, 'SIGHUP', this.close.bind(this)),
 		);
 	}
 
@@ -200,7 +200,7 @@ export class BrowserRunner {
 				throw new Error(
 					`${PROCESS_ERROR_EXPLANATION}\nError cause: ${
 						isErrorLike(error) ? error.stack : error
-					}`
+					}`,
 				);
 			}
 		}
@@ -229,7 +229,7 @@ export class BrowserRunner {
 
 function waitForWSEndpoint(
 	browserProcess: childProcess.ChildProcess,
-	timeout: number
+	timeout: number,
 ): Promise<string> {
 	assert(browserProcess.stderr, '`browserProcess` does not have stderr.');
 	const rl = readline.createInterface(browserProcess.stderr);
@@ -263,8 +263,8 @@ function waitForWSEndpoint(
 						'',
 					]
 						.filter(truthy)
-						.join('\n')
-				)
+						.join('\n'),
+				),
 			);
 		}
 
@@ -272,8 +272,8 @@ function waitForWSEndpoint(
 			cleanup();
 			reject(
 				new TimeoutError(
-					`Timed out after ${timeout} ms while trying to connect to the browser! Chrome logged the following: ${stderr}`
-				)
+					`Timed out after ${timeout} ms while trying to connect to the browser! Chrome logged the following: ${stderr}`,
+				),
 			);
 		}
 

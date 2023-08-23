@@ -22,7 +22,7 @@ export const defaultFileExtensionMap: {
 	[key in Codec]: {
 		default: FileExtension;
 		forAudioCodec: {
-			[k in typeof supportedAudioCodecs[key][number]]: {
+			[k in (typeof supportedAudioCodecs)[key][number]]: {
 				possible: FileExtension[];
 				default: FileExtension;
 			};

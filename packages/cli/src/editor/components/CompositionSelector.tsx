@@ -39,7 +39,7 @@ const list: React.CSSProperties = {
 export const getKeysToExpand = (
 	initialFolderName: string,
 	parentFolderName: string | null,
-	initial: string[] = []
+	initial: string[] = [],
 ): string[] => {
 	initial.push(openFolderKey(initialFolderName, parentFolderName));
 
@@ -57,10 +57,10 @@ export const compositionSelectorRef = createRef<{
 
 export const CompositionSelector: React.FC = () => {
 	const {compositions, currentComposition, folders} = useContext(
-		Internals.CompositionManager
+		Internals.CompositionManager,
 	);
 	const [foldersExpanded, setFoldersExpanded] = useState<ExpandedFoldersState>(
-		loadExpandedFolders()
+		loadExpandedFolders(),
 	);
 	const {tabIndex} = useZIndex();
 	const selectComposition = useSelectComposition();
@@ -78,7 +78,7 @@ export const CompositionSelector: React.FC = () => {
 				return foldersExpandedState;
 			});
 		},
-		[]
+		[],
 	);
 
 	useImperativeHandle(
@@ -87,7 +87,7 @@ export const CompositionSelector: React.FC = () => {
 			return {
 				expandComposition: (compName) => {
 					const compositionToExpand = compositions.find(
-						(c) => c.id === compName
+						(c) => c.id === compName,
 					);
 					if (!compositionToExpand) {
 						return;
@@ -129,7 +129,7 @@ export const CompositionSelector: React.FC = () => {
 				},
 			};
 		},
-		[compositions, folders]
+		[compositions, folders],
 	);
 
 	const items = useMemo(() => {

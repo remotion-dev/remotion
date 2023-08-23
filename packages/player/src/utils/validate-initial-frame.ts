@@ -8,8 +8,8 @@ export const validateInitialFrame = ({
 	if (typeof durationInFrames !== 'number') {
 		throw new Error(
 			`\`durationInFrames\` must be a number, but is ${JSON.stringify(
-				durationInFrames
-			)}`
+				durationInFrames,
+			)}`,
 		);
 	}
 
@@ -20,8 +20,8 @@ export const validateInitialFrame = ({
 	if (typeof initialFrame !== 'number') {
 		throw new Error(
 			`\`initialFrame\` must be a number, but is ${JSON.stringify(
-				initialFrame
-			)}`
+				initialFrame,
+			)}`,
 		);
 	}
 
@@ -36,16 +36,16 @@ export const validateInitialFrame = ({
 	if (initialFrame % 1 !== 0) {
 		throw new Error(
 			`\`initialFrame\` must be an integer, but is ${JSON.stringify(
-				initialFrame
-			)}`
+				initialFrame,
+			)}`,
 		);
 	}
 
 	if (initialFrame > durationInFrames - 1) {
 		throw new Error(
 			`\`initialFrame\` must be less or equal than \`durationInFrames - 1\`, but is ${JSON.stringify(
-				initialFrame
-			)}`
+				initialFrame,
+			)}`,
 		);
 	}
 };
