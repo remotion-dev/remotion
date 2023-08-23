@@ -205,7 +205,7 @@ _optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
 
-### `offthreadVideoCacheSize?`<AvailableFrom v="4.0.23"/>
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 

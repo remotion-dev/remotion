@@ -82,7 +82,7 @@ An object containing environment variables to be injected in your project.
 
 See: [Environment variables](/docs/env-variables/)
 
-### `offthreadVideoCacheSize?`<AvailableFrom v="4.0.23"/>
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
