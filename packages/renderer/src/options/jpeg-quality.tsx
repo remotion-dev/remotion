@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import {AnyRemotionOption} from './option';
 
 export const jpegQualityOption = {
@@ -12,5 +11,5 @@ export const jpegQualityOption = {
 	),
 	ssrName: 'jpegQuality',
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#jpeg-quality',
-	type: z.number()
+	type: 0 as number,
 } satisfies AnyRemotionOption;
