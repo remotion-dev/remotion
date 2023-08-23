@@ -2,8 +2,10 @@ import type {
 	ChromiumOptions,
 	LogLevel,
 	StillImageFormat,
+	ToOptions,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {Internals} from 'remotion';
 import type {
 	CloudRunCrashResponse,
@@ -38,8 +40,7 @@ export type RenderStillOnCloudrunInput = {
 	forceHeight?: number | null;
 	logLevel?: LogLevel;
 	delayRenderTimeoutInMilliseconds?: number;
-	offthreadVideoCacheSize?: number | null;
-};
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 /**
  * @description Triggers a render on a GCP Cloud Run service given a composition and a Cloud Run URL.

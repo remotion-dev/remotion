@@ -5,10 +5,12 @@ import type {
 	LogLevel,
 	PixelFormat,
 	ProResProfile,
+	ToOptions,
 	VideoImageFormat,
 	X264Preset,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 import {Internals} from 'remotion';
 import type {
 	CloudRunCrashResponse,
@@ -60,8 +62,7 @@ export type RenderMediaOnCloudrunInput = {
 	concurrency?: number | string | null;
 	enforceAudioTrack?: boolean;
 	preferLossless?: boolean;
-	offthreadVideoCacheSize?: number | null;
-};
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 /**
  * @description Triggers a render on a GCP Cloud Run service given a composition and a Cloud Run URL.

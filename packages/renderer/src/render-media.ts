@@ -37,8 +37,8 @@ import {getLogLevel, Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
-import type {ToOptions} from './options/offthreadvideo-cache-size';
-import {offthreadVideoCacheSizeOption} from './options/offthreadvideo-cache-size';
+import type {ToOptions} from './options/option';
+import type {optionsMap} from './options/options-map';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {PixelFormat} from './pixel-format';
@@ -79,8 +79,6 @@ export type RenderMediaOnProgress = (progress: {
 	progress: number;
 	stitchStage: StitchingState;
 }) => void;
-
-const typedOptions = [offthreadVideoCacheSizeOption] as const;
 
 export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
@@ -124,7 +122,7 @@ export type InternalRenderMediaOptions = {
 	audioCodec: AudioCodec | null;
 	serveUrl: string;
 	concurrency: number | string | null;
-} & ToOptions<typeof typedOptions>;
+} & ToOptions<typeof optionsMap.renderMedia>;
 
 export type RenderMediaOptions = {
 	outputLocation?: string | null;
@@ -298,7 +296,7 @@ export const internalRenderMedia = ({
 		'Free memory:',
 		freeMemory,
 		'Estimated usage parallel encoding',
-		estimatedUsage
+		estimatedUsage,
 	);
 	Log.verboseAdvanced(
 		{
@@ -307,7 +305,7 @@ export const internalRenderMedia = ({
 			tag: 'renderMedia()',
 		},
 		'Codec supports parallel rendering:',
-		canUseParallelEncoding(codec)
+		canUseParallelEncoding(codec),
 	);
 	if (disallowParallelEncoding) {
 		Log.verboseAdvanced(
@@ -316,7 +314,7 @@ export const internalRenderMedia = ({
 				logLevel,
 				tag: 'renderMedia()',
 			},
-			'User disallowed parallel encoding.'
+			'User disallowed parallel encoding.',
 		);
 	}
 
@@ -327,7 +325,7 @@ export const internalRenderMedia = ({
 				logLevel,
 				tag: 'renderMedia()',
 			},
-			'Parallel encoding is enabled.'
+			'Parallel encoding is enabled.',
 		);
 	} else {
 		Log.verboseAdvanced(
@@ -336,7 +334,7 @@ export const internalRenderMedia = ({
 				logLevel,
 				tag: 'renderMedia()',
 			},
-			'Parallel encoding is disabled.'
+			'Parallel encoding is disabled.',
 		);
 	}
 
@@ -346,17 +344,17 @@ export const internalRenderMedia = ({
 
 	validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
-		imageFormat
+		imageFormat,
 	);
 
 	const workingDir = fs.mkdtempSync(
-		path.join(os.tmpdir(), 'react-motion-render')
+		path.join(os.tmpdir(), 'react-motion-render'),
 	);
 
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				workingDir,
-				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec)
+				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec),
 		  )
 		: null;
 
@@ -373,7 +371,7 @@ export const internalRenderMedia = ({
 
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
-		frameRange
+		frameRange,
 	);
 
 	const callUpdate = () => {
@@ -386,7 +384,7 @@ export const internalRenderMedia = ({
 			progress:
 				Math.round(
 					(70 * renderedFrames + 15 * encodedFrames + 15 * muxedFrames) /
-						totalFramesToRender
+						totalFramesToRender,
 				) / 100,
 		});
 	};
@@ -464,7 +462,7 @@ export const internalRenderMedia = ({
 		} else {
 			// add frame at appropriate position
 			const index = slowestFrames.findIndex(
-				({time: indexTime}) => indexTime < time
+				({time: indexTime}) => indexTime < time,
 			);
 			slowestFrames.splice(index, 0, frameTime);
 		}
@@ -496,7 +494,7 @@ export const internalRenderMedia = ({
 					{
 						onDownload,
 						onError: (err) => reject(err),
-					}
+					},
 				);
 			})
 			.then(({server, cleanupServer}) => {
@@ -506,7 +504,7 @@ export const internalRenderMedia = ({
 					onFrameUpdate: (
 						frame: number,
 						frameIndex: number,
-						timeToRenderInMilliseconds
+						timeToRenderInMilliseconds,
 					) => {
 						renderedFrames = frame;
 						callUpdate();
@@ -538,13 +536,13 @@ export const internalRenderMedia = ({
 								const exitStatus = preStitcher?.getExitStatus();
 								if (exitStatus?.type === 'quit-successfully') {
 									throw new Error(
-										`FFmpeg already quit while trying to pipe frame ${frame} to it. Stderr: ${exitStatus.stderr}}`
+										`FFmpeg already quit while trying to pipe frame ${frame} to it. Stderr: ${exitStatus.stderr}}`,
 									);
 								}
 
 								if (exitStatus?.type === 'quit-with-error') {
 									throw new Error(
-										`FFmpeg quit with code ${exitStatus.exitCode} while piping frame ${frame}. Stderr: ${exitStatus.stderr}}`
+										`FFmpeg quit with code ${exitStatus.exitCode} while piping frame ${frame}. Stderr: ${exitStatus.stderr}}`,
 									);
 								}
 
@@ -552,7 +550,7 @@ export const internalRenderMedia = ({
 								stopPerfMeasure(id);
 
 								setFrameToStitch(
-									Math.min(realFrameRange[1] + 1, frame + everyNthFrame)
+									Math.min(realFrameRange[1] + 1, frame + everyNthFrame),
 								);
 						  }
 						: null,
@@ -744,7 +742,7 @@ export const renderMedia = ({
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
-			`The "quality" option has been renamed. Please use "jpegQuality" instead.`
+			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
 		);
 	}
 
