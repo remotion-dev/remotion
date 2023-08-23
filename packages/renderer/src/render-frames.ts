@@ -567,189 +567,199 @@ const innerRenderFrames = async ({
 
 type CleanupFn = () => void;
 
-export const internalRenderFrames = ({
-	browserExecutable,
-	cancelSignal,
-	chromiumOptions,
-	composition,
-	concurrency,
-	envVariables,
-	everyNthFrame,
-	frameRange,
-	imageFormat,
-	indent,
-	jpegQuality,
-	muted,
-	onBrowserLog,
-	onDownload,
-	onFrameBuffer,
-	onFrameUpdate,
-	onStart,
-	outputDir,
-	port,
-	puppeteerInstance,
-	scale,
-	server,
-	timeoutInMilliseconds,
-	logLevel,
-	webpackBundleOrServeUrl,
-	serializedInputPropsWithCustomSchema,
-	serializedResolvedPropsWithCustomSchema,
-}: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
-	Internals.validateDimension(
-		composition.height,
-		'height',
-		'in the `config` object passed to `renderFrames()`'
-	);
-	Internals.validateDimension(
-		composition.width,
-		'width',
-		'in the `config` object passed to `renderFrames()`'
-	);
-	Internals.validateFps(
-		composition.fps,
-		'in the `config` object of `renderFrames()`',
-		false
-	);
-	Internals.validateDurationInFrames(composition.durationInFrames, {
-		component: 'in the `config` object passed to `renderFrames()`',
-		allowFloats: false,
-	});
-
-	validateJpegQuality(jpegQuality);
-	validateScale(scale);
-
-	const makeBrowser = () =>
-		internalOpenBrowser({
-			browser: DEFAULT_BROWSER,
-			browserExecutable,
-			chromiumOptions,
-			forceDeviceScaleFactor: scale,
-			indent,
-			viewport: null,
-			logLevel,
+export const internalRenderFrames = wrapWithErrorHandling(
+	({
+		browserExecutable,
+		cancelSignal,
+		chromiumOptions,
+		composition,
+		concurrency,
+		envVariables,
+		everyNthFrame,
+		frameRange,
+		imageFormat,
+		indent,
+		jpegQuality,
+		muted,
+		onBrowserLog,
+		onDownload,
+		onFrameBuffer,
+		onFrameUpdate,
+		onStart,
+		outputDir,
+		port,
+		puppeteerInstance,
+		scale,
+		server,
+		timeoutInMilliseconds,
+		logLevel,
+		webpackBundleOrServeUrl,
+		serializedInputPropsWithCustomSchema,
+		serializedResolvedPropsWithCustomSchema,
+	}: InternalRenderFramesOptions): Promise<RenderFramesOutput> => {
+		Internals.validateDimension(
+			composition.height,
+			'height',
+			'in the `config` object passed to `renderFrames()`'
+		);
+		Internals.validateDimension(
+			composition.width,
+			'width',
+			'in the `config` object passed to `renderFrames()`'
+		);
+		Internals.validateFps(
+			composition.fps,
+			'in the `config` object of `renderFrames()`',
+			false
+		);
+		Internals.validateDurationInFrames(composition.durationInFrames, {
+			component: 'in the `config` object passed to `renderFrames()`',
+			allowFloats: false,
 		});
 
-	const browserInstance = puppeteerInstance ?? makeBrowser();
+		validateJpegQuality(jpegQuality);
+		validateScale(scale);
 
-	const actualConcurrency = getActualConcurrency(concurrency);
+		const makeBrowser = () =>
+			internalOpenBrowser({
+				browser: DEFAULT_BROWSER,
+				browserExecutable,
+				chromiumOptions,
+				forceDeviceScaleFactor: scale,
+				indent,
+				viewport: null,
+				logLevel,
+			});
 
-	const openedPages: Page[] = [];
+		const browserInstance = puppeteerInstance ?? makeBrowser();
 
-	return new Promise<RenderFramesOutput>((resolve, reject) => {
-		const cleanup: CleanupFn[] = [];
+		const actualConcurrency = getActualConcurrency(concurrency);
 
-		const onError = (err: Error) => {
-			reject(err);
-		};
+		const openedPages: Page[] = [];
 
-		Promise.race([
-			new Promise<RenderFramesOutput>((_, rej) => {
-				cancelSignal?.(() => {
-					rej(new Error(cancelErrorMessages.renderFrames));
-				});
-			}),
-			Promise.all([
-				makeOrReuseServer(
-					server,
-					{
-						webpackConfigOrServeUrl: webpackBundleOrServeUrl,
-						port,
-						remotionRoot: findRemotionRoot(),
-						concurrency: actualConcurrency,
+		return new Promise<RenderFramesOutput>((resolve, reject) => {
+			const cleanup: CleanupFn[] = [];
+
+			const onError = (err: Error) => {
+				reject(err);
+			};
+
+			Promise.race([
+				new Promise<RenderFramesOutput>((_, rej) => {
+					cancelSignal?.(() => {
+						rej(new Error(cancelErrorMessages.renderFrames));
+					});
+				}),
+				Promise.all([
+					makeOrReuseServer(
+						server,
+						{
+							webpackConfigOrServeUrl: webpackBundleOrServeUrl,
+							port,
+							remotionRoot: findRemotionRoot(),
+							concurrency: actualConcurrency,
+							logLevel,
+							indent,
+						},
+						{
+							onDownload,
+							onError,
+						}
+					),
+					browserInstance,
+				]).then(([{server: openedServer, cleanupServer}, pInstance]) => {
+					const {serveUrl, offthreadPort, compositor, sourceMap, downloadMap} =
+						openedServer;
+
+					const browserReplacer = handleBrowserCrash(
+						pInstance,
+						logLevel,
+						indent
+					);
+
+					cleanup.push(
+						cycleBrowserTabs(
+							browserReplacer,
+							actualConcurrency,
+							logLevel,
+							indent
+						).stopCycling
+					);
+					cleanup.push(() => cleanupServer(false));
+
+					return innerRenderFrames({
+						onError,
+						pagesArray: openedPages,
+						serveUrl,
+						composition,
+						actualConcurrency,
+						onDownload,
+						proxyPort: offthreadPort,
+						makeBrowser,
+						browserReplacer,
+						compositor,
+						sourcemapContext: sourceMap,
+						downloadMap,
+						cancelSignal,
+						envVariables,
+						everyNthFrame,
+						frameRange,
+						imageFormat,
+						jpegQuality,
+						muted,
+						onBrowserLog,
+						onFrameBuffer,
+						onFrameUpdate,
+						onStart,
+						outputDir,
+						scale,
+						timeoutInMilliseconds,
 						logLevel,
 						indent,
-					},
-					{
-						onDownload,
-						onError,
-					}
-				),
-				browserInstance,
-			]).then(([{server: openedServer, cleanupServer}, pInstance]) => {
-				const {serveUrl, offthreadPort, compositor, sourceMap, downloadMap} =
-					openedServer;
-
-				const browserReplacer = handleBrowserCrash(pInstance, logLevel, indent);
-
-				cleanup.push(
-					cycleBrowserTabs(browserReplacer, actualConcurrency, logLevel, indent)
-						.stopCycling
-				);
-				cleanup.push(() => cleanupServer(false));
-
-				return innerRenderFrames({
-					onError,
-					pagesArray: openedPages,
-					serveUrl,
-					composition,
-					actualConcurrency,
-					onDownload,
-					proxyPort: offthreadPort,
-					makeBrowser,
-					browserReplacer,
-					compositor,
-					sourcemapContext: sourceMap,
-					downloadMap,
-					cancelSignal,
-					envVariables,
-					everyNthFrame,
-					frameRange,
-					imageFormat,
-					jpegQuality,
-					muted,
-					onBrowserLog,
-					onFrameBuffer,
-					onFrameUpdate,
-					onStart,
-					outputDir,
-					scale,
-					timeoutInMilliseconds,
-					logLevel,
-					indent,
-					serializedInputPropsWithCustomSchema,
-					serializedResolvedPropsWithCustomSchema,
-				});
-			}),
-		])
-			.then((res) => {
-				return resolve(res);
-			})
-			.catch((err) => reject(err))
-			.finally(() => {
-				// If browser instance was passed in, we close all the pages
-				// we opened.
-				// If new browser was opened, then closing the browser as a cleanup.
-
-				if (puppeteerInstance) {
-					Promise.all(openedPages.map((p) => p.close())).catch((err) => {
-						if (isTargetClosedErr(err)) {
-							return;
-						}
-
-						console.log('Unable to close browser tab', err);
+						serializedInputPropsWithCustomSchema,
+						serializedResolvedPropsWithCustomSchema,
 					});
-				} else {
-					Promise.resolve(browserInstance)
-						.then((instance) => {
-							return instance.close(true, logLevel, indent);
-						})
-						.catch((err) => {
-							if (
-								!(err as Error | undefined)?.message.includes('Target closed')
-							) {
-								console.log('Unable to close browser', err);
-							}
-						});
-				}
+				}),
+			])
+				.then((res) => {
+					return resolve(res);
+				})
+				.catch((err) => reject(err))
+				.finally(() => {
+					// If browser instance was passed in, we close all the pages
+					// we opened.
+					// If new browser was opened, then closing the browser as a cleanup.
 
-				cleanup.forEach((c) => {
-					c();
+					if (puppeteerInstance) {
+						Promise.all(openedPages.map((p) => p.close())).catch((err) => {
+							if (isTargetClosedErr(err)) {
+								return;
+							}
+
+							console.log('Unable to close browser tab', err);
+						});
+					} else {
+						Promise.resolve(browserInstance)
+							.then((instance) => {
+								return instance.close(true, logLevel, indent);
+							})
+							.catch((err) => {
+								if (
+									!(err as Error | undefined)?.message.includes('Target closed')
+								) {
+									console.log('Unable to close browser', err);
+								}
+							});
+					}
+
+					cleanup.forEach((c) => {
+						c();
+					});
+					// Don't clear download dir because it might be used by stitchFramesToVideo
 				});
-				// Don't clear download dir because it might be used by stitchFramesToVideo
-			});
-	});
-};
+		});
+	}
+);
 
 /**
  * @description Renders a series of images using Puppeteer and computes information for mixing audio.
@@ -806,7 +816,7 @@ export const renderFrames = (
 		);
 	}
 
-	return wrapWithErrorHandling(internalRenderFrames)({
+	return internalRenderFrames({
 		browserExecutable: browserExecutable ?? null,
 		cancelSignal,
 		chromiumOptions: chromiumOptions ?? {},

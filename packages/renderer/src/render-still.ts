@@ -324,63 +324,63 @@ const innerRenderStill = async ({
 	return {buffer: output ? null : buffer};
 };
 
-export const internalRenderStill = (
-	options: InternalRenderStillOptions
-): Promise<RenderStillReturnValue> => {
-	const cleanup: CleanupFn[] = [];
+export const internalRenderStill = wrapWithErrorHandling(
+	(options: InternalRenderStillOptions): Promise<RenderStillReturnValue> => {
+		const cleanup: CleanupFn[] = [];
 
-	const happyPath = new Promise<RenderStillReturnValue>((resolve, reject) => {
-		const onError = (err: Error) => reject(err);
+		const happyPath = new Promise<RenderStillReturnValue>((resolve, reject) => {
+			const onError = (err: Error) => reject(err);
 
-		makeOrReuseServer(
-			options.server,
-			{
-				webpackConfigOrServeUrl: options.serveUrl,
-				port: options.port,
-				remotionRoot: findRemotionRoot(),
-				concurrency: 1,
-				logLevel: options.logLevel,
-				indent: options.indent,
-			},
-			{
-				onDownload: options.onDownload,
-				onError,
-			}
-		)
-			.then(({server, cleanupServer}) => {
-				cleanup.push(() => cleanupServer(false));
-				const {serveUrl, offthreadPort, compositor, sourceMap, downloadMap} =
-					server;
-
-				return innerRenderStill({
-					...options,
-					serveUrl,
+			makeOrReuseServer(
+				options.server,
+				{
+					webpackConfigOrServeUrl: options.serveUrl,
+					port: options.port,
+					remotionRoot: findRemotionRoot(),
+					concurrency: 1,
+					logLevel: options.logLevel,
+					indent: options.indent,
+				},
+				{
+					onDownload: options.onDownload,
 					onError,
-					proxyPort: offthreadPort,
-					compositor,
-					sourceMapContext: sourceMap,
-					downloadMap,
-				});
-			})
+				}
+			)
+				.then(({server, cleanupServer}) => {
+					cleanup.push(() => cleanupServer(false));
+					const {serveUrl, offthreadPort, compositor, sourceMap, downloadMap} =
+						server;
 
-			.then((res) => resolve(res))
-			.catch((err) => reject(err))
-			.finally(() => {
-				cleanup.forEach((c) => {
-					c();
-				});
-			});
-	});
+					return innerRenderStill({
+						...options,
+						serveUrl,
+						onError,
+						proxyPort: offthreadPort,
+						compositor,
+						sourceMapContext: sourceMap,
+						downloadMap,
+					});
+				})
 
-	return Promise.race([
-		happyPath,
-		new Promise<RenderStillReturnValue>((_resolve, reject) => {
-			options.cancelSignal?.(() => {
-				reject(new Error(cancelErrorMessages.renderStill));
-			});
-		}),
-	]);
-};
+				.then((res) => resolve(res))
+				.catch((err) => reject(err))
+				.finally(() => {
+					cleanup.forEach((c) => {
+						c();
+					});
+				});
+		});
+
+		return Promise.race([
+			happyPath,
+			new Promise<RenderStillReturnValue>((_resolve, reject) => {
+				options.cancelSignal?.(() => {
+					reject(new Error(cancelErrorMessages.renderStill));
+				});
+			}),
+		]);
+	}
+);
 
 /**
  *
@@ -426,7 +426,7 @@ export const renderStill = (
 		);
 	}
 
-	return wrapWithErrorHandling(internalRenderStill)({
+	return internalRenderStill({
 		composition,
 		browserExecutable: browserExecutable ?? null,
 		cancelSignal: cancelSignal ?? null,

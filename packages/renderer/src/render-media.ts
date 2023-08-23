@@ -182,510 +182,521 @@ type RenderMediaResult = {
 	slowestFrames: SlowFrame[];
 };
 
-export const internalRenderMedia = ({
-	proResProfile,
-	x264Preset,
-	crf,
-	composition,
-	serializedInputPropsWithCustomSchema,
-	pixelFormat,
-	codec,
-	envVariables,
-	frameRange,
-	puppeteerInstance,
-	outputLocation,
-	onProgress,
-	overwrite,
-	onDownload,
-	onBrowserLog,
-	onStart,
-	timeoutInMilliseconds,
-	chromiumOptions,
-	scale,
-	browserExecutable,
-	port,
-	cancelSignal,
-	muted,
-	enforceAudioTrack,
-	ffmpegOverride,
-	audioBitrate,
-	videoBitrate,
-	audioCodec,
-	concurrency,
-	disallowParallelEncoding,
-	everyNthFrame,
-	imageFormat: provisionalImageFormat,
-	indent,
-	jpegQuality,
-	numberOfGifLoops,
-	onCtrlCExit,
-	preferLossless,
-	serveUrl,
-	server: reusedServer,
-	logLevel,
-	serializedResolvedPropsWithCustomSchema,
-}: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
-	validateJpegQuality(jpegQuality);
-	validateQualitySettings({crf, codec, videoBitrate});
-	validateBitrate(audioBitrate, 'audioBitrate');
-	validateBitrate(videoBitrate, 'videoBitrate');
-
-	validateSelectedCodecAndProResCombination({
-		codec,
+export const internalRenderMedia = wrapWithErrorHandling(
+	({
 		proResProfile,
-	});
-
-	validateSelectedCodecAndPresetCombination({
-		codec,
 		x264Preset,
-	});
+		crf,
+		composition,
+		serializedInputPropsWithCustomSchema,
+		pixelFormat,
+		codec,
+		envVariables,
+		frameRange,
+		puppeteerInstance,
+		outputLocation,
+		onProgress,
+		overwrite,
+		onDownload,
+		onBrowserLog,
+		onStart,
+		timeoutInMilliseconds,
+		chromiumOptions,
+		scale,
+		browserExecutable,
+		port,
+		cancelSignal,
+		muted,
+		enforceAudioTrack,
+		ffmpegOverride,
+		audioBitrate,
+		videoBitrate,
+		audioCodec,
+		concurrency,
+		disallowParallelEncoding,
+		everyNthFrame,
+		imageFormat: provisionalImageFormat,
+		indent,
+		jpegQuality,
+		numberOfGifLoops,
+		onCtrlCExit,
+		preferLossless,
+		serveUrl,
+		server: reusedServer,
+		logLevel,
+		serializedResolvedPropsWithCustomSchema,
+	}: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
+		validateJpegQuality(jpegQuality);
+		validateQualitySettings({crf, codec, videoBitrate});
+		validateBitrate(audioBitrate, 'audioBitrate');
+		validateBitrate(videoBitrate, 'videoBitrate');
 
-	validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
-	if (outputLocation) {
-		validateOutputFilename({
+		validateSelectedCodecAndProResCombination({
 			codec,
-			audioCodec,
-			extension: getExtensionOfFilename(outputLocation) as string,
-			preferLossless,
+			proResProfile,
 		});
-	}
 
-	const absoluteOutputLocation = outputLocation
-		? path.resolve(process.cwd(), outputLocation)
-		: null;
+		validateSelectedCodecAndPresetCombination({
+			codec,
+			x264Preset,
+		});
 
-	validateScale(scale);
+		validateSelectedPixelFormatAndCodecCombination(pixelFormat, codec);
+		if (outputLocation) {
+			validateOutputFilename({
+				codec,
+				audioCodec,
+				extension: getExtensionOfFilename(outputLocation) as string,
+				preferLossless,
+			});
+		}
 
-	validateFfmpegOverride(ffmpegOverride);
+		const absoluteOutputLocation = outputLocation
+			? path.resolve(process.cwd(), outputLocation)
+			: null;
 
-	validateEveryNthFrame(everyNthFrame, codec);
-	validateNumberOfGifLoops(numberOfGifLoops, codec);
+		validateScale(scale);
 
-	let stitchStage: StitchingState = 'encoding';
-	let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
-	let preStitcher: Await<ReturnType<typeof prespawnFfmpeg>> | null = null;
-	let encodedFrames = 0;
-	let muxedFrames = 0;
-	let renderedFrames = 0;
-	let totalFramesToRender = 0;
-	let renderedDoneIn: number | null = null;
-	let encodedDoneIn: number | null = null;
-	let cancelled = false;
+		validateFfmpegOverride(ffmpegOverride);
 
-	const renderStart = Date.now();
+		validateEveryNthFrame(everyNthFrame, codec);
+		validateNumberOfGifLoops(numberOfGifLoops, codec);
 
-	const {estimatedUsage, freeMemory, hasEnoughMemory} =
-		shouldUseParallelEncoding({
+		let stitchStage: StitchingState = 'encoding';
+		let stitcherFfmpeg: ExecaChildProcess<string> | undefined;
+		let preStitcher: Await<ReturnType<typeof prespawnFfmpeg>> | null = null;
+		let encodedFrames = 0;
+		let muxedFrames = 0;
+		let renderedFrames = 0;
+		let totalFramesToRender = 0;
+		let renderedDoneIn: number | null = null;
+		let encodedDoneIn: number | null = null;
+		let cancelled = false;
+
+		const renderStart = Date.now();
+
+		const {estimatedUsage, freeMemory, hasEnoughMemory} =
+			shouldUseParallelEncoding({
+				height: composition.height,
+				width: composition.width,
+			});
+		const parallelEncoding =
+			!disallowParallelEncoding &&
+			hasEnoughMemory &&
+			canUseParallelEncoding(codec);
+
+		Log.verboseAdvanced(
+			{
+				indent,
+				logLevel,
+				tag: 'renderMedia()',
+			},
+			'Free memory:',
+			freeMemory,
+			'Estimated usage parallel encoding',
+			estimatedUsage
+		);
+		Log.verboseAdvanced(
+			{
+				indent,
+				logLevel,
+				tag: 'renderMedia()',
+			},
+			'Codec supports parallel rendering:',
+			canUseParallelEncoding(codec)
+		);
+		if (disallowParallelEncoding) {
+			Log.verboseAdvanced(
+				{
+					indent,
+					logLevel,
+					tag: 'renderMedia()',
+				},
+				'User disallowed parallel encoding.'
+			);
+		}
+
+		if (parallelEncoding) {
+			Log.verboseAdvanced(
+				{
+					indent,
+					logLevel,
+					tag: 'renderMedia()',
+				},
+				'Parallel encoding is enabled.'
+			);
+		} else {
+			Log.verboseAdvanced(
+				{
+					indent,
+					logLevel,
+					tag: 'renderMedia()',
+				},
+				'Parallel encoding is disabled.'
+			);
+		}
+
+		const imageFormat: VideoImageFormat = isAudioCodec(codec)
+			? 'none'
+			: provisionalImageFormat;
+
+		validateSelectedPixelFormatAndImageFormatCombination(
+			pixelFormat,
+			imageFormat
+		);
+
+		const workingDir = fs.mkdtempSync(
+			path.join(os.tmpdir(), 'react-motion-render')
+		);
+
+		const preEncodedFileLocation = parallelEncoding
+			? path.join(
+					workingDir,
+					'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec)
+			  )
+			: null;
+
+		if (onCtrlCExit && workingDir) {
+			onCtrlCExit(() => deleteDirectory(workingDir));
+		}
+
+		validateEvenDimensionsWithCodec({
+			codec,
 			height: composition.height,
+			scale,
 			width: composition.width,
 		});
-	const parallelEncoding =
-		!disallowParallelEncoding &&
-		hasEnoughMemory &&
-		canUseParallelEncoding(codec);
 
-	Log.verboseAdvanced(
-		{
-			indent,
-			logLevel,
-			tag: 'renderMedia()',
-		},
-		'Free memory:',
-		freeMemory,
-		'Estimated usage parallel encoding',
-		estimatedUsage
-	);
-	Log.verboseAdvanced(
-		{
-			indent,
-			logLevel,
-			tag: 'renderMedia()',
-		},
-		'Codec supports parallel rendering:',
-		canUseParallelEncoding(codec)
-	);
-	if (disallowParallelEncoding) {
-		Log.verboseAdvanced(
-			{
-				indent,
-				logLevel,
-				tag: 'renderMedia()',
-			},
-			'User disallowed parallel encoding.'
+		const realFrameRange = getRealFrameRange(
+			composition.durationInFrames,
+			frameRange
 		);
-	}
 
-	if (parallelEncoding) {
-		Log.verboseAdvanced(
-			{
-				indent,
-				logLevel,
-				tag: 'renderMedia()',
-			},
-			'Parallel encoding is enabled.'
-		);
-	} else {
-		Log.verboseAdvanced(
-			{
-				indent,
-				logLevel,
-				tag: 'renderMedia()',
-			},
-			'Parallel encoding is disabled.'
-		);
-	}
+		const callUpdate = () => {
+			onProgress?.({
+				encodedDoneIn,
+				encodedFrames: Math.round(0.5 * encodedFrames + 0.5 * muxedFrames),
+				renderedDoneIn,
+				renderedFrames,
+				stitchStage,
+				progress:
+					Math.round(
+						(70 * renderedFrames + 15 * encodedFrames + 15 * muxedFrames) /
+							totalFramesToRender
+					) / 100,
+			});
+		};
 
-	const imageFormat: VideoImageFormat = isAudioCodec(codec)
-		? 'none'
-		: provisionalImageFormat;
+		const cancelRenderFrames = makeCancelSignal();
+		const cancelPrestitcher = makeCancelSignal();
+		const cancelStitcher = makeCancelSignal();
 
-	validateSelectedPixelFormatAndImageFormatCombination(
-		pixelFormat,
-		imageFormat
-	);
-
-	const workingDir = fs.mkdtempSync(
-		path.join(os.tmpdir(), 'react-motion-render')
-	);
-
-	const preEncodedFileLocation = parallelEncoding
-		? path.join(
-				workingDir,
-				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec)
-		  )
-		: null;
-
-	if (onCtrlCExit && workingDir) {
-		onCtrlCExit(() => deleteDirectory(workingDir));
-	}
-
-	validateEvenDimensionsWithCodec({
-		codec,
-		height: composition.height,
-		scale,
-		width: composition.width,
-	});
-
-	const realFrameRange = getRealFrameRange(
-		composition.durationInFrames,
-		frameRange
-	);
-
-	const callUpdate = () => {
-		onProgress?.({
-			encodedDoneIn,
-			encodedFrames: Math.round(0.5 * encodedFrames + 0.5 * muxedFrames),
-			renderedDoneIn,
-			renderedFrames,
-			stitchStage,
-			progress:
-				Math.round(
-					(70 * renderedFrames + 15 * encodedFrames + 15 * muxedFrames) /
-						totalFramesToRender
-				) / 100,
+		cancelSignal?.(() => {
+			cancelRenderFrames.cancel();
 		});
-	};
 
-	const cancelRenderFrames = makeCancelSignal();
-	const cancelPrestitcher = makeCancelSignal();
-	const cancelStitcher = makeCancelSignal();
+		const {
+			waitForRightTimeOfFrameToBeInserted,
+			setFrameToStitch,
+			waitForFinish,
+		} = ensureFramesInOrder(realFrameRange);
 
-	cancelSignal?.(() => {
-		cancelRenderFrames.cancel();
-	});
+		const fps = composition.fps / everyNthFrame;
+		Internals.validateFps(fps, 'in "renderMedia()"', codec === 'gif');
 
-	const {waitForRightTimeOfFrameToBeInserted, setFrameToStitch, waitForFinish} =
-		ensureFramesInOrder(realFrameRange);
-
-	const fps = composition.fps / everyNthFrame;
-	Internals.validateFps(fps, 'in "renderMedia()"', codec === 'gif');
-
-	const createPrestitcherIfNecessary = () => {
-		if (preEncodedFileLocation) {
-			preStitcher = prespawnFfmpeg({
-				width: composition.width * scale,
-				height: composition.height * scale,
-				fps,
-				outputLocation: preEncodedFileLocation,
-				pixelFormat,
-				codec,
-				proResProfile,
-				crf,
-				onProgress: (frame: number) => {
-					encodedFrames = frame;
-					callUpdate();
-				},
-				logLevel,
-				imageFormat,
-				signal: cancelPrestitcher.cancelSignal,
-				ffmpegOverride: ffmpegOverride ?? (({args}) => args),
-				videoBitrate,
-				indent,
-			});
-			stitcherFfmpeg = preStitcher.task;
-		}
-	};
-
-	const waitForPrestitcherIfNecessary = async () => {
-		if (stitcherFfmpeg) {
-			await waitForFinish();
-			stitcherFfmpeg?.stdin?.end();
-			try {
-				await stitcherFfmpeg;
-			} catch (err) {
-				throw new Error(preStitcher?.getLogs());
-			}
-		}
-	};
-
-	const mediaSupport = codecSupportsMedia(codec);
-	const disableAudio = !mediaSupport.audio || muted;
-
-	const slowestFrames: SlowFrame[] = [];
-	let maxTime = 0;
-	let minTime = 0;
-
-	const recordFrameTime = (frameIndex: number, time: number) => {
-		const frameTime: SlowFrame = {frame: frameIndex, time};
-
-		if (time < minTime && slowestFrames.length === SLOWEST_FRAME_COUNT) {
-			return;
-		}
-
-		if (time > maxTime) {
-			// add at starting;
-			slowestFrames.unshift(frameTime);
-			maxTime = time;
-		} else {
-			// add frame at appropriate position
-			const index = slowestFrames.findIndex(
-				({time: indexTime}) => indexTime < time
-			);
-			slowestFrames.splice(index, 0, frameTime);
-		}
-
-		if (slowestFrames.length > SLOWEST_FRAME_COUNT) {
-			slowestFrames.pop();
-		}
-
-		minTime = slowestFrames[slowestFrames.length - 1]?.time ?? minTime;
-	};
-
-	let cleanupServerFn: (force: boolean) => Promise<unknown> = () =>
-		Promise.resolve(undefined);
-
-	const happyPath = new Promise<RenderMediaResult>((resolve, reject) => {
-		Promise.resolve(createPrestitcherIfNecessary())
-			.then(() => {
-				return makeOrReuseServer(
-					reusedServer,
-					{
-						concurrency: getActualConcurrency(concurrency),
-						indent,
-						port,
-						remotionRoot: findRemotionRoot(),
-						logLevel,
-						webpackConfigOrServeUrl: serveUrl,
-					},
-					{
-						onDownload,
-						onError: (err) => reject(err),
-					}
-				);
-			})
-			.then(({server, cleanupServer}) => {
-				cleanupServerFn = cleanupServer;
-				const renderFramesProc = internalRenderFrames({
-					composition,
-					onFrameUpdate: (
-						frame: number,
-						frameIndex: number,
-						timeToRenderInMilliseconds
-					) => {
-						renderedFrames = frame;
+		const createPrestitcherIfNecessary = () => {
+			if (preEncodedFileLocation) {
+				preStitcher = prespawnFfmpeg({
+					width: composition.width * scale,
+					height: composition.height * scale,
+					fps,
+					outputLocation: preEncodedFileLocation,
+					pixelFormat,
+					codec,
+					proResProfile,
+					crf,
+					onProgress: (frame: number) => {
+						encodedFrames = frame;
 						callUpdate();
-						recordFrameTime(frameIndex, timeToRenderInMilliseconds);
 					},
-					concurrency,
-					outputDir: parallelEncoding ? null : workingDir,
-					onStart: (data) => {
-						renderedFrames = 0;
-						totalFramesToRender = data.frameCount;
-						callUpdate();
-						onStart?.(data);
-					},
-					serializedInputPropsWithCustomSchema,
-					envVariables,
-					imageFormat,
-					jpegQuality,
-					frameRange,
-					puppeteerInstance,
-					everyNthFrame,
-					onFrameBuffer: parallelEncoding
-						? async (buffer, frame) => {
-								await waitForRightTimeOfFrameToBeInserted(frame);
-								if (cancelled) {
-									return;
-								}
-
-								const id = startPerfMeasure('piping');
-								const exitStatus = preStitcher?.getExitStatus();
-								if (exitStatus?.type === 'quit-successfully') {
-									throw new Error(
-										`FFmpeg already quit while trying to pipe frame ${frame} to it. Stderr: ${exitStatus.stderr}}`
-									);
-								}
-
-								if (exitStatus?.type === 'quit-with-error') {
-									throw new Error(
-										`FFmpeg quit with code ${exitStatus.exitCode} while piping frame ${frame}. Stderr: ${exitStatus.stderr}}`
-									);
-								}
-
-								stitcherFfmpeg?.stdin?.write(buffer);
-								stopPerfMeasure(id);
-
-								setFrameToStitch(
-									Math.min(realFrameRange[1] + 1, frame + everyNthFrame)
-								);
-						  }
-						: null,
-					webpackBundleOrServeUrl: serveUrl,
-					onBrowserLog,
-					onDownload,
-					timeoutInMilliseconds,
-					chromiumOptions,
-					scale,
-					browserExecutable,
-					port,
-					cancelSignal: cancelRenderFrames.cancelSignal,
-					muted: disableAudio,
 					logLevel,
+					imageFormat,
+					signal: cancelPrestitcher.cancelSignal,
+					ffmpegOverride: ffmpegOverride ?? (({args}) => args),
+					videoBitrate,
 					indent,
-					server,
-					serializedResolvedPropsWithCustomSchema,
 				});
+				stitcherFfmpeg = preStitcher.task;
+			}
+		};
 
-				return renderFramesProc;
-			})
-			.then((renderFramesReturn) => {
-				return Promise.all([
-					renderFramesReturn,
-					waitForPrestitcherIfNecessary(),
-				]);
-			})
-			.then(([{assetsInfo}]) => {
-				renderedDoneIn = Date.now() - renderStart;
-				callUpdate();
-
-				if (absoluteOutputLocation) {
-					ensureOutputDirectory(absoluteOutputLocation);
+		const waitForPrestitcherIfNecessary = async () => {
+			if (stitcherFfmpeg) {
+				await waitForFinish();
+				stitcherFfmpeg?.stdin?.end();
+				try {
+					await stitcherFfmpeg;
+				} catch (err) {
+					throw new Error(preStitcher?.getLogs());
 				}
+			}
+		};
 
-				const stitchStart = Date.now();
-				return Promise.all([
-					internalStitchFramesToVideo({
-						width: composition.width * scale,
-						height: composition.height * scale,
-						fps,
-						outputLocation: absoluteOutputLocation,
-						preEncodedFileLocation,
-						preferLossless,
-						indent,
-						force: overwrite,
-						pixelFormat,
-						codec,
-						proResProfile,
-						crf,
-						assetsInfo,
-						onProgress: (frame: number) => {
-							stitchStage = 'muxing';
-							if (preEncodedFileLocation) {
-								muxedFrames = frame;
-							} else {
-								muxedFrames = frame;
-								encodedFrames = frame;
-							}
+		const mediaSupport = codecSupportsMedia(codec);
+		const disableAudio = !mediaSupport.audio || muted;
 
-							callUpdate();
+		const slowestFrames: SlowFrame[] = [];
+		let maxTime = 0;
+		let minTime = 0;
+
+		const recordFrameTime = (frameIndex: number, time: number) => {
+			const frameTime: SlowFrame = {frame: frameIndex, time};
+
+			if (time < minTime && slowestFrames.length === SLOWEST_FRAME_COUNT) {
+				return;
+			}
+
+			if (time > maxTime) {
+				// add at starting;
+				slowestFrames.unshift(frameTime);
+				maxTime = time;
+			} else {
+				// add frame at appropriate position
+				const index = slowestFrames.findIndex(
+					({time: indexTime}) => indexTime < time
+				);
+				slowestFrames.splice(index, 0, frameTime);
+			}
+
+			if (slowestFrames.length > SLOWEST_FRAME_COUNT) {
+				slowestFrames.pop();
+			}
+
+			minTime = slowestFrames[slowestFrames.length - 1]?.time ?? minTime;
+		};
+
+		let cleanupServerFn: (force: boolean) => Promise<unknown> = () =>
+			Promise.resolve(undefined);
+
+		const happyPath = new Promise<RenderMediaResult>((resolve, reject) => {
+			Promise.resolve(createPrestitcherIfNecessary())
+				.then(() => {
+					return makeOrReuseServer(
+						reusedServer,
+						{
+							concurrency: getActualConcurrency(concurrency),
+							indent,
+							port,
+							remotionRoot: findRemotionRoot(),
+							logLevel,
+							webpackConfigOrServeUrl: serveUrl,
 						},
+						{
+							onDownload,
+							onError: (err) => reject(err),
+						}
+					);
+				})
+				.then(({server, cleanupServer}) => {
+					cleanupServerFn = cleanupServer;
+					const renderFramesProc = internalRenderFrames({
+						composition,
+						onFrameUpdate: (
+							frame: number,
+							frameIndex: number,
+							timeToRenderInMilliseconds
+						) => {
+							renderedFrames = frame;
+							callUpdate();
+							recordFrameTime(frameIndex, timeToRenderInMilliseconds);
+						},
+						concurrency,
+						outputDir: parallelEncoding ? null : workingDir,
+						onStart: (data) => {
+							renderedFrames = 0;
+							totalFramesToRender = data.frameCount;
+							callUpdate();
+							onStart?.(data);
+						},
+						serializedInputPropsWithCustomSchema,
+						envVariables,
+						imageFormat,
+						jpegQuality,
+						frameRange,
+						puppeteerInstance,
+						everyNthFrame,
+						onFrameBuffer: parallelEncoding
+							? async (buffer, frame) => {
+									await waitForRightTimeOfFrameToBeInserted(frame);
+									if (cancelled) {
+										return;
+									}
+
+									const id = startPerfMeasure('piping');
+									const exitStatus = preStitcher?.getExitStatus();
+									if (exitStatus?.type === 'quit-successfully') {
+										throw new Error(
+											`FFmpeg already quit while trying to pipe frame ${frame} to it. Stderr: ${exitStatus.stderr}}`
+										);
+									}
+
+									if (exitStatus?.type === 'quit-with-error') {
+										throw new Error(
+											`FFmpeg quit with code ${exitStatus.exitCode} while piping frame ${frame}. Stderr: ${exitStatus.stderr}}`
+										);
+									}
+
+									stitcherFfmpeg?.stdin?.write(buffer);
+									stopPerfMeasure(id);
+
+									setFrameToStitch(
+										Math.min(realFrameRange[1] + 1, frame + everyNthFrame)
+									);
+							  }
+							: null,
+						webpackBundleOrServeUrl: serveUrl,
+						onBrowserLog,
 						onDownload,
-						numberOfGifLoops,
-						logLevel,
-						dir: workingDir,
-						cancelSignal: cancelStitcher.cancelSignal,
+						timeoutInMilliseconds,
+						chromiumOptions,
+						scale,
+						browserExecutable,
+						port,
+						cancelSignal: cancelRenderFrames.cancelSignal,
 						muted: disableAudio,
-						enforceAudioTrack,
-						ffmpegOverride: ffmpegOverride ?? null,
-						audioBitrate,
-						videoBitrate,
-						audioCodec,
-						x264Preset: x264Preset ?? null,
-					}),
-					stitchStart,
-				]);
-			})
-			.then(([buffer, stitchStart]) => {
-				encodedFrames = getFramesToRender(realFrameRange, everyNthFrame).length;
-				encodedDoneIn = Date.now() - stitchStart;
-				callUpdate();
-				slowestFrames.sort((a, b) => b.time - a.time);
-				const result: RenderMediaResult = {
-					buffer,
-					slowestFrames,
-				};
-				resolve(result);
-			})
-			.catch((err) => {
-				/**
-				 * When an error is thrown in renderFrames(...) (e.g., when delayRender() is used incorrectly), fs.unlinkSync(...) throws an error that the file is locked because ffmpeg is still running, and renderMedia returns it.
-				 * Therefore we first kill the FFMPEG process before deleting the file
-				 */
-				cancelled = true;
-				cancelRenderFrames.cancel();
-				cancelStitcher.cancel();
-				cancelPrestitcher.cancel();
-				if (stitcherFfmpeg !== undefined && stitcherFfmpeg.exitCode === null) {
-					const promise = new Promise<void>((res) => {
-						setTimeout(() => {
-							res();
-						}, 2000);
-						(stitcherFfmpeg as ExecaChildProcess<string>).on('close', res);
+						logLevel,
+						indent,
+						server,
+						serializedResolvedPropsWithCustomSchema,
 					});
-					stitcherFfmpeg.kill();
-					return promise.then(() => {
-						reject(err);
-					});
-				}
 
-				reject(err);
-			})
-			.finally(() => {
-				if (
-					preEncodedFileLocation !== null &&
-					fs.existsSync(preEncodedFileLocation)
-				) {
-					deleteDirectory(path.dirname(preEncodedFileLocation));
-				}
+					return renderFramesProc;
+				})
+				.then((renderFramesReturn) => {
+					return Promise.all([
+						renderFramesReturn,
+						waitForPrestitcherIfNecessary(),
+					]);
+				})
+				.then(([{assetsInfo}]) => {
+					renderedDoneIn = Date.now() - renderStart;
+					callUpdate();
 
-				// Clean temporary image frames when rendering ends or fails
-				if (workingDir && fs.existsSync(workingDir)) {
-					deleteDirectory(workingDir);
-				}
+					if (absoluteOutputLocation) {
+						ensureOutputDirectory(absoluteOutputLocation);
+					}
 
-				cleanupServerFn?.(false);
-			});
-	});
+					const stitchStart = Date.now();
+					return Promise.all([
+						internalStitchFramesToVideo({
+							width: composition.width * scale,
+							height: composition.height * scale,
+							fps,
+							outputLocation: absoluteOutputLocation,
+							preEncodedFileLocation,
+							preferLossless,
+							indent,
+							force: overwrite,
+							pixelFormat,
+							codec,
+							proResProfile,
+							crf,
+							assetsInfo,
+							onProgress: (frame: number) => {
+								stitchStage = 'muxing';
+								if (preEncodedFileLocation) {
+									muxedFrames = frame;
+								} else {
+									muxedFrames = frame;
+									encodedFrames = frame;
+								}
 
-	return Promise.race([
-		happyPath,
-		new Promise<RenderMediaResult>((_resolve, reject) => {
-			cancelSignal?.(() => {
-				reject(new Error(cancelErrorMessages.renderMedia));
-			});
-		}),
-	]);
-};
+								callUpdate();
+							},
+							onDownload,
+							numberOfGifLoops,
+							logLevel,
+							dir: workingDir,
+							cancelSignal: cancelStitcher.cancelSignal,
+							muted: disableAudio,
+							enforceAudioTrack,
+							ffmpegOverride: ffmpegOverride ?? null,
+							audioBitrate,
+							videoBitrate,
+							audioCodec,
+							x264Preset: x264Preset ?? null,
+						}),
+						stitchStart,
+					]);
+				})
+				.then(([buffer, stitchStart]) => {
+					encodedFrames = getFramesToRender(
+						realFrameRange,
+						everyNthFrame
+					).length;
+					encodedDoneIn = Date.now() - stitchStart;
+					callUpdate();
+					slowestFrames.sort((a, b) => b.time - a.time);
+					const result: RenderMediaResult = {
+						buffer,
+						slowestFrames,
+					};
+					resolve(result);
+				})
+				.catch((err) => {
+					/**
+					 * When an error is thrown in renderFrames(...) (e.g., when delayRender() is used incorrectly), fs.unlinkSync(...) throws an error that the file is locked because ffmpeg is still running, and renderMedia returns it.
+					 * Therefore we first kill the FFMPEG process before deleting the file
+					 */
+					cancelled = true;
+					cancelRenderFrames.cancel();
+					cancelStitcher.cancel();
+					cancelPrestitcher.cancel();
+					if (
+						stitcherFfmpeg !== undefined &&
+						stitcherFfmpeg.exitCode === null
+					) {
+						const promise = new Promise<void>((res) => {
+							setTimeout(() => {
+								res();
+							}, 2000);
+							(stitcherFfmpeg as ExecaChildProcess<string>).on('close', res);
+						});
+						stitcherFfmpeg.kill();
+						return promise.then(() => {
+							reject(err);
+						});
+					}
+
+					reject(err);
+				})
+				.finally(() => {
+					if (
+						preEncodedFileLocation !== null &&
+						fs.existsSync(preEncodedFileLocation)
+					) {
+						deleteDirectory(path.dirname(preEncodedFileLocation));
+					}
+
+					// Clean temporary image frames when rendering ends or fails
+					if (workingDir && fs.existsSync(workingDir)) {
+						deleteDirectory(workingDir);
+					}
+
+					cleanupServerFn?.(false);
+				});
+		});
+
+		return Promise.race([
+			happyPath,
+			new Promise<RenderMediaResult>((_resolve, reject) => {
+				cancelSignal?.(() => {
+					reject(new Error(cancelErrorMessages.renderMedia));
+				});
+			}),
+		]);
+	}
+);
 
 /**
  *
@@ -740,7 +751,7 @@ export const renderMedia = ({
 		);
 	}
 
-	return wrapWithErrorHandling(internalRenderMedia)({
+	return internalRenderMedia({
 		proResProfile: proResProfile ?? undefined,
 		x264Preset,
 		codec,
