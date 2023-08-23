@@ -9,11 +9,12 @@ export const offthreadVideoCacheSizeInBytesOption = {
 			<a href="https://remotion.dev/docs/offthreadvideo">
 				<code>&lt;OffthreadVideo&gt;</code>
 			</a>{' '}
-			frames. The default is dependent on the available memory when the render
-			starts.
-			<br /> This option allows to override the number of video frames that
-			should be kept in cache. The higher it is, the faster the render will be,
-			but the more memory will be used.
+			frames. The default is <code>null</code>, corresponding to half of the
+			system memory available when the render starts.
+			<br /> This option allows to override the size of the cache. The higher it
+			is, the faster the render will be, but the more memory will be used.
+			<br />
+			The used value will be printed when running in verbose mode.
 			<br />
 			Default: <code>null</code>
 		</>
