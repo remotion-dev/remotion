@@ -10,6 +10,7 @@ import {
 import type {LogLevel} from './log-level';
 import {isEqualOrBelowLogLevel} from './log-level';
 import {Log} from './logger';
+import {validateOffthreadVideoCacheSize} from './options/offthreadvideo-cache-size';
 
 export const extractUrlAndSourceFromUrl = (url: string) => {
 	const parsed = new URL(url, 'http://localhost');
@@ -47,8 +48,10 @@ export const startOffthreadVideoServer = ({
 	concurrency,
 	logLevel,
 	indent,
+	offthreadVideoCacheSize,
 }: {
 	downloadMap: DownloadMap;
+	offthreadVideoCacheSize: number | null;
 	concurrency: number;
 	logLevel: LogLevel;
 	indent: boolean;
@@ -57,11 +60,13 @@ export const startOffthreadVideoServer = ({
 	close: () => Promise<void>;
 	compositor: Compositor;
 } => {
+	validateOffthreadVideoCacheSize(offthreadVideoCacheSize);
 	const compositor = startCompositor(
 		'StartLongRunningProcess',
 		{
 			concurrency,
-			maximum_frame_cache_items: getIdealMaximumFrameCacheItems(),
+			maximum_frame_cache_items:
+				offthreadVideoCacheSize ?? getIdealMaximumFrameCacheItems(),
 			verbose: isEqualOrBelowLogLevel(logLevel, 'verbose'),
 		},
 		logLevel,

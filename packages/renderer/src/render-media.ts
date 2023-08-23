@@ -485,6 +485,7 @@ export const internalRenderMedia = ({
 						remotionRoot: findRemotionRoot(),
 						logLevel,
 						webpackConfigOrServeUrl: serveUrl,
+						offthreadVideoCacheSize,
 					},
 					{
 						onDownload,
