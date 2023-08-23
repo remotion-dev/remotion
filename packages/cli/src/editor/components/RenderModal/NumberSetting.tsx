@@ -28,14 +28,14 @@ export const NumberSetting: React.FC<{
 				return Math.min(max ?? Infinity, Math.max(newSetting, min));
 			});
 		},
-		[max, min, onValueChanged]
+		[max, min, onValueChanged],
 	);
 
 	const onValueChange = useCallback(
 		(newConcurrency: number) => {
 			onValueChanged(newConcurrency);
 		},
-		[onValueChanged]
+		[onValueChanged],
 	);
 
 	return (

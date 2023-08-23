@@ -1123,6 +1123,10 @@ const RenderModal: React.FC<
 							setOpenGlOption={setOpenGlOption}
 							setEnvVariables={setEnvVariables}
 							envVariables={envVariables}
+							offthreadVideoCacheSizeInBytes={offthreadVideoCacheSizeInBytes}
+							setOffthreadVideoCacheSizeInBytes={
+								setOffthreadVideoCacheSizeInBytes
+							}
 							codec={codec}
 						/>
 					)}
