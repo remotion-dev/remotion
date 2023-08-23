@@ -73,6 +73,6 @@ export const processVideoJob = async ({
 		numberOfGifLoops: job.numberOfGifLoops,
 		audioCodec: job.audioCodec,
 		disallowParallelEncoding: job.disallowParallelEncoding,
-		offthreadVideoCacheSize: job.offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 	});
 };

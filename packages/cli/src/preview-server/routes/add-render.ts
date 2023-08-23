@@ -49,7 +49,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				envVariables: input.envVariables,
 				serializedInputPropsWithCustomSchema:
 					input.serializedInputPropsWithCustomSchema,
-				offthreadVideoCacheSize: input.offthreadVideoCacheSize,
+				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
 			},
 		});
 	}
@@ -76,7 +76,7 @@ export const handleAddRender: ApiHandler<AddRenderRequest, undefined> = ({
 				envVariables: input.envVariables,
 				serializedInputPropsWithCustomSchema:
 					input.serializedInputPropsWithCustomSchema,
-				offthreadVideoCacheSize: input.offthreadVideoCacheSize,
+				offthreadVideoCacheSizeInBytes: input.offthreadVideoCacheSizeInBytes,
 			},
 			entryPoint,
 			remotionRoot,

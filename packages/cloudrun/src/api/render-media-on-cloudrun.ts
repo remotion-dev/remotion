@@ -139,7 +139,7 @@ export const renderMediaOnCloudrun = async ({
 	concurrency,
 	enforceAudioTrack,
 	preferLossless,
-	offthreadVideoCacheSize,
+	offthreadVideoCacheSizeInBytes,
 }: RenderMediaOnCloudrunInput): Promise<
 	RenderMediaOnCloudrunOutput | CloudRunCrashResponse
 > => {
@@ -193,7 +193,7 @@ export const renderMediaOnCloudrun = async ({
 		concurrency: concurrency ?? null,
 		enforceAudioTrack: enforceAudioTrack ?? false,
 		preferLossless: preferLossless ?? false,
-		offthreadVideoCacheSize: offthreadVideoCacheSize ?? null,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);

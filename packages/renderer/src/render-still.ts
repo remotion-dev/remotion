@@ -63,7 +63,7 @@ type InternalRenderStillOptions = {
 	logLevel: LogLevel;
 	serveUrl: string;
 	port: number | null;
-	offthreadVideoCacheSize: number | null;
+	offthreadVideoCacheSizeInBytes: number | null;
 } & ToOptions<typeof optionsMap.renderStill>;
 
 export type RenderStillOptions = {
@@ -97,7 +97,7 @@ export type RenderStillOptions = {
 	 * @deprecated Renamed to `jpegQuality`
 	 */
 	quality?: never;
-	offthreadVideoCacheSize?: number | null;
+	offthreadVideoCacheSizeInBytes?: number | null;
 };
 
 type CleanupFn = () => void;
@@ -344,7 +344,7 @@ export const internalRenderStill = (
 				concurrency: 1,
 				logLevel: options.logLevel,
 				indent: options.indent,
-				offthreadVideoCacheSize: options.offthreadVideoCacheSize,
+				offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
 			},
 			{
 				onDownload: options.onDownload,
@@ -416,7 +416,7 @@ export const renderStill = (
 		timeoutInMilliseconds,
 		verbose,
 		quality,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	} = options;
 
 	if (typeof jpegQuality !== 'undefined' && imageFormat !== 'jpeg') {
@@ -462,6 +462,6 @@ export const renderStill = (
 			staticBase: null,
 			data: composition.props ?? {},
 		}).serializedString,
-		offthreadVideoCacheSize: offthreadVideoCacheSize ?? null,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 	});
 };

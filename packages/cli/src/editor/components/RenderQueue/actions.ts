@@ -20,7 +20,7 @@ import type {EnumPath} from '../RenderModal/SchemaEditor/extract-enum-json-paths
 const callApi = <Endpoint extends keyof ApiRoutes>(
 	endpoint: Endpoint,
 	body: ApiRoutes[Endpoint]['Request'],
-	signal?: AbortSignal
+	signal?: AbortSignal,
 ): Promise<ApiRoutes[Endpoint]['Response']> => {
 	return new Promise<ApiRoutes[Endpoint]['Response']>((resolve, reject) => {
 		fetch(endpoint, {
@@ -36,14 +36,14 @@ const callApi = <Endpoint extends keyof ApiRoutes>(
 				(
 					data:
 						| {success: true; data: ApiRoutes[Endpoint]['Response']}
-						| {success: false; error: string}
+						| {success: false; error: string},
 				) => {
 					if (data.success) {
 						resolve(data.data);
 					} else {
 						reject(new Error(data.error));
 					}
-				}
+				},
 			)
 			.catch((err) => {
 				reject(err);
@@ -63,7 +63,7 @@ export const addStillRenderJob = ({
 	delayRenderTimeout,
 	envVariables,
 	inputProps,
-	offthreadVideoCacheSize,
+	offthreadVideoCacheSizeInBytes,
 }: {
 	compositionId: string;
 	outName: string;
@@ -76,7 +76,7 @@ export const addStillRenderJob = ({
 	delayRenderTimeout: number;
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
-	offthreadVideoCacheSize: number | null;
+	offthreadVideoCacheSizeInBytes: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -95,7 +95,7 @@ export const addStillRenderJob = ({
 			staticBase: window.remotion_staticBase,
 			indent: undefined,
 		}).serializedString,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	});
 };
 
@@ -126,7 +126,7 @@ export const addVideoRenderJob = ({
 	chromiumOptions,
 	envVariables,
 	inputProps,
-	offthreadVideoCacheSize,
+	offthreadVideoCacheSizeInBytes,
 }: {
 	compositionId: string;
 	outName: string;
@@ -154,7 +154,7 @@ export const addVideoRenderJob = ({
 	chromiumOptions: RequiredChromiumOptions;
 	envVariables: Record<string, string>;
 	inputProps: Record<string, unknown>;
-	offthreadVideoCacheSize: number | null;
+	offthreadVideoCacheSizeInBytes: number | null;
 }) => {
 	return callApi('/api/render', {
 		compositionId,
@@ -188,7 +188,7 @@ export const addVideoRenderJob = ({
 			staticBase: window.remotion_staticBase,
 			indent: undefined,
 		}).serializedString,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	});
 };
 
@@ -249,7 +249,7 @@ export const updateAvailable = (signal: AbortSignal) => {
 export const updateDefaultProps = (
 	compositionId: string,
 	defaultProps: Record<string, unknown>,
-	enumPaths: EnumPath[]
+	enumPaths: EnumPath[],
 ) => {
 	return callApi('/api/update-default-props', {
 		compositionId,

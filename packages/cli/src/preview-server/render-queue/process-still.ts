@@ -57,6 +57,6 @@ export const processStill = async ({
 		addCleanupCallback,
 		cancelSignal: job.cancelToken.cancelSignal,
 		outputLocationFromUi: job.outName,
-		offthreadVideoCacheSize: job.offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 	});
 };

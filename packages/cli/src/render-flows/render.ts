@@ -93,7 +93,7 @@ export const renderVideoFlow = async ({
 	audioCodec,
 	serializedInputPropsWithCustomSchema,
 	disallowParallelEncoding,
-	offthreadVideoCacheSize,
+	offthreadVideoCacheSizeInBytes,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -138,7 +138,7 @@ export const renderVideoFlow = async ({
 	numberOfGifLoops: Loop;
 	audioCodec: AudioCodec | null;
 	disallowParallelEncoding: boolean;
-	offthreadVideoCacheSize: number | null;
+	offthreadVideoCacheSizeInBytes: number | null;
 }) => {
 	const downloads: DownloadProgress[] = [];
 
@@ -146,7 +146,7 @@ export const renderVideoFlow = async ({
 		Log.verboseAdvanced(
 			{indent, logLevel},
 			'Browser executable: ',
-			browserExecutable
+			browserExecutable,
 		);
 	}
 
@@ -231,7 +231,7 @@ export const renderVideoFlow = async ({
 				addCleanupCallback(() => RenderInternals.deleteDirectory(dir));
 			},
 			quietProgress: updatesDontOverwrite,
-		}
+		},
 	);
 
 	addCleanupCallback(() => cleanupBundle());
@@ -255,7 +255,7 @@ export const renderVideoFlow = async ({
 		remotionRoot,
 		logLevel,
 		webpackConfigOrServeUrl: urlOrBundle,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	});
 
 	addCleanupCallback(() => server.closeServer(false));
@@ -277,7 +277,7 @@ export const renderVideoFlow = async ({
 			timeoutInMilliseconds: puppeteerTimeout,
 			logLevel,
 			server,
-			offthreadVideoCacheSize,
+			offthreadVideoCacheSizeInBytes,
 		});
 
 	const {codec, reason: codecReason} = getFinalOutputCodec({
@@ -286,7 +286,7 @@ export const renderVideoFlow = async ({
 		downloadName: null,
 		outName: getUserPassedOutputLocation(
 			argsAfterComposition,
-			outputLocationFromUI
+			outputLocationFromUI,
 		),
 		uiCodec,
 	});
@@ -303,7 +303,7 @@ export const renderVideoFlow = async ({
 		compositionName: compositionId,
 		defaultExtension: RenderInternals.getFileExtensionFromCodec(
 			codec,
-			audioCodec
+			audioCodec,
 		),
 		args: argsAfterComposition,
 		indent,
@@ -313,28 +313,28 @@ export const renderVideoFlow = async ({
 
 	Log.verboseAdvanced(
 		{indent, logLevel},
-		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`)
+		chalk.gray(`Entry point = ${fullEntryPoint} (${entryPointReason})`),
 	);
 	Log.infoAdvanced(
 		{indent, logLevel},
 		chalk.gray(
-			`Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`
-		)
+			`Composition = ${compositionId} (${reason}), Codec = ${codec} (${codecReason}), Output = ${relativeOutputLocation}`,
+		),
 	);
 
 	const absoluteOutputFile = getAndValidateAbsoluteOutputFile(
 		relativeOutputLocation,
-		overwrite
+		overwrite,
 	);
 	const exists = existsSync(absoluteOutputFile);
 
 	const realFrameRange = RenderInternals.getRealFrameRange(
 		config.durationInFrames,
-		frameRange
+		frameRange,
 	);
 	const totalFrames: number[] = RenderInternals.getFramesToRender(
 		realFrameRange,
-		everyNthFrame
+		everyNthFrame,
 	);
 
 	renderingProgress = {
@@ -356,14 +356,14 @@ export const renderVideoFlow = async ({
 		});
 		if (imageFormat === 'none') {
 			throw new Error(
-				`Cannot render an image sequence with a codec that renders no images. codec = ${codec}, imageFormat = ${imageFormat}`
+				`Cannot render an image sequence with a codec that renders no images. codec = ${codec}, imageFormat = ${imageFormat}`,
 			);
 		}
 
 		const outputDir = shouldOutputImageSequence
 			? absoluteOutputFile
 			: await fs.promises.mkdtemp(
-					path.join(os.tmpdir(), 'react-motion-render')
+					path.join(os.tmpdir(), 'react-motion-render'),
 			  );
 
 		Log.verboseAdvanced({indent, logLevel}, 'Output dir', outputDir);
@@ -403,11 +403,14 @@ export const renderVideoFlow = async ({
 				staticBase: null,
 				data: config.props,
 			}).serializedString,
-			offthreadVideoCacheSize,
+			offthreadVideoCacheSizeInBytes,
 		});
 
 		updateRenderProgress({newline: true, printToConsole: true});
-		Log.infoAdvanced({indent, logLevel}, chalk.blue(`▶ ${absoluteOutputFile}`));
+		Log.infoAdvanced(
+			{indent, logLevel},
+			chalk.blue(`▶ ${absoluteOutputFile}`),
+		);
 		return;
 	}
 
@@ -480,20 +483,20 @@ export const renderVideoFlow = async ({
 			indent: undefined,
 			staticBase: null,
 		}).serializedString,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	});
 
 	updateRenderProgress({newline: true, printToConsole: true});
 	Log.infoAdvanced(
 		{indent, logLevel},
-		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`)
+		chalk.blue(`${exists ? '○' : '+'} ${absoluteOutputFile}`),
 	);
 
 	Log.verboseAdvanced({indent, logLevel}, `Slowest frames:`);
 	slowestFrames.forEach(({frame, time}) => {
 		Log.verboseAdvanced(
 			{indent, logLevel},
-			`  Frame ${frame} (${time.toFixed(3)}ms)`
+			`  Frame ${frame} (${time.toFixed(3)}ms)`,
 		);
 	});
 

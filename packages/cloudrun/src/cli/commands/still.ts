@@ -35,7 +35,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 		browserExecutable,
 		port,
 		logLevel,
-		offthreadVideoCacheSize,
+		offthreadVideoCacheSizeInBytes,
 	} = await CliInternals.getCliOptions({
 		type: 'still',
 		isLambda: true,
@@ -50,7 +50,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 
 		if (!serveUrl.startsWith('https://') && !serveUrl.startsWith('http://')) {
 			throw Error(
-				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.'
+				'Passing the shorthand serve URL without composition name is currently not supported.\n Make sure to pass a composition name after the shorthand serve URL or pass the complete serveURL without composition name to get to choose between all compositions.',
 			);
 		}
 
@@ -61,7 +61,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 			remotionRoot,
 			logLevel,
 			webpackConfigOrServeUrl: serveUrl,
-			offthreadVideoCacheSize,
+			offthreadVideoCacheSizeInBytes,
 		});
 
 		const {compositionId} =
@@ -85,7 +85,7 @@ export const stillCommand = async (args: string[], remotionRoot: string) => {
 				height,
 				width,
 				server: await server,
-				offthreadVideoCacheSize,
+				offthreadVideoCacheSizeInBytes,
 			});
 		composition = compositionId;
 	}
@@ -113,8 +113,8 @@ Output Bucket = ${forceBucketName}
 Output File = ${outName ?? 'out.png'}
 Output File Privacy = ${privacy}
 ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
-			`.trim()
-		)
+			`.trim(),
+		),
 	);
 	Log.info();
 
@@ -136,7 +136,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 				`Rendering on Cloud Run:`,
 				`${doneIn === null ? '...' : `Rendered in ${doneIn}ms`}`,
 			].join(' '),
-			newline
+			newline,
 		);
 	};
 
@@ -167,15 +167,15 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		updateProgress(true);
 
 		Log.info(
-			CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`)
+			CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`),
 		);
 		Log.info(CliInternals.chalk.gray(`Render ID = ${res.renderId}`));
 		Log.info(
 			CliInternals.chalk.gray(
 				`${Math.round(Number(res.size) / 1000)} KB, Privacy: ${
 					res.privacy
-				}, Bucket: ${res.bucketName}`
-			)
+				}, Bucket: ${res.bucketName}`,
+			),
 		);
 		Log.info(CliInternals.chalk.blue(`○ ${res.publicUrl}`));
 
@@ -190,7 +190,7 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 			});
 
 			Log.info(
-				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
+				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`),
 			);
 		}
 	}

@@ -87,7 +87,7 @@ export const renderStillOnCloudrun = async ({
 	forceHeight,
 	logLevel,
 	delayRenderTimeoutInMilliseconds,
-	offthreadVideoCacheSize,
+	offthreadVideoCacheSizeInBytes,
 }: RenderStillOnCloudrunInput): Promise<
 	RenderStillOnCloudrunOutput | ErrorResponsePayload | CloudRunCrashResponse
 > => {
@@ -126,7 +126,7 @@ export const renderStillOnCloudrun = async ({
 		logLevel: logLevel ?? 'info',
 		delayRenderTimeoutInMilliseconds:
 			delayRenderTimeoutInMilliseconds ?? RenderInternals.DEFAULT_TIMEOUT,
-		offthreadVideoCacheSize: offthreadVideoCacheSize ?? null,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 	};
 
 	const client = await getAuthClientForUrl(cloudRunEndpoint);

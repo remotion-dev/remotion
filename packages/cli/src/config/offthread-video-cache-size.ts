@@ -1,9 +1,9 @@
-let offthreadVideoCacheSize: number | null = null;
+let offthreadVideoCacheSizeInBytes: number | null = null;
 
-export const getOffthreadVideoCacheSize = () => {
-	return offthreadVideoCacheSize;
+export const getOffthreadVideoCacheSizeInBytes = () => {
+	return offthreadVideoCacheSizeInBytes;
 };
 
-export const setOffthreadVideoCacheSize = (size: number | null) => {
-	offthreadVideoCacheSize = size;
+export const setOffthreadVideoCacheSizeInBytes = (size: number | null) => {
+	offthreadVideoCacheSizeInBytes = size;
 };

@@ -14,7 +14,7 @@ import {writeCloudrunError} from './helpers/write-cloudrun-error';
 
 export const renderStillSingleThread = async (
 	body: CloudRunPayloadType,
-	res: ff.Response
+	res: ff.Response,
 ) => {
 	if (body.type !== 'still') {
 		throw new Error('expected type still');
@@ -69,7 +69,7 @@ export const renderStillSingleThread = async (
 			port: null,
 			puppeteerInstance: null,
 			server: undefined,
-			offthreadVideoCacheSize: body.offthreadVideoCacheSize,
+			offthreadVideoCacheSizeInBytes: body.offthreadVideoCacheSizeInBytes,
 		});
 		Log.info('Still rendered');
 
