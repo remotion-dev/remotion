@@ -63,50 +63,66 @@ impl OpenedVideoManager {
         return Ok(vec);
     }
 
-    pub fn only_keep_n_frames(&self, n_frames: usize) -> Result<(), ErrorWithBacktrace> {
-        let references = self.get_frame_references()?;
-        // Pay attention to underflow, usize is unsigned
-        if references.len() < n_frames {
-            return Ok(());
+    fn get_total_size(&self) -> Result<u128, ErrorWithBacktrace> {
+        let mut total_size = 0;
+
+        for video in self.videos.read()?.values() {
+            let video_locked = video.lock()?;
+            total_size += video_locked.get_cache_size_bytes()?;
         }
-        let to_remove = references.len() - n_frames;
-        self.prune(to_remove)
+
+        return Ok(total_size);
     }
 
-    pub fn prune_oldest(&self, ratio: f64) -> Result<(), ErrorWithBacktrace> {
-        let references = self.get_frame_references()?;
-        let oldest_n = (references.len() as f64 * ratio).ceil() as usize;
-        self.prune(oldest_n)
+    pub fn only_keep_n_frames(
+        &self,
+        maximum_frame_cache_size_in_bytes: u128,
+    ) -> Result<(), ErrorWithBacktrace> {
+        self.prune(maximum_frame_cache_size_in_bytes)
     }
 
-    pub fn prune(&self, oldest_n: usize) -> Result<(), ErrorWithBacktrace> {
+    pub fn prune_oldest(
+        &self,
+        maximum_frame_cache_size_in_bytes: u128,
+    ) -> Result<(), ErrorWithBacktrace> {
+        self.prune(maximum_frame_cache_size_in_bytes)
+    }
+
+    pub fn prune(&self, maximum_frame_cache_size_in_bytes: u128) -> Result<(), ErrorWithBacktrace> {
         let references = self.get_frame_references()?;
         let mut sorted = references.clone();
         sorted.sort_by(|a, b| a.last_used.cmp(&b.last_used));
-        let mut to_remove: Vec<FrameCacheReference> = Vec::new();
-        for i in 0..oldest_n {
-            to_remove.push(sorted[i].clone());
-        }
-        for removal in to_remove {
-            let video_locked =
-                self.get_video(&removal.src, &removal.original_src, removal.transparent)?;
-            let mut video = video_locked.lock()?;
-            video
-                .get_frame_cache(removal.transparent)
-                .lock()?
-                .remove_item_by_id(removal.id)?;
 
-            let closed = video.close_video_if_frame_cache_empty()?;
-            if closed {
-                self.videos.write()?.remove(&video.src);
+        let mut pruned = 0;
+        for removal in sorted {
+            let current_cache_size_in_bytes = self.get_total_size()?;
+            if current_cache_size_in_bytes < maximum_frame_cache_size_in_bytes {
+                break;
+            }
+            {
+                let video_locked =
+                    self.get_video(&removal.src, &removal.original_src, removal.transparent)?;
+                let mut video = video_locked.lock()?;
+                video
+                    .get_frame_cache(removal.transparent)
+                    .lock()?
+                    .remove_item_by_id(removal.id)?;
+
+                pruned += 1;
+
+                let closed = video.close_video_if_frame_cache_empty()?;
+                if closed {
+                    self.videos.write()?.remove(&video.src);
+                }
             }
         }
 
-        if oldest_n > 0 {
+        if pruned > 0 {
             _print_verbose(&format!(
-                "Pruned {} to save memory, keeping {}",
-                oldest_n,
-                self.get_frames_in_cache()?
+                "Pruned {} to save memory, keeping {}. Total cache size: {}MB",
+                pruned,
+                self.get_frames_in_cache()?,
+                self.get_total_size()? / 1024 / 1024
             ))?;
         }
 
@@ -124,7 +140,7 @@ impl OpenedVideoManager {
     pub fn get_frames_in_cache(&self) -> Result<usize, ErrorWithBacktrace> {
         let mut count = 0;
         for video in self.videos.read()?.values() {
-            count += video.lock()?.get_cache_size()?;
+            count += video.lock()?.get_cache_size_items()?;
         }
         return Ok(count);
     }
