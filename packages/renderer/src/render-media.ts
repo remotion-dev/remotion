@@ -37,6 +37,8 @@ import {getLogLevel, Log} from './logger';
 import type {CancelSignal} from './make-cancel-signal';
 import {cancelErrorMessages, makeCancelSignal} from './make-cancel-signal';
 import type {ChromiumOptions} from './open-browser';
+import type {ToOptions} from './options/offthreadvideo-cache-size';
+import {offthreadVideoCacheSizeOption} from './options/offthreadvideo-cache-size';
 import {DEFAULT_OVERWRITE} from './overwrite';
 import {startPerfMeasure, stopPerfMeasure} from './perf';
 import type {PixelFormat} from './pixel-format';
@@ -77,6 +79,8 @@ export type RenderMediaOnProgress = (progress: {
 	progress: number;
 	stitchStage: StitchingState;
 }) => void;
+
+const typedOptions = [offthreadVideoCacheSizeOption] as const;
 
 export type InternalRenderMediaOptions = {
 	outputLocation: string | null;
@@ -120,8 +124,7 @@ export type InternalRenderMediaOptions = {
 	audioCodec: AudioCodec | null;
 	serveUrl: string;
 	concurrency: number | string | null;
-	offthreadVideoCacheSize: number | null;
-};
+} & ToOptions<typeof typedOptions>;
 
 export type RenderMediaOptions = {
 	outputLocation?: string | null;
