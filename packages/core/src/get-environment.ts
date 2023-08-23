@@ -4,7 +4,6 @@ export type RemotionEnvironment = {
 	isStudio: boolean;
 	isRendering: boolean;
 	isPlayer: boolean;
-	isProduction: boolean;
 };
 
 /**
@@ -18,7 +17,6 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 				isStudio: false,
 				isRendering: false,
 				isPlayer: true,
-				isProduction: true,
 			};
 		}
 
@@ -26,7 +24,6 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 			isStudio: false,
 			isRendering: true,
 			isPlayer: false,
-			isProduction: true,
 		};
 	}
 
@@ -38,7 +35,6 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 			isStudio: false,
 			isRendering: true,
 			isPlayer: false,
-			isProduction: false,
 		};
 	}
 
@@ -47,7 +43,6 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 			isStudio: false,
 			isRendering: false,
 			isPlayer: true,
-			isProduction: false,
 		};
 	}
 
@@ -55,7 +50,6 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 		isStudio: true,
 		isRendering: false,
 		isPlayer: false,
-		isProduction: false,
 	};
 };
 
@@ -67,7 +61,6 @@ export const useRemotionEnvironment = (): RemotionEnvironment => {
 				isStudio: false,
 				isRendering: false,
 				isPlayer: true,
-				isProduction: true,
 			};
 		}
 
@@ -75,7 +68,6 @@ export const useRemotionEnvironment = (): RemotionEnvironment => {
 			isStudio: false,
 			isRendering: false,
 			isPlayer: true,
-			isProduction: false,
 		};
 	}
 

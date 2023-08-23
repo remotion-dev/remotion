@@ -10,7 +10,6 @@ With the `getRemotionEnvironment()` function , you can retrieve information abou
 - `isStudio`: Indicates if you are currently in the studio.
 - `ìsRendering`: Tells if one is currently in a render.
 - `isPlayer`: Indicates if you are in the Player.
-- `isProduction`: Based on your .env file, tells if you are in production or in development
 
 This can be useful if you want components to compute some values differently based on the environment you are in.
 
