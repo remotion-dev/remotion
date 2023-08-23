@@ -85,7 +85,11 @@ const Experts: React.FC = () => {
           {expertsInRandomOrder.map((e) => {
             return (
               <div key={e.name} className={styles.card}>
-                <Link style={link} href={`/experts/${e.slug}`}>
+                <Link
+                  style={link}
+                  className={styles.cardContent}
+                  href={`/experts/${e.slug}`}
+                >
                   <img className={styles.profile} src={e.image} />
                   <div className={styles.spacer} />
                   <div className={styles.right}>
