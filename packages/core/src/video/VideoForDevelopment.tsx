@@ -22,7 +22,7 @@ import {
 	useMediaVolumeState,
 } from '../volume-position-state.js';
 import type {RemotionVideoProps} from './props.js';
-import {useAppendVideoFragment} from './video-fragment.js';
+import {isIosSafari, useAppendVideoFragment} from './video-fragment.js';
 
 type VideoForDevelopmentProps = RemotionVideoProps & {
 	onlyWarnForMediaSeekingError: boolean;
@@ -170,7 +170,7 @@ const VideoForDevelopmentRefForwardingFunction: React.ForwardRefRenderFunction<
 			// Without this, on iOS Safari, the video cannot be seeked.
 			// if a seek is triggered before `loadedmetadata` is fired,
 			// the video will not seek, even if `loadedmetadata` is fired afterwards.
-			preload="metadata"
+			preload={isIosSafari() ? 'metadata' : 'auto'}
 			muted={muted || mediaMuted}
 			playsInline
 			src={actualSrc}
