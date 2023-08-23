@@ -42,6 +42,6 @@ A more realistic use case: In the Remotion Studio you might want to debounce a r
 
 ## See also
 
-- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/get-environment.ts)
+- [Source code for this function](https://github.com/remotion-dev/remotion/blob/main/packages/core/src/get-remotion-environment.ts)
 - [useVideoConfig()](/docs/use-video-config)
 - [`<OffthreadVideo/> while rendering`](/docs/miscellaneous/snippets/offthread-video-while-rendering)

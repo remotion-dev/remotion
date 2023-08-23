@@ -5,7 +5,7 @@ export type RemotionEnvironment = {
 };
 
 /**
- * @description Provides information obout the Remotion Environment
+ * @description Provides information about the Remotion Environment
  * @see [Documentation](https://www.remotion.dev/docs/get-remotion-environment)
  */
 export const getRemotionEnvironment = (): RemotionEnvironment => {
