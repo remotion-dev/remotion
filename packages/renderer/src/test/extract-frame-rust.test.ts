@@ -499,7 +499,11 @@ test('Should handle a video with no frames at the beginning', async () => {
 });
 
 test('Two different starting times should not result in big seeking', async () => {
-	const compositor = startLongRunningCompositor(300, 'info', false);
+	const compositor = startLongRunningCompositor(
+		300 * 1024 * 1024,
+		'info',
+		false,
+	);
 
 	const expected = [];
 
