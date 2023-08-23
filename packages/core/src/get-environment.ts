@@ -1,5 +1,3 @@
-import {useIsPlayer} from './is-player.js';
-
 export type RemotionEnvironment = {
 	isStudio: boolean;
 	isRendering: boolean;
@@ -51,25 +49,4 @@ export const getRemotionEnvironment = (): RemotionEnvironment => {
 		isRendering: false,
 		isPlayer: false,
 	};
-};
-
-export const useRemotionEnvironment = (): RemotionEnvironment => {
-	const isPlayer = useIsPlayer();
-	if (isPlayer) {
-		if (process.env.NODE_ENV === 'production') {
-			return {
-				isStudio: false,
-				isRendering: false,
-				isPlayer: true,
-			};
-		}
-
-		return {
-			isStudio: false,
-			isRendering: false,
-			isPlayer: true,
-		};
-	}
-
-	return getRemotionEnvironment();
 };

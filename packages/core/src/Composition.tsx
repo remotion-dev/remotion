@@ -10,7 +10,8 @@ import {
 import {CompositionManager} from './CompositionManagerContext.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {FolderContext} from './Folder.js';
-import {useRemotionEnvironment} from './get-environment.js';
+import {getRemotionEnvironment} from './get-environment.js';
+import {useIsPlayer} from './is-player.js';
 import {Loading} from './loading-indicator.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {useNonce} from './nonce.js';
@@ -135,11 +136,12 @@ export const Composition = <
 
 	const lazy = useLazyComponent<Props>(compProps as CompProps<Props>);
 	const nonce = useNonce();
-	const environment = useRemotionEnvironment();
+	const isPlayer = useIsPlayer();
+	const environment = getRemotionEnvironment();
 
 	const canUseComposition = useContext(CanUseRemotionHooks);
 	if (canUseComposition) {
-		if (environment.isPlayer) {
+		if (isPlayer) {
 			throw new Error(
 				'<Composition> was mounted inside the `component` that was passed to the <Player>. See https://remotion.dev/docs/wrong-composition-mount for help.'
 			);

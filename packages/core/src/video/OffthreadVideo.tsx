@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {useRemotionEnvironment} from '../get-environment.js';
+import {getRemotionEnvironment} from '../get-environment.js';
 import {Sequence} from '../Sequence.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
@@ -17,7 +17,7 @@ export const OffthreadVideo: React.FC<
 	// Should only destruct `startFrom` and `endAt` from props,
 	// rest gets drilled down
 	const {startFrom, endAt, ...otherProps} = props;
-	const environment = useRemotionEnvironment();
+	const environment = getRemotionEnvironment();
 
 	const onDuration = useCallback(() => undefined, []);
 

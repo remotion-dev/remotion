@@ -20,10 +20,7 @@ import * as CSSUtils from './default-css.js';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render.js';
 import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
 import type {RemotionEnvironment} from './get-environment.js';
-import {
-	getRemotionEnvironment,
-	useRemotionEnvironment,
-} from './get-environment.js';
+import {getRemotionEnvironment} from './get-environment.js';
 import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
@@ -134,7 +131,6 @@ export const Internals = {
 	DurationsContextProvider,
 	IsPlayerContextProvider,
 	useIsPlayer,
-	useRemotionEnvironment,
 	validateFrame,
 	EditorPropsProvider,
 	EditorPropsContext,
