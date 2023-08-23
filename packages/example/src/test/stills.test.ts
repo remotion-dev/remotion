@@ -39,6 +39,7 @@ test(
 				concurrency: RenderInternals.getActualConcurrency(null),
 				logLevel: 'info',
 				indent: false,
+				offthreadVideoCacheSize: null,
 			},
 			{
 				onDownload: () => undefined,
@@ -122,6 +123,7 @@ test(
 				concurrency: RenderInternals.getActualConcurrency(null),
 				logLevel: 'info',
 				indent: false,
+				offthreadVideoCacheSize: null,
 			},
 			{
 				onDownload: () => undefined,

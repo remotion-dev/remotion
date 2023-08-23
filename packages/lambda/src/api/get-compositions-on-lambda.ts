@@ -24,6 +24,7 @@ export type GetCompositionsOnLambdaInput = {
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
+	offthreadVideoCacheSize?: number | null;
 };
 
 export type GetCompositionsOnLambdaOutput = VideoConfig[];
@@ -52,6 +53,7 @@ export const getCompositionsOnLambda = async ({
 	timeoutInMilliseconds,
 	forceBucketName: bucketName,
 	dumpBrowserLogs,
+	offthreadVideoCacheSize,
 }: GetCompositionsOnLambdaInput): Promise<GetCompositionsOnLambdaOutput> => {
 	const stringifiedInputProps = serializeOrThrow(inputProps, 'input-props');
 
@@ -78,6 +80,7 @@ export const getCompositionsOnLambda = async ({
 				timeoutInMilliseconds: timeoutInMilliseconds ?? 30000,
 				version: VERSION,
 				bucketName: bucketName ?? null,
+				offthreadVideoCacheSize: offthreadVideoCacheSize ?? null,
 			},
 			region,
 			receivedStreamingPayload: () => undefined,

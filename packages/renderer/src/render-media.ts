@@ -120,6 +120,7 @@ export type InternalRenderMediaOptions = {
 	audioCodec: AudioCodec | null;
 	serveUrl: string;
 	concurrency: number | string | null;
+	offthreadVideoCacheSize: number | null;
 };
 
 export type RenderMediaOptions = {
@@ -172,6 +173,7 @@ export type RenderMediaOptions = {
 	serveUrl: string;
 	concurrency?: number | string | null;
 	logLevel?: LogLevel;
+	offthreadVideoCacheSize?: number | null;
 };
 
 type Await<T> = T extends PromiseLike<infer U> ? U : T;
@@ -223,6 +225,7 @@ export const internalRenderMedia = ({
 	server: reusedServer,
 	logLevel,
 	serializedResolvedPropsWithCustomSchema,
+	offthreadVideoCacheSize,
 }: InternalRenderMediaOptions): Promise<RenderMediaResult> => {
 	validateJpegQuality(jpegQuality);
 	validateQualitySettings({crf, codec, videoBitrate});
@@ -485,7 +488,7 @@ export const internalRenderMedia = ({
 						remotionRoot: findRemotionRoot(),
 						logLevel,
 						webpackConfigOrServeUrl: serveUrl,
-						offthreadVideoCacheSize,
+						offthreadVideoCacheSize: offthreadVideoCacheSize ?? null,
 					},
 					{
 						onDownload,
@@ -564,6 +567,7 @@ export const internalRenderMedia = ({
 					indent,
 					server,
 					serializedResolvedPropsWithCustomSchema,
+					offthreadVideoCacheSize,
 				});
 
 				return renderFramesProc;
@@ -733,6 +737,7 @@ export const renderMedia = ({
 	verbose,
 	quality,
 	logLevel,
+	offthreadVideoCacheSize,
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
@@ -791,5 +796,6 @@ export const renderMedia = ({
 			staticBase: null,
 			data: composition.props ?? {},
 		}).serializedString,
+		offthreadVideoCacheSize: offthreadVideoCacheSize ?? null,
 	});
 };

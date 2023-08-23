@@ -1,6 +1,7 @@
-import type {RemotionOption} from './option';
+import {AnyRemotionOption} from './option';
+import { z } from 'zod';
 
-export const crfOption: RemotionOption = {
+export const crfOption = {
 	name: 'CRF',
 	cliFlag: '--crf',
 	description: (
@@ -15,4 +16,5 @@ export const crfOption: RemotionOption = {
 	ssrName: 'crf',
 	docLink:
 		'https://www.remotion.dev/docs/encoding/#controlling-quality-using-the-crf-setting',
-};
+		type: z.number()
+} satisfies AnyRemotionOption;

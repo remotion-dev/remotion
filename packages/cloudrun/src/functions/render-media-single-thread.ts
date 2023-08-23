@@ -96,6 +96,7 @@ export const renderMediaSingleThread = async (
 			preferLossless: body.preferLossless,
 			puppeteerInstance: undefined,
 			server: undefined,
+			offthreadVideoCacheSize: body.offthreadVideoCacheSize,
 		});
 
 		const storage = new Storage();

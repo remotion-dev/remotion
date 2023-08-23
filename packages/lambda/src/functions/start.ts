@@ -94,6 +94,7 @@ export const startHandler = async (params: LambdaPayload, options: Options) => {
 		forceWidth: params.forceWidth,
 		rendererFunctionName: params.rendererFunctionName,
 		audioCodec: params.audioCodec,
+		offthreadVideoCacheSize: params.offthreadVideoCacheSize,
 	};
 
 	// Don't replace with callLambda(), we want to return before the render is snone

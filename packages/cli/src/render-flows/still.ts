@@ -66,6 +66,7 @@ export const renderStillFlow = async ({
 	addCleanupCallback,
 	cancelSignal,
 	outputLocationFromUi,
+	offthreadVideoCacheSize,
 }: {
 	remotionRoot: string;
 	fullEntryPoint: string;
@@ -93,6 +94,7 @@ export const renderStillFlow = async ({
 	addCleanupCallback: (cb: () => void) => void;
 	cancelSignal: CancelSignal | null;
 	outputLocationFromUi: string | null;
+	offthreadVideoCacheSize: number | null;
 }) => {
 	const aggregate: AggregateRenderProgress = initialAggregateRenderProgress();
 	const updatesDontOverwrite = shouldUseNonOverlayingLogger({logLevel});
@@ -176,6 +178,7 @@ export const renderStillFlow = async ({
 		remotionRoot,
 		logLevel,
 		webpackConfigOrServeUrl: urlOrBundle,
+		offthreadVideoCacheSize,
 	});
 
 	addCleanupCallback(() => server.closeServer(false));
@@ -202,6 +205,7 @@ export const renderStillFlow = async ({
 			timeoutInMilliseconds: puppeteerTimeout,
 			logLevel,
 			server,
+			offthreadVideoCacheSize,
 		});
 
 	const {format: imageFormat, source} = determineFinalStillImageFormat({
@@ -293,6 +297,7 @@ export const renderStillFlow = async ({
 			staticBase: null,
 			data: config.props,
 		}).serializedString,
+		offthreadVideoCacheSize,
 	});
 
 	aggregate.rendering = {

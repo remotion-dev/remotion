@@ -1,6 +1,7 @@
-import type {RemotionOption} from './option';
+import {AnyRemotionOption} from './option';
+import { z } from 'zod';
 
-export const enforceAudioOption: RemotionOption = {
+export const enforceAudioOption = {
 	name: 'Enforce Audio Track',
 	cliFlag: '--enforce-audio-track',
 	description: (
@@ -8,4 +9,5 @@ export const enforceAudioOption: RemotionOption = {
 	),
 	ssrName: 'enforceAudioTrack',
 	docLink: 'https://www.remotion.dev/docs/config#setenforceaudiotrack-',
-};
+	type: z.boolean(),
+} satisfies AnyRemotionOption;

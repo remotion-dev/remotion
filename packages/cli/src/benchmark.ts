@@ -175,6 +175,7 @@ export const benchmarkCommand = async (
 		width,
 		concurrency: unparsedConcurrency,
 		logLevel,
+		offthreadVideoCacheSize,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'series',
@@ -233,6 +234,7 @@ export const benchmarkCommand = async (
 		//  Intentionally disabling server to not cache results
 		server: undefined,
 		logLevel,
+		offthreadVideoCacheSize,
 	});
 
 	const ids = (
@@ -345,6 +347,7 @@ export const benchmarkCommand = async (
 							indent: undefined,
 							staticBase: null,
 						}).serializedString,
+					offthreadVideoCacheSize,
 				},
 				(run, progress) => {
 					benchmarkProgress.update(
