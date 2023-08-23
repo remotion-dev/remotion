@@ -184,7 +184,7 @@ A number describing how long the render may take to resolve all [`delayRender()`
 
 ### `offthreadVideoCacheSize?`<AvailableFrom v="4.0.23"/>
 
-<Options id="offthreadvideo-cache-size" />
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ## Return value
 

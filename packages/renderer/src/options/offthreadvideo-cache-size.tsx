@@ -2,7 +2,7 @@ import {AnyRemotionOption} from './option';
 
 export const offthreadVideoCacheSizeOption = {
 	name: 'OffthreadVideo cache size',
-	cliFlag: 'offthreadvideo-cache-size',
+	cliFlag: 'offthreadvideo-cache-size-in-bytes' as const,
 	description: (
 		<>
 			From v4.0, Remotion has a cache for{' '}

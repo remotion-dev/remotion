@@ -84,7 +84,7 @@ See: [Environment variables](/docs/env-variables/)
 
 ### `offthreadVideoCacheSize?`<AvailableFrom v="4.0.23"/>
 
-<Options id="offthreadvideo-cache-size" />
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ## See also
 

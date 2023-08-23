@@ -347,7 +347,7 @@ If the `logLevel` is set to `verbose`, the Lambda function will not clean up art
 
 ### `offthreadVideoCacheSize?`<AvailableFrom v="4.0.23"/>
 
-<Options id="offthreadvideo-cache-size" />
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ### ~~`dumpBrowserLogs?`~~
 
