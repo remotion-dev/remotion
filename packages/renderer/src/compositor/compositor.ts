@@ -66,9 +66,11 @@ type RunningStatus =
 	| {
 			type: 'quit-with-error';
 			error: string;
+			signal: NodeJS.Signals | null;
 	  }
 	| {
 			type: 'quit-without-error';
+			signal: NodeJS.Signals | null;
 	  };
 
 export const startCompositor = <T extends keyof CompositorCommand>(
@@ -248,11 +250,13 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 	child.on('close', (code, signal) => {
 		const waitersToKill = Array.from(waiters.values());
 		if (code === 0) {
-			runningStatus = {type: 'quit-without-error'};
+			runningStatus = {type: 'quit-without-error', signal};
 
 			resolve?.();
 			for (const waiter of waitersToKill) {
-				waiter.reject(new Error(`Compositor already quit`));
+				waiter.reject(
+					new Error(`Compositor quit${signal ? ` with signal ${signal}` : ''}`)
+				);
 			}
 
 			waiters.clear();
@@ -260,7 +264,7 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			const errorMessage =
 				Buffer.concat(stderrChunks).toString('utf-8') +
 				outputBuffer.toString('utf-8');
-			runningStatus = {type: 'quit-with-error', error: errorMessage};
+			runningStatus = {type: 'quit-with-error', error: errorMessage, signal};
 
 			const error =
 				code === null
@@ -280,12 +284,28 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		waitForDone: () => {
 			return new Promise<void>((res, rej) => {
 				if (runningStatus.type === 'quit-without-error') {
-					rej(new Error('Compositor already quit'));
+					rej(
+						new Error(
+							`Compositor quit${
+								runningStatus.signal
+									? ` with signal ${runningStatus.signal}`
+									: ''
+							}`
+						)
+					);
 					return;
 				}
 
 				if (runningStatus.type === 'quit-with-error') {
-					rej(new Error(`Compositor already quit: ${runningStatus.error}`));
+					rej(
+						new Error(
+							`Compositor quit${
+								runningStatus.signal
+									? ` with signal ${runningStatus.signal}`
+									: ''
+							}: ${runningStatus.error}`
+						)
+					);
 					return;
 				}
 
@@ -295,11 +315,19 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 		},
 		finishCommands: () => {
 			if (runningStatus.type === 'quit-with-error') {
-				throw new Error(`Compositor already quit: ${runningStatus.error}`);
+				throw new Error(
+					`Compositor quit${
+						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+					}: ${runningStatus.error}`
+				);
 			}
 
 			if (runningStatus.type === 'quit-without-error') {
-				throw new Error('Compositor already quit');
+				throw new Error(
+					`Compositor quit${
+						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+					}`
+				);
 			}
 
 			child.stdin.write('EOF\n');
@@ -310,7 +338,11 @@ export const startCompositor = <T extends keyof CompositorCommand>(
 			params: CompositorCommand[Type]
 		) => {
 			if (runningStatus.type === 'quit-without-error') {
-				throw new Error('Compositor already quit');
+				throw new Error(
+					`Compositor quit${
+						runningStatus.signal ? ` with signal ${runningStatus.signal}` : ''
+					}`
+				);
 			}
 
 			if (runningStatus.type === 'quit-with-error') {
