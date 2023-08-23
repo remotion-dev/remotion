@@ -27,6 +27,9 @@ export const Modals: React.FC = () => {
 					initialScale={modalContextType.initialScale}
 					initialVerbose={modalContextType.initialVerbose}
 					initialRenderType={modalContextType.initialRenderType}
+					initialOffthreadVideoCacheSizeInBytes={
+						modalContextType.initialOffthreadVideoCacheSizeInBytes
+					}
 					initialVideoCodecForAudioTab={
 						modalContextType.initialVideoCodecForAudioTab
 					}

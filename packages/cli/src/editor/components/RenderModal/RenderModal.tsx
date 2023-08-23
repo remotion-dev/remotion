@@ -218,6 +218,7 @@ type RenderModalProps = {
 	initialDisableWebSecurity: boolean;
 	initialGl: OpenGlRenderer | null;
 	initialIgnoreCertificateErrors: boolean;
+	initialOffthreadVideoCacheSizeInBytes: number | null;
 	initialHeadless: boolean;
 	defaultProps: Record<string, unknown>;
 	inFrameMark: number | null;
@@ -254,6 +255,7 @@ const RenderModal: React.FC<
 	initialEveryNthFrame,
 	initialNumberOfGifLoops,
 	initialDelayRenderTimeout,
+	initialOffthreadVideoCacheSizeInBytes,
 	initialAudioCodec,
 	initialEnvVariables,
 	initialDisableWebSecurity,
@@ -372,8 +374,8 @@ const RenderModal: React.FC<
 		() => initialDelayRenderTimeout,
 	);
 
-	// TODO: Hardcoded
-	const [offthreadVideoCacheSizeInBytes] = useState(200);
+	const [offthreadVideoCacheSizeInBytes, setOffthreadVideoCacheSizeInBytes] =
+		useState<number | null>(initialOffthreadVideoCacheSizeInBytes);
 
 	const codec = useMemo(() => {
 		if (renderMode === 'audio') {
@@ -737,6 +739,7 @@ const RenderModal: React.FC<
 		chromiumOptions,
 		envVariables,
 		inputProps,
+		offthreadVideoCacheSizeInBytes,
 		onClose,
 	]);
 

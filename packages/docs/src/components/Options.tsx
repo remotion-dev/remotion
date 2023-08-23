@@ -1,12 +1,12 @@
 import { BrowserSafeApis } from "@remotion/renderer/client";
-import React from "react";
+import type React from "react";
 
 export const Options: React.FC<{
   id: string;
 }> = ({ id }) => {
   const option = getOption(id);
 
-  return <>{option.description}</>;
+  return option.description;
 };
 
 const options = Object.values(BrowserSafeApis.options);
