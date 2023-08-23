@@ -8,6 +8,14 @@ crumb: "Lambda"
 
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
+import { YouTube } from "../../components/YouTube";
+
+<YouTube
+  minutes={18}
+  href="https://www.youtube.com/watch?v=kFVd3KnfwYY"
+  thumb="https://i.ytimg.com/vi/kFVd3KnfwYY/hqdefault.jpg?sqp=-oaymwEbCKgBEF5IVfKriqkDDggBFQAAiEIYAXABwAEG&rs=AOn4CLCJOz2mu_A24NvjFQGm6GjUVssnUQ"
+  title="How to set up Remotion Lambda"
+/>
 
 ## 1. Install `@remotion/lambda`
 

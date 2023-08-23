@@ -41,12 +41,16 @@ export const sitesRmSubcommand = async (args: string[]) => {
 			return quit(1);
 		}
 
-		await confirmCli({
-			delMessage: `Site ${site.id} in bucket ${
-				site.bucketName
-			} (${CliInternals.formatBytes(site.sizeInBytes)}): Delete? (Y/n)`,
-			allowForceFlag: true,
-		});
+		if (
+			!(await confirmCli({
+				delMessage: `Site ${site.id} in bucket ${
+					site.bucketName
+				} (${CliInternals.formatBytes(site.sizeInBytes)}): Delete? (Y/n)`,
+				allowForceFlag: true,
+			}))
+		) {
+			quit(1);
+		}
 
 		const {totalSizeInBytes: totalSize} = await deleteSite({
 			bucketName,

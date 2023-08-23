@@ -70,6 +70,7 @@ class RenderParams
     private $rendererFunctionName = null;
     private $proResProfile = null;
     private $pixelFormat = null;
+    private $x264Preset = null;
 
     public function __construct(
         ?array $data = null,
@@ -86,7 +87,26 @@ class RenderParams
         ?string $frameRange = null,
         ?string $outName = null,
         ?int $timeoutInMilliseconds = 30000,
-        ?object $chromiumOptions = new stdClass(), ?int $scale = 1, ?int $everyNthFrame = 1, ?int $numberOfGifLoops = 0, ?int $concurrencyPerLambda = 1, ?array $downloadBehavior = null, ?bool $muted = false, ?bool $overwrite = false, ?int $audioBitrate = null, ?int $videoBitrate = null, ?string $webhook = null, ?int $forceHeight = null, ?int $forceWidth = null, ?string $audioCodec = null, ?int $framesPerLambda = null, ?string $rendererFunctionName = null, ?string $proResProfile = null, ?string $pixelFormat = null)
+        ?object $chromiumOptions = new stdClass(), 
+        ?int $scale = 1, 
+        ?int $everyNthFrame = 1, 
+        ?int $numberOfGifLoops = 0, 
+        ?int $concurrencyPerLambda = 1, 
+        ?array $downloadBehavior = null, 
+        ?bool $muted = false, 
+        ?bool $overwrite = false, 
+        ?int $audioBitrate = null, 
+        ?int $videoBitrate = null, 
+        ?string $webhook = null, 
+        ?int $forceHeight = null, 
+        ?int $forceWidth = null, 
+        ?string $audioCodec = null, 
+        ?int $framesPerLambda = null, 
+        ?string $rendererFunctionName = null, 
+        ?string $proResProfile = null, 
+        ?string $pixelFormat = null,
+        ?string $x264Preset = null,
+        )
     {
         $this->data = $data;
         $this->composition = $composition;
@@ -120,6 +140,7 @@ class RenderParams
         $this->rendererFunctionName = $rendererFunctionName;
         $this->proResProfile = $proResProfile;
         $this->pixelFormat = $pixelFormat;
+        $this->x264Preset = $x264Preset;
     }
 
     private array $inputProps = array();
@@ -155,6 +176,7 @@ class RenderParams
             'forceWidth' => $this->getForceWidth(),
             'bucketName' => $this->getBucketName(),
             'audioCodec' => $this->getAudioCodec(),
+            'x264Preset' => $this->getX264Preset(),
             'type' => 'start'
         ];
 
@@ -168,6 +190,10 @@ class RenderParams
 
         if ($this->getPixelFormat() !== null) {
             $parameters['pixelFormat'] = $this->getPixelFormat();
+        }
+
+        if ($this->getX264Preset() !== null) {
+            $parameters['x264Preset'] = $this->getX264Preset();
         }
 
         if ($this->getProResProfile() !== null) {
@@ -754,5 +780,16 @@ class RenderParams
         $this->pixelFormat = $pixelFormat;
 
         return $this;
+    }
+
+    public function getX264Preset()
+    {
+        return $this->x264Preset;
+    }
+
+    public function setX264Preset($x264Preset)
+    {
+         $this->x264Preset = $x264Preset;
+         return $this;
     }
 }
