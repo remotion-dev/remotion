@@ -224,15 +224,49 @@ export const experts: Expert[] = [
     description: (
       <div>
         <p>
-          I made:{" "}
-          <a target={"_blank"} href="https://thatwas.pro">
-            ThatWas.pro
+          I&apos;m a full stack web dev, strongest in cloud architecture and
+          front-end web development, which has been perfect for building editors
+          with the Remotion player as well as rendering videos on the cloud. I
+          have helped out some forward-thinking businesses in the Remotion
+          community, like{" "}
+          <a target={"_blank"} href="https://studio.momento.fm/">
+            Momento.fm
+          </a>
+          {", "}
+          <a target={"_blank"} href="https://viddyoze.com/">
+            Viddyoze
           </a>
           {" and "}
-          <a target={"_blank"} href="https://splitscreen.video">
-            splitscreen.video
+          <a target={"_blank"} href="https://djema.ai/">
+            Djema
           </a>
-          !
+          {". "}
+          <br />
+          <br />I am also the creator of the official{" "}
+          <a
+            target={"_blank"}
+            href="https://www.npmjs.com/package/@remotion/cloudrun"
+          >
+            @remotion/cloudrun package
+          </a>
+          , which I built in collaboration with Jonny and the team. This package
+          allows users to easily render videos on Google Cloud Platform, as an
+          alternative to using Lambda with AWS. I have also built my own
+          products, like{" "}
+          <a target={"_blank"} href="https://thatwas.pro/">
+            ThatWas.Pro
+          </a>
+          {", "}
+          <a target={"_blank"} href="https://splitscreen.video/">
+            SplitScreen.Video
+          </a>{" "}
+          and a neat audio player for{" "}
+          <a target={"_blank"} href="https://sub50k.com/">
+            Sub50k
+          </a>
+          {". "}
+          Feel free to send me an email, book some time, or shoot me a DM on
+          Discord!
         </p>
       </div>
     ),
