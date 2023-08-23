@@ -35,7 +35,7 @@ export type ErrorRecord = {
 const CONTEXT_SIZE = 3;
 
 export const getErrorRecord = async (
-	error: Error
+	error: Error,
 ): Promise<ErrorRecord | null> => {
 	const stackFrames = await getStackFrames(error, CONTEXT_SIZE);
 
@@ -66,7 +66,7 @@ const crashWithFrames = (crash: () => void) => (error: Error) => {
 
 	window.localStorage.setItem(
 		'remotion.lastCrashBecauseOfHooks',
-		String(Date.now())
+		String(Date.now()),
 	);
 
 	if (didHookOrderChange && !justRefreshedBecauseOfHooks) {

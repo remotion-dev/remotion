@@ -24,7 +24,7 @@ import {useElementSize} from './utils/use-element-size.js';
 const reactVersion = React.version.split('.')[0];
 if (reactVersion === '0') {
 	throw new Error(
-		`Version ${reactVersion} of "react" is not supported by Remotion`
+		`Version ${reactVersion} of "react" is not supported by Remotion`,
 	);
 }
 
@@ -73,7 +73,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 			};
 			return Object.assign(thumbnail.emitter, methods);
 		},
-		[scale, thumbnail.emitter]
+		[scale, thumbnail.emitter],
 	);
 
 	const VideoComponent = video ? video.component : null;
@@ -100,7 +100,7 @@ const ThumbnailUI: React.ForwardRefRenderFunction<
 			// Pay attention to `this context`
 			thumbnail.emitter.dispatchError(error);
 		},
-		[thumbnail.emitter]
+		[thumbnail.emitter],
 	);
 
 	const rootRef = useRef<ThumbnailMethods>(null);

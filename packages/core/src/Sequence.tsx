@@ -57,7 +57,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		loopDisplay,
 		...other
 	},
-	ref
+	ref,
 ) => {
 	const {layout = 'absolute-fill'} = other;
 	const [id] = useState(() => String(Math.random()));
@@ -71,7 +71,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (layout !== 'absolute-fill' && layout !== 'none') {
 		throw new TypeError(
-			`The layout prop of <Sequence /> expects either "absolute-fill" or "none", but you passed: ${layout}`
+			`The layout prop of <Sequence /> expects either "absolute-fill" or "none", but you passed: ${layout}`,
 		);
 	}
 
@@ -82,25 +82,25 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (typeof durationInFrames !== 'number') {
 		throw new TypeError(
-			`You passed to durationInFrames an argument of type ${typeof durationInFrames}, but it must be a number.`
+			`You passed to durationInFrames an argument of type ${typeof durationInFrames}, but it must be a number.`,
 		);
 	}
 
 	if (durationInFrames <= 0) {
 		throw new TypeError(
-			`durationInFrames must be positive, but got ${durationInFrames}`
+			`durationInFrames must be positive, but got ${durationInFrames}`,
 		);
 	}
 
 	if (typeof from !== 'number') {
 		throw new TypeError(
-			`You passed to the "from" props of your <Sequence> an argument of type ${typeof from}, but it must be a number.`
+			`You passed to the "from" props of your <Sequence> an argument of type ${typeof from}, but it must be a number.`,
 		);
 	}
 
 	if (!Number.isFinite(from)) {
 		throw new TypeError(
-			`The "from" prop of a sequence must be finite, but got ${from}.`
+			`The "from" prop of a sequence must be finite, but got ${from}.`,
 		);
 	}
 
@@ -112,7 +112,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 		: durationInFrames;
 	const actualDurationInFrames = Math.max(
 		0,
-		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration)
+		Math.min(videoConfig.durationInFrames - from, parentSequenceDuration),
 	);
 	const {registerSequence, unregisterSequence} = useContext(SequenceManager);
 
@@ -192,7 +192,7 @@ const SequenceRefForwardingFunction: React.ForwardRefRenderFunction<
 
 	if (ref !== null && layout === 'none') {
 		throw new TypeError(
-			'It is not supported to pass both a `ref` and `layout="none"` to <Sequence />.'
+			'It is not supported to pass both a `ref` and `layout="none"` to <Sequence />.',
 		);
 	}
 

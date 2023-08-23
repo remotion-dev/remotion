@@ -40,10 +40,14 @@ fn mainfn() -> Result<(), ErrorWithBacktrace> {
         CliInputCommandPayload::StartLongRunningProcess(payload) => {
             set_verbose_logging(payload.verbose);
             _print_verbose(&format!(
-                "Starting Rust process. Max video cache items: {}, max concurrency = {}",
-                payload.maximum_frame_cache_items, payload.concurrency
+                "Starting Rust process. Max video cache size: {}MB, max concurrency = {}",
+                payload.maximum_frame_cache_size_in_bytes / 1024 / 1024,
+                payload.concurrency
             ))?;
-            start_long_running_process(payload.concurrency, payload.maximum_frame_cache_items)?;
+            start_long_running_process(
+                payload.concurrency,
+                payload.maximum_frame_cache_size_in_bytes,
+            )?;
         }
         _ => {
             let data = execute_command(opts.payload)?;
@@ -62,7 +66,7 @@ pub fn parse_init_command(json: &str) -> Result<CliInputCommand, ErrorWithBacktr
 
 fn start_long_running_process(
     threads: usize,
-    frames_to_keep: usize,
+    maximum_frame_cache_size_in_bytes: u128,
 ) -> Result<(), ErrorWithBacktrace> {
     let pool = rayon::ThreadPoolBuilder::new()
         .num_threads(threads)
@@ -92,7 +96,7 @@ fn start_long_running_process(
                 )
                 .unwrap(),
             };
-            ffmpeg::keep_only_latest_frames(frames_to_keep).unwrap();
+            ffmpeg::keep_only_latest_frames(maximum_frame_cache_size_in_bytes).unwrap();
         });
     }
 

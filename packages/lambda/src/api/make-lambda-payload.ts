@@ -51,10 +51,11 @@ export const makeLambdaRenderMediaPayload = async ({
 	dumpBrowserLogs,
 	jpegQuality,
 	quality,
+	offthreadVideoCacheSizeInBytes,
 }: RenderMediaOnLambdaInput): Promise<LambdaStartPayload> => {
 	if (quality) {
 		throw new Error(
-			'quality has been renamed to jpegQuality. Please rename the option.'
+			'quality has been renamed to jpegQuality. Please rename the option.',
 		);
 	}
 
@@ -68,7 +69,7 @@ export const makeLambdaRenderMediaPayload = async ({
 
 	const stringifiedInputProps = serializeOrThrow(
 		inputProps ?? {},
-		'input-props'
+		'input-props',
 	);
 
 	const serialized = await compressInputProps({
@@ -117,6 +118,7 @@ export const makeLambdaRenderMediaPayload = async ({
 		bucketName: bucketName ?? null,
 		audioCodec: audioCodec ?? null,
 		type: LambdaRoutines.start,
+		offthreadVideoCacheSizeInBytes: offthreadVideoCacheSizeInBytes ?? null,
 	};
 };
 

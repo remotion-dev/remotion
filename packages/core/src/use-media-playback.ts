@@ -17,7 +17,7 @@ export const DEFAULT_ACCEPTABLE_TIMESHIFT = 0.45;
 
 const seek = (
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>,
-	time: number
+	time: number,
 ) => {
 	if (!mediaRef.current) {
 		return;
@@ -70,7 +70,7 @@ export const useMediaPlayback = ({
 
 		if (!src) {
 			throw new Error(
-				`No 'src' attribute was passed to the ${tagName} element.`
+				`No 'src' attribute was passed to the ${tagName} element.`,
 			);
 		}
 
@@ -104,7 +104,7 @@ export const useMediaPlayback = ({
 			if (!onlyWarnForMediaSeekingError) {
 				warnAboutNonSeekableMedia(
 					mediaRef.current,
-					onlyWarnForMediaSeekingError ? 'console-warning' : 'console-error'
+					onlyWarnForMediaSeekingError ? 'console-warning' : 'console-error',
 				);
 			}
 

@@ -30,7 +30,7 @@ const getFileContents = async (fileName: string) => {
 
 export const unmap = async (
 	frames: SomeStackFrame[],
-	contextLines: number
+	contextLines: number,
 ): Promise<SymbolicatedStackFrame[]> => {
 	const transpiled = frames
 		.filter((s) => s.type === 'transpiled')
@@ -42,7 +42,7 @@ export const unmap = async (
 		uniqueFileNames.map(async (fileName) => {
 			const fileContents = await getFileContents(fileName);
 			return getSourceMap(fileName as string, fileContents as string);
-		})
+		}),
 	);
 	const mapValues: Record<string, SourceMapConsumer | null> = {};
 	for (let i = 0; i < uniqueFileNames.length; i++) {
@@ -63,7 +63,7 @@ export const unmap = async (
 			const pos = getOriginalPosition(
 				map,
 				frame.frame.lineNumber as number,
-				frame.frame.columnNumber as number
+				frame.frame.columnNumber as number,
 			);
 			const {functionName} = frame.frame;
 			let hasSource: string | null = null;

@@ -16,7 +16,7 @@ export const webpackOverride = (currentConfiguration) => {
 				'..',
 				'example',
 				'node_modules',
-				'@remotion/babel-loader'
+				'@remotion/babel-loader',
 			));
 			return replaceLoadersWithBabel(currentConfiguration);
 		}

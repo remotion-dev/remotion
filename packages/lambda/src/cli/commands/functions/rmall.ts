@@ -37,7 +37,7 @@ export const functionsRmallCommand = async () => {
 				'Timeout: '.padEnd(LEFT_COL, ' ') + ' ' + info.timeoutInSeconds + 'sec',
 				'Version: '.padEnd(LEFT_COL, ' ') + ' ' + info.version,
 			].join('\n'),
-			true
+			true,
 		);
 
 		if (

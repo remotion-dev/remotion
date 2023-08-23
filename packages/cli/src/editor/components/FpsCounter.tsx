@@ -16,7 +16,7 @@ const label: React.CSSProperties = {
 const pushWithMaxSize = (
 	arr: number[],
 	value: number,
-	maxSize: number
+	maxSize: number,
 ): number[] => {
 	arr.push(value);
 	return arr.slice(-maxSize);
@@ -48,7 +48,7 @@ export const FpsCounter: React.FC<{
 		previousUpdates.current = pushWithMaxSize(
 			previousUpdates.current,
 			performance.now(),
-			15
+			15,
 		);
 
 		if (previousUpdates.current.length < 2) return;

@@ -14,29 +14,29 @@ const printFunctionsHelp = () => {
 	CliInternals.Log.info('Available subcommands:');
 	CliInternals.Log.info('');
 	CliInternals.Log.info(
-		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND}`
+		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_LS_SUBCOMMAND}`,
 	);
 	CliInternals.Log.info(
-		CliInternals.chalk.gray('Lists the functions currently deployed')
-	);
-	CliInternals.Log.info('');
-	CliInternals.Log.info(
-		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_DEPLOY_SUBCOMMAND}`
-	);
-	CliInternals.Log.info(
-		CliInternals.chalk.gray('Deploy a new Lambda function')
+		CliInternals.chalk.gray('Lists the functions currently deployed'),
 	);
 	CliInternals.Log.info('');
 	CliInternals.Log.info(
-		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_RM_SUBCOMMAND} <function-name>`
+		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_DEPLOY_SUBCOMMAND}`,
+	);
+	CliInternals.Log.info(
+		CliInternals.chalk.gray('Deploy a new Lambda function'),
+	);
+	CliInternals.Log.info('');
+	CliInternals.Log.info(
+		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_RM_SUBCOMMAND} <function-name>`,
 	);
 	CliInternals.Log.info(CliInternals.chalk.gray('Delete a Lambda function'));
 	CliInternals.Log.info('');
 	CliInternals.Log.info(
-		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_RMALL_SUBCOMMAND}`
+		`${BINARY_NAME} ${FUNCTIONS_COMMAND} ${FUNCTIONS_RMALL_SUBCOMMAND}`,
 	);
 	CliInternals.Log.info(
-		CliInternals.chalk.gray('Delete all functions in selected region')
+		CliInternals.chalk.gray('Delete all functions in selected region'),
 	);
 };
 

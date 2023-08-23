@@ -49,7 +49,7 @@ describe('Templates should be valid', () => {
 					expect(eitherPluginOrConfig).toBeTruthy();
 				}
 			},
-			12000
+			12000,
 		);
 
 		it(
@@ -57,7 +57,7 @@ describe('Templates should be valid', () => {
 			async () => {
 				const packageLockJson = getFileForTemplate(
 					template,
-					'package-lock.json'
+					'package-lock.json',
 				);
 
 				const res = await got(packageLockJson, {
@@ -65,7 +65,7 @@ describe('Templates should be valid', () => {
 				});
 				expect(res.statusCode).toBe(404);
 			},
-			12000
+			12000,
 		);
 
 		it(
@@ -78,7 +78,7 @@ describe('Templates should be valid', () => {
 				});
 				expect(res.statusCode).toBe(404);
 			},
-			12000
+			12000,
 		);
 
 		it(
@@ -91,7 +91,7 @@ describe('Templates should be valid', () => {
 				});
 				expect(res.statusCode).toBe(404);
 			},
-			12000
+			12000,
 		);
 
 		it(
@@ -106,7 +106,7 @@ describe('Templates should be valid', () => {
 				expect(entryPoint).toBeTruthy();
 				expect(contents).toMatch(/RemotionRoot/);
 			},
-			12000
+			12000,
 		);
 
 		it(
@@ -121,7 +121,7 @@ describe('Templates should be valid', () => {
 				expect(entryPoint).toBeTruthy();
 				expect(contents).toMatch(/export const RemotionRoot/);
 			},
-			12000
+			12000,
 		);
 
 		it(
@@ -136,7 +136,7 @@ describe('Templates should be valid', () => {
 				expect(entryPoint).toBeTruthy();
 				expect(contents).toMatch(/export const RemotionRoot/);
 			},
-			12000
+			12000,
 		);
 
 		it(`${template.shortName} should use the new config file format`, async () => {
@@ -165,7 +165,7 @@ describe('Templates should be valid', () => {
 				const json = JSON.parse(contents as string);
 				expect(json.compilerOptions.noUnusedLocals).toBe(true);
 			},
-			12000
+			12000,
 		);
 	}
 });

@@ -17,7 +17,7 @@ export const serveStatic = async function (
 	root: string,
 	hash: string,
 	req: IncomingMessage,
-	res: ServerResponse
+	res: ServerResponse,
 ) {
 	if (req.method !== 'GET' && req.method !== 'HEAD') {
 		// method not allowed
@@ -30,7 +30,7 @@ export const serveStatic = async function (
 
 	const filename = new URL(
 		req.url as string,
-		'http://localhost'
+		'http://localhost',
 	).pathname.replace(new RegExp(`^${hash}`), '');
 	const path = join(root, decodeURIComponent(filename));
 
@@ -64,7 +64,7 @@ export const serveStatic = async function (
 		const readStream = createReadStream(path);
 		res.setHeader(
 			'content-type',
-			RenderInternals.mimeLookup(path) || 'application/octet-stream'
+			RenderInternals.mimeLookup(path) || 'application/octet-stream',
 		);
 		res.setHeader('content-length', lstat.size);
 		res.writeHead(200);
@@ -79,14 +79,14 @@ export const serveStatic = async function (
 
 		res.setHeader(
 			'content-type',
-			RenderInternals.mimeLookup(path) || 'application/octet-stream'
+			RenderInternals.mimeLookup(path) || 'application/octet-stream',
 		);
 		res.setHeader(
 			'content-range',
 			getValueContentRangeHeader('bytes', lstat.size, {
 				end,
 				start,
-			})
+			}),
 		);
 		res.setHeader('content-length', end - start + 1);
 

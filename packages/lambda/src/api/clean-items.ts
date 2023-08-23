@@ -29,13 +29,13 @@ export const cleanItems = ({
 					new DeleteObjectCommand({
 						Bucket: bucket,
 						Key: object,
-					})
+					}),
 				);
 				onAfterItemDeleted({
 					bucketName: bucket,
 					itemName: object,
 				});
-			})
-		)
+			}),
+		),
 	);
 };

@@ -56,7 +56,7 @@ export const InputDragger: React.FC<Props> = ({
 			fontSize: 13,
 			fontVariantNumeric: 'tabular-nums',
 		}),
-		[]
+		[],
 	);
 
 	const onClick: MouseEventHandler<HTMLButtonElement> = useCallback((e) => {
@@ -100,7 +100,7 @@ export const InputDragger: React.FC<Props> = ({
 				fallbackRef.current?.blur();
 			}
 		},
-		[]
+		[],
 	);
 
 	const roundToStep = (val: number, stepSize: number) => {
@@ -114,7 +114,7 @@ export const InputDragger: React.FC<Props> = ({
 			const moveListener = (ev: MouseEvent) => {
 				const xDistance = ev.pageX - pageX;
 				const distanceFromStart = Math.sqrt(
-					xDistance ** 2 + (ev.pageY - pageY) ** 2
+					xDistance ** 2 + (ev.pageY - pageY) ** 2,
 				);
 				const step = Number(_step ?? 1);
 				const min = Number(_min ?? 0);
@@ -127,7 +127,7 @@ export const InputDragger: React.FC<Props> = ({
 				const diff = interpolate(
 					xDistance,
 					[-5, -4, 0, 4, 5],
-					[-step, 0, 0, 0, step]
+					[-step, 0, 0, 0, step],
 				);
 				const newValue = Math.min(max, Math.max(min, Number(value) + diff));
 				const roundedToStep = roundToStep(newValue, step);
@@ -145,10 +145,10 @@ export const InputDragger: React.FC<Props> = ({
 				},
 				{
 					once: true,
-				}
+				},
 			);
 		},
-		[_step, _min, _max, value, onValueChange]
+		[_step, _min, _max, value, onValueChange],
 	);
 
 	useEffect(() => {

@@ -34,6 +34,6 @@ test('Should stringify default props correctly', () => {
 
 	const result = stringifyDefaultProps({props: values, enumPaths});
 	expect(result).toBe(
-		`{"abc":"hi" as const,"array":["hi" as const],"notAnEnum":""}`
+		`{"abc":"hi" as const,"array":["hi" as const],"notAnEnum":""}`,
 	);
 });

@@ -23,7 +23,7 @@ export const OFFTHREAD_VIDEO_CLASS_NAME = '__remotion_offthreadvideo';
 
 export const makeDefaultCSS = (
 	scope: string | null,
-	backgroundColor: string
+	backgroundColor: string,
 ) => {
 	if (!scope) {
 		return `

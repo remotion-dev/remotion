@@ -118,7 +118,7 @@ export default () => {
       <Head>
         {Seo.renderTitle(`${expert.name} | Remotion Experts`)}
         {Seo.renderDescription(
-          `Hire ${expert.name} and other Remotion experts, vetted by Remotion.`
+          `Hire ${expert.name} and other Remotion experts, vetted by Remotion.`,
         )}
         {Seo.renderImage(imgSrc, context.siteConfig.url)}
       </Head>

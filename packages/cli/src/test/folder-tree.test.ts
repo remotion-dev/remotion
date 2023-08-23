@@ -6,7 +6,7 @@ import {createFolderTree} from '../editor/helpers/create-folder-tree';
 
 const SampleComp: React.FC<{}> = () => null;
 const component = React.lazy(() =>
-	Promise.resolve({default: SampleComp as ComponentType<unknown>})
+	Promise.resolve({default: SampleComp as ComponentType<unknown>}),
 );
 
 const getZ = async () => {
@@ -59,7 +59,7 @@ test('Should create a good folder tree with 1 item inside and 1 item outside', a
 				parent: null,
 			},
 		],
-		{}
+		{},
 	);
 
 	expect(tree).toEqual([
@@ -146,7 +146,7 @@ test('Should handle nested folders well', async () => {
 				parent: 'my-third-folder/my-second-folder',
 			},
 		],
-		{}
+		{},
 	);
 
 	expect(tree).toEqual([
@@ -212,9 +212,9 @@ test('Should throw if two folders with the same name', () => {
 					parent: null,
 				},
 			],
-			{}
-		)
+			{},
+		),
 	).toThrow(
-		/Multiple folders with the name my-folder exist. Folder names must be unique./
+		/Multiple folders with the name my-folder exist. Folder names must be unique./,
 	);
 });

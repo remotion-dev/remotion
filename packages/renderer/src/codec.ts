@@ -11,7 +11,7 @@ export const validCodecs = [
 	'gif',
 ] as const;
 
-export type Codec = typeof validCodecs[number];
+export type Codec = (typeof validCodecs)[number];
 export type CodecOrUndefined = Codec | undefined;
 
 export const DEFAULT_CODEC: Codec = 'h264';

@@ -67,12 +67,12 @@ type BrowserStatus =
 	  };
 
 const getBrowserStatus = (
-	browserExecutablePath: BrowserExecutable
+	browserExecutablePath: BrowserExecutable,
 ): BrowserStatus => {
 	if (browserExecutablePath) {
 		if (!fs.existsSync(browserExecutablePath)) {
 			console.warn(
-				`Browser executable was specified as '${browserExecutablePath}' but the path doesn't exist.`
+				`Browser executable was specified as '${browserExecutablePath}' but the path doesn't exist.`,
 			);
 		}
 
@@ -93,25 +93,25 @@ const getBrowserStatus = (
 };
 
 export const ensureLocalBrowser = async (
-	preferredBrowserExecutable: BrowserExecutable
+	preferredBrowserExecutable: BrowserExecutable,
 ) => {
 	const status = getBrowserStatus(preferredBrowserExecutable);
 	if (status.type === 'no-browser') {
 		Log.info(
-			'No local browser could be found. Downloading Thorium https://www.remotion.dev/docs/thorium-browser'
+			'No local browser could be found. Downloading Thorium https://www.remotion.dev/docs/thorium-browser',
 		);
 		await downloadBrowser();
 	}
 };
 
 export const getLocalBrowserExecutable = (
-	preferredBrowserExecutable: BrowserExecutable
+	preferredBrowserExecutable: BrowserExecutable,
 ): string => {
 	const status = getBrowserStatus(preferredBrowserExecutable);
 	if (status.type === 'no-browser') {
 		throw new TypeError(
 			'No browser found for rendering frames! Please open a GitHub issue and describe ' +
-				'how you reached this error: https://github.com/remotion-dev/remotion/issues'
+				'how you reached this error: https://github.com/remotion-dev/remotion/issues',
 		);
 	}
 

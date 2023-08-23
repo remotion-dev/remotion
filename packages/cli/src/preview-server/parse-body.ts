@@ -1,7 +1,7 @@
 import type {IncomingMessage} from 'node:http';
 
 export const parseRequestBody = async (
-	req: IncomingMessage
+	req: IncomingMessage,
 ): Promise<unknown> => {
 	const body = await new Promise<string>((_resolve) => {
 		let data = '';

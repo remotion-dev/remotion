@@ -72,7 +72,7 @@ const gceSchema = conditional(
 	(stream: Stream) => {
 		const codes = peekBytes(2)(stream);
 		return codes[0] === 0x21 && codes[1] === 0xf9;
-	}
+	},
 );
 
 // image pipeline block
@@ -104,22 +104,22 @@ const imageSchema = conditional(
 						(
 							_stream: Stream,
 							_result: Frame['image'],
-							parent: Frame['image']
+							parent: Frame['image'],
 						) => {
 							return 2 ** (parent.descriptor.lct.size + 1);
-						}
+						},
 					),
 				},
 				(_stream: Stream, _result: unknown, parent: Frame['image']) => {
 					return parent.descriptor.lct.exists;
-				}
+				},
 			),
 			{data: [{minCodeSize: readByte()}, subBlocksSchema]},
 		],
 	},
 	(stream: Stream) => {
 		return peekByte()(stream) === 0x2c;
-	}
+	},
 );
 
 // plain text block
@@ -132,7 +132,7 @@ const textSchema = conditional(
 				preData: (
 					stream: Stream,
 					_result: unknown,
-					parent: {text: {blockSize: number}}
+					parent: {text: {blockSize: number}},
 				) => readBytes(parent.text.blockSize)(stream),
 			},
 			subBlocksSchema,
@@ -141,7 +141,7 @@ const textSchema = conditional(
 	(stream: Stream) => {
 		const codes = peekBytes(2)(stream);
 		return codes[0] === 0x21 && codes[1] === 0x01;
-	}
+	},
 );
 
 // application block
@@ -154,7 +154,7 @@ const applicationSchema = conditional(
 				id: (
 					stream: Stream,
 					_result: unknown,
-					parent: Application['application']
+					parent: Application['application'],
 				) => readString(parent.blockSize)(stream),
 			},
 			subBlocksSchema,
@@ -163,7 +163,7 @@ const applicationSchema = conditional(
 	(stream: Stream) => {
 		const codes = peekBytes(2)(stream);
 		return codes[0] === 0x21 && codes[1] === 0xff;
-	}
+	},
 );
 
 // comment block
@@ -174,7 +174,7 @@ const commentSchema = conditional(
 	(stream: Stream) => {
 		const codes = peekBytes(2)(stream);
 		return codes[0] === 0x21 && codes[1] === 0xfe;
-	}
+	},
 );
 
 export const GIF = [
@@ -199,10 +199,10 @@ export const GIF = [
 		{
 			gct: readArray(
 				3,
-				(_stream, result: ParsedGif) => 2 ** (result.lsd.gct.size + 1)
+				(_stream, result: ParsedGif) => 2 ** (result.lsd.gct.size + 1),
 			),
 		},
-		(_stream: Stream, result: ParsedGif) => result.lsd.gct.exists
+		(_stream: Stream, result: ParsedGif) => result.lsd.gct.exists,
 	),
 	// content frames
 	{
@@ -215,7 +215,7 @@ export const GIF = [
 				// var terminator = 0x3B;
 				// return nextCode !== terminator;
 				return nextCode === 0x21 || nextCode === 0x2c;
-			}
+			},
 		),
 	},
 ];

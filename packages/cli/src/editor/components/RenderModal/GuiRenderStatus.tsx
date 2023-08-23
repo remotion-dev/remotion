@@ -162,7 +162,7 @@ export const GuiRenderStatus: React.FC<{
 }> = ({job}) => {
 	if (job.status === 'idle' || job.status === 'failed') {
 		throw new Error(
-			'This component should not be rendered when the job is idle'
+			'This component should not be rendered when the job is idle',
 		);
 	}
 

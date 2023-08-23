@@ -24,6 +24,7 @@ export const getCompositionWithDimensionOverride = async ({
 	serializedInputPropsWithCustomSchema,
 	logLevel,
 	server,
+	offthreadVideoCacheSizeInBytes,
 }: {
 	height: number | null;
 	width: number | null;
@@ -40,6 +41,7 @@ export const getCompositionWithDimensionOverride = async ({
 	logLevel: LogLevel;
 	serializedInputPropsWithCustomSchema: string;
 	server: RemotionServer;
+	offthreadVideoCacheSizeInBytes: number | null;
 }): Promise<{
 	compositionId: string;
 	reason: string;
@@ -60,6 +62,7 @@ export const getCompositionWithDimensionOverride = async ({
 		puppeteerInstance,
 		timeoutInMilliseconds,
 		server,
+		offthreadVideoCacheSizeInBytes,
 	});
 
 	return {

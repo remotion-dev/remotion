@@ -345,6 +345,10 @@ One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged i
 
 If the `logLevel` is set to `verbose`, the Lambda function will not clean up artifacts, to aid debugging. Do not use it unless you are debugging a problem.
 
+### `offthreadVideoCacheSize?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
 ### ~~`dumpBrowserLogs?`~~
 
 _optional - default `false`, deprecated in v4.0_

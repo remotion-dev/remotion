@@ -7,14 +7,14 @@ import {Log} from './log';
 export const loadConfigFile = async (
 	remotionRoot: string,
 	configFileName: string,
-	isJavascript: boolean
+	isJavascript: boolean,
 ): Promise<string | null> => {
 	const resolved = path.resolve(remotionRoot, configFileName);
 
 	const tsconfigJson = path.join(remotionRoot, 'tsconfig.json');
 	if (!isJavascript && !fs.existsSync(tsconfigJson)) {
 		Log.error(
-			'Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/remotion-dev/template-helloworld/blob/main/tsconfig.json.'
+			'Could not find a tsconfig.json file in your project. Did you delete it? Create a tsconfig.json in the root of your project. Copy the default file from https://github.com/remotion-dev/template-helloworld/blob/main/tsconfig.json.',
 		);
 		Log.error('The root directory is:', remotionRoot);
 		process.exit(1);

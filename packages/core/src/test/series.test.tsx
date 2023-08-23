@@ -53,7 +53,7 @@ const renderForFrame = (frame: number, markup: React.ReactNode) => {
 			>
 				{markup}
 			</TimelineContext.Provider>
-		</CanUseRemotionHooksProvider>
+		</CanUseRemotionHooksProvider>,
 	);
 };
 
@@ -72,10 +72,10 @@ test('Basic series test', () => {
 					<Third />
 				</Series.Sequence>
 			</Series>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>third 0</div></div>'
+		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>third 0</div></div>',
 	);
 });
 
@@ -101,11 +101,11 @@ test('Should support fragments', () => {
 					</>
 				</>
 			</Series>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 
 	expect(outerHtml).not.toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>second 1</div></div>'
+		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>second 1</div></div>',
 	);
 });
 test('Should not allow foreign elements', () => {
@@ -116,7 +116,7 @@ test('Should not allow foreign elements', () => {
 				<Series>
 					<First />
 				</Series>
-			</WrapSequenceContext>
+			</WrapSequenceContext>,
 		);
 	}).toThrow(/only accepts a/);
 });
@@ -129,10 +129,10 @@ test('Should allow layout prop', () => {
 					<First />
 				</Series.Sequence>
 			</Series>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>first 0</div></div>'
+		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>first 0</div></div>',
 	);
 
 	const outerHTML2 = renderForFrame(
@@ -143,7 +143,7 @@ test('Should allow layout prop', () => {
 					<First />
 				</Series.Sequence>
 			</Series>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 	expect(outerHTML2).toBe('<div>first 0</div>');
 });
@@ -156,7 +156,7 @@ test('Should render nothing after the end', () => {
 					<First />
 				</Series.Sequence>
 			</Series>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe('');
 });
@@ -168,10 +168,10 @@ test('Should throw if invalid or no duration provided', () => {
 				<Series.Sequence durationInFrames={NaN}>
 					<First />
 				</Series.Sequence>
-			</Series>
+			</Series>,
 		);
 	}).toThrow(
-		/The "durationInFrames" prop of a <Series.Sequence \/> component must be finite, but got NaN./
+		/The "durationInFrames" prop of a <Series.Sequence \/> component must be finite, but got NaN./,
 	);
 	expect(() => {
 		renderForFrame(
@@ -182,10 +182,10 @@ test('Should throw if invalid or no duration provided', () => {
 				<Series.Sequence>
 					<First />
 				</Series.Sequence>
-			</Series>
+			</Series>,
 		);
 	}).toThrow(
-		/The "durationInFrames" prop of a <Series.Sequence \/> component is missing./
+		/The "durationInFrames" prop of a <Series.Sequence \/> component is missing./,
 	);
 });
 test('Should allow whitespace', () => {
@@ -200,11 +200,11 @@ test('Should allow whitespace', () => {
 					<Second />
 				</Series.Sequence>
 			</Series>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 
 	expect(outerHtml).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>second 1</div></div>'
+		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>second 1</div></div>',
 	);
 });
 test('Handle empty Series.Sequence', () => {
@@ -216,10 +216,10 @@ test('Handle empty Series.Sequence', () => {
 					<First />
 				</Series.Sequence>
 				<Series.Sequence durationInFrames={10} />
-			</Series>
-		)
+			</Series>,
+		),
 	).toThrow(
-		/A <Series.Sequence \/> component \(index = 1, duration = 10\) was detected to not have any children\. Delete it to fix this error\./
+		/A <Series.Sequence \/> component \(index = 1, duration = 10\) was detected to not have any children\. Delete it to fix this error\./,
 	);
 });
 
@@ -235,7 +235,7 @@ test('Should allow negative overlap prop', () => {
 					<Second />
 				</Series.Sequence>
 			</Series>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe('<div>first 4</div><div>second 0</div>');
 });
@@ -252,7 +252,7 @@ test('Should allow positive overlap prop', () => {
 					<Second />
 				</Series.Sequence>
 			</Series>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe('');
 });
@@ -265,10 +265,10 @@ test('Should disallow NaN as offset prop', () => {
 				<Series.Sequence offset={NaN} layout="none" durationInFrames={5}>
 					<Second />
 				</Series.Sequence>
-			</Series>
+			</Series>,
 		);
 	}).toThrow(
-		/The "offset" property of a <Series.Sequence \/> must not be NaN, but got NaN \(index = 0, duration = 5\)\./
+		/The "offset" property of a <Series.Sequence \/> must not be NaN, but got NaN \(index = 0, duration = 5\)\./,
 	);
 });
 
@@ -280,10 +280,10 @@ test('Should disallow Infinity as offset prop', () => {
 				<Series.Sequence offset={Infinity} layout="none" durationInFrames={5}>
 					<Second />
 				</Series.Sequence>
-			</Series>
+			</Series>,
 		);
 	}).toThrow(
-		/The "offset" property of a <Series.Sequence \/> must be finite, but got Infinity \(index = 0, duration = 5\)\./
+		/The "offset" property of a <Series.Sequence \/> must be finite, but got Infinity \(index = 0, duration = 5\)\./,
 	);
 });
 
@@ -295,10 +295,10 @@ test('Should disallow non-integer numbers as offset prop', () => {
 				<Series.Sequence offset={Math.PI} layout="none" durationInFrames={5}>
 					<Second />
 				</Series.Sequence>
-			</Series>
+			</Series>,
 		);
 	}).toThrow(
-		/The "offset" property of a <Series.Sequence \/> must be finite, but got 3.141592653589793 \(index = 0, duration = 5\)\./
+		/The "offset" property of a <Series.Sequence \/> must be finite, but got 3.141592653589793 \(index = 0, duration = 5\)\./,
 	);
 });
 
@@ -317,7 +317,7 @@ test('Should cascade negative offset props', () => {
 					<Third />
 				</Series.Sequence>
 			</Series>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe('<div>third 0</div>');
 });
@@ -337,7 +337,7 @@ test('Should cascade positive offset props', () => {
 					<Third />
 				</Series.Sequence>
 			</Series>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe('<div>third 0</div>');
 });
@@ -357,10 +357,10 @@ test('Allow durationInFrames as Infinity for last Series.Sequence', () => {
 					<Third />
 				</Series.Sequence>
 			</Series>
-		</WrapSequenceContext>
+		</WrapSequenceContext>,
 	);
 	expect(outerHTML).toBe(
-		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>third 0</div></div>'
+		'<div style="position:absolute;top:0;left:0;right:0;bottom:0;width:100%;height:100%;display:flex"><div>third 0</div></div>',
 	);
 });
 
@@ -380,9 +380,9 @@ test('Disallow durationInFrames as Infinity for first n-1 Series.Sequence', () =
 						<Third />
 					</Series.Sequence>
 				</Series>
-			</WrapSequenceContext>
+			</WrapSequenceContext>,
 		);
 	}).toThrow(
-		/The "durationInFrames" prop of a <Series.Sequence \/> component must be finite, but got Infinity\./
+		/The "durationInFrames" prop of a <Series.Sequence \/> component must be finite, but got Infinity\./,
 	);
 });

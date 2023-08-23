@@ -10,7 +10,7 @@ export function checkTerraformStateFile(projectID: string) {
 	if (existsSync('terraform.tfstate')) {
 		execSync(
 			'echo "Terraform State file exists. Checking it is for the current Remotion project...\n"',
-			{stdio: 'inherit'}
+			{stdio: 'inherit'},
 		);
 
 		const tfstate = JSON.parse(readFileSync('terraform.tfstate', 'utf-8'));
@@ -22,7 +22,7 @@ export function checkTerraformStateFile(projectID: string) {
 		if (tfstateProject === undefined) {
 			execSync(
 				`echo "${colorCode.redText}Terraform state file is not from a Remotion project.\n${deleteTfFilesString}"`,
-				{stdio: 'inherit'}
+				{stdio: 'inherit'},
 			);
 			process.exit(1);
 		}
@@ -30,12 +30,12 @@ export function checkTerraformStateFile(projectID: string) {
 		if (tfstateProject === projectID) {
 			execSync(
 				`echo "${colorCode.greenText}Terraform state file is for the current Remotion project - ${projectID}. Continuing...${colorCode.resetText}\n"`,
-				{stdio: 'inherit'}
+				{stdio: 'inherit'},
 			);
 		} else {
 			execSync(
 				`echo "${colorCode.redText}Terraform state file is for project ${colorCode.redBackground}${tfstateProject}${colorCode.redText}.\nThe current project is ${colorCode.redBackground}${projectID}${colorCode.redText}.\n${deleteTfFilesString}"`,
-				{stdio: 'inherit'}
+				{stdio: 'inherit'},
 			);
 			process.exit(1);
 		}

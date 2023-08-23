@@ -43,7 +43,7 @@ export const createOverwriteableCliOutput = (options: {
 							.map((l) => {
 								return `${RenderInternals.INDENT_TOKEN} ${l}`;
 							})
-							.join('\n') + '\n'
+							.join('\n') + '\n',
 					);
 				} else {
 					process.stdout.write(up + '\n');
@@ -69,8 +69,8 @@ export const createOverwriteableCliOutput = (options: {
 							.split('\n')
 							.filter((a) => a.trim())
 							.map((l) => `${RenderInternals.INDENT_TOKEN} ${l}`)
-							.join('\n') + (newline ? '\n' : '')
-					)
+							.join('\n') + (newline ? '\n' : ''),
+					),
 				);
 			}
 
@@ -133,7 +133,7 @@ const makeSymlinkProgress = (options: SymbolicLinksState) => {
 
 	return [
 		chalk.gray(
-			`      Found ${options.symlinks.length} symbolic links in the public folder.`
+			`      Found ${options.symlinks.length} symbolic links in the public folder.`,
 		),
 		chalk.gray('      The symlinks will be forwarded in to the bundle.'),
 	].join('\n');
@@ -162,7 +162,7 @@ export const makeBundlingAndCopyProgress = (
 		symLinks: SymbolicLinksState;
 	},
 	bundlingStep: number,
-	steps: number
+	steps: number,
 ) => {
 	return [
 		makeBundlingProgress({

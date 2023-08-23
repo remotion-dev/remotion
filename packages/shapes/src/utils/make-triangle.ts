@@ -30,7 +30,7 @@ export const makeTriangle = ({
 }: MakeTriangleProps): ShapeInfo => {
 	if (typeof length !== 'number') {
 		throw new Error(
-			`"length" of a triangle must be a number, got ${JSON.stringify(length)}`
+			`"length" of a triangle must be a number, got ${JSON.stringify(length)}`,
 		);
 	}
 

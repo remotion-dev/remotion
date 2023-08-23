@@ -51,6 +51,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		concurrency: z.number().or(z.string()).nullable(),
 		enforceAudioTrack: z.boolean(),
 		preferLossless: z.boolean(),
+		offthreadVideoCacheSizeInBytes: z.number().nullable(),
 	}),
 	z.object({
 		type: z.literal('still'),
@@ -70,6 +71,7 @@ export const CloudRunPayload = z.discriminatedUnion('type', [
 		frame: z.number(),
 		delayRenderTimeoutInMilliseconds: z.number(),
 		logLevel,
+		offthreadVideoCacheSizeInBytes: z.number().nullable(),
 	}),
 ]);
 
@@ -104,7 +106,7 @@ const cloudRunCrashResponse = z.object({
 	type: z.literal('crash'),
 	cloudRunEndpoint: z.string(),
 	message: z.literal(
-		'Service crashed without sending a response. Check the logs in GCP console.'
+		'Service crashed without sending a response. Check the logs in GCP console.',
 	),
 	requestStartTime: z.string().datetime(),
 	requestCrashTime: z.string().datetime(),

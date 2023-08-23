@@ -66,7 +66,7 @@ export const HigherZIndex: React.FC<{
 
 		const listener = (downEvent: MouseEvent) => {
 			const outsideClick = !containerRef.current?.contains(
-				downEvent.target as Node
+				downEvent.target as Node,
 			);
 			if (!outsideClick) {
 				return;
@@ -132,6 +132,6 @@ export const useZIndex = () => {
 			isHighestContext,
 			tabIndex: isHighestContext ? 0 : -1,
 		}),
-		[context.currentIndex, highestContext.highestIndex, isHighestContext]
+		[context.currentIndex, highestContext.highestIndex, isHighestContext],
 	);
 };

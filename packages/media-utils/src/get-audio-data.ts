@@ -24,7 +24,7 @@ const fetchWithCorsCatch = async (src: string) => {
 			error.message.includes('NetworkError when attempting to fetch resource')
 		) {
 			throw new TypeError(
-				`Failed to read from ${src}: ${error.message}. Does the resource support CORS?`
+				`Failed to read from ${src}: ${error.message}. Does the resource support CORS?`,
 			);
 		}
 

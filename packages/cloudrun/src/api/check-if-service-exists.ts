@@ -58,8 +58,8 @@ export const checkIfServiceExists = async ({
 			Log.error(
 				CliInternals.chalk.red(
 					`Issue with ${parent}. The project either doesn't exist, or you don't have access to it.
-					`
-				)
+					`,
+				),
 			);
 		}
 

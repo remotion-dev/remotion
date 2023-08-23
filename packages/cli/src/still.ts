@@ -17,7 +17,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 	if (!file) {
 		Log.error('No entry point specified. Pass more arguments:');
 		Log.error(
-			'   npx remotion render [entry-point] [composition-name] [out-name]'
+			'   npx remotion render [entry-point] [composition-name] [out-name]',
 		);
 		Log.error('Documentation: https://www.remotion.dev/docs/render');
 		process.exit(1);
@@ -27,7 +27,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 
 	if (parsedCli.frames) {
 		Log.error(
-			'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/'
+			'--frames flag was passed to the `still` command. This flag only works with the `render` command. Did you mean `--frame`? See reference: https://www.remotion.dev/docs/cli/',
 		);
 		process.exit(1);
 	}
@@ -48,6 +48,7 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		stillFrame,
 		width,
 		logLevel,
+		offthreadVideoCacheSizeInBytes,
 	} = await getCliOptions({
 		isLambda: false,
 		type: 'still',
@@ -87,5 +88,6 @@ export const still = async (remotionRoot: string, args: string[]) => {
 		},
 		cancelSignal: null,
 		outputLocationFromUi: null,
+		offthreadVideoCacheSizeInBytes,
 	});
 };

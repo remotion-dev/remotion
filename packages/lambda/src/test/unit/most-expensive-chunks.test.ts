@@ -50,7 +50,7 @@ test('Should calculate most expensive chunks', () => {
 		],
 		10,
 		0,
-		99
+		99,
 	);
 
 	expect(most).toEqual([
@@ -113,7 +113,7 @@ test('Render starting from frame 10 should have correct offset', () => {
 		],
 		framesPerLambda,
 		firstFrame,
-		lastFrame
+		lastFrame,
 	);
 
 	expect(most).toEqual([
@@ -176,7 +176,7 @@ test('Render starting from frame 10 and last chunk in most expensive should be c
 		],
 		framesPerLambda,
 		firstFrame,
-		lastFrame
+		lastFrame,
 	);
 
 	expect(most).toEqual([

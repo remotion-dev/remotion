@@ -19,7 +19,7 @@ export const patchPackageJson = (
 		getPackageJson = (filename: string) => fs.readFileSync(filename, 'utf-8'),
 		setPackageJson = (filename: string, content: string) =>
 			fs.writeFileSync(filename, content),
-	} = {}
+	} = {},
 ) => {
 	const fileName = path.join(projectRoot, 'package.json');
 
@@ -54,7 +54,7 @@ export const patchPackageJson = (
 			...(packageManager ? {packageManager} : {}),
 		},
 		undefined,
-		2
+		2,
 	);
 
 	setPackageJson(fileName, newPackageJson);

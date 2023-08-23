@@ -14,7 +14,7 @@ const fullWidth: React.CSSProperties = {
 
 const getMinValue = (schema: z.ZodTypeAny) => {
 	const minCheck = (schema as z.ZodNumber)._def.checks.find(
-		(c) => c.kind === 'min'
+		(c) => c.kind === 'min',
 	);
 	if (!minCheck) {
 		return -Infinity;
@@ -33,7 +33,7 @@ const getMinValue = (schema: z.ZodTypeAny) => {
 
 const getMaxValue = (schema: z.ZodTypeAny) => {
 	const maxCheck = (schema as z.ZodNumber)._def.checks.find(
-		(c) => c.kind === 'max'
+		(c) => c.kind === 'max',
 	);
 	if (!maxCheck) {
 		return Infinity;
@@ -52,7 +52,7 @@ const getMaxValue = (schema: z.ZodTypeAny) => {
 
 const getStep = (schema: z.ZodTypeAny): number | undefined => {
 	const multipleStep = (schema as z.ZodNumber)._def.checks.find(
-		(c) => c.kind === 'multipleOf'
+		(c) => c.kind === 'multipleOf',
 	);
 
 	if (!multipleStep) {
@@ -107,7 +107,7 @@ export const ZodNumberEditor: React.FC<{
 		(newValue: number) => {
 			setLocalValue(() => newValue, false, false);
 		},
-		[setLocalValue]
+		[setLocalValue],
 	);
 
 	const isDefault = localValue.value === defaultValue;
@@ -116,7 +116,7 @@ export const ZodNumberEditor: React.FC<{
 		(newValue: string) => {
 			setLocalValue(() => Number(newValue), false, false);
 		},
-		[setLocalValue]
+		[setLocalValue],
 	);
 
 	const save = useCallback(() => {

@@ -12,8 +12,8 @@ export const setCodec = (newCodec: CodecOrUndefined) => {
 	if (!RenderInternals.validCodecs.includes(newCodec)) {
 		throw new Error(
 			`Codec must be one of the following: ${RenderInternals.validCodecs.join(
-				', '
-			)}, but got ${newCodec}`
+				', ',
+			)}, but got ${newCodec}`,
 		);
 	}
 

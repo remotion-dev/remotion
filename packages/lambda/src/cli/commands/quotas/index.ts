@@ -9,11 +9,11 @@ const printHelp = () => {
 	CliInternals.Log.info();
 	CliInternals.Log.info(`npx ${BINARY_NAME} ${QUOTAS_COMMAND}`);
 	CliInternals.Log.info(
-		CliInternals.chalk.gray('List relevant AWS Lambda quotas.')
+		CliInternals.chalk.gray('List relevant AWS Lambda quotas.'),
 	);
 	CliInternals.Log.info();
 	CliInternals.Log.info(
-		`npx ${BINARY_NAME} ${QUOTAS_COMMAND} ${INCREASE_SUBCOMMAND}`
+		`npx ${BINARY_NAME} ${QUOTAS_COMMAND} ${INCREASE_SUBCOMMAND}`,
 	);
 	CliInternals.Log.info(CliInternals.chalk.gray('Increase Lambda quotas.'));
 };

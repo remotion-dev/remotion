@@ -24,7 +24,7 @@ import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 
 type ThumbnailProps<
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 > = PropsIfHasProps<Schema, Props> &
 	CompProps<Props> & {
 		frameToDisplay: number;
@@ -40,7 +40,7 @@ type ThumbnailProps<
 
 export const ThumbnailFn = <
 	Schema extends AnyZodObject,
-	Props extends Record<string, unknown>
+	Props extends Record<string, unknown>,
 >(
 	{
 		frameToDisplay,
@@ -55,7 +55,7 @@ export const ThumbnailFn = <
 		renderLoading,
 		...componentProps
 	}: ThumbnailProps<Schema, Props>,
-	ref: MutableRefObject<ThumbnailMethods>
+	ref: MutableRefObject<ThumbnailMethods>,
 ) => {
 	const [thumbnailId] = useState(() => String(random(null)));
 	const rootRef = useRef<ThumbnailMethods>(null);
@@ -81,7 +81,7 @@ export const ThumbnailFn = <
 	useImperativeHandle(ref, () => rootRef.current as ThumbnailMethods, []);
 
 	const Component = Internals.useLazyComponent(
-		componentProps
+		componentProps,
 	) as LazyExoticComponent<ComponentType<unknown>>;
 
 	const [emitter] = useState(() => new ThumbnailEmitter());
@@ -120,8 +120,8 @@ export const ThumbnailFn = <
 const forward = forwardRef as <T, P = {}>(
 	render: (
 		props: P,
-		ref: React.MutableRefObject<T>
-	) => React.ReactElement | null
+		ref: React.MutableRefObject<T>,
+	) => React.ReactElement | null,
 ) => (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 
 /**

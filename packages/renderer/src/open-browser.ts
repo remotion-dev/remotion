@@ -15,7 +15,7 @@ import {
 
 const validRenderers = ['swangle', 'angle', 'egl', 'swiftshader'] as const;
 
-type OpenGlRenderer = typeof validRenderers[number];
+type OpenGlRenderer = (typeof validRenderers)[number];
 
 export type ChromiumOptions = {
 	ignoreCertificateErrors?: boolean;
@@ -78,7 +78,7 @@ export const internalOpenBrowser = async ({
 	// @ts-expect-error Firefox
 	if (browser === 'firefox') {
 		throw new TypeError(
-			'Firefox supported is not yet turned on. Stay tuned for the future.'
+			'Firefox supported is not yet turned on. Stay tuned for the future.',
 		);
 	}
 
@@ -176,7 +176,7 @@ export const internalOpenBrowser = async ({
  */
 export const openBrowser = (
 	browser: Browser,
-	options?: OpenBrowserOptions
+	options?: OpenBrowserOptions,
 ): Promise<HeadlessBrowser> => {
 	const {
 		browserExecutable,

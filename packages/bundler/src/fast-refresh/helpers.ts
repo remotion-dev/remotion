@@ -43,7 +43,7 @@ function isSafeExport(key: string) {
 
 function registerExportsForReactRefresh(
 	moduleExports: unknown,
-	moduleID: unknown
+	moduleID: unknown,
 ) {
 	RefreshRuntime.register(moduleExports, moduleID + ' %exports%');
 	if (
@@ -102,7 +102,7 @@ function isReactRefreshBoundary(moduleExports: unknown) {
 
 function shouldInvalidateReactRefreshBoundary(
 	prevExports: unknown,
-	nextExports: unknown
+	nextExports: unknown,
 ) {
 	const prevSignature = getRefreshBoundarySignature(prevExports);
 	const nextSignature = getRefreshBoundarySignature(nextExports);
@@ -153,7 +153,7 @@ function scheduleUpdate() {
 		} catch (err) {
 			console.warn(
 				'Warning: Failed to re-render. We will retry on the next Fast Refresh event.\n' +
-					err
+					err,
 			);
 		}
 	};

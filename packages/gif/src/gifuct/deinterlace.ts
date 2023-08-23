@@ -8,7 +8,11 @@ export const deinterlace = (pixels: number[], width: number) => {
 	const cpRow = function (toRow: number, _fromRow: number) {
 		const fromPixels = pixels.slice(_fromRow * width, (_fromRow + 1) * width);
 		newPixels.splice(
-			...([toRow * width, width].concat(fromPixels) as [number, number, number])
+			...([toRow * width, width].concat(fromPixels) as [
+				number,
+				number,
+				number,
+			]),
 		);
 	};
 

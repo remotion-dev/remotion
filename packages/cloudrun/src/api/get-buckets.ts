@@ -9,7 +9,7 @@ import {getCloudStorageClient} from './helpers/get-cloud-storage-client';
  * @returns {Promise<Bucket[]>} List of buckets returned by GCP.
  */
 export const getRemotionStorageBuckets = async (
-	region: GcpRegion | 'all regions'
+	region: GcpRegion | 'all regions',
 ): Promise<{
 	remotionBuckets: Bucket[];
 }> => {
@@ -19,13 +19,13 @@ export const getRemotionStorageBuckets = async (
 		return {remotionBuckets: []};
 	}
 
-	let remotionBuckets = buckets.filter((b) =>
-		b.name?.startsWith(REMOTION_BUCKET_PREFIX)
+	let remotionBuckets = buckets.filter(
+		(b) => b.name?.startsWith(REMOTION_BUCKET_PREFIX),
 	);
 
 	if (region !== 'all regions') {
 		remotionBuckets = buckets.filter(
-			(b) => b.metadata.location === region.toUpperCase()
+			(b) => b.metadata.location === region.toUpperCase(),
 		);
 	}
 

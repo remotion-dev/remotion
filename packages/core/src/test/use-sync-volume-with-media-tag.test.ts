@@ -30,7 +30,7 @@ test('has the volume been adapted', () => {
 		(hookProps) => useSyncVolumeWithMediaTag(hookProps),
 		{
 			initialProps,
-		}
+		},
 	);
 	expect(audioRef.current?.volume).toEqual(initialProps.volume);
 	const newVolume = 0.5;

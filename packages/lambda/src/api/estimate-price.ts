@@ -47,25 +47,25 @@ export const estimatePrice = ({
 
 	if (typeof durationInMilliseconds !== 'number') {
 		throw new TypeError(
-			`Parameter 'durationInMilliseconds' must be a number but got ${typeof durationInMilliseconds}`
+			`Parameter 'durationInMilliseconds' must be a number but got ${typeof durationInMilliseconds}`,
 		);
 	}
 
 	if (Number.isNaN(durationInMilliseconds)) {
 		throw new TypeError(
-			`Parameter 'durationInMilliseconds' must not be NaN but it is.`
+			`Parameter 'durationInMilliseconds' must not be NaN but it is.`,
 		);
 	}
 
 	if (!Number.isFinite(durationInMilliseconds)) {
 		throw new TypeError(
-			`Parameter 'durationInMilliseconds' must be finite but it is ${durationInMilliseconds}`
+			`Parameter 'durationInMilliseconds' must be finite but it is ${durationInMilliseconds}`,
 		);
 	}
 
 	if (durationInMilliseconds < 0) {
 		throw new TypeError(
-			`Parameter 'durationInMilliseconds' must be over 0 but it is ${durationInMilliseconds}.`
+			`Parameter 'durationInMilliseconds' must be over 0 but it is ${durationInMilliseconds}.`,
 		);
 	}
 
@@ -80,7 +80,7 @@ export const estimatePrice = ({
 
 	const chargedDiskSize = Math.max(
 		0,
-		diskSizeInMb - MIN_EPHEMERAL_STORAGE_IN_MB
+		diskSizeInMb - MIN_EPHEMERAL_STORAGE_IN_MB,
 	);
 	// In GB-second
 	const diskSizeDollars =
@@ -92,6 +92,6 @@ export const estimatePrice = ({
 		Number(pricing[region]['Lambda Requests'].price) * lambdasInvoked;
 
 	return Number(
-		(timeCostDollars + diskSizeDollars + invocationCost).toFixed(5)
+		(timeCostDollars + diskSizeDollars + invocationCost).toFixed(5),
 	);
 };

@@ -37,7 +37,7 @@ export const getOutputFilename = ({
 		if (extension !== null) {
 			throw new Error(
 				'The output directory of the image sequence cannot have an extension. Got: ' +
-					extension
+					extension,
 			);
 		}
 
@@ -47,7 +47,7 @@ export const getOutputFilename = ({
 	if (extension === null && !imageSequence) {
 		Log.warnAdvanced(
 			{indent, logLevel},
-			`No file extension specified, adding ${defaultExtension} automatically.`
+			`No file extension specified, adding ${defaultExtension} automatically.`,
 		);
 		return `${filename}.${defaultExtension}`;
 	}

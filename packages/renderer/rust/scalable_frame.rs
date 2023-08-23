@@ -75,6 +75,26 @@ impl ScalableFrame {
             Some(ref frame) => Ok(frame.data.clone()),
         }
     }
+
+    pub fn get_size(&self) -> u128 {
+        let mut size: u128 = 0;
+        match self.rgb_frame {
+            None => {}
+            Some(ref frame) => {
+                size += frame.data.len() as u128;
+            }
+        }
+        match self.native_frame {
+            None => {}
+            Some(ref frame) => {
+                for plane in &frame.planes {
+                    size += plane.len() as u128;
+                }
+            }
+        }
+
+        size
+    }
 }
 
 fn create_bmp_image_from_frame(

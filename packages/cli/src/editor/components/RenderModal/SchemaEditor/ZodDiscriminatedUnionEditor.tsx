@@ -51,7 +51,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 	const typedSchema = schema._def as z.ZodDiscriminatedUnionDef<string>;
 	const options = useMemo(
 		() => [...typedSchema.optionsMap.keys()],
-		[typedSchema.optionsMap]
+		[typedSchema.optionsMap],
 	) as string[];
 
 	const {
@@ -77,10 +77,10 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 				onClick: () => {
 					const val = createZodValues(
 						typedSchema.optionsMap.get(
-							option
+							option,
 						) as ZodDiscriminatedUnionOption<never>,
 						z,
-						zodTypes
+						zodTypes,
 					) as Record<string, unknown>;
 					setLocalValue(() => val, false, false);
 				},
@@ -162,7 +162,7 @@ export const ZodDiscriminatedUnionEditor: React.FC<{
 			saving={saving}
 			schema={
 				typedSchema.optionsMap.get(
-					value[typedSchema.discriminator] as string
+					value[typedSchema.discriminator] as string,
 				) as ZodDiscriminatedUnionOption<never>
 			}
 			setValue={setLocalValue}

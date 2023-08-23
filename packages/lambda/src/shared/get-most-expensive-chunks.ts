@@ -12,7 +12,7 @@ export const getMostExpensiveChunks = (
 	parsedTimings: ParsedTiming[],
 	framesPerLambda: number,
 	firstFrame: number,
-	lastFrame: number
+	lastFrame: number,
 ): ExpensiveChunk[] => {
 	const mostExpensiveChunks = parsedTimings
 		.slice(0)

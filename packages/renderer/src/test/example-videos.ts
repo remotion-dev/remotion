@@ -9,7 +9,7 @@ export const exampleVideos = {
 	framerWithoutFileExtension: path.join(
 		examplePackage,
 		'public',
-		'framermp4withoutfileextension'
+		'framermp4withoutfileextension',
 	),
 	corrupted: path.join(examplePackage, 'public', 'corrupted.mp4'),
 	customDar: path.join(examplePackage, 'public', 'custom-dar.mp4'),

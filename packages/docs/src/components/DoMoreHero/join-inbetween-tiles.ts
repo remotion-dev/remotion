@@ -32,7 +32,7 @@ export const extrudeElement = ({
   strokeColor: string;
 }): ThreeDElement => {
   const boundingBox = getBoundingBoxFromInstructions(
-    reduceInstructions(points)
+    reduceInstructions(points),
   );
 
   const centerX = (boundingBox.x2 - boundingBox.x1) / 2 + boundingBox.x1;
@@ -42,7 +42,7 @@ export const extrudeElement = ({
   const instructions: FaceType = {
     centerPoint: [0, 0, 0, 1],
     points: subdivideInstructions(
-      subdivideInstructions(subdivideInstructions(threeD))
+      subdivideInstructions(subdivideInstructions(threeD)),
     ),
     strokeWidth,
     strokeColor,
@@ -75,7 +75,7 @@ export const extrudeElement = ({
       inverseInstruction(nextInstruction, currentPoint),
       0,
       0,
-      -depth
+      -depth,
     );
     const newInstructions: ThreeDReducedInstruction[] = [
       {
@@ -125,13 +125,13 @@ export const extrudeElement = ({
   return makeElement(
     [...inbetween, scaledFrontFace, scaledBackFace],
     [centerX, centerY, 0, 1],
-    description
+    description,
   );
 };
 
 const inverseInstruction = (
   instruction: ThreeDReducedInstruction,
-  comingFrom: Vector4D
+  comingFrom: Vector4D,
 ): ThreeDReducedInstruction => {
   if (instruction.type === "M") {
     return {

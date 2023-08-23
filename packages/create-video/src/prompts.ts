@@ -9,7 +9,7 @@ type PromptOptions = {nonInteractiveHelp?: string} & Options;
 
 export default function prompt(
 	questions: Question | Question[],
-	{nonInteractiveHelp, ...options}: PromptOptions = {}
+	{nonInteractiveHelp, ...options}: PromptOptions = {},
 ) {
 	questions = Array.isArray(questions) ? questions : [questions];
 	return prompts(questions, {
@@ -28,7 +28,7 @@ prompt.separator = (title: string) => ({
 
 export async function selectAsync(
 	questions: NamelessQuestion,
-	options?: PromptOptions
+	options?: PromptOptions,
 ): Promise<unknown> {
 	const {value} = await prompt(
 		{
@@ -125,7 +125,7 @@ export async function selectAsync(
 			name: 'value',
 			type: 'select',
 		},
-		options
+		options,
 	);
 	return value ?? null;
 }

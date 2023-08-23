@@ -1,6 +1,6 @@
-import type {RemotionOption} from './option';
+import {AnyRemotionOption} from './option';
 
-export const scaleOption: RemotionOption = {
+export const scaleOption = {
 	name: 'Scale',
 	cliFlag: '--scale',
 	description: (
@@ -12,4 +12,5 @@ export const scaleOption: RemotionOption = {
 	),
 	ssrName: 'scale',
 	docLink: 'https://www.remotion.dev/docs/scaling',
-};
+	type: 0 as number,
+} satisfies AnyRemotionOption;

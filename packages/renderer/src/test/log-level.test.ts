@@ -7,12 +7,12 @@ describe('loglevel validity', () => {
 		'is %s an invalid level',
 		(level) => {
 			expect(isValidLogLevel(level)).toEqual(false);
-		}
+		},
 	);
 	test.each<string | LogLevel>(['verbose', 'info', 'warn', 'error'])(
 		'is %s a valid level',
 		(level) => {
 			expect(isValidLogLevel(level)).toEqual(true);
-		}
+		},
 	);
 });

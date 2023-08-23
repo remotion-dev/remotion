@@ -85,7 +85,7 @@ export const ZodOrNullishEditor: React.FC<{
 					: createZodValues(innerSchema, z, zodTypes);
 				setLocalValue(() => val, false, false);
 			},
-			[innerSchema, nullishValue, setLocalValue, z, zodTypes]
+			[innerSchema, nullishValue, setLocalValue, z, zodTypes],
 		);
 
 	const save = useCallback(() => {

@@ -25,7 +25,7 @@ export function terraformApplyPrompt() {
 				const result = await terraformApplyPrompt();
 
 				resolve(result);
-			}
+			},
 		);
 	});
 }

@@ -4,8 +4,8 @@ export const setOutputLocation = (newOutputLocation: string) => {
 	if (typeof newOutputLocation !== 'string') {
 		throw new Error(
 			`outputLocation must be a string but got ${typeof newOutputLocation} (${JSON.stringify(
-				newOutputLocation
-			)})`
+				newOutputLocation,
+			)})`,
 		);
 	}
 

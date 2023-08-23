@@ -3,7 +3,7 @@ import type {ZodTypesType} from './editor/components/get-zod-if-possible';
 export const colorWithNewOpacity = (
 	color: string,
 	opacity: number,
-	zodTypes: ZodTypesType
+	zodTypes: ZodTypesType,
 ) => {
 	const {r, g, b} = zodTypes.ZodZypesInternals.parseColor(color);
 	if (opacity >= 255) {

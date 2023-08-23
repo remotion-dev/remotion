@@ -47,7 +47,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 			// lineTo
 		} else if (instruction.type === 'L') {
 			length += Math.sqrt(
-				(cur[0] - instruction.x) ** 2 + (cur[1] - instruction.y) ** 2
+				(cur[0] - instruction.x) ** 2 + (cur[1] - instruction.y) ** 2,
 			);
 			functions.push(
 				makeLinearPosition({
@@ -55,7 +55,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					x1: instruction.x,
 					y0: cur[1],
 					y1: instruction.y,
-				})
+				}),
 			);
 			cur = [instruction.x, instruction.y];
 		} else if (instruction.type === 'l') {
@@ -66,7 +66,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					x1: instruction.dx + cur[0],
 					y0: cur[1],
 					y1: instruction.dy + cur[1],
-				})
+				}),
 			);
 			cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
 		} else if (instruction.type === 'H') {
@@ -77,7 +77,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					x1: instruction.x,
 					y0: cur[1],
 					y1: cur[1],
-				})
+				}),
 			);
 			cur[0] = instruction.x;
 		} else if (instruction.type === 'h') {
@@ -88,7 +88,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					x1: cur[0] + instruction.dx,
 					y0: cur[1],
 					y1: cur[1],
-				})
+				}),
 			);
 			cur[0] = instruction.dx + cur[0];
 		} else if (instruction.type === 'V') {
@@ -99,7 +99,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					x1: cur[0],
 					y0: cur[1],
 					y1: instruction.y,
-				})
+				}),
 			);
 			cur[1] = instruction.y;
 		} else if (instruction.type === 'v') {
@@ -110,13 +110,13 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					x1: cur[0],
 					y0: cur[1],
 					y1: cur[1] + instruction.dy,
-				})
+				}),
 			);
 			cur[1] = instruction.dy + cur[1];
 			// Close path
 		} else if (instruction.type === 'Z') {
 			length += Math.sqrt(
-				(ringStart[0] - cur[0]) ** 2 + (ringStart[1] - cur[1]) ** 2
+				(ringStart[0] - cur[0]) ** 2 + (ringStart[1] - cur[1]) ** 2,
 			);
 			functions.push(
 				makeLinearPosition({
@@ -124,7 +124,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 					x1: ringStart[0],
 					y0: cur[1],
 					y1: ringStart[1],
-				})
+				}),
 			);
 			cur = [ringStart[0], ringStart[1]];
 			// Cubic Bezier curves
@@ -159,7 +159,7 @@ export const constructFromInstructions = (instructions: Instruction[]) => {
 				cur = [instruction.dx + cur[0], instruction.dy + cur[1]];
 			} else {
 				functions.push(
-					makeLinearPosition({x0: cur[0], x1: cur[0], y0: cur[1], y1: cur[1]})
+					makeLinearPosition({x0: cur[0], x1: cur[0], y0: cur[1], y1: cur[1]}),
 				);
 			}
 		} else if (instruction.type === 'S') {

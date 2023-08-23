@@ -4,7 +4,7 @@ import type { ThreeDReducedInstruction } from "./3d-svg";
 import type { Vector4D } from "./matrix";
 
 export const turnInto3D = (
-  instructions: Instruction[]
+  instructions: Instruction[],
 ): ThreeDReducedInstruction[] => {
   let lastMove: Vector4D = [0, 0, 0, 1];
   const newInstructions: ThreeDReducedInstruction[] = [];

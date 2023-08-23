@@ -29,7 +29,7 @@ export const TimelineVideoInfo: React.FC<{
 }> = ({src}) => {
 	const mountState = useRef({isMounted: true});
 	const [videoMetadata, setVideoMetadata] = useState<VideoMetadata | null>(
-		null
+		null,
 	);
 
 	useEffect(() => {
