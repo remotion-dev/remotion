@@ -111,7 +111,11 @@ const Experts: React.FC = () => {
                 >
                   {e.website ? (
                     <div style={flex} className={styles.docsButton}>
-                      <a target={"_blank"} href={`${e.website}`}>
+                      <a
+                        style={docsButton}
+                        target={"_blank"}
+                        href={`${e.website}`}
+                      >
                         <BlueButton loading={false} fullWidth size="sm">
                           <PersonalWebsite /> Website
                         </BlueButton>
@@ -129,7 +133,11 @@ const Experts: React.FC = () => {
                       ) : null}
 
                       <div style={flex} className={styles.docsButton}>
-                        <a target={"_blank"} href={`https://x.com/${e.x}`}>
+                        <a
+                          style={docsButton}
+                          target={"_blank"}
+                          href={`https://x.com/${e.x}`}
+                        >
                           <BlueButton loading={false} fullWidth size="sm">
                             <TwitterLogo /> X
                           </BlueButton>
