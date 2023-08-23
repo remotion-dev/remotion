@@ -1,9 +1,6 @@
 import type React from 'react';
 
-export type RemotionOption<
-	SsrName extends string,
-	Type extends Zod.ZodTypeAny
-> = {
+export type RemotionOption<SsrName extends string, Type> = {
 	name: string;
 	cliFlag: string;
 	ssrName: SsrName;
@@ -12,4 +9,4 @@ export type RemotionOption<
 	type: Type;
 };
 
-export type AnyRemotionOption = RemotionOption<string, Zod.ZodTypeAny>;
+export type AnyRemotionOption = RemotionOption<string, unknown>;

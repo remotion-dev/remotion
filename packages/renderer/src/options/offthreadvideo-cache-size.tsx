@@ -1,4 +1,3 @@
-import {z} from 'zod';
 import {AnyRemotionOption} from './option';
 
 export const offthreadVideoCacheSizeOption = {
@@ -18,16 +17,12 @@ export const offthreadVideoCacheSizeOption = {
 	),
 	ssrName: 'offthreadVideoCacheSize' as const,
 	docLink: 'https://www.remotion.dev/docs/offthreadvideo',
-	type: z.string(),
+	type: 0 as number | null,
 } satisfies AnyRemotionOption;
 
-// type InferredOption<Option extends RemotionOption<string, ZodTypeAny>> = {
-// 	[K in Option['ssrName']]: z.infer<Option['type']>;
-// };
-
-// type Options = InferredOption<
-// 	typeof offthreadVideoCacheSizeOption
-// >;
+export type ToOptions<T extends readonly AnyRemotionOption[]> = {
+	[K in T[number]['ssrName']]: T[number]['type'];
+};
 
 export const validateOffthreadVideoCacheSize = (option: unknown) => {
 	if (option === undefined || option === null) {
