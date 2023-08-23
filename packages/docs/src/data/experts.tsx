@@ -214,7 +214,7 @@ export const experts: Expert[] = [
     slug: "matthew-mcgillivray",
     name: "Matt McGillivray",
     image: "/img/freelancers/umungo.png",
-    website: null,
+    website: "https://mattm9y.com",
     twitter: "ProThatwas",
     github: "UmungoBungo",
     linkedin: "in/matthew-mcgillivray-68295a55",
@@ -314,11 +314,6 @@ export const experts: Expert[] = [
           </a>
           , with Mickaël Alves
         </p>
-        <p>
-          <a href="https://blog.slashgear.dev/" target={"_blank"}>
-            Personal website
-          </a>
-        </p>
       </div>
     ),
   },
@@ -344,11 +339,6 @@ export const experts: Expert[] = [
             Social Video Generator
           </a>
           , with Antoine Caron
-        </p>
-        <p>
-          <a href="https://cruuzazul.dev/" target={"_blank"}>
-            Personal website
-          </a>
         </p>
       </div>
     ),
