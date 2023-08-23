@@ -23,10 +23,6 @@ export const offthreadVideoCacheSizeOption = {
 	type: 0 as number | null,
 } satisfies AnyRemotionOption;
 
-export type ToOptions<T extends readonly AnyRemotionOption[]> = {
-	[K in T[number]['ssrName']]: T[number]['type'];
-};
-
 export const validateOffthreadVideoCacheSize = (option: unknown) => {
 	if (option === undefined || option === null) {
 		return;

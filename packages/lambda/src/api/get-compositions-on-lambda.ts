@@ -1,4 +1,5 @@
-import type {ChromiumOptions, LogLevel} from '@remotion/renderer';
+import type {ChromiumOptions, LogLevel, ToOptions} from '@remotion/renderer';
+import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {VideoConfig} from 'remotion';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../client';
@@ -24,8 +25,7 @@ export type GetCompositionsOnLambdaInput = {
 	 * @deprecated in favor of `logLevel`: true
 	 */
 	dumpBrowserLogs?: boolean;
-	offthreadVideoCacheSize?: number | null;
-};
+} & Partial<ToOptions<typeof BrowserSafeApis.optionsMap.renderMediaOnLambda>>;
 
 export type GetCompositionsOnLambdaOutput = VideoConfig[];
 
@@ -91,7 +91,7 @@ export const getCompositionsOnLambda = async ({
 	} catch (err) {
 		if ((err as Error).stack?.includes('UnrecognizedClientException')) {
 			throw new Error(
-				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception'
+				'UnrecognizedClientException: The AWS credentials provided were probably mixed up. Learn how to fix this issue here: https://remotion.dev/docs/lambda/troubleshooting/unrecognizedclientexception',
 			);
 		}
 
