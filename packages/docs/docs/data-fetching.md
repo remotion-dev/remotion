@@ -299,9 +299,10 @@ This `abortSignal` is created by Remotion using the [`AbortController`](https://
 If you are making requests to an expensive API, you might want to only fire a request after the user has stopped typing for a while. You may use the following function for doing so:
 
 ```tsx twoslash title="src/wait-for-no-input.ts"
+import { getRemotionEnvironment } from "remotion";
 export const waitForNoInput = (signal: AbortSignal, ms: number) => {
   // Don't wait during rendering
-  if (getRemotionEnvironment() === "rendering") {
+  if (getRemotionEnvironment().isRendering) {
     return Promise.resolve();
   }
 
@@ -325,11 +326,11 @@ export const waitForNoInput = (signal: AbortSignal, ms: number) => {
 ```
 
 ```tsx twoslash title="src/MyComp.tsx" {4}
-import { CalculateMetadataFunction } from "remotion";
+import { CalculateMetadataFunction, getRemotionEnvironment } from "remotion";
 
 const waitForNoInput = (signal: AbortSignal, ms: number) => {
   // Don't wait during rendering
-  if (getRemotionEnvironment() === "rendering") {
+  if (getRemotionEnvironment().isRendering) {
     return Promise.resolve();
   }
 
