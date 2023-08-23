@@ -403,7 +403,7 @@ Disallows the renderer from doing rendering frames and encoding at the same time
 
 ### `offthreadVideoCacheSize?`<AvailableFrom v="4.0.23"/>
 
-<Options id="offthreadvideo-cache-size" />
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ### ~~`parallelism?`~~
 

@@ -153,6 +153,6 @@ For example only every second frame, every third frame and so on. Only works for
 
 [Render a subset of a video](/docs/config#setframerange). Example: `--frames=0-9` to select the first 10 frames.
 
-### `--offthreadvideo-cache-size`<AvailableFrom v="4.0.23"/>
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
-<Options id="offthreadvideo-cache-size" />
+<Options id="offthreadvideo-cache-size-in-bytes" />

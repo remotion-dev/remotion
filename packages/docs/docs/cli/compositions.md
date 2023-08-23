@@ -83,9 +83,9 @@ Opens an actual browser to observe the composition fetching.
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
-### `--offthreadvideo-cache-size`<AvailableFrom v="4.0.23"/>
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
 
-<Options id="offthreadvideo-cache-size" />
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ### `--quiet`, `--q`
 

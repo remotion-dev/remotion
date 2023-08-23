@@ -277,7 +277,7 @@ Uses a lossless audio codec, if one is available for the codec. If you set audio
 
 ### `offthreadVideoCacheSize?`<AvailableFrom v="4.0.23"/>
 
-<Options id="offthreadvideo-cache-size" />
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 ## Return value
 
