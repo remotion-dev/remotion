@@ -1,4 +1,5 @@
 ---
+image: /generated/articles-docs-get-remotion-environment.png
 title: getRemotionEnvironment()
 id: get-remotion-environment
 crumb: "API"
@@ -7,9 +8,9 @@ crumb: "API"
 With the `getRemotionEnvironment()` function , you can retrieve information about the current Remotion Environment.
 It returns an object with the following properties:
 
-- `isStudio`: Indicates if you are currently in the studio.
-- `isRendering`: Tells if one is currently in a render.
-- `isPlayer`: Indicates if you are in the Player.
+- `isStudio`: If the code gets executed in the [Remotion Studio](/docs/cli/studio).
+- `isRendering`: Whether the code gets executed in a render.
+- `isPlayer`: Whether a Player is mounted on the current page.
 
 This can be useful if you want components to compute some values differently based on the environment you are in.
 
