@@ -15,7 +15,7 @@ import {unmap} from './unmapper';
 
 export const getStackFrames = async (
 	error: Error,
-	contextSize: number
+	contextSize: number,
 ): Promise<SymbolicatedStackFrame[] | null> => {
 	const parsedFrames = await parseError(error, contextSize);
 	const enhancedFrames = await unmap(parsedFrames, contextSize);

@@ -37,7 +37,7 @@ const ButtonRefForwardFunction: React.ForwardRefRenderFunction<
 		autoFocus,
 		buttonContainerStyle,
 	},
-	ref
+	ref,
 ) => {
 	const combined = useMemo(() => {
 		return {

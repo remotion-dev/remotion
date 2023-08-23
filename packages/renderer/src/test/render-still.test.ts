@@ -18,7 +18,7 @@ test('Need to pass valid metadata', async () => {
 			serveUrl:
 				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 			verbose: false,
-		})
+		}),
 	).rejects.toThrow(/not be NaN, but is NaN/);
 });
 
@@ -58,9 +58,9 @@ test('Need to pass valid metadata', async () => {
 			serveUrl:
 				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
 			verbose: false,
-		})
+		}),
 	).rejects.toThrow(
-		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/
+		/Cannot use frame 200: Duration of composition is 30, therefore the highest frame that can be rendered is 29/,
 	);
 });
 
@@ -82,8 +82,8 @@ test('Catches invalid image format', () => {
 			output: '/file/output.png',
 			serveUrl:
 				'https://64d3734a6bb69052c34d3616--spiffy-kelpie-71657b.netlify.app/',
-		})
+		}),
 	).rejects.toThrow(
-		/Image format should be one of: "png", "jpeg", "pdf", "webp"/
+		/Image format should be one of: "png", "jpeg", "pdf", "webp"/,
 	);
 });

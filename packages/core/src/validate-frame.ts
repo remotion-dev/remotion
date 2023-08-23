@@ -13,7 +13,7 @@ export const validateFrame = ({
 
 	if (typeof frame !== 'number') {
 		throw new TypeError(
-			`Argument passed for "frame" is not a number: ${frame}`
+			`Argument passed for "frame" is not a number: ${frame}`,
 		);
 	}
 
@@ -23,13 +23,13 @@ export const validateFrame = ({
 
 	if (frame % 1 !== 0 && !allowFloats) {
 		throw new RangeError(
-			`Argument for frame must be an integer, but got ${frame}`
+			`Argument for frame must be an integer, but got ${frame}`,
 		);
 	}
 
 	if (frame < 0 && frame < -durationInFrames) {
 		throw new RangeError(
-			`Cannot use frame ${frame}: Duration of composition is ${durationInFrames}, therefore the lowest frame that can be rendered is ${-durationInFrames}`
+			`Cannot use frame ${frame}: Duration of composition is ${durationInFrames}, therefore the lowest frame that can be rendered is ${-durationInFrames}`,
 		);
 	}
 
@@ -37,7 +37,7 @@ export const validateFrame = ({
 		throw new RangeError(
 			`Cannot use frame ${frame}: Duration of composition is ${durationInFrames}, therefore the highest frame that can be rendered is ${
 				durationInFrames - 1
-			}`
+			}`,
 		);
 	}
 };

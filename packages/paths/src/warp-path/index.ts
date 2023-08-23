@@ -11,12 +11,12 @@ import {
 } from './warp-helpers';
 
 const getDefaultInterpolationThreshold = (
-	instructions: ReducedInstruction[]
+	instructions: ReducedInstruction[],
 ) => {
 	const boundingBox = getBoundingBoxFromInstructions(instructions);
 	const longer = Math.max(
 		boundingBox.y2 - boundingBox.y1,
-		boundingBox.x2 - boundingBox.x1
+		boundingBox.x2 - boundingBox.x1,
 	);
 	return longer * 0.01;
 };
@@ -31,7 +31,7 @@ export const warpPath = (
 	transformer: WarpPathFn,
 	options?: {
 		interpolationThreshold?: number;
-	}
+	},
 ): string => {
 	const reduced = reduceInstructions(parsePath(path));
 	const withZFix = fixZInstruction(reduced);
@@ -39,7 +39,7 @@ export const warpPath = (
 	const interpolated = svgPathInterpolate(
 		withZFix,
 		options?.interpolationThreshold ??
-			getDefaultInterpolationThreshold(withZFix)
+			getDefaultInterpolationThreshold(withZFix),
 	);
 
 	return serializeInstructions(warpTransform(interpolated, transformer));

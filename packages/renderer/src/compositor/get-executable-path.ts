@@ -7,7 +7,7 @@ function isMusl() {
 }
 
 export const getExecutablePath = (
-	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'ffmpeg-cwd'
+	type: 'compositor' | 'ffmpeg' | 'ffprobe' | 'ffmpeg-cwd',
 ): string => {
 	if (type === 'compositor' && process.env.COMPOSITOR_PATH) {
 		return process.env.COMPOSITOR_PATH;
@@ -29,7 +29,7 @@ export const getExecutablePath = (
 					return require('@remotion/compositor-win32-x64-msvc')[key];
 				default:
 					throw new Error(
-						`Unsupported architecture on Windows: ${process.arch}`
+						`Unsupported architecture on Windows: ${process.arch}`,
 					);
 			}
 
@@ -64,7 +64,7 @@ export const getExecutablePath = (
 
 		default:
 			throw new Error(
-				`Unsupported OS: ${process.platform}, architecture: ${process.arch}`
+				`Unsupported OS: ${process.platform}, architecture: ${process.arch}`,
 			);
 	}
 };

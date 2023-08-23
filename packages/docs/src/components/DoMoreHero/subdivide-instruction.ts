@@ -3,7 +3,7 @@ import type { ThreeDReducedInstruction } from "./3d-svg";
 import type { Vector2D, Vector4D } from "./matrix";
 
 export const subdivideInstructions = (
-  instructions: ThreeDReducedInstruction[]
+  instructions: ThreeDReducedInstruction[],
 ): ThreeDReducedInstruction[] => {
   const newInstructions: ThreeDReducedInstruction[] = [];
   instructions.forEach((instruction, i) => {
@@ -20,7 +20,7 @@ export const subdivideInstructions = (
     const previousInstruction = instructions[i - 1];
     const subdivided = subdivideInstruction(
       previousInstruction.point,
-      instruction
+      instruction,
     );
     newInstructions.push(...subdivided);
   });
@@ -29,7 +29,7 @@ export const subdivideInstructions = (
 
 const subdivideInstruction = (
   from: Vector4D,
-  instruction: ThreeDReducedInstruction
+  instruction: ThreeDReducedInstruction,
 ): ThreeDReducedInstruction[] => {
   if (instruction.type === "C") {
     return subdivide3DCInstruction(from, instruction);
@@ -52,7 +52,7 @@ const subdivideInstruction = (
 
 const subdivideLOrMInstruction = (
   from: Vector4D,
-  instruction: ThreeDReducedInstruction
+  instruction: ThreeDReducedInstruction,
 ) => {
   if (instruction.type !== "L" && instruction.type !== "M") {
     throw new Error("Expected L or M instruction");
@@ -78,7 +78,7 @@ export const subdivide2DCInstruction = (
   fromX: number,
   fromY: number,
   instruction: Instruction,
-  t: number
+  t: number,
 ) => {
   if (instruction.type !== "C") {
     throw new Error("Expected C instruction");
@@ -140,7 +140,7 @@ export const subdivide2DCInstruction = (
 
 const subdivide3DCInstruction = (
   from: Vector4D,
-  instruction: ThreeDReducedInstruction
+  instruction: ThreeDReducedInstruction,
 ) => {
   if (instruction.type !== "C") {
     throw new Error("Expected C instruction");
@@ -200,7 +200,7 @@ const subdivide3DCInstruction = (
 
 const subdivideQInstruction = (
   from: Vector4D,
-  instruction: ThreeDReducedInstruction
+  instruction: ThreeDReducedInstruction,
 ) => {
   if (instruction.type !== "Q") {
     throw new Error("Expected Q instruction");

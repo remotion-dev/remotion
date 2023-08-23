@@ -1,7 +1,7 @@
 import type {WebpackConfiguration} from '@remotion/bundler';
 
 export type WebpackOverrideFn = (
-	currentConfiguration: WebpackConfiguration
+	currentConfiguration: WebpackConfiguration,
 ) => WebpackConfiguration;
 
 export const defaultOverrideFunction: WebpackOverrideFn = (config) => config;

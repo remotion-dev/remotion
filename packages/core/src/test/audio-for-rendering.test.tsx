@@ -68,7 +68,7 @@ describe('Register and unregister asset', () => {
 				<mockContext.MockProvider>
 					<AudioForRendering {...props} />
 				</mockContext.MockProvider>
-			</CanUseRemotionHooksProvider>
+			</CanUseRemotionHooksProvider>,
 		);
 
 		expect(mockContext.registerRenderAsset).toHaveBeenCalled();
@@ -89,7 +89,7 @@ describe('Register and unregister asset', () => {
 					<mockContext.MockProvider>
 						<AudioForRendering {...props} />
 					</mockContext.MockProvider>
-				</CanUseRemotionHooksProvider>
+				</CanUseRemotionHooksProvider>,
 			);
 		}, /No src passed/);
 		expect(mockContext.registerRenderAsset).not.toHaveBeenCalled();

@@ -30,7 +30,7 @@ pub fn execute_command(opts: CliInputCommandPayload) -> Result<Vec<u8>, ErrorWit
             Ok(vec![])
         }
         CliInputCommandPayload::FreeUpMemory(payload) => {
-            ffmpeg::free_up_memory(payload.percent_of_memory)?;
+            ffmpeg::free_up_memory(payload.remaining_bytes)?;
             Ok(vec![])
         }
         CliInputCommandPayload::CloseAllVideos(_) => {

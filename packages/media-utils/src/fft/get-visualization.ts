@@ -24,7 +24,7 @@ export const getVisualization = ({
 	const isPowerOfTwo = sampleSize > 0 && (sampleSize & (sampleSize - 1)) === 0;
 	if (!isPowerOfTwo) {
 		throw new TypeError(
-			`The argument "bars" must be a power of two. For example: 64, 128. Got instead: ${sampleSize}`
+			`The argument "bars" must be a power of two. For example: 64, 128. Got instead: ${sampleSize}`,
 		);
 	}
 
@@ -34,7 +34,7 @@ export const getVisualization = ({
 
 	if (data.length < sampleSize) {
 		throw new TypeError(
-			'Audio data is not big enough to provide ' + sampleSize + ' bars.'
+			'Audio data is not big enough to provide ' + sampleSize + ' bars.',
 		);
 	}
 
@@ -46,7 +46,7 @@ export const getVisualization = ({
 		length: sampleSize,
 	});
 	ints.set(
-		data.subarray(actualStart, actualStart + sampleSize).map((x) => toInt16(x))
+		data.subarray(actualStart, actualStart + sampleSize).map((x) => toInt16(x)),
 	);
 	const phasors = fft(ints);
 	const magnitudes = fftMag(phasors).map((p) => p);

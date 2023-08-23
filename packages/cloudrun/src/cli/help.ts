@@ -14,7 +14,7 @@ export const printHelp = () => {
 	Log.info(
 		`${BINARY_NAME} ${
 			packagejson.version
-		} © ${new Date().getFullYear()} The Remotion developers`
+		} © ${new Date().getFullYear()} The Remotion developers`,
 	);
 	Log.info();
 	Log.info('Available commands:');
@@ -31,7 +31,7 @@ export const printHelp = () => {
 	Log.info();
 	Log.info(`${BINARY_NAME} ${SERVICES_COMMAND}`);
 	Log.info(
-		CliInternals.chalk.gray('Deploy and manage Cloud Run services on GCP.')
+		CliInternals.chalk.gray('Deploy and manage Cloud Run services on GCP.'),
 	);
 
 	Log.info();
@@ -41,7 +41,7 @@ export const printHelp = () => {
 	Log.info();
 	Log.info(`${BINARY_NAME} ${PERMISSIONS_COMMAND}`);
 	Log.info(
-		CliInternals.chalk.gray('View and validate required GCP permissions.')
+		CliInternals.chalk.gray('View and validate required GCP permissions.'),
 	);
 
 	Log.info();

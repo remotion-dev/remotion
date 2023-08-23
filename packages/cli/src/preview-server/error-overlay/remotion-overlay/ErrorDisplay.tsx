@@ -43,7 +43,7 @@ export const ErrorDisplay: React.FC<{
 		...display.stackFrames
 			.map((s) => s.originalScriptCode)
 			.flat(1)
-			.map((s) => s?.lineNumber ?? 0)
+			.map((s) => s?.lineNumber ?? 0),
 	);
 
 	const message = useMemo(() => {

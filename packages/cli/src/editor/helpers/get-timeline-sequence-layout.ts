@@ -46,7 +46,7 @@ export const getTimelineSequenceLayout = ({
 	let spatialDuration = Math.min(
 		maxMediaSequenceDuration,
 		durationInFrames - 1,
-		lastFrame - startFrom
+		lastFrame - startFrom,
 	);
 
 	const shouldAddHalfAFrameAtEnd = startFrom + durationInFrames < lastFrame;
@@ -80,7 +80,7 @@ export const getTimelineSequenceLayout = ({
 				nonNegativeMarginLeft,
 				spatialDuration,
 				windowWidth,
-			})
+			}),
 		),
 	};
 };

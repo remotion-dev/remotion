@@ -72,7 +72,7 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
     }
 
     const renderer = riveCanvasInstance.makeRenderer(
-      canvas.current as HTMLCanvasElement
+      canvas.current as HTMLCanvasElement,
     );
     fetch(new Request(src))
       .then((f) => f.arrayBuffer())
@@ -90,7 +90,7 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
               : typeof animationIndex === "string"
               ? artboard.animationByName(animationIndex)
               : artboard.animationByIndex(0),
-            artboard
+            artboard,
           );
           setRive({
             animation,
@@ -135,7 +135,7 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
           maxX: canvas.current.width,
           maxY: canvas.current.height,
         },
-        rive.artboard.bounds
+        rive.artboard.bounds,
       );
 
       rive.artboard.draw(rive.renderer);
@@ -150,7 +150,7 @@ export const RemotionRiveCanvas: React.FC<RiveProps> = ({
       height,
       width,
     }),
-    [height, width]
+    [height, width],
   );
 
   return <canvas ref={canvas} width={width} height={height} style={style} />;

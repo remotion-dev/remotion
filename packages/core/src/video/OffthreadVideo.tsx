@@ -24,14 +24,14 @@ export const OffthreadVideo: React.FC<
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
 			`The \`<OffthreadVideo>\` tag requires a string for \`src\`, but got ${JSON.stringify(
-				props.src
-			)} instead.`
+				props.src,
+			)} instead.`,
 		);
 	}
 
 	if (props.imageFormat) {
 		throw new TypeError(
-			`The \`<OffthreadVideo>\` tag does no longer accept \`imageFormat\`. Use the \`transparent\` prop if you want to render a transparent video.`
+			`The \`<OffthreadVideo>\` tag does no longer accept \`imageFormat\`. Use the \`transparent\` prop if you want to render a transparent video.`,
 		);
 	}
 

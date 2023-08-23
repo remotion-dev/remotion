@@ -20,7 +20,7 @@ function stripInlineStacktrace(message: string): string {
 
 export function massageWarning(
 	warning: string,
-	frames: ReactFrame[]
+	frames: ReactFrame[],
 ): {message: string; stack: string} {
 	const message = stripInlineStacktrace(warning);
 

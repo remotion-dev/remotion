@@ -32,14 +32,14 @@ const getUpgradeCommand = ({
 export const upgrade = async (
 	remotionRoot: string,
 	packageManager: string | undefined,
-	version: string | undefined
+	version: string | undefined,
 ) => {
 	const packageJsonFilePath = path.join(remotionRoot, 'package.json');
 	const packageJson = require(packageJsonFilePath);
 	const dependencies = Object.keys(packageJson.dependencies);
 	const devDependencies = Object.keys(packageJson.devDependencies ?? {});
 	const optionalDependencies = Object.keys(
-		packageJson.optionalDependencies ?? {}
+		packageJson.optionalDependencies ?? {},
 	);
 	const peerDependencies = Object.keys(packageJson.peerDependencies ?? {});
 
@@ -58,7 +58,7 @@ export const upgrade = async (
 		throw new Error(
 			`No lockfile was found in your project (one of ${lockFilePaths
 				.map((p) => p.path)
-				.join(', ')}). Install dependencies using your favorite manager!`
+				.join(', ')}). Install dependencies using your favorite manager!`,
 		);
 	}
 
@@ -67,7 +67,7 @@ export const upgrade = async (
 			dependencies.includes(u) ||
 			devDependencies.includes(u) ||
 			optionalDependencies.includes(u) ||
-			peerDependencies.includes(u)
+			peerDependencies.includes(u),
 	);
 
 	const prom = RenderInternals.execa(
@@ -79,12 +79,12 @@ export const upgrade = async (
 		}),
 		{
 			stdio: 'inherit',
-		}
+		},
 	);
 	if (
 		RenderInternals.isEqualOrBelowLogLevel(
 			ConfigInternals.Logging.getLogLevel(),
-			'info'
+			'info',
 		)
 	) {
 		prom.stdout?.pipe(process.stdout);

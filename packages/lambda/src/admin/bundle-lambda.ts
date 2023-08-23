@@ -16,7 +16,7 @@ const bundleLambda = async () => {
 	fs.rmSync(outdir, {recursive: true});
 	fs.mkdirSync(outdir, {recursive: true});
 	const template = require.resolve(
-		path.join(__dirname, '..', 'functions', 'index')
+		path.join(__dirname, '..', 'functions', 'index'),
 	);
 
 	await BundlerInternals.esbuild.build({
@@ -50,9 +50,9 @@ const bundleLambda = async () => {
 			'node_modules',
 			'source-map',
 			'lib',
-			'mappings.wasm'
+			'mappings.wasm',
 		),
-		`${outdir}/mappings.wasm`
+		`${outdir}/mappings.wasm`,
 	);
 
 	await zl.archiveFolder(outdir, FUNCTION_ZIP_ARM64);

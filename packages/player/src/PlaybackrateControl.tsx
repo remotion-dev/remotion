@@ -50,7 +50,7 @@ const PlaybackPopup: React.FC<{
 	canvasSize: Size;
 }> = ({setIsComponentVisible, playbackRates, canvasSize}) => {
 	const {setPlaybackRate, playbackRate} = useContext(
-		Internals.Timeline.TimelineContext
+		Internals.Timeline.TimelineContext,
 	);
 
 	const [keyboardSelectedRate, setKeyboardSelectedRate] =
@@ -61,7 +61,7 @@ const PlaybackPopup: React.FC<{
 			e.preventDefault();
 			if (e.key === 'ArrowUp') {
 				const currentIndex = playbackRates.findIndex(
-					(rate) => rate === keyboardSelectedRate
+					(rate) => rate === keyboardSelectedRate,
 				);
 				if (currentIndex === 0) {
 					return;
@@ -74,7 +74,7 @@ const PlaybackPopup: React.FC<{
 				}
 			} else if (e.key === 'ArrowDown') {
 				const currentIndex = playbackRates.findIndex(
-					(rate) => rate === keyboardSelectedRate
+					(rate) => rate === keyboardSelectedRate,
 				);
 				if (currentIndex === playbackRates.length - 1) {
 					return;
@@ -108,7 +108,7 @@ const PlaybackPopup: React.FC<{
 			setPlaybackRate(rate);
 			setIsComponentVisible(false);
 		},
-		[setIsComponentVisible, setPlaybackRate]
+		[setIsComponentVisible, setPlaybackRate],
 	);
 
 	const playbackPopup: React.CSSProperties = useMemo(() => {
@@ -155,7 +155,7 @@ const PlaybackrateOption: React.FC<{
 			e.preventDefault();
 			onSelect(rate);
 		},
-		[onSelect, rate]
+		[onSelect, rate],
 	);
 
 	const [hovered, setHovered] = useState(false);
@@ -242,7 +242,7 @@ export const PlaybackrateControl: React.FC<{
 			e.preventDefault();
 			setIsComponentVisible(!isComponentVisible);
 		},
-		[isComponentVisible, setIsComponentVisible]
+		[isComponentVisible, setIsComponentVisible],
 	);
 
 	return (

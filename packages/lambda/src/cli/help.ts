@@ -16,7 +16,7 @@ export const printHelp = () => {
 	Log.info(
 		`${BINARY_NAME} ${
 			packagejson.version
-		} © ${new Date().getFullYear()} The Remotion developers`
+		} © ${new Date().getFullYear()} The Remotion developers`,
 	);
 	Log.info();
 	Log.info('Available commands:');
@@ -39,7 +39,7 @@ export const printHelp = () => {
 	Log.info();
 	Log.info(`${BINARY_NAME} ${COMPOSITIONS_COMMAND}`);
 	Log.info(
-		CliInternals.chalk.gray('Print list of composition IDs from a serve URL.')
+		CliInternals.chalk.gray('Print list of composition IDs from a serve URL.'),
 	);
 
 	Log.info();
@@ -53,6 +53,6 @@ export const printHelp = () => {
 	Log.info();
 	Log.info(`${BINARY_NAME} ${QUOTAS_COMMAND}`);
 	Log.info(
-		CliInternals.chalk.gray('Shows AWS quotas and allows to increase them.')
+		CliInternals.chalk.gray('Shows AWS quotas and allows to increase them.'),
 	);
 };

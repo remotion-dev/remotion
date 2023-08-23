@@ -32,7 +32,7 @@ export const deleteSite = ({
 					// Resolve the Promise with the desired result
 					resolve();
 				}
-			}
+			},
 		);
 	});
 };

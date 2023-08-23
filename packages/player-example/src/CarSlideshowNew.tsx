@@ -15,7 +15,7 @@ const CarSlideshow: React.FC<{
 	const backGroundColor = interpolateColors(
 		frame,
 		[0, Math.floor(durationInFrames / 2), durationInFrames],
-		['red', 'hotpink', 'green']
+		['red', 'hotpink', 'green'],
 	);
 	return (
 		<div

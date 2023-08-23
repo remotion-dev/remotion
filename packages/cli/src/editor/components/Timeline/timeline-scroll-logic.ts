@@ -32,7 +32,7 @@ const calculateFrameWhileScrollingRight = ({
 		}) +
 		Math.ceil(
 			((scrollableRef.current?.clientWidth as number) - TIMELINE_PADDING) /
-				getFrameIncrement(durationInFrames)
+				getFrameIncrement(durationInFrames),
 		)
 	);
 };
@@ -162,7 +162,7 @@ export const ensureFrameIsInViewport = ({
 					: getScrollPositionForCursorOnLeftEdge({
 							nextFrame: frame,
 							durationInFrames,
-					  })
+					  }),
 			);
 		}
 	}
@@ -227,7 +227,7 @@ const getFrameIncrement = (durationInFrames: number) => {
 
 export const getFrameIncrementFromWidth = (
 	durationInFrames: number,
-	width: number
+	width: number,
 ) => {
 	return (width - TIMELINE_PADDING * 2) / (durationInFrames - 1);
 };
@@ -275,8 +275,8 @@ export const getFrameFromX = ({
 			{
 				extrapolateLeft: extrapolate,
 				extrapolateRight: extrapolate,
-			}
-		)
+			},
+		),
 	);
 	return frame;
 };
@@ -312,6 +312,6 @@ export const zoomAndPreserveCursor = ({
 	current.scrollLeft += newCursorPosition - prevCursorPosition;
 	redrawTimelineSliderFast.current?.draw(
 		currentFrame,
-		(scrollableRef.current?.clientWidth ?? 0) * ratio
+		(scrollableRef.current?.clientWidth ?? 0) * ratio,
 	);
 };

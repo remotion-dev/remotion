@@ -16,7 +16,7 @@ function truthy<T>(value: T): value is Truthy<T> {
 }
 
 export const replaceLoadersWithBabel = (
-	conf: WebpackConfiguration
+	conf: WebpackConfiguration,
 ): WebpackConfiguration => {
 	return {
 		...conf,

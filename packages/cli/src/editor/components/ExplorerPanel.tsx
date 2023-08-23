@@ -40,7 +40,7 @@ const tabsContainer: React.CSSProperties = {
 };
 
 export const persistSelectedOptionsSidebarPanel = (
-	panel: OptionsSidebarPanel
+	panel: OptionsSidebarPanel,
 ) => {
 	localStorage.setItem(localStorageKey, panel);
 };
@@ -51,7 +51,7 @@ export const optionsSidebarTabs = createRef<{
 
 export const ExplorerPanel: React.FC<{}> = () => {
 	const [panel, setPanel] = useState<OptionsSidebarPanel>(() =>
-		getSelectedPanel()
+		getSelectedPanel(),
 	);
 	const onCompositionsSelected = useCallback(() => {
 		setPanel('compositions');
@@ -73,11 +73,11 @@ export const ExplorerPanel: React.FC<{}> = () => {
 				},
 			};
 		},
-		[]
+		[],
 	);
 
 	const {compositions, currentComposition} = useContext(
-		Internals.CompositionManager
+		Internals.CompositionManager,
 	);
 
 	const composition = useMemo((): AnyComposition | null => {

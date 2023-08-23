@@ -7,7 +7,7 @@
 
 export const rangeParser = (
 	size: number,
-	str: string
+	str: string,
 ):
 	| {
 			type: string;

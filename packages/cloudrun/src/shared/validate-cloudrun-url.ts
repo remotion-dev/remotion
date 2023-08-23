@@ -2,8 +2,8 @@ export const validateCloudRunUrl = (cloudRunUrl: unknown) => {
 	if (typeof cloudRunUrl !== 'string') {
 		throw new TypeError(
 			`"cloudRunUrl" parameter must be a string, but is ${JSON.stringify(
-				cloudRunUrl
-			)}`
+				cloudRunUrl,
+			)}`,
 		);
 	}
 };

@@ -12,7 +12,7 @@ test('Should sanitize weird file names when downloading', () => {
 	expect(newSrc).toBe(
 		process.platform === 'win32'
 			? '\\var\\tmp\\7415404696948826'
-			: '/var/tmp/7415404696948826'
+			: '/var/tmp/7415404696948826',
 	);
 });
 

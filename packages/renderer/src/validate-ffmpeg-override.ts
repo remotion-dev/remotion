@@ -7,7 +7,7 @@ export const validateFfmpegOverride = (ffmpegArgsHook?: FfmpegOverrideFn) => {
 
 	if (ffmpegArgsHook && typeof ffmpegArgsHook !== 'function') {
 		throw new TypeError(
-			`Argument passed for "ffmpegArgsHook" is not a function: ${ffmpegArgsHook}`
+			`Argument passed for "ffmpegArgsHook" is not a function: ${ffmpegArgsHook}`,
 		);
 	}
 };

@@ -39,7 +39,7 @@ const regexValidFrame_FireFox =
 function parseStack(stack: string[]): StackFrame[] {
 	const frames = stack
 		.filter(
-			(e) => regexValidFrame_Chrome.test(e) || regexValidFrame_FireFox.test(e)
+			(e) => regexValidFrame_Chrome.test(e) || regexValidFrame_FireFox.test(e),
 		)
 		.map((e) => {
 			if (regexValidFrame_FireFox.test(e)) {
@@ -48,7 +48,7 @@ function parseStack(stack: string[]): StackFrame[] {
 				if (/ > (eval|Function)/.test(e)) {
 					e = e.replace(
 						/ line (\d+)(?: > eval line \d+)* > (eval|Function):\d+:\d+/g,
-						':$1'
+						':$1',
 					);
 					isEval = true;
 				}
@@ -96,7 +96,7 @@ function parseStack(stack: string[]): StackFrame[] {
 
 export const parseError = async (
 	error: Error | string | string[],
-	contextLines: number
+	contextLines: number,
 ): Promise<SomeStackFrame[]> => {
 	if (error === null) {
 		throw new Error('You cannot pass a null object.');

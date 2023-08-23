@@ -35,7 +35,7 @@ export const TimelineInOutPointer: React.FC = () => {
 						width: getXPositionOfItemInTimelineImperatively(
 							inFrame,
 							videoConfig.durationInFrames,
-							timelineWidth
+							timelineWidth,
 						),
 					}}
 				/>
@@ -49,14 +49,14 @@ export const TimelineInOutPointer: React.FC = () => {
 						left: getXPositionOfItemInTimelineImperatively(
 							outFrame,
 							videoConfig.durationInFrames,
-							timelineWidth
+							timelineWidth,
 						),
 						width:
 							timelineWidth -
 							getXPositionOfItemInTimelineImperatively(
 								outFrame,
 								videoConfig.durationInFrames,
-								timelineWidth
+								timelineWidth,
 							),
 					}}
 				/>

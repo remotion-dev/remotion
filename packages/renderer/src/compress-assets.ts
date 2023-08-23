@@ -7,14 +7,14 @@ import type {TRenderAsset} from 'remotion';
 
 export const compressAsset = (
 	previousRenderAssets: TRenderAsset[],
-	newRenderAsset: TRenderAsset
+	newRenderAsset: TRenderAsset,
 ): TRenderAsset => {
 	if (newRenderAsset.src.length < 400) {
 		return newRenderAsset;
 	}
 
 	const assetWithSameSrc = previousRenderAssets.find(
-		(a) => a.src === newRenderAsset.src
+		(a) => a.src === newRenderAsset.src,
 	);
 	if (!assetWithSameSrc) {
 		return newRenderAsset;

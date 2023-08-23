@@ -17,7 +17,7 @@ const getEffectiveXTranslation = ({
 	const maxTranslation = Math.abs(
 		canvasSize.width / 2 +
 			(scale * compositionWidth) / 2 -
-			MUST_BE_INSIDE_CANVAS
+			MUST_BE_INSIDE_CANVAS,
 	);
 
 	return Math.max(-maxTranslation, Math.min(translation.x, maxTranslation));
@@ -105,11 +105,11 @@ export const getCenterPointWhileScrolling = ({
 
 	const offsetFromVideoLeft = Math.min(
 		compositionWidth,
-		Math.max(0, (mouseLeft - contentLeftPoint) / scale)
+		Math.max(0, (mouseLeft - contentLeftPoint) / scale),
 	);
 	const offsetFromVideoTop = Math.min(
 		compositionHeight,
-		Math.max(0, (mouseTop - contentTopPoint) / scale)
+		Math.max(0, (mouseTop - contentTopPoint) / scale),
 	);
 
 	return {

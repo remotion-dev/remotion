@@ -1,14 +1,14 @@
 import {
-	getIdealMaximumFrameCacheItems,
+	getIdealMaximumFrameCacheSizeInBytes,
 	startLongRunningCompositor,
 } from './compositor/compositor';
 import type {LogLevel} from './log-level';
 
 export const copyImageToClipboard = async (src: string, logLevel: LogLevel) => {
 	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems(),
+		getIdealMaximumFrameCacheSizeInBytes(),
 		logLevel,
-		false
+		false,
 	);
 
 	await compositor.executeCommand('CopyImageToClipboard', {

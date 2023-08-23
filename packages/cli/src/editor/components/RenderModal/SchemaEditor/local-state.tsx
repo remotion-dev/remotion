@@ -48,7 +48,7 @@ export const useLocalState = <T,>({
 					zodValidation: schema.safeParse(value),
 				},
 			};
-		}
+		},
 	);
 
 	const currentLocalValue: LocalState<T> = useMemo(() => {
@@ -102,7 +102,7 @@ export const useLocalState = <T,>({
 			parentRevision,
 			schema,
 			setValue,
-		]
+		],
 	);
 
 	const contextValue: RevisionContextType = useMemo(() => {
@@ -126,7 +126,7 @@ export const useLocalState = <T,>({
 				</RevisionContext.Provider>
 			);
 		},
-		[contextValue]
+		[contextValue],
 	);
 
 	return {

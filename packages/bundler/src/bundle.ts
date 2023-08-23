@@ -19,7 +19,7 @@ const prepareOutDir = async (specified: string | null) => {
 	}
 
 	return fs.promises.mkdtemp(
-		path.join(os.tmpdir(), 'remotion-webpack-bundle-')
+		path.join(os.tmpdir(), 'remotion-webpack-bundle-'),
 	);
 };
 
@@ -93,7 +93,7 @@ type Arguments =
 	| [
 			entryPoint: string,
 			onProgress?: (progress: number) => void,
-			options?: LegacyBundleOptions
+			options?: LegacyBundleOptions,
 	  ];
 
 const convertArgumentsIntoOptions = (args: Arguments): BundleOptions => {
@@ -143,7 +143,7 @@ const validateEntryPoint = async (entryPoint: string) => {
 				'You should use the file that calls registerRoot() as the entry point.',
 				'To ignore this error, pass "ignoreRegisterRootWarning" to bundle().',
 				'This error cannot be ignored on the CLI.',
-			].join(' ')
+			].join(' '),
 		);
 	}
 };
@@ -224,7 +224,7 @@ export async function bundle(...args: Arguments): Promise<string> {
 
 		symlinkWarningShown = true;
 		console.warn(
-			`\nFound a symbolic link in the public folder (${absolutePath}). The symlink will be forwarded into the bundle.`
+			`\nFound a symbolic link in the public folder (${absolutePath}). The symlink will be forwarded into the bundle.`,
 		);
 	};
 

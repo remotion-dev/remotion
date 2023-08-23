@@ -26,7 +26,7 @@ declare global {
 		remotion_getCompositionNames: () => string[];
 		getStaticCompositions: () => Promise<VideoConfigWithSerializedProps[]>;
 		remotion_calculateComposition: (
-			compId: string
+			compId: string,
 		) => Promise<VideoConfigWithSerializedProps>;
 		remotion_setBundleMode: (bundleMode: BundleState) => void;
 		remotion_staticBase: string;
@@ -154,7 +154,7 @@ export const Config = new Proxy(proxyObj, {
 
 		return () => {
 			console.warn(
-				'⚠️  The CLI configuration has been extracted from Remotion Core.'
+				'⚠️  The CLI configuration has been extracted from Remotion Core.',
 			);
 			console.warn('Update the import from the config file:');
 			console.warn();
@@ -164,7 +164,7 @@ export const Config = new Proxy(proxyObj, {
 			console.warn('import {Config} from "@remotion/cli/config";');
 			console.warn();
 			console.warn(
-				'For more information, see https://www.remotion.dev/docs/4-0-migration.'
+				'For more information, see https://www.remotion.dev/docs/4-0-migration.',
 			);
 
 			process.exit(1);

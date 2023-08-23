@@ -9,9 +9,9 @@ describe('Should validate invalid data passed to stitchFramesToVideo', () => {
 				fps: -1,
 				height: 1000,
 				width: 1000,
-			})
+			}),
 		).rejects.toThrow(
-			/"fps" must be positive, but got -1 in `stitchFramesToVideo\(\)`/
+			/"fps" must be positive, but got -1 in `stitchFramesToVideo\(\)`/,
 		);
 	});
 
@@ -22,9 +22,9 @@ describe('Should validate invalid data passed to stitchFramesToVideo', () => {
 				fps: 30,
 				height: 1000.5,
 				width: 1000,
-			})
+			}),
 		).rejects.toThrow(
-			/The "height" prop passed to `stitchFramesToVideo\(\)` must be an integer, but is 1000.5./
+			/The "height" prop passed to `stitchFramesToVideo\(\)` must be an integer, but is 1000.5./,
 		);
 	});
 	test('Invalid width', () => {
@@ -34,9 +34,9 @@ describe('Should validate invalid data passed to stitchFramesToVideo', () => {
 				fps: 30,
 				width: 1000.5,
 				height: 1000,
-			})
+			}),
 		).rejects.toThrow(
-			/The "width" prop passed to `stitchFramesToVideo\(\)` must be an integer, but is 1000.5./
+			/The "width" prop passed to `stitchFramesToVideo\(\)` must be an integer, but is 1000.5./,
 		);
 	});
 });

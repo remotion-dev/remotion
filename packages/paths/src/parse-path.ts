@@ -27,7 +27,7 @@ const length: {[key in Instruction['type'] | 'z']: number} = {
 
 const chunkExact = (
 	array: number[],
-	instruction: Instruction['type']
+	instruction: Instruction['type'],
 ): number[][] => {
 	const chunks: number[][] = [];
 	const expectedSize = length[instruction];
@@ -35,8 +35,8 @@ const chunkExact = (
 	if (array.length % expectedSize !== 0) {
 		throw new Error(
 			`Expected number of arguments of SVG instruction "${instruction} ${array.join(
-				' '
-			)}" to be a multiple of ${expectedSize}`
+				' ',
+			)}" to be a multiple of ${expectedSize}`,
 		);
 	}
 
@@ -50,7 +50,7 @@ const chunkExact = (
 const makeInstructions = (
 	arr: number[],
 	instruction: Instruction['type'],
-	cb: (args: number[]) => Instruction
+	cb: (args: number[]) => Instruction,
 ) => {
 	return chunkExact(arr, instruction).map((args) => {
 		return cb(args);
@@ -94,7 +94,7 @@ export const parsePath = (path: string): Instruction[] => {
 						type: 'L',
 						x: numbers[0],
 						y: numbers[1],
-					}))
+					})),
 				);
 
 				return segmentsArray;
@@ -112,7 +112,7 @@ export const parsePath = (path: string): Instruction[] => {
 						type: 'l',
 						dx: numbers[0],
 						dy: numbers[1],
-					}))
+					})),
 				);
 
 				return segmentsArray;
@@ -299,7 +299,7 @@ export const parsePath = (path: string): Instruction[] => {
 
 const parseValues = (
 	args: string,
-	instructionType: Instruction['type'] | 'z'
+	instructionType: Instruction['type'] | 'z',
 ) => {
 	const numbers = args.match(numberRegExp);
 	if (!numbers) {
@@ -308,7 +308,7 @@ const parseValues = (
 		}
 
 		throw new Error(
-			`Malformed path data: ${instructionType} was expected to have numbers afterwards`
+			`Malformed path data: ${instructionType} was expected to have numbers afterwards`,
 		);
 	}
 
@@ -316,8 +316,8 @@ const parseValues = (
 	if (numbers.length % expectedArguments !== 0) {
 		throw new Error(
 			`Malformed path data: ${instructionType} was expected to have a multiple of ${expectedArguments} numbers, but got "${instructionType} ${numbers.join(
-				' '
-			)} instead"`
+				' ',
+			)} instead"`,
 		);
 	}
 

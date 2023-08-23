@@ -59,24 +59,24 @@ export class NetworkManager extends EventEmitter {
 		this.#client.on('Fetch.requestPaused', this.#onRequestPaused.bind(this));
 		this.#client.on(
 			'Network.requestWillBeSent',
-			this.#onRequestWillBeSent.bind(this)
+			this.#onRequestWillBeSent.bind(this),
 		);
 		this.#client.on(
 			'Network.requestServedFromCache',
-			this.#onRequestServedFromCache.bind(this)
+			this.#onRequestServedFromCache.bind(this),
 		);
 		this.#client.on(
 			'Network.responseReceived',
-			this.#onResponseReceived.bind(this)
+			this.#onResponseReceived.bind(this),
 		);
 		this.#client.on(
 			'Network.loadingFinished',
-			this.#onLoadingFinished.bind(this)
+			this.#onLoadingFinished.bind(this),
 		);
 		this.#client.on('Network.loadingFailed', this.#onLoadingFailed.bind(this));
 		this.#client.on(
 			'Network.responseReceivedExtraInfo',
-			this.#onResponseReceivedExtraInfo.bind(this)
+			this.#onResponseReceivedExtraInfo.bind(this),
 		);
 	}
 
@@ -133,7 +133,7 @@ export class NetworkManager extends EventEmitter {
 
 	#patchRequestEventHeaders(
 		requestWillBeSentEvent: RequestWillBeSentEvent,
-		requestPausedEvent: RequestPausedEvent
+		requestPausedEvent: RequestPausedEvent,
 	): void {
 		requestWillBeSentEvent.request.headers = {
 			...requestWillBeSentEvent.request.headers,
@@ -144,7 +144,7 @@ export class NetworkManager extends EventEmitter {
 
 	#onRequest(
 		event: RequestWillBeSentEvent,
-		fetchRequestId?: FetchRequestId
+		fetchRequestId?: FetchRequestId,
 	): void {
 		if (event.redirectResponse) {
 			// We want to emit a response and requestfinished for the
@@ -175,7 +175,7 @@ export class NetworkManager extends EventEmitter {
 				this.#handleRequestRedirect(
 					_request,
 					event.redirectResponse,
-					redirectResponseExtraInfo
+					redirectResponseExtraInfo,
 				);
 			}
 		}
@@ -199,7 +199,7 @@ export class NetworkManager extends EventEmitter {
 	#handleRequestRedirect(
 		request: HTTPRequest,
 		responsePayload: Response,
-		extraInfo: ResponseReceivedExtraInfoEvent | null
+		extraInfo: ResponseReceivedExtraInfoEvent | null,
 	): void {
 		const response = new HTTPResponse(responsePayload, extraInfo);
 		request._response = response;
@@ -208,10 +208,10 @@ export class NetworkManager extends EventEmitter {
 
 	#emitResponseEvent(
 		responseReceived: ResponseReceivedEvent,
-		extraInfo: ResponseReceivedExtraInfoEvent | null
+		extraInfo: ResponseReceivedExtraInfoEvent | null,
 	): void {
 		const request = this.#networkEventManager.getRequest(
-			responseReceived.requestId
+			responseReceived.requestId,
 		);
 		// FileUpload sends a response without a matching request.
 		if (!request) {
@@ -248,7 +248,7 @@ export class NetworkManager extends EventEmitter {
 		// this ExtraInfo event. If so, continue that work now that we have the
 		// request.
 		const redirectInfo = this.#networkEventManager.takeQueuedRedirectInfo(
-			event.requestId
+			event.requestId,
 		);
 		if (redirectInfo) {
 			this.#networkEventManager.responseExtraInfo(event.requestId).push(event);
@@ -259,7 +259,7 @@ export class NetworkManager extends EventEmitter {
 		// We may have skipped response and loading events because we didn't have
 		// this ExtraInfo event yet. If so, emit those events now.
 		const queuedEvents = this.#networkEventManager.getQueuedEventGroup(
-			event.requestId
+			event.requestId,
 		);
 		if (queuedEvents) {
 			this.#networkEventManager.forgetQueuedEventGroup(event.requestId);
@@ -293,7 +293,7 @@ export class NetworkManager extends EventEmitter {
 		// If the response event for this request is still waiting on a
 		// corresponding ExtraInfo event, then wait to emit this event too.
 		const queuedEvents = this.#networkEventManager.getQueuedEventGroup(
-			event.requestId
+			event.requestId,
 		);
 		if (queuedEvents) {
 			queuedEvents.loadingFinishedEvent = event;
@@ -317,7 +317,7 @@ export class NetworkManager extends EventEmitter {
 		// If the response event for this request is still waiting on a
 		// corresponding ExtraInfo event, then wait to emit this event too.
 		const queuedEvents = this.#networkEventManager.getQueuedEventGroup(
-			event.requestId
+			event.requestId,
 		);
 		if (queuedEvents) {
 			queuedEvents.loadingFailedEvent = event;

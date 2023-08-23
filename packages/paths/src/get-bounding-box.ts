@@ -101,7 +101,7 @@ export const getBoundingBox = (d: string): BoundingBox => {
 };
 
 export const getBoundingBoxFromInstructions = (
-	instructions: ReducedInstruction[]
+	instructions: ReducedInstruction[],
 ): BoundingBox => {
 	let minX = Infinity;
 	let minY = Infinity;

@@ -19,14 +19,14 @@ export const sitesLsSubcommand = async () => {
 
 	if (buckets.length > 1 && !CliInternals.quietFlagProvided() && !allRegions) {
 		Log.warn(
-			`Warning: You have more than one Remotion Cloud Storage bucket in ${region}, but only one is needed. This can lead to conflicts. Remove all but one of them.`
+			`Warning: You have more than one Remotion Cloud Storage bucket in ${region}, but only one is needed. This can lead to conflicts. Remove all but one of them.`,
 		);
 	}
 
 	const sitesPluralized = sites.length === 1 ? 'site' : 'sites';
 	if (!CliInternals.quietFlagProvided()) {
 		Log.info(
-			`${sites.length} ${sitesPluralized} in ${region}, in the ${process.env.REMOTION_GCP_PROJECT_ID} project.`
+			`${sites.length} ${sitesPluralized} in ${region}, in the ${process.env.REMOTION_GCP_PROJECT_ID} project.`,
 		);
 	}
 

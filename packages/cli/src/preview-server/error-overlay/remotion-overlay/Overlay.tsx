@@ -57,7 +57,7 @@ export const Overlay: React.FC = () => {
 		() => {
 			return {setErrors, addError};
 		},
-		[addError]
+		[addError],
 	);
 
 	if (errors.type === 'clear') {

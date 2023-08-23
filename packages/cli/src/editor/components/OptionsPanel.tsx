@@ -48,7 +48,7 @@ const tabsContainer: React.CSSProperties = {
 };
 
 export const persistSelectedOptionsSidebarPanel = (
-	panel: OptionsSidebarPanel
+	panel: OptionsSidebarPanel,
 ) => {
 	localStorage.setItem(localStorageKey, panel);
 };
@@ -61,7 +61,7 @@ export const OptionsPanel: React.FC<{}> = () => {
 	const {props, updateProps} = useContext(Internals.EditorPropsContext);
 	const [saving, setSaving] = useState(false);
 	const [panel, setPanel] = useState<OptionsSidebarPanel>(() =>
-		getSelectedPanel()
+		getSelectedPanel(),
 	);
 	const onPropsSelected = useCallback(() => {
 		setPanel('input-props');
@@ -83,11 +83,11 @@ export const OptionsPanel: React.FC<{}> = () => {
 				},
 			};
 		},
-		[]
+		[],
 	);
 
 	const {compositions, currentComposition} = useContext(
-		Internals.CompositionManager
+		Internals.CompositionManager,
 	);
 	const circleStyle = useMemo((): React.CSSProperties => {
 		const onTabColor = saving ? LIGHT_TEXT : 'white';
@@ -119,7 +119,7 @@ export const OptionsPanel: React.FC<{}> = () => {
 		(
 			newProps:
 				| Record<string, unknown>
-				| ((oldProps: Record<string, unknown>) => Record<string, unknown>)
+				| ((oldProps: Record<string, unknown>) => Record<string, unknown>),
 		) => {
 			if (composition === null) {
 				return;
@@ -131,7 +131,7 @@ export const OptionsPanel: React.FC<{}> = () => {
 				newProps,
 			});
 		},
-		[composition, updateProps]
+		[composition, updateProps],
 	);
 
 	const actualProps = useMemo(() => {

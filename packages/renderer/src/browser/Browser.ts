@@ -52,7 +52,7 @@ export class HeadlessBrowser extends EventEmitter {
 		const browser = new HeadlessBrowser(
 			connection,
 			defaultViewport,
-			closeCallback
+			closeCallback,
 		);
 		await connection.send('Target.setDiscoverTargets', {discover: true});
 		return browser;
@@ -72,7 +72,7 @@ export class HeadlessBrowser extends EventEmitter {
 	constructor(
 		connection: Connection,
 		defaultViewport: Viewport,
-		closeCallback?: BrowserCloseCallback
+		closeCallback?: BrowserCloseCallback,
 	) {
 		super();
 		this.#defaultViewport = defaultViewport;
@@ -90,11 +90,11 @@ export class HeadlessBrowser extends EventEmitter {
 		this.connection.on('Target.targetCreated', this.#targetCreated.bind(this));
 		this.connection.on(
 			'Target.targetDestroyed',
-			this.#targetDestroyed.bind(this)
+			this.#targetDestroyed.bind(this),
 		);
 		this.connection.on(
 			'Target.targetInfoChanged',
-			this.#targetInfoChanged.bind(this)
+			this.#targetInfoChanged.bind(this),
 		);
 	}
 
@@ -120,11 +120,11 @@ export class HeadlessBrowser extends EventEmitter {
 			() => {
 				return this.connection.createSession(targetInfo);
 			},
-			this.#defaultViewport ?? null
+			this.#defaultViewport ?? null,
 		);
 		assert(
 			!this.#targets.has(event.targetInfo.targetId),
-			'Target should not exist before targetCreated'
+			'Target should not exist before targetCreated',
 		);
 		this.#targets.set(event.targetInfo.targetId, target);
 
@@ -137,7 +137,7 @@ export class HeadlessBrowser extends EventEmitter {
 		const target = this.#targets.get(event.targetId);
 		if (!target) {
 			throw new Error(
-				`Missing target in _targetDestroyed (id = ${event.targetId})`
+				`Missing target in _targetDestroyed (id = ${event.targetId})`,
 			);
 		}
 
@@ -150,7 +150,7 @@ export class HeadlessBrowser extends EventEmitter {
 		const target = this.#targets.get(event.targetInfo.targetId);
 		if (!target) {
 			throw new Error(
-				`Missing target in targetInfoChanged (id = ${event.targetInfo.targetId})`
+				`Missing target in targetInfoChanged (id = ${event.targetInfo.targetId})`,
 			);
 		}
 
@@ -165,7 +165,7 @@ export class HeadlessBrowser extends EventEmitter {
 	newPage(
 		context: Promise<AnySourceMapConsumer | null>,
 		logLevel: LogLevel,
-		indent: boolean
+		indent: boolean,
 	): Promise<Page> {
 		return this.#defaultContext.newPage(context, logLevel, indent);
 	}
@@ -173,7 +173,7 @@ export class HeadlessBrowser extends EventEmitter {
 	async _createPageInContext(
 		context: Promise<AnySourceMapConsumer | null>,
 		logLevel: LogLevel,
-		indent: boolean
+		indent: boolean,
 	): Promise<Page> {
 		const {
 			value: {targetId},
@@ -207,7 +207,7 @@ export class HeadlessBrowser extends EventEmitter {
 
 	async waitForTarget(
 		predicate: (x: Target) => boolean | Promise<boolean>,
-		options: WaitForTargetOptions = {}
+		options: WaitForTargetOptions = {},
 	): Promise<Target> {
 		const {timeout = 30000} = options;
 		let resolve: (value: Target | PromiseLike<Target>) => void;
@@ -241,7 +241,7 @@ export class HeadlessBrowser extends EventEmitter {
 		const contextPages = await Promise.all(
 			this.browserContexts().map((context) => {
 				return context.pages(logLevel, indent);
-			})
+			}),
 		);
 		// Flatten array.
 		return contextPages.reduce((acc, x) => {
@@ -252,7 +252,7 @@ export class HeadlessBrowser extends EventEmitter {
 	async close(
 		silent: boolean,
 		logLevel: LogLevel,
-		indent: boolean
+		indent: boolean,
 	): Promise<void> {
 		await this.#closeCallback.call(null);
 		(await this.pages(logLevel, indent)).forEach((page) => {
@@ -261,7 +261,7 @@ export class HeadlessBrowser extends EventEmitter {
 		});
 		this.disconnect();
 		this.emit(
-			silent ? BrowserEmittedEvents.ClosedSilent : BrowserEmittedEvents.Closed
+			silent ? BrowserEmittedEvents.ClosedSilent : BrowserEmittedEvents.Closed,
 		);
 	}
 
@@ -286,7 +286,7 @@ export class BrowserContext extends EventEmitter {
 
 	waitForTarget(
 		predicate: (x: Target) => boolean | Promise<boolean>,
-		options: {timeout?: number} = {}
+		options: {timeout?: number} = {},
 	): Promise<Target> {
 		return this.#browser.waitForTarget((target) => {
 			return target.browserContext() === this && predicate(target);
@@ -297,7 +297,7 @@ export class BrowserContext extends EventEmitter {
 		const pages = await Promise.all(
 			this.targets()
 				.filter((target) => target.type() === 'page')
-				.map((target) => target.page(Promise.resolve(null), logLevel, indent))
+				.map((target) => target.page(Promise.resolve(null), logLevel, indent)),
 		);
 		return pages.filter((page): page is Page => {
 			return Boolean(page);
@@ -307,7 +307,7 @@ export class BrowserContext extends EventEmitter {
 	newPage(
 		context: Promise<AnySourceMapConsumer | null>,
 		logLevel: LogLevel,
-		indent: boolean
+		indent: boolean,
 	): Promise<Page> {
 		return this.#browser._createPageInContext(context, logLevel, indent);
 	}
