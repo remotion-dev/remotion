@@ -56,10 +56,11 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
 			defaultProps: Internals.deserializeJSONWithCustomFields(
-				job.serializedInputPropsWithCustomSchema
+				job.serializedInputPropsWithCustomSchema,
 			),
 			inFrameMark: null,
 			outFrameMark: null,
+			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 		};
 	}
 
@@ -104,10 +105,11 @@ export const makeRetryPayload = (job: RenderJob): RenderModalState => {
 			initialIgnoreCertificateErrors:
 				job.chromiumOptions.ignoreCertificateErrors,
 			defaultProps: Internals.deserializeJSONWithCustomFields(
-				job.serializedInputPropsWithCustomSchema
+				job.serializedInputPropsWithCustomSchema,
 			),
 			inFrameMark: job.startFrame,
 			outFrameMark: job.endFrame,
+			initialOffthreadVideoCacheSizeInBytes: job.offthreadVideoCacheSizeInBytes,
 		};
 	}
 
