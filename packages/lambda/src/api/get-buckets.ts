@@ -12,12 +12,12 @@ export type BucketWithLocation = {
 
 export const getRemotionS3Buckets = async (
 	region: AwsRegion,
-	forceBucketName?: string
+	forceBucketName?: string,
 ): Promise<{
 	remotionBuckets: BucketWithLocation[];
 }> => {
 	const {Buckets} = await getS3Client(region, null).send(
-		new ListBucketsCommand({})
+		new ListBucketsCommand({}),
 	);
 	if (!Buckets) {
 		return {remotionBuckets: []};
@@ -42,7 +42,7 @@ export const getRemotionS3Buckets = async (
 				const result = await getS3Client(region, null).send(
 					new GetBucketLocationCommand({
 						Bucket: bucket.Name as string,
-					})
+					}),
 				);
 				// AWS docs: Buckets in Region us-east-1 have a LocationConstraint of null!!
 				return result.LocationConstraint ?? ('us-east-1' as AwsRegion);
@@ -54,7 +54,7 @@ export const getRemotionS3Buckets = async (
 
 				throw err;
 			}
-		})
+		}),
 	);
 
 	const bucketsWithLocation = remotionBuckets

@@ -20,7 +20,7 @@ export const getEncodingMetadata = ({
 	return {
 		framesEncoded: Math.min(
 			frameCount,
-			framesEncoded * ENCODING_PROGRESS_STEP_SIZE
+			framesEncoded * ENCODING_PROGRESS_STEP_SIZE,
 		),
 	};
 };

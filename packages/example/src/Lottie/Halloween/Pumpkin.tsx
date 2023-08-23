@@ -21,7 +21,7 @@ const Pumpkin = () => {
 	const animationOpacity = interpolate(
 		animationInput,
 		[0, 5, durationInFrames - 20, durationInFrames],
-		[0, 1, 1, 0]
+		[0, 1, 1, 0],
 	);
 
 	const [animationData, setAnimationData] = useState(null);

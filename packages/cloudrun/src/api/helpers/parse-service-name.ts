@@ -7,7 +7,7 @@ export const getGcpParent = (region: GcpRegion) => {
 
 export const parseServiceName = (
 	fullServiceName: string,
-	region: GcpRegion
+	region: GcpRegion,
 ) => {
 	const parent = getGcpParent(region);
 	const shortServiceName = fullServiceName.replace(parent + '/services/', '');

@@ -44,19 +44,19 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 		!Number.isFinite(samples)
 	) {
 		throw new TypeError(
-			`"samples" must be a number, but got ${JSON.stringify(samples)}`
+			`"samples" must be a number, but got ${JSON.stringify(samples)}`,
 		);
 	}
 
 	if (samples % 1 !== 0) {
 		throw new TypeError(
-			`"samples" must be an integer, but got ${JSON.stringify(samples)}`
+			`"samples" must be an integer, but got ${JSON.stringify(samples)}`,
 		);
 	}
 
 	if (samples < 0) {
 		throw new TypeError(
-			`"samples" must be non-negative, but got ${JSON.stringify(samples)}`
+			`"samples" must be non-negative, but got ${JSON.stringify(samples)}`,
 		);
 	}
 
@@ -66,15 +66,17 @@ export const CameraMotionBlur: React.FC<CameraMotionBlurProps> = ({
 		!Number.isFinite(shutterAngle)
 	) {
 		throw new TypeError(
-			`"shutterAngle" must be a number, but got ${JSON.stringify(shutterAngle)}`
+			`"shutterAngle" must be a number, but got ${JSON.stringify(
+				shutterAngle,
+			)}`,
 		);
 	}
 
 	if (shutterAngle < 0 || shutterAngle > 360) {
 		throw new TypeError(
 			`"shutterAngle" must be between 0 and 360, but got ${JSON.stringify(
-				shutterAngle
-			)}`
+				shutterAngle,
+			)}`,
 		);
 	}
 

@@ -172,7 +172,7 @@ export const getDisplayNameForEditor = (editor: Editor): string => {
 	);
 };
 
-type Editor = typeof editorNames[number];
+type Editor = (typeof editorNames)[number];
 
 // Map from full process name to binary that starts the process
 // We can't just re-use full process name, because it will spawn a new instance
@@ -270,7 +270,7 @@ function getArgumentsForLineNumber(
 	editor: Editor,
 	fileName: string,
 	lineNumber: string,
-	colNumber: number
+	colNumber: number,
 ) {
 	const editorBasename = path.basename(editor).replace(/\.(exe|cmd|bat)$/i, '');
 	switch (editorBasename) {
@@ -363,7 +363,7 @@ export async function guessEditor(): Promise<ProcessAndCommand[]> {
 			// Just filter them out upfront. This also saves 10-20ms on the command.
 			const output = (
 				await execProm(
-					'wmic process where "executablepath is not null" get executablepath'
+					'wmic process where "executablepath is not null" get executablepath',
 				)
 			).stdout.toString();
 			const runningProcesses = output.split('\r\n');
@@ -487,14 +487,14 @@ export async function launchEditor({
 	) {
 		console.log();
 		console.log(
-			'Could not open ' + path.basename(fileName) + ' in the editor.'
+			'Could not open ' + path.basename(fileName) + ' in the editor.',
 		);
 		console.log();
 		console.log(
 			'When running on Windows, file names are checked against a whitelist ' +
 				'to protect against remote code execution attacks. File names may ' +
 				'consist only of alphanumeric characters (all languages), periods, ' +
-				'dashes, slashes, and underscores.'
+				'dashes, slashes, and underscores.',
 		);
 		console.log();
 		return false;
@@ -510,7 +510,7 @@ export async function launchEditor({
 				editor.command,
 				fileName,
 				String(lineNumber),
-				colNumber
+				colNumber,
 		  )
 		: [fileName];
 
@@ -545,7 +545,7 @@ export async function launchEditor({
 		_childProcess = child_process.spawn(
 			'cmd.exe',
 			['/C', binaryToUse].concat(args),
-			{stdio: 'inherit', detached: true}
+			{stdio: 'inherit', detached: true},
 		);
 	} else {
 		_childProcess = child_process.spawn(binaryToUse, args, {stdio: 'inherit'});

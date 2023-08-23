@@ -36,7 +36,7 @@ export const TimelineInOutPointerHandle: React.FC<{
 			transform: `translateX(${getXPositionOfItemInTimelineImperatively(
 				atFrame,
 				videoConfig.durationInFrames,
-				timelineWidth
+				timelineWidth,
 			)}px)`,
 		};
 	}, [atFrame, dragging, timelineWidth, videoConfig.durationInFrames]);

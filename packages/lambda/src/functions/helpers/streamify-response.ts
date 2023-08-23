@@ -13,7 +13,7 @@ export class ResponseStream extends Stream.Writable {
 	_write(
 		chunk: string,
 		encoding: BufferEncoding,
-		callback: (error?: Error | null) => void
+		callback: (error?: Error | null) => void,
 	): void {
 		this.response.push(Buffer.from(chunk, encoding));
 		callback();
@@ -32,7 +32,7 @@ export class ResponseStream extends Stream.Writable {
 	}
 }
 export const HANDLER_STREAMING = Symbol.for(
-	'aws.lambda.runtime.handler.streaming'
+	'aws.lambda.runtime.handler.streaming',
 );
 export const STREAM_RESPONSE = 'response';
 

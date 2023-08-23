@@ -11,12 +11,12 @@ import {Overlay} from './Overlay';
 export const mountRemotionOverlay = () => {
 	if (ReactDOM.createRoot) {
 		ReactDOM.createRoot(
-			document.getElementById('remotion-error-overlay') as HTMLDivElement
+			document.getElementById('remotion-error-overlay') as HTMLDivElement,
 		).render(<Overlay />);
 	} else {
 		(ReactDOM as unknown as {render: typeof render}).render(
 			<Overlay />,
-			document.getElementById('remotion-error-overlay')
+			document.getElementById('remotion-error-overlay'),
 		);
 	}
 };

@@ -26,7 +26,7 @@ export class AllowOptionalDependenciesPlugin {
 			(compilation) => {
 				compilation.errors = compilation.errors.filter(this.filter);
 				compilation.warnings = compilation.warnings.filter(this.filter);
-			}
+			},
 		);
 	}
 }

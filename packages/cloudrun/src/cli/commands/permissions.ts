@@ -11,8 +11,8 @@ export const permissionsCommand = async () => {
 	try {
 		Log.info(
 			CliInternals.chalk.blueBright(
-				`Checking permissions for ${process.env.REMOTION_GCP_CLIENT_EMAIL} in project ${process.env.REMOTION_GCP_PROJECT_ID}.`
-			)
+				`Checking permissions for ${process.env.REMOTION_GCP_CLIENT_EMAIL} in project ${process.env.REMOTION_GCP_PROJECT_ID}.`,
+			),
 		);
 		Log.info();
 		await testPermissions({

@@ -144,7 +144,7 @@ function convertToSameType(aCommand: Command, bCommand: Command) {
 function splitSegment(
 	commandStart: Command,
 	commandEnd: Command,
-	segmentCount: number
+	segmentCount: number,
 ) {
 	let segments: Command[] = [];
 
@@ -155,7 +155,7 @@ function splitSegment(
 		commandEnd.type === 'C'
 	) {
 		segments = segments.concat(
-			splitCurve(commandStart, commandEnd, segmentCount)
+			splitCurve(commandStart, commandEnd, segmentCount),
 		);
 
 		// general case - just copy the same point
@@ -168,7 +168,7 @@ function splitSegment(
 		}
 
 		segments = segments.concat(
-			arrayOfLength(segmentCount - 1, undefined).map(() => copyCommand)
+			arrayOfLength(segmentCount - 1, undefined).map(() => copyCommand),
 		);
 		segments.push(commandEnd);
 	}
@@ -202,14 +202,17 @@ function extend(commandsToExtend: Command[], referenceCommands: Command[]) {
 	// 0 = segment 0-1, 1 = segment 1-2, n-1 = last vertex
 	const countPointsPerSegment = arrayOfLength<undefined>(
 		numReferenceSegments,
-		undefined
-	).reduce((accum, _d, i) => {
-		const insertIndex = Math.floor(segmentRatio * i);
+		undefined,
+	).reduce(
+		(accum, _d, i) => {
+			const insertIndex = Math.floor(segmentRatio * i);
 
-		accum[insertIndex] = (accum[insertIndex] || 0) + 1;
+			accum[insertIndex] = (accum[insertIndex] || 0) + 1;
 
-		return accum;
-	}, [] as (undefined | number)[]);
+			return accum;
+		},
+		[] as (undefined | number)[],
+	);
 
 	// extend each segment to have the correct number of points for a smooth interpolation
 	const extended = countPointsPerSegment.reduce(
@@ -235,11 +238,11 @@ function extend(commandsToExtend: Command[], referenceCommands: Command[]) {
 				splitSegment(
 					commandsToExtend[i],
 					commandsToExtend[i + 1],
-					segmentCount as number
-				)
+					segmentCount as number,
+				),
 			);
 		},
-		[] as Command[]
+		[] as Command[],
 	);
 
 	// add in the very first point since splitSegment only adds in the ones after it
@@ -305,7 +308,7 @@ function pathCommandsFromString(d: string | null) {
  */
 function interpolatePathCommands(
 	aCommandsInput: Command[],
-	bCommandsInput: Command[]
+	bCommandsInput: Command[],
 ) {
 	// make a copy so we don't mess with the input arrays
 	let aCommands =
@@ -366,7 +369,7 @@ function interpolatePathCommands(
 	// commands have same length now.
 	// convert commands in A to the same type as those in B
 	aCommands = aCommands.map((aCommand, i) =>
-		convertToSameType(aCommand, bCommands[i])
+		convertToSameType(aCommand, bCommands[i]),
 	);
 
 	// create mutable interpolated command objects
@@ -427,7 +430,7 @@ function interpolatePathCommands(
 export const interpolatePath = (
 	value: number,
 	firstPath: string,
-	secondPath: string
+	secondPath: string,
 ) => {
 	// at 1 return the final value without the extensions used during interpolation
 	if (value === 1) {

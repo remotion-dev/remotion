@@ -1,11 +1,11 @@
 export const validateStartFromProps = (
 	startFrom: number | undefined,
-	endAt: number | undefined
+	endAt: number | undefined,
 ) => {
 	if (typeof startFrom !== 'undefined') {
 		if (typeof startFrom !== 'number') {
 			throw new TypeError(
-				`type of startFrom prop must be a number, instead got type ${typeof startFrom}.`
+				`type of startFrom prop must be a number, instead got type ${typeof startFrom}.`,
 			);
 		}
 
@@ -15,7 +15,7 @@ export const validateStartFromProps = (
 
 		if (startFrom < 0) {
 			throw new TypeError(
-				`startFrom must be greater than equal to 0 instead got ${startFrom}.`
+				`startFrom must be greater than equal to 0 instead got ${startFrom}.`,
 			);
 		}
 	}
@@ -23,7 +23,7 @@ export const validateStartFromProps = (
 	if (typeof endAt !== 'undefined') {
 		if (typeof endAt !== 'number') {
 			throw new TypeError(
-				`type of endAt prop must be a number, instead got type ${typeof endAt}.`
+				`type of endAt prop must be a number, instead got type ${typeof endAt}.`,
 			);
 		}
 
@@ -33,7 +33,7 @@ export const validateStartFromProps = (
 
 		if (endAt <= 0) {
 			throw new TypeError(
-				`endAt must be a positive number, instead got ${endAt}.`
+				`endAt must be a positive number, instead got ${endAt}.`,
 			);
 		}
 	}

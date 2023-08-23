@@ -4,8 +4,8 @@ export const validateJpegQuality = (q: number | undefined) => {
 	if (typeof q !== 'undefined' && typeof q !== 'number') {
 		throw new Error(
 			`JPEG Quality option must be a number or undefined. Got ${typeof q} (${JSON.stringify(
-				q
-			)})`
+				q,
+			)})`,
 		);
 	}
 

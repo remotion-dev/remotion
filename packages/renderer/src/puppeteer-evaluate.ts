@@ -27,7 +27,7 @@ function valueFromRemoteObject(remoteObject: DevtoolsRemoteObject) {
 			default:
 				throw new Error(
 					'Unsupported unserializable value: ' +
-						remoteObject.unserializableValue
+						remoteObject.unserializableValue,
 				);
 		}
 	}
@@ -77,11 +77,11 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 				stack: exceptDetails.exception.description as string,
 				name: exceptDetails.exception.className as string,
 				message: exceptDetails.exception.description?.split(
-					'\n'
+					'\n',
 				)?.[0] as string,
 				frame,
 				stackFrame: parseStack(
-					(exceptDetails.exception.description as string).split('\n')
+					(exceptDetails.exception.description as string).split('\n'),
 				),
 			});
 			throw err;
@@ -92,7 +92,7 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 
 	if (typeof pageFunction !== 'function')
 		throw new Error(
-			`Expected to get |string| or |function| as the first argument, but got "${pageFunction}" instead.`
+			`Expected to get |string| or |function| as the first argument, but got "${pageFunction}" instead.`,
 		);
 
 	let functionText = pageFunction.toString();
@@ -145,11 +145,11 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 				stack: exceptionDetails.exception?.description as string,
 				name: exceptionDetails.exception?.className as string,
 				message: exceptionDetails.exception?.description?.split(
-					'\n'
+					'\n',
 				)[0] as string,
 				frame,
 				stackFrame: parseStack(
-					(exceptionDetails.exception?.description as string).split('\n')
+					(exceptionDetails.exception?.description as string).split('\n'),
 				),
 			});
 			throw err;
@@ -159,11 +159,11 @@ export async function puppeteerEvaluateWithCatch<ReturnType>({
 	} catch (error) {
 		if (
 			(error as {originalMessage: string})?.originalMessage?.startsWith(
-				"Object couldn't be returned by value"
+				"Object couldn't be returned by value",
 			)
 		) {
 			throw new Error(
-				'Could not serialize the return value of the function. Did you pass non-serializable values to defaultProps?'
+				'Could not serialize the return value of the function. Did you pass non-serializable values to defaultProps?',
 			);
 		}
 

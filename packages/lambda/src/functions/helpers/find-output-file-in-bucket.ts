@@ -30,7 +30,7 @@ export const findOutputFileInBucket = async ({
 	const {renderBucketName, key} = getExpectedOutName(
 		renderMetadata,
 		bucketName,
-		null
+		null,
 	);
 
 	try {
@@ -45,7 +45,7 @@ export const findOutputFileInBucket = async ({
 			url: getOutputUrlFromMetadata(
 				renderMetadata,
 				bucketName,
-				customCredentials
+				customCredentials,
 			),
 		};
 	} catch (err) {
@@ -63,7 +63,7 @@ export const findOutputFileInBucket = async ({
 					customCredentials?.endpoint
 						? `(S3 Endpoint = ${customCredentials?.endpoint})`
 						: ''
-				}. The "${ROLE_NAME}" role must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`
+				}. The "${ROLE_NAME}" role must have permission for both "s3:GetObject" and "s3:ListBucket" actions.`,
 			);
 		}
 

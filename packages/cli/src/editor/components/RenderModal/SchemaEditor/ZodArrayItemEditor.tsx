@@ -33,7 +33,7 @@ export const ZodArrayItemEditor: React.FC<{
 		onChange(
 			(oldV) => [...oldV.slice(0, index), ...oldV.slice(index + 1)],
 			false,
-			true
+			true,
 		);
 	}, [index, onChange]);
 
@@ -46,10 +46,10 @@ export const ZodArrayItemEditor: React.FC<{
 					...oldV.slice(index + 1),
 				],
 				false,
-				false
+				false,
 			);
 		},
-		[index, onChange]
+		[index, onChange],
 	);
 
 	const newJsonPath = useMemo(() => [...jsonPath, index], [index, jsonPath]);
@@ -63,10 +63,10 @@ export const ZodArrayItemEditor: React.FC<{
 					...oldV.slice(index + 1),
 				],
 				false,
-				false
+				false,
 			);
 		},
-		[index, onSaveObject]
+		[index, onSaveObject],
 	);
 
 	return (

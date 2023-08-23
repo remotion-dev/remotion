@@ -49,7 +49,7 @@ const updateTitle = () => {
 
 const getProgressInBrackets = (
 	selectedCompositionId: string,
-	jobs: RenderJob[]
+	jobs: RenderJob[],
 ): string | null => {
 	const currentRender = jobs.find((job) => job.status === 'running');
 	if (!currentRender) {

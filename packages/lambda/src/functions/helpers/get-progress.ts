@@ -60,12 +60,12 @@ export const getProgress = async ({
 		const outData = getExpectedOutName(
 			postRenderData.renderMetadata,
 			bucketName,
-			customCredentials
+			customCredentials,
 		);
 
 		const totalFrameCount = RenderInternals.getFramesToRender(
 			postRenderData.renderMetadata.frameRange,
-			postRenderData.renderMetadata.everyNthFrame
+			postRenderData.renderMetadata.everyNthFrame,
 		).length;
 
 		return {
@@ -116,7 +116,7 @@ export const getProgress = async ({
 	});
 
 	const renderMetadataExists = Boolean(
-		contents.find((c) => c.Key === renderMetadataKey(renderId))
+		contents.find((c) => c.Key === renderMetadataKey(renderId)),
 	);
 
 	const [renderMetadata, errorExplanations] = await Promise.all([
@@ -139,7 +139,7 @@ export const getProgress = async ({
 
 	if (renderMetadata?.type === 'still') {
 		throw new Error(
-			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉"
+			"You don't need to call getRenderProgress() on a still render. Once you have obtained the `renderId`, the render is already done! 😉",
 		);
 	}
 
@@ -147,7 +147,7 @@ export const getProgress = async ({
 		contents,
 		renderId,
 		bucketName,
-		getCurrentRegionInFunction()
+		getCurrentRegionInFunction(),
 	);
 
 	const outputFile = renderMetadata
@@ -169,7 +169,7 @@ export const getProgress = async ({
 			// We cannot determine the ephemeral storage size, so we
 			// overestimate the price, but will only have a miniscule effect (~0.2%)
 			diskSizeInMb: MAX_EPHEMERAL_STORAGE_IN_MB,
-		})
+		}),
 	);
 
 	const cleanup = getCleanupProgress({
@@ -213,7 +213,7 @@ export const getProgress = async ({
 	const frameCount = renderMetadata
 		? RenderInternals.getFramesToRender(
 				renderMetadata.frameRange,
-				renderMetadata.everyNthFrame
+				renderMetadata.everyNthFrame,
 		  ).length
 		: null;
 

@@ -32,7 +32,7 @@ const start = async () => {
 		`echo "Project set to ${colorCode.blueText}${projectID}${colorCode.resetText}\n"`,
 		{
 			stdio: 'inherit',
-		}
+		},
 	);
 
 	/****************************************
@@ -46,7 +46,7 @@ const start = async () => {
 		`gcloud beta billing projects describe ${projectID} --format=json | jq .billingEnabled`,
 		{
 			stdio: ['inherit', 'pipe', 'pipe'],
-		}
+		},
 	)
 		.toString()
 		.trim();
@@ -56,7 +56,7 @@ const start = async () => {
 			`echo "${colorCode.redText}Billing is not enabled for this project. Please enable billing at https://console.cloud.google.com/billing and try again.${colorCode.resetText}\n"`,
 			{
 				stdio: 'inherit',
-			}
+			},
 		);
 		process.exit(1);
 	} else {

@@ -38,7 +38,7 @@ export const useSelectComposition = () => {
 
 export const InitialCompositionLoader: React.FC = () => {
 	const {compositions, currentComposition} = useContext(
-		Internals.CompositionManager
+		Internals.CompositionManager,
 	);
 	const selectComposition = useSelectComposition();
 

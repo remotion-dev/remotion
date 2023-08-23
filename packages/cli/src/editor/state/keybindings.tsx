@@ -51,13 +51,13 @@ export const KeybindingContextProvider: React.FC<{
 	const unregisterPane = useCallback(
 		(paneId: string) => {
 			const matchedKeybindings = registered.current.filter(
-				(r) => r.registeredFromPane === paneId
+				(r) => r.registeredFromPane === paneId,
 			);
 			for (const matched of matchedKeybindings) {
 				unregisterKeybinding(matched);
 			}
 		},
-		[unregisterKeybinding]
+		[unregisterKeybinding],
 	);
 
 	const value = useMemo((): KeybindingContextType => {

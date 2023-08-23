@@ -34,7 +34,7 @@ export const getCleanupProgress = ({
 
 	const filesDeleted = Math.max(
 		0,
-		filesToDelete.length - filesStillThere.length
+		filesToDelete.length - filesStillThere.length,
 	);
 
 	return {

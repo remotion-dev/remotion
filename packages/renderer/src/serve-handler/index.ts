@@ -78,7 +78,7 @@ const sendError = (
 		statusCode: number;
 		code: string;
 		message: string;
-	}
+	},
 ) => {
 	const {message, statusCode} = spec;
 
@@ -104,7 +104,7 @@ export const serveHandler = async (
 	response: ServerResponse,
 	config: {
 		public: string;
-	}
+	},
 ) => {
 	const cwd = process.cwd();
 	const current = path.resolve(cwd, config.public);
@@ -113,7 +113,7 @@ export const serveHandler = async (
 
 	try {
 		relativePath = decodeURIComponent(
-			url.parse(request.url as string).pathname as string
+			url.parse(request.url as string).pathname as string,
 		);
 	} catch (err) {
 		return sendError('/', response, {

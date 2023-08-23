@@ -4,7 +4,7 @@ const typesAllowed = ['video', 'audio', 'image', 'font'] as const;
 
 export const preloadAsset = (
 	src: string,
-	elemType: typeof typesAllowed[number]
+	elemType: (typeof typesAllowed)[number],
 ): (() => void) => {
 	const apiName = `preload${
 		elemType.charAt(0).toUpperCase() + elemType.slice(1)
@@ -18,7 +18,7 @@ export const preloadAsset = (
 	if (!typesAllowed.includes(elemType)) {
 		console.warn(
 			apiName + '() Error, elemType not supported. Doing nothing.',
-			elemType
+			elemType,
 		);
 		return () => undefined;
 	}

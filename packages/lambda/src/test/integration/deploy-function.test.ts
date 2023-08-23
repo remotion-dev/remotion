@@ -21,7 +21,7 @@ test('Should be able to deploy function', async () => {
 		createCloudWatchLogGroup: true,
 	});
 	expect(functionName).toBe(
-		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB)
+		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
 	);
 });
 
@@ -35,7 +35,7 @@ test('Should be able to get the function afterwards', async () => {
 		createCloudWatchLogGroup: true,
 	});
 	expect(functionName).toBe(
-		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB)
+		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
 	);
 	const fns = await getFunctions({
 		region: 'us-east-1',
@@ -46,7 +46,7 @@ test('Should be able to get the function afterwards', async () => {
 			functionName: expectedFunctionName(
 				2048,
 				120,
-				DEFAULT_EPHEMERAL_STORAGE_IN_MB
+				DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 			),
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
@@ -72,14 +72,14 @@ test('Should be able to delete the function', async () => {
 		createCloudWatchLogGroup: true,
 	});
 	expect(functionName).toBe(
-		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB)
+		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
 	);
 	await deleteFunction({
 		region: 'us-east-1',
 		functionName: expectedFunctionName(
 			2048,
 			120,
-			DEFAULT_EPHEMERAL_STORAGE_IN_MB
+			DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 		),
 	});
 	const fns = await getFunctions({
@@ -99,7 +99,7 @@ test('Should be able to get the function afterwards', async () => {
 		createCloudWatchLogGroup: true,
 	});
 	expect(functionName).toBe(
-		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB)
+		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
 	);
 	const fns = await getFunctions({
 		region: 'us-east-1',
@@ -110,7 +110,7 @@ test('Should be able to get the function afterwards', async () => {
 			functionName: expectedFunctionName(
 				2048,
 				120,
-				DEFAULT_EPHEMERAL_STORAGE_IN_MB
+				DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 			),
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,
@@ -120,7 +120,7 @@ test('Should be able to get the function afterwards', async () => {
 		},
 	]);
 	markFunctionAsIncompatible(
-		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB)
+		expectedFunctionName(2048, 120, DEFAULT_EPHEMERAL_STORAGE_IN_MB),
 	);
 	const compatibleFns = await getFunctions({
 		region: 'us-east-1',
@@ -136,7 +136,7 @@ test('Should be able to get the function afterwards', async () => {
 			functionName: expectedFunctionName(
 				2048,
 				120,
-				DEFAULT_EPHEMERAL_STORAGE_IN_MB
+				DEFAULT_EPHEMERAL_STORAGE_IN_MB,
 			),
 			memorySizeInMb: 2048,
 			timeoutInSeconds: 120,

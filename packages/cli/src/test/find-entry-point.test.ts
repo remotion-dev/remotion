@@ -5,7 +5,7 @@ import {findEntryPoint} from '../entry-point';
 test('Should accept URL as entry point', () => {
 	const entryPoint = findEntryPoint(
 		['https://www.example.com'],
-		path.resolve(process.cwd(), '..', 'example')
+		path.resolve(process.cwd(), '..', 'example'),
 	);
 
 	expect(entryPoint.file).toBe('https://www.example.com');
@@ -16,11 +16,11 @@ test('Should accept URL as entry point', () => {
 test('Should find entry point automatically', () => {
 	const entryPoint = findEntryPoint(
 		[],
-		path.resolve(process.cwd(), '..', 'example')
+		path.resolve(process.cwd(), '..', 'example'),
 	);
 
 	expect(entryPoint.file).toBe(
-		path.resolve(process.cwd(), '..', 'example/src/index.ts')
+		path.resolve(process.cwd(), '..', 'example/src/index.ts'),
 	);
 	expect(entryPoint.remainingArgs).toEqual([]);
 	expect(entryPoint.reason).toEqual('common paths');
@@ -29,11 +29,11 @@ test('Should find entry point automatically', () => {
 test('Should use explicit entry point', () => {
 	const entryPoint = findEntryPoint(
 		['src/ts-entry.tsx'],
-		path.resolve(process.cwd(), '..', 'example')
+		path.resolve(process.cwd(), '..', 'example'),
 	);
 
 	expect(entryPoint.file).toBe(
-		path.resolve(process.cwd(), '..', 'example/src/ts-entry.tsx')
+		path.resolve(process.cwd(), '..', 'example/src/ts-entry.tsx'),
 	);
 	expect(entryPoint.remainingArgs).toEqual([]);
 	expect(entryPoint.reason).toEqual('argument passed - found in root');

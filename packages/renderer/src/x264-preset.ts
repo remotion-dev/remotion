@@ -13,7 +13,7 @@ export const x264PresetOptions = [
 	'placebo',
 ] as const;
 
-export type X264Preset = typeof x264PresetOptions[number];
+export type X264Preset = (typeof x264PresetOptions)[number];
 
 export const validateSelectedCodecAndPresetCombination = ({
 	codec,
@@ -28,7 +28,7 @@ export const validateSelectedCodecAndPresetCombination = ({
 		codec !== 'h264-mkv'
 	) {
 		throw new TypeError(
-			`You have set a x264 preset but the codec is "${codec}". Set the codec to "h264" or remove the Preset profile.`
+			`You have set a x264 preset but the codec is "${codec}". Set the codec to "h264" or remove the Preset profile.`,
 		);
 	}
 
@@ -39,7 +39,7 @@ export const validateSelectedCodecAndPresetCombination = ({
 		throw new TypeError(
 			`The Preset profile "${x264Preset}" is not valid. Valid options are ${x264PresetOptions
 				.map((p) => `"${p}"`)
-				.join(', ')}`
+				.join(', ')}`,
 		);
 	}
 };

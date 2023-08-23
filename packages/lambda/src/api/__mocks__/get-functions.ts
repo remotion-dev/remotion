@@ -4,6 +4,6 @@ import {getAllMockFunctions} from '../mock-functions';
 
 export const getFunctions: typeof original = ({region, compatibleOnly}) => {
 	return Promise.resolve(
-		getAllMockFunctions(region, compatibleOnly ? VERSION : null)
+		getAllMockFunctions(region, compatibleOnly ? VERSION : null),
 	);
 };

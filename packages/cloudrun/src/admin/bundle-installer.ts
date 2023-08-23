@@ -23,21 +23,21 @@ const bundleInstaller = async () => {
 	const sapermissionsoutfile = path.join(outdir, 'sa-permissions.json');
 	copyFileSync(
 		path.resolve(__dirname, '../shared/sa-permissions.json'),
-		sapermissionsoutfile
+		sapermissionsoutfile,
 	);
 
 	execSync(
 		`tar -cf ../gcpInstaller/gcpInstaller.tar -C . ${path.relative(
 			outdir,
-			bundlemjs
+			bundlemjs,
 		)} ${path.relative(outdir, tfoutfile)} ${path.relative(
 			outdir,
-			sapermissionsoutfile
+			sapermissionsoutfile,
 		)}`,
 		{
 			stdio: 'inherit',
 			cwd: outdir,
-		}
+		},
 	);
 	rmSync(outdir, {recursive: true});
 };

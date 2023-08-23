@@ -17,13 +17,13 @@ describe('Codec tests setCodec', () => {
 		test(`testing with ${entry}`, () => {
 			setCodec(entry);
 			expect(getOutputCodecOrUndefined()).toEqual(entry);
-		})
+		}),
 	);
 	test('setCodec with invalid coded', () => {
 		expectToThrow(
 			// @ts-expect-error
 			() => setCodec('invalid'),
-			/Codec must be one of the following:/
+			/Codec must be one of the following:/,
 		);
 	});
 });

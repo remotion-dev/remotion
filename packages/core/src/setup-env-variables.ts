@@ -19,7 +19,7 @@ const getEnvVariables = (): Record<string, string> => {
 	}
 
 	throw new Error(
-		'Can only call getEnvVariables() if environment is `rendering` or `preview`'
+		'Can only call getEnvVariables() if environment is `rendering` or `preview`',
 	);
 };
 

@@ -71,11 +71,11 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 
 	if (!file) {
 		Log.error(
-			'No Remotion entrypoint was found. Specify an additional argument manually:'
+			'No Remotion entrypoint was found. Specify an additional argument manually:',
 		);
 		Log.error('  npx remotion studio src/index.ts');
 		Log.error(
-			'See https://www.remotion.dev/docs/register-root for more information.'
+			'See https://www.remotion.dev/docs/register-root for more information.',
 		);
 		process.exit(1);
 	}
@@ -157,8 +157,8 @@ export const studioCommand = async (remotionRoot: string, args: string[]) => {
 	if (networkAddress) {
 		setServerReadyComment(
 			`Local: ${chalk.underline(
-				`http://localhost:${port}`
-			)}, Network: ${chalk.underline(`http://${networkAddress}:${port}`)}`
+				`http://localhost:${port}`,
+			)}, Network: ${chalk.underline(`http://${networkAddress}:${port}`)}`,
 		);
 	} else {
 		setServerReadyComment(`http://localhost:${port}`);

@@ -17,7 +17,7 @@ export function taskPrompt(projectID: string) {
 
 				if (answer.trim() === '1') {
 					rl.write(
-						`${colorCode.blueText}<Terraform selected>\n\n${colorCode.resetText}`
+						`${colorCode.blueText}<Terraform selected>\n\n${colorCode.resetText}`,
 					);
 					rl.close();
 					return resolve('runTerraform');
@@ -25,7 +25,7 @@ export function taskPrompt(projectID: string) {
 
 				if (answer.trim() === '2') {
 					rl.write(
-						`${colorCode.blueText}<key management selected>\n\n${colorCode.resetText}`
+						`${colorCode.blueText}<key management selected>\n\n${colorCode.resetText}`,
 					);
 					rl.close();
 					return resolve('generateEnv');
@@ -36,13 +36,13 @@ export function taskPrompt(projectID: string) {
 					`echo "${colorCode.redText}Invalid selection. Please enter 1 or 2.\n${colorCode.resetText}"`,
 					{
 						stdio: 'inherit',
-					}
+					},
 				);
 
 				const result = await taskPrompt(projectID);
 
 				resolve(result);
-			}
+			},
 		);
 	});
 }

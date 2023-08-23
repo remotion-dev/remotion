@@ -80,7 +80,7 @@ export const useMediaInTimeline = ({
 	useEffect(() => {
 		if (typeof volume === 'number' && volume !== initialVolume) {
 			warnOnce(
-				`Remotion: The ${mediaType} with src ${src} has changed it's volume. Prefer the callback syntax for setting volume to get better timeline display: https://www.remotion.dev/docs/using-audio/#controlling-volume`
+				`Remotion: The ${mediaType} with src ${src} has changed it's volume. Prefer the callback syntax for setting volume to get better timeline display: https://www.remotion.dev/docs/using-audio/#controlling-volume`,
 			);
 		}
 	}, [initialVolume, mediaType, src, volume]);
@@ -154,7 +154,7 @@ export const useMediaInTimeline = ({
 
 		return () => {
 			audioAndVideoTags.current = audioAndVideoTags.current.filter(
-				(a) => a.id !== id
+				(a) => a.id !== id,
 			);
 		};
 	}, [audioAndVideoTags, id, mediaRef, mediaType, playing]);

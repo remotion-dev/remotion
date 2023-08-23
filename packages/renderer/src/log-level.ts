@@ -1,6 +1,6 @@
 export const logLevels = ['verbose', 'info', 'warn', 'error'] as const;
 
-export type LogLevel = typeof logLevels[number];
+export type LogLevel = (typeof logLevels)[number];
 
 const getNumberForLogLevel = (level: LogLevel) => {
 	return logLevels.indexOf(level);
@@ -12,7 +12,7 @@ export const isValidLogLevel = (level: string) => {
 
 export const isEqualOrBelowLogLevel = (
 	currentLevel: LogLevel,
-	level: LogLevel
+	level: LogLevel,
 ) => {
 	return getNumberForLogLevel(currentLevel) <= getNumberForLogLevel(level);
 };

@@ -51,7 +51,7 @@ type ErrorData =
 type ConsoleProxyCallback = (data: ErrorData) => void;
 const permanentRegister = function (
 	type: 'error',
-	callback: ConsoleProxyCallback
+	callback: ConsoleProxyCallback,
 ) {
 	if (typeof console !== 'undefined') {
 		const orig = console[type];

@@ -13,20 +13,20 @@ export const extendViewBox = (currentViewBox: string, scale: number) => {
 
 	if (splitted.length !== 4) {
 		throw new Error(
-			`currentViewBox must be 4 valid numbers, but got "${currentViewBox}"`
+			`currentViewBox must be 4 valid numbers, but got "${currentViewBox}"`,
 		);
 	}
 
 	for (const part of splitted) {
 		if (Number.isNaN(part)) {
 			throw new Error(
-				`currentViewBox must be 4 valid numbers, but got "${currentViewBox}"`
+				`currentViewBox must be 4 valid numbers, but got "${currentViewBox}"`,
 			);
 		}
 
 		if (!Number.isFinite(part)) {
 			throw new Error(
-				`currentViewBox must be 4 valid numbers, but got "${currentViewBox}"`
+				`currentViewBox must be 4 valid numbers, but got "${currentViewBox}"`,
 			);
 		}
 	}

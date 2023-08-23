@@ -6,8 +6,8 @@ export const setWebpackPollingInMilliseconds = (interval: number | null) => {
 	if (typeof interval !== 'number' && interval !== null) {
 		throw new TypeError(
 			`Polling must be a number or null, got ${JSON.stringify(
-				interval
-			)} instead.`
+				interval,
+			)} instead.`,
 		);
 	}
 

@@ -44,7 +44,7 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 }) => {
 	const getPercent = useCallback(
 		(value: number) => Math.round(((value - min) / (max - min)) * 100),
-		[min, max]
+		[min, max],
 	);
 
 	const rangeStyle = useMemo((): React.CSSProperties => {
@@ -63,7 +63,7 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 			const value = Math.min(Number(event.target.value), end - 1);
 			onLeftThumbDrag(value);
 		},
-		[end, onLeftThumbDrag]
+		[end, onLeftThumbDrag],
 	);
 
 	const onChangeRight = useCallback(
@@ -71,7 +71,7 @@ export const MultiRangeSlider: FC<MultiRangeSliderProps> = ({
 			const value = Math.max(Number(event.target.value), start + 1);
 			onRightThumbDrag(value);
 		},
-		[onRightThumbDrag, start]
+		[onRightThumbDrag, start],
 	);
 
 	return (

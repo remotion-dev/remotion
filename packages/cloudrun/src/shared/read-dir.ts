@@ -32,13 +32,11 @@ export async function readDirectory({
 		if (fs.lstatSync(filePath).isSymbolicLink()) {
 			const realPath = fs.realpathSync(filePath);
 
-			etags[path.relative(originalDir, filePath)] = await getEtagOfFile(
-				realPath
-			);
+			etags[path.relative(originalDir, filePath)] =
+				await getEtagOfFile(realPath);
 		} else {
-			etags[path.relative(originalDir, filePath)] = await getEtagOfFile(
-				filePath
-			);
+			etags[path.relative(originalDir, filePath)] =
+				await getEtagOfFile(filePath);
 		}
 	}
 

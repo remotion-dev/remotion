@@ -85,7 +85,7 @@ export const lambdaHeadCommand: typeof headOriginal = ({
 };
 
 export const lambdaLs: typeof lsOriginal = (
-	input: LambdaLSInput
+	input: LambdaLSInput,
 ): LambdaLsReturnType => {
 	if (!input) {
 		throw new Error('need to pass input');
@@ -109,6 +109,6 @@ export const lambdaLs: typeof lsOriginal = (
 					Size: size,
 					StorageClass: undefined,
 				};
-			})
+			}),
 	);
 };

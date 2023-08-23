@@ -90,7 +90,7 @@ export const ZodDateEditor: React.FC<{
 			// React does not support e.target.valueAsDate :(
 			setLocalValue(() => new Date(e.target.value), false, false);
 		},
-		[setLocalValue]
+		[setLocalValue],
 	);
 
 	const save = useCallback(() => {

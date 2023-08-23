@@ -62,7 +62,7 @@ export const NotificationCenter: React.FC = () => {
 				addNotification,
 			};
 		},
-		[addNotification]
+		[addNotification],
 	);
 
 	return (

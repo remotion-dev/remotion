@@ -7,14 +7,14 @@ import {useElementSize} from './utils/use-element-size.js';
 const getFrameFromX = (
 	clientX: number,
 	durationInFrames: number,
-	width: number
+	width: number,
 ) => {
 	const pos = clientX;
 	const frame = Math.round(
 		interpolate(pos, [0, width], [0, durationInFrames - 1 ?? 0], {
 			extrapolateLeft: 'clamp',
 			extrapolateRight: 'clamp',
-		})
+		}),
 	);
 	return frame;
 };
@@ -87,7 +87,7 @@ export const PlayerSeekBar: React.FC<{
 			const _frame = getFrameFromX(
 				e.clientX - size.left,
 				durationInFrames,
-				size.width
+				size.width,
 			);
 			pause();
 			seek(_frame);
@@ -97,7 +97,7 @@ export const PlayerSeekBar: React.FC<{
 			});
 			onSeekStart();
 		},
-		[size, durationInFrames, pause, seek, playing, onSeekStart]
+		[size, durationInFrames, pause, seek, playing, onSeekStart],
 	);
 
 	const onPointerMove = useCallback(
@@ -113,11 +113,11 @@ export const PlayerSeekBar: React.FC<{
 			const _frame = getFrameFromX(
 				e.clientX - (size?.left ?? 0),
 				durationInFrames,
-				size.width
+				size.width,
 			);
 			seek(_frame);
 		},
-		[dragging.dragging, durationInFrames, seek, size]
+		[dragging.dragging, durationInFrames, seek, size],
 	);
 
 	const onPointerUp = useCallback(() => {
@@ -143,7 +143,7 @@ export const PlayerSeekBar: React.FC<{
 		}
 
 		const body = findBodyInWhichDivIsLocated(
-			containerRef.current as HTMLElement
+			containerRef.current as HTMLElement,
 		);
 
 		body.addEventListener('pointermove', onPointerMove);
@@ -165,7 +165,7 @@ export const PlayerSeekBar: React.FC<{
 			left: Math.max(
 				0,
 				(frame / Math.max(1, durationInFrames - 1)) * (size?.width ?? 0) -
-					KNOB_SIZE / 2
+					KNOB_SIZE / 2,
 			),
 			boxShadow: '0 0 2px black',
 			opacity: Number(barHovered),

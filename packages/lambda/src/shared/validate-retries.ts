@@ -1,9 +1,9 @@
 export function validateMaxRetries(
-	maxRetries: unknown
+	maxRetries: unknown,
 ): asserts maxRetries is number {
 	if (typeof maxRetries !== 'number') {
 		throw new TypeError(
-			'maxRetries must be a number, but is ' + JSON.stringify(maxRetries)
+			'maxRetries must be a number, but is ' + JSON.stringify(maxRetries),
 		);
 	}
 
@@ -21,7 +21,7 @@ export function validateMaxRetries(
 
 	if (maxRetries % 1 !== 0) {
 		throw new TypeError(
-			`maxRetries should be an integer, but is ${maxRetries}.`
+			`maxRetries should be an integer, but is ${maxRetries}.`,
 		);
 	}
 }

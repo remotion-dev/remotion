@@ -36,7 +36,7 @@ export const deleteRender = async (input: DeleteRenderInput) => {
 	const {key, renderBucketName, customCredentials} = getExpectedOutName(
 		renderMetadata,
 		input.bucketName,
-		input.customCredentials ?? null
+		input.customCredentials ?? null,
 	);
 
 	await lambdaDeleteFile({

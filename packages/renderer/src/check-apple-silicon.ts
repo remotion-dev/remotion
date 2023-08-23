@@ -5,7 +5,7 @@ export const checkNodeVersionAndWarnAboutRosetta = () => {
 
 	if (majorVersion < 16) {
 		throw new Error(
-			`Remotion requires at least Node ${requiredNodeVersion}. You currently have ${process.version}. Update your node version to ${requiredNodeVersion} to use Remotion.`
+			`Remotion requires at least Node ${requiredNodeVersion}. You currently have ${process.version}. Update your node version to ${requiredNodeVersion} to use Remotion.`,
 		);
 	}
 };

@@ -89,7 +89,7 @@ const RemInputForwardRef: React.ForwardRefRenderFunction<
 		() => {
 			return inputRef.current as HTMLInputElement;
 		},
-		[]
+		[],
 	);
 
 	useEffect(() => {

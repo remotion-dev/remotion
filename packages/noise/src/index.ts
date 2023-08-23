@@ -69,7 +69,7 @@ const generate4DNoise = (seed: string | number) => {
 export const noise2D = (
 	seed: string | number,
 	x: number,
-	y: number
+	y: number,
 ): number => {
 	return generate2DNoise(seed)(x, y);
 };
@@ -87,7 +87,7 @@ export const noise3D = (
 	seed: string | number,
 	x: number,
 	y: number,
-	z: number
+	z: number,
 ): number => generate3DNoise(random(seed))(x, y, z);
 
 /**
@@ -105,6 +105,6 @@ export const noise4D = (
 	x: number,
 	y: number,
 	z: number,
-	w: number
+	w: number,
 	// eslint-disable-next-line max-params
 ): number => generate4DNoise(random(seed))(x, y, z, w);

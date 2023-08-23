@@ -33,7 +33,7 @@ export const Faces: React.FC<
             {sortedFaces.map(
               (
                 { points, color, strokeWidth, strokeColor, crispEdges },
-                idx
+                idx,
               ) => {
                 return (
                   <Face
@@ -47,7 +47,7 @@ export const Faces: React.FC<
                     {...svgProps}
                   />
                 );
-              }
+              },
             )}
           </React.Fragment>
         );

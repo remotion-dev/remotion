@@ -25,7 +25,7 @@ export const SchemaEditor: React.FC<{
 	zodValidationResult: z.SafeParseReturnType<unknown, unknown>;
 	defaultProps: Record<string, unknown>;
 	onSave: (
-		updater: (oldState: Record<string, unknown>) => Record<string, unknown>
+		updater: (oldState: Record<string, unknown>) => Record<string, unknown>,
 	) => void;
 	showSaveButton: boolean;
 	saving: boolean;
@@ -115,8 +115,8 @@ export const SchemaEditor: React.FC<{
 				onSave={
 					onSave as (
 						newValue: (
-							oldVal: Record<string, unknown>
-						) => Record<string, unknown>
+							oldVal: Record<string, unknown>,
+						) => Record<string, unknown>,
 					) => void
 				}
 				showSaveButton={showSaveButton}

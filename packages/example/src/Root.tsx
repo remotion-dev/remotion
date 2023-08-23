@@ -114,7 +114,7 @@ export const Index: React.FC = () => {
 			'Hello World Promise',
 			new Promise<void>((resolve) => {
 				resolve();
-			})
+			}),
 		);
 		shouldLog('Hello World Proxy', new Proxy(document, {}));
 		shouldLog('Hello World RegExp', /abc/);
@@ -912,7 +912,7 @@ export const Index: React.FC = () => {
 							union: z.null().or(
 								z.object({
 									abc: z.string(),
-								})
+								}),
 							),
 							jkl: z.string(),
 							def: z.object({
@@ -925,7 +925,7 @@ export const Index: React.FC = () => {
 								z.object({
 									a: z.string(),
 									b: z.string(),
-								})
+								}),
 							)
 							.min(2),
 						array2: z.array(z.array(z.number())),

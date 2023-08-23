@@ -39,7 +39,7 @@ export const lambdaLs = async ({
 				Prefix: prefix,
 				ExpectedBucketOwner: expectedBucketOwner ?? undefined,
 				ContinuationToken: continuationToken,
-			})
+			}),
 		);
 		if (list.NextContinuationToken) {
 			return [
@@ -66,10 +66,10 @@ export const lambdaLs = async ({
 				new ListObjectsV2Command({
 					Bucket: bucketName,
 					Prefix: prefix,
-				})
+				}),
 			);
 			throw new Error(
-				`Bucket owner mismatch: Expected the bucket ${bucketName} to be owned by you (AWS Account ID: ${expectedBucketOwner}) but it's not the case. Did you accidentially specify the wrong bucket?`
+				`Bucket owner mismatch: Expected the bucket ${bucketName} to be owned by you (AWS Account ID: ${expectedBucketOwner}) but it's not the case. Did you accidentially specify the wrong bucket?`,
 			);
 		}
 
@@ -92,7 +92,7 @@ export const lambdaDeleteFile = async ({
 		new DeleteObjectCommand({
 			Bucket: bucketName,
 			Key: key,
-		})
+		}),
 	);
 };
 
@@ -133,14 +133,14 @@ export const tryLambdaWriteFile = async ({
 				: expectedBucketOwner ?? undefined,
 			ContentType: mimeTypes.lookup(key) || 'application/octet-stream',
 			ContentDisposition: getContentDispositionHeader(downloadBehavior),
-		})
+		}),
 	);
 };
 
 export const lambdaWriteFile = async (
 	params: LambdaWriteFileInput & {
 		retries?: number;
-	}
+	},
 ): Promise<void> => {
 	const remainingRetries = params.retries ?? 2;
 	try {
@@ -182,7 +182,7 @@ export const lambdaReadFile = async ({
 			Bucket: bucketName,
 			Key: key,
 			ExpectedBucketOwner: expectedBucketOwner,
-		})
+		}),
 	);
 	return Body as Readable;
 };
@@ -203,7 +203,7 @@ export const lambdaHeadCommand = async ({
 		new HeadObjectCommand({
 			Bucket: bucketName,
 			Key: key,
-		})
+		}),
 	);
 	return head;
 };

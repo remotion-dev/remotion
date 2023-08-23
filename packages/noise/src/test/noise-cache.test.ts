@@ -18,7 +18,7 @@ if (typeof performance === 'undefined') {
 			expect(noise3D('my-seed', 0.7, 0.5, 0.5)).toBe(0.6402128434567901);
 			expect(noise4D('my-seed', 0.7, 0.5, 0.5, 0.9)).toBe(0.2714290963058814);
 		},
-		{retry: 2}
+		{retry: 2},
 	);
 
 	test(
@@ -35,7 +35,7 @@ if (typeof performance === 'undefined') {
 			const time2 = end2 - start2;
 			expect(time2 * 10).toBeLessThan(time);
 		},
-		{retry: 2}
+		{retry: 2},
 	);
 
 	test(
@@ -66,7 +66,7 @@ if (typeof performance === 'undefined') {
 		},
 		{
 			retry: 2,
-		}
+		},
 	);
 
 	test(
@@ -95,7 +95,7 @@ if (typeof performance === 'undefined') {
 			const time2 = end2 - start2;
 			expect(time2 * 4).toBeGreaterThan(time);
 		},
-		{retry: 2}
+		{retry: 2},
 	);
 
 	test(
@@ -126,6 +126,6 @@ if (typeof performance === 'undefined') {
 		},
 		{
 			retry: 2,
-		}
+		},
 	);
 }

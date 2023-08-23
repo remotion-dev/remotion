@@ -26,7 +26,7 @@ export const RenderQueueOpenInFinderItem: React.FC<{job: RenderJob}> = ({
 		(color) => {
 			return <ExpandedFolderIconSolid style={icon} color={color} />;
 		},
-		[icon]
+		[icon],
 	);
 
 	return <InlineAction renderAction={renderAction} onClick={onClick} />;

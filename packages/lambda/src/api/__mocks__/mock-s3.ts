@@ -56,7 +56,7 @@ export const readMockS3File = ({
 	bucketName: string;
 }) => {
 	return mockS3Store.find(
-		(s) => s.key === key && s.region === region && s.bucketName === bucketName
+		(s) => s.key === key && s.region === region && s.bucketName === bucketName,
 	);
 };
 
@@ -68,7 +68,7 @@ export const getS3FilesInBucket = ({
 	region: string;
 }) => {
 	return mockS3Store.filter(
-		(s) => s.bucketName === bucketName && s.region === region
+		(s) => s.bucketName === bucketName && s.region === region,
 	);
 };
 
@@ -83,6 +83,6 @@ export const mockDeleteS3File = ({
 }) => {
 	mockS3Store = mockS3Store.filter(
 		(s) =>
-			!(s.bucketName === bucketName && s.key === key && s.region === region)
+			!(s.bucketName === bucketName && s.key === key && s.region === region),
 	);
 };

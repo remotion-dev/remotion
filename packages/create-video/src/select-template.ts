@@ -18,8 +18,8 @@ function padEnd(str: string, width: number): string {
 const descriptionColumn =
 	Math.max(
 		...FEATURED_TEMPLATES.map((t) =>
-			typeof t === 'object' ? t.shortName.length : 0
-		)
+			typeof t === 'object' ? t.shortName.length : 0,
+		),
 	) + 2;
 
 export const selectTemplate = async () => {
@@ -48,7 +48,7 @@ export const selectTemplate = async () => {
 				};
 			}),
 		},
-		{}
+		{},
 	)) as Template;
 	return selectedTemplate;
 };
