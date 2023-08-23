@@ -75,6 +75,10 @@ This flow is highly customizable. Click on one of the SSR APIs to read about it'
 - [`stitchFramesToVideo()`](/docs/renderer/stitch-frames-to-video) - Encode a video based on an image sequence
 - [`openBrowser()`](/docs/renderer/open-browser) - Share a browser instance across function calls for improved performance.
 
+:::note
+If you are using Next.js, you will not be able to use `@remotion/bundler` because of the limitations explained in [Can I render videos in Next.js?](https://www.remotion.dev/docs/miscellaneous/vercel-functions#can-i-render-videos-in-nextjs) Refer to the page for possible alternatives. 
+:::
+
 ## Render using GitHub Actions
 
 The [Hello World starter template](https://github.com/remotion-dev/template-helloworld) includes a GitHub Actions workflow file [`.github/workflows/render-video.yml`](https://github.com/remotion-dev/template-helloworld/blob/main/.github/workflows/render-video.yml).

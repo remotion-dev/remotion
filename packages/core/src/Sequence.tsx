@@ -34,7 +34,13 @@ export type SequenceProps = {
 	from?: number;
 	durationInFrames?: number;
 	name?: string;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	showInTimeline?: boolean;
+	/**
+	 * @deprecated For internal use only.
+	 */
 	loopDisplay?: LoopDisplay;
 } & LayoutAndStyle;
 

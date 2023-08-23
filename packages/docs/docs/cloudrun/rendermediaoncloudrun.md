@@ -137,6 +137,12 @@ _optional_
 
 See [`renderMedia() -> proResProfile`](/docs/renderer/render-media#proresprofile).
 
+_optional_
+
+### `x264Preset?`
+
+See [`renderMedia() -> x264Preset`](/docs/renderer/render-media#x264Preset).
+
 ### `crf?`
 
 _optional_

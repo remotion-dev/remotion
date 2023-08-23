@@ -6,7 +6,7 @@ cd ..
 cd cloudrun
 pnpm run buildContainer
 cd container
-node submit.mjs
+ARTIFACT_REGISTRY_ENV=development node submit.mjs
 cd ..
 cd ..
 cd example

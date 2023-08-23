@@ -5,6 +5,7 @@ import {Internals} from 'remotion';
 import {downloadFile} from '../../api/download-file';
 import {renderStillOnCloudrun} from '../../api/render-still-on-cloudrun';
 import {validateServeUrl} from '../../shared/validate-serveurl';
+import {displayCrashLogs} from '../helpers/cloudrun-crash-logs';
 import {Log} from '../log';
 import {renderArgsCheck} from './render/helpers/renderArgsCheck';
 
@@ -156,34 +157,38 @@ ${downloadName ? `    Downloaded File = ${downloadName}` : ''}
 		logLevel: ConfigInternals.Logging.getLogLevel(),
 		delayRenderTimeoutInMilliseconds: puppeteerTimeout,
 	});
-	doneIn = Date.now() - renderStart;
-	updateProgress(true);
-
-	Log.info(
-		CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`)
-	);
-	Log.info(CliInternals.chalk.gray(`Render ID = ${res.renderId}`));
-	Log.info(
-		CliInternals.chalk.gray(
-			`${Math.round(Number(res.size) / 1000)} KB, Privacy: ${
-				res.privacy
-			}, Bucket: ${res.bucketName}`
-		)
-	);
-	Log.info(CliInternals.chalk.blue(`○ ${res.publicUrl}`));
-
-	if (downloadName) {
-		Log.info('');
-		Log.info('downloading file...');
-
-		const {outputPath: destination} = await downloadFile({
-			bucketName: res.bucketName,
-			gsutilURI: res.cloudStorageUri,
-			downloadName,
-		});
+	if (res.type === 'crash') {
+		displayCrashLogs(res);
+	} else if (res.type === 'success') {
+		doneIn = Date.now() - renderStart;
+		updateProgress(true);
 
 		Log.info(
-			CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
+			CliInternals.chalk.gray(`Cloud Storage Uri = ${res.cloudStorageUri}`)
 		);
+		Log.info(CliInternals.chalk.gray(`Render ID = ${res.renderId}`));
+		Log.info(
+			CliInternals.chalk.gray(
+				`${Math.round(Number(res.size) / 1000)} KB, Privacy: ${
+					res.privacy
+				}, Bucket: ${res.bucketName}`
+			)
+		);
+		Log.info(CliInternals.chalk.blue(`○ ${res.publicUrl}`));
+
+		if (downloadName) {
+			Log.info('');
+			Log.info('downloading file...');
+
+			const {outputPath: destination} = await downloadFile({
+				bucketName: res.bucketName,
+				gsutilURI: res.cloudStorageUri,
+				downloadName,
+			});
+
+			Log.info(
+				CliInternals.chalk.blueBright(`Downloaded file to ${destination}!`)
+			);
+		}
 	}
 };

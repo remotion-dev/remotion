@@ -227,7 +227,7 @@ const innerStillHandler = async ({
 	]);
 
 	const estimatedPrice = estimatePrice({
-		durationInMiliseconds: Date.now() - start + 100,
+		durationInMilliseconds: Date.now() - start + 100,
 		memorySizeInMb: Number(process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE),
 		region: getCurrentRegionInFunction(),
 		lambdasInvoked: 1,
