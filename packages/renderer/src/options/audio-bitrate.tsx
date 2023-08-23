@@ -1,5 +1,4 @@
 import {AnyRemotionOption} from './option';
-import { z } from 'zod';
 
 export const audioBitrateOption = {
 	name: 'Audio Bitrate',
@@ -15,5 +14,5 @@ export const audioBitrateOption = {
 	),
 	ssrName: 'audioBitrate',
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#audiobitrate-',
-	type: z.string()
+	type: '0' as string,
 } satisfies AnyRemotionOption;

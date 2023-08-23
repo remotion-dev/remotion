@@ -1,5 +1,4 @@
 import {AnyRemotionOption} from './option';
-import { z } from 'zod';
 
 export const enforceAudioOption = {
 	name: 'Enforce Audio Track',
@@ -9,5 +8,5 @@ export const enforceAudioOption = {
 	),
 	ssrName: 'enforceAudioTrack',
 	docLink: 'https://www.remotion.dev/docs/config#setenforceaudiotrack-',
-	type: z.boolean(),
+	type: false as boolean,
 } satisfies AnyRemotionOption;

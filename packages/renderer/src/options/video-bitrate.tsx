@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import {AnyRemotionOption} from './option';
 
 export const videoBitrate = {
@@ -14,5 +13,5 @@ export const videoBitrate = {
 	),
 	ssrName: 'videoBitrate',
 	docLink: 'https://www.remotion.dev/docs/renderer/render-media#videobitrate-',
-	type: z.string(),
+	type: '' as string,
 } satisfies AnyRemotionOption;

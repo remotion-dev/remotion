@@ -1,5 +1,4 @@
 import {AnyRemotionOption} from './option';
-import { z } from 'zod';
 
 export const scaleOption = {
 	name: 'Scale',
@@ -13,5 +12,5 @@ export const scaleOption = {
 	),
 	ssrName: 'scale',
 	docLink: 'https://www.remotion.dev/docs/scaling',
-	type: z.number()
+	type: 0 as number,
 } satisfies AnyRemotionOption;
