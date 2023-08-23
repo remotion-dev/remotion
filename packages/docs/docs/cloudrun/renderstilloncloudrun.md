@@ -182,7 +182,7 @@ _optional_
 
 A number describing how long the render may take to resolve all [`delayRender()`](/docs/delay-render) calls [before it times out](/docs/timeout). Default: `30000`
 
-### `offthreadVideoCacheSize?`<AvailableFrom v="4.0.23"/>
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 

@@ -275,7 +275,7 @@ Render a silent audio track if there wouldn't be any otherwise.
 
 Uses a lossless audio codec, if one is available for the codec. If you set audioCodec, it takes priority over preferLossless.
 
-### `offthreadVideoCacheSize?`<AvailableFrom v="4.0.23"/>
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
 
 <Options id="offthreadvideo-cache-size-in-bytes" />
 
