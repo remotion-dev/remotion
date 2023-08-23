@@ -125,6 +125,10 @@ Accepted values:
 
 Lets you set a custom user agent that the headless Chrome browser assumes.
 
+### `--offthreadvideo-cache-size`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size" />
+
 ### ~~`--ffmpeg-executable`~~
 
 _removed in v4.0_
