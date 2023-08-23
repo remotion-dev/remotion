@@ -32,7 +32,7 @@ export const serveStatic = async (
 		concurrency: options.concurrency,
 		logLevel: options.logLevel,
 		indent: options.indent,
-		offthreadVideoCacheSize: options.offthreadVideoCacheSizeInBytes,
+		offthreadVideoCacheSizeInBytes: options.offthreadVideoCacheSizeInBytes,
 	});
 
 	const connections: Record<string, Socket> = {};

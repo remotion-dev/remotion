@@ -87,7 +87,10 @@ import {getMuted, setMuted} from './muted';
 import type {Loop} from './number-of-gif-loops';
 import {getNumberOfGifLoops, setNumberOfGifLoops} from './number-of-gif-loops';
 import {setNumberOfSharedAudioTags} from './number-of-shared-audio-tags';
-import {getOffthreadVideoCacheSizeInBytes} from './offthread-video-cache-size';
+import {
+	getOffthreadVideoCacheSizeInBytes,
+	setOffthreadVideoCacheSizeInBytes,
+} from './offthread-video-cache-size';
 import {getShouldOpenBrowser, setShouldOpenBrowser} from './open-browser';
 import {setOutputLocation} from './output-location';
 import type {WebpackOverrideFn} from './override-webpack';
@@ -400,6 +403,7 @@ type FlatConfig = RemotionConfigObject &
 		 * See the Encoding guide in the docs for defaults and available options.
 		 */
 		setAudioCodec: (codec: 'pcm-16' | 'aac' | 'mp3' | 'opus') => void;
+		setOffthreadVideoCacheSizeInBytes: (size: number | null) => void;
 		/**
 		 * @deprecated 'The config format has changed. Change `Config.Bundling.*()` calls to `Config.*()` in your config file.'
 		 */
@@ -511,6 +515,7 @@ export const Config: FlatConfig = {
 	overrideWidth,
 	overrideFfmpegCommand: setFfmpegOverrideFunction,
 	setAudioCodec,
+	setOffthreadVideoCacheSizeInBytes,
 };
 
 export type {Concurrency, WebpackConfiguration, WebpackOverrideFn};

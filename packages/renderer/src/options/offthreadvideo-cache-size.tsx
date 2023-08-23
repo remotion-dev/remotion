@@ -1,6 +1,6 @@
 import {AnyRemotionOption} from './option';
 
-export const offthreadVideoCacheSizeOption = {
+export const offthreadVideoCacheSizeInBytesOption = {
 	name: 'OffthreadVideo cache size',
 	cliFlag: 'offthreadvideo-cache-size-in-bytes' as const,
 	description: (
@@ -23,7 +23,7 @@ export const offthreadVideoCacheSizeOption = {
 	type: 0 as number | null,
 } satisfies AnyRemotionOption;
 
-export const validateOffthreadVideoCacheSize = (option: unknown) => {
+export const validateOffthreadVideoCacheSizeInBytes = (option: unknown) => {
 	if (option === undefined || option === null) {
 		return;
 	}

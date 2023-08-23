@@ -1,14 +1,14 @@
-import {offthreadVideoCacheSizeOption} from './offthreadvideo-cache-size';
+import {offthreadVideoCacheSizeInBytesOption} from './offthreadvideo-cache-size';
 
 export const optionsMap = {
-	renderMedia: [offthreadVideoCacheSizeOption],
-	renderStill: [offthreadVideoCacheSizeOption],
-	getCompositions: [offthreadVideoCacheSizeOption],
-	selectComposition: [offthreadVideoCacheSizeOption],
-	renderFrames: [offthreadVideoCacheSizeOption],
-	renderMediaOnLambda: [offthreadVideoCacheSizeOption],
-	renderStillOnLambda: [offthreadVideoCacheSizeOption],
-	getCompositionsOnLambda: [offthreadVideoCacheSizeOption],
-	renderMediaOnCloudRun: [offthreadVideoCacheSizeOption],
-	renderStillOnCloudRun: [offthreadVideoCacheSizeOption],
+	renderMedia: [offthreadVideoCacheSizeInBytesOption],
+	renderStill: [offthreadVideoCacheSizeInBytesOption],
+	getCompositions: [offthreadVideoCacheSizeInBytesOption],
+	selectComposition: [offthreadVideoCacheSizeInBytesOption],
+	renderFrames: [offthreadVideoCacheSizeInBytesOption],
+	renderMediaOnLambda: [offthreadVideoCacheSizeInBytesOption],
+	renderStillOnLambda: [offthreadVideoCacheSizeInBytesOption],
+	getCompositionsOnLambda: [offthreadVideoCacheSizeInBytesOption],
+	renderMediaOnCloudRun: [offthreadVideoCacheSizeInBytesOption],
+	renderStillOnCloudRun: [offthreadVideoCacheSizeInBytesOption],
 } as const;
