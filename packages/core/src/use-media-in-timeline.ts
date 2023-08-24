@@ -2,7 +2,7 @@ import type {RefObject} from 'react';
 import {useContext, useEffect, useMemo, useState} from 'react';
 import {useMediaStartsAt} from './audio/use-audio-frame.js';
 import {getAssetDisplayName} from './get-asset-file-name.js';
-import {getRemotionEnvironment} from './get-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {useNonce} from './nonce.js';
 import {playAndHandleNotAllowedError} from './play-and-handle-not-allowed-error.js';
 import {SequenceContext} from './SequenceContext.js';

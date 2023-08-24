@@ -1,4 +1,4 @@
-import {getRemotionEnvironment} from './get-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 
 const getEnvVariables = (): Record<string, string> => {
 	if (getRemotionEnvironment().isRendering) {
