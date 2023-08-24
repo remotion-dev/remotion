@@ -2,7 +2,15 @@ import {chalk} from './chalk';
 import {Log} from './logger';
 import {truthy} from './truthy';
 
+const alreadyPrinted: Error[] = [];
+
 export const printUsefulErrorMessage = (err: Error) => {
+	if (alreadyPrinted.includes(err)) {
+		return;
+	}
+
+	alreadyPrinted.push(err);
+
 	if (err.message.includes('Could not play video with')) {
 		Log.info();
 		Log.info(

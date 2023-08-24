@@ -5,7 +5,7 @@ import type {
 	ToOptions,
 } from '@remotion/renderer';
 import {RenderInternals} from '@remotion/renderer';
-import type {BrowserSafeApis} from '@remotion/renderer/client';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {Internals} from 'remotion';
 import type {
 	CloudRunCrashResponse,
@@ -67,7 +67,7 @@ export type RenderStillOnCloudrunInput = {
  * @returns {Promise<RenderStillOnCloudrunOutput>} See documentation for detailed structure
  */
 
-export const renderStillOnCloudrun = async ({
+const renderStillOnCloudrunRaw = async ({
 	cloudRunUrl,
 	serviceName,
 	region,
@@ -203,3 +203,7 @@ export const renderStillOnCloudrun = async ({
 
 	return renderResponse;
 };
+
+export const renderStillOnCloudrun = BrowserSafeApis.wrapWithErrorHandling(
+	renderStillOnCloudrunRaw
+) as typeof renderStillOnCloudrunRaw;
