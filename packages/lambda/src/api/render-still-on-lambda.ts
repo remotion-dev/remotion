@@ -4,8 +4,7 @@ import type {
 	StillImageFormat,
 	ToOptions,
 } from '@remotion/renderer';
-import type {BrowserSafeApis} from '@remotion/renderer/client';
-import {wrapWithErrorHandling} from '@remotion/renderer/src/wrap-with-error-handling';
+import {BrowserSafeApis} from '@remotion/renderer/client';
 import {VERSION} from 'remotion/version';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
@@ -189,6 +188,6 @@ const renderStillOnLambdaRaw = async ({
  * @param params.privacy Whether the item in the S3 bucket should be public. Possible values: `"private"` and `"public"`
  * @returns {Promise<RenderStillOnLambdaOutput>} See documentation for exact response structure.
  */
-export const renderStillOnLambda = wrapWithErrorHandling(
+export const renderStillOnLambda = BrowserSafeApis.wrapWithErrorHandling(
 	renderStillOnLambdaRaw
 ) as typeof renderStillOnLambdaRaw;
