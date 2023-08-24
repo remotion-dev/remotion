@@ -14,7 +14,7 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
 import {continueRender, delayRender} from '../delay-render.js';
-import {useRemotionEnvironment} from '../get-environment.js';
+import {useRemotionEnvironment} from '../get-remotion-environment.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {random} from '../random.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';

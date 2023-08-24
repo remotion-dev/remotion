@@ -10,7 +10,7 @@ import {
 import {CompositionManager} from './CompositionManagerContext.js';
 import {continueRender, delayRender} from './delay-render.js';
 import {FolderContext} from './Folder.js';
-import {useRemotionEnvironment} from './get-environment.js';
+import {useRemotionEnvironment} from './get-remotion-environment.js';
 import {Loading} from './loading-indicator.js';
 import {NativeLayersContext} from './NativeLayers.js';
 import {useNonce} from './nonce.js';

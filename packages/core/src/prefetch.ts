@@ -1,5 +1,5 @@
 import {useContext} from 'react';
-import {getRemotionEnvironment} from './get-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {PreloadContext, setPreloads} from './prefetch-state.js';
 
 export const usePreload = (src: string): string => {
