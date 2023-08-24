@@ -133,17 +133,16 @@ export const experts: Expert[] = [
         I made:{" "}
         <a
           target={"_blank"}
-          href="https://satelllte.notion.site/Remotion-Showcase-5783389861504a5ea2a39fc6fb16c0c8#4f76cb43a15342bda167e0e9a0553895"
+          href="https://github.com/satelllte/remotion-audio-visualizer"
         >
-          Music visualizations
+          Minimalistic audio visualizations
         </a>
-        !<br />
-        Check out my{" "}
+        {" and "}
         <a
           target={"_blank"}
-          href="https://satelllte.notion.site/Remotion-Showcase-5783389861504a5ea2a39fc6fb16c0c8"
+          href="https://github.com/satelllte/remotion-template"
         >
-          Remotion portfolio
+          Template for crafting programmatic videos
         </a>
         .
       </div>
