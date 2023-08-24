@@ -3,7 +3,7 @@ import {AnyRemotionOption} from './option';
 export const videoBitrate = {
 	name: 'Video Bitrate',
 	cliFlag: '--video-bitrate',
-	description: (
+	description: () => (
 		<>
 			Specify the target bitrate for the generated video. The syntax for FFMPEGs
 			<code>-b:v</code> parameter should be used. FFMPEG may encode the video in

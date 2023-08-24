@@ -25,6 +25,7 @@ import {optionsMap} from './options/options-map';
 import {scaleOption} from './options/scale';
 import {videoBitrate} from './options/video-bitrate';
 import {videoCodecOption} from './options/video-codec';
+import {webhookCustomDataOption} from './options/webhook-custom-data';
 import {DEFAULT_PIXEL_FORMAT, validPixelFormats} from './pixel-format';
 import {proResProfileOptions} from './prores-profile';
 import {validateOutputFilename} from './validate-output-filename';
@@ -56,6 +57,7 @@ export const BrowserSafeApis = {
 		muteOption,
 		videoCodecOption,
 		offthreadVideoCacheSizeInBytesOption,
+		webhookCustomDataOption,
 	},
 	optionsMap,
 	codecSupportsCrf,

@@ -12,7 +12,7 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import type {OutNameInput, Privacy} from '../shared/constants';
+import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
@@ -54,10 +54,7 @@ export type RenderMediaOnLambdaInput = {
 	overwrite?: boolean;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	webhook?: {
-		url: string;
-		secret: string | null;
-	};
+	webhook?: WebhookOption | null;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	rendererFunctionName?: string | null;
@@ -111,6 +108,7 @@ export const renderMediaOnLambda = async (
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
 		});
+
 		return {
 			renderId: res.renderId,
 			bucketName: res.bucketName,

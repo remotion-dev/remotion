@@ -71,7 +71,7 @@ export const OptionExplainer: React.FC<{
 						Docs
 					</a>
 				</div>
-				<div style={description}>{option.description}</div>
+				<div style={description}>{option.description('ssr')}</div>
 			</div>
 			<Spacing y={0.5} block />
 			<MenuDivider />
