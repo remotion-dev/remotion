@@ -1,9 +1,9 @@
-import {chalk} from './chalk';
 import {Log} from './logger';
 import {truthy} from './truthy';
 
 const alreadyPrinted: Error[] = [];
 
+// Don't use Log.info() here, as BrowserSafeApis need tto be
 export const printUsefulErrorMessage = (err: Error) => {
 	if (alreadyPrinted.includes(err)) {
 		return;
@@ -53,9 +53,7 @@ export const printUsefulErrorMessage = (err: Error) => {
 	if (err.message.includes('The bucket does not allow ACLs')) {
 		Log.info();
 		Log.info(
-			chalk.green(
-				'💡 Fix this issue https://remotion.dev/docs/lambda/troubleshooting/bucket-disallows-acl',
-			),
+			'💡 Fix for this issue: https://remotion.dev/docs/lambda/troubleshooting/bucket-disallows-acl',
 		);
 	}
 
