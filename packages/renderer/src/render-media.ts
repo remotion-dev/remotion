@@ -694,7 +694,9 @@ const internalRenderMediaRaw = ({
 	]);
 };
 
-const internalRenderMedia = wrapWithErrorHandling(internalRenderMediaRaw);
+export const internalRenderMedia = wrapWithErrorHandling(
+	internalRenderMediaRaw
+);
 
 /**
  *
