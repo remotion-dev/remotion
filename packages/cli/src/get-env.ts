@@ -70,7 +70,13 @@ const getEnvForEnvFile = async (
 	try {
 		const envFileData = await fs.promises.readFile(envFile);
 		if (onUpdate) {
-			watchEnvFile({processEnv, envFile, onUpdate});
+			if (typeof fs.watchFile === 'undefined') {
+				Log.warn(
+					'Unsupported feature (fs.watchFile): .env file will not hot reload.',
+				);
+			} else {
+				watchEnvFile({processEnv, envFile, onUpdate});
+			}
 		}
 
 		return {
@@ -121,11 +127,15 @@ export const getEnvironmentVariables = (
 	const defaultEnvFile = path.resolve(remotionRoot, '.env');
 	if (!fs.existsSync(defaultEnvFile)) {
 		if (onUpdate) {
-			watchEnvFile({
-				processEnv,
-				envFile: defaultEnvFile,
-				onUpdate,
-			});
+			if (typeof fs.watchFile === 'undefined') {
+				Log.warn('Unsupported Bun feature: .env file will not hot reload.');
+			} else {
+				watchEnvFile({
+					processEnv,
+					envFile: defaultEnvFile,
+					onUpdate,
+				});
+			}
 		}
 
 		return Promise.resolve(processEnv);
