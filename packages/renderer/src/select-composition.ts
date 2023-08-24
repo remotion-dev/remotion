@@ -167,7 +167,7 @@ type InternalReturnType = {
 	propsSize: number;
 };
 
-const internalSelectCompositionRaw = async (
+export const internalSelectCompositionRaw = async (
 	options: InternalSelectCompositionsConfig
 ): Promise<InternalReturnType> => {
 	const cleanup: CleanupFn[] = [];
@@ -263,7 +263,7 @@ const internalSelectCompositionRaw = async (
 	});
 };
 
-const internalSelectComposition = wrapWithErrorHandling(
+export const internalSelectComposition = wrapWithErrorHandling(
 	internalSelectCompositionRaw
 );
 

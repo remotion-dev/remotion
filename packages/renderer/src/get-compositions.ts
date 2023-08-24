@@ -230,7 +230,7 @@ const internalGetCompositionsRaw = async ({
 	});
 };
 
-const internalGetCompositions = BrowserSafeApis.wrapWithErrorHandling(
+export const internalGetCompositions = BrowserSafeApis.wrapWithErrorHandling(
 	internalGetCompositionsRaw
 );
 
