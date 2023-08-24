@@ -1,4 +1,4 @@
-import {getUsefulErrorMessage} from './get-useful-error-message';
+import {printUsefulErrorMessage} from './print-useful-error-message';
 
 type AsyncFunction<A extends unknown[], R> = (...args: A) => Promise<R>;
 
@@ -9,7 +9,7 @@ export const wrapWithErrorHandling = <A extends unknown[], R>(
 		try {
 			return await fn(...args);
 		} catch (err) {
-			getUsefulErrorMessage(err as Error);
+			printUsefulErrorMessage(err as Error);
 			throw err;
 		}
 	};

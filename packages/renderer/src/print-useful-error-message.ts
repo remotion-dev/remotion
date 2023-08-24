@@ -2,7 +2,7 @@ import {chalk} from './chalk';
 import {Log} from './logger';
 import {truthy} from './truthy';
 
-export const getUsefulErrorMessage = (err: Error) => {
+export const printUsefulErrorMessage = (err: Error) => {
 	if (err.message.includes('Could not play video with')) {
 		Log.info();
 		Log.info(
