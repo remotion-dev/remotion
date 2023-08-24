@@ -13,7 +13,7 @@ import type {AnyComposition} from './CompositionManager.js';
 import {CompositionManager} from './CompositionManagerContext.js';
 import {getInputProps} from './config/input-props.js';
 import {EditorPropsContext} from './EditorProps.js';
-import {getRemotionEnvironment} from './get-remotion-environment.js';
+import {getRemotionEnvironment} from './get-environment.js';
 import {resolveVideoConfig} from './resolve-video-config.js';
 import type {VideoConfig} from './video-config.js';
 

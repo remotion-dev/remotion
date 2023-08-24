@@ -1,5 +1,5 @@
 import React, {useCallback} from 'react';
-import {useRemotionEnvironment} from '../get-remotion-environment.js';
+import {useRemotionEnvironment} from '../get-environment.js';
 import {Sequence} from '../Sequence.js';
 import {validateMediaProps} from '../validate-media-props.js';
 import {validateStartFromProps} from '../validate-start-from-props.js';
