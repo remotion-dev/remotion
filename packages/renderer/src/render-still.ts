@@ -37,6 +37,11 @@ import {seekToFrame} from './seek-to-frame';
 import {setPropsAndEnv} from './set-props-and-env';
 import type {AnySourceMapConsumer} from './symbolicate-stacktrace';
 import {takeFrameAndCompose} from './take-frame-and-compose';
+import {
+	validateDimension,
+	validateDurationInFrames,
+	validateFps,
+} from './validate';
 import {validatePuppeteerTimeout} from './validate-puppeteer-timeout';
 import {validateScale} from './validate-scale';
 
@@ -136,22 +141,23 @@ const innerRenderStill = async ({
 	compositor: Compositor;
 	sourceMapContext: Promise<AnySourceMapConsumer | null>;
 }): Promise<RenderStillReturnValue> => {
-	Internals.validateDimension(
+	validateDimension(
 		composition.height,
 		'height',
 		'in the `config` object passed to `renderStill()`',
 	);
-	Internals.validateDimension(
+
+	validateDimension(
 		composition.width,
 		'width',
 		'in the `config` object passed to `renderStill()`',
 	);
-	Internals.validateFps(
+	validateFps(
 		composition.fps,
 		'in the `config` object of `renderStill()`',
 		false,
 	);
-	Internals.validateDurationInFrames(composition.durationInFrames, {
+	validateDurationInFrames(composition.durationInFrames, {
 		component: 'in the `config` object passed to `renderStill()`',
 		allowFloats: false,
 	});

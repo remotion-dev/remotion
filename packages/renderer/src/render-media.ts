@@ -55,6 +55,7 @@ import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {internalRenderFrames} from './render-frames';
 import {internalStitchFramesToVideo} from './stitch-frames-to-video';
 import type {OnStartData} from './types';
+import {validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateEveryNthFrame} from './validate-every-nth-frame';
 import {validateFfmpegOverride} from './validate-ffmpeg-override';
@@ -401,7 +402,8 @@ export const internalRenderMedia = ({
 		ensureFramesInOrder(realFrameRange);
 
 	const fps = composition.fps / everyNthFrame;
-	Internals.validateFps(fps, 'in "renderMedia()"', codec === 'gif');
+
+	validateFps(fps, 'in "renderMedia()"', codec === 'gif');
 
 	const createPrestitcherIfNecessary = () => {
 		if (preEncodedFileLocation) {

@@ -2,7 +2,6 @@ import {InvokeCommand} from '@aws-sdk/client-lambda';
 import {RenderInternals} from '@remotion/renderer';
 import fs, {existsSync, mkdirSync, rmSync} from 'node:fs';
 import {join} from 'node:path';
-import {Internals} from 'remotion';
 import {VERSION} from 'remotion/version';
 import {getLambdaClient} from '../shared/aws-clients';
 import {
@@ -33,6 +32,11 @@ import {
 } from '../shared/constants';
 import {DOCS_URL} from '../shared/docs-url';
 import {invokeWebhook} from '../shared/invoke-webhook';
+import {
+	validateDimension,
+	validateDurationInFrames,
+	validateFps,
+} from '../shared/validate';
 import {validateFramesPerLambda} from '../shared/validate-frames-per-lambda';
 import {validateOutname} from '../shared/validate-outname';
 import {validatePrivacy} from '../shared/validate-privacy';
@@ -155,17 +159,13 @@ const innerLaunchHandler = async (
 	});
 	RenderInternals.Log.info('Composition validated, resolved props', comp.props);
 
-	Internals.validateDurationInFrames(comp.durationInFrames, {
+	validateDurationInFrames(comp.durationInFrames, {
 		component: 'passed to a Lambda render',
 		allowFloats: false,
 	});
-	Internals.validateFps(comp.fps, 'passed to a Lambda render', false);
-	Internals.validateDimension(
-		comp.height,
-		'height',
-		'passed to a Lambda render',
-	);
-	Internals.validateDimension(comp.width, 'width', 'passed to a Lambda render');
+	validateFps(comp.fps, 'passed to a Lambda render', false);
+	validateDimension(comp.height, 'height', 'passed to a Lambda render');
+	validateDimension(comp.width, 'width', 'passed to a Lambda render');
 
 	RenderInternals.validateBitrate(params.audioBitrate, 'audioBitrate');
 	RenderInternals.validateBitrate(params.videoBitrate, 'videoBitrate');
