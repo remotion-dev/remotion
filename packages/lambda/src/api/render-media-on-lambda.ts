@@ -19,6 +19,12 @@ import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
 
+export type LambdaWebhookOption = {
+	url: string;
+	secret: string | null;
+	customData?: Record<string, unknown>;
+};
+
 export type RenderMediaOnLambdaInput = {
 	region: AwsRegion;
 	functionName: string;
@@ -54,11 +60,7 @@ export type RenderMediaOnLambdaInput = {
 	overwrite?: boolean;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	webhook?: {
-		url: string;
-		secret: string | null;
-		customData?: Record<string, unknown>;
-	};
+	webhook?: LambdaWebhookOption | null;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	rendererFunctionName?: string | null;
@@ -112,6 +114,7 @@ export const renderMediaOnLambda = async (
 			timeoutInTest: 120000,
 			retriesRemaining: 0,
 		});
+
 		return {
 			renderId: res.renderId,
 			bucketName: res.bucketName,

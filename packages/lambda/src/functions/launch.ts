@@ -593,6 +593,7 @@ export const launchHandler = async (
 							renderId: params.renderId,
 							expectedBucketOwner: options.expectedBucketOwner,
 							bucketName: params.bucketName,
+							customData: params.webhook.customData ?? null,
 						},
 					});
 					webhookInvoked = true;

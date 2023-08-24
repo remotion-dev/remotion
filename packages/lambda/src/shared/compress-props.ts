@@ -6,6 +6,7 @@ import {inputPropsKey, resolvedPropsKey} from './constants';
 import {randomHash} from './random-hash';
 import {serializeJSONWithDate} from './serialize-props';
 import {streamToString} from './stream-to-string';
+import {MAX_WEBHOOK_CUSTOM_DATA_SIZE} from './validate-webhook';
 
 type PropsType = 'input-props' | 'resolved-props';
 
@@ -31,7 +32,7 @@ export const getNeedsToUpload = (
 	type: 'still' | 'video-or-audio',
 	sizes: number[],
 ) => {
-	const MARGIN = 5_000;
+	const MARGIN = 5_000 + MAX_WEBHOOK_CUSTOM_DATA_SIZE;
 	const MAX_INLINE_PAYLOAD_SIZE =
 		(type === 'still' ? 5_000_000 : 200_000) - MARGIN;
 
