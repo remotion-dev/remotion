@@ -3,6 +3,7 @@ import {Canvas, useThree} from '@react-three/fiber';
 import React, {useCallback, useLayoutEffect, useState} from 'react';
 import {continueRender, delayRender, Internals} from 'remotion';
 import {SuspenseLoader} from './SuspenseLoader';
+import {validateDimension} from './validate';
 
 export type ThreeCanvasProps = React.ComponentProps<typeof Canvas> & {
 	width: number;
@@ -31,16 +32,8 @@ export const ThreeCanvas = (props: ThreeCanvasProps) => {
 		delayRender('Waiting for <ThreeCanvas/> to be created'),
 	);
 
-	Internals.validateDimension(
-		width,
-		'width',
-		'of the <ThreeCanvas /> component',
-	);
-	Internals.validateDimension(
-		height,
-		'height',
-		'of the <ThreeCanvas /> component',
-	);
+	validateDimension(width, 'width', 'of the <ThreeCanvas /> component');
+	validateDimension(height, 'height', 'of the <ThreeCanvas /> component');
 	const contexts = Internals.useRemotionContexts();
 	const actualStyle = {
 		width: props.width,

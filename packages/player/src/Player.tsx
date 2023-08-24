@@ -31,6 +31,12 @@ import type {PropsIfHasProps} from './utils/props-if-has-props.js';
 import {validateInOutFrames} from './utils/validate-in-out-frame.js';
 import {validateInitialFrame} from './utils/validate-initial-frame.js';
 import {validatePlaybackRate} from './utils/validate-playbackrate.js';
+import {
+	validateDefaultAndInputProps,
+	validateDimension,
+	validateDurationInFrames,
+	validateFps,
+} from './validate.js';
 
 export type ErrorFallback = (info: {error: Error}) => React.ReactNode;
 
@@ -180,22 +186,22 @@ const PlayerFn = <Schema extends AnyZodObject, Props>(
 		);
 	}
 
-	Internals.validateDimension(
+	validateDimension(
 		compositionHeight,
 		'compositionHeight',
 		'of the <Player /> component',
 	);
-	Internals.validateDimension(
+	validateDimension(
 		compositionWidth,
 		'compositionWidth',
 		'of the <Player /> component',
 	);
-	Internals.validateDurationInFrames(durationInFrames, {
+	validateDurationInFrames(durationInFrames, {
 		component: 'of the <Player/> component',
 		allowFloats: false,
 	});
-	Internals.validateFps(fps, 'as a prop of the <Player/> component', false);
-	Internals.validateDefaultAndInputProps(inputProps, 'inputProps', null);
+	validateFps(fps, 'as a prop of the <Player/> component', false);
+	validateDefaultAndInputProps(inputProps, 'inputProps', null);
 
 	validateInOutFrames({
 		durationInFrames,

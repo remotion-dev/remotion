@@ -41,6 +41,7 @@ import {preprocessAudioTrack} from './preprocess-audio-track';
 import type {ProResProfile} from './prores-profile';
 import {validateSelectedCodecAndProResCombination} from './prores-profile';
 import {truthy} from './truthy';
+import {validateDimension, validateFps} from './validate';
 import {validateEvenDimensionsWithCodec} from './validate-even-dimensions-with-codec';
 import {validateBitrate} from './validate-videobitrate';
 import type {X264Preset} from './x264-preset';
@@ -224,16 +225,8 @@ const innerStitchFramesToVideo = async (
 	}: InternalStitchFramesToVideoOptions,
 	remotionRoot: string,
 ): Promise<ReturnType> => {
-	Internals.validateDimension(
-		height,
-		'height',
-		'passed to `stitchFramesToVideo()`',
-	);
-	Internals.validateDimension(
-		width,
-		'width',
-		'passed to `stitchFramesToVideo()`',
-	);
+	validateDimension(height, 'height', 'passed to `stitchFramesToVideo()`');
+	validateDimension(width, 'width', 'passed to `stitchFramesToVideo()`');
 	validateEvenDimensionsWithCodec({
 		width,
 		height,
@@ -248,7 +241,7 @@ const innerStitchFramesToVideo = async (
 	validateBitrate(audioBitrate, 'audioBitrate');
 	validateBitrate(videoBitrate, 'videoBitrate');
 
-	Internals.validateFps(fps, 'in `stitchFramesToVideo()`', false);
+	validateFps(fps, 'in `stitchFramesToVideo()`', false);
 
 	const encoderName = getCodecName(codec);
 	const proResProfileName = getProResProfileName(codec, proResProfile);
