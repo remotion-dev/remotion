@@ -62,6 +62,7 @@ import {validateNumberOfGifLoops} from './validate-number-of-gif-loops';
 import {validateOutputFilename} from './validate-output-filename';
 import {validateScale} from './validate-scale';
 import {validateBitrate} from './validate-videobitrate';
+import {wrapWithErrorHandling} from './wrap-with-error-handling';
 import type {X264Preset} from './x264-preset';
 import {validateSelectedCodecAndPresetCombination} from './x264-preset';
 
@@ -184,7 +185,7 @@ type RenderMediaResult = {
 	slowestFrames: SlowFrame[];
 };
 
-export const internalRenderMedia = ({
+const internalRenderMediaRaw = ({
 	proResProfile,
 	x264Preset,
 	crf,
@@ -296,7 +297,7 @@ export const internalRenderMedia = ({
 		'Free memory:',
 		freeMemory,
 		'Estimated usage parallel encoding',
-		estimatedUsage,
+		estimatedUsage
 	);
 	Log.verboseAdvanced(
 		{
@@ -305,7 +306,7 @@ export const internalRenderMedia = ({
 			tag: 'renderMedia()',
 		},
 		'Codec supports parallel rendering:',
-		canUseParallelEncoding(codec),
+		canUseParallelEncoding(codec)
 	);
 	if (disallowParallelEncoding) {
 		Log.verboseAdvanced(
@@ -314,7 +315,7 @@ export const internalRenderMedia = ({
 				logLevel,
 				tag: 'renderMedia()',
 			},
-			'User disallowed parallel encoding.',
+			'User disallowed parallel encoding.'
 		);
 	}
 
@@ -325,7 +326,7 @@ export const internalRenderMedia = ({
 				logLevel,
 				tag: 'renderMedia()',
 			},
-			'Parallel encoding is enabled.',
+			'Parallel encoding is enabled.'
 		);
 	} else {
 		Log.verboseAdvanced(
@@ -334,7 +335,7 @@ export const internalRenderMedia = ({
 				logLevel,
 				tag: 'renderMedia()',
 			},
-			'Parallel encoding is disabled.',
+			'Parallel encoding is disabled.'
 		);
 	}
 
@@ -344,17 +345,17 @@ export const internalRenderMedia = ({
 
 	validateSelectedPixelFormatAndImageFormatCombination(
 		pixelFormat,
-		imageFormat,
+		imageFormat
 	);
 
 	const workingDir = fs.mkdtempSync(
-		path.join(os.tmpdir(), 'react-motion-render'),
+		path.join(os.tmpdir(), 'react-motion-render')
 	);
 
 	const preEncodedFileLocation = parallelEncoding
 		? path.join(
 				workingDir,
-				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec),
+				'pre-encode.' + getFileExtensionFromCodec(codec, audioCodec)
 		  )
 		: null;
 
@@ -371,7 +372,7 @@ export const internalRenderMedia = ({
 
 	const realFrameRange = getRealFrameRange(
 		composition.durationInFrames,
-		frameRange,
+		frameRange
 	);
 
 	const callUpdate = () => {
@@ -384,7 +385,7 @@ export const internalRenderMedia = ({
 			progress:
 				Math.round(
 					(70 * renderedFrames + 15 * encodedFrames + 15 * muxedFrames) /
-						totalFramesToRender,
+						totalFramesToRender
 				) / 100,
 		});
 	};
@@ -462,7 +463,7 @@ export const internalRenderMedia = ({
 		} else {
 			// add frame at appropriate position
 			const index = slowestFrames.findIndex(
-				({time: indexTime}) => indexTime < time,
+				({time: indexTime}) => indexTime < time
 			);
 			slowestFrames.splice(index, 0, frameTime);
 		}
@@ -495,7 +496,7 @@ export const internalRenderMedia = ({
 					{
 						onDownload,
 						onError: (err) => reject(err),
-					},
+					}
 				);
 			})
 			.then(({server, cleanupServer}) => {
@@ -505,7 +506,7 @@ export const internalRenderMedia = ({
 					onFrameUpdate: (
 						frame: number,
 						frameIndex: number,
-						timeToRenderInMilliseconds,
+						timeToRenderInMilliseconds
 					) => {
 						renderedFrames = frame;
 						callUpdate();
@@ -537,13 +538,13 @@ export const internalRenderMedia = ({
 								const exitStatus = preStitcher?.getExitStatus();
 								if (exitStatus?.type === 'quit-successfully') {
 									throw new Error(
-										`FFmpeg already quit while trying to pipe frame ${frame} to it. Stderr: ${exitStatus.stderr}}`,
+										`FFmpeg already quit while trying to pipe frame ${frame} to it. Stderr: ${exitStatus.stderr}}`
 									);
 								}
 
 								if (exitStatus?.type === 'quit-with-error') {
 									throw new Error(
-										`FFmpeg quit with code ${exitStatus.exitCode} while piping frame ${frame}. Stderr: ${exitStatus.stderr}}`,
+										`FFmpeg quit with code ${exitStatus.exitCode} while piping frame ${frame}. Stderr: ${exitStatus.stderr}}`
 									);
 								}
 
@@ -551,7 +552,7 @@ export const internalRenderMedia = ({
 								stopPerfMeasure(id);
 
 								setFrameToStitch(
-									Math.min(realFrameRange[1] + 1, frame + everyNthFrame),
+									Math.min(realFrameRange[1] + 1, frame + everyNthFrame)
 								);
 						  }
 						: null,
@@ -693,6 +694,8 @@ export const internalRenderMedia = ({
 	]);
 };
 
+const internalRenderMedia = wrapWithErrorHandling(internalRenderMediaRaw);
+
 /**
  *
  * @description Render a video from a composition
@@ -743,7 +746,7 @@ export const renderMedia = ({
 }: RenderMediaOptions): Promise<RenderMediaResult> => {
 	if (quality !== undefined) {
 		console.warn(
-			`The "quality" option has been renamed. Please use "jpegQuality" instead.`,
+			`The "quality" option has been renamed. Please use "jpegQuality" instead.`
 		);
 	}
 
