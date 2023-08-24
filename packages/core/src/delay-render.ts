@@ -1,4 +1,4 @@
-import {getRemotionEnvironment} from './get-environment.js';
+import {getRemotionEnvironment} from './get-remotion-environment.js';
 import {truthy} from './truthy.js';
 
 if (typeof window !== 'undefined') {
@@ -32,7 +32,7 @@ export const delayRender = (label?: string): number => {
 	handles.push(handle);
 	const called = Error().stack?.replace(/^Error/g, '') ?? '';
 
-	if (getRemotionEnvironment() === 'rendering') {
+	if (getRemotionEnvironment().isRendering) {
 		const timeoutToUse =
 			typeof window === 'undefined'
 				? defaultTimeout
@@ -86,7 +86,7 @@ export const continueRender = (handle: number): void => {
 
 	handles = handles.filter((h) => {
 		if (h === handle) {
-			if (getRemotionEnvironment() === 'rendering') {
+			if (getRemotionEnvironment().isRendering) {
 				clearTimeout(window.remotion_delayRenderTimeouts[handle].timeout);
 				delete window.remotion_delayRenderTimeouts[handle];
 			}
