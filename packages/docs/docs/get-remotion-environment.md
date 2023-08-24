@@ -5,14 +5,14 @@ id: get-remotion-environment
 crumb: "API"
 ---
 
-With the `getRemotionEnvironment()` function , you can retrieve information about the current Remotion Environment.
+With the `getRemotionEnvironment()` function, you can retrieve information about the current Remotion Environment.
 It returns an object with the following properties:
 
-- `isStudio`: If the code gets executed in the [Remotion Studio](/docs/cli/studio).
-- `isRendering`: Whether the code gets executed in a render.
-- `isPlayer`: Whether a Player is mounted on the current page.
+- `isStudio`: Whether the function got called in the [Remotion Studio](/docs/cli/studio).
+- `isRendering`: Whether the function got called in a render.
+- `isPlayer`: Whether a [`<Player>`](/docs/player) is mounted on the current page.
 
-This can be useful if you want components to compute some values differently based on the environment you are in.
+This can be useful if you want components or functions to behave differently depending on the environment.
 
 ### Example
 
@@ -39,7 +39,7 @@ export const MyComp: React.FC = () => {
 };
 ```
 
-A more realistic use case: In the Remotion Studio you might want to debounce a request, but not during rendering. See [debouncing requests](/docs/data-fetching#debouncing-requests) for an indepth explanation.
+A more realistic use case: You might want to debounce a request during editing in the Remotion Studio, but not during rendering. See: [debouncing requests](/docs/data-fetching#debouncing-requests)
 
 ## See also
 
