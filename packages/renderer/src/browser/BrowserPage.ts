@@ -238,10 +238,14 @@ export class Page extends EventEmitter {
 					);
 				}
 			} else if (log.type === 'error') {
-				Log.errorAdvanced(
-					{logLevel, tag: `console.${log.type}`, indent},
-					log.text,
-				);
+				if (log.text.includes('Failed to load resource:')) {
+					Log.errorAdvanced({logLevel, tag: url, indent}, log.text);
+				} else {
+					Log.errorAdvanced(
+						{logLevel, tag: `console.${log.type}`, indent},
+						log.text,
+					);
+				}
 			} else {
 				Log.verboseAdvanced(
 					{logLevel, tag: `console.${log.type}`, indent},
