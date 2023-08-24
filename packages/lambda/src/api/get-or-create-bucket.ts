@@ -19,16 +19,16 @@ export type GetOrCreateBucketOutput = {
  * @returns {Promise<GetOrCreateBucketOutput>} An object containing the `bucketName`.
  */
 export const getOrCreateBucket = async (
-	params: GetOrCreateBucketInput
+	params: GetOrCreateBucketInput,
 ): Promise<GetOrCreateBucketOutput> => {
 	const {remotionBuckets} = await getRemotionS3Buckets(params.region);
 	if (remotionBuckets.length > 1) {
 		throw new Error(
 			`You have multiple buckets (${remotionBuckets.map(
-				(b) => b.name
+				(b) => b.name,
 			)}) in your S3 region (${
 				params.region
-			}) starting with "${REMOTION_BUCKET_PREFIX}". Please see https://remotion.dev/docs/lambda/multiple-buckets.`
+			}) starting with "${REMOTION_BUCKET_PREFIX}". Please see https://remotion.dev/docs/lambda/multiple-buckets.`,
 		);
 	}
 

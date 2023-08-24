@@ -401,6 +401,10 @@ Before you use this hack, reach out to the Remotion team on [Discord](https://re
 
 Disallows the renderer from doing rendering frames and encoding at the same time. This makes the rendering process more memory-efficient, but possibly slower.
 
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
 ### ~~`parallelism?`~~
 
 Renamed to `concurrency` in v3.2.17.

@@ -9,7 +9,7 @@ export const onDownloadsHelper = (): RenderMediaOnDownload => {
 		return ({percent, downloaded}) => {
 			if (percent === null) {
 				console.log(
-					`Download progress (${src}): ${downloaded} bytes. Don't know final size of download, no Content-Length header.`
+					`Download progress (${src}): ${downloaded} bytes. Don't know final size of download, no Content-Length header.`,
 				);
 				return;
 			}
@@ -26,7 +26,7 @@ export const onDownloadsHelper = (): RenderMediaOnDownload => {
 			console.log(
 				`Download progress (${src}): ${downloaded} bytes, ${(
 					percent * 100
-				).toFixed(1)}%`
+				).toFixed(1)}%`,
 			);
 			if (percent === 1) {
 				console.log(`Download complete: ${src}`);

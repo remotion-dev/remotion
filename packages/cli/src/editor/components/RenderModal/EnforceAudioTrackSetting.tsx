@@ -1,4 +1,4 @@
-import type {RemotionOption} from '@remotion/renderer';
+import type {AnyRemotionOption} from '@remotion/renderer';
 import type {ChangeEvent} from 'react';
 import React, {useCallback} from 'react';
 import {Checkbox} from '../Checkbox';
@@ -11,13 +11,13 @@ export const EnforceAudioTrackSetting: React.FC<{
 	enforceAudioTrack: boolean;
 	setEnforceAudioTrack: React.Dispatch<React.SetStateAction<boolean>>;
 	muted: boolean;
-	option: RemotionOption;
+	option: AnyRemotionOption;
 }> = ({enforceAudioTrack, muted, setEnforceAudioTrack, option}) => {
 	const onEnforceAudioTrackChanged = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
 			setEnforceAudioTrack(e.target.checked);
 		},
-		[setEnforceAudioTrack]
+		[setEnforceAudioTrack],
 	);
 
 	return (

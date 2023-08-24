@@ -72,7 +72,7 @@ export const ZodArrayEditor: React.FC<{
 				return [...oldV, createZodValues(def.type, z, zodTypes)];
 			},
 			false,
-			true
+			true,
 		);
 	}, [def.type, onChange, z, zodTypes]);
 

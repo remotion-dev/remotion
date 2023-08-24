@@ -12,7 +12,7 @@ export const shouldLogBrowserMessage = (message: string) => {
 	// In Ubuntu GitHub Action
 	if (
 		message.includes(
-			'Floss manager not present, cannot set Floss enable/disable'
+			'Floss manager not present, cannot set Floss enable/disable',
 		)
 	) {
 		return false;
@@ -25,7 +25,7 @@ export const shouldLogBrowserMessage = (message: string) => {
 
 	if (
 		message.includes(
-			'CreatePlatformSocket() failed: Address family not supported by protocol'
+			'CreatePlatformSocket() failed: Address family not supported by protocol',
 		)
 	) {
 		return false;
@@ -52,7 +52,7 @@ type ParsedBrowserLogMessage = {
 };
 
 export const parseBrowserLogMessage = (
-	input: string
+	input: string,
 ): ParsedBrowserLogMessage | null => {
 	const format =
 		/^\[([0-9]{4})\/([0-9]{6})\.([0-9]{6}):([A-Z]+):(.*)\(([0-9]+)\)\](.*)/;
@@ -94,7 +94,7 @@ export const parseBrowserLogMessage = (
 };
 
 export const formatChromeMessage = (
-	input: string
+	input: string,
 ): {output: string; tag: string} | null => {
 	const parsed = parseBrowserLogMessage(input);
 	if (!parsed) {
@@ -116,7 +116,7 @@ type ChromeLogLocation = {
 };
 
 export const parseChromeLogLocation = (
-	message: string
+	message: string,
 ): ChromeLogLocation | null => {
 	const regex = /(.*), source: (.*) \(([0-9]+)\)/;
 	const match = message.match(regex);

@@ -31,7 +31,7 @@ const InFrameLogo: React.FC<{
 }> = ({ background, dark }) => {
   const { width: bBoxWidth, height: bBoxHeight, fps } = useVideoConfig();
   const viewBox = [-bBoxWidth / 2, -bBoxHeight / 2, bBoxWidth, bBoxHeight].join(
-    " "
+    " ",
   );
   const frame = useCurrentFrame();
 

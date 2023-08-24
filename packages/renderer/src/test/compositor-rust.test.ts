@@ -1,6 +1,6 @@
 import {expect, test} from 'vitest';
 import {
-	getIdealMaximumFrameCacheItems,
+	getIdealMaximumFrameCacheSizeInBytes,
 	startLongRunningCompositor,
 } from '../compositor/compositor';
 
@@ -8,9 +8,9 @@ test(
 	'Compositor should process messages in the right order',
 	async () => {
 		const compositor = startLongRunningCompositor(
-			getIdealMaximumFrameCacheItems(),
+			getIdealMaximumFrameCacheSizeInBytes(),
 			'verbose',
-			false
+			false,
 		);
 
 		const matching = await Promise.all(
@@ -24,12 +24,12 @@ test(
 				});
 				const isSame = output.toString('utf8') === 'Echo ' + expectedString;
 				return isSame;
-			})
+			}),
 		);
 
 		compositor.finishCommands();
 		await compositor.waitForDone();
 		expect(matching.every((m) => m)).toBe(true);
 	},
-	{timeout: 5000}
+	{timeout: 5000},
 );

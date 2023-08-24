@@ -43,7 +43,7 @@ export const TimelineZoomControls: React.FC = () => {
 		(e) => {
 			setZoom(() => Number(e.target.value));
 		},
-		[setZoom]
+		[setZoom],
 	);
 
 	const isStill = useIsStill();

@@ -7,11 +7,11 @@ export const validateBucketName = (
 	bucketName: unknown,
 	options: {
 		mustStartWithRemotion: boolean;
-	}
+	},
 ) => {
 	if (typeof bucketName !== 'string') {
 		throw new TypeError(
-			`'bucketName' must be a string, but is ${JSON.stringify(bucketName)}`
+			`'bucketName' must be a string, but is ${JSON.stringify(bucketName)}`,
 		);
 	}
 
@@ -20,13 +20,13 @@ export const validateBucketName = (
 		!bucketName.startsWith(REMOTION_BUCKET_PREFIX)
 	) {
 		throw new Error(
-			`The bucketName parameter must start with ${REMOTION_BUCKET_PREFIX}.`
+			`The bucketName parameter must start with ${REMOTION_BUCKET_PREFIX}.`,
 		);
 	}
 
 	if (
 		!bucketName.match(
-			/^(?=^.{3,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])$)/
+			/^(?=^.{3,63}$)(?!^(\d+\.)+\d+$)(^(([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])\.)*([a-z0-9]|[a-z0-9][a-z0-9-]*[a-z0-9])$)/,
 		)
 	) {
 		throw new Error(`The bucket ${bucketName} `);
@@ -34,12 +34,12 @@ export const validateBucketName = (
 };
 
 export const parseBucketName = (
-	name: string
+	name: string,
 ): {
 	region: AwsRegion | null;
 } => {
 	const parsed = name.match(
-		new RegExp(`^${REMOTION_BUCKET_PREFIX}(.*)-([a-z0-9A-Z]+)$`)
+		new RegExp(`^${REMOTION_BUCKET_PREFIX}(.*)-([a-z0-9A-Z]+)$`),
 	);
 	const region = parsed?.[1] as AwsRegion;
 
@@ -48,7 +48,7 @@ export const parseBucketName = (
 	}
 
 	const realRegionFound = AWS_REGIONS.find(
-		(r) => r.replace(/-/g, '') === region
+		(r) => r.replace(/-/g, '') === region,
 	);
 
 	return {region: realRegionFound ?? null};

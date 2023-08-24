@@ -2,7 +2,7 @@ import type {Codec} from './codec';
 
 export const validAudioCodecs = ['pcm-16', 'aac', 'mp3', 'opus'] as const;
 
-export type AudioCodec = typeof validAudioCodecs[number];
+export type AudioCodec = (typeof validAudioCodecs)[number];
 
 export const supportedAudioCodecs = {
 	h264: ['aac', 'pcm-16', 'mp3'] as const,
@@ -25,10 +25,10 @@ if (_satisfies) {
 
 const audioCodecNames = ['pcm_s16le', 'aac', 'libmp3lame', 'libopus'] as const;
 
-type FfmpegAudioCodecName = typeof audioCodecNames[number];
+type FfmpegAudioCodecName = (typeof audioCodecNames)[number];
 
 export const mapAudioCodecToFfmpegAudioCodecName = (
-	audioCodec: AudioCodec
+	audioCodec: AudioCodec,
 ): FfmpegAudioCodecName => {
 	if (audioCodec === 'aac') {
 		return 'aac';
@@ -52,7 +52,7 @@ export const mapAudioCodecToFfmpegAudioCodecName = (
 export const defaultAudioCodecs: {
 	[key in Codec]: {
 		[k in 'compressed' | 'lossless']:
-			| typeof supportedAudioCodecs[key][number]
+			| (typeof supportedAudioCodecs)[key][number]
 			| null;
 	};
 } = {

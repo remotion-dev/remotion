@@ -17,7 +17,7 @@ test('Should be able to translate circle path, update x', () => {
 	const path = translatePath(
 		'M 35,50 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0',
 		10,
-		0
+		0,
 	);
 
 	expect(path).toEqual('M 45 50 a 25 25 0 1 1 50 0 a 25 25 0 1 1 -50 0');
@@ -27,7 +27,7 @@ test('Should be able to translate circle path, update x and y', () => {
 	const path = translatePath(
 		'M 35,50 a 25,25,0,1,1,50,0 a 25,25,0,1,1,-50,0',
 		10,
-		20
+		20,
 	);
 
 	expect(path).toEqual('M 45 70 a 25 25 0 1 1 50 0 a 25 25 0 1 1 -50 0');

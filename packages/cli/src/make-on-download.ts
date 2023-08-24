@@ -33,7 +33,7 @@ export const makeOnDownload = ({
 		Log.verboseAdvanced(
 			{indent, logLevel},
 			`Starting download [${nextDownloadIndex}]:`,
-			src
+			src,
 		);
 
 		updateRenderProgress({
@@ -54,7 +54,7 @@ export const makeOnDownload = ({
 			Log.verboseAdvanced(
 				{indent, logLevel},
 				`Download [${nextDownloadIndex}]:`,
-				percent ? `${(percent * 100).toFixed(1)}%` : formatBytes(downloaded)
+				percent ? `${(percent * 100).toFixed(1)}%` : formatBytes(downloaded),
 			);
 			updateRenderProgress({
 				newline: false,

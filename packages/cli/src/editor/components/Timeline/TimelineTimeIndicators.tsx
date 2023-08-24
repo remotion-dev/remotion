@@ -162,17 +162,17 @@ const Inner: React.FC<{
 	const ticks: TimelineTick[] = useMemo(() => {
 		const frameInterval = getFrameIncrementFromWidth(
 			durationInFrames,
-			windowWidth
+			windowWidth,
 		);
 
 		const MIN_SPACING_BETWEEN_TICKS_PX = 5;
 
 		const seconds = Math.floor(durationInFrames / fps);
 		const secondMarkerEveryNth = Math.ceil(
-			(MIN_SPACING_BETWEEN_TICKS_PX * fps) / (frameInterval * fps)
+			(MIN_SPACING_BETWEEN_TICKS_PX * fps) / (frameInterval * fps),
 		);
 		const frameMarkerEveryNth = Math.ceil(
-			MIN_SPACING_BETWEEN_TICKS_PX / frameInterval
+			MIN_SPACING_BETWEEN_TICKS_PX / frameInterval,
 		);
 
 		// Big ticks showing for every second

@@ -22,7 +22,7 @@ export const Lottie = ({
 }: LottieProps) => {
 	if (typeof animationData !== 'object') {
 		throw new Error(
-			'animationData should be provided as an object. If you only have the path to the JSON file, load it and pass it as animationData. See https://remotion.dev/docs/lottie/lottie#example for more information.'
+			'animationData should be provided as an object. If you only have the path to the JSON file, load it and pass it as animationData. See https://remotion.dev/docs/lottie/lottie#example for more information.',
 		);
 	}
 
@@ -37,7 +37,7 @@ export const Lottie = ({
 	onAnimationLoadedRef.current = onAnimationLoaded;
 
 	const [handle] = useState(() =>
-		delayRender('Waiting for Lottie animation to load')
+		delayRender('Waiting for Lottie animation to load'),
 	);
 	const frame = useCurrentFrame();
 	currentFrameRef.current = frame;
@@ -61,7 +61,7 @@ export const Lottie = ({
 			if (currentFrameRef.current) {
 				animationRef.current?.goToAndStop(
 					Math.max(0, currentFrameRef.current - 1),
-					true
+					true,
 				);
 				animationRef.current?.goToAndStop(currentFrameRef.current, true);
 			}
@@ -106,19 +106,19 @@ export const Lottie = ({
 
 		animationRef.current.goToAndStop(nextFrame, true);
 		const images = containerRef.current?.querySelectorAll(
-			'image'
+			'image',
 		) as NodeListOf<SVGImageElement>;
 		images.forEach((img) => {
 			const currentHref = img.getAttributeNS(
 				'http://www.w3.org/1999/xlink',
-				'href'
+				'href',
 			);
 			if (currentHref && currentHref === img.href.baseVal) {
 				return;
 			}
 
 			const imgHandle = delayRender(
-				`Waiting for lottie image with src="${img.href.baseVal}" to load`
+				`Waiting for lottie image with src="${img.href.baseVal}" to load`,
 			);
 
 			// https://stackoverflow.com/a/46839799
@@ -127,13 +127,13 @@ export const Lottie = ({
 				() => {
 					continueRender(imgHandle);
 				},
-				{once: true}
+				{once: true},
 			);
 
 			img.setAttributeNS(
 				'http://www.w3.org/1999/xlink',
 				'xlink:href',
-				img.href.baseVal as string
+				img.href.baseVal as string,
 			);
 		});
 	}, [direction, frame, loop, playbackRate]);

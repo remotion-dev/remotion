@@ -28,8 +28,8 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 	if (typeof props.src !== 'string') {
 		throw new TypeError(
 			`The \`<Audio>\` tag requires a string for \`src\`, but got ${JSON.stringify(
-				props.src
-			)} instead.`
+				props.src,
+			)} instead.`,
 		);
 	}
 
@@ -47,14 +47,14 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				console.warn(errMessage);
 			}
 		},
-		[loop, otherProps.src]
+		[loop, otherProps.src],
 	);
 
 	const onDuration = useCallback(
 		(src: string, durationInSeconds: number) => {
 			setDurations({type: 'got-duration', durationInSeconds, src});
 		},
-		[setDurations]
+		[setDurations],
 	);
 
 	if (loop && props.src && durations[getAbsoluteSrc(props.src)] !== undefined) {
@@ -64,11 +64,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		return (
 			<Loop layout="none" durationInFrames={Math.floor(actualDuration)}>
-				<Audio
-					_remotionInternalNeedsDurationCalculation
-					{...propsOtherThanLoop}
-					ref={ref}
-				/>
+				<Audio {...propsOtherThanLoop} ref={ref} />
 			</Loop>
 		);
 	}
@@ -85,7 +81,11 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				showInTimeline={false}
 				durationInFrames={endAtFrameNo}
 			>
-				<Audio {...otherProps} ref={ref} />
+				<Audio
+					_remotionInternalNeedsDurationCalculation={Boolean(loop)}
+					{...otherProps}
+					ref={ref}
+				/>
 			</Sequence>
 		);
 	}
@@ -99,6 +99,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				{...props}
 				ref={ref}
 				onError={onError}
+				_remotionInternalNeedsDurationCalculation={Boolean(loop)}
 			/>
 		);
 	}
@@ -112,6 +113,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			ref={ref}
 			onError={onError}
 			onDuration={onDuration}
+			_remotionInternalNeedsDurationCalculation={Boolean(loop)}
 		/>
 	);
 };

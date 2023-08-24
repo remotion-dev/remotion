@@ -23,7 +23,7 @@ const makeChunkMissingMessage = ({
 	return [
 		`The following chunks are missing (showing ${Math.min(
 			MAX_MISSING_CHUNKS,
-			missingChunks.length
+			missingChunks.length,
 		)} out of ${missingChunks.length}):`,
 		...missingChunks
 			.map((ch) => {

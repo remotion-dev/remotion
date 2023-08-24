@@ -5,7 +5,7 @@ export const cycleBrowserTabs = (
 	puppeteerInstance: BrowserReplacer,
 	concurrency: number,
 	logLevel: LogLevel,
-	indent: boolean
+	indent: boolean,
 ): {
 	stopCycling: () => void;
 } => {

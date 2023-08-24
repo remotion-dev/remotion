@@ -11,8 +11,8 @@ function assertValidName(folderName: string) {
 	if (typeof validation === 'string') {
 		throw new Error(
 			`Cannot create an app named ${chalk.red(
-				`"${folderName}"`
-			)}. ${validation}`
+				`"${folderName}"`,
+			)}. ${validation}`,
 		);
 	}
 }

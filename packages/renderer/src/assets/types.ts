@@ -27,7 +27,7 @@ export type MediaAsset = Omit<UnsafeAsset, 'duration' | 'volume'> & {
 
 export const uncompressMediaAsset = (
 	allRenderAssets: TRenderAsset[],
-	assetToUncompress: TRenderAsset
+	assetToUncompress: TRenderAsset,
 ): TRenderAsset => {
 	const isCompressed = assetToUncompress.src.match(/same-as-(.*)-([0-9]+)$/);
 	if (!isCompressed) {
@@ -37,13 +37,13 @@ export const uncompressMediaAsset = (
 	const [, id, frame] = isCompressed;
 
 	const assetToFill = allRenderAssets.find(
-		(a) => a.id === id && String(a.frame) === frame
+		(a) => a.id === id && String(a.frame) === frame,
 	);
 	if (!assetToFill) {
 		console.log('List of assets:');
 		console.log(allRenderAssets);
 		throw new TypeError(
-			`Cannot uncompress asset, asset list seems corrupt. Please file a bug in the Remotion repo with the debug information above.`
+			`Cannot uncompress asset, asset list seems corrupt. Please file a bug in the Remotion repo with the debug information above.`,
 		);
 	}
 

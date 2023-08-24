@@ -20,7 +20,7 @@ interface RenderHookOptions<Props> {
 
 export function renderHook<Result, Props>(
 	renderCallback: (initialProps: Props) => Result,
-	options: RenderHookOptions<Props> = {}
+	options: RenderHookOptions<Props> = {},
 ) {
 	const {initialProps, wrapper} = options;
 	const result = React.createRef<unknown>();
@@ -42,12 +42,12 @@ export function renderHook<Result, Props>(
 
 	const {rerender: baseRerender, unmount} = render(
 		<TestComponent renderCallbackProps={initialProps as Props} />,
-		{wrapper}
+		{wrapper},
 	);
 
 	function rerender(rerenderCallbackProps: Props) {
 		return baseRerender(
-			<TestComponent renderCallbackProps={rerenderCallbackProps} />
+			<TestComponent renderCallbackProps={rerenderCallbackProps} />,
 		);
 	}
 

@@ -29,7 +29,7 @@ export class TaskQueue {
 			},
 			() => {
 				return undefined;
-			}
+			},
 		);
 		return result;
 	}

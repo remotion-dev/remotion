@@ -11,12 +11,12 @@ export type TimelineInOutContextValue = Record<string, InOutValue>;
 
 export type SetTimelineInOutContextValue = {
 	setInAndOutFrames: (
-		u: React.SetStateAction<TimelineInOutContextValue>
+		u: React.SetStateAction<TimelineInOutContextValue>,
 	) => void;
 };
 
 export const TimelineInOutContext = createContext<TimelineInOutContextValue>(
-	{}
+	{},
 );
 
 export const SetTimelineInOutContext =

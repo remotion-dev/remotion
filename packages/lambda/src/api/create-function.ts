@@ -45,7 +45,7 @@ export const createFunction = async ({
 			await getCloudWatchLogsClient(region).send(
 				new CreateLogGroupCommand({
 					logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
-				})
+				}),
 			);
 		} catch (_err) {
 			const err = _err as Error;
@@ -58,7 +58,7 @@ export const createFunction = async ({
 			new PutRetentionPolicyCommand({
 				logGroupName: `${LOG_GROUP_PREFIX}${functionName}`,
 				retentionInDays,
-			})
+			}),
 		);
 	}
 
@@ -81,19 +81,19 @@ export const createFunction = async ({
 			MemorySize: memorySizeInMb,
 			Timeout: timeoutInSeconds,
 			Layers: hostedLayers[region].map(
-				({layerArn, version}) => `${layerArn}:${version}`
+				({layerArn, version}) => `${layerArn}:${version}`,
 			),
 			Architectures: ['arm64'],
 			EphemeralStorage: {
 				Size: ephemerealStorageInMb,
 			},
-		})
+		}),
 	);
 	await getLambdaClient(region).send(
 		new PutFunctionEventInvokeConfigCommand({
 			MaximumRetryAttempts: 0,
 			FunctionName,
-		})
+		}),
 	);
 
 	let state = 'Pending';
@@ -102,7 +102,7 @@ export const createFunction = async ({
 		const getFn = await getLambdaClient(region).send(
 			new GetFunctionCommand({
 				FunctionName,
-			})
+			}),
 		);
 		await new Promise<void>((resolve) => {
 			setTimeout(() => resolve(), 1000);
@@ -116,11 +116,11 @@ export const createFunction = async ({
 				FunctionName,
 				UpdateRuntimeOn: 'Manual',
 				RuntimeVersionArn: `arn:aws:lambda:${region}::runtime:b97ad873eb5228db2e7d5727cd116734cc24c92ff1381739c4400c095404a2d3`,
-			})
+			}),
 		);
 	} catch (err) {
 		console.warn(
-			'⚠️ Could not lock the runtime version. We recommend to update your policies to prevent your functions from breaking in the future in case the AWS runtime changes. See https://remotion.dev/docs/lambda/feb-2023-incident for an example on how to update your policy.'
+			'⚠️ Could not lock the runtime version. We recommend to update your policies to prevent your functions from breaking in the future in case the AWS runtime changes. See https://remotion.dev/docs/lambda/feb-2023-incident for an example on how to update your policy.',
 		);
 	}
 

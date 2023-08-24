@@ -3,7 +3,7 @@ import {MAX_MEMORY, MIN_MEMORY} from './constants';
 export const validateMemorySize = (memorySizeInMb: unknown) => {
 	if (typeof memorySizeInMb !== 'number') {
 		throw new TypeError(
-			`parameter 'memorySizeInMb' must be a number, got a ${typeof memorySizeInMb}`
+			`parameter 'memorySizeInMb' must be a number, got a ${typeof memorySizeInMb}`,
 		);
 	}
 
@@ -13,19 +13,19 @@ export const validateMemorySize = (memorySizeInMb: unknown) => {
 
 	if (!Number.isFinite(memorySizeInMb)) {
 		throw new TypeError(
-			`parameter 'memorySizeInMb' must be finite, but is ${memorySizeInMb}`
+			`parameter 'memorySizeInMb' must be finite, but is ${memorySizeInMb}`,
 		);
 	}
 
 	if (memorySizeInMb < MIN_MEMORY || memorySizeInMb > MAX_MEMORY) {
 		throw new TypeError(
-			`parameter 'memorySizeInMb' must be between ${MIN_MEMORY} and ${MAX_MEMORY}, but got ${memorySizeInMb}`
+			`parameter 'memorySizeInMb' must be between ${MIN_MEMORY} and ${MAX_MEMORY}, but got ${memorySizeInMb}`,
 		);
 	}
 
 	if (memorySizeInMb % 1 !== 0) {
 		throw new TypeError(
-			`parameter 'memorySizeInMb' must be an integer but got ${memorySizeInMb}`
+			`parameter 'memorySizeInMb' must be an integer but got ${memorySizeInMb}`,
 		);
 	}
 };

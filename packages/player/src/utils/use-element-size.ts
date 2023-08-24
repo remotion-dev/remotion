@@ -31,7 +31,7 @@ export const useElementSize = (
 	options: {
 		triggerOnWindowResize: boolean;
 		shouldApplyCssTransforms: boolean;
-	}
+	},
 ): Size | null => {
 	const [size, setSize] = useState<Omit<Size, 'refresh'> | null>(() => {
 		if (!ref.current) {

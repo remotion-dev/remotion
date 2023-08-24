@@ -42,8 +42,8 @@ export const sitesRmallSubcommand = async () => {
 
 		Log.info(
 			`Deleted site ${site.id} and freed up ${CliInternals.formatBytes(
-				totalSize
-			)}.`
+				totalSize,
+			)}.`,
 		);
 	}
 };

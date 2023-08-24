@@ -77,7 +77,7 @@ export class Connection extends EventEmitter {
 					method,
 					returnSize: true,
 				});
-			}
+			},
 		);
 	}
 
@@ -95,7 +95,7 @@ export class Connection extends EventEmitter {
 			const session = new CDPSession(
 				this,
 				object.params.targetInfo.type,
-				sessionId
+				sessionId,
 			);
 			this.#sessions.set(sessionId, session);
 			this.emit('sessionattached', session);
@@ -128,7 +128,7 @@ export class Connection extends EventEmitter {
 				this.#callbacks.delete(object.id);
 				if (object.error) {
 					callback.reject(
-						createProtocolError(callback.error, callback.method, object)
+						createProtocolError(callback.error, callback.method, object),
 					);
 				} else if (callback.returnSize) {
 					callback.resolve({value: object.result, size: message.length});
@@ -152,8 +152,8 @@ export class Connection extends EventEmitter {
 			callback.reject(
 				rewriteError(
 					callback.error,
-					`Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`
-				)
+					`Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`,
+				),
 			);
 		}
 
@@ -229,8 +229,8 @@ export class CDPSession extends EventEmitter {
 				new Error(
 					`Protocol error (${method}): Session closed. Most likely the ${
 						this.#targetType
-					} has been closed.`
-				)
+					} has been closed.`,
+				),
 			);
 		}
 
@@ -252,7 +252,7 @@ export class CDPSession extends EventEmitter {
 					method,
 					returnSize: true,
 				});
-			}
+			},
 		);
 	}
 
@@ -262,7 +262,7 @@ export class CDPSession extends EventEmitter {
 			this.#callbacks.delete(object.id);
 			if (object.error) {
 				callback.reject(
-					createProtocolError(callback.error, callback.method, object)
+					createProtocolError(callback.error, callback.method, object),
 				);
 			} else if (callback.returnSize) {
 				callback.resolve({value: object.result, size});
@@ -281,8 +281,8 @@ export class CDPSession extends EventEmitter {
 			callback.reject(
 				rewriteError(
 					callback.error,
-					`Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`
-				)
+					`Protocol error (${callback.method}): Target closed. https://www.remotion.dev/docs/target-closed`,
+				),
 			);
 		}
 
@@ -298,7 +298,7 @@ export class CDPSession extends EventEmitter {
 function createProtocolError(
 	error: ProtocolError,
 	method: string,
-	object: {error: {message: string; data: any; code: number}}
+	object: {error: {message: string; data: any; code: number}},
 ): Error {
 	let message = `Protocol error (${method}): ${object.error.message}`;
 	if ('data' in object.error) {
@@ -311,7 +311,7 @@ function createProtocolError(
 function rewriteError(
 	error: ProtocolError,
 	message: string,
-	originalMessage?: string
+	originalMessage?: string,
 ): Error {
 	error.message = message;
 	error.originalMessage = originalMessage ?? error.originalMessage;

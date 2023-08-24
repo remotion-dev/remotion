@@ -32,7 +32,7 @@ export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
 	}
 
 	const everyFileHasContentLength = progresses.every(
-		(p) => p.totalBytes !== null
+		(p) => p.totalBytes !== null,
 	);
 
 	return [
@@ -40,10 +40,10 @@ export const makeMultiDownloadProgress = (progresses: DownloadProgress[]) => {
 		everyFileHasContentLength
 			? makeProgressBar(
 					progresses.reduce((a, b) => a + (b.progress as number), 0) /
-						progresses.length
+						progresses.length,
 			  )
 			: getFileSizeDownloadBar(
-					progresses.reduce((a, b) => a + b.downloaded, 0)
+					progresses.reduce((a, b) => a + b.downloaded, 0),
 			  ),
 		`Downloading ${progresses.length} files`,
 	]

@@ -57,7 +57,7 @@ export const formatObjectPreview = (preview: ObjectPreview) => {
 	if (preview.type === 'object') {
 		if (preview.subtype === 'date') {
 			return chalk.reset(
-				`Date { ${chalk.magenta(String(preview.description))} }`
+				`Date { ${chalk.magenta(String(preview.description))} }`,
 			);
 		}
 
@@ -68,12 +68,14 @@ export const formatObjectPreview = (preview: ObjectPreview) => {
 		if (preview.subtype === 'array') {
 			if (preview.overflow) {
 				return chalk.reset(
-					`[ ${preview.properties.map((p) => formatProperty(p)).join(', ')}, …]`
+					`[ ${preview.properties
+						.map((p) => formatProperty(p))
+						.join(', ')}, …]`,
 				);
 			}
 
 			return chalk.reset(
-				`[ ${preview.properties.map((p) => formatProperty(p)).join(', ')} ]`
+				`[ ${preview.properties.map((p) => formatProperty(p)).join(', ')} ]`,
 			);
 		}
 

@@ -92,7 +92,7 @@ export const startServer = async (options: {
 					response.end(
 						JSON.stringify({
 							err: (err as Error).message,
-						})
+						}),
 					);
 				}
 			});
@@ -127,7 +127,7 @@ export const startServer = async (options: {
 
 			if (codedError.code === 'EADDRINUSE') {
 				Log.error(
-					`Port ${codedError.port} is already in use. Trying another port...`
+					`Port ${codedError.port} is already in use. Trying another port...`,
 				);
 			} else {
 				throw err;

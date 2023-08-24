@@ -1,5 +1,5 @@
 import {
-	getIdealMaximumFrameCacheItems,
+	getIdealMaximumFrameCacheSizeInBytes,
 	startLongRunningCompositor,
 } from './compositor/compositor';
 import type {
@@ -21,22 +21,22 @@ export const getSilentParts = async ({
 	noiseThresholdInDecibels?: number;
 }): Promise<GetSilentPartsResponse> => {
 	const compositor = startLongRunningCompositor(
-		getIdealMaximumFrameCacheItems(),
+		getIdealMaximumFrameCacheSizeInBytes(),
 		logLevel ?? 'info',
-		false
+		false,
 	);
 
 	const minDurationInSeconds = passedMinDuration ?? 1;
 
 	if (typeof minDurationInSeconds !== 'number') {
 		throw new Error(
-			`minDurationInSeconds must be a number, but was ${minDurationInSeconds}`
+			`minDurationInSeconds must be a number, but was ${minDurationInSeconds}`,
 		);
 	}
 
 	if (minDurationInSeconds <= 0) {
 		throw new Error(
-			`minDurationInSeconds must be greater than 0, but was ${minDurationInSeconds}`
+			`minDurationInSeconds must be greater than 0, but was ${minDurationInSeconds}`,
 		);
 	}
 
@@ -44,13 +44,13 @@ export const getSilentParts = async ({
 
 	if (typeof noiseThresholdInDecibels !== 'number') {
 		throw new Error(
-			`noiseThresholdInDecibels must be a number, but was ${noiseThresholdInDecibels}`
+			`noiseThresholdInDecibels must be a number, but was ${noiseThresholdInDecibels}`,
 		);
 	}
 
 	if (noiseThresholdInDecibels >= 30) {
 		throw new Error(
-			`noiseThresholdInDecibels must be less than 30, but was ${noiseThresholdInDecibels}`
+			`noiseThresholdInDecibels must be less than 30, but was ${noiseThresholdInDecibels}`,
 		);
 	}
 
@@ -61,7 +61,7 @@ export const getSilentParts = async ({
 	});
 
 	const response = JSON.parse(
-		res.toString('utf-8')
+		res.toString('utf-8'),
 	) as GetSilentPartsResponseRust;
 
 	compositor.finishCommands();

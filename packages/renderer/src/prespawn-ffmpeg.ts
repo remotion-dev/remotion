@@ -55,18 +55,18 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 	Internals.validateDimension(
 		options.height,
 		'height',
-		'passed to `stitchFramesToVideo()`'
+		'passed to `stitchFramesToVideo()`',
 	);
 	Internals.validateDimension(
 		options.width,
 		'width',
-		'passed to `stitchFramesToVideo()`'
+		'passed to `stitchFramesToVideo()`',
 	);
 	const codec = options.codec ?? DEFAULT_CODEC;
 	Internals.validateFps(
 		options.fps,
 		'in `stitchFramesToVideo()`',
-		codec === 'gif'
+		codec === 'gif',
 	);
 	validateEvenDimensionsWithCodec({
 		width: options.width,
@@ -120,7 +120,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			logLevel: options.logLevel,
 			tag: 'prespawnFfmpeg()',
 		},
-		'Generated FFMPEG command:'
+		'Generated FFMPEG command:',
 	);
 	Log.verboseAdvanced(
 		{
@@ -128,7 +128,7 @@ export const prespawnFfmpeg = (options: PreStitcherOptions) => {
 			logLevel: options.logLevel,
 			tag: 'prespawnFfmpeg()',
 		},
-		ffmpegArgs.join(' ')
+		ffmpegArgs.join(' '),
 	);
 
 	const ffmpegString = ffmpegArgs.flat(2).filter(Boolean) as string[];

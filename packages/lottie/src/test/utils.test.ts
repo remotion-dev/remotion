@@ -15,13 +15,13 @@ describe('getNextFrame', () => {
 	describe('when loop is truthy', () => {
 		it('returns the current frame if smaller than total frames', () => {
 			expect(
-				getNextFrame({currentFrame: 23, totalFrames: 56, loop: true})
+				getNextFrame({currentFrame: 23, totalFrames: 56, loop: true}),
 			).toBe(23);
 		});
 
 		it('returns the modulo if current frame is bigger than total frames', () => {
 			expect(
-				getNextFrame({currentFrame: 23, totalFrames: 20, loop: true})
+				getNextFrame({currentFrame: 23, totalFrames: 20, loop: true}),
 			).toBe(3);
 		});
 	});
@@ -29,13 +29,21 @@ describe('getNextFrame', () => {
 	describe('when direction is reverse and loop is falsy', () => {
 		it('returns the correct frame if current frame is smaller than total frames', () => {
 			expect(
-				getNextFrame({currentFrame: 15, totalFrames: 20, direction: 'backward'})
+				getNextFrame({
+					currentFrame: 15,
+					totalFrames: 20,
+					direction: 'backward',
+				}),
 			).toBe(5);
 		});
 
 		it('returns frame zero if current frame is bigger than total frames', () => {
 			expect(
-				getNextFrame({currentFrame: 23, totalFrames: 20, direction: 'backward'})
+				getNextFrame({
+					currentFrame: 23,
+					totalFrames: 20,
+					direction: 'backward',
+				}),
 			).toBe(0);
 		});
 	});
@@ -48,7 +56,7 @@ describe('getNextFrame', () => {
 					totalFrames: 20,
 					direction: 'backward',
 					loop: true,
-				})
+				}),
 			).toBe(5);
 		});
 
@@ -59,7 +67,7 @@ describe('getNextFrame', () => {
 					totalFrames: 20,
 					direction: 'backward',
 					loop: true,
-				})
+				}),
 			).toBe(17);
 		});
 	});

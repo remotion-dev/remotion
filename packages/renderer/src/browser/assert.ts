@@ -1,6 +1,6 @@
 export const assert: (value: unknown, message?: string) => asserts value = (
 	value,
-	message
+	message,
 ) => {
 	if (!value) {
 		throw new Error(message);

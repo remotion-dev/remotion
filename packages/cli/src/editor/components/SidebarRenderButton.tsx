@@ -69,7 +69,7 @@ export const SidebarRenderButton: React.FC<{
 					defaultExtension: isVideo
 						? BrowserSafeApis.getFileExtensionFromCodec(
 								initialVideoCodec,
-								defaults.audioCodec as AudioCodec
+								defaults.audioCodec as AudioCodec,
 						  )
 						: defaults.stillImageFormat,
 					type: 'asset',
@@ -95,20 +95,28 @@ export const SidebarRenderButton: React.FC<{
 				initialDisableWebSecurity: defaults.disableWebSecurity,
 				initialOpenGlRenderer: defaults.openGlRenderer as OpenGlRenderer | null,
 				initialHeadless: defaults.headless,
+				initialOffthreadVideoCacheSizeInBytes:
+					defaults.offthreadVideoCacheSizeInBytes,
 				initialIgnoreCertificateErrors: defaults.ignoreCertificateErrors,
 				defaultProps: props[composition.id] ?? composition.defaultProps,
 				inFrameMark: null,
 				outFrameMark: null,
 			});
 		},
-		[composition.defaultProps, composition.id, isVideo, props, setSelectedModal]
+		[
+			composition.defaultProps,
+			composition.id,
+			isVideo,
+			props,
+			setSelectedModal,
+		],
 	);
 
 	const renderAction: RenderInlineAction = useCallback(
 		(color) => {
 			return <ThinRenderIcon fill={color} svgProps={iconStyle} />;
 		},
-		[iconStyle]
+		[iconStyle],
 	);
 
 	if (!visible || connectionStatus !== 'connected') {

@@ -205,6 +205,10 @@ _optional_
 
 Inherited from [`npx remotion render`](/docs/cli/render#--audio-bitrate)
 
+### `--offthreadvideo-cache-size-in-bytes`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
+
 ### ~~`--ffmpeg-executable`~~
 
 _optional, removed in v4.0_

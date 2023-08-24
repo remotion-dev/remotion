@@ -16,7 +16,7 @@ export const makeTimeoutError = ({
 	renderId: string;
 }): EnhancedErrorInfo => {
 	const availableChunks = chunks.map((c) =>
-		parseLambdaChunkKey(c.Key as string)
+		parseLambdaChunkKey(c.Key as string),
 	);
 
 	const missingChunks = new Array(renderMetadata.totalChunks)

@@ -12,7 +12,7 @@ test('Should serialize instructions', () => {
 			{
 				type: 'Z',
 			},
-		])
+		]),
 	).toBe('M 100 100 Z');
 });
 
@@ -28,6 +28,6 @@ test('Should not serialize bad instructions', () => {
 				// @ts-expect-error
 				type: 'X',
 			},
-		])
+		]),
 	).toThrow(/Unknown instruction type: X/);
 });

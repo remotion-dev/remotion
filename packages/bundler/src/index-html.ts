@@ -26,6 +26,7 @@ export type RenderDefaults = {
 	disableWebSecurity: boolean;
 	openGlRenderer: string | null;
 	ignoreCertificateErrors: boolean;
+	offthreadVideoCacheSizeInBytes: number | null;
 	headless: boolean;
 };
 
@@ -91,10 +92,10 @@ ${
 				: '<script>window.remotion_editorName = null;</script>'
 		}
 		<script>window.remotion_projectName = ${JSON.stringify(
-			path.basename(remotionRoot)
+			path.basename(remotionRoot),
 		)};</script>
 		<script>window.remotion_renderDefaults = ${JSON.stringify(
-			renderDefaults
+			renderDefaults,
 		)};</script>
 		<script>window.remotion_cwd = ${JSON.stringify(remotionRoot)};</script>
 		<script>window.remotion_studioServerCommand = ${
@@ -103,7 +104,7 @@ ${
 		${
 			inputProps
 				? `<script>window.remotion_inputProps = ${JSON.stringify(
-						JSON.stringify(inputProps)
+						JSON.stringify(inputProps),
 				  )};</script>
 			`
 				: ''
@@ -111,7 +112,7 @@ ${
 		${
 			renderQueue
 				? `<script>window.remotion_initialRenderQueue = ${JSON.stringify(
-						renderQueue
+						renderQueue,
 				  )};</script>
 			`
 				: ''

@@ -3,7 +3,7 @@ import {Gif} from '@remotion/gif';
 import {AbsoluteFill, Audio, Sequence, Series, staticFile} from 'remotion';
 
 preloadVideo(
-	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4'
+	'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4',
 );
 
 preloadAudio(staticFile('sample.mp3'));

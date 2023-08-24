@@ -6,7 +6,7 @@ const Unblocker: React.FC = () => {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			const handle = delayRender(
-				`Waiting for <Suspense /> of <ThreeCanvas /> to resolve`
+				`Waiting for <Suspense /> of <ThreeCanvas /> to resolve`,
 			);
 			return () => {
 				continueRender(handle);

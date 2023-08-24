@@ -55,7 +55,7 @@ const makeLayerPublic = async () => {
 							: 'Contains Noto Sans font. Read Noto Sans License: https://fonts.google.com/noto/specimen/Noto+Sans/about',
 					CompatibleRuntimes: runtimes,
 					Description: VERSION,
-				})
+				}),
 			);
 			await getLambdaClient(region).send(
 				new AddLayerVersionPermissionCommand({
@@ -64,7 +64,7 @@ const makeLayerPublic = async () => {
 					Principal: '*',
 					VersionNumber: Version,
 					StatementId: 'public-layer',
-				})
+				}),
 			);
 			if (!layerInfo[region]) {
 				layerInfo[region] = [];

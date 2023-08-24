@@ -29,7 +29,7 @@ export const InlineEyeButton: React.FC<{
 				</svg>
 			);
 		},
-		[enabled]
+		[enabled],
 	);
 
 	return <InlineAction renderAction={renderAction} onClick={onClick} />;

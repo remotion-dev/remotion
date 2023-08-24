@@ -12,13 +12,13 @@ let listeners: {
 
 export const subscribeToEvent = (
 	type: EventSourceEvent['type'],
-	listener: (event: EventSourceEvent) => void
+	listener: (event: EventSourceEvent) => void,
 ) => {
 	listeners.push({type, listener});
 
 	return () => {
 		listeners = listeners.filter(
-			(l) => l.type !== type || l.listener !== listener
+			(l) => l.type !== type || l.listener !== listener,
 		);
 	};
 };
@@ -75,7 +75,7 @@ export const openEventSource = () => {
 					openEventSource();
 				}, 1000);
 			},
-			{once: true}
+			{once: true},
 		);
 	});
 };

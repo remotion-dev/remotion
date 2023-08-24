@@ -13,7 +13,7 @@ export const NumberOfLoopsSetting: React.FC<{
 		(newConcurrency: number) => {
 			setNumberOfGifLoops(newConcurrency);
 		},
-		[setNumberOfGifLoops]
+		[setNumberOfGifLoops],
 	);
 
 	const onNumberOfGifLoopsChanged = useCallback(
@@ -28,7 +28,7 @@ export const NumberOfLoopsSetting: React.FC<{
 				return newConcurrencyClamped;
 			});
 		},
-		[setNumberOfGifLoops]
+		[setNumberOfGifLoops],
 	);
 
 	return (

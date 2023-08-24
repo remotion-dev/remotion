@@ -11,6 +11,6 @@ describe('get asset file name test', () => {
 	testStrings.forEach((entry) =>
 		test(`test for ${entry[0]}`, () => {
 			expect(getAssetDisplayName(entry[0])).toEqual(entry[1]);
-		})
+		}),
 	);
 });

@@ -16,7 +16,7 @@ For every compositions their [`calculateMetadata()`](/docs/composition#calculate
 ```ts
 const getCompositions: (
   bundleOrServeUrl: string,
-  options?: GetCompositionsConfig
+  options?: GetCompositionsConfig,
 ) => Promise<TComposition[]>;
 ```
 
@@ -115,7 +115,7 @@ getCompositions({
         .map((stack) => {
           return `  ${stack.url}:${stack.lineNumber}:${stack.columnNumber}`;
         })
-        .join("\n")
+        .join("\n"),
     );
   },
 });
@@ -135,6 +135,10 @@ One of `verbose`, `info`, `warn`, `error`. Determines how much is being logged t
 _optional_
 
 Allows you to set certain Chromium / Google Chrome flags. See: [Chromium flags](/docs/chromium-flags).
+
+### `offthreadVideoCacheSizeInBytes?`<AvailableFrom v="4.0.23"/>
+
+<Options id="offthreadvideo-cache-size-in-bytes" />
 
 #### ~~`ffmpegExecutable`~~
 

@@ -28,7 +28,7 @@ const getAllFunctions = async ({
 	const lambdas = await getLambdaClient(region).send(
 		new ListFunctionsCommand({
 			Marker: nextMarker ?? undefined,
-		})
+		}),
 	);
 	if (!lambdas.Functions) {
 		return allLambdas;
@@ -57,7 +57,7 @@ const getAllFunctions = async ({
  * @returns {Promise<FunctionInfo[]>} An array with the objects containing information about the deployed functions.
  */
 export const getFunctions = async (
-	params: GetFunctionsInput
+	params: GetFunctionsInput,
 ): Promise<FunctionInfo[]> => {
 	const lambdas = await getAllFunctions({
 		existing: [],
@@ -80,7 +80,7 @@ export const getFunctions = async (
 			} catch (err) {
 				return null;
 			}
-		})
+		}),
 	);
 
 	const list = remotionLambdas.map((lambda, i): FunctionInfo => {

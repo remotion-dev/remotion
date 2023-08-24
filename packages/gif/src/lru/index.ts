@@ -98,7 +98,7 @@ export class QuickLRU<KeyType, ValueType>
 	}
 
 	private _emitEvictions(
-		cache: Map<KeyType, MapValue<ValueType>> | [KeyType, MapValue<ValueType>][]
+		cache: Map<KeyType, MapValue<ValueType>> | [KeyType, MapValue<ValueType>][],
 	) {
 		if (typeof this.onEviction !== 'function') {
 			return;
@@ -111,7 +111,7 @@ export class QuickLRU<KeyType, ValueType>
 
 	private _deleteIfExpired(
 		key: KeyType,
-		item: MapValue<ValueType> | undefined
+		item: MapValue<ValueType> | undefined,
 	) {
 		if (item === undefined) return true;
 		if (typeof item.expiry === 'number' && item.expiry <= Date.now()) {
@@ -204,7 +204,7 @@ export class QuickLRU<KeyType, ValueType>
 	set(
 		key: KeyType,
 		value: ValueType,
-		{maxAge = this.maxAge}: {maxAge?: number} = {}
+		{maxAge = this.maxAge}: {maxAge?: number} = {},
 	) {
 		const expiry =
 			typeof maxAge === 'number' && maxAge !== Number.POSITIVE_INFINITY

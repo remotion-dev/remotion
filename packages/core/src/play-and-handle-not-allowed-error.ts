@@ -2,7 +2,7 @@ import type {RefObject} from 'react';
 
 export const playAndHandleNotAllowedError = (
 	mediaRef: RefObject<HTMLVideoElement | HTMLAudioElement>,
-	mediaType: 'audio' | 'video'
+	mediaType: 'audio' | 'video',
 ) => {
 	const {current} = mediaRef;
 	if (!current) {
@@ -29,7 +29,7 @@ export const playAndHandleNotAllowedError = (
 			// Pause was called after play in Firefox
 			if (
 				err.message.includes(
-					'The fetching process for the media resource was aborted by the user agent'
+					'The fetching process for the media resource was aborted by the user agent',
 				)
 			) {
 				return;

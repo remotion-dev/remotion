@@ -49,7 +49,7 @@ test('Should be able to create an object', async () => {
 			b: z.number(),
 		}),
 		z,
-		zodTypes
+		zodTypes,
 	);
 	expect(hi).toEqual({a: '', b: 0});
 });
@@ -67,10 +67,10 @@ test('Should be able to create a union', async () => {
 	const zodTypes = await getZodTypes();
 
 	expect(createZodValues(z.union([z.string(), z.number()]), z, zodTypes)).toBe(
-		''
+		'',
 	);
 	expect(createZodValues(z.union([z.number(), z.string()]), z, zodTypes)).toBe(
-		0
+		0,
 	);
 	// @ts-expect-error union
 	expect(createZodValues(z.union([]), z, zodTypes)).toBe(undefined);
@@ -94,8 +94,8 @@ test('Should be able to create a discriminated union', async () => {
 				z.object({status: z.literal('failed'), error: z.instanceof(Error)}),
 			]),
 			z,
-			zodTypes
-		)
+			zodTypes,
+		),
 	).toEqual({status: 'success', data: ''});
 
 	expect(
@@ -105,13 +105,13 @@ test('Should be able to create a discriminated union', async () => {
 				z.object({status: z.literal('success'), data: z.string()}),
 			]),
 			z,
-			zodTypes
-		)
+			zodTypes,
+		),
 	).toEqual({status: 'failed', error: 0});
 
 	expect(() =>
 		// @ts-expect-error invalid zod type
-		createZodValues(z.discriminatedUnion('status', []), z, zodTypes)
+		createZodValues(z.discriminatedUnion('status', []), z, zodTypes),
 	).toThrow(/Invalid zod schema/);
 });
 
@@ -120,7 +120,7 @@ test('Zod instanceof', async () => {
 	const zodTypes = await getZodTypes();
 
 	expect(() => createZodValues(z.instanceof(Error), z, zodTypes)).toThrow(
-		/Cannot create a value for type z.any()/
+		/Cannot create a value for type z.any()/,
 	);
 });
 
@@ -191,7 +191,7 @@ test('Zod function', async () => {
 
 	const fn = z.function();
 	expect(() => createZodValues(fn, z, zodTypes)).toThrow(
-		/Cannot create a value for type function/
+		/Cannot create a value for type function/,
 	);
 });
 

@@ -10,7 +10,7 @@ import type {DownloadMap} from './download-map';
 import {sanitizeFilePath} from './sanitize-filepath';
 
 export type RenderMediaOnDownload = (
-	src: string
+	src: string,
 ) =>
 	| ((progress: {
 			percent: number | null;
@@ -35,7 +35,7 @@ const waitForAssetToBeDownloaded = ({
 
 	if (downloadMap.hasBeenDownloadedMap[src]?.[downloadDir]) {
 		return Promise.resolve(
-			downloadMap.hasBeenDownloadedMap[src]?.[downloadDir] as string
+			downloadMap.hasBeenDownloadedMap[src]?.[downloadDir] as string,
 		);
 	}
 
@@ -52,7 +52,7 @@ const waitForAssetToBeDownloaded = ({
 			const srcMap = downloadMap.hasBeenDownloadedMap[src];
 			if (!srcMap?.[downloadDir]) {
 				throw new Error(
-					'Expected file for ' + src + 'to be available in ' + downloadDir
+					'Expected file for ' + src + 'to be available in ' + downloadDir,
 				);
 			}
 
@@ -118,7 +118,7 @@ const validateMimeType = (mimeType: string, src: string) => {
 
 function validateBufferEncoding(
 	potentialEncoding: string,
-	dataUrl: string
+	dataUrl: string,
 ): asserts potentialEncoding is BufferEncoding {
 	const asserted = potentialEncoding as BufferEncoding;
 	const validEncodings: BufferEncoding[] = [
@@ -237,7 +237,7 @@ export const downloadAsset = async ({
 				src,
 				progress.percent,
 				progress.downloaded,
-				progress.totalSize
+				progress.totalSize,
 			);
 		},
 		to: (contentDisposition, contentType) =>
@@ -277,7 +277,7 @@ const getFilename = ({
 	if (contentDisposition?.includes(filenameProbe)) {
 		const start = contentDisposition.indexOf(filenameProbe);
 		const onlyFromFileName = contentDisposition.substring(
-			start + filenameProbe.length
+			start + filenameProbe.length,
 		);
 
 		const hasSemi = onlyFromFileName.indexOf(';');
@@ -336,7 +336,7 @@ export const getSanitizedFilenameForAssetUrl = ({
 			: '';
 	const hashedFileName = String(random(`${pathname}${search}`)).replace(
 		'0.',
-		''
+		'',
 	);
 
 	const filename = hashedFileName + fileExtension;
@@ -368,7 +368,7 @@ export const downloadAndMapAssetsToFileUrl = async ({
 
 export const attachDownloadListenerToEmitter = (
 	downloadMap: DownloadMap,
-	onDownload: RenderMediaOnDownload | null
+	onDownload: RenderMediaOnDownload | null,
 ) => {
 	const cleanup: CleanupFn[] = [];
 	if (!onDownload) {
@@ -382,7 +382,7 @@ export const attachDownloadListenerToEmitter = (
 	downloadMap.downloadListeners.push(onDownload);
 	cleanup.push(() => {
 		downloadMap.downloadListeners = downloadMap.downloadListeners.filter(
-			(l) => l !== onDownload
+			(l) => l !== onDownload,
 		);
 	});
 
@@ -396,10 +396,10 @@ export const attachDownloadListenerToEmitter = (
 					if (initialSrc === progressSrc) {
 						progress?.({downloaded, percent, totalSize});
 					}
-				}
+				},
 			);
 			cleanup.push(b);
-		}
+		},
 	);
 	cleanup.push(() => a());
 

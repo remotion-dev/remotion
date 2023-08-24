@@ -22,7 +22,7 @@ export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 							},
 							async () => {
 								const src = require.resolve(
-									'canvaskit-wasm/bin/full/canvaskit.wasm'
+									'canvaskit-wasm/bin/full/canvaskit.wasm',
 								);
 								if (compilation.getAsset(src)) {
 									// Skip emitting the asset again because it's immutable
@@ -31,9 +31,11 @@ export const enableSkia: WebpackOverrideFn = (currentConfiguration) => {
 
 								compilation.emitAsset(
 									'/canvaskit.wasm',
-									new webpack.sources.RawSource(await fs.promises.readFile(src))
+									new webpack.sources.RawSource(
+										await fs.promises.readFile(src),
+									),
 								);
-							}
+							},
 						);
 					});
 				}
