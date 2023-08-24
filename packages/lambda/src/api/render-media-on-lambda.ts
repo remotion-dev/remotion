@@ -12,18 +12,12 @@ import type {
 import type {BrowserSafeApis} from '@remotion/renderer/client';
 import type {AwsRegion} from '../pricing/aws-regions';
 import {callLambda} from '../shared/call-lambda';
-import type {OutNameInput, Privacy} from '../shared/constants';
+import type {OutNameInput, Privacy, WebhookOption} from '../shared/constants';
 import {LambdaRoutines} from '../shared/constants';
 import type {DownloadBehavior} from '../shared/content-disposition-header';
 import {getCloudwatchRendererUrl, getS3RenderUrl} from '../shared/get-aws-urls';
 import type {LambdaCodec} from '../shared/validate-lambda-codec';
 import {makeLambdaRenderMediaPayload} from './make-lambda-payload';
-
-export type LambdaWebhookOption = {
-	url: string;
-	secret: string | null;
-	customData?: Record<string, unknown>;
-};
 
 export type RenderMediaOnLambdaInput = {
 	region: AwsRegion;
@@ -60,7 +54,7 @@ export type RenderMediaOnLambdaInput = {
 	overwrite?: boolean;
 	audioBitrate?: string | null;
 	videoBitrate?: string | null;
-	webhook?: LambdaWebhookOption | null;
+	webhook?: WebhookOption | null;
 	forceWidth?: number | null;
 	forceHeight?: number | null;
 	rendererFunctionName?: string | null;
