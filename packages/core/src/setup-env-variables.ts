@@ -11,7 +11,7 @@ const getEnvVariables = (): Record<string, string> => {
 	}
 
 	if (getRemotionEnvironment().isStudio) {
-		// For the Stuido, we already set the environment variables in index-html.ts.
+		// For the Studio, we already set the environment variables in index-html.ts.
 		// We just add NODE_ENV here.
 		return {
 			NODE_ENV: 'development',
