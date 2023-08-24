@@ -1,13 +1,9 @@
-import {Internals} from 'remotion';
+import {validateDimension} from '../validate';
 
 let specifiedHeight: number | null;
 
 export const overrideHeight = (newHeight: number) => {
-	Internals.validateDimension(
-		newHeight,
-		'height',
-		'passed to `overrideHeight()`',
-	);
+	validateDimension(newHeight, 'height', 'passed to `overrideHeight()`');
 
 	specifiedHeight = newHeight;
 };
