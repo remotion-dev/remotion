@@ -64,11 +64,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 
 		return (
 			<Loop layout="none" durationInFrames={Math.floor(actualDuration)}>
-				<Audio
-					_remotionInternalNeedsDurationCalculation
-					{...propsOtherThanLoop}
-					ref={ref}
-				/>
+				<Audio {...propsOtherThanLoop} ref={ref} />
 			</Loop>
 		);
 	}
@@ -85,7 +81,11 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				showInTimeline={false}
 				durationInFrames={endAtFrameNo}
 			>
-				<Audio {...otherProps} ref={ref} />
+				<Audio
+					_remotionInternalNeedsDurationCalculation={Boolean(loop)}
+					{...otherProps}
+					ref={ref}
+				/>
 			</Sequence>
 		);
 	}
@@ -99,6 +99,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 				{...props}
 				ref={ref}
 				onError={onError}
+				_remotionInternalNeedsDurationCalculation={Boolean(loop)}
 			/>
 		);
 	}
@@ -112,6 +113,7 @@ const AudioRefForwardingFunction: React.ForwardRefRenderFunction<
 			ref={ref}
 			onError={onError}
 			onDuration={onDuration}
+			_remotionInternalNeedsDurationCalculation={Boolean(loop)}
 		/>
 	);
 };
