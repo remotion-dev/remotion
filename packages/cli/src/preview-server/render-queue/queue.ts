@@ -15,7 +15,7 @@ let jobQueue: RenderJobWithCleanup[] = [];
 
 const updateJob = (
 	id: string,
-	updater: (job: RenderJobWithCleanup) => RenderJobWithCleanup
+	updater: (job: RenderJobWithCleanup) => RenderJobWithCleanup,
 ) => {
 	jobQueue = jobQueue.map((j) => {
 		if (id === j.id) {
