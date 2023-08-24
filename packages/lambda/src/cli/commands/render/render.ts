@@ -21,6 +21,7 @@ import {validateServeUrl} from '../../../shared/validate-serveurl';
 import {parsedLambdaCli} from '../../args';
 import {getAwsRegion} from '../../get-aws-region';
 import {findFunctionName} from '../../helpers/find-function-name';
+import {getWebhookCustomData} from '../../helpers/get-webhook-custom-data';
 import {quit} from '../../helpers/quit';
 import {Log} from '../../log';
 import {makeMultiProgressFromStatus, makeProgressString} from './progress';
@@ -146,6 +147,8 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 	const framesPerLambda = parsedLambdaCli['frames-per-lambda'] ?? undefined;
 	validateFramesPerLambda({framesPerLambda, durationInFrames: 1});
 
+	const webhookCustomData = getWebhookCustomData();
+
 	const res = await renderMediaOnLambda({
 		functionName,
 		serveUrl,
@@ -181,6 +184,7 @@ export const renderCommand = async (args: string[], remotionRoot: string) => {
 			? {
 					url: parsedLambdaCli.webhook,
 					secret: parsedLambdaCli['webhook-secret'] ?? null,
+					customData: webhookCustomData,
 			  }
 			: undefined,
 		rendererFunctionName: parsedLambdaCli['renderer-function-name'] ?? null,

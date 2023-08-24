@@ -47,6 +47,7 @@ export type WebhookPayload = {
 	renderId: string;
 	expectedBucketOwner: string;
 	bucketName: string;
+	customData: Record<string, unknown> | null;
 } & DynamicWebhookPayload;
 
 const getWebhookClient = (url: string) => {

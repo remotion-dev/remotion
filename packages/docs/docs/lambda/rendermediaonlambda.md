@@ -315,6 +315,10 @@ import { RenderMediaOnLambdaInput } from "@remotion/lambda";
 const webhook: RenderMediaOnLambdaInput["webhook"] = {
   url: "https://mapsnap.app/api/webhook",
   secret: process.env.WEBHOOK_SECRET as string,
+  // Optionally pass up to 1024 bytes of custom data
+  customData: {
+    id: 42,
+  },
 };
 ```
 
