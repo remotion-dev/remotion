@@ -14,7 +14,7 @@ import {
 	useMediaStartsAt,
 } from '../audio/use-audio-frame.js';
 import {continueRender, delayRender} from '../delay-render.js';
-import {useRemotionEnvironment} from '../get-environment.js';
+import {getRemotionEnvironment} from '../get-remotion-environment.js';
 import {isApproximatelyTheSame} from '../is-approximately-the-same.js';
 import {random} from '../random.js';
 import {RenderAssetManager} from '../RenderAssetManager.js';
@@ -53,7 +53,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const videoRef = useRef<HTMLVideoElement>(null);
 	const sequenceContext = useContext(SequenceContext);
 	const mediaStartsAt = useMediaStartsAt();
-	const environment = useRemotionEnvironment();
+	const environment = getRemotionEnvironment();
 
 	const {registerRenderAsset, unregisterRenderAsset} =
 		useContext(RenderAssetManager);
@@ -241,7 +241,7 @@ const VideoForRenderingForwardFunction: React.ForwardRefRenderFunction<
 	const {src} = props;
 
 	// If video source switches, make new handle
-	if (environment === 'rendering') {
+	if (environment.isRendering) {
 		// eslint-disable-next-line react-hooks/rules-of-hooks
 		useLayoutEffect(() => {
 			if (process.env.NODE_ENV === 'test') {
