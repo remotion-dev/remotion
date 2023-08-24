@@ -19,15 +19,15 @@ import {CompositionManager} from './CompositionManagerContext.js';
 import * as CSSUtils from './default-css.js';
 import {DELAY_RENDER_CALLSTACK_TOKEN} from './delay-render.js';
 import {EditorPropsContext, EditorPropsProvider} from './EditorProps.js';
+import type {RemotionEnvironment} from './get-environment.js';
+import {
+	getRemotionEnvironment,
+	useRemotionEnvironment,
+} from './get-environment.js';
 import {
 	getPreviewDomElement,
 	REMOTION_STUDIO_CONTAINER_ELEMENT,
 } from './get-preview-dom-element.js';
-import type {RemotionEnvironment} from './get-remotion-environment.js';
-import {
-	getRemotionEnvironment,
-	useRemotionEnvironment,
-} from './get-remotion-environment.js';
 import type {SerializedJSONWithCustomFields} from './input-props-serialization.js';
 import {
 	DATE_TOKEN,
